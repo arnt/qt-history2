@@ -1465,10 +1465,13 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int )
 	return;
     }
 
+    int windowPos = 0;
+
     //change position in list:
     QWSWindow *w = windows.first();
     while ( w ) {
 	if ( w == changingw ) {
+	    windowPos = windows.at();
 	    windows.take();
 	    break;
 	}
@@ -1493,8 +1496,13 @@ void QWSServer::raiseWindow( QWSWindow *changingw, int )
 	    windows.append( changingw );
     }
 
-    setWindowRegion( changingw, changingw->requested_region );
-    syncRegions( changingw );
+    if ( windowPos != windows.at() ) {
+	setWindowRegion( changingw, changingw->requested_region );
+	syncRegions( changingw );
+    } else {
+	// window didn't change position
+	changingw->updateAllocation(); // still need ack
+    }
 }
 
 void QWSServer::lowerWindow( QWSWindow *changingw, int )

@@ -118,6 +118,7 @@ public:
     void selectCursor( QWidget *w, unsigned int id );
     void grabMouse( QWidget *w, bool grab );
     void playSoundFile( const QString& );
+    void setCaption( QWidget *w, const QString & );
 
     // Lock display for access only by this process
     static bool initLock( const QString &filename, bool create = FALSE );

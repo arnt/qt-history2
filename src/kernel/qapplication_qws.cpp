@@ -897,6 +897,11 @@ void QWSDisplay::playSoundFile(const QString& f)
 }
 #endif
 
+void QWSDisplay::setCaption( QWidget *w, const QString & )
+{
+    ((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect());
+}
+
 void QWSDisplay::selectCursor( QWidget *w, unsigned int cursId )
 {
     if (cursId != qt_last_cursor)
@@ -3020,8 +3025,8 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 		event->rectangles[i].width(),
 		event->rectangles[i].height() );
 	*/
-	repaintHierarchy( exposed );
 	repaintDecoration( exposed );
+	repaintHierarchy( exposed );
     }
 
     return TRUE;
