@@ -178,7 +178,7 @@ The Qt API consists of the following modules:
 <dt><a href="imageio.html">Image IO Extension Package</a>
 <dd> Image input/output facilities for additional image file formats.
 <dt><a href="nsplugin.html">LiveConnect Plugins</a>
-<dd> Qt-based web browser plugins for Netscape and MS Internet Explorer</a>
+<dd> Qt-based web browser plugins for Netscape and MS Internet Explorer
 <dt><a href="xt.html">Xt/Motif Legacy Code Support (X11R6 only)</a>
 <dd> Assists the migration of old Xt and Motif based code to the more
 comfortable Qt toolkit.
