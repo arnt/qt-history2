@@ -457,7 +457,7 @@ void QProgressDialog::setBar( QProgressBar *bar )
   \sa setProgress()
 */
 
-bool QProgressDialog::wasCancelled() const
+bool QProgressDialog::wasCanceled() const
 {
     return d->cancellation_flag;
 }

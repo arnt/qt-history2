@@ -52,8 +52,8 @@ public:
     void	setBar( QProgressBar * );
 
     // ### Qt 4.0: remove wasCancelled() in 4.0
-    bool	wasCancelled() const;
-    inline bool	wasCanceled() const { return wasCancelled(); }
+    bool	wasCanceled() const;
+    inline bool	wasCancelled() const { return wasCanceled(); }
 
     int		totalSteps() const;
     int		progress()   const;
