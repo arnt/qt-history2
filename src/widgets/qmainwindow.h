@@ -28,9 +28,8 @@
 
 #if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && defined(QLIST_H)
 #warning Qt warning:
-#warning Headers qvaluelist.h or qmap.h are included before qvariant.h.
-#warning The compiler you are using lacks proper template support.
-#warning You will probably see errors now...
+#warning Header file qlist.h is included before qmainwindow.h.
+#warning This will cause errors on this compiler because of improper template support.
 #warning Try changing the order of inclusion of your header files.
 #endif
 

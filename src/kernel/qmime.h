@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qlist.h"
 #endif // QT_H
 
 class Q_EXPORT QMimeSource {
@@ -71,11 +72,6 @@ private:
 };
 
 #ifdef _WS_WIN_
-
-// This header file is down here for GCC 2.7.* compatibility
-#ifndef QT_H
-#include "qlist.h"
-#endif // QT_H
 
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.

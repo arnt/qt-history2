@@ -28,9 +28,8 @@
 
 #if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && ( defined(QVALUELIST_H) || defined(QMAP_H) )
 #warning Qt warning:
-#warning Headers qvaluelist.h or qmap.h are included before qvariant.h.
-#warning The compiler you are using lacks proper template support.
-#warning You will probably see errors now...
+#warning Header file qvaluelist.h or qmap.h is included before qvariant.h.
+#warning This will cause errors on this compiler because of improper template support.
 #warning Try changing the order of inclusion of your header files.
 #endif
 
@@ -56,7 +55,8 @@ class QDataStream;
 class QPointArray;
 class QRegion;
 class QBitmap;
-// Relevant header files removed from above for GCC 2.7.* compatibility, so...
+// Relevant header files rejected after QVariant declaration
+// for GCC 2.7.* compatibility
 class QVariant;
 class QVariantTypeBase;
 class QVariantValueBase;

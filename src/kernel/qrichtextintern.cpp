@@ -443,7 +443,7 @@ private:
 };
 
 
-// moved from qrichtext.cpp for GCC 2.7.2.3 compatibility
+// moved from qrichtext.cpp for GCC 2.7.* compatibility
 class QTextTableCell : public QLayoutItem
 {
 public:
