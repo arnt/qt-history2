@@ -1128,16 +1128,6 @@ QVariant QTreeWidgetItem::data(int column, int role) const
 }
 
 /*!
-  Removes all item data.
-*/
-void QTreeWidgetItem::clear()
-{
-    values.clear();
-    if (model)
-        model->emitDataChanged(this, -1);
-}
-
-/*!
   Returns true if the text in the item is less than the text in the
   \a other item, otherwise returns false.
 */

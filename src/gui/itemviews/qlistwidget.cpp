@@ -387,16 +387,6 @@ QVariant QListWidgetItem::data(int role) const
 }
 
 /*!
-  Removes all list items.
-*/
-void QListWidgetItem::clear()
-{
-    values.clear();
-    if (model)
-        model->itemChanged(this);
-}
-
-/*!
   Returns true if this item's text is less then \a other item's text;
   otherwise returns false.
 */

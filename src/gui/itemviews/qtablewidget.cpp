@@ -825,16 +825,6 @@ QVariant QTableWidgetItem::data(int role) const
 }
 
 /*!
-    Clears all the item's information.
-*/
-void QTableWidgetItem::clear()
-{
-    values.clear();
-    if (model)
-        model->itemChanged(this);
-}
-
-/*!
     Returns true if the item is less than the \a other item; otherwise returns
     false.
 */
