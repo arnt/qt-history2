@@ -511,9 +511,19 @@ void ConfigureApp::generateMakefiles()
 	makeList += qtDir + "/src";
 	makeList += "qt.pro";
 	makeList += "Makefile";
+	if( dictionary[ "DSPFILES" ] == "yes" ) {
+	    makeList += qtDir + "/src";
+	    makeList += "qt.pro";
+	    makeList += "qt.dsp";
+	}
 	makeList += qtDir + "/src";
 	makeList += "qtmain.pro";
 	makeList += "Makefile.main";
+	if( dictionary[ "DSPFILES" ] == "yes" ) {
+	    makeList += qtDir + "/src";
+	    makeList += "qtmain.pro";
+	    makeList += "qtmain.dsp";
+	}
     }
     else
 	findProjects( qtDir );
@@ -603,7 +613,10 @@ void ConfigureApp::qmakeDone()
 	args << dictionary[ "QMAKESPEC" ];
 	if( makefileName.right( 4 ) == ".dsp" ) {
 	    args << "-t";
-	    args << "vcapp";
+	    if( isProjectLibrary( projectName ) )
+		args << "vclib";
+	    else
+		args << "vcapp";
 	}
 	else
 	    cout << "For " << projectName.latin1() << endl;
@@ -643,4 +656,30 @@ void ConfigureApp::copyDefsFile()
 	}
 	src.close();
     }
+}
+
+bool ConfigureApp::isProjectLibrary( const QString& proFileName )
+{
+    QFile proFile( proFileName );
+    QString buffer;
+
+    if( proFile.open( IO_ReadOnly ) ) {
+	while( proFile.readLine( buffer, 1024 ) ) {
+	    QStringList segments = QStringList::split( QRegExp( "\\s" ), buffer );
+	    QStringList::Iterator it = segments.begin();
+
+	    QString keyword = (*it++);
+	    QString operation = (*it++);
+	    QString value = (*it++);
+
+	    if( keyword == "TEMPLATE" ) {
+		if( value == "lib" )
+		    return true;
+		else
+		    return false;
+	    }
+	}
+	proFile.close();
+    }
+    return false;
 }

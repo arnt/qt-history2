@@ -23,6 +23,8 @@ public:
     void showSummary();
     void findProjects( const QString& dirName );
     void copyDefsFile();
+
+    bool isProjectLibrary( const QString& proFileName );
 private:
     QProcess qmakeBuilder;
     QProcess qmake;
