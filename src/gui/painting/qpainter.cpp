@@ -1368,7 +1368,7 @@ void QPainter::drawPath(const QPainterPath &path)
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
-        for (int i=0; fills.size(); ++i) {
+        for (int i=0; i<fills.size(); ++i) {
             if (d->engine->emulationSpecifier)
                 d->draw_helper(&fills.at(i), path.fillMode() == QPainterPath::Winding,
                                QPainterPrivate::PolygonShape);
