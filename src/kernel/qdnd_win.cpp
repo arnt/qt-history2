@@ -478,12 +478,14 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     updatePixmap();
 #ifdef Q_OS_TEMP
     HRESULT r = 0;
-	result_effect = 0;
+    result_effect = 0;
 #else
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
 #endif
-    QDragResponseEvent e( r == DRAGDROP_S_DROP );
-    QApplication::sendEvent( dragSource, &e );
+    if ( dragSource ) {
+	QDragResponseEvent e( r == DRAGDROP_S_DROP );
+	QApplication::sendEvent( dragSource, &e );
+    }
     obj->Release();	// Will delete obj if refcount becomes 0
     src->Release();	// Will delete src if refcount becomes 0
     if ( !global_src->target() )
