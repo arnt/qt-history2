@@ -39,6 +39,9 @@
 # undef truncate
 #endif
 
+extern Drawable qt_x11Handle(const QPaintDevice *pd);
+extern QX11Info *qt_x11Info(const QPaintDevice *pd);
+
 /*
   The choose_cmap function is internal and used by QGLWidget::setContext()
   and GLX (not Windows).  If the application can't find any sharable
@@ -260,7 +263,7 @@ bool QGLFormat::hasOpenGLOverlays()
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
-    QX11Info *xinfo = d->paintDevice->x11Info();
+    QX11Info *xinfo = qt_x11Info(d->paintDevice);
 
     Display* disp = xinfo->display();
     vi = chooseVisual();
@@ -335,11 +338,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if (deviceIsPixmap()) {
 #if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
         gpm = glXCreateGLXPixmapMESA(disp, (XVisualInfo *)vi,
-                                      d->paintDevice->handle(),
+                                      qt_x11Handle(d->paintDevice),
                                       choose_cmap(disp, (XVisualInfo *)vi));
 #else
         gpm = (Q_UINT32)glXCreateGLXPixmap(disp, (XVisualInfo *)vi,
-                                            d->paintDevice->handle());
+                                            qt_x11Handle(d->paintDevice));
 #endif
         if (!gpm)
             return false;
@@ -433,7 +436,7 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
     int i = 0;
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
-    QX11Info *xinfo = d->paintDevice->x11Info();
+    QX11Info *xinfo = qt_x11Info(d->paintDevice);
 
 #if defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
     static bool useTranspExt = false;
@@ -520,7 +523,7 @@ void QGLContext::reset()
 {
     if (!d->valid)
         return;
-    QX11Info *xinfo = d->paintDevice->x11Info();
+    QX11Info *xinfo = qt_x11Info(d->paintDevice);
     doneCurrent();
     if (gpm)
         glXDestroyGLXPixmap(xinfo->display(), (GLXPixmap)gpm);
@@ -544,7 +547,7 @@ void QGLContext::makeCurrent()
         qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
         return;
     }
-    QX11Info *xinfo = d->paintDevice->x11Info();
+    QX11Info *xinfo = qt_x11Info(d->paintDevice);
     bool ok = true;
     if (deviceIsPixmap())
         ok = glXMakeCurrent(xinfo->display(), (GLXPixmap)gpm, (GLXContext)cx);
@@ -560,7 +563,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
-    glXMakeCurrent(d->paintDevice->x11Info()->display(), 0, 0);
+    glXMakeCurrent(qt_x11Info(d->paintDevice)->display(), 0, 0);
     currentCtx = 0;
 }
 
@@ -570,8 +573,8 @@ void QGLContext::swapBuffers() const
     if (!d->valid)
         return;
     if (!deviceIsPixmap())
-        glXSwapBuffers(d->paintDevice->x11Info()->display(),
-		       ((QWidget *)d->paintDevice)->winId());
+        glXSwapBuffers(qt_x11Info(d->paintDevice)->display(),
+		       static_cast<QWidget *>(d->paintDevice)->winId());
 }
 
 QColor QGLContext::overlayTransparentColor() const
@@ -590,7 +593,7 @@ QColor QGLContext::overlayTransparentColor() const
                 col.pixel = trans_colors[i].color;
                 col.red = col.green = col.blue = 0;
                 col.flags = 0;
-                Display *dpy = d->paintDevice->x11Info()->display();
+                Display *dpy = qt_x11Info(d->paintDevice)->display();
                 if (col.pixel > (uint) ((XVisualInfo *)vi)->colormap_size - 1)
                     col.pixel = ((XVisualInfo *)vi)->colormap_size - 1;
                 XQueryColor(dpy, choose_cmap(dpy, (XVisualInfo *) vi), &col);

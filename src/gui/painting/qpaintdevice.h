@@ -50,13 +50,6 @@ public:
 #endif
 #endif
 
-    Qt::HANDLE handle() const;
-#if defined(Q_WS_X11)
-    QX11Info *x11Info() const;
-#elif defined(Q_WS_MAC)
-    Qt::HANDLE macCGHandle() const;
-#endif
-
 protected:
     QPaintDevice(uint devflags);
     virtual int metric(int) const;

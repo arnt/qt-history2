@@ -52,6 +52,9 @@
 #define d d_func()
 #define q q_func()
 
+extern Drawable qt_x11Handle(const QPaintDevice *pd);
+extern QX11Info *qt_x11Info(const QPaintDevice *pd);
+
 // paintevent magic to provide Windows semantics on X11
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
@@ -399,8 +402,6 @@ static inline void release_gc(void *ref)
     ((QGCC*)ref)->count--;
 }
 
-
-
 // ########
 void qt_erase_background(QPaintDevice *pd, int screen,
                          int x, int y, int w, int h,
@@ -414,7 +415,7 @@ void qt_erase_background(QPaintDevice *pd, int screen,
 	return;
     }
 
-    Qt::HANDLE hd = pd->handle();
+    Qt::HANDLE hd = qt_x11Handle(pd);
     Display *dpy = QX11Info::appDisplay();
     GC gc;
     void *penref = 0;
@@ -538,8 +539,8 @@ void QX11PaintEngine::cleanup()
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
     d->pdev = pdev;
-    d->xinfo = pdev->x11Info();
-    d->hd = pdev->handle();
+    d->xinfo = qt_x11Info(pdev);
+    d->hd = qt_x11Handle(pdev);
     if (pdev->devType() == QInternal::Widget)
         d->xft_hd = static_cast<const QWidget *>(pdev)->xftDrawHandle();
     else if (pdev->devType() == QInternal::Pixmap)
@@ -1307,9 +1308,9 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     // since we can't scale pixmaps this should always hold
     Q_ASSERT(r.width() == sr.width() && r.height() == sr.height());
 
-    if (d->pdev->x11Info() && d->pdev->x11Info()->screen() != pixmap.x11Info()->screen()) {
+    if (d->xinfo && d->xinfo->screen() != pixmap.x11Info()->screen()) {
         QPixmap* p = const_cast<QPixmap *>(&pixmap);
-        p->x11SetScreen(d->pdev->x11Info()->screen());
+        p->x11SetScreen(d->xinfo->screen());
     }
 
     QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());
