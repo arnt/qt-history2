@@ -365,63 +365,56 @@ void QMenu::setIcon(const QIcon &icon)
 
 
 //actually performs the scrolling
-void QMenuPrivate::scrollMenu(uint dir)
+void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, QMenuScroller::ScrollDirection grow)
 {
-    if(!scroll || !(scroll->scrollFlags & dir)) //not really possible...
-        return;
-
-    //figure out how much to offset..
-    int soff = 0, scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
-    if(dir == QMenuScroller::ScrollUp) {
+    int newOffset = 0;
+    const int scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
+    const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
+    const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
+    if(location == QMenuScroller::ScrollTop) {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
-            saccum -= actionRects.value(act).height();
-            if(saccum <= scroll->scrollOffset-scrollHeight) {
-                soff = saccum - scroll->scrollOffset;
+            if(act == action) {
+                newOffset = topScroll - saccum;
                 break;
             }
+            saccum += actionRects.value(act).height();
         }
-    } else if(dir == QMenuScroller::ScrollDown) {
+    } else {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             saccum += actionRects.value(act).height();
-            if(saccum >= -scroll->scrollOffset) {
-                saccum = scroll->scrollOffset + saccum;
-                int scrollerArea = q->height() - scrollHeight;
-                for(i++ ; i < actionList.count(); i++) {
-                    act = actionList.at(i);
-                    saccum += actionRects.value(act).height();
-                    if(saccum > scrollerArea) {
-                        soff = -(scrollerArea - saccum);
-                        break;
-                    }
-                }
+            if(act == action) {
+                newOffset = (q->height() - botScroll) - saccum;
                 break;
             }
         }
     }
 
-     //we can do resizing magic (ala Panther)
-    int dh = QApplication::desktop()->height();
-    const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
-    if(q->height() < dh-(desktopFrame*2)) {
-        QRect geom = q->geometry();
-        if(dir == QMenuScroller::ScrollUp) {
-            geom.setHeight(qMin(geom.height()-soff, dh-(desktopFrame*2)));
-        } else if(dir == QMenuScroller::ScrollDown) {
-            geom.setTop(qMax(desktopFrame, geom.top()-soff));
-            if(geom != q->geometry())
-                soff = 0;
+    if(grow != QMenuScroller::ScrollNone) { //we can do resizing magic (ala Panther)
+        int dh = QApplication::desktop()->height();
+        const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
+        if(q->height() < dh-(desktopFrame*2)) {
+            QRect geom = q->geometry();
+            if(grow == QMenuScroller::ScrollDown) {
+                geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
+            } else { 
+                geom.setTop(geom.top() + (scroll->scrollOffset-newOffset));
+                if(geom != q->geometry())
+                    newOffset = 0;
+            }
+            if(geom.bottom() > dh - (desktopFrame*2))
+                geom.setBottom(dh - (desktopFrame*2));
+            if(geom.top() < dh - desktopFrame)
+                geom.setTop(dh - desktopFrame);
+            q->setGeometry(geom);
         }
-        q->setGeometry(geom);
     }
 
     //actually offset some things now (if necessary)
-    if(soff) {
-        scroll->scrollOffset -= soff;
-        if(scroll->scrollOffset > 0)
-            scroll->scrollOffset = 0;
-    }
+    scroll->scrollOffset = newOffset;
+    if(scroll->scrollOffset > 0)
+        scroll->scrollOffset = 0;
 
     //finally update the scroller status
     scroll->scrollFlags = QMenuScroller::ScrollNone;
@@ -434,6 +427,47 @@ void QMenuPrivate::scrollMenu(uint dir)
         }
     }
     q->update();     //issue an update so we see all the new state..
+}
+
+//only directional
+void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool)
+{
+    if(!scroll || !(scroll->scrollFlags & direction)) //not really possible...
+        return;
+    const int scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
+    const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
+    const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
+    if(direction == QMenuScroller::ScrollUp) {
+        for(int i = 0, saccum = 0; i < actionList.count(); i++) {
+            QAction *act = actionList.at(i);
+            const int iHeight = actionRects.value(act).height();
+            saccum -= iHeight;
+            if(saccum <= scroll->scrollOffset-topScroll) {
+                scrollMenu(act, QMenuScroller::ScrollTop, direction);
+                break;
+            }
+        }
+    } else if(direction == QMenuScroller::ScrollDown) {
+        for(int i = 0, saccum = 0; i < actionList.count(); i++) {
+            QAction *act = actionList.at(i);
+            const int iHeight = actionRects.value(act).height();
+            if(saccum <= scroll->scrollOffset-topScroll) {
+                const int scrollerArea = q->height() - botScroll;
+                int visible = -(((scroll->scrollOffset-topScroll) - saccum) - iHeight);
+                for(i++ ; i < actionList.count(); i++) {
+                    act = actionList.at(i);
+                    const int iHeight = actionRects.value(act).height();
+                    visible += iHeight;
+                    if(visible >= scrollerArea) {
+                        scrollMenu(act, QMenuScroller::ScrollBottom, direction);
+                        break;
+                    }
+                }
+                break;
+            }
+            saccum -= iHeight;
+        }
+    }
 }
 
 /* This is poor-mans eventfilters. This avoids the use of
@@ -1133,10 +1167,6 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             }
         }
     }
-    if(d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
-        d->scroll->scrollFlags = d->scroll->scrollFlags | QMenuPrivate::QMenuScroller::ScrollDown;
-        size.setHeight(screen.height()-desktopFrame-pos.y());
-    }
 
     QPoint mouse = QCursor::pos();
     bool snapToMouse = (p == mouse);
@@ -1151,6 +1181,10 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
             pos.setX(mouse.x());
         if(pos.y() < screen.top() + desktopFrame)
             pos.setY(screen.top() + desktopFrame);
+    }
+    if(d->scroll && pos.y()+size.height() > screen.height()-(desktopFrame*2)) {
+        d->scroll->scrollFlags |= QMenuPrivate::QMenuScroller::ScrollDown;
+        size.setHeight(screen.height()-desktopFrame-pos.y());
     }
     setGeometry(QRect(pos, size));
 
@@ -1412,6 +1446,18 @@ void QMenu::paintEvent(QPaintEvent *e)
     style().drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);
 }
 
+#ifndef QT_NO_WHEELEVENT
+/*!
+  \reimp
+*/
+void QMenu::wheelEvent(QWheelEvent *e)
+{
+    if(d->scroll && rect().contains(e->pos())) 
+        d->scrollMenu(e->delta() > 0 ? 
+                      QMenuPrivate::QMenuScroller::ScrollUp : QMenuPrivate::QMenuScroller::ScrollDown);
+}
+#endif
+
 /*!
   \reimp
 */
@@ -1528,10 +1574,18 @@ void QMenu::keyPressEvent(QKeyEvent *e)
 
     bool key_consumed = false;
     switch(key) {
+    case Qt::Key_PageUp:
+        if(d->currentAction && d->scroll) 
+            d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollUp, true);
+        break;
+    case Qt::Key_PageDown:
+        if(d->currentAction && d->scroll) 
+            d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollDown, true);
+        break;
     case Qt::Key_Up:
     case Qt::Key_Down: {
         QAction *nextAction = 0;
-        uint scroll_direction = QMenuPrivate::QMenuScroller::ScrollNone;
+        QMenuPrivate::QMenuScroller::ScrollLocation scroll_loc = QMenuPrivate::QMenuScroller::ScrollStay;
         if(!d->currentAction) {
             nextAction = d->actionList.first();
         } else {
@@ -1557,14 +1611,15 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                                 int topVisible = style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this);
                                 if(d->tearoff)
                                     topVisible += style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, this);
-                                if(((y + d->scroll->scrollOffset) - topVisible) < d->actionRects.value(act).height())
-                                    scroll_direction = QMenuPrivate::QMenuScroller::ScrollUp;
+                                if(((y + d->scroll->scrollOffset) - topVisible) <= d->actionRects.value(nextAction).height())
+                                    scroll_loc = QMenuPrivate::QMenuScroller::ScrollTop;
                             }
                             break;
                         }
                         if(!nextAction && d->tearoff)
                             d->tearoffHighlighted = 1;
                     } else {
+                        y += d->actionRects.value(act).height();
                         for(int next_i = i+1; true; next_i++) {
                             if(next_i == d->actionList.count()) {
                                 if(d->scroll)
@@ -1586,8 +1641,8 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                                     bottomVisible -= scrollerHeight;
                                 if(d->tearoff)
                                     bottomVisible -= style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q);
-                                if((y + d->scroll->scrollOffset + d->actionRects.value(act).height()) > bottomVisible)
-                                    scroll_direction = QMenuPrivate::QMenuScroller::ScrollDown;
+                                if((y + d->scroll->scrollOffset + d->actionRects.value(nextAction).height()) > bottomVisible)
+                                    scroll_loc = QMenuPrivate::QMenuScroller::ScrollBottom;
                             }
                             break;
                         }
@@ -1598,10 +1653,12 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             }
         }
         if(nextAction) {
-            if(d->scroll && scroll_direction != QMenuPrivate::QMenuScroller::ScrollNone) {
+            if(d->scroll && scroll_loc != QMenuPrivate::QMenuScroller::ScrollStay) {
                 if(d->scroll->scrollTimer)
                     d->scroll->scrollTimer->stop();
-                d->scrollMenu(scroll_direction);
+                d->scrollMenu(nextAction, scroll_loc, 
+                              (scroll_loc == QMenuPrivate::QMenuScroller::ScrollBottom) ? 
+                              QMenuPrivate::QMenuScroller::ScrollDown : QMenuPrivate::QMenuScroller::ScrollUp);
             }
             d->setCurrentAction(nextAction);
             key_consumed = true;
@@ -1807,7 +1864,7 @@ void
 QMenu::timerEvent(QTimerEvent *e)
 {
     if(d->scroll && d->scroll->scrollTimer && d->scroll->scrollTimer->timerId() == e->timerId()) {
-        d->scrollMenu(d->scroll->scrollDirection);
+        d->scrollMenu((QMenuPrivate::QMenuScroller::ScrollDirection)d->scroll->scrollDirection);
         if(d->scroll->scrollFlags == QMenuPrivate::QMenuScroller::ScrollNone)
             d->scroll->scrollTimer->stop();
     }

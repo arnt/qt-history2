@@ -70,7 +70,8 @@ public:
 
     //scrolling support
     struct QMenuScroller {
-        enum ScrollDirections { ScrollNone=0, ScrollUp=0x01, ScrollDown=0x02 };
+        enum ScrollLocation { ScrollStay, ScrollBottom, ScrollTop, ScrollCenter };
+        enum ScrollDirection { ScrollNone=0, ScrollUp=0x01, ScrollDown=0x02 };
         uint scrollFlags : 2, scrollDirection : 2;
         int scrollOffset;
         QBasicTimer *scrollTimer;
@@ -78,7 +79,8 @@ public:
         QMenuScroller() : scrollFlags(ScrollNone), scrollDirection(ScrollNone), scrollOffset(0), scrollTimer(0) { }
         ~QMenuScroller() { delete scrollTimer; }
     } *scroll;
-    void scrollMenu(uint);
+    void scrollMenu(QMenuScroller::ScrollDirection direction, bool page=false);
+    void scrollMenu(QAction *action, QMenuScroller::ScrollLocation location, QMenuScroller::ScrollDirection grow);
 
     //syncronous operation (ie exec())
     uint sync : 1;
