@@ -5,7 +5,7 @@
 #include <qlibrary.h>
 #include <netinet/in.h>
 
-#define QRESOLVER_DEBUG
+//#define QRESOLVER_DEBUG
 
 /*
     Performs a blocking call to gethostbyname or getaddrinfo, stores
