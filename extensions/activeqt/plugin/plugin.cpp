@@ -16,7 +16,7 @@
 #include <abstractformwindowmanager.h>
 #include <abstractformwindowcursor.h>
 #include <qextensionmanager.h>
-#include <default_propertysheet.h>
+#include <qdesigner_propertysheet.h>
 #include <taskmenu.h>
 
 #include <qplugin.h>
@@ -297,6 +297,20 @@ public:
         mgr->registerExtensions(axf, Q_TYPEID(IPropertySheet));
         mgr->registerExtensions(axf, Q_TYPEID(ITaskMenu));
     }
+
+    virtual QString domXml() const
+    { return QLatin1String("\
+        <widget class=\"QAxWidget\" name=\"QAxWidget\">\
+            <property name=\"geometry\">\
+                <rect>\
+                    <x>0</x>\
+                    <y>0</y>\
+                    <width>80</width>\
+                    <height>70</height>\
+                </rect>\
+            </property>\
+        </widget>\
+      "); }
     
     virtual QString codeTemplate() const
     { return QString::null; }

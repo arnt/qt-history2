@@ -10,5 +10,6 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 	SUBDIRS	= container \
 		  control \
 		  tools \
-		  examples
+		  examples \
+		  plugin
 }

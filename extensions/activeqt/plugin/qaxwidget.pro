@@ -1,21 +1,11 @@
 TEMPLATE = lib
 
-IDEDIR = $$QT_BUILD_TREE/tools/designer
-DESTDIR = $$QT_BUILD_TREE/plugins/designer
-
-INCLUDEPATH += \
-    $$IDEDIR/src/lib/sdk \
-    $$IDEDIR/src/lib/extension \
-    $$IDEDIR/src/uilib \
-    $$IDEDIR/src/shared
+include($$QT_SOURCE_TREE/tools/designer/src/plugins/plugins.pri)
 
 # Input
 SOURCES += plugin.cpp
 CONFIG += qt warn_on qaxcontainer
 
+LIBS += -lQtDesigner
 
-CONFIG(debug, debug|release) {
-    LIBS += $$IDEDIR/lib/sharedd.lib
-} else {
-    LIBS += $$IDEDIR/lib/shared.lib
-}
+include($$IDEDIR/src/sharedcomponents.pri)
