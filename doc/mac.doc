@@ -54,6 +54,63 @@ OS X >10.1.4, when this version is not detected it will fallback to the old
 text rendering library.
 
 
+\title Library Support
+
+\section1 Bundle-based Libraries
+
+If you want to incorporate dynamic libraries as part of your MacOSX application bundle (the application directory), then you place these into a directory called Frameworks, a subdirectory of the application bundle.
+
+The application finds these dynamic libraries if the libraries have an install name of "@executable_path/../Frameworks/libname.dylib.
+
+If you use qmake and Makefiles, use the QMAKE_LFFLAGS_SONAME setting:
+
+\code
+QMAKE_LFLAGS_SONAME  = -Wl,-install_name,@executable_path/../Frameworks/
+\endcode
+
+In case of Project Builder, you set the Library targets to have their install path (in the Build Settings of the target) set to "@executable_path/.../Frameworks". You also need to add a custom build setting called "SKIP_INSTALL" and set this to YES. In the Application target you need to add a Copy Files build phase that will copy the library product into the applications wrapper's Framework sub-folder.
+
+Note that DYLD_LIBRARY_PATH environment variables will override these settings, same with any other default paths such as a lookup of dynamic libraries inside /usr/lib and similar default locations.
+
+We still strongly recommend to build static applications where the library code
+is incorporated into the MacOSX binary. However, in case you ship applications
+that require plugin support,then you need to use dynamic libraries as part of your application.
+
+
+\section1 Combining Libraries
+If you want to build a new dynamic library combining the Qt 3.1 dynamic
+libraries, you need to introduce the ld -r flag so that relocation information
+is stored in the the output file, so that this file could be the subject of 
+another ld run. This is done by setting the -r flag in the .pro file, and the
+LFLAGS settings.
+
+
+\title Compiler Settings
+
+\section1 Compile-time Flags
+
+If you want to wrap any specific MacOSX code in a define, use the Q_OS_MACX
+flag, as in:
+
+\code
+#if defined(Q_OS_MACX)
+// the code used
+#endif
+\endcode
+
+Note that when you build under MacOSX 10.2, then the MACOSX_102 flag is automatically included in the make builds.
+
+
+
+\title User Interface
+
+
+\section1 Right-Mouse Clicks
+<p>If you want to provide right-mouse click support for MacOSX, use the QContextMenuEvent class. This will map to a context menu event, in other words a menu that will display a popup selection. This is the most common use of right-mouse clicks, and maps to a control-click with the MacOSX one-button mouse support.
+
+
+
+
 
 */
 
