@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#15 $
+** $Id: //depot/qt/main/src/tools/qmap.h#16 $
 **
 ** Definition of QMap class
 **
@@ -220,15 +220,18 @@ public:
   QMapPrivate( const QMapPrivate< Key, T >* _map ) : QMapPrivateBase( _map ) {
     header = new Node;
     header->color = Node::Red; // Mark the header
-    header->parent = copy( (NodePtr)(_map->header->parent) );
-    header->parent->parent = header;
-    if ( header->parent )
+    if ( _map->header->parent == 0 )
     {
+      header->parent = 0;
+      header->left = header->right = header;
+    }
+    else
+    {
+      header->parent = copy( (NodePtr)(_map->header->parent) );
+      header->parent->parent = header;
       header->left = header->parent->minimum();
       header->right = header->parent->maximum();
     }
-    else
-      header->left = header->right = 0;
   }
   ~QMapPrivate() { clear(); delete header; }
 
@@ -438,7 +441,9 @@ public:
     ConstIterator find ( const Key& k ) const
 	{ return sh->find( k ); }
     T& operator[] ( const Key& k )
-	{ detach(); return sh->find( k ).node->data; }
+	{ detach(); Iterator it( sh->find( k ).node );
+	  if ( it != sh->end() ) return it.data();
+	  return insert( k, T() ).data(); }
     const T& operator[] ( const Key& k ) const
 	{ return sh->find( k ).data(); }
     bool contains ( const Key& k ) const
