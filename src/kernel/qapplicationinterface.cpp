@@ -133,7 +133,7 @@ bool QComponentInterface::requestEvents( QObject* f )
   Reimplement this function for to process interface requests for your application. The default
   implementation returns NULL.
 */
-QComponentInterface* QComponentInterface::queryInterface( const QCString& )
+QComponentInterface* QComponentInterface::queryInterface( const QString& )
 {
     return 0;
 }

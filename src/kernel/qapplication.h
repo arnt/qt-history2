@@ -240,7 +240,7 @@ public:
 #endif
 
 #ifndef QT_NO_PLUGIN
-    virtual QApplicationInterface* requestApplicationInterface();
+    virtual QApplicationInterface* queryInterface();
 #endif
 
 signals:

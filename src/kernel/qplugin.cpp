@@ -57,12 +57,12 @@
   class MyWidgetInterface : public QPlugInInterface
   {
   public:
-      QCString queryPlugInInterface() const { return "MyWidgetInterface"; }
+      QString queryInterface() const { return "MyWidgetInterface"; }
       virtual QWidget* create( const QString&, QWidget* parent = 0, const char* name = 0 ) = 0;
   };
   \endcode
 
-  Note that the member function \code queryPlugInInterface \endcode has to be reimplemented so
+  Note that the member function \code queryInterface \endcode has to be reimplemented so
   that the corresponding plugin loader can recognize the library as compatible.
   Use the derived plugin interface both as a baseclass for the corresponding plugin loader and 
   as the base class for implementations of the interface in plugins.
@@ -139,7 +139,7 @@
 */
 
 /*!
-  \fn QCString QPlugInInterface::queryPlugInInterface() const
+  \fn QString QPlugInInterface::queryInterface() const
   \overload
 
   Returns the name of the plugin's interface. You have to overwrite this 
@@ -192,13 +192,13 @@
   public:
       MyWidgetPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
 
-      QCString queryPlugInInterface() const { return "MyWidgetPlugIn"; }
+      QString queryInterface() const { return "MyWidgetPlugIn"; }
 
       QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
   };
   \endcode
 
-  Note that you have to overwrite queryPlugInInterface in MyWidgetPlugIn although it's already
+  Note that you have to overwrite queryInterface in MyWidgetPlugIn although it's already
   defined in MyWidgetInterface. Otherwise you will get linker errors on most platforms.
 */
 
@@ -396,7 +396,7 @@ bool QPlugIn::loadInterface()
     if ( !ifc )
 	return FALSE;
 
-    if ( ifc->queryPlugInInterface() != queryPlugInInterface() ) {
+    if ( ifc->queryInterface() != queryInterface() ) {
 	delete ifc;
 	ifc = 0;
 	return FALSE;

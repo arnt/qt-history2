@@ -61,7 +61,7 @@ public:
 
     virtual QStringList featureList() { return QStringList(); }
 
-    virtual QCString queryPlugInInterface() const = 0;
+    virtual QString queryInterface() const = 0;
 };
 
 #ifdef _WS_WIN_

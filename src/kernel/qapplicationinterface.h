@@ -18,7 +18,7 @@ public:
     QApplicationInterface();
     ~QApplicationInterface() {}
     
-    virtual QComponentInterface* queryInterface( const QCString& request ) = 0;
+    virtual QComponentInterface* queryInterface( const QString& request ) = 0;
 };
 
 class Q_EXPORT QComponentInterface : public QApplicationInterface
@@ -37,7 +37,7 @@ public:
     virtual bool requestConnect( QObject *sender, const char* signal, const char* slot );
     virtual bool requestEvents( QObject* o );
 
-    QComponentInterface* queryInterface( const QCString& );
+    QComponentInterface* queryInterface( const QString& );
 
 protected:
     QObject* object() { return QObject::parent(); }

@@ -3162,13 +3162,13 @@ void MyApplication::commitData( QSessionManager& sm ) {
   the application object is destroyed.
 
   Plugins can use this function to get access to application components using
-  requestInterface.
+  queryInterface on the provided QApplicationInterface
 
   The default implementation returns null.
 
   \sa QComponentInterface, QPlugInInterface
 */
-QApplicationInterface* QApplication::requestApplicationInterface()
+QApplicationInterface* QApplication::queryInterface()
 {
     return 0;
 }
