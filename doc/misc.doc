@@ -310,7 +310,7 @@ Software, use of third-party application programs based on the Software,
 and development of free software which uses the Software.
 
 
-<h3 align=center>
+<h3 align="center">
 				 Granted Rights
 </h3>
 
@@ -387,7 +387,7 @@ and development of free software which uses the Software.
 </blockquote>
 
 
-<h3 align=center>
+<h3 align="center">
 			    Limitations of Liability
 </h3>
 
@@ -399,7 +399,7 @@ of such damages, except to the extent invariable law, if any, provides
 otherwise.
 
 
-<h3 align=center>
+<h3 align="center">
 			          No Warranty
 </h3>
 
@@ -407,7 +407,7 @@ The Software and this license document are provided AS IS with NO WARRANTY
 OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
 FOR A PARTICULAR PURPOSE.
 
-<h3 align=center>
+<h3 align="center">
                                  Choice of Law
 </h3>
 
@@ -827,8 +827,8 @@ Trolltech website\endlink.
 
 <br clear="all">
 
-<table cellpadding=3 cellspacing=0 border="0" bgcolor=#E5E5E5>
-<tr><th colspan=6 valign=top bgcolor=#A2C511>Email</th></tr>
+<table cellpadding=3 cellspacing=0 border="0" bgcolor="#E5E5E5">
+<tr><th colspan=6 valign="top" bgcolor="#a2c511">Email</th></tr>
 <tr>
 <td rowspan=4><br></td>
 <td colspan=2>\link mailto:info@trolltech.com <strong>info@trolltech.com</strong>\endlink
@@ -854,7 +854,7 @@ Use this address for bug reports; \e please read (the very short)
 \link bughowto.html How to Report a Bug\endlink page \e first.
 </td></tr>
 <tr><td ><br></td>
-<td colspan=4 valign=top>Note that Trolltech uses the
+<td colspan=4 valign="top">Note that Trolltech uses the
 \link http://mail-abuse.org/rbl/ RBL\endlink and
 \link http://work-rss.mail-abuse.org/rss/ RSS\endlink databases to cut down on
 spam. If your mail server is listed, you will regrettably not be able to
@@ -862,7 +862,7 @@ send us mail. The \link http://www.mail-abuse.org/tsi/ MAPS TSI\endlink
 pages provide information about how to secure your server.
 </td><td ><br></td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"> <br> </td></tr>
-<tr><th colspan=6 valign=top bgcolor=#A2C511>Norway Office</th></tr>
+<tr><th colspan=6 valign="top" bgcolor="#a2c511">Norway Office</th></tr>
 </tr>
 <tr>
 <td rowspan=4><br></td>
@@ -880,7 +880,7 @@ pages provide information about how to secure your server.
 <td ><br></td>
 <td valign="top"> All inquiries: +47 21 60 48 01</td>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" colspan="6"> <br> </td></tr>
-<tr><th colspan=6 valign=top bgcolor=#A2C511>USA Office</th></tr>
+<tr><th colspan=6 valign="top" bgcolor="#a2c511">USA Office</th></tr>
 </tr>
 <tr>
 <td rowspan=4><br></td>

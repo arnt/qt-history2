@@ -54,7 +54,7 @@ How to Learn Qt\endlink if you haven't already done so.
 \i \link tutorial2-11.html Wrapping Up\endlink
 \endlist
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-01.html">Introduction &raquo;</a> 
 </p>
 */
@@ -75,7 +75,7 @@ source for the application is in \c examples/chart.
 
 \img chart-main.png The chart application
 
-<p align=right>
+<p align="right">
 <a href="tutorial2.html">&laquo; Contents</a> |
 <a href="tutorial2-02.html">The 'Big Picture' &raquo;</a>
 </p>
@@ -111,7 +111,7 @@ since we require slightly more than the standard class provides.
 The project file, \c chart.pro, is used to create the Makefile that is
 used to build the application.
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-01.html">&laquo; Introduction</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-03.html">Data Elements &raquo;</a>
@@ -323,7 +323,7 @@ the source code for any of the Qt classes mentioned that are similar
 to what you want to store.
 \endtable
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-02.html">&laquo; The 'Big Picture'</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-04.html">Mainly Easy &raquo;</a>
@@ -350,7 +350,7 @@ they've added a filename we pass that through to the chart form
 constructor. Most of the action takes place within the chart form
 which we'll review next.
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-03.html">&laquo; Data Elements</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-05.html">Presenting the GUI &raquo;</a>
@@ -730,7 +730,7 @@ in optionsSetData() if the user changed the data is mark the chart as
 changed and call drawElements() to redraw the chart with the new and
 updated data.
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-04.html">&laquo; Mainly Easy</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-06.html">Canvas Control &raquo;</a>
@@ -970,7 +970,7 @@ QCanvasRectangle, QCanvasEllipse, etc., have their fill color set to
 white, so setting a non-white brush color is highly recommended! 
 \endtable
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-05.html">&laquo; Presenting the GUI</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-07.html">File Handling &raquo;</a>
@@ -1018,7 +1018,7 @@ Saving data is equally easy. We open the file and create a text
 stream. We then stream every valid element to the text stream. All the
 detail is handled by the \c Element class.
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-06.html">&laquo; Canvas Control</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-08.html">Taking Data &raquo;</a>
@@ -1234,7 +1234,7 @@ current item with an offset of 1 (since our pattern numbers begin at
 
 Finally we call QDialog::accept().
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-07.html">&laquo; File Handling</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-09.html">Setting Options &raquo;</a>
@@ -1371,7 +1371,7 @@ font label and holds a copy of the font in the \c m_font member. We
 need the font in a member so that we can provide a default font for
 chooseFont().
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-08.html">&laquo; Taking Data</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-10.html">The Project File &raquo;</a>
@@ -1398,7 +1398,7 @@ e.g.
 qmake -o Makefile chart.pro
 \endcode
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-09.html">&laquo; Setting Options</a> |
 <a href="tutorial2.html">Contents</a> |
 <a href="tutorial2-11.html">Wrapping Up &raquo;</a>
@@ -1439,7 +1439,7 @@ position like the labels.
 \i Adding a 3D look option to all chart types.
 \endlist
 
-<p align=right>
+<p align="right">
 <a href="tutorial2-10.html">&laquo; The Project File</a> |
 <a href="tutorial2.html">Contents &raquo;</a> 
 </p>

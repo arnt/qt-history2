@@ -65,7 +65,7 @@ To port code using Qt 1.x to use Qt 2.x:
 </ul>
 
 
-Many very major projects, such as <a href=http://www.kde.org>KDE</a>
+Many very major projects, such as <a href="http://www.kde.org/">KDE</a>
 have been port, so there is plenty of expertise in the collective conscious
 that is the Qt Developer Community!
 </p>
@@ -118,7 +118,7 @@ that is the Qt Developer Community!
 
 <hr>
 
-<h3><a name=Namespace>Namespace</a></h3>
+<h3><a name="Namespace">Namespace</a></h3>
 
 <p> Qt 2.x is namespace-clean, unlike 1.x. Qt now uses very few
 global identifiers. Identifiers like <code>red, blue, LeftButton,
@@ -139,7 +139,7 @@ Compiling with -DQT1COMPATIBILITY will help you get going with Qt 2.x
 continue working.  Without it, you'll get compile errors that can
 easily be fixed by searching this page for the clean identifiers.
 
-<h3><a name=DefaultParent>No Default 0 Parent Widget</a></h3>
+<h3><a name="DefaultParent">No Default 0 Parent Widget</a></h3>
 
 In Qt 1.x, all widget constructors were defined with a default value
 of 0 for the parent widget. However, only the main window of the
@@ -154,10 +154,10 @@ for the widget classes that are not likely to be used as main windows.
 Note also that programs no longer need (or should) use 0 parent just
 to indicate that a widget should be top-level. See
 \code QWidget::isTopLevel() \endcode for details. See also the notes about
-<a href=#QMenuData>QPopupMenu</a> and <a href=#QDialog>QDialog</a>
+<a href="#QMenuData">QPopupMenu</a> and <a href="#QDialog">QDialog</a>
 below.
 
-<h3><a name=Virtual>Virtual Functions</a></h3>
+<h3><a name="Virtual">Virtual Functions</a></h3>
 
 <p> Some virtual functions have changed signature in Qt 2.x.
 If you override them in derived classes, you must change the signature
@@ -193,7 +193,7 @@ Of course, you'll get a few false positives (eg. if you have a setText
 function that is not in a subclass of QListViewItem).
 
 
-<h3><a name=Collection>Collection classes</a></h3>
+<h3><a name="Collection">Collection classes</a></h3>
 
 <p> The collection classes include generic
 classes such as QGDict, QGList, and
@@ -212,7 +212,7 @@ This change has been made to avoid collisions with other namespaces.
 
 
 
-<h3><a name=DebugVsRelease>Debug vs. Release</a></h3>
+<h3><a name="DebugVsRelease">Debug vs. Release</a></h3>
 
 <p>The Q_ASSERT macro is now a null expression if the QT_CHECK_STATE flag
 is not set (i.e. if the QT_NO_CHECK flag is defined).
@@ -221,7 +221,7 @@ is not set (i.e. if the QT_NO_CHECK flag is defined).
 the QT_NO_DEBUG macro defined.
 
 
-<h3><a name=QString>QString</a></h3>
+<h3><a name="QString">QString</a></h3>
 
 QString has undergone major changes internally, and although it is highly
 backward compatible, it is worth studying in detail when porting to Qt 2.x.
@@ -359,7 +359,7 @@ results and was always a programming error; in Qt 2.x, it works - making
 a single-character string.
 
 <p>
-Also see <a href=#QStrList>QStrList</a>.
+Also see <a href="#QStrList">QStrList</a>.
 
 <dt><b>Signals and Slots</b></dt>
 <dd>
@@ -507,13 +507,13 @@ potentially be shared.
 
 
 
-<h3><a name=QApplication>QApplication</a></h3>
+<h3><a name="QApplication">QApplication</a></h3>
 
 In the function \code QApplication::setColorSpec()\endcode,
 PrivateColor and TrueColor are obsolete.  Use ManyColor instead.
 
 
-<h3><a name=QColor>QColor</a></h3>
+<h3><a name="QColor">QColor</a></h3>
 
 <p>
 All colors
@@ -541,9 +541,9 @@ are in the Qt namespace.
 In members of classes that inherit the Qt namespace-class (eg. QWidget
 subclasses), you can use the unqualified names as before, but in global
 functions (eg. main()), you need to qualify them:  Qt::red, Qt::white, etc.
-See also the <a href=#QRgb>QRgb</a> section below.
+See also the <a href="#QRgb">QRgb</a> section below.
 
-<h3><a name=QRgb>QRgb</a></h3>
+<h3><a name="QRgb">QRgb</a></h3>
 
 In QRgb (a typedef of long), the order of the RGB channels has changed to
 be in the more efficient order (for typical contemporary hardware).  If your
@@ -559,7 +559,7 @@ but your code may have assumed so on your platform) - this may also produce
 strange color results - use QColor::rgb() if you want a QRgb.
 
 
-<h3><a name=QDataStream>QDataStream</a></h3>
+<h3><a name="QDataStream">QDataStream</a></h3>
 
 <p>The QDatastream serialization format of most Qt classes is changed
 in Qt 2.x. Use \code QDataStream::setVersion( 1 )\endcode to get a
@@ -571,11 +571,11 @@ compatibility issues:
 	<li>QString: Qt 1.x has no Unicode support, so strings will be
 	serialized by writing the classic C string returned by \code
 	QString::latin1().\endcode
-	<li><a href=#QPoint>QPoint & al.</a>: Coordinates will be
+	<li><a href="#QPoint">QPoint & al.</a>: Coordinates will be
 	truncated to the Qt 1.x 16 bit format.
 	</ul>
 
-<h3><a name=QWidget>QWidget</a></h3>
+<h3><a name="QWidget">QWidget</a></h3>
 
 <h4>QWidget::recreate()</h4>
 <p>
@@ -606,7 +606,7 @@ QPainter::setClipRegion() superfluous. Apart from the improved
 consistency, the change is likely to reduce flicker and to make Qt
 event slightly faster.
 
-<h3><a name=QIODevice>QIODevice</a></h3>
+<h3><a name="QIODevice">QIODevice</a></h3>
 <p>
 The protected member QIODevice::index is renamed to QIODevice::ioIndex
 to avoid warnings and to allow compilation with bad C libraries that
@@ -615,7 +615,7 @@ check every occurrence of the string "index" in the implementation, since
 a compiler will not always catch cases like \code(uint)index\endcode
 that need to be changed.
 
-<h3><a name=QLabel>QLabel</a></h3>
+<h3><a name="QLabel">QLabel</a></h3>
 
 <h4>\code QLabel::setMargin()\endcode</h4>
 <p>
@@ -632,7 +632,7 @@ to detect if a
 movie was set, you might have trouble.  This is unlikely.
 
 
-<h3><a name=QDialog>QDialog</a></h3>
+<h3><a name="QDialog">QDialog</a></h3>
 
 <p> The semantics of the parent pointer changed for modeless dialogs:
 In Qt-2.x, dialogs are always top level windows. The parent, however,
@@ -651,7 +651,7 @@ If you think you might be doing this, put a breakpoint in
 QDialog::QDialog() conditional on parent not being 0.
 
 
-<h3><a name=QStrList>QStrList</a></h3>
+<h3><a name="QStrList">QStrList</a></h3>
 
 Many methods that took a QStrList can now instead take a QStringList,
 which is a real list of QString values.
@@ -702,7 +702,7 @@ QFont::listSubstitutions(QStrList*)</tt> is replaced by <tt>QStringList
 QFont::substitutions()</tt>.
 
 
-<h3><a name=QLayout>QLayout</a></h3>
+<h3><a name="QLayout">QLayout</a></h3>
 
 <p> Calling resize(0,0) or resize(1,1) will no longer work magically.
 Remove all such calls. The default size of top level widgets will be their
@@ -737,7 +737,7 @@ You might like to look at the QGrid, QVBox, and QHBox widgets - they offer
 a simple way to build nested widget structures.
 
 
-<h3><a name=QListView>QListView</a></h3>
+<h3><a name="QListView">QListView</a></h3>
 
 <p>In Qt 1.x mouse events to the viewport where redirected to the
 event handlers for the listview; in Qt 2.x, this functionality is
@@ -757,7 +757,7 @@ contentsMousePressEvent() etc.
 emitted with a null pointer as parameter. Programs that use the
 argument without checking for 0, may crash.
 
-<h3><a name=QMultiLineEdit>QMultiLineEdit</a></h3>
+<h3><a name="QMultiLineEdit">QMultiLineEdit</a></h3>
 
 <p>
 The protected function
@@ -768,7 +768,7 @@ This is unlikely to be a problem, and you'll get a compile error
 if you called it.
 
 
-<h3><a name=QClipboard>QClipboard</a></h3>
+<h3><a name="QClipboard">QClipboard</a></h3>
 
 <p>
 \code QClipboard::pixmap()\endcode now returns a QPixmap, not a QPixmap*.
@@ -779,7 +779,7 @@ clipboard, just like drag-and-drop (in fact, you can reuse most of your
 drag-and-drop code with clipboard operations).
 
 
-<h3><a name=QDropSite>QDropSite</a></h3>
+<h3><a name="QDropSite">QDropSite</a></h3>
 
 <P>
 QDropSite is obsolete.  If you simply passed <tt>this</tt>, just remove
@@ -799,7 +799,7 @@ cases, you will need to use an event filter to act on the drag/drop events
 of another widget (as is the usual way to intercept foreign events).
 
 
-<h3><a name=QScrollView>QScrollView</a></h3>
+<h3><a name="QScrollView">QScrollView</a></h3>
 
 The parameters in the signal
 \link QScrollView::contentsMoving() contentsMoving(int,int)\endlink
@@ -810,17 +810,17 @@ connected to such that it also expects positive rather than negative
 values, or introduce an intermediate slot and signal that negates them.
 
 If you used drag and drop with QScrollView, you may experience the problem
-described for <a href=#QDropSite>QDropSite</a>.
+described for <a href="#QDropSite">QDropSite</a>.
 
 
-<h3><a name=QTextStream>QTextStream</a></h3>
+<h3><a name="QTextStream">QTextStream</a></h3>
 
 <p>
 \code operator<<(QTextStream&, QChar&)\endcode does not skip whitespace.
 \code operator<<(QTextStream&, char&)\endcode does,
     as was the case with Qt 1.x.  This is for backward compatibility.
 
-<h3><a name=QUriDrag>QUriDrag</a></h3>
+<h3><a name="QUriDrag">QUriDrag</a></h3>
 
 The class QUrlDrag is renamed to QUriDrag, and the API has been
 broadened to include additional conversion routines, including
@@ -831,7 +831,7 @@ while QUriDrag uses the standardized "text/uri-list" type.  Other
 identifiers affected by the Url to Uri change are
 QUrlDrag::setUrls() and QUrlDrag::urlToLocalFile().
 
-<h3><a name=QPainter>QPainter</a></h3>
+<h3><a name="QPainter">QPainter</a></h3>
 
 <p> The GrayText painter flag has been removed. Use
 \link QPainter::setPen() setPen( palette().disabled().foreground() )\endlink
@@ -860,7 +860,7 @@ is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
 
 
-<h3><a name=QPicture>QPicture</a></h3>
+<h3><a name="QPicture">QPicture</a></h3>
 
 <p>The binary storage format of QPicture is changed, but the Qt 2.x
 QPicture class can both read and write Qt 1.x format QPictures. No
@@ -869,7 +869,7 @@ detect the version number. In order to write a Qt 1.x format QPicture,
 set the formatVersion parameter to 1 in the QPicture constructor.
 
 <p>For writing Qt 1.x format QPictures, the compatibility issues of <a
-href=#QDataStream>QDataStream</a> applies.
+href="#QDataStream">QDataStream</a> applies.
 
 <p>It is safe to try to read a QPicture file generated with Qt 2.x
 (without formatVersion set to 1) with a program compiled with Qt
@@ -879,7 +879,7 @@ picture.
 
 
 
-<h3><a name=QPoint>QPoint, QPointArray, QSize and QRect</a></h3>
+<h3><a name="QPoint">QPoint, QPointArray, QSize and QRect</a></h3>
 
 <p>The basic coordinate datatype in these classes, QCOORD, is now 32
 bit (int) instead of a 16 bit (short). The const values QCOORD_MIN and
@@ -893,12 +893,12 @@ provides the point array converted to short (16bit) coordinates for
 use with external functions that demand that format.
 
 
-<h3><a name=QImage>QImage</a></h3>
+<h3><a name="QImage">QImage</a></h3>
 
-QImage uses QRgb for the colors - see <a href=#QRgb>the changes to that</a>.
+QImage uses QRgb for the colors - see <a href="#QRgb">the changes to that</a>.
 
 
-<h3><a name=QPixmap>QPixmap</a></h3>
+<h3><a name="QPixmap">QPixmap</a></h3>
 
 \code QPixmap::convertToImage()\endcode with bitmaps now guarantees that color0 pixels
 become color(0) in the resulting QImage.  If you worked around the lack of
@@ -917,7 +917,7 @@ to choose which is best for your application.  NormalOptim is most like
 the Qt 1.x "TRUE" optimization.
 
 
-<h3><a name=QMenuData>QMenuData / QPopupMenu</a></h3>
+<h3><a name="QMenuData">QMenuData / QPopupMenu</a></h3>
 
 In Qt 1.x, new menu items were assigned either an application-wide
 unique identifier or an identifier equal to the index of the item, depending on the
@@ -947,7 +947,7 @@ significantly simplify many applications.
 Last but not least, QPopupMenu no longer inherits QTableView. Instead,
 it directly inherits QFrame.
 
-<h3><a name=QValidator>QValidator (QLineEdit, QComboBox, QSpinBox) </a></h3>
+<h3><a name="QValidator">QValidator (QLineEdit, QComboBox, QSpinBox) </a></h3>
 
 \code QValidator::validate(...)\endcode
 and
@@ -966,7 +966,7 @@ object on many different widgets), so changing the state of
 such an object or deleting it is very likely a bug.
 
 
-<h3><a name=QFile>QFile, QFileInfo, QDir</a></h3>
+<h3><a name="QFile">QFile, QFileInfo, QDir</a></h3>
 
 File and directory names are now always Unicode strings (ie. QString).  If you used QString
 in the past for the simplicity it offers, you'll probably have little consequence.  However,
@@ -980,7 +980,7 @@ is very error prone.  See the comments in QString, such as regarding QT_NO_ASCII
 can help find potential problems.
 
 
-<h3><a name=QFontMetrics>QFontMetrics</a></h3>
+<h3><a name="QFontMetrics">QFontMetrics</a></h3>
 
 boundingRect(char) is replaced by
 boundingRect(QChar), but since
@@ -988,14 +988,14 @@ char auto-converts to QChar, you're not likely to run into problems
 with this.
 
 
-<h3><a name=QWindow>QWindow</a></h3>
+<h3><a name="QWindow">QWindow</a></h3>
 
 This class (which was just QWidget under a different name) has been
 removed.  If you used it, do a global search-and-replace of the word
 "QWindow" with "QWidget".
 
 
-<h3><a name=QEvent>QEvent</a></h3>
+<h3><a name="QEvent">QEvent</a></h3>
 
 <p> The global #define macros in qevent.h have been replaced by an
 enum in QEvent.  Use e.g. QEvent::Paint instead of Event_Paint. Same

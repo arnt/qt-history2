@@ -1,4 +1,5 @@
 /****************************************************************************
+
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
@@ -22,33 +23,33 @@
 \if !defined(commercial) && !defined(noncommercial)
 \title Qt Reference Documentation (Free Edition)
 \endif
-<table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
+<table cellpadding=2 cellspacing=1 border=0 width="100%" bgcolor="#e5e5e5">
 \if !defined(commercial) && !defined(noncommercial)
-<tr bgcolor=white><td colspan=3 align=center><b>Notice</b>: This edition is
+<tr bgcolor="white"><td colspan=3 align="center"><b>Notice</b>: This edition is
 for the development of \link freeeditions.html Free and Open
 Source\endlink software only; see \link commercialeditions.html
 Commercial Editions\endlink.</td></tr>
 \endif
 \if defined(noncommercial)
-<tr bgcolor=white><td colspan=3 align=center><b>Notice</b>: This
+<tr bgcolor="white"><td colspan=3 align="center"><b>Notice</b>: This
 edition is for the development of non-commercial software in
 accordance with the license you agreed to when you installed the
 software from the CD; see also \link
 commercialeditions.html Commercial Editions\endlink.</td></tr>
 \endif
 <tr>
-<th bgcolor=#a2c511 width=33%>
+<th bgcolor="#a2c511" width="33%">
 Qt Community
 </th>
-<th bgcolor=#a2c511 width=33%>
+<th bgcolor="#a2c511" width="33%">
 Getting Started
 </th>
-<th bgcolor=#a2c511 width=33%>
+<th bgcolor="#a2c511" width="33%">
 General
 </th>
 </tr>
 <tr>
-<td valign=top>
+<td valign="top">
 \list
 \i \link http://lists.trolltech.com Mailing lists\endlink
 \i \link http://doc.trolltech.com/qq/index.html <i>Qt Quarterly</i> newsletter\endlink
@@ -56,7 +57,7 @@ General
 \i \link bughowto.html How to report a bug\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link how-to-learn-qt.html How to Learn Qt\endlink
 \i \link tutorial.html Tutorial #1\endlink, 
@@ -65,7 +66,7 @@ General
 \i \link http://www.trolltech.com/products/qt/whitepaper.html Whitepaper\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link aboutqt.html About Qt\endlink
 \i \link commercialeditions.html Commercial Editions\endlink
@@ -75,16 +76,16 @@ General
 </td>
 </tr>
 <tr>
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 API Reference
 </th>
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 Modules
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 Overviews
 </tr>
 <tr>
-<td valign=top>
+<td valign="top">
 \list
 \i \link classes.html All Classes\endlink
 \i \link mainclasses.html Main Classes\endlink
@@ -98,7 +99,7 @@ Overviews
 \i \link http://www.trolltech.com/developer/changes/ Change History\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link modules.html All Modules\endlink
 \i \link canvas.html Canvas\endlink
@@ -111,7 +112,7 @@ Overviews
 \i \link xml.html XML\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link overviews-list.html All Overviews and HOWTOs\endlink
 \i \link object.html Qt Object Model\endlink
@@ -126,18 +127,18 @@ Overviews
 \endlist
 </tr>
 <tr>
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 Porting &amp; Platforms
 </th>
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 Tools
 </th>
-<th bgcolor=#a2c511>
+<th bgcolor="#a2c511">
 Licenses &amp; Credits
 </th>
 </tr>
 <tr>
-<td valign=top>
+<td valign="top">
 \list
 \i \link winsystem.html Window system specific notes\endlink
 \i \link activeqt.html ActiveQt Framework\endlink
@@ -146,7 +147,7 @@ Licenses &amp; Credits
 \i \link porting.html Porting from Qt 2.x to Qt 3.x\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link tools-list.html All Tools\endlink
 \i \link designer-manual.book Qt Designer\endlink
@@ -155,7 +156,7 @@ Licenses &amp; Credits
 \i \link qmake-manual.book qmake\endlink
 \endlist
 </td>
-<td valign=top>
+<td valign="top">
 \list
 \i \link license.html Q Public License\endlink
 \i \link gpl.html GNU General Public License\endlink
