@@ -92,8 +92,8 @@ public:
 
 #ifndef QT_NO_COMPAT
     bool	autoResize() const;
-    virtual void setAutoResize( bool );
 #endif
+    virtual void setAutoResize( bool );
 
     bool	autoRepeat() const;
     virtual void setAutoRepeat( bool );
