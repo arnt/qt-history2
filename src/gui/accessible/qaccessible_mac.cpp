@@ -295,18 +295,21 @@ struct {
       { -1, 0, false }
     },
     { { QAccessible::ComboBox, kAXComboBoxRole, false },
+      { QAccessible::Name, kAXTitleAttribute, false },
       { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::RadioButton, kAXRadioButtonRole, false },
+      { QAccessible::Name, kAXTitleAttribute, false },
       { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, 0, false }
     },
     { { QAccessible::CheckBox, kAXCheckBoxRole, false },
+      { QAccessible::Name, kAXTitleAttribute, false },
       { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
@@ -362,6 +365,7 @@ struct {
       { -1, 0, false }
     },
     { { QAccessible::PushButton, kAXButtonRole, false },
+      { QAccessible::Name, kAXTitleAttribute, false },
       { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
@@ -429,6 +433,7 @@ struct {
       { -1, 0, false }
     },
     { { QAccessible::PushButton, kAXPushButtonRole, false },
+      { QAccessible::Name, kAXTitleAttribute, false },
       { QAccessible::Value, kAXValueAttribute, false },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },
       { QAccessible::Help, kAXHelpAttribute, false },
