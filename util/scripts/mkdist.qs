@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validEditions = ["free", "commercial"];
+const validEditions = ["free", "commercial", "preview"];
 const validSwitches = ["gzip", "bzip", "zip"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -22,7 +22,7 @@ const user = System.getenv("USER");
 
 var options = [];	// list of all package options
 var tmpDir;		// directory for system temporary files
-var distDir;		// parent directory for all temp package and checkout dirs
+var distDir;		// parent directory for all temp packages and the checkout dir
 var checkoutDir;	// directory for P4 checkout
 var p4Port;
 var p4Command;
@@ -38,7 +38,9 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^tests"),
 		       new RegExp("^tmake"),
 		       new RegExp("^util"),
-		    
+		       new RegExp("^examples"),
+
+		       new RegExp("^LICENSE.TROLL"),
 		       new RegExp("^tools/designer/manual"),
 		       new RegExp("^tools/designer/doc"),
 		       new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
@@ -55,10 +57,17 @@ var platformKeep = new Array();
 var editionRemove = new Array();
 var editionKeep = new Array();
 
-platformRemove["win"] = [ /x11/ ];
-platformKeep["win"] = [ /./ ];
-editionRemove["commercial"] = [ /GPL/ ];
-editionKeep["commercial"] = [ /./ ];
+platformRemove["win"] = [ new RegExp("_x11"),
+			  new RegExp("^dist") ];
+platformKeep["win"] = [ new RegExp(".") ];
+platformRemove["x11"] = [ new RegExp("_win"),
+			  new RegExp("^dist") ];
+platformKeep["x11"] = [ new RegExp(".") ];
+
+editionRemove["commercial"] = [ new RegExp("GPL") ];
+editionKeep["commercial"] = [ new RegExp(".") ];
+editionRemove["preview"] = [ new RegExp("GPL") ];
+editionKeep["preview"] = [ new RegExp(".") ];
 
 /*******************************************************************************
  * Here we go
@@ -89,6 +98,10 @@ for (var p in validPlatforms) {
   	    var platDir = distDir + "/" + platName;
   	    Process.execute(["cp", "-r", checkoutDir, platDir]);
 
+	    //copying dist files
+	    print("Copying dist files...");
+	    copyDist(platDir, platform, edition);
+
   	    // run syncqt
   	    print("Running syncqt...");
   	    syncqt(platDir, platform);
@@ -113,8 +126,8 @@ for (var p in validPlatforms) {
     }
 }
 indentation-=tabSize;
-// print("Cleaning all temp files...");
-// cleanup();
+print("Cleaning all temp files...");
+cleanup();
 
 /************************************************************
  * Parses and checks the commandline options and puts them into options[key] = value
@@ -469,6 +482,60 @@ function cleanup()
 	dir.rmdirs();
 }
 
+
+/************************************************************
+ * copies the special dist files according to platform and edition
+ */
+function copyDist(packageDir, platform, edition)
+{
+    var platformFiles = getFileList(packageDir + "/dist/" + platform);
+    var editionFiles = getFileList(packageDir + "/dist/" + edition);
+
+    //copies changes file to root
+    var changesFile = packageDir + "/dist/changes-" + options["version"];
+    if (File.exists(changesFile))
+	Process.execute(["cp", changesFile, packageDir]);
+    
+    //copies default README to root
+    var readmeFile = packageDir + "/dist/README";
+    if (File.exists(readmeFile))
+	Process.execute(["cp", readmeFile, packageDir]);
+
+    // copies any platform specific files
+    for (var i in platformFiles) {
+	var fileName = platformFiles[i];
+	var absFileName = packageDir + "/dist/" + platform + "/" + fileName;
+	if (File.exists(absFileName) && File.isFile(absFileName))
+	    Process.execute(["cp", absFileName, packageDir + "/" + fileName]);
+    }
+
+    // copies any edition specific files
+    for (var i in editionFiles) {
+	var fileName = editionFiles[i];
+	var absFileName = packageDir + "/dist/" + edition + "/" + fileName;
+	if (File.exists(absFileName) && File.isFile(absFileName))
+	    Process.execute(["cp", absFileName, packageDir + "/" + fileName]);
+    }
+
+    // rename any LICENSE and LICENSE-US to hidden . files
+    var dir = new Dir(packageDir);
+    dir.rename("LICENSE", ".LICENSE");
+    dir.rename("LICENSE-US", ".LICENSE-US");
+
+    //check that key files are present
+    var keyFiles = ["README",
+		    ".LICENSE",
+		    ".LICENSE-US",
+		    "INSTALL",
+		    "PLATFORMS",
+		    "MANIFEST",
+		    "changes-" + options["version"]];
+    for (var i in keyFiles) {
+	if (!File.exists(packageDir + "/" + keyFiles[i]))
+	    warning("Missing %1 in package.".arg(packageDir + "/" + keyFiles[i]));
+    }
+}
+
 /************************************************************
  * runs syncqt in packageDir with the specified platform
  */
@@ -505,6 +572,14 @@ function print(text)
     while (i--)
 	spaces += ' ';
     System.println(spaces + text);
+}
+
+/************************************************************
+ * prints out warning text with indentation
+ */
+function warning(text)
+{
+    print("** Warning! ** " + text);
 }
 
 /************************************************************
