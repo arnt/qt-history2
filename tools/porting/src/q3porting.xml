@@ -9383,7 +9383,7 @@
         <Qt3>qwmatrix.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
-        <Qt4>qobject.h</Qt4>
+        <Qt4>qpointer.h</Qt4>
         <Qt3>qguardedptr.h</Qt3>
     </item>
 </Rules>
