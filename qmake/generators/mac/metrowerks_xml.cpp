@@ -41,6 +41,9 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <stdlib.h>
+#ifdef Q_OS_MAC
+#include "Files.h"
+#endif
 
 MetrowerksMakefileGenerator::MetrowerksMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
 {
@@ -144,6 +147,21 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    list << Option::output_dir;
 		}
 		if(!list.isEmpty()) {
+		    QString volume;
+#ifdef Q_OS_MAC
+		    uchar foo[512];
+		    HVolumeParam pb;
+		    memset(&pb, '\0', sizeof(pb));
+		    pb.ioVRefNum = 0;
+		    pb.ioNamePtr = foo;
+		    if(PBHGetVInfoSync((HParmBlkPtr)&pb) == noErr) {
+			int len = foo[0];
+			memcpy(foo,foo+1, len);
+			foo[len] = '\0';
+			volume = (char *)foo;
+		    }
+#endif
+
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			QString p = (*it);
 			if(p.right(1) != "/")
@@ -152,7 +170,8 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			    p.prepend(Option::output_dir + '/');
 			p = QDir::cleanDirPath(p) + ":";
 			p.replace(QRegExp("/"), ":");
-			p.prepend("MacOS 9"); //FIXME
+			if(!volume.isEmpty())
+			    p.prepend(volume); //FIXME
 
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
