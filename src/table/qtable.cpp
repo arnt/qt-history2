@@ -1168,6 +1168,8 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 	fakeCombo = new QComboBox( FALSE, fakeComboWidget, 0 );
 	fakeCombo->hide();
     }
+    if ( entries.count() )
+	setText( *entries.at( current ) );
 }
 
 /*!
@@ -1179,6 +1181,8 @@ void QComboTableItem::setStringList( const QStringList &l )
 {
     entries = l;
     current = 0;
+    if ( entries.count() )
+	setText( *entries.at( current ) );
     if ( table()->cellWidget( row(), col() ) ) {
 	cb->clear();
 	cb->insertStringList( entries );
