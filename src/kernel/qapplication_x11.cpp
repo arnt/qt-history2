@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#538 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#539 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2332,6 +2332,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	//break;
 
     case ReparentNotify:			// window manager reparents
+	while ( XCheckTypedWindowEvent( widget->x11Display(),
+					widget->winId(),
+					ReparentNotify,
+					event ) )
+		    ;	// skip old reparent events
 	if ( event->xreparent.parent == appRootWin ) {
 	
 	    QTLWExtra*  x = widget->extra? widget->extra->topextra : 0;
@@ -2340,11 +2345,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
-		while ( XCheckTypedWindowEvent( widget->x11Display(),
-						widget->winId(),
-						ReparentNotify,
-						event ) )
-		    ;				// skip old reparent events
 		Window parent = event->xreparent.parent;
 		
 		// We can drop the entire crect calculation here (it's
