@@ -133,6 +133,7 @@ FormWindow::FormWindow( FormFile *f, QWidget *parent, const char *name )
 
 void FormWindow::init()
 {
+    fake = qstrcmp( name(), "qt_fakewindow" ) == 0;
     MetaDataBase::addEntry( this );
     ff->setFormWindow( this );
     iface = 0;
@@ -193,7 +194,7 @@ void FormWindow::setMainWindow( MainWindow *w )
 
 void FormWindow::initSlots()
 {
-    if ( qstrcmp( name(), "qt_fakewindow" ) == 0 )
+    if ( isFake() )
 	return;
     QString lang = "C++";
     if ( project() )

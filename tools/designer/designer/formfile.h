@@ -79,6 +79,8 @@ public:
     static QString createUnnamedFileName();
     QString formName() const;
 
+    bool isFake() const { return fake; }
+
 signals:
     void somethingChanged( FormFile* );
 
@@ -105,6 +107,7 @@ private:
     bool codeEdited;
     bool seperateSource;
     QString cachedFormName;
+    bool fake;
 
 };
 

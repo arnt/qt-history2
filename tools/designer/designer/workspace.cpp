@@ -449,7 +449,7 @@ void Workspace::setCurrentProject( Project *pro )
     for ( QPtrListIterator<FormFile> forms = project->formFiles();
 	  forms.current(); ++forms ) {
 	FormFile* f = forms.current();
-	if ( qstrcmp( f->name(), "qt_fakewindow" ) == 0 )
+	if ( f->isFake() == 0 )
 	    continue;
 	(void) new WorkspaceItem( projectItem, f );
     }
@@ -480,7 +480,7 @@ void Workspace::sourceFileRemoved( SourceFile* sf )
 
 void Workspace::formFileAdded( FormFile* ff )
 {
-    if ( qstrcmp( ff->name(), "qt_fakewindow" ) == 0 )
+    if ( ff->isFake() == 0 )
 	return;
     (void) new WorkspaceItem( projectItem, ff );
     updateColors();

@@ -63,6 +63,7 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     loadCode();
     if ( !temp )
 	checkFileName( FALSE );
+    fake = qstrcmp( name, "qt_fakewindow" ) == 0;
 }
 
 FormFile::~FormFile()

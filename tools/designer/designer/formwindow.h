@@ -194,6 +194,8 @@ public:
     FormFile *formFile() const;
     void setFormFile( FormFile *f );
 
+    bool isFake() const { return fake; }
+
 public slots:
     virtual void widgetChanged( QObject *w );
     virtual void currentToolChanged();
@@ -298,6 +300,7 @@ private:
     bool hadOwnPalette;
     int defSpacing, defMargin;
     FormFile *ff;
+    bool fake;
 
 };
 

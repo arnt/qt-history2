@@ -328,7 +328,7 @@ void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 
 void HierarchyList::setup()
 {
-    if ( !formWindow || qstrcmp( formWindow->name(), "qt_fakewindow" ) == 0 )
+    if ( !formWindow || formWindow->isFake() == 0 )
 	return;
     clear();
     QWidget *w = formWindow->mainContainer();
