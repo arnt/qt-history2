@@ -23,6 +23,7 @@
 
 #include <qvariant.h>
 #include <qdom.h>
+#include <qnamespace.h>
 
 class DomTool : public Qt
 {

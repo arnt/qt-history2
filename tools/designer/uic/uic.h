@@ -24,8 +24,9 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
-
+#include <qnamespace.h>
 #include <qtextstream.h>
+#include <qpalette.h>
 
 class Uic : public Qt
 {

@@ -24,6 +24,9 @@
 #include <qpalette.h>
 #include <qcursor.h>
 #include <qdatetime.h>
+#include <qrect.h>
+#include <qsize.h>
+#include <qfont.h>
 
 /*!
   \class DomTool domtool.h
