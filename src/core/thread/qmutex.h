@@ -25,7 +25,6 @@ class QMutexPrivate;
 
 class Q_CORE_EXPORT QMutex
 {
-    friend class QThread;
     friend class QWaitCondition;
     friend class QWaitConditionPrivate;
 
