@@ -314,4 +314,8 @@ void WidgetFactory::initialize(QObject *object) const
 
     if (qobject_cast<Spacer*>(object))
         sheet->setChanged(sheet->indexOf("sizeHint"), true);
+
+    int o = sheet->indexOf("orientation");
+    if (o != -1)
+        sheet->setChanged(o, true);
 }
