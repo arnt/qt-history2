@@ -179,13 +179,11 @@ private slots:
 private:
     Q3ActionGroupPrivate* d;
 
-#ifdef QT_COMPAT
 public:
-    QT_COMPAT void insert(Q3Action* a) { add(a); }
-#endif
+    void insert(Q3Action *a) { add(a); }
 
 private:
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     Q3ActionGroup(const Q3ActionGroup &);
     Q3ActionGroup &operator=(const Q3ActionGroup &);
 #endif

@@ -70,10 +70,8 @@ public:
     void setCheckable(bool b);
     bool isChecked() const;
 
-#ifdef QT_COMPAT
-    inline QT_COMPAT int margin() const { return insideMargin(); }
-    inline QT_COMPAT void setMargin(int m) { setInsideMargin(m); }
-#endif
+    inline int margin() const { return insideMargin(); }
+    inline void setMargin(int m) { setInsideMargin(m); }
 
 public slots:
     void setChecked(bool b);

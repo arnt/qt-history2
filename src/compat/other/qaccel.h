@@ -18,9 +18,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#if defined(QT_COMPAT) || defined(QT_INCLUDE_COMPAT)
 #include "qkeysequence.h"
-#endif
 
 #ifndef QT_NO_ACCEL
 
@@ -61,10 +59,8 @@ public:
     bool ignoreWhatsThis() const;
 
     static QKeySequence shortcutKey(const QString &);
-#ifdef QT_COMPAT
-    static QT_COMPAT QString keyToString(const QKeySequence &k);
-    static QT_COMPAT QKeySequence stringToKey(const QString &);
-#endif
+    static QString keyToString(const QKeySequence &k);
+    static QKeySequence stringToKey(const QString &);
 
 signals:
     void activated(int id);
@@ -80,7 +76,6 @@ private:
 
 class QKeyEvent;
 
-#ifdef QT_COMPAT
 inline QString QAccel::keyToString(const QKeySequence &k)
 {
     return QString(k);
@@ -90,7 +85,6 @@ inline QKeySequence QAccel::stringToKey(const QString & s)
 {
     return QKeySequence(s);
 }
-#endif
 
 #endif // QT_NO_ACCEL
 #endif // QACCEL_H

@@ -57,9 +57,9 @@ public:
 
     void insertStringList(const QStringList&, int index=-1);
 // ### fix before Qt 4.0
-#if defined(QT_COMPAT) && 0
-    QT_COMPAT void insertStrList(const QStrList *, int index=-1);
-    QT_COMPAT void insertStrList(const QStrList &, int index=-1);
+#if 0
+    void insertStrList(const QStrList *, int index=-1);
+    void insertStrList(const QStrList &, int index=-1);
 #endif
     void insertStrList(const char **,
                         int numStrings=-1, int index=-1);
@@ -151,32 +151,30 @@ public:
 
     void viewportPaintEvent(QPaintEvent *);
 
-#ifdef QT_COMPAT
-    QT_COMPAT bool dragSelect() const { return true; }
-    QT_COMPAT void setDragSelect(bool) {}
-    QT_COMPAT bool autoScroll() const { return true; }
-    QT_COMPAT void setAutoScroll(bool) {}
-    QT_COMPAT bool autoScrollBar() const { return vScrollBarMode() == Auto; }
-    QT_COMPAT void setAutoScrollBar(bool enable) { setVScrollBarMode(enable ? Auto : AlwaysOff); }
-    QT_COMPAT bool scrollBar() const { return vScrollBarMode() != AlwaysOff; }
-    QT_COMPAT void setScrollBar(bool enable) { setVScrollBarMode(enable ? AlwaysOn : AlwaysOff); }
-    QT_COMPAT bool autoBottomScrollBar() const { return hScrollBarMode() == Auto; }
-    QT_COMPAT void setAutoBottomScrollBar(bool enable) { setHScrollBarMode(enable ? Auto : AlwaysOff); }
-    QT_COMPAT bool bottomScrollBar() const { return hScrollBarMode() != AlwaysOff; }
-    QT_COMPAT void setBottomScrollBar(bool enable) { setHScrollBarMode(enable ? AlwaysOn : AlwaysOff); }
-    QT_COMPAT bool smoothScrolling() const { return false; }
-    QT_COMPAT void setSmoothScrolling(bool) {}
-    QT_COMPAT bool autoUpdate() const { return true; }
-    QT_COMPAT void setAutoUpdate(bool) {}
-    QT_COMPAT void setFixedVisibleLines(int lines) { setRowMode(lines); }
-    QT_COMPAT int inSort(const QListBoxItem *);
-    QT_COMPAT int inSort(const QString& text);
-    QT_COMPAT int cellHeight(int i) const { return itemHeight(i); }
-    QT_COMPAT int cellHeight() const { return itemHeight(); }
-    QT_COMPAT int cellWidth() const { return maxItemWidth(); }
-    QT_COMPAT int cellWidth(int i) const { Q_ASSERT(i==0); Q_UNUSED(i) return maxItemWidth(); }
-    QT_COMPAT int        numCols() const { return numColumns(); }
-#endif
+    bool dragSelect() const { return true; }
+    void setDragSelect(bool) {}
+    bool autoScroll() const { return true; }
+    void setAutoScroll(bool) {}
+    bool autoScrollBar() const { return vScrollBarMode() == Auto; }
+    void setAutoScrollBar(bool enable) { setVScrollBarMode(enable ? Auto : AlwaysOff); }
+    bool scrollBar() const { return vScrollBarMode() != AlwaysOff; }
+    void setScrollBar(bool enable) { setVScrollBarMode(enable ? AlwaysOn : AlwaysOff); }
+    bool autoBottomScrollBar() const { return hScrollBarMode() == Auto; }
+    void setAutoBottomScrollBar(bool enable) { setHScrollBarMode(enable ? Auto : AlwaysOff); }
+    bool bottomScrollBar() const { return hScrollBarMode() != AlwaysOff; }
+    void setBottomScrollBar(bool enable) { setHScrollBarMode(enable ? AlwaysOn : AlwaysOff); }
+    bool smoothScrolling() const { return false; }
+    void setSmoothScrolling(bool) {}
+    bool autoUpdate() const { return true; }
+    void setAutoUpdate(bool) {}
+    void setFixedVisibleLines(int lines) { setRowMode(lines); }
+    int inSort(const QListBoxItem *);
+    int inSort(const QString& text);
+    int cellHeight(int i) const { return itemHeight(i); }
+    int cellHeight() const { return itemHeight(); }
+    int cellWidth() const { return maxItemWidth(); }
+    int cellWidth(int i) const { Q_ASSERT(i==0); Q_UNUSED(i) return maxItemWidth(); }
+    int numCols() const { return numColumns(); }
 
     int itemHeight(int index = 0) const;
     QListBoxItem * itemAt(const QPoint &) const;
@@ -241,11 +239,9 @@ protected:
     void updateItem(int index);
     void updateItem(QListBoxItem *);
 
-#ifdef QT_COMPAT
-    QT_COMPAT void updateCellWidth() { }
-    QT_COMPAT int totalWidth() const { return contentsWidth(); }
-    QT_COMPAT int totalHeight() const { return contentsHeight(); }
-#endif
+    void updateCellWidth() { }
+    int totalWidth() const { return contentsWidth(); }
+    int totalHeight() const { return contentsHeight(); }
 
     virtual void paintCell(QPainter *, int row, int col);
 
@@ -255,7 +251,7 @@ protected:
     void doLayout() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT int findItem(int yPos) const { return index(itemAt(QPoint(0,yPos))); }
+    int findItem(int yPos) const { return index(itemAt(QPoint(0,yPos))); }
 #endif
 
 protected slots:
@@ -312,8 +308,8 @@ public:
     bool isCurrent() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT bool selected() const { return isSelected(); }
-    QT_COMPAT bool current() const { return isCurrent(); }
+    bool selected() const { return isSelected(); }
+    bool current() const { return isCurrent(); }
 #endif
 
     QListBox *listBox() const;

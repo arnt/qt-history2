@@ -94,16 +94,14 @@ public:
     virtual void setActive(bool yes);
     bool isActive() const
         { return act; }
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool visible() const
+    inline bool visible() const
         { return vis; }
-    inline QT_COMPAT bool selected() const
+    inline bool selected() const
         { return sel; }
-    inline QT_COMPAT bool enabled() const
+    inline bool enabled() const
         { return ena; }
-    inline QT_COMPAT bool active() const
+    inline bool active() const
         { return act; }
-#endif
 
     enum RttiValues {
         Rtti_Item = 0,

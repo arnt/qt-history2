@@ -33,15 +33,13 @@ public:
 
     void        activate();
 
-#ifdef QT_COMPAT
-    QT_COMPAT bool        isBlocked() const
+    bool        isBlocked() const
         { return QObject::signalsBlocked(); }
-    QT_COMPAT void        block(bool b)
+    void        block(bool b)
         { QObject::blockSignals(b); }
 #ifndef QT_NO_VARIANT
-    QT_COMPAT void        setParameter(int value);
-    QT_COMPAT int        parameter() const;
-#endif
+    void        setParameter(int value);
+    int        parameter() const;
 #endif
 
 #ifndef QT_NO_VARIANT
@@ -64,6 +62,5 @@ private:        // Disabled copy constructor and operator=
     Q3Signal &operator=(const Q3Signal &);
 #endif
 };
-
 
 #endif // Q3SIGNAL_H

@@ -73,10 +73,8 @@ public:
 
     void setOkButton(const QString &text);
     void setOkButton();
-#ifdef QT_COMPAT
-    inline QT_COMPAT void setOKButton(const QString &text = QString())
+    inline void setOKButton(const QString &text = QString())
         { if (text.isEmpty()) setOkButton(QLatin1String("OK")); else setOkButton(text); }
-#endif
     bool hasOkButton() const;
 
 protected:
