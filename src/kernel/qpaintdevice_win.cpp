@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#51 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -31,7 +31,7 @@
 #include "qt_windows.h"
 
 
-extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 QPaintDevice::QPaintDevice( uint devflags )
 {

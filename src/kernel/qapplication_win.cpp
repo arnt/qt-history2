@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#234 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -103,7 +103,7 @@ static void	dispatchTimer( uint, MSG * );
 static bool	activateTimer( uint );
 static void	activateZeroTimers();
 
-Q_EXPORT WindowsVersion qt_winver = WV_NT;
+Q_EXPORT Qt::WindowsVersion qt_winver = Qt::WV_NT;
 
 QObject	       *qt_clipboard = 0;
 
@@ -397,16 +397,16 @@ void qt_init( int *argcptr, char **argv )
     GetVersionEx( &osver );
     switch ( osver.dwPlatformId ) {
 	case VER_PLATFORM_WIN32s:
-	    qt_winver = WV_32s;
+	    qt_winver = Qt::WV_32s;
 	    break;
 	case VER_PLATFORM_WIN32_WINDOWS:
 	    if ( osver.dwMinorVersion == 10 )
-		qt_winver = WV_98;
+		qt_winver = Qt::WV_98;
 	    else
-		qt_winver = WV_95;
+		qt_winver = Qt::WV_95;
 	    break;
 	default:
-	    qt_winver = WV_NT;
+	    qt_winver = Qt::WV_NT;
     }
 
   // Initialize OLE/COM
@@ -617,7 +617,7 @@ QWidget *QApplication::desktop()
     return desktopWidget;
 }
 
-WindowsVersion QApplication::winVersion()
+Qt::WindowsVersion QApplication::winVersion()
 {
     return qt_winver;
 }
@@ -954,7 +954,7 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
-    if ( qt_winver == WV_NT ) {			// no brush size limitation
+    if ( qt_winver == Qt::WV_NT ) {		// no brush size limitation
 	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
 	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	if ( off_x || off_y ) {

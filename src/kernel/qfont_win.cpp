@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#84 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -35,7 +35,7 @@
 #include "qt_windows.h"
 
 
-extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts
 static HFONT shared_dc_font = 0;		// used by Windows 95/98

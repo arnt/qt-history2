@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#40 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -36,7 +36,7 @@
 #include <shlobj.h>
 
 
-extern WindowsVersion qt_winver;
+extern Qt::WindowsVersion qt_winver;
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
@@ -770,23 +770,23 @@ public:
     /* IDropSource methods */
     STDMETHOD(QueryContinueDrag)(BOOL fEscapePressed, DWORD grfKeyState);
     STDMETHOD(GiveFeedback)(DWORD dwEffect);
- 
+
 private:
-    ULONG m_refs;     
-};  
+    ULONG m_refs;
+};
 
 
 class QOleDataObject : public IDataObject
 {
 public:
     QOleDataObject( QDragObject* );
-   
+
     /* IUnknown methods */
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
     STDMETHOD_(ULONG,AddRef)(void);
     STDMETHOD_(ULONG,Release)(void);
 
-    /* IDataObject methods */    
+    /* IDataObject methods */
     STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium );
     STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium );
     STDMETHOD(QueryGetData)(LPFORMATETC pformatetc );
@@ -794,21 +794,21 @@ public:
     STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
                        BOOL fRelease);
     STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
-    STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf, 
+    STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf,
                       LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
     STDMETHOD(DUnadvise)(DWORD dwConnection);
     STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
-    
+
 private:
-    ULONG m_refs;   
+    ULONG m_refs;
     QDragObject* object;
 };
-   
+
 class QOleDropTarget : public IDropTarget
 {
     QWidget* widget;
 
-public:    
+public:
     QOleDropTarget( QWidget* w );
 
     void releaseQt()
@@ -825,13 +825,13 @@ public:
     STDMETHOD(DragEnter)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
     STDMETHOD(DragOver)(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
     STDMETHOD(DragLeave)();
-    STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect); 
-    
+    STDMETHOD(Drop)(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect);
+
     /* Utility function to read type of drag from key state*/
     STDMETHOD_(BOOL, QueryDrop)(DWORD grfKeyState, LPDWORD pdwEffect);
- 
+
 private:
-    ULONG m_refs;  
+    ULONG m_refs;
     BOOL acceptfmt;
 };
 
@@ -942,14 +942,14 @@ QByteArray qt_olednd_obtain_data( const char *format )
 	while (NOERROR==fmtenum->Next( i, &fmtetc, &i ) && i) {
 	    int cf = fmtetc.cfFormat;
 	    QWindowsMime* wm = QWindowsMime::convertor( format, cf );
-	    STGMEDIUM medium;   
+	    STGMEDIUM medium;
 	    HGLOBAL hText;
 	    HRESULT hr;
 
 	    fmtetc.ptd = NULL;
-	    fmtetc.dwAspect = DVASPECT_CONTENT;  
+	    fmtetc.dwAspect = DVASPECT_CONTENT;
 	    fmtetc.lindex = -1;
-	    fmtetc.tymed = TYMED_HGLOBAL;       
+	    fmtetc.tymed = TYMED_HGLOBAL;
 	
 	    hr = current_dropobj->GetData(&fmtetc, &medium);
 	    if (!FAILED(hr)) {
@@ -973,7 +973,7 @@ QByteArray qt_olednd_obtain_data( const char *format )
 	int cf = fmtetc[i].cfFormat;
 	QWindowsMime* wm = QWindowsMime::convertor(format,cf);
 	if ( wm ) {
-	    STGMEDIUM medium;   
+	    STGMEDIUM medium;
 	    HGLOBAL hText;
 	    HRESULT hr = current_dropobj->GetData(fmtetc+i, &medium);
 	    if (!FAILED(hr)) {
@@ -1045,7 +1045,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	break;
     }
     updatePixmap();
-    HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &result_effect);     
+    HRESULT r = DoDragDrop(obj, src, DROPEFFECT_COPY, &result_effect);
     QDragResponseEvent e( r == DRAGDROP_S_DROP );
     QApplication::sendEvent( dragSource, &e );
     obj->Release();
@@ -1092,7 +1092,7 @@ STDAPI_(LPENUMFORMATETC)
 
 
 STDMETHODIMP
-QOleDropSource::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
+QOleDropSource::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
     if(iid == IID_IUnknown || iid == IID_IDropSource)
     {
@@ -1121,21 +1121,21 @@ QOleDropSource::Release(void)
       return 0;
     }
     return m_refs;
-}  
+}
 
 //---------------------------------------------------------------------
 //                    IDropSource Methods
-//---------------------------------------------------------------------  
+//---------------------------------------------------------------------
 
 STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
-{  
+{
      if (fEscapePressed)
         return ResultFromScode(DRAGDROP_S_CANCEL);
     else if (!(grfKeyState & MK_LBUTTON))
         return ResultFromScode(DRAGDROP_S_DROP);
     else
-        return NOERROR;                  
+        return NOERROR;
 }
 
 STDMETHODIMP
@@ -1165,13 +1165,13 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 
 //---------------------------------------------------------------------
 //                    QOleDataObject Constructor
-//---------------------------------------------------------------------        
+//---------------------------------------------------------------------
 
 QOleDataObject::QOleDataObject( QDragObject* o ) :
     object(o)
 {
-    m_refs = 1;    
-}   
+    m_refs = 1;
+}
 
 //---------------------------------------------------------------------
 //                    IUnknown Methods
@@ -1179,7 +1179,7 @@ QOleDataObject::QOleDataObject( QDragObject* o ) :
 
 
 STDMETHODIMP
-QOleDataObject::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
+QOleDataObject::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
     if(iid == IID_IUnknown || iid == IID_IDataObject)
     {
@@ -1208,13 +1208,13 @@ QOleDataObject::Release(void)
       return 0;
     }
     return m_refs;
-}  
+}
 
 //---------------------------------------------------------------------
-//                    IDataObject Methods    
-//  
+//                    IDataObject Methods
+//
 // The following methods are NOT supported for data transfer using the
-// clipboard or drag-drop: 
+// clipboard or drag-drop:
 //
 //      IDataObject::SetData    -- return E_NOTIMPL
 //      IDataObject::DAdvise    -- return OLE_E_ADVISENOTSUPPORTED
@@ -1222,10 +1222,10 @@ QOleDataObject::Release(void)
 //                 ::EnumDAdvise
 //      IDataObject::GetCanonicalFormatEtc -- return E_NOTIMPL
 //                     (NOTE: must set pformatetcOut->ptd = NULL)
-//---------------------------------------------------------------------  
+//---------------------------------------------------------------------
 
-STDMETHODIMP 
-QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium) 
+STDMETHODIMP
+QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
     // This method is called by the drag-drop target to obtain the data
     // that is being dragged.
@@ -1253,23 +1253,23 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 		memcpy(out,data.data(),data.size());
 		GlobalUnlock(hData);
 		pmedium->tymed = TYMED_HGLOBAL;
-		pmedium->hGlobal = hData; 
+		pmedium->hGlobal = hData;
 		return ResultFromScode(S_OK);
 	    }
 	}
     }
     return ResultFromScode(DATA_E_FORMATETC);
 }
-   
-STDMETHODIMP 
-QOleDataObject::GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)  
-{
-    return ResultFromScode(DATA_E_FORMATETC);    
-}     
 
-STDMETHODIMP 
-QOleDataObject::QueryGetData(LPFORMATETC pformatetc) 
-{   
+STDMETHODIMP
+QOleDataObject::GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
+{
+    return ResultFromScode(DATA_E_FORMATETC);
+}
+
+STDMETHODIMP
+QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
+{
     // This method is called by the drop target to check whether the source
     // provides data in a format that the target accepts.
 
@@ -1279,22 +1279,22 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 	   pformatetc->dwAspect == DVASPECT_CONTENT &&
 	   pformatetc->tymed == TYMED_HGLOBAL)
 	{
-	    return ResultFromScode(S_OK); 
+	    return ResultFromScode(S_OK);
 	}
     }
     return ResultFromScode(S_FALSE);
 }
 
-STDMETHODIMP 
+STDMETHODIMP
 QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut)
-{ 
-    pformatetcOut->ptd = NULL; 
+{
+    pformatetcOut->ptd = NULL;
     return ResultFromScode(E_NOTIMPL);
-}        
+}
 
-STDMETHODIMP 
+STDMETHODIMP
 QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fRelease)
-{   
+{
     // A data transfer object that is used to transfer data
     //    (either via the clipboard or drag/drop does NOT
     //    accept SetData on ANY format.
@@ -1302,9 +1302,9 @@ QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fReleas
 }
 
 
-STDMETHODIMP 
+STDMETHODIMP
 QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)
-{ 
+{
     // A standard implementation is provided by OleStdEnumFmtEtc_Create
     // which can be found in \ole2\samp\ole2ui\enumfetc.c in the OLE 2 SDK.
     // This code from ole2ui is copied to the enumfetc.c file in this sample.
@@ -1335,36 +1335,36 @@ error:
     return ResultFromScode(sc);
 }
 
-STDMETHODIMP 
-QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf, 
+STDMETHODIMP
+QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf,
                        LPADVISESINK pAdvSink, DWORD FAR* pdwConnection)
-{ 
+{
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
-   
 
-STDMETHODIMP 
+
+STDMETHODIMP
 QOleDataObject::DUnadvise(DWORD dwConnection)
-{ 
+{
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
-STDMETHODIMP 
+STDMETHODIMP
 QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise)
-{ 
+{
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
 
-         
-          
-         
+
+
+
 QOleDropTarget::QOleDropTarget( QWidget* w ) :
     widget(w)
 {
-   m_refs = 1; 
+   m_refs = 1;
    acceptfmt = FALSE;
-}   
+}
 
 //---------------------------------------------------------------------
 //                    IUnknown Methods
@@ -1372,7 +1372,7 @@ QOleDropTarget::QOleDropTarget( QWidget* w ) :
 
 
 STDMETHODIMP
-QOleDropTarget::QueryInterface(REFIID iid, void FAR* FAR* ppv) 
+QOleDropTarget::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
     if(iid == IID_IUnknown || iid == IID_IDropTarget)
     {
@@ -1401,15 +1401,15 @@ QOleDropTarget::Release(void)
       return 0;
     }
     return m_refs;
-}  
+}
 
 //---------------------------------------------------------------------
 //                    IDropTarget Methods
-//---------------------------------------------------------------------  
+//---------------------------------------------------------------------
 
 STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
-{  
+{
     current_dropobj = pDataObj;
     current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 
@@ -1438,8 +1438,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 
 STDMETHODIMP
 QOleDropTarget::DragLeave()
-{   
-    acceptfmt = FALSE;   
+{
+    acceptfmt = FALSE;
     current_drop = 0;
     current_dropobj = 0;
     QDragLeaveEvent de;
@@ -1448,10 +1448,10 @@ QOleDropTarget::DragLeave()
 }
 
 STDMETHODIMP
-QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)  
-{   
+QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
+{
     if (QueryDrop(grfKeyState, pdwEffect))
-    {      
+    {
 	current_dropobj = pDataObj;
 	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
@@ -1459,12 +1459,12 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	DragLeave();
 	//current_drop = 0;   - already done
 	//current_dropobj = 0;
-	return NOERROR;      
+	return NOERROR;
     }
-    
+
     *pdwEffect = DROPEFFECT_NONE;
     return ResultFromScode(DATA_E_FORMATETC);
-}   
+}
 
 /* OleStdGetDropEffect
 ** -------------------
@@ -1491,35 +1491,35 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
         ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
 
 //---------------------------------------------------------------------
-// QOleDropTarget::QueryDrop: Given key state, determines the type of 
-// acceptable drag and returns the a dwEffect. 
-//---------------------------------------------------------------------   
+// QOleDropTarget::QueryDrop: Given key state, determines the type of
+// acceptable drag and returns the a dwEffect.
+//---------------------------------------------------------------------
 STDMETHODIMP_(BOOL)
 QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
-{  
-    DWORD dwOKEffects = *pdwEffect; 
-    
+{
+    DWORD dwOKEffects = *pdwEffect;
+
     if (!acceptfmt)
-        goto dropeffect_none; 
-     
+        goto dropeffect_none;
+
     *pdwEffect = OleStdGetDropEffect(grfKeyState);
     if (*pdwEffect == 0) {
         // No modifier keys used by user while dragging. Try in order: MOVE, COPY.
         if (DROPEFFECT_MOVE & dwOKEffects)
             *pdwEffect = DROPEFFECT_MOVE;
         else if (DROPEFFECT_COPY & dwOKEffects)
-            *pdwEffect = DROPEFFECT_COPY; 
-        else goto dropeffect_none;   
-    } 
+            *pdwEffect = DROPEFFECT_COPY;
+        else goto dropeffect_none;
+    }
     else {
         // Check if the drag source application allows the drop effect desired by user.
         // The drag source specifies this in DoDragDrop
         if (!(*pdwEffect & dwOKEffects))
-            goto dropeffect_none; 
+            goto dropeffect_none;
         // We don't accept links
         if (*pdwEffect == DROPEFFECT_LINK)
-            goto dropeffect_none; 
-    }  
+            goto dropeffect_none;
+    }
     return TRUE;
 
 dropeffect_none:

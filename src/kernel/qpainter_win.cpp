@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#124 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -35,7 +35,7 @@
 #include "qt_windows.h"
 
 
-extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern Qt::WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
 /*
   QWinFont holds extra font settings for the painter.

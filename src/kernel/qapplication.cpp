@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#183 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#184 $
 **
 ** Implementation of QApplication class
 **
@@ -1163,7 +1163,7 @@ int QApplication::doubleClickInterval()
 
 
 /*!
-  \fn WindowsVersion QApplication::winVersion()
+  \fn Qt::WindowsVersion QApplication::winVersion()
 
   Returns the version of the Windows operating system running:
 
