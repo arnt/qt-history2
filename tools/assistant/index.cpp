@@ -131,7 +131,7 @@ void Index::parseDocument( const QString &filename, int docNum )
     char str[64];
     char c = file.getch();
     int i = 0;
-    while ( c != EOF ) {
+    while ( !file.atEnd() ) {
 	if ( c == '<' ) {
 	    valid = FALSE;
 	    str[i] = 0;
@@ -295,13 +295,13 @@ QString Index::getDocumentTitle( const QString &fileName )
     const char *tag = "<title>";
     char title[256];
     bool found = FALSE;
-    while ( c != EOF ) {
+    while ( !file.atEnd() ) {
 	i = 0;
 	if ( tolower( c ) == tag[i] ) {
 	    found = TRUE;
 	    for( i = 1; i < 7; ++i ) {
 		c = file.getch();
-		if ( c == EOF )
+		if ( file.atEnd() )
 		    return fileName;
 		if ( tolower( c ) != tag[i] ) {
 		    found = FALSE;
@@ -312,7 +312,7 @@ QString Index::getDocumentTitle( const QString &fileName )
 	if ( found ) {
 	    c = file.getch();
 	    int i = 0;
-	    while ( ( c != EOF ) && ( c != '<' ) ) {
+	    while ( ( !file.atEnd() ) && ( c != '<' ) ) {
 		title[ i ] = c;
 		++i;
 		c = file.getch();
@@ -450,7 +450,7 @@ bool Index::searchForPattern( const QStringList &patterns, const QStringList &wo
     char str[64];
     char c = file.getch();
     int i = 0;
-    while ( c != EOF ) {
+    while ( !file.atEnd() ) {
 	if ( c == '<' || c == '&' ) {
 	    valid = FALSE;
 	    str[i] = 0;
