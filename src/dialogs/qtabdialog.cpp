@@ -599,7 +599,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
     QObjectList * l
 	= ((QTabDialog *)this)->queryList( "QWidget", name, FALSE, TRUE );
     if ( l && l->first() ) {
-	QObjectListIt it(*l);
+	QObjectListIterator it(*l);
 	QObject *o;
 	while( (o = it.current()) ) {
 	    ++it;

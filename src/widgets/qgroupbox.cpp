@@ -560,7 +560,7 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 
     // Add all children
     if ( children() ) {
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
@@ -659,7 +659,7 @@ void QGroupBox::fixFocus()
 	     && w->isVisibleTo(this) ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON
-		 || ( !best && ::qt_cast<QRadioButton>(w) 
+		 || ( !best && ::qt_cast<QRadioButton>(w)
 		 && ((QRadioButton*)w)->isChecked() )
 #endif
 		    )
@@ -889,13 +889,13 @@ void QGroupBox::setChildrenEnabled( bool b )
 {
     if ( !children() )
 	return;
-    QObjectListIt it( *children() );
+    QObjectListIterator it( *children() );
     QObject *o;
     while( (o = it.current()) ) {
 	++it;
-	if ( o->isWidgetType() 
+	if ( o->isWidgetType()
 #ifndef QT_NO_CHECKBOX
-	     && o != d->checkbox 
+	     && o != d->checkbox
 #endif
 	     ) {
 	    QWidget *w = (QWidget*)o;

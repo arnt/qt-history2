@@ -1081,7 +1081,7 @@ QSize QSplitter::sizeHint() const
     int t = 0;
     if ( children() ) {
 	const QObjectList * c = children();
-	QObjectListIt it( *c );
+	QObjectListIterator it( *c );
 	QObject * o;
 
 	while( (o = it.current()) != 0 ) {
@@ -1110,7 +1110,7 @@ QSize QSplitter::minimumSizeHint() const
     int t = 0;
     if ( children() ) {
 	const QObjectList * c = children();
-	QObjectListIt it( *c );
+	QObjectListIterator it( *c );
 	QObject * o;
 
 	while ( (o = it.current()) != 0 ) {

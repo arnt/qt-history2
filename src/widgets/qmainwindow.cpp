@@ -326,7 +326,7 @@ protected:
 	p.fillRect( e->rect(), colorGroup().brush( QColorGroup::Background ) );
 	int x = 0;
 	int i = -1;
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QObject *o;
 	while ( ( o = it.current() ) ) {
 	    ++it;
@@ -368,7 +368,7 @@ protected:
 	int x = 0;
 	int i = -1;
 	if ( e->y() >= 0 && e->y() <= height() ) {
-	    QObjectListIt it( *children() );
+	    QObjectListIterator it( *children() );
 	    QObject *o;
 	    while ( ( o = it.current() ) ) {
 		++it;
@@ -427,7 +427,7 @@ protected:
 	if ( !children() || children()->isEmpty() ) {
 	    visible = FALSE;
 	} else {
-	    QObjectListIt it( *children() );
+	    QObjectListIterator it( *children() );
 	    QObject *o;
 	    while ( ( o = it.current() ) ) {
 		++it;
@@ -481,7 +481,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
     if ( !dock->children() || dock->children()->isEmpty() )
 	return;
-    QObjectListIt it( *dock->children() );
+    QObjectListIterator it( *dock->children() );
     QObject *o;
     int x = 0;
     while ( ( o = it.current() ) ) {
@@ -1401,7 +1401,7 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
 void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 {
 #ifdef Q_WS_MAC
-    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows( DockTop ).count()) 
+    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows( DockTop ).count())
 	ChangeWindowAttributes((WindowPtr)handle(), 0, kWindowToolbarButtonAttribute);
 #endif
 
@@ -1494,7 +1494,7 @@ void QMainWindow::hide()
 {
     if ( isVisible() ) {
 	QObjectList *list = queryList( "QDockWindow" );
-	QObjectListIt it( *list );
+	QObjectListIterator it( *list );
 	while ( it.current() ) {
 	    QDockWindow *dw = (QDockWindow*)it.current();
 	    ++it;
@@ -1940,7 +1940,7 @@ QPtrList<QDockWindow> QMainWindow::dockWindows( Dock dock ) const
     return lst;
     case DockMinimized: {
 	if ( d->hideDock->children() ) {
-	    QObjectListIt it( *d->hideDock->children() );
+	    QObjectListIterator it( *d->hideDock->children() );
 	    QObject *o;
 	    while ( ( o = it.current() ) ) {
 		++it;

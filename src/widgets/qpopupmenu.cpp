@@ -481,7 +481,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 #endif
 
 #if (QT_VERSION-0 >= 0x040000)
-#error "Fix this now"
+#  ifdef Q_CC_GNU
+#    warning "Fix this now"
+#  endif
     // #### should move to QWidget - anything might need this functionality,
     // #### since anything can have WType_Popup window flag.
     // #### This includes stuff in QPushButton and some stuff for setting
@@ -601,20 +603,20 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     int vGuess = QEffects::DownScroll;
     if ( qApp->reverseLayout() ) {
 	if ( snapToMouse && ( x + w/2 > mouse.x() ) ||
-	    ( parentMenu && parentMenu->isPopupMenu &&
-	    ( x + w/2 > ((QPopupMenu*)parentMenu)->x() ) ) )
+	     ( parentMenu && parentMenu->isPopupMenu &&
+	       ( x + w/2 > ((QPopupMenu*)parentMenu)->x() ) ) )
 	    hGuess = QEffects::RightScroll;
     } else {
 	if ( snapToMouse && ( x + w/2 < mouse.x() ) ||
-	    ( parentMenu && parentMenu->isPopupMenu &&
-	    ( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
+	     ( parentMenu && parentMenu->isPopupMenu &&
+	       ( x + w/2 < ((QPopupMenu*)parentMenu)->x() ) ) )
 	    hGuess = QEffects::LeftScroll;
     }
 
 #ifndef QT_NO_MENUBAR
     if ( snapToMouse && ( y + h/2 < mouse.y() ) ||
-	( parentMenu && parentMenu->isMenuBar &&
-	( y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal( ((QMenuBar*)parentMenu)->pos() ).y() ) ) )
+	 ( parentMenu && parentMenu->isMenuBar &&
+	   ( y + h/2 < ((QMenuBar*)parentMenu)->mapToGlobal( ((QMenuBar*)parentMenu)->pos() ).y() ) ) )
 	vGuess = QEffects::UpScroll;
 #endif
 
@@ -628,9 +630,9 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	    qScrollEffect( this, hGuess | vGuess );
     } else
 #endif
-    {
-	show();
-    }
+	{
+	    show();
+	}
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::PopupMenuStart );
 #endif
@@ -1758,7 +1760,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    return;
 	}
 
-	if ( mi->popup() || ( popupActive >= 0 && popupActive != item )) 
+	if ( mi->popup() || ( popupActive >= 0 && popupActive != item ))
 	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this),
 			       this );
 	else if ( singleSingleShot )

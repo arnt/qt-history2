@@ -933,7 +933,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 	if(o->inherits("QMainWindow")) {
 	    d->wmode = TopLevel;
 	    const QObjectList *c = o->children();
-	    for(QObjectListIt it(*c); it; ++it) {
+	    for(QObjectListIterator it(*c); it; ++it) {
 		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
 		   !(*it)->inherits("QHBox") && !(*it)->inherits("QVBox") &&
 		   !(*it)->inherits("QWorkspaceChild") && !(*it)->inherits("QHideDock") &&
@@ -951,7 +951,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 	if(o->inherits("QMainWindow"))
 	    d->mainwindow = (QMainWindow*)o;
 	const QObjectList children = *o->children();
-	for(QObjectListIt it(children); it; ++it) {
+	for(QObjectListIterator it(children); it; ++it) {
 	    if(!(*it)->isWidgetType())
 		continue;
 	    QWidget *w = (QWidget *)(*it);
@@ -961,7 +961,7 @@ void QWorkspace::showEvent( QShowEvent *e )
 		const QObjectList *dock_c = w->children();
 		if(dock_c) {
 		    QPtrList<QToolBar> tb_list;
-		    for(QObjectListIt dock_it(*dock_c); dock_it; ++dock_it) {
+		    for(QObjectListIterator dock_it(*dock_c); dock_it; ++dock_it) {
 			if(!(*dock_it)->isWidgetType())
 			    continue;
 			if((*dock_it)->inherits("QToolBar")) {
@@ -1265,7 +1265,7 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
     if ( order == StackingOrder ) {
 	const QObjectList *cl = children();
 	if ( cl ) {
-	    QObjectListIt it( *cl );
+	    QObjectListIterator it( *cl );
 	    while (it.current()) {
 		QObject *o = it.current();
 		++it;
@@ -1471,7 +1471,7 @@ void QWorkspace::showMaximizeControls()
 	d->maxcontrols = new QFrame( topLevelWidget(), "qt_maxcontrols" );
 	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
 					  d->maxcontrols->frameWidth(), 0 );
-	if ( d->maxWindow->windowWidget() && 
+	if ( d->maxWindow->windowWidget() &&
 	     d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize) ) {
 	    QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
 #ifndef QT_NO_TOOLTIP

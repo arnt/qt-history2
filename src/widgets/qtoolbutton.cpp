@@ -619,6 +619,11 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 
     \sa drawButton()
 */
+#if (QT_VERSION-0) >= 0x040000
+#  ifdef Q_CC_GNU
+#    warning "maybe act like QPushButton with regards to setFlat() instead?  --Andy"
+#  endif
+#endif
 
 bool QToolButton::uses3D() const
 {

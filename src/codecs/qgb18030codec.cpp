@@ -115,7 +115,11 @@
 #include <qcstring.h>
 
 #if (QT_VERSION-0 >= 0x040000)
-#error "move obsolete header <qgbkcodec.h> into the src/compat directory"
+#  ifdef Q_CC_GNU
+// changed to a warning until after we remove 1.x compatibility
+// headers from src/compat/
+#    warning "move obsolete header <qgbkcodec.h> into the src/compat directory"
+#  endif
 #endif
 
 #ifndef QT_NO_BIG_CODECS

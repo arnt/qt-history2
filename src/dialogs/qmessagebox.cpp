@@ -981,7 +981,7 @@ void QMessageBox::keyPressEvent( QKeyEvent *e )
 #ifndef QT_NO_ACCEL
     if ( !( e->state() & AltButton ) ) {
 	QObjectList *list = queryList( "QPushButton" );
-	QObjectListIt it( *list );
+	QObjectListIterator it( *list );
 	QPushButton *pb;
 	while ( (pb = (QPushButton*)it.current()) ) {
 	    int key = e->key() & ~(MODIFIER_MASK|UNICODE_ACCEL);

@@ -70,20 +70,4 @@ public:
 		 QPtrListIterator<QObject>::operator=( i ); }
 };
 
-#if (QT_VERSION-0 >= 0x040000)
-#if defined(Q_CC_GNU)
-#warning "remove the QObjectListIt class"
-#warning "remove the typedef too, maybe"
-#endif
-typedef QObjectListIterator QObjectListIt;
-#else
-class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
-{
-public:
-    QObjectListIt( const QObjectList &l ) : QPtrListIterator<QObject>(l) {}
-    QObjectListIt &operator=(const QObjectListIt &i)
-	{ return (QObjectListIt&)QPtrListIterator<QObject>::operator=(i); }
-};
-#endif
-
 #endif // QOBJECTLIST_H

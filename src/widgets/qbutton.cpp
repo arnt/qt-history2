@@ -656,7 +656,8 @@ bool QButton::hitButton( const QPoint &pos ) const
     return rect().contains( pos );
 }
 
-/*!
+/*! \fn void QButton::drawButton( QPainter * )
+
     Draws the button. The default implementation does nothing.
 
     This virtual function is reimplemented by subclasses to draw real
@@ -665,15 +666,9 @@ bool QButton::hitButton( const QPoint &pos ) const
 
     \sa drawButtonLabel(), paintEvent()
 */
-#if (QT_VERSION-0 >= 0x040000)
-#error "QButton. Make pure virtual"
-#endif
-void QButton::drawButton( QPainter * )
-{
-    return;
-}
 
-/*!
+/*! \fn void QButton::drawButtonLabel( QPainter * )
+
     Draws the button text or pixmap.
 
     This virtual function is reimplemented by subclasses to draw real
@@ -681,11 +676,6 @@ void QButton::drawButton( QPainter * )
 
     \sa drawButton(), paintEvent()
 */
-
-void QButton::drawButtonLabel( QPainter * )
-{
-    return;
-}
 
 /*! \reimp */
 void QButton::keyPressEvent( QKeyEvent *e )
@@ -793,9 +783,9 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 
 	// clean up apperance if left button has been pressed
 	if (mlbDown || buttonDown) {
-	    mlbDown = FALSE;				
+	    mlbDown = FALSE;
 	    buttonDown = FALSE;
-	    
+
 	    if ( autoMask() )
 		updateMask();
 	    repaint( FALSE );

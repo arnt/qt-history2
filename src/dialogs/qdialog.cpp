@@ -281,7 +281,7 @@ void QDialog::setDefault( QPushButton *pushButton )
 #ifndef QT_NO_PUSHBUTTON
     QObjectList *list = queryList( "QPushButton" );
     Q_ASSERT(list);
-    QObjectListIt it( *list );
+    QObjectListIterator it( *list );
     QPushButton *pb;
     bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
@@ -310,7 +310,7 @@ void QDialog::hideDefault()
 {
 #ifndef QT_NO_PUSHBUTTON
     QObjectList *list = queryList( "QPushButton" );
-    QObjectListIt it( *list );
+    QObjectListIterator it( *list );
     QPushButton *pb;
     while ( (pb = (QPushButton*)it.current()) ) {
 	++it;
@@ -493,7 +493,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	case Key_Return: {
 #ifndef QT_NO_PUSHBUTTON
 	    QObjectList *list = queryList( "QPushButton" );
-	    QObjectListIt it( *list );
+	    QObjectListIterator it( *list );
 	    QPushButton *pb;
 	    while ( (pb = (QPushButton*)it.current()) ) {
 		if ( pb->isDefault() && pb->isVisible() ) {

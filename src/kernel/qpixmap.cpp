@@ -1107,7 +1107,7 @@ static QPixmap grabChildWidgets( QWidget * w )
     const QObjectList * children = w->children();
     if ( children ) {
 	QPainter p( &res );
-	QObjectListIt it( *children );
+	QObjectListIterator it( *children );
 	QObject * child;
 	while( (child=it.current()) != 0 ) {
 	    ++it;

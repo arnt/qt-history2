@@ -261,8 +261,7 @@ public:
 
     int tabStopWidth() const;
 
-    QString anchorAt( const QPoint& pos );
-    QString anchorAt( const QPoint& pos, AnchorAttribute a );
+    QString anchorAt( const QPoint& pos, AnchorAttribute a = AnchorHref );
 
     QSize sizeHint() const;
 
@@ -375,7 +374,7 @@ public slots:
 
     virtual void scrollToBottom();
 
-    void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected ); // ## virtual in 4.0
+    virtual void insert( const QString &text, uint insertionFlags = CheckNewLines | RemoveSelected );
 
     // obsolete
     virtual void insert( const QString &text, bool, bool = TRUE, bool = TRUE );
@@ -388,7 +387,7 @@ public slots:
     virtual void clearParagraphBackground( int para );
 
     virtual void setUndoRedoEnabled( bool b );
-    void setTabChangesFocus( bool b ); // ### make virtual in 4.0
+    virtual void setTabChangesFocus( bool b );
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     void polish();
@@ -450,10 +449,7 @@ protected:
 
 protected slots:
     virtual void doChangeInterval();
-    void sliderReleased(); // ### make virtual in 4.0
-#if (QT_VERSION >= 0x040000)
-#error "Some functions need to be changed to virtual for Qt 4.0"
-#endif
+    virtual void sliderReleased();
 
 private slots:
     void formatMore();

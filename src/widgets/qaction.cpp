@@ -144,7 +144,6 @@ public:
 #ifndef QT_NO_TOOLTIP
     QToolTipGroup tipGroup;
 #endif
-    QActionGroupPrivate* d_group;
 
     struct MenuItem {
 	MenuItem():popup(0),id(0){}
@@ -177,11 +176,10 @@ QActionPrivate::QActionPrivate()
       key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
       enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
-      forceDisabled( FALSE ),
+      forceDisabled( FALSE )
 #ifndef QT_NO_TOOLTIP
-      tipGroup( 0 ),
+      , tipGroup( 0 )
 #endif
-      d_group( 0 )
 {
     menuitems.setAutoDelete( TRUE );
     comboitems.setAutoDelete( TRUE );
@@ -888,11 +886,6 @@ void QAction::setVisible( bool visible )
 	return;
     d->visible = visible;
     d->update( QActionPrivate::Visibility );
-#if (QT_VERSION-0 >= 0x040000)
-#error "QAction::setVisible function wants to be virtual. Also add virtual change() function"
-#endif
-    if ( d->d_group ) //### this function wants to be virtual in 4.0
-	d->d_group->update( (QActionGroup*) this );
 }
 
 /*
@@ -1374,7 +1367,6 @@ QActionGroup::QActionGroup( QObject* parent, const char* name )
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
-    QAction::d->d_group = d;
 
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
@@ -1395,7 +1387,6 @@ QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     d->dropdown = FALSE;
     d->selected = 0;
     d->separatorAction = 0;
-    QAction::d->d_group = d;
 
     connect( this, SIGNAL(selected(QAction*)), SLOT(internalToggle(QAction*)) );
 }
@@ -1810,6 +1801,14 @@ void QActionGroup::setOn( bool on )
     }
 
     QAction::setOn( on );
+    d->update( this );
+}
+
+/*! \reimp
+ */
+void QActionGroup::setVisible( bool visible )
+{
+    QAction::setVisible( visible );
     d->update( this );
 }
 

@@ -119,7 +119,7 @@ public slots:
     void toggle();
     virtual void setOn( bool );
     virtual void setEnabled( bool );
-    void setVisible( bool );
+    virtual void setVisible( bool );
 
 signals:
     void activated();
@@ -165,6 +165,7 @@ public:
     void setEnabled( bool );
     void setToggleAction( bool toggle );
     void setOn( bool on );
+    void setVisible( bool );
 
     void setUsesDropDown( bool enable );
     bool usesDropDown() const;

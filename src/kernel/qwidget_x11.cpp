@@ -608,7 +608,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     if ( testWState(WState_Created) ) {
 	clearWState( WState_Created );
 	if ( children() ) {
-	    QObjectListIt it(*children());
+	    QObjectListIterator it(*children());
 	    register QObject *obj;
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
@@ -717,7 +717,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
-	QObjectListIt it( *chlist );
+	QObjectListIterator it( *chlist );
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    if ( obj->isWidgetType() ) {
@@ -2156,7 +2156,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( !valid_rect && children() ) {	// scroll children
 	QPoint pd( dx, dy );
-	QObjectListIt it(*children());
+	QObjectListIterator it(*children());
 	register QObject *object;
 	while ( it ) {				// move all children
 	    object = it.current();
@@ -2315,7 +2315,7 @@ void QWidget::checkChildrenDnd()
 	bool children_use_dnd = FALSE;
 	children = widget->children();
 	if ( children ) {
-	    QObjectListIt it(*children);
+	    QObjectListIterator it(*children);
 	    while ( (object = it.current()) ) {
 		++it;
 		if ( object->isWidgetType() ) {

@@ -156,10 +156,8 @@ class QConnection;
 class QEvent;
 struct QMetaData;
 class QConnectionList;
-class QConnectionListIt;
 class QSignalVec;
 class QObjectList;
-class QObjectListIt;
 class QMemberDict;
 
 Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );

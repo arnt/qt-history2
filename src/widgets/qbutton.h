@@ -122,8 +122,8 @@ protected:
     virtual void	setState( ToggleState );
 
     virtual bool hitButton( const QPoint &pos ) const;
-    virtual void drawButton( QPainter * );
-    virtual void drawButtonLabel( QPainter * );
+    virtual void drawButton( QPainter * ) = 0;
+    virtual void drawButtonLabel( QPainter * ) = 0;
 
     void	keyPressEvent( QKeyEvent *);
     void	keyReleaseEvent( QKeyEvent *);

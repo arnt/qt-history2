@@ -4748,26 +4748,9 @@ void QTextEdit::scrollToAnchor( const QString& name )
     }
 }
 
-#if (QT_VERSION-0 >= 0x040000)
-#error "function anchorAt(const QPoint& pos) should be merged into function anchorAt(const QPoint& pos, AnchorAttribute attr)"
-#endif
-
-/*!
-    \overload
-
-    If there is an anchor at position \a pos (in contents
-    coordinates), its \c href is returned, otherwise QString::null is
-    returned.
-*/
-
-QString QTextEdit::anchorAt( const QPoint& pos )
-{
-    return anchorAt(pos, AnchorHref);
-}
-
 /*!
     If there is an anchor at position \a pos (in contents
-    coordinates), the text for attribute \a attr is returned,
+    coordinates), the text for attribute \a attr (AnchorHref by default) is returned,
     otherwise QString::null is returned.
 */
 

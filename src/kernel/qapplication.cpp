@@ -2151,8 +2151,8 @@ void QApplication::aboutQt()
   \fn void QApplication::aboutToQuit()
 
   This signal is emitted when the application is about to quit the
-  main event loop, e.g. when the event loop level drops to zero. 
-  This may happen either after a call to quit() from inside the 
+  main event loop, e.g. when the event loop level drops to zero.
+  This may happen either after a call to quit() from inside the
   application or when the users shuts down the entire desktop session.
 
   The signal is particularly useful if your application has to do some
@@ -2501,7 +2501,7 @@ bool QApplication::event( QEvent *e )
 bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 {
     if ( eventFilters ) {
-	QObjectListIt it( *eventFilters );
+	QObjectListIterator it( *eventFilters );
 	register QObject *obj;
 	while ( (obj=it.current()) != 0 ) {	// send to all filters
 	    ++it;				//   until one returns TRUE

@@ -52,45 +52,12 @@ public:
     class Invisible: public QWidget
     {
     public:
-	Invisible( QWidgetStack * parent ): QWidget( parent, "qt_invisible_widgetstack" )
-	{
-	    setBackgroundMode( NoBackground );
-	}
+	Invisible( QWidgetStack * parent )
+	    : QWidget( parent, "qt_invisible_widgetstack" )
+	{ setBackgroundMode( NoBackground ); }
 	const char * className() const
-	{
-	    return "QWidgetStackPrivate::Invisible";
-	}
+	{ return "QWidgetStackPrivate::Invisible"; }
     };
-};
-
-
-#if (QT_VERSION-0 >= 0x040000)
-#if defined(Q_CC_GNU)
-#warning "Remove QWidgetStackEventFilter"
-#endif
-#endif
-class QWidgetStackEventFilter : public QObject
-{
-    /* For binary compatibility, since we cannot implement virtual
-       functions and rely on them being called. This is what we should
-       have
-
-	bool QWidgetStack::event( QEvent* e )
-	{
-	    if ( e->type() == QEvent::LayoutHint )
-		updateGeometry(); // propgate layout hints to parent
-	    return QFrame::event( e );
-	}
-    */
-public:
-
-    QWidgetStackEventFilter( QObject *parent = 0, const char * name = 0 )
-	: QObject( parent, name ) {}
-    bool eventFilter( QObject *o, QEvent * e ) {
-	if ( e->type() == QEvent::LayoutHint && o->isWidgetType() )
-	    ((QWidget*)o)->updateGeometry();
-	return FALSE;
-    }
 };
 
 
@@ -157,8 +124,6 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
 void QWidgetStack::init()
 {
    d = 0;
-   QWidgetStackEventFilter *ef = new QWidgetStackEventFilter( this );
-   installEventFilter( ef );
    dict = new QIntDict<QWidget>;
    focusWidgets = 0;
    topWidget = 0;
@@ -277,7 +242,7 @@ static bool isChildOf( QWidget* child, QWidget *parent )
     const QObjectList *list = parent->children();
     if ( !child || !list )
 	return FALSE;
-    QObjectListIt it(*list);
+    QObjectListIterator it(*list);
     QObject *obj;
     while ( (obj = it.current()) ) {
 	++it;
@@ -364,7 +329,7 @@ void QWidgetStack::raiseWidget( QWidget *w )
     topWidget = w;
 
     const QObjectList * c = children();
-    QObjectListIt it( *c );
+    QObjectListIterator it( *c );
     QObject * o;
 
     while( (o=it.current()) != 0 ) {
@@ -421,7 +386,7 @@ void QWidgetStack::show()
     //  topwidget was defined
     if ( !isVisible() && children() ) {
 	const QObjectList * c = children();
-	QObjectListIt it( *c );
+	QObjectListIterator it( *c );
 	QObject * o;
 
 	while( (o=it.current()) != 0 ) {
@@ -586,5 +551,14 @@ void QWidgetStack::childEvent( QChildEvent * e)
 {
     if ( e->child()->isWidgetType() && e->removed() )
 	removeWidget( (QWidget*) e->child() );
+}
+
+/*! \reimp
+ */
+bool QWidgetStack::event( QEvent* e )
+{
+    if ( e->type() == QEvent::LayoutHint )
+	updateGeometry(); // propgate layout hints to parent
+    return QFrame::event( e );
 }
 #endif

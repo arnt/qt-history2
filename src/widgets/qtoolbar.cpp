@@ -571,7 +571,7 @@ void QToolBar::clear()
 {
     if ( !children() )
 	return;
-    QObjectListIt it( *children() );
+    QObjectListIterator it( *children() );
     QObject * obj;
     while( (obj=it.current()) != 0 ) {
 	++it;
@@ -609,7 +609,7 @@ void QToolBar::createPopup()
     d->extensionSubMenues.clear();
 
     QObjectList *childlist = queryList( "QWidget", 0, FALSE, TRUE );
-    QObjectListIt it( *childlist );
+    QObjectListIterator it( *childlist );
     bool hide = FALSE;
     bool doHide = FALSE;
     int id;

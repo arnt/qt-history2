@@ -87,6 +87,7 @@ protected:
 
     virtual void setChildGeometries();
     void childEvent( QChildEvent * );
+    bool event( QEvent * );
 
 private:
     void init();

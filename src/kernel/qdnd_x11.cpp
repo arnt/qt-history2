@@ -459,7 +459,7 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 	     ((QExtraWidget*)w)->extraData()->xDndProxy != 0 )
 	    break; // stop searching for widgets under the mouse cursor if found widget is a proxy.
 	if ( w->children() ) {
-	    QObjectListIt it( *w->children() );
+	    QObjectListIterator it( *w->children() );
 	    it.toLast();
 	    QObject * o;
 	    while( (o=it.current()) ) {

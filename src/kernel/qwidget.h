@@ -352,7 +352,7 @@ public slots:
 #endif
     virtual void	showMinimized();
     virtual void	showMaximized();
-    void		showFullScreen();
+    virtual void	showFullScreen();
     virtual void	showNormal();
     virtual void	polish();
     void 		constPolish() const;

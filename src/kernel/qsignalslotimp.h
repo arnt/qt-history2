@@ -54,12 +54,14 @@ public:
 	{ return (QConnectionList&)QPtrList<QConnection>::operator=(list); }
 };
 
-class Q_EXPORT QConnectionListIt : public QPtrListIterator<QConnection>
+class Q_EXPORT QConnectionListIterator : public QPtrListIterator<QConnection>
 {
 public:
-    QConnectionListIt( const QConnectionList &l ) : QPtrListIterator<QConnection>(l) {}
-    QConnectionListIt &operator=(const QConnectionListIt &i)
-	{ return (QConnectionListIt&)QPtrListIterator<QConnection>::operator=(i); }
+    QConnectionListIterator( const QConnectionList &l )
+	: QPtrListIterator<QConnection>(l) {}
+    QConnectionListIterator &operator=(const QConnectionListIterator &i)
+	{ return (QConnectionListIterator&)
+	      QPtrListIterator<QConnection>::operator=(i); }
 };
 
 class Q_EXPORT QSignalVec : public QPtrVector<QConnectionList>

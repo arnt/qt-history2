@@ -1941,8 +1941,10 @@ QString QFileDialogPrivate::File::text( int column ) const
     case 1:
 	if ( info.isFile() ) {
 #if (QT_VERSION-0 >= 0x040000)
-#error "clean up, especially in cases where QString::setNum() supports 64-bit"
-#elif defined(QT_ABI_QT4)
+#  ifdef Q_CC_GNU
+#    warning "clean up, especially in cases where QString::setNum() supports 64-bit"
+#  endif
+	    // #elif defined(QT_ABI_QT4)
 	    QIODevice::Offset size = info.size();
 #else
 	    uint size = info.size();
@@ -3524,7 +3526,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   file dialog and not a QFileDialog, unless the style of the application
   is set to something other than the native style. (Note that on Windows the
   dialog will spin a blocking modal event loop that will not dispatch any
-  QTimers and if parent is not 0 then it will position the dialog just under 
+  QTimers and if parent is not 0 then it will position the dialog just under
   the parent's titlebar.  And on the Mac the filter argument is ignored).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve

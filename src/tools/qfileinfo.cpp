@@ -42,9 +42,6 @@
 #include "qdir.h"
 #include "qfiledefs_p.h"
 #include "qdeepcopy.h"
-#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_ABI_QT4)
-#include <limits.h>
-#endif
 
 
 extern bool qt_file_access( const QString& fn, int t );
@@ -566,22 +563,12 @@ bool QFileInfo::convertToAbs()
     Returns the file size in bytes, or 0 if the file does not exist or
     if the size is 0 or if the size cannot be fetched.
 */
-#if defined(QT_ABI_QT4)
 QIODevice::Offset QFileInfo::size() const
-#else
-uint QFileInfo::size() const
-#endif
 {
     if ( !fic || !cache )
 	doStat();
     if ( fic )
-#if defined(QT_ABI_QT4)
 	return (QIODevice::Offset)fic->st.st_size;
-#elif defined(QT_LARGEFILE_SUPPORT)
-	return (uint)fic->st.st_size > UINT_MAX ? UINT_MAX : (uint)fic->st.st_size;
-#else
-	return (uint)fic->st.st_size;
-#endif
     else
 	return 0;
 }

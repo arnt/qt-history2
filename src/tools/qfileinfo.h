@@ -116,13 +116,7 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-#if (QT_VERSION-0 >= 0x040000)
-#error "QFileInfo::size() should return QIODevice::Offset instead of uint"
-#elif defined(QT_ABI_QT4)
     QIODevice::Offset size()	const;
-#else
-    uint	size()		const;
-#endif
 
     QDateTime	created()	const;
     QDateTime	lastModified()	const;

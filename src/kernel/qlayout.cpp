@@ -1393,7 +1393,9 @@ void QGridLayout::setColStretch( int col, int stretch )
 }
 
 #if QT_VERSION >= 0x040000
-#error "Make add{Row,Col}Spacing() inline QT_NO_COMPAT functions defined in terms of set{Row,Col}Spacing()"
+#  ifdef Q_CC_GNU
+#    warning "Make add{Row,Col}Spacing() inline QT_NO_COMPAT functions defined in terms of set{Row,Col}Spacing()"
+#  endif
 #endif
 
 /*!

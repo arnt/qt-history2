@@ -3105,7 +3105,9 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 }
 
 #if QT_VERSION >= 0x040000
-#error "remove current position and associated methods"
+#  ifdef Q_CC_GNU
+#    warning "remove current position and associated methods"
+#  endif
 #endif
 /*!
   \obsolete

@@ -254,7 +254,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 {
     const QObjectList *list = parent->children();
     if ( list ) {
-	QObjectListIt it( *list );
+	QObjectListIterator it( *list );
 	QObject *obj;
 	while ( (obj = it.current()) ) {
 	    ++it;
@@ -476,7 +476,7 @@ QObject::~QObject()
 	    if ( !clist )
 		continue;
 	    register QConnection *c;
-	    QConnectionListIt cit(*clist);
+	    QConnectionListIterator cit(*clist);
 	    while( (c=cit.current()) ) {	// for each connected slot...
 		++cit;
 		if ( (obj=c->object()) )
@@ -491,7 +491,7 @@ QObject::~QObject()
 	eventFilters = 0;
     }
     if ( childObjects ) {			// delete children objects
-	QObjectListIt it(*childObjects);
+	QObjectListIterator it(*childObjects);
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
@@ -680,7 +680,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 	return 0;
 
     bool onlyWidgets = ( inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
-    QObjectListIt it( *list );
+    QObjectListIterator it( *list );
     QObject *obj;
     while ( ( obj = it.current() ) ) {
 	++it;
@@ -897,7 +897,7 @@ bool QObject::activate_filters( QEvent *e )
 {
     if ( !eventFilters )			// no event filter
 	return FALSE;
-    QObjectListIt it( *eventFilters );
+    QObjectListIterator it( *eventFilters );
     register QObject *obj = it.current();
     while ( obj ) {				// send to all filters
 	++it;					//   until one returns TRUE
@@ -1145,7 +1145,7 @@ const QObjectList *QObject::objectTrees()
     window:
     \code
     QObjectList *l = topLevelWidget()->queryList( "QButton" );
-    QObjectListIt it( *l ); // iterate over the buttons
+    QObjectListIterator it( *l ); // iterate over the buttons
     QObject *obj;
 
     while ( (obj = it.current()) != 0 ) {
@@ -2340,7 +2340,7 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	}
     } else {
 	QConnection *cd = 0;
-	QConnectionListIt it(*clist);
+	QConnectionListIterator it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
 	    if ( c == cd )
@@ -2459,7 +2459,7 @@ static void dumpRecursive( int level, QObject *object )
 	qDebug( "%s%s::%s %s", (const char*)buf, object->className(), name,
 	    flags.latin1() );
 	if ( object->children() ) {
-	    QObjectListIt it(*object->children());
+	    QObjectListIterator it(*object->children());
 	    QObject * c;
 	    while ( (c=it.current()) != 0 ) {
 		++it;
@@ -2508,7 +2508,7 @@ void QObject::dumpObjectInfo()
 		qDebug( "\t%s", metaObject()->signal( i, TRUE )->name );
 		n++;
 		register QConnection *c;
-		QConnectionListIt cit(*clist);
+		QConnectionListIterator cit(*clist);
 		while ( (c=cit.current()) ) {
 		    ++cit;
 		    qDebug( "\t  --> %s::%s %s", c->object()->className(),

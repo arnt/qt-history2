@@ -39,11 +39,11 @@
 #define QGLOBAL_H
 #include <stddef.h>
 
-#define QT_VERSION_STR   "3.255.255-almost4"
+#define QT_VERSION_STR   "4.0.0-snapshot"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
-#define QT_VERSION 0x03ffff
+#define QT_VERSION 0x040000
 
 /*
    The operating system, must be one of: (Q_OS_x)
@@ -228,7 +228,7 @@
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
 #  define Q_INLINE_TEMPLATES inline
-#  define QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+#  define QTNO_PARTIAL_TEMPLATE_SPECIALIZATION
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
 #    define Q_CC_MSVC_NET

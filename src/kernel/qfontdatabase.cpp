@@ -1310,11 +1310,7 @@ QStringList QFontDatabase::families( QFont::Script script ) const
 	QtFontFamily *f = d->families[i];
 	if ( f->count == 0 )
 	    continue;
-#if QT_VERSION >= 0x040000
-#error "remove Unicode script here"
-#endif
-	if (!(f->scripts[script] & QtFontFamily::Supported) &&
-	    !(f->scripts[QFont::Unicode] & QtFontFamily::Supported))
+	if (!(f->scripts[script] & QtFontFamily::Supported))
 	    continue;
 	if ( f->count == 1 ) {
 	    flist.append( f->name );

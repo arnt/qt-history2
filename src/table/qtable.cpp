@@ -772,6 +772,18 @@ void QTableItem::setContentFromEditor( QWidget *w )
 	setText( le->text() );
 }
 
+#if (QT_VERSION >= 0x040000)
+#  ifdef Q_CC_GNU
+#    warning "setAlignment() function needs implementation"
+#  endif
+#endif
+/*!
+ */
+void QTableItem::setAlignment( int alignment )
+{
+
+}
+
 /*!
     The alignment function returns how the text contents of the cell
     are aligned when drawn. The default implementation aligns numbers
@@ -4983,7 +4995,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
     If there already exists a QTableItem for the cell,
     it calls QTableItem::setContentFromEditor() on this QTableItem.
-   
+
     If, for example, you want to create different \l{QTableItem}s
     depending on the contents of the editor, you might reimplement
     this function.
@@ -5215,7 +5227,7 @@ void QTable::clearSelection( bool repaint )
 
     if ( isRowSelection( selectionMode() ) )
 	selectRow( curRow ); // the current row should always be selected in this mode
-    
+
     if ( needRepaint && repaint )
 	repaintContents( r, FALSE );
 

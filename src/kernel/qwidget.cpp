@@ -904,7 +904,7 @@ QWidget::~QWidget()
 
     // A parent widget must destroy all its children before destroying itself
     if ( childObjects ) {			// delete children objects
-	QObjectListIt it(*childObjects);
+	QObjectListIterator it(*childObjects);
 	QObject *obj;
 	while ( (obj=it.current()) ) {
 	    ++it;
@@ -1472,7 +1472,7 @@ void QWidget::setEnabled( bool enable )
 	    setBackgroundFromMode();
 	    enabledChange( !enable );
 	    if ( children() ) {
-		QObjectListIt it( *children() );
+		QObjectListIterator it( *children() );
 		QWidget *w;
 		while( (w = (QWidget *)it.current()) != 0 ) {
 		    ++it;
@@ -1492,7 +1492,7 @@ void QWidget::setEnabled( bool enable )
 	    setBackgroundFromMode();
 	    enabledChange( !enable );
 	    if ( children() ) {
-		QObjectListIt it( *children() );
+		QObjectListIterator it( *children() );
 		QWidget *w;
 		while( (w = (QWidget *)it.current()) != 0 ) {
 		    ++it;
@@ -1804,7 +1804,7 @@ QRect QWidget::childrenRect() const
     QRect r( 0, 0, 0, 0 );
     if ( !children() )
 	return r;
-    QObjectListIt it( *children() );
+    QObjectListIterator it( *children() );
     QObject *obj;
     while ( (obj = it.current()) ) {
 	++it;
@@ -1828,7 +1828,7 @@ QRegion QWidget::childrenRegion() const
     QRegion r;
     if ( !children() )
 	return r;
-    QObjectListIt it( *children() );		// iterate over all children
+    QObjectListIterator it( *children() );		// iterate over all children
     QObject *obj;
     while ( (obj=it.current()) ) {
 	++it;
@@ -2657,7 +2657,7 @@ void QWidget::setPalette( const QPalette &palette )
     QApplication::sendEvent( this, &ev );
     if ( children() ) {
 	QEvent e( QEvent::ParentPaletteChange );
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
@@ -2737,7 +2737,7 @@ void QWidget::setFont( const QFont &font )
 #endif
     if ( children() ) {
 	QEvent e( QEvent::ParentFontChange );
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
@@ -3881,7 +3881,7 @@ void QWidget::setHidden( bool hide )
 void QWidget::showChildren( bool spontaneous )
 {
      if ( children() ) {
-	QObjectListIt it(*children());
+	QObjectListIterator it(*children());
 	register QObject *object;
 	QWidget *widget;
 	while ( it ) {
@@ -3906,7 +3906,7 @@ void QWidget::showChildren( bool spontaneous )
 void QWidget::hideChildren( bool spontaneous )
 {
      if ( children() ) {
-	QObjectListIt it(*children());
+	QObjectListIterator it(*children());
 	register QObject *object;
 	QWidget *widget;
 	while ( it ) {
@@ -4604,7 +4604,7 @@ bool QWidget::event( QEvent *e )
 	case QEvent::WindowDeactivate:
 	    windowActivationChange( e->type() != QEvent::WindowActivate );
 	    if ( children() ) {
-		QObjectListIt it( *children() );
+		QObjectListIterator it( *children() );
 		QObject *o;
 		while( ( o = it.current() ) != 0 ) {
 		    ++it;
@@ -4619,7 +4619,7 @@ bool QWidget::event( QEvent *e )
 	case QEvent::LanguageChange:
 	case QEvent::LocaleChange:
 	    if ( children() ) {
-		QObjectListIt it( *children() );
+		QObjectListIterator it( *children() );
 		QObject *o;
 		while( ( o = it.current() ) != 0 ) {
 		    ++it;
@@ -4642,7 +4642,7 @@ bool QWidget::event( QEvent *e )
 		layout()->activate();
 	    } else {
 		QObjectList* llist = queryList( "QLayout", 0, TRUE, TRUE );
-		QObjectListIt lit( *llist );
+		QObjectListIterator lit( *llist );
 		QLayout *lay;
 		while ( ( lay = (QLayout*)lit.current() ) != 0 ) {
 		    ++lit;
@@ -5578,7 +5578,7 @@ QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
     if ( !rect().contains( x, y ) )
 	return 0;
     if ( children() ) {
-	QObjectListIt it( *children() );
+	QObjectListIterator it( *children() );
 	it.toLast();
 	QWidget *w, *t;
 	while( (w=(QWidget *)it.current()) != 0 ) {
@@ -5721,9 +5721,6 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
-#if (QT_VERSION-0 >= 0x040000)
-#error "QWidget::showFullScreen() should be virtual (see change #16156)"
-#endif
 void QWidget::showFullScreen()
 {
     if ( !isTopLevel() )

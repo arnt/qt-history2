@@ -128,6 +128,7 @@ public:
     virtual void setText( const QString &t );
     QTable *table() const { return t; }
 
+    virtual void setAlignment( int );
     virtual int alignment() const;
     virtual void setWordWrap( bool b );
     bool wordWrap() const;
@@ -171,9 +172,6 @@ private:
     uint enabled : 1;
     int rw, cl;
     int rowspan, colspan;
-#if (QT_VERSION >= 0x040000)
-#error "Add a setAlignment() function in 4.0 (but no d pointer)"
-#endif
 };
 
 #define Q_DEFINED_QTABLE_ITEM
