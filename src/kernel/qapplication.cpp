@@ -1280,14 +1280,19 @@ void QApplication::setStyle( QStyle *style )
 /*!
   \overload
 
-  Uses QStyleFactory to create a QStyle object for \a style.
+  Requests a QStyle object for \a style from the QStyleFactory.
 
   The string must be one of the QStyleFactory::keys(), typically one
   of "windows", "motif", "cde", "motifplus", "platinum", "sgi" and
   "compact". Depending on the platform, "windowsxp", "aqua" or
   "macintosh" may be available.
 
-  Returns 0 if an unknown \a style is passed.
+  A later call to the QApplication constructor will override the
+  requested style when a "-style" option is passed in as a commandline
+  parameter.
+
+  Returns 0 if an unknown \a style is passed, otherwise the QStyle object
+  returned is set as the application's GUI style.
 */
 QStyle* QApplication::setStyle( const QString& style )
 {
