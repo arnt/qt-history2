@@ -56,14 +56,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
     unsigned int subLevels;
     unsigned int i;
-    QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-    else
-	ofile = "Makefile";
-
-    t << "MAKEFILE=	" << ofile << endl;
-    t << "QMAKE =	" << "qmake" << endl;
+    t << "MAKEFILE=	" <<( project->isEmpty("MAKEFILE") ? QString("Makefile") : var("MAKEFILE")) << endl;
+    t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
     t << "all: qmake_all $(SUBDIRS)" << endl << endl;
