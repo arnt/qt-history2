@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#26 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#26 $";
 #endif
 
 
@@ -148,8 +148,11 @@ bool QWidget::create()				// create widget
     if ( testFlag(WPaintUnclipped) )		// paint direct on device
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
 
-    if ( !desktop )
-	setCursor( arrowCursor );		// default cursor
+    if ( !desktop ) {
+	arrowCursor->update();			// default cursor
+	XDefineCursor( dpy, ident, arrowCursor.cursor );
+	curs = arrowCursor;
+    }
     return TRUE;
 }
 
@@ -288,6 +291,7 @@ void QWidget::setCursor( const QCursor &cursor )// set cursor
     ((QCursor*)&cursor)->update();
     XDefineCursor( dpy, ident, cursor.cursor );
     curs = cursor;
+    XFlush( dpy );
 }
 
 
