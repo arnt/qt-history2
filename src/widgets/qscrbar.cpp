@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#46 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -682,70 +682,40 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 }
 
 
-static QPixmap *win_u_arrow = 0;
-static QPixmap *win_d_arrow = 0;
-static QPixmap *win_l_arrow = 0;
-static QPixmap *win_r_arrow = 0;
-
-static void cleanupWinArrows()
-{
-    delete win_u_arrow;
-    delete win_d_arrow;
-    delete win_l_arrow;
-    delete win_r_arrow;
-}
-
-static void initWinArrows()
-{
-    static uchar u_bits[] = {0x00, 0x00, 0x08, 0x1c, 0x3e, 0x7f, 0x00, 0x00};
-    static uchar d_bits[] = {0x00, 0x00, 0x7f, 0x3e, 0x1c, 0x08, 0x00, 0x00};
-    static uchar l_bits[] = {0x20, 0x30, 0x38, 0x3c, 0x38, 0x30, 0x20, 0x00};
-    static uchar r_bits[] = {0x04, 0x0c, 0x1c, 0x3c, 0x1c, 0x0c, 0x04, 0x00};
-    win_u_arrow = new QBitmap( 8, 8, (char *)u_bits, TRUE );
-    win_d_arrow = new QBitmap( 8, 8, (char *)d_bits, TRUE );
-    win_l_arrow = new QBitmap( 8, 8, (char *)l_bits, TRUE );
-    win_r_arrow = new QBitmap( 8, 8, (char *)r_bits, TRUE );
-    qAddPostRoutine( cleanupWinArrows );
-}
-
-
 static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
 			   int x, int y, int w, int h,
 			   const QColorGroup &g )
 {
-    if ( !win_u_arrow )
-	initWinArrows();
-    QPixmap *a = 0;
+    QPointArray a;				// arrow polygon
     switch ( type ) {
 	case UpArrow:
-	    a = win_u_arrow;
+	    a.setPoints( 7, -3,1, 3,1, -2,0, 2,0, -1,-1, 1,-1, 0,-2 );
 	    break;
 	case DownArrow:
-	    a = win_d_arrow;
+	    a.setPoints( 7, -3,-1, 3,-1, -2,0, 2,0, -1,1, 1,1, 0,2 );
 	    break;
 	case LeftArrow:
-	    a = win_l_arrow;
+	    a.setPoints( 7, 1,-3, 1,3, 0,-2, 0,2, -1,-1, -1,1, -2,0 );
 	    break;
 	case RightArrow:
-	    a = win_r_arrow;
+	    a.setPoints( 7, -1,-3, -1,3, 0,-2, 0,2, 1,-1, 1,1, 2,0 );
 	    break;
     }
-    if ( !a )
+    if ( a.isNull() )
 	return;
-    QPen   oldPen   = p->pen();
-    QBrush oldBrush = p->brush();
-    p->setPen( NoPen );
-    p->setBrush( g.background() );
-    p->drawRect( x, y, w, h );
-    p->setPen( g.foreground() );
-    p->setBackgroundMode( TransparentMode );
+
     if ( down ) {
 	x++;
 	y++;
     }
-    p->drawPixmap( x+w/2-4, y+h/2-4, *a );
-    p->setBrush( oldBrush );
-    p->setPen( oldPen );
+    a.move( x+w/2, y+h/2 );
+
+    QPen savePen = p->pen();			// save current pen
+    p->fillRect( x, y, w, h, g.background() );
+    p->setPen( g.foreground() );
+    p->drawLineSegments( a, 0, 3 );		// draw arrow
+    p->drawPoint( a[6] );
+    p->setPen( savePen );			// restore pen
 }
 
 
