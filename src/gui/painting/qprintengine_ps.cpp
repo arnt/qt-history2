@@ -4979,7 +4979,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
-    scale = 72. / ((float) q->metric(QPaintDeviceMetrics::PdmDpiY));
+    scale = 72. / ((float) q->metric(QPaintDevice::PdmDpiY));
     QRect pageRect = q->pageRect();
     QRect paperRect = q->paperRect();
     uint mtop = pageRect.top() - paperRect.top();
@@ -5853,7 +5853,7 @@ int QPSPrintEngine::numCopies() const
     return d->copies;
 }
 
-int  QPSPrintEngine::metric(QPaintDevice::PaintDevmetricType) const
+int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     int val;
     QRect r = paperRect();
