@@ -186,6 +186,7 @@ protected:
     void navigateRight();
     void enterEditMode( QKeyEvent * e );
     void leaveEditMode( QKeyEvent * e );
+    QString constructName(PopupMenuEditorItem *item);
 
 private:
     FormWindow * formWnd;

@@ -28,8 +28,8 @@
 #include <qcstring.h>
 #include <qdatastream.h>
 #include <qdragobject.h>
+#include <qevent.h>
 #include <qlineedit.h>
-#include <qobjectlist.h>
 #include <qpainter.h>
 #include <qpopupmenu.h>
 #include <qrect.h>
@@ -119,7 +119,7 @@ PopupMenuEditorItem::PopupMenuEditorItem( QAction * action, PopupMenuEditor * me
     init();
     if ( /*a->name() == "qt_separator_action" ||*/ a->inherits( "QSeparatorAction" ) )
 	separator = TRUE;
-    if ( a && a->children() )
+    if ( a && !!a->children() )
  	a->installEventFilter( this );
 }
 
@@ -211,9 +211,9 @@ int PopupMenuEditorItem::count() const
     if ( s ) {
 	return s->count();
     } else if ( ::qt_cast<QActionGroup*>(a) ) {
-	const QObjectList * l = a->children();
-	if ( l )
-	    return l->count();
+	QObjectList l = a->children();
+	if (!!l)
+	    return l.size();
     }
     return 0;
 }
@@ -307,7 +307,6 @@ void PopupMenuEditor::init()
     lineEdit = new QLineEdit( this );
     lineEdit->hide();
     lineEdit->setFrameStyle(QFrame::Plain | QFrame::NoFrame);
-    lineEdit->polish();
     lineEdit->setBackgroundOrigin(ParentOrigin);
     lineEdit->setBackgroundMode(PaletteButton);
     lineEdit->installEventFilter( this );
@@ -354,22 +353,21 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
     bool dropdown = actionGroup->usesDropDown();
     PopupMenuEditorItem *i = new PopupMenuEditorItem( (QAction *)actionGroup, this, 0,
 						      QString( actionGroup->name() ) + "Menu" );
-    QActionGroup *g = 0;
-    QObjectList *l = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
-    QObjectListIterator it( *l );
     insert( i, index );
-    for ( ; it.current(); ++it ) {
-	g = ::qt_cast<QActionGroup*>(it.current());
+
+    QObjectList l = actionGroup->queryList( "QAction", 0, FALSE, FALSE );
+    for (int x = 0; x < l.size(); ++x) {
+	QAction *a = ::qt_cast<QAction *>(l.at(x));
+	QActionGroup *g = ::qt_cast<QActionGroup *>(a);
 	if ( g ) {
-	    if ( dropdown )	    
+	    if ( dropdown )
 		i->s->insert( g );
 	    else
 		insert( g );
 	} else {
-	    i->s->insert( (QAction*)it.current() );
+	    i->s->insert( a );
 	}
     }
-    delete l;
 }
 
 int PopupMenuEditor::find( const QAction * action )
@@ -501,7 +499,7 @@ void PopupMenuEditor::choosePixmap( int index )
     }
 
     hide(); // qChoosePixmap hides the menu
-    QIconSet icons( qChoosePixmap( 0, formWnd, 0, 0 ) );
+    QIconSet icons( qChoosePixmap( 0, formWnd, QPixmap(), 0 ) );
     SetActionIconsCommand * cmd =
 	new SetActionIconsCommand( "Set icon", formWnd, a, this, icons );
     formWnd->commandHistory()->addCommand( cmd );
@@ -726,7 +724,7 @@ void PopupMenuEditor::paintEvent( QPaintEvent * )
 		 rect().width() - borderSize * 2, rect().height() - borderSize * 2 );
     reg -= mid;
     p.setClipRegion( reg );
-    style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), colorGroup() );
+    style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), palette() );
     p.restore();
     drawItems( &p );
 }
@@ -860,16 +858,15 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 		QString n = QString( g->name() ) + "Item";
 		formWindow()->unify( i, n, FALSE );
 		i->setName( n );
-		QObjectList *l = g->queryList( "QAction", 0, FALSE, FALSE );
-		QObjectListIterator it( *l );
-		for ( ; it.current(); ++it ) {
-		    g = ::qt_cast<QActionGroup*>(it.current());
+		QObjectList l = g->queryList( "QAction", 0, FALSE, FALSE );
+		for (int x = 0; x < l.size(); ++x) {
+		    QAction *a = ::qt_cast<QAction *>(l.at(x));
+		    g = ::qt_cast<QActionGroup*>(a);
 		    if ( g )
 			i->s->insert( g );
 		    else
-			i->s->insert( (QAction*)it.current() );
+			i->s->insert( a );
 		}
-		delete l;
 	    } else {
 		dropInPlace( g, e->pos().y() );
 	    }
@@ -884,7 +881,7 @@ void PopupMenuEditor::dropEvent( QDropEvent * e )
 	dropInPlace( i, e->pos().y() );
 	QTimer::singleShot( 0, this, SLOT( resizeToContents() ) );
     }
-    
+
     QTimer::singleShot( 0, this, SLOT( showSubMenu() ) );
     QTimer::singleShot( 0, this, SLOT( setFocus() ) );
     dropLine->hide();
@@ -1034,7 +1031,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     if ( i->isSeparator() ) {
 	style().drawPrimitive( QStyle::PE_Separator, p,
 			       QRect( r.x(), r.y() + 2, r.width(), 1 ),
-			       colorGroup(), QStyle::Style_Sunken | f );
+			       palette(), QStyle::Style_Sunken | f );
 	return;
     }
 
@@ -1042,7 +1039,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     if ( a->isToggleAction() && a->isOn() ) {
 	style().drawPrimitive( QStyle::PE_CheckMark, p,
 			       QRect( x , y, iconWidth, h ),
-			       colorGroup(), f );
+			       palette(), f );
     } else {
 	QPixmap icon = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal );
 	p->drawPixmap( x + ( iconWidth - icon.width() ) / 2,
@@ -1064,7 +1061,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     if ( i->count() ) // Item has submenu
 	style().drawPrimitive( QStyle::PE_ArrowRight, p,
 			       QRect( r.width() - arrowWidth, r.y(), arrowWidth, r.height() ),
-			       colorGroup(), f );
+			       palette(), f );
 }
 
 void PopupMenuEditor::drawWinFocusRect( QPainter * p, const QRect & r ) const
@@ -1089,7 +1086,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
 {
     int flags = 0;
     int idx = 0;
-    
+
     QColorGroup enabled = colorGroup();
     QColorGroup disabled = palette().disabled();
     QRect focus;
@@ -1237,12 +1234,13 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 
 void PopupMenuEditor::dropInPlace( QActionGroup * g, int y )
 {
-    QObjectList l = *g->children();
-    for ( QAction *a = (QAction *)l.last(); a; a = (QAction *)l.prev() ) {
+    QObjectList l = g->children();
+    for (int i = l.size() - 1; i >= 0; --i) {
+	QAction *a = ::qt_cast<QAction *>(l.at(i));
 	QActionGroup *g = ::qt_cast<QActionGroup*>(a);
-	if ( g ) 
+	if ( g )
 	    dropInPlace( g, y );
-	else 
+	else
 	    dropInPlace( new PopupMenuEditorItem( a, this ), y );
     }
 }
@@ -1278,7 +1276,7 @@ void PopupMenuEditor::clearCurrentField()
     if ( i->isSeparator() )
 	return;
     if ( currentField == 0 ) {
-	QIconSet icons( 0 );
+	QIconSet icons;
 	SetActionIconsCommand * cmd = new SetActionIconsCommand( "Remove icon",
 								 formWnd,
 								 i->action(),
@@ -1400,7 +1398,7 @@ void PopupMenuEditor::leaveEditMode( QKeyEvent * e )
  	update();
 	return;
     }
-	
+
     if ( currentIndex >= (int)itemList.count() ) {
 	// new item was created
 	QAction * a = formWnd->mainWindow()->actioneditor()->newActionEx();
@@ -1454,7 +1452,7 @@ QString PopupMenuEditor::constructName( PopupMenuEditorItem *item )
 	}
     }
     // replace illegal characters
- 
+
     return ( RenameMenuCommand::makeLegal( s ) +
 	     RenameMenuCommand::makeLegal( name ) + "Action" );
 }
