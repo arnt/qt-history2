@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#1 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#2 $
 **
-** Definition of QProgressBar and related classes
+** Definition of QProgressBar class
 **
 ** Created : 970520
 **
