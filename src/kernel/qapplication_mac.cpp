@@ -89,6 +89,7 @@ typedef int timeval;
   QApplication debug facilities
  *****************************************************************************/
 //#define DEBUG_EVENTS
+//#define DEBUG_DROPPED_EVENTS
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
@@ -235,7 +236,9 @@ void qt_event_request_updates()
     if(request_updates_pending) {
 	if(IsEventInQueue(GetMainEventQueue(), request_updates_pending))
 	    return;
+#ifdef DEBUG_DROPPED_EVENTS
 	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
     }
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWindowUpdates,
@@ -248,7 +251,9 @@ void qt_event_request_select(QEventLoop *loop) {
     if(request_select_pending) {
 	if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
 	    return;
+#ifdef DEBUG_DROPPED_EVENTS
 	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
     }
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
@@ -303,7 +308,9 @@ void qt_event_request_wakeup()
     if(request_wakeup_pending) {
 	if(IsEventInQueue(GetMainEventQueue(), request_wakeup_pending))
 	    return;
+#ifdef DEBUG_DROPPED_EVENTS
 	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
     }
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestWakeup, GetCurrentEventTime(),
@@ -337,7 +344,9 @@ void qt_event_request_menubarupdate()
     if(request_menubarupdate_pending) {
 	if(IsEventInQueue(GetMainEventQueue(), request_menubarupdate_pending))
 	    return;
+#ifdef DEBUG_DROPPED_EVENTS
 	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
     }
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
@@ -1204,6 +1213,9 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker(QApplication::qt_mutex);
+#endif
     QApplication *app = (QApplication *)data;
     if(app->macEventFilter(er, event)) //someone else ate it
 	return noErr;
