@@ -13,11 +13,9 @@
 #endif
 
 #if defined __cplusplus
-#include <qcoreapplication.h>
 #include <qglobal.h>
 #include <qlist.h>
 #include <qcorevariant.h>  // All moc genereated code has this include
-#include <qobject.h>
 #include <qplatformdefs.h>
 #include <qregexp.h>
 #include <qstring.h>
