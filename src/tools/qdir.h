@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#25 $
+** $Id: //depot/qt/main/src/tools/qdir.h#26 $
 **
 ** Definition of QDir class
 **
@@ -99,6 +99,8 @@ public:
     const QFileInfoList *entryInfoList( const char *nameFilter,
 					int filterSpec = DefaultFilter,
 					int sortSpec   = DefaultSort   ) const;
+
+    static const QFileInfoList *drives();
 
     bool	mkdir( const char *dirName,
 			      bool acceptAbsPath = TRUE ) const;

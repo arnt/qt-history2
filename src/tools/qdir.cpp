@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#48 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#48 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -1055,7 +1055,7 @@ QDir QDir::home()
 
 /*!
   Returns the root directory.
-  \sa rootDirPath()
+  \sa rootDirPath() drives()
 */
 
 QDir QDir::root()
@@ -1118,7 +1118,8 @@ QString QDir::homeDirPath()
 
 /*!
   Returns the absolute path for the root directory ("/" under UNIX).
-  \sa root()
+  
+  \sa root() drives()
 */
 
 QString QDir::rootDirPath()
@@ -1556,4 +1557,35 @@ bool QDir::readDirEntries( const QString &nameFilter,
     else
 	dirty = TRUE;
     return TRUE;
+}
+
+
+// at most one instance of QFileInfoList is leaked, and this variable
+// points to that list
+static QFileInfoList * knownMemoryLeak = 0;
+
+/*!  Returns a list if the root directories on this system.  On
+  win32, this returns a number of QFileInfo objects containing "C:/",
+  "D:/" etc.  On other operating systems, it returns a list containing
+  just one root directory (e.g. "/").
+*/
+
+const QFileInfoList * QDir::drives()
+{
+    if ( !knownMemoryLeak ) {
+#if defined(_OS_WIN32_)
+
+	// win32 version must to real work, and I can't remember how.
+#error "implement this"
+
+#else
+
+	// non-win32 versions both use just one root directory
+	knownMemoryLeak = new QFileInfoList;
+	knownMemoryLeak->append( new QFileInfo( rootDirPath() ) );
+
+#endif
+    }
+
+    return knownMemoryLeak;
 }
