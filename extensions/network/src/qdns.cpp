@@ -33,10 +33,6 @@
 #include "qstrlist.h"
 #include "qptrdict.h"
 
-#if defined(_OS_WIN32_)
-#include "qt_windows.h"
-#endif
-
 
 //#define DEBUG_QDNS
 
@@ -703,6 +699,55 @@ QDnsManager::QDnsManager()
 
     if ( !ns )
 	doResInit();
+
+    // O(n*n) stuff here.  but for 3 and 6, O(n*n) with a low k should
+    // be perfect.  the point is to eliminate any duplicates that
+    // might be hidden in the lists.
+    QList<QHostAddress> * ns = new QList<QHostAddress>;
+
+    ::ns->first();
+    QHostAddress * h;
+    while( (h=::ns->current()) != 0 ) {
+	ns->first();
+	while( ns->current() != 0 && !(*ns->current() == *h) )
+	    ns->next();
+	if ( !ns->current() ) {
+	    ns->append( new QHostAddress(*h) );
+#if defined(DEBUG_QDNS)
+	    qDebug( "using name server %s", h->ip4AddrString().latin1() );
+	} else {
+	    qDebug( "skipping address %s", h->ip4AddrString().latin1() );
+#endif
+	}
+	::ns->next();
+    }
+
+    delete ::ns;
+    ::ns = ns;
+    ::ns->setAutoDelete( TRUE );
+
+    QStrList * domains = new QStrList( TRUE );
+
+    ::domains->first();
+    char * s;
+    while( (s=::domains->current()) != 0 ) {
+	domains->first();
+	while( domains->current() != 0 && qstrcmp( domains->current(), s ) )
+	    domains->next();
+	if ( !domains->current() ) {
+	    domains->append( s );
+#if defined(DEBUG_QDNS)
+	    qDebug( "searching domain %s", s );
+	} else {
+	    qDebug( "skipping domain %s", s );
+#endif
+	}
+	::domains->next();
+    }
+
+    delete ::domains;
+    ::domains = domains;
+    ::domains->setAutoDelete( TRUE );
 }
 
 
@@ -1305,7 +1350,7 @@ string.
 The canonical name of a DNS node is its full name, or the full name of
 the target of its CNAME.  For example, if l.troll.no is a CNAME to
 lupinella.troll.no, and the search path for QDns is "troll.no", then
-the canonical name for all of "lupinella", "l", "lupinella.troll.no." 
+the canonical name for all of "lupinella", "l", "lupinella.troll.no."
 and "l.troll.no" is "lupinella.troll.no".  */
 
 QString QDns::canonicalName() const
@@ -1357,37 +1402,25 @@ static void doResInit( void )
     // find the name servers to use
     QHostAddress * h;
     for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
-	h = new QHostAddress( ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) );
-	ns->append( h );
-#if defined(DEBUG_QDNS)
-	qDebug( "using name server %s", h->ip4AddrString().latin1() );
-#endif
+	ns->append( new QHostAddress(
+		             ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
     }
-    bool hasDefDName = FALSE;
 #if defined(MAXDFLSRCH)
     for( i=0; i < MAXDFLSRCH; i++ )
-	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) ) {
+	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
 	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
-#if defined(DEBUG_QDNS)
-	    qDebug( "searching domain %s", _res.dnsrch[i] );
 #endif
-	    if ( hasDefDName == FALSE &&
-		 strcasecmp( _res.dnsrch[i], _res.defdname ) == 0 )
-		hasDefDName = TRUE;
-	}
-#endif
-    if ( !hasDefDName && *_res.defdname ) {
+    if ( *_res.defdname )
 	domains->append( QString::fromLatin1( _res.defdname ).lower() );
-#if defined(DEBUG_QDNS)
-	    qDebug( "searching domain %s (default)", _res.defdname );
-#endif
-    }
-#if defined(SANE_OPERATING_SYSTEM) // not defined
+#if defined(SANE_OPERATING_SYSTEM) // never defined, but should be
     res_close();
 #endif
 }
 
-#else
+#elif defined(_OS_WIN32_)
+
+#include "qt_windows.h"
+#endif
 
 //
 // We need to get information about DNS etc. from the Windows
@@ -1412,7 +1445,6 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     return s;
 }
 
-// ######### UGLEHACK!!!!!!! ######### !!!!!!!!!!!! ###############
 
 static void doResInit( void )
 {
@@ -1422,11 +1454,7 @@ static void doResInit( void )
     ns->setAutoDelete( TRUE );
     domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
-    h = new QHostAddress( 0xc300fe13 ); // lupinella.troll.no
     ns->append( h );
-#if defined(DEBUG_QDNS)
-    qDebug( "using name server %s", h->ip4AddrString().latin1() );
-#endif
 
     QString domainName, nameServer, searchList;
     HKEY k;
@@ -1439,19 +1467,36 @@ static void doResInit( void )
 	searchList = getWindowsRegString( k, "SearchList" );
     } else {
 	// Could not access the TCP/IP parameters
+	nameServer = "127.0.0.1";
     }
     RegCloseKey( k );
 
-    // \HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
-    // contains three strings we need to read.
+    nameServer = nameServer.simplifyWhiteSpace();
+    int first, last;
+    first = 0;
+    do {
+	last = nameServer.find( ' ', first );
+	if ( last < 0 )
+	    last = nameServer.length();
+	QDns tmp( nameServer.mid( first, last-first ), QDns::A );
+	QValueList<QHostAddress> address = tmp.addresses();
+	int i = address.count();
+	while( i ) {
+	    ns->append( address[--i] );
+	first = last+1;
+    } while( first < nameServer.length() );
 
-    // the ns list should really be set from ...\NameServer and the
-    // domains list from ...\SeachList.  if ...\Domain is not in the
-    // domains list, it should be appended.
-
-    // but tonight I don't feel up to reading more m$ doc
-
-    // NOTE: the domains needs to be downcased.
+    searchList = searchList + " " + domainName;
+    searchList = searchList.simplifyWhiteSpace().lower();
+    first = 0;
+    do {
+	last = searchList.find( ' ', first );
+	if ( last < 0 )
+	    last = searchList.length();
+	domains->append( new QString( searchList.mid( first, last-first ) ) );
+	first = last+1;
+    } while( first < nameServer.length() );
 }
+	
 
 #endif
