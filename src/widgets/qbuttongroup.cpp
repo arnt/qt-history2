@@ -584,6 +584,8 @@ void QButtonGroup::moveFocus( int key )
 /*!
     Returns the selected toggle button if exactly one is selected;
     otherwise returns 0.
+
+    \sa selectedId()
 */
 
 QButton * QButtonGroup::selected() const
@@ -605,10 +607,24 @@ QButton * QButtonGroup::selected() const
     return candidate;
 }
 
+/*!
+    Returns the id of the selected toggle button if exactly one is selected;
+    otherwise returns -1.
+
+    \sa selected()
+*/
+
+int QButtonGroup::selectedId() const
+{
+    return id( selected() );
+}
+
 
 /*!
     Returns the id of \a button, or -1 if \a button is not a member of
     this group.
+
+    \sa selectedId();
 */
 
 int QButtonGroup::id( QButton * button ) const
