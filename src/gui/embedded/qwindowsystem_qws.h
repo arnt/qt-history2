@@ -217,7 +217,7 @@ public:
     static void setDefaultMouse(const char *);
     static void setDefaultKeyboard(const char *);
     static void setMaxWindowRect(const QRect&);
-    static void sendMouseEvent(const QPoint& pos, int state);
+    static void sendMouseEvent(const QPoint& pos, int state, int wheel = 0);
 
     static void setDesktopBackground(const QImage &img);
     static void setDesktopBackground(const QColor &);

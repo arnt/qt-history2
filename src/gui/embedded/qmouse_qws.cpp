@@ -84,10 +84,10 @@ void QWSMouseHandler::limitToScreen(QPoint &pt)
     When a mouse event occurs this function is called with the mouse's
     position in \a pos, and the state of its buttons in \a bstate.
 */
-void QWSMouseHandler::mouseChanged(const QPoint& pos, int bstate)
+void QWSMouseHandler::mouseChanged(const QPoint &pos, int bstate, int wheel)
 {
     mousePos = pos;
-    QWSServer::sendMouseEvent(pos,bstate);
+    QWSServer::sendMouseEvent(pos, bstate, wheel);
 }
 
 /*!

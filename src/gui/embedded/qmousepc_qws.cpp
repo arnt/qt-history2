@@ -54,6 +54,7 @@ protected:
 
     QPoint motion;
     int bstate;
+    int wheel;
 
     int goodness;
     int badness;
@@ -83,6 +84,7 @@ public:
     int buttonState() const { return bstate; }
     bool motionPending() const { return motion!=QPoint(0,0); }
     QPoint takeMotion() { QPoint r=motion; motion=QPoint(0,0); return r; }
+    int takeWheel() { int result = wheel; wheel = 0; return result; }
 
     void appendData(uchar* data, int length)
     {
@@ -173,7 +175,7 @@ public:
 #endif // QT_NO_QWS_TRANSFORMED
                 motion += delta;
                 int nbstate = buffer[0] & 0x7;
-                int wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
+                wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
                 if (wheel < -2 || wheel > 2)
                     wheel = 0;
 #ifdef QWS_MOUSE_DEBUG
@@ -531,7 +533,7 @@ bool QWSPcMouseHandlerPrivate::sendEvent(QWSPcMouseSubHandler& h)
             (h.buttonState()&Qt::MidButton)?'M':'.',
             (h.buttonState()&Qt::RightButton)?'R':'.');
  */
-        handler->mouseChanged(newPos,h.buttonState());
+        handler->mouseChanged(newPos, h.buttonState(), h.takeWheel());
         return true;
     } else {
         h.takeMotion();

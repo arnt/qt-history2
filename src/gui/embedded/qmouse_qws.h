@@ -40,7 +40,7 @@ public:
     virtual void suspend() = 0;
 
     void limitToScreen(QPoint &pt);
-    void mouseChanged(const QPoint& pos, int bstate);
+    void mouseChanged(const QPoint& pos, int bstate, int wheel = 0);
     const QPoint &pos() const { return mousePos; }
 
 protected:

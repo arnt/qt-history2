@@ -1217,7 +1217,7 @@ static bool prevWin;
   event occurred and \a state is a mask indicating which buttons are
   pressed.
 */
-void QWSServer::sendMouseEvent(const QPoint& pos, int state)
+void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 {
     const int btnMask = Qt::LeftButton | Qt::RightButton | Qt::MidButton;
     qwsServer->showCursor();
@@ -1259,6 +1259,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
     event.simpleData.state=state | qws_keyModifiers;
+    event.simpleData.delta = wheel * 120; // WHEEL_DELTA?
     event.simpleData.time=qwsServer->timer.elapsed();
 
     QWSClient *serverClient = qwsServer->clientMap[-1];

@@ -85,7 +85,7 @@ struct QWSMouseEvent : QWSEvent {
                 reinterpret_cast<char*>(&simpleData)) {}
     struct SimpleData {
         int window;
-        int x_root, y_root, state;
+        int x_root, y_root, state, delta;
         int time; // milliseconds
     } simpleData;
 };
