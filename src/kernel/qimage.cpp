@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#139 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#138 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#139 $");
 
 
 /*!
@@ -351,10 +351,10 @@ QImage QImage::copy() const
   \fn QImage::Endian QImage::bitOrder() const
   Returns the bit order for the image.
 
-  If it is a 1-bit image, this function returns either QImage::BigEndian or
+  If it is a 1-bpp image, this function returns either QImage::BigEndian or
   QImage::LittleEndian.
 
-  If it is not a 1-bit image, this function returns QImage::IgnoreEndian.
+  If it is not a 1-bpp image, this function returns QImage::IgnoreEndian.
 
   \sa depth()
 */
@@ -1460,7 +1460,7 @@ int QImage::pixelIndex( int x, int y ) const
 	return (int)s[x];
     case 32:
 #if defined(CHECK_RANGE)
-	warning( "QImage::pixelIndex: Not applicable for 32-bit images "
+	warning( "QImage::pixelIndex: Not applicable for 32-bpp images "
 		 "(no palette)" );
 #endif
 	return 0;
@@ -1595,6 +1595,270 @@ QImage QImage::createAlphaMask( bool yes ) const
     return createAlphaMask( (int)yes );
 }
 #endif
+
+// ### Candidate (renamed) for qcolor.h
+static
+bool isGray(QRgb c)
+{
+    return qRed(c) == qGreen(c)
+        && qRed(c) == qBlue(c);
+}
+
+/*!
+  Returns TRUE if all the colors in the image are shades of
+  gray, that is their R, G, and B components are equal.
+  This function is slow for large 32-bit images.
+*/
+bool QImage::allGray() const
+{
+    if (depth()==32) {
+	int p = width()*height();
+	QRgb* b = (QRgb*)bits();
+	while (p--)
+	    if (!isGray(*b++))
+		return FALSE;
+    } else {
+	if (!data->ctbl) return TRUE;
+	for (int i=0; i<numColors(); i++)
+	    if (!isGray(data->ctbl[i]))
+		return FALSE;
+    }
+    return TRUE;
+}
+
+/*!
+  Returns TRUE if the image is allGray(), \e and if the image is 32-bpp
+  or a 256-color 8-bpp image for which color(i) is QRgb(i,i,i).
+*/
+bool QImage::isGrayscale() const
+{
+    switch (depth()) {
+      case 32:
+	return allGray();
+      case 8:
+	for (int i=0; i<numColors(); i++)
+	    if (data->ctbl[i] != qRgb(i,i,i))
+		return FALSE;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+static
+void pnmscale(const QImage& src, QImage& dst)
+{
+// This function is based on:
+/* pnmscale.c - read a portable anymap and scale it
+**
+** Copyright (C) 1989, 1991 by Jef Poskanzer.
+**
+** Permission to use, copy, modify, and distribute this software and its
+** documentation for any purpose and without fee is hereby granted, provided
+** that the above copyright notice appear in all copies and that both that
+** copyright notice and this permission notice appear in supporting
+** documentation.  This software is provided "as is" without express or
+** implied warranty.
+*/
+
+#define SCALE 4096
+#define HALFSCALE 2048
+
+    QRgb* xelrow;
+    QRgb* tempxelrow;
+    register QRgb* xP;
+    register QRgb* nxP;
+    int rows, cols, rowsread, newrows, newcols;
+    register int row, col, needtoreadrow;
+    const uchar maxval = 255;
+    float xscale, yscale;
+    long sxscale, syscale;
+    register long fracrowtofill, fracrowleft;
+    long* rs;
+    long* gs;
+    long* bs;
+    int rowswritten = 0;
+
+    cols = src.width();
+    rows = src.height();
+    newcols = dst.width();
+    newrows = dst.height();
+
+    xscale = (float) newcols / (float) cols;
+    yscale = (float) newrows / (float) rows;
+
+    sxscale = (long)(xscale * SCALE);
+    syscale = (long)(yscale * SCALE);
+
+    if ( newrows != rows )	/* shortcut Y scaling if possible */
+	tempxelrow = new QRgb[cols];
+    rs = new long[cols];
+    gs = new long[cols];
+    bs = new long[cols];
+    rowsread = 0;
+    fracrowleft = syscale;
+    needtoreadrow = 1;
+    for ( col = 0; col < cols; ++col )
+	rs[col] = gs[col] = bs[col] = HALFSCALE;
+    fracrowtofill = SCALE;
+
+    for ( row = 0; row < newrows; ++row )
+	{
+	/* First scale Y from xelrow into tempxelrow. */
+	if ( newrows == rows )	/* shortcut Y scaling if possible */
+	    {
+	    tempxelrow = xelrow = (QRgb*)src.scanLine(rowsread++);
+	    }
+	else
+	    {
+	    while ( fracrowleft < fracrowtofill )
+		{
+		if ( needtoreadrow )
+		    if ( rowsread < rows )
+			{
+			xelrow = (QRgb*)src.scanLine(rowsread++);
+			/* needtoreadrow = 0; */
+			}
+		for ( col = 0, xP = xelrow; col < cols; ++col, ++xP )
+		    {
+		    rs[col] += fracrowleft * qRed( *xP );
+		    gs[col] += fracrowleft * qGreen( *xP );
+		    bs[col] += fracrowleft * qBlue( *xP );
+		    }
+		fracrowtofill -= fracrowleft;
+		fracrowleft = syscale;
+		needtoreadrow = 1;
+		}
+	    /* Now fracrowleft is >= fracrowtofill, so we can produce a row. */
+	    if ( needtoreadrow )
+		if ( rowsread < rows )
+		    {
+		    xelrow = (QRgb*)src.scanLine(rowsread++);
+		    needtoreadrow = 0;
+		    }
+	    for ( col = 0, xP = xelrow, nxP = tempxelrow;
+		  col < cols; ++col, ++xP, ++nxP )
+		{
+		register long r, g, b;
+
+		r = rs[col] + fracrowtofill * qRed( *xP );
+		g = gs[col] + fracrowtofill * qGreen( *xP );
+		b = bs[col] + fracrowtofill * qBlue( *xP );
+		r /= SCALE;
+		if ( r > maxval ) r = maxval;
+		g /= SCALE;
+		if ( g > maxval ) g = maxval;
+		b /= SCALE;
+		if ( b > maxval ) b = maxval;
+		*nxP = qRgb( r, g, b );
+		rs[col] = gs[col] = bs[col] = HALFSCALE;
+		}
+	    fracrowleft -= fracrowtofill;
+	    if ( fracrowleft == 0 )
+		{
+		fracrowleft = syscale;
+		needtoreadrow = 1;
+		}
+	    fracrowtofill = SCALE;
+	    }
+
+	/* Now scale X from tempxelrow into dst and write it out. */
+	if ( newcols == cols )	/* shortcut X scaling if possible */
+	    memcpy(dst.scanLine(rowswritten++), tempxelrow, newcols*4);
+	else
+	    {
+	    register long r, g, b;
+	    register long fraccoltofill, fraccolleft;
+	    register int needcol;
+
+	    nxP = (QRgb*)dst.scanLine(rowswritten++);
+	    fraccoltofill = SCALE;
+	    r = g = b = HALFSCALE;
+	    needcol = 0;
+	    for ( col = 0, xP = tempxelrow; col < cols; ++col, ++xP )
+		{
+		fraccolleft = sxscale;
+		while ( fraccolleft >= fraccoltofill )
+		    {
+		    if ( needcol )
+			{
+			++nxP;
+			r = g = b = HALFSCALE;
+			}
+		    r += fraccoltofill * qRed( *xP );
+		    g += fraccoltofill * qGreen( *xP );
+		    b += fraccoltofill * qBlue( *xP );
+		    r /= SCALE;
+		    if ( r > maxval ) r = maxval;
+		    g /= SCALE;
+		    if ( g > maxval ) g = maxval;
+		    b /= SCALE;
+		    if ( b > maxval ) b = maxval;
+		    *nxP = qRgb( r, g, b );
+		    fraccolleft -= fraccoltofill;
+		    fraccoltofill = SCALE;
+		    needcol = 1;
+		    }
+		if ( fraccolleft > 0 )
+		    {
+		    if ( needcol )
+			{
+			++nxP;
+			r = g = b = HALFSCALE;
+			needcol = 0;
+			}
+		    r += fraccolleft * qRed( *xP );
+		    g += fraccolleft * qGreen( *xP );
+		    b += fraccolleft * qBlue( *xP );
+		    fraccoltofill -= fraccolleft;
+		    }
+		}
+	    if ( fraccoltofill > 0 )
+		{
+		--xP;
+		r += fraccoltofill * qRed( *xP );
+		g += fraccoltofill * qGreen( *xP );
+		b += fraccoltofill * qBlue( *xP );
+		}
+	    if ( ! needcol )
+		{
+		r /= SCALE;
+		if ( r > maxval ) r = maxval;
+		g /= SCALE;
+		if ( g > maxval ) g = maxval;
+		b /= SCALE;
+		if ( b > maxval ) b = maxval;
+		*nxP = qRgb( r, g, b );
+		}
+	    }
+	}
+#undef SCALE
+#undef HALFSCALE
+}
+
+/*!
+  \fn QImage QImage::smoothScale(int width, int height) const
+
+  Returns a copy of the image smoothly scaled to the \a width by \a height
+  pixels.  For 32-bpp images and 1-bpp or 8-bpp color images, the result
+  will be 32-bpp, while all-gray images (including black-and-white 1-bpp)
+  will produce 8-bit grayscale images with the palette spanning 256 grays
+  from black to white.
+*/
+QImage QImage::smoothScale(int w, int h) const
+{
+    if (depth()==32) {
+	QImage img(w, h, 32);
+	// 32-bpp to 32-bpp
+	pnmscale(*this,img);
+	return img;
+    } else if (allGray()) {
+	// Inefficient
+	return convertDepth(32).smoothScale(w,h).convertDepth(8);
+    } else {
+	// Inefficient
+	return convertDepth(32).smoothScale(w,h);
+    }
+}
 
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
@@ -1918,7 +2182,7 @@ static QString fbname( const char *fileName )	// get file basename (sort of)
     return s;
 }
 
-static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
+static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 {
     int i;
     if ( image->depth() == 1 && image->numColors() == 2 ) {

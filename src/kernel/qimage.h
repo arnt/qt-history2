@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#52 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#53 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -53,6 +53,9 @@ public:
     bool	hasAlphaBuffer() const;
     void	setAlphaBuffer( bool );
 
+    bool	allGray() const;
+    bool        isGrayscale() const;
+
     uchar      *bits()		const;
     uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
@@ -71,6 +74,7 @@ public:
     QImage	convertDepth( int ) const;
     QImage	convertDepth( int, int conversion_flags ) const;
     QImage	convertBitOrder( Endian ) const;
+    QImage	smoothScale(int width, int height) const;
 
 #if defined(HAS_BOOL_TYPE)
     // Needed for binary compatibility - calls createAlphaMask(int)
