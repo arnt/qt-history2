@@ -137,6 +137,11 @@ QList<DesignerFormWindow> DesignerProjectImpl::formList() const
     return QList<DesignerFormWindow>();
 }
 
+QObjectList *DesignerProjectImpl::preview( QWidget *mainWidget )
+{
+    return MainWindow::self->previewProject( mainWidget );
+}
+
 void DesignerProjectImpl::addForm( DesignerFormWindow * )
 {
 }

@@ -41,6 +41,7 @@
 #include <qmap.h>
 #include <qguardedptr.h>
 #include <qinterfacemanager.h>
+#include <qobjectlist.h>
 
 class PropertyEditor;
 class QWorkspace;
@@ -131,9 +132,11 @@ public:
     QUnknownInterface* designerInterface() const { return desInterface; }
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
+    void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void setModified( bool b, QWidget *window );
     void slotsChanged();
     void updateFunctionList();
+    QObjectList *previewProject( QWidget *mainWidget );
 
 public slots:
     void showProperties( QObject *w );
@@ -349,6 +352,7 @@ private:
     QString pluginDir, libDir;
     OutputWindow *oWindow;
     QValueList<Tab> preferenceTabs;
+    QValueList<Tab> projectTabs;
     bool databaseAutoEdit;
     QTimer *updateSlotsTimer;
 

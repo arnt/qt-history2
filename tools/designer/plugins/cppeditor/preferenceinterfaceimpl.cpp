@@ -61,21 +61,21 @@ QStringList PreferenceInterfaceImpl::featureList() const
     return lst;
 }
 
-PreferenceInterface::Preference PreferenceInterfaceImpl::globalPreference( const QString &feature )
+PreferenceInterface::Preference *PreferenceInterfaceImpl::globalPreference( const QString &feature )
 {
     if ( !cppEditorSyntax ) {
 	cppEditorSyntax = new PreferencesBase( 0 );
 	( (PreferencesBase*)cppEditorSyntax )->setPath( "/Software/Trolltech/CppEditor" );
 	cppEditorSyntax->hide();
     }
-    Preference pf;
-    pf.tab = 0;
+    Preference *pf = 0;
     if ( feature == "C++ Editor" ) {
-	pf.tab = cppEditorSyntax;
-	pf.title = feature;
-	pf.receiver = pf.tab;
-	pf.init_slot = SLOT( reInit() );
-	pf.accept_slot = SLOT( save() );
+	pf = new Preference;
+	pf->tab = cppEditorSyntax;
+	pf->title = feature;
+	pf->receiver = pf->tab;
+	pf->init_slot = SLOT( reInit() );
+	pf->accept_slot = SLOT( save() );
     }
     return pf;
 }

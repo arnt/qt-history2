@@ -1897,10 +1897,57 @@ void MainWindow::editFormSettings()
     statusBar()->clear();
 }
 
+class SenderObject : public QObject
+{
+    Q_OBJECT
+
+public:
+    SenderObject( QUnknownInterface *i ) : iface( i ) { iface->addRef(); }
+    ~SenderObject() { iface->release(); }
+
+public slots:
+    void emitInitSignal() { emit initSignal( iface ); }
+    void emitAcceptSignal() { emit acceptSignal( iface ); }
+
+signals:
+    void initSignal( QUnknownInterface * );
+    void acceptSignal( QUnknownInterface * );
+
+private:
+    QUnknownInterface *iface;
+
+};
+
+
 void MainWindow::editProjectSettings()
 {
     ProjectSettings dia( currentProject, this, 0, TRUE );
+
+    SenderObject *senderObject = new SenderObject( designerInterface() );
+    QValueList<Tab>::Iterator it;
+    for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
+	Tab t = *it;
+	// #### take something else than t.title to get the language, support a default to add tab to each project setting dialog
+	if ( t.title != currentProject->language() )
+	    continue;
+	dia.tabWidget->addTab( t.w, t.title );
+	if ( t.receiver ) {
+	    connect( dia.buttonOk, SIGNAL( clicked() ), senderObject, SLOT( emitAcceptSignal() ) );
+	    connect( senderObject, SIGNAL( acceptSignal( QUnknownInterface * ) ), t.receiver, t.accept_slot );
+	    connect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
+	    senderObject->emitInitSignal();
+	    disconnect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
+	}
+    }
+
     dia.exec();
+
+    delete senderObject;
+    for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
+	Tab t = *it;
+	dia.tabWidget->removePage( t.w );
+	t.w->reparent( 0, QPoint(0,0), FALSE );
+    }
 }
 
 void MainWindow::editDatabaseConnections()
@@ -1910,20 +1957,6 @@ void MainWindow::editDatabaseConnections()
     dia.exec();
 #endif
 }
-
-class SenderObject : public QObject
-{
-    Q_OBJECT
-
-public:
-    SenderObject() {}
-    void emitSignal() { emit theSignal(); }
-
-signals:
-    void theSignal();
-
-};
-
 
 void MainWindow::editPreferences()
 {
@@ -1954,19 +1987,19 @@ void MainWindow::editPreferences()
     connect( dia->buttonDocPath, SIGNAL( clicked() ),
 	     this, SLOT( chooseDocPath() ) );
 
-    SenderObject *senderObject = new SenderObject;
+    SenderObject *senderObject = new SenderObject( designerInterface() );
     QValueList<Tab>::Iterator it;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->addTab( t.w, t.title );
 	if ( t.receiver ) {
-	    connect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.accept_slot );
-	    connect( senderObject, SIGNAL( theSignal() ), t.receiver, t.init_slot );
-	    senderObject->emitSignal();
-	    disconnect( senderObject, SIGNAL( theSignal() ), t.receiver, t.init_slot );
+	    connect( dia->buttonOk, SIGNAL( clicked() ), senderObject, SLOT( emitAcceptSignal() ) );
+	    connect( senderObject, SIGNAL( acceptSignal( QUnknownInterface * ) ), t.receiver, t.accept_slot );
+	    connect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
+	    senderObject->emitInitSignal();
+	    disconnect( senderObject, SIGNAL( initSignal( QUnknownInterface * ) ), t.receiver, t.init_slot );
 	}
     }
-    delete senderObject;
 
     if ( dia->exec() == QDialog::Accepted ) {
 	setSnapGrid( dia->checkBoxGrid->isChecked() );
@@ -1991,12 +2024,11 @@ void MainWindow::editPreferences()
 	docPath = dia->editDocPath->text();
 	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
     }
+    delete senderObject;
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
 	dia->tabWidget->removePage( t.w );
 	t.w->reparent( 0, QPoint(0,0), FALSE );
-	if ( t.receiver )
-	    disconnect( dia->buttonOk, SIGNAL( clicked() ), t.receiver, t.init_slot );
     }
 
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
@@ -2005,6 +2037,12 @@ void MainWindow::editPreferences()
     delete dia;
     prefDia = 0;
     statusBar()->clear();
+}
+
+QObjectList *MainWindow::previewProject( QWidget *mainWidget )
+{
+    mainWidget = 0;
+    return 0;
 }
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
@@ -4057,11 +4095,16 @@ void MainWindow::setupPluginManagers()
 	QStringList lst = preferencePluginManager->featureList();
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    PreferenceInterface *i = preferencePluginManager->queryInterface( *it );
+	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
-	    PreferenceInterface::Preference pf = i->globalPreference( *it );
-	    if ( pf.tab )
-		addPreferencesTab( pf.tab, pf.title, pf.receiver, pf.init_slot, pf.accept_slot );
+	    PreferenceInterface::Preference *pf = i->globalPreference( *it );
+	    if ( pf )
+		addPreferencesTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
+	    pf = i->projectSetting( *it );
+	    if ( pf )
+		addProjectTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
+	    delete pf;
 	    i->release();
 	}
     }
@@ -4076,6 +4119,17 @@ void MainWindow::addPreferencesTab( QWidget *tab, const QString &title, QObject 
     t.init_slot = init_slot;
     t.accept_slot = accept_slot;
     preferenceTabs << t;
+}
+
+void MainWindow::addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot )
+{
+    Tab t;
+    t.w = tab;
+    t.title = title;
+    t.receiver = receiver;
+    t.init_slot = init_slot;
+    t.accept_slot = accept_slot;
+    projectTabs << t;
 }
 
 void MainWindow::setModified( bool b, QWidget *window )

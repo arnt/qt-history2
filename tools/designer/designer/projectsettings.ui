@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>422</width>
-            <height>375</height>
+            <width>418</width>
+            <height>373</height>
         </rect>
     </property>
     <property name="caption">
@@ -30,7 +30,7 @@
         </property>
         <widget class="QTabWidget">
             <property name="name">
-                <cstring>TabWidget2</cstring>
+                <cstring>tabWidget</cstring>
             </property>
             <widget class="QWidget">
                 <property name="name">
@@ -369,6 +369,7 @@
         <slot>chooseDatabaseFile()</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">chooseDatabaseFile()</slot>
     <slot access="protected" language="C++">chooseProjectFile()</slot>
     <slot access="protected" language="C++">helpClicked()</slot>
@@ -377,7 +378,7 @@
     <slot access="protected" language="C++">addUiFile()</slot>
 </connections>
 <tabstops>
-    <tabstop>TabWidget2</tabstop>
+    <tabstop>tabWidget</tabstop>
     <tabstop>editProjectName</tabstop>
     <tabstop>editProjectFile</tabstop>
     <tabstop>comboLanguage</tabstop>

@@ -34,7 +34,11 @@ public:
     unsigned long release();
 
     QStringList featureList() const;
-    Preference globalPreference( const QString &feature );
+    Preference *globalPreference( const QString &feature );
+    Preference *projectSetting( const QString & ) { return 0; }
+    void saveProjectSetting( const QString & ) {}
+    void loadProjectSetting( const QString & ) {}
+    void connectTo( QUnknownInterface *appInterface ) {}
 
 private:
     ulong ref;

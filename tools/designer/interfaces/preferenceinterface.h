@@ -42,7 +42,11 @@ struct PreferenceInterface : public QUnknownInterface
     };
 
     virtual QStringList featureList() const = 0;
-    virtual Preference globalPreference( const QString &feature ) = 0;
+    virtual Preference *globalPreference( const QString &feature ) = 0;
+    virtual Preference *projectSetting( const QString &feature ) = 0;
+    virtual void saveProjectSetting( const QString &fileContents ) = 0;
+    virtual void loadProjectSetting( const QString &fileContents ) = 0;
+    virtual void connectTo( QUnknownInterface *appInterface ) = 0;
 
 };
 

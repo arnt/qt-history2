@@ -62,6 +62,7 @@ public:
     DesignerProjectImpl( Project *pr );
 
     QList<DesignerFormWindow> formList() const;
+    QObjectList *preview( QWidget *mainWidget );
     void addForm( DesignerFormWindow * );
     void removeForm( DesignerFormWindow * );
     QString fileName() const;
