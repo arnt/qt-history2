@@ -1,5 +1,5 @@
 CONFIG = console release
-DEFINES = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS
+DEFINES = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS
 HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/tools/qdir.h \
            $$QT_SOURCE_TREE/src/tools/qstring.h \
@@ -52,7 +52,8 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/codecs/qtextcodec.cpp \
            $$QT_SOURCE_TREE/src/tools/qmap.cpp \
            $$QT_SOURCE_TREE/src/tools/qlibrary.cpp \
-           $$QT_SOURCE_TREE/src/tools/qlibrary_win.cpp
+           $$QT_SOURCE_TREE/src/tools/qlibrary_win.cpp \
+           $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp
 
 INCLUDEPATH += $$QT_SOURCE_TREE/include/ $$QT_SOURCE_TREE/src/tools/
 INTERFACES=
