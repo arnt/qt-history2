@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#6 $
 **
 ** C++ file skeleton
 **
@@ -8,10 +8,11 @@
 *****************************************************************************/
 
 #include "qvalidator.h"
+#include "qwidget.h"
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#6 $");
 
 
 /*!  \class QValidator qvalidator.h
@@ -39,7 +40,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#5 $");
   the moment there aren't any.
 */
 
-QValidator::QValidator()
+QValidator::QValidator( QWidget * parent, const char * name )
+    : QObject( parent, name )
 {
 }
 
@@ -102,8 +104,8 @@ void QValidator::fixup( QString & input )
 /*!  Creates a validator object which accepts all integers.
 */
 
-QIntValidator::QIntValidator()
-    : QValidator()
+QIntValidator::QIntValidator( QWidget * parent, const char * name )
+    : QValidator( parent, name )
 {
     b = INT_MIN;
     t = INT_MAX;
@@ -114,8 +116,9 @@ QIntValidator::QIntValidator()
   bottom up to and including \a top.
 */
 
-QIntValidator::QIntValidator( int bottom, int top )
-    : QValidator()
+QIntValidator::QIntValidator( int bottom, int top,
+			      QWidget * parent, const char * name )
+    : QValidator( parent, name )
 {
     b = bottom;
     t = top;
@@ -190,8 +193,8 @@ void QIntValidator::setRange( int bottom, int top )
   completeness.
 */
 
-QDoubleValidator::QDoubleValidator()
-    : QValidator()
+QDoubleValidator::QDoubleValidator( QWidget * parent, const char * name )
+    : QValidator( parent, name )
 {
     b = 2.7182818;
     t = 3.1415926;
@@ -204,8 +207,9 @@ QDoubleValidator::QDoubleValidator()
   after the decimal point.
 */
 
-QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals )
-    : QValidator()
+QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
+				    QWidget * parent, const char * name )
+    : QValidator( parent, name )
 {
     b = bottom;
     t = top;

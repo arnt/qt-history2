@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#4 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#5 $
 **
 ** Definition of 
 **
@@ -14,11 +14,12 @@
 #include "qstring.h"
 
 
-class QValidator
+class QValidator: public QObject
 {
+    Q_OBJECT
 public:
-    QValidator();
-    virtual ~QValidator();
+    QValidator( QWidget * parent, const char * name = 0 );
+    ~QValidator();
 
     virtual bool isValid( const char * ) = 0;
     virtual void fixup( QString & );
@@ -27,9 +28,11 @@ public:
 
 class QIntValidator: public QValidator
 {
+    Q_OBJECT
 public:
-    QIntValidator();
-    QIntValidator( int bottom, int top );
+    QIntValidator( QWidget * parent, const char * name = 0 );
+    QIntValidator( int bottom, int top,
+		   QWidget * parent, const char * name = 0 );
     ~QIntValidator();
 
     bool isValid( const char * );
@@ -46,9 +49,11 @@ private:
 
 class QDoubleValidator: public QValidator
 {
+    Q_OBJECT
 public:
-    QDoubleValidator();
-    QDoubleValidator( double bottom, double top, int decimals = 0 );
+    QDoubleValidator( QWidget * parent, const char * name = 0 );
+    QDoubleValidator( double bottom, double top, int decimals,
+		      QWidget * parent, const char * name = 0 );
     ~QDoubleValidator();
 
     bool isValid( const char * );
