@@ -85,16 +85,21 @@ where you choose to install Qt.
 
     At this point you have binaries created in $QTDIR (eg. $QTDIR/lib/
     contains libqt.so). If, however, you would like to have your Qt
-    installed in a non-local installation you can:
+    installed in a non-local installation you can run configure with
+    options splitting Qt into different areas for example:
+
+        ./configure -libdir /usr/local/lib -bindir /usr/local/bin -headerdir /usr/local/include/qt
+
+    Then after a successfull make you can:
 
         make install 
 
-    This will install Qt onto your machine, you may choose the destination
-    of the Qt binaries with switches to configure (in the configure step
-    above). Please see ./configure -help for the install option section,
-    also keep in mind you must set your LD_LIBRARY_PATH so it points to the
-    correct installation directory for the library (this can be specified
-    with the -libdir option to configure).
+    This will install Qt onto your machine, with these destination options
+    you will able to segment Qt into different places on your system
+    (please see ./configure -help for the install option section for more
+    help). If you choose to install Qt like this, remember you must set
+    your LD_LIBRARY_PATH to match your -libdir and your QTDIR to your
+    -headerdir (as described in 2 above).
 
 
 5.  In very few cases you may need to run /sbin/ldconfig or something
