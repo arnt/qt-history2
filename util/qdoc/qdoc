@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#46 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#47 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1363,7 +1363,7 @@ problem, and we'll fix it before 1.0.
 umask 0111;
 $cfile = "VOLD";
 #$debug = 1;
-$internal = 0;
+$internal = 1;
 
 $outputdir = "/local/qt/doc/html";
 ($j, $min, $hour, $mday, $mon, $year) = localtime(time);
