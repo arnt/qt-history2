@@ -207,7 +207,6 @@ void QTextBrowser::reload()
 
 void QTextBrowser::setSource(const QString& name)
 {
-    qDebug() << "QTextBrowser::setSource(" << name << ")";
     if (isVisible())
         qApp->setOverrideCursor(Qt::WaitCursor);
 
