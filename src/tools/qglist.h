@@ -69,6 +69,7 @@ protected:
     virtual ~QGList();
 
     QGList &operator=( const QGList & );	// assign from other list
+    bool operator==( const QGList& ) const;
 
     void inSort( QCollection::Item );		// add item sorted in list
     void append( QCollection::Item );		// add item at end of list

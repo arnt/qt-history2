@@ -220,6 +220,31 @@ QGList& QGList::operator=( const QGList &list )
     return *this;
 }
 
+/*!
+  Compares this list with \a list. Retruns TRUE if the lists
+  contain the same data, else FALSE.
+*/
+
+bool QGList::operator==( const QGList &list ) const
+{
+    if ( count() != list.count() )
+	return FALSE;
+    
+    if ( count() == 0 )
+	return TRUE;
+    
+    QLNode *n1 = firstNode;
+    QLNode *n2 = list.firstNode;
+    while ( n1 && n2 ) {
+	// should be mutable
+	if ( ( (QGList*)this )->compareItems( n1->data, n2->data ) != 0 )
+	    return FALSE;
+	n1 = n1->next;
+	n2 = n2->next;
+    }
+    
+    return TRUE;
+}
 
 /*!
   \fn uint QGList::count() const

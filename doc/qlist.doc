@@ -154,6 +154,13 @@
 */
 
 /*!
+  \fn bool &QList::operator==(const QList<type> &list ) const
+
+  Compares this list with \a list. Retruns TRUE if the lists
+  contain the same data, else FALSE.
+*/
+
+/*!
   \fn uint QList::count() const
   Returns the number of items in the list.
   \sa isEmpty()
