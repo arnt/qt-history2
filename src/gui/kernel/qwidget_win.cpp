@@ -889,7 +889,7 @@ static void qt_win_get_double_buffer(HDC *hdc, int width, int height)
     SelectClipRgn(*hdc, 0);
 };
 
-extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int);
+extern void qt_erase_background(HDC, int, int, int, int, const QBrush &, int, int, QWidget *);
 
 void QWidget::repaint(const QRegion& rgn)
 {
@@ -958,7 +958,8 @@ void QWidget::repaint(const QRegion& rgn)
             qt_erase_background(q->hdc, br.x()-redirectionOffset.x(), br.y()-redirectionOffset.y(),
                                 br.width(), br.height(),
                                 palette().brush(w->d->bg_role),
-                                br.x() + offset.x(), br.y() + offset.y());
+                                br.x() + offset.x(), br.y() + offset.y(),
+                                this);
         } else {
             QRegion mappedRegion(rgn);
             mappedRegion.translate(-data->wrect.topLeft());
@@ -966,7 +967,8 @@ void QWidget::repaint(const QRegion& rgn)
             QSize bgsize = data->wrect.isValid() ? data->wrect.size() : data->crect.size();
             // ### This triggers bitblt on entire area. Potentially a lot. Clip here too!
             qt_erase_background(hdc, 0, 0, bgsize.width(), bgsize.height(),
-                                palette().brush(w->d->bg_role), offset.x(), offset.y());
+                                palette().brush(w->d->bg_role), offset.x(), offset.y(),
+                                this);
         }
 
         if (parents.size()) {

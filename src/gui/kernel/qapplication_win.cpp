@@ -208,7 +208,8 @@ void qt_draw_tiled_pixmap(HDC, int, int, int, int,
                            const QPixmap *, int, int);
 
 void qt_erase_background(HDC hdc, int x, int y, int w, int h,
-                          const QBrush &brush, int off_x, int off_y)
+                         const QBrush &brush, int off_x, int off_y,
+                         QWidget *widget)
 {
     if (brush.pixmap() && brush.pixmap()->isNull())        // empty background
         return;
@@ -217,7 +218,12 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         oldPal = SelectPalette(hdc, QColor::hPal(), false);
         RealizePalette(hdc);
     }
-    if (brush.pixmap()) {
+    if (brush.style() == Qt::LinearGradientPattern) {
+        QPainter p(widget);
+        p.fillRect(x, y, w, h, brush);
+        return;
+    }
+    else if (brush.pixmap()) {
         qt_draw_tiled_pixmap(hdc, x, y, w, h, brush.pixmap(), off_x, off_y);
     } else {
         HBRUSH hbrush = CreateSolidBrush(brush.color().pixel());
@@ -3293,11 +3299,14 @@ void QETWidget::eraseWindowBackground(HDC hdc)
     RECT r;
     GetClientRect(data->winid, &r);
 
+    QWidget *that = const_cast<QWidget*>(w);
+    that->setWState(WState_InPaintEvent);
     qt_erase_background
         (hdc, r.left, r.top,
           r.right-r.left, r.bottom-r.top,
           data->pal.brush(w->d->bg_role),
-          offset.x(), offset.y());
+          offset.x(), offset.y(), const_cast<QWidget*>(w));
+    that->clearWState(WState_InPaintEvent);
 }
 
 
