@@ -231,9 +231,6 @@ void QButtonGroup::setExclusive( bool enable )
   negative integer, for instance -2, a unique identifier (negative
   integer \<= -2) is generated. No button has an id of -1.
 
-  Inserting several buttons with \a id = -1 assigns the identifiers 0,
-  1, 2, etc.
-
   \sa find(), remove(), setExclusive()
 */
 
