@@ -51,11 +51,6 @@
 #include <limits.h>
 
 
-static void resolveLibs()
-{
-}
-
-
 void QFileInfo::slashify( QString &s )
 {
     for (int i=0; i<(int)s.length(); i++) {
@@ -66,6 +61,7 @@ void QFileInfo::slashify( QString &s )
 	s.remove( (int)s.length() - 1, 1 );
 }
 
+
 void QFileInfo::makeAbs( QString &s )
 {
     if ( s[0] != '/' ) {
@@ -75,7 +71,19 @@ void QFileInfo::makeAbs( QString &s )
     }
 }
 
-extern QCString qt_win95Name(const QString s);
+
+/*!
+    Returns TRUE if the file is hidden; otherwise returns FALSE.
+
+    On Unix-like operating systems, including Mac OS X, a file is
+    hidden if its name begins with ".". On Windows a file is hidden if
+    its hidden attribute is set.
+*/
+bool QFileInfo::isHidden() const
+{
+    return GetFileAttributes( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
+}
+
 
 bool QFileInfo::isFile() const
 {
@@ -84,6 +92,7 @@ bool QFileInfo::isFile() const
     return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
 }
 
+
 bool QFileInfo::isDir() const
 {
     if ( !fic || !cache )
@@ -91,40 +100,12 @@ bool QFileInfo::isDir() const
     return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
 }
 
+
 bool QFileInfo::isSymLink() const
 {
-    if ( fn.right( 4 ) == ".lnk" )
-        return TRUE;
-    else
-        return FALSE;
+    return (fn.right( 4 ) == ".lnk");
 }
 
-QString QFileInfo::readLink() const
-{
-    return QString::null;
-}
-
-Q_EXPORT int qt_ntfs_permission_lookup = 1;
-QString QFileInfo::owner() const
-{
-    return QString::null;
-}
-
-static const uint nobodyID = (uint) -2;
-uint QFileInfo::ownerId() const
-{
-    return nobodyID;
-}
-
-QString QFileInfo::group() const
-{
-    return QString::null;
-}
-
-uint QFileInfo::groupId() const
-{
-    return nobodyID;
-}
 
 bool QFileInfo::permission( int p ) const
 {
@@ -137,6 +118,7 @@ bool QFileInfo::permission( int p ) const
     return TRUE;
 }
 
+
 void QFileInfo::doStat() const
 {
     if ( fn.isEmpty() )
@@ -147,12 +129,7 @@ void QFileInfo::doStat() const
 	that->fic = new QFileInfoCache;
     QT_STATBUF *b = &that->fic->st;
 
-    int r;
-    QT_WA( {
-	r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
-    } , {
-	r = QT_STAT(qt_win95Name(fn), b);
-    } );
+    int r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
     if ( r!=0 ) {
 	bool is_dir=FALSE;
 	if ( fn[0] == '/' && fn[1] == '/'
@@ -195,6 +172,7 @@ void QFileInfo::doStat() const
     }
 }
 
+
 QString QFileInfo::dirPath( bool absPath ) const
 {
     QString s;
@@ -221,6 +199,7 @@ QString QFileInfo::dirPath( bool absPath ) const
     }
 }
 
+
 QString QFileInfo::fileName() const
 {
     int p = fn.findRev( '/' );
@@ -234,14 +213,35 @@ QString QFileInfo::fileName() const
     }
 }
 
-/*!
-    Returns TRUE if the file is hidden; otherwise returns FALSE.
 
-    On Unix-like operating systems, including Mac OS X, a file is
-    hidden if its name begins with ".". On Windows a file is hidden if
-    its hidden attribute is set.
-*/
-bool QFileInfo::isHidden() const
+Q_EXPORT int qt_ntfs_permission_lookup = 1;
+
+static void resolveLibs()
 {
-    return GetFileAttributes( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
+}
+
+QString QFileInfo::readLink() const
+{
+    return QString::null;
+}
+
+QString QFileInfo::owner() const
+{
+    return QString::null;
+}
+
+static const uint nobodyID = (uint) -2;
+uint QFileInfo::ownerId() const
+{
+    return nobodyID;
+}
+
+QString QFileInfo::group() const
+{
+    return QString::null;
+}
+
+uint QFileInfo::groupId() const
+{
+    return nobodyID;
 }

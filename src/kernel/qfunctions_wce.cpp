@@ -206,45 +206,29 @@ int _wopen( const WCHAR *filename, int oflag, int pmode )
 
 int _fstat( int handle, struct _stat *buffer ) 
 { 
-    BY_HANDLE_FILE_INFORMATION fi;
-    if ( !GetFileInformationByHandle( (FILE*)handle, &fi ) ) {
-	LPVOID lpMsgBuf;
-	FormatMessage(
-	    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	    FORMAT_MESSAGE_FROM_SYSTEM |
-	    FORMAT_MESSAGE_IGNORE_INSERTS,
-	    NULL,
-	    GetLastError(),
-	    0, // Default language
-	    (LPTSTR) &lpMsgBuf,
-	    0,
-	    NULL
-	);
-	qDebug( "***Error! %s", QString::fromUcs2((LPTSTR)lpMsgBuf).latin1() );
-	// Free the buffer.
-	LocalFree( lpMsgBuf );
-	return -1;
-    }
-
-    buffer->st_ctime = ftToTime_t( fi.ftCreationTime );
-    buffer->st_atime = ftToTime_t( fi.ftLastAccessTime );
-    buffer->st_mtime = ftToTime_t( fi.ftLastWriteTime );
-    buffer->st_nlink = fi.nNumberOfLinks;
-    buffer->st_size  = fi.nFileSizeLow;
-    buffer->st_mode  = (fi.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR : _S_IFREG;
-    buffer->st_mode |= (fi.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? _O_RDONLY : _O_RDWR;
     return -1;
+}
+
+void findDataToStat( WIN32_FIND_DATA *data, struct _stat *buffer ) 
+{ 
 }
 
 int _wstat( const WCHAR *path, struct _stat *buffer ) 
 {
-/*
-    int handle = _wopen( path, 'r', 0 );
-    int res = _fstat( handle, buffer );
-    _close( handle );
-    return res; 
-*/
-    return -1;
+    HANDLE    ff;
+    WIN32_FIND_DATA finfo;
+    ff = FindFirstFile( path, &finfo );
+    if ( ff == INVALID_HANDLE_VALUE )
+	return -1;
+
+    buffer->st_ctime = ftToTime_t( finfo.ftCreationTime );
+    buffer->st_atime = ftToTime_t( finfo.ftLastAccessTime );
+    buffer->st_mtime = ftToTime_t( finfo.ftLastWriteTime );
+    buffer->st_nlink = 0;
+    buffer->st_size  = finfo.nFileSizeLow; // ### missing high!
+    buffer->st_mode  = (finfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR : _S_IFREG;
+    buffer->st_mode |= (finfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? _O_RDONLY : _O_RDWR;
+    return (FindClose(ff) == 0);
 }
 
 long _lseek( int handle, long offset, int origin )
