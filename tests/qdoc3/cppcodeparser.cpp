@@ -704,9 +704,9 @@ bool CppCodeParser::matchEnumDecl( InnerNode *parent )
 
     if ( !match(Tok_enum) )
 	return FALSE;
-    if ( match(Tok_Ident) )
-	name = previousLexeme();
-
+    if ( !match(Tok_Ident) )
+	return FALSE;
+    name = previousLexeme();
     if ( tok != Tok_LeftBrace )
 	return FALSE;
 
