@@ -357,7 +357,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		c = new QSqlCursor( (*it)[ 1 ], TRUE, db );
 	    }
 	    if ( db ) {
-		table->setCursor( c, fieldMap.isEmpty(), TRUE );
+		table->setSqlCursor( c, fieldMap.isEmpty(), TRUE );
 		table->refresh( QDataTable::RefreshAll );
 	    }
 	}

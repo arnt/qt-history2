@@ -77,7 +77,7 @@ bool QDesignerDataBrowser::event( QEvent* e )
 	if ( e->type() == QEvent::Show ) {
 	    if ( con ) {
 		QSqlCursor* cursor = new QSqlCursor( tbl, TRUE, con );
-		setCursor( cursor, TRUE );
+		setSqlCursor( cursor, TRUE );
 		setForm( frm );
 		refresh();
 		first();
