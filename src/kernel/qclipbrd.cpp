@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#9 $
 **
 ** Implementation of QClipboard class
 **
@@ -12,7 +12,7 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#9 $");
 
 
 /*!
@@ -139,6 +139,12 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
 extern QObject *qt_clipboard;			// defined in qapp_xyz.cpp
 
+static void cleanupClipboard()
+{
+    delete qt_clipboard;
+    qt_clipboard = 0;
+}
+
 /*!
   Returns a pointer to the application global clipboard.
 */
@@ -148,6 +154,7 @@ QClipboard *QApplication::clipboard()
     if ( qt_clipboard == 0 ) {
 	qt_clipboard = new QClipboard;
 	CHECK_PTR( qt_clipboard );
+	qAddPostRoutine( cleanupClipboard );
     }
     return (QClipboard *)qt_clipboard;
 }
