@@ -252,6 +252,8 @@ void Project::save()
 	QTextStream ts( &f );
 	contents = ts.read();
 	f.close();
+    } else {
+	contents += "TEMPLATE\t= app\nCONFIG\t= qt warn_on release\nTARGET\t= " + proName.lower() + "\n";
     }
 
     int i = contents.find( "INTERFACES" );
