@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#21 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#22 $
 **
 ** Definition of QPaintDevice class
 **
@@ -49,6 +49,9 @@ public:
     bool     isExtDev()	      const { return devFlags & PDF_EXTDEV; }
     bool     paintingActive() const { return (devFlags & PDF_PAINTACTIVE) ==
 					     PDF_PAINTACTIVE; }
+
+    QFontMetrics fontMetrics()	const;
+    QFontInfo	 fontInfo()	const;
 
 #if defined(_WS_WIN_)
     HDC	     handle()  const { return hdc; }	// get device context
