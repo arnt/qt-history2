@@ -27,6 +27,16 @@ public:
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
 
+    enum DirtyFlags {
+	DirtyPen              	= 0x0001,
+	DirtyBrush              = 0x0002,
+	DirtyFont               = 0x0004,
+	DirtyBackground         = 0x0008,
+ 	DirtyTransform          = 0x0010,
+ 	DirtyClip               = 0x0020,
+	DirtyRasterOp 		= 0x0040
+    };
+
     QAbstractGC(GCCaps devcaps=0);
     virtual ~QAbstractGC() { delete d_ptr; }
 
@@ -71,11 +81,25 @@ public:
     virtual Qt::HANDLE handle() const = 0;
 #endif
 
-    enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
-	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
-	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
-           UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
+    enum { IsActive           	= 0x00000001,
+	   ExtDev             	= 0x00000002,
+	   IsStartingUp       	= 0x00000004,
+	   NoCache    	      	= 0x00000008,
+	   VxF 		      	= 0x00000010,
+	   WxF 			= 0x00000020,
+	   ClipOn 		= 0x00000040,
+	   SafePolygon 		= 0x00000080,
+	   MonoDev 		= 0x00000100,
+// 	   DirtyFont  		= 0x00000200,
+// 	   DirtyPen 		= 0x00000400,
+// 	   DirtyBrush 		= 0x00000800,
+	   RGBColor 		= 0x00001000,
+	   FontMet 		= 0x00002000,
+	   FontInf 		= 0x00004000,
+	   CtorBegin 		= 0x00008000,
+           UsePrivateCx   	= 0x00010000,
+	   VolatileDC 		= 0x00020000,
+	   Qt2Compat 		= 0x00040000 };
     inline bool testf( uint b ) const { return (d_ptr->flags&b)!=0; }
     inline void setf( uint b ) { d_ptr->flags |= b; }
     inline void clearf( uint b ) { d_ptr->flags &= (uint)(~b); }
@@ -83,14 +107,20 @@ public:
     inline void fix_neg_rect( int *x, int *y, int *w, int *h );
     inline bool hasClipping() const { return testf(ClipOn); }
 
+    inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
+    inline void setDirty(DirtyFlags df) { dirtyFlag|=df; changeFlag|=df; }
+    inline void unsetDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
+
     bool hasCapability(Capability cap) const { return gccaps&cap; }
 
-    inline void setState(QPainterState *state, bool updateGC = true);
+    inline void updateState(QPainterState *state, bool updateGC = true);
 
 private:
     void updateInternal(QPainterState *state, bool updateGC = true);
 
 protected:
+    uint dirtyFlag;
+    uint changeFlag;
     QPainterState *state;
     GCCaps gccaps;
 
@@ -114,11 +144,10 @@ inline void QAbstractGC::fix_neg_rect(int *x, int *y, int *w, int *h)
     }
 }
 
-inline void QAbstractGC::setState(QPainterState *newState, bool updateGC)
+inline void QAbstractGC::updateState(QPainterState *newState, bool updateGC)
 {
-    if (state==newState)
-	return;
-    updateInternal(newState, updateGC);
+    if (dirtyFlag || state!=newState)
+	updateInternal(newState, updateGC);
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractGC::Capability);

@@ -45,6 +45,7 @@ public:
 	    vy = s->vy;
 	    vw = s->vw;
 	    vh = s->vh;
+	    painter = s->painter;
 	} else {
 	    bgBrush = Qt::white;
 	    bgMode = QPainter::TransparentMode;
@@ -55,6 +56,7 @@ public:
 	    wx = wy = ww = wh = 0;
 	    vx = vy = vw = vh = 0;
 	    pfont = 0;
+	    painter = 0;
 	}
     }
 
@@ -82,6 +84,7 @@ public:
 
     Qt::RasterOp rasterOp;
     Qt::BGMode bgMode;
+    QPainter *painter;
 };
 
 
@@ -100,24 +103,6 @@ public:
 	for (int i=0; i<states.size(); ++i)
 	    delete states.at(i);
     }
-
-    void save()
-    {
-	Q_ASSERT(states.size()>0);
-	state = new QPainterState(states.back());
-	states.push_back(state);
-    }
-
-    void restore()
-    {
-	Q_ASSERT(states.size()>0);
-	QPainterState *tmp = state;
-	states.pop_back();
-	state = states.back();
-	delete tmp;
-    };
-
-
 
     QPoint redirection_offset;
 
