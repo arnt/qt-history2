@@ -61,8 +61,10 @@
     \code
     /MyCompany/MyApplication/background color
     /MyCompany/MyApplication/foreground color
-    /MyCompany/MyApplication/font/name
-    /MyCompany/MyApplication/font/size
+    /MyCompany/MyApplication/geometry/x
+    /MyCompany/MyApplication/geometry/y
+    /MyCompany/MyApplication/geometry/width
+    /MyCompany/MyApplication/geometry/height
     /MyCompany/MyApplication/recent files/1
     /MyCompany/MyApplication/recent files/2
     /MyCompany/MyApplication/recent files/3
@@ -74,8 +76,8 @@
     settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
     settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
     // Use default values if the keys don't exist
-    QString fontName = settings.readEntry( "/MyApplication/font/name", "Arial" );
-    double fontSize = settings.readDoubleEntry( "/MyApplication/font/size", 10.0 );
+    QString bgColor = settings.readEntry( "/MyApplication/background color", "white" );
+    int width = settings.readIntEntry( "/MyApplication/geometry/width", 640 );
     // ...
     \endcode
  
@@ -84,8 +86,8 @@
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
     settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
-    settings.writeEntry( "/MyApplication/font/name", "Ariel" );
-    settings.writeEntry( "/MyApplication/font/size", 12.0 );
+    settings.writeEntry( "/MyApplication/background color", bgColor );
+    settings.writeEntry( "/MyApplication/geometry/width", width );
     // ...
     \endcode
 
@@ -105,7 +107,7 @@
     \code
     QStringList subkeys = subkeyList( "/MyApplication" );
     \endcode
-    \c subkeys contains 'font' and 'recent files'
+    \c subkeys contains 'geometry' and 'recent files'
 
     \code
     QStringList subkeys = subkeyList( "/MyApplication/recent files" );
@@ -977,14 +979,16 @@ bool QSettings::removeEntry(const QString &key)
     \code
     /MyCompany/MyApplication/background color
     /MyCompany/MyApplication/foreground color
-    /MyCompany/MyApplication/font/name
-    /MyCompany/MyApplication/font/size
+    /MyCompany/MyApplication/geometry/x
+    /MyCompany/MyApplication/geometry/y
+    /MyCompany/MyApplication/geometry/width
+    /MyCompany/MyApplication/geometry/height
     \endcode
     \code
     QStringList keys = entryList( "/MyApplication" );
     \endcode
     \c keys contains 'background color' and 'foreground color'. It does
-    not contain 'font' because this key contains keys not entries.
+    not contain 'geometry' because this key contains keys not entries.
   
   \sa subkeyList()
 */
@@ -1059,8 +1063,10 @@ QStringList QSettings::entryList(const QString &key) const
     \code
     /MyCompany/MyApplication/background color
     /MyCompany/MyApplication/foreground color
-    /MyCompany/MyApplication/font/name
-    /MyCompany/MyApplication/font/size
+    /MyCompany/MyApplication/geometry/x
+    /MyCompany/MyApplication/geometry/y
+    /MyCompany/MyApplication/geometry/width
+    /MyCompany/MyApplication/geometry/height
     /MyCompany/MyApplication/recent files/1
     /MyCompany/MyApplication/recent files/2
     /MyCompany/MyApplication/recent files/3
@@ -1068,7 +1074,7 @@ QStringList QSettings::entryList(const QString &key) const
     \code
     QStringList keys = subkeyList( "/MyApplication" );
     \endcode
-    \c keys contains 'font' and 'recent files'. It does not contain
+    \c keys contains 'geometry' and 'recent files'. It does not contain
     'background color' or 'foreground color' because they are keys which
     contain entries not keys.
 
