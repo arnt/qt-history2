@@ -946,6 +946,41 @@ const QVariant::Handler qt_gui_variant_handler = {
     and whose values are variants, as given in \a val.
 */
 
+
+QVariant::QVariant(const QPoint &pt) { d = create(Point, &pt); }
+QVariant::QVariant(const QRect &r) { d = create(Rect, &r); }
+QVariant::QVariant(const QSize &s) { d = create(Size, &s); }
+
+QVariant::QVariant(const QFont &val) { d = create(Font, &val); }
+QVariant::QVariant(const QPixmap &val) { d = create(Pixmap, &val); }
+
+QVariant::QVariant(const QImage &val) { d = create(Image, &val); }
+QVariant::QVariant(const QBrush &val) { d = create(Brush, &val); }
+QVariant::QVariant(const QColor &val) { d = create(Color, &val); }
+#ifndef QT_NO_PALETTE
+QVariant::QVariant(const QPalette &val) { d = create(Palette, &val); }
+#ifdef QT_COMPAT
+QVariant::QVariant(const QColorGroup &val) { d = create(ColorGroup, &val); }
+#endif
+#endif //QT_NO_PALETTE
+#ifndef QT_NO_ICONSET
+QVariant::QVariant(const QIconSet &val) { d = create(Icon, &val); }
+#endif //QT_NO_ICONSET
+QVariant::QVariant(const QPointArray &val) { d = create(PointArray, &val); }
+QVariant::QVariant(const QRegion &val) { d = create(Region, &val); }
+QVariant::QVariant(const QBitmap& val) { d = create(Bitmap, &val); }
+#ifndef QT_NO_CURSOR
+QVariant::QVariant(const QCursor &val) { d = create(Cursor, &val); }
+#endif
+#ifndef QT_NO_ACCEL
+QVariant::QVariant(const QKeySequence &val) { d = create(KeySequence, &val); }
+#endif
+QVariant::QVariant(const QPen &val) { d = create(Pen, &val); }
+QVariant::QVariant(const QSizePolicy &val) { d = create(SizePolicy, &val); }
+
+
+
+
 /*!
   \fn QFont QVariant::toFont() const
 
@@ -1075,16 +1110,142 @@ const QVariant::Handler qt_gui_variant_handler = {
 
 #endif // QT_NO_ACCEL
 
-QVariant::QVariant(const QPixmap &val)
+QPoint QVariant::toPoint() const
 {
-    d = create(Pixmap, &val);
+    if (d->type != Point)
+        return QPoint();
+
+    return *static_cast<QPoint *>(d->value.ptr);
+}
+
+QRect QVariant::toRect() const
+{
+    if (d->type != Rect)
+        return QRect();
+
+    return *static_cast<QRect *>(d->value.ptr);
+}
+
+QSize QVariant::toSize() const
+{
+    if (d->type != Size)
+        return QSize();
+
+    return *static_cast<QSize *>(d->value.ptr);
+}
+
+
+const QImage QVariant::toImage() const
+{
+    if (d->type != Image)
+        return QImage();
+
+    return *static_cast<QImage *>(d->value.ptr);
+}
+
+QBrush QVariant::toBrush() const
+{
+    if (d->type != Brush)
+        return QBrush();
+
+    return *static_cast<QBrush *>(d->value.ptr);
+}
+
+
+#ifndef QT_NO_PALETTE
+QPalette QVariant::toPalette() const
+{
+    if (d->type != Palette)
+        return QPalette();
+
+    return *static_cast<QPalette *>(d->value.ptr);
 }
 
 #ifdef QT_COMPAT
-QPixmap& QVariant::asPixmap()
+QColorGroup QVariant::toColorGroup() const
 {
-    return *static_cast<QPixmap *>(castOrDetach(Pixmap));
+    if (d->type != ColorGroup)
+        return QColorGroup();
+    return *static_cast<QColorGroup *>(d->value.ptr);
 }
+#endif
+#endif //QT_NO_PALETTE
+
+QPen QVariant::toPen() const
+{
+    if (d->type != Pen)
+        return QPen();
+
+    return *static_cast<QPen*>(d->value.ptr);
+}
+
+QSizePolicy QVariant::toSizePolicy() const
+{
+    if (d->type == SizePolicy)
+        return *static_cast<QSizePolicy *>(d->value.ptr);
+
+    return QSizePolicy();
+}
+
+#ifndef QT_NO_CURSOR
+QCursor QVariant::toCursor() const
+{
+    if (d->type != Cursor)
+        return QCursor();
+
+    return *static_cast<QCursor *>(d->value.ptr);
+}
+#endif
+
+QRegion QVariant::toRegion() const
+{
+    if (d->type != Region)
+        return QRegion();
+
+    return *static_cast<QRegion *>(d->value.ptr);
+}
+
+QBitmap QVariant::toBitmap() const
+{
+    if (d->type != Bitmap)
+        return QBitmap();
+
+    return *static_cast<QBitmap *>(d->value.ptr);
+
+}
+
+const QPointArray QVariant::toPointArray() const
+{
+    if (d->type != PointArray)
+        return QPointArray();
+
+    return *static_cast<QPointArray *>(d->value.ptr);
+}
+
+#ifndef QT_NO_ICONSET
+QIconSet QVariant::toIconSet() const
+{
+    if (d->type != Icon)
+        return QIconSet();
+
+    return *static_cast<QIconSet *>(d->value.ptr);
+}
+#endif //QT_NO_ICONSET
+
+
+#define Q_VARIANT_TO(f) \
+Q##f QVariant::to##f() const { \
+    if (d->type == f) \
+        return *static_cast<Q##f *>(d->value.ptr); \
+    Q##f ret; \
+    handler->cast(d, f, &ret, 0); \
+    return ret; \
+}
+
+Q_VARIANT_TO(Font);
+Q_VARIANT_TO(Color);
+#ifndef QT_NO_ACCEL
+Q_VARIANT_TO(KeySequence);
 #endif
 
 QPixmap QVariant::toPixmap() const
@@ -1170,4 +1331,91 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     Q_UNUSED(v);
 #endif
 }
+
+
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+
+template<> QFont QVariant_to_helper<QFont>(const QCoreVariant &v, const QFont*)
+{ return static_cast<const QVariant &>(v).toFont(); }
+template<> QPixmap QVariant_to_helper<QPixmap>(const QCoreVariant &v, const QPixmap*)
+{ return static_cast<const QVariant &>(v).toPixmap(); }
+template<> QImage QVariant_to_helper<QImage>(const QCoreVariant &v, const QImage*)
+{ return static_cast<const QVariant &>(v).toImage(); }
+template<> QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush*)
+{ return static_cast<const QVariant &>(v).toBrush(); }
+template<> QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*)
+{ return static_cast<const QVariant &>(v).toColor(); }
+template<> QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*)
+{ return static_cast<const QVariant &>(v).toPalette(); }
+template<> QIconSet QVariant_to_helper<QIconSet>(const QCoreVariant &v, const QIconSet*)
+{ return static_cast<const QVariant &>(v).toIconSet(); }
+template<> QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
+{ return static_cast<const QVariant &>(v).toPointArray(); }
+template<> QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
+{ return static_cast<const QVariant &>(v).toBitmap(); }
+template<> QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*)
+{ return static_cast<const QVariant &>(v).toRegion(); }
+#ifndef QT_NO_CURSOR
+template<> QCursor QVariant_to_helper<QCursor>(const QCoreVariant &v, const QCursor*)
+{ return static_cast<const QVariant &>(v).toCursor(); }
+#endif
+#ifndef QT_NO_ACCEL
+template<> QKeySequence QVariant_to_helper<QKeySequence>(const QCoreVariant &v, const QKeySequence*)
+{ return static_cast<const QVariant &>(v).toKeySequence(); }
+#endif
+template<> QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*)
+{ return static_cast<const QVariant &>(v).toPen(); }
+template<> QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*)
+{ return static_cast<const QVariant &>(v).toSizePolicy(); }
+template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
+{ return static_cast<const QVariant &>(v).toPoint(); }
+template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
+{ return static_cast<const QVariant &>(v).toRect(); }
+template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
+{ return static_cast<const QVariant &>(v).toSize(); }
+
+#else
+
+template<> QFont QVariant_to<QFont>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toFont(); }
+template<> QPixmap QVariant_to<QPixmap>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPixmap(); }
+template<> QImage QVariant_to<QImage>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toImage(); }
+template<> QBrush QVariant_to<QBrush>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toBrush(); }
+template<> QColor QVariant_to<QColor>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toColor(); }
+template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPalette(); }
+template<> QIconSet QVariant_to<QIconSet>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toIconSet(); }
+template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPointArray(); }
+template<> QBitmap QVariant_to<QBitmap>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toBitmap(); }
+template<> QRegion QVariant_to<QRegion>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toRegion(); }
+#ifndef QT_NO_CURSOR
+template<> QCursor QVariant_to<QCursor>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toCursor(); }
+#endif
+#ifndef QT_NO_ACCEL
+template<> QKeySequence QVariant_to<QKeySequence>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toKeySequence(); }
+#endif
+template<> QPen QVariant_to<QPen>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPen(); }
+template<> QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toSizePolicy(); }
+template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toPoint(); }
+template<> QRect QVariant_to<QRect>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toRect(); }
+template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
+{ return static_cast<const QVariant &>(v).toSize(); }
+
+#endif
+
+
 #endif

@@ -14,6 +14,7 @@
 #include "qsqlrelationaltablemodel.h"
 
 #include "qhash.h"
+#include "qstringlist.h"
 #include "qsqldatabase.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"

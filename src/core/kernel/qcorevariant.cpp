@@ -58,6 +58,7 @@ template<> QStringList QVariant_to<QStringList>(const QCoreVariant &v)
 template<> QDate QVariant_to<QDate>(const QCoreVariant &v) { return v.toDate(); }
 template<> QTime QVariant_to<QTime>(const QCoreVariant &v) { return v.toTime(); }
 template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v) { return v.toDateTime(); }
+template<> QObject *QVariant_to<QObject *>(const QCoreVariant &v) { return v.toObject(); }
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v)
 { return v.toList(); }
@@ -142,6 +143,10 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = *static_cast<const Q_ULLONG *>(v);
             break;
+        case QCoreVariant::Object:
+            x->value.ptr = const_cast<void *>(v);
+            QMetaObject::addGuard(&static_cast<QObject*>(x->value.ptr));
+            break;
         case QCoreVariant::Invalid:
             break;
         default:
@@ -201,6 +206,8 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = Q_ULLONG(0);
             break;
+        case QCoreVariant::Object:
+            x->value.ptr = 0;
         default:
             Q_ASSERT_X(QMetaType::isRegistered(x->type), "QCoreVariant::construct()",
                        "Unknown datatype");
@@ -256,6 +263,9 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
         break;
+    case QCoreVariant::Object:
+        QMetaObject::removeGuard(&static_cast<QObject*>(p->value.ptr));
+        break;
     default:
         if (QMetaType::isRegistered(p->type))
             QMetaType::destroy(p->type, p->value.ptr);
@@ -308,6 +318,8 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
         break;
+    case QCoreVariant::Object:
+        return d->value.ptr == 0;
     default:
         if (!QMetaType::isRegistered(d->type))
             qFatal("cannot handle GUI types of QCoreVariant "
@@ -511,6 +523,8 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         QCOMPARE(QByteArray);
     case QCoreVariant::BitArray:
         QCOMPARE(QBitArray);
+    case QCoreVariant::Object:
+        return a->value.ptr == b->value.ptr;
     case QCoreVariant::Invalid:
         return true;
     default:
@@ -1235,6 +1249,52 @@ QCoreVariant::QCoreVariant(const char *val)
     Constructs a new variant with a list value, \a val.
 */
 
+
+QCoreVariant::QCoreVariant(Type type)
+{ d = create(type, 0); }
+QCoreVariant::QCoreVariant(Type type, const void *v)
+{ d = create(type, v); d->is_null = false; }
+QCoreVariant::QCoreVariant(int val)
+{ d = create(Int, &val); }
+QCoreVariant::QCoreVariant(uint val)
+{ d = create(UInt, &val); }
+QCoreVariant::QCoreVariant(Q_LLONG val)
+{ d = create(LongLong, &val); }
+QCoreVariant::QCoreVariant(Q_ULLONG val)
+{ d = create(ULongLong, &val); }
+QCoreVariant::QCoreVariant(bool val)
+{ d = create(Bool, &val); }
+QCoreVariant::QCoreVariant(double val)
+{ d = create(Double, &val); }
+
+QCoreVariant::QCoreVariant(const QByteArray &val)
+{ d = create(ByteArray, &val); }
+QCoreVariant::QCoreVariant(const QBitArray &val)
+{ d = create(BitArray, &val); }
+QCoreVariant::QCoreVariant(const QString &val)
+{ d = create(String, &val); }
+QCoreVariant::QCoreVariant(const QStringList &val)
+{ d = create(StringList, &val); }
+
+QCoreVariant::QCoreVariant(const QDate &val)
+{ d = create(Date, &val); }
+QCoreVariant::QCoreVariant(const QTime &val)
+{ d = create(Time, &val); }
+QCoreVariant::QCoreVariant(const QDateTime &val)
+{ d = create(DateTime, &val); }
+QCoreVariant::QCoreVariant(QObject *object)
+{ d = create(Object, object); }
+#ifndef QT_NO_TEMPLATE_VARIANT
+QCoreVariant::QCoreVariant(const QList<QCoreVariant> &list)
+{ d = create(List, &list); }
+QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &map)
+{ d = create(Map, &map); }
+#endif
+
+QCoreVariant::Type QCoreVariant::type() const
+{ return d->type >= QMetaType::User ? UserType : static_cast<Type>(d->type); }
+
+
 /*!
     Assigns the value of the variant \a variant to this variant.
 
@@ -1311,12 +1371,12 @@ void QCoreVariant::clear()
 
 /* Attention!
 
-   For dependency reasons, this table is duplicated in moc.y. If you
-   change one, change both.
+   For dependency reasons, this table is duplicated in moc's
+   generator.cpp. If you change one, change both.
 
-   (Search for the word 'Attention' in moc.y.)
+   (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 36 };
+enum { ntypes = 37 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1358,6 +1418,7 @@ static const char* const type_map[ntypes] =
     "QPen",
     "Q_LLONG",
     "Q_ULLONG",
+    "QObject*",
     "UserType"
 };
 
@@ -1604,6 +1665,20 @@ QCoreVariantMap QCoreVariant::toMap() const
     returned if the string cannot be parsed as a Qt::ISODate format
     date/time.
 */
+
+/*!
+
+    Returns the variant as a pointer to a QObject if the variant has
+    type() Object; otherwise returns a null pointer.
+*/
+QObject * QCoreVariant::toObject() const
+{
+    if (d->type != Object)
+        return 0;
+
+    return static_cast<QObject *>(d->value.ptr);
+}
+
 
 /*!
   \fn QByteArray QCoreVariant::toByteArray() const
@@ -1891,50 +1966,13 @@ bool QCoreVariant::operator==(const QCoreVariant &v) const
 */
 
 /*! \internal
-
-  Reads or sets the variant type and ptr
  */
-void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
-{
-    Q_ASSERT(d->type == Invalid);
-    if (ptr) {
-        d = new Private;
-        d->ref = 1;
-        d->str_cache = 0;
-        d->type = typ;
-        d->value.ptr = ptr;
-        d->is_null = false;
-        if (deepCopy) {
-            Private *x = new Private;
-            x->ref = 1;
-            x->type = d->type;
-            x->str_cache = 0;
-            handler->construct(x, constData());
-            x->is_null = d->is_null;
-            x = qAtomicSetPtr(&d, x);
-            if (!--x->ref)
-                cleanUp(x);
-        }
-    }
-    if (!deepCopy)
-        return d->value.ptr;
-    Private *p = new Private;
-    p->type = d->type;
-    handler->construct(p, constData());
-    void *ret = (void*)p->value.ptr;
-    p->type = Invalid;
-    delete p;
-    return ret;
-}
-
 #define QDATA(vType) \
     if (QTypeInfo<vType >::isLarge) \
         return d->value.ptr; \
     else \
         return &d->value.ptr
 
-/*! \internal
- */
 const void *QCoreVariant::constData() const
 {
     switch(d->type) {

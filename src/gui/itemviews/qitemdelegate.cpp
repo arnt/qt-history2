@@ -22,6 +22,8 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qevent.h>
+#include <qpixmap.h>
+#include <qbitmap.h>
 
 static const int border = 1;
 
@@ -129,7 +131,7 @@ QItemDelegate::~QItemDelegate()
 
 void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QAbstractItemModel *model, const QModelIndex &index) const
-{    
+{
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
     QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);

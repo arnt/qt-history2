@@ -17,6 +17,7 @@
 #include <qabstractitemmodel.h>
 #include <qfileinfo.h>
 #include <qdir.h>
+#include <qiconset.h>
 
 class QDirModelPrivate;
 

@@ -50,10 +50,7 @@ class Q_CORE_EXPORT QCoreVariant
         Size = 9,
         Color = 10,
         Palette = 11,
-#ifdef QT_COMPAT
-        ColorGroup = 12,
-#endif
-        IconSet = 13,
+        Icon = 13,
         Point = 14,
         Image = 15,
         Int = 16,
@@ -75,39 +72,45 @@ class Q_CORE_EXPORT QCoreVariant
         Pen = 32,
         LongLong = 33,
         ULongLong = 34,
-        UserType = 35,
+        Object = 35,
+        UserType = 36,
         LastType = 0xffffffff // need this so that gcc >= 3.4 really allocates 32 bits for Type
+#ifdef QT_COMPAT
+        ,ColorGroup = 12,
+        IconSet = Icon,
+#endif
     };
 
     inline QCoreVariant();
     inline ~QCoreVariant();
-    inline QCoreVariant(Type type);
-    inline QCoreVariant(Type type, const void *v);
+    QCoreVariant(Type type);
+    QCoreVariant(Type type, const void *v);
     inline QCoreVariant(const QCoreVariant &other);
 
 #ifndef QT_NO_DATASTREAM
-    inline QCoreVariant(QDataStream &s);
+    QCoreVariant(QDataStream &s);
 #endif
 
-    inline QCoreVariant(int i);
-    inline QCoreVariant(uint ui);
-    inline QCoreVariant(Q_LLONG ll);
-    inline QCoreVariant(Q_ULLONG ull);
-    inline QCoreVariant(bool b);
-    inline QCoreVariant(double d);
+    QCoreVariant(int i);
+    QCoreVariant(uint ui);
+    QCoreVariant(Q_LLONG ll);
+    QCoreVariant(Q_ULLONG ull);
+    QCoreVariant(bool b);
+    QCoreVariant(double d);
 
     QCoreVariant(const char *str);
-    inline QCoreVariant(const QByteArray &bytearray);
-    inline QCoreVariant(const QBitArray &bitarray);
-    inline QCoreVariant(const QString &string);
-    inline QCoreVariant(const QStringList &stringlist);
+    QCoreVariant(const QByteArray &bytearray);
+    QCoreVariant(const QBitArray &bitarray);
+    QCoreVariant(const QString &string);
+    QCoreVariant(const QStringList &stringlist);
 
-    inline QCoreVariant(const QDate &date);
-    inline QCoreVariant(const QTime &time);
-    inline QCoreVariant(const QDateTime &datetime);
+    QCoreVariant(const QDate &date);
+    QCoreVariant(const QTime &time);
+    QCoreVariant(const QDateTime &datetime);
+    QCoreVariant(QObject *object);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QCoreVariant(const QList<QCoreVariant> &list);
-    inline QCoreVariant(const QMap<QString,QCoreVariant> &map);
+    QCoreVariant(const QList<QCoreVariant> &list);
+    QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
 
     QCoreVariant& operator=(const QCoreVariant &other);
@@ -116,7 +119,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline bool operator!=(const QCoreVariant &other) const
     { return !(other == *this); }
 
-    inline Type type() const;
+    Type type() const;
     const char *typeName() const;
 
     bool canCast(Type t) const;
@@ -144,6 +147,7 @@ class Q_CORE_EXPORT QCoreVariant
     QDate toDate() const;
     QTime toTime() const;
     QDateTime toDateTime() const;
+    QObject *toObject() const;
 #ifndef QT_NO_TEMPLATE_VARIANT
     QList<QCoreVariant> toList() const;
     QMap<QString,QCoreVariant> toMap() const;
@@ -182,7 +186,6 @@ class Q_CORE_EXPORT QCoreVariant
     inline QT_COMPAT QByteArray &asCString() { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
 
-    void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = false);
     void *data();
     const void *constData() const;
     inline const void *data() const { return constData(); }
@@ -267,52 +270,10 @@ inline QCoreVariant::QCoreVariant() :d(&shared_invalid)
 { ++d->ref; }
 inline QCoreVariant::~QCoreVariant()
 { if (!--d->ref) cleanUp(d); }
-inline QCoreVariant::QCoreVariant(Type type)
-{ d = create(type, 0); }
-inline QCoreVariant::QCoreVariant(Type type, const void *v)
-{ d = create(type, v); d->is_null = false; }
 inline QCoreVariant::QCoreVariant(const QCoreVariant &p) : d(p.d)
 { ++d->ref; }
 
-inline QCoreVariant::QCoreVariant(int val)
-{ d = create(Int, &val); }
-inline QCoreVariant::QCoreVariant(uint val)
-{ d = create(UInt, &val); }
-inline QCoreVariant::QCoreVariant(Q_LLONG val)
-{ d = create(LongLong, &val); }
-inline QCoreVariant::QCoreVariant(Q_ULLONG val)
-{ d = create(ULongLong, &val); }
-inline QCoreVariant::QCoreVariant(bool val)
-{ d = create(Bool, &val); }
-inline QCoreVariant::QCoreVariant(double val)
-{ d = create(Double, &val); }
-
-inline QCoreVariant::QCoreVariant(const QByteArray &val)
-{ d = create(ByteArray, &val); }
-inline QCoreVariant::QCoreVariant(const QBitArray &val)
-{ d = create(BitArray, &val); }
-inline QCoreVariant::QCoreVariant(const QString &val)
-{ d = create(String, &val); }
-inline QCoreVariant::QCoreVariant(const QStringList &val)
-{ d = create(StringList, &val); }
-
-inline QCoreVariant::QCoreVariant(const QDate &val)
-{ d = create(Date, &val); }
-inline QCoreVariant::QCoreVariant(const QTime &val)
-{ d = create(Time, &val); }
-inline QCoreVariant::QCoreVariant(const QDateTime &val)
-{ d = create(DateTime, &val); }
-#ifndef QT_NO_TEMPLATE_VARIANT
-inline QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
-{ d = create(List, &val); }
-inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
-{ d = create(Map, &val); }
-#endif
-
-inline QCoreVariant::Type QCoreVariant::type() const
-{ return d->type >= QMetaType::User ? UserType : static_cast<Type>(d->type); }
-inline bool QCoreVariant::isValid() const
-{ return d->type != Invalid; }
+bool QCoreVariant::isValid() const { return d->type != Invalid; }
 
 #ifdef QT_COMPAT
 inline int &QCoreVariant::asInt()
@@ -382,6 +343,7 @@ template<> QStringList QVariant_to_helper<QStringList>(const QCoreVariant &v, co
 template<> QDate QVariant_to_helper<QDate>(const QCoreVariant &v, const QDate*);
 template<> QTime QVariant_to_helper<QTime>(const QCoreVariant &v, const QTime*);
 template<> QDateTime QVariant_to_helper<QDateTime>(const QCoreVariant &v, const QDateTime*);
+template<> QObject * QVariant_to_helper<QObject*>(const QCoreVariant &v, QObject *);
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant>
 QVariant_to_helper<QList<QCoreVariant> >(const QCoreVariant &v, const QList<QCoreVariant>*);
@@ -406,6 +368,7 @@ template<> QStringList QVariant_to<QStringList>(const QCoreVariant &v);
 template<> QDate QVariant_to<QDate>(const QCoreVariant &v);
 template<> QTime QVariant_to<QTime>(const QCoreVariant &v);
 template<> QDateTime QVariant_to<QDateTime>(const QCoreVariant &v);
+template<> QObject * QVariant_to<QObject *>(const QCoreVariant &v);
 #ifndef QT_NO_TEMPLATE_VARIANT
 template<> QList<QCoreVariant> QVariant_to<QList<QCoreVariant> >(const QCoreVariant &v);
 template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(const QCoreVariant &v);
@@ -413,8 +376,8 @@ template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(c
 
 #endif
 
-Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QCoreVariant);
+Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
 
 #ifndef QT_NO_DEBUG
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QCoreVariant &);
