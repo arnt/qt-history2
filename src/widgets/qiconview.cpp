@@ -3204,9 +3204,17 @@ void QIconView::setAlignMode( AlignMode am )
 	c = tmpc;
     }
     d->firstContainer = d->lastContainer = 0;
-
+    for ( QIconViewItem *i = d->firstItem; i; i = i->next ) {
+	i->d->container1 = 0;
+	i->d->container2 = 0;
+    };
+    // ####################
+    
     d->alignMode = am;
-    resizeContents( viewport()->width(), viewport()->height() );
+    viewport()->setUpdatesEnabled( FALSE );
+    resizeContents( viewport()->width() - verticalScrollBar()->width(), 
+		    viewport()->height() - horizontalScrollBar()->height() );
+    viewport()->setUpdatesEnabled( TRUE );
     alignItemsInGrid( TRUE );
 }
 
@@ -4914,14 +4922,14 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     if ( !item || d->containerUpdateLocked )
 	return;
 
-    if ( item->d->container1 ) {
+    if ( item->d->container1 && d->firstContainer ) {
 	item->d->container1->items.removeRef( item );
-	item->d->container1 = 0;
     }
-    if ( item->d->container2 ) {
+    item->d->container1 = 0;
+    if ( item->d->container2 && d->firstContainer ) {
 	item->d->container2->items.removeRef( item );
-	item->d->container2 = 0;
     }
+    item->d->container2 = 0;
 
     QIconViewPrivate::ItemContainer *c = d->firstContainer;
     if ( !c ) {
