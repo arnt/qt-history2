@@ -22,3 +22,8 @@ target.path=$$QDB_INSTALL_LIBPATH
 isEmpty(target.path):target.path=/usr/local/lib
 INSTALLS += target
 
+#headers
+headers.path=$$QDB_INSTALL_HEADERPATH
+isEmpty(headers.path):headers.path=/usr/local/include/qdb
+headers.files = ../include/*.h
+INSTALLS += headers
