@@ -93,7 +93,7 @@ foreach $file ( @ARGV ) {
 		    # Parameters etc up to open-curly - no semicolons
 		    \(([^();]*)\)
 		    \s*
-		    \{
+		    (?:\{|:)
 		)
 	      |
 		# $3 - one-argument msgid
