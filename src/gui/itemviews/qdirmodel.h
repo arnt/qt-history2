@@ -51,7 +51,7 @@ public:
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     int rowCount(const QModelIndex &parent) const;
@@ -64,7 +64,6 @@ public:
 
     bool hasChildren(const QModelIndex &index) const;
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
-    bool isEditable(const QModelIndex &index) const; // specific for this model
 
     void sort(int column, Qt::SortOrder order);
 
@@ -96,7 +95,7 @@ public:
 
     void refresh(const QModelIndex &parent = QModelIndex());
 
-    QModelIndex index(const QString &path) const;
+    QModelIndex index(const QString &path, int column = 0) const;
     QString path(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
     QIcon icon(const QModelIndex &index) const;

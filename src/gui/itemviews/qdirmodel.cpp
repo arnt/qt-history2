@@ -15,6 +15,7 @@
 #include <qfile.h>
 #include <qurl.h>
 #include <qmime.h>
+#include <qpair.h>
 #include <qvector.h>
 #include <qobject.h>
 #include <qdatetime.h>
@@ -182,7 +183,7 @@ public:
     QFileIconProvider *iconProvider;
     QFileIconProvider defaultProvider;
 
-    QStringList savedPaths;
+    QList< QPair<QString,int> > saved;
 };
 
 #define d d_func()
@@ -399,7 +400,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || index.column() != 0
-        || !isEditable(index) || role != EditRole)
+        || (flags(index) & ItemIsEditable == 0) || role != EditRole)
         return false;
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
@@ -463,29 +464,16 @@ QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return flags;
     flags |= QAbstractItemModel::ItemIsDragEnabled;
-    if (isEditable(index))
-        flags |= QAbstractItemModel::ItemIsEditable;
-    if (isDir(index) && isEditable(index))
-        flags |= QAbstractItemModel::ItemIsDropEnabled;
-    return flags;
-}
-
-/*!
-  Returns true if the model item \a index in the directory model is
-  editable; otherwise returns false.
-
-*/
-
-bool QDirModel::isEditable(const QModelIndex &index) const
-{
     if (d->readOnly)
-        return false;
-
-    Q_ASSERT(index.isValid());
+        return flags;
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     Q_ASSERT(node);
-
-    return (index.column() == 0) && node->info.isWritable();
+    if ((index.column() == 0) && node->info.isWritable()) {
+        flags |= QAbstractItemModel::ItemIsEditable;
+        if (isDir(index)) // is directory and is editable
+            flags |= QAbstractItemModel::ItemIsDropEnabled;
+    }
+    return flags;
 }
 
 /*!
@@ -766,12 +754,12 @@ void QDirModel::refresh(const QModelIndex &parent)
     Returns the model item index for the given \a path.
 */
 
-QModelIndex QDirModel::index(const QString &path) const
+QModelIndex QDirModel::index(const QString &path, int column) const
 {
     if (path.isEmpty() || path == d->rootPath()) // FIXME: slow
         return QModelIndex();
 
-    QChar sep = '/';//QDir::separator() // FIXME
+    const QChar sep = '/';//QDir::separator() // FIXME
     QStringList pth = QDir(path).absolutePath().split(sep, QString::SkipEmptyParts);
 
 #ifdef Q_OS_WIN
@@ -821,7 +809,7 @@ QModelIndex QDirModel::index(const QString &path) const
 
         QString entry = pth.at(i);
         int r = entries.indexOf(entry);
-        idx = index(r, 0, idx); // will check row and lazily populate
+        idx = index(r, column, idx); // will check row and lazily populate
         if (!idx.isValid()) {
             qWarning("index: path does not exist\n");
             return QModelIndex();
@@ -1124,11 +1112,10 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 
 void QDirModelPrivate::savePersistentIndexes()
 {
-    savedPaths.clear();
+    saved.clear();
     for (int i = 0; i < persistentIndexes.count(); ++i) {
         QModelIndex idx = persistentIndexes.at(i)->index;
-        QString pth = q->path(idx);
-        savedPaths.append(pth);
+        saved.append(qMakePair(q->path(idx), idx.column()));
         ++persistentIndexes.at(i)->ref; // save
         persistentIndexes[i]->index = QModelIndex(); // invalidated
     }
@@ -1138,12 +1125,12 @@ void QDirModelPrivate::restorePersistentIndexes()
 {
     QList<QPersistentModelIndexData*> deleteList;
     for (int i = 0; i < persistentIndexes.count(); ++i) {
-        QString pth = savedPaths.at(i);
-        persistentIndexes[i]->index = q->index(pth);
+        persistentIndexes[i]->index = q->index(saved.at(i).first,
+                                               saved.at(i).second);
         if (!--persistentIndexes.at(i)->ref)
             deleteList.append(persistentIndexes.at(i));
     }
-    savedPaths.clear();
+    saved.clear();
     while (!deleteList.isEmpty()) {
         QPersistentModelIndexData::destroy(deleteList.last());
         deleteList.removeLast();
