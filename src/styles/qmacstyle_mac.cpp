@@ -546,7 +546,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_HeaderArrow: //drawn in HeaderSection rather than separately..
 	break;
     case PE_HeaderSection: {
-	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	if(qAquaActive(cg)) {
 	    if(!(flags & Style_Enabled)) 
 		info.state = kThemeStateUnavailable;
@@ -940,7 +940,7 @@ void QMacStyle::drawControl(ControlElement element,
 	}
 
 	ThemeButtonKind bkind = kThemePushButton;
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 
 	QRect off_rct(0, 0, 0, 0);
         { //The AppManager draws outside my rectangle, so account for that difference..
@@ -1042,7 +1042,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 	if(sub & SC_ToolButton) {
 	    if(bflags & (Style_Down | Style_On | Style_Raised)) {
-		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
+		ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 		if(toolbutton->isOn() || toolbutton->isDown())
 		    info.value |= kThemeStatePressed;
 
@@ -1068,7 +1068,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	}
 
 	if(sub & SC_ToolButtonMenu) {
-	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDefault };
+	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	    if(toolbutton->isOn() || toolbutton->isDown() || (subActive & SC_ToolButtonMenu))
 		info.value |= kThemeStatePressed;
 	    ((QMacPainter *)p)->setport();
@@ -1587,7 +1587,7 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
     switch(r) {
     case SR_PushButtonContents: {
 	ThemeButtonKind bkind = kThemePushButton;
-	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
+	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	Rect macRect, myRect;
 	SetRect(&myRect, 0, 0, w->width(), w->height());
 	GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
@@ -1812,7 +1812,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    ThemeButtonKind bkind = kThemePushButton;
 	    if(contents == CT_ToolButton)
 	      bkind = kThemeBevelButton;
-	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentDefault };
+	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	    Rect macRect, myRect;
 	    SetRect(&myRect,0, 0, sz.width(), sz.height());
 	    GetThemeButtonBackgroundBounds(&myRect, bkind, &info, &macRect);
