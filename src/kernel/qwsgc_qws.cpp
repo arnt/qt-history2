@@ -495,7 +495,10 @@ void QWSGC::drawEllipse(int x, int y, int w, int h)
     drawPolyInternal( a );
 }
 void QWSGC::drawArc(int x, int y, int w, int h, int a, int alen){
-    qDebug("QWSGC::drawArc");
+//    qDebug("QWSGC::drawArc");
+    QPointArray pa;
+    pa.makeArc( x, y, w, h, a, alen );
+    drawPolyInternal( pa, FALSE );
 }
 void QWSGC::drawPie(int x, int y, int w, int h, int a, int alen){
     //qDebug("QWSGC::drawPie");
@@ -529,7 +532,13 @@ void QWSGC::drawPie(int x, int y, int w, int h, int a, int alen){
 
 }
 void QWSGC::drawChord(int x, int y, int w, int h, int a, int alen){
-    qDebug("QWSGC::drawChord");
+//    qDebug("QWSGC::drawChord");
+    QPointArray pa;
+    pa.makeArc( x, y, w-1, h-1, a, alen );	// arc polygon
+    int n = pa.size();
+    pa.resize( n+1 );
+    pa.setPoint( n, pa.at(0) );			// connect endpoints
+    drawPolyInternal( pa );
 }
 void QWSGC::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
