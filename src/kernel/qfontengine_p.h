@@ -498,7 +498,7 @@ class QFontEngineMac : public QFontEngine
     short fnum;
     int psize;
     QMacFontInfo *internal_fi;
-    QMap<QFontCache::Key, QCache<void> > *width_cache;
+    QCache<QFontCache::Key, QCache<QString, int> > *width_cache;
     friend class QGLContext;
     friend class QFontPrivate;
     friend class QMacSetFontInfo;

@@ -223,7 +223,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     if(!st)
 	return 0;
 
-    QCache<void> *cache = NULL;
+    QCache<QString, int> cache;
     if(task & DRAW) {
 	RGBColor fcolor;
 	GetForeColor(&fcolor);
@@ -239,17 +239,17 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    }
 	}
     } 
-#if 1
     if((task & WIDTH)) {
 	QFontCache::Key key = QFontCache::Key(fontDef, QFont::NoScript, 0);
 	if(!width_cache) 
-	    ((QFontEngineMac*)this)->width_cache = new QMap<QFontCache::Key, QCache<void> >();
-	cache = &(*(width_cache->find(key)));
-	ret = (int)cache->find(QString(s+pos, use_len));
-	if(ret && task == WIDTH) 
-	    return ret;
+	    ((QFontEngineMac*)this)->width_cache = new QCache<QFontCache::Key, QCache<QString, int> >(5);
+	if(width_cache->find(key, cache)) {
+	    if(cache.find(QString(s+pos, use_len), ret) && task == WIDTH)
+		return ret;
+	} else {
+	    width_cache->insert(key, cache);
+	}
     }
-#endif
 
     //create layout
     ATSUTextLayout alayout;
@@ -353,8 +353,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 	    ATSUMeasureText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
 			    &left, &right, &bottom, &top);
 	ret = FixRound(right-left);
-	if(cache) 
-	    cache->insert(QString(s+pos, use_len), (void*)ret);
+	cache.insert(QString(s+pos, use_len), ret);
     }
     if(task & DRAW) {
 	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd,
