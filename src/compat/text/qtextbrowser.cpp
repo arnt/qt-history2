@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qtextbrowser.h"
+#include "q3textbrowser.h"
 #ifndef QT_NO_TEXTBROWSER
 #include <private/qrichtext_p.h>
 
@@ -83,7 +83,7 @@
     use QSimpleRichText or QLabel.
 */
 
-class QTextBrowserData
+class Q3TextBrowserData
 {
 public:
     QTextBrowserData():textOrSourceChanged(false) {}
@@ -105,7 +105,7 @@ public:
     Constructs an empty QTextBrowser called \a name, with parent \a
     parent.
 */
-QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
+Q3TextBrowser::Q3TextBrowser(QWidget *parent, const char *name)
     : Q3TextEdit(parent, name)
 {
     setReadOnly(true);
@@ -117,14 +117,14 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
 /*!
     \internal
 */
-QTextBrowser::~QTextBrowser()
+Q3TextBrowser::~Q3TextBrowser()
 {
     delete d;
 }
 
 
 /*!
-    \property QTextBrowser::source
+    \property Q3TextBrowser::source
     \brief the name of the displayed document.
 
     This is a an empty string if no document is displayed or if the
@@ -148,7 +148,7 @@ QTextBrowser::~QTextBrowser()
     QMimeSourceFactory::data() for details.
 */
 
-QString QTextBrowser::source() const
+QString Q3TextBrowser::source() const
 {
     if (d->stack.isEmpty())
         return QString::null;
@@ -157,27 +157,27 @@ QString QTextBrowser::source() const
 }
 
 /*!
-    \property QTextBrowser::undoDepth
+    \property Q3TextBrowser::undoDepth
     \brief This text browser's undo depth.
 */
 
 /*!
-    \property QTextBrowser::overwriteMode
+    \property Q3TextBrowser::overwriteMode
     \brief This text browser's overwrite mode.
 */
 
 /*!
-    \property QTextBrowser::modified
+    \property Q3TextBrowser::modified
     \brief Whether the contents have been modified.
 */
 
 /*!
-    \property QTextBrowser::readOnly
+    \property Q3TextBrowser::readOnly
     \brief Whether the contents are read only.
 */
 
 /*!
-    \property QTextBrowser::undoRedoEnabled
+    \property Q3TextBrowser::undoRedoEnabled
     \brief Whether undo and redo are enabled.
 */
 
@@ -187,7 +187,7 @@ QString QTextBrowser::source() const
     Reloads the current set source.
 */
 
-void QTextBrowser::reload()
+void Q3TextBrowser::reload()
 {
     QString s = d->curmain;
     d->curmain = "";
@@ -195,7 +195,7 @@ void QTextBrowser::reload()
 }
 
 
-void QTextBrowser::setSource(const QString& name)
+void Q3TextBrowser::setSource(const QString& name)
 {
 #ifndef QT_NO_CURSOR
     if (isVisible())
@@ -281,7 +281,7 @@ void QTextBrowser::setSource(const QString& name)
 }
 
 /*!
-    \fn void QTextBrowser::backwardAvailable(bool available)
+    \fn void Q3TextBrowser::backwardAvailable(bool available)
 
     This signal is emitted when the availability of backward()
     changes. \a available is false when the user is at home();
@@ -289,7 +289,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::forwardAvailable(bool available)
+    \fn void Q3TextBrowser::forwardAvailable(bool available)
 
     This signal is emitted when the availability of forward() changes.
     \a available is true after the user navigates backward() and false
@@ -297,7 +297,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::sourceChanged(const QString& src)
+    \fn void Q3TextBrowser::sourceChanged(const QString& src)
 
     This signal is emitted when the mime source has changed, \a src
     being the new source.
@@ -307,7 +307,7 @@ void QTextBrowser::setSource(const QString& name)
     clicks on links or presses the equivalent key sequences.
 */
 
-/*!  \fn void QTextBrowser::highlighted (const QString &link)
+/*!  \fn void Q3TextBrowser::highlighted (const QString &link)
 
     This signal is emitted when the user has selected but not
     activated a link in the document. \a link is the value of the \c
@@ -315,7 +315,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::linkClicked(const QString& link)
+    \fn void Q3TextBrowser::linkClicked(const QString& link)
 
     This signal is emitted when the user clicks a link. The \a link is
     the value of the \c href i.e. the name of the target document.
@@ -328,7 +328,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::anchorClicked(const QString& name, const QString &link)
+    \fn void Q3TextBrowser::anchorClicked(const QString& name, const QString &link)
 
     This signal is emitted when the user clicks an anchor. The \a link is
     the value of the \c href i.e. the name of the target document.  The \a name
@@ -344,7 +344,7 @@ void QTextBrowser::setSource(const QString& name)
 
     \sa forward(), backwardAvailable()
 */
-void QTextBrowser::backward()
+void Q3TextBrowser::backward()
 {
     if (d->stack.count() <= 1)
         return;
@@ -360,7 +360,7 @@ void QTextBrowser::backward()
 
     \sa backward(), forwardAvailable()
 */
-void QTextBrowser::forward()
+void Q3TextBrowser::forward()
 {
     if (d->forwardStack.isEmpty())
         return;
@@ -372,7 +372,7 @@ void QTextBrowser::forward()
     Changes the document displayed to be the first document the
     browser displayed.
 */
-void QTextBrowser::home()
+void Q3TextBrowser::home()
 {
     if (!d->home.isNull())
         setSource(d->home);
@@ -387,7 +387,7 @@ void QTextBrowser::home()
     \row \i Alt+Up Arrow    \i \l home()
     \endtable
 */
-void QTextBrowser::keyPressEvent(QKeyEvent * e)
+void Q3TextBrowser::keyPressEvent(QKeyEvent * e)
 {
     if (e->state() & Qt::AltButton) {
         switch (e->key()) {
@@ -422,7 +422,7 @@ protected:
 };
 
 
-void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
+void Q3TextBrowser::popupDetail(const QString& contents, const QPoint& pos)
 {
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
@@ -490,7 +490,7 @@ void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
 }
 
 /*!
-    \fn void QTextBrowser::setText(const QString &txt)
+    \fn void Q3TextBrowser::setText(const QString &txt)
 
     \overload
 
@@ -501,7 +501,7 @@ void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
     \reimp
 */
 
-void QTextBrowser::setText(const QString &txt, const QString &context)
+void Q3TextBrowser::setText(const QString &txt, const QString &context)
 {
     d->textOrSourceChanged = true;
     d->curmark = "";
@@ -509,12 +509,12 @@ void QTextBrowser::setText(const QString &txt, const QString &context)
     Q3TextEdit::setText(txt, context);
 }
 
-void QTextBrowser::emitHighlighted(const QString &s)
+void Q3TextBrowser::emitHighlighted(const QString &s)
 {
     emit highlighted(s);
 }
 
-void QTextBrowser::emitLinkClicked(const QString &s)
+void Q3TextBrowser::emitLinkClicked(const QString &s)
 {
     d->textOrSourceChanged = false;
     emit linkClicked(s);

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QTEXTBROWSER_H
-#define QTEXTBROWSER_H
+#ifndef Q3TEXTBROWSER_H
+#define Q3TEXTBROWSER_H
 
 #ifndef QT_H
 #include "qpixmap.h"
@@ -24,7 +24,7 @@
 
 class QTextBrowserData;
 
-class Q_COMPAT_EXPORT QTextBrowser : public Q3TextEdit
+class Q_COMPAT_EXPORT Q3TextBrowser : public Q3TextEdit
 {
     Q_OBJECT
     Q_PROPERTY(QString source READ source WRITE setSource)
@@ -37,8 +37,8 @@ class Q_COMPAT_EXPORT QTextBrowser : public Q3TextEdit
     friend class Q3TextEdit;
 
 public:
-    QTextBrowser(QWidget* parent=0, const char* name=0);
-    ~QTextBrowser();
+    Q3TextBrowser(QWidget* parent=0, const char* name=0);
+    ~Q3TextBrowser();
 
     QString source() const;
 
@@ -69,9 +69,9 @@ private:
     bool linksEnabled() const { return true; }
     void emitHighlighted(const QString &s);
     void emitLinkClicked(const QString &s);
-    QTextBrowserData *d;
+    Q3TextBrowserData *d;
 };
 
 #endif // QT_NO_TEXTBROWSER
 
-#endif // QTEXTBROWSER_H
+#endif // Q3TEXTBROWSER_H
