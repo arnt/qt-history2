@@ -78,7 +78,7 @@ public:
 
     QStringList functions() const;
 
-    long queryEngineInterface( const QUuid &, void** ) const;
+    long queryInterface( const QUuid &, void** ) const;
 
 protected:
     bool initialize(IUnknown** ptr);

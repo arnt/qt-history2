@@ -315,9 +315,7 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
     If the script engine supports introspection it can be queried for the 
     list of functions in the code using functions().
 
-    Direct access to the script object is provided through queryInterface().
-    Access to the underlying script engine (the IActiveScript object) is
-    provided through queryEngineInterface().
+    Direct access to the script engine is provided through queryInterface().
 */
 
 /*!
@@ -501,7 +499,7 @@ bool QAxScriptEngine::hasIntrospection() const
 	return FALSE;
 
     IDispatch *scriptDispatch = 0;
-    queryInterface(IID_IDispatch, (void**)&scriptDispatch);
+    QAxBase::queryInterface(IID_IDispatch, (void**)&scriptDispatch);
     if (!scriptDispatch)
 	return FALSE;
 
@@ -546,10 +544,8 @@ QStringList QAxScriptEngine::functions() const
 
     Returns the result of the QueryInterface implementation of the 
     COM object.
-
-    \sa control
 */
-long QAxScriptEngine::queryEngineInterface( const QUuid &uuid, void **iface ) const
+long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
 {
     *iface = 0;
     if (!script)
