@@ -16,3 +16,5 @@ include(dialogs/dialogs.pri)
 mac:LIBS += -framework Carbon
 
 QMAKE_LIBS += $$QMAKE_LIBS_COMPAT
+DEFINES -= QT_COMPAT_WARNINGS
+DEFINES += QT_COMPAT

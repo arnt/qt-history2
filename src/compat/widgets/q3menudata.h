@@ -33,7 +33,7 @@ class QSignalEmitter;
 class Q3CustomMenuItem;
 class Q3MenuItemData;
 
-class Q_GUI_EXPORT Q3MenuItem                        // internal menu item class
+class Q_COMPAT_EXPORT Q3MenuItem                        // internal menu item class
 {
 friend class Q3MenuData;
 public:
@@ -98,7 +98,7 @@ private:        // Disabled copy constructor and operator=
 typedef QList<Q3MenuItem*> Q3MenuItemList;
 
 
-class Q_GUI_EXPORT Q3CustomMenuItem : public Qt
+class Q_COMPAT_EXPORT Q3CustomMenuItem : public Qt
 {
 public:
     Q3CustomMenuItem();
@@ -112,7 +112,7 @@ public:
 };
 
 
-class Q_GUI_EXPORT Q3MenuData                        // menu data class
+class Q_COMPAT_EXPORT Q3MenuData                        // menu data class
 {
 friend class Q3MenuBar;
 friend class Q3PopupMenu;
