@@ -9,6 +9,7 @@
 #include "pixmapchooser.h"
 #include "command.h"
 #include <qvaluelist.h>
+#include "project.h"
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
@@ -18,7 +19,20 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	comboFields->hide();
     }
 
+    labelColumnPixmap->setText( "" );
+    labelRowPixmap->setText( "" );
+
     readFromTable();
+
+    if ( formWindow->project() && editTable->inherits( "QSqlTable" ) ) {
+	QStringList lst = MetaDataBase::fakeProperty( editTable, "database" ).toStringList();
+	if ( lst.count() == 2 && !lst[ 0 ].isEmpty() && !lst[ 1 ].isEmpty() ) {
+	    QStringList fields;
+	    fields << "<no field>";
+	    fields += formWindow->project()->databaseFieldList( lst[ 0 ], lst[ 1 ] );
+	    comboFields->insertStringList( fields );
+	}
+    }
 }
 
 TableEditor::~TableEditor()
