@@ -31,7 +31,7 @@
 
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
-#include <qsqltable.h>
+#include <qdatatable.h>
 #endif
 
 Project::Project( const QString &fn, const QString &pName )

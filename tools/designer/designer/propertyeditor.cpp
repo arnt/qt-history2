@@ -2286,7 +2286,7 @@ static bool parent_is_data_aware( QObject *o )
     QWidget *w = (QWidget*)o;
     QWidget *p = w->parentWidget();
     while ( p && !p->isTopLevel() ) {
-	if ( p->inherits( "QDesignerSqlDataForm" ) || p->inherits( "QDesignerSqlDataView" ) )
+	if ( p->inherits( "QDesignerDataBrowser" ) || p->inherits( "QDesignerDataView" ) )
 	    return TRUE;
 	p = p->parentWidget();
     }
@@ -2448,16 +2448,16 @@ void PropertyList::setupProperties()
     }
 
 #ifndef QT_NO_SQL
-    if ( !editor->widget()->inherits( "QSqlTable" ) && !editor->widget()->inherits( "QSqlDataForm" ) &&
-	 !editor->widget()->inherits( "QSqlDataView" ) && parent_is_data_aware( editor->widget() ) ) {
+    if ( !editor->widget()->inherits( "QDataTable" ) && !editor->widget()->inherits( "QDataBrowser" ) &&
+	 !editor->widget()->inherits( "QDataView" ) && parent_is_data_aware( editor->widget() ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
 
- if ( editor->widget()->inherits( "QSqlTable" ) || editor->widget()->inherits( "QSqlDataForm" ) || editor->widget()->inherits( "QSqlDataView" ) ) {
-	if ( editor->widget()->inherits( "QSqlTable" ) )
+ if ( editor->widget()->inherits( "QDataTable" ) || editor->widget()->inherits( "QDataBrowser" ) || editor->widget()->inherits( "QDataView" ) ) {
+	if ( editor->widget()->inherits( "QDataTable" ) )
 	    item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
 	else
 	    item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );

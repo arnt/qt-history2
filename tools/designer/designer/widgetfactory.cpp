@@ -45,7 +45,7 @@
 #include <qtable.h>
 #endif
 #ifndef QT_NO_SQL
-#include <qsqltable.h>
+#include <qdatatable.h>
 #include <qdatetimeedit.h>
 #endif
 #include <qlineedit.h>
@@ -520,8 +520,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 #endif
     }
 #ifndef QT_NO_SQL
-    else if ( className == "QSqlTable" ) {
-	return new QSqlTable( parent, name );
+    else if ( className == "QDataTable" ) {
+	return new QDataTable( parent, name );
     } else if ( className == "QDateEdit" ) {
 	return new QDateEdit( parent, name );
     } else if ( className == "QTimeEdit" ) {
@@ -694,13 +694,13 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return mw;
     }
 #ifndef QT_NO_SQL
-    else if ( className == "QSqlDataForm" ) {
-	QWidget *w = new QDesignerSqlDataForm( parent, name );
+    else if ( className == "QDataBrowser" ) {
+	QWidget *w = new QDesignerDataBrowser( parent, name );
 	if ( parent )
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
-    } else if ( className == "QSqlDataView" ) {
-	QWidget *w = new QDesignerSqlDataView( parent, name );
+    } else if ( className == "QDataView" ) {
+	QWidget *w = new QDesignerDataView( parent, name );
 	if ( parent )
 	    w->reparent( parent, QPoint( 0, 0 ), TRUE );
 	return w;
@@ -896,10 +896,10 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
-    else if ( o->inherits( "QDesignerSqlDataForm" ) )
-	return "QSqlDataForm";
-    else if ( o->inherits( "QDesignerSqlDataView" ) )
-	return "QSqlDataView";
+    else if ( o->inherits( "QDesignerDataBrowser" ) )
+	return "QDataBrowser";
+    else if ( o->inherits( "QDesignerDataView" ) )
+	return "QDataView";
     return o->className();
 }
 
@@ -923,7 +923,7 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
-    } else if ( o->inherits( "QTable" ) && !o->inherits( "QSqlTable" ) ) {
+    } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
     } else if ( o->inherits( "QSplitter" )  ) {

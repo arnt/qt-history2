@@ -606,7 +606,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    if ( table->horizontalHeader()->iconSet( i ) )
 		pix.append( new QPixmap( table->horizontalHeader()->iconSet( i )->pixmap() ) );
 	    saveItem( l, pix, ts, indent );
-	    if ( table->inherits( "QSqlTable" ) && !columnFields.isEmpty() ) {
+	    if ( table->inherits( "QDataTable" ) && !columnFields.isEmpty() ) {
 		ts << makeIndent( indent ) << "<property name=\"field\">" << endl;
 		indent++;
 		ts << makeIndent( indent ) << "<string>" << entitize( *columnFields.find( l[ 0 ] ) ) << "</string>" << endl;

@@ -2173,7 +2173,7 @@ bool FormWindow::isDatabaseWidgetUsed() const
 {
 #ifndef QT_NO_SQL
     QStringList dbClasses;
-    dbClasses << "QSqlTable"; // add more here
+    dbClasses << "QDataTable"; // add more here
     QPtrDictIterator<QWidget> it( insertedWidgets );
     for ( ; it.current(); ++it ) {
 	QString c( it.current()->className() );
@@ -2188,7 +2188,7 @@ bool FormWindow::isDatabaseWidgetUsed() const
 bool FormWindow::isDatabaseAware() const
 {
 #ifndef QT_NO_SQL
-    if ( QString(mContainer->className()) == "QDesignerSqlDataForm" || QString(mContainer->className()) == "QDesignerSqlDataView" )
+    if ( QString(mContainer->className()) == "QDesignerDataBrowser" || QString(mContainer->className()) == "QDesignerDataView" )
 	return TRUE;
     return isDatabaseWidgetUsed();
 #endif

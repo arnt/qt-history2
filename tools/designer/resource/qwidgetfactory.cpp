@@ -44,7 +44,7 @@
 #ifndef QT_NO_SQL
 #include <qsqlrecord.h>
 #include <qsqldatabase.h>
-#include <qsqltable.h>
+#include <qdatatable.h>
 #include <qdatetimeedit.h>
 #endif
 
@@ -229,14 +229,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #ifndef QT_NO_SQL
 	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
-	    if ( cit.key()->inherits( "QDesignerSqlDataForm" ) )
-		( (QDesignerSqlDataForm*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
- 	    else if ( cit.key()->inherits( "QDesignerSqlDataView" ) )
- 		( (QDesignerSqlDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    if ( cit.key()->inherits( "QDesignerDataBrowser" ) )
+		( (QDesignerDataBrowser*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+ 	    else if ( cit.key()->inherits( "QDesignerDataView" ) )
+ 		( (QDesignerDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
 	}
 	
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
-	    QSqlTable *table = (QSqlTable*)widgetFactory->toplevel->child( it.key(), "QSqlTable" );
+	    QDataTable *table = (QDataTable*)widgetFactory->toplevel->child( it.key(), "QDataTable" );
 	    if ( !table )
 		continue;
 	    QValueList<Field> fieldMap = *widgetFactory->fieldMaps.find( table );
@@ -481,18 +481,18 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     }
 #if !defined(QT_NO_SQL)
-    else if ( className == "QSqlTable" ) {
-	return new QSqlTable( parent, name );
+    else if ( className == "QDataTable" ) {
+	return new QDataTable( parent, name );
     } else if ( className == "QDateEdit" ) {
 	return new QDateEdit( parent, name );
     } else if ( className == "QTimeEdit" ) {
 	return new QTimeEdit( parent, name );
     } else if ( className == "QDateTimeEdit" ) {
 	return new QDateTimeEdit( parent, name );
-    } else if ( className == "QSqlDataForm" ) {
-	return new QDesignerSqlDataForm( parent, name );
-    } else if ( className == "QSqlDataView" ) {
-	return new QDesignerSqlDataView( parent, name );
+    } else if ( className == "QDataBrowser" ) {
+	return new QDesignerDataBrowser( parent, name );
+    } else if ( className == "QDataView" ) {
+	return new QDesignerDataView( parent, name );
     }
 #endif
 
@@ -773,7 +773,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		if ( !v.toString().isEmpty() )
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
 	    }
-	    if ( prop == "database" && !obj->inherits( "QSqlDataView" ) && !obj->inherits( "QSqlDataForm" ) ) {
+	    if ( prop == "database" && !obj->inherits( "QDataView" ) && !obj->inherits( "QDataBrowser" ) ) {
 		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
 		if ( lst.count() > 2 ) {
 		    if ( dbControls )
@@ -1159,7 +1159,7 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
     } else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
 #ifndef QT_NO_SQL
-	bool isSql = (widget->inherits( "QSqlTable" ));
+	bool isSql = (widget->inherits( "QDataTable" ));
 #endif
 	bool isRow;
 	if ( ( isRow = e.tagName() == "row" ) )
@@ -1198,14 +1198,14 @@ void QWidgetFactory::createColumn( const QDomElement &e, QWidget *widget )
 	if ( hasPixmap ) {
 #ifndef QT_NO_SQL
 	    if ( isSql )
-		((QSqlTable*)table)->addColumn( field, txt, pix );
+		((QDataTable*)table)->addColumn( field, txt, pix );
 	    else
 #endif
 		h->setLabel( i, pix, txt );
 	} else {
 #ifndef QT_NO_SQL
 	    if ( isSql )
-		((QSqlTable*)table)->addColumn( field, txt );
+		((QDataTable*)table)->addColumn( field, txt );
 	    else
 #endif
 		h->setLabel( i, txt );

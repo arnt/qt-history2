@@ -29,14 +29,14 @@
 #include <qsqlcursor.h>
 #include <qsqlrecord.h>
 
-QDesignerSqlDataForm::QDesignerSqlDataForm( QWidget *parent, const char *name )
-    : QSqlDataForm( parent, name )
+QDesignerDataBrowser::QDesignerDataBrowser( QWidget *parent, const char *name )
+    : QDataBrowser( parent, name )
 {
 }
 
-bool QDesignerSqlDataForm::event( QEvent* e )
+bool QDesignerDataBrowser::event( QEvent* e )
 {
-    bool b = QSqlDataForm::event( e );
+    bool b = QDataBrowser::event( e );
     if (
 #if defined(DESIGNER)
 	MainWindow::self->isPreviewing()
@@ -55,14 +55,14 @@ bool QDesignerSqlDataForm::event( QEvent* e )
     return b;
 }
 
-QDesignerSqlDataView::QDesignerSqlDataView( QWidget *parent, const char *name )
-    : QSqlDataView( parent, name )
+QDesignerDataView::QDesignerDataView( QWidget *parent, const char *name )
+    : QDataView( parent, name )
 {
 }
 
-bool QDesignerSqlDataView::event( QEvent* e )
+bool QDesignerDataView::event( QEvent* e )
 {
-    return QSqlDataView::event( e );
+    return QDataView::event( e );
 }
 
 DatabaseSupport::DatabaseSupport()

@@ -24,8 +24,8 @@
 #include "qfeatures.h"
 
 #ifndef QT_NO_SQL
-#include <qsqldataview.h>
-#include <qsqldataform.h>
+#include <qdataview.h>
+#include <qdatabrowser.h>
 #include <qsqlcursor.h>
 #include <qvector.h>
 #include <qstring.h>
@@ -57,12 +57,12 @@ protected:
 
 };
 
-class QDesignerSqlDataForm : public QSqlDataForm, public DatabaseSupport
+class QDesignerDataBrowser : public QDataBrowser, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
-    QDesignerSqlDataForm( QWidget *parent, const char *name );
+    QDesignerDataBrowser( QWidget *parent, const char *name );
 
     QSqlCursor* defaultCursor() { return DatabaseSupport::defCursor(); }
     QSqlForm* defaultForm() { return DatabaseSupport::defForm(); }
@@ -72,12 +72,12 @@ protected:
 
 };
 
-class QDesignerSqlDataView : public QSqlDataView, public DatabaseSupport
+class QDesignerDataView : public QDataView, public DatabaseSupport
 {
     Q_OBJECT
 
 public:
-    QDesignerSqlDataView( QWidget *parent, const char *name );
+    QDesignerDataView( QWidget *parent, const char *name );
     bool hasCursorSupport() { return FALSE; }
 
 protected:

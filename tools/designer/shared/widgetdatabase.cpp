@@ -217,10 +217,11 @@ void WidgetDatabase::setupDataBase()
 
 #if !defined(QT_NO_SQL)
     r = new WidgetDatabaseRecord;
-    r->iconSet = "table.xpm";
-    r->name = "QSqlTable";
+    r->iconSet = "datatable.xpm";
+    r->includeFile = "qdatatable.h";
+    r->name = "QDataTable";
     r->group = widgetGroup( "Database" );
-    r->toolTip = "SQL Table";
+    r->toolTip = "Data Table";
 
     append( r );
 #endif
@@ -472,22 +473,22 @@ void WidgetDatabase::setupDataBase()
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
-    r->name = "QSqlDataForm";
-    r->includeFile = "qsqldataform.h";
+    r->name = "QDataBrowser";
+    r->includeFile = "qdatabrowser.h";
     r->group = widgetGroup( "Database" );
-    r->toolTip = "SQL Dataform";
-    r->iconSet = "sqldataform.xpm";
+    r->toolTip = "Data Browser";
+    r->iconSet = "databrowser.xpm";
     r->isContainer = TRUE;
 
     append( r );
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
-    r->name = "QSqlDataView";
-    r->includeFile = "qsqldataview.h";
+    r->name = "QDataView";
+    r->includeFile = "qdataview.h";
     r->group = widgetGroup( "Database" );
-    r->toolTip = "SQL Dataview";
-    r->iconSet = "sqldataview.xpm";
+    r->toolTip = "Data View";
+    r->iconSet = "dataview.xpm";
     r->isContainer = TRUE;
 
     append( r );

@@ -35,7 +35,7 @@
 #include <qfeatures.h>
 
 #ifndef QT_NO_SQL
-#include <qsqltable.h>
+#include <qdatatable.h>
 #include <qsqleditorfactory.h>
 #include <qsqlindex.h>
 #include <qsqlcursor.h>
@@ -50,16 +50,16 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     setFinishEnabled( finishPage, TRUE );
 
     /* set mode of operation */
-    if ( widget->inherits( "QSqlTable" ) ) {
-	setCaption( "SQL Table Wizard" );
+    if ( widget->inherits( "QDataTable" ) ) {
+	setCaption( "Data Table Wizard" );
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
-    } else if ( widget->inherits( "QSqlDataForm" ) ) {
-	setCaption( "SQL Form Wizard" );
+    } else if ( widget->inherits( "QDataBrowser" ) ) {
+	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	mode = Form;
-    } else if ( widget->inherits( "QSqlDataView" ) ) {
-	setCaption( "SQL View Wizard" );
+    } else if ( widget->inherits( "QDataView" ) ) {
+	setCaption( "Data View Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
 	setAppropriate( navigPage, FALSE );
 	setAppropriate( sqlPage, FALSE);
@@ -446,7 +446,7 @@ void SqlFormWizard::accept()
 	break;
     case Table:
 	{
-	    QSqlTable* sqlTable = ((QSqlTable*)widget);
+	    QDataTable* sqlTable = ((QDataTable*)widget);
 	    if ( checkBoxReadOnly->isChecked() ) {
 		sqlTable->setReadOnly( TRUE );
 		formWindow->setPropertyChanged( sqlTable, "readOnly", TRUE );
@@ -474,7 +474,7 @@ void SqlFormWizard::accept()
 	    }
 
 	    QMap<QString, QString> columnFields;
-	    sqlTable->setNumCols( listBoxSelectedField->count() ); // no need to change property through mdbIface here, since QSqlTable doesn't offer that through Designer
+	    sqlTable->setNumCols( listBoxSelectedField->count() ); // no need to change property through mdbIface here, since QDataTable doesn't offer that through Designer
 	    for( j = 0; j < listBoxSelectedField->count(); j++ ){
 
 		QSqlField* field = tab.field( listBoxSelectedField->text( j ) );

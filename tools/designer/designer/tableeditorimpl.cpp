@@ -16,13 +16,13 @@
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
 {
-    if ( !editTable->inherits( "QSqlTable" ) ) {
+    if ( !editTable->inherits( "QDataTable" ) ) {
 	labelFields->hide();
 	comboFields->hide();
 	labelTable->hide();
 	labelTableValue->hide();
     }
-    if ( editTable->inherits( "QSqlTable" ) ) {
+    if ( editTable->inherits( "QDataTable" ) ) {
 	// ## why does this behave weird?
 	//	TabWidget->removePage( rows_tab );
 	//	rows_tab->hide();
@@ -33,7 +33,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );
 
-    if ( formWindow->project() && editTable->inherits( "QSqlTable" ) ) {
+    if ( formWindow->project() && editTable->inherits( "QDataTable" ) ) {
 	QStringList lst = MetaDataBase::fakeProperty( editTable, "database" ).toStringList();
 	if ( lst.count() == 2 && !lst[ 0 ].isEmpty() && !lst[ 1 ].isEmpty() ) {
 	    QStringList fields;
@@ -109,7 +109,7 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	labelColumnPixmap->setText( "" );
     editColumnText->blockSignals( FALSE );
 
-    if ( editTable->inherits( "QSqlTable" ) ) {
+    if ( editTable->inherits( "QDataTable" ) ) {
 	QString s = *fieldMap.find( listColumns->index( i ) );
 	if ( s.isEmpty() )
 	    comboFields->setCurrentItem( 0 );
@@ -180,7 +180,7 @@ void TableEditor::newColumnClicked()
     QListBoxItem *i = listColumns->item( listColumns->count() - 1 );
     listColumns->setCurrentItem( i );
     listColumns->setSelected( i, TRUE );
-    if ( editTable->inherits( "QSqlTable" ) ) {
+    if ( editTable->inherits( "QDataTable" ) ) {
 	comboFields->setFocus();
     } else {
 	editColumnText->setFocus();
