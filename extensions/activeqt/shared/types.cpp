@@ -1097,6 +1097,7 @@ void clearVARIANT( VARIANT *var )
 {
     if ( var->vt & VT_BYREF ) {
 	const VARTYPE vt = var->vt & ~VT_BYREF;
+/*
 	switch( vt ) {
 	case VT_BSTR:
 	    SysFreeString( *var->pbstrVal );
@@ -1142,6 +1143,7 @@ void clearVARIANT( VARIANT *var )
 	    SafeArrayDestroy( var->parray );
 	    break;
 	}
+*/
 	VariantInit( var );
     } else {
 	switch ( var->vt ) {
