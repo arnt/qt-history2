@@ -98,6 +98,9 @@ private slots:
     void nextUnfinished();
     void findNext( const QString& text, int where, bool matchCase );
     void revalidate();
+    void toggleGuessing();
+    void focusSourceList();
+    void focusPhraseList();
 
 private:
     typedef QPtrList<PhraseBook> PBL;
@@ -190,12 +193,12 @@ private:
     Action *overviewAct;
     Action *whatsThisAct;
     Action *startFromSourceAct;
-    Action *guessAct;
     Action *prevAct;
     Action *nextAct;
     Action *prevUnfinishedAct;
     Action *nextUnfinishedAct;
     Action *finishedAndNextAct;
+    Action *doGuessesAct;
 
 };
 

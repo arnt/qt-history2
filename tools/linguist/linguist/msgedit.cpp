@@ -33,6 +33,7 @@
 #include <qvbox.h>
 #include <qmainwindow.h>
 #include <qheader.h>
+#include <qregexp.h>
 
 #include <qdockarea.h>
 #include <qdockwindow.h>
@@ -49,7 +50,7 @@
 
 #include "simtexth.h"
 
-static const int MaxCandidates = 10;
+static const int MaxCandidates = 5;
 
 class MED : public QMultiLineEdit
 {
@@ -141,7 +142,7 @@ void ShadowWidget::setWidget( QWidget * child )
 
 void ShadowWidget::resizeEvent( QResizeEvent * )
 {
-    if( childWgt ){
+    if( childWgt ) {
 	childWgt->move( wMargin, wMargin );
 	childWgt->resize( width() - sWidth - wMargin, height() - sWidth -
 			  wMargin );
@@ -384,6 +385,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     : QWidget( parent, name ),
       tor( t )
 {
+    doGuesses = TRUE;
     v = new QVBoxLayout( this );
     topDock = new QDockArea( Qt::Horizontal, QDockArea::Normal, this,
 			     "top dock area" );
@@ -493,6 +495,8 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 	     this, SLOT(updateCanPaste()) );
     connect( phraseLv, SIGNAL(doubleClicked(QListViewItem *)),
 	     this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
+    connect( phraseLv, SIGNAL(returnPressed(QListViewItem *)),
+	     this, SLOT(insertPhraseInTranslation(QListViewItem *)) );
 
     // What's this
     QWhatsThis::add( this, tr("This whole panel allows you to view and edit "
@@ -518,13 +522,31 @@ void MessageEditor::toggleFinished()
 
 bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 {
+    static uchar doFocusChange = FALSE;
+    
     // Handle keypresses in the message editor - scroll the view if the current
     // line is hidden.
     if ( o->inherits("QMultiLineEdit") ) {
 	MED * ed = (MED *) o;
-	if ( e->type() == QEvent::KeyRelease ) {
-	    QKeyEvent * ke = (QKeyEvent *) e;
-	    int k = ke->key();
+	QKeyEvent * ke;
+	int k;
+	if ( e->type() == QEvent::KeyPress ) {
+	    ke = (QKeyEvent *) e;
+	    k  = ke->key();
+	    // Hardcode the Tab key to do focus changes when pressed
+	    // inside the editor
+	    if ( k == Key_BackTab && doFocusChange ) {
+		emit focusSourceList();
+		doFocusChange = FALSE;
+		return TRUE;
+	    } else if ( k == Key_Tab && doFocusChange ) {
+		emit focusPhraseList();
+		doFocusChange = FALSE;
+		return TRUE;
+	    }
+	} else if ( e->type() == QEvent::KeyRelease ) {
+	    ke = (QKeyEvent *) e;
+	    k  = ke->key();
 
 	    if ( (k == Key_Up) && (ed->cursorY() < 10) )
 		sv->verticalScrollBar()->subtractLine();
@@ -539,6 +561,7 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 		sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),
 				   sw->margin() + ed->y() + ed->cursorY() );
 	}
+	doFocusChange = TRUE;
     }
     return FALSE;
 }
@@ -620,15 +643,18 @@ void MessageEditor::showMessage( const QString& text,
     for ( p = phrases.begin(); p != phrases.end(); ++p )
  	(void) new PhraseLVI( phraseLv, *p );
 
-//     CandidateList cl = similarTextHeuristicCandidates( tor,
-// 						       sourceText.latin1(),
-// 						       MaxCandidates );
-//     QValueList<Candidate>::Iterator it = cl.begin();
-//     while ( it != cl.end() ) {
-// 	(void) new QListViewItem( phraseLv, (*it).source ,
-// 				  (*it).target, "Guess" );
-// 	++it;
-//     }
+    if ( doGuesses ) {
+	CandidateList cl = similarTextHeuristicCandidates( tor,
+							   sourceText.latin1(),
+							   MaxCandidates );
+	QValueList<Candidate>::Iterator it = cl.begin();
+	// ### if there are LF's or CR's in one of the strings, it will also
+	// ### appear in the list..
+	while ( it != cl.end() ) {
+	    (void) new QListViewItem( phraseLv, (*it).source, (*it).target, "Guess" );
+	    ++it;
+	}
+    }
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->handleTranslationChanges();
@@ -761,4 +787,12 @@ void MessageEditor::setFinished( bool finished )
 {
     if ( finished != (itemFinished == TRUE ) )
 	toggleFinished();
+}
+
+void MessageEditor::toggleGuessing()
+{
+    doGuesses = !doGuesses;
+    if ( !doGuesses ) {
+	phraseLv->clear();
+    }
 }

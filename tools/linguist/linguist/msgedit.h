@@ -170,6 +170,9 @@ signals:
     void copyAvailable( bool avail );
     void pasteAvailable( bool avail );
 
+    void focusSourceList();
+    void focusPhraseList();
+    
 public slots:
     void undo();
     void redo();
@@ -180,6 +183,7 @@ public slots:
     void selectAll();
     void startFromSource();
     void guessAgain();
+    void toggleGuessing();
     void finishAndNext();
 
 private slots:
@@ -216,5 +220,6 @@ private:
     QStringList guesses;
     bool mayOverwriteTranslation;
     bool canPaste;
+    bool doGuesses;
 };
 #endif

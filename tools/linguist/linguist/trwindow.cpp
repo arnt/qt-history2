@@ -633,6 +633,8 @@ TrWindow::TrWindow()
     connect( me, SIGNAL(finished(bool)), this, SLOT(updateFinished(bool)) );
     connect( me, SIGNAL(prevUnfinished()), this, SLOT(prevUnfinished()) );
     connect( me, SIGNAL(nextUnfinished()), this, SLOT(nextUnfinished()) );
+    connect( me, SIGNAL(focusSourceList()), this, SLOT(focusSourceList()) );
+    connect( me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()) );
     connect( f, SIGNAL(findNext(const QString&, int, bool)),
 	     this, SLOT(findNext(const QString&, int, bool)) );
 
@@ -1067,6 +1069,7 @@ void TrWindow::editPhraseBook( int id )
 		       "phrase book box", TRUE );
     box.setCaption( tr("%1 - %2").arg(tr("Qt Linguist"))
 				 .arg(friendlyPhraseBookName(index)) );
+    box.resize( 500, 300 );
     box.exec();
     *phraseBooks.at( index ) = box.phraseBook();
     updatePhraseDict();
@@ -1791,10 +1794,6 @@ void TrWindow::setupMenuBar()
 				     me, SLOT(startFromSource()), CTRL+Key_T );
     connect( me, SIGNAL(updateActions(bool)), startFromSourceAct,
 	     SLOT(setEnabled(bool)) );
-    guessAct = new Action( translationp, tr("&Guess"),
-			   me, SLOT(guessAgain()), CTRL+Key_G );
-    connect( me, SIGNAL(updateActions(bool)), guessAct,
-	     SLOT(setEnabled(bool)) );
     prevUnfinishedAct = new Action( translationp, tr("&Prev Unfinished"),
 				    this, SLOT(prevUnfinished()), CTRL+Key_K );
     nextUnfinishedAct = new Action( translationp, tr("&Next Unfinished"),
@@ -1836,7 +1835,12 @@ void TrWindow::setupMenuBar()
     // View menu
     revertSortingAct = new Action( viewp, tr("&Revert Sorting"),
 				   this, SLOT(revertSorting()) );
+    doGuessesAct = new Action( viewp, tr("Display guesses"),
+			       this, SLOT(toggleGuessing()) );
+    doGuessesAct->setToggleAction( TRUE );
+    doGuessesAct->setOn( TRUE );
     
+    // Help
     overviewAct = new Action( helpp, tr("&Overview..."),
 			      this, SLOT(overview()) );
     aboutAct = new Action( helpp, tr("&About..."), this, SLOT(about()),
@@ -1889,6 +1893,7 @@ void TrWindow::setupMenuBar()
     revertSortingAct->setWhatsThis( tr("Sort the items back in the same order"
 				       " as in the message file.") );
 
+    doGuessesAct->setWhatsThis( tr("Set whether or not to display translation guesses.") );
     overviewAct->setWhatsThis( tr("Display an introduction to %1.")
 			       .arg(tr("Qt Linguist")) );
     aboutAct->setWhatsThis( tr("Display information about %1.")
@@ -1899,8 +1904,6 @@ void TrWindow::setupMenuBar()
 
     startFromSourceAct->setWhatsThis( tr("Copies the source text into"
 					 " the translation field.") );
-    guessAct->setWhatsThis( tr("Copies a guess translation into the"
-			       " translation field." ) );
     nextAct->setWhatsThis( tr("Moves to the next item.") );
     prevAct->setWhatsThis( tr("Moves to the previous item.") );
     nextUnfinishedAct->setWhatsThis( tr("Moves to the next unfinished item.") );
@@ -1937,7 +1940,6 @@ void TrWindow::setupToolBars()
 
     startFromSourceAct->addToToolbar( translationst, tr("Start From Source"),
 				      "search.xpm" );
-    guessAct->addToToolbar( translationst, tr("Guess"), "search.xpm" );
     prevAct->addToToolbar( translationst, tr("Prev"), "search.xpm" );
     nextAct->addToToolbar( translationst, tr("Next"), "search.xpm" );
     prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished"),
@@ -2266,4 +2268,19 @@ void TrWindow::addRecentlyOpenedFile( const QString &fn, QStringList &lst )
     if ( lst.count() >= 10 )
 	lst.remove( lst.begin() );
     lst << fn;
+}
+
+void TrWindow::toggleGuessing()
+{
+    me->toggleGuessing();
+}
+
+void TrWindow::focusSourceList()
+{
+    slv->setFocus();
+}
+
+void TrWindow::focusPhraseList()
+{
+    plv->setFocus();
 }
