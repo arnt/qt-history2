@@ -97,10 +97,10 @@
 ####### Compiler, tools and options
 
 CXX	=	$(SYSCONF_CXX)
-CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D","");
+CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CXXFLAGS_OPT)');
 INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
-LIBS	=	#$ Expand("TMAKE_LIBS");
+LIBS	=	#$ Expand("TMAKE_LIBS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)');
 MOC	=	$(SYSCONF_MOC)
 
 ####### Target
