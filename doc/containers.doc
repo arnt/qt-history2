@@ -48,7 +48,7 @@
     QList::append() and QList::prepend(), or they can be inserted in
     the middle using QList::insert(). More than any other container
     class, QList is highly optimized to expand to as little code as
-    possible in the executable.
+    possible in the executable. QStringList inherits from QList<QString>.
 
     \row \i \l{QLinkedList}\<T\>
     \i This is similar to QList, except that it uses
@@ -124,8 +124,7 @@
     values, and QMap::value() returns a default-constructed value if
     the specified key isn't in the map. For most value types, this
     simply means that a value is created using the default
-    constructor (e.g. an empty string for QString). But for built-in
-    types like \c{int} and \c{double}, as well as for pointer types,
+    constructor (e.g. an empty string for QString). But for built-in    types like \c{int} and \c{double}, as well as for pointer types,
     the C++ language doesn't specify any initialization; in those
     cases, Qt's containers automatically initialize the value to 0.
 
@@ -133,18 +132,18 @@
     an assignable data type:
 
     \code
-	class Employee
+        class Employee
         {
-	public:
-	    Employee() {}
+        public:
+            Employee() {}
             Employee(const Employee &other);
 
-	    Employee &operator=(const Employee &other);
+            Employee &operator=(const Employee &other);
 
-	private:
-	    QString myName;
+        private:
+            QString myName;
             QDate myDateOfBirth;
-	};
+        };
     \endcode
 
     If we don't provide a copy constructor or an assignment operator,
@@ -157,9 +156,9 @@
     type can be stored in a container:
 
     \code
-	struct Movie
+        struct Movie
         {
-	    QString title;
+            QString title;
             QDate releaseDate;
         };
     \endcode
@@ -180,20 +179,20 @@
     above:
 
     \code
-	inline QDataStream &operator<<(QDataStream &out, const Movie &movie)
+        inline QDataStream &operator<<(QDataStream &out, const Movie &movie)
         {
-	    out << (Q_UINT32)movie.id << movie.title
-		<< (Q_UINT32)movie.year;
-	    return out;
-	}
+            out << (Q_UINT32)movie.id << movie.title
+                << (Q_UINT32)movie.year;
+            return out;
+        }
 
-	inline QDataStream &operator>>(QDataStream &in, Movie &movie)
-	{
-	    Q_UINT32 id, year;
-	    in >> id >> movie.title >> year;
+        inline QDataStream &operator>>(QDataStream &in, Movie &movie)
+        {
+            Q_UINT32 id, year;
+            in >> id >> movie.title >> year;
             movie.id = (int)id;
             movie.year = (int)year;
-	    return in;
+            return in;
         }
     \endcode
 
@@ -216,17 +215,17 @@
 
     \table
     \header \i Containers                             \i Read-only iterator
-						      \i Read-write iterator
+                                                      \i Read-write iterator
     \row    \i QList\<T\>, QQueue\<T\>                \i QListIterator\<T\>
-						      \i QListMutableIterator\<T\>
+                                                      \i QListMutableIterator\<T\>
     \row    \i QLinkedList\<T\>                       \i QLinkedListIterator\<T\>
-						      \i QLinkedListMutableIterator\<T\>
+                                                      \i QLinkedListMutableIterator\<T\>
     \row    \i QVector\<T\>, QStack\<T\>              \i QVectorIterator\<T\>
-						      \i QVectorMutableIterator\<T\>
+                                                      \i QVectorMutableIterator\<T\>
     \row    \i QMap\<Key, T\>, QMultiMap\<Key, T\>    \i QMapIterator\<Key, T\>
-						      \i QMapMutableIterator\<Key, T\>
+                                                      \i QMapMutableIterator\<Key, T\>
     \row    \i QHash\<Key, T\>, QMultiHash\<Key, T\>  \i QHashIterator\<Key, T\>
-						      \i QHashMutableIterator\<Key, T\>
+                                                      \i QHashMutableIterator\<Key, T\>
     \endtable
 
     In this discussion, we will concentrate on QList and QMap. The
@@ -248,12 +247,12 @@
     QList\<QString\> in order and printing them to the console:
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QListIterator<QString> i(list);
+        QListIterator<QString> i(list);
         while (i.hasNext())
-	    cout << i.next().ascii() << endl;
+            cout << i.next().ascii() << endl;
     \endcode
 
     It works as follows: The QList to iterate over is passed to the
@@ -268,10 +267,10 @@
     Here's how to iterate backward in a QList:
 
     \code
-	QListIterator<QString> i(list);
+        QListIterator<QString> i(list);
         i.toBack();
         while (i.hasPrev())
-	    cout << i.prev().ascii() << endl;
+            cout << i.prev().ascii() << endl;
     \endcode
 
     The code is symmetric with iterating forward, except that we
@@ -289,21 +288,21 @@
     \table
     \header \i Function \i Behavior
     \row    \i \link QListIterator::toFront() toFront() \endlink
-	    \i Moves the iterator to the front of the list (before the first item)
+            \i Moves the iterator to the front of the list (before the first item)
     \row    \i \link QListIterator::toBack() toBack() \endlink
-	    \i Moves the iterator to the back of the list (after the last item)
+            \i Moves the iterator to the back of the list (after the last item)
     \row    \i \link QListIterator::hasNext() hasNext() \endlink
-	    \i Returns true if the iterator isn't at the back of the list
+            \i Returns true if the iterator isn't at the back of the list
     \row    \i \link QListIterator::next() next() \endlink
-	    \i Returns the next item and advances the iterator by one position
+            \i Returns the next item and advances the iterator by one position
     \row    \i \link QListIterator::peekNext() peekNext() \endlink
-	    \i Returns the next item without moving the iterator
+            \i Returns the next item without moving the iterator
     \row    \i \link QListIterator::hasPrev() hasPrev() \endlink
-	    \i Returns true if the iterator isn't at the front of the list
+            \i Returns true if the iterator isn't at the front of the list
     \row    \i \link QListIterator::prev() prev() \endlink
-	    \i Returns the previous item and moves the iterator back by one position
+            \i Returns the previous item and moves the iterator back by one position
     \row    \i \link QListIterator::peekPrev() peekPrev() \endlink
-	    \i Returns the previous item without moving the iterator
+            \i Returns the previous item without moving the iterator
     \endtable
 
     QListIterator provides no functions to insert or remove items
@@ -312,10 +311,10 @@
     odd numbers from a QList\<int\> using QListMutableIterator:
 
     \code
-	QListMutableIterator<int> i(list);
+        QListMutableIterator<int> i(list);
         while (i.hasNext()) {
-	    if (i.next() % 2 != 0)
-		i.remove();
+            if (i.next() % 2 != 0)
+                i.remove();
         }
     \endcode
 
@@ -328,11 +327,11 @@
     backward:
 
     \code
-	QListMutableIterator<int> i(list);
+        QListMutableIterator<int> i(list);
         i.toBack();
         while (i.hasPrev()) {
-	    if (i.prev() % 2 != 0)
-		i.remove();
+            if (i.prev() % 2 != 0)
+                i.remove();
         }
     \endcode
 
@@ -341,10 +340,10 @@
     code below, we replace any value larger than 128 with 128:
 
     \code
-	QListMutableIterator<int> i(list);
+        QListMutableIterator<int> i(list);
         while (i.hasNext()) {
-	    if (i.next() > 128)
-		i.setValue(128);
+            if (i.next() > 128)
+                i.setValue(128);
         }
     \endcode
 
@@ -359,9 +358,9 @@
     we don't even need \link QListIterator::setValue() setValue() \endlink:
 
     \code
-	QListMutableIterator<int> i(list);
+        QListMutableIterator<int> i(list);
         while (i.hasNext())
-	    i.next() *= 2;
+            i.next() *= 2;
     \endcode
 
     As mentioned above, QLinkedList's and QVector's iterator classes
@@ -386,18 +385,18 @@
     the capital's name ends with "City":
 
     \code
-	QMap<QString, QString> map;
+        QMap<QString, QString> map;
         map.insert("Paris", "France");
         map.insert("Guatemala City", "Guatemala");
         map.insert("Mexico City", "Mexico");
         map.insert("Moscow", "Russia");
         ...
 
-	QMapMutableIterator<QString, QString> i(map);
+        QMapMutableIterator<QString, QString> i(map);
         while (i.hasNext()) {
-	    if (i.next().key().endsWith("City"))
-		i.remove();
-	}
+            if (i.next().key().endsWith("City"))
+                i.remove();
+        }
     \endcode
 
     QMapIterator also provides a key() and a value() function that
@@ -407,12 +406,12 @@
     QHash:
 
     \code
-	QMap<int, QWidget *> map;
+        QMap<int, QWidget *> map;
         QHash<int, QWidget *> hash;
 
-	QMapIterator<int, QWidget *> i(map);
+        QMapIterator<int, QWidget *> i(map);
         while (i.hasNext()) {
-	    i.next();
+            i.next();
             hash.insert(i.key(), i.value());
         }
     \endcode
@@ -424,9 +423,9 @@
     value:
 
     \code
-	QMapMutableIterator<int, QWidget *> i(map);
+        QMapMutableIterator<int, QWidget *> i(map);
         while (i.findNext(widget))
-	    i.remove();
+            i.remove();
     \endcode
 
     Similarly, the \link QMapIterator::findNextKey() findNextKey()
@@ -435,9 +434,9 @@
     the same key (for example, in a multi-map):
 
     \code
-	QMapMutableIterator<int, QWidget *> i(multimap);
+        QMapMutableIterator<int, QWidget *> i(multimap);
         while (i.findNextKey(-1))
-	    i.remove();
+            i.remove();
     \endcode
 
     \section2 STL-Style Iterators
@@ -453,17 +452,17 @@
 
     \table
     \header \i Containers                             \i Read-only iterator
-						      \i Read-write iterator
+                                                      \i Read-write iterator
     \row    \i QList\<T\>, QQueue\<T\>                \i QList\<T\>::const_iterator
-						      \i QList\<T\>::iterator
+                                                      \i QList\<T\>::iterator
     \row    \i QLinkedList\<T\>                       \i QLinkedList\<T\>::const_iterator
-						      \i QLinkedList\<T\>::iterator
+                                                      \i QLinkedList\<T\>::iterator
     \row    \i QVector\<T\>, QStack\<T\>              \i QVector\<T\>::const_iterator
-						      \i QVector\<T\>::iterator
+                                                      \i QVector\<T\>::iterator
     \row    \i QMap\<Key, T\>, QMultiMap\<Key, T\>    \i QMap\<Key, T\>::const_iterator
-						      \i QMap\<Key, T\>::iterator
+                                                      \i QMap\<Key, T\>::iterator
     \row    \i QHash\<Key, T\>, QMultiHash\<Key, T\>  \i QHash\<Key, T\>::const_iterator
-						      \i QHash\<Key, T\>::iterator
+                                                      \i QHash\<Key, T\>::iterator
     \endtable
 
     The API of the STL iterators is modelled on pointers in an array.
@@ -484,12 +483,12 @@
     QList\<QString\> in order and converting them to lower-case:
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QList<QString>::iterator i;
+        QList<QString>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    *i = (*i).toLower();
+            *i = (*i).toLower();
     \endcode
 
     Unlike Java-style iterators (covered \link {Java-style iterators}
@@ -512,14 +511,14 @@
     requires a \c while loop:
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "D";
 
-	QList<QString>::iterator i = list.end();
+        QList<QString>::iterator i = list.end();
         while (i != list.begin()) {
-	    --i;
-	    *i = (*i).toLower();
-	}
+            --i;
+            *i = (*i).toLower();
+        }
     \endcode
 
     In the code snippets so far, we used the unary \c * operator to
@@ -532,9 +531,9 @@
     and constEnd(). For example:
 
     \code
-	QList<QString>::const_iterator i;
+        QList<QString>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
-	    cout << (*i).ascii() << endl;
+            cout << (*i).ascii() << endl;
     \endcode
 
     The following table summarizes the STL-style iterators' API:
@@ -568,15 +567,40 @@
     we would print all items in a QMap to the console:
 
     \code
-	QMap<int, int> map;
+        QMap<int, int> map;
         ...
         QMap<int, int>::const_iterator i;
         for (i = map.constBegin(); i != map.constEnd(); ++i)
-	    cout << i.key() << ": " << i.value() << endl;
+            cout << i.key() << ": " << i.value() << endl;
     \endcode
 
+    Thanks to \l{implicit sharing}, it is very inexpensive for a
+    function to return a container per value. The Qt API contains
+    dozens of functions that return a QList or QStringList per value
+    (e.g. QSplitter::sizes() and QTranslator::messages()). If you
+    want to iterate over these using an STL iterator, you should
+    always take a copy of the container and iterate over the copy.
+    For example:
+
+    \code
+        // RIGHT
+        QList<QTranslatorMessage> messages = translator->messages();
+        QList<QTranlatorMessage>::const_iterator i;
+        for (i = messages.begin(); i != messages.end(); ++i) 
+            ...
+
+        // WRONG
+        QList<QTranlatorMessage>::const_iterator i;
+        for (i = translator->messages().begin();
+             i != translator->messages().end(); ++i)
+            ...
+    \endcode
+
+    This problem doesn't occur with functions that return a const or
+    non-const reference to a container.
+
     \target foreach
-    \section1 The foreach Keyword
+    \section1 The \c foreach Keyword
 
     If you just want to iterate over all the items in a container
     in order, you can use Qt's \c foreach keyword. The keyword is a
@@ -588,44 +612,44 @@
     over a QLinkedList\<QString\>:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
-	QString str;
-	foreach (str, list)
-	    cout << str.ascii() << endl;
+        QString str;
+        foreach (str, list)
+            cout << str.ascii() << endl;
     \endcode
 
     The \c foreach code is significantly shorter than the equivalent
     code that uses iterators:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
         QLinkedListIterator<QString> i(list);
         while (i.hasNext())
-	    cout << i.next().ascii() << endl;
+            cout << i.next().ascii() << endl;
     \endcode
 
     Just like C++'s \c for loop, the variable used for iteration
     can be defined within the \c foreach statement:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
-	foreach (QString str, list)
-	    cout << str.ascii() << endl;
+        foreach (QString str, list)
+            cout << str.ascii() << endl;
     \endcode
 
     And like any other C++ loop construct, you can use braces
     around the body of a \c foreach loop:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
-	foreach (QString str, list) {
-	    if (str.isEmpty())
-		break;
-	    cout << str.ascii() << endl;
+        foreach (QString str, list) {
+            if (str.isEmpty())
+                break;
+            cout << str.ascii() << endl;
         }
     \endcode
 
@@ -635,20 +659,20 @@
     code like this:
 
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
         ...
         foreach (QString str, map.keys())
-	    cout << str.ascii() << ": " << map.value(str) << endl;
+            cout << str.ascii() << ": " << map.value(str) << endl;
     \endcode
 
     For a multi-valued map:
 
     \code
-	QMultiMap<QString, int> map;
+        QMultiMap<QString, int> map;
         ...
         foreach (QString str, map.keys())
-	    foreach (int i, map.values(str))
-		cout << str.ascii() << ": " << i << endl;
+            foreach (int i, map.values(str))
+                cout << str.ascii() << ": " << i << endl;
     \endcode
 
     Qt automatically takes a copy of the container when it enters a
@@ -663,7 +687,7 @@
     file:
 
     \code
-	DEFINES += QT_KEYWORDS
+        DEFINES += QT_KEYWORDS
     \endcode
 
     Without the \c QT_KEYWORDS symbol defined, \c foreach is
@@ -673,8 +697,8 @@
     a \c forever pseudo-keyword for infinite loops:
 
     \code
-	forever {
-	    ...
+        forever {
+            ...
         }
     \endcode
 
