@@ -1747,6 +1747,7 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    GetRegionBounds(rgn, &br);
 	    r.moveBy(r.x() - br.left, r.y() - br.top);
 	    GetThemeWindowRegion(macWinType, qt_glb_mac_rect(r), kThemeStateActive, &twm, twa, wrc, rgn);
+	    GetRegionBounds(rgn, &br);
 	    QRect ret = QRect(br.left, br.top, (br.right - br.left), (br.bottom - br.top));
 	    qt_mac_dispose_rgn(rgn);
 	    return ret;
