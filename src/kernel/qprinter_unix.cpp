@@ -480,15 +480,23 @@ int QPrinter::metric( int m ) const
         val = orient == Portrait ? paperSizes[s].width : paperSizes[s].height;
         if ( res != 72 )
             val = (val * res + 36) / 72;
-        if ( !fullPage() )
-            val -= 2*margins().width();
+        if ( !fullPage() ) {
+	    if ( d )
+		val -= d->leftMargin + d->rightMargin;
+	    else
+		val -= 2*margins().width();
+	}
         break;
     case QPaintDeviceMetrics::PdmHeight:
         val = orient == Portrait ? paperSizes[s].height : paperSizes[s].width;
         if ( res != 72 )
             val = (val * res + 36) / 72;
-        if ( !fullPage() )
-            val -= 2*margins().height();
+        if ( !fullPage() ) {
+	    if ( d )
+		val -= d->topMargin + d->bottomMargin;
+	    else
+		val -= 2*margins().height();
+	}
         break;
     case QPaintDeviceMetrics::PdmDpiX:
         val = res;
