@@ -7010,7 +7010,7 @@ void QTableHeader::swapSections( int oldIdx, int newIdx, bool swapTable )
     else if ( !label( newIdx ).isNull() )
 	setLabel( oldIdx, label( newIdx ) );
 
-    if ( his )
+    if (his || iconSet(newIdx))
 	setLabel( newIdx, is, l );
     else if ( !l.isNull() )
 	setLabel( newIdx, l );
