@@ -1700,8 +1700,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 if(!wrote_clean) {
                     if(project->isActiveConfig("no_delete_multiple_files")) {
                         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input)
-                            cleans.append(replaceExtraCompilerVariables(tmp_clean, (*input),
-                                          replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
+                            cleans.append(" " + replaceExtraCompilerVariables(tmp_clean, (*input),
+                                                replaceExtraCompilerVariables(tmp_out, (*input), QString::null)));
                     } else {
                         QString files, file;
                         const int commandlineLimit = 2047; // NT limit, expanded

@@ -329,34 +329,24 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
     const int qtdirSize = replaceExtraCompilerVariables("$(QTDIR)", QString(), QString()).count();
     for(int i = 0; clean_targets[i]; ++i) {
         const QStringList &list = project->values(clean_targets[i]);
+        const QString del_statement("-$(DEL_FILE)");
         if(project->isActiveConfig("no_delete_multiple_files")) {
             for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
-                t << "\n\t-$(DEL_FILE) " << (*it);
+                t << "\n\t" << del_statement << " " << (*it);
         } else {
-            QStringList cleans;
-            QString del_statement;
-            int del_size = 0;
+            QString files, file;
             const int commandlineLimit = 2047; // NT limit, expanded
             for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
-                if(del_statement.isEmpty()) {
-                    del_statement = "\n\t-$(DEL_FILE)";
-                    del_size = del_statement.size();
+                file = " " + (*it);
+                if(del_statement.length() + files.length() +
+                   qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
+                    t << "\n\t" << del_statement << files;
+                    files.clear();
                 }
-                QString next_statement = " " + (*it);
-
-                int next_size = next_statement.size() + next_statement.count("$(QTDIR)") * qtdirSize;
-                if(del_size+next_size > commandlineLimit) {
-                    cleans.append(del_statement);
-                    del_statement = "\n\t-$(DEL_FILE)" + next_statement;
-                    del_size = del_statement.size();
-                } else {
-                    del_statement += next_statement;
-                    del_size += next_size;
-                }
+                files += file;
             }
-            if(!del_statement.isEmpty())
-                cleans.append(del_statement);
-            t << cleans.join("");
+            if(!files.isEmpty())
+                t << del_statement << files;
         }
     }
     t << endl << endl;
