@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#86 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#87 $
 **
 ** Implementation of QFile class
 **
@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include "qfile.h"
-#include "qdir.h"
 
 #if defined(_OS_WIN32_)
 #ifdef UNICODE
