@@ -1092,7 +1092,6 @@ done
 [ -d $outpath/src/core/global ] || mkdir -p $outpath/src/core/global
 cat > $outpath/src/core/global/qconfig.cpp.new <<EOF
 /* Install paths from configure */
-
 static const char QT_INSTALL_PREFIX      [267] = "qt_nstpath=$QT_INSTALL_PREFIX";
 static const char QT_INSTALL_BINS        [267] = "qt_binpath=$QT_INSTALL_BINS";
 static const char QT_INSTALL_DOCS        [267] = "qt_docpath=$QT_INSTALL_DOCS";
@@ -1113,6 +1112,14 @@ const char *qInstallPathPlugins()      { return QT_INSTALL_PLUGINS      + 11; }
 const char *qInstallPathData()         { return QT_INSTALL_DATA         + 11; }
 const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS + 11; }
 const char *qInstallPathSysconf()      { return QT_INSTALL_SYSCONF      + 11; }
+
+/* Licensed */
+static const char QT_INSTALL_LICENSEE  [267] = "qt_lcnsuser=$Licensee";
+static const char QT_INSTALL_PRODUCTS  [267] = "qt_lcnsprod=$Products";
+
+/* strlen( "qt_lcnsxxxx" ) == 12 */
+const char *qInstallLicensee()             { return QT_INSTALL_LICENSEE + 12; }
+const char *qInstallLicensedProducts()     { return QT_INSTALL_PRODUCTS + 12; }
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
@@ -3350,9 +3357,22 @@ full)
 esac
 cat >> $outpath/src/core/global/qconfig.h.new <<EOF
 
+/* Generated functions */
+extern const char *qInstallPath();
+extern const char *qInstallPathDocs();
+extern const char *qInstallPathHeaders();
+extern const char *qInstallPathLibs();
+extern const char *qInstallPathBins();
+extern const char *qInstallPathPlugins();
+extern const char *qInstallPathData();
+extern const char *qInstallPathTranslations();
+extern const char *qInstallPathSysconf();
+extern const char *qInstallLicensee();
+extern const char *qInstallLicensedProducts();
+
 /* License information */
-#define QT_PRODUCT_LICENSEE "$Licensee"
-#define QT_PRODUCT_LICENSE  "$Products"
+#define QT_PRODUCT_LICENSEE qInstallLicensee()
+#define QT_PRODUCT_LICENSE  qInstallLicensedProducts()
 
 /* Build key */
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
