@@ -27,6 +27,8 @@ QGlobalMutexPoolInitializer qt_global_mutexpool_initializer;
   \class QMutexPool qmutexpool_p.h
   \brief The QMutexPool class provides a pool of QMutex objects.
 
+  \internal
+
   \ingroup thread
 
   QMutexPool is a convenience class that provides access to a fixed number

@@ -1888,15 +1888,14 @@ void QHeader::setStretchEnabled( bool b, int section )
     adjustHeaderSize();
 }
 
-/*!
-    \overload
-*/
 bool QHeader::isStretchEnabled() const
 {
     return d->fullSize == -1;
 }
 
 /*!
+    \overload
+
     Returns TRUE if section \a section will resize to take up the full
     width (or height) of the header; otherwise returns FALSE. If at
     least one section has stretch enabled the sections will always take

@@ -15108,6 +15108,9 @@ QString &QString::replace( QChar c, const QString & after )
 
 /*! \overload
     \fn QString &QString::replace( char c, const QString & after )
+
+    Replaces every occurrence of the character \a c in the string
+    with \a after. Returns a reference to the string.
 */
 
 /*! \overload

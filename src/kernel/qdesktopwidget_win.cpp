@@ -325,7 +325,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 
     Returns the available geometry of the screen which contains \a widget.
 
-    \sa screenGeometry(QWidget*)
+    \sa screenGeometry()
 */
 
 /*!
@@ -333,7 +333,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 
     Returns the available geometry of the screen which contains \a p.
 
-    \sa screenGeometry(const QPoint&)
+    \sa screenGeometry()
 */
 
 
