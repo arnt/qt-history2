@@ -4,6 +4,13 @@ isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
 QMAKE_INTERNAL_CACHE_FILE = .qmake.internal.cache.$${TARGET}
 TEMPLATE	= lib
 VERSION		= 4.0.0
+win32 {
+    QT_LIBS_OVERRIDE = $$VERSION
+    QT_LIBS_OVERRIDE ~= s/\.//g
+    for(lib, $$list(qcore qt qnetwork qxml qopengl qsql core qcompat)) {
+        eval(QMAKE_$${upper($$lib)}_VERSION_OVERRIDE = $$QT_LIBS_OVERRIDE)
+    }
+}
 DESTDIR		= $$QMAKE_LIBDIR_QT
 DLLDESTDIR	= ../bin
 
