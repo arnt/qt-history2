@@ -3146,7 +3146,6 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     if ( resetChanged )
 	parag->setChanged( FALSE );
     QRect ir( parag->rect() );
-    ir.setWidth( width() );
 
     bool uDoubleBuffer = useDoubleBuffer( parag, p );
 
@@ -4661,6 +4660,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
 
+    int real_length = len;
     if (len && dir != QPainter::RTL && start + len == length() ) // don't draw the last character (trailing space)
 	len--;
     if (len && str.unicode()[start+len-1] == QChar_linesep)
@@ -4713,10 +4713,11 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	    int tmpw = w;
 
 	    selStart = QMAX(selStart, start);
-	    selEnd = QMIN(selEnd, start+len);
+	    selEnd = QMIN(selEnd, start+real_length);
 	    bool extendRight = FALSE;
 	    bool extendLeft = FALSE;
- 	    if (selEnd == length()-1 && (n && n->hasSelection(it.key()))) {
+ 	    if ((selEnd == length()-1 && n && n->hasSelection(it.key()))
+		|| this->str->at(selEnd).lineStart) {
 		extendRight = (fullSelectionWidth != 0);
  		if (!extendRight && !rightToLeft)
 		    tmpw += painter.fontMetrics().width(' ');
