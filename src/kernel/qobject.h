@@ -108,7 +108,7 @@ public:
 	return list;
     }
 #endif //QT_MOC_CPP
-    // MOC_SKIP_END    
+    // MOC_SKIP_END
 #ifndef QT_NO_REGEXP
     QObjectList findChildren(const QRegExp &re) const;
     // MOC_SKIP_BEGIN
@@ -124,7 +124,7 @@ public:
 #endif
     // MOC_SKIP_END
 #endif
-    
+
 #ifdef QT_COMPAT
     QObject *child(const char *objName, const char *inheritsClass = 0,
 		   bool recursiveSearch = true) const;
@@ -284,7 +284,7 @@ template <class T> inline T qt_cast_helper(const QObject *object, T) { return (T
 
 template <class T>
 inline T qt_cast(const QObject *object)
-{ 
+{
     return qt_cast_helper<T>(object, T(0));
 }
 
@@ -305,7 +305,7 @@ template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 #endif
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug, QObject *);
+Q_CORE_EXPORT QDebug operator<<(QDebug, QObject *);
 #endif
 
 #endif // QOBJECT_H
