@@ -443,7 +443,7 @@ QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
 	} else if ( e.tagName() == "pixmapinproject" ) {
 	    usePixmapCollection = TRUE;
 	} else if ( e.tagName() == "layoutdefaults" ) {
-	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();	    
+	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();	
 	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
 	}
 	e = e.nextSibling().toElement();
@@ -1671,12 +1671,10 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 
 QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutType type )
 {
-
-    qDebug( "uilib qwidgetfactory::createLayout" );
     int spacing = defSpacing;
     int margin = defMargin;
 
-    if ( layout || !widget ) 
+    if ( layout || !widget )
 	margin = 0;
 
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
@@ -1706,7 +1704,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutT
 	case VBox:
 	    l = new QVBoxLayout( layout );
 	    break;
-	case Grid: 
+	case Grid:
 	    l = new QGridLayout( layout );
 	    break;
 	default:
@@ -1720,7 +1718,7 @@ QLayout *QWidgetFactory::createLayout( QWidget *widget, QLayout* layout, LayoutT
 	case VBox:
 	    l = new QVBoxLayout( widget );
 	    break;
-	case Grid: 
+	case Grid:
 	    l = new QGridLayout( widget );
 	    break;
 	default:
