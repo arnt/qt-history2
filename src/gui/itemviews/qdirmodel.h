@@ -24,7 +24,6 @@ class QFileIconProviderPrivate;
 
 class Q_GUI_EXPORT QFileIconProvider
 {
-    Q_DECLARE_PRIVATE(QFileIconProvider)
 public:
     QFileIconProvider();
     virtual ~QFileIconProvider();
@@ -33,13 +32,13 @@ public:
     virtual QString type(const QFileInfo &info) const;
 
 private:
+    Q_DECLARE_PRIVATE(QFileIconProvider)
     QFileIconProviderPrivate *d_ptr;
 };
 
 class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDirModel)
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
 
 public:
@@ -105,6 +104,9 @@ public:
 
 protected:
     QDirModel(QDirModelPrivate &, const QDir &directory, QObject *parent = 0);
+
+private:
+    Q_DECLARE_PRIVATE(QDirModel)
 };
 
 #endif //QDIRMODEL_H

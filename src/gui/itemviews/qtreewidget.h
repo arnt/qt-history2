@@ -126,7 +126,6 @@ class QTreeWidgetPrivate;
 class Q_GUI_EXPORT QTreeWidget : public QTreeView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTreeWidget)
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(int topLevelItemCount READ topLevelItemCount)
@@ -202,6 +201,7 @@ protected:
     void setModel(QAbstractItemModel *model);
 
 private:
+    Q_DECLARE_PRIVATE(QTreeWidget)
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))

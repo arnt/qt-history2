@@ -25,7 +25,6 @@ class QItemEditorFactory;
 class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QItemDelegate)
 
 public:
     QItemDelegate(QObject *parent = 0);
@@ -72,6 +71,9 @@ protected:
     QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
 
     bool eventFilter(QObject *object, QEvent *event);
+
+private:
+    Q_DECLARE_PRIVATE(QItemDelegate)
 };
 
 #endif

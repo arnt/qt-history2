@@ -22,7 +22,6 @@ class QHeaderView;
 class Q_GUI_EXPORT QTreeView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTreeView)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
     Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(bool uniformRowHeights READ uniformRowHeights WRITE setUniformRowHeights)
@@ -116,6 +115,9 @@ protected:
     int rowSizeHint(const QModelIndex &left) const;
 
     bool isIndexHidden(const QModelIndex &index) const;
+
+private:
+    Q_DECLARE_PRIVATE(QTreeView)
 };
 
 #endif

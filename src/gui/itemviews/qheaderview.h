@@ -21,7 +21,6 @@ class QHeaderViewPrivate;
 class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QHeaderView)
     Q_PROPERTY(bool showSortIndicator READ isSortIndicatorShown WRITE setSortIndicatorShown)
     Q_PROPERTY(bool highlightSections READ highlightSections WRITE setHighlightSections)
     Q_ENUMS(ResizeMode)
@@ -147,6 +146,9 @@ protected:
     QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRect selectionViewportRect(const QItemSelection &selection) const;
+
+private:
+    Q_DECLARE_PRIVATE(QHeaderView)
 };
 
 #endif

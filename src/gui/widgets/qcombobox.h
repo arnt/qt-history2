@@ -25,7 +25,6 @@ class QComboBoxPrivate;
 class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QComboBox)
     Q_ENUMS(InsertionPolicy)
     Q_PROPERTY(bool editable READ isEditable WRITE setEditable)
     Q_PROPERTY(int count READ count)
@@ -170,6 +169,7 @@ protected:
     QVariant inputMethodQuery(Qt::InputMethodQuery);
 
 private:
+    Q_DECLARE_PRIVATE(QComboBox)
     Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))
     Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex&))
     Q_PRIVATE_SLOT(d, void returnPressed())

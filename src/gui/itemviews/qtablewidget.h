@@ -123,7 +123,6 @@ class QTableWidgetPrivate;
 class Q_GUI_EXPORT QTableWidget : public QTableView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTableWidget)
     Q_PROPERTY(int rowCount READ rowCount WRITE setRowCount)
     Q_PROPERTY(int columnCount READ columnCount WRITE setColumnCount)
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
@@ -212,6 +211,7 @@ protected:
     void setup();
 
 private:
+    Q_DECLARE_PRIVATE(QTableWidget)
     Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))

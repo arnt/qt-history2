@@ -22,7 +22,6 @@ class QTableViewPrivate;
 class Q_GUI_EXPORT QTableView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTableView)
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
     Q_PROPERTY(Qt::PenStyle gridStyle READ gridStyle WRITE setGridStyle)
 
@@ -104,6 +103,9 @@ protected:
     void horizontalScrollbarAction(int action);
 
     bool isIndexHidden(const QModelIndex &index) const;
+
+private:
+    Q_DECLARE_PRIVATE(QTableView)
 };
 
 #endif

@@ -21,7 +21,6 @@ class QListViewPrivate;
 class Q_GUI_EXPORT QListView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QListView)
     Q_ENUMS(Movement Flow IconSize ResizeMode LayoutMode ViewMode)
     Q_PROPERTY(Movement movement READ movement WRITE setMovement)
     Q_PROPERTY(Flow flow READ flow WRITE setFlow)
@@ -131,6 +130,9 @@ protected:
     void updateGeometries();
 
     bool isIndexHidden(const QModelIndex &index) const;
+
+private:
+    Q_DECLARE_PRIVATE(QListView)
 };
 
 #endif

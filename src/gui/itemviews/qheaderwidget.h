@@ -102,7 +102,6 @@ class QHeaderWidgetPrivate;
 class Q_GUI_EXPORT QHeaderWidget : public QHeaderView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QHeaderWidget)
 
 public:
 #ifdef QT_COMPAT
@@ -129,6 +128,7 @@ protected:
     void setup(int sections);
 
 private:
+    Q_DECLARE_PRIVATE(QHeaderWidget)
     Q_PRIVATE_SLOT(d, void emitClicked(int section, Qt::MouseButton button, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void emitItemChanged(Qt::Orientation orientation, int first, int last))
 };

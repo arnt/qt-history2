@@ -97,7 +97,6 @@ class QMap;
 class Q_GUI_EXPORT QAbstractItemModel : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractItemModel)
 
 public:
     enum Role {
@@ -238,6 +237,9 @@ protected:
     void setPersistentIndex(int position, const QModelIndex &index);
 
     friend class QPersistentModelIndexData;
+
+private:
+    Q_DECLARE_PRIVATE(QAbstractItemModel)
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
