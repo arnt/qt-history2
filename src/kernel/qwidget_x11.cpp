@@ -105,6 +105,7 @@ extern Atom qt_net_wm_window_type_normal;
 extern Atom qt_net_wm_window_type_dialog;
 extern Atom qt_net_wm_window_type_toolbar;
 extern Atom qt_net_wm_window_type_override;
+extern Atom qt_net_wm_pid;
 extern Atom qt_enlightenment_desktop;
 extern Atom qt_net_virtual_roots;
 extern bool qt_broken_wm;
@@ -482,7 +483,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
             XChangeProperty(dpy, id, qt_xa_motif_wm_hints, qt_xa_motif_wm_hints, 32,
                             PropModeReplace, (unsigned char *) &mwmhints, 5);
 
-
 	// set _NET_WM_WINDOW_TYPE
 	if (curr_wintype > 0)
 	    XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
@@ -492,6 +492,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if (curr_winstate > 0)
 	    XChangeProperty(dpy, id, qt_net_wm_state, XA_ATOM, 32, PropModeReplace,
 			    (unsigned char *) net_winstates, curr_winstate);
+
+	// set _NET_WM_PID
+	long curr_pid = getpid();
+	XChangeProperty(dpy, id, qt_net_wm_pid, XA_CARDINAL, 32, PropModeReplace,
+			(unsigned char *) &curr_pid, 1);
 
 	// when we create a toplevel widget, the frame strut should be dirty
 	fstrut_dirty = 1;

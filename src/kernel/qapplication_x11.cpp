@@ -246,6 +246,7 @@ Atom            qt_net_wm_window_type_toolbar	= 0;
 Atom            qt_net_wm_window_type_override	= 0;	// KDE extension
 Atom		qt_net_wm_frame_strut		= 0;	// KDE extension
 Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
+Atom		qt_net_wm_pid		= 0;
 // Enlightenment support
 Atom		qt_enlightenment_desktop	= 0;
 
@@ -1819,6 +1820,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
 	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
 			    &qt_net_wm_state_stays_on_top );
+	qt_x11_intern_atom( "_NET_WM_PID", &qt_net_wm_pid );
 	qt_x11_intern_atom( "ENLIGHTENMENT_DESKTOP", &qt_enlightenment_desktop );
 
 	qt_xdnd_setup();
