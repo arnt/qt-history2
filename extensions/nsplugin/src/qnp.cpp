@@ -1343,7 +1343,7 @@ void QNPWidget::unsetWindow()
 
 /*!
   \class QNPInstance qnp.h
-  \brief a QObject that is a Web-browser plugin
+  \brief A QObject that is a Web-browser plugin
 
   \extension NSPlugin
 
