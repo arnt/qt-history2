@@ -212,9 +212,9 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
 #if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     dirent mt_file;
-    while ( (file = readdir_r(dir, &mt_file)) ) {
+    while ( readdir_r(dir, &mt_file, &file) == 0 && file == &mt_file ) {
 #else
-    while ( (file = readdir(dir)) ) {
+    while ( file = readdir(dir) ) {
 #endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
 	QString fn = QFile::decodeName(file->d_name);
 	fi.setFile( *this, fn );
