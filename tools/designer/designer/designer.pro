@@ -243,6 +243,7 @@ IMAGES		+= images/designer_adjustsize.png \
 		images/designer_home.png \
 		images/designer_qtlogo.png \
 		images/designer_toolbutton.png \
+		images/designer_toolbox.png \
 		images/designer_down.png \
 		images/designer_hsplit.png \
 		images/designer_radiobutton.png \
@@ -357,6 +358,7 @@ IMAGES		+= images/designer_adjustsize.png \
 		images/designer_d_timeedit.png \
 		images/designer_d_groupbox.png \
 		images/designer_d_toolbutton.png \
+		images/designer_d_toolbox.png \
 		images/designer_d_help.png \
 		images/designer_d_undo.png \
 		images/designer_d_home.png \
