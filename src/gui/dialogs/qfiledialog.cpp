@@ -231,8 +231,6 @@ static const char * const back_xpm [] = {
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
-#include <qlistbox.h>
-
 class QFileDialogLineEdit : public QLineEdit
 {
 public:
