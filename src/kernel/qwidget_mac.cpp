@@ -1682,3 +1682,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 }
 
 
+void QWidget::resetInputContext()
+{
+
+}
