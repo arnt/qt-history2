@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#17 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#18 $
 **
 ** Definition of QGArray class
 **
-** Author  : Haavard Nord
 ** Created : 930906
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -69,7 +68,7 @@ protected:
     virtual void	deleteData( array_data *p ) { delete p; }
 
 private:
-    static void	msg_index( uint );
+    static void msg_index( uint );
     array_data *shd;
 };
 

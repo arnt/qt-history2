@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#29 $
 **
 ** Implementation of QAccel class
 **
-** Author  : Haavard Nord
 ** Created : 950419
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -17,7 +16,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qaccel.cpp#29 $");
 
 
 /*!

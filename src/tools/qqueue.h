@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qqueue.h#5 $
+** $Id: //depot/qt/main/src/tools/qqueue.h#6 $
 **
 ** Definition of QQueue template/macro class
 **
-** Author  : Haavard Nord
 ** Created : 920917
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#25 $
 **
 ** Implementation of QPrinter class
 **
-** Author  : Eirik Eng and Haavard Nord
 ** Created : 941003
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#25 $");
 
 
 /*!
@@ -76,7 +75,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#24 $");
 	    p.drawText( 80,30, "Hello, world!" );
 	    p.end();
 	}
-        return 0;
+	return 0;
     }
   \endcode
 */
@@ -184,7 +183,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   \fn const char *QPrinter::printProgram() const
   Returns the name of the program that sends the print output to the printer.
 
-  The default print program is "lpr" under X11.  This function
+  The default print program is "lpr" under X11.	 This function
   returns 0 for all other window systems.
 
   \sa setPrintProgram()

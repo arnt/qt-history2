@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#14 $
 **
 ** Definition of QPoint class
 **
-** Author  : Haavard Nord
 ** Created : 931028
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

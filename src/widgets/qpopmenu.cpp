@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#76 $
 **
 ** Implementation of QPopupMenu class
 **
-** Author  : Haavard Nord
 ** Created : 941128
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#76 $");
 
 
 // Motif style parameters

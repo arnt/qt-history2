@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#7 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#8 $
 **
 ** Definition of QFileDialog class
 **
-** Author  : Eirik Eng
 ** Created : 950428
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -28,7 +27,7 @@ class QFileDialog : public QDialog
     Q_OBJECT
 public:
     QFileDialog( const char *dirName, const char *filter = 0,
-                 QWidget *parent=0, const char *name=0, bool modal=FALSE );
+		 QWidget *parent=0, const char *name=0, bool modal=FALSE );
     QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
    ~QFileDialog();
 
@@ -65,7 +64,7 @@ protected:
     void	resizeEvent( QResizeEvent * );
 
 private:
-    void	init();    
+    void	init();
     void	updatePathBox( const char * );
 
     QDir	d;

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#84 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#84 $");
 
 
 /*!
@@ -766,7 +765,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	wxmat = m;				// set new matrix
     bool identity = wxmat.m11() == 1.0F && wxmat.m22() == 1.0F &&
 		    wxmat.m12() == 0.0F && wxmat.m21() == 0.0F &&
-		    wxmat.dx()  == 0.0F && wxmat.dy()  == 0.0F;
+		    wxmat.dx()	== 0.0F && wxmat.dy()  == 0.0F;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	param[0].matrix = &wxmat;

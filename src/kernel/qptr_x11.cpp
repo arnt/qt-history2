@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#192 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#193 $
 **
 ** Implementation of QPainter class for X11
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -26,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#192 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#193 $");
 
 
 /*****************************************************************************
@@ -1193,11 +1192,11 @@ void QPainter::map( int x, int y, int *rx, int *ry ) const
 	case TxNone:
 	    *rx = x;  *ry = y;
 	    break;
-        case TxTranslate:
+	case TxTranslate:
 	    *rx = x + wdx/65536;
 	    *ry = y + wdy/65536;
 	    break;
-        case TxScale:
+	case TxScale:
 	    *rx = wm11*x + wdx;
 	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
 	    *ry = wm22*y + wdy;
@@ -1226,12 +1225,12 @@ void QPainter::map( int x, int y, int w, int h,
 	    *rx = x;  *ry = y;
 	    *rw = w;  *rh = h;
 	    break;
-        case TxTranslate:
+	case TxTranslate:
 	    *rx = x + wdx/65536;
 	    *ry = y + wdy/65536;
 	    *rw = w;  *rh = h;
 	    break;
-        case TxScale:
+	case TxScale:
 	    *rx = wm11*x + wdx;
 	    *rx = *rx > 0 ? (*rx + 32768)/65536 : (*rx - 32768)/65536;
 	    *ry = wm22*y + wdy;
@@ -1298,7 +1297,7 @@ void QPainter::mapInv( int x, int y, int w, int h,
 */
 
 QPoint QPainter::xForm( const QPoint &pv ) const
-{    
+{
     if ( txop == TxNone )
 	return pv;
     int x=pv.x(), y=pv.y();
@@ -2521,11 +2520,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		int fh = ascent + descent;
 		int m, n;
 		QPointArray a(5);
-		mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
-					           a.setPoint( 4, m, n );
-		mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
+		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
+						   a.setPoint( 4, m, n );
+		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
 		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-		mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
+		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
@@ -2704,7 +2703,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
-#undef  UCHAR
+#undef	UCHAR
 #define UCHAR(x)  (uchar)(x)
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;

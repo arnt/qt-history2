@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#16 $
 **
 ** Implementation of QSignal class
 **
-** Author  : Haavard Nord
 ** Created : 941201
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#16 $");
 
 /*!
   \class QSignal qsignal.h
@@ -27,7 +26,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#15 $");
   an outside object slot.  This is how we have implemented signals in the
   QMenuData class, which is not a QObject.
 
-  In general, we recommend inheriting QObject instead.  QObject provides
+  In general, we recommend inheriting QObject instead.	QObject provides
   much more functionality.
 
   Note that QObject is a \e private base class of QSignal, i.e. you cannot
@@ -40,36 +39,36 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#15 $");
     class MyClass
     {
     public:
-        MyClass();
+	MyClass();
        ~MyClass();
 
-        void doSomething();
+	void doSomething();
 
 	void connect( QObject *receiver, const char *member );
 
     private:
-        QSignal *sig;
+	QSignal *sig;
     };
 
     MyClass::MyClass()
     {
-        sig = new QSignal;
+	sig = new QSignal;
     }
 
     MyClass::~MyClass()
     {
-        delete sig;
+	delete sig;
     }
 
     void MyClass::doSomething()
     {
-        // ... does something
+	// ... does something
 	sig->activate();	// activates the signal
     }
 
     void MyClass::connect( QObject *receiver, const char *member )
     {
-        sig->connect( receiver, member );
+	sig->connect( receiver, member );
     }
   \endcode
 */
@@ -93,7 +92,7 @@ QSignal::QSignal( QObject *parent, const char *name )
 
 
 /*!
-  \fn const char *QSignal::name() const  
+  \fn const char *QSignal::name() const
   Returns the name of this signal object.
 
   Since QObject is a private base class, we have added this function, which
@@ -147,7 +146,7 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 
   \sa block(), QObject::signalsBlocked()
 */
-    
+
 /*!
   \fn void QSignal::block( bool b )
   Blocks the signal if \e b is TRUE, or unblocks the signal if \e b is FALSE.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#21 $
+** $Id: //depot/qt/main/src/tools/qglist.h#22 $
 **
 ** Definition of QGList and QGListIterator classes
 **
-** Author  : Haavard Nord
 ** Created : 920624
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -80,7 +79,7 @@ protected:
     uint  contains( GCI )	const;		// get number of equal matches
 
     GCI	  at( uint index );			// access item at i'th pos
-    int   at() const;				// get current index
+    int	  at() const;				// get current index
     QLNode *currentNode() const;		// get current node
 
     GCI	  get() const;				// get current item
@@ -105,7 +104,7 @@ private:
     QLNode *firstNode;				// first node
     QLNode *lastNode;				// last node
     QLNode *curNode;				// current node
-    int     curIndex;				// current index
+    int	    curIndex;				// current index
     uint    numNodes;				// number of nodes
     QGList *iterators;				// list of iterators
 

@@ -1,10 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#40 $
+** $Id: //depot/qt/main/src/tools/qstring.h#41 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
 **
-** Author  : Haavard Nord
 ** Created : 920609
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -30,8 +29,8 @@ inline char *hack_strchr( const char *s, int c )
 { return (char *)strchr(s, c); }
 inline char *hack_strrchr( const char *s, int c )
 { return (char *)strrchr(s, c); }
-#define strstr  hack_strstr
-#define strchr  hack_strchr
+#define strstr	hack_strstr
+#define strchr	hack_strchr
 #define strrchr hack_strrchr
 #endif
 

@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#74 $
 **
 ** Implementation of QListBox widget class
 **
-** Author  : Eirik Eng
 ** Created : 941121
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -18,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#74 $");
 
 
 declare(QListM, QListBoxItem);
@@ -75,23 +74,23 @@ static inline bool checkIndex( const char *method, int count, int index )
     class MyListBoxItem : public QListBoxItem
     {
     public:
-        MyListBoxItem( const char *s, const QPixmap p )
+	MyListBoxItem( const char *s, const QPixmap p )
 	    : QListBoxItem(), pm(p)
 	    { setText( s ); }
 
     protected:
-        virtual void paint( QPainter * );
+	virtual void paint( QPainter * );
 	virtual int height( const QListBox * ) const;
 	virtual int width( const QListBox * ) const;
 	virtual const QPixmap *pixmap() { return &pm; }
 
     private:
-        QPixmap pm;
+	QPixmap pm;
     };
 
     void MyListBoxItem::paint( QPainter *p )
     {
-        p->drawPixmap( 3, 0, pm );
+	p->drawPixmap( 3, 0, pm );
 	QFontMetrics fm = p->fontMetrics();
 	int yPos;			// vertical text position
 	if ( pm.height() < fm.height() )
@@ -103,12 +102,12 @@ static inline bool checkIndex( const char *method, int count, int index )
 
     int MyListBoxItem::height(const QListBox *lb ) const
     {
-        return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
+	return QMAX( pm.height(), lb->fontMetrics().lineSpacing() + 1 );
     }
 
     int MyListBoxItem::width(const QListBox *lb ) const
     {
-        return pm.width() + lb->fontMetrics().width( text() ) + 6;
+	return pm.width() + lb->fontMetrics().width( text() ) + 6;
     }
   \endcode
 

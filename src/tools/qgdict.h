@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#15 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#16 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
-** Author  : Haavard Nord
 ** Created : 920529
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -25,9 +24,9 @@ class QGDict : public QCollection		// generic dictionary class
 {
 friend class QGDictIterator;
 public:
-    uint    	count() const	{ return numItems; }
-    uint    	size()  const	{ return vlen; }
-    GCI	    	look( const char *key, GCI, int );
+    uint	count() const	{ return numItems; }
+    uint	size()	const	{ return vlen; }
+    GCI		look( const char *key, GCI, int );
 
     QDataStream &read( QDataStream & );
     QDataStream &write( QDataStream & ) const;
@@ -39,24 +38,24 @@ protected:
 
     QGDict     &operator=( const QGDict & );
 
-    bool    	remove( const char *key );
-    GCI	    	take( const char *key );
-    void    	clear();
+    bool	remove( const char *key );
+    GCI		take( const char *key );
+    void	clear();
 
     virtual int hashKey( const char * );
 
-    void    	statistics() const;
+    void	statistics() const;
 
     virtual QDataStream &read( QDataStream &, GCI & );
     virtual QDataStream &write( QDataStream &, GCI ) const;
 
 private:
     QBucket   **vec;
-    uint    	vlen;
-    uint    	numItems;
-    uint    	cases	: 1;
-    uint    	copyk	: 1;
-    uint    	triv	: 1;
+    uint	vlen;
+    uint	numItems;
+    uint	cases	: 1;
+    uint	copyk	: 1;
+    uint	triv	: 1;
     QGDItList  *iterators;
     QBucket    *unlink( const char * );
 };
@@ -71,14 +70,14 @@ public:
     QGDictIterator &operator=( const QGDictIterator & );
    ~QGDictIterator();
 
-    GCI	  	toFirst();
+    GCI		toFirst();
 
-    GCI	  	get()	 const;
+    GCI		get()	 const;
     const char *getKey() const;
 
-    GCI	  	operator()();
-    GCI	  	operator++();
-    GCI	  	operator+=(uint);
+    GCI		operator()();
+    GCI		operator++();
+    GCI		operator+=(uint);
 
 protected:
     QGDict     *dict;

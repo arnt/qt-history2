@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.h#4 $
 **
 ** Definition of QPixmapCache class
 **
-** Author  : Haavard Nord
 ** Created : 950501
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

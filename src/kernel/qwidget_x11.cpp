@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#142 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#143 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
-** Author  : Haavard Nord
 ** Created : 931031
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -22,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#142 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#143 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -147,7 +146,7 @@ bool QWidget::create()
 		XChangeWindowAttributes( dpy, id, wattr_mask, &wattr );
 	} else {				// normal top-level widget
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-		       WStyle_MinMax );	    
+		       WStyle_MinMax );
 	}
     }
     if ( popup ) {				// popup widget
@@ -271,7 +270,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( (parentObj = parent) )
 	parentObj->insertChild( this );
     bool     enable = isEnabled();		// remember status
-    QSize    s      = size();
+    QSize    s	    = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
     flags = f;
@@ -768,10 +767,10 @@ void QWidget::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
-    if ( extra ) {    
+    if ( extra ) {
 	int w = crect.width();
 	int h = crect.height();
-	if ( w < extra->minw || h < extra->minh || 
+	if ( w < extra->minw || h < extra->minh ||
 	     w > extra->maxw || h > extra->maxh ) {
 	    w = QMAX( extra->minw, QMIN( w, extra->maxw ));
 	    h = QMAX( extra->minh, QMIN( h, extra->maxh ));
@@ -969,7 +968,7 @@ void QWidget::resize( int w, int h )
 	h = 1;
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);	
+	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }
@@ -1023,7 +1022,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	h = 1;
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
-	h = QMIN(h,extra->maxh);	
+	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
 	h = QMAX(h,extra->minh);
     }

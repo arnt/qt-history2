@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#53 $
 **
 ** Implementation of QColor class
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -13,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#53 $");
 
 
 /*!

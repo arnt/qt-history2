@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#45 $
 **
 ** Implementation of QMenuData class
 **
-** Author  : Haavard Nord
 ** Created : 941128
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -15,14 +14,14 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudta.cpp#45 $");
 
 
 /*!
   \class QMenuData qmenudta.h
   \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
-  QMenuData has an internal list of menu items.  A menu item is a text,
+  QMenuData has an internal list of menu items.	 A menu item is a text,
   pixmap or a separator, and may also have a popup menu (separators
   have no popup menus).
 
@@ -43,8 +42,8 @@ QMenuItem::QMenuItem()
 {
     ident	 = -1;
     is_separator = is_checked = FALSE;
-    is_enabled   = TRUE;
-    is_dirty 	 = TRUE;
+    is_enabled	 = TRUE;
+    is_dirty	 = TRUE;
     pixmap_data	 = 0;
     popup_menu	 = 0;
     accel_key	 = 0;
@@ -232,7 +231,7 @@ void QMenuData::setAllDirty( bool dirty )
     while ( mi ) {
 	mi->is_dirty = dirty;
 	mi = mitems->next();
-    }    
+    }
 }
 
 
@@ -297,9 +296,9 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   Inserts a menu item with a text.  Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
-  generated identifier.  It works as follows: If \e id \>= 0, this
+  generated identifier.	 It works as follows: If \e id \>= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).  If \e id is
+  set equal to the menu item's real index (see below).	If \e id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
@@ -319,9 +318,9 @@ int QMenuData::insertItem( const char *text, int id, int index )
   Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
-  generated identifier.  It works as follows: If \e id \>= 0, this
+  generated identifier.	 It works as follows: If \e id \>= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).  If \e id is
+  set equal to the menu item's real index (see below).	If \e id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
@@ -341,9 +340,9 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
   Inserts a menu item with a pixmap.  Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
-  generated identifier.  It works as follows: If \e id \>= 0, this
+  generated identifier.	 It works as follows: If \e id \>= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).  If \e id is
+  set equal to the menu item's real index (see below).	If \e id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 
@@ -363,9 +362,9 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
   Returns the menu item identifier.
 
   The menu item is assigned the identifier \e id or an automatically
-  generated identifier.  It works as follows: If \e id \>= 0, this
+  generated identifier.	 It works as follows: If \e id \>= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
-  set equal to the menu item's real index (see below).  If \e id is
+  set equal to the menu item's real index (see below).	If \e id is
   any other negative integer, for instance -2, a unique identifier
   (negative integer \<= -2) is generated.
 

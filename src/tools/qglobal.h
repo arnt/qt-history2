@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#64 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#65 $
 **
 ** Global type declarations and definitions
 **
-** Author  : Haavard Nord
 ** Created : 920529
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -30,7 +29,7 @@
 //   IRIX   -	SGI Irix
 //   OSF    -	OSF Unix
 //   BSDI   -	BSDI Unix
-//   SCO    -   SCO of some sort
+//   SCO    -	SCO of some sort
 //   UNIX   -	Any UNIX bsd/sysv system
 //
 
@@ -72,7 +71,7 @@
 #define UNIX
 #endif
 #if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WIN32_)
-#undef  UNIX
+#undef	UNIX
 #endif
 
 
@@ -88,7 +87,7 @@
 //   OC	    -	CenterLine ObjectCenter C++
 //   SUN    -	Sun C++
 //   DEC    -	DEC C++
-//   HP     -	HPUX C++
+//   HP	    -	HPUX C++
 //
 
 #if defined(__SC__)
@@ -175,7 +174,7 @@
 
 #if !defined(HAS_BOOL_TYPE)
 #if defined(_CC_BOOL_DEF_)
-#define bool	        int
+#define bool		int
 #else
 typedef int		bool;
 #endif

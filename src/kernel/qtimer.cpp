@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#17 $
 **
 ** Implementation of QTimer class
 **
-** Author  : Haavard Nord
 ** Created : 931111
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#17 $");
 
 
 /*!
@@ -23,7 +22,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#16 $");
   \ingroup event
 
   It uses \link QTimerEvent timer events\endlink internally to provide a
-  more versatile timer.  QTimer is very easy to use, create a QTimer, call
+  more versatile timer.	 QTimer is very easy to use, create a QTimer, call
   start() to start it and connect its timeout() to the appropriate slots,
   then when the time is up it will emit timeout().
 
@@ -141,7 +140,7 @@ void QTimer::stop()
 
 
 /*!
-  Handles timer events.  Emits timeout() when a timer event is received.
+  Handles timer events.	 Emits timeout() when a timer event is received.
 */
 
 bool QTimer::event( QEvent *e )

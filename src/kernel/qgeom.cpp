@@ -1,25 +1,24 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#13 $
 **
 **  Studies in Geometry Management
 **
-**  Author:   Paul Olav Tvete
 **  Created:  960416
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#13 $");
 
 
 
 /*!
   \class QBoxLayout qgeom.h
   \brief The QBoxLayout class specifies child widget geometry.
-  
+
   Contents arranged serially, either horizontal or vertical.
   The contents fill the available space.
 
@@ -28,13 +27,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#12 $");
 */
 
 
-static inline bool horz( QBasicManager::Direction dir ) 
-{ 
+static inline bool horz( QBasicManager::Direction dir )
+{
     return dir == QBasicManager::RightToLeft || dir == QBasicManager::LeftToRight;
 }
 
-static inline QBasicManager::Direction perp( QBasicManager::Direction dir ) 
-{ 
+static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
+{
     if ( horz( dir ))
 	return QBasicManager::Down;
     else
@@ -47,7 +46,7 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
   parent.  \e parent may not be 0.
 
   \e border is the number of pixels between the edge of the widget and
-  the managed children.  \e autoBorder is the default number of pixels
+  the managed children.	 \e autoBorder is the default number of pixels
   between adjacent managed children.  If \e autoBorder is -1 the value
   of \e border is used.
 
@@ -71,7 +70,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
 	defBorder = autoBorder;
     bm->setBorder( border );
 
-    serChain = bm->newSerChain( d ); 
+    serChain = bm->newSerChain( d );
     if ( horz( d )  ) {
 	bm->add( bm->xChain(), serChain );
 	parChain = bm->yChain();
@@ -84,7 +83,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
 
 
 /*!
-  \fn int QBoxLayout::defaultBorder() const 
+  \fn int QBoxLayout::defaultBorder() const
   Returns the default border for the geometry manager.
 */
 
@@ -101,7 +100,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
   This version of the method fixes the widget at its minimum size.
   You can also achieve this with freeze( 0, 0 );
 */
-  
+
 
 /*!
   Fixes the size of the main widget and distributes the available
@@ -112,7 +111,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
   widget to its minimum size.
 */
 
-void QBoxLayout::freeze( int w, int h ) 
+void QBoxLayout::freeze( int w, int h )
 {
     if ( !topLevel ) {
 	warning( "Only top-level QBoxLayout can be frozen." );
@@ -127,7 +126,7 @@ void QBoxLayout::freeze( int w, int h )
   \internal
   Constructs a new box with direction \e d, within \e parent.
 */
-QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d,
+QBoxLayout::QBoxLayout(	 QBoxLayout *parent, QBasicManager::Direction d,
 			 const char *name )
     : QObject( parent, name )
 {
@@ -152,21 +151,21 @@ QBoxLayout::QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction d,
 //###... Should perhaps replace default space?
 void QBoxLayout::addSpacing( int size )
 {
-	bm->addSpacing( serChain, size, 0, size ); 
+	bm->addSpacing( serChain, size, 0, size );
 }
 
 /*!
   Adds a stretchable space with zero minimum size
-  and stretch factor \e stretch.  
+  and stretch factor \e stretch.
 
   \sa addSpacing
 */
 //###... Should perhaps replace default space?
 void QBoxLayout::addStretch( int stretch )
 {
-    bm->addSpacing( serChain, 0, stretch ); 
+    bm->addSpacing( serChain, 0, stretch );
 }
-  
+
 
 
 /*!
@@ -178,20 +177,20 @@ void QBoxLayout::addStretch( int stretch )
 */
 void QBoxLayout::addStrut( int size )
 {
-    bm->addSpacing( parChain, size, 0, 0 ); 
+    bm->addSpacing( parChain, size, 0, 0 );
 }
 
 
 /*
   Limits the perpendicular dimension of the box (e.g. height if
-  the box is LeftToRight) to a maximum of \e size. Other constraints 
+  the box is LeftToRight) to a maximum of \e size. Other constraints
   may decrease the limit.
 
   \sa addMinStrut()
 
 void QBox::addMaxStrut( int size)
 {
-    gm->QBasicManager::addSpacing( parChain, 0, 0, size ); 
+    gm->QBasicManager::addSpacing( parChain, 0, 0, size );
 }
 */
 
@@ -211,7 +210,7 @@ void QBox::addMaxStrut( int size)
   Alignment is perpendicular to direction(), alignment in the
   serial direction is done with addSpacing().
 
-  For horizontal boxes,  the possible alignments are
+  For horizontal boxes,	 the possible alignments are
   <ul>
   <li> \c alignCenter centers vertically in the box.
   <li> \c alignTop aligns to the top border of the box.
@@ -259,10 +258,10 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 	return;
     }
 #endif
-	
+
     if ( !pristine && defaultBorder() )
-	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() ); 
-	
+	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
+
     if ( 0/*a == alignBoth*/ ) {
 	bm->addWidget( parChain, widget, 0 );
     } else {
@@ -271,12 +270,12 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 	if ( a == alignCenter || a == alignBottom ) {
 	    bm->addSpacing(sc, 0);
 	}
-	bm->addWidget( sc, widget, 1 ); 
+	bm->addWidget( sc, widget, 1 );
 	if ( a == alignCenter ||  a == alignTop ) {
 	    bm->addSpacing(sc, 0);
 	}
 	bm->add( parChain, sc );
-    }  
+    }
     bm->addWidget( serChain, widget, stretch );
     pristine = FALSE;
 }
@@ -291,7 +290,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch )
 {
     if ( !pristine && defaultBorder() )
-	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() ); 
+	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
 
     QBoxLayout *b = new QBoxLayout( this, d );
 
@@ -307,7 +306,7 @@ QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch )
 	if ( a == alignCenter || a == alignBottom ) {
 	    sb->addSpacing(0);
 	}
-	sb->addB( b, 1 ); 
+	sb->addB( b, 1 );
 	if ( a == alignCenter ||  a == alignTop ) {
 	    sb->addSpacing(0);
 	}
@@ -320,23 +319,23 @@ QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch )
 
 
 /*!
-  \fn QBasicManager::Direction QBox::direction() const 
+  \fn QBasicManager::Direction QBox::direction() const
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
-  in this direction. \link QBox::addWidget Alignment \endlink 
+  in this direction. \link QBox::addWidget Alignment \endlink
   works perpendicular to this direction.
   \sa addWidget(), addBox(), addSpacing()
 */
 
 
-void QBoxLayout::addB( QBoxLayout * b,  int stretch )
+void QBoxLayout::addB( QBoxLayout * b,	int stretch )
 {
     if ( horz( dir ) == horz( b->dir ) ) {
-	bm->QBasicManager::add( parChain, b->parChain ); 
-	bm->QBasicManager::add( serChain, b->serChain, stretch ); 
+	bm->QBasicManager::add( parChain, b->parChain );
+	bm->QBasicManager::add( serChain, b->serChain, stretch );
     } else {
-	bm->QBasicManager::add( parChain, b->serChain ); 
-	bm->QBasicManager::add( serChain, b->parChain, stretch ); 
+	bm->QBasicManager::add( parChain, b->serChain );
+	bm->QBasicManager::add( serChain, b->parChain, stretch );
     }
 }

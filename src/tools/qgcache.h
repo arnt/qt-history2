@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#11 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#12 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
-** Author  : Eirik Eng
 ** Created : 950208
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -37,8 +36,8 @@ protected:
 
     uint    count()	const	{ return ((QGDict*)dict)->count(); }
     uint    size()	const	{ return ((QGDict*)dict)->size(); }
-    int     maxCost()	const	{ return mCost; }
-    int     totalCost() const	{ return tCost; }
+    int	    maxCost()	const	{ return mCost; }
+    int	    totalCost() const	{ return tCost; }
     void    setMaxCost( int maxCost );
 
     bool    insert( const char *key, GCI, int cost, int priority );
@@ -54,8 +53,8 @@ private:
     bool    makeRoomFor( int cost, int priority = -1 );
     QCList *lruList;
     QCDict *dict;
-    int     mCost;
-    int     tCost;
+    int	    mCost;
+    int	    tCost;
     bool    copyK;
 };
 

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#25 $
 **
 ** Implementation of QDataStream class
 **
-** Author  : Haavard Nord
 ** Created : 930831
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -21,7 +20,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#25 $");
 
 
 /*!
@@ -31,7 +30,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#24 $");
   binary data to a QIODevice.
 
   A data stream is a binary stream of encoded information which is 100%
-  independent of the host computer operation system, CPU or byte order.  A
+  independent of the host computer operation system, CPU or byte order.	 A
   stream that is written by a PC under DOS/Windows can easily be read by a
   Sun SPARC running Solaris.
 
@@ -64,7 +63,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#24 $");
     f.open( IO_ReadOnly );			// open file for reading
     QDataStream s( &f );			// serialize using f
     char *str;
-    int  a;
+    int	 a;
     s >> str >> a;				// "the answer is" and 42
     f.close();					// done
     delete str;					// delete string
@@ -188,7 +187,7 @@ void QDataStream::setDevice(QIODevice *d )
 }
 
 /*!
-  Unsets the IO device.  This is the same as calling setDevice( 0 ).
+  Unsets the IO device.	 This is the same as calling setDevice( 0 ).
   \sa device(), setDevice()
 */
 

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#14 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
-** Author  : Haavard Nord
 ** Created : 940707
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#14 $");
 
 
 /*****************************************************************************
@@ -59,7 +58,7 @@ public:
     bool translatePaintEvent( const QMSG & );
     bool translateConfigEvent( const QMSG & );
     bool translateCloseEvent( const QMSG & );
-    void setWFlags( WFlags n )   { setWFlags(n); }
+    void setWFlags( WFlags n )	 { setWFlags(n); }
     void clearWFlags( WFlags n ) { clearWFlags(n); }
 };
 
@@ -247,7 +246,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testWFlags( WWin_Config ) )	// biting our tail
+	    if ( w->testWFlags( WWin_Config ) ) // biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -397,37 +396,37 @@ bool QApplication::pmEventFilter( QMSG * )	// OS/2 PM event filter
   need some extra handling to activate objects at timeout.
   We also keep an internal countdown variable to have longer timeouts.
   Max timeout is around 25 days.  PM is limited to max 65 seconds.
-  
+
   Implementation note: There are two types of timer identifiers.  PM
   timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
   indexes (+1) into the timerVec vector.
-  
+
   NOTE: These functions are for internal use. QObject::startTimer() and
-  	 QObject::killTimer() are for public use.
-  	 The QTimer class provides a high-level interface which translates
-  	 timer events into signals.
-  
+	 QObject::killTimer() are for public use.
+	 The QTimer class provides a high-level interface which translates
+	 timer events into signals.
+
   qStartTimer( interval, obj )
-  	Starts a timer which will run until it is killed with qKillTimer()
-  	Arguments:
-  	    long interval	timer interval in milliseconds
-  	    QObject *obj	where to send the timer event
-  	Returns:
-  	    int			timer identifier, or zero if not successful
-  
+	Starts a timer which will run until it is killed with qKillTimer()
+	Arguments:
+	    long interval	timer interval in milliseconds
+	    QObject *obj	where to send the timer event
+	Returns:
+	    int			timer identifier, or zero if not successful
+
   qKillTimer( timerId )
-  	Stops a timer specified by a timer identifier.
-  	Arguments:
-  	    int timerId		timer identifier
-  	Returns:
-  	    bool		TRUE if successful
-  
+	Stops a timer specified by a timer identifier.
+	Arguments:
+	    int timerId		timer identifier
+	Returns:
+	    bool		TRUE if successful
+
   qKillTimer( obj )
-  	Stops all timers that are sent to the specified object.
-  	Arguments:
-  	    QObject *obj	object receiving timer events
-  	Returns:
-  	    bool		TRUE if successful
+	Stops all timers that are sent to the specified object.
+	Arguments:
+	    QObject *obj	object receiving timer events
+	Returns:
+	    bool		TRUE if successful
  *****************************************************************************/
 
 /*****************************************************************************
@@ -448,7 +447,7 @@ typedef declare(QVectorM,TimerInfo) TimerVec;	// vector of TimerInfo structs
 typedef declare(QIntDictM,TimerInfo) TimerDict; // fast dict of timers
 
 static const int MaxTimers  = 64;		// max number of timers
-static TimerVec  *timerVec  = 0;		// timer vector
+static TimerVec	 *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 

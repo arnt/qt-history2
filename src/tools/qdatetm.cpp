@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#47 $
 **
 ** Implementation of date and time classes
 **
-** Author  : Haavard Nord
 ** Created : 940124
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 #include <time.h>
 #if defined(_OS_WIN32_)
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
@@ -36,7 +35,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#47 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -739,7 +738,7 @@ void QTime::start()
 int QTime::restart()
 {
     QTime t = currentTime();
-    int   n = msecsTo( t );
+    int	  n = msecsTo( t );
     *this = t;
     return n;
 }

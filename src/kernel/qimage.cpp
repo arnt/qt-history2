@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#70 $
 **
 ** Implementation of QImage and QImageIO classes
 **
-** Author  : Haavard Nord
 ** Created : 950207
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#70 $");
 
 
 /*!
@@ -149,7 +148,7 @@ QImage::QImage()
   \sa create()
 */
 
-QImage::QImage( int w, int h, int depth, int numColors,	Endian bitOrder )
+QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -659,7 +658,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst )
 	    while ( p < end ) {			// perform fast quantization
 		*b++ = (*p & 0xe0) | ((*p >> 11) & 0x1c) | ((*p >> 22) & 0x03);
 		p++;
-		x++;		
+		x++;
 	    }
 	    ASSERT( x == src->width() );
 	    ASSERT( x == dst->width() );
@@ -1692,7 +1691,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     d->at( startpos + bf.bfOffBits );		// start of image data
 
-    int      bpl = image.bytesPerLine();
+    int	     bpl = image.bytesPerLine();
     uchar **line = image.jumpTable();
 
     if ( nbits == 1 ) {				// 1 bit BMP image

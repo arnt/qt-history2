@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#25 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#26 $
 **
 ** Definition of QLabel widget class
 **
-** Author  : Eirik Eng
 ** Created : 941215
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -35,7 +34,7 @@ public:
 
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );
-    QSize    	sizeHint() const;
+    QSize	sizeHint() const;
 
 public slots:
     void	setText( const char * );

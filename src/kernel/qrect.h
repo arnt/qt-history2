@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#25 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#26 $
 **
 ** Definition of QRect class
 **
-** Author  : Haavard Nord
 ** Created : 931028
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -125,7 +124,7 @@ inline bool QRect::isValid() const
 inline int QRect::left() const
 { return x1; }
 
-inline int QRect::top()	const
+inline int QRect::top() const
 { return y1; }
 
 inline int QRect::right() const

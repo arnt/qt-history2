@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#21 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#22 $
 **
 ** Definition of date and time classes
 **
-** Author  : Haavard Nord
 ** Created : 940124
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -45,7 +44,7 @@ public:
     bool   setYMD( int y, int m, int d );
 
     QDate  addDays( int days )		const;	// add days
-    int    daysTo( const QDate & )	const;	// days difference
+    int	   daysTo( const QDate & )	const;	// days difference
 
     bool   operator==( const QDate &d ) const { return jd == d.jd; }
     bool   operator!=( const QDate &d ) const { return jd != d.jd; }
@@ -59,12 +58,12 @@ public:
     static bool	 leapYear( int year );
 
 protected:
-    static uint  greg2jul( int y, int m, int d );
+    static uint	 greg2jul( int y, int m, int d );
     static void	 jul2greg( uint jd, int &y, int &m, int &d );
 private:
     static const char *monthNames[];
     static const char *weekdayNames[];
-    uint  	 jd;
+    uint	 jd;
     friend class QDateTime;
     friend QDataStream &operator<<( QDataStream &, const QDate & );
     friend QDataStream &operator>>( QDataStream &, QDate & );
@@ -94,9 +93,9 @@ public:
     bool   setHMS( int h, int m, int s, int ms=0 );
 
     QTime  addSecs( int secs )		const;
-    int    secsTo( const QTime & )	const;
+    int	   secsTo( const QTime & )	const;
     QTime  addMSecs( int ms )		const;
-    int    msecsTo( const QTime & )	const;
+    int	   msecsTo( const QTime & )	const;
 
     bool   operator==( const QTime &d ) const { return ds == d.ds; }
     bool   operator!=( const QTime &d ) const { return ds != d.ds; }
@@ -109,8 +108,8 @@ public:
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
     void   start();
-    int    restart();
-    int    elapsed();
+    int	   restart();
+    int	   elapsed();
 
 private:
     static bool currentTime( QTime * );
@@ -146,8 +145,8 @@ public:
 
     QDateTime addDays( int days )	const;
     QDateTime addSecs( int secs )	const;
-    int    daysTo( const QDateTime & )	const;
-    int    secsTo( const QDateTime & )	const;
+    int	   daysTo( const QDateTime & )	const;
+    int	   secsTo( const QDateTime & )	const;
 
     bool   operator==( const QDateTime &dt ) const;
     bool   operator!=( const QDateTime &dt ) const;

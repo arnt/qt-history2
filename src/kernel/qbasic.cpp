@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#17 $
 **
 **  Studies in Geometry Management
 **
-**  Author:   Paul Olav Tvete
 **  Created:  960406
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
@@ -14,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#17 $");
 
 
 
@@ -23,7 +22,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#16 $");
   \brief The QBasicManager class provides one-dimensional geometry management.
 
   This class is intended for those who write geometry managers and
-  graphical designers.  It is not for the faint of heart. The
+  graphical designers.	It is not for the faint of heart. The
   QBoxLayout class is available for normal application programming.
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
@@ -158,7 +157,7 @@ public:
 	    return s.width();
 	else
 	    return s.height();
-    }   
+    }
 
     void distribute( wDict & wd, int pos, int space ) {
 	setWinfo( widget, wd, direction(),  pos, space );
@@ -173,7 +172,7 @@ class QParChain : public QChain
 {
 public:
 
-    QParChain( QBasicManager::Direction	d )
+    QParChain( QBasicManager::Direction d )
 	: QChain( d )
     {
     }
@@ -408,7 +407,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
     border = 0;
 
     xC = new QParChain( LeftToRight );
-    yC = new QParChain(	Down );
+    yC = new QParChain( Down );
 
     if ( parent ) {
 	parent->installEventFilter( this );
@@ -505,7 +504,7 @@ bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
 
 bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
 {
-    return d->add( new QSpaceChain( d->direction(), minSize, maxSize), stretch  );
+    return d->add( new QSpaceChain( d->direction(), minSize, maxSize), stretch	);
 }
 
 /*!

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#39 $
 **
 ** Implementation of QFile class
 **
-** Author  : Haavard Nord
 ** Created : 930812
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -13,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#39 $");
 
 
 /*!
@@ -24,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#38 $");
   \ingroup files
   \ingroup stream
 
-  QFile is an I/O device for reading and writing binary and text files.  A
+  QFile is an I/O device for reading and writing binary and text files.	 A
   QFile may be used by itself (readBlock and writeBlock) or by more
   conveniently using QDataStream or QTextStream.  Most of its behavior is
   inherited from QIODevice.

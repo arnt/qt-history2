@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#66 $
 **
 ** Implementation of QPaintDevice class for X11
 **
-** Author  : Haavard Nord
 ** Created : 940721
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#66 $");
 
 
 /*!
@@ -441,7 +440,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( mono_src ) {				// src is bitmap
 	XGCValues gcvals;
-	ulong     valmask = GCBackground | GCForeground | GCFillStyle |
+	ulong	  valmask = GCBackground | GCForeground | GCFillStyle |
 			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
 	if ( td == PDT_WIDGET ) {		// set GC colors
 	    QWidget *w = (QWidget *)dst;
@@ -460,7 +459,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 
 	gcvals.fill_style  = FillOpaqueStippled;
-	gcvals.stipple     = src->handle();
+	gcvals.stipple	   = src->handle();
 	gcvals.ts_x_origin = dx - sx;
 	gcvals.ts_y_origin = dy - sy;
 

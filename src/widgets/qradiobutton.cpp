@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#47 $
 **
 ** Implementation of QRadioButton class
 **
-** Author  : Haavard Nord
 ** Created : 940222
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -16,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#47 $");
 
 
 /*!

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#15 $
 **
 ** Implementation of QPrinter class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 950810
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -24,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#15 $");
 
 
 // QPrinter states

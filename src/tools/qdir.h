@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#17 $
+** $Id: //depot/qt/main/src/tools/qdir.h#18 $
 **
 ** Definition of QDir class
 **
-** Author  : Eirik Eng
 ** Created : 950427
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qclb_win.cpp#5 $
 **
 ** Implementation of QClipboard class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 960430
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
@@ -23,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_win.cpp#5 $");
 
 
 /*****************************************************************************

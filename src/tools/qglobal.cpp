@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#38 $
 **
 ** Global functions
 **
-** Author  : Haavard Nord
 ** Created : 920604
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -17,7 +16,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#38 $");
 
 
 #define QT_VERSION "0.99"
@@ -76,8 +75,8 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     }
     *wordSize = si_wordSize;
 
-    if ( *wordSize != 64 && 
-	 *wordSize != 32 && 
+    if ( *wordSize != 64 &&
+	 *wordSize != 32 &&
 	 *wordSize != 16 ) {			// word size: 16, 32 or 64
 #if defined(CHECK_RANGE)
 	fatal( "qSysInfo: Unsupported system word size %d", *wordSize );
@@ -94,7 +93,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
     bool  be16, be32;				// determine byte ordering
     short ns = 0x1234;
-    int   nl = 0x12345678;
+    int	  nl = 0x12345678;
 
     unsigned char *p = (unsigned char *)(&ns);	// 16-bit integer
     be16 = *p == 0x12;
@@ -178,8 +177,8 @@ void debug( const char *msg, ... )
   \code
     void f( int c )
     {
-        if ( c > 200 )
-            warning( "f: bad argument, c == %d", c );
+	if ( c > 200 )
+	    warning( "f: bad argument, c == %d", c );
     }
   \endcode
 
@@ -222,7 +221,7 @@ void warning( const char *msg, ... )
   \code
     int divide( int a, int b )
     {
-        if ( b == 0 )				// program error
+	if ( b == 0 )				// program error
 	    fatal( "divide: cannot divide by zero" );
 	return a/b;
     }
@@ -281,7 +280,7 @@ void fatal( const char *msg, ... )
 
     int divide( int a, int b )
     {
-        ASSERT( b == 0 );			// this is line 9
+	ASSERT( b == 0 );			// this is line 9
 	return a/b;
     }
   \endcode
@@ -341,7 +340,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     static QDictM(int) obsoleteDict;
     if ( firstWarning ) {
 	firstWarning = FALSE;
-	debug( 
+	debug(
       "You are using obsolete functions in the Qt library. Call the function\n"
       "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
 	     );
@@ -350,7 +349,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     s += "::";
     s += oldfunc;
     if ( obsoleteDict.find(s) == 0 ) {
-	obsoleteDict.insert( s, (int*) 666 );   // anything different from 0.
+	obsoleteDict.insert( s, (int*) 666 );	// anything different from 0.
 	return TRUE;
     } else {
 	return FALSE;
@@ -364,7 +363,7 @@ void qSuppressObsoleteWarnings( bool suppress )
     suppressObsolete = suppress;
 }
 
-void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
+void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
 {
     if ( suppressObsolete )
 	return;
@@ -374,7 +373,7 @@ void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
 	   obj, oldfunc, newfunc );
 }
 
-void qObsolete(  const char *obj, const char *oldfunc )
+void qObsolete(	 const char *obj, const char *oldfunc )
 {
     if ( suppressObsolete )
 	return;
@@ -383,7 +382,7 @@ void qObsolete(  const char *obj, const char *oldfunc )
     debug( "%s::%s: This function is obsolete.", obj, oldfunc );
 }
 
-void qObsolete(  const char *message )
+void qObsolete(	 const char *message )
 {
     if ( suppressObsolete )
 	return;
@@ -421,22 +420,22 @@ void qObsolete(  const char *message )
 
     void myMessageOutput( QtMsgType type, const char *msg )
     {
-        switch ( type ) {
+	switch ( type ) {
 	    case QtDebugMsg:
-	        fprintf( stderr, "Debug: %s\n", msg );
+		fprintf( stderr, "Debug: %s\n", msg );
 		break;
 	    case QtWarningMsg:
-	        fprintf( stderr, "Warning: %s\n", msg );
+		fprintf( stderr, "Warning: %s\n", msg );
 		break;
 	    case QtFatalMsg:
-	        fprintf( stderr, "Fatal: %s\n", msg );
+		fprintf( stderr, "Fatal: %s\n", msg );
 		abort();			// dump core on purpose
 	}
     }
 
     int main( int argc, char **argv )
     {
-        qInstallMsgHandler( myMessageOutput );
+	qInstallMsgHandler( myMessageOutput );
 	QApplication a( argc, argv );
 	...
 	return a.exec();

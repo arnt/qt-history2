@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#7 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#8 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -7,7 +7,6 @@
 **
 ** Definition of internal print dialog (X11) used by QPrinter::select().
 **
-** Author  : Haavard Nord
 ** Created : 950829
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

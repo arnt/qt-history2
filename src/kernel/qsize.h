@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#11 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#12 $
 **
 ** Definition of QSize class
 **
-** Author  : Haavard Nord
 ** Created : 931028
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -55,7 +54,7 @@ public:
     friend inline QSize operator*( float, const QSize & );
 #if defined(QSIZE_DEBUG)
     friend	  QSize operator/( const QSize &, int );
-    friend	  QSize	operator/( const QSize &, float );
+    friend	  QSize operator/( const QSize &, float );
 #else
     friend inline QSize operator/( const QSize &, int );
     friend inline QSize operator/( const QSize &, float );

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#3 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#3 $");
 
 // what comes out of the dict
 struct QTip
@@ -54,11 +54,11 @@ private:
     QPoint pos;
 
     enum { dormant, wakingUp, active, fallingAsleep, wakingUpAgain } state;
-    
+
 };
 
 
-// ... and here it is.  a real workhorse.
+// ... and here it is.	a real workhorse.
 static QTipManager * tipManager;
 
 
@@ -341,7 +341,7 @@ void QTipManager::hideTip()
   remove() with no arguments.  This is handy if the widget scrolls.  */
 
 
-/*!  Creates a tool tip object.  This is necessary only if you need
+/*!  Creates a tool tip object.	 This is necessary only if you need
   tool tips on regions that can move within the widget (most often
   because the widget's contents can scroll).
 

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#87 $
 **
 ** Implementation of QPixmap class for X11
 **
-** Author  : Haavard Nord
 ** Created : 940501
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -28,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#87 $");
 
 
 /*****************************************************************************
@@ -868,7 +867,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    QRgb *p;
 	    src = image.scanLine( y );
 	    dst = newbits + xi->bytes_per_line*y;
-	    p   = (QRgb *)src;
+	    p	= (QRgb *)src;
 	    for ( int x=0; x<w; x++ ) {
 		if ( d8 ) {
 		    pixel = pix[*src++];

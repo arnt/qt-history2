@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#39 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
-** Author  : Haavard Nord
 ** Created : 920624
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#39 $");
 
 
 /*!
@@ -947,7 +946,7 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 
 /*!
   \internal
-  Assigns a copy of the iterator \e it and returns a reference to this 
+  Assigns a copy of the iterator \e it and returns a reference to this
   iterator.
 */
 
@@ -976,7 +975,7 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 QGListIterator::~QGListIterator()
 {
     if ( list ) {				// detach iterator from list
-#if defined(DEBUG)	
+#if defined(DEBUG)
 	ASSERT( list->iterators );
 #endif
 	if ( list->iterators->removeRef(this) ) {

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#10 $
 **
 ** Implementation of QPixmapCache class
 **
-** Author  : Haavard Nord
 ** Created : 950504
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -13,7 +12,7 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#10 $");
 
 
 /*!
@@ -24,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#9 $");
 
   This class is a tool for optimized drawing with \link QPixmap
   QPixmaps\endlink.  Here follows an example.  The QRadioButton widget has
-  a non-trivial visual representation.  In the \link
+  a non-trivial visual representation.	In the \link
   QRadioButton::drawButton() drawButton()\endlink function, we do not draw
   the radio button directly. Instead, we first check the global pixmap
   cache if a pixmap called "$qt_radio_s_" exists. The \c s is a numerical

@@ -1,19 +1,18 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#5 $
 **
 ** Implementation of QClipboard class
 **
-** Author  : Haavard Nord
 ** Created : 960430
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#5 $");
 
 
 /*!
@@ -35,18 +34,18 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#4 $");
   because QClipboard is a shared window system resource. It is not
   possible to create a QClipboard object the standard C++ way (the
   constructor and destructor are private member functions, but accessible
-  to QApplication since it is a friend class).  Call
+  to QApplication since it is a friend class).	Call
   QApplication::clipboard() to access the clipboard.
 
   Example:
   \code
     QClipboard *cb = QApplication::clipboard();
     const char *text;
-    
+
     // Copy text from the clipboard (paste)
     text = cb->text();
     if ( text )
-        debug( "The clipboard contains: %s", text );
+	debug( "The clipboard contains: %s", text );
 
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );

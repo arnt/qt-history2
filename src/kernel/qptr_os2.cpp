@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#12 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
-** Author  : Haavard Nord
 ** Created : 940715
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -18,7 +17,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#12 $");
 
 
 /*****************************************************************************

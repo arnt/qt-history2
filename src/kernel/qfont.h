@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#34 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#35 $
 **
 ** Definition of QFont class
 **
-** Author  : Eirik Eng
 ** Created : 940514
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

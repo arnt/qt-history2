@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#4 $
 **
 ** Definition of QWMatrix class
 **
-** Author  : Haavard Nord
 ** Created : 941020
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

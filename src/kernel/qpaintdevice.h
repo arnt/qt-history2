@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#42 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#43 $
 **
 ** Definition of QPaintDevice class
 **
-** Author  : Haavard Nord
 ** Created : 940721
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -47,8 +46,8 @@ public:
     bool     isExtDev()	      const;
     bool     paintingActive() const;
 
-    // Windows:   get device context
-    // OS/2 PM:   get presentation space
+    // Windows:	  get device context
+    // OS/2 PM:	  get presentation space
     // X-Windows: get drawable
     HANDLE   handle()  const;
 
@@ -70,7 +69,7 @@ protected:
 #endif
 
     virtual bool cmd( int, QPainter *, QPDevCmdParam * );
-    virtual int  metric( int ) const;
+    virtual int	 metric( int ) const;
     virtual int	 fontMet( QFont *, int, const char * = 0, int = 0 ) const;
     virtual int	 fontInf( QFont *, int ) const;
 
@@ -106,11 +105,11 @@ inline bool QPaintDevice::paintingActive() const
 { return (devFlags & PDF_PAINTACTIVE) != 0; }
 
 #if defined(_WS_WIN_)
-inline HANDLE   QPaintDevice::handle()  const { return hdc; }
+inline HANDLE	QPaintDevice::handle()	const { return hdc; }
 #elif defined(_WS_PM_)
-inline HANDLE   QPaintDevice::handle()  const { return hps; }
+inline HANDLE	QPaintDevice::handle()	const { return hps; }
 #elif defined(_WS_X11_)
-inline HANDLE	QPaintDevice::handle()  const { return hd; }
+inline HANDLE	QPaintDevice::handle()	const { return hd; }
 #endif
 
 #if defined(_WS_X11_)

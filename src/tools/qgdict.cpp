@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#39 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#40 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
-** Author  : Haavard Nord
 ** Created : 920529
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -16,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#40 $");
 
 
 /*!
@@ -549,7 +548,7 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 
 /*!
   \internal
-  Assigns a copy of the iterator \e it and returns a reference to this 
+  Assigns a copy of the iterator \e it and returns a reference to this
   iterator.
 */
 
@@ -579,7 +578,7 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 QGDictIterator::~QGDictIterator()
 {
     if ( dict ) {				// detach iterator from dict
-#if defined(DEBUG)	
+#if defined(DEBUG)
 	ASSERT( dict->iterators );
 #endif
 	if ( dict->iterators->removeRef(this) ) {

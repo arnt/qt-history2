@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#80 $
 **
 ** Implementation of QApplication class
 **
-** Author  : Haavard Nord
 ** Created : 931107
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -16,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#80 $");
 
 
 /*!
@@ -55,7 +54,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#79 $");
   be defined!
 
   Note also that for X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.  To preserve this functionality,
+  according to the \e -geometry option.	 To preserve this functionality,
   you must set your defaults before setMainWidget() and any overrides
   after.
 
@@ -125,7 +124,7 @@ static void destroy_palettes()
 
   Notice that \e argc and \e argv might be changed.  Qt removes
   command line arguments that it recognizes.  \e argc and \e argv are
-  can be accessed later by \c qApp->argc() and \c qApp->argv().  The
+  can be accessed later by \c qApp->argc() and \c qApp->argv().	 The
   documentation for argv() contains a detailed description of how to
   process command line arguments.
 
@@ -233,7 +232,7 @@ QApplication::~QApplication()
 
     int main( int argc, char **argv )
     {
-        QApplication a( argc, argv );
+	QApplication a( argc, argv );
 	QListBox b;
 	a.setMainWidget( &b );
 	for ( int i=0; i<a.argc(); i++ )	// a.argc() == argc
@@ -274,7 +273,7 @@ void QApplication::setStyle( GUIStyle style )
 
 
 /*!
-  Returns a pointer to the default application palette.  There is
+  Returns a pointer to the default application palette.	 There is
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
   \sa setPalette(), QWidget::palette()

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#59 $
 **
 ** Implementation of QMenuBar class
 **
-** Author  : Haavard Nord
 ** Created : 941209
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -18,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#59 $");
 
 
 /*!
@@ -346,7 +345,7 @@ void QMenuBar::show()
 	    if ( i >= 0 && isalnum(s[i+1]) ) {
 		int k = s[i+1];
 		if ( isalpha(k) )
-		    k = toupper(k) - 'A' + Key_A;		
+		    k = toupper(k) - 'A' + Key_A;
 		if ( !autoaccel ) {
 		    autoaccel = new QAccel( this );
 		    CHECK_PTR( autoaccel );

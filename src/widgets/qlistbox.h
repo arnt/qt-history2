@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#38 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#39 $
 **
 ** Definition of QListBox widget class
 **
-** Author  : Eirik Eng
 ** Created : 941121
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -35,11 +34,11 @@ public:
     QListBoxItem();
     virtual ~QListBoxItem();
 
-    virtual const char    *text()   const { return txt; }
+    virtual const char	  *text()   const { return txt; }
     virtual const QPixmap *pixmap() const { return 0; }
 
-    virtual int  height( const QListBox * ) const = 0;
-    virtual int  width( const QListBox * )  const = 0;
+    virtual int	 height( const QListBox * ) const = 0;
+    virtual int	 width( const QListBox * )  const = 0;
 
 protected:
     virtual void paint( QPainter * ) = 0;
@@ -58,13 +57,13 @@ private:	// Disabled copy constructor and operator=
 
 
 class QListBoxText : public QListBoxItem
-{	
+{
 public:
     QListBoxText( const char * = 0 );
    ~QListBoxText();
     void  paint( QPainter * );
     int	  height( const QListBox * ) const;
-    int	  width( const QListBox * )  const; 
+    int	  width( const QListBox * )  const;
 private:	// Disabled copy constructor and operator=
     QListBoxText( const QListBoxText & ) {}
     QListBoxText &operator=( const QListBoxText & ) { return *this; }
@@ -146,7 +145,7 @@ public:
     void	setSmoothScrolling( bool );
 
     int		itemHeight()		const;
-    int		itemHeight( int index )	const;
+    int		itemHeight( int index ) const;
 
 signals:
     void	highlighted( int index );
@@ -176,7 +175,7 @@ protected:
 
 private:
     void	updateNumRows( bool );
-    void	insertDangerously( const QListBoxItem *, int index, 
+    void	insertDangerously( const QListBoxItem *, int index,
 				   bool updateCellWidth );
     void	changeDangerously( const QListBoxItem *lbi, int index );
 

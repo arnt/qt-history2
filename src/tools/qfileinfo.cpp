@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#24 $
 **
 ** Implementation of QFileInfo class
 **
-** Author  : Eirik Eng
 ** Created : 950628
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#24 $");
 
 
 #if defined(_OS_FATFS_)

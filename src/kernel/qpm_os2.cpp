@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#5 $
 **
 ** Implementation of QPixMap class for OS/2 PM
 **
-** Author  : Haavard Nord
 ** Created : 940804
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -15,7 +14,7 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_os2.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_os2.cpp#5 $");
 
 
 QPixMap::QPixMap( const QSize &size, int nPlanes )

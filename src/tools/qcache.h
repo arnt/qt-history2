@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcache.h#8 $
+** $Id: //depot/qt/main/src/tools/qcache.h#9 $
 **
 ** Definition of QCache template/macro class
 **
-** Author  : Eirik Eng
 ** Created : 950209
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -41,8 +40,8 @@ public:									      \
    ~QCacheM(type)()		      { clear(); }			      \
     QCacheM(type) &operator=( const QCacheM(type) &c )			      \
 			{ return (QCacheM(type)&)QGCache::operator=(c); }     \
-    int   maxCost()   const	      { return QGCache::maxCost(); }	      \
-    int   totalCost() const	      { return QGCache::totalCost(); }	      \
+    int	  maxCost()   const	      { return QGCache::maxCost(); }	      \
+    int	  totalCost() const	      { return QGCache::totalCost(); }	      \
     void  setMaxCost( int m )	      { QGCache::setMaxCost(m); }	      \
     uint  count()     const	      { return QGCache::count(); }	      \
     uint  size()      const	      { return QGCache::size(); }	      \
@@ -114,8 +113,8 @@ public:
    ~QCacheT()			      { clear(); }
     QCacheT<type> &operator=( const QCacheT<type> &c )
 			{ return (QCacheT<type>&)QGCache::operator=(c); }
-    int   maxCost()   const	      { return QGCache::maxCost(); }
-    int   totalCost() const	      { return QGCache::totalCost(); }
+    int	  maxCost()   const	      { return QGCache::maxCost(); }
+    int	  totalCost() const	      { return QGCache::totalCost(); }
     void  setMaxCost( int m )	      { QGCache::setMaxCost(m); }
     uint  count()     const	      { return QGCache::count(); }
     uint  size()      const	      { return QGCache::size(); }

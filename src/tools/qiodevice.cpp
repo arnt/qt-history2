@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#25 $
 **
 ** Implementation of QIODevice class
 **
-** Author  : Haavard Nord
 ** Created : 940913
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#25 $");
 
 
 /*!
@@ -30,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#24 $");
   are implemented by the subclasses QFile and QBuffer.
 
   There are two types of I/O devices; <em>direct access</em> and
-  <em>sequential access </em> devices.  Files can normally be accessed
+  <em>sequential access </em> devices.	Files can normally be accessed
   directly, except \c stdin etc., which must be processed sequentially.
   Buffers are always direct access devices.
 
@@ -199,7 +198,7 @@ QIODevice::~QIODevice()
   \fn int QIODevice::status() const
   Returns the I/O device status.
 
-  The I/O device status returns an error code.  If open() returns FALSE
+  The I/O device status returns an error code.	If open() returns FALSE
   or readBlock() or writeBlock() return -1, this function can be called to
   get the reason why the operation did not succeed.
 

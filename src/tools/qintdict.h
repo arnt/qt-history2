@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintdict.h#9 $
+** $Id: //depot/qt/main/src/tools/qintdict.h#10 $
 **
 ** Definition of QIntDict template/macro class
 **
-** Author  : Haavard Nord
 ** Created : 940624
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

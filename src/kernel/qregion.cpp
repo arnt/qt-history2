@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#12 $
 **
 ** Implementation of QRegion class
 **
-** Author  : Haavard Nord
 ** Created : 950726
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -15,7 +14,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#12 $");
 
 
 /*!
@@ -162,8 +161,8 @@ void QRegion::exec( const QByteArray &buffer )
 	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
 	    QByteArray bop1, bop2;
 	    QRegion r1, r2;
-	    s >> bop1;  r1.exec( bop1 );
-	    s >> bop2;  r2.exec( bop2 );
+	    s >> bop1;	r1.exec( bop1 );
+	    s >> bop2;	r2.exec( bop2 );
 	    switch ( id ) {
 		case QRGN_OR:
 		    rgn = r1.unite( r2 );

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#174 $
 **
 ** Implementation of X11 startup routines and event handling
 **
-** Author  : Haavard Nord
 ** Created : 931029
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -44,7 +43,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#173 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#174 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -365,7 +364,7 @@ void qt_updated_rootinfo()
 static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 {						// default X11 error handler
     char errstr[256];
-    XGetErrorText( dpy, err->error_code, errstr, 256 );    
+    XGetErrorText( dpy, err->error_code, errstr, 256 );
     fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
     return 0;
 }
@@ -590,7 +589,7 @@ static QCursorList *cursorStack = 0;
 
   Application cursors are stored on an internal stack. setOverrideCursor()
   pushes the cursor onto the stack, and restoreOverrideCursor() pops the
-  active cursor off the stack.  Every setOverrideCursor() must have an
+  active cursor off the stack.	Every setOverrideCursor() must have an
   corresponding restoreOverrideCursor(), otherwise the stack will get out
   of sync. overrideCursor() returns 0 if the cursor stack is empty.
 
@@ -638,7 +637,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 
   Application cursors are stored on an internal stack. setOverrideCursor()
   pushes the cursor onto the stack, and restoreOverrideCursor() pops the
-  active cursor off the stack.  Every setOverrideCursor() must have an
+  active cursor off the stack.	Every setOverrideCursor() must have an
   corresponding restoreOverrideCursor(), otherwise the stack will get out
   of sync. overrideCursor() returns 0 if the cursor stack is empty.
 
@@ -1292,9 +1291,9 @@ int QApplication::enter_loop()
 			    a = &a1;		// typical for twm, olwm
 			a->x += a2.border_width;
 			a->y += a2.border_width;
-			widget->frect = QRect(QPoint(r->left()   - a->x,
-						     r->top()    - a->y),
-					      QPoint(r->right()  + a->x,
+			widget->frect = QRect(QPoint(r->left()	 - a->x,
+						     r->top()	 - a->y),
+					      QPoint(r->right()	 + a->x,
 						     r->bottom() + a->x) );
 		    }
 		    break;
@@ -2236,10 +2235,10 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
-    WId  id	= winId();
+    WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
     QCloseEvent e;
-    bool accept = QApplication::sendEvent( this, &e );    
+    bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
 	if ( isMain )
 	    qApp->quit();

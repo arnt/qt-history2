@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#16 $
 **
 ** Implementation of QCursor class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 940219
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -17,14 +16,14 @@
 #include "qdstream.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_win.cpp#16 $");
 
 
 /*****************************************************************************

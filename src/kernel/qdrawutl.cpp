@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qdrawutl.cpp#8 $
 **
 ** Implementation of draw utilities
 **
-** Author  : Haavard Nord
 ** Created : 950920
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutl.cpp#8 $");
 
 
 /*!
@@ -387,7 +386,7 @@ static void qDrawWinShades( QPainter *p,
 */
 
 void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool	sunken,
+		     const QColorGroup &g, bool sunken,
 		     const QBrush *fill )
 {
     if ( sunken )
@@ -424,7 +423,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 */
 
 void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
-		    const QColorGroup &g, bool  sunken,
+		    const QColorGroup &g, bool	sunken,
 		    const QBrush *fill )
 {
     if ( sunken )

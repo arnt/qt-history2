@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#16 $
+** $Id: //depot/qt/main/src/tools/qfile.h#17 $
 **
 ** Definition of QFile class
 **
-** Author  : Haavard Nord
 ** Created : 930831
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

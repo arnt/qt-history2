@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#13 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#14 $
 **
 ** Definition of QIODevice class
 **
-** Author  : Haavard Nord
 ** Created : 940913
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -92,7 +91,7 @@ public:
     virtual void flush() = 0;
 
     virtual uint size()	  const = 0;
-    virtual int  at()	  const;
+    virtual int	 at()	  const;
     virtual bool at( int );
     virtual bool atEnd()  const;
     bool	 reset() { return at(0); }

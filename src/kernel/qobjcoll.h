@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#6 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#7 $
 **
 ** Definition of QObject and QMetaObject collections
 **
-** Author  : Haavard Nord
 ** Created : 940807
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

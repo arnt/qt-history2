@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#8 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#9 $
 **
 ** Definition of QSignal class
 **
-** Author  : Haavard Nord
 ** Created : 941201
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

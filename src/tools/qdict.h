@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#14 $
+** $Id: //depot/qt/main/src/tools/qdict.h#15 $
 **
 ** Definition of QDict template/macro class
 **
-** Author  : Haavard Nord
 ** Created : 920821
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.

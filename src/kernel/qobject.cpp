@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#100 $
 **
 ** Implementation of QObject class
 **
-** Author  : Haavard Nord
 ** Created : 930418
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -15,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#100 $");
 
 
 /*!
@@ -894,7 +893,7 @@ void QObject::removeChild( QObject *obj )
   If you delete the receiver object in your eventFilter() function, be
   sure to return TRUE. If you return FALSE, Qt sends the event to the
   deleted object and the program will crash.
-  
+
   \sa removeEventFilter(), eventFilter(), event()
 */
 

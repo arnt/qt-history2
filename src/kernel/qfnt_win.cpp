@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#22 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
-** Author  : Haavard Nord
 ** Created : 940630
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -27,7 +26,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#22 $");
 
 
 QFont *QFont::defFont = 0;			// default font

@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#44 $
 **
 ** Implementation of QComboBox widget class
 **
-** Author  : Eirik Eng
 ** Created : 940426
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#44 $");
 
 
 /*!

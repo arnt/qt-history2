@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#96 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#97 $
 **
 ** Definition of QWidget class
 **
-** Author  : Haavard Nord
 ** Created : 931029
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

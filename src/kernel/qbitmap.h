@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#23 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#24 $
 **
 ** Definition of QBitmap class
 **
-** Author  : Haavard Nord
 ** Created : 941020
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

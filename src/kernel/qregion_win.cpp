@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#17 $
 **
 ** Implementation of QRegion class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 940801
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -15,14 +14,14 @@
 #include "qbuffer.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#17 $");
 
 
 static QRegion *empty_region = 0;

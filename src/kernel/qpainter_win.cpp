@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#54 $
 **
 ** Implementation of QPainter class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -30,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#54 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1304,7 +1303,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	else
 	    x2--;
     } else {
-	plot_pixel = cpen.style() == SolidLine;	// plot last pixel
+	plot_pixel = cpen.style() == SolidLine; // plot last pixel
     }
     pts[0].x = x1;  pts[0].y = y1;
     pts[1].x = x2;  pts[1].y = y2;
@@ -1731,14 +1730,14 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	else
 	    x2--;
     } else {
-	plot_pixel = cpen.style() == SolidLine;	// plot last pixel
+	plot_pixel = cpen.style() == SolidLine; // plot last pixel
     }
     if ( plot_pixel ) {
 	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
 	SetPixelV( hdc, x2, y2, COLOR_VALUE(cpen.data->color) );
     } else {
 	pa.setPoint( index+npoints-1, x2, y2 );
-        Polyline( hdc, (POINT*)(pa.data()+index), npoints );
+	Polyline( hdc, (POINT*)(pa.data()+index), npoints );
 	pa.setPoint( index+npoints-1, xsave, ysave );
     }
 }
@@ -2010,7 +2009,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
-#undef  UCHAR
+#undef	UCHAR
 #define UCHAR(x)  (uchar)(x)
 
     bool wordbreak  = (tf & WordBreak)	== WordBreak;

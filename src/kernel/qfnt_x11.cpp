@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#65 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
-** Author  : Eirik Eng
 ** Created : 940515
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -24,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#65 $");
 
 
 static const int fontFields = 14;
@@ -530,7 +529,7 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 	     return 0; // Dirty way of avoiding common 16 bit charsets ###
     }
 
-#undef  IS_ZERO
+#undef	IS_ZERO
 #define IS_ZERO(X) (X[0] == '0' && X[1] == 0)
 
     if ( IS_ZERO(tokens[Weight_]) ||
@@ -582,7 +581,7 @@ int QFont_Private::fontMatchScore( char	 *fontName, QString &buffer,
 	    pSize = (2*pSize*atoi(tokens[ResolutionY]) + 75) / (75*2);
 	}
     }
-    
+
     float diff;
     if ( deciPointSize() != 0 )
 	diff = ((float)QABS(pSize - deciPointSize())/deciPointSize())*100.0F;

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#20 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#21 $
 **
 ** Definition of QPen class
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

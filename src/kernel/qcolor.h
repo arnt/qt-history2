@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#31 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#32 $
 **
 ** Definition of QColor class
 **
-** Author  : Haavard Nord
 ** Created : 940112
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

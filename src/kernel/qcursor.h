@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#20 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#21 $
 **
 ** Definition of QCursor class
 **
-** Author  : Haavard Nord
 ** Created : 940219
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#34 $
 **
 ** Implementation of QRect class
 **
-** Author  : Haavard Nord
 ** Created : 931028
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#34 $");
 
 
 /*!
@@ -205,7 +204,7 @@ QRect QRect::normalize() const
 /*!
   \fn int QRect::x() const
 
-  Returns the left coordinate of the rectangle.  Identical to left().
+  Returns the left coordinate of the rectangle.	 Identical to left().
 
   \sa left(), y(), setX()
 */
@@ -213,7 +212,7 @@ QRect QRect::normalize() const
 /*!
   \fn int QRect::y() const
 
-  Returns the top coordinate of the rectangle.  Identical to top().
+  Returns the top coordinate of the rectangle.	Identical to top().
 
   \sa top(), x(), setY()
 */
@@ -221,7 +220,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setLeft( int pos )
 
-  Sets the left edge of the rectangle.  May change the width, but
+  Sets the left edge of the rectangle.	May change the width, but
   will never change the right edge of the rectangle.
 
   Identical to setX().
@@ -243,7 +242,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setRight( int pos )
 
-  Sets the right edge of the rectangle.  May change the width, but
+  Sets the right edge of the rectangle.	 May change the width, but
   will never change the left edge of the rectangle.
 
   \sa right(), setLeft(), setWidth()
@@ -261,7 +260,7 @@ QRect QRect::normalize() const
 /*!
   \fn void QRect::setX( int x )
 
-  Sets the x position of the rectangle (its left end).  May change
+  Sets the x position of the rectangle (its left end).	May change
   the width, but will never change the right edge of the rectangle.
 
   Identical to setLeft().
@@ -421,7 +420,7 @@ void QRect::moveCenter( const QPoint &p )
   axis, relative to the current position. (Positive values moves the
   rectangle rightwards and/or downwards.)
 */
-  
+
 
 void QRect::moveBy( int dx, int dy )
 {
@@ -475,7 +474,7 @@ void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
 
 /*!
   \fn int QRect::height() const
-  Returns the height of the rectangle.  The height includes both the
+  Returns the height of the rectangle.	The height includes both the
   top and bottom edges, ie. height = bottom - top + 1.
   \sa width(), size(), setHeight()
 */

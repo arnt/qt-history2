@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#42 $
 **
 ** Implementation of QLabel widget class
 **
-** Author  : Eirik Eng
 ** Created : 941215
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#42 $");
 
 
 /*!
@@ -106,7 +105,7 @@ QLabel::~QLabel()
 /*!
   Sets the label contents to \e text and redraws the contents.
 
-  The label resizes itself if auto-resizing is enabled.  Nothing
+  The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e text is the same as the current label.
 
   \sa text(), setPixmap(), setAutoResize()
@@ -136,7 +135,7 @@ void QLabel::setText( const char *text )
 /*!
   Sets the label contents to \e pixmap and redraws the contents.
 
-  The label resizes itself if auto-resizing is enabled.  Nothing
+  The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e pixmap is the same as the current label.
 
   \sa pixmap(), setText(), setAutoResize()
@@ -174,7 +173,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
   Sets the label contents to \e num (converts it to text) and redraws the
   contents.
 
-  The label resizes itself if auto-resizing is enabled.  Nothing
+  The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e num reads the same as the current label.
 
   \sa setAutoResize()
@@ -274,7 +273,7 @@ void QLabel::setAlignment( int alignment )
   widget's current \link font() font\endlink.
 
   Setting a non-negative margin gives the specified margin in pixels.
-  
+
   \sa margin(), frameWidth(), font()
 */
 

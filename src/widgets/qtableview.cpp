@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#30 $
 **
 ** Implementation of QTableView class
 **
-** Author  : Eirik Eng
 ** Created : 941115
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#30 $");
 
 
 const int sbDim = 16;

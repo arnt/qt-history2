@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#37 $
 **
 ** Implementation of event classes
 **
-** Author  : Haavard Nord
 ** Created : 931029
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#37 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -230,7 +229,7 @@ void QEvent::peErrMsg()				// posted event error message
 
   \sa state()
 */
-  
+
 
 /*!
   \fn int QMouseEvent::state() const
@@ -282,7 +281,7 @@ void QEvent::peErrMsg()				// posted event error message
   \fn int QKeyEvent::key() const
   Returns the code if the key that was pressed or released.
 
-  The header file qkeycode.h lists the possible keyboard codes.  These codes
+  The header file qkeycode.h lists the possible keyboard codes.	 These codes
   are independent of the underlying window system.
 
   Key code 0 means that the event is not a result of a known key (e.g. it

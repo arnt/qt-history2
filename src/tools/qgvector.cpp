@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#18 $
 **
 ** Implementation of QGVector class
 **
-** Author  : Haavard Nord
 ** Created : 930907
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -29,7 +28,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#18 $");
 
 
 #define USE_MALLOC				// comment to use new/delete

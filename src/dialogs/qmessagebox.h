@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#6 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.h#7 $
 **
 ** Definition of QMessageBox class
 **
-** Author  : Haavard Nord
 ** Created : 950503
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

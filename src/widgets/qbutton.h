@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#40 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#41 $
 **
 ** Definition of QButton widget class
 **
-** Author  : Haavard Nord
 ** Created : 940206
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#50 $
 **
 ** Implementation of QButton widget class
 **
-** Author  : Haavard Nord
 ** Created : 940206
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -15,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#50 $");
 
 
 /*!

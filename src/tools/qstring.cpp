@@ -1,10 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#83 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#84 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
 **
-** Author  : Haavard Nord
 ** Created : 920722
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#84 $");
 
 
 /*****************************************************************************
@@ -105,7 +104,7 @@ char *qstrdup( const char *str )
   A safe strncpy() function.
 
   Copies all characters up to \e len bytes from \e str into \e dst and returns
-  a pointer to \e dst.  Guarantees that \e dst is \0-terminated.
+  a pointer to \e dst.	Guarantees that \e dst is \0-terminated.
   If \e src is null, it immediately returns 0.
 
   \sa strcpy()
@@ -128,7 +127,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
   A safe strcmp() function that overrides the one defined by the C library.
   The original strcmp() function has been renamed cstrcmp().
 
-  Compares \e str1 and \e str2.  Returns a negative value if \e str1
+  Compares \e str1 and \e str2.	 Returns a negative value if \e str1
   is less than \e str2, 0 if \e str1 is equal to \e str2 or a positive
   value if \e str1 is greater than \e str2.
 
@@ -372,7 +371,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
   A QString that has not been assigned to anything is \e null, i.e. both
   the length and data pointer is 0. A QString that references the empty
-  string ("", a single '\0' char) is \e empty.  Both null and empty
+  string ("", a single '\0' char) is \e empty.	Both null and empty
   QStrings are legal parameters to the methods. Assigning <var>const char
   * 0</var> to QString gives a null QString.
 
@@ -397,7 +396,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   '\0'-terminator.  Makes a null string if \e size == 0.
 
   If \e size \> 0, then the first and last characters in the string are
-  initialized to '\0'.  All other characters are uninitialized.
+  initialized to '\0'.	All other characters are uninitialized.
 
   \sa resize(), isNull()
 */
@@ -444,7 +443,7 @@ QString::QString( const char *str )
     a.isNull();		// TRUE, because a.data() == 0
     a.isEmpty();	// TRUE, because a.length() == 0
     b.isNull();		// FALSE, because b.data() == ""
-    b.isEmpty();	// TRUE, because b.length() == 0 
+    b.isEmpty();	// TRUE, because b.length() == 0
   \endcode
 
   \sa isEmpty(), length(), size()
@@ -1067,8 +1066,8 @@ QString QString::simplifyWhiteSpace() const
     if ( isEmpty() )				// nothing to do
 	return copy();
     QString result( size() );
-    char *from  = data();
-    char *to    = result.data();
+    char *from	= data();
+    char *to	= result.data();
     char *first = to;
     while ( TRUE ) {
 	while ( *from && isspace(*from) )

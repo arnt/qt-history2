@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#18 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#19 $
 **
 ** Definition of QDataStream class
 **
-** Author  : Haavard Nord
 ** Created : 930831
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#39 $
 **
 ** Implementation of QPointArray class
 **
-** Author  : Haavard Nord
 ** Created : 940213
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -16,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#39 $");
 
 
 /*!
@@ -533,7 +532,7 @@ QPointArray QPointArray::quadBezier() const
     QPointArray p( m );				// p = Bezier point array
     register QPointData *pd = p.data();
 
-    float x0 = xvec[0],  y0 = yvec[0];
+    float x0 = xvec[0],	 y0 = yvec[0];
     float dt = 1.0F/m;
     float cx = 3.0F * (xvec[1] - x0);
     float bx = 3.0F * (xvec[2] - xvec[1]) - cx;

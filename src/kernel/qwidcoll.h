@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidcoll.h#3 $
+** $Id: //depot/qt/main/src/kernel/qwidcoll.h#4 $
 **
 ** Definition of QWidget collections
 **
-** Author  : Haavard Nord
 ** Created : 950116
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#32 $
 **
 ** Implementation of QPixmap class for Win32
 **
-** Author  : Haavard Nord
 ** Created : 940501
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -24,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#32 $");
 
 
 bool QPixmap::optimAll = TRUE;

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#23 $
 **
 ** Implementation of QPrinter class for X11
 **
-** Author  : Haavard Nord
 ** Created : 950810
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -21,7 +20,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#23 $");
 
 
 /*****************************************************************************
@@ -171,10 +170,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    pr.insert( 0, "-P" );
 #if defined(_OS_WIN32_)
 		    // Not implemented
-		    //   lpr needs -Sserver argument
+		    //	 lpr needs -Sserver argument
 #else
 		    if ( fork() == 0 ) {	// child process
-			if ( execlp(print_prog.data(), print_prog.data(), 
+			if ( execlp(print_prog.data(), print_prog.data(),
 				    pr.data(), output->name(), 0) == -1 ) {
 			    ;			// couldn't exec, ignored
 			}
@@ -225,10 +224,10 @@ int QPrinter::metric( int m ) const
 	    val = orient == Portrait ? heights[ s ] :  widths[ s ];
 	    break;
 	case PDM_WIDTHMM:
-	    val = orient == Portrait ? widthsMM[ s ] :  heightsMM[ s ];
+	    val = orient == Portrait ? widthsMM[ s ] :	heightsMM[ s ];
 	    break;
 	case PDM_HEIGHTMM:
-	    val = orient == Portrait ? heightsMM[ s ] :  widthsMM[ s ];
+	    val = orient == Portrait ? heightsMM[ s ] :	 widthsMM[ s ];
 	    break;
 	case PDM_NUMCOLORS:
 	    val = 16777216;

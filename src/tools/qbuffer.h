@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#9 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#10 $
 **
 ** Definition of QBuffer class
 **
-** Author  : Haavard Nord
 ** Created : 930812
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -32,7 +31,7 @@ public:
     void  flush();
 
     uint  size() const;
-    int   at()	 const;
+    int	  at()	 const;
     bool  at( int );
 
     int	  readBlock( char *p, uint );

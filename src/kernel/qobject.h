@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#36 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#37 $
 **
 ** Definition of QObject class
 **
-** Author  : Haavard Nord
 ** Created : 930418
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

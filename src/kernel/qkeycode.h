@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qkeycode.h#8 $
+** $Id: //depot/qt/main/src/kernel/qkeycode.h#9 $
 **
 ** Definition of keyboard codes
 **
-** Author  : Haavard Nord
 ** Created : 931030
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

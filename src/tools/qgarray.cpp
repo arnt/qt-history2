@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#34 $
 **
 ** Implementation of QGArray class
 **
-** Author  : Haavard Nord
 ** Created : 930906
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -27,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#34 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -441,7 +440,7 @@ void QGArray::store( const char *d, uint len )
   Sets raw data and returns a reference to the array.
 
   Dereferences the current array and sets the new array data to \e d and
-  the new array size to \e len.  Do not attempt to resize or re-assign the
+  the new array size to \e len.	 Do not attempt to resize or re-assign the
   array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
@@ -555,7 +554,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 		    break;
 	    }
 	    ii = i/4;
-            }
+	    }
 	    break;
 	default: {				// any size elements
 	    for ( i=index; i<shd->len; i+=sz ) {

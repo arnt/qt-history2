@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#23 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#24 $
 **
 ** Definition of QLineEdit widget class
 **
-** Author  : Eirik Eng
 ** Created : 941011
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -48,8 +47,8 @@ protected:
     void	timerEvent( QTimerEvent * );
     void	resizeEvent( QResizeEvent * );
 
-    bool        hasMarkedText() const;
-    QString     markedText() const;
+    bool	hasMarkedText() const;
+    QString	markedText() const;
 
 private slots:
     void	clipboardChanged();
@@ -64,7 +63,7 @@ private:
     void	del();
     void	home( bool mark );
     void	end( bool mark );
-    void        newMark( int pos, bool copy=TRUE );
+    void	newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );
     void	copyText();
     int		lastCharVisible() const;
@@ -76,8 +75,8 @@ private:
     int		cursorPos;
     int		offset;
     int		maxLen;
-    int         markAnchor;
-    int         markDrag;
+    int		markAnchor;
+    int		markDrag;
     bool	cursorOn;
     bool	dragScrolling;
     bool	scrollingLeft;

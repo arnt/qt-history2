@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#59 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#60 $
 **
 ** Definition of QPixmap class
 **
-** Author  : Haavard Nord
 ** Created : 940501
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

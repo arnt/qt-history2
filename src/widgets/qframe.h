@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#16 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#17 $
 **
 ** Definition of QFrame widget class
 **
-** Author  : Haavard Nord
 ** Created : 950201
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.

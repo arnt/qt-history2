@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#16 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#17 $
 **
 ** Definition of QMenuBar class
 **
-** Author  : Haavard Nord
 ** Created : 941209
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

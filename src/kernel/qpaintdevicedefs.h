@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#18 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#19 $
 **
 ** Definition of QPaintDevice constants and flags
 **
-** Author  : Haavard Nord
 ** Created : 940721
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

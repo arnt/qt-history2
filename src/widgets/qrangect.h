@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.h#10 $
+** $Id: //depot/qt/main/src/widgets/qrangect.h#11 $
 **
 ** Definition of QRangeControl class
 **
-** Author  : Eirik Eng
 ** Created : 940427
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

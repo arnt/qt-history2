@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#18 $
 **
 ** Implementation of QMessageBox class
 **
-** Author  : Haavard Nord
 ** Created : 950503
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#18 $");
 
 
 /*!
@@ -126,7 +125,7 @@ void QMessageBox::adjustSize()
     button->adjustSize();
     label->adjustSize();
     QString labelStr = label->text();
-    int	nlines = labelStr.contains( '\n' );
+    int nlines = labelStr.contains( '\n' );
     QFontMetrics fm = label->fontMetrics();
     nlines += 2;
     int w = QMAX(button->width(),label->width());

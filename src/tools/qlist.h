@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#15 $
+** $Id: //depot/qt/main/src/tools/qlist.h#16 $
 **
 ** Definition of QList template/macro class
 **
-** Author  : Haavard Nord
 ** Created : 920701
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -64,7 +63,7 @@ public:									      \
     uint  containsRef( const type *d ) const				      \
 					{ return QGList::containsRef((GCI)d);}\
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
-    int   at() const			{ return QGList::at(); }	      \
+    int	  at() const			{ return QGList::at(); }	      \
     type *current()  const		{ return (type *)QGList::get(); }     \
     QLNode *currentNode()  const	{ return QGList::currentNode(); }     \
     type *getFirst() const		{ return (type *)QGList::cfirst(); }  \
@@ -148,7 +147,7 @@ public:
     uint  containsRef( const type *d ) const
 					{ return QGList::containsRef((GCI)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
-    int   at() const			{ return QGList::at(); }
+    int	  at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
     QLNode *currentNode()  const	{ return QGList::currentNode(); }
     type *getFirst() const		{ return (type *)QGList::cfirst(); }

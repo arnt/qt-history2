@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#49 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#50 $
 **
 ** Definition of QApplication class
 **
-** Author  : Haavard Nord
 ** Created : 931107
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -70,7 +69,7 @@ public:
     static void	    flushX();
     static void	    syncX();
 
-    static void     beep();
+    static void	    beep();
 
 #if defined(_WS_MAC_)
     virtual bool    macEventFilter( MSG * );

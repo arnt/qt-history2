@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#10 $
 **
 ** Implementation of QSocketNotifier class
 **
-** Author  : Haavard Nord
 ** Created : 951114
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -49,9 +48,9 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \code
     int sockfd;					// socket identifier
     struct sockaddr_in sa;			// should contain host address
-    sockfd = socket( AF_INET, SOCK_STREAM, 0 );	// create socket
+    sockfd = socket( AF_INET, SOCK_STREAM, 0 ); // create socket
     ::connect( sockfd, (struct sockaddr*)&sa,	// connect to host
-    	       sizeof(sa) );			//   NOT QObject::connect()!
+	       sizeof(sa) );			//   NOT QObject::connect()!
     QSocketNotifier sn( sockfd, QSocketNotifier::Read );
     QObject::connect( &sn, SIGNAL(activated(int)),
 		      myObject, SLOT(dataReceived()) );
@@ -69,7 +68,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   Also observe that if you do not read all the available data when the
   read notifier fires, it fires again and again.
 
-  If you disable the read notifier, your program may deadlock.  Avoid
+  If you disable the read notifier, your program may deadlock.	Avoid
   it if you do not know what you are doing.  (The same applies to
   exception notifiers if you have to use that, for instance if you \e
   have to use TCP urgent data.)

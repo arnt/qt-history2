@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#9 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#10 $
 **
 ** Definition of tab dialog
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 

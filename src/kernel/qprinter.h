@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#13 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#14 $
 **
 ** Definition of QPrinter class
 **
-** Authors : Eirik Eng and Haavard Nord
 ** Created : 940927
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -75,10 +74,10 @@ private:
     QString	print_prog;
     QString	doc_name;
     QString	creator_name;
-    Orientation	orient;
+    Orientation orient;
     PageSize	page_size;
     short	from_pg, to_pg;
-    short	min_pg,  max_pg;
+    short	min_pg,	 max_pg;
     short	ncopies;
 
 private:	// Disabled copy constructor and operator=

@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#10 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#11 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
-** Author  : Haavard Nord
 ** Created : 920730
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.

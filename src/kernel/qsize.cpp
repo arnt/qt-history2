@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#16 $
 **
 ** Implementation of QSize class
 **
-** Author  : Haavard Nord
 ** Created : 931028
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -14,7 +13,7 @@
 #include "qsize.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#16 $");
 
 
 /*!

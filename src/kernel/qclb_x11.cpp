@@ -1,12 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#11 $
 **
 ** Implementation of QClipboard class for X11
 **
-** Author  : Haavard Nord
 ** Created : 960430
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#11 $");
 
 
 /*****************************************************************************
@@ -160,7 +159,7 @@ static void cleanupClipboardData()
 }
 
 static QClipboardData *clipboardData()
-{	
+{
     if ( internalCbData == 0 ) {
 	internalCbData = new QClipboardData;
 	CHECK_PTR( internalCbData );
@@ -242,7 +241,7 @@ void *QClipboard::data( const char *format ) const
     }
 
     prop = xevent.xselection.property;
-    win  = xevent.xselection.requestor;
+    win	 = xevent.xselection.requestor;
 
     static QByteArray buf( 256 );
     Atom	actual_type;
@@ -374,19 +373,19 @@ bool QClipboard::event( QEvent *e )
 	case SelectionRequest: {		// someone wants our data
 	    XSelectionRequestEvent *req = &xevent->xselectionrequest;
 	    XEvent evt;
-	    evt.xselection.type	= SelectionNotify;
+	    evt.xselection.type = SelectionNotify;
 	    evt.xselection.display	= req->display;
 	    evt.xselection.requestor	= req->requestor;
 	    evt.xselection.selection	= req->selection;
 	    evt.xselection.target	= req->target;
 	    evt.xselection.property	= None;
-	    evt.xselection.time	= req->time;
+	    evt.xselection.time = req->time;
 	    if ( req->target == XA_STRING ) {
 		XChangeProperty ( dpy, req->requestor, req->property,
 				  XA_STRING, 8,
 				  PropModeReplace,
 				  (uchar *)d->text(), strlen(d->text()) );
-		evt.xselection.property	= req->property;
+		evt.xselection.property = req->property;
 	    }
 	    XSendEvent( dpy, req->requestor, False, 0, &evt );
 	    }

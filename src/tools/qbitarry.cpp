@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#34 $
 **
 ** Implementation of QBitArray class
 **
-** Author  : Haavard Nord
 ** Created : 940118
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -13,10 +12,10 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#34 $");
 
 
-#define SHBLOCK  ((bitarr_data*)(sharedBlock()))
+#define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
 
 
 /*!
@@ -242,9 +241,9 @@ void QBitArray::setBit( uint index )
   Equivalent to:
   \code
     if ( value )
-        setBit( index );
+	setBit( index );
     else
-        clearBit( index );
+	clearBit( index );
   \endcode
 
   \sa clearBit(), toggleBit()
@@ -269,7 +268,7 @@ void QBitArray::clearBit( uint index )
 /*!
   Toggles the bit at position \e index.
 
-  If the previous value was 0, the new value will be 1.  If the previous
+  If the previous value was 0, the new value will be 1.	 If the previous
   value was 1, the new value will be 0.
 
   \sa setBit(), clearBit()

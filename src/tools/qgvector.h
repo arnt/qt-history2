@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#10 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#11 $
 **
 ** Definition of QGVector class
 **
-** Author  : Haavard Nord
 ** Created : 930907
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

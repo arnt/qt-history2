@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#137 $
 **
 ** Implementation of QWidget class
 **
-** Author  : Haavard Nord
 ** Created : 931031
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#136 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#137 $");
 
 
 /*!
@@ -162,7 +161,7 @@ inline bool QWidgetMapper::remove( WId id )
   Example:
   \code
     QLabel *toolTip = new QLabel( 0, "myToolTip",
-    				  WStyle_Customize | WStyle_NoBorder |
+				  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
 
@@ -1386,7 +1385,7 @@ void QWidget::adjustSize()
 
 /*!
   Returns a recommended size for the widget, or an invalid size if
-  no size is recommended. 
+  no size is recommended.
 
   The default implementation returns an invalid size.
 

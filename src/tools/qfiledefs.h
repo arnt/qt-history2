@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#14 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#15 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -8,7 +8,6 @@
 ** Common macros and system include files for QFile, QFileInfo and QDir.
 ** This file is included by qfile.cpp, qfileinf.cpp and qdir.cpp
 **
-** Author  : Haavard Nord
 ** Created : 930812
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.

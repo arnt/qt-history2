@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#57 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
-** Author  : Haavard Nord
 ** Created : 931203
 **
 ** Copyright (C) 1993-1996 by Troll Tech AS.  All rights reserved.
@@ -25,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#57 $");
 
 
 /*****************************************************************************
@@ -884,7 +883,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		DefWindowProc( hwnd, message, wParam, lParam );
 		hdc = GetWindowDC( hwnd );
 		GetWindowRect( hwnd, (LPRECT)&rc2 );
-		x = GetSystemMetrics(SM_CXSIZE)   +
+		x = GetSystemMetrics(SM_CXSIZE)	  +
 		    GetSystemMetrics(SM_CXBORDER) +
 		    GetSystemMetrics(SM_CXFRAME);
 		y = GetSystemMetrics(SM_CYFRAME);
@@ -893,16 +892,16 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 		rc1.right = rc2.right - rc2.left - 2*x -
 			     GetSystemMetrics( SM_CXFRAME );
 		rc1.bottom = GetSystemMetrics( SM_CYSIZE );
- 
+
 		SetBkColor( hdc, GetSysColor(COLOR_ACTIVECAPTION) );
 		SetTextColor( hdc, GetSysColor(COLOR_CAPTIONTEXT) );
 		DrawText( hdc, "X", -1,(LPRECT)&rc1, DT_RIGHT );
 		ReleaseDC( hwnd, hdc );
 		return 0;
-            } else {
-	        result = FALSE;
+	    } else {
+		result = FALSE;
 	    }
-            break;
+	    break;
 #endif
 
 	case WM_GETMINMAXINFO:

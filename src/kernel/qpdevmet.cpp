@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#11 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
-** Author  : Haavard Nord
 ** Created : 941109
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qpdevmet.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#11 $");
 
 
 /*!
@@ -24,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#10 $");
 
   Sometimes it is necessary to obtain information about the
   physical size of a paint device when drawing graphics.
-  
+
   Example:
   \code
     QPaintDeviceMetrics pdm( myWidget );

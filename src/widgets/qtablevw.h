@@ -1,9 +1,8 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#9 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#10 $
 **
 ** Definition of QTableView class
 **
-** Author  : Eirik Eng
 ** Created : 941115
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

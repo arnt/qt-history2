@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.h#5 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.h#6 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -8,7 +8,6 @@
 ** Definition of internal QPSPrinter class.
 ** QPSPrinter implements PostScript (tm) output via QPrinter.
 **
-** Author  : Eirik Eng
 ** Created : 940927
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -35,7 +34,7 @@ private:
     QTextStream stream;
     int		pageCount;
     bool	dirtyMatrix;
-    QString     fontsUsed;
+    QString	fontsUsed;
     friend class QPrinter;
 
 private:	// Disabled copy constructor and operator=
@@ -46,7 +45,7 @@ private:	// Disabled copy constructor and operator=
 
 // Additional commands for QPSPrinter
 
-#define PDC_PRT_NEWPAGE	100
+#define PDC_PRT_NEWPAGE 100
 #define PDC_PRT_ABORT	101
 
 

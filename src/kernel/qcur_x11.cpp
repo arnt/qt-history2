@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#39 $
 **
 ** Implementation of QCursor class for X11
 **
-** Author  : Haavard Nord
 ** Created : 940219
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.
@@ -20,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#39 $");
 
 
 /*****************************************************************************

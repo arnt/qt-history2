@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#14 $
 **
 ** Implementation of base class for all collection classes
 **
-** Author  : Haavard Nord
 ** Created : 920820
 **
 ** Copyright (C) 1992-1996 by Troll Tech AS.  All rights reserved.
@@ -12,7 +11,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#14 $");
 
 
 /*!
@@ -64,7 +63,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#13 $");
   has the only reference to the objects.
 
   Disabling auto-delete (\e enable is FALSE) will \e not delete objects
-  that are removed from the collection.  This is useful if the objects
+  that are removed from the collection.	 This is useful if the objects
   are part of many collections.
 
   The default setting is FALSE.

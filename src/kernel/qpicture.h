@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#14 $
 **
 ** Definition of QPicture class
 **
-** Author  : Haavard Nord
 ** Created : 940729
 **
 ** Copyright (C) 1994-1996 by Troll Tech AS.  All rights reserved.

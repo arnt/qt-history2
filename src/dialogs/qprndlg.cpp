@@ -1,9 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#12 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#13 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
-** Author  : Haavard Nord
 ** Created : 950829
 **
 ** Copyright (C) 1995-1996 by Troll Tech AS.  All rights reserved.
@@ -19,7 +18,7 @@
 #include "qpushbt.h"
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#13 $");
 
 
 //
@@ -63,10 +62,10 @@ static QObject *find_child( QObject *parent, const char *objname )
 QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
-    QComboBox   *combo;
+    QComboBox	*combo;
     QFrame	*frame;
-    QLabel      *label;
-    QLineEdit   *lined;
+    QLabel	*label;
+    QLineEdit	*lined;
     QPushButton *button;
 
     printer = prn;
@@ -163,13 +162,13 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     button->setText( "Ok" );
     button->setGeometry( 20,310, 80,30 );
     connect( button, SIGNAL(clicked()), SLOT(okClicked()) );
-    
+
     button = new QPushButton( this, "cancelButton" );
     button->setText( "Cancel" );
     button->setGeometry( 300,310, 80,30 );
     connect( button, SIGNAL(clicked()), SLOT(reject()) );
 
-    QUERY_WIDGET_TYPE( this, "QLabel",  setFont(font) );
+    QUERY_WIDGET_TYPE( this, "QLabel",	setFont(font) );
     QUERY_WIDGET_TYPE( this, "QButton", setFont(font) );
 
     font.setWeight( QFont::Normal );
@@ -184,19 +183,19 @@ void QPrintDialog::printerOrFileSelected( int index )
 {
     QLabel	*printerNameL	= WIDGET(this,QLabel,"printerNameLabel");
     QLineEdit	*printerName	= WIDGET(this,QLineEdit,"printerName");
-    QLabel	*printCommandL  = WIDGET(this,QLabel,"printCommandLabel");
+    QLabel	*printCommandL	= WIDGET(this,QLabel,"printCommandLabel");
     QLineEdit	*printCommand	= WIDGET(this,QLineEdit,"printCommand");
-    QLabel      *printFileL	= WIDGET(this,QLabel,"printFileLabel");
-    QLineEdit   *printFile	= WIDGET(this,QLineEdit,"printFile");
-    QPushButton *browseButton   = WIDGET(this,QPushButton,"browseButton");
-    bool 	 toPrinter = index == 0;
+    QLabel	*printFileL	= WIDGET(this,QLabel,"printFileLabel");
+    QLineEdit	*printFile	= WIDGET(this,QLineEdit,"printFile");
+    QPushButton *browseButton	= WIDGET(this,QPushButton,"browseButton");
+    bool	 toPrinter = index == 0;
 
     printerNameL ->setEnabled( toPrinter );
-    printerName  ->setEnabled( toPrinter );
+    printerName	 ->setEnabled( toPrinter );
     printCommandL->setEnabled( toPrinter );
     printCommand ->setEnabled( toPrinter );
-    printFileL   ->setEnabled( !toPrinter );
-    printFile    ->setEnabled( !toPrinter );
+    printFileL	 ->setEnabled( !toPrinter );
+    printFile	 ->setEnabled( !toPrinter );
     browseButton ->setEnabled( !toPrinter );
 }
 
@@ -218,7 +217,7 @@ void QPrintDialog::okClicked()
 {
     QLineEdit	*printerName	= WIDGET(this,QLineEdit,"printerName");
     QLineEdit	*printCommand	= WIDGET(this,QLineEdit,"printCommand");
-    QLineEdit   *printFile	= WIDGET(this,QLineEdit,"printFile");
+    QLineEdit	*printFile	= WIDGET(this,QLineEdit,"printFile");
     QComboBox	*orientation	= WIDGET(this,QComboBox,"orientation");
     QComboBox	*pageSize	= WIDGET(this,QComboBox,"pageSize");
     printer->setPrinterName( printerName->text() );
