@@ -1025,6 +1025,7 @@ QColor QColor::toHsv() const
         } else {
             Q_ASSERT_X(false, "QColor::toHsv", "internal error");
         }
+        color.ahsv.hue %= 36000;
     }
 
     return color;
