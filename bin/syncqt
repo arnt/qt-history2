@@ -138,9 +138,12 @@ exit 0;
 sub symlink_files()
 {
   my ($file, $ifile) = @_;
-  print "symlink created for $file";
+  print "symlink created for $file ";
   if ( $force_relative ) {
-    $file =~ s-^$basedir-..-;
+    my $t = `pwd`, $c = -1, $p = "../";
+    $t =~ s-^$basedir/--;
+    $p .= "../" while( ($c = index( $t, "/", $c + 1)) != -1 );
+    $file =~ s-^$basedir/-$p-;
     print " ($file)\n"
   }
   print "\n";
