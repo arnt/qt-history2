@@ -65,15 +65,6 @@
     \o \l{layouts/flowlayout}{Flow Layout}
     \endlist
 
-    \section1 Painting Examples
-
-    \list
-    \o \l{painting/basicdrawing}{Basic Drawing}
-    \o \l{painting/concentriccircles}{Concentric Circles}
-    \o \l{painting/painterpaths}{Painter Paths}
-    \o \l{painting/transformations}{Transformations}
-    \endlist
-
     \section1 Item View Examples
 
     \list
@@ -96,6 +87,21 @@
     \o \l{threads/mandelbrot}{Mandelbrot}\raisedaster
     \o \l{threads/semaphores}{Semaphores}\raisedaster
     \o \l{threads/waitconditions}{Wait Conditions}\raisedaster
+    \endlist
+
+    \section1 Painting Examples
+
+    \list
+    \o \l{painting/basicdrawing}{Basic Drawing}
+    \o \l{painting/concentriccircles}{Concentric Circles}
+    \o \l{painting/painterpaths}{Painter Paths}
+    \o \l{painting/transformations}{Transformations}
+    \endlist
+
+    \section1 OpenGL Examples
+
+    \list
+    \o \l{opengl/hellogl}{Hello GL}
     \endlist
 
     \section1 XML Examples

@@ -5,6 +5,7 @@ SUBDIRS       = designer \
                 layouts \
                 mainwindows \
                 network \
+                opengl \
                 painting \
                 sql \
                 threads \
