@@ -1552,7 +1552,10 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
             opt.state |= QStyle::Style_Down;
         else
             opt.state |= QStyle::Style_Up;
-        opt.rect.setRect(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight);
+        QRect ar(fr.x() + tw - arrowWidth - 6 + ew, 4, arrowWidth, arrowHeight);
+        if (label(section).isRightToLeft())
+            ar.moveBy( 2*(fr.right() - ar.right()) + ar.width() - fr.width(), 0 );
+        opt.rect.setRect(ar);
         style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, p, this);
     }
 }
