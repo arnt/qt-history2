@@ -33,7 +33,7 @@
 #include "qdirectpainter_qws.h"
 
 #ifdef Q_WS_QWS
-
+#ifndef QT_NO_DIRECTPAINTER
 #include <qgfxraster_qws.h>
 
 // gain access to some internal QGfx functionality you'll need.
@@ -229,5 +229,5 @@ void QDirectPainter::setAreaChanged( const QRect& r )
 {
     d->change = r;
 }
-
+#endif //QT_NO_DIRECTPAINTER
 #endif

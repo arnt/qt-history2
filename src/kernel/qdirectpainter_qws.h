@@ -38,7 +38,7 @@
 #endif // QT_H
 
 #ifdef Q_WS_QWS
-
+#ifndef QT_NO_DIRECTPAINTER
 class QDirectPainter : public QPainter {
 public:
     QDirectPainter( const QWidget* );
@@ -69,5 +69,5 @@ private:
 };
 
 #endif
-
+#endif
 #endif // QDIRECTPAINTER_H

@@ -296,6 +296,9 @@ do
     -accel-mach64)
 	CFG_QWS_MACH64=yes
 	;;
+    -shadowfb)
+	CFG_QWS_SHADOWFB=yes
+	;;
     -repeater)
 	CFG_QWS_REPEATER=yes
 	;;
@@ -1828,6 +1831,10 @@ fi
 if [ -z "$CFG_QWS_MACH64" -a "$EMBEDDED" != "no" ]
 then
     D_FLAGS="$D_FLAGS QT_NO_QWS_MACH64"
+fi
+if [ -z "$CFG_QWS_SHADOWFB" -a "$EMBEDDED" != "no" ]
+then
+    D_FLAGS="$D_FLAGS QT_NO_QWS_SHADOWFB"
 fi
 if [ -z "$CFG_QWS_REPEATER" -a "$EMBEDDED" != "no" ]
 then

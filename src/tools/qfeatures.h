@@ -26,6 +26,9 @@
 // Dialogs
 //#define QT_NO_DIALOG
 
+// QDirectPainter
+//#define QT_NO_DIRECTPAINTER
+
 // Special widget effects (fading, scrolling)
 //#define QT_NO_EFFECTS
 
@@ -115,6 +118,9 @@
 
 // Saving of fonts
 //#define QT_NO_QWS_SAVEFONTS
+
+// Shadow frame buffer
+//#define QT_NO_QWS_SHADOWFB
 
 // Transformed frame buffer
 //#define QT_NO_QWS_TRANSFORMED
@@ -293,11 +299,6 @@
 // Remote frame buffer (VNC)
 #if !defined(QT_NO_QWS_VNC) && (defined(QT_NO_NETWORK))
 #define QT_NO_QWS_VNC
-#endif
-
-// Shadow frame buffer
-#if !defined(QT_NO_QWS_SHADOWFB)
-#define QT_NO_QWS_SHADOWFB
 #endif
 
 // The "Windows" style

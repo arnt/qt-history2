@@ -97,3 +97,5 @@
 
 #define QT_NO_DATESTRING
 #define QT_NO_WMATRIX
+
+#define QT_NO_DIRECTPAINTER

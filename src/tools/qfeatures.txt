@@ -1243,3 +1243,9 @@ Requires: COMPONENT
 Name: QWidgetPlugin
 SeeAlso: ???
 
+
+Feature: DIRECTPAINTER
+Section: Painting
+Requires:
+Name: QDirectPainter
+SeeAlso: ???
