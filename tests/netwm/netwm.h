@@ -122,7 +122,7 @@ public:
     NETWinInfo(Display *, Window, Window, unsigned long, Role = Client);
     NETWinInfo(const NETWinInfo &);
     virtual ~NETWinInfo();
-
+    
     inline unsigned long properties() const;
 
     void setIcon(NETIcon, Bool = true);
@@ -161,7 +161,6 @@ protected:
 
 private:
     void update(unsigned long);
-    void setProperties();
 
     NETWinInfoPrivate *p;
     Role role;
