@@ -13,23 +13,6 @@
 #include "book.h"
 #include "../login.h"
 
-bool createConnections();
-
-int main( int argc, char *argv[] ) 
-{
-    QApplication app( argc, argv );
-
-    if ( ! createConnections() ) 
-	return 1;
-
-    BookForm bookForm;
-    app.setMainWidget( &bookForm );
-    bookForm.show();
-
-    return app.exec();
-}
-
-
 bool createConnections()
 {
     // create the default database connection
@@ -53,3 +36,16 @@ bool createConnections()
 }
 
 
+int main( int argc, char *argv[] ) 
+{
+    QApplication app( argc, argv );
+
+    if ( ! createConnections() ) 
+	return 1;
+
+    BookForm bookForm;
+    app.setMainWidget( &bookForm );
+    bookForm.show();
+
+    return app.exec();
+}
