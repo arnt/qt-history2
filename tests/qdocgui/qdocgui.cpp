@@ -44,6 +44,13 @@ QDocMainWindow::QDocMainWindow( QWidget* parent, const char* name ) : QMainWindo
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
     vb->addLayout( hb );
     qtdirenv = getenv( "QTDIR" );
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    int x = settings.readNumEntry( "/qDocGUI/geometry/x", 20 );
+    int y = settings.readNumEntry( "/qDocGUI/geometry/y", 20 );
+    int width = settings.readNumEntry( "/qDocGUI/geometry/width", 200 );
+    int height = settings.readNumEntry( "/qDocGUI/geometry/height", 200 );
+    setGeometry( x, y, width, height );
     init();
 }
 
@@ -115,7 +122,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		while ( i != lst.end() ) {
 		    f.setName(qtdirenv + "/src/" + (*i) + '/' + fileText);
 		    if ( f.exists() ) {
-			filename = qtdirenv + "/src/" + (*i) + '/' + fileText;
+			filename = qtdirenv + "/include/" + item->parent()->text(0) + " "; // Include file first
+			filename += qtdirenv + "/src/" + (*i) + '/' + fileText; // source or doc file second
 			break;
 		    }
 		    ++i;
@@ -223,7 +231,12 @@ void QDocMainWindow::finished()
 
 QDocMainWindow::~QDocMainWindow()
 {
-    // Empty
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    settings.writeEntry( "/qDocGUI/geometry/x", geometry().x() );
+    settings.writeEntry( "/qDocGUI/geometry/y", geometry().y() );
+    settings.writeEntry( "/qDocGUI/geometry/width", width() );
+    settings.writeEntry( "/qDocGUI/geometry/height", height() );
 }
 
 int main( int argc, char** argv )
@@ -231,7 +244,6 @@ int main( int argc, char** argv )
     QApplication a( argc, argv );
 
     QDocMainWindow qdmw;
-    qdmw.setGeometry( 50, 50, 350, 500 );
     a.setMainWidget( &qdmw );
     qdmw.show();
     return a.exec();
