@@ -6171,6 +6171,8 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
   \property QWidget::toolTip
 
   \brief the widget's tooltip
+
+  \sa QToolTip statusTip whatsThis
 */
 void QWidget::setToolTip(const QString &s)
 {
@@ -6186,6 +6188,8 @@ QString QWidget::toolTip() const
   \property QWidget::statusTip
 
   \brief the widget's status tip
+
+  \sa toolTip whatsThis
 */
 void QWidget::setStatusTip(const QString &s)
 {
@@ -6201,6 +6205,8 @@ QString QWidget::statusTip() const
   \property QWidget::whatsThis
 
   \brief the widget's What's This help.
+
+  \sa QWhatsThis toolTip statusTip
 */
 void QWidget::setWhatsThis(const QString &s)
 {
