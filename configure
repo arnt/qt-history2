@@ -525,6 +525,21 @@ while [ "$#" -gt 0 ]; do
 	solaris-64)
 	    PLATFORM=solaris-cc-64
 	    ;;
+	solaris-64)
+	    PLATFORM=solaris-cc-64
+	    ;;
+	openunix-cc)
+	    PLATFORM=unixware-cc
+	    ;;
+	openunix-g++)
+	    PLATFORM=unixware-g++
+	    ;;
+	unixware7-cc)
+	    PLATFORM=unixware-cc
+	    ;;
+	unixware7-g++)
+	    PLATFORM=unixware-g++
+	    ;;
 	esac
 	;;
     xplatform)
@@ -1149,12 +1164,6 @@ if [ -z "$PLATFORM" ]; then
 #     DYNIX/ptx:4*)
 #	PLATFORM=dynix-g++
 #	;;
-#     HI-UX/MPP:*) 
-#	PLATFORM=hitachi-cc
-#	PLATFORM_NOTES="
-#	    - Also available for Hitachi UNIX: hitachi-g++
-#	"
-#	;;
      ULTRIX:*)
 	PLATFORM=ultrix-g++
 	;;
@@ -1221,17 +1230,17 @@ if [ -z "$PLATFORM" ]; then
 	PLATFORM=cygwin-g++
 	;;
      OpenUNIX:*)
-	#PLATFORM=unixware7-g++
-        PLATFORM=unixware7-cc
+	#PLATFORM=unixware-g++
+        PLATFORM=unixware-cc
 	PLATFORM_NOTES="
-	    - Also available for OpenUNIX: unixware7-g++
+	    - Also available for OpenUNIX: unixware-g++
 	"
         ;;
      UnixWare:*)
-	#PLATFORM=unixware7-g++
-	PLATFORM=unixware7-cc
+	#PLATFORM=unixware-g++
+	PLATFORM=unixware-cc
 	PLATFORM_NOTES="
-	    - Also available for UnixWare 7: unixware7-g++
+	    - Also available for UnixWare: unixware-g++
 	"
 	;;
      SCO_SV:*)
