@@ -22,23 +22,19 @@ of documents available, including<ul>
 A technical introduction to Unicode</a>
 <li><a href="http://www.unicode.org/unicode/standard/standard.html">
 The home page for the standard</a>
-<li><a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
-The home page of the upcoming version 3.0</a>
 
 </ul>
 
 <p>
 
-<b>The Standard.</b> The current version of the standard is 2.1.9, 3.0
-is coming soon. <ul>
+<b>The Standard.</b> The current version of the standard is 3.0.0. <ul>
 
 <li> <a href="http://www.amazon.com/exec/obidos/ASIN/0201473459/trolltech/t">
 The Unicode Standard, version 2.0.</a>  See also the
 <a href="http://www.unicode.org/unicode/reports/tr8.html">2.1 update</a> and
 <a href="http://www.unicode.org/unicode/standard/versions/enumeratedversions.html#Unicode 2.1.9">the 2.1.9 data files</a> at www.unicode.org.
 <li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
-The Unicode Standard, version 3.0.</a> (Finalized, but not yet published
-at the time of writing.)  See also
+The Unicode Standard, version 3.0.</a>  See also
 <a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
 its home page.</a>
 
@@ -107,7 +103,7 @@ fast functions for mapping to and from them.  For example, to open an
 application's icon one might do this:
 
 \code
-	QFile f( QString::fromLatin1( "appicon.png" ) );
+	QFile f( QString::fromLatin1("appicon.png") );
 \endcode
 
 Regarding output, Qt will do a best-effort conversion from Unicode to
