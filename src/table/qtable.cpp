@@ -3460,7 +3460,7 @@ void QTable::doAutoScroll()
 	}
 	setCurrentCell( tmpRow, tmpCol, FALSE );
 	repaintSelections( useOld ? &oldSelection : 0, currentSel );
-	if ( !currentSel && oldSelection != *currentSel )
+	if ( currentSel && oldSelection != *currentSel )
 	    emit selectionChanged();
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
