@@ -582,7 +582,7 @@ QTextCodec* QTextCodec::codecForLocale()
         else if ( try_locale_list( iso8859_7locales, lang ) )
             localeMapper = codecForName( "ISO 8859-7" );
         else if ( try_locale_list( iso8859_8locales, lang ) )
-            localeMapper = codecForName( "ISO 8859-8" );
+            localeMapper = codecForName( "ISO 8859-8-I" );
         else if ( try_locale_list( iso8859_9locales, lang ) )
             localeMapper = codecForName( "ISO 8859-9" );
         else if ( try_locale_list( iso8859_15locales, lang ) )
@@ -1339,7 +1339,7 @@ static struct {
         0x042C, 0x042B, 0x0417, 0x0428, 0x042D, 0x0429, 0x0427, 0x042A } },
     // /**/  - The BULLET OPERATOR is confused.  Some people think
     //          it should be 0x2022 (BULLET).
-		    
+
     // from RFC 2319, ftp://ftp.isi.edu/in-notes/rfc2319.txt
     { "KOI8-U", 2088,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
@@ -1366,23 +1366,6 @@ static struct {
     // $ for A in 8 9 A B C D E F ; do for B in 0 1 2 3 4 5 6 7 8 9 A B C D E F ; do echo 0x${A}${B} 0xFFFD ; done ; done > /tmp/digits ; for a in 8859-* ; do ( awk '/^0x[89ABCDEF]/{ print $1, $2 }' < $a ; cat /tmp/digits ) | sort | uniq -w4 | cut -c6- | paste '-d ' - - - - - - - - | sed -e 's/ /, /g' -e 's/$/,/' -e '$ s/,$/} },/' -e '1 s/^/{ /' > ~/tmp/$a ; done
 
     // then I inserted the files manually.
-    { "ISO 8859-1", 4,
-        { 0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
-              0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
-              0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
-              0x0098, 0x0099, 0x009A, 0x009B, 0x009C, 0x009D, 0x009E, 0x009F,
-              0x00A0, 0x00A1, 0x00A2, 0x00A3, 0x00A4, 0x00A5, 0x00A6, 0x00A7,
-              0x00A8, 0x00A9, 0x00AA, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x00AF,
-              0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x00B4, 0x00B5, 0x00B6, 0x00B7,
-              0x00B8, 0x00B9, 0x00BA, 0x00BB, 0x00BC, 0x00BD, 0x00BE, 0x00BF,
-              0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C4, 0x00C5, 0x00C6, 0x00C7,
-              0x00C8, 0x00C9, 0x00CA, 0x00CB, 0x00CC, 0x00CD, 0x00CE, 0x00CF,
-              0x00D0, 0x00D1, 0x00D2, 0x00D3, 0x00D4, 0x00D5, 0x00D6, 0x00D7,
-              0x00D8, 0x00D9, 0x00DA, 0x00DB, 0x00DC, 0x00DD, 0x00DE, 0x00DF,
-              0x00E0, 0x00E1, 0x00E2, 0x00E3, 0x00E4, 0x00E5, 0x00E6, 0x00E7,
-              0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
-              0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7,
-              0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF} },
     { "ISO 8859-2", 5,
         { 0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
               0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
@@ -1536,7 +1519,7 @@ static struct {
               0x010D, 0x00E9, 0x0119, 0x00EB, 0x0117, 0x00ED, 0x00EE, 0x00EF,
               0x00F0, 0x0146, 0x014D, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x0169,
               0x00F8, 0x0173, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x0138} },
-    { "ISO 8859-13", 109, 
+    { "ISO 8859-13", 109,
         { 0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
               0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
               0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -1553,7 +1536,7 @@ static struct {
               0x010D, 0x00E9, 0x017A, 0x0117, 0x0123, 0x0137, 0x012B, 0x013C,
               0x0161, 0x0144, 0x0146, 0x00F3, 0x014D, 0x00F5, 0x00F6, 0x00F7,
               0x0173, 0x0142, 0x015B, 0x016B, 0x00FC, 0x017C, 0x017E, 0x2019} },
-    { "ISO 8859-14", 110, 
+    { "ISO 8859-14", 110,
         { 0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
               0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
               0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -1570,7 +1553,7 @@ static struct {
               0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
               0x0175, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x1E6B,
               0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x0177, 0x00FF} },
-    { "ISO 8859-15", 111, 
+    { "ISO 8859-15", 111,
         { 0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,
               0x0088, 0x0089, 0x008A, 0x008B, 0x008C, 0x008D, 0x008E, 0x008F,
               0x0090, 0x0091, 0x0092, 0x0093, 0x0094, 0x0095, 0x0096, 0x0097,
@@ -1891,7 +1874,9 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
             return QTextCodec::heuristicNameMatch("koi8-r")-1;
     } else if ( hint[0] == 't' && QCString(name()) == "ISO 8859-11" ) {
 	// 8859-11 and tis620 are byte by bute equivalent
-	int i = simpleHeuristicNameMatch("tis-620", hint);
+	int i = simpleHeuristicNameMatch("tis620-0", hint);
+	if( !i )
+	    i = simpleHeuristicNameMatch("tis-620", hint);
 	if( i ) return i;
     }
     return QTextCodec::heuristicNameMatch(hint);
@@ -1921,27 +1906,7 @@ int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
 }
 
 
-static void setupBuiltinCodecs()
-{
-    int i = 0;
-    do {
-        (void)new QSimpleTextCodec( i );
-    } while( unicodevalues[i++].mib != LAST_MIB );
-
-    (void)new QEucJpCodec;
-    (void)new QSjisCodec;
-    (void)new QJisCodec;
-    (void)new QEucKrCodec;
-    (void)new QGbkCodec;
-    (void)new QBig5Codec;
-    (void)new QUtf8Codec;
-    (void)new QUtf16Codec;
-    (void)new QHebrewCodec;
-    (void)new QArabicCodec;
-    (void)new QTsciiCodec;
-}
-
-#else
+#endif // QT_NO_CODECS
 
 class QLatin1Codec: public QTextCodec
 {
@@ -1977,12 +1942,10 @@ QLatin1Codec::~QLatin1Codec()
 // what happens if strlen(chars)<len?  what happens if !chars?  if len<1?
 QString QLatin1Codec::toUnicode(const char* chars, int len) const
 {
-    QString r;
-    const unsigned char * c = (const unsigned char *)chars;
-    for( int i=0; i<len && c[i]; i++ ) { // Note: NUL ends string
-            r[i] = c[i];
-    }
-    return r;
+    if(len <= 0)
+        return QString::null;
+
+    return QString::fromLatin1(chars, len);
 }
 
 
@@ -1991,11 +1954,12 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
     if ( len <0 || len > (int)uc.length() )
         len = uc.length();
     QCString r( len+1 );
-    int i;
-    int u;
-    for( i=0; i<len; i++ ) {
-        u = uc[i].cell() + 256* uc[i].row();
-        r[i] = u < 255 ? u : '?';
+    int i = 0;
+    const QChar *ch = uc.unicode();
+    while ( i < len ) {
+	r[i] = ch->row() ? '?' : ch->cell();
+	i++;
+	ch++;
     }
     r[len] = 0;
     return r;
@@ -2004,7 +1968,7 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 
 const char* QLatin1Codec::name() const
 {
-    return "iso8859-1";
+    return "ISO 8859-1";
 }
 
 
@@ -2038,11 +2002,28 @@ int QLatin1Codec::heuristicContentMatch(const char* chars, int len) const
 }
 
 
-
 static void setupBuiltinCodecs()
 {
     (void)new QLatin1Codec;
-}
+
+#ifndef QT_NO_CODECS
+    int i = 0;
+    do {
+        (void)new QSimpleTextCodec( i );
+    } while( unicodevalues[i++].mib != LAST_MIB );
+
+    (void)new QEucJpCodec;
+    (void)new QSjisCodec;
+    (void)new QJisCodec;
+    (void)new QEucKrCodec;
+    (void)new QGbkCodec;
+    (void)new QBig5Codec;
+    (void)new QUtf8Codec;
+    (void)new QUtf16Codec;
+    (void)new QHebrewCodec;
+    (void)new QArabicCodec;
+    (void)new QTsciiCodec;
 #endif // QT_NO_CODECS
+}
 
 #endif // QT_NO_TEXTCODEC
