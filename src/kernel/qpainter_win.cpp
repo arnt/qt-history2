@@ -355,6 +355,7 @@ void QPainter::init()
     txop = txinv = 0;
     pixmapBrush = nocolBrush = killFont = FALSE;
     penRef = brushRef = 0;
+    pfont = 0;
 }
 
 

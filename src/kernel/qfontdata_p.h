@@ -221,10 +221,7 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
-#ifdef Q_WS_X11
 	paintdevice = 0;
-#endif
-
     }
 
     QFontPrivate(const QFontPrivate &fp)
@@ -238,11 +235,23 @@ public:
 #if defined(Q_WS_WIN)
 	currHDC = 0;
 #endif // Q_WS_WIN
-#ifdef Q_WS_X11
 	paintdevice = 0;
-#endif
     }
 
+    QFontPrivate( const QFontPrivate &fp, QPaintDevice *pd )
+	: QShared(), request(fp.request), actual(fp.actual),
+	  exactMatch(fp.exactMatch), lineWidth(1)
+    {
+
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
+	fin = 0;
+#endif // Q_WS_WIN || Q_WS_QWS
+#if defined(Q_WS_WIN)
+	currHDC = 0;
+#endif // Q_WS_WIN
+	paintdevice = pd;
+    }
+    
     // requested font
     QFontDef request;
     // actual font
@@ -420,11 +429,11 @@ public:
 	    }
 	}
     } x11data;
-    QPaintDevice *paintdevice;
-
     static QFont::Script defaultScript;
 
 #endif // Q_WS_X11
+
+    QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
     ~QFontPrivate() { if( fin ) fin->deref(); }

@@ -228,6 +228,7 @@ void QPainter::init()
 #else
     xlatex = xlatey = 0;
 #endif
+    pfont = 0;
 }
 
 

@@ -584,6 +584,7 @@ void QPainter::init()
     txop = txinv = 0;
     penRef = brushRef = 0;
     clip_serial = 0;
+    pfont = 0;
 }
 
 
@@ -620,6 +621,8 @@ void QPainter::updateFont()
 {
     clearf(DirtyFont);
     if ( testf(ExtDev) ) {
+	if ( pfont ) delete pfont;
+	pfont = new QFont( cfont.d, pdev );
         QPDevCmdParam param[1];
         param[0].font = &cfont;
         if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !hd )
@@ -1221,6 +1224,11 @@ bool QPainter::end()                            // end painting
     }
 #endif // QT_NO_XRENDER
 
+    if ( pfont ) {
+	delete pfont;
+	pfont = 0;
+    }
+    
     flags = 0;
     pdev->painters--;
     pdev = 0;

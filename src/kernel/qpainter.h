@@ -317,6 +317,7 @@ private:
     uchar	pu;
     QPoint	bro;
     QFont	cfont;
+    QFont *pfont; 	// font used for metrics (might be different for printers)
     QPen	cpen;
     QBrush	cbrush;
     QRegion	crgn;

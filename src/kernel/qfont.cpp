@@ -351,6 +351,15 @@ QFont::QFont( QFontPrivate *data, bool deep )
     }
 }
 
+QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
+{
+    d = new QFontPrivate( *data, pd );
+    Q_CHECK_PTR( d );
+
+    // now a single reference
+    d->count = 1;
+}
+
 
 /*!
   \internal
@@ -1616,7 +1625,10 @@ QFontMetrics::QFontMetrics( const QPainter *p )
 #endif
 
     painter->setf(QPainter::FontMet);
-    d = painter->cfont.d;
+    if ( painter->pfont )
+	d = painter->pfont->d;
+    else
+	d = painter->cfont.d;
     d->ref();
 
     d->load();

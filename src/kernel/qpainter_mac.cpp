@@ -202,6 +202,7 @@ void QPainter::init()
     brush_style_pix = 0;
     locked = unclipped = FALSE;
     paintreg = QRegion();
+    pfont = 0;
 }
 
 

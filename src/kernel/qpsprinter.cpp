@@ -2275,7 +2275,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     if ( text.length() == 0 )
         return;
 
-    int x = p.x();
+    float x = p.x();
     if ( spaces > 0 )
         x += spaces * d->fm->width( ' ' );
 
@@ -2284,8 +2284,7 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
         stream << y << " Y";
     d->textY = y;
 
-    int w = d->fm->width( text ); // Will this work? Sivan
-
+    float w = d->fm->width( text ); 
     stream << "<";
     QString s;
     int i;
@@ -2303,10 +2302,10 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 
     if ( paint->font().underline() )
         stream << ' ' << y + d->fm->underlinePos() +1
-               << " " << d->fm->ascent()/d->scale/20 << " Tl";
+               << " " << d->fm->ascent()/20 << " Tl";
     if ( paint->font().strikeOut() )
         stream << ' ' << y + d->fm->strikeOutPos()
-               << " " << d->fm->ascent()/d->scale/20 << " Tl";
+               << " " << d->fm->ascent()/20 << " Tl";
     stream << " T\n";
 
 }
@@ -6318,6 +6317,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         break;
     case PdcSetFont:
         d->currentSet = *(p[0].font);
+	(*d->fm) = paint->fontMetrics();
         // turn these off - they confuse the 'avoid font change' logic
         d->currentSet.setUnderline( FALSE );
         d->currentSet.setStrikeOut( FALSE );

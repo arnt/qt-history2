@@ -2435,7 +2435,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
-	QFontMetrics fm( font );
+	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
 	QString parStr( str.left( len ) );
 #ifndef QT_NO_REGEXP
 	if ( noaccel || showprefix )
