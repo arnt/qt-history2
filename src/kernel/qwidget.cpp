@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#236 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#235 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#236 $");
 
 
 /*!
@@ -114,10 +114,12 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#235 $");
 
   <li> Mode:
 	isVisible(),
-	isVisibleToTLW,
+	isVisibleTo(),
+	isVisibleToTLW(),
 	isDesktop(),
 	isEnabled(),
-	isEnabled()ToTLW,
+	isEnabledTo(),
+	isEnabledToTLW(),
 	isModal(),
 	isPopup(),
 	isTopLevel(),
@@ -590,7 +592,8 @@ void QWidget::sendDeferredEvents()
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
-      pal( *qApp->palette() )			// use application palette
+      pal( parent ? parent->palette()		// use parent's palette
+           : *qApp->palette() )			// use application palette
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -1014,19 +1017,38 @@ void QWidget::styleChange( GUIStyle )
 
 
 /*!
+  Returns TRUE if this widget and every parent up to but excluding
+  \a ancestor is enabled, otherwise returns FALSE.
+
+  \sa setEnabled() isEnabled()
+*/
+
+bool QWidget::isEnabledTo(QWidget* ancestor) const
+{
+    const QWidget * w = this;
+    while ( w && w->isEnabled()
+	    && !w->isTopLevel()
+	    && w->parentWidget()
+	    && w->parentWidget()!=ancestor
+	)
+	w = w->parentWidget();
+    return w->isEnabled();
+}
+
+
+/*!
   Returns TRUE if this widget and every parent up to the \link
   topLevelWidget() top level widget \endlink is enabled, otherwise
   returns FALSE.
+
+  This is equivalent to isEnabledTo(0).
 
   \sa setEnabled() isEnabled()
 */
 
 bool QWidget::isEnabledToTLW() const
 {
-    const QWidget * w = this;
-    while ( w && w->isEnabled() && !w->isTopLevel() && w->parentWidget() )
-	w = w->parentWidget();
-    return w->isEnabled();
+    return isEnabledTo(0);
 }
 
 
@@ -1616,7 +1638,7 @@ const QColorGroup &QWidget::colorGroup() const
   If \a palettePropagation() is \c AllChildren or \c SamePalette,
   setPalette() calls setPalette() for children of the object, or those
   with whom the object shares the palette, respectively.  The default
-  is \a NoChildren, so setPalette() will not change the children's
+  for QWidget is \a NoChildren, so setPalette() will not change the children's
   palettes.
 
   \sa QApplication::setPalette(), palette(), paletteChange(),
@@ -1688,8 +1710,8 @@ void QWidget::paletteChange( const QPalette & )
 
   If \a fontPropagation() is \c AllChildren or \c SameFont, setFont()
   calls setFont() for children of the object, or those with whom the
-  object shares the font, respectively.  The default is \a NoChildren,
-  so setFont() will not change the children's fonts.
+  object shares the font, respectively.  The default for QWidget
+  is \a NoChildren, so setFont() will not change the children's fonts.
 
   \sa font(), fontChange(), fontInfo(), fontMetrics(), setFontPropagation()
 */
@@ -2577,9 +2599,8 @@ bool QWidget::close( bool forceKill )
 
 
 /*!
-  Returns TRUE if this widget and every parent up to the \link
-  topLevelWidget() top level widget \endlink is visible, otherwise
-  returns FALSE.
+  Returns TRUE if this widget and every parent up to but excluding
+  \a ancestor is visible, otherwise returns FALSE.
 
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
@@ -2587,12 +2608,35 @@ bool QWidget::close( bool forceKill )
   \sa show(), hide(), isVisible(), iconified()
 */
 
-bool QWidget::isVisibleToTLW() const
+bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
-    while ( w && w->isVisible() && !w->isTopLevel() && w->parentWidget() )
+    while ( w && w->isVisible()
+	    && !w->isTopLevel()
+	    && w->parentWidget()
+	    && w->parentWidget()!=ancestor
+	)
 	w = w->parentWidget();
     return w->isVisible();
+}
+
+
+/*!
+  Returns TRUE if this widget and every parent up to the \link
+  topLevelWidget() top level widget \endlink is visible, otherwise
+  returns FALSE.
+
+  This function returns TRUE if the widget it is obscured by other
+  windows on the screen, but would be visible if moved.
+
+  This is equivalent to isVisibleTo(0).
+
+  \sa show(), hide(), isVisible(), iconified()
+*/
+
+bool QWidget::isVisibleToTLW() const
+{
+    return isVisibleTo(0);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#145 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#146 $
 **
 ** Definition of QWidget class
 **
@@ -50,6 +50,7 @@ public:
     bool	 isDesktop()	const;
 
     bool	 isEnabled()	const;
+    bool	 isEnabledTo(QWidget*) const;
     bool	 isEnabledToTLW() const;
 public slots:
     virtual void setEnabled( bool );
@@ -195,6 +196,7 @@ public slots:
 public:
     virtual bool close( bool forceKill=FALSE );
     bool	 isVisible()	const;
+    bool	 isVisibleTo(QWidget*) const;
     bool	 isVisibleToTLW() const;
 
 public slots:
