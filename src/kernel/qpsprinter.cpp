@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#103 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1950,6 +1950,7 @@ static struct {
     const char * light;
     const char * lightItalic;
 } postscriptFontNames[] = {
+    { "arial", "Arial", 0, 0, 0, 0, 0 },
     { "avantgarde", "AvantGarde-Book", 0, 0, 0, 0, 0 },
     { "charter", "CharterBT-Roman", 0, 0, 0, 0, 0 },
     { "garamond", "Garamond-Regular", 0, 0, 0, 0, 0 },
@@ -1961,6 +1962,7 @@ static struct {
     { "new century schoolbook", "NewCenturySchlbk-Roman", 0, 0, 0, 0, 0 },
     { "symbol", "Symbol", "Symbol", "Symbol", "Symbol", "Symbol", "Symbol" },
     { "terminal", "Courier", 0, 0, 0, 0, 0 },
+    { "times new roman", "TimesNewRoman", 0, 0, 0, 0, 0 },
     { "utopia", "Utopia-Regular", 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0 }
 };
