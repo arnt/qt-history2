@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#54 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -19,7 +19,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#54 $");
 
 
 /*!
@@ -27,7 +27,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#53 $");
 
   \brief The QFont class specifies a font used for drawing text.
 
-  \ingroup font
+  \ingroup fonts
   \ingroup drawing
 
   A QFont has a series of attributes that can be set to specify an abstract
@@ -996,7 +996,7 @@ void QFontMetrics::reset( const QPainter *p )
   \brief The QFontMetrics class provides font metrics information about
   the current font for a widget or a painter.
 
-  \ingroup font
+  \ingroup fonts
 
   QFontMetrics functions calculate size of characters and strings for a given
   font.
@@ -1205,7 +1205,7 @@ void QFontInfo::reset( const QPainter *p )
   \brief The QFontInfo class provides information about the current
   font for a widget or a painter.
 
-  \ingroup font
+  \ingroup fonts
 
   The QFont class might not always map exactly to the specified font for
   a paint device. The QFontInfo class provides information of the actual

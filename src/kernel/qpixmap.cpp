@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#53 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,12 +16,15 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#53 $");
 
 
 /*!
   \class QPixmap qpixmap.h
   \brief The QPixmap class is an off-screen buffer paint device.
+
+  \ingroup drawing
+  \ingroup shared
 
   A common use of the QPixmap class is to enable smooth updating of
   widgets.  Whenever something complex needs to be drawn, you can use

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#54 $
 **
 ** Implementation of QColor class
 **
@@ -12,13 +12,15 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#54 $");
 
 
 /*!
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.
+
   \ingroup color
+  \ingroup drawing
 
   A color is normally specified in terms of RGB (red,green and blue)
   components, but it is also possible to specify HSV (hue,saturation and
