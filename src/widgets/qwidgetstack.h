@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qframe.h"
 #include "qintdict.h"
-#include "qptrdict.h"
 #endif // QT_H
 
 #ifndef QT_NO_WIDGETSTACK
@@ -31,8 +30,7 @@ class Q_EXPORT QWidgetStack: public QFrame
 {
     Q_OBJECT
 public:
-    QWidgetStack( QWidget* parent=0, const char* name=0 );
-    QWidgetStack( QWidget* parent, const char* name, WFlags f);
+    QWidgetStack(QWidget* parent=0, const char* name=0, WFlags f = 0);
 
     ~QWidgetStack();
 
@@ -66,12 +64,8 @@ protected:
     void childEvent( QChildEvent * );
     bool event( QEvent * );
 
-private:
-    void init();
-
     QWidgetStackPrivate * d;
     QIntDict<QWidget> * dict;
-    QPtrDict<QWidget> * focusWidgets;
     QWidget * topWidget;
     QWidget * invisible;
 

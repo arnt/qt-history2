@@ -18,7 +18,6 @@
 #include "qevent.h"
 #include "qhash.h"
 #include "qptrdict.h"
-#include "qfocusdata.h"
 #include "qcursor.h"
 #include "qpixmap.h"
 #include "qapplication.h"
@@ -733,7 +732,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     winid = 0;					// default attributes
     widget_state = 0;
     widget_flags = f;
+
     focus_policy = 0;
+
     own_font = 0;
     own_palette = 0;
     sizehint_forced = 0;
@@ -766,9 +767,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 						    crect.size()) );
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
-	    fd->focusWidgets.append( this );
+	d->createTLExtra();
     } else {
 	// propagate enabled state
 	if ( !parentWidget()->isEnabled() )
@@ -777,6 +776,19 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	if (parentWidget()->isVisible())
 	    setWState(WState_Hidden);
     }
+
+    if (isTopLevel()) {
+	d->focus_next = this;
+    } else {
+	// insert at the end of the focus chain
+	QWidget *focus_handler = topLevelWidget();
+	QWidget *w = focus_handler;
+	while (w->d->focus_next != focus_handler)
+	    w = w->d->focus_next;
+	w->d->focus_next = this;
+	d->focus_next = focus_handler;
+    }
+
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
 }
@@ -800,7 +812,9 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     winid = 0;					// default attributes
     widget_state = 0;
     widget_flags = f;
+
     focus_policy = 0;
+
     own_font = 0;
     own_palette = 0;
     sizehint_forced = 0;
@@ -833,9 +847,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 						    crect.size()) );
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
-	QFocusData *fd = focusData( TRUE );
-	if ( fd->focusWidgets.findRef(this) < 0 )
-	    fd->focusWidgets.append( this );
+	d->createTLExtra();
     } else {
 	// propagate enabled state
 	if ( !parentWidget()->isEnabled() )
@@ -844,6 +856,19 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 	if (parentWidget()->isVisible())
 	    setWState(WState_Hidden);
     }
+
+    if (isTopLevel()) {
+	d->focus_next = this;
+    } else {
+	// insert at the end of the focus chain
+	QWidget *focus_handler = topLevelWidget();
+	QWidget *w = focus_handler;
+	while (w->d->focus_next != focus_handler)
+	    w = w->d->focus_next;
+	w->d->focus_next = this;
+	d->focus_next = focus_handler;
+    }
+
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
 }
@@ -863,21 +888,13 @@ QWidget::~QWidget()
 	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif
 
-    // Remove myself and all children from the can-take-focus list
-    QFocusData *f = focusData( FALSE );
-    if ( f ) {
-	QPtrListIterator<QWidget> it(f->focusWidgets);
-	QWidget *w;
-	while ( (w = it.current()) ) {
-	    ++it;
-	    QWidget * p = w;
-	    while( p && p != this )
-		p = p->parentWidget();
-	    if ( p ) // my descendant
-		f->focusWidgets.removeRef( w );
-	}
-    }
-    --instanceCounter;
+    // Remove myself focus list
+    // ### Focus: maybe remove children aswell?
+    QWidget *w = this;
+    while (w->d->focus_next != this)
+	w = w->d->focus_next;
+    w->d->focus_next = d->focus_next;
+    d->focus_next = 0;
 
     if ( QApplication::main_widget == this ) {	// reset main widget
 	QApplication::main_widget = 0;
@@ -898,6 +915,8 @@ QWidget::~QWidget()
     QApplication::removePostedEvents( this );
 
     destroy();					// platform-dependent cleanup
+
+    --instanceCounter;
 }
 
 int QWidget::instanceCounter = 0;  // Current number of widget instances
@@ -928,7 +947,6 @@ void QWidgetPrivate::createTLExtra()
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	x->icon = 0;
 #endif
-	x->focusData = 0;
 	x->fleft = x->fright = x->ftop = x->fbottom = 0;
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
@@ -966,7 +984,6 @@ void QWidgetPrivate::createExtra()
 	extra->minw = extra->minh = 0;
 	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 	extra->bg_pix = 0;
-	extra->focus_proxy = 0;
 #ifndef QT_NO_CURSOR
 	extra->curs = 0;
 #endif
@@ -1002,7 +1019,6 @@ void QWidgetPrivate::deleteExtra()
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	    delete extra->topextra->icon;
 #endif
-	    delete extra->topextra->focusData;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
 	    delete extra->topextra->qwsManager;
 #endif
@@ -2801,18 +2817,6 @@ void QWidget::setFocusProxy( QWidget * w )
     }
 
     d->createExtra();
-
-    if ( d->extra->focus_proxy ) {
-	disconnect( d->extra->focus_proxy, SIGNAL(destroyed()),
-		    this, SLOT(focusProxyDestroyed()) );
-	d->extra->focus_proxy = 0;
-    }
-
-    if ( w ) {
-	setFocusPolicy( w->focusPolicy() );
-	connect( w, SIGNAL(destroyed()),
-		 this, SLOT(focusProxyDestroyed()) );
-    }
     d->extra->focus_proxy = w;
 }
 
@@ -2825,24 +2829,9 @@ void QWidget::setFocusProxy( QWidget * w )
 
 QWidget * QWidget::focusProxy() const
 {
-    return d->extra ? d->extra->focus_proxy : 0;
+    return d->extra ? (QWidget *)d->extra->focus_proxy : 0;
 }
 
-
-/*!
-    \internal
-
-    Internal slot used to clean up if the focus proxy is destroyed.
-
-    \sa setFocusProxy()
-*/
-
-void QWidget::focusProxyDestroyed()
-{
-    if ( d->extra )
-	d->extra->focus_proxy = 0;
-    setFocusPolicy( NoFocus );
-}
 
 /*!
     \property QWidget::focus
@@ -2856,9 +2845,9 @@ void QWidget::focusProxyDestroyed()
 bool QWidget::hasFocus() const
 {
     const QWidget* w = this;
-    while ( w->focusProxy() )
-	w = w->focusProxy();
-    return qApp->focusWidget() == w;
+    while ( w->d->extra && w->d->extra->focus_proxy )
+	w = w->d->extra->focus_proxy;
+    return qApp->focus_widget == w;
 }
 
 /*!
@@ -2891,34 +2880,35 @@ void QWidget::setFocus()
     if ( !isEnabled() )
 	return;
 
-    if ( focusProxy() ) {
-	focusProxy()->setFocus();
-	return;
-    }
+    QWidget *f = this;
+    while (f->d->extra && f->d->extra->focus_proxy)
+	f = f->d->extra->focus_proxy;
 
-    QFocusData * f = focusData( TRUE );
-    if ( f->it.current() == this && qApp->focusWidget() == this
+    if (qApp->focus_widget == f
 #if defined(Q_WS_WIN)
-	&& GetFocus() == winId()
+	&& GetFocus() == f->winId()
 #endif
 	)
 	return;
 
-    f->it.toFirst();
-    while ( f->it.current() != this && !f->it.atLast() )
-	++f->it;
-    // at this point, the iterator should point to 'this'.  if it
-    // does not, 'this' must not be in the list - an error, but
-    // perhaps possible.  fix it.
-    if ( f->it.current() != this ) {
-	f->focusWidgets.append( this );
-	f->it.toLast();
+
+    QWidget *w = f;
+    if (isHidden()) {
+	while (w && w->isHidden()) {
+	    w->d->focus_child = f;
+	    w = w->parentWidget();
+	}
+    } else {
+	while (w) {
+	    w->d->focus_child = f;
+	    w = w->parentWidget();
+	}
     }
 
-    if ( isActiveWindow() ) {
-	QWidget * prev = qApp->focus_widget;
+    if ( f->isActiveWindow() ) {
+	QWidget *prev = qApp->focus_widget;
 	if ( prev ) {
-	    if ( prev != this )
+	    if ( prev != f )
 		prev->resetInputContext();
 	}
 #if defined(Q_WS_WIN)
@@ -2926,32 +2916,32 @@ void QWidget::setFocus()
 	    QInputContext::endComposition();
 	}
 #endif
-	qApp->focus_widget = this;
+	qApp->focus_widget = f;
 #if defined(Q_WS_X11)
-	d->focusInputContext();
+	f->d->focusInputContext();
 #endif
 
 #if defined(Q_WS_WIN)
-	if ( !topLevelWidget()->isPopup() )
-	    SetFocus( winId() );
+	if ( !f->topLevelWidget()->isPopup() )
+	    SetFocus( f->winId() );
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
+	    QAccessible::updateAccessibility( f, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
 #endif
 
-	if ( prev != this ) {
+	if ( prev != f ) {
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
 	    }
 
-	    if ( qApp->focus_widget == this ) {
+	    if ( qApp->focus_widget == f ) {
 		QFocusEvent in( QEvent::FocusIn );
-		QApplication::sendEvent( this, &in );
+		QApplication::sendEvent( f, &in );
 	    }
 	}
     }
@@ -2973,22 +2963,19 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    if ( focusProxy() ) {
-	focusProxy()->clearFocus();
-	return;
-    } else if ( hasFocus() ) {
-	QWidget* w = qApp->focusWidget();
+    if (hasFocus()) {
+	QWidget* w = qApp->focus_widget;
 	// clear active focus
 	qApp->focus_widget = 0;
 	QFocusEvent out( QEvent::FocusOut );
 	QApplication::sendEvent( w, &out );
 #if defined(Q_WS_WIN)
-	if ( !isPopup() && GetFocus() == winId() )
+	if ( !isPopup() && GetFocus() == w->winId() )
 	    SetFocus( 0 );
 	else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::Focus );
+	    QAccessible::updateAccessibility( w, 0, QAccessible::Focus );
 #endif
 #if defined(Q_WS_WIN)
 	}
@@ -3015,90 +3002,56 @@ void QWidget::clearFocus()
     but only the top-level widget decides where to redirect focus. By
     overriding this method for an object, you thus gain control of
     focus traversal for all child widgets.
-
-    \sa focusData()
 */
 
 bool QWidget::focusNextPrevChild( bool next )
 {
     QWidget* p = parentWidget();
-    if ( !isTopLevel() && p )
+    if (!isTopLevel() && p)
 	return p->focusNextPrevChild(next);
 
-    QFocusData *f = focusData( TRUE );
-
-    QWidget *startingPoint = f->it.current();
-    QWidget *candidate = 0;
-    QWidget *w = next ? f->focusWidgets.last() : f->focusWidgets.first();
     extern bool qt_tab_all_widgets;
     uint focus_flag = qt_tab_all_widgets ? TabFocus : StrongFocus;
-    do {
-	if ( w && w != startingPoint &&
-	     ( ( w->focusPolicy() & focus_flag ) == focus_flag )
-	     && !w->focusProxy() && w->isVisibleTo(this) && w->isEnabled())
-	    candidate = w;
-	w = next ? f->focusWidgets.prev() : f->focusWidgets.next();
-    } while( w && !(candidate && w==startingPoint) );
 
-    if ( !candidate )
-	return FALSE;
+    QWidget *f = focusWidget();
+    if (!f)
+	f = this;
 
-    candidate->setFocus();
-    return TRUE;
+    QWidget *w = f;
+    QWidget *test = f->d->focus_next;
+    while (test != f) {
+	if ((test->focusPolicy() & focus_flag) == focus_flag
+	    && !(test->d->extra && test->d->extra->focus_proxy)
+	    && test->isVisibleTo(this) && test->isEnabled()) {
+	    w = test;
+	    if (next)
+		break;
+	}
+	test = test->d->focus_next;
+    }
+    if (w == f)
+	return false;
+    w->setFocus();
+    return true;
 }
 
 /*!
-    Returns the focus widget in this widget's window. This is not the
-    same as QApplication::focusWidget(), which returns the focus
-    widget in the currently active window.
+    Returns the last child of this widget that setFocus had been
+    called on.  For top level widgets this is the widget that will get
+    focus in case this window gets activated
+
+    This is not the same as QApplication::focusWidget(), which returns
+    the focus widget in the currently active window.
 */
 
 QWidget *QWidget::focusWidget() const
 {
-    QWidget *that = (QWidget *)this;		// mutable
-    QFocusData *f = that->focusData( FALSE );
-    if ( f && f->focusWidgets.count() && f->it.current() == 0 )
-	f->it.toFirst();
-    return ( f && f->it.current() ) ? f->it.current() : 0;
+    return const_cast<QWidget *>(d->focus_child);
 }
 
-
-/*!
-    Returns the focus data for this widget's top-level widget.
-
-    Focus data always belongs to the top-level widget. The focus data
-    list contains all the widgets in this top-level widget that can
-    accept focus, in tab order. An iterator points to the current
-    focus widget (focusWidget() returns a pointer to this widget).
-
-    This information is useful for implementing advanced versions of
-    focusNextPrevChild().
-*/
-QFocusData * QWidget::focusData()
+QWidget *QWidget::nextInFocusChain() const
 {
-    return focusData( TRUE );
-}
-
-/*!
-    \internal
-
-    Internal function which lets us ask for the focus data, creating
-    it if it doesn't exist and \a create is TRUE.
-*/
-QFocusData * QWidget::focusData( bool create )
-{
-    QWidget * tlw = topLevelWidget();
-    QWExtra * ed = tlw->d->extraData();
-    if ( !ed || !ed->topextra ) {
-	if ( !create )
-	    return 0;
-	tlw->d->createTLExtra();
-	ed = tlw->d->extraData();
-    }
-    if ( create && !ed->topextra->focusData )
-	ed->topextra->focusData = new QFocusData;
-
-    return ed->topextra->focusData;
+    return const_cast<QWidget *>(d->focus_next);
 }
 
 /*!
@@ -3251,18 +3204,13 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
     while ( second->focusProxy() )
 	second = second->focusProxy();
 
-    QFocusData *f = first->focusData( TRUE );
-    bool focusThere = (f->it.current() == second );
-    f->focusWidgets.removeRef( second );
-    if ( f->focusWidgets.findRef( first ) >= 0 )
-	f->focusWidgets.insert( f->focusWidgets.at() + 1, second );
-    else
-	f->focusWidgets.append( second );
-    if ( focusThere ) { // reset iterator so tab will work appropriately
-	f->it.toFirst();
-	while( f->it.current() && f->it.current() != second )
-	    ++f->it;
-    }
+    QWidget *p = second;
+    while (p->d->focus_next != second)
+	p = p->d->focus_next;
+    p->d->focus_next = second->d->focus_next;
+
+    second->d->focus_next = first->d->focus_next;
+    first->d->focus_next = second;
 }
 
 /*!\internal
@@ -3282,38 +3230,37 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     if ( oldtlw == topLevelWidget() )
 	return; // nothing to do
 
-    QFocusData * from = oldtlw ? oldtlw->d->topData()->focusData : 0;
-    QFocusData * to;
-    to = focusData();
+    d->focus_child->clearFocus();
 
-    if ( from ) {
-	from->focusWidgets.first();
-	do {
-	    QWidget * pw = from->focusWidgets.current();
-	    while( pw && pw != this )
-		pw = pw->parentWidget();
-	    if ( pw == this ) {
-		QWidget * w = from->focusWidgets.take();
-		if ( w == from->it.current() )
-		    // probably best to clear keyboard focus, or
-		    // the user might become rather confused
-		    w->clearFocus();
-		if ( !isTopLevel() )
-		    to->focusWidgets.append( w );
-	    } else {
-		from->focusWidgets.next();
-	    }
-	} while( from->focusWidgets.current() );
+    // seperate the focus chain
+    QWidget *w = this;
+    QWidget *firstOld = 0;
+    QWidget *o = 0;
+    QWidget *n = w;
+    while ((w = w->d->focus_next) != this) {
+	if (!oldtlw->isAncestorOf(w)) {
+	    if (!firstOld)
+		firstOld = w;
+	    if (o)
+		o->d->focus_next = w;
+	    o = w;
+	} else {
+	    n->d->focus_next = w;
+	    n = w;
+	}
     }
+    o->d->focus_next = firstOld;
 
-    if ( to->focusWidgets.findRef(this) < 0 )
-	to->focusWidgets.append( this );
-
-    if ( !isTopLevel() && d->extra && d->extra->topextra && d->extra->topextra->focusData ) {
-	// this widget is no longer a top-level widget, so get rid
-	// of old focus data
-	delete d->extra->topextra->focusData;
-	d->extra->topextra->focusData = 0;
+    if (!isTopLevel()) {
+	//insert chain
+	QWidget *top = topLevelWidget();
+	w = top;
+	while (w->d->focus_next != top)
+	    w = w->d->focus_next;
+	w->d->focus_next = this;
+	n->d->focus_next = top;
+    } else {
+	n->d->focus_next = this;
     }
 }
 
@@ -3459,16 +3406,20 @@ void QWidget::setGeometry( int x, int y, int w, int h )
       keyReleaseEvent(), enabled
 */
 
+QWidget::FocusPolicy QWidget::focusPolicy() const
+{
+    const QWidget *w = this;
+    while ( w->d->extra && w->d->extra->focus_proxy )
+	w = w->d->extra->focus_proxy;
+    return (FocusPolicy)w->focus_policy;
+}
+
 void QWidget::setFocusPolicy( FocusPolicy policy )
 {
-    if ( focusProxy() )
-	focusProxy()->setFocusPolicy( policy );
-    if ( policy != NoFocus ) {
-	QFocusData * f = focusData( TRUE );
-	if ( f->focusWidgets.findRef( this ) < 0 )
-	    f->focusWidgets.append( this );
-    }
-    focus_policy = (uint) policy;
+    QWidget *w = this;
+    while ( w->d->extra && w->d->extra->focus_proxy )
+	w = w->d->extra->focus_proxy;
+    w->focus_policy = (uint) policy;
 }
 
 /*!

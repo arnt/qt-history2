@@ -22,7 +22,6 @@ kernel {
 		  $$KERNEL_H/qevent.h \
 		  $$KERNEL_H/qeventloop.h\
 		  $$KERNEL_P/qeventloop_p.h \
-		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_P/qfontdata_p.h \
 		  $$KERNEL_H/qfontinfo.h \
@@ -186,7 +185,6 @@ kernel {
 		  $$KERNEL_CPP/qdropsite.cpp \
 		  $$KERNEL_CPP/qevent.cpp \
 		  $$KERNEL_CPP/qeventloop.cpp \
-		  $$KERNEL_CPP/qfocusdata.cpp \
 		  $$KERNEL_CPP/qfont.cpp \
 		  $$KERNEL_CPP/qfontdatabase.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \

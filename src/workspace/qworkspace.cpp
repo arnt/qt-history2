@@ -29,7 +29,6 @@
 #include "qguardedptr.h"
 #include "qiconset.h"
 #include "../widgets/qwidgetresizehandler_p.h"
-#include "qfocusdata.h"
 #include "qdatetime.h"
 #include "qtooltip.h"
 #include "qwmatrix.h"
@@ -1938,54 +1937,29 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
 bool QWorkspaceChild::focusNextPrevChild( bool next )
 {
-    QFocusData *f = focusData();
+    extern bool qt_tab_all_widgets;
+    uint focus_flag = qt_tab_all_widgets ? TabFocus : StrongFocus;
 
-    QWidget *startingPoint = f->home();
-    QWidget *candidate = 0;
-    QWidget *w = next ? f->next() : f->prev();
-    while( !candidate && w != startingPoint ) {
-	if ( w != startingPoint &&
-	     (w->focusPolicy() & TabFocus) == TabFocus
-	     && w->isEnabled() &&!w->focusProxy() && w->isVisible() )
-	    candidate = w;
-	w = next ? f->next() : f->prev();
-    }
+    QWidget *f = focusWidget();
+    if (!f)
+	f = this;
 
-    if ( candidate ) {
-	bool ischild = FALSE;
-	QObject *o = candidate;
-	while (o) {
-	    if (o == this) {
-		ischild = true;
+    QWidget *w = f;
+    QWidget *test = f->nextInFocusChain();
+    while (test != f) {
+	if ((test->focusPolicy() & focus_flag) == focus_flag
+	    && !(test->focusProxy()) && test->isVisibleTo(this)
+	    && test->isEnabled() && isAncestorOf(w)) {
+	    w = test;
+	    if (next)
 		break;
-	    }
-	    o = o->parent();
 	}
-	if ( !ischild ) {
-	    startingPoint = f->home();
-	    QWidget *nw = next ? f->prev() : f->next();
-	    QObjectList ol2 = queryList();
-	    QWidget *lastValid = 0;
-	    candidate = startingPoint;
-	    while ( nw != startingPoint ) {
-		if ( ( candidate->focusPolicy() & TabFocus ) == TabFocus
-		    && candidate->isEnabled() &&!candidate->focusProxy() && candidate->isVisible() )
-		    lastValid = candidate;
-		if ( ol2.findIndex( nw ) == -1 ) {
-		    candidate = lastValid;
-		    break;
-		}
-		candidate = nw;
-		nw = next ? f->prev() : f->next();
-	    }
-	}
+	test = test->nextInFocusChain();
     }
-
-    if ( !candidate )
-	return FALSE;
-
-    candidate->setFocus();
-    return TRUE;
+    if (w == f)
+	return false;
+    w->setFocus();
+    return true;
 }
 
 void QWorkspaceChild::childEvent( QChildEvent*  e)

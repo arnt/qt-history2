@@ -35,7 +35,6 @@
 //  - to minimize memory usage for members that are seldom used.
 //  - top-level widgets have extra extra data to reduce cost further
 
-class QFocusData;
 class QWSManager;
 #if defined(Q_WS_WIN)
 class QOleDropTarget;
@@ -50,7 +49,6 @@ struct Q_EXPORT QTLWExtra {
     QString  iconText;				// widget icon text
     QPixmap *icon;				// widget icon
 #endif
-    QFocusData *focusData;			// focus data (for TLW)
     short    incw, inch;			// size increments
     // frame strut
     ulong    fleft, fright, ftop, fbottom;
@@ -91,7 +89,7 @@ struct Q_EXPORT QWExtra {
     Q_INT16  minw, minh;			// minimum size
     Q_INT16  maxw, maxh;			// maximum size
     QPixmap *bg_pix;				// background pixmap
-    QWidget *focus_proxy;
+    QWidgetPointer focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;
 #endif
@@ -138,7 +136,7 @@ struct QWidgetPrivate : public QObjectPrivate
     Q_DECL_PUBLIC( QWidget );
 
 public:
-    QWidgetPrivate() : QObjectPrivate(), extra(0) {}
+    QWidgetPrivate() : QObjectPrivate(), extra(0), focus_child(0) {}
     ~QWidgetPrivate();
 
     QWExtra	*extraData() const;
@@ -161,6 +159,8 @@ public:
 #endif
 
     QWExtra *extra;
+    QWidget *focus_next;
+    QWidget *focus_child;
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

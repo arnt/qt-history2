@@ -19,7 +19,6 @@
 #include "qevent.h"
 #include "qpixmap.h"
 #include "qcursor.h"
-#include "qfocusdata.h"
 #include "qscrollview.h"
 #include "qptrdict.h"
 #include "qapplication.h"
@@ -2488,41 +2487,20 @@ bool QScrollView::focusNextPrevChild( bool next )
 {
     //  Makes sure that the new focus widget is on-screen, if
     //  necessary by scrolling the scroll view.
-
-    // first set things up for the scan
-    QFocusData *f = focusData();
-    QWidget *startingPoint = f->home();
-    QWidget *candidate = 0;
-    QWidget *w = next ? f->next() : f->prev();
-    QSVChildRec *r;
-
-    // then scan for a possible focus widget candidate
-    while( !candidate && w != startingPoint ) {
-        if ( w != startingPoint &&
-             (w->focusPolicy() & TabFocus) == TabFocus
-             && w->isEnabled() &&!w->focusProxy() && w->isVisible() )
-            candidate = w;
-        w = next ? f->next() : f->prev();
+    bool retval = QFrame::focusNextPrevChild(next);
+    if (retval) {
+	QWidget *w = topLevelWidget()->focusWidget();
+	if (isAncestorOf(w)) {
+	    QSVChildRec *r = d->ancestorRec(w);
+	    if (r && (r->child == w || w->isVisibleTo(r->child))) {
+		QPoint cp = r->child->mapToGlobal(QPoint(0, 0));
+		QPoint cr = w->mapToGlobal(QPoint(0, 0)) - cp;
+		ensureVisible(r->x + cr.x() + w->width()/2, r->y + cr.y() + w->height()/2,
+			      w->width()/2, w->height()/2);
+	    }
+	}
     }
-
-    // if we could not find one, maybe super or parentWidget() can?
-    if ( !candidate )
-        return QFrame::focusNextPrevChild( next );
-
-    // we've found one.
-    r = d->ancestorRec( candidate );
-    if ( r && ( r->child == candidate ||
-                candidate->isVisibleTo( r->child ) ) ) {
-        QPoint cp = r->child->mapToGlobal(QPoint(0,0));
-        QPoint cr = candidate->mapToGlobal(QPoint(0,0)) - cp;
-        ensureVisible( r->x+cr.x()+candidate->width()/2,
-                       r->y+cr.y()+candidate->height()/2,
-                       candidate->width()/2,
-                       candidate->height()/2 );
-    }
-
-    candidate->setFocus();
-    return TRUE;
+    return retval;
 }
 
 

@@ -28,7 +28,6 @@
 #endif // QT_H
 
 class QLayout;
-class QFocusData;
 class QCursor;
 class QWSRegionManager;
 class QStyle;
@@ -372,8 +371,10 @@ public:
     bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
+#ifndef QT_NO_COMPAT
     bool		isVisibleToTLW() const; // obsolete
     QRect		visibleRect() const; // obsolete
+#endif
     bool 		isHidden() const;
     bool 		isShown() const;
     bool		isMinimized() const;
@@ -417,6 +418,8 @@ public:
     // Misc. functions
 
     QWidget *		focusWidget() const;
+    // #### Find a reasonable name
+    QWidget *nextInFocusChain() const;
     QRect               microFocusHint() const;
 
     // drag and drop
@@ -541,8 +544,6 @@ protected:
 
     virtual bool focusNextPrevChild( bool next );
 
-    QFocusData	*focusData();
-
     void setKeyCompression(bool);
     void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
 
@@ -560,9 +561,6 @@ public:
     inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
 #endif
 #endif
-
-private slots:
-    void	 focusProxyDestroyed();
 
 protected:
     explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
@@ -601,7 +599,6 @@ private:
     void	 internalShow(bool informParent);
     void	 internalHide();
     void	 reparentFocusWidgets( QWidget * );
-    QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
     void         setBackgroundColorDirect( const QColor & );
     void   	 setBackgroundPixmapDirect( const QPixmap & );
@@ -613,8 +610,6 @@ private:
     uint	 widget_state;
     uint	 widget_flags;
     uint	 focus_policy : 4;
-    uint         has_focus : 1;
-    uint         own_focus_chain : 1;
     uint 	 own_font :1;
     uint 	 own_palette :1;
     uint 	 sizehint_forced :1;
@@ -625,7 +620,6 @@ private:
     uint	 im_enabled : 1;
     QRect	 crect;
     QColor	 bg_col;
-    QWidget *next_focus;
 #ifndef QT_NO_PALETTE
     QPalette	 pal;
 #endif
@@ -687,6 +681,8 @@ private:	// Disabled copy constructor and operator=
 
     Q_DECL_PRIVATE( QWidget );
 };
+
+typedef QPointer<QWidget> QWidgetPointer;
 
 
 inline Qt::WState QWidget::testWState( WState s ) const
@@ -783,10 +779,7 @@ inline bool QWidget::hasMouse() const
 { return testWState(WState_HasMouse); }
 
 inline bool  QWidget::isFocusEnabled() const
-{ return (FocusPolicy)focus_policy != NoFocus; }
-
-inline QWidget::FocusPolicy QWidget::focusPolicy() const
-{ return (FocusPolicy)focus_policy; }
+{ return focusPolicy() != NoFocus; }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWState(WState_BlockUpdates); }

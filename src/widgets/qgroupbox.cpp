@@ -19,7 +19,6 @@
 #include "qbitmap.h"
 #include "qaccel.h"
 #include "qradiobutton.h"
-#include "qfocusdata.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qevent.h"
@@ -621,36 +620,37 @@ accept focus, and gives the focus to that widget.
 
 void QGroupBox::fixFocus()
 {
-    QFocusData * fd = focusData();
-    QWidget * orig = fd->home();
-    QWidget * best = 0;
-    QWidget * candidate = 0;
-    QWidget * w = orig;
-    do {
-	QWidget * p = w;
-	while( p && p != this && !p->isTopLevel() )
-	    p = p->parentWidget();
-	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus
-	     && w->isVisibleTo(this) ) {
-	    if ( w->hasFocus()
+    QWidget *fw = focusWidget();
+    if (!fw) {
 #ifndef QT_NO_RADIOBUTTON
-		 || ( !best && qt_cast<QRadioButton*>(w)
-		 && ((QRadioButton*)w)->isChecked() )
+	QWidget * best = 0;
 #endif
-		    )
-		// we prefer a checked radio button or a widget that
-		// already has focus, if there is one
-		best = w;
-	    else if ( !candidate )
-		// but we'll accept anything that takes focus
-		candidate = w;
+	QWidget * candidate = 0;
+	QWidget * w = this;
+	while ((w = w->nextInFocusChain()) != this) {
+	    if (isAncestorOf(w) && (w->focusPolicy() & TabFocus) == TabFocus && w->isVisibleTo(this)) {
+#ifndef QT_NO_RADIOBUTTON
+		if (!best && qt_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
+		    // we prefer a checked radio button or a widget that
+		    // already has focus, if there is one
+		    best = w;
+		else
+#endif
+		    if ( !candidate )
+			// but we'll accept anything that takes focus
+			candidate = w;
+	    }
 	}
-	w = fd->next();
-    } while( w != orig );
-    if ( best )
-	best->setFocus();
-    else if ( candidate )
-	candidate->setFocus();
+#ifndef QT_NO_RADIOBUTTON
+	if (best)
+	    fw = best;
+	else
+#endif
+	    if (candidate)
+		fw = candidate;
+    }
+    if (fw)
+	fw->setFocus();
 }
 
 

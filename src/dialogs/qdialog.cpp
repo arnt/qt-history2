@@ -19,7 +19,6 @@
 #include "qevent.h"
 #include "qdesktopwidget.h"
 #include "qpushbutton.h"
-#include "qfocusdata.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
@@ -653,8 +652,9 @@ void QDialog::show()
     QWidget::show();
     showExtension( d->doShowExtension );
 #ifndef QT_NO_PUSHBUTTON
-    QWidget *fw = focusWidget();
-    QFocusData *fd = focusData();
+    QWidget *fw = topLevelWidget()->focusWidget();
+    if (!fw)
+	fw = this;
 
     /*
       The following block is to handle a special case, and does not
@@ -666,33 +666,21 @@ void QDialog::show()
       and actually catches most cases... If not, then they simply
       have to use [widget*]->setFocus() themselves...
     */
-    if ( !fw || fw->focusPolicy() == NoFocus ) {
-	fd->home(); // Skip main form
-	QWidget *first = fd->next(); // Get first main widget
-	if ( d->mainDef &&
-	     first != d->mainDef &&
-	     qt_cast<QPushButton*>(first) )
+    if (d->mainDef && fw->focusPolicy() == NoFocus) {
+	QWidget *first = fw;
+	while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == NoFocus)
+	    ;
+	if (first != d->mainDef && qt_cast<QPushButton*>(first) )
 	    d->mainDef->setFocus();
     }
-
     if ( !d->mainDef && isTopLevel() ) {
-	if ( !fw || fw->focusPolicy() == NoFocus ) {
-	    focusNextPrevChild( TRUE );
-	    fw = focusWidget();
-	}
-	if ( fw ) {
-	    fd = focusData();
-	    QWidget *home = fd->home();
-	    QWidget *candidate = home;
-	    Q_ASSERT( candidate == fw );
-	    do {
-		QPushButton *pb = qt_cast<QPushButton*>(candidate);
-		if ( pb && pb->autoDefault() ) {
-		    pb->setDefault( TRUE );
-		    break;
-		}
-		candidate = fd->next();
-	    } while ( candidate != home );
+	QWidget *w = fw;
+	while ((w = w->nextInFocusChain()) != fw) {
+	    QPushButton *pb = qt_cast<QPushButton *>(w);
+	    if (pb && pb->autoDefault() && pb->focusPolicy() != NoFocus) {
+		pb->setDefault(true);
+		break;
+	    }
 	}
     }
     if ( fw ) {
@@ -701,8 +689,8 @@ void QDialog::show()
 	QApplication::sendEvent( fw, &e );
 	QFocusEvent::resetReason();
     }
-
 #endif
+
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
 #endif

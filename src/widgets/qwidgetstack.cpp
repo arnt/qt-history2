@@ -18,7 +18,6 @@
 #include "../kernel/qlayoutengine_p.h"
 #ifndef QT_NO_WIDGETSTACK
 
-#include "qfocusdata.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
 
@@ -74,35 +73,16 @@ public:
 
 
 /*!
-    Constructs an empty widget stack.
-
-    The \a parent and \a name arguments are passed to the QFrame
-    constructor.
-*/
-
-QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
-    : QFrame( parent, name )
-{
-    init();
-}
-
-/*!
   Constructs an empty widget stack.
 
   The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 */
 QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ) //## merge constructors in 4.0
-{
-    init();
-}
-
-void QWidgetStack::init()
+    : QFrame( parent, name, f )
 {
    d = 0;
    dict = new QIntDict<QWidget>;
-   focusWidgets = 0;
    topWidget = 0;
    invisible = new QWidgetStackPrivate::Invisible( this );
    invisible->hide();
@@ -115,7 +95,6 @@ void QWidgetStack::init()
 
 QWidgetStack::~QWidgetStack()
 {
-    delete focusWidgets;
     delete d;
     delete dict;
 }
@@ -159,16 +138,6 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 	// use id >= 0 as-is
 
     dict->insert( id, w );
-
-    // preserve existing focus
-    QWidget * f = w->focusWidget();
-    while( f && f != w )
-	f = f->parentWidget();
-    if ( f ) {
-	if ( !focusWidgets )
-	    focusWidgets = new QPtrDict<QWidget>( 17 );
-	focusWidgets->replace( w, w->focusWidget() );
-    }
 
     w->hide();
     if ( w->parent() != this )
@@ -236,6 +205,8 @@ static bool isChildOf( QWidget* child, QWidget *parent )
     return FALSE;
 }
 
+// ### fix include
+#include <private/qwidget_p.h>
 /*!
     \overload
 
@@ -264,39 +235,27 @@ void QWidgetStack::raiseWidget( QWidget *w )
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
     if ( topWidget ) {
-	QWidget * fw = focusWidget();
-	QWidget* p = fw;
-	while ( p && p != topWidget )
-	    p = p->parentWidget();
-	if ( p == topWidget ) { // focus was on old page
-	    if ( !focusWidgets )
-		focusWidgets = new QPtrDict<QWidget>( 17 );
-	    focusWidgets->replace( topWidget, fw );
-	    fw->clearFocus();
+	QWidget * fw = topLevelWidget()->focusWidget();
+	if ( topWidget->isAncestorOf(fw) ) { // focus was on old page
 	    // look for the best focus widget we can find
-	    // best == what we had (which may be deleted)
-	    fw = focusWidgets->take( w );
-	    if ( isChildOf( fw, w ) ) {
-		fw->setFocus();
-	    } else {
+	    QWidget *p = w->focusWidget();
+	    if (!p) {
 		// second best == first child widget in the focus chain
-		QFocusData *f = focusData();
-		QWidget* home = f->home();
-		QWidget *i = home;
-		do {
-		    if ( ( ( i->focusPolicy() & TabFocus ) == TabFocus )
-			 && !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled() ) {
+		QWidget *i = fw;
+		while ((i = i->nextInFocusChain()) != fw) {
+		    if (((i->focusPolicy() & TabFocus) == TabFocus)
+			&& !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled()
+			&& w->isAncestorOf(i)) {
 			p = i;
-			while ( p && p != w )
-			    p = p->parentWidget();
-			if ( p == w ) {
-			    i->setFocus();
-			    break;
-			}
+			break;
 		    }
-		    i = f->next();
-		} while( i != home );
+		}
 	    }
+	    if (p)
+		p->setFocus();
+	} else {
+	    // rather hacky.....
+	    static_cast<QWidgetPrivate*>(((QWidgetStack *)topWidget)->d_ptr)->focus_child = 0;
 	}
     }
 
