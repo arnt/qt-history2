@@ -343,7 +343,7 @@ QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
 
     setAttribute(WA_NoSystemBackground, true);
 
-    if ( widget->testWState( WState_Resized ) ) {
+    if (widget->testAttribute(WA_Resized)) {
 	totalWidth = widget->width();
 	totalHeight = widget->height();
     } else {

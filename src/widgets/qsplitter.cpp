@@ -178,7 +178,7 @@ QCOORD QSplitterLayoutStruct::getSizer( Orientation orient )
 	const int presizer = (orient == Horizontal) ? s.width() : s.height();
 	const int realsize = (orient == Horizontal) ? wid->size().width() : wid->size().height();
 	if ( !s.isValid()
-		|| (wid->testWState(WState_Resized) && (realsize > presizer)) ) {
+		|| (wid->testAttribute(QWidget::WA_Resized) && (realsize > presizer)) ) {
 	    sizer = (orient == Horizontal) ? wid->size().width() : wid->size().height();
 	} else {
 	    sizer = presizer;

@@ -359,7 +359,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	bool wasMaximized = w->isMaximized();
 	bool wasMinimized = w->isMinimized();
 	bool hasBeenHidden = w->isHidden();
-	bool hasSize = w->testWState( WState_Resized );
+	bool hasSize = w->testAttribute(WA_Resized);
 	int x = w->x();
 	int y = w->y();
 	bool hasPos = x != 0 || y != 0;
@@ -1671,8 +1671,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     QPoint p;
     QSize s;
     QSize cs;
-
-    bool hasBeenResized = childWidget->testWState( WState_Resized );
+    
+    bool hasBeenResized = childWidget->testAttribute(WA_Resized);
 
     if ( !hasBeenResized )
 	cs = childWidget->sizeHint().expandedTo( childWidget->minimumSizeHint() );

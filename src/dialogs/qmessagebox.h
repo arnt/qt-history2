@@ -134,7 +134,7 @@ public:
     QString	buttonText( int button ) const;
     void	setButtonText( int button, const QString &);
 
-    void	adjustSize();
+    QSize sizeHint() const;
 
 /* OBSOLETE */
     static QPixmap standardIcon( Icon icon, GUIStyle );

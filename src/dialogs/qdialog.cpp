@@ -203,7 +203,6 @@ public:
     QSizeGrip* resizer;
 #endif
     QPoint lastRMBPress;
-    QPoint relPos; // relative position to the main window
 };
 
 /*!
@@ -229,7 +228,7 @@ public:
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( parent, name,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
-      rescode(0), did_move(0), has_relpos(0), did_resize(0), in_loop(0)
+      rescode(0), in_loop(0)
 {
     d = new QDialogPrivate;
 }
@@ -632,13 +631,6 @@ void QDialog::show()
 {
     if ( testWState(WState_Visible) )
 	return;
-    if ( !did_resize )
-	adjustSize();
-    if ( has_relpos && !did_move ) {
-	adjustPositionInternal( parentWidget(), TRUE );
-    } else if ( !did_move ) {
-	adjustPositionInternal( parentWidget() );
-    }
 
 #if defined(Q_WS_X11)
     if ( !parentWidget() && testWFlags( WShowModal ) &&
@@ -698,25 +690,18 @@ void QDialog::show()
 #endif
 }
 
+/*!\reimp */
+void QDialog::showEvent(QShowEvent *)
+{
+    if (testAttribute(WA_Moved)) {
+	adjustPosition(parentWidget());
+	setAttribute(WA_Moved, false); // not really an explicit position
+    }
+}
+	
 /*! \internal */
 void QDialog::adjustPosition( QWidget* w)
 {
-    adjustPositionInternal( w );
-}
-
-
-void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
-{
-    /* need to make sure these events are already sent to be sure
-       our information below is correct --sam */
-    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
-    QApplication::sendPostedEvents( this, QEvent::Resize );
-
-    // processing the events might call polish(), which is a nice place
-    // to restore geometries, so return if the dialog has been positioned
-    if ( did_move || has_relpos )
-	return;
-
     QPoint p( 0, 0 );
     int extraw = 0, extrah = 0, scrn = 0;
     if ( w )
@@ -750,28 +735,24 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	extraw = 10;
     }
 
-    if ( useRelPos && w ) {
-	p = w->pos() + d->relPos;
-    } else {
 #ifndef Q_OS_TEMP
-	if ( w ) {
-	    // Use mapToGlobal rather than geometry() in case w might
-	    // be embedded in another application
-	    QPoint pp = w->mapToGlobal( QPoint(0,0) );
-	    p = QPoint( pp.x() + w->width()/2,
-			pp.y() + w->height()/ 2 );
-	} else {
-	    // p = middle of the desktop
-	    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
-	}
-#else
+    if ( w ) {
+	// Use mapToGlobal rather than geometry() in case w might
+	// be embedded in another application
+	QPoint pp = w->mapToGlobal( QPoint(0,0) );
+	p = QPoint( pp.x() + w->width()/2,
+		    pp.y() + w->height()/ 2 );
+    } else {
+	// p = middle of the desktop
 	p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
+    }
+#else
+    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
 #endif
 
-	// p = origin of this
-	p = QPoint( p.x()-width()/2 - extraw,
-		    p.y()-height()/2 - extrah );
-    }
+    // p = origin of this
+    p = QPoint( p.x()-width()/2 - extraw,
+		p.y()-height()/2 - extrah );
 
 
     if ( p.x() + extraw + width() > desk.x() + desk.width() )
@@ -785,7 +766,6 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	p.setY( desk.y() );
 
     move( p );
-    did_move = !useRelPos;
 }
 
 
@@ -800,72 +780,12 @@ void QDialog::hide()
 	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
 #endif
 
-    if ( parentWidget() && !did_move ) {
-	d->relPos = pos() - parentWidget()->topLevelWidget()->pos();
-	has_relpos = 1;
-    }
-
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
     if ( in_loop ) {
 	in_loop = FALSE;
 	qApp->exit_loop();
     }
-}
-
-
-/*****************************************************************************
-  Detects any widget geometry changes done by the user.
- *****************************************************************************/
-
-/*! \reimp */
-
-void QDialog::move( int x, int y )
-{
-    did_move = TRUE;
-    QWidget::move( x, y );
-}
-
-/*! \reimp */
-
-void QDialog::move( const QPoint &p )
-{
-    did_move = TRUE;
-    QWidget::move( p );
-}
-
-/*! \reimp */
-
-void QDialog::resize( int w, int h )
-{
-    did_resize = TRUE;
-    QWidget::resize( w, h );
-}
-
-/*! \reimp */
-
-void QDialog::resize( const QSize &s )
-{
-    did_resize = TRUE;
-    QWidget::resize( s );
-}
-
-/*! \reimp */
-
-void QDialog::setGeometry( int x, int y, int w, int h )
-{
-    did_move   = TRUE;
-    did_resize = TRUE;
-    QWidget::setGeometry( x, y, w, h );
-}
-
-/*! \reimp */
-
-void QDialog::setGeometry( const QRect &r )
-{
-    did_move   = TRUE;
-    did_resize = TRUE;
-    QWidget::setGeometry( r );
 }
 
 

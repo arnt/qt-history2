@@ -140,7 +140,7 @@ public:
 	WState_InPaintEvent	= 0x00000100,
 	WState_Reparented	= 0x00000200,
 	WState_ConfigPending	= 0x00000400,
-	WState_Resized		= 0x00000800,
+	WState_Reserved7	= 0x00000800, // was Resized
 	WState_AutoMask		= 0x00001000,
 	WState_Polished		= 0x00002000,
 	WState_DND		= 0x00004000,

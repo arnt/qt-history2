@@ -862,17 +862,11 @@ void QMessageBox::buttonClicked()
 }
 
 
-/*!
-    Adjusts the size of the message box to fit the contents just before
-    QDialog::exec() or QDialog::show() is called.
-
-    This function will not be called if the message box has been explicitly
-    resized before showing it.
+/*!\reimp
 */
-void QMessageBox::adjustSize()
+QSize QMessageBox::sizeHint() const
 {
     ensurePolished();
-    resizeButtons();
     label->adjustSize();
     QSize labelSize( label->size() );
     int n  = mbd->numButtons;
@@ -910,8 +904,7 @@ void QMessageBox::adjustSize()
     QRect screen = QApplication::desktop()->screenGeometry( pos() );
     if ( w > screen.width() )
         w = screen.width();
-    resize( w, h );
-    setMinimumSize( size() );
+    return QSize(w,h);
 }
 
 

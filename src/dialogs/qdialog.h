@@ -44,12 +44,6 @@ public:
 
     void	show();
     void	hide();
-    void	move( int x, int y );
-    void	move( const QPoint &p );
-    void	resize( int w, int h );
-    void	resize( const QSize & );
-    void	setGeometry( int x, int y, int w, int h );
-    void	setGeometry( const QRect & );
 
     void	setOrientation( Orientation orientation );
     Orientation	orientation() const;
@@ -83,6 +77,7 @@ protected:
     void	setResult( int r )	{ rescode = r; }
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
+    void	showEvent(QShowEvent *);
     void	resizeEvent( QResizeEvent * );
     void	contextMenuEvent( QContextMenuEvent * );
     bool	eventFilter( QObject *, QEvent * );
@@ -96,11 +91,7 @@ private:
 #endif
 
     int		rescode;
-    uint	did_move   : 1;
-    uint	has_relpos : 1;
-    uint	did_resize : 1;
     uint	in_loop: 1;
-    void adjustPositionInternal( QWidget*, bool useRelPos = FALSE );
     QDialogPrivate* d;
 
 private:	// Disabled copy constructor and operator=

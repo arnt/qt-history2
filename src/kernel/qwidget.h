@@ -347,7 +347,7 @@ public:
     void resize( const QSize & );
     void setGeometry( int x, int y, int w, int h );
     void setGeometry( const QRect & );
-    virtual void adjustSize();
+    void adjustSize();
     bool close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
@@ -440,6 +440,9 @@ public:
 	WA_SetBackgroundRole,
 	WA_PaintOnScreen,
 	WA_WindowModified,
+	WA_Resized,
+	WA_Moved,
+	WA_InvalidSize,
 	WA_NoSystemBackground
     };
     void setAttribute(WidgetAttribute, bool = true);
@@ -744,21 +747,6 @@ inline bool QWidget::isModal() const
 
 inline bool QWidget::isEnabledToTLW() const
 { return isEnabled(); }
-
-inline const QRect &QWidget::geometry() const
-{ return crect; }
-
-inline QSize QWidget::size() const
-{ return crect.size(); }
-
-inline int QWidget::width() const
-{ return crect.width(); }
-
-inline int QWidget::height() const
-{ return crect.height(); }
-
-inline QRect QWidget::rect() const
-{ return QRect(0,0,crect.width(),crect.height()); }
 
 inline int QWidget::minimumWidth() const
 { return minimumSize().width(); }

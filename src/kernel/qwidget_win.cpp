@@ -1278,10 +1278,9 @@ void QWidget::setMinimumSize( int minw, int minh )
     d->extra->minw = minw;
     d->extra->minh = minh;
     if ( minw > width() || minh > height() ) {
-	bool resized = testWState( WState_Resized );
+	bool resized = testAttribute(WA_Resized);
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
-	if ( !resized )
-	    clearWState( WState_Resized ); //not a user resize
+	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();
 }
@@ -1307,10 +1306,9 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     d->extra->maxw = maxw;
     d->extra->maxh = maxh;
     if ( maxw < width() || maxh < height() ) {
-	bool resized = testWState( WState_Resized );
+	bool resized = testAttribute(WA_Resized);
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
-	if ( !resized )
-	    clearWState( WState_Resized ); //not a user resize
+	setAttribute(WA_Resized, resized); //not a user resize
     }
     updateGeometry();
 }

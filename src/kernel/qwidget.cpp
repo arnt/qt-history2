@@ -462,7 +462,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \i WState_InPaintEvent Currently processing a paint event.
   \i WState_Reparented The widget has been reparented.
   \i WState_ConfigPending A configuration (resize/move) event is pending.
-  \i WState_Resized The widget has been resized.
   \i WState_AutoMask The widget has an automatic mask, see setAutoMask().
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
   \i WState_Exposed the widget was finally exposed (X11 only,
@@ -646,7 +645,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_InPaintEvent
     \value WState_Reparented
     \value WState_ConfigPending
-    \value WState_Resized
     \value WState_AutoMask
     \value WState_DND
     \value WState_Reserved0
@@ -1488,7 +1486,7 @@ void QWidget::setEnabled_helper(bool enable)
     setAttribute(WA_Disabled, !enable);
     d->updateSystemBackground();
 
-    if (!enable && focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
+    if (!enable && topLevelWidget()->focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
 	if (!focusNextPrevChild(true))
 	    clearFocus();
 
@@ -1639,9 +1637,6 @@ QPoint QWidget::pos() const
     The size component is adjusted if it lies outside the range
     defined by minimumSize() and maximumSize().
 
-    setGeometry() is virtual, and all other overloaded setGeometry()
-    implementations in Qt call it.
-
     \warning Calling setGeometry() inside resizeEvent() or moveEvent()
     can lead to infinite recursion.
 
@@ -1709,6 +1704,43 @@ QPoint QWidget::pos() const
 
     \sa size
 */
+
+QRect QWidget::rect() const
+{
+    if (testAttribute(WA_InvalidSize))
+	const_cast<QWidget*>(this)->adjustSize();
+    return QRect(0,0,crect.width(),crect.height());
+}
+
+
+const QRect &QWidget::geometry() const
+{
+    if (testAttribute(WA_InvalidSize))
+	const_cast<QWidget*>(this)->adjustSize();
+    return crect;
+}
+
+QSize QWidget::size() const
+{
+    if (testAttribute(WA_InvalidSize))
+	const_cast<QWidget*>(this)->adjustSize();
+    return crect.size();
+}
+
+int QWidget::width() const
+{
+    if (testAttribute(WA_InvalidSize))
+	const_cast<QWidget*>(this)->adjustSize();
+    return crect.width();
+}
+
+int QWidget::height() const
+{
+    if (testAttribute(WA_InvalidSize))
+	const_cast<QWidget*>(this)->adjustSize();
+    return crect.height();
+}
+
 
 /*!
     \property QWidget::childrenRect
@@ -3014,6 +3046,7 @@ void QWidget::move( int x, int y )
     setGeometry_helper( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
+    setAttribute(WA_Moved);
     if (oldp != pos())
 	d->updateInheritedBackground();
 }
@@ -3025,9 +3058,10 @@ void QWidget::move( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
+    setAttribute(WA_InvalidSize, false);
     QSize olds = size();
     setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
-    setWState( WState_Resized );
+    setAttribute(WA_Resized);
     if (testAttribute(WA_ContentsPropagated) &&  olds != size())
 	d->updatePropagatedBackground();
 }
@@ -3039,10 +3073,12 @@ void QWidget::resize( int w, int h )
 */
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
+    setAttribute(WA_InvalidSize, false);
     QPoint oldp = pos();
     QSize olds = size();
     setGeometry_helper( x, y, w, h, TRUE );
-    setWState( WState_Resized );
+    setAttribute(WA_Resized);
+    setAttribute(WA_Moved);
 
     if (testAttribute(WA_ContentsPropagated) && olds != size())
 	d->updatePropagatedBackground();
@@ -3239,6 +3275,10 @@ void QWidget::show_helper()
     if (!isTopLevel() && parentWidget()->d->layout)
 	parentWidget()->d->layout->activate();
 
+    // adjust size if necessary
+    if (testAttribute(WA_InvalidSize))
+	adjustSize();
+
     // activate our layout before we and our children become visible
     if (d->layout)
 	d->layout->activate();
@@ -3267,13 +3307,10 @@ void QWidget::show_helper()
 					QEvent::ChildInserted );
 #endif
 
-    if ( isTopLevel() && !testWState( WState_Resized ) )  {
+    if (isTopLevel() && !testAttribute(WA_Resized))  {
 #ifndef Q_OS_TEMP
 	// toplevels with layout may need a initial size
 	QSize s = qt_initial_size(this);
-	// do this before sending the posted resize events. Otherwise
-	// the layout would catch the resize event and may expand the
-	// minimum size.
 	if (!s.isEmpty())
 	    resize(s);
 #endif // Q_OS_TEMP
@@ -3700,6 +3737,7 @@ QRegion QWidget::clipRegion() const
 
 void QWidget::adjustSize()
 {
+    setAttribute(WA_InvalidSize, false);
     ensurePolished();
     QSize s = sizeHint();
     if ( s.isValid() ) {
@@ -5416,6 +5454,19 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     modified. On some platforms this will mean nothing, on others
     (including Mac OS X and Windows) the window will take a modified
     appearance. \i Function QWidget::setWindowModified()
+
+    \row \i WA_Resized \i Indicates that the widget has an explicit
+    size.\i Functions QWidget::resize() and QWidget::setGeometry()
+    
+    \row \i WA_Moved \i Indicates that the widget has an explicit
+    position.\i Functions QWidget::move() and QWidget::setGeometry()
+    
+    \row \i WA_InvalidSize \i Indicates that the widget has an invalid
+    size. Showing the widget or calling any geometry function
+    (e.g. QWidget::height() or QWidget::size()) will call
+    QWidget::adjustSize() first. The attribute is used by widgets like
+    QMenu that automatically change their size depending on the
+    contents. \i Set by widget author, cleared by Qt kernel.
 
     \endtable
 */
