@@ -3395,6 +3395,12 @@ QString QString::toUpper() const
     consider using the arg() function instead. This allows the order
     of the replacements to be controlled by the translator.
 
+    The %lc escape sequence expects a unicode character of type ushort
+    (as returned by QChar::unicode()).
+    The %ls escape sequence expects a pointer to a zero-terminated
+    array of unicode characters of type ushort (as returned by 
+    QString::ucs2()).
+
     \sa arg()
 */
 
@@ -3645,19 +3651,27 @@ QString &QString::sprintf( const char* cformat, ... )
 		break;
 	    }
 	    case 'c': {
-	    	unsigned char ch = va_arg(ap, int);
-		subst = ch;
+	    	if (length_mod == lm_l)
+		    subst = QChar((ushort) va_arg(ap, int));
+    	    	else
+		    subst = (uchar) va_arg(ap, int);
 		++c;
 		break;
 	    }
 	    case 's': {
-	    	const char *s = va_arg(ap, const char*);
-	    	subst = s;
+	    	if (length_mod == lm_l) {
+		    const ushort *buff = va_arg(ap, const ushort*);
+		    const ushort *ch = buff;
+		    while (*ch != 0)
+		    	++ch;
+		    subst.setUnicodeCodes(buff, ch - buff);
+		} else
+	    	    subst = va_arg(ap, const char*);
 		++c;
 		break;
 	    }
 	    case 'p': {
-	    	Q_ULLONG i = (Q_ULLONG) va_arg(ap, void*);
+	    	Q_ULLONG i = (uint) va_arg(ap, void*);
 		flags |= QLocalePrivate::Alternate;
 		subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
 		++c;
