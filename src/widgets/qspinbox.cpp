@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#77 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -242,8 +242,8 @@ QString QSpinBox::cleanText() const
   displayed.
 
   To turn off the special-value text display, call this function with
-  QString::null or an empty string as parameter.  The default is no
-  special-value text, i.e. the numeric value is shown as usual.
+  an empty string as parameter. The default is no special-value text,
+  i.e. the numeric value is shown as usual.
 
   \sa specialValueText()
 */
@@ -256,7 +256,7 @@ void QSpinBox::setSpecialValueText( const QString &text )
 
 
 /*!
-  Returns the currently special-value text, or an empty string if no
+  Returns the currently special-value text, or a null string if no
   special-value text is currently set.
 
   \sa setSpecialValueText()
@@ -264,7 +264,10 @@ void QSpinBox::setSpecialValueText( const QString &text )
 
 QString QSpinBox::specialValueText() const
 {
-    return specText;
+    if ( specText.isEmpty() )
+	return QString::null;
+    else
+	return specText;
 }
 
 
@@ -273,9 +276,8 @@ QString QSpinBox::specialValueText() const
   the displayed value.  Typical use is to indicate the unit of
   measurement to the user.
 
-  To turn off the prefix display, call this function with
-  QString::null or an empty string as parameter.  The default is no
-  prefix.
+  To turn off the prefix display, call this function with an empty
+  string as parameter.  The default is no prefix.
 
   \sa prefix(), setSuffix(), suffix()
 */
@@ -292,9 +294,8 @@ void QSpinBox::setPrefix( const QString &text )
   displayed value.  Typical use is to indicate the unit of measurement
   to the user.
 
-  To turn off the suffix display, call this function with
-  QString::null or an empty string as parameter.  The default is no
-  suffix.
+  To turn off the suffix display, call this function with an empty
+  string as parameter.  The default is no suffix.
 
   \sa suffix(), setPrefix(), prefix()
 */
@@ -307,7 +308,7 @@ void QSpinBox::setSuffix( const QString &text )
 
 
 /*!
-  Returns the currently set prefix, or an empty string if no prefix is
+  Returns the currently set prefix, or a null string if no prefix is
   currently set.
 
   \sa setPrefix(), setSuffix(), suffix()
@@ -323,7 +324,7 @@ QString QSpinBox::prefix() const
 
 
 /*!
-  Returns the currently set suffix, or an empty string if no suffix is
+  Returns the currently set suffix, or a null string if no suffix is
   currently set.
 
   \sa setSuffix(), setPrefix(), suffix()
