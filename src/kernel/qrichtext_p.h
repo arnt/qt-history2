@@ -36,13 +36,12 @@
 #include "qintdict.h"
 #include "qlayout.h"
 #include "qmap.h"
-#include "qmemarray.h"
+#include "qvector.h"
 #include "qobject.h"
 #include "qobject.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qlist.h"
-#include "qvector.h"
 #include "qrect.h"
 #include "qsize.h"
 #include "qstring.h"
@@ -135,15 +134,18 @@ public:
     QString anchorHref() const;
     void setAnchor( const QString& name, const QString& href );
 
+    QTextStringChar( const QTextStringChar & ) {
+	Q_ASSERT(false);
+    }
 private:
     QTextStringChar &operator=( const QTextStringChar & ) {
 	//abort();
 	return *this;
     }
-    QTextStringChar( const QTextStringChar & ) {
-    }
     friend class QTextParagraph;
 };
+
+Q_DECLARE_TYPEINFO(QTextStringChar, Q_PRIMITIVE_TYPE);
 
 class Q_GUI_EXPORT QTextString
 {
@@ -153,7 +155,7 @@ public:
     QTextString( const QTextString &s );
     virtual ~QTextString();
 
-    static QString toString( const QMemArray<QTextStringChar> &data );
+    static QString toString( const QVector<QTextStringChar> &data );
     QString toString() const;
 
     inline QTextStringChar &at( int i ) const;
@@ -176,7 +178,7 @@ public:
     QChar::Direction direction() const;
     void setDirection( QChar::Direction dr ) { dir = dr; bidiDirty = TRUE; }
 
-    QMemArray<QTextStringChar> rawData() const { return data.copy(); }
+    QVector<QTextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
     void operator+=( const QString &s ) { insert( length(), s, 0 ); }
@@ -190,7 +192,7 @@ public:
 private:
     void checkBidi() const;
 
-    QMemArray<QTextStringChar> data;
+    QVector<QTextStringChar> data;
     uint bidiDirty : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1;
@@ -299,7 +301,7 @@ public:
     void gotoWordLeft();
     void gotoWordRight();
 
-    void insert( const QString &s, bool checkNewLine, QMemArray<QTextStringChar> *formatting = 0 );
+    void insert( const QString &s, bool checkNewLine, QVector<QTextStringChar> *formatting = 0 );
     void splitAndInsertEmptyParagraph( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
     bool removePreviousChar();
@@ -974,9 +976,9 @@ private:
 class Q_GUI_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
+    QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QVector<QTextStringChar> &str,
 			const QByteArray& oldStyle );
-    QTextDeleteCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str );
+    QTextDeleteCommand( QTextParagraph *p, int idx, const QVector<QTextStringChar> &str );
     virtual ~QTextDeleteCommand();
 
     Commands type() const { return Delete; }
@@ -986,7 +988,7 @@ public:
 protected:
     int id, index;
     QTextParagraph *parag;
-    QMemArray<QTextStringChar> text;
+    QVector<QTextStringChar> text;
     QByteArray styleInformation;
 
 };
@@ -994,10 +996,10 @@ protected:
 class Q_GUI_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
-    QTextInsertCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
+    QTextInsertCommand( QTextDocument *dc, int i, int idx, const QVector<QTextStringChar> &str,
 			const QByteArray& oldStyleInfo )
 	: QTextDeleteCommand( dc, i, idx, str, oldStyleInfo ) {}
-    QTextInsertCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str )
+    QTextInsertCommand( QTextParagraph *p, int idx, const QVector<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     virtual ~QTextInsertCommand() {}
 
@@ -1010,7 +1012,7 @@ public:
 class Q_GUI_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
-    QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl );
+    QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<QTextStringChar> &old, QTextFormat *f, int fl );
     virtual ~QTextFormatCommand();
 
     Commands type() const { return Format; }
@@ -1020,7 +1022,7 @@ public:
 protected:
     int startId, startIndex, endId, endIndex;
     QTextFormat *format;
-    QMemArray<QTextStringChar> oldFormats;
+    QVector<QTextStringChar> oldFormats;
     int flags;
 
 };
@@ -1829,7 +1831,7 @@ inline bool QTextFormat::useLinkColor() const
 
 inline QTextStringChar &QTextString::at( int i ) const
 {
-    return data[ i ];
+    return const_cast<QTextString *>(this)->data[ i ];
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -32,8 +32,6 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qcursor.h"
-#include "qptrstack.h"
-#include "qptrdict.h"
 #include "qstyle.h"
 #include "qcleanuphandler.h"
 #include "qtextengine_p.h"
@@ -161,7 +159,7 @@ bool QTextCommandHistory::isRedoAvailable()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextDeleteCommand::QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
+QTextDeleteCommand::QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QVector<QTextStringChar> &str,
 					const QByteArray& oldStyleInfo )
     : QTextCommand( dc ), id( i ), index( idx ), parag( 0 ), text( str ), styleInformation( oldStyleInfo )
 {
@@ -171,7 +169,7 @@ QTextDeleteCommand::QTextDeleteCommand( QTextDocument *dc, int i, int idx, const
     }
 }
 
-QTextDeleteCommand::QTextDeleteCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str )
+QTextDeleteCommand::QTextDeleteCommand( QTextParagraph *p, int idx, const QVector<QTextStringChar> &str )
     : QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str )
 {
     for ( int i = 0; i < (int)text.size(); ++i ) {
@@ -259,7 +257,7 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 }
 
 QTextFormatCommand::QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx,
-					const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl )
+					const QVector<QTextStringChar> &old, QTextFormat *f, int fl )
     : QTextCommand( dc ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
 {
     format = dc->formatCollection()->format( f );
@@ -497,7 +495,7 @@ void QTextCursor::invalidateNested()
     }
 }
 
-void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QTextStringChar> *formatting )
+void QTextCursor::insert( const QString &str, bool checkNewLine, QVector<QTextStringChar> *formatting )
 {
     tmpX = -1;
     bool justInsert = TRUE;
@@ -2372,7 +2370,7 @@ QString QTextDocument::richText() const
 #if 0
     int futureListDepth = 0;
 #endif
-    QMemArray<int> listStyles(10);
+    QVector<int> listStyles(10);
 
     while ( p ) {
 	listDepth = p->listDepth();
@@ -3672,7 +3670,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat *f )
 {
     int os = data.size();
-    data.resize( data.size() + len, QGArray::SpeedOptim );
+    data.resize(data.size() + len);
     if ( index < os ) {
 	memmove( data.data() + index + len, data.data() + index,
 		 sizeof( QTextStringChar ) * ( os - index ) );
@@ -3699,7 +3697,7 @@ QTextString::~QTextString()
 void QTextString::insert( int index, QTextStringChar *c, bool doAddRefFormat  )
 {
     int os = data.size();
-    data.resize( data.size() + 1, QGArray::SpeedOptim );
+    data.resize( data.size() + 1);
     if ( index < os ) {
 	memmove( data.data() + index + 1, data.data() + index,
 		 sizeof( QTextStringChar ) * ( os - index ) );
@@ -3739,7 +3737,7 @@ void QTextString::truncate( int index )
 		}
 	}
     }
-    data.truncate( index );
+    data.resize(index);
     bidiDirty = TRUE;
 }
 
@@ -3762,7 +3760,7 @@ void QTextString::remove( int index, int len )
     }
     memmove( data.data() + index, data.data() + index + len,
 	     sizeof( QTextStringChar ) * ( data.size() - index - len ) );
-    data.resize( data.size() - len, QGArray::SpeedOptim );
+    data.resize( data.size() - len);
     bidiDirty = TRUE;
 }
 

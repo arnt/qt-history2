@@ -403,12 +403,12 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
     return k;
 }
 
-QString QTextString::toString( const QMemArray<QTextStringChar> &data )
+QString QTextString::toString( const QVector<QTextStringChar> &data )
 {
     QString s;
     int l = data.size();
     s.setUnicode( 0, l );
-    QTextStringChar *c = data.data();
+    const QTextStringChar *c = data.data();
     QChar *uc = (QChar *)s.unicode();
     while ( l-- )
 	*(uc++) = (c++)->c;
