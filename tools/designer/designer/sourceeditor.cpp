@@ -92,10 +92,14 @@ void SourceEditor::setObject( QObject *o, Project *p )
     else if ( formWindow() )
 	formWindow()->formFile()->setEditor( this );
     iFace->setText( sourceOfObject( obj, lang, iFace, lIface ) );
-    if ( pro && formWindow() )
-	iFace->setContext( formWindow()->mainContainer() );
-    else
+    if ( pro && formWindow() ) {
+	if ( formWindow()->isFake() )
+	    iFace->setContext( pro->objectForFakeFormFile( formWindow()->formFile() ) );
+	else
+	    iFace->setContext( formWindow()->mainContainer() );
+    } else {
 	iFace->setContext( 0 );
+    }
     if ( changed || sourceFile() )
 	iFace->setBreakPoints( MetaDataBase::breakPoints( o ) );
     MainWindow::self->objectHierarchy()->showClasses( this );
@@ -217,10 +221,14 @@ void SourceEditor::refresh( bool allowSave )
 
 void SourceEditor::resetContext()
 {
-    if ( pro && formWindow() )
-	iFace->setContext( formWindow()->mainContainer() );
-    else if ( pro && sourceFile() )
+    if ( pro && formWindow() ) {
+	if ( formWindow()->isFake() )
+	    iFace->setContext( pro->objectForFakeFormFile( formWindow()->formFile() ) );
+	else
+	    iFace->setContext( formWindow()->mainContainer() );
+    } else {
 	iFace->setContext( 0 );
+    }
 }
 
 void SourceEditor::setFocus()
