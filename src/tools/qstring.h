@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#24 $
+** $Id: //depot/qt/main/src/tools/qstring.h#25 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -268,7 +268,7 @@ inline bool QString::operator==( char *s ) const
 { return strcmp(data(),s) == 0; }
 
 inline bool QString::operator!=( char *s ) const
-{ return strcmp(data(),s) == 0; }
+{ return strcmp(data(),s) != 0; }
 
 inline bool QString::operator<( const char *s )  const
 { return strcmp(data(),s) < 0; }
