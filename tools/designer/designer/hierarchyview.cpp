@@ -726,6 +726,10 @@ void FunctionList::renamed( QListViewItem *i )
 void FunctionList::save( QListViewItem *p, QListViewItem *i )
 {
     if ( i && ( p->text( 0 ) == tr( "protected" ) || p->text( 0 ) == tr( "public" ) ) ) {
+	if ( i->text( 0 ).isEmpty() ) {
+	    delete i;
+	    return;
+	}
 	MetaDataBase::addSlot( formWindow, i->text( 0 ).latin1(), p->text( 0 ),
 			       formWindow->project()->language(), "void" );
 	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
