@@ -287,6 +287,7 @@ public:
 
     \value OpListChildren  List the children of a URL, e.g. of a directory.
     \value OpMkDir  Create a directory.
+    \omitvalue OpMkdir
     \value OpRemove  Remove a child (e.g. a file).
     \value OpRename  Rename a child (e.g. a file).
     \value OpGet  Get data from a location.
@@ -334,8 +335,10 @@ public:
 
     \value ErrListChildren  An error occurred while listing the
     children (files).
+    \omitvalue ErrListChlidren
 
     \value ErrMkDir  An error occurred when creating a directory.
+    \omitvalue ErrMkdir
 
     \value ErrRemove  An error occurred when removing a child (file).
 

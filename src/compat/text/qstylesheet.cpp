@@ -560,7 +560,7 @@ int QStyleSheetItem::numberOfColumns() const
 
 
 /*!\obsolete
-  Sets the number of columns for this style. Elements in the style
+  Sets the number of columns for this style to \a ncols. Elements in the style
   are divided into columns.
 
   This makes sense only if the style uses a block display mode

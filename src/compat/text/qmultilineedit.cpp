@@ -65,8 +65,9 @@
 */
 
 /*!
-    \fn virtual void QMultiLineEdit::setAutoUpdate(bool)
-    \obsolete
+    \fn virtual void QMultiLineEdit::setAutoUpdate(bool b)
+
+    \internal
 */
 
 /*!
@@ -85,8 +86,12 @@
 */
 
 /*!
-    \fn void QMultiLineEdit::setMaxLines(int)
+    \fn void QMultiLineEdit::setMaxLines(int max)
+
     \obsolete
+
+    Sets the maximum number of lines this QMultiLineEdit will hold to
+    \a max.
 */
 
 /*!

@@ -661,7 +661,7 @@ void QUrlOperator::copy(const QStringList &files, const QString &dest,
     Returns true if the URL is a directory; otherwise returns false.
     This may not always work correctly, if the protocol of the URL is
     something other than file (local filesystem). If you pass a bool
-    pointer as the \a ok argument, \a *ok is set to true if the result
+    pointer as the \a ok argument, \c{*}\a{ok} is set to true if the result
     of this function is known to be correct, and to false otherwise.
 */
 

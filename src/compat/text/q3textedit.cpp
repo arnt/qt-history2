@@ -2866,7 +2866,13 @@ bool Q3TextEdit::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-  \obsolete
+    \obsolete
+
+    Inserts the given \a text. If \a indent is true the paragraph that
+    contains the text is reindented; if \a checkNewLine is true the \a
+    text is checked for newlines and relaid out. If \a removeSelected
+    is true and there is a selection, the insertion replaces the
+    selected text.
  */
 void Q3TextEdit::insert(const QString &text, bool indent,
                         bool checkNewLine, bool removeSelected)
@@ -3776,8 +3782,8 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
 
     If \a para and \a index are both 0 the search begins from the
     current cursor position. If \a para and \a index are both not 0,
-    the search begins from the \a *index character position in the
-    \a *para paragraph.
+    the search begins from the \c{*}\a{index} character position in the
+    \c{*}\a{para} paragraph.
 
     If \a cs is true the search is case sensitive, otherwise it is
     case insensitive. If \a wo is true the search looks for whole word
@@ -3788,13 +3794,13 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
 
     If \a expr is found the function returns true. If \a index and \a
     para are not 0, the number of the paragraph in which the first
-    character of the match was found is put into \a *para, and the
+    character of the match was found is put into \c{*}\a{para}, and the
     index position of that character within the paragraph is put into
-    \a *index.
+    \c{*}\a{index}.
 
     If \a expr is not found the function returns false. If \a index
-    and \a para are not 0 and \a expr is not found, \a *index
-    and \a *para are undefined.
+    and \a para are not 0 and \a expr is not found, \c{*}\a{index}
+    and \c{*}\a{para} are undefined.
 
     Please note that this function will make the next occurrence of
     the string (if found) the current selection, and will thus
@@ -3880,7 +3886,7 @@ void Q3TextEdit::setCursorPosition(int para, int index)
 }
 
 /*!
-    This function sets the \a *para and \a *index parameters to the
+    This function sets the \c{*}\a{para} and \c{*}\a{index} parameters to the
     current cursor position. \a para and \a index must not be 0.
 
     \sa setCursorPosition()
@@ -3957,15 +3963,15 @@ void Q3TextEdit::setSelection(int paraFrom, int indexFrom,
 }
 
 /*!
-    If there is a selection, \a *paraFrom is set to the number of the
-    paragraph in which the selection begins and \a *paraTo is set to
+    If there is a selection, \c{*}\a{paraFrom} is set to the number of the
+    paragraph in which the selection begins and \c{*}\a{paraTo} is set to
     the number of the paragraph in which the selection ends. (They
-    could be the same.) \a *indexFrom is set to the index at which the
-    selection begins within \a *paraFrom, and \a *indexTo is set to
-    the index at which the selection ends within \a *paraTo.
+    could be the same.) \c{*}\a{indexFrom} is set to the index at which the
+    selection begins within \c{*}\a{paraFrom}, and \c{*}\a{indexTo} is set to
+    the index at which the selection ends within \c{*}\a{paraTo}.
 
-    If there is no selection, \a *paraFrom, \a *indexFrom, \a *paraTo
-    and \a *indexTo are all set to -1.
+    If there is no selection, \c{*}\a{paraFrom}, \c{*}\a{indexFrom},
+    \c{*}\a{paraTo} and \c{*}\a{indexTo} are all set to -1.
 
     If \a paraFrom, \a indexFrom, \a paraTo or \a indexTo is 0 this
     function does nothing.
@@ -5651,7 +5657,7 @@ int Q3TextEdit::paragraphAt(const QPoint &pos) const
 /*!
     Returns the index of the character (relative to its paragraph) at
     position \a pos (in contents coordinates). If \a para is not 0,
-    \a *para is set to the character's paragraph.
+    \c{*}\a{para} is set to the character's paragraph.
 */
 
 int Q3TextEdit::charAt(const QPoint &pos, int *para) const

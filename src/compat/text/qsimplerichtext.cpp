@@ -288,8 +288,8 @@ void QSimpleRichText::adjustSize()
     y), clipped to \a clipRect. The clipping rectangle is given in the
     rich text object's coordinates translated by (\a x, \a y). Passing
     an null rectangle results in no clipping. Colors from the color
-    group \a pal are used as needed, and if not 0, \a *paper is used as
-    the background brush.
+    group \a pal are used as needed, and if not 0, \c{*}\a{paper} is
+    used as the background brush.
 
     Note that the display code is highly optimized to reduce flicker,
     so passing a brush for \a paper is preferable to simply clearing
@@ -326,9 +326,10 @@ void QSimpleRichText::draw(QPainter *p,  int x, int y, const QRect& clipRect,
 
   \obsolete
 
-  Use the version with clipRect instead. The region version has
-  problems with larger documents on some platforms (on X11 regions
-  internally are represented with 16bit coordinates).
+  Use the version with clipRect instead of this \a clipRegion version,
+  since this region version has problems with larger documents on some
+  platforms (on X11 regions internally are represented with 16-bit
+  coordinates).
 */
 
 

@@ -453,8 +453,8 @@ void QWizard::setHelpEnabled(bool enable)
 
   \obsolete
 
-  If \a b is true the given \a widget has a \key{Finish} button;
-  otherwise it does not have a \key{Finish} button.
+  If \a b is true the given \a widget has a Finish button;
+  otherwise it does not have a Finish button.
 
   Use setFinishEnabled() instead
 */

@@ -917,7 +917,7 @@ QListBox::~QListBox()
 /*!
     \fn void QListBox::returnPressed(QListBoxItem *item)
 
-    This signal is emitted when \key{Enter} or \key{Return} is pressed. The
+    This signal is emitted when Enter or Return is pressed. The
     \a item passed in the argument is currentItem().
 */
 
@@ -1031,7 +1031,7 @@ QListBox::~QListBox()
     \overload
 
     This signal is emitted when the user double-clicks on an \a item or
-    presses \key{Enter} on the current \a item.
+    presses Enter on the current \a item.
 
     \sa currentChanged() highlighted() selectionChanged()
 */
@@ -1042,7 +1042,7 @@ QListBox::~QListBox()
     \overload
 
     This signal is emitted when the user double-clicks on an item or
-    presses \key{Enter} on the current item, and the item is (or has) a
+    presses Enter on the current item, and the item is (or has) a
     string. The argument is the \a text of the selected item.
 
     \sa currentChanged() highlighted() selectionChanged()

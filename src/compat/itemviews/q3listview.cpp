@@ -5423,14 +5423,14 @@ QRect Q3ListView::itemRect(const Q3ListViewItem * item) const
 /*!
     \fn void Q3ListView::returnPressed(Q3ListViewItem *item)
 
-    This signal is emitted when \key{Enter} or \key{Return} is pressed. The
+    This signal is emitted when Enter or Return is pressed. The
     \a item parameter is the currentItem().
 */
 
 /*!
     \fn void Q3ListView::spacePressed(Q3ListViewItem *item)
 
-    This signal is emitted when \key{Space} is pressed. The \a item
+    This signal is emitted when Space is pressed. The \a item
     parameter is the currentItem().
 */
 
