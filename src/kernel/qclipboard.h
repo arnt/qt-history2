@@ -100,9 +100,8 @@ private:	// Disabled copy constructor and operator=
 #if defined(Q_WS_X11)
     void clobber();
 #elif defined(Q_WS_MAC)
-    void loadClipboard(bool convert);
-    void saveClipboard();
-    ScrapRef scrap;
+    void loadScrap(bool convert);
+    void saveScrap();
 #endif
 
 #if defined(Q_DISABLE_COPY)

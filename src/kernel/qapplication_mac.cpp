@@ -882,6 +882,14 @@ bool QApplication::processNextEvent( bool canWait )
     sendPostedEvents(); //let them accumulate
   } 
 
+#ifndef QT_NO_CLIPBOARD
+  //manufacture an event so the clipboard can see if it has changed
+  if(qt_clipboard) {
+      QEvent ev(QEvent::Clipboard);
+      QApplication::sendEvent(qt_clipboard, &ev);
+  }
+#endif
+  
   if ( quit_now || app_exit_loop )
     return FALSE;
   sendPostedEvents();
@@ -1397,10 +1405,12 @@ int QApplication::macProcessEvent(MSG * m)
 	    }
 	}
 	else if( qt_clipboard && (er->message >> 24 & 0xFF) == suspendResumeMessage ) {
+#ifndef QT_NO_CLIPBOARD
 	    if(er->message & 0x01)
-		clipboard()->loadClipboard((er->message >> 1) & 0x01);
+		clipboard()->loadScrap((er->message >> 1) & 0x01);
 	    else
-		clipboard()->saveClipboard();
+		clipboard()->saveScrap();
+#endif
 	}
 	else printf("Damn!\n");
     } else {
