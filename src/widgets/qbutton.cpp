@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#10 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#10 $";
 #endif
 
 
@@ -80,6 +80,7 @@ void QButton::setLabel( const char *label, bool resize )
     btext = label;
     if ( resize )
 	resizeFitLabel();
+    update();
 }
 
 
