@@ -13,6 +13,7 @@
 #include <qmultilineedit.h>
 #include <qthread.h>
 #include <qsemaphore.h>
+#include <qmutex.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
 #include <qlabel.h>
@@ -29,14 +30,17 @@ class YellowThread : public QThread
 {
 public:
     YellowThread(QWidget *o)
-	: receiver(o)
+	: receiver(o), stopped(FALSE)
     { ; }
 
     void run();
+    void stop();
 
 
 private:
     QWidget *receiver;
+    QMutex mutex;
+    bool stopped;
 };
 
 
@@ -51,6 +55,14 @@ void YellowThread::run()
 	msleep(200);
 
 	(*greenSem)--;
+
+	mutex.lock();
+	if (stopped) {
+	    stopped = FALSE;
+	    mutex.unlock();
+	    break;
+	}
+	mutex.unlock();
     }
 
     (*yellowSem)++;
@@ -62,6 +74,13 @@ void YellowThread::run()
     (*greenSem)--;
 }
 
+void YellowThread::stop()
+{
+    mutex.lock();
+    stopped = TRUE;
+    mutex.unlock();
+}
+
 
 class GreenThread: public QThread
 {
@@ -71,10 +90,13 @@ public:
     { ; }
 
     void run();
+    void stop();
 
 
 private:
     QWidget *receiver;
+    QMutex mutex;
+    bool stopped;
 };
 
 
@@ -89,6 +111,14 @@ void GreenThread::run()
 	msleep(200);
 
 	(*yellowSem)--;
+
+	mutex.lock();
+	if (stopped) {
+	    stopped = FALSE;
+	    mutex.unlock();
+	    break;
+	}
+	mutex.unlock();
     }
 
     (*greenSem)++;
@@ -101,6 +131,13 @@ void GreenThread::run()
     (*yellowSem)--;
 }
 
+void GreenThread::stop()
+{
+    mutex.lock();
+    stopped = TRUE;
+    mutex.unlock();
+}
+
 
 
 class SemaphoreExample : public QWidget
@@ -108,6 +145,7 @@ class SemaphoreExample : public QWidget
     Q_OBJECT
 public:
     SemaphoreExample();
+    ~SemaphoreExample();
 
     void customEvent(QCustomEvent *);
 
@@ -132,6 +170,9 @@ private:
 SemaphoreExample::SemaphoreExample()
     : QWidget(), yellowThread(this), greenThread(this)
 {
+    yellowSem = new QSemaphore(1);
+    greenSem = new QSemaphore(1);
+
     button = new QPushButton("&Ignition!", this);
     connect(button, SIGNAL(clicked()), SLOT(startExample()));
 
@@ -142,6 +183,23 @@ SemaphoreExample::SemaphoreExample()
     vbox->addWidget(button);
     vbox->addWidget(mlineedit);
     vbox->addWidget(label);
+}
+
+
+SemaphoreExample::~SemaphoreExample()
+{
+    bool stopYellow = yellowThread.running(),
+	  stopGreen = greenThread.running();
+    if (stopYellow)
+	yellowThread.stop();
+    if (greenThread.running())
+	greenThread.stop();
+    if (stopYellow)
+	yellowThread.wait();
+    if (stopGreen)
+	greenThread.wait();
+    delete yellowSem;
+    delete greenSem;
 }
 
 
@@ -206,19 +264,10 @@ void SemaphoreExample::customEvent(QCustomEvent *event) {
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    yellowSem = new QSemaphore(1);
-    greenSem = new QSemaphore(1);
-
     SemaphoreExample se;
     app.setMainWidget(&se);
     se.show();
-
-    int r = app.exec();
-
-    delete yellowSem;
-    delete greenSem;
-
-    return r;
+    return app.exec();
 }
 
 
