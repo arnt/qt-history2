@@ -1,7 +1,7 @@
 /*!
   \page gallery-macintosh.html
 
-  \title Widget Gallery
+  \title Macintosh Style Widget Gallery
 
   This page shows some of the widgets available in Qt
   when configured to use the "macintosh" style.
@@ -79,10 +79,6 @@
 
     The QTextEdit class provides a widget that is used to edit and
      display both plain and rich text.
-    \row \i \inlineimage macintosh-verticalscrollbar.png
-    \i QScrollBar
-
-    \l{QScrollBar}s can also be given a vertical orientation.
     \row \i \inlineimage macintosh-horizontalscrollbar.png
     \i QScrollBar
 
@@ -96,23 +92,18 @@
     \i QToolBox
 
     The QToolBox class provides a column of tabbed widget items.
-    \row \i \inlineimage macintosh-stackedwidget.png
-    \i QStackedWidget
-
-    The QStackedWidget class provides a stack of widgets where only
-       the top widget is visible.
     \row \i \inlineimage macintosh-groupbox.png
     \i QGroupBox
 
     The QGroupBox widget provides a group box frame with a title.
-    \row \i \inlineimage macintosh-tabwidget.png
-    \i QTabWidget
-
-    The QTabWidget class provides a stack of tabbed widgets.
     \row \i \inlineimage macintosh-frame.png
     \i QFrame
 
     The QFrame widget provides a simple decorated container for other widgets.
+    \row \i \inlineimage macintosh-tabwidget.png
+    \i QTabWidget
+
+    The QTabWidget class provides a stack of tabbed widgets.
   \endtable
 
   \section1 Item Views
