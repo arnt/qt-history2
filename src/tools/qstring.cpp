@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#54 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#55 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#55 $")
 
 
 /*****************************************************************************
@@ -641,12 +641,12 @@ int QString::findRev( char c, int index, bool cs ) const
     char *b = data();
     register char *d = b+index;
     if ( cs ) {					// case sensitive
-	while ( *d != c && d >= b )
+	while ( d >= b && *d != c )
 	    d--;
     }
     else {
 	c = tolower( c );
-	while ( tolower(*d) != c && d >= b )
+	while ( d >= b && tolower(*d) != c )
 	    d--;
     }
     return d >= b ? (int)(d - b) : -1;
