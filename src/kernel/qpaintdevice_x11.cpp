@@ -947,7 +947,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( rop != Qt::CopyROP )			// use non-default ROP code
 	XSetFunction( dpy, gc, ropCodes[rop] );
 
-    if ( mono_src ) {				// src is bitmap
+    if ( mono_src && mono_dst && src == dst ) { // dst and src are the same bitmap
+	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh, dx, dy );
+    } else if ( mono_src ) {			// src is bitmap
 	XGCValues gcvals;
 	ulong	  valmask = GCBackground | GCForeground | GCFillStyle |
 			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
