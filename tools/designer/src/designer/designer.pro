@@ -1,6 +1,6 @@
 DESTDIR = ../../../../bin
 QT += xml network
-CONFIG += qt
+CONFIG += qt depend_prl
 
 #mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
