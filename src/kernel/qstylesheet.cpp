@@ -1036,7 +1036,7 @@ void QStyleSheet::init()
      style = new QStyleSheetItem( this, QString::fromLatin1("u") );
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
-     
+     style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
      
      // tables
      style = new QStyleSheetItem( this, QString::fromLatin1("table") );
@@ -1049,9 +1049,7 @@ void QStyleSheet::init()
      style->setAlignment( Qt::AlignCenter );
      style->setContexts(QString::fromLatin1("tr"));
 
-     
-     
-     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
+     style = new QStyleSheetItem( this, QString::fromLatin1("html") );
 }
 
 
@@ -1247,7 +1245,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 		else if ( !text[i].isSpace() && (!tag.isEmpty() || text[i] != '!' ) )
 		    return FALSE; // that's not a tag
 	    }
-	    return defaultSheet()->item( tag ) != 0;
+	    return defaultSheet()->item( tag.lower() ) != 0;
 	}
     }
     return FALSE;

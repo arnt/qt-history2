@@ -98,7 +98,7 @@ public:
     bool isAnchor() const;
     void setAnchor(bool anc);
 
-    enum WhiteSpaceMode { WhiteSpaceNormal, WhiteSpacePre };
+    enum WhiteSpaceMode { WhiteSpaceNormal, WhiteSpacePre, WhiteSpaceNoWrap };
     WhiteSpaceMode whiteSpaceMode() const;
     void setWhiteSpaceMode(WhiteSpaceMode m);
 

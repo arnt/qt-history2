@@ -30,7 +30,6 @@
 #include <qlayout.h>
 #include <qpainter.h>
 
-#include <qstack.h>
 #include <stdio.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -47,7 +46,7 @@ class QTextTableCell : public QLayoutItem
 {
 public:
     QTextTableCell(QTextTable* table,
-      int row, int column, 		
+      int row, int column,
       const QMap<QString, QString> &attr,
       const QStyleSheetItem* style,
       const QTextCharFormat& fmt, const QString& context,
@@ -71,18 +70,14 @@ public:
     int rowspan() const { return rowspan_; }
     int colspan() const { return colspan_; }
     int stretch() const { return stretch_; }
-    
-    void selectAll();
-    void clearSelection();
 
+    QRichText* richText()  const { return richtext; }
+    QTextTable* table() const { return parent; }
 
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
 	       QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to );
 
-    QString anchorAt( int x, int y ) const;
-    bool toggleSelection( const QPoint& from, const QPoint& to, QRect& reg );
-    
 private:
 
     QPainter* painter() const;
@@ -112,19 +107,16 @@ public:
 
     bool noErase() const { return TRUE; };
     bool expandsHorizontally() const { return TRUE; }
-    bool ownSelection() const { return TRUE; }
+    bool isTable() const { return TRUE; }
     void resize( QPainter*, int nwidth );
     QString anchorAt( QPainter* p, int x, int y );
-    bool toggleSelection( QPainter* p, const QPoint& from, const QPoint& to, QRect& reg );
-
-    void selectAll();
-    void clearSelection();
 
 private:
     QGridLayout* layout;
     QList<QTextTableCell> cells;
 
     friend class QTextTableCell;
+    friend class QRichTextIterator;
     void addCell( QTextTableCell* cell );
     QPainter* painter;
     int cachewidth;
@@ -134,7 +126,6 @@ private:
     int border;
     int outerborder;
     int stretch;
-    QTextTableCell* selection_owner;
 };
 
 
@@ -151,7 +142,11 @@ void QTextOptions::erase( QPainter* p, const QRect& r ) const
 	p->fillRect(r, *paper );
 }
 
-
+bool QTextOptions::inSelection( const QtTriple& pos ) const
+{
+    QtTriple t = selstart; t.c = 0;
+    return (pos >= t )  && (pos < selend);
+}
 
 QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& context,
 		       const QMimeSourceFactory &factory)
@@ -310,7 +305,6 @@ QRichText::QRichText( const QString &doc, const QFont& font,
     sheet_ = 0;
 }
 
-
 // constructor for nested text in text (tables, etc.)
 QRichText::QRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
 			const QStyleSheetItem* style, const QTextCharFormat& fmt,
@@ -345,7 +339,6 @@ void QRichText::init( const QString& doc, int& pos )
     nullstyle = sheet_->item("");
 
     valid = TRUE;
-//     QTime before = QTime::currentTime();
     if ( !keep_going )
 	parse(this, style, 0, format, doc, pos);
     else  do {
@@ -367,9 +360,7 @@ void QRichText::init( const QString& doc, int& pos )
 	if ( pos == oldpos )
 	    pos++;
     } while ( pos < (int) doc.length()-1 );
-    //qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
     b_cache = 0;
-    selection_owner = 0;
 }
 
 QRichText::~QRichText()
@@ -378,20 +369,14 @@ QRichText::~QRichText()
     delete flow_;
 }
 
-
-
 void QRichText::dump()
 {
 }
-
-
 
 bool QRichText::isValid() const
 {
     return valid;
 }
-
-
 
 /*!
   Returns the context of the rich text document. If no context has been specified
@@ -402,7 +387,7 @@ QString QRichText::context() const
     return contxt;
 }
 
-#define ENSURE_ENDTOKEN     if ( curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
+#define ENSURE_ENDTOKEN     if ( (current==this&&!current->child) || curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
 		     || curstyle->displayMode() == QStyleSheetItem::DisplayListItem ){ \
 		    (dummy?dummy:current)->text.append( "\n", fmt ); \
 		}
@@ -443,16 +428,15 @@ void QRichText::append( const QString& txt, const QMimeSourceFactory* factory, c
 
 
 bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle, QTextParagraph* dummy,
-			QTextCharFormat fmt, const QString &doc, int& pos)
+		       QTextCharFormat fmt, const QString &doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm )
 {
-    bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
-    if ( !pre )
+    if ( wsm != QStyleSheetItem::WhiteSpacePre )
 	eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
-		ENSURE_ENDTOKEN;
+		ENSURE_ENDTOKEN
 		if ( curstyle->isAnchor() ) {
 		    PROVIDE_DUMMY
 		    (dummy?dummy:current)->text.append( '\0', fmt );
@@ -466,21 +450,18 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
  	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
  		pos = beforePos;
-		ENSURE_ENDTOKEN;
+		ENSURE_ENDTOKEN
  		return FALSE;
  	    }
-
 	    if ( nstyle && !nstyle->allowedInContext( curstyle ) ) {
 		QString msg;
 		msg.sprintf( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
 		sheet_->error( msg );
 		pos = beforePos;
-		ENSURE_ENDTOKEN;
+		ENSURE_ENDTOKEN
 		return FALSE;
 	    }
-
-	    // TODO was wenn wir keinen nstyle haben?
 	    if ( !nstyle )
 		nstyle = nullstyle;
 
@@ -491,28 +472,30 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
 		else {// br
 		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
-		    if ( !pre )
+		    if ( wsm != QStyleSheetItem::WhiteSpacePre )
 			eatSpace(doc, pos);
 		}
 	    }
 	    else if ( tagname == "table" ) {
 		QTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
+		PROVIDE_DUMMY
+		QTextParagraph* table = new QTextParagraph( current, formats, fmt,  nullstyle );
+		if ( current->child ) {
+		    QTextParagraph* it = current->child;
+		    while ( it->next )
+			it = it->next;
+		    it->next = table;
+		} else
+		    current->child = table;
 		custom = parseTable( attr, nfmt, doc, pos );
-		if ( custom ) {
-		    PROVIDE_DUMMY
-		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom )  );
-		    (dummy?dummy:current)->text.append( " ", fmt );
-		}
+		table->text.append( "", fmt.makeTextFormat( nstyle, attr, custom )  );
+		table->text.append( " ", fmt );
 		CLOSE_TAG
 	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
 		) {
-		QTextParagraph* subparagraph = new QTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
-
-		if ( current == this && !child && text.isEmpty() )
-		    attributes_ = attr; // propagate attributes
 
 		if ( !current->text.isEmpty() ){
 		    dummy = new QTextParagraph( current, formats, fmt, nullstyle );
@@ -522,8 +505,15 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    current->child = dummy;
 		}
 
+		QTextParagraph* subparagraph = new QTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
+
+		if ( current == this && !child && text.isEmpty() )
+		    attributes_ = attr; // propagate attributes
+
 		bool recover = FALSE;
-		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos) ) {
+		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos, 
+			   nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
+			   nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
 		    valid = (hasPrefix(doc, pos, QChar('<'))
@@ -553,14 +543,16 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    dummy = 0;
 		}
 
-		if ( recover )
+		if ( recover ) {
+		    ENSURE_ENDTOKEN
 		    return TRUE; // sloppy, we could return FALSE to abort
+		}
 		(void) eatSpace(doc, pos);
 	    }
 	    else { // containers and empty tags
-		// TODO: check empty tags and custom tags in stylesheet
-
-		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos ) ) {
+		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos,
+			    nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
+			    nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
 		    CLOSE_TAG
 		}
 	    }
@@ -574,10 +566,10 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		it->next = dummy;
 		dummy->prev = it;
 	    }
- 	    QString word = parsePlainText( doc, pos, pre, TRUE );
+ 	    QString word = parsePlainText( doc, pos, wsm, TRUE );
  	    if (valid){
 		(dummy?dummy:current)->text.append( word, fmt );
-		if (!pre && (doc.unicode())[pos] == '<')
+		if (wsm != QStyleSheetItem::WhiteSpacePre && (doc.unicode())[pos] == '<')
 		    (void) eatSpace(doc, pos);
 	    }
 	}
@@ -653,7 +645,6 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
 			      contxt, *factory_, sheet_, doc, pos );
 			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
 			    multicells.append( cell );
-// 			qDebug("add cell %d %d (%d %d )", row, col, cell->rowspan(), cell->colspan() );
 			col += cell->colspan()-1;
 		    }
 		}
@@ -665,9 +656,6 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
     }
     return table;
 }
-
-
-
 
 bool QRichText::eatSpace(const QString& doc, int& pos, bool includeNbsp )
 {
@@ -689,7 +677,6 @@ bool QRichText::lookAhead(const QString& doc, int& pos, QChar c)
 {
     return ((doc.unicode())[pos] == c);
 }
-
 
 static QMap<QCString, QChar> *html_map = 0;
 static void qt_cleanup_html_map()
@@ -788,14 +775,14 @@ QString QRichText::parseWord(const QString& doc, int& pos, bool insideTag, bool 
     return s;
 }
 
-QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord)
+QString QRichText::parsePlainText(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm, bool justOneWord)
 {
     QString s;
     while( pos < int(doc.length()) &&
 	   (doc.unicode())[pos] != '<' ) {
 	if ((doc.unicode())[pos].isSpace() && (doc.unicode())[pos] != QChar(0x00a0U) ){
 
-	    if ( pre ) {
+	    if ( wsm == QStyleSheetItem::WhiteSpacePre ) {
 		if ( (doc.unicode())[pos] == ' ' )
 		    s += QChar(0x00a0U);
 		else
@@ -805,8 +792,10 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
 		while ( pos+1 < int(doc.length() ) &&
 			(doc.unicode())[pos+1].isSpace()  && (doc.unicode())[pos+1] != QChar(0x00a0U) )
 		    pos++;
-
-		s += ' ';
+		if ( wsm == QStyleSheetItem::WhiteSpaceNoWrap )
+		    s += QChar(0x00a0U);
+		else
+		    s += ' ';
 	    }
 	    pos++;
 	    if ( justOneWord )
@@ -822,7 +811,6 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
     valid = valid && pos <= int(doc.length());
     return s;
 }
-
 
 bool QRichText::hasPrefix(const QString& doc, int pos, QChar c)
 {
@@ -943,14 +931,11 @@ bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
     return valid;
 }
 
-
-
-// convenience function
 void QRichText::draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QTextOptions& to )
 {
-    QTextCursor tc( *this );
+    QRichTextFormatter tc( *this );
     QTextParagraph* b = this;
     while ( b ) {
 	tc.gotoParagraph( p, b );
@@ -967,119 +952,24 @@ void QRichText::draw(QPainter* p, int x, int y,
 }
 
 
-// convenience function
 void QRichText::doLayout( QPainter* p, int nwidth ) {
-    QTextCursor fc( *this );
+    QRichTextFormatter fc( *this );
     invalidateLayout();
     flow()->initialize( nwidth );
     fc.initParagraph( p, this );
     fc.updateLayout( p );
 }
 
-// convenience function
-QString QRichText::anchorAt( QPainter* p, int x, int y) const
+QString QRichText::anchorAt( const QPoint& pos ) const
 {
-    QTextCursor tc( *((QRichText*)this) );
-    tc.gotoParagraph( p, (QRichText*)this );
-    QTextParagraph* b = tc.paragraph;
-    while ( b && tc.y() < y ) {
-	if ( b && b->dirty ){
-	    tc.initParagraph( p, b );
-	    tc.updateLayout( p, y + 1 );
-	}
-
-	tc.gotoParagraph( p, b );
-
-	if ( tc.y() + tc.paragraph->height > y ) {
-	    do {
-		tc.makeLineLayout( p );
-		QRect geom( tc.lineGeometry() );
-		if ( geom.contains( QPoint(x,y) ) ) {
-		    tc.gotoLineStart( p );
-		    while ( !tc.atEndOfLine() && geom.left() + tc.currentx + tc.currentoffsetx < x ) {
-			tc.right( p );
-		    }
-		    if ( geom.left() + tc.currentx + tc.currentoffsetx > x )
-			tc.left( p );
-		    else
-			return QString::null;
-		    QTextCharFormat format( *tc.currentFormat() );
-		    if ( format.customItem() ) {
-			// custom items may have anchors as well
-			int h = format.customItem()->height;
-			int nx = x - geom.x() - tc.currentx;
-			int ny = y - geom.y() - tc.base + h;
-			QString anchor = format.customItem()->anchorAt( p, nx, ny );
-			if ( !anchor.isNull() )
-			    return anchor;
-		    }
-		    return format.anchorHref();
-		}
-	    }
-	    while ( tc.gotoNextLine( p ) );
-	}
-	b = b->nextInDocument();
-    }
-
-    return QString::null;
+    QRichTextIterator it( *((QRichText*)this) );
+    it.goTo( pos );
+    return it.format()->anchorHref();
 }
 
-bool QRichText::clearSelection()
-{
-    bool result = FALSE;
-    QTextParagraph* b = this;
-    while ( b->child )
-	b = b->child;
-    while ( b ) {
-	if ( b->text.isSelected() ) {
-	    result = TRUE;
-	    b->text.clearSelection();
-	    flow()->invalidateRect( QRect( 0, b->y, flow()->width, b->height ) );
-	}
-	b = b->nextInDocument();
-    }
-    return result;
-}
-
-QString QRichText::selectedText()
-{
-    QString result;
-    QTextParagraph* b = this;
-    while ( b->child )
-	b = b->child;
-    while ( b ) {
-	int column = 0;
-	if ( b->text.isSelected() ) {
-	    for (int i = 0; i < b->text.length(); i++ ) {
-		if ( b->text.isSelected( i ) ) {
-		    QString& s = b->text.getCharAt( i );
-		    if ( column + s.length() > 79 ) {
-			result += '\n';
-			column = 0;
-		    }
-		    result += s;
-		    column += s.length();
-		}
-	    }
-	    result += '\n';
-	}
-	b = b->nextInDocument();
-    }
-    return result;
-}
-
-void QRichText::selectAll()
-{
-    QTextParagraph* b = this;
-    while ( b->child )
-	b = b->child;
-    while ( b ) {
-	for (int i = 0; i < b->text.length(); i++ )
-	    b->text.setSelected( i, TRUE );
-	b = b->nextInDocument();
-    }
-}
-
+/*
+  Returns the paragraph right before \a y. Fast through caching.
+ */
 QTextParagraph* QRichText::getParBefore( int y ) const
 {
     QTextParagraph* b = dirty?0:b_cache;
@@ -1088,7 +978,7 @@ QTextParagraph* QRichText::getParBefore( int y ) const
 	while ( b->child )
 	    b = b->child;
     }
-    while ( b->y > y  && b->prevInDocument() ) 
+    while ( b->y > y  && b->prevInDocument() )
 	b = b->prevInDocument();
     while ( b->y + b->height < y && b->nextInDocument() )
 	b = b->nextInDocument();
@@ -1097,77 +987,172 @@ QTextParagraph* QRichText::getParBefore( int y ) const
     return b;
 }
 
-
-bool QRichText::toggleSelection( QPainter* p, const QPoint& from, const QPoint& to )
+bool operator!=( const QtTriple &t1, const QtTriple &t2 )
 {
-    QTextCursor cursor( *this );
-    cursor.gotoParagraph( p, b_cache );
-    cursor.goTo( p, from.x(), from.y() );
-    b_cache = cursor.paragraph;
-
-    if ( to == from ) {
-	selection_owner = 0;
-	QTextCustomItem* c = cursor.currentFormat()?cursor.currentFormat()->customItem():0;
-	if ( c && c->ownSelection() ) {
-	    selection_owner = c;
-	    cursor.paragraph->text.setSelected( -1, TRUE );
-	}
-    }
-    if ( selection_owner ) {
-	QRect geom( cursor.lineGeometry() );
-	QPoint offset (geom.x() + cursor.currentx, geom.y() + cursor.base - selection_owner->height );
-	QRect r;
-	bool sel = selection_owner->toggleSelection( p, from - offset, to - offset, r );
-	r.moveBy( offset.x(), offset.y() );
-	flow()->invalidateRect( r );
-	return sel;
-    }
-    
-    cursor.split();
-    QTextCursor oldc( cursor );
-    cursor.goTo( p, to.x(), to.y() );
-    if ( cursor.split() ) {
-	if ( (oldc.paragraph == cursor.paragraph) && (oldc.current >= cursor.current) ) {
-	    oldc.current++;
-	    oldc.update( p );
-	}
-    }
-    int oldy = oldc.y();
-    int oldx = oldc.x();
-    int oldh = oldc.height;
-    int newy = cursor.y();
-    int newx = cursor.x();
-    int newh = cursor.height;
-
-    bool sel = cursor.isSelected();
-    if ( oldx == newx && oldy == newy && oldh == newh )
-  	return sel;
-
-    QTextCursor start( *this ), end( *this );
-    bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
-    if ( oldIsFirst ) {
-	start = oldc;
-	end = cursor;
-    } else {
-	start = cursor;
-	end = oldc;
-    }
-
-    while ( start.paragraph != end.paragraph ) {
-	start.setSelected( !start.isSelected() );
-	start.rightOneItem( p );
-    }
-    while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
-	start.setSelected( !start.isSelected() );
-	start.rightOneItem( p );
-    }
-    
-    flow()->invalidateRect( QRect( 0, QMIN(oldy, newy),
-				   flow()->width,
-				   QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy) ) );
-    return sel;
+    return (t1.a != t2.a) || (t1.b != t2.b) || (t1.c != t2.c);
+} 
+bool operator<( const QtTriple &t1, const QtTriple &t2 )
+{
+    if ( t1.a != t2.a )
+	return t1.a < t2.a;
+    else if ( t1.b != t2.b )
+	return t1.b < t2.b;
+    else if ( t1.c != t2.c )
+	return t1.c < t2.c;
+    return FALSE;
 }
 
+bool operator>=( const QtTriple &t1, const QtTriple &t2 )
+{
+    if ( t1.a != t2.a )
+	return t1.a > t2.a;
+    else if ( t1.b != t2.b )
+	return t1.b > t2.b;
+    else if ( t1.c != t2.c )
+	return t1.c > t2.c;
+    return TRUE;
+}
+
+QRichTextIterator::QRichTextIterator(QRichText& document )
+    : doc( document ), fc( document )
+{
+    stack.setAutoDelete( TRUE );
+    fc.gotoParagraph( 0, &document );
+    dirty = TRUE;
+}
+
+QtTriple QRichTextIterator::position() const
+{
+    return (stack.getLast()?stack.getLast()->fc: fc).position();
+}
+
+bool QRichTextIterator::right( bool doFormat )
+{
+    if ( !doFormat )
+	dirty = TRUE;
+    else if ( dirty )
+	update();
+    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+
+    QTextCustomItem* c = f.format()->customItem();
+    if ( c && c->isTable() ) {
+	QTextTable* table = (QTextTable*) c;
+	if ( !table->cells.isEmpty() ) {
+	    Item* item = new Item( f, table->cells );
+	    stack.append( item );
+	    QTextTableCell* cell = item->it.current();
+	    item->fc = QRichTextFormatter( *cell->richText() );
+	    item->fc.gotoParagraph( 0, cell->richText() );
+	    return TRUE;
+	}
+    }
+    
+    bool ok = doFormat?f.rightOneItem():f.lazyRightOneItem();
+    if ( !ok ) {
+	if ( stack.getLast() ) {
+	    while ( stack.getLast() && stack.getLast()->it.atLast() )
+		stack.removeLast();
+	    Item* item = stack.getLast();
+	    if ( item ) {
+		++item->it;
+		QTextTableCell* cell = item->it.current();
+		item->fc = QRichTextFormatter( *cell->richText() );
+		item->fc.gotoParagraph( 0, cell->richText() );
+		ok = TRUE;
+	    } else
+		ok = doFormat?fc.rightOneItem():fc.lazyRightOneItem();
+	}
+    }
+
+    return ok;
+}
+
+QString QRichTextIterator::text() const
+{
+    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    if ( f.current < f.paragraph->text.length() )
+	return f.paragraph->text.charAt( f.current );
+    return QString::null;
+}
+
+QTextCharFormat* QRichTextIterator::format() const
+{
+    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    return f.format();
+}
+
+QRect QRichTextIterator::lineGeometry() const
+{
+    if ( dirty ) {
+	QRichTextIterator* that = (QRichTextIterator*) this;
+	that->update();
+    }
+    QRect geom( fc.lineGeometry() );
+    const QRichTextFormatter* f = &fc;
+    QListIterator<Item> it( stack );
+    while ( it.current() ) {
+	Item* item = it.current();
+	++it;
+	QTextTable* table = (QTextTable*)f->format()->customItem();
+	QTextTableCell* cell = item->it.current();
+	QRect r( item->fc.lineGeometry() );
+	geom.setRect( geom.x() + f->currentx + table->outerborder + r.x() + cell->geometry().x(),
+		      geom.y() + f->base - table->height + table->outerborder + r.y() + cell->geometry().y(),
+		      r.width(), r.height() );
+	f = &item->fc;
+    }
+    return geom;
+}
+
+
+bool QRichTextIterator::goTo( const QPoint& pos )
+{
+    dirty = FALSE;
+    stack.clear();
+    bool within = fc.goTo( 0, pos.x(), pos.y() );
+    QTextCustomItem* c = fc.format()->customItem();
+    if ( c && c->isTable() ) {
+	QTextTable* table = (QTextTable*) c;
+	if ( table->cells.isEmpty() )
+	    return FALSE;
+	QRect geom( fc.lineGeometry() );
+	int nx = pos.x() - geom.x() - fc.currentx;
+	int ny = pos.y() - geom.y() - fc.base + table->height;
+	Item* item = new Item( fc, table->cells );
+	stack.append( item );
+	while ( !item->it.atLast() ) {
+	    QPoint p(nx - table->outerborder, ny - table->outerborder );
+	    QRect r( item->it.current()->geometry() );
+	    if ( r.contains( p ) || ( p.x() <= r.right() && p.y() <= r.bottom() ) )
+		break;
+	    ++item->it;
+	}
+	QTextTableCell* cell = item->it.current();
+	item->fc = QRichTextFormatter( *cell->richText() );
+	within = item->fc.goTo( 0, nx - table->outerborder - cell->geometry().x(),
+				ny - table->outerborder - cell->geometry().y() );
+    }
+    return within;
+}
+
+void QRichTextIterator::goTo( const QtTriple& pos )
+{
+    QtTriple rawpos = pos; rawpos.c = 0;
+    stack.clear();
+    fc.gotoParagraph( 0, &doc );
+    while ( position() < rawpos )
+	right( FALSE );
+    QRichTextFormatter& f = stack.getLast()?stack.getLast()->fc: fc;
+    f.currentoffset = pos.c;
+}
+
+void QRichTextIterator::update()
+{
+    fc.update();
+    for ( Item* i = stack.first(); i; i = stack.next() )
+	i->fc.update();
+    dirty = FALSE;
+}
 
 void QTextParagraph::invalidateLayout()
 {
@@ -1193,12 +1178,12 @@ void QTextParagraph::invalidateLayout()
 }
 
 
-QTextParagraph* QTextParagraph::realParagraph()
+QTextParagraph* QTextParagraph::realParagraph() const
 {
     // to work around dummy paragraphs
     if ( parent &&style->name().isEmpty() )
 	return parent->realParagraph();
-    return this;
+    return (QTextParagraph*) this;
 }
 
 QStyleSheetItem::ListStyle QTextParagraph::listStyle()
@@ -1255,8 +1240,12 @@ QTextParagraph::QTextParagraph( QTextParagraph* p, QTextFormatCollection* format
 };
 
 
+static int qt_text_paragraph_id;
+
 void QTextParagraph::init()
 {
+    id = qt_text_paragraph_id++;
+
     formats->registerFormat( format );
 
     child = next = prev = 0;
@@ -1291,7 +1280,7 @@ QTextParagraph::~QTextParagraph()
     }
 }
 
-QTextParagraph* QTextParagraph::nextInDocument()
+QTextParagraph* QTextParagraph::nextInDocument() const
 {
     if ( next  ) {
 	QTextParagraph* b = next;
@@ -1305,7 +1294,7 @@ QTextParagraph* QTextParagraph::nextInDocument()
     return 0;
 }
 
-QTextParagraph* QTextParagraph::prevInDocument()
+QTextParagraph* QTextParagraph::prevInDocument() const
 {
     if ( prev ){
 	QTextParagraph* b = prev;
@@ -1322,27 +1311,20 @@ QTextParagraph* QTextParagraph::prevInDocument()
     return 0;
 }
 
-
-QTextParagraph* QTextParagraph::lastChild()
+QTextParagraph* QTextParagraph::lastChild() const
 {
     if ( !child )
-	return this;
+	return (QTextParagraph*) this;
     QTextParagraph* b = child;
     while ( b->next )
 	b = b->next;
     return b->lastChild();
 }
 
-
-QTextFlow* QTextParagraph::flow()
+QTextFlow* QTextParagraph::flow() const
 {
-    if ( !flow_ ) {
-	qDebug("AUTSCH!!!!!!! no flow");
-    }
     return flow_;
 }
-
-
 
 QTextRichString::QTextRichString( QTextFormatCollection* fmt )
     : formats( fmt )
@@ -1350,7 +1332,6 @@ QTextRichString::QTextRichString( QTextFormatCollection* fmt )
     items = 0;
     len = 0;
     store = 0;
-    selection = 0;
 }
 
 QTextRichString::~QTextRichString()
@@ -1358,20 +1339,6 @@ QTextRichString::~QTextRichString()
     for (int i = 0; i < len; ++i )
 	formats->unregisterFormat( *items[i].format );
 }
-
-void QTextRichString::clearSelection()
-{
-    for (int i = 0; i < len; ++i ) {
-	setSelected( i, FALSE );
-    }
-    selection = FALSE;
-}
-
-bool QTextRichString::isSelected() const
-{
-    return selection;
-}
-
 
 void QTextRichString::clear()
 {
@@ -1431,28 +1398,6 @@ QString& QTextRichString::getCharAt( int index )
     items[index].width = -1;
     return items[index].c;
 }
-
-void QTextRichString::setSelected( int index, bool selected )
-{
-    if ( index >= 0 ) {
-	items[index].selected = selected;
-	if ( items[index].format->customItem() ) {
-	    if ( selected )
-		items[index].format->customItem()->selectAll();
-	    else
-		items[index].format->customItem()->clearSelection();
-	    
-	}
-    }
-    if ( selected )
-	selection = TRUE;
-}
-
-bool QTextRichString::isSelected( int index ) const
-{
-    return items[index].selected;
-}
-
 
 void QTextRichString::setBold( int index, bool b )
 {
@@ -1529,7 +1474,7 @@ QTextRichString& QTextRichString::operator=( const QTextRichString &other )
 }
 
 
-QTextCursor::QTextCursor(QRichText& document )
+QRichTextFormatter::QRichTextFormatter(QRichText& document )
 {
     doc = &document;
     paragraph = doc;
@@ -1539,23 +1484,19 @@ QTextCursor::QTextCursor(QRichText& document )
     lmargin = rmargin = 0;
     static_lmargin = static_rmargin = 0;
     currentasc  = currentdesc = 0;
-    xline_current = 0;
-    xline = 0;
-    xline_paragraph = 0;
     formatinuse = 0;
 }
-QTextCursor::~QTextCursor()
+QRichTextFormatter::~QRichTextFormatter()
 {
 }
 
-
-/*!
+/*
   Like gotoParagraph() but also initializes the paragraph
   (i.e. setting the cached values in the paragraph to the cursor's
   settings and not vice versa.
 
  */
-void QTextCursor::initParagraph( QPainter* p, QTextParagraph* b )
+void QRichTextFormatter::initParagraph( QPainter* p, QTextParagraph* b )
 {
 	b->y = y_;
 	b->height = 0;
@@ -1566,7 +1507,7 @@ void QTextCursor::initParagraph( QPainter* p, QTextParagraph* b )
 	gotoParagraph( p, b );
 }
 
-void QTextCursor::gotoParagraph( QPainter* p, QTextParagraph* b )
+void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 {
     if ( !b )
 	return;
@@ -1607,7 +1548,7 @@ void QTextCursor::gotoParagraph( QPainter* p, QTextParagraph* b )
 
 }
 
-void QTextCursor::update( QPainter* p )
+void QRichTextFormatter::update( QPainter* p )
 {
     int i = current;
     int io = currentoffset;
@@ -1621,7 +1562,7 @@ void QTextCursor::update( QPainter* p )
 }
 
 
-bool QTextCursor::gotoNextLine( QPainter* p )
+bool QRichTextFormatter::gotoNextLine( QPainter* p )
 {
     current = last;
     if ( atEnd() ) {
@@ -1657,7 +1598,7 @@ bool QTextCursor::gotoNextLine( QPainter* p )
     return TRUE;
 }
 
-void QTextCursor::gotoLineStart( QPainter* p )
+void QRichTextFormatter::gotoLineStart( QPainter* p )
 {
     current = first;
     currentoffset = currentoffsetx = 0;
@@ -1666,14 +1607,16 @@ void QTextCursor::gotoLineStart( QPainter* p )
 }
 
 
-void QTextCursor::updateCharFormat( QPainter* p )
+void QRichTextFormatter::updateCharFormat( QPainter* p )
 {
     if ( pastEnd() )
 	return;
-    QTextCharFormat* fmt = currentFormat();
-    p->setFont( fmt->font() );
-    p->setPen( fmt->color() );
-    QFontMetrics fm( p->fontMetrics() );
+    QTextCharFormat* fmt = format();
+    if ( p ) {
+	p->setFont( fmt->font() );
+	p->setPen( fmt->color() );
+    }
+    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     currentasc = fm.ascent();
     currentdesc = fm.descent();
     QTextCustomItem* custom = fmt->customItem();
@@ -1691,7 +1634,7 @@ void QTextCursor::updateCharFormat( QPainter* p )
 }
 
 
-void QTextCursor::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
+void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
 			      QRegion& backgroundRegion,
 			      const QColorGroup& cg, const QTextOptions& to )
 
@@ -1766,26 +1709,21 @@ void QTextCursor::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, int
     p->setFont( font );
 }
 
-void QTextCursor::drawLine( QPainter* p, int ox, int oy,
+void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 			     int cx, int cy, int cw, int ch,
 			     QRegion& backgroundRegion,
 			     const QColorGroup& cg, const QTextOptions& to )
 
 {
     gotoLineStart( p );
-
-    if ( pastEndOfLine() ) {
-	qDebug("try to draw empty line!!");
+    if ( pastEndOfLine() )
 	return;
-    }
-
+    
     int gx = 0;
     int gy = y();
-
     int realWidth = QMAX( width, widthUsed );
     QRect r(gx-ox+lmargin, gy-oy, realWidth-lmargin-rmargin, height);
-
-    bool clipMode = currentFormat()->customItem() && currentFormat()->customItem()->noErase();
+    bool clipMode = format()->customItem() && format()->customItem()->noErase();
 
     if (!clipMode )
 	to.erase( p, r );
@@ -1810,23 +1748,41 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 
     QString c;
     while ( !atEndOfLine() ) {
-	QTextCharFormat *format  = currentFormat();
-	if ( !format->anchorHref().isEmpty() ) {
+	QTextCharFormat *fmt  = format();
+	if ( !fmt->anchorHref().isEmpty() ) {
 	    p->setPen( to.linkColor );
 	    if ( to.linkUnderline ) {
-		QFont f = format->font();
+		QFont f = fmt->font();
 		f.setUnderline( TRUE );
 		p->setFont( f );
 	    }
 	}
-	bool selected = paragraph->text.isSelected(current);
+	bool selected = !clipMode && to.inSelection( position() );
+	QRect highlight;
+	bool only_partially_highlighted = FALSE;
 	if ( selected ) {
+	    QtTriple pos = position();
+	    int offsetx = 0;
 	    int w = paragraph->text.items[current].width;
-	    p->fillRect( gx-ox+currentx, gy-oy, w, height, cg.highlight() );
-	    p->setPen( cg.highlightedText() );
+	    if ( to.selstart.c  && to.selstart.a == pos.a && to.selstart.b == pos.b ) {
+		QFontMetrics fm( p->fontMetrics() );
+		c = paragraph->text.charAt( current );
+		offsetx = fm.width( c.left( to.selstart.c ) );
+		only_partially_highlighted = TRUE;
+	    }
+	    if ( to.selend.c && to.selend.a == pos.a && to.selend.b == pos.b ) {
+		QFontMetrics fm( p->fontMetrics() );
+		c = paragraph->text.charAt( current );
+		w -= fm.width( c.mid( to.selend.c ) );
+		only_partially_highlighted = TRUE;
+	    }
+	    highlight.setRect( gx-ox+currentx+offsetx, gy-oy, w- offsetx, height );
+	    p->fillRect( highlight, cg.highlight() );
+	    if ( !only_partially_highlighted )
+		p->setPen( cg.highlightedText() );
 	}
-
-	QTextCustomItem* custom = format->customItem();
+	
+	QTextCustomItem* custom = fmt->customItem();
 	if ( custom ) {
 	    int h = custom->height;
 	    if ( custom->placeInline() ) {
@@ -1835,16 +1791,21 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
 		custom->draw(p, custom->x, custom->y, ox, oy,
 			     cx, cy, cw, ch, backgroundRegion, cg, to );
 	    }
-	}
-	else {
+	} else {
 	    c = paragraph->text.charAt( current );
 	    int l = c.length();
 	    while ( l>0 && c[l-1]=='\n' )
 		l--;
 	    p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+	    if ( only_partially_highlighted ) {
+		p->setClipRect( highlight );
+		p->setPen( cg.highlightedText() );
+		p->drawText(gx+currentx-ox, gy-oy+base, c, l );
+		p->setClipping( FALSE );
+	    }
 	}
 	if ( selected )
-	    p->setPen( format->color() );
+	    p->setPen( fmt->color() );
 	gotoNextItem( p );
 	gy = y();
     }
@@ -1857,61 +1818,75 @@ void QTextCursor::drawLine( QPainter* p, int ox, int oy,
     backgroundRegion = backgroundRegion.subtract(r);
 }
 
-bool QTextCursor::atEnd() const
+bool QRichTextFormatter::atEnd() const
 {
     return current > paragraph->text.length()-2;
 }
 
 
-bool QTextCursor::pastEnd() const
+bool QRichTextFormatter::pastEnd() const
 {
     return current > paragraph->text.length() - 1;
 }
 
-bool QTextCursor::pastEndOfLine() const
+bool QRichTextFormatter::pastEndOfLine() const
 {
     return current > last;
 }
 
-bool QTextCursor::atEndOfLine() const
+bool QRichTextFormatter::atEndOfLine() const
 {
     return current > last || (current == last && currentoffset >= int(paragraph->text.charAt( current ).length())-1);
 }
 
-bool QTextCursor::rightOneItem( QPainter* p )
+bool QRichTextFormatter::rightOneItem( QPainter* p )
 {
     if ( atEnd() ) {
 	QTextParagraph* next = paragraph->nextInDocument();
 	if ( next ) {
-	    if ( next->dirty ) {
+	    if ( next->dirty )
 		updateLayout( p );
-	    }
 	    gotoParagraph( p, next );
 	    makeLineLayout( p );
 	    gotoLineStart( p );
-	} else {
+	} else
 	    return FALSE;
-	}
     }
     else if ( current >= last ) {
 	(void) gotoNextLine( p );
 	makeLineLayout( p );
 	gotoLineStart( p );
     }
-    else {
+    else
 	gotoNextItem( p );
+    return TRUE;
+}
+
+bool QRichTextFormatter::lazyRightOneItem()
+{
+    if ( atEnd() ) {
+	QTextParagraph* next = paragraph->nextInDocument();
+	if ( next )
+	    gotoParagraph( 0, next );
+	else
+	    return FALSE;
+    }
+    else if ( !pastEnd() ) {
+	current++;
+	currentoffset = currentoffsetx = 0;
     }
     return TRUE;
 }
 
-void QTextCursor::right( QPainter* p )
+void QRichTextFormatter::right( QPainter* p )
 {
     if ( !pastEnd() && !pastEndOfLine() ) {
 	QString c =  paragraph->text.charAt( current );
 	if ( currentoffset  < int(c.length()) - 1 ) {
-	    QTextCharFormat* fmt = currentFormat();
-	    p->setFont( fmt->font() );
-	    QFontMetrics fm( p->fontMetrics() );
+	    QTextCharFormat* fmt = format();
+	    if ( p )
+		p->setFont( fmt->font() );
+	    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
 	    currentoffset++;
 	    currentoffsetx = fm.width( c, currentoffset );
 	    return;
@@ -1920,13 +1895,15 @@ void QTextCursor::right( QPainter* p )
     (void) rightOneItem( p );
 }
 
-void QTextCursor::left( QPainter* p )
+// TODO remove this function and its usage
+void QRichTextFormatter::left( QPainter* p )
 {
-    QFontMetrics fm( p->fontMetrics() );
     if ( currentoffset > 0 ) {
 	QString c =  paragraph->text.charAt( current );
-	QTextCharFormat* fmt = currentFormat();
-	p->setFont( fmt->font() );
+	QTextCharFormat* fmt = format();
+	QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
+	if ( p )
+	    p->setFont( fmt->font() );
 	currentoffset--;
 	currentoffsetx = fm.width( c, currentoffset );
     }
@@ -1951,51 +1928,20 @@ void QTextCursor::left( QPainter* p )
 	QString c =  paragraph->text.charAt( current );
 	if ( c.length() > 1 ) {
 	    currentoffset = c.length() - 1;
-	    QTextCharFormat* fmt = currentFormat();
-	    p->setFont( fmt->font() );
-	    QFontMetrics fm( p->fontMetrics() );
+	    QTextCharFormat* fmt = format();
+	    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
+	    if ( p )
+		p->setFont( fmt->font() );
 	    currentoffsetx = fm.width( c, currentoffset );
 	}
     }
 }
 
 
-void QTextCursor::up( QPainter* p )
+bool QRichTextFormatter::goTo( QPainter* p, int xpos, int ypos )
 {
-    if ( xline_paragraph != paragraph || xline_current != current )
-	xline = x();
-    gotoLineStart( p );
-    left( p );
-    gotoLineStart( p );
-    while ( !atEndOfLine() && x()  < xline ) {
-	right( p );
-    }
-    xline_paragraph = paragraph;
-    xline_current = current;
-}
-
-void QTextCursor::down( QPainter* p )
-{
-    if ( xline_paragraph != paragraph || xline_current != current )
-	xline = x();
-    while ( current < last )
-	(void) rightOneItem( p );
-    (void) rightOneItem( p );
-    while ( !atEndOfLine() && x() < xline ) {
-	right( p );
-    }
-
-    xline_paragraph = paragraph;
-    xline_current = current;
-}
-
-
-void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
-{
-    while ( y() > ypos && paragraph->prevInDocument() ) 
-	gotoParagraph( p, paragraph->prevInDocument() );
-//     gotoParagraph( p, doc );
-    QTextParagraph* b = paragraph;
+    
+    QTextParagraph* b = doc->getParBefore( ypos );
     while ( b ) {
 	gotoParagraph( p, b );
 	b = paragraph;
@@ -2007,150 +1953,52 @@ void QTextCursor::goTo( QPainter* p, int xpos, int ypos )
 		QRect geom( lineGeometry() );
 		if ( ypos <= geom.bottom()  ) {
 		    gotoLineStart( p );
- 		    while ( !atEndOfLine() && geom.left() + x() < xpos ) {
- 			right( p );
- 		    }
-  		    if ( geom.left() + x() > xpos )
-  			left( p );
-		    return;
+		    if ( ypos >= geom.top() ) {
+			while ( !atEndOfLine() && geom.left() + x() < xpos ) {
+			    right( p );
+			}
+			if ( geom.left() + x() > xpos )
+			    left( p ); //####necesssary? TODO
+		    }
+		    return geom.contains( QPoint(xpos,ypos) )
+			&& ( geom.left() + currentx + currentoffsetx < xpos );
 		}
 	    }
 	    while ( gotoNextLine( p ) );
 	}
     }
-}
-
-
-void QTextCursor::setSelected( bool selected )
-{
-    if ( current < paragraph->text.length() ) {
-	if ( selected )
-	    paragraph->selected = TRUE;
-	paragraph->text.setSelected( current, selected );
-    }
-}
-
-bool QTextCursor::isSelected() const
-{
-    if ( current < paragraph->text.length() )
-	return ( paragraph->text.isSelected( current ) );
+    left( p );
     return FALSE;
 }
 
-void QTextCursor::insert( QPainter* p, const QString& text )
-{
-    QFontMetrics fm( p->fontMetrics() );
-    if ( paragraph->text.isCustomItem( current ) ) {
-	paragraph->text.insert( current, text, currentFormat()->formatWithoutCustom() );
-	current++;
-	currentoffset = 0;
-    }
-    else {
-	QString& sref = paragraph->text.getCharAt( current );
-	for ( int i = 0; i < (int)text.length(); i++ ) {
-	    sref.insert( currentoffset, text[i] );
-	    if ( text[i] == ' ' && currentoffset < int(sref.length())-1 ) { // not isSpace() to ignore nbsp
-		paragraph->text.insert( current+1, sref.mid( currentoffset+1 ),
-					*currentFormat() );
-		sref.truncate( currentoffset+1 );
-		current++;
-		currentoffset = 0;
-	    }
-	    else {
-		currentoffset++;
-	    }
-	}
-    }
-
-    updateParagraph( p );
-}
-
-bool QTextCursor::split()
-{
-    QString s = paragraph->text.charAt( current );
-    if ( currentoffset == 0 || currentoffset >= int(s.length()) ) {
-	return FALSE;
-    }
-    bool sel = isSelected();
-    paragraph->text.insert( current+1, s.mid( currentoffset ),
-			    *currentFormat() );
-    paragraph->text.getCharAt( current ).truncate( currentoffset );
-    current++;
-    currentoffset = 0;
-    last++;
-    setSelected( sel );
-    return TRUE;
-}
-
-void QTextCursor::updateParagraph( QPainter* p )
-{
-     int ph = paragraph->height;
-
-     int oldy = y_;
-     int oldfirst = first;
-     int oldlast = last;
-     int oldcurrent = current;
-     int prevliney = oldy;
-
-     QTextCursor store ( *this );
-     gotoParagraph( p, paragraph );
-     do {
-	 makeLineLayout( p );
-	 if ( last < oldcurrent )
-	     prevliney = y_;
-     } while ( gotoNextLine( p ) );
-     *this = store;
-
-     update( p );
-
-     int uy = QMIN( oldy, y_ );
-     if ( current == first )
-	 uy = QMIN( uy, prevliney );
-
-     if ( ph != paragraph->height ) {
-	 if ( paragraph->nextInDocument() )
-	     paragraph->nextInDocument()->invalidateLayout();
-	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, INT_MAX-1000) ) );
-     } else if ( first == oldfirst && last == oldlast && current != first ) {
-	 flow->invalidateRect( QRect( 0, uy, width, height ) );
-     }
-     else {
-	 flow->invalidateRect( QRect( 0, uy, width, paragraph->height - (uy - paragraph->y ) ) );
-     }
-}
-
-
-void QTextCursor::gotoNextItem( QPainter* p )
+void QRichTextFormatter::gotoNextItem( QPainter* p )
 {
     if ( pastEnd() )
 	return;
     // tabulators belong here
     QTextRichString::Item* item = &paragraph->text.items[current];
     QTextCustomItem* custom = item->format->customItem();
-    if ( currentFormat() != formatinuse ){ // somebody may have changed the document
+    if ( format() != formatinuse ) // the document may have changed
 	updateCharFormat( p );
-    }
     if ( custom ) {
 	if ( custom->placeInline() )
 	    currentx += custom->width;
     }
     else {
 	QString c = item->c;
-	QFontMetrics fm( p->fontMetrics() );
-	if ( item->width < 0 ) {
+	QFontMetrics fm = p?p->fontMetrics():QFontMetrics(formatinuse->font() );
+	if ( item->width < 0 )
 	    item->width = fm.width( c );
-	}
 	currentx += item->width;
     }
     current++;
     currentoffset = currentoffsetx = 0;
 
-    if ( current < paragraph->text.length() && !paragraph->text.haveSameFormat( current-1, current ) ) {
+    if ( current < paragraph->text.length() && !paragraph->text.haveSameFormat( current-1, current ) )
  	updateCharFormat( p );
-    }
 }
 
-void QTextCursor::makeLineLayout( QPainter* p )
+void QRichTextFormatter::makeLineLayout( QPainter* p )
 {
     first = current;
 
@@ -2170,10 +2018,11 @@ void QTextCursor::makeLineLayout( QPainter* p )
     int lastDesc = rdesc;
     bool noSpaceFound = TRUE;
 
-    QTextCharFormat* fmt = currentFormat();
+    QTextCharFormat* fmt = format();
     int fmt_current = current;
-    p->setFont( fmt->font() );
-    QFontMetrics fm( p->fontMetrics() );
+    if ( p )
+	p->setFont( fmt->font() );
+    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     int space_width = fm.width(' ');
     int fm_ascent = fm.ascent();
     int fm_height = fm.height();
@@ -2185,9 +2034,12 @@ void QTextCursor::makeLineLayout( QPainter* p )
     while ( !pastEnd() ) {
 
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
-	    fmt = currentFormat();
+	    fmt = format();
 	    fmt_current = current;
-	    p->setFont( fmt->font() );
+	    if ( p ) 
+		p->setFont( fmt->font() );
+	    else
+		fm = QFontMetrics( fmt->font() );
 	    space_width = fm.width(' ');
 	    fm_ascent = fm.ascent();
 	    fm_height = fm.height();
@@ -2250,9 +2102,8 @@ void QTextCursor::makeLineLayout( QPainter* p )
     }
 
     last = lastSpace;
-    if ( last == paragraph->text.length() ) { // can happen with break behind custom expanders
+    if ( last == paragraph->text.length() ) // can happen with break behind custom expanders
 	last--;
-    }
 
     rh = lastHeight;
     rasc = lastAsc;
@@ -2274,8 +2125,7 @@ void QTextCursor::makeLineLayout( QPainter* p )
 	break;
     }
 
-    current = lastSpace;//###
-
+    current = lastSpace;
     int min = lastWidth ;
     if ( min + rmargin > widthUsed )
 	widthUsed = min + rmargin;
@@ -2283,7 +2133,6 @@ void QTextCursor::makeLineLayout( QPainter* p )
 	fill = 0; // fall back to left alignment if there isn't sufficient space
 
     flow->adjustFlow( y_, widthUsed, height ) ;
-
 
     int fl = lmargin;
     int fr = width - rmargin;
@@ -2301,12 +2150,8 @@ void QTextCursor::makeLineLayout( QPainter* p )
     }
 }
 
-
-/*\internal
-
-  Note: The cursor's paragraph needs to be initialized
- */
-bool QTextCursor::updateLayout( QPainter* p, int ymax )
+// Note: The cursor's paragraph needs to be initialized
+bool QRichTextFormatter::updateLayout( QPainter* p, int ymax )
 {
     QTextParagraph* b = paragraph;
     gotoParagraph( p, b );
@@ -2330,33 +2175,16 @@ bool QTextCursor::updateLayout( QPainter* p, int ymax )
     return b == 0;
 }
 
-
-
-void QTextCursor::draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch)
-{
-    QRect r( caretGeometry() );
-    if ( QMAX( r.left(), cx ) <= QMIN( r.right(), cx+cw ) &&
-	 QMAX( r.top(), cy ) <= QMIN( r.bottom(), cy+ch ) ) {
-	p->drawLine(r.left()-ox, r.top()-oy, r.left()-ox, r.bottom()-oy );
-    }
-}
-
-QRect QTextCursor::caretGeometry() const
-{
-    return QRect( x(), y()+base-currentasc, 1, currentasc + currentdesc + 1 );
-}
-
-QPoint QTextCursor::clickPos() const
-{
-    return QPoint( x(), y() + height/2);
-}
-
-QRect QTextCursor::lineGeometry() const
+QRect QRichTextFormatter::lineGeometry() const
 {
     int realWidth = QMAX( width, widthUsed );
     return QRect( 0, y(), realWidth, height );
 }
 
+QtTriple QRichTextFormatter::position() const
+{
+    return QtTriple( paragraph->id, current, currentoffset );
+}
 
 QTextFlow::QTextFlow()
 {
@@ -2367,7 +2195,6 @@ QTextFlow::~QTextFlow()
 {
 }
 
-
 void QTextFlow::initialize( int w)
 {
     height = 0;
@@ -2377,7 +2204,6 @@ void QTextFlow::initialize( int w)
     leftItems.clear();
     rightItems.clear();
 }
-
 
 int QTextFlow::adjustLMargin( int yp, int margin )
 {
@@ -2398,8 +2224,6 @@ int QTextFlow::adjustRMargin( int yp, int margin )
     }
     return margin;
 }
-
-
 
 void QTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 {
@@ -2446,9 +2270,6 @@ void QTextFlow::drawFloatingItems(QPainter* p,
     }
 }
 
-
-
-
 QTextTable::QTextTable(const QMap<QString, QString> & attr  )
 {
     cells.setAutoDelete( TRUE );
@@ -2489,7 +2310,6 @@ QTextTable::QTextTable(const QMap<QString, QString> & attr  )
     }
 
     cachewidth = 0;
-    selection_owner = 0;
 }
 
 QTextTable::~QTextTable()
@@ -2526,10 +2346,6 @@ void QTextTable::draw(QPainter* p, int x, int y,
 		p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
 		p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
 		qDrawShadePanel( p, r, cg, TRUE );
-//  		QRect r2(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
-//  			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
-//  		backgroundRegion = backgroundRegion.subtract( r2 );
-
 	    }
 	}
     }
@@ -2577,65 +2393,11 @@ void QTextTable::resize( QPainter* p, int nwidth )
     height = layout->geometry().height()+2*outerborder;
 };
 
-QString QTextTable::anchorAt( QPainter* p, int x, int y )
-{
-    painter = p;
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	if ( cell->geometry().contains( QPoint(x-outerborder,y-outerborder) ) )
-	    return cell->anchorAt( x-outerborder, y-outerborder );
-    }
-    return QString::null;
-}
-
-
-bool QTextTable::toggleSelection( QPainter* p, const QPoint& from, const QPoint& to, QRect& reg )
-{
-    painter = p;
-    if ( from == to )
-	selection_owner = 0;
-    
-    if ( !selection_owner ) {
-	for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	    if ( cell->geometry().contains( from - QPoint(outerborder, outerborder)) ) {
-		selection_owner = cell;
-		break;
-	    }
-	}
-    }
-    if ( selection_owner ) {
-	QPoint offset( outerborder, outerborder );
-	reg.moveBy( -outerborder, -outerborder );
-	bool sel = selection_owner->toggleSelection( from - offset, to - offset, reg );
-	reg.moveBy( outerborder, outerborder );
-	return sel;
-    }
-    return FALSE;
-}
-
-void QTextTable::selectAll()
-{
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	cell->selectAll();
-    }
-}
-void QTextTable::clearSelection()
-{
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
-	cell->clearSelection();
-    }
-}
-
-
 void QTextTable::addCell( QTextTableCell* cell )
 {
     cells.append( cell );
     layout->addMultiCell( cell, cell->row(), cell->row() + cell->rowspan()-1,
 			  cell->column(), cell->column() + cell->colspan()-1 );
-//     if ( cell->stretch() ) {
-// 	qDebug("colstrech %d to %d", cell->column(), cell->stretch() );
-// 	//### other columns when colspan
-// 	layout->setColStretch( cell->column(), cell->stretch() );
-//     }
 }
 
 QTextTableCell::QTextTableCell(QTextTable* table,
@@ -2783,32 +2545,6 @@ void QTextTableCell::draw(int x, int y,
     backgroundRegion = backgroundRegion.subtract( r );
 }
 
-QString QTextTableCell::anchorAt( int x, int y ) const
-{
-    return richtext->anchorAt( painter(), x - geometry().x(), y - geometry().y() );
-}
-
-bool QTextTableCell::toggleSelection( const QPoint& from, const QPoint& to, QRect& reg )
-{
-    bool sel = richtext->toggleSelection( painter(), from - geometry().topLeft(), to - geometry().topLeft() );
-    QRect r = richtext->flow()->updateRect();
-    r.moveBy( geometry().x(), geometry().y() );
-    reg = reg.unite( r );
-    richtext->flow()->validateRect();
-    return sel;
-}
-
-
-void QTextTableCell::selectAll()
-{
-    richtext->selectAll();
-}
-void QTextTableCell::clearSelection()
-{
-    richtext->clearSelection();
-}
-
-
 QTextCharFormat::QTextCharFormat()
     : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ),
       custom( 0 )
@@ -2833,13 +2569,9 @@ QTextCharFormat::QTextCharFormat( const QFont &f, const QColor &c )
     createKey();
 }
 
-
-
 QTextCharFormat::~QTextCharFormat()
 {
 }
-
-
 
 void QTextCharFormat::createKey()
 {
@@ -2964,8 +2696,6 @@ QTextFormatCollection::QTextFormatCollection()
 {
 }
 
-
-static int anchorcount = 0;
 QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &format )
 {
     if ( format.parent == this ) {
@@ -2985,7 +2715,6 @@ QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &f
     if ( format.isAnchor() ) {
 	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
 	// see unregisterFormat()
-	++anchorcount;
 	lastRegisterFormat =  new QTextCharFormat( format );
 	return lastRegisterFormat;
     }
@@ -3016,7 +2745,6 @@ void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 	if ( ref <= 0 ) {
 	    if ( f == lastRegisterFormat )
 		lastRegisterFormat = 0;
-	    --anchorcount;
 	    delete f;
 	}
 	return;
@@ -3037,4 +2765,3 @@ void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 	}
     }
 }
-

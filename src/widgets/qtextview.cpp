@@ -99,8 +99,11 @@ public:
     QTimer* dragTimer;
     QTimer* scrollTimer;
     Qt::TextFormat textformat;
-    QTextCursor* fcresize;
+    QRichTextFormatter* fcresize;
     QPoint cursor;
+    QtTriple selorigin;
+    QtTriple selstart;
+    QtTriple selend;
     uint selection :1;
     uint dirty :1;
     uint dragSelection :1;
@@ -112,7 +115,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QTextView::QTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
 {
     init();
 }
@@ -216,7 +219,7 @@ void QTextView::setText( const QString& text, const QString& context)
     richText().invalidateLayout();
     richText().flow()->initialize( visibleWidth() );
     updateLayout();
-    viewport()->repaint();
+    viewport()->update();
 }
 
 
@@ -499,10 +502,14 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QTextOptions to(&paper(), d->paplinkcol, d->linkunderline );
     to.offsetx = ox;
     to.offsety = oy;
+    if ( d->selection ) {
+	to.selstart = d->selstart;
+	to.selend = d->selend;
+    }
 
     QRegion r(cx-ox, cy-oy, cw, ch);
 
-    QTextCursor tc( richText() );
+    QRichTextFormatter tc( richText() );
     tc.gotoParagraph( p, richText().getParBefore( cy ) );
     QTextParagraph* b = tc.paragraph;
 
@@ -538,16 +545,13 @@ void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 
     p->setClipping( FALSE );
 
-
-//     const int pagesize = 100000;
-
-//      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-
-// 	 p->setPen( DotLine );
-
-// 	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
-// 		      pagesize - oy );
-//      }
+    /*
+      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
+      p->setPen( DotLine );
+      p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
+      pagesize - oy );
+      }
+    */
 }
 
 /*!
@@ -559,8 +563,7 @@ void QTextView::viewportResizeEvent(QResizeEvent* )
 
 void QTextView::doResize()
 {
-    QPainter p( viewport() );
-    if ( !d->fcresize->updateLayout( &p, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
+    if ( !d->fcresize->updateLayout( 0, d->fcresize->y() + d->fcresize->paragraph->height + 1000 ) )
 	d->resizeTimer->start( 0, TRUE );
     QTextFlow* flow = richText().flow();
     resizeContents( QMAX( flow->widthUsed-1, visibleWidth() ), flow->height );
@@ -588,12 +591,16 @@ void QTextView::viewportMousePressEvent( QMouseEvent* e )
 {
     if ( e->button() != LeftButton )
 	return;
-    QPainter p( viewport() );
     d->cursor = e->pos() + QPoint( contentsX(), contentsY() );
-    bool sel = richText().toggleSelection( &p, d->cursor, d->cursor );
-    p.end();
-    if ( !sel ) {
+    QRichTextIterator it( richText() );
+    bool within = it.goTo( d->cursor );
+    it.goTo( it.position() );
+    bool sel = d->selection && it.position() >= d->selstart && it.position() < d->selend;
+    if ( !sel || !within ) {
 	clearSelection();
+	d->selorigin = it.position();
+	d->selstart = d->selorigin;
+	d->selend = d->selstart;
 	d->dragSelection = TRUE;
     } else {
 	d->dragTimer->start( QApplication::startDragTime(), TRUE );
@@ -638,7 +645,33 @@ bool QTextView::hasSelectedText() const
  */
 QString QTextView::selectedText() const
 {
-    return richText().selectedText();
+    if ( !d->selection )
+	return QString::null;
+    
+    QRichTextIterator it( richText() );
+    it.goTo( d->selstart );
+    int column = 0;
+    QString txt;
+    while ( it.position() < d->selend ) {
+	QString s = it.text();
+	if ( !s.isEmpty() ) {
+	    if ( column + s.length() > 79 ) {
+		txt += '\n';
+		column = 0;
+	    }
+	    if ( s[s.length()-1]== '\n' )
+		column = 0;
+	    txt += s;
+	    column += s.length();
+	}
+	int oldpar = it.position().a;
+	it.right( FALSE );
+	if ( it.position().a != oldpar ) {
+	    txt += '\n';
+	    column = 0;
+	}
+    }
+    return txt;
 }
 
 
@@ -650,7 +683,7 @@ void QTextView::copy()
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
-    QString t = richText().selectedText();
+    QString t = QString::null; // TODO richText().selectedText();
 #if defined(_OS_WIN32_)
     // Need to convert NL to CRLF
     QRegExp nl("\\n");
@@ -668,8 +701,12 @@ void QTextView::copy()
 */
 void QTextView::selectAll()
 {
-    richText().selectAll();
-    viewport()->repaint( FALSE );
+    QRichTextIterator it( richText() );
+    d->selstart = it.position();
+    while ( it.right( FALSE ) )
+	;
+    d->selend = it.position();
+    viewport()->update();
     d->selection = TRUE;
 #if defined(_WS_X11_)
     copy();
@@ -795,23 +832,18 @@ void QTextView::updateLayout()
     int ymax = contentsY() + cs.height() + 1;
 
     delete d->fcresize;
-    d->fcresize = new QTextCursor( richText() );
-
-    {
-	QPainter p( viewport() );
-	d->fcresize->initParagraph( &p, &richText() );
-	d->fcresize->updateLayout( &p, ymax );
-    }
-
+    d->fcresize = new QRichTextFormatter( richText() );
+    d->fcresize->initParagraph( 0, &richText() );
+    d->fcresize->updateLayout( 0, ymax );
+    
     QTextFlow* flow = richText().flow();
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
 
     if ( vs.width() != visibleWidth() ) {
 	flow->initialize( vs.width() );
 	richText().invalidateLayout();
-	QPainter p( viewport() );
-	d->fcresize->gotoParagraph( &p, &richText() );
-	d->fcresize->updateLayout( &p, ymax );
+	d->fcresize->gotoParagraph( 0, &richText() );
+	d->fcresize->updateLayout( 0, ymax );
     }
 
     resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height );
@@ -833,11 +865,21 @@ void QTextView::clearSelection()
     d->dragTimer->stop();
     if ( !d->selection )
 	return; // nothing to do
-
-    richText().clearSelection();
     d->selection = FALSE;
-    repaintContents( richText().flow()->updateRect(), FALSE );
-    richText().flow()->validateRect();
+    QRichTextIterator it( richText() );
+    it.goTo( d->selend );
+    int y = it.lineGeometry().bottom();
+    it.goTo( d->selstart );
+    if ( y - it.lineGeometry().top()  >= visibleHeight() )
+	viewport()->update();
+    else {
+	QRect r = it.lineGeometry();
+	while ( it.position() < d->selend ) {
+	    it.right();
+	    r = r.unite( it.lineGeometry() );
+	}
+	updateContents( r );
+    }
 }
 
 void QTextView::doStartDrag()
@@ -858,15 +900,30 @@ void QTextView::doAutoScroll()
 
 void QTextView::doSelection( const QPoint& pos )
 {
-    QPainter p(viewport());
-
     QPoint to( pos + QPoint( contentsX(), contentsY()  ) );
     if ( to != d->cursor ) {
-	richText().toggleSelection( &p, d->cursor, to );
+	QRichTextIterator it( richText() );
+	it.goTo( to );
 	d->selection = TRUE;
-	d->cursor = to;
-	repaintContents( richText().flow()->updateRect(), FALSE );
-	richText().flow()->validateRect();
+	if ( (it.position() != d->selstart) && (it.position()  != d->selend) ) {
+	    if ( it.position() < d->selorigin ) {
+		d->selstart = it.position();
+		d->selend = d->selorigin;
+	    } else {
+		d->selstart = d->selorigin;
+		d->selend = it.position();
+	    }
+	    QRichTextIterator it2( richText() );
+	    it2.goTo( d->cursor );
+	    QRect r = it2.lineGeometry();
+	    r = r.unite( it.lineGeometry() );
+	    while ( it.position() < it2.position() && it.right( FALSE ) )
+		r = r.unite( it.lineGeometry() );
+	    while ( it2.position() < it.position() && it2.right( FALSE ) )
+		r = r.unite( it2.lineGeometry() );
+	    d->cursor = to;
+	    repaintContents( r, FALSE );
+	}
     }
 
     if ( pos.y() < 0 || pos.y() > visibleHeight() )

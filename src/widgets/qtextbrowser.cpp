@@ -209,7 +209,7 @@ void QTextBrowser::setSource(const QString& name)
     if ( isVisible() && !mark.isEmpty() )
 	scrollToAnchor( mark );
     else
-	setContentsPos( contentsX(), 0 );
+	setContentsPos( 0, 0 );
 
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
@@ -390,9 +390,7 @@ void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 
 QString QTextBrowser::anchorAt(const QPoint& pos)
 {
-    QPainter p( viewport() );
-    return richText().anchorAt( &p, contentsX() + pos.x(),
-				contentsY() + pos.y() );
+    return richText().anchorAt( QPoint(contentsX(), contentsY() ) + pos );
 }
 
 
@@ -423,10 +421,9 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     QWidget* popup = new QTextDetailPopup;
     popup->setBackgroundMode( QWidget::NoBackground );
 
-    QPainter p( popup );
-    QSimpleRichText* qmlDoc = new QSimpleRichText( contents, popup->font() );
-    qmlDoc->adjustSize( &p );
-    QRect r( 0, 0, qmlDoc->width(), qmlDoc->height() );
+    QSimpleRichText* doc = new QSimpleRichText( contents, popup->font() );
+    doc->adjustSize();
+    QRect r( 0, 0, doc->width(), doc->height() );
 
     int w = r.width() + 2*hMargin;
     int h = r.height() + 2*vMargin;
@@ -453,6 +450,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
+    QPainter p( popup );
     p.setPen( QApplication::palette().normal().foreground() );
     p.drawRect( 0, 0, w, h );
     p.setPen( QApplication::palette().normal().mid() );
@@ -460,8 +458,8 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
 
-    qmlDoc->draw( &p, hMargin, vMargin, r, popup->colorGroup(), 0 );
-    delete qmlDoc;
+    doc->draw( &p, hMargin, vMargin, r, popup->colorGroup(), 0 );
+    delete doc;
 
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
@@ -478,8 +476,6 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     for( ; i > 0 ; i -= 2 )
 	p.drawLine( 6, h + 6 - i,
 		    i + 5, h + 5 );
-    p.end();
-
 }
 
 
@@ -493,36 +489,25 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 {
     if ( name.isEmpty() )
 	return;
-    
-    d->curmark = name;
 
-    QTextParagraph* b = &richText();
-    while ( b->child )
-	b = b->child;
-    while ( b ) {
-	for (int i = 0; i < b->text.length(); i++ ) {
-	    QString s = b->text.formatAt( i ) ->anchorName();
-	    if ( s == name ) {
-		QPainter p( viewport() );
-		QFontMetrics fm( p.fontMetrics() );
-		QTextCursor tc( richText() );
-		if ( b->dirty ) {
-		    tc.gotoParagraph( &p, &richText() );
-		    tc.updateLayout( &p );
-		}
-		tc.gotoParagraph( &p, b );
-		tc.makeLineLayout( &p );
-		tc.gotoLineStart( &p );
-		while ( i-- )
-		    tc.rightOneItem( &p );
-		resizeContents( QMAX( richText().flow()->widthUsed-1, visibleWidth() ), 
+    d->curmark = name;
+    
+    QRichTextIterator it( richText() );
+    do {
+	if ( it.format()->anchorName() == name ) {
+	    QTextParagraph* b = it.outmostParagraph();
+	    if ( b->dirty ) { // QTextView layouts delayed in the background, so this may happen
+		QRichTextFormatter tc( richText() );
+		tc.gotoParagraph( 0, &richText() );
+		tc.updateLayout();
+		resizeContents( QMAX( richText().flow()->widthUsed-1, visibleWidth() ),
 				richText().flow()->height );
-		setContentsPos( contentsX(), tc.lineGeometry().top() );
-		return;
 	    }
+	    QRect r = it.lineGeometry();
+	    setContentsPos( contentsX(), r.top() );
+	    return;
 	}
-	b = b->nextInDocument();
-    }
+    } while ( it.right( FALSE ) );
 }
 
 

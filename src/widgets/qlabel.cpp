@@ -244,8 +244,7 @@ void QLabel::setText( const QString &text )
     if ( textformat == RichText ||
 	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
-	QPainter p( this );
-	doc->setWidth( &p, 10 );
+	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
     }
 
@@ -472,13 +471,11 @@ QSize QLabel::sizeForWidth( int w ) const
 	br = mov->framePixmap().rect();
     }
     else if ( doc ) {
-	QPainter p( this );
-	if ( w < 0 ) {
-	    doc->adjustSize( &p );
-	}
+	if ( w < 0 )
+	    doc->adjustSize();
 	else {
 	    w -= 2*fw + m;
-	    doc->setWidth( &p, w );
+	    doc->setWidth( w );
 	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
     }

@@ -51,14 +51,12 @@ public:
 		     const QColor& linkColor = Qt::blue, bool linkUnderline = TRUE );
     ~QSimpleRichText();
 
+    void setWidth( int );
     void setWidth( QPainter*, int );
     int width() const;
-
     int widthUsed() const;
-
     int height() const;
-
-    void adjustSize( QPainter* p );
+    void adjustSize();
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QPalette& pal, const QBrush* paper = 0) const;
@@ -67,7 +65,10 @@ public:
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
 
     QString context() const;
-    QString anchor( QPainter* p, const QPoint& pos );
+    QString anchorAt( const QPoint& pos ) const;
+    QString anchor( QPainter* p, const QPoint& pos ); // remove in 3.0
+    
+    bool hitTest( const QPoint& pos ) const;
 
 private:
     QSimpleRichTextData* d;

@@ -448,15 +448,13 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     }
 
 
-    QPainter p( whatsThat );
-
     QRect r;
-    QSimpleRichText* qmlDoc = 0;
+    QSimpleRichText* doc = 0;
 
     if ( QStyleSheet::mightBeRichText( text ) ) {
-	qmlDoc = new QSimpleRichText( text, whatsThat->font() );
-	qmlDoc->adjustSize( &p );
-	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
+	doc = new QSimpleRichText( text, whatsThat->font() );
+	doc->adjustSize();
+	r.setRect( 0, 0, doc->width(), doc->height() );
     }
     else {
 	int sw = QApplication::desktop()->width() / 3;
@@ -465,7 +463,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 	else if ( sw > 300 )
 	    sw = 300;
 
-	r = p.boundingRect( 0, 0, sw, 1000,
+	r = whatsThat->fontMetrics().boundingRect( 0, 0, sw, 1000,
 			    AlignLeft + AlignTop + WordBreak + ExpandTabs,
 			    text );
     }
@@ -525,6 +523,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
+    QPainter p( whatsThat );
     p.setPen( whatsThat->colorGroup().foreground() );
     p.drawRect( 0, 0, w, h );
     p.setPen( whatsThat->colorGroup().mid() );
@@ -532,9 +531,9 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( whatsThat->colorGroup().foreground() );
 
-    if ( qmlDoc ) {
-	qmlDoc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
-	delete qmlDoc;
+    if ( doc ) {
+	doc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
+	delete doc;
     }
     else {
 	p.drawText( hMargin, vMargin, r.width(), r.height(),
@@ -558,7 +557,6 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     for( ; i > 0 ; i -= 2 )
 	p.drawLine( 6, h + 6 - i,
 		    i + 5, h + 5 );
-    p.end();
 }
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
