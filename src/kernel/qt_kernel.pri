@@ -146,6 +146,9 @@ kernel {
              DEFINES += QT_NO_PLUGIN ALLOW_OLD_CARBON _EVENT_HANDLERS=0 
              DEFINES += ALLOW_OLD_CREATE_FOO_CONTROL_PARAMETERS=0 CARBON_ON_MACH_O=1 
              DEFINES += ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
+	     INCLUDEPATH += /System/Library/Frameworks/QuickTime.framework/Headers/ \
+	                    /System/Library/Frameworks/Carbon.framework/Headers/ \
+			    /System/Library/Frameworks/HIToolbox.framework/Versions/A/Headers
              LIBS += -framework Carbon -framework QuickTime
         }
 
