@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Global type declarations and definitions
 **
@@ -229,14 +229,14 @@
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
-   the EDG documentation says that _BOOL is defined when the compiler has bool
-   but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
+/* the EDG documentation says that _BOOL is defined when the compiler has bool
+   but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002. */
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
 #    if defined(_BOOL_EXISTS)
-   This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7.
+/* This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7. */
 #    elif __DECCXX_VER < 60060005
-   Versions prior to Compaq C++ V6.0-005.
+/* Versions prior to Compaq C++ V6.0-005. */
 #      define Q_NO_BOOL_TYPE
 #    endif
 #  else
@@ -279,7 +279,7 @@
 #    endif
 #    define Q_C_CALLBACKS
 #  else
-        4.2 compiler or older
+/*      4.2 compiler or older */
 #    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_RELIANT)
