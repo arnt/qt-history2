@@ -597,35 +597,56 @@ OSStatus qt_CubicClosePathProc(void * callBackDataPtr)
 void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path)
 {
-    // ### Apply X and Y to painter path.
     ATSCubicMoveToUPP iMoveToProc = NewATSCubicMoveToUPP(qt_CubicMoveToProc);
     ATSCubicLineToUPP iLineToProc = NewATSCubicLineToUPP(qt_CubicLineToProc);
     ATSCubicCurveToUPP iCurveToProc = NewATSCubicCurveToUPP(qt_CubicCurveToProc);
     ATSCubicClosePathUPP iClosePathProc = NewATSCubicClosePathUPP(qt_CubicClosePathProc);
 
+    // On Mac OS X, we currently store gylph in the gylphlayout as the actually
+    // unicode character, so we must obtain the proper glyph information
+    // before we can procede.
+    QVarLengthArray<UniChar> chars(numGlyphs);
+    for (int j = 0; j < numGlyphs; ++j)
+        chars[j] = glyphs[j].glyph;
+
+    // Dang. This is create text layout is going to be heavy, but mTextLayout doesn't
+    // give us what we want and I don't want to touch it here.
+    ATSUTextLayout pathLayout;
+    QATSUStyle *st = getFontStyle();
+    UniCharCount charCount[] = { numGlyphs };
+    ATSUStyle tmpArray[] = { st->style };
+    OSStatus status = ATSUCreateTextLayoutWithTextPtr(chars.constData(), 0, numGlyphs, numGlyphs,
+                                                      1, charCount, tmpArray, &pathLayout);
+    ATSLayoutRecord *layoutRecords;
+    ItemCount numRecords;
+    status = ATSUDirectGetLayoutDataArrayPtrFromTextLayout(pathLayout,
+                            kATSUFromTextBeginning,
+                            kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
+                            reinterpret_cast<void **>(&layoutRecords),
+                            &numRecords);
+    Q_ASSERT_X(status == noErr, "QFontEngineMac::addOutlineToPath",
+               "Unable to obtain proper glyph information");
+
     PathData pd;
     pd.x = x;
     pd.y = y;
     pd.path = path;
-    QATSUStyle *st = getFontStyle();
     ATSGlyphIdealMetrics idealMetrics;
-    for (int i = 0; i < numGlyphs; ++i) {
-        /*
-        Q_ASSERT_X(glyphs[i].glyph != kATSDeletedGlyphCode, "QFontEngineMac::addOutlineToPath",
-                   "Text layout should have stripped this for us.");
-                   */
+    for (ItemCount i = 0; i < numRecords; ++i) {
         OSStatus result;
-        ATSUGlyphGetCubicPaths(st->style, glyphs[i].glyph, iMoveToProc, iLineToProc,
-                                iCurveToProc, iClosePathProc, &pd, &result);
-        ATSUGlyphGetIdealMetrics(st->style, 1, (GlyphID*)&glyphs[i].glyph, 0, &idealMetrics);
-
+        ATSUGlyphGetCubicPaths(st->style, layoutRecords[i].glyphID, iMoveToProc, iLineToProc,
+                               iCurveToProc, iClosePathProc, &pd, &result);
+        ATSUGlyphGetIdealMetrics(st->style, 1, &layoutRecords[i].glyphID, 0, &idealMetrics);
         pd.x += idealMetrics.advance.x;
     }
+
+    ATSUDisposeTextLayout(pathLayout);
+    ATSUDirectReleaseLayoutDataArrayPtr(0, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
+                                        reinterpret_cast<void **>(&layoutRecords));
     DisposeATSCubicMoveToUPP(iMoveToProc);
     DisposeATSCubicLineToUPP(iLineToProc);
     DisposeATSCubicCurveToUPP(iCurveToProc);
     DisposeATSCubicClosePathUPP(iClosePathProc);
-
 }
 
 // box font engine
