@@ -24,6 +24,8 @@ private:
 public:
     QResourceFileEngine(const QString &path);
 
+    virtual void setFileName(const QString &file);
+
     virtual bool open(int flags) ;
     virtual bool close();
     virtual void flush();
@@ -31,29 +33,40 @@ public:
     virtual QIODevice::Offset at() const;
     virtual bool atEnd() const;
     virtual bool seek(QIODevice::Offset);
+    virtual int ungetch(int);
     virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
     virtual Q_LONG writeBlock(const char *data, Q_LONG len);
-    virtual int ungetch(int);
-    virtual void setFileName(const QString &file);
+
     virtual bool remove();
     virtual bool rename(const QString &newName);
+
     virtual bool isSequential() const;
+
+    virtual bool isRelativePath() const;
+
     virtual int handle() const;
+
     virtual uchar *map(Q_LONG len);
 
     virtual bool mkdir(const QString &dirName, QDir::Recursivity recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursivity recurse) const;
-    virtual bool rename(const QString &name, const QString &newName) const;
+
     virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
+
     virtual bool caseSensitive() const;
+
     virtual bool isRoot() const;
 
-    virtual uint fileFlags(uint type=FileInfoAll) const;
-    virtual QString fileName(FileName file=Default) const;
-    virtual bool isRelativePath() const;
+    virtual uint fileFlags(uint type) const;
+
+    virtual QString fileName(QFileEngine::FileName file) const;
+
     virtual uint ownerId(FileOwner) const;
     virtual QString owner(FileOwner) const;
+
     virtual QDateTime fileTime(FileTime time) const;
+
+    virtual Type type() const;
 };
 
 #endif /* __QRESOURCEENGINE_H__ */

@@ -165,6 +165,9 @@ public:
     virtual int getch();
     virtual int putch(int);
     virtual int ungetch(int);
+
+    virtual Type type() const;
+
 protected:
     mutable QSocket *socket;
 };
@@ -249,6 +252,11 @@ int QSocketEngine::getch()
         return c;
     }
     return -1;
+}
+
+QIOEngine::Type QSocketEngine::type() const
+{
+    return QIOEngine::Socket;
 }
 
 bool QSocketEngine::isSequential() const

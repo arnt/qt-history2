@@ -422,7 +422,7 @@ QFileInfo::dirPath(bool absPath) const
 {
     if(!d->data->fileEngine)
         return QString("");
-    return d->data->fileEngine->fileName(absPath ? QFileEngine::AbsoluteDirPath : QFileEngine::DirPath);
+    return d->data->fileEngine->fileName(absPath ? QFileEngine::AbsoluteDirPathName : QFileEngine::DirPathName);
 }
 
 /*!
@@ -442,7 +442,7 @@ QFileInfo::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return QString("");
-    return d->data->fileEngine->fileName(QFileEngine::Canonical);
+    return d->data->fileEngine->fileName(QFileEngine::CanonicalName);
 }
 
 /*!

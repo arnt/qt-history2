@@ -27,6 +27,17 @@ private:
 public:
     virtual ~QIOEngine();
 
+    enum Type {
+        File,
+        Resource,
+        Socket,
+        String,
+
+        User = 50,                                // first user type id
+        MaxUser = 100                                // last user type id
+    };
+    virtual Type type() const = 0;
+
     virtual bool open(int flags) = 0;
     virtual bool close() = 0;
     virtual void flush() = 0;

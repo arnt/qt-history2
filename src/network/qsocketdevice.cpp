@@ -395,6 +395,10 @@ int QSocketDeviceEngine::getch()
     return  readBlock(buf,1) == 1 ? buf[0] : -1;
 }
 
+QIOEngine::Type QSocketDeviceEngine::type() const
+{
+    return QIOEngine::Socket;
+}
 
 /*!
     \reimp

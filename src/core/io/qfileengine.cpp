@@ -319,3 +319,9 @@ QFSFileEngine::errorMessage() const
 {
     return d->errorMessage;
 }
+
+QIOEngine::Type 
+QFSFileEngine::type() const
+{
+    return QIOEngine::File;
+}

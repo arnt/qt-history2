@@ -398,6 +398,7 @@ public:
     virtual int getch();
     virtual int putch(int);
     virtual int ungetch(int ch);
+    virtual Type type() const;
 
     QString *s;
     int ioIndex;
@@ -464,6 +465,12 @@ QIODevice::Offset  QStringBufferEngine::at()   const
 {
     return ioIndex;
 }
+
+QIOEngine::Type QStringBufferEngine::type() const
+{
+    return QIOEngine::String;
+}
+
 
 bool QStringBufferEngine::seek(QIODevice::Offset pos)
 {

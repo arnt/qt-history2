@@ -530,7 +530,7 @@ QDir::canonicalPath() const
 {
     if(!d->data->fileEngine)
         return "";
-    return cleanDirPath(d->data->fileEngine->fileName(QFileEngine::Canonical));
+    return cleanDirPath(d->data->fileEngine->fileName(QFileEngine::CanonicalName));
 }
 
 /*!
@@ -1306,9 +1306,10 @@ QDir::rename(const QString &name, const QString &newName, bool acceptAbsPaths)
     if(!d->data->fileEngine)
         return false;
 
-    QString fn1 = filePath(name, acceptAbsPaths);
-    QString fn2 = filePath(newName, acceptAbsPaths);
-    return d->data->fileEngine->rename(fn1, fn2);
+    QFile file(filePath(name, acceptAbsPaths));
+    if(!file.exists())
+        return false;
+    return file.rename(filePath(newName, acceptAbsPaths));
 }
 
 /*!

@@ -62,12 +62,6 @@ QResourceFileEngine::rmdir(const QString &, QDir::Recursivity) const
     return false;
 }
 
-bool
-QResourceFileEngine::rename(const QString &, const QString &) const
-{
-    return false;
-}
-
 QStringList
 QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
@@ -229,7 +223,7 @@ QResourceFileEngine::seek(QFile::Offset pos)
 bool
 QResourceFileEngine::isSequential() const
 {
-    return true;
+    return false;
 }
 
 int
@@ -275,7 +269,7 @@ QResourceFileEngine::fileName(FileName file) const
 	    return d->file;
 	}
 	return d->file.mid(slash + 1);
-    } else if(file == DirPath || file == AbsoluteDirPath) {
+    } else if(file == DirPathName || file == AbsoluteDirPathName) {
         if (!d->file.size())
             return d->file;
 	int slash = d->file.lastIndexOf('/');

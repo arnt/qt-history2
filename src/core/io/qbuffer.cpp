@@ -45,6 +45,8 @@ public:
     virtual Q_LONG writeBlock(const char *data, Q_LONG len);
     virtual Q_LONG readLine(char *data, Q_LONG maxlen);
 
+    virtual Type type() const;
+
     virtual int getch();
     virtual int putch(int);
     virtual int ungetch(int);
@@ -158,6 +160,12 @@ Q_LONG QBufferEngine::readLine(char *p, Q_LONG maxlen)
     *p = '\0';
     d->ioIndex = dat - d->buf->constData();
     return d->ioIndex - start;
+}
+
+QIOEngine::Type 
+QBufferEngine::type() const
+{
+    return QIOEngine::String;
 }
 
 int QBufferEngine::getch()

@@ -135,6 +135,8 @@ public:
     virtual int getch();
     virtual int putch(int);
     virtual int ungetch(int);
+
+    virtual Type type() const;
 };
 
 
