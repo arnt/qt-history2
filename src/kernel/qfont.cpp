@@ -1181,6 +1181,8 @@ bool QFont::rawMode() const
 */
 QFont QFont::resolve( const QFont &other ) const
 {
+    if ( *this == other && d->request.mask == other.d->request.mask )
+	return *this;
     QFont font;
     font.d->request = d->request;
     font.d->request.resolve( other.d->request );
