@@ -4683,10 +4683,10 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	//qDebug("fs = %p, script=%d", fs, script);
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
+	if ( qt_has_xft && fs && fs->type() == QFontEngine::Xft ) {
 	    // ### cache filename directly!
 	    //qDebug("fontstruct name: %s", fs->name.data());
-	    XftPattern *pattern = XftNameParse(fs->name.data());
+	    XftPattern *pattern = XftNameParse(fs->name());
 	    //qDebug("xfthandle=%p", font);
 	    char *filename = 0;
 	    XftResult res;
@@ -4704,7 +4704,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	{
 	    QString rawName;
 	    if ( fs && fs != (QFontStruct *)-1 )
-		rawName = fs->name;
+		rawName = fs->name();
 	    int index = rawName.find('-');
 	    if (index == 0) {
 		// this is an XLFD font name

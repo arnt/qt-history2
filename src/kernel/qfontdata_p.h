@@ -63,11 +63,7 @@ class QPaintDevice;
 #include <qt_windows.h>
 #endif
 
-#ifdef Q_WS_X11
-#include <qt_x11.h>
-
-class QCharStruct;
-#endif
+#include <qfont.h>
 
 // font description
 struct QFontDef {
@@ -105,25 +101,62 @@ class QTextCodec;
 
 #ifdef Q_WS_X11
 
-// this is a shared wrapper for XFontStruct (to prevent a font being freed by
-// the cache while it's being used)
-class QFontStruct : public QShared
+struct QGlyphMetrics;
+class QChar;
+typedef unsigned short glyph_t;
+struct offset_t;
+class QOpenType;
+
+class QFontEngine : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, Qt::HANDLE xftp,
-		QCString n, QTextCodec *c, int a) :
-	QShared(), handle(h), xfthandle(xfth), xftpattern(xftp),
-	name(n), codec(c), cache_cost(a), scale( 1. )
-    { ; }
+    enum Error {
+	NoError,
+	OutOfMemory
+    };
 
-    ~QFontStruct();
+    enum Type {
+	Box,
+	Xlfd,
+	Xft
+    };
 
-    Qt::HANDLE handle, xfthandle, xftpattern;
-    QCString name;
-    QTextCodec *codec;
-    int cache_cost;
-    float scale; // needed for printing, to correctly scale font metrics for bitmap fonts
+    virtual ~QFontEngine() = 0;
+
+    /* returns 0 as glyph index for non existant glyphs */
+    virtual Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, int *nglyphs ) const = 0;
+
+    virtual QOpenType *openType() const { return 0; }
+    virtual int cmap() const = 0;
+
+    virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+		       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse ) = 0;
+
+    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
+				    const offset_t *advances, const offset_t *offsets, int numGlyphs ) = 0;
+    virtual QGlyphMetrics boundingBox( glyph_t glyph ) = 0;
+
+    virtual int ascent() const = 0;
+    virtual int descent() const = 0;
+    virtual int leading() const = 0;
+    virtual int maxCharWidth() const = 0;
+
+    virtual const char *name() const = 0;
+
+    virtual bool canRender( const QChar *string,  int len ) = 0;
+
+    virtual void setScale( double ) {}
+    virtual int scale() const { return 1; }
+
+    virtual Type type() const = 0;
 };
+
+
+inline QFontEngine::~QFontEngine()
+{
+}
+
+typedef QFontEngine QFontStruct;
 
 enum { widthCacheSize = 0x500 };
 
@@ -265,6 +298,7 @@ public:
     static int getFontWeight(const QCString &, bool = FALSE);
     QRect boundingRect( const QChar &ch );
 
+#ifndef Q_WS_X11
     struct TextRun {
 	TextRun()
 	{
@@ -299,49 +333,23 @@ public:
 	const QChar *string;
 	int length;
 	TextRun *next;
-#ifdef Q_WS_X11
-	QByteArray mapped;
-#endif
     };
 
     // some replacement functions for native calls. This is needed, because shaping and
     // non spacing marks can change the extents of a string to draw. At the same time
     // drawing needs to take care to correctly position non spacing marks.
     int textWidth( const QString &str, int pos, int len );
+#endif
 
 #ifdef Q_WS_X11
-    QFont::Script hanHack( const QChar & c );
+    QFontEngine *engineForScript( QFont::Script script ) const;
+
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(char *, char **);
     static QCString fixXLFD( const QCString & );
-    static bool fillFontDef(XFontStruct *, QFontDef *, int);
+    static bool fillFontDef(/*XFontStruct*/ void *, QFontDef *, int);
     static bool fillFontDef(const QCString &, QFontDef *, int);
-
-    static inline bool isZero(char *x)
-    {
-	return (x[0] == '0' && x[1] == 0);
-    }
-
-    static inline bool isScalable( char **tokens )
-    {
-	return (isZero(tokens[PixelSize]) &&
-		isZero(tokens[PointSize]) &&
-		isZero(tokens[AverageWidth]));
-    }
-
-    static inline bool isSmoothlyScalable( char **tokens )
-    {
-	return (isZero(tokens[ResolutionX]) && isZero(tokens[ResolutionY]));
-    }
-
-    static inline bool isFixedPitch( char **tokens )
-    {
-	return (tokens[Spacing][0] == 'm' ||
-		tokens[Spacing][0] == 'c' ||
-		tokens[Spacing][0] == 'M' ||
-		tokens[Spacing][0] == 'C');
-    }
 
     // XLFD fields
     enum FontFieldNames {
@@ -362,32 +370,15 @@ public:
 	NFontFields
     };
 
-#ifndef QT_NO_XFTFREETYPE
-    XftPattern *findXftFont(const QChar &, bool *, double *scale) const;
-    XftPattern *bestXftPattern(const QString &, const QString &, const QChar &, double *scale) const;
-#endif // QT_NO_XFTFREETYPE
-    QCString findFont(QFont::Script, bool *, double *) const;
-    QCString bestFamilyMember(QFont::Script, const QString &, const QString &,
-			      const QString &, int *, double *) const;
-    QCString bestMatch(const char *, int *, QFont::Script, double *) const;
-    int fontMatchScore(const char *, QCString &, float *, int *, bool *,
-		       bool *, QFont::Script, double *) const;
     void initFontInfo(QFont::Script, double scale);
     void load(QFont::Script = QFont::NoScript, bool = TRUE);
-    bool loadUnicode(QFont::Script, const QChar &);
     void computeLineWidth();
-
-    int textWidth( const QString &str, int pos, int len, TextRun *cache );
-    void textExtents( const QString &str, int pos, int len, QCharStruct *overall );
-    void drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
-		   GC gc, const QColor &pen, Qt::BGMode, const QColor &bgcolor,
-		   int x, int y, const TextRun *cache, int pdWidth );
-    bool inFont( const QChar &ch );
 
     QFontX11Data x11data;
     static QFont::Script defaultScript;
     int x11Screen;
 #endif // Q_WS_X11
+
 
     QPaintDevice *paintdevice;
 

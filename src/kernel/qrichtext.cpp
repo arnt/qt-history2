@@ -3878,9 +3878,9 @@ int QTextString::width( int idx ) const
 	     QString str;
 	     int pos = 0;
 	     if( idx > 4 )
-		 pos = idx - 4;
+		 pos = idx - 8;
 	     int off = idx - pos;
-	     int end = QMIN( length(), idx + 4 );
+	     int end = QMIN( length(), idx + 8 );
 	     while ( pos < end ) {
 		 str += at(pos).c;
 		 pos++;

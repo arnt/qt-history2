@@ -76,7 +76,7 @@ static QChar *shapeBuffer = 0;
 
 struct QShapeBufferCleanup
 {
-    ~QShapeBufferCleanup() 
+    ~QShapeBufferCleanup()
     {
 	if ( shapeBuffer ) {
 	    free( (void *) shapeBuffer );
@@ -773,6 +773,7 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos, const QFontMet
     }
 }
 
+#ifndef Q_WS_X11
 QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
 					 int pos, QRect *boundingRect )
 {
@@ -938,6 +939,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str,
     }
     return pa;
 }
+#endif
 
 #define BIDI_DEBUG 0//2
 #if (BIDI_DEBUG >= 1)

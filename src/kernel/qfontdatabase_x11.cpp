@@ -36,10 +36,7 @@
 **********************************************************************/
 
 #include <qplatformdefs.h>
-#ifdef NEW_FONT
-#include "../tests/newrichtext/qfontengine_p.h"
-#include "../tests/newrichtext/opentype.h"
-#endif
+#include "qfontengine_p.h"
 
 #include <private/qfontdata_p.h>
 
@@ -53,7 +50,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#ifdef NEW_FONT
+#ifndef QT_NO_XFTFREETYPE
 #include <freetype/freetype.h>
 #endif
 
@@ -329,7 +326,6 @@ int qt_xlfdEncoding_Id( const char *encoding )
     return -1;
 }
 
-#ifdef NEW_FONT
 int qt_mibForXlfd( const char * encoding )
 {
     int id = qt_xlfdEncoding_Id( encoding );
@@ -337,7 +333,6 @@ int qt_mibForXlfd( const char * encoding )
 	return xlfd_encoding[id].mib;
     return 0;
 };
-#endif
 
 static const char * xlfd_for_id( int id )
 {
@@ -422,7 +417,6 @@ static QChar sampleCharacter(QFont::Script script)
     return QChar(ch);
 }
 
-#ifdef NEW_FONT
 static inline bool canRender( QFontEngine *fe, const QChar &sample )
 {
     if ( !fe ) return FALSE;
@@ -438,7 +432,6 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 
     return hasChar;
 }
-#endif
 
 static QtFontStyle::Key getStyle( char ** tokens )
 {
@@ -530,7 +523,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
     char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
 				  xlfd_pattern.data(),
 				  0xffff, &fontCount );
-    qDebug("requesting xlfd='%s', got %d fonts", xlfd_pattern.data(), fontCount );
+    // qDebug("requesting xlfd='%s', got %d fonts", xlfd_pattern.data(), fontCount );
 
 
     char *tokens[QFontPrivate::NFontFields];
@@ -565,6 +558,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 
 
 	QtFontFamily *family = fontFamily ? fontFamily : db->family( familyName, TRUE );
+	family->fontFileIndex = -1;
 	QtFontFoundry *foundry = family->foundry( foundryName, TRUE );
 	QtFontStyle *style = foundry->style( styleKey, TRUE );
 
@@ -927,7 +921,8 @@ static void load( const QString &family = QString::null, int script = -1 )
     }
 }
 
-void QFontDatabase::createDatabase()
+
+static void initializeDb()
 {
     if ( db ) return;
     db = new QFontDatabasePrivate;
@@ -952,7 +947,7 @@ void QFontDatabase::createDatabase()
 //       incremental loading, instead of fully creating the database all
 //       at once.
 //     */
-     loadXlfds( 0, -1 ); // full load
+//      loadXlfds( 0, -1 ); // full load
 
 #ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
@@ -1006,7 +1001,11 @@ void QFontDatabase::createDatabase()
 #endif // QFONTDATABASE_DEBUG
 }
 
-#ifdef NEW_FONT
+void QFontDatabase::createDatabase()
+{
+    initializeDb();
+}
+
 
 // --------------------------------------------------------------------------------------
 // font loader
@@ -1177,8 +1176,21 @@ static unsigned int bestFoundry( unsigned int score, int styleStrategy,
 	    sty = fnd->style( styleKey );
 	}
 	if ( !sty ) {
-	    // ### do some matching here
-	    sty = fnd->styles[0];
+	    int best = 0;
+	    int dist = 0xffff;
+	    for ( int i = 0; i < fnd->count; i++ ) {
+		QtFontStyle *sty = fnd->styles[i];
+		int d = QABS( styleKey.weight - sty->key.weight );
+		if ( styleKey.italic && !sty->key.italic )
+		    d += sty->key.oblique ? 0x100 : 0x1000;
+		if ( styleKey.oblique && !sty->key.oblique )
+		    d += sty->key.italic ? 0x100 : 0x1000;
+		if ( d < dist ) {
+		    best = i;
+		    dist = d;
+		}
+	    }
+	    sty = fnd->styles[best];
 	}
 
 	int px = pixelSize;
@@ -1265,8 +1277,11 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
 					  int weight, bool italic,
 					  int pixelSize, char pitch, int x11Screen )
 {
-//     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s'",
-// 	    family.latin1(), script, scriptName( script ).latin1() );
+    if ( !db )
+	initializeDb();
+
+    qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s', weight=%d",
+	    family.latin1(), script, scriptName( script ).latin1(), weight );
 
     QFontEngine *fe = 0;
 
@@ -1332,12 +1347,12 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
     if ( best_fam == 0 || best_fnd == 0 || best_sty == 0 )
 	return 0;
 
-//     qDebug( "BEST: family '%s' foundry '%s'",
-// 	    best_fam->name.latin1(), best_fnd->name.latin1() );
-    // qDebug( "  using weight %d italic %d oblique %d",
-    // best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
-    // qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
-    // best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
+    qDebug( "BEST: family '%s' foundry '%s'",
+	    best_fam->name.latin1(), best_fnd->name.latin1() );
+    qDebug( "  using weight %d italic %d oblique %d",
+	    best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
+    qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
+	    best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
 
     fe = loadEngine( styleStrategy, styleHint, best_fam->name, best_fnd->name,
 		     best_sty->key.weight, best_sty->key.italic,
@@ -1356,4 +1371,3 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
 
     return fe;
 }
-#endif

@@ -1490,7 +1490,7 @@ void QFont::cacheStatistics()
     while ( (qfs = it.current()) ) {
 	++it;
 #ifdef Q_WS_X11
-	qDebug( "   [%s]", (const char *) qfs->name );
+	qDebug( "   [%s]", (const char *) qfs->name() );
 #elif defined(Q_WS_MAC)
 	qDebug( "   [we need to implement this]"); //XXX
 #else
@@ -1846,27 +1846,12 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
     return *this;
 }
 
-
-/*!
-    \overload
-
-    Returns the bounding rectangle of the character \a ch relative to
-    the left-most point on the base line.
-
-    Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
-
-    Note that the rectangle usually extends both above and below the
-    base line.
-
-    \sa width()
-*/
+#ifndef Q_WS_X11
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
     return d->boundingRect( ch );
 }
-
+#endif
 
 /*!
     \overload
@@ -2495,7 +2480,11 @@ void QFontCache::timerEvent(QTimerEvent *)
 
 	if (qfs != (QFontStruct *) -1) {
 	    if (qfs->count > 0)
+#ifdef Q_WS_X11
+		nmcost += 1; // ###
+#else
 		nmcost += qfs->cache_cost;
+#endif
 	} else
 	    // keep negative cache items in the cache
 	    nmcost++;

@@ -43,7 +43,10 @@
 #include "qrect.h"
 #endif // QT_H
 
+#ifdef Q_WS_QWS
 class QFontStruct;
+#endif
+
 class QTextCodec;
 class QTextParag;
 
@@ -70,12 +73,12 @@ public:
     int		leftBearing(QChar) const;
     int		rightBearing(QChar) const;
     int		width( const QString &, int len = -1 ) const;
-    
+
     int		width( QChar ) const;
 #ifndef QT_NO_COMPAT
     int		width( char c ) const { return width( (QChar) c ); }
 #endif
-    
+
     int 		charWidth( const QString &str, int pos ) const;
     QRect	boundingRect( const QString &, int len = -1 ) const;
     QRect	boundingRect( QChar ) const;

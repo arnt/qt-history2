@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id$
+** $Id: $
 **
 ** Implementation of QPainter class for X11
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -42,16 +42,19 @@
 # undef raise
 #endif
 
+#include "qfont.h"
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qintdict.h"
 #include "qfontdata_p.h"
-#include "qcomplextext_p.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
 #include "qt_x11.h"
+
+#include "qtextlayout.h"
+#include "qtextengine_p.h"
 
 #include <math.h>
 
@@ -2987,10 +2990,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( pos + len > (int)str.length() )
         len = str.length() - pos;
 
-    QFontMetrics fm( fontMetrics() );
-    QString shaped = QComplexText::shapedString( str,  pos, len, dir, &fm );
-    len = shaped.length();
-
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
         if ( testf(DirtyFont) ) {
             updateFont();
@@ -2998,21 +2997,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[3];
-            QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-            pfont->d->textWidth( shaped, 0, len, cache ); // create cache
-            bool retval = FALSE;
-	    QFontPrivate::TextRun *runs = cache;
-            while ( cache ) {
-                QPoint p( x + cache->xoff, y + cache->yoff );
-                QString s =
-                    QConstString( cache->string, cache->length ).string();
-                param[0].point = &p;
-                param[1].str = &s;
-                param[2].ival = cache->script;
-                retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
-                cache = cache->next;
-            }
-            delete runs;
+	    QPoint p(x, y);
+	    QString string = str;
+	    param[0].point = &p;
+	    param[1].str = &string;
+	    param[2].ival = QFont::Latin;// #######
+	    bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
             if ( !retval || !hd )
                 return;
         }
@@ -3110,27 +3100,101 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             map( x, y, &x, &y );
     }
 
-    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-    int width = cfont.d->textWidth( shaped, 0, len, cache );
-    cfont.d->drawText( dpy, scrn, hd, pdev->rendhd, gc, cpen.color(),
-		       (Qt::BGMode) bg_mode, bg_col, x, y, cache,
-		       pdev->metric( QPaintDeviceMetrics::PdmWidth ) );
-    delete cache;
+    QTextLayout layout( str, this );
+    layout.beginLayout();
+
+    layout.setBoundary( pos );
+    layout.setBoundary( pos + len );
+
+    QTextEngine *engine = layout.d;
+
+    // small hack to force skipping of unneeded items
+    int start = 0;
+    while ( engine->items[start].position < pos )
+	++start;
+    engine->currentItem = start;
+    layout.beginLine( 0xfffffff );
+    int end = start;
+    while ( !layout.atEnd() && layout.currentItem().from() < pos + len ) {
+	layout.addCurrentItem();
+	end++;
+    }
+    int ascent;
+    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+
+    // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
+    // for painting.
+
+    for ( int i = start; i < end; i++ ) {
+	QScriptItem &si = engine->items[i];
+
+	QFontEngine *fe = si.fontEngine;
+	assert( fe );
+	QShapedItem *shaped = si.shaped;
+	assert( shaped );
+
+	int xpos = x + si.x;
+	int ypos = y + si.y - ascent;
+
+	bool rightToLeft = si.analysis.bidiLevel % 2;
+
+	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
+
+	if ( cfont.underline() || cfont.strikeOut() ) {
+	    QFontMetrics fm = fontMetrics();
+	    int lw = fm.lineWidth();
+
+	    // draw underline effect
+	    if ( cfont.underline() )
+		XFillRectangle( dpy, hd, gc, xpos, ypos+fm.underlinePos(), si.width, lw );
+
+	    // draw strikeout effect
+	    if ( cfont.strikeOut() )
+		XFillRectangle( dpy, hd, gc, xpos, ypos-fm.strikeOutPos(), si.width, lw );
+	}
+    }
+}
+
+
+void QPainter::drawTextItem( int x,  int y, const QTextItem &ti )
+{
+    if ( testf(DirtyFont) ) {
+	updateFont();
+    }
+    if ( testf(ExtDev|VxF|WxF) ) {
+	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
+		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+	return;
+    }
+
+    QScriptItem &si = ti.engine->items[ti.item];
+
+    QShapedItem *shaped = ti.engine->shape( ti.item );
+    QFontEngine *fe = si.fontEngine;
+    assert( fe );
+
+    x += ti.x();
+    y += ti.y();
+
+    bool rightToLeft = si.analysis.bidiLevel % 2;
+
+    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
+		  shaped->offsets, shaped->num_glyphs, rightToLeft );
 
     if ( cfont.underline() || cfont.strikeOut() ) {
         QFontMetrics fm = fontMetrics();
         int lw = fm.lineWidth();
 
         // draw underline effect
-        if ( cfont.underline() ) {
-            XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), width, lw );
-        }
+        if ( cfont.underline() )
+            XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), si.width, lw );
 
         // draw strikeout effect
-        if ( cfont.strikeOut() ) {
-            XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), width, lw );
-        }
+        if ( cfont.strikeOut() )
+            XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), si.width, lw );
     }
+
 }
 
 /*!
