@@ -100,6 +100,8 @@ public:
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
 	{ return !(greater(left, right) || equal(left, right)); }
 
+    inline QObject *parent() const { return QObject::parent(); }
+
 public slots:
     virtual void fetchMore();
 
