@@ -95,11 +95,8 @@ static const uchar magic[magic_length] = { // magic number for the file
 
 static bool match( const char* found, const char* target )
 {
-    /*
-      Here arises the subtle distinction between a null string (means
-      "any") and an empty string (means empty).
-    */
-    return found == 0 || qstrcmp(found, target) == 0;
+    // 0 means anything, "" means empty
+    return found == 0 || qstrcmp( found, target ) == 0;
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -107,9 +104,9 @@ extern "C" {
 #endif
 
 /*
-  Yes, unfortunately, we have code here that depends on endianness.  The
-  candidate is big endian (it comes from a .qm file) whereas the target
-  endianness depends on the system Qt is running on.
+  Yes, unfortunately, we have code here that depends on endianness.
+  The candidate is big endian (it comes from a .qm file) whereas the
+  target endianness depends on the system Qt is running on.
 */
 #ifdef Q_OS_TEMP
 static int __cdecl cmp_uint32_little( const void* target, const void* candidate )
@@ -153,18 +150,16 @@ static uint elfHash( const char * name )
     uint g;
 
     if ( name ) {
-	k = (const uchar*)name;
+	k = (const uchar *) name;
 	while ( *k ) {
-	    h = (h << 4) + *k++;
+	    h = ( h << 4 ) + *k++;
 	    if ( (g = (h & 0xf0000000)) != 0 )
 		h ^= g >> 24;
 	    h &= ~g;
 	}
     }
-
     if ( !h )
 	h = 1;
-
     return h;
 }
 
@@ -173,19 +168,20 @@ extern bool qt_detectRTLLanguage();
 class QTranslatorPrivate {
 public:
     struct Offset {
-	Offset() { h=0; o=0; }
+	Offset()
+	    : h( 0 ), o( 0 ) { }
 	Offset( const QTranslatorMessage& m, int offset )
-	{ h = m.hash(); o = offset; } // ### qChecksum
+	    : h( m.hash() ), o( offset ) { }
 
-	bool operator<( const Offset&k ) const { return ( h != k.h )
-							     ? h < k.h
-							     : o < k.o; }
+	bool operator<( const Offset&k ) const {
+	    return ( h != k.h ) ? h < k.h : o < k.o;
+	}
 
 	uint h;
 	uint o;
     };
 
-    enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 } Tag;
+    enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 };
 
     QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
@@ -194,12 +190,11 @@ public:
 	,messages( 0 )
 #endif
     { }
-    // QTranslator must finalize this before deallocating it.
+    // QTranslator must finalize this before deallocating it
 
     // for mmap'ed files, this is what needs to be unmapped.
     char * unmapPointer;
     unsigned int unmapLength;
-
 
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * messageArray;
@@ -446,8 +441,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 #define MAP_FAILED -1
 #endif
 
-    //const char * lang = getenv( "LANG" );
-
     int f;
 
     f = ::open( QFile::encodeName(realname), O_RDONLY );
@@ -468,7 +461,6 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 		       f, 0 ); // from offset 0 of f
     if ( !tmp || tmp == (char*)MAP_FAILED ) {
 	// qDebug( "can't mmap %s: %s", filename.ascii(), strerror( errno ) );
-	// #### could revert to file io?
 	return FALSE;
     }
 
@@ -478,7 +470,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     d->unmapLength = st.st_size;
 #else
     // windows, or unix without mmap
-    QFile f(realname);
+    QFile f( realname );
     if ( !f.exists() )
 	return FALSE;
     d->unmapLength = f.size();
@@ -502,14 +494,14 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	clear();
 	return FALSE;
     }
-    // prepare to read.
+    // prepare to read
     QByteArray tmpArray;
     tmpArray.setRawData( d->unmapPointer, d->unmapLength );
     QDataStream s( tmpArray, IO_ReadOnly );
     if ( !s.device()->at(magic_length) )
 	return FALSE;
 
-    // read.
+    // read
     Q_UINT8 tag = 0;
     Q_UINT32 length = 0;
     s >> tag >> length;
@@ -595,11 +587,7 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
 
 void QTranslator::clear()
 {
-    bool wasUsed = d->unmapPointer || 
-		   d->unmapLength || 
-		   d->messageArray || 
-		   d->offsetArray || 
-		   d->contextArray;
+    bool wasEmpty = isEmpty();
 
     if ( d->unmapPointer && d->unmapLength ) {
 #if defined(QT_USE_MMAP)
@@ -630,7 +618,7 @@ void QTranslator::clear()
     d->messages = 0;
 #endif
 
-    if ( qApp && qApp->loopLevel() && wasUsed ) {
+    if ( qApp && qApp->loopLevel() && !wasEmpty ) {
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = QApplication::topLevelWidgets();
@@ -725,8 +713,9 @@ void QTranslator::squeeze( SaveMode mode )
 	}
 
 	/*
-	  The contexts found in this translator are stored in a hash table to
-	  provide fast look-up.  The context array has the following format:
+	  The contexts found in this translator are stored in a hash
+	  table to provide fast lookup. The context array has the
+	  following format:
 
 	      Q_UINT16 hTableSize;
 	      Q_UINT16 hTable[hTableSize];
@@ -737,12 +726,13 @@ void QTranslator::squeeze( SaveMode mode )
 	      Q_UINT8  len;
 	      Q_UINT8  data[len];
 
-	  Let's consider the look-up of context "FunnyDialog".  A hash value
-	  between 0 and hTableSize - 1 is computed, say h.  If hTable[h] is 0,
-	  "FunnyDialog" is not covered by this translator.  Else, we check in
-	  the contextPool at offset 2 * hTable[h] to see if "FunnyDialog" is one
-	  of the contexts stored there, until we find it or we meet the empty
-	  string.
+	  Let's consider the look-up of context "FunnyDialog".  A
+	  hash value between 0 and hTableSize - 1 is computed, say h.
+	  If hTable[h] is 0, "FunnyDialog" is not covered by this
+	  translator. Else, we check in the contextPool at offset
+	  2 * hTable[h] to see if "FunnyDialog" is one of the
+	  contexts stored there, until we find it or we meet the
+	  empty string.
 	*/
 	d->contextArray = new QByteArray;
 	d->contextArray->resize( 2 + (hTableSize << 1) );
@@ -823,13 +813,13 @@ void QTranslator::unsqueeze()
 
   This function works with stripped translator files.
 
-  (This is is a one-liner that calls find().)
+  (This is is a one-liner that calls findMessage().)
 */
 
 bool QTranslator::contains( const char* context, const char* sourceText,
 			    const char* comment ) const
 {
-    return findMessage( context, sourceText, comment ).translation() != QString::null;
+    return !findMessage( context, sourceText, comment ).translation().isNull();
 }
 
 
@@ -890,7 +880,8 @@ void QTranslator::remove( const QTranslatorMessage& message )
 */
 
 /*!  Returns the QTranslatorMessage for the key
-  (\a context, \a sourceText, \a comment).
+     (\a context, \a sourceText, \a comment). If none is found,
+     also tries (\a context, \a sourceText, "").
 */
 
 QTranslatorMessage QTranslator::findMessage( const char* context,
@@ -906,12 +897,20 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 
 #ifndef QT_NO_TRANSLATION_BUILDER
     if ( d->messages ) {
-	QMap<QTranslatorMessage, void *>::ConstIterator it
-	    = d->messages->find( QTranslatorMessage(context, sourceText,
-				 comment) );
-	if ( it == d->messages->end() )
-	    return QTranslatorMessage();
-	return it.key();
+	QMap<QTranslatorMessage, void *>::ConstIterator it;
+
+	it = d->messages->find( QTranslatorMessage(context, sourceText,
+						   comment) );
+	if ( it != d->messages->end() )
+	    return it.key();
+
+	if ( comment[0] ) {
+	    it = d->messages->find( QTranslatorMessage(context, sourceText,
+						       "") );
+	    if ( it != d->messages->end() )
+		return it.key();
+	}
+	return QTranslatorMessage();
     }
 #endif
 
@@ -947,62 +946,62 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	}
     }
 
-    Q_UINT32 h = elfHash( QCString(sourceText) + comment );
-
-    Q_UINT32 rh;
-    Q_UINT32 ro;
-
     size_t numItems = d->offsetArray->size() / ( 2 * sizeof(Q_UINT32) );
     if ( !numItems )
 	return QTranslatorMessage();
 
     if ( systemWordSize == 0 )
 	qSysInfo( &systemWordSize, &systemBigEndian );
-    char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
-				2 * sizeof(Q_UINT32),
-				systemBigEndian ? cmp_uint32_big
-				: cmp_uint32_little );
-    if ( r == 0 )
-	return QTranslatorMessage();
 
-    // go back on equal key
-    while ( r != d->offsetArray->data() && cmp_uint32_big(r - 8, r) == 0 )
-	r -= 8;
+    for ( ;; ) {
+	Q_UINT32 h = elfHash( QCString(sourceText) + comment );
 
-    QDataStream s( *d->offsetArray, IO_ReadOnly );
-    s.device()->at( r - d->offsetArray->data() );
+	char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
+				    2 * sizeof(Q_UINT32),
+				    systemBigEndian ? cmp_uint32_big
+				    : cmp_uint32_little );
+	if ( r != 0 ) {
+	    // go back on equal key
+	    while ( r != d->offsetArray->data() &&
+		    cmp_uint32_big(r - 8, r) == 0 )
+		r -= 8;
 
-    s >> rh >> ro;
+	    QDataStream s( *d->offsetArray, IO_ReadOnly );
+	    s.device()->at( r - d->offsetArray->data() );
 
-    QDataStream ms( *d->messageArray, IO_ReadOnly );
-    while ( rh == h ) {
-	ms.device()->at( ro );
-	QTranslatorMessage m( ms );
-	if ( match(m.context(), context)
-		&& match(m.sourceText(), sourceText)
-		&& match(m.comment(), comment) )
-	    return m;
-	if ( s.atEnd() )
-	    return QTranslatorMessage();
-	s >> rh >> ro;
+	    Q_UINT32 rh, ro;
+	    s >> rh >> ro;
+
+	    QDataStream ms( *d->messageArray, IO_ReadOnly );
+	    while ( rh == h ) {
+		ms.device()->at( ro );
+		QTranslatorMessage m( ms );
+		if ( match(m.context(), context)
+			&& match(m.sourceText(), sourceText)
+			&& match(m.comment(), comment) )
+		    return m;
+		if ( s.atEnd() )
+		    break;
+		s >> rh >> ro;
+	    }
+	}
+	if ( !comment[0] )
+	    break;
+	comment = "";
     }
-
     return QTranslatorMessage();
 }
 
 #ifndef QT_NO_TRANSLATION_BUILDER
 
-/*! 
+/*!
     Returns TRUE if this translator is empty, otherwise returns FALSE.
     This function works with stripped and unstripped translation files.
 */
 bool QTranslator::isEmpty() const
 {
-    return !(d->unmapPointer || 
-	     d->unmapLength || 
-	     d->messageArray || 
-	     d->offsetArray || 
-	     d->contextArray );
+    return !( d->unmapPointer || d->unmapLength || d->messageArray ||
+	      d->offsetArray || d->contextArray );
 }
 
 
@@ -1011,15 +1010,15 @@ bool QTranslator::isEmpty() const
   small size, not speed.
 
   Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
-    \code
-    QValueList<QTranslatorMessage> list = myTranslator.messages();
+  iterate over a copy, like this:
+  \code
+    QValueList<QTranslatorMessage> list = translator.messages();
     QValueList<QTranslatorMessage>::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
+    while ( it != list.end() ) {
+	process_message( *it );
 	++it;
     }
-    \endcode
+  \endcode
 */
 
 QValueList<QTranslatorMessage> QTranslator::messages() const
@@ -1083,9 +1082,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 					const QString& translation )
     : cx( context ), st( sourceText ), cm( comment ), tn( translation )
 {
-    /*
-      0 means we don't know, "" means we know it's empty.
-    */
+    // 0 means we don't know, "" means empty
     if ( cx == (const char*)0 )
 	cx = "";
     if ( st == (const char*)0 )
