@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#257 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#258 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -153,7 +153,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
     connectModalRecursionSafety = 0;
-    
+
     setFocusPolicy( StrongFocus );
 }
 
@@ -567,7 +567,7 @@ void QPopupMenu::updateSize()
     int maxWidgetWidth = 0;
     tab = 0;
     int arrow_width = style().popupSubmenuIndicatorWidth( fm );
-    
+
     bool hasWidgetItems = FALSE;
 
     for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
@@ -623,7 +623,7 @@ void QPopupMenu::updateSize()
 	
 
 #if defined(CHECK_NULL)
-	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() )
+	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() && !mi->widget() )
 	    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
@@ -637,7 +637,7 @@ void QPopupMenu::updateSize()
 	if ( w > max_width )
 	    max_width = w;
     }
-    
+
     if ( tab )
 	tab -= fontMetrics().minRightBearing();
     else
@@ -654,8 +654,8 @@ void QPopupMenu::updateSize()
     }
 	
     badSize = FALSE;
-    
-    
+
+
     if ( hasWidgetItems ) {
 	// Position the widget items. It could be done in drawContents
 	// but this way we get less flicker.
@@ -938,7 +938,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem )			// new item activated
 	setActiveItem( item );
-    
+
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
 	if ( popup->isVisible() ) {		// sub menu already open
