@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#313 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#314 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1038,11 +1038,11 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    setWFlags( WState_Visible );
-    clearWFlags( WState_ForceHide );
-
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
+
+    setWFlags( WState_Visible );
+    clearWFlags( WState_ForceHide );
 
     XMapWindow( dpy, winId() );
 }
