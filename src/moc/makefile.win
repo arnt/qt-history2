@@ -32,6 +32,7 @@ TOOLOBJ =	qbuffer.obj	\
 		qdatetm.obj	\
 		qdstream.obj	\
 		qgarray.obj	\
+		qgdict.obj	\
 		qglist.obj	\
 		qglobal.obj	\
 		qgvector.obj	\
@@ -91,6 +92,9 @@ qdstream.obj: ..\tools\qdstream.cpp
 
 qgarray.obj: ..\tools\qgarray.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qgarray.cpp -o qgarray.obj
+
+qgdict.obj: ..\tools\qgdict.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qgdict.cpp -o qgdict.obj
 
 qglist.obj: ..\tools\qglist.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) ..\tools\qglist.cpp -o qglist.obj
