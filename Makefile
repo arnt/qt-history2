@@ -36,6 +36,7 @@ symlinks: .qmake.cache
 sub-src: src-moc .qmake.cache FORCE
 	cd src
 	$(MAKE)
+	$(MAKE) -f Makefile.main
 	cd ..
 
 sub-tutorial: sub-src FORCE
@@ -52,7 +53,7 @@ clean:
 	cd qmake&&$(MAKE) clean
 	cd tools&&$(MAKE) clean
 	cd src\moc&&$(MAKE) clean
-	cd src&&$(MAKE) clean
+	cd src&&$(MAKE) clean&&$(MAKE) clean -f Makefile.main
 	cd tutorial&&$(MAKE) clean
 	cd examples&&$(MAKE) clean
 

@@ -277,14 +277,16 @@ for /R %QTDIR% %%d IN (.) DO (
 	if exist %%d%\*.pro (
 		for /F "usebackq" %%f IN (`dir /B %%d%\*.pro`) DO (
 			set QMAKE_FILE=%%f%
+			set QMAKE_EXTRA_ARGS="QMAKE_ABSOLUTE_SOURCE_PATH=!QMAKE_DIR!"
 			if not "!QMAKE_FILE!" == "qtmain.pro" (
-				set QMAKE_EXTRA_ARGS="QMAKE_ABSOLUTE_SOURCE_PATH=!QMAKE_DIR!"
 rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
 				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile -mkspec %XMKSPEC%
-
-				echo echo !QMAKE_DIR!\!QMAKE_FILE! >> tmp.bat
-				echo !QMAKE_COMMAND! >> tmp.bat
+			) else (
+rem				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% !QMAKE_EXTRA_ARGS! -o !QMAKE_DIR!\Makefile.main -mkspec %XMKSPEC%
+				set QMAKE_COMMAND=%QTDIR%\bin\qmake !QMAKE_DIR!\!QMAKE_FILE! %QMAKE_ALL_ARGS% -o !QMAKE_DIR!\Makefile.main -mkspec %XMKSPEC%
 			)
+			echo echo !QMAKE_DIR!\!QMAKE_FILE! >> tmp.bat
+			echo !QMAKE_COMMAND! >> tmp.bat
 		)
 	)
 )
