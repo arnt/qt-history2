@@ -38,3 +38,11 @@ ENGLISH THINGS
 --------------
 
 Re-arrange all data members to minimize object size.
+
+
+GERMAN THINGS:
+--------------
+> the signals applyButtonPressed(), cancelButtonPressed() and
+> defaultButtonPressed() in QTabDialog are somewhat misnamed, because
+> they are emitted when the corresponding button is clicked, not pressed
+> (i.e., emits the signal clicked(), not pressed()). 
