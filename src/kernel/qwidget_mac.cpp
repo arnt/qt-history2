@@ -260,6 +260,7 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 #else
 	//this is the solution to weird things on demo example (white areas), need
 	//to examine why this happens FIXME!
+	Q_UNUSED(rgn);
 	QRect reg(0, 0, widget->width(), widget->height());
 #endif
 	paint_children(widget, reg, PC_Now | PC_ForceErase );
@@ -877,9 +878,11 @@ void QWidget::showWindow()
 
 #ifdef Q_WS_MACX
 	    //handle transition
-	    if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
+	    if(qApp->style().inherits(QMAC_DEFAULT_STYLE) && 
+	       parentWidget() && testWFlags(WShowModal)) 
 		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-					  kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
+					  kWindowSheetTransitionEffect, 
+					  kWindowShowTransitionAction, NULL);
 #endif
 	    //now actually show it
 	    ShowHide((WindowPtr)hd, 1);
@@ -1393,6 +1396,13 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
+#ifdef Q_WS_MACX
+    if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
+	QRegion clean(copied);
+	clean.translate(p.x(), p.y());
+	QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
+    }
+#endif
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
 }
 
