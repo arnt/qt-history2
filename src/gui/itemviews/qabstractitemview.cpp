@@ -888,7 +888,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QPoint offset(horizontalOffset(), verticalOffset());
     d->pressedItem = QPersistentModelIndex(index, model());
     d->pressedModifiers = e->modifiers();
-    QItemSelectionModel::SelectionFlags command = selectionCommand(index, Qt::NoModifier, e);
+    QItemSelectionModel::SelectionFlags command = selectionCommand(index, e);
     if ((command & QItemSelectionModel::Current) == 0)
         d->pressedPosition = pos + offset;
 
@@ -958,7 +958,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     }
     setState(SelectingState);
     setSelection(QRect(topLeft, bottomRight).normalize(),
-                 selectionCommand(index, Qt::NoModifier, e));
+                 selectionCommand(index, e));
 }
 
 /*!
@@ -978,7 +978,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
     if (state() == EditingState && d->editors.contains(persistent))
         return;
 
-    selectionModel()->select(index, selectionCommand(index, Qt::NoModifier, e));
+    selectionModel()->select(index, selectionCommand(index, e));
     if (state() == SelectingState)
         setState(NoState);
 
@@ -1146,7 +1146,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 
         if (newCurrent != current && newCurrent.isValid()) {
             QItemSelectionModel::SelectionFlags command =
-                selectionCommand(newCurrent, Qt::NoModifier, e);
+                selectionCommand(newCurrent, e);
             if (command & QItemSelectionModel::Current) {
                 setCurrentIndex(newCurrent);
                 QPoint offset(horizontalOffset(), verticalOffset());
@@ -1186,7 +1186,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(),
-                                 selectionCommand(currentIndex(), Qt::NoModifier, e));
+                                 selectionCommand(currentIndex(), e));
     case Qt::Key_Delete:
         break;
     case Qt::Key_F2:
@@ -1857,8 +1857,8 @@ void QAbstractItemView::doAutoScroll()
     index of the relevant item by \a index, the even type by \a type,
     and the key (if a key was pressed) by \a key.
 */
-QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(
-    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
+QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(const QModelIndex &index,
+                                                                        const QEvent *event) const
 {
     switch (selectionMode()) {
     case NoSelection: // Never update selection model
@@ -1868,15 +1868,15 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(
             return QItemSelectionModel::ClearAndSelect|d->selectionBehaviorFlags();
         return QItemSelectionModel::NoUpdate;
     case MultiSelection:
-        return d->multiSelectionCommand(index, modifiers, event);
+        return d->multiSelectionCommand(index, event);
     case ExtendedSelection:
-        return d->extendedSelectionCommand(index, modifiers, event);
+        return d->extendedSelectionCommand(index, event);
     }
     return QItemSelectionModel::NoUpdate;
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionCommand(
-    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
+    const QModelIndex &index, const QEvent *event) const
 {
     if (!index.isValid())
         return QItemSelectionModel::NoUpdate;
@@ -1923,8 +1923,9 @@ QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::multiSelectionComm
 }
 
 QItemSelectionModel::SelectionFlags QAbstractItemViewPrivate::extendedSelectionCommand(
-    const QModelIndex &index, Qt::KeyboardModifiers modifiers, const QEvent *event) const
+    const QModelIndex &index, const QEvent *event) const
 {
+    Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
     if (event) {
         switch (event->type()) {
         case QEvent::MouseMove: // Toggle on MouseMove

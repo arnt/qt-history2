@@ -37,10 +37,8 @@ public:
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
 
     QItemSelectionModel::SelectionFlags multiSelectionCommand(const QModelIndex &index,
-                                                              Qt::KeyboardModifiers modifiers,
                                                               const QEvent *event) const;
     QItemSelectionModel::SelectionFlags extendedSelectionCommand(const QModelIndex &index,
-                                                                 Qt::KeyboardModifiers modifiers,
                                                                  const QEvent *event) const;
 
     inline QItemSelectionModel::SelectionFlags selectionBehaviorFlags() const

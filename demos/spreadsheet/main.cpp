@@ -156,21 +156,19 @@ public:
         QTableWidget(rows, columns, parent) {}
 
     QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
-                                                         Qt::KeyboardModifiers modifiers,
                                                          const QEvent *event) const;
 protected:
     QTableWidgetItem *createItem() const;
 };
 
 QItemSelectionModel::SelectionFlags SpreadSheetTable::selectionCommand(const QModelIndex &index,
-                                                                       Qt::KeyboardModifiers modifiers,
                                                                        const QEvent *event) const
 {
     const QMouseEvent *me = event && event->type() == QEvent::MouseButtonPress
                             ? static_cast<const QMouseEvent *>(event) : 0;
     if (me && (me->buttons() & Qt::RightButton || me->buttons() & Qt::MidButton))
         return QItemSelectionModel::NoUpdate;
-    return QTableWidget::selectionCommand(index, modifiers, event);
+    return QTableWidget::selectionCommand(index, event);
 }
 
 QTableWidgetItem *SpreadSheetTable::createItem() const

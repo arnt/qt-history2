@@ -186,7 +186,6 @@ protected:
     virtual bool edit(const QModelIndex &index, BeginEditAction action, QEvent *event);
 
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
-                                                                 Qt::KeyboardModifiers modifiers,
                                                                  const QEvent *event = 0) const;
 
     virtual QDragObject *dragObject();
