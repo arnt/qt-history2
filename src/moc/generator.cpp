@@ -27,7 +27,8 @@ enum FunctionFlags {
     AccessPrivate   = 0x01,
     AccessPublic    = 0x02,
     AccessProtected = 0x04,
-    Compatability   = 0x08
+    Compatability   = 0x08,
+    Cloned          = 0x10
 };
 
 /*
@@ -358,6 +359,8 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
             flags |= AccessProtected;
         if(f.isCompat)
             flags |= Compatability;
+        if(f.wasCloned)
+            flags |= Cloned;
         fprintf(out, "    %4d, %4d, %4d, %4d, 0x%02x,\n", strreg(sig),
                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), flags);
     }
