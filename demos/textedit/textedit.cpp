@@ -37,6 +37,7 @@
 #include <qtextformat.h>
 #include <qtoolbar.h>
 #include <qtextcursor.h>
+#include <qtextlist.h>
 
 #include <limits.h>
 
@@ -428,11 +429,16 @@ void TextEdit::textStyle(int styleIndex)
         QTextBlockFormat blockFmt = cursor.blockFormat();
 
         QTextListFormat listFmt;
-        listFmt.setStyle(style);
-        listFmt.setIndent(blockFmt.indent() + 1);
 
-        blockFmt.setIndent(0);
-        cursor.setBlockFormat(blockFmt);
+        if (cursor.currentList()) {
+            listFmt = cursor.currentList()->format();
+        } else {
+            listFmt.setIndent(blockFmt.indent() + 1);
+            blockFmt.setIndent(0);
+            cursor.setBlockFormat(blockFmt);
+        }
+
+        listFmt.setStyle(style);
 
         cursor.createList(listFmt);
 
