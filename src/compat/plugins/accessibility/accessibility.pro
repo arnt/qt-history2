@@ -9,8 +9,10 @@ QT += compat
 
 SOURCES  += main.cpp \
             q3simplewidgets.cpp \
+            q3complexwidgets.cpp \
             qaccessiblecompat.cpp
 
 HEADERS  += qaccessiblecompat.h \
+            q3complexwidgets.cpp \
             q3simplewidgets.h
 

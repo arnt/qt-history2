@@ -1,9 +1,11 @@
 #include "qaccessiblecompat.h"
 #include "q3simplewidgets.h"
+#include "q3complexwidgets.h"
 
 #include <qaccessibleplugin.h>
 #include <qplugin.h>
 #include <qstringlist.h>
+#include <q3toolbar.h>
 
 class CompatAccessibleFactory : public QAccessiblePlugin
 {
@@ -28,6 +30,12 @@ QStringList CompatAccessibleFactory::keys() const
     list << "Q3ListView";
     list << "QWidgetStack";
     list << "Q3GroupBox";
+    list << "Q3ToolBar";
+    list << "Q3ToolBarSeparator";
+    list << "Q3DockWindowHandle";
+    list << "Q3DockWindowResizeHandle";
+    list << "Q3MainWindow";
+    list << "Q3Header";
 
     return list;
 }
@@ -51,7 +59,20 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         iface = new QAccessibleWidgetStack(widget);
     } else if (classname == "Q3GroupBox") {
         iface = new Q3AccessibleDisplay(widget, Grouping);
+    } else if (classname == "Q3ToolBar") {
+        iface = new QAccessibleWidget(widget, ToolBar, static_cast<Q3ToolBar *>(widget)->label());
+    } else if (classname == "Q3MainWindow") {
+        iface = new QAccessibleWidget(widget, Application);
+    } else if (classname == "Q3ToolBarSeparator") {
+        iface = new QAccessibleWidget(widget, Separator);
+    } else if (classname == "Q3DockWindowHandle") {
+        iface = new QAccessibleWidget(widget, Grip);
+    } else if (classname == "Q3DockWindowResizeHandle") {
+        iface = new QAccessibleWidget(widget, Grip);
+    } else if (classname == "Q3Header") {
+        iface = new Q3AccessibleHeader(widget);
     }
+
     return iface;
 }
 
