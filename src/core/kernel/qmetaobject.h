@@ -128,7 +128,30 @@ public:
     static void destroy(int type, void *data);
 };
 
+template <typename T>
+void qMetaTypeDeleteHelper(T *t)
+{
+    delete t;
+}
 
+template <typename T>
+void *qMetaTypeCopyHelper(const T *t)
+{
+    if (!t)
+        return 0;
+    return new T(*static_cast<const T*>(t));
+}
 
+template <typename T>
+static int qRegisterMetaType(const char *typeName, T* = 0)
+{
+    typedef void*(*CopyPtr)(const T*);
+    CopyPtr cptr = qMetaTypeCopyHelper<T>;
+    typedef void(*DeletePtr)(T*);
+    DeletePtr dptr = qMetaTypeDeleteHelper<T>;
+
+    return QMetaType::registerType(typeName, (QMetaType::Destructor)dptr,
+                                   (QMetaType::CopyConstructor)cptr);
+}
 
 #endif // QMETAOBJECT_H

@@ -1468,15 +1468,48 @@ static const struct { const char * typeName; int type; }types[]  = {
     {0, QMetaType::Void}
 };
 
+class QCustomTypeInfo
+{
+public:
+    QCustomTypeInfo() : typeName(0), copy(0), destr(0) {}
+    ~QCustomTypeInfo() { delete typeName; }
+    void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
+    { delete typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
+
+    const char *typeName;
+    QMetaType::CopyConstructor copy;
+    QMetaType::Destructor destr;
+};
+
+static QCustomTypeInfo nullInfo;
+
+static QVector<QCustomTypeInfo> customTypes;
 
 /*!
   Registers a user type for marshalling, with \a typeName, a \a
   destructor, and a \a copyConstructor. Returns the type's handle, or
-  0 if the type could not be registered.
+  -1 if the type could not be registered.
  */
-int QMetaType::registerType(const char *typeName, Destructor destructor, CopyConstructor copyConstructor)
+int QMetaType::registerType(const char *typeName, Destructor destructor,
+                            CopyConstructor copyConstructor)
 {
-    return -1;
+    static int currentIdx = User;
+    if (!typeName || !destructor || !copyConstructor)
+        return -1;
+
+    customTypes.ensure_constructed();
+    int idx = type(typeName);
+    if (idx) {
+        if (idx < User) {
+            qWarning("cannot re-register basic type '%s'", typeName);
+            return -1;
+        }
+    } else {
+        idx = currentIdx++;
+        customTypes.resize(customTypes.count() + 1);
+    }
+    customTypes[idx - User].setData(typeName, copyConstructor, destructor);
+    return idx;
 }
 
 /*!
@@ -1490,6 +1523,13 @@ int QMetaType::type(const char *typeName)
     int i = 0;
     while (types[i].typeName && strcmp(typeName, types[i].typeName))
         ++i;
+    if (!types[i].type) {
+        customTypes.ensure_constructed();
+        for (int v = 0; v < customTypes.count(); ++v) {
+            if (strcmp(customTypes.at(v).typeName, typeName))
+                return v + User;
+        }
+    }
     return types[i].type;
 }
 
@@ -1532,7 +1572,11 @@ void *QMetaType::copy(int type, void *data)
     case QMetaType::QString:
         return new ::QString(*static_cast< ::QString*>(data));
     case QMetaType::Void:
+        return 0;
     default:
+        customTypes.ensure_constructed();
+        if (customTypes.count() > type - User)
+            return customTypes.at(type - User).copy(data);
         return 0;
     }
 }
@@ -1591,7 +1635,11 @@ void QMetaType::destroy(int type, void *data)
         delete static_cast< ::QString*>(data);
         break;
     case QMetaType::Void:
+        break;
     default:
+        customTypes.ensure_constructed();
+        if (customTypes.count() > type - User)
+            customTypes.at(type - User).destr(data);
         break;
     }
 }
