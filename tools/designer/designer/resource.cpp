@@ -1727,6 +1727,7 @@ void Resource::loadConnections( const QDomElement &e )
 	    MetaDataBase::Connection conn;
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "sender" ) {
+		    conn.sender = 0;
 		    QString name = n2.firstChild().toText().data();
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.sender = toplevel;
@@ -1739,6 +1740,8 @@ void Resource::loadConnections( const QDomElement &e )
 				conn.sender = l->first();
 			    delete l;
 			}
+			if ( !conn.sender )
+			    conn.sender = formwindow->findAction(  name );
 		    }
 		} else if ( n2.tagName() == "signal" ) {
 		    conn.signal = n2.firstChild().toText().data();
