@@ -87,11 +87,15 @@ main(int argc, char** argv)
     QString bb;
     #endif
     QString c("String C");
+#if 0 // evil constructor dropped
     #ifdef MAXLEN_EXCLUDES_NULL
 	QString d("String D[last bit should not be seen]",8);
     #else
 	QString d("String D[last bit should not be seen]",9);
     #endif
+#else
+    QString d("String D");
+#endif
     QString ca(a);
     QString cb(b);
     QString cc(c);
@@ -427,7 +431,6 @@ main(int argc, char** argv)
     TEST(a.toLong(&ok,16),-0x7FFFFFFF);
     TEST(ok,TRUE);
 
-    // This one is tricky to fix.
     a = "-80000000";
     TEST(a.toLong(&ok,16),-0x7FFFFFFF-1);
     TEST(ok,TRUE);
@@ -507,6 +510,10 @@ main(int argc, char** argv)
     TEST("XXXX"+a,"XXXXABC");
     TEST('X'+a,"XABC");
 
+    a = (const char*)0;
+    TEST(a.isNull(),TRUE);
+    TEST((const char*)a,0);
+
     QByteArray ar;
     {
 	QDataStream out(ar,IO_WriteOnly);
@@ -533,14 +540,14 @@ main(int argc, char** argv)
 #if QT_VERSION >= 200
     {
 	a="";
-	QTextOStream ts(a);
+	QTextOStream ts(&a);
 	ts << "pi = " << 3.125;
 	TEST(a,"pi = 3.125");
     }
     {
 	a="123 456";
 	int x,y;
-	QTextIStream(a) >> x >> y;
+	QTextIStream(&a) >> x >> y;
 	TEST(x,123);
 	TEST(y,456);
     }
