@@ -229,11 +229,6 @@ int main(int argc, char **argv)
     // 3. parse
     moc.parse();
 
-    if (moc.classList.isEmpty()) {
-        moc.warning("No relevant classes found. No output generated.");
-        return 0;
-    }
-
     // 4. and output meta object code
  step4:
 
@@ -250,7 +245,10 @@ int main(int argc, char **argv)
     if (Preprocessor::onlyPreprocess) {
         fprintf(out, "%s%s\n", Preprocessor::protocol.constData(), input.constData());
     } else {
-        moc.generate(out);
+        if (moc.classList.isEmpty())
+            moc.warning("No relevant classes found. No output generated.");
+        else
+            moc.generate(out);
     }
 
     if (output.size())
