@@ -198,6 +198,7 @@ public:
 	}
 
 	result.metrics = new QGlyphMetrics;
+	memset((char*)result.metrics,0,sizeof(QGlyphMetrics));
 	result.metrics->bearingx=glyph->metrics.horiBearingX/64;
 	result.metrics->advance=glyph->metrics.horiAdvance/64;
 	result.metrics->bearingy=glyph->metrics.horiBearingY/64;

@@ -142,6 +142,7 @@ public:
 			QGlyph* g = glyph+glyph_index;
 			g->data = data;
 			g->metrics = new QGlyphMetrics;
+			memset((char*)g->metrics,0,sizeof(QGlyphMetrics));
 			g->metrics->advance=advance;
 			g->metrics->bearingx=bbox.x();
 			g->metrics->bearingy=bbox.y()+bbox.height();

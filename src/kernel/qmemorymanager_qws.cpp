@@ -435,6 +435,7 @@ public:
     {
 	if ( !default_glyph ) {
 	    QGlyphMetrics* m = new QGlyphMetrics;
+	    memset((char*)m, 0, sizeof(QGlyphMetrics));
 	    m->width = fm.maxwidth;
 	    m->linestep = fm.smooth ? m->width : (m->width+7)/8;
 	    m->height = fm.ascent;
