@@ -187,6 +187,19 @@ DATE QDateTimeToDATE( const QDateTime &dt )
     return vtime;
 }
 
+uint QColorToOLEColor( const QColor &col )
+{
+    OLE_COLOR ole = qRgba( col.blue(), col.green(), col.red(), 0x00 );
+    return ole;
+}
+
+QColor OLEColorToQColor( uint col )
+{
+    COLORREF cref;
+    HRESULT hres = OleTranslateColor( col, QColor::hPal(), &cref );
+    return QColor( GetRValue(cref),GetGValue(cref),GetBValue(cref) );
+}
+
 /*
     Converts \a var to \a arg, and tries to coerce \a arg to \a type.
 
