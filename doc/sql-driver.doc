@@ -2,7 +2,7 @@
 **
 ** Documentation for sql driver programming
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -272,7 +272,7 @@ established and refuses to work if the check fails. If you don't
 like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
 line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
 
-Note that some DBMSs, like Microsoft Access, does not return the
+Note that some DBMSs, like Microsoft Access, do not return the
 primary index for a table through ODBC. You can still use the QODBC3
 driver, but you will have to manage table indices yourself (through
 QSqlCursor::setPrimaryIndex()), otherwise INSERT, UPDATE and DELETE
