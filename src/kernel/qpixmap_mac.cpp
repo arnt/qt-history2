@@ -839,11 +839,10 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 
     //acquire and cleanup
     IconRef ret;
-    const OSType kFakeCreator = 'CUTE', kFakeType = 'QICO';
-    RegisterIconRefFromIconFamily(kFakeCreator, kFakeType, iconFamily, &ret);
-    DisposeHandle((Handle)iconFamily);
+    const OSType kQtCreator = 'CUTE';
+    RegisterIconRefFromIconFamily(kQtCreator, (OSType)px.serialNumber(), iconFamily, &ret);
     AcquireIconRef(ret);
-    UnregisterIconRef(kFakeCreator, kFakeType);
+    UnregisterIconRef(kQtCreator, (OSType)px.serialNumber());
     return ret;
 
 }
