@@ -38,7 +38,7 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
-#define QT_VERSION_STR   "3.1.0-snapshot"
+#define QT_VERSION_STR   "3.1.0-beta1"
 /*
    QT_VERSION is ( MAJOR<<16+MINOR<<8+PATCH)
  */
@@ -807,7 +807,7 @@ Q_EXPORT int qWinVersion();
 #endif
 
 #ifndef Q_INLINE_TEMPLATES
-#  define Q_INLINE_TEMPLATES 
+#  define Q_INLINE_TEMPLATES
 #endif
 
 #ifndef Q_TYPENAME
