@@ -2020,7 +2020,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
     case QStyle::CE_ProgressBarLabel:
     case QStyle::CE_ProgressBarGroove:
         break;
-    case QStyle::CE_TabBarTab:
+    case QStyle::CE_TabBarTabShape:
         if (const QStyleOptionTab *tabOpt = qt_cast<const QStyleOptionTab *>(opt)) {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
             HIThemeTabDrawInfo tdi;
@@ -3683,7 +3683,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             DrawThemeTrack(&tdi, 0, 0, 0);
         }
         break;
-    case QStyle::CE_TabBarTab:
+    case QStyle::CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             ThemeTabStyle tts = kThemeTabNonFront;
             if (tab->state & QStyle::State_Selected) {
@@ -5259,7 +5259,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_ToolBoxTab:
         QCommonStyle::drawControl(ce, opt, p, w);
         break;
-    case CE_TabBarTab:
+    case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             // Make sure we draw panther style tabs on Panther
             if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3
@@ -5273,7 +5273,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
         }
         break;
-    case CE_TabBarLabel:
+    case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             if (QSysInfo::MacintoshVersion == QSysInfo::MV_10_3) {
                 QStyleOptionTab myTab = *tab;

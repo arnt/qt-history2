@@ -1701,7 +1701,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
-    case CE_TabBarTab:
+    case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             bool selected = tab->state & State_Selected;
             bool lastTab = tab->position == QStyleOptionTab::End;

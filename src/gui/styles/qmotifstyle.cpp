@@ -767,7 +767,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             break;
         }
 
-    case CE_TabBarTab:
+    case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             int dfw = pixelMetric(PM_DefaultFrameWidth, tab, widget);
             bool selected = opt->state & State_Selected;

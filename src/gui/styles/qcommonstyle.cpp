@@ -1262,6 +1262,12 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break;
     case CE_TabBarTab:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            drawControl(CE_TabBarTabShape, tab, p, widget);
+            drawControl(CE_TabBarTabLabel, tab, p, widget);
+        }
+        break;
+    case CE_TabBarTabShape:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QBrush oldBrush = p->brush();
             QPen oldPen = p->pen();
             if (tab->state & State_Selected)
@@ -1322,7 +1328,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             p->setBrush(oldBrush);
         }
         break;
-    case CE_TabBarLabel:
+    case CE_TabBarTabLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QRect tr = tab->rect;
             bool verticalTabs = tab->shape == QTabBar::RoundedEast

@@ -160,7 +160,8 @@ public:
         CE_RadioButtonLabel,
 
         CE_TabBarTab,
-        CE_TabBarLabel,
+        CE_TabBarTabShape,
+        CE_TabBarTabLabel,
 
         CE_ProgressBar,
         CE_ProgressBarGroove,

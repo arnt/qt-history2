@@ -1173,7 +1173,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
 
-    case CE_TabBarTab:
+    case CE_TabBarTabShape:
         //    case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(option))
         {

@@ -825,14 +825,12 @@ void QTabBar::paintEvent(QPaintEvent *)
         }
         QStyleOptionTab tab = d->getStyleOption(i);
         p.drawControl(QStyle::CE_TabBarTab, tab);
-        p.drawControl(QStyle::CE_TabBarLabel, tab);
     }
 
     // Draw the selected tab last to get it "on top"
     if (selected >= 0) {
         QStyleOptionTab tab = d->getStyleOption(selected);
         p.drawControl(QStyle::CE_TabBarTab, tab);
-        p.drawControl(QStyle::CE_TabBarLabel, tab);
     }
 
 }
