@@ -870,11 +870,23 @@ void ClassDecl::fillInDocsThis()
 
 	/*
 	  First pass: Fill in the candidate lists.  Among the
-	  candidates, we'll choose a canonical function and make sure
-	  all the others are '\overload's.
+	  candidates, we'll choose a canonical version and make sure
+	  all the others are '\overload's
 
-	  There are three candidate lists, to distinguish between
-	  three levels of quality.  The best candidate should fall in
+	  Ideally, the situation is this:  All versions of the
+	  function except one are marked '\overload'.  Unfortunately,
+	  on Qt, this policy led to hundreds of warnings about missing
+	  '\overload's.  To avoid that, we distinguish candidates
+	  according to their quality (or rather badness).  A normal
+	  function has badness 0, an obsolete one has badness 1, and
+	  an internal one has badness 2.  So if there are five
+	  versions of 'Foo::foo()' (without any '\overload') of
+	  badness 0, 1, 1, 2, 2, qdoc elects the version with badness
+	  0 as the canonical one, without complaining about missing
+	  '\overload's.
+
+	  There are three candidate lists, to distinguish between the
+	  three quality levels.  The best candidate should fall in
 	  candidates[0].
 	*/
 	g = (*f).begin();
@@ -1159,7 +1171,7 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
     out.putsMeta( ")" );
 
     if ( isConst() )
-	out.putsMeta( " " "const" );
+	out.putsMeta( " const" );
 }
 
 void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
@@ -1184,7 +1196,7 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
     out.putsMeta( ")" );
 
     if ( isConst() )
-	out.putsMeta( " " "const" );
+	out.putsMeta( " const" );
 
     QString bracketedStuff;
     if ( isVirtual() )
