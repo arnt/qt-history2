@@ -1168,19 +1168,20 @@ QString QUrl::dirPath() const
 
 void QUrl::encode( QString& url )
 {
-    int oldlen = url.length();
-
-    if ( !oldlen )
+    if ( url.isEmpty() )
 	return;
 
+    QCString curl = url.utf8();
+    int oldlen = curl.length();
+
+    const QCString special( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" );
     QString newUrl;
     int newlen = 0;
 
     for ( int i = 0; i < oldlen ;++i ) {
-	ushort inCh = url[ i ].unicode();
+	uchar inCh = (uchar)curl[ i ];
 
-	if ( inCh >= 128 ||
-	     QString( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" ).contains(inCh) ) {
+	if ( inCh >= 128 || special.contains(inCh) ) {
 	    newUrl[ newlen++ ] = QChar( '%' );
 
 	    ushort c = inCh / 16;
@@ -1191,14 +1192,14 @@ void QUrl::encode( QString& url )
 	    c += c > 9 ? 'A' - 10 : '0';
 	    newUrl[ newlen++ ] = c;
 	} else {
-	    newUrl[ newlen++ ] = url[ i ];
+	    newUrl[ newlen++ ] = inCh;
 	}
     }
 
     url = newUrl;
 }
 
-static ushort hex_to_int( ushort c )
+static uchar hex_to_int( uchar c )
 {
     if ( c >= 'A' && c <= 'F' )
 	return c - 'A' + 10;
@@ -1217,25 +1218,27 @@ static ushort hex_to_int( ushort c )
 
 void QUrl::decode( QString& url )
 {
-    int oldlen = url.length();
-    if ( !oldlen )
+    if ( url.isEmpty() )
 	return;
 
     int newlen = 0;
-
-    QString newUrl;
+    QCString curl = url.utf8();
+    int oldlen = curl.length();
+    
+    QCString newUrl(oldlen);
 
     int i = 0;
     while ( i < oldlen ) {
-	ushort c = url[ i++ ].unicode();
+	uchar c = (uchar)curl[ i++ ];
 	if ( c == '%' ) {
-	    c = hex_to_int( url[ i ].unicode() ) * 16 + hex_to_int( url[ i + 1 ].unicode() );
+	    c = hex_to_int( (uchar)curl[ i ] ) * 16 + hex_to_int( (uchar)curl[ i + 1 ] );
 	    i += 2;
 	}
 	newUrl [ newlen++ ] = c;
     }
-
-    url = newUrl;
+    newUrl.truncate( newlen );
+    
+    url = QString::fromUtf8(newUrl.data());
 }
 
 

@@ -974,18 +974,20 @@ public:
     static QString encodeFileName( const QString& fName ) {
 
 	QString newStr;
-	QString sChars;
+	QCString cName = fName.utf8();
+	const QCString sChars(
 #ifdef Q_WS_WIN
-	sChars = "#%";
+	    "#%"
 #else
-	sChars = "<>#@\"&%$:,;?={}|^~[]\'`\\*";
+	    "<>#@\"&%$:,;?={}|^~[]\'`\\*"
 #endif
+	    );
 
-	int len = fName.length();
+	int len = cName.length();
 	if ( !len )
 	    return QString::null;
 	for ( int i = 0; i < len ;++i ) {
-	    ushort inCh = fName[ i ].unicode();
+	    uchar inCh = (uchar)cName[ i ];
 	    if ( inCh >= 128 || sChars.contains(inCh) )
 	    {
 		newStr += QChar( '%' );
@@ -996,7 +998,7 @@ public:
 		c += c > 9 ? 'A' - 10 : '0';
 		newStr += c;
 	    } else {
-		newStr += fName[ i ];
+		newStr += inCh;
 	    }
 	}
 	return newStr;
@@ -1281,7 +1283,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 
     QUrlOperator dest;
     if ( currDropItem )
-	dest = QUrlOperator( filedialog->d->url, currDropItem->text() );
+	dest = QUrlOperator( filedialog->d->url, QFileDialogPrivate::encodeFileName( currDropItem->text() ) );
     else
 	dest = filedialog->d->url;
     QStringList lst;
@@ -1337,7 +1339,7 @@ void QFileListBox::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    QUrl u( filedialog->d->url, currDropItem->text() );
+    QUrl u( filedialog->d->url, QFileDialogPrivate::encodeFileName(currDropItem->text()) );
     filedialog->setDir( u );
     currDropItem = 0;
 #endif
@@ -1689,7 +1691,7 @@ void QFileDialogQFileListView::viewportDropEvent( QDropEvent *e )
 
     QUrlOperator dest;
     if ( currDropItem )
-	dest = QUrlOperator( filedialog->d->url, currDropItem->text( 0 ) );
+	dest = QUrlOperator( filedialog->d->url, QFileDialogPrivate::encodeFileName( currDropItem->text( 0 ) ) );
     else
 	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
@@ -1743,7 +1745,7 @@ void QFileDialogQFileListView::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    QUrl u( filedialog->d->url, currDropItem->text( 0 ) );
+    QUrl u( filedialog->d->url, QFileDialogPrivate::encodeFileName(currDropItem->text( 0 ) ) );
     filedialog->setDir( u );
     currDropItem = 0;
 #endif // QT_NO_DRAGANDDROP
@@ -2669,7 +2671,7 @@ void QFileDialog::fileNameEditReturnPressed()
 	    else
 		f = QUrlInfo( d->url, nameEdit->text() );
 	    if ( f.isDir() ) {
-		setUrl( QUrlOperator( d->url, nameEdit->text() + "/" ) );
+		setUrl( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text() + "/" ) ) );
 		d->checkForFilter = TRUE;
 		trySetSelection( TRUE, d->url, TRUE );
 		d->checkForFilter = FALSE;
@@ -2762,7 +2764,6 @@ QString QFileDialog::selectedFile() const
 	QString s = u.toString();
 	if ( s.left( 5 ) == "file:" )
 	    s.remove( 0, 5 );
-	QUrl::decode( s );
 	return s;
     }
     return d->currentFileName;
@@ -2868,10 +2869,9 @@ QStringList QFileDialog::selectedFiles() const
 		u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it) ) );
 	    }
 	    if ( u.isLocalFile() ) {
-		QString s = u.toString(TRUE);
+		QString s = u.toString();
 		if ( s.left( 5 ) == "file:" )
 		    s.remove( 0, 5 );
-		QUrl::decode( s );
 		lst << s;
 	    } else {
 		lst << u.toString();
@@ -2897,7 +2897,7 @@ void QFileDialog::setSelection( const QString & filename )
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
     if ( QUrl::isRelativeUrl( filename ) )
-	d->url = QUrlOperator( d->url, filename );
+	d->url = QUrlOperator( d->url, QFileDialogPrivate::encodeFileName( filename ) );
     else
 	d->url = QUrlOperator( filename );
     d->url.setNameFilter( nf );
@@ -3054,7 +3054,7 @@ void QFileDialog::setDir( const QDir &dir )
     d->url.setNameFilter( nf );
     QUrlInfo i( d->url, nameEdit->text() );
     d->checkForFilter = TRUE;
-    trySetSelection( i.isDir(), QUrlOperator( d->url, nameEdit->text() ), FALSE );
+    trySetSelection( i.isDir(), QUrlOperator( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text() ) ), FALSE );
     d->checkForFilter = FALSE;
     rereadDir();
     emit dirEntered( d->url.path() );
@@ -3070,7 +3070,7 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 {
     QString nf = d->url.nameFilter();
 
-    d->url = QUrl( d->url, url.toString( FALSE, FALSE ) );
+    d->url = QUrl( d->url, QFileDialogPrivate::encodeFileName( url.toString( FALSE, FALSE ) ) );
     d->url.setNameFilter( nf );
 
     d->checkForFilter = TRUE;
@@ -3081,7 +3081,6 @@ void QFileDialog::setUrl( const QUrlOperator &url )
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
 	QString fn = u.fileName();
-	QUrl::decode(fn);
 	nameEdit->setText( fn );
     } else {
 	trySetSelection( TRUE, d->url, FALSE );
@@ -3492,7 +3491,7 @@ void QFileDialog::okClicked()
     }
 
     if ( mode() == AnyFile ) {
-	QUrlOperator u( d->url, nameEdit->text() );
+	QUrlOperator u( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text()) );
 	if ( !u.isDir() ) {
 	    d->currentFileName = u;
 	    emit fileSelected( selectedFile() );
@@ -3502,7 +3501,7 @@ void QFileDialog::okClicked()
     }
 
     if ( mode() == ExistingFile ) {
-	QUrl u( d->url, nameEdit->text() );
+	QUrl u( d->url, QFileDialogPrivate::encodeFileName(nameEdit->text()) );
 	if ( u.isLocalFile() ) {
 	    QFileInfo f( u.path() );
 	    if ( !f.exists() )
@@ -3538,7 +3537,7 @@ void QFileDialog::okClicked()
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	}
 	if ( f.isDir() ) {
-	    setUrl( QUrlOperator( d->url, f.name() + "/" ) );
+	    setUrl( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName(f.name() + "/" ) ) );
 	    d->checkForFilter = TRUE;
 	    trySetSelection( TRUE, d->url, TRUE );
 	    d->checkForFilter = FALSE;
@@ -3558,7 +3557,7 @@ void QFileDialog::okClicked()
 		      )
 		setDir( nameEdit->text() );
 	    else if ( nameEdit->text().left( 3 ) == "../" || nameEdit->text().left( 3 ) == "..\\" )
-		setDir( QUrl( d->url.toString(), nameEdit->text() ).toString() );
+		setDir( QUrl( d->url.toString(), QFileDialogPrivate::encodeFileName(nameEdit->text() ) ).toString() );
 	}
 	nameEdit->setText( "" );
     }
@@ -3644,8 +3643,6 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	if ( !d->currentFileName.isNull() || isDir ) {
 	    if ( u.fileName() != ".." ) {
 		QString fn = u.fileName();
-		// filename seems to already be decoded!
-		// QUrl::decode(fn);
 		nameEdit->setText( fn );
 	    } else {
 		nameEdit->setText("");
@@ -3771,7 +3768,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 
     if ( mode() == ExistingFiles ) {
 	detailViewSelectionChanged();
-        QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)files->currentItem())->info.name() );
+        QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)files->currentItem())->info.name() ) );
 	QFileInfo fi( u.toString( FALSE, FALSE ) );
 	if ( !fi.isDir() )
 	    emit fileHighlighted( u.toString( FALSE, FALSE ) );
@@ -3811,7 +3808,7 @@ void QFileDialog::detailViewSelectionChanged()
     nameEdit->setCursorPosition( str.length() );
     okB->setEnabled( TRUE );
     if ( d->preview && d->preview->isVisible() && files->currentItem() ) {
-	QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)files->currentItem())->info.name() );
+	QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( ((QFileDialogPrivate::File*)files->currentItem())->info.name() ) );
 	if ( d->infoPreviewer )
 	    d->infoPreviewer->previewUrl( u );
 	if ( d->contentsPreviewer )
@@ -3855,7 +3852,7 @@ void QFileDialog::listBoxSelectionChanged()
     okB->setEnabled( TRUE );
     if ( d->preview && d->preview->isVisible() && j ) {
 	QUrl u = QUrl( d->url,
-		       ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)j )->i )->info.name() );
+		       QFileDialogPrivate::encodeFileName( ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)j )->i )->info.name() ) );
 	if ( d->infoPreviewer )
 	    d->infoPreviewer->previewUrl( u );
 	if ( d->contentsPreviewer )
@@ -4680,7 +4677,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 		QUrlInfo i( d->url, nameEdit->text() );
 		if ( i.isDir() ) {
 		    nameEdit->setText( QString::fromLatin1("") );
-		    setDir( QUrlOperator( d->url, i.name() ) );
+		    setDir( QUrlOperator( d->url, QFileDialogPrivate::encodeFileName(i.name()) ) );
 		}
 		ke->accept();
 	    } else if ( mode() == ExistingFiles ) {
@@ -5500,7 +5497,6 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	files->setSorting( -1 );
 
 	QString s = d->url.toString( FALSE, FALSE );
-	QUrl::decode(s);
 	bool found = FALSE;
 	for ( int i = 0; i < d->paths->count(); ++i ) {
 #if defined(Q_WS_WIN)
