@@ -1,11 +1,11 @@
 #include "qdesktopwidget.h"
 #include "qt_x11.h"
 
-extern Display* appDpy;
 extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
 
 class QDesktopWidgetPrivate
 {
+public:
     QDesktopWidgetPrivate();
     ~QDesktopWidgetPrivate();
 
@@ -19,9 +19,9 @@ class QDesktopWidgetPrivate
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
-    appScreen = DefaultScreen(appDpy);
-    screenCount = ScreenCount(appDpy);
-    appRootWin = RootWindow(appDpy,appScreen);
+    appScreen = DefaultScreen(QPaintDevice::x11AppDisplay());
+    screenCount = ScreenCount(QPaintDevice::x11AppDisplay());
+    appRootWin = RootWindow(QPaintDevice::x11AppDisplay(), appScreen);
     rects.resize( screenCount );
     //### Read the list of rects and put it into rects
 
@@ -30,11 +30,17 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
+    if (! screens)
+	return;
+
     for ( int i = 0; i < screenCount; ++i ) {
+	if (i == appScreen) continue;
+
 	delete screens[ i ];
-	screens[ i ] = 0;
+	screens[i] = 0;
     }
-    delete[] screens;
+
+    delete [] screens;
 }
 
 // the QDesktopWidget itself will be created on the default screen
@@ -64,10 +70,11 @@ QWidget *QDesktopWidget::screen( int screen )
 {
     if ( screen < 0 || screen >= d->screenCount )
 	screen = d->appScreen;
-    
-    if ( !d->screens ) {
-	memset( (d->screens = new QWidget*[screenCount] ), 0, d->screenCount * sizeof( QWidget*) );
-	d->screens[appScreen] = this;
+
+    if ( ! d->screens ) {
+	memset( (d->screens = new QWidget*[d->screenCount] ), 0,
+		d->screenCount * sizeof( QWidget*) );
+	d->screens[d->appScreen] = this;
     }
 
     if ( !d->screens[screen] ||			// not created yet

@@ -40,6 +40,7 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 #include "qtimer.h"
+#include "qdesktopwidget.h"
 #include "qeffects_p.h"
 
 static bool globally_enabled = TRUE;
@@ -462,10 +463,10 @@ void QTipManager::showTip()
     if ( t->group && !t->group->ena )
 	return;
 
-    if ( label 
+    if ( label
 #if defined(Q_WS_X11)
-	 && label->x11Screen() == widget->x11Screen() 
-#endif	 
+	 && label->x11Screen() == widget->x11Screen()
+#endif
 	 ) {
 	label->setText( t->text );
 	label->adjustSize();
@@ -474,10 +475,10 @@ void QTipManager::showTip()
     } else {
 #if defined(Q_WS_X11)
 	delete label;
-	label = new QTipLabel( QApplication::desktop( widget->x11Screen() ), t->text);
+	label = new QTipLabel( ((QDesktopWidget *) QApplication::desktop())->screen(widget->x11Screen()), t->text);
 #else
 	label = new QTipLabel( 0, t->text);
-#endif			       
+#endif
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
 	Q_CHECK_PTR( label );
@@ -499,7 +500,7 @@ void QTipManager::showTip()
     if ( label->text().length() ) {
 	label->move( p );
 
-	
+
 	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
 	     previousTip || preventAnimation )
 	    label->show();
@@ -589,11 +590,11 @@ void QTipManager::allowAnimation()
   a key, lets the mouse rest for five seconds or moves the mouse
   outside \e all tip-equipped regions for at least a second.
 
-  The QToolTip class can be used in three different ways: 
-  <ol> 
-  <li> Adding a tip to an entire widget. 
-  <li> Adding a tip to a fixed rectangle within a widget. 
-  <li> Adding a tip to a dynamic rectangle within a widget. 
+  The QToolTip class can be used in three different ways:
+  <ol>
+  <li> Adding a tip to an entire widget.
+  <li> Adding a tip to a fixed rectangle within a widget.
+  <li> Adding a tip to a dynamic rectangle within a widget.
   </ol>
 
   To add a tip to a widget, call the \e static function QToolTip::add()

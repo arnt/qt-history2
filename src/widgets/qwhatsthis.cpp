@@ -48,6 +48,7 @@
 #include "qtooltip.h"
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
+#include "qdesktopwidget.h"
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -59,7 +60,7 @@
 
   What's This? help is part of an application's
   <a href="helpsystem.html">online help system</a> that
-  provides users with information about functionality, 
+  provides users with information about functionality,
   usage, background etc. in various levels of detail between
   tool tips and full text browsing windows.
 
@@ -70,13 +71,13 @@
   immediately; it goes away as soon as the user does something else.
 
   Note that this mechanism stops to take effect when Shift-F1 is
-  assigned to serve as an accelerator in the application. 
+  assigned to serve as an accelerator in the application.
 
   To add What's This? text to a widget you simply
   call QWhatsThis::add() for the widget. To assign text to a
   menu item, call QMenuData::setWhatsThis(); for a global
   accelerator key, call QAccel::setWhatsThis(). If you're
-  using actions QAction::setWhatsThis() does the job. 
+  using actions QAction::setWhatsThis() does the job.
 
   The text can be either rich text or plain text.  If you
   specify a rich text formatted string, it will be rendered using the
@@ -86,17 +87,17 @@
   \dontinclude action/application.cpp
   \skipto fileOpenText
   \printuntil setWhatsThis
- 
+
   (For an exhaustive explanation of the above code refer to the
   <A HREF="simple-application-action.html">Simple Application Walkthrough
-  featuring QAction</A>.)  
+  featuring QAction</A>.)
 
   An alternative way to enter What's This? mode is
   to use the ready-made tool bar tool button from
   QWhatsThis::whatsThisButton().
   By invoking this context help button (in the below picture
   the first one from the right) the user switches into What's this? mode.
-  If now he or she clicks on a widget the appropriate help text is shown.  
+  If now he or she clicks on a widget the appropriate help text is shown.
   The mode is left when help is given or when the user presses the Escape key.
 
   <img src="whatsthis.png" width="284" height="246">
@@ -112,7 +113,7 @@
   If you wish to control the What's This? behaviour of a widget manually see
   QWidget::customWhatsThis().
 
-  Added help text might be removed using QWhatsThis::remove(). This 
+  Added help text might be removed using QWhatsThis::remove(). This
   is however rarely needed because the text is automatically removed as
   soon as the widget is destroyed.
 
@@ -543,7 +544,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 		- h;
 	if ( y < sy )
 	    y = sy;
-	
+
 	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
 	whatsThat->show();
     }
@@ -599,12 +600,14 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     delete whatsThat;
     whatsThat = 0;
 
-    whatsThat = new QWidget( 
+    whatsThat = new QWidget(
 #if defined(Q_WS_X11)
-			    QApplication::desktop( widget ? widget->x11Screen() : QCursor::x11Screen() ), 
+			    ((QDesktopWidget *) QApplication::desktop())->
+			    screen( widget ? widget->x11Screen() :
+				    QCursor::x11Screen() ),
 #else
 			    0,
-#endif				
+#endif
 			    "automatic what's this? widget",
 			    WType_Popup );
     whatsThat->setBackgroundMode( QWidget::NoBackground );

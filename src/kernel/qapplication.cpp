@@ -316,9 +316,7 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
 static bool makeqdevel	 = FALSE;	// developer tool needed?
-#ifndef Q_WS_X11
 static QWidget *desktopWidget = 0;		// root window widgets
-#endif
 #ifndef QT_NO_TRANSLATION
 static QTextCodec *default_codec = 0;		// root window widget
 #endif
@@ -784,10 +782,8 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
-#ifndef Q_WS_X11
     delete desktopWidget;
     desktopWidget = 0;
-#endif
     is_app_closing = TRUE;
     QWidget::destroyMapper();
 #ifndef QT_NO_PALETTE
