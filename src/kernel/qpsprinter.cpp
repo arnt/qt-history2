@@ -100,684 +100,90 @@ void qt_generate_epsf( bool b )
     qt_gen_epsf = b;
 }
 
-// Note: this is comment-stripped and word-wrapped later.
-//
-// #### improve build process and qembed the result, saving RAM and ROM
-//
-
-static const char * const ps_header[] = {
-// basic definitions
-"/d  /def load def",
-"/D  {bind d} bind d",
-"/d2 {dup dup} D",
-"/B  {0 d2} D",
-"/W  {255 d2} D",
-"/ED {exch d} D",
-"/D0 {0 ED} D",
-"/LT {lineto} D",
-"/MT {moveto} D",
-"/S  {stroke} D",
-"/F  {setfont} D",
-"/SW {setlinewidth} D",
-"/CP {closepath} D",
-"/RL {rlineto} D",
-"/NP {newpath} D",
-"/CM {currentmatrix} D",
-"/SM {setmatrix} D",
-"/TR {translate} D",
-"/SC {aload pop setrgbcolor} D",
-
-"/BSt 0 d",                             // brush style
-"/LWi 1 d",                             // line width
-"/PSt 1 d",                             // pen style
-"/Cx  0 d",                             // current x position
-"/Cy  0 d",                             // current y position
-"/WFi false d",                 // winding fill
-"/OMo false d",                 // opaque mode (not transparent)
-"",
-"/BCol  [ 1 1 1 ] d",                   // brush color
-"/PCol  [ 0 0 0 ] d",                   // pen color
-"/BkCol [ 1 1 1 ] d",                   // background color
-
-"/nS 0 d",                              // number of saved painter states
-
-// LArr for the Pen styles is defined in emitHeader because of scaling
-
-// Returns the line pattern (from pen style PSt).
-//
-// Argument:
-//   bool pattern
-//   true : draw pattern
-//   false: fill pattern
-"/GPS {",
-"  PSt 1 ge PSt 5 le and",                      // valid pen pattern?
-"    { { LArr PSt 1 sub 2 mul get }",           // draw pattern
-"      { LArr PSt 2 mul 1 sub get } ifelse",    // opaque pattern
-"    }",
-"    { [] } ifelse",                            // out of range => solid line
-"} D",
-
-"/QS {",                                // stroke command
-"    PSt 0 ne",                         // != NO_PEN
-"    { LWi SW",                         // set line width
-"      gsave",
-"      PCol SC",                        // set pen color
-"      true GPS 0 setdash S",           // draw line pattern
-"      OMo PSt 1 ne and",               // opaque mode and not solid line?
-"      { grestore BkCol SC",
-"       false GPS dup 0 get setdash S", // fill in opaque pattern
-"      }",
-"      { grestore } ifelse",
-"    } if",
-"} D",
-
-"/BDArr[",                              // Brush dense patterns:
-"    0.06 0.12 0.37 0.50 0.63 0.88 0.94",
-"] d",
-
-// read 28 bits and leave them on tos
-"/r28 {",
-"  ", // skip past whitespace and read one character
-"  { currentfile read pop ",
-"    dup 32 gt { exit } if",
-"    pop",
-"  } loop",
-"  ", // read three more
-"  3 {",
-"    currentfile read pop",
-"  } repeat",
-"  ", // make an accumulator
-"  0",
-"  ", // for each character, shift the accumulator and add in the character
-"  4 {",
-"    7 bitshift exch",
-"    dup 128 gt { 84 sub } if 42 sub 127 and",
-"    add",
-"  } repeat",
-"} D",
-
-// read some bits and leave them on tos
-"/rA 0 d ", // accumulator
-"/rL 0 d ", // bits left
-
-// takes number of bits, leaves number
-"/rB {",
-"  rL 0 eq {",
-"    ", // if we have nothing, let's get something
-"    /rA r28 d",
-"    /rL 28 d",
-"  } if",
-"  dup rL gt {",
-"    ", // if we don't have enough, take what we have and get more
-"    rA exch rL sub rL exch",
-"    /rA 0 d /rL 0 d",
-"    rB exch bitshift add",
-"  } {",
-"    ", // else take some of what we have
-"    dup rA 16#fffffff 3 -1 roll bitshift not and exch",
-"    ", // ... and update rL and rA
-"    dup rL exch sub /rL ED",
-"    neg rA exch bitshift /rA ED",
-"  } ifelse",
-"} D",
-
-// uncompresses grayscale from currentfile until the string on the
-// stack is full; leaves the string there.  assumes that nothing could
-// conceivably go wrong.
-"/uc {",
-"  /rL 0 d",
-"  0",
-"  {", // string pos
-"    dup 2 index length ge { exit } if",
-"    1 rB",
-"    1 eq {", // compressed
-/* Warning: if you change the method here, change the table in compress()! */
-"      3 rB", // string pos bits
-"      dup 3 ge {",
-"        1 add dup rB", // string pos bits extra
-"        1 index 5 ge {",
-"          1 index 6 ge {",
-"            1 index 7 ge {",
-"              1 index 8 ge {",
-"                128 add",
-"              } if",
-"              64 add",
-"            } if",
-"            32 add",
-"          } if",
-"          16 add",
-"        } if",
-"        3 add",
-"       exch pop",
-"      } if",
-"      3 add",
-"      ", // string pos length
-"      exch 10 rB 1 add",
-"      ", // string length pos dist
-"      {",
-"       dup 3 index lt {",
-"         dup",
-"       } {",
-"         2 index",
-"       } ifelse", // string length pos dist length-this-time
-"       4 index 3 index 3 index sub 2 index getinterval",
-"       5 index 4 index 3 -1 roll putinterval",
-"       dup 4 -1 roll add 3 1 roll",
-"       4 -1 roll exch sub ",
-"       dup 0 eq { exit } if",
-"       3 1 roll",
-"      } loop", // string pos dist length
-"      pop pop",
-"    } {", // uncompressed
-"      3 rB 1 add",
-"      {",
-"       2 copy 8 rB put 1 add",
-"      } repeat",
-"    } ifelse",
-"  } loop",
-"  pop",
-"} D",
-
-"/sl D0",
-"/QCIgray D0 /QCIcolor D0 /QCIindex D0",
-"/QCI {", // as colorimage but without the last two arguments
-"  /colorimage where {",
-"    pop",
-"    false 3 colorimage",
-"  }{",  // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
-"    exec /QCIcolor ED",
-"    /QCIgray QCIcolor length 3 idiv string d",
-"    0 1 QCIcolor length 3 idiv 1 sub",
-"    { /QCIindex ED",
-"      /x QCIindex 3 mul d",
-"      QCIgray QCIindex",
-"      QCIcolor x       get 0.30 mul",
-"      QCIcolor x 1 add get 0.59 mul",
-"      QCIcolor x 2 add get 0.11 mul",
-"      add add cvi",
-"      put",
-"    } for",
-"    QCIgray image",
-"  } ifelse",
-"} D",
-
-// general image drawing routine
-"/di", // width height image 1|8|24 mask|false x y
-"{",
-"  gsave"
-"    translate",
-"    dup false ne {", // have a mask, see if we can use it
-"      /languagelevel where {",
-"	pop", // % languagelevel2, we can use image mask and dicts
-"       2 languagelevel ge",
-"    } { false }",
-"    {",
-"	/ma exch d",
-"	8 eq {",
-"	  /decode [1 0] d",
-"	  /DeviceGray",
-"	} {",
-"	  /decode [0 1 0 1 0 1] d",
-"	  /DeviceRGB",
-"	} ifelse",
-"	setcolorspace",
-"	/im exch d",
-"	/height exch def",
-"	/width exch def",
-"	/Image <<",
-"         /ImageType 1",
-"         /Width width",
-"         /Height height",
-"         /ImageMatrix [1 0 0 1 0 0]",
-"         /MultipleDataSources false",
-"	  /DataSource im",
-"	  /BitsPerComponent 8",
-"	  /Decode decode",
-"	>> d",
-"	/Mask <<",
-"	  /ImageType 1",
-"	  /Width width",
-"	  /Height height",
-"	  /ImageMatrix [1 0 0 1 0 0]",
-"	  /DataSource ma",
-"	  /BitsPerComponent 1",
-"	  /Decode [0 1]",
-"	>> d",
-"	<<",
-"	  /ImageType 3",
-"	  /DataDict Image",
-"	  /MaskDict Mask",
-"	  /InterleaveType 3",
-"	>> image",
-"      } if",
-"    } {",
-"      pop % no mask or can't use it, get rid of it",
-"      dup 1 eq { % bitmap",
-"	pop",
-"	false exch [1 0 0 1 0 0] exch % width height false matrix image",
-"	imagemask",
-"      } {",
-"	 8 [1 0 0 1 0 0] % width height image 8|24 8 matrix",
-"	 4 2 roll",
-"	 8 eq { % grayscale",
-"	   image",
-"	 } { %color",
-"	   QCI",
-"	 } ifelse",
-"      } ifelse",
-"    } ifelse",
-"  grestore    ",
-"} d",
-
-"/defM matrix d",
-
-"/BF {",                                // brush fill
-"   gsave",
-"   BSt 1 eq",                          // solid brush?
-"   {",
-"     BCol SC"
-"     WFi { fill } { eofill } ifelse",
-"   } if",
-"   BSt 2 ge BSt 8 le and",             // dense pattern?
-"   {",
-"     BDArr BSt 2 sub get setgray fill"
-"   } if",
-"   BSt 9 ge BSt 14 le and",            // brush pattern?
-"   {",
-"     WFi { clip } { eoclip } ifelse",
-"     defM SM",
-"     pathbbox",                        // left upper right lower
-"     3 index 3 index translate",
-"     4 2 roll",                        // right lower left upper
-"     3 2 roll",                        // right left upper lower
-"     exch",                            // left right lower upper
-"     sub /h ED",
-"     sub /w ED",
-"     OMo {",
-"         NP",
-"         0 0 MT",
-"         0 h RL",
-"         w 0 RL",
-"         0 h neg RL",
-"         CP",
-"         BkCol SC",
-"         fill",
-"     } if",
-"     BCol SC",
-"     0.3 SW",
-"     NP",
-"     BSt 9 eq BSt 11 eq or",           // horiz or cross pattern
-"     { 0 4 h",
-"       { dup 0 exch MT w exch LT } for",
-"     } if",
-"     BSt 10 eq BSt 11 eq or",          // vert or cross pattern
-"     { 0 4 w",
-"       { dup 0 MT h LT } for",
-"     } if",
-"     BSt 12 eq BSt 14 eq or",          // F-diag or diag cross
-"     { w h gt",
-"       { 0 6 w h add",
-"         { dup 0 MT h sub h LT } for"
-"       } { 0 6 w h add",
-"         { dup 0 exch MT w sub w exch LT } for"
-"       } ifelse",
-"     } if",
-"     BSt 13 eq BSt 14 eq or",          // B-diag or diag cross
-"     { w h gt",
-"       { 0 6 w h add",
-"         { dup h MT h sub 0 LT } for",
-"       } { 0 6 w h add",
-"         { dup w exch MT w sub 0 exch LT } for"
-"       } ifelse",
-"     } if",
-"     S",
-"   } if",
-"   BSt 24 eq",                         // CustomPattern
-"     ",
-"   {",
-"   } if",
-"   grestore",
-"} D",
-
-// for arc
-"/mat matrix d",
-"/ang1 D0 /ang2 D0",
-"/w D0 /h D0",
-"/x D0 /y D0",
-
-"/ARC {",                               // Generic ARC function [ X Y W H ang1 ang2 ]
-"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
-"    mat CM pop",
-"    x w 2 div add y h 2 div add TR",
-"    1 h w div neg scale",
-"    ang2 0 ge",
-"    {0 0 w 2 div ang1 ang1 ang2 add arc }",
-"    {0 0 w 2 div ang1 ang1 ang2 add arcn} ifelse",
-"    mat SM",
-"} D",
-
-"/C D0",
-
-"/P {",                                 // PdcDrawPoint [x y]
-"    NP",
-"    MT",
-"    0.5 0.5 rmoveto",
-"    0  -1 RL",
-"    -1 0 RL",
-"    0  1 RL",
-"    CP",
-"    PCol SC",
-"    fill",
-"} D",
-
-"/M {",                                 // PdcMoveTo [x y]
-"    /Cy ED /Cx ED",
-"} D",
-
-"/L {",                                 // PdcLineTo [x y]
-"    NP",
-"    Cx Cy MT",
-"    /Cy ED /Cx ED",
-"    Cx Cy LT",
-"    QS",
-"} D",
-
-"/DL {",                                // PdcDrawLine [x1 y1 x0 y0]
-"    NP",
-"    MT",
-"    LT",
-"    QS",
-"} D",
-
-"/HL {",                                // PdcDrawLine [x1 y x0]
-"    1 index DL",
-"} D",
-
-"/VL {",                                // PdcDrawLine [x y1 y0]
-"    2 index exch DL",
-"} D",
-
-"/R {",                                 // PdcDrawRect [x y w h]
-"    /h ED /w ED /y ED /x ED",
-"    NP",
-"    x y MT",
-"    0 h RL",
-"    w 0 RL",
-"    0 h neg RL",
-"    CP",
-"    BF",
-"    QS",
-"} D",
-
-"/ACR {",                                       // add clip rect
-"    /h ED /w ED /y ED /x ED",
-"    x y MT",
-"    0 h RL",
-"    w 0 RL",
-"    0 h neg RL",
-"    CP",
-"} D",
-
-"/CLSTART {",                           // clipping start
-"    /clipTmp matrix CM d",             // save current matrix
-"    defM SM",                          // Page default matrix
-"    NP",
-"} D",
-
-"/CLEND {",                             // clipping end
-"    clip",
-"    NP",
-"    clipTmp SM",                       // restore the current matrix
-"} D",
-
-"/CLO {",                               // clipping off
-"    grestore",                         // restore top of page state
-"    gsave",                            // save it back again
-"    defM SM",                          // set coordsys (defensive progr.)
-"} D",
-
-"/xr D0 /yr D0",
-"/rx D0 /ry D0 /rx2 D0 /ry2 D0",
-
-"/RR {",                                // PdcDrawRoundRect [x y w h xr yr]
-"    /yr ED /xr ED /h ED /w ED /y ED /x ED",
-"    xr 0 le yr 0 le or",
-"    {x y w h R}",                  // Do rect if one of rounding values is less than 0.
-"    {xr 100 ge yr 100 ge or",
-"       {x y w h E}",                    // Do ellipse if both rounding values are larger than 100
-"       {",
-"        /rx xr w mul 200 div d",
-"        /ry yr h mul 200 div d",
-"        /rx2 rx 2 mul d",
-"        /ry2 ry 2 mul d",
-"        NP",
-"        x rx add y MT",
-"        x               y               rx2 ry2 180 -90",
-"        x               y h add ry2 sub rx2 ry2 270 -90",
-"        x w add rx2 sub y h add ry2 sub rx2 ry2 0   -90",
-"        x w add rx2 sub y               rx2 ry2 90  -90",
-"        ARC ARC ARC ARC",
-"        CP",
-"        BF",
-"        QS",
-"       } ifelse",
-"    } ifelse",
-"} D",
-
-"/E {",                         // PdcDrawEllipse [x y w h]
-"    /h ED /w ED /y ED /x ED",
-"    mat CM pop",
-"    x w 2 div add y h 2 div add translate",
-"    1 h w div scale",
-"    NP",
-"    0 0 w 2 div 0 360 arc",
-"    mat SM",
-"    BF",
-"    QS",
-"} D",
-
-"/A {",                         // PdcDrawArc [x y w h ang1 ang2]
-"    16 div exch 16 div exch",
-"    NP",
-"    ARC",
-"    QS",
-"} D",
-
-"/PIE {",                               // PdcDrawPie [x y w h ang1 ang2]
-"    /ang2 ED /ang1 ED /h ED /w ED /y ED /x ED",
-"    NP",
-"    x w 2 div add y h 2 div add MT",
-"    x y w h ang1 16 div ang2 16 div ARC",
-"    CP",
-"    BF",
-"    QS",
-"} D",
-
-"/CH {",                                // PdcDrawChord [x y w h ang1 ang2]
-"    16 div exch 16 div exch",
-"    NP",
-"    ARC",
-"    CP",
-"    BF",
-"    QS",
-"} D",
-
-"/BZ {",                                // PdcDrawCubicBezier [4 points]
-"    curveto",
-"    QS",
-"} D",
-
-"/CRGB {",                              // Compute RGB [R G B] => R/255 G/255 B/255
-"    255 div 3 1 roll",
-"    255 div 3 1 roll",
-"    255 div 3 1 roll",
-"} D",
-
-"/SV {",                                // Save painter state
-"    BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol",
-"    /nS nS 1 add d",
-"    gsave",
-"} D",
-
-"/RS {",                                // Restore painter state
-"    nS 0 gt",
-"    { grestore",
-"      /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED",
-"      /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED",
-"      /nS nS 1 sub d",
-"    } if",
-"} D",
-
-"/BC {",                                // PdcSetBkColor [R G B]
-"    CRGB",
-"    BkCol astore pop",
-"} D",
-
-"/BR {",                                // PdcSetBrush [style R G B]
-"    CRGB",
-"    BCol astore pop",
-"    /BSt ED",
-"} D",
-
-"/WB {",                                // set white solid brush
-"    1 W BR",
-"} D",
-
-"/NB {",                                // set nobrush
-"    0 B BR",
-"} D",
-
-"/PE {",                                // PdcSetPen [style width R G B Cap Join]
-"    setlinejoin setlinecap"
-"    CRGB",
-"    PCol astore pop",
-"    /LWi ED",
-"    /PSt ED",
-"    LWi 0 eq { 0.25 /LWi ED } if", // ### 3.0 remove this line
-"} D",
-
-"/P1 {",                                // PdcSetPen [R G B]
-"    1 0 5 2 roll 0 0 PE",
-"} D",
-
-"/ST {",                                // SET TRANSFORM [matrix]
-"    defM setmatrix",
-"    concat",
-"} D",
-
-// this function tries to find a suitable postscript font. We try quite hard not to get courier for a
-// proportional font. The following takes an array of fonts. The algorithm will take the first one that
-// gives a match (defined as not resulting in a courier font).
-// each entry in the table is an array of the form [ /Fontname x-stretch slant ]
-// x-strtch can be used to stretch/squeeze the font in x direction. This gives better results when
-// eg substituting helvetica for arial
-// slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
-// encoding can be either an encoding vector of false if the default font encoding is requested.
-"/qtfindfont {",                        // fntlist
-"  true exch true exch",                          // push a dummy on the stack,
-"  {",                          // so the loop over the array will leave a font in any case when exiting.
-"    exch pop exch pop",                 // (dummy | oldfont) (dummy | fontdict) fontarray
-"    dup 0 get dup findfont",           // get the fontname from the array and load it
-"    dup /FontName get",                // see if the font exists
-"    3 -1 roll eq {",                   // see if fontname and the one provided are equal
-"      exit",
-"    } if",
-"  } forall",
-"  exch",                               // font fontarray
-"} D",
-
-"/qtdefinefont {",                      // newname encoding font fontarray      defines a postscript font
-"  dup",
-"  1 get /fxscale exch def",            // define scale, sland and encoding
-"  2 get /fslant exch def",
-"  exch /fencoding exch def",
-"  [ fxscale 0 fslant 1 0 0 ] makefont",        // transform font accordingly
-"  fencoding false eq {",               // check if we have an encoding and use it if available
-"  } {",
-"    dup maxlength dict begin",         // copy font
-"    {",
-"      1 index /FID ne",                        // don't copy FID, as it's not allowed in PS Level 1
-"      {def}{pop pop}ifelse",
-"    } forall",
-"    /Encoding fencoding def",          // replace encoding
-"    currentdict end",
-"  } ifelse",
-"  definefont pop",
-"} D",
-
-// the next three commands are for defining fonts. The first one
-// tries to find the most suitable printer font out of a fontlist.
-// if encoding is false the default one will be used.
-"/MF {",                                // newname encoding fontlist
-"  qtfindfont qtdefinefont",
-"} D",
-
-// an embedded font. This is used for the base fonts of the composite font used later on.
-"/MFEmb {",                             // newname encoding fontname
-"  findfont dup length dict begin",
-"  {",
-"    1 index /FID ne",
-"    {d}{pop pop}ifelse",
-"  } forall",
-"  /Encoding ED currentdict end",
-"  definefont pop",
-"} D",
-
-"/DF {",                                // newname pointsize fontmame
-"  findfont",
-"  /FONTSIZE 3 -1 roll d [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont",
-"  d",
-"} D",
-
-"/ty 0 d",
-"/Y {",
-"    /ty ED",
-"} D",
-
-"/Tl {", // draw underline/strikeout line: () w x y lw ->Tl-> () w x
-"    gsave setlinewidth",
-"    PCol SC",
-"    NP 1 index exch MT",
-"    1 index 0 rlineto stroke",
-"    grestore",
-"} D",
-
-"/T {",                                 // PdcDrawText2 [string fm.width x]
-"    PCol SC", // really need to kill these SCs
-"    ty MT",
-"    1 index", // string cwidth string
-"    dup length 2 div exch", // string cwidth length string     !have to divide by 2 since we use unicode!
-"    stringwidth pop", // string cwidth length pwidth
-"    3 -1 roll", // string length pwidth cwidth
-"    exch sub exch div", // string extraperchar
-"    exch 0 exch", // extraperchar 0 string
-"    ashow",
-"} D",
-
-"/QI {",
-"    /C save d",
-"    pageinit",
-"    /Cx  0 d",                         // reset current x position
-"    /Cy  0 d",                         // reset current y position
-"    /OMo false d",
-"} D",
-
-"/QP {",                                // show page
-"    C restore",
-"    showpage",
-"} D",
-
-// merges one key value pair into the page device dict
-"/SPD {", // key value
-"    /setpagedevice where {"
-"        1 dict dup begin 3 1 roll def end"
-"        setpagedevice"
-"    } { pop pop } ifelse"
-"} D",
-
-0 };
-
-
+static const char *const ps_header = 
+"/d/def load def/D{bind d}bind d/d2{dup dup}D/B{0 d2}D/W{255 d2}D/ED{exch d}D\n"
+"/D0{0 ED}D/LT{lineto}D/MT{moveto}D/S{stroke}D/F{setfont}D/SW{setlinewidth}D\n"
+"/CP{closepath}D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D\n"
+"/TR{translate}D/SC{aload pop setrgbcolor}D/BSt 0 d/LWi 1 d/PSt 1 d/Cx 0 d/Cy\n"
+"0 d/WFi false d/OMo false d/BCol[1 1 1]d/PCol[0 0 0]d/BkCol[1 1 1]d/nS 0 d\n"
+"/GPS{PSt 1 ge PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub\n"
+"get}ifelse}{[]}ifelse}D/QS{PSt 0 ne{LWi SW gsave PCol SC true GPS 0 setdash\n"
+"S OMo PSt 1 ne and grestore{BkCol SC false GPS dup 0 get setdash S}if}if}D\n"
+"/BDArr[0.06 0.12 0.37 0.50 0.63 0.88 0.94]d/r28{{currentfile read pop dup 32\n"
+"gt{exit}if pop}loop 3{currentfile read pop}repeat 0 4{7 bitshift exch dup\n"
+"128 gt{84 sub}if 42 sub 127 and add}repeat}D/rA 0 d/rL 0 d/rB{rL 0 eq{/rA\n"
+"r28 d/rL 28 d}if dup rL gt{rA exch rL sub rL exch/rA 0 d/rL 0 d rB exch\n"
+"bitshift add}{dup rA 16#fffffff 3 -1 roll bitshift not and exch dup rL exch\n"
+"sub/rL ED neg rA exch bitshift/rA ED}ifelse}D/uc{/rL 0 d 0{dup 2 index\n"
+"length ge{exit}if 1 rB 1 eq{3 rB dup 3 ge{1 add dup rB 1 index 5 ge{1 index\n"
+"6 ge{1 index 7 ge{1 index 8 ge{128 add}if 64 add}if 32 add}if 16 add}if 3\n"
+"add exch pop}if 3 add exch 10 rB 1 add{dup 3 index lt{dup}{2 index}ifelse 4\n"
+"index 3 index 3 index sub 2 index getinterval 5 index 4 index 3 -1 roll\n"
+"putinterval dup 4 -1 roll add 3 1 roll 4 -1 roll exch sub dup 0 eq{exit}if 3\n"
+"1 roll}loop pop pop}{3 rB 1 add{2 copy 8 rB put 1 add}repeat}ifelse}loop pop\n"
+"}D/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{/colorimage where{pop false\n"
+"3 colorimage}{exec/QCIcolor ED/QCIgray QCIcolor length 3 idiv string d 0 1\n"
+"QCIcolor length 3 idiv 1 sub{/QCIindex ED/x QCIindex 3 mul d QCIgray\n"
+"QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add get 0.59 mul QCIcolor x 2\n"
+"add get 0.11 mul add add cvi put}for QCIgray image}ifelse}D/di{gsave\n"
+"translate dup false ne{/languagelevel where{pop languagelevel 2 ge}{false}\n"
+"ifelse}if pop false pstack{/ma exch d 8 eq{/decode[1 0]d/DeviceGray}{/decode\n"
+"[0 1 0 1 0 1]d/DeviceRGB}ifelse setcolorspace/im exch d/matrix exch d/height\n"
+"exch def/width exch def/Image 7 dict begin/ImageType 1/Width width/Height\n"
+"height/ImageMatrix matrix/DataSource im/BitsPerComponent 8/Decode decode end\n"
+"d/Mask 7 dict begin/ImageType 1/Width width/Height height/ImageMatrix matrix\n"
+"/DataSource ma/BitsPerComponent 1/Decode[0 1]end d 4 dict begin/ImageType 3\n"
+"/DataDict Image/MaskDict Mask/InterleaveType 3 end image}{pop dup 1 eq{pop\n"
+"false 3 1 roll imagemask}{8 4 1 roll pstack 8 eq{image}{QCI}ifelse}ifelse}\n"
+"ifelse grestore}d/defM matrix d/BF{gsave BSt 1 eq{BCol SC WFi{fill}{eofill}\n"
+"ifelse}if BSt 2 ge BSt 8 le and{BDArr BSt 2 sub get setgray fill}if BSt 9 ge\n"
+"BSt 14 le and{WFi{clip}{eoclip}ifelse defM SM pathbbox 3 index 3 index\n"
+"translate 4 2 roll 3 2 roll exch sub/h ED sub/w ED OMo{NP 0 0 MT 0 h RL w 0\n"
+"RL 0 h neg RL CP BkCol SC fill}if BCol SC 0.3 SW NP BSt 9 eq BSt 11 eq or{0\n"
+"4 h{dup 0 exch MT w exch LT}for}if BSt 10 eq BSt 11 eq or{0 4 w{dup 0 MT h\n"
+"LT}for}if BSt 12 eq BSt 14 eq or{w h gt{0 6 w h add{dup 0 MT h sub h LT}for}\n"
+"{0 6 w h add{dup 0 exch MT w sub w exch LT}for}ifelse}if BSt 13 eq BSt 14 eq\n"
+"or{w h gt{0 6 w h add{dup h MT h sub 0 LT}for}{0 6 w h add{dup w exch MT w\n"
+"sub 0 exch LT}for}ifelse}if S}if BSt 24 eq{}if grestore}D/mat matrix d/ang1\n"
+"D0/ang2 D0/w D0/h D0/x D0/y D0/ARC{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED mat\n"
+"CM pop x w 2 div add y h 2 div add TR 1 h w div neg scale ang2 0 ge{0 0 w 2\n"
+"div ang1 ang1 ang2 add arc}{0 0 w 2 div ang1 ang1 ang2 add arcn}ifelse mat\n"
+"SM}D/C D0/P{NP MT 0.5 0.5 rmoveto 0 -1 RL -1 0 RL 0 1 RL CP PCol SC fill}D/M\n"
+"{/Cy ED/Cx ED}D/L{NP Cx Cy MT/Cy ED/Cx ED Cx Cy LT QS}D/DL{NP MT LT QS}D/HL{\n"
+"1 index DL}D/VL{2 index exch DL}D/R{/h ED/w ED/y ED/x ED NP x y MT 0 h RL w\n"
+"0 RL 0 h neg RL CP BF QS}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h\n"
+"neg RL CP}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/RR{/yr ED/xr ED/h ED/w ED\n"
+"/y ED/x ED xr 0 le yr 0 le or{x y w h R}{xr 100 ge yr 100 ge or{x y w h E}{\n"
+"/rx xr w mul 200 div d/ry yr h mul 200 div d/rx2 rx 2 mul d/ry2 ry 2 mul d\n"
+"NP x rx add y MT x y rx2 ry2 180 -90 x y h add ry2 sub rx2 ry2 270 -90 x w\n"
+"add rx2 sub y h add ry2 sub rx2 ry2 0 -90 x w add rx2 sub y rx2 ry2 90 -90\n"
+"ARC ARC ARC ARC CP BF QS}ifelse}ifelse}D/E{/h ED/w ED/y ED/x ED mat CM pop x\n"
+"w 2 div add y h 2 div add translate 1 h w div scale NP 0 0 w 2 div 0 360 arc\n"
+"mat SM BF QS}D/A{16 div exch 16 div exch NP ARC QS}D/PIE{/ang2 ED/ang1 ED/h\n"
+"ED/w ED/y ED/x ED NP x w 2 div add y h 2 div add MT x y w h ang1 16 div ang2\n"
+"16 div ARC CP BF QS}D/CH{16 div exch 16 div exch NP ARC CP BF QS}D/BZ{\n"
+"curveto QS}D/CRGB{255 div 3 1 roll 255 div 3 1 roll 255 div 3 1 roll}D/BC{\n"
+"CRGB BkCol astore pop}D/BR{CRGB BCol astore pop/BSt ED}D/WB{1 W BR}D/NB{0 B\n"
+"BR}D/PE{setlinejoin setlinecap CRGB PCol astore pop/LWi ED/PSt ED LWi 0 eq{\n"
+"0.25/LWi ED}if}D/P1{1 0 5 2 roll 0 0 PE}D/ST{defM setmatrix concat}D\n"
+"/qtfindfont{true exch true exch{exch pop exch pop dup 0 get dup findfont dup\n"
+"/FontName get 3 -1 roll eq{exit}if}forall exch}D/qtdefinefont{dup 1 get\n"
+"/fxscale exch def 2 get/fslant exch def exch/fencoding exch def[fxscale 0\n"
+"fslant 1 0 0]makefont fencoding false eq{}{dup maxlength dict begin{1 index\n"
+"/FID ne{def}{pop pop}ifelse}forall/Encoding fencoding def currentdict end}\n"
+"ifelse definefont pop}D/MF{qtfindfont qtdefinefont}D/MFEmb{findfont dup\n"
+"length dict begin{1 index/FID ne{d}{pop pop}ifelse}forall/Encoding ED\n"
+"currentdict end definefont pop}D/DF{findfont/FONTSIZE 3 -1 roll d[FONTSIZE 0\n"
+"0 FONTSIZE -1 mul 0 0]makefont d}D/ty 0 d/Y{/ty ED}D/Tl{gsave setlinewidth\n"
+"PCol SC NP 1 index exch MT 1 index 0 rlineto stroke grestore}D/T{PCol SC ty\n"
+"MT 1 index dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div\n"
+"exch 0 exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C\n"
+"restore showpage}D/SPD{/setpagedevice where{1 dict dup begin 3 1 roll def\n"
+"end setpagedevice}{pop pop}ifelse}D/SV{BSt LWi PSt Cx Cy WFi OMo BCol PCol\n"
+"BkCol/nS nS 1 add d gsave}D/RS{nS 0 gt{grestore/BkCol ED/PCol ED/BCol ED/OMo\n"
+"ED/WFi ED/Cy ED/Cx ED/PSt ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{\n"
+"/clipTmp matrix CM d defM SM NP}D/CLEND{clip NP clipTmp SM}D/CLO{grestore\n"
+"gsave defM SM}D\n";
 
 // the next table is derived from a list provided by Adobe on its web
 // server: http://partners.adobe.com/asn/developer/typeforum/glyphlist.txt
@@ -2172,91 +1578,6 @@ static void emitPSFontNameList( QTextStream &s, const QString &psname, const QSt
     s << "/" << psname << "List [\n";
     s << list.join("\n  ");
     s << "\n] d\n";
-}
-
-
-static QString *fixed_ps_header = 0;
-
-static void cleanup()
-{
-    delete fixed_ps_header;
-    fixed_ps_header = 0;
-}
-
-
-static QString wordwrap( const QString & s )
-{
-    QString result;
-
-    int ip; // input pointer
-    int oll; // output line length
-    int cils, cols; // canidate input line start, -o-
-    bool needws; // need to insert ws before next character
-    bool havews; // have just inserted something like ws
-
-    ip = 0;
-    oll = 0;
-    cils = cols = 0;
-    havews = FALSE;
-    needws = FALSE;
-    while( ip < (int)s.length() ) {
-        if ( oll > 79 && cils > 0 ) {
-            result.truncate( cols );
-            ip = cils;
-            result += '\n';
-            oll = 0;
-            cils = 0;
-            havews = TRUE;
-        }
-        if ( havews && oll > 0 ) {
-            cils = ip;
-            cols = result.length();
-        }
-        if ( isspace( (uchar) s[ip] ) ) {
-            if ( !havews )
-                needws = TRUE;
-            cils = ip+1;
-            cols = result.length();
-        } else if ( s[ip] == '/'  || s[ip] == '{' || s[ip] == '}' ||
-                    s[ip] == '[' || s[ip] == ']' ) {
-            havews = s[ip] != '/';
-            needws = FALSE;
-            cils = ip;
-            cols = result.length();
-            result += s[ip];
-            oll++;
-        } else {
-            if ( needws ) {
-                cols = result.length();
-                cils = ip;
-                result += ' ';
-                oll++;
-                needws = FALSE;
-            }
-            result += s[ip];
-            oll++;
-            havews = FALSE;
-        }
-        ip++;
-    }
-    return result;
-}
-
-
-static void makeFixedStrings()
-{
-    if ( fixed_ps_header )
-        return;
-    qAddPostRoutine( cleanup );
-
-    fixed_ps_header = new QString;
-    const char * const * headerLine = ps_header;
-    while ( *headerLine ) {
-        fixed_ps_header->append( QString::fromLatin1(*headerLine++) );
-        fixed_ps_header->append( '\n' );
-    }
-
-    *fixed_ps_header = wordwrap( *fixed_ps_header );
 }
 
 static float pointSize( const QFont &f, float scale )
@@ -5652,9 +4973,6 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
             f.setPointSize( 11 );
     }
 
-    if ( !fixed_ps_header )
-        makeFixedStrings();
-
     QPSPrinterFont ff( f, script, this );
     QString ps = ff.postScriptFontName();
 
@@ -6233,7 +5551,6 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
     } else {
 	QByteArray out;
 	int size = 0;
-	const char *op;
 	const char *bits;
 	
 	bool hasMask = img.hasAlphaBuffer();
@@ -6262,9 +5579,9 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 		   << "sl uc\n";
 	ps_r7( pageStream, out, out.size() );
 	pageStream << "pop\n"
-	    // ##### readd scalx and scaley
-		   << width << ' ' << height << "{sl}" << bits << (hasMask ? "mask " : "false ")
-		   << x << ' ' << y << "di\n";
+		   << width << ' ' << height << "[" << scaleX << " 0 0 " << scaleY << " 0 0]{sl}"
+		   << bits << (hasMask ? "{mask}" : "false ")
+		   << x << ' ' << y << " di\n";
     }
 }
 
@@ -6369,16 +5686,13 @@ void QPSPrinterPrivate::emitHeader( bool finished )
                << "\n%%DocumentFonts: (atend)";
     outStream << "\n%%EndComments\n";
 
-    if ( !fixed_ps_header )
-        makeFixedStrings();
-
     outStream << "%%BeginProlog\n";
     const char * const prologLicense = "% Prolog copyright 1994-2001 Trolltech. "
                                  "You may copy this prolog in any way\n"
                                  "% that is directly related to this "
                                  "document. For other use of this prolog,\n"
                                  "% see your licensing agreement for Qt.\n";
-    outStream << prologLicense << *fixed_ps_header << "\n";
+    outStream << prologLicense << ps_header << "\n";
 
     // we have to do this here, as scaling can affect this.
     QString lineStyles = "/LArr["                                       // Pen styles:
