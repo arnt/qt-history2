@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#19 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -831,9 +831,6 @@ void QPlatinumStyle::drawIndicator( QPainter* p,
 	6,10, 8,10,	 7,11, 8,11,  7,12, 7,12,  8,8, 9,8,  8,7, 10,7,
 	9,6, 10,6,	9,5, 11,5,  10,4, 11,4,	 10,3, 12,3,
 	11,2, 12,2,	 11,1, 13,1,  12,0, 13,0 };
-    static QCOORD check_mark_pix[] = {
-	3,6, 6,6, 4,7, 7,8, 5,9, 6,11, 8,12, 9,10, 10,8, 8,6,
-	11,6, 9,4, 12,4, 10,2, 13,2 };
     if (s != QButton::Off) {
 	QPen oldPen = p->pen();
 // 	p->setPen (QPen(g.text(), 2));
