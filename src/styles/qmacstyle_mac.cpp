@@ -858,7 +858,7 @@ void QMacStyle::drawControl( ControlElement element,
 	DrawThemeTab(qt_glb_mac_rect(r, p, FALSE), tts, ttd, NULL, 0);
 	if(!(how & Style_Selected)) {
 	    int height = kThemeLargeTabHeight;
-	    if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
+	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
 		height = kThemeSmallTabHeight;
 	    QRect pr = QRect(r.x() - 20, r.y() + height, r.width() + 20, 8);
 	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tds);	    
@@ -994,7 +994,6 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    DrawThemeButton(qt_glb_mac_rect(menuarea, p), 
 			    kThemeBevelButton, &info, NULL, NULL, NULL, 0);
 	    QRect r(menuarea.x() + ((menuarea.width() / 2) - 4), menuarea.height() - 8, 8, 8);
-//		    menuarea.y() + ((menuarea.height() / 2) - 4), 8, 8);
 	    DrawThemePopupArrow(qt_glb_mac_rect(r, p),
 				kThemeArrowDown, kThemeArrow7pt, tds, NULL, 0);
 	}
