@@ -2226,10 +2226,22 @@ int QTextView::heightForWidth( int w ) const
 
 void QTextView::append( const QString &text )
 {
-    QTextCursor oldc( *cursor );
-    cursor->gotoEnd();
-    insert( text + "\n", FALSE, TRUE );
-    *cursor = oldc;
+    TextFormat f = doc->textFormat();
+    if ( f == AutoText ) {
+	if ( QStyleSheet::mightBeRichText( text ) )
+	    f = RichText;
+	else
+	    f = PlainText;
+    }
+    if ( f == PlainText ) {
+	QTextCursor oldc( *cursor );
+	cursor->gotoEnd();
+	insert( text + "\n", FALSE, TRUE );
+	*cursor = oldc;
+    } else if ( f == RichText ) {
+	doc->setRichTextInternal( text );
+	repaintChanged();
+    }
 }
 
 /*! Returns whether there is some text selected.

@@ -1382,9 +1382,13 @@ void QTextDocument::setRichText( const QString &text, const QString &context )
     if ( !context.isEmpty() )
 	setContext( context );
     clear();
-    fParag = createParag( this );
-    QTextParag* curpar = fParag;
+    fParag = lParag = createParag( this );
+    setRichTextInternal( text );
+}
 
+void QTextDocument::setRichTextInternal( const QString &text )
+{
+    QTextParag* curpar = fParag;
     int pos = 0;
     QValueStack<Tag> tags;
     Tag curtag( "", sheet_->item("") );

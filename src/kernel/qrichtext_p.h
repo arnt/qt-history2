@@ -849,6 +849,7 @@ private:
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool lower = TRUE);
     QChar parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
+    void setRichTextInternal( const QString &text );
 
 private:
     struct Q_EXPORT Focus {
