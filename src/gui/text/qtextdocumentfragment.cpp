@@ -584,9 +584,7 @@ bool QTextHTMLImporter::closeTag(int i)
     bool blockTagClosed = false;
 
     while (depth > endDepth) {
-        if (closedNode->id == Html_tr) {
-            Q_ASSERT(!tables.isEmpty());
-
+        if (closedNode->id == Html_tr && !tables.isEmpty()) {
             Table &t = tables[tables.size() -1];
 
             QTextCharFormat charFmt;
