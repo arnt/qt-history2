@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#20 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -28,6 +28,11 @@ extern "C" {
 #include "qasyncimageio.h"
 #include "qiodevice.h"
 #include "qpngio.h"
+
+// NOT SUPPORTED: experimental PNG animation.
+#ifdef PNG_USER_CHUNK_SUPPORTED
+#undef PNG_USER_CHUNK_SUPPORTED
+#endif
 
 /*
   The following PNG Test Suite (October 1996) images do not load correctly,
@@ -829,7 +834,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     }
     unused_data = 0;
     png_process_data(png_ptr, info_ptr, (png_bytep)buffer, length);
-    length -= unused_data;
+    int l = length - unused_data;
 
     // TODO: send incremental stuff to consumer (optional)
 
@@ -839,7 +844,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     }
 
     image = 0;
-    return length;
+    return l;
 }
 
 void QPNGFormat::info(png_structp png, png_infop)
