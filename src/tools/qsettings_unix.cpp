@@ -514,10 +514,9 @@ QDateTime QSettingsPrivate::modificationTime()
   When reading settings the files are searched in the order shown above,
   with later settings overriding earlier settings. Files for which the
   user doesn't have read permission are ignored. When saving settings
-  QSettings works backwards from the last file to the first, writing to
-  the first file for which the user has write permission. 
-
-  The file searched for will be 'myapplicationrc'.
+  QSettings works backwards from the last directory to the first,
+  writing to the first settings file for which the user has write
+  permission. 
 
   \sa removeSearchPath()
 
