@@ -84,6 +84,8 @@
 
 static QValueList<QTextCodec*> *all = 0;
 static bool destroying_is_ok; // starts out as 0
+static QTextCodec * localeMapper = 0;
+
 
 /*!  Deletes all the created codecs.
 
@@ -543,7 +545,10 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     }
 
 #if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
-    if (result && result->mibEnum() != mib) {
+    if ( !result || (result && result->mibEnum() != mib) ) {
+	if ( !localeMapper )
+	    (void)codecForLocale();
+
 	QTextCodec *codec = QTextCodecFactory::createForMib(mib);
 	if (codec)
 	    result = codec;
@@ -736,8 +741,6 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 
 #endif
 
-static QTextCodec * localeMapper = 0;
-
 /*!
   Set the codec to \a c; this will be returned by codecForLocale().
   This might be needed for some applications that want to use their
@@ -915,7 +918,9 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
     }
 
 #if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
-    if (! result && localeMapper)
+    if ( !localeMapper )
+	(void)codecForLocale();
+    if ( !result )
 	result = QTextCodecFactory::createForName(name);
 #endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
 
