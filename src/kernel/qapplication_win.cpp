@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#361 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#362 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -403,6 +403,7 @@ static void qt_set_windows_resources()
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
+    *qt_std_pal = pal;
 
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
