@@ -416,7 +416,7 @@ template<typename T>
 static void fillList(QByteArray &arr, const QList<QCoreVariant> &list, QCoreVariant::Type typ)
 {
     for (int i = 0; i < list.length(); ++i) {
-        T val(qt_cast<T>(list.at(i)));
+        T val(QVariant_to<T>(list.at(i)));
     }
 }
 

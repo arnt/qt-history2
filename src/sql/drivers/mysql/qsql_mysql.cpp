@@ -203,12 +203,13 @@ QCoreVariant QMYSQLResult::data(int field)
         val = d->tc->toUnicode(d->row[field]);
     switch (d->fieldTypes.at(field)) {
     case QCoreVariant::LongLong:
-        if (val[0] == '-') // signed or unsigned?
-            return QCoreVariant(val.toLongLong());
-        else
-            return QCoreVariant(val.toULongLong());
+        return QCoreVariant(val.toLongLong());
+    case QCoreVariant::ULongLong:
+        return QCoreVariant(val.toULongLong());
     case QCoreVariant::Int:
         return QCoreVariant(val.toInt());
+    case QCoreVariant::UInt:
+        return QCoreVariant(val.toUInt());
     case QCoreVariant::Double:
         return QCoreVariant(val.toDouble());
     case QCoreVariant::Date:
