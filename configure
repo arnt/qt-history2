@@ -881,8 +881,7 @@ then
     echo
     echo '       ' $XQMAKESPEC/qplatformdefs.h
     echo
-    echo '   Check out http://www.trolltech.com/platformdefs.html for'
-    echo '   updates to this beta release or contact qt-bugs@trolltech.com.'
+    echo '   Please contact qt-bugs@trolltech.com.'
     echo
     echo
     exit 2
