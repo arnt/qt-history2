@@ -1178,7 +1178,6 @@ QCoreGraphicsPaintEngine::end()
     setActive(false);
     if(d->hd) {
 	CGContextSynchronize(d->hd);
-	//CGContextFlush(d->hd);
 	qt_mac_clip_cg_reset(d->hd);
 	d->hd = 0;
     }
@@ -1424,7 +1423,7 @@ QCoreGraphicsPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 
     CGContextMoveToPoint(d->hd, p1.x(), p1.y());
     CGContextAddLineToPoint(d->hd, p2.x(), p2.y());
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1435,8 +1434,7 @@ QCoreGraphicsPaintEngine::drawRect(const QRect &r)
     CGContextBeginPath(d->hd);
     CGRect mac_rect = CGRectMake(r.x(), r.y(), r.width(), r.height());
     CGContextAddRect(d->hd, mac_rect);
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1446,7 +1444,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
 
     CGContextMoveToPoint(d->hd, p.x(), p.y());
     CGContextAddLineToPoint(d->hd, p.x(), p.y()+1);
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1458,7 +1456,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 	float x = pa[index+i].x(), y = pa[index+i].y();
 	CGContextMoveToPoint(d->hd, x, y);
 	CGContextAddLineToPoint(d->hd, x, y+1);
-        d->strokePath();
+        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     }
 }
 
@@ -1509,8 +1507,7 @@ QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     CGPathCloseSubpath(path);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
     CGPathRelease(path);
 }
 
@@ -1528,8 +1525,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRect &r)
 		 r.y() + (r.height()/2), r.height()/2, 0, 360, false);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
     CGPathRelease(path);
 }
 
@@ -1548,7 +1544,7 @@ QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
 		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     CGPathRelease(path);
 }
 
@@ -1569,8 +1565,7 @@ QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
     CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
     CGPathRelease(path);
 }
 
@@ -1584,8 +1579,7 @@ QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 	CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
     if(close) 
 	CGContextAddLineToPoint(d->hd, a[0].x(), a[0].y());
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1605,8 +1599,7 @@ QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
 		     r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
     CGContextBeginPath(d->hd);
     CGContextAddPath(d->hd, path);
-    d->fillPath();
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke);
     CGPathRelease(path);
 }
 
@@ -1622,7 +1615,7 @@ QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa, int index, int
 	CGContextMoveToPoint(d->hd, x, y);
 	pa.point(i++, &x, &y);
 	CGContextAddLineToPoint(d->hd, x, y);
-        d->strokePath();
+        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
     }
 }
 
@@ -1634,7 +1627,7 @@ QCoreGraphicsPaintEngine::drawPolyline(const QPointArray &pa, int index, int npo
     CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
     for(int x = index+1; x < index+npoints; x++) 
 	CGContextAddLineToPoint(d->hd, pa[x].x(), pa[x].y());
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 
 void
@@ -1670,7 +1663,7 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
     CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
     CGContextAddCurveToPoint(d->hd, pa[index+1].x(), pa[index+1].y(), 
 			     pa[index+2].x(), pa[index+2].y(), pa[index+3].x(), pa[index+3].y());
-    d->strokePath();
+    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
 #endif
 

@@ -101,25 +101,30 @@ public:
     uint antiAliasingEnabled : 1;
 
     //internal functions
-    inline bool strokePath() {
-        if(current.pen.style() != Qt::NoPen) {
-            CGContextStrokePath(hd);
-            return true;
-        }
-        return false;
-    }
-    inline bool fillPath() { 
-        if(current.brush.style() == Qt::LinearGradientPattern) {
+    enum { CGStroke=0x01, CGFill=0x02 };
+    inline void drawPath(uchar ops) {
+        if((ops & CGFill) && current.brush.style() == Qt::LinearGradientPattern) {
             CGContextSaveGState(hd);
             CGContextClip(hd);
             CGContextDrawShading(hd, shading);
             CGContextRestoreGState(hd);
-            return true;
-        } else if(current.brush.style() != Qt::NoBrush) {
-            CGContextFillPath(hd);
-            return true;
-        }
-        return false;
+            ops &= ~CGFill;
+        } 
+        if((ops & CGFill) && current.brush.style() == Qt::NoBrush) 
+            ops &= ~CGFill;
+        if((ops & CGStroke) && current.pen.style() == Qt::NoPen) 
+            ops &= ~CGStroke;
+
+        CGPathDrawingMode mode;
+        if((ops & (CGStroke|CGFill)) == (CGStroke|CGFill))
+            mode = kCGPathFillStroke;
+        else if(ops & CGStroke)
+            mode = kCGPathStroke;
+        else if(ops & CGFill)
+            mode = kCGPathFill;
+        else //nothing to do..
+            return;
+        CGContextDrawPath(hd, mode);
     }
 };
 
