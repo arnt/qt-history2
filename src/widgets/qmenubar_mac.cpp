@@ -557,8 +557,6 @@ void QMenuBar::macCreateNativeMenubar()
 {
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
-    qDebug("%s -- %p %d %d", p ? p->className() : "Unknown", p, p->isDialog(),
-	   p->isTopLevel());
     if(p && (!menubars || !menubars->find((int)topLevelWidget())) &&
        (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) || 
 	p->inherits("QToolBar") || 
