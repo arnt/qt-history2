@@ -74,7 +74,7 @@ int Model::columnCount(const QModelIndex &parent) const
     return 2;
 }
 
-bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
+bool Model::setData(const QModelIndex &index, const QCoreVariant &value, int role)
 {
     if (IProperty *property = privateData(index)) {
 
@@ -100,12 +100,12 @@ bool Model::setData(const QModelIndex &index, const QVariant &value, int role)
     return false;
 }
 
-QVariant Model::data(const QModelIndex &index, int role) const
+QCoreVariant Model::data(const QModelIndex &index, int role) const
 {
     Q_UNUSED(role);
 
     if (!privateData(index))
-        return QVariant();
+        return QCoreVariant();
 
     IProperty *o = privateData(index);
     switch (index.column()) {  // ### cleanup
@@ -139,7 +139,7 @@ QVariant Model::data(const QModelIndex &index, int role) const
             break;
     }
 
-    return QVariant();
+    return QCoreVariant();
 }
 
 QString Model::columnText(int col) const
@@ -188,11 +188,11 @@ QModelIndex Model::buddy(const QModelIndex &index) const
     return index;
 }
 
-QVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
+QCoreVariant Model::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role != DisplayRole)
-            return QVariant();
+            return QCoreVariant();
         return columnText(section);
     }
     return QAbstractItemModel::headerData(section, orientation, role);

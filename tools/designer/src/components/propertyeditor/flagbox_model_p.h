@@ -61,8 +61,8 @@ public:
     
     virtual QModelIndex parent(const QModelIndex &index) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
+    virtual QCoreVariant data(const QModelIndex &index, int role) const;
+    virtual bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
 
 private:
     QList<FlagBoxModelItem> m_items;
