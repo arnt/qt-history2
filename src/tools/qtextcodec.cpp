@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#36 $
 **
 ** Implementation of QTextCodec class
 **
@@ -693,7 +693,7 @@ public:
 		    if (!from_unicode_page[ch.row]) {
 			from_unicode_page[ch.row] = new char[256];
 			for (int i=0; i<256; i++)
-			    from_unicode_page[ch.row][i] = unkn;
+			    from_unicode_page[ch.row][i]=0;
 		    }
 		    if ( mb_unicode ) {
 			from_unicode_page[ch.row][ch.cell] = 0;
@@ -817,7 +817,7 @@ public:
     {
 	if (lenInOut > (int)uc.length())
 	    lenInOut = uc.length();
-	int rlen = lenInOut*max_bytes_per_char+1;
+	int rlen = lenInOut*max_bytes_per_char;
 	char* result = new char[rlen];
 	char* cursor = result;
 	char* s;
@@ -825,7 +825,11 @@ public:
 	int lout = 0;
 	for (int i=0; i<l; i++) {
 	    QChar ch = uc[i];
-	    if ( from_unicode_page[ch.row] )
+	    if ( ch == (ushort)0x0000 ) {
+		// special
+		*cursor++ = 0;
+	    } else if ( from_unicode_page[ch.row] &&
+		from_unicode_page[ch.row][ch.cell] )
 	    {
 		*cursor++ = from_unicode_page[ch.row][ch.cell];
 		lout++;
@@ -892,8 +896,10 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
   global list of codecs).  The name() of the result is taken
   from the code_set_name.
 
-  Note that a codec constructed in this way uses more memory
-  and is slower than a hand-written QTextCodec subclass.
+  Note that a codec constructed in this way uses much more memory
+  and is slower than a hand-written QTextCodec subclass, since
+  tables in code are in memory shared by all applications simultaneously
+  using Qt.
 
   \sa loadCharmapFile()
 */
