@@ -1796,7 +1796,6 @@ QRect QWindowsStyle::subRect(SubRect r, const QWidget *widget) const
 #ifndef QT_NO_SLIDER
     case SR_SliderFocusRect:
 	{
-	    const QSlider * sl = (const QSlider *) widget;
 	    rect = widget->rect();
 	    break;
 	}
