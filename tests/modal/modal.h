@@ -8,6 +8,7 @@
 #include <qlayout.h>
 #include <qwhatsthis.h>
 #include <qtoolbutton.h>	
+#include <qcolordialog.h>
 
 class Dialog : public QDialog
 {
@@ -25,6 +26,9 @@ public:
 	l->addWidget( button );
 	connect( button, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	l->addWidget( QWhatsThis::whatsThisButton( this ) );
+	button = new QPushButton( "getColor()", this );
+	l->addWidget( button );
+	connect( button, SIGNAL( clicked() ), this, SLOT( getColor() ) );
     }
     ~Dialog()
     {
@@ -35,6 +39,11 @@ public slots:
     {	
 	Dialog d( this );
 	d.exec();
+    }
+    
+    void getColor()
+    {
+	(void) QColorDialog::getColor( red, this );
     }
     
 private:
