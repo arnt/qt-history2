@@ -57,7 +57,7 @@
    </property>
    <widget class="QMenu" name="fileMenu" >
     <property name="objectName" >
-     <string>fileMenu</string>
+     <cstring>fileMenu</cstring>
     </property>
     <attribute name="title" >
      <string>&amp;File</string>
@@ -73,7 +73,7 @@
    </widget>
    <widget class="QMenu" name="editMenu" >
     <property name="objectName" >
-     <string>editMenu</string>
+     <cstring>editMenu</cstring>
     </property>
     <attribute name="title" >
      <string>&amp;Edit</string>
@@ -87,7 +87,7 @@
    </widget>
    <widget class="QMenu" name="PopupMenu" >
     <property name="objectName" >
-     <string>PopupMenu</string>
+     <cstring>PopupMenu</cstring>
     </property>
     <attribute name="title" >
      <string>&amp;View</string>
@@ -98,7 +98,7 @@
    </widget>
    <widget class="QMenu" name="goMenu" >
     <property name="objectName" >
-     <string>goMenu</string>
+     <cstring>goMenu</cstring>
     </property>
     <attribute name="title" >
      <string>&amp;Go</string>
@@ -112,7 +112,7 @@
    </widget>
    <widget class="QMenu" name="bookmarkMenu" >
     <property name="objectName" >
-     <string>bookmarkMenu</string>
+     <cstring>bookmarkMenu</cstring>
     </property>
     <attribute name="title" >
      <string>Boo&amp;kmarks</string>
@@ -120,7 +120,7 @@
    </widget>
    <widget class="QMenu" name="helpMenu" >
     <property name="objectName" >
-     <string>helpMenu</string>
+     <cstring>helpMenu</cstring>
     </property>
     <attribute name="title" >
      <string>&amp;Help</string>
