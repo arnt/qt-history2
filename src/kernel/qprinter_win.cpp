@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#31 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -98,11 +98,16 @@ bool QPrinter::aborted() const
 
 bool QPrinter::setup( QWidget *parent )
 {
+    if ( parent )
+	parent = parent->topLevelWidget();
+    else
+	parent = qApp->mainWidget();
+
     PRINTDLG pd;
     memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
     pd.Flags	 = PD_RETURNDC;
-    pd.hwndOwner = parent ? parent->topLevelWidget()->winId() : 0;
+    pd.hwndOwner = parent ? parent->winId() : 0;
     pd.nFromPage = QMAX(from_pg,min_pg);
     pd.nToPage	 = QMIN(to_pg,max_pg);
     if ( pd.nFromPage > pd.nToPage )
@@ -112,6 +117,8 @@ bool QPrinter::setup( QWidget *parent )
     pd.nCopies	 = ncopies;
 
     bool result = PrintDlg( &pd );
+    if ( result && pd.hDC == 0 )
+	result = FALSE;
     if ( result ) {				// get values from dlg
 	from_pg = pd.nFromPage;
 	to_pg	= pd.nToPage;
