@@ -378,7 +378,7 @@ void QGroupBox::setColumns( int c )
   Returns the width of the blank spacing between the items in the group
   and the frame of the group.
 
-  Only applies if the groupbox has a defined orientation.
+  Only applies if the group box has a defined orientation.
 
   The default is about 11.
 
@@ -393,7 +393,7 @@ int QGroupBox::insideMargin() const
   Returns the width of the blank spacing between each of the items in the
   group.
 
-  Only applies if the groupbox has a defined orientation.
+  Only applies if the group box has a defined orientation.
 
   The default is about 5.
 
@@ -430,8 +430,8 @@ void QGroupBox::setInsideSpacing( int s )
   \property QGroupBox::orientation
   \brief the current orientation of the group box.
 
-  A horizontal groupbox arranges it's children in columns, while a
-  vertical groupbox arranges them in rows. Thus, a horizontal groupbox
+  A horizontal group box arranges it's children in columns, while a
+  vertical group box arranges them in rows. Thus, a horizontal group box
   with only one column will arrange the children vertically in that column.
 
   Usually it is not a good idea to set this property because it is slow
