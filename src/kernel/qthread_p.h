@@ -74,7 +74,7 @@
 #  define Q_HAS_RECURSIVE_MUTEX
 #  define Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
-#  define Q_MUTEX_TYPE MUTEX_RECURSIVE_NP
+#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
 #elif defined(Q_OS_AIX)
 // AIX 4.3.x
 #  define Q_HAS_RECURSIVE_MUTEX
@@ -106,7 +106,6 @@
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #else
 // Fall through for systems we don't know about
-// #  warning "Assuming non-POSIX 1003.1c thread implementation. Talk to qt-bugs@trolltech.com."
 #  undef  Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  undef  Q_NORMAL_MUTEX_TYPE
