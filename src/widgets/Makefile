@@ -25,7 +25,8 @@ SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qscrbar.cpp	qtablevw.cpp	qtooltip.cpp	qmlined.cpp
-BETA	=	qtooltip.h qtooltip.cpp qmlined.cpp qmlined.h
+BETA	=	qtooltip.h qtooltip.cpp qmlined.cpp qmlined.h \
+		mtooltip.cpp mmlined.cpp
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
