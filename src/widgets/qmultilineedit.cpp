@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#95 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#96 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -117,7 +117,7 @@ struct QMultiLineData
 	dnd_forcecursor(FALSE),
 	dnd_timer(0),
 	undo( TRUE ),
-	undodepth( 128 )
+	undodepth( 256 )
     {
 	undoList.setAutoDelete( TRUE );
 	redoList.setAutoDelete( TRUE );
@@ -3457,8 +3457,8 @@ public:
     void undo()
     {
 	int row, col;
-	mEdit->setCursorPosition( row, col, FALSE );
 	mEdit->offsetToPositionInternal( mOffset, &row, &col );
+	mEdit->setCursorPosition( row, col, FALSE );
 	mEdit->insertAt( mStr, row, col, FALSE );
 	mEdit->offsetToPositionInternal( mOffset+mStr.length(), &row, &col );
 	mEdit->setCursorPosition( row, col, FALSE );
@@ -3526,7 +3526,8 @@ void QMultiLineEdit::undo()
     d->undo = FALSE;
     do {
 	QMultiLineEditCommand *command = d->undoList.take();
-	ASSERT(command);
+	if ( !command )
+	    break; 
 	command->undo();
 	macroLevel += command->terminator();
 	if ( d->undoList.isEmpty() )
@@ -3548,7 +3549,8 @@ void QMultiLineEdit::redo()
     d->undo = FALSE;
     do {
 	QMultiLineEditCommand *command = d->redoList.take();
-	ASSERT(command);
+	if ( !command )
+	    break;
 	command->redo();
 	macroLevel += command->terminator();
 	if ( d->redoList.isEmpty() )
