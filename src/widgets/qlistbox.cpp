@@ -2248,7 +2248,7 @@ void QListBox::updateSelection()
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
 	if ( selectionMode() == Single || selectionMode() == NoSelection ) {
-	    if ( i && d->mouseInternalPress )
+	    if ( i && ( d->mouseInternalPress || testWFlags(WType_Popup) ) )
 		setCurrentItem( i );
 	} else {
 	    if ( d->selectionMode == Extended && (
