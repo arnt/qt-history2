@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#18 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#18 $";
 #endif
 
 
@@ -43,7 +43,7 @@ obtain flicker-free drawing.
 
 The code may look like this:
 \code
-void CoolWidget::paintWidget( QPaintEvent * e) {
+void MyWidget::paintEvent( QPaintEvent * e) {
   QPixmap  pm( width(), height());	// create pixmap
   QPainter p;				// our painter
   pm.fill( backgroundColor() );		// initialize pixmap
@@ -117,7 +117,7 @@ static uchar *flip_bits( uchar *bits, int len )	// flip bits in bitmap
 static int highest_bit( ulong v )
 {
     int i;
-    ulong b = (uint)1 << 31;			// get pos of highest bit in v
+    ulong b = (uint)1 << 31;			// get pos of highest set bit
     for ( i=31; ((b & v) == 0) && i>=0;  i-- )
 	b >>= 1;
     return i;
@@ -126,7 +126,7 @@ static int highest_bit( ulong v )
 
 static int lowest_bit( ulong v )
 {
-    int i = 0;	// get pos of lowest set bit in v
+    int i = 0;					// get pos of lowest set bit v
     ulong b = 1;
     while (!(b & v) && (i<32)) {
 	b <<= 1;
@@ -713,7 +713,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 	}
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
 	delete flipped_bits;
-	data->w = w;  data->h = h;  data->d = d;
+	data->w = w;  data->h = h;  data->d = 1;
 	if ( data->optim ) {
 	    data->dirty = FALSE;
 	    if ( data->ximage ) {		// we got no X image data
@@ -887,16 +887,16 @@ bool QPixmap::convertFromImage( const QImage &img )
 	    int r = px->r;
 	    int g = px->g;
 	    int b = px->b;
-	    int d;
+	    int dist;
 	    if ( (i & 1) || i<10 ) {		// sort on max distance
 		for ( j=0; j<ncols; j++ ) {
 		    px = &pixarr[j];
 		    if ( px->use ) {
-			d = (px->r - r)*(px->r - r) +
-			    (px->g - g)*(px->g - g) +
-			    (px->b - b)*(px->b - b);
-			if ( px->mindist > d )
-			    px->mindist = d;
+			dist = (px->r - r)*(px->r - r) +
+			       (px->g - g)*(px->g - g) +
+			       (px->b - b)*(px->b - b);
+			if ( px->mindist > dist )
+			    px->mindist = dist;
 			if ( px->mindist > mindist ) {
 			    mindist = px->mindist;
 			    minpix = j;
@@ -908,11 +908,11 @@ bool QPixmap::convertFromImage( const QImage &img )
 		for ( j=0; j<ncols; j++ ) {
 		    px = &pixarr[j];
 		    if ( px->use ) {
-			d = (px->r - r)*(px->r - r) +
-			    (px->g - g)*(px->g - g) +
-			    (px->b - b)*(px->b - b);
-			if ( px->mindist > d )
-			    px->mindist = d;
+			dist = (px->r - r)*(px->r - r) +
+			       (px->g - g)*(px->g - g) +
+			       (px->b - b)*(px->b - b);
+			if ( px->mindist > dist )
+			    px->mindist = dist;
 			if ( px->use > mindist ) {
 			    mindist = px->use;
 			    minpix = j;
@@ -984,7 +984,7 @@ bool QPixmap::convertFromImage( const QImage &img )
     }
     else
 	XDestroyImage( xi );
-    data->w = w;  data->h = h;	data->d = d;
+    data->w = w;  data->h = h;	data->d = dd;
     return TRUE;
 }
 
