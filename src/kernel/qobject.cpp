@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#125 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#125 $");
 
 
 /*!
@@ -1119,7 +1119,11 @@ bool QObject::checkConnectArgs( const char    *signal,
     return FALSE;
 }
 
-/*!  
+
+/* tmake ignore Q_OBJECT */
+/* tmake ignore Q_OBJECT */
+
+/*!
   Internal function, called from initMetaObject(). Used to emit a warning
   when a class containing the macro Q_OBJECT inherits from a class that
   does not contain it.
