@@ -2604,8 +2604,8 @@ static int asciiToKeycode(char a, int state)
     if (a >= 'a' && a <= 'z')
         a = toupper(a);
     if ((state & Qt::ControlButton) != 0) {
-        if (a >= 1 && a <= 26)        // Ctrl+'A'..'Z'
-            a += 'A' - 1;
+        if ( a >= 0 && a <= 31 )      // Ctrl+@..Ctrl+A..CTRL+Z..Ctrl+_
+        a += '@';                     // to @..A..Z.._
     }
 
     return a & 0xff;
