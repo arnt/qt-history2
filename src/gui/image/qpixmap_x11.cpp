@@ -564,7 +564,10 @@ QImage QPixmap::toImage() const
     if (!xi)                                        // fetch data from X server
         xi = XGetImage(data->xinfo.display(), data->hd, 0, 0, w, h, AllPlanes,
                         mono ? XYPixmap : ZPixmap);
-    Q_CHECK_PTR(xi);
+
+    Q_CHECK_POINTER(xi);
+    if (!xi)
+        return image;
 
     QImage::Endian bitOrder = QImage::IgnoreEndian;
     if (mono)
