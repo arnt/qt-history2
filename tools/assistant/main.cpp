@@ -315,7 +315,7 @@ int main( int argc, char ** argv )
 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", buf );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     } else if ( !oldSelected.isEmpty() ) {
-	config->removeEntry( DocumentKey::DocumentKey + "CategoriesSelectedOld" );
+	config->removeEntry( DocuParser::DocumentKey + "CategoriesSelectedOld" );
 	config->writeEntry( DocuParser::DocumentKey + "CategoriesSelected", oldSelected );
 	config->writeEntry( keybase + "NewDoc", TRUE );
     }
