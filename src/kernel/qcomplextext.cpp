@@ -786,7 +786,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
     int current = start;
     while(current < last) {
 	QChar::Direction dirCurrent;
-	if(current == text.length()) {
+	if(current == (int)text.length()) {
 	    QBidiContext *c = context;
 	    while ( c->parent )
 		c = c->parent;
@@ -1136,7 +1136,7 @@ QList<QTextRun> *QComplexText::bidiReorderLine( QBidiControl *control, const QSt
 
 	//cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << endl;
 
-	if(current >= text.length()) break;
+	if(current >= (int)text.length()) break;
 	
 	// set status.last as needed.
 	switch(dirCurrent)
