@@ -40,7 +40,7 @@ void HexDelegate::paint(QPainter *painter,
 
     // Layout text
     QRect textRect(pt, painter->fontMetrics().size(0, textHex) + sz);
-    doLayout(option, &emptyRect, &textRect, false);
+    doLayout(option, &emptyRect, &emptyRect, &textRect, false);
 
     // draw the item
     drawDisplay(painter, option, textRect, textHex);
