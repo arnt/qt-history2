@@ -578,15 +578,12 @@ bool QJpegHandler::canLoadImage(QIODevice *device)
     }
 
     if (device->isSequential()) {
-        qDebug("ungetting back");
         while (readBytes > 0)
             device->ungetChar(head[readBytes-- - 1]);
     } else {
-        qDebug("seeking back");
         device->seek(oldPos);
     }
 
-    qDebug("head[0] == %x, head[1] == %x", head[0], head[1]);
     return qstrncmp(head, "\330\377", 2) == 0;
 }
 
