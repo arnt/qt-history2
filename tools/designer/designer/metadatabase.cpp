@@ -29,6 +29,7 @@
 #include <qstrlist.h>
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
+#include <qmainwindow.h>
 
 class MetaDataBaseRecord
 {
@@ -245,6 +246,8 @@ void MetaDataBase::setSpacing( QObject *o, int spacing )
 int MetaDataBase::spacing( QObject *o )
 {
     setupDataBase();
+    if ( o->inherits( "QMainWindow" ) )
+	o = ( (QMainWindow*)o )->centralWidget();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
@@ -277,6 +280,8 @@ void MetaDataBase::setMargin( QObject *o, int margin )
 int MetaDataBase::margin( QObject *o )
 {
     setupDataBase();
+    if ( o->inherits( "QMainWindow" ) )
+	o = ( (QMainWindow*)o )->centralWidget();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r || !o->isWidgetType() ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
