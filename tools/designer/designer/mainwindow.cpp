@@ -1378,7 +1378,7 @@ void MainWindow::fileOpen()
 {
     statusBar()->message( tr( "Select a file...") );
 
-    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir, "*.dylib"  );
+    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir );
     {
 	QString filename;
 	QStringList filterlist;
@@ -3850,7 +3850,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir, "*.dll; *.so; *.dylib" );
+    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -3974,12 +3974,12 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so; *.dylib" );
+    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir );
     MetaDataBase::setEditor( editorPluginManager->featureList() );
-    templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
+    templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir );
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so; *.dylib" );
-    preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir, "*.dll; *.so; *.dylib" );
+    programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir );
+    preferencePluginManager = new QInterfaceManager<PreferenceInterface>( IID_PreferenceInterface, pluginDir );
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
