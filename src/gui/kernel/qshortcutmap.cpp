@@ -327,7 +327,7 @@ Qt::SequenceMatch QShortcutMap::find(QKeyEvent *e)
         if (it == itEnd)
             break;
         result = newEntry.keyseq.matches((*it).keyseq);
-        if (correctSubWindow(*it)) {
+        if (correctContext(*it)) {
             if (result == Qt::Identical) {
                 if ((*it).enabled)
                     d->identicals.append(&*it);
@@ -400,7 +400,7 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
     Returns true if the widget \a w is a logical sub window of the current
     top-level widget.
 */
-bool QShortcutMap::correctSubWindow(const QShortcutEntry &item) {
+bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     QWidget *wtlw = qApp->activeWindow();
     Q_ASSERT(wtlw != 0);
 
@@ -408,38 +408,42 @@ bool QShortcutMap::correctSubWindow(const QShortcutEntry &item) {
     if (!w->isVisible() || !w->isEnabled() || !wtlw)
         return false;
 
-    // Focus wigdet policy shortcut -------------------------------------------
-    if (item.context == Qt::OnFocusWidget)
-        return qApp->focusWidget() == item.owner;
-    
-    // Active window policy shortcut ------------------------------------------
     QWidget *tlw = w->topLevelWidget();
     wtlw = wtlw->topLevelWidget();
 
-    /* if we live in a floating dock window, keep our parent's
-   * accelerators working */
-    if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
-        return tlw->parentWidget()->topLevelWidget() == wtlw;
+    switch (item.context) {
+    case Qt::OnActiveWindow:
+        {
+            /* if we live in a floating dock window, keep our parent's
+           * accelerators working */
+            if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
+                return tlw->parentWidget()->topLevelWidget() == wtlw;
 
-    if (wtlw  != tlw)
-        return false;
+            if (wtlw  != tlw)
+                return false;
 
 #ifndef QT_NO_WORKSPACE
-    /* if we live in a MDI subwindow, ignore the event if we are
-          not the active document window */
-    const QWidget* sw = w;
-    while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
-        sw = sw->parentWidget();
-    if (sw && sw->testWFlags(Qt::WSubWindow)) {
-        QWidget *actW = ::qt_cast<QWorkspace*>(sw->parentWidget())->activeWindow();
-        // If workspace has no active window return false
-        if (!actW)
-            return false;
-        // Return true, if shortcut belongs to widget
-        // inside active workspace child window
-        return sw == actW->parentWidget();
-    }
+            /* if we live in a MDI subwindow, ignore the event if we are
+              not the active document window */
+            const QWidget* sw = w;
+            while (sw && !sw->testWFlags(Qt::WSubWindow) && !sw->isTopLevel())
+                sw = sw->parentWidget();
+            if (sw && sw->testWFlags(Qt::WSubWindow)) {
+                QWidget *actW = ::qt_cast<QWorkspace*>(sw->parentWidget())->activeWindow();
+                // If workspace has no active window return false
+                if (!actW)
+                    return false;
+                // Return true, if shortcut belongs to widget
+                // inside active workspace child window
+                return sw == actW->parentWidget();
+            }
 #endif
+        }
+    case Qt::OnApplication:
+        return true;
+    case Qt::OnFocusWidget:
+        return qApp->focusWidget() == item.owner;
+    }
     return true;
 }
 

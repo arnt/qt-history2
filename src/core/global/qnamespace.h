@@ -974,7 +974,8 @@ public:
     // Documented in qwidget.cpp
     enum ShortcutContext {
         OnFocusWidget,
-        OnActiveWindow
+        OnActiveWindow,
+        OnApplication
     };
 
     // "handle" type for system objects. Documented as \internal in
