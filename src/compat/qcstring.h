@@ -193,6 +193,20 @@ Q_EXPORT inline const QCString operator+(const QCString &s1,
     tmp += s2;
     return tmp;
 }
+Q_EXPORT inline const QCString operator+(const QCString &s1,
+					  const QByteArray &s2)
+{
+    QByteArray tmp(s1);
+    tmp += s2;
+    return tmp;
+}
+Q_EXPORT inline const QCString operator+(const QByteArray &s1,
+					  const QCString &s2)
+{
+    QByteArray tmp(s1);
+    tmp += s2;
+    return tmp;
+}
 
 Q_EXPORT inline const QCString operator+(const QCString &s1, const char *s2)
 {
