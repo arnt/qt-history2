@@ -731,7 +731,10 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
 
     Q_D(QRasterPaintEngine);
 
-    FT_BBox clipBox = { 0, 0, d->pdev->width(), d->pdev->height() };
+    FT_BBox clipBox = { 0, 0, d->deviceRect.width(), d->deviceRect.height() };
+
+    Q_ASSERT(d->deviceRect.width() <= d->rasterBuffer->width());
+    Q_ASSERT(d->deviceRect.height() <= d->rasterBuffer->height());
 
     if (fillData->callback) {
         if (d->clipEnabled) {
