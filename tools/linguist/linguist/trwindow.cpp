@@ -562,7 +562,7 @@ void TrWindow::print()
 void TrWindow::find()
 {
     finddlg->show();
-    finddlg->setActiveWindow();
+    finddlg->activateWindow();
     finddlg->raise();
 }
 
@@ -832,7 +832,7 @@ void TrWindow::manual()
 {
     if (!ac)
         ac = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
-    ac->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + 
+    ac->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath) +
                  "/html/linguist-manual.html");
 }
 
