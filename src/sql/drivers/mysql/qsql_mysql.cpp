@@ -15,8 +15,9 @@
 #include "qsql_mysql.h"
 
 #include <qdatetime.h>
-#include <qvaluevector.h>
+#include <qvector.h>
 #include <qsqlrecord.h>
+#include <qtextcodec.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
@@ -29,18 +30,28 @@
 class QMYSQLDriverPrivate
 {
 public:
-    QMYSQLDriverPrivate() : mysql(0) {}
+    QMYSQLDriverPrivate() : mysql(0), tc(0) {}
     MYSQL*     mysql;
+    QTextCodec *tc;
 };
 
 class QMYSQLResultPrivate : public QMYSQLDriverPrivate
 {
 public:
-    QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0) {}
+    QMYSQLResultPrivate() : QMYSQLDriverPrivate(), result(0), tc(QTextCodec::codecForLocale()) {}
     MYSQL_RES* result;
     MYSQL_ROW  row;
-    QValueVector<QVariant::Type> fieldTypes;
+    QVector<QVariant::Type> fieldTypes;
+    QTextCodec *tc;
 };
+
+QTextCodec* codec(MYSQL* mysql)
+{
+    QTextCodec* heuristicCodec = QTextCodec::codecForName(mysql_character_set_name(mysql), 2);
+    if (heuristicCodec)
+	return heuristicCodec;
+    return QTextCodec::codecForLocale();
+}
 
 QSqlError qMakeError( const QString& err, int type, const QMYSQLDriverPrivate* p )
 {
@@ -98,8 +109,9 @@ QVariant::Type qDecodeMYSQLType( int mysqltype, uint flags )
 QMYSQLResult::QMYSQLResult( const QMYSQLDriver* db )
 : QSqlResult( db )
 {
-    d =   new QMYSQLResultPrivate();
+    d = new QMYSQLResultPrivate();
     d->mysql = db->d->mysql;
+    d->tc = db->d->tc;
 }
 
 QMYSQLResult::~QMYSQLResult()
@@ -181,7 +193,9 @@ QVariant QMYSQLResult::data( int field )
 	return QVariant();
     }
     
-    QString val( d->row[field] );
+    QString val;
+    if (d->fieldTypes.at(field) != QVariant::ByteArray)
+	val = d->tc->toUnicode(d->row[field]);
     switch ( d->fieldTypes.at( field ) ) {
     case QVariant::LongLong:
 	if ( val[0] == '-' ) // signed or unsigned?
@@ -219,7 +233,7 @@ QVariant QMYSQLResult::data( int field )
     }
     default:
     case QVariant::String:
-	return QVariant( val );
+	return QVariant(val);
     }
 #ifdef QT_CHECK_RANGE
     qWarning("QMYSQLResult::data: unknown data type");
@@ -241,7 +255,8 @@ bool QMYSQLResult::reset ( const QString& query )
     if ( !driver()-> isOpen() || driver()->isOpenError() )
 	return FALSE;
     cleanup();
-    if ( mysql_real_query( d->mysql, query, query.length() ) ) {
+    const QByteArray encQuery(d->tc->fromUnicode(query));
+    if ( mysql_real_query( d->mysql, encQuery.data(), encQuery.length() ) ) {
 	setLastError( qMakeError("Unable to execute query", QSqlError::Statement, d ) );
 	return FALSE;
     }
@@ -322,6 +337,7 @@ QMYSQLDriver::QMYSQLDriver( MYSQL * con, QObject * parent, const char * name )
     init();
     if ( con ) {
 	d->mysql = (MYSQL *) con;
+	d->tc = codec(con);
 	setOpen( TRUE );
 	setOpenError( FALSE );
     } else {
@@ -442,6 +458,7 @@ bool QMYSQLDriver::open( const QString& db,
 	    setOpenError( TRUE );
 	    return FALSE;
     }
+    d->tc = codec(d->mysql);
     setOpen( TRUE );
     setOpenError( FALSE );
     return TRUE;
@@ -477,7 +494,7 @@ QStringList QMYSQLDriver::tables( const QString& typeName ) const
 	row = mysql_fetch_row( tableRes );
 	if ( !row )
 	    break;
-	tl.append( QString(row[0]) );
+	tl.append(d->tc->toUnicode(row[0]));
 	i++;
     }
     mysql_free_result( tableRes );
@@ -514,7 +531,7 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     }
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
-	QSqlField f ( QString( field->name ) , qDecodeMYSQLType( (int)field->type, field->flags ) );
+	QSqlField f ( d->tc->toUnicode( field->name ) , qDecodeMYSQLType( (int)field->type, field->flags ) );
 	fil.append ( f );
     }
     mysql_free_result( r );
@@ -533,7 +550,7 @@ QSqlRecord QMYSQLDriver::record( const QSqlQuery& query ) const
 	    for ( ;; ) {
 		MYSQL_FIELD* f = mysql_fetch_field( p->result );
 		if ( f ) {
-		    QSqlField fi( QString((const char*)f->name), qDecodeMYSQLType( f->type, f->flags ) );
+		    QSqlField fi( d->tc->toUnicode((const char*)f->name), qDecodeMYSQLType( f->type, f->flags ) );
 		    fil.append( fi  );
 		} else
 		    break;
@@ -555,7 +572,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
     }
     MYSQL_FIELD* field;
     while ( (field = mysql_fetch_field( r ))) {
-	info.append ( QSqlFieldInfo( QString( field->name ),
+	info.append ( QSqlFieldInfo( d->tc->toUnicode( field->name ),
 				qDecodeMYSQLType( (int)field->type, field->flags ),
 				IS_NOT_NULL( field->flags ),
 				(int)field->length,
@@ -579,7 +596,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QSqlQuery& query ) const
 	    for ( ;; ) {
 		MYSQL_FIELD* field = mysql_fetch_field( p->result );
 		if ( field ) {
-		    info.append ( QSqlFieldInfo( QString( field->name ),
+		    info.append ( QSqlFieldInfo( d->tc->toUnicode( field->name ),
 				qDecodeMYSQLType( (int)field->type, field->flags ),
 				IS_NOT_NULL( field->flags ),
 				(int)field->length,
@@ -667,8 +684,9 @@ QString QMYSQLDriver::formatValue( const QSqlField* field, bool trimStrings ) co
 	    const QByteArray ba = field->value().toByteArray();
 	    // buffer has to be at least length*2+1 bytes
 	    char* buffer = new char[ ba.size() * 2 + 1 ];
-	    /*uint escapedSize =*/ mysql_escape_string( buffer, ba.data(), ba.size() );
-	    r = QString( "'%1'" ).arg( buffer );
+	    int escapedSize = (int)mysql_escape_string( buffer, ba.data(), ba.size() );
+	    r.reserve(escapedSize + 3);
+	    r.append("'").append(buffer).append("'");
 	    delete[] buffer;
 	}
 	break;
