@@ -56,7 +56,7 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QHBox( bool horizontal, QWidget* parent, const char* name, WFlags f );
+    QHBox( bool horizontal, QWidget* parent, const char* name, WFlags f = 0 );
     void frameChanged();
 
 private:
