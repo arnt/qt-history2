@@ -466,11 +466,17 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
     desktop.
 
     \ingroup application
+
+    The documentation for QDockWindow is not yet complete.  Please
+    read the \link mainwindow.html Main Window Overview\endlink
+    instead.
+
+    \sa QMainWindow
 */
 
 /*!
     Constructs a QDockWindow with parent \a parent with widget flags
-    \a f.  The dock window will be placed in the left dock window
+    \a flags.  The dock window will be placed in the left dock window
     area.
 */
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
@@ -484,7 +490,7 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
 
 /*!
     Constructs a QDockWindow with parent \a parent, placed in \a area
-    and with widget flags \a f.
+    and with widget flags \a flags.
 */
 QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlags flags)
     : QFrame(*(new QDockWindowPrivate(parent)), parent,
@@ -497,7 +503,7 @@ QDockWindow::QDockWindow(QMainWindow *parent, Qt::DockWindowArea area, Qt::WFlag
 
 /*!
     Destroys the dock window.
- */
+*/
 QDockWindow::~QDockWindow()
 { }
 
@@ -505,7 +511,7 @@ QDockWindow::~QDockWindow()
     Sets the main window for this dock window to \a parent.
 
     \sa mainWindow()
- */
+*/
 void QDockWindow::setParent(QMainWindow *parent)
 { QFrame::setParent(parent); }
 
@@ -513,7 +519,7 @@ void QDockWindow::setParent(QMainWindow *parent)
     Returns the main window for this dock window.
 
     \sa setParent()
- */
+*/
 QMainWindow *QDockWindow::mainWindow() const
 { return d->mainWindow; }
 
@@ -555,7 +561,7 @@ bool QDockWindow::isMovable() const
     \brief whether the user can float the dock window.
 
     This property is true by default.
- */
+*/
 
 void QDockWindow::setFloatable(bool floatable)
 {
@@ -566,9 +572,10 @@ void QDockWindow::setFloatable(bool floatable)
 bool QDockWindow::isFloatable() const
 { return d->movable && d->floatable; }
 
-/*! Sets whether the dock window is floating.
+/*! \property QDockWindow::floated
+    \brief whether the dock window is floated
 
-    By default, dock windows are not floating.
+    This property is false by default.
 */
 
 void QDockWindow::setFloated(bool floated, const QPoint &pos)
@@ -588,10 +595,6 @@ void QDockWindow::setFloated(bool floated, const QPoint &pos)
         show();
 }
 
-/*
-    Returns true if the dock window is floating; otherwise
-    returns false.
-*/
 bool QDockWindow::isFloated() const
 { return isTopLevel(); }
 
@@ -609,13 +612,19 @@ void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 Qt::DockWindowAreas QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
+/*! \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
+
+    Returns true if this dock window can be placed in area \a area;
+    otherwise it returns false.
+*/
+
 /*! \property QDockWindow::area
     \brief area where the dock window is current placed.
 
     The default is \c Qt::DockWindowAreaLeft.
 
     \sa QDockWindow::allowedAreas
- */
+*/
 
 Qt::DockWindowArea QDockWindow::area() const
 { return d->area; }

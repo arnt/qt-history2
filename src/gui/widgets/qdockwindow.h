@@ -14,6 +14,7 @@ class Q_GUI_EXPORT QDockWindow : public QFrame
     Q_PROPERTY(bool closable READ isClosable WRITE setClosable)
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
     Q_PROPERTY(bool floatable READ isFloatable WRITE setFloatable)
+    Q_PROPERTY(bool floated READ isFloated WRITE setFloated)
     Q_PROPERTY(Qt::DockWindowAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
     Q_PROPERTY(Qt::DockWindowArea area READ area WRITE setArea)
 
