@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#65 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#64 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#65 $")
 
 
 /*----------------------------------------------------------------------------
@@ -226,8 +226,7 @@ void QPushButton::adjustSize()
 	QPixmap *pm = (QPixmap *)pixmap();
 	w = pm->width()	 + 6;
 	h = pm->height() + 6;
-    }
-    else {
+    } else {
 	QFontMetrics fm = fontMetrics();
 	QRect br = fm.boundingRect( text() );
 	w = br.width()	+ 6;
@@ -237,8 +236,6 @@ void QPushButton::adjustSize()
     }
     if ( w!=width() || h!=height() )
 	resize( w, h );
-    else
-	repaint(TRUE);
 }
 
 
