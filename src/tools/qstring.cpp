@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#166 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#167 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -518,6 +518,8 @@ void QString::truncate( uint newLen )
     //### Is there any point in extending the array if newlen > d->len ?
     // (Qt 1.x did, but there, one could access the data directly...)
 }
+
+#warning "Warwick, or whoever put in that \obsolete: consider whether it should be there"
 
 /*!
   \obsolete ?
@@ -1886,6 +1888,8 @@ float QString::toFloat( bool *ok ) const
 }
 
 
+#warning "Warwick, or whoever put in that \obsolete: consider whether it should be there"
+
 /*!
   \obsolete ?
   Makes a deep copy of \e str, interpreted as a classic C string.
@@ -2014,10 +2018,12 @@ QString &QString::setNum( double n, char f, int prec )
 
 
 /*!
-  \obsolete because at() now auto-expands anyway.
+  \obsolete
 
   Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
+
+  This is never necessary.
 */
 void QString::setExpand( uint index, QChar c )
 {
