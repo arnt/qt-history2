@@ -21,23 +21,18 @@
 /*                                                                       */
 /*************************************************************************/
 
-#ifdef _STANDALONE_
-#define QT_DIRECT_RENDER_SUPPORT
-
 /* #define Q_RASTER_DEBUG */
 
-typedef signed long FT_F26Dot6;
+#include <qglobal.h>
+
+typedef long FT_F26Dot6;
 typedef int FT_Error;
 typedef int FT_Int;
 typedef unsigned int FT_UInt;
 typedef long FT_Long;
 typedef unsigned long FT_ULong;
-#if defined(__GNUC__) || defined(__SUNPRO_C)
-typedef long long FT_Int64;
-#else
-typedef __int64 FT_Int64;
-#endif
-typedef unsigned char FT_Byte;
+#define FT_Int64  qint64
+#define FT_Byte uchar
 
 #define FT_TRACE1 if (0) printf
 #define FT_TRACE6 if (0) printf
@@ -72,11 +67,6 @@ static FT_Long FT_MulDiv(FT_Long  a, FT_Long  b, FT_Long  c)
 #define FT_MEM_ZERO(x, len) memset(x, 0, len);
 #include <stdio.h>
 
-#else
-#include "ftraster.h"
-#include <ft2build.h>
-#include FT_INTERNAL_CALC_H   /* for FT_MulDiv only */
-#endif
 
 #define MAX(x, y) (x > y ? x : y)
 #define MIN(x, y) (x < y ? x : y)
@@ -2370,9 +2360,6 @@ FT_LOCAL_DEF( FT_Error )
 /****                         a static object.                  *****/
 
 
-#ifdef _STANDALONE_
-
-
 /* #### a static instance might be a bad idea... */
 static int
 ft_black_new( void*      memory,
@@ -2393,8 +2380,6 @@ ft_black_done( FT_Raster  raster )
     /* nothing */
 //     raster->init = 0;
 }
-
-#endif /* _STANDALONE_ */
 
 
 static void

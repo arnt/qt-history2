@@ -97,8 +97,6 @@
 #define ErrRaster_MemoryOverflow   -4
 
 
-#ifdef _STANDALONE_
-
 #include <string.h>             /* for ft_memcpy() */
 #include <setjmp.h>
 #include <limits.h>
@@ -135,24 +133,6 @@
 #ifndef FT_TRACE
 #define FT_TRACE( x )  do ; while ( 0 )     /* nothing */
 #endif
-
-
-#else /* _STANDALONE_ */
-
-
-#include <ft2build.h>
-#include "ftgrays.h"
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_OUTLINE_H
-
-#include "ftsmerrs.h"
-
-#define ErrRaster_Invalid_Mode     Smooth_Err_Cannot_Render_Glyph
-#define ErrRaster_Invalid_Outline  Smooth_Err_Invalid_Outline
-
-
-#endif /* _STANDALONE_ */
 
 
 #ifndef FT_MEM_SET
@@ -1539,8 +1519,6 @@
   }
 
 
-#ifdef _STANDALONE_
-
   /*************************************************************************/
   /*                                                                       */
   /*  The following function should only compile in stand_alone mode,      */
@@ -1779,8 +1757,6 @@
   Invalid_Outline:
     return ErrRaster_Invalid_Outline;
   }
-
-#endif /* _STANDALONE_ */
 
 
   typedef struct  TBand_
@@ -2060,8 +2036,6 @@
 
 #endif /* GRAYS_USE_GAMMA */
 
-#ifdef _STANDALONE_
-
   static int
   gray_raster_new( void*       memory,
                    FT_Raster*  araster )
@@ -2088,43 +2062,6 @@
     /* nothing */
     FT_UNUSED( raster );
   }
-
-#else /* _STANDALONE_ */
-
-  static int
-  gray_raster_new( FT_Memory   memory,
-                   FT_Raster*  araster )
-  {
-    FT_Error  error;
-    PRaster   raster;
-
-
-    *araster = 0;
-    if ( !FT_ALLOC( raster, sizeof ( TRaster ) ) )
-    {
-      raster->memory = memory;
-      *araster = (FT_Raster)raster;
-
-#ifdef GRAYS_USE_GAMMA
-      grays_init_gamma( raster );
-#endif
-    }
-
-    return error;
-  }
-
-
-  static void
-  gray_raster_done( FT_Raster  raster )
-  {
-    FT_Memory  memory = (FT_Memory)((PRaster)raster)->memory;
-
-
-    FT_FREE( raster );
-  }
-
-#endif /* _STANDALONE_ */
-
 
   static void
   gray_raster_reset( FT_Raster    raster,

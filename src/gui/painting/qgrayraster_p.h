@@ -24,13 +24,7 @@
 #endif
 
 
-#ifdef _STANDALONE_
 #include <private/qrasterdefs_p.h>
-#else
-#include <ft2build.h>
-#include FT_IMAGE_H
-#endif
-
 
   /*************************************************************************/
   /*                                                                       */

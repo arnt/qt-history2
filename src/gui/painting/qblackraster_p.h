@@ -23,13 +23,7 @@
     extern "C" {
 #endif
 
-#ifdef _STANDALONE_
 #include <private/qrasterdefs_p.h>
-#else
-#include <ft2build.h>
-#include FT_CONFIG_CONFIG_H
-#include FT_IMAGE_H
-#endif
 
 FT_BEGIN_HEADER
 
