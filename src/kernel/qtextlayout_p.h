@@ -75,6 +75,56 @@ private:
     QTextEngine *eng;
 };
 
+#if 0
+class QTextLine
+{
+public:
+    QTextLine( int line, QTextEngine *e ) : i( line ), eng( e ) {}
+    inline QTextLine() : i(0), eng(0) {}
+    inline bool isValid() const { return (bool)eng; }
+
+    QRect rect() const;
+    int x1() const;
+    int x2() const;
+    int y() const;
+    int ascent() const;
+    int descent() const;
+    int height() const;
+
+#if 0
+    enum Edge {
+	Leading,
+	Trailing
+    };
+    enum CursorPosition {
+	BetweenCharacters,
+	OnCharacters
+    };
+
+    /* cPos gets set to the valid position */
+    int cursorToX( int *cPos, Edge edge = Leading ) const;
+    inline int cursorToX( int cPos, Edge edge = Leading ) const { return cursorToX( &cPos, edge ); }
+    int xToCursor( int x, CursorPosition = BetweenCharacters ) const;
+#endif
+
+    void adjust(int y, int x1, int x2);
+
+    void setWidth( int w );
+    void setAscent( int a );
+    void setDescent( int d );
+
+    int from() const;
+    int length() const;
+
+    QTextEngine *engine() const { return eng; }
+    int line() const { return i; }
+
+private:
+    friend class QTextLayout;
+    int i;
+    QTextEngine *eng;
+};
+#endif
 
 class QPainter;
 
@@ -114,6 +164,9 @@ public:
 	SingleLine,
 	MultiLine
     };
+#if 0
+    QTextLine createLine(int from, int y, int x1, int x2);
+#else
     void beginLayout( LayoutMode m = MultiLine );
     void beginLine( int width );
 
@@ -140,6 +193,7 @@ public:
     Result endLine( int x = 0, int y = 0, int alignment = Qt::AlignLeft,
 		    int *ascent = 0, int *descent = 0, int *left = 0, int *right = 0 );
     void endLayout();
+#endif
 
     enum CursorMode {
 	SkipCharacters,
