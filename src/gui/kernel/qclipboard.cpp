@@ -381,8 +381,8 @@ QMimeSource *QClipboard::data(Mode mode) const
 {
     Q_D(const QClipboard);
 
-    if (!supportsSelection())
-        mode = Clipboard;
+    if (mode != Clipboard && !supportsSelection())
+        return 0;
 
     if (d->compat_data[mode])
         return d->compat_data[mode];
@@ -395,8 +395,8 @@ void QClipboard::setData(QMimeSource *source, Mode mode)
 {
     Q_D(QClipboard);
 
-    if (!supportsSelection())
-        mode = Clipboard;
+    if (mode != Clipboard && !supportsSelection())
+        return;
 
     d->compat_data[mode] = source;
     setMimeData(new QMimeSourceWrapper(d, mode));

@@ -421,7 +421,7 @@ QByteArray qt_olednd_obtain_data(const QString &format)
     return result;
 }
 
-QByteArray QDropData::data(const QString &format) const
+QVariant QDropData::retrieveData(const QString &format, QVariant::Type) const
 {
     return qt_olednd_obtain_data(format);
 }
