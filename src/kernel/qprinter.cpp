@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#30 $
 **
 ** Implementation of QPrinter class
 **
@@ -11,7 +11,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#30 $");
 
 
 /*!
@@ -262,7 +262,7 @@ void QPrinter::setCreator( const char *creator )
   Sets the print orientation.
 
   The orientation can be either \c QPrinter::Portrait or
-  \c QPainter::Landscape.
+  \c QPrinter::Landscape.
 
   The printer driver reads this setting and prints using the specified
   orientation.
