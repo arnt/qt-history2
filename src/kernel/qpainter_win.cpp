@@ -1436,12 +1436,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 }
 
 
-void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor & )
-{
-    drawWinFocusRect( x, y, w, h );
-}
-
-void QPainter::drawWinFocusRect( int x, int y, int w, int h )
+void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgCol )
 {
     if ( !isActive() || txop == TxRotShear )
 	return;
@@ -1467,7 +1462,22 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
     r.right  = x + w;
     r.top    = y;
     r.bottom = y + h;
-    DrawFocusRect( hdc, &r );
+
+    if( qGray( bgCol.rgb() ) < 100 ) { // Use white pen, dark colors
+	int col = GetBkColor( hdc );
+	SetBkColor( hdc, col^0x00ffffff );
+	DrawFocusRect( hdc, &r );
+	SetBkColor( hdc, col );
+    } else {
+	DrawFocusRect( hdc, &r );
+    }
+}
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h )
+{
+
+    drawWinFocusRect( x, y, w, h, bg_col );
+    return;
 }
 
 
