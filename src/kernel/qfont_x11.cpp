@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#178 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -541,7 +541,7 @@ void QFont::setRawName( const QString &name )
     bool validXLFD = fillFontDef( name.latin1(), &d->req, 0 );
     d->req.dirty = TRUE;
     if ( !validXLFD ) {
-	qWarning("QFront: invalid X font description '%s'", name.latin1() );
+	qDebug("QFont: not an XLFD: \"%s\", using raw mode", name.latin1() );
 	setFamily( name );
 	setRawMode( TRUE );
     }
