@@ -676,7 +676,7 @@ void MainWindow::updateProfileSettings()
     ui.helpMenu->addSeparator();
     ui.helpMenu->addAction(ui.actionHelpWhatsThis);
 
-    ui.actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
+    ui.actionAboutApplication->setText(config->aboutApplicationMenuText());
 
     if(!config->title().isNull())
         setWindowTitle(config->title());
