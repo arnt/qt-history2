@@ -216,6 +216,10 @@ QSound:
   QSound could support QUrlOperator, so that you can fetch the sound file from
   a HTTP server, e.g.
 
+QPrinter:
+  On Windows set a method that the user can change the paper bin it wants to print from.  
+  (support/arc-09/19577)
+
 
 New functionality
 -----------------
