@@ -3,7 +3,7 @@
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -530,7 +530,7 @@ by Oslo City Court.
 /*! \page gpl.html
 \title GNU General Public License
 
- The Qt GUI Toolkit is Copyright (C) 1994-2001 Trolltech AS.
+ The Qt GUI Toolkit is Copyright (C) 1994-2002 Trolltech AS.
 
  The Qt Free Edition and the Qt/Embedded Free Edition are available
  under the GPL. The Qt Free Edition (for Unix/X11) is also available
@@ -1107,8 +1107,6 @@ Macintosh, Windows and Motif style guides, notes about common
 problems, comparison with other widgets that can serve some of the
 same roles as this one, etc.
 
-There is an \link http://fast-consulting.com/chkbox.htm example
-chapter\endlink on the author's web site.
 \link http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t 
 (Read more or buy it.)\endlink
 
