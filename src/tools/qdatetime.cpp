@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#14 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#14 $";
 #endif
 
 
@@ -679,8 +679,8 @@ Returns the datetime plus \e nsecs seconds.
 
 QDateTime QDateTime::addSecs( long nsecs ) const // add seconds
 {
-    long dd = (t.ds + secs*1000)/MSECS_PER_DAY;
-    return QDateTime( d.addDays(dd), t.addSecs(secs) );
+    long dd = (t.ds + nsecs*1000)/MSECS_PER_DAY;
+    return QDateTime( d.addDays(dd), t.addSecs(nsecs) );
 }
 
 /*!
