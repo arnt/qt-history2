@@ -507,7 +507,6 @@ inline bool QVariant::isDetached() const
 class QVariantComparisonHelper
 {
 public:
-public:
     inline QVariantComparisonHelper(const QVariant &var)
         : v(&var) {}
 private:
