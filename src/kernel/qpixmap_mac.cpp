@@ -85,8 +85,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
         *this = pm;
     }
 
-    if(handle()) {
-	SetPort((WindowPtr)handle());
+    if(hd) {
+	SetGWorld((GWorldPtr)hd,0);
     }
 
     // Slow and icky, but the proper way crashed
@@ -151,10 +151,13 @@ QImage QPixmap::convertToImage() const
         ncols = 0;
     }
 
-    QImage image( w, h, d, ncols, QImage::BigEndian );
+    QImage * image=new QImage( w, h, d, ncols, QImage::BigEndian );
 
-    if(handle()) {
-	SetPort((WindowPtr)handle());
+    if(hd) {
+	SetGWorld((GWorldPtr)hd,0);
+    } else {
+	QImage nullImage;
+	return nullImage;
     }
 
     // Slow and icky, but the proper way crashed
@@ -166,9 +169,9 @@ QImage QPixmap::convertToImage() const
 	    GetCPixel(loopc,loopc2,&r);
 	    q=qRgb(r.red/256,r.green/256,r.blue/256);
 	    if(ncols) {
-		image.setPixel(loopc,loopc2,get_index(&image,q));
+		image->setPixel(loopc,loopc2,get_index(&image,q));
 	    } else {
-		image.setPixel(loopc,loopc2,q);
+		image->setPixel(loopc,loopc2,q);
 	    }
 	}
     }
@@ -269,18 +272,27 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     // Hmm.
+    hd=0;
     if(w>1024 || h > 1024) {
+	hd=0;
 	return;
     }
-    if(w<0 || h<0) {
+    if(w<1 || h<1) {
+	hd=0;
 	return;
     }
 
+    static int serial = 0;
+    
     data = new QPixmapData;
+    data->count=1;
     data->uninit=TRUE;
     data->bitmap=FALSE;
+    data->ser_no=++serial;
+    data->optim=optim;
     data->selfmask=FALSE;
     data->mask=0;
+    
     if(d<1) {
 	d=defaultDepth();
     }
@@ -289,8 +301,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->d=0;
 	return;
     }
-    data->w=w;
-    data->h=h;
+    data->w=0;
+    data->h=0;
     QDErr e;
     GWorldFlags someflags;
     Rect rect;
@@ -302,6 +314,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     if((e & gwFlagErr)!=0) {
 	// Something went wrong
 	hd=0;
+    } else {
+	data->w=w;
+	data->h=h;
     }
 }
 
