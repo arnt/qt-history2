@@ -12,6 +12,12 @@ unset MFLAGS
 
 set -e
 
+if [ "$1" = "-b" ]; then
+    BETA=''
+else
+    BETA='make -s showbeta'
+fi
+
 [ -d tools -a -d kernel -a -d widgets -a -d dialogs -a -d moc ] || exit 1;
 
 # okay, a little setup
@@ -43,7 +49,7 @@ cp ${BASE}/util/scripts/propagate arch/template/propagate
 # fill them
 for a in tools kernel widgets dialogs ; do
     cd ${BASE}/src/${a}
-    beta=`make -s showbeta`
+    beta=`${BETA}`
     if [ "$beta" = "" ]; then
 	beta="s/XYZ/XYZ/g";
     else
