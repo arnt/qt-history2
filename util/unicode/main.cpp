@@ -559,6 +559,75 @@ static void readCompositionExclusion()
     }
 }
 
+struct NormalizationCorrection {
+    uint codepoint;
+    uint mapped;
+    uint version;
+};
+
+static QByteArray createNormalizationCorrections()
+{
+    QFile f("data/NormalizationCorrections.txt");
+    if (!f.exists())
+        qFatal("Couldn't find NormalizationCorrections.txt");
+
+    f.open(QFile::IO_ReadOnly);
+
+    QByteArray out;
+
+    out += "struct NormalizationCorrection {\n"
+           "    uint ucs4;\n"
+           "    uint old_mapping;\n"
+           "    int version;\n"
+           "};\n\n"
+
+           "static const NormalizationCorrection uc_normalization_corrections[] = {\n";
+
+    int numCorrections = 0;
+    while (!f.atEnd()) {
+        QByteArray line;
+        line.resize(1024);
+        int len = f.readLine(line.data(), 1024);
+        line.resize(len-1);
+
+        int comment = line.indexOf('#');
+        if (comment >= 0)
+            line = line.left(comment);
+        line.replace(" ", "");
+
+        if (line.isEmpty())
+            continue;
+
+        Q_ASSERT(!line.contains(".."));
+
+        QList<QByteArray> fields = line.split(';');
+        Q_ASSERT(fields.size() == 4);
+
+        NormalizationCorrection c;
+        bool ok;
+        c.codepoint = fields.at(0).toInt(&ok, 16);
+        c.mapped = fields.at(1).toInt(&ok, 16);
+        if (fields.at(3) == "3.2.0")
+            c.version = QChar::Unicode_3_2;
+        else if (fields.at(3) == "4.0.0")
+            c.version = QChar::Unicode_4_0;
+        else
+            qFatal("unknown unicode version in NormalizationCorrection.txt");
+
+        out += "    { 0x" + QByteArray::number(c.codepoint, 16) + ", 0x" + QByteArray::number(c.mapped, 16)
+             + ", " + QString::number(c.version) + " },\n";
+        ++numCorrections;
+    }
+
+    out += "};\n\n"
+
+           "enum { NumNormalizationCorrections = " + QByteArray::number(numCorrections) + " };\n\n";
+
+
+    return out;
+}
+
+
 static void computeUniqueProperties()
 {
     qDebug("computeUniqueProperties:");
@@ -1163,6 +1232,7 @@ int main(int, char **)
     QByteArray properties = createPropertyInfo();
     QByteArray compositions = createCompositionInfo();
     QByteArray ligatures = createLigatureInfo();
+    QByteArray normalizationCorrections = createNormalizationCorrections();
 
     QFile f("../../src/core/tools/qunicodedata.cpp");
     f.open(IO_WriteOnly|IO_Truncate);
@@ -1186,6 +1256,7 @@ int main(int, char **)
     f.writeBlock(properties.data(), properties.length());
     f.writeBlock(compositions.data(), compositions.length());
     f.writeBlock(ligatures.data(), ligatures.size());
+    f.writeBlock(normalizationCorrections.data(), normalizationCorrections.size());
 
     qDebug("maxMirroredDiff = %x, maxCaseDiff = %x", maxMirroredDiff, maxCaseDiff);
 #if 0
