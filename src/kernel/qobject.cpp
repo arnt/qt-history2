@@ -707,6 +707,16 @@ void QObject::timerEvent( QTimerEvent * )
 
   Child events are sent to objects when children are inserted or removed.
 
+  Note that events with QEvent::type() \c QEvent::ChildInserted are
+  \e posted (with QApplication::postEvent()), to make sure that the
+  child's construction is completed before this function is called.
+  
+  If you change state based on \c ChildInserted events, call
+  QWidget::polish(), or do 
+  <code>QApplication::sendPostedEvents( this, QEvent::ChildInserted );</code>
+  in functions that depend on the state. One notable example is
+  QWidget::sizeHint().
+  
   \sa event(), QChildEvent
 */
 

@@ -3473,10 +3473,6 @@ void QWidget::adjustSize()
 
 QSize QWidget::sizeHint() const
 {
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-    }
     if ( layout() )
 	return layout()->totalSizeHint();
     return QSize( -1, -1 );

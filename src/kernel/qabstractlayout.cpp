@@ -1006,6 +1006,10 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 int QLayout::totalHeightForWidth( int w ) const
 {
+    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
+	mainWidget()->polish();
+    }
+
     int b = topLevel ? 2*outsideBorder : 0;
     int h = heightForWidth( w - b ) + b;
     if ( menubar )
@@ -1020,6 +1024,9 @@ int QLayout::totalHeightForWidth( int w ) const
 
 QSize QLayout::totalMinimumSize() const
 {
+    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
+	mainWidget()->polish();
+    }
     int b = topLevel ? 2*outsideBorder : 0;
 
     QSize s = minimumSize();
@@ -1038,6 +1045,9 @@ QSize QLayout::totalMinimumSize() const
 
 QSize QLayout::totalSizeHint() const
 {
+    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
+	mainWidget()->polish();
+    }
     int b = topLevel ? 2*outsideBorder : 0;
 
     QSize s = sizeHint();
@@ -1055,6 +1065,9 @@ QSize QLayout::totalSizeHint() const
 
 QSize QLayout::totalMaximumSize() const
 {
+    if ( topLevel && !mainWidget()->testWState(WState_Polished) ) {
+	mainWidget()->polish();
+    }
     int b = topLevel ? 2*outsideBorder : 0;
 
     QSize s = maximumSize();
