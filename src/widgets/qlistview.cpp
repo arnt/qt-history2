@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#331 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#332 $
 **
 ** Implementation of QListView widget class
 **
@@ -3383,13 +3383,13 @@ bool QListView::isMultiSelection() const
     return d->selectionMode != QListView::Single;
 }
 
-/*
+/*!
   Sets the list view's selection mode.
 
   Possible choices are \c SingleSelection, \c MultiSelection and \c
   StrictMultiSelection
-
  */
+
 void QListView::setSelectionMode( SelectionMode mode )
 {
     setMultiSelection( isMultiSelection() );
@@ -3420,7 +3420,7 @@ QListView::SelectionMode QListView::selectionMode() const
 
 void QListView::setSelected( QListViewItem * item, bool selected )
 {
-    if ( !item || item->isSelected() == selected || 
+    if ( !item || item->isSelected() == selected ||
 	 !item->isSelectable() || selectionMode() == NoSelection )
 	return;
 
