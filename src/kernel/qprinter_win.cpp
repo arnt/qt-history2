@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#21 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_win.cpp#21 $");
 
 
 // QPrinter states
@@ -104,7 +104,46 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
+static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
+					 bool bottomUp=FALSE )
+{
+    int	w = pixmap.width();
+    int	h = pixmap.height();
+    int	d = pixmap.depth();
+    int	ncols = 2;
+
+    if ( w == 0 )				// null pixmap
+	return 0;
+
+    if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
+	d = 8;					//   2..7 ==> 8
+	ncols = 256;
+    } else if ( d > 8 ) {
+	d = 32;					//   > 8  ==> 32
+	ncols = 0;
+    }
+
+    int   bpl = ((w*d+31)/32)*4;    		// bytes per line
+    int	  bmi_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
+    char *bmi_data = (char *)malloc( bmi_len );
+    memset( bmi_data, 0, bmi_len );
+    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
+    bmh->biWidth	  = w;
+    bmh->biHeight	  = bottomUp ? -h : h;
+    bmh->biPlanes	  = 1;
+    bmh->biBitCount	  = d;
+    bmh->biCompression	  = BI_RGB;
+    bmh->biSizeImage	  = bpl*h;
+    bmh->biClrUsed	  = ncols;
+    bmh->biClrImportant	  = 0;
+
+    return bmi;
+}
+
+
+bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	bool ok = state == PST_IDLE;
@@ -143,25 +182,27 @@ bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam *p )
 	    return FALSE;
 	ASSERT( hdc != 0 );
 	if ( c == PDC_DRAWPIXMAP ) {		// can't bitblt pixmaps
-	    QPoint pos = *p[0].point;
-#if 0
-	    const QPixmap *pm = p[1].pixmap;
-	    HANDLE hdcMem = CreateCompatibleDC( hdc );
-	    HANDLE hbmOld = SelectObject( hdcMem, pm->hbm() );
+	    QPoint  pos	   = *p[0].point;
+	    QPixmap pixmap = *p[1].pixmap;
+	    int w = pixmap.width();
+	    int h = pixmap.height();
+	    int dw = w;
+	    int dh = h;
 	    if ( paint && paint->hasWorldXForm() ) {
-		int w = pm->width();
-		int h = pm->height();
 		QWMatrix m = paint->worldMatrix();
-		StretchBlt( hdc, pos.x(), pos.y(),
-			    QROUND(w*m.m11()), QROUND(h*m.m22()),
-			    hdcMem, 0, 0, w, h, SRCCOPY );
-	    } else {
-		BitBlt( hdc, pos.x(), pos.y(), pm->width(), pm->height(),
-			hdcMem, 0, 0, SRCCOPY );
+		dw = qRound(dw*m.m11());
+		dh = qRound(dh*m.m22());
 	    }
-	    SelectObject( hdcMem, hbmOld );
-	    DeleteObject( hdcMem );
-#endif
+	    BITMAPINFO *bmi = getWindowsBITMAPINFO(pixmap,TRUE);
+	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+	    uchar *bits = new uchar[bmh->biSizeImage];
+	    GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
+		       bits, bmi, DIB_RGB_COLORS );
+	    StretchDIBits( hdc, pos.x(), pos.y(),
+			   dw, dh, 0, 0, w, h,
+			   bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+	    delete [] bits;
+	    free( bmi );
 	    return FALSE;			// don't bitblt
 	}
     }
