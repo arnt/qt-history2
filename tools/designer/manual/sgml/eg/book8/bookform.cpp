@@ -21,9 +21,9 @@ AuthorCursor::AuthorCursor() :
 QSqlRecord *AuthorCursor::primeInsert()
 {
     QSqlRecord *record = editBuffer();
-    QSqlQuery q( "SELECT nextval( 'author_seq' );" );
-    if ( q.next() ) {
-	record->setValue( "id", q.value( 0 ) );
+    QSqlQuery query( "SELECT nextval( 'author_seq' );" );
+    if ( query.next() ) {
+	record->setValue( "id", query.value( 0 ) );
     }
 
     return record;

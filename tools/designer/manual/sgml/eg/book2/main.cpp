@@ -13,13 +13,13 @@
 #include "book.h"
 #include "bookform.h"
 
-bool create_connections();
+bool createConnections();
 
 int main( int argc, char *argv[] ) 
 {
     QApplication app( argc, argv );
 
-    if ( ! create_connections() ) 
+    if ( ! createConnections() ) 
 	return 1;
 
     BookForm bookForm;
@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
 }
 
 
-bool create_connections()
+bool createConnections()
 {
     // create the default database connection
     QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QODBC" );
