@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#1 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#2 $
 #
 # this is a massive hack, written very quickly
 #
@@ -231,7 +231,7 @@ sub getfile {
     open(F, "< $filename") || die "can't open $filename for reading";
     $ifdef = 0;
     while(<F>) {
-	$dates{$1} = $2 if (/\$Id: //depot/qt/main/util/qdoc/qdoc#1 $/);
+	$dates{$1} = $2 if (/\$Id\$/);
 	$ifdef++ if (/^\#if/ && ($ifdef || !/_H$/)); # medium awful
 	if ($ifdef) {
 	    print $filename, ":", $., ": ignoring ", $_ if ($debug);
