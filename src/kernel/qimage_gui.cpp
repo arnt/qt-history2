@@ -8,13 +8,15 @@
 #include <X11/Xos.h>
 #endif
 
-/*! Convenience function. Gets the data associated with the absolute
-  name \a abs_name from the default mime source factory and decodes it
-  to an image.
-
-  \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
-*/
 #ifndef QT_NO_MIME
+/*! \fn QImage QImage::fromMimeSource( const QString &abs_name )
+
+    Convenience function. Gets the data associated with the absolute
+    name \a abs_name from the default mime source factory and decodes
+    it to an image.
+
+    \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
+*/
 QImage qFromMimeSource_helper( const QString &abs_name )
 {
     const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
@@ -38,10 +40,15 @@ QImage qFromMimeSource_helper( const QString &abs_name )
     Makes a call to QPixmap::convertToImage().
 */
 
-/*!
+/*! \fn QImage::Endian QImage::systemBitOrder()
+
     Determines the bit order of the display hardware. Returns
     QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
 
     \sa systemByteOrder()
 */
 
+#if defined(Q_WS_X11)
+QImage::Endian qX11BitmapBitOrder()
+{ return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian; }
+#endif

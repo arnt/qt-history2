@@ -418,7 +418,8 @@ inline QImage QImage::fromMimeSource( const QString &abs_name )
 inline QImage::Endian QImage::systemBitOrder()
 {
 #if defined(Q_WS_X11)
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? BigEndian :LittleEndian;
+    extern QImage::Endian qX11BitmapBitOrder();
+    return qX11BitmapBitOrder();
 #else
     return BigEndian;
 #endif
