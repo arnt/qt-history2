@@ -2043,13 +2043,13 @@ QPopupMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
     QPopupMenu *popup = new QPopupMenu( 0, "qt_edit_menu" );
-    d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
-    d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
+    d->id[ IdUndo ] = popup->insertItem( tr( "&Undo" ) );
+    d->id[ IdRedo ] = popup->insertItem( tr( "&Redo" ) );
     popup->insertSeparator();
 #ifndef QT_NO_CLIPBOARD
-    d->id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
-    d->id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
-    d->id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+    d->id[ IdCut ] = popup->insertItem( tr( "Cu&t" ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "&Copy" ) );
+    d->id[ IdPaste ] = popup->insertItem( tr( "&Paste" ) );
 #endif
     d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
     popup->insertSeparator();
