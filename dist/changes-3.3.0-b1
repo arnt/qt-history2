@@ -64,7 +64,8 @@ Qt/Embedded
 -----------
 
 Added support for SNAP graphics drivers from SciTech Software. This
-gives access to accelerated drivers for more than 150 graphics chipsets.
+gives access to accelerated drivers for more than 150 graphics
+chipsets.
 
 
 Qt/Mac
@@ -126,7 +127,7 @@ languages like C# are included. QStringList is supported as a type,
 and QRect, QSize and QPoint are now supported datatypes for control
 properties and as reference parameters. Saving the controls to a
 storage or stream now includes the version number of the QDataStream
-used for the serialization (note that this might break existing 
+used for the serialization (note that this might break existing
 storages).
 
 The QAxContainer library is now static even for shared configurations
@@ -210,14 +211,14 @@ IRIX MIPSpro o32 mode.
 - QHostAddress 
 	Added new constructor for IPv6 and new functions
 	isIPv6Address() and toIPv6Address(). Obsoleted the functions
-	isIp4Addr() and ip4Addr(), replacing them with isIPv4Address() and
-	toIPv4Address().
+	isIp4Addr() and ip4Addr(), replacing them with isIPv4Address()
+	and toIPv4Address().
 
 - QListView
 	Improved alignment for text in QListViewItems. Right aligned
 	text now has the ellipsis on the left.
-	Keyboard search now uses the sort column as the column to start
-	searching in.
+	Keyboard search now uses the sort column as the column to
+	start searching in.
 	Improved branch drawing.
 
 - QLocale [new]
