@@ -73,7 +73,7 @@ public:
 private:
     QRect* cluster;
     int count;
-    const int max;
+    const int maxcl;
 };
 
 static
@@ -100,7 +100,7 @@ by a merging heuristic.
 QCanvasClusterizer::QCanvasClusterizer(int maxclusters) :
     cluster(new QRect[maxclusters]),
     count(0),
-    max(maxclusters)
+    maxcl(maxclusters)
 { }
 
 QCanvasClusterizer::~QCanvasClusterizer()
@@ -167,7 +167,7 @@ void QCanvasClusterizer::add(const QRect& rect)
         return;
     }
 
-    if (count < max) {
+    if (count < maxcl) {
         cluster[count++]=rect;
         return;
     }
