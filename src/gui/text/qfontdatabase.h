@@ -67,14 +67,6 @@ public:
         Japanese,
         Korean,
         Vietnamese,
-        Yi,
-        Tagalog,
-        Hanunoo,
-        Buhid,
-        Tagbanwa,
-        Limbu,
-        TaiLe,
-        Braille,
 
         Other,
 

@@ -1757,30 +1757,6 @@ QString QFontDatabase::writingSystemName(WritingSystem writingSystem)
     case Vietnamese:
         name = "Vietnamese";
         break;
-    case Yi:
-        name = "Yi";
-        break;
-    case Tagalog:
-        name = "Tagalog";
-        break;
-    case Hanunoo:
-        name = "Hanunoo";
-        break;
-    case Buhid:
-        name = "Buhid";
-        break;
-    case Tagbanwa:
-        name = "Tagbanwa";
-        break;
-    case Limbu:
-        name = "Limbu";
-        break;
-    case TaiLe:
-        name = "Tai Le";
-        break;
-    case Braille:
-        name = "Braille";
-        break;
     case Other:
         name = "Other";
         break;
@@ -1970,26 +1946,6 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
         sample += QChar(0xac2f);
         break;
     case Vietnamese:
-        break;
-    case Yi:
-        sample += QChar(0xa1a8);
-        sample += QChar(0xa1a6);
-        sample += QChar(0xa200);
-        sample += QChar(0xa280);
-        break;
-    case Tagalog:
-        break;
-    case Hanunoo:
-        break;
-    case Buhid:
-        break;
-    case Tagbanwa:
-        break;
-    case Limbu:
-        break;
-    case TaiLe:
-        break;
-    case Braille:
         break;
     }
     return sample;

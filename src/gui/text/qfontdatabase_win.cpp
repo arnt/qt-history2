@@ -21,14 +21,22 @@ extern HDC   shared_dc;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
 
 // see the Unicode subset bitfields in the MSDN docs
-static int requiredUnicodeBits[QUnicodeTables::ScriptCount][2] = {
-    //Latin,
+static int requiredUnicodeBits[QFontDatabase::WritingSystemsCount][2] = {
+        // Any,
+    { 127, 127 },
+        // Latin,
     { 0, 127 },
-    //Hebrew,
+        // Greek,
+    { 7, 127 },
+        // Cyrillic,
+    { 9, 127 },
+        // Armenian,
+    { 10, 127 },
+        // Hebrew,
     { 11, 127 },
-    //Arabic,
+        // Arabic,
     { 13, 67 },
-    //Syriac,
+        // Syriac,
     { 71, 127 },
     //Thaana,
     { 72, 127 },
@@ -60,18 +68,28 @@ static int requiredUnicodeBits[QUnicodeTables::ScriptCount][2] = {
     { 70, 127 },
     //Myanmar,
     { 74, 127 },
-    //Hangul,
+        // Georgian,
+    { 26, 127 },
+        // Khmer,
+    { 80, 127 },
+        // SimplifiedChinese,
+    { 126, 127 },
+        // TraditionalChinese,
+    { 126, 127 },
+        // Japanese,
+    { 126, 127 },
+        // Korean,
     { 56, 127 },
-    //Khmer,
-    { 80, 127 }
+        // Vietnamese,
+    { 0, 127 }, // same as latin1
+        // Other,
+    { 126, 127 }
 };
 
-#if 0
 #define SimplifiedChineseCsbBit 18
 #define TraditionalChineseCsbBit 20
 #define JapaneseCsbBit 17
 #define KoreanCsbBit 21
-#endif
 
 static bool localizedName(const QString &name)
 {
@@ -338,7 +356,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 
         family->fixedPitch = fixed;
 
-        if (!family->scriptCheck && type & TRUETYPE_FONTTYPE) {
+        if (!family->writingSystemCheck && type & TRUETYPE_FONTTYPE) {
             bool hasScript = false;
             FONTSIGNATURE signature;
 #ifndef Q_OS_TEMP
@@ -369,7 +387,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 #endif
 
             int i;
-            for(i = 0; i < QUnicodeTables::ScriptCount; i++) {
+            for(i = 0; i < QFontDatabase::WritingSystemsCount; i++) {
                 int bit = requiredUnicodeBits[i][0];
                 int index = bit/32;
                 int flag =  1 << (bit&31);
@@ -379,55 +397,42 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 
                     flag =  1 << (bit&31);
                     if (bit == 127 || signature.fsUsb[index] & flag) {
-                        family->scripts[i] = true;
+                        family->writingSystems[i] = QtFontFamily::Supported;
                         hasScript = true;
                         // qDebug("font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i);
                     }
                 }
             }
-#if 0
-            // ### until we do language detection, it's going to be
-            // ### hard to figure out which Han_* variant to
-            // ### use... simply mark all Han_* variants as supporting
-            // ### Han (like X11)
             if(signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit)) {
-                family->scripts[QFont::Han_SimplifiedChinese] = true;
-                family->scripts[QFont::Han] = true;
+                family->writingSystems[QFontDatabase::SimplifiedChinese] = QtFontFamily::Supported;
                 hasScript = true;
                 //qDebug("font %s supports Simplified Chinese", familyName.latin1());
             }
             if(signature.fsCsb[0] & (1 << TraditionalChineseCsbBit)) {
-                family->scripts[QFont::Han_TraditionalChinese] = true;
-                family->scripts[QFont::Han] = true;
+                family->writingSystems[QFontDatabase::TraditionalChinese] = QtFontFamily::Supported;
                 hasScript = true;
                 //qDebug("font %s supports Traditional Chinese", familyName.latin1());
             }
             if(signature.fsCsb[0] & (1 << JapaneseCsbBit)) {
-                family->scripts[QFont::Han_Japanese] = true;
-                family->scripts[QFont::Hiragana] = true;
-                family->scripts[QFont::Katakana] = true;
-                family->scripts[QFont::Han] = true;
+                family->writingSystems[QFontDatabase::Japanese] = QtFontFamily::Supported;
                 hasScript = true;
                 //qDebug("font %s supports Japanese", familyName.latin1());
             }
             if(signature.fsCsb[0] & (1 << KoreanCsbBit)) {
-                family->scripts[QFont::Han_Korean] = true;
-                family->scripts[QFont::Hangul] = true;
-                family->scripts[QFont::Han] = true;
+                family->writingSystems[QFontDatabase::Korean] = QtFontFamily::Supported;
                 hasScript = true;
                 //qDebug("font %s supports Korean", familyName.latin1());
             }
-#endif
 #ifdef Q_OS_TEMP
             // ##### FIXME
-            family->scripts[QFont::Latin] = true;
+            family->writingSystems[QFontDatabase::Latin] = QtFontFamily::Supported;
 #endif
             if (!hasScript)
-                family->scripts[QUnicodeTables::Common] = true;
-            family->scriptCheck = true;
+                family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
+            family->writingSystemCheck = true;
             // qDebug("usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1());
-        } else if (!family->scriptCheck) {
-            family->scripts[QUnicodeTables::Common] = true;
+        } else if (!family->writingSystemCheck) {
+            family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
         }
     }
 
@@ -504,7 +509,7 @@ static void initializeDb()
 
         qDebug("        scripts supported:");
         for (int i = 0; i < QUnicodeTables::ScriptCount; i++)
-            if(family->scripts[i] & QtFontFamily::Supported)
+            if(family->writingSystems[i] & QtFontFamily::Supported)
                 qDebug("            %d", i);
         for (int fd = 0; fd < family->count; fd++) {
             QtFontFoundry *foundry = family->foundries[fd];
