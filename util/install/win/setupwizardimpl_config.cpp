@@ -714,14 +714,6 @@ void SetupWizardImpl::cleanDone()
 	args += "-no-vcproj";
     }
 
-    entry = settings.readEntry( "/Trolltech/Qt/zlib", "Direct", &settingsOK );
-    if ( entry == "Direct" )
-	args += "-qt-zlib";
-    else if ( entry == "System" )
-	args += "-system-zlib";
-    else if ( entry == "Off" )
-	args += "-no-zlib";
-
     if ( ( ( !globalInformation.reconfig() && !optionsPage->skipBuild->isChecked() )
 	    || ( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() ) )
 #  if defined(Q_OS_WIN32)
@@ -1196,19 +1188,6 @@ void SetupWizardImpl::showPageConfig()
     item->setOn( entry == "Release" );
 
     // Advanced options
-    folder = new CheckListItem( configPage->advancedList, "zlib" );
-    folder->setHelpText(tr("Qt supports the 3rd party zlib library either by compiling it into "
-			   "Qt, or by linking against the library supplied with the system."), 
-			   configPage->explainOption);
-    entry = settings.readEntry( "/Trolltech/Qt/zlib", "Direct", &settingsOK );
-    zlibOff = new CheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    zlibOff->setOn( entry == "Off" );
-    zlibSystem = new CheckListItem( folder, "System", QCheckListItem::RadioButton );
-    zlibSystem->setOn( entry == "System" );
-    zlibDirect = new CheckListItem( folder, "Direct", QCheckListItem::RadioButton );
-    zlibDirect->setOn( entry == "Direct" );
-    zlibSystem->addRequiredFiles("libz.lib");
-
     if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	entry = settings.readEntry( "/Trolltech/Qt/DSP Generation", "On", &settingsOK );
 	folder = new CheckListItem( configPage->advancedList, "DSP Generation" );
@@ -1277,7 +1256,7 @@ void SetupWizardImpl::showPageConfig()
 			   "<p>JPEG support can be compiled into Qt, provided by a plugin ",
 			   "or turned off completely."),
 			   configPage->explainOption);
-    entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Plugin", &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Direct", &settingsOK );
 #if 0
     // ### disable using system JPEG for now -- please someone take a closer look
     entryPresent = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG Present", "No", &settingsOK );
