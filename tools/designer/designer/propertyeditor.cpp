@@ -1510,21 +1510,33 @@ void PropertyDatabaseItem::initChildren()
     for ( int i = 0; i < childCount(); ++i ) {
 	item = PropertyItem::child( i );
 	if ( item->name() == tr( "Connection" ) ) {
-	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseConnectionList() );
+	    QStringList cl = listview->propertyEditor()->formWindow()->project()->databaseConnectionList();
+	    if ( !cl.isEmpty() )
+		item->setValue( cl );
+	    else if ( lst.count() > 0 )
+		item->setValue( QStringList( lst[ 0 ] ) );
 	    if ( lst.count() > 0 && !lst[ 0 ].isEmpty() )
 		item->setCurrentItem( lst[ 0 ] );
 	    else
 		item->setCurrentItem( 0 );
 	    conn = item->currentItem();
 	} else if ( item->name() == tr( "Table" ) ) {
-	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseTableList( conn ) );
+	    QStringList cl = listview->propertyEditor()->formWindow()->project()->databaseTableList( conn );
+	    if ( !cl.isEmpty() )
+		item->setValue( cl );
+	    else if ( lst.count() > 1 )
+		item->setValue( QStringList( lst[ 1 ] ) );
 	    if ( lst.count() > 1 && !lst[ 1 ].isEmpty() )
 		item->setCurrentItem( lst[ 1 ] );
 	    else
 		item->setCurrentItem( 0 );
 	    table = item->currentItem();
 	} else if ( item->name() == tr( "Field" ) ) {
-	    item->setValue( listview->propertyEditor()->formWindow()->project()->databaseFieldList( conn, table ) );
+	    QStringList cl = listview->propertyEditor()->formWindow()->project()->databaseFieldList( conn, table );
+	    if ( !cl.isEmpty() )
+		item->setValue( cl );
+	    else if ( lst.count() > 2 )
+		item->setValue( QStringList( lst[ 2 ] ) );
 	    if ( lst.count() > 2 && !lst[ 2 ].isEmpty() )
 		item->setCurrentItem( lst[ 2 ] );
 	    else
