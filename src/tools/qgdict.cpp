@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#35 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -55,27 +55,25 @@ int QGDict::hashKey( const char *key )
     if ( key == 0 )
 	warning( "QGDict::hash: Invalid null key" );
 #endif
+    uint h=0, g;
     if ( cases ) {				// case sensitive
-#if 1
-	uint h=0, g;				// ELF hash function
 	while ( *k ) {
 	    h = (h<<4) + *k++;
-	    if ( g = h & 0xf0000000 )
+	    if ( (g = h & 0xf0000000) )
 		h ^= g >> 24;
 	    h &= ~g;
 	}
-	index = h;
-#else
-	while ( *k )
-	    index = (index << 1) ^ *k++;
-#endif
-    }
-    else {					// case insensitive
+    } else {					// case insensitive
 	while ( *k ) {
-	    index = (index << 1) ^ tolower(*k);
+	    h = (h<<4) + tolower(*k);
+	    if ( (g = h & 0xf0000000) )
+		h ^= g >> 24;
+	    h &= ~g;
 	    k++;
 	}
+	index = h;
     }
+    index = h;
     if ( index < 0 )				// adjust index to table size
 	index = -index;
     return index;
