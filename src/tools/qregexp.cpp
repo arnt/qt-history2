@@ -728,7 +728,8 @@ static bool isWord( QChar ch )
 }
 
 /*
-  Merges two QMemArrays of ints and puts the result into the first one.
+  Merges two QMemArrays of ints and puts the result into the first
+  one.
 */
 static void mergeInto( QMemArray<int> *a, const QMemArray<int>& b )
 {
@@ -769,8 +770,8 @@ static void mergeInto( QMemArray<int> *a, const QMemArray<int>& b )
 }
 
 /*
-  Merges two disjoint QMaps of (int, int) pairs and puts the result into the
-  first one.
+  Merges two disjoint QMaps of (int, int) pairs and puts the result
+  into the first one.
 */
 static void mergeInto( QMap<int, int> *a, const QMap<int, int>& b )
 {
@@ -780,8 +781,8 @@ static void mergeInto( QMap<int, int> *a, const QMap<int, int>& b )
 }
 
 /*
-  Returns the value associated to key k in QMap m of (int, int) pairs, or 0 if
-  no such value is explicitly present.
+  Returns the value associated to key k in QMap m of (int, int)
+  pairs, or 0 if no such value is explicitly present.
 */
 static int at( const QMap<int, int>& m, int k )
 {
@@ -926,9 +927,9 @@ public:
     bool caseSensitive() const { return cs; }
     const QString& errorString() const { return yyError; }
     int numCaptures() const { return officialncap; }
-    QMemArray<int> match( const QString& str, int pos, bool minimal,
-			  bool oneTest, int caretIndex );
-    int matchedLength() const { return mmMatchedLen; }
+    void match( const QString& str, int pos, bool minimal, bool oneTest,
+		int caretIndex, QMemArray<int>& captured );
+    int partialMatchLength() const { return mmOneTestMatchedLen; }
 
     int createState( QChar ch );
     int createState( const CharClass& cc );
@@ -953,9 +954,6 @@ public:
     void addAnchors( int from, int to, int a );
 
 #ifndef QT_NO_REGEXP_OPTIM
-    void setupGoodStringHeuristic( int earlyStart, int lateStart,
-				   const QString& str );
-    void setupBadCharHeuristic( int minLen, const QMemArray<int>& firstOcc );
     void heuristicallyChooseHeuristic();
 #endif
 
@@ -994,8 +992,8 @@ private:
 
 #ifndef QT_NO_REGEXP_LOOKAHEAD
     /*
-      The struct Lookahead represents a lookahead a la Perl (e.g., (?=foo) and
-      (?!bar)).
+      The struct Lookahead represents a lookahead a la Perl (e.g.,
+      (?=foo) and (?!bar)).
     */
     struct Lookahead
     {
@@ -1093,6 +1091,7 @@ private:
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
     bool caretAnchored; // does the regexp start with ^?
+    bool trivial; // is the good-string all that needs to match?
 #endif
     bool valid; // is the regular expression valid?
     bool cs; // case sensitive?
@@ -1116,7 +1115,7 @@ private:
       fragment. It can also be seen as one node in the syntax tree of
       a regular expression with synthetized attributes.
 
-      It's interface is ugly for performance reasons.
+      Its interface is ugly for performance reasons.
     */
     class Box
     {
@@ -1222,8 +1221,6 @@ private:
     int mmCaretPos;
     int mmLen; // the length of the input string
     bool mmMinimal; // minimal matching?
-    QMemArray<int> mmCaptured; // an array of pairs (start, len)
-    QMemArray<int> mmCapturedNoMatch; // an array of pairs (-1, -1)
     QMemArray<int> mmBigArray; // big QMemArray<int> array
     int *mmInNextStack; // is state is mmNextStack?
     int *mmCurStack; // stack of current states
@@ -1242,7 +1239,7 @@ private:
     QIntDict<int> mmSleeping; // dictionary of back-reference sleepers
 #endif
     int mmMatchLen; // length of match
-    int mmMatchedLen; // length of partial match
+    int mmOneTestMatchedLen; // length of partial match
 };
 
 QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
@@ -1252,8 +1249,12 @@ QRegExpEngine::QRegExpEngine( const QString& rx, bool caseSensitive )
 {
     setup( caseSensitive );
     valid = ( parse(rx.unicode(), rx.length()) == (int) rx.length() );
-    if ( !valid )
+    if ( !valid ) {
+#ifndef QT_NO_REGEXP_OPTIM
+	trivial = FALSE;
+#endif
 	error( RXERR_LEFTDELIM );
+    }
 }
 
 #ifndef QT_NO_REGEXP_OPTIM
@@ -1266,53 +1267,66 @@ QRegExpEngine::~QRegExpEngine()
   Tries to match in str and returns an array of (begin, length) pairs
   for captured text. If there is no match, all pairs are (-1, -1).
 */
-QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
-				     bool oneTest, int caretIndex )
+void QRegExpEngine::match( const QString& str, int pos, bool minimal,
+			   bool oneTest, int caretIndex,
+			   QMemArray<int>& captured )
 {
-    mmStr = &str;
-    mmIn = str.unicode();
-    if ( mmIn == 0 )
-	mmIn = &QChar::null;
-    mmPos = pos;
-    mmCaretPos = caretIndex;
-    mmLen = str.length();
-    mmMinimal = minimal;
-    mmMatchLen = 0;
-    mmMatchedLen = 0;
-
     bool matched = FALSE;
-    if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
+
 #ifndef QT_NO_REGEXP_OPTIM
-	if ( oneTest ) {
-	    matched = matchHere();
-	} else {
-	    if ( mmPos <= mmLen - minl ) {
-		if ( caretAnchored ) {
-		    matched = matchHere();
-		} else if ( useGoodStringHeuristic ) {
-		    matched = goodStringMatch();
-		} else {
-		    matched = badCharMatch();
+    if ( trivial && !oneTest ) {
+	mmPos = str.find( goodStr, pos, cs );
+	mmMatchLen = goodStr.length();
+	matched = ( mmPos != -1 );
+    } else
+#endif
+    {
+	mmStr = &str;
+	mmIn = str.unicode();
+	if ( mmIn == 0 )
+	    mmIn = &QChar::null;
+	mmPos = pos;
+	mmCaretPos = caretIndex;
+	mmLen = str.length();
+	mmMinimal = minimal;
+	mmMatchLen = 0;
+	mmOneTestMatchedLen = 0;
+
+	if ( valid && mmPos >= 0 && mmPos <= mmLen ) {
+#ifndef QT_NO_REGEXP_OPTIM
+	    if ( oneTest ) {
+		matched = matchHere();
+	    } else {
+		if ( mmPos <= mmLen - minl ) {
+		    if ( caretAnchored ) {
+			matched = matchHere();
+		    } else if ( useGoodStringHeuristic ) {
+			matched = goodStringMatch();
+		    } else {
+			matched = badCharMatch();
+		    }
 		}
 	    }
-	}
 #else
-	matched = oneTest ? matchHere() : bruteMatch();
+	    matched = oneTest ? matchHere() : bruteMatch();
 #endif
+	}
     }
 
+    int capturedSize = 2 + 2 * officialncap;
+    captured.detach();
+    captured.resize( capturedSize );
     if ( matched ) {
-	mmCaptured.detach();
-	mmCaptured[0] = mmPos;
-	mmCaptured[1] = mmMatchLen;
+	captured[0] = mmPos;
+	captured[1] = mmMatchLen;
 	for ( int j = 0; j < officialncap; j++ ) {
 	    int len = mmCapEnd[j] - mmCapBegin[j];
-	    mmCaptured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
-	    mmCaptured[2 + 2 * j + 1] = len;
+	    captured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
+	    captured[2 + 2 * j + 1] = len;
 	}
-	return mmCaptured;
     } else {
-	return mmCapturedNoMatch;
+	// we rely on 2's complement here
+	memset( captured.data(), -1, capturedSize * sizeof(int) );
     }
 }
 
@@ -1444,72 +1458,48 @@ void QRegExpEngine::addAnchors( int from, int to, int a )
 
 #ifndef QT_NO_REGEXP_OPTIM
 /*
-  The two following functions provide the engine with the information
-  needed by its matching heuristics.
-*/
-
-void QRegExpEngine::setupGoodStringHeuristic( int earlyStart, int lateStart,
-					      const QString& str )
-{
-    goodEarlyStart = earlyStart;
-    goodLateStart = lateStart;
-    goodStr = cs ? str : str.lower();
-}
-
-void QRegExpEngine::setupBadCharHeuristic( int minLen,
-					   const QMemArray<int>& firstOcc )
-{
-    minl = minLen;
-    if ( cs ) {
-	occ1 = firstOcc;
-    } else {
-	occ1.fill( 0, NumBadChars );
-    }
-}
-
-/*
   This function chooses between the good-string and the bad-character
   heuristics. It computes two scores and chooses the heuristic with
   the highest score.
 
   Here are some common-sense constraints on the scores that should be
   respected if the formulas are ever modified: (1) If goodStr is
-  empty, the good-string heuristic scores 0. (2) If the search is
-  case insensitive, the good-string heuristic should be used, unless
-  it scores 0. (Case insensitivity turns all entries of occ1 to 0.)
-  (3) If (goodLateStart - goodEarlyStart) is big, the good-string
-  heuristic should score less.
+  empty, the good-string heuristic scores 0. (2) If the regular
+  expression is trivial, the good-string heuristic should be used.
+  (3) If the search is case insensitive, the good-string heuristic
+  should be used, unless it scores 0. (Case insensitivity turns all
+  entries of occ1 to 0.) (4) If (goodLateStart - goodEarlyStart) is
+  big, the good-string heuristic should score less.
 */
 void QRegExpEngine::heuristicallyChooseHeuristic()
 {
-    int i;
-
-    if ( minl == 0 )
-	return;
-
-    /*
-      Magic formula:  The good string has to constitute a good
-      proportion of the minimum-length string, and appear at a
-      more-or-less known index.
-    */
-    int goodStringScore = ( 64 * goodStr.length() / minl ) -
-			  ( goodLateStart - goodEarlyStart );
-
-    /*
-      Less magic formula:  We pick a couple of characters at random,
-      and check whether they are good or bad.
-    */
-    int badCharScore = 0;
-    int step = QMAX( 1, NumBadChars / 32 );
-    for ( i = 1; i < NumBadChars; i += step ) {
-	if ( occ1[i] == NoOccurrence )
-	    badCharScore += minl;
-	else
-	    badCharScore += occ1[i];
+    if ( minl == 0 ) {
+	useGoodStringHeuristic = FALSE;
+    } else if ( trivial ) {
+	useGoodStringHeuristic = TRUE;
+    } else {
+	/*
+	  Magic formula: The good string has to constitute a good
+	  proportion of the minimum-length string, and appear at a
+	  more-or-less known index.
+	*/
+	int goodStringScore = ( 64 * goodStr.length() / minl ) -
+			      ( goodLateStart - goodEarlyStart );
+	/*
+	  Less magic formula: We pick some characters at random, and
+	  check whether they are good or bad.
+	*/
+	int badCharScore = 0;
+	int step = QMAX( 1, NumBadChars / 32 );
+	for ( int i = 1; i < NumBadChars; i += step ) {
+	    if ( occ1[i] == NoOccurrence )
+		badCharScore += minl;
+	    else
+		badCharScore += occ1[i];
+	}
+	badCharScore /= minl;
+	useGoodStringHeuristic = ( goodStringScore > badCharScore );
     }
-    badCharScore /= minl;
-
-    useGoodStringHeuristic = ( goodStringScore > badCharScore );
 }
 #endif
 
@@ -1585,6 +1575,7 @@ void QRegExpEngine::setup( bool caseSensitive )
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
     caretAnchored = TRUE;
+    trivial = TRUE;
 #endif
     valid = FALSE;
     cs = caseSensitive;
@@ -1592,11 +1583,10 @@ void QRegExpEngine::setup( bool caseSensitive )
     nbrefs = 0;
 #endif
 #ifndef QT_NO_REGEXP_OPTIM
-    useGoodStringHeuristic = FALSE;
+    useGoodStringHeuristic = TRUE;
     minl = 0;
     occ1.fill( 0, NumBadChars );
 #endif
-    mmCapturedNoMatch.fill( -1, 2 );
 }
 
 int QRegExpEngine::setupState( int match )
@@ -1702,16 +1692,15 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
     }
 #endif
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    bool catchx = TRUE;
-
     if ( (a & Anchor_LookaheadMask) != 0 ) {
 	QConstString cstr = QConstString( (QChar *) mmIn + mmPos + i,
 					   mmLen - mmPos - i );
 	for ( j = 0; j < (int) ahead.size(); j++ ) {
 	    if ( (a & (Anchor_FirstLookahead << j)) != 0 ) {
-		catchx = ahead[j]->eng->match( cstr.string(), 0, TRUE, TRUE,
-					       mmCaretPos - mmPos - i )[0] == 0;
-		if ( catchx == ahead[j]->neg )
+		QMemArray<int> captured;
+		ahead[j]->eng->match( cstr.string(), 0, TRUE, TRUE,
+				      mmCaretPos - mmPos - i, captured );
+		if ( (captured[0] == 0) == ahead[j]->neg )
 		    return FALSE;
 	    }
 	}
@@ -1740,7 +1729,6 @@ bool QRegExpEngine::testAnchor( int i, int a, const int *capBegin )
 bool QRegExpEngine::goodStringMatch()
 {
     int k = mmPos + goodEarlyStart;
-
     while ( (k = mmStr->find(goodStr, k, cs)) != -1 ) {
 	int from = k - goodLateStart;
 	int to = k - goodEarlyStart;
@@ -1843,7 +1831,7 @@ bool QRegExpEngine::matchHere()
     bool stop = FALSE;
 
     mmMatchLen = -1;
-    mmMatchedLen = -1;
+    mmOneTestMatchedLen = -1;
     mmCurStack[0] = InitialState;
 
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -2166,7 +2154,7 @@ bool QRegExpEngine::matchHere()
 	for ( j = 0; j < nnext; j++ )
 	    mmInNextStack[mmNextStack[j]] = -1;
 
-	// avoid needless iteration that confuses mmMatchedLen
+	// avoid needless iteration that confuses mmOneTestMatchedLen
 	if ( nnext == 1 && mmNextStack[0] == FinalState
 #ifndef QT_NO_REGEXP_BACKREF
 	     && mmSleeping.isEmpty()
@@ -2195,7 +2183,7 @@ bool QRegExpEngine::matchHere()
     }
 #endif
 
-    mmMatchedLen = i - 1;
+    mmOneTestMatchedLen = i - 1;
     return ( mmMatchLen >= 0 );
 }
 
@@ -2429,15 +2417,18 @@ void QRegExpEngine::Box::cat( const Box& b )
 
     if ( (int) leftStr.length() == maxl )
 	leftStr += b.leftStr;
-    if ( (int) b.rightStr.length() == b.maxl )
-	rightStr += b.rightStr;
-    else
-	rightStr = b.rightStr;
 
-    if ( maxl == InftyLen || b.maxl == InftyLen )
+    if ( (int) b.rightStr.length() == b.maxl ) {
+	rightStr += b.rightStr;
+    } else {
+	rightStr = b.rightStr;
+    }
+
+    if ( maxl == InftyLen || b.maxl == InftyLen ) {
 	maxl = InftyLen;
-    else
+    } else {
 	maxl += b.maxl;
+    }
 
     occ1.detach();
     for ( int i = 0; i < NumBadChars; i++ ) {
@@ -2527,22 +2518,29 @@ void QRegExpEngine::Box::catAnchor( int a )
 #ifndef QT_NO_REGEXP_OPTIM
 void QRegExpEngine::Box::setupHeuristics()
 {
-    eng->setupGoodStringHeuristic( earlyStart, lateStart, str );
+    eng->goodEarlyStart = earlyStart;
+    eng->goodLateStart = lateStart;
+    eng->goodStr = eng->cs ? str : str.lower();
 
-    /*
-      A regular expression such as 112|1 has occ1['2'] = 2 and minl =
-      1 at this point. An entry of occ1 has to be at most minl or
-      infinity for the rest of the algorithm to go well.
+    eng->minl = minl;
+    if ( eng->cs ) {
+	/*
+	  A regular expression such as 112|1 has occ1['2'] = 2 and minl =
+	  1 at this point. An entry of occ1 has to be at most minl or
+	  infinity for the rest of the algorithm to go well.
 
-      We waited until here before normalizing these cases (instead of
-      doing it in Box::orx()) because sometimes things improve by
-      themselves. Consider for example (112|1)34.
-    */
-    for ( int i = 0; i < NumBadChars; i++ ) {
-	if ( occ1[i] != NoOccurrence && occ1[i] >= minl )
-	    occ1[i] = minl;
+	  We waited until here before normalizing these cases (instead of
+	  doing it in Box::orx()) because sometimes things improve by
+	  themselves. Consider for example (112|1)34.
+	*/
+	for ( int i = 0; i < NumBadChars; i++ ) {
+	    if ( occ1[i] != NoOccurrence && occ1[i] >= minl )
+		occ1[i] = minl;
+	}
+	eng->occ1 = occ1;
+    } else {
+	eng->occ1.fill( 0, NumBadChars );
     }
-    eng->setupBadCharHeuristic( minl, occ1 );
 
     eng->heuristicallyChooseHeuristic();
 }
@@ -2772,6 +2770,7 @@ int QRegExpEngine::getToken()
     yyMinRep = 0;
     yyMaxRep = 0;
     yyCh = getChar();
+
     switch ( prevCh ) {
     case EOS:
 	yyPos0 = yyPos;
@@ -2951,9 +2950,6 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
 	ncap = nbrefs;
 #endif
 
-    mmCaptured.resize( 2 + 2 * officialncap );
-    mmCapturedNoMatch.fill( -1, 2 + 2 * officialncap );
-
     /*
       We use one QMemArray<int> for all the big data used a lot in
       matchHere() and friends.
@@ -3014,59 +3010,64 @@ void QRegExpEngine::parseAtom( Box *box )
     int len;
 #endif
 
-    switch ( yyTok ) {
-    case Tok_Dollar:
-	box->catAnchor( Anchor_Dollar );
-	break;
-    case Tok_Caret:
-	box->catAnchor( Anchor_Caret );
-	break;
+    if ( (yyTok & Tok_Char) != 0 ) {
+	box->set( QChar(yyTok ^ Tok_Char) );
+    } else {
+#ifndef QT_NO_REGEXP_OPTIM
+	trivial = FALSE;
+#endif
+	switch ( yyTok ) {
+	case Tok_Dollar:
+	    box->catAnchor( Anchor_Dollar );
+	    break;
+	case Tok_Caret:
+	    box->catAnchor( Anchor_Caret );
+	    break;
 #ifndef QT_NO_REGEXP_LOOKAHEAD
-    case Tok_PosLookahead:
-    case Tok_NegLookahead:
-	neg = ( yyTok == Tok_NegLookahead );
-	eng = new QRegExpEngine( cs );
-	len = eng->parse( yyIn + yyPos - 1, yyLen - yyPos + 1 );
-	if ( len >= 0 )
-	    skipChars( len );
-	else
-	    error( RXERR_LOOKAHEAD );
-	box->catAnchor( addLookahead(eng, neg) );
-	yyTok = getToken();
-	if ( yyTok != Tok_RightParen )
-	    error( RXERR_LOOKAHEAD );
-	break;
+	case Tok_PosLookahead:
+	case Tok_NegLookahead:
+	    neg = ( yyTok == Tok_NegLookahead );
+	    eng = new QRegExpEngine( cs );
+	    len = eng->parse( yyIn + yyPos - 1, yyLen - yyPos + 1 );
+	    if ( len >= 0 )
+		skipChars( len );
+	    else
+		error( RXERR_LOOKAHEAD );
+	    box->catAnchor( addLookahead(eng, neg) );
+	    yyTok = getToken();
+	    if ( yyTok != Tok_RightParen )
+		error( RXERR_LOOKAHEAD );
+	    break;
 #endif
 #ifndef QT_NO_REGEXP_ESCAPE
-    case Tok_Word:
-	box->catAnchor( Anchor_Word );
-	break;
-    case Tok_NonWord:
-	box->catAnchor( Anchor_NonWord );
-	break;
+	case Tok_Word:
+	    box->catAnchor( Anchor_Word );
+	    break;
+	case Tok_NonWord:
+	    box->catAnchor( Anchor_NonWord );
+	    break;
 #endif
-    case Tok_LeftParen:
-    case Tok_MagicLeftParen:
-	yyTok = getToken();
-	parseExpression( box );
-	if ( yyTok != Tok_RightParen )
-	    error( RXERR_END );
-	break;
-    case Tok_CharClass:
-	box->set( *yyCharClass );
-	break;
-    case Tok_Quantifier:
-	error( RXERR_REPETITION );
-	break;
-    default:
-	if ( (yyTok & Tok_Char) != 0 )
-	    box->set( QChar(yyTok ^ Tok_Char) );
+	case Tok_LeftParen:
+	case Tok_MagicLeftParen:
+	    yyTok = getToken();
+	    parseExpression( box );
+	    if ( yyTok != Tok_RightParen )
+		error( RXERR_END );
+	    break;
+	case Tok_CharClass:
+	    box->set( *yyCharClass );
+	    break;
+	case Tok_Quantifier:
+	    error( RXERR_REPETITION );
+	    break;
+	default:
 #ifndef QT_NO_REGEXP_BACKREF
-	else if ( (yyTok & Tok_BackRef) != 0 )
-	    box->set( yyTok ^ Tok_BackRef );
+	    if ( (yyTok & Tok_BackRef) != 0 )
+		box->set( yyTok ^ Tok_BackRef );
+	    else
 #endif
-	else
-	    error( RXERR_DISABLED );
+		error( RXERR_DISABLED );
+	}
     }
     yyTok = getToken();
 }
@@ -3102,6 +3103,9 @@ void QRegExpEngine::parseFactor( Box *box )
 #endif
 
     if ( yyTok == Tok_Quantifier ) {
+#ifndef QT_NO_REGEXP_OPTIM
+	trivial = FALSE;
+#endif
 	if ( yyMaxRep == InftyRep ) {
 	    box->plus( atom );
 #ifndef QT_NO_REGEXP_INTERVAL
@@ -3163,6 +3167,9 @@ void QRegExpEngine::parseExpression( Box *box )
 {
     parseTerm( box );
     while ( yyTok == Tok_Bar ) {
+#ifndef QT_NO_REGEXP_OPTIM
+	trivial = FALSE;
+#endif
 	Box rightBox( this );
 	yyTok = getToken();
 	parseTerm( &rightBox );
@@ -3556,13 +3563,12 @@ void QRegExp::setMinimal( bool minimal )
 bool QRegExp::exactMatch( const QString& str ) const
 {
     prepareEngineForMatch( str );
-    priv->captured = eng->match( str, 0, priv->min, TRUE, 0 );
+    eng->match( str, 0, priv->min, TRUE, 0, priv->captured );
     if ( priv->captured[1] == (int) str.length() ) {
 	return TRUE;
     } else {
-	priv->captured.detach();
 	priv->captured[0] = 0;
-	priv->captured[1] = eng->matchedLength();
+	priv->captured[1] = eng->partialMatchLength();
 	return FALSE;
     }
 }
@@ -3645,8 +3651,8 @@ int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
     prepareEngineForMatch( str );
     if ( offset < 0 )
 	offset += str.length();
-    priv->captured = eng->match( str, offset, priv->min, FALSE,
-				 caretIndex(offset, caretMode) );
+    eng->match( str, offset, priv->min, FALSE, caretIndex(offset, caretMode),
+		priv->captured );
     return priv->captured[0];
 }
 
@@ -3696,8 +3702,8 @@ int QRegExp::searchRev( const QString& str, int offset,
     }
 
     while ( offset >= 0 ) {
-	priv->captured = eng->match( str, offset, priv->min, TRUE,
-				     caretIndex(offset, caretMode) );
+	eng->match( str, offset, priv->min, TRUE, caretIndex(offset, caretMode),
+		    priv->captured );
 	if ( priv->captured[0] == offset )
 	    return offset;
 	offset--;
