@@ -397,8 +397,8 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	clash++;
 	if ( mainStatusBar &&
 	     !lastitem->signal &&
-	     !(lastaccel->parent->receivers( "activateAmbiguously" )) )
-	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
+	     !(lastaccel->parent->receivers( "activatedAmbiguously(int)" )) )
+	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled (lastAccel)", 2000 );
 	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
 	intermediate = QKeySequence();
@@ -406,8 +406,8 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	clash = 0;
 	if ( mainStatusBar &&
 	     !firstitem->signal &&
-	     !(firstaccel->parent->receivers( "activateAmbiguously" )) )
-	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
+	     !(firstaccel->parent->receivers( "activatedAmbiguously(int)" )) )
+	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled (firstAccel)", 2000 );
 	firstaccel->activateAmbiguously( firstitem );
     }
     e->accept();
