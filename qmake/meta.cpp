@@ -46,8 +46,7 @@ QMakeMetaInfo::readLib(const QString &lib)
                 meta_type = "libtool";
         } else if(meta_file.endsWith(Option::prl_ext)) {
             QMakeProject proj;
-            if(!proj.read(Option::fixPathToLocalOS(meta_file),
-                          QDir::currentDirPath(), QMakeProject::ReadProFile))
+            if(!proj.read(Option::fixPathToLocalOS(meta_file), QMakeProject::ReadProFile))
                 return false;
             meta_type = "qmake";
             vars = proj.variables();
@@ -99,7 +98,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 {
     /* I can just run the .la through the .pro parser since they are compatible.. */
     QMakeProject proj;
-    if(!proj.read(Option::fixPathToLocalOS(f), QDir::currentDirPath(), QMakeProject::ReadProFile))
+    if(!proj.read(Option::fixPathToLocalOS(f), QMakeProject::ReadProFile))
         return false;
     QString dirf = Option::fixPathToTargetOS(f).section(Option::dir_sep, 0, -2);
     if(dirf == f)

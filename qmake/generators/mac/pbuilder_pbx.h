@@ -21,7 +21,7 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
     QString pbx_dir;
     int pbuilderVersion() const;
-    bool writeSubdirs(QTextStream &, bool);
+    bool writeSubDirs(QTextStream &);
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
 
@@ -40,7 +40,8 @@ public:
     ProjectBuilderMakefileGenerator(QMakeProject *p);
     ~ProjectBuilderMakefileGenerator();
 
-    virtual bool openOutput(QFile &) const;
+    virtual bool supportsMetaBuild() { return false; }
+    virtual bool openOutput(QFile &, const QString &) const;
 protected:
     bool doPrecompiledHeaders() const { return false; }
     virtual bool doDepends() const { return false; } //never necesary

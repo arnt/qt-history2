@@ -24,7 +24,6 @@ public:
     ~MingwMakefileGenerator();
 private:
     void writeMingwParts(QTextStream &);
-    void writeSubDirs(QTextStream &t);
     void writeLibsPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
     void writeObjectsPart(QTextStream &t);

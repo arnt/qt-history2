@@ -35,7 +35,8 @@ public:
     DspMakefileGenerator(QMakeProject *p);
     ~DspMakefileGenerator();
 
-    bool openOutput(QFile &file) const;
+    bool supportsMetaBuild() { return false; }
+    bool openOutput(QFile &file, const QString &build) const;
 
 protected:
     virtual void processPrlVariable(const QString &, const QStringList &);

@@ -39,7 +39,6 @@ DspMakefileGenerator::writeMakefile(QTextStream &t)
         return writeDspParts(t);
     }
     else if(project->first("TEMPLATE") == "subdirs") {
-        writeHeader(t);
         writeSubDirs(t);
         return true;
     }
@@ -909,7 +908,7 @@ DspMakefileGenerator::endGroups(QTextStream &t)
 }
 
 bool
-DspMakefileGenerator::openOutput(QFile &file) const
+DspMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.name().isEmpty()) {
@@ -936,5 +935,5 @@ DspMakefileGenerator::openOutput(QFile &file) const
         }
         file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + ofile));
     }
-    return Win32MakefileGenerator::openOutput(file);
+    return Win32MakefileGenerator::openOutput(file, build);
 }

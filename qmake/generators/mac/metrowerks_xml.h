@@ -34,7 +34,8 @@ public:
     MetrowerksMakefileGenerator(QMakeProject *p);
     ~MetrowerksMakefileGenerator();
 
-    bool openOutput(QFile &file) const;
+    bool supportsMetaBuild() { return false; }
+    bool openOutput(QFile &file, const QString &build) const;
 protected:
     virtual void processPrlFiles();
     virtual void processPrlVariable(const QString &var, const QStringList &l);

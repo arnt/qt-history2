@@ -445,7 +445,7 @@ ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 }
 
 bool
-ProjectGenerator::openOutput(QFile &file) const
+ProjectGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.name().isEmpty()) {
@@ -460,5 +460,5 @@ ProjectGenerator::openOutput(QFile &file) const
             dir = dir.right(dir.length() - (s + 1));
         file.setName(outdir + dir + ".pro");
     }
-    return MakefileGenerator::openOutput(file);
+    return MakefileGenerator::openOutput(file, build);
 }

@@ -28,7 +28,8 @@ protected:
 public:
     ProjectGenerator(QMakeProject *p);
     ~ProjectGenerator();
-    virtual bool openOutput(QFile &) const;
+    virtual bool supportsMetaBuild() { return false; }
+    virtual bool openOutput(QFile &, const QString &) const;
 };
 
 inline ProjectGenerator::~ProjectGenerator()

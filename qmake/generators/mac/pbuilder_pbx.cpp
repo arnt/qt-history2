@@ -48,20 +48,22 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
     if(project->first("TEMPLATE") == "app" || project->first("TEMPLATE") == "lib")
         return writeMakeParts(t);
     else if(project->first("TEMPLATE") == "subdirs")
-        return writeSubdirs(t, false);
+        return writeSubDirs(t);
     return false;
 }
 
 bool
-ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
+ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
 {
-    QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
-                                QDir::currentDirPath());
-    QFile mkwrapf(mkwrap);
-    if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
-        debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
-        QTextStream mkwrapt(&mkwrapf);
-        UnixMakefileGenerator::writeSubdirs(mkwrapt, direct);
+    if(project->isActiveConfig("generate_pbxbuild_makefile")) {
+        QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
+                                    QDir::currentDirPath());
+        QFile mkwrapf(mkwrap);
+        if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
+            debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
+            QTextStream mkwrapt(&mkwrapf);
+            UnixMakefileGenerator::writeSubDirs(mkwrapt);
+        }
     }
 
     //HEADER
@@ -92,7 +94,7 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
                     if(!QDir::setCurrent(dir))
                         fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
                 }
-                if(tmp_proj.read(fn, oldpwd)) {
+                if(tmp_proj.read(fn)) {
                     if(Option::debug_level) {
                         QMap<QString, QStringList> &vars = tmp_proj.variables();
                         for(QMap<QString, QStringList>::Iterator it = vars.begin();
@@ -1219,7 +1221,7 @@ ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 }
 
 bool
-ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
+ProjectBuilderMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     if(QDir::isRelativePath(file.name()))
         file.setName(Option::output_dir + file.name()); //pwd when qmake was run
@@ -1238,7 +1240,7 @@ ProjectBuilderMakefileGenerator::openOutput(QFile &file) const
         output += QString("project.pbxproj");
         file.setName(output);
     }
-    bool ret = UnixMakefileGenerator::openOutput(file);
+    bool ret = UnixMakefileGenerator::openOutput(file, build);
     ((ProjectBuilderMakefileGenerator*)this)->pbx_dir = Option::output_dir.section(Option::dir_sep, 0, -1);
     Option::output_dir = pbx_dir.section(Option::dir_sep, 0, -2);
     return ret;

@@ -138,39 +138,10 @@ void MingwMakefileGenerator::init()
     if(!project->variables()["DEF_FILE"].isEmpty())
         project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,") + project->first("DEF_FILE"));
 
-#if 0
-    if(!project->variables()["VERSION"].isEmpty()) {
-        QString version = project->variables()["VERSION"][0];
-        int firstDot = version.find(".");
-        QString major = version.left(firstDot);
-        QString minor = version.right(version.length() - firstDot - 1);
-        minor.replace(".", "");
-        project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
-    }
-#endif
-
     MakefileGenerator::init();
     if(project->isActiveConfig("dll")) {
         project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") +"lib" + project->first("TARGET") + ".a");
     }
-}
-
-void MingwMakefileGenerator::writeSubDirs(QTextStream &t)
-{
-    QString qs ;
-    QTextStream ts (&qs, IO_WriteOnly) ;
-    Win32MakefileGenerator::writeSubDirs(ts) ;
-    QRegExp rx("(\\n\\tcd [^\\n\\t]+)(\\n\\t.+)\\n\\t@cd ..") ;
-    rx.setMinimalMatching(true);
-    int pos = 0 ;
-    while(-1 != (pos = rx.indexIn(qs, pos)))
-    {
-        QString qsMatch = rx.cap(2);
-        qsMatch.replace("\n\t"," && \\\n\t");
-        qs.replace(pos+rx.cap(1).length(), rx.cap(2).length(), qsMatch);
-        pos += (rx.cap(1).length()+qsMatch.length());
-    }
-    t << qs ;
 }
 
 void MingwMakefileGenerator::processLibsVar()

@@ -48,7 +48,8 @@ public:
     QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
 
 protected:
-    virtual bool openOutput(QFile &file) const;
+    virtual bool supportsMetaBuild() { return false; }
+    virtual bool openOutput(QFile &file, const QString &build) const;
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
     virtual void outputVariables();

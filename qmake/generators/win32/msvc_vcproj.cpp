@@ -208,8 +208,7 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
     if(project->first("TEMPLATE") == "subdirs") {
-        writeHeader(t);
-        Win32MakefileGenerator::writeSubDirs(t);
+        writeSubDirs(t);
         return;
     }
 
@@ -239,7 +238,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                     if(!QDir::setCurrent(dir))
                         fprintf(stderr, "Cannot find directory: %s\n", dir.latin1());
                 }
-                if(tmp_proj.read(fn, oldpwd)) {
+                if(tmp_proj.read(fn)) {
                     if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
                         subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
                     } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
@@ -1125,7 +1124,7 @@ void VcprojGenerator::initOld()
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
-bool VcprojGenerator::openOutput(QFile &file) const
+bool VcprojGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.name().isEmpty()) {
@@ -1142,7 +1141,7 @@ bool VcprojGenerator::openOutput(QFile &file) const
     if(QDir::isRelativePath(file.name())) {
         file.setName(Option::fixPathToLocalOS(QDir::currentDirPath() + Option::dir_sep + fixFilename(file.name())));
     }
-    return Win32MakefileGenerator::openOutput(file);
+    return Win32MakefileGenerator::openOutput(file, build);
 }
 
 QString VcprojGenerator::fixFilename(QString ofile) const

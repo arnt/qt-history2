@@ -49,13 +49,24 @@ protected:
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
 
+    void writeHeader(QTextStream &t);
+    void writeSubDirs(QTextStream &t);
+    void writeMakeQmake(QTextStream &t);
+    void writeExtraVariables(QTextStream &t);
+
+    struct SubTarget
+    {
+        QString directory, profile, target, makefile;
+    };
+    void writeSubTargets(QTextStream &t, QList<SubTarget*> subtargets, bool installs);
+
+
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
     QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 
     QMakeProject *project;
-    QMakeProject *processBuild(const QString &build);
 
     QString buildArgs();
     QString specdir();
@@ -69,9 +80,7 @@ protected:
     bool mocAware() const;
 
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
-    bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
-    virtual bool writeMakeQmake(QTextStream &);
     void initOutPaths();
     virtual void init();
 
@@ -111,7 +120,9 @@ public:
 
     static MakefileGenerator *create(QMakeProject *);
     virtual bool write();
-    virtual bool openOutput(QFile &) const;
+    virtual bool writeProjectMakefile();
+    virtual bool supportsMetaBuild() { return true; }
+    virtual bool openOutput(QFile &, const QString &build) const;
 };
 
 inline void MakefileGenerator::setMocAware(bool o)

@@ -21,7 +21,6 @@ class UnixMakefileGenerator : public MakefileGenerator
 {
     bool init_flag, include_deps;
     bool writeMakefile(QTextStream &);
-    void writeExtraVariables(QTextStream &);
     QString libtoolFileName();
     void writeLibtoolFile();     // for libtool
     QString pkgConfigPrefix() const;
@@ -48,7 +47,6 @@ protected:
     virtual void init();
 
     void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &, bool=true);
 
 private:
     void init2();

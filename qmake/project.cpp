@@ -731,7 +731,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const QString &project, const QString &, uchar cmd)
+QMakeProject::read(const QString &project, uchar cmd)
 {
     pfile = project;
     return read(cmd);
@@ -1314,7 +1314,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
             file = file.right(file.length() - di - 1);
         }
         parser_info pi = parser;
-        bool ret = !proj.read(file, oldpwd);
+        bool ret = !proj.read(file);
         parser = pi;
         if(ret) {
             fprintf(stderr, "Error processing project file: %s\n", file.latin1());

@@ -782,7 +782,7 @@ MetrowerksMakefileGenerator::processPrlVariable(const QString &var, const QStrin
 
 
 bool
-MetrowerksMakefileGenerator::openOutput(QFile &file) const
+MetrowerksMakefileGenerator::openOutput(QFile &file, const QString &build) const
 {
     QString outdir;
     if(!file.name().isEmpty()) {
@@ -792,5 +792,5 @@ MetrowerksMakefileGenerator::openOutput(QFile &file) const
     }
     if(!outdir.isEmpty() || file.name().isEmpty())
         file.setName(outdir + project->first("TARGET") + ".xml");
-    return MakefileGenerator::openOutput(file);
+    return MakefileGenerator::openOutput(file, build);
 }

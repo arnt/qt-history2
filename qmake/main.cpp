@@ -13,7 +13,7 @@
 #include "project.h"
 #include "property.h"
 #include "option.h"
-#include "makefile.h"
+#include "metamakefile.h"
 #include <qnamespace.h>
 #include <qregexp.h>
 #include <qdir.h>
@@ -31,7 +31,7 @@
 
 int main(int argc, char **argv)
 {
-    /* parse command line */
+    // parse command line
     if(!Option::parseCommandLine(argc, argv))
         return 666;
 
@@ -89,8 +89,8 @@ int main(int argc, char **argv)
                 fn = fn.right(fn.length() - di - 1);
             }
 
-            /* read project.. */
-            if(!proj.read(fn, oldpwd)) {
+            // read project..
+            if(!proj.read(fn)) {
                 fprintf(stderr, "Error processing project file: %s\n",
                         fn == "-" ? "(stdin)" : (*pfile).latin1());
                 exit_val = 2;
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
             if(Option::mkfile::do_preprocess) //no need to create makefile
                 continue;
 
-            /* let Option post-process */
+            // let Option post-process
             if(!Option::postProcessProject(&proj)) {
                 fprintf(stderr, "Error post-processing project file: %s",
                         fn == "-" ? "(stdin)" : (*pfile).latin1());
@@ -108,51 +108,16 @@ int main(int argc, char **argv)
             }
         }
 
-        bool using_stdout = false;
-        MakefileGenerator *mkfile = MakefileGenerator::create(&proj); //figure out generator
-        if(mkfile && (Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
-                      Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)) {
-            //open output
-            if(!(Option::output.state() & IO_Open)) {
-                if(Option::output.name() == "-") {
-                    Option::output.setName("");
-                    Option::output_dir = QDir::currentDirPath();
-                    Option::output.open(IO_WriteOnly | IO_Translate, stdout);
-                    using_stdout = true;
-                } else {
-                    if(Option::output.name().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
-                        Option::output.setName(proj.first("QMAKE_MAKEFILE"));
-                    Option::output_dir = oldpwd;
-                    if(!mkfile->openOutput(Option::output)) {
-                        fprintf(stderr, "Failure to open file: %s\n",
-                                Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
-                        return 5;
-                    }
-                }
-            }
-        } else {
-            using_stdout = true; //kind of..
-        }
-        if(mkfile && !mkfile->write()) {
+        MetaMakefileGenerator *mkfile = MetaMakefileGenerator::createMetaGenerator(&proj);
+        if(mkfile && !mkfile->write(oldpwd)) {
             if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT)
                 fprintf(stderr, "Unable to generate project file.\n");
             else
                 fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-            if(!using_stdout)
-                QFile::remove(Option::output.name());
             exit_val = 6;
         }
         delete mkfile;
         mkfile = NULL;
-
-        /* debugging */
-        if(Option::debug_level) {
-            QMap<QString, QStringList> &vars = proj.variables();
-            for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
-                if(!it.key().startsWith(".") && !it.value().isEmpty())
-                    debug_msg(1, "%s === %s", it.key().latin1(), it.value().join(" :: ").latin1());
-            }
-        }
     }
     return exit_val;
 }
