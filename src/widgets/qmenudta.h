@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#30 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#31 $
 **
 ** Definition of QMenuData class
 **
@@ -161,31 +161,31 @@ private:
 
 
 #if defined(OBSOLETE)
-bool QMenuData::isItemDisabled( int id ) const
+inline bool QMenuData::isItemDisabled( int id ) const
 {
     qObsolete("QMenuData","isItemDisabled","!isItemEnabled()" );
     return !isItemEnabled(id);
 }
 
-void QMenuData::enableItem( int id )
+inline void QMenuData::enableItem( int id )
 {
     qObsolete("QMenuData","enableITem","setItemEnabled(id,TRUE)" );
     setItemEnabled( id, TRUE );
 }
 
-void QMenuData::disableItem( int id )
+inline void QMenuData::disableItem( int id )
 {
     qObsolete("QMenuData","disableItem","setItemEnabled(id,FALSE)" );
     setItemEnabled( id, FALSE );
 }
 
-void QMenuData::checkItem( int id )
+inline void QMenuData::checkItem( int id )
 {
     qObsolete("QMenuData","checkItem","setItemChecked(id,TRUE)" );
     setItemChecked( id, TRUE );
 }
 
-void QMenuData::uncheckItem( int id )
+inline void QMenuData::uncheckItem( int id )
 {
     qObsolete("QMenuData","uncheckItem","setItemChecked(id,FALSE)" );
     setItemChecked( id, FALSE );
