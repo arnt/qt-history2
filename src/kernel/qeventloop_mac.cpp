@@ -805,10 +805,8 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	    QApplication::sendPostedEvents();
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
     }
-
-    if(d->quitnow || d->exitloop) {
+    if(d->quitnow || d->exitloop) 
 	return FALSE;
-    }
 
     QApplication::sendPostedEvents();
     bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
@@ -848,7 +846,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #ifdef QMAC_USE_APPLICATION_EVENT_LOOP
 	RunApplicationEventLoop();
 #else
-#if 1
+#if 0
 	EventRef event;
 	ReceiveNextEvent(0, 0, kEventDurationForever, FALSE, &event);
 #else
@@ -863,13 +861,12 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	emit awake();
 	emit qApp->guiThreadAwake();
     }
-
     return nevents > 0;
 }
 
 int QEventLoop::timeToWait() const
 {
-    if (!qt_is_gui_used)
+    if(qt_is_gui_used)
 	return -1;
     if(timeval *tm = qt_wait_timer())
 	return (tm->tv_sec*1000) + (tm->tv_usec/1000);
@@ -878,19 +875,19 @@ int QEventLoop::timeToWait() const
 
 int QEventLoop::activateTimers()
 {
-    if (!qt_is_gui_used)
+    if (qt_is_gui_used)
 	return 0;
     return qt_activate_timers();
 }
 
 void QEventLoop::wakeUp()
 {
-    if(!qt_is_gui_used) {
-	char c = 0;
-	::write(d->thread_pipe[1], &c, 1);
-    } else {
+    if(qt_is_gui_used) {
 	qt_event_request_wakeup();
+	return;
     }
+    char c = 0;
+    ::write(d->thread_pipe[1], &c, 1);
 }
 
 
