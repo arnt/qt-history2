@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#11 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#11 $";
 #endif
 
 
@@ -66,6 +66,7 @@ static void really_init_colors()
 
 void QColor::initialize()			// called from startup routines
 {
+    return;
 #if defined(TEST_WINDOWS_PALETTE)
     int numCols = 256; // QWinInfo::numColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
