@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#114 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#115 $
 **
 ** Global type declarations and definitions
 **
@@ -79,6 +79,8 @@
 #define _OS_SCO_
 #elif defined(_AIX)
 #define _OS_AIX_
+#elif defined(__Lynx__)
+#define _OS_LYNXOS_
 #elif defined(_UNIXWARE)
 #define _OS_UNIXWARE_
 #else
