@@ -54,8 +54,8 @@ void GLWorkspace::setupSceneActions()
     connect( a, SIGNAL( activated() ), this, SLOT( newGear() ) );
     a = new QAction( tr( "Texture" ), QPixmap( "opengl/texture.xpm" ), tr( "&Texture" ), 0, newGroup );
     connect( a, SIGNAL( activated() ), this, SLOT( newTexture() ) );
-    a = new QAction( tr( "Nurbs" ), QPixmap( "opengl/nurbs.xpm" ), tr( "&Nurbs" ), 0, newGroup );
-    connect( a, SIGNAL( activated() ), this, SLOT( newNurbs() ) );
+/*    a = new QAction( tr( "Nurbs" ), QPixmap( "opengl/nurbs.xpm" ), tr( "&Nurbs" ), 0, newGroup );
+    connect( a, SIGNAL( activated() ), this, SLOT( newNurbs() ) );*/
     newGroup->addTo( tb );
     newGroup->addTo( menu );
 
