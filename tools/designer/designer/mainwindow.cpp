@@ -2092,6 +2092,8 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::Show:
 	if ( o != this )
 	    break;
+	if ( ((QShowEvent*)e)->spontaneous() )
+	    break;
 	QApplication::sendPostedEvents( workspace, QEvent::ChildInserted );
 	showEvent( (QShowEvent*)e );
 	if ( hvGeom.topLeft() == QPoint( -1, -1 ) ) {
