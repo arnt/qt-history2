@@ -4318,7 +4318,8 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 	QTableItem *it = tmp[ i ];
 	if ( it ) {
 	    int idx =indexOf( it->row(), it->col() );
-	    if ( (uint)idx < contents.size() && it->row() < numRows() && it->col() < numCols() ) {
+	    if ( (uint)idx < contents.size() &&
+		 it->row() == idx /  numCols() && it->col() == idx % numCols() ) {
 		contents.insert( idx, it );
 		it->setSpan( it->rowSpan(), it->colSpan() );
 	    } else {
@@ -4330,7 +4331,8 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 	TableWidget *w = tmp2[ i ];
 	if ( w ) {
 	    int idx = indexOf( w->row, w->col );
-	    if ( (uint)idx < widgets.size() && w->row < numRows() && w->col < numCols() )
+	    if ( (uint)idx < widgets.size() &&
+		 w->row == idx / numCols() && w->col == idx % numCols() )
 		widgets.insert( idx, w->wid );
 	    else
 		delete w->wid;
