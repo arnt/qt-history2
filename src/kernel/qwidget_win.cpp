@@ -1273,7 +1273,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     if ( testWState( WState_BlockUpdates ) )
 	return;
-    UINT flags = SW_INVALIDATE | SW_SCROLLCHILDREN;
+    UINT flags = SW_INVALIDATE;
     if ( backgroundMode() != NoBackground )
 	flags |= SW_ERASE;
 
