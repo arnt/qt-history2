@@ -230,6 +230,8 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
     if ( proptype != QVariant::Invalid && proptype != qvar.type() ) {
 	if ( qvar.canCast( proptype ) )
 	    qvar.cast( proptype );
+        else
+            qvar = QVariant(proptype);
     }
 
     switch ((int)qvar.type()) {
