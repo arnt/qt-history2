@@ -1378,7 +1378,7 @@ void QDns::setRecordType( RecordType rr )
 */
 
 /*!
-  \fn QDns::resultsReady()
+  \fn void QDns::resultsReady()
 
   This signal is emitted when results are available for one of
   the qualifiedNames().
