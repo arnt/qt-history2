@@ -33,7 +33,7 @@
 
 #include "../shared/types.h"
 
-#ifndef ULONG_PTR
+#ifndef Q_OS_WIN64
 #define ULONG_PTR DWORD
 #endif
 
