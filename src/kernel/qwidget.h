@@ -447,7 +447,6 @@ public:
 #ifndef QMAC_NO_QUARTZ
     CGContextRef macCGContext(bool clipped=TRUE) const;
 #endif
-    bool macDropEnabled;
 #endif
 
 protected:
@@ -557,10 +556,11 @@ private:
     void	 focusInputContext();
     void	 checkChildrenDnd();
 #elif defined(Q_WS_MAC)
-    uint    own_id : 1; //owns the winid
+    uint    own_id : 1, macDropEnabled : 1;
     EventHandlerRef window_event;
     //mac event functions
-    void propagateUpdates();
+    void    propagateUpdates();
+    void    update( const QRegion& );
     //friends, way too many - fix this immediatly!
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();

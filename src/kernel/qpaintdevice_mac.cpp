@@ -136,8 +136,12 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
 	if(sw < 0)
 	    sw = w->width();
+	else if(sw > sx + w->width())
+	    sw = w->width() - sx;
 	if(sh < 0)
 	    sh = w->height();
+	else if(sh > sy + w->height())
+	    sh = w->height() - sy;
     } else if(src->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)src;
 	srcbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
@@ -145,8 +149,12 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 
 	if(sw < 0)
 	    sw = pm->width();
+	else if(sw > sx + pm->width())
+	    sw = pm->width() - sx;
 	if(sh < 0)
 	    sh = pm->height();
+	else if(sh > sy + pm->height())
+	    sh = pm->height() - sy;
     }
 
     switch ( dst->devType() ) {
@@ -160,9 +168,10 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 #endif
 	return;
     }
-    if(dw < 0)
+    //if we are not scaling and we've fixed number we should fix the destination
+    if(dw < 0 || (!scalew && sw != dw))
 	dw = sw;
-    if(dh < 0)
+    if(dh < 0 || (!scaleh && sh != dh))
 	dh = sh;
     int dstoffx=0, dstoffy=0;
     const BitMap *dstbitmap=NULL;
@@ -190,11 +199,18 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	    dstoffx = p.x();
 	    dstoffy = p.y();
 	}
-
+	if(dw > dx + w->width())
+	    dw = w->width() - dx;
+	if(dh > dy + w->height())
+	    dh = w->height() - dy;
     } else if(dst->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)dst;
 	pm->detach(); //must detach when we blt
 	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)pm->handle());
+	if(dw > dx + pm->width())
+	    dw = pm->width() - dx;
+	if(dh > dy + pm->height())
+	    dh = pm->height() - dy;
     } else if(dst->devType() == QInternal::Printer ) {
 	dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)dst->handle());
     }
@@ -273,11 +289,6 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
   case NorROP:      dst = NOT (src OR dst)
 */
     }
-    //if we are not scaling and we've fixed number we should fix the destination
-    if(!scalew && sw != dw)
-	dw = sw;
-    if(!scaleh && sh != dh)
-	dh = sh;
 
     Rect r;
     SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);

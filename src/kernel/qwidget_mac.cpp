@@ -172,7 +172,8 @@ enum paint_children_ops {
     PC_Now = 0x01,
     PC_ForceErase = 0x02,
     PC_NoPaint = 0x04,
-    PC_NoErase = 0x08
+    PC_NoErase = 0x08,
+    PC_Later = 0x10
 };
 bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
 {
@@ -207,6 +208,8 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
     bool erase = !(ops & PC_NoErase) && 
 		 ((ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase));
     if((ops & PC_NoPaint)) {
+	if(ops & PC_Later)
+	   qDebug("Cannot use PC_NoPaint with PC_Later!");
 	if(erase) 
 	    p->erase(r);
     } else {
@@ -217,7 +220,8 @@ bool qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_None)
 	    p->repaint(r, erase);
 	} else {
 	    bool painted = FALSE;
-	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
+	    if(ops & PC_Later); //do nothing
+            else if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
 #ifdef DEBUG_WNDW_RGN
                 debug_wndw_rgn("**paint_children2", p, r, TRUE, TRUE);
@@ -1098,8 +1102,16 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( w && h ) {
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
-	    debug_wndw_rgn("update", this, r);
+	    debug_wndw_rgn("update1", this, r);
 	}
+    }
+}
+
+void QWidget::update( const QRegion &rgn )
+{
+    if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isNull()) {
+	qt_event_request_updates(this, rgn);
+	debug_wndw_rgn("update2", this, rgn);
     }
 }
 
@@ -1587,11 +1599,13 @@ void QWidget::scroll( int dx, int dy)
 
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
-    if ( testWState( WState_BlockUpdates ) && !children() )
+    bool valid_rect = r.isValid();
+    if(testWState( WState_BlockUpdates ) &&  (valid_rect || !children()))
 	return;
 
-    bool valid_rect = r.isValid();
     QRect sr = valid_rect ? r : rect();
+    if ( dx == 0 && dy == 0 )
+	return;
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
     if ( dx > 0 ) {
 	x1 = sr.x();
@@ -1612,8 +1626,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	h += dy;
     }
 
-    if ( dx == 0 && dy == 0 )
-	return;
+    bool just_update = QABS( dx ) > width() || QABS( dy ) > height();
+    if ( just_update )
+	update();
     QRegion bltd;
     QPoint p(posInWindow(this));
     if ( w > 0 && h > 0 ) {
@@ -1644,6 +1659,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 	}
     }
 
+    if(just_update)
+	return;
     QRegion newarea(sr);
     newarea.translate(p.x(), p.y());
     newarea &= (clippedRegion(valid_rect) - bltd);
