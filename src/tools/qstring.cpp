@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#134 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#135 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -1976,7 +1976,7 @@ const char* QString::ascii() const
     Q2HELPER(stat_get_ascii++);
     Q2HELPER(stat_get_ascii_size+=d->len);
     d->ascii = unicodeToAscii( d->unicode, d->len );
-    Q2HELPER(ASSERT( strlen(d->ascii) == d->len ));
+    // Q2HELPER(ASSERT( strlen(d->ascii) == d->len ));
     d->dirtyascii = 0;
     return d->ascii;
 }

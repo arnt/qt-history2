@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#77 $
+** $Id: //depot/qt/main/src/tools/qstring.h#78 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -166,6 +166,18 @@ public:
     friend int operator!=( const QChar& c1, const QChar& c2 );
     friend int operator!=( const QChar& c, char ch );
     friend int operator!=( char ch, const QChar& c );
+    friend int operator<=( const QChar& c1, const QChar& c2 );
+    friend int operator<=( const QChar& c1, char c );
+    friend int operator<=( char ch, const QChar& c );
+    friend int operator>=( const QChar& c1, const QChar& c2 );
+    friend int operator>=( const QChar& c, char ch );
+    friend int operator>=( char ch, const QChar& c );
+    friend int operator<( const QChar& c1, const QChar& c2 );
+    friend int operator<( const QChar& c1, char c );
+    friend int operator<( char ch, const QChar& c );
+    friend int operator>( const QChar& c1, const QChar& c2 );
+    friend int operator>( const QChar& c, char ch );
+    friend int operator>( char ch, const QChar& c );
 
     uchar row;
     uchar cell;
@@ -203,6 +215,34 @@ inline int operator!=( const QChar& c, char ch )
     return ch != c.cell || c.row;
 }
 
+inline int operator<=( const QChar& c, char ch )
+{
+    return !(ch < c.cell || c.row);
+}
+
+inline int operator<=( char ch, const QChar& c )
+{
+    return ch <= c.cell || c.row;
+}
+
+inline int operator<=( const QChar& c1, const QChar& c2 )
+{
+    return c1.row > c2.row
+	? FALSE
+	: c1.row < c2.row
+	    ? TRUE
+	    : c1.row <= c2.row;
+}
+
+inline int operator>=( const QChar& c, char ch ) { return ch <= c; }
+inline int operator>=( char ch, const QChar& c ) { return c <= ch; }
+inline int operator>=( const QChar& c1, const QChar& c2 ) { return c2 <= c1; }
+inline int operator<( const QChar& c, char ch ) { return !(ch<=c); }
+inline int operator<( char ch, const QChar& c ) { return !(c<=ch); }
+inline int operator<( const QChar& c1, const QChar& c2 ) { return !(c2<=c1); }
+inline int operator>( const QChar& c, char ch ) { return !(ch>=c); }
+inline int operator>( char ch, const QChar& c ) { return !(c>=ch); }
+inline int operator>( const QChar& c1, const QChar& c2 ) { return !(c2>=c1); }
 
 
 class Q_EXPORT QString
