@@ -626,6 +626,8 @@ QPainterPath QPainterPathPrivate::createStroke(int width,
                                                Qt::PenCapStyle capStyle,
                                                Qt::PenJoinStyle joinStyle)
 {
+    Q_UNUSED(penStyle);
+    Q_UNUSED(capStyle);
 #ifdef QPP_DEBUG
     printf("QPainterPathPrivate::createStroke()\n");
 #endif

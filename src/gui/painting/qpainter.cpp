@@ -2018,7 +2018,8 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    QPolygon pa = (npoints - index != polygon.size() ? polygon.mid(index, npoints) : polygon);
+    QPolygon pa = (npoints - index != polygon.size() ?
+                   QPolygon(polygon.mid(index, npoints)) : polygon);
 
     if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
