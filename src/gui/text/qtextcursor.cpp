@@ -699,7 +699,10 @@ void QTextCursor::insertBlock()
     if (!d)
 	return;
 
-    d->insertBlock(blockFormat());
+    QTextBlockFormat bfmt = blockFormat();
+    bfmt.setTableFormatIndex(-1);
+    bfmt.setTableCellEndOfRow(false);
+    d->insertBlock(bfmt);
 }
 
 void QTextCursor::insertBlock(const QTextBlockFormat &format)
