@@ -254,7 +254,7 @@ UnixMakefileGenerator::init()
 QStringList
 UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringList &list2)
 {
-    if(project->isActiveConfig("no_smart_library_merge"))
+    if(project->isActiveConfig("no_smart_library_merge") || project->isActiveConfig("no_lflags_merge"))
         return list1 + list2;
 
     QStringList ret;
