@@ -2067,7 +2067,7 @@ HRESULT WINAPI QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 	SysFreeString(bstr);
     }
 
-    return error ? E_FAIL : S_OK;
+    return /*error ? E_FAIL :*/ S_OK;
 }
 
 /*
@@ -2097,7 +2097,7 @@ HRESULT WINAPI QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL
 	bag->Write( bstr, &var );
 	SysFreeString(bstr);
     }
-    return error ? E_FAIL : S_OK;
+    return /*error ? E_FAIL :*/ S_OK;
 }
 
 //**** IPersistStorage
