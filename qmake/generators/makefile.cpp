@@ -1973,8 +1973,12 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	    t << ofile << ": " << fileFixify(pfile) << " ";
 	    if(Option::mkfile::do_cache)
 		t <<  fileFixify(Option::mkfile::cachefile) << " ";
-	    if(!specdir().isEmpty())
-		t << specdir() << Option::dir_sep << "qmake.conf" << " ";
+	    if(!specdir().isEmpty()) {
+		if (QFile::exists(Option::fixPathToLocalOS(specdir()+QDir::separator()+"qmake.conf")))
+		    t << specdir() << Option::dir_sep << "qmake.conf" << " ";
+		else if (QFile::exists(Option::fixPathToLocalOS(specdir()+QDir::separator()+"tmake.conf")))
+		    t << specdir() << Option::dir_sep << "tmake.conf" << " ";
+	    }
 	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
