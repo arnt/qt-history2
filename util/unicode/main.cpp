@@ -934,7 +934,7 @@ QByteArray createUnicodeScriptTableDeclaration()
     declaration += " }; // size of each block\n\n";
 
     // script table
-    declaration += "namespace QUnicodeTables {\n\nconst unsigned char uc_scripts[] = {\n";
+    declaration += "namespace QUnicodeTables {\n\nstatic const unsigned char uc_scripts[] = {\n";
     for (int i = 0; i < unicodeBlockCount; ++i) {
         int block = (((i << 7) & 0xff00) | ((i & 1) * 0x80));
         int blockAssignment[unicodeBlockSize];
