@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -44,7 +44,7 @@ class Q_EXPORT QButton : public QWidget
     Q_PROPERTY( int accel READ accel WRITE setAccel )
     Q_PROPERTY( bool toggleButton READ isToggleButton )
     Q_PROPERTY( ToggleType toggleType READ toggleType )
-    Q_PROPERTY( bool down READ isDown WRITE setDown )
+    Q_PROPERTY( bool down READ isDown WRITE setDown DESIGNABLE false  )
     Q_PROPERTY( bool on READ isOn )
     Q_PROPERTY( ToggleState toggleState READ state )
     Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )

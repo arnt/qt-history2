@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -411,14 +411,10 @@ QSize QSpinBox::sizeHint() const
     int w = 35; 	// minimum width for the value
     int wx = fm.width( ' ' )*2;
     QString s;
-    s.setNum( minValue() );
-    s.prepend( prefix() );
-    s.append( suffix() );
-    w = QMAX( w, fm.width( s ) + wx );
-    s.setNum( maxValue() );
-    s.prepend( prefix() );
-    s.append( suffix() );
-    w = QMAX( w, fm.width( s ) + wx );
+    s = prefix() + ( (QSpinBox*)this )->mapValueToText( minValue() ) + suffix();
+    w = QMAX( w, fm.width( s ) + wx);
+    s = prefix() + ( (QSpinBox*)this )->mapValueToText( maxValue() ) + suffix();
+    w = QMAX(w, fm.width( s ) + wx );
     if ( !specialValueText().isEmpty() ) {
 	s = specialValueText();
 	w = QMAX( w, fm.width( s ) + wx );
@@ -591,6 +587,15 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 
 /*!\reimp
 */
+void QSpinBox::leaveEvent( QEvent* )
+{
+    if ( edited )
+	interpretText();
+}
+
+
+/*!\reimp
+*/
 void QSpinBox::resizeEvent( QResizeEvent* )
 {
     arrangeWidgets();
@@ -600,6 +605,7 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 */
 void QSpinBox::wheelEvent( QWheelEvent * e )
 {
+    e->accept();
     static float offset = 0;
     static QSpinBox* offset_owner = 0;
     if (offset_owner != this) {

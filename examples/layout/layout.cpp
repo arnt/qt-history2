@@ -37,7 +37,7 @@ ExampleWidget::ExampleWidget( QWidget *parent, const char *name )
     QMenuBar *menubar = new QMenuBar( this );
     menubar->setSeparator( QMenuBar::InWindowsStyle );
     QPopupMenu* popup;
-    popup = new QPopupMenu;
+    popup = new QPopupMenu( this );
     popup->insertItem( "&Quit", qApp, SLOT(quit()) );
     menubar->insertItem( "&File", popup );
 
@@ -159,5 +159,4 @@ int main( int argc, char **argv )
     f.show();
 
     return a.exec();
-
 }

@@ -42,7 +42,7 @@ class MyTableView : public QTableView
     Q_OBJECT
 public:
     //MyTableView( QWidget *parent=0, const char *name=0 );
-    MyTableView( int cols, int rows, QWidget *parent=0, int flags = -1,
+    MyTableView( int rows, int cols, QWidget *parent=0, int flags = -1,
 		 const char *name=0 );
     ~MyTableView();
     int tWidth() { return totalWidth() + extraW; }

@@ -17,5 +17,6 @@ int main( int argc, char ** argv ) {
     mw->setCaption( "Document 1" );
     mw->show();
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
-    return a.exec();
+    int res = a.exec();
+    return res;
 }

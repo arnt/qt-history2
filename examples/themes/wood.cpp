@@ -798,7 +798,7 @@ void NorwegianWoodStyle::polish( QApplication *app)
 
     QPalette op(QColor(212,140,95));
     // QPalette op(white);
-    QColorGroup nor (op.normal().foreground(),
+    QColorGroup active (op.normal().foreground(),
 		     QBrush(op.normal().button(),button),
 		     QBrush(op.normal().light(), light),
 		     QBrush(op.normal().dark(), dark),
@@ -818,18 +818,8 @@ void NorwegianWoodStyle::polish( QApplication *app)
 		     QColor(236,182,120),
 		     QBrush(op.disabled().background(), background)
 		     );
-    QColorGroup active (op.active().foreground(),
-		     QBrush(op.active().button(),button),
-		     QBrush(op.active().light(), light),
-		     op.active().dark(),
-		     QBrush(op.active().mid(), mid),
-		     op.active().text(),
-		     Qt::white,
-		      QColor(236,182,120),
-		     QBrush(op.active().background(), background)
-		     );
 
-   app->setPalette(QPalette(nor, disabled, active), TRUE );
+   app->setPalette(QPalette(active, disabled, active), TRUE );
 
 }
 
@@ -846,53 +836,51 @@ void NorwegianWoodStyle::unPolish( QApplication *app)
 void NorwegianWoodStyle::polish( QWidget* w)
 {
 
-    // the polish function will set some widgets to transparent mode,
-    // to get the full benefit from the nice pixmaps in the color
-    // group.
+    // the polish function sets some widgets to transparent mode and
+    // some to translate background mode in order to get the full
+    // benefit from the nice pixmaps in the color group.
 
-    if (w->inherits("QTipLabel")){
-	return;
-    }
-    if (w->inherits("QLCDNumber")){
+    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
 	return;
     }
 
     if ( !w->isTopLevel() ) {
- 	if (w->inherits("QLabel")
-	    || w->inherits("QButton")
-	    || w->inherits("QComboBox")
-	    || w->inherits("QGroupBox")
-	    || w->inherits("QSlider")
-	    || w->inherits( "QTabWidget" )
-	    || w->inherits( "QTabBar" )){
+	if ( w->inherits("QPushButton")
+	     || w->inherits("QToolButton")
+	     || w->inherits("QGroupBox")
+	     || w->inherits("QTabWidget")
+	     || w->inherits("QComboBox") ) {
 	    w->setAutoMask( TRUE );
+	    return;
+	}
+ 	if (w->inherits("QLabel")
+	    || w->inherits("QButton") ) {
+	    w->setBackgroundOrigin( QWidget::ParentOrigin );
  	}
     }
 }
 
 void NorwegianWoodStyle::unPolish( QWidget* w)
 {
-
-    // the polish function will set some widgets to transparent mode,
-    // to get the full benefit from the nice pixmaps in the color
-    // group.
-
-    if (w->inherits("QTipLabel")){
-	return;
-    }
-    if (w->inherits("QLCDNumber")){
+    // the polish function sets some widgets to transparent mode and
+    // some to translate background mode in order to get the full
+    // benefit from the nice pixmaps in the color group.
+    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
 	return;
     }
 
     if ( !w->isTopLevel() ) {
- 	if (w->inherits("QLabel")
-	    || w->inherits("QButton")
-	    || w->inherits("QComboBox")
-	    || w->inherits("QGroupBox")
-	    || w->inherits("QSlider")
-	    || w->inherits( "QTabWidget" )
-	    || w->inherits( "QTabBar" )){
+	if ( w->inherits("QPushButton")
+	     || w->inherits("QToolButton")
+	     || w->inherits("QGroupBox")
+	     || w->inherits("QTabWidget")
+	     || w->inherits("QComboBox") ) {
 	    w->setAutoMask( FALSE );
+	    return;
+	}
+ 	if (w->inherits("QLabel")
+	    || w->inherits("QButton") ) {
+	    w->setBackgroundOrigin( QWidget::WidgetOrigin );
  	}
     }
 }
@@ -961,12 +949,6 @@ void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	fill = g.brush( QColorGroup::Button );	
 
     if ( btn->isDefault() ) {
-	QPointArray a;
-	a.setPoints( 9,
-		     x1, y1, x2, y1, x2, y2, x1, y2, x1, y1+1,
-		     x2-1, y1+1, x2-1, y2-1, x1+1, y2-1, x1+1, y1+1 );
-	p->setPen( Qt::black );
-	p->drawPolyline( a );
 	x1 += 2;
 	y1 += 2;
 	x2 -= 2;
@@ -974,7 +956,15 @@ void NorwegianWoodStyle::drawPushButton( QPushButton* btn, QPainter *p)
     }
 	
     drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(), &fill);
-	
+    
+    if ( btn->isDefault() ) {
+	QPen pen( Qt::black, 4 );
+	pen.setCapStyle( Qt::RoundCap );
+	pen.setJoinStyle( Qt::RoundJoin );
+	p->setPen( pen );
+	drawroundrect( p, x1-1, y1-1, x2-x1+3, y2-y1+3, 8 );
+    }
+
 
     if ( btn->isMenuButton() ) {
 	int dx = (y1-y2-4)/3;

@@ -140,7 +140,7 @@ for $a ( sort grep( /^t[1-9].html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $rtf = join( "", $rtf, 
 		&fixup( &parsetutfile( &prepare( <F> ), 
-				      "http://www.troll.no/qt/$a" ) ) ) 
+				      "http://doc.trolltech.com/$a" ) ) ) 
 	if open( F, "< $a" );
 }
 closedir DIR;
@@ -150,7 +150,7 @@ for $a ( sort grep( /^t1[0-9].html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $rtf = join( "", $rtf, 
 		 &fixup( &parsetutfile( &prepare( <F> ), 
-				       "http://www.troll.no/qt/$a" ) ) )
+				       "http://doc.trolltech.com/$a" ) ) )
 	if open( F, "< $a" );
 }
 closedir DIR;
@@ -161,7 +161,7 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $rtf = join( "", $rtf, 
 		&fixup( &parseclassfile( &prepare( <F> ), 
-					"http://www.troll.no/qt/$a" ) ) )
+					"http://doc.trolltech.com/$a" ) ) )
 	if open( F, "< $a" );
 }
 closedir DIR;

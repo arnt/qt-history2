@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -137,6 +137,8 @@ void QGroupBox::init()
     grid = 0;
     d = 0;	//we use d directly to store a QSpacerItem
     lenvisible = 0;
+    nCols = nRows = 0;
+    dir = Horizontal;
 }
 
 void QGroupBox::setTextSpacer()
@@ -264,44 +266,33 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 
 
 /*! \reimp */
-void QGroupBox::updateMask(){
-    int		tw  = 0;
-    QRect	cr  = rect();
-    QRect	r   = cr;
-    QRect t;
-    int		len = str.length();
-     QBitmap bm( size() );
-     bm.fill( color0 );
-     {
-	QPainter p( &bm, this );
-	QFontMetrics fm = p.fontMetrics();
+void QGroupBox::updateMask()
+{
+    QRegion reg( rect() );
+
+    int len = str.length();
+    if ( len ) {
+	QFontMetrics fm = fontMetrics();
 	int h = fm.height();
+	int tw = 0;
 	while ( len ) {
-	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
-	    if ( tw < cr.width() )
+	    tw = fm.width( str, len ) + 2 * fm.width( QChar(' ') );
+	    if ( tw < rect().width() )
 		break;
 	    len--;
 	}
-	if ( len ) {
-	    r.setTop( h/2 );			// frame rect should be
-	    int x;
-	    if ( align & AlignHCenter )		// center alignment
-		x = r.width()/2 - tw/2;
-	    else if ( align & AlignRight )	// right alignment
-		x = r.width() - tw - 8;
-	    else				// left alignment
-		x = 8;
-	    t.setRect( x, 0, tw, h );
-	}
-	p.fillRect( r, color1 );
-	if ( tw ) {					// draw the title
-	    p.setPen( color1 );
-	    p.drawText( t, AlignCenter, str, len );
-	}
-     }
+	int x;
+	if ( align & AlignHCenter )
+	    x = rect().width() / 2 - tw / 2;
+	else if ( align & AlignRight )
+	    x = rect().width() - tw - 8;
+	else
+	    x = 8;
+	reg = reg.subtract( QRect( 0, 0, x, h / 2 ) );
+	reg = reg.subtract( QRect( x + tw, 0, rect().width() - ( x + tw ), h / 2 ) );
+    }
 
-    setMask( bm );
-
+    setMask( reg );
 }
 
 /*!
@@ -320,16 +311,14 @@ void QGroupBox::addSpace( int size )
 {
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
-    // Torbens hack for the builder. The builder does
-    // not like the QGridLayout and associated magic.
-    if ( nCols == -1 && nRows == -1 )
+    if ( nCols <= 0 || nRows <= 0 )
 	return;
 
     if ( row >= nRows || col >= nCols )
 	grid->expand( row+1, col+1 );
 
     if ( size > 0 ) {
-	QSpacerItem *spacer 
+	QSpacerItem *spacer
 	    = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
 			       ( dir == Vertical ) ? 0 : size,
 			       QSizePolicy::Fixed, QSizePolicy::Fixed );
@@ -397,9 +386,9 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     vbox = 0;
     grid = 0;
 
-    if ( columns == 0 )
-      return;
-
+    if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
+	return;
+    
     vbox = new QVBoxLayout( this, 8, 0 );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
@@ -408,45 +397,42 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     setTextSpacer();
     vbox->addItem( spacer );
 
-    // Send all child events and ignore them. Otherwise we
-    // will end up with doubled insertion
-    nCols = -1;
-    nRows = -1;
+    nCols = 0;
+    nRows = 0;
+    dir = direction;
+
+    // Send all child events and ignore them. Otherwise we will end up
+    // with doubled insertion. This won't do anything because nCols ==
+    // nRows == 0.
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
-    // Torbens hack for the builder. I dont want to
-    // have this QGridLayout. I want to make it on
-    // my own.
-    if ( columns == -1 )
-    {
-	dir = direction;
-	nCols = -1;
-	nRows = -1;
+    // if 0 or smaller , create a vbox-layout but no grid. This allows
+    // the designer to handle it's own grid layout in a group box.
+    if ( columns <= 0 )
 	return;
-    }
 
     dir = direction;
     if ( dir == Horizontal ) {
-      nCols = columns;
-      nRows = 1;
+	nCols = columns;
+	nRows = 1;
     } else {
-      nCols = 1;
-      nRows = columns;
+	nCols = 1;
+	nRows = columns;
     }
     grid = new QGridLayout( nRows, nCols, 5 );
     row = col = 0;
     grid->setAlignment( AlignTop );
     vbox->addLayout( grid );
-    
-    
+
     // Add all children
-    const QObjectList *list = children();
-    if ( list )
-    {
-      QObjectListIt it( *list );
-      for( ; it.current(); ++it )
-	if ( it.current()->inherits( "QWidget" ) )
-	  insertWid( (QWidget*)it.current() );
+    if ( children() ) {
+	QObjectListIt it( *children() );
+	QWidget *w;
+	while( (w=(QWidget *)it.current()) != 0 ) {
+	    ++it;
+	    if ( w->isWidgetType() )
+		insertWid( w );
+	}
     }
 }
 
@@ -457,21 +443,16 @@ void QGroupBox::childEvent( QChildEvent *c )
     // Similar to QGrid::childEvent()
     if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
 	return;
-    QWidget *w = (QWidget*)c->child();
-    insertWid( w );
+    insertWid( (QWidget*)c->child() );
 }
 
-void QGroupBox::insertWid( QWidget* _w )
+void QGroupBox::insertWid( QWidget* w )
 {
-    // Torbens hack for the builder. The builder does
-    // not like the QGridLayout and associated magic.
-    if ( nCols == -1 && nRows == -1 )
-	return;
-
     if ( row >= nRows || col >= nCols )
 	grid->expand( row+1, col+1 );
-    grid->addWidget( _w, row, col );
+    grid->addWidget( w, row, col );
     skip();
+    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
 }
 
 
@@ -563,9 +544,19 @@ void QGroupBox::calculateFrame()
 
 
 
-/*! \reimp */
-
+/*! \reimp
+ */
 void QGroupBox::focusInEvent( QFocusEvent * )
 { // note no call to super
     fixFocus();
+}
+
+
+/*!\reimp
+ */
+void QGroupBox::fontChange( const QFont & oldFont )
+{
+    calculateFrame();
+    setTextSpacer();
+    QWidget::fontChange( oldFont );
 }

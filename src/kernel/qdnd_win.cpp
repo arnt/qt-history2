@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
@@ -471,6 +471,7 @@ void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
     dst->releaseQt();
     CoLockObjectExternal(dst, FALSE, TRUE);
     RevokeDragDrop(widget->winId());
+    delete dst;
 }
 
 QOleDropTarget* qt_olednd_register( QWidget* widget )

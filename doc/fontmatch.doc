@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -59,7 +59,7 @@ Qt searches through a built-in list of very common fonts. If none of
 these are available, Qt chickens out, gives you an error message and
 aborts (of course this only happens if you are using fonts and Qt \e
 has to load a font). We have not been able to find a case where this
-happens. Please <a href="mailto:qt-bugs@troll.no">mail us</a> if you
+happens. Please <a href="mailto:qt-bugs@trolltech.com">mail us</a> if you
 do, preferably with a list of the fonts you have installed (under X
 windows, type "xlsfonts").
 

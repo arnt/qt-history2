@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -240,8 +240,10 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 /*!
   Constructs a pixmap from \a xpm, which must be a valid XPM image.
 
-  This is the usual constructor used, but the <a href="squeeze">other
-  XPM constructor</a> allows defining XPMs like this:
+  Error are silently ignored.
+
+  Note that it's possible to squeeze the XPM variable a little bit by
+  using an unusual declaration:
 
   \example
     static const char * const start_xpm[]={
@@ -253,23 +255,13 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
   The extra \c const makes the entire definition read-only, which is
   slightly more efficient e.g. when the code is in a shared library,
   and ROMable when the application is to be stored in ROM.
+
+  In order to use that sort of declaration, you must cast the variable
+  back to <nobr><code>const char **</code></nobr> when you create the
+  QPixmap.
 */
 
 QPixmap::QPixmap( const char *xpm[] )
-    : QPaintDevice( QInternal::Pixmap )
-{
-    init( 0, 0, 0, FALSE, defOptim );
-    QImage image( xpm );
-    if ( !image.isNull() )
-	convertFromImage( image );
-}
-
-/*!
-  Constructs a pixmap from \a xpm, which must be a valid XPM image.
-  <a name="squeeze"></a>
-*/
-
-QPixmap::QPixmap( const char * const xpm[] )
     : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0, FALSE, defOptim );

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -73,9 +73,7 @@ public:
     virtual ~QIconDragItem();
     virtual QByteArray data() const;
     virtual void setData( const QByteArray &d );
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator== ( const QIconDragItem& ) const;
-#endif
 
 private:
     QByteArray ba;
@@ -89,12 +87,7 @@ private:
  *
  *****************************************************************************/
 
-#if defined(_CC_MSVC_)
-// Disable useless MSVC++ warning:
-// 'items' : class 'QValueList<class QIconDrag::Item>' needs to have
-// dll-interface to be used by clients of class 'QIconDrag'
-#pragma warning(disable: 4251)
-#endif
+struct QIconDragPrivate;
 
 class Q_EXPORT QIconDrag : public QDragObject
 {
@@ -110,39 +103,7 @@ public:
     virtual QByteArray encodedData( const char* mime ) const;
 
 private:
-    // Do not delete the two lines below, instead #ifdef them out appropriately.
-    struct Item; // ### Needed by SunPro. Possibly breaks MipsPro.
-    friend struct Item; // ### Needed by ISO C++, SunPro and MipsPro.
-
-    struct IconDragItem
-    {
-	IconDragItem();
-	IconDragItem( const QRect &ir, const QRect &tr );
-
-	QRect pixmapRect() const;
-	QRect textRect() const;
-
-	void setPixmapRect( const QRect &r );
-	void setTextRect( const QRect &r );
-
-    	QRect iconRect_, textRect_;
-	QString key_;
-
-    };
-
-    struct Item
-    {
-	Item() {}
-	Item( const QIconDragItem &i1, const IconDragItem &i2 ) : data( i1 ), item( i2 ) {}
-	QIconDragItem data;
-	IconDragItem item;
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-	bool operator== ( const QIconDrag::Item& ) const;
-#endif
-    };
-
-    QValueList<Item> items;
-    static bool decode( QMimeSource* e, QValueList<Item> &lst );
+    QIconDragPrivate *d;
     QChar endMark;
 
     friend class QIconView;
@@ -157,7 +118,7 @@ private:
 
 class QIconViewToolTip;
 
-class Q_EXPORT QIconViewItem
+class Q_EXPORT QIconViewItem : public Qt
 {
     friend class QIconView;
     friend class QIconViewToolTip;
@@ -483,6 +444,11 @@ private:
 
     QIconViewPrivate *d;
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QIconView( const QIconView & );
+    QIconView& operator=( const QIconView & );
+#endif
 };
 
 #endif

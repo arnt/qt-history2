@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -27,7 +27,7 @@
 // is included in Qt with the author's permission, and the grateful
 // thanks of the Troll Tech team.
 
-// (Note: Ming-Che's code is also QPL'd, ref mail to into@troll.no)
+// (Note: Ming-Che's code is also QPL'd, ref mail to into@trolltech.com)
 
 #include "qbig5codec.h"
 

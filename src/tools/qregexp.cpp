@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -347,7 +347,7 @@ static bool matchcharclass( uint *rxd, QChar c )
     uint clcode = *d & MCD;
     bool neg = clcode == CCN;
     if ( clcode != CCL && clcode != CCN)
-	qWarning("QRegExp: Internal error, please report to qt-bugs@troll.no");
+	qWarning("QRegExp: Internal error, please report to qt-bugs@trolltech.com");
     uint numFields = *d & MVL;
     uint cval = (((uint)(c.row())) << 8) | ((uint)c.cell());
     bool found = FALSE;

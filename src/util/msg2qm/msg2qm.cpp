@@ -4,17 +4,16 @@
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
 **
-** Author  : Matthias Ettrich
-** Created : 982402
 **
 ** Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-#include <qapplication.h>
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qtextcodec.h>
 #include <qtranslator.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 
 static QString* defaultScope = 0;
@@ -85,13 +84,11 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 	else if (defaultScope)
 	    scope = *defaultScope;
 
-	//int hash = translator->hash( scope.ascii(), id.ascii() );
-	if (translator->contains( /*hash,*/ scope.ascii(), id.ascii() ) ) {
+	if (translator->contains( scope.ascii(), id.ascii() ) ) {
 	    qWarning("Error: \"%s\" already in use", msgid.ascii() );
 	}
 	else {
 	    translator->insert( scope.latin1(), id.latin1(), msgstr );
-	    //debug("'%s':'%s'-->'%s'", scope.ascii(), id.ascii(), msgstr.ascii() );
 	}
     }
 }
@@ -155,10 +152,9 @@ void translate( const QString& filename, const QString& qmfile )
 		    else
 			line = QString::null;
 		}
-		if ( pass == 1 ) {
-		    //debug("%s --> %s", msgid.ascii(), msgstr.ascii() );
+		if ( pass == 1 )
 		    addTranslation( translator, msgid, msgstr);
-		}
+
 		if ( pass == 0 && msgid.isEmpty() ) {
 		    // Check for the encoding.
 		    int cpos = msgstr.find( "charset=" );
@@ -189,6 +185,11 @@ void translate( const QString& filename, const QString& qmfile )
 }
 
 
+// workaround for BCC problem, qtranslator.h includes qwindowdefs.h via qobject.h, see NEEDS_QMAIN
+#if defined(main)
+#undef main
+#endif
+
 int main( int argc, char* argv[] )
 {
 
@@ -201,7 +202,7 @@ int main( int argc, char* argv[] )
     }
 
     if ( argc <= infile ) {
-	qDebug("usage: %s [-scope default] infile [outfile]", argv[0]);
+	printf("usage: %s [-scope default] infile [outfile]\n", argv[0]);
 	exit(1);
     }
 

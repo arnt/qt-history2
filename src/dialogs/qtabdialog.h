@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -87,7 +87,7 @@ public:
     bool hasApplyButton() const;
 
 #if 1 // OBSOLETE
-    void setOKButton( const QString &text = QString::fromLatin1("OK") );
+    void setOKButton( const QString &text = QString::null );
 #endif
     void setOkButton( const QString &text );
     void setOkButton();
@@ -118,6 +118,11 @@ private:
     void setUpLayout();
 
     QTabPrivate *d;
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTabDialog( const QTabDialog & );
+    QTabDialog& operator=( const QTabDialog & );
+#endif
 };
 
 

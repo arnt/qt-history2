@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -76,7 +76,7 @@ static const char * const information_xpm[]={
 "..................***...........",
 "...................**..........."};
 /* XPM */
-static const char* warning_xpm[]={
+static const char* const warning_xpm[]={
 "32 32 4 1",
 ". c None",
 "a c #ffff00",
@@ -115,7 +115,7 @@ static const char* warning_xpm[]={
 "....bbbbbbbbbbbbbbbbbbbbbbbbbbb.",
 ".....bbbbbbbbbbbbbbbbbbbbbbbbb.."};
 /* XPM */
-static const char* critical_xpm[]={
+static const char* const critical_xpm[]={
 "32 32 4 1",
 ". c None",
 "a c #999999",
@@ -158,7 +158,7 @@ static const char* critical_xpm[]={
 
 // the Qt logo, for aboutQt
 /* XPM */
-static const char *qtlogo_xpm[] = {
+static const char * const qtlogo_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "54 34 13 1",
 /* colors */
@@ -493,7 +493,7 @@ static const char *mb_texts[] = {
 */
 
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
-    : QDialog( parent, name, TRUE )
+    : QDialog( parent, name, TRUE, WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu )
 {
     init( Ok, 0, 0 );
 }
@@ -558,7 +558,7 @@ QMessageBox::QMessageBox( const QString& caption,
 			  int button0, int button1, int button2,
 			  QWidget *parent, const char *name,
 			  bool modal, WFlags f )
-    : QDialog( parent, name, modal, f )
+    : QDialog( parent, name, modal, f | WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu )
 {
     init( button0, button1, button2 );
     setCaption( caption );
@@ -782,7 +782,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
     }
     QPixmap pm;
     if ( xpm_data ) {
-	QImage image(xpm_data);
+	QImage image( (const char **) xpm_data);
 	if ( style == MotifStyle ) {
 	    // All that colour looks ugly in Motif
 	    QColorGroup g = QApplication::palette().normal();
@@ -1341,7 +1341,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
     mb->setText( qApp->translate( "QMessageBox", textAboutQt ) );
     QPixmap pm;
-    QImage logo(qtlogo_xpm);
+    QImage logo( (const char **)qtlogo_xpm);
     if ( qGray(mb->palette().active().text().rgb()) >
          qGray(mb->palette().active().base().rgb()) )
     {

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -70,6 +70,11 @@ public:
     bool isSetType() const;
     bool isEnumType() const;
     QStrList enumKeys() const;			// enumeration names
+
+    int keyToValue( const char* key ) const; 		// enum and set conversion functions
+    const char* valueToKey( int value ) const;
+    int keysToValue( const QStrList& keys ) const;
+    QStrList valueToKeys( int value ) const;
 
     bool stored( QObject* ) const;
     bool designable() const;

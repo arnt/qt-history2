@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -442,7 +442,7 @@ support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
 <h2>Notes about locales on X11</h2>
 
-Many Unix distributations in only partial support for some locales -
+Many Unix distributations contain only partial support for some locales -
 for example, if you have a <tt>/usr/share/locale/ja_JP.EUC</tt>
 directory, this does not necessarily mean you can display Japanese text
 - you also need JIS encoded fonts (or Unicode fonts), and that

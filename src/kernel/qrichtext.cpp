@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -377,7 +377,6 @@ QRichText::~QRichText()
 {
     delete base;
     delete flow_;
-    delete formats;
 }
 
 void QRichText::dump()
@@ -452,7 +451,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		ENSURE_ENDTOKEN
 		if ( curstyle->isAnchor() ) {
 		    PROVIDE_DUMMY
-		    (dummy?dummy:current)->text.append( '\0', fmt );
+		    (dummy?dummy:current)->text.append( "", fmt );
 		}
 		return TRUE;
 	    }
@@ -734,20 +733,21 @@ QMap<QCString, QChar> *htmlMap()
   	html_map->insert("amp", '&');
   	html_map->insert("nbsp", 0x00a0U);
   	html_map->insert("bull", 0x2022U);
-  	html_map->insert("aring", 'å');
-  	html_map->insert("oslash", 'ø');
-  	html_map->insert("ouml", 'ö');
-  	html_map->insert("auml", 'ä');
-  	html_map->insert("uuml", 'ü');
-  	html_map->insert("Ouml", 'Ö');
-  	html_map->insert("Auml", 'Ä');
-  	html_map->insert("Uuml", 'Ü');
-  	html_map->insert("szlig", 'ß');
-  	html_map->insert("copy", '©');
-  	html_map->insert("deg", '°');
-  	html_map->insert("micro", 'µ');
-  	html_map->insert("plusmn", '±');
+  	html_map->insert("aring", '\xe5');
+  	html_map->insert("oslash", '\xf8');
+  	html_map->insert("ouml", '\xf6');
+  	html_map->insert("auml", '\xe4');
+  	html_map->insert("uuml", '\xfc');
+  	html_map->insert("Ouml", '\xd6');
+  	html_map->insert("Auml", '\xc4');
+  	html_map->insert("Uuml", '\xdc');
+  	html_map->insert("szlig", '\xdf');
+  	html_map->insert("copy", '\xa9');
+  	html_map->insert("deg", '\xb0');
+  	html_map->insert("micro", '\xb5');
+  	html_map->insert("plusmn", '\xb1');
   	html_map->insert("middot", '*');
+  	html_map->insert("quot", '\"');
     }
     return html_map;
 }
@@ -854,6 +854,8 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, QStyleSheetItem:
 
 bool QRichText::hasPrefix(const QString& doc, int pos, QChar c)
 {
+    if ( pos >= (int)doc.length() )
+	return FALSE;
     return valid && (doc.unicode())[pos] ==c;
 }
 
@@ -1308,6 +1310,15 @@ QTextParagraph::~QTextParagraph()
     }
 }
 
+int QTextParagraph::labelMargin() const
+{
+    if ( style->displayMode() != QStyleSheetItem::DisplayListItem )
+	return 0;
+    QFontMetrics fm( format.font() );
+    return fm.width( QString::fromLatin1("123. ") );
+}
+
+
 QTextParagraph* QTextParagraph::nextInDocument() const
 {
     if ( next  ) {
@@ -1364,8 +1375,7 @@ QTextRichString::QTextRichString( QTextFormatCollection* fmt )
 
 QTextRichString::~QTextRichString()
 {
-    for (int i = 0; i < len; ++i )
-	formats->unregisterFormat( *items[i].format );
+    clear();
 }
 
 void QTextRichString::clear()
@@ -1458,7 +1468,7 @@ QTextRichString::QTextRichString( const QTextRichString &other )
 // 	memcpy( items, other.items, sizeof(Item)*len );
 	for (int i = 0; i < len; ++i ) {
 	    items[i] = other.items[i];
-	    items[i].format->addRef();
+	    items[i].format->ref();
 	}
     }
 }
@@ -1476,7 +1486,7 @@ QTextRichString& QTextRichString::operator=( const QTextRichString &other )
 // 	memcpy( items, other.items, sizeof(Item)*len );
 	for (int i = 0; i < len; ++i ) {
 	    items[i] = other.items[i];
-	    items[i].format->addRef();
+	    items[i].format->ref();
 	}
     }
     return *this;
@@ -1575,21 +1585,21 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 int QRichTextFormatter::adjustHorizontalMargins( QTextCustomItem::Clear clear )
 {
     int m = 0;
-    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, 4 * xscale );
+    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, int(4*xscale) );
     if ( clear == QTextCustomItem::ClearLeft ||
 	 clear == QTextCustomItem::ClearBoth ) {
 	while ( lmargin > static_lmargin ) {
 	    m += int( QMAX( xscale, 1 ) );
-	    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, 4 * xscale );
+	    lmargin = flow->adjustLMargin( y_ + m, static_lmargin, int(4*xscale) );
 	}
     }
     lmargin += static_labelmargin;
-    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, 4 * xscale );
+    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, int(4*xscale) );
     if ( clear == QTextCustomItem::ClearRight ||
 	 clear == QTextCustomItem::ClearBoth ) {
 	while ( rmargin > static_rmargin ) {
 	    m += int( QMAX( xscale, 1 ) );
-	    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, 4 * xscale );
+	    rmargin = flow->adjustRMargin( y_ + m, static_rmargin, int(4*xscale) );
 	}
     }
     return m;
@@ -1624,18 +1634,18 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	    y_ += m;
 	}
 	width = flow->width;
-	lmargin = flow->adjustLMargin( y_, static_lmargin, 4 * xscale );
+	lmargin = flow->adjustLMargin( y_, static_lmargin, int(4*xscale) );
 	lmargin += static_labelmargin;
-	rmargin = flow->adjustRMargin( y_, static_rmargin, 4 * xscale );
+	rmargin = flow->adjustRMargin( y_, static_rmargin, int(4*xscale) );
 	paragraph->height = y() - paragraph->ypos; //####
 	paragraph->dirty = FALSE;
 	return FALSE;
     }
     y_ += height + 1;
     width = flow->width;
-    lmargin = flow->adjustLMargin( y_, static_lmargin, 4 * xscale );
+    lmargin = flow->adjustLMargin( y_, static_lmargin, int(4*xscale) );
     lmargin += static_labelmargin;
-    rmargin = flow->adjustRMargin( y_, static_rmargin, 4 * xscale );
+    rmargin = flow->adjustRMargin( y_, static_rmargin, int(4*xscale) );
     current++;
     currentx = lmargin;
 
@@ -1658,10 +1668,11 @@ void QRichTextFormatter::updateCharFormat( QPainter* p )
     if ( pastEnd() )
 	return;
     QTextCharFormat* fmt = format();
+    QFontMetrics fm( fmt->font() );
     if ( p ) {
 	p->setFont( fmt->font() );
+	fm = p->fontMetrics();
     }
-    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
     currentasc = fm.ascent();
     currentdesc = fm.descent();
     QTextCustomItem* custom = fmt->customItem();
@@ -1945,9 +1956,11 @@ void QRichTextFormatter::right( QPainter* p )
 	QString c =  paragraph->text.charAt( current );
 	if ( currentoffset  < int(c.length()) - 1 ) {
 	    QTextCharFormat* fmt = format();
-	    if ( p )
+	    QFontMetrics fm( fmt->font() );
+	    if ( p ) {
 		p->setFont( fmt->font() );
-	    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
+		fm = p->fontMetrics();
+	    }
 	    currentoffset++;
 	    currentoffsetx = fm.width( c, currentoffset );
 	    return;
@@ -1962,9 +1975,11 @@ void QRichTextFormatter::left( QPainter* p )
     if ( currentoffset > 0 ) {
 	QString c =  paragraph->text.charAt( current );
 	QTextCharFormat* fmt = format();
-	QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
-	if ( p )
+	QFontMetrics fm( fmt->font() );
+	if ( p ) {
 	    p->setFont( fmt->font() );
+	    fm = p->fontMetrics();
+	}
 	currentoffset--;
 	currentoffsetx = fm.width( c, currentoffset );
     }
@@ -1990,9 +2005,11 @@ void QRichTextFormatter::left( QPainter* p )
 	if ( c.length() > 1 ) {
 	    currentoffset = c.length() - 1;
 	    QTextCharFormat* fmt = format();
-	    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
-	    if ( p )
+	    QFontMetrics fm( fmt->font() );
+	    if ( p ) {
 		p->setFont( fmt->font() );
+		fm = p->fontMetrics();
+	    }
 	    currentoffsetx = fm.width( c, currentoffset );
 	}
     }
@@ -2048,7 +2065,9 @@ void QRichTextFormatter::gotoNextItem( QPainter* p )
     }
     else {
 	QString c = item->c;
-	QFontMetrics fm = p?p->fontMetrics():QFontMetrics(formatinuse->font() );
+	QFontMetrics fm( formatinuse->font() );
+	if ( p )
+	    fm = p->fontMetrics();
 	if ( item->width < 0 )
 	    item->width = fm.width( c );
 	currentx += item->width;
@@ -2082,9 +2101,11 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
 
     QTextCharFormat* fmt = format();
     int fmt_current = current;
-    if ( p )
+    QFontMetrics fm( fmt->font() );
+    if ( p ) {
 	p->setFont( fmt->font() );
-    QFontMetrics fm = p?p->fontMetrics():QFontMetrics(fmt->font() );
+	fm = p->fontMetrics();
+    }
     int leading = fm.leading();
 
     widthUsed = 0;
@@ -2343,8 +2364,6 @@ void QTextFlow::drawFloatingItems(QPainter* p,
 
 QTextTable::QTextTable(const QMap<QString, QString> & attr  )
 {
-    cells.setAutoDelete( TRUE );
-
     cellspacing = 2;
     if ( attr.contains("cellspacing") )
 	cellspacing = attr["cellspacing"].toInt();
@@ -2564,7 +2583,11 @@ QTextTableCell::QTextTableCell(QTextTable* table,
 
 QTextTableCell::~QTextTableCell()
 {
+    delete background;
+    background = 0;
+    QTextFormatCollection* formats = richtext?richtext->formats:0;
     delete richtext;
+    delete formats; //#### fix inheritance structure in rich text
 }
 
 QSize QTextTableCell::sizeHint() const
@@ -2661,24 +2684,26 @@ void QTextTableCell::draw(int x, int y,
 }
 
 QTextCharFormat::QTextCharFormat()
-    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ),
+    : logicalFontSize( 3 ), stdPointSize( 12 ),
       custom( 0 )
 {
 }
 
 QTextCharFormat::QTextCharFormat( const QTextCharFormat &format )
-    : font_( format.font_ ), color_( format.color_ ),
-      key( format.key ), ref( 1 ),
+    : QShared(), font_( format.font_ ), color_( format.color_ ),
+      key( format.key ),
       logicalFontSize( format.logicalFontSize ),
       stdPointSize( format.stdPointSize ),
       anchor_href( format.anchor_href ),
       anchor_name( format.anchor_name ),
       parent(0), custom( format.custom )
 {
+    if ( custom )
+	custom->ref();
 }
 
 QTextCharFormat::QTextCharFormat( const QFont &f, const QColor &c )
-    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ),
+    : font_( f ), color_( c ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ),
       parent(0), custom( 0 )
 {
     createKey();
@@ -2686,6 +2711,10 @@ QTextCharFormat::QTextCharFormat( const QFont &f, const QColor &c )
 
 QTextCharFormat::~QTextCharFormat()
 {
+    if ( custom && custom->deref() ) {
+	delete custom;
+	custom = 0; // helps debugging
+    }
 }
 
 void QTextCharFormat::createKey()
@@ -2708,28 +2737,19 @@ QTextCharFormat &QTextCharFormat::operator=( const QTextCharFormat &fmt )
     font_ = fmt.font_;
     color_ = fmt.color_;
     key = fmt.key;
-    ref = 1;
     logicalFontSize = fmt.logicalFontSize;
     stdPointSize = fmt.stdPointSize;
     anchor_href = fmt.anchor_href;
     anchor_name = fmt.anchor_name;
     custom = fmt.custom;
+    if ( custom )
+	custom->ref();
     return *this;
 }
 
 bool QTextCharFormat::operator==( const QTextCharFormat &format )
 {
     return format.key == key;
-}
-
-int QTextCharFormat::addRef()
-{
-    return ++ref;
-}
-
-int QTextCharFormat::removeRef()
-{
-    return --ref;
 }
 
 QTextCharFormat QTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
@@ -2815,14 +2835,14 @@ QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &f
 {
     if ( format.parent == this ) {
 	QTextCharFormat* f = ( QTextCharFormat*) &format;
-	f->addRef();
+	f->ref();
 	lastRegisterFormat = f;
 	return f;
     }
 
     if ( lastRegisterFormat ) {
         if ( format.key == lastRegisterFormat->key ) {
-	    lastRegisterFormat->addRef();
+	    lastRegisterFormat->ref();
 	    return lastRegisterFormat;
         }
     }
@@ -2836,7 +2856,7 @@ QTextCharFormat* QTextFormatCollection::registerFormat( const QTextCharFormat &f
 
     QTextCharFormat *fc = cKey[ format.key ];
     if ( fc ) {
-	fc->addRef();
+	fc->ref();
 	lastRegisterFormat = fc;
 	return fc;
     } else {
@@ -2856,8 +2876,7 @@ void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
 	// see registerFormat()
 	f = (QTextCharFormat*)&format;
-	int ref = f->removeRef();
-	if ( ref <= 0 ) {
+	if ( f->deref() ) {
 	    if ( f == lastRegisterFormat )
 		lastRegisterFormat = 0;
 	    delete f;
@@ -2871,8 +2890,7 @@ void QTextFormatCollection::unregisterFormat( const QTextCharFormat &format )
 	f = cKey[ format.key ];
 
     if ( f ) {
-	int ref = f->removeRef();
-	if ( ref <= 0 ) {
+	if ( f->deref() ) {
 	    if ( f == lastRegisterFormat )
 		lastRegisterFormat = 0;
 	    cKey.remove( format.key );

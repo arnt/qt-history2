@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -118,12 +118,12 @@ public:
 	WState_Reserved2	= 0x00020000,
 	WState_Reserved3	= 0x00040000,
 	WState_Reserved4	= 0x00080000,
-	WState_Reserved5	= 0x00100000,
+	WState_TranslateBackground = 0x00100000,
 	WState_ForceDisabled	= 0x00200000,
 	WState_Exposed		= 0x00400000
     };
 
-    // Widget flags
+    // Widget flags2
     typedef uint WFlags;
 
     // documented in qwidget.cpp
@@ -147,7 +147,7 @@ public:
 	WStyle_StaysOnTop	= 0x00001000,
 	WStyle_Dialog 		= 0x00002000,
 	WStyle_ContextHelp	= 0x00004000,
-	WStyle_Reserved3	= 0x00008000,
+	WStyle_NoBorderEx	= 0x00008000, // ## NoBorder in 3.0
 	WStyle_Mask		= 0x0000fff0,
 
 	WDestructiveClose	= 0x00010000,	// misc flags
@@ -157,7 +157,8 @@ public:
 	WResizeNoErase		= 0x00100000,
 	WMouseNoMask		= 0x00200000,
 	WNorthWestGravity	= 0x00400000,
-	WRepaintNoErase		= 0x00800000
+	WRepaintNoErase		= 0x00800000,
+	WX11BypassWM		= 0x01000000
     };
 
     // Image conversion flags.  The unusual ordering is caused by
@@ -561,6 +562,7 @@ public:
     QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
 						// arrows
     QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
+    QT_STATIC_CONST QCursor & forbiddenCursor;	// forbidden cursor (slashed circle)
 
 
     enum TextFormat {

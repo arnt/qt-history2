@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -258,13 +258,15 @@ QCommonStyle::drawSliderMask( QPainter *p,
 void
 QCommonStyle::drawSliderGrooveMask( QPainter *p,
 				   int x, int y, int w, int h,
-				   QCOORD /* c */,
+				   QCOORD c,
 				   Orientation orient )
 {
-     if ( orient == Horizontal )
-	 p->fillRect(x, y, w, h, color1);
-    else
-	p->fillRect(x, y, w, h, color1);
+    QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
+    drawSliderGroove( p, x, y, w, h, g, c, orient );
+//      if ( orient == Horizontal )
+// 	 p->fillRect(x, y, w, h, color1);
+//     else
+// 	p->fillRect(x, y, w, h, color1);
 }
 
 

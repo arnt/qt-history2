@@ -16,7 +16,6 @@ int main(int argc,char **argv)
     QApplication a(argc,argv);
 
     ProgressBar progressbar;
-    progressbar.resize(300,200);
     progressbar.setCaption("Example for a ProgressBar");
     a.setMainWidget(&progressbar);
     progressbar.show();

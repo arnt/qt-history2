@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -47,7 +47,8 @@ class QTipLabel : public QLabel
 public:
     QTipLabel(const QString& text) : QLabel( 0, "toolTipTip",
 			  WStyle_StaysOnTop +
-			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool )
+			  WStyle_Customize + WStyle_NoBorder + WStyle_Tool +
+			   WX11BypassWM )
     {
 	setMargin(1);
 	setIndent(0);

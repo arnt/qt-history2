@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
@@ -27,7 +27,7 @@
 
 extern Qt::WindowsVersion qt_winver;
 
-static const int cursors = 14;
+static const int cursors = 15;
 static QCursor cursorTable[cursors];
 
 QT_STATIC_CONST_IMPL QCursor & Qt::arrowCursor = cursorTable[0];
@@ -44,6 +44,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::blankCursor = cursorTable[10];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
+QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
 
 
 /*****************************************************************************
@@ -344,92 +345,95 @@ void QCursor::update() const
 
     char *sh;
     switch ( data->cshape ) {			// map to windows cursor
-	case ArrowCursor:
-	    sh = (char*)IDC_ARROW;
-	    break;
-	case UpArrowCursor:
-	    sh = (char*)IDC_UPARROW;
-	    break;
-	case CrossCursor:
-	    sh = (char*)IDC_CROSS;
-	    break;
-	case WaitCursor:
-	    sh = (char*)IDC_WAIT;
-	    break;
-	case IbeamCursor:
-	    sh = (char*)IDC_IBEAM;
-	    break;
-	case SizeVerCursor:
-	    sh = (char*)IDC_SIZENS;
-	    break;
-	case SizeHorCursor:
-	    sh = (char*)IDC_SIZEWE;
-	    break;
-	case SizeBDiagCursor:
-	    sh = (char*)IDC_SIZENESW;
-	    break;
-	case SizeFDiagCursor:
-	    sh = (char*)IDC_SIZENWSE;
-	    break;
-	case SizeAllCursor:
-	    sh = (char*)IDC_SIZEALL;
-	    break;
-	case BlankCursor:
-	case SplitVCursor:
-	case SplitHCursor:
-	case PointingHandCursor:
-	case BitmapCursor: {
-	    QImage bbits, mbits;
-	    bool invb, invm;
-	    if ( data->cshape == BlankCursor ) {
-		bbits.create( 32, 32, 1, 2, QImage::BigEndian );
-		bbits.fill( 0 );		// ignore color table
-		mbits = bbits.copy();
+    case ArrowCursor:
+	sh = (char*)IDC_ARROW;
+	break;
+    case UpArrowCursor:
+	sh = (char*)IDC_UPARROW;
+	break;
+    case CrossCursor:
+	sh = (char*)IDC_CROSS;
+	break;
+    case WaitCursor:
+	sh = (char*)IDC_WAIT;
+	break;
+    case IbeamCursor:
+	sh = (char*)IDC_IBEAM;
+	break;
+    case SizeVerCursor:
+	sh = (char*)IDC_SIZENS;
+	break;
+    case SizeHorCursor:
+	sh = (char*)IDC_SIZEWE;
+	break;
+    case SizeBDiagCursor:
+	sh = (char*)IDC_SIZENESW;
+	break;
+    case SizeFDiagCursor:
+	sh = (char*)IDC_SIZENWSE;
+	break;
+    case SizeAllCursor:
+	sh = (char*)IDC_SIZEALL;
+	break;
+    case ForbiddenCursor:
+	sh = (char*)IDC_NO;
+	break;
+    case BlankCursor:
+    case SplitVCursor:
+    case SplitHCursor:
+    case PointingHandCursor:
+    case BitmapCursor: {
+	QImage bbits, mbits;
+	bool invb, invm;
+	if ( data->cshape == BlankCursor ) {
+	    bbits.create( 32, 32, 1, 2, QImage::BigEndian );
+	    bbits.fill( 0 );		// ignore color table
+	    mbits = bbits.copy();
+	    data->hx = data->hy = 16;
+	    invb = invm = FALSE;
+	} else if ( data->cshape != BitmapCursor ) {
+	    int i = data->cshape - SplitVCursor;
+	    QBitmap cb( 32, 32, cursor_bits32[i*2], TRUE );
+	    QBitmap cm( 32, 32, cursor_bits32[i*2+1], TRUE );
+	    bbits = cb;
+	    mbits = cm;
+	    if ( data->cshape == PointingHandCursor )
+		data->hx = data->hy = 0;
+	    else
 		data->hx = data->hy = 16;
-		invb = invm = FALSE;
-	    } else if ( data->cshape != BitmapCursor ) {
-		int i = data->cshape - SplitVCursor;
-		QBitmap cb( 32, 32, cursor_bits32[i*2], TRUE );
-		QBitmap cm( 32, 32, cursor_bits32[i*2+1], TRUE );
-		bbits = cb;
-		mbits = cm;
-		if ( data->cshape == PointingHandCursor )
-		    data->hx = data->hy = 0;
-		else
-		    data->hx = data->hy = 16;
-		invb = invm = FALSE;
-	    } else {
-		bbits = *data->bm;
-		mbits = *data->bmm;
-		invb = bbits.numColors() > 1 &&
-		    qGray(bbits.color(0)) < qGray(bbits.color(1));
-		invm = mbits.numColors() > 1 &&
-		    qGray(mbits.color(0)) < qGray(mbits.color(1));
-	    }
-	    int i, n = bbits.numBytes();
-	    uchar *bits = bbits.scanLine( 0 );
-	    uchar *mask = mbits.scanLine( 0 );
-	    for ( i=0; i<n; i++ ) {
-		uchar b = bits[i];
-		uchar m = mask[i];
-		if ( invb )
-		    b ^= 0xff;
-		if ( invm )
-		    m ^= 0xff;
-		bits[i] = ~m;
-		mask[i] = b ^ m;
-	    }
-	    data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
-					bbits.width(), bbits.height(),
-					bits, mask );
-	    return;
+	    invb = invm = FALSE;
+	} else {
+	    bbits = *data->bm;
+	    mbits = *data->bmm;
+	    invb = bbits.numColors() > 1 &&
+		   qGray(bbits.color(0)) < qGray(bbits.color(1));
+	    invm = mbits.numColors() > 1 &&
+		   qGray(mbits.color(0)) < qGray(mbits.color(1));
 	}
-	default:
+	int i, n = bbits.numBytes();
+	uchar *bits = bbits.scanLine( 0 );
+	uchar *mask = mbits.scanLine( 0 );
+	for ( i=0; i<n; i++ ) {
+	    uchar b = bits[i];
+	    uchar m = mask[i];
+	    if ( invb )
+		b ^= 0xff;
+	    if ( invm )
+		m ^= 0xff;
+	    bits[i] = ~m;
+	    mask[i] = b ^ m;
+	}
+	data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
+				    bbits.width(), bbits.height(),
+				    bits, mask );
+	return;
+    }
+    default:
 #if defined(CHECK_RANGE)
-	    qWarning( "QCursor::update: Invalid cursor shape %d",
-		      data->cshape );
+	qWarning( "QCursor::update: Invalid cursor shape %d",
+		  data->cshape );
 #endif
-	    return;
+	return;
     }
     if ( qt_winver & Qt::WV_NT_based )
 	data->hcurs = LoadCursor( 0, (TCHAR*)sh );

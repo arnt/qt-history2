@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#372 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#373 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
@@ -414,7 +414,7 @@ static void qt_set_windows_resources()
     cg.setColor( QColorGroup::BrightText,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     cg.setColor( QColorGroup::ButtonText,
-		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
+		 QColor(colorref2qrgb(GetSysColor(COLOR_BTNTEXT))) );
     cg.setColor( QColorGroup::Base,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_WINDOW))) );
     cg.setColor( QColorGroup::Background,
@@ -431,11 +431,27 @@ static void qt_set_windows_resources()
 		     (cg.foreground().blue()+cg.button().blue())/2);
     QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 		     disabled, Qt::white, Qt::white, cg.background() );
+    dcg.setColor( QColorGroup::Highlight,
+		  QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+    dcg.setColor( QColorGroup::HighlightedText,
+		  QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
+
+    QColorGroup icg = cg;
+    if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+	if ( icg.background() != icg.base() ) {
+	    icg.setColor( QColorGroup::Highlight, icg.background() );
+	    icg.setColor( QColorGroup::HighlightedText, icg.text() );
+	}
+    }
 
     QPalette pal( cg, dcg, cg );
     QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
+    pal = QPalette( cg, dcg, icg );
+    QApplication::setPalette( pal, TRUE, "QListView" );
+    QApplication::setPalette( pal, TRUE, "QIconView" );
+    QApplication::setPalette( pal, TRUE, "QListBox" );
 
     QColor menu(colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
@@ -450,15 +466,18 @@ static void qt_set_windows_resources()
 			 (cg.foreground().blue()+cg.button().blue())/2);
 	QColorGroup dcg( disabled, cg.button(), cg.light(), cg.dark(), cg.mid(),
 			 disabled, Qt::white, Qt::white, cg.background() );
+	dcg.setColor( QColorGroup::Highlight,
+		      QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
+	dcg.setColor( QColorGroup::HighlightedText,
+		      QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
-	QColorGroup icg = cg;
+	icg = cg;
 	if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
-
-	QPalette pal(cg, dcg, icg);
-	QApplication::setPalette( pal, TRUE, "QPopupMenu");
-	QApplication::setPalette( pal, TRUE, "QMenuBar");
+	QPalette menu(cg, dcg, icg);
+ 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
+ 	QApplication::setPalette( menu, TRUE, "QMenuBar");
     }
 
     QColor ttip(colorref2qrgb(GetSysColor(COLOR_INFOBK)));
@@ -467,7 +486,7 @@ static void qt_set_windows_resources()
 	cg.setColor( QColorGroup::Button, ttip );
 	cg.setColor( QColorGroup::Background, ttip );
 	cg.setColor( QColorGroup::Text, ttipText );
-	//cg.setColor( QColorGroup::Foreground, ttipText );
+	cg.setColor( QColorGroup::Foreground, ttipText );
 	cg.setColor( QColorGroup::ButtonText, ttipText );
 	QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 			 (cg.foreground().green()+cg.button().green())/2,
@@ -484,11 +503,7 @@ static void qt_set_windows_resources()
   qt_init() - initializes Qt for Windows
  *****************************************************************************/
 
-#if defined(DEBUG)
 void qt_init( int *argcptr, char **argv )
-#else
-void qt_init( int * /*argcptr*/, char ** /*argv*/ )
-#endif
 {
     // Detect the Windows version
     (void) QApplication::winVersion();
@@ -514,6 +529,9 @@ void qt_init( int * /*argcptr*/, char ** /*argv*/ )
 	    argv[j++] = argv[i];
     }
     *argcptr = j;
+#else
+    Q_UNUSED( argcptr );
+    Q_UNUSED( argv );
 #endif // DEBUG
 
 
@@ -1390,6 +1408,43 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( qt_winEventFilter(&msg) )		// send through app filter
 	return 0;
 
+    switch ( message ) {
+    case WM_QUERYENDSESSION: {
+	if ( sm_smActive ) // bogus message from windows
+	    return TRUE;
+	
+	sm_smActive = TRUE;
+	sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
+	sm_cancel = FALSE;
+	qApp->commitData( *win_session_manager );
+	if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
+	    //### should call something like fsync() for all
+	    //file descriptors being closed?
+	}
+	return !sm_cancel;
+    }
+
+    case WM_ENDSESSION: {
+	sm_smActive = FALSE;
+	sm_blockUserInput = FALSE;
+	bool endsession = (bool) wParam;
+	
+	if ( endsession ) {
+	    qApp->quit();
+	}
+	
+	return 0;
+    }
+
+    case WM_SETTINGCHANGE:
+    case WM_SYSCOLORCHANGE:
+	if ( QApplication::desktopSettingsAware() )
+	    qt_set_windows_resources();
+	break;
+    default:
+ 	break;
+    }
+
     widget = (QETWidget*)QWidget::find( hwnd );
     if ( !widget )				// don't know this widget
 	goto do_default;
@@ -1446,8 +1501,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
 	} else
-	    switch ( message ) {
-
+	    switch ( message ) {	
 	    case WM_KEYDOWN:			// keyboard event
 	    case WM_KEYUP:
 	    case WM_SYSKEYDOWN:
@@ -1512,7 +1566,13 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	    case WM_ERASEBKGND:			// erase window background
 		{
+		    int ox = 0;
+		    int oy = 0;
 		    RECT r;
+		    if ( widget->backgroundOrigin() == QWidget::ParentOrigin && !widget->isTopLevel() ) {
+			ox = widget->x();
+			oy = widget->y();
+		    }
 		    GetClientRect( hwnd, &r );
 #if defined(QT_ERASE_BACKGROUND)
 		    qt_erase_background
@@ -1522,7 +1582,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			( (HDC)wParam, r.left, r.top,
 			  r.right-r.left, r.bottom-r.top,
 			  widget->backgroundColor(),
-			  widget->backgroundPixmap(), 0, 0 );
+			  widget->backgroundPixmap(), ox, oy );
 		    return TRUE;
 		}
 		break;
@@ -1565,11 +1625,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 		break;
 
-	    case WM_SETTINGCHANGE:
-		if ( QApplication::desktopSettingsAware() )
-		    qt_set_windows_resources();
-		break;
-
 	    case WM_CLOSE:				// close window
 		widget->translateCloseEvent( msg );
 		return 0;				// always handled
@@ -1583,34 +1638,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		result = FALSE;
 		break;
 
-	    case WM_QUERYENDSESSION:
-		{
-		    if ( sm_smActive ) // bogus message from windows
-			return TRUE;
-
-		    sm_smActive = TRUE;
-		    sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
-		    sm_cancel = FALSE;
-		    qApp->commitData( *win_session_manager );
-		    if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
-			//### should call something like fsync() for all
-			//file descriptors being closed?
-		    }
-		    return !sm_cancel;
-		}
-
-	    case WM_ENDSESSION:
-		{
-		    sm_smActive = FALSE;
-		    sm_blockUserInput = FALSE;
-		    bool endsession = (bool) wParam;
-
-		    if ( endsession ) {
-			qApp->quit();
-		    }
-
-		    return 0;
-		}
 
 	    case WM_GETMINMAXINFO:
 		if ( widget->xtra() ) {

@@ -2,7 +2,7 @@
 
 Read this file if you want to port Qt to a new platform or C++
 compiler.  If you come across any problems, feel free to send mail to
-qt-bugs@troll.no.
+qt-bugs@trolltech.com.
 
 			     REQUIREMENTS
 
@@ -24,7 +24,7 @@ involves incompatible patches for the same platform floating around the
 net.) 
 
 Further, we would like to have copies of all Qt-related files on
-ftp.troll.no.
+ftp.trolltech.com.
 
 			 PORTING INSTRUCTIONS
 
@@ -32,7 +32,7 @@ In the configs/ directory you will find several build configuration
 files for all platforms supported by Qt.  You can generate your own
 config files by using the makeconfig script in the bin/ directory.
 
-1) Download and install tmake; ftp://ftp.troll.no/freebies/tmake/
+1) Download and install tmake; ftp://ftp.trolltech.com/freebies/tmake/
 
 2) Create your own tmake configuration, for example:
 
@@ -63,8 +63,8 @@ the code in Qt is sane, please use a #pragma or two to shut your compiler
 up.  (This is a good reason for wanting the _CC_whatever_ define above.)
 
 Make a unified diff (diff -u) and send the patch and your new tmake
-configuration to qt-bugs@troll.no.
+configuration to qt-bugs@trolltech.com.
 
 For most Unix varieties, that's all.  Some may need some include file
-tweaks.  Good luck, and again, feel free to send mail to qt-bugs@troll.no.
+tweaks.  Good luck, and again, feel free to send mail to qt-bugs@trolltech.com.
 

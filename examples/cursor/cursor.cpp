@@ -81,7 +81,9 @@ CursorView::CursorView()			// construct view
 	{ BlankCursor,		"blankCursor" },
 	{ SplitVCursor,		"splitVCursor" },
 	{ SplitHCursor,		"splitHCursor" },
-	{ PointingHandCursor,	"pointingHandCursor" } };
+	{ PointingHandCursor,	"pointingHandCursor" },
+	{ ForbiddenCursor,		"forbiddenCursor" }
+    };
 
     setCaption( "CursorView" );			// set window caption
 

@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -66,13 +66,13 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   Header file:
 
-  \include application/application.h
+  \include mdi/application.h
 
   <hr>
 
   Implementation:
 
-  \include application/application.cpp
+  \include mdi/application.cpp
 
   <hr>
 
@@ -699,10 +699,11 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
   <h1 align=center>Table</h1><br clear="all">
 
   The table program displays a spreadsheet-like table. It is an example of
-  how to inherit the QTableView widget for presentations of 2D data arrays.
+  how to inherit the QScrollView widget for presentations of 2D data arrays.
 
   Left-click the mouse to set a current cell. Press the arrow buttons to
-  move the current mark around.
+  move the current mark around. Type something to edit a cell's
+  contents.
 
   <hr>
 

@@ -68,6 +68,7 @@ public:
     QFont font() const;
     ParagType paragType() const;
     int alignment() const;
+    int maxLines() const;
 
 public slots:
     virtual void undo();
@@ -106,7 +107,11 @@ public slots:
 
     virtual void setReadOnly( bool ro );
     virtual void setModified( bool m );
+    virtual void selectAll( bool select );
 
+    virtual void setMaxLines( int l );
+    virtual void resetFormat();
+    
 signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );
@@ -123,6 +128,10 @@ protected:
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
     void contentsMouseDoubleClickEvent( QMouseEvent *e );
+    void contentsDragEnterEvent( QDragEnterEvent *e );
+    void contentsDragMoveEvent( QDragMoveEvent *e );
+    void contentsDragLeaveEvent( QDragLeaveEvent *e );
+    void contentsDropEvent( QDropEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
 
@@ -133,6 +142,7 @@ private slots:
     void doChangeInterval();
     void blinkCursor();
     void setModified();
+    void startDrag();
 
 private:
     enum MoveDirection {
@@ -189,7 +199,7 @@ private:
     QTextEditCursor *cursor;
     bool drawAll;
     bool mousePressed;
-    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer;
+    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
     QTextEditParag *lastFormatted;
     int interval;
     QVBox *completionPopup;
@@ -205,7 +215,9 @@ private:
     QPoint oldMousePos, mousePos;
     QPixmap *buf_pixmap;
     bool cursorVisible, blinkCursorVisible;
-    bool readOnly, modified;
+    bool readOnly, modified, mightStartDrag;
+    QPoint dragStartPos;
+    int mLines;
 
 };
 

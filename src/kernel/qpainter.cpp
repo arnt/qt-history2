@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -213,7 +213,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   <li> \c SquareCap - A square line end that covers the end point and
   extends beyond it with half the line width.
- 
+
   <li> \c RoundCap - A rounded line end.
 
   </ul>
@@ -358,7 +358,7 @@ QPainter::~QPainter()
 
 bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes )
 {
-    if ( pd == 0 ) {
+    if ( copyAttributes == 0 ) {
 #if defined(CHECK_NULL)
 	qWarning( "QPainter::begin: The widget to copy attributes from cannot "
 		 "be null" );
@@ -1270,7 +1270,7 @@ void QPainter::rotate( double a )
 /*!
   Resets any transformations that were made using translate(), scale(),
   shear(), rotate(), setWorldMatrix(), setViewport() and setWindow()
-  \sa worldMatrix(), viewPort(), window()
+  \sa worldMatrix(), viewport(), window()
 */
 
 void QPainter::resetXForm()
@@ -1482,7 +1482,7 @@ void QPainter::mapInv( int x, int y, int w, int h,
   Returns the point \e pv transformed from user coordinates to device
   coordinates.
 
-  \sa xFormDev(), QWMatrix::xForm()
+  \sa xFormDev(), QWMatrix::map()
 */
 
 QPoint QPainter::xForm( const QPoint &pv ) const
@@ -1501,7 +1501,7 @@ QPoint QPainter::xForm( const QPoint &pv ) const
   If world transformation is enabled and rotation or shearing has been
   specified, then the bounding rectangle is returned.
 
-  \sa xFormDev(), QWMatrix::xForm()
+  \sa xFormDev(), QWMatrix::map()
 */
 
 QRect QPainter::xForm( const QRect &rv ) const
@@ -1525,7 +1525,7 @@ QRect QPainter::xForm( const QRect &rv ) const
 /*!
   Returns the point array \e av transformed from user coordinates to device
   coordinates.
-  \sa xFormDev(), QWMatrix::xForm()
+  \sa xFormDev(), QWMatrix::map()
 */
 
 QPointArray QPainter::xForm( const QPointArray &av ) const
@@ -1561,7 +1561,7 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
     b = painter.xForm(a,2,-1);	// b.size() == 8
   \endcode
 
-  \sa xFormDev(), QWMatrix::xForm()
+  \sa xFormDev(), QWMatrix::map()
 */
 
 QPointArray QPainter::xForm( const QPointArray &av, int index,
@@ -1581,7 +1581,7 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
 /*!
   Returns the point \e pv transformed from device coordinates to user
   coordinates.
-  \sa xForm(), QWMatrix::xForm()
+  \sa xForm(), QWMatrix::map()
 */
 
 QPoint QPainter::xFormDev( const QPoint &pd ) const
@@ -1604,7 +1604,7 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
   If world transformation is enabled and rotation or shearing is used,
   then the bounding rectangle is returned.
 
-  \sa xForm(), QWMatrix::xForm()
+  \sa xForm(), QWMatrix::map()
 */
 
 QRect QPainter::xFormDev( const QRect &rd ) const
@@ -1631,7 +1631,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 /*!
   Returns the point array \e av transformed from device coordinates to user
   coordinates.
-  \sa xForm(), QWMatrix::xForm()
+  \sa xForm(), QWMatrix::map()
 */
 
 QPointArray QPainter::xFormDev( const QPointArray &ad ) const
@@ -1667,7 +1667,7 @@ QPointArray QPainter::xFormDev( const QPointArray &ad ) const
     b = painter.xFormDev(a,1,-1);	// b.size() == 9
   \endcode
 
-  \sa xForm(), QWMatrix::xForm()
+  \sa xForm(), QWMatrix::map()
 */
 
 QPointArray QPainter::xFormDev( const QPointArray &ad, int index,
@@ -2130,9 +2130,9 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int minleftbearing = 0;
     int minrightbearing = 0;
 
-#define CWIDTH(x) fm.width(x) // Could cache, but put that it in fm
 #define ENCCHAR(x) (((x).cell() << LO_SHIFT) | ((x).row() << HI_SHIFT))
 #define DECCHAR(x) QChar(((x)&LO)>>LO_SHIFT,((x)&HI)>>HI_SHIFT)
+#define CWIDTH(x) fm.width(DECCHAR(x)) // Could cache, but put that it in fm
 #define ISPRINT(x) ((x).row() || (x).cell()>' ')
     // ##### should use (unicode) QChar::isPrint() -- WWA to AG
 
@@ -2174,11 +2174,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    } else {
 		cc = ENCCHAR(*p);
 	    }
-	
+
 	    cw = 0;
  	    if ( breakwithinwords ) {
- 		breakwidth += fm.width( cc );
- 		if ( breakwidth > w ) {
+ 		breakwidth += CWIDTH(cc);
+ 		if ( !word.isEmpty() && breakwidth > w ) {
  		    fakeBreak = TRUE;
  		    continue;
  		}
@@ -2198,10 +2198,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 			cw = 0;
 			nlines++;
 		    }
-		    if ( tw+cw > w && word.length() > 1) {
+		    if ( /* do not add !breakwithinwords &&*/
+			tw+cw > w && word.length() > 1) {
 			breakwithinwords = TRUE;
 			breakwidth = 0;
-			p -= word.length();	
+			p -= word.length();
 			k -= word.length();
 			index = begline+1;
 			tw = 0;
@@ -2293,7 +2294,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	nlines++;
 	codes[index++] = 0;
 	codelen = index;
-	
+
 	uint* cptr = codes;
 	while ( *cptr ) { 			// determine bearings
 	    int lw = *cptr++ & WIDTHBITS;
@@ -2474,11 +2475,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		    int xcpos = fm.width( chunk );
 		    if ( pp )			// gray text
 			pp->fillRect( xc+xcpos, fascent+fm.underlinePos(),
-				      CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
+				      CWIDTH(*cp), fm.lineWidth(),
 				      Qt::color1 );
 		    else
 			painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
-					   CWIDTH(DECCHAR(*cp)), fm.lineWidth(),
+					   CWIDTH(*cp), fm.lineWidth(),
 					   painter->cpen.color() );
 		}
 		chunk += DECCHAR(*cp);
@@ -2675,7 +2676,7 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
   \sa setWidth(), setStyle(), setColor()
 */
 
-QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c, 
+QPen::QPen( const QColor &cl, uint w, PenStyle s, PenCapStyle c,
 	    PenJoinStyle j )
 {
     init( cl, w, s | c | j );
@@ -2801,9 +2802,9 @@ Qt::PenCapStyle QPen::capStyle() const
 
 /*!
   Sets the pen's cap style to \a c.
-  
+
   The default value is FlatCap. The cap style has no effect on 0-width pens.
-  
+
   \warning On Windows 95/98, the cap style setting has no effect. Wide
   lines are rendered as if the cap style was SquareCap.
 
@@ -2830,9 +2831,9 @@ Qt::PenJoinStyle QPen::joinStyle() const
 
 /*!
   Sets the pen's join style to \a j.
-  
+
   The default value is MiterJoin. The join style has no effect on 0-width pens.
-  
+
   \warning On Windows 95/98, the join style setting has no effect. Wide
   lines are rendered as if the join style was BevelJoin.
 

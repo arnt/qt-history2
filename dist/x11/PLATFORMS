@@ -5,12 +5,12 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  aix-g++        hpux-acc       irix-n32       osf1-g++       ultrix-g++
-  aix-xlc        hpux-cc        irix-o32       qnx-g++        unixware-g++
-  bsdi-g++       hpux-g++       linux-g++      sco-g++        unixware7-cc
-  dgux-g++       irix-64        netbsd-g++     solaris-cc     unixware7-g++
-  freebsd-g++    irix-dcc       openbsd-g++    solaris-g++
-  gnu-g++        irix-g++       osf1-cxx       sunos-g++
+  aix-g++        hpux-acc       irix-n32       osf1-g++       sunos-g++
+  aix-xlc        hpux-cc        irix-o32       qnx-g++        ultrix-g++
+  bsdi-g++       hpux-g++       linux-g++      sco-g++        unixware-g++
+  dgux-g++       irix-64        netbsd-g++     solaris-cc     unixware7-cc
+  freebsd-g++    irix-dcc       openbsd-g++    solaris-cc64   unixware7-g++
+  gnu-g++        irix-g++       osf1-cxx       solaris-g++
 
 Limitations:
 
@@ -20,7 +20,7 @@ Compilation problems:
 
   Qt 2.0 has problems compiling on some combinations of operating
   system versions and compiler versions.  Information about such
-  problems will be posted on http://www.troll.no/platforms/ as we
+  problems will be posted on http://www.trolltech.com/platforms/ as we
   become aware of them.
 
 Example:

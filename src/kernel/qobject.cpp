@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -321,11 +321,14 @@ QObject::QObject( QObject *parent, const char *name )
     pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
     wasDeleted = FALSE;				// double-delete catcher
+    isTree = FALSE;					// no tree yet
     parentObj  = parent;				// to avoid root checking in insertChild()
-    if ( parent )				// add object to parent
+    if ( parent ) {				// add object to parent
 	parent->insertChild( this );
-    else
+    } else {
 	insert_tree( this );
+	isTree = TRUE;
+    }
 }
 
 
@@ -359,10 +362,12 @@ QObject::~QObject()
 	qKillTimer( this );
     if ( pendEvent )
 	QApplication::removePostedEvents( this );
-    if ( parentObj )				// remove it from parent object
-	parentObj->removeChild( this );
-    else
+    if ( isTree ) {
 	remove_tree( this );		// remove from global root list
+	isTree = FALSE;
+    }
+    if ( parentObj ) 				// remove it from parent object
+	parentObj->removeChild( this );
     register QObject *obj;
     if ( senderObjects ) {			// disconnect from senders
 	QObjectList *tmp = senderObjects;
@@ -399,9 +404,9 @@ QObject::~QObject()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
+	    // ### nest line is a QGList workaround - remove in 3.0
+	    childObjects->removeRef( obj );
 	    delete obj;
-	    if ( !childObjects )		// removeChild resets it
-		break;
 	}
 	delete childObjects;
     }
@@ -1028,9 +1033,11 @@ QConnectionList *QObject::receivers( const char *signal ) const
 
 void QObject::insertChild( QObject *obj )
 {
-    if ( !obj->parentObj )
+    if ( obj->isTree ) {
 	remove_tree( obj );
-    else if ( obj->parentObj && obj->parentObj != this ) {
+	obj->isTree = FALSE;
+    }
+    if ( obj->parentObj && obj->parentObj != this ) {
 #if defined(CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
 	    qWarning( "QObject::insertChild: Cannot reparent a widget, "
@@ -1072,8 +1079,10 @@ void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
-	if ( !wasDeleted )
+	if ( !wasDeleted ) {
 	    insert_tree( obj );			// it's a root object now
+	    isTree = TRUE;
+	}
 	if ( childObjects->isEmpty() ) {
 	    delete childObjects;		// last child removed
 	    childObjects = 0;			// reset children list
@@ -2189,34 +2198,26 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     if ( p->isEnumType() ) {
 	int v = 0;
-	if ( p->isSetType() ) {
-	    if ( value.type() != QVariant::StringList )
-		return FALSE;
-	    QStringList l = value.toStringList();
-	    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-		QCString s = (*it).latin1();
-		for( uint i = p->enumData->count; TRUE; --i ) {
-		    if ( !i )
-			return FALSE;
-		    if ( s == p->enumData->items[i-1].key ) {
-			v += p->enumData->items[i-1].value;
-			break;
-		    }
-		}
+
+	if( value.type() == QVariant::Int ||
+	    value.type() == QVariant::UInt ) {
+	    v = value.toInt();
+	} else if ( value.type() == QVariant::String ||
+		    value.type() == QVariant::CString ) {
+
+	    if ( p->isSetType() ) {
+		QString s = value.toString();
+		// QStrList does not support split, use QStringList for that.
+		QStringList l = QStringList::split( '|', s );
+		QStrList keys;
+		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+		    keys.append( (*it).stripWhiteSpace().latin1() );
+		v = p->keysToValue( keys );
+	    } else {
+		v = p->keyToValue( value.toCString().data() );
 	    }
 	} else {
-	    if ( value.type() != QVariant::String &&
-		 value.type() != QVariant::CString )
-		return FALSE;
-	    QCString s = value.toCString();
-	    for( uint i = p->enumData->count; TRUE; --i ) {
-		if ( !i )
-		    return FALSE;
-		if ( s == p->enumData->items[i-1].key ) {
-		    v += p->enumData->items[i-1].value;
-		    break;
-		}
-	    }
+	    return FALSE;
 	}
 	ProtoInt m = (ProtoInt)p->set;
 	(this->*m)( v );
@@ -2230,7 +2231,6 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     // Some stupid casts in this switch... for #@$!&@ SunPro C++ 5.0 compiler
     switch ( type ) {
 
-    case QVariant::Custom:
     case QVariant::Invalid:
 	return FALSE;
 
@@ -2654,24 +2654,7 @@ QVariant QObject::property( const char *name ) const
     if ( p->isEnumType() ) {
 	ProtoInt m = (ProtoInt)p->get;
 	int x = (int) (this->*m)();
-	if ( p->isSetType() ) {
-	    QStringList l;
-	    for( uint i = p->enumData->count; i > 0; --i ) {
-		int y = p->enumData->items[i-1].value;
-		if ( (x & y) == y ) {
-		    x = x & ~y;
-		    l += QString::fromLatin1( p->enumData->items[i-1].key );
-		}
-	    }
-	    value = QVariant( l );
-	} else {
-	    for( uint i = p->enumData->count; i > 0; --i ) {
-		if ( x == p->enumData->items[i-1].value ) {
-		    value = QVariant( p->enumData->items[i-1].key );
-		    break;
-		}
-	    }
-	}
+	value = QVariant( x );
 	return value;
     }
 
@@ -2679,7 +2662,6 @@ QVariant QObject::property( const char *name ) const
     QVariant::Type type = QVariant::nameToType( p->type() );
 
     switch ( type ) {
-    case QVariant::Custom:
     case QVariant::Invalid:
 	// A real assert, since this indicates a moc bug
 	ASSERT( 0 );

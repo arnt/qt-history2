@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -180,7 +180,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus )
     Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
-	
+
 public:
     QListView( QWidget * parent = 0, const char *name = 0 );
     ~QListView();
@@ -332,10 +332,15 @@ private:
     void reconfigureItems();
     void widthChanged(const QListViewItem*, int c);
     void handleItemChange( QListViewItem *old, bool shift, bool control );
-    void selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst );
+    void selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel = FALSE );
 
     QListViewPrivate * d;
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QListView( const QWidget & );
+    QListView &operator=( const QWidget & );
+#endif
 };
 
 

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -852,7 +852,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	if ( !mi->text().isNull() || mi->custom() ) {
 	    QString s = mi->text();
 	    int i = s.find('\t');
-	    if (k) {
+	    if ( k && k != Key_unknown ) {
 		QString t = QAccel::keyToString( k );
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
@@ -860,9 +860,9 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		    s += '\t';
 		    s += t;
 		}
-	    } else {
-		if ( i >= 0 )
-		    s.truncate( i );
+	    } else if ( !k ) {
+ 		if ( i >= 0 )
+ 		    s.truncate( i );
 	    }
 	    if ( s != mi->text() ) {
 		mi->setText( s );
@@ -1409,6 +1409,20 @@ void  QPopupMenu::styleChange( QStyle& old )
     QFrame::styleChange( old );
 }
 
+/*!  
+  If a popup menu does not fit on the screen, it layouts itself in
+  multiple columns until it fits.
+  
+  This functions returns in how many.
+  
+\sa sizeHint()  
+ */
+int QPopupMenu::columns() const
+{
+    return ncols;
+}
+
+
 
 /*! This private slot handles the delayed submenu effects */
 
@@ -1795,7 +1809,6 @@ void QPopupMenu::toggleTearOff()
 	p->reparent( parentWidget(), WType_TopLevel | WStyle_Tool |
 		     WRepaintNoErase | WDestructiveClose,
 		     geometry().topLeft(), FALSE );
-	style().polishPopupMenu( p );
 	p->mitems->setAutoDelete( FALSE );
 	p->tornOff = TRUE;
 	for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {

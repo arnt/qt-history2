@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -322,9 +322,8 @@ void write_jpeg_image(QImageIO* iio)
 	    gray = TRUE;
 	    int i;
 	    for (i=image.numColors(); gray && i--; ) {
-		gray &=
-		       qRed(cmap[i]) == qGreen(cmap[i])
-		    && qRed(cmap[i]) == qBlue(cmap[i]);
+		gray = gray & ( qRed(cmap[i]) == qGreen(cmap[i]) &&
+				qRed(cmap[i]) == qBlue(cmap[i]) );
 	    }
 	    cinfo.input_components = gray ? 1 : 3;
 	    cinfo.in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -95,7 +95,7 @@ typedef char *XPointer;
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM
 #elif defined(_OS_HPUX_) && defined(__LP64__)
-> // XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
+// XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
 #define NO_XIM
 #endif
 

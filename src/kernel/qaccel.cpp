@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -64,8 +64,9 @@
   UNICODE_ACCEL).  For example, <code>CTRL + Key_P</code> could be a
   shortcut for printing a document. The key codes are listed in
   qnamespace.h. As an alternative, use \c UNICODE_ACCEL with the
-  unicode value of the character. For example, <code>UNICODE_ACCEL +
-  'A'</code> gies the same accelerator as \c Key_A.
+  unicode code point of the character. For example,
+  <code>UNICODE_ACCEL + 'A'</code> gies the same accelerator as \c
+  Key_A.
 
   When an accelerator key is pressed, the accelerator sends out the
   signal activated() with a number that identifies this particular
@@ -73,8 +74,9 @@
   connected, so that two different keys will activate two different
   slots (see connectItem() and disconnectItem()).
 
-  Use setEnabled() to enable/disable all items in the accelerator,
-  or setItemEnabled() to enable/disable individual items.
+  Use setEnabled() to enable/disable all items in the accelerator, or
+  setItemEnabled() to enable/disable individual items.  An item is
+  active only when the QAccel is enabled and the item itself is.
 
   The function setWhatsThis() specifies the What's This text for an
   accelerator item.
@@ -211,7 +213,7 @@ QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
 }
 
 /*!
-  Destructs the accelerator object.
+  Destructs the accelerator object and frees all allocated resources.
 */
 
 QAccel::~QAccel()
@@ -222,6 +224,7 @@ QAccel::~QAccel()
 
 /*!
   \fn void QAccel::activated( int id )
+
   This signal is emitted when an accelerator key is pressed. \a id is
   a number that identifies this particular accelerator item.
 */
@@ -241,7 +244,9 @@ bool QAccel::isEnabled() const
   Enables the accelerator if \a enable is TRUE, or disables it if
   \a enable is FALSE.
 
-  Individual keys can also be enabled or disabled.
+  Individual keys can also be enabled or disabled using
+  setItemEnabled().  To work, a key must be an enabled item in an
+  enabled QAccel.
 
   \sa isEnabled(), setItemEnabled()
 */
@@ -354,9 +359,10 @@ bool QAccel::isItemEnabled( int id ) const
 
 
 /*!
-  Enables or disables an accelerator item.
-  \a id is the item identifier.
-  \a enable specifies whether the item should be enabled or disabled.
+  Enables the accelerator key \a item if \a enable is TRUE, and
+  disables \a item if \a enable is FALSE.
+
+  To work, a key must be an enabled item in an enabled QAccel.
 
   \sa isItemEnabled(), isEnabled()
 */
@@ -370,15 +376,13 @@ void QAccel::setItemEnabled( int id, bool enable )
 
 
 /*!
-  Connects an accelerator item to a slot/signal in another object.
-
-  \a id is the accelerator item id.
-  \a receiver is the object to receive a signal.
-  \a member is a slot or signal function in the receiver.
+  Connects the accelerator item \a id to the slot \member of \a receiver.
 
   \code
     a->connectItem( 201, mainView, SLOT(quit()) );
   \endcode
+
+  Of course, you can also send a signal as \a member.
 
   \sa disconnectItem()
 */
@@ -445,7 +449,8 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
     if ( e->type() == QEvent::Reparent && d->watch == o ) {
 	repairEventFilter();
     } else  if ( d->enabled &&
-	 ( e->type() == QEvent::Accel || e->type() == QEvent::AccelAvailable) &&
+	 ( e->type() == QEvent::Accel ||
+	   e->type() == QEvent::AccelAvailable) &&
 	 d->watch && d->watch->isVisible() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
@@ -456,6 +461,8 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	if ( k->state() & AltButton )
 	    key |= ALT;
 	QAccelItem *item = find_key( d->aitems, key, k->text()[0] );
+	if ( key == Key_unknown )
+	    item = 0;
 	bool b = QWhatsThis::inWhatsThisMode();
 	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
@@ -511,6 +518,36 @@ int QAccel::shortcutKey( const QString &str )
     return 0;
 }
 
+static struct {
+    int key;
+    const char* name;
+} keyname[] = {
+    { Qt::Key_Space,	QT_TRANSLATE_NOOP( "QAccel", "Space" ) },
+    { Qt::Key_Escape,	QT_TRANSLATE_NOOP( "QAccel", "Esc" ) },
+    { Qt::Key_Tab,	QT_TRANSLATE_NOOP( "QAccel", "Tab" ) },
+    { Qt::Key_Backtab,	QT_TRANSLATE_NOOP( "QAccel", "Backtab" ) },
+    { Qt::Key_Backspace,	QT_TRANSLATE_NOOP( "QAccel", "Backspace" ) },
+    { Qt::Key_Return,	QT_TRANSLATE_NOOP( "QAccel", "Return" ) },
+    { Qt::Key_Enter,	QT_TRANSLATE_NOOP( "QAccel", "Enter" ) },
+    { Qt::Key_Insert,	QT_TRANSLATE_NOOP( "QAccel", "Ins" ) },
+    { Qt::Key_Delete,	QT_TRANSLATE_NOOP( "QAccel", "Del" ) },
+    { Qt::Key_Pause,	QT_TRANSLATE_NOOP( "QAccel", "Pause" ) },
+    { Qt::Key_Print,	QT_TRANSLATE_NOOP( "QAccel", "Print" ) },
+    { Qt::Key_SysReq,	QT_TRANSLATE_NOOP( "QAccel", "SysReq" ) },
+    { Qt::Key_Home,	QT_TRANSLATE_NOOP( "QAccel", "Home" ) },
+    { Qt::Key_End,	QT_TRANSLATE_NOOP( "QAccel", "End" ) },
+    { Qt::Key_Left,	QT_TRANSLATE_NOOP( "QAccel", "Left" ) },
+    { Qt::Key_Up,		QT_TRANSLATE_NOOP( "QAccel", "Up" ) },
+    { Qt::Key_Right,	QT_TRANSLATE_NOOP( "QAccel", "Right" ) },
+    { Qt::Key_Down,	QT_TRANSLATE_NOOP( "QAccel", "Down" ) },
+    { Qt::Key_Prior,	QT_TRANSLATE_NOOP( "QAccel", "PgUp" ) },
+    { Qt::Key_Next,	QT_TRANSLATE_NOOP( "QAccel", "PgDown" ) },
+    { Qt::Key_CapsLock,	QT_TRANSLATE_NOOP( "QAccel", "CapsLock" ) },
+    { Qt::Key_NumLock,	QT_TRANSLATE_NOOP( "QAccel", "NumLock" ) },
+    { Qt::Key_ScrollLock,	QT_TRANSLATE_NOOP( "QAccel", "ScrollLock" ) },
+    { 0, 0 }
+};
+
 /*!
    Creates an accelerator string for the key \a k.
    For instance CTRL+Key_O gives "Ctrl+O".  The "Ctrl" etc.
@@ -543,80 +580,17 @@ QString QAccel::keyToString( int k )
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
     } else {
-	switch ( k ) {
-	    case Key_Space:
-		p = tr( "Space" );
+	int i=0;
+	while (keyname[i].name) {
+	    if ( k == keyname[i].key ) {
+		p = tr(keyname[i].name);
 		break;
-	    case Key_Escape:
-		p = tr( "Esc" );
-		break;
-	    case Key_Tab:
-		p = tr( "Tab" );
-		break;
-	    case Key_Backtab:
-		p = tr( "Backtab" );
-		break;
-	    case Key_Backspace:
-		p = tr( "Backspace" );
-		break;
-	    case Key_Return:
-		p = tr( "Return" );
-		break;
-	    case Key_Enter:
-		p = tr( "Enter" );
-		break;
-	    case Key_Insert:
-		p = tr( "Ins" );
-		break;
-	    case Key_Delete:
-		p = tr( "Del" );
-		break;
-	    case Key_Pause:
-		p = tr( "Pause" );
-		break;
-	    case Key_Print:
-		p = tr( "Print" );
-		break;
-	    case Key_SysReq:
-		p = tr( "SysReq" );
-		break;
-	    case Key_Home:
-		p = tr( "Home" );
-		break;
-	    case Key_End:
-		p = tr( "End" );
-		break;
-	    case Key_Left:
-		p = tr( "Left" );
-		break;
-	    case Key_Up:
-		p = tr( "Up" );
-		break;
-	    case Key_Right:
-		p = tr( "Right" );
-		break;
-	    case Key_Down:
-		p = tr( "Down" );
-		break;
-	    case Key_Prior:
-		p = tr( "PgUp" );
-		break;
-	    case Key_Next:
-		p = tr( "PgDown" );
-		break;
-	    case Key_CapsLock:
-		p = tr( "CapsLock" );
-		break;
-	    case Key_NumLock:
-		p = tr( "NumLock" );
-		break;
-	    case Key_ScrollLock:
-		p = tr( "ScrollLock" );
-		break;
-	    default:
-		p.sprintf( "<%d?>", k );
-		break;
+	    }
+	    ++i;
 	}
+	if ( !keyname[i].name )
+	    p.sprintf( "<%d?>", k );
+
     }
     if ( s.isEmpty() )
 	s = p;
@@ -642,26 +616,42 @@ QString QAccel::keyToString( int k )
 	file->insertItem( p1, tr("&Open..."), this, SLOT(open()),
 	    QAccel::stringToKey(tr("Ctrl+O")) );
    \endcode
-
-   Note that this function currently only supports character
-   accelerators (unlike keyToString() which can produce
-   Ctrl+Backspace, etc. from the appropriate key codes).
 */
 int QAccel::stringToKey( const QString & s )
 {
     int k = 0;
-    int p = s.findRev('+');
+    int p = s.findRev('+',s.length()-2); // -2 so that Ctrl++ works
+    QString name;
     if ( p > 0 ) {
-	k = s[p+1].unicode() | UNICODE_ACCEL;
+	name = s.mid(p+1);
+    } else {
+	name = s;
+    }
+    int fnum;
+    if ( name.length() == 1 ) {
+	k = name[0].unicode() | UNICODE_ACCEL;
+    } else if ( name[0] == 'F' && (fnum=name.mid(1).toInt()) ) {
+	k = Key_F1 + fnum - 1;
+    } else {
+	for (int tran=0; tran<=1; tran++) {
+	    for (int i=0; keyname[i].name; i++) {
+		if ( tran ? name == tr(keyname[i].name)
+			  : name == keyname[i].name )
+		{
+		    k = keyname[i].key;
+		    goto done;
+		}
+	    }
+	}
+	done:;
+    }
+    if ( p > 0 ) {
 	if ( s.contains("Ctrl+") || s.contains(tr("Ctrl")+"+") )
 	    k |= CTRL;
 	if ( s.contains("Shift+") || s.contains(tr("Shift")+"+") )
 	    k |= SHIFT;
 	if ( s.contains("Alt+") || s.contains(tr("Alt")+"+") )
 	    k |= ALT;
-    }
-    else if ( s.length() == 1 ) {
-	k = s[0].unicode() | UNICODE_ACCEL;
     }
     return k;
 }
@@ -699,15 +689,13 @@ QString QAccel::whatsThis( int id ) const
     return item? item->whatsthis : QString::null;
 }
 
-/*!\internal
- */
+/*!\internal */
 void QAccel::setIgnoreWhatsThis( bool b)
 {
     d->ignorewhatsthis = b;
 }
 
-/*!\internal
- */
+/*!\internal */
 bool QAccel::ignoreWhatsThis() const
 {
     return d->ignorewhatsthis;
@@ -723,12 +711,22 @@ bool QAccel::ignoreWhatsThis() const
 
 <h1 align="center">Standard Accelerator Keys</h1>
 
-Microsoft defines a large number of standard accelerators; the Open
-Group defines a somewhat smaller number.  Here is a list of the ones
-that involve letter keys, sorted alphabetically.  The boldfaced letter
-(A in About) together with Alt is Microsoft's accelerator; where the
-Open Group has a different standard we explain the difference in
-parentheses.
+Applications invariably need to define accelerator keys for actions,
+and Qt provides functions to help with that, most importantly \l
+QAccel::shortcutKey().
+
+Here is Microsoft's recommendations for accelerator key choice, with
+comments about the Open Group's recommendations where they exist and
+differ.  For most commands, the Open Group either has no advice or
+agrees with Microsoft.
+
+The boldfaced letter plus Alt is Microsoft's recommended choice, and
+we recommend supporting it.  For an Apply button, for example, we
+recommend \link QButton::setText() setText( \endlink \link
+QWidget::tr() tr( \endlink "&About" ) );
+
+If you have conflicting commands (e.g. About and Apply buttons in the
+same dialog), you're on your own.
 
 <ul>
 <li><b><u>A</u></b>bout
@@ -788,21 +786,23 @@ parentheses.
 <li><b><u>S</u></b>ize
 <li>S<b><u>p</u></b>lit
 <li><b><u>S</u></b>top
-<li><b><u>U</u></b>ndo (CDE says Ctrl-Z or Alt-Backspace)
+<li><b><u>U</u></b>ndo (CDE: Ctrl-Z or Alt-Backspace)
 <li><b><u>V</u></b>iew
 <li><b><u>W</u></b>hat's This?
 <li><b><u>W</u></b>indow
 <li><b><u>Y</u></b>es
 </ul>
 
-The
-<a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
-Microsoft book</a> has ISBN 1556156790.  The corresponding
-<a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
-Open Group book</a> has ISBN 1859121047.  (The link does not work at
-the time of writing, since Amazon, like most book stores, does not
-supply it.  The Open Group books are \e very hard to find, and
-also rather expensive.  If you really want it, OGPubs@opengroup.org
-may be able to help.)
+There are also a lot of other keys and actions (that use other
+modifier keys).  See the Microsoft and Open Group documentation for
+details.
+
+The <a
+href="http://www.amazon.com/exec/obidos/ASIN/0735605661/trolltech/t">
+Microsoft book</a> has ISBN 0735605661.  The corresponding Open Group
+book is \e very hard to find, rather expensive and we cannot recommend
+it. However, if you really want it, OGPubs@opengroup.org may be able
+to help. Ask then for ISBN 1859121047. (This ISBN is correct, but is
+not listed in any database we have seen.)
 
 */

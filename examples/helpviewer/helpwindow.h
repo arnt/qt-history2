@@ -44,7 +44,6 @@ private slots:
     void addBookmark();
     
 private:
-    bool eventFilter( QObject * o, QEvent * e );
     void readHistory();
     void readBookmarks();
     

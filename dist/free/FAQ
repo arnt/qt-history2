@@ -1,7 +1,7 @@
                        Frequently Asked Questions
 
 Please note: the latest version of this and other FAQ lists are available at:
-                        http://www.troll.no/faq/
+                        http://www.trolltech.com/faq/
 
 
    1.Who is Troll Tech? 
@@ -27,26 +27,26 @@ Please note: the latest version of this and other FAQ lists are available at:
       qt-announce. 
 
       You may want to look at the free Qt GUI designers QtEZ and
-      Qt Architect; please see links on www.troll.no/qtprogs.html. 
+      Qt Architect; please see links on www.trolltech.com/qtprogs.html. 
 
    3.Is there a mailing list or something for Qt? 
 
-      There are three: qt-interest@troll.no, snapshot-users@troll.no,
+      There are three: qt-interest@trolltech.com, snapshot-users@trolltech.com,
       and qt-announce.
 
       Qt-interest is a user forum. There can be as much as 150
       messages per week. To join it, send a message containing the
-      single word "subscribe" to qt-interest-request@troll.no. 
+      single word "subscribe" to qt-interest-request@trolltech.com. 
 
-      Snapshot-users@troll.no is a forum for people using the
+      Snapshot-users@trolltech.com is a forum for people using the
       cutting-edge unstable version.  The details of the snapshot
-      releases are detailed at http://www.troll.no/qt-snapshots.html
+      releases are detailed at http://www.trolltech.com/qt-snapshots.html
 
       Qt-announce is for announcements of new Qt versions and a
       few other announcements. We expect that there will be less
       than ten messages to the list each year. To join the list, send
       mail containing the single word "subscribe" to
-      qt-announce-request@troll.no. 
+      qt-announce-request@trolltech.com. 
 
       All messages to Qt-announce are also sent to Qt-interest, so
       you don't need to be on both lists. 
@@ -96,12 +96,12 @@ Please note: the latest version of this and other FAQ lists are available at:
   10.Where can I find Qt? 
 
       The latest version of Qt can be downloaded from
-      http://www.troll.no or from ftp.troll.no, and a whole range of
+      http://www.trolltech.com or from ftp.trolltech.com, and a whole range of
       ftp mirror sites around the world. Look for a mirror near you
-      on the list available under http://www.troll.no/dl/ 
+      on the list available under http://www.trolltech.com/dl/ 
 
       We encourage all developers of free Qt software to upload
-      their work to ftp.troll.no. 
+      their work to ftp.trolltech.com. 
 
   11.I want to port Qt to a new platform. What do I do? 
 
@@ -120,7 +120,7 @@ Please note: the latest version of this and other FAQ lists are available at:
 
       Yes, if you do not make changes to Qt and include all the files
       present in our distribution of Qt. If you absolutely need to
-      change something, write to info@troll.no. 
+      change something, write to info@trolltech.com. 
 
       It is very important for Troll Tech that we know what is being
       distributed, so that we can guarantee the quality of Qt. 

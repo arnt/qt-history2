@@ -3,10 +3,13 @@
 
 # See Qt I18N documentation for usage information.
 
-$projectid='example-Qt-message-extraction';
-$datetime='1999-02-23 15:38+0200';
+use POSIX qw(strftime);
+
+$projectid='PROJECT VERSION';
+$datetime = strftime "%Y-%m-%d %X %Z", localtime;
 $charset='iso-8859-1';
-$translator='';
+$translator='FULLNAME <EMAIL@ADDRESS>';
+$revision_date='YYYY-MM-DD';
 
 $real_mark = "tr";
 $noop_mark = "QT_TR_NOOP";
@@ -21,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: '.$projectid.'\n"
 "POT-Creation-Date: '.$datetime.'\n"
-"PO-Revision-Date: '.$datetime.'\n"
+"PO-Revision-Date: '.$revision_date.'\n"
 "Last-Translator: '.$translator.'\n"
 "Content-Type: text/plain; charset='.$charset.'\n"
 

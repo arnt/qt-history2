@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -168,7 +168,7 @@ necessary and handling the moc output.
 <var>tmake</var> for building your Makefiles. This tool recognizes
 both Method A and B style source files, and generates a Makefile that
 does all necessary moc handling. tmake is available from <a
-href="http://www.troll.no/freebies/tmake.html">http://www.troll.no/freebies/tmake.html</a>.
+href="http://www.trolltech.com/freebies/tmake.html">http://www.trolltech.com/freebies/tmake.html</a>.
 
 <p>If, on the other hand, you want to build your Makefiles yourself,
 here are some tips on how to include moc handling.

@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -239,9 +239,9 @@ QDragManager::QDragManager()
 {
     n_cursor = 3;
     pm_cursor = new QPixmap[n_cursor];
-    pm_cursor[0] = QPixmap(move_xpm);
-    pm_cursor[1] = QPixmap(copy_xpm);
-    pm_cursor[2] = QPixmap(link_xpm);
+    pm_cursor[0] = QPixmap((const char **)move_xpm);
+    pm_cursor[1] = QPixmap((const char **)copy_xpm);
+    pm_cursor[2] = QPixmap((const char **)link_xpm);
     object = 0;
     dragSource = 0;
     dropWidget = 0;
@@ -468,7 +468,7 @@ const char * staticCharset(int i)
 
     switch ( i ) {
       case 0:
-	return "utf8";
+	return "UTF-8";
       case 1:
 	if ( localcharset.isNull() ) {
 	    localcharset = QTextCodec::codecForLocale()->name();
@@ -477,7 +477,7 @@ const char * staticCharset(int i)
 	}
 	return localcharset;
       case 2:
-	return "utf16";
+	return "ISO-10646-UCS-2";
       case 3:
 	return "";
     }

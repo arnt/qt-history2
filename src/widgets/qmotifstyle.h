@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -63,7 +63,7 @@ public:
     QRect comboButtonRect( int x, int y, int w, int h);
     QRect comboButtonFocusRect( int x, int y, int w, int h);
 
-    
+
     void drawPushButton( QPushButton* btn, QPainter *p);
 
     void drawArrow( QPainter *p, ArrowType type, bool down,
@@ -115,6 +115,11 @@ public:
 
 private:
     bool highlightCols;
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QMotifStyle( const QMotifStyle & );
+    QMotifStyle& operator=( const QMotifStyle & );
+#endif
 };
 
 #endif

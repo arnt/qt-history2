@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -172,11 +172,17 @@ void QTextBrowser::setSource(const QString& name)
 
  	if ( isVisible() ) {
  	    QString firstTag = txt.left( txt.find('>' )+1 );
- 	    QRichText tmp( firstTag );
+ 	    QRichText* tmp = new QRichText( firstTag, QApplication::font() );
  	    static QString s_type = QString::fromLatin1("type");
  	    static QString s_detail = QString::fromLatin1("detail");
- 	    if ( tmp.attributes().contains(s_type)
- 		&& tmp.attributes()[s_type] == s_detail ) {
+	    bool doReturn = FALSE;
+ 	    if ( tmp->attributes().contains(s_type)
+		 && tmp->attributes()[s_type] == s_detail )
+		doReturn = TRUE;
+	    QTextFormatCollection* formats = tmp->formats;
+	    delete tmp;
+	    delete formats; //#### fix inheritance structure in rich text
+	    if ( doReturn ) {
  		popupDetail( txt, d->lastClick );
  		qApp->restoreOverrideCursor();
  		return;

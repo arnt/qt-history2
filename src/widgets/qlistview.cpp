@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -61,7 +61,7 @@ struct QListViewPrivate
 
     // the magical hidden mother of all items
     class Root: public QListViewItem {
-      public:
+    public:
 	Root( QListView * parent );
 
 	void setHeight( int );
@@ -74,7 +74,7 @@ struct QListViewPrivate
 
     // for the stack used in drawContentsOffset()
     class Pending {
-      public:
+    public:
 	Pending( int level, int ypos, QListViewItem * item)
 	    : l(level), y(ypos), i(item) {};
 
@@ -85,7 +85,7 @@ struct QListViewPrivate
 
     // to remember what's on screen
     class DrawableItem {
-      public:
+    public:
 	DrawableItem( Pending * pi ) { y=pi->y; l=pi->l; i=pi->i; };
 	int y;
 	int l;
@@ -94,13 +94,13 @@ struct QListViewPrivate
 
     // for sorting
     class SortableItem {
-      public:
+    public:
 	QString key;
 	QListViewItem * i;
     };
 
     class ItemColumnInfo {
-      public:
+    public:
 	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), width( 0 ) {}
 	~ItemColumnInfo() { delete pm; delete next; }
 	QString text, tmpText;
@@ -111,7 +111,7 @@ struct QListViewPrivate
     };
 
     class ViewColumnInfo {
-      public:
+    public:
 	ViewColumnInfo(): align(Qt::AlignLeft), sortable(TRUE), next( 0 ) {}
 	~ViewColumnInfo() { delete next; }
 	int align;
@@ -175,7 +175,7 @@ struct QListViewPrivate
 
     // holds a list of iterators
     QList<QListViewItemIterator> *iterators;
-    QListViewItem *pressedItem;
+    QListViewItem *pressedItem, *selectAnchor;
 
     QTimer *scrollTimer;
 
@@ -554,6 +554,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
     QListView *lv = listView();
+    lv->d->makeCurrentVisibleOnUpdate = FALSE;
     if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
 	lv->repaintItem( lv->d->focusItem );
@@ -572,10 +573,10 @@ void QListViewItem::removeItem( QListViewItem * item )
 
 
 /*!
-  Removes \a item from this object's list of children and causes an
-  update of the screen display.  You should normally not need to call
-  this function, as QListViewItem::~QListViewItem() calls it. The normal way
-  to delete an item is \c delete.
+  Removes \a item from this object's list of children and causes an update
+  of the screen display.  The item is not deleted.  You should normally not
+  need to call this function, as QListViewItem::~QListViewItem() calls it.
+  The normal way to delete an item is \c delete.
 
   \warning This function leaves \a item and its children in a state
   where most member functions are unsafe.  Only the few functions that
@@ -636,13 +637,11 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
-	    if ( c == item || !c ) {
-		if ( !c )
-		    c = item;
-		if ( item->itemBelow() )
-		    lv->d->focusItem = item->itemBelow();
-		else if ( item->itemAbove() )
-		    lv->d->focusItem = item->itemAbove();
+	    if ( c == item ) {
+		if ( item->nextSibling() )
+		    lv->d->focusItem = item->nextSibling();
+ 		else if ( item->itemAbove() )
+ 		    lv->d->focusItem = item->itemAbove();
 		else
 		    lv->d->focusItem = 0;
 		emit lv->currentChanged( lv->d->focusItem );
@@ -650,6 +649,9 @@ void QListViewItem::takeItem( QListViewItem * item )
 		    emit lv->selectionChanged();
 	    }
 	}
+
+	if ( lv->d->selectAnchor == item )
+	    lv->d->selectAnchor = lv->d->focusItem;
     }
 
     nChildren--;
@@ -896,7 +898,7 @@ void QListViewItem::setup()
     widthChanged();
     QListView * v = listView();
     int ph = 0;
-    for ( unsigned int i = 0; i < v->d->column.size(); ++i ) {
+    for ( uint i = 0; i < v->d->column.size(); ++i ) {
 	if ( pixmap( i ) )
 	    ph = QMAX( ph, pixmap( i )->height() );
     }
@@ -932,6 +934,9 @@ void QListViewItem::activate()
   FALSE and does not change \a pos.
 
   Pos is relative to the top-left corner of this item.
+
+  We recommend not using this function; it will most likely be
+  obsoleted at the first opportunity.
 
   \sa activate()
 */
@@ -1154,6 +1159,13 @@ void QListViewItem::setText( int column, const QString &text )
 
 void QListViewItem::setPixmap( int column, const QPixmap & pm )
 {
+    int oldW = 0;
+    int oldH = 0;
+    if ( pixmap( column ) ) {
+	oldW = pixmap( column )->width();
+	oldH = pixmap( column )->height();
+    }
+
     if ( column < 0 )
 	return;
 
@@ -1183,9 +1195,19 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	else
 	    l->pm = new QPixmap( pm );
     }
-    setup();
-    widthChanged( column );
-    invalidateHeight();
+
+    int newW = 0;
+    int newH = 0;
+    if ( pixmap( column ) ) {
+	newW = pixmap( column )->width();
+	newH = pixmap( column )->height();
+    }
+
+    if ( oldW != newW || oldH != newH ) {
+	setup();
+	widthChanged( column );
+	invalidateHeight();
+    }
     repaint();
 }
 
@@ -1744,6 +1766,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->highlighted = 0;
     d->pressedItem = 0;
     d->makeCurrentVisibleOnUpdate = TRUE;
+    d->selectAnchor = 0;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -1911,16 +1934,12 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 			cs = d->h->cellSize( c );
 		}
 		lc = c;
-		// also make sure that the top item indicates focus,
-		// if nothing would otherwise
-// 		if ( !d->focusItem && hasFocus() )
-// 		    d->focusItem = current->i;
 	    }
 
 	    x = fx;
 	    c = fc;
 	    // draw to last interesting column
-	    while( c < lc ) {
+	    while( c < lc && d->drawables ) {
 		int i = d->h->mapToLogical( c );
 		cs = d->h->cellSize( c );
 		r.setRect( x - ox, current->y - oy, cs, ih );
@@ -1946,6 +1965,32 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		current->i->paintFocus( p, colorGroup(), r );
 		p->restore();
 	    }
+	}
+
+	// does current need focus indication?
+	if ( current->i == d->focusItem && hasFocus() &&
+	     d->allColumnsShowFocus ) {
+	    p->save();
+	    int x = -contentsX();
+	    int w = header()->cellPos( header()->count() - 1 ) +
+		    header()->cellSize( header()->count() - 1 );
+
+	    r.setRect( x, current->y - oy, w, ih );
+	    if ( d->h->mapToActual( 0 ) == 0 || ( current->l == 0 && !rootIsDecorated() ) ) {
+		r.setLeft( r.left() + current->l * treeStepSize() );
+		current->i->paintFocus( p, colorGroup(), r );
+	    } else {
+		int xdepth = treeStepSize() * ( current->i->depth() + ( rootIsDecorated() ? 1 : 0) )
+			     + itemMargin();
+		xdepth += d->h->cellPos( d->h->mapToActual( 0 ) );
+		QRect r1( r );
+		r1.setRight( d->h->cellPos( d->h->mapToActual( 0 ) ) - 1 );
+		QRect r2( r );
+		r2.setLeft( xdepth - 1 );
+ 		current->i->paintFocus( p, colorGroup(), r1 );
+ 		current->i->paintFocus( p, colorGroup(), r2 );
+	    }
+	    p->restore();
 	}
 
 	if ( tx < 0 )
@@ -1980,21 +2025,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 					   rtop - crtop, r.height(), style() );
 		p->restore();
 	    }
-	}
-
-	// does current need focus indication?
-	if ( current->i == d->focusItem && hasFocus() &&
-	     d->allColumnsShowFocus ) {
-	    p->save();
-	    int x = -contentsX();
-	    int w = header()->cellPos( header()->count() - 1 ) +
-		    header()->cellSize( header()->count() - 1 );
-
-	    r.setRect( x, current->y - oy, w, ih );
-	    if ( d->h->mapToActual( 0 ) == 0 )
-		r.setLeft( r.left() + current->l * treeStepSize() );
-	    current->i->paintFocus( p, colorGroup(), r );
-	    p->restore();
 	}
     }
 
@@ -2352,8 +2382,7 @@ void QListView::setColumnText( int column, const QIconSet& iconset, const QStrin
 void QListView::setColumnWidth( int column, int w )
 {
     if ( column < d->h->count() && d->h->cellSize( column ) != w ) {
-	d->h->setCellSize( column, w );
-	d->h->update(); // ##### paul, QHeader::setCellSize should do this.
+	d->h->resizeSection( column, w );
     }
 }
 
@@ -2713,10 +2742,12 @@ int QListViewItem::depth() const
 }
 
 
-/*!  Returns a pointer to the item immediately above this item on the
+/*!
+  Returns a pointer to the item immediately above this item on the
   screen.  This is usually the item's closest older sibling, but may
   also be its parent or its next older sibling's youngest child, or
-  something else if anyoftheabove->height() returns 0.
+  something else if anyoftheabove->height() returns 0.  Returns a null
+  pointer if there is no item immediately above this item.
 
   This function assumes that all parents of this item are open
   (ie. that this item is visible, or can be made visible by
@@ -2749,11 +2780,13 @@ QListViewItem * QListViewItem::itemAbove()
 }
 
 
-/*!  Returns a pointer to the item immediately below this item on the
+/*!
+  Returns a pointer to the item immediately below this item on the
   screen.  This is usually the item's eldest child, but may also be
   its next younger sibling, its parent's next younger sibling,
   grandparent's etc., or something else if anyoftheabove->height()
-  returns 0.
+  returns 0.  Returns a null pointer if there is no item immediately
+  above this item.
 
   This function assumes that all parents of this item are open
   (ie. that this item is visible, or can be made visible by
@@ -2792,7 +2825,9 @@ QListViewItem * QListViewItem::itemBelow()
   \sa setOpen()
 */
 
-/*! Returns a pointer to the first (top) child of this item.
+/*!
+  Returns a pointer to the first (top) child of this item, or a null
+  pointer if this item has no children.
 
   Note that the children are not guaranteed to be sorted properly.
   QListView and QListViewItem try to postpone or avoid sorting to the
@@ -2809,7 +2844,9 @@ QListViewItem* QListViewItem::firstChild () const
 }
 
 
-/*! Returns a pointer to the parent of this item.
+/*!
+  Returns a pointer to the parent of this item, or a null pointer if this
+  item has no parent.
 
   \sa firstChild(), nextSibling()
 */
@@ -2823,8 +2860,8 @@ QListViewItem* QListViewItem::parent () const
 
 /*! \fn QListViewItem* QListViewItem::nextSibling () const
 
-  Returns a pointer to the next sibling (below this one) of this
-  item.
+  Returns a pointer to the sibling item below this item, or a
+  null pointer if there is no sibling item after this item.
 
   Note that the siblings are not guaranteed to be sorted properly.
   QListView and QListViewItem try to postpone or avoid sorting to the
@@ -3034,6 +3071,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( isMultiSelection() )
 	    clearSelection();
 	goto emit_signals;
+    } else {
+	d->selectAnchor = i;
     }
 
     if ( (i->isExpandable() || i->childCount()) &&
@@ -3047,13 +3086,16 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
 	if ( it.current() ) {
 	    x1 -= treeStepSize() * (it.current()->l - 1);
-	    if ( x1 >= 0 && ( !i->isSelectable() || x1 < treeStepSize() ) ) {
+	    if ( x1 >= 0 && x1 < treeStepSize() ) {
 		bool close = i->isOpen();
 		setOpen( i, !i->isOpen() );
 		d->makeCurrentVisibleOnUpdate = FALSE;
 		qApp->processEvents();
-		if ( !d->focusItem )
-		    setCurrentItem( i );
+		if ( !d->focusItem ) {
+		    d->focusItem = i;
+		    repaintItem( d->focusItem );
+		    emit currentChanged( d->focusItem );
+		}
 		if ( close ) {
 		    bool newCurrent = FALSE;
 		    QListViewItem *ci = d->focusItem;
@@ -3064,9 +3106,11 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 			}
 			ci = ci->parent();
 		    }
-		    if ( newCurrent )
+		    if ( newCurrent ) {
 			setCurrentItem( i );
+		    }
 		}
+
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
@@ -3082,6 +3126,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	activatedP = vp - topLeft;
 	int xdepth = treeStepSize() * (i->depth() + (rootIsDecorated() ? 1 : 0))
 		     + itemMargin();
+	xdepth += d->h->cellPos( d->h->mapToActual( 0 ) );
 	activatedP.rx() -= xdepth;
     }
     i->activate();
@@ -3655,6 +3700,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !i )
 	return;
 
+    if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	d->selectAnchor = i;
+
     setCurrentItem( i );
     if ( i->isSelectable() ) {
 	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
@@ -3675,6 +3723,27 @@ void QListView::keyPressEvent( QKeyEvent * e )
   the listview's own, much larger, coordinate system.
 
   itemAt() returns 0 if there is no such item.
+
+  Note, that you also get the pointer to the item if \a viewPos points onto the
+  root decoration (see setRootIsDecorated()) of the item. To check if
+  \a viewPos is on the root decoration of the item or not, you can do something
+  like
+
+  \code
+  QListViewItem *i = itemAt( p );
+  if ( i ) {
+      if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
+	     treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
+	     p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
+          ; // p is not not in root decoration
+      else
+          ; // p is in the root decoration
+  }
+  \endcode
+
+  This might be interesting if you use this method to find out where the user
+  clicked and if you e.g. want to start a drag (which you do not want to do if the
+  user clicked onto the root decoration of an item)
 
   \sa itemPos() itemRect()
 */
@@ -4402,7 +4471,7 @@ void QCheckListItem::init()
     on = FALSE;
     reserved = 0;
     if ( !defaultIcon )
-	defaultIcon = new QPixmap( def_item_xpm );
+	defaultIcon = new QPixmap( (const char **)def_item_xpm );
     if ( myType == Controller ) {
 	if ( !pixmap(0) )
 	    setPixmap( 0, *defaultIcon );
@@ -4665,8 +4734,16 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
 				 const QRect & r )
 {
-    if ( myType != Controller ) {
-	QRect rect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5,r.height() );
+    bool intersect = TRUE;
+    QListView *lv = listView();
+    if ( lv && lv->header()->mapToActual( 0 ) != 0 ) {
+	int xdepth = lv->treeStepSize() * ( depth() + ( lv->rootIsDecorated() ? 1 : 0) ) + lv->itemMargin();
+	int p = lv->header()->cellPos( lv->header()->mapToActual( 0 ) );
+	xdepth += p;
+	intersect = r.intersects( QRect( p, r.y(), xdepth - p + 1, r.height() ) );
+    }
+    if ( myType != Controller && intersect ) {
+	QRect rect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5, r.height() );
 	QListViewItem::paintFocus(p, cg, rect);
     } else {
 	QListViewItem::paintFocus(p, cg, r);
@@ -4710,11 +4787,8 @@ QSize QListView::sizeHint() const
 
     if ( s.width() > s.height() * 3 )
 	s.setHeight( s.width() / 3 );
-    else if ( s.width() > s.height() * 2 )
-	s.setHeight( s.width() / 2 );
-    else if ( s.width() * 2 > s.height() * 3 )
-	s.setHeight( s.width() * 3 / 2 );
-
+    else if ( s.width() *3 < s.height() )
+	s.setHeight( s.width() * 3 );
 
     return s;
 }
@@ -5325,7 +5399,8 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
 	if ( control ) {
 	    // nothing
 	} else if ( shift ) {
-	    selectRange( old, d->focusItem, FALSE, TRUE );
+	    selectRange( d->selectAnchor ? d->selectAnchor : old,
+			 d->focusItem, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
 	} else {
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
@@ -5338,7 +5413,7 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
     }
 }
 
-void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst )
+void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel )
 {
     if ( !from || !to )
 	return;
@@ -5369,6 +5444,25 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
     }
 
     bool changed = FALSE;
+    if ( clearSel ) {
+	QListViewItemIterator it( firstChild() );
+	for ( ; it.current(); ++it ) {
+	    if ( it.current()->selected ) {
+		it.current()->setSelected( FALSE );
+		changed = TRUE;
+		repaintItem( it.current() );
+	    }
+	}
+	it = QListViewItemIterator( to );
+	for ( ; it.current(); ++it ) {
+	    if ( it.current()->selected ) {
+		it.current()->setSelected( FALSE );
+		changed = TRUE;
+		repaintItem( it.current() );
+	    }
+	}
+    }
+
     for ( QListViewItem *i = from; i; i = i->itemBelow() ) {
 	if ( !invert ) {
 	    if ( !i->selected && i->isSelectable() ) {

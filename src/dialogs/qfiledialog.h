@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -52,6 +52,11 @@ public:
     QFileIconProvider( QObject * parent = 0, const char* name = 0 );
     virtual const QPixmap * pixmap( const QFileInfo & );
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QFileIconProvider( const QFileIconProvider & );
+    QFileIconProvider& operator=( const QFileIconProvider & );
+#endif
 };
 
 class Q_EXPORT QFilePreview
@@ -81,7 +86,7 @@ class Q_EXPORT QFileDialog : public QDialog
     Q_PROPERTY( PreviewMode previewMode READ previewMode WRITE setPreviewMode )
     Q_PROPERTY( bool infoPreview READ isInfoPreviewEnabled WRITE setInfoPreviewEnabled )
     Q_PROPERTY( bool contentsPreview READ isContentsPreviewEnabled WRITE setContentsPreviewEnabled )
-	
+
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
                  QWidget *parent=0, const char *name = 0, bool modal = FALSE );
@@ -91,18 +96,34 @@ public:
     // recommended static functions
 
     static QString getOpenFileName( const QString &initially = QString::null,
-                                    const QString &filter = QString::null,
-                                    QWidget *parent = 0, const char* name = 0 );
+				    const QString &filter = QString::null,
+				    QWidget *parent = 0, const char* name = 0 ); // ## merge 3.0
+    static QString getOpenFileName( const QString &initially,
+				    const QString &filter,
+				    QWidget *parent, const char* name, const QString& caption );
     static QString getSaveFileName( const QString &initially = QString::null,
-                                    const QString &filter = QString::null,
-                                    QWidget *parent = 0, const char* name = 0);
+				    const QString &filter = QString::null,
+				    QWidget *parent = 0, const char* name = 0);// ## merge 3.0
+    static QString getSaveFileName( const QString &initially,
+				    const QString &filter,
+				    QWidget *parent, const char* name, 
+				    const QString& caption);
     static QString getExistingDirectory( const QString &dir = QString::null,
-                                         QWidget *parent = 0,
-                                         const char* name = 0 );
+					 QWidget *parent = 0,
+					 const char* name = 0 );// ## merge 3.0
+    static QString getExistingDirectory( const QString &dir,
+					 QWidget *parent,
+					 const char* name,
+					 const QString& caption);
     static QStringList getOpenFileNames( const QString &filter= QString::null,
-                                         const QString &dir = QString::null,
-                                         QWidget *parent = 0,
-                                         const char* name = 0);
+					 const QString &dir = QString::null,
+					 QWidget *parent = 0,
+					 const char* name = 0);// ## merge 3.0
+    static QStringList getOpenFileNames( const QString &filter,
+					 const QString &dir,
+					 QWidget *parent,
+					 const char* name,
+					 const QString& caption);
 
 
     // other static functions
@@ -162,12 +183,22 @@ public slots:
     void setFilters( const char ** );
     void setFilters( const QStringList& );
 
+protected:
+    void resizeEvent( QResizeEvent * );
+    void keyPressEvent( QKeyEvent * );
+
+    void addWidgets( QLabel *, QWidget *, QPushButton * );
+    void addToolButton( QButton *b, bool separator = FALSE );
+    void addLeftWidget( QWidget *w );
+    void addRightWidget( QWidget *w );
+    void addFilter( const QString &filter );
+
 signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
 
-protected slots:
+private slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
     void changeMode( int );
@@ -175,7 +206,6 @@ protected slots:
     void stopCopy();
     void removeProgressDia();
 
-private slots:
     void fileSelected( int );
     void fileHighlighted( int );
     void dirSelected( int );
@@ -200,17 +230,6 @@ private slots:
 
     void doMimeTypeLookup();
 
-protected:
-    void resizeEvent( QResizeEvent * );
-    void keyPressEvent( QKeyEvent * );
-
-    void addWidgets( QLabel *, QWidget *, QPushButton * );
-    void addToolButton( QButton *b, bool separator = FALSE );
-    void addLeftWidget( QWidget *w );
-    void addRightWidget( QWidget *w );
-    void addFilter( const QString &filter );
-
-private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
     void urlStart( QNetworkOperation *op );
@@ -255,19 +274,22 @@ private:
 
 #if defined(_WS_WIN_)
     static QString winGetOpenFileName( const QString &initialSelection,
-                                       const QString &filter,
-                                       QString* workingDirectory,
-                                       QWidget *parent = 0,
-                                       const char* name = 0 );
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0, 
+				       const QString& caption = QString::null);
     static QString winGetSaveFileName( const QString &initialSelection,
-                                       const QString &filter,
-                                       QString* workingDirectory,
-                                       QWidget *parent = 0,
-                                       const char* name = 0 );
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0,
+				       const QString& caption = QString::null);
     static QStringList winGetOpenFileNames( const QString &filter,
-                                            QString* workingDirectory,
-                                            QWidget *parent = 0,
-                                            const char* name = 0 );
+					    QString* workingDirectory,
+					    QWidget *parent = 0,
+					    const char* name = 0,
+					    const QString& caption = QString::null);
 #endif
 
 private:	// Disabled copy constructor and operator=

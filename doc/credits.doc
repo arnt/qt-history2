@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -294,6 +294,6 @@ Don Sanders &lt;sanders@kde.org&gt;<br>
 
 <p>We hope there are not too many omissions from the list.  Any
 omissions are <b>bugs</b> and should be reported to
-<a href="mailto:qt-bugs@troll.no">mailto:qt-bugs@troll.no</a>
+<a href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>
 like other bugs in the Qt code or documentation.
 */

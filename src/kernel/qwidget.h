@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -48,7 +48,7 @@ class QStyle;
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
-    Q_ENUMS( BackgroundMode PropagationMode FocusPolicy )
+    Q_ENUMS( BackgroundMode PropagationMode FocusPolicy BackgroundOrigin )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isModal READ isModal )
     Q_PROPERTY( bool isPopup READ isPopup )
@@ -100,6 +100,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask )
+    Q_PROPERTY( BackgroundOrigin backgroundOrigin READ backgroundOrigin WRITE setBackgroundOrigin )
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:
@@ -358,8 +359,16 @@ public:
     bool		acceptDrops() const;
     virtual void	setAcceptDrops( bool on );
 
+    // transparency and pseudo transparency
+    
     virtual void	setAutoMask(bool);
     bool		autoMask() const;
+    
+    enum BackgroundOrigin { WidgetOrigin, ParentOrigin };
+    
+    void setBackgroundOrigin( BackgroundOrigin );
+    BackgroundOrigin backgroundOrigin() const;
+
 
     // whats this help
     virtual bool customWhatsThis() const;

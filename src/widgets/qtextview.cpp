@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -116,7 +116,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QTextView::QTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
+    : QScrollView( parent, name, WRepaintNoErase )
 {
     init();
 }
@@ -129,7 +129,7 @@ QTextView::QTextView(QWidget *parent, const char *name)
 */
 QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
+    : QScrollView( parent, name, WRepaintNoErase )
 {
     init();
     setText( text, context );
@@ -164,7 +164,7 @@ void QTextView::init()
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 
-    d->resizeTimer = new QTimer( this );
+    d->resizeTimer = new QTimer( this, "qt_resizetimer" );
     connect( d->resizeTimer, SIGNAL( timeout() ), this, SLOT( doResize() ));
     d->dragTimer = new QTimer( this );
     connect( d->dragTimer, SIGNAL( timeout() ), this, SLOT( doStartDrag() ));
@@ -177,7 +177,10 @@ void QTextView::init()
 */
 QTextView::~QTextView()
 {
+    delete d->fcresize;
+    QTextFormatCollection* formats = d->doc_?d->doc_->formats:0;
     delete d->doc_;
+    delete formats; //#### fix inheritance structure in rich text
     delete d;
 }
 
@@ -197,7 +200,9 @@ QTextView::~QTextView()
 */
 void QTextView::setText( const QString& text, const QString& context)
 {
+    QTextFormatCollection* formats = d->doc_?d->doc_->formats:0;
     delete d->doc_;
+    delete formats; //#### fix inheritance structure in rich text
     d->doc_ = 0;
 
     d->original_txt = text;
@@ -253,7 +258,10 @@ void QTextView::append( const QString& text )
     richText().append( text,  mimeSourceFactory(), styleSheet() );
     int y = contentsHeight();
     int h = richText().lastChild()->bottomMargin();
-    doResize();
+    if ( d->fcresize )
+	doResize();
+    else
+	updateLayout();
     updateContents( contentsX(), y-h, visibleWidth(), h );
 }
 
@@ -280,6 +288,8 @@ QString QTextView::context() const
 
 void QTextView::createRichText()
 {
+    if ( d->mypapcolgrp != d->papcolgrp )
+	viewport()->setBackgroundColor( d->mypapcolgrp.base() );
     d->papcolgrp = d->mypapcolgrp;
     d->paplinkcol = d->mylinkcol;
 
@@ -287,8 +297,10 @@ void QTextView::createRichText()
 			     8, mimeSourceFactory(), styleSheet() );
     if (d->doc_->attributes().contains("bgcolor")){
 	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
-	if ( col.isValid() )
+	if ( col.isValid() ) {
 	    d->papcolgrp.setColor( QColorGroup::Base, col );
+	    viewport()->setBackgroundColor( col );
+	}
     }
     if (d->doc_->attributes().contains("link")){
 	QColor  col ( d->doc_->attributes()["link"].latin1() );
@@ -393,6 +405,7 @@ void QTextView::setPaper( const QBrush& pap)
     d->mypapcolgrp.setBrush( QColorGroup::Base, pap );
     d->papcolgrp.setBrush( QColorGroup::Base, pap );
     d->ownpalette = TRUE;
+    viewport()->setBackgroundColor( pap.color() );
     viewport()->update();
 }
 
@@ -409,6 +422,7 @@ void QTextView::setPaperColorGroup( const QColorGroup& colgrp)
     d->mypapcolgrp = colgrp;
     d->papcolgrp = colgrp;
     d->ownpalette = TRUE;
+    viewport()->setBackgroundColor( colgrp.base() );
     viewport()->update();
 }
 
@@ -607,7 +621,6 @@ void QTextView::resizeEvent( QResizeEvent* e )
     setUpdatesEnabled( TRUE);
     richText().flow()->initialize( visibleWidth() );
     updateLayout();
-    viewport()->repaint( FALSE );
 }
 
 
@@ -678,8 +691,8 @@ QString QTextView::selectedText() const
     it.goTo( d->selstart );
     int column = 0;
     QString txt;
+    QString s = it.text().mid( d->selstart.c );
     while ( it.position() < d->selend ) {
-	QString s = it.text();
 	if ( !s.isEmpty() ) {
 	    if ( column + s.length() > 79 ) {
 		txt += '\n';
@@ -697,6 +710,9 @@ QString QTextView::selectedText() const
 	    txt += '\n';
 	    column = 0;
 	}
+	s = it.text();
+	if ( it.position().a == d->selend.a && it.position().b == d->selend.b )
+	    s = s.left( d->selend.c );
     }
     return txt;
 }
@@ -711,6 +727,8 @@ void QTextView::copy()
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 #endif
     QString t = selectedText();
+    QRegExp nbsp(QChar(0x00a0U));
+    t.replace( nbsp, " " );
 #if defined(_OS_WIN32_)
     // Need to convert NL to CRLF
     QRegExp nl("\\n");

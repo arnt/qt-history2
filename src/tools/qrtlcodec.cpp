@@ -190,7 +190,7 @@ static void reverse(QString &input, unsigned int a, unsigned int b)
 	temp = chars[a];
 	chars[a] = chars[b];
 	chars[b] = temp;
-	
+
 	a++; b--;
     }
 }
@@ -227,7 +227,7 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
 	    uint c = a;
 	    while( c < b)
 	    {
-		d = str.at(c).direction();		
+		d = str.at(c).direction();
 		if ( d != QChar::DirEN && d != QChar::DirES &&
 		     d != QChar::DirET && d != QChar::DirCS &&
 		     d != QChar::DirAN )
@@ -321,18 +321,26 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
     else
 	l = (int)uc.length();
 
-    QString tmp = uc;
-    tmp.truncate(l);
-    QString vis = tmp.visual();
-
     QCString rstr;
-    for (int i=0; i<l; i++) {
-	const QChar ch = vis[i];
-
-	if(!to8bit(ch, &rstr))
+    if( l == 1 ) {
+	if( !to8bit( uc[0], &rstr ) )
 	    rstr += unkn;
+    } else {
+	QString tmp = uc;
+	tmp.truncate(l);
+	QString vis = tmp.visual();
+
+	for (int i=0; i<l; i++) {
+	    const QChar ch = vis[i];
+
+	    if( !to8bit( ch, &rstr ) )
+		rstr += unkn;
+	}
+	// len_in_out = cursor - result;
     }
-    // len_in_out = cursor - result;
+    if( l > 0 && !rstr.length() )
+	rstr += unkn;
+
     return rstr;
 }
 
@@ -343,11 +351,11 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
 
     if ( ch.row() ) {
-	if ( ch.row() == 0x05 ) {		
+	if ( ch.row() == 0x05 ) {
 	    if ( ch.cell() > 0x91 )
 		converted = TRUE;
 	    // 0x0591 - 0x05cf: hebrew punktuation... dropped
-	    if ( ch.cell() > 0xD0 )
+           if ( ch.cell() >= 0xD0 )
 		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
 	    if ( ch.cell() == 0x3E )
@@ -386,7 +394,7 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
     int l = d.length();
     for (int i=0; i<l; i++) {
 	const QChar ch = d[i];
-	
+
 	if(to8bit(ch, rstr))
 	    converted = TRUE;
     }
@@ -435,7 +443,7 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
     if( ch.isMark() ) return TRUE; // ignore marks for conversion
 
     if ( ch.row() ) {
-	if ( ch.row() == 0x06 ) {		
+	if ( ch.row() == 0x06 ) {
 	    if ( ch.cell() > 0x5f )
 		converted = FALSE;
 	    else
@@ -466,7 +474,7 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
     int l = d.length();
     for (int i=0; i<l; i++) {
 	const QChar ch = d[i];
-	
+
 	if(to8bit(ch, rstr))
 	    converted = TRUE;
     }

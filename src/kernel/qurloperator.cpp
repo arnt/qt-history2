@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -79,7 +79,7 @@ struct QUrlOperatorPrivate
   A QUrlOperator can be used like this (for e.g. downloading a file)
   \code
   QUrlOperator op;
-  op.copy( "ftp://ftp.troll.no/qt/source/qt-2.0.2.tar.gz", "file:/tmp", FALSE );
+  op.copy( "ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz", "file:/tmp", FALSE );
   \endcode
 
   Now, you also will connect to some signals of the QUrlOperator to get

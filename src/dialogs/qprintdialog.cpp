@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -62,7 +62,7 @@ struct QPrintDialogPrivate
     bool outputToFile;
     QListView * printers;
     QLineEdit * fileName;
-    QPushButton * browse;
+    QPushButton * browse, *ok;
 
     QButtonGroup * printRange;
     QLabel * firstPageLabel;
@@ -622,10 +622,10 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     if ( style() != MotifStyle )
 	horiz->addStretch( 1 );
 
-    QPushButton * ok = new QPushButton( this, "ok" );
-    ok->setText( tr("OK") );
-    ok->setDefault( TRUE );
-    horiz->addWidget( ok );
+    d->ok = new QPushButton( this, "ok" );
+    d->ok->setText( tr("OK") );
+    d->ok->setDefault( TRUE );
+    horiz->addWidget( d->ok );
     if ( style() == MotifStyle )
 	horiz->addStretch( 1 );
     horiz->addSpacing( 6 );
@@ -634,17 +634,17 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     cancel->setText( tr("Cancel") );
     horiz->addWidget( cancel );
 
-    QSize s1 = ok->sizeHint();
+    QSize s1 = d->ok->sizeHint();
     QSize s2 = cancel->sizeHint();
     s1 = QSize( QMAX(s1.width(), s2.width()),
 		QMAX(s1.height(), s2.height()) );
 
-    ok->setFixedSize( s1 );
+    d->ok->setFixedSize( s1 );
     cancel->setFixedSize( s1 );
 
     tll->activate();
 
-    connect( ok, SIGNAL(clicked()), SLOT(okClicked()) );
+    connect( d->ok, SIGNAL(clicked()), SLOT(okClicked()) );
     connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
     QSize ms( minimumSize() );
@@ -660,6 +660,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     setFontPropagation( SameFont );
     setPalettePropagation( SamePalette );
+    d->ok->setEnabled( TRUE );
 }
 
 
@@ -840,6 +841,8 @@ QGroupBox * QPrintDialog::setupDestination()
     horiz->addSpacing( 19 );
 
     d->fileName = new QLineEdit( g, "file name" );
+    connect( d->fileName, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( fileNameEditChanged( const QString & ) ) );
     horiz->addWidget( d->fileName, 1 );
     horiz->addSpacing( 6 );
     d->browse = new QPushButton( tr("Browse..."), g, "browse files" );
@@ -1052,11 +1055,13 @@ void QPrintDialog::printerOrFileSelected( int id )
 {
     d->outputToFile = id ? TRUE : FALSE;
     if ( d->outputToFile ) {
+	fileNameEditChanged( d->fileName->text() );
 	d->browse->setEnabled( TRUE );
 	d->fileName->setEnabled( TRUE );
 	d->fileName->setFocus();
 	d->printers->setEnabled( FALSE );
     } else {
+	d->ok->setEnabled( TRUE );
 	d->printers->setEnabled( TRUE );
 	if ( d->fileName->hasFocus() || d->browse->hasFocus() )
 	    d->printers->setFocus();
@@ -1257,4 +1262,9 @@ void QPrintDialog::colorModeSelected( int id )
 void QPrintDialog::addButton( QPushButton *but )
 {
     d->customLayout->addWidget( but );
+}
+
+void QPrintDialog::fileNameEditChanged( const QString &text )
+{
+    d->ok->setEnabled( !text.isEmpty() );
 }

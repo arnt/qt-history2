@@ -8,4 +8,4 @@ To add a language "XX":
     4. Run: msg2qm mywidget_XX.po mywidget_XX.qm
     5. Run: ./i18n XX
 
-mywidget_XX.po contributions welcome - mail it to qt-bugs@troll.no
+mywidget_XX.po contributions welcome - mail it to qt-bugs@trolltech.com

@@ -72,6 +72,8 @@ void DropSite::dragLeaveEvent( QDragLeaveEvent * )
 
 void DropSite::dropEvent( QDropEvent * e )
 {
+    setBackgroundColor(lightGray);
+    
     // Try to decode to the data you understand...
 
     QString str;

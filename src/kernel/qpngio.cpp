@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -1004,9 +1004,11 @@ void qCleanupPngIO()
 
 void qInitPngIO()
 {
-    if ( !globalPngFormatTypeObject ) {
-	QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, read_png_image,
-	    write_png_image);
+    static bool done = FALSE;
+    if ( !done ) {
+	done = TRUE;
+	QImageIO::defineIOHandler( "PNG", "^.PNG\r", 0, read_png_image,
+				   write_png_image);
 	globalPngFormatTypeObject = new QPNGFormatType;
 	qAddPostRoutine( qCleanupPngIO );
     }

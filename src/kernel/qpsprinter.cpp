@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -2497,7 +2497,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     QColor fgCol = paint->pen().color();
     QColor bgCol = paint->backgroundColor();
 
-    if ( width * height > 21840 ) { // 65535/3, tolerance for broken printers
+    if ( width * height > 21830 ) { // 65535/3, tolerance for broken printers
 	delete d->savedImage;
 	d->savedImage = 0;
 	stream << "/sl " << width*3 << " string d\n"

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -94,7 +94,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   QUrl is normally used like that:
 
   \code
-  QUrl u( "http://www.troll.no" );
+  QUrl u( "http://www.trolltech.com" );
   // or
   QUrl u( "file:/home/myself/Mail", "Inbox" );
   \endcode
@@ -106,10 +106,10 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
   the needed cast and assign operators. So you can do following:
 
   \code
-  QUrl u( "http://www.troll.no" );
+  QUrl u( "http://www.trolltech.com" );
   QString s = u;
   // or
-  QString s( "http://www.troll.no" );
+  QString s( "http://www.trolltech.com" );
   QUrl u( s );
   \endcode
 
@@ -178,23 +178,23 @@ bool QUrl::isRelativeUrl( const QString &url )
   For example, the path of
 
   \code
-  QUrl u( "ftp://ftp.troll.no/qt/source", "qt-2.0.2.tar.gz" );
+  QUrl u( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
   \endcode
 
-  will be "/qt/srource/qt-2.0.2.tar.gz".
+  will be "/qt/srource/qt-2.1.0.tar.gz".
 
   And
 
   \code
-  QUrl u( "ftp://ftp.troll.no/qt/source", "/usr/local" );
+  QUrl u( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
   \endcode
 
-  will result in a new URL,  "ftp://ftp.troll.no/usr/local",
+  will result in a new URL,  "ftp://ftp.trolltech.com/usr/local",
 
   And
 
   \code
-  QUrl u( "ftp://ftp.troll.no/qt/source", "file:/usr/local" );
+  QUrl u( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
   \endcode
 
   will result in a new URL, with "/usr/local" as path

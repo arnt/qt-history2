@@ -3,7 +3,7 @@
 
 1.  Unzip the qtwin%VERSIONWIN%.zip file, unless you already have.
     If you don't already have unzip, WinZip or another zip program,
-    you can download and install ftp://ftp.troll.no/util/infozip.exe.
+    you can download and install ftp://ftp.trolltech.com/util/infozip.exe.
 
 	c:
 	cd \
@@ -29,7 +29,7 @@
     You can also set environment variables supported by many compilers:
 
 	INCLUDE=%QTDIR%\include;%INCLUDE%
-	set LIB=%QTDIR%\lib;%LIB%
+	LIB=%QTDIR%\lib;%LIB%
 
     Restart the computer to make sure these settings are applied.
 
@@ -41,7 +41,7 @@
     For Borland C++ users:
 
 	cd qt
-	unzip mkfiles\Borland.zip
+	unzip mkfiles\borland.zip
 
 
 4.  You are now ready to compile the Qt library:

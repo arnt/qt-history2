@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -67,7 +67,7 @@
   Intermediate and asdf is \c Invalid.
 
   <li>For an editable combo box that accepts URLs, any well-formed URL
-  is \c Acceptable, "http://www.troll.no/," is \c Intermediate (it can
+  is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate (it can
   be a cut-and-paste job that accidentally took in a comma at the
   end), the empty string is valid (the user might select and delete
   all of the text in preparation to entering a new URL), and
@@ -75,7 +75,7 @@
 
   <li>For a spin box that accepts lengths, "11cm" and "1in" are \c
   Acceptable, "11" and the empty string are \c Intermediate, and
-  "http://www.troll.no" and "hour" are \c Invalid.
+  "http://www.trolltech.com" and "hour" are \c Invalid.
 
   </ol>
 
@@ -352,7 +352,7 @@ QDoubleValidator::~QDoubleValidator()
 
 QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
-    QRegExp empty( QString::fromLatin1("^ *-? *$") );
+    QRegExp empty( QString::fromLatin1("^ *-?.? *$") );
     if ( empty.match( input ) >= 0 )
 	return QValidator::Valid;
     bool ok = TRUE;

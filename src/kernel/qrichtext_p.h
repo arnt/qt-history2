@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtextintern.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#17 $
 **
 ** Definition of internal rich text classes
 **
@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -70,7 +70,7 @@ bool operator<( const QtTriple &t1, const QtTriple &t2 );
 bool operator>=( const QtTriple &t1, const QtTriple &t2 );
 
 
-class QTextCharFormat
+class QTextCharFormat : public QShared
 {
     friend class QTextFormatCollection;
 
@@ -94,16 +94,12 @@ public:
 
     QTextCharFormat formatWithoutCustom();
 
-    int addRef();
-    int removeRef();
-
     QTextCustomItem *customItem() const;
 
 private:
     QFont font_;
     QColor color_;
     QString key;
-    int ref;
     int logicalFontSize;
     int stdPointSize;
     QString anchor_href;
@@ -148,7 +144,7 @@ public:
 };
 
 
-class QTextCustomItem : public Qt
+class QTextCustomItem : public QShared
 {
 public:
     QTextCustomItem()
@@ -226,7 +222,7 @@ class QTextRichString
 	~Item() {
 	};
  	int base;
-	int width;
+	signed int width : 30;
 	uint newline : 1;
 	QTextCharFormat* format;
 	QString c;
@@ -327,18 +323,13 @@ public:
 	return m;
     }
 
-    inline int labelMargin() const
-    {
-	return style->displayMode() == QStyleSheetItem::DisplayListItem ? 18: 0;
-    }
+    int labelMargin() const;
 
     inline int totalMargin(QStyleSheetItem::Margin m) const
     {
 	int tm = parent? parent->totalMargin( m ) : 0;
 	if (style->margin(m) != QStyleSheetItem::Undefined)
 	    tm += style->margin(m);
-	 if ( m == QStyleSheetItem::MarginLeft )
-	     tm += labelMargin();
 	return tm;
     }
 
@@ -590,13 +581,14 @@ private:
 class QRichText : public QTextParagraph
 {
 public:
-    QRichText( const QString &doc, const QFont& fnt = QApplication::font(),
-		const QString& context = QString::null,
-		int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
+    QRichText( const QString &doc, const QFont& fnt,
+	       const QString& context = QString::null, int margin = 8,
+	       const QMimeSourceFactory* factory = 0,
+	       const QStyleSheet* sheet = 0 );
     QRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
-		const QStyleSheetItem* style, const QTextCharFormat& fmt,
-		const QString& context = QString::null,
-		int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
+	       const QStyleSheetItem* style, const QTextCharFormat& fmt,
+	       const QString& context = QString::null,
+	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
     ~QRichText();
 
     bool isValid() const;

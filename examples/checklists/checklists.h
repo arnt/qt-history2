@@ -11,12 +11,12 @@
 #ifndef CHECKLISTS_H
 #define CHECKLISTS_H
 
-#include <qhbox.h>
+#include <qwidget.h>
 
 class QListView;
 class QLabel;
 
-class CheckLists : public QHBox
+class CheckLists : public QWidget
 {
     Q_OBJECT
 

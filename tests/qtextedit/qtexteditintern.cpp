@@ -131,6 +131,28 @@ QTextEditCursor *QTextEditDeleteCommand::unexecute( QTextEditCursor *c )
     return &cursor;
 }
 
+QTextEditFormatCommand::QTextEditFormatCommand( QTextEditDocument *d, int selId, QTextEditFormat *f, int flgs )
+    : QTextEditCommand( d ), selection( selId ),  flags( flgs )
+{
+    format = d->formatCollection()->format( f );
+}
+
+QTextEditFormatCommand::~QTextEditFormatCommand()
+{
+    format->removeRef();
+}
+
+QTextEditCursor *QTextEditFormatCommand::execute( QTextEditCursor *c )
+{
+    doc->setFormat( selection, format, flags );
+    return c;
+}
+
+QTextEditCursor *QTextEditFormatCommand::unexecute( QTextEditCursor *c )
+{
+    return c;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextEditCursor::QTextEditCursor( QTextEditDocument *d )
@@ -791,8 +813,12 @@ void QTextEditDocument::setRichText( const QString &text )
 		lParag = new QTextEditParag( this, lParag, 0 );
 		if ( it.outmostParagraph() &&
 		     it.outmostParagraph()->style ) {
-		    if ( it.outmostParagraph()->style->alignment() != -1 )
-			lParag->setAlignment( it.outmostParagraph()->style->alignment() );
+		    if ( it.outmostParagraph()->alignment() != -1 ) {
+			if ( it.outmostParagraph()->alignment() & Qt::AlignRight )
+			    lParag->setAlignment( Qt::AlignRight );
+			else if ( it.outmostParagraph()->alignment() & Qt::AlignCenter )
+			    lParag->setAlignment( Qt::AlignCenter );
+		    }
 		    if ( it.outmostParagraph()->style->displayMode() == QStyleSheetItem::DisplayListItem ) {
 			lParag->setType( QTextEditParag::BulletList );
 			lParag->setListDepth( 0 );
@@ -872,7 +898,7 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 {
     if ( !p ) {
 	// #### very poor implementation!
-	QString text = "<html><head></head><body bgcolor=\"#ffffff\">\n";
+	QString text;
 	p = fParag;
 	QTextEditFormat *lastFormat = 0;
 	QTextEditString::Char *c = 0;
@@ -925,7 +951,7 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 	    lastFormat = 0;
 	    p = p->next();
 	}
-	text += "</body></html>\n";
+	text += "\n";
 	return text;
     } else {
 	// #### TODO return really rich text
@@ -935,6 +961,8 @@ QString QTextEditDocument::richText( QTextEditParag *p, bool formatted ) const
 
 QString QTextEditDocument::text() const
 {
+    if ( plainText().simplifyWhiteSpace().isEmpty() )
+	return QString::null;
     if ( txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText )
 	return richText();
     else
@@ -1426,6 +1454,28 @@ void QTextEditDocument::setParagSpacing( int s )
 void QTextEditDocument::setLineSpacing( int s )
 {
     ls = s;
+}
+
+bool QTextEditDocument::inSelection( int selId, const QPoint &pos ) const
+{
+    QMap<int, Selection>::ConstIterator it = selections.find( selId );
+    if ( it == selections.end() )
+	return FALSE;
+
+    Selection sel = *it;
+    QTextEditParag *startParag = sel.startParag;
+    QTextEditParag *endParag = sel.endParag;
+    if ( sel.endParag->paragId() < sel.startParag->paragId() ) {
+	endParag = sel.startParag;
+	startParag = sel.endParag;
+    }
+
+    // ######### Real implementation needed!!!!!!!
+
+    QRect r = startParag->rect();
+    r = r.unite( endParag->rect() );
+
+    return r.contains( pos );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

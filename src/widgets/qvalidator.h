@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -43,6 +43,12 @@ public:
 
     virtual State validate( QString &, int & ) const = 0;
     virtual void fixup( QString & ) const;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QValidator( const QValidator & );
+    QValidator& operator=( const QValidator & );
+#endif
 };
 
 
@@ -69,6 +75,12 @@ public:
 
 private:
     int b, t;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QIntValidator( const QIntValidator & );
+    QIntValidator& operator=( const QIntValidator & );
+#endif
 };
 
 
@@ -78,7 +90,7 @@ class Q_EXPORT QDoubleValidator: public QValidator
     Q_PROPERTY( double bottom READ bottom WRITE setBottom )
     Q_PROPERTY( double top READ top WRITE setTop )
     Q_PROPERTY( int decimals READ decimals WRITE setDecimals )
-	
+
 public:
     QDoubleValidator( QWidget * parent, const char *name = 0 );
     QDoubleValidator( double bottom, double top, int decimals,
@@ -99,6 +111,12 @@ public:
 private:
     double b, t;
     int d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QDoubleValidator( const QDoubleValidator & );
+    QDoubleValidator& operator=( const QDoubleValidator & );
+#endif
 };
 
 

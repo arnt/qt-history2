@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -47,14 +47,14 @@ desktop environment, included in all major Linux distributions.
 <dd><b>Qt Professional Edition</b> is provided for commercial
 software development. It includes free upgrades and Technical Support
 Service. For the latest prices, please see the Troll Tech web site, <a
-href="http://www.troll.no/pricing.html">Pricing and Availability</a>
-page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
+href="http://www.trolltech.com/pricing.html">Pricing and Availability</a>
+page, or contact <a href="mailto:sales@trolltech.com">sales@trolltech.com</a>.
 <dd><b>Qt Free Edition</strong> is the Unix/X11 version of Qt
 available for development of <em>free/Open Source software</em>
 only. It is provided free of charge under the <a
 href="license.html">Qt Free Edition License</a>. The latest version is
 available for <a
-href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
+href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
 </dl>
 */
 
@@ -75,32 +75,32 @@ Compiler</a> for details on how to use moc.
 
 <h2>Using different versions of Qt on the same machine</h2>
 
-Qt programs need the following components of the Qt distribution: <ul>
+Qt programs need the following components of the Qt distribution: <dl>
 
-<li><b>Header files - Compile time</b>
+<dt><b>Header files - Compile time</b>
 
-Programmers need to include the Qt header files. Those with a
+<dd>Programmers need to include the Qt header files. Those with a
 command-line compiler will typically use options such as \c
 /I%QTDIR%\include or \c -I${QTDIR}/include.  They will need the header
 files of the version of Qt they wish to build programs with.  The
 header files are in the \c include subdirectory of Qt distributions.
 
-<li><b>Meta Object Compiler - Compile time</b>
+<dt><b>Meta Object Compiler - Compile time</b>
 
-Programmers need to run the Meta Object Compiler - \e moc.  The moc is
+<dd>Programmers need to run the Meta Object Compiler - \e moc.  The moc is
 found in the \c bin subdirectory of Qt distributions.
 
-<li><b>Static or shared libraries - Link time</b>
+<dt><b>Static or shared libraries - Link time</b>
 
-Programmers need to link with static or shared libraries. Those with a
+<dd>Programmers need to link with static or shared libraries. Those with a
 command-line compiler will typically use options such as \c
 /L%QTDIR%\lib\qt.lib or \c -L${QTDIR}/lib \c -lqt.  They will need the
 libraries of the version of Qt they wish to build programs with.  The
 libraries are in the \c lib subdirectory of Qt distributions.
 
-<li><b>Shared libraries - Run time</b>
+<dt><b>Shared libraries - Run time</b>
 
-Users of programs built with the shared Qt libraries need these same
+<dd>Users of programs built with the shared Qt libraries need these same
 shared libraries to run the programs.  The libraries are in the \c lib
 subdirectory of Qt distributions.  Shared libraries are made available
 to programs in places such as \c C:\windows\system on Windows
@@ -108,7 +108,7 @@ platforms, directories listed in file \c /etc/ld.so.conf on Linux,
 standard \c lib directories on Unix, or the directories listed in the
 environment variable \c ${LD_LIBRARY_PATH} on Unix/Linux.
 
-</ul>
+</dl>
 
 Binary packages usually consist of two parts:
 
@@ -123,14 +123,14 @@ usually called \c qt2-dev.
 
 Depending on how you are using Qt, you need to make specific parts of
 the Qt distribution available to your programs.  Typical situations are
-described below.<ul>
+described below.<dl>
 
-<li><b>Developers building for a single version of Qt on Unix
+<dt><b>Developers building for a single version of Qt on Unix
 - Qt packages</b>
 
-You build programs with a single version of Qt, but you still need to
-run programs linked with another version of Qt.  You are typically a
-Linux developer who builds programs for Qt 2.x on a KDE desktop based
+<dd>You build programs with a single version of Qt, but you still need
+to run programs linked with another version of Qt.  You are typically
+a Linux developer who builds programs for Qt 2.x on a KDE desktop based
 on Qt 1.4x.  Qt packages are usually split into a shared library
 package with a name like \c qt and a developer package with a name
 like \c qt-dev.  You will need the appropriate packages:
@@ -149,10 +149,10 @@ or the like).
 </ul>Just install those 3 packages. You may need to set the
 environment variable \c QTDIR.
 
-<li><b>Developers building for two versions of Qt on Unix
+<dt><b>Developers building for two versions of Qt on Unix
 - Qt sources</b>
 
-You build and run programs for Qt v1.4x and Qt 2.x. You will need:<ul>
+<dd>You build and run programs for Qt v1.4x and Qt 2.x. You will need:<ul>
 
 <li>the \e header \e files, the \e moc and the \e libraries of Qt 2.x
 and Qt 1.4x to build programs,
@@ -194,7 +194,7 @@ ln -s /opt/qt-1.44/lib/libqt.so.1 .
 ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
 \endcode
 
-</ul>
+</ol>
 
 To develop with Qt 1.4x use:
 
@@ -215,7 +215,27 @@ used.  Your \c Makefile should refer to \c ${QTDIR}/include and \c
 ${QTDIR}/lib to include the proper header files and link with the
 proper libraries.
 
-</ul>
+</dl>
+
+<h2>Using Qt on X11 without a window manager</h2>
+
+When using Qt without a window manager on Unix/X11, you will very
+likely experience focus problems. Without a window manager, there is
+no focus handling on X11, and no concept of an active window
+either. If you want your application to work in such an environment,
+you have to explicitely mark a window as active \e after showing it:
+
+\code
+ yourWindow->show();
+ yourWindow->setActiveWindow();
+\endcode
+
+Note that setActiveWindow() won't work if the widget does not become
+phyiscally visible during this event cycle. However, without a window
+manager running, this is guaranteed to happen. For the curious reader:
+setActiveWindow() emulates a window manager by explicitely setting the
+X Input Focus to a widget's toplevel window.
+
 */
 
 /*! \page keyfeatures21.html
@@ -295,160 +315,170 @@ memory consumption while improving execution speed and features.
 <h2>New major features in existing classes</h2>
 <ul>
 
-<li>QApplication: new function wakeUpGuiThread() to simplify using threads
+<li>QApplication	- new function wakeUpGuiThread() to simplify using threads
 		  with Qt.
 
-<li>QArray: added sorting and binary search.
+<li>QArray		- added sorting and binary search.
 
-<li>QColorDialog: custom color support added.
+<li>QColor		- custom color support added.  qRgb(r,g,b) helper function
+		  now sets an opaque alpha value instead of a transparent
+		  one.
 
-<li>QComboBox: support for text items with icons.
+<li>QComboBox	- support for text items with icons.
 
-<li>QFileDialog: many new features including fancy drag'n'drop
-		  and inplace renaming.  Methods like
-		  setInfoPreviewWidget()and setContentsPreviewWidget()
-		  make it easy to customize the dialog extensively.
-		  With QUrlOperator and the QNetworkProtocol
-		  abstraction, the dialog can operate transparently by
-		  various different network protocols, such as HTTP
-		  and FTP (see the forthcoming Network Extension).
+<li>QFileDialog	- many new features including fancy drag'n'drop
+		  and inplace renaming.
+		  Methods like setInfoPreviewWidget()and
+		  setContentsPreviewWidget() make it easy to customize
+		  the dialog extensively. With QUrlOperator and the
+		  QNetworkProtocol abstraction, the dialog can operate
+		  transparently by various different network protocols,
+		  such as HTTP and FTP (see the Network Extension).
 
-<li>QFocusEvent: carries a reason() for the event.  Possible reasons are
-		  Mouse, Tab, ActiveWindow, Popup, ShortCut and Other.
-		  The addition makes line edit controls behave better.
+<li>QFocusEvent	- carries a reason() for the event. Possible reasons are
+		  Mouse, Tab, ActiveWindow, ShortCut and other. The
+		  addition makes line edit controls behave properly.
 
-<li>QHeader: added optional visual sort indicator.
+<li>QHeader		- added optional visual sort indicator. Revisited API that 
+		  operates on sections only (solves the 'logical' vs. 'actual' 
+		  index confusion). A reworked 'table' example shows how
+		  to use QHeader in combination with a scrollview to create
+		  a simple spreadsheet.
 
-<li>QListBox: many signals and functions added for convenience and
+<li>QListBox	- many signals and functions added for convenience and
 		  greater flexibility.
 
-<li>QListView: various selections modes similar to QListBox, many
+<li>QListView	- various selections modes similar to QListBox, many
 		  new functions and signals added for convenience and
 		  greater flexibility.
 
-<li>QMainWindow: implemented draggable and hidable toolbars.  A menubar
+<li>QMainWindow	- implemented draggable and hidable toolbars. A menubar
 		  can be made draggable by simply putting it in a toolbar.
 
-<li>QMetaObject: Parts of the API made public.  The meta object allows
+<li>QMetaObject	- Parts of the API made public. The meta object allows
 		  applications to access information about an object's
 		  properties as well as its signals and slots.
 
-<li>QMultiLineEdit: added different word wrap modes: WidgetWidth,
+<li>QMultiLineEdit	- added different word wrap modes: WidgetWidth,
 		  FixedPixelWidth and FixedColumnWidth.
 
-<li>QObject: property access functions property() and setProperty().
+<li>QObject		- property access functions property() and setProperty().
 
-<li>QPopupMenu: added support for tear-off menus, custom items
+<li>QPen		- added adjustable cap and join styles.
+
+<li>QPopupMenu	- added support for tear-off menus, custom items
 		  and widget items.
 		  A new function setItemParameter() makes it possible
 		  to distinguish between several menu items connected to
 		  one single slot.
 
-<li>QPrinter: Now allows printing to the default printer without doing
+<li>QPrinter        - Now allows printing to the default printer without doing
                   setup() first.
 
-<li>QProgressDialog: auto-reset and auto-close modes.
+<li>QProgressDialog	- auto-reset and auto-close modes.
 
-<li>QPushButton: added a menu button mode with setPopup().
+<li>QPushButton	- added a menu button mode with setPopup().
 
-<li>QScrollView: support for auto-scrolling on drag move events (drag
+<li>QScrollView	- support for auto-scrolling on drag move events (drag
 		  auto scroll mode).
 
-<li>QSignal: optional additional integer parameter for the emitted
+<li>QSignal		- optional additional integer parameter for the emitted
 		  signal.
 
 <li>QSimpleRichText - added adjustSize() function that implements a clever
 		  size hint. Vertical break support for printing. inText()
 		  hit test.
 
-<li>QSpinBox: different button symbols, currently UpDownArrows and
+<li>QSpinBox	- different button symbols, currently UpDownArrows and
 		  PlusMinus.
 
-<li>QSplitter: supports three resize modes now, Stretch, KeepSize
+<li>QSplitter	- supports three resize modes now, Stretch, KeepSize
 		  and FollowSizeHint.
 
-<li>QString: new functions setUnicode(), setUnicodeCodes(), setLatin1(),
+<li>QString		- new functions setUnicode(), setUnicodeCodes(), setLatin1(),
 		  startsWith() and endsWith()
 
-<li>QStringList: new functions fromStrList(), split(), join() and grep().
+<li>QStringList	- new functions fromStrList(), split(), join() and grep().
 
-<li>QStyle: some extensions for menu button indicators, default
+<li>QStyle		- some extensions for menu button indicators, default
 		  button indicators, variable scrollbar extends and toolbar
 		  handles.
 
-<li>QStyleSheet: a couple of tags added to the default sheet, such as
+<li>QStyleSheet	- a couple of tags added to the default sheet, such as
 		  U, NOBR, HEAD, DL, DT, DD and table support (TABLE, TR,
-		  TD, TH).  Many attributes added to existing tags.
+		  TD, TH). Many attributes added to existing tags.
 
-<li>QTextView: basic table support.  Contents is selectable, selections
+<li>QTextView	- basic table support. Contents is selectable, selections
 		  can be pasted/dragged into other widgets.
 
-<li>QToolBar: different stretch modes such as NoStretch, Stretchable
-		  and FullWidth.  Added orientationChanged() signal.
+<li>QToolBar	- stretchable depending on the orientation (setHorizontalStretchable()
+		  and setVerticalStretchable(). Added orientationChanged() signal.
 
-<li>QToolButton: added optional delayed menu with setPopup() and
-		  setPopupDelay().  Auto-raise behaviour adjustable.
+<li>QToolButton	- added optional delayed menu with setPopup() and
+		  setPopupDelay(). Auto-raise behaviour adjustable.
 
-<li>QWidget: new widget flag WStyle_ContextHelp that adds a
-		  context-help button to the window titlebar.  The
-		  button triggers "What's This?"-help.  The flag works
+<li>QWidget		- new widget flag WStyle_ContextHelp that adds a
+		  context-help button to the window titlebar. The
+		  button triggers "What's This?"-help. The flag works
 		  with MS-Windows and future versions of X11 desktops
 		  such as KDE-2.0.
-		  New widget state flag WState_Modal that triggers
-		  modality for WType_Modal widgets.
 		  New function showFullScreen().
 		  Enabling and disabling with setEnabled() propagates to
 		  children.
-		  Changed isVisible().  It now returns whether a widget
+		  Changed isVisible(). It now returns whether a widget
 		  is mapped up to the toplevel widget (the previous
 		  implementation only returned isVisibleTo(parentWidget()).
-
+		  New property 'backgroundOrigin' that lets a widget draw 
+		  its background relatively to its parent widget's coordinate
+		  system. This makes pseudo-transparency possible, without
+		  the overhead of a real widget mask.
 </ul>
-
-<h2>New classes</h2>
+<h2>New Classes</h2>
 <ul>
-
-<li>QCustomMenuItem: an abstract base class for custom menu items in
+<li>QCustomMenuItem	- an abstract base class for custom menu items in
 		  popup menus.
 
-<li>QFontDataBase: provides information about the available fonts.  Not really
+<li>QFontDataBase	- provides information about the available fonts. Not really
 		  a new class (it was used internally for the QFontDialog),
 		  but for the first time public API.
 
-<li>QGuardedPtr: a template class that provides guarded pointers to
+<li>QGuardedPtr	- a template class that provides guarded pointers to
 		  QObjects.
 
-<li>QIconView: a sophisticated new widget similar to QListView and
+<li>QIconView	- a sophisticated new widget similar to QListView and
 		  QListBox.  An iconview contains optinally labelled pixmap
 		  items that the user can select, drag around, rename, delete
-		  and more.  The widget is highly optimized for speed and
+		  and more. The widget is highly optimized for speed and
 		  large amounts of icons.
 
-<li>QInputDialog: a convenience dialog to get some simple input values from
+<li>QInputDialog	- a convenience dialog to get some simple input values from
 		  the user.
 
-<li>QMetaProperty: stores meta data about properties.  Part of the meta
+<li>QMetaProperty	- stores meta data about properties. Part of the meta
 		  object system.
 
-<li>QNetworkProtocol: base class for network protocols, provides
+<li>QNetworkProtocol- base class for network protocols, provides
 		  a common API for network protocols.
 
-<li>QUrl/QUrlOperator: provides an easy way to work with URLs.
+<li>QUrl/
+QUrlOperator	- provides an easy way to work with URLs.
 
-<li>QVariant: a tagged union for the most common Qt data types.
+<li>QVariant	- a tagged union for the most common Qt data types.
 
-<li>QValueStack: a value-based stack container.
+<li>QValueStack	- a value-based stack container.
 
-<li>QWorkspace: provides a workspace that can contain decorated
+<li>QWorkspace	- provides a workspace that can contain decorated
 		  windows as opposed to frameless child widgets.
 		  QWorkspace makes it easy to implement a multidocument
 		  interface (MDI).
 
-<li>QBig5Codec: provides support for the Big5 Chinese encoding.
+<li>QBig5Codec	- provides support for the Big5 Chinese encoding.
+</ul>
 
-</ul><h2>Changes which may affect runtime behaviour</h2><ul>
+<h2> Changes which may affect runtime behaviour </h2>
 
-<li>QDataStream / QPicture<p>
+<ul>
+<li>QDataStream / QPicture
  To accomodate for improved functionality, the stream serialization format
  of QString and QPen has changed in Qt 2.1. The format version
  number has been increased to 3. Compatibility has been kept, so
@@ -459,7 +489,7 @@ memory consumption while improving execution speed and features.
  QDataStream::setVersion() (if the data contains QString or QPen objects).
  See the documentation of this function for further discussion.
 
-<li>QPainter::drawPolygon()<p>
+<li>QPainter::drawPolygon()
  An outline is no longer drawn in the brush color if NoPen is specified.
  This matches the behaviour on Windows and ensures that the area
  painted in this case is the same pixels defined by a QRegion made
@@ -467,20 +497,25 @@ memory consumption while improving execution speed and features.
  painter.setPen(painter.brush()) prior to painting, which will also
  work on Windows.
 
-<li>QPushButton::sizeHint()<p>
+<li>QPushButton::sizeHint()
  The size hint of auto-default push buttons has been slightly
  increased in order to reserve space for a default button indicator
- frame.  This is necessary for a proper Motif or Platinum emulation.  If
+ frame. This is necessary for a proper Motif or Platinum emulation. If
  this change destroys your geometry management, a auto-default button
- is probably not what you wanted anyway.  Simply call
+ is probably not what you wanted anyway. Simply call
  setAutoDefault(FALSE) on these push buttons to get the old behaviour.
 
-<li>QWidget<p>
+<li>QWidget
  Font and palette propagation has changed totally (from "almost
  braindead" to working).  In practice, the only changes we've seen are
  to the better.
 
-<li>QPalette<p>
+<li>QColor
+ qRgb(r,g,b) now sets a default opaque alpha value of 0xff instead of
+ a transparent 0x00 alpha value formerly.  Use qRgb(r,g,b,a) if you do
+ need a transparent alpha value.
+
+<li>QPalette
  It turned out that the old normal/active/disabled set of color groups
  didn't work very well, except in the simplest hello-world examples,
  that it couldn't be fixed without nasty hacks, and that during five
@@ -491,19 +526,16 @@ memory consumption while improving execution speed and features.
  other windows.  Qt calls the color groups QPalette::active() and
  QPalette::inactive() respectively.
 
-<li>QToolButton<p>
+<li>QGridLayout/QBoxLayout 
+ setMargin() now also works on child layouts. As a result of this
+ change, the geometry() of a layout now includes margin(). This may
+ effect programs that use QLayout::geometry().
+
+<li>QToolButton
  The now adjustable auto-raise behaviour defaults to TRUE only when
  a button is used inside a QToolBar. That's usually what you want. If not,
  call setAutoRaise(FALSE).
-
-</ul><h2>Extensions</h2><ul>
-<li>Netscape Plugin Extensions<p>
- Works again as well as in the Qt-1.x series.
-
-<li>Xt Extension<p>
- Small extensions and simplifications, easier to use.
 </ul>
-
 */
 
 /*! \page bughowto.html
@@ -517,8 +549,8 @@ memory consumption while improving execution speed and features.
 about it so we can fix it.
 
 <p>Before reporting a bug, please check the
-<a href="http://www.troll.no/faq/">FAQs</a> and
-<a href="http://www.troll.no/platforms/">Platform Notes</a> on our web
+<a href="http://www.trolltech.com/faq/">FAQs</a> and
+<a href="http://www.trolltech.com/platforms/">Platform Notes</a> on our web
 site to see if the issue is already known.
 
 <p>Always include the following information in your bug report:
@@ -535,7 +567,7 @@ such a program can be made by simply doing some minor changes to one
 of the many example programs in the <tt>qt/examples</tt> directory.
 
 <p>Please send the bug report to
-<a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
+<a href="mailto:qt-bugs@trolltech.com">qt-bugs@trolltech.com</a>.
 */
 
 /*! \page buyhowto.html
@@ -545,10 +577,34 @@ of the many example programs in the <tt>qt/examples</tt> directory.
 
 <h1 align=center>How-To Buy Qt</h1>
 
-Please see the <a href="http://www.troll.no/purchase/">Purchasing
-information</a> and <a href="http://www.troll.no/pricing.html">price
-list</a> on the Troll Tech web site.
+You can order Qt Professional Edition by printing out an
+<a href="http://www.trolltech.com/purchase/orderform.html">order form</a>
+and faxing it to <strong><nobr>+47 22 80 63 80</nobr></strong>. For prices, please see the
+<a href="http://www.trolltech.com/pricing.html">Pricing and Availability page.</a><p>
 
+We accept payment by:
+<ul>
+<li>Credit card (VISA, American Express, Mastercard, JCB)
+<li>Cheque (US or international)
+<li>SWIFT international bank transfer (see details on the
+<a href="http://www.trolltech.com/purchase/orderform.html">order form</a>)
+</ul>
+<p><small>(Due to restrictions imposed by the credit card companies,
+we cannot accept credit card orders via the web or e-mail; we must
+receive the signed order form.)</small>
+<p>
+Cheques and order forms can also be sent with ordinary mail to:
+<strong>
+<blockquote>
+Troll Tech AS<br>
+Waldemar Thranes gt. 98b<br>
+N-0175 Oslo<br>
+NORWAY<br>
+</blockquote>
+</strong>
+<p>For questions regarding purchase and pricing, please contact us at
+<a href="mailto:sales@trolltech.com">sales@trolltech.com</a> or phone
+<nobr><b>+47 22 80 63 91</b></nobr>
 */
 
 
@@ -564,7 +620,7 @@ list</a> on the Troll Tech web site.
 License (QPL). It allows free use of Qt Free Edition for running
 software developed by others, and free use of Qt Free Edition for
 development of free/Open Source software. There is <a
-href="http://www.troll.no/qpl/">more information about the QPL</a> at
+href="http://www.trolltech.com/qpl/">more information about the QPL</a> at
 the Troll Tech web site.
 
 <p>For development non-free/proprietary software, the Qt Professional
@@ -720,37 +776,50 @@ by Oslo City Court.
 
 /*! \page troll.html
 
-<title>Troll Tech Contact Information</title>
+<title>About Troll Tech</title>
 </head>
 <body bgcolor="#ffffff">
 \postheader
 
-<h1 align=center>Contact Information</h1><br clear="all">
+<center>
+<h1>Company Information</h1>
+</center>
+<p>Troll Tech AS is a computer software company. We provide software development tools and libraries, as well as expert consultancy services.</p>
+<p>Our flagship product is <a href="http://www.trolltech.com/products/qt.html">Qt</a>, the multi-platform, C++ Graphical User Interfaces toolkit. Qt enables you to build professional, efficient, portable and maintainable GUI applications quickly and easily.</p>
+<h2>Software that makes Sense</h2>
+<p>Our motto expresses the vision behind our products. We design our products to give our customers the feeling of &quot;this is the way that things were always meant to be&quot;.</p>
+<p>We know that it is crucial for our customers to have good tools for making good software. Therefore, we do not compromise our demands for superior design and technical quality when we develop our products.</p>
+<p>Troll Tech is also known for providing top quality technical support to our customers. At Troll Tech, support inquiries are handled by the most qualified developers and designers themselves.</p>
+<h2>History</h2>
+<p>Troll Tech was founded in 1994. The core team of designers at Troll Tech started developing Qt in 1992, and since then Qt has steadily expanded and improved. The first commercial version of Qt was in 1995. Since then, Troll Tech has experienced rapid growth, and Qt is currently used in hundreds of successful software development projects world wide.</p>
+<p>
+
+<h2>Contact Information</h2><br clear="all">
 
 <table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#EEEEFF>
 <tr><th colspan=6 valign=top bgcolor=#D0D0FF>Email</th></tr>
 <tr>
 <td width=3% rowspan=4><br></td>
-<td colspan=2><a href="mailto:info@troll.no"><strong>info@troll.no</strong></a>
+<td colspan=2><a href="mailto:info@trolltech.com"><strong>info@trolltech.com</strong></a>
 
-<td colspan=2><a href="mailto:sales@troll.no"><strong>sales@troll.no</strong></a>
+<td colspan=2><a href="mailto:sales@trolltech.com"><strong>sales@trolltech.com</strong></a>
 <td width=3% rowspan=4><br></td>
 <tr>
 <td width=3%><br></td>
 <td width="44%" valign="top"> General inquiries and questions. Please check the
-<a href="/faq/">FAQ</a> to see if your question is already answered there!</td>
+<a href="http://www.trolltech.com/faq/">FAQ</a> to see if your question is already answered there!</td>
 <td width=3%><br></td>
 <td width="44%" valign="top"> Inquires related to purchasing, pricing and availability of Troll
 Tech products</td></tr>
 <tr>
-<td colspan=2><a href="mailto:www@troll.no"><strong>www@troll.no</strong></a>
-<td colspan=2><a href="mailto:qt-bugs@troll.no"><strong>qt-bugs@troll.no</strong></a>
+<td colspan=2><a href="mailto:www@trolltech.com"><strong>www@trolltech.com</strong></a>
+<td colspan=2><a href="mailto:qt-bugs@trolltech.com"><strong>qt-bugs@trolltech.com</strong></a>
 <tr>
 <td width=3%><br></td>
 <td valign="top"> Comments about our web pages</td>
 <td width=3%><br></td>
-<td valign="top"> For bug reports. Please check the <a
-href="/platforms/">Platform Notes</a> and <a href="/faq/">FAQ</a> to
+<td valign="top"> For bug reports. Please check the <a href="http://www.trolltech.com/platforms">Platform Notes</a> and
+<a href="http://www.trolltech.com/faq/">FAQ</a> to
 see if the issue is already solved!
 </td></tr>
 <tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
@@ -796,20 +865,20 @@ To subscribe to the <code>qt-announce</code> mailing list, simply press
 the button below.
 
 <center>
-<form enctype="text/plain" action="mailto:qt-announce-request@troll.no">
+<form enctype="text/plain" action="mailto:qt-announce-request@trolltech.com">
 <input type=hidden name="magic" value="subscribe">
 <input type=submit value="Subscribe to Qt Announcement Mailing List"></form>
 </center>
 
 <p>You can also subscribe by sending an email containing just the word
 <tt>subscribe</tt> or <tt>subscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+href="mailto:qt-announce-request@trolltech.com">qt-announce-request@trolltech.com</a>
 
 <p>To unsubscribe yourself from the <code>qt-announce</code> mailing
 list, similarly send an email containing just the word
 <tt>unsubscribe</tt> or
 <tt>unsubscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-announce-request@troll.no">qt-announce-request@troll.no</a>
+href="mailto:qt-announce-request@trolltech.com">qt-announce-request@trolltech.com</a>
 
 
 <h2>qt-interest</h2>
@@ -818,26 +887,26 @@ This mailing list is a discussion forum for Qt users. Typical traffic
 is 5-10 messages per day.
 
 An archive of the messages from qt-interest is available on the Troll
-Tech web site: <a href="http://www.troll.no/qt-interest/">Qt Mailing
+Tech web site: <a href="http://www.trolltech.com/qt-interest/">Qt Mailing
 List Archive</a>.
 
 To subscribe to the <code>qt-interest</code> mailing list, send an
 email containing just the word <tt>subscribe</tt> or <tt>subscribe
  <em>your@email.address</em></tt> to <a
-href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
+href="mailto:qt-interest-request@trolltech.com">qt-interest-request@trolltech.com</a>
 
 To unsubscribe yourself from the <code>qt-interest</code> mailing
 list, similarly send an email containing just the word
 <tt>unsubscribe</tt> or
 <tt>unsubscribe <em>your@email.address</em></tt> to <a
-href="mailto:qt-interest-request@troll.no">qt-interest-request@troll.no</a>
+href="mailto:qt-interest-request@trolltech.com">qt-interest-request@trolltech.com</a>
 
 <h2>snapshot-users</h2>
 
-There is a special mailing list, <tt>snapshot-users@troll.no</tt>, for
+There is a special mailing list, <tt>snapshot-users@trolltech.com</tt>, for
 discussion of Qt snapshot-related issues. To subscribe, send a message
 containing just the word "subscribe" (without the quotes) to <a
-href="mailto:snapshot-users-request@troll.no">snapshot-users-request@troll.no</a>. We
+href="mailto:snapshot-users-request@trolltech.com">snapshot-users-request@trolltech.com</a>. We
 encourage you to use this mailing list in stead of
 <tt>qt-interest</tt> for snapshot-specific issues.
 
@@ -1164,9 +1233,14 @@ below just covers this HTML page.)
 
 <h1 align=center>Licenses for Code Used in Qt</h1>
 
-<p>Qt uses a little code that is not QPL'd. This page lists the
+Qt contains a little code that is not QPL'd. This page lists the
 licenses used for that code, names the authors, and links to the
 points where it is used.
+
+Troll Tech gratefully acknowledges these and others contribution to
+Qt.  We recommend that all programs that use Qt also acknowledge these
+contributions, and quote all these license statements in an appendix
+to the documentation.
 
 \quotelist
 

@@ -95,7 +95,7 @@ VW::VW( QWidget * parent, const char * name )
     year->setMaximumHeight( year->minimumSize().height() );
     grid->addWidget( year, 2, 1 );
 
-    l = new QLabel( year, "Model:", box, "model year label" );
+    l = new QLabel( year, "Year:", box, "model year label" );
     l->setMinimumSize( l->sizeHint() );
     grid->addWidget( l, 2, 0 );
 

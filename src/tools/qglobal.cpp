@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -153,9 +153,6 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
   Under X11, the text is printed to stderr.  Under Windows, the text is
   sent to the debugger.
-
-  Note: If DEBUG was not defined when the Qt library was built
-  (i.e. NO_DEBUG was defined), this function does nothing.
 
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator).
@@ -372,9 +369,6 @@ void fatal( const char *msg, ... )
 Q_EXPORT
 void qDebug( const char *msg, ... )
 {
-#if defined (NO_DEBUG)
-    Q_UNUSED( msg );
-#else
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -387,16 +381,12 @@ void qDebug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
-#endif
 }
 
 // copied... this looks really bad.
 Q_EXPORT
 void debug( const char *msg, ... )
 {
-#if defined (NO_DEBUG)
-    Q_UNUSED( msg );
-#else
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -409,7 +399,6 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
-#endif
 }
 
 Q_EXPORT

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -866,19 +866,20 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 */
 void QButton::paintEvent( QPaintEvent *event )
 {
-    if ( event &&
+    if ( event && 
 	 width() <= drawingPixWidth &&
 	 height() <= drawingPixHeight ) {
 	makeDrawingPixmap(); // makes file-static drawpm variable
-	drawpm->fill( this, 0, 0 );
+	if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
+	    drawpm->fill( this, x(), y() );
+	else
+	    drawpm->fill( this, 0, 0 );
 	QPainter paint;
 	paint.begin( drawpm, this );
 	drawButton( &paint );
 	paint.end();
 
 	paint.begin( this );
-	// for small buttons it does not make sense to clip, and
-	// besides it led to update bugs for radio buttons
 	paint.drawPixmap( 0, 0, *drawpm );
 	paint.end();
     } else {

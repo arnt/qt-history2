@@ -25,9 +25,9 @@ Qt 2.0
 Tutorial and Reference
 .sz 18
 Preliminary Version, \\*(td
-.sp 4\nhttp://www.troll.no/
+.sp 4\nhttp://www.trolltech.com/
 .br
-sales\@troll.no / qt-bugs\@troll.no
+sales\@trolltech.com / qt-bugs\@trolltech.com
 .br\nfax: +47 22806380
 .ce 0
 .pn 1
@@ -81,7 +81,7 @@ class.  Some information in the on-line documentation has been left
 out as we felt it was not worth the paper (several hundred pages).
 .pp
 We appreciate any comments regarding the formatting or content of this
-manual.  Please send comments to qt-bugs\@troll.no.
+manual.  Please send comments to qt-bugs\@trolltech.com.
 .bp
 ";
 
@@ -326,7 +326,7 @@ for $a ( sort grep( /^t[1-9].html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $roff = join( "", $roff,
 		 &fixup( &parsetutfile( &prepare( <F> ),
-				       "http://www.troll.no/qt/$a" ) ) )
+				       "http://doc.trolltech.com/$a" ) ) )
 	if open( F, "< $a" );
 }
 closedir DIR;
@@ -336,7 +336,7 @@ for $a ( sort grep( /^t1[0-9].html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $roff = join( "", $roff,
 		 &fixup( &parsetutfile( &prepare( <F> ),
-				       "http://www.troll.no/qt/$a" ) ) )
+				       "http://doc.trolltech.com/$a" ) ) )
 	if open( F, "< $a" );
 }
 closedir DIR;
@@ -347,7 +347,7 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
     print $a, "\n";
     $roff = join( "", $roff,
 		 &fixup( &parseclassfile( &prepare( <F> ),
-					 "http://www.troll.no/qt/$a" ) ) )
+					 "http://trolltech.com/$a" ) ) )
 	if open( F, "< $a" );
 }
 closedir DIR;

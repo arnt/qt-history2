@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -153,16 +153,21 @@ private:
 class Q_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
+    Q_ENUMS( ResizeMode )
+    Q_PROPERTY( int margin READ margin WRITE setMargin )
+    Q_PROPERTY( int spacing READ spacing WRITE setSpacing )
+    Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
+    
 public:
-    QLayout( QWidget *parent, int border=0, int space=-1,
+    QLayout( QWidget *parent, int margin=0, int space=-1,
 	     const char *name=0 );
     QLayout( QLayout *parentLayout, int space=-1, const char *name=0 );
     QLayout( int space=-1, const char *name=0 );
 
     ~QLayout();
     
-    int spacing() const { return insideSpacing; }
     int margin() const { return outsideBorder; }
+    int spacing() const { return insideSpacing; }
 
     virtual void setMargin( int );
     virtual void setSpacing( int );

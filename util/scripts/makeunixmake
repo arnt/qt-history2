@@ -53,6 +53,8 @@ find tutorial \
     done
 
 # #### redo for some reason
+# Don't know why, but this _is_ necessary
 (cd examples; tmake $tmakearg examples.pro > Makefile.in )
 (cd tutorial; tmake $tmakearg tutorial.pro > Makefile.in )
 (cd extensions/opengl/examples; tmake $tmakearg examples.pro > Makefile.in )
+(cd extensions/xt/examples; tmake $tmakearg examples.pro > Makefile.in )

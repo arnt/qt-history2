@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -261,10 +261,11 @@
   The removed item is deleted if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
-  The item after the removed item becomes the new current list item
-  if the removed item is not the last item in the list.  If the
-  last item is removed, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list.  If the last item
+  is removed, the new last item becomes the current item in Qt 2.x.
+  In 3.0, the current item will be set to null.  The current item is
+  set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -281,10 +282,11 @@
   The removed item is deleted if \link QCollection::setAutoDelete()
   auto-deletion\endlink is enabled.
 
-  The item after the removed item becomes the new current list item
-  if the removed item is not the last item in the list.  If the
-  last item is removed, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list.  If the last item
+  is removed, the new last item becomes the current item in Qt 2.x.
+  In 3.0, the current item will be set to null.  The current item is
+  set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -306,10 +308,11 @@
   in the list. If compareItems() is not reimplemented, it is more
   efficient to call removeRef().
 
-  The item after the removed item becomes the new current list item
-  if the removed item is not the last item in the list.  If the
-  last item is removed, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list.  If the last item
+  is removed, the new last item becomes the current item in Qt 2.x.
+  In 3.0, the current item will be set to null.  The current item is
+  set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -336,10 +339,11 @@
 	list.remove();
   \endcode
 
-  The item after the removed item becomes the new current list item
-  if the removed item is not the last item in the list.  If the
-  last item is removed, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the removed item becomes the new current list item if
+  the removed item is not the last item in the list.  If the last item
+  is removed, the new last item becomes the current item in Qt 2.x.
+  In 3.0, the current item will be set to null.  The current item is
+  set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -412,10 +416,11 @@
   the index is out of range.
   The valid range is <code>0 .. (count() - 1)</code> inclusive.
 
-  The item after the taken item becomes the new current list item
-  if the taken item is not the last item in the list.  If the
-  last item is taken, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the taken item becomes the new current list item if
+  the taken item is not the last item in the list.  If the last item
+  is taken, the new last item becomes the current item in Qt 2.x.  In
+  3.0, the current item will be set to null.  The current item is set
+  to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.
@@ -430,10 +435,11 @@
   Returns a pointer to the item taken out of the list, or null if
   the current item is null.
 
-  The item after the taken item becomes the new current list item
-  if the taken item is not the last item in the list.  If the
-  last item is taken, the new last item becomes the current item.
-  The current item is set to null if the list becomes empty.
+  The item after the taken item becomes the new current list item if
+  the taken item is not the last item in the list.  If the last item
+  is taken, the new last item becomes the current item in Qt 2.x.  In
+  3.0, the current item will be set to null.  The current item is set
+  to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.

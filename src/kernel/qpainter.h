@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -79,6 +79,7 @@ public:
     void	setBrush( const QBrush & );
     void	setBrush( BrushStyle );
     void	setBrush( const QColor & );
+    QPoint	pos() const;
 
   // Drawing attributes/modes
 
@@ -226,12 +227,15 @@ public:
     int	       *tabArray() const;
     void	setTabArray( int * );
 
+    // Other functions
+    
 #if defined(_WS_WIN_)
     HDC		handle() const;
 #elif defined(_WS_X11_)
     HANDLE	handle() const;
 #endif
 
+    
     static void initialize();
     static void cleanup();
 

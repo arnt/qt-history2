@@ -15,9 +15,9 @@
 ** use this file in accordance with the Qt Professional Edition License
 ** provided at sale or upon request.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -182,7 +182,7 @@
 
 /*!
   \fn QMap::QMap( const QMap<Key,T>& m )
-  Constructs a copy of \e m.
+  Constructs a copy of \a m.
 
   This operation costs O(1) time since QMap is implicit shared.  The
   first instance applying modifications to a shared list will create a
@@ -202,7 +202,7 @@
 
 /*!
   \fn QMap<Key, T>& QMap::operator= (const QMap<Key, T>& m)
-  Assigns \e m to this map and returns a reference to this map.
+  Assigns \a m to this map and returns a reference to this map.
 
   All iterators of the current map become invalidated by this
   operation.  The cost of such an assignment is O(1) since QMap is
@@ -211,14 +211,14 @@
 
 /*!
   \fn const T& QMap::operator[] ( const Key& k ) const
-  Returns the value associated with the key \e k. If no such
+  Returns the value associated with the key \a k. If no such
   key is present then a reference to an empty item is returned.
 */
 
 /*!
   \fn T& QMap::operator[] ( const Key& k )
-  Returns the value associated with the key \e k. If no such
-  key is present then en empty item is inserted with this key
+  Returns the value associated with the key \a k. If no such
+  key is present then an empty item is inserted with this key
   and a reference to the item is returned.
 
   You can use this operator in two directions: For reading and for
@@ -247,7 +247,7 @@
 
 /*!
   \fn Iterator QMap::insert( const Key& key, const T& value )
-  Inserts the \e value with key \e k.
+  Inserts the \a value with key \a k.
 
   Returns an iterator pointing at the inserted value.
 
@@ -256,22 +256,22 @@
 
 /*!
   \fn void QMap::remove( Iterator it )
-  Removes the item at position \e it in the map.
+  Removes the item at position \a it in the map.
 
   \sa clear() QMapIterator
 */
 
 /*!
   \fn void QMap::remove( const Key& k )
-  Removes the item with the key \e k.
+  Removes the item with the key \a k.
 
   \sa clear()
 */
 
 /*!
   \fn Iterator QMap::replace( const Key& k, const T& v )
-  Replaces the value with key \e k from the map if possible and
-  inserts the new value \e v with key \k in the map.
+  Replaces the value with key \a k from the map if possible and
+  inserts the new value \a v with key \a k in the map.
 
   \sa insert() remove() QMapIterator
 */
@@ -285,7 +285,7 @@
 
 /*!
   \fn Iterator QMap::find( const Key& k )
-  Finds the key \e k in the map.
+  Finds the key \a k in the map.
 
   Returns end() if no key did match.
 
@@ -294,7 +294,7 @@
 
 /*!
   \fn ConstIterator QMap::find( const Key& k ) const
-  Finds the key \e k in the map.
+  Finds the key \a k in the map.
 
   Returns end() if no key did match.
 
@@ -303,7 +303,7 @@
 
 /*!
   \fn bool QMap::contains( const Key& k ) const
-  Returns TRUE if the key \k is contained in the map.
+  Returns TRUE if the key \a k is contained in the map.
 */
 
 /*!
@@ -350,14 +350,14 @@
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m )
   \relates QMap
-  Reads a map from the stream. The types \e Key and \e T must implement
+  Reads a map from the stream. The types \a Key and \a T must implement
   the streaming operator, too.
 */
 
 /*!
   \fn QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m )
   \relates QMap
-  Writes a map to the stream. The types \e Key and \e T must implement
+  Writes a map to the stream. The types \a Key and \a T must implement
   the streaming operator, too.
 */
 

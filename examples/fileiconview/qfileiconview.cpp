@@ -413,17 +413,16 @@ void QtFileIconViewItem::dropped( QDropEvent *e, const QValueList<QIconDragItem>
 	return;
     }
 
-    QStringList lst;
-    QUriDrag::decodeToUnicodeUris( e, lst );
+    QStrList lst;
+    QUriDrag::decode( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    QStringList::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it )
-	str += QString( "   %1\n" ).arg( *it );
+    for ( uint i = 0; i < lst.count(); ++i )
+	str += QString( "   %1\n" ).arg( lst.at( i ) );
     str += QString( "\n"
 		    "To\n\n"
 		    "	%1" ).arg( filename() );
@@ -504,6 +503,7 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
 
     setAutoArrange( TRUE );
     setSorting( TRUE );
+    openItem = 0;
 }
 
 void QtFileIconView::openFolder()
@@ -658,7 +658,7 @@ QDragObject *QtFileIconView::dragObject()
 	  item = (QtFileIconViewItem*)item->nextItem() ) {
 	if ( item->isSelected() ) {
 	    QIconDragItem id;
-	    id.setData( QCString( "file://" + item->filename() ) );
+	    id.setData( QCString( item->filename() ) );
 	    drag->append( id,
 			  QRect( item->pixmapRect( FALSE ).x() - orig.x(),
 				 item->pixmapRect( FALSE ).y() - orig.y(),
@@ -666,7 +666,7 @@ QDragObject *QtFileIconView::dragObject()
 			  QRect( item->textRect( FALSE ).x() - orig.x(),
 				 item->textRect( FALSE ).y() - orig.y(), 	
 				 item->textRect().width(), item->textRect().height() ),
-			  QString( "file://" + item->filename() ) );
+			  QString( item->filename() ) );
 	}
     }
 
@@ -684,23 +684,23 @@ void QtFileIconView::keyPressEvent( QKeyEvent *e )
 
 void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem> & )
 {
-    openItem->timer.stop();
+    if ( openItem )
+	openItem->timer.stop();
     if ( !QUriDrag::canDecode( e ) ) {
 	e->ignore();
 	return;
     }
 
-    QStringList lst;
-    QUriDrag::decodeToUnicodeUris( e, lst );
+    QStrList lst;
+    QUriDrag::decode( e, lst );
 
     QString str;
     if ( e->action() == QDropEvent::Copy )
 	str = "Copy\n\n";
     else
 	str = "Move\n\n";
-    QStringList::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it )
-	str += QString( "   %1\n" ).arg( *it );
+    for ( uint i = 0; i < lst.count(); ++i )
+	str += QString( "   %1\n" ).arg( lst.at( i ) );
     str += QString( "\n"
 		    "To\n\n"
 		    "	%1" ).arg( viewDir.absPath() );
@@ -709,6 +709,7 @@ void QtFileIconView::slotDropped( QDropEvent *e, const QValueList<QIconDragItem>
     if ( e->action() == QDropEvent::Move )
 	QMessageBox::information( this, "Remove" , str, "Not Implemented" );
     e->acceptAction();
+    openItem = 0;
 }
 
 void QtFileIconView::viewLarge()

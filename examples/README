@@ -22,7 +22,7 @@
    An implementation of the life game. Very UNIX-ish GUI design ;-)
 
 - helpviewer
-  The HelpViewer example implements a simple HTML help browser using 
+  The HelpViewer example implements a simple HTML help browser using
   Qt's richtext capabilities.
 
 - movies
@@ -30,8 +30,8 @@
   QLabel classes.
 
 - qdir
-   Shows how to use and customize Qt's file dialog. See 
-	qdir --help 
+   Shows how to use and customize Qt's file dialog. See
+	qdir --help
    for details
 
 - qfd
@@ -153,7 +153,7 @@
   and works like the mainwindow of a mail client.
 
 - mdi
-  This example program is just like the application example, but designed as 
+  This example program is just like the application example, but designed as
   Multiple Document Interface (MDI).
 
 - menu
@@ -209,10 +209,11 @@
 
 - table
   The table program displays a spreadsheet-like table. It is an example of
-  how to inherit the QTableView widget for presentations of 2D data arrays.
+  how to inherit the QScrollView widget for presentations of 2D data arrays.
 
   Left-click the mouse to set a current cell. Press the arrow buttons to
-  move the current mark around.
+  move the current mark around. Type something to edit a cell's
+  contents.
 
 - themes
   This examples demonstrates how to let widgets draw in different

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 #include "qsplitter.h"
@@ -718,9 +718,11 @@ void QSplitter::recalc( bool update )
 	}
     }
 
+    bool empty=TRUE;
     for ( int j = 0; j< n; j++ ) {
 	QSplitterLayoutStruct *s = data->list.at(j);
 	if ( !s->wid->testWState(WState_ForceHide) ) {
+	    empty = FALSE;
 	    if ( s->isSplitter ) {
 		minl += s->sizer;
 		maxl += s->sizer;
@@ -729,11 +731,16 @@ void QSplitter::recalc( bool update )
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
 		mint = QMAX( mint, trans( minS ));
-		maxt = QMIN( maxt, trans( s->wid->maximumSize() ));
+		int tm = pick( s->wid->maximumSize() );
+		if ( tm > 0 )
+		    maxt = QMIN( maxt, tm );
 	    }
 	}
     }
-    maxl = QMIN( maxl, QWIDGETSIZE_MAX );
+    if ( empty )
+	maxl = maxt = 0;
+    else
+	maxl = QMIN( maxl, QWIDGETSIZE_MAX );
     if ( maxt < mint )
 	maxt = mint;
 

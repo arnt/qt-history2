@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -11090,8 +11090,9 @@ QChar::Direction QChar::direction() const
 QChar::Joining QChar::joining() const
 {
   const Q_UINT8 *rowp = direction_info[row()];
-  if(!rowp) return QChar::OtherJoining;
-  return (Joining) ((*(rowp+cell()) >> 5) &0x4);
+  if ( !rowp )
+      return QChar::OtherJoining;
+  return (Joining) ((*(rowp+cell()) >> 5) &0x3);
 }
 
 
@@ -11102,7 +11103,8 @@ QChar::Joining QChar::joining() const
 bool QChar::mirrored() const
 {
   const Q_UINT8 *rowp = direction_info[row()];
-  if(!rowp) return FALSE;
+  if ( !rowp )
+      return FALSE;
   return *(rowp+cell())>128;
 }
 
@@ -11413,39 +11415,35 @@ int QLigature::match(QString & str, unsigned int index)
 }
 
 // this function is just used in QString::compose()
-static inline QChar::Decomposition format(QChar ch, QString & str,
-					  int index, int len)
+static inline bool format(QChar::Decomposition tag, QString & str,
+			  int index, int len)
 {
     unsigned int l = index + len;
     unsigned int r = index;
 
     bool left = FALSE, right = FALSE;
 
-    switch (ch.joining()) {
-    case QChar::Dual:
-	left = ((l < str.length()) &&
-		((str[(int)l].joining() == QChar::Dual) ||
-		 (str[(int)l].joining() == QChar::Right)));
-	// fall through
-    case QChar::Right:
-	if (r > 0) {
-	    r--;
-	    right = (str[(int)r].joining() == QChar::Dual);
-	}
-	break;
-    default:
-	break;
+    left = ((l < str.length()) &&
+	    ((str[(int)l].joining() == QChar::Dual) ||
+	     (str[(int)l].joining() == QChar::Right)));
+    if (r > 0) {
+	r--;
+	//printf("joining(right) = %d\n", str[(int)r].joining());
+	right = (str[(int)r].joining() == QChar::Dual);
     }
 
 
-    if (left && right)
-	return QChar::Medial;
-    if (left)
-	return QChar::Initial;
-    if (right)
-	return QChar::Final;
-
-    return QChar::Isolated;
+    switch (tag) {
+    case QChar::Medial:
+	return (left & right);
+    case QChar::Initial:
+	return (left && !right);
+    case QChar::Final:
+	return (right);// && !left);
+    case QChar::Isolated:
+    default:
+	return (!right && !left);
+    }
 } // format()
 
 /*
@@ -11466,37 +11464,46 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
 void QString::compose()
 {
     unsigned int index=0, len;
+    unsigned int cindex = 0;
 
     QChar code, head;
 
     QArray<QChar> dia;
 
-    while (index < length())
-    {
-	code = at(index);
+    QString composed = *this;
 
+    while (index < length()) {
+	code = at(index);
+	//printf("\n\nligature for 0x%x:\n", code.unicode());
 	QLigature ligature(code);
 	ligature.first();
-	while(ligature.current())
-	{
-	    if ((len = ligature.match(*this, index)) != 0)
-	    {
+	while(ligature.current()) {
+	    if ((len = ligature.match(*this, index)) != 0) {
 		head = ligature.head();
-
-		// joining info is only needed for arabic
-		if (!head.joining() ||
-		    ligature.tag() == format(head, *this, index, len))
-		{
-		    // replace letter
-		    replace(index, len, QChar(head));
-		    break;
+		unsigned short code = head.unicode();
+		// we exclude Arabic presentation forms A and a few
+		// other ligatures, which are undefined in most fonts
+		if(!(code > 0xfb50 && code < 0xfe80) &&
+		   !(code > 0xfb00 && code < 0xfb2a)) {		
+				// joining info is only needed for arabic
+		    if (format(ligature.tag(), *this, index, len)) {
+			//printf("using ligature 0x%x, len=%d\n",code,len);
+			// replace letter
+			composed.replace(cindex, len, QChar(head));
+			index += len-1;
+			// we continue searching in case we have a final
+			// form because medial ones are preferred.
+			if ( len != 1 || ligature.tag() !=QChar::Final )
+			    break;
+		    }
 		}
 	    }
 	    ligature.next();
 	}
-
+	cindex++;
 	index++;
     }
+    *this = composed;
 }
 
 static QChar LRM ((ushort)0x200e);
@@ -13855,7 +13862,7 @@ QString &QString::setNum( ulong n, int base )
   reference to the string.
 */
 
-/*!  Sets the string to the printed value of \a n, formatted in the \f
+/*!  Sets the string to the printed value of \a n, formatted in the \a f
   format with \a prec precision, and returns a reference to the
   string.
 
@@ -13872,11 +13879,11 @@ QString &QString::setNum( double n, char f, int prec )
     }
 #endif
     char format[20];
-    char buf[80];
+    char buf[120];				// enough for 99 precision?
     char *fs = format;				// generate format string
     *fs++ = '%';				//   "%.<prec>l<f>"
     if ( prec >= 0 ) {
-	if ( prec > 99 )
+	if ( prec > 99 )			// buf big enough for precision?
 	    prec = 99;
 	*fs++ = '.';
 	if ( prec >= 10 ) {

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -181,7 +181,7 @@ OPENFILENAME* makeOFN( QWidget* parent,
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     tInitSel = new TCHAR[maxLen+1];
     tInitSel[0] = 0;
-    if ( initSel.length() <= (uint)maxLen )
+    if ( initSel.length() > 0 && initSel.length() <= (uint)maxLen )
 	memcpy( tInitSel, qt_winTchar( initSel, TRUE ),
 		(initSel.length()+1) * sizeof(TCHAR) );
 
@@ -225,7 +225,8 @@ void cleanUpOFN( OPENFILENAME** ofn )
 QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
-					 QWidget *parent, const char* /*name*/ )
+					 QWidget *parent, const char* /*name*/,
+					 const QString& caption )
 {
     QString result;
 
@@ -239,10 +240,14 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	isel = fi.fileName();
     }
 
+    QString title = caption;
+    if ( title.isNull() )
+	title = tr("Open");
+
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
-				       *initialDirectory, tr("Open"),
+				       *initialDirectory, title,
 				       winFilter(filter), ExistingFile );
 	if ( GetOpenFileNameA( ofn ) )
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
@@ -251,7 +256,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
-				     *initialDirectory, tr("Open"),
+				     *initialDirectory, title,
 				     winFilter(filter), ExistingFile );
 	if ( GetOpenFileName( ofn ) )
 	    result = qt_winQString( ofn->lpstrFile );
@@ -272,7 +277,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
-					 QWidget *parent, const char* /*name*/ )
+					 QWidget *parent, const char* /*name*/,
+					 const QString& caption )
 {
     QString result;
 
@@ -286,10 +292,14 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	isel = fi.fileName();
     }
 
+    QString title = caption;
+    if ( title.isNull() )
+	title = tr("Save As");
+
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
-				       *initialDirectory, tr("Save As"),
+				       *initialDirectory, title,
 				       winFilter(filter), AnyFile );
 	if ( GetSaveFileNameA( ofn ) )
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
@@ -298,7 +308,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, isel,
-				     *initialDirectory, tr("Save As"),
+				     *initialDirectory, title,
 				     winFilter(filter), AnyFile );
 	if ( GetSaveFileName( ofn ) )
 	    result = qt_winQString( ofn->lpstrFile );
@@ -320,7 +330,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 					      QString* initialDirectory,
 					      QWidget *parent,
-					      const char* /*name*/ )
+					      const char* /*name*/,
+					      const QString& caption )
 {
     QStringList result;
     QFileInfo fi;
@@ -334,10 +345,14 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	*initialDirectory = fi.dirPath( TRUE );
     }
 
+    QString title = caption;
+    if ( title.isNull() )
+	title = tr("Open");
+
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
-				       *initialDirectory, tr("Open"),
+				       *initialDirectory, title,
 				       winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileNameA( ofn ) ) {
 	    QCString fileOrDir = ofn->lpstrFile;
@@ -367,7 +382,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     else {
 	// Use Unicode or ANSI strings and API
 	OPENFILENAME* ofn = makeOFN( parent, QString::null,
-				     *initialDirectory, tr("Open"),
+				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
 	    QString fileOrDir = qt_winQString( ofn->lpstrFile );

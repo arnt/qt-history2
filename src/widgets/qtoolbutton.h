@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -51,7 +51,7 @@ class Q_EXPORT QToolButton: public QButton
     Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
 
     Q_OVERRIDE( bool on WRITE setOn )
-	
+
 public:
     QToolButton( QWidget * parent, const char *name = 0 );
     QToolButton( const QPixmap & pm, const QString &textLabel, //### fjern 3.0
@@ -131,6 +131,12 @@ private:
     uint hasArrow : 1;
 
     friend class QStyle;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QToolButton( const QToolButton & );
+    QToolButton& operator=( const QToolButton & );
+#endif
 };
 
 

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -96,8 +96,8 @@ public:
     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
     int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
-			    const QPalette& pal,
-			    bool act, bool enabled, int x, int y, int w, int h);
+			    const QPalette& pal, bool act, bool enabled,
+			    int x, int y, int w, int h);
 
 protected:
     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
@@ -105,6 +105,11 @@ protected:
     QColor mixedColor(const QColor &, const QColor &);
     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal );
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QPlatinumStyle( const QPlatinumStyle & );
+    QPlatinumStyle& operator=( const QPlatinumStyle & );
+#endif
 };
 
 

@@ -37,13 +37,13 @@ int main( int argc, char **argv )
     if ( argc <= 1 ) {
 	// Create a window which looks after its own existence.
 	ImageViewer *w =
-	    new ImageViewer(0, "new window", Qt::WDestructiveClose);
+	    new ImageViewer(0, "new window", Qt::WDestructiveClose | Qt::WResizeNoErase );
 	w->show();
     } else {
 	for ( int i=1; i<argc; i++ ) {
 	    // Create a window which looks after its own existence.
 	    ImageViewer *w =
-		new ImageViewer(0, argv[i], Qt::WDestructiveClose);
+		new ImageViewer(0, argv[i], Qt::WDestructiveClose | Qt::WResizeNoErase );
 	    w->loadImage( argv[i] );
 	    w->show();
 	}

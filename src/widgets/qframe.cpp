@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -124,7 +124,7 @@
 
 /*! \enum QFrame::Shadow
 
-  This enum typde defines the 3D effect used for QFrame's frame.  The
+  This enum type defines the 3D effect used for QFrame's frame.  The
   currently defined effects are: <ul>
 
   <li> \c Plain - the frame and contents appear level with the surroundings

@@ -15,6 +15,7 @@
 #include <qpalette.h>
 #include <qobjectlist.h>
 #include <qpopupmenu.h>
+#include <qheader.h>
 
 // -----------------------------------------------------------------
 
@@ -105,6 +106,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     lstFolders.setAutoDelete( TRUE );
 
     folders = new QListView( this );
+    folders->header()->setClickEnabled( FALSE );
     folders->addColumn( "Folder" );
 
     initFolders();
@@ -133,9 +135,14 @@ ListViews::ListViews( QWidget *parent, const char *name )
     message->setAlignment( Qt::AlignTop );
     message->setBackgroundMode( PaletteBase );
 
-    connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotFolderChanged( QListViewItem* ) ) );
-    connect( messages, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotMessageChanged( QListViewItem* ) ) );
+    connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ),
+	     this, SLOT( slotFolderChanged( QListViewItem* ) ) );
+    connect( messages, SIGNAL( selectionChanged() ),
+	     this, SLOT( slotMessageChanged() ) );
+    connect( messages, SIGNAL( currentChanged( QListViewItem * ) ),
+	     this, SLOT( slotMessageChanged() ) );
 
+    messages->setSelectionMode( QListView::Extended );
     // some preperationes
     folders->firstChild()->setOpen( TRUE );
     folders->firstChild()->firstChild()->setOpen( TRUE );
@@ -144,6 +151,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
 
     messages->setSelected( messages->firstChild(), TRUE );
     messages->setCurrentItem( messages->firstChild() );
+    message->setMargin( 5 );
 
     QValueList<int> lst;
     lst.append( 170 );
@@ -180,7 +188,7 @@ void ListViews::initFolder( Folder *folder, unsigned int &count )
 	str = QString( "Message %1  " ).arg( count );
 	QDateTime dt = QDateTime::currentDateTime();
 	dt = dt.addSecs( 60 * count );
-	MessageHeader mh( "Troll Tech <info@troll.no>  ", str, dt );
+	MessageHeader mh( "Troll Tech <info@trolltech.com>  ", str, dt );
 
 	QString body;
 	body = QString( "This is the message number %1 of this application, \n"
@@ -221,11 +229,16 @@ void ListViews::slotFolderChanged( QListViewItem *i )
 	(void)new MessageListItem( messages, msg );
 }
 
-void ListViews::slotMessageChanged( QListViewItem *i )
+void ListViews::slotMessageChanged()
 {
-    if ( !i ) return;
+    QListViewItem *i = messages->currentItem();
+    if ( !i )
+	return;
 
-    message->setText( "" );
+    if ( !i->isSelected() ) {
+	message->setText( "" );
+	return;
+    }
 
     MessageListItem *item = ( MessageListItem* )i;
     Message *msg = item->message();
@@ -234,7 +247,7 @@ void ListViews::slotMessageChanged( QListViewItem *i )
     QString tmp = msg->header().sender();
     tmp = tmp.replace( QRegExp( "[<]" ), "&lt;" );
     tmp = tmp.replace( QRegExp( "[>]" ), "&gt;" );
-    text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@troll.no\">%1</a><br>"
+    text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@trolltech.com\">%1</a><br>"
 		    "<b><i>Subject:</i></b> <big><big><b>%2</b></big></big><br>"
 		    "<b><i>Date:</i></b> %3<br><br>"
 		    "%4" ).

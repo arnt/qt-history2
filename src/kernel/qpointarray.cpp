@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -801,8 +801,22 @@ void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
     int c2[2]; c2[0] = int(ctrl[4]); c2[1] = int(ctrl[5]);
     int c3[2]; c3[0] = int(ctrl[6]); c3[1] = int(ctrl[7]);
 
-    if ( pnt_on_line( c0, c3, c1 ) == 2
-      && pnt_on_line( c0, c3, c2 ) == 2 )
+    if ( QABS(c1[0]-c0[0]) <= 1 && QABS(c1[1]-c0[1]) <= 1
+      && QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
+      && QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1 )
+    {
+	// Approximate by one line.
+	// Dont need to write last pt as it is the same as first pt
+	// on the next segment
+	acc[accsize++] = l[0];
+	acc[accsize++] = l[1];
+	return;
+    }
+
+    if ( ( pnt_on_line( c0, c3, c1 ) == 2 && pnt_on_line( c0, c3, c2 ) == 2 )
+      || ( QABS(c1[0]-c0[0]) <= 1 && QABS(c1[1]-c0[1]) <= 1
+        && QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
+        && QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1 ) )
     {
 	// Approximate by one line.
 	// Dont need to write last pt as it is the same as first pt
@@ -833,10 +847,9 @@ QPointArray QPointArray::quadBezier() const
     }
 
     int v;
-    const int n = 3;				// n + 1 control points
     float xvec[4];
     float yvec[4];
-    for ( v=0; v<=n; v++ ) {			// store all x,y in xvec,yvec
+    for ( v=0; v<4; v++ ) {			// store all x,y in xvec,yvec
 	int x, y;
 	point( v, &x, &y );
 	xvec[v] = (float)x;

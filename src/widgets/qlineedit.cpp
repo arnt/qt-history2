@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -606,6 +606,8 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
     blinkOn();
     if ( e->reason() == QFocusEvent::Tab )
 	selectAll();
+    d->pmDirty = TRUE;
+    repaint( FALSE );
 }
 
 
@@ -626,6 +628,8 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     d->dragTimer.stop();
     if ( cursorOn )
 	blinkSlot();
+    d->pmDirty = TRUE;
+    repaint( FALSE );
 }
 
 /*!\reimp
@@ -1126,7 +1130,7 @@ void QLineEdit::cut()
 
 /*!
   Sets the alignment of the line edit. Possible Values are Qt::AlignLeft,
-  Qt::AlignRight and Qt::AlignCenter - see Qt::AlignmentFlags.
+  Qt::AlignRight and Qt::Align(H)Center - see Qt::AlignmentFlags.
   \sa alignment()
 */
 void QLineEdit::setAlignment( int flag ){
@@ -1134,6 +1138,7 @@ void QLineEdit::setAlignment( int flag ){
 	return;
     if ( flag == Qt::AlignRight ||
 	 flag == Qt::AlignCenter ||
+	 flag == Qt::AlignHCenter ||
 	 flag == Qt::AlignLeft ) {
 	alignmentFlag = flag;
 	updateOffset();
@@ -1143,7 +1148,7 @@ void QLineEdit::setAlignment( int flag ){
 
 /*!
   Returns the alignment of the line edit. Possible Values
-  are Qt::AlignLeft, Qt::AlignRight and Qt::AlignCenter.
+  are Qt::AlignLeft, Qt::AlignRight and Qt::Align(H)Center.
 
   \sa setAlignment(), Qt::AlignmentFlags
 */
@@ -1289,11 +1294,13 @@ bool QLineEdit::isReadOnly() const
 
 
 
-/*!\reimp
+/*!
+  Returns a recommended size for the widget.
+
+  The width returned is enough for a few characters, typically 15 to 20.
 */
 QSize QLineEdit::sizeHint() const
 {
-    //   the width returned tends to be enough for about 15-20 characters.
     constPolish();
     QFontMetrics fm( font() );
     int h = fm.height();
@@ -1353,7 +1360,6 @@ QSizePolicy QLineEdit::sizePolicy() const
 
   \sa validator() QValidator
 */
-
 
 void QLineEdit::setValidator( const QValidator * v )
 {
@@ -1759,7 +1765,7 @@ void QLineEdit::updateOffset()
 	if ( alignmentFlag == Qt::AlignRight ) {
 	    // right-aligned text, space for all of it
 	    offset = w - textWidth;
-	} else if ( alignmentFlag == Qt::AlignCenter ) {
+	} else if ( alignmentFlag == Qt::AlignCenter || alignmentFlag == Qt::AlignHCenter ) {
 	    // center-aligned text, space for all of it
 	    offset = (w - textWidth)/2;
 	} else {
@@ -1815,7 +1821,13 @@ void QLineEdit::makePixmap() const
 {
     if ( d->pm )
 	return;
-    d->pm = new QPixmap(frame()?QSize(width()-4,height()-4):size());
+
+    QSize s( frame() ? QSize( width() - 4, height() - 4 ) : size() );
+    if ( s.width() < 0 )
+	s.setWidth( 0 );
+    if ( s.height() < 0 )
+	s.setHeight( 0 );
+    d->pm = new QPixmap( s );
     d->pmDirty = TRUE;
 }
 

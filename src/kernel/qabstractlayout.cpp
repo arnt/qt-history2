@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -1728,11 +1728,11 @@ void QLayout::setSupportsMargin( bool b )
 QRect QLayout::alignmentRect( const QRect &r ) const
 {
     QSize s = sizeHint();
-    int align = alignment();
-    if ( expanding() & QSizePolicy::Horizontal || !(align & HorAlign ) ) {
+    int a = alignment();
+    if ( expanding() & QSizePolicy::Horizontal || !(a & HorAlign ) ) {
 	s.setWidth( r.width() );
     }
-    if ( expanding() & QSizePolicy::Vertical || !(align & VerAlign )) {
+    if ( expanding() & QSizePolicy::Vertical || !(a & VerAlign )) {
 	s.setHeight( r.height() );
     } else if ( hasHeightForWidth() ) {
 	s.setHeight( QMIN( s.height(), heightForWidth(s.width()) ) );
@@ -1741,14 +1741,14 @@ QRect QLayout::alignmentRect( const QRect &r ) const
     int x = r.x();
     int y = r.y();
     
-    if ( align & Qt::AlignRight )
+    if ( a & Qt::AlignRight )
 	x = x + ( r.width() - s.width() );
-    else if ( !(align & Qt::AlignLeft) )
+    else if ( !(a & Qt::AlignLeft) )
 	x = x + ( r.width() - s.width() ) / 2;
 
-    if ( align & Qt::AlignBottom )
+    if ( a & Qt::AlignBottom )
 	y = y + ( r.height() - s.height() );
-    else if ( !(align & Qt::AlignTop) )
+    else if ( !(a & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
 
     return QRect( x, y, s.width(), s.height() );

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -67,8 +67,8 @@ public:
   a tool button usually doesn't show a text label, but an icon.  Its
   classic usage is to select tools, for example the "pen"-tool in a
   drawing program. This would be implemented with a QToolButton as
-  toggle button (see setToggleButton() ). 
-  
+  toggle button (see setToggleButton() ).
+
   QToolButton supports auto-raising. In auto-raise mode, the button
   draws a 3D frame only when the mouse points at it.  The feature is
   automatically turned on when a button is used inside a QToolBar.
@@ -99,7 +99,7 @@ public:
 
 
 /*!
-  Constructs an empty tool button. 
+  Constructs an empty tool button.
 */
 
 QToolButton::QToolButton( QWidget * parent, const char *name )
@@ -434,7 +434,7 @@ void QToolButton::setOn( bool enable )
   This function has no effect on \link isToggleButton() non-toggling
   buttons. \endlink
 
-  \sa isToggleButton() toggle()
+  \sa isToggleButton() toggled()
 */
 
 void QToolButton::toggle()
@@ -594,21 +594,25 @@ void QToolButton::setTextLabel( const QString &newLabel )
 
 void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 {
-    tl = newLabel;
-    if ( !tipToo )
-	return;
-
-    if ( usesTextLabel() )
-	QToolTip::remove( this );
-    else
+    if ( tipToo )
 	QToolTip::add( this, newLabel );
+
+    if ( tl == newLabel )
+	return;
+    
+    tl = newLabel;
+    if ( usesTextLabel() && isVisible() ) {
+	update();
+	updateGeometry();
+    }
+    
 }
 
 /*!
   Sets the icon that is used when the button
   is in on-state.
 
-  \sa setIconSet
+  \sa setIconSet()
 */
 void QToolButton::setOnIconSet( const QIconSet& set )
 {
@@ -619,7 +623,7 @@ void QToolButton::setOnIconSet( const QIconSet& set )
   Sets the icon that is used when the button
   is in off-state.
 
-  \sa setIconSet
+  \sa setIconSet()
 */
 void QToolButton::setOffIconSet( const QIconSet& set )
 {

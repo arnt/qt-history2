@@ -11,7 +11,7 @@
 #include "buttongroups.h"
 
 #include <qbuttongroup.h>
-#include <qhbox.h>
+#include <qlayout.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qgroupbox.h>
@@ -24,16 +24,18 @@
  */
 
 ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
-    : QVBox( parent, name )
+    : QWidget( parent, name )
 {
     // Create Widgets which allow easy layouting
-    QHBox *box1 = new QHBox( this );
-    QHBox *box2 = new QHBox( this );
+    QVBoxLayout *vbox = new QVBoxLayout( this );
+    QHBoxLayout *box1 = new QHBoxLayout( vbox );
+    QHBoxLayout *box2 = new QHBoxLayout( vbox );
 
     // ------- first group
 
     // Create an exclusive button group
-    QButtonGroup *grp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", box1);
+    QButtonGroup *grp1 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 1 (exclusive)", this);
+    box1->addWidget( grp1 );
     grp1->setExclusive( TRUE );
 
     // insert 3 radiobuttons
@@ -45,7 +47,8 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------- second group
 
     // Create a non-exclusive buttongroup
-    QButtonGroup *grp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", box1 );
+    QButtonGroup *grp2 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 2 (non-exclusive)", this );
+    box1->addWidget( grp2 );
     grp2->setExclusive( FALSE );
 
     // insert 3 checkboxes
@@ -59,7 +62,8 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------------ third group
 
     // create a buttongroup which is exclusive for radiobuttons and non-exclusive for all other buttons
-    QButtonGroup *grp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", box2 );
+    QButtonGroup *grp3 = new QButtonGroup( 1, QGroupBox::Horizontal, "Button Group 3 (Radiobutton-exclusive)", this );
+    box2->addWidget( grp3 );
     grp3->setRadioButtonExclusive( TRUE );
 
     // insert three radiobuttons
@@ -77,7 +81,8 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     // ------------ fourth group
 
     // create a groupbox which layouts its childs in a columns
-    QGroupBox *grp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", box2 );
+    QGroupBox *grp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
+    box2->addWidget( grp4 );
 
     // insert two pushbuttons...
     (void)new QPushButton( "&Push Button", grp4 );

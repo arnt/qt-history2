@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -221,9 +221,6 @@ Utilities
       <a href="io.html">  I/O Handling</a>
 </td><td>Classes providing I/O, file and directory handling.
 </td></tr><tr><td>
-      <a href="sound.html">  Sound </a>
-</td><td>Basic audio support.
-</td></tr><tr><td>
       <a href="time.html">  Time And Date</a>
 </td><td>Classes for handling date and time.
 </td></tr><tr><td>
@@ -350,14 +347,6 @@ Qt</a>.
 These classes are used to customize an application's appearance.
 
 */
-
-/*! \defgroup sound.html
-
-<h1 align="center">Sound</h1><br clear="all">
-
-This class provides basic audio support.
-*/
-
 
 /*! \defgroup shared.html
 

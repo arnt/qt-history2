@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -41,7 +41,8 @@ class Q_EXPORT QHeader : public QWidget
     Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int offset READ offset WRITE setOffset )
-	
+    Q_PROPERTY( bool moving READ isMovingEnabled WRITE setMovingEnabled )
+
 public:
     QHeader( QWidget *parent=0, const char *name=0 );
     QHeader( int, QWidget *parent=0, const char *name=0 );
@@ -49,52 +50,68 @@ public:
 
     int		addLabel( const QString &, int size = -1 );
     int		addLabel( const QIconSet&, const QString &, int size = -1 );
-    void removeLabel( int index );
+    void 	removeLabel( int section );
     virtual void setLabel( int, const QString &, int size = -1 );
     virtual void setLabel( int, const QIconSet&, const QString &, int size = -1 );
-    QString 	label( int ) const;
-    QIconSet* 	iconSet( int ) const;
+    QString 	label( int section ) const;
+    QIconSet* 	iconSet( int section ) const;
 
     virtual void setOrientation( Orientation );
     Orientation orientation() const;
     virtual void setTracking( bool enable );
     bool	tracking() const;
 
-    virtual void setClickEnabled( bool, int logIdx = -1 );
-    virtual void setResizeEnabled( bool, int logIdx = -1 );
+    virtual void setClickEnabled( bool, int section = -1 );
+    virtual void setResizeEnabled( bool, int section = -1 );
     virtual void setMovingEnabled( bool );
+    bool isClickEnabled( int section = -1 ) const;
+    bool isResizeEnabled( int section = -1 ) const;
+    bool isMovingEnabled() const;
 
-    virtual void setCellSize( int i, int s );
-    int		cellSize( int i ) const;
-    int		cellPos( int i ) const;
-    int		cellAt( int i ) const;
+    void 	resizeSection( int section, int s );
+    int		sectionSize( int section ) const;
+    int		sectionPos( int section ) const;
+    int		sectionAt( int pos ) const;
     int		count() const;
+
+    virtual void setCellSize( int , int ); // obsolete, do not use
+    int		cellSize( int ) const; // obsolete, do not use
+    int		cellPos( int ) const; // obsolete, do not use
+    int		cellAt( int ) const; // obsolete, do not use
 
     int 	offset() const;
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
 
-    int		mapToLogical( int ) const;
-    int		mapToActual( int ) const;
+    int		mapToSection( int index ) const;
+    int		mapToIndex( int section ) const;
+    int		mapToLogical( int ) const; // obsolete, do not use
+    int		mapToActual( int ) const; // obsolete, do not use
 
-    virtual void moveCell( int fromIdx, int toIdx );
+    void 	moveSection( int section, int toIndex );
+    virtual void moveCell( int, int); // obsolete, do not use
 
-    void setSortIndicator( int column, bool increasing = TRUE );
+    void 	setSortIndicator( int section, bool increasing = TRUE );
 
 public slots:
-    virtual void	setOffset( int );
+    virtual void setOffset( int pos );
 
 signals:
-    void	sectionClicked( int );
+    void	clicked( int section );
+    void	pressed( int section );
+    void	released( int section );
     void	sizeChange( int section, int oldSize, int newSize );
-    void	moved( int from, int to );
+    void	indexChange( int section, int fromIndex, int toIndex );
+    void	sectionClicked( int ); // obsolete, do not use
+    void	moved( int, int ); // obsolete, do not use
 
 protected:
     void	paintEvent( QPaintEvent * );
-    QRect	sRect( int i );
+    QRect	sRect( int index );
 
-    void	paintSection( QPainter *, int, QRect );
+    void	paintSection( QPainter *p, int index, QRect fr); // ### const QRect& ## virtual 3.0
+    void	paintSectionLabel( QPainter* p, int index, const QRect& fr ); //## virtual 3.0
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
@@ -122,11 +139,11 @@ private:
     State	state;
     QCOORD	clickPos;
     bool	trackingIsOn;
-    int       cachedIdx;
-    int	cachedPos;
+    int       cachedIdx; // not used
+    int	cachedPos; // not used
     Orientation orient;
 
-    QHeaderData *data;
+    QHeaderData *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

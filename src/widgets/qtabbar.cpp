@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -56,7 +56,6 @@ QTab::~QTab()
 struct QTabPrivate {
     int id;
     int focus;
-    QTab * pressed;
     QAccel * a;
     QTabBar::Shape s;
     QToolButton* rightB;
@@ -388,8 +387,15 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     }
 
    if ( t->enabled && isEnabled()  ) {
-	p->setPen( colorGroup().foreground() );
-	p->drawText( r, AlignCenter | ShowPrefix, t->label );
+#if defined(_WS_WIN32_)
+       if ( colorGroup().brush( QColorGroup::Button ) == colorGroup().brush( QColorGroup::Background ) )
+	   p->setPen( colorGroup().buttonText() );
+       else
+	   p->setPen( colorGroup().foreground() );
+#else
+       p->setPen( colorGroup().foreground() );
+#endif
+       p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
 	p->setPen( palette().disabled().foreground() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
@@ -530,20 +536,18 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 */
 void QTabBar::mousePressEvent( QMouseEvent * e )
 {
-    d->pressed = selectTab( e->pos() );
+    QTab * t = selectTab( e->pos() );
+    if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
+	setCurrentTab( t );
+    }
 }
 
 
 /*!\reimp
 */
 
-void QTabBar::mouseReleaseEvent( QMouseEvent * e )
+void QTabBar::mouseReleaseEvent( QMouseEvent * )
 {
-    QTab * t = d->pressed;
-    d->pressed = 0;
-    if ( t != 0 && t == selectTab( e->pos() ) && t->enabled ) {
-	setCurrentTab( t );
-    }
 }
 
 
@@ -636,7 +640,7 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
     //   The right and left arrow keys move a selector, the spacebar
     //   makes the tab with the selector active.  All other keys are
     //   ignored.
-    
+
     int old = d->focus;
 
     if ( e->key() == Key_Left ) {

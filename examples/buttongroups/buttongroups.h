@@ -11,12 +11,12 @@
 #ifndef BUTTONS_GROUPS_H
 #define BUTTONS_GROUPS_H
 
-#include <qvbox.h>
+#include <qwidget.h>
 
 class QCheckBox;
 class QRadioButton;
 
-class ButtonsGroups : public QVBox
+class ButtonsGroups : public QWidget
 {
     Q_OBJECT
 

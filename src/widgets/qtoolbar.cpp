@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -38,8 +38,6 @@
 #include "qtoolbutton.h"
 #include "qpopupmenu.h"
 #include "qtimer.h"
-
-#define TOOLBAR_MENU
 
 class QArrowWidget : public QWidget
 {
@@ -564,8 +562,8 @@ void QToolBar::setHorizontalStretchable( bool b )
 
   The default is FALSE.
 
-  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(),
-  setVerticalStretchable(), isHorizontalStretchable()
+  \sa QMainWindow::setRightJustification(), isVerticalStretchable(),
+  setHorizontalStretchable(), isHorizontalStretchable()
 */
 
 void QToolBar::setVerticalStretchable( bool b )
@@ -641,15 +639,12 @@ QSize QToolBar::minimumSizeHint() const
 void QToolBar::resizeEvent( QResizeEvent *e )
 {
     QWidget::resizeEvent( e );
-#if defined(TOOLBAR_MENU)
     if ( isVisible() )
 	updateArrowStuff();
-#endif
 }
 
 void QToolBar::updateArrowStuff()
 {
-#if defined(TOOLBAR_MENU)
     if ( !isVisible() )
 	return;
     if ( orientation() == Horizontal ) {
@@ -686,6 +681,7 @@ void QToolBar::updateArrowStuff()
 	    paintToolBar();
 	    setUpdatesEnabled( FALSE );
 	} else {
+	    setUpdatesEnabled( TRUE );
 	    if ( d->arrow || d->back ) {
 		if ( d->back && d->back->isVisible() ) {
 		    d->back->hide();
@@ -698,7 +694,7 @@ void QToolBar::updateArrowStuff()
 			layout()->activate();
 		}
 	    }
-	    setUpdatesEnabled( TRUE );
+	    update();
 	}
     } else {
 	int shh = sizeHint().height();
@@ -734,6 +730,7 @@ void QToolBar::updateArrowStuff()
 	    paintToolBar();
 	    setUpdatesEnabled( FALSE );
 	} else {
+	    setUpdatesEnabled( TRUE );
 	    if ( d->arrow || d->back ) {
 		if ( d->back && d->back->isVisible() ) {
 		    d->back->hide();
@@ -746,15 +743,13 @@ void QToolBar::updateArrowStuff()
 			layout()->activate();
 		}
 	    }
-	    setUpdatesEnabled( TRUE );
+	    update();
 	}
     }
-#endif
 }
 
 void QToolBar::setupArrowMenu()
 {
-#if defined(TOOLBAR_MENU)
     if ( !isVisible() )
 	return;
     if ( !d->menu ) {
@@ -829,7 +824,6 @@ void QToolBar::setupArrowMenu()
 	}
     }
     delete childs;
-#endif
 }
 
 void QToolBar::popupSelected( int id )
@@ -870,11 +864,11 @@ void QToolBar::emulateButtonClicked()
 
 void QToolBar::paintToolBar()
 {
-    erase( 1, 1, width()-2, height()-2 );
     if ( mw && !mw->toolBarsMovable() )
 	return;
-    
+
     QPainter p( this );
+    p.fillRect( 1, 1, width() - 2, height() - 2, colorGroup().brush( QColorGroup::Background ) );
     int w = width();
     int h = height();
     if ( orientation() == Horizontal && w < sizeHint().width() )
@@ -882,9 +876,9 @@ void QToolBar::paintToolBar()
     else if ( orientation() == Vertical && h < sizeHint().height() )
 	h++;
     style().drawPanel( &p, 0, 0, w, h,
-		       colorGroup(), FALSE, 1, 0 );
+ 		       colorGroup(), FALSE, 1, 0 );
     style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
-			       orientation(), d->moving, colorGroup() );
+ 			       orientation(), d->moving, colorGroup() );
 }
 
 /* from chaunsee:

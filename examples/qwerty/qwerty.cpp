@@ -32,6 +32,7 @@ Editor::Editor( QWidget * parent , const char * name )
     : QWidget( parent, name, WDestructiveClose )
 {
     m = new QMenuBar( this, "menu" );
+
     QPopupMenu * file = new QPopupMenu();
     CHECK_PTR( file );
     m->insertItem( "&File", file );
@@ -55,11 +56,18 @@ Editor::Editor( QWidget * parent , const char * name )
     connect( open_as, SIGNAL(activated(int)), this, SLOT(openAsEncoding(int)) );
     rebuildCodecList();
 
+    QPopupMenu * edit = new QPopupMenu();
+    CHECK_PTR( edit );
+    m->insertItem( "&Edit", edit );
+
+    edit->insertItem( "To &uppercase",   this, SLOT(toUpper()),   ALT+Key_U );
+    edit->insertItem( "To &lowercase",   this, SLOT(toLower()),   ALT+Key_L );
+
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
-    //e->setFont( QFont("Helvetica", 24) );
-    e->setFont( QFont("Unifont", 16, 50, FALSE, QFont::Unicode) );
+    // e->setFont( QFont("Helvetica", 24) );
+    // e->setFont( QFont("Unifont", 16, 50, FALSE, QFont::Unicode) );
 
     e->setFocus();
 }
@@ -286,6 +294,16 @@ void Editor::closeEvent( QCloseEvent *event )
 	    break;
 	}
     }
+}
+
+void Editor::toUpper()
+{
+    e->setText(e->text().upper());
+}
+
+void Editor::toLower()
+{
+    e->setText(e->text().lower());
 }
 
 void Editor::textChanged()

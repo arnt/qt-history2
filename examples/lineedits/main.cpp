@@ -16,7 +16,6 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     LineEdits lineedits;
-    lineedits.resize( 400, lineedits.sizeHint().height() );
     lineedits.setCaption( "LineEdit Examples" );
     a.setMainWidget( &lineedits );
     lineedits.show();

@@ -16,7 +16,7 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
     AnalogClock *clock = new AnalogClock;
-    if ( argc == 2 &&strcmp(argv[1],"-transparent") == 0 )
+    if ( argc == 2 && strcmp( argv[1], "-transparent" ) == 0 )
 	clock->setAutoMask( TRUE );
     clock->resize( 100, 100 );
     a.setMainWidget( clock );

@@ -35,4 +35,4 @@ and the code in Qt is sane, please use a #pragma or two to shut your
 compiler up.  (This is a good reason for wanting the _CC_whatever_
 define above.)
 
-Good luck, and feel free to send mail to qt-bugs@troll.no.
+Good luck, and feel free to send mail to qt-bugs@trolltech.com.

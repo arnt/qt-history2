@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -290,10 +290,14 @@ void QColor::cleanup()
     if ( !color_init )
 	return;
     color_init = FALSE;
-    if ( g_carr )				// Avoid purify complaint
+    if ( g_carr ) {
 	delete [] g_carr;
-    if ( g_our_alloc )				// Avoid purify complaint
+	g_carr = 0;
+    }
+    if ( g_our_alloc ) {
 	delete [] g_our_alloc;
+	g_our_alloc = 0;
+    }
     if ( colorDict ) {
 	colorDict->setAutoDelete( TRUE );
 	colorDict->clear();

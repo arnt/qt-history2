@@ -17,21 +17,14 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
 #ifndef QMAINWINDOW_H
 #define QMAINWINDOW_H
-
-#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && defined(QLIST_H)
-#warning Qt warning:
-#warning Header file qlist.h is included before qmainwindow.h.
-#warning This will cause errors on this compiler because of improper template support.
-#warning Try changing the order of inclusion of your header files.
-#endif
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -126,22 +119,27 @@ protected:
     void childEvent( QChildEvent * );
     bool event( QEvent * );
     void styleChange( QStyle& );
-    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb, QRect *dockRect = 0 );
-    void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, int ipos );
 
 private:
     QMainWindowPrivate * d;
     void triggerLayout( bool deleteLayout = TRUE);
     void moveToolBar( QToolBar *, QMouseEvent * );
     void rightMouseButtonMenu( const QPoint &p );
-    
+
     virtual void setMenuBar( QMenuBar * );
     virtual void setStatusBar( QStatusBar * );
     virtual void setToolTipGroup( QToolTipGroup * );
+    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb, QRect *dockRect = 0 );
+    void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, int ipos );
 
     friend class QToolBar;
     friend class QMenuBar;
     friend class QHideDock;
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QMainWindow( const QMainWindow & );
+    QMainWindow& operator=( const QMainWindow & );
+#endif
 };
 
 

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -152,8 +152,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->familyEdit = new QExpandingLineEdit( this, "font family I", TRUE );
     d->familyEdit->setFocusPolicy( StrongFocus );
     d->familyList = new QListBox( this, "font family II" );
-    d->familyList->setFocusPolicy( NoFocus );
-
+    d->familyList->viewport()->setFocusProxy( d->familyEdit );
+    
     d->familyAccel
 	= new QLabel( d->familyEdit, tr("&Font"), this, "family accelerator" );
     d->familyAccel->setIndent( 2 );
@@ -161,7 +161,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->styleEdit = new QExpandingLineEdit( this, "font style I", TRUE );
     d->styleEdit->setFocusPolicy( StrongFocus );
     d->styleList = new QListBox( this, "font style II" );
-    d->styleList->setFocusPolicy( NoFocus );
+    d->styleList->viewport()->setFocusProxy( d->styleEdit );
     d->styleAccel
 	= new QLabel( d->styleEdit, tr("Font st&yle"), this, "style accelerator" );
     d->styleAccel->setIndent( 2 );
@@ -169,7 +169,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->sizeEdit = new QExpandingLineEdit( this, "font size I", TRUE );
     d->sizeEdit->setFocusPolicy( StrongFocus );
     d->sizeList = new QListBox( this, "font size II" );
-    d->sizeList->setFocusPolicy( NoFocus );
+    d->sizeList->viewport()->setFocusProxy( d->sizeEdit );
     d->sizeAccel
 	= new QLabel ( d->sizeEdit, tr("&Size"), this, "size accelerator" );
     d->sizeAccel->setIndent( 2 );
@@ -191,7 +191,8 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 
     d->sample = new QHGroupBox( tr("Sample"), this, "sample text" );
     d->sampleEdit = new QExpandingLineEdit( d->sample, "r/w sample text", FALSE );
-
+    d->sampleEdit->setFixedHeight( 75 );
+    
     // Note that the sample text is *not* translated with tr(), as the
     // characters used depend on the charset encoding.
     d->sampleEdit->setText( "AaBbYyZz" );

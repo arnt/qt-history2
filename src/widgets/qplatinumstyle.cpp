@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -430,6 +430,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
     QColorGroup g = btn->colorGroup();
     int x1, y1, x2, y2;
+    bool useBevelButton;
 
     btn->rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
 
@@ -448,31 +449,38 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
     // bevel buttons (what a heuristic....)
     if ( btn->isToggleButton()
 	 || ( btn->pixmap() && 
-	      (btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )) ){
+	      (btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 )) )
+	useBevelButton = TRUE;
+    else
+	useBevelButton = FALSE;
+
+    int diw = buttonDefaultIndicatorWidth();
+    if (btn->isDefault() ) {
+	x1 += 1;
+	y1 += 1;
+	x2 -= 1;
+	y2 -= 1;
+	QColorGroup g2( g );
+	g2.setColor( QColorGroup::Button,  g.mid() );
+	if( useBevelButton )
+	    drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, &fill );
+	else
+	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, FALSE, &fill );
+    }
+
+    if ( btn->isDefault() || btn->autoDefault() ) {
+	x1 += diw;
+	y1 += diw;
+	x2 -= diw;
+	y2 -= diw;
+    }
+
+    if( useBevelButton)
 	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 			 &fill );
-    } else {
-	int diw = buttonDefaultIndicatorWidth();
-	if (btn->isDefault() ) {
-	    x1 += 1;
-	    y1 += 1;
-	    x2 -= 1;
-	    y2 -= 1;
-	    QColorGroup g2( g );
- 	    g2.setColor( QColorGroup::Button,  g.mid() );
-	    drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g2, FALSE, &fill );
-	}
-
-	if ( btn->isDefault() || btn->autoDefault() ) {
-	    x1 += diw;
-	    y1 += diw;
-	    x2 -= diw;
-	    y2 -= diw;
-	}
-
-	drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
+    else
+        drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
 		    &fill );
-    }
 
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );

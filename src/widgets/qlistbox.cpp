@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -102,10 +102,10 @@ public:
     QString currInputString;
     QTimer *inputTimer;
 
-    QListBoxItem *pressedItem;
+    QListBoxItem *pressedItem, *selectAnchor;
     bool select;
     bool pressedSelected;
-    
+
     QRect *rubber;
     QPtrDict<bool> selectable;
 
@@ -190,7 +190,7 @@ QListBoxItem::~QListBoxItem()
   Defines whether the list box items is responsible to draw itself
   in a highlighted state when being selected.
 
-  If \b is FALSE (the default), then the listbox will draw some
+  If \a b is FALSE (the default), then the listbox will draw some
   default highlight indicator before calling paint().
 
   \sa selected(), paint()
@@ -611,9 +611,9 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   get keyboard focus both by tabbing, clicking and the mouse wheel.
 
   New items may be inserted using either insertItem(), insertStrList()
-  or insertStringList(). inSort() is obsolete, as this method is quite inefficient.
-  It's preferable to insert the items normally and call sort() afterwards,
-  or insert a sorted QStringList().
+  or insertStringList(). inSort() is obsolete, as this method is quite
+  inefficient.  It's preferable to insert the items normally and call
+  sort() afterwards, or insert a sorted QStringList().
 
   By default, vertical and horizontal scroll bars are added and
   removed as necessary. setHScrollBarMode() and setVScrollBarMode()
@@ -718,6 +718,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     d->resizeTimer = new QTimer( this, "listbox resize timer" );
     d->clearing = FALSE;
     d->pressedItem = 0;
+    d->selectAnchor = 0;
     d->select = FALSE;
     d->rubber = 0;
     d->selectable.setAutoDelete( TRUE );
@@ -980,7 +981,7 @@ uint QListBox::count() const
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort(), insertStringList()
+  \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList *list, int index )
@@ -1005,7 +1006,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort(), insertStrList()
+  \sa insertItem(), insertStrList()
 */
 
 void QListBox::insertStringList( const QStringList & list, int index )
@@ -1033,7 +1034,7 @@ void QListBox::insertStringList( const QStringList & list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort(), insertStringList()
+  \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList & list, int index )
@@ -1068,7 +1069,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort(), insertStringList()
+  \sa insertItem(), insertStringList()
 */
 
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
@@ -1239,11 +1240,13 @@ void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index
     insertItem( new QListBoxPixmap(pixmap, text), index );
 }
 
-/*!  Removes and deletes the item at position \a index. If \a index is equal to
-currentItem(), a new item gets selected and the highlighted() signal
-is emitted.
+/*!
+  Removes and deletes the item at position \a index. If \a index is equal
+  to currentItem(), a new item gets highlighted and the highlighted() signal
+  is emitted.
 
-\sa insertItem(), clear() */
+  \sa insertItem(), clear()
+*/
 
 void QListBox::removeItem( int index )
 {
@@ -1252,8 +1255,11 @@ void QListBox::removeItem( int index )
 }
 
 
-/*! Deletes all items in the list.
-  \sa removeItem()  */
+/*!
+  Deletes all items in the list.
+
+  \sa removeItem()
+*/
 
 void QListBox::clear()
 {
@@ -1519,8 +1525,9 @@ QListBoxItem *QListBox::item( int index ) const
 }
 
 
-/*!  Returns the index of \a lbi, or -1 if the item is not in this
-list box.
+/*!
+  Returns the index of \a lbi, or -1 if the item is not in this
+  list box or \a lbi is a NULL-Pointer.
 
 \sa item()
 */
@@ -1582,6 +1589,7 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 void QListBox::mousePressEvent( QMouseEvent *e )
 {
     QListBoxItem * i = itemAt( e->pos() );
+
     if ( !i && !d->current && d->head ) {
 	d->current = d->head;
 	updateItem( d->head );
@@ -1593,7 +1601,9 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 
     d->select = d->selectionMode == Multi ? ( i ? !i->selected() : FALSE ) : TRUE;
     d->pressedSelected = i && i->s;
-    
+
+    if ( i )
+	d->selectAnchor = i;
     if ( i ) {
 	switch( selectionMode() ) {
 	default:
@@ -1741,10 +1751,11 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
 	d->current->s = TRUE;
 	emit selectionChanged();
     }
-    
+
     QListBoxItem * i = itemAt( e->pos() );
     bool emitClicked = d->mousePressColumn != -1 && d->mousePressRow != -1 || !d->pressedItem;
     emitClicked = emitClicked && d->pressedItem == i;
+    d->pressedItem = 0;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     if ( emitClicked ) {
@@ -1829,8 +1840,9 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     // hack to keep the combo (and what else?) working: if we get a
     // move outside the listbox without having seen a press, discard
     // it.
-    if ( !rect().contains( e->pos() ) &&
-	 ( d->mousePressColumn < 0 && d->mousePressRow < 0 || e->state() == NoButton ) )
+    if ( !QRect( 0, 0, visibleWidth(), visibleHeight() ).contains( e->pos() ) &&
+	 ( d->mousePressColumn < 0 && d->mousePressRow < 0 ||
+	   e->state() == NoButton || !d->pressedItem ) )
 	return;
 
     // figure out in what direction to drag-select and perhaps scroll
@@ -1902,7 +1914,7 @@ void QListBox::updateSelection()
 	    if ( i )
 		setCurrentItem( i );
 	} else {
-	    if ( d->selectionMode == Extended && 
+	    if ( d->selectionMode == Extended &&
 		 d->current == d->pressedItem && d->pressedSelected ) {
 		d->pressedItem = 0;
 		bool block = signalsBlocked();
@@ -1960,7 +1972,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     }
 
     bool selectCurrent = FALSE;
-
     switch ( e->key() ) {
     case Key_Up:
 	d->currInputString = QString::null;
@@ -1968,6 +1979,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( currentItem() - 1 );
 	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	}
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Down:
 	d->currInputString = QString::null;
@@ -1975,6 +1988,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( currentItem() + 1 );
 	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	}
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Left:
 	d->currInputString = QString::null;
@@ -1992,6 +2007,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Right:
 	d->currInputString = QString::null;
@@ -2016,6 +2033,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Next: {
 	d->currInputString = QString::null;
@@ -2035,6 +2054,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( i );
 	}
 	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
     } break;
     case Key_Prior: {
 	selectCurrent = TRUE;
@@ -2055,11 +2076,15 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    setCurrentItem( i );
 	}
 	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
     } break;
     case Key_Space:
 	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	toggleCurrentItem();
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Return:
     case Key_Enter:
@@ -2073,12 +2098,16 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		emit selected( tmp );
 	    emit returnPressed( item( currentItem() ) );
 	}
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
 	break;
     case Key_Home: {
 	selectCurrent = TRUE;
 	d->currInputString = QString::null;
 	setCurrentItem( 0 );
 	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
     } break;
     case Key_End: {
 	selectCurrent = TRUE;
@@ -2086,6 +2115,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	int i = (int)count() - 1;
 	setCurrentItem( i );
 	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+	if ( !( e->state() & ShiftButton ) || !d->selectAnchor )
+	    d->selectAnchor = d->current;
     } break;
     default: {
 	    if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
@@ -2106,7 +2137,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     }
 
     if ( selectCurrent && selectionMode() == Single &&
-	 !d->current->s ) {
+	 d->current && !d->current->s ) {
 	updateItem( d->current );
 	setSelected( d->current, TRUE );
     }
@@ -2496,13 +2527,13 @@ void QListBox::triggerUpdate( bool doLayout )
 }
 
 
-/*!  Sets the column layout mode to \a mode, and the number of displayed
-columns accordingly.
+/*!
+  Sets the column layout mode to \a mode, and the number of displayed
+  columns accordingly.
 
-The row layout mode implicitly becomes \c Variable.
+  The row layout mode implicitly becomes \c Variable.
 
-If \a mode is \c Variable, this function returns without doing anything.
-
+  If \a mode is \c Variable, this function returns without doing anything.
 */
 
 void QListBox::setColumnMode( LayoutMode mode )
@@ -2515,7 +2546,8 @@ void QListBox::setColumnMode( LayoutMode mode )
 }
 
 
-/*!  Sets the column layout mode for this list box to \c FixedNumber, and
+/*!
+  Sets the column layout mode for this list box to \c FixedNumber, and
   sets the number of displayed columns accordingly.
 
   \sa setRowMode() columnMode() numColumns()
@@ -2532,13 +2564,13 @@ void QListBox::setColumnMode( int columns )
 }
 
 
-/*!  Sets the row layout mode to \a mode, and the number of displayed
-rows accordingly.
+/*!
+  Sets the row layout mode to \a mode, and the number of displayed
+  rows accordingly.
 
-The column layout mode implicitly becomes \c Variable.
+  The column layout mode implicitly becomes \c Variable.
 
-If \a mode is \c Variable, this function returns without doing anything.
-
+  If \a mode is \c Variable, this function returns without doing anything.
 */
 
 void QListBox::setRowMode( LayoutMode mode )
@@ -2551,7 +2583,8 @@ void QListBox::setRowMode( LayoutMode mode )
 }
 
 
-/*!  Sets the row layout mode for this list box to \c FixedNumber and sets the
+/*!
+  Sets the row layout mode for this list box to \c FixedNumber and sets the
   number of displayed rows accordingly.
 
   \sa setColumnMode() rowMode() numRows()
@@ -2892,9 +2925,9 @@ void QListBox::setBottomItem( int index )
 }
 
 
-/*!  Returns a pointer to the item at \a p, which is in on-screen
-coordinates, or a null pointer if there is no item at \a p.
-
+/*!
+  Returns a pointer to the item at \a p, which is in on-screen
+  coordinates, or a null pointer if there is no item at \a p.
 */
 
 QListBoxItem * QListBox::itemAt( QPoint p ) const
@@ -2903,6 +2936,10 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
 	doLayout();
     int x = p.x() + contentsX();
     int y = p.y() + contentsY();
+
+    // return 0 when y is below the last row
+    if ( y > d->rowPos[ numRows() ] )
+	return 0;
 
     int col = 0;
     while ( TRUE ) {
@@ -3018,9 +3055,9 @@ void QListBox::doAutoScroll()
 }
 
 
-/*!  Returns the index of an item at the top of the screen.  If there
-are more than one of them, an arbitrary item is selected and returned.
-
+/*!
+  Returns the index of an item at the top of the screen.  If there
+  are more than one of them, an arbitrary item is selected and returned.
 */
 
 int QListBox::topItem() const
@@ -3416,24 +3453,23 @@ void QListBox::inSort( const QString& text )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
-    if ( d->layoutDirty ||
-	 rowMode() == FitToHeight || columnMode() == FitToWidth ||
-	 columnMode() == FixedNumber) {
-	d->layoutDirty = TRUE;
-    }
-    d->resizeTimer->stop();
+    d->layoutDirty = (d->layoutDirty || rowMode() == FitToHeight || columnMode() == FitToWidth ||
+		      columnMode() == FixedNumber );
+
+    if ( d->resizeTimer->isActive() )
+	d->resizeTimer->stop();
     if ( d->rowMode == FixedNumber && d->columnMode == FixedNumber ) {
 	doLayout();
 	QScrollView::resizeEvent( e );
 	ensureCurrentVisible();
 	if ( d->current )
-	    updateItem( d->current );
+	    viewport()->repaint( itemRect( d->current ), FALSE );
     } else if ( d->layoutDirty ) {
-	if ( d->resizeTimer->isActive() )
-	    d->resizeTimer->stop();
 	d->resizeTimer->start( 100, TRUE );
 	resizeContents( contentsWidth() - ( e->oldSize().width() - e->size().width() ),
 			contentsHeight() - ( e->oldSize().height() - e->size().height() ) );
+	QScrollView::resizeEvent( e );
+    } else {
 	QScrollView::resizeEvent( e );
     }
 }
@@ -3609,6 +3645,9 @@ void QListBox::takeItem( const QListBoxItem * item)
 	emit currentChanged( i );
     }
 
+    if ( d->selectAnchor == item )
+	d->selectAnchor = d->current;
+    
     if ( item->s )
 	emit selectionChanged();
 
@@ -3659,19 +3698,21 @@ void QListBox::clearInputString()
   Finds the first listbox item which starts with
   \a text and returns it, or returns 0 of no
   such item could be found.
+  The search is done case-insensitive.
 */
 
 QListBoxItem *QListBox::findItem( const QString &text ) const
 {
+    QString txt = text.lower();
     QListBoxItem *item = d->current;
     for ( ; item; item = item->n ) {
-	if ( item->text().lower().left( text.length() ) == text )
+	if ( item->text().lower().left( text.length() ) == txt )
 	    return item;
     }
 
     item = d->head;
     for ( ; item && item != d->current; item = item->n ) {
-	if ( item->text().lower().left( text.length() ) == text )
+	if ( item->text().lower().left( text.length() ) == txt )
 	    return item;
     }
     return 0;
@@ -3840,7 +3881,8 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
 	if ( control ) {
 	    // nothing
 	} else if ( shift ) {
-	    selectRange( old, d->current, FALSE, TRUE );
+	    selectRange( d->selectAnchor ? d->selectAnchor : old, 
+			 d->current, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
 	} else {
 	    blockSignals( TRUE );
 	    selectAll( FALSE );
@@ -3853,14 +3895,23 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
     }
 }
 
-void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, bool includeFirst )
+void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, bool includeFirst, bool clearSel )
 {
     if ( !from || !to )
 	return;
-    int f_idx = index( from );
-    int t_idx = index( to );
+    QListBoxItem *i = 0;
+    int index =0;
+    int f_idx = -1, t_idx = -1;
+    for ( i = d->head; i; i = i->n, index++ ) {
+	if ( i == from )
+	    f_idx = index;
+	if ( i == to )
+	    t_idx = index;
+	if ( f_idx != -1 && t_idx != -1 )
+	    break;
+    }
     if ( f_idx > t_idx ) {
-	QListBoxItem *i = from;
+	i = from;
 	from = to;
 	to = i;
 	if ( !includeFirst )
@@ -3871,7 +3922,24 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
     }
 
     bool changed = FALSE;
-    for ( QListBoxItem *i = from; i; i = i->next() ) {
+    if ( clearSel ) {
+	for ( i = d->head; i && i != from; i = i->n ) {
+	    if ( i->s ) {
+		i->s = FALSE;
+		changed = TRUE;
+		updateItem( i );
+	    }
+	}
+	for ( i = to->n; i; i = i->n ) {
+	    if ( i->s ) {
+		i->s = FALSE;
+		changed = TRUE;
+		updateItem( i );
+	    }
+	}
+    }
+    
+    for ( i = from; i; i = i->next() ) {
 	if ( !invert ) {
 	    if ( !i->s && i->isSelectable() ) {
 		i->s = TRUE;

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -158,19 +158,19 @@ void QProgressBar::setTotalSteps( int totalSteps )
 void QProgressBar::setProgress( int progress )
 {
     if ( progress == progress_val ||
-	 progress_val == -1 && progress == total_steps ||
-	 progress > total_steps )
+	 progress < 0 || progress > total_steps )
 	return;
 
-    //bool forward = progress > progress_val;
+    bool needClearing = progress < progress_val;
     progress_val = progress;
-    if ( isVisible() ) {
-	if ( setIndicator(progress_str, progress_val, total_steps) ) {
-	    repaint( FALSE /*forward*/ ); // ##### when using forward it flickers terribly!!!!!!!
-	    if ( autoMask() )
-		updateMask();
-	}
-    }
+    if ( !isVisible() )
+	return;
+
+    if ( setIndicator( progress_str, progress_val, total_steps ) )
+	needClearing = TRUE;
+    repaint( needClearing );
+    if ( autoMask() )
+	updateMask();
 }
 
 
@@ -383,6 +383,8 @@ void QProgressBar::drawContents( QPainter *p )
 
 	// ### This part changes every percentage change.
 	p->setPen( colorGroup().foreground() );
+	if ( backgroundOrigin() == QWidget::ParentOrigin )
+	    p->setBrushOrigin( -x(), -y() );
 	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
 		     colorGroup().brush(QColorGroup::Background ) );
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
@@ -398,7 +400,7 @@ void QProgressBar::drawContents( QPainter *p )
 
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	}
-	if ( progress_val != total_steps )	
+	if ( progress_val != total_steps )
 	    p->fillRect( bar, colorGroup().brush( style()==MotifStyle ?
 		QColorGroup::Background : QColorGroup::Base ) );
 	p->setPen( style()==MotifStyle? colorGroup().foreground() : colorGroup().text() );

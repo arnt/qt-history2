@@ -27,8 +27,8 @@
 /////////////////////////////////////////////////////////
 #include "metal.xpm"
 #include "stonedark.xpm"
-#include "stonebright.xpm"
 #include "stone1.xpm"
+#include "marble.xpm"
 ///////////////////////////////////////////////////////
 
 
@@ -56,7 +56,7 @@ void MetalStyle::polish( QApplication *app)
 
     //QPixmap button( stone1_xpm );
     QPixmap button( stonedark_xpm );
-    QPixmap background(stonebright_xpm);
+    QPixmap background(marble_xpm);
 #if 0
 
     int i;
@@ -98,7 +98,7 @@ void MetalStyle::polish( QApplication *app)
     QColor backCol( 227,227,227 );
 
     // QPalette op(white);
-    QColorGroup nor (op.normal().foreground(),
+    QColorGroup active (op.normal().foreground(),
 		     QBrush(op.normal().button(),button),
 		     QBrush(op.normal().light(), light),
 		     QBrush(op.normal().dark(), dark),
@@ -108,8 +108,8 @@ void MetalStyle::polish( QApplication *app)
 		     op.normal().base(),//		     QColor(236,182,120),
 		     QBrush(backCol, background)
 		     );
-    nor.setColor( QColorGroup::ButtonText,  Qt::white  );
-    nor.setColor( QColorGroup::Shadow,  Qt::black  );
+    active.setColor( QColorGroup::ButtonText,  Qt::white  );
+    active.setColor( QColorGroup::Shadow,  Qt::black  );
     QColorGroup disabled (op.disabled().foreground(),
 		     QBrush(op.disabled().button(),button),
 		     QBrush(op.disabled().light(), light),
@@ -120,19 +120,8 @@ void MetalStyle::polish( QApplication *app)
 		     op.disabled().base(),//		     QColor(236,182,120),
 		     QBrush(backCol, background)
 		     );
-    QColorGroup active (op.active().foreground(),
-		     QBrush(op.active().button(),button),
-		     QBrush(op.active().light(), light),
-		     op.active().dark(),
-		     QBrush(op.active().mid(), mid),
-		     op.active().text(),
-		     Qt::white,
-			op.active().base(),// QColor(236,182,120),
-		     QBrush(backCol, background)
-		     );
-    active.setColor( QColorGroup::ButtonText,  Qt::white  );
 
-    QPalette newPalette( nor, disabled, active );
+    QPalette newPalette( active, disabled, active );
     app->setPalette( newPalette, TRUE );
 }
 
@@ -155,40 +144,31 @@ void MetalStyle::unPolish( QApplication *app)
 void MetalStyle::polish( QWidget* w)
 {
 
-    // the polish function will set some widgets to transparent mode,
-    // to get the full benefit from the nice pixmaps in the color
-    // group.
-
+   // the polish function sets some widgets to transparent mode and
+    // some to translate background mode in order to get the full
+    // benefit from the nice pixmaps in the color group.
 
     if (w->inherits("QPushButton")){
 	w->setBackgroundMode( QWidget::NoBackground );
 	return;
     }
-    return; // we don't need this thanks to the fancy stone pixmap
 
-    if (w->inherits("QTipLabel")){
+    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
 	return;
     }
-    if (w->inherits("QLCDNumber")){
-	return;
-    }
-
-
-    if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
-	w->setAutoMask( TRUE );
-	return;
-    }
-
 
     if ( !w->isTopLevel() ) {
- 	if (w->inherits("QLabel")
-	    || w->inherits("QGroupBox")
- 	    || w->inherits("QSlider")
-	    || w->inherits("QProgressBar")
-	    || w->inherits( "QTabBar" )
-	    || w->inherits( "QTabWidget" )
-	    ){
+	if ( w->inherits("QGroupBox")
+	     || w->inherits("QTabWidget") ) {
 	    w->setAutoMask( TRUE );
+	    return;
+	}
+ 	if (w->inherits("QLabel")
+ 	    || w->inherits("QSlider")
+ 	    || w->inherits("QButton")
+	    || w->inherits("QProgressBar")
+	    ){
+	    w->setBackgroundOrigin( QWidget::ParentOrigin );
  	}
     }
 }
@@ -196,42 +176,34 @@ void MetalStyle::polish( QWidget* w)
 void MetalStyle::unPolish( QWidget* w)
 {
 
-    // the polish function will set some widgets to transparent mode,
-    // to get the full benefit from the nice pixmaps in the color
-    // group.
+   // the polish function sets some widgets to transparent mode and
+    // some to translate background mode in order to get the full
+    // benefit from the nice pixmaps in the color group.
 
     if (w->inherits("QPushButton")){
 	w->setBackgroundMode( QWidget::PaletteButton );
 	return;
     }
 
-    return; // we don't need this thanks to the fancy stone pixmap
-
-    if (w->inherits("QTipLabel")){
+    if (w->inherits("QTipLabel") || w->inherits("QLCDNumber") ){
 	return;
     }
-    if (w->inherits("QLCDNumber")){
-	return;
-    }
-
-
-    if ( w->inherits("QRadioButton") || w->inherits("QCheckBox") ){
-	w->setAutoMask( FALSE );
-	return;
-    }
-
 
     if ( !w->isTopLevel() ) {
- 	if (w->inherits("QLabel")
-	    || w->inherits("QGroupBox")
-	    || w->inherits("QSlider")
-	    || w->inherits("QProgressBar")
-	    || w->inherits( "QTabBar" )
-	    || w->inherits( "QTabWidget" )
-	    ){
+	if ( w->inherits("QGroupBox")
+	     || w->inherits("QTabWidget") ) {
 	    w->setAutoMask( FALSE );
+	    return;
+	}
+ 	if (w->inherits("QLabel")
+ 	    || w->inherits("QSlider")
+ 	    || w->inherits("QButton")
+	    || w->inherits("QProgressBar")
+	    ){
+	    w->setBackgroundOrigin( QWidget::WidgetOrigin );
  	}
     }
+
 }
 
 /*!

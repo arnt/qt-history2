@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -58,7 +58,7 @@ QCString QUtf8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 
 const char* QUtf8Codec::name() const
 {
-    return "utf8";
+    return "UTF-8";
 }
 
 int QUtf8Codec::heuristicContentMatch(const char* chars, int len) const
@@ -161,7 +161,7 @@ int QUtf16Codec::mibEnum() const
 
 const char* QUtf16Codec::name() const
 {
-    return "utf16";
+    return "ISO-10646-UCS-2";
 }
 
 int QUtf16Codec::heuristicContentMatch(const char* chars, int len) const

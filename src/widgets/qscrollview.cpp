@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -91,12 +91,28 @@ struct QSVChildRec {
     int x, y;
 };
 
+
+class QClipperWidget : public QWidget {
+public:
+    QClipperWidget( QWidget * parent=0, const char * name=0, WFlags f=0 )
+        : QWidget ( parent,name,f) { blockFocus = FALSE; }
+    bool focusNextPrevChild( bool next ) {
+	if ( !blockFocus )
+	    return QWidget::focusNextPrevChild( next );
+	else
+	    return TRUE;
+    }
+    bool blockFocus;
+};
+
+
 struct QScrollViewData {
     QScrollViewData(QWidget* parent, int vpwflags) :
 	hbar( QScrollBar::Horizontal, parent, "qt_hbar" ),
 	vbar( QScrollBar::Vertical, parent, "qt_vbar" ),
 	viewport( parent, "qt_viewport", vpwflags ),
 	clipped_viewport( 0 ),
+	flags( vpwflags ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 ),
 	autoscroll_timer( parent ), drag_autoscroll( TRUE )
     {
@@ -144,32 +160,41 @@ struct QScrollViewData {
 	children.removeRef(r);
 	delete r;
     }
-    void hideOrShowAll(QScrollView* sv)
+    void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE )
     {
-	if ( clipped_viewport ) {
+        if ( clipped_viewport ) {
 	    if ( clipped_viewport->x() <= 0
-	      && clipped_viewport->y() <= 0
-	      && clipped_viewport->width()+clipped_viewport->x() >=
-		    viewport.width()
-	      && clipped_viewport->height()+clipped_viewport->y() >=
-		    viewport.height() )
-	    {
+		 && clipped_viewport->y() <= 0
+		 && clipped_viewport->width()+clipped_viewport->x() >=
+		 viewport.width()
+		 && clipped_viewport->height()+clipped_viewport->y() >=
+		 viewport.height() ) {
 		// clipped_viewport still covers viewport
-		return;
+		if ( !isScroll && !clipped_viewport->testWFlags( Qt::WNorthWestGravity) )
+		    clipped_viewport->repaint( clipped_viewport->visibleRect(),
+			       !clipped_viewport->testWFlags(Qt::WRepaintNoErase) );
+		} else {
+		    // Re-center
+		    int nx = ( viewport.width() - clipped_viewport->width() ) / 2;
+		    int ny = ( viewport.height() - clipped_viewport->height() ) / 2;
+		    // hide the clipped_viewport while we mess around
+		    // with it. To avoid having the focus jumping
+		    // around, we block it.
+		    clipped_viewport->blockFocus = TRUE;
+		    clipped_viewport->hide();
+		    clipped_viewport->move(nx,ny);
+		    clipped_viewport->blockFocus = FALSE;
+		    // no need to update, we'll receive a paintevent after show.
+		}
+	    for (QSVChildRec *r = children.first(); r; r=children.next()) {
+		r->hideOrShow(sv, clipped_viewport);
 	    }
-	    // Re-center
-	    int nx = -(clipped_viewport->width()+viewport.width())/2;
-	    int ny = -(clipped_viewport->height()+viewport.height())/2;
-	    clipped_viewport->hide(); // while we mess with it
-	    clipped_viewport->move(nx,ny);
-	}
-	for (QSVChildRec *r = children.first(); r; r=children.next()) {
-	    r->hideOrShow(sv, clipped_viewport);
-	}
-	if ( clipped_viewport ) {
-	    clipped_viewport->show();
+	    if ( clipped_viewport ) {
+		clipped_viewport->show();
+	    }
 	}
     }
+
     void moveAllBy(int dx, int dy)
     {
 	if ( clipped_viewport ) {
@@ -177,7 +202,6 @@ struct QScrollViewData {
 		clipped_viewport->x()+dx,
 		clipped_viewport->y()+dy
 	    );
-	    //hideOrShowAll(sv);
 	} else {
 	    for (QSVChildRec *r = children.first(); r; r=children.next()) {
 		r->child->move(r->child->x()+dx,r->child->y()+dy);
@@ -224,7 +248,8 @@ struct QScrollViewData {
     QScrollBar	hbar;
     QScrollBar	vbar;
     QWidget	viewport;
-    QWidget*    clipped_viewport;
+    QClipperWidget*    clipped_viewport;
+    int		flags;
     QList<QSVChildRec>	children;
     QPtrDict<QSVChildRec>	childDict;
     QWidget*	corner;
@@ -418,7 +443,8 @@ is propagated to the viewport() widget.
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & (~WNorthWestGravity) & (~WRepaintNoErase), FALSE )
 {
-    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity));
+    d = new QScrollViewData(this,WResizeNoErase |
+	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
 
@@ -630,6 +656,9 @@ void QScrollView::updateScrollBars()
 	showv = d->vMode == AlwaysOn;
     }
 
+    bool sc = d->signal_choke;
+    d->signal_choke=TRUE;
+
     // Hide unneeded scrollbar, calculate viewport size
     if ( showh ) {
         porth=h-hsbExt-tmarg-bmarg;
@@ -727,6 +756,8 @@ void QScrollView::updateScrollBars()
                                     vsbExt,
                                     hsbExt );
     }
+
+    d->signal_choke=sc;
 
     if ( contentsX()+visibleWidth() > contentsWidth() ) {
 	int x=QMAX(0,contentsWidth()-visibleWidth());
@@ -1624,7 +1655,7 @@ void QScrollView::moveContents(int x, int y)
 	// Small move
 	clipper()->scroll(dx,dy);
     }
-    d->hideOrShowAll(this);
+    d->hideOrShowAll(this, TRUE );
 }
 
 #if QT_VERSION >= 300
@@ -1807,8 +1838,8 @@ void QScrollView::repaintContents( int x, int y, int w, int h, bool erase )
 
     if ( d->clipped_viewport ) {
 	// Translate clipper() to viewport()
-	x += d->clipped_viewport->x();
-	y += d->clipped_viewport->y();
+	x -= d->clipped_viewport->x();
+	y -= d->clipped_viewport->y();
     }
 
     vp->repaint( x, y, w, h, erase );
@@ -2063,7 +2094,7 @@ void QScrollView::enableClipper(bool y)
     if ( d->children.count() )
 	qFatal("May only call QScrollView::enableClipper() before adding widgets");
     if ( y ) {
-	d->clipped_viewport = new QWidget(clipper());
+	d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
 					coord_limit,coord_limit);
 	d->viewport.setBackgroundMode(NoBackground); // no exposures for this

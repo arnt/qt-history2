@@ -13,7 +13,7 @@
 #include <qradiobutton.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
-#include <qbuttongroup.h>
+#include <qlayout.h>
 
 /*
  * Constructor
@@ -22,25 +22,37 @@
  */
 
 ProgressBar::ProgressBar( QWidget *parent, const char *name )
-    : QVBox( parent, name ), timer()
+    : QButtonGroup( 0, Horizontal, "Progress Bar", parent, name ), timer()
 {
     setMargin( 10 );
 
-    // Create a radiobutton-exclusive Buttongroup which aligns its childs in two columns
-    QButtonGroup *bg = new QButtonGroup( 2, QGroupBox::Horizontal, this );
-    bg->setRadioButtonExclusive( TRUE );
+    QGridLayout* grid = new QGridLayout( layout(), 2, 2, 5);
+ 
+    setRadioButtonExclusive( TRUE );
 
     // insert three radiobuttons which the user can use
     // to set the speed of the progress and two pushbuttons
     // to start/pause/continue and reset the progress 
-    slow = new QRadioButton( "&Slow", bg );
-    start = new QPushButton( "S&tart", bg );
-    normal = new QRadioButton( "&Normal", bg );
-    reset = new QPushButton( "&Reset", bg );
-    fast = new QRadioButton( "&Fast", bg );
+    slow = new QRadioButton( "&Slow", this );
+    normal = new QRadioButton( "&Normal", this );
+    fast = new QRadioButton( "&Fast", this );
+    QVBoxLayout* vb1 = new QVBoxLayout;
+    grid->addLayout( vb1, 0, 0 );
+    vb1->addWidget( slow );
+    vb1->addWidget( normal );
+    vb1->addWidget( fast );
 
+    // two push buttons, one for start, for for reset.
+    start = new QPushButton( "S&tart", this );
+    reset = new QPushButton( "&Reset", this );
+    QVBoxLayout* vb2 = new QVBoxLayout;
+    grid->addLayout( vb2, 0, 1 );
+    vb2->addWidget( start );
+    vb2->addWidget( reset );
+    
     // Create the progressbar
     progress = new QProgressBar( 100, this );
+    grid->addMultiCellWidget( progress, 1, 1, 0, 1 );
 
     // connect the clicked() SIGNALs of the pushbuttons to SLOTs
     connect( start, SIGNAL( clicked() ), this, SLOT( slotStart() ) );
@@ -51,6 +63,11 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
 
     // Let's start with normal speed...
     normal->setChecked( TRUE );
+    
+    
+    // some contraints
+    start->setFixedWidth( 80 );
+    setMinimumWidth( 300 );
 }
 
 /*

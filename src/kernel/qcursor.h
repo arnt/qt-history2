@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -90,11 +90,12 @@ inline void QCursor::setPos( const QPoint &p )
   Cursor shape identifiers (correspond to global cursor objects)
  *****************************************************************************/
 
+// ############ Should be moved to QNamespace in 3.0!!!!!!
 enum QCursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
     SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
     SizeAllCursor, BlankCursor, SplitVCursor, SplitHCursor, PointingHandCursor,
-    LastCursor=PointingHandCursor, BitmapCursor=24 };
+    ForbiddenCursor, LastCursor = ForbiddenCursor, BitmapCursor=24 };
 
 
 /*****************************************************************************

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -209,6 +209,7 @@ Atom 		qt_sizegrip;			// sizegrip
 Atom 		qt_wm_client_leader;
 Atom 		qt_window_role;
 Atom 		qt_sm_client_id;
+Atom 		qt_xa_motif_wm_hints;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -714,8 +715,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if (bright_mode) {
 	    cg.setColor( QColorGroup::HighlightedText, base );
 	    cg.setColor( QColorGroup::Highlight, Qt::white );
-	}
-	else {
+	} else {
 	    cg.setColor( QColorGroup::HighlightedText, Qt::white );
 	    cg.setColor( QColorGroup::Highlight, Qt::darkBlue );
 	}
@@ -724,6 +724,13 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 			 (fg.blue()+btn.blue())/2);
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
+	if (bright_mode) {
+	    dcg.setColor( QColorGroup::HighlightedText, base );
+	    dcg.setColor( QColorGroup::Highlight, Qt::white );
+	} else {
+	    dcg.setColor( QColorGroup::HighlightedText, Qt::white );
+	    dcg.setColor( QColorGroup::Highlight, Qt::darkBlue );
+	}
 	QPalette pal( cg, dcg, cg );
 	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
@@ -1066,6 +1073,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "WM_CLIENT_LEADER", &qt_wm_client_leader);
 	qt_x11_intern_atom( "WINDOW_ROLE", &qt_window_role);
 	qt_x11_intern_atom( "SM_CLIENT_ID", &qt_sm_client_id);
+	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
 
 	qt_xdnd_setup();
 
@@ -1091,10 +1099,11 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 		      FocusChangeMask | PropertyChangeMask
 		      );
     }
-// XIM segfaults on Solaris with C locale!
-// Let's hope the "en_US" locale is installed on all systems with a C locale,
-// otherwise we'll have to modify the source more extensively
-#if defined (_OS_SOLARIS_)
+// XIM segfaults on Solaris with "C" locale!
+// The idea was that the "en_US" locale is maybe installed on all systems
+// with a "C" locale and could be used as a fallback instead of "C". This
+// is not the case. We'll have to find something better...
+#if defined (_OS_SOLARIS_) && !defined(NO_XIM)
     const char* locale = ::setlocale( LC_ALL, "" );
     if ( !locale || ::strcmp( locale, "C" ) == 0 ) {
 	locale = ::setlocale( LC_ALL, "en_US" );
@@ -1112,19 +1121,19 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QString ximServerName(ximServer);
 	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
-	    qDebug("Qt: Locales not supported on X server");
+	    qWarning("Qt: Locales not supported on X server");
 #ifdef USE_X11R6_XIM
 	else if ( ximServer &&
 		  XSetLocaleModifiers (ximServerName.ascii()) == 0 )
-	    qDebug( "Qt: Cannot set locale modifiers: %s",
-		    ximServerName.ascii());
+	    qWarning( "Qt: Cannot set locale modifiers: %s",
+		      ximServerName.ascii());
 	else if ( !noxim )
 	    XRegisterIMInstantiateCallback( appDpy, 0 , 0, 0,
 					    (XIMProc)QApplication::create_xim,
 					    0);
 #else
 	else if ( XSetLocaleModifiers ("") == 0 )
-	    qDebug("Qt: Cannot set locale modifiers");
+	    qWarning("Qt: Cannot set locale modifiers");
 	else if ( !noxim )
 	    QApplication::create_xim();
 #endif
@@ -1196,7 +1205,7 @@ void qt_cleanup()
 	XFreeColormap( QPaintDevice::x11AppDisplay(),
 		       QPaintDevice::x11AppColormap() );
 
-#define CLEANUP_GC(g) if (g) XFreeGC(appDpy,g)
+#define CLEANUP_GC(g) if (g) { XFreeGC(appDpy,g); g = 0; }
     CLEANUP_GC(app_gc_ro);
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
@@ -1273,9 +1282,9 @@ bool qt_wstate_iconified( WId winid )
 
 /*!
   \relates QApplication
-  Adds a global routine that will be called from the QApplication destructor.
-  This function is normally used to add cleanup routines.
 
+  Adds a global routine that will be called from the QApplication
+  destructor.  This function is normally used to add cleanup routines.
 
   The function given by \a p should take no arguments and return
   nothing, like this:
@@ -1285,6 +1294,7 @@ bool qt_wstate_iconified( WId winid )
     static void cleanup_ptr()
     {
 	delete [] global_ptr;
+	global_ptr = 0;
     }
 
     void init_ptr()
@@ -1399,22 +1409,25 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 /*!
   \fn QWidget *QApplication::mainWidget() const
-  Returns the main application widget, or 0 if there is not a defined
-  main widget.
+
+  Returns the main application widget, or a null pointer if there is
+  not a defined main widget.
+
   \sa setMainWidget()
 */
 
 /*!
   Sets the main widget of the application.
 
-  The special thing about the main widget is that destroying the main
-  widget (i.e. the program calls QWidget::close() or the user
-  double-clicks the window close box) will leave the main event loop and
-  \link QApplication::quit() exit the application\endlink.
+  The main widget is like any other, in most respects except that if
+  it is deleted, the application exits.
 
+  You need not have a main widget; conecting lastWindowClosed() to quit() is
+  another alternative.
+  
   For X11, this function also resizes and moves the main widget
-  according to the \e -geometry command-line option, so you should
-  \link QWidget::setGeometry() set the default geometry\endlink before
+  according to the \e -geometry command-line option, so you should set
+  the default geometry (using \l QWidget::setGeometry()) before
   calling setMainWidget().
 
   \sa mainWidget(), exec(), quit()
@@ -1474,32 +1487,35 @@ static QCursorList *cursorStack = 0;
 
 /*!
   \fn QCursor *QApplication::overrideCursor()
+
   Returns the active application override cursor.
 
-  This function returns 0 if no application cursor has been defined (i.e. the
-  internal cursor stack is empty).
+  This function returns 0 if no application cursor has been defined
+  (i.e. the internal cursor stack is empty).
 
   \sa setOverrideCursor(), restoreOverrideCursor()
 */
 
 /*!
-  Sets the application override cursor to \e cursor.
+  Sets the application override cursor to \a cursor.
 
-  Application override cursor are intended for showing the user that the
-  application is in a special state, for example during an operation that
-  might take some time.
+  Application override cursors are intended for showing the user that
+  the application is in a special state, for example during an
+  operation that might take some time.
 
-  This cursor will be displayed in all application widgets until
-  restoreOverrideCursor() or another setOverrideCursor() is called.
+  This cursor will be displayed in all the widgets of the application
+  until restoreOverrideCursor() or another setOverrideCursor() is
+  called.
 
-  Application cursors are stored on an internal stack. setOverrideCursor()
-  pushes the cursor onto the stack, and restoreOverrideCursor() pops the
-  active cursor off the stack.	Every setOverrideCursor() must have an
-  corresponding restoreOverrideCursor(), otherwise the stack will get out
-  of sync. overrideCursor() returns 0 if the cursor stack is empty.
+  Application cursors are stored on an internal stack. 
+  setOverrideCursor() pushes the cursor onto the stack, and
+  restoreOverrideCursor() pops the active cursor off the stack. Every
+  setOverrideCursor() must eventually be followed by a corresponding
+  restoreOverrideCursor(), otherwise the stack will never be emptied. 
 
-  If \e replace is TRUE, the new cursor will replace the last override
-  cursor.
+  If \a replace is TRUE, the new cursor will replace the last override
+  cursor (the stack keeps its depth). If \a replace is FALSE, the new
+  stack is pushed onto the top of the stack.
 
   Example:
   \code
@@ -1537,17 +1553,11 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 }
 
 /*!
-  Restores the effect of setOverrideCursor().
+  Undoes the last setOverrideCursor().
 
   If setOverrideCursor() has been called twice, calling
-  restoreOverrideCursor() will activate the first cursor set.  Calling
+  restoreOverrideCursor() will activate the first cursor set. Calling
   this function a second time restores the original widgets cursors.
-
-  Application cursors are stored on an internal stack. setOverrideCursor()
-  pushes the cursor onto the stack, and restoreOverrideCursor() pops the
-  active cursor off the stack.	Every setOverrideCursor() must have an
-  corresponding restoreOverrideCursor(), otherwise the stack will get out
-  of sync. overrideCursor() returns 0 if the cursor stack is empty.
 
   \sa setOverrideCursor(), overrideCursor().
 */
@@ -1579,6 +1589,7 @@ void QApplication::restoreOverrideCursor()
 
 /*!
   \fn bool QApplication::hasGlobalMouseTracking()
+
   Returns TRUE if global mouse tracking is enabled, otherwise FALSE.
 
   \sa setGlobalMouseTracking()
@@ -1597,9 +1608,18 @@ void QApplication::restoreOverrideCursor()
   mouseMoveEvent().  For a widget to get mouse move events when no button
   is depressed, it must do QWidget::setMouseTracking(TRUE).
 
-  This function has an internal counter.  Each
+  This function uses an internal counter.  Each
   setGlobalMouseTracking(TRUE) must have a corresponding
-  setGlobalMouseTracking(FALSE).
+  setGlobalMouseTracking(FALSE):
+  \code
+    // at this point global mouse tracking is off
+    QApplication::setGlobalMouseTracking( TRUE );
+    QApplication::setGlobalMouseTracking( TRUE );
+    QApplication::setGlobalMouseTracking( FALSE );
+    // at this point it's still on
+    QApplication::setGlobalMouseTracking( FALSE );
+    // but now it's off
+  \endcode
 
   \sa hasGlobalMouseTracking(), QWidget::hasMouseTracking()
 */
@@ -1689,9 +1709,11 @@ Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
   Returns a pointer to the widget at global screen position \a (x,y), or a
   null pointer if there is no Qt widget there.
 
-  If \a child is FALSE and there is a child widget at position \a (x,y),
-  the top-level widget containing it is returned.  If \a child is TRUE
-  the child widget at position \a (x,y) is returned.
+  If \a child is FALSE and there is a child widget at position \a
+  (x,y), the top-level widget containing it is returned. If \a child
+  is TRUE the child widget at position \a (x,y) is returned.
+
+  This function is normally rather slow.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
@@ -1753,8 +1775,9 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 
 /*!
-  Flushes the X event queue in the X11 implementation.
-  Does nothing on other platforms.
+  Flushes the X event queue in the X11 implementation. This normally
+  returns almost immediately. Does nothing on other platforms.
+  
   \sa syncX()
 */
 
@@ -1765,8 +1788,9 @@ void QApplication::flushX()
 }
 
 /*!
-  Synchronizes with the X server in the X11 implementation.
-  Does nothing on other platforms.
+  Synchronizes with the X server in the X11 implementation. This
+  normally takes some time. Does nothing on other platforms.
+
   \sa flushX()
 */
 
@@ -2026,18 +2050,18 @@ static int sn_activate()
  *****************************************************************************/
 
 /*!
-  Enters the main event loop and waits until exit() is called or
-  the \link setMainWidget() main widget\endlink is destroyed.
-  Returns the value that was specified to exit(), which is 0 if
-  exit() is called via quit().
+  Enters the main event loop and waits until exit() is called or the
+  main widget is destroyed, and Returns the value that was set via to
+  exit() (which is 0 if exit() is called via quit()).
 
-  It is necessary to call this function to start event handling.
-  The main event loop receives \link QWidget::event() events\endlink from
-  the window system and dispatches these to the application widgets.
+  It is necessary to call this function to start event handling. The
+  main event loop receives events from the window system and
+  dispatches these to the application widgets.
 
-  Generally, no user interaction can take place before calling exec().
-  As a special case, modal widgets like QMessageBox can be used before
-  calling exec(), because modal widget have a local event loop.
+  Generally speaking, no user interaction can take place before
+  calling exec(). As a special case, modal widgets like QMessageBox
+  can be used before calling exec(), because modal widgets call exec()
+  to start a local event loop.
 
   To make your application perform idle processing, i.e. executing a
   special function whenever there are no pending events, use a QTimer
@@ -2060,8 +2084,8 @@ int QApplication::exec()
   Processes the next event and returns TRUE if there was an event
   (excluding posted events or zero-timer events) to process.
 
-  This function returns immediately if \e canWait is FALSE. It might go
-  into a sleep/wait state if \e canWait is TRUE.
+  This function returns immediately if \a canWait is FALSE. It might go
+  into a sleep/wait state if \a canWait is TRUE.
 
   \sa processEvents()
 */
@@ -2238,15 +2262,14 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 }
 
 
-/*!
-  Returns
-  1 if the event was consumed by special handling,
-  0 if the event was consumed by normal handling, and
-  -1 if the event was for an unrecognized widget.
+/*! This virtual does the core processing of individual X events,
+normally by dispatching Qt events to the right destination.
+  
+It returns 1 if the event was consumed by special handling, 0 if the
+event was consumed by normal handling, and -1 if the event was for an
+unrecognized widget.
 
-  \internal
-
-  This documentation is unclear.
+\sa x11EventFilter()
 */
 int QApplication::x11ProcessEvent( XEvent* event )
 {
@@ -2286,6 +2309,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		keywidget = widget->focusWidget()?(QETWidget*)widget->focusWidget():widget;
 	}
     }
+
+
     int xkey_keycode = event->xkey.keycode;
     if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
 	if ( keywidget )
@@ -2388,7 +2413,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case ConfigureNotify:			// window move/resize event
-	widget->translateConfigEvent( event );
+	if ( event->xconfigure.event == event->xconfigure.window )
+	    widget->translateConfigEvent( event );
 	break;
 
     case XFocusIn: {				// got focus
@@ -2427,6 +2453,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
+ 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
+ 	    break;
 	if ( event->xcrossing.mode != NotifyNormal ||
 	     event->xcrossing.detail == NotifyVirtual  ||
 	     event->xcrossing.detail == NotifyNonlinearVirtual )
@@ -2463,19 +2491,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case MapNotify:				// window shown
-	if ( widget->isTopLevel() && !widget->isVisible() && !widget->isPopup() )  {
-	    if ( widget->testWState( WState_ForceHide ) ) {
-		// widget was not shown before. This cannot happen in
-		// normal applications but might happen with embedding
-		if ( widget->isTopLevel() )
-		    widget->show();
-	    }
-	    else {
-		widget->setWState( WState_Visible );
-		widget->sendShowEventsToChildren( TRUE );
-		QShowEvent e( TRUE );
-		QApplication::sendEvent( widget, &e );
-	    }
+	if ( widget->isTopLevel() && !widget->isVisible()
+	     && !widget->testWState( WState_ForceHide ) ) {
+	    widget->setWState( WState_Visible );
+	    widget->sendShowEventsToChildren( TRUE );
+	    QShowEvent e( TRUE );
+	    QApplication::sendEvent( widget, &e );
 	}
 	break;
 
@@ -2594,8 +2615,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 
 /*!
-  Processes pending events, for \a maxtime milliseconds or until there
-  are no more events to process, then return.
+  Processes pending events for \a maxtime milliseconds or until there
+  are no more events to process, whichever is shorter.
 
   You can call this function occasionally when you program is busy doing a
   long operation (e.g. copying a file).
@@ -2617,12 +2638,14 @@ void QApplication::processEvents( int maxtime )
 /*!
   This virtual function is only implemented under X11.
 
-  If you create an application that inherits QApplication and reimplement this
-  function, you get direct access to all X events that the are received
-  from the X server.
+  If you create an application that inherits QApplication and
+  reimplement this function, you get direct access to all X events
+  that the are received from the X server.
 
-  Return TRUE if you want to stop the event from being dispatched, or return
-  FALSE for normal event dispatching.
+  Return TRUE if you want to stop the event from being processed, or
+  return FALSE for normal event dispatching.
+
+  \sa x11ProcessEvent()
 */
 
 bool QApplication::x11EventFilter( XEvent * )
@@ -3883,15 +3906,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 //
 // When receiving many expose events, we compress them (union of all expose
 // rectangles) into one event which is sent to the widget.
-// Some X servers send expose events before resize (configure) events.
-// We try to remedy that, too.
-//
 
 struct PaintEventInfo {
     Window window;
-    int	   w, h;
-    bool   check;
-    int	   config;
 };
 
 #if defined(Q_C_CALLBACKS)
@@ -3907,15 +3924,6 @@ static Bool isPaintOrScrollDoneEvent( Display *, XEvent *ev, XPointer a )
     {
 	if ( ev->xexpose.window == info->window )
 	    return TRUE;
-    } else if ( ev->type == ConfigureNotify && info->check ) {
-	XConfigureEvent *c = (XConfigureEvent *)ev;
-	if ( c->window == info->window &&
-	     (c->width != info->w || c->height != info->h) ) {
-	    info->w = c->width;
-	    info->h = c->height;
-	    info->config++;
-	    return TRUE;
-	}
     }
     return FALSE;
 }
@@ -3998,12 +4006,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     bool   merging_okay = !testWFlags(WPaintClever);
     XEvent xevent;
     PaintEventInfo info;
-
     info.window = winId();
-    info.w	= width();
-    info.h	= height();
-    info.check	= testWFlags(WType_TopLevel);
-    info.config = 0;
     bool should_clip = translateBySips( this, paintRect );
 
     QRegion paintRegion( paintRect );
@@ -4015,29 +4018,18 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 		!qt_x11EventFilter(&xevent)  &&
 		!x11Event( &xevent ) ) // send event through filter
 	{
-	    if ( !info.config ) {
-		if ( xevent.type == Expose || xevent.type == GraphicsExpose ) {
-		    QRect exposure(xevent.xexpose.x,
-				   xevent.xexpose.y,
-				   xevent.xexpose.width,
-				   xevent.xexpose.height);
-		    if ( translateBySips( this, exposure ) )
-			should_clip = TRUE;
-		    paintRegion = paintRegion.unite( exposure );
-		} else {
-		    translateScrollDoneEvent( &xevent );
-		}
-	    } // otherwise, discard all up to last config event
+	    if ( xevent.type == Expose || xevent.type == GraphicsExpose ) {
+		QRect exposure(xevent.xexpose.x,
+			       xevent.xexpose.y,
+			       xevent.xexpose.width,
+			       xevent.xexpose.height);
+		if ( translateBySips( this, exposure ) )
+		    should_clip = TRUE;
+		paintRegion = paintRegion.unite( exposure );
+	    } else {
+		translateScrollDoneEvent( &xevent );
+	    }
 	}
-    }
-
-    if ( info.config ) {
-	XConfigureEvent *c = (XConfigureEvent *)&xevent;
-	c->window  = info.window;
-	c->event  = info.window;
-	c->width  = info.w;
-	c->height = info.h;
-	translateConfigEvent( (XEvent*)c );
     }
 
     if ( should_clip ) {
@@ -4048,6 +4040,8 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 
     QPaintEvent e( paintRegion );
     setWState( WState_InPaintEvent );
+    if ( !isTopLevel() && backgroundOrigin() == ParentOrigin )
+	erase( paintRegion );
     qt_set_paintevent_clipping( this, paintRegion );
     QApplication::sendEvent( this, &e );
     qt_clear_paintevent_clipping();
@@ -4082,6 +4076,9 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
+    // config pending is only set on resize, see qwidget_x11.cpp, internalSetGeometry()
+    bool was_resize = testWState( WState_ConfigPending );
+
     clearWState(WState_ConfigPending);
 
     if ( isTopLevel() ) {
@@ -4091,7 +4088,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	bool trust =  topData()->parentWinId == None ||  topData()->parentWinId == appRootWin;
 	if (event->xconfigure.send_event || trust ) {
 	    /* if a ConfigureNotify comes from a true sendevent request, we can
-	   trust its values. */
+	       trust its values. */
 	    newCPos.rx() = event->xconfigure.x + event->xconfigure.border_width;
 	    newCPos.ry() = event->xconfigure.y + event->xconfigure.border_width;
 	}
@@ -4111,7 +4108,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	}
 
 	QRect cr ( geometry() );
-	if ( newSize != cr.size() ) {			// size changed
+	if  (newSize != cr.size() ) { // size changed
+	    was_resize = TRUE;
 	    QSize oldSize = size();
 	    cr.setSize( newSize );
 	    setCRect( cr );
@@ -4144,14 +4142,15 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    ;
     }
 
-    if ( !testWFlags( WNorthWestGravity ) && testWState( WState_Exposed ) ) {
+    bool transbg = backgroundOrigin() == ParentOrigin;
+    if ( transbg || (!testWFlags( WNorthWestGravity ) && testWState( WState_Exposed ) && was_resize) ) {
 	// remove unnecessary paint events from the queue
 	XEvent xevent;
 	while ( XCheckTypedWindowEvent(x11Display(),winId(), Expose,&xevent) &&
 		!qt_x11EventFilter(&xevent)  &&
 		!x11Event( &xevent ) ) // send event through filter
 	    ;
-	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) || transbg );
     }
 
     return TRUE;
@@ -4172,10 +4171,10 @@ bool QETWidget::translateCloseEvent( const XEvent * )
   flash time is the time requried to display, invert and restore the
   caret display: A full flash cycle.  Usually, the text cursor is
   displayed for \a msecs/2 millisecnds, then hidden for \a msecs/2
-  milliseconds.
+  milliseconds, but this may vary.
 
-  Under windows, calling this function sets the double click
-  interval for all windows.
+  Note that on Microsoft Windows, calling this function sets the
+  cursor flash time for all windows.
 
   \sa cursorFlashTime()
  */
@@ -4186,11 +4185,12 @@ void  QApplication::setCursorFlashTime( int msecs )
 
 
 /*!
-  Returns the text cursor's flash time in milliseconds. The flash time is the
-  time requried to display, invert and restore the caret display.
+  Returns the text cursor's flash time in milliseconds. The flash time
+  is the time requried to display, invert and restore the caret
+  display.
 
-  The default value is 1000 milliseconds. Under Windows, the control
-  panel value is used.
+  The default value on X11 is 1000 milliseconds. On Windows, the
+  control panel value is used.
 
   Widgets should not cache this value since it may vary any time the
   user changes the global desktop settings.
@@ -4206,8 +4206,8 @@ int QApplication::cursorFlashTime()
   Sets the time limit that distinguishes a double click from two
   consecutive mouse clicks to \a ms milliseconds.
 
-  Under windows, calling this function sets the double click
-  interval for all windows.
+  Note that on Microsoft Windows, calling this function sets the
+  double click interval for all windows.
 
   \sa doubleClickInterval()
 */
@@ -4221,7 +4221,7 @@ void QApplication::setDoubleClickInterval( int ms )
 /*!
   Returns the maximum duration for a double click.
 
-  The default value is 400 milliseconds. Under Windows, the control
+  The default value on X11 is 400 milliseconds. On Windows, the control
   panel value is used.
 
   \sa setDoubleClickInterval()
@@ -4238,8 +4238,8 @@ int QApplication::doubleClickInterval()
   rotated.
 
   If this number exceeds the number of visible lines in a certain
-  widget, the widget should interpreted the scroll operation as a
-  single page up / page down operation instead.
+  widget, the widget should interpret the scroll operation as a single
+  page up / page down operation instead.
 
   \sa wheelScrollLines()
  */
@@ -4394,6 +4394,7 @@ static bool sm_waitingForInteraction;
 static bool sm_isshutdown;
 static bool sm_shouldbefast;
 static bool sm_phase2;
+static bool sm_in_phase2;
 
 static QSmSocketReceiver* sm_receiver = 0;
 
@@ -4420,6 +4421,7 @@ static void resetSmState()
     sm_isshutdown = FALSE;
     sm_shouldbefast = FALSE;
     sm_phase2 = FALSE;
+    sm_in_phase2 = FALSE;
 }
 
 
@@ -4468,6 +4470,12 @@ static void sm_setProperty( const QString& name, const QStringList& value)
 }
 
 
+// workaround for broken libsm, see below
+struct QT_smcConn {
+    unsigned int save_yourself_in_progress : 1;
+    unsigned int shutdown_in_progress : 1;
+};
+
 static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 				  int saveType, Bool shutdown , int interactStyle, Bool fast)
 {
@@ -4476,11 +4484,16 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
     sm_cancel = FALSE;
     sm_smActive = TRUE;
     sm_isshutdown = shutdown;
-    if ( sm_isshutdown )
-	sm_blockUserInput = TRUE;
     sm_saveType = saveType;
     sm_interactStyle = interactStyle;
     sm_shouldbefast = fast;
+
+    // ugly workaround for broken libSM. libSM should do that _before_
+    // actually invoking the callback in sm_process.c
+    ( (QT_smcConn*)smcConn )->save_yourself_in_progress = TRUE;
+    if ( sm_isshutdown )
+	( (QT_smcConn*)smcConn )->shutdown_in_progress = TRUE;
+
     sm_performSaveYourself( (QSessionManager*) clientData );
     if ( !sm_isshutdown ) // we cannot expect a confirmation message in that case
 	resetSmState();
@@ -4488,6 +4501,9 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 
 static void sm_performSaveYourself( QSessionManager* sm )
 {
+    if ( sm_isshutdown )
+	sm_blockUserInput = TRUE;
+
     // tell the session manager about our program in best POSIX style
     sm_setProperty( SmProgram, QString( qApp->argv()[0] ) );
     // tell the session manager about our user as well.
@@ -4505,7 +4521,9 @@ static void sm_performSaveYourself( QSessionManager* sm )
     switch ( sm_saveType ) {
     case SmSaveBoth:
 	qApp->commitData( *sm );
-	// fall through
+	if ( sm_isshutdown && sm_cancel)
+	    break; // we cancelled the shutdown, no need to save state
+    // fall through
     case SmSaveLocal:
 	qApp->saveState( *sm );
 	break;
@@ -4516,8 +4534,9 @@ static void sm_performSaveYourself( QSessionManager* sm )
 	break;
     }
 
-    if ( sm_phase2 ) {
+    if ( sm_phase2 && !sm_in_phase2 ) {
 	SmcRequestSaveYourselfPhase2( smcConnection, sm_saveYourselfPhase2Callback, (SmPointer*) sm );
+	sm_blockUserInput = FALSE;
     }
     else {
 	// close eventual interaction monitors and cancel the
@@ -4586,6 +4605,7 @@ static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData
 {
     if (smcConn != smcConnection )
 	return;
+    sm_in_phase2 = TRUE;
     sm_performSaveYourself( (QSessionManager*) clientData );
 }
 
@@ -4678,6 +4698,9 @@ void* QSessionManager::handle() const
 
 bool QSessionManager::allowsInteraction()
 {
+    if ( sm_interactionActive )
+	return TRUE;
+
     if ( sm_waitingForInteraction )
 	return FALSE;
 
@@ -4699,6 +4722,9 @@ bool QSessionManager::allowsInteraction()
 
 bool QSessionManager::allowsErrorInteraction()
 {
+    if ( sm_interactionActive )
+	return TRUE;
+
     if ( sm_waitingForInteraction )
 	return FALSE;
 
@@ -4786,7 +4812,7 @@ void QSessionManager::setProperty( const QString& name, const QStringList& value
 
 bool QSessionManager::isPhase2() const
 {
-    return sm_phase2;
+    return sm_in_phase2;
 }
 
 void QSessionManager::requestPhase2()

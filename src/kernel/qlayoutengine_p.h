@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -66,6 +66,31 @@ struct QLayoutStruct
 
 void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 		      int space, int spacer );
+
+
+
+/*
+  Modify total maximum (max) and total expansion (exp)
+  when adding boxmax/boxexp.
+
+  Expansive boxes win over non-expansive boxes.
+*/
+static inline void qMaxExpCalc( QCOORD & max, bool &exp,
+			       QCOORD boxmax, bool boxexp )
+{
+    if ( exp ) {
+	if ( boxexp )
+	    max = QMAX( max, boxmax );
+	else
+	    ; //nothing
+    } else {
+	if ( boxexp )
+	    max = boxmax;
+	else
+	    max = QMIN( max, boxmax );
+    }
+    exp = exp || boxexp;
+}
 
 
 #endif

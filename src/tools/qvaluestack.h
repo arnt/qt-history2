@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -40,13 +40,13 @@ public:
     void  push( const T& d ) { append(d); }
     T pop()
     {
-	T elem( last() );
-	if ( !isEmpty() )
-	    remove( fromLast() );
+	T elem( this->last() );
+	if ( !this->isEmpty() )
+	    remove( this->fromLast() );
 	return elem;
     }
-    T& top() { return last(); }
-    const T& top() const { return last(); }
+    T& top() { return this->last(); }
+    const T& top() const { return this->last(); }
 };
 
 #endif

@@ -43,7 +43,6 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     p2->insertItem("Hide Pie Chart", t , SLOT(hidePie()) );
 
 
-    setMaximumSize( t->tWidth()+20, t->tHeight()+70);
     resizeHandle( size() );
 
 }

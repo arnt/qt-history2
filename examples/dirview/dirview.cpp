@@ -22,6 +22,7 @@
 #include <qstrlist.h>
 #include <qstringlist.h>
 #include <qapplication.h>
+#include <qheader.h>
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -390,9 +391,9 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
     QListViewItem *item = itemAt( contentsToViewport(e->pos()) );
     if ( item ) {
 
-	QStringList lst;
+	QStrList lst;
 
-	QUriDrag::decodeToUnicodeUris( e, lst );
+	QUriDrag::decode( e, lst );
 
 	QString str;
 
@@ -416,9 +417,8 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 
 	e->accept();
 
-	QStringList::Iterator it = lst.begin();
-	for ( ; it != lst.end(); ++it ) {
-	    QString filename = *it;
+	for ( uint i = 0; i < lst.count(); ++i ) {
+	    QString filename = lst.at( i );
 	    str += filename + "\n";
 	}
 	str += QString( "\nTo\n\n   %1" )
@@ -445,8 +445,17 @@ QString DirectoryView::fullPath(QListViewItem* item)
 void DirectoryView::contentsMousePressEvent( QMouseEvent* e )
 {
     QListView::contentsMousePressEvent(e);
-    presspos = e->pos();
-    mousePressed = TRUE;
+    QPoint p( contentsToViewport( e->pos() ) );
+    QListViewItem *i = itemAt( p );
+    if ( i ) {
+	// if the user clicked into the root decoration of the item, don't try to start a drag!
+	if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
+	     treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() || 
+	     p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
+	    presspos = e->pos();
+	    mousePressed = TRUE;
+	}
+    }
 }
 
 void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )

@@ -16,6 +16,7 @@
 #include <qvaluelist.h>
 #include <qstring.h>
 #include <qpushbutton.h>
+#include <qlayout.h>
 
 /*
  * Constructor
@@ -24,19 +25,21 @@
  */
 
 CheckLists::CheckLists( QWidget *parent, const char *name )
-    : QHBox( parent, name )
+    : QWidget( parent, name )
 {
-    setMargin( 5 );
+    QHBoxLayout *lay = new QHBoxLayout( this );
+    lay->setMargin( 5 );
 
     // create a widget which layouts its childs in a column
-    QVBox *vbox1 = new QVBox( this );
+    QVBoxLayout *vbox1 = new QVBoxLayout( lay );
     vbox1->setMargin( 5 );
 
     // First child: a Label
-    (void)new QLabel( "Check some items!", vbox1 );
+    vbox1->addWidget( new QLabel( "Check some items!", this ) );
 
     // Second child: the ListView
-    lv1 = new QListView( vbox1 );
+    lv1 = new QListView( this );
+    vbox1->addWidget( lv1 );
     lv1->addColumn( "Items" );
     lv1->setRootIsDecorated( TRUE );
 
@@ -51,53 +54,55 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     QListViewItem *item = 0;
     unsigned int num = 1;
     // go through the list of parent items...
-    for ( QValueList<QListViewItem*>::Iterator it = parentList.begin(); it != parentList.end(); 
+    for ( QValueList<QListViewItem*>::Iterator it = parentList.begin(); it != parentList.end();
 	  ( *it )->setOpen( TRUE ), ++it, num++ ) {
 	item = *it;
 	// ...and create 5 checkable child ListViewItems for each parent item
 	for ( unsigned int i = 1; i <= 5; i++ )
 	    (void)new QCheckListItem( item, QString( "%1. Child of Parent %2" ).arg( i ).arg( num ), QCheckListItem::CheckBox );
     }
-    
+
     // Create another widget for layouting
-    QVBox *tmp = new QVBox( this );
+    QVBoxLayout *tmp = new QVBoxLayout( lay );
     tmp->setMargin( 5 );
 
     // create a pushbutton
-    QPushButton *copy1 = new QPushButton( "  ->	 ", tmp );
+    QPushButton *copy1 = new QPushButton( "  ->	 ", this );
+    tmp->addWidget( copy1 );
     copy1->setMaximumWidth( copy1->sizeHint().width() );
-    tmp->setMaximumWidth( copy1->maximumWidth() + 10 );
     // connect the SIGNAL clicked() of the pushbutton with the SLOT copy1to2()
     connect( copy1, SIGNAL( clicked() ), this, SLOT( copy1to2() ) );
 
     // another widget for layouting
-    QVBox *vbox2 = new QVBox( this );
+    QVBoxLayout *vbox2 = new QVBoxLayout( lay );
     vbox2->setMargin( 5 );
 
     // and another label
-    (void)new QLabel( "Check one item!", vbox2 );
+    vbox2->addWidget( new QLabel( "Check one item!", this ) );
 
     // create the second listview
-    lv2 = new QListView( vbox2 );
+    lv2 = new QListView( this );
+    vbox2->addWidget( lv2 );
     lv2->addColumn( "Items" );
     lv2->setRootIsDecorated( TRUE );
 
     // another widget needed for layouting only
-    tmp = new QVBox( this );
+    tmp = new QVBoxLayout( lay );
     tmp->setMargin( 5 );
 
     // create another pushbutton...
-    QPushButton *copy2 = new QPushButton( "  ->	 ", tmp );
+    QPushButton *copy2 = new QPushButton( "  ->	 ", this );
+    lay->addWidget( copy2 );
     copy2->setMaximumWidth( copy2->sizeHint().width() );
-    tmp->setMaximumWidth( copy2->maximumWidth() + 10 );
     // ...and connect its clicked() SIGNAL to the copy2to3() SLOT
     connect( copy2, SIGNAL( clicked() ), this, SLOT( copy2to3() ) );
 
-    tmp = new QVBox( this );
+    tmp = new QVBoxLayout( lay );
     tmp->setMargin( 5 );
 
     // and create a label which will be at the right of the window
-    label = new QLabel( "No Item yet...", tmp );
+    label = new QLabel( "No Item yet...", this );
+    tmp->addWidget( label );
 }
 
 /*

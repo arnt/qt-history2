@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -61,7 +61,7 @@ class Q_EXPORT QMultiLineEdit : public QTableView
     Q_PROPERTY( bool overWriteMode READ isOverwriteMode WRITE setOverwriteMode )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int length READ length )
-	
+
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();
@@ -190,6 +190,7 @@ protected:
     void	resizeEvent( QResizeEvent * );
 
     void	dragMoveEvent( QDragMoveEvent* );
+    void	dragEnterEvent( QDragEnterEvent * );
     void	dropEvent( QDropEvent* );
     void	dragLeaveEvent( QDragLeaveEvent* );
 
@@ -223,11 +224,14 @@ protected:
     QString stringShown( int row ) const;
 
 protected:
-    bool	cursorOn;	
+    bool	cursorOn;
     void	insertChar( QChar );
 
 private slots:
     void	clipboardChanged();
+    void	blinkTimerTimeout();
+    void	scrollTimerTimeout();
+    void	dndTimeout();
 
 private:
     struct QMultiLineEditRow {
@@ -258,8 +262,8 @@ private:
     int		markDragX;
     int		markDragY;
     int		curXPos;	// cell coord of cursor
-    int		blinkTimer;
-    int		scrollTimer;
+    int		blinkTimer; // #### not used anymore - remove in 3.0
+    int		scrollTimer; // #### not used anymore - remove in 3.0
 
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
@@ -301,15 +305,15 @@ private:
     void	offsetToPositionInternal( int position, int *row, int *col ) const;
     void	deleteNextChar( int offset, int row, int col );
 
+    void addUndoCmd( QMultiLineEditCommand* );
+    void addRedoCmd( QMultiLineEditCommand* );
+    void processCmd( QMultiLineEditCommand*, bool );
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMultiLineEdit( const QMultiLineEdit & );
     QMultiLineEdit &operator=( const QMultiLineEdit & );
 #endif
-
-    void addUndoCmd( QMultiLineEditCommand* );
-    void addRedoCmd( QMultiLineEditCommand* );
-    void processCmd( QMultiLineEditCommand*, bool );
 };
 
 inline bool QMultiLineEdit::isReadOnly() const { return readOnly; }

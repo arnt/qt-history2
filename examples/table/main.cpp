@@ -17,11 +17,11 @@
   Constants
 */
 
-const int numRows = 20;				// Tablesize: number of rows
-const int numCols = 20;				// Tablesize: number of columns
+const int numRows = 100;				// Tablesize: number of rows
+const int numCols = 100;				// Tablesize: number of columns
 
 /*
-  The program starts here. 
+  The program starts here.
 */
 
 int main( int argc, char **argv )
@@ -29,19 +29,6 @@ int main( int argc, char **argv )
     QApplication a(argc,argv);			
 
     Table v( numRows, numCols );
-
-    /*
-      Fill the table with default content: a coordinate string.
-    */
-    QString s ;
-    for( int i = 0; i < numRows; i++ ) {
-	for( int j = 0; j < numCols; j++ ) {
-	    s.setNum(j);
-	    s += ' ';
-	    s += 'A' + ( i % 26 );		// Wrap if necessary
-	    v.setCellContent( i, j, s );
-	}
-    }
 
     a.setMainWidget( &v );
     v.show();

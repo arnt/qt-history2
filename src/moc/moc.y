@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#171 $
+** $Id: //depot/qt/main/src/moc/moc.y#172 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 ** --------------------------------------------------------------------------
 **
@@ -2397,7 +2397,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#171 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#172 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2766,7 +2766,7 @@ void addMember( Member m )
  * Used to check property names. They must match
  * the pattern [A-Za-z][A-Za-z0-9_]*
  *
- * @author Torben Weis <weis@troll.no>
+ * @author Torben Weis <weis@trolltech.com>
  */
 void checkIdentifier( const char* ident )
 {

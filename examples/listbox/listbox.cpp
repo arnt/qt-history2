@@ -100,14 +100,14 @@ ListBoxDemo::ListBoxDemo()
     connect( cb, SIGNAL(toggled(bool)), this, SLOT(setVariableWidth(bool)) );
     v->addWidget( cb );
 
-    cb = new QCheckBox( "Multiselection", this );
+    cb = new QCheckBox( "Extended-Selection", this );
     connect( cb, SIGNAL(toggled(bool)), this, SLOT(setMultiSelection(bool)) );
     v->addWidget( cb );
 
     QPushButton *pb = new QPushButton( "Sort ascending", this );
     connect( pb, SIGNAL( clicked() ), this, SLOT( sortAscending() ) );
     v->addWidget( pb );
-    
+
     pb = new QPushButton( "Sort descending", this );
     connect( pb, SIGNAL( clicked() ), this, SLOT( sortDescending() ) );
     v->addWidget( pb );
@@ -180,7 +180,7 @@ void ListBoxDemo::setVariableHeight( bool b )
 void ListBoxDemo::setMultiSelection( bool b )
 {
     l->clearSelection();
-    l->setMultiSelection( b );
+    l->setSelectionMode( b ? QListBox::Extended : QListBox::Single );
 }
 
 void ListBoxDemo::sortAscending()

@@ -472,6 +472,8 @@ void ImageViewer::resizeEvent( QResizeEvent * )
 	scale();				// scale pmScaled to window
 	updateStatus();
     }
+    if ( image.hasAlphaBuffer() )
+	erase();
 }
 
 bool ImageViewer::convertEvent( QMouseEvent* e, int& x, int& y)

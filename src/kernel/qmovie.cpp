@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -82,13 +82,12 @@
 
   \warning Unisys has changed its position regarding GIF.  If you are
   in a country where Unisys holds a patent on LZW compression and/or
-  decompression, Unisys may require a license from you.  These
-  countries include Canada, Japan, the USA, France, Germany, Italy and
-  the UK.  There is more information on Unisys web site: <a
-  href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
-  Unisys' position.</a> GIF support may be removed in a future version
-  of Qt.  We recommend using the PNG format, which is available in the
-  <a href="imageio.html">Qt Image IO Extension</a> package.
+  decompression and you want to use GIF, Unisys may require you to
+  license that technology.  These countries include Canada, Japan, the
+  USA, France, Germany, Italy and the UK.
+
+  GIF support may be removed completely in a future version of Qt.  We
+  recommend using the PNG format.
 
   <img src="qmovie.png">
 

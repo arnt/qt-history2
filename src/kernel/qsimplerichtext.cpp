@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -36,14 +36,17 @@
   \ingroup drawing
 
   This class encapsulates simple richt text usage where a string is
-  interpretted as richt text and can be drawn. This is in particular
+  interpretted as richt text and can be drawn.  This is in particular
   useful if you want to display some rich text in a custom widget.
+  A QStyleSheet is needed to actually understand and format rich text.
+  Qt provides a default HTML-like style sheet but you may define custom
+  style sheets.
 
   Once created, the rich text object can be queried for its width(),
-  height() and the actual width used (see widthUsed()). Most
+  height() and the actual width used (see widthUsed()).  Most
   importantly, it can be drawn on any given QPainter with draw().
   QSimpleRichText can also be used to implement hypertext or active
-  text facilities by using anchorAt(). A hit test through inText()
+  text facilities by using anchorAt().  A hit test through inText()
   makes it possible to use simple righ text for text objects in
   editable drawing canvases.
 
@@ -82,8 +85,8 @@ public:
   the absolute path. See QMimeSourceFactory::makeAbsolute() for
   details.
 
-  \a s is an optional stylesheet. If it is 0, the default style sheet
-  will be used (see QStyleSheet::defaultSheet() ).
+  Finally \a s is an optional style sheet. If it is 0, the default
+  style sheet will be used (see QStyleSheet::defaultSheet() ).
 
 */
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
@@ -123,7 +126,9 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 */
 QSimpleRichText::~QSimpleRichText()
 {
+    QTextFormatCollection* formats = d->doc?d->doc->formats:0;
     delete d->doc;
+    delete formats; //#### fix inheritance structure in rich text
     delete d;
 }
 
@@ -271,6 +276,7 @@ QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 static uint int_sqrt(uint n)
 {
     uint h, p= 0, q= 1, r= n;
+    ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
     while ( q <= n )
 	q <<= 2;
     while ( q != 1 ) {
@@ -293,14 +299,15 @@ static uint int_sqrt(uint n)
 */
 void QSimpleRichText::adjustSize()
 {
-    int w = QApplication::desktop()->width();
+    int mw = QApplication::desktop()->width();
+    int w = mw;
     d->doc->doLayout( 0,w );
     w = int_sqrt( (5*d->doc->height) / (3*d->doc->flow()->widthUsed ) );
-    d->doc->doLayout( 0,w );
+    d->doc->doLayout( 0, QMIN( w, mw) );
 
     if ( w*3 < 5*d->doc->flow()->height ) {
 	w = int_sqrt(6*d->doc->flow()->height/3*d->doc->flow()->widthUsed);
-	d->doc->doLayout( 0,w );
+	d->doc->doLayout( 0,QMIN(w, mw ) );
     }
 }
 

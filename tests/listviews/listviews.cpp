@@ -226,7 +226,7 @@ void ListViews::initFolder( Folder *folder, unsigned int &count )
 	str = QString( "Message %1  " ).arg( count );
 	QDateTime dt = QDateTime::currentDateTime();
 	dt = dt.addSecs( 60 * count );
-	MessageHeader mh( "Troll Tech <info@troll.no>  ", str, dt );
+	MessageHeader mh( "Troll Tech <info@trolltech.com>  ", str, dt );
 
 	QString body;
 	body = QString( "This is the message number %1 of this application, \n"
@@ -280,7 +280,7 @@ void ListViews::slotMessageChanged( QListViewItem *i )
     QString tmp = msg->header().sender();
     tmp = tmp.replace( QRegExp( "[<]" ), "&lt;" );
     tmp = tmp.replace( QRegExp( "[>]" ), "&gt;" );
-    text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@troll.no\">%1</a><br>"
+    text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@trolltech.com\">%1</a><br>"
 		    "<b><i>Subject:</i></b> <big><big><b>%2</b></big></big><br>"
 		    "<b><i>Date:</i></b> %3<br><br>"
 		    "%4" ).

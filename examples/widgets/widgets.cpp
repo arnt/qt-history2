@@ -205,9 +205,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     f = font();
     f.setStrikeOut( TRUE );
     id = popup->insertItem( new MyMenuItem( "&Strike", f ) );
-    connect( textStylePopup, SIGNAL(activated(int)), 
+    connect( textStylePopup, SIGNAL(activated(int)),
 	     this, SLOT(popupSelected(int)) );
-    
+
     // Create an analog and a digital clock
     AnalogClock  *aclock = new AnalogClock( central );
     aclock->setAutoMask( TRUE );
@@ -475,7 +475,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lv, "Habaneros", QCheckListItem::CheckBox );
     (void) new QCheckListItem( lv, "Pineapple", QCheckListItem::CheckBox );
     (void) new QCheckListItem( lv, "Ham", QCheckListItem::CheckBox );
-    (void) new QCheckListItem( lv, "Peperoni", QCheckListItem::CheckBox );
+    (void) new QCheckListItem( lv, "Pepperoni", QCheckListItem::CheckBox );
     (void) new QCheckListItem( lv, "Garlic", QCheckListItem::CheckBox );
 
 
@@ -560,7 +560,7 @@ void WidgetView::popupSelected( int selectedId )
 	for ( int i = 0; i < int(textStylePopup->count()); i++ ) {
 	    int id = textStylePopup->idAt( i );
 	    textStylePopup->setItemChecked( id, FALSE);
-	}    
+	}
     } else {
 	textStylePopup->setItemChecked( selectedId, TRUE );
     }

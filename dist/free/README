@@ -13,7 +13,7 @@ The Qt Free Edition may only be used on the X Window System.
 If you are using Qt for developing commercial, proprietary, or other
 software not covered by the terms listed in the LICENSE.QPL file, you
 must have have a license for the Qt Professional Edition. Please see
-http://www.troll.no/purchase.html for how to obtain this. Qt
+http://www.trolltech.com/purchase.html for how to obtain this. Qt
 Professional Edition is also supported on Microsoft Windows.  
 
 The INSTALL file explains how to install Qt.
@@ -35,8 +35,8 @@ in doc/html/tutorial.html. The tutorial directory contains the programs
 used in the tutorial.
 
 All the above documentation is also available in postscript format
-from our web server, see http://www.troll.no/dl/ or
-ftp://ftp.troll.no/qt/postscript/
+from our web server, see http://www.trolltech.com/dl/ or
+ftp://ftp.trolltech.com/qt/postscript/
 
 The example programs in the examples directory demonstrate some Qt
 features. You can study these examples to get an overview of how Qt
@@ -47,10 +47,10 @@ If you find any bugs, please see information in the reference
 documentation about how to report it.
 
 If you want to join the Qt user forum mailing list, send a message to
-qt-interest-request@troll.no containing a single word "subscribe".  If
+qt-interest-request@trolltech.com containing a single word "subscribe".  If
 you want to be added to our announcements mailing list (no spam), send
-a message to qt-announce-request@troll.no containing a single word
+a message to qt-announce-request@trolltech.com containing a single word
 "subscribe".
 
 If you are interested in the Qt Professional Edition, please write
-to sales@troll.no.  Other mail can be sent to info@troll.no.
+to sales@trolltech.com.  Other mail can be sent to info@trolltech.com.

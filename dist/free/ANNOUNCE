@@ -1,4 +1,4 @@
-Troll Tech AS (http://www.troll.no) is proud to announce the release
+Troll Tech AS (http://www.trolltech.com) is proud to announce the release
 of Qt version %VERSION%.
 
 Qt is a complete and well-designed multi-platform object-oriented
@@ -17,15 +17,15 @@ Windows 95/NT version of Qt, and vice versa.
 
 Qt is currently used in hundreds of software development projects world
 wide, including the K Desktop Environment (see http://www.kde.org).
-For more examples, see http://www.troll.no/qtprogs.html.
+For more examples, see http://www.trolltech.com/qtprogs.html.
 
-Qt can be downloaded from http://www.troll.no/dl/ or via anonymous FTP
-from ftp.troll.no.  Unstable snapshot releases are also available on
+Qt can be downloaded from http://www.trolltech.com/dl/ or via anonymous FTP
+from ftp.trolltech.com.  Unstable snapshot releases are also available on
 a daily basis.
 
 Qt has excellent documentation: around 750 pages of postscript and fully
 cross-referenced online html documentation. It is available on the web:
-http://www.troll.no/qt/
+http://doc.trolltech.com/
 
 Qt is easy to learn, with consistent naming across all the classes and a
 14-chapter on-line tutorial with links into the rest of the documentation.
@@ -49,12 +49,12 @@ Motif nor X Intrinsics.
 
 Qt is available under two different licenses:
   - The Qt Professional Edition License, for developing fully
-       commercial software: see http://www.troll.no/pricing.html
+       commercial software: see http://www.trolltech.com/pricing.html
   - The Q Public License (QPL), for developing free software
        (X Window System only).
 
 Join the qt-interest mailing list by sending a message containing the
-single word "subscribe" to qt-interest-request@troll.no.
+single word "subscribe" to qt-interest-request@trolltech.com.
 
 You can contact Troll Tech at:
 
@@ -64,5 +64,5 @@ You can contact Troll Tech at:
 	Norway
 
 	fax:   +47  22 80 63 80
-	email: info@troll.no, sales@troll.no
-        www:   http://www.troll.no
+	email: info@trolltech.com, sales@trolltech.com
+        www:   http://www.trolltech.com

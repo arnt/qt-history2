@@ -11,31 +11,91 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <qtableview.h>
+#include <qscrollview.h>
+#include <qpixmap.h>
+#include <qvector.h>
 
+class QHeader;
+class QLineEdit;
 
-class Table : public QTableView
+class TableItem
+{
+public:
+    TableItem( const QString &t, const QPixmap p )
+	: txt( t ), pix( p ) {}
+
+    QPixmap pixmap() const { return pix; }
+    QString text() const { return txt; }
+    void setPixmap( const QPixmap &p ) { pix = p; }
+    void setText( const QString &t ) { txt = t; }
+    
+private:
+    QString txt;
+    QPixmap pix;
+
+};
+
+class Table : public QScrollView
 {
     Q_OBJECT
 public:
     Table( int numRows, int numCols, QWidget* parent=0, const char* name=0 );
     ~Table();
-    
-    const char* cellContent( int row, int col ) const;
-    void setCellContent( int row, int col, const char* );
+
+    TableItem *cellContent( int row, int col ) const;
+    void setCellContent( int row, int col, TableItem *item );
+    void setCellText( int row, int col, const QString &text );
+    void setCellPixmap( int row, int col, const QPixmap &pix );
+    QString cellText( int row, int col ) const;
+    QPixmap cellPixmap( int row, int col ) const;
+
+    QRect cellGeometry( int row, int col ) const;
+    int columnWidth( int col ) const;
+    int rowHeight( int row ) const;
+    int columnPos( int col ) const;
+    int rowPos( int row ) const;
+    int columnAt( int pos ) const;
+    int rowAt( int pos ) const;
+    QSize tableSize() const;
+
+    int rows() const;
+    int cols() const;
+
+    void updateCell( int row, int col );
 
 protected:
-    void paintCell( QPainter*, int row, int col );
-    void mousePressEvent( QMouseEvent* );
+    void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
+    void contentsMousePressEvent( QMouseEvent* );
+    void contentsMouseMoveEvent( QMouseEvent* );
     void keyPressEvent( QKeyEvent* );
     void focusInEvent( QFocusEvent* );
     void focusOutEvent( QFocusEvent* );
-    
+    void resizeEvent( QResizeEvent * );
+    void showEvent( QShowEvent *e );
+
+    virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
+    bool focusNextPrevChild( bool next );
+
+protected slots:
+    virtual void columnWidthChanged( int col, int os, int ns );
+    virtual void rowHeightChanged( int col, int os, int ns );
+
+private slots:
+    void editorOk();
+    void ediorCancel();
+
 private:
+    void paintCell( QPainter *p, int row, int col, const QRect &cr );
     int indexOf( int row, int col ) const;
-    QString* contents;
+    void updateGeometries();
+
+private:
+    QVector<TableItem> contents;
     int curRow;
     int curCol;
+    QHeader *leftHeader, *topHeader;
+    QLineEdit *editor;
+
 };
 
 #endif // TABLE_H

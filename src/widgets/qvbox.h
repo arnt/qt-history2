@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -35,6 +35,11 @@ class Q_EXPORT QVBox : public QHBox
     Q_OBJECT
 public:
     QVBox( QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE );
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QVBox( const QVBox & );
+    QVBox& operator=( const QVBox & );
+#endif
 };
 
 #endif //QVBOX_H

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -31,7 +31,7 @@
 #include "qbuffer.h"
 #include "qt_x11.h"
 
-// NOT REVISED
+// REVISED: arnt
 
 /*
     ##### If we had two clipboards, one for automatic copy (ie. the normal
@@ -618,8 +618,8 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
 
 /*!
-  Returns a reference to a QMimeSource representation
-  of the current clipboard data.
+  Returns a reference to a QMimeSource representation of the current
+  clipboard data.
 */
 QMimeSource* QClipboard::data() const
 {
@@ -632,16 +632,15 @@ QMimeSource* QClipboard::data() const
 }
 
 /*!
-  Sets the clipboard data.  Ownership of the data is transferred
-  to the clipboard - the only way to remove this data is to set
-  something else, or to call clear().  The QDragObject subclasses
-  are reasonable things to put on the clipboard (but do not try
-  to \link QDragObject::drag() drag\endlink the same object).
-  Do not put QDragMoveEvent or QDropEvent subclasses on the clipboard,
-  as they do not belong to the event handler which receives them.
+  Sets the clipboard data.  Ownership of the data is transferred to
+  the clipboard - the only ways to remove this data is to set
+  something else, or to call clear().  The QDragObject subclasses are
+  reasonable things to put on the clipboard (but do not try to call
+  QDragObject::drag() on the same object).  Do not put QDragMoveEvent
+  or QDropEvent subclasses on the clipboard, as they do not belong to
+  the event handler which receives them.
 
-  The setText() and setPixmap() functions are shorthand ways
-  of setting the data.
+  The setText() and setPixmap() functions are simpler wrappers for this.
 */
 void QClipboard::setData( QMimeSource* src )
 {

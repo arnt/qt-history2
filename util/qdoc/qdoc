@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#224 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#225 $
 #
 # this is a massive hack, written very quickly
 #
@@ -761,7 +761,7 @@ sub writepages {
 		die "Cannot process \\quotelist before \\mustquote.  Stopped"
 		  if ( defined( $haveprocessedquotelist ) );
 	    }
-	    
+	
 	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
 	    $doc =~ s!\\classlist!&classlist()!es;
 	    $doc =~ s!\\extensionlist!&extensionlist()!es;
@@ -1901,8 +1901,10 @@ sub printclass {
 		    }
 		    $fndocs{$u} = $mode;
 		    # second uglest hack in qdoc
-		    $_ .= " (obsolete)" 
-		      if ($doc{$u} =~ /^<b>This function is obsolete./si );
+		    if ($doc{$u} =~ /^<b>This function is obsolete./si ) {
+			s/<[^>]*>//g;
+			$_ .= " <em>(obsolete)</em>";
+		    }
 		} else {
 		    print "undocumented: ", $t," ", $name{$url}, "::", $f,
 		        " (",$a,") ", $c, "\n" if ($errmsg++<$maxerr);
@@ -1963,8 +1965,11 @@ sub printclass {
 	for $p ( split "\n", $properties{$url} ) {
 	    my ($rtype, $name, $opt) =
 		$p =~ m/^(\w+)\s+(\w+)\s+(.*)$/;
-	    my $get = $opt =~ s/(.*?)\s*\bREAD\s+(\w+)(.*)/$1$3/ ? $2 : "";
-	    my $set = $opt =~ s/(.*?)\s*\bWRITE\s+(\w+)(.*)/$1$3/ ? $2 : "";
+	    my $get = $opt =~ s/(.*?)\s*\bREAD\s+(\w+)(.*)/$1$3/ ? $2 : "&nbsp;";
+	    my $set = $opt =~ s/(.*?)\s*\bWRITE\s+(\w+)(.*)/$1$3/ ? $2 : "&nbsp;";
+	    if (!$opt) {
+		$opt = "&nbsp;";
+	    }
 	    print O "<tr><td>$rtype<td>$name<td>$get<td>$set<td>$opt\n";
 	}
 	print O "</table>\n";
@@ -2671,6 +2676,6 @@ print "Documented ", $countdoc, " member functions, left out ",
 chdir( "$outputdir" );
 print "Creating Index...\n";
 system( "$ENV{'QTDIR'}/util/qdoc/mkindex index *.html" );
-print "Creating Title Index..\n.";
+print "Creating Title Index...\n";
 system( "$ENV{'QTDIR'}/util/qdoc/mktitleindex titleindex *.html" );
 print "Finished!\n";

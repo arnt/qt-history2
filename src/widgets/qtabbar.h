@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -54,7 +54,7 @@ public:
     bool isEnabled() const { return enabled; }
     void setIdentifier( int i ) { id = i; }
     int identitifer() const { return id; }
-#endif    
+#endif
     // private: ( public for compatibility)
     QString label;
     QRect r;    // the bounding rectangle of this - may overlap with others
@@ -71,7 +71,7 @@ class Q_EXPORT QTabBar: public QWidget
     Q_PROPERTY( Shape shape READ shape WRITE setShape )
     Q_PROPERTY( int currentTab READ currentTab )
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
-	
+
 public:
     QTabBar( QWidget * parent = 0, const char *name = 0 );
    ~QTabBar();
@@ -136,6 +136,11 @@ private:
     void updateArrowButtons();
     QTabPrivate * d;
 
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTabBar( const QTabBar & );
+    QTabBar& operator=( const QTabBar & );
+#endif
 };
 
 

@@ -44,7 +44,7 @@ to get hold of the "Programming with Qt" book published by O'Reilly
 Qt programming.
 
 The documentation is also available as postscript from
-http://www.troll.no/postscript.html
+http://www.trolltech.com/postscript.html
 
 
 Create Makefiles with Tmake
@@ -80,6 +80,6 @@ files (.dsp files) for Microsoft Developer Studio.
 Reporting Bugs, Mailing List and Support
 ----------------------------------------
 
-If you find any bugs, send a report to qt-bugs@troll.no.  If you want
+If you find any bugs, send a report to qt-bugs@trolltech.com.  If you want
 to join the Qt development mailing list, send a mail to
-qt-interest-request@troll.no containing the single word "subscribe".
+qt-interest-request@trolltech.com containing the single word "subscribe".

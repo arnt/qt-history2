@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -58,6 +58,42 @@ void qt_clear_paintevent_clipping()
     paintEventClipRegion = 0;
     paintEventDevice = 0;
 }
+
+void qt_erase_region( QWidget* w, const QRegion& region)
+{
+    QRegion reg = region;
+    
+    if ( !w->paintingActive() && !w->isTopLevel() && w->backgroundPixmap()
+	 && w->backgroundOrigin() == QWidget::ParentOrigin ) {
+	QPainter p( w );
+	p.setClipRegion( region ); // automatically includes paintEventDevice if required
+	p.drawTiledPixmap( 0, 0, w->width(), w->height(),
+			   *w->backgroundPixmap(),
+			   w->x(), w->y() );
+	return;
+    }
+    
+    if ( w == paintEventDevice )
+	reg = paintEventClipRegion->intersect( reg );
+    
+    QArray<QRect> r = reg.rects();
+    for (uint i=0; i<r.size(); i++) {
+	const QRect& rr = r[(int)i];
+	XClearArea( w->x11Display(), w->winId(),
+		    rr.x(), rr.y(), rr.width(), rr.height(), FALSE );
+    }
+}
+
+void qt_erase_rect( QWidget* w, const QRect& r)
+{
+    if ( w == paintEventDevice || w->backgroundOrigin() == QWidget::ParentOrigin )
+	qt_erase_region( w, r );
+    else
+	XClearArea( w->x11Display(), w->winId(), r.x(), r.y(), r.width(), r.height(), FALSE );
+	
+}
+
+	       
 
 
 /*****************************************************************************
@@ -988,6 +1024,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	wh = vh = w->height();
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    setf( NoCache );
+	    setf(UsePrivateCx);
 	    updatePen();
 	    updateBrush();
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
@@ -1456,8 +1493,8 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 
 
 /*!
-  Sets the current point.
-  \sa lineTo(), drawLine()
+  Sets the current pen position to \a (x,y)
+  \sa lineTo(), pos()
 */
 
 void QPainter::moveTo( int x, int y )
@@ -1478,10 +1515,10 @@ void QPainter::moveTo( int x, int y )
 }
 
 /*!
-  Draws a line from the current point to \e (x,y) and sets this to the new
-  current point.
+  Draws a line from the current pen position to \a (x,y) and sets this to the new
+  current pen position.
 
-  \sa QPen moveTo(), drawLine()
+  \sa QPen moveTo(), drawLine(), pos()
 */
 
 void QPainter::lineTo( int x, int y )
@@ -1506,7 +1543,7 @@ void QPainter::lineTo( int x, int y )
 /*!
   Draws a line from \e (x1,y2) to \e (x2,y2).
 
-  \sa QPen, drawLine()
+  \sa QPen
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
@@ -1936,7 +1973,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
   counter-clockwise while negative values mean clockwise direction.
   Zero degrees is at the 3'o clock position.
 
-  \sa drawArc(), drawPie()
+  \sa drawArc(), drawChord()
 */
 
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
@@ -2823,3 +2860,14 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 			    tw, lw );
     }
 }
+
+/*!
+  Returns the current position of the  pen.
+  
+  \sa moveTo()
+ */
+QPoint QPainter::pos() const
+{
+    return curPt;
+}
+

@@ -17,21 +17,14 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
 #ifndef QVARIANT_H
 #define QVARIANT_H
-
-#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && ( defined(QVALUELIST_H) || defined(QMAP_H) )
-#warning Qt warning:
-#warning Header file qvaluelist.h or qmap.h is included before qvariant.h.
-#warning This will cause errors on this compiler because of improper template support.
-#warning Try changing the order of inclusion of your header files.
-#endif
 
 #ifndef QT_H
 #include "qstring.h"
@@ -60,8 +53,6 @@ class QStringList;
 // for GCC 2.7.* compatibility
 class QVariant;
 class QVariantPrivate;
-class QVariantTypeBase;
-class QVariantValueBase;
 template <class T> class QValueList;
 template <class T> class QValueListConstIterator;
 template <class T> class QValueListNode;
@@ -101,8 +92,7 @@ public:
 	PointArray,
 	Region,
 	Bitmap,
-	Cursor,
-	Custom
+	Cursor
     };
 
     QVariant();
@@ -136,17 +126,15 @@ public:
     // ### Problems on some compilers ?
     QVariant( bool, int );
     QVariant( double );
-    QVariant( void* custom, const QVariantTypeBase* type );
-    QVariant( const QVariantValueBase& );
 
     QVariant& operator= ( const QVariant& );
+    bool operator==( const QVariant& ) const;
+    bool operator!=( const QVariant& ) const;
 
     Type type() const;
     const char* typeName() const;
-    const QVariantTypeBase* customType() const;
 
     bool canCast( Type ) const;
-    bool canCast( const QVariantTypeBase* type ) const;
 
     bool isValid() const;
 
@@ -176,7 +164,6 @@ public:
     double toDouble() const;
     const QValueList<QVariant> toList() const;
     const QMap<QString,QVariant> toMap() const;
-    void* toCustom( const QVariantTypeBase* type ) const;
 
     QValueListConstIterator<QVariant> listBegin() const;
     QValueListConstIterator<QVariant> listEnd() const;
@@ -210,9 +197,6 @@ public:
     double& asDouble();
     QValueList<QVariant>& asList();
     QMap<QString,QVariant>& asMap();
-    void* asCustom( const QVariantTypeBase* );
-    void* asCustom();
-    const void* asCustom() const;
 
     void load( QDataStream& );
     void save( QDataStream& ) const;
@@ -225,10 +209,6 @@ private:
 
     QVariantPrivate* d;
 };
-
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator== ( const QVariant&, const QVariant& );
-#endif
 
 class QVariantPrivate : public QShared
 {
@@ -248,109 +228,6 @@ public:
 	double d;
 	void *ptr;
     } value;
-
-    const QVariantTypeBase* custom_type;
-};
-
-class QVariantTypeBase
-{
-public:
-    QVariantTypeBase( const char* type );
-    virtual ~QVariantTypeBase();
-
-    virtual void* create() const = 0;
-    virtual void destroy( void* ) const = 0;
-    virtual void* copy( const void* ) const = 0;
-
-    virtual void save( const void*, QDataStream& ) const = 0;
-    virtual void load( void*, QDataStream& ) const = 0;
-
-    virtual void* castFrom( const QVariant& ) const;
-    virtual QVariant castTo( const void* ptr, QVariant::Type ) const;
-    virtual void* castTo( const void* ptr, const QVariantTypeBase* type ) const;
-
-    virtual bool canCastTo( const QVariantTypeBase* type ) const;
-    virtual bool canCastTo( QVariant::Type ) const;
-    virtual bool canCastFrom( const QVariantTypeBase* type ) const;
-    virtual bool canCastFrom( QVariant::Type ) const;
-
-    const char* typeName() const;
-
-    static const QVariantTypeBase* type( const char* t );
-
-private:
-    QCString m_type;
-};
-
-/**
- * Template for convenience.
- */
-template <class T>
-class QVariantType : public QVariantTypeBase
-{
-public:
-    QVariantType( const char* type ) : QVariantTypeBase( type ) { };
-    ~QVariantType() { };
-
-    void* create() const { return new T; }
-    void destroy( void* ptr ) const { delete (T*)ptr; }
-    void* copy( const void* ptr ) const
-        { return new T( (const T&)*((const T*)ptr) ); }
-    void save( const void* ptr, QDataStream& str ) const { str << *((T*)ptr); }
-    void load( void* ptr, QDataStream& str ) const { str >> *((T*)ptr); }
-};
-
-/**
- * Dieses Ding wird in QVariant gespeichert.
- * CopyConstructor und Delete funktionieren mit Hilfe von QVariantTypeBase
- */
-class QVariantValueBase
-{
-public:
-    QVariantValueBase( const QVariantTypeBase* t ) { ptr = 0; typ = t; }
-    QVariantValueBase( void* p, const QVariantTypeBase* t ) { ptr = p; typ = t; }
-    QVariantValueBase( const QVariantValueBase& p ) { typ = p.typ; if ( typ ) ptr = typ->copy( p.ptr ); else ptr = 0; }
-    ~QVariantValueBase() { if ( ptr && typ ) typ->destroy( ptr ); }
-
-    bool isNull() const { return ( ptr == 0 || typ == 0 ); }
-
-    void* value() { return ptr; }
-    const void* value() const { return ptr; }
-    const QVariantTypeBase* type() const { return typ; }
-
-protected:
-    void assign( const QVariant& v ) { if ( ptr ) typ->destroy( ptr ); ptr = v.toCustom( typ ); }
-    void assign( void* p ) { if ( ptr ) typ->destroy( ptr ); ptr = p; }
-    void assign( QVariantValueBase& p ) { if ( ptr ) typ->destroy( ptr ); typ = p.typ; if ( typ ) ptr = typ->copy( p.ptr ); else ptr = 0; }
-
-private:
-    void* ptr;
-    const QVariantTypeBase* typ;
-};
-
-template< class V, class T >
-class QVariantValue : public QVariantValueBase
-{
-public:
-    QVariantValue() : QVariantValueBase( T::type() ) { }
-    QVariantValue( const QVariant& v ) : QVariantValueBase( T::type() ) { assign( v ); }
-    QVariantValue( const V& v ) : QVariantValueBase( new V( v ), T::type() ) { }
-    QVariantValue( const QVariantValue<V,T>& ptr ) : QVariantValueBase( ptr ) { }
-
-    QVariantValue<V,T>& operator=( const QVariantValue<V,T>& v ) { assign( v ); return *this; }
-    QVariantValue<V,T>& operator=( const QVariant& v ) { assign( v ); return *this; }
-    QVariantValue<V,T>& operator=( const V& v ) { assign( new V( v ) ); return *this; }
-
-    const V* operator->() const { return (V*)value(); }
-    V* operator->() { return (V*)value(); }
-    const V& operator*() const { return *((V*)value()); }
-    V& operator*() { return *((V*)value()); }
-    operator const V*() const { return (V*)value(); }
-    operator V*() { return (V*)value(); }
-
-private:
-    bool operator==( QVariantValue<V,T>& v ) { return FALSE; }
-    bool operator!=( QVariantValue<V,T>& v ) { return FALSE; }
 };
 
 // These header files are down here for GCC 2.7.* compatibility

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -40,10 +40,9 @@ public:
     QMenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
-    int pressedItem;
 };
 QMenuDataData::QMenuDataData()
-    : aInt(-1), pressedItem( -1 )
+    : aInt(-1)
 {}
 
 // NOT REVISED
@@ -136,6 +135,7 @@ QMenuData::QMenuData()
     mouseBtDn = FALSE;
     badSize = TRUE;
     avoid_circularity = 0;
+    actItemDown = FALSE;
     d = new QMenuDataData;
 }
 
@@ -221,13 +221,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 			  QPopupMenu *popup, const QIconSet* iconset, int id, int index,
 			  QWidget* widget, QCustomMenuItem* custom )
 {
-    if ( index > (int)mitems->count() ) {
-#if defined(CHECK_RANGE)
-	qWarning( "QMenuData::insertItem: Index %d out of range", index );
-#endif
-	return 0;
-    }
-    if ( index < 0 )				// append
+    if ( index < 0 || index > (int) mitems->count() )	// append
 	index = mitems->count();
     if ( id < 0 )				// -2, -3 etc.
 	id = get_seq_id();
@@ -245,6 +239,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->is_separator = TRUE;		// separator
     } else {
 	mi->text_data = text?*text:QString::null;
+	mi->accel_key = Qt::Key_unknown;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	mi->popup_menu = popup;
@@ -588,9 +583,9 @@ int QMenuData::insertItem( const QIconSet& icon,
 /*!\overload
   Inserts a menu item that consists of the widget \a widget.
 
-  This only works with popup menus. It is not supported for menu bars.
-  Ownership of \a widget is transferred to the popup menu.
-
+  Ownership of \a widget is transferred to the popup menu or the
+  menubar.
+  
   Theoretically, any widget can be inserted into a popup menu. In
   practise, this only makes sense with certain widgets.
 
@@ -878,6 +873,8 @@ void QMenuData::changeItem( int id, const QString &text )
 	    mi->pixmap_data = 0;
 	}
 	mi->text_data = text;
+	if ( !mi->accel_key && text.find( '\t' ) != -1 )
+	    mi->accel_key = Qt::Key_unknown;
 	parent->menuContentsChanged();
     }
 }

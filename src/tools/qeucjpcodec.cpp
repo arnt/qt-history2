@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -31,7 +31,7 @@
 
   \brief Provides conversion to and from EUC-CP character sets
 
-  The QJisCodec class subclasses QTextCodec to provide support for
+  The QEucJpCodec class subclasses QTextCodec to provide support for
   EUC-JP, the main legacy encoding for UNIX machines in Japan.
 
   The environment variable \c UNICODEMAP_JP can be used to fine-tune how
@@ -436,6 +436,9 @@ public:
     }
 };
 
+/*!
+  \reimp
+*/
 QTextDecoder* QEucJpCodec::makeDecoder() const
 {
     return new QEucJpDecoder(conv);

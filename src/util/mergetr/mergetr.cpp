@@ -10,9 +10,9 @@
 #include <qfile.h>
 #include <qbuffer.h>
 #include <qtextstream.h>
-#include <stdlib.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 bool isEmpty( const QString& line )
 {
@@ -55,7 +55,6 @@ QString extractContents( const QString& line )
 	    if ( inStr ) {
 		if ( line[pos] == '\\') {
 		    pos++;
-		    // if ( pos >= line.length() ) qWarning(...);
 		    switch (char(line[pos]) ) {
 		    case 'n':
 			contents += '\n';
@@ -84,10 +83,6 @@ QString extractContents( const QString& line )
 		    }
 		} else {
  		    contents += line[pos];
-		}
-	    } else {
-		if ( !line[pos].isSpace() ) {
-		    //qWarning( "mergetr: %s", line.ascii() );
 		}
 	    }
 	    pos++;
@@ -148,16 +143,10 @@ Item getItem( QTextStream &str, QString &s )
 		r += "\n";
 	    }
 	    i.msgstr = r;
-	    //qDebug( "found msgstr, next s = '%s'", s.ascii() );
 	} else {
-	    //qDebug( "skipping %s", s.ascii() );
 	    s = str.readLine().stripWhiteSpace();
 	}
     }
-    //qDebug( "getItem: %s -> %s U:%s S:%s",
-    //	       i.msgid.ascii(), i.msgstr.ascii(),
-    //	       i.usercomments.ascii(), i.systemcomments.ascii() );
-
     return i;
 }
 
@@ -185,7 +174,6 @@ void writecomment( QTextStream &str, const QString &s )
 void writemerge( QTextStream &str, const Item &i1, const Item &i2 )
 {
     nMerge++;
-    //qDebug( "writemerge" );
     if ( !i2.usercomments.isEmpty() )
 	str << i2.usercomments;
     if ( !i1.systemcomments.isEmpty() )
@@ -197,7 +185,6 @@ void writemerge( QTextStream &str, const Item &i1, const Item &i2 )
 void writenew( QTextStream &str, const Item &i1 )
 {
     nNew++;
-    //qDebug( "writenew" );
     if ( !i1.usercomments.isEmpty() )
 	str << i1.usercomments;
     if ( !i1.systemcomments.isEmpty() )
@@ -210,7 +197,6 @@ void writenew( QTextStream &str, const Item &i1 )
 void writeold( QTextStream &str, const Item &i2 )
 {
     nOld++;
-    //qDebug( "writeold" );
     writecomment( str, i2.usercomments );
     writecomment( str, i2.systemcomments );
     writecomment( str, i2.msgid );
@@ -221,7 +207,6 @@ void writeold( QTextStream &str, const Item &i2 )
 void writejunk( QTextStream &str, const Item &it )
 {
     nJunk++;
-    //qDebug( "writejunk" );
     if ( !it.usercomments.isEmpty() )
 	str << it.usercomments;
     writecomment( str,  it.systemcomments );
@@ -289,7 +274,6 @@ void merge( const QString& newname, const QString& oldname,
 	    i1 = getItem( in1, buf1 );
 	    i2 = getItem( in2, buf2 );
 	} else if ( s == First ) {
-	    //i1 < i2 || i2 == 0
 	    writenew( out, i1 );
 	    i1 = getItem( in1, buf1 );
 	} else if ( s == FirstJunk ) {
@@ -297,7 +281,6 @@ void merge( const QString& newname, const QString& oldname,
 	    writejunk( out, i1 );
 	    i1 = getItem( in1, buf1 );
 	} else if ( s == Second ) {
-	    //i1 > i2 || i1 == 0
 	    writeold( out, i2 );
 	    i2 = getItem( in2, buf2 );
 	} else if ( s == SecondJunk ) {
@@ -324,17 +307,17 @@ int main( int argc, char* argv[] )
     int orgfile = 1;
     int newfile = 2;
 
-    if ( argc <= newfile ) {
-	qWarning("usage: %s  orgfile newfile [outfile]", argv[0]);
+    if ( argc <= newfile || argc > 1 && argv[1][0] == '-') {
+	printf("usage: %s  orgfile newfile [outfile]\n", argv[0]);
 	exit(1);
     }
 
     merge( argv[newfile], argv[orgfile],
 	   argc > newfile+1 ? argv[newfile+1] : argv[orgfile] );
 
-    qDebug( "Merged %d entries, added %d new entries and removed %d entries",
+    printf( "Merged %d entries, added %d new entries and removed %d entries\n",
 	    nMerge, nNew, nOld );
     if ( nJunk > 0 )
-	qDebug( "Found %d junk entries", nJunk );
+	printf( "Found %d junk entries\n", nJunk );
     return 0;
 }

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -73,6 +73,8 @@ public:
 	ShowNormal = 23,	       		// widget is shown normal
 	WindowActivate = 24,	       		// window was activated
 	WindowDeactivate = 25,	       		// window was deactivated
+	ShowToParent = 26,	       		// widget is shown to parent
+	HideToParent = 27,	       		// widget is hidden to parent
 	Accel = 30,				// accelerator event
 	Wheel = 31,				// wheel event
 	AccelAvailable = 32,			// accelerator available event
@@ -308,7 +310,7 @@ protected:
 
 
 // This class is rather closed at the moment.  If you need to create your
-// own DND event objects, write to qt-bugs@troll.no and we'll try to
+// own DND event objects, write to qt-bugs@trolltech.com and we'll try to
 // find a way to extend it so it covers your needs.
 
 class Q_EXPORT QDropEvent : public QEvent, public QMimeSource

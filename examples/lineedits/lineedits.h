@@ -11,12 +11,12 @@
 #ifndef LINEDITS_H
 #define LINEDITS_H
 
-#include <qvbox.h>
+#include <qgroupbox.h>
 
 class QLineEdit;
 class QComboBox;
 
-class LineEdits : public QVBox
+class LineEdits : public QGroupBox
 {
     Q_OBJECT
 

@@ -54,8 +54,7 @@ class QDragger : public QObject
     Q_OBJECT
 public:
     QDragger();
-    ~QDragger()
-    {}
+    ~QDragger();
     
     bool notify( QObject *, QEvent * ); // event filter
     void closeDropWindow( DropWindow * );
@@ -86,7 +85,7 @@ private:
     QWidget		  *hostWidget;
     QCursor		   cursor;
 
-    QPopupMenu		   menu;
+    QPopupMenu*		   menu;
     QPoint		   clickOffset;
     QColor		   dragBackground;
     QColor		   dragForeground;
@@ -139,23 +138,30 @@ QDragger::QDragger()
     draggedDict.setAutoDelete( TRUE );
     dropDict   .setAutoDelete( TRUE );
 
-    menu.insertItem( "Open drop window" );
-    menu.insertItem( "Kill drop window" );
-    menu.insertItem( "Kill all drop windows" );
-    menu.insertSeparator();
-//    menu.insertItem( "Send child home" );
-    menu.insertItem( "Send all children home" );
+    menu = new QPopupMenu;
+    menu->insertItem( "Open drop window", 1 );
+    menu->insertItem( "Kill drop window", 2 );
+    menu->insertItem( "Kill all drop windows", 3 );
+    menu->insertSeparator();
+//    menu->insertItem( "Send child home", 4 );
+    menu->insertItem( "Send all children home", 5 );
 
-    menu.connectItem( 0, this, SLOT(openDropWindow()) );
-    menu.connectItem( 1, this, SLOT(killDropWindow()) );
-    menu.connectItem( 2, this, SLOT(killAllDropWindows()) );
-//    menu.connectItem( 4, this, SLOT(sendChildHome()) );
-    menu.connectItem( 4, this, SLOT(sendAllChildrenHome()) );
+    menu->connectItem( 1, this, SLOT(openDropWindow()) );
+    menu->connectItem( 2, this, SLOT(killDropWindow()) );
+    menu->connectItem( 3, this, SLOT(killAllDropWindows()) );
+//    menu->connectItem( 4, this, SLOT(sendChildHome()) );
+    menu->connectItem( 5, this, SLOT(sendAllChildrenHome()) );
 }
+
+QDragger::~QDragger()
+{
+    delete menu;
+}
+
 
 bool QDragger::notify( QObject *o, QEvent *e )
 {
-    if ( !o->isWidgetType() || o == &menu )
+    if ( !o->isWidgetType() || o == menu )
 	return FALSE;
     switch( e->type() ) {
 	case QEvent::MouseMove:
@@ -243,7 +249,7 @@ bool QDragger::dragEvent( QWidget *w, QMouseEvent *e )
 		 isParentToDragged( w )	|| // has had widget children
 		 w->parentWidget() == 0 ) {       // is top level window
 		hostWidget = w;
-		menu.popup( w->mapToGlobal( e->pos() ) );
+		menu->popup( w->mapToGlobal( e->pos() ) );
 		return TRUE;
 	    }
 	    if ( !draggedDict.find( (long) w ) ) {

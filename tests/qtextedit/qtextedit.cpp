@@ -18,6 +18,7 @@
 #include <qcolordialog.h>
 #include <qfontdialog.h>
 #include <qstylesheet.h>
+#include <qdragobject.h>
 
 QPixmap *QTextEdit::bufferPixmap( const QSize &s )
 {
@@ -63,6 +64,7 @@ void QTextEdit::init()
     currentParagType = Normal;
 
     viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setAcceptDrops( TRUE );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
 
@@ -94,6 +96,10 @@ void QTextEdit::init()
     connect( blinkTimer, SIGNAL( timeout() ),
 	     this, SLOT( blinkCursor() ) );
 
+    dragStartTimer = new QTimer( this );
+    connect( dragStartTimer, SIGNAL( timeout() ),
+	     this, SLOT( startDrag() ) );
+
     formatMore();
 
     completionPopup = new QVBox( this, 0, WType_Popup );
@@ -107,7 +113,8 @@ void QTextEdit::init()
     completionOffset = 0;
 
     blinkCursorVisible = FALSE;
-    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+
+    mLines = -1;
 
     connect( this, SIGNAL( textChanged() ),
 	     this, SLOT( setModified() ) );
@@ -115,6 +122,7 @@ void QTextEdit::init()
 
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
+    bool drawCur = hasFocus() || viewport()->hasFocus();
     if ( !doc->firstParag() )
 	return;
 
@@ -167,7 +175,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
 			  colorGroup().color( QColorGroup::Base ) );
 	
-	parag->paint( painter, colorGroup(), cursor, TRUE );
+	parag->paint( painter, colorGroup(), drawCur ? cursor : 0, TRUE );
 	
 	p->drawPixmap( parag->rect().topLeft(), *doubleBuffer, QRect( QPoint( 0, 0 ), s ) );
 	if ( parag->rect().x() + parag->rect().width() < contentsX() + contentsWidth() )
@@ -227,6 +235,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	moveCursor( MovePgDown, e->state() & ShiftButton, e->state() & ControlButton );
 	break;
     case Key_Return: case Key_Enter:
+	if ( mLines == 1 )
+	    break;
 	doc->removeSelection( QTextEditDocument::Standard );
 	// ########### should be optimized to use QWidget::scroll here
 	// ########### this will make it MUCH faster!
@@ -565,7 +575,8 @@ void QTextEdit::ensureCursorVisible()
 
 void QTextEdit::drawCursor( bool visible )
 {
-    if ( !cursor->parag()->isValid() )
+    if ( !cursor->parag()->isValid() || 
+	 ( !hasFocus() && !viewport()->hasFocus() ) )
 	return;
 
     cursorVisible = visible;
@@ -636,6 +647,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
     undoRedoInfo.clear();
     QTextEditCursor c = *cursor;
     mousePos = e->pos();
+    mightStartDrag = FALSE;
 
     if ( e->button() == LeftButton ) {
 	mousePressed = TRUE;
@@ -643,6 +655,14 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	placeCursor( e->pos() );
 	ensureCursorVisible();
 
+	if ( doc->inSelection( QTextEditDocument::Standard, e->pos() ) ) {
+	    mightStartDrag = TRUE;
+	    drawCursor( TRUE );
+	    dragStartTimer->start( QApplication::startDragTime(), TRUE );
+	    dragStartPos = e->pos();
+	    return;
+	}
+	
 	bool redraw = FALSE;
 	if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
 	    if ( !( e->state() & ShiftButton ) ) {
@@ -677,6 +697,12 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 {
     if ( mousePressed ) {
+	if ( mightStartDrag ) {
+	    dragStartTimer->stop();
+	    if ( ( e->pos() - dragStartPos ).manhattanLength() > QApplication::startDragDistance() )
+		startDrag();
+	    return;
+	}
 	mousePos = e->pos();
 	doAutoScroll();
 	oldMousePos = mousePos;
@@ -685,8 +711,14 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 {
+    if ( dragStartTimer->isActive() )
+	dragStartTimer->stop();
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
+    if ( mightStartDrag ) {
+	selectAll( FALSE );
+	mousePressed = FALSE;
+    }
     if ( mousePressed ) {
 	if ( !doc->selectedText( QTextEditDocument::Standard ).isEmpty() )
 	    doc->copySelectedText( QTextEditDocument::Standard );
@@ -715,6 +747,40 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * )
 
     inDoubleClick = TRUE;
     mousePressed = TRUE;
+}
+
+void QTextEdit::contentsDragEnterEvent( QDragEnterEvent *e )
+{
+    e->acceptAction();
+}
+
+void QTextEdit::contentsDragMoveEvent( QDragMoveEvent *e )
+{
+    drawCursor( FALSE );
+    placeCursor( e->pos(),  cursor );
+    drawCursor( TRUE );
+    e->acceptAction();
+}
+
+void QTextEdit::contentsDragLeaveEvent( QDragLeaveEvent * )
+{
+}
+
+void QTextEdit::contentsDropEvent( QDropEvent *e )
+{
+    e->acceptAction();
+    QString text;
+    int i = -1;
+    while ( ( i = text.find( '\r' ) ) != -1 )
+	text.replace( i, 1, "" );
+    if ( QTextDrag::decode( e, text ) ) {
+ 	if ( ( e->source() == this ||
+	       e->source() == viewport() ) &&
+	     e->action() == QDropEvent::Move ) {
+	    removeSelectedText();
+	}
+	insert( text, FALSE, TRUE );
+    }
 }
 
 void QTextEdit::doAutoScroll()
@@ -968,7 +1034,17 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
+    } else if ( ( o == this || o == viewport() ) ) {
+	if ( e->type() == QEvent::FocusIn ) {
+	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
+	    return FALSE;
+	} else if ( e->type() == QEvent::FocusOut ) {
+	    blinkTimer->stop();
+	    drawCursor( FALSE );
+	    return TRUE;
+	}
     }
+		
 
     return QScrollView::eventFilter( o, e );
 }
@@ -977,6 +1053,10 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
 {
     if ( readOnly )
 	return;
+
+    QString txt( text );
+    if ( mLines == 1 )
+	txt = txt.replace( QRegExp( "\n" ), " " );
 
     drawCursor( FALSE );
     if ( doc->hasSelection( QTextEditDocument::Standard ) ) {
@@ -997,17 +1077,17 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine )
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
     int idx = cursor->index();
-    cursor->insert( text, checkNewLine );
+    cursor->insert( txt, checkNewLine );
     if ( !doc->syntaxHighlighter() )
-	cursor->parag()->setFormat( idx, text.length(), currentFormat, TRUE );
+	cursor->parag()->setFormat( idx, txt.length(), currentFormat, TRUE );
 		
-    if ( indent && text == "{" || text == "}" )
+    if ( indent && txt == "{" || txt == "}" )
 	cursor->indent();
     formatMore();
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    undoRedoInfo.text += text;
+    undoRedoInfo.text += txt;
 
     emit textChanged();
 }
@@ -1118,6 +1198,7 @@ void QTextEdit::setFormat( QTextEditFormat *f, int flags )
 	repaintChanged();
 	formatMore();
 	drawCursor( TRUE );
+	emit textChanged();
     }
     if ( currentFormat && currentFormat->key() != f->key() ) {
 	currentFormat->removeRef();
@@ -1154,7 +1235,7 @@ void QTextEdit::setFormat( QStyleSheetItem *f )
 	fm.setPointSize( f->fontSize() );
     } else if ( f->logicalFontSize() != -1 ) {
 	flags |= QTextEditFormat::Size;
-	QFont fn( fm.font() );
+	QFont fn( doc->formatCollection()->defaultFormat()->font() );
 	f->styleSheet()->scaleFont( fn, f->logicalFontSize() );
 	fm.setPointSize( fn.pointSize() );
     }
@@ -1166,6 +1247,7 @@ void QTextEdit::setFormat( QStyleSheetItem *f )
 	flags |= QTextEditFormat::Color;
 	fm.setColor( f->color() );
     }
+
     setFormat( &fm, flags );
 
     if ( f->alignment() != -1 )
@@ -1207,6 +1289,7 @@ void QTextEdit::setParagType( ParagType t )
 	currentParagType = t;
 	emit currentParagTypeChanged( currentParagType );
     }
+    emit textChanged();
 }
 
 void QTextEdit::setAlignment( int a )
@@ -1236,6 +1319,7 @@ void QTextEdit::setAlignment( int a )
 	currentAlignment = a;
 	emit currentAlignmentChanged( currentAlignment );
     }
+    emit textChanged();
 }
 
 void QTextEdit::updateCurrentFormat()
@@ -1561,6 +1645,30 @@ int QTextEdit::alignment() const
     return currentAlignment;
 }
 
+void QTextEdit::startDrag()
+{
+    mousePressed = FALSE;
+    inDoubleClick = FALSE;
+    QDragObject *drag = new QTextDrag( doc->selectedText( QTextEditDocument::Standard ), viewport() );
+    if ( readOnly ) {
+	drag->dragCopy();
+    } else {
+	if ( drag->drag() && QDragObject::target() != this ) {
+	    doc->removeSelectedText( QTextEditDocument::Standard, cursor );
+	    repaintChanged();
+	}
+    }
+}
+
+void QTextEdit::selectAll( bool select )
+{
+    // ############## Implement that!!!
+    if ( !select ) {
+	doc->removeSelection( QTextEditDocument::Standard );
+	repaintChanged();
+    }
+}
+
 void QTextEdit::UndoRedoInfo::clear()
 {
     if ( valid() ) {
@@ -1574,3 +1682,19 @@ void QTextEdit::UndoRedoInfo::clear()
     index = -1;
 }
 
+void QTextEdit::setMaxLines( int l )
+{
+    mLines = l;
+}
+
+int QTextEdit::maxLines() const
+{
+    return mLines;
+}
+
+void QTextEdit::resetFormat()
+{
+    setAlignment( Qt::AlignLeft );
+    setParagType( QTextEdit::Normal );
+    setFormat( doc->formatCollection()->defaultFormat(), QTextEditFormat::Format );
+}

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -56,7 +56,7 @@
 
 	// sort the list, Arnt's now first
 	list.sort();
-	
+
 	// print it out
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	    printf( "%s \n", (*it).latin1() );
@@ -101,8 +101,6 @@
 
   Sorting is very fast. It uses the Qt Template Library's
   efficient HeapSort implementation that operates in O(n*log n).
-
-  \sa qHeapSort()
 */
 void QStringList::sort()
 {

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -57,7 +57,6 @@ QVariantPrivate::QVariantPrivate()
     qv_count++;
 #endif
     typ = QVariant::Invalid;
-    custom_type = 0;
 }
 
 QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
@@ -65,15 +64,10 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 #ifdef QVARIANT_DEBUG
     qv_count++;
 #endif
-    custom_type = 0;
 
     switch( d->typ )
 	{
 	case QVariant::Invalid:
-	    break;
-	case QVariant::Custom:
-	    custom_type = d->custom_type;
-	    value.ptr = d->custom_type->copy( d->value.ptr );
 	    break;
 	case QVariant::Bitmap:
 	    value.ptr = new QBitmap( *((QBitmap*)d->value.ptr) );
@@ -171,10 +165,6 @@ void QVariantPrivate::clear()
 {
     switch( typ )
 	{
-	case QVariant::Custom:
-	    custom_type->destroy( value.ptr );
-	    custom_type = 0;
-	    break;
 	case QVariant::Bitmap:
 	    delete (QBitmap*)value.ptr;
 	    break;
@@ -671,48 +661,18 @@ QVariant::QVariant( const QValueList<QVariant>& val )
 }
 
 /*!
-  Constructs a new variant with a custom value. The variant creates
-  a copy of the custom value with the help of the passes \a type.
-  The QVariantTypeBase object must be alive as long as the variant
-  holds this custom value since the variant stores a pointer to
-  the \a type.
- */
-QVariant::QVariant( void* custom, const QVariantTypeBase* type )
-{
-    d = new QVariantPrivate;
-    if ( !custom || !type )
-	return;
-
-    d->custom_type = type;
-    d->typ = Custom;
-    d->value.ptr = d->custom_type->copy( custom );
-}
-
-/*!
-  Constructs a new variant with a custom value. This is a convenience
-  method that uses the QVariantValue template. If you have to deal with
-  variants and custom data types a lot then you might consider to use this
-  template since it gives you type checking and makes the source code nicer.
-*/
-QVariant::QVariant( const QVariantValueBase& v )
-{
-    d = new QVariantPrivate;
-    d->typ = Custom;
-    d->custom_type = v.type();
-    d->value.ptr = d->custom_type->copy( v.value() );
-}
-
-/*!
   Assigns the value of some \a other variant to this variant.
   This is a deep copy.
 */
 QVariant& QVariant::operator= ( const QVariant& variant )
 {
-    if ( d->deref() ) delete d;
-
     QVariant& other = (QVariant&)variant;
+
+    other.d->ref();
+    if ( d->deref() )
+	delete d;
+
     d = other.d;
-    d->ref();
 
     return *this;
 }
@@ -737,8 +697,6 @@ void QVariant::detach()
 */
 const char* QVariant::typeName() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->typeName();
     return typeToName( d->typ );
 }
 
@@ -763,7 +721,7 @@ void QVariant::clear()
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 26;
+static const int ntypes = 25;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -787,11 +745,10 @@ static const char* const type_map[ntypes] =
     "bool",
     "double",
     "QCString",
-    "PointArray",
-    "Region",
-    "Bitmap",
-    "Cursor",
-    "Custom"
+    "QPointArray",
+    "QRegion",
+    "QBitmap",
+    "QCursor"
 };
 
 /*!
@@ -815,8 +772,6 @@ QVariant::Type QVariant::nameToType( const char* name )
 	if ( !qstrcmp( type_map[i], name ) )
 	    return (Type) i;
     }
-    if ( QVariantTypeBase::type( name ) )
-	return Custom;
     return Invalid;
 }
 
@@ -834,20 +789,6 @@ void QVariant::load( QDataStream& s )
 	{
 	case Invalid:
 	    d->typ = t;
-	    break;
-	case Custom:
-	    {
-		QCString t;
-		s >> t;
-		d->custom_type = QVariantTypeBase::type( t );
-		if ( !d->custom_type )
-	        {
-		    d->typ = Invalid;
-		    return;
-		}
-		d->value.ptr = d->custom_type->create();
-		d->custom_type->load( d->value.ptr, s );
-	    }
 	    break;
 	case Map:
 	    { QMap<QString,QVariant>* x = new QMap<QString,QVariant>; s >> *x; d->value.ptr = x; }
@@ -938,10 +879,6 @@ void QVariant::save( QDataStream& s ) const
 
     switch( d->typ )
 	{
-	case Custom:
-	    s << d->custom_type->typeName();
-	    d->custom_type->save( d->value.ptr, s );
-	    break;
 	case Cursor:
 	    s << *((QCursor*)d->value.ptr);
 	    break;
@@ -1109,9 +1046,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*!
   Returns the variant as a QString if the variant has type()
-  String or CString, or QString::null otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  String or CString, or QString::null otherwise.
 
   \sa asString()
 */
@@ -1119,8 +1054,6 @@ const QString QVariant::toString() const
 {
     if ( d->typ == CString )
 	return QString::fromLatin1( toCString() );
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, String ).toString();
     if ( d->typ != String )
 	return QString::null;
 
@@ -1129,9 +1062,7 @@ const QString QVariant::toString() const
 
 /*!
   Returns the variant as a QCString if the variant has type()
-  CString, or a 0 otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  CString, or a 0 otherwise.
 
   \sa asCString()
 */
@@ -1141,17 +1072,13 @@ const QCString QVariant::toCString() const
 	return *((QCString*)d->value.ptr);
     if ( d->typ == String )
 	return ((QString*)d->value.ptr)->latin1();
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, CString ).toCString();
 
     return 0;
 }
 
 /*!
   Returns the variant as a QStringList if the variant has type()
-  StringList or List, or an empty list otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  StringList or List, or an empty list otherwise.
 
   \sa asStringList()
 */
@@ -1168,8 +1095,6 @@ const QStringList QVariant::toStringList() const
 	    lst.append( (*it).toString() );
 	return lst;
     }
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, StringList ).toStringList();
 
     return QStringList();
 }
@@ -1178,16 +1103,12 @@ const QStringList QVariant::toStringList() const
   \fn QMap<QString, QVariant> QVariant::toMap () const
 
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
-  Map, or an empty map otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Map, or an empty map otherwise.
 
   \sa asMap()
 */
 const QMap<QString,QVariant> QVariant::toMap() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Map ).toMap();
     if ( d->typ != Map )
 	return QMap<QString,QVariant>();
 
@@ -1196,16 +1117,12 @@ const QMap<QString,QVariant> QVariant::toMap() const
 
 /*!
   Returns the variant as a QFont if the variant has type()
-  Font, or the default font otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Font, or the default font otherwise.
 
   \sa asFont()
 */
 const QFont QVariant::toFont() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Font ).toFont();
     if ( d->typ != Font )
 	return QFont();
 
@@ -1214,16 +1131,12 @@ const QFont QVariant::toFont() const
 
 /*!
   Returns the variant as a QPixmap if the variant has type()
-  Pixmap, or a null pixmap otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Pixmap, or a null pixmap otherwise.
 
   \sa asPixmap()
 */
 const QPixmap QVariant::toPixmap() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Pixmap ).toPixmap();
     if ( d->typ != Pixmap )
 	return QPixmap();
 
@@ -1232,16 +1145,12 @@ const QPixmap QVariant::toPixmap() const
 
 /*!
   Returns the variant as a QImage if the variant has type()
-  Image, or a null image otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Image, or a null image otherwise.
 
   \sa asImage()
 */
 const QImage QVariant::toImage() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Image ).toImage();
     if ( d->typ != Image )
 	return QImage();
 
@@ -1250,16 +1159,12 @@ const QImage QVariant::toImage() const
 
 /*!
   Returns the variant as a QBrush if the variant has type()
-  Brush, or a default brush with black colors otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Brush, or a default brush with black colors otherwise.
 
   \sa asBrush()
 */
 const QBrush QVariant::toBrush() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Brush ).toBrush();
     if( d->typ != Brush )
 	return QBrush();
 
@@ -1268,16 +1173,12 @@ const QBrush QVariant::toBrush() const
 
 /*!
   Returns the variant as a QPoint if the variant has type()
-  Point, or a the point (0,0) otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Point, or a the point (0,0) otherwise.
 
   \sa asPoint()
 */
 const QPoint QVariant::toPoint() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Point ).toPoint();
     if ( d->typ != Point )
 	return QPoint();
 
@@ -1286,16 +1187,12 @@ const QPoint QVariant::toPoint() const
 
 /*!
   Returns the variant as a QRect if the variant has type()
-  Rect, or an empty rectangle otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Rect, or an empty rectangle otherwise.
 
   \sa asRect()
 */
 const QRect QVariant::toRect() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Rect ).toRect();
     if ( d->typ != Rect )
 	return QRect();
 
@@ -1304,16 +1201,12 @@ const QRect QVariant::toRect() const
 
 /*!
   Returns the variant as a QSize if the variant has type()
-  Size, or an invalid size otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Size, or an invalid size otherwise.
 
   \sa asSize()
 */
 const QSize QVariant::toSize() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Size ).toSize();
     if ( d->typ != Size )
 	return QSize();
 
@@ -1322,16 +1215,12 @@ const QSize QVariant::toSize() const
 
 /*!
   Returns the variant as a QColor if the variant has type()
-  Color, or an invalid color otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Color, or an invalid color otherwise.
 
   \sa asColor()
 */
 const QColor QVariant::toColor() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Color ).toColor();
     if ( d->typ != Color )
 	return QColor();
 
@@ -1340,16 +1229,12 @@ const QColor QVariant::toColor() const
 
 /*!
   Returns the variant as a QPalette if the variant has type()
-  Palette, or a completely black palette otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Palette, or a completely black palette otherwise.
 
   \sa asPalette()
 */
 const QPalette QVariant::toPalette() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Palette ).toPalette();
     if ( d->typ != Palette )
 	return QPalette();
 
@@ -1358,16 +1243,12 @@ const QPalette QVariant::toPalette() const
 
 /*!
   Returns the variant as a QColorGroup if the variant has type()
-  ColorGroup, or a completely black color group otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  ColorGroup, or a completely black color group otherwise.
 
   \sa asColorGroup()
 */
 const QColorGroup QVariant::toColorGroup() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, ColorGroup ).toColorGroup();
     if ( d->typ != ColorGroup )
 	return QColorGroup();
 
@@ -1376,16 +1257,12 @@ const QColorGroup QVariant::toColorGroup() const
 
 /*!
   Returns the variant as a QIconSet if the variant has type()
-  IconSet, or an icon set of null pixmaps otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  IconSet, or an icon set of null pixmaps otherwise.
 
   \sa asIconSet()
 */
 const QIconSet QVariant::toIconSet() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, IconSet ).toIconSet();
     if ( d->typ != IconSet )
 	return QIconSet();
 
@@ -1394,16 +1271,12 @@ const QIconSet QVariant::toIconSet() const
 
 /*!
   Returns the variant as a QPointArray if the variant has type()
-  PointArray, or an empty QPointArray otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  PointArray, or an empty QPointArray otherwise.
 
   \sa asPointArray()
 */
 const QPointArray QVariant::toPointArray() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, PointArray ).toPointArray();
     if ( d->typ != PointArray )
 	return QPointArray();
 
@@ -1412,16 +1285,12 @@ const QPointArray QVariant::toPointArray() const
 
 /*!
   Returns the variant as a QBitmap if the variant has type()
-  Bitmap, or a null QBitmap otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Bitmap, or a null QBitmap otherwise.
 
   \sa asBitmap()
 */
 const QBitmap QVariant::toBitmap() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Bitmap ).toBitmap();
     if ( d->typ != Bitmap )
 	return QBitmap();
 
@@ -1430,16 +1299,12 @@ const QBitmap QVariant::toBitmap() const
 
 /*!
   Returns the variant as a QRegion if the variant has type()
-  Region, or an empty QRegion otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Region, or an empty QRegion otherwise.
 
   \sa asRegion()
 */
 const QRegion QVariant::toRegion() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Region ).toRegion();
     if ( d->typ != Region )
 	return QRegion();
 
@@ -1448,16 +1313,12 @@ const QRegion QVariant::toRegion() const
 
 /*!
   Returns the variant as a QCursor if the variant has type()
-  Cursor, or the default arrow cursor otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Cursor, or the default arrow cursor otherwise.
 
-  \sa asCustom()
+  \sa asCursor()
 */
 const QCursor QVariant::toCursor() const
 {
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Cursor ).toCursor();
     if ( d->typ != Cursor )
 	return QCursor();
 
@@ -1466,9 +1327,7 @@ const QCursor QVariant::toCursor() const
 
 /*!
   Returns the variant as an int if the variant has type()
-  Int, UInt, Double or Bool, or 0 otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Int, UInt, Double or Bool, or 0 otherwise.
 
   \sa asInt()
 */
@@ -1482,8 +1341,6 @@ int QVariant::toInt() const
 	return (int)d->value.d;
     if ( d->typ == Bool )
 	return (int)d->value.b;
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Int ).toInt();
 
     /* if ( d->typ == String )
 	return ((QString*)d->value.ptr)->toInt();
@@ -1494,9 +1351,7 @@ int QVariant::toInt() const
 
 /*!
   Returns the variant as an unsigned int if the variant has type()
-  UInt, Int, Double or Bool, or 0 otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  UInt, Int, Double or Bool, or 0 otherwise.
 
   \sa asUInt()
 */
@@ -1510,8 +1365,6 @@ uint QVariant::toUInt() const
 	return (int)d->value.d;
     if ( d->typ == Bool )
 	return (int)d->value.b;
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, UInt ).toUInt();
 
     /* if ( d->typ == String )
 	return ((QString*)d->value.ptr)->toInt();
@@ -1526,9 +1379,6 @@ uint QVariant::toUInt() const
   the types Int, UInt, Double. In this case TRUE is returned if the numerical
   value is not zero or FALSE otherwise.
 
-  But if the type is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
-
   \sa asBool()
 */
 bool QVariant::toBool() const
@@ -1541,8 +1391,6 @@ bool QVariant::toBool() const
 	return d->value.i != 0;
     if ( d->typ == UInt )
 	return d->value.u != 0;
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Bool ).toBool();
 
     /* if ( d->typ == String )
 	return *((QString*)d->value.ptr) == "true";
@@ -1553,9 +1401,7 @@ bool QVariant::toBool() const
 
 /*!
   Returns the variant as a double if the variant has type()
-  Double, Int, UInt or Bool, or 0.0 otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  Double, Int, UInt or Bool, or 0.0 otherwise.
 
   \sa asDouble()
 */
@@ -1573,16 +1419,12 @@ double QVariant::toDouble() const
 	return ((QString*)d->value.ptr)->toDouble();
     if ( d->typ == CString )
     return ((QCString*)d->value.ptr)->toDouble(); */
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, Double ).toDouble();
     return 0.0;
 }
 
 /*!
   Returns the variant as a QValueList<QVariant> if the variant has type()
-  List or StringList, or an empty list otherwise. But if the type
-  is Custom then the associated QVariantTypeBase is asked to do the
-  conversion if possible.
+  List or StringList, or an empty list otherwise.
 
   \sa asList()
 */
@@ -1598,140 +1440,13 @@ const QValueList<QVariant> QVariant::toList() const
 	    lst.append( QVariant( *it ) );
 	return lst;
     }
-    if ( d->typ == Custom )
-	return d->custom_type->castTo( d->value.ptr, List ).toList();
 
     return QValueList<QVariant>();
 }
 
-/*!
-  Returns a copy of a custom data type. If the variant currently
-  stores a value of the requested \a type, then just a copy is returned.
-
-  If a custom value of another type is stored, then \a type is first
-  asked wether it can do the conversion. If that is not possible, then
-  customType() is queried wether it can convert the stored value to \a type.
-
-  If a basic value like String, List, Image etc. is stored in the variant
-  then \a type is asked to do the conversion if possible.
-
-  If no conversion was possible then 0 is returned.
-
-  The caller takes over ownership of the returned copy.
-
-  \sa asCustom() canCast()
-*/
-void* QVariant::toCustom( const QVariantTypeBase* type ) const
-{
-    if ( type == 0 )
-	return 0;
-
-    // Both the same custom type ?
-    if ( d->typ == Custom && type == d->custom_type )
-	return d->custom_type->copy( d->value.ptr );
-
-    // Both custom types, but different ones ?
-    if ( d->typ == Custom )
-    {
-	// Can the passes type do the conversion
-	if ( type->canCastFrom( d->custom_type ) )
-	    return type->castFrom( *this );
-	// Can our type do the conversion ?
-	if ( d->custom_type->canCastTo( type ) )
-	    return d->custom_type->castTo( d->value.ptr, type );
-	return 0;
-    }
-
-    // This is a basic type that is to be converted to
-    // a custom type.
-    return type->castFrom( *this );
-}
-
-/*!
-  Returns the variant's custom value as void pointer or 0, if the
-  variant is no custom type.
-
-  \sa toCustom() canCast()
- */
-const void* QVariant::asCustom() const
-{
-    if ( d->typ != Custom )
-	return 0;
-    return d->value.ptr;
-}
-
-/*!
-  Returns the variant's custom value as void pointer or 0, if the
-  variant is no custom type.
-
-  \sa toCustom() canCast()
- */
-void* QVariant::asCustom()
-{
-    if ( d->typ != Custom )
-	return 0;
-    return d->value.ptr;
-}
-
-/*!
-  Tries to convert the Variant to \a type. If that succeeds then
-  a pointer to the stored custom value is returned. The caller does
-  NOT have ownership in contrast to toCustom().
-  If the conversion is impossible then the variant does not change and
-  0 is returned.
-
-  The steps taken to make the conversion possible are the same as documented
-  in toCustom().
-
-  \sa toCustom() canCast()
- */
-void* QVariant::asCustom( const QVariantTypeBase* type )
-{
-    if ( type == 0 )
-	return 0;
-
-    // Both the same custom type ?
-    if ( d->typ == Custom && type == d->custom_type )
-	return d->value.ptr;
-
-    // Both custom types, but different ones ?
-    if ( d->typ == Custom ) {
-	// Can the passes type do the conversion
-	if ( type->canCastFrom( d->custom_type ) ) {
-	    void* ptr = type->castFrom( *this );
-	    if ( !ptr )
-		return 0;
-	    clear();
-	    d->custom_type = type;
-	    d->value.ptr = ptr;
-	    return ptr;
-	}
-	// Can our type do the conversion ?
-	if ( d->custom_type->canCastTo( type ) ) {
-	    void* ptr = d->custom_type->castTo( d->value.ptr, type );
-	    if ( !ptr )
-		return 0;
-	    clear();
-	    d->custom_type = type;
-	    d->value.ptr = ptr;
-	    return ptr;
-	}
-	return 0;
-    }
-
-    // This is a basic type that is to be converted to
-    // a custom type.
-    void* ptr = type->castFrom( *this );
-    if ( !ptr )
-	return 0;
-    clear();
-    d->custom_type = type;
-    d->value.ptr = ptr;
-    return ptr;
-}
 
 #define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
-   if ( d->typ != ##f ) *this = QVariant( to##f() ); else detach(); return *((Q##f*)d->value.ptr);}
+   if ( d->typ != f ) *this = QVariant( to##f() ); else detach(); return *((Q##f*)d->value.ptr);}
 
 Q_VARIANT_AS(String)
 Q_VARIANT_AS(CString)
@@ -2033,9 +1748,6 @@ QMap<QString,QVariant>& QVariant::asMap()
                             something that can be casted to a string ).
   <li> StringList -> List
   </ul>
-
-  If the stored value is a custom type then customType() is asked wether it
-  can do the requested conversion.
 */
 bool QVariant::canCast( Type t ) const
 {
@@ -2065,119 +1777,86 @@ bool QVariant::canCast( Type t ) const
 	}
 	return TRUE;
     }
-    if ( d->typ == Custom )
-	return d->custom_type->canCastTo( t );
 
     return FALSE;
 }
 
-/*!
-  Returns TRUE if the current type of the variant can be casted to
-  the requested custom QVariantType \a type.
-
-  Casting is possible if one of the following steps succeeds
-  <ul>
-  <li> The stored value is a custom value of type \a type.
-  <li> \a type can cast the stored custom value to the requested type.
-  <li> customType() can cast the stored custom value to the requested type.
-  <li> \a type can cast the stored value - which is a basic data type - to the requested type.
-  </ul>
-
-  Otherwise FALSE is returned.
+/*!  Compares this QVariant with \a v and returns TRUE if they are
+  equal, FALSE othervise.
 */
-bool QVariant::canCast( const QVariantTypeBase* type ) const
-{
-    if ( type == 0 )
-	return FALSE;
 
-    if ( d->typ == Custom ) {
-	if ( type == d->custom_type )
-	    return TRUE;
-	if ( type->canCastFrom( d->custom_type ) )
-	    return TRUE;
-	if ( d->custom_type->canCastTo( type ) )
-	    return TRUE;
+bool QVariant::operator==( const QVariant &v ) const
+{
+    switch( d->typ ) {
+    case Cursor:
+	return v.toCursor().shape() == toCursor().shape();
+    case Bitmap:
+	return v.toBitmap().serialNumber() == toBitmap().serialNumber();
+    case PointArray:
+	return v.toPointArray() == toPointArray();
+    case Region:
+	return v.toRegion() == toRegion();
+    case List:
+	return v.toList() == toList();
+    case Map: {
+	if ( v.toMap().count() != toMap().count() )
+	    return FALSE;
+	QMap<QString, QVariant>::ConstIterator it = v.toMap().begin();
+	QMap<QString, QVariant>::ConstIterator it2 = toMap().begin();
+	for ( ; it != v.toMap().end(); ++it ) {
+	    if ( *it != *it2 )
+		return FALSE;
+	}
+	return TRUE;
+    }
+    case String:
+	return v.toString() == toString();
+    case CString:
+	return v.toCString() == toCString();
+    case StringList:
+	return v.toStringList() == toStringList();
+    case Font:
+	return v.toFont() == toFont();
+    case Pixmap:
+	return v.toPixmap().serialNumber() == toPixmap().serialNumber();
+    case Image:
+	return v.toImage() == toImage();
+    case Brush:
+	return v.toBrush() == toBrush();
+    case Point:
+	return v.toPoint() == toPoint();
+    case Rect:
+	return v.toRect() == toRect();
+    case Size:
+	return v.toSize() == toSize();
+    case Color:
+	return v.toColor() == toColor();
+    case Palette:
+	return v.toPalette() == toPalette();
+    case ColorGroup:
+	return v.toColorGroup() == toColorGroup();
+    case IconSet:
+	return v.toIconSet().pixmap().serialNumber() == toIconSet().pixmap().serialNumber();
+    case Int:
+	return v.toInt() == toInt();
+    case UInt:
+	return v.toUInt() == toUInt();
+    case Bool:
+	return v.toBool() == toBool();
+    case Double:
+	return v.toDouble() == toDouble();
+    case Invalid: // fall through
+    default:
 	return FALSE;
     }
-
-    return type->canCastFrom( d->typ );
-}
-
-/*!
-  Returns the variant's custom type or 0, if the variant is no custom type.
-
-  \sa type()
- */
-const QVariantTypeBase* QVariant::customType() const
-{
-    if ( d->typ == Custom )
-	return d->custom_type;
-    return 0;
-}
-
-// ------------------------------------------------------------------
-
-#include <qasciidict.h>
-
-static QAsciiDict<QVariantTypeBase>* typeDict = 0;
-
-QVariantTypeBase::QVariantTypeBase( const char* type )
-    : m_type( type )
-{
-    if ( typeDict == 0 )
-	typeDict = new QAsciiDict<QVariantTypeBase>;
-    typeDict->insert( type, this );
-}
-
-QVariantTypeBase::~QVariantTypeBase()
-{
-    typeDict->remove( m_type );
-}
-
-void* QVariantTypeBase::castFrom( const QVariant& ) const
-{
-    return 0;
-}
-
-QVariant QVariantTypeBase::castTo( const void*, QVariant::Type ) const
-{
-    return QVariant();
-}
-
-void* QVariantTypeBase::castTo( const void*, const QVariantTypeBase* ) const
-{
-    return 0;
-}
-
-bool QVariantTypeBase::canCastTo( const QVariantTypeBase* ) const
-{
     return FALSE;
 }
 
-bool QVariantTypeBase::canCastTo( QVariant::Type ) const
-{
-    return FALSE;
-}
+/*!  Compares this QVariant with \a v and returns TRUE if they are
+  not equal, FALSE othervise.
+*/
 
-bool QVariantTypeBase::canCastFrom( const QVariantTypeBase* ) const
+bool QVariant::operator!=( const QVariant &v ) const
 {
-    return FALSE;
-}
-
-bool QVariantTypeBase::canCastFrom( QVariant::Type ) const
-{
-    return FALSE;
-}
-
-const char* QVariantTypeBase::typeName() const
-{
-    return (const char*)m_type;
-}
-
-const QVariantTypeBase* QVariantTypeBase::type( const char* t )
-{
-    if ( !typeDict )
-	return 0;
-
-    return (*typeDict)[ t ];
+    return !( v == *this );
 }

@@ -159,7 +159,7 @@ protected:
 
 protected slots:
     void slotFolderChanged( QListViewItem* );
-    void slotMessageChanged( QListViewItem* );
+    void slotMessageChanged();
     void slotRMB( QListViewItem*, const QPoint &, int );
 
 };

@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -179,7 +179,7 @@ QMimeSourceFactory::QMimeSourceFactory() :
     setExtensionType("htm", "text/html;charset=iso8859-1");
     setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
-    setExtensionType("xml", "text/xml;charset=utf8");
+    setExtensionType("xml", "text/xml;charset=UTF-8");
     setExtensionType("jpg", "image/jpeg"); // support missspelled jpeg files
 }
 
@@ -238,7 +238,7 @@ static QMimeSource* data_internal(const QString& abs_name,
   setExtensionType("html", "text/html;charset=iso8859-1");
   setExtensionType("htm", "text/html;charset=iso8859-1");
   setExtensionType("txt", "text/plain");
-  setExtensionType("xml", "text/xml;charset=utf8");
+  setExtensionType("xml", "text/xml;charset=UTF-8");
   \endcode
   The effect of these is that filenames ending in "html" or "htm" will
   be treated as text encoded in the iso8859-1 encoding, those ending in "txt"

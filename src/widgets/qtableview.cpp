@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -124,7 +124,9 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   more bugs than expected, and our analysis indicates that widget's
   very flexibility is the problem.  If QScrollView or QListBox can
   easily be made to do the job you need, we recommend subclassing
-  those widgets rather than QTableView.
+  those widgets rather than QTableView. In addition, QScrollView makes
+  it easy to have child widgets inside tables, something QTableView
+  doesn't support at all.
 
   \sa QScrollView
   <a href="guibooks.html#fowler">GUI Design Handbook: Table</a>
@@ -197,25 +199,15 @@ void QTableView::setBackgroundColor( const QColor &c )
     QWidget::setBackgroundColor( c );
 }
 
-/*!
-  Reimplements QWidget::setPalette().
-  Sets the palette for the scroll bars, too.
-  \sa setBackgroundColor()
+/*!\reimp
 */
 
 void QTableView::setPalette( const QPalette &p )
 {
     QWidget::setPalette( p );
-    if ( cornerSquare )
-	cornerSquare->setPalette( p );
-    if ( vScrollBar )
-	vScrollBar->setPalette( p );
-    if ( hScrollBar )
-	hScrollBar->setPalette( p );
 }
 
-/*!
-  Reimplements QWidget::show() in order to do scroll bar tricks.
+/*!\reimp
 */
 
 void QTableView::show()
@@ -311,6 +303,7 @@ void QTableView::setNumRows( int rows )
 	nRows = rows;
     }
     updateScrollBars( verRange );
+    updateFrameSize();
 }
 
 /*!
@@ -347,6 +340,7 @@ void QTableView::setNumCols( int cols )
 	    repaint();
     }
     updateScrollBars( horRange );
+    updateFrameSize();
 }
 
 
@@ -786,8 +780,8 @@ int QTableView::totalHeight()
   \warning The cutCells options (\c Tbl_cutCells, \c Tbl_cutCellsH and
   Tbl_cutCellsV) may cause painting problems when scrollbars are
   enabled. Do not combine cutCells and scrollbars.
-  
-  
+
+
   \sa clearTableFlags(), testTableFlags(), tableFlags()
 */
 
@@ -993,8 +987,6 @@ void QTableView::updateCell( int row, int col, bool erase )
 /*!
   Returns the rectangle which is the actual table, excluding any
   frame, in \e widget coordinates.
-
-  Somewhat similar to clientRect(), but does not include any frames.
 */
 
 QRect QTableView::viewRect() const
@@ -1278,9 +1270,9 @@ void QTableView::setupPainter( QPainter * )
   \sa paintEvent(), QPainter(), setTableFlags() */
 
 
-/*!  
-  Handles paint events for the table view. 
-  
+/*!
+  Handles paint events for the table view.
+
   Calls paintCell() for the cells that needs to be repainted.
 */
 
@@ -1297,7 +1289,7 @@ void QTableView::paintEvent( QPaintEvent *e )
     }
 
     QPainter paint( this );
-    
+
     if ( !contentsRect().contains( updateR, TRUE  ) ) {// update frame ?
 	drawFrame( &paint );
 	if ( updateR.left() < frameWidth() ) 		//###

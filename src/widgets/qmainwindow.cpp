@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -45,7 +45,6 @@
 #include "qbitmap.h"
 
 //#define QMAINWINDOW_DEBUG
-#define TOOLBAR_MENU
 
 //****************************************************************************
 // -------------------------- static convenience functions -------------------
@@ -117,9 +116,14 @@ static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 
 static QSize size_hint( QToolBar *tb )
 {
-    if ( !tb || !tb->isVisible() )
+    if ( !tb || !tb->isVisibleTo( tb->parentWidget() ) )
 	return QSize( 0, 0 );
-    return tb->sizeHint();
+    QSize s = tb->sizeHint();
+    if ( tb->minimumWidth() > s.width() )
+	s.setWidth( tb->minimumWidth() );
+    if ( tb->minimumHeight() > s.height() )
+	s.setHeight( tb->minimumHeight() );
+    return s;
 }
 
 //************************************************************************************************
@@ -127,19 +131,6 @@ static QSize size_hint( QToolBar *tb )
 //************************************************************************************************
 class QHideDock;
 class QToolLayout;
-#define forbiddenCursorWidth 20
-#define forbiddenCursorHeight 20
-static unsigned char forbiddenCutBits[] = {
- 0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
- 0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
- 0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
- 0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00};
-
-static unsigned char forbiddenCutMask[] = {
- 0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
- 0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
- 0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
- 0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 class QMainWindowPrivate {
 public:
     struct ToolBar {
@@ -173,6 +164,8 @@ public:
 	right = new ToolBarDock;
 	bottom = new ToolBarDock;
 	hidden = new ToolBarDock;
+	unmanaged = new ToolBarDock;
+	tornOff = new ToolBarDock;
 	rectPainter = 0;
 	dockable[ (int)QMainWindow::Left ] = TRUE;
 	dockable[ (int)QMainWindow::Right ] = TRUE;
@@ -186,9 +179,6 @@ public:
 	movable = TRUE;
 	inMovement = FALSE;
 	dockMenu = TRUE;
-	QBitmap b( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutBits, TRUE );
-	QBitmap m( forbiddenCursorWidth, forbiddenCursorHeight, forbiddenCutMask, TRUE );
-	forbiddenCursor = QCursor( b, m );
 	oldCursor = ArrowCursor;
     }
 
@@ -262,7 +252,6 @@ public:
     bool dockMenu;
 
     QCursor oldCursor;
-    QCursor forbiddenCursor;
 
     QMap< int, bool > dockable;
 };
@@ -364,8 +353,8 @@ private:
     QMainWindowPrivate::ToolBarDock *dock;
     QBoxLayout::Direction dir;
     bool fill;
-    int cached_width;
-    int cached_hfw;
+    int cached_width, cached_height;
+    int cached_hfw, cached_wfh;
 
     friend class QMainWindowLayout;
 };
@@ -373,20 +362,39 @@ private:
 
 QSize QToolLayout::sizeHint() const
 {
-    if ( hasHeightForWidth() )
-	return minimumSize();
-    // Only vertical scrollbars below this line
+    if ( !dock || !dock->first() )
+	return QSize(0,0);
+
     int w = 0;
     int h = 0;
     QListIterator<QMainWindowPrivate::ToolBar> it(*dock);
     QMainWindowPrivate::ToolBar *tb;
+    it.toFirst();
+    int y = -1;
+    int x = -1;
+    int ph = 0;
+    int pw = 0;
     while ( (tb=it.current()) != 0 ) {
+	int plush = 0, plusw = 0;
 	++it;
-	QSize ms = size_hint( tb->t ).expandedTo( tb->t->minimumSize() );
-	h += ms.height();
-	w = QMAX( w, ms.width() );
+	if ( hasHeightForWidth() ) {
+	    if ( y != tb->t->y() )
+		plush = ph;
+	    y = tb->t->y();
+	    ph = tb->t->height();
+	} else {
+	    if ( x != tb->t->x() )
+		plusw = pw;
+	    x = tb->t->x();
+	    pw = tb->t->width();
+	}
+	h = QMAX( h, tb->t->height() + plush );
+	w = QMAX( w, tb->t->width() + plusw );
     }
-    return QSize(w,h);
+
+    if ( hasHeightForWidth() )
+	return QSize( 0, h );
+    return QSize( w, 0 );
 }
 
 bool QToolLayout::hasHeightForWidth() const
@@ -398,6 +406,7 @@ bool QToolLayout::hasHeightForWidth() const
 void QToolLayout::init()
 {
     cached_width = 0;
+    cached_height = 0;
 }
 
 QToolLayout::~QToolLayout()
@@ -429,6 +438,7 @@ QSize QToolLayout::minimumSize() const
 void QToolLayout::invalidate()
 {
     cached_width = 0;
+    cached_height = 0;
 }
 
 int QToolLayout::layoutItems( const QRect &r, bool testonly )
@@ -504,7 +514,6 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		QValueList<QRect>::Iterator it = rects.begin();
 		for ( t2 = row.first(); t2; t2= row.next(), ++it ) {
 		    QRect tr = *it;
-#if defined(TOOLBAR_MENU)
 		    if ( o == Qt::Horizontal ) {
 			if ( tr.width() > r.width() )
 			    tr.setWidth( r.width() );
@@ -512,7 +521,6 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			if ( tr.height() > r.height() )
 			    tr.setHeight( r.height() );
 		    }
-#endif
 		    t2->t->setGeometry( tr );
 		}
 	    }
@@ -547,6 +555,7 @@ int QToolLayout::heightForWidth( int w ) const
     if ( cached_width != w ) {
 	//Not all C++ compilers support "mutable" yet:
 	QToolLayout * mthis = (QToolLayout*)this;
+	mthis->cached_width = w;
 	int h = mthis->layoutItems( QRect(0,0,w,0), TRUE );
 	mthis->cached_hfw = h;
 	return h;
@@ -556,13 +565,15 @@ int QToolLayout::heightForWidth( int w ) const
 
 int QToolLayout::widthForHeight( int h ) const
 {
-//     if ( cached_width != w ) {
+    if ( cached_height != h ) {
 	//Not all C++ compilers support "mutable" yet:
 	QToolLayout * mthis = (QToolLayout*)this;
+	mthis->cached_height = h;
 	int w = mthis->layoutItems( QRect( 0, 0, 0, h ), TRUE );
+	mthis->cached_wfh = w;
 	return w;
-//     }
-//     return cached_hfw;
+    }
+    return cached_wfh;
 }
 
 void QToolLayout::addItem( QLayoutItem * /*item*/ )
@@ -615,7 +626,7 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QLayoutIterator iterator();
-    QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
+    QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
     void invalidate() {}
 
 protected:
@@ -752,9 +763,9 @@ QLayoutIterator QMainWindowLayout::iterator()
     return QLayoutIterator( new QMainWindowLayoutIterator( 0/*&list*/ ) );
 }
 
-//************************************************************************************************
-// --------------------------------- Minimized Dock -----------------------
-//************************************************************************************************
+/*************************************************************************************************
+ --------------------------------- Minimized Dock -----------------------
+************************************************************************************************/
 
 
 class QHideToolTip : public QToolTip
@@ -782,11 +793,12 @@ public:
     ~QHideDock() { delete tip; }
 
 protected:
-    void paintEvent( QPaintEvent * ) {
+    void paintEvent( QPaintEvent *e ) {
 	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
 	QPainter p( this );
-	p.fillRect( rect(), colorGroup().brush( QColorGroup::Background ) );
+	p.setClipRegion( e->rect() );
+	p.fillRect( e->rect(), colorGroup().brush( QColorGroup::Background ) );
 	QMainWindowPrivate::ToolBar *tb;
 	int x = 0;
 	int i = 0;
@@ -977,14 +989,22 @@ static void saveToolLayout( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock
 	break;
     }
 
+    if ( !dl )
+	return;
+
     QMainWindowPrivate::ToolBarDock *dummy;
     QMainWindowPrivate::ToolBar *t = 0;
     t = d->findToolbar( tb, dummy );
     int i = dl->findRef( t );
     if ( i == -1 )
 	return;
-    if ( i + 1 < (int)dl->count() )
-	dl->at( i + 1 )->nl = TRUE;
+    if ( i + 1 < (int)dl->count() && !dl->at( i + 1 )->nl ) {
+	if ( t->nl )
+	    dl->at( i + 1 )->nl = t->nl;
+	else if ( i - 1 >= 0 )
+	    dl->at( i + 1 )->nl = tb_pos( dl->at( i - 1 )->t, dl->at( i - 1 )->t->orientation(), TRUE ) !=
+				  tb_pos( dl->at( i + 1 )->t, dl->at( i + 1 )->t->orientation(), TRUE );
+    }
 }
 
 static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindow::ToolBarDock dock,
@@ -1042,7 +1062,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     bool makeNextNl = FALSE;
     bool hadNl = FALSE;
     while ( t ) {
-	if ( !t->t->isVisible() ) {
+	if ( !t->t->isVisibleTo( t->t->parentWidget() ) ) {
 	    t = dl->next();
 	    continue;
 	}
@@ -1400,8 +1420,7 @@ QMenuBar * QMainWindow::menuBar() const
 	b = (QMenuBar *)l->first();
     } else {
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
-	if ( isVisible() )
-	    b->show();
+	b->show();
     }
     delete l;
     d->mb = b;
@@ -1465,8 +1484,7 @@ QStatusBar * QMainWindow::statusBar() const
 	s = (QStatusBar *)l->first();
     } else {
 	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
-	if ( isVisible() )
-	    s->show();
+	s->show();
     }
     delete l;
     ((QMainWindow *)this)->setStatusBar( s );
@@ -1841,9 +1859,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	    if ( found ) {
 		triggerLayout();
 		// update, so that the line below the menubar may be drawn/earsed
-#if 0
 		update();
-#endif
 		emit toolBarPositionChanged( toolBar );
 		return;
 	    }
@@ -1945,9 +1961,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 
     triggerLayout();
     // update, so that the line below the menubar may be drawn/earsed
-#if 0
     update();
-#endif
     emit toolBarPositionChanged( toolBar );
 }
 
@@ -2071,20 +2085,20 @@ void QMainWindow::setUpLayout()
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
 
-    bool space = FALSE;
-    if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) ) {
+    if ( d->mb && d->mb->isVisibleTo( this ) ) {
 	d->tll->setMenuBar( d->mb );
-	space = TRUE;
     }
 
     d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
 
     if ( d->hidden && !d->hidden->isEmpty() ) {
+	if ( style() == WindowsStyle )
+	    d->tll->addSpacing( 2 );
 	int visibles = 0;
 	d->hideDock->show();
 	QMainWindowPrivate::ToolBar *tb;
 	for ( tb = d->hidden->first(); tb; tb = d->hidden->next() ) {
-	    if ( tb->t->isVisible() )
+	    if ( tb->t->isVisibleTo( this ) )
 		visibles++;
 	    tb->t->resize( 0, 0 );
 	    tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
@@ -2096,15 +2110,15 @@ void QMainWindow::setUpLayout()
 	    d->hideDock->hide();
 	} else {
 	    d->hideDock->repaint( TRUE );
-#if 0
 	    update();
-#endif
 	}
     } else {
 	d->hideDock->hide();
     }
     d->tll->addWidget( d->hideDock );
 
+    if ( d->top && !d->top->isEmpty() && style() == WindowsStyle )
+	d->tll->addSpacing( d->movable ? 1  : 2 );
     d->lTop = new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
 
     QMainWindowLayout *mwl = new QMainWindowLayout( d->tll );
@@ -2120,7 +2134,7 @@ void QMainWindow::setUpLayout()
 
     d->lBottom = new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
 
-    if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) ) {
+    if ( d->sb && d->sb->isVisibleTo( this ) ) {
 	d->tll->addWidget( d->sb, 0 );
 	// make the sb stay on top of tool bars if there isn't enough space
 	d->sb->raise();
@@ -2191,14 +2205,12 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-#if 0 // ### have to look deeper into that, made some painting errors
     if ( style() == WindowsStyle && d->mb &&
 	 ( ( d->top && !d->top->isEmpty() ) || ( d->hidden && !d->hidden->isEmpty() ) ) ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawSeparator( &p, 0, y, width(), y, colorGroup() );
     }
-#endif
 }
 
 
@@ -2224,11 +2236,9 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    moveToolBar( (QToolBar *)o, me );
 	    return TRUE;
 	}
-#if defined(TOOLBAR_MENU)
     } else if ( e->type() == QEvent::LayoutHint && o->inherits( "QToolBar" ) ) {
 	if ( isVisible() && ( (QToolBar*)o )->isVisible() )
 	    QTimer::singleShot( 0, (QToolBar*)o, SLOT( updateArrowStuff() ) );
-#endif
     }
     return QWidget::eventFilter( o, e );
 }
@@ -2430,7 +2440,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 	    d->hideDock->show();
 	    QMainWindowPrivate::ToolBar *tb;
 	    for ( tb = d->hidden->first(); tb; tb = d->hidden->next() ) {
-		if ( tb->t->isVisible() )
+		if ( tb->t->isVisibleTo( this ) )
 		    visibles++;
 		tb->t->resize( 0, 0 );
 		tb->t->move( -tb->t->width() - 2, -tb->t->height() - 2 );
@@ -2442,17 +2452,20 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 		d->hideDock->hide();
 	    } else {
 		d->hideDock->repaint( TRUE );
-#if 0
 		update();
-#endif
 	    }
 	} else {
 	    d->hideDock->hide();
 	}
+	// for some strange reason...
+	if ( d->lLeft )
+	    d->lLeft->activate();
+	if ( d->lRight )
+	    d->lRight->activate();
     } else {
 	delete d->tll;
 	d->tll = 0;
-	if ( isVisible() )
+	if ( isVisibleTo(0) )
 	    setUpLayout();
     }
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint) );
@@ -2690,11 +2703,12 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// create the painter for our rects
 	if ( !d->opaque ) {
-	    uint flags = getWFlags();
+	    bool unclipped = testWFlags( WPaintUnclipped );
 	    setWFlags( WPaintUnclipped );
 	    d->rectPainter = new QPainter;
-	    setWFlags( flags );
 	    d->rectPainter->begin( this );
+	    if ( !unclipped )
+		clearWFlags( WPaintUnclipped );
 	    d->rectPainter->setPen( QPen( color0, 2 ) );
 	    d->rectPainter->setRasterOp( NotROP );
 	}
@@ -2723,12 +2737,14 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	// finally really move the toolbar, if the mouse was moved...
 	if ( d->movedEnough ) {
-	    if ( t->cursor().shape() == d->forbiddenCursor.shape() )
+	    if ( t->cursor().shape() == ForbiddenCursor )
 		t->setCursor( d->oldCursor );
 	    if ( !d->opaque ) {
 		ToolBarDock dock = d->oldDock;
 		if ( dock != Unmanaged && isDockEnabled( dock ) &&
 		     isDockEnabled( t, dock ) ) {
+		    if ( d->oldPosRectValid )
+			d->rectPainter->drawRect( d->oldPosRect );
 		    int ipos;
 		    QToolBar *relative;
 		    QPoint pos = mapFromGlobal( e->globalPos() );
@@ -2768,6 +2784,8 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 			}
 		    }
 		    d->oldPosRect = r;
+		    if ( d->oldPosRectValid )
+			d->rectPainter->drawRect( d->oldPosRect );
 		}
 	    }
 	} else { // ... or hide it if it was only a click
@@ -2776,15 +2794,13 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 
 	// delete the rect painter
-	if ( d->rectPainter && !d->opaque ) {
-	    if ( d->oldPosRectValid )
-		d->rectPainter->drawRect( d->oldPosRect );
+	if ( d->rectPainter ) {
 	    d->rectPainter->end();
-	}
-
-	if ( !d->opaque ) {
 	    delete d->rectPainter;
 	    d->rectPainter = 0;
+	}
+	
+	if ( !d->opaque ) {
 	    if ( d->hideDock && d->hideDock->isVisible() )
 		d->hideDock->repaint( TRUE );
 	}
@@ -2828,9 +2844,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	    d->rectPainter->drawRect( d->oldPosRect );
 	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	     !isDockEnabled( t, dock ) ) {
-	    if ( t->cursor().shape() != d->forbiddenCursor.shape() ) {
+	    if ( t->cursor().shape() != ForbiddenCursor ) {
 		d->oldCursor = t->cursor();
-		t->setCursor( d->forbiddenCursor );
+		t->setCursor( ForbiddenCursor );
 	    }
 	} else {
 	    if ( t->cursor().shape() != d->oldCursor.shape() ) {
@@ -2989,6 +3005,13 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 void QMainWindow::setToolBarsMovable( bool enable )
 {
     d->movable = enable;
+    QObjectList *l = queryList( "QToolBar" );
+    if ( l ) {
+	for ( QObject *o = l->first(); o; o = l->next() )
+	    ( (QToolBar*)o )->update();
+    }
+    delete l;
+    triggerLayout( TRUE );
 }
 
 /*!

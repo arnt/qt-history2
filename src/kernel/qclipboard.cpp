@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -32,24 +32,23 @@
 #define QApplication QBaseApplication
 #endif
 
-// BEING REVISED: weis
+// REVISED: arnt
+
 /*!
   \class QClipboard qclipboard.h
-  \brief The QClipboard class provides access to the window systems clipboard.
+  \brief The QClipboard class provides access to the window system clipboard.
 
   \ingroup environment
 
   The clipboard offers a simple mechanism to copy and paste data between
   applications.
 
-  QClipboard supports the same data types that
-  \link QDragObject drag and drop\endlink supports, and uses much
-  of the same mechanisms.
+  QClipboard supports the same data types that QDragObject does, and uses
+  similar mechanisms.
 
-  Only a single QClipboard object may exist in an application. This is
-  because QClipboard is a shared window system resource.  Call
-  QApplication::clipboard() to access the clipboard.
-
+  Only there is a single QClipboard object in an application, and you
+  can gain access to it using QApplication::clipboard().
+  
   Example:
   \code
     QClipboard *cb = QApplication::clipboard();
@@ -64,21 +63,14 @@
     cb->setText( "This text can be pasted by other programs" );
   \endcode
 
-  QClipboard features some convenience functions to access common data types.
-  The methods setText() and text() allow to exchange unicode text easily over
-  the clipboard, while setPixmap(), setImage() and pixmap(), image() allow
-  to exchange QPixmap and QImage between applications.
-
-  The most flexible methods are data() and setData(). They allow to put
-  a QMimeSource() on the clipboard or retrieve it from the clipboard.
-  This does not only allow you to put all kind of data type on the clipboard.
-  In addition it allows you to exchange some information using different data types.
-  For example you want to put a sound on the clipboard. Since
-  you can not know exactly what kind of formats the other application understands
-  you can feature multiple formats at once. This functionality is provided by
-  QMimeSource. The application which retrieves the data from the clipboard receives
-  a QMimeSource, too, and can select one of the offered data types.
-
+  QClipboard features some convenience functions to access common data
+  types: The methods setText() allows exchanging unicode text easily
+  over the clipboard, while setPixmap() setImage() allows to exchange
+  QPixmap and QImage between applications.  setData() is the ultimate
+  in flexibility: It allows you to add any QMimeSource onto the
+  clipboard.  (There are corresponding getters for each of these,
+  e.g. text().)
+  
   You can clear the clipboard by calling the method clear().
 */
 
@@ -86,9 +78,12 @@
 /*!
   Constructs a clipboard object.
 
-  Note that only QApplication is allowed to do this. Call
+  Note that only QApplication should do this. Call
   QApplication::clipboard() to get a pointer to the application global
   clipboard object.
+
+  There is only one clipboard in the window system, and creating more
+  than one object to represent it is almost certainly a bug.  
 */
 
 QClipboard::QClipboard( QObject *parent, const char *name )
@@ -111,6 +106,7 @@ QClipboard::~QClipboard()
 
 /*!
   \fn void QClipboard::dataChanged()
+
   This signal is emitted when the clipboard data is changed.
 */
 
@@ -143,11 +139,10 @@ QClipboard *QApplication::clipboard()
 
 
 /*!
-  Returns the clipboard text, or a
-  \link QString::operator!() null string\endlink
+  Returns the clipboard text, or a null string
   if the clipboard does not contain any text.
 
-  \sa setText() data()
+  \sa setText() data(), QString::operator!()
 */
 
 QString QClipboard::text() const
@@ -158,7 +153,7 @@ QString QClipboard::text() const
 }
 
 /*!
-  Copies \e text into the clipboard.
+  Copies \a text into the clipboard.
   \sa text() setData()
 */
 
@@ -169,11 +164,11 @@ void QClipboard::setText( const QString &text )
 
 
 /*!
-  Returns the clipboard image, or a null image if the clipboard does not contain
-  an image. In addition a null image may be returned if Qt does not
-  understand the provided image format.
+  Returns the clipboard image, or a null image if the clipboard does
+  not contain an image, or if it contains an image in an unsupported
+  image format.
 
-  \sa setImage() pixmap() data()
+  \sa setImage() pixmap() data(), QImage::isNull()
 */
 
 QImage QClipboard::image() const
@@ -184,9 +179,9 @@ QImage QClipboard::image() const
 }
 
 /*!
-  Copies \e image into the clipboard.
+  Copies \a image into the clipboard.
 
-  This is just a shorthand for:
+  This is shorthand for:
   \code
     setData(new QImageDrag(image))
   \endcode
@@ -201,10 +196,13 @@ void QClipboard::setImage( const QImage &image )
 
 
 /*!
-  Returns the clipboard pixmap, or null if the clipboard does not contain
-  any pixmap. Note that this usually looses more information than image().
-
-  \sa setPixmap() image() data()
+  Returns the clipboard pixmap, or null if the clipboard does not
+  contain any pixmap. Note that this can lose information - for
+  example, if the image is 24-bit and the display 8-bit the result is
+  converted to 8 bits, and if the image has an alpha channel the
+  result just has a mask.
+  
+  \sa setPixmap() image() data() QPixmap::convertFromImage().
 */
 
 QPixmap QClipboard::pixmap() const
@@ -215,9 +213,8 @@ QPixmap QClipboard::pixmap() const
 }
 
 /*!
-  Copies \e pixmap into the clipboard.
-  Note that this usually looses more information than setImage(),
-  as the data may be converted to an image for transfer.
+  Copies \a pixmap into the clipboard.  Note that this is slower than
+  setImage() - it needs to convert the QPixmap to a QImage first.
 
   \sa pixmap() setImage() setData()
 */

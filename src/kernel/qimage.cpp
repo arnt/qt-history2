@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -240,8 +240,8 @@ QImage::QImage( int w, int h, int depth, int numColors, Endian bitOrder )
     create( w, h, depth, numColors, bitOrder );
 }
 
-/*!
- \overload QImage::QImage( const QSize&, int depth, int numColors, Endian bitOrder )
+/*!  Constructs an image with size \a size pixels, depth \a depth
+  bits, \a numColors and \a bitOrder endianness.
 */
 QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
 {
@@ -253,6 +253,7 @@ QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
 /*!
   Constructs an image from loading \a fileName and an optional
   \a format.
+
   \sa load()
 */
 
@@ -271,8 +272,8 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
 
   Errors are silently ignored.
 
-  This is the usual constructor used, but the <a href="squeeze">other
-  XPM constructor</a> allows defining XPMs like this:
+  Note that it's possible to squeeze the XPM variable a little bit by
+  using an unusual declaration:
 
   \example
     static const char * const start_xpm[]={
@@ -284,25 +285,16 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
   The extra \c const makes the entire definition read-only, which is
   slightly more efficient e.g. when the code is in a shared library,
   and ROMable when the application is to be stored in ROM.
+
+  In order to use that sort of declaration, you must cast the variable
+  back to <nobr><code>const char **</code></nobr> when you create the
+  QImage.
 */
 
 QImage::QImage( const char *xpm[] )
 {
     init();
     read_xpm_image_or_array( 0, xpm, *this );
-}
-
-/*!
-  Constructs an image from \a xpm, which must be a valid XPM image.
-  Errors are silently ignored.
-
-  <a name="squeeze"></a>
-*/
-
-QImage::QImage( const char * const xpm[] )
-{
-    init();
-    read_xpm_image_or_array( 0, (const char**)xpm, *this );
 }
 
 /*!
@@ -2772,8 +2764,9 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   The programmer can install new image file formats in addition to those
   that Qt implements.
 
-  Qt currently supports the following image file formats: PNG,
-  BMP, XBM, XPM and PNM.  The different PNM formats are: PBM
+  Qt currently supports the following image file formats: PNG, BMP,
+  XBM, XPM and PNM.  It may also support JPEG and GIF, if specially
+  configured during compilation.  The different PNM formats are: PBM
   (P1 or P4), PGM (P2 or P5), PPM (P3 or P6).
 
   You will normally not need to use this class, QPixmap::load(),
@@ -2787,12 +2780,12 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 
   \warning Unisys has changed its position regarding GIF.  If you are
   in a country where Unisys holds a patent on LZW compression and/or
-  decompression, Unisys may require you to license that technology.
-  These countries include Canada, Japan, the USA, France, Germany,
-  Italy and the UK.  There is more information on Unisys web site: <a
-  href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
-  Unisys' position.</a> GIF support may be removed in a future version
-  of Qt.  We recommend using the PNG format.
+  decompression and you want to use GIF, Unisys may require you to
+  license that technology.  These countries include Canada, Japan, the
+  USA, France, Germany, Italy and the UK.
+
+  GIF support may be removed completely in a future version of Qt.  We
+  recommend using the PNG format.
 
   \sa QImage, QPixmap, QFile, QMovie
 */
@@ -4421,32 +4414,39 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	QString index;
 	index = buf.left( cpp );
 	buf = buf.mid( cpp ).simplifyWhiteSpace().lower();
-	if ( buf[0] != 'c' || buf[1] != ' ' ) {
-	    i = buf.find( " c " );
-	    if ( i < 0 ) {
+	buf.prepend( " " );
+	i = buf.find( " c " );
+	if ( i < 0 )
+	    i = buf.find( " g " );
+	if ( i < 0 )
+	    i = buf.find( " g4 " );
+	if ( i < 0 )
+	    i = buf.find( " m " );
+	if ( i < 0 ) {
 #if defined(CHECK_RANGE)
-		qWarning( "QImage: XPM color specification is missing");
+	    qWarning( "QImage: XPM color specification is missing: %s", buf.data());
 #endif
-		return;				// no c specification
-	    }
-	    buf = buf.mid( i+1, buf.length() );
+	    return;	// no c/g/g4/m specification at all
 	}
+	buf = buf.mid( i+3 );
 	// Strip any other colorspec
-	int end = buf.find(' ', 2);
-	if ( end>=0 )
+	int end = buf.find(' ', 4);
+	if ( end >= 0 )
 	    buf.truncate(end);
-	if ( buf == "c none" ) {
+	buf = buf.stripWhiteSpace();
+	if ( buf == "none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
 	    if ( image.depth() == 8 ) {
-		image.setColor( transparentColor, RGB_MASK & qRgb(198,198,198) );
+		image.setColor( transparentColor,
+				RGB_MASK & qRgb(198,198,198) );
 		colorMap.insert( index, (void*)(transparentColor+1) );
 	    } else {
 		QRgb rgb = RGB_MASK & qRgb(198,198,198);
 		colorMap.insert( index, (void*)(rgb+1) );
 	    }
-	} else if ( buf[0] == 'c' ) {
-	    QColor c( QString(buf.mid( 2, buf.length() )) );
+	} else {
+	    QColor c( buf.data() );
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c.rgb() );
 		colorMap.insert( index, (void*)(currentColor+1) );
@@ -4454,7 +4454,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 		QRgb rgb = 0xff000000 | c.rgb();
 		colorMap.insert( index, (void*)(rgb+1) );
 	    }
-	} // else cannot happen
+	}
     }
 
     // Read pixels

@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -69,7 +69,7 @@ server to the local filesystem can be done with following code:
 
 \code
     QUrlOperator op;
-    op.copy( "ftp://ftp.troll.no/qt/source/qt-2.0.2.tar.gz", "file:/tmp", FALSE );
+    op.copy( "ftp://ftp.trolltech.com/qt/source/qt-2.1.0.tar.gz", "file:/tmp", FALSE );
 \endcode
 
 And that's all! Of course an implementation of the FTP protocol has to be available
@@ -141,7 +141,7 @@ directory on a FTP server):
 
 QUrlOperator op;
 
-MyClass::MyClass() : QObject(), op( "ftp://ftp.troll.no" )
+MyClass::MyClass() : QObject(), op( "ftp://ftp.trolltech.com" )
 {
     connect( &op, SIGNAL( newChildren( const QValueList<QUrlInfo> &, QNetworkOperation * ) ),
 	     this, SLOT( slotInsertEntries( const QValueList<QUrlInfo> &, QNetworkOperation * ) ) );

@@ -12,6 +12,7 @@
 #define THEMES_H
 
 #include <qmainwindow.h>
+#include <qfont.h>
 
 class QTabWidget;
 
@@ -34,12 +35,15 @@ protected slots:
     void styleWindows();
     void styleCDE();
     void styleMotif();
-    
+
     void about();
     void aboutQt();
 
 private:
     void selectStyleMenu( int );
+
+    QFont appFont;
+
 };
 
 

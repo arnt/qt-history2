@@ -4,7 +4,7 @@ programs linked with Beta2 must be recompiled.
 The most important fixes since Beta 2:
 
 platforms
-	64-bit, FreeBSD and gcc 2.7 fixes
+	64-bits, FreeBSD and gcc 2.7 fixes
 
 QLayoutIterator/QGLayoutIterator
 	The custom layout API has been changed: void removeCurrent()

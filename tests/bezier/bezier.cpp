@@ -35,7 +35,7 @@ void BezierViewer::paintEvent( QPaintEvent* )
     QPainter painter( this );
 
     /* Calculate scale to fit in window */
-    QRect br = bezier.boundingRect();
+    QRect br = bezier.boundingRect() | points.boundingRect();
     QRect pr = rect();
     int scl = QMAX( QMIN(pr.width()/br.width(), pr.height()/br.height()), 1 );
     int border = scl-1;
@@ -84,12 +84,31 @@ void BezierViewer::paintEvent( QPaintEvent* )
 }
 
 
+#define EXAMPLE 3
+
 int main( int argc, char *argv[] )
 {
+#if EXAMPLE > 2
     int x1 = 186; int y1 = 108;
     int x2 = 198; int y2 = 108;
     int x3 = 204; int y3 = 114;
     int x4 = 204; int y4 = 126;
+#elif EXAMPLE > 1
+    int x1 = 100; int y1 = 101;
+    int x2 = 150; int y2 = 200;
+    int x3 = 200; int y3 = 150;
+    int x4 = 101; int y4 = 100;
+#elif EXAMPLE > 0
+    int x1 = 100; int y1 = 101;
+    int x2 = 100; int y2 = 200;
+    int x3 = 200; int y3 = 100;
+    int x4 = 101; int y4 = 100;
+#else
+    int x1 = 100; int y1 = 101;
+    int x2 = 101; int y2 = 101;
+    int x3 = 101; int y3 = 100;
+    int x4 = 100; int y4 = 100;
+#endif
 
     QPointArray array( 4 );
     array.setPoint( 0, x1, y1 );

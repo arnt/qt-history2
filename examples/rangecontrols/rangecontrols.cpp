@@ -58,6 +58,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QSlider *hslider = new QSlider( 0, 64, 1, 33, Qt::Horizontal, cell3 );
     QLCDNumber *lcd2 = new QLCDNumber( 2, cell3 );
     lcd2->display( 33 );
+    lcd2->setSegmentStyle( QLCDNumber::Filled );
     connect( hslider, SIGNAL( valueChanged( int ) ), lcd2, SLOT( display( int ) ) );
 
     QHBox *cell4 = new QHBox( row2 );

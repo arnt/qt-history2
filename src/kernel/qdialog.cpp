@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -101,6 +101,10 @@
 
   The \a f argument is the \link QWidget::QWidget() widget flags,
   \endlink which can be used to customize the window frame style.
+  
+  If you e.g. don't want a What"s this button in the titlebar of the dialog,
+  pass WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu
+  here.
 
   A dialog is always a top level widget. The optional parent, however,
   will know about this child and also delete it on

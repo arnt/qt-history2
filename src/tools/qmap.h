@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -562,7 +562,7 @@ protected:
 
 
 template<class Key, class T>
-QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
+inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     m.clear();
     uint c;
     s >> c;
@@ -576,7 +576,7 @@ QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 
 
 template<class Key, class T>
-QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
+inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << m.count();
     QMapConstIterator<Key,T> it = m.begin();
     for( ; it != m.end(); ++it )

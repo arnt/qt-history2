@@ -240,10 +240,11 @@ foreach $url ( sort keys %name ) { #'qstring.html'
 ", $name, " \\- ", &fixup( $desc{$url} ),
 &fixup( &parseclassfile( &prepare( $contents ) ) ),
 ".SH \"SEE ALSO\"
-.BR http://www.troll.no/qt/", $url, "
+.BR http://doc.trolltech.com/", $url, "
 .SH COPYRIGHT
-Copyright 1992-2000 Troll Tech AS.  See the license file included in
-the distribution for a complete license statement.
+Copyright 1992-2000 Troll Tech AS, http://www.trolltech.com.  See the
+license file included in the distribution for a complete license
+statement.
 .SH AUTHOR
 Generated automatically from the source code.
 ";

@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
@@ -131,8 +131,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = FALSE; // #### needed for some IE plugins??
     } else if ( popup ) {
 	style = WS_POPUP;
-    }
-    else if (topLevel && !desktop ) {
+    } else if ( !topLevel ) {
+	if ( !testWFlags(WStyle_Customize) )
+	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+    } else if (!desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
 		style = WS_POPUP;		// no border
@@ -227,7 +229,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWState( WState_Visible );
     } else {
 	RECT  fr, cr;
-	POINT pt;
 	GetWindowRect( id, &fr );		// update rects
 	GetClientRect( id, &cr );
 	if ( cr.top == cr.bottom && cr.left == cr.right ) {
@@ -249,26 +250,28 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
-	fpos = QPoint(fr.left,fr.top);
-	if ( fr.top == cr.top &&
-	     fr.left == cr.left &&
-	     fr.bottom == cr.bottom &&
-	     fr.right == cr.right )
-	{
-	    // Maybe we already have extra data (eg. reparent()).  Set it.
-	    if ( extra && extra->topextra )
-		extra->topextra->fsize = QSize(cr.right-fr.left+1,
-					       cr.bottom-cr.top+1);
-	} else {
+	
+ 	if ( topLevel ){
+	    fpos = QPoint(fr.left,fr.top);
+	    // one cannot trust cr.left and cr.top, use a correction POINT instead
+	    POINT pt;
+	    pt.x = 0;
+	    pt.y = 0;
+	    ClientToScreen( id, &pt );
+ 	    crect = QRect( QPoint(pt.x, pt.y),
+ 			   QPoint(pt.x+cr.right, pt.y+cr.bottom) );
 	    createTLExtra();
-	    setFRect( QRect( QPoint(fr.left,fr.top),
-		      QPoint(fr.right,fr.bottom) ) );
+	    extra->topextra->fsize = QSize(fr.right-fr.left+1,
+					   fr.bottom-fr.top+1);
+ 	} else {
+ 	    fpos = QPoint(cr.left, cr.top);
+	    crect = QRect( QPoint(cr.left,  cr.top),
+			   QPoint(cr.right, cr.bottom) );
+	    // in case extra data already exists (eg. reparent()).  Set it.
+	    if ( extra && extra->topextra )
+		extra->topextra->fsize = QSize(cr.right-cr.left+1,
+					       cr.bottom-cr.top+1);
 	}
-	pt.x = 0;
-	pt.y = 0;
-	ClientToScreen( id, &pt );
-	crect = QRect( QPoint(pt.x+cr.left,  pt.y+cr.top),
-		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
     }
 
     setWState( WState_Created );		// accept move/resize events
@@ -345,8 +348,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QString capt= caption();
     widget_flags = f;
     clearWState( WState_Created | WState_Visible | WState_ForceHide );
-    if ( parent && parent->isVisible() )
-	setWState( WState_ForceHide );
+    if ( !parent || parent->isVisibleTo( 0 ) )
+	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -827,6 +830,8 @@ bool QWidget::isMinimized() const
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
+	if ( topData()->normalGeometry.width() < 0 )
+	    topData()->normalGeometry = geometry();
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	else {
@@ -844,6 +849,7 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    reparent( 0, WType_TopLevel, QPoint(0,0) );
+	    topData()->fullscreen = 0;
 	    QRect r = topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
 		// the widget has been maximized
@@ -1016,7 +1022,10 @@ void QWidget::erase( int x, int y, int w, int h )
     } else {
 	tmphdc = FALSE;
     }
-    qt_erase_bg( hdc, x, y, w, h, bg_col, backgroundPixmap(), 0, 0 );
+    if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
+	qt_erase_bg( hdc, x, y, w, h, bg_col, backgroundPixmap(), this->x(), this->y() );
+    else
+	qt_erase_bg( hdc, x, y, w, h, bg_col, backgroundPixmap(), 0, 0 );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );
 	hdc = 0;
@@ -1038,8 +1047,12 @@ void QWidget::erase( const QRegion& rgn )
 	tmphdc = FALSE;
     }
     SelectClipRgn( hdc, rgn.handle() );
-    qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
-		 backgroundPixmap(), 0, 0 );
+    if ( backgroundOrigin() == ParentOrigin && !isTopLevel() )
+	qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+		     backgroundPixmap(), x(), y() );
+    else
+	qt_erase_bg( hdc, 0, 0, crect.width(), crect.height(), bg_col,
+		     backgroundPixmap(), 0, 0 );
     SelectClipRgn( hdc, 0 );
     if ( tmphdc ) {
 	ReleaseDC( winId(), hdc );

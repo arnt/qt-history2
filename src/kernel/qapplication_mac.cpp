@@ -747,7 +747,8 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     return true;
 }
 
-QSessionManager::QSessionManager( QApplication * app,QString &session )
+QSessionManager::QSessionManager( QApplication * app,QString &session ) :
+    QObject(app)
 {
 }
 

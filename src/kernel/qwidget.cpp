@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -56,7 +56,7 @@
   top-level widget. Usually, top-level widgets are windows with a
   frame and a title bar (though it is also possible to create top
   level widgets without such decoration by the use of <a
-  href="#widgetflags">widget flags</a>).  In Qt, QMainWindow and the
+  href="qt.html#WidgetFlags">widget flags</a>).  In Qt, QMainWindow and the
   various subclasses of QDialog are the most common top-level windows.
 
   A widget without a parent widget is always a top-level widget.
@@ -166,6 +166,7 @@
 	setBackgroundMode(),
 	backgroundPixmap(),
 	setBackgroundPixmap(),
+	setTranslateBackground(),
 	backgroundColor(),
 	colorGroup(),
 	fontMetrics(),
@@ -259,7 +260,7 @@
   ready (you can name a a widget in the builder, and connect() to it by
   name in your code).
   <li><code>WFlags f = 0</code> (where available) sets the <a
-  href="#widgetflags">widget flags;</a> the default is good for almost
+  href="qt#WidgetFlags">widget flags;</a> the default is good for almost
   all widgets, but to get e.g. top-level widgets without a window
   system frame you must use special flags.
   </ul>
@@ -470,20 +471,6 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
-// helper function - borland needs it.
-static QPalette default_palette( QWidget *parent )
-{
-    return parent ? parent->palette()           // use parent's palette
-	: QApplication::palette();
-}
-// helper function - borland needs it.
-static QFont default_font( QWidget *parent )
-{
-    return parent ? parent->font()           // use parent's font
-	: QApplication::font();
-}
-
-
 /*
     Widget state flags:
   <dl compact>
@@ -511,7 +498,10 @@ static QFont default_font( QWidget *parent )
         actually performing  modality when shown. Modality can be switched on/off with
         this flag.
   <dt> WState_Exposed<dd> the widget was finally exposed (x11 only,
-        helps avoiding paint event doubling).  </dl>
+        helps avoiding paint event doubling).
+  <dt>WState_TranslateBackground<dd> The widget tanslates its pixmap
+        background to the parent's coordinate system, see setTranslateBackground().
+  </dl>
 */
 
 
@@ -547,7 +537,7 @@ windows.<ul>
 WStyle_* flags should be used to build the window.
 
 <li> \c WStyle_NormalBorder - gives the window a normal border. Cannot
-be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
+be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder. 
 
 <li> \c WStyle_DialogBorder - gives the window a thin dialog border.
 Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
@@ -555,7 +545,24 @@ Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 <li> \c WStyle_NoBorder - gives a borderless window.  Note that the
 user cannot move or resize a borderless window via the window system.
 Cannot be combined with \c WStyle_NormalBorder or \c
-WStyle_DialogBorder.
+WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
+bypasses the window manager comletely. This results in a borderless
+window, but also in a window that is not managed at all (i.e. for
+example no keyboard focus unless you call setActiveWindow()
+manually. ) For compatibility, the flag was not changed for Qt-2.1. We
+suggest using WStyle_NoBorderEx instead.
+
+<li> \c WStyle_NoBorderEx - gives a borderless window.  Note that the
+user cannot move or resize a borderless window via the window system.
+Cannot be combined with \c WStyle_NormalBorder or \c
+WStyle_DialogBorder. On X11, the result of the flag is depending on
+the window manager and its ability to understand MOTIF hints to some
+degree.  Most existing modern window managers do this. With \c
+WX11BypassWM, you can bypass the window manager comletely. This
+results in a borderless window for sure, but also in a window that is
+not managed at all (i.e. for example no keyboard input unless you call
+setActiveWindow() manually )
+
 
 <li> \c WStyle_Title - gives the window a title bar.
 
@@ -646,7 +653,7 @@ erase the widget.  This allows smart-repainting to avoid flicker.
 
   Example:
   \code
-    QLabel *toolTip = new QLabel( 0, "myToolTip",
+    QLabel *spashScreen = new QLabel( 0, "mySplashScreen",
 				  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
@@ -656,8 +663,7 @@ erase the widget.  This allows smart-repainting to avoid flicker.
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
-    : QObject( parent, name ), QPaintDevice( QInternal::Widget ),
-      pal( default_palette(parent) ), fnt (default_font(parent) )
+    : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -670,6 +676,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     bg_col = pal.normal().background();		// default background color
     create();					// platform-dependent init
+
+    pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
+    fnt = isTopLevel() ? QApplication::font() : parentWidget()->font();
+
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
     // make sure move/resize events are sent to all widgets
@@ -686,8 +696,8 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     } else {
 	if ( !parentWidget()->isEnabled() )
 	    setWState( WState_Disabled ); 	// propagate enabled state
-	if ( parentWidget()->isVisible() )
-	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
+   	if ( parentWidget()->isVisibleTo( 0 ) )
+ 	    setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     }
 }
 
@@ -743,6 +753,8 @@ QWidget::~QWidget()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    obj->parentObj = 0;
+	    // ### nest line is a QGList workaround - remove in 3.0
+	    childObjects->removeRef( obj );
 	    delete obj;
 	}
 	delete childObjects;
@@ -883,8 +895,8 @@ void QWidget::createTLExtra()
 	x->iconic = 0;
 	x->fullscreen = 0;
 	x->showMode = 0;
-#if defined(_WS_X11_)
 	x->normalGeometry = QRect(0,0,-1,-1);
+#if defined(_WS_X11_)
 	x->embedded = 0;
 	x->parentWinId = 0;
 	x->dnd = 0;
@@ -2053,8 +2065,8 @@ void QWidget::setPalette( const QPalette &palette )
 void QWidget::unsetPalette()
 {
     if ( own_palette ) {
-	if ( QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
-	    setPalette( default_palette( parentWidget() ) );
+	if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+	    setPalette( parentWidget()->palette() );
 	else
 	    setPalette( QApplication::palette( this ) );
 	own_palette = FALSE;
@@ -2154,8 +2166,8 @@ void QWidget::setFont( const QFont &font )
 void QWidget::unsetFont()
 {
     if ( own_font ) {
-	if ( QApplication::font( this ).isCopyOf( QApplication::font() ) )
-	    setFont( default_font( parentWidget() ) );
+	if ( !isTopLevel() && QApplication::font( this ).isCopyOf( QApplication::font() ) )
+	    setFont( parentWidget()->font() );
 	else
 	    setFont( QApplication::font( this ) );
 	own_font = FALSE;
@@ -3084,8 +3096,18 @@ void QWidget::show()
 
     if ( testWState(WState_Visible) )
 	return; // nothing to do
-    if ( !isTopLevel() && !parentWidget()->isVisible() )
-	return; // nothing we can do
+    if ( !isTopLevel() && !parentWidget()->isVisibleTo( 0 ) ){
+	// we should become visible, but our parents are explicitely
+	// hidden. Don' worry, since we cleared the ForceHide flag,
+	// our immediate parent will call show() on us again during
+	// his own processing of show().
+	if ( sendLayoutHint ) {
+	    QCustomEvent e( QEvent::ShowToParent, 0 );
+	    QApplication::sendEvent( this, &e );
+	}
+	return;
+    }
+
 
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
@@ -3162,19 +3184,37 @@ void QWidget::show()
 	}
     }
 
-    QShowEvent e(FALSE);
-    QApplication::sendEvent( this, &e );
 
-    if ( testWFlags(WType_Modal) ) {
-	// qt_enter_modal *before* show, otherwise the initial
-	// stacking might be wrong
-	qt_enter_modal( this );
-	showWindow();
-    } else {
-	showWindow();
-	if ( testWFlags(WType_Popup) )
-	    qApp->openPopup( this );
-    }
+     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
+	// we should become visible, but somehow our parent is not
+	// visible, so we can't do that. Since it is not explicitely
+	// hidden (that we checked above with isVisibleTo(0) ), our
+	// window is not withdrawn, but may for example be iconfied or
+	// on another virtual desktop. Therefore we have to prepare
+	// for simply receiving a show event without show() beeing
+	// called again (see the call to sendShowEventsToChildren() in
+	// qapplication).
+	 showWindow();
+	 clearWState( WState_Visible );
+	 if ( sendLayoutHint ) {
+	     QCustomEvent e( QEvent::ShowToParent, 0 );
+	     QApplication::sendEvent( this, &e );
+	 }
+     } else {
+
+	 QShowEvent e(FALSE);
+	 QApplication::sendEvent( this, &e );
+
+	 if ( testWFlags(WType_Modal) ) {
+	     // qt_enter_modal *before* show, otherwise the initial
+	     // stacking might be wrong
+	     qt_enter_modal( this );
+	 }
+	 showWindow();
+	 if ( testWFlags(WType_Popup) )
+	     qApp->openPopup( this );
+     }
+
     if ( sendLayoutHint )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
@@ -3200,11 +3240,16 @@ void QWidget::hide()
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
-    bool activateParent = isTopLevel() && parentWidget() &&  isActiveWindow();
+    if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
+	parentWidget()->setActiveWindow();	// Activate parent
+
     hideWindow();
 
-   if ( !testWState(WState_Visible) )
+    if ( !testWState(WState_Visible) ) {
+	QCustomEvent e( QEvent::HideToParent, 0 );
+	QApplication::sendEvent( this, &e );
 	return;
+    }
     clearWState( WState_Visible );
 
     // next bit tries to move the focus if the focus widget is now
@@ -3225,9 +3270,6 @@ void QWidget::hide()
 
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
-
-    if ( activateParent )
-	parentWidget()->setActiveWindow();
 }
 
 
@@ -3354,7 +3396,8 @@ bool QWidget::close( bool alsoDelete )
     bool checkLastWindowClosed = isTopLevel() && !isPopup() &&
 				 !testWFlags(WStyle_Dialog);
     QCloseEvent e;
-    bool accept = QApplication::sendEvent( this, &e );
+    QApplication::sendEvent( this, &e );
+    bool accept = e.isAccepted();
     if ( !QWidget::find(id) ) {			// widget was deleted
 	accept = TRUE;
     } else {
@@ -3435,12 +3478,12 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
     while ( w
-	    && !testWState( WState_ForceHide )
+	    && !w->testWState( WState_ForceHide )
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget()!=ancestor )
 	w = w->parentWidget();
-    return !testWState( WState_ForceHide );
+    return !w->testWState( WState_ForceHide );
 }
 
 
@@ -3763,19 +3806,25 @@ bool QWidget::event( QEvent *e )
 	    childEvent( (QChildEvent*) e);
 	    break;
 	case QEvent::ParentFontChange:
+	    if ( isTopLevel() )
+		break;
+	    // FALL THROUGH
 	case QEvent::ApplicationFontChange:
 	    if ( !own_font && !isDesktop() ) {
-		if ( QApplication::font( this ).isCopyOf( QApplication::font() ) )
-		    setFont( default_font( parentWidget() ) );
+		if ( !isTopLevel() && QApplication::font( this ).isCopyOf( QApplication::font() ) )
+		    setFont( parentWidget()->font() );
 		else
 		    setFont( QApplication::font( this ) );
 		own_font = FALSE;
 	    }
 	case QEvent::ParentPaletteChange:
+ 	    if ( isTopLevel() )
+ 		break;
+	    // FALL THROUGH
 	case QEvent::ApplicationPaletteChange:
 	    if ( !own_palette && !isDesktop() ) {
-		if ( QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
-		    setPalette( default_palette( parentWidget() ) );
+		if ( !isTopLevel() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+		    setPalette( parentWidget()->palette() );
 		else
 		    setPalette( QApplication::palette( this ) );
 		own_palette = FALSE;
@@ -3962,9 +4011,8 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   application programmer can call setFocus() on any widget, even those
   that do not normally accept focus.)
 
-  The default implementation calls repaint() since the widget's
-  colorGroup() changes from normal to active, so the widget probably
-  needs repainting.  It also calls setMicroFocusHint(), hinting any
+  The default implementation updates the widget if it accepts
+  focus (see focusPolicy()).  It also calls setMicroFocusHint(), hinting any
   system-specific input tools about the focus of the user's attention.
 
   \sa focusOutEvent(), setFocusPolicy(),
@@ -4363,11 +4411,24 @@ void QWidget::setPalettePropagation( PropagationMode )
     functions that change the appearance of the widget in a way that a
     recalculation of the mask is necessary.
 
-  \sa autoMask(), updateMask(), setMask(), clearMask()
+    While being a technically appealing concept, masks have one big
+    drawback: when using complex masks that cannot be expressed easily
+    with relatively simple regions, they tend to be very slow on some
+    window systems. The classic example is a transparent label. The
+    complex shape of its contents makes it necessary to represent its
+    mask by a bitmap, which consumes both memory and time.  If all you
+    want is to blend the background of several neighboring widgets
+    together seamlessly, you may probably want to use
+    setBackgroundOrigin() rather than a mask.
+
+  \sa autoMask(), updateMask(), setMask(), clearMask(), setBackgroundOrigin()
 */
 
 void QWidget::setAutoMask( bool enable )
 {
+    if ( enable == autoMask() )
+	return;
+
     if ( enable ) {
 	setWState(WState_AutoMask);
 	updateMask();
@@ -4378,7 +4439,7 @@ void QWidget::setAutoMask( bool enable )
 }
 
 /*!
-  Returns whether or not a widget has the auto mask feature enabled.
+  Returns whether or not the  widget has the auto mask feature enabled.
 
   \sa setAutoMask(), updateMask(), setMask(), clearMask()
 */
@@ -4387,6 +4448,57 @@ bool QWidget::autoMask() const
 {
     return testWState(WState_AutoMask);
 }
+
+/*! \enum QWidget::BackgroundOrigin
+
+  This enum defines the origin used to draw a widget's background
+  pixmap.
+
+  <ul>
+  <li> \c WidgetOrigin - the pixmap is drawn in the widget's coordinate system.
+  <li>\c ParentOrigin - the pixmap is drawn in the parent's coordinate system.
+  </ul>
+
+ */
+
+/*!
+  Sets the widget's background to be drawn relative to \a origin,
+  which is either of \c WidgetOrigin (the default) or \c ParentOrigin.
+
+  This makes a difference only if the widget has a background pixmap
+  where the positioning matters. In such case, using \c ParentOrigin
+  for several neighboring widgets makes the background blend together
+  seamlessly.
+
+  \sa backgroundOrigin(), backgroundPixmap(), setBackgroundMode()
+ */
+
+
+void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
+{
+    if ( origin == backgroundOrigin() )
+	return;
+
+    if ( origin == ParentOrigin )
+	setWState( WState_TranslateBackground );
+    else
+	clearWState( WState_TranslateBackground );
+    update();
+}
+
+/*!
+  Returns the current background origin.
+
+  \sa setBackgroundOrigin()
+*/
+QWidget::BackgroundOrigin QWidget::backgroundOrigin() const
+{
+    if ( testWState( WState_TranslateBackground ) )
+	return ParentOrigin;
+    else
+	return WidgetOrigin;
+}
+
 
 /*!
   This function can be reimplemented in a subclass to support
@@ -4540,7 +4652,8 @@ void QWidget::setStyle( QStyle *style )
     }
 }
 
-/*!
+/*!\overload
+
   A convenience version of reparent that does not take widget
   flags as argument.
 
@@ -4565,13 +4678,19 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
   Full-screen mode works fine under Windows, but has certain problems
   under X.  These problems are due to limitations of the ICCCM
   protocol that specifies the communication between X11 clients and
-  the window manager.  The ICCCM says that window managers have
-  nothing to do with full-screen windows, so you may get various
-  strange effects, depending on the individual window manager.
-  Showing a window full-screen should be safe and work fine as long as
-  nothing else happens.  When you also show additional dialog window
-  and/or the full-screen window looses focus, you are very likely in
-  trouble.
+  the window manager.  ICCCM simply does not know the concept of
+  non-decorated full-screen windows. Therefore, the best we can do is
+  to request a borderless window and place and resize it to fill the
+  entire screen. Depending on the window manager, this may or may not
+  work. The borderless window is requested using MOTIF hints, which
+  are at least partially supported by virtually all modern window
+  managers.
+  
+  An alternative would be to bypass the window manager at all and to
+  create a window with the WX11BypassWM flag. This has other severe
+  problems, though, like totally broken keyboard focus and very
+  strange effects on desktop changes or when the user raises other
+  windows.
 
   Future window managers that follow modern post-ICCCM specifications
   may support full-screen mode properly.
@@ -4589,11 +4708,16 @@ void QWidget::showFullScreen()
     }
     if ( topData()->normalGeometry.width() < 0 )
 	topData()->normalGeometry = QRect( pos(), size() );
-    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
+    reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorderEx | WStyle_StaysOnTop,
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
     resize( qApp->desktop()->size() );
     raise();
     show();
+#if defined(_WS_X11_)
+    extern void qt_wait_for_window_manager( WId win ); // defined in qwidget_x11.cpp
+    qt_wait_for_window_manager( winId() );
+#endif
+    
     setActiveWindow();
 }

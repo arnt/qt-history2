@@ -31,6 +31,8 @@ public slots:
     bool save();
     void print();
     void addEncoding();
+    void toUpper();
+    void toLower();
 
 protected:
     void resizeEvent( QResizeEvent * );

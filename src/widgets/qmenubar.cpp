@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -43,7 +43,6 @@ public:
     QMenuDataData();
     QGuardedPtr<QWidget> aWidget;
     int aInt;
-    int pressedItem;
 };
 
 
@@ -173,6 +172,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     popupvisible = 0;
     hasmouse = 0;
     defaultup = 0;
+    toggleclose = 0;
     if ( parent ) {
 	// filter parent events for resizing
 	parent->installEventFilter( this );
@@ -274,8 +274,10 @@ void QMenuBar::menuContentsChanged()
     if ( isVisible() ) {
 	calculateRects();
 	update();
-	if ( parent() && parent()->inherits( "QMainWindow" ) )
+	if ( parent() && parent()->inherits( "QMainWindow" ) ) {
 	    ( (QMainWindow*)parent() )->triggerLayout();
+	    ( (QMainWindow*)parent() )->update();
+	}
 	if ( parentWidget() && parentWidget()->layout() )
 	    parentWidget()->layout()->invalidate();
     }
@@ -613,13 +615,14 @@ int QMenuBar::calculateRects( int max_width )
 	rightSide = 0;
 	if ( !badSize )				// size was not changed
 	    return 0;
-	if ( irects )		// Avoid purify complaint.
+	if ( irects )				// Avoid purify complaint.
 	    delete [] irects;
 	if ( mitems->isEmpty() ) {
 	    irects = 0;
 	    return 0;
 	}
-	irects = new QRect[ mitems->count() ];	// create rectangle array
+	int i = mitems->count();		// workaround for gcc 2.95.2
+	irects = new QRect[ i ];		// create rectangle array
 	CHECK_PTR( irects );
 	max_width = width();
     }
@@ -813,30 +816,24 @@ void QMenuBar::drawContents( QPainter *p )
 		p->fillRect( r,palette().normal().brush( QColorGroup::Button ) );
 		if ( i == actItem && ( hasFocus() || hasmouse || popupvisible ) ) {
 		    QBrush b = palette().normal().brush( QColorGroup::Button );
-// 		    bool sunken = !waitforalt ||
-// 				  (mi->popup() && mi->popup()->isVisible());
-		    bool sunken = popupvisible;
-		    if (sunken)
+		    if ( actItemDown )
 			p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
 		    qDrawShadeRect( p,
 				    r.left(), r.top(), r.width(), r.height(),
-				    g, sunken, 1, 0, &b );
-		    if ( sunken ) {
+				    g, actItemDown, 1, 0, &b );
+		    if ( actItemDown ) {
 			r.setRect( r.left()+2, r.top()+2,
 				   r.width()-2, r.height()-2 );
 			p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 		    }
 		}
 	    } else { // motif
-		if ( i == actItem && popupvisible ) // active item
+		if ( i == actItem && actItemDown ) // active item
 		    qDrawShadePanel( p, r, palette().normal(), FALSE,
 				     motifItemFrame,
 			    &palette().normal().brush( QColorGroup::Button ));
 		else // other item
-		    p->fillRect(r,
-			    palette().normal().brush( QColorGroup::Button ));
-// 		    qDrawPlainRect( p, r, palette().normal().button(),
-// 				    motifItemFrame, &palette().normal().fillButton() );
+		    p->fillRect(r, palette().normal().brush( QColorGroup::Button ));
 	    }
 	    QColor btext = g.buttonText();
 	    style().drawItem( p, r.left(), r.top(), r.width(), r.height(),
@@ -863,7 +860,8 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
-    QMenuData::d->pressedItem = popupvisible ? item : -1;
+    if ( item == actItem && popupvisible )
+	toggleclose = 1;
     setActiveItem( item, TRUE, FALSE );
 }
 
@@ -883,12 +881,10 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	return;
     }
     bool showMenu = TRUE;
-    if ( style() == WindowsStyle && item == QMenuData::d->pressedItem )
+    if ( toggleclose && style() == WindowsStyle && actItem == item )
 	showMenu = FALSE;
     setActiveItem( item, showMenu, !hasMouseTracking() );
-    if ( !showMenu )
-	hidePopups();
-    QMenuData::d->pressedItem = -1;
+    toggleclose = 0;
 }
 
 
@@ -908,7 +904,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	return;
     }
-    if ( item >= 0  && ( popupvisible || mouseBtDn ) )
+    if ( item != actItem && item >= 0  && ( popupvisible || mouseBtDn ) )
 	setActiveItem( item, TRUE, FALSE );
 }
 
@@ -918,7 +914,10 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 void QMenuBar::leaveEvent( QEvent * e )
 {
     hasmouse = 0;
-    updateItem( idAt( actItem ) );
+    int actId = idAt( actItem );
+    if ( !hasFocus() && !popupvisible )
+	actItem = -1;
+    updateItem( actId );
     QFrame::leaveEvent( e );
 }
 
@@ -945,6 +944,8 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 
     case Key_Up:
     case Key_Down:
+    case Key_Enter:
+    case Key_Return:
 	if ( style() == WindowsStyle )
 	    setActiveItem( actItem );
 	break;
@@ -1047,6 +1048,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	return;
 
     popupvisible = i >= 0 ? (show) : 0;
+    actItemDown = popupvisible;
 
     if ( i < 0 || actItem < 0 ) {
 	// just one item needs repainting
@@ -1070,12 +1072,13 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	}
     }
 
+    hidePopups();
+    
     if ( actItem < 0 || !popupvisible || !mi  )
 	return;
 
     QPopupMenu *popup = mi->popup();
     if ( popup ) {
-	hidePopups();
 	emit highlighted( mi->id() );
 	openActPopup();
 	if ( activate_first_item )
@@ -1091,6 +1094,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 void QMenuBar::setAltMode( bool enable )
 {
     waitforalt = 0;
+    actItemDown = FALSE;
     if ( enable ) {
 	if ( !QMenuData::d->aWidget )
 	    QMenuData::d->aWidget = qApp->focusWidget();
@@ -1099,7 +1103,9 @@ void QMenuBar::setAltMode( bool enable )
     } else {
 	if ( QMenuData::d->aWidget )
 	    QMenuData::d->aWidget->setFocus();
-	updateItem( idAt( actItem ) );
+	int actId = idAt( actItem );
+	actItem = -1;
+	updateItem( actId );
 	QMenuData::d->aWidget = 0;
     }
 }

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -313,8 +313,6 @@ void QPushButton::setAutoDefault( bool enable )
 {
     if ( (bool)autoDefButton == enable )
 	return;
-    if ( !topLevelWidget()->inherits("QDialog") )		// not a dialog
-	return;
     autoDefButton = enable;
     if ( isVisible() ) {
 	update();
@@ -352,10 +350,8 @@ void QPushButton::setDefault( bool enable )
 {
     if ( (bool)defButton == enable )
 	return;					// no change
-    if ( !topLevelWidget()->inherits("QDialog") )		// not a dialog
-	return;
     defButton = enable;
-    if ( defButton )
+    if ( defButton && topLevelWidget()->inherits( "QDialog" ) )
  	((QDialog*)topLevelWidget())->setDefault( this );
     update();
 }

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -562,7 +562,9 @@ void QFont::setRawName( const QString &name )
     bool validXLFD = fillFontDef( name.latin1(), &d->req, 0 );
     d->req.dirty = TRUE;
     if ( !validXLFD ) {
-	qDebug("QFont: not an XLFD: \"%s\", using raw mode", name.latin1() );
+#if defined(CHECK_STATE)
+	qWarning( "QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1() );
+#endif
 	setFamily( name );
 	setRawMode( TRUE );
     }

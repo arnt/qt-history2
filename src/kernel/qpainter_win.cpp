@@ -13,7 +13,7 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing.
 **
 *****************************************************************************/
@@ -2066,9 +2066,21 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
-	if ( testf(DirtyFont) )
-	    updateFont();
+    if ( testf(DirtyFont) )
+	updateFont();
+    bool force_bitmap = rop != CopyROP;
+    if ( force_bitmap ) {
+#ifdef UNICODE
+	if ( qt_winver & WV_NT_based ) {
+	    force_bitmap &= !(((TEXTMETRICW*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+	} else
+#endif
+	{
+	    force_bitmap &= !(((TEXTMETRICA*)textmet)->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
+	}
+    }
+
+    if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
@@ -2078,7 +2090,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 		return;
 	}
-	if ( txop >= TxScale && !nat_xf ) {
+	if ( force_bitmap || (txop >= TxScale && !nat_xf) ) {
 	    // Draw rotated and sheared text on Windows 95, 98
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
@@ -2089,7 +2101,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
 	    QFont dfont( cfont );
 	    QWMatrix mat2;
-	    if ( txop == TxScale && pdev->devType() != QInternal::Printer ) {
+	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
 		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
 		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
 		dfont.setPointSize( newSize );
@@ -2135,7 +2147,10 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		paint.setFont( pmFont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
-		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+		if ( txop >= TxScale )
+		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+		else
+		    wx_bm = new QBitmap( bm );
 		if ( wx_bm->isNull() ) {
 		    delete wx_bm;		// nothing to draw
 		    return;
@@ -2171,12 +2186,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    mat2.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    if ( testf(ExtDev) ) {		// to printer
+	    if ( force_bitmap || testf(ExtDev) ) {		// to printer
 		uint oldf = flags;
 		flags &= ~(VxF|WxF);
 		drawPixmap( x, y, *wx_bm );
 		flags = oldf;
 	    } else {				// to screen/pixmap
+		// CopyROP only
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
@@ -2200,8 +2216,38 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     }
 
     const TCHAR* tc = (const TCHAR*)qt_winTchar(str,FALSE);
-    TextOut( hdc, x, y, tc, len );
+
+    if ( rop == CopyROP ) {
+	TextOut( hdc, x, y, tc, len );
+    } else {
+	// Doesn't work for non-TrueType fonts, but we dealt with those
+	// with the bitmap above.
+	BeginPath(hdc);
+	TextOut( hdc, x, y, tc, len );
+	EndPath(hdc);
+	uint pix = COLOR_VALUE(cpen.data->color);
+	HBRUSH tbrush = CreateSolidBrush( pix );
+	SelectObject( hdc, tbrush );
+	FillPath(hdc);
+	SelectObject( hdc, hbrush );
+    }
 
     if ( nat_xf )
 	nativeXForm( FALSE );
 }
+
+
+QPoint QPainter::pos() const
+{
+    QPoint p;
+    if ( !isActive() )
+	return p;
+    POINT pt;
+    if ( GetCurrentPositionEx( hdc, &pt ) ) {
+	p.rx() = pt.x;
+	p.ry() = pt.y;
+    }
+    return  p;
+}
+
+

@@ -15,9 +15,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -40,7 +40,7 @@ Here you see three views seperated by <a href="qsplitter.html">QSplitters</a>. O
 the lef/top you see a <a href="qlistbox.html">QListBox</a>, at the right/top
 you see a <a href="qlistview.html">QListView</a> with a
 <a href="qheader.html">QHeader</a> and two <a href="qscrollbar.html">QScrollBars</a>.
-And at the bottom there is a <a href="qheader.html">QIconView</a>.
+And at the bottom there is a <a href="qiconview.html">QIconView</a>.
 <p><img src=splitter-views-w.png >&nbsp;Windows<br>
 
 In this screenshot you see a <a href="qmainwindow.html">QMainWindow</a>
@@ -61,10 +61,10 @@ Windows Filedialog. For more information on that see the
 <a href="qfiledialog.html">QFileDialog</a> class documentation.
 <p><img src=qfiledlg-w.png >&nbsp;Windows<br>
 
-This is a <a href="qprintdialog.html">QPrintDialog</a>. On Windows
-this dialog is not supported, as the native Windows Print-Dialog is
-used there. Use QPrinter::setup() for portability instead of the
-QPrintDialog if you need to be platform independent.
+This is a QPrintDialog. On Windows this dialog is not supported, as the
+native Windows Print-Dialog is used there. Use QPrinter::setup() for
+portability instead of the QPrintDialog if you need to be platform
+independent.
 <p><img src=qprintdlg-m.png >&nbsp;Motif
 
 In this screenshot you see a <a href="qfontdialog.html">QFontDialog</a>.

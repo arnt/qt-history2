@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -230,6 +230,14 @@ void QCheckBox::drawButton( QPainter *paint )
 #if defined(SAVE_CHECKBOX_PIXMAPS)
     if ( use_pm ) {
 	pmpaint.end();
+	if ( backgroundPixmap() ) {
+	    QBitmap bm( pm->size() );
+	    bm.fill( color0 );
+	    pmpaint.begin( &bm );
+	    style().drawIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+	    pmpaint.end();
+	    pm->setMask( bm );
+	}
 	p = paint;				// draw in default device
 	p->drawPixmap( wx, wy, *pm );
 	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -117,7 +117,7 @@
 #elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
 #define _OS_UNIXWARE7_
 #else
-#error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
+#error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
 
 #if !defined(UNIX)
@@ -205,9 +205,10 @@
 #else
 // this is the CC
 #define _CC_HP_
+#define Q_FULL_TEMPLATE_INSTANTIATION
 #endif // __cplusplus >= 199707L
 #else
-#error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
+#error "Qt has not been tested with this compiler - talk to qt-bugs@trolltech.com"
 #endif
 
 #if defined(_CC_COMEAU_)

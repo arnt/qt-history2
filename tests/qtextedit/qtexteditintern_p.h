@@ -101,7 +101,7 @@ private:
 class QTextEditCommand
 {
 public:
-    enum Commands { Invalid, Insert, Delete, Join, Split };
+    enum Commands { Invalid, Insert, Delete, Format };
     QTextEditCommand( QTextEditDocument *d ) : doc( d ), cursor( d ) {}
     virtual ~QTextEditCommand() {}
     virtual Commands type() const { return Invalid; };
@@ -145,6 +145,22 @@ public:
 
 };
 
+class QTextEditFormatCommand : public QTextEditCommand
+{
+public:
+    QTextEditFormatCommand( QTextEditDocument *d, int selId, QTextEditFormat *f, int flags );
+    ~QTextEditFormatCommand();
+    Commands type() const { return Format; }
+
+    virtual QTextEditCursor *execute( QTextEditCursor *c );
+    virtual QTextEditCursor *unexecute( QTextEditCursor *c );
+
+protected:
+    int selection;
+    QTextEditFormat *format;
+    int flags;
+
+};
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -247,6 +263,8 @@ public:
     void setLineSpacing( int s );
     int paragSpacing( QTextEditParag *p = 0 ) const;
     int lineSpacing() const;
+
+    bool inSelection( int selId, const QPoint &pos ) const;
 
 private:
     void setPlainText( const QString &text, bool tabify = FALSE );

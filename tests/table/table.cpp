@@ -143,7 +143,7 @@ void Table::keyPressEvent( QKeyEvent* e )
     int oldCol = curCol;
     int edge = 0;
     switch( e->key() ) {			// Look at the key code
-	case Key_Left:				// If 'left arrow'-key, 
+	case Key_Left:				// If 'left arrow'-key,
 	    if( curCol > 0 ) {			// and cr't not in leftmost col
 		curCol--;     			// set cr't to next left column
 		edge = leftCell();		// find left edge
@@ -179,7 +179,7 @@ void Table::keyPressEvent( QKeyEvent* e )
 	    e->ignore();			// we don't accept the event
 	    return;	
     }
-    
+
     if ( (curRow != oldRow) 			// if current cell has moved,
 	 || (curCol != oldCol)  ) {
 	updateCell( oldRow, oldCol );		// erase previous marking
@@ -196,7 +196,7 @@ void Table::keyPressEvent( QKeyEvent* e )
 void Table::focusInEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );		// draw current cell
-}    
+}
 
 
 /*
@@ -207,7 +207,7 @@ void Table::focusInEvent( QFocusEvent* )
 void Table::focusOutEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );		// draw current cell
-}    
+}
 
 
 /*
@@ -245,11 +245,11 @@ void Table::setHeader( QHeader *h )
     head = h;
     if ( h ) {
 	setCellWidth( 0 );
-	connect( head, SIGNAL(sizeChange(int,int)), this, SLOT(update()) );
+	connect( head, SIGNAL(sizeChange(int,int,int)), this, SLOT(update()) );
 	connect( head, SIGNAL(moved(int,int)), this, SLOT(update()) );
-	connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)), 
+	connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
 		 head, SLOT(setOffset(int)) );
-	connect( horizontalScrollBar(), SIGNAL(valueChanged(int)), 
+	connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
 		 head, SLOT(setOffset(int)) );
 
     }

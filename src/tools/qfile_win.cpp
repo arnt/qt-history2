@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -287,9 +287,9 @@ uint QFile::size() const
 	STAT( QFile::encodeName(fn), &st );
 #elif defined(_OS_WIN32_)
 	if ( qt_winunicode ) {
-	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
+	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), (STATBUF4TSTAT*)&st);
 	} else {
-	    _stat(qt_win95Name(fn), &st);
+	    STAT(qt_win95Name(fn), &st);
 	}
 #endif
     }
@@ -304,20 +304,20 @@ bool QFile::at( int pos )
 #endif
 	return FALSE;
     }
-    bool ok;
+    bool okay;
     if ( isRaw() ) {				// raw file
 	pos = (int)LSEEK(fd, pos, SEEK_SET);
-	ok = pos != -1;
+	okay = pos != -1;
     } else {					// buffered file
-	ok = fseek(fh, pos, SEEK_SET) == 0;
+	okay = fseek(fh, pos, SEEK_SET) == 0;
     }
-    if ( ok )
+    if ( okay )
 	ioIndex = pos;
 #if defined(CHECK_RANGE)
     else
 	qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif
-    return ok;
+    return okay;
 }
 
 int QFile::readBlock( char *p, uint len )

@@ -17,15 +17,15 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
-#include "qapplication.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
+#include "qapplication.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
@@ -43,11 +43,12 @@
 #endif
 
 
-// BEING REVISED: hanord (QSessionManager)
+// REVISED: arnt
 
 /*!
   \class QApplication qapplication.h
-  \brief The QApplication class manages the GUI application's control flow and main settings.
+  \brief The QApplication class manages the GUI application's control
+  flow and main settings.
 
   \ingroup environment
 
@@ -379,11 +380,11 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   QPaintDevice paint devices\endlink (includes widgets, pixmaps, bitmaps
   etc.)
 
-  Notice that \a argc and \a argv might be changed.  Qt removes
-  command line arguments that it recognizes.  \a argc and \a argv are
-  can be accessed later by \c qApp->argc() and \c qApp->argv().	 The
-  documentation for argv() contains a detailed description of how to
-  process command line arguments.
+  Notice that \a argc and \a argv might be changed. Qt removes command
+  line arguments that it recognizes. The original \a argc and \a argv
+  are can be accessed later by \c qApp->argc() and \c qApp->argv().
+  The documentation for argv() contains a detailed description of how
+  to process command line arguments.
 
   Qt debugging options (not available if Qt was compiled with the
   NO_DEBUG flag defined):
@@ -528,7 +529,9 @@ QApplication::QApplication( Display* dpy )
 void QApplication::init_precmdline()
 {
     translators = 0;
+    is_app_closing = FALSE;
     is_session_restored = FALSE;
+    app_exit_loop = FALSE;
 #if defined(CHECK_STATE)
     if ( qApp )
 	qWarning( "QApplication: There should be max one application object" );
@@ -557,7 +560,7 @@ void QApplication::initialize( int argc, char **argv )
 #elif defined(_WS_X11_)
 	app_style = new QMotifStyle; // default style for X Windows
 #elif defined(_WS_MAC_)
-	app_style = new QPlatinumStyle;
+	app_style = new QPlatinumStyle; // default comment
 #else
 #error "Toto... I have a feeling we're not in Kansas anymore."
 #endif
@@ -586,14 +589,15 @@ void QApplication::initialize( int argc, char **argv )
 /*!
   Returns the active popup widget.
 
-  A popup widget is a special top level widget that sets the WType_Popup
-  widget flag, e.g. the QPopupMenu widget.  When the application opens a
-  popup widget, all events are sent to the popup and normal widgets and
-  modal widgets cannot be accessed before the popup widget is closed.
+  A popup widget is a special top level widget that sets the \c
+  WType_Popup widget flag, e.g. the QPopupMenu widget. When the
+  application opens a popup widget, all events are sent to the popup.
+  Normal widgets and modal widgets cannot be accessed before the popup
+  widget is closed.
 
   Only other popup widgets may be opened when a popup widget is shown.
-  The popup widgets are organized in a stack.
-  This function returns the active popup widget on top of the stack.
+  The popup widgets are organized in a stack. This function returns
+  the active popup widget on top of the stack.
 
   \sa activeModalWidget(), topLevelWidgets()
 */
@@ -608,12 +612,12 @@ QWidget *QApplication::activePopupWidget()
   Returns the active modal widget.
 
   A modal widget is a special top level widget which is a subclass of
-  QDialog that specifies the modal parameter of the constructor to TRUE.
-  A modal widget must be finished before the user can continue with other
-  parts of the program.
+  QDialog that specifies the modal parameter of the constructor to
+  TRUE. A modal widget must be finished before the user can continue
+  with other parts of the program.
 
-  The modal widgets are organized in a stack.
-  This function returns the active modal widget on top of the stack.
+  The modal widgets are organized in a stack. This function returns
+  the active modal widget on top of the stack.
 
   \sa activePopupWidget(), topLevelWidgets()
 */
@@ -639,9 +643,7 @@ QWidget *QApplication::activeModalWidget()
 
 /*!
   Cleans up any window system resources that were allocated by this
-  application.  Sets the global variable \c qApp to null. Unlike
-  former versions of Qt the destructor does \e not delete all
-  remaining widgets.
+  application.  Sets the global variable \c qApp to null.
 */
 
 QApplication::~QApplication()
@@ -665,10 +667,21 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
     qt_cleanup();
+
+    /*
+    Cannot delete objectDict, as then all Class::metaObj variables
+    become invalid.  We could make a separate function to do this
+    to allow apps to assert "I will not use Qt any more". It is
+    not sufficient to assume that here, as a new QApplication might
+    be constructed.
+
     delete objectDict;
     objectDict = 0;
+    */
+
     qApp = 0;
     is_app_running = FALSE;
+    delete translators;
     // Cannot delete codecs until after QDict destructors
     // QTextCodec::deleteAllCodecs()
 }
@@ -691,10 +704,11 @@ QApplication::~QApplication()
   \c argv()[0] is the program name, \c argv()[1] is the first argument and
   \c argv()[argc()-1] is the last argument.
 
-  A QApplication object is constructed by passing \e argc and \e argv from
-  the \c main() function.  Some of the arguments may be recognized as Qt
-  options removed from the argument vector.  For example, the X11
-  version of Qt knows about \c -display, \c -font and a few more options.
+  A QApplication object is constructed by passing \e argc and \e argv
+  from the \c main() function. Some of the arguments may be recognized
+  as Qt options removed from the argument vector. For example, the X11
+  version of Qt knows about \c -display, \c -font and a few more
+  options.
 
   Example:
   \code
@@ -730,8 +744,14 @@ QApplication::~QApplication()
 */
 
 /*!
-  Sets the application GUI style to \a style.  Ownership of the style
-  object is not transfered.
+  Sets the application GUI style to \a style. Ownership of the style
+  object is transferred to QApplication, so QApplication will delete
+  the style object on application exit or when a new style is set.
+
+  Example usage:
+  \code
+    QApplication::setStyle( new QWindowStyle );
+  \endcode
 
   When switching application styles, the color palette is set back to
   the initital colors or the system defaults. This is necessary since
@@ -798,6 +818,7 @@ void QApplication::setStyle( QStyle *style )
 		}
 	    }
 	}
+	delete old;
     }
 }
 
@@ -909,16 +930,16 @@ void QApplication::setColorSpec( int spec )
 
 
 /*!
-  Returns a pointer to the default application palette.	 There is
+  Returns a pointer to the default application palette. There is
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
 
   If a widget is passed as argument, the default palette for the
   widget's class is returned. This may or may not be the application
-  palette, but in most cases there won't be a special palette for
-  certain types of widgets. An exception is the popup menu under
-  Windows, when the user defined a special background color for menus
-  in the display settings.
+  palett. In most cases there isn't be a special palette for certain
+  types of widgets, but one notable exception is the popup menu under
+  Windows, if the user has defined a special background color for
+  menus in the display settings.
 
   \sa setPalette(), QWidget::palette()
 */
@@ -926,10 +947,9 @@ void QApplication::setColorSpec( int spec )
 QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
-    if ( !qApp ) {
+    if ( !qApp )
 	qWarning( "QApplication::palette: This function can only be "
 		  "called after the QApplication object has been created" );
-    }
 #endif
     if ( !app_pal ) {
 	if ( !qt_std_pal )
@@ -956,12 +976,12 @@ QPalette QApplication::palette(const QWidget* w)
 
 
 /*!
-  Changes the default application palette to \a palette.  If \a informWidgets
-  is TRUE, then existing widgets are informed about the change and thus
-  may adjust themselves to the new application setting.  Otherwise the
-  change only affects newly created widgets.  If \a className is
-  passed, the change applies only to classes that inherit \a className
-  (as reported by QObject::inherits()).
+  Changes the default application palette to \a palette. If \a
+  informWidgets is TRUE, then existing widgets are informed about the
+  change and thus may adjust themselves to the new application
+  setting. Otherwise the change only affects newly created widgets. If
+  \a className is passed, the change applies only to classes that
+  inherit \a className (as reported by QObject::inherits()).
 
   The palette may be changed according to the current GUI style in
   QStyle::polish().
@@ -1009,8 +1029,8 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 }
 
 /*!
-  Returns the default font for a widget. Basically this function uses the
-  class name of the widget to get a font for it.
+  Returns the default font for a widget. Basically this function uses
+  \link QObject::className() w->className() \endlink to get a font for it.
 
   If \a w is 0 the default application font is returned.
 
@@ -1038,11 +1058,11 @@ QFont QApplication::font( const QWidget *w )
     return *app_font;
 }
 
-/*!  Changes the default application font to \a font.  If \a
+/*! Changes the default application font to \a font. If \a
   informWidgets is TRUE, then existing widgets are informed about the
   change and thus may adjust themselves to the new application
-  setting.  Otherwise the change only affects newly created widgets.
-  If \a className is passed, the change applies only to classes that
+  setting. Otherwise the change only affects newly created widgets. If
+  \a className is passed, the change applies only to classes that
   inherit \a className (as reported by QObject::inherits()).
 
   On application start-up, the default font depends on the window
@@ -1094,20 +1114,19 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 /*!
   Polishing of widgets.
 
-  Usually widgets call this automatically when they are polished.  It
+  Usually widgets call this automatically when they are polished. It
   may be used to do some style-based central customization of widgets.
 
   Note that you are not limited to public functions of QWidget.
-  Instead, based on meta information like QObject::className()
-  you are able to customize any kind of widgets.
+  Instead, based on meta information like QObject::className() you are
+  able to customize any kind of widgets.
 
   \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
 */
 
 void QApplication::polish( QWidget *w )
 {
-
-#if 0
+#if 0 // ### why is this left in?
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
@@ -1119,13 +1138,13 @@ void QApplication::polish( QWidget *w )
 /*!
   Returns a list of the top level widgets in the application.
 
-  The list is created using new and must be deleted by the caller.
+  The list is created using \c new and must be deleted by the caller.
 
-  The list is \link QList::isEmpty() empty \endlink if there are no
-  top level widgets.
+  The list is empty (QList::isEmpty()) if there are no top level
+  widgets.
 
   Note that some of the top level widgets may be hidden, for example
-  all the popup menus of a menubar.
+  the tooltip if no tooltip is currently shown.
 
   Example:
   \code
@@ -1134,10 +1153,11 @@ void QApplication::polish( QWidget *w )
     //
     QWidgetList	 *list = QApplication::topLevelWidgets();
     QWidgetListIt it( *list );	// iterate over the widgets
-    while ( it.current() ) {	// for each top level widget...
-	if ( !it.current()->isVisible() )
-	    it.current()->show();
+    QWidget * w;
+    while ( (w=it.current()) != 0 ) {	// for each top level widget...
 	++it;
+	if ( !w->isVisible() )
+	    w->show();
     }
     delete list;		// delete the list, not the widgets
   \endcode
@@ -1159,8 +1179,7 @@ QWidgetList *QApplication::topLevelWidgets()
 
   The list is created using new and must be deleted by the caller.
 
-  The list is \link QList::isEmpty() empty \endlink if there are no
-  widgets.
+  The list is empty (QList::isEmpty()) if there are no widgets.
 
   Note that some of the widgets may be hidden.
 
@@ -1171,19 +1190,18 @@ QWidgetList *QApplication::topLevelWidgets()
     //
     QWidgetList	 *list = QApplication::allWidgets();
     QWidgetListIt it( *list );		// iterate over the widgets
-    while ( it.current() ) {		// for each top level widget...
-	it.current()->update();
+    QWidget * w;
+    while ( (w=it.current()) != 0 ) {	// for each widget...
 	++it;
+	w->update();
     }
     delete list;			// delete the list, not the widgets
   \endcode
 
   The QWidgetList class is defined in the qwidcoll.h header file.
 
-  \warning
-  Delete the list away as soon you have finished using it.
-  You can get in serious trouble if you for instance try to access
-  a widget that has been deleted.
+  \warning Delete the list away as soon you have finished using it.
+  The widgets in the list may be deleted by someone else at any time.
 
   \sa topLevelWidgets(), QWidget::isVisible(), QList::isEmpty(),
 */
@@ -1195,24 +1213,27 @@ QWidgetList *QApplication::allWidgets()
 
 /*!
   \fn QWidget *QApplication::focusWidget() const
-  Returns the application widget that has the keyboard input focus, or null
-  if no application widget has the focus.
+
+  Returns the application widget that has the keyboard input focus, or
+  null if no widget in this application has the focus.
+
   \sa QWidget::setFocus(), QWidget::hasFocus(), activeWindow()
 */
 
 /*!
   \fn QWidget *QApplication::activeWindow() const
 
-  Returns the application toplevel window that has the keyboard input
+  Returns the application top-level window that has the keyboard input
   focus, or null if no application window has the focus. Note that
-  there might be an activeWindow even if there is no focusWidget, if
-  no widget in that window accepts key events.
+  there might be an activeWindow even if there is no focusWidget(),
+  for example if no widget in that window accepts key events.
 
   \sa QWidget::setFocus(), QWidget::hasFocus(), focusWidget()
 */
 
 /*!
   Returns display (screen) font metrics for the application font.
+
   \sa font(), setFont(), QWidget::fontMetrics(), QPainter::fontMetrics()
 */
 
@@ -1229,11 +1250,12 @@ QFontMetrics QApplication::fontMetrics()
   event loop and returns from the call to exec(). The exec() function
   returns \a retcode.
 
-  By convention, \a retcode 0 means success, any non-zero value indicates
-  an error.
+  By convention, \a retcode 0 means success, any non-zero value
+  indicates an error.
 
-  Note that unlike the C library exit function, this function \e does
-  returns to the caller - it is event processing that stops.
+  Note that unlike the C library function of the same name, this
+  function \e does returns to the caller - it is event processing that
+  stops.
 
   \sa quit(), exec()
 */
@@ -1254,8 +1276,8 @@ void QApplication::exit( int retcode )
   Tells the application to exit with return code 0 (success).
   Equivalent to calling QApplication::exit( 0 ).
 
-  This function is a \link metaobjects.html slot\endlink, i.e. you
-  may connect any signal to activate quit().
+  This function is a slot, so you may connect any signal to activate
+  quit().
 
   Example:
   \code
@@ -1321,7 +1343,8 @@ void QApplication::closeAllWindows()
   top level window.
 
   The signal is very useful when your application has many top level
-  widgets but no main widget. You can then connect it to the quit() slot.
+  widgets but no main widget. You can then connect it to the quit()
+  slot.
 
   For convenience, transient toplevel widgets such as popup menus and
   dialogs are omitted.
@@ -1483,11 +1506,11 @@ bool QApplication::closingDown()
 
 
 /*!
-  Processes pending events, for 3 seconds or until there
-  are no more events to process, then return.
+  Processes pending events, for 3 seconds or until there are no more
+  events to process, whichever is shorter.
 
-  You can call this function occasionally when your program is busy doing a
-  long operation (e.g. copying a file).
+  You can call this function occasionally when your program is busy
+  doing a long operation (e.g. copying a file).
 
   \sa processOneEvent(), exec(), QTimer
 */
@@ -1500,10 +1523,10 @@ void QApplication::processEvents()
 /*!
   Waits for an event to occur, processes it, then returns.
 
-  This function is useful for adapting Qt to situations where the event
-  processing must be grafted into existing program loops.  Beware
-  that using this function in new applications may be an indication
-  of design problems.
+  This function is useful for adapting Qt to situations where the
+  event processing must be grafted into existing program loops. Using
+  this function in new applications may be an indication of design
+  problems.
 
   \sa processEvents(), exec(), QTimer
 */
@@ -1527,6 +1550,7 @@ void QApplication::syncX()	{}		// do nothing
 
 
 /*!\obsolete
+
   Sets the color used to mark selections in windows style for all widgets
   in the application. Will repaint all widgets if the color is changed.
 
@@ -1543,7 +1567,9 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 
 
 /*!\obsolete
+
   Returns the color used to mark selections in windows style.
+
   \sa setWinStyleHighlightColor()
 */
 const QColor& QApplication::winStyleHighlightColor()
@@ -1558,10 +1584,10 @@ const QColor& QApplication::winStyleHighlightColor()
   Returns the version of the Windows operating system running:
 
   <ul>
-  <li> \c Qt::WV_95 Windows 95.
-  <li> \c Qt::WV_98 Windows 98.
-  <li> \c Qt::WV_NT Windows NT (NT4).
-  <li> \c Qt::WV_2000 Windows 2000 (NT5).
+  <li> \c Qt::WV_95 - Windows 95.
+  <li> \c Qt::WV_98 - Windows 98.
+  <li> \c Qt::WV_NT - Windows NT 4.x.
+  <li> \c Qt::WV_2000 - Windows 2000 (NT5).
   </ul>
 
   Note that this function is implemented for the Windows version
@@ -1606,10 +1632,10 @@ void QApplication::removeTranslator( QTranslator * mf )
 
 /*!
   If the literal quoted text in the program is not in the Latin1
-  encoding, this function can be used to
-  set the appropriate encoding.  For example, software developed
-  by Korean programmers might use eucKR for all the text in the program,
-  in which case main() would be:
+  encoding, this function can be used to set the appropriate encoding. 
+  For example, software developed by Korean programmers might use
+  eucKR for all the text in the program, in which case main() would
+  be:
 
   \code
     main(int argc, char** argv)
@@ -1621,12 +1647,12 @@ void QApplication::removeTranslator( QTranslator * mf )
     }
   \endcode
 
-  Note that this is \e not the way to select the encoding that the
-  \e user has chosen.  For example, to convert an application containing
-  literal English strings to Korean, all that is needed is for the English
-  strings to be passed through tr() and for translation files to be
-  loaded.  For details of internationalization, see the \link i18n.html
-  Qt Internationalization documentation\endlink.
+  Note that this is \e not the way to select the encoding that the \e
+  user has chosen. For example, to convert an application containing
+  literal English strings to Korean, all that is needed is for the
+  English strings to be passed through tr() and for translation files
+  to be loaded. For details of internationalization, see the \link
+  i18n.html Qt Internationalization documentation\endlink.
 
   Note also that some Qt built-in classes call tr() with various
   strings.  These strings are in English, so for a full translation, a
@@ -1764,21 +1790,13 @@ void QApplication::sendPostedEvents()
 
 
 
-/*##############
-
-  The following was in the documentation. The code did not implement it.
-
-  If \a receiver is 0, all objects get their events.  If \a event_type is
-  0, all types of events are dispatched.
-
-*/
 /*!
   Immediately dispatches all events which have been previously enqueued
   with QApplication::postEvent() and which are for the object \a receiver
   and have the \a event_type.
 
-  Some event compression may occur.  Note that events from the
-  window system are \e not dispatched by this function.
+  Some event compression may occur. Note that events from the window
+  system are \e not dispatched by this function.
 */
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
@@ -1833,9 +1851,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		    break;
 		case QEvent::Paint:
 		    if ( ((QPaintEvent*)pe->event)->erased() )
-			erasePaintRegion = erasePaintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
+			erasePaintRegion = erasePaintRegion.unite( ((QPaintEvent*)pe->event)->region() );
 		    else
-			paintRegion = paintRegion.unite(  ((QPaintEvent*)pe->event)->region() );
+			paintRegion = paintRegion.unite( ((QPaintEvent*)pe->event)->region() );
 		    first = FALSE;
 		    break;
 		default:
@@ -1857,7 +1875,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
 	} else if ( event_type == QEvent::Paint ) {
-	    if ( receiver->isWidgetType() && ((QWidget*)receiver)->isVisible() ) {
+	    if ( receiver->isWidgetType() && 
+		 ((QWidget*)receiver)->isVisible() ) {
 		QWidget* w = (QWidget*)receiver;
 		if ( !erasePaintRegion.isEmpty() )
 		    w->repaint( erasePaintRegion, TRUE );
@@ -1881,8 +1900,10 @@ static void cleanupPostedEvents()		// cleanup list
 /*!
   Removes all events posted using postEvent() for \a receiver.
 
-  The events are \e not dispatched, simply removed from the queue.
-  You should never need to call this function.
+  The events are \e not dispatched, simply removed from the queue. You
+  should never need to call this function. If you do call it, be aware
+  that killing events may cause \a receiver to break one or more
+  invariants.
 */
 
 void QApplication::removePostedEvents( QObject *receiver )
@@ -1986,7 +2007,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 	    }
 	    qWarning("QEvent: Warning: %s event deleted while posted to %s %s",
 		     n,
-		     pe->receiver ? pe->receiver->className() : "null ",
+		     pe->receiver ? pe->receiver->className() : "null",
 		     pe->receiver ? pe->receiver->name() : "object" );
 	    // note the beautiful uglehack if !pe->receiver :)
 #endif
@@ -2059,14 +2080,15 @@ void QApplication::setActiveWindow( QWidget* act )
 /*!
   Returns the desktop widget (also called the root window).
 
-  The desktop widget is useful for obtaining the size of the screen.
-  It can also be used to draw on the desktop.
+  The desktop widget is useful for obtaining the size of the screen. 
+  It may also be possible to draw on the desktop. We recommend against
+  assuming that it's possible to draw on the deskop, as it works on
+  some machines and not on others.
 
   \code
     QWidget *d = QApplication::desktop();
     int w=d->width();			// returns screen width
     int h=d->height();			// returns screen height
-    d->setBackgroundColor( red );	// makes desktop red
   \endcode
 */
 
@@ -2119,8 +2141,9 @@ bool QApplication::desktopSettingsAware()
 
 
 /*!
-  This function enters the main event loop (recursively).
-  Do not call it unless you really know what you are doing.
+  This function enters the main event loop (recursively). Do not call
+  it unless you really know what you are doing.
+
   \sa exit_loop(), loopLevel()
 */
 
@@ -2145,8 +2168,9 @@ int QApplication::enter_loop()
 
 
 /*!
-  This function leaves from a recursive call to the main event loop.
+  This function leaves from a recursive call to the main event loop. 
   Do not call it unless you are an expert.
+
   \sa enter_loop(), loopLevel()
 */
 
@@ -2172,7 +2196,7 @@ int QApplication::loopLevel() const
   \fn bool QApplication::isSessionRestored() const
 
   Returns whether the application has been restored from an earlier
-  \link session.html session \endlink.
+  session.
 
   \sa sessionId(), commitData(), saveState()
 */
@@ -2181,8 +2205,7 @@ int QApplication::loopLevel() const
 /*!
   \fn QString QApplication::sessionId() const
 
-  Returns the identifier of the current \link session.html session
-  \endlink.
+  Returns the identifier of the current session.
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
@@ -2197,9 +2220,8 @@ int QApplication::loopLevel() const
 /*!
   \fn void QApplication::commitData( QSessionManager& sm )
 
-  This function deals with \link session.html session management
-  \endlink. It is invoked when the \link QSessionManager session
-  manager \endlink wants the application to commit all its data.
+  This function deals with session management. It is invoked when the
+  QSessionManager wants the application to commit all its data.
 
   Usually this means saving of all open files, after getting
   permission from the user. Furthermore you may want to provide the
@@ -2215,24 +2237,50 @@ int QApplication::loopLevel() const
   and QSessionManager::allowsErrorInteraction() for details and
   example usage.
 
-  Details about session management in general can be found \link
-  session.html here \endlink.
+  The default implementation requests interaction and sends a close
+  event to all visible toplevel widgets. If at least one event was
+  rejected, the shutdown is cancelled.
 
   \sa isSessionRestored(), sessionId(), saveState()
 */
 
-void QApplication::commitData( QSessionManager& /* sm */ )
+void QApplication::commitData( QSessionManager& sm  )
 {
+
+    if ( sm.allowsInteraction() ) {
+	QWidgetList done;
+	QWidgetList *list = QApplication::topLevelWidgets();
+	bool cancelled = FALSE;
+	QWidget* w = list->first();
+	while ( !cancelled && w ) {
+	    if ( !w->testWState( WState_ForceHide ) ) {
+		QCloseEvent e;
+		sendEvent( w, &e );
+		cancelled = !e.isAccepted();
+		if ( !cancelled )
+		    done.append( w );
+		delete list; // one never knows...
+		list = QApplication::topLevelWidgets();
+		w = list->first();
+	    } else {
+		w = list->next();
+	    }
+	    while ( w && done.containsRef( w ) )
+		w = list->next();
+	}
+	delete list;
+	if ( cancelled )
+	    sm.cancel();
+    }
 }
 
 
 /*!
   \fn void QApplication::saveState( QSessionManager& sm )
 
-  This function deals with \link session.html session management
-  \endlink It is invoked when the \link QSessionManager session
-  manager \endlink wants the application to preserve its state for a
-  future session.
+  This function deals with session management.  It is invoked when the
+  \link QSessionManager session manager \endlink wants the application
+  to preserve its state for a future session.
 
   For a text editor this would mean creating a temporary file that
   includes the current contents of the edit buffers, the location of
@@ -2249,9 +2297,6 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   interaction is possible, \e unless you ask the session manager \a sm
   for explicit permission. See QSessionManager::allowsInteraction()
   and QSessionManager::allowsErrorInteraction() for details.
-
-  Details about session management in general can be found \link
-  session.html here \endlink
 
   \sa isSessionRestored(), sessionId(), commitData()
 */
@@ -2276,8 +2321,8 @@ void QApplication::setStartDragTime( int ms )
   start after a mouse click and after a certain time elapsed, you
   should use the value which this method returns as delay (in ms).
 
-  Qt internally uses also this delay e.g. in QMultiLineEdit for starting
-  a drag.
+  Qt internally uses also this delay e.g. in QMultiLineEdit for
+  starting a drag.
 
   The defaul value is set to 250 ms.
 
@@ -2302,11 +2347,12 @@ void QApplication::setStartDragDistance( int l )
 
 /*!
   If you support drag'n'drop in you application and a drag should
-  start after a mouse click and after moving the mouse a certain distance,
-  you should use the value which this method returns as the distance. So
-  if the mouse position of the click is stored in \c startPos and the current
-  position (e.g. in the mouse move event) is \c currPos, you can find out if a
-  drag should be started with a code like this:
+  start after a mouse click and after moving the mouse a certain
+  distance, you should use the value which this method returns as the
+  distance. So if the mouse position of the click is stored in \c
+  startPos and the current position (e.g. in the mouse move event) is
+  \c currPos, you can find out if a drag should be started with a code
+  like this:
 
   \code
   if ( ( startPos - currPos ).manhattanLength() > QApplication::startDragDistance() )
@@ -2331,23 +2377,27 @@ int QApplication::startDragDistance()
 
   \ingroup environment
 
-  The QSessionManager class provides access to the session manager
-  during a \link session.html session management \endlink action.  In
-  Qt, session management actions are handled in the two virtual
-  functions QApplication::commitData() and QApplication::saveState().
-  Both functions provide a reference to a session manager object as
-  argument, thus allowing the application to communicate with the
-  session manager.
+  The session manager is responsible for session management, most
+  importantly interruption and resumption.
+
+  QSessionManager provides an interface between the application and
+  the session manager, so that the program can work well with the
+  session manager. In Qt, the session management requests for action
+  are handled by the two virtual functions QApplication::commitData()
+  and QApplication::saveState(). Both functions provide a reference to
+  a session manager object as argument, thus allowing the application
+  to communicate with the session manager.
 
   During a session management action, i.e. within one of the two
   mentioned functions, no user interaction is possible, \e unless the
-  application got explicit permission from the session manager.  An
-  ordinary permission can be requested with allowsInteraction().  With
-  allowsErrorInteraction(), applications can ask for a higher priority
-  interaction permission in case an error occured.
+  application got explicit permission from the session manager. You
+  can ask for mermission by calling allowsInteraction() or, if it's
+  really urgent, allowsErrorInteraction(). Qt does not enforce this,
+  but the session manager may. Perhaps.
 
-  Another important function is cancel(), which asks the session
-  manager to cancel the shutdown process.
+  You can try to abort the shutdown process by calling cancel. The
+  default commitData() function does that if some top-level window
+  rejected its closeEvent().
 
   For sophisticated session managers as provided on Unix/X11,
   QSessionManager offers further possibilites to fine-tune an
@@ -2386,8 +2436,7 @@ int QApplication::startDragDistance()
 /*!
   \fn QString QSessionManager::sessionId() const
 
-  Returns the identifier of the current \link session.html session
-  \endlink.
+  Returns the identifier of the current session.
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
@@ -2412,19 +2461,19 @@ int QApplication::startDragDistance()
   user.  Returns TRUE if the interaction was granted, FALSE
   otherwise.
 
-  The rationale behind this is to make it possible to synchronize user
-  interaction during a shutdown.  Advanced session managers on
-  multitasking operating systems may ask all applications
-  simultaniously to commit their data, which results in a much faster
-  shutdown.
+  The rationale behind this mechanism is to make it possible to
+  synchronize user interaction during a shutdown. Advanced session
+  managers may ask all applications simultaniously to commit their
+  data, resulting in a much faster shutdown.
 
-  After the interaction we recommend releasing the user interaction
-  semaphore with a call to release().  This way, other applications
-  may get the chance to interact with the user while your application
-  is still busy saving data.
+  When the interaction is done we strongyl recommend releasing the
+  user interaction semaphore with a call to release(). This way, other
+  applications may get the chance to interact with the user while your
+  application is still busy saving data. (The sempahore is implictly
+  released when the application exits.)
 
   If the user decides to cancel the shutdown process during the
-  interaction phase, you must tell the session manager by calling to
+  interaction phase, you must tell the session manager so by calling
   cancel().
 
   Here's an example usage of the mentioned functions that may occur
@@ -2467,10 +2516,10 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn bool QSessionManager::allowsErrorInteraction()
 
   Like allowsInteraction() but tells the session manager in addition
-  that an error occured.  Session managers may treat error interaction
-  requests with higher priority.  That means it is more likely that an
-  error interaction is granted.  However, you are still not guaranteed
-  that the session manager will grant your request.
+  that an error occured. Session managers may give error interaction
+  request higher priority. That means it is more likely that an error
+  interaction is granted. However, you are still not guaranteed that
+  the session manager will grant your request.
 
   \sa allowsInteraction(), release(), cancel()
 */
@@ -2487,9 +2536,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::cancel()
 
-  Tells the session manager to cancel the shutdown process.
-  Applications should not call this function without asking the user
-  first.
+  Tells the session manager to cancel the shutdown process.   Applications
+  should not call this function without asking the user first.
 
   \sa allowsInteraction(), allowsErrorInteraction()
 
@@ -2498,7 +2546,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::setRestartHint( RestartHint hint )
 
-  Sets the application's restart hint to \a hint.  On application
+  Sets the application's restart hint to \a hint. On application
   start-up the hint is set to \c RestartIfRunning.
 
   Note that these flags are only hints, a session manager may or may
@@ -2594,17 +2642,20 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::requestPhase2()
 
-  Requests a second session management phase for the application.  The
-  application may then simply return from the
-  QApplication::commitData() or QApplication::saveState() function.
-  The respective function will be called again after the first session
-  management phase has been finished, this time with isPhase2()
-  returning TRUE.
+  Requests a second session management phase for the application. The
+  application may then return immediately from the
+  QApplication::commitData() or QApplication::saveState() function,
+  and they will be called again once most/all other applications have
+  finished their session management.
 
   The two phases are useful for applications like X11 window manager,
   that need to store informations about other application's windows
   and therefore have to wait until these applications finished their
   respective session management tasks.
+
+  Note that if another application has requested a second phase, it
+  may get called before, simultaneously with, or after your
+  application's second phase.
 
   \sa isPhase2()
 */

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -74,10 +74,9 @@
   \endcode
 
   \e Normal and \e permanent messages are displayed by creating a small
-  widget then adding it to the status bar with
-  addWidget().  Widgets like QLabel, QProgressBar, or even QToolButton
-  are useful for adding to status bars.  removeWidget() it used
-  to remove widgets.
+  widget then adding it to the status bar with addWidget().  Widgets
+  like QLabel, QProgressBar, or even QToolButton are useful for adding
+  to status bars.  removeWidget() is used to remove widgets.
 
   \code
      statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
@@ -199,6 +198,8 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
 
 void QStatusBar::removeWidget( QWidget* widget )
 {
+    if ( !widget )
+	return;
     bool found = FALSE;
     QStatusBarPrivate::SBItem* item = d->items.first();
     while ( item && !found ) {
@@ -218,7 +219,7 @@ void QStatusBar::removeWidget( QWidget* widget )
 }
 
 /*!
-  \fn bool QStatusBar::sizeGripEnabled() const
+  \fn bool QStatusBar::isSizeGripEnabled() const
 
   Returns whether the QSizeGrip in the bottom right of the status bar
   is enabled.
@@ -226,11 +227,16 @@ void QStatusBar::removeWidget( QWidget* widget )
   \sa setSizeGripEnabled()
 */
 
+bool QStatusBar::isSizeGripEnabled() const
+{
+    return (bool)d->resizer;
+}
+
 /*!
   Enables or disables the QSizeGrip in the bottom right of the status bar.
   By default, the size grip is enabled.
 
-  \sa sizeGripEnabled()
+  \sa isSizeGripEnabled()
 */
 void QStatusBar::setSizeGripEnabled(bool enabled)
 {

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -279,9 +279,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			const char * lparg = 0;
 			QString lphack;
 			if ( pr || option_string ) {
-			    lprhack = QString::fromLatin1( "-P" ) + pr;
+			    lprhack = pr;
+			    lprhack.prepend( option_string ? option_string :
+					     QString::fromLatin1( "-P" ) );
 			    lprarg = lprhack.ascii();
-			    lphack = QString::fromLatin1( "-d" ) + pr;
+			    lphack = pr;
+			    lphack.prepend( option_string ? option_string :
+					    QString::fromLatin1( "-d" ) );
 			    lparg = lphack.ascii();
 			}
 			(void)execlp( "lp", "lp", lparg, 0 );

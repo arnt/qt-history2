@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -48,7 +48,7 @@ class Q_EXPORT QTextView : public QScrollView
     Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
     Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
     Q_PROPERTY( QString documentTitle READ documentTitle )
-	
+
 public:
     QTextView(QWidget *parent=0, const char *name=0);
     QTextView( const QString& text, const QString& context = QString::null,
@@ -132,6 +132,12 @@ private:
     void updateLayout();
     void clearSelection();
     void doSelection( const QPoint& );
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QTextView( const QTextView & );
+    QTextView& operator=( const QTextView & );
+#endif
 };
 
 

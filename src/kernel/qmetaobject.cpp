@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -256,7 +256,7 @@ QMetaObject::~QMetaObject()
     delete slotDict;				// delete dicts
     delete signalDict;
     delete d;
-    delete reserved;
+    // delete reserved;				// Unused void*
 }
 
 
@@ -570,9 +570,11 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
     while ( super ) {
 	const QMetaProperty* p = super->property( prop->n );
 	if( p ) {
-	    if ( strcmp( prop->type(), p->type() ) != 0 )
-		qDebug( "Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(),
-			prop->type(), className(), prop->name() );
+	    if ( strcmp( prop->type(), p->type() ) != 0 ) {
+#if defined(CHECK_STATE)
+		qWarning( "QMetaObject::resolveProperty: Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(), prop->type(), className(), prop->name() );
+#endif
+	    }
 	    if ( prop->get == 0 ) {
 		if ( p->get ) {
 		    prop->get = p->get;
@@ -609,16 +611,20 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	if ( prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
 	    QMetaEnum* e = super->enumerator( prop->t);
 	    if ( e && e->set ) {
-		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) )
-		    qDebug("The property %s %s::%s assumed that '%s' was listed in Q_ENUMS, but it was listed in Q_SETS",
-			   prop->type(), className(), prop->name(), prop->type() );
+		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
+#if defined(CHECK_STATE)
+		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_ENUMS, but it was listed in Q_SETS", prop->type(), className(), prop->name(), prop->type() );
+#endif
+		}
 		prop->enumData = e;
 		prop->clearFlags( QMetaProperty::UnresolvedEnum );
 	    }
 	    else if ( e && !e->set ) {
-		if ( !prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedEnumOrSet ) )
-		    qDebug("The property %s %s::%s assumed that '%s' was listed in Q_SETS, but it was listed in Q_ENUMS",
-			   prop->type(), className(), prop->name(), prop->type() );
+		if ( !prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedEnumOrSet ) ) {
+#if defined(CHECK_STATE)
+		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_SETS, but it was listed in Q_ENUMS", prop->type(), className(), prop->name(), prop->type() );
+#endif
+		}
 		prop->enumData = e;
 		prop->clearFlags( QMetaProperty::UnresolvedEnum );
 	    }
@@ -626,8 +632,11 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	super = super->superclass;
     }
 
-    if ( !prop->isValid() )
-	qDebug("Could not resolve property %s::%s. Property not available.", className(), prop->name() );
+    if ( !prop->isValid() ) {
+#if defined(CHECK_STATE)
+	qWarning("QMetaObject::resolveProperty: Could not resolve property %s::%s. Property not available.", className(), prop->name() );
+#endif
+    }
 }
 
 
@@ -660,31 +669,18 @@ const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 QStrList QMetaObject::propertyNames( bool super ) const
 {
     QStrList l( FALSE );
-    for( int i = 0; i < d->numPropData; ++i ) {
-	if ( d->propData[i].isValid() )
-	    l.inSort( d->propData[i].name() );
-    }
 
     if ( superclass && super ) {
 	QStrList sl = superclass->propertyNames( super );
 	for ( QStrListIterator slit( sl ); slit.current(); ++slit )
-	    l.inSort ( slit.current() );
+	    l.append( slit.current() );
     }
 
-    if ( l.count() < 2 )
-	return l;
-
-    // Remove dups
-    QStrListIterator it( l );
-    const char* old = it.current();
-    ++it;
-    while( it.current() ) {
-	if ( strcmp( old, it.current() ) == 0 ) {
-	    l.removeRef( old );
-	}
-	old = it.current();
-	++it;
+    for( int i = 0; i < d->numPropData; ++i ) {
+	if ( d->propData[i].isValid() )
+	    l.append( d->propData[i].name() );
     }
+
     return l;
 }
 
@@ -700,21 +696,7 @@ QStrList QMetaObject::signalNames( bool super ) const
     QStrList l( FALSE );
     int n = numSignals( super );
     for( int i = 0; i < n; ++i ) {
-	l.inSort( signal(i, super)->name );
-    }
-    if ( l.count() < 2 )
-	return l;
-
-    // Remove dups
-    QStrListIterator it( l );
-    const char* old = it.current();
-    ++it;
-    while( it.current() ) {
-	if ( strcmp( old, it.current() ) == 0 ) {
-	    l.removeRef( old );
-	}
-	old = it.current();
-	++it;
+	l.append( signal(i, super)->name );
     }
     return l;
 }
@@ -731,21 +713,7 @@ QStrList QMetaObject::slotNames( bool super ) const
     QStrList l( FALSE );
     int n = numSlots( super );
     for( int i = 0; i < n; ++i ) {
-	l.inSort( slot(i, super)->name );
-    }
-    if ( l.count() < 2 )
-	return l;
-
-    // Remove dups
-    QStrListIterator it( l );
-    const char* old = it.current();
-    ++it;
-    while( it.current() ) {
-	if ( strcmp( old, it.current() ) == 0 ) {
-	    l.removeRef( old );
-	}
-	old = it.current();
-	++it;
+	l.append( slot(i, super)->name );
     }
     return l;
 }
@@ -789,8 +757,11 @@ bool QMetaObject::inherits( const char* clname ) const
   Property meta data mainly consists of a type(), a name() and the
   fact, whether a property is writeable(), designable() or stored().
 
-  The functions isSetType(), isEnumType() and enumKeys() provide further
-  information about a property's type.
+  The functions isSetType(), isEnumType() and enumKeys() provide
+  further information about a property's type. The conversion
+  functions keyToValue(), valueToKey(), keysToValue() and
+  valueToKeys() allow to convert between the integer representation of
+  an enumeration or set value and its literal representation.
 
   Actual property values are set and received through QObject's set
   and get functions.  See QObject::setProperty() and
@@ -815,6 +786,86 @@ QStrList QMetaProperty::enumKeys() const
      }
      return l;
 }
+
+/*!  
+  Converts the enumeration key \a key to its integer
+  value.
+  
+  For set types, use keysToValue().
+  
+\sa valueToKey(), isSetType(), keysToValue()
+ */
+int QMetaProperty::keyToValue( const char* key ) const
+{
+    if ( !isEnumType() )
+	return -1;
+    
+    for( uint i = enumData->count; i > 0; --i ) {
+	if ( !qstrcmp( key, enumData->items[i-1].key) )
+	    return enumData->items[i-1].value;
+    }
+    return -1;
+}
+
+/*!  
+  Converts the enumeration value \a value to its literal key.
+
+  For set types, use valueToKeys().
+  
+\sa valueToKey(), isSetType(), valueToKeys()
+ */
+const char* QMetaProperty::valueToKey( int value ) const
+{
+    if ( !isEnumType() )
+	return 0;
+    
+    for( uint i = enumData->count; i > 0; --i ) {
+	if ( value == enumData->items[i-1].value )
+	    return enumData->items[i-1].key ;
+    }
+    return 0;
+}
+
+/*!  
+  Converts the list of keys \a keys to their combined integer
+  value.
+
+\sa isSetType(), valueToKey(), keysToValue()
+ */
+int QMetaProperty::keysToValue( const QStrList& keys ) const
+{
+    if ( !isEnumType() )
+	return -1;
+    
+    int value = 0;
+    for ( QStrListIterator it( keys ); it.current(); ++it ) {
+	value |= keyToValue( it.current() );
+    }
+    return value;
+}
+
+/*!  
+  Converts the set value \a value to a list of keys.
+  
+\sa isSetType(), valueToKey(), valueToKeys()
+ */
+QStrList QMetaProperty::valueToKeys( int value ) const
+{
+    QStrList keys;
+    
+    if ( !isEnumType() )
+	return keys;
+    
+    for( uint i = enumData->count; i > 0; --i ) {
+	int k = enumData->items[i-1].value;
+	if ( (value & k) == k ) {
+	    value = value & ~k;
+	    keys.append( enumData->items[i-1].key );
+	}
+    }
+    return keys;
+}
+
 
 
 /*! \internal

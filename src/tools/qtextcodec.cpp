@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -74,7 +74,6 @@ void QTextCodec::deleteAllCodecs()
     ball->clear();
     delete ball;
     destroying_is_ok = FALSE;
-    qDebug( "ball over (%p)", all );
 }
 
 
@@ -467,7 +466,7 @@ static bool try_locale_list( const char * const locale[], const char * lang )
 // For the probably_koi8_locales we have to look. the standard says
 // these are 8859-5, but almsot all Russion users uses KOI8-R and
 // incorrectly set $LANG to ru_RU. We'll check tolower() to see what
-// tolower() things ru_RU means.
+// tolower() thinks ru_RU means.
 
 // If you read the history, it seems that many Russians blame ISO and
 // Peristroika for the confusion.
@@ -497,7 +496,8 @@ static QTextCodec * ru_RU_hack( const char * i ) {
 	} else {
 	    // something else again... let's assume... *throws dice*
 	    ru_RU_codec = QTextCodec::codecForName( "KOI8-R" );
-	    qWarning( "QTextCodec: using KOI8-R but probe failed" );
+	    qWarning( "QTextCodec: using KOI8-R, probe failed (%02x %02x %s)",
+		      koi8r, latin5, i );
 	}
 	setlocale( LC_CTYPE, origlocale.data() );
     }
@@ -910,7 +910,7 @@ public:
 };
 
 class QTextCodecFromIOD : public QTextCodec {
-    friend QTextCodecFromIODDecoder;
+    friend class QTextCodecFromIODDecoder;
 
     QCString n;
 

@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -564,7 +564,7 @@ int QStyleSheetItem::margin(Margin m) const
   \c MarginTop, \c MarginBottom, \c MarginAll, \c MarginVertical or \c
   MarginHorizontal.  The value \a v must be >= 0.
 
-  \sa border()
+  \sa margin()
  */
 void QStyleSheetItem::setMargin(Margin m, int v)
 {
@@ -1031,7 +1031,7 @@ void QStyleSheet::init()
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
-    style->setMargin(QStyleSheetItem::MarginAll, 8 );
+    style->setMargin(QStyleSheetItem::MarginHorizontal, 40 );
 
      style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
@@ -1239,7 +1239,7 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 {
     if ( text.isEmpty() )
 	return FALSE;
-    if ( text.left(5) == "<!DOC" )
+    if ( text.left(5).lower() == "<!doc" )
 	return TRUE;
     int open = 0;
     while ( open < int(text.length()) && text[open] != '<'
@@ -1293,7 +1293,8 @@ void QStyleSheet::error( const QString& ) const
 
   Typical logical font sizes range from 1 to 7, with 1 being the smallest.
 
-  \sa logicalFontSize(), logicalFontSizeStep(), QFont::setPointSize()
+  \sa QStyleSheetItem::logicalFontSize(),
+  QStyleSheetItem::logicalFontSizeStep(), QFont::setPointSize()
  */
 void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
 {

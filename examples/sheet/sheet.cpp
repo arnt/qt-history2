@@ -14,14 +14,18 @@
 #include "sheet.h"
 
 
+static const int rows = 5;
+static const int cols = 7;
+
+
 Sheet::Sheet( QWidget *parent, const char *name )
     :QWidget(parent,name)
 {
     pie = 0;
+    setBackgroundMode( PaletteBase );
+    tableView = new MyTableView(rows,cols,this,Tbl_clipCellPainting );
 
-    tableView = new MyTableView(10,10,this,Tbl_clipCellPainting );
-
-    table = new ParsedArray(10,10);
+    table = new ParsedArray(rows,cols);
 
     head = new MyTableLabel( 'A', "Column ", this );
     head->setNumCols(1);
@@ -36,7 +40,7 @@ Sheet::Sheet( QWidget *parent, const char *name )
     side->setCellWidth(tableView->cellWidth()/2);
 
     extraH = head->tHeight();
-    extraW = side->tWidth();;
+    extraW = side->tWidth();
 
     head->move(extraW,0);
     side->move(0,extraH);
@@ -94,7 +98,7 @@ void Sheet::showPie()
 {
 
     int i=0;
-    for ( int row=0; row < 10; row++ )
+    for ( int row=0; row < rows; row++ )
 	if ( table->type(row,0) == ParsedArray::Number
 	     && table->intVal(row,0) > 0 ) {
 	    vals[i] = table->intVal(row,0);
@@ -140,7 +144,9 @@ void Sheet::resizeEvent( QResizeEvent * e )
     int h = e->size().height() - extraH;
     int c = w / tableView->cellWidth(); //### TODO: variable width
     int r = h / tableView->cellHeight();
-
+    c = QMIN( c, cols );
+    r = QMIN( r, rows );
+    
     h = r * tableView->cellHeight();
     w = c * tableView->cellWidth();
     side->setNumRows( r );
@@ -148,16 +154,24 @@ void Sheet::resizeEvent( QResizeEvent * e )
     head->setNumCols( c );
     head->resize( w, head->height() );
 
-    tableView->resize( w + tableView->extraW, h + tableView->extraH );
+    tableView->resize( w + tableView->extraW+1, h + tableView->extraH+1 );
     QRect cr = tableView->geometry();
-    horz->setGeometry( cr.left(), cr.bottom() + 1,
-		       cr.width(), horz->height() );
-    horz->setRange( 0, tableView->numCols() - tableView->numColsVisible() );
-    horz->setSteps( 1, tableView->numColsVisible() );
-
-    vert->setGeometry( cr.right() + 1, cr.top(),
-		       vert->width(), cr.height() );
-    vert->setRange( 0, tableView->numRows() - tableView->numRowsVisible() );
-    vert->setSteps( 1, tableView->numRowsVisible() );
-
+    if ( tableView->numCols() <= tableView->numColsVisible() ) {
+	horz->hide();
+    } else {
+	horz->setGeometry( cr.left(), cr.bottom() + 1,
+			   cr.width(), horz->height() );
+	horz->setRange( 0, tableView->numCols() - tableView->numColsVisible() );
+	horz->setSteps( 1, tableView->numColsVisible() );
+	horz->show();
+    }
+    if ( tableView->numRows() <= tableView->numRowsVisible() ) {
+	vert->hide();
+    } else {
+	vert->setGeometry( cr.right() + 1, cr.top(),
+			   vert->width(), cr.height() );
+	vert->setRange( 0, tableView->numRows() - tableView->numRowsVisible() );
+	vert->setSteps( 1, tableView->numRowsVisible() );
+	vert->show();
+    }
 }

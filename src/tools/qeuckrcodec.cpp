@@ -17,36 +17,64 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
-/*
- * Copyright (c) 1999 Mizi Research Inc., All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/*! \class QEucKrCodec qeuckrcodec.h
+
+  \brief Provides conversion to and from EUC-KR character sets
+
+  The QEucKrCodec class subclasses QTextCodec to provide support for
+  EUC-JP, the main legacy encoding for UNIX machines in Korea
+
+  It was margely written by Mizi Research Inc.; here is the copyright
+  statement for the code as it was at the point of contribution.
+  (Troll Tech's subsequent modifications are covered by the usual
+  copyright for Qt.)
+
+  \mustquote
+
+  Copyright (c) 1999 Mizi Research Inc., All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met: <ol>
+  <li> Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  <li> Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  </ol>
+
+  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  SUCH DAMAGE.
+*/
+
+/* these must be made \internal
+    virtual int mibEnum() const;
+    const char* name() const;
+
+    QTextDecoder* makeDecoder() const;
+
+    QCString fromUnicode(const QString& uc, int& len_in_out) const;
+    QString toUnicode(const char* chars, int len) const;
+
+    int heuristicContentMatch(const char* chars, int len) const;
+    int heuristicNameMatch(const char* hint) const;
+*/
+
 
 #include "qeuckrcodec.h"
 
@@ -59,6 +87,10 @@ unsigned int qt_UnicodeToJohab(unsigned int unicode);
 #define	IsEucChar(c)	(((c) >= 0xa1) && ((c) <= 0xfe))
 #define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
 
+/*!
+  \reimp
+*/
+
 int QEucKrCodec::mibEnum() const
 {
   /*
@@ -69,9 +101,13 @@ int QEucKrCodec::mibEnum() const
    */
   /* mibEnum for other codeset related with Korean.
      KS_C_5601-1987 36, ISO2022-KRi 37 */
-  
+
   return 38;
 }
+
+/*!
+  \reimp
+*/
 
 QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
@@ -98,6 +134,10 @@ QCString QEucKrCodec::fromUnicode(const QString& uc, int& len_in_out) const
   *cursor = 0;
   return rstr;
 }
+
+/*!
+  \reimp
+*/
 
 QString QEucKrCodec::toUnicode(const char* chars, int len) const
 {
@@ -129,10 +169,18 @@ QString QEucKrCodec::toUnicode(const char* chars, int len) const
   return result;
 }
 
+/*!
+  \reimp
+*/
+
 const char* QEucKrCodec::name() const
 {
   return "eucKR";
 }
+
+/*!
+  \reimp
+*/
 
 int QEucKrCodec::heuristicNameMatch(const char* hint) const
 {
@@ -140,10 +188,10 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
   bool ko = FALSE;
   if (strnicmp(hint, "ko_KR", 5) == 0 ||
       strnicmp(hint, "korean", 5) == 0) {
-    score += 3; 
+    score += 3;
     ko = TRUE;
   } else if (strnicmp(hint, "ko", 2) == 0) {
-    score += 2; 
+    score += 2;
     ko = TRUE;
   }
   const char *p;
@@ -166,6 +214,10 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
   }
   return QTextCodec::heuristicNameMatch(hint);
 }
+
+/*!
+  \reimp
+*/
 
 int QEucKrCodec::heuristicContentMatch(const char* chars, int len) const
 {
@@ -241,6 +293,10 @@ public:
     return result;
   }
 };
+
+/*!
+  \reimp
+*/
 
 QTextDecoder* QEucKrCodec::makeDecoder() const
 {
@@ -650,7 +706,7 @@ static unsigned short single_chongsung[ChongSungNum][2] = {
 static unsigned short ksc2kssmc( unsigned short code )
 {
   unsigned int c1, c2, val1 = 0, val2 = 0;
-  
+
   if ( (0x8080 & code) == 0 )
     return code;
 
@@ -660,7 +716,7 @@ static unsigned short ksc2kssmc( unsigned short code )
     return (c2 >= 0xa1 && c2 <= 0xd3) ?
       single[c2-0xa1] : (0xda00 +  c2);
 
-  else if (c1 >= 0xb0 && c1 <= 0xc8) 
+  else if (c1 >= 0xb0 && c1 <= 0xc8)
   {
     if (c2 < 0xa1 || c2 > 0xfe)
       return 0;
@@ -670,38 +726,38 @@ static unsigned short ksc2kssmc( unsigned short code )
       return KS_table[val1];
     }
   }
-  else if (c1 >= 0xa1 && c1 <= 0xac) 
+  else if (c1 >= 0xa1 && c1 <= 0xac)
   {
     val1 = (c1 - 0xa1) / 2 + 0xd9;
     /* hanemacs의 버그가 있었는데 수겅하였다. */
     val2 = c1 & 0x01 ?  /* 0xa1, 0xa3, 0xa5, ... */
       ((c2-0xa1 < 0x7f-0x31) ? c2-0xa1+0x31 : c2-0xef+0x91)
       : c2;
-  } 
+  }
   else if (c1 >= 0xad && c1 <= 0xaf) /* 정의 안된 영역 */
-  { 
+  {
     val1 = 0xd9;      /* 공란문자로 채움 */
     val2 = 0x31;
-  } 
-  else if (c1 == 0xc9 || c1 == 0xfe) 
+  }
+  else if (c1 == 0xc9 || c1 == 0xfe)
   {
     val1 = 0xd8;
-    val2 = (c1 & 1 ? 
-	    ((c2 - 0xa1 < 0x7f - 0x31) ? 
+    val2 = (c1 & 1 ?
+	    ((c2 - 0xa1 < 0x7f - 0x31) ?
 	     c2 - 0xa1+0x31 : c2 - 0xa1+0x91) : c2);
   }
   else if (c1 > 0xc9 && c1 < 0xfe) /* 한자 */
   {
     val1 = (c1 - 0xca) / 2 + 0xe0;
-    val2 = (c1 & 1 ? c2 : 
-	    (c2 - 0xa1 < 0x7f - 0x31) ? 
+    val2 = (c1 & 1 ? c2 :
+	    (c2 - 0xa1 < 0x7f - 0x31) ?
 	    c2 - 0xa1 + 0x31 : c2 - 0xa1 + 0x91);
   }
   return ((val1 << 8) + val2);
 }
 
 //
-// 조합형을 완성형으로 바꾸는 부분 
+// 조합형을 완성형으로 바꾸는 부분
 //
 #ifdef QT_EUCKR_USE_BSEARCH
 
@@ -756,8 +812,8 @@ static unsigned short kssmc2ksc ( unsigned short code )
   if (c1 >= 0x84 && c1 <= 0xd3)		/* 한글 */
   {
 #ifdef QT_EUCKR_USE_BSEARCH
-    p = (const unsigned short *) bsearch (&code, KS_table, 
-	sizeof(KS_table)/sizeof(unsigned short), 
+    p = (const unsigned short *) bsearch (&code, KS_table,
+	sizeof(KS_table)/sizeof(unsigned short),
 	sizeof(unsigned short), codecmp);
 #else
     p = KsSearch( code );
@@ -765,9 +821,9 @@ static unsigned short kssmc2ksc ( unsigned short code )
     if( p ) {
       index = p - KS_table;
       return (((index / 94) + 0xb0) << 8) + (index % 94) + 0xa1;
-    } 
+    }
     for( index = 0; index < SingleNum; index++ )
-      if( single[index] == code ) 
+      if( single[index] == code )
 	return (0xa4a1 + index);
     if( c1 == 0xda && c2 >= 0xd4 )	/* 한글 고어 낱자 */
       return (0x8400 + c2);
@@ -780,7 +836,7 @@ static unsigned short kssmc2ksc ( unsigned short code )
     val1 = (c1 - 0xd9) * 2 + ((c2 < 0xa1) ? 0xa1 : 0xa2);
     val2 = (c2 < 0x91) ? (c2 - 0x31 + 0xa1) :
       ((c2 < 0xa1) ? c2 - 0x91 + 0xef : c2);
-  } 
+  }
   else if( 0xe0 <= c1 && c1 <= 0xf9 )	/* 한자 */
   {
     val1 = (c1 - 0xe0) * 2 + ((c2 < 0xa1) ? 0xca : 0xcb);
@@ -793,7 +849,7 @@ static unsigned short kssmc2ksc ( unsigned short code )
     val2 = (c2 < 0x91) ? (c2 - 0x31 + 0xa1) :
       ((c2 < 0xa1) ? c2 - 0x91 + 0xef : c2);
   }
-  
+
   return ((val1 << 8) | val2);
 }
 
@@ -806,7 +862,7 @@ static unsigned short unicode2kssmc(unsigned short unicode)
   unicode %= (21 * 28);
   m = unicode / 28;
   l = unicode % 28;
-  
+
   // LATER rewrite with array
   f += 2;
 

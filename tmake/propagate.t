@@ -107,7 +107,7 @@ CC	=	$(SYSCONF_CC)
 CFLAGS	=	#$ Expand("TMAKE_CFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CFLAGS_OPT)');
 INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
-LIBS	=	#$ Expand("TMAKE_LIBS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)');
+LIBS	=	#$ (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)'); Expand("TMAKE_LIBS");
 MOC	=	$(SYSCONF_MOC)
 
 ####### Target

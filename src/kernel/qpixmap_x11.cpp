@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -670,10 +670,10 @@ QImage QPixmap::convertToImage() const
 		if (msk) {
 		    if ( ale ) {
 			*dst++ = (asrc[x >> 3] & (1 << (x & 7)))
-			    ? (0xff000000 | qRgb(r, g, b)) : qRgb(r, g, b);
+			    ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
 		    } else {
 			*dst++ = (asrc[x >> 3] & (1 << (7 -(x & 7))))
-			    ? (0xff000000 | qRgb(r, g, b)) : qRgb(r, g, b);
+			    ? qRgba(r, g, b, 0xff) : qRgba(r, g, b, 0x00);
 		    }
 		} else {
 		    *dst++ = qRgb(r, g, b);

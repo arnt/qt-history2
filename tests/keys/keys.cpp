@@ -6,6 +6,7 @@
 
 #include <qapplication.h>
 #include <qfile.h>
+#include <qaccel.h>
 #include <qmultilineedit.h>
 
 class Main : public QWidget {
@@ -55,12 +56,14 @@ public:
     {
 	QString line;
 	if (!type)
-	    line.sprintf("%2s %6s %3s    %3s %4s", "", "key", "asc", "sta", "uni");
+	    line.sprintf("%2s %6s %3s    %3s %4s %3s %s", "", "key", "asc", "sta", "uni", "rep", "name");
 	else {
-	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x%s ", type, e->key(), e->ascii(),
+	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x%3s %s ", type, e->key(), e->ascii(),
 		(e->ascii() ? e->ascii() : ' '),
 		e->state(), e->text()[0].row(), e->text()[0].cell(),
-		(e->isAutoRepeat() ? " AUTO" : ""));
+		(e->isAutoRepeat() ? "Y" : ""),
+		QAccel::keyToString(e->key()).ascii()
+		);
 	    line += e->text();
 	}
 	log.insertLine( line );
@@ -115,11 +118,24 @@ T(QColor)
 T(WId)
 T(QPaintDevice)
 T(QWExtra)
+#undef T
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
     //QApplication::setFont( QFont("Helvetica") );
     QFont f("Times New Roman (Cyrillic)");
     QApplication::setFont(f);
+
+    #define T(x) ASSERT(QAccel::keyToString(QAccel::stringToKey(x))==x)
+    T("A");
+    T("Ctrl+D");
+    T("Ctrl++");
+    T("Ctrl+Backspace");
+    T("Ctrl+Del");
+    T("Ctrl+F1");
+    T("F1");
+    T("F10");
+    T("Home");
+    T("e");
 
     m = new Main;
     qInstallMsgHandler(myout);

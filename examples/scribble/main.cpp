@@ -16,10 +16,13 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    Scribble scribble;
-    scribble.resize( 500, 350 );
-    a.setMainWidget( &scribble );
-    scribble.show();
+    Scribble* scribble = new Scribble;
+    scribble->resize( 500, 350 );
+    a.setMainWidget( scribble );
+    scribble->show();
 
-    return a.exec();
+    int res = a.exec();
+
+    delete scribble;
+    return res;
 }

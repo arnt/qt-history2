@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -78,7 +78,7 @@ QCursorData::~QCursorData()
   Global cursors
  *****************************************************************************/
 
-static const int cursors = 14;
+static const int cursors = 15;
 static QCursor cursorTable[cursors];
 
 static const int arrowCursorIdx = 0;
@@ -97,6 +97,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::blankCursor = cursorTable[10];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
+QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
 
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
@@ -288,6 +289,7 @@ QCursor &QCursor::operator=( const QCursor &c )
   <li> \c SplitVCursor - vertical splitting
   <li> \c SplitHCursor - horziontal splitting
   <li> \c PointingHandCursor - a pointing hand
+  <li> \c ForbiddenCursor - a slashed circle
   <li> \c BitmapCursor - userdefined bitmap cursor
   </ul>
 
@@ -322,6 +324,7 @@ int QCursor::shape() const
   <li> \c SplitVCursor - vertical splitting
   <li> \c SplitHCursor - horziontal splitting
   <li> \c PointingHandCursor - a pointing hand
+  <li> \c ForbiddenCursor - a slashed circle
   <li> \c BitmapCursor - userdefined bitmap cursor
   </ul>
 
@@ -574,7 +577,23 @@ void QCursor::update() const
 
     static uchar *cursor_bits32[] = {
 	vsplit_bits, vsplitm_bits, hsplit_bits, hsplitm_bits,
-	phand_bits, phandm_bits
+	    phand_bits, phandm_bits
+    };
+
+    static uchar forbidden_bits[] = {
+	0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
+	    0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
+	    0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
+	    0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00 };
+
+    static unsigned char forbiddenm_bits[] = {
+	0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
+	    0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
+	    0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
+	    0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
+
+    static uchar *cursor_bits20[] = {
+	    forbidden_bits, forbiddenm_bits
     };
 
     Display *dpy = qt_xdisplay();
@@ -617,6 +636,23 @@ void QCursor::update() const
 					32, 32);
 	int hs = d->cshape != PointingHandCursor? 16 : 0;
 	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, hs, hs );
+	return;
+    }
+    if ( d->cshape == ForbiddenCursor ) {
+	XColor bg, fg;				// ignore stupid CFront message
+	bg.red   = 255 << 8;
+	bg.green = 255 << 8;
+	bg.blue  = 255 << 8;
+	fg.red   = 0;
+	fg.green = 0;
+	fg.blue  = 0;
+	int i = (d->cshape - ForbiddenCursor)*2;
+	Window rootwin = qt_xrootwin();
+	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i],
+					20, 20 );
+	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i+1],
+					20, 20);
+	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 10, 10 );
 	return;
     }
     uint sh;

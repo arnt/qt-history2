@@ -1,9 +1,9 @@
 Qt 2.1 introduces new features as well as many improvements over the
 2.0.x series. This file will only give an overview of the main changes
 since version 2.0.2.  A complete list would simply be too large to be
-useful.  For more detail see the online documentation which is
-included in this distribution, and also available on
-http://www.troll.no/qt/
+useful.  For more detail see the online documentation which is included
+in this distribution, and also available on
+http://doc.trolltech.com/
 
 The Qt version 2.1 series is binary compatible with the 2.0.x
 series - applications compiled for 2.0 will continue to run with 2.1.
@@ -89,7 +89,9 @@ QApplication	- new function wakeUpGuiThread() to simplify using threads
 
 QArray		- added sorting and binary search.
 
-QColor		- custom color support added.
+QColor		- custom color support added.  qRgb(r,g,b) helper function
+		  now sets an opaque alpha value instead of a transparent
+		  one.
 
 QComboBox	- support for text items with icons.
 
@@ -106,7 +108,11 @@ QFocusEvent	- carries a reason() for the event. Possible reasons are
 		  Mouse, Tab, ActiveWindow, ShortCut and other. The
 		  addition makes line edit controls behave properly.
 
-QHeader		- added optional visual sort indicator.
+QHeader		- added optional visual sort indicator. Revisited API that 
+		  operates on sections only (solves the 'logical' vs. 'actual' 
+		  index confusion). A reworked 'table' example shows how
+		  to use QHeader in combination with a scrollview to create
+		  a simple spreadsheet.
 
 QListBox	- many signals and functions added for convenience and
 		  greater flexibility.
@@ -126,6 +132,8 @@ QMultiLineEdit	- added different word wrap modes: WidgetWidth,
 		  FixedPixelWidth and FixedColumnWidth.
 
 QObject		- property access functions property() and setProperty().
+
+QPen		- added adjustable cap and join styles.
 
 QPopupMenu	- added support for tear-off menus, custom items
 		  and widget items.
@@ -183,14 +191,20 @@ QWidget		- new widget flag WStyle_ContextHelp that adds a
 		  button triggers "What's This?"-help. The flag works
 		  with MS-Windows and future versions of X11 desktops
 		  such as KDE-2.0.
-		  New widget state flag WState_Modal that triggers
-		  modality for WType_Modal widgets.
-		  New function showFullScreen().
-		  Enabling and disabling with setEnabled() propagates to
+
+		- New function showFullScreen().
+
+		- Enabling and disabling with setEnabled() propagates to
 		  children.
-		  Changed isVisible(). It now returns whether a widget
+
+		- Changed isVisible(). It now returns whether a widget
 		  is mapped up to the toplevel widget (the previous
 		  implementation only returned isVisibleTo(parentWidget()).
+
+		- New property 'backgroundOrigin' that lets a widget draw 
+		  its background relatively to its parent widget's coordinate
+		  system. This makes pseudo-transparency possible, without
+		  the overhead of a real widget mask.
 
 
 ****************************************************************************
@@ -272,6 +286,11 @@ QWidget
  Font and palette propagation has changed totally (from "almost
  braindead" to working).  In practice, the only changes we've seen are
  to the better.
+
+QColor
+ qRgb(r,g,b) now sets a default opaque alpha value of 0xff instead of
+ a transparent 0x00 alpha value formerly.  Use qRgb(r,g,b,a) if you do
+ need a transparent alpha value.
 
 QPalette
  It turned out that the old normal/active/disabled set of color groups

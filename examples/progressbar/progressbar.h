@@ -11,14 +11,14 @@
 #ifndef PROGRESSBAR_H
 #define PROGRESSBAR_H
 
-#include <qvbox.h>
+#include <qbuttongroup.h>
 #include <qtimer.h>
 
 class QRadioButton;
 class QPushButton;
 class QProgressBar;
 
-class ProgressBar : public QVBox
+class ProgressBar : public QButtonGroup
 {
     Q_OBJECT
 

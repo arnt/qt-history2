@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -52,7 +52,7 @@ class Q_EXPORT QWellArray : public QTableView
     Q_PROPERTY( int numRows READ numRows )
     Q_PROPERTY( int selectedColumn READ selectedColumn )
     Q_PROPERTY( int selectedRow READ selectedRow )
-	
+
 public:
     QWellArray( QWidget *parent=0, const char *name=0, bool popup = FALSE );
 
@@ -110,6 +110,12 @@ private:
     int nRows;
     bool smallStyle;
     QWellArrayData *d;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QWellArray( const QWellArray & );
+    QWellArray& operator=( const QWellArray & );
+#endif
 };
 
 #endif

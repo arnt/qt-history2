@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -45,7 +45,7 @@ public:
     void removeWidget( QWidget * );
 
     void setSizeGripEnabled(bool);
-    bool sizeGripEnabled() const;
+    bool isSizeGripEnabled() const;
 
 public slots:
     void message( const QString &);
@@ -60,6 +60,11 @@ protected:
 
 private:
     QStatusBarPrivate * d;
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QStatusBar( const QStatusBar & );
+    QStatusBar& operator=( const QStatusBar & );
+#endif
 };
 
 

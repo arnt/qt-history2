@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 #ifndef QTL_H
@@ -114,8 +114,8 @@ inline void qBubbleSort( Container &c )
 }
 
 
-template <class HeapPtr>
-inline void qHeapSortPushDown( HeapPtr heap, int first, int last )
+template <class Value>
+inline void qHeapSortPushDown( Value* heap, int first, int last )
 {
     int r = first;
     while( r <= last/2 ) {
@@ -168,7 +168,7 @@ inline void qHeapSortHelper( InputIterator b, InputIterator e, Value, uint n )
 	*b++ = heap[1];
 	if ( i > 1 ) {
 	    heap[1] = heap[i];
-	    qHeapSortPushDown( heap, 1, i - 1 );
+	    qHeapSortPushDown( heap, 1, (int)i - 1 );
 	}
     }
 

@@ -87,7 +87,7 @@ $client =~ s@\bnomodtime\b@modtime@s;
 open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
 print O $client;
 close O;
-open( I1, "p4 -s -c $tmpclient sync $distdir/qt/... | grep -v '^info:' |" )
+open( I1, "p4 -s -c $tmpclient sync $distdir/qt/...\@$label | grep -v '^info:' |" )
   || die "could not sync qt, stopped";
 open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/... | grep -v '^info:' |" )
   || die "could not sync tmake, stopped";
@@ -255,6 +255,16 @@ close I;
 s/\n\#include\s+\<unistd\.h\>[^\n]*/\n\#if !defined(_OS_WIN32_)$&\n\#endif/g;
 open( O, "> $distdir/qt/src/moc/lex.yy.c" )
   || die "could not write lex.yy.c, stopped";
+print O $_;
+close O;
+sleep 2; # Make very certain that mocgen.cpp has later timestamp than lex.yy.c
+open( I, "< $distdir/qt/src/moc/mocgen.cpp" )
+  || die "could not read mocgen.cpp, stopped";
+$_ = "/* Automatically generated at Troll Tech by mkdists, Qt $version */\n"
+  . <I>;
+close I;
+open( O, "> $distdir/qt/src/moc/mocgen.cpp" )
+  || die "could not write mocgen.cpp, stopped";
 print O $_;
 close O;
 

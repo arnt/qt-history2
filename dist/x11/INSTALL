@@ -120,7 +120,7 @@ where you choose to install Qt.
 	make
 
     If your platform or compiler is not supported, read PORTING.  If it
-    is supported but you have problems, see http://www.troll.no/platforms/
+    is supported but you have problems, see http://www.trolltech.com/platforms/
 
 
 4.  In very few cases you may need to run /sbin/ldconfig or something

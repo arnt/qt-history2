@@ -17,9 +17,9 @@
 ** file in accordance with the Qt Professional Edition License Agreement
 ** provided with the Qt Professional Edition.
 **
-** See http://www.troll.no/pricing.html or email sales@troll.no for
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 ** information about the Professional Edition licensing, or see
-** http://www.troll.no/qpl/ for QPL licensing information.
+** http://www.trolltech.com/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -109,6 +109,7 @@
 #if defined(_CC_MSVC_) || defined(_CC_SYM_)
 
 # define STATBUF	struct _stat		// non-ANSI defs
+# define STATBUF4TSTAT	struct _stat		// non-ANSI defs
 # define STAT		::_stat
 # define FSTAT		::_fstat
 # define STAT_REG	_S_IFREG
@@ -139,9 +140,44 @@
 #  define OPEN_BINARY	_O_BINARY
 # endif
 
+#elif defined(_CC_BOR_) && __BORLANDC__ >= 0x550
+
+# define STATBUF	struct stat		// non-ANSI defs
+# define STATBUF4TSTAT	struct _stat		// non-ANSI defs
+# define STAT		::stat
+# define FSTAT		::fstat
+# define STAT_REG	_S_IFREG
+# define STAT_DIR	_S_IFDIR
+# define STAT_MASK	_S_IFMT
+# if defined(_S_IFLNK)
+#  define STAT_LNK	_S_IFLNK
+# endif
+# define FILENO		_fileno
+# define OPEN		::open
+# define CLOSE		::_close
+# define LSEEK		::_lseek
+# define READ		::_read
+# define WRITE		::_write
+# define ACCESS		::_access
+# define GETCWD		::_getcwd
+# define CHDIR		::chdir
+# define MKDIR		::_mkdir
+# define RMDIR		::_rmdir
+# define OPEN_RDONLY	_O_RDONLY
+# define OPEN_WRONLY	_O_WRONLY
+# define OPEN_RDWR	_O_RDWR
+# define OPEN_CREAT	_O_CREAT
+# define OPEN_TRUNC	_O_TRUNC
+# define OPEN_APPEND	_O_APPEND
+# if defined(O_TEXT)
+#  define OPEN_TEXT	_O_TEXT
+#  define OPEN_BINARY	_O_BINARY
+# endif
+
 #else						// all other systems
 
 # define STATBUF	struct stat
+# define STATBUF4TSTAT	struct stat
 # define STAT		::stat
 # define FSTAT		::fstat
 # define STAT_REG	S_IFREG
