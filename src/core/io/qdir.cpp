@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
+
 #include "qdir.h"
 #include <qfileengine.h>
-#include <qplatformdefs.h>
 #include <qdatetime.h>
 #include <qstring.h>
 #include <qregexp.h>

@@ -13,6 +13,8 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
+#include "qplatformdefs.h"
+
 #include <private/qabstractprintdialog_p.h>
 #include "qprintdialog.h"
 
@@ -61,11 +63,6 @@
 #endif
 
 #endif // QT_NO_NIS
-
-// UNIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
 
 #include <ctype.h>
 #include <stdlib.h>

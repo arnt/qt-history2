@@ -11,12 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qfile.h"
 #include "qplatformdefs.h"
-
-// POSIX Large File Support redefines open -> open64
-static inline int qt_open(const char *pathname, int flags, mode_t mode)
-{ return ::open(pathname, flags, mode); }
 
 #include "qprintengine_ps.h"
 #include <private/qpainter_p.h>
@@ -43,6 +38,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qbytearray.h"
 #include "qhash.h"
 #include "qbuffer.h"
+#include "qfile.h"
 #include "qtextcodec.h"
 #include "qsettings.h"
 #include "qmap.h"
@@ -72,16 +68,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 #ifdef Q_WS_X11
 #include <qx11info_x11.h>
-#endif
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 static bool qt_gen_epsf = false;
@@ -5238,7 +5224,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     if (d->outputToFile) {
         if (d->outputFileName.isEmpty())
             d->outputFileName = "print.ps";
-        d->fd = qt_open( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+        d->fd = QT_OPEN( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 #if defined(Q_OS_WIN)
             _S_IREAD | _S_IWRITE
 #else

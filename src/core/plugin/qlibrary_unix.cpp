@@ -11,8 +11,9 @@
 **
 ****************************************************************************/
 
-#include <qfile.h>
 #include "qplatformdefs.h"
+
+#include <qfile.h>
 #include "qlibrary_p.h"
 #include <qfileinfo.h>
 #ifdef Q_OS_MAC

@@ -11,10 +11,11 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
+
 #include "qfileinfo.h"
 #include <qdatetime.h>
 #include <qfileengine.h>
-#include <qplatformdefs.h>
 #include <qglobal.h>
 #include <qatomic.h>
 #include "qdir.h"

@@ -11,10 +11,11 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
+
 #include "qfile.h"
 #include <qfileengine.h>
 #include <qtemporaryfile.h>
-#include <qplatformdefs.h>
 #include <qlist.h>
 #include <qfileinfo.h>
 #include <private/qiodevice_p.h>
@@ -24,10 +25,6 @@
 #endif
 
 #include <errno.h>
-
-#ifdef open
-#undef open
-#endif
 
 #define d d_func()
 #define q q_func()

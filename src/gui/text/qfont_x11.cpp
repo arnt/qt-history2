@@ -13,7 +13,6 @@
 
 #define QT_FATAL_ASSERT
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qfont.h"
@@ -25,6 +24,7 @@
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
 #include "qtextcodec.h"
+#include "qiodevice.h"
 
 #include <private/qfontcodecs_p.h>
 #include <private/qunicodetables_p.h>

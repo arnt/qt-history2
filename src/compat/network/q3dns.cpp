@@ -20,9 +20,10 @@
 #define _BSD_SOURCE
 #endif
 
-#include <qfile.h>
 #include "qplatformdefs.h"
+
 #include <qapplication.h>
+#include <qfile.h>
 
 #if defined(Q_OS_OSF) || defined(Q_OS_RELIANT)
 #include <resolv.h>
@@ -92,16 +93,6 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 
 #if defined(__GLIBC__) && ((__GLIBC__ > 2) || ((__GLIBC__ == 2) && (__GLIBC_MINOR__ >= 3)))
 #define Q_MODERN_RES_API
-#endif
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 //#define QDNS_DEBUG

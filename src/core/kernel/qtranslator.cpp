@@ -11,12 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qfile.h"
 #include "qplatformdefs.h"
-
-// POSIX Large File Support redefines open -> open64
-static inline int qt_open(const char *pathname, int flags, mode_t mode)
-{ return ::open(pathname, flags, mode); }
 
 #include "qtranslator.h"
 
@@ -26,6 +21,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qstring.h"
 #include "qcoreapplication.h"
 #include "qdatastream.h"
+#include "qfile.h"
 #include "qmap.h"
 #include "qalgorithms.h"
 #include "qhash.h"
@@ -46,15 +42,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include <stdlib.h>
 
 #include "qobject_p.h"
-
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
 
 /*
 $ mcookie
@@ -434,7 +421,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
     int f;
 
-    f = qt_open(QFile::encodeName(realname), O_RDONLY,
+    f = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
 #if defined(Q_OS_WIN)
             _S_IREAD | _S_IWRITE
 #else

@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qstring.h"
 #include "qplatformdefs.h"
+
 #include "qsocketnotifier.h"
+#include "qstring.h"
 #include "qcoreapplication.h"
 #include "qeventloop.h"
 

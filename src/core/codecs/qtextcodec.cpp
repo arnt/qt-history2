@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qfile.h"
 #include "qplatformdefs.h"
 
 
@@ -20,6 +19,7 @@
 #ifndef QT_NO_TEXTCODEC
 
 #include "qlist.h"
+#include "qfile.h"
 #include "qtextcodecfactory.h"
 #include "qutfcodec_p.h"
 #include "qnamespace.h"
@@ -44,11 +44,6 @@
 #endif
 #if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
-#endif
-
-// UNIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
 #endif
 
 static QList<QTextCodec*> *all = 0;

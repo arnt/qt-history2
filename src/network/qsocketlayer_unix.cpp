@@ -12,9 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
+
 #include "qsocketlayer_p.h"
+#include "qiodevice.h"
 #include "qhostaddress.h"
 #include "qvarlengtharray.h"
 #include <time.h>

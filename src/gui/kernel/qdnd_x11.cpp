@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
@@ -23,6 +22,7 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qdatetime.h"
+#include "qiodevice.h"
 #include "qpointer.h"
 #include "qdragobject.h"
 #include "qcursor.h"

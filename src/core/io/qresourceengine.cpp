@@ -17,10 +17,6 @@
 #include <qregexp.h>
 #include <private/qfileengine_p.h>
 
-#ifdef open
-#undef open
-#endif
-
 inline static QResource *qt_find_resource(const QString &path)
 {
     if (path.size() > 0 && path[0] == QLatin1Char(':'))

@@ -11,14 +11,15 @@
 **
 ****************************************************************************/
 
-#include <qfileengine.h>
-#include "qfileengine_p.h"
-#include <qfile.h>
-#include <qdir.h>
 #include <qplatformdefs.h>
 #ifndef QT_NO_REGEXP
 # include <qregexp.h>
 #endif
+
+#include <qfileengine.h>
+#include "qfileengine_p.h"
+#include <qfile.h>
+#include <qdir.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -38,7 +39,7 @@ QFSFileEnginePrivate::init()
 int
 QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 {
-    return ::open(QFile::encodeName(fileName), flags, 0666);
+    return QT_OPEN(QFile::encodeName(fileName), flags, 0666);
 }
 
 bool
@@ -516,5 +517,6 @@ QFSFileEngine::setSize(QIODevice::Offset size)
     if(d->fd != -1)
         return !ftruncate(d->fd, size);
     const QByteArray file = QFile::encodeName(d->file);
-    return !::truncate(file.data(), size);
+    return !QT_TRUNCATE(file.data(), size);
 }
+

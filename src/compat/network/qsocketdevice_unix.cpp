@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 // Almost always the same. If not, specify in qplatformdefs.h.
@@ -54,6 +53,7 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 # undef socket
 #endif
 
+#include "qiodevice.h"
 #include "qsocketdevice.h"
 #include "qglobal.h"
 

@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
+#include "qiodevice.h"
 #include "qbytearray.h"
 #include "qiodevice_p.h"
 

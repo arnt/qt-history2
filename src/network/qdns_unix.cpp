@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
+
 #include "qdns_p.h"
+#include "qiodevice.h"
 #include <qbytearray.h>
 #include <netdb.h>
 

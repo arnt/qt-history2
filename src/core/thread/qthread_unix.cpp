@@ -11,8 +11,9 @@
 **
 ****************************************************************************/
 
-#include "qstring.h"
 #include "qplatformdefs.h"
+
+#include "qstring.h"
 #include "qthread.h"
 #include "qthreadstorage.h"
 #include "qmutexpool_p.h"

@@ -29,16 +29,6 @@
 # define HAS_TEXT_FILEMODE                        // has translate/text filemode
 #endif
 
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
-
 #define d d_func()
 #define q q_func()
 

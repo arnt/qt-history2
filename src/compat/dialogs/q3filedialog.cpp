@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qfile.h"
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
@@ -37,6 +36,7 @@
 #include "qdesktopwidget.h"
 #include "qdragobject.h"
 #include "qevent.h"
+#include "qfile.h"
 #include "qhbox.h"
 #include "qlabel.h"
 #include "qlayout.h"

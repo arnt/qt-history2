@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #ifndef QT_NO_TITLEBAR
@@ -22,6 +21,7 @@
 #include "qevent.h"
 #include "qimage.h"
 #include "qpainter.h"
+#include "qiodevice.h"
 #include "qpixmap.h"
 #include "qstyle.h"
 #include "qstyleoption.h"

@@ -17,7 +17,6 @@
 // provide a proper alternative for others. See also the exports in
 // qapplication_win.cpp, which suggest a unification.
 
-#include "qfile.h"
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
@@ -34,6 +33,7 @@
 #include "qwidget.h"
 #include "qbitarray.h"
 #include "qpainter.h"
+#include "qfile.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
@@ -70,16 +70,6 @@
 #include "qwidget_p.h"
 #define d d_func()
 #define q q_func()
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN

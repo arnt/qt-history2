@@ -39,7 +39,6 @@ in doc/dnd.doc, where the documentation system can see it. */
 /* Further adaptions by : Trolltech AS */
 /***********************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qapplication.h"
@@ -50,6 +49,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 #include "qevent.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
+#include "qiodevice.h"
 
 #include <stdlib.h>
 

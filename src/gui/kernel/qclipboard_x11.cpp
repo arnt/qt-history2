@@ -26,7 +26,6 @@
 #  define VDEBUG if (false) qDebug
 #endif
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 
 #include "qclipboard.h"
@@ -39,6 +38,7 @@
 #include "qbitmap.h"
 #include "qdatetime.h"
 #include "qdragobject.h"
+#include "qiodevice.h"
 #include "qbuffer.h"
 #include "qtextcodec.h"
 #include "qlist.h"
@@ -48,11 +48,6 @@
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 #include "qimageio.h"
-
-// POSIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
 
 /*****************************************************************************
   Internal QClipboard functions for X11.

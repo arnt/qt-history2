@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include "qiodevice.h"
 #include "qplatformdefs.h"
 #include "qpaintengine_x11.h"
 
@@ -25,6 +24,7 @@
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
 #include "qcoreevent.h"
+#include "qiodevice.h"
 
 #include "qpainter_p.h"
 #include <qtextlayout.h>

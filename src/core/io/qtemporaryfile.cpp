@@ -11,9 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qtemporaryfile.h"
 #include <qfileengine.h>
-#include "qplatformdefs.h"
 #include <private/qfile_p.h>
 #include <private/qfileengine_p.h>
 
@@ -25,10 +26,6 @@
 #endif
 #if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
 # define HAS_TEXT_FILEMODE                        // has translate/text filemode
-#endif
-
-#ifdef open
-#undef open
 #endif
 
 //************* QTemporaryFileEngine

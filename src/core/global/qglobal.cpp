@@ -11,8 +11,9 @@
 **
 ****************************************************************************/
 
-#include <qstring.h>
 #include "qplatformdefs.h"
+
+#include <qstring.h>
 
 #include <limits.h>
 #include <stdio.h>
