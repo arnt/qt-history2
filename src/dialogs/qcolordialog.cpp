@@ -104,7 +104,7 @@ static inline void rgb2hsv( QRgb rgb, int&h, int&s, int&v )
     c.getHsv(h,s,v);
 }
 
-class QColorDrag : public QStoredDrag 
+class QColorDrag : public QStoredDrag
 {
      Q_OBJECT
 
@@ -148,7 +148,7 @@ bool QColorDrag::decode( QMimeSource *e, QColor &col )
 {
     QByteArray data = e->encodedData( "application/x-color" );
      ushort rgba[ 4 ];
-     if( data.size() != sizeof( rgba ) ) 
+     if( data.size() != sizeof( rgba ) )
 	 return FALSE;
      memcpy( rgba, data.data(), sizeof( rgba ) );
      col.setRgb( rgba[ 0 ] / 0xFF, rgba[ 1 ] / 0xFF, rgba[ 2 ] / 0xFF );
@@ -171,14 +171,15 @@ protected:
     void mouseReleaseEvent( QMouseEvent *e );
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
+    void dragMoveEvent( QDragMoveEvent *e );
     void dropEvent( QDropEvent *e );
-    
+
 private:
     QRgb *values;
     bool mousePressed;
     QPoint pressPos;
     QPoint oldCurrent;
-    
+
 };
 
 QSizePolicy QColorWell::sizePolicy() const
@@ -223,6 +224,7 @@ void QColorWell::mouseMoveEvent( QMouseEvent *e )
 
 void QColorWell::dragEnterEvent( QDragEnterEvent *e )
 {
+    setFocus();
     if ( QColorDrag::canDecode( e ) )
 	e->accept();
     else
@@ -231,6 +233,17 @@ void QColorWell::dragEnterEvent( QDragEnterEvent *e )
 
 void QColorWell::dragLeaveEvent( QDragLeaveEvent * )
 {
+    if ( hasFocus() )
+	parentWidget()->setFocus();
+}
+
+void QColorWell::dragMoveEvent( QDragMoveEvent *e )
+{
+    if ( QColorDrag::canDecode( e ) ) {
+	setCurrent( findRow( e->pos().y() ), findCol( e->pos().x() ) );
+	e->accept();
+    } else
+	e->ignore();
 }
 
 void QColorWell::dropEvent( QDropEvent *e )
@@ -574,7 +587,7 @@ public:
 
 public slots:
     void setRgb( QRgb rgb );
-    
+
 signals:
     void newCol( QRgb rgb );
 private slots:
@@ -599,7 +612,7 @@ private:
 class QColorShowLabel : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     QColorShowLabel( QWidget *parent ) :QFrame( parent ) {
 	setFrameStyle( QFrame::Panel|QFrame::Sunken );
@@ -611,7 +624,7 @@ public:
 
 signals:
     void colorDropped( QRgb );
-    
+
 protected:
     void drawContents( QPainter *p );
     void mousePressEvent( QMouseEvent *e );
@@ -620,12 +633,12 @@ protected:
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent *e );
-    
+
 private:
     QColor col;
     bool mousePressed;
     QPoint pressPos;
-    
+
 };
 
 void QColorShowLabel::drawContents( QPainter *p )
@@ -713,7 +726,7 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
 	     this, SIGNAL( newCol( QRgb ) ) );
     connect( lab, SIGNAL( colorDropped( QRgb ) ),
 	     this, SLOT( setRgb( QRgb ) ) );
-    
+
     hEd = new QColNumLineEdit( this );
     hEd->setValidator( val360 );
     QLabel *l = new QLabel( hEd, QColorDialog::tr("Hu&e:"), this );
@@ -943,7 +956,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     custom = new QColorWell( dialog, 2, 8, cusrgb );
     custom->setCellSize( 28, 24 );
     custom->setAcceptDrops( TRUE );
-    
+
     connect( custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
     lab = new QLabel( custom, QColorDialog::tr( "&Custom colors") , dialog );
     leftLay->addWidget( lab );
