@@ -18,9 +18,7 @@
 #include <qcolordialog.h>
 #include <qfontdialog.h>
 
-static QPixmap *buf_pixmap = 0;
-
-static QPixmap *bufferPixmap( const QSize &s )
+QPixmap *QTextEdit::bufferPixmap( const QSize &s )
 {
     if ( !buf_pixmap ) {
 	buf_pixmap = new QPixmap( s );
@@ -49,8 +47,14 @@ QTextEdit::QTextEdit( QWidget *parent, const QString &text )
     init();
 }
 
+QTextEdit::~QTextEdit()
+{
+    delete buf_pixmap;
+}
+
 void QTextEdit::init()
 {
+    buf_pixmap = 0;
     doubleBuffer = 0;
     doc->setFormatter( new QTextEditFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();

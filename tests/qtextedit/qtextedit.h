@@ -26,7 +26,8 @@ class QTextEdit : public QScrollView
 public:
     QTextEdit( QWidget *parent, const QString &fn, bool tabify = FALSE );
     QTextEdit( QWidget *parent, const QString &text );
-
+    virtual ~QTextEdit();
+    
     QTextEditDocument *document() const;
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = FALSE );
 
@@ -106,6 +107,7 @@ private:
     };
 
 private:
+    QPixmap *bufferPixmap( const QSize &s );
     void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
@@ -137,6 +139,7 @@ private:
     int currentAlignment, currentParagType;
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
+    QPixmap *buf_pixmap;
     
 };
 
