@@ -676,7 +676,18 @@ QByteArray QIODevice::read(qint64 maxlen)
 */
 QByteArray QIODevice::readAll()
 {
-    return read(bytesAvailable());
+    const int chunkSize = 4096;
+    qint64 totalRead = 0;
+    QByteArray tmp;
+    forever {
+        tmp.resize(tmp.size() + chunkSize);
+        qint64 readBytes = read(tmp.data() + totalRead, chunkSize);
+        if (readBytes < chunkSize) {
+            tmp.chop(chunkSize - (readBytes < 0 ? qint64(0) : readBytes));
+            return tmp;
+        }
+        totalRead += readBytes;
+    }
 }
 
 /*!

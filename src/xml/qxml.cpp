@@ -1328,17 +1328,7 @@ void QXmlInputSource::fetchData()
                 rawData = QByteArray((const char *) s->constData(), s->size() * sizeof(QChar));
             }
         } else if (device->isOpen() || device->open(QIODevice::ReadOnly)) {
-            if (!device->isSequential()) {
-                rawData = device->readAll();
-            } else {
-                int nread = 0;
-                const int bufsize = 512;
-                while (!device->atEnd()) {
-                    rawData.resize(nread + bufsize);
-                    nread += device->read(rawData.data()+nread, bufsize);
-                }
-                rawData.resize(nread);
-            }
+            rawData = device->readAll();
         }
     }
     setData(fromRawData(rawData));

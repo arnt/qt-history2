@@ -709,18 +709,7 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
     QByteArray output;
     QFile qfile;
     qfile.open(QFile::ReadOnly|QFile::Text, file);
-    QByteArray input;
-    if (qfile.isSequential()) {
-        char buf[512];
-        while (!qfile.atEnd()) {
-            qint64 readBytes = qfile.read(buf, sizeof(buf));
-            if (readBytes <= 0)
-                break;
-            input += QByteArray::fromRawData(buf, int(readBytes));
-        }
-    } else {
-        input = qfile.readAll();
-    }
+    QByteArray input = qfile.readAll();
     if (input.isEmpty())
         return output;
 

@@ -62,6 +62,8 @@ bool QBufferedFSFileEngine::seek(qint64 offset)
 qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
+    if (feof(d->fh))
+	return -1;
     return fread(data, 1, size_t(maxlen), d->fh);
 }
 
