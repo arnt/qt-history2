@@ -984,7 +984,6 @@ void MainWindow::setupPropertyEditor()
     addToolBar( dw, Qt::Left );
     dw->setWidget( propertyEditor );
     dw->setFixedExtendWidth( 300 );
-    dw->setFixedExtendHeight( 600 );
     dw->setCaption( tr( "Property Editor" ) );
     QWhatsThis::add( propertyEditor, tr("<b>The Property Editor</b>"
 					"<p>You can change the appearance and behaviour of the selected widget in the "
