@@ -1,10 +1,15 @@
 #include <qtabwidget.h>
+#include <qaccel.h>
 
 void MainWindow::init()
 {
     setWFlags( WDestructiveClose );
     browser = new HelpWindow( this, this, "qt_assistant_helpwindow" );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    QAccel *acc = new QAccel( this );
+    acc->connectItem( acc->insertItem( Key_F5 ),
+		      browser,
+		      SLOT( reload() ) );
     setCentralWidget( browser );
 
     settings = 0L;
