@@ -113,8 +113,6 @@ bool QUnknownInterface::ref()
     if ( !refcount && !initialize( appInterface ) )
 	return FALSE;
 
-    if ( objname )
-	qDebug( "Referencing %s (%d ->%d)", objname, refcount, refcount+1 );
     ++refcount;
 
     return TRUE;
@@ -135,9 +133,6 @@ bool QUnknownInterface::release()
 
     if ( parent() )
 	parent()->release();
-
-    if ( objname )
-	qDebug( "Dereferencing %s (%d ->%d)", objname, refcount, refcount-1 );
 
     bool deref = !--refcount;
     if ( deref )
