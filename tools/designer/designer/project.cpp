@@ -1370,3 +1370,26 @@ void Project::addAndEditFunction( const QString &function, const QString &functi
 	}
     }
 }
+
+bool Project::hasParentObject( QObject *o )
+{
+    for ( QObject *p = objs.first(); p; p = objs.next() ) {
+	QObject *c = p->child( o->name(), o->className() );
+	if ( c )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+QString Project::qualifiedName( QObject *o )
+{
+    QString name = o->name();
+    QObject *p = o->parent();
+    while ( p ) {
+	name.prepend( QString( p->name() ) + "." );
+	if ( objs.findRef( p ) != -1 )
+	    break;
+	p = p->parent();
+    }
+    return name;
+}

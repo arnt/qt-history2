@@ -199,6 +199,8 @@ public:
 			     bool openDeveloper );
 
     void removeTempProject();
+    bool hasParentObject( QObject *o );
+    QString qualifiedName( QObject *o );
 
 signals:
     void projectModified();

@@ -272,7 +272,9 @@ QString WorkspaceItem::text( int column ) const
     case SourceFileType:
 	return sourceFile->fileName();
     case ObjectType:
-	return object->name();
+	if ( !project->hasParentObject( object ) )
+	    return object->name();
+	return project->qualifiedName( object );
     }
 
     return QString::null; // shut up compiler
