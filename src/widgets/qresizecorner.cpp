@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qresizecorner.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qresizecorner.cpp#3 $
 **
 ** Implementation of QResizeCorner class
 **
@@ -77,7 +77,7 @@ QSize QResizeCorner::sizeHint() const
 void QResizeCorner::paintEvent( QPaintEvent *e )
 {
     QPainter painter( this );
-    e->setClipRegion(e->region());
+    painter.setClipRegion(e->region());
     painter.translate( width()-13, height()-13 ); // paint in the corner
     QPointArray a;
     a.setPoints( 3, 1,12, 12,1, 12,12 );
