@@ -95,7 +95,7 @@
     of the others.
 
     \skipto QCheckBox
-    \printuntil tristateBox->setState
+    \printuntil tristateBox->setTristate
 
     Again, we use a vertical layout within the group box to present
     the buttons in the form of a vertical list.
