@@ -95,6 +95,12 @@ private:
 class QTable : public QScrollView
 {
     Q_OBJECT
+    Q_PROPERTY( int numRows READ numRows WRITE setNumRows )
+    Q_PROPERTY( int numCols READ numCols WRITE setNumCols )
+    Q_PROPERTY( bool showGrid READ showGrid WRITE setShowGrid )
+    Q_PROPERTY( bool rowsMovable READ rowsMovable WRITE setRowsMovable )
+    Q_PROPERTY( bool columnsMovable READ columnsMovable WRITE setColumnsMovable )
+
     friend class QTableItem;
     friend class QTableHeader;
 
@@ -255,7 +261,7 @@ private:
     bool asc;
     bool doSort;
     bool mousePressed;
-    
+
 };
 
 class QTableHeader : public QHeader
