@@ -1,6 +1,9 @@
 % the postscript header we use for our qpsprinter in uncompressed and commented form.
 % use the makepsheader perl script to generate a compressed version of this header
 % you can then paste into qpsprinter.cpp
+%
+% some compression of the code is done by the makepsheader script, so we don't need to 
+% write too criptically here. 
 
 /d  /def load def
 /D  {bind d} bind d
@@ -20,7 +23,19 @@
 /CM {currentmatrix} D
 /SM {setmatrix} D
 /TR {translate} D
+/SD {setdash} D
 /SC {aload pop setrgbcolor} D
+/CR {currentfile read pop} D
+/i  {index} D
+/bs {bitshift} D
+/scs {setcolorspace} D
+/DB {dict dup begin} D
+/DE {end d} D
+
+% ENDUNCOMPRESSED: Warning: leave this line in. 
+% Everything before this line will be left untouched by the compression
+
+
 
 /BSt 0 d                             % brush style
 /LWi 1 d                             % line width
@@ -33,25 +48,34 @@
 /BCol  [ 1 1 1 ] d                   % brush color
 /PCol  [ 0 0 0 ] d                   % pen color
 /BkCol [ 1 1 1 ] d                   % background color
+/BDArr [                             % Brush dense patterns
+  0.06 0.12 0.37 0.50 0.63 0.88 0.94
+] d
+/defM matrix d
 
 /nS 0 d                              % number of saved painter states
 
 % LArr for the Pen styles is defined in emitHeader because of scaling
 
+% GPS: GetPenStyle 
 % Returns the line pattern (from pen style PSt).
 %
-% Argument:
-%   bool pattern
-%   true : draw pattern
-%   false: fill pattern
+%   bool GPS pattern
+%   true : returns draw pattern
+%   false: returns fill pattern
 /GPS {
   PSt 1 ge PSt 5 le and                      % valid pen pattern?
-  { { LArr PSt 1 sub 2 mul get }           % draw pattern
+  { 
+    { LArr PSt 1 sub 2 mul get }           % draw pattern
     { LArr PSt 2 mul 1 sub get } ifelse    % opaque pattern
   }
   { [] } ifelse                            % out of range => solid line
 } D
 
+% QS: QtStroke
+% draw and fill current path
+%
+%     - QS -
 /QS {                                % stroke command
   PSt 0 ne                         % != NO_PEN
   { 
@@ -68,12 +92,15 @@
   } if
 } D
 
-% Brush dense patterns:
-/BDArr [                              
-  0.06 0.12 0.37 0.50 0.63 0.88 0.94
-] d
+
+
+
+%% The following operations are used to read compressed data from the file
+%% Until now this is only used for image compression
 
 % read 28 bits and leave them on tos
+% 
+%    - r28 num
 /r28 {
   % skip past whitespace and read one character
   { currentfile read pop 
@@ -94,11 +121,12 @@
   } repeat
 } D
 
-% read some bits and leave them on tos
 /rA 0 d  % accumulator
 /rL 0 d  % bits left
 
 % takes number of bits, leaves number
+%
+%    num rB num
 /rB {
   rL 0 eq {
     % if we have nothing, let's get something
@@ -120,8 +148,13 @@
 } D
 
 % uncompresses image data from currentfile until the string on the
-% stack is full; leaves the string there.  assumes that nothing could
-% conceivably go wrong.
+% stack is full; leaves the string there.  
+% assumes that nothing could conceivably go wrong, ie. the compressed data has
+% to be in the correct format and the length of the string has to be exactly right
+% to hold the compressed data
+%
+%    string uc string
+%
 %%% Warning: if you change the method here, change the table in qpsprinter.cpp:compress()!
 /uc {
   /rL 0 d
@@ -176,15 +209,20 @@
   pop
 } D
 
+%% image drawing routines
+
+/sl D0 % ### is this needed ?
+
 % defines for QCI
-/sl D0
 /QCIgray D0 /QCIcolor D0 /QCIindex D0
 
 % this method prints color images if colorimage is available, otherwise
 % converts the string to a grayscale image and uses the reular postscript image
 % operator for printing.
 % Arguments are the same as for the image operator:
-/QCI { % width height bits/sample matrix datasrc
+% 
+%     width height bits/sample matrix datasrc QCI -
+/QCI {
   /colorimage where {
     pop
     false 3 colorimage
@@ -205,8 +243,18 @@
   } ifelse
 } D
 
-% general image drawing routine
-/di % width height matrix image 1|8|24 mask|false x y
+% general image drawing routine, used from the postscript driver
+%
+% Draws images with and without mask with 1, 8 and 24(rgb) bits depth.
+%
+%     width height matrix image 1|8|24 mask|false x y di
+%
+% width and height specify the width/height of the image,
+% matrix a transformation matrix, image a procedure holding the image data
+% (same for mask) and x/y an additional translation.
+%
+% ### should move the translation into the matrix!!!
+/di 
 {
   gsave
     translate
@@ -221,43 +269,52 @@
     } ifelse
     {
       % languagelevel2, we can use image mask and dicts
+
+      % store the image mask
       /ma exch d
+      % select colorspace according to 8|24 bit depth and set the decode array /dc
       8 eq {
-	/decode [0 1] d
+	/dc [0 1] d
 	/DeviceGray
       } {
-	/decode [0 1 0 1 0 1] d
+	/dc [0 1 0 1 0 1] d
 	/DeviceRGB
       } ifelse
       setcolorspace
+      % the image data
       /im exch d
-      /matrix exch d
-      /height exch def
-      /width exch def
-      /Image
+      % transformation matrix
+      /mt exch d
+      % width and height
+      /h exch def
+      /w exch def
+      % the image dict
+      /id
       7 dict dup begin
 	/ImageType 1 d
-	/Width		width d
-	/Height		height d
-	/ImageMatrix matrix d
+	/Width		        w d
+	/Height		        h d
+	/ImageMatrix            mt d
 	/DataSource		im d
 	/BitsPerComponent	8 d
-	/Decode		decode d
+	/Decode		        dc d
       end d
-      /Mask
+      % the mask dictionary
+      /md
       7 dict dup begin
 	/ImageType		1 d
-	/Width		width d
-	/Height		height d
-	/ImageMatrix matrix d
+	/Width		        w d
+	/Height		        h d
+	/ImageMatrix            mt d
 	/DataSource		ma d
 	/BitsPerComponent	1 d
-	/Decode		[0 1] d
+	/Decode		        [0 1] d
       end d
+      % and the combined image dict
       4 dict dup begin
 	/ImageType 3 d
-	/DataDict Image d
-	/MaskDict Mask d
+	/DataDict id d
+	/MaskDict md d
 	/InterleaveType 3 d
       end 
       image
@@ -282,7 +339,6 @@
 
 
 
-/defM matrix d
 
 /BF {                                % brush fill
   gsave
@@ -546,15 +602,22 @@
   concat
 } D
 
-% this function tries to find a suitable postscript font. We try quite hard not to get courier for a
-% proportional font. The following takes an array of fonts. The algorithm will take the first one that
-% gives a match (defined as not resulting in a courier font).
-% each entry in the table is an array of the form [ /Fontname x-stretch slant ]
-% x-strtch can be used to stretch/squeeze the font in x direction. This gives better results when
-% eg substituting helvetica for arial
-% slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
-% encoding can be either an encoding vector of false if the default font encoding is requested.
-/qtfindfont {                        % fntlist
+%% Font handling
+
+% the next three commands are for defining fonts. The first one
+% tries to find the most suitable printer font out of a fontlist.
+% if encoding is false the default one will be used.
+/MF {                                % newname encoding fontlist
+  % this function tries to find a suitable postscript font. 
+  % We try quite hard not to get courier for a
+  % proportional font. The following takes an array of fonts. 
+  % The algorithm will take the first font that
+  % gives a match (defined as not resulting in a courier font).
+  % each entry in the table is an array of the form [ /Fontname x-stretch slant ]
+  % x-strtch can be used to stretch/squeeze the font in x direction. 
+  % This gives better results when eg substituting helvetica for arial
+  % slant is an optional slant. 0 is non slanted, 0.2 is a typical value for a syntetic oblique.
+  % encoding can be either an encoding vector of false if the default font encoding is requested.
   true exch true exch                          % push a dummy on the stack,
   {                          % so the loop over the array will leave a font in any case when exiting.
     exch pop exch pop                 % (dummy | oldfont) (dummy | fontdict) fontarray
@@ -565,9 +628,8 @@
     } if
   } forall
   exch                               % font fontarray
-} D
 
-/qtdefinefont {                      % newname encoding font fontarray      defines a postscript font
+  % newname encoding font fontarray      defines a postscript font
   dup
   1 get /fxscale exch def            % define scale, sland and encoding
   2 get /fslant exch def
@@ -587,42 +649,44 @@
   definefont pop
 } D
 
-% the next three commands are for defining fonts. The first one
-% tries to find the most suitable printer font out of a fontlist.
-% if encoding is false the default one will be used.
-/MF {                                % newname encoding fontlist
-  qtfindfont qtdefinefont
-} D
-
 % an embedded font. This is used for the base fonts of the composite font used later on.
 /MFEmb {                             % newname encoding fontname
-  findfont dup length dict begin
+  findfont dup length dict 
+  begin
     {
       1 index /FID ne
       {d}{pop pop}ifelse
     } forall
-    /Encoding ED currentdict end
-    definefont pop
+    /Encoding ED currentdict 
+  end
+  definefont pop
 } D
 
-    /DF {                                % newname pointsize fontmame
-      findfont
-      /FONTSIZE 3 -1 roll d [ FONTSIZE 0 0 FONTSIZE -1 mul 0 0 ] makefont
-      d
-    } D
+% DF: define font
+% used to get a scaled version of an already loaded font
+%
+%    newname pointsize fontmame DF -
+/DF {
+  findfont
+  % get the fontsize on top of the stack and define font matrix
+  /fs 3 -1 roll d [ fs 0 0 fs -1 mul 0 0 ]  
+  makefont
+  d
+} D
 
-    /ty 0 d
-    /Y {
-      /ty ED
-    } D
+/ty 0 d
+/Y {
+  /ty ED
+} D
 
-    /Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
-      gsave setlinewidth
-      PCol SC
-      NP 1 index exch MT
-      1 index 0 rlineto stroke
-    grestore
-    } D
+/Tl { % draw underline/strikeout line: () w x y lw ->Tl-> () w x
+  gsave 
+    setlinewidth
+    PCol SC
+    NP 1 index exch MT
+    1 index 0 rlineto stroke
+  grestore
+} D
 
 /T {                                 % PdcDrawText2 [string fm.width x]
   PCol SC % really need to kill these SCs
@@ -636,6 +700,7 @@
   ashow
 } D
 
+%% start of page
 /QI {
   /C save d
   pageinit
@@ -644,13 +709,16 @@
   /OMo false d
 } D
 
+%% end of page
 /QP {                                % show page
   C restore
   showpage
 } D
 
 % merges one key value pair into the page device dict
-/SPD { % key value
+%
+%    key value SPD -
+/SPD {
   /setpagedevice where {
     1 dict dup begin 3 1 roll def end
     setpagedevice
