@@ -625,12 +625,12 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		return;
 	    }
 
-	    QPen savePen = p->pen();			// save current pen
+	    p->save();
 	    p->setPen( Qt::NoPen );
 	    a.translate( x+w/2, y+h/2 );
 	    p->setBrush( flags & Style_Enabled ? cg.dark() : cg.light() );
 	    p->drawPolygon( a );			// draw arrow
-	    p->setPen( savePen );			// restore pen
+	    p->restore();
 	}
 	break;
 
