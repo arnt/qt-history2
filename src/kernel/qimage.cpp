@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#52 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#51 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#52 $")
 
 
 /*----------------------------------------------------------------------------
@@ -886,16 +886,17 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
   Standard image io handlers (defined below)
  *****************************************************************************/
 
-static void read_gif_image( QImageIO * );	// standard image io handlers
-static void write_gif_image( QImageIO * );	//   (defined below)
+// standard image io handlers (defined below)
+static void read_gif_image( QImageIO * ) NOT_USED_FN;
+static void write_gif_image( QImageIO * ) NOT_USED_FN;
 static void read_bmp_image( QImageIO * );
 static void write_bmp_image( QImageIO * );
 static void read_pbm_image( QImageIO * );
 static void write_pbm_image( QImageIO * );
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
-static void read_xpm_image( QImageIO * );
-static void write_xpm_image( QImageIO * );
+static void read_xpm_image( QImageIO * ) NOT_USED_FN;
+static void write_xpm_image( QImageIO * ) NOT_USED_FN;
 
 
 /*****************************************************************************
@@ -2173,6 +2174,8 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 /*****************************************************************************
   XPM image read/write functions
  *****************************************************************************/
+
+static int read_xpm_char( QIODevice *d ) NOT_USED_FN;
 
 static int read_xpm_char( QIODevice *d )
 {
