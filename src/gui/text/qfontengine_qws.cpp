@@ -170,14 +170,12 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
     if (flags & QTextEngine::RightToLeft) {
         for ( int i = 0; i < len; ++i ) {
             unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
-            if (uc == 0xa0) uc = 0x20;
             glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
             ++glyph_pos;
         }
     } else {
         for ( int i = 0; i < len; ++i ) {
             unsigned int uc = getChar(str, i, len);
-            if (uc == 0xa0) uc = 0x20;
             glyphs[glyph_pos].glyph = FT_Get_Char_Index(face, uc);
             ++glyph_pos;
         }

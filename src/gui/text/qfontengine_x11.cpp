@@ -175,7 +175,7 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
                             (mirrored ? ::mirroredChar(str[i]).unicode() : str[i].unicode()));
         } else {
             for (int i = 0; i < len; i++)
-                chars[i] = (str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode());
+                chars[i] = str[i].unicode();
         }
         QTextCodec::ConverterState state;
         state.flags = QTextCodec::ConvertInvalidToNull;
@@ -557,9 +557,12 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             unsigned int uc = QUnicodeTables::mirroredChar(getChar(str, i, len));
             glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
             if (!glyphs[glyph_pos].glyph) {
-                if (uc == 0xa0)
-                    uc = 0x20;
+            redo:
                 glyph_t glyph = FT_Get_Char_Index(_face, uc);
+                if (!glyph && uc == 0xa0) {
+                    uc = 0x20;
+                    goto redo;
+                }
                 glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
@@ -571,9 +574,12 @@ bool QFontEngineXft::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
             unsigned int uc = getChar(str, i, len);
             glyphs[glyph_pos].glyph = uc < cmapCacheSize ? cmapCache[uc] : 0;
             if (!glyphs[glyph_pos].glyph) {
-                if (uc == 0xa0)
-                    uc = 0x20;
+            redo1:
                 glyph_t glyph = FT_Get_Char_Index(_face, uc);
+                if (!glyph && uc == 0xa0) {
+                    uc = 0x20;
+                    goto redo1;
+                }
                 glyphs[glyph_pos].glyph = glyph;
                 if (uc < cmapCacheSize)
                     ((QFontEngineXft *)this)->cmapCache[uc] = glyph;
