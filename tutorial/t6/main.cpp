@@ -45,22 +45,23 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     setMinimumSize( 200, 300 );
 
     QVBoxLayout *vbox = new QVBoxLayout( this );
-    
+
     QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
     vbox->addWidget( quit, 0, Qt::AlignRight );
-    
-    QGridLayout *grid = new QGridLayout( 4, 4 ); //### 4,4 superfluous
+
+    QGridLayout *grid = new QGridLayout( 4, 4 );
     vbox->addLayout( grid );
-    
-    for( int c = 0 ; c < 4 ; c++ )
+
+    for( int c = 0 ; c < 4 ; c++ ) {
 	for( int r = 0 ; r < 4 ; r++ ) {
 	    LCDRange* lr = new LCDRange( this );
 	    grid->addWidget( lr, r, c );
 	}
+    }
 }
 
 int main( int argc, char **argv )

@@ -40,7 +40,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
 
     vbox->addWidget( quit, 0, AlignLeft );
-    vbox->addWidget( lcd );  //stretch unnecessary, since lcd wants to grow
+    vbox->addWidget( lcd );
     vbox->addWidget( sBar );
 }
 

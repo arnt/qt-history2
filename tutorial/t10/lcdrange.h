@@ -10,7 +10,6 @@
 #include <qwidget.h>
 
 class QScrollBar;
-class QLCDNumber;
 
 
 class LCDRange : public QWidget

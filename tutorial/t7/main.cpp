@@ -35,11 +35,11 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     vbox->addWidget( quit, 0, Qt::AlignRight );
 
-    QGridLayout *grid = new QGridLayout( 4, 4, 1 ); //#### 4 x 4 with 1 spacing
+    QGridLayout *grid = new QGridLayout( 4, 4, 1 );
     vbox->addLayout( grid );
 
     LCDRange *previous = 0;
-    for( int r = 0 ; r < 4 ; r++ )
+    for( int r = 0 ; r < 4 ; r++ ) {
 	for( int c = 0 ; c < 4 ; c++ ) {
 	    LCDRange* lr = new LCDRange( this );
 	    grid->addWidget( lr, r, c );
@@ -48,6 +48,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 			 previous , SLOT(setValue(int)) );
 	    previous = lr;
 	}
+    }
 }
 
 int main( int argc, char **argv )
