@@ -335,7 +335,7 @@ static void qAccessibleCleanup()
     A function pointer type. Use a function with this prototype to install
     interface factories with installFactory().
 
-    The function receives a QObject pointer, and if the QObject
+    The function receives a QObject pointer. If the QObject
     provides a QAccessibleInterface, it sets the second parameter to
     point to the corresponding QAccessibleInterface, and returns true;
     otherwise returns false.
