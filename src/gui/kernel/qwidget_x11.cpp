@@ -447,7 +447,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         setWinId(id);                                // set widget id/handle + hd
     }
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if (rendhd) {
         XftDrawDestroy((XftDraw *) rendhd);
         rendhd = 0;
@@ -455,7 +455,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if (X11->has_xft)
         rendhd = (HANDLE) XftDrawCreate(dpy, id, (Visual *) d->xinfo->visual(), d->xinfo->colormap());
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
     // NET window types
     long net_wintypes[7] = { 0, 0, 0, 0, 0, 0, 0 };
@@ -749,7 +749,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         else if (testWFlags(WType_Popup))
             qApp->closePopup(this);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
         if (rendhd) {
             if (destroyWindow)
                 XftDrawDestroy((XftDraw *) rendhd);
@@ -757,7 +757,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 free((void*) rendhd);
             rendhd = 0;
         }
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
         if (testWFlags(WType_Desktop)) {
             if (acceptDrops())
@@ -1434,7 +1434,7 @@ void qt_discard_double_buffer()
     if (!global_double_buffer) return;
 
     XFreePixmap(QX11Info::appDisplay(), global_double_buffer->hd);
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if (X11->use_xrender && X11->has_xft)
         XftDrawDestroy((XftDraw *) global_double_buffer->rendhd);
 #endif
@@ -1471,7 +1471,7 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
     global_double_buffer->hd =
         XCreatePixmap(QX11Info::appDisplay(), hd, width, height, depth);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if (X11->use_xrender && X11->has_xft)
         global_double_buffer->rendhd =
             (Qt::HANDLE) XftDrawCreate(QX11Info::appDisplay(),

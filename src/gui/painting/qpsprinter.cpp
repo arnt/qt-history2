@@ -4278,7 +4278,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
     if (priv->embedFonts) {
         //qDebug("engine = %p name=%s, script=%d", engine, engine ? engine->name() : "(null)", script);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
         if (X11->has_xft && engine && engine->type() == QFontEngine::Xft) {
             XftPattern *pattern = static_cast<QFontEngineXft *>(engine)->pattern();
             char *filename = 0;
@@ -4289,7 +4289,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
                 xfontname = fontfilename;
             }
         } else
-#endif
+#endif // QT_NO_XFT
         {
             QString rawName;
             if (engine && engine != (QFontEngine *)-1)

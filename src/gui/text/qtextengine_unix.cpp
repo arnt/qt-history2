@@ -66,7 +66,7 @@ void QTextEngine::shapeText(int item) const
 
     QGlyphLayout *g = shaper_item.glyphs;
     // ############ general solution needed
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
     if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
         FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
         if (FT_HAS_KERNING(face)) {

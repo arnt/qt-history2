@@ -29,7 +29,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #endif
@@ -792,7 +792,7 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
 }
 
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 static int getXftWeight(int xftweight)
 {
     int qtweight = QFont::Black;
@@ -957,7 +957,7 @@ static void loadXft()
         ++f;
     }
 }
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
 static void load(const QString &family = QString::null, int script = -1)
 {
@@ -1007,14 +1007,14 @@ static void initializeDb()
     QTime t;
     t.start();
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     loadXft();
     FD_DEBUG("QFontDatabase: loaded Xft: %d ms",  t.elapsed());
 #endif
 
     t.start();
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     for (int i = 0; i < db->count; i++) {
 #ifdef XFT_MATRIX
         for (int j = 0; j < db->families[i]->count; ++j) {        // each foundry
@@ -1059,7 +1059,7 @@ static void initializeDb()
 
 
 #ifdef QFONTDATABASE_DEBUG
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if (!X11->has_xft)
 #endif
         // load everything at startup in debug mode.
@@ -1114,7 +1114,7 @@ static void initializeDb()
 // --------------------------------------------------------------------------------------
 #define MAXFONTSIZE_XFT 256
 #define MAXFONTSIZE_XLFD 128
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique,
                               const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
@@ -1189,7 +1189,7 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
     }
     return scale;
 }
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
 static
 QFontEngine *loadEngine(QFont::Script script,
@@ -1216,7 +1216,7 @@ QFontEngine *loadEngine(QFont::Script script,
         return fe;
     }
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     if (encoding->encoding == -1) {
 
         FM_DEBUG("    using Xft");
@@ -1293,7 +1293,7 @@ QFontEngine *loadEngine(QFont::Script script,
         fe->setScale(scale);
         return fe;
     }
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
     FM_DEBUG("    using XLFD");
 
@@ -1361,7 +1361,7 @@ QFontEngine *loadEngine(QFont::Script script,
     return fe;
 }
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 static void parseFontName(const QString &name, QString &foundry, QString &family)
 {
     if (name.contains('[') && name.contains(']')) {
@@ -1559,4 +1559,4 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     FcFontSetDestroy(fs);
     return fe;
 }
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT

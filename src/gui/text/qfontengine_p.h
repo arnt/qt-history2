@@ -240,7 +240,7 @@ private:
 
 class QTextCodec;
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

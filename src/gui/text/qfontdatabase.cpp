@@ -583,7 +583,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
     0x4e00
 };
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
 static inline bool requiresOpenType(QFont::Script s)
 {
     return (s >= QFont::Syriac && s <= QFont::Sinhala)
@@ -608,7 +608,7 @@ static inline bool canRender(QFontEngine *fe, QFont::Script script)
     if (hasChar)
         FM_DEBUG("    font has char 0x%04x", sample.unicode());
 #endif
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
     if (hasChar && requiresOpenType(script)) {
         QOpenType *ot = fe->openType();
         if (!ot || !ot->supportsScript(script))
@@ -923,7 +923,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
         return new QTestFontEngine(request.pixelSize);
 #endif
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
     if (family_name.isEmpty()
         || family_name == "Sans Serif"
         || family_name == "Serif"
@@ -985,7 +985,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
                 } else if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
                     // try with the unknown script (for a symbol font)
                     override_script = QFont::UnknownScript;
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
                 } else if (try_family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
                     // try with the unicode script instead
                     override_script = QFont::Unicode;

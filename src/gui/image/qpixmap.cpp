@@ -603,7 +603,7 @@ void QPixmap::resize(int w, int h)
     if(data->alphapm) {
         data->alphapm->resize(w, h);
     } else
-#elif defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
+#elif defined(Q_WS_X11) && !defined(QT_NO_XFT)
     if (data->alphapm)
         qWarning("QPixmap::resize: TODO: resize alpha data");
     else
@@ -681,11 +681,11 @@ void QPixmap::setMask(const QBitmap &newmask)
                   "the same size");
         return;
     }
-#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE))
+#if defined(Q_WS_MAC) || (defined(Q_WS_X11) && !defined(QT_NO_XFT))
     // when setting the mask, we get rid of the alpha channel completely
     delete data->alphapm;
     data->alphapm = 0;
-#endif // Q_WS_X11 && !QT_NO_XFTFREETYPE
+#endif
 
     delete data->mask;
     QBitmap* newmaskcopy;

@@ -1081,7 +1081,9 @@ void QFontEngineLatinXLFD::setScale(double scale)
 // ------------------------------------------------------------------
 // #define FONTENGINE_DEBUG
 
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
+
+
 class Q_HackPaintDevice : public QPaintDevice
 {
 public:
@@ -1665,10 +1667,10 @@ QOpenType *QFontEngineXft::openType() const
     return _openType;
 }
 
-
 QFontEngine::Type QFontEngineXft::type() const
 {
     return Xft;
 }
-#endif
+
+#endif // QT_NO_XFT
 

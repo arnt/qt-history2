@@ -141,11 +141,11 @@ Qt::HANDLE QPaintDevice::handle() const
 */
 Qt::HANDLE QPaintDevice::x11RenderHandle() const
 {
-#ifndef QT_NO_XFTFREETYPE
+#ifndef QT_NO_XFT
     return rendhd ? XftDrawPicture((XftDraw *) rendhd) : 0;
 #else
     return 0;
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 }
 
 

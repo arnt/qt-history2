@@ -255,7 +255,7 @@ CFG_XCURSOR=auto
 CFG_XRANDR=auto
 CFG_XRENDER=auto
 CFG_OPENGL=auto
-CFG_FREETYPE=auto
+CFG_XFT=auto
 CFG_QWS_FREETYPE=yes
 CFG_SQL_AVAILABLE=
 CFG_SQL_AUTODETECTED=
@@ -816,7 +816,7 @@ while [ "$#" -gt 0 ]; do
 	;;
     xft)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_FREETYPE="$VAL"
+	    CFG_XFT="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1746,43 +1746,40 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 		exit 101
 	    else
 		CFG_XRENDER=no
-		CFG_FREETYPE=no
 	    fi
 	else
 	    CFG_XRENDER=yes
 	fi
-    else
-	CFG_FREETYPE=no
     fi
     # auto-detect Xft support
-    if [ "$CFG_XRENDER" = "yes" ] && [ "$CFG_FREETYPE" != "no" ]; then
+    if [ "$CFG_XFT" != "no" ]; then
 	mkdir -p $outpath/config.tests/x11
-	if $x11tests/xfreetype.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
-	    if [ "$CFG_FREETYPE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	if $x11tests/xft.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath $L_FLAGS $I_FLAGS; then
+	    if [ "$CFG_XFT" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 		echo "Xft support cannot be enabled due to functionality tests!"
 		echo " Turn on verbose messaging (-v) to $0 to see the final report."
 		echo " If you believe this message is in error you may use the continue"
 		echo " switch (-continue) to $0 to continue."
 		exit 101
 	    else
-		CFG_FREETYPE=no
+		CFG_XFT=no
 	    fi
 	else
-	    CFG_FREETYPE=yes
+	    CFG_XFT=yes
 	fi
     fi
     # add freetype2 include path
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.inc ];then
+    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.inc ];then
 	QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=`cat $outpath/config.tests/x11/xft.inc`\""
     fi
     rm -f $outpath/config.tests/x11/xft.inc
     # add Xft specific libraries
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.lib ]; then
+    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.lib ]; then
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11=`cat $outpath/config.tests/x11/xft.lib` \$\$QMAKE_LIBS_X11\""
     fi
     rm -f $outpath/config.tests/x11/xft.lib
     # add Xft specific config options
-    if [ "$CFG_FREETYPE" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
+    if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG `cat $outpath/config.tests/x11/xft.cfg`"
     fi
     rm -f $outpath/config.tests/x11/xft.cfg
@@ -2137,7 +2134,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	XRY="*"
 	XRN=" "
     fi
-    if [ "$CFG_FREETYPE" = "no" ]; then
+    if [ "$CFG_XFT" = "no" ]; then
 	XFTY=" "
 	XFTN="*"
     else
@@ -2213,7 +2210,7 @@ Qt/X11 only:
 
  $XFTN  -no-xft ............ Do not compile Xft (anti-aliased font) support.
  $XFTY  -xft ............... Compile Xft support.
-			 Requires X11/Xft/XftFreetype.h and libXft.
+			 Requires X11/Xft/Xft.h and libXft.
 
  $XIN  -no-tablet ......... Do not compile Tablet support.
  $XIY  -tablet ............ Compile Tablet support.
@@ -2873,8 +2870,8 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG xrender"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrender \$\$QMAKE_LIBS_X11\""
     fi
-    if [ "$CFG_FREETYPE" = "yes" ]; then
-	QMAKE_CONFIG="$QMAKE_CONFIG xftfreetype"
+    if [ "$CFG_XFT" = "yes" ]; then
+	QMAKE_CONFIG="$QMAKE_CONFIG xft"
     fi
     if [ "$CFG_TABLET" = "yes" ]; then
 	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
@@ -3351,7 +3348,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Xcursor support ..... $CFG_XCURSOR"
     echo "XRandR support ...... $CFG_XRANDR"
     echo "XRender support ..... $CFG_XRENDER"
-    echo "Xft support ......... $CFG_FREETYPE"
+    echo "Xft support ......... $CFG_XFT"
     echo "XKB Support ......... $CFG_XKB"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     echo "Tablet support ...... $CFG_TABLET"

@@ -1715,7 +1715,7 @@ void qt_init(QApplicationPrivate *priv, int,
         (void) XkbSetPerClientControls(X11->display, state, &state);
 #endif
 
-#if !defined(QT_NO_XFTFREETYPE)
+#if !defined(QT_NO_XFT)
         X11->has_xft = XftInit(0) && XftInitFtLibrary();
 
         if (X11->has_xft) {
@@ -1733,7 +1733,7 @@ void qt_init(QApplicationPrivate *priv, int,
             }
         }
 
-#endif // QT_NO_XFTFREETYPE
+#endif // QT_NO_XFT
 
         // look at the modifier mapping, and get the correct masks for alt/meta
         // find the alt/meta masks

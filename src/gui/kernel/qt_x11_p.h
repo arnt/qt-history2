@@ -50,10 +50,10 @@
 
 //#define QT_NO_SHAPE
 #ifdef QT_NO_SHAPE
-#define XShapeCombineRegion(a,b,c,d,e,f,g)
-#define XShapeCombineMask(a,b,c,d,e,f,g)
+#  define XShapeCombineRegion(a,b,c,d,e,f,g)
+#  define XShapeCombineMask(a,b,c,d,e,f,g)
 #else
-#include <X11/extensions/shape.h>
+#  include <X11/extensions/shape.h>
 #endif // QT_NO_SHAPE
 
 
@@ -119,28 +119,25 @@ extern "C" {
 // #define QT_NO_XRENDER
 #ifndef QT_NO_XRENDER
 #  include <X11/extensions/Xrender.h>
-// #define QT_NO_XFTFREETYPE
-#  ifndef QT_NO_XFTFREETYPE
-//   This hacks around the freetype poeple putting an #error into freetype.h in 2.1.7, making
-//   it impossible to use an updated freetype with older Xft header files.
-#    include <ft2build.h>
-#    ifdef QT_USE_XFT2_HEADER
-#      include <X11/Xft/Xft2.h>
-#    else
-#      include <X11/Xft/Xft.h>
-#    endif // QT_USE_XFT2_HEADER
-#    if defined(XFT_VERSION) && XFT_VERSION < 20000
-#      define QT_NO_XFTFREETYPE
-#    endif // XFT_VERSION
-#  endif // QT_NO_XFTFREETYPE
-#else
-// make sure QT_NO_XFTFREETYPE is defined if QT_NO_XRENDER is defined
-#  ifndef QT_NO_XFTFREETYPE
-#    define QT_NO_XFTFREETYPE
-#  endif
 #endif // QT_NO_XRENDER
 
+// #define QT_NO_XFT
+#ifndef QT_NO_XFT
+//   This hacks around the freetype poeple putting an #error into freetype.h in 2.1.7, making
+//   it impossible to use an updated freetype with older Xft header files.
+#  include <ft2build.h>
+#  ifdef XFT2_H
+#    include <X11/Xft/Xft2.h>
+#  else
+#    include <X11/Xft/Xft.h>
+#  endif // XFT2_H
+// we require Xft >= 2.0.0
+#  if defined(XFT_VERSION) && XFT_VERSION < 20000
+#    define QT_NO_XFT
+#  endif // XFT_VERSION
+#endif // QT_NO_XFT
 
+// #define QT_NO_XKB
 #ifndef QT_NO_XKB
 #  include <X11/XKBlib.h>
 #endif // QT_NO_XKB
