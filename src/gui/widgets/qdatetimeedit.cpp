@@ -111,6 +111,9 @@ public:
     QString displayFormat;
     QString defaultDateFormat, defaultTimeFormat, defaultDateTimeFormat;
     QString escapedFormat;
+    // this format is the same amount of letters as the resulting string
+    // e.g. if the format is hh:ap and am/pm is translated to foobar/barfoo escapedFormat
+    // will be "hh:ap    "
     QList<SectionNode> sections;
     SectionNode first, last;
     QStringList separators;
@@ -1134,7 +1137,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
                 setSelected(s, true);
             } else {
                 edit->setCursorPosition(pos);
-            } // ### should this set the text to tmp if changed?
+            }
         }
         updateSpinBox();
     }
