@@ -450,8 +450,17 @@ void qt_setMaxWindowRect(const QRect& r)
 
 typedef QHash<QByteArray, QPalette> PaletteHash;
 Q_GLOBAL_STATIC(PaletteHash, app_palettes)
+PaletteHash *qt_app_palettes_hash()
+{
+    return app_palettes();
+}
+
 typedef QHash<QByteArray, QFont> FontHash;
 Q_GLOBAL_STATIC(FontHash, app_fonts)
+FontHash *qt_app_fonts_hash()
+{
+    return app_fonts();
+}
 
 QWidgetList *QApplication::popupWidgets = 0;        // has keyboard input focus
 

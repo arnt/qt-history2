@@ -749,7 +749,6 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
             mac_menubar = new QMacMenuBarPrivate;
         } else {
             QWidget *tlw = q->topLevelWidget();
-            QMacMenuBarPrivate::menubars.ensure_constructed();
             if(parent && (QMacMenuBarPrivate::menubars.isEmpty() || !QMacMenuBarPrivate::menubars.find(tlw)) &&
                (((parent->isDialog() 
 #ifndef QT_NO_MAINWINDOW
@@ -811,7 +810,6 @@ bool QMenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
         return true;
-    QMenuBarPrivate::QMacMenuBarPrivate::menubars.ensure_constructed();
 
     QMenuBar *mb = 0;
     bool fall_back_to_empty = false;

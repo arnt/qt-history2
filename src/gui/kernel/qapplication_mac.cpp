@@ -404,10 +404,12 @@ void qt_mac_update_os_settings()
             QFont fnt(pstring2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                       (bool)(f_style & ::italic));
             bool set_font = true;
-            extern QHash<QByteArray, QFont> app_fonts;  //qapplication.cpp
-            if(!app_fonts.isEmpty()) {
-                QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(mac_widget_fonts[i].qt_class);
-                if (it != app_fonts.constEnd())
+            extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
+            QHash<QByteArray, QFont> *hash = qt_app_fonts_hash();
+            if(!hash->isEmpty()) {
+                QHash<QByteArray, QFont>::const_iterator it
+                                        = hash->find(mac_widget_fonts[i].qt_class);
+                if (it != hash->constEnd())
                     set_font = (fnt != *it);
             }
             if(set_font) {
@@ -476,10 +478,12 @@ void qt_mac_update_os_settings()
                              pal.color(QPalette::Active, QPalette::Text));
             }
             bool set_palette = true;
-            extern QHash<QByteArray, QPalette> app_palettes; //qapplication.cpp
-            if(!app_palettes.isEmpty()) {
-                QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(mac_widget_colors[i].qt_class);
-                if (it != app_palettes.constEnd())
+            extern QHash<QByteArray, QPalette> *qt_app_palettes_hash(); //qapplication.cpp
+            QHash<QByteArray, QPalette> *phash = qt_app_palettes_hash();
+            if(!phash->isEmpty()) {
+                QHash<QByteArray, QPalette>::const_iterator it
+                                    = phash->find(mac_widget_colors[i].qt_class);
+                if (it != phash->constEnd())
                     set_palette = (pal != *it);
             }
             if(set_palette && pal != apppal) {
@@ -946,7 +950,7 @@ void qt_cleanup()
     }
 
     TsmHash *hash = qt_mac_tsm_hash();
-    qDeleteAll(*hash)
+    qDeleteAll(*hash);
     hash->clear();
 }
 
