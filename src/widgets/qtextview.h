@@ -196,7 +196,7 @@ public slots:
     virtual void setParagType( QStyleSheetItem::DisplayMode, int listStyle );
 
     virtual void setTextFormat( TextFormat f );
-    virtual void setText( const QString &txt ) { setText( txt, QString::null ); }
+    void setText( const QString &txt ) { setText( txt, QString::null ); }
     virtual void setText( const QString &txt, const QString &context );
 
     virtual void load( const QString &fn );
