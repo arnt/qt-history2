@@ -60,6 +60,11 @@
 #include "qregexp.h"
 #include "qpopupmenu.h"
 
+struct QUndoRedoInfoPrivate
+{
+    QTextString text;
+};
+
 /*!
   \class QTextView qtextview.h
   \brief The QTextView class provides a sophisticated, single-page rich text viewer.
@@ -539,11 +544,11 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.text = QString::null;
+	    undoRedoInfo.d->text = QString::null;
 	}
-	undoRedoInfo.text += cursor->parag()->at( cursor->index() )->c;
+	undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
 	if ( cursor->remove() )
-	    undoRedoInfo.text += "\n";
+	    undoRedoInfo.d->text += "\n";
 	break;
     case ActionBackspace:
 	if ( cursor->parag()->style() && cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
@@ -558,14 +563,14 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.text = QString::null;
+	    undoRedoInfo.d->text = QString::null;
 	}
 	cursor->gotoLeft();
-	undoRedoInfo.text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
+	undoRedoInfo.d->text.prepend( QString( cursor->parag()->at( cursor->index() )->c ) );
 	undoRedoInfo.index = cursor->index();
 	if ( cursor->remove() ) {
-	    undoRedoInfo.text.remove( 0, 1 );
-	    undoRedoInfo.text.prepend( "\n" );
+	    undoRedoInfo.d->text.remove( 0, 1 );
+	    undoRedoInfo.d->text.prepend( "\n" );
 	    undoRedoInfo.index = cursor->index();
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	}
@@ -576,9 +581,9 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.text = QString::null;
+	    undoRedoInfo.d->text = QString::null;
 	}
-	undoRedoInfo.text += "\n";
+	undoRedoInfo.d->text += "\n";
 	cursor->splitAndInsertEmptyParag();
 	if ( cursor->parag()->prev() )
 	    lastFormatted = cursor->parag()->prev();
@@ -588,15 +593,15 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
 	    undoRedoInfo.index = cursor->index();
-	    undoRedoInfo.text = QString::null;
+	    undoRedoInfo.d->text = QString::null;
 	}
 	if ( cursor->atParagEnd() ) {
-	    undoRedoInfo.text += cursor->parag()->at( cursor->index() )->c;
+	    undoRedoInfo.d->text += cursor->parag()->at( cursor->index() )->c;
 	    if ( cursor->remove() )
-		undoRedoInfo.text += "\n";
+		undoRedoInfo.d->text += "\n";
 	} else {
-	    undoRedoInfo.text += cursor->parag()->string()->toString().mid( cursor->index() );
-	    undoRedoInfo.text.remove( undoRedoInfo.text.length() - 1, 1 );
+	    undoRedoInfo.d->text += cursor->parag()->string()->toString().mid( cursor->index() );
+	    undoRedoInfo.d->text.remove( undoRedoInfo.d->text.length() - 1, 1 );
 	    cursor->killLine();
 	}
 	break;
@@ -620,9 +625,9 @@ void QTextView::removeSelectedText()
     checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
     if ( !undoRedoInfo.valid() ) {
 	doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
-	undoRedoInfo.text = QString::null;
+	undoRedoInfo.d->text = QString::null;
     }
-    undoRedoInfo.text = doc->selectedText( QTextDocument::Standard );
+    undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
     doc->removeSelectedText( QTextDocument::Standard, cursor );
     ensureCursorVisible();
     lastFormatted = cursor->parag();
@@ -1185,23 +1190,25 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 
 void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
 {
+    QTextCursor c2 = *cursor;
     QString txt( text );
     drawCursor( FALSE );
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
 	if ( !undoRedoInfo.valid() ) {
 	    doc->selectionStart( QTextDocument::Standard, undoRedoInfo.id, undoRedoInfo.index );
-	    undoRedoInfo.text = QString::null;
+	    undoRedoInfo.d->text = QString::null;
 	}
-	undoRedoInfo.text = doc->selectedText( QTextDocument::Standard );
+	undoRedoInfo.d->text = doc->selectedText( QTextDocument::Standard );
 	doc->removeSelectedText( QTextDocument::Standard, cursor );
     }
     checkUndoRedoInfo( UndoRedoInfo::Insert );
     if ( !undoRedoInfo.valid() ) {
 	undoRedoInfo.id = cursor->parag()->paragId();
 	undoRedoInfo.index = cursor->index();
-	undoRedoInfo.text = QString::null;
+	undoRedoInfo.d->text = QString::null;
     }
+    int oldLen = undoRedoInfo.d->text.length();
     lastFormatted = checkNewLine && cursor->parag()->prev() ?
 		    cursor->parag()->prev() : cursor->parag();
     int idx = cursor->index();
@@ -1215,8 +1222,20 @@ void QTextView::insert( const QString &text, bool indent, bool checkNewLine )
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
-    undoRedoInfo.text += txt;
+    undoRedoInfo.d->text += txt;
 
+    if ( !doc->preProcessor() ) {
+	for ( int i = 0; i < (int)txt.length(); ++i ) {
+	    if ( txt[ i ] == '\n' )
+		continue;
+	    if ( c2.parag()->at( c2.index() )->format() ) {
+		c2.parag()->at( c2.index() )->format()->addRef();
+		undoRedoInfo.d->text.setFormat( oldLen + i, c2.parag()->at( c2.index() )->format(), TRUE );
+	    }
+	    c2.gotoRight();
+	}
+    }
+	
     emit textChanged();
 }
 
@@ -1883,16 +1902,33 @@ void QTextView::selectAll( bool select )
 void QTextView::UndoRedoInfo::clear()
 {
     if ( valid() ) {
-	QTextString s;
-	s.insert( 0, text, 0 );
 	if ( type == Insert || type == Return )
-	    doc->addCommand( new QTextInsertCommand( doc, id, index, s.rawData() ) );
+	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData() ) );
 	else if ( type != Invalid )
-	    doc->addCommand( new QTextDeleteCommand( doc, id, index, s.rawData() ) );
+	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData() ) );
     }
-    text = QString::null;
+    d->text = QString::null;
     id = -1;
     index = -1;
+}
+
+QTextView::UndoRedoInfo::UndoRedoInfo( QTextDocument *dc )
+    : type( Invalid ), doc( dc )
+{
+    d = new QUndoRedoInfoPrivate;
+    d->text = QString::null;
+    id = -1;
+    index = -1;
+}
+
+QTextView::UndoRedoInfo::~UndoRedoInfo()
+{
+    delete d;
+}
+
+bool QTextView::UndoRedoInfo::valid() const
+{
+    return d->text.length() > 0  && id >= 0&& index >= 0;
 }
 
 void QTextView::resetFormat()

@@ -146,6 +146,24 @@ bool QTextCommandHistory::isRedoAvailable()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
+    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str )
+{
+    for ( int i = 0; i < (int)text.size(); ++i ) {
+	if ( text[ i ].format() )
+	    text[ i ].format()->addRef();
+    }
+}
+
+QTextDeleteCommand::QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
+    : QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str )
+{
+    for ( int i = 0; i < (int)text.size(); ++i ) {
+	if ( text[ i ].format() )
+	    text[ i ].format()->addRef();
+    }
+}
+
 QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
 {
     QTextParag *s = doc ? doc->paragAt( id ) : parag;
@@ -185,15 +203,8 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 
     cursor.setParag( s );
     cursor.setIndex( index );
-    QTextCursor c2 = cursor;
     QString str = QTextString::toString( text );
-    cursor.insert( str, TRUE );
-    // ##### do custom item stuff
-    for ( int i = 0; i < (int)text.size(); ++i ) {
-	if ( text[ i ].format() )
-	    c2.parag()->setFormat( c2.index(), 1, text[ i ].format() );
-	c2.gotoRight();
-    }
+    cursor.insert( str, TRUE, &text );
     cursor.setParag( s );
     cursor.setIndex( index );
     if ( c ) {
@@ -341,7 +352,7 @@ void QTextCursor::invalidateNested()
     }
 }
 
-void QTextCursor::insert( const QString &s, bool checkNewLine )
+void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextString::Char> *formatting )
 {
     tmpIndex = -1;
     bool justInsert = TRUE;
@@ -349,11 +360,20 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
 	justInsert = s.find( '\n' ) == -1;
     if ( justInsert ) {
 	string->insert( idx, s );
+	if ( formatting ) {
+	    for ( int i = 0; i < (int)s.length(); ++i ) {
+		if ( formatting->at( i ).format() ) {
+		    formatting->at( i ).format()->addRef();
+		    string->string()->setFormat( idx + i, formatting->at( i ).format(), TRUE );
+		}
+	    }
+	}
 	idx += s.length();
     } else {
 	QStringList lst = QStringList::split( '\n', s, TRUE );
 	QStringList::Iterator it = lst.begin();
 	int y = string->rect().y() + string->rect().height();
+	int lastIndex = 0;
 	for ( ; it != lst.end(); ++it ) {
 	    if ( it != lst.begin() ) {
 		splitAndInsertEmptyParag( FALSE, FALSE );
@@ -364,6 +384,15 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
 	    if ( s.isEmpty() )
 		continue;
 	    string->insert( idx, s );
+	    if ( formatting ) {
+		for ( int i = lastIndex; i < (int)s.length(); ++i ) {
+		    if ( formatting->at( i ).format() ) {
+			formatting->at( i ).format()->addRef();
+			string->string()->setFormat( i - lastIndex + idx, formatting->at( i ).format(), TRUE );
+		    }
+		}
+		lastIndex = lastIndex + s.length();
+	    }
 	    idx += s.length();
 	}
 	string->format( -1, FALSE );
@@ -2324,6 +2353,14 @@ QTextString::QTextString()
     rightToLeft = FALSE;
 }
 
+QTextString::QTextString( const QTextString &s )
+{
+    textChanged = s.textChanged;
+    bidi = s.bidi;
+    rightToLeft = s.rightToLeft;
+    data = s.subString();
+}
+
 void QTextString::insert( int index, const QString &s, QTextFormat *f )
 {
     int os = data.size();
@@ -2354,17 +2391,7 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
 
 QTextString::~QTextString()
 {
-    for ( int i = 0; i < (int)data.count(); ++i ) {
-	if ( data[ i ].isCustom() ) {
-	    delete data[ i ].customItem();
-	    if ( data[ i ].d.custom->format )
-		data[ i ].d.custom->format->removeRef();
-	    delete data[ i ].d.custom;
-	    data[ i ].d.custom = 0;
-	} else if ( data[ i ].format() ) {
-	    data[ i ].format()->removeRef();
-	}
-    }
+    clear();
 }
 
 void QTextString::insert( int index, Char *c )
@@ -2423,6 +2450,22 @@ void QTextString::remove( int index, int len )
 	     sizeof( Char ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
     textChanged = TRUE;
+}
+
+void QTextString::clear()
+{
+    for ( int i = 0; i < (int)data.count(); ++i ) {
+	if ( data[ i ].isCustom() ) {
+	    delete data[ i ].customItem();
+	    if ( data[ i ].d.custom->format )
+		data[ i ].d.custom->format->removeRef();
+	    delete data[ i ].d.custom;
+	    data[ i ].d.custom = 0;
+	} else if ( data[ i ].format() ) {
+	    data[ i ].format()->removeRef();
+	}
+    }
+    data.resize( 0 );
 }
 
 void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
@@ -2562,6 +2605,8 @@ QArray<QTextString::Char> QTextString::subString( int start, int len ) const
 	a[ i ].d.format = 0;
 	a[ i ].type = Char::Regular;
 	a[ i ].setFormat( c->format() );
+	if ( c->format() )
+	    c->format()->addRef();
     }
     return a;
 }

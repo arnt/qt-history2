@@ -59,6 +59,8 @@ class QFont;
 class QColor;
 class QTextEdit;
 class QTextBrowser;
+class QTextString;
+struct QUndoRedoInfoPrivate;
 
 class Q_EXPORT QTextView : public QScrollView
 {
@@ -199,12 +201,13 @@ private slots:
 private:
     struct Q_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected };
-	UndoRedoInfo( QTextDocument *d ) : type( Invalid ), doc( d )
-	{ text = QString::null; id = -1; index = -1; }
+	
+	UndoRedoInfo( QTextDocument *dc );
+	~UndoRedoInfo();
 	void clear();
-	inline bool valid() const { return !text.isEmpty() && id >= 0&& index >= 0; }
+	bool valid() const;
 
-    	QString text;
+    	QUndoRedoInfoPrivate *d;
 	int id;
 	int index;
 	Type type;

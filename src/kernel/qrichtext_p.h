@@ -122,6 +122,138 @@ public:
     int count;
 };
 
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+class QTextString
+{
+public:
+    class Char
+    {
+	friend class QTextString;
+    public:
+	// this is never called, initialize variables in QTextString::insert()!!!
+	Char() : lineStart( 0 ), type( Regular ) {d.format=0;}
+	~Char();
+	QChar c;
+	enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
+	uint lineStart : 1;
+	uint rightToLeft : 1;
+	uint hasCursor : 1;
+	uint canBreak : 1;
+	Type type : 3;
+	
+	int x;
+	int height() const;
+	int ascent() const;
+	int descent() const;
+	bool isCustom() const { return type == Custom; }
+	QTextFormat *format() const;
+	QTextCustomItem *customItem() const;
+	void setFormat( QTextFormat *f );
+	void setCustomItem( QTextCustomItem *i );
+	Char *clone() const;
+	
+    private:
+	struct CustomData
+	{
+	    QTextFormat *format;
+	    QTextCustomItem *custom;
+	};
+	
+	struct MarkData
+	{
+	    QTextFormat *format;
+	    short xoff; // x offset for painting the Mark
+	    short yoff; // y offset for painting the Mark
+	};
+	
+	struct ShapedData
+	{
+	    QTextFormat *format;
+	    QChar shapedGlyph;
+	};
+	
+	struct LigatureData
+	{
+	    QTextFormat *format;
+	    QChar ligature;
+	    unsigned short nchars; // length of the ligature in decomposed form
+	};
+	
+	Char &operator=( const Char & ) {
+	    //abort();
+	    return *this;
+	}
+
+	union {
+	    QTextFormat* format;
+	    CustomData* custom;
+	    MarkData *mark;
+	    ShapedData *shaped;
+	    LigatureData *ligature;
+	} d;
+	friend class QComplexText;
+	friend class QTextParag;
+    };
+
+    QTextString();
+    QTextString( const QTextString &s );
+    ~QTextString();
+
+    QString toString() const;
+    static QString toString( const QArray<Char> &data );
+    QString toReverseString() const;
+
+    Char &at( int i ) const;
+    int length() const;
+
+    int width( int idx ) const;
+
+    void insert( int index, const QString &s, QTextFormat *f );
+    void insert( int index, Char *c );
+    void truncate( int index );
+    void remove( int index, int len );
+    void clear();
+
+    void setFormat( int index, QTextFormat *f, bool useCollection );
+
+    void setTextChanged( bool b ) { textChanged = b; }
+    void setBidi( bool b ) { bidi = b; }
+    bool isTextChanged() const { return textChanged; }
+    bool isBidi() const;
+    bool isRightToLeft() const;
+
+    QArray<Char> subString( int start = 0, int len = 0xFFFFFF ) const;
+    QArray<Char> rawData() const { return data; }
+
+    void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
+    void operator+=( const QString &s ) { insert( length(), s, 0 ); }
+    void prepend( const QString &s ) { insert( 0, s, 0 ); }
+
+private:
+    void checkBidi() const;
+    void basicDirection() const;
+
+    QArray<Char> data;
+    uint textChanged : 1;
+    uint bidi : 1; // true when the paragraph has right to left characters
+    uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
+};
+
+inline bool QTextString::isBidi() const
+{
+    if ( textChanged )
+	checkBidi();
+    return bidi;
+}
+
+inline bool QTextString::isRightToLeft() const
+{
+     if ( textChanged )
+	checkBidi();
+    return rightToLeft;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #if defined(Q_TEMPLATEDLL)
@@ -161,7 +293,7 @@ public:
     void gotoWordLeft();
     void gotoWordRight();
 
-    void insert( const QString &s, bool checkNewLine );
+    void insert( const QString &s, bool checkNewLine, QArray<QTextString::Char> *formatting = 0 );
     void splitAndInsertEmptyParag( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
     void killLine();
@@ -784,139 +916,11 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextString
-{
-public:
-    class Char
-    {
-	friend class QTextString;
-    public:
-	// this is never called, initialize variables in QTextString::insert()!!!
-	Char() : lineStart( 0 ), type( Regular ) {d.format=0;}
-	~Char();
-	QChar c;
-	enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
-	uint lineStart : 1;
-	uint rightToLeft : 1;
-	uint hasCursor : 1;
-	uint canBreak : 1;
-	Type type : 3;
-	
-	int x;
-	int height() const;
-	int ascent() const;
-	int descent() const;
-	bool isCustom() const { return type == Custom; }
-	QTextFormat *format() const;
-	QTextCustomItem *customItem() const;
-	void setFormat( QTextFormat *f );
-	void setCustomItem( QTextCustomItem *i );
-	Char *clone() const;
-	
-    private:
-	struct CustomData
-	{
-	    QTextFormat *format;
-	    QTextCustomItem *custom;
-	};
-	
-	struct MarkData
-	{
-	    QTextFormat *format;
-	    short xoff; // x offset for painting the Mark
-	    short yoff; // y offset for painting the Mark
-	};
-	
-	struct ShapedData
-	{
-	    QTextFormat *format;
-	    QChar shapedGlyph;
-	};
-	
-	struct LigatureData
-	{
-	    QTextFormat *format;
-	    QChar ligature;
-	    unsigned short nchars; // length of the ligature in decomposed form
-	};
-	
-	Char &operator=( const Char & ) {
-	    //abort();
-	    return *this;
-	}
-
-	union {
-	    QTextFormat* format;
-	    CustomData* custom;
-	    MarkData *mark;
-	    ShapedData *shaped;
-	    LigatureData *ligature;
-	} d;
-	friend class QComplexText;
-	friend class QTextParag;
-    };
-
-    QTextString();
-    ~QTextString();
-
-    QString toString() const;
-    static QString toString( const QArray<Char> &data );
-    QString toReverseString() const;
-
-    Char &at( int i ) const;
-    int length() const;
-
-    int width( int idx ) const;
-
-    void insert( int index, const QString &s, QTextFormat *f );
-    void insert( int index, Char *c );
-    void truncate( int index );
-    void remove( int index, int len );
-
-    void setFormat( int index, QTextFormat *f, bool useCollection );
-
-    void setTextChanged( bool b ) { textChanged = b; }
-    void setBidi( bool b ) { bidi = b; }
-    bool isTextChanged() const { return textChanged; }
-    bool isBidi() const;
-    bool isRightToLeft() const;
-
-    QArray<Char> subString( int start = 0, int len = 0xFFFFFF ) const;
-    QArray<Char> rawData() const { return data; }
-
-private:
-    void checkBidi() const;
-    void basicDirection() const;
-
-    QArray<Char> data;
-    uint textChanged : 1;
-    uint bidi : 1; // true when the paragraph has right to left characters
-    uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
-};
-
-inline bool QTextString::isBidi() const
-{
-    if ( textChanged )
-	checkBidi();
-    return bidi;
-}
-
-inline bool QTextString::isRightToLeft() const
-{
-     if ( textChanged )
-	checkBidi();
-    return rightToLeft;
-}
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
-	: QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ) {}
-    QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
-	: QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str ) {}
+    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str );
+    QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str );
     virtual Commands type() const { return Delete; };
 
     virtual QTextCursor *execute( QTextCursor *c );
