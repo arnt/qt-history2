@@ -9,7 +9,7 @@ class QCheckListItem;
 
 class SetupWizardImpl : public SetupWizard
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0 );
 
