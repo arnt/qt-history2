@@ -137,7 +137,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "SUBLIBS= ";
 	QStringList &l = project->variables()["SUBLIBS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
-	    t << "tmp/lib/" << (*it) << ".a ";
+	    t << "tmp/lib" << (*it) << ".a ";
 	t << endl << endl;
     }
     if(!project->variables()["TMAKE_APP_FLAG"].isEmpty()) {
@@ -224,7 +224,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if ( !project->variables()["SUBLIBS"].isEmpty() ) {
 	QStringList &l = project->variables()["SUBLIBS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
-	    t << "tmp/lib/" << (*it) << ".a" << "\n\t"
+	    t << "tmp/lib" << (*it) << ".a" << ":\n\t"
 	      << var(QString("MAKELIB") + (*it)) << endl << endl;
     }
 
@@ -233,7 +233,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "allmoc.cpp: " << var("PRECOMPH") << " " << " \\\n\t\t" 
 	  << varList("HEADERS_ORIG") << "\n\t"
 	  << "echo '#include \"" << var("PRECOMPH") << "\"' >allmoc.cpp" << "\n\t"
-	  << "$(CXX) -E -DQT_MOC_CPP $(CXX_FLAGS) $(INCPATH) >allmoc.h allmoc.cpp" << "\n\t"
+	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >allmoc.h allmoc.cpp" << "\n\t"
 	  << "$(MOC) -o allmoc.cpp allmoc.h" << "\n\t"
 	  << "perl -pi -e 's{\"allmoc.h\"}{\"" << var("PRECOMPH") << "\"}' allmoc.cpp" << "\n\t"
 	  << "rm allmoc.h" << endl << endl;
