@@ -90,7 +90,6 @@ QVariant::Type qDecodeOCIType( int ocitype )
 
 QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 {
-    qDebug("making field info for field:" + QString::number(i));
     OCIParam	*param;
     text        *colName;
     ub4         colNameLen(0);
@@ -162,7 +161,7 @@ QSqlFieldInfo makeFieldInfo( const QOCIPrivate* p, ub4 i )
 	if ( type == QVariant::DateTime )
 	    colLength = 7;
 	if ( type == QVariant::Invalid )
-	    colLength = 0;	    
+	    colLength = 0;
 	QString field((char*)colName);
 	field.truncate(colNameLen);
 	return QSqlFieldInfo( field, type, colLength, colPrecision );
@@ -263,7 +262,6 @@ void QOCIDriver::cleanup()
 
 QSql QOCIDriver::createResult() const
 {
-    qDebug("QOCIDriver::createResult() const");
     return QSql( new QOCIResult( this, d ) );
 }
 
@@ -316,11 +314,11 @@ QSqlFieldInfoList QOCIDriver::fields( const QString& tablename ) const
 		  "where table_name='%1';" );
     t << stmt.arg( tablename );
     QSqlFieldInfoList fil;
-    while ( t.next() ) 
-	fil.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));	
+    while ( t.next() )
+	fil.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));
     return fil;
 }
-    
+
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
     QSql t = createResult();
@@ -333,8 +331,8 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and b.table_name = a.table_name;" );
     t << stmt.arg( tablename );
     QSqlIndex idx( tablename );
-    if ( t.next() ) 
-	idx.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));	
+    if ( t.next() )
+	idx.append( QSqlFieldInfo( t[0].toString(), qDecodeOCIType(t[1].toInt()), t[2].toInt(), t[3].toInt() ));
     return idx;
     return QSqlIndex();
 }
@@ -380,7 +378,6 @@ public:
     QOCIResultPrivate( int size, QOCIPrivate* d )
 	: data( size ), ind( size )
     {
-	qDebug("QOCIResultPrivate( int size, QOCIPrivate* d )");
 	ind.setAutoDelete( TRUE );
 	ub4		dataSize(0);
 	OCIDefine 	*dfn;
@@ -388,7 +385,6 @@ public:
 	for ( int i=1; i <= size; ++i ) {
 	    QSqlFieldInfo f = makeFieldInfo( d, i );
 	    dataSize = f.length;
-	    qDebug("about to bind field " + QString::number(i) + " with length:" + QString::number(dataSize));
 	    if ( f.type == QVariant::DateTime ) {
 	    	r = OCIDefineByPos( d->sql,
 	 			&dfn,
@@ -464,7 +460,6 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
   cols(0),
   resultInfo(0)
 {
-    qDebug("QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )");
     d = new QOCIPrivate();
     (*d) = (*p);
 }
@@ -497,7 +492,6 @@ const QSqlResultInfo* QOCIResult::info()
 
 bool QOCIResult::reset ( const QString& query )
 {
-    qDebug("QOCIResult::reset ( const QString& query )");
     int r(0);
     if ( d->sql ) {
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
@@ -539,7 +533,6 @@ bool QOCIResult::reset ( const QString& query )
 #endif
 	return FALSE;
     }
-    qDebug("about to execute stmt");
     ub2 stmtType;
     r = OCIAttrGet( d->sql,
     			OCI_HTYPE_STMT,
@@ -627,7 +620,6 @@ bool QOCIResult::fetchNext()
 	    	int min = cols->at(i)[6];
 	    	int sec = cols->at(i)[7];
 	    	rowCache[at()][i] = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
-		qDebug(QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec))).toString());
 	    } else {
 		rowCache[at()][i] = QVariant( QDateTime() );
 	    }
