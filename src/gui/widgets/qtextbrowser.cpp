@@ -246,26 +246,17 @@ void QTextBrowser::setSource(const QString& name)
         anchor = name.mid(hash+1);
     }
 
-    if (source.startsWith("file:"))
-        source = source.mid(6);
-
-    QString url = d->findFile(source);
     QString txt;
 
     bool doSetText = false;
 
-    if (!source.isEmpty() && (url != d->currentURL || d->forceLoadOnSourceChange)) {
-        QFile f(url);
-        if (f.open(IO_ReadOnly)) {
-            QByteArray data = f.readAll();
-            QTextCodec *codec = QText::codecForHtml(data);
-            txt = codec->toUnicode(data);
+    if (!source.isEmpty() && (source != d->currentURL || d->forceLoadOnSourceChange)) {
+        QByteArray data = loadResource(Source, source);
+        QTextCodec *codec = QText::codecForHtml(data);
+        txt = codec->toUnicode(data);
 
-            if (txt.isEmpty())
-                qWarning("QTextBrowser: no document for %s", source.latin1());
-        } else {
-            qWarning("QTextBrowser: cannot open '%s' for reading", url.toLocal8Bit().data());
-        }
+        if (txt.isEmpty())
+            qWarning("QTextBrowser: no document for %s", source.latin1());
 
         if (isVisible()) {
             QString firstTag = txt.left(txt.indexOf('>') + 1);
@@ -276,7 +267,7 @@ void QTextBrowser::setSource(const QString& name)
             }
         }
 
-        d->currentURL = url;
+        d->currentURL = source;
         doSetText = true;
     }
     d->forceLoadOnSourceChange = false;
@@ -284,14 +275,14 @@ void QTextBrowser::setSource(const QString& name)
     d->currentAnchor = anchor;
 
     if (!anchor.isEmpty()) {
-        url += '#';
-        url += anchor;
+        source += '#';
+        source += anchor;
     }
 
     if (d->home.isEmpty())
-        d->home = url;
+        d->home = source;
 
-    if (d->stack.isEmpty() || d->stack.top() != url)
+    if (d->stack.isEmpty() || d->stack.top() != source)
         d->stack.push(name);
 
     int stackCount = d->stack.count();
@@ -317,7 +308,7 @@ void QTextBrowser::setSource(const QString& name)
     if (isVisible())
         qApp->restoreOverrideCursor();
 
-    emit sourceChanged(url);
+    emit sourceChanged(source);
 }
 
 /*!
@@ -497,21 +488,35 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
 }
 
 /*!
-    This function is called when the document to display contains images. For each
-    image loadImage is called at least once. \a name corresponds to the name attribute
-    of QTextImageFormat or the source attribute of the html img tag.
+    This function is called when the document is loaded. the \a type indercates the type
+    of resurece to be loaded. For now this is only Source or Image. For each image in 
+    the document loadImage is called at least once. If the \a type is Image \a name corresponds
+    to the name of the attribute of QTextImageFormat or the source attribute of the html img tag.
 
-    The default implementation tries to locate the image by interpreting \a name as
-    a file name. If it is not an absolute path it tries to find the image in the paths
+    The default implementation tries to locate the resources by interpreting \a name as
+    a file name. If it is not an absolute path it tries to find the file in the paths
     of the searchPaths property and in the same directory as the current source.
 */
-QImage QTextBrowser::loadImage(const QString &name)
+QByteArray QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
 {
     Q_D(QTextBrowser);
-    QImage img;
-    img.load(d->findFile(name));
-    return img;
+
+    QByteArray data;
+    QString source = name;
+    if (source.startsWith("file:"))
+        source = source.mid(6);
+    QString fileName = d->findFile(source);
+    QFile f(fileName);
+    if (f.open(IO_ReadOnly)) {
+        data = f.readAll();
+        f.close();
+    } else {
+        qWarning("QTextBrowser: cannot open '%s' for reading", fileName.toLocal8Bit().data());
+    }
+    
+    return data;
 }
+
 
 #define d d_func()
 #include "moc_qtextbrowser.cpp"

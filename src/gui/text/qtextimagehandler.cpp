@@ -43,7 +43,7 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
         QString context;
         if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
                 context = browser->source();
-                img = browser->loadImage(name);
+                img.load(browser->loadResource(QTextBrowser::Image, name));
         }
 
         if (img.isNull() && QTextImageHandler::externalLoader)

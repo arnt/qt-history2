@@ -27,6 +27,7 @@ class Q_GUI_EXPORT QTextBrowser : public QTextEdit
     Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
     Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(QStringList searchPaths READ searchPaths WRITE setSearchPaths)
+
 public:
     QTextBrowser(QWidget* parent = 0);
     virtual ~QTextBrowser();
@@ -36,7 +37,11 @@ public:
     QStringList searchPaths() const;
     void setSearchPaths(const QStringList &paths);
 
-    virtual QImage loadImage(const QString &name);
+    enum ResourceType {
+        Source,
+        Image
+    };
+    virtual QByteArray loadResource(ResourceType type, const QString &name);
 public slots:
     virtual void setSource(const QString& name);
     virtual void backward();
