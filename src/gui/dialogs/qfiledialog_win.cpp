@@ -69,8 +69,6 @@ static void qt_win_resolve_libs()
         triedResolve = true;
         if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
             QLibrary lib("shell32");
-            lib.setAutoUnload(false);
-
             ptrSHBrowseForFolder = (PtrSHBrowseForFolder) lib.resolve("SHBrowseForFolderW");
             ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList) lib.resolve("SHGetPathFromIDListW");
         }

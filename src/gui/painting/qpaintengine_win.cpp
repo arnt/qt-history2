@@ -1726,7 +1726,6 @@ static void qt_resolve_gdiplus()
     }
 
     QLibrary lib("gdiplus");
-    lib.setAutoUnload(false);
 
     // Global functions
     GdiplusStartup           = (PtrGdiplusStartup)     lib.resolve("GdiplusStartup");
