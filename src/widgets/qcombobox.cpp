@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#214 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#215 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1501,8 +1501,11 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    break;
 	    case Key_F4:
 	    case Key_Escape:
-		popDownListBox();
-		return TRUE;
+		if ( d->poppedUp ) {
+		    popDownListBox();
+		    return TRUE;
+		}
+		break;
 	    case Key_Enter:
 	    case Key_Return:
 		// work around QDialog's enter handling
