@@ -191,7 +191,7 @@ public:
     QT3_SUPPORT_CONSTRUCTOR QComboBox(QWidget *parent, const char *name);
     QT3_SUPPORT_CONSTRUCTOR QComboBox(bool rw, QWidget *parent, const char *name = 0);
     inline QT3_SUPPORT int currentItem() const { return currentIndex(); }
-    inline QT3_SUPPORT void setCurrentItem(int index) { return setCurrentIndex(index); }
+    inline QT3_SUPPORT void setCurrentItem(int index) { setCurrentIndex(index); }
     inline QT3_SUPPORT InsertPolicy insertionPolicy() const { return insertPolicy(); }
     inline QT3_SUPPORT void setInsertionPolicy(InsertPolicy policy) { setInsertPolicy(policy); }
     inline QT3_SUPPORT bool editable() const { return isEditable(); }
