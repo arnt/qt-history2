@@ -4178,12 +4178,12 @@ void QListView::doAutoScroll()
                 if ( itemAt( QCursor::pos() ) ) {
                     while( b && b != c ) {
                         if ( b->isSelectable() )
-                            setSelected( b, !(b->isSelected()) );
+                            setSelected( b, d->select );
                         b = down ? b->itemBelow() : b->itemAbove();
                     }
                 }
                 if ( c->isSelectable() )
-                    setSelected( c, !(c->isSelected()) );
+                    setSelected( c, d->select );
 	    }
 	}
     }
@@ -5648,21 +5648,37 @@ QSize QListView::minimumSizeHint() const
 void QListView::setOpen( QListViewItem * item, bool open )
 {
     if ( !item ||
-	 item->isOpen() == open ||
-	 (open && !item->childCount() && !item->isExpandable()) )
+	item->isOpen() == open ||
+	(open && !item->childCount() && !item->isExpandable()) )
 	return;
-
+    
+    QListViewItem* nextParent = NULL;
+    if ( open && !(item->isOpen()) )
+	nextParent = item->itemBelow();
+    
     item->setOpen( open );
-
+    
+    if ( open ) {
+	QListViewItem* lastChild;
+	if ( !nextParent ) {
+	    lastChild = item;
+	    for ( int i=0;i<item->childCount();++i )
+		lastChild = lastChild->itemBelow();
+	} else {
+	    lastChild = nextParent->itemAbove();
+	}
+	ensureItemVisible( lastChild );
+	ensureItemVisible( item );
+    }
     if ( d->drawables )
 	d->drawables->clear();
     buildDrawableList();
-
+    
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-
+    
     while( c && c->i && c->i != item )
 	c = d->drawables->next();
-
+    
     if ( c && c->i == item ) {
 	d->dirtyItemTimer->start( 0, TRUE );
 	if ( !d->dirtyItems )
