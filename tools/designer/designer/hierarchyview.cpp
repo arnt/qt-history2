@@ -489,6 +489,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	else
 	    actions = ( (QDesignerPopupMenu*)o )->insertedActions();
 	QPtrListIterator<QAction> it( actions );
+	it.toLast();
 	while ( it.current() ) {
 	    QAction *a = it.current();
 	    if ( a->inherits( "QDesignerAction" ) ) {
@@ -500,11 +501,11 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    } else if ( a->inherits( "QDesignerActionGroup" ) ) {
 		insertObject( a, item );
 	    }
-	    ++it;
+	    --it;
 	}
     } else if ( o->inherits( "QDesignerActionGroup" ) && o->children() ) {
 	QObjectList *l = (QObjectList*)o->children();
-	for ( QObject *obj = l->first(); obj; obj = l->next() ) {
+	for ( QObject *obj = l->last(); obj; obj = l->prev() ) {
 	    if ( obj->inherits( "QDesignerAction" ) ) {
 		QDesignerAction *da = (QDesignerAction*)obj;
 		if ( da->supportsMenu() )
@@ -518,7 +519,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     } else if ( o->inherits( "QMenuBar" ) ) {
 	QObjectList *l = MainWindow::self->queryList( "QDesignerPopupMenu" );
 	QMenuBar *mb = (QMenuBar*)o;
-	for ( QObject *obj = l->first(); obj; obj = l->next() ) {
+	for ( QObject *obj = l->last(); obj; obj = l->prev() ) {
 	    if ( !mb->findPopup( (QPopupMenu*)obj ) )
 		continue;
 	    insertObject( obj, item );
