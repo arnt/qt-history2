@@ -26,8 +26,8 @@ class QWin32PrintEnginePrivate : public QWin32PaintEnginePrivate
 public:
     QWin32PrintEnginePrivate() :
 	hPrinter(0),
+        globalDevMode(0),
 	devMode(0),
-        devNames(0),
 	pInfo(0),
         mode(QPrinter::ScreenResolution),
 	state(QPrinter::Idle),
@@ -60,20 +60,15 @@ public:
        when printing in full screen mode. */
     void setupOriginMapping();
 
-    /* Reads the relevant values from the devmode struct into the printer */
-    void readDevMode(DEVMODE *dm);
-
-    /* Writes the relevant values from the printer to the devmode struct. */
-    void writeDevMode(DEVMODE *dm);
-
     /* Queries the resolutions for the current printer, and returns them
        in a list. */
-    QList<int> queryResolutions();
+    QList<int> queryResolutions() const;
 
     // Windows GDI printer references.
     HANDLE hPrinter;
+
+    HGLOBAL globalDevMode;
     DEVMODE *devMode;
-    DEVNAMES *devNames;
     PRINTER_INFO_2 *pInfo;
 
     QPrinter::PrinterMode mode;

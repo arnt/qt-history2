@@ -162,14 +162,14 @@ private:        // Disabled copy constructor and operator=
 };
 
 #ifdef QT_COMPAT
-QSize QPrinter::margins() const
+Q_GUI_EXPORT QSize QPrinter::margins() const
 {
     QRect page = pageRect();
     QRect paper = paperRect();
     return QSize(page.left() - paper.left(), page.top() - paper.top());
 }
 
-void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
+Q_GUI_EXPORT void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 {
     QRect page = pageRect();
     QRect paper = paperRect();

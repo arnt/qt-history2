@@ -713,7 +713,6 @@ void QWin32PrintEnginePrivate::initialize()
     }
 
     devMode = pInfo->pDevMode;
-    readDevMode(devMode);
 
     hdc = CreateDC(program.utf16(), name.utf16(), 0, devMode);
 
@@ -731,8 +730,14 @@ void QWin32PrintEnginePrivate::initialize()
 void QWin32PrintEnginePrivate::release()
 {
     Q_ASSERT(hdc);
-    free(pInfo); // Also frees devmode one should assume...
-    ClosePrinter(hPrinter);
+
+    if (globalDevMode) { // Devmode comes from print dialog
+        GlobalUnlock(globalDevMode);
+    } else {            // Devmode comes from initialize...
+        // devMode is a part of the same memory block as pInfo so one free is enough...
+        free(pInfo);
+        ClosePrinter(hPrinter);
+    }
     DeleteDC(hdc);
 
     hdc = 0;
@@ -741,113 +746,29 @@ void QWin32PrintEnginePrivate::release()
     devMode = 0;
 }
 
-void QWin32PrintEnginePrivate::writeDevMode(DEVMODE *)
+QList<int> QWin32PrintEnginePrivate::queryResolutions() const
 {
-#if 0
-    Q_ASSERT(d->hdc);
-    QPrinterPrivate *pd = d->pdata;
-    Q_ASSERT(dm);
-
-    dm->dmFields = DM_COLLATE
-		   | DM_COLOR
-		   | DM_COPIES
-		   | DM_DEFAULTSOURCE
-		   | DM_ORIENTATION
-		   | DM_PAPERSIZE;
-
-    int dmCollate = pd->collateCopies ? DMCOLLATE_TRUE : DMCOLLATE_FALSE;
-    int dmColor = pd->colorMode == QPrinter::Color ? DMCOLOR_COLOR : DMCOLOR_MONOCHROME;
-    int dmCopies = pd->numCopies;
-    int dmOrientation = pd->orientation == QPrinter::Landscape
-			? DMORIENT_LANDSCAPE
-			: DMORIENT_PORTRAIT;
-    int dmPaperSize = pd->winPageSize;
-
-    int dmDefaultSource = DMBIN_AUTO;
-    /* Use some extra gunpowder to avoid some problems on 98 and ME.
-       See task: 19052 and 23626 */
-    DWORD caps = DeviceCapabilities((TCHAR*)pd->printerName.utf16(), 0, DC_BINS, 0, 0);
-    if(caps == DWORD(-1))
-	caps = 0;
-    QVector<uint> bins(caps);
-    if (DeviceCapabilities((TCHAR*)pd->printerName.utf16(), 0, DC_BINS, (LPTSTR)bins.data(), 0)) {
-	int dmMap = mapPaperSourceDevmode(pd->paperSource);
-	if (bins.contains(dmMap))
-	    dmDefaultSource = dmMap;
-    }
-
-    if (dmCollate != dm->dmCollate
-	|| dmColor != dm->dmColor
-	|| dmCopies != dm->dmCopies
-	|| dmDefaultSource != dm->dmDefaultSource
-	|| dmOrientation != dm->dmOrientation) {
-	// ### require reinit...
-	dm->dmCollate = dmCollate;
-	dm->dmColor = dmColor;
-	dm->dmCopies = dmCopies;
-	dm->dmDefaultSource = dmDefaultSource;
-	dm->dmOrientation = dmOrientation;
-	dm->dmPaperSize = dmPaperSize;
-    }
-#endif
-}
-
-void QWin32PrintEnginePrivate::readDevMode(DEVMODE * /*dm*/)
-{
-    qWarning("QWin32PrintEnginePrivate::readDevMode() - called");
-#if 0
-    // Orientation
-    if (dm->dmFields & DM_ORIENTATION)
-	d->pdata->orientation = dm->dmOrientation == DMORIENT_PORTRAIT
-				? QPrinter::Portrait
-				: QPrinter::Landscape;
-
-    // PageSize
-    if (dm->dmFields & DM_PAPERSIZE) {
-	d->pdata->pageSize = mapDevmodePageSize(dm->dmPaperSize);
-	d->pdata->winPageSize = dm->dmPaperSize;
-    }
-
-    // PaperSource
-    if (dm->dmFields & DM_DEFAULTSOURCE)
-	d->pdata->paperSource = mapDevmodePaperSource(dm->dmDefaultSource);
-
-    // ColorMode
-    if (dm->dmFields & DM_COLOR)
-	d->pdata->colorMode = dm->dmColor == DMCOLOR_COLOR
-			      ? QPrinter::Color
-			      : QPrinter::GrayScale;
-
-    // Collate copies, ### we're missing PD_USESDEVMODECOPIESANDCOLLATE here
-    if (dm->dmFields & DM_COLLATE)
-	d->pdata->collateCopies = dm->dmCollate == DMCOLLATE_TRUE;
-#endif
-}
-
-QList<int> QWin32PrintEnginePrivate::queryResolutions()
-{
-#if 0
     // Read the supported resolutions of the printer.
     DWORD numRes;
     LONG *enumRes;
     QT_WA({
-	numRes = DeviceCapabilities(pdata->printerName.utf16(),
-				    printerPort.utf16(),
+	numRes = DeviceCapabilities(name.utf16(),
+				    port.utf16(),
 				    DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-	if (!DeviceCapabilities(pdata->printerName.utf16(),
-				printerPort.utf16(),
+	if (!DeviceCapabilities(name.utf16(),
+				port.utf16(),
 				DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0)) {
 	    qSystemWarning("Failed to enumerate printer resolutions");
 	    return QList<int>();
 	}
     }, {
-	numRes = DeviceCapabilitiesA(pdata->printerName.local8Bit(),
-				     printerPort.local8Bit(),
+	numRes = DeviceCapabilitiesA(name.local8Bit(),
+				     port.local8Bit(),
 				     DC_ENUMRESOLUTIONS, 0, 0);
 	enumRes = (LONG*)malloc(numRes * 2 * sizeof(LONG));
-	if (!DeviceCapabilitiesA(pdata->printerName.local8Bit(),
-				 printerPort.local8Bit(),
+	if (!DeviceCapabilitiesA(name.local8Bit(),
+				 port.local8Bit(),
 				 DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0)) {
 	    qSystemWarning("Failed to enumerate printer resolutions");
 	    return QList<int>();
@@ -858,8 +779,6 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions()
     for (uint i=0; i<numRes; ++i)
 	list.append(enumRes[i*2]);
     return list;
-#endif
-    return QList<int>();
 }
 
 void QWin32PrintEngine::setPrinterName(const QString &name)
@@ -1051,7 +970,7 @@ QPrinter::PaperSource QWin32PrintEngine::paperSource() const
 
 QList<int> QWin32PrintEngine::supportedResolutions() const
 {
-    return QList<int>();
+    return d->queryResolutions();
 }
 
 void QWin32PrintEngine::setWinPageSize(short winPageSize)

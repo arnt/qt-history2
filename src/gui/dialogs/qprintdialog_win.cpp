@@ -33,6 +33,8 @@ public:
     {
     }
 
+    HGLOBAL *createDevNames();
+
     QWin32PrintEnginePrivate *ep;
 };
 
@@ -63,8 +65,10 @@ int QPrintDialogWin::exec()
     pd.lStructSize = sizeof(PRINTDLG);
 
     Q_ASSERT(d->ep->devMode);
-    pd.hDevMode   = d->ep->devMode;
-    pd.hDevNames  = d->ep->devNames;
+    pd.hDevMode = d->ep->devMode;
+
+    HGLOBAL *tempDevNames = d->createDevNames();
+    pd.hDevNames  = tempDevNames;
 
     pd.Flags = PD_RETURNDC;
     pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
@@ -123,7 +127,67 @@ int QPrintDialogWin::exec()
             d->fromPage = d->minPage;
             d->toPage = d->maxPage;
         }
+
+        d->ep->printToFile = pd.Flags & PD_PRINTTOFILE;
+
+        if (pd.hDevNames) {
+            DEVNAMES *dn = (DEVNAMES*) GlobalLock(pd.hDevNames);
+            d->ep->name = QString::fromUtf16((ushort*)(dn) + dn->wDeviceOffset);
+            d->ep->port = QString::fromUtf16((ushort*)(dn) + dn->wOutputOffset);
+            d->ep->program = QString::fromUtf16((ushort*)(dn) + dn->wDriverOffset);
+            GlobalUnlock(pd.hDevNames);
+        }
+
+        if (pd.hDevMode) {
+            DEVMODE *dm = (DEVMODE*) GlobalLock(pd.hDevMode);
+            d->ep->release();
+            d->ep->globalDevMode = pd.hDevMode;
+            d->ep->devMode = dm;
+            d->ep->hdc = CreateDC(d->ep->program.utf16(), d->ep->name.utf16(), 0, dm);
+            d->ep->setupPrinterMapping();
+        }
     }
 
+    // Cleanup...
+    GlobalFree(tempDevNames);
+
     return result;
+}
+
+HGLOBAL *QPrintDialogWinPrivate::createDevNames()
+{
+    int size = sizeof(DEVNAMES)
+               + ep->program.length() * 2 + 2
+               + ep->name.length() * 2 + 2
+               + ep->port.length() * 2 + 2;
+    HGLOBAL *hGlobal = (HGLOBAL *) GlobalAlloc(GMEM_MOVEABLE, size);
+    DEVNAMES *dn = (DEVNAMES*) GlobalLock(hGlobal);
+
+    dn->wDriverOffset = sizeof(DEVNAMES) / sizeof(TCHAR);
+    dn->wDeviceOffset = dn->wDriverOffset + ep->program.length() + 1;
+    dn->wOutputOffset = dn->wDeviceOffset + ep->name.length() + 1;
+
+    memcpy((ushort*)dn + dn->wDriverOffset, ep->program.utf16(), ep->program.length() * 2 + 2);
+    memcpy((ushort*)dn + dn->wDeviceOffset, ep->name.utf16(), ep->name.length() * 2 + 2);
+    memcpy((ushort*)dn + dn->wOutputOffset, ep->port.utf16(), ep->port.length() * 2 + 2);
+    dn->wDefault = 0;
+
+#if defined QT_PRINTDIALOG_DEBUG
+    printf("QPrintDialogWinPrivate::createDevNames()\n"
+           " -> wDriverOffset: %d\n"
+           " -> wDeviceOffset: %d\n"
+           " -> wOutputOffset: %d\n",
+           dn->wDriverOffset,
+           dn->wDeviceOffset,
+           dn->wOutputOffset);
+
+    printf("QPrintDialogWinPrivate::createDevNames(): %s, %s, %s\n",
+           QString::fromUtf16((ushort*)(dn) + dn->wDriverOffset).latin1(),
+           QString::fromUtf16((ushort*)(dn) + dn->wDeviceOffset).latin1(),
+           QString::fromUtf16((ushort*)(dn) + dn->wOutputOffset).latin1());
+#endif // QT_PRINTDIALOG_DEBUG
+
+    GlobalUnlock(hGlobal);
+
+    return hGlobal;
 }
