@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#196 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#197 $
 **
 ** Implementation of QFileDialog class
 **
@@ -321,7 +321,7 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
 
 QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
     : QListBox( parent, "filelistbox" ), filedialog( d ),
-      renaming( FALSE )
+      renaming( FALSE ), renameItem( 0L )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -388,8 +388,10 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
         return;
 
     if ( !didRename && i == currentItem() && currentItem() != -1 && filedialog->mode() != QFileDialog::ExistingFiles &&
-         QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." )
+         QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+        renameItem = item( i );
+    }
 }
 
 void QFileListBox::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -406,6 +408,9 @@ void QFileListBox::doubleClickTimeout()
 
 void QFileListBox::startRename()
 {
+    if ( !renameItem || renameItem != item( currentItem() ) )
+        return;
+    
     int i = currentItem();
     setSelected( i, TRUE );
     QRect r = itemRect( item( i ) );
@@ -467,6 +472,7 @@ void QFileListBox::rename()
 
 void QFileListBox::cancelRename()
 {
+    renameItem = 0L;
     lined->hide();
     viewport()->setFocusProxy( 0L );
     setFocusPolicy( StrongFocus );
@@ -475,7 +481,8 @@ void QFileListBox::cancelRename()
 }
 
 QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
-    : QListView( parent ), filedialog( d ), renaming( FALSE )
+    : QListView( parent ), filedialog( d ), renaming( FALSE ),
+      renameItem( 0L )
 {
     lined = new QRenameEdit( viewport() );
     lined->hide();
@@ -520,8 +527,10 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
         return;
 
     if ( !didRename && i == currentItem() && currentItem() && filedialog->mode() != QFileDialog::ExistingFiles &&
-         QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." )
+         QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+        renameItem = currentItem();
+    }
 }
 
 void QFileListView::viewportMouseDoubleClickEvent( QMouseEvent *e )
@@ -538,6 +547,9 @@ void QFileListView::doubleClickTimeout()
 
 void QFileListView::startRename()
 {
+    if ( !renameItem || renameItem != currentItem() )
+        return;
+    
     QListViewItem *i = currentItem();
     setSelected( i, TRUE );
 
@@ -602,6 +614,7 @@ void QFileListView::rename()
 
 void QFileListView::cancelRename()
 {
+    renameItem = 0L;
     lined->hide();
     viewport()->setFocusProxy( 0L );
     setFocusPolicy( StrongFocus );
