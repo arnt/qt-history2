@@ -410,7 +410,7 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 {
     Arg *realargs = new Arg[ argcount + 3 ];
     memcpy( realargs, args, argcount * sizeof(Arg) );
-    int screen = x11Info()->screen();
+    int screen = x11Info().screen();
     if ( !QX11Info::appDefaultVisual(screen)) {
 	// make Motif use the same visual/colormap/depth as Qt (if Qt
 	// is not using the default)
@@ -428,7 +428,7 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 				       realargs, argcount );
     } else {
 	d->shell = XtAppCreateShell( objectName(), objectName(), qmotifDialogWidgetClass,
-				     QMotif::x11Display(), realargs, argcount );
+				     QMotif::display(), realargs, argcount );
     }
 
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = this;
@@ -448,8 +448,8 @@ QMotifDialog::~QMotifDialog()
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
-    XSync(x11Info()->display(), FALSE);
-    XSync(QMotif::x11Display(), FALSE);
+    XSync(x11Info().display(), FALSE);
+    XSync(QMotif::display(), FALSE);
     destroy( false );
 }
 
@@ -504,8 +504,8 @@ void QMotifDialog::show()
     if ( d->dialog ) {
 	XtManageChild( d->dialog );
 
-	XSync(x11Info()->display(), FALSE);
-	XSync(QMotif::x11Display(), FALSE);
+	XSync(x11Info().display(), FALSE);
+	XSync(QMotif::display(), FALSE);
     } else if ( !parentWidget() ) {
 	adjustSize();
 	QApplication::sendPostedEvents(this, QEvent::Resize);
@@ -569,7 +569,7 @@ void QMotifDialog::realize( Widget w )
 {
     // use the winid of the dialog shell, reparent any children we have
     if ( XtWindow( w ) != winId() ) {
-	XSync(QMotif::x11Display(), FALSE);
+	XSync(QMotif::display(), FALSE);
 
 	XtSetMappedWhenManaged( d->shell, False );
 
@@ -596,7 +596,7 @@ void QMotifDialog::realize( Widget w )
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
 	    if (!widget || widget->isTopLevel()) continue;
 
-	    XReparentWindow(widget->x11Info()->display(), widget->winId(), newid,
+	    XReparentWindow(widget->x11Info().display(), widget->winId(), newid,
 			    widget->x(), widget->y());
 	}
 	QApplication::syncX();
@@ -613,7 +613,7 @@ void QMotifDialog::realize( Widget w )
 	// for will be set to the root window, which is not acceptable.
 	// instead, set it to the window id of the shell's parent
 	if ( ! parent() && XtParent( d->shell ) )
-	    XSetTransientForHint(x11Info()->display(), newid, XtWindow(XtParent(d->shell)));
+	    XSetTransientForHint(x11Info().display(), newid, XtWindow(XtParent(d->shell)));
     }
     QMotif::registerWidget( this );
 }
@@ -746,11 +746,11 @@ void qmotif_dialog_change_managed( Widget w )
 	shell.core.popup_list = NULL;
         shell.core.num_popups = 0;
 	shell.core.name = fakename;
-	shell.core.screen = ScreenOfDisplay( qwidget->x11Info()->display(),
-					     qwidget->x11Info()->screen() );
-	shell.core.colormap = qwidget->x11Info()->colormap();
+	shell.core.screen = ScreenOfDisplay( qwidget->x11Info().display(),
+					     qwidget->x11Info().screen() );
+	shell.core.colormap = qwidget->x11Info().colormap();
 	shell.core.window = qwidget->winId();
-	shell.core.depth = qwidget->x11Info()->depth();
+	shell.core.depth = qwidget->x11Info().depth();
 	shell.core.background_pixel = 0;
 	shell.core.background_pixmap = None;
 	shell.core.visible = True;

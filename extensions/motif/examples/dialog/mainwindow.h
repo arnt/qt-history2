@@ -14,8 +14,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <qmotifwidget.h>
-
+#include <QtMotif/QMotifWidget>
 
 class MainWindow : public QMotifWidget
 {

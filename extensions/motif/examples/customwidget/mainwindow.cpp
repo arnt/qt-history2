@@ -15,10 +15,10 @@
 
 #include <qapplication.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qstatusbar.h>
 
-#include <qmotifwidget.h>
+#include <QtMotif/QMotifWidget>
 
 #include <Xm/Form.h>
 #include <Xm/PushB.h>
@@ -26,12 +26,12 @@
 
 
 MainWindow::MainWindow()
-    : QMainWindow( 0, "mainwindow" )
+    : QMainWindow()
 {
-    QPopupMenu *filemenu = new QPopupMenu( this );
-    filemenu->insertItem( tr("&Quit"), qApp, SLOT(quit()) );
+    QMenu *filemenu = new QMenu(tr("&File"), this);
+    filemenu->addAction( tr("&Quit"), qApp, SLOT(quit()) );
 
-    menuBar()->insertItem( tr("&File"), filemenu );
+    menuBar()->addMenu(filemenu);
     statusBar()->message( tr("This is a QMainWindow with an XmText widget.") );
 
     customwidget =

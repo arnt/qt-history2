@@ -14,39 +14,47 @@
 #ifndef QMOTIF_H
 #define QMOTIF_H
 
-#include <qguieventloop.h>
-
+#include <qabstracteventdispatcher.h>
 #include <X11/Intrinsic.h>
 
 class QMotifPrivate;
 
-class QMotif : public QGuiEventLoop
+class QMotif : public QAbstractEventDispatcher
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QMotif)
 
 public:
-    QMotif( const char *applicationClass, XtAppContext context = NULL, XrmOptionDescRec *options = 0, int numOptions = 0);
+    QMotif(const char *applicationClass, XtAppContext context = NULL,
+           XrmOptionDescRec *options = 0, int numOptions = 0);
     ~QMotif();
 
     XtAppContext applicationContext() const;
 
-    void registerSocketNotifier( QSocketNotifier * );
-    void unregisterSocketNotifier( QSocketNotifier * );
+    static Display *display();
+    static XEvent *lastEvent();
 
-    static void registerWidget( QWidget* );
-    static void unregisterWidget( QWidget* );
-    static bool redeliverEvent( XEvent *event );
+    static void registerWidget(QWidget *);
+    static void unregisterWidget(QWidget *);
+    static bool redeliverEvent(XEvent *event);
 
-    static Display *x11Display();
-    static XEvent* lastEvent();
+    // QAbstractEventDispatcher interface
+    bool processEvents(QEventLoop::ProcessEventsFlags flags);
+    bool hasPendingEvents();
 
-protected:
-    bool processEvents( ProcessEventsFlags flags );
+    void registerSocketNotifier(QSocketNotifier *);
+    void unregisterSocketNotifier(QSocketNotifier *);
 
-private:
-    void appStartingUp();
-    void appClosingDown();
-    QMotifPrivate *d;
+    int registerTimer(int interval, QObject *object);
+    bool unregisterTimer(int timerId);
+    bool unregisterTimers(QObject *object);
+
+    void wakeUp();
+    void interrupt();
+    void flush();
+
+    void startingUp();
+    void closingDown();
 };
 
 #endif // QMOTIF_H

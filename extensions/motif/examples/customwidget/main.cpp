@@ -13,16 +13,15 @@
 
 #include "mainwindow.h"
 
-#include <qapplication.h>
-#include <qmotif.h>
-
+#include <QApplication>
+#include <QtMotif/QMotif>
 
 int main( int argc, char **argv )
 {
     XtSetLanguageProc( NULL, NULL, NULL );
 
-    QMotif integrator( "customwidget" );
     QApplication app( argc, argv );
+    QMotif integrator( "customwidget" );
 
     MainWindow mainwindow;
     app.setMainWidget( &mainwindow );

@@ -353,7 +353,7 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
 	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
 
-	int screen = x11Info()->screen();
+	int screen = x11Info().screen();
 	if (!QX11Info::appDefaultVisual(screen)) {
 	    // make Motif use the same visual/colormap/depth as Qt (if
 	    // Qt is not using the default)
@@ -367,11 +367,11 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
 
 	if (widgetclass == applicationShellWidgetClass) {
 	    d->shell = XtAppCreateShell( name, name, qapplicationShellWidgetClass,
-					 QMotif::x11Display(), realargs, nargs );
+					 QMotif::display(), realargs, nargs );
 	    ( (QApplicationShellWidget) d->shell )->qapplicationshell.widget = this;
 	} else {
 	    d->shell = XtAppCreateShell( name, name, qtoplevelShellWidgetClass,
-					 QMotif::x11Display(), realargs, nargs );
+					 QMotif::display(), realargs, nargs );
 	    ( (QTopLevelShellWidget) d->shell )->qtoplevelshell.widget = this;
 	}
 	motifparent = d->shell;
@@ -418,8 +418,8 @@ QMotifWidget::~QMotifWidget()
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
-    XSync(x11Info()->display(), FALSE);
-    XSync(QMotif::x11Display(), FALSE);
+    XSync(x11Info().display(), FALSE);
+    XSync(QMotif::display(), FALSE);
     destroy( false );
 }
 
@@ -446,8 +446,8 @@ void QMotifWidget::show()
 	if ( ! XtIsRealized( d->shell ) )
 	    XtRealizeWidget( d->shell );
 
-	XSync(x11Info()->display(), FALSE);
-	XSync(QMotif::x11Display(), FALSE);
+	XSync(x11Info().display(), FALSE);
+	XSync(QMotif::display(), FALSE);
 
 	XtMapWidget(d->shell);
     }
@@ -483,8 +483,8 @@ void QMotifWidget::realize( Widget w )
     if ( XtWindow( w ) != winId() ) {
 	// flush both command queues to make sure that all windows
 	// have been created
-	XSync(x11Info()->display(), FALSE);
-	XSync(QMotif::x11Display(), FALSE);
+	XSync(x11Info().display(), FALSE);
+	XSync(QMotif::display(), FALSE);
 
 	// save the geometry of the motif widget, since it has the
 	// geometry we want
@@ -513,7 +513,7 @@ void QMotifWidget::realize( Widget w )
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
 	    if (!widget || widget->isTopLevel()) continue;
 
-	    XReparentWindow(x11Info()->display(), widget->winId(), newid,
+	    XReparentWindow(x11Info().display(), widget->winId(), newid,
 			    widget->x(), widget->y());
 	}
 
@@ -529,20 +529,20 @@ void QMotifWidget::realize( Widget w )
             setWindowIconText(icontext);
 
 	// restore geometry of the shell
-	XMoveResizeWindow( x11Info()->display(), winId(),
+	XMoveResizeWindow( x11Info().display(), winId(),
 			   save.x(), save.y(), save.width(), save.height() );
 
 	// if this QMotifWidget has a parent widget, we should
 	// reparent the shell into that parent
 	if ( parentWidget() ) {
-	    XReparentWindow( x11Info()->display(), winId(),
+	    XReparentWindow( x11Info().display(), winId(),
 			     parentWidget()->winId(), x(), y() );
 	}
 
 	// flush both command queues again, to make sure that we don't
 	// get any of the above calls processed out of order
-    	XSync(x11Info()->display(), FALSE);
-	XSync(QMotif::x11Display(), FALSE);
+    	XSync(x11Info().display(), FALSE);
+	XSync(QMotif::display(), FALSE);
     }
     QMotif::registerWidget( this );
 }
@@ -647,7 +647,7 @@ bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
         return false;
 
     switch (event->type()) {
-    case QEvent::Reparent:
+    case QEvent::ParentChange:
         {
             // update event filters
             if (d->filter1)
@@ -723,14 +723,14 @@ bool QMotifWidget::dispatchQEvent( QEvent* e, QWidget* w)
 	break;
     case QEvent::FocusIn:
     {
-	XFocusInEvent ev = { XFocusIn, 0, TRUE, QMotif::x11Display(), w->winId(),
+	XFocusInEvent ev = { XFocusIn, 0, TRUE, QMotif::display(), w->winId(),
 			     NotifyNormal, NotifyPointer  };
 	QMotif::redeliverEvent( (XEvent*)&ev );
 	break;
     }
     case QEvent::FocusOut:
     {
-	XFocusOutEvent ev = { XFocusOut, 0, TRUE, QMotif::x11Display(), w->winId(),
+	XFocusOutEvent ev = { XFocusOut, 0, TRUE, QMotif::display(), w->winId(),
 			      NotifyNormal, NotifyPointer  };
 	QMotif::redeliverEvent( (XEvent*)&ev );
 	break;

@@ -48,16 +48,17 @@ typedef struct _QWidgetRec {
 } QWidgetRec;
 
 
-static
-void reparentChildrenOf(QWidget* parent)
+static void reparentChildrenOf(QWidget* parent)
 {
     const QObjectList children = parent->children();
-    if (children.isEmpty()) return; // nothing to do
+    if (children.isEmpty())
+        return; // nothing to do
     for (int i = 0; i < children.size(); ++i) {
-	QWidget *widget = qt_cast<QWidget*>(children.at(i));
-	if (! widget) continue;
-       	XReparentWindow(widget->x11Info()->display(), widget->winId(), parent->winId(),
-			widget->x(), widget->y());
+	QWidget *widget = qt_cast<QWidget *>(children.at(i));
+	if (! widget)
+            continue;
+       	XReparentWindow(widget->x11Info().display(), widget->winId(),
+                        parent->winId(), widget->x(), widget->y());
     }
 }
 

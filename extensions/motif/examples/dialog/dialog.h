@@ -14,8 +14,7 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <qmotifdialog.h>
-
+#include <QtMotif/QMotifDialog>
 
 class CustomDialog : public QMotifDialog
 {
