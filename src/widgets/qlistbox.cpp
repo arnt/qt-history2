@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#22 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#22 $";
 #endif
 
 
@@ -252,7 +252,7 @@ void QListBox::insertItem( const QPixmap *pixmap, int index )
 	return;
     if ( !pixmap ) {
 #if defined ( CHECK_NULL )
-	ASSERT( pixmap != 0 );
+	warning( "QListBox::insertItem: pixmap == 0" );
 #endif
 	return;
     }
