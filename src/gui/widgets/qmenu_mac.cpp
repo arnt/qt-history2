@@ -846,8 +846,8 @@ bool QMenuBar::macUpdateMenuBar()
 #ifndef QT_NO_MAINWINDOW
         QDockWindow *dw = qt_cast<QDockWindow *>(w);
         if(!mb && dw) {
-            QMainWindow *mw = dw->mainWindow();
-            if ((mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))
+            QMainWindow *mw = qt_cast<QMainWindow *>(dw->parentWidget());
+            if (mw && (mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(mw)))
                 w = mw;
         }
 #endif

@@ -71,7 +71,7 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
 Q_CORE_EXPORT OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec)
 {
     FSRef fref;
-    QByteArray utfs = file.utf8();
+    QByteArray utfs = file.toUtf8();
     OSErr ret = FSPathMakeRef((const UInt8 *)utfs.data(), &fref, NULL);
     if(ret == noErr)
         ret = FSGetCatalogInfo(&fref, kFSCatInfoNone, NULL, NULL, spec, NULL);
