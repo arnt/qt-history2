@@ -285,6 +285,25 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString target_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
+#if 1
+	project->variables()["QMAKE_PBX_BUILDPHASES"].append(target_key);
+	t << "\t\t" << target_key << " = {" << "\n"
+	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
+	  << "\t\t\t" << "files = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "generatedFileNames = (" << "\n"
+	  << varGlue("QMAKE_PBX_OBJ", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXShellScriptBuildPhase;" << "\n"
+	  << "\t\t\t" << "name = \"Qt Preprocessors\";" << "\n"
+	  << "\t\t\t" << "neededFileNames = (" << "\n"
+	  << varGlue("QMAKE_PBX_OBJ", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "shellPath = /bin/sh;" << "\n"
+	  << "\t\t\t" << "shellScript = \"make -C " << QDir::currentDirPath() <<
+	    " -f " << mkfile << "\";" << "\n"
+	  << "\t\t" << "};" << "\n";
+#else
 	t << "\t\t" << target_key << " = {" << "\n"
 	  << "\t\t\t" << "buildArgumentsString = \"-f " << mkfile << "\";" << "\n"
 	  << "\t\t\t" << "buildPhases = (" << "\n"
@@ -310,6 +329,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
 	  << "\t\t\t" << "target = " << target_key << ";" << "\n"
 	  << "\t\t" << "};" << "\n";
+#endif
     }
     //SOURCE BUILDPHASE
     if(!project->isEmpty("QMAKE_PBX_OBJ")) {
@@ -884,7 +904,7 @@ QString
 ProjectBuilderMakefileGenerator::keyFor(const QString &block)
 {
 #if 1 //This make this code much easier to debug..
-    if(project->isActiveConfig("pbx_no_munge_key"))
+    if(project->isActiveConfig("no_pb_munge_key"))
        return block;
 #endif
 
