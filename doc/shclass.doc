@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.5 1995/12/27 17:25:02 hanord Exp $
+** $Id: shclass.doc,v 1.6 1996/01/10 15:49:02 agulbra Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -121,7 +121,7 @@ Code fragment:
 
   void QPen::detach()
   {
-      if ( data->count != 1 )		// only if >1 reference
+      if ( data->count != 1 )		// only if \>1 reference
 	  *this = copy();
   }
 \endcode
@@ -149,7 +149,7 @@ shared:
 <li>\link QImage QImage\endlink (does not inherit QArray)
 <li>\link QPointArray QPointArray\endlink
 <li>\link QString QString\endlink
-<li>Any other instantiation of \link QArray QArray<type>\endlink
+<li>Any other instantiation of \link QArray QArray\<type\>\endlink
 </ul>
 
 These classes have a detach() function that can be called if you want your
