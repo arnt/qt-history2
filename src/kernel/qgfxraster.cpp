@@ -1087,6 +1087,14 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	return;
 #else
     if(depth==32) {
+	frontadd = x2-x1+1;
+	backadd = 0;
+	count = 0;
+	if(frontadd<0)
+	    frontadd=0;
+	return;
+
+	// ### 32bpp packing doesn't work
 	unsigned int * myptr=(unsigned int *)m;
 	if( (x2-x1+1)<2 ) {
 	    frontadd=x2-x1+1;
