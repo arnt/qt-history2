@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#40 $
 **
 ** Implementation of QToolButton class
 **
@@ -247,7 +247,7 @@ QSizePolicy QToolButton::sizePolicy() const
   if \a enable is TRUE, and to use the small ones else.
 
   QToolButton automatically connects this slot to the relevant signal
-  in the QMainWindow in which is resides.
+  in the QMainWindow in which it resides.
 */
 
 void QToolButton::setUsesBigPixmap( bool enable )

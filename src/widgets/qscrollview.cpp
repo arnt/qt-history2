@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#63 $
 **
 ** Implementation of QScrollView class
 **
@@ -178,9 +178,6 @@ the size of the viewed area.  Use addChild(), moveChild(), and showChild()
 to position widgets on the view.
 
 Note also the effect of resizePolicy().
-
-Currently the scrollbars fail beyond about
-1000000 pixels due to integer overflow.
 
 <img src=qscrollview-m.gif> <img src=qscrollview-w.gif>
 */
