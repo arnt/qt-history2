@@ -2521,7 +2521,7 @@ QString QAxBase::generateDocumentation()
 		    outparams = TRUE;
 		if ( allVariants && QUType::isEqual( slotmethod->parameters[p].type, &static_QUType_ptr ) ) {
 		    const char *typeExtra = (const char*)slotmethod->parameters[p].typeExtra;
-		    allVariants = !p && (!strcmp(typeExtra, "IDispatch*") || !strcmp(typeExtra, "IUnknown*"));
+		    allVariants = !p && (!qstrcmp(typeExtra, "IDispatch*") || !qstrcmp(typeExtra, "IUnknown*"));
 		}
 	    }
 	    if ( allVariants ) {
