@@ -1181,7 +1181,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	if ( w->inherits( "QLabel" ) && qstrcmp( p->name(), "pixmap" ) == 0 &&
 	     ( !( (QLabel*)w )->pixmap() || ( (QLabel*)w )->pixmap()->isNull() ) )
 	    continue;
-	if ( w->inherits( "QDesignerMenuBar" ) &&
+	if ( w->inherits( "MenuBarEditor" ) &&
 	     ( qstrcmp( p->name(), "itemName" ) == 0 || qstrcmp( p->name(), "itemNumber" ) == 0 ||
 	       qstrcmp( p->name(), "itemText" ) == 0 ) )
 	    continue;
