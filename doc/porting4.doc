@@ -409,4 +409,10 @@ the direct interface to FTP and HTTP.
 
 The functions sliderStart() and sliderRect() have been removed. You can retrieve this functionality with QAbstractSlider::sliderPosition() and QStyle::querySubControlMetrics() respectively.
 
+\section1 QPicture
+
+Probably something needs to be said about new stuff from painting? Don't know, I didn't do that part.
+
+QPicture::copy() is deprecated and QPicture::detach() is now a public internal
+function. In general, one should have never needed to call these functions.
 */
