@@ -245,7 +245,7 @@ QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global
                 QString qk = k.qtKey();
                 for(CFIndex i = 0, cnt = CFArrayGetCount(cfa); i < cnt; i++) {
                     QString s
-                        = QCFStringType(static_cast<CFStringRef>(CFArrayGetValueAtIndex(cfa, i)));
+                        = QCFString(static_cast<CFStringRef>(CFArrayGetValueAtIndex(cfa, i)));
                     if(s.left(qk.length()) == qk) {
                         s = s.mid(qk.length());
                         while(s[0] == MACKEY_SEP)
