@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#6 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#6 $";
 #endif
 
 
@@ -41,6 +41,8 @@ data at a time.
 An IO device operation can be executed in either \e synchronous or
 \e asynchronous mode.  The IO devices currently supported by Qt only
 execute synchronously.
+
+\sa QDataStream, QTextStream, QTSManip.
 */
 
 
