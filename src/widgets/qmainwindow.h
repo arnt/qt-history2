@@ -59,7 +59,6 @@ class Q_EXPORT QMainWindow: public QWidget
     Q_PROPERTY( bool rightJustification READ rightJustification WRITE setRightJustification )
     Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
     Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
-    Q_PROPERTY( bool toolBarsMovable READ toolBarsMovable WRITE setToolBarsMovable )
     Q_PROPERTY( bool dockWindowsMovable READ dockWindowsMovable WRITE setDockWindowsMovable )
     Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
 
