@@ -16,7 +16,6 @@
 #include <QMenuBar>
 #include <QFile>
 #include <QFileDialog>
-#include <QIODevice>
 #include <QListView>
 
 #include "window.h"
@@ -62,7 +61,7 @@ void MainWindow::openFile(const QString &fileName)
     QFile file(fileName);
     int length = file.size();
 
-    if (file.open(QIODevice::ReadOnly)) {
+    if (file.open(QFile::ReadOnly)) {
         model->removeRows(0, QModelIndex::Null, model->rowCount());
 
         int rows = (length - 0x2c)/2;

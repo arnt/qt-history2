@@ -44,6 +44,7 @@ protected:
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
     QRect itemRect(const QModelIndex &item) const;
+    bool isIndexHidden(const QModelIndex &index) const;
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state);

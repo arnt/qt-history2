@@ -278,3 +278,8 @@ int LinearView::rows(const QModelIndex &index) const
 {
     return model()->rowCount(model()->parent(index));
 }
+
+bool LinearView::isIndexHidden(const QModelIndex &index) const
+{
+    return false;
+}

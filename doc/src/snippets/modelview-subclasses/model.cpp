@@ -45,7 +45,8 @@ int LinearModel::rowCount() const
 
 QModelIndex LinearModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (isValid(row, column, parent))
+    if (parent == QModelIndex::Null && row >= 0 && row < rowCount()
+        && column == 0)
         return createIndex(row, column, 0);
     else
         return QModelIndex::Null;
