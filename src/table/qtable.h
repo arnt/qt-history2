@@ -74,6 +74,7 @@ public:
     void init( int row, int col );
     void expandTo( int row, int col );
     bool operator==( const QTableSelection &s ) const;
+    bool operator!=( const QTableSelection &s ) const { return !(operator==(s)); }
 
     int topRow() const { return tRow; }
     int bottomRow() const { return bRow; }
