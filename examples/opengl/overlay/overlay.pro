@@ -2,6 +2,7 @@ TEMPLATE	= app
 TARGET		= overlay
 
 CONFIG		+= qt opengl warn_on release
+QCONFIG         += opengl
 DEPENDPATH	= ../include
 
 QTDIR_build:REQUIRES        = opengl

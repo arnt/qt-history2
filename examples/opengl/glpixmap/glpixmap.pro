@@ -2,6 +2,7 @@ TEMPLATE	= app
 TARGET		= glpixmap
 
 CONFIG		+= qt opengl warn_on release
+QCONFIG         += opengl
 !mac:unix:LIBS  += -lm
 DEPENDPATH	= ../include
 
