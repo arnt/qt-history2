@@ -40,11 +40,10 @@
 # undef open
 #endif
 
-#include "qtextcodec.h"
-
 #ifndef QT_NO_MIME
 
 #include "qdragobject.h"
+#include "qtextcodec.h"
 #include "qapplication.h"
 #include "qpoint.h"
 #include "qwidget.h"
