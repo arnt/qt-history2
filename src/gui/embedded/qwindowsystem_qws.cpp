@@ -463,7 +463,7 @@ QWSClient::QWSClient(QObject* parent, QTcpSocket* sock, int id)
         socketDescriptor = csocket->socketDescriptor();
         connect(csocket, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
         connect(csocket, SIGNAL(disconnected()), this, SLOT(closeHandler()));
-        connect(csocket, SIGNAL(error(SocketError)), this, SLOT(errorHandler(QAbstractSocket::SocketError)));
+        connect(csocket, SIGNAL(error(SocketError)), this, SLOT(errorHandler()));
     }
 #else
     isClosed = false;
@@ -486,10 +486,9 @@ void QWSClient::closeHandler()
     emit connectionClosed();
 }
 
-void QWSClient::errorHandler(int err)
+void QWSClient::errorHandler()
 {
-    Q_UNUSED(err);
-    //qDebug("Client %p error %d %s", this, err, csocket ? csocket->errorString().latin1() : "(no socket)");
+    qDebug("Client %p error %s", this, csocket ? csocket->errorString().toLatin1().constData() : "(no socket)");
     isClosed = true;
 //####Do we need to clean out the pipes?
 

@@ -553,7 +553,7 @@ signals:
     void readyRead();
 private slots:
     void closeHandler();
-    void errorHandler(int);
+    void errorHandler();
 private:
     int socketDescriptor;
 #ifndef QT_NO_QWS_MULTIPROCESS
