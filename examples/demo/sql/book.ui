@@ -8,6 +8,7 @@
 <include location="local" impldecl="in implementation">connect.h</include>
 <include location="global" impldecl="in implementation">qsqldatabase.h</include>
 <include location="global" impldecl="in implementation">qlineedit.h</include>
+<include location="global" impldecl="in implementation">qdatatable.h</include>
 <widget class="QWidget">
     <property name="name">
         <cstring>BookForm</cstring>

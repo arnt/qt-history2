@@ -1,6 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>EditBookForm</class>
 <include location="global" impldecl="in declaration">qsqlrecord.h</include>
+<include location="global" impldecl="in declaration">qdatabrowser.h</include>
 <forward>class QSqlRecord;</forward>
 <variable>QMap&lt;QString,int&gt; authorMap;</variable>
 <widget class="QDialog">
