@@ -83,20 +83,21 @@ public:
     bool usesTextLabel() const;
     bool toolBarsMovable() const;
     bool opaqueMoving() const;
-    
+
     bool eventFilter( QObject*, QEvent* );
 
     bool getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl, int &extraOffset ) const;
 
     QList<QToolBar> toolBars( ToolBarDock dock ) const;
-
+    void lineUpToolBars( bool keepNewLines = FALSE );
+    
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
     void setUsesTextLabel( bool ); // virtual 3.0
     void setToolBarsMovable( bool ); // virtual 3.0
     void setOpaqueMoving( bool ); // virtual 3.0
-    
+
     void whatsThis();
 
 signals:

@@ -1209,7 +1209,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   drags one, a rectangle is drawn on the screen). With setOpaqueMoving()
   it's possible to switch betrween opaque and transparent moving
   of toolbars.
-  
+
   By default the menubar of the mainwindow is not movable. If you need that,
   you can just create another toolbar, and create a QMenuBar using this
   toolbar as parent. Then set the menubar as the stretchable widget
@@ -2714,4 +2714,38 @@ bool QMainWindow::opaqueMoving() const
 {
     return d->opaque;
 }
-					
+
+/*!
+  As toolbars can be freely moved inside docks, it's possible to line them
+  up nicely with this method to get rid of all the unused space. If \a keepNewLines
+  is TRUE, all toolbars stay in the line in which they are, else they are packed
+  together as compact as possible.
+  
+  The method only works if movable() returns TRUE.
+*/
+
+void QMainWindow::lineUpToolBars( bool keepNewLines )
+{
+    if ( !d->movable )
+	return;
+
+    QMainWindowPrivate::ToolBarDock* docks[] = {
+	d->left, d->right, d->top, d->bottom, d->unmanaged, d->tornOff, d->hidden
+    };
+
+    QMainWindowPrivate::ToolBarDock *l = 0;
+
+    for ( unsigned int i = 0; i < 7; ++i ) {
+	l = docks[ i ];
+	if ( !l || l->isEmpty() )
+	    continue;
+	QMainWindowPrivate::ToolBar *t = 0;
+	for ( t = l->first(); t; t = l->next() ) {
+	    t->extraOffset = 0;
+	    if ( !keepNewLines )
+		t->nl = FALSE;
+	}
+    }
+    
+    triggerLayout();
+}
