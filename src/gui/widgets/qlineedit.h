@@ -27,22 +27,19 @@ class QPopupMenu;
 
 class QLineEditPrivate;
 
-class Q_GUI_EXPORT QLineEdit : public QFrame
+class Q_GUI_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
     Q_ENUMS( EchoMode )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )
-    Q_PROPERTY( bool frame READ frame WRITE setFrame )
+    Q_PROPERTY( bool frame READ hasFrame WRITE setFrame )
     Q_PROPERTY( EchoMode echoMode READ echoMode WRITE setEchoMode )
     Q_PROPERTY( QString displayText READ displayText )
     Q_PROPERTY( int cursorPosition READ cursorPosition WRITE setCursorPosition )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-    Q_PROPERTY( bool edited READ edited WRITE setEdited DESIGNABLE false )
     Q_PROPERTY( bool modified READ isModified )
-    Q_PROPERTY( bool hasMarkedText READ hasMarkedText DESIGNABLE false )
     Q_PROPERTY( bool hasSelectedText READ hasSelectedText )
-    Q_PROPERTY( QString markedText READ markedText DESIGNABLE false )
     Q_PROPERTY( QString selectedText READ selectedText )
     Q_PROPERTY( bool dragEnabled READ dragEnabled WRITE setDragEnabled )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
@@ -62,28 +59,30 @@ public:
     QString displayText() const;
 
     int maxLength() const;
+    void setMaxLength( int );
 
-    bool frame() const;
+    void setFrame( bool );
+    bool hasFrame() const;
 
     enum EchoMode { Normal, NoEcho, Password };
     EchoMode echoMode() const;
+     void setEchoMode( EchoMode );
 
     bool isReadOnly() const;
+     void setReadOnly( bool );
 
+    void setValidator( const QValidator * );
     const QValidator * validator() const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     int cursorPosition() const;
+    void setCursorPosition( int );
 
+    void setAlignment( int flag );
     int alignment() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
-    QT_COMPAT void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
-    QT_COMPAT bool validateAndSet( const QString &, int, int, int );
-#endif
     void cursorForward( bool mark, int steps = 1 );
     void cursorBackward( bool mark, int steps = 1 );
     void cursorWordForward( bool mark );
@@ -96,9 +95,7 @@ public:
     bool isModified() const;
     void clearModified();
 
-    bool edited() const; // obsolete, use isModified()
-    void setEdited( bool ); // obsolete, use clearModified()
-
+    void setSelection( int, int );
     bool hasSelectedText() const;
     QString selectedText() const;
     int selectionStart() const;
@@ -106,11 +103,7 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
-    QT_COMPAT QString markedText() const { return selectedText(); }
-#endif
-
+    void setDragEnabled( bool b );
     bool dragEnabled() const;
 
     QString inputMask() const;
@@ -118,30 +111,20 @@ public:
     bool hasAcceptableInput() const;
 
 public slots:
-    virtual void setText( const QString &);
-    virtual void selectAll();
-    virtual void deselect();
-    virtual void clearValidator();
-    virtual void insert( const QString &);
-    virtual void clear();
-    virtual void undo();
-    virtual void redo();
-    virtual void setMaxLength( int );
-    virtual void setFrame( bool );
-    virtual void setEchoMode( EchoMode );
-    virtual void setReadOnly( bool );
-    virtual void setValidator( const QValidator * );
-    virtual void setFont( const QFont & );
-    virtual void setPalette( const QPalette & );
-    virtual void setSelection( int, int );
-    virtual void setCursorPosition( int );
-    virtual void setAlignment( int flag );
+     void setText( const QString &);
+
+public:
+     void clear();
+    void selectAll();
+     void deselect();
+     void insert( const QString &);
+     void undo();
+     void redo();
 #ifndef QT_NO_CLIPBOARD
-    virtual void cut();
-    virtual void copy() const;
-    virtual void paste();
+     void cut();
+     void copy() const;
+     void paste();
 #endif
-    virtual void setDragEnabled( bool b );
 
 signals:
     void textChanged( const QString &);
@@ -161,8 +144,7 @@ protected:
     void imEndEvent( QIMEvent * );
     void focusInEvent( QFocusEvent * );
     void focusOutEvent( QFocusEvent * );
-    void resizeEvent( QResizeEvent * );
-    void drawContents( QPainter * );
+    void paintEvent(QPaintEvent *);
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent *e );
@@ -180,10 +162,21 @@ private slots:
     void clipboardChanged();
 
 public:
+#ifdef QT_COMPAT
+    QT_COMPAT void cursorLeft( bool mark, int steps = 1 ) { cursorForward( mark, -steps ); }
+    QT_COMPAT void cursorRight( bool mark, int steps = 1 ) { cursorForward( mark, steps ); }
+    QT_COMPAT bool validateAndSet( const QString &, int, int, int );
+    inline QT_COMPAT bool frame() const { return hasFrame(); }
+    inline QT_COMPAT void clearValidator() { setValidator(0); }
+    QT_COMPAT bool hasMarkedText() const { return hasSelectedText(); }
+    QT_COMPAT QString markedText() const { return selectedText(); }
+    QT_COMPAT bool edited() const;
+    QT_COMPAT void setEdited( bool );
+    QT_COMPAT int characterAt( int, QChar* ) const;
+    QT_COMPAT bool getSelection( int *, int * );
+#endif
     void setPasswordChar( QChar c ); // internal obsolete
     QChar passwordChar() const; // obsolete internal
-    int characterAt( int, QChar* ) const; // obsolete
-    bool getSelection( int *, int * ); // obsolete
 
 private:
     Q_DECL_PRIVATE(QLineEdit);

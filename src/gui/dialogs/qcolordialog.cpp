@@ -865,7 +865,7 @@ public:
     QColNumLineEdit( QWidget *parent, const char* name=0 )
 	: QLineEdit( parent, name ) { setMaxLength( 3 );}
     QSize sizeHint() const {
-	return QSize( fontMetrics().width( "999" ) + 2 * ( margin() + frameWidth() ),
+	return QSize( fontMetrics().width( "999" ) + (hasFrame()?4:0),
 		      QLineEdit::sizeHint().height() ); }
     void setNum( int i ) {
 	QString s;

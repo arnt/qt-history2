@@ -1,12 +1,12 @@
 #ifndef QLINEEDIT_P_H
 #define QLINEEDIT_P_H
 
-#include "qframe_p.h"
+#include <private/qwidget_p.h>
 
 #include "private/qtextlayout_p.h"
 #include <qbasictimer.h>
 
-class QLineEditPrivate : public QFramePrivate
+class QLineEditPrivate : public QWidgetPrivate
 {
 public:
     Q_DECL_PUBLIC(QLineEdit);
@@ -17,7 +17,7 @@ public:
 	  direction(QChar::DirON), dragEnabled(1), alignment(0),
 	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
 	  ascent(0), maxLength(32767), menuId(0),
-	  hscroll(0), validator(0), maskData(0),
+	  hscroll(0), maskData(0),
 	  undoState(0), selstart(0), selend(0),
 	  imstart(0), imend(0), imselstart(0), imselend(0)
 	{}
@@ -48,7 +48,7 @@ public:
 
     void finishChange( int validateFromState = -1, bool setModified = TRUE );
 
-    const QValidator* validator;
+    QPointer<QValidator> validator;
     struct MaskInputData {
 	enum Casemode { NoCaseMode, Upper, Lower };
 	QChar maskChar; // either the separator char or the inputmask

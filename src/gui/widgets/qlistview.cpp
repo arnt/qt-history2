@@ -871,8 +871,7 @@ void QListViewItem::startRename( int col )
     if ( r.width() > lv->visibleWidth() )
 	r.setWidth( lv->visibleWidth() );
     renameBox = new QLineEdit( lv->viewport(), "qt_renamebox" );
-    renameBox->setFrameStyle( QFrame::Box | QFrame::Plain );
-    renameBox->setLineWidth( 1 );
+    renameBox->setFrame(false);
     renameBox->setText( text( col ) );
     renameBox->selectAll();
     renameBox->installEventFilter( lv );

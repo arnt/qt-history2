@@ -1,22 +1,22 @@
 #ifndef QGROUPBOX_P_H
 #define QGROUPBOX_P_H
 
-#include "qframe_p.h"
+#include <private/qwidget_p.h>
 
 class QCheckBox;
 class QSpacerItem;
 class QVBoxLayout;
 class QGridLayout;
 
-class QGroupBoxPrivate : public QFramePrivate
+class QGroupBoxPrivate : public QWidgetPrivate
 {
 public:
     Q_DECL_PUBLIC(QGroupBox);
 
     QGroupBoxPrivate():
 	spacer( 0 ),
-	checkbox( 0 ) {}
-
+	checkbox( 0 ),
+	topMargin( 0 ){}
     void skip();
     void init();
     void calculateFrame();
@@ -43,6 +43,7 @@ public:
 
     QSpacerItem *spacer;
     QCheckBox *checkbox;
+    int topMargin;
 };
 
 

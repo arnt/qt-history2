@@ -170,7 +170,7 @@
 */
 
 QLineEdit::QLineEdit( QWidget* parent, const char* name )
-    : QFrame(*new QLineEditPrivate, parent)
+    : QWidget(*new QLineEditPrivate, parent,0)
 {
     setObjectName(name);
     d->init( QString::null );
@@ -189,7 +189,7 @@ QLineEdit::QLineEdit( QWidget* parent, const char* name )
 */
 
 QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name )
-    : QFrame(*new QLineEditPrivate, parent)
+    : QWidget(*new QLineEditPrivate, parent, 0)
 {
     setObjectName(name);
     d->init( contents );
@@ -209,7 +209,7 @@ QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name
     \sa setMask() text()
 */
 QLineEdit::QLineEdit( const QString& contents, const QString &inputMask, QWidget* parent, const char* name )
-    : QFrame(*new QLineEditPrivate, parent)
+    : QWidget(*new QLineEditPrivate, parent, 0)
 {
     setObjectName(name);
     d->parseInputMask( inputMask );
@@ -322,15 +322,17 @@ void QLineEdit::setMaxLength( int maxLength )
     two-pixel frame, otherwise the line edit draws itself without any
     frame.
 */
-bool QLineEdit::frame() const
+bool QLineEdit::hasFrame() const
 {
-    return frameShape() != NoFrame;
+    return d->frame;
 }
 
 
 void QLineEdit::setFrame( bool enable )
 {
-    setFrameStyle( enable ? ( LineEditPanel | Sunken ) : NoFrame  );
+    d->frame = enable;
+    update();
+    updateGeometry();
 }
 
 
@@ -405,13 +407,7 @@ const QValidator * QLineEdit::validator() const
 
 void QLineEdit::setValidator( const QValidator *v )
 {
-    if ( d->validator )
-	disconnect( (QObject*)d->validator, SIGNAL( destroyed() ),
-		    this, SLOT( clearValidator() ) );
-    d->validator = v;
-    if ( d->validator )
-	connect( (QObject*)d->validator, SIGNAL( destroyed() ),
-	         this, SLOT( clearValidator() ) );
+    d->validator = const_cast<QValidator*>(v);
 }
 
 
@@ -429,7 +425,7 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm( font() );
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width( 'x' ) * 17; // "some"
-    int m = frameWidth() * 2;
+    int m = d->frame ? 4 : 0;
     return (style().sizeFromContents(QStyle::CT_LineEdit, this,
 				     QSize( w + m, h + m ).
 				     expandedTo(QApplication::globalStrut())));
@@ -448,7 +444,7 @@ QSize QLineEdit::minimumSizeHint() const
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax( 2*innerMargin, fm.leading() );
     int w = fm.maxWidth();
-    int m = frameWidth() * 2;
+    int m = d->frame ? 4 : 0;
     return QSize( w + m, h + m );
 }
 
@@ -688,14 +684,6 @@ void QLineEdit::clearModified()
 }
 
 /*!
-  \obsolete
-  \property QLineEdit::edited
-  \brief whether the line edit has been edited. Use modified instead.
-*/
-bool QLineEdit::edited() const { return d->modified; }
-void QLineEdit::setEdited( bool on ) { d->modified = on; }
-
-/*!
     \obsolete
     \property QLineEdit::hasMarkedText
     \brief whether part of the text has been selected by the user. Use hasSelectedText instead.
@@ -752,6 +740,19 @@ int QLineEdit::selectionStart() const
     return d->hasSelectedText() ? d->selstart : -1;
 }
 
+
+#ifdef QT_COMPAT
+bool QLineEdit::edited() const { return d->modified; }
+void QLineEdit::setEdited( bool on ) { d->modified = on; }
+
+int QLineEdit::characterAt( int xpos, QChar *chr ) const
+{
+    int pos = d->xToPos( xpos + contentsRect().x() - d->hscroll + innerMargin );
+    if ( chr && pos < (int) d->text.length() )
+	*chr = d->text.at( pos );
+    return pos;
+
+}
 /*! \obsolete use selectedText(), selectionStart() */
 bool QLineEdit::getSelection( int *start, int *end )
 {
@@ -762,6 +763,7 @@ bool QLineEdit::getSelection( int *start, int *end )
     }
     return FALSE;
 }
+#endif
 
 
 /*!
@@ -950,15 +952,6 @@ void QLineEdit::deselect()
 
 
 /*!
-    This slot is equivalent to setValidator(0).
-*/
-
-void QLineEdit::clearValidator()
-{
-    setValidator( 0 );
-}
-
-/*!
     Deletes any selected text, inserts \a newText, and validates the
     result. If it is valid, it sets it as the new contents of the line
     edit.
@@ -1099,14 +1092,6 @@ void QLineEditPrivate::copy( bool clipboard ) const
 }
 
 #endif // !QT_NO_CLIPBOARD
-
-/*!\reimp
-*/
-
-void QLineEdit::resizeEvent( QResizeEvent *e )
-{
-    QFrame::resizeEvent( e );
-}
 
 /*! \reimp
 */
@@ -1610,21 +1595,37 @@ void QLineEdit::focusOutEvent( QFocusEvent* )
 
 /*!\reimp
 */
-void QLineEdit::drawContents( QPainter *p )
+void QLineEdit::paintEvent( QPaintEvent * )
 {
+    QPainter p(this);
+
+    QRect r = rect();
     const QPalette &pal = palette();
-    QRect cr = contentsRect();
+
+    if (d->frame) {
+	int frameWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
+	QStyleOption opt(frameWidth, 0);
+	QStyle::SFlags flags = QStyle::Style_Default | QStyle::Style_Sunken;
+	if (hasFocus())
+	    flags |= QStyle::Style_HasFocus;
+	if (testAttribute(WA_UnderMouse))
+	    flags |= QStyle::Style_MouseOver;
+	style().drawPrimitive(QStyle::PE_PanelLineEdit, &p, r, pal, flags, opt);
+
+	r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
+    }
+
     QFontMetrics fm = fontMetrics();
-    QRect lineRect( cr.x() + innerMargin, cr.y() + (cr.height() - fm.height() + 1) / 2,
-		    cr.width() - 2*innerMargin, fm.height() );
+    QRect lineRect( r.x() + innerMargin, r.y() + (r.height() - fm.height() + 1) / 2,
+		    r.width() - 2*innerMargin, fm.height() );
     bool enabled = isEnabled();
     QBrush bg = pal.brush(backgroundRole());
     if (!enabled) {
 	bg = pal.brush( QPalette::Background );
-	p->fillRect( cr, bg );
+	p.fillRect( r, bg );
     }
     // ### should not be here.
-    d->textLayout.setPalette(palette());
+    d->textLayout.setPalette(pal);
 
     QTextLine line = d->textLayout.lineAt(0);
 
@@ -1661,7 +1662,7 @@ void QLineEdit::drawContents( QPainter *p )
     QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
     // draw text, selections and cursors
-    p->setPen( pal.text() );
+    p.setPen( pal.text() );
     bool supressCursor = d->readOnly;
     int textflags = 0;
     if ( font().underline() )
@@ -1694,7 +1695,7 @@ void QLineEdit::drawContents( QPainter *p )
 	++nSel;
     }
 
-    d->textLayout.draw(p, topLeft, (d->cursorVisible && !supressCursor) ? d->cursor : -1, sel, nSel);
+    d->textLayout.draw(&p, topLeft, (d->cursorVisible && !supressCursor) ? d->cursor : -1, sel, nSel);
 
 }
 
@@ -1867,36 +1868,12 @@ void QLineEdit::changeEvent( QEvent *ev )
 	//### remove me with WHighlightSelection attribute
 	if ( !palette().isEqual(QPalette::Active, QPalette::Inactive))
 	    update();
+    } else if (ev->type() == QEvent::FontChange) {
+	d->updateTextLayout();
     }
     QWidget::changeEvent(ev);
 }
 
-/*! \reimp */
-
-void QLineEdit::setPalette( const QPalette & p )
-{
-    //### remove me with WHighlightSelection attribute
-    QWidget::setPalette( p );
-    update();
-}
-
-/*! \reimp
- */
-void QLineEdit::setFont( const QFont & f )
-{
-    QWidget::setFont( f );
-    d->updateTextLayout();
-}
-
-/*! \obsolete
-*/
-int QLineEdit::characterAt( int xpos, QChar *chr ) const
-{
-    int pos = d->xToPos( xpos + contentsRect().x() - d->hscroll + innerMargin );
-    if ( chr && pos < (int) d->text.length() )
-	*chr = d->text.at( pos );
-    return pos;
-}
 
 /*!
     \internal
@@ -1941,7 +1918,6 @@ void QLineEditPrivate::init( const QString& txt )
     q->setAttribute(QWidget::WA_KeyCompression);
     q->setMouseTracking( TRUE );
     q->setAcceptDrops( TRUE );
-    q->setFrame( TRUE );
     text = txt;
     updateTextLayout();
     cursor = text.length();

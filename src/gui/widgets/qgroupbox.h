@@ -28,7 +28,7 @@ class QVBoxLayout;
 class QGridLayout;
 class QSpacerItem;
 
-class Q_GUI_EXPORT QGroupBox : public QFrame
+class Q_GUI_EXPORT QGroupBox : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( QString title READ title WRITE setTitle )
@@ -36,10 +36,8 @@ class Q_GUI_EXPORT QGroupBox : public QFrame
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
     Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
     Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
-#ifndef QT_NO_CHECKBOX
     Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )
     Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
-#endif
 public:
     QGroupBox( QWidget* parent=0, const char* name=0 );
     QGroupBox( const QString &title,
@@ -75,18 +73,15 @@ public:
     bool isFlat() const;
     void setFlat( bool b );
     bool isCheckable() const;
-#ifndef QT_NO_CHECKBOX
     void setCheckable( bool b );
-#endif
     bool isChecked() const;
 
-#ifndef QT_NO_CHECKBOX
 public slots:
     void setChecked( bool b );
 
 signals:
     void toggled( bool );
-#endif
+
 protected:
     bool event( QEvent * );
     void childEvent( QChildEvent * );
