@@ -180,8 +180,17 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
     var = UN_TMAKEIFY(var.stripWhiteSpace()); //backwards compatability
 
+    QStringList vallist;  /* vallist is the broken up list of values */
+    qDebug("**** %s ***** ", vals.latin1());
+    QRegExp quoted("[^\\\\]\"([^\"]*[^\\\\])\"");
+    for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
+	vallist += QStringList::split(' ', vals.left(x));
+	vallist.append(quoted.cap(1));
+	vals.remove(0, x + quoted.matchedLength());
+    }
+    vallist += QStringList::split(' ', vals);
+
     QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
-    QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
     if(Option::debug_level)
 	printf("Project Parser: %s:%d :%s: :%s: (%s)\n", file.latin1(), line_count,
 	       var.latin1(), op.latin1(), vallist.join(" :: ").latin1());
