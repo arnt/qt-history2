@@ -4,6 +4,7 @@
 #include <qtoolbar.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
+#include <qpixmap.h>
 
 class QDesignerPopupMenu;
 
@@ -21,14 +22,23 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
-
+        
+private:
+    void drawIndicator( const QPoint &pos );
+    QPoint calcIndicatorPos( const QPoint &pos );
+    
+private:
+    QPoint lastIndicatorPos;
+    QWidget *insertAnchor;
+    bool afterAnchor;
+    
 };
 
 class QDesignerMenuBar : public QMenuBar
 {
     Q_OBJECT
     friend class QDesignerPopupMenu;
-    
+
 public:
     QDesignerMenuBar( QWidget *mw );
 
