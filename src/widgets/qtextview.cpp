@@ -2344,8 +2344,7 @@ QString QTextView::documentTitle() const
 
 void QTextView::makeParagVisible( QTextParag *p )
 {
-    int h = p->rect().height();
-    ensureVisible( 0, p->rect().y() + h / 2, 0, h / 2 );
+    setContentsPos( contentsX(), QMIN( p->rect().y(), contentsHeight() - visibleHeight() ) );
 }
 
 /*! Scrolls the view to make the anchor \a name visible, if it can be
