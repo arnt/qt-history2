@@ -767,15 +767,25 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
     // ### Another work-around for the Utah-GLX driver -
     // ### if the old context is not destroyed before the window is
     // ### reparented, it crashes badly (driver v0.10 November 2000)
-    // ### Also tested with Accelerated X v2.0 Alpha - no problems
-    QGLFormat reqf = QGLFormat::defaultFormat();
-    if ( glcx ) {
-	reqf = glcx->requestedFormat();
-	delete glcx;
-	glcx = 0;
+#if defined(Q_OS_LINUX) || defined(Q_OS_FreeBSD)
+    static bool utahGLX = QString( glXGetClientString( x11Display(),
+				     GLX_EXTENSIONS ) ).contains( "GLX_utah" );
+    if ( utahGLX ) {
+	QGLFormat reqf = QGLFormat::defaultFormat();
+	if ( glcx ) {
+	    reqf = glcx->requestedFormat();
+	    delete glcx;
+	    glcx = 0;
+	}
+	QWidget::reparent( parent, f, p, FALSE );
+	setContext( new QGLContext( reqf, this ) );
+	QWidget::reparent( parent, f, p, FALSE );
+    } else {
+	QWidget::reparent( parent, f, p, FALSE );
     }
+#else
     QWidget::reparent( parent, f, p, FALSE );
-    setContext( new QGLContext( reqf, this ) );
+#endif
     if ( showIt )
 	show();
 }
