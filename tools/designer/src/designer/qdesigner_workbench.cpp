@@ -309,8 +309,10 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     Q_ASSERT(m_workspace == 0);
 
+    QDesignerSettings settings;
     QDesignerToolWindow *mw = new QDesignerToolWindow(this); // Just to have a copy of
     mw->setSaveSettingsOnClose(true);
+    mw->setObjectName("MDIWindow");
     mw->setWindowTitle(tr("Qt Designer"));
     m_workspace = new Q3Workspace(mw);
     m_workspace->setScrollBarsEnabled(true);
@@ -318,6 +320,11 @@ void QDesignerWorkbench::switchToWorkspaceMode()
             this, SLOT(activateWorkspaceChildWindow(QWidget* )));
     mw->setCentralWidget(m_workspace);
     m_core->setTopLevel(mw);
+    if (m_geometries.isEmpty()) {
+        settings.setGeometryFor(mw, qApp->desktop()->availableGeometry(0));
+    } else {
+        mw->setWindowState(mw->windowState() | Qt::WindowMaximized);
+    }
 
 #ifndef Q_WS_MAC
     mw->setMenuBar(m_globalMenuBar);
@@ -325,11 +332,13 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->addToolBar(m_editToolBar);
     mw->addToolBar(m_toolToolBar);
     mw->addToolBar(m_formToolBar);
+    m_editToolBar->show();
+    m_toolToolBar->show();
+    m_formToolBar->show();
     changeToolBarIconSize(QDesignerSettings().useBigIcons());
 
     qDesigner->setMainWindow(mw);
 
-    QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
         if (m_geometries.isEmpty()) {
@@ -354,8 +363,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     }
     changeBringToFrontVisiblity(false);
 
-    m_workspace->show();
-    mw->showMaximized();
+    mw->show();
 }
 
 void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)

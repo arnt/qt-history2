@@ -13,11 +13,13 @@
 
 #include "qdesigner.h"
 #include "qdesigner_toolwindow.h"
+#include "qdesigner_settings.h"
 #include "qdesigner_workbench.h"
 
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
+#include <Qt3Support/Q3Workspace>
 
 QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
@@ -90,8 +92,15 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
 {
     if (m_saveSettings) {
         ev->setAccepted(workbench()->handleClose());
-        if (ev->isAccepted() && qDesigner->mainWindow() == this)
+        if (ev->isAccepted() && qDesigner->mainWindow() == this) {
+            QList<Q3Workspace *> list = qFindChildren<Q3Workspace *>(this);
+            if (!list.isEmpty()) {
+                QDesignerSettings settings;
+                settings.saveGeometryFor(this);
+                settings.setValue(objectName() + QLatin1String("/visible"), false);
+            }
             QMetaObject::invokeMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
+        }
     } else {
         QMainWindow::closeEvent(ev);
     }

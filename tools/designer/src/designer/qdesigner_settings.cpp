@@ -84,6 +84,7 @@ void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
     setValue(QLatin1String("screen"), QApplication::desktop()->screenNumber(w));
     setValue(QLatin1String("geometry"), QRect(pos, w->size()));
     setValue(QLatin1String("visible"), w->isVisible());
+    setValue(QLatin1String("maximized"), w->isMaximized());
     endGroup();
 }
 
@@ -95,8 +96,12 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
     QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
     if (g.intersect(QApplication::desktop()->availableGeometry(screen)).isEmpty())
         g = fallBack;
-    w->resize(g.size());
-    w->move(g.topLeft());
+    if (value(key + QLatin1String("/maximized"), false).toBool()) {
+        w->setWindowState(w->windowState() | Qt::WindowMaximized);
+    } else {
+        w->resize(g.size());
+        w->move(g.topLeft());
+    }
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 //    endGroup();

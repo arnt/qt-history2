@@ -41,7 +41,6 @@ class AbstractFormWindowManager;
 
 class TaskMenuComponent;
 
-
 class QDesignerWorkbench: public QObject
 {
     Q_OBJECT
