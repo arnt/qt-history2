@@ -637,7 +637,11 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::mode == Option::WIN_MODE) {
 	    } else if(Option::mode == Option::UNIX_MODE) {
-		ret += "\n\tln -s " + Option::fixPathToTargetOS(destdir + (*it), FALSE) + " " + targetdir;
+		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
+		int lslash = link.findRev(Option::dir_sep);
+		if(lslash != -1)
+		    link = link.right(link.length() - (lslash + 1));
+		ret += "\n\tln -sf " + targetdir + target +  + " " + targetdir + link;
 	    }
 	}
     }
