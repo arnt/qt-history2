@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#194 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#195 $
 **
 ** Definition of QWidget class
 **
@@ -174,7 +174,10 @@ public slots:
     virtual void	setIconText( const QString &);
     virtual void	setMouseTracking( bool enable );
 
-  // Keyboard input focus functions
+    // Keyboard input focus functions
+
+    virtual void setFocus();
+    void	 clearFocus();
 
 public:
     enum FocusPolicy
@@ -186,8 +189,6 @@ public:
     FocusPolicy	 focusPolicy() const;
     virtual void setFocusPolicy( FocusPolicy );
     bool	 hasFocus() const;
-    virtual void setFocus();
-    void	 clearFocus();
     static void	 setTabOrder( QWidget *, QWidget * );
     virtual void setFocusProxy( QWidget * );
     QWidget *	 focusProxy() const;
