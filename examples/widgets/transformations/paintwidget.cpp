@@ -5,14 +5,6 @@
 PaintWidget::PaintWidget(QWidget *parent, bool enable)
     : QWidget(parent), fixed(enable)
 {
-    shape = QPointArray(6);
-    shape << QPoint(-45, -20);
-    shape << QPoint(  0, -45);
-    shape << QPoint( 45, -20);
-    shape << QPoint( 45,  45);
-    shape << QPoint(-45,  45);
-    shape << QPoint(-45, -20);
-
     font.setPixelSize(12);
     QFontMetrics fontMetrics(font);
     xBoundingRect = fontMetrics.boundingRect(tr("x"));
@@ -73,10 +65,29 @@ void PaintWidget::drawOutline(QPainter &painter)
 void PaintWidget::drawShape(QPainter &painter)
 {
     painter.setBrush(Qt::black);
-    painter.drawPolygon(shape);
-    painter.setBrush(Qt::white);
-    painter.drawRect(15, 5, 20, 35);
-    painter.drawRect(-35, -15, 25, 25);
+    painter.drawPath(painterShape);
+}
+
+QSize PaintWidget::minimumSizeHint() const
+{
+    return QSize(232, 232);
+}
+
+QList<Operation> PaintWidget::operations() const 
+{
+    return transforms;
+}
+
+void PaintWidget::setOperations(const QList<Operation> operations)
+{
+    transforms = operations;
+    update();
+}
+
+void PaintWidget::setShape(const QPainterPath &shape)
+{
+    painterShape = shape;
+    update();
 }
 
 void PaintWidget::transformPainter(QPainter &painter)
@@ -97,20 +108,4 @@ void PaintWidget::transformPainter(QPainter &painter)
                 break;
         }
     }
-}
-
-void PaintWidget::setOperations(const QList<Operation> operations)
-{
-    transforms = operations;
-    update();
-}
-
-QList<Operation> PaintWidget::operations() const 
-{
-    return transforms;
-}
-
-QSize PaintWidget::minimumSizeHint() const
-{
-    return QSize(232, 232);
 }

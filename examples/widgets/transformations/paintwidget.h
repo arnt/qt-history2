@@ -3,7 +3,7 @@
 
 #include <QFont>
 #include <QList>
-#include <QPointArray>
+#include <QPainterPath>
 #include <QRect>
 #include <QWidget>
 
@@ -17,9 +17,10 @@ class PaintWidget : public QWidget
 
 public:
     PaintWidget(QWidget *parent, bool fixed = false);
+    QSize minimumSizeHint() const;
     QList<Operation> operations() const;
     void setOperations(const QList<Operation> operations);
-    QSize minimumSizeHint() const;
+    void setShape(const QPainterPath &shape);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -33,7 +34,7 @@ private:
     bool fixed;
     QFont font;
     QList<Operation> transforms;
-    QPointArray shape;
+    QPainterPath painterShape;
     QRect xBoundingRect;
     QRect yBoundingRect;
 };

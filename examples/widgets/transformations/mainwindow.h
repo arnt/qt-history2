@@ -19,10 +19,13 @@ public:
 
 public slots:
     void changeOperations(int row);
+    void setShape(QAction *action);
 
 private:
     void setupFrame(QFrame *frame);
+    void setupShapes();
 
+    PaintWidget *originalPaintWidget;
     PaintWidget *firstPaintWidget;
     PaintWidget *secondPaintWidget;
     PaintWidget *thirdPaintWidget;
@@ -30,7 +33,8 @@ private:
     QComboBox *secondOperation;
     QComboBox *thirdOperation;
     QList<Operation> operations;
-    QMap<int,Operation> operationMap;
+    QList<Operation> operationsList;
+    QMap<QAction*,QPainterPath> shapesMap;
 };
 
 #endif
