@@ -84,7 +84,6 @@ cd ${BASE}/arch/template/moc
 ln -s ../../../src/moc/moc.[l1y] ../../../src/moc/moc_gen.cpp ../../../src/moc/lex.yy.c .
 sed -e 's-\.\./tools/-../library/-' < ../../../src/moc/Makefile > Makefile
 
-# woo hoo
 # make the template makefile
 cd ${BASE}/arch/template
 
@@ -92,23 +91,14 @@ exec > Makefile
 
 cat <<EOF
 # -*- makefile -*-
-# This Makefile is a template for filling in to port Qt to a new platform.
-# .../arch/*/Makefile are all generated from this one (including this one,
-# in a way).  Read PORTING for instructions.
+#
+# Main Makefile for building the Qt library, examples and tutorial.
+# Read PORTING for instructions how to port Qt to a new platform.
 #
 
-# CC - must be a modern c++ compiler.  cfront is almost certainly out.
-CC = gcc
-
-# CFLAGS - the basic flags for compiling.
-CFLAGS = -O2 -fno-strength-reduce -W -Wtemplate-debugging -Wparentheses \\
-	-Wuninitialized -Wchar-subscripts -Wformat -Wtrigraphs \\
-	-Wcomment -Wswitch -Wunused -Wreturn-type -Wimplicit \\
-	-Wpointer-arith -Wsynth -Wconversion -Wno-overloaded-virtual
-
-# LFLAGS - the flags the linker needs
-# NOTE: -L.../lib is prepended by ./propagate so everyone can find libqt
-LFLAGS = -lqt
+CC	= gcc
+CFLAGS	= -O2 -fno-strength-reduce -Wall
+LFLAGS	= -lqt
 
 all: moc library tutorial examples
 
@@ -135,7 +125,7 @@ depend:
 	cd tutorial; \$(MAKE) depend
 
 variables: Makefile
-	CFLAGS="\$(CFLAGS)" CC="\$(CC)" LFLAGS="\$(LFLAGS)" ./propagate
+	CC="\$(CC)" CFLAGS="\$(CFLAGS)" LFLAGS="\$(LFLAGS)" ./propagate
 	touch variables
 
 dep: depend
@@ -152,9 +142,7 @@ cat <<EOF
 # \$Source\$
 
 # The Qt meta object support files
-#
-# see moc(1) or http://www.troll.no/qt/metaobjects.html for info about
-# meta objects and the meta object ocmpier
+
 EOF
 
 # brute force rules
@@ -176,6 +164,7 @@ echo $METAHEADERS | fmt -1 | sed -e 's/^q/m/' -e 's/\.h$/.o/' | fmt -66 | \
 
 echo
 echo '# The C++ header files'
+echo
 echo *.h | fmt -66 | sed \
 	-e 's/^/	  /' \
 	-e '1 s/	  /HEADERS = /' \
@@ -184,6 +173,7 @@ echo *.h | fmt -66 | sed \
 
 echo
 echo '# The C++ source files that are edited by humans'
+echo
 echo *.cpp | fmt -66 | sed \
 	-e 's/^/	  /' \
 	-e '1 s/	  /SOURCES = /' \
@@ -192,6 +182,7 @@ echo *.cpp | fmt -66 | sed \
 
 echo
 echo '# The object code files from SOURCES above'
+echo
 echo *.cpp | fmt -1 | sed 's/\.cpp$/.o/' | fmt -66 | sed \
 	-e 's/^/	  /' \
 	-e '1 s/	  /OBJECTS = /' \
@@ -200,28 +191,28 @@ echo *.cpp | fmt -1 | sed 's/\.cpp$/.o/' | fmt -66 | sed \
 
 cat  <<EOF
 
-# You probably need to change the next few lines.  In particular,
-# we add an extra gcc option in the rule - some hack!
+# You may need to change compiler options in the .cpp.o rule.
 
-.SUFFIXES:
-.SUFFIXES: .cpp \$(SUFFIXES)
+.SUFFIXES: .cpp
 
 .cpp.o:
-	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fpic \$<
+	\$(CC) -I\$(INCDIR) -c \$(CFLAGS) -fPIC \$<
 
 # VERSION - the version number of the shared library, where applicable
+
 VERSION=${VERSION}
 
-# The main rule - please do not hardcode the version number here,
-# and please do not change it.  Until 1.0, Qt may not be forwards
-# or backwards compatible anyway, so we have chosen to disregard
-# the "proper" rules of library numbering.
+# Creates the library when all files have been compiled
 
 library: \$(OBJECTS) \$(METAOBJ)
 	-rm -f ../../../lib/libqt.so.\${VERSION}
 	\$(CC) -shared -Wl,-soname,libqt.so.0 \\
-		-o ../../../lib/libqt.so.\${VERSION} \\
-		\$(OBJECTS) \$(METAOBJ) -lX11 -lgcc -lc
+		-o ../../../lib/libqt.so.\$(VERSION) \\
+		\$(OBJECTS) \$(METAOBJ) -lX11
+	-rm -f ../../../lib/libqt.so
+	-ln -sf libqt.so.\$(VERSION) ../../../lib/libqt.so
+	-rm -f ../../../lib/libqt.so.0
+	-ln -s libqt.so.\$(VERSION) ../../../lib/libqt.so.0
 
 depend:
 	makedepend \$(SOURCES) 2> /dev/null
@@ -231,7 +222,7 @@ depend:
 dep: depend
 
 clean:
-	-/bin/rm -f *.o *.bak *BAK *~ *% \$(SRCMETA)
+	-rm -f *.o *.bak *~ *% \$(SRCMETA)
 
 # For maximum compatibility with old versions of make, we generate
 # a separate rule for each meta object source file.
@@ -286,15 +277,19 @@ cd ${BASE}/arch
 exec > Makefile
 
 cat << EOF
-# this makefile will make architecture link trees
 #
-# e.g. say 'make linux-shared' to make a link tree suitable for making
-# a shared library for linux or 'make solaris-static' to make a static
-# library for solaris 2.
+# This makefile builds architecture link trees.
+#
+# For example, say 'make linux-gcc-shared' to create a shared library for
+# Linux using GNU gcc. Or 'make osf1-cxx-static' to create a static library
+# for OSF/1 Alpha using the DEC C++ compiler.
+#
+# Read PORTING for instructions how to port Qt to a new platform.
+#
 
 all: none
 
-# pseudo target to force mkdir for the others
+# Pseudo target to force mkdir for the others
 
 FORCE:
 
