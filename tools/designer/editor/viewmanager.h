@@ -31,6 +31,7 @@ class QVBoxLayout;
 class QDockArea;
 class QTextParag;
 class QLabel;
+class QTimer;
 
 class EDITOR_EXPORT ViewManager : public QWidget
 {
@@ -65,6 +66,9 @@ signals:
 protected slots:
     void clearErrorMarker();
     void cursorPositionChanged( int row, int col );
+    void showMessage( const QString &msg );
+    void clearStatusBar();
+
 protected:
     void childEvent( QChildEvent *e );
     void resizeEvent( QResizeEvent *e );
@@ -75,6 +79,8 @@ private:
     QVBoxLayout *layout;
     QDockArea *dockArea;
     QLabel *posLabel;
+    QString extraText;
+    QTimer *messageTimer;
 
 };
 

@@ -27,6 +27,7 @@
 #include "paragdata.h"
 #include <qobjectlist.h>
 #include <qlabel.h>
+#include <qtimer.h>
 
 ViewManager::ViewManager( QWidget *parent, const char *name )
     : QWidget( parent, name ), curView( 0 )
@@ -47,6 +48,10 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
 	     this, SIGNAL( editBreakPoints() ) );
     connect( markerWidget, SIGNAL( isBreakpointPossible( bool&, const QString &, int ) ),
 	     this, SIGNAL( isBreakpointPossible( bool&, const QString &, int ) ) );
+    connect( markerWidget, SIGNAL( showMessage( const QString & ) ),
+	     this, SLOT( showMessage( const QString & ) ) );
+    messageTimer = new QTimer( this );
+    connect( messageTimer, SIGNAL( timeout() ), this, SLOT( clearStatusBar() ) );
     markerWidget->setFixedWidth( 35 );
     //dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     //layout->addWidget( dockArea );
@@ -247,5 +252,22 @@ void ViewManager::emitMarkersChanged()
 
 void ViewManager::cursorPositionChanged( int row, int col )
 {
+    posLabel->setText( QString( " Line: %1 Col: %1" ).arg( row + 1 ).arg( col + 1 ) );
+}
+
+void ViewManager::showMessage( const QString &msg )
+{
+    int row;
+    int col;
+    ( (QTextEdit*)currentView() )->getCursorPosition( &row, &col );
+    posLabel->setText( msg );
+    messageTimer->start( 1000, TRUE );
+}
+
+void ViewManager::clearStatusBar()
+{
+    int row;
+    int col;
+    ( (QTextEdit*)currentView() )->getCursorPosition( &row, &col );
     posLabel->setText( QString( " Line: %1 Col: %1" ).arg( row + 1 ).arg( col + 1 ) );
 }

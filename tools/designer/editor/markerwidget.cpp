@@ -374,6 +374,8 @@ void MarkerWidget::resizeEvent( QResizeEvent *e )
 
 void MarkerWidget::mousePressEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     if ( !( (Editor*)viewManager->currentView() )->supportsBreakPoints() )
 	return;
     QTextParag *p = ( (Editor*)viewManager->currentView() )->document()->firstParag();
@@ -392,6 +394,8 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 		    isBreakpointPossible( ok, ( (Editor*)viewManager->currentView() )->text(), p->paragId() );
 		    if ( ok )
 			data->marker = ParagData::Breakpoint;
+		    else
+			emit showMessage( tr( "<font color=red>Can't set breakpoint here!</font>" ) );
 		}
 	    } else {
 		if ( data->lineState == ParagData::FunctionStart ) {
