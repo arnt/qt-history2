@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#34 $
 **
 ** Implementation of QMainWindow class
 **
@@ -514,7 +514,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    toolBarRowLayout = new QBoxLayout( direction );
 	    dockLayout->addLayout( toolBarRowLayout, 0 );
 	}
-	if ( !t->t->testWFlags( WState_DoHide ) ) {
+	if ( t->t->isVisible() && !t->t->testWFlags( WState_DoHide ) ) {
 	    toolBarRowLayout->addWidget( t->t, 0 );
 	    anyToolBars = TRUE;
 	}
@@ -587,11 +587,8 @@ void QMainWindow::setUpLayout()
 
 void QMainWindow::show()
 {
-    //debug( "s1 %d, %d", x(), y() );
-    QWidget::show();
-    //debug( "s2 %d, %d", x(), y() );
     setUpLayout();
-    //debug( "s3 %d, %d", x(), y() );
+    QWidget::show();
 }
 
 
