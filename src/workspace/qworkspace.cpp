@@ -675,7 +675,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    return; 	    // nothing to do
 
 	bool hasBeenHidden = w->isHidden();
-	bool hasGeometry = ( w->x() != 0 ) && ( w->y() != 0 );
+	bool hasGeometry = ( w->x() != 0 ) || ( w->y() != 0 ) || ( w->size() != w->sizeHint() );
 	QRect wrect = QRect( w->x(), w->y(), w->width(), w->height() );
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	child->installEventFilter( this );
