@@ -171,6 +171,8 @@ public:
     Decomposition decompositionTag() const;
     unsigned char combiningClass() const;
 
+    UnicodeVersion unicodeVersion() const;
+
     char ascii() const;
     char latin1() const;
     inline ushort unicode() const { return ucs; }

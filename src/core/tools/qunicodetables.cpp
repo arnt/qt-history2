@@ -178,12 +178,12 @@ static QString decompose(const QString &str, bool canonical, QChar::UnicodeVersi
                 ucs4 = QUnicodeTables::surrogateToUcs4(high, ucs4);
             }
         }
+        if (QUnicodeTables::unicodeVersion(ucs4) > version)
+            continue;
         int length;
         int tag;
         const unsigned short *d = decomposition(ucs4, &length, &tag, buffer);
         if (!d || (canonical && tag != QChar::Canonical))
-            continue;
-        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(ucs4) > version)
             continue;
 
         s.replace(uc - utf16, ucs4 > 0x10000 ? 2 : 1, (const QChar *)d, length);
@@ -262,7 +262,7 @@ static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
         }
 
         int c2 = QUnicodeTables::combiningClass(u2);
-        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(u2) > version)
+        if (QUnicodeTables::unicodeVersion(u2) > version)
             c2 = 0;
 
         if (c2 == 0) {
@@ -270,7 +270,7 @@ static QString canonicalOrder(const QString &str, QChar::UnicodeVersion version)
             continue;
         }
         int c1 = QUnicodeTables::combiningClass(u1);
-        if (version != CURRENT_VERSION && QUnicodeTables::unicodeVersion(u1) > version)
+        if (QUnicodeTables::unicodeVersion(u1) > version)
             c1 = 0;
 
         if (c1 > c2) {
@@ -324,15 +324,13 @@ QString QUnicodeTables::normalize(const QString &str, QUnicodeTables::Normalizat
             }
         }
     }
-    s = decompose(s, mode < QUnicodeTables::NormalizationMode_KD, CURRENT_VERSION);
+    s = decompose(s, mode < QUnicodeTables::NormalizationMode_KD, version);
 
-    // now canonical ordering
-    s = canonicalOrder(s, CURRENT_VERSION);
+    s = canonicalOrder(s, version);
 
     if (mode == QUnicodeTables::NormalizationMode_D || mode == QUnicodeTables::NormalizationMode_KD)
         return s;
 
-    // last composition
     return compose(s);
 
 }

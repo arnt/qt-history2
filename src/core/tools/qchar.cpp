@@ -637,6 +637,15 @@ unsigned char QChar::combiningClass() const
 
 
 /*!
+    Returns the Unicode version that introduced this character.
+*/
+QChar::UnicodeVersion QChar::unicodeVersion() const
+{
+    return QUnicodeTables::unicodeVersion(ucs);
+}
+
+
+/*!
     Returns the lowercase equivalent if the character is uppercase;
     otherwise returns the character itself.
 */
