@@ -51,7 +51,7 @@
     socket can be set by calling setSocketDescriptor().
 */
 
-//#define QTCPSERVER_DEBUG
+#define QTCPSERVER_DEBUG
 
 #include "qtcpserver.h"
 #include "qsocketlayer.h"
@@ -272,10 +272,19 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
         return false;
     }
 
-    if (!d->socketLayer.initialize(socketDescriptor)) {
+    if (!d->socketLayer.initialize(socketDescriptor, Qt::ListeningState)) {
         d->serverSocketError = d->socketLayer.socketError();
         d->serverSocketErrorString = d->socketLayer.errorString();
+        return false;
     }
+
+    d->readSocketNotifier = new QSocketNotifier(d->socketLayer.socketDescriptor(),
+                                                QSocketNotifier::Read, this);
+    connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
+
+    d->state = d->socketLayer.socketState();
+    d->address = d->socketLayer.localAddress();
+    d->port = d->socketLayer.localPort();
 
     return true;
 }
