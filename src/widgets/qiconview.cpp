@@ -3448,7 +3448,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
-    bool emitDblClk = FALSE;
 
     if ( d->rubber ) {
 	QPainter p;
@@ -3463,12 +3462,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 	delete d->rubber;
 	d->rubber = 0;
-    } else if ( !d->startDrag ) {
-	if ( item && !item->renameBox ) {
-	    if ( e->button() == LeftButton &&
-		 !( e->state() & ControlButton ) && !( e->state() & ShiftButton ) )
-		emitDblClk = TRUE;
-	}
     }
 
     if ( d->scrollTimer ) {
@@ -3481,8 +3474,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     emit mouseButtonClicked( e->button(), item, e->globalPos() );
     emit clicked( item );
     emit clicked( item, e->globalPos() );
-    if ( emitDblClk )
-	emit doubleClicked( item );
 
     if ( e->button() == RightButton ) {
 	emit rightButtonClicked( item, e->globalPos() );
