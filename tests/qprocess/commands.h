@@ -10,14 +10,12 @@ static struct {
     const char* path;
     const char* file;
 } command[] = {
-    { "Desktop-in-an-application", "multidoc",   "multidoc" },
-    { "Info Kiosk - MPEGs",        "kiosk",      "kiosk" },
-    { "Help Text Browser",         "helpviewer", "helpviewer" },
-    { "Canvas - alpha-blending",   "canvas",     "canvas" },
-    { "Text Editor",               "qwerty",     "qwerty unicode.txt" },
-    { "Scribble Editor",           "scribble",   "scribble" },
-    { "Internationalization",      "i18n",       "i18n all" },
-    { "Magnifier",                 "qmag",       "qmag" },
+    { "Text Editor",           "qwerty",     "qwerty unicode.txt" },
+    { "Scribble Editor",       "scribble",   "scribble" },
+    { "Internationalization",  "i18n",       "i18n all" },
+    { "Magnifier",             "qmag",       "qmag" },
+    { "Richtext",              "richtext",   "richtext" },
+    { "Widgets",               "widgets",    "widgets" },
     { 0, 0, 0 }
 };
 

@@ -20,6 +20,7 @@ private slots:
     void nextInfo();
     void execute();
     void executeOther( int i );
+    void source();
 
 private:
     QLabel* info;
