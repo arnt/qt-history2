@@ -1145,7 +1145,10 @@ void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
 	pendingParaLeftType = leftType;
 	pendingParaRightType = rightType;
 	pendingParaString = string;
-	if ( leftType == Atom::BriefLeft ||
+	if ( 
+#if 0
+	     leftType == Atom::BriefLeft ||
+#endif
 	     leftType == Atom::SectionHeadingLeft ) {
 	    paraState = InsideSingleLinePara;
 	} else {
