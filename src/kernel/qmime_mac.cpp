@@ -16,6 +16,15 @@
 
 #ifndef QT_NO_MIME
 
+//#define USE_INTERNET_CONFIG
+
+#ifndef USE_INTERNET_CONFIG
+# include "qfile.h"
+# include "qfileinfo.h"
+# include "qtextstream.h"
+# include "qdir.h"
+#endif
+
 #include "qstrlist.h"
 #include "qimage.h"
 #include "qpixmap.h"
@@ -25,7 +34,6 @@
 #include "qapplication_p.h"
 #include "qtextcodec.h"
 #include "qregexp.h"
-#include "qsettings.h"
 #include "qmap.h"
 #include "qt_mac.h"
 
@@ -93,8 +101,6 @@ QMacMime::~QMacMime()
 	mimes.remove(this);
 }
 
-//#define USE_INTERNET_CONFIG
-
 ScrapFlavorType qt_mac_mime_type = 'CUTE';
 class QMacMimeAnyMime : public QMacMime {
 private:
@@ -102,7 +108,9 @@ private:
     ICInstance internet_config;
     long mime_registry_version;
 #else
-    bool mime_registry_loaded;
+    int current_max;
+    QFile library_file;
+    QDateTime mime_registry_loaded;
 #endif
     QMap<QString, int> mime_registry;
     int registerMimeType(const char *mime);
@@ -113,7 +121,7 @@ public:
 #ifdef USE_INTERNET_CONFIG
 	internet_config = NULL; 
 #else
-	mime_registry_loaded = FALSE;
+	current_max = 'QT00';
 #endif
     }
     ~QMacMimeAnyMime() { 
@@ -136,7 +144,7 @@ public:
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
     if(!internet_config) { //need to start
-	ICStart(&internet_config, 'CUTE');
+	ICStart(&internet_config, qt_mac_mime_type);
 	ICGetSeed(internet_config, &mime_registry_version);
     } else { //do we need to do anything?
 	long mt;
@@ -203,7 +211,7 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 		    memset(&entry, '\0', sizeof(entry));
 		    entry.fixedLength = kICMapFixedLength;
 		    entry.fileType = ret;
-		    entry.postCreator = entry.fileCreator = 'CUTE';
+		    entry.postCreator = entry.fileCreator = qt_mac_mime_type;
 		    entry.flags = kICMapBinaryMask;
 		    qt_mac_copy_to_str255("Qt Library", entry.creatorAppName);
 		    qt_mac_copy_to_str255("Qt Library", entry.postAppName);
@@ -236,30 +244,34 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 #else
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
-#if 0
-    if(mime_registry_loaded)
+    if(!library_file.isOpen()) {
+	if(!QFile::exists("/Library/Qt")) {
+	    QDir dir;
+	    if(!dir.mkdir("/Library/Qt")) {
+		qWarning("cannot create /Library/Qt!");
+		return FALSE;
+	    }
+	}
+	library_file.setName("/Library/Qt/.mime_types");
+	if(!library_file.open(IO_ReadWrite)) {
+	    qWarning("Failure to open %s -- %d", library_file.name().latin1(), library_file.status());
+	    return FALSE;
+	}
+	library_file.reset();
+    }
+    if(!library_file.exists())
 	return TRUE;
-    qDebug("reading mime..");
-#endif
-
-    mime_registry_loaded = TRUE;
-    QSettings mime_settings;
-    mime_settings.setPath("MimeRegistry", "qt");
-    mime_registry.clear();
-    QStringList entries = mime_settings.subkeyList("/mimetypes/keys");
-    for(QStringList::ConstIterator it=entries.begin(); it != entries.end(); ++it) {
-	bool ok = false;
-	int mac_t = mime_settings.readNumEntry(QString("/mimetypes/keys/") + (*it) + "/mac_type", 0, &ok);
-	if(!ok) {
-	    qWarning("That shouldn't happen!! %s", (*it).latin1());
-	    continue;
-	}
-	QString qt_t = mime_settings.readEntry(QString("/mimetypes/keys/") + (*it) + "/qt_type", "", &ok);
-	if(!ok) {
-	    qWarning("That shouldn't happen!! %s", (*it).latin1());
-	    continue;
-	}
-	mime_registry.insert(qt_t, mac_t);
+    QFileInfo fi(library_file);
+    if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified()) 
+	    return TRUE;
+    mime_registry_loaded = fi.lastModified();
+    QTextStream stream(&library_file);
+    while(!stream.atEnd()) {
+	QString mime = stream.readLine();
+	int mactype = stream.readLine().toInt();
+	if(mactype > current_max)
+	    current_max = mactype;
+	mime_registry.insert(mime, mactype);
     }
     return true;
 }
@@ -272,15 +284,16 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 	    return 0;
 	}
 	if(!mime_registry.contains(mime)) {
-	    QSettings mime_settings;
-	    mime_settings.setPath("MimeRegistry", "qt");
-	    mime_settings.beginGroup("/mimetypes/");
-	    int ser = mime_settings.readNumEntry("serial_reg", 'QT00');
-	    int ret = ser;
-	    mime_settings.writeEntry(QString("keys/mime_type") + QString::number(ret - 'QT00') + "/mac_type", ret);
-	    mime_settings.writeEntry(QString("keys/mime_type") + QString::number(ret - 'QT00') + "/qt_type", mime);
-	    mime_settings.writeEntry("serial_reg", ++ser);
-	    mime_registry.insert(mime, ret);
+	    if(!library_file.isOpen() && !library_file.open(IO_WriteOnly)) {
+		qWarning("Failure to open %s -- %d", library_file.name().latin1(), library_file.status());
+		return FALSE;
+	    }
+	    int ret = ++current_max;
+	    mime_registry_loaded = QFileInfo(library_file).lastModified();
+	    QTextStream stream(&library_file);
+	    stream << mime << endl;
+	    stream << ret << endl;
+	    library_file.close(); //flush and set mtime
 	    return ret;
 	}
     }
@@ -723,7 +736,7 @@ QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* m
 	return ret;
     HFSFlavor hfs;
     hfs.fileType = 'TEXT';
-    hfs.fileCreator = 'CUTE';
+    hfs.fileCreator = qt_mac_mime_type;
     hfs.fdFlags = 0;
     if(qt_mac_create_fsspec(QString(data), &hfs.fileSpec) == noErr)
 	ret.append(data);
