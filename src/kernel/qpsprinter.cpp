@@ -2329,7 +2329,7 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
   
   // I am not sure that these comments conform to some specs. I could
   // not find any appropriate specs on the adobe site. Sivan Toledo.
-
+  s << "%%BeginFont: " << psname << "\n";
   s << "%!PS-AdobeFont-1.0 Composite Font\n";
 
   s << "%%FontName: ";
@@ -2404,7 +2404,7 @@ void QPSPrinterFontPrivate::download(QTextStream &s, bool global)
   // === trailer ===
   
   s << "FontName currentdict end definefont pop\n";
-  s << "%%EOF\n";
+  s << "%%EndFont\n";
 }
 
 
@@ -3086,10 +3086,9 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
   } /* end of if Type 42 not understood. */
   
   s << "FontName currentdict end definefont pop\n";
-  s << "%%EndFont\n";
-
 
   download_unicode(s); // sivan added
+  s << "%%EndFont\n";
 }
 
 void QPSPrinterFontTTF::download_unicode(QTextStream& s)
@@ -3267,7 +3266,6 @@ void QPSPrinterFontTTF::download_unicode(QTextStream& s)
   // === trailer ===
   
   s << "FontName currentdict end definefont pop\n";
-  s << "%%EOF\n";
 }
 
 BYTE* QPSPrinterFontTTF::getTable(const char* name) 
