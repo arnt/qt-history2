@@ -42,7 +42,4 @@ protected:
     virtual void     deleteItem(Item) = 0;	// delete object
 };
 
-
-#define QCollection Q3PtrCollection
-
 #endif // Q3PTRCOLLECTION_H
