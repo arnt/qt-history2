@@ -15,7 +15,6 @@
 #include "qsql_sqlite.h"
 
 #include <qdatetime.h>
-#include <qmap.h>
 #include <qregexp.h>
 #include <qfile.h>
 
