@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#3 $
 **
 ** Implementation of QFile class
 **
@@ -25,7 +25,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#3 $";
 #endif
 
 
@@ -441,8 +441,11 @@ int QFile::readBlock( char *p, uint len )	// read data from file
 
 int QFile::writeBlock( const char *p, uint len ) // write data to file
 {
+#if defined(CHECK_NULL)
+    if ( p == 0 && len != 0 )
+	warning( "QFile::writeBlock: Null pointer error" );
+#endif
 #if defined(CHECK_STATE)
-    CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open
 	warning( "QFile::writeBlock: File not open" );
 	return -1;

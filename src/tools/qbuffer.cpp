@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#3 $
 **
 ** Implementation of QBuffer class
 **
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#3 $";
 #endif
 
 
@@ -126,8 +126,11 @@ int QBuffer::readBlock( char *p, uint len )	// read data from buffer
 
 int QBuffer::writeBlock( const char *p, uint len )// write data info buffer
 {
+#if defined(CHECK_NULL)
+    if ( p == 0 && len != 0 )
+	warning( "QBuffer::writeBlock: Null pointer error" );
+#endif
 #if defined(CHECK_STATE)
-    CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
 	warning( "QBuffer::writeBlock: Buffer not open" );
 	return -1;
