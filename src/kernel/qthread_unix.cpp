@@ -744,18 +744,19 @@ void QWaitCondition::wakeAll()
   \ingroup thread
   \ingroup environment
 
-  QSemaphore can be used to serialize thread execution, similar to a
-  QMutex.  A semaphore differs from a mutex, in that a semaphore can be
-  accessed by more than one thread at a time.
+  A QSemaphore can be used to serialize thread execution, in a similar
+  way to a QMutex.  A semaphore differs from a mutex, in that a
+  semaphore can be accessed by more than one thread at a time.
 
-  An example would be an application that stores data in a large tree
-  structure.  The application creates 10 threads (commonly called a
-  thread pool) to do searches on the tree.  When the application searches
-  the tree for some piece of data, it uses one thread per base node to
-  do the searching.  A semaphore could be used to make sure that 2 threads
-  don't try to search the same branch of the tree.
+  For example, suppose we have an application that stores data in a
+  large tree structure.  The application creates 10 threads (commonly
+  called a thread pool) to perform searches on the tree.  When the
+  application searches the tree for some piece of data, it uses one
+  thread per base node to do the searching.  A semaphore could be used
+  to make sure that two threads don't try to search the same branch of
+  the tree at the same time.
 
-  A real world example of a semaphore would be dining at a restuarant.
+  A non-computing example of a semaphore would be dining at a restuarant.
   A semaphore is initialized to have a maximum count equal to the number
   of chairs in the restuarant.  As people arrive, they want a seat.  As
   seats are filled, the semaphore is accessed, once per person.  As people
@@ -763,6 +764,15 @@ void QWaitCondition::wakeAll()
   party of 10 people want to be seated, but there are only 9 seats, those
   10 people will wait, but a party of 4 people would be seated (taking
   the available seats to 5, making the party of 10 people wait longer).
+
+  When a semaphore is created it is given a number which is the
+  maximum number of concurrent accesses it will permit. This amount
+  may be changed using operator++(), operator--(), operator+=() and
+  operator-=(). The number of accesses allowed is retrieved with
+  available(), and the total number with total(). Note that the
+  incrementing functions will block if there aren't enough available
+  accesses. Use tryAccess() if you want to acquire accesses without
+  blocking.
 */
 
 
@@ -805,8 +815,9 @@ QSemaphore::~QSemaphore()
 /*!
   Postfix ++ operator.
 
-  Try to get access to the semaphore.  If \l available() is >= \l total(),
-  this call will block until it can get access.
+  Try to get access to the semaphore.  If \l available() == 0,
+  this call will block until it can get access, i.e. until available()
+  > 0.
 */
 int QSemaphore::operator++(int)
 {
@@ -851,10 +862,9 @@ int QSemaphore::operator--(int)
 
 
 /*!
-  Try to get access to the semaphore.  If \l available() is >= \l total(),
-  the calling thread blocks until it can get access.   The caller will
-  only get access from the semaphore if it can get all \a n accesses
-  at once.
+  Try to get access to the semaphore.  If \l available() < \a n, this
+  call will block until it can get all the accesses it wants, i.e.
+  until available() >= \a n.
 */
 int QSemaphore::operator+=(int n)
 {
@@ -939,10 +949,10 @@ int QSemaphore::total() const {
 
 
 /*!
-  Try to get access to the semaphore.  If \l available() is >= \l total(),
-  the calling thread blocks until it can get access.   The caller will
-  only get access from the semaphore if it can get all \a n accesses
-  at once.
+  Try to get access to the semaphore.  If \l available() < \a n, this
+  function will return FALSE immediately. If \l available() >= \a n,
+  this function will take \a n accesses and return TRUE. This function
+  does \e not block.
 */
 bool QSemaphore::tryAccess(int n)
 {

@@ -39,7 +39,6 @@
 #include "qdatastream.h"
 
 
-// NOT REVISED
 /*!
   \class QSize qsize.h
   \brief The QSize class defines the size of a two-dimensional object.
@@ -51,6 +50,14 @@
   The coordinate type is QCOORD (defined in qwindowdefs.h as \c int).
   The minimum value of QCOORD is QCOORD_MIN (-2147483648) and the maximum
   value is  QCOORD_MAX (2147483647).
+
+  The size can be set in the constructor and changed with setWidth()
+  and setHeight(), or using operator+=(), operator-=(), operator*=()
+  and operator/=(), etc. You can swap the width and height with
+  transpose(). You can get a size which holds the maximum height and
+  width of two sizes using expandedTo(), and the minimum height and
+  width of two sizes using boundedTo().
+
 
   \sa QPoint, QRect
 */
@@ -72,7 +79,8 @@
 
 /*!
   \fn bool QSize::isNull() const
-  Returns TRUE if the width is 0 and the height is 0, otherwise FALSE.
+  Returns TRUE if the width is 0 and the height is 0; otherwise
+  returns FALSE.
 */
 
 /*!
@@ -84,7 +92,7 @@
 /*!
   \fn bool QSize::isValid() const
   Returns TRUE if the width is equal to or greater than 0 and the height is
-  equal to or greater than 0, otherwise FALSE.
+  equal to or greater than 0; otherwise returns FALSE.
 */
 
 /*!
@@ -180,14 +188,14 @@ void QSize::transpose()
 
 /*!
   \fn QSize &QSize::operator*=( int c )
-  Multiplies both the width and height with \a c and returns a reference to
+  Multiplies both the width and height by \a c and returns a reference to
   the size.
 */
 
 /*!
   \overload QSize &QSize::operator*=( double c )
 
-  Multiplies both the width and height with \a c and returns a reference to
+  Multiplies both the width and height by \a c and returns a reference to
   the size.
 
   Note that the result is truncated.
@@ -196,13 +204,13 @@ void QSize::transpose()
 /*!
   \fn bool operator==( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns TRUE if \a s1 and \a s2 are equal, or FALSE if they are different.
+  Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
 */
 
 /*!
   \fn bool operator!=( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns TRUE if \a s1 and \a s2 are different, or FALSE if they are equal.
+  Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
 */
 
 /*!

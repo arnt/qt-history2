@@ -41,20 +41,23 @@
 
 /*!
   \class QSignal qsignal.h
-  \brief The QSignal class can be used to send signals without parameters.
+  \brief The QSignal class can be used to send signals for classes
+  that don't inherit QObject.
 
   \ingroup io
   \ingroup misc
 
-  QSignal is a simple extension of QObject that can send plain signals
-  without parameters.  If you want to send signals from a class that does
-  not inherit QObject, you can create an internal QSignal object to emit
-  the signal. You must also provide a function that connects the signal to
-  an outside object slot.  This is how we have implemented signals in the
-  QMenuData class, which is not a QObject.
+  If you want to send signals from a class that does not inherit
+  QObject, you can create an internal QSignal object to emit the
+  signal. You must also provide a function that connects the signal to
+  an outside object slot.  This is how we have implemented signals in
+  the QMenuData class, which is not a QObject.
 
   In general, we recommend inheriting QObject instead.	QObject provides
   much more functionality.
+
+  You can set a single QVariant parameter for the signal with
+  setValue().
 
   Note that QObject is a \e private base class of QSignal, i.e. you cannot
   call any QObject member functions from a QSignal object.
@@ -67,7 +70,7 @@
     {
     public:
 	MyClass();
-       ~MyClass();
+        ~MyClass();
 
 	void doSomething();
 
@@ -90,7 +93,7 @@
     void MyClass::doSomething()
     {
 	// ... does something
-	sig->activate();	// activates the signal
+	sig->activate(); // emits the signal
     }
 
     void MyClass::connect( QObject *receiver, const char *member )
@@ -188,7 +191,8 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 
 /*!
   \fn void QSignal::activate()
-  Emits the signal.
+  Emits the signal. If the platform supports QVariant and a parameter
+  has been set with setValue(), this value is passed in the signal.
 */
 void  QSignal::activate()
 {

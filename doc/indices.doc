@@ -58,7 +58,7 @@ What´s New
 \i \link editions.html Qt Editions \endlink
 \i \link commonproblems.html Common Problems\endlink
 \i \link http://www.trolltech.com/developer/faq/ FAQs\endlink
-\i \link winsystem.html  Windowsystem-specific notes \endlink
+\i \link winsystem.html  Window system specific notes \endlink
 \i \link buyhowto.html How to buy Qt \endlink
 \endlist
 </td>
@@ -91,12 +91,13 @@ Overviews
 <tr>
 <td valign=top >
 \list
-      \i \link classes.html   Alphabetical Class List \endlink
-      \i \link topicals.html   Structure Overview \endlink
-      \i \link annotated.html   Annotated Class List \endlink
-      \i \link hierarchy.html   Inheritance Hierachy \endlink
-      \i \link functions.html   All Functions (long) \endlink
-      \i \link headers.html   Header File Index \endlink
+\i \link classes.html   Alphabetical Class List \endlink
+\i \link shortclasses.html Short Class List\endlink
+\i \link topicals.html   Structure Overview \endlink
+\i \link annotated.html   Annotated Class List \endlink
+\i \link hierarchy.html   Inheritance Hierachy \endlink
+\i \link functions.html   All Functions (long) \endlink
+\i \link headers.html   Header File Index \endlink
 \endlist
 </td>
 <td valign=top>

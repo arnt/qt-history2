@@ -59,6 +59,11 @@
   boolean, an integer, a double, a string or a list of strings. Entry
   strings may contain any unicode characters.
 
+  If you want to save and restore the entire desktop's settings, i.e.
+  which applications are running, use QSettings to save the settings
+  for each individual application and QSessionManager to save the
+  desktop's session.
+
     Example settings:
     \code
     /MyCompany/MyApplication/background color
@@ -126,7 +131,7 @@
 
     These limitations are not enforced on Unix.
 
-    <b>Notes for Unix Applications</b>
+    \section1 Notes for Unix Applications
 
     There is no universally accepted place for storing application
     settings under Unix. In the examples the settings file will be

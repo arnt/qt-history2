@@ -1212,7 +1212,7 @@ bool QLayout::activate()
 /*! \enum QSizePolicy::SizeType
 
 The per-dimension sizing types used when constructing a QSizePolicy
-are
+are:
 
 \value Fixed  the QWidget::sizeHint() is the only acceptable alternative, so
 the widget can never grow or shrink (e.g. the vertical direction of a
@@ -1252,14 +1252,12 @@ extra space.  There are four possible values:
 \value NoDirection  the widget cannot make use of extra space in any
 direction.
 
-\value Horizontally  the widget can usefully be wider than sizeHint()
-says.
+\value Horizontally  the widget can usefully be wider than the sizeHint().
 
-\value Vertically  the widget can usefully be taller than sizeHint()
-says.
+\value Vertically  the widget can usefully be taller than the sizeHint().
 
 \value BothDirections  the widget can usefully be both wider and
-taller than sizeHint() says.
+taller than the sizeHint().
 
 */
 

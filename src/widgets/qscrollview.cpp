@@ -413,7 +413,7 @@ widgets.  When the view is scrolled, the scrollview moves the child
 widgets individually.
 
 \section1 Using a Very Big View with Many Widgets
-
+\target enableclipper
 <img src=qscrollview-cl.png>
 
 The final usage of QScrollView (depicted above) is appropriate when
@@ -490,6 +490,26 @@ characters move might use \c WRepaintNoErase (in addition to \c
 WStaticContents and \c WResizeNoErase) so that the window system
 background does not flash in and out during scrolling.
 \endlist
+
+Child widgets may be moved using addChild() or moveChild(). Use
+childX() and childY() to get the position of a child widget.
+
+A widget may be placed in the corner between the vertical and
+horizontal scrollbars with setCornerWidget(). You can get access to
+the scrollbars using horizontalScrollBar() and verticalScrollBar(),
+and to the viewport with viewport(). The scroll view can be scrolled
+using scrollBy(), ensureVisible(), setContentsPos() or center().
+
+The visible area is given by visibleWidth() and visibleHeight(), and
+the contents area by contentsWidth() and contentsHeight(). The
+contents may be repainted using one of the repaintContents() or
+updateContents() functions.
+
+Coordinate conversion is provided by contentsToViewport() and
+viewportToContents().
+
+The contentsMoving() signal is emitted just before the contents are
+moved to a new position.
 
 \warning \c WResizeNoErase is currently set by default, i.e. you always
 have to clear the background manually in scrollview subclasses. This
@@ -1172,7 +1192,7 @@ void QScrollView::setResizePolicy( ResizePolicy r )
 
 /*!
   \property QScrollView::resizePolicy
-  \brief the currently set ResizePolicy
+  \brief the current resize policy
 
   \sa ResizePolicy
 */
@@ -1189,8 +1209,8 @@ void QScrollView::setEnabled( bool enable )
 }
 
 /*!
-  Removes the \a child from the scrolled area.  Note that this happens
-  automatically if the \a child is deleted.
+  Removes the \a child widget from the scrolled area.  Note that this
+  happens automatically if the \a child is deleted.
 */
 void QScrollView::removeChild(QWidget* child)
 {
@@ -1677,7 +1697,7 @@ void QScrollView::viewportContextMenuEvent( QContextMenuEvent *e )
 /*!
  Returns the component horizontal scroll bar.  It is made available to allow
  accelerators, autoscrolling, etc. and to allow changing
- of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
+ arrow scroll rates, e.g. bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 
@@ -1691,7 +1711,7 @@ QScrollBar* QScrollView::horizontalScrollBar() const
 /*!
  Returns the component vertical scroll bar.  It is made available to allow
  accelerators, autoscrolling, etc. and to allow changing
- of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
+ arrow scroll rates, e.g. bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
 
@@ -1810,9 +1830,9 @@ void QScrollView::center( int x, int y )
 
  For example:
  \list
-   \i Margin 0.0 allows (x,y) to be on the edge of the visible area.
-   \i Margin 0.5 ensures that (x,y) is in middle 50% of the visible area.
-   \i Margin 1.0 ensures that (x,y) is in the center of the the visible area.
+   \i Margin 0.0 allows (x, y) to be on the edge of the visible area.
+   \i Margin 0.5 ensures that (x, y) is in middle 50% of the visible area.
+   \i Margin 1.0 ensures that (x, y) is in the center of the the visible area.
  \endlist
 */
 void QScrollView::center( int x, int y, float xmargin, float ymargin )
@@ -1923,7 +1943,7 @@ int QScrollView::contentsHeight() const
 }
 
 /*!
-  Set the size of the contents area to \a w pixels wide and \a h
+  Sets the size of the contents area to \a w pixels wide and \a h
   pixels high and updates the viewport accordingly.
 */
 void QScrollView::resizeContents( int w, int h )
@@ -2173,7 +2193,7 @@ QWidget* QScrollView::viewport() const
   Contents in the scrollview are ultimately clipped to be inside
   the clipper widget.
 
-  You should not need to access this.
+  You should not need to use this function.
 
   \sa visibleWidth(), visibleHeight()
 */
@@ -2248,7 +2268,7 @@ void QScrollView::setMargins(int left, int top, int right, int bottom)
 
 
 /*!
-  Returns the current left margin.
+  Returns the left margin.
   \sa setMargins()
 */
 int QScrollView::leftMargin() const
@@ -2258,7 +2278,7 @@ int QScrollView::leftMargin() const
 
 
 /*!
-  Returns the current top margin.
+  Returns the top margin.
   \sa setMargins()
 */
 int QScrollView::topMargin() const
@@ -2268,7 +2288,7 @@ int QScrollView::topMargin() const
 
 
 /*!
-  Returns the current right margin.
+  Returns the right margin.
   \sa setMargins()
 */
 int QScrollView::rightMargin() const
@@ -2278,7 +2298,7 @@ int QScrollView::rightMargin() const
 
 
 /*!
-  Returns the current bottom margin.
+  Returns the bottom margin.
   \sa setMargins()
 */
 int QScrollView::bottomMargin() const
@@ -2333,14 +2353,15 @@ bool QScrollView::focusNextPrevChild( bool next )
 
 
 /*!
-  When large numbers of child widgets are in a scrollview, especially
+  When a large numbers of child widgets are in a scrollview, especially
   if they are close together, the scrolling performance can suffer
   greatly.  If \a y is TRUE the scrollview will use an extra widget to
   group child widgets.
 
   Note that you may only call enableClipper() prior to adding widgets.
 
-  For a full discussion, see this class's detailed description.
+  For a full discussion, see this class's \link #enableclipper
+  detailed description\endlink.
 */
 void QScrollView::enableClipper(bool y)
 {
@@ -2364,10 +2385,10 @@ void QScrollView::enableClipper(bool y)
 
 /*!
   Sets the scrollview to have a static background if \a y is TRUE, or
-  a scrolling background otherwise. By default, the background is
+  a scrolling background if \a y is FALSE. By default, the background is
   scrolling.
 
-  Beware that this mode is quite slow, as a full repaint of the
+  Be aware that this mode is quite slow, as a full repaint of the
   visible area has to be triggered on every contents move.
 
   \sa hasStaticBackground()
@@ -2378,7 +2399,8 @@ void  QScrollView::setStaticBackground(bool y)
 }
 
 /*!
-  Returns wether QScrollView uses a static background.
+  Returns TRUE if QScrollView uses a static background; otherwise
+  returns FALSE.
   \sa setStaticBackground()
 */
 bool QScrollView::hasStaticBackground() const

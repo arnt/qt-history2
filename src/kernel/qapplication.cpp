@@ -3283,25 +3283,32 @@ bool QApplication::reverseLayout()
   \ingroup environment
 
   The session manager is responsible for session management, most
-  importantly for interruption and resumption.
+  importantly for interruption and resumption. A "session" is a kind
+  of record of the state of the system, e.g. which applications were
+  run at start up and which applications are currently running. The
+  session manager is used to save the session, e.g. when the machine
+  is shut down; and to restore a session, e.g. when the machine is
+  started up. Use QSettings to save and restore an individual
+  application's settings, e.g. window positions, recently used files,
+  etc.
 
   QSessionManager provides an interface between the application and
   the session manager so that the program can work well with the
   session manager. In Qt, session management requests for action
   are handled by the two virtual functions QApplication::commitData()
   and QApplication::saveState(). Both provide a reference to
-  a session manager object as argument, thus allowing the application
+  a session manager object as argument, to allow the application
   to communicate with the session manager.
 
-  During a session management action (i.e., within one of the two
-  mentioned functions), no user interaction is possible \e unless the
-  application got explicit permission from the session manager. You ask
-  for permission by calling allowsInteraction() or, if it's really urgent,
-  allowsErrorInteraction(). Qt does not enforce this, but the session
-  manager may. Perhaps.
+  During a session management action (i.e. within commitData() and
+  saveState()), no user interaction is possible \e unless the
+  application got explicit permission from the session manager. You
+  ask for permission by calling allowsInteraction() or, if it's really
+  urgent, allowsErrorInteraction(). Qt does not enforce this, but the
+  session manager may.
 
-  You can try to abort the shutdown process by calling cancel. The
-  default commitData() function does that if some top-level window
+  You can try to abort the shutdown process by calling cancel(). The
+  default commitData() function does this if some top-level window
   rejected its closeEvent().
 
   For sophisticated session managers provided on Unix/X11, QSessionManager
@@ -3317,7 +3324,7 @@ bool QApplication::reverseLayout()
   application wants to be restarted by the session manager.  The
   current values are
 
-  \value RestartIfRunning  if the application still runs by the time
+  \value RestartIfRunning  if the application is still running when
   the session is shut down, it wants to be restarted at the start of
   the next session.
 
@@ -3341,7 +3348,7 @@ bool QApplication::reverseLayout()
   Returns the identifier of the current session.
 
   If the application has been restored from an earlier session, this
-  identifier is the same as it was in that previous session.
+  identifier is the same as it was in that earlier session.
 
   \sa QApplication::sessionId()
  */
@@ -3360,8 +3367,8 @@ bool QApplication::reverseLayout()
   \fn bool QSessionManager::allowsInteraction()
 
   Asks the session manager for permission to interact with the
-  user.  Returns TRUE if the interaction was granted, FALSE
-  otherwise.
+  user.  Returns TRUE if interaction is permitted; otherwise
+  returns FALSE.
 
   The rationale behind this mechanism is to make it possible to
   synchronize user interaction during a shutdown. Advanced session
@@ -3375,26 +3382,28 @@ bool QApplication::reverseLayout()
   released when the application exits.)
 
   If the user decides to cancel the shutdown process during the
-  interaction phase, you must tell the session manager so by calling
-  cancel().
+  interaction phase, you must tell the session manager that this has
+  happened by calling cancel().
 
-  Here's an example usage of the mentioned functions that may occur
-  in the QApplication::commitData() function of an application:
+  Here's an example of how an application's QApplication::commitData()
+  might be implemented:
 
 \code
 void MyApplication::commitData( QSessionManager& sm ) {
     if ( sm.allowsInteraction() ) {
-	switch ( QMessageBox::warning( yourMainWindow, tr("Application Name"),
-					tr("Save changes to Document Foo?"),
-					tr("&Yes"),
-					tr("&No"),
-					tr("Cancel"),
-					0, 2) ) {
+	switch ( QMessageBox::warning(
+		    yourMainWindow,
+		    tr("Application Name"),
+		    tr("Save changes to document Foo?"),
+		    tr("&Yes"),
+		    tr("&No"),
+		    tr("Cancel"),
+		    0, 2) ) {
 	case 0: // yes
 	    sm.release();
 	    // save document here; if saving fails, call sm.cancel()
 	    break;
-	case 1: // no
+	case 1: // continue without saving
 	    break;
 	default: // cancel
 	    sm.cancel();
@@ -3402,7 +3411,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 	}
     } else {
 	// we did not get permission to interact, then
-	// do something reasonable instead
+	// do something reasonable instead.
     }
 }
 \endcode
@@ -3417,11 +3426,11 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn bool QSessionManager::allowsErrorInteraction()
 
-  Similar to allowsInteraction(), but also tells the session manager that
-  an error occurred. Session managers may give error interaction request
-  higher priority, which means it is more likely that an error interaction
-  is granted. However, you are still not guaranteed that the session
-  manager will grant your request.
+  This is similar to allowsInteraction(), but also tells the session
+  manager that an error occurred. Session managers may give error
+  interaction request higher priority, which means that it is more likely
+  that an error interaction is permitted. However, you are still not
+  guaranteed that the session manager will allow interaction.
 
   \sa allowsInteraction(), release(), cancel()
 */
@@ -3452,7 +3461,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   startup the hint is set to \c RestartIfRunning.
 
   Note that these flags are only hints, a session manager may or may
-  not obey them.
+  not respect them.
 
   We recommend setting the restart hint in QApplication::saveState()
   because most session managers perform a checkpoint shortly after an
@@ -3471,26 +3480,28 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setRestartCommand( const QStringList& command)
+  \fn void QSessionManager::setRestartCommand( const QStringList& command )
 
   If the session manager is capable of restoring sessions it will
   execute \a command in order to restore the application.  The command
   defaults to
 
   \code
-	       appname -session id
+	appname -session id
   \endcode
 
   The \c -session option is mandatory; otherwise QApplication cannot
   tell whether it has been restored or what the current session
   identifier is.  See QApplication::isSessionRestored() and
-  QApplication::sessionId() for details.  If your application is very
-  simple, it may be possible to store the entire application state in
-  additional command line options.  This is usually a very bad
-  idea because command lines are often limited to a few hundred bytes.
-  Instead, use temporary files or a database for this purpose.  By
-  marking the data with the unique sessionId(), you will be able to
-  restore the application in a future session.
+  QApplication::sessionId() for details.
+
+  If your application is very simple, it may be possible to store the
+  entire application state in additional command line options.  This
+  is usually a very bad idea because command lines are often limited
+  to a few hundred bytes. Instead, use QSettings, or temporary files
+  or a database for this purpose.  By marking the data with the unique
+  sessionId(), you will be able to restore the application in a future
+  session.
 
   \sa restartCommand(), setDiscardCommand(), setRestartHint()
 */
@@ -3525,7 +3536,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Low-level write access to the application's identification and state
   records are kept in the session manager.
 
-    The property called \a name has its value set to \a value.
+    The property called \a name has its value set to the string \a value.
 */
 
 /*!
@@ -3535,14 +3546,14 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Low-level write access to the application's identification and state
   record are kept in the session manager.
 
-    The property called \a name has its value set to \a value.
+    The property called \a name has its value set to the string list \a value.
 */
 
 /*!
   \fn bool QSessionManager::isPhase2() const
 
-  Returns whether the session manager is currently performing a second
-  session management phase.
+  Returns TRUE if the session manager is currently performing a second
+  session management phase; otherwise returns FALSE.
 
   \sa requestPhase2()
 */
@@ -3553,12 +3564,12 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Requests a second session management phase for the application. The
   application may then return immediately from the
   QApplication::commitData() or QApplication::saveState() function,
-  and they will be called again once most/all other applications have
+  and they will be called again once most or all other applications have
   finished their session management.
 
-  The two phases are useful for applications such as X11 window manager
+  The two phases are useful for applications such as the X11 window manager
   that need to store information about another application's windows
-  and therefore have to wait until these applications completed their
+  and therefore have to wait until these applications have completed their
   respective session management tasks.
 
   Note that if another application has requested a second phase it
