@@ -53,7 +53,7 @@ public:
 private:
     Item newItem( Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
     void deleteItem( Item d ) { if ( del_item ) delete[] (char*)d; }
-    int compareItems( Item s1, Item s2 ) { return strcmp((const char*)s1,
+    int compareItems( Item s1, Item s2 ) { return qstrcmp((const char*)s1,
 							 (const char*)s2); }
 #ifndef QT_NO_DATASTREAM
     QDataStream &read( QDataStream &s, Item &d )
@@ -72,7 +72,7 @@ public:
    ~QStrIList()			{ clear(); }
 private:
     int	  compareItems( Item s1, Item s2 )
-				{ return strcasecmp((const char*)s1,
+				{ return qstricmp((const char*)s1,
 						    (const char*)s2); }
 };
 
