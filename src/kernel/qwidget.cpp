@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#435 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#436 $
 **
 ** Implementation of QWidget class
 **
@@ -3326,7 +3326,7 @@ QSize QWidget::minimumSizeHint() const
 			are delivered for the entire rectangle.
   <dt>WNorthWestGravity<dd> Indicates that the widget contents is
                                         north-west aligned and static. On resize, you will
-                                        recieve paint events consequentely only for the 
+                                        recieve paint events consequentely only for the
 			newly visible parts of the widget.
                                         This allows even more smart-repainting to
 			avoid even more flicker.   In case you need
@@ -4235,7 +4235,7 @@ bool QWidget::customWhatsThis() const
   to change geometry.
 
   Call this function if the sizeHint() or sizePolicy() have changed.
-*/#
+*/
 
 void QWidget::updateGeometry()
 {
