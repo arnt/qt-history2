@@ -34,6 +34,7 @@
 #include "qdatastream.h"
 #include "qdragobject.h"
 #include "qbuffer.h"
+#include "qdatetime.h"
 #include "qapplication_p.h"
 #include "qtextcodec.h"
 #include "qregexp.h"
@@ -255,7 +256,7 @@ bool openMimeRegistry(bool global, int mode, QFile &file)
 {
     QString dir = "/Library/Qt";
     if(!global)
-        dir.prepend(QDir::homeDirPath());
+        dir.prepend(QDir::homePath());
     file.setName(dir + "/.mime_types");
     if(mode != IO_ReadOnly) {
         if(!QFile::exists(dir)) {
