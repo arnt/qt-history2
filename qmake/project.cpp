@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -395,7 +395,7 @@ QMakeProject::read(QString project, QString)
 	/* prefer $QTDIR if it is set */
 	if (getenv("QTDIR"))
 	    mkspec_roots << getenv("QTDIR");
-	mkspec_roots << qInstallPathData();
+	mkspec_roots << QT_INSTALL_DATA;
 	if(Option::mkfile::qmakespec.isEmpty()) {
 	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
 		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
