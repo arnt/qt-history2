@@ -4,5 +4,5 @@ WIN32:CONFIG   += dll
 HEADERS		= ../../../qdualinterface.h
 SOURCES		= main.cpp
 
-INTERFACES	=
+INTERFACES	= sounddialog.ui
 DESTDIR		= ../../
