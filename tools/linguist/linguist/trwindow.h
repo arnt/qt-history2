@@ -29,6 +29,7 @@
 
 #include <metatranslator.h>
 
+class QAction;
 class QDialog;
 class QLabel;
 class QListView;
@@ -199,6 +200,7 @@ private:
     Action *prevUnfinishedAct;
     Action *nextUnfinishedAct;
     Action *doneAndNextAct;
+    QAction *doneAndNextAlt;
     Action *doGuessesAct;
 };
 

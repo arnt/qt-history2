@@ -573,6 +573,7 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 	     ((QKeyEvent *) e)->key() == Key_Escape )
 		editorPage->translationMed->setFocus();
 
+#if 0
 	// be nice with people who start typing at the wrong place
 	if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent *) e;
@@ -584,6 +585,7 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 		return TRUE;
 	    }
 	}
+#endif
     }
     return FALSE;
 }

@@ -672,6 +672,7 @@ void TrWindow::openFile( const QString& name )
 	    updateCaption();
 	    me->showNothing();
 	    doneAndNextAct->setEnabled( FALSE );
+	    doneAndNextAlt->setEnabled( FALSE );
 	    messageIsShown = FALSE;
 	    statusBar()->message(
 		    tr("%1 source phrase(s) loaded.").arg(numMessages),
@@ -1238,7 +1239,8 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	    me->showContext( c->fullContext(), c->finished() );
 	doneAndNextAct->setEnabled( FALSE );
     }
-    
+    doneAndNextAlt->setEnabled( doneAndNextAct->isEnabled() );
+
     selectAllAct->setEnabled( messageIsShown );
 }
 
@@ -1781,7 +1783,10 @@ void TrWindow::setupMenuBar()
 			  QAccel::stringToKey(tr("Ctrl+Shift+L")) );
     doneAndNextAct = new Action( translationp, tr("Done and &Next"),
 				 this, SLOT(doneAndNext()),
-				 QAccel::stringToKey(tr("Ctrl+Return")) );
+				 QAccel::stringToKey(tr("Ctrl+Enter")) );
+    doneAndNextAlt = new QAction( this );
+    doneAndNextAlt->setAccel( QAccel::stringToKey(tr("Ctrl+Return")) );
+    connect( doneAndNextAlt, SIGNAL(activated()), this, SLOT(doneAndNext()) );
     beginFromSourceAct = new Action( translationp, tr("&Begin from Source"),
 				     me, SLOT(beginFromSource()),
 				     QAccel::stringToKey(tr("Ctrl+B")) );
@@ -1895,6 +1900,7 @@ void TrWindow::setupMenuBar()
     prevUnfinishedAct->setWhatsThis( tr("Moves to the previous unfinished item.") );
     doneAndNextAct->setWhatsThis( tr("Marks this item as done and moves to the"
 				     " next unfinished item.") );
+    doneAndNextAlt->setWhatsThis( doneAndNextAct->whatsThis() );
 }
 
 void TrWindow::setupToolBars()
