@@ -871,9 +871,9 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
     // find the corresponding cursor position
     const QScriptItem &si = eng->items[item];
     unsigned short *logClusters = eng->logClusters(&si);
-    int i;
-    for (i = 0; i < eng->length(item); ++i)
-	if (logClusters[i] == glyph)
+    int j;
+    for (j = 0; j < eng->length(item); ++j)
+	if (logClusters[j] == glyph)
 	    break;
-    return si.position + i;
+    return si.position + j;
 }
