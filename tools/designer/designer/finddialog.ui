@@ -15,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>297</width>
-            <height>187</height>
+            <width>293</width>
+            <height>185</height>
         </rect>
     </property>
     <property name="caption">
@@ -239,8 +239,6 @@
     <function name="init()" >{
     editor = 0;
     formWindow = 0;
-    connect( comboFind-&gt;lineEdit(), SIGNAL( returnPressed() ),
-    		this, SLOT( doFind() ) );
 }</function>
     <function name="setEditor(EditorInterface*,FormWindow*)" >{
     if ( fw != formWindow )
