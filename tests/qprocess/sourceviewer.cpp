@@ -13,10 +13,11 @@ void SourceViewer::init( const QDir &directory )
     dir = directory;
 
     sourceSel = new QComboBox( FALSE, this );
-    sourceSel->insertStringList(
-	    dir.entryList( "*.cpp" ) );
-    sourceSel->insertStringList(
-	    dir.entryList( "*.h" ) );
+    QStringList slist = dir.entryList( "*.cpp *.h" );
+    QStringList moclist = slist.grep( "moc_" );
+    for( QStringList::Iterator it = moclist.begin(); it != moclist.end(); ++it )
+	slist.remove( *it );
+    sourceSel->insertStringList( slist );
 
     sourceCode = new QTextEdit( this );
     sourceCode->document()->setSyntaxHighlighter( new QCppSyntaxHighlighter( sourceCode->document() ) );
