@@ -1951,7 +1951,7 @@ public:
     bool dirtybrush;
     QTextCodec * currentFontCodec;
     QString currentFont;
-    QFontMetrics * fm;
+    QFontMetrics fm;
     int textY;
     QFont currentUsed;
     int scriptUsed;
@@ -2286,14 +2286,14 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
 
     float x = p.x();
     if ( spaces > 0 )
-        x += spaces * d->fm->width( ' ' );
+        x += spaces * d->fm.width( ' ' );
 
     int y = p.y();
     if ( y != d->textY || d->textY == 0 )
         stream << y << " Y";
     d->textY = y;
 
-    float w = d->fm->width( text ); 
+    float w = d->fm.width( text ); 
     stream << "<";
     QString s;
     int i;
@@ -2310,11 +2310,11 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, uint spaces, const QP
     stream << w << " " << x;
 
     if ( paint->font().underline() )
-        stream << ' ' << y + d->fm->underlinePos() +1
-               << " " << d->fm->ascent()/20 << " Tl";
+        stream << ' ' << y + d->fm.underlinePos() +1
+               << " " << d->fm.ascent()/20 << " Tl";
     if ( paint->font().strikeOut() )
-        stream << ' ' << y + d->fm->strikeOutPos()
-               << " " << d->fm->ascent()/20 << " Tl";
+        stream << ' ' << y + d->fm.strikeOutPos()
+               << " " << d->fm.ascent()/20 << " Tl";
     stream << " T\n";
 
 }
@@ -4760,18 +4760,18 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
 
     int x = p.x();
     if ( spaces > 0 )
-        x += spaces * d->fm->width( ' ' );
+        x += spaces * d->fm.width( ' ' );
     int y = p.y();
     if ( y != d->textY || d->textY == 0 )
         stream << y << " Y";
     d->textY = y;
     QString mdf;
     if ( paint->font().underline() )
-        mdf += " " + QString().setNum( y + d->fm->underlinePos() + 1 ) +
-               " " + QString::number(d->fm->ascent()/d->scale/20) + " Tl";
+        mdf += " " + QString().setNum( y + d->fm.underlinePos() + 1 ) +
+               " " + QString::number(d->fm.ascent()/d->scale/20) + " Tl";
     if ( paint->font().strikeOut() )
-        mdf += " " + QString().setNum( y + d->fm->strikeOutPos() ) +
-               " " + QString::number(d->fm->ascent()/d->scale/20) + " Tl";
+        mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
+               " " + QString::number(d->fm.ascent()/d->scale/20) + " Tl";
     int code = 0, codeOld = 0;
     QChar ch;
     QCString out, oneChar;
@@ -4809,7 +4809,7 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
             } else {
                 stream << " " << d->currentFont << "as F";
             }
-            int w = d->fm->width( out );
+            int w = d->fm.width( out );
             stream << "(" << out << ")" << w << " " << x << mdf << " T";
             if ( i < l ) {
                 stream << " ";
@@ -5231,7 +5231,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
       dirtypen( FALSE ), dirtybrush( FALSE ), currentFontCodec( 0 ),
-      fm( 0 ), textY( 0 )
+      fm( QFont() ), textY( 0 )
 {
     printer = prt;
     headerFontNames.setAutoDelete( TRUE );
@@ -6110,7 +6110,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         d->boundingBox = QRect( 0, 0, -1, -1 );
         d->fontsUsed = QString::fromLatin1("");
 
-        d->fm = new QFontMetrics( paint->fontMetrics() );
         QPaintDeviceMetrics m( d->printer );
         d->scale = 72. / ((float) m.logicalDpiY());
 
@@ -6134,7 +6133,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         d->fd = -1;
         delete d->outDevice;
         d->outDevice = 0;
-        delete d->fm;
     }
 
     if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
@@ -6331,7 +6329,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         break;
     case PdcSetFont:
         d->currentSet = *(p[0].font);
-	(*d->fm) = paint->fontMetrics();
+	d->fm = paint->fontMetrics();
         // turn these off - they confuse the 'avoid font change' logic
         d->currentSet.setUnderline( FALSE );
         d->currentSet.setStrikeOut( FALSE );
