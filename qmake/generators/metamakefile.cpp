@@ -148,16 +148,30 @@ MakefileGenerator
 *MetaMakefileGenerator::processBuild(const QString &build)
 {
     if(project) {
+        debug_msg(1, "Meta Generator: Parsing '%s' for build [%s].", 
+                  project->projectFile().latin1(),build.latin1());
+
+        //initialize the base
         QMap<QString, QStringList> basevars;
-        basevars["CONFIG"] += project->values(build + ".CONFIG");
-        basevars["CONFIG"] += (build);
+        if(!project->isEmpty(build + ".CONFIG"))
+            basevars["CONFIG"] += project->values(build + ".CONFIG");
+        basevars["CONFIG"] += build;
         basevars["CONFIG"] += "build_pass";
-        basevars["CONFIG"] += "no_autoqmake";
         basevars["BUILD_PASS"] = QStringList(build);
         QStringList buildname = project->values(build + ".name");
         basevars["BUILD_NAME"] = (buildname.isEmpty() ? QStringList(build) : buildname);
+
+        //create project
         QMakeProject *build_proj = new QMakeProject(project->properities(), basevars);
+
+        //all the user configs must be set after the "initial" files (qmake.conf, .qmake.cache, etc)
+        const QStringList old_user_config = Option::user_configs;
+        if(!project->isEmpty(build + ".CONFIG"))
+            Option::user_configs += project->values(build + ".CONFIG");
         build_proj->read(project->projectFile());
+        Option::user_configs = old_user_config;
+
+        //done
         return createMakefileGenerator(build_proj);
     }
     return 0;
