@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#343 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#344 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -215,7 +215,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	setWinId( id );				// set widget id/handle + hd
     }
 
-    if ( topLevel && !(desktop || popup || modal) ) {
+    if ( topLevel && !(desktop || popup) ) {
 	if ( testWFlags(WStyle_Customize) ) {	// customize top-level widget
 	    ulong wsa_mask = 0;
 	    if ( testWFlags(WStyle_NormalBorder) ) {
