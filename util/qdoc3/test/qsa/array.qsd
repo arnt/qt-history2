@@ -1,0 +1,109 @@
+/*!
+    \quickproperty Array.length : Number
+    \brief the length of the array
+*/
+
+/*!
+    \quickfn Array.toString() : String
+
+    Returns the array as a string.
+
+    This is equivalent to join() with a ',' separator.
+
+    \sa toLocaleString(), join()
+*/
+
+/*!
+    \quickfn Array.toLocaleString() : String
+
+    \warning This function is not implemented yet.
+    \omit I'm not sure what the return type is. --Jasmin \endomit
+
+    \sa toString()
+*/
+
+/*!
+    \quickfn Array.concat( o_1 : Object, ..., o_n : Object ) : String
+*/
+
+/*!
+    \quickfn Array.join( [ separator : String ] ) : Object
+
+    Returns a string that contains all elements of the array
+    joined by \a separator (',' if unspecified).
+
+    \sa toString()
+*/
+
+/*!
+    \quickfn Array.pop() : Object
+
+    Pops the last element from the array and retuns it. Returns \c
+    undefined if the array is empty.
+
+    \sa push(), pop(), shift(), unshift()
+*/
+
+/*!
+    \quickfn Array.push( o_1 : Object, ..., o_n : Object ) : Object
+
+    Pushes \a o_1, ..., \a o_n onto the end of the array. Returns the
+    new length of the array.
+
+    \sa push(), pop(), shift(), unshift()
+*/
+
+/*!
+    \quickfn Array.reverse() : Array
+
+    Reverses the order of elements in the array and returns it.
+
+    \sa sort()
+*/
+
+/*!
+    \quickfn Array.shift() : Object
+
+    Removes the first element of the array and returns it.
+
+    \sa push(), pop(), shift(), unshift()
+*/
+
+/*!
+    \quickfn Array.slice( begin : Number [ , end : Number ] ) : Array
+
+    Returns the elements from index \a begin up to and excluding
+    index \a end. If \a end is unspecified, returns all the elements
+    up to the end of the array.
+
+    \omit ### Explain meaning of negative indexes, here and elsewhere \endomit
+
+    \sa splice()
+*/
+
+/*!
+    \quickfn Array.sort( [ compareFunction : Object ] ) : Array
+
+    Sorts the array and returns it. If a \a compareFunction argument
+    is passed, it is used to compare the elements in the array.
+
+    \sa reverse()
+*/
+
+/*!
+    \quickfn Array.splice( start : Number, count : Number, o_1 : Object, ..., o_n : Object ) : Array
+
+    Replaces the \a count elements from index \a start with \a o_1,
+    ..., \a o_n, and returns an array of the removed elements.
+
+    \sa slice()
+*/
+
+/*!
+    \quickfn Array.unshift( o_1 : Object, ..., o_n : Object ) : Number
+
+    Prepends \a o_1, ..., \a o_n to the array preserving order.
+    Returns the new length of the array.
+
+    \sa push(), pop(), shift(), unshift()
+*/

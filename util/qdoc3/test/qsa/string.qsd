@@ -1,0 +1,105 @@
+/*!
+    \quickproperty String.length : Number
+*/
+
+/*!
+    \quickfn String.charAt( index : Number ) : String
+*/
+
+/*!
+    \quickfn String.charCodeAt( index : Number ) : Number
+*/
+
+/*!
+    \quickfn String.endsWith( str : String ) : Boolean
+
+    Returns \c true if the string ends with \a str; otherwise returns
+    \c false.
+*/
+
+/*!
+    \quickfn String.find( str : String [ , index : Number [ , cs : Boolean ] ] ) : Number
+
+    \quickify
+*/
+
+/*!
+    \quickfn String.findRev( str : String [ , index : Number [ , cs : Boolean ] ] ) : Number
+
+    \quickify
+*/
+
+/*!
+    \quickfn String.fromCharCode( c_1 : Number, ..., c_n : Number ) : String
+*/
+
+/*!
+    \quickfn String.indexOf( str : String [ , index : Number] ) : Number
+*/
+
+/*!
+    \quickfn String.lastIndexOf( str : String [ , index : Number] ) : Number
+*/
+
+/*!
+    \quickfn String.match( rx : RegExp ) : String
+
+    \omit There's an obscure ### comment in the code --Jasmin \endomit
+*/
+
+/*!
+    \quickfn String.mid( index : Number, len : Number ) : String
+*/
+
+/*!
+    \quickfn String.replace( rx : RegExp, after : String ) : String
+*/
+
+/*!
+    \quickfn String.replace( before : String, after : String ) : String
+*/
+
+/*!
+    \quickfn String.search( rx : RegExp ) : Number
+*/
+
+/*!
+    \quickfn String.split( rx : RegExp ) : Array
+*/
+
+/*!
+    \quickfn String.split( separator : RegExp [ , count : Number ] ) : Array
+*/
+
+/*!
+    \quickfn String.startsWith( str : String ) : Boolean
+
+    Returns \c true if the string starts with \a str; otherwise
+    returns \c false.
+*/
+
+/*!
+    \quickfn String.substr( index : Number [ , len : Number ] ) : String
+*/
+
+/*!
+    \quickfn String.substring( begin : Number [ , end : Number ] ) : String
+*/
+
+/*!
+    \quickfn String.toLowerCase() : String
+*/
+
+/*!
+    \quickfn String.toString() : String
+*/
+
+/*!
+    \quickfn String.toUpperCase() : String
+*/
+
+/*!
+    \quickfn String.valueOf() : Object
+*/
+
+#endif

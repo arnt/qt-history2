@@ -1,0 +1,15 @@
+/*!
+    \quickclass QAccel
+
+    \quickify /^A keyboard accelerator/
+    \quickify /^In most cases,/
+    \quickify /^A QAccel contains/
+    \quickify /^Each accelerator item/
+    \quickify /^When an accelerator/
+    \quickify /^The activated\(\) signal/
+    \quickify /^Use setEnabled\(\) to/
+    \quickify /^The function setWhatsThis/
+    \quickify /^The accelerator will be/
+
+    \include scribblescripter/scribblescript.qsa?main.qs
+*/

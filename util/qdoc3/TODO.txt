@@ -1,0 +1,46 @@
+  * make \macro work
+  * implement \target and \keyword
+  * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description
+  * add some magic for properties in \sa's?
+  * turn \c into links?
+  * warning for unnamed parameters in property access functions
+
+LINKS:
+  * make types be links in Detailed synopses
+  * make automatic links to function in text work
+  * make automatic links in code work
+
+  * explanation following nonstandard wording warning
+
+  * omit \overload in operator<< and operator>>
+  * make operator-() unary and binary independent functions (no \overload)
+  * support <qglobal.h>'s typedefs with \typedef
+  * remove warning for undocumented enum item like QLocale::LastLanguage
+  * improve the \a warnings for overloads; if one overload documents a para, fine
+
+  * get rid of spurious 'global' functions
+
+  * implement \sidebar
+
+  * implement \inmodule
+  * implement qbook
+  * implement \stl
+
+  * implement \legalesefile
+
+  * show in which module each class is
+  * list namespaces, list header files
+
+
+NICE FEATURES:
+  * implement inheritance tree for each class (as a PNG)
+  * separate obsolete page
+  * avoid <p>...</p> in table/item cells without relying on horrible kludge
+  * prevent macros from having same name as commands
+
+OTHER:
+  * make qdoc run faster
+  * \annotated: specify which library
+  * make sure \headerfile works even if specified after \relates
+
+  * use qtstyle.css instead of inline style for each page

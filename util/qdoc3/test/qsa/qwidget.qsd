@@ -1,0 +1,60 @@
+/* IGNORE ! \quickclass QWidget
+
+    \quickify
+*/
+
+/*! \quickfn QWidget.constPolish()
+
+    \internal
+*/
+
+/*! \quickfn QWidget.setFixedSize( alpha : Number, Number )
+
+    \public
+
+    \quickify
+
+    The parameter \a alfa bla bla.
+
+    This function is imported explicitly from Qt, even though it's
+    not a signal.
+*/
+
+/* IGNORE ! \quickenum QWidget.BackgroundOrigin
+
+    \internal
+
+    This enum is funny. Here are the values:
+
+    \value WidgetOrigin A
+    \value ParentOrigin B
+    \value WindowOrigin C
+    \value AncestorOrigin D
+
+    And what else?
+*/
+
+/*! \quickenum QWidget.FocusPolicy
+
+    This enum is funny. Here are the values:
+
+    \value NoFocuss A
+    \omitvalue TabFocus
+    \value ClickFocus C
+    \value StrongFocus
+    \value WheelFocus E
+  
+  And what else?
+*/
+
+/*! \quickproperty QWidget.sizeIncrement
+
+    \bold {Hello world!}
+
+    \quickify
+
+    \quickcode
+    width = baseSize.width + i * sizeIncrement.width;
+    height = baseSize.height + j * sizeIncrement.height;
+    \endquickcode
+*/

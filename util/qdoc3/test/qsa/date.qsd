@@ -1,0 +1,175 @@
+/*!
+    \quickfn Date.toString() : String
+*/
+
+/*!
+    \quickfn Date.toUTCString() : String
+*/
+
+/*!
+    \quickfn Date.toDateString() : String
+*/
+
+/*!
+    \quickfn Date.toTimeString() : String
+*/
+
+/*!
+    \quickfn Date.toLocaleString() : String
+*/
+
+/*!
+    \quickfn Date.toLocaleDateString() : String
+*/
+
+/*!
+    \quickfn Date.toLocaleTimeString() : String
+*/
+
+/*!
+    \quickfn Date.valueOf() : Number
+*/
+
+/*!
+    \quickfn Date.getTime() : Number
+*/
+
+/*!
+    \quickfn Date.getFullYear() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCFullYear() : Number
+*/
+
+/*!
+    \quickfn Date.getMonth() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCMonth() : Number
+*/
+
+/*!
+    \quickfn Date.getDate() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCDate() : Number
+*/
+
+/*!
+    \quickfn Date.getDay() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCDay() : Number
+*/
+
+/*!
+    \quickfn Date.getHours() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCHours() : Number
+*/
+
+/*!
+    \quickfn Date.getMinutes() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCMinutes() : Number
+*/
+
+/*!
+    \quickfn Date.getSeconds() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCSeconds() : Number
+*/
+
+/*!
+    \quickfn Date.getMilliseconds() : Number
+*/
+
+/*!
+    \quickfn Date.getUTCMilliseconds() : Number
+*/
+
+/*!
+    \quickfn Date.getTimezoneOffset() : Number
+*/
+
+/*!
+    \quickfn Date.setTime( tm : Number )
+*/
+
+/*!
+    \quickfn Date.setMilliseconds( ms : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCMilliseconds( ms : Number )
+*/
+
+/*!
+    \quickfn Date.setSeconds( s : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCSeconds( s : Number )
+*/
+
+/*!
+    \quickfn Date.setMinutes( m : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCMinutes( m : Number )
+*/
+
+/*!
+    \quickfn Date.setHours( h : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCHours( h : Number )
+*/
+
+/*!
+    \quickfn Date.setDate( dt : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCDate( dt : Number )
+*/
+
+/*!
+    \quickfn Date.setMonth( mon : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCMonth( mon : Number )
+*/
+
+/*!
+    \quickfn Date.setFullYear( y : Number )
+*/
+
+/*!
+    \quickfn Date.setUTCFullYear( y : Number )
+*/
+
+/*!
+    \quickfn Date.getYear() : Number
+*/
+
+/*!
+    \quickfn Date.setYear( y : Number )
+*/
+
+/*!
+    \quickfn Date.toGMTString() : String
+*/
