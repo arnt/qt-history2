@@ -352,8 +352,10 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
     if ( objClass.isEmpty() )
 	return;
     QString objName = getObjectName( e );
-    if ( objClass.isEmpty() )
+#if 0 // it's not clear whether this check should be here or not
+    if ( objName.isEmpty() )
 	return;
+#endif
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
@@ -422,7 +424,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	v = v.arg(w).arg(h);
     } else if ( e.tagName() == "color" ) {
 	QDomElement n3 = e.firstChild().toElement();
-	int r= 0, g = 0, b = 0;
+	int r = 0, g = 0, b = 0;
 	while ( !n3.isNull() ) {
 	    if ( n3.tagName() == "red" )
 		r = n3.firstChild().toText().data().toInt();
@@ -438,7 +440,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QDomElement n3 = e.firstChild().toElement();
 	QString fontname;
 	if ( !obj.isEmpty() ) {
-	    fontname = obj + "_font";
+	    fontname = registerObject( obj + "_font" );
 	    out << indent << "QFont "  << fontname << "(  " << obj << "->font() );" << endl;
 	} else {
 	    fontname = registerObject( "f" );
@@ -524,7 +526,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    v = "\"%1\"";
 	QString oc = objClass;
 	QString ev = e.firstChild().toText().data();
-	if ( oc == "QListView" && ev == "Manual" ) // #### workaround, rename QListView::Manual of WithMode enum in 3.0
+	if ( oc == "QListView" && ev == "Manual" ) // #### workaround, rename QListView::Manual in 4.0
 	    oc = "QScrollView";
 	if ( stdset )
 	    v = v.arg( oc ).arg( ev );
@@ -534,17 +536,12 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
 	v = "int( ";
-#if defined(Q_CC_EDG)
-	// workaround for EDG bug reproduced with MIPSpro C++ 7.3.?
-	// and KAI C++ 4.0e that will be fixed in KAI C++ 4.0f
 	QStringList::Iterator it = lst.begin();
-	for ( ; it != lst.end(); ++it ) {
-#else
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-#endif
+	while ( it != lst.end() ) {
 	    v += objClass + "::" + *it;
 	    if ( it != lst.fromLast() )
 		v += " | ";
+	    ++it;
 	}
 	v += " )";
     } else if ( e.tagName() == "sizepolicy" ) {
@@ -697,9 +694,6 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     return v;
 }
 
-
-
-
 /*! Extracts a named object property from \a e.
  */
 QDomElement Uic::getObjectProperty( const QDomElement& e, const QString& name )
@@ -713,4 +707,3 @@ QDomElement Uic::getObjectProperty( const QDomElement& e, const QString& name )
     }
     return n;
 }
-
