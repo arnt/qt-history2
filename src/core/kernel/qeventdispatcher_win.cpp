@@ -566,5 +566,5 @@ void QEventDispatcherWin32::startingUp()
 {
     Q_D(QEventDispatcherWin32);
 
-    if (d->wakeUpNotifier.handle()) d->wakeUpNotifier.setEnabled();
+    if (d->wakeUpNotifier.handle()) d->wakeUpNotifier.setEnabled(true);
 }
