@@ -37,6 +37,7 @@
 #define BIDI_DEBUG 0//2
 #if (BIDI_DEBUG >= 1)
 #include <iostream>
+using namespace std;
 
 static const char *directions[] = {
     "DirL", "DirR", "DirEN", "DirES", "DirET", "DirAN", "DirCS", "DirB", "DirS", "DirWS", "DirON",
@@ -410,7 +411,8 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
                 case QChar::DirON:
                     if(status.eor != QChar::DirR && status.eor != QChar::DirAL) {
                         //last stuff takes embedding dir
-                        if(control.direction() == QChar::DirR || status.lastStrong == QChar::DirR) {
+                        if(control.direction() == QChar::DirR
+                           || status.lastStrong == QChar::DirR || status.lastStrong == QChar::DirAL) {
                             appendItems(engine, sor, eor, control, dir);
                             dir = QChar::DirON; status.eor = QChar::DirON;
                             dir = QChar::DirR;
