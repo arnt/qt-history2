@@ -803,6 +803,13 @@ QFile::handle() const
     return -1;
 }
 
+/*! \reimp
+*/
+bool QFile::isOpen() const
+{
+    return d->isOpen;
+}
+
 /*!
     \fn QString QFile::name() const
 

@@ -141,6 +141,8 @@ public:
 
     int handle() const;
 
+    bool isOpen() const;
+
     virtual QFileEngine *fileEngine() const;
 
 protected:
