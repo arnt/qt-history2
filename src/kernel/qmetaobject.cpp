@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#29 $
 **
 ** Implementation of QMetaObject class
 **
@@ -12,9 +12,6 @@
 #include "qmetaobj.h"
 #include "qobjcoll.h"
 #include "qstrlist.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#28 $");
-
 
 /* not documented
   \class QMetaObject qmetaobj.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#41 $
 **
 ** Implementation of QGArray class
 **
@@ -25,9 +25,6 @@
 #include "qgarray.h"
 #include "qstring.h"
 #include <stdlib.h>
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#40 $");
-
 
 #define USE_MALLOC				// comment to use new/delete
 

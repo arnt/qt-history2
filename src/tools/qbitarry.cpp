@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#41 $
 **
 ** Implementation of QBitArray class
 **
@@ -11,9 +11,6 @@
 
 #include "qbitarry.h"
 #include "qdstream.h"
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#40 $");
-
 
 #define SHBLOCK	 ((bitarr_data*)(sharedBlock()))
 

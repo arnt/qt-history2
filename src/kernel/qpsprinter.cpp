@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#49 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -25,9 +25,6 @@
 
 #include <unistd.h>
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#48 $");
-
 
 // Note: this is comment-stripped and word-wrapped later.
 static const char *ps_header[] = {

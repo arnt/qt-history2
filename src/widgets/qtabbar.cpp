@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#35 $
 **
 ** Implementation of QTabBar class
 **
@@ -12,9 +12,6 @@
 #include "qaccel.h"
 
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#34 $");
-
 
 QTab::~QTab()
 {

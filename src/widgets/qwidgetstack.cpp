@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#5 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -13,9 +13,6 @@
 
 #include "qobjcoll.h"
 #include "qlayout.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#4 $");
-
 
 class QWidgetStackPrivate {
 };

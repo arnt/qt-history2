@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qiodev.cpp#36 $
 **
 ** Implementation of QIODevice class
 **
@@ -10,9 +10,6 @@
 *****************************************************************************/
 
 #include "qiodev.h"
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodev.cpp#35 $");
-
 
 /*!
   \class QIODevice qiodev.h
@@ -505,5 +502,3 @@ int QIODevice::readLine( char *data, uint maxlen )
 
   \sa getch(), putch()
 */
-
-

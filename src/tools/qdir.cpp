@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#50 $
 **
 ** Implementation of QDir class
 **
@@ -24,9 +24,6 @@
 #include <windows.h>
 #endif
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#49 $");
-
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#109 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,9 +18,6 @@
 #include "qaccel.h"
 #include "qpmcache.h"
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#108 $");
-
 
 static const int autoRepeatDelay  = 300;
 static const int autoRepeatPeriod = 100;

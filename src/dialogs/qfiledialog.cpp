@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#91 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#92 $
 **
 ** Implementation of QFileDialog class
 **
@@ -39,9 +39,6 @@
 #include <windows.h>
 #endif
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#91 $");
-
 
 static QFileIconProvider * fileIconProvider = 0;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#32 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -976,4 +976,3 @@ void QGIFDecoder::nextY(QImage& img, QImageConsumer* consumer)
     // Consume bogus extra lines
     if (y >= sheight) out_of_bounds=TRUE; //y=bottom;
 }
-

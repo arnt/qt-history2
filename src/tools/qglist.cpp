@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#44 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -12,9 +12,6 @@
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdstream.h"
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#43 $");
-
 
 /*!
   \class QLNode qglist.h

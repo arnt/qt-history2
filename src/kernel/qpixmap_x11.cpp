@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#126 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,9 +27,6 @@
 #include <sys/shm.h>
 #include <X11/extensions/XShm.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#125 $");
-
 
 // For thread-safety:
 //   image->data does not belong to X11, so we must free it ourselves.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#12 $
 **
 ** Implementation of QWindow class
 **
@@ -11,9 +11,6 @@
 
 #include "qwindow.h"
 #include "qpixmap.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#11 $");
-
 
 /*!
   \class QWindow qwindow.h

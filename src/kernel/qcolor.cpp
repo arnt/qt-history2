@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#69 $
 **
 ** Implementation of QColor class
 **
@@ -13,9 +13,6 @@
 #include "qdstream.h"
 #include <stdlib.h>
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#68 $");
-
 
 /*!
   \class QColor qcolor.h

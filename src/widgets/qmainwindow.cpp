@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#21 $
 **
 ** Implementation of QMainWindow class
 **
@@ -24,8 +24,6 @@
 #include "qstatusbar.h"
 
 #include "qtooltip.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#20 $");
 
 /*! \class QMainWindow qmainwindow.h
 

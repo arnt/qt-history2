@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#67 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -22,9 +22,6 @@
 #else
 #include <windows.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#66 $");
-
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 

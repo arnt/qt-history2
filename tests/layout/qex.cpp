@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/qex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/qex.cpp#2 $
 **
 ** QBoxLayout example
 **
@@ -13,8 +13,6 @@
 #include <qpushbt.h>
 
 #include <qlayout.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/layout/qex.cpp#1 $");
 
 int main( int argc, char **argv )
 {
@@ -92,4 +90,3 @@ int main( int argc, char **argv )
     a.setMainWidget(f);
     return a.exec();
 }
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/newlayout/lw.cpp#4 $
+** $Id: //depot/qt/main/tests/newlayout/lw.cpp#5 $
 **
 ** QGridLayout example
 **
@@ -17,9 +17,6 @@
 #include <qgrid.h>
 #include <qhbox.h>
 #include <qvbox.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/newlayout/lw.cpp#4 $");
-
 
 //#include "lw.moc"
 

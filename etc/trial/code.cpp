@@ -103,4 +103,3 @@ void main(int argc, char* argv[])
 
     printf("The key string is '%s'\n", (const char*) genKeyString( argv[1], argv[2], argv[3], d, num ));
 }
-

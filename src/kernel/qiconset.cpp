@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#6 $
 **
 ** Implementation of QIconSet class
 **
@@ -14,10 +14,6 @@
 #include "qbitmap.h"
 #include "qapp.h"
 #include "qpainter.h"
-
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qiconset.cpp#5 $");
-
 
 struct QIconSetPrivate: public QShared
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#30 $
 **
 ** Implementation of layout classes
 **
@@ -11,9 +11,6 @@
 
 #include "qlayout.h"
 #include "qmenubar.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#29 $");
-
 
 /*!
   \class QLayout qlayout.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#47 $
 **
 ** Implementation of QDialog class
 **
@@ -14,9 +14,6 @@
 #include "qapp.h"
 #include "qkeycode.h"
 #include "qobjcoll.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#46 $");
-
 
 /*!
   \class QDialog qdialog.h

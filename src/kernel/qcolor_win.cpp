@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#42 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -19,9 +19,6 @@
 #else
 #include <windows.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#41 $");
-
 
 /*****************************************************************************
   QColor static member functions

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#13 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -21,9 +21,6 @@
 
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#12 $");
-
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#245 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,9 +22,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#244 $");
-
 
 /*****************************************************************************
   Trigonometric function for QPainter

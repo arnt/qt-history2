@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#74 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,9 +17,6 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#73 $");
-
 
 /*!
   \class QRadioButton qradiobt.h

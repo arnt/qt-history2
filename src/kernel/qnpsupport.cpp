@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#9 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -15,9 +15,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <limits.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#8 $");
-
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
 void            qt_activate_timers();         // defined in qapp_x11.cpp

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#110 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,9 +25,6 @@
 
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#109 $");
-
 
 const int Unsorted = 16383;
 

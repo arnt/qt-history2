@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qptd_os2.cpp#11 $
 **
 ** Implementation of QPaintDevice class for OS/2 PM
 **
@@ -14,9 +14,6 @@
 #include "qpixmap.h"
 #define	 INCL_PM
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_os2.cpp#10 $");
-
 
 QPaintDevice::QPaintDevice()
 {

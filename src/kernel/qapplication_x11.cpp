@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#310 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#311 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -84,10 +84,6 @@ static inline void bzero( void *s, int n )
     memset( s, 0, n );
 }
 #endif
-
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#310 $");
-
 
 /*****************************************************************************
   Internal variables and functions

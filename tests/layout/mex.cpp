@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/mex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/mex.cpp#2 $
 **
 ** QBoxLayout example with a QMenuBar
 **
@@ -12,8 +12,6 @@
 #include <qpushbt.h>
 
 #include <qlayout.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/layout/mex.cpp#1 $");
 
 int main( int argc, char **argv )
 {
@@ -103,4 +101,3 @@ int main( int argc, char **argv )
     a.setMainWidget(f);
     return a.exec();
 }
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjcoll.h#12 $
+** $Id: //depot/qt/main/src/kernel/qobjcoll.h#13 $
 **
 ** Definition of QObject and QMetaObject collections
 **
@@ -33,4 +33,3 @@ extern QObjectDictionary *objectDict;		// global object dictionary
 						// defined in qmetaobj.cpp
 
 #endif // QOBJCOLL_H
-

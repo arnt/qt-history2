@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/gex.cpp#2 $
+** $Id: //depot/qt/main/tests/layout/gex.cpp#3 $
 **
 ** QGridLayout example
 **
@@ -13,8 +13,6 @@
 #include <qgrpbox.h> 
 #include <qpushbt.h>
 #include <qlayout.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/layout/gex.cpp#2 $");
 
 #include <qwidget.h>
 
@@ -96,4 +94,3 @@ int main( int argc, char **argv )
     a.setMainWidget(f);
     return a.exec();
 }
-

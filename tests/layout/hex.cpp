@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/hex.cpp#2 $
+** $Id: //depot/qt/main/tests/layout/hex.cpp#3 $
 **
 ** Geometry management example: Putting a QBoxLayout inside a 
 ** QGridLayout
@@ -14,8 +14,6 @@
 #include <qgrpbox.h> 
 #include <qpushbt.h>
 #include <qlayout.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/layout/hex.cpp#2 $");
 
 #include <qwidget.h>
 
@@ -124,4 +122,3 @@ int main( int argc, char **argv )
     a.setMainWidget(f);
     return a.exec();
 }
-

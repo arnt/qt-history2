@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qpm_os2.cpp#8 $
 **
 ** Implementation of QPixMap class for OS/2 PM
 **
@@ -13,9 +13,6 @@
 #include <string.h>
 #define	 INCL_PM
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_os2.cpp#7 $");
-
 
 QPixMap::QPixMap( const QSize &size, int nPlanes )
 {

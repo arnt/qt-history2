@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#55 $
 **
 ** Implementation of QPointArray class
 **
@@ -14,8 +14,6 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 #include <stdarg.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#54 $");
 
 /*!
   \class QPointVal qpntarry.h

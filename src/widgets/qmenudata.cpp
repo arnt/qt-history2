@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#60 $
 **
 ** Implementation of QMenuData class
 **
@@ -13,9 +13,6 @@
 #include "qmenudta.h"
 #include "qpopmenu.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#59 $");
-
 
 /*!
   \class QMenuData qmenudta.h

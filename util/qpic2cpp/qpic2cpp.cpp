@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#3 $
+** $Id: //depot/qt/main/util/qpic2cpp/qpic2cpp.cpp#4 $
 **
 ** This is a utility program for converting Qt metafiles to C++ code
 **
@@ -246,5 +246,3 @@ bool genCPlusPlus( QString fileName, QFile &file )
     }
     printf( "    painter.end();\n}\n" );
 }
-
-

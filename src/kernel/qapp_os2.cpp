@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#19 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -18,9 +18,6 @@
 #define	 INCL_DOSNMPIPES			// for debug output
 #define	 INCL_PM
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#18 $");
-
 
 /*****************************************************************************
   Internal variables and functions

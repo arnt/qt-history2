@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpic_win.cpp#13 $
 **
 ** Implementation of QPicture class for Win32
 **
@@ -18,9 +18,6 @@
 #else
 #include <windows.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpic_win.cpp#12 $");
-
 
 QPicture::QPicture()
     : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type

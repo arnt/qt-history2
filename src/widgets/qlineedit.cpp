@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#131 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -22,9 +22,6 @@
 #include "qtimer.h"
 
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#130 $");
-
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):

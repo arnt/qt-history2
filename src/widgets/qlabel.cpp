@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#72 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,9 +17,6 @@
 #include "qkeycode.h"
 #include "qmovie.h"
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#71 $");
-
 
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"

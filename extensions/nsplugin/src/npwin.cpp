@@ -365,4 +365,3 @@ jref NPN_GetJavaPeer(NPP instance)
 {
 	return g_pNavigatorFuncs->getJavaPeer(instance);
 }
-

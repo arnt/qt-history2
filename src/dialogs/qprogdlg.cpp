@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#24 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#25 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -15,9 +15,6 @@
 #include "qdrawutl.h"
 #include "qdatetm.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#24 $");
-
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.

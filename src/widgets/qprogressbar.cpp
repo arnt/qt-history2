@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#17 $
 **
 ** Implementation of QProgressBar class
 **
@@ -13,9 +13,6 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#16 $");
-
 
 /*!
   \class QProgressBar qprogbar.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#242 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#243 $
 **
 ** Implementation of QWidget class
 **
@@ -29,9 +29,6 @@
 #include <windows.h>
 #endif
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#242 $");
-
 
 /*!
   \class QWidget qwidget.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#52 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -13,9 +13,6 @@
 #include "qbitarry.h"
 #include "qpainter.h"
 #include <stdio.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#51 $");
-
 
 /*!
   \class QLCDNumber qlcdnum.h

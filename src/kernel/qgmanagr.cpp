@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#33 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,10 +13,6 @@
 #include "qlist.h"
 #include "qmenubar.h"
 #include "qapp.h"
-
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#32 $");
-
 
 /*!
   \class QGManager qgmanagr.h
@@ -1047,4 +1043,3 @@ void QGManager::remove( QChain *c )
 }
 
 #endif
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#19 $
 **
 ** Implementation of validator classes.
 **
@@ -14,9 +14,6 @@
 
 #include <limits.h> // *_MIN, *_MAX
 #include <ctype.h> // isdigit
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#18 $");
-
 
 /*!
   \class QValidator qvalidator.h

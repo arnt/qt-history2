@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#91 $
 **
 ** Implementation of QScrollBar class
 **
@@ -13,9 +13,6 @@
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#90 $");
-
 
 /*!
   \class QScrollBar qscrbar.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#17 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -14,9 +14,6 @@
 #include "qcolor.h"
 #define	 INCL_PM
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#16 $");
-
 
 /*****************************************************************************
   QWidget member functions

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/layout/bex.cpp#1 $
+** $Id: //depot/qt/main/tests/layout/bex.cpp#2 $
 **
 ** QBoxLayout example: boxes that go "backwards" (i.e. RightToLeft or 
 ** BottomToTop)
@@ -13,9 +13,6 @@
 #include <qgrpbox.h> 
 #include <qpushbt.h>
 #include <qlayout.h>
-
-RCSTAG("$Id: //depot/qt/main/tests/layout/bex.cpp#1 $");
-
 
 int main( int argc, char **argv )
 {
@@ -95,4 +92,3 @@ int main( int argc, char **argv )
     a.setMainWidget(f);
     return a.exec();
 }
-

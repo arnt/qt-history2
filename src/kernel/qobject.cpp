@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#156 $
 **
 ** Implementation of QObject class
 **
@@ -16,9 +16,6 @@
 #if defined(DEBUG)
 #include "qapp.h"
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#155 $");
-
 
 /*!
   \class QObject qobject.h

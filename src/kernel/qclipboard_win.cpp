@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#12 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -21,9 +21,6 @@
 #else
 #include <windows.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#11 $");
-
 
 /*****************************************************************************
   Internal QClipboard functions for Win32.

@@ -22,5 +22,3 @@ void QDragOffListBox::mouseMoveEvent (QMouseEvent* e)
 	emit dragged( currentItem() );
     }
 }
-
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#5 $
 **
 ** Implementation of QSemiModal class
 **
@@ -11,9 +11,6 @@
 
 #include "qsemimodal.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#4 $");
-
 
 /*!
   \class QSemiModal qsemimodal.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#50 $
 **
 ** Implementation of QSlider class
 **
@@ -14,9 +14,6 @@
 #include "qdrawutl.h"
 #include "qtimer.h"
 #include "qkeycode.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#49 $");
-
 
 static const int motifBorder = 2;
 static const int motifLength = 30;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#18 $
 **
 ** Implementation of QToolBar class
 **
@@ -19,10 +19,6 @@
 #include "qobjcoll.h"
 #include "qpainter.h"
 #include "qdrawutl.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#17 $");
-
-
 
 /*! \class QToolBar qtoolbar.h
 

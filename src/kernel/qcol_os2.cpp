@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#13 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
@@ -13,9 +13,6 @@
 #include "qwininfo.h"
 #define	 INCL_PM
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#12 $");
-
 
 /*****************************************************************************
   QColor special member functions

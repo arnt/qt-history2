@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#22 $
 **
 ** Implementation of QCursor class
 **
@@ -12,9 +12,6 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qdstream.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#21 $");
-
 
 /*!
   \class QCursor qcursor.h

@@ -1,8 +1,6 @@
 #include <qapp.h>
 #include <qdatetm.h>
 
-RCSTAG("$Id: //depot/qt/main/tests/2000/2000.cpp#1 $");
-
 int main( int, char ** )
 {
     QDate d;

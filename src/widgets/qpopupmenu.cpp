@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#150 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,8 +20,6 @@
 #include "qpmcache.h"
 #include "qtimer.h"
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#149 $");
 
 // Motif style parameters
 
@@ -1688,4 +1686,3 @@ void QPopupMenu::setActiveItem( int i )
     if ( i >= 0 && i != lastActItem )
 	updateRow( i );
 }
-

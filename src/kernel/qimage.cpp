@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#160 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,9 +22,6 @@
 #include "qasyncimageio.h"
 #include <stdlib.h>
 #include <ctype.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#159 $");
-
 
 /*!
   \class QImage qimage.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#15 $
 **
 ** Implementation of QPicture class for X11
 **
@@ -14,9 +14,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#14 $");
-
 
 QPicture::QPicture()
     : QPaintDevice( PDT_PICTURE | PDF_EXTDEV )	  // set device type

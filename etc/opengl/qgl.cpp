@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#9 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#10 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -18,9 +18,6 @@
 #undef  INT8
 #undef  INT32
 #endif
-
-RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#9 $");
-
 
 #if defined(_CC_MSVC_)
 #pragma warning(disable:4355) // 'this' : used in base member initializer list

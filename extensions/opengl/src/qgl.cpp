@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#18 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#19 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -25,9 +25,6 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/StdCmap.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#18 $");
-
 
 #if defined(_CC_MSVC_)
 #pragma warning(disable:4355) // 'this' : used in base member initializer list
@@ -1475,5 +1472,3 @@ display format of a rendering context.
 Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features.
 */
-
-

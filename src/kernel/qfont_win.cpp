@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#50 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,9 +28,6 @@
 #endif
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#49 $");
-
 
 static HANDLE stock_sysfont = 0;
 

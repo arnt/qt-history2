@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#81 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,9 +15,6 @@
 #include "qpainter.h"
 #include "qdstream.h"
 #include "qbuffer.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#80 $");
-
 
 /*!
   \class QPixmap qpixmap.h

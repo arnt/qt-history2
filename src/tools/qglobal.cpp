@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#54 $
 **
 ** Global functions
 **
@@ -15,9 +15,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#53 $");
-
 
 /*!
   \relates QApplication

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#31 $
 **
 ** Implementation of QTimer class
 **
@@ -12,9 +12,6 @@
 #include "qtimer.h"
 #include "qsignal.h"
 #include "qobjcoll.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#30 $");
-
 
 /*!
   \class QTimer qtimer.h
@@ -273,4 +270,3 @@ void QTimer::singleShot( int msec, QObject *receiver, const char *member )
     }	
     sst->start(msec, receiver, member);
 }
-

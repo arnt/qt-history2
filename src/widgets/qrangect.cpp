@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#21 $
 **
 ** Implementation of QRangeControl class
 **
@@ -11,9 +11,6 @@
 
 #include "qrangect.h"
 #include "qglobal.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#20 $");
-
 
 /*!
   \class QRangeControl qrangect.h

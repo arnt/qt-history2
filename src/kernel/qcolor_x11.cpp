@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#73 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,9 +17,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#72 $");
-
 
 /*****************************************************************************
   The color dictionary speeds up color allocation significantly for X11.

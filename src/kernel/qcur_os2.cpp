@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#11 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -13,9 +13,6 @@
 #include "qapp.h"
 #define	 INCL_WIN
 #include <os2.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#10 $");
-
 
 /*****************************************************************************
   Global cursors

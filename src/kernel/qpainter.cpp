@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#134 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,9 +21,6 @@
 #include "qwidget.h"
 #include "qimage.h"
 #include <stdlib.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#133 $");
-
 
 /*!
   \class QPainter qpainter.h

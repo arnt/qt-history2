@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#4 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -90,5 +90,3 @@ void QDragManager::startDrag( QDragObject * o )
     dragSource->installEventFilter( this );
     debug( "started drag" );
 }
-
-

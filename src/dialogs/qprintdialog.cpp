@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#36 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#37 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -33,9 +33,6 @@
 
 #include <ctype.h>
 #include <stdlib.h>
-
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#36 $");
-
 
 struct QPrintDialogPrivate
 {

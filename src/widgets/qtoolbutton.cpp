@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#24 $
 **
 ** Implementation of QToolButton class
 **
@@ -20,10 +20,6 @@
 #include "qtoolbar.h"
 #include "qimage.h"
 #include "qiconset.h"
-
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#23 $");
-
 
 static QToolButton * threeDeeButton = 0;
 

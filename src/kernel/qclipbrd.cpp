@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#16 $
 **
 ** Implementation of QClipboard class
 **
@@ -12,9 +12,6 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 #include "qpixmap.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#15 $");
-
 
 /*!
   \class QClipboard qclipbrd.h

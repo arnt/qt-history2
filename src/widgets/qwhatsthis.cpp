@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#13 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -20,10 +20,6 @@
 #include "qkeycode.h"
 #include "qcursor.h"
 #include "qbitmap.h"
-
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#12 $");
-
 
 /*notready
   \class QWhatsThis qwhatsthis.h

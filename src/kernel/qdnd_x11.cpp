@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#11 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -21,9 +21,6 @@
 #include <X11/X.h> // for Atom
 #include <X11/Xlib.h> // for XEvent
 #include <X11/Xatom.h> // for XA_STRING and friends
-
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#10 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -670,5 +667,3 @@ void QDragManager::startDrag( QDragObject * o )
 			dragSource->topLevelWidget()->winId(),
 			qt_x_clipboardtime );
 }
-
-

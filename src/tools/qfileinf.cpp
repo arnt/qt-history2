@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#34 $
 **
 ** Implementation of QFileInfo class
 **
@@ -27,9 +27,6 @@
 #undef readlink
 extern "C" int readlink( const char *, void *, uint );
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#33 $");
-
 
 #if defined(_OS_FATFS_)
 

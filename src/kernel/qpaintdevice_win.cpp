@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#36 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -24,9 +24,6 @@
 #endif
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#35 $");
-
 
 QPaintDevice::QPaintDevice( uint devflags )
 {

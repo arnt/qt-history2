@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#25 $
 **
 ** Implementation of QSize class
 **
@@ -12,9 +12,6 @@
 #define QSIZE_C
 #include "qsize.h"
 #include "qdstream.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsize.cpp#24 $");
-
 
 /*!
   \class QSize qsize.h

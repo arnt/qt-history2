@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#12 $
 **
 ** Implementation of QFontDialog
 **
@@ -21,9 +21,6 @@
 #include "qlabel.h"
 #include "qkeycode.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#11 $");
-
 
 /*notready
   \class QFontDialog qfontdialog.h

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#32 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -11,9 +11,6 @@
 
 #include "qgrpbox.h"
 #include "qpainter.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#31 $");
-
 
 /*!
   \class QGroupBox qgrpbox.h

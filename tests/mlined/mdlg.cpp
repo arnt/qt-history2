@@ -423,4 +423,3 @@ void MDialog::countUp()
 {
     lcd->display( lcd->value() + 1 );
 }
-

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#3 $
 **
 ** Implementation of Qt calls to X11
 **
@@ -14,9 +14,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidgetcreate_x11.cpp#2 $");
-
 
 /*
   Internal Qt functions to create X windows.  We have put them in

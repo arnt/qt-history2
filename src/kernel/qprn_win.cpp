@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#26 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,9 +23,6 @@
 #else
 #include <windows.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#25 $");
-
 
 // QPrinter states
 

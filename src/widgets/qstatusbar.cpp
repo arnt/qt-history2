@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#9 $
 **
 ** Implementation of QStatusBar class
 **
@@ -17,9 +17,6 @@
 #include "qtimer.h"
 #include "qdrawutl.h"
 #include "qapp.h"
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#8 $");
-
 
 /*! \class QStatusBar qstatusbar.h
 

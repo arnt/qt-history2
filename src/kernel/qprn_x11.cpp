@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#37 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -30,9 +30,6 @@
 #if defined(_OS_OS2EMX_)
 #include <process.h>
 #endif
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#36 $");
-
 
 /*****************************************************************************
   QPrinter member functions

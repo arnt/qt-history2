@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#18 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -11,9 +11,6 @@
 
 #include "qpalette.h"
 #include "qdstream.h"
-
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#17 $");
-
 
 /*****************************************************************************
   QColorGroup member functions
