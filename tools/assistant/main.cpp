@@ -36,6 +36,9 @@
 #include <qguardedptr.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <qtextcodec.h>
+
+#define INDEX_CHECK( text ) if( i+1 >= argc ) { printf( text "\n" ); return 1; }
 
 class AssistantSocket : public QSocket
 {
@@ -221,6 +224,7 @@ int main( int argc, char ** argv )
     }
     QApplication a( argc, argv, withGUI );
 
+    QString resourceDir;
     AssistantServer *as = 0;
     QStringList catlist;
     Profile *profile = 0;
@@ -233,20 +237,24 @@ int main( int argc, char ** argv )
     if ( file.isEmpty() ) {
 	for ( int i = 1; i < argc; i++ ) {
 	    if ( QString( argv[i] ).lower() == "-file" ) {
+		INDEX_CHECK( "Missing file argument!" );
 		i++;
 		file = argv[i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-category" ) {
+		INDEX_CHECK( "Missing category argument!" );
 		i++;
 		catlist << QString(argv[i]).lower();
 	    } else if ( QString( argv[i] ).lower() == "-addcontentfile" ) {
+		INDEX_CHECK( "Missing contents file argument!" );
 		i++;
 		EditDocs ed;
 		if ( !ed.addDocFile( argv[i] ) )
 		    exit( 1 );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
+		INDEX_CHECK( "Missing contents file argument!" );
 		i++;
 		EditDocs ed;
 		ed.removeDocFile( argv[i] );
@@ -271,13 +279,25 @@ int main( int argc, char ** argv )
 		printf( "                         file.\n" );
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
-	    }
-	    else {
+	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
+		INDEX_CHECK( "Missing resource directory argument!" );
+		resourceDir = QString( argv[++i] );
+	    } else {
 		printf( "Wrong options! Try -help to get help.\n" );
 		exit( 1 );
 	    }
 	}
     }
+
+    if( resourceDir.isNull() )
+	resourceDir = qInstallPath() + QString( "/tools/assistant/" );
+    if( !QFile::exists( resourceDir ) ) {
+	printf( "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
+    }
+
+    QTranslator translator( 0 );
+    translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );
+    a.installTranslator( &translator );
 
     if ( profile ) {
 	if ( !profile->isValid() ) {
