@@ -15,7 +15,7 @@
 #include "qdesigner_command.h"
 #include "qdesigner_promotedwidget.h"
 #include "qtundo.h"
-#include "ui_promotetocustomwidgetdialog.h"
+#include "promotetocustomwidgetdialog.h"
 #include "widgetfactory.h"
 #include "widgetdatabase.h"
 
@@ -148,25 +148,15 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     AbstractWidgetDataBase *db = core->widgetDataBase();
     WidgetFactory *factory = qt_cast<WidgetFactory*>(core->widgetFactory());
 
-    QDialog *dialog = new QDialog(0);
-    
-    Ui::PromoteToCustomWidgetDialog ui;
-    ui.setupUi(dialog);
-
     QString base_class_name = factory->classNameOf(wgt);
-    
-    connect(ui.m_ok_button, SIGNAL(clicked()), dialog, SLOT(accept()));
-    connect(ui.m_cancel_button, SIGNAL(clicked()), dialog, SLOT(reject()));
-    ui.m_base_class_name_label->setText(base_class_name);
-    
-    if (!dialog->exec()) {
-        delete dialog;
-        return;
-    }
 
-    QString custom_class_name = ui.m_class_name_input->text();
-    QString include_file = ui.m_header_file_input->text();
-        
+    PromoteToCustomWidgetDialog dialog(db, base_class_name);
+    if (!dialog.exec())
+        return;
+    
+    QString custom_class_name = dialog.customClassName();
+    QString include_file = dialog.includeFile();
+
     AbstractWidgetDataBaseItem *item = 0;
     int idx = db->indexOfClassName(custom_class_name);
     if (idx == -1) {
@@ -197,7 +187,5 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
     fw->clearSelection();
     fw->selectWidget(promoted);
-    
-    delete dialog;
 }
 

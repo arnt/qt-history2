@@ -39,7 +39,8 @@ HEADERS += \
     qdesigner_tabwidget.h \
     qdesigner_toolbox.h \
     widgetfactory.h \
-    widgetdatabase.h
+    widgetdatabase.h \
+    promotetocustomwidgetdialog.h
 
 SOURCES += \
     spacer_widget.cpp \
@@ -63,7 +64,8 @@ SOURCES += \
     qdesigner_tabwidget.cpp \
     qdesigner_toolbox.cpp \
     widgetfactory.cpp \
-    widgetdatabase.cpp
+    widgetdatabase.cpp \
+    promotetocustomwidgetdialog.cpp
 
 FORMS += promotetocustomwidgetdialog.ui
 

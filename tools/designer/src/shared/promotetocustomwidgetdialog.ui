@@ -12,7 +12,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>162</height>
+    <height>149</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -212,7 +212,7 @@
        <x>9</x>
        <y>81</y>
        <width>382</width>
-       <height>32</height>
+       <height>17</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -234,7 +234,7 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>119</y>
+       <y>104</y>
        <width>382</width>
        <height>3</height>
       </rect>
@@ -267,8 +267,8 @@
         <rect>
          <x>1</x>
          <y>1</y>
-         <width>218</width>
-         <height>23</height>
+         <width>216</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="orientation" >
@@ -289,8 +289,8 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>225</x>
-         <y>1</y>
+         <x>223</x>
+         <y>2</y>
          <width>75</width>
          <height>23</height>
         </rect>
@@ -307,14 +307,17 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>306</x>
+         <x>304</x>
          <y>1</y>
-         <width>75</width>
-         <height>23</height>
+         <width>77</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="text" >
         <string>Ok</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
        </property>
       </widget>
      </item>
