@@ -755,8 +755,9 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
-    t << "QMAKE =	" << var("QMAKE") << endl;
-    t << "SUBDIRS =	" << varList("SUBDIRS") << endl;
+    t << "QMAKE    =	" << var("QMAKE") << endl;
+    t << "SUBDIRS  =	" << varList("SUBDIRS") << endl;
+    t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
 
     // subdirectory targets are sub-directory
     QStringList::Iterator it;

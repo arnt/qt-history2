@@ -142,10 +142,9 @@ UnixMakefileGenerator::init()
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_LIBDIR_QT") ) {
 		if ( !project->isEmpty("QMAKE_RPATH") )
-		    project->variables()["QMAKE_LIBDIR_FLAGS"].append(project->first("QMAKE_RPATH") +
-								  project->first("QMAKE_LIBDIR_QT"));
-		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
-								  project->first("QMAKE_LIBDIR_QT"));
+		    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " " + var("QMAKE_RPATH"), 
+									  " " + var("QMAKE_RPATH"), "");
+		project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QT", " -L", " -L", "");
 	    }
 	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD"))
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
@@ -167,9 +166,8 @@ UnixMakefileGenerator::init()
     }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
-	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL")) {
-	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_OPENGL"));
-	}
+	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL")) 
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_OPENGL", " -L", " -L", "");
 	if ( is_qt )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
 	else
@@ -185,7 +183,7 @@ UnixMakefileGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
 	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
-	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_X11"));
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_X11", " -L", " -L", "");
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
     if ( project->isActiveConfig("moc") )
