@@ -925,18 +925,12 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
     io.setImage( convertToImage() );
-    if ( quality > 100  || quality < -1 ) {
 #if defined(QT_CHECK_RANGE)
+    if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
 #endif
-        if ( quality > 100 )
-	    quality = 100;
-    }
-    if ( quality >= 0 ) {
-	QString s;
-	s.setNum( quality );
-	io.setParameters( s.latin1() );
-    }
+    if ( quality >= 0 )
+	io.setQuality( QMIN(quality,100) );
     return io.write();
 }
 #endif //QT_NO_IMAGEIO
