@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#59 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#59 $")
 
 
 /*----------------------------------------------------------------------------
@@ -270,7 +270,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     RasterOp rop, bool ignoreMask )
 {
-    if ( src->handle() == 0 ) {
+    if ( !src->handle() )
+	return;
+    if ( src->isExtDev() ) {
 #if defined(CHECK_NULL)
 	warning( "bitBlt: Cannot bitBlt from device" );
 #endif
@@ -309,18 +311,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		    tmp->setMask( mask );
 		}
 		pm = tmp;
-	    }
-	    else
+	    } else {
 		tmp_pm = FALSE;
-	}
-	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
+	    }
+	} else if ( ts == PDT_WIDGET ) {	// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
-	}
-	else {
+	} else {
 #if defined(CHECK_RANGE)
-	    warning( "bitBlt: Internal error" );
+	    warning( "bitBlt: Cannot bitBlt from device" );
 #endif
 	    return;
 	}

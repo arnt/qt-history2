@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#21 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -26,7 +26,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#21 $")
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -105,16 +105,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		QPixmap *pm_new = new QPixmap( sw, sh, pm->depth() );
 		bitBlt( pm_new, 0, 0, pm, sx, sy, sw, sh );
 		pm = pm_new;
-	    }
-	    else
+	    } else {
 		tmp_pm = FALSE;
-	}
-	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
+	    }
+	} else if ( ts == PDT_WIDGET ) {	// bitBlt to temp pixmap
 	    pm = new QPixmap( sw, sh );
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
-	}
-	else {
+	} else {
 #if defined(CHECK_RANGE)
 	    warning( "bitBlt: Cannot bitBlt from device" );
 #endif
