@@ -4627,7 +4627,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		    xend = chr->x + str->width( i );
 	    }
 
-	    if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
+	    if ( (clipx == -1 || clipw <= 0 || (xend >= clipx && xstart <= clipx + clipw)) &&
+		 ( clipy == -1 || clipy < y+r.y()+h ) ) {
 		if ( !chr->isCustom() )
 		    drawString( painter, qstr, paintStart, i - paintStart + 1, xstart, y,
 				baseLine, xend-xstart, h, selection,
