@@ -53,7 +53,7 @@
 class QSharedMemory {
 public:
 	QSharedMemory(){};
-	QSharedMemory(int, QString);
+	QSharedMemory(int, QString, char c = 'Q');
 	~QSharedMemory(){};
 
 	bool create();
@@ -69,6 +69,7 @@ private:
 	void *shmBase;
 	int shmSize;
 	QString shmFile;
+	char character;
 #if defined(QT_POSIX_QSHM)
 	int shmFD;
 #else

@@ -41,10 +41,12 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-QSharedMemory::QSharedMemory (int size, QString filename)
+QSharedMemory::QSharedMemory (int size, QString filename, char c )
 {
   shmSize = size;
   shmFile = filename;
+  character = c;
+  shmFile.append(c);
 }
 
 bool QSharedMemory::create ()
@@ -93,11 +95,12 @@ QSharedMemory::setPermissions (mode_t mode)
 #else // Assume SysV for backwards compat
 #include <sys/shm.h>
 
-QSharedMemory::QSharedMemory (int size, QString filename)
+QSharedMemory::QSharedMemory (int size, QString filename, char c )
 {
   shmSize = size;
   shmFile = filename;
-  key = ftok (shmFile.latin1 (), 'Q');
+  character = c;
+  key = ftok (shmFile.latin1 (), c);
   idInitted = FALSE;
 }
 
