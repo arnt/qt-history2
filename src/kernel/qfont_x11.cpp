@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#137 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1696,6 +1696,7 @@ static char **getXFontNames( const char *pattern, int *count )
     while( 1 ) {
 	list = XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern,
 			   maxFonts, count );
+	// I know precisely why 32768 is 32768.
 	if ( *count != maxFonts || maxFonts >= 32768 )
 	    return list;
 	XFreeFontNames( list );
