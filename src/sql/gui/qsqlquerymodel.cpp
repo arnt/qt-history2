@@ -335,7 +335,7 @@ QSqlRecord QSqlQueryModel::record(int row) const
 
     Returns true if \a column is within bounds; otherwise returns false.
  */
-bool QSqlQueryModel::insertColumn(int column, const QModelIndex &parent, int count)
+bool QSqlQueryModel::insertColumns(int column, const QModelIndex &parent, int count)
 {
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
         return false;
@@ -368,7 +368,7 @@ bool QSqlQueryModel::insertColumn(int column, const QModelIndex &parent, int cou
 
     Returns true if the columns were removed; otherwise returns false.
  */
-bool QSqlQueryModel::removeColumn(int column, const QModelIndex &parent, int count)
+bool QSqlQueryModel::removeColumns(int column, const QModelIndex &parent, int count)
 {
     if (count <= 0 || parent.isValid() || column < 0 || column >= d->rec.count())
         return false;

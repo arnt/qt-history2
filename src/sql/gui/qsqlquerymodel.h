@@ -40,8 +40,20 @@ public:
                         int role = QAbstractItemModel::DisplayRole) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
 
-    bool insertColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
-    bool removeColumn(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    bool insertColumns(int column, const QModelIndex &parent, int count);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool insertColumns(int column, int count)
+    { return QAbstractTableModel::insertColumns(column, count); }
+#else
+    using QAbstractTableModel::insertColumns;
+#endif
+    bool removeColumns(int column, const QModelIndex &parent, int count);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool removeColumns(int column, int count)
+    { return QAbstractTableModel::removeColumns(column, count); }
+#else
+    using QAbstractTableModel::removeColumns;
+#endif
 
     virtual void setQuery(const QSqlQuery &query);
     void setQuery(const QString &query, const QSqlDatabase &db = QSqlDatabase());

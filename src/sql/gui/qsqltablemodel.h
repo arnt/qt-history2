@@ -70,9 +70,27 @@ public:
 
     int rowCount() const;
 
-    bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null, int count = 1);
-    bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
-    bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+    bool removeColumns(int column, const QModelIndex &parent, int count);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool removeColumns(int column, int count)
+    { return QAbstractTableModel::removeColumns(column, count); }
+#else
+    using QAbstractTableModel::removeColumns;
+#endif
+    bool removeRows(int row, const QModelIndex &parent, int count);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool removeRows(int row, int count)
+    { return QAbstractTableModel::removeRows(row, count); }
+#else
+    using QAbstractTableModel::removeRows;
+#endif
+    bool insertRows(int row, const QModelIndex &parent, int count);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool insertRows(int row, int count)
+    { return QAbstractTableModel::insertRows(row, count); }
+#else
+    using QAbstractTableModel::insertRows;
+#endif
 
     bool insertRecord(int row, const QSqlRecord &record);
     bool setRecord(int row, const QSqlRecord &record);
