@@ -214,14 +214,14 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 	    version = "1.0";
 
 	if ( project->isActiveConfig("dll")) {
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
 	    t << "\n\t" << ("-$(IDC) $(TARGET) /regserver" );
 	} else {
-	    t << "\n\t" << ("-$(TARGET) -dumpidl tmp\\" + targetfilename + ".idl -version " + version);
-	    t << "\n\t" << ("-$(IDL) /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb");
-	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb tmp\\" + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(TARGET) -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version);
+	    t << "\n\t" << ("-$(IDL) /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
+	    t << "\n\t" << ("-$(IDC) $(TARGET) /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb");
 	    t << "\n\t" << "-$(TARGET) -regserver";
 	}
     }
@@ -257,8 +257,8 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
       << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
       << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     if ( project->isActiveConfig("activeqt")) {
-	t << ("\n\t-$(DEL_FILE) tmp\\" + targetfilename + ".*");
-	t << "\n\t-$(DEL_FILE) tmp\\dump.*";
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + targetfilename + ".idl");
+	t << ("\n\t-$(DEL_FILE) " + var("OBJECTS_DIR") + targetfilename + ".tlb");
     }
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");

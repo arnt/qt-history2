@@ -720,14 +720,12 @@ DspMakefileGenerator::init()
 	    version = project->variables()["VERSION"].first();
 	if ( version.isEmpty() )
 	    version = "1.0";
-
-	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".idl" );
-	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
+	project->variables()["MSVCDSP_IDLSOURCES"].append( var("OBJECTS_DIR") + targetfilename + ".idl" );
 	if ( project->isActiveConfig( "dll" ) ) {
 	    activeQtStepPreCopyDll += 
-			     "\t" + idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
-			     "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
-			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
+			     "\t" + idc + " %1 -idl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version +
+			     "\t" + idl + " /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb" +
+			     "\t" + idc + " %2 /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t" + idc + " %1 /regserver\n";
 
@@ -740,9 +738,9 @@ DspMakefileGenerator::init()
 	    activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
 	} else {
 	    activeQtStepPreCopyDll += 
-			     "\t%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			     "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
-			     "\t" + idc + " %2 /tlb tmp\\" + targetfilename + ".tlb";
+			     "\t%1 -dumpidl " + var("OBJECTS_DIR") + targetfilename + ".idl -version " + version +
+			     "\t" + idl + " /nologo " + var("OBJECTS_DIR") + targetfilename + ".idl /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb" +
+			     "\t" + idc + " %2 /tlb " + var("OBJECTS_DIR") + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t%1 -regserver\n";
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".exe";

@@ -925,16 +925,15 @@ void VcprojGenerator::initOld()
 
 	QString objdir = project->first( "OBJECTS_DIR" );
 	project->variables()["MSVCPROJ_IDLSOURCES"].append( objdir + targetfilename + ".idl" );
-	project->variables()["MSVCPROJ_IDLSOURCES"].append( objdir + targetfilename + ".tlb" );
 	if ( project->isActiveConfig( "dll" ) ) {
 	    QString regcmd = "# Begin Special Build Tool\n"
 			    "TargetPath=" + targetfilename + "\n"
 			    "SOURCE=$(InputPath)\n"
 			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
 			    "PostBuild_Cmds=" +
-			    idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb" +
-			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			    idc + " %1 -idl " + objdir + targetfilename + ".idl -version " + version +
+			    "\t" + idl + " /nologo " + objdir + targetfilename + ".idl /tlb " + objdir + targetfilename + ".tlb" +
+			    "\t" + idc + " %1 /tlb " + objdir + targetfilename + ".tlb"
 			    "\tregsvr32 /s %1\n"
 			    "# End Special Build Tool";
 
@@ -949,9 +948,9 @@ void VcprojGenerator::initOld()
 			    "SOURCE=$(InputPath)\n"
 			    "PostBuild_Desc=Finalizing ActiveQt server...\n"
 			    "PostBuild_Cmds="
-			    "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
-			    "\t" + idl + " /nologo tmp\\" + targetfilename + ".idl /tlb tmp\\" + targetfilename + ".tlb"
-			    "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
+			    "%1 -dumpidl " + objdir + targetfilename + ".idl -version " + version +
+			    "\t" + idl + " /nologo " + objdir + targetfilename + ".idl /tlb " + objdir + targetfilename + ".tlb"
+			    "\t" + idc + " %1 /tlb " + objdir + targetfilename + ".tlb"
 			    "\t%1 -regserver\n"
 			    "# End Special Build Tool";
 
