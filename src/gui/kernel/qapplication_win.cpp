@@ -2788,11 +2788,6 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 }
                 if (!code && !uch.row())
                     code = asciiToKeycode(uch.cell(), state);
-                // nullify look ahead for control characters
-                if (uch < QChar(0x32) && uch.cell() == code) {
-                    uch = QChar();
-                    code = 0;
-                }
             }
             if (uch.isNull()) {
                 // No XXX_CHAR; deduce uch from XXX_KEYDOWN params
