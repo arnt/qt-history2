@@ -80,7 +80,7 @@ Q_OUTOFLINE_TEMPLATE void QStackArray<T, prealloc>::realloc(int size, int alloc)
     if (ptr != oldPtr) {
 	if (QTypeInfo<T>::isStatic) {
 	    T *i = ptr + osize;
-	    t *j = oldPtr + osize;
+	    T *j = oldPtr + osize;
 	    while (i != ptr) {
 		new (--i) T(*--j);
 		j->~T();
