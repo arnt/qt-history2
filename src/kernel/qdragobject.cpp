@@ -129,7 +129,7 @@ static const char * const move_xpm[] = {
 static const char * const copy_xpm[] = {
 "24 30 3 1",
 ".	c None",
-"	c #000000",
+" 	c #000000",
 "X	c #FFFFFF",
 #if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "  ......................",
