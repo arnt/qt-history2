@@ -43,7 +43,7 @@
 #include <qapplication.h>
 #include <qheader.h>
 #include <qlineedit.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qmetaobject.h>
 #include <qcombobox.h>
 #include <qpushbutton.h>
@@ -2350,7 +2350,7 @@ void PropertyList::setupProperties()
     if ( !editor->widget() )
 	return;
     bool allProperties = !editor->widget()->inherits( "Spacer" );
-    QPtrStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
+    QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QObject *w = editor->widget();
@@ -2463,7 +2463,7 @@ void PropertyList::setupProperties()
 		    qWarning( "Sets except 'alignment' not supported yet.... %s.", p->name() );
 		}
 	    } else if ( p->isEnumType() ) {
-		QPtrStrList l = p->enumKeys();
+		QStrList l = p->enumKeys();
 		QStringList lst;
 		for ( uint i = 0; i < l.count(); ++i ) {
 		    QString k = l.at( i );
@@ -2798,7 +2798,7 @@ void PropertyList::refetchData()
     updateEditorSize();
 }
 
-static void clearAlignList( QPtrStrList &l )
+static void clearAlignList( QStrList &l )
 {
     if ( l.count() == 1 )
 	return;
@@ -2823,7 +2823,7 @@ void PropertyList::setPropertyValue( PropertyItem *i )
 	    p = editor->widget()->metaObject()->
 		property( editor->widget()->metaObject()->findProperty( "alignment", TRUE ), TRUE );
 	    align &= ~AlignVertical_Mask;
-	    QPtrStrList l = p->valueToKeys( align );
+	    QStrList l = p->valueToKeys( align );
 	    clearAlignList( l );
 	    ( (PropertyListItem*)i )->setCurrentItem( l.last() );
 	} else if ( i->name() == "vAlign" ) {
@@ -2994,9 +2994,9 @@ void EventList::setup()
 #endif
 	}
     } else {
-	QPtrStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
+	QStrList sigs = editor->widget()->metaObject()->signalNames( TRUE );
 	sigs.remove( "destroyed()" );
-	QPtrStrListIterator it( sigs );
+	QStrListIterator it( sigs );
 	while ( it.current() ) {
 	    HierarchyItem *eventItem = new HierarchyItem( this, it.current(), QString::null, QString::null );
 	    eventItem->setOpen( TRUE );
@@ -3278,7 +3278,7 @@ QString PropertyEditor::classOfCurrentProperty() const
     QString curr = currentProperty();
     QMetaObject *mo = o->metaObject();
     while ( mo ) {
-	QPtrStrList props = mo->propertyNames( FALSE );
+	QStrList props = mo->propertyNames( FALSE );
 	if ( props.find( curr.latin1() ) != -1 )
 	    return mo->className();
 	mo = mo->superClass();

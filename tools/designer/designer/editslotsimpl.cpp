@@ -30,7 +30,7 @@
 #include <qpushbutton.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qmessagebox.h>
 #include <qlayout.h>
 #include <qlabel.h>
@@ -87,7 +87,7 @@ void EditSlots::okClicked()
     if ( slotListView->firstChild() ) {
 	QPtrList<Command> commands;
 	QListViewItemIterator it( slotListView );
-	QPtrStrList lst;
+	QStrList lst;
 	lst.append( "accept()" );
 	lst.append( "reject()" );
 	lst.append( "done(int)" );

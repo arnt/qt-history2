@@ -90,7 +90,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
     sender = sndr;
     receiver = rcvr;
 
-    QPtrStrList sigs = sender->metaObject()->signalNames( TRUE );
+    QStrList sigs = sender->metaObject()->signalNames( TRUE );
     sigs.remove( "destroyed()" );
     signalBox->insertStrList( sigs );
 

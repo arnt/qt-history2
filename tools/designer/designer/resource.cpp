@@ -822,7 +822,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
-    QPtrStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
+    QStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
     for ( QPtrListIterator<char> it( lst ); it.current(); ++it ) {
 	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
 	    continue;
@@ -880,7 +880,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 void Resource::saveSetProperty( QObject *w, const QString &name, QVariant::Type, QTextStream &ts, int indent )
 {
     const QMetaProperty *p = w->metaObject()->property( w->metaObject()->findProperty( name, TRUE ), TRUE );
-    QPtrStrList l( p->valueToKeys( w->property( name ).toInt() ) );
+    QStrList l( p->valueToKeys( w->property( name ).toInt() ) );
     QString v;
     for ( uint i = 0; i < l.count(); ++i ) {
 	v += l.at( i );
@@ -1513,7 +1513,7 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
     } else if ( e.tagName() == "set" && p && p->isSetType() ) {
 	QString keys( v.toString() );
 	QStringList lst = QStringList::split( '|', keys );
-	QPtrStrList l;
+	QStrList l;
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );

@@ -55,7 +55,7 @@ public:
     const QPixmap *pixmap( const QFileInfo &fi );
 
 private:
-    QPtrStrList fmts;
+    QStrList fmts;
     QPixmap imagepm;
 
 };

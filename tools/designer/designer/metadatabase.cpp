@@ -31,7 +31,7 @@
 #include <qlayout.h>
 #include <qptrdict.h>
 #include <qobjectlist.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qmetaobject.h>
 #include <qwidgetlist.h>
 #include <qmainwindow.h>
@@ -456,8 +456,8 @@ void MetaDataBase::doConnections( QObject *o )
 	QString s2 = "1""%1";
 	s2 = s2.arg( conn.slot );
 
-	QPtrStrList signalList = sender->metaObject()->signalNames( TRUE );
-	QPtrStrList slotList = receiver->metaObject()->slotNames( TRUE );
+	QStrList signalList = sender->metaObject()->signalNames( TRUE );
+	QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
 	// avoid warnings
 	if ( signalList.find( conn.signal ) == -1 ||
@@ -562,7 +562,7 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 	return FALSE;
     }
 
-    QPtrStrList slotList = o->metaObject()->slotNames( TRUE );
+    QStrList slotList = o->metaObject()->slotNames( TRUE );
     if ( slotList.find( slot ) != -1 )
 	return TRUE;
 
@@ -900,7 +900,7 @@ MetaDataBase::CustomWidget &MetaDataBase::CustomWidget::operator=( const CustomW
 
 bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 {
-    QPtrStrList sigList = QWidget::staticMetaObject()->signalNames( TRUE );
+    QStrList sigList = QWidget::staticMetaObject()->signalNames( TRUE );
     if ( sigList.find( signal ) != -1 )
 	return TRUE;
     for ( QValueList<QCString>::ConstIterator it = lstSignals.begin(); it != lstSignals.end(); ++it ) {
@@ -912,7 +912,7 @@ bool MetaDataBase::CustomWidget::hasSignal( const QCString &signal ) const
 
 bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 {
-    QPtrStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
+    QStrList slotList = QWidget::staticMetaObject()->slotNames( TRUE );
     if ( slotList.find( slot ) != -1 )
 	return TRUE;
 
@@ -925,7 +925,7 @@ bool MetaDataBase::CustomWidget::hasSlot( const QCString &slot ) const
 
 bool MetaDataBase::CustomWidget::hasProperty( const QCString &prop ) const
 {
-    QPtrStrList propList = QWidget::staticMetaObject()->propertyNames( TRUE );
+    QStrList propList = QWidget::staticMetaObject()->propertyNames( TRUE );
     if ( propList.find( prop ) != -1 )
 	return TRUE;
 

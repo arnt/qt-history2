@@ -29,7 +29,7 @@
 #include <qapplication.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
-#include <qptrstrlist.h>
+#include <qstrlist.h>
 #include <qdict.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -46,8 +46,8 @@ static WidgetDatabaseRecord* db[ dbsize ];
 static QDict<int> *className2Id = 0;
 static int dbcount  = 0;
 static int dbcustomcount = 200;
-static QPtrStrList *wGroups;
-static QPtrStrList *invisibleGroups;
+static QStrList *wGroups;
+static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
 
@@ -100,8 +100,8 @@ void WidgetDatabase::setupDataBase()
     if ( dbcount )
 	return;
 
-    wGroups = new QPtrStrList;
-    invisibleGroups = new QPtrStrList;
+    wGroups = new QStrList;
+    invisibleGroups = new QStrList;
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
     className2Id = new QDict<int>( dbdictsize );

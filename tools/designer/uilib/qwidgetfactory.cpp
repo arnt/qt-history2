@@ -879,7 +879,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
     } else if ( e.tagName() == "set" && p && p->isSetType() ) {
 	QString keys( v.toString() );
 	QStringList lst = QStringList::split( '|', keys );
-	QPtrStrList l;
+	QStrList l;
 	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );
@@ -1149,8 +1149,8 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		QString s2 = "1""%1";
 		s2 = s2.arg( conn.slot );
 
-		QPtrStrList signalList = sender->metaObject()->signalNames( TRUE );
-		QPtrStrList slotList = receiver->metaObject()->slotNames( TRUE );
+		QStrList signalList = sender->metaObject()->signalNames( TRUE );
+		QStrList slotList = receiver->metaObject()->slotNames( TRUE );
 
 		// if this is a connection to a custom slot and we have a connector, try this as receiver
 		if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector ) {

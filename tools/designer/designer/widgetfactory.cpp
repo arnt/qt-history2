@@ -373,7 +373,7 @@ QMap< int, QStringList > *changedProperties = 0;
 static void saveDefaultProperties( QWidget *w, int id )
 {
     QMap< QString, QVariant> propMap;
-    QPtrStrList lst = w->metaObject()->propertyNames( TRUE );
+    QStrList lst = w->metaObject()->propertyNames( TRUE );
     for ( uint i = 0; i < lst.count(); ++i )
 	propMap.insert( lst.at( i ), w->property( lst.at( i ) ) );
     defaultProperties->insert( id, propMap );
