@@ -3156,6 +3156,13 @@ QString QString::fromAscii(const char *str, int size)
     return fromLatin1(str, size);
 }
 
+static ushort *addOne(ushort *qch, QString &str)
+{
+    long sidx = qch - str.utf16();
+    str.resize(str.length()+1);
+    return (ushort *)str.data() + sidx;
+}
+
 /*!
     Returns a QString initialized with the first \a size bytes
     of the UTF-8 string \a str.
@@ -3173,7 +3180,7 @@ QString QString::fromUtf8(const char *str, int size)
         size = qstrlen(str);
 
     QString result;
-    result.resize(size * 2); // worst case
+    result.resize(size); // worst case
     ushort *qch = result.d->data;
     uint uc = 0;
     int need = 0;
@@ -3203,6 +3210,7 @@ QString QString::fromUtf8(const char *str, int size)
                 // The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
                 // is in one of the private use areas of Unicode.
                 i = error;
+                qch = addOne(qch, result);
                 *qch++ = 0xdbff;
                 *qch++ = 0xde00 + ((uchar)str[i]);
                 need = 0;
@@ -3224,6 +3232,7 @@ QString QString::fromUtf8(const char *str, int size)
                 error = i;
             } else {
                 // Error
+                qch = addOne(qch, result);
                 *qch++ = 0xdbff;
                 *qch++ = 0xde00 + ((uchar)str[i]);
             }
@@ -3232,6 +3241,7 @@ QString QString::fromUtf8(const char *str, int size)
     if (need) {
         // we have some invalid characters remaining we need to add to the string
         for (int i = error; i < size; ++i) {
+            qch = addOne(qch, result);
             *qch++ = 0xdbff;
             *qch++ = 0xde00 + (uchar)str[i];
         }
@@ -3462,7 +3472,7 @@ void QString::truncate(int pos)
     \endcode
 
     If you want to remove characters from the \e beginning of the
-    string, use remove() instead. 
+    string, use remove() instead.
 
     \sa truncate(), resize(), remove()
 */
