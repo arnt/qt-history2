@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#7 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#8 $
 **
 ** Definition of QSlider class
 **
@@ -33,7 +33,7 @@ public:
     bool	tracking() const;
 
     virtual void setPalette( const QPalette & );
-
+    QRect	sliderRect() const;
 signals:
     void	valueChanged( int value );
     void	sliderPressed();
@@ -55,9 +55,7 @@ protected:
     void	valueChange();
     void	rangeChange();
 
-    QRect	sliderRect() const;
-
-    void	paintSlider( QPainter *, const QRect& );
+    virtual void paintSlider( QPainter *, const QRect& );
 
 private:
 
