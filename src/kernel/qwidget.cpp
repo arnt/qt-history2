@@ -564,14 +564,12 @@ Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 
 <li> \c WStyle_NoBorder - gives a borderless window.  Note that the
 user cannot move or resize a borderless window via the window system.
-Cannot be combined with \c WStyle_NormalBorder or \c
-
-WStyle_DialogBorder. On Windows, the flag works fine. On X11, it bypasses
-the window manager comletely. This results in a borderless window, but
-also in a window that is not managed at all (i.e. for example no keyboard
-focus unless you call setActiveWindow() manually. ) For compatibility, the
-flag was not changed for Qt-2.1. We suggest using WStyle_NoBorderEx
-instead.
+Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
+On Windows, the flag works fine. On X11, it bypasses the window manager
+completely. This results in a borderless window, but also in a window that
+is not managed at all (i.e. for example no keyboard focus unless you call
+setActiveWindow() manually.) For compatibility, the flag was not changed
+for Qt-2.1. We suggest using WStyle_NoBorderEx instead.
 
 <li> \c WStyle_NoBorderEx - gives a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.  Cannot

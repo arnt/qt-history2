@@ -454,7 +454,7 @@ int QStyleSheetItem::numberOfColumns() const
   Sets the number of columns for this style.  Elements in the style
   are divided into columns.
 
-  This makes sense only if the style uses a block display mode\endlink
+  This makes sense only if the style uses a block display mode
   (see QStyleSheetItem::DisplayMode).
 
   \sa numberOfColumns()

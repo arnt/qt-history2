@@ -80,7 +80,7 @@ const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
         // some code that modifies tmp
         p->drawPoints( tmp );
     }
-  \endcovide
+  \endcode
 
   If you forget the tmp.detach(), the const array will be modified.
 
