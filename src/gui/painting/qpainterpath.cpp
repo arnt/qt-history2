@@ -322,88 +322,6 @@ static void qt_debug_path(const QPainterPath &path)
 }
 #endif
 
-#if 0
-void QPainterSubpath::removeBrokenSegments()
-{
-    if (brokenSegments.isEmpty())
-        return;
-
-#define REMOVE_BROKEN_DEBUG
-// #define QT_PATH_NEAR 7
-//     printf("QPainterSubpath::removeBrokenSegments()\n");
-//     QVarLengthArray<QLineF, QT_PATH_NEAR> clSegs;
-    QPointF isectPt;
-    QPointF currPt;
-
-//     int checks = 0;
-    for (int i=0; i<brokenSegments.size(); ++i) {
-        int bseg = brokenSegments.at(i);
-//         qDebug() << " -> segment at" << bseg << (bseg == 1
-//                                                       ? startPoint
-//                                                       : elements.at(bseg-1).end());
-
-//         // Try to match the segments close to us first and build up
-//         // a list of them.
-//         int start = bseg - QT_PATH_NEAR;
-//         if (start < 0) start = 0;
-//         for (int j=start; j<bseg; ++j) {
-//             Q_ASSERT(elements.at(j).type == QPainterPathElement::Line);
-//             clSegs[j-start] = QLineF(elements.at(j).lineData.x, elements.at(j).lineData.y,
-//                                      elements.at(j+1).lineData.x, elements.at(j+1).lineData.y);
-//         }
-        bool isectFound = false;
-        int elmiBefore = -1;
-        int elmiAfter = -1;
-        for (int elmi=bseg; elmi<elements.size() && !isectFound; ++elmi) {
-            QLineF l(elements.at(elmi-1).end(), elements.at(elmi).end());
-//              qDebug() << "  -> checking line" << l;
-
-            currPt = startPoint;
-            for (int k=0; k<bseg; ++k) {
-                if (elements.at(k).type == QPainterPathElement::Line) {
-                    QLineF l2(currPt, elements.at(k).end());
-//                     qDebug() << "   -> vs line" << l2;
-//                     ++checks;
-                    if (l.intersect(l2, &isectPt) == QLineF::BoundedIntersection) {
-                        isectFound = true;
-                        elmiBefore = k;
-                        elmiAfter = elmi;
-//                         qDebug() << "    -> intersection" << elmiBefore << elmiAfter;
-                        break;
-                    }
-
-                } else {
-//                     printf(" -------> curves not supported..\n");
-                }
-                currPt = elements.at(k).end();
-            }
-        }
-        if (isectFound) {
-            QPainterPathElement &eBefore = elements[elmiBefore];
-            Q_ASSERT(eBefore.type == QPainterPathElement::Line);
-            eBefore.lineData.x = isectPt.x();
-            eBefore.lineData.y = isectPt.y();
-
-            Q_ASSERT(elements.at(elmiAfter).type == QPainterPathElement::Line);
-
-            // Remove the interfering elements.
-            for (int del=0; del<elmiAfter - elmiBefore - 1; ++del) {
-                Q_ASSERT(elements.size() >= elmiBefore);
-                elements.removeAt(elmiBefore+1);
-            }
-
-            // Remove the brokenSegments in the interfering range.
-            while (i+1 < brokenSegments.size() && brokenSegments.at(i+1) < elmiAfter) {
-                brokenSegments.removeAt(i+1);
-            }
-        }
-    }
-//     printf("=== total checks: %d\n", checks);
-
-    brokenSegments.clear();
-}
-#endif
-
 /*!
     \class QPainterPath
     \brief The QPainterPath class provides a container for painting operations,
@@ -635,6 +553,9 @@ void QPainterPath::lineTo(const QPointF &p)
     printf("QPainterPath::lineTo() (%.2f,%.2f)\n", p.x(), p.y());
 #endif
     Q_ASSERT(!elements.isEmpty());
+
+    if (p == QPointF(elements.last()))
+        return;
     Element elm = { p.x(), p.y(), LineToElement };
     elements.append(elm);
 
@@ -1163,15 +1084,18 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
         case QPainterPath::LineToElement:
             current += QPointF(e.x, e.y) * matrix;
             break;
-        case QPainterPath::CurveToElement:
+        case QPainterPath::CurveToElement: {
             Q_ASSERT(elements.at(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(elements.at(i+2).type == QPainterPath::CurveToDataElement);
-            current += QBezier(QPointF(elements.at(i-1).x, elements.at(i-1).y) * matrix,
-                               QPointF(e.x, e.y) * matrix,
-                               QPointF(elements.at(i+1).x, elements.at(i+1).y) * matrix,
-                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygon();
+            QPolygonF bezier = QBezier(QPointF(elements.at(i-1).x, elements.at(i-1).y) * matrix,
+                                       QPointF(e.x, e.y) * matrix,
+                                       QPointF(elements.at(i+1).x, elements.at(i+1).y) * matrix,
+                                       QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygon();
+            bezier.remove(0);
+            current += bezier;
             i+=2;
             break;
+        }
         case QPainterPath::CurveToDataElement:
             Q_ASSERT(!"QPainterPath::toSubpathPolygons(), bad element type");
             break;
