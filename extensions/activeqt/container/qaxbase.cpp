@@ -1628,7 +1628,7 @@ QMetaObject *QAxBase::metaObject() const
 				prop->enumData = enumDict.find( ptype );
 			    else
 				prop->enumData = 0;
-
+			    prop->flags = QMetaProperty::Readable;
 			    if ( funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE )
 				prop->flags |= NotDesignable;
 			    if ( funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED )
