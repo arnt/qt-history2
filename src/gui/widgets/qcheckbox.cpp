@@ -77,7 +77,7 @@ public:
     \inlineimage qchkbox-m.png Screenshot in Motif style
     \inlineimage qchkbox-w.png Screenshot in Windows style
 
-    \sa QButton QRadioButton
+    \sa QAbstractButton QRadioButton
     \link guibooks.html#fowler Fowler: Check Box \endlink
 */
 

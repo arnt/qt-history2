@@ -172,7 +172,7 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     programmatically. The function currentIndex() returns the index of
     the current tab, \l count holds the number of tabs.
 
-    QTabBar creates automatic mnemonic keys in the manner of QButton;
+    QTabBar creates automatic mnemonic keys in the manner of QAbstractButton;
     e.g. if a tab's label is "\&Graphics", Alt+G becomes a shortcut
     key for switching to that tab.
 

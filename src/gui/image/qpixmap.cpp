@@ -92,7 +92,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QRetainedPixmapCache, qt_retained_pixmaps, (1024*1024)
     QPixmap to a QImage.
 
     You can easily display a QPixmap on the screen using
-    QLabel::setPixmap(). For example, all the QButton subclasses
+    QLabel::setPixmap(). For example, all the QAbstractButton subclasses
     support pixmap use.
 
     The QPixmap class uses \link shclass.html copy-on-write\endlink,

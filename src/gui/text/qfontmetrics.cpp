@@ -162,7 +162,7 @@ QFontMetrics::QFontMetrics(const QFont &font, QFont::Script script)
     passed in the constructor at the time it is created, and is not
     updated if the font's attributes are changed later.
 */
-QFontMetrics::QFontMetrics(const QFont &f, QPaintDevice *paintdevice)
+QFontMetrics::QFontMetrics(const QFont &font, QPaintDevice *paintdevice)
     : fscript(QFont::NoScript)
 {
     int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
@@ -172,12 +172,12 @@ QFontMetrics::QFontMetrics(const QFont &f, QPaintDevice *paintdevice)
 #else
     const int screen = 0;
 #endif
-    if (f.d->dpi != dpi || f.d->screen != screen ) {
-        d = new QFontPrivate(*f.d);
+    if (font.d->dpi != dpi || font.d->screen != screen ) {
+        d = new QFontPrivate(*font.d);
         d->dpi = dpi;
         d->screen = screen;
     } else {
-        d = f.d;
+        d = font.d;
         ++d->ref;
     }
 
@@ -212,11 +212,14 @@ QFontMetrics &QFontMetrics::operator=(const QFontMetrics &fm)
 }
 
 /*!
-  returns true if the two fontmetrics are equal.
+    Returns true if \a other is equal to this object; otherwise
+    returns false.
 
-  Two font metrics are considered equal if they were constructed from the
-  same QFont and the paintdevices they were constructed for are considered
-  compatible.
+    Two font metrics are considered equal if they were constructed
+    from the same QFont and the paint devices they were constructed
+    for are considered compatible.
+
+    \sa operator!=()
 */
 bool QFontMetrics::operator ==(const QFontMetrics &other)
 {
@@ -224,11 +227,15 @@ bool QFontMetrics::operator ==(const QFontMetrics &other)
 }
 
 /*!
-  \fn bool QFontMetrics::operator !=(const QFontMetrics &other);
+    \fn bool QFontMetrics::operator !=(const QFontMetrics &other)
 
-  returns true if the two font metrics objects are not equal.
+    Returns true if \a other is not equal to this object; otherwise returns false.
 
-  \sa operator==()
+    Two font metrics are considered equal if they were constructed
+    from the same QFont and the paint devices they were constructed
+    for are considered compatible.
+
+    \sa operator==()
 */
 
 /*!
@@ -900,7 +907,7 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QFont::Script script)
     passed in the constructor at the time it is created, and is not
     updated if the font's attributes are changed later.
 */
-QFontMetricsF::QFontMetricsF(const QFont &f, QPaintDevice *paintdevice)
+QFontMetricsF::QFontMetricsF(const QFont &font, QPaintDevice *paintdevice)
     : fscript(QFont::NoScript)
 {
     int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
@@ -909,12 +916,12 @@ QFontMetricsF::QFontMetricsF(const QFont &f, QPaintDevice *paintdevice)
 #else
     const int screen = 0;
 #endif
-    if (f.d->dpi != dpi || f.d->screen != screen ) {
-        d = new QFontPrivate(*f.d);
+    if (font.d->dpi != dpi || font.d->screen != screen ) {
+        d = new QFontPrivate(*font.d);
         d->dpi = dpi;
         d->screen = screen;
     } else {
-        d = f.d;
+        d = font.d;
         ++d->ref;
     }
 

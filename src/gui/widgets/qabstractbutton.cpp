@@ -50,7 +50,7 @@ sets the text; setIcon() sets the icon. If a button is disabled, its label
 is changed to give the button a "disabled" appearance.
 
 If the button is a text button with a string containing an ampersand (\&),
-QButton creates an automatic shortcut key, called a mnemonic, that may
+QAbstractButton creates an automatic shortcut key, called a mnemonic, that may
 change based on the button translation. The following code creates
 a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
 
@@ -103,7 +103,7 @@ clicks it again (to uncheck it), the button moves first to the
 \e pressed state, then to the \e unchecked state (isChecked() and
 isDown() are both false).
 
-QButton provides five signals:
+QAbstractButton provides five signals:
 
 \list 1
 

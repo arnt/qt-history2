@@ -42,8 +42,8 @@ using namespace Qt;
     used in both menus and toolbars. If you're only interested in
     menus use QMenuData::insertItem() or QMenuData::setAccel() to make
     accelerators for operations that are also available on menus. Many
-    widgets automatically generate accelerators, such as QButton,
-    QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
+    widgets automatically generate accelerators, such as QAbstractButton,
+    QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar, and QTabBar.
     Example:
     \code
 	QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
@@ -110,7 +110,7 @@ using namespace Qt;
     \endcode
 
     \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
-    QButton::setAccel() QLabel::setBuddy() QKeySequence
+    QAbstractButton::setAccel() QLabel::setBuddy() QKeySequence
     \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
@@ -990,7 +990,7 @@ agrees with Microsoft.
 
 The emboldened letter plus Alt is Microsoft's recommended choice, and
 we recommend supporting it. For an Apply button, for example, we
-recommend QButton::setText(\link QWidget::tr() tr \endlink("&amp;Apply"));
+recommend QAbstractButton::setText(\link QWidget::tr() tr \endlink("&amp;Apply"));
 
 If you have conflicting commands (e.g. About and Apply buttons in the
 same dialog), you must decide for yourself.

@@ -683,10 +683,10 @@ QObject::~QObject()
 
     Example:
     \code
-        QTimer *t = new QTimer;         // QTimer inherits QObject
-        t->inherits("QTimer");        // returns true
-        t->inherits("QObject");       // returns true
-        t->inherits("QButton");       // returns false
+        QTimer *t = new QTimer;           // QTimer inherits QObject
+        t->inherits("QTimer");            // returns true
+        t->inherits("QObject");           // returns true
+        t->inherits("QAbstractButton");   // returns false
 
         // QScrollBar inherits QWidget and QRangeControl
         QScrollBar *s = new QScrollBar(0);
@@ -1201,21 +1201,12 @@ static void objSearch(QObjectList &result,
 
     This somewhat contrived example disables all the buttons in this
     window:
+
     \code
-    QObjectList *l = topLevelWidget()->queryList("QButton");
-    QObjectListIterator it(*l); // iterate over the buttons
-    QObject *obj;
-
-    while ((obj = it.current()) != 0) {
-        // for each found object...
-        ++it;
-        ((QButton*)obj)->setEnabled(false);
-    }
-    delete l; // delete the list, not the objects
+        QList<QObject *> list = topLevelWidget()->queryList("QAbstractButton"));
+        foreach (QObject *obj, list)
+            static_cast<QAbstractButton *>(obj)->setEnabled(false);
     \endcode
-
-    The QObjectList class is defined in the \c qobjectlist.h header
-    file.
 
     \warning Delete the list as soon you have finished using it. The
     list contains pointers that may become invalid at almost any time

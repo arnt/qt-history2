@@ -511,8 +511,6 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     resized, i.e. you must always clear the background manually in
     scrollview subclasses. This will change in a future version of Qt
     and we recommend specifying the WNoAutoErase flag explicitly.
-
-    <img src=qscrollview-m.png> <img src=qscrollview-w.png>
 */
 
 

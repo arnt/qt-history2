@@ -204,8 +204,7 @@ QByteArray QBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterSta
 /*!
     \class QBig5hkscsCodec
     \brief The QBig5hkscsCodec class provides conversion to and from the Big5-HKSCS encoding.
-
-    \ingroup i18n
+    \internal
 
   QBig5hkscsCodec grew out of the QBig5Codec originally contributed by
   Ming-Che Chuang \<mingche@cobra.ee.ntu.edu.tw\>.  James Su

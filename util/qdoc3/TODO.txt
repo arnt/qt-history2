@@ -1,3 +1,14 @@
+From Matthias:
+
+  * Q_OVERRIDE() fix
+  * list (?)
+  * try italics
+  * merge read-only/writable properties
+  * list properties
+  * flags ___
+
+--
+
   * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
   * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
   * put images in "/images"

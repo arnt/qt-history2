@@ -243,7 +243,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     at the right or bottom of the toolbar depending on its
     orientation. Clicking this button pops up a menu that shows the
     'overflowing' items. QToolButtons are represented in the menu using
-    their textLabel property, other QButton subclasses are represented
+    their textLabel property, other QAbstractButton subclasses are represented
     using their text property, and QComboBoxes are represented as submenus,
     with the caption text being used in the submenu item.
 

@@ -55,8 +55,6 @@ using namespace Qt;
     consumption, you can remove the right, left and bottom edges of
     the frame with setFlat().
 
-    <img src=qgrpbox-w.png>
-
     \sa QButtonGroup
 */
 

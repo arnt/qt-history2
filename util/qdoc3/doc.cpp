@@ -1179,6 +1179,7 @@ void DocParser::include( const QString& fileName )
 			  .arg(commandName(CMD_INCLUDE)) );
 
     QString userFriendlyFilePath;
+    // ### use current directory?
     QString filePath = Config::findFile( location(), sourceFiles, sourceDirs,
 					 fileName, userFriendlyFilePath );
     if ( filePath.isEmpty() ) {

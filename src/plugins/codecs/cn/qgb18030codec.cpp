@@ -299,7 +299,7 @@ QString QGb18030Codec::convertToUnicode(const char* chars, int len, ConverterSta
 
 /*! \class QGbkCodec
     \reentrant
-    \ingroup i18n
+    \internal
 
   \brief The QGbkCodec class provides conversion to and from the Chinese
   GBK encoding.
@@ -451,7 +451,7 @@ QByteArray QGbkCodec::convertFromUnicode(const QChar *uc, int len, ConverterStat
 
 
 /*! \class QGb2312Codec
-    \ingroup i18n
+    \internal
 
   \brief The QGb2312Codec class provides conversion to and from the Chinese
   GB2312 encoding.
