@@ -4185,6 +4185,7 @@ void QTable::columnWidthChanged( int col )
 	repaintContents( w, contentsY(),
 			 s.width() - w + 1, visibleHeight(), FALSE );
 
+    updateColWidgets( col );
     delayedUpdateGeometries();
 }
 
@@ -4210,6 +4211,7 @@ void QTable::rowHeightChanged( int row )
 	repaintContents( contentsX(), h,
 			 visibleWidth(), s.height() - h + 1, FALSE );
 
+    updateRowWidgets( row );
     delayedUpdateGeometries();
 }
 
