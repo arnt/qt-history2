@@ -130,21 +130,24 @@ void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
         activeMenu = action->menu();
         activeMenu->d_func()->causedPopup = q;
 
-        QRect dh = QApplication::desktop()->rect();
         QRect adjustedActionRect = actionRect(action);
         QPoint pos(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom() + 1)));
         QSize popup_size = activeMenu->sizeHint();
         if(q->isRightToLeft()) 
             pos.setX(pos.x()-(popup_size.width()-adjustedActionRect.width()));
-        if(pos.x() < 0) {
-            pos.setX(0);
+
+        QRect screenRect = QApplication::desktop()->screenGeometry(pos);
+        if(pos.x() < screenRect.x()) {
+            pos.setX(screenRect.x());
         } else {
-            const int off = pos.x()+popup_size.width() - dh.right();
+            const int off = pos.x()+popup_size.width() - screenRect.right();
             if(off > 0)
-                pos.setX(qMax(0, pos.x()-off));
+                pos.setX(qMax(screenRect.x(), pos.x()-off));
+
         }
-        if(!defaultPopDown || (pos.y() + popup_size.height() > dh.bottom()))
-            pos.setY(qMax(dh.y(), q->mapToGlobal(QPoint(0, adjustedActionRect.top()-popup_size.height())).y()));
+
+        if(!defaultPopDown || (pos.y() + popup_size.height() > screenRect.bottom()))
+            pos.setY(qMax(screenRect.y(), q->mapToGlobal(QPoint(0, adjustedActionRect.top()-popup_size.height())).y()));
         activeMenu->popup(pos);
         if(activateFirst)
             activeMenu->d_func()->setFirstActionActive();
