@@ -598,10 +598,11 @@ QCanvas::QCanvas(int w, int h)
   the case of pixmaps that have multiple rows of tiles, top to bottom),
   with tile 0 in the top-left corner, tile 1 next to the right, and so
   on, e.g.
-  <center><table border="1" cellspacing="0" cellpadding="0">
-  <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
-  <tr><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-  </table></center>
+
+  \table
+  \row \i 0 \i 1 \i 2 \i 3
+  \row \i 4 \i 5 \i 6 \i 7
+  \endtable
 
   The QCanvas is initially sized to show exactly the given number
   of tiles horizontally and vertically.  If it is resized to be larger,
@@ -1610,10 +1611,11 @@ void QCanvas::setDoubleBuffering(bool y)
   the case of pixmaps that have multiple rows of tiles, top to bottom),
   with tile 0 in the top-left corner, tile 1 next to the right, and so
   on, e.g.
-  <center><table border="1" cellspacing="0" cellpadding="0">
-  <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
-  <tr><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-  </table></center>
+
+  \table
+  \row \i 0 \i 1 \i 2 \i 3
+  \row \i 4 \i 5 \i 6 \i 7
+  \endtable
 
   If the canvas is larger than the matrix of tiles, the entire matrix
   is repeated as necessary to cover the whole canvas.  If it is smaller,
@@ -1689,10 +1691,11 @@ void QCanvas::setTiles( QPixmap p,
   arranged left to right, (and in the case of pixmaps that have multiple
   rows of tiles, top to bottom), with tile 0 in the top-left corner,
   tile 1 next to the right, and so on, e.g.
-  <center><table border="1" cellspacing="0" cellpadding="0">
-  <tr><td>0</td><td>1</td><td>2</td><td>3</td></tr>
-  <tr><td>4</td><td>5</td><td>6</td><td>7</td></tr>
-  </table></center>
+
+  \table
+  \row \i 0 \i 1 \i 2 \i 3
+  \row \i 4 \i 5 \i 6 \i 7
+  \endtable
 
   \sa tile() setTiles()
 */
