@@ -49,6 +49,10 @@ public:
 
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+    void sortAll(int column, Qt::SortOrder);
+
+    static bool lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+    static bool greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
     void itemChanged(QTreeWidgetItem *item);
 
@@ -372,12 +376,44 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     }
 
     if (order == Qt::AscendingOrder)
-        qHeapSort(begin, end);
+        qHeapSort(begin, end, &lessThan);
     else
-        qHeapSort(end, begin);
+        qHeapSort(begin, end, &greaterThan);
 
     emit dataChanged(index(0, 0, parent), index(count - 1, columnCount() - 1, parent));
 }
+
+/*!
+
+*/
+
+void QTreeModel::sortAll(int column, Qt::SortOrder order)
+{
+    // sort top level
+    if (order == Qt::AscendingOrder)
+        qHeapSort(tree.begin(), tree.end(), &lessThan);
+    else
+        qHeapSort(tree.begin(), tree.end(), &greaterThan);
+    // sort the children
+    QList<QTreeWidgetItem*>::iterator it = tree.begin();
+    for (; it != tree.end(); ++it)
+        (*it)->sortChildren(column, order, true);
+    emit dataChanged(index(0, 0), index(tree.count() - 1, columnCount() - 1));
+}
+
+bool QTreeModel::lessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+{
+    return *left < *right;
+}
+
+bool QTreeModel::greaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+{
+    return !(*left < *right);
+}
+
+/*!
+
+*/
 
 void QTreeModel::itemChanged(QTreeWidgetItem *item)
 {
@@ -813,6 +849,23 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
     return children.takeAt(index);
 }
 
+/*!
+  Sorts the children by the value in the given \a column, in the given \a order.
+*/
+
+void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
+{
+    if (order == Qt::AscendingOrder)
+        qHeapSort(children.begin(), children.end(), &QTreeModel::lessThan);
+    else
+        qHeapSort(children.begin(), children.end(), &QTreeModel::greaterThan);
+    if (!climb)
+        return;
+    QList<QTreeWidgetItem*>::iterator it = children.begin();
+    for (; it != children.end(); ++it)
+        (*it)->sortChildren(column, order, climb);
+}
+
 #define d d_func()
 #define q q_func()
 
@@ -1077,6 +1130,11 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
         setCurrentIndex(d->model()->index(item));
     else
         setCurrentIndex(QModelIndex());
+}
+
+void QTreeWidget::sortItems(int column, Qt::SortOrder order)
+{
+    d->model()->sortAll(column, order);
 }
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)

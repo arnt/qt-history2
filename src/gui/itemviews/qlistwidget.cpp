@@ -44,6 +44,9 @@ public:
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
+    static bool lessThan(const QListWidgetItem *left, const QListWidgetItem *right);
+    static bool greaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
+
     void itemChanged(QListWidgetItem *item);
 
 private:
@@ -184,10 +187,20 @@ void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     if (column != 0 || parent.isValid())
         return;
     if (order == Qt::AscendingOrder)
-        qHeapSort(lst.begin(), lst.end());
+        qHeapSort(lst.begin(), lst.end(), &lessThan);
     else
-        qHeapSort(lst.end(), lst.begin());
+        qHeapSort(lst.begin(), lst.end(), &greaterThan);
     emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
+}
+
+bool QListModel::lessThan(const QListWidgetItem *left, const QListWidgetItem *right)
+{
+    return *left < *right;
+}
+
+bool QListModel::greaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
+{
+    return !(*left < *right);
 }
 
 void QListModel::itemChanged(QListWidgetItem *item)
@@ -665,11 +678,6 @@ int QListWidget::count() const
   ###
 */
 
-void QListWidget::sort(Qt::SortOrder order)
-{
-    d->model()->sort(0, QModelIndex::Null, order);
-}
-
 QListWidgetItem *QListWidget::currentItem() const
 {
     return d->model()->at(currentIndex().row());
@@ -678,6 +686,11 @@ QListWidgetItem *QListWidget::currentItem() const
 void QListWidget::setCurrentItem(QListWidgetItem *item)
 {
     setCurrentIndex(d->model()->index(item));
+}
+
+void QListWidget::sortItems(Qt::SortOrder order)
+{
+    d->model()->sort(0, QModelIndex::Null, order);
 }
 
 void QListWidget::openPersistentEditor(QListWidgetItem *item)

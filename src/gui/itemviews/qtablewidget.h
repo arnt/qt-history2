@@ -137,6 +137,8 @@ public:
     QTableWidgetItem *currentItem() const;
     void setCurrentItem(QTableWidgetItem *item);
 
+    void sortItems(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);
 

@@ -651,11 +651,12 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 void QTreeView::doItemsLayout()
 {
     QStyleOptionViewItem option = viewOptions();
-    if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
+    QModelIndex parent = root();
+    if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
         QModelIndex index = model()->index(0, 0, root());
         d->itemHeight = itemDelegate()->sizeHint(option, model(), index).height();
         d->layout(-1);
-        d->reopenChildren(root(), false);
+        d->reopenChildren(parent, false);
     }
     QAbstractItemView::doItemsLayout();
 }

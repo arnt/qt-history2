@@ -60,6 +60,12 @@ public:
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
+    bool isSortable() const;
+    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+
+    static bool lessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+    static bool greaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
         {  return (row * horizontal.count()) + column; }
@@ -285,6 +291,35 @@ QAbstractItemModel::ItemFlags QTableModel::flags(const QModelIndex &index) const
         |QAbstractItemModel::ItemIsEnabled;
 }
 
+bool QTableModel::isSortable() const
+{
+    return true;
+}
+
+void QTableModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+{
+    Q_UNUSED(parent);
+    QVector<QTableWidgetItem*> sorting(rowCount());
+    for (int i = 0; i < sorting.count(); ++i)
+        sorting[i] = item(i, column);
+    if (order == Qt::AscendingOrder)
+        qHeapSort(sorting.begin(), sorting.end(), &lessThan);
+    else
+        qHeapSort(sorting.begin(), sorting.end(), &greaterThan);
+    for (int j = 0; j < sorting.count(); ++j)
+        table[tableIndex(j, column)] = sorting.at(j);
+}
+
+bool QTableModel::lessThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+{
+    return *left < *right;
+}
+
+bool QTableModel::greaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+{
+    return !(*left < *right);
+}
+
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     QTableWidgetItem *itm = 0;
@@ -292,7 +327,6 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
         itm = horizontal.at(section);
     else
         itm = vertical.at(section);
-
     if (itm)
         return itm->data(role);
     return QAbstractItemModel::headerData(section, orientation, role);
@@ -684,6 +718,11 @@ QTableWidgetItem *QTableWidget::currentItem() const
 void QTableWidget::setCurrentItem(QTableWidgetItem *item)
 {
     setCurrentIndex(d->model()->index(item));
+}
+
+void QTableWidget::sortItems(int column, Qt::SortOrder order)
+{
+    d->model()->sort(column, QModelIndex::Null, order);
 }
 
 void QTableWidget::openPersistentEditor(QTableWidgetItem *item)

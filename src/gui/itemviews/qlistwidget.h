@@ -131,10 +131,11 @@ public:
     inline void appendItems(const QStringList &labels) { insertItems(count(), labels); }
     QListWidgetItem *takeItem(int row);
     int count() const;
-    void sort(Qt::SortOrder order);
 
     QListWidgetItem *currentItem() const;
     void setCurrentItem(QListWidgetItem *item);
+
+    void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
 
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);

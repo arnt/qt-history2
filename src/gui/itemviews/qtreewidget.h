@@ -98,6 +98,7 @@ public:
 
 protected:
     QTreeWidgetItem();
+    void sortChildren(int column, Qt::SortOrder order, bool climb);
 
     struct Data {
         Data() : role(-1) {}
@@ -114,6 +115,8 @@ private:
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
     QAbstractItemModel::ItemFlags itemFlags;
+//     Qt::SortOrder sorting;
+//     bool sorted;
 };
 
 class QTreeWidgetPrivate;
@@ -139,6 +142,8 @@ public:
 
     QTreeWidgetItem *currentItem() const;
     void setCurrentItem(QTreeWidgetItem *item);
+
+    void sortItems(int column, Qt::SortOrder order = Qt::AscendingOrder);
 
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
