@@ -1,0 +1,19 @@
+QButton font setting bug (patch included).
+
+QPopupMenu updating of itmes on accelerators?
+
+QProgressBar colors not fixed anymore.
+
+
+
+--- qbutton.cpp Tue Sep 30 17:22:15 1997
++++ qbutton.cpp Thu Oct  2 12:27:54 1997
+@@ -721,6 +721,7 @@
+	ASSERT( pm );
+
+	paint.begin( pm );
++       paint.setFont( font() );
+	pm->fill( this, 0, 0 );
+	drawButton( &paint );
+	paint.end();
+
