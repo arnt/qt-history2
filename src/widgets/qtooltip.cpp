@@ -657,7 +657,7 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
   maybeTip().  QToolTip calls maybeTip() when a tip should pop up, and
   maybeTip decides whether to show a tip.
 
-  Tool tips can be globally disabled using QToolTip::setEnabled() or
+  Tool tips can be globally disabled using QToolTip::setGloballyEnabled() or
   disabled in groups with QToolTipGroup::setEnabled().
 
   You can retreive the text of a tooltip for a given position within a
@@ -1093,16 +1093,16 @@ bool QToolTipGroup::enabled() const
   \sa QToolTipGroup::setEnabled()
 */
 
-void QToolTip::setEnabled( bool enable )
+void QToolTip::setGloballyEnabled( bool enable )
 {
     globally_enabled = enable;
 }
 
 /*!
   Returns whether tool tips are enabled globally.
-  \sa setEnabled()
+  \sa setGloballyEnabled()
 */
-bool QToolTip::enabled()
+bool QToolTip::isGloballyEnabled()
 {
     return globally_enabled;
 }

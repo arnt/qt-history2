@@ -106,8 +106,10 @@ public:
     static QPalette palette();
     static void	    setPalette( const QPalette & );
 
-    static void	    setEnabled( bool );
-    static bool	    enabled();
+    static void	    setEnabled( bool enable ) { setGloballyEnabled( enable ); }
+    static bool	    enabled() { return isGloballyEnabled(); }
+    static void	    setGloballyEnabled( bool );
+    static bool	    isGloballyEnabled();
 
 protected:
     virtual void maybeTip( const QPoint & ) = 0;
