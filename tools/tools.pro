@@ -6,3 +6,4 @@ unix:SUBDIRS	= designer \
 		  assistant \
 		  linguist \
 		  qtconfig
+CONFIG+=ordered
