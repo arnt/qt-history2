@@ -8,6 +8,10 @@
 **
 *****************************************************************************/
 
+#include <qtable.h>
+#include <qapplication.h>
+#include <qwmatrix.h>
+
 // Qt logo
 
 static const char *qtlogo_xpm[] = {
@@ -63,36 +67,33 @@ static const char *qtlogo_xpm[] = {
     "+++++++++++++++++++++++++++++++++++++++++++++"
 };
 
-#include <qtable.h>
-#include <qapplication.h>
-#include <qwmatrix.h>
 
-
-/*
-  Constants
-*/
+// Constants
 
 const int numRows = 100;				// Tablesize: number of rows
 const int numCols = 100;				// Tablesize: number of columns
 
-/*
-  The program starts here.
-*/
+// The program starts here.
 
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);			
 
     QTable v( numRows, numCols );
-    QWMatrix wm;
-    wm.scale( 0.5, 0.5 );
     QPixmap pix( qtlogo_xpm );
+
+    float factor = (float) v.rowHeight( 3 ) / pix.height();
+    
+    QWMatrix wm;
+    wm.scale( factor, factor );
     pix = pix.xForm( wm );
+
     v.setPixmap( 3, 3, pix );
     v.setText( 3, 3, "A Pixmap" );
 
     QStringList l;
     l << "one" << "two" << "three" << "four";
+
     for ( int i = 0; i < numRows; ++i )
 	v.setItem( i, 5, new QComboTableItem( &v, l, TRUE ) );
     for ( int j = 0; j < numRows; ++j )
