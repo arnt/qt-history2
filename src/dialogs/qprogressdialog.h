@@ -36,7 +36,7 @@
 #ifndef QT_NO_PROGRESSDIALOG
 
 struct QProgressData;
-
+class QTimer;
 
 class Q_EXPORT QProgressDialog : public QSemiModal
 {
@@ -94,6 +94,9 @@ protected:
     void	closeEvent( QCloseEvent * );
     void	styleChange( QStyle& );
     void	showEvent( QShowEvent *e );
+
+protected slots:
+    void	forceShow();
     
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,
@@ -103,6 +106,7 @@ private:
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;
     QProgressData *d;
+    QTimer	  *forceTimer;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -32,6 +32,7 @@
 #include "qdrawutil.h"
 #include "qdatetime.h"
 #include "qapplication.h"
+#include "qtimer.h"
 #include <limits.h>
 
 // If the operation is expected to take this long (as predicted by
@@ -295,6 +296,8 @@ void QProgressDialog::init( QWidget *creator,
     d->forceHide = FALSE;
     setCancelButtonText( canc );
     connect( this, SIGNAL(cancelled()), this, SLOT(cancel()) );
+    forceTimer = new QTimer( this );
+    connect( forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()) );
     layout();
 }
 
@@ -492,6 +495,7 @@ void QProgressDialog::reset()
     bar()->reset();
     d->cancellation_flag = FALSE;
     d->shown_once = FALSE;
+    forceTimer->stop();
 }
 
 /*!
@@ -557,6 +561,7 @@ void QProgressDialog::setProgress( int progress )
 	    }
 #endif
 	    d->starttime.start();
+	    forceTimer->start( d->showTime );
 	    return;
 	} else {
 	    bool need_show;
@@ -692,6 +697,10 @@ void QProgressDialog::layout()
 void QProgressDialog::setMinimumDuration( int ms )
 {
     d->showTime = ms;
+    if ( bar()->progress() == 0 ) {
+	forceTimer->stop();
+	forceTimer->start( ms );
+    }
 }
 
 /*!
@@ -773,6 +782,24 @@ void QProgressDialog::showEvent( QShowEvent *e )
     int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
     int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );
+    forceTimer->stop();
 }
+
+/*!
+  Shows the dialog if it is still hidden after the algorithm has been started
+  and the minimumDuration is over.
+
+  \sa setMinimumDuration()
+*/
+
+void QProgressDialog::forceShow()
+{
+    if ( d->shown_once || d->cancellation_flag )
+	return;
+
+    show();
+    d->shown_once = TRUE;
+}
+
 
 #endif
