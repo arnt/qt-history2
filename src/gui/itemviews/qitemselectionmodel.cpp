@@ -340,6 +340,8 @@ QModelIndexList QItemSelectionModel::selectedItems() const
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();
     for (; it != d->ranges.end(); ++it)
 	selectedItems += (*it).items(model());
+    if (!d->toggleState && d->currentSelection)
+	selectedItems += d->currentSelection->items(model());
     return selectedItems;
 }
 
