@@ -96,17 +96,4 @@ Q_CORE_EXPORT HINSTANCE qWinAppPrevInst();
 Q_GUI_EXPORT int           qWinAppCmdShow();
 Q_GUI_EXPORT HDC           qt_display_dc();
 
-#define QT_WIN_PAINTER_MEMBERS \
-    HDC                hdc;                \
-    HPEN        hpen;                \
-    HFONT        hfont;                \
-    HBRUSH        hbrush;                \
-    HBITMAP        hbrushbm;        \
-    HPALETTE        holdpal;        \
-    uint        nocolBrush  : 1;\
-    uint        pixmapBrush : 1;\
-    uint        usesWidgetDC : 1; \
-    bool        nativeXForm(bool);
-
-
 #endif
