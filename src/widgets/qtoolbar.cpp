@@ -490,10 +490,12 @@ void QToolBar::clear()
 {
     if ( !children() )
 	return;
-    QObjectList list = *children();
-    for (QObjectListIt it(list); it.current(); ++it) {
-	if ( it.current()->isWidgetType() )
-	    delete it.current();
+    QObjectListIt it( *children() );
+    QObject * o;
+    while( (o=it.current()) != 0 ) {
+	++it;
+	if ( o->isWidgetType() )
+	    delete o;
     }
     d->menu = 0;
     d->arrow = 0;
@@ -678,7 +680,7 @@ void QToolBar::updateArrowStuff()
 		d->back->hide();
 		d->arrow->hide();
 	    }
-	
+
 	    if ( d->back->geometry() != QRect( width() - 20, 1, 20, height() - 2 ) )
 		d->back->setGeometry( width() - 20, 1, 20, height() - 2 );
 	    if ( d->arrow->geometry() != QRect( width() - 14, 3, 13, height() - 6 ) )
@@ -727,7 +729,7 @@ void QToolBar::updateArrowStuff()
 		d->back->hide();
 		d->arrow->hide();
 	    }
-	
+
 	    if ( d->back->geometry() != QRect( 1, height() - 20, width() - 2, 20 ) )
 		d->back->setGeometry( 1, height() - 20, width() - 2, 20 );
 	    if ( d->arrow->geometry() != QRect( 3, height() - 14, width() - 6, 13 ) )
@@ -778,7 +780,7 @@ void QToolBar::setupArrowMenu()
 		QWidget *w = (QWidget*)ob;
 		bool mv = FALSE;
 		if ( orientation() == Horizontal )
-		    mv = ( w->x() + w->width() > width() - 20 ||	
+		    mv = ( w->x() + w->width() > width() - 20 ||
 			   w->x() == -w->width() && w->y() == -w->height() );
 		else
 		    mv = ( w->y() + w->height() > height() - 20 ||
