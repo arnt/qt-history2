@@ -61,11 +61,11 @@
 //   NETBSD	- NetBSD
 //   OPENBSD    - OpenBSD
 //   IRIX	- SGI Irix
-//   OSF	- OSF Unix to Tru64
+//   OSF	- OSF Unix / Digital Unix / Tru64
 //   BSDI	- BSDI Unix
+//   UNIXWARE	- SCO UnixWare
 //   SCO	- SCO of some sort
 //   AIX	- AIX Unix
-//   UNIXWARE	- SCO UnixWare
 //   GNU	- GNU Hurd
 //   DGUX	- DG Unix
 //   DYNIX	- Dynix
@@ -330,6 +330,7 @@
 #  define Q_WS_MAC
 #endif
 
+
 //
 // Some classes do not permit copies to be made of an object.
 // These classes contains a private copy constructor and operator=
@@ -398,26 +399,28 @@ inline int qRound( double d )
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x
-typedef signed char	INT8;			// 8 bit signed
-typedef unsigned char	UINT8;			// 8 bit unsigned
-typedef short		INT16;			// 16 bit signed
-typedef unsigned short	UINT16;			// 16 bit unsigned
-typedef int		INT32;			// 32 bit signed
-typedef unsigned int	UINT32;			// 32 bit unsigned
+typedef signed char		INT8;		// 8 bit signed
+typedef unsigned char		UINT8;		// 8 bit unsigned
+typedef short			INT16;		// 16 bit signed
+typedef unsigned short		UINT16;		// 16 bit unsigned
+typedef int			INT32;		// 32 bit signed
+typedef unsigned int		UINT32;		// 32 bit unsigned
 #endif
 
-typedef signed char	Q_INT8;			// 8 bit signed
-typedef unsigned char	Q_UINT8;		// 8 bit unsigned
-typedef short		Q_INT16;		// 16 bit signed
-typedef unsigned short	Q_UINT16;		// 16 bit unsigned
-typedef int		Q_INT32;		// 32 bit signed
-typedef unsigned int	Q_UINT32;		// 32 bit unsigned
+typedef signed char		Q_INT8;		// 8 bit signed
+typedef unsigned char		Q_UINT8;	// 8 bit unsigned
+typedef short			Q_INT16;	// 16 bit signed
+typedef unsigned short		Q_UINT16;	// 16 bit unsigned
+typedef int			Q_INT32;	// 32 bit signed
+typedef unsigned int		Q_UINT32;	// 32 bit unsigned
 #if defined(Q_OS_WIN64)
-typedef	__int64		Q_INT64;
-typedef unsigned __int64 Q_UINT64;
+// P64 64-bit model on Windows
+typedef	__int64			Q_INT64;
+typedef unsigned __int64	Q_UINT64;
 #else
-typedef long		Q_INT64;		// up to 64 bit signed
-typedef unsigned long	Q_UINT64;		// up to 64 bit unsigned
+// LP64 64-bit model on Linux
+typedef long			Q_INT64;	// up to 64 bit signed
+typedef unsigned long		Q_UINT64;	// up to 64 bit unsigned
 #endif
 
 
