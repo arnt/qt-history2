@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#9 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#10 $
 **
 ** Definition of QColor class
 **
@@ -114,6 +114,7 @@ inline bool QColor::operator!=( const QColor &c ) const
 
 extern const QColor trueColor;
 extern const QColor falseColor;
+extern const QColor FFColor;
 extern const QColor black;
 extern const QColor white;
 extern const QColor darkGray;
