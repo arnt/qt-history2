@@ -233,8 +233,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( (LPOLESTR)qt_winTchar( target, true ) );
-		QString wrkDir = target;
-		QDir::convertSeparators( wrkDir );
+		QString wrkDir = QDir::convertSeparators( target );
 		target = target.left( target.findRev( '\\' ) );
 		link->SetWorkingDirectory( (LPOLESTR)qt_winTchar( wrkDir, true ) );
 		if( description.length() )
@@ -259,7 +258,8 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkA, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( QString( target.latin1() ) );
-		link->SetWorkingDirectory( target.left( target.findRev( '\\' ) ) );
+		QString wrkDir = QDir::convertSeparators( target );
+		link->SetWorkingDirectory( wrkDir.left( wrkDir.findRev( '\\' ) ) );
 		if( description.length() )
 		    link->SetDescription( description.latin1() );
 		if( arguments.length() )
