@@ -41,7 +41,7 @@ main(int argc, char** argv)
 
     {
 	a="";
-	QTextOStream ts(a);
+	QTextOStream ts( &a );
 	ts << "pi = " << 3.125;
 	TEST(a,"pi = 3.125");
     }
@@ -52,11 +52,11 @@ main(int argc, char** argv)
  	st << "Hello World" << endl;
 	TEST( msg, "Hello World\n" );
     }
-    
+
     {
 	a="123 456";
 	int x,y;
-	QTextIStream(a) >> x >> y;
+	QTextIStream( &a ) >> x >> y;
 	TEST(x,123);
 	TEST(y,456);
     }
@@ -76,7 +76,7 @@ main(int argc, char** argv)
 
     QApplication app(argc,argv);
 
-    QFile f("in.txt");
+    QFile f("stream.cpp");
     f.open( IO_ReadOnly );
     QTextStream ts( &f );
 
@@ -105,3 +105,4 @@ main(int argc, char** argv)
     argv = 0;
 #endif
 }
+
