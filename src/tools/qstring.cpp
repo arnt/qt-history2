@@ -11545,6 +11545,13 @@ make sense of anything.
   for a description of the values.
 */
 
+/*! \enum QChar::CombiningClass
+
+  This enum defines names for some of the combining classes defined
+  in the Unicode standard.
+  See <a href="http://www.unicode.org">the Unicode Standard</a>
+  for a more detailed description.
+*/
 
 
 /*! \fn QChar::QChar()
@@ -11867,6 +11874,15 @@ QChar::Decomposition QChar::decompositionTag() const
 #endif
 }
 
+/*!
+  Returns the combining class for the character as defined in
+  the Unicode standard.
+  This is mainly useful as a positioning hint for marks attached to
+  a base character.
+
+  The Qt text rendering engine uses this information
+  to correctly position non spacing marks around a base character.
+*/
 unsigned char QChar::combiningClass() const
 {
 #ifndef QT_NO_UNICODETABLES
