@@ -665,6 +665,11 @@ void QGenericHeader::resizeSection(int section, int size)
         r.setRect(pos, 0, w - pos, h);
     else
         r.setRect(0, pos, w, h - pos);
+//    d->viewport->update(r.normalize());
+    if (d->stretchSections) {
+        resizeSections();
+        r = d->viewport->rect();
+    }
     d->viewport->update(r.normalize());
     emit sectionSizeChanged(section, oldSize, size);
 }
