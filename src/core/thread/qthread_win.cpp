@@ -295,7 +295,7 @@ bool QThread::wait(unsigned long time)
 
 void QThread::setTerminationEnabled(bool enabled)
 {
-    QThread *thr = currentQThread();
+    QThread *thr = currentThread();
     Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()",
                "Current thread was not started with QThread.");
     QThreadPrivate *d = thr->d_func();
