@@ -2092,6 +2092,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
                 for ( int b=0 ; b<d->types->count() ; b++ ) {
                     if ( d->types->text(b).contains( dirName.right( dirName.length() - dotpos ) ) ) {
                         d->types->setCurrentItem( b );
+                        setFilter( d->types->text( b ) );
                         return;
                     }
                 }
