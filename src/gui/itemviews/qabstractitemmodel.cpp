@@ -1019,15 +1019,13 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
 /*!
   Returns the buddy of the item represented by \a index.
-  When the used wants to edit an item that is not editable,
-  the delegate may ask for the item's buddy, and edit that
-  item instead.
-
-  \sa flags()
+  When the user wants to edit an item the delegate will
+  ask for the item's buddy, and item instead.
+  In the default implementation an item is it's own buddy.
 */
-QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
+QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 {
-    return QModelIndex::Null;
+    return index;
 }
 
 /*!

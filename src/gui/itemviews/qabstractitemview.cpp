@@ -1255,16 +1255,15 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     options.rect = itemViewportRect(index);
     options.state |= (index == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
-    if (itemDelegate()->editorEvent(event, options, model(), index))
+    QModelIndex buddy = model()->buddy(index);
+
+    if (itemDelegate()->editorEvent(event, options, model(), buddy))
         return true; // the delegate handled the event
 
-    QModelIndex buddy = model()->buddy(index);
-    QModelIndex edit = buddy.isValid() ? buddy : index;
-
-    if (!d->shouldEdit(action, edit))
+    if (!d->shouldEdit(action, buddy))
         return false;
 
-    QWidget *editor = d->editor(edit, options);
+    QWidget *editor = d->editor(buddy, options);
     if (!editor)
         return false;
 
