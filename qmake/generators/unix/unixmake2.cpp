@@ -202,6 +202,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
+    // blasted incldues
+    QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
+    for(QStringList::Iterator it = qeui.begin(); it != qeui.end(); ++it) 
+	t << "include " << (*it) << endl;
 
     /* rules */
     t << "first: all" << endl;
@@ -625,6 +629,24 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \"" 
 	     << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
 	  << "rm " << outdir << "allmoc.h" << endl << endl;
+    }
+
+    // blasted user defined targets
+    QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
+    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"), 
+		 cmd = var((*it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*it);
+	QStringList &depends = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = depends.begin(); dep_it != depends.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	t << targ << ":" << deps << "\n\t"
+	  << cmd << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
 }
