@@ -107,6 +107,9 @@ struct QAtomic {
 
     inline int exchange(int newval)
     { return q_atomic_set_int(&atomic, newval); }
+
+    inline operator int() const
+    { return atomic; }
 };
 
 template <typename T>
