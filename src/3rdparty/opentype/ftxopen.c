@@ -1282,7 +1282,7 @@
   }
 
 
-  inline FT_Error  Get_Class( TTO_ClassDefinition*  cd,
+  FT_Error  Get_Class( TTO_ClassDefinition*  cd,
                        FT_UShort             glyphID,
                        FT_UShort*            klass,
                        FT_UShort*            index )
