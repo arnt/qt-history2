@@ -34,20 +34,60 @@ static const unsigned char *no_ampersands(QString i) {
     return p_str(i);
 }
 
+#if 0
+QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point, SInt16 *idx)
+{
+    short id = (short)mr;
+    if(MacPopupBinding *mpb = pdict->find((int)id)) {
+	QMenuItem *item = mpb->qpopup->findItem((int)*(idx));
+	if(item && item->custom()) {
+	    QCustomMenuItem *cst = item->custom();
+	    switch(msg) {
+	    case mDrawItemMsg:
+		break;
+	    case mCalcItemMsg:
+		break;
+	    }
+	}
+    }
+}
+#endif
+
 static bool syncPopup(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
-	for(int id = 0, x = 0; x < (int)d->count(); x++) {
+	for(int id = 1, x = 0; x < (int)d->count(); x++) {
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
-	    id++; //starts at 1, because 0 means all in mac..
-	    //Yes I need this, stupid!
-	    QString text = item->isSeparator() ? "empty" : item->text().latin1();
-	    InsertMenuItem(ret, no_ampersands(text), id);
+	    if(item->custom()) {
+#if 0
+		MenuDefSpec spec;
+		spec.defType = kMenuDefProcPtr;
+		spec.defProc = NewMenuDefUPP(macMenuItemProc);
+		SetMenuDefinition(ret, &spec);
+#else
+		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
+		continue;
+#endif
+	    }
+	    if(item->widget()) {
+		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
+		continue;
+	    }
 
-	    if(item->isSeparator())
+	    QString text = "empty"; //Yes I need this, stupid!
+	    if(!item->isSeparator()) {
+		text = item->text();
+		int st = text.findRev('\t');
+		if(st != -1)
+		    text.remove(st, text.length()-st);
+	    }
+	    InsertMenuItemText(ret, no_ampersands(text), id);
+	    SetMenuItemCommandID(ret, id, item->id());
+
+	    if(item->isSeparator()) {
 		ChangeMenuItemAttributes(ret, id, kMenuItemAttrSeparator, 0);
-	    else {
+	    } else {
 		if(item->pixmap()) {
 		    //handle pixmaps..
 		}
@@ -59,8 +99,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		if(item->popup()) 
 		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup()));
 	    }
-	    if(item->widget() || item->custom())
-		qDebug("Ooops, don't think I can handle that yet! %s:%d", __FILE__, __LINE__);
+	    id++;
 	}
     }
     return TRUE;
@@ -113,7 +152,9 @@ bool QMenuBar::activate(short id, short index)
 	return FALSE;
 
     if(MacPopupBinding *mpb = pdict->find((int)id)) {
-	mpb->qpopup->activateItemAt(index-1);
+	MenuCommand cmd;
+	GetMenuItemCommandID(mpb->macpopup, index, &cmd);
+	mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
 	return TRUE;
     }
     return FALSE;
