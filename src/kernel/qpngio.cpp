@@ -793,7 +793,7 @@ class Q_EXPORT QPNGFormatType : public QImageFormatType
 };
 
 
-/*!
+/*
   \class QPNGFormat qpngio.h
   \brief The QPNGFormat class provides an incremental image decoder for PNG
   image format.
@@ -825,7 +825,7 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   over the previous image to produce a subsequent frame.
 */
 
-/*!
+/*
   \class QPNGFormatType qasyncimageio.h
   \brief The QPNGFormatType class provides an incremental image decoder
   for PNG image format.
