@@ -95,13 +95,12 @@ private:
     friend class QFontEngineXLFD;
 
     static QTextCodec *cftr;
-    static QTextCodec *cfcs;
 };
 
 inline QTextCodec* QTextCodec::codecForTr() { return cftr; }
 inline void QTextCodec::setCodecForTr(QTextCodec *c) { cftr = c; }
-inline QTextCodec* QTextCodec::codecForCStrings() { return cfcs; }
-inline void QTextCodec::setCodecForCStrings(QTextCodec *c) { cfcs = c; }
+inline QTextCodec* QTextCodec::codecForCStrings() { return QString::codecForCStrings; }
+inline void QTextCodec::setCodecForCStrings(QTextCodec *c) { QString::codecForCStrings = c; }
 
 #endif // QT_NO_TEXTCODEC
 #endif // QTEXTCODEC_H

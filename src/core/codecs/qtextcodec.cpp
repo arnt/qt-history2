@@ -2929,7 +2929,6 @@ void QTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
 
 
 QTextCodec *QTextCodec::cftr = 0;
-QTextCodec *QTextCodec::cfcs = 0;
 
 
 #endif // QT_NO_TEXTCODEC

@@ -39,6 +39,7 @@
 class QCharRef;
 class QRegExp;
 class QStringList;
+class QTextCodec;
 
 class Q_CORE_EXPORT QLatin1String
 {
@@ -171,13 +172,17 @@ public:
     QString &insert(int i, QChar c);
     QString &insert(int i, const QChar *uc, int len);
     inline QString &insert(int i, const QString &s) { return insert(i, s.constData(), s.length()); }
+    QString &insert(int i, const QLatin1String &s);
     QString &append(QChar c);
     QString &append(const QString &s);
+    QString &append(const QLatin1String &s);
     QString &prepend(QChar c);
     QString &prepend(const QString &s);
+    QString &prepend(const QLatin1String &s);
     inline QString &operator+=(QChar c) { return append(c); }
     inline QString &operator+=(QChar::SpecialChars c ) { return append(QChar(c)); }
     inline QString &operator+=(const QString &s) { return append(s); }
+    inline QString &operator+=(const QLatin1String &s) { return append(s); }
 
     QString &remove(int i, int len);
     QString &remove(QChar c, CaseSensitivity cs = CaseSensitive);
@@ -261,22 +266,10 @@ public:
     QString(const char *);
     inline QString(const QByteArray &a):d(&shared_null)
     { ++d->ref; *this = fromAscii(a, a.size()); }
-    QString &operator=(const char  *);
-    inline QString &operator=(char c) { return operator=(QChar(c)); }
+    inline QString &operator=(const char  *ch)
+    { return (*this = fromAscii(ch)); }
     inline QString &operator=(const QByteArray &a)
-    { return operator=(a.constData()); }
-    QString &append(const char *s);
-    inline QString &append(const QByteArray &a)
-    { return append(a.constData()); }
-    QString &prepend(const char *s);
-    inline QString &prepend(char c)
-    { return prepend(QChar(c)); }
-    inline QString &prepend(const QByteArray &a)
-    { return prepend(a.constData()); }
-    inline QString &operator+=(const char *s)
-    { return append(s); }
-    inline QString &operator+=(const QByteArray &a)
-    { return append(a); }
+    { return (*this = fromAscii(a, a.size())); }
 #endif
 #ifndef QT_NO_CAST_TO_ASCII
     inline operator const char *() const { return ascii(); }
@@ -397,6 +390,9 @@ private:
     explicit QString(Data *dd) : d(dd) {}
     static Data shared_null;
     static Data shared_empty;
+#ifndef QT_NO_TEXTCODEC
+    static QTextCodec *codecForCStrings;
+#endif
     Data *d;
     static int grow(int);
     static void free(Data *);
@@ -408,6 +404,7 @@ private:
 		      const QString &a3 = QString(), const QString &a4 = QString()) const;
     friend class QCharRef;
     friend class QConstString;
+    friend class QTextCodec;
 };
 
 

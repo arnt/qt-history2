@@ -271,7 +271,7 @@ QString::QString(const char *s)
 	d = &shared_empty;
 	++d->ref;
 #ifndef QT_NO_TEXTCODEC
-    } else if (QTextCodec::codecForCStrings()) {
+    } else if (codecForCStrings) {
 	d = &shared_null;
 	++d->ref;
 	*this = fromAscii(s);
@@ -506,42 +506,13 @@ QString &QString::operator=(QChar c)
     isn't actually copied.
 */
 
-/*!
+/*! \fn QString &QString::operator=(const char *s)
+
     \overload
 
     Makes a deep copy of \a s and returns a reference to the resultant
     QString.
 */
-QString &QString::operator=(const char *s)
-{
-    Data *x;
-    if (!s) {
-	x = &shared_null;
-    } else if (!*s) {
-	x = &shared_empty;
-#ifndef QT_NO_TEXTCODEC
-    } else if (QTextCodec::codecForCStrings()) {
-	   return (*this = fromAscii(s));
-#endif
-    } else {
-	int len = strlen(s);
-	if (d->ref != 1 || len > d->alloc || (len < d->size && len < d->alloc >> 1))
-	    realloc(len);
-	x = d;
-	x->alloc = len;
-	x->size = len;
-	x->c = 0;
-	x->clean = x->encoding = x->cache = x->simpletext = x->righttoleft = 0;
-	ushort *i = x->data;
-	while ((*i++ = (uchar)*s++))
-	    ;
-    }
-    ++x->ref;
-    x = qAtomicSetPtr( &d, x );
-    if (!--x->ref)
-	free(x);
-    return *this;
-}
 
 /*!
     \fn bool QString::operator!() const
@@ -630,11 +601,12 @@ QString& QString::append(QChar c)
 /*! \overload
     Appends \a s to the string and returns a reference to the string.
 */
-QString& QString::append(const char *s)
+QString& QString::append(const QLatin1String &str)
 {
+    const char * s = str.latin1();
     if (s) {
 #ifndef QT_NO_TEXTCODEC
-	if (QTextCodec::codecForCStrings())
+	if (codecForCStrings)
 	    return append(QString(s));
 #endif
 	d->cache = 0;
@@ -674,10 +646,6 @@ QString& QString::prepend(QChar c) { return insert(0, c); }
 */
 QString& QString::prepend(const QString& s) { return insert(0, s); }
 
-/*! \overload
-    Prepends \a s to the string and returns a reference to the string.
-*/
-QString& QString::prepend(const char *s) { return insert(0, s); }
 
 
 /*!
@@ -2201,7 +2169,7 @@ QByteArray QString::toLatin1() const
 QByteArray QString::toAscii() const
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( QTextCodec::codecForCStrings() ) {
+    if ( codecForCStrings ) {
 	QByteArray *ba = (QByteArray*) &d->c;
 	if (!d->cache || d->encoding != Data::Latin1) {
 	    if (!d->c)
@@ -2211,7 +2179,7 @@ QByteArray QString::toAscii() const
 	    if (d == &shared_null)
 		ba->clear();
 	    else
-		*ba = QTextCodec::codecForCStrings()->fromUnicode( *this );
+		*ba = codecForCStrings->fromUnicode( *this );
 	}
 	return *ba;
     }
@@ -2475,7 +2443,7 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
     than the length of \a ascii then it will use the length of \a
     ascii.
 
-    If a codec has been set using QTextCodec::codecForCStrings(),
+    If a codec has been set using codecForCStrings,
     it is used to convert Unicode to 8-bit char. Otherwise, this function
     does the same as fromLatin1().
 
@@ -2492,14 +2460,14 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 QString QString::fromAscii( const char* ascii, int len )
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( QTextCodec::codecForCStrings() ) {
+    if ( codecForCStrings ) {
 	if ( !ascii )
 	    return QString::null;
 	if ( len < 0 )
 	    len = strlen( ascii );
 	if ( len == 0 || *ascii == '\0' )
 	    return QString::fromLatin1( "" );
-	return QTextCodec::codecForCStrings()->toUnicode( ascii, len );
+	return codecForCStrings->toUnicode( ascii, len );
     }
 #endif
     return fromLatin1( ascii, len );
