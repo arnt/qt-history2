@@ -726,7 +726,7 @@ bool QProcess::start( QStringList *env )
     }
 
     // fork and exec
-    QApplication::flushX();
+    QKernelApplication::flush();
     pid_t pid = fork();
     if ( pid == 0 ) {
 	// child

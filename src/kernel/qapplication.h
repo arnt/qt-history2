@@ -113,8 +113,9 @@ public:
     static QWidget  *widgetAt( int x, int y, bool child=FALSE );
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
 
-    static void	     flushX();
-    static void flush();
+#ifndef QT_NO_COMPAT
+    inline static void	     flushX() { flush(); }
+#endif
     static void	     syncX();
 
     static void	     beep();

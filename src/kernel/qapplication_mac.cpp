@@ -588,6 +588,27 @@ void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
     }
     request_updates_pending_list.append(w->winId());
 }
+void qt_event_request_flush_updates()
+{
+    QList<WId> update_list = request_updates_pending_list;
+    request_updates_pending_list.clear(); //clear now and let it get filled elsewhere
+    for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
+	QWidget *widget = QWidget::find((*it));
+	if(widget && widget->d->extra && widget->d->extra->has_dirty_area &&
+	   widget->topLevelWidget()->isVisible()) {
+	    widget->d->extra->has_dirty_area = FALSE;
+	    QRegion r = widget->d->extra->dirty_area;
+	    widget->d->extra->dirty_area = QRegion();
+	    QRegion cr = widget->clippedRegion();
+	    if(!widget->isTopLevel()) {
+		QPoint point(posInWindow(widget));
+		cr.translate(-point.x(), -point.y());
+	    }
+	    if(!r.isEmpty())
+		widget->repaint(r & cr, !widget->testWFlags(Qt::WRepaintNoErase));
+	}
+    }
+}
 static EventRef request_wakeup_pending = NULL;
 void qt_event_request_wakeup()
 {
@@ -2714,39 +2735,6 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 	return animate_toolbox;
     default:
 	return animate_ui;
-    }
-}
-
-void QApplication::flush()
-{
-//    sendPostedEvents();
-    if(qApp) {
-	QList<WId> update_list = request_updates_pending_list;
-	request_updates_pending_list.clear(); //clear now and let it get filled elsewhere
-	for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
-	    QWidget *widget = QWidget::find((*it));
-	    if(widget && widget->d->extra && widget->d->extra->has_dirty_area &&
-	       widget->topLevelWidget()->isVisible()) {
-		widget->d->extra->has_dirty_area = FALSE;
-		QRegion r = widget->d->extra->dirty_area;
-		widget->d->extra->dirty_area = QRegion();
-		QRegion cr = widget->clippedRegion();
-		if(!widget->isTopLevel()) {
-		    QPoint point(posInWindow(widget));
-		    cr.translate(-point.x(), -point.y());
-		}
-		if(!r.isEmpty())
-		    widget->repaint(r & cr, !widget->testWFlags(WRepaintNoErase));
-	    }
-	}
-	QWidgetList tlws = QApplication::topLevelWidgets();
-	for(int i = 0; i < tlws.size(); i++) {
-	    QWidget *tlw = tlws.at(i);
-	    if(tlw->isVisible()) {
-		tlw->propagateUpdates();
-		QMacSavedPortInfo::flush(tlw);
-	    }
-	}
     }
 }
 

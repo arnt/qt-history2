@@ -388,6 +388,15 @@ void QEventLoop::appStartingUp()
 }
 
 /*!
+    Flushes the event queue. This normally returns almost
+    immediately. Does nothing on platforms other than X11.
+*/
+void QEventLoop::flush()
+{
+
+}
+
+/*!
    \internal
 */
 void QEventLoop::appClosingDown()

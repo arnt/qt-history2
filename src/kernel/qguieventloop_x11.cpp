@@ -148,3 +148,8 @@ void QGuiEventLoop::cleanup()
 {
 
 }
+
+void QGuiEventLoop::flush()
+{
+    XFlush( QPaintDevice::x11AppDisplay() );
+}

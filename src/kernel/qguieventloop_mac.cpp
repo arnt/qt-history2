@@ -33,6 +33,7 @@ MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 void qt_event_request_select(QGuiEventLoop *); //qapplication_mac.cpp
 void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
+void qt_event_request_flush_updates(); //qapplication_mac.cpp
 void qt_event_request_wakeup(); //qapplication_mac.cpp
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =NULL); //qapplication_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
@@ -402,6 +403,22 @@ int QGuiEventLoop::activateTimers()
 void QGuiEventLoop::wakeUp()
 {
     qt_event_request_wakeup();
+}
+
+void QGuiEventLoop::flush()
+{
+//    sendPostedEvents();
+    if(qApp) {
+	qt_event_request_flush_updates();
+	QWidgetList tlws = QApplication::topLevelWidgets();
+	for(int i = 0; i < tlws.size(); i++) {
+	    QWidget *tlw = tlws.at(i);
+	    if(tlw->isVisible()) {
+		tlw->propagateUpdates();
+		QMacSavedPortInfo::flush(tlw);
+	    }
+	}
+    }
 }
 
 /* This allows the eventloop to block, and will keep things going - including keeping away

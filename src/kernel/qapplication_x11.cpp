@@ -2654,36 +2654,6 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 
 /*!
-    Flushes the X event queue in the X11 implementation. This normally
-    returns almost immediately. Does nothing on other platforms.
-
-    \sa syncX()
-*/
-
-void QApplication::flushX()
-{
-    if ( X11->display )
-	XFlush( X11->display );
-}
-
-/*!
-    Flushes the window system specific event queues.
-
-    If you are doing graphical changes inside a loop that does not
-    return to the event loop on asynchronous window systems like X11
-    or double buffered window systems like MacOS X, and you want to
-    visualize these changes immediately (e.g. Splash Screens), call
-    this function.
-
-    \sa flushX() sendPostedEvents() QPainter::flush()
-*/
-
-void QApplication::flush()
-{
-    flushX();
-}
-
-/*!
     Synchronizes with the X server in the X11 implementation. This
     normally takes some time. Does nothing on other platforms.
 

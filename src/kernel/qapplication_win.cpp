@@ -3705,10 +3705,6 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     }
 }
 
-void QApplication::flush()
-{
-}
-
 bool QSessionManager::allowsInteraction()
 {
     sm_blockUserInput = FALSE;

@@ -89,3 +89,12 @@ void QGuiEventLoop::cleanup()
 {
 
 }
+
+void QGuiEventLoop::flush()
+{
+    if(qApp)
+	qApp->sendPostedEvents();
+    (void)qt_fbdpy->eventPending(); // flush
+}
+
+

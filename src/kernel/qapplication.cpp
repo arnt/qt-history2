@@ -1969,17 +1969,6 @@ bool QApplication::event( QEvent *e )
     return QKernelApplication::event(e);
 }
 
-
-#if !defined(Q_WS_X11)
-
-// The doc and X implementation of these functions is in qapplication_x11.cpp
-
-void QApplication::flushX()	{}		// do nothing
-
-void QApplication::syncX()	{}		// do nothing
-
-#endif
-
 /*!
   \fn void QApplication::setWinStyleHighlightColor( const QColor & )
   \obsolete

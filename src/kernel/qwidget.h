@@ -557,7 +557,8 @@ private:
     EventHandlerRef window_event;
     //mac event functions
     void    propagateUpdates(bool update_rgn=TRUE);
-    //friends, way too many - fix this immediately!
+    //friends
+    friend class QGuiEventLoop;
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
     friend QPoint posInWindow(QWidget *);
@@ -565,6 +566,7 @@ private:
     friend bool qt_mac_update_sizer(QWidget *, int);
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend bool qt_paint_children(QWidget *,QRegion &, uchar ops);
+    friend void qt_event_request_flush_updates();
     friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
     friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
     friend bool qt_window_rgn(WId, short, RgnHandle, bool);

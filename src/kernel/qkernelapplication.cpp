@@ -94,6 +94,23 @@ QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p, QEventLoop 
 }
 
 /*!
+    Flushes the platform specific event queues.
+
+    If you are doing graphical changes inside a loop that does not
+    return to the event loop on asynchronous window systems like X11
+    or double buffered window systems like MacOS X, and you want to
+    visualize these changes immediately (e.g. Splash Screens), call
+    this function.
+
+    \sa sendPostedEvents() QPainter::flush()
+*/
+void QKernelApplication::flush()
+{ 
+    if(self)
+	self->eventLoop()->flush(); 
+}	
+
+/*!
     Constructs a Qt kernel application. Kernel applications are
     applications without a graphical user interface. These type of
     applications are used at the console or as server processes.

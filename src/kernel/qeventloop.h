@@ -68,6 +68,7 @@ public:
     virtual int loopLevel() const;
 
     virtual void wakeUp();
+    virtual void flush();
 
 signals:
     void awake();

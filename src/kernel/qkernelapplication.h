@@ -79,6 +79,8 @@ public:
 				const char * comment = 0,
 				Encoding encoding = DefaultCodec ) const;
 
+    static void flush();
+
 #if defined(QT_THREAD_SUPPORT)
     void	     lock();
     void	     unlock(bool wakeUpGui = TRUE);

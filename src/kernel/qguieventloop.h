@@ -31,6 +31,8 @@ public:
     void wakeUp();
 #endif
 
+    void flush();
+
 protected:
 #if defined(Q_WS_X11)
     virtual void appStartingUp();
