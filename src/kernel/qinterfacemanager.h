@@ -42,6 +42,7 @@
 #include "qlibrary.h"
 #include "quuiddefs.h"
 #include "qdict.h"
+#include "qmap.h"
 #include "qdir.h"
 #include "qstringlist.h"
 #endif // QT_H
@@ -57,7 +58,7 @@ public:
     QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so; *.dylib", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
     {
-	// Every library is unloaded on destruction of the manager
+	// Every QLibrary object is destroyed on destruction of the manager
 	libDict.setAutoDelete( TRUE );
 	if ( !path.isEmpty() )
 	    addLibraryPath( path, filter );
@@ -90,11 +91,13 @@ public:
 	if ( ( plugin = libDict[file] ) )
 	    return plugin;
 
+	// Create a library object, and try to get the desired interface
 	plugin = new QLibrary( file, defPol );
 	bool useful = FALSE;
 
 	Type* iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
+	    // Map all found features to the library
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
@@ -118,8 +121,8 @@ public:
 
 	if ( useful ) {
 	    libDict.replace( file, plugin );
-	    libList.remove( file );
-	    libList.append( file );
+	    if ( !libList.contains( file ) )
+		libList.append( file );
 	    return plugin;
 	} else {
 	    delete plugin;
@@ -139,6 +142,7 @@ public:
 	if ( !plugin )
 	    return FALSE;
 
+	// Unregister all features of this plugin
 	Type *iFace = (Type*)plugin->queryInterface( interfaceId );
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
@@ -148,6 +152,7 @@ public:
 	    iFace->release();
 	}
 	bool unloaded = plugin->unload();
+	// This deletes the QLibrary object!
 	libDict.remove( file );
 
 	return unloaded;
@@ -168,16 +173,42 @@ public:
 	if ( feature.isEmpty() )
 	    return 0;
 
-	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	// We already have a QLibrary object for this feature
 	QLibrary *library = 0;
+	if ( ( library = plugDict[feature] ) )
+	    return library;
+
+	// Find the filename that matches the feature request best
+	QMap<int, QStringList> map;
 	QStringList::ConstIterator it = libList.begin();
-	while ( !( library = plugDict[feature] ) && ( it != libList.end() ) ) {
-	    QString lib = *it;
+	int best = 0;
+	int worst = 15;
+	while ( it != libList.end() ) {
+	    QString lib = (*it).right( lib.length() - lib.findRev( "/" ) - 1 );
+	    lib = lib.left( lib.findRev( "." ) );
+	    int s = feature.similarityWith( lib );
+	    if ( s < worst )
+		worst = s;
+	    if ( s > best )
+		best = s;
+	    map[s].append( *it );
 	    ++it;
-	    that->addLibrary( lib );
 	}
 
-	return library;
+	// Start with the best match to get the library object
+	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	for ( int s = best; s >= worst; --s ) {
+	    QStringList group = map[s];
+	    QStringList::Iterator git = group.begin();
+	    while ( git != group.end() ) {
+		QString lib = *git;
+		++git;
+		if ( that->addLibrary( lib ) && ( library = plugDict[feature] ) )
+		    return library;
+	    }
+	}
+
+	return 0;
     }
 
     Type *queryInterface(const QString& feature) const
@@ -189,6 +220,7 @@ public:
 
     QStringList featureList() const
     {
+	// Make sure that all libraries have been loaded once.
 	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
 	QStringList::ConstIterator it = libList.begin();
 	while ( it != libList.end() ) {
