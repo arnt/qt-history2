@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#23 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -328,6 +328,10 @@ static void set_text(const QImage& image, png_structp png_ptr, png_infop info_pt
 
 bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 {
+    QPoint offset = image.offset();
+    off_x += offset.x();
+    off_y += offset.y();
+
     png_structp png_ptr;
     png_infop info_ptr;
     png_bytep* row_pointers;
@@ -418,6 +422,12 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 
     if ( frames_written > 0 )
         png_set_sig_bytes(png_ptr, 8);
+
+    if ( image.dotsPerMeterX() > 0 || image.dotsPerMeterY() > 0 ) {
+	png_set_pHYs(png_ptr, info_ptr,
+		image.dotsPerMeterX(), image.dotsPerMeterY(),
+		PNG_RESOLUTION_METER);
+    }
 
     set_text(image,png_ptr,info_ptr,TRUE);
     png_write_info(png_ptr, info_ptr);
