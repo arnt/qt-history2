@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#268 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#269 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9545,6 +9545,10 @@ int ucstrcmp( const QString &as, const QString &bs )
     const QChar *b = bs.unicode();
     if ( a == b )
 	return 0;
+    if ( a == 0 )
+	return 1;
+    if ( b == 0 )
+	return -1;
     int l=QMIN(as.length(),bs.length());
     while ( l-- && *a == *b )
 	a++,b++;
@@ -12861,7 +12865,7 @@ int QString::compare( const QString& s ) const
 
 bool operator==( const QString &s1, const QString &s2 )
 {
-    return (s1.length() == s2.length()) &&
+    return (s1.length() == s2.length()) && s1.isNull() == s2.isNull() &&
 	   (memcmp((char*)s1.unicode(),(char*)s2.unicode(),s1.length()*2) ==0);
 }
 
@@ -12926,7 +12930,8 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator==( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
-
+  A null string is different from an empty, non-null string.
+  
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
 */
 
