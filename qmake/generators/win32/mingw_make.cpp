@@ -236,10 +236,10 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
     t << "mocables: $(SRCMOC)" << endl << endl;
 
     t << "$(OBJECTS_DIR):" << "\n\t"
-      << "@if not exist $(OBJECTS_DIR) mkdir $(OBJECTS_DIR)" << endl << endl;
+      << "@if not exist $(OBJECTS_DIR) $(MKDIR) $(OBJECTS_DIR)" << endl << endl;
 
     t << "$(MOC_DIR):" << "\n\t"
-      << "@if not exist $(MOC_DIR) mkdir $(MOC_DIR)" << endl << endl;
+      << "@if not exist $(MOC_DIR) $(MKDIR) $(MOC_DIR)" << endl << endl;
 
     writeMakeQmake(t);
 
