@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#13 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#14 $
 **
 ** Definition of QValueList class
 **
@@ -307,8 +307,8 @@ public:
   ConstIterator begin() const { return ConstIterator( sh->node->next ); }
   Iterator end() { detach(); return Iterator( sh->node ); }
   ConstIterator end() const { return ConstIterator( sh->node ); }
-  Iterator last() { detach(); return Iterator( sh->node->prev ); }
-  ConstIterator last() const { return ConstIterator( sh->node->prev ); }
+  Iterator fromLast() { detach(); return Iterator( sh->node->prev ); }
+  ConstIterator fromLast() const { return ConstIterator( sh->node->prev ); }
 
   bool isEmpty() const { return ( sh->nodes == 0 ); }
 
@@ -320,9 +320,9 @@ public:
   Iterator remove( Iterator it ) { detach(); return sh->remove( it ); }
   void remove( const T& x ) { detach(); sh->remove( x ); }
 
-  T& getFirst() { detach(); return sh->node->next->data; }
+  T& first() { detach(); return sh->node->next->data; }
   const T& getFirst() const { return sh->node->next->data; }
-  T& getLast() { detach(); return sh->node->prev->data; }
+  T& last() { detach(); return sh->node->prev->data; }
   const T& getLast() const { return sh->node->prev->data; }
 
   T& operator[] ( uint i ) { detach(); return sh->at(i)->data; }
