@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#119 $
 **
 ** Implementation of QListView widget class
 **
@@ -1471,7 +1471,7 @@ void QListView::buildDrawableList() const
 {
     if ( ( (int)d->r->lsc != d->sortcolumn ||
 	   (bool)d->r->lso != d->ascending ) &&
-	 (int)d->r->lsc != Unsorted )
+	 d->sortcolumn != Unsorted )
 	d->r->sortChildItems( d->sortcolumn, d->ascending );
 
     QStack<QListViewPrivate::Pending> stack;
