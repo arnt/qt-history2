@@ -121,14 +121,13 @@ QTcpServerPrivate::~QTcpServerPrivate()
 */
 void QTcpServerPrivate::processIncomingConnection(int)
 {
-    if (d->readSocketNotifier)
-        d->readSocketNotifier->setEnabled(false);
-
     for (;;) {
         if (pendingConnections.count() >= maxConnections) {
 #if defined (QTCPSERVER_DEBUG)
             qDebug("QTcpServerPrivate::processIncomingConnection() too many connections");
 #endif
+            if (d->readSocketNotifier && d->readSocketNotifier->isEnabled())
+                d->readSocketNotifier->setEnabled(false);
             return;
         }
 
