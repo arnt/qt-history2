@@ -622,8 +622,9 @@ void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 QModelIndex QGenericTreeView::itemAt(int x, int y) const
 {
     QModelIndex mi = d->modelIndex(d->item(y));
-    if (mi.isValid())
-        return model()->sibling(mi.row(), d->columnAt(x), mi);
+    int c = d->columnAt(x);
+    if (mi.isValid() && c >= 0)
+        return model()->sibling(mi.row(), c, mi);
     return QModelIndex();
 }
 
