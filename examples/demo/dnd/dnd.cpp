@@ -56,20 +56,20 @@ DnDDemo::DnDDemo( QWidget* parent, const char* name )
     multiLine2->setTextFormat( RichText );
     multiLine2->setMinimumHeight( 280 );
     multiLine2->setText( QString( "<p><b>To Milton</b> - <i>Oscar Wilde</i></p>" )
-                         + "Milton!  I think thy spirit hath passed away"
-                         + "From these white cliffs and high-embattled towers;"
-                         + "This gorgeous fiery-coloured world of ours"
-                         + "Seems fallen into ashes dull and grey,"
-                         + "And the age changed unto a mimic play"
-                         + "Wherein we waste our else too-crowded hours:"
-                         + "For all our pomp and pageantry and powers"
-                         + "We are but fit to delve the common clay,"
-                         + "Seeing this little isle on which we stand,"
-                         + "This England, this sea-lion of the sea,"
-                         + "By ignorant demagogues is held in fee,"
-                         + "Who love her not:  Dear God! is this the land"
-                         + "Which bare a triple empire in her hand"
-                         + "When Cromwell spake the word Democracy!" );
+                         + "Milton!  I think thy spirit hath passed away<br>"
+                         + "From these white cliffs and high-embattled towers;<br>"
+                         + "This gorgeous fiery-coloured world of ours<br>"
+                         + "Seems fallen into ashes dull and grey,<br>"
+                         + "And the age changed unto a mimic play<br>"
+                         + "Wherein we waste our else too-crowded hours:<br>"
+                         + "For all our pomp and pageantry and powers<br>"
+                         + "We are but fit to delve the common clay,<br>"
+                         + "Seeing this little isle on which we stand,<br>"
+                         + "This England, this sea-lion of the sea,<br>"
+                         + "By ignorant demagogues is held in fee,<br>"
+                         + "Who love her not:  Dear God! is this the land<br>"
+                         + "Which bare a triple empire in her hand<br>"
+                         + "When Cromwell spake the word Democracy!<br>" );
 
 
     items.insert( "copy", IconItem( "Copy", "editcopy.xpm" ) );
