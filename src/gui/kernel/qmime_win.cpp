@@ -112,7 +112,7 @@ static int registeredMimeType;
 int QWindowsMime::registerMimeType(const char *mime)
 {
 #ifdef Q_OS_TEMP
-    CLIPFORMAT f = RegisterClipboardFormat(QString(mime).ucs2());
+    CLIPFORMAT f = RegisterClipboardFormat(QString(mime).utf16());
 #else
     CLIPFORMAT f = RegisterClipboardFormatA(mime);
 #endif
@@ -713,7 +713,7 @@ QByteArray QWindowsMimeUri::convertToMime(QByteArray data, const char* mime, int
     int i=0;
     if (hdrop->fWide) {
         while (filesw[i]) {
-            QString fn = QString::fromUcs2(filesw+i);
+            QString fn = QString::fromUtf16(filesw+i);
             texturi += QUriDrag::localFileToUri(fn);
             texturi += "\r\n";
             i += fn.length()+1;
@@ -768,7 +768,7 @@ QByteArray QWindowsMimeUri::convertFromMime(QByteArray data, const char* mime, i
 
         for (i = fn.begin(); i!=fn.end(); ++i) {
             int l = (*i).length();
-            memcpy(f, (*i).ucs2(), l*sizeof(TCHAR));
+            memcpy(f, (*i).utf16(), l*sizeof(TCHAR));
             f += l;
             *f++ = 0;
         }

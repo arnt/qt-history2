@@ -274,7 +274,7 @@ bool QProcess::start(QStringList *env)
     bool success;
     d->newPid();
 #ifdef UNICODE
-    if(qt_winUnicode()) {
+    if(!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
         STARTUPINFOW startupInfo = {
             sizeof(STARTUPINFO), 0, 0, 0,
             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
@@ -287,8 +287,8 @@ bool QProcess::start(QStringList *env)
         if (appName.isNull())
             applicationName = 0;
         else
-            applicationName = _wcsdup((TCHAR*)appName.ucs2());
-        TCHAR *commandLine = _wcsdup((TCHAR*)args.ucs2());
+            applicationName = _wcsdup((TCHAR*)appName.utf16());
+        TCHAR *commandLine = _wcsdup((TCHAR*)args.utf16());
         QByteArray envlist;
         if (env != 0) {
             int pos = 0;
@@ -298,7 +298,7 @@ bool QProcess::start(QStringList *env)
                 QString tmp = QString("PATH=%1").arg(getenv("PATH"));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.ucs2(), tmpSize);
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
                 pos += tmpSize;
             }
             // add the user environment
@@ -306,7 +306,7 @@ bool QProcess::start(QStringList *env)
                 QString tmp = *it;
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.ucs2(), tmpSize);
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
                 pos += tmpSize;
             }
             // add the 2 terminating 0 (actually 4, just to be on the safe side)
@@ -322,7 +322,7 @@ bool QProcess::start(QStringList *env)
                 | CREATE_UNICODE_ENVIRONMENT
 #endif
                 , env==0 ? 0 : envlist.data(),
-                (TCHAR*)workingDir.absPath().ucs2(),
+                (TCHAR*)workingDir.absPath().utf16(),
                 &startupInfo, d->pid);
         free(applicationName);
         free(commandLine);

@@ -3251,10 +3251,10 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString &key)
     GUID guid;
     CoCreateGuid(&guid);
     StringFromGUID2(guid, guidstr, 40);
-    id = QString::fromUcs2((ushort*)guidstr);
+    id = QString::fromUtf16((ushort*)guidstr);
     CoCreateGuid(&guid);
     StringFromGUID2(guid, guidstr, 40);
-    key = QString::fromUcs2((ushort*)guidstr);
+    key = QString::fromUtf16((ushort*)guidstr);
 #endif
     d->sessionId = id;
     d->sessionKey = key;

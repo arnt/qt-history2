@@ -242,7 +242,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if (testWFlags(WStyle_Title)) {
         QT_WA({
             title = QString::fromLocal8Bit(isTopLevel() ? qAppName() : objectName());
-            ttitle = (TCHAR*)title.ucs2();
+            ttitle = (TCHAR*)title.utf16();
         } , {
             title95 = isTopLevel() ? qAppName() : objectName();
         });
@@ -286,13 +286,13 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
 #ifdef Q_OS_TEMP
 
-        const TCHAR *cname = windowClassName.ucs2();
+        const TCHAR *cname = windowClassName.utf16();
 
         id = CreateWindowEx(exsty, cname, ttitle, style, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentw, 0, appinst, 0);
 #else
 
         QT_WA({
-            const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
+            const TCHAR *cname = (TCHAR*)windowClassName.utf16();
             id = CreateWindowEx(exsty, cname, ttitle, style,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
                                 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -315,7 +315,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             SetWindowPos(id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE);
     } else {                                        // create child widget
         QT_WA({
-            const TCHAR *cname = (TCHAR*)windowClassName.ucs2();
+            const TCHAR *cname = (TCHAR*)windowClassName.utf16();
             id = CreateWindowEx(exsty, cname, ttitle, style, 0, 0, 100, 30,
                             parentw, NULL, appinst, NULL);
         } , {
@@ -504,7 +504,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     // Show borderless toplevel windows in tasklist & NavBar
     if (!parent) {
         QString txt = caption().isEmpty()?qAppName():caption();
-        SetWindowText(winId(), (TCHAR*)txt.ucs2());
+        SetWindowText(winId(), (TCHAR*)txt.utf16());
     }
 #endif
 }
@@ -600,7 +600,7 @@ void QWidget::setWindowModified(bool mod)
         if(mod)
             cap += " *";
         QT_WA({
-            SetWindowText(winId(), (TCHAR*)cap.ucs2());
+            SetWindowText(winId(), (TCHAR*)cap.utf16());
         } , {
             SetWindowTextA(winId(), cap.local8Bit());
         });
@@ -628,7 +628,7 @@ void QWidget::setWindowTitle(const QString &caption)
     if(isWindowModified())
         cap += " *";
     QT_WA({
-        SetWindowText(winId(), (TCHAR*)cap.ucs2());
+        SetWindowText(winId(), (TCHAR*)cap.utf16());
     } , {
         SetWindowTextA(winId(), cap.local8Bit());
     });

@@ -41,7 +41,7 @@ extern HDC   shared_dc;                // common dc for all fonts
 // ### maybe move to qapplication_win
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
-    QString family = QT_WA_INLINE(QString::fromUcs2((ushort*)lf.lfFaceName),
+    QString family = QT_WA_INLINE(QString::fromUtf16((ushort*)lf.lfFaceName),
                                    QString::fromLocal8Bit((char*)lf.lfFaceName));
     QFont qf(family);
     qf.setItalic(lf.lfItalic);

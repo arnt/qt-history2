@@ -184,7 +184,7 @@ static QString getEnglishName(const QString &familyName)
     QT_WA( {
         LOGFONTW lf;
         memset( &lf, 0, sizeof( LOGFONTW ) );
-        memcpy( lf.lfFaceName, familyName.ucs2(), QMIN(LF_FACESIZE, familyName.length())*sizeof(QChar) );
+        memcpy( lf.lfFaceName, familyName.utf16(), QMIN(LF_FACESIZE, familyName.length())*sizeof(QChar) );
         lf.lfCharSet = DEFAULT_CHARSET;
         hfont = CreateFontIndirectW( &lf );
     }, {
@@ -222,7 +222,8 @@ static QString getEnglishName(const QString &familyName)
 
     DWORD bytes = GetFontData( hdc, name_tag, 0, 0, 0 );
     if ( bytes == GDI_ERROR ) {
-        int err = GetLastError();
+        // ### Unused variable
+        /* int err = GetLastError(); */
         goto error;
     }
 
@@ -260,7 +261,7 @@ static QString getEnglishName(const QString &familyName)
 
         Q_UINT16 length = getUShort(names + 8 + i*NameRecordSize);
         Q_UINT16 offset = getUShort(names + 10 + i*NameRecordSize);
-        if(string_offset + offset + length >= bytes)
+        if(DWORD(string_offset + offset + length) >= bytes)
             continue;
 
         if ((platform_id == PlatformId_Microsoft
@@ -294,7 +295,7 @@ static QString getEnglishName(const QString &familyName)
                 // utf16
 
                 length /= 2;
-                i18n_name.setLength(length);
+                i18n_name.resize(length);
                 QChar *uc = (QChar *) i18n_name.unicode();
                 unsigned char *string = table + string_offset + offset;
                 for(int i = 0; i < length; ++i)
@@ -302,7 +303,7 @@ static QString getEnglishName(const QString &familyName)
             } else {
                 // Apple Roman
 
-                i18n_name.setLength(length);
+                i18n_name.resize(length);
                 QChar *uc = (QChar *) i18n_name.unicode();
                 unsigned char *string = table + string_offset + offset;
                 for(int i = 0; i < length; ++i)
@@ -345,7 +346,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
     // ### make non scalable fonts work
 
     QT_WA({
-        familyName = QString::fromUcs2((ushort*)f->elfLogFont.lfFaceName);
+        familyName = QString::fromUtf16((ushort*)f->elfLogFont.lfFaceName);
         italic = f->elfLogFont.lfItalic;
         weight = f->elfLogFont.lfWeight;
         TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
@@ -522,7 +523,7 @@ void populate_database(const QString& fam)
         if (fam.isNull()) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
@@ -549,7 +550,7 @@ void populate_database(const QString& fam)
         if (fam.isNull()) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
@@ -618,7 +619,7 @@ void QFontPrivate::initFontInfo()
     QT_WA({
         TCHAR n[64];
         GetTextFaceW(fin->dc(), 64, n);
-        actual.family = QString::fromUcs2((ushort*)n);
+        actual.family = QString::fromUtf16((ushort*)n);
         actual.fixedPitch = !(fin->tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
         char an[64];
@@ -809,7 +810,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
 
         QT_WA({
-            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy(lf.lfFaceName, fam.utf16(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
             hfont = CreateFontIndirect(&lf);
         } , {
             // LOGFONTA and LOGFONTW are binary compatible

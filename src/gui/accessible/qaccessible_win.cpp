@@ -87,7 +87,7 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
 
     if (soundName.size()) {
         QT_WA({
-            PlaySoundW((TCHAR*)soundName.ucs2(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT);
+            PlaySoundW((TCHAR*)soundName.utf16(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT);
         } , {
             PlaySoundA(soundName.local8Bit(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
         });

@@ -780,7 +780,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
-        wc.lpszClassName= (TCHAR*)cname.ucs2();
+        wc.lpszClassName= (TCHAR*)cname.utf16();
         RegisterClass(&wc);
     } , {
         WNDCLASSA wc;
@@ -822,7 +822,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
-        wc.lpszClassName= (TCHAR*)cname.ucs2();
+        wc.lpszClassName= (TCHAR*)cname.utf16();
         RegisterClass(&wc);
 
 #endif
@@ -837,7 +837,7 @@ static void unregWinClasses()
     QHash<QString, int>::ConstIterator it = winclassNames.constBegin();
     while (it != winclassNames.constEnd()) {
         QT_WA({
-            UnregisterClass((TCHAR*)it.key().ucs2(), (HINSTANCE)qWinAppInst());
+            UnregisterClass((TCHAR*)it.key().utf16(), (HINSTANCE)qWinAppInst());
         } , {
             UnregisterClassA(it.key().local8Bit(), (HINSTANCE)qWinAppInst());
         });
@@ -1517,7 +1517,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 
         case WM_SETTINGCHANGE:
             if (!msg.wParam) {
-                QString area = QT_WA_INLINE(QString::fromUcs2((unsigned short *)msg.lParam),
+                QString area = QT_WA_INLINE(QString::fromUtf16((unsigned short *)msg.lParam),
                                              QString::fromLocal8Bit((char*)msg.lParam));
                 if (area == "intl")
                     QApplication::postEvent(widget, new QEvent(QEvent::LocaleChange));
@@ -3196,7 +3196,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
                 txt += " *";
             if (txt.size()) {
                 QT_WA({
-                    SetWindowText(winId(), (TCHAR*)txt.ucs2());
+                    SetWindowText(winId(), (TCHAR*)txt.utf16());
                 } , {
                     SetWindowTextA(winId(), txt.local8Bit());
                 });

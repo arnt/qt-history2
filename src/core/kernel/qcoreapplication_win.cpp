@@ -93,7 +93,7 @@ static void msgHandler(QtMsgType t, const char* str)
     QT_WA({
         QString s(str);
         s += "\n";
-        OutputDebugStringW((TCHAR*)s.ucs2());
+        OutputDebugStringW((TCHAR*)s.utf16());
     }, {
         QByteArray s(str);
         s += "\n";
@@ -206,8 +206,8 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     TCHAR uniqueAppID[256];
     GetModuleFileName(0, uniqueAppID, 255);
     appUniqueID = RegisterWindowMessage(
-                  QString::fromUcs2(uniqueAppID)
-                  .lower().remove('\\').ucs2());
+                  QString::fromUtf16(uniqueAppID)
+                  .lower().remove('\\').utf16());
 #endif
 }
 

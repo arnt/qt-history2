@@ -538,9 +538,9 @@ void QPrinter::readDevnames(void *hdn)
             // order is important here since
             // setDefaultPrinter() modifies the DEVNAMES structure
             TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
-            setPrintProgram(QString::fromUcs2((ushort*)drName));
+            setPrintProgram(QString::fromUtf16((ushort*)drName));
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-            printer_name = QString::fromUcs2((ushort*)prName);
+            printer_name = QString::fromUtf16((ushort*)prName);
             setDefaultPrinter(printer_name, &hdevmode, &hdevnames);
             GlobalUnlock(hdn);
         }
@@ -658,9 +658,9 @@ void QPrinter::readDevnamesA(void *hdn)
             // order is important here since
             // setDefaultPrinter() modifies the DEVNAMES structure
             char* drName = ((char*)dn) + dn->wDriverOffset;
-            setPrintProgram(QString::fromUcs2((ushort*)drName));
+            setPrintProgram(QString::fromUtf16((ushort*)drName));
             char* prName = ((char*)dn) + dn->wDeviceOffset;
-            printer_name = QString::fromUcs2((ushort*)prName);
+            printer_name = QString::fromUtf16((ushort*)prName);
             setDefaultPrinter(printer_name, &hdevmode, &hdevnames);
             GlobalUnlock(hdn);
         }
@@ -678,7 +678,7 @@ static void setDefaultPrinterW(const QString &printerName, HANDLE *hmode, HANDLE
     HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
-    if (!OpenPrinter((TCHAR *)printerName.ucs2(), &hPrinter, NULL)) {
+    if (!OpenPrinter((TCHAR *)printerName.utf16(), &hPrinter, NULL)) {
         qSystemWarning(QString("OpenPrinter(%1) failed").arg(printerName).latin1());
         return;
     }
@@ -987,10 +987,10 @@ void QPrinter::writeDevmode(HANDLE hdm)
 
         /* Use some extra gunpowder to avoid some problems on 98 and ME.
            See task: 19052 and 23626 */
-        DWORD caps = DeviceCapabilities((TCHAR*)printer_name.ucs2(), 0, DC_BINS, 0, 0);
+        DWORD caps = DeviceCapabilities((TCHAR*)printer_name.utf16(), 0, DC_BINS, 0, 0);
         if(caps == DWORD(-1)) caps = 0;
         LPTSTR bins = (LPTSTR)(new WORD[caps]);
-        if(!DeviceCapabilities((TCHAR*)printer_name.ucs2(), 0, DC_BINS, bins, 0)) {
+        if(!DeviceCapabilities((TCHAR*)printer_name.utf16(), 0, DC_BINS, bins, 0)) {
             WRITE_DM_VAR(dm->dmDefaultSource, DMBIN_AUTO)
         } else {
             bool ok = false;
@@ -1336,9 +1336,9 @@ bool QPrinter::cmd(int c, QPainter *paint, QPDevCmdParam *p)
             DOCINFO di;
             memset(&di, 0, sizeof(DOCINFO));
             di.cbSize = sizeof(DOCINFO);
-            di.lpszDocName = (TCHAR*)doc_name.ucs2();
+            di.lpszDocName = (TCHAR*)doc_name.utf16();
             if (output_file && !output_filename.isEmpty())
-                di.lpszOutput = (TCHAR*)output_filename.ucs2();
+                di.lpszOutput = (TCHAR*)output_filename.utf16();
             if (ok && StartDoc(hdc, &di) == SP_ERROR)
                 ok = false;
         } , {
@@ -1704,7 +1704,7 @@ void QPrinter::reinit()
                             D->needReinit = false;
                         }
                 } else {
-                    hdcTmp = CreateDC(L"WINSPOOL", (TCHAR*)printer_name.ucs2(), 0, dm);
+                    hdcTmp = CreateDC(L"WINSPOOL", (TCHAR*)printer_name.utf16(), 0, dm);
                 }
                 GlobalUnlock(hdevmode);
             } else

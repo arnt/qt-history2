@@ -99,7 +99,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
             flags |= SND_LOOP;
 
         QT_WA({
-            PlaySoundW((TCHAR*)filename.ucs2(), 0, flags);
+            PlaySoundW((TCHAR*)filename.utf16(), 0, flags);
         } , {
             PlaySoundA(QFile::encodeName(filename).data(), 0, flags);
         });
@@ -113,7 +113,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
     if (loops > 1) {
         for (int l = 0; l < loops && server->current; ++l) {
             QT_WA({
-                PlaySoundW((TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC);
+                PlaySoundW((TCHAR*)filename.utf16(), 0, SND_FILENAME|SND_SYNC);
             } , {
                 PlaySoundA(QFile::encodeName(filename).data(), 0,
                     SND_FILENAME|SND_SYNC);

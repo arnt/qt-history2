@@ -2206,12 +2206,12 @@ static QString getWindowsRegString(HKEY key, const QString &subKey)
     QT_WA({
         char buf[1024];
         DWORD bsz = sizeof(buf);
-        int r = RegQueryValueEx(key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)buf, &bsz);
+        int r = RegQueryValueEx(key, (TCHAR*)subKey.utf16(), 0, 0, (LPBYTE)buf, &bsz);
         if (r == ERROR_SUCCESS) {
-            s = QString::fromUcs2((unsigned short *)buf);
+            s = QString::fromUtf16((unsigned short *)buf);
         } else if (r == ERROR_MORE_DATA) {
             char *ptr = new char[bsz+1];
-            r = RegQueryValueEx(key, (TCHAR*)subKey.ucs2(), 0, 0, (LPBYTE)ptr, &bsz);
+            r = RegQueryValueEx(key, (TCHAR*)subKey.utf16(), 0, 0, (LPBYTE)ptr, &bsz);
             if (r == ERROR_SUCCESS)
                 s = ptr;
             delete [] ptr;
@@ -2240,7 +2240,7 @@ static bool getDnsParamsFromRegistry(const QString &path,
     int r;
     QT_WA({
         r = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                          (TCHAR*)path.ucs2(),
+                          (TCHAR*)path.utf16(),
                           0, KEY_READ, &k);
     } , {
         r = RegOpenKeyExA(HKEY_LOCAL_MACHINE,

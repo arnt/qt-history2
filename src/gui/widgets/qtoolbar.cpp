@@ -639,7 +639,7 @@ void QToolBar::createPopup()
                     QString s = c->windowTitle();
                     if (s.isEmpty())
                         s = c->currentText();
-                    uint maxItems = 0;
+                    int maxItems = 0;
                     QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
                     d->extensionPopup->insertItem(s, cp);
                     connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));
