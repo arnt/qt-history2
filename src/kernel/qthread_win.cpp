@@ -198,12 +198,10 @@ void QThreadPrivate::internalRun( QThread* that )
     d->id = 0;
     dictSection()->leave();
 
-    if ( d->deleted ) {
+    d->finished = TRUE;
+    d->running = FALSE;
+    if ( d->deleted )
 	delete d;
-    } else {
-	d->finished = TRUE;
-	d->running = FALSE;
-    }
 }
 
 /*
