@@ -1538,9 +1538,11 @@ void MainWindow::editPaste()
 	hierarchyView->widgetInserted( 0 );
 	formWindow()->commandHistory()->setModified( TRUE );
     } else {
-	// #### should we popup a messagebox here which says that
-	// nothing has been pasted because you can't paste into a
-	// laid out widget? (RS)
+	QMessageBox::information( this, tr( "Paste error" ),
+				  tr( "Can't paste widgets. Designer couldn't find a container\n"
+				      "to paste into which does not contain a layout. Break the layout\n"
+				      "of the container you want to paste into and select this container\n"
+				      "and then paste again." ) );
     }
 }
 
