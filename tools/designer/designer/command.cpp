@@ -1783,21 +1783,25 @@ void AddActionToToolBarCommand::execute()
 	toolBar->reInsert();
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
     } else {
-	QObjectList l = action->children();
-	int i = 0;
-	for (int j = 0; j < l.size(); ++j) {
-	    QObject *o = l.at(j);
-	    if ( !qt_cast<QAction*>(o) )
-		continue;
-	    // ### fix it for nested actiongroups
-	    if ( qt_cast<QDesignerAction*>(o) ) {
-		QDesignerAction *ac = (QDesignerAction*)o;
-		toolBar->insertAction( ac->widget(), ac );
-		ac->widget()->installEventFilter( toolBar );
-		if ( index == -1 )
-		    toolBar->appendAction( ac );
-		else
-		    toolBar->insertAction( index + (i++), ac );
+	if ( action->children() ) {
+	    QObjectListIt it( *action->children() );
+	    int i = 0;
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !::qt_cast<QAction*>(o) )
+		    continue;
+		// ### fix it for nested actiongroups
+		if ( ::qt_cast<QDesignerAction*>(o) ) {
+		    QDesignerAction *ac = (QDesignerAction*)o;
+		    toolBar->insertAction( ac->widget(), ac );
+		    ac->widget()->installEventFilter( toolBar );
+		    if ( index == -1 )
+			toolBar->appendAction( ac );
+		    else
+			toolBar->insertAction( index + (i++), ac );
+		}
+		QObject::connect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	    }
 	    QObject::connect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	}
