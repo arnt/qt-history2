@@ -96,6 +96,7 @@ END
 //
 
 IDR_LICPROC             REGISTRY DISCARDABLE    "LicProc.rgs"
+IDR_BASE64CODEC         REGISTRY DISCARDABLE    "Base64Codec.rgs"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -28,6 +28,22 @@ import "ocidl.idl";
 		[id(11), helpstring("method deleteFilemap")] HRESULT deleteFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR companyId);
 		[id(12), helpstring("method deleteLicense")] HRESULT deleteLicense(BSTR licenseId, BSTR companyId);
 	};
+	[
+		object,
+		uuid(F1D51A88-5C83-4F00-86DB-A4B32B42FFA4),
+		dual,
+		helpstring("IBase64Codec Interface"),
+		pointer_default(unique)
+	]
+	interface IBase64Codec : IDispatch
+	{
+		[id(1), helpstring("method Encode")] HRESULT Encode( int numBytes );
+		[id(2), helpstring("method Decode")] HRESULT Decode( int numBytes );
+		[propget, id(3), helpstring("property EncodedData")] HRESULT EncodedData([out, retval] BSTR *pVal);
+		[propput, id(3), helpstring("property EncodedData")] HRESULT EncodedData([in] BSTR newVal);
+		[propget, id(4), helpstring("property DecodedData")] HRESULT DecodedData([out, retval] BYTE* *pVal);
+		[propput, id(4), helpstring("property DecodedData")] HRESULT DecodedData([in] BYTE* newVal);
+	};
 
 [
 	uuid(5F5A3404-F6FD-4DE0-94AA-98F71EC8CE91),
@@ -46,5 +62,13 @@ library LICPROC_COMLib
 	coclass LicProc
 	{
 		[default] interface ILicProc;
+	};
+	[
+		uuid(B5FDF0C6-247C-4056-9B2E-BB9DEC497CA8),
+		helpstring("Base64Codec Class")
+	]
+	coclass Base64Codec
+	{
+		[default] interface IBase64Codec;
 	};
 };

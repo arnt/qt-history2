@@ -2,7 +2,7 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Fri Aug 03 17:12:38 2001
+/* at Wed Aug 08 18:09:39 2001
  */
 /* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
@@ -43,6 +43,12 @@ typedef interface ILicProc ILicProc;
 #endif 	/* __ILicProc_FWD_DEFINED__ */
 
 
+#ifndef __IBase64Codec_FWD_DEFINED__
+#define __IBase64Codec_FWD_DEFINED__
+typedef interface IBase64Codec IBase64Codec;
+#endif 	/* __IBase64Codec_FWD_DEFINED__ */
+
+
 #ifndef __LicProc_FWD_DEFINED__
 #define __LicProc_FWD_DEFINED__
 
@@ -53,6 +59,18 @@ typedef struct LicProc LicProc;
 #endif /* __cplusplus */
 
 #endif 	/* __LicProc_FWD_DEFINED__ */
+
+
+#ifndef __Base64Codec_FWD_DEFINED__
+#define __Base64Codec_FWD_DEFINED__
+
+#ifdef __cplusplus
+typedef class Base64Codec Base64Codec;
+#else
+typedef struct Base64Codec Base64Codec;
+#endif /* __cplusplus */
+
+#endif 	/* __Base64Codec_FWD_DEFINED__ */
 
 
 /* header files for imported files */
@@ -517,6 +535,248 @@ void __RPC_STUB ILicProc_deleteLicense_Stub(
 #endif 	/* __ILicProc_INTERFACE_DEFINED__ */
 
 
+#ifndef __IBase64Codec_INTERFACE_DEFINED__
+#define __IBase64Codec_INTERFACE_DEFINED__
+
+/* interface IBase64Codec */
+/* [unique][helpstring][dual][uuid][object] */ 
+
+
+EXTERN_C const IID IID_IBase64Codec;
+
+#if defined(__cplusplus) && !defined(CINTERFACE)
+    
+    MIDL_INTERFACE("F1D51A88-5C83-4F00-86DB-A4B32B42FFA4")
+    IBase64Codec : public IDispatch
+    {
+    public:
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Encode( 
+            int numBytes) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE Decode( 
+            int numBytes) = 0;
+        
+        virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_EncodedData( 
+            /* [retval][out] */ BSTR __RPC_FAR *pVal) = 0;
+        
+        virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_EncodedData( 
+            /* [in] */ BSTR newVal) = 0;
+        
+        virtual /* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE get_DecodedData( 
+            /* [retval][out] */ BYTE __RPC_FAR *__RPC_FAR *pVal) = 0;
+        
+        virtual /* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE put_DecodedData( 
+            /* [in] */ BYTE __RPC_FAR *newVal) = 0;
+        
+    };
+    
+#else 	/* C style interface */
+
+    typedef struct IBase64CodecVtbl
+    {
+        BEGIN_INTERFACE
+        
+        HRESULT ( STDMETHODCALLTYPE __RPC_FAR *QueryInterface )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ REFIID riid,
+            /* [iid_is][out] */ void __RPC_FAR *__RPC_FAR *ppvObject);
+        
+        ULONG ( STDMETHODCALLTYPE __RPC_FAR *AddRef )( 
+            IBase64Codec __RPC_FAR * This);
+        
+        ULONG ( STDMETHODCALLTYPE __RPC_FAR *Release )( 
+            IBase64Codec __RPC_FAR * This);
+        
+        HRESULT ( STDMETHODCALLTYPE __RPC_FAR *GetTypeInfoCount )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [out] */ UINT __RPC_FAR *pctinfo);
+        
+        HRESULT ( STDMETHODCALLTYPE __RPC_FAR *GetTypeInfo )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ UINT iTInfo,
+            /* [in] */ LCID lcid,
+            /* [out] */ ITypeInfo __RPC_FAR *__RPC_FAR *ppTInfo);
+        
+        HRESULT ( STDMETHODCALLTYPE __RPC_FAR *GetIDsOfNames )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ REFIID riid,
+            /* [size_is][in] */ LPOLESTR __RPC_FAR *rgszNames,
+            /* [in] */ UINT cNames,
+            /* [in] */ LCID lcid,
+            /* [size_is][out] */ DISPID __RPC_FAR *rgDispId);
+        
+        /* [local] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *Invoke )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ DISPID dispIdMember,
+            /* [in] */ REFIID riid,
+            /* [in] */ LCID lcid,
+            /* [in] */ WORD wFlags,
+            /* [out][in] */ DISPPARAMS __RPC_FAR *pDispParams,
+            /* [out] */ VARIANT __RPC_FAR *pVarResult,
+            /* [out] */ EXCEPINFO __RPC_FAR *pExcepInfo,
+            /* [out] */ UINT __RPC_FAR *puArgErr);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *Encode )( 
+            IBase64Codec __RPC_FAR * This,
+            int numBytes);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *Decode )( 
+            IBase64Codec __RPC_FAR * This,
+            int numBytes);
+        
+        /* [helpstring][id][propget] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *get_EncodedData )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [retval][out] */ BSTR __RPC_FAR *pVal);
+        
+        /* [helpstring][id][propput] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *put_EncodedData )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ BSTR newVal);
+        
+        /* [helpstring][id][propget] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *get_DecodedData )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [retval][out] */ BYTE __RPC_FAR *__RPC_FAR *pVal);
+        
+        /* [helpstring][id][propput] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *put_DecodedData )( 
+            IBase64Codec __RPC_FAR * This,
+            /* [in] */ BYTE __RPC_FAR *newVal);
+        
+        END_INTERFACE
+    } IBase64CodecVtbl;
+
+    interface IBase64Codec
+    {
+        CONST_VTBL struct IBase64CodecVtbl __RPC_FAR *lpVtbl;
+    };
+
+    
+
+#ifdef COBJMACROS
+
+
+#define IBase64Codec_QueryInterface(This,riid,ppvObject)	\
+    (This)->lpVtbl -> QueryInterface(This,riid,ppvObject)
+
+#define IBase64Codec_AddRef(This)	\
+    (This)->lpVtbl -> AddRef(This)
+
+#define IBase64Codec_Release(This)	\
+    (This)->lpVtbl -> Release(This)
+
+
+#define IBase64Codec_GetTypeInfoCount(This,pctinfo)	\
+    (This)->lpVtbl -> GetTypeInfoCount(This,pctinfo)
+
+#define IBase64Codec_GetTypeInfo(This,iTInfo,lcid,ppTInfo)	\
+    (This)->lpVtbl -> GetTypeInfo(This,iTInfo,lcid,ppTInfo)
+
+#define IBase64Codec_GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)	\
+    (This)->lpVtbl -> GetIDsOfNames(This,riid,rgszNames,cNames,lcid,rgDispId)
+
+#define IBase64Codec_Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)	\
+    (This)->lpVtbl -> Invoke(This,dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr)
+
+
+#define IBase64Codec_Encode(This,numBytes)	\
+    (This)->lpVtbl -> Encode(This,numBytes)
+
+#define IBase64Codec_Decode(This,numBytes)	\
+    (This)->lpVtbl -> Decode(This,numBytes)
+
+#define IBase64Codec_get_EncodedData(This,pVal)	\
+    (This)->lpVtbl -> get_EncodedData(This,pVal)
+
+#define IBase64Codec_put_EncodedData(This,newVal)	\
+    (This)->lpVtbl -> put_EncodedData(This,newVal)
+
+#define IBase64Codec_get_DecodedData(This,pVal)	\
+    (This)->lpVtbl -> get_DecodedData(This,pVal)
+
+#define IBase64Codec_put_DecodedData(This,newVal)	\
+    (This)->lpVtbl -> put_DecodedData(This,newVal)
+
+#endif /* COBJMACROS */
+
+
+#endif 	/* C style interface */
+
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE IBase64Codec_Encode_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    int numBytes);
+
+
+void __RPC_STUB IBase64Codec_Encode_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE IBase64Codec_Decode_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    int numBytes);
+
+
+void __RPC_STUB IBase64Codec_Decode_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE IBase64Codec_get_EncodedData_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    /* [retval][out] */ BSTR __RPC_FAR *pVal);
+
+
+void __RPC_STUB IBase64Codec_get_EncodedData_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE IBase64Codec_put_EncodedData_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    /* [in] */ BSTR newVal);
+
+
+void __RPC_STUB IBase64Codec_put_EncodedData_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id][propget] */ HRESULT STDMETHODCALLTYPE IBase64Codec_get_DecodedData_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    /* [retval][out] */ BYTE __RPC_FAR *__RPC_FAR *pVal);
+
+
+void __RPC_STUB IBase64Codec_get_DecodedData_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id][propput] */ HRESULT STDMETHODCALLTYPE IBase64Codec_put_DecodedData_Proxy( 
+    IBase64Codec __RPC_FAR * This,
+    /* [in] */ BYTE __RPC_FAR *newVal);
+
+
+void __RPC_STUB IBase64Codec_put_DecodedData_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+
+#endif 	/* __IBase64Codec_INTERFACE_DEFINED__ */
+
+
 
 #ifndef __LICPROC_COMLib_LIBRARY_DEFINED__
 #define __LICPROC_COMLib_LIBRARY_DEFINED__
@@ -533,6 +793,14 @@ EXTERN_C const CLSID CLSID_LicProc;
 
 class DECLSPEC_UUID("5A084CF4-C6E2-42B5-A918-1FAD5EA08F38")
 LicProc;
+#endif
+
+EXTERN_C const CLSID CLSID_Base64Codec;
+
+#ifdef __cplusplus
+
+class DECLSPEC_UUID("B5FDF0C6-247C-4056-9B2E-BB9DEC497CA8")
+Base64Codec;
 #endif
 #endif /* __LICPROC_COMLib_LIBRARY_DEFINED__ */
 

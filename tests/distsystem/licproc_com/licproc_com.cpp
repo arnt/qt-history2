@@ -12,12 +12,14 @@
 
 #include "licproc_com_i.c"
 #include "LicProc.h"
+#include "Base64Codec.h"
 
 
 CComModule _Module;
 
 BEGIN_OBJECT_MAP(ObjectMap)
 OBJECT_ENTRY(CLSID_LicProc, LicProc)
+OBJECT_ENTRY(CLSID_Base64Codec, CBase64Codec)
 END_OBJECT_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
