@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#62 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#62 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -319,6 +319,7 @@ QPainter::QPainter()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    pdev = 0;
     hdc = hpen = hbrush = hbrushbm = 0;
     txop = txinv = 0;
     pixmapBrush = nocolBrush = FALSE;
@@ -390,10 +391,9 @@ void QPainter::updatePen()
 	release_pen( penRef );
 	penRef = 0;
 	hpen_old = 0;
-    }
-    else
+    } else {
 	hpen_old = hpen;
-
+    }
     if ( cacheIt ) {
 	if ( ps == NoPen ) {
 	    hpen = stock_nullPen;
@@ -474,10 +474,9 @@ void QPainter::updateBrush()
 	release_brush( brushRef );
 	brushRef = 0;
 	hbrush_old = 0;
-    }
-    else
+    } else {
 	hbrush_old = hbrush;
-
+    }
     if ( cacheIt ) {
 	if ( bs == NoBrush ) {
 	    hbrush = stock_nullBrush;
@@ -519,8 +518,7 @@ void QPainter::updateBrush()
 	    hbrushbm = cbrush.pixmap()->hbm();
 	    pixmapBrush = TRUE;
 	    nocolBrush = cbrush.pixmap()->depth() == 1;
-	}
-	else {
+	} else {
 	    short *bm = dense_patterns[ bs - Dense1Pattern ];
 	    hbrushbm = CreateBitmap( 8, 8, 1, 1, bm );
 	    nocolBrush = TRUE;
@@ -764,8 +762,7 @@ bool QPainter::end()
 	    ReleaseDC( w->winId(), hdc );
 	    w->hdc = 0;
 	}
-    }
-    else if ( pdev->devType() == PDT_PIXMAP ) {
+    } else if ( pdev->devType() == PDT_PIXMAP ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
 	if ( pm->isOptimized() )
@@ -782,6 +779,12 @@ bool QPainter::end()
     pdev = 0;
     hdc	 = 0;
     return TRUE;
+}
+
+
+void QPainter::flush()
+{
+    GdiFlush();
 }
 
 

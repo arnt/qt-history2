@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#203 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#202 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#203 $");
 
 
 /*****************************************************************************
@@ -307,8 +307,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 			*ref = (void *)g;
 			*gc = g->gc;
 			return TRUE;
-		    }
-		    else {			// all GCs in use
+		    } else {			// all GCs in use
 #if defined(GC_CACHE_STAT)
 			g_numfaults++;
 #endif
@@ -336,8 +335,7 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 	    gc_cache[k-2] = g;
 	}
 	return TRUE;
-    }
-    else {					// create new GC
+    } else {					// create new GC
 #if defined(GC_CACHE_STAT)
 	g_numcreates++;
 #endif
@@ -421,9 +419,9 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
     if ( pdev == 0 )
 	warning( "QPainter::redirect: The pdev argument cannot be 0" );
 #endif
-    if ( replacement )
+    if ( replacement ) {
 	pdev_dict->insert( (long)pdev, replacement );
-    else {
+    } else {
 	pdev_dict->remove( (long)pdev );
 	if ( pdev_dict->count() == 0 ) {
 	    delete pdev_dict;
@@ -453,6 +451,8 @@ QPainter::QPainter()
     tabarraylen = 0;
     ps_stack = 0;
     gc = gc_brush = 0;
+    pdev = 0;
+    dpy  = 0;
     txop = txinv = 0;
     penRef = brushRef = 0;
 }
@@ -550,17 +550,16 @@ void QPainter::updatePen()
 	    return;
 	if ( !penRef )
 	    gc = alloc_gc( dpy, hd, FALSE );
-    }
-    else {
+    } else {
 	if ( gc ) {
 	    if ( penRef ) {
 		release_gc( penRef );
 		penRef = 0;
 		gc = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
-	}
-	else
+	} else {
 	    gc = alloc_gc( dpy, hd, testf(MonoDev) );
+	}
     }
 
     char *dashes = 0;				// custom pen dashes
@@ -671,17 +670,16 @@ static uchar *pat_tbl[] = {
 	    return;
 	if ( !brushRef )
 	    gc_brush = alloc_gc( dpy, hd, FALSE );
-    }
-    else {
+    } else {
 	if ( gc_brush ) {
 	    if ( brushRef ) {
 		release_gc( brushRef );
 		brushRef = 0;
 		gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
 	    }
-	}
-	else
+	} else {
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
+	}
     }
 
     uchar *pat = 0;				// pattern
@@ -720,8 +718,7 @@ static uchar *pat_tbl[] = {
 	if ( pm->depth() == 1 ) {
 	    XSetStipple( dpy, gc_brush, pm->handle() );
 	    s = bg_mode == TransparentMode ? FillStippled : FillOpaqueStippled;
-	}
-	else {
+	} else {
 	    XSetTile( dpy, gc_brush, pm->handle() );
 	    s = FillTiled;
 	}
@@ -792,9 +789,9 @@ bool QPainter::begin( const QPaintDevice *pd )
 	pdev = pdev_dict->find( (long)pd );
 	if ( !pdev )				// no
 	    pdev = (QPaintDevice *)pd;
-    }
-    else
+    } else {
 	pdev = (QPaintDevice *)pd;
+    }
 
     if ( pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(CHECK_STATE)
@@ -865,8 +862,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
 	    XSetSubwindowMode( dpy, gc_brush, IncludeInferiors );
 	}
-    }
-    else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
+    } else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
 #if defined(CHECK_NULL)
@@ -883,8 +879,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	}
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
-    }
-    else if ( testf(ExtDev) ) {			// external device
+    } else if ( testf(ExtDev) ) {		// external device
 	ww = vw = pdev->metric( PDM_WIDTH );
 	wh = vh = pdev->metric( PDM_HEIGHT );
     }
@@ -924,9 +919,9 @@ bool QPainter::end()				// end painting
 	if ( brushRef ) {
 	    release_gc( brushRef );
 	    brushRef = 0;
-	}
-	else
+	} else {
 	    free_gc( dpy, gc_brush );
+	}
 	gc_brush = 0;
 
     }
@@ -934,9 +929,9 @@ bool QPainter::end()				// end painting
 	if ( penRef ) {
 	    release_gc( penRef );
 	    penRef = 0;
-	}
-	else
+	} else {
 	    free_gc( dpy, gc );
+	}
 	gc = 0;
     }
 
@@ -946,7 +941,19 @@ bool QPainter::end()				// end painting
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
     pdev = 0;
+    dpy  = 0;
     return TRUE;
+}
+
+
+/*!
+  Flushes any buffered drawing operations.
+*/
+
+void QPainter::flush()
+{
+    if ( isActive() && dpy )
+	XFlush( dpy );
 }
 
 
