@@ -356,7 +356,9 @@ MakefileGenerator::init()
                          subs.at(i).toLatin1().constData());
                 continue;
             }
-            QFile in(fileFixify(subs.at(i))), out(subs.at(i).left(subs.at(i).length()-3));
+            QFile in(fileFixify(subs.at(i))), out(fileInfo(subs.at(i)).fileName());
+            if(out.fileName().endsWith(".in"))
+                out.setFileName(out.fileName().left(out.fileName().length()-3));
             if(in.open(QFile::ReadOnly)) {
                 QString contents;
                 QStack<int> state;
