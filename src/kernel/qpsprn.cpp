@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#15 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#15 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -28,22 +28,6 @@ static char *ps_header =
 ;
 #endif
 
-
-/*!
-  \class QPSPrinter qpsprn.h
-  \brief Internal class used by QPrinter under X-Windows to generate
-  PostScript output.
-
-  It is generally a very bad idea to use this class directly in
-  application programs.
-
-  Use QPrinter instead unless you understand the implementation of
-  both QPSPrinter and QPrinter well and have special demands. */
-
-/*!
-  \internal
-  Constructs a PS printer driver connected to the printer \e prt.
-*/
 
 QPSPrinter::QPSPrinter( QPrinter *prt )
     : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
