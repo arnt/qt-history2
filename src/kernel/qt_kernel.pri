@@ -252,13 +252,4 @@ kernel {
 	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp \
 	      		 $$KERNEL_CPP/qregion_wce.cpp
 	}
-
-	accessibility {
-	      HEADERS += $$KERNEL_H/qaccessible.h
-	      SOURCES += $$KERNEL_CPP/qaccessible.cpp
-
-	      mac:SOURCES += $$KERNEL_CPP/qaccessible_mac.cpp
-	      else:win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
-	      else:SOURCES += $$KERNEL_CPP/qaccessible_unix.cpp
-	}
 }

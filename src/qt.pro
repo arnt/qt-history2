@@ -44,6 +44,7 @@ XML_CPP	        = xml
 STYLES_CPP	= styles
 COMPAT_CPP	= compat
 EMBEDDED_CPP	= embedded
+ACCESSIBLE_CPP  = accessible
 
 win32 {
 	contains(QT_PRODUCT,qt-internal) {
@@ -62,6 +63,7 @@ win32 {
 		XML_H		= $$XML_CPP
 		CANVAS_H	= $$CANVAS_CPP
 		STYLES_H	= $$STYLES_CPP
+		ACCESSIBLE_H	= $$ACCESSIBLE_CPP
 		COMPAT_H	= $$COMPAT_CPP
 	} else {
 		WIN_ALL_H = ../include
@@ -80,6 +82,7 @@ win32 {
 		XML_H		= $$WIN_ALL_H
 		CANVAS_H	= $$WIN_ALL_H
 		STYLES_H	= $$WIN_ALL_H
+		ACCESSIBLE_H	= $$WIN_ALL_H
 		COMPAT_H	= $$WIN_ALL_H
 		CONFIG 		-= incremental
 	}
@@ -109,6 +112,7 @@ unix {
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H		= $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
+	ACCESSIBLE_H	= $$ACCESSIBLE_CPP
 	COMPAT_H	= $$COMPAT_CPP
 	!embedded:!mac:CONFIG	   += x11 x11inc
 }
@@ -168,6 +172,7 @@ include($$TOOLS_CPP/qt_tools.pri)
 include($$CODECS_CPP/qt_codecs.pri)
 include($$STYLES_CPP/qt_styles.pri)
 embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
+include($$ACCESSIBLE_CPP/qt_accessible.pri)
 
 # qconfig.cpp
 exists($$QT_BUILD_TREE/src/tools/qconfig.cpp) {
