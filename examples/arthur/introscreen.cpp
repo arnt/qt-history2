@@ -74,8 +74,10 @@ void IntroScreen::paintEvent(QPaintEvent *)
     p.fillRect(0, 0, 100, h, QBrush(QPoint(0, 0), grey, QPoint(100, 0), Qt::white));
     p.fillRect(w-100, 0, 100, h, QBrush(QPoint(w, 0), grey, QPoint(w-100, 0), Qt::white));
 
-    p.drawTiledPixmap(QRect(textRect.x(), 0, textRect.width(), 100), topGradient);
-    p.drawTiledPixmap(QRect(textRect.x(), h-100, textRect.width(), 100), bottomGradient);
+    if (attributes->alpha) {
+        p.drawTiledPixmap(QRect(textRect.x(), 0, textRect.width(), 100), topGradient);
+        p.drawTiledPixmap(QRect(textRect.x(), h-100, textRect.width(), 100), bottomGradient);
+    }
 }
 
 void IntroScreen::mousePressEvent(QMouseEvent *e)

@@ -98,10 +98,10 @@ DemoViewer::DemoViewer(QWidget *parent)
     QBoxLayout *props = new QBoxLayout(QBoxLayout::TopToBottom, opts);
     props->setMargin(6);
 
-    antialias = new QCheckBox(tr("Antialiasing"), this);
-    alpha = new QCheckBox(tr("Alphablended primitives"), this);
+    antialias = new QCheckBox(tr("Antialiasing"), opts);
+    alpha = new QCheckBox(tr("Alphablended primitives"), opts);
 
-    bgMode = new QComboBox(this);
+    bgMode = new QComboBox(opts);
     QStringList items;
     items << tr("Solid Fill")
           << tr("Gradient Fill")
@@ -169,13 +169,6 @@ void DemoViewer::itemSelected()
 
     widgets->setCurrentIndex(widgets->indexOf(demoWidget));
     demoWidget->startAnimation();
-
-    // Since we start with it and we cannot change anything there...
-    bool introScreen = name == "Arthur - The Paint Engine";
-    antialias->setEnabled(!introScreen);
-    alpha->setEnabled(!introScreen);
-    bgMode->setEnabled(!introScreen);
-
 }
 
 void DemoViewer::antialiasChanged(bool val)
