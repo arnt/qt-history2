@@ -746,7 +746,8 @@ LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (qApp) {
 	qApp->sendPostedEvents();
-	qApp->eventLoop()->activateSocketNotifiers();
+    // ##FIXME!!!
+	//qApp->eventLoop()->activateSocketNotifiers();
 	qWinProcessConfigRequests();
     }
 
@@ -3982,7 +3983,7 @@ bool QAxServerBase::eventFilter(QObject *o, QEvent *e)
     case QEvent::MouseMove:
 	if (o == qt.object && hasStockEvents) {
 	    QMouseEvent *me = (QMouseEvent*)e;
-	    int button = me->buttons() & Qt::MouseButtonMask;
+	    int button = me->buttons(); //& MouseButtonMask;
 	    int state = mapModifiers(me->modifiers());
 	    int x = me->x();
 	    int y = me->y();
