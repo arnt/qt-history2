@@ -307,6 +307,12 @@ public:
 
 */
 
+QDirModel::QDirModel(QObject *parent)
+    : QAbstractItemModel(*new QDirModelPrivate, parent)
+{
+    init(QDir::root()); // FIXME_ROOT
+}
+
 /*!
   Constructs a directory model of the \a directory with a \a parent
   object.
@@ -517,6 +523,8 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 
 bool QDirModel::isEditable(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return false;
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("isEditable: the node does not exist");
@@ -532,9 +540,9 @@ bool QDirModel::isEditable(const QModelIndex &index) const
   be dragged; otherwise returns false.
 */
 
-bool QDirModel::isDragEnabled(const QModelIndex &) const
+bool QDirModel::isDragEnabled(const QModelIndex &index) const
 {
-    return true;
+    return index.isValid();
 }
 
 /*!
@@ -824,7 +832,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 QModelIndex QDirModel::index(const QString &path) const
 {
     QModelIndex parent;
-    QStringList pth = QDir::convertSeparators(path).split('/', QString::SkipEmptyParts);
+    QStringList pth = QDir::convertSeparators(path).split(QDir::separator(), QString::SkipEmptyParts);
     if (pth.isEmpty())
         return QModelIndex();
     QStringList entries;
@@ -859,8 +867,6 @@ QString QDirModel::path(const QModelIndex &index) const
     if (!index.isValid())
         pth = d->root.path();
     pth = fileInfo(index).absoluteFilePath();
-    if (pth.isEmpty()) // FIXME: this is a wokraround for a bug in QDir
-        return "/";
     return QDir::cleanPath(pth);
 }
 
@@ -885,7 +891,7 @@ QString QDirModel::name(const QModelIndex &index) const
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return QFileInfo("/");
+        return QFileInfo(d->root.absolutePath()); // FIXME_ROOT
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("fileInfo: the node does not exist");
