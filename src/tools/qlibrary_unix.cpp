@@ -37,6 +37,9 @@
  extern "C" {
 # include "mach-o/dyld.h"
  }
+#ifdef QT_THREAD_SUPPORT
+#  include <private/qmutexpool_p.h>
+#endif // QT_THREAD_SUPPORT
 #include "qdict.h"
 #include "qdir.h"
 #include "qstringlist.h"
