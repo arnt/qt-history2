@@ -962,9 +962,14 @@ void MainWindow::fileNewDialog()
 {
     static int forms = 0;
     QString n = "Dialog" + QString::number( ++forms );
+    while ( currentProject->findFormFile( n + ".ui" ) )
+	n = "Dialog" + QString::number( ++forms );
     FormWindow *fw = 0;
     FormFile *ff = new FormFile( n + ".ui", FALSE, currentProject );
     fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
+    ff->setModified( TRUE );
+    currentProject->setModified( TRUE );
+    workspace()->update();
     fw->setProject( currentProject );
     MetaDataBase::addEntry( fw );
     QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QDialog" ), fw, n.latin1() );
@@ -988,6 +993,9 @@ void MainWindow::fileNewFile()
 	name += ".qs";
     SourceFile *f = new SourceFile( name, FALSE, currentProject );
     MainWindow::self->editSource( f );
+    f->setModified( TRUE );
+    currentProject->setModified( TRUE );
+    workspace()->update();
 }
 
 void MainWindow::fileQuit()
