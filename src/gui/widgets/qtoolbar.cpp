@@ -265,6 +265,18 @@ void QToolBar::setArea(Qt::ToolBarArea area, bool linebreak)
 Qt::ToolBarArea QToolBar::area() const
 { return d->area; }
 
+/*!
+    Removes all actions from the tool bar.
+
+    \sa removeAction()
+*/
+void QToolBar::clear()
+{
+    QList<QAction *> actions = this->actions();
+    for(int i = 0; i < actions.size(); i++)
+        removeAction(actions.at(i));
+}
+
 /*! \fn void QToolBar::addAction(QAction *action)
 
     Adds \a action to the end of the tool bar.
@@ -484,18 +496,19 @@ void QToolBar::actionEvent(QActionEvent *event)
             Q_ASSERT_X(!widgetAction || d->indexOf(widgetAction) == -1,
                        "QToolBar", "widgets cannot be inserted multiple times");
 
+            QToolBarItem item = d->createItem(action);
             if (event->before()) {
                 int index = d->indexOf(event->before());
                 Q_ASSERT_X(index >= 0 && index < d->items.size(), "QToolBar::insertAction",
                            "internal error");
-                QToolBarItem item = d->createItem(action);
                 d->items.insert(index, item);
                 qt_cast<QBoxLayout *>(layout())->insertWidget(index + 1, item.widget);
             } else {
-                QToolBarItem item = d->createItem(action);
                 d->items.append(item);
                 qt_cast<QBoxLayout *>(layout())->insertWidget(d->items.size(), item.widget);
             }
+            if (isShown())
+                item.widget->show();
             break;
         }
 
@@ -520,7 +533,9 @@ void QToolBar::actionEvent(QActionEvent *event)
             if (!widgetAction) {
                 // destroy the QToolBarButton/QToolBarSeparator
                 delete item.widget;
-                item.widget = 0;
+            } else {
+                if (isShown())
+                    item.widget->hide();
             }
             break;
         }

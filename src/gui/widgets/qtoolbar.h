@@ -37,6 +37,8 @@ public:
     void setArea(Qt::ToolBarArea area, bool linebreak = false);
     Qt::ToolBarArea area() const;
 
+    void clear();
+
     inline void addAction(QAction *action)
     { QWidget::addAction(action); }
     inline void insertAction(QAction *before, QAction *action)
