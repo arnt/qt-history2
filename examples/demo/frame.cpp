@@ -146,7 +146,6 @@ Frame::Frame( QWidget *parent, const char *name )
 
     mainMenu->insertItem( tr( "&File" ), fileMenu );
     mainMenu->insertItem( tr( "St&yle" ), styleMenu );
-    mainMenu->setItemChecked( idEnglish, TRUE );
 
     // category chooser
     QSplitter *splitter = new QSplitter( this );

@@ -34,7 +34,6 @@ protected:
 
 private:
     QWidget *createCategory( const QString& );
-    int idEnglish;
 
     QString title;
     QListBox *categories;
