@@ -815,6 +815,9 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op
 
   This function is called when the engine needs to be updated with
   a new brush, specified with \a brush. \a origin describes the brush origin.
+
+  If the brush is a gradient brush, the gradient points are specified
+  in device coordinates.
 */
 
 /*!

@@ -1463,6 +1463,9 @@ void QPainter::setClipRegion(const QRegion &r, Qt::ClipOperation op)
         return;
     }
 
+//     if (d->state->clipInfo.size() == 0 && op != Qt::NoClip)
+//         op = Qt::ReplaceClip;
+
     d->state->tmpClipRegion = r;
     d->state->tmpClipOp = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
@@ -1754,11 +1757,13 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 #endif
     Q_ASSERT(op != Qt::NoClip);
 
-    if (!isActive()
-        || (!hasClipping() && path.isEmpty()))
+    if (!isActive() || (!hasClipping() && path.isEmpty()))
         return;
 
     Q_D(QPainter);
+//     if (d->state->clipInfo.size() == 0 && op != Qt::NoClip)
+//         op = Qt::ReplaceClip;
+
     d->state->tmpClipPath = path;
     d->state->tmpClipOp = op;
     if (op == Qt::NoClip || op == Qt::ReplaceClip)
@@ -2253,11 +2258,25 @@ void QPainter::setBrush(const QBrush &brush)
 #endif
 
     Q_D(QPainter);
-    if (d->state->brush == brush)
+
+    QBrush newBrush = brush;
+
+    // Move brush coords to device so that the state is preserved even if
+    // we transform later.
+    if (brush.style() == Qt::LinearGradientPattern) {
+        newBrush = QBrush(brush.gradientStart() * d->state->matrix,
+                          brush.color(),
+                          brush.gradientStop() * d->state->matrix,
+                          brush.gradientColor());
+    }
+
+    if (d->state->brush == newBrush) {
         return;
-    d->state->brush = brush;
-    if (!brush.color().isValid())
+    }
+    d->state->brush = newBrush;
+    if (!newBrush.color().isValid())
         d->state->brush.setColor(Qt::black);
+
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
@@ -2295,6 +2314,18 @@ void QPainter::setBrush(Qt::BrushStyle style)
 const QBrush &QPainter::brush() const
 {
     Q_D(const QPainter);
+
+    if (d->state->brush.style() == Qt::LinearGradientPattern) {
+        if (!d->txinv) {
+            QPainter *that = (QPainter*)this;        // mutable
+            that->d_ptr->updateInvMatrix();
+        }
+        static QBrush tmp_brush = QBrush(d->state->brush.gradientStart() * d->invMatrix,
+                                         d->state->brush.color(),
+                                         d->state->brush.gradientStop() * d->invMatrix,
+                                         d->state->brush.gradientColor());
+        return tmp_brush;
+    }
     return d->state->brush;
 }
 

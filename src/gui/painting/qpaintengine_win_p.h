@@ -288,6 +288,8 @@ public:
     */
     void composeGdiPath(const QPainterPath &p);
 
+    void setNativeMatrix(const QMatrix &matrix);
+
     uint gdiplusInUse : 1;
     QGdiplusPaintEngine *gdiplusEngine;
 };

@@ -41,7 +41,7 @@
 #define M_PI 3.14159265358979
 #endif
 
-// #define QT_NO_NATIVE_XFORM
+#define QT_NO_NATIVE_XFORM
 // #define QT_NO_NATIVE_GRADIENT
 // #define QT_NO_NATIVE_PATH
 // #define QT_NO_NATIVE_ALPHA
@@ -304,9 +304,9 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
     return obtain_obj(ref, (HANDLE*)brush, pix, brush_cache, false);
 }
 
-
 #define release_pen        release_obj
 #define release_brush        release_obj
+
 
 QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr,
                                      PaintEngineFeatures caps)
@@ -325,7 +325,6 @@ QWin32PaintEngine::~QWin32PaintEngine()
 {
     delete d->gdiplusEngine;
 }
-
 
 bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 {
@@ -618,15 +617,15 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         QPainterPath path;
         path.addEllipse(r.x(), r.y(), r.width(), r.height());
         drawPath(path);
+        return;
     }
 #endif // QT_NO_NATIVE_PATH
 
     // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
     // so make sure it is the case.
     if (!d->ellipseHack) {
-        QMatrix oldMatrix = d->matrix;
-        updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
-        updateMatrix(oldMatrix);
+        d->setNativeMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+        d->setNativeMatrix(QMatrix());
         d->ellipseHack = true;
     }
 
@@ -936,6 +935,9 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
         return;
     }
 
+    if (d->txop > QPainterPrivate::TxNone)
+        d->setNativeMatrix(d->matrix);
+
     QFontEngine *fe = ti.fontEngine;
     QPainterState *state = painterState();
 
@@ -1081,10 +1083,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 
     }
 
-#if 0
-    if (nat_xf)
-        p->nativeXForm(false);
-#endif
+    if (d->txop > QPainterPrivate::TxNone)
+        d->setNativeMatrix(QMatrix());
 }
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
@@ -1285,9 +1285,9 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
                 (d->brushStyle == Qt::CustomPattern)) {
         if (d->brushStyle == Qt::CustomPattern) {
             // The brush pixmap can never be a multi cell pixmap
-            d->hbrushbm = brush.pixmap()->hbm();
+            d->hbrushbm = brush.texture().hbm();
             d->pixmapBrush = true;
-            d->nocolBrush = brush.pixmap()->depth() == 1;
+            d->nocolBrush = brush.texture().depth() == 1;
         } else {
             short *bm = dense_patterns[d->brushStyle - Qt::Dense1Pattern];
             d->hbrushbm = CreateBitmap(8, 8, 1, 1, bm);
@@ -1397,10 +1397,6 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
            mtx.m11(), mtx.m12(), mtx.m21(), mtx.m22(), mtx.dx(), mtx.dy(), ++counter);
 #endif
 
-#ifdef QT_NO_NATIVE_XFORM
-    return;
-#endif
-
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updateMatrix(mtx);
         return;
@@ -1414,29 +1410,12 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxTranslate;
     else
         d->txop = QPainterPrivate::TxNone;
+
     d->matrix = mtx;
 
-    XFORM m;
-    if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
-        m.eM11 = mtx.m11();
-        m.eM12 = mtx.m12();
-        m.eM21 = mtx.m21();
-        m.eM22 = mtx.m22();
-        m.eDx  = mtx.dx();
-        m.eDy  = mtx.dy();
-        SetGraphicsMode(d->hdc, GM_ADVANCED);
-        if (!SetWorldTransform(d->hdc, &m)) {
-            qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
-        }
-        d->advancedMode = true;
-    } else {
-        m.eM11 = m.eM22 = (float)1.0;
-        m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
-        SetGraphicsMode(d->hdc, GM_ADVANCED);
-        ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-        SetGraphicsMode(d->hdc, GM_COMPATIBLE);
-        d->advancedMode = false;
-    }
+#ifndef QT_NO_NATIVE_XFORM
+    d->setNativeMatrix(mtx);
+#endif
 }
 
 static const int qt_clip_operations[] = {
@@ -1446,17 +1425,26 @@ static const int qt_clip_operations[] = {
     RGN_OR          // Qt::UniteClip
 };
 
+#ifdef QT_DEBUG_DRAW
+static const char *qt_clip_operation_names[] = {
+    "NoClip",
+    "ReplaceClip",
+    "IntersectClip",
+    "UniteClip"
+};
+#endif
+
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
-    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], op=%d, calls=%d\n",
+    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], %s, calls=%d\n",
            region.rects().size(),
            region.boundingRect().x(),
            region.boundingRect().y(),
            region.boundingRect().width(),
            region.boundingRect().height(),
-           op,
+           qt_clip_operation_names[op],
            ++counter);
 #endif
     // Sanity check since we use it blindly below.
@@ -1502,6 +1490,14 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
 
 void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
+#ifdef QT_DEBUG_DRAW
+    QRectF bounds = path.boundingRect();
+    printf(" - QWin32PaintEngine::updateClipPath, size=%d, [%.2f %.2f %.2f %.2f], %s\n",
+           path.elementCount(), bounds.x(), bounds.y(), bounds.width(), bounds.height(),
+           qt_clip_operation_names[op]);
+#endif
+
+
 #ifdef QT_NO_NATIVE_PATH
     QPaintEngine::updateClipPath(path, op);
     return;
@@ -1519,7 +1515,11 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
     } else if (path.isEmpty()) {
         updateClipRegion(QRegion(), op);
     } else {
-        d->composeGdiPath(path);
+        d->composeGdiPath(path
+#ifndef QT_NO_NATIVE_XFORM
+                          * d->matrix
+#endif
+                          );
         SelectClipPath(d->hdc, qt_clip_operations[op]);
     }
 }
@@ -1599,7 +1599,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
     gstart -= rect.topLeft();
     gstop -= rect.topLeft();
 
-
     int dx = gstop.x() - gstart.x();
     int dy = gstop.y() - gstart.y();
 
@@ -1628,7 +1627,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
             Q_ASSERT(xtop2 > xtop1);
         }
 
-#ifndef QT_GRAD_NO_POLY
         // Fill the area to the left of the gradient
         TRIVERTEX polygon[4];
         int polyCount = 0;
@@ -1652,7 +1650,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 	polygon[polyCount++] = createVertex(xbot2-1, rh, gcol2);
         gtrCount = polyCount == 4 ? 2 : 1;
         GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
-#endif // QT_GRAD_NO_POLY
 
         polygon[0] = createVertex(xtop1, 0, gcol1);
         polygon[1] = createVertex(xbot1, rh, gcol1);
@@ -1682,7 +1679,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
             Q_ASSERT(yleft2 > yleft1);
         }
 
-#ifndef QT_GRAD_NO_POLY
         TRIVERTEX polygon[4];
         int polyCount = 0;
         polygon[polyCount++] = createVertex(0, yleft1+1, gcol1);
@@ -1704,7 +1700,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 	polygon[polyCount++] = createVertex(rw, yright2-1, gcol2);
         gtrCount = polyCount == 4 ? 2 : 1;
         GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
-#endif // QT_GRAD_NO_POLY
 
         polygon[0] = createVertex(0, yleft1, gcol1);
         polygon[1] = createVertex(rw, yright1, gcol1);
@@ -1712,7 +1707,6 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
         polygon[3] = createVertex(0, yleft2, gcol2);
         GradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
     }
-
 
     if (useMemDC) {
         if (gcol1.alpha() != 255 || gcol2.alpha() != 255) {
@@ -1829,6 +1823,33 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
     q->updateState(q->state);
 }
+
+void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
+{
+
+    XFORM m;
+    if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
+        m.eM11 = mtx.m11();
+        m.eM12 = mtx.m12();
+        m.eM21 = mtx.m21();
+        m.eM22 = mtx.m22();
+        m.eDx  = mtx.dx();
+        m.eDy  = mtx.dy();
+        SetGraphicsMode(d->hdc, GM_ADVANCED);
+        if (!SetWorldTransform(d->hdc, &m)) {
+            qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
+        }
+        d->advancedMode = true;
+    } else {
+        m.eM11 = m.eM22 = (float)1.0;
+        m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
+        SetGraphicsMode(d->hdc, GM_ADVANCED);
+        ModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
+        SetGraphicsMode(d->hdc, GM_COMPATIBLE);
+        d->advancedMode = false;
+    }
+}
+
 
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 {
