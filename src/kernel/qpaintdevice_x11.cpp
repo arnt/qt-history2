@@ -540,7 +540,6 @@ static void create_dpis()
 		     / (DisplayHeightMM(dpy,i)*10);
     }
 }
-extern void     qX11ClearFontNameCache(); // defined in qfont_x11.cpp
 
 /*!
     Sets the value returned by x11AppDpiX() to \a dpi for screen
@@ -561,7 +560,6 @@ void QPaintDevice::x11SetAppDpiX(int dpi, int screen)
     if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
 	return;
     dpisX[ screen ] = dpi;
-    qX11ClearFontNameCache();
 }
 
 /*!
@@ -599,7 +597,6 @@ void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
     if ( screen > ScreenCount( QPaintDevice::x11AppDisplay() ) )
 	return;
     dpisY[ screen ] = dpi;
-    qX11ClearFontNameCache();
 }
 
 /*!

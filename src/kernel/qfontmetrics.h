@@ -54,6 +54,7 @@ class Q_EXPORT QFontMetrics
 {
 public:
     QFontMetrics( const QFont & );
+    QFontMetrics( const QFont &, QFont::Script );
     QFontMetrics( const QFontMetrics & );
     ~QFontMetrics();
 
@@ -105,8 +106,7 @@ private:
 
     QFontPrivate  *d;
     QPainter      *painter;
-    int		   flags;
-
+    int		   fscript;
 };
 
 

@@ -61,7 +61,7 @@
 #include "qpainter.h"
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
-#include "qimage.h"
+#include "qimage.h"o
 #include "qdatetime.h"
 #include "qstring.h"
 #include "qdict.h"
@@ -97,6 +97,7 @@
 
 #ifdef Q_WS_X11
 #include "qfontdata_p.h"
+#include "qfontengine_p.h"
 extern bool qt_has_xft;
 #endif
 
@@ -4675,18 +4676,17 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 )
     bool xlfd = FALSE;
     if ( priv->embedFonts ) {
-	f.d->load( (QFont::Script)script );
-	QFontStruct *fs = f.d->x11data.fontstruct[script];
-	//qDebug("fs = %p, script=%d", fs, script);
+	QFontEngine *engine = f.d->engineForScript( (QFont::Script) script );
+	//qDebug("engine = %p, script=%d", engine, script);
 
 #ifndef QT_NO_XFTFREETYPE
-	if ( qt_has_xft && fs && fs->type() == QFontEngine::Xft ) {
+	if ( qt_has_xft && engine && engine->type() == QFontEngine::Xft ) {
 	    // ### cache filename directly!
-	    //qDebug("fontstruct name: %s", fs->name.data());
-	    XftPattern *pattern = XftNameParse(fs->name());
+	    //qDebug("fontstruct name: %s", engine->name.data());
+	    XftPattern *pattern = XftNameParse(engine->name());
 	    //qDebug("xfthandle=%p", font);
 	    char *filename = 0;
 	    XftResult res;
@@ -4703,8 +4703,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 #endif
 	{
 	    QString rawName;
-	    if ( fs && fs != (QFontStruct *)-1 )
-		rawName = fs->name();
+	    if ( engine && engine != (QFontEngine *)-1 )
+		rawName = engine->name();
 	    int index = rawName.find('-');
 	    if (index == 0) {
 		// this is an XLFD font name
@@ -4754,7 +4754,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 #endif
 
     QString searchname = xfontname;
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11)
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
     if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo )
@@ -4766,7 +4766,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     if ( p )
 	return;
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11)
     if ( priv->embedFonts && xlfd ) {
 
 	for (QStringList::Iterator it=priv->fontpath.begin(); it!=priv->fontpath.end() && fontfilename.isEmpty(); ++it) {

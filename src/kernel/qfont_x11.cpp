@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+#define QT_FATAL_ASSERT
+
 // REVISED: brad
 
 #include "qplatformdefs.h"
@@ -43,7 +45,6 @@
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
 #include "qtextengine_p.h"
-#include <private/qcomplextext_p.h>
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
@@ -55,6 +56,8 @@
 #include "qtextcodec.h"
 #include "qcleanuphandler.h"
 #include <private/qfontcodecs_p.h>
+
+#include "qfontengine_p.h"
 
 #ifndef QT_NO_XFTFREETYPE
 # include "qintdict.h"
@@ -122,75 +125,402 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
     return pSize;
 }
 
-// class definition in qfontdata_p.h
-QFontX11Data::QFontX11Data()
+QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
+
+/*!
+  Internal function that initializes the font system.
+
+  \internal
+  The font cache and font dict do not alloc the keys. The key is a QString
+  which is shared between QFontPrivate and QXFontName.
+*/
+void QFont::initialize()
 {
-    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
-	fontstruct[i] = 0;
+    // create global font cache
+    if ( ! QFontCache::instance ) (void) new QFontCache;
+
+#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
+    static bool codecs_once = FALSE;
+    if ( ! codecs_once ) {
+	(void) new QFontJis0201Codec;
+	(void) new QFontJis0208Codec;
+	(void) new QFontKsc5601Codec;
+	(void) new QFontGb2312Codec;
+	(void) new QFontGbkCodec;
+	(void) new QFontGb18030_0Codec;
+	(void) new QFontBig5Codec;
+	(void) new QFontBig5hkscsCodec;
+	(void) new QFontLaoCodec;
+	codecs_once = TRUE;
     }
-    memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
-}
+#endif // QT_NO_BIG_CODECS
+#endif // QT_NO_CODECS
 
-QFontX11Data::~QFontX11Data()
-{
-    QFontEngine *fe;
+    QTextCodec *codec = QTextCodec::codecForLocale();
+#if 0
+    // we have a codec for the locale - lets see if it's one of the CJK codecs,
+    // and change the script_table[Han].list to an appropriate list
+    if (codec) {
+	switch (codec->mibEnum()) {
+	case 2025: // GB2312
+	case 57: // gb2312.1980-0
+	case 113: // GBK
+	case -113: // gbk-0
+	case 114: // GB18030
+	case -114: // gb18030-0
+	    script_table[QFont::Han].list = hancn_encodings;
+	    break;
 
-    for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
-	fe = fontstruct[i];
-	fontstruct[i] = 0;
+	case 2026: // Big5
+	case -2026: // big5-0, big5-eten.0
+	    script_table[QFont::Han].list = hantw_encodings;
+	    break;
 
-	if ( fe )
-	    fe->deref();
+	case 2101: // Big5-HKSCS
+	case -2101: // big5hkscs-0, hkscs-1
+	    script_table[QFont::Han].list = hanhk_encodings;
+	    break;
+
+	case 36: // KS C 5601
+	case 38: // EUC KR
+	    script_table[QFont::Han].list = hankr_encodings;
+	    break;
+
+	case 16: // JIS7
+	case 17: // SJIS
+	case 18: // EUC JP
+	case 63: // JIS X 0208
+	default:
+	    script_table[QFont::Han].list = hanjp_encodings;
+	    break;
+	}
+    } else
+	script_table[QFont::Han].list = hanjp_encodings;
+#endif
+
+    // get some sample text based on the users locale. we use this to determine the
+    // default script for the font system
+    QCString oldlctime = setlocale(LC_TIME, 0);
+    QCString lctime = setlocale(LC_TIME, "");
+
+    time_t ttmp = time(0);
+    struct tm *tt = 0;
+    char samp[64];
+    QString sample;
+
+    if ( ttmp != -1 ) {
+#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+	// use the reentrant versions of localtime() where available
+	tm res;
+	tt = localtime_r( &ttmp, &res );
+#else
+	tt = localtime( &ttmp );
+#endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
+
+	if ( tt != 0 && strftime( samp, 64, "%A%B", tt ) > 0 )
+	    if ( codec )
+		sample = codec->toUnicode( samp );
     }
-}
 
-/*
-  Clears the internal cache of mappings from QFont instances to X11
-  (XLFD) font names. Called from QPaintDevice::x11App
-  */
-void qX11ClearFontNameCache()
-{
-}
+    if ( ! sample.isNull() && ! sample.isEmpty() ) {
+	QFont::Script cs = QFont::NoScript, tmp;
+	const QChar *uc = sample.unicode();
+	QFontPrivate *priv = new QFontPrivate;
 
+	for ( uint i = 0; i < sample.length(); i++ ) {
+	    SCRIPT_FOR_CHAR( tmp, *uc );
+	    uc++;
+	    if ( tmp != cs && tmp != QFont::UnknownScript ) {
+		cs = tmp;
+		break;
+	    }
+	}
+	delete priv;
 
-// **********************************************************************
-// QFontPrivate static methods
-// **********************************************************************
-
-// Returns the family name that corresponds to the current style hint.
-QString QFontPrivate::defaultFamily() const
-{
-    switch (request.styleHint) {
-    case QFont::Times:
-	return QString::fromLatin1("times");
-
-    case QFont::Courier:
-	return QString::fromLatin1("courier");
-
-    case QFont::Decorative:
-	return QString::fromLatin1("old english");
-
-    case QFont::Helvetica:
-    case QFont::System:
-    default:
-	return QString::fromLatin1("helvetica");
+	if ( cs != QFont::UnknownScript )
+	    QFontPrivate::defaultScript = cs;
     }
+
+    setlocale( LC_TIME, oldlctime.data() );
 }
 
+/*! \internal
 
-// Returns a last resort family name for the font matching algorithm.
-QString QFontPrivate::lastResortFamily() const
+  Internal function that cleans up the font system.
+*/
+void QFont::cleanup()
+{
+    // delete the global font cache
+    delete QFontCache::instance;
+}
+
+/*!
+  \internal
+  X11 Only: Returns the screen with which this font is associated.
+*/
+int QFont::x11Screen() const
+{
+    return d->screen;
+}
+
+/*! \internal
+    X11 Only: Associate the font with the specified \a screen.
+*/
+void QFont::x11SetScreen( int screen )
+{
+    if ( screen < 0 ) // assume default
+	screen = QPaintDevice::x11AppScreen();
+
+    if ( screen == d->screen )
+	return; // nothing to do
+
+    detach();
+    d->screen = screen;
+}
+
+/*! \internal
+    Returns a QFontEngine for the specified \a script that matches the
+    QFontDef \e request member variable.
+*/
+void QFontPrivate::load( QFont::Script script )
+{
+#ifdef QT_CHECK_STATE
+    // sanity checks
+    Q_ASSERT( QFontCache::instance != 0);
+    Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
+#endif // QT_CHECK_STATE
+
+    int px = int( pixelSize( request, paintdevice, screen ) + .5 );
+    QFontDef req = request;
+    req.pixelSize = px;
+    req.pointSize = 0;
+    req.underline = req.strikeOut = 0;
+    req.mask = 0;
+
+    if ( ! engineData ) {
+	QFontCache::Key key( req, QFont::NoScript, screen );
+
+	// look for the requested font in the engine data cache
+	engineData = QFontCache::instance->findEngineData( key );
+
+	if ( ! engineData ) {
+	    // create a new one
+	    engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData( key, engineData );
+	} else {
+	    engineData->ref();
+	}
+    }
+
+    // load the font
+    QFontEngine *engine = 0;
+    double scale = 1.0; // ### TODO: fix the scale calculations
+
+    // list of families to try
+    QStringList family_list = QStringList::split( ',', request.family );
+
+    // append the substitute list for each family in family_list
+    QStringList subs_list;
+    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+    for ( ; it != end; ++it )
+	subs_list += QFont::substitutes( *it );
+    family_list += subs_list;
+
+    // append the default fallback font for the specified script
+    // family_list << ... ;
+
+    // null family means find the first font matching the specified script
+    family_list << QString::null;
+
+    it = family_list.begin(), end = family_list.end();
+    for ( ; ! engine && it != end; ++it ) {
+	req.family = *it;
+
+#ifdef Q_WS_X11
+	QFontCache::Key key( req, script, screen );
+#else
+	QFontCache::Key key( req, QFont::NoScript, screen );
+#endif // Q_WS_X11
+
+	// first, look in the font cache for a font...
+	engine = QFontCache::instance->findEngine( key );
+	if ( engine ) {
+	    if ( engine->type() != QFontEngine::Box ) {
+		// found a real font engine... stop
+		break;
+	    }
+
+	    if ( ! req.family.isEmpty() ) {
+		// don't accept a box font engine... retry with the
+		// next family in the list (if any)
+		engine = 0;
+	    }
+	    continue;
+	}
+
+	// not found in cache, try to load it...
+	engine = QFontDatabase::findFont( script, req, screen );
+
+	if ( ! engine ) {
+	    // couldn't load it, put a box font engine in the cache to
+	    // prevent multiple calls to QFontDatabase::findFont
+	    engine = new QFontEngineBox( px );
+	    QFontCache::instance->insertEngine( key, engine );
+
+	    if ( ! req.family.isEmpty() ) {
+		// don't accept a box font engine... retry with the
+		// next family in the list (if any)
+		engine = 0;
+	    }
+	} else {
+	    // insert the new font engine into the font cache
+	    QFontCache::instance->insertEngine( key, engine );
+	}
+    }
+
+    engine->ref();
+    engineData->engines[script] = engine;
+    // initFontInfo( script, scale );
+    // request.dirty = FALSE;
+}
+
+/*!
+    Returns TRUE if the font attributes have been changed and the font
+    has to be (re)loaded; otherwise returns FALSE.
+*/
+bool QFont::dirty() const
+{
+    return d->engineData == 0;
+}
+
+/*!
+    Returns the window system handle to the font, for low-level
+    access. Using this function is \e not portable.
+*/
+Qt::HANDLE QFont::handle() const
+{
+    QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    switch ( engine->type() ) {
+    case QFontEngine::XLFD:
+	return ((QFontEngineXLFD *) engine)->handle();
+
+    default: break;
+    }
+    return 0;
+}
+
+/*!
+    Returns the name of the font within the underlying window system.
+    On Windows, this is usually just the family name of a TrueType
+    font. Under X, it is an XLFD (X Logical Font Description). Using
+    the return value of this function is usually \e not \e portable.
+
+    \sa setRawName()
+*/
+QString QFont::rawName() const
+{
+    QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return QString::fromLatin1( engine->name() );
+}
+
+/*!
+    Sets a font by its system specific name. The function is
+    particularly useful under X, where system font settings (for
+    example X resources) are usually available in XLFD (X Logical Font
+    Description) form only. You can pass an XLFD as \a name to this
+    function.
+
+    In Qt 2.0 and later, a font set with setRawName() is still a
+    full-featured QFont. It can be queried (for example with italic())
+    or modified (for example with setItalic()) and is therefore also
+    suitable for rendering rich text.
+
+    If Qt's internal font database cannot resolve the raw name, the
+    font becomes a raw font with \a name as its family.
+
+    Note that the present implementation does not handle wildcards in
+    XLFDs well, and that font aliases (file \c fonts.alias in the font
+    directory on X11) are not supported.
+
+    \sa rawName(), setRawMode(), setFamily()
+*/
+void QFont::setRawName( const QString &name )
+{
+    detach();
+
+    setFamily( name );
+    setRawMode( TRUE );
+
+    // bool validXLFD =
+    //     QFontPrivate::fillFontDef( QFontPrivate::fixXLFD( name.latin1() ),
+    //                                &d->request, d->x11Screen ) ;
+    // d->request.dirty = TRUE;
+    //
+    // if ( !validXLFD ) {
+    // #ifdef QT_CHECK_STATE
+    //     qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
+    // #endif // QT_CHECK_STATE
+    //
+    //     setFamily( name );
+    //     setRawMode( TRUE );
+    // }
+}
+
+/*!
+    Returns the "last resort" font family name.
+
+    The current implementation tries a wide variety of common fonts,
+    returning the first one it finds. Is is possible that no family is
+    found in which case a null string is returned.
+
+    \sa lastResortFont()
+*/
+QString QFont::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
+/*!
+    Returns the family name that corresponds to the current style
+    hint.
 
-// Returns a last resort raw font name for the font matching algorithm.
-// This is used if even the last resort family is not available. It
-// returns \e something, almost no matter what.
-// The current implementation tries a wide variety of common fonts,
-// returning the first one it finds. The implementation may change at
-// any time.
+    \sa StyleHint styleHint() setStyleHint()
+*/
+QString QFont::defaultFamily() const
+{
+    switch ( d->request.styleHint ) {
+    case QFont::Times:
+	return QString::fromLatin1( "times" );
+
+    case QFont::Courier:
+	return QString::fromLatin1( "courier" );
+
+    case QFont::Decorative:
+	return QString::fromLatin1( "old english" );
+
+    case QFont::Helvetica:
+    case QFont::System:
+    default:
+	return QString::fromLatin1( "helvetica" );
+    }
+}
+
+/*
+  Returns a last resort raw font name for the font matching algorithm.
+  This is used if even the last resort family is not available. It
+  returns \e something, almost no matter what.  The current
+  implementation tries a wide variety of common fonts, returning the
+  first one it finds. The implementation may change at any time.
+*/
 static const char * const tryFonts[] = {
     "-*-helvetica-medium-r-*-*-*-120-*-*-*-*-*-*",
     "-*-courier-medium-r-*-*-*-120-*-*-*-*-*-*",
@@ -213,21 +543,51 @@ static const char * const tryFonts[] = {
     0
 };
 
-QString QFontPrivate::lastResortFont() const
+// Returns TRUE if the font exists, FALSE otherwise
+static bool fontExists( const QString &fontName )
+{
+    int count;
+    char **fontNames = XListFonts( QPaintDevice::x11AppDisplay(),
+				   (char*)fontName.latin1(), 32768, &count );
+    if ( fontNames ) XFreeFontNames( fontNames );
+
+    return count != 0;
+}
+
+/*!
+    Returns a "last resort" font name for the font matching algorithm.
+    This is used if the last resort family is not available. It will
+    always return a name, if necessary returning something like
+    "fixed" or "system".
+
+    The current implementation tries a wide variety of common fonts,
+    returning the first one it finds. The implementation may change
+    at any time, but this function will always return a string
+    containing something.
+
+    It is theoretically possible that there really isn't a
+    lastResortFont() in which case Qt will abort with an error
+    message. We have not been able to identify a case where this
+    happens. Please \link bughowto.html report it as a bug\endlink if
+    it does, preferably with a list of the fonts you have installed.
+
+    \sa lastResortFamily() rawName()
+*/
+QString QFont::lastResortFont() const
 {
     static QString last;
 
     // already found
-    if ( !last.isNull() )
+    if ( ! last.isNull() )
 	return last;
 
     int i = 0;
     const char* f;
 
-    while ( (f = tryFonts[i]) ) {
-	last = QString::fromLatin1(f);
+    while ( ( f = tryFonts[i] ) ) {
+	last = QString::fromLatin1( f );
 
-	if ( fontExists(last) )
+	if ( fontExists( last ) )
 	    return last;
 
 	i++;
@@ -241,59 +601,503 @@ QString QFontPrivate::lastResortFont() const
 }
 
 
-// Get an array of X font names that matches a pattern
-char **QFontPrivate::getXFontNames( const char *pattern, int *count )
+
+
+// **********************************************************************
+// QFontMetrics member methods
+// **********************************************************************
+
+/*!
+    Returns the ascent of the font.
+
+    The ascent of a font is the distance from the baseline to the
+    highest position characters extend to. In practice, some font
+    designers break this rule, e.g. when they put more than one accent
+    on top of a character, or to accommodate an unusual character in
+    an exotic language, so it is possible (though rare) that this
+    value will be too small.
+
+    \sa descent()
+*/
+int QFontMetrics::ascent() const
 {
-    return XListFonts( QPaintDevice::x11AppDisplay(), (char*)pattern, 32768, count );
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent();
 }
 
 
-// Returns TRUE if the font exists, FALSE otherwise
-bool QFontPrivate::fontExists( const QString &fontName )
+/*!
+    Returns the descent of the font.
+
+    The descent is the distance from the base line to the lowest point
+    characters extend to. (Note that this is different from X, which
+    adds 1 pixel.) In practice, some font designers break this rule,
+    e.g. to accommodate an unusual character in an exotic language, so
+    it is possible (though rare) that this value will be too small.
+
+    \sa ascent()
+*/
+int QFontMetrics::descent() const
 {
-    char **fontNames;
-    int count;
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
 
-    fontNames = getXFontNames( fontName.latin1(), &count );
+    return engine->descent();
+}
 
-    XFreeFontNames( fontNames );
+/*!
+    Returns TRUE if character \a ch is a valid character in the font;
+    otherwise returns FALSE.
+*/
+bool QFontMetrics::inFont(QChar ch) const
+{
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
 
-    return count != 0;
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    if ( engine->type() == QFontEngine::Box ) return FALSE;
+    return engine->canRender( &ch, 1 );
+}
+
+/*!
+    Returns the left bearing of character \a ch in the font.
+
+    The left bearing is the right-ward distance of the left-most pixel
+    of the character from the logical origin of the character. This
+    value is negative if the pixels of the character extend to the
+    left of the logical origin.
+
+    See width(QChar) for a graphical description of this metric.
+
+    \sa rightBearing(), minLeftBearing(), width()
+*/
+int QFontMetrics::leftBearing(QChar ch) const
+{
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    if ( engine->type() == QFontEngine::Box ) return 0;
+
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    return gi.x;
+}
+
+/*!
+    Returns the right bearing of character \a ch in the font.
+
+    The right bearing is the left-ward distance of the right-most
+    pixel of the character from the logical origin of a subsequent
+    character. This value is negative if the pixels of the character
+    extend to the right of the width() of the character.
+
+    See width() for a graphical description of this metric.
+
+    \sa leftBearing(), minRightBearing(), width()
+*/
+int QFontMetrics::rightBearing(QChar ch) const
+{
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    if ( engine->type() == QFontEngine::Box ) return 0;
+
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    return gi.xoff - gi.x - gi.width;
+}
+
+/*!
+    Returns the minimum left bearing of the font.
+
+    This is the smallest leftBearing(char) of all characters in the
+    font.
+
+    Note that this function can be very slow if the font is large.
+
+    \sa minRightBearing(), leftBearing()
+*/
+int QFontMetrics::minLeftBearing() const
+{
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return 0; // ### fix this calculation
+}
+
+/*!
+    Returns the minimum right bearing of the font.
+
+    This is the smallest rightBearing(char) of all characters in the
+    font.
+
+    Note that this function can be very slow if the font is large.
+
+    \sa minLeftBearing(), rightBearing()
+*/
+int QFontMetrics::minRightBearing() const
+{
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return 0; // ### fix this calculation
+}
+
+/*!
+    Returns the height of the font.
+
+    This is always equal to ascent()+descent()+1 (the 1 is for the
+    base line).
+
+    \sa leading(), lineSpacing()
+*/
+int QFontMetrics::height() const
+{
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->ascent() + engine->descent();
 }
 
 
-// Splits an X font name into fields separated by '-'
-bool QFontPrivate::parseXFontName(char *fontName, char **tokens)
+/*!
+    Returns the leading of the font.
+
+    This is the natural inter-line spacing.
+
+    \sa height(), lineSpacing()
+*/
+int QFontMetrics::leading() const
 {
-    if ( ! fontName || fontName[0] == '0' || fontName[0] != '-' ) {
-	tokens[0] = 0;
-	return FALSE;
-    }
+    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
 
-    int	  i;
-    ++fontName;
-    for ( i = 0; i < NFontFields && fontName && fontName[0]; ++i ) {
-	tokens[i] = fontName;
-	for ( ;; ++fontName ) {
-	    if ( *fontName == '-' )
-		break;
-	    if ( ! *fontName ) {
-		fontName = 0;
-		break;
-	    }
-	}
-
-	if ( fontName ) *fontName++ = '\0';
-    }
-
-    if ( i < NFontFields ) {
-	for ( int j = i ; j < NFontFields; ++j )
-	    tokens[j] = 0;
-	return FALSE;
-    }
-
-    return TRUE;
+    return engine->leading();
 }
+
+/*!
+    Returns the distance from one base line to the next.
+
+    This value is always equal to leading()+height().
+
+    \sa height(), leading()
+*/
+int QFontMetrics::lineSpacing() const
+{
+    return leading() + height();
+}
+
+/*! \fn int QFontMetrics::width( char c ) const
+
+  \overload
+  \obsolete
+
+  Provided to aid porting from Qt 1.x.
+*/
+
+/*!
+    \overload
+
+    <img src="bearings.png" align=right>
+
+    Returns the logical width of character \a ch in pixels. This is a
+    distance appropriate for drawing a subsequent character after \a
+    ch.
+
+    Some of the metrics are described in the image to the right. The
+    central dark rectangles cover the logical width() of each
+    character. The outer pale rectangles cover the leftBearing() and
+    rightBearing() of each character. Notice that the bearings of "f"
+    in this particular font are both negative, while the bearings of
+    "o" are both positive.
+
+    \warning This function will produce incorrect results for Arabic
+    characters or non spacing marks in the middle of a string, as the
+    glyph shaping and positioning of marks that happens when
+    processing strings cannot be taken into account. Use charWidth()
+    instead if you aren't looking for the width of isolated
+    characters.
+
+    \sa boundingRect(), charWidth()
+*/
+int QFontMetrics::width( QChar ch ) const
+{
+    if ( ch.unicode() < QFontEngineData::widthCacheSize &&
+	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
+	return d->engineData->widthCache[ ch.unicode() ];
+
+    if ( ::isMark( ch ) )
+	return 0;
+
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    if ( engine->type() == QFontEngine::Box )
+	return ((QFontEngineBox *) engine)->size();
+
+    glyph_t glyphs[10];
+    advance_t advances[10];
+    int nglyphs = 9;
+    engine->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
+    // ### can nglyphs != 1 happen at all? Not currently I think
+    if ( ch.unicode() < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
+	d->engineData->widthCache[ ch.unicode() ] = advances[0];
+
+    return advances[0];
+}
+
+/*!
+    Returns the width of the character at position \a pos in the
+    string \a str.
+
+    The whole string is needed, as the glyph drawn may change
+    depending on the context (the letter before and after the current
+    one) for some languages (e.g. Arabic).
+
+    This function also takes non spacing marks and ligatures into
+    account.
+*/
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+    if ( pos < 0 || pos > (int)str.length() )
+	return 0;
+
+    const QChar &ch = str.unicode()[ pos ];
+    if ( ch.unicode() < QFontEngineData::widthCacheSize &&
+	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
+	return d->engineData->widthCache[ ch.unicode() ];
+
+    QTextEngine layout( str,  d );
+    layout.itemize( FALSE );
+    int w = layout.width( pos, 1 );
+
+    if ( ch.unicode() < QFontEngineData::widthCacheSize && w < 0x100 )
+	d->engineData->widthCache[ ch.unicode() ] = w;
+
+    return w;
+}
+
+/*!
+    Returns the width in pixels of the first \a len characters of \a
+    str. If \a len is negative (the default), the entire string is
+    used.
+
+    Note that this value is \e not equal to boundingRect().width();
+    boundingRect() returns a rectangle describing the pixels this
+    string will cover whereas width() returns the distance to where
+    the next string should be drawn.
+
+    \sa boundingRect()
+*/
+int QFontMetrics::width( const QString &str, int len ) const
+{
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return 0;
+
+    QTextEngine layout( str, d );
+    layout.itemize( FALSE );
+    return layout.width( 0, len );
+}
+
+/*!
+    \overload
+
+    Returns the bounding rectangle of the character \a ch relative to
+    the left-most point on the base line.
+
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the text output may cover \e
+    all pixels in the bounding rectangle.
+
+    Note that the rectangle usually extends both above and below the
+    base line.
+
+    \sa width()
+*/
+QRect QFontMetrics::boundingRect( QChar ch ) const
+{
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+
+    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    glyph_t glyphs[10];
+    int nglyphs = 9;
+    engine->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
+    glyph_metrics_t gi = engine->boundingBox( glyphs[0] );
+    return QRect( gi.x, gi.y, gi.width, gi.height );
+}
+
+/*!
+    Returns the bounding rectangle of the first \a len characters of
+    \a str, which is the set of pixels the text would cover if drawn
+    at (0, 0).
+
+    If \a len is negative (the default), the entire string is used.
+
+    Note that the bounding rectangle may extend to the left of (0, 0),
+    e.g. for italicized fonts, and that the text output may cover \e
+    all pixels in the bounding rectangle.
+
+    Newline characters are processed as normal characters, \e not as
+    linebreaks.
+
+    Due to the different actual character heights, the height of the
+    bounding rectangle of e.g. "Yes" and "yes" may be different.
+
+    \sa width(), QPainter::boundingRect()
+*/
+QRect QFontMetrics::boundingRect( const QString &str, int len ) const
+{
+    if (len < 0)
+	len = str.length();
+    if (len == 0)
+	return QRect();
+
+    QTextEngine layout( str, d );
+    layout.itemize( FALSE );
+    glyph_metrics_t gm = layout.boundingBox( 0, len );
+    return QRect( gm.x, gm.y, gm.width, gm.height );
+}
+
+/*!
+    Returns the width of the widest character in the font.
+*/
+int QFontMetrics::maxWidth() const
+{
+    if ( ! d->engineData ) return 0;
+
+    QFontEngine *engine;
+    int w = 0;
+
+    for ( int i = 0; i < QFont::LastPrivateScript - 1; ++i ) {
+	engine = d->engineData->engines[i];
+	if ( ! engine ) continue;
+
+	w = QMAX( w, engine->maxCharWidth() );
+    }
+    return w;
+}
+
+/*!
+    Returns the distance from the base line to where an underscore
+    should be drawn.
+
+    \sa strikeOutPos(), lineWidth()
+*/
+int QFontMetrics::underlinePos() const
+{
+    int pos = ( ( lineWidth() * 2 ) + 3 ) / 6;
+    return pos ? pos : 1;
+}
+
+/*!
+    Returns the distance from the base line to where the strikeout
+    line should be drawn.
+
+    \sa underlinePos(), lineWidth()
+*/
+int QFontMetrics::strikeOutPos() const
+{
+    int pos = ascent() / 3;
+    return pos > 0 ? pos : 1;
+}
+
+/*!
+    Returns the width of the underline and strikeout lines, adjusted
+    for the point size of the font.
+
+    \sa underlinePos(), strikeOutPos()
+*/
+int QFontMetrics::lineWidth() const
+{
+    // lazy computation of linewidth
+    // d->computeLineWidth();
+    return d->engineData->lineWidth;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+// **********************************************************************
+// QFontPrivate static methods
+// **********************************************************************
 
 /*
   Removes wildcards from an XLFD.
@@ -333,7 +1137,6 @@ bool QFontPrivate::fillFontDef( void *vfs, QFontDef *fd, int screen )
 	XFree( n );
     return fillFontDef( xlfd.lower(), fd, screen );
 }
-
 
 /*
   Fills in a font definition (QFontDef) from an XLFD (X Logical Font
@@ -576,877 +1379,4 @@ void QFontPrivate::initFontInfo(QFont::Script script, double scale)
     actual.dirty = FALSE;
 }
 
-
-// Loads the font for the specified script
-static inline int maxIndex(XFontStruct *f) {
-    return (((f->max_byte1 - f->min_byte1) *
-	     (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)) +
-	    f->max_char_or_byte2 - f->min_char_or_byte2);
-}
-
-
-void QFontPrivate::load( QFont::Script script, bool )
-{
-    // Make sure fontCache is initialized
-    if (! fontCache) {
-#ifdef QT_CHECK_STATE
-	qFatal( "QFont: Must construct a QApplication before a QFont" );
-#endif // QT_CHECK_STATE
-
-	return;
-    }
-
-    if (script == QFont::NoScript)
-	script = defaultScript;
-
-    if (script > QFont::LastPrivateScript)
-	qFatal("QFontLoader: script %d is out of range", script);
-
-    if (x11data.fontstruct[script] && ! request.dirty)
-	return;
-
-    if (request.dirty) {
-	// dirty font needs to have the fontstruct deref'ed
-	QFontEngine *qfs = x11data.fontstruct[script];
-	x11data.fontstruct[script] = 0;
-
-	if (qfs) {
-	    // only deref here... we will let the cache take care of cleaning up
-	    // while the application is running
-	    qfs->deref();
-	}
-
-	// dirty unicode also if the font is dirty
-	qfs = x11data.fontstruct[QFont::Unicode];
-	x11data.fontstruct[QFont::Unicode] = 0;
-
-	if (qfs) {
-	    // only deref here... we will let the cache take care of cleaning up
-	    // while the application is running
-	    qfs->deref();
-	}
-
-	// make sure to recalculate fontinfo
-	actual.dirty = TRUE;
-    }
-
-    QFontEngine *fe = 0;
-    // ### fix the scale calculations
-    double scale = 1.0;
-
-    // list of families to try
-    QStringList family_list = QStringList::split( ',', request.family );
-
-    // append the substitute list for each family in family_list
-    QStringList subs_list;
-    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-    for ( ; it != end; ++it )
-	subs_list += QFont::substitutes( *it );
-    family_list += subs_list;
-
-    // append the default fallback font for the specified script
-    // family_list << ... ;
-
-    // null family means find the first font matching the specified script
-    family_list << QString::null;
-
-    int px = (int) (pixelSize( request, paintdevice, x11Screen )+.5);
-
-    QFontDef req = request, act;
-    it = family_list.begin(), end = family_list.end();
-    for ( ; ! fe && it != end; ++it ) {
-	req.family = *it;
-	req.pixelSize = px;
-
-	// First, look in fontCache for font...
-	int res = ( ( paintdevice ) ? QPaintDeviceMetrics( paintdevice ).logicalDpiY() :
-		    QPaintDevice::x11AppDpiY( x11Screen ) );
-	QString k = key( req ) +
-		    QString::fromLatin1( "/script" ) + QString::number( script ) +
-		    QString::fromLatin1( "/scr" ) + QString::number( x11Screen ) +
-		    QString::fromLatin1( "/res" ) + QString::number( res );
-	fe = fontCache->find( k );
-
-	if ( fe ) {
-	    if ( fe->type() != QFontEngine::Box )
-		break;
-
-	    if ( ! req.family.isEmpty() ) fe = 0;
-	    continue;
-	}
-
-	// not found in cache, try to load it...
-	fe = QFontDatabase::findFont( script, req, act, x11Screen );
-
-	if ( ! fe ) {
-	    // couldn't load it, use the box engine...
-	    fe = new QFontEngineBox( px );
-	    fontCache->insert( k, fe, fe->cache_cost );
-	    // ### what do we do here?
-	    // act = req;
-
-	    if ( ! req.family.isEmpty() ) fe = 0;
-	} else {
-	    fontCache->insert( k, fe, fe->cache_cost );
-	}
-    }
-
-    // ### do something with act if it is the default script? ...
-    // if ( script == defaultScript )
-    //     actual = act;
-
-    fe->ref();
-    x11data.fontstruct[script] = fe;
-    initFontInfo( script, scale );
-    request.dirty = FALSE;
-}
-
-
-
-
-
-// **********************************************************************
-// QFont methods
-// **********************************************************************
-
-
-/*!
-    Returns TRUE if the font attributes have been changed and the font
-    has to be (re)loaded; otherwise returns FALSE.
-*/
-bool QFont::dirty() const
-{
-    return d->request.dirty;
-}
-
-
-// **********************************************************************
-// QFont static methods
-// **********************************************************************
-
-QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
-QSingleCleanupHandler<QFontCache> cleanup_fontcache;
-
-/*!
-  Internal function that initializes the font system.
-
-  \internal
-  The font cache and font dict do not alloc the keys. The key is a QString
-  which is shared between QFontPrivate and QXFontName.
-*/
-void QFont::initialize()
-{
-    // create font cache and name dict
-    if ( ! QFontPrivate::fontCache ) {
-	QFontPrivate::fontCache = new QFontCache();
-	Q_CHECK_PTR(QFontPrivate::fontCache);
-	cleanup_fontcache.set(&QFontPrivate::fontCache);
-    }
-
-#ifndef QT_NO_CODECS
-#ifndef QT_NO_BIG_CODECS
-    static bool codecs_once = FALSE;
-    if ( ! codecs_once ) {
-	(void) new QFontJis0201Codec;
-	(void) new QFontJis0208Codec;
-	(void) new QFontKsc5601Codec;
-	(void) new QFontGb2312Codec;
-	(void) new QFontGbkCodec;
-	(void) new QFontGb18030_0Codec;
-	(void) new QFontBig5Codec;
-	(void) new QFontBig5hkscsCodec;
-	(void) new QFontLaoCodec;
-	codecs_once = TRUE;
-    }
-#endif // QT_NO_BIG_CODECS
-#endif // QT_NO_CODECS
-
-#if 0
-    QTextCodec *codec = QTextCodec::codecForLocale();
-    // we have a codec for the locale - lets see if it's one of the CJK codecs,
-    // and change the script_table[Han].list to an appropriate list
-    if (codec) {
-	switch (codec->mibEnum()) {
-	case 2025: // GB2312
-	case 57: // gb2312.1980-0
-	case 113: // GBK
-	case -113: // gbk-0
-	case 114: // GB18030
-	case -114: // gb18030-0
-	    script_table[QFont::Han].list = hancn_encodings;
-	    break;
-
-	case 2026: // Big5
-	case -2026: // big5-0, big5-eten.0
-	    script_table[QFont::Han].list = hantw_encodings;
-	    break;
-
-	case 2101: // Big5-HKSCS
-	case -2101: // big5hkscs-0, hkscs-1
-	    script_table[QFont::Han].list = hanhk_encodings;
-	    break;
-
-	case 36: // KS C 5601
-	case 38: // EUC KR
-	    script_table[QFont::Han].list = hankr_encodings;
-	    break;
-
-	case 16: // JIS7
-	case 17: // SJIS
-	case 18: // EUC JP
-	case 63: // JIS X 0208
-	default:
-	    script_table[QFont::Han].list = hanjp_encodings;
-	    break;
-	}
-    } else
-	script_table[QFont::Han].list = hanjp_encodings;
-
-    // get some sample text based on the users locale. we use this to determine the
-    // default script for the font system
-    QCString oldlctime = setlocale(LC_TIME, 0);
-    QCString lctime = setlocale(LC_TIME, "");
-
-    time_t ttmp = time(0);
-    struct tm *tt = 0;
-    char samp[64];
-    QString sample;
-
-    if (ttmp != -1) {
-#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
-	// use the reentrant versions of localtime() where available
-	tm res;
-	tt = localtime_r(&ttmp, &res);
-#else
-	tt = localtime(&ttmp);
-#endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
-	if (tt != 0 && strftime(samp, 64, "%A%B", tt) > 0)
-	    if (codec)
-		sample = codec->toUnicode(samp);
-    }
-
-    if (! sample.isNull() && ! sample.isEmpty()) {
-	QFont::Script cs = QFont::NoScript, tmp;
-	const QChar *uc = sample.unicode();
-	QFontPrivate *priv = new QFontPrivate;
-
-	for (uint i = 0; i < sample.length(); i++) {
-	    SCRIPT_FOR_CHAR( tmp, *uc );
-	    uc++;
-	    if (tmp != cs && tmp != QFont::UnknownScript) {
-		cs = tmp;
-		break;
-	    }
-	}
-	delete priv;
-
-	if (cs != QFont::UnknownScript)
-	    QFontPrivate::defaultScript = cs;
-    }
-
-    setlocale(LC_TIME, oldlctime.data());
-#else
-    QFontPrivate::defaultScript = QFont::Latin;
-#endif
-}
-
-
-/*! \internal
-
-  Internal function that cleans up the font system.
-*/
-void QFont::cleanup()
-{
-    // we don't delete the fontcache/namedict here because that is taken
-    // care of by our cleanup handlers
-    QFontPrivate::fontCache->setAutoDelete(TRUE);
-    QFontPrivate::fontCache->clear();
-}
-
-
-
-
-
-// **********************************************************************
-// QFont member methods
-// **********************************************************************
-
-/*!
-    Returns the window system handle to the font, for low-level
-    access. Using this function is \e not portable.
-*/
-Qt::HANDLE QFont::handle() const
-{
-    // ##### return something useful
-    return 0;
-}
-
-
-/*!
-    Returns the name of the font within the underlying window system.
-    On Windows, this is usually just the family name of a TrueType
-    font. Under X, it is an XLFD (X Logical Font Description). Using
-    the return value of this function is usually \e not \e portable.
-
-    \sa setRawName()
-*/
-QString QFont::rawName() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs ) {
-	return QString::null;
-    }
-
-    return QString::fromLatin1(qfs->name());
-}
-
-
-/*!
-    Sets a font by its system specific name. The function is
-    particularly useful under X, where system font settings (for
-    example X resources) are usually available in XLFD (X Logical Font
-    Description) form only. You can pass an XLFD as \a name to this
-    function.
-
-    In Qt 2.0 and later, a font set with setRawName() is still a
-    full-featured QFont. It can be queried (for example with italic())
-    or modified (for example with setItalic()) and is therefore also
-    suitable for rendering rich text.
-
-    If Qt's internal font database cannot resolve the raw name, the
-    font becomes a raw font with \a name as its family.
-
-    Note that the present implementation does not handle wildcards in
-    XLFDs well, and that font aliases (file \c fonts.alias in the font
-    directory on X11) are not supported.
-
-    \sa rawName(), setRawMode(), setFamily()
-*/
-void QFont::setRawName( const QString &name )
-{
-    detach();
-
-    bool validXLFD = QFontPrivate::fillFontDef( QFontPrivate::fixXLFD( name.latin1() ),
-						&d->request, d->x11Screen ) ;
-    d->request.dirty = TRUE;
-
-    if ( !validXLFD ) {
-
-#ifdef QT_CHECK_STATE
-	qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
-#endif // QT_CHECK_STATE
-
-	setFamily( name );
-	setRawMode( TRUE );
-    }
-}
-
-/*!
-  \internal
-  X11 Only: Associate the font with the specified \a screen.
-*/
-void QFont::x11SetScreen( int screen )
-{
-    if ( screen < 0 ) // assume default
-	screen = QPaintDevice::x11AppScreen();
-
-    if ( screen == d->x11Screen )
-	return; // nothing to do
-
-    detach();
-    d->x11Screen = screen;
-    d->request.dirty = TRUE;
-}
-
-/*!
-  \internal
-  X11 Only: Returns the screen with which this font is associated.
-*/
-int QFont::x11Screen() const
-{
-    return d->x11Screen;
-}
-
-
-QFontEngine *QFontPrivate::engineForScript( QFont::Script script ) const
-{
-    ((QFontPrivate *)this)->load(script);
-    return x11data.fontstruct[script];
-}
-
-// **********************************************************************
-// QFontMetrics member methods
-// **********************************************************************
-
-/*!
-    Returns the ascent of the font.
-
-    The ascent of a font is the distance from the baseline to the
-    highest position characters extend to. In practice, some font
-    designers break this rule, e.g. when they put more than one accent
-    on top of a character, or to accommodate an unusual character in
-    an exotic language, so it is possible (though rare) that this
-    value will be too small.
-
-    \sa descent()
-*/
-int QFontMetrics::ascent() const
-{
-
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return 0;
-    return qfs->ascent();
-}
-
-
-/*!
-    Returns the descent of the font.
-
-    The descent is the distance from the base line to the lowest point
-    characters extend to. (Note that this is different from X, which
-    adds 1 pixel.) In practice, some font designers break this rule,
-    e.g. to accommodate an unusual character in an exotic language, so
-    it is possible (though rare) that this value will be too small.
-
-    \sa ascent()
-*/
-int QFontMetrics::descent() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return 0;
-    return qfs->descent();
-}
-
-
-/*!
-    Returns TRUE if character \a ch is a valid character in the font;
-    otherwise returns FALSE.
-*/
-bool QFontMetrics::inFont(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-    d->load( script );
-
-    QFontEngine *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngine::Box )
-	return FALSE;
-
-    return fe->canRender( &ch, 1 );
-}
-
-
-/*!
-    Returns the left bearing of character \a ch in the font.
-
-    The left bearing is the right-ward distance of the left-most pixel
-    of the character from the logical origin of the character. This
-    value is negative if the pixels of the character extend to the
-    left of the logical origin.
-
-    See width(QChar) for a graphical description of this metric.
-
-    \sa rightBearing(), minLeftBearing(), width()
-*/
-int QFontMetrics::leftBearing(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-    d->load( script );
-
-    QFontEngine *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngine::Box )
-	return 0;
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
-    return gi.x;
-}
-
-
-/*!
-    Returns the right bearing of character \a ch in the font.
-
-    The right bearing is the left-ward distance of the right-most
-    pixel of the character from the logical origin of a subsequent
-    character. This value is negative if the pixels of the character
-    extend to the right of the width() of the character.
-
-    See width() for a graphical description of this metric.
-
-    \sa leftBearing(), minRightBearing(), width()
-*/
-int QFontMetrics::rightBearing(QChar ch) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-    d->load( script );
-
-    QFontEngine *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngine::Box )
-	return 0;
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
-    return gi.xoff - gi.x - gi.width;
-}
-
-
-/*!
-    Returns the minimum left bearing of the font.
-
-    This is the smallest leftBearing(char) of all characters in the
-    font.
-
-    Note that this function can be very slow if the font is large.
-
-    \sa minRightBearing(), leftBearing()
-*/
-int QFontMetrics::minLeftBearing() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return 0;
-    return 0;
-}
-
-
-/*!
-    Returns the minimum right bearing of the font.
-
-    This is the smallest rightBearing(char) of all characters in the
-    font.
-
-    Note that this function can be very slow if the font is large.
-
-    \sa minLeftBearing(), rightBearing()
-*/
-int QFontMetrics::minRightBearing() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs = d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return 0;
-    return 0;
-}
-
-
-/*!
-    Returns the height of the font.
-
-    This is always equal to ascent()+descent()+1 (the 1 is for the
-    base line).
-
-    \sa leading(), lineSpacing()
-*/
-int QFontMetrics::height() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return (d->actual.pixelSize * 3 / 4) + 1;
-
-    return qfs->ascent() + qfs->descent();
-}
-
-
-/*!
-    Returns the leading of the font.
-
-    This is the natural inter-line spacing.
-
-    \sa height(), lineSpacing()
-*/
-int QFontMetrics::leading() const
-{
-    d->load(QFontPrivate::defaultScript);
-
-    QFontEngine *qfs =  d->x11data.fontstruct[QFontPrivate::defaultScript];
-    if (! qfs )
-	return 0;
-
-    return qfs->leading();
-}
-
-
-/*!
-    Returns the distance from one base line to the next.
-
-    This value is always equal to leading()+height().
-
-    \sa height(), leading()
-*/
-int QFontMetrics::lineSpacing() const
-{
-    return leading() + height();
-}
-
-
-/*! \fn int QFontMetrics::width( char c ) const
-
-  \overload
-  \obsolete
-
-  Provided to aid porting from Qt 1.x.
-*/
-
-
-/*!
-    \overload
-
-    <img src="bearings.png" align=right>
-
-    Returns the logical width of character \a ch in pixels. This is a
-    distance appropriate for drawing a subsequent character after \a
-    ch.
-
-    Some of the metrics are described in the image to the right. The
-    central dark rectangles cover the logical width() of each
-    character. The outer pale rectangles cover the leftBearing() and
-    rightBearing() of each character. Notice that the bearings of "f"
-    in this particular font are both negative, while the bearings of
-    "o" are both positive.
-
-    \warning This function will produce incorrect results for Arabic
-    characters or non spacing marks in the middle of a string, as the
-    glyph shaping and positioning of marks that happens when
-    processing strings cannot be taken into account. Use charWidth()
-    instead if you aren't looking for the width of isolated
-    characters.
-
-    \sa boundingRect(), charWidth()
-*/
-int QFontMetrics::width(QChar ch) const
-{
-    if ( ch.unicode() < widthCacheSize && d->x11data.widthCache[ ch.unicode() ] )
-	return d->x11data.widthCache[ ch.unicode() ];
-
-    if ( ::isMark( ch ) )
-	return 0;
-
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-    d->load( script );
-
-    QFontEngine *fe = d->x11data.fontstruct[script];
-    if ( fe->type() == QFontEngine::Box )
-	return ((QFontEngineBox *)fe)->size();
-
-    glyph_t glyphs[10];
-    advance_t advances[10];
-    int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, advances, &nglyphs );
-    // ### can nglyphs != 1 happen at all? Not currently I think
-    if ( ch.unicode() < widthCacheSize && advances[0] < 0x100 )
-	d->x11data.widthCache[ ch.unicode() ] = advances[0];
-
-    return advances[0];
-}
-
-
-/*!
-    Returns the width of the character at position \a pos in the
-    string \a str.
-
-    The whole string is needed, as the glyph drawn may change
-    depending on the context (the letter before and after the current
-    one) for some languages (e.g. Arabic).
-
-    This function also takes non spacing marks and ligatures into
-    account.
-*/
-int QFontMetrics::charWidth( const QString &str, int pos ) const
-{
-    if ( pos < 0 || pos > (int)str.length() )
-	return 0;
-
-    const QChar &c = str.unicode()[pos];
-    if ( c.unicode() < widthCacheSize && d->x11data.widthCache[ c.unicode() ] )
-	return d->x11data.widthCache[ c.unicode() ];
-
-#if 0
-    // ### optimise for non complex case
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, c );
-    d->load( script );
-#endif
-
-    QTextEngine layout( str,  d );
-    layout.itemize( FALSE );
-    int w = layout.width( pos, 1 );
-
-    if ( c.unicode() < widthCacheSize && w < 0x100 )
-	d->x11data.widthCache[ c.unicode() ] = w;
-
-    return w;
-}
-
-
-/*!
-    Returns the width in pixels of the first \a len characters of \a
-    str. If \a len is negative (the default), the entire string is
-    used.
-
-    Note that this value is \e not equal to boundingRect().width();
-    boundingRect() returns a rectangle describing the pixels this
-    string will cover whereas width() returns the distance to where
-    the next string should be drawn.
-
-    \sa boundingRect()
-*/
-int QFontMetrics::width( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return 0;
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    return layout.width( 0, len );
-}
-
-/*!
-    \overload
-
-    Returns the bounding rectangle of the character \a ch relative to
-    the left-most point on the base line.
-
-    Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
-
-    Note that the rectangle usually extends both above and below the
-    base line.
-
-    \sa width()
-*/
-QRect QFontMetrics::boundingRect( QChar ch ) const
-{
-    QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
-    d->load( script );
-
-    QFontEngine *fe = d->x11data.fontstruct[script];
-
-    glyph_t glyphs[10];
-    int nglyphs = 9;
-    fe->stringToCMap( &ch, 1, glyphs, 0, &nglyphs );
-    glyph_metrics_t gi = fe->boundingBox( glyphs[0] );
-    return QRect( gi.x, gi.y, gi.width, gi.height );
-}
-
-/*!
-    Returns the bounding rectangle of the first \a len characters of
-    \a str, which is the set of pixels the text would cover if drawn
-    at (0, 0).
-
-    If \a len is negative (the default), the entire string is used.
-
-    Note that the bounding rectangle may extend to the left of (0, 0),
-    e.g. for italicized fonts, and that the text output may cover \e
-    all pixels in the bounding rectangle.
-
-    Newline characters are processed as normal characters, \e not as
-    linebreaks.
-
-    Due to the different actual character heights, the height of the
-    bounding rectangle of e.g. "Yes" and "yes" may be different.
-
-    \sa width(), QPainter::boundingRect()
-*/
-QRect QFontMetrics::boundingRect( const QString &str, int len ) const
-{
-    if (len < 0)
-	len = str.length();
-    if (len == 0)
-	return QRect();
-
-    QTextEngine layout( str, d );
-    layout.itemize( FALSE );
-    glyph_metrics_t gm = layout.boundingBox( 0, len );
-    return QRect( gm.x, gm.y, gm.width, gm.height );
-}
-
-
-/*!
-    Returns the width of the widest character in the font.
-*/
-int QFontMetrics::maxWidth() const
-{
-    QFontEngine *qfs;
-    int w = 0;
-
-    for (int i = 0; i < QFont::LastPrivateScript - 1; i++) {
-	if ( !d->x11data.fontstruct[i] )
-	    continue;
-
-	d->load((QFont::Script) i);
-
-	qfs = d->x11data.fontstruct[i];
-	if (! qfs )
-	    continue;
-	w = QMAX( w, qfs->maxCharWidth() );
-    }
-    return w;
-}
-
-/*!
-    Returns the distance from the base line to where an underscore
-    should be drawn.
-
-    \sa strikeOutPos(), lineWidth()
-*/
-int QFontMetrics::underlinePos() const
-{
-    int pos = ((lineWidth() * 2) + 3) / 6;
-
-    return pos ? pos : 1;
-}
-
-
-/*!
-    Returns the distance from the base line to where the strikeout
-    line should be drawn.
-
-    \sa underlinePos(), lineWidth()
-*/
-int QFontMetrics::strikeOutPos() const
-{
-    int pos = ascent() / 3;
-
-    return pos > 0 ? pos : 1;
-}
-
-
-/*!
-    Returns the width of the underline and strikeout lines, adjusted
-    for the point size of the font.
-
-    \sa underlinePos(), strikeOutPos()
-*/
-int QFontMetrics::lineWidth() const
-{
-    // lazy computation of linewidth
-    d->computeLineWidth();
-
-    return d->lineWidth;
-}
+#endif // 0

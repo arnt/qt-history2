@@ -115,7 +115,7 @@ public:
 
 #if defined(Q_WS_X11)
     static QFontEngine *findFont( QFont::Script script, const QFontDef &request,
-				  QFontDef &actual, int x11Screen );
+				  int x11Screen );
 #endif // Q_WS_X11
 
 private:

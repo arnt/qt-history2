@@ -4,13 +4,14 @@
 
 #include <qcstring.h>
 #include <qtextcodec.h>
-#include <qpaintdevice.h>
+
+#include "qpaintdevice.h"
 #include "qpainter.h"
 
 #include <qt_x11.h>
 
-#include "qtextengine_p.h"
 #include "qfont.h"
+#include "qtextengine_p.h"
 
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
@@ -475,7 +476,7 @@ void QFontEngineXLFD::setScale( double scale )
 
 QFontEngine::Type QFontEngineXLFD::type() const
 {
-    return Xlfd;
+    return XLFD;
 }
 
 

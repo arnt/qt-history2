@@ -47,6 +47,7 @@ class Q_EXPORT QFontInfo
 {
 public:
     QFontInfo( const QFont & );
+    QFontInfo( const QFont &, QFont::Script );
     QFontInfo( const QFontInfo & );
     ~QFontInfo();
 
@@ -72,7 +73,7 @@ private:
 
     QFontPrivate *d;
     QPainter *painter;
-    int flags;
+    int fscript;
 
     friend class QWidget;
     friend class QPainter;

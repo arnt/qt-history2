@@ -48,12 +48,14 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qintdict.h"
-#include "qfontdata_p.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
+
 #include "qt_x11.h"
 
 #include "qtextlayout_p.h"
+#include "qfontdata_p.h"
+#include "qfontengine_p.h"
 #include "qtextengine_p.h"
 
 #include <math.h>

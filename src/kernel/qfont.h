@@ -302,7 +302,6 @@ protected:
 
 
 private:
-    QFont( QFontPrivate *, bool deep = TRUE );
     QFont( QFontPrivate *, QPaintDevice *pd );
 
     void detach();
