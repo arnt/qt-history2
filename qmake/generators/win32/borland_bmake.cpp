@@ -250,6 +250,10 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     }
 
     t << endl << endl;
+
+    t << "distclean: clean"
+      << "\n\t-del $(TARGET)"
+      << endl << endl;
 }
 
 void
