@@ -88,8 +88,8 @@ void QMainWindowPrivate::init()
     \mainclass
 
     QMainWindow provides a main application window, with a menu bar,
-    tool bars, dock windows and a status bar around a large central
-    widget, such as a text edit, drawing canvas or QWorkspace (for MDI
+    tool bars, dock widgets and a status bar around a large central
+    widget, such as a text edit, drawing canvas or Q3Workspace (for MDI
     applications).
 
     Topics:
@@ -102,17 +102,17 @@ void QMainWindowPrivate::init()
     \section2 Dock Widget Separators
 
     QMainWindow uses separators to separate QDockWidgets from each
-    other and the centralWidget(). These separators let the user
-    control the size of QDockWidgets by dragging the boundary between
-    them.
+    other and the \l{centralWidget()}{central widget}. These
+    separators let the user control the size of QDockWidgets by
+    dragging the boundary between them.
 
-    QDockWidgets can be as large or as small as the user wishes,
+    A QDockWidget can be as large or as small as the user wishes,
     between the minimumSizeHint() (or minimumSize()) and
-    maximumSize() of each QDockWidget. When a QDockWidget reaches its
+    maximumSize() of the QDockWidget. When a QDockWidget reaches its
     minimum size, space will be taken from other QDockWidgets in the
     direction of the user's drag, if possible. Once all QDockWidgets
     have reached their minimum sizes, further dragging does nothing.
-    When a QDockWidget reaches it maximium size, space will be given
+    When a QDockWidget reaches its maximium size, space will be given
     to other QDockWidgets in the opposite direction of the user's
     drag, if possible. Once all QDockWidgets have reached their
     minimum size, futher dragging does nothing.
@@ -120,11 +120,11 @@ void QMainWindowPrivate::init()
     \target dragging-dock-widgets
     \section2 Dragging Dock Widgets
 
-    QDockWidget displays a titlebar to let the user drag the dock
+    QDockWidget displays a title bar to let the user drag the dock
     widget to a new location. A QDockWidget can be moved to any
-    location provided enough space is available. QMainWindow will \e
-    not resize itself to a larger size in an attempt to provide more
-    space.
+    location provided enough space is available. (QMainWindow won't
+    resize itself to a larger size in an attempt to provide more
+    space.)
 
     A QRubberBand is shown while dragging the QDockWidget. This
     QRubberBand provides an indication to the user about where the
@@ -132,9 +132,8 @@ void QMainWindowPrivate::init()
 
     \section2 Dragging over Neighbors
 
-    All un-nested QDockWidgets in the same Qt::DockWidgetArea are
-    considered neighbors. When dragging a QDockWidget over its
-    neighbor
+    All un-nested QDockWidgets in the same dock area are considered
+    neighbors. When dragging a QDockWidget over its neighbor:
 
     \list
 
@@ -147,62 +146,64 @@ void QMainWindowPrivate::init()
 
     \endlist
 
+    The following diagram depicts this behavior:
+
     \image dockwidget-neighbors.png Diagram
 
     \section2 Dragging over other QDockWidgets
 
-    When dragging nested QDockWidgets, or when dragging to a different
-    Qt::DockWidgetArea, QMainWindow will split the QDockWindow under
-    the mouse. \e Note: the QDockWidget under the mouse will only be
-    split by the QDockWidget being dragged if both can fit in the
-    space currently occupied by the QDockWidget under the mouse.
+    When dragging nested QDockWidgets, or when dragging to a
+    different dock area, QMainWindow will split the QDockWindow under
+    the mouse. Be aware that the QDockWidget under the mouse will
+    only be split by the QDockWidget being dragged if both can fit in
+    the space currently occupied by the QDockWidget under the mouse.
 
     A QDockWidget can be split horizontally or vertically, with the
     QDockWidget being dragged being placed in one of four possible
-    locations.
+    locations, as shown in the diagram below:
 
     \image dockwidget-cross.png Diagram
 
-    When dragging a nested QDockWidget
+    \omit ### When dragging a nested QDockWidget \endomit
 
     \section2 Dragging to a Different Qt::DockWidgetArea
 
-    The QDockWidget::floatable property controls feedback during
-    dragging:
+    The QDockWidget::floatable property influences feedback when the
+    user drags a QDockWidget over the central widget:
 
     \list
 
-    \o \c true - When dragging over the centralWidget(), QMainWindow
-    choose a Qt::DockWindowArea based on the position of the mouse
+    \o If \l{QDockWidget::floatable}{floatable} is \c true,
+    QMainWindow chooses a dock area based on the position of the mouse
     pointer. If the mouse is within 50 pixels of the
-    centralWidget()'s edge, the adjacent Qt::DockWindowArea is chosen.
+    central widget's edge, the adjacent dock area is chosen.
     When dragging into the corners of these 50 pixel regions, the
     current corner() configuration is used to make the decision.
     Otherwise, the QRubberBand is shown under the mouse pointer, as
     above.
 
-    \o \c false - When dragging over the centralWidget(), QMainWindow
-    chooses a Qt::DockWindowArea based on the distance between the
-    mouse pointer and the center of the centralWidget(). If the mouse
-    comes within 50 pixels of the centralWidget()'s edge, the adjacent
-    Qt::DockWindowArea is always chosen. When dragging into the
-    corners of these 50 pixel regions, the current corner()
-    configuration is used to make the decision.
+    \o If \l{QDockWidget::floatable}{floatable} is \c false,
+    QMainWindow chooses a dock area based on the distance between the
+    mouse pointer and the center of the central widget. If the mouse
+    comes within 50 pixels of the central widget's edge, the adjacent
+    dock area is always chosen. When dragging into the corners of
+    these 50 pixel regions, the current corner() configuration is
+    used to make the decision.
 
     \endlist
 
     In either case, dragging the mouse over another QDockWidget causes
-    QMainWindow to choose the other QDockWidget's Qt::DockWindowArea.
+    QMainWindow to choose the other QDockWidget's dock area.
 
     When dragging outside the QMainWindow, the QDockWidget::floatable
     property again controls feedback during dragging. When the
-    QDockWidget::floatable property is \c false, dragging outside of
-    the QMainWindow will show the rubberband over the QDockWidget's
-    current location. This indicates that the QDockWidget cannot be
-    moved outside of the QMainWindow. When the QDockWidget::floatable
-    property is \c true, dragging outside of the QMainWindow will show
-    the QRubberBand under the mouse pointer. This indicates that the
-    QDockWidget will be floating when the mouse button is released.
+    property is \c false, dragging outside of the QMainWindow will show
+    the rubberband over the QDockWidget's current location. This
+    indicates that the QDockWidget cannot be moved outside of the
+    QMainWindow. When the QDockWidget::floatable property is \c true,
+    dragging outside of the QMainWindow will show the QRubberBand
+    under the mouse pointer. This indicates that the QDockWidget will
+    be floating when the mouse button is released.
 
     \sa QMenuBar, QToolBar, QStatusBar, QDockWidget
 */
@@ -303,28 +304,28 @@ void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 */
 QMenuBar *QMainWindow::menuBar() const
 {
-    QMenuBar *menubar = qobject_cast<QMenuBar *>(d->layout->menuBar());
-    if (!menubar) {
+    QMenuBar *menuBar = qobject_cast<QMenuBar *>(d->layout->menuBar());
+    if (!menuBar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
-	menubar = new QMenuBar(self);
-	self->setMenuBar(menubar);
+	menuBar = new QMenuBar(self);
+	self->setMenuBar(menuBar);
     }
-    return menubar;
+    return menuBar;
 }
 
 /*!
-    Sets the menu bar for the main window to \a menubar.
+    Sets the menu bar for the main window to \a menuBar.
 
-    Note: QMainWindow takes ownership of the \a menubar pointer and
+    Note: QMainWindow takes ownership of the \a menuBar pointer and
     deletes it at the appropriate time.
 
     \sa menuBar()
 */
-void QMainWindow::setMenuBar(QMenuBar *menubar)
+void QMainWindow::setMenuBar(QMenuBar *menuBar)
 {
     if (d->layout->menuBar())
         delete d->layout->menuBar();
-    d->layout->setMenuBar(menubar);
+    d->layout->setMenuBar(menuBar);
 }
 
 /*!
@@ -383,7 +384,7 @@ void QMainWindow::setCentralWidget(QWidget *widget)
 { d->layout->setCentralWidget(widget); }
 
 /*!
-    Sets the given dock window \a area to occupy the specified \a
+    Sets the given dock widget \a area to occupy the specified \a
     corner.
 
     \sa corner()
@@ -411,7 +412,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
 }
 
 /*!
-    Returns the dock window area that occupies the specified \a
+    Returns the dock widget area that occupies the specified \a
     corner.
 
     \sa setCorner()
@@ -573,17 +574,17 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
 /*!
     \fn void QMainWindow::splitDockWidget(QDockWidget *first, QDockWidget *second, Qt::Orientation orientation)
 
-    Splits the space covered by the \a first dock window into two parts,
-    moves the \a first dock window into the first part, and moves the
-    \a second dock window into the second part.
+    Splits the space covered by the \a first dock widget into two parts,
+    moves the \a first dock widget into the first part, and moves the
+    \a second dock widget into the second part.
 
     The \a orientation specifies how the space is divided: A Qt::Horizontal
-    split places the second dock window to the right of the first; a
-    Qt::Vertical split places the second dock window below the first.
+    split places the second dock widget to the right of the first; a
+    Qt::Vertical split places the second dock widget below the first.
 
-    \e Note: The Qt::LayoutDirection influences the order of the dock windows
+    \e Note: The Qt::LayoutDirection influences the order of the dock widgets
     in the two parts of the divided area. When right-to-left layout direction
-    is enabled, the placing of the dock windows will be reversed.
+    is enabled, the placing of the dock widgets will be reversed.
 */
 void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
                                   Qt::Orientation orientation)
@@ -634,8 +635,8 @@ QByteArray QMainWindow::saveState(int version) const
     Restores the \a state of this mainwindow's toolbars and
     dockwidgets. The \a version number is compared with that stored
     in \a state. If they do not match, the mainwindow's state is left
-    unchanged, and this function returns false; otherwise, the state
-    is restored, and this function returns true.
+    unchanged, and this function returns \c false; otherwise, the state
+    is restored, and this function returns \c true.
 
     \sa saveState()
 */
@@ -708,7 +709,7 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 /*!
     This function is called to create a popup menu when the user
-    right-clicks on the menubar, a toolbar or a dock window. If you
+    right-clicks on the menu bar, a toolbar or a dock widget. If you
     want to create a custom popup menu, reimplement this function and
     return the created popup menu. Ownership of the popup menu is
     transferred to the caller.
