@@ -97,12 +97,12 @@ public:
 	QSettings *that = (QSettings*)this;
 	return that->readListEntry( key, ok );
     }
-    QStringList readListEntry( const QString &key, const QChar& sep, bool *ok = 0 ) const 
+    QStringList readListEntry( const QString &key, const QChar& sep, bool *ok = 0 ) const
     {
 	QSettings *that = (QSettings*)this;
 	return that->readListEntry( key, sep, ok );
     }
-    QString	readEntry( const QString &key, const QString &def = QString::null, 
+    QString	readEntry( const QString &key, const QString &def = QString::null,
 			   bool *ok = 0 ) const
     {
 	QSettings *that = (QSettings*)this;
@@ -137,6 +137,8 @@ public:
     void resetGroup();
     QString group() const;
 
+    bool sync();
+
 private:
     QSettingsPrivate *d;
 
@@ -146,7 +148,6 @@ private:
 #endif
 
     QDateTime lastModificationTime( const QString & );
-    bool sync();
 
     friend class QApplication;
 };
