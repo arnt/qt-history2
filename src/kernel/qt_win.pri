@@ -2,7 +2,7 @@
 # --------------------------------------------------------------------
 
 	# Enable PCH when compiling Qt
-	# PRECOMPILED_HEADER = kernel/qt_pch.h
+	PRECOMPILED_HEADER = kernel/qt_pch.h
 
 	wince-* {
 		HEADERS += $$KERNEL_H/qfunctions_wce.h
