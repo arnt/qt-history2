@@ -119,10 +119,10 @@
 QSocketLayerPrivate::QSocketLayerPrivate()
 {
     socketDescriptor = -1;
-    socketState = Qt::UnconnectedState;
-    socketType = Qt::UnknownSocketType;
-    socketProtocol = Qt::UnknownNetworkLayerProtocol;
-    socketError = Qt::UnknownSocketError;
+    socketState = QAbstractSocket::UnconnectedState;
+    socketType = QAbstractSocket::UnknownSocketType;
+    socketProtocol = QAbstractSocket::UnknownNetworkLayerProtocol;
+    socketError = QAbstractSocket::UnknownSocketError;
     socketErrorString = Q_TR("Unknown error");
 
     peerPort = 0;
@@ -142,10 +142,10 @@ QSocketLayerPrivate::~QSocketLayerPrivate()
     interesting error is the first one that occurred, and not the last
     one.
 */
-void QSocketLayerPrivate::setError(Qt::SocketError error,
+void QSocketLayerPrivate::setError(QAbstractSocket::SocketError error,
                                    const QString &errorString) const
 {
-    if (socketError != Qt::UnknownSocketError)
+    if (socketError != QAbstractSocket::UnknownSocketError)
         return;
 
     socketError = error;
@@ -184,14 +184,14 @@ QSocketLayer::~QSocketLayer()
     The new socket is non-blocking, and for UDP sockets it's also
     broadcast enabled.
 */
-bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtocol protocol)
+bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol protocol)
 {
     if (isValid())
         close();
 
 #if defined(QT_NO_IPV6)
-    if (protocol == Qt::IPv6Protocol) {
-        d->setError(Qt::UnsupportedSocketOperationError,
+    if (protocol == QAbstractSocket::IPv6Protocol) {
+        d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Attempt to create an IPv6 socket on"
                          " a platform with no IPv6 support"));
         return false;
@@ -202,11 +202,11 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
     if (!d->createNewSocket(socketType, protocol)) {
 #if defined (QSOCKETLAYER_DEBUG)
         QString typeStr = "UnknownSocketType";
-        if (socketType == Qt::TcpSocket) typeStr = "TcpSocket";
-        else if (socketType == Qt::UdpSocket) typeStr = "UdpSocket";
+        if (socketType == QAbstractSocket::TcpSocket) typeStr = "TcpSocket";
+        else if (socketType == QAbstractSocket::UdpSocket) typeStr = "UdpSocket";
         QString protocolStr = "UnknownProtocol";
-        if (protocol == Qt::IPv4Protocol) protocolStr = "IPv4Protocol";
-        else if (protocol == Qt::IPv6Protocol) protocolStr = "IPv6Protocol";
+        if (protocol == QAbstractSocket::IPv4Protocol) protocolStr = "IPv4Protocol";
+        else if (protocol == QAbstractSocket::IPv6Protocol) protocolStr = "IPv6Protocol";
         qDebug("QSocketLayer::initialize(type == %s, protocol == %s) failed: %s",
                typeStr.latin1(), protocolStr.latin1(), d->socketErrorString.latin1());
 #endif
@@ -215,16 +215,16 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
 
     // Make the socket nonblocking.
     if (!d->setOption(QSocketLayerPrivate::NonBlockingSocketOption, 1)) {
-        d->setError(Qt::UnsupportedSocketOperationError,
+        d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Unable to initialize a non-blocking socket"));
         close();
         return false;
     }
 
     // Set the broadcasting flag if it's a UDP socket.
-    if (socketType == Qt::UdpSocket
+    if (socketType == QAbstractSocket::UdpSocket
         && !d->setOption(QSocketLayerPrivate::BroadcastSocketOption, 1)) {
-        d->setError(Qt::UnsupportedSocketOperationError,
+        d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Unable to initialize broadcasting socket"));
         close();
         return false;
@@ -250,7 +250,7 @@ bool QSocketLayer::initialize(Qt::SocketType socketType, Qt::NetworkLayerProtoco
     If the socket type is either TCP or UDP, it is made non-blocking.
     UDP sockets are also broadcast enabled.
  */
-bool QSocketLayer::initialize(int socketDescriptor, Qt::SocketState socketState)
+bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState socketState)
 {
     if (isValid())
         close();
@@ -267,19 +267,19 @@ bool QSocketLayer::initialize(int socketDescriptor, Qt::SocketState socketState)
         return false;
     }
 
-    if (d->socketType != Qt::UnknownSocketType) {
+    if (d->socketType != QAbstractSocket::UnknownSocketType) {
         // Make the socket nonblocking.
         if (!d->setOption(QSocketLayerPrivate::NonBlockingSocketOption, 1)) {
-            d->setError(Qt::UnsupportedSocketOperationError,
+            d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                         Q_TR("Unable to initialize a non-blocking socket"));
             close();
             return false;
         }
 
         // Set the broadcasting flag if it's a Udp socket.
-        if (d->socketType == Qt::UdpSocket
+        if (d->socketType == QAbstractSocket::UdpSocket
             && !d->setOption(QSocketLayerPrivate::BroadcastSocketOption, 1)) {
-            d->setError(Qt::UnsupportedSocketOperationError,
+            d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                         Q_TR("Unable to initialize broadcasting socket"));
             close();
             return false;
@@ -305,7 +305,7 @@ bool QSocketLayer::isValid() const
 
     \sa QSocketLayer::SocketState
 */
-Qt::SocketState QSocketLayer::state() const
+QAbstractSocket::SocketState QSocketLayer::state() const
 {
     return d->socketState;
 }
@@ -315,7 +315,7 @@ Qt::SocketState QSocketLayer::state() const
 
     \sa QSocketLayer::SocketType
 */
-Qt::SocketType QSocketLayer::socketType() const
+QAbstractSocket::SocketType QSocketLayer::socketType() const
 {
     return d->socketType;
 }
@@ -325,7 +325,7 @@ Qt::SocketType QSocketLayer::socketType() const
 
     \sa QSocketLayer::NetworkLayerProtocol
 */
-Qt::NetworkLayerProtocol QSocketLayer::protocol() const
+QAbstractSocket::NetworkLayerProtocol QSocketLayer::protocol() const
 {
     return d->socketProtocol;
 }
@@ -397,7 +397,7 @@ Q_UINT16 QSocketLayer::peerPort() const
     Example:
     \code
         QSocketLayer socketLayer;
-        socketLayer.initialize(Qt::TcpSocket, Qt::IPv4Protocol);
+        socketLayer.initialize(QAbstractSocket::TcpSocket, QAbstractSocket::IPv4Protocol);
         socketLayer.connectToHost(QHostAddress::LocalHost, 22);
         // returns false
 
@@ -415,7 +415,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, Q_UINT16 port)
 
 #if defined (QT_NO_IPV6)
     if (address.isIPv6Address()) {
-        d->setError(Qt::UnsupportedSocketOperationError,
+        d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Attempt to connect to an IPv6 address on"
                          " a platform with no IPv6 support"));
         return false;
@@ -423,7 +423,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, Q_UINT16 port)
 #endif
 
     Q_CHECK_STATES(QSocketLayer::connectToHost(),
-                   Qt::UnconnectedState, Qt::ConnectingState, false);
+                   QAbstractSocket::UnconnectedState, QAbstractSocket::ConnectingState, false);
 
     bool connected = d->nativeConnect(address, port);
     if (connected)
@@ -447,14 +447,14 @@ bool QSocketLayer::bind(const QHostAddress &address, Q_UINT16 port)
 
 #if defined (QT_NO_IPV6)
     if (address.isIPv6Address()) {
-        d->setError(Qt::UnsupportedSocketOperationError,
+        d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Attempt to bind to an IPv6 address on"
                          " a platform with no IPv6 support"));
         return false;
     }
 #endif
 
-    Q_CHECK_STATE(QSocketLayer::bind(), Qt::UnconnectedState, false);
+    Q_CHECK_STATE(QSocketLayer::bind(), QAbstractSocket::UnconnectedState, false);
 
     if (!d->nativeBind(address, port))
         return false;
@@ -489,8 +489,8 @@ bool QSocketLayer::bind(const QHostAddress &address, Q_UINT16 port)
 bool QSocketLayer::listen()
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::listen(), false);
-    Q_CHECK_STATE(QSocketLayer::listen(), Qt::BoundState, false);
-    Q_CHECK_TYPE(QSocketLayer::listen(), Qt::TcpSocket, false);
+    Q_CHECK_STATE(QSocketLayer::listen(), QAbstractSocket::BoundState, false);
+    Q_CHECK_TYPE(QSocketLayer::listen(), QAbstractSocket::TcpSocket, false);
 
     // We're using a backlog of 50. Most modern kernels support TCP
     // syncookies by default, and if they do, the backlog is ignored.
@@ -509,8 +509,8 @@ bool QSocketLayer::listen()
 int QSocketLayer::accept()
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::accept(), -1);
-    Q_CHECK_STATE(QSocketLayer::accept(), Qt::ListeningState, false);
-    Q_CHECK_TYPE(QSocketLayer::accept(), Qt::TcpSocket, false);
+    Q_CHECK_STATE(QSocketLayer::accept(), QAbstractSocket::ListeningState, false);
+    Q_CHECK_TYPE(QSocketLayer::accept(), QAbstractSocket::TcpSocket, false);
 
     return d->nativeAccept();
 }
@@ -526,7 +526,7 @@ int QSocketLayer::accept()
 Q_LONGLONG QSocketLayer::bytesAvailable() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bytesAvailable(), -1);
-    Q_CHECK_NOT_STATE(QSocketLayer::bytesAvailable(), Qt::UnconnectedState, false);
+    Q_CHECK_NOT_STATE(QSocketLayer::bytesAvailable(), QAbstractSocket::UnconnectedState, false);
 
     return d->nativeBytesAvailable();
 }
@@ -539,8 +539,8 @@ Q_LONGLONG QSocketLayer::bytesAvailable() const
 bool QSocketLayer::hasPendingDatagrams() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::hasPendingDatagrams(), false);
-    Q_CHECK_NOT_STATE(QSocketLayer::hasPendingDatagrams(), Qt::UnconnectedState, false);
-    Q_CHECK_TYPE(QSocketLayer::hasPendingDatagrams(), Qt::UdpSocket, false);
+    Q_CHECK_NOT_STATE(QSocketLayer::hasPendingDatagrams(), QAbstractSocket::UnconnectedState, false);
+    Q_CHECK_TYPE(QSocketLayer::hasPendingDatagrams(), QAbstractSocket::UdpSocket, false);
 
     return d->nativeHasPendingDatagrams();
 }
@@ -554,7 +554,7 @@ bool QSocketLayer::hasPendingDatagrams() const
 Q_LONGLONG QSocketLayer::pendingDatagramSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::pendingDatagramSize(), -1);
-    Q_CHECK_TYPE(QSocketLayer::pendingDatagramSize(), Qt::UdpSocket, false);
+    Q_CHECK_TYPE(QSocketLayer::pendingDatagramSize(), QAbstractSocket::UdpSocket, false);
 
     return d->nativePendingDatagramSize();
 }
@@ -578,7 +578,7 @@ Q_LONGLONG QSocketLayer::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddre
                                       Q_UINT16 *port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::readDatagram(), -1);
-    Q_CHECK_TYPE(QSocketLayer::readDatagram(), Qt::UdpSocket, false);
+    Q_CHECK_TYPE(QSocketLayer::readDatagram(), QAbstractSocket::UdpSocket, false);
 
     return d->nativeReceiveDatagram(data, maxSize, address, port);
 }
@@ -590,7 +590,7 @@ Q_LONGLONG QSocketLayer::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddre
 
     Only one datagram is sent, and if there is too much data to fit
     into a single datagram, the operation will fail and error()
-    will return Qt::DatagramTooLargeError. Operating systems impose an
+    will return QAbstractSocket::DatagramTooLargeError. Operating systems impose an
     upper limit to the size of a datagram, but this size is different
     on almost all platforms. Sending large datagrams is in general
     disadvised, as even if they are sent successfully, they are likely
@@ -605,7 +605,7 @@ Q_LONGLONG QSocketLayer::writeDatagram(const char *data, Q_LONGLONG size,
                                        const QHostAddress &host, Q_UINT16 port)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::writeDatagram(), -1);
-    Q_CHECK_TYPE(QSocketLayer::writeDatagram(), Qt::UdpSocket, -1);
+    Q_CHECK_TYPE(QSocketLayer::writeDatagram(), QAbstractSocket::UdpSocket, -1);
     return d->nativeSendDatagram(data, size, host, port);
 }
 
@@ -616,7 +616,7 @@ Q_LONGLONG QSocketLayer::writeDatagram(const char *data, Q_LONGLONG size,
 Q_LONGLONG QSocketLayer::write(const char *data, Q_LONGLONG size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::write(), -1);
-    Q_CHECK_STATE(QSocketLayer::write(), Qt::ConnectedState, -1);
+    Q_CHECK_STATE(QSocketLayer::write(), QAbstractSocket::ConnectedState, -1);
     return d->nativeWrite(data, size);
 }
 
@@ -627,16 +627,16 @@ Q_LONGLONG QSocketLayer::write(const char *data, Q_LONGLONG size)
 Q_LONGLONG QSocketLayer::read(char *data, Q_LONGLONG maxSize)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::read(), -1);
-    Q_CHECK_STATES(QSocketLayer::read(), Qt::ConnectedState, Qt::BoundState, -1);
+    Q_CHECK_STATES(QSocketLayer::read(), QAbstractSocket::ConnectedState, QAbstractSocket::BoundState, -1);
 
     Q_LONGLONG readBytes = d->nativeRead(data, maxSize);
 
     // Handle remote close
-    if (readBytes == 0 && d->socketType == Qt::TcpSocket) {
+    if (readBytes == 0 && d->socketType == QAbstractSocket::TcpSocket) {
         close();
-        d->setError(Qt::RemoteHostClosedError,
+        d->setError(QAbstractSocket::RemoteHostClosedError,
                     Q_TR("The remote host closed the connection"));
-        d->socketState = Qt::UnconnectedState;
+        d->socketState = QAbstractSocket::UnconnectedState;
         return -1;
     }
     return readBytes;
@@ -650,7 +650,7 @@ void QSocketLayer::close()
 {
     d->nativeClose();
     d->socketDescriptor = -1;
-    d->socketState = Qt::UnconnectedState;
+    d->socketState = QAbstractSocket::UnconnectedState;
     d->localPort = 0;
     d->localAddress.clear();
     d->peerPort = 0;
@@ -676,13 +676,13 @@ bool QSocketLayer::waitForRead(int msecs, bool *timedOut) const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForRead(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForRead(),
-                      Qt::UnconnectedState, false);
+                      QAbstractSocket::UnconnectedState, false);
 
     int ret = d->nativeSelect(msecs, true);
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(Qt::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
         return false;
     }
 
@@ -708,13 +708,13 @@ bool QSocketLayer::waitForWrite(int msecs, bool *timedOut) const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForWrite(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForWrite(),
-                      Qt::UnconnectedState, false);
+                      QAbstractSocket::UnconnectedState, false);
 
     int ret = d->nativeSelect(msecs, false);
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(Qt::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
         return false;
     }
 
@@ -726,14 +726,14 @@ bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool checkRead, bool ch
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::waitForWrite(), false);
     Q_CHECK_NOT_STATE(QSocketLayer::waitForReadOrWrite(),
-                      Qt::UnconnectedState, false);
+                      QAbstractSocket::UnconnectedState, false);
 
     bool selectedForRead = false;
     int ret = d->nativeSelect(msecs, checkRead, checkWrite, &selectedForRead);
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(Qt::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
         return false;
     }
 
@@ -806,7 +806,7 @@ void QSocketLayer::setSendBufferSize(Q_LONGLONG size)
 
     \sa SocketError
 */
-Qt::SocketError QSocketLayer::error() const
+QAbstractSocket::SocketError QSocketLayer::error() const
 {
     return d->socketError;
 }

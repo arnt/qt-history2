@@ -128,16 +128,16 @@ static inline void qt_socket_getPortAndAddress(struct sockaddr *sa, Q_UINT16 *po
     Creates and returns a new socket descriptor of type \a socketType
     and \a socketProtocol.  Returns -1 on failure.
 */
-bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
-                                         Qt::NetworkLayerProtocol socketProtocol)
+bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType,
+                                         QAbstractSocket::NetworkLayerProtocol socketProtocol)
 {
 #ifndef QT_NO_IPV6
-    int protocol = (socketProtocol == Qt::IPv6Protocol) ? AF_INET6 : AF_INET;
+    int protocol = (socketProtocol == QAbstractSocket::IPv6Protocol) ? AF_INET6 : AF_INET;
 #else
     Q_UNUSED(socketProtocol);
     int protocol = AF_INET;
 #endif
-    int type = (socketType == Qt::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
+    int type = (socketType == QAbstractSocket::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
     int socket = qt_socket_socket(protocol, type, 0);
 
     if (socket <= 0) {
@@ -145,16 +145,16 @@ bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType,
         case EPROTONOSUPPORT:
         case EAFNOSUPPORT:
         case EINVAL:
-            setError(Qt::UnsupportedSocketOperationError, "Protocol type not supported");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, "Protocol type not supported");
             break;
         case ENFILE:
         case EMFILE:
         case ENOBUFS:
         case ENOMEM:
-            setError(Qt::SocketResourceError, "Out of resources");
+            setError(QAbstractSocket::SocketResourceError, "Out of resources");
             break;
         case EACCES:
-            setError(Qt::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, "Permission denied");
             break;
         default:
             break;
@@ -235,7 +235,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
 
-    if (addr.protocol() == Qt::IPv6Protocol) {
+    if (addr.protocol() == QAbstractSocket::IPv6Protocol) {
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
@@ -249,7 +249,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
     {}
 #endif
 #endif
-    if (addr.protocol() == Qt::IPv4Protocol) {
+    if (addr.protocol() == QAbstractSocket::IPv4Protocol) {
         memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
         sockAddrIPv4.sin_family = AF_INET;
         sockAddrIPv4.sin_port = htons(port);
@@ -265,33 +265,33 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
     if (connectResult == -1) {
         switch (errno) {
         case EINVAL:
-            setError(Qt::UnsupportedSocketOperationError, "Unsupported socket operation");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, "Unsupported socket operation");
             break;
         case EISCONN:
-            socketState = Qt::ConnectedState;
+            socketState = QAbstractSocket::ConnectedState;
             break;
         case ECONNREFUSED:
-            setError(Qt::ConnectionRefusedError, "Connection refused");
+            setError(QAbstractSocket::ConnectionRefusedError, "Connection refused");
             break;
         case ETIMEDOUT:
-            setError(Qt::NetworkError, "Connection timed out");
+            setError(QAbstractSocket::NetworkError, "Connection timed out");
             break;
         case ENETUNREACH:
-            setError(Qt::NetworkError, "Network unreachable");
+            setError(QAbstractSocket::NetworkError, "Network unreachable");
             break;
         case EADDRINUSE:
-            setError(Qt::NetworkError, "The bound address is already in use");
+            setError(QAbstractSocket::NetworkError, "The bound address is already in use");
             break;
         case EINPROGRESS:
         case EALREADY:
-            socketState = Qt::ConnectingState;
+            socketState = QAbstractSocket::ConnectingState;
             break;
         case EAGAIN:
-            setError(Qt::SocketResourceError, "Out of free local ports");
+            setError(QAbstractSocket::SocketResourceError, "Out of free local ports");
             break;
         case EACCES:
         case EPERM:
-            setError(Qt::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, "Permission denied");
             break;
         case EAFNOSUPPORT:
         case EBADF:
@@ -301,11 +301,11 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
             break;
         }
 
-        if (socketState != Qt::ConnectedState) {
+        if (socketState != QAbstractSocket::ConnectedState) {
 #if defined (QSOCKETLAYER_DEBUG)
             qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
                    addr.toString().latin1(), port,
-                   socketState == Qt::ConnectingState
+                   socketState == QAbstractSocket::ConnectingState
                    ? "Connection in progress" : socketErrorString.latin1());
 #endif
             return false;
@@ -317,7 +317,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
            addr.toString().latin1(), port);
 #endif
 
-    socketState = Qt::ConnectedState;
+    socketState = QAbstractSocket::ConnectedState;
     return true;
 }
 
@@ -330,7 +330,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
 
-    if (address.protocol() == Qt::IPv6Protocol) {
+    if (address.protocol() == QAbstractSocket::IPv6Protocol) {
         memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
         sockAddrIPv6.sin6_family = AF_INET6;
         sockAddrIPv6.sin6_port = htons(port);
@@ -340,7 +340,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
         sockAddrPtr = (struct sockaddr *) &sockAddrIPv6;
     } else
 #endif
-        if (address.protocol() == Qt::IPv4Protocol) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol) {
             memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
             sockAddrIPv4.sin_family = AF_INET;
             sockAddrIPv4.sin_port = htons(port);
@@ -355,16 +355,16 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
     if (bindResult < 0) {
         switch(errno) {
         case EADDRINUSE:
-            setError(Qt::AddressInUseError, "The address is already bound");
+            setError(QAbstractSocket::AddressInUseError, "The address is already bound");
             break;
         case EACCES:
-            setError(Qt::SocketAccessError, "The address is protected");
+            setError(QAbstractSocket::SocketAccessError, "The address is protected");
             break;
         case EINVAL:
-            setError(Qt::UnsupportedSocketOperationError, "Unsupported socket operation");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, "Unsupported socket operation");
             break;
         case EADDRNOTAVAIL:
-            setError(Qt::SocketAddressNotAvailableError, "The address is not available");
+            setError(QAbstractSocket::SocketAddressNotAvailableError, "The address is not available");
             break;
         default:
             break;
@@ -382,7 +382,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
     qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == true",
            address.toString().latin1(), port);
 #endif
-    socketState = Qt::BoundState;
+    socketState = QAbstractSocket::BoundState;
     return true;
 }
 
@@ -391,7 +391,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
     if (qt_socket_listen(socketDescriptor, backlog) < 0) {
         switch (errno) {
         case EADDRINUSE:
-            setError(Qt::AddressInUseError,
+            setError(QAbstractSocket::AddressInUseError,
                      "Another socket is already listening on the same port");
             break;
         default:
@@ -409,7 +409,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
     qDebug("QSocketLayerPrivate::nativeListen(%i) == true", backlog);
 #endif
 
-    socketState = Qt::ListeningState;
+    socketState = QAbstractSocket::ListeningState;
     return true;
 }
 
@@ -538,7 +538,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
     } while (recvFromResult == -1 && errno == EINTR);
 
     if (recvFromResult == -1) {
-        setError(Qt::NetworkError, "Unable to receive a message");
+        setError(QAbstractSocket::NetworkError, "Unable to receive a message");
     } else if (port || address) {
         qt_socket_getPortAndAddress((struct sockaddr *) &aa, port, address);
     }
@@ -562,7 +562,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
-    if (host.protocol() == Qt::IPv6Protocol) {
+    if (host.protocol() == QAbstractSocket::IPv6Protocol) {
 	memset(&sockAddrIPv6, 0, sizeof(sockAddrIPv6));
 	sockAddrIPv6.sin6_family = AF_INET6;
 	sockAddrIPv6.sin6_port = htons(port);
@@ -573,7 +573,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
 	sockAddrPtr = (struct sockaddr *)&sockAddrIPv6;
     } else
 #endif
-    if (host.protocol() == Qt::IPv4Protocol) {
+    if (host.protocol() == QAbstractSocket::IPv4Protocol) {
 	memset(&sockAddrIPv4, 0, sizeof(sockAddrIPv4));
 	sockAddrIPv4.sin_family = AF_INET;
 	sockAddrIPv4.sin_port = htons(port);
@@ -594,10 +594,10 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
     if (sentBytes < 0) {
         switch (errno) {
         case EMSGSIZE:
-            setError(Qt::DatagramTooLargeError, "Datagram too large");
+            setError(QAbstractSocket::DatagramTooLargeError, "Datagram too large");
             break;
         default:
-            setError(Qt::NetworkError, "Unable to receive a message");
+            setError(QAbstractSocket::NetworkError, "Unable to receive a message");
         }
     }
 
@@ -636,20 +636,20 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
         // Determine protocol family
         switch (sockAddrPtr->sa_family) {
         case AF_INET:
-            socketProtocol = Qt::IPv4Protocol;
+            socketProtocol = QAbstractSocket::IPv4Protocol;
             break;
 #if !defined (QT_NO_IPV6)
         case AF_INET6:
-            socketProtocol = Qt::IPv6Protocol;
+            socketProtocol = QAbstractSocket::IPv6Protocol;
             break;
 #endif
         default:
-            socketProtocol = Qt::UnknownNetworkLayerProtocol;
+            socketProtocol = QAbstractSocket::UnknownNetworkLayerProtocol;
             break;
         }
 
     } else if (errno == EBADF) {
-        setError(Qt::UnsupportedSocketOperationError, "Invalid socket descriptor");
+        setError(QAbstractSocket::UnsupportedSocketOperationError, "Invalid socket descriptor");
         return false;
     }
 
@@ -662,20 +662,20 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     QT_SOCKLEN_T valueSize = sizeof(int);
     if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_TYPE, &value, &valueSize) == 0) {
         if (value == SOCK_STREAM)
-            socketType = Qt::TcpSocket;
+            socketType = QAbstractSocket::TcpSocket;
         else if (value == SOCK_DGRAM)
-            socketType = Qt::UdpSocket;
+            socketType = QAbstractSocket::UdpSocket;
         else
-            socketType = Qt::UnknownSocketType;
+            socketType = QAbstractSocket::UnknownSocketType;
     }
 #if defined (QSOCKETLAYER_DEBUG)
     QString socketProtocolStr = "UnknownProtocol";
-    if (socketProtocol == Qt::IPv4Protocol) socketProtocolStr = "IPv4Protocol";
-    else if (socketProtocol == Qt::IPv6Protocol) socketProtocolStr = "IPv6Protocol";
+    if (socketProtocol == QAbstractSocket::IPv4Protocol) socketProtocolStr = "IPv4Protocol";
+    else if (socketProtocol == QAbstractSocket::IPv6Protocol) socketProtocolStr = "IPv6Protocol";
 
     QString socketTypeStr = "UnknownSocketType";
-    if (socketType == Qt::TcpSocket) socketTypeStr = "TcpSocket";
-    else if (socketType == Qt::UdpSocket) socketTypeStr = "UdpSocket";
+    if (socketType == QAbstractSocket::TcpSocket) socketTypeStr = "TcpSocket";
+    else if (socketType == QAbstractSocket::UdpSocket) socketTypeStr = "UdpSocket";
 
     qDebug("QSocketLayerPrivate::fetchConnectionParameters() local == %s:%i,"
            " peer == %s:%i, socket == %s - %s",
@@ -711,14 +711,14 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
         case EPIPE:
         case ECONNRESET:
             writtenBytes = -1;
-            setError(Qt::RemoteHostClosedError, "Remote host closed");
+            setError(QAbstractSocket::RemoteHostClosedError, "Remote host closed");
             q->close();
             break;
         case EAGAIN:
             writtenBytes = 0;
             break;
         case EMSGSIZE:
-            setError(Qt::DatagramTooLargeError, "Datagram too large");
+            setError(QAbstractSocket::DatagramTooLargeError, "Datagram too large");
             break;
         default:
             break;
@@ -755,7 +755,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxSize)
         case EBADF:
         case EINVAL:
         case EIO:
-            setError(Qt::NetworkError, "Network error");
+            setError(QAbstractSocket::NetworkError, "Network error");
             break;
         default:
             break;

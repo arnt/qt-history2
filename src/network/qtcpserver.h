@@ -47,7 +47,7 @@ public:
     virtual bool hasPendingConnections() const;
     virtual QTcpSocket *nextPendingConnection();
 
-    Qt::SocketError serverError() const;
+    QAbstractSocket::SocketError serverError() const;
     QString errorString() const;
 
 protected:

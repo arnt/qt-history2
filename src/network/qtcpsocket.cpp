@@ -51,14 +51,14 @@ class QTcpSocketPrivate : public QAbstractSocketPrivate
 };
 
 /*!
-    Creates a QTcpSocket object in state \c Qt::UnconnectedState.
+    Creates a QTcpSocket object in state \c UnconnectedState.
 
     \a parent is passed on to the QObject constructor.
 
     \sa socketType()
 */
 QTcpSocket::QTcpSocket(QObject *parent)
-    : QAbstractSocket(Qt::TcpSocket, *new QTcpSocketPrivate, parent)
+    : QAbstractSocket(TcpSocket, *new QTcpSocketPrivate, parent)
 {
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::QTcpSocket()");

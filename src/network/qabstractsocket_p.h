@@ -55,7 +55,7 @@ public:
     void resetSocketLayer();
     bool flush();
 
-    bool initSocketLayer(Qt::SocketType socketType, Qt::NetworkLayerProtocol protocol);
+    bool initSocketLayer(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol protocol);
     void setupSocketNotifiers();
     bool readFromSocket();
 
@@ -70,10 +70,10 @@ public:
     QTimer connectTimer;
     int connectTimeElapsed;
 
-    Qt::SocketType socketType;
-    Qt::SocketState state;
+    QAbstractSocket::SocketType socketType;
+    QAbstractSocket::SocketState state;
 
-    Qt::SocketError socketError;
+    QAbstractSocket::SocketError socketError;
 };
 
 #endif

@@ -88,27 +88,27 @@
 
 #if defined(QT_NO_IPV6)
 #define QT_ENSURE_INITIALIZED(a) do { \
-    Qt::NetworkLayerProtocol proto = address.protocol(); \
-    if (proto == Qt::IPv6Protocol) { \
-        d->socketError = Qt::UnsupportedSocketOperationError; \
+    QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
+    if (proto == QUdpSocket::IPv6Protocol) { \
+        d->socketError = QUdpSocket::UnsupportedSocketOperationError; \
         setErrorString(tr("This platform does not support IPv6")); \
         return (a); \
     } \
     if (!d->socketLayer.isValid() || d->socketLayer.protocol() != proto) \
-        if (!d->initSocketLayer(Qt::UdpSocket, proto)) \
+        if (!d->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
             return (a); \
     } while (0)
 #else
 #define QT_ENSURE_INITIALIZED(a) do { \
-    Qt::NetworkLayerProtocol proto = address.protocol(); \
+    QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
     if (!d->socketLayer.isValid() || d->socketLayer.protocol() != proto) \
-        if (!d->initSocketLayer(Qt::UdpSocket, proto)) \
+        if (!d->initSocketLayer(QUdpSocket::UdpSocket, proto)) \
             return (a); \
     } while (0)
 #endif
 #define QT_CHECK_BOUND(function, a) do { \
     if (!isValid()) { \
-        qWarning(function" called on a QUdpSocket when not in Qt::BoundState"); \
+        qWarning(function" called on a QUdpSocket when not in QUdpSocket::BoundState"); \
         return (a); \
     } } while (0)
 
@@ -125,7 +125,7 @@ class QUdpSocketPrivate : public QAbstractSocketPrivate
     \sa socketType()
 */
 QUdpSocket::QUdpSocket(QObject *parent)
-    : QAbstractSocket(Qt::UdpSocket, *new QUdpSocketPrivate, parent)
+    : QAbstractSocket(UdpSocket, *new QUdpSocketPrivate, parent)
 {
     d->isBuffered = false;
 }
@@ -146,7 +146,7 @@ QUdpSocket::~QUdpSocket()
     is useful to write UDP servers.
 
     On success, the functions returns true and the socket enters
-    Qt::BoundState; otherwise it returns false.
+    BoundState; otherwise it returns false.
 
     \sa readDatagram()
 */
@@ -162,7 +162,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
         return false;
     }
 
-    d->state = Qt::BoundState;
+    d->state = BoundState;
     d->readSocketNotifier->setEnabled(true);
     return true;
 }
@@ -208,7 +208,7 @@ Q_LONGLONG QUdpSocket::pendingDatagramSize() const
     Datagrams are always written as one block. The maximum size of a
     datagram is highly platform-dependent, but can be as low as 8192
     bytes. If the datagram is too large, this function will return -1
-    and error() will return Qt::DatagramTooLargeError.
+    and error() will return DatagramTooLargeError.
 
     Sending datagrams larger than 512 bytes is in general disadvised,
     as even if they are sent successfully, they are likely to be

@@ -25,10 +25,10 @@ public:
     QSocketLayer();
     ~QSocketLayer();
 
-    bool initialize(Qt::SocketType type, Qt::NetworkLayerProtocol protocol = Qt::IPv4Protocol);
-    bool initialize(int socketDescriptor, Qt::SocketState socketState = Qt::ConnectedState);
-    Qt::SocketType socketType() const;
-    Qt::NetworkLayerProtocol protocol() const;
+    bool initialize(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol = QAbstractSocket::IPv4Protocol);
+    bool initialize(int socketDescriptor, QAbstractSocket::SocketState socketState = QAbstractSocket::ConnectedState);
+    QAbstractSocket::SocketType socketType() const;
+    QAbstractSocket::NetworkLayerProtocol protocol() const;
     int socketDescriptor() const;
 
     bool isValid() const;
@@ -51,7 +51,7 @@ public:
     bool hasPendingDatagrams() const;
     Q_LONGLONG pendingDatagramSize() const;
 
-    Qt::SocketState state() const;
+    QAbstractSocket::SocketState state() const;
 
     QHostAddress localAddress() const;
     Q_UINT16 localPort() const;
@@ -68,7 +68,7 @@ public:
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForReadOrWrite(bool *readyToRead, bool checkRead, bool checkWrite, int msecs = 30000, bool *timedOut = 0) const;
 
-    Qt::SocketError error() const;
+    QAbstractSocket::SocketError error() const;
     QString errorString() const;
 
 private:
@@ -95,10 +95,10 @@ public:
 
     int socketDescriptor;
 
-    Qt::SocketType socketType;
-    Qt::NetworkLayerProtocol socketProtocol;
-    Qt::SocketState socketState;
-    mutable Qt::SocketError socketError;
+    QAbstractSocket::SocketType socketType;
+    QAbstractSocket::NetworkLayerProtocol socketProtocol;
+    QAbstractSocket::SocketState socketState;
+    mutable QAbstractSocket::SocketError socketError;
     mutable QString socketErrorString;
 
     QHostAddress peerAddress;
@@ -112,7 +112,7 @@ public:
     QWindowsSockInit winSock;
 #endif
 
-    void setError(Qt::SocketError error, const QString &errorString) const;
+    void setError(QAbstractSocket::SocketError error, const QString &errorString) const;
 
     enum SocketOption {
         NonBlockingSocketOption,
@@ -125,7 +125,7 @@ public:
     int option(SocketOption option) const;
     bool setOption(SocketOption option, int value);
 
-    bool createNewSocket(Qt::SocketType type, Qt::NetworkLayerProtocol protocol);
+    bool createNewSocket(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol);
 
     bool nativeConnect(const QHostAddress &address, Q_UINT16 port);
     bool nativeBind(const QHostAddress &address, Q_UINT16 port);

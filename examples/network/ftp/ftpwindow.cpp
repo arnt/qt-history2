@@ -33,8 +33,8 @@ FtpWindow::FtpWindow(QWidget *parent)
 
     connect(ftpServerLineEdit, SIGNAL(textChanged(const QString &)),
             this, SLOT(enableConnectButton()));
-    connect(fileList, SIGNAL(doubleClicked(QListWidgetItem *, Qt::MouseButton,
-                                           Qt::KeyboardModifiers)),
+    connect(fileList, SIGNAL(doubleClicked(QListWidgetItem *, QAbstractSocket::MouseButton,
+                                           QAbstractSocket::KeyboardModifiers)),
             this, SLOT(processItem(QListWidgetItem *)));
     connect(fileList, SIGNAL(returnPressed(QListWidgetItem *)),
             this, SLOT(processItem(QListWidgetItem *)));

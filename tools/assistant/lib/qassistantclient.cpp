@@ -294,9 +294,9 @@ void QAssistantClient::socketConnectionClosed()
 
 void QAssistantClient::socketError( int i )
 {
-    if ( i == Qt::ConnectionRefusedError )
+    if ( i == QTcpSocket::ConnectionRefusedError )
         emit error( tr( "Could not connect to Assistant: Connection refused" ) );
-    else if ( i == Qt::HostNotFoundError )
+    else if ( i == QTcpSocket::HostNotFoundError )
         emit error( tr( "Could not connect to Assistant: Host not found" ) );
     else
         emit error( tr( "Communication error" ) );

@@ -2117,7 +2117,7 @@ void QHttpPrivate::sendRequest()
     // Do we need to setup a new connection or can we reuse an
     // existing one?
     if (socket->peerName() != hostName || socket->peerPort() != port
-        || socket->state() != Qt::ConnectedState) {
+        || socket->state() != QTcpSocket::ConnectedState) {
         socket->abort();
 
         setState(QHttp::Connecting);
@@ -2216,10 +2216,10 @@ void QHttpPrivate::slotError(int err)
 
     if (state == QHttp::Connecting || state == QHttp::Reading || state == QHttp::Sending) {
         switch (err) {
-        case Qt::ConnectionRefusedError:
+        case QTcpSocket::ConnectionRefusedError:
                 finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Connection refused"), QHttp::ConnectionRefused);
                 break;
-        case Qt::HostNotFoundError:
+        case QTcpSocket::HostNotFoundError:
                 finishedWithError(QString(QT_TRANSLATE_NOOP(QHttp, "Host %1 not found"))
                                   .arg(socket->peerName()), QHttp::HostNotFound);
                 break;
@@ -2542,7 +2542,7 @@ void QHttpPrivate::closeConn()
         socket->close();
 
         // Did close succeed immediately ?
-        if (socket->state() == Qt::UnconnectedState) {
+        if (socket->state() == QTcpSocket::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
             idleTimer = q->startTimer(0);
         }

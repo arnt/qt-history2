@@ -76,12 +76,12 @@ void BlockingClient::showFortune(const QString &nextFortune)
 void BlockingClient::displayError(int socketError, const QString &message)
 {
     switch (socketError) {
-    case Qt::HostNotFoundError:
+    case QAbstractSocket::HostNotFoundError:
         QMessageBox::information(this, tr("Blocking Fortune Client"),
                                  tr("The host was not found. Please check the "
                                     "host and port settings."));
         break;
-    case Qt::ConnectionRefusedError:
+    case QAbstractSocket::ConnectionRefusedError:
         QMessageBox::information(this, tr("Blocking Fortune Client"),
                                  tr("The connection was refused by the peer. "
                                     "Make sure the fortune server is running, "

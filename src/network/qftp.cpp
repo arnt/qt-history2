@@ -63,7 +63,7 @@ public:
     void connectToHost(const QString & host, Q_UINT16 port);
     int setupListener(const QHostAddress &address);
 
-    Qt::SocketState state() const;
+    QTcpSocket::SocketState state() const;
     Q_LONGLONG bytesAvailable() const;
     Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
@@ -311,14 +311,14 @@ int QFtpDTP::setupListener(const QHostAddress &address)
     return listener.serverPort();
 }
 
-Qt::SocketState QFtpDTP::state() const
+QTcpSocket::SocketState QFtpDTP::state() const
 {
-    return socket ? socket->state() : Qt::UnconnectedState;
+    return socket ? socket->state() : QTcpSocket::UnconnectedState;
 }
 
 Q_LONGLONG QFtpDTP::bytesAvailable() const
 {
-    if (!socket || socket->state() != Qt::ConnectedState)
+    if (!socket || socket->state() != QTcpSocket::ConnectedState)
         return (Q_LONGLONG) bytesFromSocket.size();
     return socket->bytesAvailable();
 }
@@ -326,7 +326,7 @@ Q_LONGLONG QFtpDTP::bytesAvailable() const
 Q_LONGLONG QFtpDTP::read(char *data, Q_LONGLONG maxlen)
 {
     Q_LONGLONG read;
-    if (socket && socket->state() == Qt::ConnectedState) {
+    if (socket && socket->state() == QTcpSocket::ConnectedState) {
         read = socket->read(data, maxlen);
     } else {
         read = bytesFromSocket.size();
@@ -341,7 +341,7 @@ Q_LONGLONG QFtpDTP::read(char *data, Q_LONGLONG maxlen)
 QByteArray QFtpDTP::readAll()
 {
     QByteArray tmp;
-    if (socket && socket->state() == Qt::ConnectedState) {
+    if (socket && socket->state() == QTcpSocket::ConnectedState) {
         tmp = socket->readAll();
         bytesDone += tmp.size();
     } else {
@@ -619,12 +619,12 @@ void QFtpDTP::socketReadyRead()
 
 void QFtpDTP::socketError(int e)
 {
-    if (e == Qt::HostNotFoundError) {
+    if (e == QTcpSocket::HostNotFoundError) {
 #if defined(QFTPDTP_DEBUG)
         qDebug("QFtpDTP::connectState(CsHostNotFound)");
 #endif
         emit connectState(QFtpDTP::CsHostNotFound);
-    } else if (e == Qt::ConnectionRefusedError) {
+    } else if (e == QTcpSocket::ConnectionRefusedError) {
 #if defined(QFTPDTP_DEBUG)
         qDebug("QFtpDTP::connectState(CsConnectionRefused)");
 #endif
@@ -726,7 +726,7 @@ bool QFtpPI::sendCommands(const QStringList &cmds)
     if (!pendingCommands.isEmpty())
         return false;
 
-    if (commandSocket.state() != Qt::ConnectedState || state!=Idle) {
+    if (commandSocket.state() != QTcpSocket::ConnectedState || state!=Idle) {
         emit error(QFtp::NotConnected, QFtp::tr("Not connected"));
         return true; // there are no pending commands
     }
@@ -789,11 +789,11 @@ void QFtpPI::delayedCloseFinished()
 
 void QFtpPI::error(int e)
 {
-    if (e == Qt::HostNotFoundError) {
+    if (e == QTcpSocket::HostNotFoundError) {
         emit connectState(QFtp::Unconnected);
         emit error(QFtp::HostNotFound,
                     QFtp::tr("Host %1 not found").arg(commandSocket.peerName()));
-    } else if (e == Qt::ConnectionRefusedError) {
+    } else if (e == QTcpSocket::ConnectionRefusedError) {
         emit connectState(QFtp::Unconnected);
         emit error(QFtp::ConnectionRefused,
                     QFtp::tr("Connection refused to host %1").arg(commandSocket.peerName()));
@@ -870,7 +870,7 @@ bool QFtpPI::processReply()
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
     if (100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226) {
-        if (dtp.state() != Qt::UnconnectedState) {
+        if (dtp.state() != QTcpSocket::UnconnectedState) {
             waitForDtpToClose = true;
             return false;
         }
@@ -1047,10 +1047,10 @@ bool QFtpPI::startNextCmd()
         if (transferConnectionExtended) {
             int port = dtp.setupListener(address);
             currentCmd = "EPRT |";
-            currentCmd += (address.protocol() == Qt::IPv4Protocol) ? "1" : "2";
+            currentCmd += (address.protocol() == QTcpSocket::IPv4Protocol) ? "1" : "2";
             currentCmd += "|" + address.toString() + "|" + QString::number(port);
             currentCmd += "|";
-        } else if (address.protocol() == Qt::IPv4Protocol) {
+        } else if (address.protocol() == QTcpSocket::IPv4Protocol) {
             int port = dtp.setupListener(address);
             QString portArg;
             Q_UINT32 ip = address.toIPv4Address();

@@ -57,7 +57,7 @@ public:
     void setAddress(const Q_IPV6ADDR &ip6Addr);
     bool setAddress(const QString &address);
 
-    Qt::NetworkLayerProtocol protocol() const;
+    QAbstractSocket::NetworkLayerProtocol protocol() const;
     Q_UINT32 toIPv4Address() const;
     Q_IPV6ADDR toIPv6Address() const;
 
@@ -70,11 +70,11 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT Q_UINT32 ip4Addr() const { return toIPv4Address(); }
-    inline QT_COMPAT bool isIPv4Address() const { return protocol() == Qt::IPv4Protocol
-                                                      || protocol() == Qt::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIp4Addr() const  { return protocol() == Qt::IPv4Protocol
-                                                      || protocol() == Qt::UnknownNetworkLayerProtocol; }
-    inline QT_COMPAT bool isIPv6Address() const { return protocol() == Qt::IPv6Protocol; }
+    inline QT_COMPAT bool isIPv4Address() const { return protocol() == QAbstractSocket::IPv4Protocol
+                                                      || protocol() == QAbstractSocket::UnknownNetworkLayerProtocol; }
+    inline QT_COMPAT bool isIp4Addr() const  { return protocol() == QAbstractSocket::IPv4Protocol
+                                                      || protocol() == QAbstractSocket::UnknownNetworkLayerProtocol; }
+    inline QT_COMPAT bool isIPv6Address() const { return protocol() == QAbstractSocket::IPv6Protocol; }
 #endif
 
 private:

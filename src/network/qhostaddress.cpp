@@ -35,7 +35,7 @@ public:
 private:
     Q_UINT32 a;    // IPv4 address
     Q_IPV6ADDR a6; // IPv6 address
-    Qt::NetworkLayerProtocol protocol;
+    QAbstractSocket::NetworkLayerProtocol protocol;
 
     QString ipString;
     bool isParsed;
@@ -44,7 +44,7 @@ private:
 };
 
 QHostAddressPrivate::QHostAddressPrivate()
-    : a(0), protocol(Qt::UnknownNetworkLayerProtocol), isParsed(true)
+    : a(0), protocol(QAbstractSocket::UnknownNetworkLayerProtocol), isParsed(true)
 {
     memset(&a6, 0, sizeof(a6));
 }
@@ -52,7 +52,7 @@ QHostAddressPrivate::QHostAddressPrivate()
 void QHostAddressPrivate::setAddress(Q_UINT32 a_)
 {
     a = a_;
-    protocol = Qt::IPv4Protocol;
+    protocol = QAbstractSocket::IPv4Protocol;
     isParsed = true;
 }
 
@@ -60,7 +60,7 @@ void QHostAddressPrivate::setAddress(const Q_UINT8 *a_)
 {
     for (int i = 0; i < 16; i++)
         a6[i] = a_[i];
-    protocol = Qt::IPv6Protocol;
+    protocol = QAbstractSocket::IPv6Protocol;
     isParsed = true;
 }
 
@@ -68,7 +68,7 @@ void QHostAddressPrivate::setAddress(const Q_IPV6ADDR &a_)
 {
     a6 = a_;
     a = 0;
-    protocol = Qt::IPv6Protocol;
+    protocol = QAbstractSocket::IPv6Protocol;
     isParsed = true;
 }
 
@@ -157,7 +157,7 @@ static bool parseIp6(const QString &address, Q_UINT8 *addr)
 bool QHostAddressPrivate::parse()
 {
     isParsed = true;
-    protocol = Qt::UnknownNetworkLayerProtocol;
+    protocol = QAbstractSocket::UnknownNetworkLayerProtocol;
     QString a = ipString.simplified();
 
     // All IPv6 addresses contain a ':', and may contain a '.'.
@@ -165,7 +165,7 @@ bool QHostAddressPrivate::parse()
         Q_UINT8 maybeIp6[16];
         if (parseIp6(a, maybeIp6)) {
             setAddress(maybeIp6);
-            protocol = Qt::IPv6Protocol;
+            protocol = QAbstractSocket::IPv6Protocol;
             return true;
         }
     }
@@ -175,7 +175,7 @@ bool QHostAddressPrivate::parse()
         Q_UINT32 maybeIp4 = 0;
         if (parseIp4(a, &maybeIp4)) {
             setAddress(maybeIp4);
-            protocol = Qt::IPv4Protocol;
+            protocol = QAbstractSocket::IPv4Protocol;
             return true;
         }
     }
@@ -186,7 +186,7 @@ bool QHostAddressPrivate::parse()
 void QHostAddressPrivate::clear()
 {
     a = 0;
-    protocol = Qt::UnknownNetworkLayerProtocol;
+    protocol = QAbstractSocket::UnknownNetworkLayerProtocol;
     isParsed = true;
     memset(&a6, 0, sizeof(a6));
 }
@@ -402,7 +402,7 @@ Q_UINT32 QHostAddress::toIPv4Address() const
 /*!
     Returns the network layer protocol of the host address.
 */
-Qt::NetworkLayerProtocol QHostAddress::protocol() const
+QAbstractSocket::NetworkLayerProtocol QHostAddress::protocol() const
 {
     QT_ENSURE_PARSED(this);
     return d->protocol;
@@ -443,7 +443,7 @@ Q_IPV6ADDR QHostAddress::toIPv6Address() const
 QString QHostAddress::toString() const
 {
     QT_ENSURE_PARSED(this);
-    if (d->protocol == Qt::IPv4Protocol) {
+    if (d->protocol == QAbstractSocket::IPv4Protocol) {
         Q_UINT32 i = toIPv4Address();
         QString s;
         s.sprintf("%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
@@ -451,7 +451,7 @@ QString QHostAddress::toString() const
         return s;
     }
 
-    if (d->protocol == Qt::IPv6Protocol) {
+    if (d->protocol == QAbstractSocket::IPv6Protocol) {
         Q_UINT16 ugle[8];
         for (int i = 0; i < 8; i++) {
             ugle[i] = (Q_UINT16(d->a6[2*i]) << 8) | Q_UINT16(d->a6[2*i+1]);
@@ -475,10 +475,10 @@ bool QHostAddress::operator==(const QHostAddress &other) const
     QT_ENSURE_PARSED(this);
     QT_ENSURE_PARSED(&other);
 
-    if (d->protocol == Qt::IPv4Protocol)
-        return other.d->protocol == Qt::IPv4Protocol && d->a == other.d->a;
-    if (d->protocol == Qt::IPv6Protocol) {
-        return other.d->protocol == Qt::IPv6Protocol
+    if (d->protocol == QAbstractSocket::IPv4Protocol)
+        return other.d->protocol == QAbstractSocket::IPv4Protocol && d->a == other.d->a;
+    if (d->protocol == QAbstractSocket::IPv6Protocol) {
+        return other.d->protocol == QAbstractSocket::IPv6Protocol
                && memcmp(&d->a6, &other.d->a6, sizeof(Q_IPV6ADDR)) == 0;
     }
     return true;
@@ -494,10 +494,10 @@ bool QHostAddress::operator ==(SpecialAddress other) const
     QHostAddress otherAddress(other);
     QT_ENSURE_PARSED(&otherAddress);
 
-    if (d->protocol == Qt::IPv4Protocol)
-        return otherAddress.d->protocol == Qt::IPv4Protocol && d->a == otherAddress.d->a;
-    if (d->protocol == Qt::IPv6Protocol) {
-        return otherAddress.d->protocol == Qt::IPv6Protocol
+    if (d->protocol == QAbstractSocket::IPv4Protocol)
+        return otherAddress.d->protocol == QAbstractSocket::IPv4Protocol && d->a == otherAddress.d->a;
+    if (d->protocol == QAbstractSocket::IPv6Protocol) {
+        return otherAddress.d->protocol == QAbstractSocket::IPv6Protocol
                && memcmp(&d->a6, &otherAddress.d->a6, sizeof(Q_IPV6ADDR)) == 0;
     }
     return true;
@@ -511,7 +511,7 @@ bool QHostAddress::operator ==(SpecialAddress other) const
 bool QHostAddress::isNull() const
 {
     QT_ENSURE_PARSED(this);
-    return d->protocol == Qt::UnknownNetworkLayerProtocol;
+    return d->protocol == QAbstractSocket::UnknownNetworkLayerProtocol;
 }
 
 /*!

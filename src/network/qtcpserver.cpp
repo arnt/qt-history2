@@ -30,7 +30,7 @@
 
     Call nextPendingConnection() to accept the pending connection as
     a connected QTcpSocket. The function returns a pointer to a
-    QTcpSocket in Qt::ConnectedState that you can use for
+    QTcpSocket in QAbstractSocket::ConnectedState that you can use for
     communicating with the client.
 
     If an error occurs, serverError() returns the type of error, and
@@ -88,10 +88,10 @@ public:
     Q_UINT16 port;
     QHostAddress address;
 
-    Qt::SocketState state;
+    QAbstractSocket::SocketState state;
     QSocketLayer socketLayer;
 
-    Qt::SocketError serverSocketError;
+    QAbstractSocket::SocketError serverSocketError;
     QString serverSocketErrorString;
 
     int maxConnections;
@@ -157,7 +157,7 @@ void QTcpServerPrivate::processIncomingConnection(int)
 QTcpServer::QTcpServer(QObject *parent)
     : QObject(*new QTcpServerPrivate, parent)
 {
-    d->state = Qt::UnconnectedState;
+    d->state = QAbstractSocket::UnconnectedState;
 }
 
 /*!
@@ -186,23 +186,23 @@ QTcpServer::~QTcpServer()
 */
 bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
 {
-    if (d->state == Qt::ListeningState) {
+    if (d->state == QAbstractSocket::ListeningState) {
         qWarning("QTcpServer::listen() called when already listening");
         return false;
     }
 
-    Qt::NetworkLayerProtocol proto = address.protocol();
+    QAbstractSocket::NetworkLayerProtocol proto = address.protocol();
 #if defined(Q_NO_IPv6)
-    if (proto == Qt::IPv6Protocol) {
+    if (proto == QAbstractSocket::IPv6Protocol) {
         // If we have no IPv6 support, then we will not be able to
         // listen on an IPv6 interface.
-        d->serverSocketError = Qt::SocketOperationUnsupportedError;
+        d->serverSocketError = QAbstractSocket::SocketOperationUnsupportedError;
         d->serverSocketErrorString = tr("Socket operation unsupported");
         return false;
     }
 #endif
 
-    if (!d->socketLayer.initialize(Qt::TcpSocket, proto)) {
+    if (!d->socketLayer.initialize(QAbstractSocket::TcpSocket, proto)) {
         d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
         return false;
@@ -224,7 +224,7 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
                                                 QSocketNotifier::Read, this);
     connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
 
-    d->state = Qt::ListeningState;
+    d->state = QAbstractSocket::ListeningState;
     d->address = address;
     d->port = port;
 
@@ -253,7 +253,7 @@ bool QTcpServer::listen(Q_UINT16 port)
 */
 bool QTcpServer::isListening() const
 {
-    return d->socketLayer.state() == Qt::ListeningState;
+    return d->socketLayer.state() == QAbstractSocket::ListeningState;
 }
 
 /*!
@@ -275,7 +275,7 @@ void QTcpServer::close()
     if (d->socketLayer.isValid())
         d->socketLayer.close();
 
-    d->state = Qt::UnconnectedState;
+    d->state = QAbstractSocket::UnconnectedState;
 }
 
 /*!
@@ -304,7 +304,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
         return false;
     }
 
-    if (!d->socketLayer.initialize(socketDescriptor, Qt::ListeningState)) {
+    if (!d->socketLayer.initialize(socketDescriptor, QAbstractSocket::ListeningState)) {
         d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
 #if defined (QTCPSERVER_DEBUG)
@@ -369,7 +369,7 @@ QHostAddress QTcpServer::serverAddress() const
 */
 bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 {
-    if (d->state != Qt::ListeningState)
+    if (d->state != QAbstractSocket::ListeningState)
         return false;
 
     if (!d->socketLayer.waitForRead(msec, timedOut)) {
@@ -479,7 +479,7 @@ int QTcpServer::maxPendingConnections() const
 
     \sa errorString()
 */
-Qt::SocketError QTcpServer::serverError() const
+QAbstractSocket::SocketError QTcpServer::serverError() const
 {
     return d->serverSocketError;
 }

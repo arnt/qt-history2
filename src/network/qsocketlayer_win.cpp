@@ -203,7 +203,7 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
                                                Q_UINT16 port, const QHostAddress & address, sockaddr ** sockAddrPtr, QT_SOCKLEN_T *sockAddrSize)
 {
 #if !defined(QT_NO_IPV6)
-    if (address.protocol() == Qt::IPv6Protocol) {
+    if (address.protocol() == QAbstractSocket::IPv6Protocol) {
         memset(sockAddrIPv6, 0, sizeof(qt_sockaddr_in6));
         sockAddrIPv6->sin6_family = AF_INET6;
         WSAHtons(socketDescriptor, port, &(sockAddrIPv6->sin6_port));
@@ -213,8 +213,8 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
         *sockAddrPtr = (struct sockaddr *) sockAddrIPv6;
     } else
 #endif
-    if (address.protocol() == Qt::IPv4Protocol
-        || address.protocol() == Qt::UnknownNetworkLayerProtocol) {
+    if (address.protocol() == QAbstractSocket::IPv4Protocol
+        || address.protocol() == QAbstractSocket::UnknownNetworkLayerProtocol) {
         memset(sockAddrIPv4, 0, sizeof(sockaddr_in));
         sockAddrIPv4->sin_family = AF_INET;
         WSAHtons(socketDescriptor, port, &(sockAddrIPv4->sin_port));
@@ -229,7 +229,7 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
 /*! \internal
 
 */
-static inline Qt::SocketType qt_socket_getType(int socketDescriptor)
+static inline QAbstractSocket::SocketType qt_socket_getType(int socketDescriptor)
 {
     int value = 0;
     QT_SOCKLEN_T valueSize = sizeof(value);
@@ -237,11 +237,11 @@ static inline Qt::SocketType qt_socket_getType(int socketDescriptor)
 	WS_ERROR_DEBUG
     } else {
         if (value == SOCK_STREAM)
-            return Qt::TcpSocket;
+            return QAbstractSocket::TcpSocket;
         else if (value == SOCK_DGRAM)
-            return Qt::UdpSocket;
+            return QAbstractSocket::UdpSocket;
     }
-    return Qt::UnknownSocketType;
+    return QAbstractSocket::UnknownSocketType;
 }
 
 
@@ -264,19 +264,19 @@ QWindowsSockInit::~QWindowsSockInit()
     WSACleanup();
 }
 
-bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType, Qt::NetworkLayerProtocol socketProtocol)
+bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType, QAbstractSocket::NetworkLayerProtocol socketProtocol)
 {
 
     //### no ip6 support on winsocket 1.1 but we will try not to use this !!!!!!!!!!!!1
     /*
-    if (winsockVersion < 0x20 && socketProtocol == Qt::IPv6Protocol) {
+    if (winsockVersion < 0x20 && socketProtocol == QAbstractSocket::IPv6Protocol) {
         //### no ip6 support
         return -1;
     }
     */
 
-    int protocol = (socketProtocol == Qt::IPv6Protocol) ? AF_INET6 : AF_INET;
-    int type = (socketType == Qt::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
+    int protocol = (socketProtocol == QAbstractSocket::IPv6Protocol) ? AF_INET6 : AF_INET;
+    int type = (socketType == QAbstractSocket::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
     SOCKET socket = ::WSASocket(protocol, type, 0, NULL, 0, 0);
 
     if (socket == INVALID_SOCKET) {
@@ -289,11 +289,11 @@ bool QSocketLayerPrivate::createNewSocket(Qt::SocketType socketType, Qt::Network
         case WSAESOCKTNOSUPPORT:
         case WSAEPROTOTYPE:
         case WSAEINVAL:
-            setError(Qt::UnsupportedSocketOperationError, "Protocol type not supported");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, "Protocol type not supported");
             break;
         case WSAEMFILE:
         case WSAENOBUFS:
-            setError(Qt::SocketResourceError, "Out of resources");
+            setError(QAbstractSocket::SocketResourceError, "Out of resources");
             break;
         default:
             break;
@@ -412,21 +412,21 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
         // Determine protocol family
         switch (pSa->sa_family) {
         case AF_INET:
-            socketProtocol = Qt::IPv4Protocol;
+            socketProtocol = QAbstractSocket::IPv4Protocol;
             break;
 #if !defined (QT_NO_IPV6)
         case AF_INET6:
-            socketProtocol = Qt::IPv6Protocol;
+            socketProtocol = QAbstractSocket::IPv6Protocol;
             break;
 #endif
         default:
-            socketProtocol = Qt::UnknownNetworkLayerProtocol;
+            socketProtocol = QAbstractSocket::UnknownNetworkLayerProtocol;
             break;
         }
     } else {
 	WS_ERROR_DEBUG
 	if (WSAGetLastError() == WSAENOTSOCK) {
-	    setError(Qt::UnsupportedSocketOperationError, "Invalid socket descriptor");
+	    setError(QAbstractSocket::UnsupportedSocketOperationError, "Invalid socket descriptor");
             return false;
 	}
     }
@@ -442,12 +442,12 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
 #if defined (QSOCKETLAYER_DEBUG)
     QString socketProtocolStr = "UnknownProtocol";
-    if (socketProtocol == Qt::IPv4Protocol) socketProtocolStr = "IPv4Protocol";
-    else if (socketProtocol == Qt::IPv6Protocol) socketProtocolStr = "IPv6Protocol";
+    if (socketProtocol == QAbstractSocket::IPv4Protocol) socketProtocolStr = "IPv4Protocol";
+    else if (socketProtocol == QAbstractSocket::IPv6Protocol) socketProtocolStr = "IPv6Protocol";
 
     QString socketTypeStr = "UnknownSocketType";
-    if (socketType == Qt::TcpSocket) socketTypeStr = "TcpSocket";
-    else if (socketType == Qt::UdpSocket) socketTypeStr = "UdpSocket";
+    if (socketType == QAbstractSocket::TcpSocket) socketTypeStr = "TcpSocket";
+    else if (socketType == QAbstractSocket::UdpSocket) socketTypeStr = "UdpSocket";
 
     qDebug("QSocketLayerPrivate::fetchConnectionParameters() localAddress == %s, localPort = %i, peerAddress == %s, peerPort = %i, socketProtocol == %s, socketType == %s", localAddress.toString().latin1(), localPort, peerAddress.toString().latin1(), peerPort, socketProtocolStr.latin1(), socketTypeStr.latin1());
 #endif
@@ -473,40 +473,40 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 po
             //###
             break;
         case WSAEINVAL: //### this should not be needed but untill all of Qt uses only ws2_32.lib it should be there
-            if (socketState != Qt::ConnectingState)
+            if (socketState != QAbstractSocket::ConnectingState)
                 break;
         case WSAEISCONN:
-            socketState = Qt::ConnectedState;
+            socketState = QAbstractSocket::ConnectedState;
             break;
         case WSAEINPROGRESS:
         case WSAEALREADY:
         case WSAEWOULDBLOCK:
-            socketState = Qt::ConnectingState;
+            socketState = QAbstractSocket::ConnectingState;
             break;
         case WSAEADDRINUSE:
-            setError(Qt::NetworkError, "The bound address is already in use");
+            setError(QAbstractSocket::NetworkError, "The bound address is already in use");
             break;
         case WSAECONNREFUSED:
-            setError(Qt::ConnectionRefusedError, "Connection refused");
+            setError(QAbstractSocket::ConnectionRefusedError, "Connection refused");
             break;
         case WSAETIMEDOUT:
-            setError(Qt::NetworkError, "Connection timed out");
+            setError(QAbstractSocket::NetworkError, "Connection timed out");
             break;
         case WSAEACCES:
-            setError(Qt::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, "Permission denied");
             break;
         case WSAENETUNREACH:
-            setError(Qt::NetworkError, "Network unreachable");
+            setError(QAbstractSocket::NetworkError, "Network unreachable");
             break;
         default:
             break;
         }
 
-        if (socketState != Qt::ConnectedState) {
+        if (socketState != QAbstractSocket::ConnectedState) {
 #if defined (QSOCKETLAYER_DEBUG)
             qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
                    address.toString().latin1(), port,
-                   socketState == Qt::ConnectingState
+                   socketState == QAbstractSocket::ConnectingState
                    ? "Connection in progress" : socketErrorString.latin1());
 #endif
             return false;
@@ -518,7 +518,7 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, Q_UINT16 po
            address.toString().latin1(), port);
 #endif
 
-    socketState = Qt::ConnectedState;
+    socketState = QAbstractSocket::ConnectedState;
     return true;
 }
 
@@ -542,13 +542,13 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
             break;
         case WSAEADDRINUSE:
         case WSAEINVAL:
-            setError(Qt::AddressInUseError, "The address is already bound");
+            setError(QAbstractSocket::AddressInUseError, "The address is already bound");
             break;
         case WSAEACCES:
-            setError(Qt::SocketAccessError, "The address is protected");
+            setError(QAbstractSocket::SocketAccessError, "The address is protected");
             break;
         case WSAEADDRNOTAVAIL:
-            setError(Qt::SocketAddressNotAvailableError, "The address is not available");
+            setError(QAbstractSocket::SocketAddressNotAvailableError, "The address is not available");
             break;
         default:
             break;
@@ -566,7 +566,7 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
     qDebug("QSocketLayerPrivate::nativeBind(%s, %i) == true",
            address.toString().latin1(), port);
 #endif
-    socketState = Qt::BoundState;
+    socketState = QAbstractSocket::BoundState;
     return true;
 }
 
@@ -580,7 +580,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
             //###
             break;
         case WSAEADDRINUSE:
-            setError(Qt::AddressInUseError,
+            setError(QAbstractSocket::AddressInUseError,
                      "Another socket is already listening on the same port");
             break;
         default:
@@ -598,7 +598,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
     qDebug("QSocketLayerPrivate::nativeListen(%i) == true", backlog);
 #endif
 
-    socketState = Qt::ListeningState;
+    socketState = QAbstractSocket::ListeningState;
     return true;
 }
 
@@ -627,7 +627,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeBytesAvailable() const
     // was reset (udp is connectionless). so we peek one byte to
     // catch this case and return 0 bytes available if recvfrom
     // fails.
-    if (nbytes == 1 && socketType == Qt::UdpSocket) {
+    if (nbytes == 1 && socketType == QAbstractSocket::UdpSocket) {
         char c;
         WSABUF buf;
         buf.buf = &c;
@@ -755,7 +755,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
     if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR
         && WSAGetLastError() != WSAEMSGSIZE) { // it is ok the buffer was to small
         WS_ERROR_DEBUG
-        setError(Qt::NetworkError, "Unable to receive a message");
+        setError(QAbstractSocket::NetworkError, "Unable to receive a message");
         ret = -1;
     } else {
         ret = Q_LONGLONG(bytesRead);
@@ -794,10 +794,10 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
         WS_ERROR_DEBUG
         switch (WSAGetLastError()) {
         case WSAEMSGSIZE:
-            setError(Qt::DatagramTooLargeError, "Datagram was to large to send");
+            setError(QAbstractSocket::DatagramTooLargeError, "Datagram was to large to send");
             break;
         default:
-            setError(Qt::NetworkError, "Unable to send a message");
+            setError(QAbstractSocket::NetworkError, "Unable to send a message");
             break;
         }
         ret = -1;
@@ -844,7 +844,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
             case WSAECONNRESET:
             case WSAECONNABORTED:
                 ret = -1;
-                setError(Qt::NetworkError, "Unable to write");
+                setError(QAbstractSocket::NetworkError, "Unable to write");
                 q->close();
                 break;
             default:
@@ -876,7 +876,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxLength)
         switch (WSAGetLastError()) {
         case WSAEBADF:
         case WSAEINVAL:
-            setError(Qt::NetworkError, "Network error");
+            setError(QAbstractSocket::NetworkError, "Network error");
             break;
         default:
             break;
@@ -945,7 +945,7 @@ int QSocketLayerPrivate::nativeSelect(int timeout, bool checkRead, bool checkWri
 void QSocketLayerPrivate::nativeClose()
 {
 #if defined (QTCPSOCKETENGINE_DEBUG)
-    qDebug("Qt::nativeClose()");
+    qDebug("QSocketLayerPrivate::nativeClose()");
 #endif
     ::closesocket(socketDescriptor);
 }
