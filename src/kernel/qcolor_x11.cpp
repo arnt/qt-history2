@@ -659,7 +659,6 @@ void QColor::destroyAllocContext( int context )
     uint rgbVal;
     while ( (d=it.current()) ) {
 	rgbVal = (uint)it.currentKey();
-	++it;
 	if ( (d->context || context==-1) &&
 	     (d->context == context || context < 0) )
 	{
@@ -671,6 +670,7 @@ void QColor::destroyAllocContext( int context )
 	    }
 	    colorDict->remove( (long)rgbVal );	// remove from dict
 	}
+	++it;
     }
     if ( i )
 	XFreeColors( QPaintDevice::x11AppDisplay(),

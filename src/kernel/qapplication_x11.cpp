@@ -111,6 +111,10 @@
 #  include <sys/socket.h> // for FIONREAD on SCO OpenServer 5.0.x
 #endif
 
+#if defined(Q_OS_DYNIX)
+#  include <sys/sockio.h> // for FIONREAD on Dynix 4.x
+#endif
+
 static int qt_thread_pipe[2];
 #endif
 
@@ -6214,4 +6218,5 @@ void QSessionManager::requestPhase2()
 
 
 #endif // QT_NO_SM_SUPPORT
+
 

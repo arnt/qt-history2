@@ -47,7 +47,7 @@
 // The operating system, must be one of: (Q_OS_x)
 //
 //   MACX	- Mac OS X
-//   MAC9   - Mac OS 9
+//   MAC9	- Mac OS 9
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
@@ -68,6 +68,7 @@
 //   UNIXWARE	- SCO UnixWare
 //   GNU	- GNU Hurd
 //   DGUX	- DG Unix
+//   DYNIX	- Dynix
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
@@ -134,6 +135,8 @@
 #  define Q_OS_UNIXWARE7
 #elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
 #  define Q_OS_UNIXWARE7
+#elif defined(_SEQUENT_)
+#  define Q_OS_DYNIX
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
@@ -641,3 +644,4 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
 #endif // QGLOBAL_H
+

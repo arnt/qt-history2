@@ -425,7 +425,7 @@ then
 	esac
     else
 	##### Generate?  Look in configs/?
-	PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ freebsd-g++
+	PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ dynix-g++ freebsd-g++
 	    hpux-acc hpux-cc hpux-g++ hpux-n64 hpux-o64 hurd-g++
 	    irix-64 irix-g++ irix-n32 irix-o32 linux-cxx linux-g++ linux-kcc
 	    netbsd-g++ openbsd-g++ osf1-cxx osf1-g++ qnx-rtp-g++ sco-g++
@@ -460,6 +460,9 @@ then
 	;;
      dgux:*)
 	PLATFORM=dgux-g++
+	;;
+     dynix:*)
+	PLATFORM=dynix-g++
 	;;
      ULTRIX:*)
 	PLATFORM=ultrix-g++
