@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of Option class.
+** Implementation of Option class.
 **
 ** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
