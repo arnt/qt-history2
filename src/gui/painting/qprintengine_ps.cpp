@@ -20,11 +20,6 @@
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>
 
-// <X11/Xlib.h> redefines Status -> int
-#if defined(Status)
-# undef Status
-#endif
-
 #ifndef QT_NO_PRINTER
 
 #undef Q_PRINTER_USE_TYPE42

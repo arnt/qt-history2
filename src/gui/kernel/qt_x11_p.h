@@ -469,4 +469,8 @@ enum {
 #undef FontChange
 #endif
 
+#ifdef Status
+#undef Status
+#endif
+
 #endif // QT_X11_P_H
