@@ -282,6 +282,8 @@ private:
     void updateGeometry();
     void updateMask();
     bool internalCreate();
+    void internalBind();
+    void internalConnect();
     HRESULT internalActivate();
 
     friend class QAxBindable;
@@ -840,7 +842,6 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
   m_outerUnknown(outerUnknown)
 {
     init();
-    points[qAxFactory()->eventsID(class_name)] = new QAxConnection( this, qAxFactory()->eventsID(class_name) );
 
     internalCreate();
 }
@@ -859,9 +860,11 @@ QAxServerBase::QAxServerBase( QObject *o )
     qt.object = o;
     if ( o ) {
 	theObject = o;
-	isWidget = o->isWidgetType();
+	isWidget = FALSE;
 	class_name = o->className();
     }
+    internalBind();
+    internalConnect();
 }
 
 /*!
@@ -1026,6 +1029,39 @@ class HackWidget : public QWidget
 };
 
 /*!
+    Detects and initilaizes implementation of QAxBindable in objects.
+*/
+void QAxServerBase::internalBind()
+{
+    QAxBindable *axb = (QAxBindable*)qt.object->qt_cast( "QAxBindable" );
+    if ( axb ) {
+	isBindable = TRUE;
+	// no addref; this is aggregated
+	axb->activex = this;
+	aggregatedObject = axb->createAggregate();
+	if ( aggregatedObject ) {
+	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
+	    aggregatedObject->the_object = qt.object;
+	}
+    }
+}
+
+/*!
+    Connects object signals to event dispatcher.
+*/
+void QAxServerBase::internalConnect()
+{
+    QString eventsID = qAxFactory()->eventsID(class_name);
+    if ( !eventsID.isEmpty() ) {
+	points[eventsID] = new QAxConnection( this, eventsID );
+	// connect the generic slot to all signals of qt.object
+	const QMetaObject *mo = qt.object->metaObject();
+	for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
+	    connectInternal( qt.object, isignal, this, 2, isignal );
+    }
+}
+
+/*!
     Creates the QWidget for the classname passed to the c'tor.
 
     All signals of the widget class are connected to the internal event mapper.
@@ -1046,18 +1082,8 @@ bool QAxServerBase::internalCreate()
     isWidget = qt.object->isWidgetType();
     hasStockEvents = qAxFactory()->hasStockEvents( class_name );
     stayTopLevel = qAxFactory()->stayTopLevel( class_name );
-    const QMetaObject *mo = qt.object->metaObject();
-    QAxBindable *axb = (QAxBindable*)qt.object->qt_cast( "QAxBindable" );
-    if ( axb ) {
-	isBindable = TRUE;
-	// no addref; this is aggregated
-	axb->activex = this;
-	aggregatedObject = axb->createAggregate();
-	if ( aggregatedObject ) {
-	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
-	    aggregatedObject->the_object = qt.object;
-	}
-    }
+
+    internalBind();
     if ( isWidget ) {
 	if ( !stayTopLevel ) {
 	    ((HackWidget*)qt.widget)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
@@ -1076,11 +1102,10 @@ bool QAxServerBase::internalCreate()
 	updateGeometry();
     }
 
-    // connect the generic slot to all signals of qt.object
-    for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
-	connectInternal( qt.object, isignal, this, 2, isignal );
+    internalConnect();
     // install an event filter for stock events
-    qt.object->installEventFilter( this );
+    if ( isWidget )
+	qt.object->installEventFilter( this );
 
     return TRUE;
 }
@@ -3572,18 +3597,14 @@ bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     case QEvent::MouseButtonPress:
-	if ( isWidget ){
-	    if ( o == qt.widget && hasStockEvents ) {
-		QMouseEvent *me = (QMouseEvent*)e;
-		QUObject obj[5]; // 0 = return value
-		static_QUType_int.set( obj+1, me->button() );
-		static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
-		static_QUType_int.set( obj+3, me->x() );
-		static_QUType_int.set( obj+4, me->y() );
-		qt_emit( DISPID_MOUSEDOWN, obj );
-	    }
-	    if ( qt.widget->focusWidget() == qApp->focusWidget() )
-		break;
+	if ( o == qt.widget && hasStockEvents ) {
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    QUObject obj[5]; // 0 = return value
+	    static_QUType_int.set( obj+1, me->button() );
+	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
+	    static_QUType_int.set( obj+3, me->x() );
+	    static_QUType_int.set( obj+4, me->y() );
+	    qt_emit( DISPID_MOUSEDOWN, obj );
 	}
 	break;
     case QEvent::Show:
