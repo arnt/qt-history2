@@ -19,7 +19,7 @@ msgid "MyWidget::Ctrl+Q"
 msgstr ""
 
 #: mywidget.cpp:28
-msgid "MyWidget::E&xit..."
+msgid "MyWidget::E&xit"
 msgstr "Выход"
 
 #: mywidget.cpp:49

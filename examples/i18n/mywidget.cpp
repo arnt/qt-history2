@@ -33,7 +33,7 @@ MyWidget::MyWidget( QWidget* parent, const char* name )
     setCentralWidget(central);
 
     QPopupMenu* file = new QPopupMenu(this);
-    file->insertItem( tr("E&xit..."), qApp, SLOT(quit()),
+    file->insertItem( tr("E&xit"), qApp, SLOT(quit()),
             QAccel::stringToKey(tr("Ctrl+Q")) );
     menuBar()->insertItem( tr("&File"), file );
 

@@ -18,7 +18,7 @@ msgid "MyWidget::Ctrl+Q"
 msgstr "Ctrl+S"
 
 #: mywidget.cpp:28
-msgid "MyWidget::E&xit..."
+msgid "MyWidget::E&xit"
 msgstr "&Slutt"
 
 #: mywidget.cpp:49

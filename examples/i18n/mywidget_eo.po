@@ -18,8 +18,8 @@ msgid "MyWidget::Ctrl+Q"
 msgstr "Ctrl+F"
 
 #: mywidget.cpp:28
-msgid "MyWidget::E&xit..."
-msgstr "&Fini..."
+msgid "MyWidget::E&xit"
+msgstr "&Fini"
 
 #: mywidget.cpp:49
 msgid "MyWidget::First"
