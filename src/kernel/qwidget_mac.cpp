@@ -234,34 +234,28 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
 	WindowClass wclass = kSheetWindowClass;
-	if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
-	    wclass = kSheetWindowClass;
-	else if(testWFlags(WShowModal)) 
+	if(testWFlags(WShowModal)) 
 	    wclass = kModalWindowClass;
-	else if(testWFlags(WType_TopLevel) || testWFlags(WType_Dialog) ) 
+	else if(testWFlags(WType_Dialog) ) 
+	    wclass = kFloatingWindowClass;
+	else if(testWFlags( WStyle_Tool ) || testWFlags(WType_Popup) ) 
+	    wclass = kSheetWindowClass;
+	else if(testWFlags(WType_TopLevel) )
 	    wclass = kDocumentWindowClass;
 	else if(testWFlags(WType_Desktop)) 
 	    wclass = kDesktopWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
-	    qDebug("%d", __LINE__);
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kDocumentWindowClass ) 
 		    wattr |= kWindowStandardDocumentAttributes;	
+		else if(wclass == kFloatingWindowClass )
+		    wattr |= kWindowStandardFloatingAttributes;
 	    } else {
 		//FIXME I shouldn't have to do this
 		if(wclass == kDocumentWindowClass ) 
 		    wclass = kSheetWindowClass;
-
-		//FIXME need to handle stays on top flag
-#if 0
-		if( testWFlags( WStyle_StaysOnTop ) ) {
-		    wclass = kFloatingWindowClass;
-		    if(!testWFlags( WStyle_NoBorder) && !testWFlags( WStyle_NoBorderEx) ) 
-			wattr |= kWindowStandardFloatingAttributes;
-		}
-#endif
 
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
