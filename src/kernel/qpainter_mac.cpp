@@ -480,6 +480,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	bg_mode = TransparentMode;              // default background mode
 	rop = CopyROP;                          // default ROP
 	wxmat.reset();                          // reset world xform matrix
+	xmat.reset();
+	ixmat.reset();
 	txop = txinv = 0;
 	if ( dt != QInternal::Widget ) {
 	    QFont  defaultFont;                 // default drawing tools
@@ -586,7 +588,7 @@ bool QPainter::end()				// end painting
 #endif
 
 #ifdef Q_WS_MACX
-    if(pdev->painters == 1 && 
+    if(pdev->painters == 1 &&
        pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
 	HideWindow((WindowPtr)pdev->handle());
 #endif
@@ -603,9 +605,9 @@ void QPainter::flush(const QRegion &rgn, CoordinateMode m)
     initPaintDevice();
 
     QRegion b;
-    if(m == CoordDevice) 
+    if(m == CoordDevice)
 	b = rgn;
-    else 
+    else
 	b = xmat * rgn;
     b.translate(d->offx, d->offy);
     qDebug("Some dubiousness here, look at this ####Sam");
@@ -774,7 +776,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     OpenRgn();
     uint loopc;
     MoveTo( a[0].x()+d->offx, a[0].y()+d->offy );
-    for ( loopc = 1; loopc < a.size(); loopc++ ) 
+    for ( loopc = 1; loopc < a.size(); loopc++ )
 	LineTo( a[loopc].x()+d->offx, a[loopc].y()+d->offy );
     if( close )
 	LineTo( a[0].x()+d->offx, a[0].y()+d->offy );
@@ -1374,7 +1376,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	a = a % (360*16);
     } else if ( a < 0 ) {
 	a = a % (360*16);
-	if ( a < 0 ) 
+	if ( a < 0 )
 	    a += (360*16);
     }
     if ( testf(ExtDev) ) {
@@ -1405,7 +1407,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 #ifdef QMAC_NO_QUARTZ
 void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 {
-    if(!isActive()) 
+    if(!isActive())
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
         if ( testf(ExtDev) ) {
@@ -1537,7 +1539,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
     updateBrush();
     updatePen();
     MoveTo(pa[0].x() + d->offx, pa[0].y() + d->offy );
-    for( loopc = 1; loopc < (int)pa.size(); loopc++ ) 
+    for( loopc = 1; loopc < (int)pa.size(); loopc++ )
 	LineTo( pa[loopc].x() + d->offx ,pa[loopc].y() + d->offy );
 }
 #else //!QMAC_NO_QUARTZ

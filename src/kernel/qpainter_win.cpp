@@ -712,6 +712,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
+	xmat.reset();
+	ixmat.reset();
 	txop = txinv = 0;
 	if ( dt != QInternal::Widget ) {
 	    QFont  defaultFont;			// default drawing tools

@@ -451,6 +451,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	rop = CopyROP;				// default ROP
 #ifndef QT_NO_TRANSFORMATIONS
 	wxmat.reset();				// reset world xform matrix
+	xmat.reset();
+	ixmat.reset();
 	txop = txinv = 0;
 #else
 	xlatex = xlatey = 0;
