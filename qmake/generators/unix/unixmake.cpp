@@ -150,8 +150,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
-    }
-    else if(!project->isActiveConfig("staticlib")) {
+    } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
 	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
 	if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
@@ -161,8 +160,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET1)") << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET2)");
-	}
-	else {
+	} else {
 	    t << "\n\t"
 	      << "-rm -f $(TARGET) $(TARGET0)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t"
@@ -187,8 +185,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" << var("TARGETDEPS") << "\n\t"
 	  << "-rm -f $(TARGETA) " << var("QMAKE_AR_CMD")
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
-    }
-    else {
+    } else {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
@@ -534,3 +531,33 @@ UnixMakefileGenerator::init()
 }
 
 
+
+
+QString
+UnixMakefileGenerator::defaultInstall(const QString &t)
+{
+    QString ret;
+    if(t == "target") {
+	if(project->variables()["TEMPLATE"].first() == "app") {
+	    ret = "$(TARGET)";
+	} else if(!project->isActiveConfig("staticlib")) {
+	    if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
+		ret = "$(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)";
+	    } else {
+		ret = "$(TARGET) $(TARGET0)";
+	    } if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
+		ret.sprintf("%s/$(TARGET) %s/$(TARGET0)", 
+			    var("DESTDIR").latin1(), var("DESTDIR").latin1());
+	    } else {
+		ret.sprintf("%s/$(TARGET) %s/$(TARGET0) %s/$(TARGET1) %s/$(TARGET2)", 
+			    var("DESTDIR").latin1(), var("DESTDIR").latin1(),
+			    var("DESTDIR").latin1(), var("DESTDIR").latin1());
+	    }
+	} else {
+	    ret = "$(TARGETA)";
+	}
+    }
+    if(!ret.isEmpty()) 
+	return QString("cp -a ") + ret + QString(" ") + project->variables()["INSTALLtarget_PATH"].first();
+    return "";
+}

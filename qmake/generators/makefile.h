@@ -53,6 +53,7 @@ class MakefileGenerator
     void writeMocSrc(QTextStream &, const QString &src);
     void writeLexSrc(QTextStream &, const QString &lex);
     void writeYaccSrc(QTextStream &, const QString &yac);
+    void writeInstalls(QTextStream &t, const QString &installs);
 
 protected:
 
@@ -67,6 +68,9 @@ protected:
     virtual bool writeMakefile(QTextStream &);
     virtual bool writeMakeQmake(QTextStream &);
     virtual void init();
+
+    //for installs
+    virtual QString defaultInstall(const QString &) { return QString(""); }
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);

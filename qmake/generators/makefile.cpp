@@ -753,6 +753,52 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
     }
 }
 
+void
+MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
+{
+    QString all_installs;
+    QStringList &l = project->variables()[installs];
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	QString pvar = QString("INSTALL") + (*it) + "_PATH";
+	if(project->variables()[pvar].isEmpty()) {
+	    fprintf(stderr, "%s is not defined: install target not created\n", pvar.latin1());
+	    continue;
+	}
+
+	QString target;
+	QStringList tmp;
+	//masks
+	tmp = project->variables()[QString("INSTALL") + (*it)];
+	if(!tmp.isEmpty()) {
+	    if(Option::mode == Option::WIN_MODE) {
+	    } else if(Option::mode == Option::UNIX_MODE) {
+		target += QString("cp -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
+	    }
+	}
+	//other
+	tmp = project->variables()[QString("INSTALL") + (*it) + "_EXTRA"];
+	if(!tmp.isEmpty()) {
+	    if(!target.isEmpty())
+		target += "\n\t";
+	    target += tmp.join(" ");
+	}
+	//default?
+	if(target.isEmpty())
+	    target = defaultInstall((*it));
+
+	if(!target.isEmpty()) {
+	    t << "install_" << (*it) << ": " << "\n\t" 
+	      << "[ -d " << project->variables()[pvar].first() << " ] || mkdir -p "
+	      << project->variables()[pvar].first() << "\n\t"
+	      << target << endl << endl;
+	    all_installs += QString("install_") + (*it) + " ";
+	} else {
+	    fprintf(stderr, "no definition for install %s: install target not created\n",(*it).latin1());
+	}
+    }
+    t << "install: all " << all_installs << "\n\n";
+}
+
 QString
 MakefileGenerator::var(const QString &var)
 {
@@ -817,6 +863,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeMocSrc(t, "UICDECLS");
     writeYaccSrc(t, "YACCSOURCES");
     writeLexSrc(t, "LEXSOURCES");
+    writeInstalls(t, "INSTALLS");
     return TRUE;
 }
 
@@ -888,3 +935,5 @@ MakefileGenerator::fileAbsolute(QString &file)
 
     return TRUE;
 }
+
+

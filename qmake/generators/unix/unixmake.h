@@ -56,6 +56,8 @@ public:
     UnixMakefileGenerator(QMakeProject *p);
     ~UnixMakefileGenerator() { }
 
+protected:
+    virtual QString defaultInstall(const QString &);
 };
 
 #endif /* __UNIXMAKE_H__ */
