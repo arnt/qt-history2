@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#8 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#8 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -263,9 +263,9 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     response.data.l[2] = 0; // x, y
     response.data.l[3] = 0; // w, h
     response.data.l[4] = 0; // just null
-
+    
     QDragMoveEvent me( p );
-    QApplication::sendEvent( w, &me );
+    QApplication::sendEvent( c, &me );
     if ( me.isAccepted() )
 	response.data.l[1] = 1; // yess!!!!
 
