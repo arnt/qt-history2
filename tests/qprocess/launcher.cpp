@@ -95,13 +95,16 @@ void Launcher::run(const char*path, const char* cmd)
     QStringList list = QStringList::split( QChar(' '), cmd );
     QString command = list.first();
     list.remove( list.begin() );
-    QProcess proc( command, list );
 
     QDir p( baseDir );
     p.cd( path );
-    proc.setWorkingDirectory( p );
     p.cd( suffixDir );
-    proc.setPath( p );
+
+    QProcess proc( p.absFilePath(command).latin1(), list );
+
+    QDir p2( baseDir );
+    p2.cd( path );
+    proc.setWorkingDirectory( p2 );
 
     proc.start();
 }

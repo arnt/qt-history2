@@ -12,6 +12,7 @@
 #if defined(UNIX)
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/socket.h>
 #else
 #include <io.h>
@@ -34,7 +35,6 @@ public:
     void setCommand( const QString& com );
     void setArguments( const QStringList& args );
     void addArgument( const QString& args );
-    void setPath( const QDir& dir );
     void setWorkingDirectory( const QDir& dir );
 
     // control the execution
@@ -71,7 +71,6 @@ public slots:
 
 private:
     QString     command;
-    QDir        path;
     QDir        workingDir;
     QStringList arguments;
     QSocketNotifier *notifierStdin;
@@ -111,9 +110,6 @@ inline void QProcess::setArguments( const QStringList& args )
 
 inline void QProcess::addArgument( const QString& args )
 { arguments.append( args ); }
-
-inline void QProcess::setPath( const QDir& dir )
-{ path = dir; }
 
 inline void QProcess::setWorkingDirectory( const QDir& dir )
 { workingDir = dir; }

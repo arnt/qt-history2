@@ -21,9 +21,13 @@ int main( int argc, char **argv )
     proc.start();
 #endif
 
-//#if 0
+#if 1
+#if defined(UNIX)
     QProcess proc( "cat" );
-    proc.setPath( QDir("cat/Debug") );
+#else
+    QDir dir( "cat/Debug" );
+    QProcess proc( path.absFilePath("cat").latin1() );
+#endif
 
     QLineEdit *in = new QLineEdit( &vb );
     QLabel *out = new QLabel( &vb );
@@ -36,8 +40,10 @@ int main( int argc, char **argv )
     QObject::connect( &proc, SIGNAL(dataStdout(const QString&)),
 	    out, SLOT(setText(const QString&)) );
 
-    proc.start();
-//#endif
+    if ( !proc.start() ) {
+	return -1 ;
+    }
+#endif
 
 #if 0
     QProcess proc1( "echo", "b\na\nc\n" );

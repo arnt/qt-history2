@@ -90,10 +90,6 @@ QProcess::~QProcess()
   Add a argument to the end of the existing list of arguments.
 */
 /*!
-  \fn void QProcess::setPath( const QDir& dir )
-  Set the path where the command is located.
-*/
-/*!
   \fn void QProcess::setWorkingDirectory( const QDir& dir )
   Set a working directory in which the command is executed.
 */
@@ -156,7 +152,7 @@ bool QProcess::start()
 	dup2( socketStdout[1], STDOUT_FILENO );
 	dup2( socketStderr[1], STDERR_FILENO );
 	chdir( workingDir.absPath().latin1() );
-	execv( path.absFilePath(command).latin1(), (char*const*)arglist ); // ### a hack
+	execvp( command.latin1(), (char*const*)arglist ); // ### a hack
 	exit( -1 );
     } else if ( pid == -1 ) {
 	// error forking
@@ -172,6 +168,7 @@ bool QProcess::start()
     close( socketStdin[0] );
     close( socketStdout[1] );
     close( socketStderr[1] );
+    // TODO? test if exec was successful
 
     // setup notifiers for the sockets
     notifierStdin = new QSocketNotifier( socketStdin[1],
@@ -238,7 +235,7 @@ bool QProcess::start()
 	return FALSE;
     }
     _chdir( workingDir.absPath().latin1() );
-    pid = _spawnvp( P_NOWAIT, path.absFilePath(command).latin1(), arglist );
+    pid = _spawnvp( P_NOWAIT, command.latin1(), arglist );
     _chdir( buffer );
 
     // duplicate copy of original std??? back
@@ -306,7 +303,21 @@ bool QProcess::kill()
 */
 bool QProcess::isRunning()
 {
+#if defined(UNIX)
+    int status;
+    if ( waitpid( pid, &status, WNOHANG ) == -1 )
+	return FALSE;
+    if ( WIFEXITED(status) == -1 )
+	return FALSE;
+
+    if ( socketStderr[0] == 0 && socketStdout[0] == 0 ) {
+	return FALSE;
+    } else {
+	return TRUE;
+    }
+#else
     return TRUE;
+#endif
 }
 
 /*!
@@ -418,6 +429,8 @@ void QProcess::socketRead( int fd )
 	    emit processExited();
 	    return;
 	}
+
+	return;
 	/* ### just have to think what to do best
 	if ( err[ 0 ] == 0 && out[ 0 ] == 0 ) {
 	    int s;
@@ -452,7 +465,6 @@ void QProcess::socketRead( int fd )
 	emit dataStderr( str );
     }
 #endif
-    emit dataStdout( "Hi Arthur" );
 }
 
 /*!
@@ -488,6 +500,8 @@ void QProcess::socketWrite( int fd )
 #endif
 }
 
+#if defined(UNIX)
+#else
 // testing if non blocking pipes are working
 QByteArray QProcess::readStdout()
 {
@@ -502,3 +516,4 @@ QByteArray QProcess::readStdout()
     readBuffer.resize( (i-1) * defsize + r );
     return readBuffer;
 }
+#endif
