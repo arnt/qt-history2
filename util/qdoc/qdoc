@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#108 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#109 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2059,6 +2059,8 @@ if ($0 =~ /gendoc/) {
     $internal = 0;
     $outputdir = "" . $ENV{"QTDIR"} . "/doc/html";
 }
+
+mkdir( $outputdir ) unless ( -d $outputdir );
 
 if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
     @_ = grep( /^\x23define QT_VERSION/, <I> );
