@@ -15,9 +15,22 @@
 #define LIBEXPORT
 #endif
 
+static QString* resource = 0;
+
+static void clean_me_up()
+{
+    delete resource;
+    resource = 0;
+}
+
 class TestInterface : public QWidgetInterface
 {
 public:
+    TestInterface() 
+    {
+	resource = new QString( "Ich bin der String!" );
+	cleanUpHandler.addCleanUpRoutine( clean_me_up );
+    }
     QString queryInterface() { return "QWidgetInterface"; }
 
     QString name() { return "Test Widgetplugin"; }
@@ -46,8 +59,6 @@ QStringList TestInterface::widgets()
     
     return w;
 }
-
-QObject cleanupHandler;
 
 QWidget* TestInterface::create( const QString &classname, QWidget* parent, const char* name )
 {

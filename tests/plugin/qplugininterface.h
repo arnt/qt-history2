@@ -2,6 +2,9 @@
 #define QPLUGININTERFACE_H
 
 #include <qstring.h>
+#include <qobject.h>
+#include <qapplication.h>
+#include "qcleanuphandler.h"
 
 class QPlugInInterface
 {

@@ -131,13 +131,14 @@ void PlugMainWindow::fileClose()
     QListIterator<QPlugIn> it( pl );
     while ( it.current() ) {
 	QPlugIn* p = it.current();
-	if ( it.current()->queryInterface() == "QWidgetInterface" ) {
+	QString ifc = it.current()->queryInterface();
+	if ( ifc == "QWidgetInterface" ) {
 	    QListViewItem* item = new QListViewItem( wplugins, p->name(), p->description(), p->author(), p->library() );
 	    QWidgetPlugIn* wp = (QWidgetPlugIn*)it.current();
 	    QStringList wl = wp->widgets();
 	    for ( uint i = 0; i < wl.count(); i++ )
 		new QListViewItem( item, wl[i] );
-	} else if ( it.current()->queryInterface() == "QActionInterface" ) {
+	} else if ( ifc == "QActionInterface" ) {
 	    QListViewItem* item = new QListViewItem( aplugins, p->name(), p->description(), p->author(), p->library() );
 	    QActionPlugIn* ap = (QActionPlugIn*)it.current();
 	    QStringList al = ap->actions();
