@@ -1,5 +1,6 @@
 #include "qabstractitemmodel.h"
 #include <qdatastream.h>
+#include <qdebug.h>
 
 /*!
   \class QModelIndex qgenericitemmodel.h
@@ -203,3 +204,24 @@ bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &rig
 	return left.column() > right.column();
     return left.row() > right.row();
 }
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QModelIndex &idx)
+{
+    dbg.nospace() << "QModelIndex(" << idx.row() << "," << idx.column() << ",";
+    switch (idx.type()) {
+    case QModelIndex::View:
+        dbg.nospace() << "View";
+        break;
+    case QModelIndex::HorizontalHeader:
+        dbg.nospace() << "HorizontalHeader";
+        break;
+    case QModelIndex::VerticalHeader:
+        dbg.nospace() << "VerticalHeader";
+        break;
+    }
+    dbg.nospace() << ")";
+    return dbg.space();
+}
+#endif
+

@@ -34,6 +34,10 @@ private:
     Type t;
 };
 
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
+#endif
+
 typedef QList<QModelIndex> QModelIndexList;
 typedef QList<QCoreVariant> QCoreVariantList;
 
