@@ -495,7 +495,7 @@ static const unsigned char indicForms[0xe00-0x900] = {
     Invalid, Consonant, Invalid, Invalid,
 
     Consonant, Consonant, Consonant, Consonant,
-    Consonant, Consonant, Invalid, Invalid,
+    Consonant, Consonant, Consonant, Invalid,
     Invalid, Invalid, Halant, Invalid,
     Invalid, Invalid, Invalid, Matra,
 
@@ -1065,6 +1065,14 @@ static const IndicOrdering malayalam_order [] = {
     { (Form)0, None }
 };
 
+static const IndicOrdering sinhala_order [] = {
+    { Matra, Below },
+    { Matra, Above },
+    { Matra, Post },
+    { VowelMark, Post },
+    { (Form)0, None }
+};
+
 static const IndicOrdering * const indic_order[] = {
     devanagari_order, // Devanagari
     bengali_order, // Bengali
@@ -1075,7 +1083,7 @@ static const IndicOrdering * const indic_order[] = {
     telugu_order, // Telugu
     kannada_order, // Kannada
     malayalam_order, // Malayalam
-    devanagari_order // Sinhala // ### no OT specs available, we use devanagari
+    sinhala_order // Sinhala
 };
 
 
@@ -1654,7 +1662,7 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
   		break;
             goto finish;
         case Consonant:
-            if (state == Halant)
+	    if (state == Halant && (script != QFont::Sinhala || uc[pos-1].unicode() == 0x200d /* ZWJ */))
                 break;
             goto finish;
         case Halant:
