@@ -1440,9 +1440,11 @@ bool QWidget::isMinimized() const
 */
 void QWidget::showMinimized()
 {
-    if (isMinimized()) return;
+    bool isMin = isMinimized();
+    if (isMin && isVisible()) return;
 
-    setWindowState((windowState() & ~WindowActive) | WindowMinimized);
+    if (!isMin)
+        setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
     if (!isTopLevel())
         QApplication::sendPostedEvents(this, QEvent::ShowMinimized);
@@ -1556,12 +1558,15 @@ bool QWidget::isFullScreen() const
 */
 void QWidget::showFullScreen()
 {
-    if (isFullScreen()) return;
+    bool isFull = isFullScreen();
+    if (isFull && isVisible())
+	return;
 
-    setWindowState(windowState() | WindowFullScreen);
+    if (!isFull)
+	setWindowState(windowState() | WindowFullScreen);
     show();
     if (!isTopLevel())
-        QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
+	QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
     setActiveWindow();
 }
 
@@ -1579,9 +1584,12 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
-    if (isMaximized()) return;
-
-    setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
+    bool isMax = isMaximized();
+    if (isMax && isVisible())
+        return;
+    
+    if (!isMax)
+        setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
     if (!isTopLevel())
         QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
