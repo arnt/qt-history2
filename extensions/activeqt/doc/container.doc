@@ -14,18 +14,20 @@
     The QAxContainer module provides a library implementing a QWidget
     subclass, QAxWidget, that acts as a container for ActiveX
     controls, and a QObject subclass, QAxObject, that can be used to
-    easily access non-visual COM objects.
+    easily access non-visual COM objects. Scripting COM objects embedded
+    using these classes is possible through the QAxScriptManager.
 
     This module is part of the \link activeqt.html ActiveQt
     framework\endlink. (To make an application into an ActiveX server
     see the \link qaxserver.html QAxServer module\endlink.)
 
-    The module consists of three classes
+    The module consists of four classes
     \list 1
-    \i QAxBase is an abstract class that provides an API to initialize 
+    \i \l QAxBase is an abstract class that provides an API to initialize 
        and access a COM/ActiveX object.
-    \i QAxObject provides a QObject that wraps a COM object.
+    \i \l QAxObject provides a QObject that wraps a COM object.
     \i \l QAxWidget is a \l QWidget that wraps an ActiveX control.
+    \i \l QAxScriptManager provides an interface to the Windows Script Host.
     \endlist
 
     Some \link qaxcontainer-examples.html example applications \endlink
