@@ -74,6 +74,11 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
     *d = *ui.d;
 }
 
+void QUrlInfo::setName( const QString &name )
+{
+    d->name = name;
+}
+
 QUrlInfo::~QUrlInfo()
 {
     delete d;

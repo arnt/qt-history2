@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#6 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -749,13 +749,12 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 	return;
     }
 
-    // #### todo
-//     if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
-// 	 filedialog->mode() != QFileDialog::ExistingFiles &&
-// 	 QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) {
-// 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
-// 	renameItem = item( i );
-//     }
+     if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
+	 filedialog->mode() != QFileDialog::ExistingFiles &&
+	 QUrlInfo( filedialog->d->url, "." ).isWritable() && item( currentItem() )->text() != ".." ) {
+	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+	renameItem = item( i );
+    }
 
     firstMousePressEvent = FALSE;
 }
@@ -1050,46 +1049,13 @@ void QFileListBox::clear()
     QListBox::clear();
 }
 
-
-// some shared code
-static bool tryRename( QWidget* parent, const QString& newfile, QDir& dir, const QString& file, const QString& linetext )
-{
-    if ( QFile::exists( newfile ) ) {
-	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
-			       QFileDialog::tr( "A file with that name already exists." ) );
-	return FALSE;
-    }
-    if ( !dir.rename( file, linetext ) ) {
-	QMessageBox::critical( parent, QFileDialog::tr( "ERROR: Renaming file" ),
-			       QFileDialog::tr( "Could not rename the file." ) );
-	return FALSE;
-    }
-    return TRUE;
-}
-
-
 void QFileListBox::rename()
 {
     if ( !lined->text().isEmpty() ) {
-	QString file = filedialog->selectedFile();
-	if ( file.isEmpty() )
-	    file = filedialog->dirPath() + "/" + item( currentItem() )->text();
+	QString file = currentText();
 
-	QString newfile( filedialog->dirPath() + "/" + lined->text() );
-
-	if ( newfile != file ) {
-	    QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
-		return;
-
-	    filedialog->rereadDir();
-	    for ( uint i = 0; i < count(); ++i ) {
-		if ( text( i ) == lined->text() ) {
-		    setCurrentItem( i );
-		    break;
-		}
-	    }
-	}
+	if ( lined->text() != file )
+	    filedialog->d->url.rename( file, lined->text() );
     }
     cancelRename();
     renaming = TRUE;
@@ -1173,13 +1139,12 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
 	return;
     }
 
-    // #### todo
-//     if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
-// 	 filedialog->mode() != QFileDialog::ExistingFiles &&
-// 	 QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." ) {
-// 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
-// 	renameItem = currentItem();
-//     }
+    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
+ 	 filedialog->mode() != QFileDialog::ExistingFiles &&
+	 QUrlInfo( filedialog->d->url, "." ).isWritable() && currentItem()->text( 0 ) != ".." ) {
+ 	renameTimer->start( QApplication::doubleClickInterval(), TRUE );
+ 	renameItem = currentItem();
+    }
 
     firstMousePressEvent = FALSE;
 }
@@ -1469,27 +1434,10 @@ void QFileListView::clear()
 void QFileListView::rename()
 {
     if ( !lined->text().isEmpty() ) {
-	QString file = filedialog->selectedFile();
-	if ( file.isEmpty() )
-	    file = filedialog->dirPath() + "/" + currentItem()->text( 0 );
+	QString file = currentItem()->text( 0 );
 
-	QString newfile( filedialog->dirPath() + "/" + lined->text() );
-
-	if ( newfile != file ) {
-	    QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
-		return;
-
-	    filedialog->rereadDir();
-	    QListViewItemIterator it( this );
-	    for ( ; it.current(); ++it ) {
-		if ( it.current()->text( 0 ) == lined->text() ) {
-		    setCurrentItem( it.current() );
-		    setSelected( it.current(), TRUE );
-		    break;
-		}
-	    }
-	}
+	if ( lined->text() != file )
+	    filedialog->d->url.rename( file, lined->text() );
     }
     cancelRename();
     renaming = TRUE;
@@ -1799,6 +1747,8 @@ void QFileDialog::init()
              this, SLOT( createdDirectory( const QUrlInfo & ) ) );
     connect( &d->url, SIGNAL( couldNotDelete( const QString & ) ),
              this, SLOT( couldNotDelete( const QString & ) ) );
+    connect( &d->url, SIGNAL( itemChanged( const QString &, const QString & ) ),
+             this, SLOT( itemChanged( const QString &, const QString & ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -3777,6 +3727,17 @@ void QFileDialog::removeEntry( const QString &filename )
 	}
     }
 }									
+
+void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
+{
+    QListViewItemIterator it( files );
+    for ( ; it.current(); ++it ) {
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == oldname ) {
+	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( newname );
+	    break;
+	}
+    }
+}
 
 #include "qfiledialog.moc"
 

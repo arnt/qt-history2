@@ -858,6 +858,13 @@ void QUrl::remove( const QString &filename )
 	emit couldNotDelete( filename );
 }
 
+void QUrl::rename( const QString &oldname, const QString &newname )
+{
+    QDir dir( d->path );
+    if ( dir.rename( oldname, newname ) )
+	emit itemChanged( oldname, newname );
+}
+
 void QUrl::setNameFilter( const QString &nameFilter )
 {
     d->nameFilter = nameFilter;

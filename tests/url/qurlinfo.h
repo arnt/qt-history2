@@ -24,6 +24,8 @@ public:
     QUrlInfo &operator=( const QUrlInfo &ui );
     ~QUrlInfo();
 
+    void setName( const QString &name );
+    
     QString name() const;
     int permissions() const;
     QString owner() const;

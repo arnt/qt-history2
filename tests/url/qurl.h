@@ -82,6 +82,7 @@ public:
 		      int sortSpec   = QDir::DefaultSort );
     void mkdir( const QString &dirname );
     void remove( const QString &filename );
+    void rename( const QString &oldname, const QString &newname );
     
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
@@ -99,6 +100,7 @@ signals:
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
     void couldNotDelete( const QString & );
+    void itemChanged( const QString &oldname, const QString &newname );
     
 protected:
     void reset();
