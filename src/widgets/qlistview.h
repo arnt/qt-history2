@@ -54,6 +54,7 @@ class QListView;
 struct QListViewPrivate;
 struct QCheckListItemPrivate;
 class QListViewItemIterator;
+struct QListViewItemIteratorPrivate;
 class QDragObject;
 class QMimeSource;
 class QLineEdit;
@@ -535,10 +536,30 @@ class Q_EXPORT QListViewItemIterator
     friend class QListViewItem;
 
 public:
+    enum IteratorFlag {
+	Visible = 		0x00000001,
+	Invisible = 		0x00000002,
+	Selected =		0x00000004,
+	Unselected = 		0x00000008,
+	Selectable =		0x00000010,
+	NotSelectable =		0x00000020,
+	DragEnabled =		0x00000040,
+	DragDisabled =		0x00000080,
+	DropEnabled =		0x00000100,
+	DropDisabled =		0x00000200,
+	Expandable =		0x00000400,
+	NotExpandable =		0x00000800,
+	Checked =		0x00001000,
+	NotChecked =		0x00002000,
+    };
+
     QListViewItemIterator();
     QListViewItemIterator( QListViewItem *item );
+    QListViewItemIterator( QListViewItem *item, int iteratorFlags );
+
     QListViewItemIterator( const QListViewItemIterator &it );
     QListViewItemIterator( QListView *lv );
+    QListViewItemIterator( QListView *lv, int iteratorFlags );
 
     QListViewItemIterator &operator=( const QListViewItemIterator &it );
 
@@ -556,13 +577,15 @@ public:
     QListViewItem *current() const;
 
 protected:
-    QListViewItem *curr;
+    QListViewItemIteratorPrivate *d;
     QListView *listView;
 
 private:
     void addToListView();
     void currentRemoved();
-
+    bool matchesFlags( const QListViewItem* ) const;
+    bool testPair( QListViewItemIterator::IteratorFlag, QListViewItemIterator::IteratorFlag, bool ) const;
+    bool isChecked( const QListViewItem* ) const;
 };
 
 #endif // QT_NO_LISTVIEW
