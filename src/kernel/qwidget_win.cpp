@@ -396,6 +396,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     QInputContext::enable( this, im_enabled & isEnabled() );
 
 #ifdef Q_Q4PAINTER
+    if (destroyOldWindow && deviceGC) {
+	delete deviceGC;
+	deviceGC = 0;
+    }
     Q_ASSERT(!deviceGC);
     deviceGC = new QWin32GC(this);
 #endif

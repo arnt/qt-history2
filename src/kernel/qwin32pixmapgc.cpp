@@ -11,6 +11,9 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 
+extern QRegion *paintEventClipRegion;
+extern QPaintDevice *paintEventDevice;
+
 QWin32PixmapGC::QWin32PixmapGC(const QPaintDevice *)
     : QWin32GC(0)
 {
@@ -18,19 +21,18 @@ QWin32PixmapGC::QWin32PixmapGC(const QPaintDevice *)
 
 bool QWin32PixmapGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
-#ifndef Q_Q4PAINTER
     Q_ASSERT(pdev->devType()==QInternal::Pixmap);
     if (isActive()) {				// already active painting
 	qWarning("QWin32PixmapGC::begin: Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()");
 	return false;
     }
-    setActive(TRUE);
+    setActive(true);
 
-    d->hdc = pdev->pixmap()->handle();
+    d->hdc = static_cast<const QPixmap*>(pdev)->handle();
     Q_ASSERT(d->hdc);
 
-    QRegion *region = QPainter::dirty_hack_paintRegion();
+    QRegion *region = paintEventClipRegion;
     if (region)
 	SelectClipRgn(d->hdc, region->handle());
 
@@ -42,7 +44,6 @@ bool QWin32PixmapGC::begin(const QPaintDevice *pdev, QPainterState *state, bool 
     SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
     SetBkMode(d->hdc, state->bgMode == TransparentMode ? TRANSPARENT : OPAQUE);
     SetROP2(d->hdc, rasterOpCodes[state->rasterOp]);
-#endif
     return true;
 }
 

@@ -95,6 +95,12 @@ void QPainter::restore()
 
 bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 {
+    if (dgc) {
+	qWarning("QPainter::begin(): Painter is already active."
+		 "\n\tYou must end() the painter before a second begin()" );
+	return false;
+    }
+
     const QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
     if (rpd) {
 	pd = rpd;
@@ -110,16 +116,11 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	return true;
     }
 
-    if (dgc->isActive()) {
-	qWarning("QPainter::begin(), gc is already active... aborted paint\n");
-	return true;
-    }
-
     switch (pd->devType()) {
     case QInternal::Widget:
 	{
 #ifdef Q_Q4PAINTER
-	    const QWidget *widget = (const QWidget*)pd;
+	    const QWidget *widget = static_cast<const QWidget *>(pd);
 #else
 	    const QWidget *widget = pd->widget();
 #endif
@@ -134,7 +135,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     case QInternal::Pixmap:
 	{
 #ifdef Q_Q4PAINTER
-	    const QPixmap *pm = (const QPixmap*)pd;
+	    const QPixmap *pm = static_cast<const QPixmap *>(pd);
 #else
 	    const QPixmap *pm = pd->pixmap();
 #endif
@@ -146,7 +147,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     }
 
     if (!dgc->begin(pd, ds, unclipped)) {
-	printf("QPainter::begin(), gc::begin() returned false\n");
+	qWarning("QPainter::begin(), gc::begin() returned false\n");
 	return false;
     }
     if (!d->redirection_offset.isNull()) {
@@ -154,6 +155,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	ds->WxF = true;
     }
 
+    Q_ASSERT(dgc->isActive());
     dgc->setState(ds);
 
     return true;
@@ -437,6 +439,7 @@ void QPainter::drawLine(int x1, int y1, int x2, int y2)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     if (ds->WxF || ds->VxF) {
 	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
@@ -452,6 +455,7 @@ void QPainter::drawRect(int x, int y, int w, int h)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -469,6 +473,7 @@ void QPainter::drawPoint(int x, int y)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     if (ds->VxF || ds->WxF) {
 	if (!dgc->hasCapability(QAbstractGC::CoordTransform)) {
@@ -481,6 +486,10 @@ void QPainter::drawPoint(int x, int y)
 
 void QPainter::drawPoints(const QPointArray &pa, int index, int npoints)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     if (npoints < 0)
 	npoints = pa.size() - index;
     if (index + npoints > (int)pa.size())
@@ -508,6 +517,7 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -530,6 +540,7 @@ void QPainter::drawWinFocusRect(int x, int y, int w, int h, const QColor &bgColo
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -569,21 +580,21 @@ QPainter::BGMode QPainter::backgroundMode() const
 void QPainter::setPen(const QColor &color)
 {
     ds->pen.setColor(color);
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updatePen(ds);
 }
 
 void QPainter::setPen(const QPen &pen)
 {
     ds->pen = pen;
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updatePen(ds);
 }
 
 void QPainter::setPen(PenStyle style)
 {
     ds->pen.setStyle(style);
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updatePen(ds);
 }
 
@@ -598,7 +609,7 @@ void QPainter::setBrush(const QBrush &brush)
     if (ds->brush == brush)
 	return;
     ds->brush = brush;
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updateBrush(ds);
 }
 
@@ -607,7 +618,7 @@ void QPainter::setBrush(BrushStyle style)
 {
     // ### Missing optimization from qpainter.cpp
     ds->brush = QBrush(Qt::black, style);
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updateBrush(ds);
 }
 
@@ -633,14 +644,14 @@ void QPainter::setRasterOp(RasterOp op)
 	return;
     }
     ds->rasterOp = op;
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updateRasterOp(ds);
 }
 
 void QPainter::setFont(const QFont &font)
 {
     ds->font = font;
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updateFont(ds);
 }
 
@@ -653,6 +664,7 @@ void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -698,6 +710,7 @@ void QPainter::drawEllipse(int x, int y, int w, int h)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -720,6 +733,7 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -741,6 +755,7 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -768,6 +783,7 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 {
     if ( !isActive() )
 	return;
+    dgc->setState(ds);
 
     qt_fix_rect(ds, &x, &y, &w, &h);
 
@@ -790,6 +806,10 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 
 void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     if ( nlines < 0 )
 	nlines = a.size()/2 - index/2;
     if ( index + nlines*2 > (int)a.size() )
@@ -815,6 +835,10 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 
 void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     if (npoints < 0)
 	npoints = a.size() - index;
     if (index + npoints > (int)a.size())
@@ -837,6 +861,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     if (npoints < 0)
 	npoints = a.size() - index;
@@ -859,6 +884,7 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 {
     if (!isActive())
 	return;
+    dgc->setState(ds);
 
     if (npoints < 0)
 	npoints = a.size() - index;
@@ -881,6 +907,8 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 {
     if ( !isActive() )
 	return;
+    dgc->setState(ds);
+
     if ( (int)a.size() - index < 4 ) {
 	qWarning( "QPainter::drawCubicBezier: Cubic Bezier needs 4 control "
 		 "points" );
@@ -903,6 +931,7 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int s
 {
     if (!isActive() || pm.isNull())
 	return;
+    dgc->setState(ds);
 
     if (sw < 0)
 	sw = pm.width() - sx;
@@ -970,6 +999,7 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 {
     if (!isActive() || pm.isNull())
 	return;
+    dgc->setState(ds);
 
     int rw = r.width();
     int rh = r.height();
@@ -1010,11 +1040,19 @@ void QPainter::drawImage(int x, int y, const QImage &,
 			  int sx, int sy, int sw, int sh,
 			  int conversionFlags)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
 
 void QPainter::drawImage(const QRect &, const QImage &)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     qWarning("QPainter::drawImage(), %d", __LINE__);
 }
 
@@ -1023,6 +1061,8 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 {
     if ( !isActive() )
         return;
+    dgc->setState(ds);
+
     if (len < 0)
         len = str.length() - pos;
     if ( len <= 0 || pos >= (int)str.length() ) // empty string
@@ -1106,8 +1146,10 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, Text
 void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
 			 QRect *br, QTextParag **intern)
 {
-    if ( !isActive() )
+    if (!isActive())
 	return;
+    dgc->setState(ds);
+
     if ( len < 0 )
 	len = str.length();
     if ( len == 0 )				// empty string
@@ -1119,6 +1161,9 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len,
 
 void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
 #ifdef Q_Q4PAINTER
     QTextEngine *engine = ti.engine();
     QScriptItem *si = &engine->items[ti.item()];
@@ -1148,16 +1193,28 @@ QRect QPainter::boundingRect(int, int, int, int, int, const QString&, int, QText
 
 void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx, int sy)
 {
-    printf("QPainter::drawTiledPixmap:: not implemented yet\n");
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
+    qWarning("QPainter::drawTiledPixmap:: not implemented yet\n");
 }
 
 void QPainter::drawPicture(int x, int y, const QPicture &p)
 {
-    printf("QPainter::drawPicture() not implemetned yet...\n");
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
+    qWarning("QPainter::drawPicture() not implemetned yet...\n");
 }
 
 void QPainter::eraseRect(int x, int y, int w, int h)
 {
+    if (!isActive())
+	return;
+    dgc->setState(ds);
+
     if (ds->bgBrush.pixmap())
 	drawTiledPixmap(QRect(x, y, w, h), *ds->bgBrush.pixmap(), -ds->bgOrigin);
     else
@@ -1838,7 +1895,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 // 	    if ( painter->bg_mode == Qt::OpaqueMode )
-	    
+
 // 		qt_draw_background( painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
 // 				    ti.width(), ti.ascent() + ti.descent() + 1);
 #endif

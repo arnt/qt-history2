@@ -1,25 +1,18 @@
-#include "qwin32gc.h"
-#include "qwin32gc_p.h"
 #include "q4painter_p.h"
-
-#ifndef Q_Q4PAINTER
-#include "q4paintdevice.h"
-#else
-#include "qpaintdevice.h"
-#endif
-
-#include "qtextengine_p.h"
-#include "qtextlayout_p.h"
-#include "qfontengine_p.h"
-
-#include "qbrush.h"
 #include "qbitmap.h"
+#include "qbrush.h"
+#include "qfontengine_p.h"
 #include "qpaintdevice.h"
+#include "qpaintdevice.h"
+#include "qpainter.h"
 #include "qpen.h"
 #include "qpixmap.h"
 #include "qt_windows.h"
+#include "qtextengine_p.h"
+#include "qtextlayout_p.h"
 #include "qwidget.h"
-#include "qpainter.h"
+#include "qwin32gc.h"
+#include "qwin32gc_p.h"
 
 #include <math.h>
 
@@ -81,8 +74,8 @@ static void init_cache()
 	brush_cache[i] = h++;
 }
 
-static QRegion* paintEventClipRegion = 0;
-static QPaintDevice* paintEventDevice = 0;
+QRegion* paintEventClipRegion = 0;
+QPaintDevice* paintEventDevice = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
@@ -297,25 +290,17 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool clipEn
 {
     Q_ASSERT(pdev->devType()==QInternal::Widget);
     if (isActive()) {				// already active painting
-	printf("QWin32GC::begin: Painter is already active."
-	       "\n\tYou must end() the painter before a second begin()\n");
+// 	qWarning("QWin32GC::begin: Painter is already active."
+// 	       "\n\tYou must end() the painter before a second begin()\n");
 	return true;
     }
 
     setActive(true);
-#ifdef Q_Q4PAINTER
     d->hdc = GetDC(((QWidget*)pdev)->winId());
-#else
-    d->hdc = GetDC(pdev->widget()->winId());
-#endif
     Q_ASSERT(d->hdc);
 
-#ifdef Q_Q4PAINTER
     QRegion *region = paintEventClipRegion;
     QRect r = region ? region->boundingRect() : QRect();
-#else
-    QRegion *region = QPainter::dirty_hack_paintRegion();
-#endif
     if (region)
 	SelectClipRgn(d->hdc, region->handle());
 
