@@ -614,8 +614,10 @@ UnixMakefileGenerator::processPrlFiles()
 		      processed.insert(lib, (void*)1);
 		      ret = TRUE;
 		    }
+#if 0
 		    if(ret)
 		      opt = linkLib(lib, "");
+#endif
 		    if(!opt.isEmpty())
 		      l_out.append(opt);
 		    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
