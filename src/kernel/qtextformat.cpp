@@ -496,7 +496,7 @@ int QTextFormatCollection::referenceToIndex(int ref) const
     return -(ref + 2);
 }
 
-int QTextFormatCollection::indexForFormat(const QTextFormat &format)
+int QTextFormatCollection::indexForFormat(const QTextFormat &format) const
 {
     // certainly need speedup
     for (int i = 0; i < formats.size(); ++i)

@@ -10,7 +10,7 @@ public:
     int createReferenceIndex(const QTextFormat &newFormat);
     void updateReferenceIndex(int index, const QTextFormat &newFormat);
 
-    int indexForFormat(const QTextFormat &f);
+    int indexForFormat(const QTextFormat &f) const;
 
     QTextFormat format(int idx, int defaultFormatType = -1) const;
 
@@ -31,7 +31,7 @@ private:
     int indexToReference(int idx) const;
     int referenceToIndex(int ref) const;
 
-    QVector<QTextFormat> formats;
+    mutable QVector<QTextFormat> formats;
     QVector<int> formatReferences;
 };
 
