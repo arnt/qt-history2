@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#133 $
 **
 ** Implementation of QListView widget class
 **
@@ -1348,9 +1348,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
     QRect r;
-    int l;
     int fx = -1, x, fc = 0, lc = 0;
-    l = 0;
     int tx = -1;
     struct QListViewPrivate::DrawableItem * current;
 
