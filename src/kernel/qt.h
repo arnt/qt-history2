@@ -340,8 +340,4 @@
 #endif // Q_WS_QWS
 
 
-#ifdef Q_WS_WCE
-#include <qpocketpcstyle_wce.h>
-#endif // Q_WS_WCE
-
 #endif // QT_H
