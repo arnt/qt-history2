@@ -3344,8 +3344,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
 	   
-# ifndef QWS_PACKING_4BYTE
 	    PackType dput;
+# ifndef QWS_PACKING_4BYTE
 	    unsigned short int * fun;
 	    fun=(unsigned short int *)&dput;
 # endif
@@ -3404,8 +3404,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-# ifndef QWS_PACKING_4BYTE
 	    PackType dput;
+# ifndef QWS_PACKING_4BYTE
 	    unsigned char *fun = (unsigned char *)&dput;
 # endif
 	    while ( frontadd-- )
