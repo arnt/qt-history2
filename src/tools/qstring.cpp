@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#244 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#245 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12703,7 +12703,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 		(s.byteOrder()==QDataStream::BigEndian) ) {
 	    s.writeBytes( ub, sizeof(QChar)*str.length() );
 	} else {
-	    static const int auto_size = 1024;
+	    static const uint auto_size = 1024;
 	    char t[auto_size];
 	    char* b;
 	    if ( str.length()*2 > auto_size ) {
