@@ -75,11 +75,12 @@ Cpp.ignoretokens	= QAXFACTORY_EXPORT \
                           Q_TYPENAME \
                           Q_XML_EXPORT
 Cpp.ignoredirectives    = Q_DECLARE_INTERFACE \
+                          Q_DECLARE_OPERATORS_FOR_FLAGS \
                           Q_DECLARE_PRIVATE \
                           Q_DECLARE_PUBLIC \
                           Q_ENUMS \
                           Q_FLAGS \
-			  Q_INTERFACES
+                          Q_INTERFACES
 HTML.style		= "h3.fn,span.fn { margin-left: 1cm; text-indent: -1cm; }\n" \
 			  "a:link { color: #004faf; text-decoration: none }\n" \
 			  "a:visited { color: #672967; text-decoration: none }\n" \
