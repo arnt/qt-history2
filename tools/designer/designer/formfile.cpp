@@ -181,6 +181,8 @@ bool FormFile::save( bool withMsgBox )
 	return TRUE;
     if ( ed )
 	ed->save();
+    else
+	loadCode();
 
     if ( isModified( WFormWindow ) ) {
 	if ( withMsgBox ) {
