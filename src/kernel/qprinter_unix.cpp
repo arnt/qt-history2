@@ -635,12 +635,6 @@ void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
     D->rightMargin = right;
 }
 
-QPrinterPageSize::QPrinterPageSize( const QString &, const QSize & )
-  : d( 0 )
-{
-    // ###
-}
-
 bool QPrinterPageSize::isValid() const
 {
     // ###

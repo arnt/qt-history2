@@ -414,12 +414,6 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 	*right = (uint)(paperr.right - pager.right);
 }
 
-QPrinterPageSize::QPrinterPageSize( const QString &, const QSize & )
-   : d( 0 )
-{
-    // ###
-}
-
 bool QPrinterPageSize::isValid() const
 {
     // ###
