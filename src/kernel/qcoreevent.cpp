@@ -90,10 +90,10 @@
     \value ShowToParent  A child widget has been shown.
     \value HideToParent  A child widget has been hidden.
     \value Close  Widget was closed (permanently), \l{QCloseEvent}.
-    \value ShowNormal  Widget should be shown normally.
-    \value ShowMaximized  Widget should be shown maximized.
-    \value ShowMinimized  Widget should be shown minimized.
-    \value ShowFullScreen  Widget should be shown full-screen.
+    \value ShowNormal  Widget should be shown normally (obsolete).
+    \value ShowMaximized  Widget should be shown maximized (obsolete).
+    \value ShowMinimized  Widget should be shown minimized (obsolete).
+    \value ShowFullScreen  Widget should be shown full-screen (obsolete).
     \value ShowWindowRequest  Widget's window should be shown (obsolete).
     \value DeferredDelete  The object will be deleted after it has
     cleaned up.
@@ -148,6 +148,9 @@
     \value IconTextChange Widget's icon text has been changed
     \value ModifiedChange Widgets modification state has been changed
     \value QWSUpdate internal.
+
+    \value WindowStateChange The window's state, i.e. minimized,
+    maximized or full-screen, has changed. See \l{QWidget::windowState()}.
 
     \value User  User defined event.
     \value MaxUser  Last user event id.

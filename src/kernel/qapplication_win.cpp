@@ -1482,8 +1482,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 #endif
 
-	case WM_SYSCOMMAND:
+	case WM_SYSCOMMAND: {
 #ifndef Q_OS_TEMP
+	    bool window_state_change = FALSE;
 	    switch( wParam ) {
 	    case SC_CONTEXTHELP:
 #ifndef QT_NO_WHATSTHIS
@@ -1499,30 +1500,35 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		QT_NC_SYSCOMMAND
 #endif
 	    case SC_MAXIMIZE:
-		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		window_state_change = TRUE;
 		widget->clearWState(Qt::WState_Minimized);
 		widget->setWState(Qt::WState_Maximized);
 		result = FALSE;
 		break;
 	    case SC_MINIMIZE:
-		QApplication::postEvent( widget, new QEvent( QEvent::ShowMinimized ) );
+		window_state_change = TRUE;
 		widget->setWState(Qt::WState_Minimized);
 		result = FALSE;
 		break;
 	    case SC_RESTORE:
-		QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
-		if (widget->isMinimized())
-		    widget->clearWState(Qt::WState_Minimized);
-		else
-		    widget->clearWState(Qt::WState_Maximized);
+		window_state_change = TRUE;
+		widget->clearWState(Qt::WState_Minimized);
+		widget->clearWState(Qt::WState_Maximized);
 		result = FALSE;
 		break;
 	    default:
 		result = FALSE;
 		break;
 	    }
+
+	    if (window_state_change) {
+		QEvent e(QEvent::WindowStateChange);
+		QApplication::sendSpontaneousEvent(this, &e);
+	    }
 #endif
+
 	    break;
+	}
 
 	case WM_SETTINGCHANGE:
 	    if ( !msg.wParam ) {
@@ -1536,12 +1542,18 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #ifndef Q_OS_TEMP
 	case WM_NCLBUTTONDBLCLK:
 	    if ( wParam == HTCAPTION ) {
+		bool window_state_changed = FALSE;
 		if ( widget->isMaximized() ) {
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowNormal ) );
+		    window_state_changed = TRUE;
 		    widget->clearWState(Qt::WState_Maximized);
 		} else if (widget->testWFlags(Qt::WStyle_Maximize)){
-		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
+		    window_state_changed = TRUE;
 		    widget->setWState(Qt::WState_Maximized);
+		}
+
+		if (window_state_change) {
+		    QEvent e(QEvent::WindowStateChange);
+		    QApplication::sendSpontaneousEvent(this, &e);
 		}
 	    }
 	    result = FALSE;
@@ -1560,8 +1572,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_MOVE:				// move window
 	case WM_SIZE:				// resize window
 	    result = widget->translateConfigEvent( msg );
-	    if ( widget->isMaximized() )
-		QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
 	    break;
 
 	case WM_ACTIVATE:

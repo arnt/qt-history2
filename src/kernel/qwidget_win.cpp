@@ -1111,6 +1111,9 @@ void QWidget::setWindowState(uint newstate)
 	widget_state |= WState_Maximized;
     if (newstate & WindowFullScreen)
 	widget_state |= WState_FullScreen;
+
+    QEvent e(QEvent::WindowStateChange);
+    QApplication::sendEvent(this, &e);
 }
 
 

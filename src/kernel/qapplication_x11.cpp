@@ -467,6 +467,7 @@ public:
 #if defined (QT_TABLET_SUPPORT)
     bool translateXinputEvent( const XEvent* );
 #endif
+    bool translatePropertyEvent(const XEvent *);
 };
 
 
@@ -3000,7 +3001,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	}
 	if ( event->xproperty.window == QPaintDevice::x11AppRootWindow() ) {
-	    // root properties
+	    // root properties for the default screen
 	    if ( event->xproperty.atom == ATOM(_QT_INPUT_ENCODING) ) {
 		qt_set_input_encoding();
 	    } else if ( event->xproperty.atom == ATOM(_NET_SUPPORTED) ) {
@@ -3011,126 +3012,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		qt_desktopwidget_update_workarea();
 	    }
 	} else if ( widget ) {
-	    if (event->xproperty.window == widget->winId()) { // widget properties
-		if (widget->isTopLevel()) { // top level properties
-		    Atom ret;
-		    int format, e;
-		    unsigned char *data = 0;
-		    unsigned long nitems, after;
-
-		    if (event->xproperty.atom == ATOM(_KDE_NET_WM_FRAME_STRUT)) {
-			e = XGetWindowProperty(X11->display, event->xproperty.window,
-					       ATOM(_KDE_NET_WM_FRAME_STRUT),
-					       0, 4, // struts are 4 longs
-					       False, XA_CARDINAL, &ret, &format,
-					       &nitems, &after, &data);
-
-			if (e == Success && ret == XA_CARDINAL &&
-			    format == 32 && nitems == 4) {
-			    long *strut = (long *) data;
-			    widget->d->topData()->fleft   = strut[0];
-			    widget->d->topData()->fright  = strut[1];
-			    widget->d->topData()->ftop    = strut[2];
-			    widget->d->topData()->fbottom = strut[3];
-			    widget->fstrut_dirty = 0;
-			} else {
-			    // if failed, zero the strut and mark it dirty
-			    widget->d->topData()->fleft = widget->d->topData()->fright =
-			     widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
-			    widget->fstrut_dirty = 1;
-			}
-
-			if (data)
-			    XFree(data);
-		    } else if (event->xproperty.atom == ATOM(_NET_WM_STATE)) {
-			// using length of 1024 should be safe for all current
-			// and possible NET states...
-			e = XGetWindowProperty(X11->display, event->xproperty.window,
-					       ATOM(_NET_WM_STATE), 0, 1024, False,
-					       XA_ATOM, &ret, &format, &nitems,
-					       &after, &data);
-
-			bool isMaximized = FALSE;
-			if (e == Success && ret == XA_ATOM && format == 32 &&
-			    nitems > 0) {
-			    Atom *states = (Atom *) data;
-
-			    unsigned long i;
-			    for (i = 0; i < nitems; i++) {
-				if (states[i] == ATOM(_NET_WM_STATE_MAXIMIZED_HORZ) ||
-				    states[i] == ATOM(_NET_WM_STATE_MAXIMIZED_VERT)) {
-				    isMaximized = TRUE;
-				    break;
-				}
-			    }
-			}
-
-			if (isMaximized)
-			    widget->setWState(WState_Maximized);
-			else
-			    widget->clearWState(WState_Maximized);
-
-			if (data)
-			    XFree(data);
-		    } else if (event->xproperty.atom == ATOM(WM_STATE)) {
-			// the widget frame strut should also be invalidated
-			widget->d->topData()->fleft = widget->d->topData()->fright =
-			 widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
-			widget->fstrut_dirty = 1;
-
-			if (event->xproperty.state == PropertyDelete) {
-			    // the window manager has removed the WM State property,
-			    // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
-			    // we are free to reuse this window
-			    widget->d->topData()->parentWinId = 0;
-			    // map the window if we were waiting for a
-			    // transition to withdrawn
-			    int idx = X11->deferred_map.indexOf(widget);
-			    if (idx != -1) {
-				X11->deferred_map.removeAt(idx);
-				XMapWindow( X11->display, widget->winId() );
-			    }
-			} else if (widget->d->topData()->parentWinId !=
-				   QPaintDevice::x11AppRootWindow()) {
-			    // the window manager has changed the WM State property...
-			    // we are  wanting to see if we are withdrawn so that we
-			    // can reuse this window... we only do this check *IF* we
-			    // haven't been reparented to root -
-			    // (the parentWinId != QPaintDevice::x11AppRootWindow()) check above
-
-			    e = XGetWindowProperty(X11->display, widget->winId(), ATOM(WM_STATE),
-						   0, 2, False, ATOM(WM_STATE), &ret,
-						   &format, &nitems, &after, &data );
-
-			    if (e == Success && ret == ATOM(WM_STATE) &&
-				format == 32 && nitems > 0) {
-				long *state = (long *) data;
-				if (state[0] == WithdrawnState) {
-				    // if we are in the withdrawn state, we are free to
-				    // reuse this window provided we remove the
-				    // WM_STATE property (ICCCM 4.1.3.1)
-				    XDeleteProperty(X11->display, widget->winId(),
-						    ATOM(WM_STATE));
-
-				    // set the parent id to zero, so that show() will
-				    // work again
-				    widget->d->topData()->parentWinId = 0;
-				    // map the window if we were waiting for a
-				    // transition to withdrawn
-				    int idx = X11->deferred_map.indexOf(widget);
-				    if (idx != -1) {
-					X11->deferred_map.removeAt(idx);
-					XMapWindow( X11->display, widget->winId() );
-				    }
-				}
-			    }
-
-			    if (data)
-				XFree(data);
-			}
-		    }
-		}
-	    }
+	    widget->translatePropertyEvent(event);
 	}  else {
 	    return -1; // don't know this window
 	}
@@ -4288,6 +4170,153 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     return TRUE;
 }
 #endif
+
+bool QETWidget::translatePropertyEvent(const XEvent *event)
+{
+    if (!isTopLevel()) return TRUE;
+
+    Atom ret;
+    int format, e;
+    unsigned char *data = 0;
+    unsigned long nitems, after;
+
+    if (event->xproperty.atom == qt_net_wm_frame_strut) {
+	topData()->fleft = topData()->fright = topData()->ftop = topData()->fbottom = 0;
+	fstrut_dirty = 1;
+
+	if (event->xproperty.state == PropertyNewValue) {
+	    e = XGetWindowProperty(appDpy, event->xproperty.window, qt_net_wm_frame_strut,
+				   0, 4, // struts are 4 longs
+				   False, XA_CARDINAL, &ret, &format, &nitems, &after, &data);
+
+	    if (e == Success && ret == XA_CARDINAL &&
+		format == 32 && nitems == 4) {
+		long *strut = (long *) data;
+		topData()->fleft   = strut[0];
+		topData()->fright  = strut[1];
+		topData()->ftop    = strut[2];
+		topData()->fbottom = strut[3];
+		fstrut_dirty = 0;
+	    }
+	}
+    } else if (event->xproperty.atom == qt_net_wm_state) {
+	bool max = FALSE;
+	bool full = FALSE;
+
+	if (event->xproperty.state == PropertyNewValue) {
+	    // using length of 1024 should be safe for all current and
+	    // possible NET states...
+	    e = XGetWindowProperty(appDpy, event->xproperty.window, qt_net_wm_state, 0, 1024,
+				   False, XA_ATOM, &ret, &format, &nitems, &after, &data);
+
+	    if (e == Success && ret == XA_ATOM && format == 32 && nitems > 0) {
+		Atom *states = (Atom *) data;
+
+		unsigned long i;
+		for (i = 0; i < nitems; i++) {
+		    if (states[i] == qt_net_wm_state_max_v || states[i] == qt_net_wm_state_max_h)
+			max = TRUE;
+		    else if (states[i] == qt_net_wm_state_fullscreen)
+			full = TRUE;
+		}
+	    }
+	}
+
+	bool send_event = FALSE;
+	if (max && !isMaximized()) {
+	    setWState(WState_Maximized);
+	    send_event = TRUE;
+	} else if (!max && isMaximized()) {
+	    clearWState(WState_Maximized);
+	    send_event = TRUE;
+	}
+
+	if (full && !isFullScreen()) {
+	    setWState(WState_FullScreen);
+	    send_event = TRUE;
+	} else if (!full && isFullScreen()) {
+	    clearWState(WState_FullScreen);
+	    send_event = TRUE;
+	}
+
+	if (send_event) {
+	    QEvent e(QEvent::WindowStateChange);
+	    QApplication::sendSpontaneousEvent(this, &e);
+	}
+    } else if (event->xproperty.atom == qt_wm_state) {
+	// the widget frame strut should also be invalidated
+	topData()->fleft = topData()->fright = topData()->ftop = topData()->fbottom = 0;
+	fstrut_dirty = 1;
+
+	if (event->xproperty.state == PropertyDelete) {
+	    // the window manager has removed the WM State property,
+	    // so it is now in the withdrawn state (ICCCM 4.1.3.1) and
+	    // we are free to reuse this window
+	    topData()->parentWinId = 0;
+	    // map the window if we were waiting for a transition to
+	    // withdrawn
+	    if ( qt_deferred_map_contains( this ) ) {
+		qt_deferred_map_take( this );
+		XMapWindow( appDpy, winId() );
+	    }
+	} else if (topData()->parentWinId != QPaintDevice::x11AppRootWindow(x11Screen())) {
+	    // the window manager has changed the WM State property...
+	    // we are wanting to see if we are withdrawn so that we
+	    // can reuse this window... we only do this check *IF* we
+	    // haven't been reparented to root - (the parentWinId !=
+	    // QPaintDevice::x11AppRootWindow(x11Screen())) check
+	    // above
+
+	    e = XGetWindowProperty(appDpy, winId(), qt_wm_state, 0, 2, False, qt_wm_state,
+				   &ret, &format, &nitems, &after, &data );
+
+	    if (e == Success && ret == qt_wm_state && format == 32 && nitems > 0) {
+		long *state = (long *) data;
+		switch (state[0]) {
+		case WithdrawnState:
+		    // if we are in the withdrawn state, we are free
+		    // to reuse this window provided we remove the
+		    // WM_STATE property (ICCCM 4.1.3.1)
+		    XDeleteProperty(appDpy, winId(), qt_wm_state);
+
+		    // set the parent id to zero, so that show() will
+		    // work again
+		    topData()->parentWinId = 0;
+		    // map the window if we were waiting for a
+		    // transition to withdrawn
+		    if ( qt_deferred_map_contains( this ) ) {
+			qt_deferred_map_take( this );
+			XMapWindow( appDpy, winId() );
+		    }
+		    break;
+
+		case IconicState:
+		    if (!isMinimized()) {
+			// window was minimized
+			setWState(WState_Minimized);
+			QEvent e(QEvent::WindowStateChange);
+			QApplication::sendSpontaneousEvent(this, &e);
+		    }
+		    break;
+
+		default:
+		    if (isMinimized()) {
+			// window was un-minimized
+			clearWState(WState_Minimized);
+			QEvent e(QEvent::WindowStateChange);
+			QApplication::sendSpontaneousEvent(this, &e);
+		    }
+		    break;
+		}
+	    }
+	}
+    }
+
+    if (data)
+	XFree(data);
+
+    return TRUE;
+}
 
 #ifndef XK_ISO_Left_Tab
 #define	XK_ISO_Left_Tab					0xFE20

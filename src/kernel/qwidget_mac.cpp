@@ -1629,6 +1629,9 @@ void QWidget::setWindowState(uint newstate)
 
     if (needShow)
 	show();
+
+    QEvent e(QEvent::WindowStateChange);
+    QApplication::sendEvent(this, &e);
 }
 
 void QWidget::raise()

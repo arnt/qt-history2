@@ -780,15 +780,15 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = FALSE;
     if (isTopLevel()) {
 	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
-	    // change maximized state
+	    // ### change maximized state
 	}
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
-	    // change fullscreen state
+	    // ### change fullscreen state
 	}
 
 	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
-	    // change minimized state
+	    // ### change minimized state
 	}
     }
 
@@ -802,6 +802,9 @@ void QWidget::setWindowState(uint newstate)
 
     if (needShow)
 	show();
+
+    QEvent e(QEvent::WindowStateChange);
+    QApplication::sendEvent(this, &e);
 }
 
 #if 0

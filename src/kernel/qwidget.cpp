@@ -1470,8 +1470,6 @@ void QWidget::showMinimized()
 {
     setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
-    QEvent e(QEvent::ShowMinimized);
-    QApplication::sendEvent(this, &e);
 }
 
 /*!
@@ -1603,8 +1601,6 @@ void QWidget::showMaximized()
 {
     setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
-    QEvent e(QEvent::ShowMaximized);
-    QApplication::sendEvent(this, &e);
 }
 
 /*!
@@ -1619,8 +1615,6 @@ void QWidget::showNormal()
 {
     setWindowState(0);
     show();
-    QEvent e(QEvent::ShowNormal);
-    QApplication::sendEvent(this, &e);
 }
 
 /*!
@@ -3132,8 +3126,8 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 	return;
 
     // If first is redirected, set first to the last child of first
-    // that can take keyboard focus so that second is inserted after 
-    // that last child, and the focus order within first is (more 
+    // that can take keyboard focus so that second is inserted after
+    // that last child, and the focus order within first is (more
     // likely to be) preserved.
     if ( first->focusProxy() ) {
 	QObjectList l = first->queryList( "QWidget" );
@@ -4375,6 +4369,24 @@ bool QWidget::event( QEvent *e )
 	repaint(static_cast<QWSUpdateEvent*>(e)->region());
 	break;
 #endif
+
+#ifndef QT_NO_COMPAT
+    case QEvent::WindowStateChange:
+	{
+	    QEvent::Type type;
+	    if (isFullScreen())
+		type = QEvent::ShowFullScreen;
+	    else if (isMaximized())
+		type = QEvent::ShowMaximized;
+	    else if (isMinimized())
+		type = QEvent::ShowMinimized;
+	    else
+		type = QEvent::ShowNormal;
+	    QApplication::postEvent(this, new QEvent(type));
+	    break;
+	}
+#endif
+
     default:
 	return FALSE;
     }
