@@ -292,13 +292,13 @@ private:
 LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
     static bool reentrant = FALSE;
+    static bool ignoreNext = FALSE;
     static QPoint pos;
     static POINT gpos={-1,-1};
     QEvent::Type type;				// event parameters
     int	   button;
     int	   state;
     int	   i;
-
     if ( !reentrant && lParam ) {
 	reentrant = TRUE;
 	MSG *msg = (MSG*)lParam;
@@ -318,13 +318,19 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
 		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
 		    if ( host ) {
-			QAxHostWindow *site = host->clientSite();
-			bool eaten = FALSE;
-			// give the control a chance, otherwise propagate to Qt
-			if ( site && site->inPlaceObject() )
-			    eaten = !site->inPlaceObject()->TranslateAccelerator( msg );
-			if ( !eaten )
-			    SendMessage( host->winId(), message, msg->wParam, msg->lParam );
+			if ( ignoreNext ) {
+			    QAxHostWindow *site = host->clientSite();
+			    bool eaten = FALSE;
+			    // give the control a chance, otherwise propagate to Qt
+			    if ( site && site->inPlaceObject() )
+				eaten = !site->inPlaceObject()->TranslateAccelerator( msg );
+			    if ( !eaten )
+				SendMessage( host->winId(), message, msg->wParam, msg->lParam );
+			    else
+				ignoreNext = TRUE;
+			} else {
+			    ignoreNext = FALSE;
+			}
 		    }
 		} else {
 		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
