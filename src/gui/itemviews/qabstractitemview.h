@@ -28,7 +28,6 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
-    Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
@@ -117,8 +116,6 @@ public:
     QSize iconSize() const;
 
     virtual void keyboardSearch(const QString &search);
-    void setKeyboardInputInterval(int msec);
-    int keyboardInputInterval() const;
 
     virtual QRect visualRect(const QModelIndex &index) const = 0;
     virtual void scrollTo(const QModelIndex &index) = 0;

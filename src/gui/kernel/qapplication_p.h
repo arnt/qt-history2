@@ -166,6 +166,7 @@ public:
     static bool obey_desktop_settings;
     static int  cursor_flash_time;
     static int  mouse_double_click_time;
+    static int  keyboard_input_time;
     static int  wheel_scroll_lines;
 
     static bool animate_ui;

@@ -172,6 +172,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::T
         setCursorFlashTime(),
         doubleClickInterval(),
         setDoubleClickInterval(),
+        setKeyboardInputInterval(),
         wheelScrollLines(),
         setWheelScrollLines(),
         palette(),
@@ -350,6 +351,7 @@ QWidget *QApplicationPrivate::active_window = 0;        // toplevel with keyboar
 bool QApplicationPrivate::obey_desktop_settings = true;        // use winsys resources
 int QApplicationPrivate::cursor_flash_time = 1000;        // text caret flash time
 int QApplicationPrivate::mouse_double_click_time = 400;        // mouse dbl click limit
+int QApplicationPrivate::keyboard_input_time = 400; // keyboard input interval
 #ifndef QT_NO_WHEELEVENT
 int QApplicationPrivate::wheel_scroll_lines = 3;                // number of lines to scroll
 #endif
@@ -974,6 +976,7 @@ QApplication::~QApplication()
     QApplicationPrivate::obey_desktop_settings = true;
     QApplicationPrivate::cursor_flash_time = 1000;
     QApplicationPrivate::mouse_double_click_time = 400;
+    QApplicationPrivate::keyboard_input_time = 400;
 #ifndef QT_NO_WHEELEVENT
     QApplicationPrivate::wheel_scroll_lines = 3;
 #endif

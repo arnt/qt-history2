@@ -45,7 +45,6 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         tabKeyNavigation(false),
         showDropIndicator(false),
         dragEnabled(false),
-        inputInterval(400),
         autoScroll(true),
         autoScrollTimer(0),
         autoScrollMargin(16),
@@ -1557,7 +1556,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
                         : model()->index(0, 0, rootIndex());
     QTime now(QTime::currentTime());
     bool skipRow = false;
-    if (d->keyboardInputTime.msecsTo(now) > keyboardInputInterval()) {
+    if (d->keyboardInputTime.msecsTo(now) > QApplication::keyboardInputInterval()) {
         d->keyboardInput = search;
         skipRow = true;
     } else {
@@ -1661,21 +1660,6 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
         d->releaseEditor(editor);
     }
     d->editors.remove(index);
-}
-
-/*!
-    \property QAbstractItemView::keyboardInputInterval
-    \brief the interval threshold for doing keyboard searches.
-*/
-void QAbstractItemView::setKeyboardInputInterval(int msec)
-{
-    if (msec >= 0)
-        d->inputInterval = msec;
-}
-
-int QAbstractItemView::keyboardInputInterval() const
-{
-    return d->inputInterval;
 }
 
 /*!

@@ -2792,6 +2792,17 @@ int QApplication::doubleClickInterval()
     return QApplicationPrivate::mouse_double_click_time;
 }
 
+void QApplication::setKeyboardInputInterval(int ms)
+{
+    QApplicationPrivate::keyboard_input_time = ms;
+}
+
+int QApplication::keyboardInputInterval()
+{
+    // FIXME: get from the system
+    return QApplicationPrivate::keyboard_input_time;
+}
+
 void QApplication::setWheelScrollLines(int n)
 {
     qt_mac_use_qt_scroller_lines = true;

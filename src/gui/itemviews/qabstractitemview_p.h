@@ -127,7 +127,6 @@ public:
     bool dragEnabled;
     QString keyboardInput;
     QTime keyboardInputTime;
-    int inputInterval;
 
     bool autoScroll;
     int autoScrollTimer;

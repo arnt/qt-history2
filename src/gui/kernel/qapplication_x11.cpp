@@ -616,6 +616,7 @@ bool QApplication::x11_apply_settings()
       libraryPath                - QStringList
       style                      - QString
       doubleClickInterval        - int
+      keyboardInputInterval  - int
       cursorFlashTime            - int
       wheelScrollLines           - int
       colorSpec                  - QString
@@ -5102,6 +5103,33 @@ void QApplication::setDoubleClickInterval(int ms)
 int QApplication::doubleClickInterval()
 {
     return QApplicationPrivate::mouse_double_click_time;
+}
+
+
+/*!
+    Sets the time limit that distinguishes a key press from two
+    consecutive key presses to \a ms milliseconds.
+
+    \sa keyboardInputInterval()
+*/
+
+void QApplication::setKeyboardInputInterval(int ms)
+{
+    QApplicationPrivate::keyboard_input_time = ms;
+}
+
+/*!
+    Returns the maximum duration for a key press.
+
+    The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
+    operating system's value is used.
+
+    \sa setKeyboardInputInterval()
+*/
+
+int QApplication::keyboardInputInterval()
+{
+    return QApplicationPrivate::keyboard_input_time;
 }
 
 

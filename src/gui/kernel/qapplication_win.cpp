@@ -3456,6 +3456,7 @@ int QApplication::cursorFlashTime()
     return 0;
 }
 
+
 void QApplication::setDoubleClickInterval(int ms)
 {
 #ifndef Q_OS_TEMP
@@ -3464,7 +3465,6 @@ void QApplication::setDoubleClickInterval(int ms)
     QApplicationPrivate::mouse_double_click_time = ms;
 }
 
-
 int QApplication::doubleClickInterval()
 {
     int ms = GetDoubleClickTime();
@@ -3472,6 +3472,19 @@ int QApplication::doubleClickInterval()
         return ms;
     return QApplicationPrivate::mouse_double_click_time;
 }
+
+
+void QApplication::setKeyboardInputInterval(int ms)
+{
+    QApplicationPrivate::keyboard_input_time = ms;
+}
+
+int QApplication::keyboardInputInterval()
+{
+    // FIXME: get from the system
+    return QApplicationPrivate::keyboard_input_time;
+}
+
 
 void QApplication::setWheelScrollLines(int n)
 {

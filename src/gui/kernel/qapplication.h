@@ -57,6 +57,7 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon)
     Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
     Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)
+    Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(int wheelScrollLines  READ wheelScrollLines WRITE setWheelScrollLines)
     Q_PROPERTY(QSize globalStrut READ globalStrut WRITE setGlobalStrut)
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
@@ -141,6 +142,10 @@ public:
 
     static void setDoubleClickInterval(int);
     static int doubleClickInterval();
+
+    static void setKeyboardInputInterval(int);
+    static int keyboardInputInterval();
+
 #ifndef QT_NO_WHEELEVENT
     static void setWheelScrollLines(int);
     static int wheelScrollLines();
