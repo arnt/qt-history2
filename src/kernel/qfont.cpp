@@ -1735,7 +1735,7 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 	d = fm.d;
 	d->ref();
     }
-    painter = 0;
+    painter = fm.painter;
     return *this;
 }
 
