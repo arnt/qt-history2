@@ -1274,10 +1274,12 @@ bool QApplication::do_mouse_down( Point *pt )
 	if(widget && (l = widget->queryList("QToolBar"))) {
 	    for(QObjectListIt it(*l); it.current(); ++it) {
 		QWidget *t = (QWidget *)(*it);
-		if(t->isVisible())
-		    t->hide();
-		else
-		    t->show();
+		if(t->topLevelWidget() == widget) {
+		    if(t->isVisible())
+			t->hide();
+		    else
+			t->show();
+		}
 	    }
 	    delete l;
 	}
