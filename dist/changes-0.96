@@ -13,10 +13,10 @@ runtime obsolescence warnings by calling qSuppressObsoleteWarnings().
 Obsoleted functions will disappear in a future release.  To get
 compile-time errors for each use of an obsoleted function, compile your
 code with -DTEST_OBSOLETE. You should recompile without this option when
-you have upgraded your code (otherwise, some weird compilers may give
-linking errors). Note: it is probably not a good idea to compile the Qt
-library with -DTEST_OBSOLETE, it may cause problems if you try to link or
-run programs that use obsoleted functions.
+you have upgraded your code (otherwise, you may get linking errors). 
+Note: it is probably not a good idea to compile the Qt library with
+-DTEST_OBSOLETE, it may cause problems if you try to link or run
+programs that use obsoleted functions.
 
 For new users: obsoleted functions are no longer documented, in fact they
 are not even visible in the documentation.
