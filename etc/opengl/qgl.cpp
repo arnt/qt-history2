@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.cpp#5 $
+** $Id: //depot/qt/main/etc/opengl/qgl.cpp#6 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -19,7 +19,7 @@
 #undef  INT32
 #endif
 
-RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#6 $");
 
 
 #if defined(_CC_MSVC_)
@@ -43,55 +43,28 @@ RCSTAG("$Id: //depot/qt/main/etc/opengl/qgl.cpp#5 $");
 /*!
   Constructs a format object with the default settings:
   <ul>
-  \link setDoubleBuffer() Double buffer:\endlink Enabled (i.e. single buffer
-  disabled).
+  \link setDoubleBuffer() Double buffer:\endlink Enabled if \e doubleBuffer
+  is TRUE, otherwise single buffer.
+  \link setDepth() Depth buffer:\endlink Enabled.
+  \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
   \link setAlpha() Alpha channel:\endlink Disabled.
   \link setAccum() Accumulator buffer:\endlink Disabled.
   \link setStencil() Stencil buffer:\endlink Disabled.
   \link setStereo() Stereo:\endlink Disabled.
-  \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
-  \link setColorBits() Color bits:\endlink 24.
-  \link setDepthBits() Depth bits:\endlink 16.
   </ul>
 */
 
-QGLFormat::QGLFormat()
-{
-    data = new Internal;
-    CHECK_PTR( data );
-    data->doubleBuffer = TRUE;
-    data->alpha	       = FALSE;
-    data->accum	       = FALSE;
-    data->stencil      = FALSE;
-    data->stereo       = FALSE;
-    data->rgba	       = TRUE;
-    data->colorBits    = 24;
-    data->depthBits    = 16;
-}
-
-/*!
-  Constructs a GL format object.
-  \arg \e doubleBuffer Double buffer if TRUE, single buffer if FALSE.
-  \arg \e alpha: Alpha channel enabled if TRUE, disabled if FALSE.
-  \arg \e stereo: Stereographic viewing enabled if TRUE, disabled if FALSE.
-  \arg \e rgba: RGBA mode if TRUE, color index if FALSE.
-  \arg \e colorBits Number of color bits. Ignored if \e rgba is TRUE.
-  \arg \e depthBits The depth of the rendering device.
-*/
-
-QGLFormat::QGLFormat( bool doubleBuffer, bool alpha, bool accum, bool stencil,
-		      bool stereo, bool rgba, int colorBits, int depthBits )
+QGLFormat::QGLFormat( bool doubleBuffer )
 {
     data = new Internal;
     CHECK_PTR( data );
     data->doubleBuffer = doubleBuffer;
-    data->alpha	       = alpha;
-    data->accum	       = accum;
-    data->stencil      = stencil;
-    data->stereo       = stereo;
-    data->rgba	       = rgba;
-    data->colorBits    = colorBits;
-    data->depthBits    = depthBits;
+    data->depth	       = TRUE;
+    data->rgba	       = TRUE;
+    data->alpha	       = FALSE;
+    data->accum	       = FALSE;
+    data->stencil      = FALSE;
+    data->stereo       = FALSE;
 }
 
 QGLFormat::QGLFormat( const QGLFormat &f )
@@ -110,9 +83,13 @@ QGLFormat::~QGLFormat()
 void QGLFormat::detach()
 {
     if ( data->count != 1 ) {
-	QGLFormat f( data->doubleBuffer, data->alpha, data->accum,
-		     data->stencil, data->stereo, data->rgba,
-		     data->colorBits, data->depthBits );
+	QGLFormat f( data->doubleBuffer );
+	f.data->depth   = data->depth;
+	f.data->rgba    = data->rgba;
+	f.data->alpha   = data->alpha;
+	f.data->accum   = data->accum;
+	f.data->stencil = data->stencil;
+	f.data->stereo  = data->stereo;
 	*this = f;
     }
 }
@@ -150,6 +127,42 @@ void QGLFormat::setDoubleBuffer( bool enable )
     if ( data->doubleBuffer != enable ) {
 	detach();
 	data->doubleBuffer = enable;
+    }
+}
+
+
+/*!
+  \fn bool QGLFormat::depth() const
+  \sa setDepth()
+*/
+
+/*!
+  \sa depth()
+*/
+
+void QGLFormat::setDepth( bool enable )
+{
+    if ( data->depth != enable ) {
+	detach();
+	data->depth = enable;
+    }
+}
+
+
+/*!
+  \fn bool QGLFormat::rgba() const
+  \sa setRgba()
+*/
+
+/*!
+  \sa rgba()
+*/
+
+void QGLFormat::setRgba( bool enable )
+{
+    if ( data->rgba != enable ) {
+	detach();
+	data->rgba = enable;
     }
 }
 
@@ -226,42 +239,6 @@ void QGLFormat::setStereo( bool enable )
 }
 
 
-/*!
-  \fn bool QGLFormat::rgba() const
-  \sa setRgba()
-*/
-
-/*!
-  \sa rgba()
-*/
-
-void QGLFormat::setRgba( bool enable )
-{
-    if ( data->rgba != enable ) {
-	detach();
-	data->rgba = enable;
-    }
-}
-
-
-void QGLFormat::setColorBits( int n )
-{
-    if ( data->colorBits != n ) {
-	detach();
-	data->colorBits = n;
-    }
-}
-
-
-void QGLFormat::setDepthBits( int n )
-{
-    if ( data->depthBits != n ) {
-	detach();
-	data->depthBits = n;
-    }
-}
-
-
 bool QGLFormat::hasOpenGL()
 {
 #if defined(Q_WGL)
@@ -310,12 +287,56 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     : glFormat(format), paintDevice(device)
 {
-    init = FALSE;
+    valid = FALSE;
+    if ( paintDevice == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QGLContext: Paint device cannot be null" );
+#endif
+    }
+    if ( paintDevice->devType() != PDT_WIDGET &&
+	 paintDevice->devType() != PDT_PIXMAP ) {
+#if defined(CHECK_RANGE)
+	warning( "QGLContext: Unsupported paint device type" );
+#endif
+    }
 }
 
 QGLContext::~QGLContext()
 {
-    cleanup();
+    reset();
+}
+
+
+/*!
+  \fn const QGLFormat QGLContext::format() const
+  Returns the format.
+  \sa setFormat()
+*/
+
+/*!
+  Sets a new OpenGL context specification \e format.
+  The context is \link reset() reset\endlink.
+  Call create() to create a new context that matches
+  this format.
+
+  \code
+    QGLContext *cx;
+      ...
+    QGLFormat f;
+    f.setAlpha( TRUE );
+    f.setStereo( TRUE );
+    cx->setFormat( f );
+    if ( !cx->create() )
+	; // could not create context
+  \endcode
+
+  \sa format(), reset(), create()
+*/
+
+void QGLContext::setFormat( const QGLFormat &format )
+{
+    reset();
+    glFormat = format;
 }
 
 
@@ -338,17 +359,10 @@ QGLContext::~QGLContext()
 
 bool QGLContext::create()
 {
-    if ( init )
-	cleanup();
-#if defined(Q_GLX)
-    if ( !chooseVisual() )
-	return FALSE;
-#endif
-    if ( chooseContext() ) {
-	init = TRUE;
-	return TRUE;
-    }
-    return FALSE;
+    if ( valid )
+	reset();
+    valid = chooseContext();
+    return valid;
 }
 
 
@@ -358,55 +372,131 @@ bool QGLContext::create()
 
 #if defined(Q_WGL)
 
+/*!
+  This semi-internal function is called by create(). It creates a
+  system-dependent OpenGL handle that matches the specified \link
+  setFormat() format\endlink.
+
+  <strong>Windows</strong>: Calls choosePixelFormat() which finds a
+  matching pixel format identifier.
+
+  <strong>X11</strong>: Calls chooseVisual() which finds an appropriate
+  X visual.
+
+  choosePixelFormat() and chooseVisual() can be reimplemented in a
+  subclass if you need to choose a very custom context.
+*/
+
 bool QGLContext::chooseContext()
 {
-    PIXELFORMATDESCRIPTOR pfd;
-    memset( &pfd, 0, sizeof(PIXELFORMATDESCRIPTOR) );
-    pfd.nSize	 = sizeof(PIXELFORMATDESCRIPTOR);
-    pfd.nVersion = 1;
-    int f = PFD_SUPPORT_OPENGL;
-    if ( paintDevice->devType() == PDT_WIDGET ) {
-	f |= PFD_DRAW_TO_WINDOW;
-    } else if ( paintDevice->devType() == PDT_PIXMAP ) {
-	f |= PFD_DRAW_TO_BITMAP;
-    } else {
-#if defined(CHECK_RANGE)
-	warning( "QGLContext: Bad paint device type" );
-#endif
-    }
-    if ( glFormat.doubleBuffer() )
-	f |= PFD_DOUBLEBUFFER;
-    pfd.dwFlags = f;
-    pfd.iPixelType = glFormat.rgba() ?
-	PFD_TYPE_RGBA : PFD_TYPE_COLORINDEX;
-    pfd.cColorBits = glFormat.colorBits();
-    pfd.cDepthBits = glFormat.depthBits();
-    pfd.iLayerType = PFD_MAIN_PLANE;
-
-    win = 0;
-    int pixelFormatId;
     if ( paintDevice->devType() == PDT_WIDGET ) {
 	win = ((QWidget *)paintDevice)->winId();
-	dc = GetDC( win );
+	dc  = GetDC( win );
     } else {
-	dc = paintDevice->handle();
+	win = 0;
+	dc  = paintDevice->handle();
     }
-    pixelFormatId = ChoosePixelFormat( dc, &pfd );
-    SetPixelFormat( dc, pixelFormatId, &pfd );
-    rc = wglCreateContext( dc );
+    PIXELFORMATDESCRIPTOR pfd;
+    int pixelFormatId = choosePixelFormat( &pfd );
+    debug( "chose pixel format %d", pixelFormatId );
+    if ( pixelFormatId == 0 ) {
+	rc = 0;
+	dc = 0;
+    } else {
+	if ( !SetPixelFormat( dc, pixelFormatId, &pfd ) ) {
+	    LPVOID lpMsgBuf;
+ 
+FormatMessage( 
+    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+    NULL,
+    GetLastError(),
+    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+    (LPTSTR) &lpMsgBuf,
+    0,
+    NULL 
+);
+
+// Display the string.
+//MessageBox( NULL, lpMsgBuf, "GetLastError", MB_OK|MB_ICONINFORMATION );
+debug( (const char *)lpMsgBuf );
+
+// Free the buffer.
+LocalFree( lpMsgBuf );
+ 
+
+	}
+	rc = wglCreateContext( dc );
+    }
     if ( win ) {
 	ReleaseDC( win, dc );
 	dc = 0;
     }
-    current = FALSE;
     return TRUE;
 }
 
-void QGLContext::cleanup()
+
+/*!
+  <strong>Win32 only</strong>: This virtual function chooses a pixel format
+  that matchesthe OpenGL \link setFormat() format\endlink. Reimplement this
+  function in a subclass if you need a custom context.
+
+  \warning The \e pfd pointer is really a \c PIXELFORMATDESCRIPTOR*.
+  We use \c void to avoid using Windows-specific types in our header files.
+
+  \sa chooseContext()
+*/
+
+int QGLContext::choosePixelFormat( void *pfd )
 {
-    if ( current )
-	doneCurrent();
+    PIXELFORMATDESCRIPTOR *p = (PIXELFORMATDESCRIPTOR *)pfd;
+    memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
+    p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
+    p->nVersion = 1;
+    p->dwFlags  = PFD_SUPPORT_OPENGL;
+    if ( paintDevice->devType() == PDT_WIDGET ) {
+	p->dwFlags |= PFD_DRAW_TO_WINDOW;
+    } else if ( paintDevice->devType() == PDT_PIXMAP ) {
+	p->dwFlags |= PFD_DRAW_TO_BITMAP;
+    }
+    if ( glFormat.doubleBuffer() )
+	p->dwFlags |= PFD_DOUBLEBUFFER;
+    if ( glFormat.stereo() )
+	p->dwFlags |= PFD_STEREO;
+    if ( glFormat.depth() )
+	p->cDepthBits = 16;
+    if ( glFormat.rgba() ) {
+	p->iPixelType = PFD_TYPE_RGBA;
+	p->cColorBits = 24;
+    } else {
+	p->iPixelType = PFD_TYPE_COLORINDEX;
+	p->cColorBits = 8;
+    }
+    if ( glFormat.alpha() )
+	p->cAlphaBits = 8;
+    if ( glFormat.accum() )
+	p->cAccumBits = p->cColorBits + p->cAlphaBits;
+    if ( glFormat.stencil() )
+	p->cStencilBits = 4;
+    p->iLayerType = PFD_MAIN_PLANE;
+    return ChoosePixelFormat( dc, p );
+}
+
+
+/*!
+  Resets the context and makes it invalid.
+  \sa create(), isValid()
+*/
+
+void QGLContext::reset()
+{
+    if ( !valid )
+	return;
+    doneCurrent();
     wglDeleteContext( rc );
+    rc = 0;
+    dc = 0;
+    win = 0;
+    valid = FALSE;
 }
 
 //
@@ -420,42 +510,40 @@ static QGLContext *currentContext = 0;
 void QGLContext::makeCurrent()
 {
     if ( currentContext ) {
-	if ( current )				// already current
+	if ( currentContext == this )		// already current
 	    return;
 	currentContext->doneCurrent();
     }
     dc = paintDevice->handle();
     if ( dc ) {
-	tmpdc = FALSE;
+	tmp_dc = FALSE;
     } else {
-	tmpdc = TRUE;
+	tmp_dc = TRUE;
 	dc = GetDC( win );
     }
     if ( QColor::hPal() ) {
 	HANDLE oldPal = SelectPalette( dc, QColor::hPal(), FALSE );
 	RealizePalette( dc );
     }
-
     wglMakeCurrent( dc, rc );
-    current = TRUE;
     currentContext = this;
 }
 
 void QGLContext::doneCurrent()
 {
-    if ( !current )
+    if ( currentContext != this )
 	return;
     wglMakeCurrent( 0, 0 );
-    if ( tmpdc ) {
+    if ( tmp_dc ) {
 #if defined(DEBUG)
 	ASSERT( win != 0 );
 #endif
 	ReleaseDC( win, dc );
 	dc = 0;
     }
-    current = FALSE;
     currentContext = 0;
 }
+
 
 void QGLContext::swapBuffers()
 {
@@ -481,6 +569,10 @@ bool QGLContext::chooseVisual()
     spec[i++] = 0;
     if ( f.doubleBuffer() )
 	spec[i++] = GLX_DOUBLEBUFFER;
+    if ( f.depth() ) {
+	spec[i++] = GLX_DEPTH_SIZE;
+	spec[i++] = 1;
+    }
     if ( f.rgba() ) {
 	spec[i++] = GLX_RGBA;
 	spec[i++] = GLX_RED_SIZE;
@@ -511,62 +603,63 @@ bool QGLContext::chooseVisual()
 	}
     } else {
 	spec[i++] = GLX_BUFFER_SIZE;
-	spec[i++] = f.colorBits();
+	spec[i++] = 24;
     }
     if ( f.stencil() ) {
 	spec[i++] = GLX_STENCIL_SIZE;
 	spec[i++] = 1;
     }
-    spec[i++] = GLX_DEPTH_SIZE;
-    spec[i++] = f.depthBits();
-    spec[i]   = None;
+    spec[i] = None;
+    return glXChooseVisual( paintDevice->x11Display(),
+			    paintDevice->x11Screen(), spec );
+}
 
-    Display *dpy = qt_xdisplay();
 
-    vi = glXChooseVisual( dpy, DefaultScreen(dpy), spec);
-
+bool QGLContext::chooseContext()
+{
+    vi = chooseVisual();
 #if 0
     if ( vi ) {
 	XVisualInfo *v = (XVisualInfo*)vi;
-	debug( "vi created ok" );
+	debug( "QGLContext: Visual found" );
 	debug( "  visualid .... %x", v->visualid );
 	debug( "  depth ....... %d", v->depth );
 	debug( "  class ....... %d", v->c_class );
 	debug( "  colmap sz ... %d", v->colormap_size );
 	debug( "  bits rgb .... %d", v->bits_per_rgb );
     } else {
-	debug( "couldn't create visual" );
+	debug( "QGLContext: Could not find visual" );
     }
 #endif
-
-    return vi != 0;
-}
-
-
-bool QGLContext::chooseContext()
-{
-    cx = glXCreateContext( qt_xdisplay(), (XVisualInfo *)vi, None, TRUE );
+    if ( vi == 0 )
+	return FALSE;
+    cx = glXCreateContext( paintDevice->x11Display(), (XVisualInfo *)vi,
+			   None, TRUE );
 #if 0
     if ( cx ) {
-	debug( "context created ok" );
+	debug( "QGLContext: Context created" );
     } else {
-	debug( "couldn't create context" );
+	debug( "QGLContext: Could not create context" );
     }
 #endif
     return cx != 0;
 }
 
-void QGLContext::cleanup()
+void QGLContext::reset()
 {
-    if ( cx ) {
-	glXDestroyContext( qt_xdisplay(), (GLXContext)cx );
-	cx = 0;
-    }
+    if ( !valid )
+	return;
+    doneCurrent();
+    glXDestroyContext( paintDevice->x11Display(), (GLXContext)cx );
+    vi = 0;
+    cx = 0;
+    valid = FALSE;
 }
+
 
 void QGLContext::makeCurrent()
 {
-    if ( !cx )
+    if ( !valid )
 	return;
     if ( paintDevice->devType() == PDT_WIDGET ) {
 	glXMakeCurrent( paintDevice->x11Display(),
@@ -579,9 +672,10 @@ void QGLContext::doneCurrent()
 {
 }
 
+
 void QGLContext::swapBuffers()
 {
-    if ( !cx )
+    if ( !valid )
 	return;
     if ( paintDevice->devType() == PDT_WIDGET ) {
 	glXSwapBuffers( paintDevice->x11Display(),
@@ -607,9 +701,11 @@ void QGLContext::swapBuffers()
 */
 
 QGLWidget::QGLWidget( QWidget *parent, const char *name )
-    : QWidget(parent, name), glContext(QGLFormat::defaultFormat(), this)
+    : QWidget(parent, name)
 {
-    qglInit();
+    setBackgroundColor( black );
+    glcx = 0;
+    setContext( new QGLContext(QGLFormat::defaultFormat(),this) );
 }
 
 
@@ -621,19 +717,42 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name )
 
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      const char *name )
-    : QWidget(parent, name), glContext(format,this)
+    : QWidget(parent, name)
 {
-    qglInit();
+    setBackgroundColor( black );
+    glcx = 0;
+    setContext( new QGLContext(format,this) );
 }
 
 
-void QGLWidget::qglInit()
+void QGLWidget::setContext( QGLContext *context )
 {
-    setBackgroundColor( black );
-    if ( !glContext.create() )
-	return;
+    if ( context == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QGLWidget::setContext: Cannot set null context" );
+#endif
+    }
+    if ( context->device() != this ) {
+#if defined(CHECK_STATE)
+	warning( "QGLWidget::setContext: Context must refer this widget" );
+#endif
+    }
+    delete glcx;
+    glcx = context;
+    if ( !glcx->isValid() ) {
+	if ( !glcx->create() )
+	    return;
+    }
 #if defined(Q_GLX)
-    XVisualInfo *vi = (XVisualInfo*)glContext.vi;
+    bool visible = isVisible();
+    if ( visible )
+        hide();
+    XVisualInfo *vi = (XVisualInfo*)glcx->vi;
+    /*
+      Here we can optimize:
+	1) Create one colormap for each visual.
+	2) Recreate window only if necessary.
+    */
     Colormap cmap;
     cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen),
 			    vi->visual, AllocNone );
@@ -648,7 +767,16 @@ void QGLWidget::qglInit()
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
     create( w );
+    if ( visible )
+	show();
 #endif
+}
+
+
+void QGLWidget::setFormat( const QGLFormat &format )
+{
+    glcx->setFormat( format );
+    glcx->create();
 }
 
 
@@ -685,13 +813,13 @@ void QGLWidget::resizeGL( int, int )
 
 void QGLWidget::paintEvent( QPaintEvent * )
 {
-    glContext.makeCurrent();
+    glcx->makeCurrent();
     paintGL();
-    if ( glContext.format().doubleBuffer() )
-	glContext.swapBuffers();
+    if ( glcx->format().doubleBuffer() )
+	glcx->swapBuffers();
     else
 	glFlush();
-    glContext.doneCurrent();
+    glcx->doneCurrent();
 
 }
 
@@ -701,9 +829,9 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 void QGLWidget::resizeEvent( QResizeEvent * )
 {
-    glContext.makeCurrent();
+    glcx->makeCurrent();
     resizeGL( width(), height() );
-    glContext.doneCurrent();
+    glcx->doneCurrent();
 }
 
 
