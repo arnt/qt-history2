@@ -315,6 +315,7 @@ bool QTableItem::wordWrap() const
 }
 
 /*!\internal
+  You should never need to call this yourself.
  */
 
 void QTableItem::updateEditor( int oldRow, int oldCol )
@@ -788,9 +789,9 @@ void QTable::swapRows( int row1, int row2 )
 	    contents.remove( indexOf( row2, i ) );
 	    contents.insert( indexOf( row2, i ), tmpContents[ i ] );
 	    if ( contents[ indexOf( row1, i ) ] )
-		contents[ indexOf( row1, i ) ]->rw = row1;
+		contents[ indexOf( row1, i ) ]->setRow( row1 );
 	    if ( contents[ indexOf( row2, i ) ] )
-		contents[ indexOf( row2, i ) ]->rw = row2;
+		contents[ indexOf( row2, i ) ]->setRow( row2 );
 	}
 	
 	QWidget *w1, *w2;
@@ -845,9 +846,9 @@ void QTable::swapColumns( int col1, int col2 )
 	    contents.remove( indexOf( i, col2 ) );
 	    contents.insert( indexOf( i, col2 ), tmpContents[ i ] );
 	    if ( contents[ indexOf( i, col1 ) ] )
-		contents[ indexOf( i, col1 ) ]->cl = col1;
+		contents[ indexOf( i, col1 ) ]->setCol( col1 );
 	    if ( contents[ indexOf( i, col2 ) ] )
-		contents[ indexOf( i, col2 ) ]->cl = col2;
+		contents[ indexOf( i, col2 ) ]->setCol( col2 );
 	}
 	
 	QWidget *w1, *w2;
@@ -894,12 +895,12 @@ void QTable::swapCells( int row1, int col1, int row2, int col2 )
 	contents.remove( indexOf( row2, col2 ) );
 	contents.insert( indexOf( row2, col2 ), tmp );
 	if ( contents[ indexOf( row1, col1 ) ] ) {
-	    contents[ indexOf( row1, col1 ) ]->rw = row1;
-	    contents[ indexOf( row1, col1 ) ]->cl = col1;
+	    contents[ indexOf( row1, col1 ) ]->setRow( row1 );
+	    contents[ indexOf( row1, col1 ) ]->setCol( col1 );
 	}
 	if ( contents[ indexOf( row2, col2 ) ] ) {
-	    contents[ indexOf( row2, col2 ) ]->rw = row2;
-	    contents[ indexOf( row2, col2 ) ]->cl = col2;
+	    contents[ indexOf( row2, col2 ) ]->setRow( row2 );
+	    contents[ indexOf( row2, col2 ) ]->setCol( col2 );
 	}
     }
 	
@@ -967,20 +968,20 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    QTableItem *itm = item( r, c );
 	    if ( itm &&
 		 ( itm->colSpan() > 1 || itm->rowSpan() > 1 ) ) {
-		bool goon = r == itm->rw && c == itm->cl ||
-			r == rowfirst && c == itm->cl ||
-			r == itm->rw && c == colfirst;
+		bool goon = r == itm->row() && c == itm->col() ||
+			r == rowfirst && c == itm->col() ||
+			r == itm->row() && c == colfirst;
 		if ( !goon )
 		    continue;
-		rowp = rowPos( itm->rw );
+		rowp = rowPos( itm->row() );
 		rowh = 0;
 		int i;
 		for ( i = 0; i < itm->rowSpan(); ++i )
-		    rowh += rowHeight( i + itm->rw );
-		colp = columnPos( itm->cl );
+		    rowh += rowHeight( i + itm->row() );
+		colp = columnPos( itm->col() );
 		colw = 0;
 		for ( i = 0; i < itm->colSpan(); ++i )
-		    colw += columnWidth( i + itm->cl );
+		    colw += columnWidth( i + itm->col() );
 	    }
 	
 	    // Translate painter and draw the cell
@@ -1006,7 +1007,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	QTableItem *i = item( curRow, curCol );
 	focusEdited = ( i &&
 			( i->editType() == QTableItem::Always ||
-			  ( i->editType() == QTableItem::OnCurrent && curRow == i->rw && curCol == i->cl ) ) );
+			  ( i->editType() == QTableItem::OnCurrent && curRow == i->row() && curCol == i->col() ) ) );
     }
     p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
     if ( !focusEdited ) {
@@ -1119,13 +1120,13 @@ void QTable::setItem( int row, int col, QTableItem *item )
     if ( (int)contents.size() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
 
-    int or = item->rw;
-    int oc = item->cl;
+    int or = item->row();
+    int oc = item->col();
     clearCell( row, col );
 
     contents.insert( indexOf( row, col ), item );
-    item->rw = row;
-    item->cl = col;
+    item->setRow( row );
+    item->setCol( col );
     updateCell( row, col );
     item->updateEditor( or, oc );
 }
@@ -1204,17 +1205,17 @@ void QTable::setCurrentCell( int row, int col )
 {
     QTableItem *itm = item( row, col );
     QTableItem *oldIitem = item( curRow, curCol );
-    if ( itm && itm->rowSpan() > 1 && oldIitem == itm && itm->rw != row ) {
+    if ( itm && itm->rowSpan() > 1 && oldIitem == itm && itm->row() != row ) {
 	if ( row > curRow )
-	    row = itm->rw + itm->rowSpan();
+	    row = itm->row() + itm->rowSpan();
 	else if ( row < curRow )
-	    row = QMAX( 0, itm->rw - 1 );
+	    row = QMAX( 0, itm->row() - 1 );
     }
-    if ( itm && itm->colSpan() > 1 && oldIitem == itm && itm->cl != col ) {
+    if ( itm && itm->colSpan() > 1 && oldIitem == itm && itm->col() != col ) {
 	if ( col > curCol )
-	    col = itm->cl + itm->colSpan();
+	    col = itm->col() + itm->colSpan();
 	else if ( col < curCol )
-	    col = QMAX( 0, itm->cl - 1 );
+	    col = QMAX( 0, itm->col() - 1 );
     }
     if ( curRow != row || curCol != col ) {
 	itm = oldIitem;
@@ -1247,8 +1248,8 @@ void QTable::setCurrentCell( int row, int col )
 		editCol = col;
 	    }
 	} else if ( itm && itm->editType() == QTableItem::Always ) {
-	    if ( cellWidget( itm->rw, itm->cl ) )
-		cellWidget( itm->rw, itm->cl )->setFocus();
+	    if ( cellWidget( itm->row(), itm->col() ) )
+		cellWidget( itm->row(), itm->col() )->setFocus();
 	}
     }
 }
@@ -1367,12 +1368,12 @@ int QTable::numSelections() const
 if \a num is out of range (see QTableSelection::isNull())
 */
 
-QTableSelection QTable::selection( int num )
+QTableSelection QTable::selection( int num ) const
 {
     if ( num < 0 || num >= (int)selections.count() )
 	return QTableSelection();
 
-    QTableSelection *s = selections.at( num );
+    QTableSelection *s = ( (QTable*)this )->selections.at( num );
     return *s;
 }
 
@@ -2003,9 +2004,9 @@ QRect QTable::cellGeometry( int row, int col ) const
 	return QRect( columnPos( col ), rowPos( row ),
 		      columnWidth( col ), rowHeight( row ) );
 
-    while ( row != itm->rw )
+    while ( row != itm->row() )
 	row--;
-    while ( col != itm->cl )
+    while ( col != itm->col() )
 	col--;
 
     QRect rect( columnPos( col ), rowPos( row ),
@@ -2166,7 +2167,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 QWidget *QTable::beginEdit( int row, int col, bool replace )
 {
     QTableItem *itm = item( row, col );
-    if ( itm && cellWidget( itm->rw, itm->cl ) )
+    if ( itm && cellWidget( itm->row(), itm->col() ) )
 	return 0;
     ensureCellVisible( curRow, curCol );
     QWidget *e = createEditor( row, col, !replace );
@@ -2526,19 +2527,19 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
     for ( i = 0; i < numRows(); ++i ) {
 	if ( i < filledRows ) {
 	    if ( ascending ) {
-		if ( items[ i ].item->rw == i )
+		if ( items[ i ].item->row() == i )
 		    continue;
 		if ( wholeRows )
-		    swapRows( items[ i ].item->rw, i );
+		    swapRows( items[ i ].item->row(), i );
 		else
-		    swapCells( items[ i ].item->rw, col, i, col );
+		    swapCells( items[ i ].item->row(), col, i, col );
 	    } else {
-		if ( items[ i ].item->rw == filledRows - i - 1 )
+		if ( items[ i ].item->row() == filledRows - i - 1 )
 		    continue;
 		if ( wholeRows )
-		    swapRows( items[ i ].item->rw, filledRows - i - 1 );
+		    swapRows( items[ i ].item->row(), filledRows - i - 1 );
 		else
-		    swapCells( items[ i ].item->rw, col, filledRows - i - 1, col );
+		    swapCells( items[ i ].item->row(), col, filledRows - i - 1, col );
 	    }
 	}
     }
@@ -2697,19 +2698,20 @@ bool QTable::isRowStretchable( int row ) const
 
 void QTable::takeItem( QTableItem *i )
 {
-    QRect rect = cellGeometry( i->rw, i->cl );
+    QRect rect = cellGeometry( i->row(), i->col() );
     if ( !i )
 	return;
     contents.setAutoDelete( FALSE );
     for ( int r = 0; r < i->rowSpan(); ++r ) {
 	for ( int c = 0; c < i->colSpan(); ++c )
-	    clearCell( i->rw + r, i->cl + c );
+	    clearCell( i->row() + r, i->col() + c );
     }
     contents.setAutoDelete( TRUE );
     repaintContents( rect, FALSE );
-    int or = i->rw;
-    int oc = i->cl;
-    i->rw = i->cl = -1;
+    int or = i->row();
+    int oc = i->col();
+    i->setRow( -1 );
+    i->setCol( -1 );
     i->updateEditor( or, oc );
 }
 

@@ -68,8 +68,6 @@ private:
 
 class QTableItem : public Qt
 {
-    friend class QTable;
-
 public:
     enum EditType { Never, OnCurrent, OnActivate, Always };
 
@@ -105,12 +103,11 @@ public:
     int row() const;
     int col() const;
 
-protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
 
-private:
     void updateEditor( int oldRow, int oldCol );
 
+private:
     QString txt;
     QPixmap pix;
     QTable *t;
@@ -131,7 +128,6 @@ class QTable : public QScrollView
     Q_PROPERTY( bool rowMovingEnabled READ rowMovingEnabled WRITE setRowMovingEnabled )
     Q_PROPERTY( bool columnMovingEnabled READ columnMovingEnabled WRITE setColumnMovingEnabled )
 
-    friend class QTableItem;
     friend class QTableHeader;
 
 public:
@@ -177,7 +173,7 @@ public:
     bool isColumnSelected( int col, bool full = FALSE ) const;
     void clearSelection();
     int numSelections() const;
-    QTableSelection selection( int num );
+    QTableSelection selection( int num ) const;
     virtual int addSelection( const QTableSelection &s );
     virtual void removeSelection( const QTableSelection &s );
     virtual void removeSelection( int num );
