@@ -25,8 +25,17 @@
 
 QList<MainWindow*> *MainWindow::windows = 0;
 
+#if defined(Q_WS_WIN)
+Q_EXPORT int qt_ntfs_permission_lookup;
+#endif
+
 void MainWindow::init()
 {
+#if defined(Q_WS_WIN)
+    // Workaround for QMimeSourceFactory failing in QFileInfo::isReadable() for
+    // certain user configs. See task: 34372
+    qt_ntfs_permission_lookup = 0;
+#endif
     setupCompleted = FALSE;
 
     goActions = new QList<QAction*>;
