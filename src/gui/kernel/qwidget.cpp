@@ -4076,9 +4076,9 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
                 continue;
 #endif
             if (!w->isHidden()
-                 && !w->isDesktop()
-                 && !w->isPopup()
-                 && (!w->isDialog() || !w->parentWidget()))
+                && !w->isDesktop()
+                && !w->isPopup()
+                && (!(w->isDialog() || w->testWFlags(Qt::WStyle_Tool)) || !w->parentWidget()))
                 widget = w;
         }
         if (widget == 0)
