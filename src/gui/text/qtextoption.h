@@ -30,7 +30,7 @@ public:
     QTextOption &operator=(const QTextOption &o);
 
     inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
-    inline Qt::Alignment alignment() const { Qt::Alignment(align); }
+    inline Qt::Alignment alignment() const { return Qt::Alignment(align); }
 
     enum WrapMode {
         WordWrap,
