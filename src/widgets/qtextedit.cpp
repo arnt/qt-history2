@@ -5822,18 +5822,32 @@ bool QTextEdit::checkOptimMode()
 /*! \internal */
 QString QTextEdit::optimText() const
 {
-    QString str;
+    QString str, tmp;
 
     if ( d->od->len == 0 )
 	return str;
 
     // concatenate all strings
     int i;
+    int offset;
+    QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
+    QTextEditOptimPrivate::Tag * ftag = 0;
     for ( i = 0; i < d->od->numLines; i++ ) {
-	if ( d->od->lines[ i ].isEmpty() ) // CR lines are empty
+	if ( d->od->lines[ i ].isEmpty() ) { // CR lines are empty
 	    str += "\n";
-	else
-	    str += d->od->lines[ i ] + "\n";
+	} else {
+	    tmp = d->od->lines[ i ] + "\n";
+	    // inject the tags for this line
+	    if ( (it = d->od->tagIndex.find( i )) != d->od->tagIndex.end() )
+		ftag = it.data();
+	    offset = 0;
+	    while ( ftag && ftag->line == i ) {
+		tmp.insert( ftag->index + offset, "<" + ftag->tag + ">" );
+		offset += ftag->tag.length() + 2; // 2 -> the '<' and '>' chars
+		ftag = ftag->next;
+	    }
+	    str += tmp;
+	}
     }
     return str;
 }
@@ -6003,7 +6017,7 @@ void QTextEdit::optimParseTags( QString * line )
 		    cur = tag->prev;
 		    if ( !cur ) {
 #ifdef QT_CHECK_RANGE
-			qWarning( "QTextEdit::optimParseTags(): no left-tag for '<" + tag->tag + ">' in line %d.", tag->line + 1 );
+			qWarning( "QTextEdit::optimParseTags: no left-tag for '<" + tag->tag + ">' in line %d.", tag->line + 1 );
 #endif
 			return; // something is wrong - give up
 		    }
@@ -6026,7 +6040,7 @@ void QTextEdit::optimParseTags( QString * line )
 				    break;
 				} else if ( !cur->leftTag ) {
 #ifdef QT_CHECK_RANGE
-				    qWarning( "QTextEdit::optimParseTags(): mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
+				    qWarning( "QTextEdit::optimParseTags: mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
 #endif
 				    return; // something is amiss - give up
 				}
