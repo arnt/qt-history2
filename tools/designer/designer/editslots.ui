@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>506</width>
-            <height>353</height>
+            <width>502</width>
+            <height>351</height>
         </rect>
     </property>
     <property name="caption">
@@ -262,7 +262,7 @@
                 </property>
                 <widget class="QLabel">
                     <property name="name">
-                        <cstring>Label8_2</cstring>
+                        <cstring>labelType</cstring>
                     </property>
                     <property name="text">
                         <string>&amp;Return Type:</string>
@@ -419,15 +419,15 @@
         <receiver>EditSlotsBase</receiver>
         <slot>currentTypeChanged(const QString&amp;)</slot>
     </connection>
-    <slot access="protected" language="C++">currentAccessChanged(const QString &amp;)</slot>
-    <slot access="protected" language="C++">currentItemChanged(QListViewItem*)</slot>
-    <slot access="protected" language="C++">currentTextChanged(const QString &amp;)</slot>
-    <slot access="protected" language="C++">currentTypeChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++">destroy()</slot>
-    <slot access="protected" language="C++">okClicked()</slot>
-    <slot access="protected" language="C++">slotAdd()</slot>
-    <slot access="protected" language="C++">slotRemove()</slot>
-    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">currentAccessChanged(const QString &amp;)</slot>
+    <slot access="protected" language="C++" returnType="void">currentItemChanged(QListViewItem*)</slot>
+    <slot access="protected" language="C++" returnType="void">currentTextChanged(const QString &amp;)</slot>
+    <slot access="protected" language="C++" returnType="void">currentTypeChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">slotAdd()</slot>
+    <slot access="protected" language="C++" returnType="void">slotRemove()</slot>
 </connections>
 <tabstops>
     <tabstop>slotListView</tabstop>

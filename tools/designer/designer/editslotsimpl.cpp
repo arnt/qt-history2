@@ -39,8 +39,11 @@ EditSlots::EditSlots( QWidget *parent, FormWindow *fw )
     : EditSlotsBase( parent, 0, TRUE ), formWindow( fw )
 {
     LanguageInterface *iface = MetaDataBase::languageInterface( fw->project()->language() );
-    if ( iface && !iface->supports( LanguageInterface::ReturnType ) )
+    if ( iface && !iface->supports( LanguageInterface::ReturnType ) ) {
 	slotListView->removeColumn( 3 );
+	editType->hide();
+	labelType->hide();
+    }
 
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( fw );
