@@ -28,6 +28,7 @@
 #include "qtooltip.h"
 #include "qmainwindow.h"
 #include "qtoolbar.h"
+#include "qvariant.h"
 
 #include "private/qabstractbutton_p.h"
 
@@ -182,21 +183,26 @@ void QToolButtonPrivate::init(bool doMainWindowConnections)
     q->setAttribute(Qt::WA_BackgroundInherited);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-    if (!doMainWindowConnections)
-        return;
-#ifndef QT_NO_TOOLBAR
-    if (QToolBar* tb = qt_cast<QToolBar*>(q->parentWidget())) {
-        autoRaise = true;
-        if (tb->mainWindow()) {
-            QObject::connect(tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
-                    q, SLOT(setUsesBigPixmap(bool)));
-            // usesBigPixmap = tb->mainWindow()->usesBigPixmaps();
-            QObject::connect(tb->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
-                    q, SLOT(setUsesTextLabel(bool)));
-            // usesTextLabel = tb->mainWindow()->usesTextLabel();
+    if (doMainWindowConnections) {
+        // ### do this for the new QToolBar and QMainWindow
+        if (q->parentWidget()->inherits("Q3ToolBar")) {
+            autoRaise = true;
+            QWidget *mw = 0, *w = q->parentWidget();
+            while (!mw && w) {
+                if (w->inherits("Q3MainWindow"))
+                    mw = w;
+                w = w->parentWidget();
+            }
+            if (mw) {
+                QObject::connect(mw, SIGNAL(pixmapSizeChanged(bool)),
+                                 q, SLOT(setUsesBigPixmap(bool)));
+                usesBigPixmap = mw->property("usesBigPixmaps").toBool();
+                QObject::connect(mw, SIGNAL(usesTextLabelChanged(bool)),
+                                 q, SLOT(setUsesTextLabel(bool)));
+                usesTextLabel = mw->property("usesTextLabel").toBool();
+            }
         }
     }
-#endif
     QObject::connect(q, SIGNAL(pressed()), q, SLOT(popupPressed()));
 }
 
