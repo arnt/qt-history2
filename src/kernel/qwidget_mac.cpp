@@ -672,7 +672,7 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    if(!isVisible() || !isTopLevel() || isPopup())
+    if(!isVisible() || !isTopLevel() || isPopup() || testWFlags( WStyle_Tool ))
 	return;
     SelectWindow( (WindowPtr)hd );
     qApp->setActiveWindow(this);
