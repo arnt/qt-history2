@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#10 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#11 $
 **
 ** Definition of QDragObject
 **
@@ -11,11 +11,13 @@
 #define QDRAGOBJECT_H
 
 struct QDragData;
+struct QStoredDragData;
 class QWidget;
 
 #ifndef QT_H
 #include "qobject.h"
 #include "qimage.h"
+#include "qstrlist.h"
 #endif // QT_H
 
 
@@ -27,20 +29,12 @@ public:
 
     virtual void setAutoDelete( bool );
     bool autoDelete() const;
-    // ##### remove
 
     virtual void startDrag();
 
-    virtual void setFormat( const char * mimeType );
-    const char * format() const;
-    // ##### virtual const char * format(int) const;
-
-    void setEncodedData( QByteArray & );
-    // ##### remove
-    virtual QByteArray encodedData() const;
-
-    virtual void encode();
-    // ##### remove
+    virtual bool provides(const char*) const;
+    virtual const char * format(int) const=0;
+    virtual QByteArray encodedData(const char*) const=0;
 
     QWidget * source();
 
@@ -49,30 +43,24 @@ public:
 
 private:
     QDragData * d;
-    // ##### QDragObject* alt;
 };
 
-/*
 class QStoredDragObject: public QDragObject {
     Q_OBJECT
-    QDragData * d;
+    QStoredDragData * d;
 
 public:
     QStoredDragObject( QWidget * dragSource = 0, const char * name = 0 );
     ~QStoredDragObject();
 
-    virtual void addFormat( const char * mimeType );
+    virtual void setFormat( const char * mimeType );
     const char * format(int i) const;
 
     void setEncodedData( QByteArray & );
-    virtual QByteArray encodedData() const;
-
-private:
-    QDragData * d;
+    virtual QByteArray encodedData(const char*) const;
 };
-*/
 
-class QTextDragObject: public QDragObject { //#### QStoredDragObject
+class QTextDragObject: public QStoredDragObject {
     Q_OBJECT
 public:
     QTextDragObject( const char *,
@@ -87,7 +75,7 @@ public:
 class QImageDragObject: public QDragObject {
     Q_OBJECT
     QImage img;
-    bool dirty;
+    QStrList ofmts;
 
 public:
     QImageDragObject( QImage image,
@@ -95,9 +83,10 @@ public:
     QImageDragObject( QWidget * parent = 0, const char * name = 0 );
     ~QImageDragObject();
 
-    // ##### const char * format(int i) const;
-    virtual QByteArray encodedData() const;
     void setImage( QImage image );
+
+    const char * format(int i) const;
+    virtual QByteArray encodedData(const char*) const;
 };
 
 

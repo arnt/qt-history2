@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#27 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -504,7 +504,12 @@ void QDragManager::move( const QPoint & globalPos )
 	if ( qt_xdnd_current_target )
 	    qt_xdnd_send_leave();
 
-	Atom * primaryType = qt_xdnd_atom_numbers->find( object->format() );
+	Atom * type[3]={0,0,0};
+	const char* fmt;
+	int nfmt=0;
+	for (nfmt=0; nfmt<3 && (fmt=object->format(nfmt)); nfmt++) {
+	    type[nfmt] = qt_xdnd_atom_numbers->find( fmt );
+	}
 	XClientMessageEvent enter;
 	enter.type = ClientMessage;
 	enter.window = target;
@@ -512,9 +517,9 @@ void QDragManager::move( const QPoint & globalPos )
 	enter.message_type = qt_xdnd_enter;
 	enter.data.l[0] = object->source()->winId();
 	enter.data.l[1] = 1 << 24; // flags
-	enter.data.l[2] = primaryType ? *primaryType : 0; // ###
-	enter.data.l[3] = 0;
-	enter.data.l[4] = 0;
+	enter.data.l[2] = type[0] ? *type[0] : 0; // ###
+	enter.data.l[3] = type[1] ? *type[1] : 0;
+	enter.data.l[4] = type[2] ? *type[2] : 0;
 
 	qt_xdnd_current_target = target;
 	// provisionally set the rectangle to 5x5 pixels...
@@ -657,14 +662,15 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 	evt.xselection.property = None;
 	evt.xselection.time = req->time;
 	QDragObject * o = qt_xdnd_source_object;
-	while( o && *format != o->format() )
+	while( o && !o->provides(*format) )
 	    o = o->alternative();
 	if ( o ) {
+	    QByteArray a = o->encodedData(*format);
 	    XChangeProperty ( qt_xdisplay(), req->requestor, req->property,
 			      req->target, 8,
 			      PropModeReplace,
-			      (unsigned char *)(o->encodedData().data()),
-			      o->encodedData().size() );
+			      (unsigned char *)a.data(),
+			      a.size() );
 	}
 	// ### this can die if req->requestor crashes at the wrong
 	// ### moment
@@ -688,8 +694,8 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	 QWidget::find( qt_xdnd_dragsource_xid ) ) {
 	QDragObject * o = qt_xdnd_source_object;
 	while( o && result.isNull() ) {
-	    if ( !qstrcmp( o->format(), format ) )
-		result = o->encodedData();
+	    if ( o->provides( format ) )
+		result = o->encodedData(format);
 	    o = o->alternative();
 	}
 	return result;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#23 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -23,11 +23,15 @@
 
 struct QDragData {
     QDragData(): autoDelete( TRUE ), next( 0 ) {}
-
-    QString fmt;
-    QByteArray enc;
     bool autoDelete;
     QDragObject * next;
+};
+
+
+struct QStoredDragData {
+    QStoredDragData() {}
+    QString fmt;
+    QByteArray enc;
 };
 
 
@@ -69,6 +73,8 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
     d = new QDragData();
+    if ( !manager && qApp )
+	(void)new QDragManager();
 }
 
 
@@ -98,40 +104,17 @@ void QDragObject::startDrag()
 }
 
 
-/*!  Sets the encoded data of this drag object to \a encodedData.  The
-  encoded data is what's delivered to the drop sites, and must be in a
-  strictly defined and portable format.
-
-  Every subclass must call this function, normally in a higher-level
-  function such as QTextDragObject::setText(), or in a
-  reimplementation of encodedData() in case the class wants lazy
-  evaluation of the data.
-
-  The drag object can't be dropped (by the user) until this function
-  has been called.
-*/
-
-void QDragObject::setEncodedData( QByteArray & encodedData )
-{
-    d->enc = encodedData;
-    d->enc.detach();
-    if ( !manager && qApp )
-	(void)new QDragManager();
-}
 
 
-/*!  Returns the encoded payload of this object.  The drag manager
+/*!
+  \fn QByteArray QDragObject::encodedData(const char*) const
+
+  Returns the encoded payload of this object.  The drag manager
   calls this when the recipient needs to see the content of the drag;
   this generally doesn't happen until the actual drop.
 
-  The default returns whatever was set using setEncodedData().
+  Subclasses must override this function.
 */
-
-QByteArray QDragObject::encodedData() const
-{
-    return d->enc;
-}
-
 
 /*!  Sets this object to be deleted automatically when Qt no longer
   needs it if \a enable is TRUE, and to not be deleted by Qt if \a
@@ -154,35 +137,29 @@ bool QDragObject::autoDelete() const
 }
 
 
+
 /*!
-
+  Returns TRUE if the drag object can provide the data
+  in format \a mimeType.  The default implementation
+  iterates over format().
 */
-
-void QDragObject::setFormat( const char * mimeType )
+bool QDragObject::provides(const char* mimeType) const
 {
-    d->fmt = mimeType;
-    d->fmt.detach();
+    const char* fmt;
+    for (int i=0; (fmt = format(i)); i++) {
+	if ( !qstricmp(mimeType,fmt) )
+	    return TRUE;
+    }
+    return FALSE;
 }
 
 
 /*!
+  \fn const char * QDragObject::format(int i) const
 
+  Returns the \e ith format, or NULL.
 */
 
-const char * QDragObject::format() const
-{
-    return d->fmt;
-}
-
-
-/*!
-
-*/
-
-void QDragObject::encode()
-{
-    // nothing
-}
 
 /*!  Returns a pointer to the drag source where this object originated.
 */
@@ -241,7 +218,7 @@ QDragObject * QDragObject::alternative() const
 
 QTextDragObject::QTextDragObject( const char * text,
 				  QWidget * parent, const char * name )
-    : QDragObject( parent, name )
+    : QStoredDragObject( parent, name )
 {
     setFormat( "text/plain" );
     setText( text );
@@ -253,7 +230,7 @@ QTextDragObject::QTextDragObject( const char * text,
 */
 
 QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
-    : QDragObject( parent, name )
+    : QStoredDragObject( parent, name )
 {
     setFormat( "text/plain" );
 }
@@ -300,7 +277,6 @@ QImageDragObject::QImageDragObject( QImage image,
 				  QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
-    setFormat( "image/ppm" );
     setImage( image );
 }
 
@@ -311,8 +287,6 @@ QImageDragObject::QImageDragObject( QImage image,
 QImageDragObject::QImageDragObject( QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
-    setFormat( "image/ppm" );
-    dirty = FALSE;
 }
 
 
@@ -333,29 +307,114 @@ void QImageDragObject::setImage( QImage image )
 {
     img = image;
     // ### should detach?
-
-    // Hack to make it work.
-    QByteArray a(1);
-    setEncodedData( a );
-
-    dirty = TRUE;
+    ofmts = QImage::outputFormats();
+    ofmts.remove("PBM");
+    if ( image.depth()!=32 ) {
+	// BMP better than PPM for paletted images
+	if ( ofmts.remove("BMP") ) // move to front
+	    ofmts.insert(0,"BMP");
+    }
+    // Could do more magic to order mime types
 }
 
-QByteArray QImageDragObject::encodedData() const
+const char * QImageDragObject::format(int i) const
 {
-    if ( dirty ) {
-	QImageDragObject* that = (QImageDragObject*)this;
-	const char* f = "PPM";
+    if ( i < (int)ofmts.count() ) {
+	static QString str;
+	str.sprintf("image/%s",(((QImageDragObject*)this)->ofmts).at(i));
+	str = str.lower();
+	if ( str == "image/pbmraw" )
+	    str = "image/ppm";
+	return str;
+    } else {
+	return 0;
+    }
+}
+
+QByteArray QImageDragObject::encodedData(const char* fmt) const
+{
+    if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
+	QString f = fmt+6;
 	QByteArray data;
 	QBuffer w( data );
 	w.open( IO_WriteOnly );
-	QImageIO io( &w, f );
+	QImageIO io( &w, f.upper() );
 	io.setImage( img );
-	if  ( io.write() ) {
-	    w.close();
-	    that->setEncodedData( data );
-	}
-	that->dirty = FALSE;
+	if  ( !io.write() )
+	    return QByteArray();
+	w.close();
+	return data;
+    } else {
+	return QByteArray();
     }
-    return QDragObject::encodedData();
 }
+
+
+/*!
+  \class QStoredDragObject qdragobject.h
+  \brief Simple store-value drag object for arbitrary MIME data.
+
+  When a block of data only has one representation, you can use
+  a QStoredDragObject to hold it.
+*/
+QStoredDragObject::QStoredDragObject( QWidget * dragSource, const char * name ) :
+    QDragObject(dragSource,name)
+{
+    d = new QStoredDragData();
+}
+
+/*!
+  Destroys the drag object and frees all allocated resources.
+*/
+QStoredDragObject::~QStoredDragObject()
+{
+    delete d;
+}
+
+void QStoredDragObject::setFormat( const char * mimeType )
+{
+    d->fmt = mimeType;
+}
+
+const char * QStoredDragObject::format(int i) const
+{
+    if ( i==0 )
+	return d->fmt;
+    else
+	return 0;
+}
+
+
+/*!  Sets the encoded data of this drag object to \a encodedData.  The
+  encoded data is what's delivered to the drop sites, and must be in a
+  strictly defined and portable format.
+
+  Every subclass must call this function, normally in a higher-level
+  function such as QTextDragObject::setText(), or in a
+  reimplementation of encodedData() in case the class wants lazy
+  evaluation of the data.
+
+  The drag object can't be dropped (by the user) until this function
+  has been called.
+*/
+
+void QStoredDragObject::setEncodedData( QByteArray & encodedData )
+{
+    d->enc = encodedData;
+    d->enc.detach();
+}
+
+/*!
+  Returns the stored data.
+
+  \sa setEncodedData()
+*/
+QByteArray QStoredDragObject::encodedData(const char* m) const
+{
+    if ( m == d->fmt )
+	return d->enc;
+    else
+	return QByteArray();
+}
+
+
