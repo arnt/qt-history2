@@ -59,20 +59,15 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
     }
 
 #else
-    // Fall back to the reentrant GNU extension gethostbyname_r for
-    // platforms that don't define getaddrinfo. gethostbyname_r does
-    // not support IPv6.
-    char auxbuf[512];
-    hostent ent;
-    hostent *result;
-    int err;
-#if defined (Q_OS_TRU64)
-    if ((result = gethostbyname(hostName.latin1())) != 0) {
-#else
-    if (gethostbyname_r(hostName.latin1(), &ent, auxbuf, sizeof(auxbuf), &result, &err) == 0) {
-#endif
-        if (ent.h_addrtype == AF_INET) {
-            for (char **p = ent.h_addr_list; *p != 0; p++) {
+    // Fall back to gethostbyname for platforms that don't define
+    // getaddrinfo. gethostbyname does not support IPv6, and it's not
+    // reentrant on all platforms. For now this is okay since we only
+    // use one QDnsAgent, but if more agents are introduced, locking
+    // must be provided.
+    hostent *result = gethostbyname(hostName.latin1());
+    if (result) {
+        if (result->h_addrtype == AF_INET) {
+            for (char **p = result->h_addr_list; *p != 0; p++) {
                 QHostAddress addr(ntohl(*((long *)*p)));
                 if (!results.d->addrs.contains(addr))
                     results.d->addrs.prepend(addr);
@@ -88,11 +83,6 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
         results.d->err = QDnsHostInfo::UnknownError;
         results.d->errorStr = QString::fromLocal8Bit(hstrerror(h_errno));
     }
-
-#if defined (Q_OS_TRU64)
-    endhostent();
-#endif
-
 #endif //  !defined (QT_NO_GETADDRINFO)
 
 #if defined(QDNS_DEBUG)
