@@ -33,15 +33,6 @@ public:
     inline QPointer<T> &operator=(T* p)
         { if (o != p) QMetaObject::changeGuard(&o, p); return *this; }
 
-    inline bool operator==(const QPointer<T> &p) const
-        { return o == p.o; }
-    inline bool operator==(const T *p) const
-        { return o == static_cast<const QObject*>(p); }
-    inline bool operator!= (const QPointer<T> &p) const
-        { return o != p.o; }
-    inline bool operator!= (const T *p) const
-        { return o != static_cast<const QObject*>(p); }
-
     inline bool isNull() const
         { return !o; }
 
@@ -56,10 +47,43 @@ public:
 
 template <class T>
 inline bool operator==(const T *o, const QPointer<T> &p)
-{ return p == o; }
+{ return o == p.operator->(); }
+
+template<class T>
+inline bool operator==(const QPointer<T> &p, const T *o)
+{ return p.operator->() == o; }
+
+template <class T>
+inline bool operator==(T *o, const QPointer<T> &p)
+{ return o == p.operator->(); }
+
+template<class T>
+inline bool operator==(const QPointer<T> &p, T *o)
+{ return p.operator->() == o; }
+
+template<class T>
+inline bool operator==(const QPointer<T> &p1, const QPointer<T> &p2)
+{ return p1.operator->() == p2.operator->(); }
+
 
 template <class T>
 inline bool operator!=(const T *o, const QPointer<T> &p)
-{ return p != o; }
+{ return o != p.operator->(); }
+
+template<class T>
+inline bool operator!= (const QPointer<T> &p, const T *o)
+{ return p.operator->() != o; }
+
+template <class T>
+inline bool operator!=(T *o, const QPointer<T> &p)
+{ return o != p.operator->(); }
+
+template<class T>
+inline bool operator!= (const QPointer<T> &p, T *o)
+{ return p.operator->() != o; }
+
+template<class T>
+inline bool operator!= (const QPointer<T> &p1, const QPointer<T> &p2)
+{ return p1.operator->() != p2.operator->() ; }
 
 #endif // QPOINTER_H
