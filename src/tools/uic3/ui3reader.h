@@ -86,6 +86,7 @@ private:
     DomLayoutItem *createLayoutItem(const QDomElement &e);
     DomProperty *readProperty(const QDomElement &e);
     void fixActionGroup(DomActionGroup *g);
+    QString fixActionProperties(QList<DomProperty*> &properties);
 
     QString fixClassName(const QString &className) const;
 

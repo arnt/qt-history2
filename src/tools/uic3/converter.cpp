@@ -232,6 +232,46 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     return ui;
 }
 
+QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties)
+{
+    QString name;
+    DomProperty *textProperty = 0;
+    QString text;
+
+    QListMutableIterator<DomProperty*> it(properties);
+    while (it.hasNext()) {
+        DomProperty *p = it.next();
+        QString pname = p->attributeName();
+        if (pname == QLatin1String("name")) {
+            name = p->elementCstring();
+            p->setAttributeName("objectName");
+        } else if (pname == QLatin1String("menuText")) {
+            text = p->elementString();
+            it.remove();
+            delete p;
+        } else if (pname == QLatin1String("text")) {
+            if (text.isEmpty())
+                text = p->elementString();
+            it.remove();
+            delete p;
+        } else if (pname == QLatin1String("iconSet")) {
+            p->setAttributeName("icon");
+        } else if (pname == QLatin1String("accel")) {
+            p->setAttributeName("shortcut");
+            p->setElementShortcut(p->elementString());
+        }
+    }
+
+    if (text.size()) {
+        DomProperty *ptext = new DomProperty();
+        ptext->setAttributeName("text");
+        ptext->setElementString(text);
+        properties.append(ptext);
+    }
+
+    return name;
+}
+
 void Ui3Reader::fixActionGroup(DomActionGroup *g)
 {
     QList<DomActionGroup*> groups = g->elementActionGroup();
@@ -244,39 +284,19 @@ void Ui3Reader::fixActionGroup(DomActionGroup *g)
         DomAction *a = actions.at(i);
 
         QList<DomProperty*> properties = a->elementProperty();
-        for (int j=0; j<properties.size(); ++j) {
-            DomProperty *p = properties.at(j);
-            QString pname = p->attributeName();
-            if (pname == QLatin1String("name")) {
-                a->setAttributeName(p->elementCstring());
-                p->setAttributeName("objectName");
-            } else if (pname == QLatin1String("menuText")) {
-                p->setAttributeName("text");
-            } else if (pname == QLatin1String("iconSet")) {
-                p->setAttributeName("icon");
-            } else if (pname == QLatin1String("accel")) {
-                p->setAttributeName("shortcut");
-                p->setElementShortcut(p->elementString());
-            }
-        }
+        QString name = fixActionProperties(properties);
+        a->setElementProperty(properties);
+
+        if (name.size())
+            a->setAttributeName(name);
     }
 
     QList<DomProperty*> properties = g->elementProperty();
-    for (int j=0; j<properties.size(); ++j) {
-        DomProperty *p = properties.at(j);
-        QString pname = p->attributeName();
-        if (pname == QLatin1String("name")) {
-            g->setAttributeName(p->elementCstring());
-            p->setAttributeName("objectName");
-        } else if (pname == QLatin1String("menuText")) {
-            p->setAttributeName("text");
-        } else if (pname == QLatin1String("iconSet")) {
-            p->setAttributeName("icon");
-        } else if (pname == QLatin1String("accel")) {
-            p->setAttributeName("shortcut");
-            p->setElementShortcut(p->elementString());
-        }
-    }
+    QString name = fixActionProperties(properties);
+    g->setElementProperty(properties);
+
+    if (name.size())
+        g->setAttributeName(name);
 }
 
 QString Ui3Reader::fixClassName(const QString &className) const
