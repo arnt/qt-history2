@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#4 $
 **
 ** Global functions
 **
 ** Author  : Haavard Nord
 ** Created : 920604
 **
-** Copyright (C) 1992,1993 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#4 $";
 #endif
 
 
@@ -94,7 +94,7 @@ static dbg_handler handler = 0;			// pointer to debug handler
 
 void warning( const char *msg, ... )		// print message
 {
-    char buf[240];
+    char buf[600];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
@@ -110,7 +110,7 @@ void warning( const char *msg, ... )		// print message
 
 void fatal( const char *msg, ... )		// print message and exit
 {
-    char buf[240];
+    char buf[600];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
