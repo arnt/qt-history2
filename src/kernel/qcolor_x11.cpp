@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#11 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#11 $";
 #endif
 
 
@@ -84,8 +84,6 @@ void QColor::initialize()			// called from startup routines
 
     ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
-    ((QColor*)(&FFColor))->pix  = 255;
-    ((QColor*)(&FFColor))->rgb &= RGB_MASK;     // clear dirty flag
 
 #if 0 /* 0 == allocate colors on demand */
     aalloc = TRUE;				// allocate global colors
@@ -106,14 +104,6 @@ void QColor::initialize()			// called from startup routines
     ((QColor*)(&darkYellow))-> 	alloc();
     aalloc = FALSE;
 #endif
-    if ( white.pixel() == 0 ) {
-	((QColor*)(&trueColor)) ->setRGB( black.getRGB() );
-	((QColor*)(&falseColor))->setRGB( white.getRGB() );
-    }
-    else {
-	((QColor*)(&trueColor)) ->setRGB( white.getRGB() );
-	((QColor*)(&falseColor))->setRGB( black.getRGB() );
-    }
 }
 
 void QColor::cleanup()
@@ -145,6 +135,16 @@ QColor::QColor( const QColor &c )		// copy color
 QColor::QColor( int r, int g, int b )		// specify RGB
 {
     setRGB( r, g, b );
+}
+
+QColor::QColor( ulong r_g_b, ulong p_i_x )	// specify RGB and/or pixel
+{
+    if ( p_i_x == 0xffffffff )
+	setRGB( r_g_b );
+    else {
+	rgb = r_g_b;
+	pix = p_i_x;
+    }
 }
 
 QColor::QColor( const char *name )		// load color from database
