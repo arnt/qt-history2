@@ -303,7 +303,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         QBrush fill;
         if (opt->state & State_Sunken)
             fill = opt->palette.brush(QPalette::Mid);
-        else if (opt->state & State_On)
+        else if ((opt->state & State_On) && (opt->state & State_Enabled))
             fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
@@ -315,8 +315,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         bool on = opt->state & State_On;
         bool down = opt->state & State_Sunken;
         bool showUp = !(down ^ on);
-        QBrush fill = showUp || opt->state & State_NoChange ?
-                      opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
+        QBrush fill = opt->palette.brush((showUp || opt->state & State_NoChange) ?QPalette::Button : QPalette::Mid);
         if (opt->state & State_NoChange) {
             qDrawPlainRect(p, opt->rect, opt->palette.text().color(),
                            1, &fill);
@@ -365,8 +364,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         bool showUp = !(down ^ on);
         QPolygon a(INTARRLEN(inner_pts), inner_pts);
         p->setPen(Qt::NoPen);
-        p->setBrush(showUp ? opt->palette.brush(QPalette::Button) :
-                    opt->palette.brush(QPalette::Mid));
+        p->setBrush(opt->palette.brush(showUp ? QPalette::Button : QPalette::Mid));
         a.translate(opt->rect.x(), opt->rect.y());
         p->drawPolygon(a);
         p->setPen(showUp ? opt->palette.light().color() : opt->palette.dark().color());
@@ -547,8 +545,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         QPen savePen = p->pen();
         QBrush saveBrush = p->brush();
         QPen pen(Qt::NoPen);
-        QBrush brush = opt->palette.brush(opt->state & State_Enabled ? QPalette::Button :
-                                          QPalette::Mid);
+        QBrush brush = opt->palette.brush((opt->state & State_Enabled) ?
+                                          QPalette::Button : QPalette::Mid);
         p->setPen(pen);
         p->setBrush(brush);
         p->drawPolygon(bFill);
@@ -667,30 +665,25 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         drawPrimitive(PE_IndicatorDockWidgetResizeHandle, &handleOpt, p, widget);
         break; }
 
-    case CE_ScrollBarSubLine: {
-        QStyleOption arrowOpt = *opt;
-        arrowOpt.state |= State_Enabled;
-        drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowLeft : PE_IndicatorArrowUp),
-                      &arrowOpt, p, widget);
-        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
-            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
-        break; }
-
+    case CE_ScrollBarSubLine:
     case CE_ScrollBarAddLine:{
+        PrimitiveElement pe;
+        if (element == CE_ScrollBarAddLine)
+            pe = (opt->state & State_Horizontal) ? PE_IndicatorArrowRight : PE_IndicatorArrowDown;
+        else
+            pe = (opt->state & State_Horizontal) ? PE_IndicatorArrowLeft : PE_IndicatorArrowUp;
         QStyleOption arrowOpt = *opt;
         arrowOpt.state |= State_Enabled;
-        drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowRight : PE_IndicatorArrowDown),
-                      &arrowOpt, p, widget);
-        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
-            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
-        break; }
+        drawPrimitive(pe, &arrowOpt, p, widget);
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText)) {
+            int fw = pixelMetric(PM_DefaultFrameWidth);
+            p->fillRect(opt->rect.adjusted(fw, fw, -fw, -fw), QBrush(p->background().color(), Qt::Dense5Pattern));
+        }
+    }break;
 
     case CE_ScrollBarSubPage:
     case CE_ScrollBarAddPage:
-        if (opt->state & State_Enabled)
-            p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
-        else
-            p->fillRect(opt->rect, opt->palette.brush(QPalette::Background));
+        p->fillRect(opt->rect, opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
         break;
 
     case CE_ScrollBarSlider: {
@@ -1068,20 +1061,14 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         QCommonStyle::drawControl(element, opt, p, widget);
         break;
 
-    case CE_HeaderSection: {
-        QBrush fill;
-        if (opt->state & State_Sunken)
-            fill = opt->palette.brush(QPalette::Mid);
-        else if (opt->state & State_On)
-            fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
-        else
-            fill = opt->palette.brush(QPalette::Button);
+    case CE_HeaderSection:
         p->save();
         p->setBrushOrigin(opt->rect.topLeft());
-        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & State_On),
-                        pixelMetric(PM_DefaultFrameWidth), &fill);
+        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & (State_Sunken|State_On)),
+                        pixelMetric(PM_DefaultFrameWidth),
+                        &opt->palette.brush((opt->state & State_Sunken) ? QPalette::Mid : QPalette::Button));
         p->restore();
-        break; }
+        break;
     case CE_RubberBand:
         p->fillRect(opt->rect, opt->palette.base());
         p->fillRect(opt->rect, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
@@ -1283,10 +1270,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                   handle = subControlRect(CC_Slider, opt, SC_SliderHandle, widget);
 
             if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
-                if (opt->state & State_Enabled)
-                    qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Mid));
-                else
-                    qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Background));
+                qDrawShadePanel(p, groove, opt->palette, true, 2,
+                                &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
                 if ((opt->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOption focusOpt = *opt;
                     focusOpt.rect = subElementRect(SE_SliderFocusRect, opt, widget);
@@ -1296,6 +1281,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
             if ((opt->subControls & SC_SliderHandle) && handle.isValid()) {
                 QStyleOption bevelOpt = *opt;
+                bevelOpt.state = (opt->state | State_Raised) & ~State_Sunken;
                 bevelOpt.rect = handle;
                 p->save();
                 p->setBrushOrigin(bevelOpt.rect.topLeft());
@@ -1384,7 +1370,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         if (opt->subControls & SC_ScrollBarGroove)
             qDrawShadePanel(p, opt->rect, opt->palette, true,
                             pixelMetric(PM_DefaultFrameWidth, opt, widget),
-                            &opt->palette.brush(QPalette::Mid));
+                            &opt->palette.brush((opt->state & State_Enabled) ? QPalette::Mid : QPalette::Background));
+
         QCommonStyle::drawComplexControl(cc, opt, p, widget);
         break; }
 
