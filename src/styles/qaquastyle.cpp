@@ -148,8 +148,8 @@ bool QAquaFocusWidget::handles(QWidget *widget)
     return (widget && widget->parentWidget() &&
 	    (widget->inherits("QDateTimeEditor") || 
 	     (widget->inherits("QFrame") && /*((QFrame*)widget)->frameStyle() != QFrame::NoFrame && */
-	      (widget->inherits("QLineEdit") && 
-	       (widget->parentWidget()->inherits("QComboBox") || (((QLineEdit*)widget)->frame()))) ||
+	      (widget->inherits("QLineEdit") /* && 
+	       (widget->parentWidget()->inherits("QComboBox") || (((QLineEdit*)widget)->frame())) */) ||
 	      (widget->inherits("QTextEdit") && !widget->inherits("QTextView")) ||
 	      widget->inherits("QListBox") || widget->inherits("QListView"))));
 }
