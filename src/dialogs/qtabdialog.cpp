@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#36 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#36 $");
 
 
 /*!
@@ -62,7 +62,8 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $");
   show(); if there is any chance that the state of the application may
   change between the creation of the tab dialog and the time it show()
   is called, you must connect this signal to a slot which resets the
-  state of the dialog. </ul>
+  state of the dialog. <li> selected() is emitted when the user
+  selects some page. </ul>
 
   Each tab is either enabled or disabled at any given time.  If a tab
   is enabled, the tab text is drawn in black and the user can select
@@ -132,6 +133,15 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $");
 
   <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
 */
+
+/*! \fn void selected( const char * tabLabel );
+
+  This signal is emitted whenever a tab is selected (raised),
+  including during the first show().
+
+  \sa raise()
+*/
+  
 
 // add comments about delete, ok and apply
 
