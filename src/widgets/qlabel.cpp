@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#56 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#56 $");
 
 
 #if QT_VERSION == 200
@@ -460,8 +460,8 @@ QSize QLabel::sizeHint() const
     if ( pix )
 	br = QRect( 0, 0, pix->width(), pix->height() );
     else if ( mov )
-	br = QRect( 0, 0, mov->currentFrame().width(),
-		mov->currentFrame().height() );
+	br = QRect( 0, 0, mov->framePixmap().width(),
+		mov->framePixmap().height() );
     else
 	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
     int m  = 2*margin();
@@ -510,9 +510,9 @@ void QLabel::drawContents( QPainter *p )
 	// ### should add movie to qDrawItem when this Dict hack is gone
 	QRect r = qItemRect( p, style(),
 			cr.x(), cr.y(), cr.width(), cr.height(),
-			align, isEnabled(), &(mov->currentFrame()), ltext );
+			align, isEnabled(), &(mov->framePixmap()), ltext );
 	// ### could resize movie frame at this point
-	p->drawPixmap(r.x(), r.y(), mov->currentFrame());
+	p->drawPixmap(r.x(), r.y(), mov->framePixmap());
 	return;
     }
 
@@ -636,7 +636,7 @@ void QLabel::movieUpdated(const QRect& rect)
     if ( mov && !mov->isNull() ) {
 	QRect r = contentsRect();
 	r = qItemRect( 0, style(), r.x(), r.y(), r.width(), r.height(),
-		   align, isEnabled(), &(mov->currentFrame()), ltext );
+		   align, isEnabled(), &(mov->framePixmap()), ltext );
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));
