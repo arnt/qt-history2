@@ -99,6 +99,7 @@ protected:
     virtual bool initialize( IUnknown** ptr );
     bool initializeRemote(IUnknown** ptr);
     bool initializeLicensed(IUnknown** ptr);
+    bool initializeActive(IUnknown** ptr);
 
 private:
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);

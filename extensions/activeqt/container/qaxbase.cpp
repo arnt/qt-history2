@@ -803,8 +803,8 @@ QAxBase::~QAxBase()
     \endcode
 
     If the component's UUID is used the following patterns can be used
-    to initialize the control on a remote machine, or to initialize a
-    licensed control:
+    to initialize the control on a remote machine, to initialize a
+    licensed control or to connect to a running object:
     \list
     \i To initialize the control on a different machine use the following
     pattern:
@@ -814,10 +814,13 @@ QAxBase::~QAxBase()
     \i To initialize a licensed control use the following pattern:
     \code
     {8E27C92B-1264-101C-8A2F-040224009C02}:<LicenseKey>
+    \i To connect to an already running object use the following pattern:
+    \code
+    {8E27C92B-1264-101C-8A2F-040224009C02}&
     \endcode
     \endlist
-    Both patterns can be combined, e.g. to initialize a licensed control
-    on a remote machine:
+    The first two patterns can be combined, e.g. to initialize a licensed
+    control on a remote machine:
     \code
     ctrl->setControl("DOMAIN/user:password@server/{8E27C92B-1264-101C-8A2F-040224009C02}:LicenseKey");
     \endcode
@@ -832,7 +835,7 @@ bool QAxBase::setControl( const QString &c )
     clear();
     ctrl = c;
     // don't waste time for DCOM requests
-    if (ctrl.find("/{") != ctrl.length()-39) {
+    if (ctrl.find("/{") != ctrl.length()-39 && !ctrl.endsWith("}&")) {
 	QUuid uuid( ctrl );
 	if ( uuid.isNull() ) {
 	    QSettings controls;
@@ -969,10 +972,11 @@ void QAxBase::clear()
     initialization succeeded; otherwise the function returns FALSE.
 
     The default implementation interprets the string returned by
-    control(), and calls initializeRemote() or initializeLicensed()
-    if the string matches the respective patterns. If no pattern is 
-    matched, or if remote or licensed initialization fails,
-    CoCreateInstance is used directly to create the object.
+    control(), and calls initializeRemote(), initializeLicensed()
+    or initializeActive() if the string matches the respective 
+    patterns. If no pattern is matched, or if remote or licensed 
+    initialization fails, CoCreateInstance is used directly to create 
+    the object.
 
     See the \l control property documentation for details about
     supported patterns.
@@ -996,6 +1000,8 @@ bool QAxBase::initialize( IUnknown **ptr )
 	res = initializeRemote(ptr);
     else if (ctrl.contains("}:")) // licensed control
 	res = initializeLicensed(ptr);
+    else if (ctrl.contains("}&")) // running object
+	res = initializeActive(ptr);
 
     if (!res) // standard
 	res = S_OK == CoCreateInstance( QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
@@ -1042,6 +1048,21 @@ bool QAxBase::initializeLicensedHelper(void *f, const QString &key, IUnknown **p
     } else {  // give it a shot without license
 	factory->CreateInstance(0, IID_IUnknown, (void**)ptr);
     }
+    return *ptr != 0;
+}
+
+/*!
+    Returns an active instance running on the current machine, and returns the
+    IUnknown interface to the running object in \a ptr. This function returns TRUE 
+    if successful, otherwise returns FALSE.
+*/
+bool QAxBase::initializeActive(IUnknown** ptr)
+{
+    int at = control().findRev("}&");
+    QString clsid(control().left(at));
+
+    GetActiveObject(QUuid(clsid), 0, ptr);
+
     return *ptr != 0;
 }
 
