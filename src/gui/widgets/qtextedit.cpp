@@ -1723,11 +1723,17 @@ void QTextEdit::dropEvent(QDropEvent *ev)
 */
 void QTextEdit::focusInEvent(QFocusEvent *ev)
 {
-    // if we have a selection then we need to repaint, because (on windows)
-    // the palette for active and inactive windows can have different colors
-    // for selections
-    if (d->cursor.hasSelection())
-        d->viewport->update();
+    if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
+        // if we have a selection then we need to repaint, because (on windows)
+        // the palette for active and inactive windows can have different colors
+        // for selections
+        if (d->cursor.hasSelection())
+            d->viewport->update();
+
+        if (!d->readOnly)
+            d->cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, this);
+    }
+
     QViewport::focusInEvent(ev);
 }
 
@@ -1735,11 +1741,17 @@ void QTextEdit::focusInEvent(QFocusEvent *ev)
 */
 void QTextEdit::focusOutEvent(QFocusEvent *ev)
 {
-    // if we have a selection then we need to repaint, because (on windows)
-    // the palette for active and inactive windows can have different colors
-    // for selections
-    if (d->cursor.hasSelection())
-        d->viewport->update();
+    if (QFocusEvent::reason() == QFocusEvent::ActiveWindow) {
+        // if we have a selection then we need to repaint, because (on windows)
+        // the palette for active and inactive windows can have different colors
+        // for selections
+        if (d->cursor.hasSelection())
+            d->viewport->update();
+
+        if (d->cursorBlinkTimer.isActive())
+            d->cursorBlinkTimer.stop();
+
+    }
     QViewport::focusOutEvent(ev);
 }
 
