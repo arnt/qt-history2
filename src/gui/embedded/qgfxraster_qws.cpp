@@ -5638,6 +5638,13 @@ GFX_INLINE void QGfxRaster<depth,type>::usePen()
 */
 
 /*!
+     \enum QScreen::PixelType
+
+     \value NormalPixel
+     \value BGRPixel
+*/
+
+/*!
 \fn QScreen::initDevice()
 This function is called by the Qt/Embedded server when initializing
 the framebuffer. Accelerated drivers use it to set up the graphics card.

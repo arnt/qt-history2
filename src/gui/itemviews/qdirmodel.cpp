@@ -230,10 +230,7 @@ QFileIconProvider::~QFileIconProvider()
 }
 
 /*!
-  \fn QIconSet QFileIconProvider::icons(const QFileInfo &info) const
-
   Returns an icon set for the file described by \a fileInfo.
-
 */
 
 QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
@@ -321,6 +318,9 @@ QDirModel::QDirModel(const QDir &directory, QObject *parent)
     init(directory);
 }
 
+/*!
+    \internal
+*/
 QDirModel::QDirModel(QDirModelPrivate &dd, const QDir &directory, QObject *parent)
     : QAbstractItemModel(dd, parent)
 {
@@ -335,6 +335,9 @@ QDirModel::~QDirModel()
 {
 }
 
+/*!
+    \internal
+*/
 void QDirModel::init(const QDir &directory)
 {
     d->root = directory;
@@ -363,8 +366,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
 }
 
 /*!
-  Return the \a parent of the \a child model item.
-
+  Return the parent of the given \a child model item.
 */
 
 QModelIndex QDirModel::parent(const QModelIndex &child) const
@@ -647,8 +649,8 @@ bool QDirModel::canDecode(QMimeSource *src) const
 }
 
 /*!
-  \fn bool QDirModel::decode(QDropEvent *event, const QModelIndex &parent)
-
+    Returns true if this directory model (whose parent is \a parent),
+    can decode drop event \a e.
 */
 
 bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
@@ -749,7 +751,9 @@ QStringList QDirModel::nameFilters() const
 }
 
 /*!
-  ### undocumented ###
+  Sets the directory model's filter to that specified by \a spec.
+
+  \sa QDir::FilterSpec
 */
 
 void QDirModel::setFilter(int spec)
@@ -770,7 +774,8 @@ QDir::FilterSpec QDirModel::filter() const
 }
 
 /*!
-  ### undocumented ###
+  Sets the directory model's sorting order to that specified by \a
+  spec.
 
   \sa QDir::SortSpec
 */
@@ -811,8 +816,9 @@ void QDirModel::refresh(const QModelIndex &parent)
 }
 
 /*!
-  Returns the model item index for the given \a path.
+    \overload
 
+    Returns the model item index for the given \a path.
 */
 
 QModelIndex QDirModel::index(const QString &path) const

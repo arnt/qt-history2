@@ -660,7 +660,7 @@ static void ignoreSignal(int)
     class yourself.
 
     The \a flags are used for keyboard and mouse setting. The server's
-    parent is \a parent and it is called \a name.
+    parent is \a parent.
 */
 
 QWSServer::QWSServer(int flags, QObject *parent) :

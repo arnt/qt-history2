@@ -583,8 +583,6 @@ void QAbstractItemView::edit(const QModelIndex &index)
 
 /*!
     Clears the selection.
-
-    \sa setSelectionModel()
 */
 void QAbstractItemView::clearSelections()
 {
@@ -604,12 +602,13 @@ void QAbstractItemView::doItemsLayout()
 }
 
 /*!
-  \property QAbstractItemView::beginEditActions
-  \brief which actions will start the editing of an item
+    \property QAbstractItemDelegate::beginEditActions
+    \brief which actions will initiate item editing
 
-  This property is an or'ed flag of \l{QAbstractItemDelegate::BeginEditAction}s.
-  The view will only start the editing of an item if the action perfomed is set
-  in this property.
+    This property is an OR'ed flag of
+    \l{QAbstractItemDelegate::BeginEditAction}s. The view will only
+    initiate the editing of an item if the action performed is set in
+    this property.
 */
 void QAbstractItemView::setBeginEditActions(int actions)
 {
@@ -851,7 +850,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     valid item under the mouse pointer when the drop occurs, the drop
     is accepted.
 
-    \sa startDrag() itemAt()
+    \sa startDrag()
 */
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
@@ -1453,7 +1452,8 @@ void QAbstractItemView::startDrag()
 }
 
 /*!
-  Returns true if the view allows the item to be dragged, otherwise false.
+    Returns true if the item view allows the item at position \a index
+    to be dragged; otherwise returns false.
 */
 bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
 {

@@ -67,9 +67,8 @@ extern volatile int * lastop;
 // drivers
 
 /*!
-  \fn QLinuxFbScreen::QLinuxFbScreen(int display_id)
-  Constructs a QLinuxFbScreen; passes \a display_id to the QScreen
-  constructor.
+    Constructs a QLinuxFbScreen; passes \a display_id to the QScreen
+    constructor.
 */
 
 QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
@@ -79,8 +78,7 @@ QLinuxFbScreen::QLinuxFbScreen(int display_id) : QScreen(display_id)
 }
 
 /*!
-  \fn QLinuxFbScreen::~QLinuxFbScreen()
-  Destroys a QLinuxFbScreen.
+    Destroys a QLinuxFbScreen.
 */
 
 QLinuxFbScreen::~QLinuxFbScreen()
@@ -88,11 +86,13 @@ QLinuxFbScreen::~QLinuxFbScreen()
 }
 
 /*!
-  This is called by Qt/Embedded clients to map in the framebuffer.
-  It should be reimplemented by accelerated drivers to map in graphics
-  card registers; those drivers should then call this method in order to set
-  up offscreen memory management. The device is specified in \a
-  displaySpec, e.g. "/dev/fb".
+    This is called by Qt/Embedded clients to map in the framebuffer.
+    It should be reimplemented by accelerated drivers to map in
+    graphics card registers; those drivers should then call this
+    function in order to set up offscreen memory management. The
+    device is specified in \a displaySpec, e.g. "/dev/fb".
+
+    \sa disconnect()
 */
 
 bool QLinuxFbScreen::connect(const QString &displaySpec)
@@ -232,8 +232,9 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
 }
 
 /*!
-\fn void QLinuxFbScreen::disconnect()
-This simply unmaps the framebuffer
+    This unmaps the framebuffer.
+
+    \sa connect()
 */
 
 void QLinuxFbScreen::disconnect()
@@ -384,11 +385,10 @@ void QLinuxFbScreen::createPalette(fb_cmap &cmap, fb_var_screeninfo &vinfo, fb_f
 }
 
 /*!
-\fn bool QLinuxFbScreen::initDevice()
-This is called by the Qt/Embedded server at startup time.
-It turns off console blinking, sets up the color palette, enables
-write combining on the framebuffer and initialises the offscreen
-memory manager.
+    This is called by the Qt/Embedded server at startup time. It turns
+    off console blinking, sets up the color palette, enables write
+    combining on the framebuffer and initialises the off-screen memory
+    manager.
 */
 
 bool QLinuxFbScreen::initDevice()
@@ -586,17 +586,20 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
 }
 
 /*!
-  Requests a block of offscreen graphics card memory from the memory
-  manager; it will be aligned at pixmapOffsetAlignment(). If no memory
-  is free 0 will be returned, otherwise a pointer to the data within
-  the framebuffer. QScreen::onCard can be used to retrieve a byte offset
-  from the start of graphics card memory from this pointer. The display
-  is locked while memory is allocated and unallocated in order to
-  preserve the memory pool's integrity, so cache and uncache should not
-  be called if the screen is locked.
+    This function requests a block of offscreen graphics card memory
+    from the memory manager; it will be aligned at
+    pixmapOffsetAlignment(). Returns a pointer to the data within the
+    framebuffer, or 0 if no memory is free. QScreen::onCard can be
+    used to retrieve a byte offset from the start of graphics card
+    memory from this pointer. The display is locked while memory is
+    allocated and unallocated in order to preserve the memory pool's
+    integrity, so cache() and uncache() should not be called if the
+    screen is locked.
 
-  \a amount is the amount of memory to allocate, \a optim gives the optimization
-  level (same values as QPixmap::Optimization).
+    \a amount is the amount of memory to allocate, \a optim gives the
+    optimization level (same values as QPixmap::Optimization).
+
+    \sa uncache()
 */
 
 uchar * QLinuxFbScreen::cache(int amount, int optim)
@@ -660,20 +663,21 @@ uchar * QLinuxFbScreen::cache(int amount, int optim)
 }
 
 /*!
-  Delete a block of memory allocated from graphics card memory.
+    Deletes \a c, a block of memory allocated from graphics card
+    memory.
 
-  This function will first sync the graphics card to ensure the
-  memory isn't still being used by a command in the graphics
-  card fifo queue.
+    This function will first sync the graphics card to ensure the
+    memory isn't still being used by a command in the graphics
+    card FIFO queue.
 
-  You can speed up a driver by overriding uncache to avoid
-  syncing, however it will then be up to the driver to ensure
-  the memory at \a c is no longer being used.  For example the
-  driver might delay deleting the memory until it detects that
-  all commands dealing with the memory are no longer in the
-  queue.
+    You can speed up a driver by overriding uncache() to avoid
+    syncing, however it will then be up to the driver to ensure
+    the memory at \a c is no longer being used.  For example the
+    driver might delay deleting the memory until it detects that
+    all commands dealing with the memory are no longer in the
+    queue.
 
-  \sa deleteEntry() sync()
+    \sa cache() deleteEntry() sync()
  */
 void QLinuxFbScreen::uncache(uchar * c)
 {
@@ -682,7 +686,9 @@ void QLinuxFbScreen::uncache(uchar * c)
 }
 
 /*!
-Delete a block of memory \a c allocated from graphics card memory.
+    Delete \c c, a block of memory allocated from graphics card memory.
+
+    \sa uncache() cache()
 */
 void QLinuxFbScreen::deleteEntry(uchar * c)
 {
@@ -745,11 +751,10 @@ void QLinuxFbScreen::setupOffScreen()
 }
 
 /*!
-\fn void QLinuxFbScreen::shutdownDevice()
-This is called by the Qt/Embedded server when it shuts down, and should
-be inherited if you need to do any card-specific shutting down.
-The default version hides the screen cursor and reenables the blinking cursor
-and screen blanking.
+    This is called by the Qt/Embedded server when it shuts down, and
+    should be inherited if you need to do any card-specific cleanup.
+    The default version hides the screen cursor and reenables the
+    blinking cursor and screen blanking.
 */
 
 void QLinuxFbScreen::shutdownDevice()
@@ -774,8 +779,8 @@ void QLinuxFbScreen::shutdownDevice()
 }
 
 /*!
-In paletted graphics modes, this sets color index \a i to the specified RGB
-value, (\a r, \a g, \a b).
+    In paletted graphics modes, this sets color index \a i to the
+    specified RGB value, (\a r, \a g, \a b).
 */
 
 void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
@@ -804,12 +809,12 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 }
 
 /*!
-Sets the framebuffer to a new resolution and bit depth. The width is
-in \a nw, the height is in \a nh, and the depth is \a nd. After doing
-this any currently-existing gfx's will be invalid and the screen
-should be completely redrawn. In a multiple-process Embedded Qt
-situation you will need to signal all other applications to call
-setMode() to the same mode and redraw.
+    Sets the framebuffer to a new resolution and bit depth. The width is
+    in \a nw, the height is in \a nh, and the depth is in \a nd. After
+    doing this any currently-existing gfx's will be invalid and the
+    screen should be completely redrawn. In a multiple-process
+    Embedded Qt situation you must signal all other applications to
+    call setMode() to the same mode and redraw.
 */
 
 void QLinuxFbScreen::setMode(int nw,int nh,int nd)
@@ -855,10 +860,9 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 // between linux virtual consoles.
 
 /*!
-\fn void QLinuxFbScreen::save()
-This doesn't do anything; accelerated drivers may wish to reimplement
-it to save graphics cards registers. It's called by the Qt/Embedded server
-when the virtual console is switched.
+    This doesn't do anything; accelerated drivers may wish to reimplement
+    it to save graphics cards registers. It's called by the Qt/Embedded server
+    when the virtual console is switched.
 */
 
 void QLinuxFbScreen::save()
@@ -866,13 +870,12 @@ void QLinuxFbScreen::save()
     // nothing to do.
 }
 
-/*!
-\fn void QLinuxFbScreen::restore()
-This is called when the virtual console is switched back to Qt/Embedded
-and restores the palette.
-*/
 
 // restore the state of the graphics card.
+/*!
+    This is called when the virtual console is switched back to
+    Qt/Embedded and restores the palette.
+*/
 void QLinuxFbScreen::restore()
 {
     if ((d == 8) || (d == 4)) {

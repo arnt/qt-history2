@@ -301,7 +301,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 */
 
 /*!
-  Creates a new QGenericListView to view the \a model, and with parent \a parent.
+  Creates a new QGenericListView to view a model, and with the given \a parent.
 */
 QGenericListView::QGenericListView(QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, parent)
@@ -391,7 +391,7 @@ QGenericListView::Flow QGenericListView::flow() const
   Setting this property when the view is visible will cause the items to
   be layed out again.
 
-  \sa flow doItemLayout()
+  \sa flow
 */
 void QGenericListView::setWrapping(bool enable)
 {
@@ -961,8 +961,7 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
 }
 
 /*!
-  Returns the rectangle of the item at \a index in contents coordinates.
-  \sa itemViewportRect()
+    Returns the rectangle of the item at \a index in contents coordinates.
 */
 QRect QGenericListView::itemRect(const QModelIndex &index) const
 {

@@ -192,9 +192,8 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 }
 
 /*!
-  \fn QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
-
-  Creates a new QPersistentModelIndex that is a copy of the \a index model index.
+    Creates a new QPersistentModelIndex that is a copy of the \a index
+    model index in the given \a model.
 */
 
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
@@ -233,9 +232,8 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 }
 
 /*!
-  \fn bool QPersistentModelIndex::operator=(const QPersistentModelIndex &other) const
-
-  Sets the persistent model index to refer to the same model index as the \a other persistent model index.
+    Sets the persistent model index to refer to the same model index
+    as the \a other persistent model index.
 */
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
@@ -959,10 +957,10 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
     \a role based on the \a flags. The list may be empty. The search
     starts from index \a start and continues until the number of
     matching data items equals \a hits or the search reaches the last
-    row or \a start, depending on whether \a MatchWrap is specified or
-    not.
+    row or \a start, depending on whether \c Match_Wrap is specified
+    in \a flags or not.
 
-    \sa QAbstractItemModel::Match
+    \sa QAbstractItemModel::MatchFlag
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
@@ -1015,17 +1013,6 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     }
     return result;
 }
-
-/*!
-    \fn QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits, MatchFlags flags) const
-
-    Returns a list of model indexes (which may be empty), for those
-    items at or after the \a start index which match the given \a
-    value in accordance with the match \a flags. The comparison is
-    done against the specified item's \a{role}s. The maximum number of
-    matches required (which should be \> 0) is specified by \a hits
-    which defaults to 1 (i.e. just find the first matching item).
-*/
 
 /*!
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const

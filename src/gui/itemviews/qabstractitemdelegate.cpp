@@ -198,14 +198,15 @@ void QAbstractItemDelegate::setModelData(QWidget *,
 }
 
 /*!
-  Updates the editor geometry of the ginen \a editor for the item at the
-  given \a index in the \a model, according to the rectangle specified in the \a option.
-  If the item has an internal layout, the editor will be layed out accordingly.
+    Updates the geometry of the given \a editor for the item at
+    position \a index according to the rectangle specified in the \a
+    option. If the item has an internal layout, the editor will be
+    laid out accordingly.
 
-  The base implementation dowes nothing. If you want custom editing
-    you will need to reimplement this function.
-  
-  \sa editorType() editor() releaseEditor()
+    The base implementation does nothing. If you want custom editing
+    you must reimplement this function.
+
+    \sa editorType() editor() releaseEditor()
  */
 void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
                                                  const QStyleOptionViewItem &,

@@ -131,6 +131,7 @@ static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
   \obsolete
+    \overload
 
     Returns the pixmap associated with the \a key in the cache, or
     null if there is no such pixmap.
@@ -163,11 +164,9 @@ QPixmap *QPixmapCache::find(const QString &key)
 
 
 /*!
-    \overload
-
     Looks for a cached pixmap associated with the \a key in the cache.
-    If a pixmap is found, the function sets \a pm to that pixmap and
-    returns true; otherwise leaves \a pm alone and returns false.
+    If the pixmap is found, the function sets \a pm to that pixmap and
+    returns true; otherwise it leaves \a pm alone and returns false.
 
     Example:
     \code
