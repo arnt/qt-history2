@@ -4684,17 +4684,13 @@ void QTextParagraph::drawString( QPainter &painter, const QString &s, int start,
 	painter.restore();
     }
 
-    i -= len;
-
     if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() &&
 	 document()->focusIndicator.parag == this &&
-	 ( document()->focusIndicator.start >= i  &&
-	   document()->focusIndicator.start + document()->focusIndicator.len <= i + len ||
-	   document()->focusIndicator.start <= i &&
-	   document()->focusIndicator.start + document()->focusIndicator.len >= i + len ) ) {
+	 ( document()->focusIndicator.start >= start  &&
+	   document()->focusIndicator.start + document()->focusIndicator.len <= start + len ||
+	   document()->focusIndicator.start <= start &&
+	   document()->focusIndicator.start + document()->focusIndicator.len >= start + len ) )
 	painter.drawWinFocusRect( QRect( xstart, y, w, h ) );
-    }
-
 }
 
 void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg )
