@@ -263,12 +263,13 @@ QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
 class QXFontName
 {
 public:
-    QXFontName( const QCString &n, bool e )
-	: name(n), exactMatch(e)
+    QXFontName( const QCString &n, bool e, bool c )
+	: name(n), exactMatch(e), useCore(c)
     { ; }
 
     QCString name;
     bool exactMatch;
+    bool useCore;
 };
 
 
@@ -2171,7 +2172,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     QCString fontname;
     QTextCodec *codec = 0;
     XFontStruct *xfs = 0;
-    bool use_core = TRUE;
 
 #ifndef QT_NO_XFTFREETYPE
     XftFontStruct *xftfs = 0;
@@ -2191,6 +2191,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	QString name;
 	bool match;
+	bool use_core = TRUE;
 
 #ifndef QT_NO_XFTFREETYPE
 	if (qt_has_xft) {
@@ -2236,7 +2237,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 	// Put font name into fontNameDict
-	qxfn = new QXFontName(name.latin1(), match);
+	qxfn = new QXFontName(name.latin1(), match, use_core);
 	Q_CHECK_PTR(qxfn);
 	fontNameDict->insert(k, qxfn);
     }
@@ -2268,7 +2269,13 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     // with XftFreeType support - we always load a font using Unicode, so we never
     // need a codec
 
-    if (xftmatch) {
+    if (! qxfn->useCore) {
+	if (! xftmatch) {
+	    XftResult res;
+	    xftmatch = XftNameParse(qxfn->name.data());
+	    xftmatch = XftFontMatch(QPaintDevice::x11AppDisplay(),
+				    QPaintDevice::x11AppScreen(), xftmatch, &res);
+	}
 
 #ifdef QFONTLOADER_DEBUG
 	qDebug("QFontLoader: loading xft font '%s'", fontname.data());
@@ -2281,7 +2288,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     }
 #endif // QT_NO_XFTFREETYPE
 
-    if (use_core) {
+    if (qxfn->useCore) {
 	// if we have no way to map this script, we give up
 	if (! script_table[script].list[script_table[script].index]) {
 
@@ -2367,12 +2374,17 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    cost = 5000;
 	}
 	cost = ((xfs->max_bounds.ascent + xfs->max_bounds.descent) *
-		xfs->max_bounds.width * cost / 8);
+		(xfs->max_bounds.width * cost / 8));
     }
 #ifndef QT_NO_XFTFREETYPE
     else if (xftfs) {
-	cost = request.pointSize * request.weight;
-	cost *= (xftfs->max_char - xftfs->min_char) / 8;
+	cost = (xftfs->max_char - xftfs->min_char);
+	if (cost <= 0)
+	    cost = 256;
+	else if (cost > 5000)
+	    cost = 5000;
+	cost = ((xftfs->ascent + xftfs->descent) *
+		(xftfs->max_advance_width * cost / 8));
     }
 #endif // QT_NO_XFTFREETYPE
 

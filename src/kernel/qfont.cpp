@@ -2028,9 +2028,15 @@ bool QFontInfo::exactMatch() const
 
 static const int qtFontCacheMin = 2*1024*1024;
 static const int qtFontCacheSize = 61;
+
+// when debugging the font cache - clean it out more aggressively
+#ifndef QFONTCACHE_DEBUG
 static const int qtFontCacheFastTimeout =  30000;
 static const int qtFontCacheSlowTimeout = 300000;
-
+#else // !QFONTCACHE_DEBUG
+static const int qtFontCacheFastTimeout = 10000;
+static const int qtFontCacheSlowTimeout = 30000;
+#endif // QFONTCACHE_DEBUG
 
 QFontCache *QFontPrivate::fontCache = 0;
 
@@ -2055,9 +2061,8 @@ QFontCache::~QFontCache()
 	key = it.currentKey();
 	++it;
 
-	if (qfs == (QFontStruct *) -1) {
+	if (qfs == (QFontStruct *) -1)
 	    take(key);
-	}
     }
 }
 
@@ -2066,7 +2071,8 @@ bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
 {
 
 #ifdef QFONTCACHE_DEBUG
-    qDebug("QFC::insert: inserting %p w/ cost %d", qfs, cost);
+    qDebug("QFC::insert: inserting %p w/ cost %d\n%s", qfs, cost,
+	   (qfs == (QFontStruct *) -1) ? "negative cache item" : qfs->name.data());
 #endif // QFONTCACHE_DEBUG
 
     if (totalCost() + cost > maxCost()) {
@@ -2108,14 +2114,14 @@ void QFontCache::deleteItem(Item d)
     QFontStruct *qfs = (QFontStruct *) d;
 
     // don't try to delete negative cache items
-    if (qfs == (QFontStruct *) -1) {
+    if (qfs == (QFontStruct *) -1)
 	return;
-    }
 
     if (qfs->count == 0) {
 
 #ifdef QFONTCACHE_DEBUG
-	qDebug("QFC::deleteItem: removing %s from cache", (const char *) qfs->name);
+	qDebug("QFC::deleteItem: removing %p from cache\n%s", qfs,
+	       (qfs == (QFontStruct *) -1) ? "negative cache item" : qfs->name.data());
 #endif // QFONTCACHE_DEBUG
 
 	delete qfs;
@@ -2151,17 +2157,16 @@ void QFontCache::timerEvent(QTimerEvent *)
 	++it;
 
 	if (qfs != (QFontStruct *) -1) {
-	    if (qfs->count > 0) {
+	    if (qfs->count > 0)
 		nmcost += qfs->cache_cost;
-	    }
-	} else {
+	} else
 	    // keep negative cache items in the cache
 	    nmcost++;
-	}
     }
 
     nmcost = QMAX(tqcost, nmcost);
-    if (nmcost < qtFontCacheMin) nmcost = qtFontCacheMin;
+    if (nmcost < qtFontCacheMin)
+	nmcost = qtFontCacheMin;
 
     if (nmcost == totalCost()) {
 	if (fast) {
