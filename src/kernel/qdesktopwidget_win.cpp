@@ -478,3 +478,7 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
 /*! \fn void QDesktopWidget::resized( int screen )
     This signal is emitted when the size of \a screen changes.
 */
+
+/*! \fn void QDesktopWidget::workAreaResized( int screen )
+    This signal is emitted when the work area available on \a screen changes.
+*/
