@@ -24,6 +24,8 @@
 *****************************************************************************/
 
 #include "qsemimodal.h"
+
+#ifndef QT_NO_SEMIMODAL
 #include "qapplication.h"
 
 // NOT REVISED
@@ -166,3 +168,4 @@ void QSemiModal::setGeometry( const QRect &r )
     did_resize = TRUE;
     QWidget::setGeometry( r );
 }
+#endif //QT_NO_SEMIMODAL

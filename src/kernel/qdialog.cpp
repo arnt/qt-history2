@@ -24,6 +24,9 @@
 *****************************************************************************/
 
 #include "qdialog.h"
+
+#ifndef QT_NO_DIALOG
+
 #include "qpushbutton.h"
 #include "qapplication.h"
 #include "qobjectlist.h"
@@ -730,3 +733,5 @@ void QDialog::resizeEvent( QResizeEvent * )
 	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
 #endif
 }
+
+#endif QT_NO_DIALOG

@@ -342,6 +342,15 @@
 */
 //#define QT_NO_ICONSET
 
+/*!
+  QDialog
+*/
+//#define QT_NO_DIALOG
+/*!
+  QSemiModal
+*/
+//#define QT_NO_SEMIMODAL
+
 #if defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) || defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
 	Pre-defined widgets
@@ -413,7 +422,9 @@
 	QAction
     */
     #define QT_NO_ACTION
-    /*!
+#endif
+#if defined(QT_NO_WIDGETS) || defined(QT_NO_DIALOG)
+   /*!
 	Built-in dialogs
     */
     #define QT_NO_DIALOGS
@@ -457,6 +468,13 @@
     #define QT_NO_PRINTDIALOG
 #endif
 
+#if defined(QT_NO_DIALOGS) || defined(QT_NO_SEMIMODAL)
+    /*!
+	QProgressDialog
+    */
+    #define QT_NO_PROGRESSDIALOG
+#endif
+
 #if defined(QT_NO_DIALOGS)
     /*!
 	QColorDialog
@@ -470,10 +488,6 @@
 	QMessageBox
     */
     #define QT_NO_MESSAGEBOX
-    /*!
-	QProgressDialog
-    */
-    #define QT_NO_PROGRESSDIALOG
     /*!
 	QTabDialog
     */

@@ -30,7 +30,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
-
+#ifndef QT_NO_SEMIMODAL
 class Q_EXPORT QSemiModal : public QWidget
 {
     Q_OBJECT
@@ -57,6 +57,6 @@ private:	// Disabled copy constructor and operator=
     QSemiModal &operator=( const QSemiModal & );
 #endif
 };
-
+#endif
 
 #endif // QSEMIMODAL_H

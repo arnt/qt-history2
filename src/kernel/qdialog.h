@@ -29,7 +29,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #endif // QT_H
-
+#ifndef QT_NO_DIALOG
 #if 0
 Q_OBJECT
 #endif
@@ -102,5 +102,5 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
+#endif QT_NO_DIALOG
 #endif // QDIALOG_H
