@@ -153,6 +153,9 @@ public:
     int insertPage( QWidget *p, int i = -1 );
     int removePage( QWidget *p );
 
+public slots:
+    void updateButtons();
+
 protected:
     void resizeEvent( QResizeEvent *e ) {
 	QWidgetStack::resizeEvent( e );
@@ -165,7 +168,6 @@ protected:
     }
 
 private slots:
-    void updateButtons();
     void prevPage();
     void nextPage();
 

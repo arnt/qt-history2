@@ -271,6 +271,9 @@ void HierarchyList::objectClicked( QListViewItem *i )
 		( (QDesignerWizard*)w->parent()->parent() )->setCurrentPage( ( (QDesignerWizard*)w->parent()->parent() )->pageNum( w ) );
 	    w = (QWidget*)w->parent()->parent();
 	    formWindow->emitUpdateProperties( formWindow->currentWidget() );
+	} else if ( w->parent() && w->parent()->inherits( "QWidgetStack" ) ) {
+	    ( (QDesignerWidgetStack*)w->parent() )->raiseWidget( w );
+	    ( (QDesignerWidgetStack*)w->parent() )->updateButtons();
 	} else {
 	    return;
 	}
@@ -326,6 +329,8 @@ void HierarchyList::changeDatabaseOf( QWidget *w, const QString &info )
 #endif
 }
 
+static QWidgetStack *lastWidgetStack = 0;
+
 void HierarchyList::setup()
 {
     if ( !formWindow || formWindow->isFake() )
@@ -347,8 +352,10 @@ void HierarchyList::setup()
 	}
     }
 #endif
+    lastWidgetStack = 0;
     if ( w )
 	insertObject( w, 0 );
+    lastWidgetStack = 0;
 }
 
 void HierarchyList::setOpen( QListViewItem *i, bool b )
@@ -396,6 +403,8 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    name = ( (QTabWidget*)o->parent()->parent() )->tabLabel( (QWidget*)o );
 	else if ( o->parent()->parent()->inherits( "QWizard" ) )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
+	else
+	    name = ( (QDesignerWidgetStack*)o->parent() )->pageName();
     }
 
     if ( fakeMainWindow ) {
@@ -426,22 +435,30 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    continue;
 	if (  !formWindow->widgets()->find( (QWidget*)it.current() ) ) {
 	    if ( it.current()->parent() &&
-		 ( it.current()->parent()->inherits( "QTabWidget" ) ||
-		   it.current()->parent()->inherits( "QWizard" ) ) &&
-		 it.current()->inherits( "QWidgetStack" ) ) {
+		 it.current()->inherits( "QWidgetStack" ) ||
+		 it.current()->parent()->inherits( "QWidgetStack" ) ) {
 		QObject *obj = it.current();
-		QObjectList *l2 = obj->queryList( "QWidget", 0, TRUE, FALSE );
 		QDesignerTabWidget *tw = 0;
 		QDesignerWizard *dw = 0;
 		if ( it.current()->parent()->inherits( "QTabWidget" ) )
 		    tw = (QDesignerTabWidget*)it.current()->parent();
 		if ( it.current()->parent()->inherits( "QWizard" ) )
 		    dw = (QDesignerWizard*)it.current()->parent();
-		QWidgetStack *stack = (QWidgetStack*)obj;
+		QWidgetStack *stack = 0;
+		if ( dw || tw )
+		    stack = (QWidgetStack*)obj;
+		else
+		    stack = (QWidgetStack*)obj->parent();
+		if ( lastWidgetStack == stack )
+		    continue;
+		lastWidgetStack = stack;
+		QObjectList *l2 = stack->queryList( "QWidget", 0, TRUE, FALSE );
 		for ( obj = l2->last(); obj; obj = l2->prev() ) {
 		    if ( qstrcmp( obj->className(), "QWidgetStackPrivate::Invisible" ) == 0 ||
 			 ( tw && !tw->tabBar()->tab( stack->id( (QWidget*)obj ) ) ) ||
 			 ( dw && dw->isPageRemoved( (QWidget*)obj ) ) )
+			continue;
+		    if ( qstrcmp( obj->name(), "designer_wizardstack_button" ) == 0 )
 			continue;
 		    insertObject( obj, item );
 		}
