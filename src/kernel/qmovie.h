@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#5 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#6 $
 **
 ** Definition of movie classes
 **
@@ -48,17 +48,22 @@ public:
     void step(int);
     void restart();
 
+    int  speed() const;
+    void setSpeed(int);
+
     void connectResize(QObject* receiver, const char* member);
     void disconnectResize(QObject* receiver, const char* member=0);
 
     void connectUpdate(QObject* receiver, const char* member);
     void disconnectUpdate(QObject* receiver, const char* member=0);
 
-    enum {  UnrecognizedFormat=-1,
+    enum {  SourceEmpty=-2,
+	    UnrecognizedFormat=-1,
 	    Paused=1,
 	    EndOfFrame=2,
 	    EndOfLoop=3,
-	    EndOfMovie=4 } Status;
+	    EndOfMovie=4,
+	    SpeedChanged=5 } Status;
     void connectStatus(QObject* receiver, const char* member);
     void disconnectStatus(QObject* receiver, const char* member=0);
 

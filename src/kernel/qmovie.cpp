@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#14 $
 **
 ** Implementation of movie classes
 **
@@ -82,6 +82,7 @@ public: // for QMovie
 	source = src;
 	buffer = 0;
 	decoder = 0;
+	speed = 100;
 	init(TRUE);
     }
 
@@ -108,10 +109,12 @@ public: // for QMovie
 	framenumber = 0;
 	frameperiod = -1;
 	frametimer.stop();
+	lasttimerinterval = -1;
 	changed_area.setRect(0,0,-1,-1);
 	valid_area = changed_area;
 	loop = -1;
 	error = 0;
+	empty = TRUE;
     }
 
     void flushBuffer()
@@ -220,12 +223,25 @@ public: // for QMovie
 	    }
 	} else {
 	    waitingForFrameTick = TRUE;
-	    frametimer.start(frameperiod >= 0 ? frameperiod : 0);
+	    restartTimer();
 	}
 	showChanges();
 	emit dataStatus(QMovie::EndOfFrame);
 	framenumber++;
 	return FALSE;
+    }
+
+    void restartTimer()
+    {
+	if (speed > 0) {
+	    int i = frameperiod >= 0 ? frameperiod * 100/speed : 0;
+	    if ( i != lasttimerinterval || !frametimer.isActive() ) {
+		lasttimerinterval = i;
+		frametimer.start( i );
+	    }
+	} else {
+	    frametimer.stop();
+	}
     }
 
     bool setLooping(int l)
@@ -247,7 +263,7 @@ public: // for QMovie
     {
 	// Animation:  only show complete frame
 	frameperiod = milliseconds;
-	if (stepping<0 && frameperiod >= 0) frametimer.start(frameperiod);
+	if (stepping<0 && frameperiod >= 0) restartTimer();
 	return TRUE;
     }
 
@@ -272,6 +288,8 @@ public: // for QMovie
 
     void receive(const uchar* b, int count)
     {
+	if ( count ) empty = FALSE;
+
 	while (count && !waitingForFrameTick && stepping != 0) {
 	    int used = decoder->decode(b, count);
 	    if (used<=0) {
@@ -293,6 +311,9 @@ public: // for QMovie
 
     void eof()
     {
+	if ( empty )
+	    emit dataStatus(QMovie::SourceEmpty);
+
 	emit dataStatus(QMovie::EndOfLoop);
 
 	if (loop >= 0) {
@@ -354,7 +375,9 @@ public:
 
     int framenumber;
     int frameperiod;
+    int speed;
     QTimer frametimer;
+    int lasttimerinterval;
     int loop;
 
     bool waitingForFrameTick;
@@ -368,6 +391,7 @@ public:
     QColor bg;
 
     int error;
+    bool empty;
 };
 
 
@@ -572,7 +596,7 @@ void QMovie::unpause()
     if ( d->stepping >= 0 ) {
 	if (d->isNull()) return;
 	d->stepping = -1;
-	d->frametimer.start(d->frameperiod >= 0 ? d->frameperiod : 0);
+	d->restartTimer();
     }
 }
 
@@ -613,6 +637,38 @@ void QMovie::restart()
 	if (s>0) step(s);
     }
 }
+
+/*!
+  Returns the speed-up factor of the movie.  The default is 100 percent.
+  \sa setSpeed()
+*/
+int QMovie::speed() const
+{
+    return d->speed;
+}
+
+/*!
+  Sets the speed-up factor of the movie.  This is a percentage of the
+  speed dictated by the input data format.  The default is 100 percent.
+*/
+void QMovie::setSpeed(int percent)
+{
+    int oldspeed = d->speed;
+
+    if ( oldspeed != percent && percent >= 0 ) {
+	d->speed = percent;
+
+	// Restart timer only if really needed
+	if (d->stepping < 0) {
+	    if ( !percent || !oldspeed    // To or from zero
+	    || oldspeed*4 / percent > 4   // More than 20% slower
+	    || percent*4 / oldspeed > 4   // More than 20% faster
+	    )
+		d->restartTimer();
+	}
+    }
+}
+
 
 /*!
   Connects the given member, of type \code void member(const QSize&) \endcode
@@ -707,7 +763,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.13 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.14 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
