@@ -290,6 +290,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
                  || atom->string().startsWith("ftp:")
 		 || atom->string().startsWith("mailto:"))) {
             link = atom->string();
+        } else if (atom->string().count('@') == 1) {
+            link = "mailto:" + atom->string();
         } else {
             QStringList path;
             if (atom->string().contains('#')) {

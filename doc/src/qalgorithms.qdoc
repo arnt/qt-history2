@@ -1,4 +1,5 @@
-/*! \headerfile <QtAlgorithms>
+/*!
+    \headerfile <QtAlgorithms>
     \title Generic Algorithms
 
     \brief The <QtAlgorithms> header file provides generic template-based algorithms.
@@ -64,6 +65,8 @@
     non-const pointer type (for example, QWidget *). The value type
     requirements are specified for each algorithm, and the compiler
     will produce an error if a requirement isn't met.
+
+    \target binaryFind example
 
     The generic algorithms can be used on other container classes
     than those provided by Qt and STL. The syntax of STL-style
@@ -358,28 +361,7 @@
     \endcode
 */
 
-/*! \fn void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
-    \relates <QtAlgorithms>
-
-    \internal
-    Used by qHeapSort().
-*/
-
-/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, const T &, LessThan lessThan)
-    \relates <QtAlgorithms>
-
-    \internal
-    Used by qHeapSort().
-*/
-
-/*! \fn void qHeapSortHelper(BiIterator b, BiIterator e, const T &dummy)
-    \relates <QtAlgorithms>
-
-    \internal
-    Used by qHeapSort().
-*/
-
-/*! \fn void qHeapSort(BiIterator begin, BiIterator end)
+/*! \fn void qSort(BiIterator begin, BiIterator end)
     \relates <QtAlgorithms>
 
     Sorts the items in range [\a begin, \a end) in ascending order
@@ -389,22 +371,24 @@
     \code
 	QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qHeapSort(list.begin(), list.end());
+	qSort(list.begin(), list.end());
         // list: [ 6, 12, 12, 33, 68 ]
     \endcode
 
-    The heap sort algorithm can be slower than bubble sort
-    (qBubbleSort()) for very small data sets, but is much faster on
-    large data sets. Its behavior is said to be \l
-    {linear-logarithmic}, O(\e{n} log \e{n}).
+    The sort algorithm is efficient on large data sets. It operates
+    in \l {linear-logarithmic time}, O(\e{n} log \e{n}).
 
     This function requires the item type (in the example above,
     \c{int}) to implement \c operator<().
 
-    \sa qBubbleSort(), {bidirectional iterators}
+    If of two items neither is less than the other, the items are
+    taken to be equal. It is then undefined which one of the two
+    items will appear before the other after the sort.
+
+    \sa qStableSort(), {bidirectional iterators}
 */
 
-/*! \fn void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
+/*! \fn void qSort(BiIterator begin, BiIterator end, LessThan lessThan)
     \relates <QtAlgorithms>
 
     \overload
@@ -425,7 +409,7 @@
         {
 	    QList<QString> list;
             list << "AlPha" << "beTA" << "gamma" << "DELTA";
-	    qHeapSort(list.begin(), list.end(), caseInsensitiveLessThan);
+	    qSort(list.begin(), list.end(), caseInsensitiveLessThan);
             // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
         }
     \endcode
@@ -436,17 +420,99 @@
     \code
 	QList<int> list;
         list << 33 << 12 << 68 << 6 << 12;
-	qHeapSort(list.begin(), list.end(), qGreater<int>());
+	qSort(list.begin(), list.end(), qGreater<int>());
         // list: [ 68, 33, 12, 12, 6 ]
     \endcode
+
+    If of two items neither is "less than" the other, the items are
+    taken to be equal. It is then undefined which one of the two
+    items will appear before the other after the sort.
 */
 
-/*! \fn void qHeapSort(Container &c)
+/*! \fn void qSort(Container &container)
     \relates <QtAlgorithms>
 
     \overload
 
-    This is the same as qHeapSort(\a{c}.begin(), \a{c}.end());
+    This is the same as qSort(\a{container}.begin(), \a{container}.end());
+*/
+
+/*! \fn void qStableSort(BiIterator begin, BiIterator end)
+    \relates <QtAlgorithms>
+
+    Sorts the items in range [\a begin, \a end) in ascending order
+    using the heap sort algorithm.
+
+    Example:
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qStableSort(list.begin(), list.end());
+        // list: [ 6, 12, 12, 33, 68 ]
+    \endcode
+
+    The sort algorithm is efficient on large data sets. It operates
+    in \l {linear-logarithmic time}, O(\e{n} log \e{n}).
+
+    This function requires the item type (in the example above,
+    \c{int}) to implement \c operator<().
+
+    If of two items neither is less than the other, the items are
+    taken to be equal. The item that appeared before the other in the
+    original container will still appear first after the sort. This
+    property is often useful when sorting user-visible data.
+
+    \sa qSort(), {bidirectional iterators}
+*/
+
+/*! \fn void qStableSort(BiIterator begin, BiIterator end, LessThan lessThan)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    Uses the \a lessThan function instead of \c operator<() to
+    compare the items.
+
+    For example, here's how to sort the strings in a QList<QString>
+    in case-insensitive alphabetical order:
+
+    \code
+        bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+        {
+            return s1.toLower() < s2.toLower();
+        }
+
+        int doSomething()
+        {
+	    QList<QString> list;
+            list << "AlPha" << "beTA" << "gamma" << "DELTA";
+	    qStableSort(list.begin(), list.end(), caseInsensitiveLessThan);
+            // list: [ "AlPha", "beTA", "DELTA", "gamma" ]
+        }
+    \endcode
+
+    To sort values in reverse order, pass \c qGreater<T>() as the \a
+    lessThan parameter. For example:
+
+    \code
+	QList<int> list;
+        list << 33 << 12 << 68 << 6 << 12;
+	qStableSort(list.begin(), list.end(), qGreater<int>());
+        // list: [ 68, 33, 12, 12, 6 ]
+    \endcode
+
+    If of two items neither is "less than" the other, the items are
+    taken to be equal. The item that appeared before the other in the
+    original container will still appear first after the sort. This
+    property is often useful when sorting user-visible data.
+*/
+
+/*! \fn void qStableSort(Container &container)
+    \relates <QtAlgorithms>
+
+    \overload
+
+    This is the same as qStableSort(\a{container}.begin(), \a{container}.end());
 */
 
 /*! \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
@@ -458,7 +524,7 @@
     inserted.
 
     The items in the range [\a begin, \e end) must be sorted in
-    ascending order; see qHeapSort().
+    ascending order; see qSort().
 
     Example:
     \code
@@ -508,7 +574,7 @@
     item should be inserted.
 
     The items in the range [\a begin, \e end) must be sorted in
-    ascending order; see qHeapSort().
+    ascending order; see qSort().
 
     Example:
     \code
@@ -557,7 +623,7 @@
     no occurrences of \a value, returns \a end.
 
     The items in the range [\a begin, \a end) must be sorted in
-    ascending order; see qHeapSort().
+    ascending order; see qSort().
 
     If there are many occurrences of the same value, any one of them
     could be returned. Use qLowerBound() or qUpperBound() if you need
@@ -576,7 +642,8 @@
     This function requires the item type (in the example above,
     QString) to implement \c operator<().
 
-    See the \l {detailed description} for an example usage.
+    See the \l{#binaryFind example}{detailed description} for an
+    example usage.
 
     \sa qLowerBound(), qUpperBound(), {random access iterators}
 */
