@@ -151,6 +151,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox )
     s = FALSE;
     dirty = TRUE;
     custom_highlight = FALSE;
+    selectable = true;
     p = n = 0;
 
     if (listbox)
@@ -169,6 +170,7 @@ QListBoxItem::QListBoxItem( QListBox* listbox, QListBoxItem *after )
     s = FALSE;
     dirty = TRUE;
     custom_highlight = FALSE;
+    selectable = true;
     p = n = 0;
 
     if (listbox)

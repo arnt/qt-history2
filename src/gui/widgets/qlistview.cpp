@@ -683,6 +683,7 @@ void QListViewItem::init()
     columns = 0;
 
     selected = 0;
+    selectable = true;
 
     lsc = Unsorted;
     lso = TRUE; // unsorted in ascending order :)
