@@ -186,12 +186,16 @@ static int qnps_no_call_back = 0;
 #ifdef Q_WS_WIN
 // defined in qapplication_win.cpp
 Q_CORE_EXPORT extern bool qt_win_use_simple_timers;
+Q_GUI_EXPORT void qWinProcessConfigRequests();
 static HHOOK hhook = 0;
 
 LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 {
-    if ( qApp )
+    if ( qApp ) {
 	qApp->sendPostedEvents();
+	qApp->eventLoop()->activateSocketNotifiers();
+	qWinProcessConfigRequests();
+    }
 
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
