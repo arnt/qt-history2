@@ -22,10 +22,10 @@ public:
     virtual ~QUnknownInterface();
 
     virtual QString interfaceId() const;
-    QString ID() const;
+    QString Id() const;
 
-    virtual bool initialize( QApplicationInterface* = 0 );
-    virtual bool cleanUp( QApplicationInterface* = 0 );
+    virtual bool initialize();
+    virtual bool cleanup();
 
     virtual bool hasInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE ) const;
     virtual QUnknownInterface* queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );

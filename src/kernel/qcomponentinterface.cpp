@@ -121,7 +121,7 @@ QUnknownInterface* QUnknownInterface::parent() const
 */
 bool QUnknownInterface::addRef()
 {
-    if ( !refcount && !initialize( appInterface ) )
+    if ( !refcount && !initialize() )
 	return FALSE;
 
     if ( parent() )
@@ -137,7 +137,7 @@ bool QUnknownInterface::addRef()
 
 /*!
   Decreases the reference counter for this interface by one.
-  If the counter becomes zero, the cleanUp() function is executed, and
+  If the counter becomes zero, the cleanup() function is executed, and
   the result of this function is returned. Otherwise returns FALSE.
 
   \sa addRef()
@@ -161,7 +161,7 @@ bool QUnknownInterface::release()
 
     bool deref = !--refcount;
     if ( deref )
-	return cleanUp( appInterface );
+	return cleanup();
 
     return FALSE;
 }
@@ -198,12 +198,12 @@ QString QUnknownInterface::interfaceId() const
 }
 
 /*!
-  Returns the ID of this interface, that is, the last part of interfaceId().
+  Returns the Id of this interface, that is, the last part of interfaceId().
 
   \sa interfaceId()
 */
 
-QString QUnknownInterface::ID() const
+QString QUnknownInterface::Id() const
 {
     const QString id = interfaceId();
 
@@ -225,18 +225,16 @@ QString QUnknownInterface::createId( const QString &parent, const QString &id ) 
 
 /*!
   This function is called when this interface is referenced the first time.
-  The application interface of this interface is set to \a appIface.
   Reimplement this function and return TRUE if the initialization succeeded,
   or FALSE when the process failed. The default implementation always returns
   TRUE. Reimplementations of this function have to  call the parent class
   implementation.
 
-  \sa addRef(), release(), cleanUp()
+  \sa addRef(), release(), cleanup()
 */
 
-bool QUnknownInterface::initialize( QApplicationInterface* appIface )
+bool QUnknownInterface::initialize()
 {
-    appInterface = appIface;
     return TRUE;
 }
 
@@ -249,7 +247,7 @@ bool QUnknownInterface::initialize( QApplicationInterface* appIface )
   \sa initialize(), release()
 */
 
-bool QUnknownInterface::cleanUp( QApplicationInterface* )
+bool QUnknownInterface::cleanup()
 {
     return TRUE;
 }
