@@ -478,15 +478,16 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
     do {
 	if(bar->inherits("QWidget")) {
 	    frobnitz=(QWidget *)bar;
-	    int wx,wy,wx2,wy2;
-	    qDebug("recursive_match %d %d %d %d",frobnitz->x(),
-		   frobnitz->y(),bigx,bigy);
 	    wx=frobnitz->x()+bigx;
 	    wy=frobnitz->y()+bigy;
-	    bigx=wx;
-	    bigy=wy;
 	    wx2=wx+frobnitz->width();
 	    wy2=wy+frobnitz->height();
+	    int wx,wy,wx2,wy2;
+	    qDebug("recursive_match %d %d  %d %d  %d %d",frobnitz->x(),
+		    frobnitz->y(),wx wy,wx2,wy2);
+	    qDebug("%d %d",bigx,bigy);
+	    bigx=wx;
+	    bigy=wy;
 	    if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 		return recursive_match(frobnitz,x-wx,y-wy);
 	    }
