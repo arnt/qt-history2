@@ -6,11 +6,9 @@
 
 MainWindow::MainWindow()
 {
-    clipboard = qApp->clipboard();
-
     QMenu *fileMenu = new QMenu(tr("&File"), this);
-    QAction *quitAction = fileMenu->addAction(tr("E&xit"));
-    quitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
+    fileMenu->addAction(tr("E&xit"), this, SLOT(close()),
+                        QKeySequence(tr("Ctrl+Q")));
 
     menuBar()->addMenu(fileMenu);
 
@@ -26,22 +24,22 @@ MainWindow::MainWindow()
     view->setWidget(characterWidget);
 
     lineEdit = new QLineEdit(centralWidget);
-    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"),
-                                                   centralWidget);
+    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"), centralWidget);
 
     findFonts();
     findStyles();
 
-    connect(fontCombo, SIGNAL(activated(const QString &)),
-            characterWidget, SLOT(updateFont(const QString &)));
+    clipboard = qApp->clipboard();
+
     connect(fontCombo, SIGNAL(activated(const QString &)),
             this, SLOT(findStyles()));
+    connect(fontCombo, SIGNAL(activated(const QString &)),
+            characterWidget, SLOT(updateFont(const QString &)));
     connect(styleCombo, SIGNAL(activated(const QString &)),
             characterWidget, SLOT(updateStyle(const QString &)));
     connect(characterWidget, SIGNAL(characterSelected(const QString &)),
             this, SLOT(insertCharacter(const QString &)));
     connect(clipboardButton, SIGNAL(clicked()), this, SLOT(updateClipboard()));
-    connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     QHBoxLayout *controlsLayout = new QHBoxLayout;
     controlsLayout->addWidget(fontLabel);
@@ -62,7 +60,7 @@ MainWindow::MainWindow()
     centralLayout->addLayout(lineLayout);
 
     setCentralWidget(centralWidget);
-    setWindowTitle(tr("Character map"));
+    setWindowTitle(tr("Character Map"));
 }
 
 void MainWindow::updateClipboard()

@@ -45,7 +45,6 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
     painter.fillRect(event->rect(), QBrush(Qt::white));
-    painter.setPen(QPen(Qt::black));
     painter.setFont(displayFont);
 
     QRect redrawRect = event->rect();
@@ -54,6 +53,14 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
     int beginColumn = redrawRect.left()/24;
     int endColumn = redrawRect.right()/24;
 
+    painter.setPen(QPen(Qt::gray));
+    for (int row = beginRow; row <= endRow; ++row) {
+        for (int column = beginColumn; column <= endColumn; ++column) {
+            painter.drawRect(column*24, row*24, 24, 24);
+        }
+    }
+
+    painter.setPen(QPen(Qt::black));
     for (int row = beginRow; row <= endRow; ++row) {
 
         for (int column = beginColumn; column <= endColumn; ++column) {
@@ -67,7 +74,6 @@ void CharacterWidget::paintEvent(QPaintEvent *event)
             if (key == currentKey)
                 painter.fillRect(column*24, row*24, 24, 24, QBrush(Qt::red));
 
-            painter.drawRect(column*24, row*24, 24, 24);
             painter.drawText(column*24 + 12 - fontMetrics.width(QChar(key))/2,
                              row*24 + 4 + fontMetrics.ascent(),
                              QString(QChar(key)));
