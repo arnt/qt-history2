@@ -9,13 +9,6 @@ QVim README
  *
  */
 
-
 This port uses only the standard Qt API.  See http://www.trolltech.com
 
 See INSTALL.qvim for build steps
-
-
-
-
-
-
