@@ -26,9 +26,9 @@
 
 // defined in fetchtr.cpp
 extern void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
-			 const char *defaultContext );
+			 const char *defaultContext, bool mustExist );
 extern void fetchtr_ui( const char *fileName, MetaTranslator *tor,
-			const char *defaultContext );
+			const char *defaultContext, bool mustExist );
 
 // defined in merge.cpp
 extern void merge( MetaTranslator *tor, const MetaTranslator *virginTor,
@@ -99,10 +99,12 @@ int main( int argc, char **argv )
             for ( t = toks.begin(); t != toks.end(); ++t ) {
                 if ( it.key() == QString("HEADERS") ||
                      it.key() == QString("SOURCES") ) {
-                    fetchtr_cpp( *t, &fetchedTor, defaultContext );
+                    fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
                     metSomething = TRUE;
                 } else if ( it.key() == QString("INTERFACES") ) {
-                    fetchtr_ui( *t, &fetchedTor, defaultContext );
+                    fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
+		    fetchtr_cpp( *t + QString(".h"), &fetchedTor,
+				 defaultContext, FALSE );
                     metSomething = TRUE;
                 } else if ( it.key() == QString("TRANSLATIONS") ) {
                     translatorFiles.append( *t );

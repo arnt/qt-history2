@@ -523,12 +523,13 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 }
 
 void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
-		  const char *defaultContext )
+		  const char *defaultContext, bool mustExist )
 {
     yyInFile = fopen( fileName, "r" );
     if ( yyInFile == 0 ) {
-	qWarning( "lupdate error: cannot open C++ source file '%s': %s",
-		  fileName, strerror(errno) );
+	if ( mustExist )
+	    qWarning( "lupdate error: cannot open C++ source file '%s': %s",
+		      fileName, strerror(errno) );
 	return;
     }
 
@@ -541,6 +542,10 @@ void fetchtr_cpp( const char *fileName, MetaTranslator *tor,
   In addition to C++, we support Qt Designer UI files.
 */
 
+/*
+  Fetches tr() calls in C++ code in UI files (inside "<function>"
+  tag). This mechanism is obsolete.
+*/
 void fetchtr_inlined_cpp( const char *fileName, const QString& in,
 			  MetaTranslator *tor, const char *context )
 {
@@ -635,12 +640,13 @@ void UiHandler::flush()
 }
 
 void fetchtr_ui( const char *fileName, MetaTranslator *tor,
-		 const char * /* defaultContext */ )
+		 const char * /* defaultContext */, bool mustExist )
 {
     QFile f( fileName );
     if ( !f.open(IO_ReadOnly) ) {
-	qWarning( "lupdate error: cannot open UI source file '%s': %s",
-		  fileName, strerror(errno) );
+	if ( mustExist )
+	    qWarning( "lupdate error: cannot open UI file '%s': %s", fileName,
+		      strerror(errno) );
 	return;
     }
 
