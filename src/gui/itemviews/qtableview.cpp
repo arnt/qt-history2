@@ -856,7 +856,7 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
         return;
 
     if (area.contains(rect)) {
-        d->viewport->repaint(rect);
+        d->viewport->repaint(rect); // FIXME: make this update ?
         return;
     }
 
@@ -883,6 +883,8 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
         int a = (-x * horizontalFactor()) / columnWidth(c);
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
+
+    d->viewport->update(itemViewportRect(index));
 }
 
 /*!
