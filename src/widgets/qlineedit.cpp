@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#119 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#120 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#119 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#120 $");
 
 
 struct QLineEditPrivate {
@@ -361,7 +361,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	QString t( 2 );
 	t[0] = e->ascii();
 	t[1] = '\0';
-	debug( "lezz try <%s>", t.data() );
 	insert( t );
 	return;
     }
