@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#11 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -457,8 +457,13 @@ void write_png_image(QImageIO* iio)
 */
 
 
-QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth=32,
-	int conversionflags=0) :
+/*!
+  Create an image packer that writes PNG data to \a iod, using a
+  \a storage_depth bit encoding (use 8 or 32, depending on the
+  desired quality and compression requirements).
+*/
+QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
+	int conversionflags) :
     QPNGImageWriter(iod),
     depth(storage_depth),
     convflags(conversionflags),
@@ -466,11 +471,20 @@ QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth=32,
 {
 }
 
+/*!
+  Align pixel differences to \a x pixels.  For example, using 8 can
+  improve playback on certain hardware.  Normally the default of 1-pixel
+  alignment (ie. no alignment) gives bets compression and performance.
+*/
 void QPNGImagePacker::setPixelAlignment(int x)
 {
     alignx = x;
 }
 
+/*!
+  Add the image \a img to the PNG animation, analyzing the differences
+  between this and the previous image to improve compression.
+*/
 bool QPNGImagePacker::packImage(const QImage& img)
 {
     QImage image = img.convertDepth(32);
