@@ -539,6 +539,7 @@ QAction *DesignerFormWindowImpl::createAction( const QString& text, const QIconS
     QDesignerAction *a = new QDesignerAction( parent );
     a->setName( name );
     a->setText( text );
+    if ( !icon.isNull() && !icon.pixmap().isNull() )
     a->setIconSet( icon );
     a->setMenuText( menuText );
     a->setAccel( accel );
@@ -556,7 +557,8 @@ void DesignerFormWindowImpl::addAction( QAction *a )
     setPropertyChanged( a, "text", TRUE );
     setPropertyChanged( a, "menuText", TRUE );
     setPropertyChanged( a, "accel", TRUE );
-    setPropertyChanged( a, "iconSet", TRUE );
+    if ( !a->iconSet().isNull() && !a->iconSet().pixmap().isNull() )
+	setPropertyChanged( a, "iconSet", TRUE );
 }
 
 void DesignerFormWindowImpl::removeAction( QAction *a )
