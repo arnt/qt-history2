@@ -26,7 +26,7 @@ void CannonField::setAngle(int angle)
     if (ang == angle)
         return;
     ang = angle;
-    repaint(cannonRect());
+    update(cannonRect());
     emit angleChanged(ang);
 }
 
@@ -40,15 +40,13 @@ void CannonField::setForce(int force)
     emit forceChanged(f);
 }
 
-void CannonField::paintEvent(QPaintEvent *event)
+void CannonField::paintEvent(QPaintEvent * /* event */)
 {
-    if (!event->rect().intersects(cannonRect()))
-        return;
-
     QPainter painter(this);
+
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::blue);
-    painter.translate(rect().bottomLeft());
+    painter.translate(0, height());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
     painter.rotate(-ang);
     painter.drawRect(QRect(33, -4, 15, 8));

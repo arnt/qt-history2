@@ -14,8 +14,6 @@
 
 #include "cannonfield.h"
 
-using namespace std;
-
 CannonField::CannonField(QWidget *parent)
     : QWidget(parent)
 {
@@ -40,7 +38,7 @@ void CannonField::setAngle(int angle)
     if (ang == angle)
         return;
     ang = angle;
-    repaint(cannonRect());
+    update(cannonRect());
     emit angleChanged(ang);
 }
 
@@ -73,9 +71,8 @@ void CannonField::newTarget()
         QTime midnight(0, 0, 0);
         srand(midnight.secsTo(QTime::currentTime()));
     }
-    QRegion region = targetRect();
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
-    repaint(region.unite(targetRect()));
+    update();
 }
 
 void CannonField::moveShot()
@@ -94,21 +91,17 @@ void CannonField::moveShot()
     } else {
         region = region.unite(shotR);
     }
-
-    repaint(region);
+    update(region);
 }
 
-void CannonField::paintEvent(QPaintEvent *event)
+void CannonField::paintEvent(QPaintEvent * /* event */)
 {
-    QRect updateR = event->rect();
     QPainter painter(this);
 
-    if (updateR.intersects(cannonRect()))
-        paintCannon(painter);
-    if (autoShootTimer->isActive() && updateR.intersects(shotRect()))
+    paintCannon(painter);
+    if (autoShootTimer->isActive())
         paintShot(painter);
-    if (updateR.intersects(targetRect()))
-        paintTarget(painter);
+    paintTarget(painter);
 }
 
 void CannonField::paintShot(QPainter &painter)
@@ -133,7 +126,7 @@ void CannonField::paintCannon(QPainter &painter)
     painter.setBrush(Qt::blue);
 
     painter.save();
-    painter.translate(rect().bottomLeft());
+    painter.translate(0, height());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
     painter.rotate(-ang);
     painter.drawRect(barrelRect);

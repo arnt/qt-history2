@@ -24,7 +24,7 @@ void CannonField::setAngle(int angle)
     if (ang == angle)
         return;
     ang = angle;
-    repaint();
+    update();
     emit angleChanged(ang);
 }
 
