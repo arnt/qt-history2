@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#17 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -107,7 +107,9 @@ public:
 
     int px;
     int py;
+    QWidget *becomeActive;
 };
+
 QWorkspace::QWorkspace( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
@@ -117,7 +119,8 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->maxClient = 0;
     d->px = 0;
     d->py = 0;
-
+    d->becomeActive = 0;
+    
     topLevelWidget()->installEventFilter( this );
 
 }	
@@ -158,7 +161,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    }
 	    if( e->child() == d->active )
 		d->active = 0;
-	    
+	
 	    if (  !d->windows.isEmpty() ) {
 		if ( e->child() == d->maxClient  ) {
 		    d->maxClient = 0;
@@ -175,6 +178,11 @@ void QWorkspace::childEvent( QChildEvent * e)
 
 void QWorkspace::activateClient( QWidget* w)
 {
+    if ( !isVisible() ) {
+	d->becomeActive = w;
+	return;
+    }
+    
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
 	c->setActive( c->clientWidget() == w );
 	if (c->clientWidget() == w)
@@ -261,6 +269,15 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     if ( d->maxClient )
 	d->maxClient->adjustToFullscreen();
     layoutIcons();
+}
+
+void QWorkspace::showEvent( QShowEvent *e )
+{
+    QWidget::showEvent( e );
+    if ( d->becomeActive )
+	activateClient( d->becomeActive );
+    else if ( d->windows.count() > 0 && !d->active )
+	activateClient( d->windows.first()->clientWidget() );
 }
 
 void QWorkspace::layoutIcons()

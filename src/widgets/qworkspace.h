@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#17 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#18 $
 **
 ** Definition of the QWorkspace class
 **
@@ -45,6 +45,7 @@
 
 
 class QWorkspaceData;
+class QShowEvent;
 
 class Q_EXPORT QWorkspace : public QWidget
 {
@@ -67,11 +68,12 @@ protected:
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
-
+    void showEvent( QShowEvent *e );
+    
 private slots:
     void closeActive();
     void normalizeActive();
-    
+
 private:
     void insertIcon( QWidget* w);
     void removeIcon( QWidget* w);
