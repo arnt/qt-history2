@@ -96,7 +96,7 @@ private:
     QTime checkTime;
 };
 
-static QAlphaWidget* blend = 0;
+static QAlphaWidget* q_blend = 0;
 
 /*
   Constructs a QAlphaWidget.
@@ -192,7 +192,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 */
 void QAlphaWidget::closeEvent( QCloseEvent* )
 {
-    if ( !blend )
+    if ( !q_blend )
 	return;
 
     showWidget = FALSE;
@@ -232,7 +232,7 @@ void QAlphaWidget::render()
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
 	}
-	blend = 0;
+	q_blend = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
     } else {
 	alphaBlend();
@@ -319,7 +319,7 @@ private:
     QPixmap pm;
 };
 
-static QRollEffect* roll = 0;
+static QRollEffect* q_roll = 0;
 
 /*
   Construct a QRollEffect widget.
@@ -505,7 +505,7 @@ void QRollEffect::scroll()
 	    if ( widget->inherits( "QLabel" ) && widget->testWFlags( WStyle_Tool ) )
 		widget->update();
 	}
-	roll = 0;
+	q_roll = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
     }
 }
@@ -527,22 +527,22 @@ void QRollEffect::goodBye()
 */
 void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 {
-    if ( roll ) {
-	delete roll;
-	roll = 0;
+    if ( q_roll ) {
+	delete q_roll;
+	q_roll = 0;
     }
 
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
+	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
 	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
     else
-	roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | 
+	q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | 
 	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop, orient );
 
-    roll->run( time );
+    q_roll->run( time );
 }
 
 /*!
@@ -550,21 +550,21 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 */
 void qFadeEffect( QWidget* w, int time )
 {
-    if ( blend ) {
-	delete blend;
-	blend = 0;
+    if ( q_blend ) {
+	delete q_blend;
+	q_blend = 0;
     }
 
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
     if ( qstrcmp( w->name(), "qt_internal_mdi_popup" ) )
-	blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
+	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WStyle_Tool | 
 	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop );
     else
-	blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | 
+	q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | 
 	    Qt::WResizeNoErase | Qt::WRepaintNoErase | Qt::WStyle_StaysOnTop);
 
-    blend->run( time );
+    q_blend->run( time );
 }
 #endif //QT_NO_EFFECTS
