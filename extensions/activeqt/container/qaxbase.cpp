@@ -2629,13 +2629,16 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     the method, or an invalid QVariant if the method does not return
     a value or when the function call failed.
 
-    \a function must be provided as the full prototype, for example as
-    it would be written in a QObject::connect() call.
+    If \a function is a method of the object the string must be provided 
+    as the full prototype, for example as it would be written in a 
+    QObject::connect() call.
     \code
     activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
     \endcode
 
-    You can also use this method to set and get property values:
+    If \a function is a property the string has to be the name of the 
+    property. The property setter is called when \a var1 is a valid QVariant,
+    otherwise the getter is called.
     \code
     activeX->dynamicCall( "Value", 5 );
     QString text = activeX->dynamicCall( "Text" ).toString();
@@ -2706,8 +2709,9 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
     Calls the COM object's method \a function, passing the
     parameters in \a vars, and returns the value returned by
-    the method, or an invalid QVariant if the method does not return
-    a value or when the function call failed.
+    the method. If the method does not return a value or when 
+    the function call failed this function returns an invalid 
+    QVariant object.
 
     The QVariant objects in \a vars are updated when the method has
     out-parameters.
@@ -2745,14 +2749,20 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
 
 /*!
     Returns a pointer to a QAxObject wrapping the COM object provided
-    by the method or property \a name, passing \a var1 ... \a var8 as
-    optional parameters. If \a name is provided by a method the string 
-    must include the full function prototype. If \a name is a property
-    \a var1 ... \a var8 are ignored.
+    by the method or property \a name, passing passing the parameters 
+    \a var1, \a var1, \a var2, \a var3, \a var4, \a var5, \a var6, 
+    \a var7 and \a var8. 
+    
+    If \a name is provided by a method the string must include the 
+    full function prototype.
 
-    The returned object is a child of this object (which is either of
+    If \a name is a property the string must be the name of the property,
+    and \a var1, ... \a var8 are ignored.
+
+    The returned QAxObject is a child of this object (which is either of
     type QAxObject or QAxWidget), and is deleted when this object is
-    deleted. It is safe to delete the returned object yourself.
+    deleted. It is however safe to delete the returned object yourself,
+    and you should do so when you iterate over lists of subobjects.
 
     COM enabled applications usually have an object model publishing
     certain elements of the application as dispatch interfaces. Use
@@ -2821,8 +2831,6 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
 	    const char *coclass = metaObject()->classInfo( "CoClass" );
 	    qWarning( "QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
 		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
-	    if ( res.vt == VT_BSTR )
-		SysFreeString( res.bstrVal );
 	}
 #endif
 	break;
