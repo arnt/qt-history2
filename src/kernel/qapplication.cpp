@@ -829,6 +829,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     // ### if aargv is modified someday
     static char *aargv[] = { (char*)"unknown", 0 };
 
+    qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
     init_precmdline();
@@ -867,6 +868,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 QApplication::QApplication(Display *dpy, int argc, char **argv,
 			   HANDLE visual, HANDLE colormap)
 {
+    qt_appType = GuiClient;
     qt_is_gui_used = TRUE;
     qt_appType = GuiClient;
     init_precmdline();
