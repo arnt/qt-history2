@@ -1359,9 +1359,12 @@ void QComboBox::popup()
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox()->resize( width(),
 			    listHeight( d->listBox(), d->sizeLimit ) + 2 );
-	QWidget *desktop = QApplication::desktop();
-	int sw = desktop->width();			// screen width
-	int sh = desktop->height();			// screen height
+	QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( this ) );
+
+	int sx = screen.x();				// screen pos
+	int sy = screen.y();
+	int sw = screen.width();			// screen width
+	int sh = screen.height();			// screen height
 	QPoint pos = mapToGlobal( QPoint(0,height()) );
 
 	// ### Similar code is in QPopupMenu
@@ -1371,11 +1374,11 @@ void QComboBox::popup()
 	int h = d->listBox()->height();
 
 	// the complete widget must be visible
-	if ( x + w > sw )
-	    x = sw - w;
-	else if ( x < 0 )
-	    x = 0;
-	if (y + h > sh && y - h - height() >= 0 )
+	if ( x + w > sx + sw )
+	    x = sx+sw - w;
+	if ( x < sx )
+	    x = sx;
+	if (y + h > sy+sh && y - h - height() >= 0 )
 	    y = y - h - height();
 
 	d->listBox()->move( x,y );
