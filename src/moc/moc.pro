@@ -3,6 +3,7 @@ CONFIG	    =   console release
 LEXINPUT    =	moc.l
 YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../../include
+OBJECTS_DIR =	.
 MOCGEN	    =	mocgen.cpp
 SOURCES     =	$$MOCGEN		\
 		../tools/qbuffer.cpp	\
