@@ -19,6 +19,7 @@
 #include <qpopupmenu.h>
 #include <qaccel.h>
 #include <qcstring.h>
+#include <qevent.h>
 
 Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     : QTextEdit( parent, name ), hasError( FALSE )

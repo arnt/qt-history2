@@ -1,5 +1,6 @@
 #include <qdragobject.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include "listview.h"
 #include "dnd.h"
 

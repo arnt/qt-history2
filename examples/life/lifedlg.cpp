@@ -12,6 +12,8 @@
 
 #include "lifedlg.h"
 #include <qapplication.h>
+#include <qdesktopwidget.h>
+#include <qevent.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qslider.h>
@@ -41,7 +43,7 @@ void LifeTimer::pause( bool stopIt )
 
 void LifeTimer::setSpeed( int speed )
 {
-    interval = MAXSPEED - speed; 
+    interval = MAXSPEED - speed;
     if ( isActive() )
 	changeInterval( interval );
 }
@@ -125,10 +127,10 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
 
     QSize s;
     s = life->minimumSize();
-    setMinimumSize( s.width() + 2 * SIDEBORDER, 
+    setMinimumSize( s.width() + 2 * SIDEBORDER,
 		    s.height() + TOPBORDER + SIDEBORDER );
     s = life->maximumSize();
-    setMaximumSize( s.width() + 2 * SIDEBORDER, 
+    setMaximumSize( s.width() + 2 * SIDEBORDER,
 		    s.height() + TOPBORDER + SIDEBORDER );
     s = life->sizeIncrement();
     setSizeIncrement( s.width(), s.height() );

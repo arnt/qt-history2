@@ -5,7 +5,7 @@
 #include <qpoint.h>
 #include <qpopupmenu.h>
 #include <qstatusbar.h>
-
+#include <qevent.h>
 
 void CanvasView::contentsContextMenuEvent( QContextMenuEvent * )
 {

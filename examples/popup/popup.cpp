@@ -12,6 +12,7 @@
 
 #include "popup.h"
 #include <qapplication.h>
+#include <qevent.h>
 #include <qlayout.h>
 
 FancyPopup::FancyPopup( QWidget* parent, const char*  name ):

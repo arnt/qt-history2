@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 #include <qapplication.h>
+#include <qevent.h>
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qmultilineedit.h>

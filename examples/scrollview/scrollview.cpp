@@ -22,6 +22,7 @@
 #include <qlabel.h>
 #include <qmultilineedit.h>
 #include <qsizegrip.h>
+#include <qevent.h>
 #include <stdlib.h>
 
 

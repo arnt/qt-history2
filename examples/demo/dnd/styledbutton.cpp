@@ -20,6 +20,7 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <qdragobject.h>
+#include <qevent.h>
 #include <qstyle.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)

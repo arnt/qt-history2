@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include "main.h"
+#include <qevent.h>
 
 const char* red_icon[]={
 "16 16 2 1",
@@ -88,7 +89,7 @@ DDListBox::DDListBox( QWidget * parent, const char * name, WFlags f ) :
 
 void DDListBox::dragEnterEvent( QDragEnterEvent *evt )
 {
-    if ( QTextDrag::canDecode( evt ) ) 
+    if ( QTextDrag::canDecode( evt ) )
 	evt->accept();
 }
 
@@ -97,7 +98,7 @@ void DDListBox::dropEvent( QDropEvent *evt )
 {
     QString text;
 
-    if ( QTextDrag::decode( evt, text ) ) 
+    if ( QTextDrag::decode( evt, text ) )
 	insertItem( text );
 }
 
@@ -134,7 +135,7 @@ void DDIconViewItem::dropped( QDropEvent *evt, const QValueList<QIconDragItem>& 
 {
     QString label;
 
-    if ( QTextDrag::decode( evt, label ) ) 
+    if ( QTextDrag::decode( evt, label ) )
 	setText( label );
 }
 
@@ -171,8 +172,8 @@ int main( int argc, char *argv[] )
     split->show();
 
     // Set up the connection so that we can drop items into the icon view
-    QObject::connect( 
-	iv, SIGNAL(dropped(QDropEvent*, const QValueList<QIconDragItem>&)), 
+    QObject::connect(
+	iv, SIGNAL(dropped(QDropEvent*, const QValueList<QIconDragItem>&)),
 	iv, SLOT(slotNewItem(QDropEvent*, const QValueList<QIconDragItem>&)));
 
     // Populate the QIconView with icons

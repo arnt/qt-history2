@@ -12,6 +12,7 @@
 
 #include "application.h"
 #include <qworkspace.h>
+#include <qevent.h>
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qtoolbar.h>

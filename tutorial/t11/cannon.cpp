@@ -7,6 +7,7 @@
 #include "cannon.h"
 #include <qtimer.h>
 #include <qpainter.h>
+#include <qevent.h>
 #include <qpixmap.h>
 
 #include <math.h>

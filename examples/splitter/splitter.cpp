@@ -13,6 +13,7 @@
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qsplitter.h>
+#include <qevent.h>
 #include <qmultilineedit.h>
 
 #include <qpainter.h>

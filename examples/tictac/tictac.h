@@ -16,6 +16,7 @@
 
 #include <qpushbutton.h>
 #include <qptrvector.h>
+#include <qmemarray.h>
 
 class QComboBox;
 class QLabel;

@@ -15,6 +15,7 @@
 #include "qintdict.h"
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
+#include <qevent.h>
 #include "qcolor.h"
 #include "qwidget.h"
 #include "qfontmetrics.h"

@@ -14,7 +14,7 @@
 #include "editor.h"
 #include <private/qrichtext_p.h>
 #include <qcursor.h>
-
+#include <qevent.h>
 
 EditorBrowser::EditorBrowser( Editor *e )
     : curEditor( e ), oldHighlightedParag( 0 )

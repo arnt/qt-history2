@@ -20,6 +20,7 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #include <qfontdialog.h>
+#include <qevent.h>
 #include <stdlib.h>
 
 

@@ -22,6 +22,8 @@
 #include "arghintwidget.h"
 #include <qsizegrip.h>
 #include <qtimer.h>
+#include <qdesktopwidget.h>
+#include <qevent.h>
 
 static QColor getColor( const QString &type )
 {

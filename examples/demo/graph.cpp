@@ -9,6 +9,7 @@
 #include <qpushbutton.h>
 #include <qslider.h>
 #include <qvaluelist.h>
+#include <qevent.h>
 
 #include <stdlib.h>
 

@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 #include <qtranslator.h>
 #include <qfileinfo.h>
 #include <qmessagebox.h>

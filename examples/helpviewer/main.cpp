@@ -13,6 +13,7 @@
 #include "helpwindow.h"
 #include <qapplication.h>
 #include <qwindowsstyle.h>
+#include <qdesktopwidget.h>
 #include <qstylesheet.h>
 #include <stdlib.h>
 

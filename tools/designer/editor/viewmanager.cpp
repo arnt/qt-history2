@@ -18,6 +18,7 @@
 #include "paragdata.h"
 #include <qlabel.h>
 #include <qtimer.h>
+#include <qevent.h>
 
 ViewManager::ViewManager( QWidget *parent, const char *name )
     : QWidget( parent, name ), curView( 0 )

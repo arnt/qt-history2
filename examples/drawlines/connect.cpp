@@ -13,6 +13,7 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include <stdlib.h>
 
 

@@ -12,6 +12,7 @@
 
 #include "scribble.h"
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 
 
 int main( int argc, char **argv )

@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
+#include <qevent.h>
 #include <qpainter.h>
 #include <qpicture.h>
 #include <qpixmap.h>

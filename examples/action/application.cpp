@@ -31,6 +31,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
 #include <qaction.h>
+#include <qevent.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"

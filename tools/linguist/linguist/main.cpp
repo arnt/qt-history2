@@ -13,6 +13,7 @@
 #include "trwindow.h"
 
 #include <qapplication.h>
+#include <qdesktopwidget.h>
 #include <qlabel.h>
 #include <qpixmap.h>
 #include <qtimer.h>

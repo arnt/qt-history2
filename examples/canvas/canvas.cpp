@@ -1,5 +1,6 @@
 #include <qdatetime.h>
 #include <qmainwindow.h>
+#include <qevent.h>
 #include <qstatusbar.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
@@ -9,6 +10,7 @@
 #include <qlabel.h>
 #include <qimage.h>
 #include <qprogressdialog.h>
+#include <qmemarray.h>
 #include "canvas.h"
 
 #include <stdlib.h>

@@ -12,6 +12,7 @@
 
 #include "qtetrix.h"
 #include <qapplication.h>
+#include <qevent.h>
 #include <qlabel.h>
 #include <qdatetime.h>
 
@@ -113,7 +114,7 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     showScore->setFrameStyle(QFrame::Sunken|QFrame::Box);
     showLines->setFrameStyle(QFrame::Sunken|QFrame::Box);
     showLevel->setFrameStyle(QFrame::Sunken|QFrame::Box);
-#endif    
+#endif
     quitButton  = new QPushButton("&Quit",this);
     startButton = new QPushButton("&New Game",this);
     pauseButton = new QPushButton("&Pause",this);
@@ -159,7 +160,7 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
     showScore->setNum( 0 );
     showLevel->setNum( 0 );
     showLines->setNum( 0 );
-#endif    
+#endif
     startButton->setGeometry( 46, 288, 90, 30 );
     quitButton->setGeometry( 370, 265, 90, 30 );
     pauseButton->setGeometry( 370, 310, 90, 30 );

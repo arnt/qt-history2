@@ -19,6 +19,7 @@
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include <qclipboard.h>
 
 

@@ -12,6 +12,7 @@
 
 #include <qiconview.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include <qdragobject.h>
 #include <qpixmap.h>
 #include <qiconset.h>

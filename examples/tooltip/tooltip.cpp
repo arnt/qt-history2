@@ -12,6 +12,7 @@
 
 #include "tooltip.h"
 #include <qapplication.h>
+#include <qevent.h>
 #include <qpainter.h>
 #include <stdlib.h>
 

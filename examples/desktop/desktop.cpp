@@ -14,6 +14,9 @@
 #include <qbitmap.h>
 #include <qpainter.h>
 #include <qapplication.h>
+#include <qdesktopwidget.h>
+#include <qpainter.h>
+#include <qevent.h>
 #include <qdropsite.h>
 #include <qdragobject.h>
 #include <stdio.h>

@@ -1,4 +1,5 @@
 #include <qapplication.h>
+#include <qevent.h>
 #include <qwidget.h>
 #include <qimage.h>
 #include <qpixmap.h>

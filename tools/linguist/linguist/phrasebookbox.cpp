@@ -20,6 +20,7 @@
 #include "phraselv.h"
 
 #include <qapplication.h>
+#include <qevent.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>

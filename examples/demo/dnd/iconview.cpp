@@ -1,4 +1,5 @@
 #include <qdragobject.h>
+#include <qevent.h>
 
 #include "dnd.h"
 #include "iconview.h"

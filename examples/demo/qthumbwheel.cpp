@@ -17,6 +17,7 @@
 #ifndef QT_NO_THUMBWHEEL
 #include <qpainter.h>
 #include <qdrawutil.h>
+#include <qevent.h>
 #include <qpixmap.h>
 #include <math.h>
 

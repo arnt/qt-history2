@@ -13,6 +13,7 @@
 #include "colorbutton.h"
 
 #include <qapplication.h>
+#include <qevent.h>
 #include <qcolordialog.h>
 #include <qpainter.h>
 #include <qdragobject.h>

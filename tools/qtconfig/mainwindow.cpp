@@ -31,6 +31,7 @@
 #include <qmessagebox.h>
 #include <qtextview.h>
 #include <qstyle.h>
+#include <qevent.h>
 #include <qvaluelist.h>
 
 #include <stdlib.h>

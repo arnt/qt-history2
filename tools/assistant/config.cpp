@@ -14,6 +14,8 @@
 #include "profile.h"
 
 #include <qapplication.h>
+#include <qfont.h>
+#include <qfontinfo.h>
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qfile.h>

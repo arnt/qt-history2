@@ -14,6 +14,7 @@
 #include "qtetrix.h"
 #include <qtimer.h>
 #include <qpainter.h>
+#include <qevent.h>
 
 const int waitAfterLineTime = 500;
 

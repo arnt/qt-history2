@@ -12,6 +12,7 @@
 
 #include <qprogressdialog.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include <qmenubar.h>
 #include <qpopupmenu.h>
 #include <qpainter.h>

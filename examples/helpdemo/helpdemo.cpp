@@ -5,6 +5,7 @@
 #include <qpopupmenu.h>
 #include <qcheckbox.h>
 #include <qprocess.h>
+#include <qevent.h>
 #include <qpushbutton.h>
 #include <qdir.h>
 

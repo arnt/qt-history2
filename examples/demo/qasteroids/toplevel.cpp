@@ -9,6 +9,7 @@
 #include <qlayout.h>
 #include <qlcdnumber.h>
 #include <qpushbutton.h>
+#include <qevent.h>
 
 #include <qapplication.h>
 

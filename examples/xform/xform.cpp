@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-
+#include <qevent.h>
 #include <qdialog.h>
 #include <qlabel.h>
 #include <qlineedit.h>

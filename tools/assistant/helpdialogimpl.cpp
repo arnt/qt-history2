@@ -22,6 +22,7 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qapplication.h>
+#include <qevent.h>
 #include <qmessagebox.h>
 #include <qlabel.h>
 #include <qtabwidget.h>

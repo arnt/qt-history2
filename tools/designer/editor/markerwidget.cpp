@@ -17,6 +17,7 @@
 #include <qpainter.h>
 #include <qpopupmenu.h>
 #include "paragdata.h"
+#include <qevent.h>
 
 static const char * error_xpm[] = {
 "15 15 35 1",

@@ -20,6 +20,8 @@
 
 #include <qapplication.h>
 #include <qpainter.h>
+#include <qdesktopwidget.h>
+#include <qevent.h>
 #include <qwmatrix.h>
 
 

@@ -21,6 +21,8 @@
 #include <qpaintdevicemetrics.h>
 #include <qptrlist.h>
 #include <qfontdialog.h>
+#include <qevent.h>
+#include <qdesktopwidget.h>
 
 #include <qtextcodec.h>
 
@@ -48,7 +50,7 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertItem( "Open &As",  open_as );
     save_as = new QPopupMenu();
     file->insertItem( "Sa&ve As",  save_as );
-    file->insertItem( "Add &Encoding", this, SLOT(addEncoding()) );    
+    file->insertItem( "Add &Encoding", this, SLOT(addEncoding()) );
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
     file->insertItem( "&Print...", this, SLOT(print()),    ALT+Key_P );

@@ -7,6 +7,7 @@
 #include "cannon.h"
 #include <qpainter.h>
 #include <qpixmap.h>
+#include <qevent.h>
 
 
 CannonField::CannonField( QWidget *parent, const char *name )
