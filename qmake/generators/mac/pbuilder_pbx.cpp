@@ -485,19 +485,41 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         if(!src_list.isEmpty()) {
             if(srcs[src] == "SOURCES") {
                 if(project->first("TEMPLATE") == "app" && !project->isEmpty("RC_FILE")) { //Icon
-                    QString icns_file = keyFor("ICNS_FILE");
-                    src_list.append(icns_file);
-                    t << "\t\t" << icns_file << " = {" << "\n"
+                    //RC_FILE
+                    QString app_icon = keyFor("APPLICATION_ICON");
+                    src_list.append(app_icon);
+                    t << "\t\t" << app_icon << " = {" << "\n"
                       << "\t\t\t" << "isa = PBXFileReference;" << "\n"
                       << "\t\t\t" << "path = \"" << project->first("RC_FILE") << "\";" << "\n"
                       << "\t\t\t" << "refType = " << reftypeForFile(project->first("RC_FILE")) << ";" << "\n"
                       << "\t\t" << "};" << "\n";
-                    t << "\t\t" << keyFor("ICNS_FILE_REFERENCE") << " = {" << "\n"
-                      << "\t\t\t" << "fileRef = " << icns_file << ";" << "\n"
+                    const QString app_icon_reference = keyFor("APPLICATION_ICON_REFERENCE");
+                    project->variables()["QMAKE_PBX_ICONS"].append(app_icon_reference);
+                    t << "\t\t" << app_icon_reference << " = {" << "\n"
+                      << "\t\t\t" << "fileRef = " << app_icon << ";" << "\n"
                       << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
                       << "\t\t\t" << "settings = {" << "\n"
                       << "\t\t\t" << "};" << "\n"
                       << "\t\t" << "};" << "\n";
+                    //ICONS
+                    const QStringList &icons = project->variables()["ICONS"];
+                    for(int i2 = 0; i2 < icons.count(); i2++) {
+                        const QString icns_file = keyFor("ICNS_FILE" + icons[i2]);
+                        src_list.append(icns_file);
+                        t << "\t\t" << icns_file << " = {" << "\n"
+                          << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+                          << "\t\t\t" << "path = \"" << icons[i2] << "\";" << "\n"
+                          << "\t\t\t" << "refType = " << reftypeForFile(icons[i2]) << ";" << "\n"
+                          << "\t\t" << "};" << "\n";
+                        const QString icns_file_reference = keyFor("ICNS_FILE_REFERENCE" + icons[i2]);
+                        project->variables()["QMAKE_PBX_ICONS"].append(icns_file_reference);
+                        t << "\t\t" << icns_file_reference << " = {" << "\n"
+                          << "\t\t\t" << "fileRef = " << icns_file << ";" << "\n"
+                          << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
+                          << "\t\t\t" << "settings = {" << "\n"
+                          << "\t\t\t" << "};" << "\n"
+                          << "\t\t" << "};" << "\n";
+                    }
                 }
             }
 
@@ -803,7 +825,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t" << key << " = {" << "\n"
           << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
           << "\t\t\t" << "files = (" << "\n"
-          << (!project->isEmpty("RC_FILE") ? keyFor("ICNS_FILE_REFERENCE") : QString(""))
+          << varGlue("QMAKE_PBX_ICONS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
           << "\t\t\t" << ");" << "\n"
           << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
           << "\t\t\t" << "name = \"" << grp << "\";" << "\n"

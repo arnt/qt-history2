@@ -169,6 +169,12 @@ UnixMakefileGenerator::init()
                 if(!project->isEmpty("RC_FILE"))
                     project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
                                                         "../Resources/application.icns";
+                if(!project->isEmpty("ICONS")) {
+                    const QStringList &icons = project->variables()["ICONS"];
+                    for(int i = 0; i < icons.count(); i++) 
+                        project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
+                                                            "../Resources/" + icons[i];
+                }
             }
         }
     }

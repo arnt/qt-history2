@@ -659,6 +659,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
               << "@$(COPY_FILE) " << var("RC_FILE") << " " << dir << "application.icns" << endl;
         }
+        if(!project->isEmpty("ICONS")) {
+            QString dir = destdir + "../Resources/";
+            const QStringList &icons = project->variables()["ICONS"];
+            for(int i = 0; i < icons.count(); i++) {
+                QString icon = icons[i];
+                t << dir << icon << ": " << var("RC_FILE") << "\n\t"
+                  << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
+                  << "@$(DEL_FILE) " << dir << icon << "\n\t"
+                  << "@$(COPY_FILE) " << icon << " " << dir << endl;
+            }
+        }
     }
 
     QString ddir;
