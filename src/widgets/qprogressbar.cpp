@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#45 $
 **
 ** Implementation of QProgressBar class
 **
@@ -167,7 +167,7 @@ void QProgressBar::setProgress( int progress )
 
 QSize QProgressBar::sizeHint() const
 {
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     return QSize( fm.height()*4, fm.height()+8);
 }
 
@@ -245,7 +245,7 @@ void QProgressBar::show()
 }
 
 
-void QProgressBar::initFrame() 
+void QProgressBar::initFrame()
 {
     if ( style() == MotifStyle ) {
 	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
@@ -327,7 +327,7 @@ void QProgressBar::drawContents( QPainter *p )
 	// a rectangle bordered by background color, all in a sunken panel
 	// with a percentage text display at the end.
 
-	const QFontMetrics & fm = p->fontMetrics();
+	QFontMetrics fm = p->fontMetrics();
 	int textw = fm.width(QString::fromLatin1("100%"));
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
@@ -395,7 +395,7 @@ void QProgressBar::drawContentsMask( QPainter *p )
 
     if ( style() != MotifStyle ) {
 	// ### This part doesn't actually change.
-	const QFontMetrics & fm = p->fontMetrics();
+	QFontMetrics fm = p->fontMetrics();
 	int textw = fm.width(QString::fromLatin1("100%"));
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;

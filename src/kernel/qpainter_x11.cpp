@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#306 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#307 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2556,7 +2556,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	}
 
 	if ( txop >= TxScale ) {
-	    const QFontMetrics & fm = fontMetrics();
+	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
@@ -2689,7 +2689,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
     }
 
     if ( cfont.underline() || cfont.strikeOut() ) {
-	const QFontMetrics & fm = fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
 	if ( cfont.underline() )		// draw underline effect

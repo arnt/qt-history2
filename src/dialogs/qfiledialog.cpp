@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#205 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#206 $
 **
 ** Implementation of QFileDialog class
 **
@@ -760,7 +760,7 @@ int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 
 int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 {
-    const QFontMetrics & fm = lb->fontMetrics();
+    QFontMetrics fm = lb->fontMetrics();
     int w = 4;
     if ( pixmap() )
         w += pixmap()->width();

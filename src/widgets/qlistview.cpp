@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#262 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#263 $
 **
 ** Implementation of QListView widget class
 **
@@ -3423,7 +3423,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     if ( c >= d->h->count() )
 	return;
 
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     int col = c < 0 ? 0 : c;
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {

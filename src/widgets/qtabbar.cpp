@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#75 $
 **
 ** Implementation of QTabBar class
 **
@@ -719,7 +719,7 @@ void QTabBar::layoutTabs()
 
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     int x = 0;
     for ( t = lstatic->first(); t; t = lstatic->next() ) {
 	int lw = fm.width( t->label );

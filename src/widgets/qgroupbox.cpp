@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#65 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -210,7 +210,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     QPainter paint( this );
 
     if ( lenvisible ) {					// draw title
-	const QFontMetrics & fm = paint.fontMetrics();
+	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
 	int x;
@@ -242,7 +242,7 @@ void QGroupBox::updateMask(){
      bm.fill( color0 );
      {
  	QPainter p( &bm, this );
-	const QFontMetrics & fm = p.fontMetrics();
+	QFontMetrics fm = p.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
 	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
@@ -292,8 +292,8 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     vbox = new QVBoxLayout( this, 8, 0 );
 
     if ( !str.isEmpty() ) {
-	//### we should have a changeable spacer item 
-	const QFontMetrics & fm = fontMetrics();
+	//### we should have a changeable spacer item
+	QFontMetrics fm = fontMetrics();
 	vbox->addSpacing( fm.lineSpacing() );
     }
     dir = direction;
@@ -405,7 +405,7 @@ void QGroupBox::calculateFrame()
     lenvisible = str.length();
 
     if ( lenvisible ) { // do we have a label?
-	const QFontMetrics & fm = fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	int h = fm.height();
 	while ( lenvisible ) {
 	    int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));

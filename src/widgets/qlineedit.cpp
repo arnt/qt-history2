@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#223 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#224 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -518,7 +518,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
 	const QColorGroup & g = colorGroup();
 	QColor bg = isEnabled() ? g.base() : g.background();
-	const QFontMetrics & fm = fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	int markBegin = minMark();
 	int markEnd = maxMark();
 
@@ -1294,7 +1294,7 @@ void QLineEdit::repaintArea( int from, int to )
     if ( !d->pmDirty )
 	return;
 
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     int x = fm.width( buf.left( a ) ) + offset - 2 + (frame() ? 2 : 0);
     QRect r( x, 0, fm.width( buf.mid( a, b-a ) ) + 5, height() );
     r = r.intersect( rect() );
@@ -1459,7 +1459,7 @@ void QLineEdit::updateOffset()
 	return;
 
     makePixmap();
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     int textWidth = fm.width( displayText() )+4;
     int w = d->pm->width();
     int old = offset;
@@ -1508,7 +1508,7 @@ int QLineEdit::xPosToCursorPos( int goalx ) const
     int x1, x2;
     x1 = offset;
     int i = 0;
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     QString s = displayText();
     goalx -= (frame() ? 4 : 2);
 

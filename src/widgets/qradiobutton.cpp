@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#116 $
 **
 ** Implementation of QRadioButton class
 **
@@ -177,7 +177,7 @@ void QRadioButton::drawButton( QPainter *paint )
     const QColorGroup & g = colorGroup();
     int		 x, y;
 
-    const QFontMetrics & fm = fontMetrics();
+    QFontMetrics fm = fontMetrics();
     QSize lsz = fm.size(ShowPrefix, text());
     QSize sz = style().exclusiveIndicatorSize();
     x = 0;
@@ -302,7 +302,7 @@ void QRadioButton::updateMask()
 	QPainter p( &bm, this );
 	int x, y, w, h;
 	GUIStyle gs = style();
-	const QFontMetrics & fm = fontMetrics();
+	QFontMetrics fm = fontMetrics();
 	QSize lsz = fm.size(ShowPrefix, text());
 	QSize sz = style().exclusiveIndicatorSize();
 	if ( gs == WindowsStyle )
