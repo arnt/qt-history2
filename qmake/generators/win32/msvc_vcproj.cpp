@@ -313,9 +313,17 @@ bool VcprojGenerator::writeProjectMakefile()
 
         debug_msg(1, "Generator: MSVC.NET: Writing project file");
         VCProject mergedProject;
-        for (int i = 0; i < mergedProjects.count(); ++i)
-            mergedProject.SingleProjects += mergedProjects.at(i)->vcProject;
-	if(mergedProjects.count() > 1 &&
+        for (int i = 0; i < mergedProjects.count(); ++i) {
+            VCProjectSingleConfig *singleProject = &(mergedProjects.at(i)->vcProject);
+            mergedProject.SingleProjects += *singleProject;
+            for (int j = 0; j < singleProject->ExtraCompilersFiles.count(); ++j) {
+                const QString &compilerName = singleProject->ExtraCompilersFiles.at(j).Name;
+                if (!mergedProject.ExtraCompilers.contains(compilerName))
+                    mergedProject.ExtraCompilers += compilerName;
+            }
+        }
+
+        if(mergedProjects.count() > 1 &&
 	   mergedProjects.at(0)->vcProject.Name ==
 	   mergedProjects.at(1)->vcProject.Name)
 	    mergedProjects.at(0)->writePrlFile();
@@ -650,16 +658,24 @@ void VcprojGenerator::init()
     const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::ConstIterator it = quc.constBegin(); it != quc.constEnd(); ++it) {
         const QStringList &invar = project->variables().value((*it) + ".input");
+        const QString compiler_out = project->first((*it) + ".output");
         for(QStringList::ConstIterator iit = invar.constBegin(); iit != invar.constEnd(); ++iit) {
             QStringList fileList = project->variables().value(*iit);
             if (!fileList.isEmpty()) {
                 if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1)
                     fileList = QStringList(fileList.first());
                 for(QStringList::ConstIterator fit = fileList.constBegin(); fit != fileList.constEnd(); ++fit) {
-                    const QString &file = (*fit);
-                    if (hasBuiltinCompiler(file))
-                        warn_msg(WarnLogic, "extracompiler will override builtin compiler (%s)", file.toLatin1().constData());
-                    extraCompilerSources[file] += *it;
+                    QString file = (*fit);
+                    if (verifyExtraCompiler((*it), file)) {
+                        if (!hasBuiltinCompiler(file)) {
+                            extraCompilerSources[file] += *it;
+                        } else {
+                            QString out = Option::fixPathToTargetOS(replaceExtraCompilerVariables(
+                                            compiler_out, file, QString::null), false);
+                            extraCompilerSources[out] += *it;
+                            extraCompilerOutputs[out] = QStringList(file); // Can only have one
+                        }
+                    }
                 }
             }
         }
@@ -669,6 +685,10 @@ void VcprojGenerator::init()
     Q_FOREACH(QString aKey, extraCompilerSources.keys()) {
         qDebug("Extracompilers for %s are (%s)", aKey.toLatin1().constData(), extraCompilerSources.value(aKey).join(", ").toLatin1().constData());
     }
+    Q_FOREACH(QString aKey, extraCompilerOutputs.keys()) {
+        qDebug("Object mapping for %s is (%s)", aKey.toLatin1().constData(), extraCompilerOutputs.value(aKey).join(", ").toLatin1().constData());
+    }
+    qDebug("");
 #endif
 
     initProject(); // Fills the whole project with proper data
@@ -699,7 +719,6 @@ void VcprojGenerator::initProject()
     initTranslationFiles();
     initFormFiles();
     initResourceFiles();
-
     initExtraCompilerOutputs();
 
     // Own elements -----------------------------
@@ -954,25 +973,6 @@ void VcprojGenerator::initPreLinkEventTools()
 {
 }
 
-void VcprojGenerator::addMocArguments(VCFilter &filter)
-{
-    QString &args = filter.customMocArguments;
-    args.clear();
-    // Add Defines
-    args += varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
-            varGlue("DEFINES"," -D"," -D","") +
-            varGlue("QMAKE_COMPILER_DEFINES"," -D"," -D","");
-    // Add Includes
-    args += " -I" + specdir();
-    args += varGlue("INCLUDEPATH"," -I", " -I", "");
-    if(!project->isActiveConfig("no_include_pwd")) {
-        QString pwd = fileFixify(qmake_getpwd());
-        if(pwd.isEmpty())
-            pwd = ".";
-        args += " -I\"" + pwd + "\"";
-    }
-}
-
 void VcprojGenerator::initRootFiles()
 {
     // Note: Root files do _not_ have any filter name, filter nor GUID!
@@ -998,24 +998,18 @@ void VcprojGenerator::initSourceFiles()
 
 void VcprojGenerator::initHeaderFiles()
 {
-    QStringList list;
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl;inc;xsd";
     vcProject.HeaderFiles.Guid = _GUIDHeaderFiles;
 
-    list += project->variables()["HEADERS"];
+    vcProject.HeaderFiles.addFiles(project->variables()["HEADERS"]);
     if (usePCH) // Generated PCH cpp file
         vcProject.HeaderFiles.addFile(precompH);
 
-#if 0 //SAM
-    for(int index = 0; index < list.count(); ++index)
-        vcProject.HeaderFiles.addFile(VCFilterFile(list.at(index), mocFile(list.at(index))));
-#endif
-
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
-    vcProject.HeaderFiles.CustomBuild = mocHdr;
-    addMocArguments(vcProject.HeaderFiles);
+//    vcProject.HeaderFiles.CustomBuild = mocHdr;
+//    addMocArguments(vcProject.HeaderFiles);
 }
 
 void VcprojGenerator::initGeneratedFiles()
@@ -1023,23 +1017,6 @@ void VcprojGenerator::initGeneratedFiles()
     vcProject.GeneratedFiles.Name = "Generated Files";
     vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;qrc;def;odl;idl;res;";
     vcProject.GeneratedFiles.Guid = _GUIDGeneratedFiles;
-
-    // Create a list of the files being moc'ed
-    QStringList &objl = project->variables()["OBJMOC"],
-                &srcl = project->variables()["SRCMOC"];
-    int index = 0;
-#if 0 //SAM
-    for(; index < objl.count() && index < srcl.count(); ++index) {
-        vcProject.GeneratedFiles.addFile(VCFilterFile(srcl.at(index), mocSource(srcl.at(index))));
-    }
-    // Exclude the rest, except .moc's
-    for(; index < srcl.count(); ++index)
-        vcProject.GeneratedFiles.addFile(VCFilterFile(
-                              srcl.at(index),
-                              mocSource(srcl.at(index)),
-                              srcl.at(index).endsWith(Option::cpp_moc_ext)
-                              ? false : true));
-#endif
 
     // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
@@ -1049,8 +1026,7 @@ void VcprojGenerator::initGeneratedFiles()
 
     vcProject.GeneratedFiles.Project = this;
     vcProject.GeneratedFiles.Config = &(vcProject.Configuration);
-    vcProject.GeneratedFiles.CustomBuild = mocSrc;
-    addMocArguments(vcProject.GeneratedFiles);
+//    vcProject.GeneratedFiles.CustomBuild = mocSrc;
 }
 
 void VcprojGenerator::initLexYaccFiles()
@@ -1147,14 +1123,13 @@ void VcprojGenerator::initResourceFiles()
 void VcprojGenerator::initExtraCompilerOutputs()
 {
     const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    int count = 0;
-    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it, ++count) {
+    for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         // Create an extra compiler filter and add the files
         VCFilter extraCompile;
         extraCompile.Name = (*it);
         extraCompile.ParseFiles = _False;
         extraCompile.Filter = "";
-        extraCompile.Guid = _GUIDExtraCompilerFiles + '-' + (*it);
+        extraCompile.Guid = QString(_GUIDExtraCompilerFiles) + "-" + (*it);
 
 
         // If the extra compiler has a variable_out set the output file
@@ -1172,13 +1147,30 @@ void VcprojGenerator::initExtraCompilerOutputs()
             // One output file per input
             QStringList tmp_in = project->variables()[project->first((*it) + ".input")];
             for (int i = 0; i < tmp_in.count(); ++i)
-                extraCompile.addFile(
-                    Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, tmp_in.at(i), QString::null), false));
+                const QString &filename = tmp_in.at(i);
+                if (extraCompilerSources.contains(filename))
+                    extraCompile.addFile(
+                        Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString::null), false));
         }
         extraCompile.Project = this;
         extraCompile.Config = &(vcProject.Configuration);
         extraCompile.CustomBuild = none;
 
+        vcProject.ExtraCompilersFiles.append(extraCompile);
+    }
+
+    // Now add all files which is a result of a moc'ed source file
+    QStringList keys = extraCompilerOutputs.keys();
+    if (!keys.isEmpty()) {
+        VCFilter extraCompile;
+        extraCompile.Name = "Generated Files";
+        extraCompile.ParseFiles = _False;
+        extraCompile.Filter = "";
+        extraCompile.Guid = QString(_GUIDExtraCompilerFiles) + "-" + extraCompile.Name;
+        extraCompile.Project = this;
+        extraCompile.Config = &(vcProject.Configuration);
+        extraCompile.CustomBuild = none;
+        extraCompile.addFiles(keys);
         vcProject.ExtraCompilersFiles.append(extraCompile);
     }
 }
@@ -1322,9 +1314,9 @@ void VcprojGenerator::initOld()
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
         QString inc = (*incit);
         inc.replace(QRegExp("\""), "");
-        project->variables()["MSVCPROJ_INCPATH"].append("/I" + inc);
+        project->variables()["MSVCPROJ_INCPATH"].append("-I" + inc);
     }
-    project->variables()["MSVCPROJ_INCPATH"].append("/I" + specdir());
+    project->variables()["MSVCPROJ_INCPATH"].append("-I" + specdir());
 
     QString dest;
     project->variables()["MSVCPROJ_TARGET"] = QStringList(project->first("TARGET"));

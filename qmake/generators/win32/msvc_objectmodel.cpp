@@ -1804,10 +1804,19 @@ void VCFilter::modifyPCHstage(QString str)
 
 bool VCFilter::addExtraCompiler(const VCFilterFile &info)
 {
-    const QStringList &extraCompilers =
-        Project->extraCompilerSources.value(info.file);
+    const QStringList &extraCompilers = Project->extraCompilerSources.value(info.file);
     if (extraCompilers.isEmpty())
         return false;
+
+    QString inFile = info.file;
+
+    // is the extracompiler rule on a file with a built in compiler?
+    const QStringList &objectMappedFile = Project->extraCompilerOutputs[inFile];
+    bool hasBuiltIn = false;
+    if (!objectMappedFile.isEmpty()) {
+        hasBuiltIn = Project->hasBuiltinCompiler(objectMappedFile.at(0));
+//        qDebug("*** Extra compiler file has object mapped file '%s' => '%s'", qPrintable(inFile), qPrintable(objectMappedFile.join(" ")));
+    }
 
     CustomBuildTool.AdditionalDependencies.clear();
     CustomBuildTool.CommandLine.clear();
@@ -1815,10 +1824,12 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
     CustomBuildTool.Outputs.clear();
     CustomBuildTool.ToolName.clear();
     CustomBuildTool.ToolPath.clear();
-    useCustomBuildTool = true;
 
     for (int x = 0; x < extraCompilers.count(); ++x) {
         const QString &extraCompilerName = extraCompilers.at(x);
+
+        if (!Project->verifyExtraCompiler(extraCompilerName, inFile) && !hasBuiltIn)
+            continue;
 
         // All information about the extra compiler
         QString tmp_out = Project->project->first(extraCompilerName + ".output");
@@ -1827,14 +1838,29 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         QStringList tmp_dep = Project->project->variables()[extraCompilerName + ".depends"];
         QString tmp_dep_cmd = Project->project->variables()[extraCompilerName + ".depend_command"].join(" ");
         QStringList vars = Project->project->variables()[extraCompilerName + ".variables"];
-        bool combined = Project->project->variables()[extraCompilerName + ".CONFIG"].indexOf("combine") != -1;
+        QStringList configs = Project->project->variables()[extraCompilerName + ".CONFIG"];
+        bool combined = configs.indexOf("combine") != -1;
 
         QString cmd, cmd_name, out;
         QStringList deps, inputs;
         // Variabel replacement of output name
         out = Option::fixPathToTargetOS(
-                    Project->replaceExtraCompilerVariables(tmp_out, info.file, QString::null),
+                    Project->replaceExtraCompilerVariables(tmp_out, inFile, QString::null),
                     false);
+
+        // If file has built-in compiler, we've swapped the input and output of
+        // the command, as we in Visual Studio cannot have a Custom Buildstep on
+        // a file which uses a built-in compiler. We would in this case only get
+        // the result from the extra compiler. If 'hasBuiltIn' is true, we know
+        // that we're actually on the _output_file_ of the result, and we
+        // therefore swap inFile and out below, since the extra-compiler still
+        // must see it as the original way. If the result also has a built-in
+        // compiler, too bad..
+        if (hasBuiltIn) {
+            out = inFile;
+            inFile = objectMappedFile.at(0);
+        }
+
         // Dependency for the output
         if(!tmp_dep.isEmpty())
 	    deps = tmp_dep;
@@ -1842,8 +1868,8 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             // Execute dependency command, and add every line as a dep
 	    char buff[256];
 	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd,
-							            info.file,
-                                                                    out);
+							             inFile,
+                                                                     out);
             dep_cmd = Option::fixPathToLocalOS(dep_cmd);
             if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
 	        QString indeps;
@@ -1860,7 +1886,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         }
         for (int i = 0; i < deps.count(); ++i)
 	    deps[i] = Option::fixPathToTargetOS(
-                        Project->replaceExtraCompilerVariables(deps.at(i), info.file, out),
+                        Project->replaceExtraCompilerVariables(deps.at(i), inFile, out),
                         false).trimmed();
         // Command for file
         if (combined) {
@@ -1882,12 +1908,12 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             cmd = cmd.replace("${QMAKE_FILE_IN}", inputs.join(" "));
         } else {
             cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
-                                                         info.file,
+                                                         inFile,
                                                          out);
         }
         // Name for command
 	if(!tmp_cmd_name.isEmpty()) {
-	    cmd_name = Project->replaceExtraCompilerVariables(tmp_cmd_name, info.file, out);
+	    cmd_name = Project->replaceExtraCompilerVariables(tmp_cmd_name, inFile, out);
 	} else {
 	    int space = cmd.indexOf(' ');
 	    if(space != -1)
@@ -1929,7 +1955,9 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         uniqDeps[cmd.left(cmd.indexOf(' '))] = false;
         CustomBuildTool.AdditionalDependencies = uniqDeps.keys();
     }
-    return true;
+
+    useCustomBuildTool = !CustomBuildTool.CommandLine.isEmpty();
+    return useCustomBuildTool;
 }
 
 void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
@@ -1961,13 +1989,7 @@ void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
     inBuild &= !info.excludeFromBuild;
 
     if (inBuild) {
-        // Add MOC and PCH stages to file
-        if(CustomBuild == mocHdr || (CustomBuild == mocSrc
-                && info.file.endsWith(Option::cpp_moc_ext))) {
-            addMOCstage(info, CustomBuild == mocHdr);
-        } else {
-            addExtraCompiler(info);
-        }
+        addExtraCompiler(info);
         if(Project->usePCH)
             modifyPCHstage(info.file);
     } else {

@@ -47,6 +47,7 @@ public:
     static bool hasBuiltinCompiler(const QString &file);
 
     QMap<QString, QStringList> extraCompilerSources;
+    QMap<QString, QStringList> extraCompilerOutputs;
     bool usePCH;
 
 protected:
@@ -81,8 +82,6 @@ protected:
     void initResourceFiles();
     void initLexYaccFiles();
     void initExtraCompilerOutputs();
-
-    void addMocArguments(VCFilter &filter);
 
     target projectTarget;
 
