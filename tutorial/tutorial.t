@@ -49,7 +49,7 @@ galore:
 tmake:
 #${
     if ( $is_unix ) {
-	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; \$(TMAKE) $$i.pro -o Makefile ) ; done';
+	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; $(TMAKE) $$i.pro -o Makefile ) ; done';
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
