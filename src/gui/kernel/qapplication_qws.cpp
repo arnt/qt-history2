@@ -2196,7 +2196,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 return 1;
             }
         }
-        if (*mouseInWidget) {
+        if (event->type == QWSEvent::Mouse && *mouseInWidget) {
             QEvent leave(QEvent::Leave);
             QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
             (*mouseInWidget) = 0;

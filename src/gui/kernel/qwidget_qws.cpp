@@ -160,7 +160,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
     if (!window)                                // always initialize
         initializeWindow = true;
 
-    if(topLevel && parentWidget) { // if our parent has Qt::WStyle_StaysOnTop, so must we
+    if(topLevel && parentWidget) { // if our parent stays on top, so must we
         QWidget *ptl = parentWidget->window();
         if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
             flags |= Qt::WindowStaysOnTopHint;
@@ -858,7 +858,7 @@ void QWidgetPrivate::show_sys()
         }
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
-        if (!(q->windowType() == Qt::Tool)) {
+        if (q->windowType() != Qt::Tool && q->windowType() != Qt::ToolTip) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
