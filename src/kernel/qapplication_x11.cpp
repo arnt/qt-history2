@@ -3047,10 +3047,8 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		    QWidget* groupLeader = widget;
 		    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
 			groupLeader = groupLeader->parentWidget();
-		    if ( !groupLeader ) {
-			amw->raise(); //  help broken window managers
+		    if ( !groupLeader )
 			amw->setActiveWindow();
-		    }
 		}
 #ifndef QT_NO_WHATSTHIS
 	    } else if ( a == qt_net_wm_context_help ) {
