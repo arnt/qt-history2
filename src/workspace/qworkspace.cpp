@@ -1571,7 +1571,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
-	titlebar->setGeometry( r.x() , r.y(), r.width() - r.x(), th );
+	titlebar->setGeometry( r.x() , r.y(), r.width(), th );
 	cr = QRect( r.x(), r.y() + titlebar->height() + (shademode ? 5 : 1),
 	    r.width(), r.height() - titlebar->height() - 2 );
     } else {
