@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#74 $
 **
 ** Implementation of layout classes
 **
@@ -1028,6 +1028,21 @@ void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
 
 void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 {
+    if ( !w ) {
+#if defined(CHECK_STATE)
+	warning( "adding null widget to %s/%s", className(), name() );
+#endif
+	return;
+    }
+    if ( row < 0 || col < 0 ) {
+#if defined(CHECK_STATE)
+	warning( "adding %s/%s to %s/%s at row %d col %d",
+		 w->className(), w->name(),
+		 className(), name(),
+		 row, col );
+#endif
+	return;
+    }
     QWidgetItem *b = new QWidgetItem( w );
     b->setAlignment( align );
     add( b, row, col );
