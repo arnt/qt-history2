@@ -44,7 +44,7 @@
 #include <qsplitter.h>
 #include <qlistview.h>
 #include <qheader.h>
-#include <qtextview.h>
+#include <qtextbrowser.h>
 #include <qfiledialog.h>
 #include <qaccel.h>
 #include <qmetaobject.h>
@@ -503,14 +503,15 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QWhatsThis::add( lv, "This is also a <b>QListView</b>, with "
 		     "interactive items." );
 
-     QTextView *qmlv =  new QTextView( "<hr><h1>QTextView</h1>"
-		      "<p>Qt supports formatted rich text, such "
-		      "as the heading above, <em>emphasized</em> and "
-		      "<b>bold</b> text, via an XML subset.</p> "
-		      "<p>Style sheets are supported.</p>",
- 				  "", split );
-    qmlv->setFont(QFont("Charter",11));
-    qmlv->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    QTextBrowser *browser =  new QTextBrowser( split );
+    browser->setText( "<h1>QTextBrowser</h1>"
+		   "<p>Qt supports formatted rich text, such "
+		   "as the heading above, <em>emphasized</em> and "
+		   "<b>bold</b> text, via an XML subset.</p> "
+		   "<p><a href=\"nogo://some.where.com\">Hypertext navigation</a> and style sheets are supported.</p>", "" );
+    browser->setFont(QFont("Charter",11));
+    browser->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    connect( browser, SIGNAL(linkClicked(const QString&)), browser, SLOT(setText(const QString&)) );
 
     // Create an label and a message in the status bar
     // The message is updated when buttons are clicked etc.
