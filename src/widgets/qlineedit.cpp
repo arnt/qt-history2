@@ -403,7 +403,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 
 QLineEdit::QLineEdit( const QString & contents,
 		      QWidget *parent, const char *name )
-    : QFrame( parent, name, WRepaintNoErase )
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
 {
     init();
     setText( contents );
