@@ -263,6 +263,8 @@ public:
 
     QT_COMPAT int paragraphLength(int parag) const;
 
+    QT_COMPAT void getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *indexTo) const;
+
 #endif
 };
 

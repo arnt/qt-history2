@@ -370,6 +370,16 @@ QTextBlock QTextEditPrivate::blockAt(int blockNr) const
     return block;
 }
 
+static int blockNr(QTextBlock block)
+{
+    int nr = -1;
+
+    for (; block.isValid(); block = block.previous())
+        ++nr;
+
+    return nr;
+}
+
 QTextEdit::QTextEdit( QWidget *parent,  const char * name )
     : QScrollView( parent, name )
 {
@@ -1246,10 +1256,7 @@ void QTextEdit::getCursorPosition(int *parag, int *index) const
 
     Q_ASSERT(block.isValid());
 
-    *parag = -1;
-    for (QTextBlock tmp = block; tmp.isValid(); tmp = tmp.previous())
-        (*parag)++;
-
+    *parag = blockNr(block);
     *index = d->cursor.position() - block.position();
 }
 
@@ -1272,6 +1279,30 @@ int QTextEdit::linesOfParagraph(int parag) const
 int QTextEdit::paragraphLength(int parag) const
 {
     return d->blockAt(parag).length();
+}
+
+void QTextEdit::getSelection(int *paraFrom, int *indexFrom, int *paraTo, int *indexTo) const
+{
+    if (!paraFrom || !paraTo || !indexFrom || !indexTo)
+        return;
+
+    if (!d->cursor.hasSelection()) {
+        *paraFrom = *indexFrom = *paraTo = *indexTo = -1;
+        return;
+    }
+
+    QTextDocumentPrivate *pt = d->doc->docHandle();
+
+    const int selStart = d->cursor.selectionStart();
+    const int selEnd = d->cursor.selectionEnd();
+
+    QTextBlock fromBlock(pt, pt->blockMap().findNode(selStart));
+    *paraFrom = blockNr(fromBlock);
+    *indexFrom = selStart - fromBlock.position();
+
+    QTextBlock toBlock(pt, pt->blockMap().findNode(selEnd));
+    *paraTo = blockNr(toBlock);
+    *indexTo = selEnd - toBlock.position();
 }
 
 #endif
