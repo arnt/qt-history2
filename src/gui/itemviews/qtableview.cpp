@@ -200,7 +200,7 @@ void QTableView::setSelectionModel(QItemSelectionModel *selectionModel)
     d->horizontalHeader->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
 
-    if (d->model) // support row editing
+    if (d->model && d->selectionModel) // support row editing
         connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                 d->model, SLOT(submit()));
 }
