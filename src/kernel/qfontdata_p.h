@@ -146,6 +146,9 @@ class QFontPrivate : public QShared
 {
 public:
     static QFont::Script defaultScript;
+#ifdef Q_WS_X11
+    static int defaultEncodingID;
+#endif // Q_WS_X11
 
     QFontPrivate();
     QFontPrivate( const QFontPrivate &other );

@@ -47,6 +47,9 @@
 
 #include <stdlib.h>
 
+// #define QFONTDATABASE_DEBUG
+// #define FONT_MATCH_DEBUG
+
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
 #  define for if(0){}else for
 #endif
@@ -359,7 +362,7 @@ static const unsigned short sample_chars[QFont::LastPrivateScript] =
 {
     // European Alphabetic Scripts
     // Latin,
-    0x00c0,
+    0x0030,
     // Greek,
     0x0390,
     // Cyrillic,
@@ -511,7 +514,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 
 #ifdef FONT_MATCH_DEBUG
     if (hasChar) {
-	qDebug("    unicode font has char 0x%04x", sample.unicode() );
+	qDebug("    font has char 0x%04x", sample.unicode() );
     }
 #endif
 
@@ -525,7 +528,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp, const QFo
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style, QtFontSize *size
 #ifdef Q_WS_X11
-			 , QtFontEncoding *encoding
+			 , QtFontEncoding *encoding, bool forced_encoding
 #endif
 			 );
 #endif
@@ -556,7 +559,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 			  QtFontFoundry **best_foundry, QtFontStyle **best_style,
 			  QtFontSize **best_size
 #ifdef Q_WS_X11
-			  , QtFontEncoding **best_encoding
+			  , QtFontEncoding **best_encoding, int force_encoding_id
 #endif
 			  )
 {
@@ -671,23 +674,41 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 	    px = size->pixelSize;
 
 #ifdef Q_WS_X11
-	QtFontEncoding *encoding = size->encodingID( -1 ); // -1 == prefer Xft
-
-	if ( encoding && ( styleStrategy & ( QFont::OpenGLCompatible |
-					     QFont::PreferBitmap ) ) ) {
+	QtFontEncoding *encoding = 0;
+	if ( force_encoding_id >= 0 ) {
+	    encoding = size->encodingID( force_encoding_id );
+	    if ( ! encoding ) {
 #  ifdef FONT_MATCH_DEBUG
-	    qDebug( "            PreferBitmap and/or OpenGL set, skipping Xft" );
+		qDebug( "            required encoding_id not available" );
+#  endif // FONT_MATCH_DEBUG
+		continue;
+	    }
+	} else {
+	    encoding = size->encodingID( -1 ); // -1 == prefer Xft
+
+	    if ( encoding && ( styleStrategy & ( QFont::OpenGLCompatible |
+						 QFont::PreferBitmap ) ) ) {
+#  ifdef FONT_MATCH_DEBUG
+		qDebug( "            PreferBitmap and/or OpenGL set, skipping Xft" );
 #  endif // FONT_MATCH_DEBUG
 
-	    continue;
-	}
+		continue;
+	    }
 
-	if ( ! encoding ) {
-	    // Xft not available, find an XLFD font
-	    for ( int x = 0; ! encoding && x < size->count; ++x ) {
-		if ( scripts_for_xlfd_encoding[size->encodings[x].encoding][script] ) {
-		    encoding = &size->encodings[x];
-		    break;
+	    if ( ! encoding ) { // Xft not available, find an XLFD font
+		// try the default encoding first
+		encoding = size->encodingID( QFontPrivate::defaultEncodingID );
+
+		if ( ! encoding ||
+		     ! scripts_for_xlfd_encoding[encoding->encoding][script] ) {
+		    // find the first encoding that supports the requested script
+		    for ( int x = 0; ! encoding && x < size->count; ++x ) {
+			const int enc = size->encodings[x].encoding;
+			if ( scripts_for_xlfd_encoding[enc][script] ) {
+			    encoding = &size->encodings[x];
+			    break;
+			}
+		    }
 		}
 	    }
 	}
@@ -737,14 +758,17 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
 */
 QFontEngine *
 QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
-			 const QFontDef &request )
+			 const QFontDef &request, int force_encoding_id )
 {
     if ( !db )
 	initializeDb();
 
-    QFontCache::Key key( request, script, fp->screen );
-    QFontEngine *fe = QFontCache::instance->findEngine( key );
-    if ( fe ) return fe;
+    QFontEngine *fe = 0;
+    if ( fp ) {
+	QFontCache::Key key( request, script, fp->screen );
+	fe = QFontCache::instance->findEngine( key );
+	if ( fe ) return fe;
+    }
 
     QString family_name, foundry_name;
     QtFontStyle::Key styleKey;
@@ -803,7 +827,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 			     family, foundry_name, styleKey, request.pixelSize, pitch,
 			     &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
-			     , &best_encoding
+			     , &best_encoding, force_encoding_id
 #endif
 			     );
 	    if ( best_foundry == 0 ) {
@@ -813,7 +837,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 					QString::null, styleKey, request.pixelSize,
 					pitch, &best_foundry, &best_style, &best_size
 #ifdef Q_WS_X11
-					, &best_encoding
+					, &best_encoding, force_encoding_id
 #endif
 					);
 	    }
@@ -845,7 +869,12 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	qDebug( "returning box engine" );
 #endif // FONT_MATCH_DEBUG
 	fe = new QFontEngineBox( request.pixelSize );
-	QFontCache::instance->insertEngine( key, fe );
+
+	if ( fp ) {
+	    QFontCache::Key key( request, script, fp->screen );
+	    QFontCache::instance->insertEngine( key, fe );
+	}
+
 	return fe;
     }
 
@@ -870,7 +899,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     fe = loadEngine( script, fp, request, best_family, best_foundry, best_style
 #ifdef Q_WS_X11
-		     , best_size, best_encoding
+		     , best_size, best_encoding, ( force_encoding_id >= 0 )
 #endif
 		     );
 
@@ -890,7 +919,12 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    qDebug( "returning box engine" );
 #endif // FONT_MATCH_DEBUG
 	    fe = new QFontEngineBox( request.pixelSize );
-	    QFontCache::instance->insertEngine( key, fe );
+
+	    if ( fp ) {
+		QFontCache::Key key( request, script, fp->screen );
+		QFontCache::instance->insertEngine( key, fe );
+	    }
+
 	    return fe;
 	}
 
@@ -909,16 +943,20 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	else
 	    fe->fontDef.pixelSize = best_size->pixelSize;
 
+	if ( fp ) {
 #if defined(Q_WS_X11)
-	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					 QPaintDevice::x11AppDpiY( fp->screen ) );
+	    fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
+					     QPaintDevice::x11AppDpiY( fp->screen ) );
 #elif defined(Q_WS_WIN)
-	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					 GetDeviceCaps(shared_dc,LOGPIXELSY) );
+	    fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
+					     GetDeviceCaps(shared_dc,LOGPIXELSY) );
 #else
-	fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
-					 96.0 );
+	    fe->fontDef.pointSize     = int( double( fe->fontDef.pixelSize ) * 720.0 /
+					     96.0 );
 #endif
+	} else {
+	    fe->fontDef.pointSize = request.pointSize;
+	}
 	fe->fontDef.styleHint     = request.styleHint;
 	fe->fontDef.styleStrategy = request.styleStrategy;
 
@@ -927,16 +965,19 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
 
-	QFontCache::instance->insertEngine( key, fe );
-
-	for ( int i = 0; i < QFont::NScripts; ++i ) {
-	    if ( i == script ) continue;
-
-	    if ( ! canRender( fe, sampleCharacter( (QFont::Script) i ) ) )
-		continue;
-
-	    key.script = i;
+	if ( fp ) {
+	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
+
+	    for ( int i = 0; i < QFont::NScripts; ++i ) {
+		if ( i == script ) continue;
+
+		if ( ! canRender( fe, sampleCharacter( (QFont::Script) i ) ) )
+		    continue;
+
+		key.script = i;
+		QFontCache::instance->insertEngine( key, fe );
+	    }
 	}
     }
 

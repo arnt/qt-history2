@@ -58,6 +58,7 @@ public:
 				advance_t *advances, int *nglyphs ) const = 0;
 
 #ifdef Q_WS_X11
+    virtual int cmap() const { return -1; }
     virtual QOpenType *openType() const { return 0; }
 #endif
 
@@ -321,6 +322,8 @@ private:
 };
 #endif
 
+class QFontEngineLatinXLFD;
+
 class QFontEngineXLFD : public QFontEngine
 {
 public:
@@ -368,6 +371,53 @@ private:
 	XlfdTrUnsupported
     };
     XlfdTransformations xlfd_transformations;
+
+    friend class QFontEngineLatinXLFD;
+};
+
+class QFontEngineLatinXLFD : public QFontEngine
+{
+public:
+    QFontEngineLatinXLFD( XFontStruct *xfs, const char *name, const char *encoding );
+    ~QFontEngineLatinXLFD();
+
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs,
+			advance_t *advances, int *nglyphs ) const;
+
+    void draw( QPainter *p, int x, int y, const QTextEngine *engine,
+	       const QScriptItem *si, int textFlags );
+
+    virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
+					 const advance_t *advances,
+					 const offset_t *offsets, int numGlyphs );
+    glyph_metrics_t boundingBox( glyph_t glyph );
+
+    int ascent() const;
+    int descent() const;
+    int leading() const;
+    int maxCharWidth() const;
+    int minLeftBearing() const;
+    int minRightBearing() const;
+
+    int cmap() const { return -1; } // ###
+    const char *name() const;
+
+    bool canRender( const QChar *string,  int len );
+
+    void setScale( double scale );
+    double scale() const { return _engines[0]->scale(); }
+    Type type() const { return XLFD; }
+
+    Qt::HANDLE handle() const { return ((QFontEngineXLFD *) _engines[0])->handle(); }
+
+private:
+    void findEngine( const QChar &ch );
+
+    QFontEngine **_engines;
+    int _count;
+
+    glyph_t   glyphIndices [0x200];
+    advance_t glyphAdvances[0x200];
 };
 
 class QScriptItem;

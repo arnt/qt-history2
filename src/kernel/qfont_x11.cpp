@@ -106,6 +106,7 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
 }
 
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
+int QFontPrivate::defaultEncodingID = -1;
 
 /*!
   Internal function that initializes the font system.
@@ -137,7 +138,13 @@ void QFont::initialize()
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
 
+    extern int qt_encoding_id_for_mib( int mib ); // from qfontdatabase_x11.cpp
     QTextCodec *codec = QTextCodec::codecForLocale();
+    // determine the default encoding id using the locale, otherwise
+    // fallback to latin1 ( mib == 4 )
+    int mib = codec ? codec->mibEnum() : 4;
+    QFontPrivate::defaultEncodingID = qt_encoding_id_for_mib( mib );
+
 #if 0
     // we have a codec for the locale - lets see if it's one of the CJK codecs,
     // and change the script_table[Han].list to an appropriate list

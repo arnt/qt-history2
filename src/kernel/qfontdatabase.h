@@ -116,16 +116,16 @@ public:
 private:
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     static QFontEngine *findFont( QFont::Script script, const QFontPrivate *fp,
-	const QFontDef &request );
+				  const QFontDef &request, int force_encoding_id = -1 );
 #endif // Q_WS_X11
 
     static void createDatabase();
 
     static void parseFontName(const QString &, QString &, QString &);
 
-    // for parseFontName
     friend class QFontPrivate;
     friend class QFontDialog;
+    friend class QFontEngineLatinXLFD;
 
     QFontDatabasePrivate *d;
 };

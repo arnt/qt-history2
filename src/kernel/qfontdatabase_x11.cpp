@@ -51,8 +51,6 @@
 #include <freetype/freetype.h>
 #endif
 
-// #define QFONTDATABASE_DEBUG
-// #define FONT_MATCH_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
 #endif // QFONTDATABASE_DEBUG
@@ -367,13 +365,23 @@ int qt_xlfdEncoding_Id( const char *encoding )
     return -1;
 }
 
-int qt_mibForXlfd( const char * encoding )
+int qt_mibForXlfd( const char *encoding )
 {
     int id = qt_xlfdEncoding_Id( encoding );
     if ( id != -1 )
 	return xlfd_encoding[id].mib;
     return 0;
 };
+
+int qt_encoding_id_for_mib( int mib )
+{
+    const XlfdEncoding *enc = xlfd_encoding;
+    for ( ; enc->name; ++enc ) {
+	if ( enc->mib == mib )
+	    return enc->id;
+    }
+    return -1;
+}
 
 static const char * xlfd_for_id( int id )
 {
@@ -1120,7 +1128,7 @@ QFontEngine *loadEngine( QFont::Script script,
 			 const QFontPrivate *fp, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
 			 QtFontStyle *style, QtFontSize *size,
-			 QtFontEncoding *encoding )
+			 QtFontEncoding *encoding, bool forced_encoding )
 {
 #ifndef QT_NO_XFTFREETYPE
     if ( encoding->encoding == -1 ) {
@@ -1293,8 +1301,10 @@ QFontEngine *loadEngine( QFont::Script script,
 
     switch ( script ) {
     case QFont::Latin:
-	// return new QFontEngineLatinXLFD( xfs, xlfd.data(),
-	//                                  xlfd_for_id( encoding->encoding ), 0 );
+	if ( ! forced_encoding ) {
+	    return new QFontEngineLatinXLFD( xfs, xlfd.data(),
+					     xlfd_for_id( encoding->encoding ) );
+	}
 	break;
 
     case QFont::Han:
@@ -1305,7 +1315,9 @@ QFontEngine *loadEngine( QFont::Script script,
     default: break;
     }
 
-    QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd.data(), xlfd_for_id( encoding->encoding ), 0 );
+    QFontEngine *fe =
+	new QFontEngineXLFD( xfs, xlfd.data(), xlfd_for_id( encoding->encoding ),
+			     encoding->encoding );
     fe->setScale( scale );
     return fe;
 }
