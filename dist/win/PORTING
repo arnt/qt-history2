@@ -1,0 +1,46 @@
+                        PORTING QT TO OTHER PLATFORMS
+
+Read this file if you want to port Qt to other NT platforms or C++
+compilers. Our internal development environment is Windows 95 and NT
+with Microsoft Visual C++ (MSVC++) 4.1.
+
+We have not yet tested Qt on other NT platforms than i386. You should be
+able to compile without problems.
+
+                               REQUIREMENTS
+
+Qt requires that your C++ compiler supports multiple inheritance.
+Template support is strongly recommended, but not a necessity.  The
+compiler must recognize the .cpp extension.  Exception handling and RTTI
+(Run-Time Type Information) are not required.  Expect problems with old
+CFront-based compilers.
+
+                                 PATCHES
+
+Note that you may not distribute your port without our explicit
+permission.  Please send us the patches you had to make so we can add them
+to the code base; then we can support the new platform in an orderly
+manner.
+
+                           PORTING INSTRUCTIONS
+
+Most compilers and IDEs provide some sort of project files. The problem
+with project files is that they cannot handle moc output (moc.exe reads
+.h files and generates .cpp files with meta object data). You may need to
+write your own Makefile. We will provide a better solution for Qt 1.0.
+
+In qglobal.h you may need to set _CC_whatever_ for your compiler. It is
+not strictly required, but it may be necessary to add some #ifdefs for
+your compiler to compile the source.
+
+If your compiler doesn't support templates, make sure DEFAULT_MACROCLASS
+is defined in qglobal.h.
+
+There are also some size-dependent types (UINT32 and so on), make sure
+they're right for your system.
+
+Some compilers emit bad warnings when they compile Qt.  If yours does, and
+the code in Qt is sane, please use a #pragma or two to shut your compiler
+up.  (This is a good reason for wanting the _CC_whatever_ define above.)
+
+Good luck, and feel free to send mail to qt-bugs@troll.no.
