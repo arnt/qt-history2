@@ -280,7 +280,6 @@ static bool        app_do_modal           = false;        // modal mode
 extern QWidgetList *qt_modal_stack;
 extern QDesktopWidget *qt_desktopWidget;
 static QWidget *popupButtonFocus   = 0;
-static bool        popupCloseDownMode = false;
 static bool        qt_try_modal(QWidget *, MSG *, int& ret);
 
 QWidget               *qt_button_down = 0;                // widget got last button-down
@@ -2070,7 +2069,6 @@ void QApplication::closePopup(QWidget *popup)
                              && !popup->testAttribute(Qt::WA_NoMouseReplay));
 
     if (popupWidgets->count() == 0) {                // this was the last popup
-        popupCloseDownMode = true;                // control mouse events
         delete popupWidgets;
         popupWidgets = 0;
         if (!popup->isEnabled())
