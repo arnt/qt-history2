@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#17 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#17 $");
 
 
 
@@ -330,7 +330,13 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 
     fixed available = toFixed( space - minSize() );
     if ( available < 0 ) {
-	warning( "QGManager: not enough space to go around" );
+	QString msg;
+	msg.sprintf( "QGManager: not enough space for %d-item %sal chain with %d branches",
+	    chain.count(),
+	    horz( direction() ) ? "horizont" : "vertic",
+	    branches.count()
+	);
+	warning( msg );
 	available = 0;
     }
     int sf = sumStretch();
