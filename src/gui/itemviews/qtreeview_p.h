@@ -60,7 +60,7 @@ public:
 
     void relayout(const QModelIndex &parent);
 
-    QGenericHeader *header;
+    QHeaderView *header;
     int indent;
 
     QVector<QTreeViewItem> items;

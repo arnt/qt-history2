@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qtablewidget.h"
-#include <qgenericheader.h>
+#include <qheaderview.h>
 #include <private/qtableview_p.h>
 
 class QTableModel : public QAbstractTableModel

@@ -3,7 +3,7 @@
 HEADERS += \
 	itemviews/qabstractitemview.h \
         itemviews/qabstractitemview_p.h \
-	itemviews/qgenericheader.h \
+	itemviews/qheaderview.h \
 	itemviews/qlistview.h \
 	itemviews/qlistview_p.h \
 	itemviews/qtableview.h \
@@ -23,7 +23,7 @@ HEADERS += \
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
-	itemviews/qgenericheader.cpp \
+	itemviews/qheaderview.cpp \
 	itemviews/qlistview.cpp \
 	itemviews/qtableview.cpp \
 	itemviews/qtreeview.cpp \

@@ -1,6 +1,6 @@
 #include <qapplication.h>
 #include <qtableview.h>
-#include <qgenerictreeview.h>
+#include <qtreeview.h>
 #include <qlistview.h>
 #include <qsplitter.h>
 #include "model.h"
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     table->setModel(data);
     table->setSelectionModel(selections);
 
-    QGenericTreeView *tree = new QGenericTreeView(&page);
+    QTreeView *tree = new QTreeView(&page);
     tree->setModel(data);
     tree->setSelectionModel(selections);
 

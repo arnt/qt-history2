@@ -19,7 +19,7 @@
 #endif
 
 class QTreeViewPrivate;
-class QGenericHeader;
+class QHeaderView;
 
 class Q_GUI_EXPORT QTreeView : public QAbstractItemView
 {
@@ -35,8 +35,8 @@ public:
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
 
-    QGenericHeader *header() const;
-    void setHeader(QGenericHeader *header);
+    QHeaderView *header() const;
+    void setHeader(QHeaderView *header);
 
     int indentation() const;
     void setIndentation(int i);

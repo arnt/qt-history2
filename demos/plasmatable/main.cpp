@@ -13,7 +13,7 @@
 #include <qapplication.h>
 #include <qhbox.h>
 #include <qtableview.h>
-#include <qgenericheader.h>
+#include <qheaderview.h>
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
 

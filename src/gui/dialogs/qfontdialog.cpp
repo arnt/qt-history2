@@ -32,7 +32,7 @@
 #include <qvalidator.h>
 #include <qabstractitemmodel.h>
 #include <qtreeview.h>
-#include <qgenericheader.h>
+#include <qheaderview.h>
 
 class QFontListModel : public QAbstractListModel
 {
@@ -96,8 +96,8 @@ QFontListView::QFontListView(QWidget *parent)
 {
     setModel(new QFontListModel(parent));
     setRootIsDecorated(false);
-    QGenericHeader *h = header();
-    h->setResizeMode(QGenericHeader::Stretch, 0);
+    QHeaderView *h = header();
+    h->setResizeMode(QHeaderView::Stretch, 0);
     h->hide();
 }
 

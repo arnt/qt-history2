@@ -14,8 +14,8 @@
 #include "connectionwidget.h"
 
 #include <qsqldatabase.h>
-#include <qgenericheader.h>
-#include <qgenerictreeview.h>
+#include <qheaderview.h>
+#include <qtreeview.h>
 #include <qlayout.h>
 
 #include <qitemdelegate.h>
@@ -143,11 +143,11 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
     : QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
-    tree = new QGenericTreeView(this);
+    tree = new QTreeView(this);
     tree->setItemDelegate(new ConnectionModelDelegate(this));
     model = new ConnectionModel(tree);
     tree->setModel(model);
-    tree->header()->setResizeMode(QGenericHeader::Stretch);
+    tree->header()->setResizeMode(QHeaderView::Stretch);
     layout->addWidget(tree);
 }
 

@@ -11,19 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QGENERICHEADER_H
-#define QGENERICHEADER_H
+#ifndef QHEADERVIEW_H
+#define QHEADERVIEW_H
 
 #ifndef QT_H
 #include <qabstractitemview.h>
 #endif
 
-class QGenericHeaderPrivate;
+class QHeaderViewPrivate;
 
-class Q_GUI_EXPORT QGenericHeader : public QAbstractItemView
+class Q_GUI_EXPORT QHeaderView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericHeader)
+    Q_DECLARE_PRIVATE(QHeaderView)
     Q_ENUMS(ResizeMode)
 
 public:
@@ -35,8 +35,8 @@ public:
         Custom // let somebody else do the resize
     };
 
-    QGenericHeader(Qt::Orientation orientation, QWidget *parent = 0);
-    virtual ~QGenericHeader();
+    QHeaderView(Qt::Orientation orientation, QWidget *parent = 0);
+    virtual ~QHeaderView();
 
     void setModel(QAbstractItemModel *model);
 
@@ -82,7 +82,7 @@ public:
     QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();
-    
+
 public slots:
     void setOffset(int offset);
 
@@ -101,7 +101,7 @@ protected slots:
     void sectionsRemoved(const QModelIndex &parent, int first, int last);
 
 protected:
-    QGenericHeader(QGenericHeaderPrivate &, Qt::Orientation orientation, QWidget *parent);
+    QHeaderView(QHeaderViewPrivate &, Qt::Orientation orientation, QWidget *parent);
 
     void reset();
     void initializeSections(int start, int end);

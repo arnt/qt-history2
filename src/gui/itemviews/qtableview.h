@@ -18,7 +18,7 @@
 #include <qabstractitemview.h>
 #endif
 
-class QGenericHeader;
+class QHeaderView;
 class QTableViewPrivate;
 
 class Q_GUI_EXPORT QTableView : public QAbstractItemView
@@ -34,10 +34,10 @@ public:
     void setModel(QAbstractItemModel *model);
     void setSelectionModel(QItemSelectionModel *selectionModel);
 
-    QGenericHeader *horizontalHeader() const;
-    QGenericHeader *verticalHeader() const;
-    void setHorizontalHeader(QGenericHeader *header);
-    void setVerticalHeader(QGenericHeader *header);
+    QHeaderView *horizontalHeader() const;
+    QHeaderView *verticalHeader() const;
+    void setHorizontalHeader(QHeaderView *header);
+    void setVerticalHeader(QHeaderView *header);
 
     int rowViewportPosition(int row) const;
     int rowHeight(int row) const;

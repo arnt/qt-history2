@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qtableview.h"
-#include "qgenericheader.h"
+#include <qheaderview.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qpainter.h>
@@ -28,13 +28,13 @@ void QTableViewPrivate::init()
 {
     q->setBeginEditActions(beginEditActions|QAbstractItemDelegate::AnyKeyPressed);
 
-    QGenericHeader *vertical = new QGenericHeader(Qt::Vertical, q);
+    QHeaderView *vertical = new QHeaderView(Qt::Vertical, q);
     vertical->setModel(model);
     vertical->setSelectionModel(selectionModel);
     vertical->setClickable(true);
     q->setVerticalHeader(vertical);
 
-    QGenericHeader *horizontal = new QGenericHeader(Qt::Horizontal, q);
+    QHeaderView *horizontal = new QHeaderView(Qt::Horizontal, q);
     horizontal->setModel(model);
     horizontal->setSelectionModel(selectionModel);
     horizontal->setClickable(true);
@@ -137,7 +137,7 @@ void QTableView::setSelectionModel(QItemSelectionModel *selectionModel)
     \sa setHorizontalHeader() verticalHeader()
 */
 
-QGenericHeader *QTableView::horizontalHeader() const
+QHeaderView *QTableView::horizontalHeader() const
 {
     return d->horizontalHeader;
 }
@@ -147,7 +147,7 @@ QGenericHeader *QTableView::horizontalHeader() const
 
     \sa setVerticalHeader() horizontalHeader()
 */
-QGenericHeader *QTableView::verticalHeader() const
+QHeaderView *QTableView::verticalHeader() const
 {
     return d->verticalHeader;
 }
@@ -157,7 +157,7 @@ QGenericHeader *QTableView::verticalHeader() const
 
     \sa horizontalHeader() setVerticalHeader()
 */
-void QTableView::setHorizontalHeader(QGenericHeader *header)
+void QTableView::setHorizontalHeader(QHeaderView *header)
 {
     if (d->horizontalHeader) {
         QObject::disconnect(d->horizontalHeader,SIGNAL(sectionSizeChanged(int,int,int)),
@@ -191,7 +191,7 @@ void QTableView::setHorizontalHeader(QGenericHeader *header)
 
     \sa verticalHeader() setHorizontalHeader()
 */
-void QTableView::setVerticalHeader(QGenericHeader *header)
+void QTableView::setVerticalHeader(QHeaderView *header)
 {
     if (d->verticalHeader) {
         QObject::disconnect(d->verticalHeader, SIGNAL(sectionSizeChanged(int,int,int)),
@@ -313,8 +313,8 @@ void QTableView::paintEvent(QPaintEvent *e)
     QPen gridPen = QPen(gridColor, 0, d->gridStyle);
 
     QItemSelectionModel *sels = selectionModel();
-    QGenericHeader *verticalHeader = d->verticalHeader;
-    QGenericHeader *horizontalHeader = d->horizontalHeader;
+    QHeaderView *verticalHeader = d->verticalHeader;
+    QHeaderView *horizontalHeader = d->horizontalHeader;
     QModelIndex current = currentItem();
     bool focus = hasFocus() && current.isValid();
     QStyle::SFlags state = option.state;

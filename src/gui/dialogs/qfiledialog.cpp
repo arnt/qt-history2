@@ -15,7 +15,7 @@
 #include <qcombobox.h>
 #include <qdirmodel.h>
 #include <qframe.h>
-#include <qgenericheader.h>
+#include <qheaderview.h>
 #include <qlistview.h>
 #include <qtreeview.h>
 #include <qitemselectionmodel.h>
@@ -1213,7 +1213,7 @@ void QFileDialog::headerClicked(int section)
     default:
         return;
     }
-    QGenericHeader *header = d->tview->header();
+    QHeaderView *header = d->tview->header();
     Qt::SortOrder order = (header->sortIndicatorSection() == section
                        && header->sortIndicatorOrder() == Qt::DescendingOrder)
                       ? Qt::AscendingOrder : Qt::DescendingOrder;
@@ -1387,8 +1387,8 @@ void QFileDialogPrivate::setup(const QString &directory,
 
     tview->viewport()->setAcceptDrops(true);
     tview->setRootIsDecorated(false);
-    tview->header()->setResizeMode(QGenericHeader::Custom);
-    tview->header()->setResizeMode(QGenericHeader::Stretch, 0);
+    tview->header()->setResizeMode(QHeaderView::Custom);
+    tview->header()->setResizeMode(QHeaderView::Stretch, 0);
     tview->header()->setSortIndicator(0, Qt::DescendingOrder);
     tview->hide();
     tview->setBeginEditActions(QAbstractItemDelegate::EditKeyPressed);

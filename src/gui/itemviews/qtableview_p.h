@@ -26,8 +26,8 @@ public:
 
     bool showGrid;
     Qt::PenStyle gridStyle;
-    QGenericHeader *horizontalHeader;
-    QGenericHeader *verticalHeader;
+    QHeaderView *horizontalHeader;
+    QHeaderView *verticalHeader;
     QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
 };
 

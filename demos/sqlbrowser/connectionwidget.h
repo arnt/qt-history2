@@ -19,7 +19,7 @@
 #include <qstringlist.h>
 #include <qwidget.h>
 
-class QGenericTreeView;
+class QTreeView;
 class QSqlDatabase;
 
 class ConnectionModel: public QAbstractItemModel
@@ -60,7 +60,7 @@ public slots:
     void refresh();
 
 private:
-    QGenericTreeView *tree;
+    QTreeView *tree;
     ConnectionModel *model;
 };
 

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 #include "qtreeview.h"
-#include <qgenericheader.h>
+#include <qheaderview.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qscrollbar.h>
@@ -94,7 +94,7 @@
 QTreeView::QTreeView(QWidget *parent)
     : QAbstractItemView(*new QTreeViewPrivate, parent)
 {
-    setHeader(new QGenericHeader(Qt::Horizontal, this));
+    setHeader(new QHeaderView(Qt::Horizontal, this));
     d->header->setModel(model());
     d->header->setSelectionModel(selectionModel());
     d->header->setMovable(true);
@@ -112,7 +112,7 @@ QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    QGenericHeader *header = new QGenericHeader(Qt::Horizontal, this);
+    QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setModel(model());
     header->setSelectionModel(selectionModel());
     header->setMovable(true);
@@ -150,7 +150,7 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
   Returns the header for the tree view.
 */
 
-QGenericHeader *QTreeView::header() const
+QHeaderView *QTreeView::header() const
 {
     return d->header;
 }
@@ -159,7 +159,7 @@ QGenericHeader *QTreeView::header() const
   Sets the \a header for the tree view.
 */
 
-void QTreeView::setHeader(QGenericHeader *header)
+void QTreeView::setHeader(QHeaderView *header)
 {
     if (d->header) {
         QObject::disconnect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
@@ -504,7 +504,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int width, height = option.rect.height();
 
     QModelIndex parent = model()->parent(index);
-    QGenericHeader *header = d->header;
+    QHeaderView *header = d->header;
     QModelIndex current = selectionModel()->currentItem();
     bool focus = hasFocus() && current.isValid();
     bool reverse = QApplication::reverseLayout();
