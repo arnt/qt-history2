@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#94 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#93 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#94 $");
 
 
 /*!
@@ -237,6 +237,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     }
 
     if ( style() != WindowsStyle || 
+	 !isVisibleToTLW() ||
 	 !object->isWidgetType() ||
 	 !( event->type() == Event_Accel || 
 	    event->type() == Event_KeyPress ||
