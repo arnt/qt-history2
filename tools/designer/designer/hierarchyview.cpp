@@ -978,8 +978,15 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void FormDefinitionView::execFunctionDialog( const QString &access, const QString &type, bool addFunc )
 {
-    if ( formWindow->formFile() && !formWindow->formFile()->isUihFileUpToDate() )
-	return;
+    FormFile *formFile = formWindow->formFile();
+    if ( !formFile || !formFile->isUihFileUpToDate() )
+	    return;
+	
+    // refresh the functions list in the metadatabase
+    SourceEditor *editor = formFile->editor();
+    if ( editor )
+	editor->refresh( TRUE );
+
     EditFunctions dlg( this, formWindow );
     if ( addFunc )
 	dlg.functionAdd( access, type );
