@@ -24,6 +24,8 @@
 #include "qplatformdefs.h"
 #endif
 
+#include <stdlib.h>
+
 #ifdef QRGB
 #undef QRGB
 #endif
