@@ -1704,11 +1704,10 @@ void QGdiplusPaintEngine::drawLineSegments(const QPointArray &pa, int index, int
 void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
     if (d->usePen) {
-	Point *p = new Point[npoints];
-	for (int i=0; i<npoints; ++i)
-	    p[i] = Point(pa[index+i].x(), pa[index+i].y());
-	d->graphics->DrawPolygon(d->pen, p, npoints);
-	delete [] p;
+	GraphicsPath path;
+	for (int i=1; i<npoints; ++i)
+	    path.AddLine(pa.at(i-1).x(), pa.at(i-1).y(), pa.at(i).x(), pa.at(i).y());
+	d->graphics->DrawPath(d->pen, &path);
     }
 }
 
