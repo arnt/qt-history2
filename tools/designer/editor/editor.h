@@ -29,6 +29,7 @@ struct Config;
 class ParenMatcher;
 class EditorCompletion;
 class EditorBrowser;
+class QAccel;
 
 class EDITOR_EXPORT Editor : public QTextEdit
 {
@@ -67,6 +68,7 @@ public:
     void drawCursor( bool b ) { QTextEdit::drawCursor( b ); }
 
     QPopupMenu *createPopupMenu();
+    bool eventFilter( QObject *o, QEvent *e );
 
 signals:
     void clearErrorMarker();
@@ -83,6 +85,7 @@ protected:
     QString filename;
     Config *cfg;
     bool hasError;
+    QAccel *accelComment, *accelUncomment;
 
 };
 

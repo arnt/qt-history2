@@ -53,10 +53,12 @@ Editor::Editor( const QString &fn, QWidget *parent, const char *name )
     document()->setInvertSelectionText( ParenMatcher::Match, FALSE );
     document()->setInvertSelectionText( ParenMatcher::Mismatch, FALSE );
 
-    QAccel *a = new QAccel( this );
-    a->connectItem( a->insertItem( ALT + Key_C ), this, SLOT( commentSelection() ) );
-    a = new QAccel( this );
-    a->connectItem( a->insertItem( ALT + Key_U ), this, SLOT( uncommentSelection() ) );
+    accelComment = new QAccel( this );
+    accelComment->connectItem( accelComment->insertItem( ALT + Key_C ),
+			       this, SLOT( commentSelection() ) );
+    accelUncomment = new QAccel( this );
+    accelUncomment->connectItem( accelUncomment->insertItem( ALT + Key_U ),
+				 this, SLOT( uncommentSelection() ) );
 }
 
 void Editor::cursorPosChanged( QTextCursor *c )
@@ -179,4 +181,14 @@ QPopupMenu *Editor::createPopupMenu()
     menu->insertItem( tr( "C&omment Code\tALT+C" ), this, SLOT( commentSelection() ) );
     menu->insertItem( tr( "Unco&mment Code\tALT+U" ), this, SLOT( uncommentSelection() ) );
     return menu;
+}
+
+bool Editor::eventFilter( QObject *o, QEvent *e )
+{
+    if ( ( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) &&
+	 ( o == this || o == viewport() ) ) {
+	accelUncomment->setEnabled( e->type() == QEvent::FocusIn );
+	accelComment->setEnabled( e->type() == QEvent::FocusIn );
+    }
+    return QTextEdit::eventFilter( o, e );
 }
