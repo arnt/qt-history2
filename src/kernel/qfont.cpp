@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#19 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#19 $";
 #endif
 
 
@@ -205,7 +205,7 @@ void QFont::setPointSize( int pointSize )
   gives you an error message and aborts (of course this only happens
   if you are using fonts and Qt \e has to load a font). We have not been
   able to find a case where this happens. Please
-  <a href=mailto:qt@troll.no>mail us</a>
+  <a href=mailto:qt-bugs@troll.no>mail us</a>
   if you do, preferrably with a list of the fonts you have installed 
   (under X windows, type "xlsfonts").
 
@@ -240,7 +240,7 @@ void QFont::setPointSize( int pointSize )
   Currently using the correct font family has higher priority than
   using the correct character set. We are not certain if this should
   be reversed and might do so in the 1.0 release. If you have opinions 
-  about this please <a href=mailto:qt@troll.no>mail us</a>!
+  about this please <a href=mailto:qt-bugs@troll.no>mail us</a>!
 
   */
 
