@@ -230,7 +230,7 @@
   \sa setPolicy(), load()
 */
 QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, LibraryPolicy pol )
-    : pHnd( 0 ), libfile( filename ), appInterface( appIface ), libPol( pol ), info( 0 )
+    : info( 0 ), pHnd( 0 ), libfile( filename ), libPol( pol ), appInterface( appIface )
 {
     if ( pol == OptimizeSpeed )
 	load();
@@ -292,7 +292,7 @@ bool QPlugIn::load()
 
   \sa load
 */
-bool QPlugIn::unload( bool force )
+bool QPlugIn::unload( bool /*force*/ )
 {
     if ( pHnd ) {
 	if ( info ) {
