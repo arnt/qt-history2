@@ -1,11 +1,42 @@
-#ifndef WIZARD_H
-#define WIZARD_H
+#ifndef COMPLEXWIZARD_H
+#define COMPLEXWIZARD_H
 
 #include <QDialog>
+#include <QList>
 
 class QHBoxLayout;
 class QPushButton;
 class QVBoxLayout;
+class WizardPage;
+
+class ComplexWizard : public QDialog
+{
+    Q_OBJECT
+
+public:
+    ComplexWizard(QWidget *parent = 0);
+
+    const QList<WizardPage *> &historyPages() const { return history; }
+
+protected:
+    void setFirstPage(WizardPage *page);
+
+private slots:
+    void backButtonClicked();
+    void nextButtonClicked();
+    void completeStateChanged();
+
+private:
+    void switchPage(WizardPage *oldPage);
+
+    QList<WizardPage *> history;
+    QPushButton *cancelButton;
+    QPushButton *backButton;
+    QPushButton *nextButton;
+    QPushButton *finishButton;
+    QHBoxLayout *buttonLayout;
+    QVBoxLayout *mainLayout;
+};
 
 class WizardPage : public QWidget
 {
@@ -21,33 +52,6 @@ public:
 
 signals:
     void completeStateChanged();
-};
-
-class Wizard : public QDialog
-{
-    Q_OBJECT
-
-public:
-    Wizard(QWidget *parent = 0);
-
-    void setFirstPage(WizardPage *page);
-
-    QList<WizardPage *> history;
-
-private slots:
-    void previousButtonClicked();
-    void nextButtonClicked();
-    void completeStateChanged();
-
-private:
-    void switchPage(WizardPage *oldPage);
-
-    QPushButton *cancelButton;
-    QPushButton *previousButton;
-    QPushButton *nextButton;
-    QPushButton *finishButton;
-    QHBoxLayout *buttonLayout;
-    QVBoxLayout *mainLayout;
 };
 
 #endif

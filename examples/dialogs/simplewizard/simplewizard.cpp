@@ -6,20 +6,19 @@ SimpleWizard::SimpleWizard(QWidget *parent)
     : QDialog(parent)
 {
     cancelButton = new QPushButton(tr("Cancel"), this);
-    previousButton = new QPushButton(tr("< Previous"), this);
+    backButton = new QPushButton(tr("< &Back"), this);
     nextButton = new QPushButton(tr("Next >"), this);
-    finishButton = new QPushButton(tr("Finish"), this);
+    finishButton = new QPushButton(tr("&Finish"), this);
 
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-    connect(previousButton, SIGNAL(clicked()),
-            this, SLOT(previousButtonClicked()));
+    connect(backButton, SIGNAL(clicked()), this, SLOT(backButtonClicked()));
     connect(nextButton, SIGNAL(clicked()), this, SLOT(nextButtonClicked()));
     connect(finishButton, SIGNAL(clicked()), this, SLOT(accept()));
 
     buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(cancelButton);
-    buttonLayout->addWidget(previousButton);
+    buttonLayout->addWidget(backButton);
     buttonLayout->addWidget(nextButton);
     buttonLayout->addWidget(finishButton);
 
@@ -42,7 +41,7 @@ void SimpleWizard::setNumPages(int n)
     switchPage(0);
 }
 
-void SimpleWizard::previousButtonClicked()
+void SimpleWizard::backButtonClicked()
 {
     nextButton->setEnabled(true);
     finishButton->setEnabled(true);
@@ -73,7 +72,7 @@ void SimpleWizard::switchPage(QWidget *oldPage)
     mainLayout->insertWidget(0, newPage);
     newPage->show();
 
-    previousButton->setEnabled(history.size() != 1);
+    backButton->setEnabled(history.size() != 1);
     if (history.size() == numPages) {
         nextButton->setEnabled(false);
         finishButton->setDefault(true);

@@ -22,7 +22,7 @@ protected:
     void setNumPages(int n);
 
 private slots:
-    void previousButtonClicked();
+    void backButtonClicked();
     void nextButtonClicked();
 
 private:
@@ -31,7 +31,7 @@ private:
     QList<QWidget *> history;
     int numPages;
     QPushButton *cancelButton;
-    QPushButton *previousButton;
+    QPushButton *backButton;
     QPushButton *nextButton;
     QPushButton *finishButton;
     QHBoxLayout *buttonLayout;

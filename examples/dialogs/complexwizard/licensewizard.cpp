@@ -3,7 +3,7 @@
 #include "licensewizard.h"
 
 LicenseWizard::LicenseWizard(QWidget *parent)
-    : Wizard(parent)
+    : ComplexWizard(parent)
 {
     titlePage = new TitlePage(this);
     evaluatePage = new EvaluatePage(this);
@@ -233,11 +233,11 @@ void FinishPage::resetPage()
 {
     QString licenseText;
 
-    if (wizard->history.contains(wizard->evaluatePage)) {
+    if (wizard->historyPages().contains(wizard->evaluatePage)) {
         licenseText = tr("Evaluation License Agreement: "
                          "You can use this software for 30 days and make one "
                          "back up, but you are not allowed to distribute it.");
-    } else if (wizard->history.contains(wizard->detailsPage)) {
+    } else if (wizard->historyPages().contains(wizard->detailsPage)) {
         licenseText = tr("First-Time License Agreement: "
                          "You can use this software subject to the license "
                          "you will receive by email.");

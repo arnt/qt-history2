@@ -1,7 +1,7 @@
 #ifndef LICENSEWIZARD_H
 #define LICENSEWIZARD_H
 
-#include "wizard.h"
+#include "complexwizard.h"
 
 class QCheckBox;
 class QLabel;
@@ -13,7 +13,7 @@ class FinishPage;
 class RegisterPage;
 class TitlePage;
 
-class LicenseWizard : public Wizard
+class LicenseWizard : public ComplexWizard
 {
 public:
     LicenseWizard(QWidget *parent = 0);

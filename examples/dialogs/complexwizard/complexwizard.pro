@@ -1,5 +1,5 @@
-HEADERS         += licensewizard.h \
-                   wizard.h
-SOURCES         += licensewizard.cpp \
-                   main.cpp \
-		   wizard.cpp
+HEADERS         += complexwizard.h \
+                   licensewizard.h
+SOURCES         += complexwizard.cpp \
+                   licensewizard.cpp \
+                   main.cpp
