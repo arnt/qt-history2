@@ -243,7 +243,17 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     } else
 #endif
     {
-	chr = ch.latin1();
+	if ( ch.unicode() < 0x80 ) {
+	    chr = ch.unicode();
+	} else {
+	    QCString str = QString( ch ).local8Bit();
+	    uchar *res = (uchar *) str.data();
+	    if ( str.length() > 1 ) { 
+		chr = (ushort) *res << 8;
+		res++;
+	    }
+    	    chr += *res;
+	}
     }
     if ( chr ) {
 	DWORD res = 0;
