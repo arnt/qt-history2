@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Configuration.
 **
@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#ifndef __previewwidget_h__
-#define __previewwidget_h__
+#ifndef PREVIEWWIDGET_H
+#define PREVIEWWIDGET_H
 
 #include "previewwidgetbase.h"
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Configuration.
 **
@@ -17,6 +17,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef PALETTEEDITORADVANCED_H
+#define PALETTEEDITORADVANCED_H
 
 #include "paletteeditoradvancedbase.h"
 
@@ -78,3 +81,5 @@ private:
 
     int selectedPalette;
 };
+
+#endif

@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Configuration.
 **
@@ -18,17 +18,18 @@
 **
 **********************************************************************/
 
-#ifndef __previewframe_h__
-#define __previewframe_h__
+#ifndef PREVIEWFRAME_H
+#define PREVIEWFRAME_H
+
+#include "previewwidget.h"
 
 #include <qvbox.h>
 #include <qworkspace.h>
 
-#include "previewwidget.h"
-
 class Workspace : public QWorkspace
 {
     Q_OBJECT
+
 public:
     Workspace( QWidget* parent = 0, const char* name = 0 )
         : QWorkspace( parent, name ) {}
