@@ -16,6 +16,7 @@
 #define QPAINTERPATH_P_H
 
 #include <qlist.h>
+#include <qpainterpath.h>
 
 /*!
  * Describes an element in a subpath

@@ -55,6 +55,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qbitmap.h"
 #include "qregion.h"
 #include <private/qunicodetables_p.h>
+#include <private/qpainterpath_p.h>
 #include <qdebug.h>
 
 #if defined(Q_OS_WIN32)
@@ -5398,11 +5399,11 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 
 // ================ PSPrinter class ========================
 
-// ### Implementation PainterPaths and LinearGradients
+// ### Implementation LinearGradients
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
     : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
                    CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform
-                   | PixmapScale | ClipTransform | UsesFontEngine)
+                   | PixmapScale | ClipTransform | UsesFontEngine | PainterPaths)
 {
 }
 
@@ -5601,10 +5602,10 @@ void QPSPrintEngine::updatePen(const QPen &pen)
         d->cpen.joinStyle() == Qt::MiterJoin)
         d->pageStream << color(d->cpen.color()) << "P1\n";
     else
-    d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
-                  << ' ' << color(d->cpen.color())
-                  << psCap(d->cpen.capStyle())
-                  << psJoin(d->cpen.joinStyle()) << "PE\n";
+        d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
+                      << ' ' << color(d->cpen.color())
+                      << psCap(d->cpen.capStyle())
+                      << psJoin(d->cpen.joinStyle()) << "PE\n";
 }
 
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &/*origin*/)
@@ -5830,6 +5831,57 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
 void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p)
 {
     // ### Implement me
+}
+
+void QPSPrintEngine::drawPath(const QPainterPath &p)
+{
+    const QPainterPathPrivate *pd = p.d;
+
+    bool winding = (p.fillMode() == QPainterPath::Winding);
+
+    if (winding)
+        d->pageStream << "/WFi true d\n";
+    d->pageStream << "NP\n";
+
+    // Drawing the subpaths
+    for (int i=0; i<pd->subpaths.size(); ++i) {
+        const QPainterSubpath &sub = pd->subpaths.at(i);
+        if (sub.elements.isEmpty())
+            continue;
+        d->pageStream << POINT(sub.firstPoint()) << "MT\n";
+
+        for (int j=0; j<sub.elements.size(); ++j) {
+            const QPainterPathElement &elm = sub.elements.at(j);
+            switch (elm.type) {
+            case QPainterPathElement::Line: {
+                d->pageStream << POINT(QPoint(elm.lineData.x2, elm.lineData.y2)) << "LT\n";
+                break;
+            }
+            case QPainterPathElement::Bezier: {
+                d->pageStream << POINT(QPoint(elm.bezierData.x2, elm.bezierData.y2))
+                              << POINT(QPoint(elm.bezierData.x3, elm.bezierData.y3))
+                              << POINT(QPoint(elm.bezierData.x4, elm.bezierData.y4))
+                              << "curveto\n";
+                break;
+            }
+            case QPainterPathElement::Arc: {
+                d->pageStream << RECT(QRect(elm.arcData.x, elm.arcData.y,
+                                            elm.arcData.w, elm.arcData.h))
+                              << elm.arcData.start/16. << ' '
+                              << elm.arcData.length/16.
+                              << " ARC\n";
+                break;
+            }
+            default:
+                qFatal("QPSPrintEngine::drawPath(), unhandled subpath type: %d", elm.type);
+            }
+        }
+        d->pageStream << "CP\n";
+    }
+    d->pageStream << "BF QS\n";
+
+    if (winding)
+        d->pageStream << "/WFi false d\n";
 }
 
 

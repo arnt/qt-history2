@@ -61,6 +61,7 @@ public:
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    virtual void drawPath(const QPainterPath &);
 
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
