@@ -87,7 +87,7 @@ void MetaDataBase::setupDataBase()
     if ( db && cWidgets )
 	return;
 
-    db = new QPtrDict<MetaDataBaseRecord>;
+    db = new QPtrDict<MetaDataBaseRecord>( 1481 );
     db->setAutoDelete( TRUE );
     cWidgets = new QList<MetaDataBase::CustomWidget>;
     cWidgets->setAutoDelete( TRUE );
@@ -1252,14 +1252,14 @@ void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &
 	for ( QMap<QString, QString>::ConstIterator it = bodies.begin(); it != bodies.end(); ++it ) {
 	    r->functionBodies.insert( normalizeSlot( it.key() ), *it );
 	    bool foundSlot = FALSE;
-	    for ( QValueList<Slot>::Iterator sit = r->slotList.begin(); sit != r->slotList.end(); ++sit ) {
+	    int idx = 0;
+	    for ( QValueList<Slot>::Iterator sit = r->slotList.begin(); sit != r->slotList.end(); ++sit, ++idx ) {
 		Slot s = *sit;
 		if ( normalizeSlot( s.slot ) == normalizeSlot( it.key() ) ) {
 		    foundSlot = TRUE;
 		    if ( QString( s.slot ) != it.key() ) {
 			s.slot = make_pretty( it.key() ).latin1();
-			r->slotList.remove( sit );
-			r->slotList.append( s );
+			r->slotList[idx] = s;
 		    }
 		    break;
 		}
