@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#32 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -27,6 +27,7 @@
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qwidget.h"
+#include "qapplication.h"
 
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
