@@ -94,12 +94,12 @@ void MainView::stop()
 
 void MainView::url_createdDirectory( const QUrlInfo&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: createdDirectory", no ); 
+    logMessage( "SIGNAL: createdDirectory()", no ); 
 }
 
 void MainView::url_data(const QByteArray&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: data", no ); 
+    logMessage( "SIGNAL: data()", no ); 
 }
 
 void MainView::url_dataTransferProgress( int i, int j, QNetworkOperation *no)
@@ -109,32 +109,32 @@ void MainView::url_dataTransferProgress( int i, int j, QNetworkOperation *no)
 
 void MainView::url_finished( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: finished", no ); 
+    logMessage( "SIGNAL: finished()", no ); 
 }
 
 void MainView::url_itemChanged( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: itemChanged", no ); 
+    logMessage( "SIGNAL: itemChanged()", no ); 
 }
 
 void MainView::url_newChildren( const QValueList<QUrlInfo>&, QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: newChildren", no ); 
+    logMessage( "SIGNAL: newChildren()", no ); 
 }
 
 void MainView::url_removed( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: removed", no ); 
+    logMessage( "SIGNAL: removed()", no ); 
 }
 
 void MainView::url_start( QNetworkOperation *no )
 {
-    logMessage( "SIGNAL: start", no ); 
+    logMessage( "SIGNAL: start()", no ); 
 }
 
 void MainView::url_startedNextCopy( const QPtrList<QNetworkOperation>& )
 {
-    logMessage( "SIGNAL: startedNextCopy", 0 );  
+    logMessage( "SIGNAL: startedNextCopy()", 0 );  
 }
 
 void MainView::url_connectionStateChanged( int i, const QString &s )
@@ -158,7 +158,97 @@ void MainView::url_connectionStateChanged( int i, const QString &s )
 }
 
 
-void MainView::logMessage( const QString &msg, QNetworkOperation * )
+void MainView::logMessage( const QString &msg, QNetworkOperation *no )
 {
     logWindow->append( msg + "\n" );
+    if ( no ) {
+	QString operation;
+	QString state;
+	QString errorCode;
+	switch ( no->operation() ) {
+	    case QNetworkProtocol::OpListChildren:
+		operation = "OpListChildren";
+		break;
+	    case QNetworkProtocol::OpMkDir:
+		operation = "OpMkDir";
+		break;
+	    case QNetworkProtocol::OpRemove:
+		operation = "OpRemove";
+		break;
+	    case QNetworkProtocol::OpRename:
+		operation = "OpRename";
+		break;
+	    case QNetworkProtocol::OpGet:
+		operation = "OpGet";
+		break;
+	    case QNetworkProtocol::OpPut:
+		operation = "OpPut";
+		break;
+	}
+	switch ( no->state() ) {
+	    case QNetworkProtocol::StWaiting:
+		state = "StWaiting";
+		break;
+	    case QNetworkProtocol::StInProgress:
+		state = "StInProgress";
+		break;
+	    case QNetworkProtocol::StDone:
+		state = "StDone";
+		break;
+	    case QNetworkProtocol::StFailed:
+		state = "StFailed";
+		break;
+	    case QNetworkProtocol::StStopped:
+		state = "StStopped";
+		break;
+	}
+	switch ( no->errorCode() ) {
+	    case QNetworkProtocol::NoError:
+		errorCode = "NoError";
+		break;
+	    case QNetworkProtocol::ErrValid:
+		errorCode = "ErrValid";
+		break;
+	    case QNetworkProtocol::ErrUnknownProtocol:
+		errorCode = "ErrUnknownProtocol";
+		break;
+	    case QNetworkProtocol::ErrUnsupported:
+		errorCode = "ErrUnsupported";
+		break;
+	    case QNetworkProtocol::ErrParse:
+		errorCode = "ErrParse";
+		break;
+	    case QNetworkProtocol::ErrLoginIncorrect:
+		errorCode = "ErrLoginIncorrect";
+		break;
+	    case QNetworkProtocol::ErrHostNotFound:
+		errorCode = "ErrHostNotFound";
+		break;
+	    case QNetworkProtocol::ErrListChildren:
+		errorCode = "ErrListChildren";
+		break;
+	    case QNetworkProtocol::ErrMkDir:
+		errorCode = "ErrMkDir";
+		break;
+	    case QNetworkProtocol::ErrRemove:
+		errorCode = "ErrRemove";
+		break;
+	    case QNetworkProtocol::ErrRename:
+		errorCode = "ErrRename";
+		break;
+	    case QNetworkProtocol::ErrGet:
+		errorCode = "ErrGet";
+		break;
+	    case QNetworkProtocol::ErrPut:
+		errorCode = "ErrPut";
+		break;
+	    case QNetworkProtocol::ErrFileNotExisting:
+		errorCode = "ErrFileNotExisting";
+		break;
+	    case QNetworkProtocol::ErrPermissionDenied:
+		errorCode = "ErrPermissionDenied";
+		break;
+	}
+	logWindow->append( QString("  NO: %1 %2 %3(detail: %4)").arg( operation ).arg( state ).arg( errorCode ).arg( no->protocolDetail() ) );
+    }
 }
