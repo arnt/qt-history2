@@ -777,8 +777,14 @@ bool QAxWidget::initialize( IUnknown **ptr )
 	return FALSE;
     }
 
-    if ( !hhook )
-	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+    if ( !hhook ) {
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	else
+#endif
+	    hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+    }
     ++hhookref;
     container->resize( size() );
     container->show();

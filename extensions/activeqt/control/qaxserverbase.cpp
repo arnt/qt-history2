@@ -645,7 +645,12 @@ public:
 	    qax_ownQApp = TRUE;
 	    int argc = 0;
 	    (void)new QApplication( argc, 0 );
-	    hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based )
+		hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
+	    else
+#endif
+		hhook = SetWindowsHookExA( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );	    
 	}
 
 	// Create the ActiveX wrapper
@@ -865,7 +870,12 @@ bool QAxServerBase::internalCreate()
 	((HackWidget*)activeqt)->topData()->fright = 0;
 	((HackWidget*)activeqt)->topData()->fleft = 0;
 	((HackWidget*)activeqt)->topData()->fbottom = 0;
-	::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	else
+#endif
+	    ::SetWindowLongA( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
     }
 
     activeqt->setGeometry( rcPos.left, rcPos.top, rcPos.right-rcPos.left, rcPos.bottom-rcPos.top );
@@ -899,17 +909,37 @@ bool QAxServerBase::internalCreate()
 LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     if ( uMsg == WM_CREATE ) {
-	CREATESTRUCT *cs = (CREATESTRUCT*)lParam;
-	QAxServerBase *that = (QAxServerBase*)cs->lpCreateParams;
+	QAxServerBase *that;
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based ) {
+	    CREATESTRUCT *cs = (CREATESTRUCT*)lParam;
+	    that = (QAxServerBase*)cs->lpCreateParams;
+	} else
+#endif
+	{
+	    CREATESTRUCTA *cs = (CREATESTRUCTA*)lParam;
+	    that = (QAxServerBase*)cs->lpCreateParams;
+	}
 	axServerMapper()->insert( hWnd, that );
 	that->m_hWnd = hWnd;
 
-	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+	else
+#endif
+	    return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
     }
 
     QAxServerBase *that = axServerMapper()->find( hWnd );
-    if ( !that )
-	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+    if ( !that ) {
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+	else
+#endif
+	    return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
+    }
 
     switch ( uMsg )
     {
@@ -955,8 +985,14 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 		spSite->Release();
 	    }
 	}
-	if ( that->activeqt )
-	    ::SendMessage( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	if ( that->activeqt ) {
+#if defined(UNICODE)
+	    if ( qWinVersion() & Qt::WV_NT_based )
+		::SendMessage( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	    else
+#endif
+		::SendMessageA( that->activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
+	}
 	break;
 
     case WM_KILLFOCUS:
@@ -979,7 +1015,12 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 	break;
     }
 
-    return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based )
+	return ::DefWindowProc( hWnd, uMsg, wParam, lParam );
+    else
+#endif
+	return ::DefWindowProcA( hWnd, uMsg, wParam, lParam );
 }
 
 /*!
@@ -2719,7 +2760,12 @@ public:
 	topData()->fright = 0;
 	topData()->fleft = 0;
 	topData()->fbottom = 0;
-	::SetWindowLong( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+#if defined(UNICODE)
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    ::SetWindowLong( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+	else
+#endif
+	    ::SetWindowLongA( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 
 	QVBoxLayout *vbox = new QVBoxLayout( this );
 	QHBoxLayout *hbox = new QHBoxLayout( 0 );

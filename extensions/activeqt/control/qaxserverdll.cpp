@@ -121,6 +121,7 @@ BOOL WINAPI DllMain( HINSTANCE hInstance, DWORD dwReason, LPVOID lpvReserved )
 
     if ( dwReason == DLL_PROCESS_ATTACH ) {
 	qt_win_use_simple_timers = TRUE;
+	DisableThreadLibraryCalls(hInstance);
 	qAxInit();
     } else if ( dwReason == DLL_PROCESS_DETACH ) {
 	qAxCleanup();
