@@ -12,7 +12,7 @@ bool QComLibrary::unload()
 	entry->release();
     entry = 0;
 
-    QLibrary::unload();
+    return QLibrary::unload();
 }
 
 void QComLibrary::createInstanceInternal()
