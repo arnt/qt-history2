@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#102 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#103 $
 **
 ** Implementation of QTextStream class
 **
@@ -229,9 +229,9 @@ public:
 	    s.truncate( 0 );
 	}
 	if ( m & IO_Append ) {                      // append to end of buffer
-	    index = s.length()*sizeof(QChar);
+	    ioIndex = s.length()*sizeof(QChar);
 	} else {
-	    index = 0;
+	    ioIndex = 0;
 	}
 	setState( IO_Open );
 	setStatus( 0 );
@@ -242,7 +242,7 @@ public:
     {
 	if ( isOpen() ) {
 	    setFlags( IO_Direct );
-	    index = 0;
+	    ioIndex = 0;
 	}
     }
 
@@ -257,7 +257,7 @@ public:
 
     int   at()   const
     {
-	return index;
+	return ioIndex;
     }
 
     bool  at( int pos )
@@ -274,7 +274,7 @@ public:
 #endif
 	    return FALSE;
 	}
-	index = pos;
+	ioIndex = pos;
 	return TRUE;
     }
 
@@ -292,17 +292,17 @@ public:
 	    return -1;
 	}
 #endif
-	if ( (uint)index + len > s.length()*sizeof(QChar) ) {
+	if ( (uint)ioIndex + len > s.length()*sizeof(QChar) ) {
 					     	    // overflow
-	    if ( (uint)index >= s.length()*sizeof(QChar) ) {
+	    if ( (uint)ioIndex >= s.length()*sizeof(QChar) ) {
 		setStatus( IO_ReadError );
 		return -1;
 	    } else {
-		len = s.length()*2 - (uint)index;
+		len = s.length()*2 - (uint)ioIndex;
 	    }
 	}
-	memcpy( p, ((const char*)(s.unicode()))+index, len );
-	index += len;
+	memcpy( p, ((const char*)(s.unicode()))+ioIndex, len );
+	ioIndex += len;
 	return len;
     }
 
@@ -321,7 +321,7 @@ public:
 	    warning( "QBuffer::writeBlock: Write operation not permitted" );
 	    return -1;
 	}
-	if ( index&1 ) {
+	if ( ioIndex&1 ) {
 	    warning( "QBuffer::writeBlock: non-even index - non Unicode" );
 	    return -1;
 	}
@@ -330,8 +330,8 @@ public:
 	    return -1;
 	}
 #endif
-	s.replace(index/2, len/2, (QChar*)p, len/2);
-	index += len;
+	s.replace(ioIndex/2, len/2, (QChar*)p, len/2);
+	ioIndex += len;
 	return len;
     }
 
@@ -347,11 +347,11 @@ public:
 	    return -1;
 	}
 #endif
-	if ( (uint)index >= s.length()*2 ) {           // overflow
+	if ( (uint)ioIndex >= s.length()*2 ) {           // overflow
 	    setStatus( IO_ReadError );
 	    return -1;
 	}
-	return *((char*)s.unicode() + index++);
+	return *((char*)s.unicode() + ioIndex++);
     }
 
     int   putch( int ch )
@@ -376,8 +376,8 @@ public:
 	}
 #endif
 	if ( ch != -1 ) {
-	    if ( index )
-		index--;
+	    if ( ioIndex )
+		ioIndex--;
 	    else
 		ch = -1;
 	}

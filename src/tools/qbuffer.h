@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#21 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#22 $
 **
 ** Definition of QBuffer class
 **
@@ -80,7 +80,7 @@ inline uint QBuffer::size() const
 { return a.size(); }
 
 inline int QBuffer::at() const
-{ return index; }
+{ return ioIndex; }
 
 
 #endif // QBUFFER_H

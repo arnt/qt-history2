@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#47 $
 **
 ** Implementation of QIODevice class
 **
@@ -102,7 +102,7 @@ QIODevice::QIODevice()
 {
     ioMode = 0;					// initial mode
     ioSt = IO_Ok;
-    index = 0;
+    ioIndex = 0;
 }
 
 /*!
@@ -390,7 +390,7 @@ void QIODevice::setStatus( int s )
 
 int QIODevice::at() const
 {
-    return index;
+    return ioIndex;
 }
 
 /*!
@@ -406,7 +406,7 @@ bool QIODevice::at( int pos )
 	return FALSE;
     }
 #endif
-    index = pos;
+    ioIndex = pos;
     return TRUE;
 }
 

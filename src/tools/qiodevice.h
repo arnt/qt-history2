@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#29 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#30 $
 **
 ** Definition of QIODevice class
 **
@@ -126,7 +126,7 @@ protected:
     void	 setMode( int );
     void	 setState( int );
     void	 setStatus( int );
-    int		 index;
+    int		 ioIndex;
 
 private:
     int		 ioMode;

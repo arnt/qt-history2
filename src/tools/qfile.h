@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#32 $
+** $Id: //depot/qt/main/src/tools/qfile.h#33 $
 **
 ** Definition of QFile class
 **
@@ -96,7 +96,7 @@ inline QString QFile::name() const
 { return fn; }
 
 inline int QFile::at() const
-{ return index; }
+{ return ioIndex; }
 
 
 #endif // QFILE_H

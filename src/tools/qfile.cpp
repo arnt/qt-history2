@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#75 $
 **
 ** Implementation of QFile class
 **
@@ -104,7 +104,7 @@ void QFile::init()
     fh	   = 0;
     fd	   = 0;
     length = 0;
-    index  = 0;
+    ioIndex  = 0;
     ext_f  = FALSE;				// not an external file handle
 }
 
@@ -326,7 +326,7 @@ bool QFile::open( int m )
 	    STATBUF st;
 	    FSTAT( fd, &st );
 	    length = (int)st.st_size;
-	    index  = (flags() & IO_Append) == 0 ? 0 : length;
+	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
 	} else {
 	    ok = FALSE;
 	}
@@ -367,7 +367,7 @@ bool QFile::open( int m )
 	    STATBUF st;
 	    FSTAT( FILENO(fh), &st );
 	    length = (int)st.st_size;
-	    index  = (flags() & IO_Append) == 0 ? 0 : length;
+	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
 	} else {
 	    ok = FALSE;
 	}
@@ -427,7 +427,7 @@ bool QFile::open( int m, FILE *f )
     ext_f = TRUE;
     STATBUF st;
     FSTAT( FILENO(fh), &st );
-    index = (int)ftell( fh );
+    ioIndex = (int)ftell( fh );
     if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
@@ -467,7 +467,7 @@ bool QFile::open( int m, int f )
     ext_f = TRUE;
     STATBUF st;
     FSTAT( fd, &st );
-    index  = (int)LSEEK(fd, 0, SEEK_CUR);
+    ioIndex  = (int)LSEEK(fd, 0, SEEK_CUR);
     if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
 	// non-seekable
 	setType( IO_Sequential );
@@ -588,7 +588,7 @@ bool QFile::at( int pos )
 	ok = fseek(fh, pos, SEEK_SET) == 0;
     }
     if ( ok )
-	index = pos;
+	ioIndex = pos;
 #if defined(CHECK_RANGE)
     else
 	warning( "QFile::at: Cannot set file position %d", pos );
@@ -659,7 +659,7 @@ int QFile::readBlock( char *p, uint len )
 		setStatus(IO_ReadError);
 	}
     }
-    index += nread;
+    ioIndex += nread;
     return nread;
 }
 
@@ -704,14 +704,14 @@ int QFile::writeBlock( const char *p, uint len )
 	else
 	    setStatus( IO_WriteError );
 	if ( isRaw() )				// recalc file position
-	    index = (int)LSEEK( fd, 0, SEEK_CUR );
+	    ioIndex = (int)LSEEK( fd, 0, SEEK_CUR );
 	else
-	    index = fseek( fh, 0, SEEK_CUR );
+	    ioIndex = fseek( fh, 0, SEEK_CUR );
     } else {
-	index += nwritten;
+	ioIndex += nwritten;
     }
-    if ( index > length )			// update file length
-	length = index;
+    if ( ioIndex > length )			// update file length
+	length = ioIndex;
     return nwritten;
 }
 
@@ -752,7 +752,7 @@ int QFile::readLine( char *p, uint maxlen )
 	p = fgets( p, maxlen, fh );
 	if ( p ) {
 	    nread = strlen( p );
-	    index += nread;
+	    ioIndex += nread;
 	} else {
 	    nread = -1;
 	    setStatus(IO_ReadError);
@@ -824,7 +824,7 @@ int QFile::getch()
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
     } else {					// buffered file
 	if ( (ch = getc( fh )) != EOF )
-	    index++;
+	    ioIndex++;
 	else
 	    setStatus(IO_ReadError);
     }
@@ -857,9 +857,9 @@ int QFile::putch( int ch )
 	ch = writeBlock( buf, 1 ) == 1 ? ch : EOF;
     } else {					// buffered file
 	if ( (ch = putc( ch, fh )) != EOF ) {
-	    index++;
-	    if ( index > length )		// update file length
-		length = index;
+	    ioIndex++;
+	    if ( ioIndex > length )		// update file length
+		length = ioIndex;
 	} else {
 	    setStatus(IO_WriteError);
 	}
@@ -901,15 +901,15 @@ int QFile::ungetch( int ch )
     
     if ( isRaw() ) {				// raw file (very inefficient)
 	char buf[1];
-	at( index-1 );
+	at( ioIndex-1 );
 	buf[0] = ch;
 	if ( writeBlock(buf, 1) == 1 )
-	    at ( index-1 );
+	    at ( ioIndex-1 );
 	else
 	    ch = EOF;
     } else {					// buffered file
 	if ( (ch = ungetc(ch, fh)) != EOF )
-	    index--;
+	    ioIndex--;
 	else
 	    setStatus( IO_ReadError );
     }
