@@ -88,13 +88,13 @@ static inline int scale( int value, QPainter *painter )
 {
     if ( is_printer( painter ) ) {
 	QPaintDeviceMetrics metrics( painter->device() );
-#if defined( Q_WS_X11 )
+#if defined(Q_WS_X11)
 	value = value * metrics.logicalDpiY() / QPaintDevice::x11AppDpiY();
-#elif defined ( Q_WS_WIN )
+#elif defined (Q_WS_WIN)
 	value = value * metrics.logicalDpiY() / GetDeviceCaps( GetDC( 0 ), LOGPIXELSY);
-#elif defined ( Q_WS_MAC )
+#elif defined (Q_WS_MAC)
 	value = value * metrics.logicalDpiY() / 75; // ##### FIXME
-#elif defined ( Q_WS_QWS )
+#elif defined (Q_WS_QWS)
 	value = value * metrics.logicalDpiY() / 75;
 #endif	
     }
@@ -3594,7 +3594,7 @@ void QTextParag::format( int start, bool doMove )
     bool formattedAgain = FALSE;
 
  formatAgain:
-    
+
     if ( doc ) {
 	for ( QTextCustomItem *i = floatingItems.first(); i; i = floatingItems.next() ) {
 	    i->ypos = r.y();
