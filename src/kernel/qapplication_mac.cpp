@@ -16,34 +16,34 @@
 #include "qglobal.h"
 #include "qt_mac.h"
 
-#include "qvariant.h" //came first to get it compiling, because new d pointers are broken here! ##FIXME -Sam
-#include "qapplication.h"
 #include "private/qapplication_p.h"
-#include "private/qguieventloop_p.h"
 #include "private/qcolor_p.h"
-#include "qwidget.h"
+#include "private/qguieventloop_p.h"
+#include "qapplication.h"
 #include "qbitarray.h"
+#include "qbuffer.h"
+#include "qclipboard.h"
+#include "qcursor.h"
+#include "qdatastream.h"
+#include "qdatetime.h"
+#include "qdesktopwidget.h"
+#include "qevent.h"
+#include "qguardedptr.h"
+#include "qhash.h"
+#include "qmessagebox.h"
+#include "qmime.h"
+#include "qpaintdevicemetrics.h"
 #include "qpaintengine_mac.h"
 #include "qpixmapcache.h"
-#include "qdatetime.h"
-#include "qtextcodec.h"
-#include "qdatastream.h"
-#include "qbuffer.h"
-#include "qsocketnotifier.h"
 #include "qsessionmanager.h"
-#include "qvaluelist.h"
-#include "qhash.h"
-#include "qguardedptr.h"
-#include "qclipboard.h"
-#include "qpaintdevicemetrics.h"
-#include "qcursor.h"
 #include "qsettings.h"
-#include "qstylefactory.h"
+#include "qsocketnotifier.h"
 #include "qstyle.h"
-#include "qmessagebox.h"
-#include "qdesktopwidget.h"
-#include "qmime.h"
-#include "qevent.h"
+#include "qstylefactory.h"
+#include "qtextcodec.h"
+#include "qvaluelist.h"
+#include "qvariant.h"
+#include "qwidget.h"
 
 #ifndef QT_NO_MAINWINDOW
 # include "qmainwindow.h"
@@ -1020,8 +1020,12 @@ void qt_cleanup()
 	}
     }
     if(qt_mac_tsm_hash) {
-	while (!qt_mac_tsm_hash->isEmpty())
-	    delete qt_mac_tsm_hash->takeFirst();
+	QHash<Qt::HANDLE, QTSMDocumentWrapper *>::Iterator it = qt_mac_tsm_hash->begin();
+	while (it != qt_mac_tsm_hash->end()) {
+	    QTSMDocumentWrapper *val = qt_mac_tsm_hash->take(it.key());
+	    delete val;
+	    ++it;
+	}
 	delete qt_mac_tsm_hash;
 	qt_mac_tsm_hash = 0;
     }
