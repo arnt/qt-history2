@@ -873,13 +873,6 @@ bool QApplication::processNextEvent( bool canWait )
 	//try to send null timers..
 	activateNullTimers();
 
-	//propagate now, because later is too late
-	QWidgetList *list   = qApp->topLevelWidgets();
-	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-	    if ( !widget->isHidden() && !widget->isDesktop())
-		 widget->propagateUpdates();
-	}
-
 	EventRef event;
 	OSStatus ret;
 #ifdef Q_WS_MAC9
@@ -889,11 +882,17 @@ bool QApplication::processNextEvent( bool canWait )
 #endif
 #ifdef QMAC_CAN_WAIT_FOREVER
 	do {
+	    //propagate now, because later is too late
+	    QWidgetList *list   = qApp->topLevelWidgets();
+	    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+		if ( !widget->isHidden() && !widget->isDesktop())
+		    widget->propagateUpdates();
+	    }
+
 	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
 #else
 	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
 #endif
-#undef QMAC_EVENT_WAIT
 
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		break;
