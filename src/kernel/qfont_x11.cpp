@@ -2461,7 +2461,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 // QFont static methods
 // **********************************************************************
 
-QFont::Script QFontPrivate::defaultScript = QFont::AnyScript;
+QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 QCleanupHandler<QFontCache> cleanup_fontcache;
 QCleanupHandler<QFontNameDict> cleanup_fontnamedict;
 
@@ -2496,20 +2496,20 @@ void QFont::initialize()
     }
 
     if (! sample.isNull() && ! sample.isEmpty()) {
-	QFont::Script cs = QFont::AnyScript, tmp;
+	QFont::Script cs = QFont::UnknownScript, tmp;
 	const QChar *uc = sample.unicode();
 	QFontPrivate *priv = new QFontPrivate;
 
 	for (uint i = 0; i < sample.length(); i++) {
 	    tmp = priv->scriptForChar(*uc++);
-	    if (tmp != cs && tmp != QFont::AnyScript) {
+	    if (tmp != cs && tmp != QFont::UnknownScript) {
 		cs = tmp;
 		break;
 	    }
 	}
 	delete priv;
 
-	if (cs != QFont::AnyScript) {
+	if (cs != QFont::UnknownScript) {
 	    QFontPrivate::defaultScript = cs;
 	}
     }
