@@ -17,6 +17,7 @@
 #include <qlistview.h>
 #include <qtabwidget.h>
 #include <qgroupbox.h>
+#include <qstringlist.h>
 
 //
 //  Statistics class
@@ -97,15 +98,6 @@ Statistics::Statistics( QWidget * parent = 0, const char * name = 0 )
     love = new QLabel( "None", this );
     g->addWidget( love, 12, 1 );
 
-    separator = new QFrame( this );
-    separator->setFrameStyle( QFrame::HLine | QFrame::Raised );
-    g->addMultiCellWidget( separator, 13, 13, 0, 1 );
-
-    label = new QLabel( "Current top team:", this );
-    g->addWidget( label, 14, 0 );
-    topTeam = new QLabel( "None", this );
-    g->addWidget( topTeam, 14, 1 );
-
     g->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Expanding ) );
 
@@ -177,70 +169,74 @@ void Statistics::updateStats()
     }
 
     // Find out who the team has lost most matches to
-
-
-    QSqlQuery qwids( "select name from team, match where loserid=" + QString::number( teamId ) + " and team.id=match.winnerid group by team.name order by count(winnerid);" );
+    QSqlQuery qwids( "select name from team, match where loserid=" + QString::number( teamId ) + " and team.id=match.winnerid group by team.name order by count(winnerid) desc;" );
     if ( qwids.next() && qwids.value(0).toString().length() )
 	hate->setText( qwids.value(0).toString() );
     else
 	hate->setText( "None" );
 
     // Find out who the team has beat most times
-    QSqlQuery qlids( "select loserid from match where winnerid = " +
-		    QString::number( teamId ) + ";" );
-    int winCount = 0;
-    int winId = -1;
-    while( qlids.next() ){
-	QSqlQuery qtmp( "select count(*) from match where winnerid = " +
-			QString::number( teamId ) + " and loserid = " +
-			qlids.value(0).toString() + ";" );
-	if( qtmp.next() ){
-	    if( qtmp.value(0).toInt() >= winCount ){
-		winCount = qtmp.value(0).toInt();
-		winId = qlids.value(0).toInt();
-	    }
-	}
-    }
-    str = "None";
-    if( winId >= 0 ){
-	QSqlQuery qtmp( "select name from team where id = " +
-			QString::number( winId ) + ";" );
-	if( qtmp.next() )
-	    str = qtmp.value(0).toString();
-    }
-    love->setText( str );
+    QSqlQuery qlids( "select name from team, match where winnerid=" + QString::number( teamId ) + " and team.id=match.loserid group by team.name order by count(loserid) desc;" );
+    if ( qlids.next() && qlids.value(0).toString().length() )
+	love->setText( qlids.value(0).toString() );
+    else
+	love->setText( "None" );
 
     // Total sets
     totalSets->setText( QString::number( numSets ) );
 
     // Total matches
     totalMatches->setText( QString::number( numMatches ) );
-
-    //select name, count(winnerid) from match, team where team.id=match.winnerid group by name order by count(winnerid) desc;
-    // Find the team with most wins
-    winCount = 0;
-    winId = -1;
-    QSqlQuery qtids( "select id from team;" );
-    while( qtids.next() ){
-	QSqlQuery qtmp( "select count(*) from match where winnerid = " +
-			qtids.value(0).toString() + ";" );
-	if( qtmp.next() ){
-	    if( qtmp.value(0).toInt() >= winCount ){
-		winCount = qtmp.value(0).toInt();
-		winId = qtids.value(0).toInt();
-	    }
-	}
-    }
-
-    str = "None";
-    if( winId >= 0 ){
-	QSqlQuery qtmp( "select name from team where id = " +
-			QString::number( winId ) + ";" );
-	if( qtmp.next() )
-	    str = qtmp.value(0).toString();
-    }
-    topTeam->setText( str );
 }
+
+
+//
+//  HallOfFame class
+//
+HallOfFame::HallOfFame( QWidget * parent = 0, const char * name = 0 )
+    : QWidget( parent, name )
+{
+    QGridLayout * g = new QGridLayout( this );
+    g->setSpacing( 5 );
+    g->setMargin( 5 );
+    
+    scorelist = new QListView( this );
+    scorelist->addColumn( "Team name" );
+    scorelist->addColumn( "Number of wins" );
+    scorelist->setSorting( -1 );
+    g->addWidget( scorelist, 0, 0 );
+    
+    QStringList teamNames;
+    
+    // Generate a highscore table - the hacky way
+    QSqlQuery highscore("select name, count(winnerid) from match, team "
+		       "where team.id=match.winnerid "
+		       "group by name "
+		       "order by count(winnerid) asc;" );
+    while( highscore.next() ){
+	teamNames.append( highscore.value(0).toString() );
+	qDebug(  highscore.value(0).toString() );
+    }
+    QSqlQuery lowscore("select name, count(loserid) from match, team "
+		       "where team.id=match.loserid "
+		       "group by name "
+		       "order by count(loserid) asc;" );
+    while( lowscore.next() ){
+	if( !teamNames.contains( lowscore.value(0).toString() ) ){
+	    new QListViewItem( scorelist, lowscore.value(0).toString(), "0");
+	    qDebug(  lowscore.value(0).toString() );
+	}
+    }    
+
+    highscore.first();
+    do {
+	new QListViewItem( scorelist, highscore.value(0).toString(), 
+			   highscore.value(1).toString() );
+	teamNames.append( highscore.value(0).toString() );
+	qDebug(  highscore.value(0).toString() );
+    } while( highscore.next() );
+}
+
 
 //
 //  PingpongApp class
@@ -288,9 +284,11 @@ void PingPongApp::init()
     matchTable = new QSqlTable( tab );
     teamEditor = new TeamEditorWidget( tab );
     statWidget = new Statistics( tab );
+    hallOfFameWidget = new HallOfFame( tab );
 
     tab->addTab( matchTable, "Matches" );
     tab->addTab( statWidget, "Statistics" );
+    tab->addTab( hallOfFameWidget, "Hall of Fame" );
     tab->addTab( teamEditor, "Team editor" );
 
     setCentralWidget( tab );
