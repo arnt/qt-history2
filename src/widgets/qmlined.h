@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#1 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#2 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -26,6 +26,9 @@ public:
     const char *text() const;
 
     void insert( QString s, int row = -1 );
+    void remove( int );
+    
+    int count();
 
     bool	inputEnabled();
 
@@ -77,6 +80,7 @@ private:
 
     void	insertChar( char );
     void 	newLine();
+    void 	killLine();
     void	cursorLeft( bool mark=FALSE, int steps = 1 );
     void	cursorRight( bool mark=FALSE, int steps = 1 );
     void	cursorUp( bool mark=FALSE, int steps = 1 );
@@ -86,6 +90,7 @@ private:
     void	home( bool mark=FALSE );
     void	end( bool mark=FALSE );
 
+    void	makeVisible();
 
 private:	// Disabled copy constructor and operator=
     QMultiLineEdit( const QMultiLineEdit & ) {}
@@ -113,6 +118,11 @@ inline bool QMultiLineEdit::atBeginning()
 inline QString *QMultiLineEdit::getString( int row )
 {
     return contents->at( row );
+}
+
+inline int QMultiLineEdit::count()
+{
+    return contents->count();
 }
 
 #endif // QMLINED_H

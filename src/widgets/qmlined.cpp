@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#2 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -19,13 +19,13 @@
 
 
 /*!
-  \class QMultiLineEdit qmtlined.h
+  \class QMultiLineEdit qmlined.h
 
   \brief The QMultiLineEdit widget is a simple editor for inputting text.
 
   \ingroup realwidgets
 
-  This widget can be used to display text by calling enableInput()
+  This widget can be used to display text by calling enableInput(FALSE)
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
@@ -78,7 +78,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
     setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar|
 		   //Tbl_cutCellsV | //////###########
-		   Tbl_smoothVScrolling | Tbl_clipCellPainting );
+		   Tbl_smoothVScrolling |
+		   Tbl_clipCellPainting );
     switch ( style() ) {
 	case WindowsStyle:
 	case MotifStyle:
@@ -313,6 +314,7 @@ void QMultiLineEdit::setText( const char * )
   <dt> Control-E <dd> Move the cursor to the end of the line
   <dt> Control-F <dd> Move the cursor one character rightwards
   <dt> Control-H <dd> Delete the character to the left of the cursor
+  <dt> Control-K <dd> Delete to end of line
   <dt> Control-V <dd> Paste the clipboard text into line edit.
   <dt> Control-X <dd> Cut the marked text, copy to clipboard.
   </dl>
@@ -355,6 +357,9 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_H:
 	    backspace();
+	    break;
+	case Key_K:
+	    killLine();
 	    break;
 	case Key_V:/* {			// paste
 		      QString t = QApplication::clipboard()->text();
@@ -437,9 +442,6 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-
-
-
 /*!
   Inserts a new line containing \a s at line number \a row. If \a
   row is less than zero, or larger than the number of rows, the new line
@@ -452,10 +454,37 @@ void QMultiLineEdit::insert( QString s, int row )
     if ( row < 0 || !contents->insert( row, line ) )
 	contents->append( line );
 
+    bool    updt = autoUpdate() && rowIsVisible( row );
+
     setNumRows( contents->count() );
     int w = fontMetrics().width( s ) + 2 * BORDER; 
     setCellWidth( QMAX( cellWidth(), w ) );
+    makeVisible();
+    if ( updt )
+	repaint();
+}
 
+
+/*!
+  Deletes the line at line number \a row. If \a
+  row is less than zero, or larger than the number of rows, 
+  no line is deleted.
+*/
+
+void QMultiLineEdit::remove( int row )
+{
+    if ( row >= count()  )
+	return;
+    if ( cursorY >= row && cursorY > 0 )
+	cursorY--;
+    bool    updt = autoUpdate() && rowIsVisible( row );
+
+    contents->remove( row );
+    setNumRows( contents->count() );
+    //    updateNumRows( w == cellWidth() );
+    makeVisible();
+    if ( updt )
+	repaint();
 }
 
 /*!
@@ -484,7 +513,7 @@ void QMultiLineEdit::insertChar( char c )
     //updateLineLength();
     int w = fontMetrics().width( *s ) + 2 * BORDER; 
     setCellWidth( QMAX( cellWidth(), w ) );
-
+    makeVisible();
 }
 
 /*!
@@ -500,7 +529,28 @@ void QMultiLineEdit::newLine()
     s->remove( cursorX, s->length() );
     insert( newString, cursorY + 1 );
     cursorRight( FALSE );
-    
+    makeVisible();
+}
+
+
+
+/*!
+  Deletes text from the current cursor position to the end of the line.
+ */
+
+void QMultiLineEdit::killLine()
+{
+    if ( !inputEnabled() )
+	return;
+    QString *s = getString( cursorY );
+    if ( cursorX == (int)s->length() ) {
+	del();
+	return;
+    } else {
+	s->remove( cursorX, s->length() );
+	updateCell( cursorY, 0 );
+    }
+    makeVisible();
 }
 
 
@@ -539,6 +589,7 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	//###scrolling &c
 	updateCell( cursorY, 0 );
     }
+    makeVisible();
 }
 
 /*!
@@ -607,6 +658,7 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	updateCell( oldY, 0 );
 	updateCell( cursorY, 0 );
     }
+    makeVisible();
 }
 
 
@@ -637,6 +689,7 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	updateCell( oldY, 0 );
 	updateCell( cursorY, 0 );
     }
+    makeVisible();
 }
 
 
@@ -659,6 +712,7 @@ void QMultiLineEdit::backspace()
 	    del();
 	}
     }
+    makeVisible();
 }
 
 /*!
@@ -676,19 +730,29 @@ void QMultiLineEdit::del()
 	//###
     } else {
 	if ( !atEnd() ) {
-	    //######
-	    //emit textChanged( tbuf.data() );
+	    QString *s = getString( cursorY );
+	    if ( cursorX == (int) s->length() ) {
+		*s += *getString( cursorY + 1 );
+		remove( cursorY + 1 );
+	    } else {
+		s->remove( cursorX, 1 );
+		updateCell( cursorY, 0 );
+	    }
+	    //emit textChanged();
 	}
     }
+    makeVisible();
 }
 
 /*!
-  Moves the text cursor to the left end of the line. If mark is TRUE text
-  will be marked towards the first position, if not any marked text will
-  be unmarked if the cursor is moved.  \sa end()
+  Moves the text cursor to the left end of the line. If \a mark is TRUE,
+  text will be marked towards the first position. If not, any marked
+  text will be unmarked if the cursor is moved.
+  
+  \sa end() 
 */
 
-void QMultiLineEdit::home( bool mark )
+void QMultiLineEdit::home( bool ) //mark
 {
     if ( cursorX != 0 ) {
 	killTimers();
@@ -706,6 +770,7 @@ void QMultiLineEdit::home( bool mark )
 	//startTimer( dragScrolling ? scrollTime : blinkTime );
 	startTimer( blinkTime );
     }
+    makeVisible();
 }
 
 /*!
@@ -715,7 +780,7 @@ void QMultiLineEdit::home( bool mark )
   \sa home()
 */
 
-void QMultiLineEdit::end( bool mark )
+void QMultiLineEdit::end( bool ) //mark
 {
     int tlen = lineLength( cursorY );
     if ( cursorX != tlen ) {
@@ -734,6 +799,7 @@ void QMultiLineEdit::end( bool mark )
 	startTimer( blinkTime );
 	updateCell( cursorY, 0 );
     }
+    makeVisible();
 }
 
 #if 0
@@ -794,8 +860,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     if ( newY < 0 )
 	return;
     newY = QMIN( (int)contents->count() - 1, newY );
-    cursorX = xOffset() + xPosToCursorPos( *getString( newY ), fontMetrics(),
-					m->pos().x() - BORDER,
+    cursorX = xPosToCursorPos( *getString( newY ), fontMetrics(),
+					m->pos().x() - BORDER + xOffset(),
 					width() - 2 * BORDER );
     if ( cursorY != newY ) {
 	int oldY = cursorY;
@@ -803,4 +869,20 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	updateCell( oldY, 0 );
     }
     updateCell( cursorY, 0 );
+}
+
+
+/*!
+
+*/
+
+void QMultiLineEdit::makeVisible()
+{
+    if ( !rowIsVisible( cursorY ) ) {
+	if ( cursorY > lastRowVisible() )
+	    // ### one too many...
+	    setTopCell( topCell() + cursorY - lastRowVisible() + 1 ); 
+	else
+	    setTopCell( cursorY );
+    }
 }
