@@ -41,6 +41,7 @@
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
 
+#if 0
 // this table covers basic arabic letter, not the extensions used in various other languages.
 static const uchar arabic68PresentationA[] = {
     0x00, // fb50
@@ -213,6 +214,7 @@ static const uchar arabic68PresentationA[] = {
     0x00, // fbee
     0x00 // fbef
 };
+#endif
 
 static const uchar arabic68PresentationB[] = {
     0xa8, // fe70 	I Fathatan

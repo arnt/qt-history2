@@ -148,11 +148,13 @@ inline uint jisx0208ToSjis(uint jis)
 }
 
 static uint sjisToJisx0208(uint h, uint l);
+#if 0
 static
 inline uint sjisToJisx0208(uint sjis)
 {
     return sjisToJisx0208((sjis & 0xff00) >> 8, (sjis & 0x00ff));
 }
+#endif
 
 static uint jisx0201ToUnicode11(uint h, uint l);
 static uint jisx0208ToUnicode11(uint h, uint l);
