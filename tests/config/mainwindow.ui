@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>635</width>
-            <height>551</height>
+            <width>646</width>
+            <height>558</height>
         </rect>
     </property>
     <property name="caption">
@@ -35,6 +35,12 @@
                     <hsizetype>3</hsizetype>
                     <vsizetype>7</vsizetype>
                 </sizepolicy>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>150</width>
+                    <height>0</height>
+                </size>
             </property>
             <property name="text">
                 <string>&lt;p align=center&gt;&lt;b&gt;Documentation&lt;/b&gt;&lt;/p&gt;
@@ -1153,7 +1159,10 @@
         <pixmap>image0</pixmap>
         <signal>clicked()</signal>
         <signal>colorChanged(const QColor &amp;)</signal>
+        <signal>changed()</signal>
         <property type="Color">color</property>
+        <property type="Pixmap">pixmap</property>
+        <property type="Bool">scale</property>
     </customwidget>
     <customwidget>
         <class>PreviewFrame</class>
