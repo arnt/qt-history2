@@ -19,7 +19,7 @@ namespace QText
     enum ChangeOperation { Insert, Remove };
 }
 
-class QAbstractUndoItem
+class Q_GUI_EXPORT QAbstractUndoItem
 {
 public:
     virtual ~QAbstractUndoItem() = 0;

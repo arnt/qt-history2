@@ -14,7 +14,7 @@ class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
 class QTextPieceTable;
 
-class QAbstractTextDocumentLayout : public QObject
+class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractTextDocumentLayout);
