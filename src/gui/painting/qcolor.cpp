@@ -926,7 +926,8 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \overload int qGray( qRgb rgb )
+    \fn int qGray( qRgb rgb )
+    \overload
     \relates QColor
 
     Returns a gray value 0..255 from the given \a rgb colour.

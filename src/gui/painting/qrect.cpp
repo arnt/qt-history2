@@ -649,7 +649,8 @@ void QRect::moveCenter( const QPoint &p )
 
 
 /*!
-    \overload bool QRect::contains( int x, int y, bool proper ) const
+    \fn bool QRect::contains( int x, int y, bool proper ) const
+    \overload
 
     Returns TRUE if the point \a x, \a y is inside this rectangle;
     otherwise returns FALSE.
@@ -659,7 +660,8 @@ void QRect::moveCenter( const QPoint &p )
 */
 
 /*!
-    \overload bool QRect::contains( int x, int y ) const
+    \fn bool QRect::contains( int x, int y ) const
+    \overload
 
     Returns TRUE if the point \a x, \a y is inside this rectangle;
     otherwise returns FALSE.

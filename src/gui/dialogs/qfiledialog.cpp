@@ -5362,7 +5362,8 @@ void QFileDialog::setFilters( const char ** types )
 }
 
 
-/*! \overload void QFileDialog::setFilters( const QStringList & )
+/*! \fn void QFileDialog::setFilters( const QStringList & )
+    \overload
 */
 
 void QFileDialog::setFilters( const QStringList & types )

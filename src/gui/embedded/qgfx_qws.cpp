@@ -126,7 +126,8 @@ QSize QScreen::mapFromDevice( const QSize &s ) const
 }
 
 /*!
-    \overload QScreen::mapToDevice( const QPoint &, const QSize & ) const
+    \fn QScreen::mapToDevice( const QPoint &, const QSize & ) const
+    \overload
 
     Map a user coordinate to the one to actually draw. Used by the
     rotated driver; the QScreen implementation simply returns the
@@ -139,7 +140,8 @@ QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
 }
 
 /*!
-    \overload QScreen::mapFromDevice( const QPoint &, const QSize & ) const
+    \fn QScreen::mapFromDevice( const QPoint &, const QSize & ) const
+    \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
     application. Used by the rotated driver; the QScreen
@@ -152,7 +154,8 @@ QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
 }
 
 /*!
-    \overload QScreen::mapToDevice( const QRect &r, const QSize & ) const
+    \fn QScreen::mapToDevice( const QRect &r, const QSize & ) const
+    \overload
 
     Map a user coordinate to the one to actually draw. Used by the
     rotated driver; the QScreen implementation simply returns \a r.
@@ -164,7 +167,8 @@ QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
 }
 
 /*!
-    \overload QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+    \fn QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+    \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
     application. Used by the rotated driver; the QScreen
@@ -177,7 +181,8 @@ QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
 }
 
 /*!
-    \overload QScreen::mapToDevice( const QImage &i ) const
+    \fn QScreen::mapToDevice( const QImage &i ) const
+    \overload
 
     Transforms an image so that it fits the device coordinate space
     (e.g. rotating it 90 degrees clockwise). The QScreen
@@ -190,7 +195,8 @@ QImage QScreen::mapToDevice( const QImage &i ) const
 }
 
 /*!
-    \overload QScreen::mapFromDevice( const QImage &i ) const
+    \fn QScreen::mapFromDevice( const QImage &i ) const
+    \overload
 
     Transforms an image so that it matches the application coordinate
     space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
@@ -203,7 +209,8 @@ QImage QScreen::mapFromDevice( const QImage &i ) const
 }
 
 /*!
-    \overload QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+    \fn QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+    \overload
 
     Transforms a region so that it fits the device coordinate space
     (e.g. rotating it 90 degrees clockwise). The QScreen
@@ -216,7 +223,8 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
 }
 
 /*!
-    \overload QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+    \fn QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+    \overload
 
     Transforms a region so that it matches the application coordinate
     space (e.g. rotating it 90 degrees counter-clockwise). The QScreen

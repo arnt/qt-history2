@@ -631,7 +631,8 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
  *****************************************************************************/
 
 /*!
-    \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
+    \fn void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
+    \overload
     const QPalette &pal, bool sunken, int lineWidth, int midLineWidth )
 */
 
@@ -644,7 +645,8 @@ void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
 }
 
 /*!
-    \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QPalette &pal,
+    \fn void qDrawShadeRect( QPainter *p, const QRect &r, const QPalette &pal,
+    \overload
     bool sunken, int lineWidth, int midLineWidth, const QBrush *fill )
 */
 
@@ -658,7 +660,8 @@ void qDrawShadeRect( QPainter *p, const QRect &r,
 }
 
 /*!
-    \overload void qDrawShadePanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, int lineWidth, const QBrush *fill )
+    \fn void qDrawShadePanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, int lineWidth, const QBrush *fill )
+    \overload
 */
 
 void qDrawShadePanel( QPainter *p, const QRect &r,
@@ -670,7 +673,8 @@ void qDrawShadePanel( QPainter *p, const QRect &r,
 }
 
 /*!
-    \overload void qDrawWinButton( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
+    \fn void qDrawWinButton( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
+    \overload
 */
 
 void qDrawWinButton( QPainter *p, const QRect &r,
@@ -680,7 +684,8 @@ void qDrawWinButton( QPainter *p, const QRect &r,
 }
 
 /*!
-    \overload void qDrawWinPanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
+    \fn void qDrawWinPanel( QPainter *p, const QRect &r, const QPalette &pal, bool sunken, const QBrush *fill )
+    \overload
 */
 
 void qDrawWinPanel( QPainter *p, const QRect &r,
@@ -690,7 +695,8 @@ void qDrawWinPanel( QPainter *p, const QRect &r,
 }
 
 /*!
-    \overload void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c, int lineWidth, const QBrush *fill )
+    \fn void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c, int lineWidth, const QBrush *fill )
+    \overload
 */
 
 void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c,

@@ -601,7 +601,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 /*!
     \relates QPaintDevice
 
-    \overload void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
+    \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
+    \overload
 
     Overloaded bitBlt() with the destination point \a dp and source
     rectangle \a sr.

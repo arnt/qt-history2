@@ -250,7 +250,8 @@ void QSize::scale( const QSize &s, ScaleMode mode )
 */
 
 /*!
-  \overload QSize &QSize::operator*=( double c )
+  \fn QSize &QSize::operator*=( double c )
+  \overload
 
   Multiplies both the width and height by \a c and returns a reference to
   the size.
@@ -290,19 +291,22 @@ void QSize::scale( const QSize &s, ScaleMode mode )
 */
 
 /*!
-  \overload const QSize operator*( int c, const QSize &s )
+  \fn const QSize operator*( int c, const QSize &s )
+  \overload
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */
 
 /*!
-  \overload const QSize operator*( const QSize &s, double c )
+  \fn const QSize operator*( const QSize &s, double c )
+  \overload
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */
 
 /*!
-  \overload const QSize operator*( double c, const QSize &s )
+  \fn const QSize operator*( double c, const QSize &s )
+  \overload
   \relates QSize
   Multiplies \a s by \a c and returns the result.
 */

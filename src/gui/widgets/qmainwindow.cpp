@@ -800,7 +800,8 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!
     \obsolete
-    \overload void QMainWindow::addToolBar( QDockWindow *, const QString &label, Dock = Top, bool newLine = false );
+    \fn void QMainWindow::addToolBar( QDockWindow *, const QString &label, Dock = Top, bool newLine = false )
+    \overload
 */
 
 /*!
@@ -810,7 +811,8 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!
     \obsolete
-    \overload void QMainWindow::moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
+    \fn void QMainWindow::moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 )
+    \overload
 */
 
 /*!

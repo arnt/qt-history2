@@ -351,7 +351,8 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 }
 
 /*!
-    \overload const QRect &QDesktopWidget::availableGeometry( QWidget *widget ) const
+    \fn const QRect &QDesktopWidget::availableGeometry( QWidget *widget ) const
+    \overload
 
     Returns the available geometry of the screen which contains \a widget.
 
@@ -359,7 +360,8 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 */
 
 /*!
-    \overload const QRect &QDesktopWidget::availableGeometry( const QPoint &p ) const
+    \fn const QRect &QDesktopWidget::availableGeometry( const QPoint &p ) const
+    \overload
 
     Returns the available geometry of the screen which contains \a p.
 
@@ -385,13 +387,15 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 }
 
 /*!
-    \overload const QRect &QDesktopWidget::screenGeometry( QWidget *widget ) const
+    \fn const QRect &QDesktopWidget::screenGeometry( QWidget *widget ) const
+    \overload
 
     Returns the geometry of the screen which contains \a widget.
 */
 
 /*!
-    \overload const QRect &QDesktopWidget::screenGeometry( const QPoint &p ) const
+    \fn const QRect &QDesktopWidget::screenGeometry( const QPoint &p ) const
+    \overload
 
     Returns the geometry of the screen which contains \a p.
 */

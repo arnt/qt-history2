@@ -1016,7 +1016,8 @@ void QPicture::detach_helper()
 // }
 
 // /*!
-//     \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+//     \fn void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+//     \overload
 
 //     Draws picture \a pic at point \a p.
 // */

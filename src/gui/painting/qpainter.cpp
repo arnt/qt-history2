@@ -1095,7 +1095,8 @@ double QPainter::translationY() const
 }
 
 /*!
-    \overload void QPainter::drawLine( int x1, int y1, int x2, int y2 )
+    \fn void QPainter::drawLine( int x1, int y1, int x2, int y2 )
+    \overload
 
     Draws a line from (\a x1, \a y1) to (\a x2, \a y2) and sets the
     current pen position to (\a x2, \a y2).
@@ -1723,7 +1724,8 @@ void QPainter::drawArc(const QRect &r, int a, int alen)
 
 
 /*!
-    \overload void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
+    \fn void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
+    \overload
 
     Draws a pie segment that fits inside the rectangle \a (x, y, w, h)
     with start angle \a a and arc length \a alen.
@@ -2026,14 +2028,16 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 */
 
 /*!
-    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask )
+    \fn void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask )
+    \overload
 
     Draws the rectangle \a sr of pixmap \a pm with its origin at point \a
     p. If \a imask is true \a pm will not be masked to QPixmap::mask().
 */
 
 /*!
-    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, bool imask )
+    \fn void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, bool imask )
+    \overload
 
     Draws the pixmap \a pm with its origin at point \a p. If \a imask is
     true \a pm will not be masked to QPixmap::mask().
@@ -2469,14 +2473,16 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 }
 
 /*!
-    \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+    \fn void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+    \overload
 
     Draws a tiled pixmap, \a pm, inside rectangle \a r with its origin
     at point \a sp.
 */
 
 /*!
-    \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
+    \fn void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
+    \overload
 
     Draws a tiled pixmap, \a pm, inside rectangle \a r.
 */
@@ -2532,7 +2538,8 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap
 }
 
 /*!
-    \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+    \fn void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+    \overload
 
     Draws picture \a pic at point \a p.
 */

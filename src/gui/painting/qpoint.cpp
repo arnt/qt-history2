@@ -197,7 +197,8 @@
 */
 
 /*!
-    \overload QPoint &QPoint::operator*=( double c )
+    \fn QPoint &QPoint::operator*=( double c )
+    \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
     to this point.
@@ -256,7 +257,8 @@
 */
 
 /*!
-    \overload const QPoint operator*( int c, const QPoint &p )
+    \fn const QPoint operator*( int c, const QPoint &p )
+    \overload
 
     \relates QPoint
 
@@ -265,19 +267,8 @@
 */
 
 /*!
-    \overload const QPoint operator*( const QPoint &p, double c )
-
-    \relates QPoint
-
-    Returns the QPoint formed by multiplying both components of \a p
-    by \a c.
-
-    Note that the result is truncated because points are held as
-    integers.
-*/
-
-/*!
-    \overload const QPoint operator*( double c, const QPoint &p )
+    \fn const QPoint operator*( const QPoint &p, double c )
+    \overload
 
     \relates QPoint
 
@@ -289,7 +280,21 @@
 */
 
 /*!
-    \overload const QPoint operator-( const QPoint &p )
+    \fn const QPoint operator*( double c, const QPoint &p )
+    \overload
+
+    \relates QPoint
+
+    Returns the QPoint formed by multiplying both components of \a p
+    by \a c.
+
+    Note that the result is truncated because points are held as
+    integers.
+*/
+
+/*!
+    \fn const QPoint operator-( const QPoint &p )
+    \overload
 
     \relates QPoint
 
@@ -311,7 +316,8 @@
 */
 
 /*!
-    \overload QPoint &QPoint::operator/=( double c )
+    \fn QPoint &QPoint::operator/=( double c )
+    \overload
 
     Divides both x and y by \a c, and returns a reference to this
     point.
@@ -336,7 +342,8 @@
 */
 
 /*!
-    \overload const QPoint operator/( const QPoint &p, double c )
+    \fn const QPoint operator/( const QPoint &p, double c )
+    \overload
 
     \relates QPoint
 

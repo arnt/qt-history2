@@ -1880,7 +1880,8 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
 }
 
 /*!
-    \overload QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
+    \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
+    \overload
 
     Returns the rect \a logical in screen coordinates. The rect \a
     bounding is used to perform the translation. This function is
@@ -1900,7 +1901,7 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 }
 
 /*!
-    \fn QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w );
+    \fn QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
 
     Returns the pos \a logical in screen coordinates. The bounding
     rect for widget \a w is used to perform the translation. This
@@ -1917,7 +1918,8 @@ QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
 }
 
 /*!
-    \overload QPoint QStyle::visualPos( const QPoint &logical, const QRect &bounding );
+    \fn QPoint QStyle::visualPos( const QPoint &logical, const QRect &bounding )
+    \overload
 
     Returns the pos \a logical in screen coordinates. The pos \a
     bounding is used to perform the translation. This function is

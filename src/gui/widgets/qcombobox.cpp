@@ -180,7 +180,8 @@
 */
 
 /*!
-    \overload void QComboBox::activated( const QString &string )
+    \fn void QComboBox::activated( const QString &string )
+    \overload
 
     This signal is emitted when a new item has been activated
     (selected). \a string is the selected string.
@@ -202,7 +203,8 @@
 */
 
 /*!
-    \overload void QComboBox::highlighted( const QString &string )
+    \fn void QComboBox::highlighted( const QString &string )
+    \overload
 
     This signal is emitted when a new item has been set to be the
     current item. \a string is the item's text.

@@ -666,7 +666,8 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 }
 
 /*!
-    \overload QImage QImage::copy(const QRect& r) const
+    \fn QImage QImage::copy(const QRect& r) const
+    \overload
 
     Returns a \link shclass.html deep copy\endlink of a sub-area of
     the image.
@@ -1181,7 +1182,8 @@ bool QImage::create( int width, int height, int depth, int numColors,
 }
 
 /*!
-    \overload bool QImage::create( const QSize&, int depth, int numColors, Endian bitOrder )
+    \fn bool QImage::create( const QSize&, int depth, int numColors, Endian bitOrder )
+    \overload
 */
 bool QImage::create( const QSize& size, int depth, int numColors,
 		     QImage::Endian bitOrder )

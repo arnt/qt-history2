@@ -77,7 +77,8 @@ extern void qt_init_image_plugins();
 */
 
 /*!
-    \overload void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
+    \fn void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
+    \overload
 
     One of the two frameDone() functions will be called when a frame
     of an animated image has ended and been revealed as changed().

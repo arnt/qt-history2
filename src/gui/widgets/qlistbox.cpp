@@ -826,7 +826,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
+    \fn void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
+    \overload
 
     This signal is emitted when the user presses any mouse button. If
     \a item is not 0, the cursor is on \a item. If \a item is 0, the
@@ -853,7 +854,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
+    \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
+    \overload
 
     This signal is emitted when the user clicks any mouse button. If
     \a item is not 0, the cursor is on \a item. If \a item is 0, the
@@ -958,7 +960,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::selectionChanged( QListBoxItem *item )
+    \fn void QListBox::selectionChanged( QListBoxItem *item )
+    \overload
 
     This signal is emitted when the selection in a \c Single selection
     list box changes. \a item is the newly selected list box item.
@@ -985,7 +988,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::highlighted( QListBoxItem * )
+    \fn void QListBox::highlighted( QListBoxItem * )
+    \overload
 
     This signal is emitted when the user makes a new item the current
     item. The argument is a pointer to the new current item.
@@ -994,7 +998,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::highlighted( const QString &)
+    \fn void QListBox::highlighted( const QString &)
+    \overload
 
     This signal is emitted when the user makes a new item the current
     item and the item is (or has) as string. The argument is the text
@@ -1014,7 +1019,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::selected( QListBoxItem * )
+    \fn void QListBox::selected( QListBoxItem * )
+    \overload
 
     This signal is emitted when the user double-clicks on an item or
     presses Enter on the current item. The argument is a pointer to
@@ -1024,7 +1030,8 @@ QListBox::~QListBox()
 */
 
 /*!
-    \overload void QListBox::selected( const QString &)
+    \fn void QListBox::selected( const QString &)
+    \overload
 
     This signal is emitted when the user double-clicks on an item or
     presses Enter on the current item, and the item is (or has) a

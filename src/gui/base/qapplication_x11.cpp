@@ -2579,7 +2579,8 @@ QWidget *QApplication::widgetAt(int x, int y)
 }
 
 /*!
-    \overload QWidget *QApplication::widgetAt( const QPoint &pos )
+    \fn QWidget *QApplication::widgetAt( const QPoint &pos )
+    \overload
 
     Returns a pointer to the widget at global screen position \a pos,
     or 0 if there is no Qt widget there.

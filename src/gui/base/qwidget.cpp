@@ -1106,7 +1106,8 @@ QRect QWidgetPrivate::clipRect() const
 }
 
 /*!
-    \overload void QPixmap::fill( const QWidget *widget, const QPoint &offset )
+    \fn void QPixmap::fill( const QWidget *widget, const QPoint &offset )
+    \overload
 
     Fills the pixmap with the \a widget's background color or pixmap.
 
@@ -2207,7 +2208,8 @@ void QWidget::setFixedSize( const QSize & s)
 
 
 /*!
-    \overload void QWidget::setFixedSize( int w, int h )
+    \fn void QWidget::setFixedSize( int w, int h )
+    \overload
 
     Sets the width of the widget to \a w and the height to \a h.
 */
@@ -5540,7 +5542,8 @@ void QWidget::setSizePolicy( QSizePolicy policy )
 }
 
 /*!
-    \overload void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
+    \fn void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
+    \overload
 
     Sets the size policy of the widget to \a hor, \a ver and \a hfw
     (height for width).
@@ -5759,7 +5762,8 @@ void QWidget::repaint(const QRect &r)
 
 
 /*!
-    \overload void QWidget::update(const QRect &r)
+    \fn void QWidget::update(const QRect &r)
+    \overload
 
     This version updates a rectangle \a r inside the widget.
 */

@@ -224,7 +224,8 @@ QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
 }
 
 /*!
-    \overload QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
+    \fn QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
+    \overload
 
     Constructs a pixmap of size \a size, \a depth bits per pixel,
     optimized in accordance with the \a optimization value.
@@ -562,7 +563,8 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &m, int w, int h )
 
 
 /*!
-    \overload void QPixmap::resize( const QSize &size )
+    \fn void QPixmap::resize( const QSize &size )
+    \overload
 
     Resizes the pixmap to size \a size.
 */
