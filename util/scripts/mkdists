@@ -1132,22 +1132,25 @@ for plat in mac win x11 qnx6 embedded; do
 	    [ "$DO_BZIP" = "yes" ] && status "Bzip2.." && bzip2 -z -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.bz2"
             if [ "$plat" = "mac" ] && [ "$DO_STUFF" = "yes" ]; then
                status "Stuffit.."
-	       create_dir="QtMac-${VERSION_STR}"
-	       mkdir -p "$create_dir"
-
-	       pack_cmd="gnutar xfv"
-	       pack_name="$OUT_TREE/${PLATNAME}.tar"
-	       if [ "$DO_GZIP" = "yes" ]; then
-		   pack_name="${pack_name}.gz"
-		   pack_cmd="${pack_cmd}z"
-	       fi
-	       sed -e "s,%UNPACK_NAME%,$(basename $pack_name),g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
-		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}-mac-outside
-	       copy_dist_file "${TMP_FILE}-mac-outside" "${create_dir}/README" "$edition" "$plat" "$PLATNAME"
-	       rm -f "${TMP_FILE}-mac-outside"
-	       cp "$pack_name" "$create_dir"
-               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
-	       rm -rf "$create_dir"
+               if false; then
+  	           create_dir="QtMac-${VERSION_STR}"
+ 	           mkdir -p "$create_dir"
+	           pack_cmd="gnutar xfv"
+	           pack_name="$OUT_TREE/${PLATNAME}.tar"
+	           if [ "$DO_GZIP" = "yes" ]; then
+		      pack_name="${pack_name}.gz"
+		      pack_cmd="${pack_cmd}z"
+	           fi
+	           sed -e "s,%UNPACK_NAME%,$(basename $pack_name),g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
+		      "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}-mac-outside
+	           copy_dist_file "${TMP_FILE}-mac-outside" "${create_dir}/README" "$edition" "$plat" "$PLATNAME"
+	           rm -f "${TMP_FILE}-mac-outside"
+                  cp "$pack_name" "$create_dir"
+                  stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
+	          rm -rf "$create_dir"
+              else
+                  stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "${PLANAME}"
+              fi
             fi
 	elif [ "$plat" = "win" ]; then
 	    txtfiles=""
