@@ -344,6 +344,24 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     return ofi;
 }
 
+
+/*! \internal Convert QDateTime to the internal Oracle DATE format 
+  NB! It does not handle BCE dates.
+*/
+QByteArray qMakeOraDate( const QDateTime& dt )
+{
+    QByteArray ba( 7 );
+    int year = dt.date().year();
+    ba[0]= (year / 100) + 100; // century
+    ba[1]= (year % 100) + 100; // year
+    ba[2]= dt.date().month();
+    ba[3]= dt.date().day();
+    ba[4]= dt.time().hour() + 1;
+    ba[5]= dt.time().minute() + 1;
+    ba[6]= dt.time().second() + 1;
+    return ba;
+}
+
 class QOCIResultPrivate
 {
 public:
@@ -536,15 +554,28 @@ public:
 		break;
 	    }
 	    if ( nullField || !chunkSize ) {
-		res.setValue( fieldNum, QCString() );
+		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+		    res.setValue( fieldNum, QCString() );
+		} else {
+		    res.setValue( fieldNum, QByteArray() );
+		}
 	    } else {
-		QByteArray ba = res.value( fieldNum ).toByteArray();
-		// NB! not a leak - tmp is deleted by QByteArray later on
-		char * tmp = (char *)malloc( chunkSize + ba.size() );
-		memcpy( tmp, ba.data(), ba.size() );
-		memcpy( tmp + ba.size(), col, chunkSize );
-		ba = ba.assign( tmp, ba.size() + chunkSize );
-		res.setValue( fieldNum, ba );
+		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+		    QCString str = res.value( fieldNum ).toCString();
+		    char * tmp = (char *)malloc( chunkSize + str.size() );
+		    memcpy( tmp, str.data(), str.size() );
+		    memcpy( tmp + str.size(), col, chunkSize );
+		    str = str.assign( tmp, str.size() + chunkSize );
+		    res.setValue( fieldNum, str );		    
+		} else {
+		    QByteArray ba = res.value( fieldNum ).toByteArray();
+		    // NB! not a leak - tmp is deleted by QByteArray later on
+		    char * tmp = (char *)malloc( chunkSize + ba.size() );
+		    memcpy( tmp, ba.data(), ba.size() );
+		    memcpy( tmp + ba.size(), col, chunkSize );
+		    ba = ba.assign( tmp, ba.size() + chunkSize );
+		    res.setValue( fieldNum, ba );
+		}
 	    }
 	    if ( status == OCI_SUCCESS_WITH_INFO ||
 		 status == OCI_NEED_DATA ) {
@@ -650,8 +681,8 @@ public:
 	switch ( type(i) ) {
 	case QVariant::DateTime: {
 	    int century = at(i)[0];
-		if( century >= 100 ){
-	    int year    = (unsigned char)at(i)[1];
+	    if( century >= 100 ){
+		int year    = (unsigned char)at(i)[1];
 		year = ((century-100)*100) + (year-100);
 		int month = at(i)[2];
 		int day   = at(i)[3];
@@ -659,7 +690,7 @@ public:
 		int min   = at(i)[5] - 1;
 		int sec   = at(i)[6] - 1;
 		v = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
-		} else {
+	    } else {
 		// ### Handle BCE dates here
 		v = QVariant( QDateTime() );
 	    }
@@ -981,20 +1012,14 @@ bool QOCIResult::exec()
     int r = 0;
     ub2 stmtType;
     
-    r = OCIAttrGet( d->sql,
-		    OCI_HTYPE_STMT,
-		    (dvoid*)&stmtType,
-		    NULL,
-		    OCI_ATTR_STMT_TYPE,
-		    d->err );
-
     // bind placeholders
-    if ( stmtType != OCI_STMT_SELECT && extension()->values.count() > 0 ) {
+    if ( extension()->values.count() > 0 ) {
 	QMap<QString, QVariant>::Iterator it;
 	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
-	    OCIBind * hbnd = 0;
+	    OCIBind * hbnd = 0; // XXX dealloc?
 	    switch ( it.data().type() ) {
-		case QVariant::ByteArray:
+		case QVariant::ByteArray: {
+		    // what about the CLOB and LONG types that needs an SQLT_LNG binding?
 		    r = OCIBindByName( d->sql, &hbnd, d->err,
 				       (text *) it.key().local8Bit().data(),
 				       it.key().length(),
@@ -1002,7 +1027,33 @@ bool QOCIResult::exec()
  				       it.data().asByteArray().size(),
 				       SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
-		    break;
+		    break; }
+		case QVariant::CString: {
+		    // what about the CLOB and LONG types that needs an SQLT_LNG binding?
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+ 				       (dvoid *) it.data().asCString().data(),
+ 				       it.data().asCString().length(),
+				       SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break; }
+		case QVariant::Time:
+		case QVariant::Date:
+		case QVariant::DateTime: {
+		    QByteArray ba = qMakeOraDate( it.data().toDateTime() );
+		    // small hack - keep a ref. to the array until
+		    // prepare() is called again - this way we don't
+		    // have to worry about deleting it ourselves.
+		    extension()->setValue( it.key(), ba );
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+				       (ub1 *) ba.data(),
+				       ba.size(),
+				       SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break; }
 		case QVariant::Int:
 		    r = OCIBindByName( d->sql, &hbnd, d->err,
 				       (text *) it.key().local8Bit().data(),
@@ -1010,6 +1061,15 @@ bool QOCIResult::exec()
 				       (ub1 *) &it.data().asInt(),
 				       sizeof(int),
 				       SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break;
+		case QVariant::Double:
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+				       (ub1 *) &it.data().asDouble(),
+				       sizeof(double),
+				       SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break;
 		default:
@@ -1032,6 +1092,12 @@ bool QOCIResult::exec()
 	}
     }
     
+    r = OCIAttrGet( d->sql,
+		    OCI_HTYPE_STMT,
+		    (dvoid*)&stmtType,
+		    NULL,
+		    OCI_ATTR_STMT_TYPE,
+		    d->err );
     // execute
     if ( stmtType == OCI_STMT_SELECT )
     {
