@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#14 $
 **
-** Implementation of QFileDialog class
+** Implementation of QUrlOperator class
 **
 ** Created : 950429
 **

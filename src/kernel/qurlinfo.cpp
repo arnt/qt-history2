@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#12 $
 **
-** Implementation of QFileDialog class
+** Implementation of QUrlInfo class
 **
 ** Created : 950429
 **
@@ -343,9 +343,9 @@ bool QUrlInfo::isExecutable() const
 }
 
 /*!
-  Returns TRUE if \a u1 is greater than \a u2, else FALSE. The objects 
-  are compared by the value, which is specified by \a sortBy. This has 
-  to be one of  QDir::Name, QDir::Time and QDir::Size. 
+  Returns TRUE if \a u1 is greater than \a u2, else FALSE. The objects
+  are compared by the value, which is specified by \a sortBy. This has
+  to be one of  QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -371,9 +371,9 @@ bool QUrlInfo::greaterThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 is less than \a u2, else FALSE. The objects 
-  are compared by the value, which is specified by \a sortBy. This has 
-  to be one of  QDir::Name, QDir::Time and QDir::Size. 
+  Returns TRUE if \a u1 is less than \a u2, else FALSE. The objects
+  are compared by the value, which is specified by \a sortBy. This has
+  to be one of  QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
@@ -399,9 +399,9 @@ bool QUrlInfo::lessThan( const QUrlInfo &i1, const QUrlInfo &i2,
 }
 
 /*!
-  Returns TRUE if \a u1 is equal \a u2, else FALSE. The objects 
-  are compared by the value, which is specified by \a sortBy. This has 
-  to be one of  QDir::Name, QDir::Time and QDir::Size. 
+  Returns TRUE if \a u1 is equal \a u2, else FALSE. The objects
+  are compared by the value, which is specified by \a sortBy. This has
+  to be one of  QDir::Name, QDir::Time and QDir::Size.
 */
 
 bool QUrlInfo::equal( const QUrlInfo &i1, const QUrlInfo &i2,

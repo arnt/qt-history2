@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#29 $
 **
-** Implementation of QFileDialog class
+** Implementation of QNetworkProtocol class
 **
 ** Created : 950429
 **
@@ -730,12 +730,12 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     }
 
     QNetworkOperation *op = d->operationQueue.head();
-    
+
     if ( op && op->operation() == OpPut && !d->data.isEmpty() ) {
 	op->setArg2( QString::fromLatin1( d->data ) );
 	d->data = "";
     }
-    
+
     d->opInProgress = 0;
 
     if ( !checkConnection( op ) ) {

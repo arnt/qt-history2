@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.h#2 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.h#3 $
 **
-** Implementation of QFileDialog class
+** Implementation of QLocalFs class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#18 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#19 $
 **
-** Implementation of QFileDialog class
+** Implementation of QUrl class
 **
 ** Created : 950429
 **

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#49 $
 **
-** Implementation of QFileDialog class
+** Implementation of QUrl class
 **
 ** Created : 950429
 **
@@ -28,7 +28,7 @@
 
 #include <stdlib.h>
 
-struct QUrlPrivate 
+struct QUrlPrivate
 {
     QString protocol;
     QString user;
@@ -437,7 +437,7 @@ bool QUrl::parse( const QString& url )
     };
 
     bool relPath = FALSE;
-    int cs = url.find( ":/" ); 
+    int cs = url.find( ":/" );
     table[ 4 ][ 1 ] = User;
     if ( cs == -1 ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
@@ -475,11 +475,11 @@ bool QUrl::parse( const QString& url )
 	
     int state = Init; // parse state
     int input; // input token
-    
+
     QChar c = url[ 0 ];
     int i = 0;
     QString port;
-    
+
     while ( TRUE ) {
 	
 	switch ( c ) {
@@ -491,7 +491,7 @@ bool QUrl::parse( const QString& url )
 	    break;
 	case '@':
 	    input = InputAt;
-	    
+	
 	    break;
 	case ':':
 	    input = InputColon;
@@ -549,14 +549,14 @@ bool QUrl::parse( const QString& url )
 	port.remove( 0, 1 );
 	d->port = atoi( port.latin1() );
     }
-    
+
     // error
     if ( i < (int)url.length() - 1 ) {
 	d->isValid = FALSE;
 	return FALSE;
     }
 	
-    
+
     if ( d->protocol.isEmpty() )
 	d->protocol = oldProtocol;
 
@@ -581,7 +581,7 @@ bool QUrl::parse( const QString& url )
 
     decode( d->path );
 
-#if 0 
+#if 0
     qDebug( "URL: %s", url.latin1() );
     qDebug( "protocol: %s", d->protocol.latin1() );
     qDebug( "user: %s", d->user.latin1() );

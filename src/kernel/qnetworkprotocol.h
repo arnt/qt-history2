@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#19 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#20 $
 **
-** Implementation of QFileDialog class
+** Implementation of QNetworkProtocol class
 **
 ** Created : 950429
 **
@@ -159,7 +159,7 @@ private slots:
     void processNextOperation( QNetworkOperation *old );
     void startOps();
     void gotNewData( const QCString &data, QNetworkOperation *op );
-    
+
     void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
     void emitFinished( QNetworkOperation *res );
     void emitStart( QNetworkOperation *res );
@@ -168,7 +168,7 @@ private slots:
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QCString &, QNetworkOperation *res );
     void emitCopyProgress( int step, int total, QNetworkOperation *res );
-    
+
 };
 
 inline void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
@@ -235,7 +235,7 @@ public:
     void setArg1( const QString &arg );
     void setArg2( const QString &arg );
     void setArg3( const QString &arg );
-    
+
     QNetworkProtocol::Operation operation() const;
     QNetworkProtocol::State state() const;
     QString arg1() const;
