@@ -44,7 +44,7 @@ public:
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
-    screenCount = 0;
+    appScreen = screenCount = 0;
     for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) 
 	screenCount++;
     devs.resize(screenCount);
