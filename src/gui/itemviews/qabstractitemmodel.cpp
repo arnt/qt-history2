@@ -1080,6 +1080,15 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 }
 
 /*!
+  Returns the row and column span of the item represented by \a index.
+*/
+
+QSize QAbstractItemModel::span(const QModelIndex &index) const
+{
+    return QSize(1, 1);
+}
+
+/*!
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const
 
     Creates a model index for the given \a row and \a column that

@@ -174,6 +174,8 @@ public:
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                                   int hits = 1, MatchFlags flags = MatchDefault) const;
 
+    virtual QSize span(const QModelIndex &index) const;
+
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int first, int last);
