@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#47 $
+** $Id: //depot/qt/main/src/moc/moc.y#48 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#47 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#48 $";
 #endif
 
 
@@ -102,6 +102,7 @@ bool	   errorControl	   = FALSE;		// controlled errors
 bool	   displayWarnings = TRUE;
 bool	   skipClass;				// don't generate for class
 bool	   skipFunc;				// don't generate for func
+bool	   templateClass;		       	// class is a template
 
 ArgList	  *tmpArgList;				// current argument list
 Function  *tmpFunc;				// current member function
@@ -163,6 +164,7 @@ QString	   tmpExpression;
 %token			OPERATOR
 %token			DBL_COLON
 %token			TRIPLE_DOT
+%token			TEMPLATE
 
 %token			SIGNALS
 %token			SLOTS
@@ -170,6 +172,8 @@ QString	   tmpExpression;
 
 
 %type  <string>		class_name
+%type  <string>		template_class_name
+%type  <string>		template_spec
 %type  <string>		opt_base_spec
 %type  <string>		base_spec
 %type  <string>		base_list
@@ -210,16 +214,32 @@ class_defs:		  /* empty */
 			;
 
 class_def:				      { initClass(); }
-			  class_specifier ';' { generateClass();
+     			  class_specifier ';' { generateClass();
 						BEGIN OUTSIDE; }
-			;
+                        ;
 
 
 /***** r.17.1 (ARM p.387 ): Keywords	*****/
 
 class_name:		  IDENTIFIER	      { $$ = $1; }
+                        | template_class_name { $$ = $1; }
 			;
 
+template_class_name:	  IDENTIFIER '<' template_args '>'  
+				   { $$ = stradd( $1, "<",
+				     tmpExpression =
+				     tmpExpression.stripWhiteSpace(), ">" ); }
+                        ;
+	
+/* template_args skips all characters until it encounters a ">" (it
+   handles and discards sublevels of parentheses).  Since the rule is
+   empty it must be used with care!
+*/
+
+template_args:	          /* empty */		  { initExpression();
+                                                    templLevel = 1;
+						    BEGIN IN_TEMPL_ARGS; }
+			;
 
 /***** r.17.2 (ARM p.388): Expressions	*****/
 
@@ -297,8 +317,19 @@ simple_type_name:	  CHAR			    { $$ = "char"; }
 			| VOID			    { $$ = "void"; }
 			;
 
-class_key:		  CLASS			    { $$ = "class"; }
-			| STRUCT		    { $$ = "struct"; }
+template_spec:            TEMPLATE '<' template_args '>' 
+				   { $$ = stradd( "template<",
+				     tmpExpression =
+				     tmpExpression.stripWhiteSpace(), ">" ); }
+                        ;
+
+opt_template_spec:	  /* empty */
+			| template_spec		{ templateClass = TRUE; }
+			;
+
+
+class_key:		  opt_template_spec CLASS	{ $$ = "class"; }
+			| opt_template_spec STRUCT	{ $$ = "struct"; }
 			;
 
 complete_class_name:	  qualified_class_name	{ $$ = $1; }
@@ -476,9 +507,18 @@ class_specifier:	  class_head
 			  '(' IDENTIFIER ')' /* Qt macro name */
 						{ BEGIN QT_DEF; /* catch ';' */
 						  skipClass = TRUE; }
+                        | template_spec whatever { skipClass = TRUE;
+                                                  BEGIN GIMME_SEMICOLON; }
 			;
 
-class_head:		  class_key
+whatever:                 IDENTIFIER
+                        | simple_type_name
+                        | type_specifier
+                        | storage_class_specifier
+                        | fct_specifier
+                        ;
+
+class_head:               class_key
 			  class_name		{ className = $2; }
 			  opt_base_spec		{ superclassName = $4; }
 			;
@@ -871,6 +911,7 @@ void initClass()				 // prepare for new class
     subClassPerm     = _PRIVATE;
     Q_OBJECTdetected = FALSE;
     skipClass	     = FALSE;
+    templateClass    = FALSE;
     slots.clear();
     signals.clear();
 }
@@ -1060,6 +1101,11 @@ void generateClass()		      // generate C++ source code for a class
 		    "\tQ_OBJECT macro but does not inherit from any class!\n"
 		    "\tInherit from QObject or one of its descendants"
 		    " or remove Q_OBJECT. ", className.data() );
+    }
+    if ( templateClass ) {			// don't generate for class
+	moc_err("Sorry, Qt does not support templates that contain\n
+                 signals, slots or Q_OBJECT. This will be supported soon.");
+	return;
     }
     if ( gen_count++ == 0 ) {			// first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();

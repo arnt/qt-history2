@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#9 $
+** $Id: //depot/qt/main/src/moc/moc.l#10 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -21,7 +21,7 @@
 
 #define X if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
 #define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\
-                               ,lineNo,yytext,level);};
+                               ,lineNo,yytext,templLevel);};
 #define Z if(lexDebug){fprintf(stderr,"LEX (%i) : skipped the string %s\"\n"\
                                ,lineNo,yytext);};
 #define BEGIN_INSIDE
@@ -33,21 +33,25 @@
 #include <malloc.h>
 
 /* char c,c1; */
-int level    = 1;  /* Used to keep track of nested curly braces in IN_CLASS */
-int expLevel = 1;  /* Used to keep track of nested parentheses in IN_EXPR */
-int fctLevel = 1;  /* Used to keep track of nested parentheses in IN_FCT */
+int level      = 1;  /* Used to keep track of nested curly braces in IN_CLASS*/
+int expLevel   = 1;  /* Used to keep track of nested parentheses in IN_EXPR */
+int fctLevel   = 1;  /* Used to keep track of nested parentheses in IN_FCT */
+int templLevel = 1;  /* Used to keep track of levels in IN_TEMPL_ARGS */
 
 
 extern void addExpressionChar( char );
 extern void addExpressionString( char * );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_EXPR IN_FCT
+%start OUTSIDE QT_DEF IN_CLASS IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON
 
 %%
 <OUTSIDE>"class" 		{ X;
 				  BEGIN QT_DEF;
 				  return CLASS; }
+<OUTSIDE>"template" 		{ X;
+				  BEGIN QT_DEF;
+				  return TEMPLATE; }
 <QT_DEF>"signals"		{ X;return SIGNALS; }
 <QT_DEF>"slots"          	{ X;return SLOTS; }
 <IN_FCT>"{"                     { fctLevel++;Y; }
@@ -71,6 +75,15 @@ extern void addExpressionString( char * );
                                             { X; BEGIN QT_DEF;return ',' ;} }
 <IN_EXPR>";"                { if (expLevel == 0)
                                             { X; BEGIN QT_DEF;return ';' ;} }
+<IN_TEMPL_ARGS>"<"                { templLevel++;Y; }
+<IN_TEMPL_ARGS>">"                { templLevel--;Y;if (templLevel == 0) 
+                                            { X; BEGIN QT_DEF; return '>';} }
+<IN_TEMPL_ARGS>"("                { templLevel++;Y; }
+<IN_TEMPL_ARGS>")"                { templLevel--;Y;if (templLevel == 0) 
+                                            { X; BEGIN QT_DEF; return ')';} }
+<IN_TEMPL_ARGS>"["                { templLevel++;Y; }
+<IN_TEMPL_ARGS>"]"                { templLevel--;Y;if (templLevel == 0) 
+                                            { X; BEGIN QT_DEF; return ']';} }
 <QT_DEF>"friend"		{ X;return FRIEND; }
 <QT_DEF>"typedef"		{ X;return TYPEDEF; }
 <QT_DEF>"auto"			{ X;return AUTO; }
@@ -101,6 +114,7 @@ extern void addExpressionString( char * );
 <QT_DEF>"operator"		{ X;return OPERATOR; }
 <QT_DEF>"::"			{ X;return DBL_COLON; }
 <QT_DEF>"..."			{ X;return TRIPLE_DOT; }
+<QT_DEF>"template"	       	{ X;return TEMPLATE; }
 
 <QT_DEF>[_a-zA-Z][_a-zA-Z0-9]* {
 			  X;
@@ -132,6 +146,18 @@ extern void addExpressionString( char * );
                         }
 
 <IN_EXPR>\"[^"]*      { if (yytext[yyleng - 1] == '\\') {
+                              yymore();
+			  }
+                          else {
+                              X;
+                              addExpressionString(yytext);
+                              input();   	/* discard the '"' */
+                              return STRING;
+                         }
+                        }
+
+
+<IN_TEMPL_ARGS>\"[^"]*    { if (yytext[yyleng - 1] == '\\') {
                               yymore();
 			  }
                           else {
@@ -282,11 +308,16 @@ extern void addExpressionString( char * );
 [ \t]+                  ;
 <IN_CLASS>.             ;
 <IN_FCT>.               ;
-<IN_EXPR>.          { addExpressionChar( yytext[0] ); }
+<IN_EXPR>.                { addExpressionChar( yytext[0] ); }
+<IN_TEMPL_ARGS>.          { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.              ;
 <QT_DEF>.  		{
 			  X;
 			  return yytext[0];
+			}
+<GIMME_SEMICOLON>.      {
+			  X;
+			  return ';';
 			}
 \n 			{
 			  lineNo++;
