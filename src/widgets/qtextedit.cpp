@@ -709,8 +709,6 @@ void QTextEdit::init()
 
     blinkCursorVisible = FALSE;
 
-    connect( this, SIGNAL( textChanged() ),
-	     this, SLOT( setModified() ) );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
     viewport()->installEventFilter( this );
@@ -890,11 +888,6 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 
     bool clearUndoRedoInfo = TRUE;
 
-    if ( doc->oTextValid && (e->key() == Key_Delete ||
-			     e->key() == Key_Return ||
-			     e->key() == Key_Enter ||
-			     e->key() == Key_Backspace) )
-	doc->invalidateOriginalText();
 
     switch ( e->key() ) {
     case Key_Left:
@@ -1327,6 +1320,7 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 
     if ( doUpdateCurrentFormat )
 	updateCurrentFormat();
+    setModified();
     emit textChanged();
 }
 
@@ -1463,6 +1457,7 @@ void QTextEdit::removeSelectedText( int selNum )
     } else {
 	viewport()->repaint( TRUE );
     }
+    setModified();
     emit textChanged();
     emit selectionChanged();
 }
@@ -2329,8 +2324,8 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 	    }
 	}
     }
-    if ( doc->oTextValid )
-	doc->invalidateOriginalText();
+
+    setModified();
     emit textChanged();
     if ( !removeSelected ) {
 	doc->setSelectionStart( QTextDocument::Standard, &oldCursor );
@@ -2472,6 +2467,7 @@ void QTextEdit::undo()
     ensureCursorVisible();
     repaintChanged();
     drawCursor( TRUE );
+    setModified();
     emit textChanged();
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -2516,6 +2512,7 @@ void QTextEdit::redo()
     repaintChanged();
     ensureCursorVisible();
     drawCursor( TRUE );
+    setModified();
     emit textChanged();
     if ( hasFocus() || viewport()->hasFocus() ) {
 	int h = cursor->parag()->lineHeightOfChar( cursor->index() );
@@ -2638,6 +2635,7 @@ void QTextEdit::indent()
 	doc->indentSelection( QTextDocument::Standard );
     repaintChanged();
     drawCursor( TRUE );
+    setModified();
     emit textChanged();
 }
 
@@ -2690,6 +2688,7 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	repaintChanged();
 	formatMore();
 	drawCursor( TRUE );
+	setModified();
 	emit textChanged();
     }
     if ( currentFormat && currentFormat->key() != f->key() ) {
@@ -2784,6 +2783,7 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
 	formatMore();
     }
     drawCursor( TRUE );
+    setModified();
     emit textChanged();
 }
 
@@ -2850,6 +2850,7 @@ void QTextEdit::setAlignment( int a )
 	currentAlignment = a;
 	emit currentAlignmentChanged( currentAlignment );
     }
+    setModified();
     emit textChanged();
 }
 
@@ -3080,10 +3081,10 @@ void QTextEdit::setText( const QString &text, const QString &context )
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     updateContents();
-
-    disconnect( this, SIGNAL( textChanged() ), this, SLOT( setModified() ) );
+    
+    if ( isModified() )
+	setModified( FALSE );
     emit textChanged();
-    connect( this, SIGNAL( textChanged() ), this, SLOT( setModified() ) );
     formatMore();
     updateCurrentFormat();
 }
@@ -3433,14 +3434,8 @@ void QTextEdit::setModified( bool m )
 {
     bool oldModified = modified;
     modified = m;
-    if ( modified ) {
-	disconnect( this, SIGNAL( textChanged() ),
-		    this, SLOT( setModified() ) );
+    if ( modified && doc->oTextValid )
 	doc->invalidateOriginalText();
-    } else {
-	connect( this, SIGNAL( textChanged() ),
-		 this, SLOT( setModified() ) );
-    }
     if ( oldModified != modified )
 	emit modificationChanged( modified );
 }
@@ -3456,7 +3451,8 @@ bool QTextEdit::isModified() const
 
 void QTextEdit::setModified()
 {
-    setModified( TRUE );
+    if ( !isModified() )
+	setModified( TRUE );
 }
 
 /*!
@@ -3815,13 +3811,12 @@ void QTextEdit::append( const QString &text )
  	*cursor = oldc;
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
-	if ( doc->oTextValid )
-	    doc->invalidateOriginalText();
-	emit textChanged();
     } else if ( f == RichText ) {
 	doc->setRichTextInternal( text );
 	repaintChanged();
     }
+    setModified();
+    emit textChanged();
 }
 
 /*! \property QTextEdit::hasSelectedText
@@ -3963,7 +3958,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
 	QTextStringChar* c = cursor.parag()->at( cursor.index() );
 	if( c->isAnchor() ) {
 	    QString a = c->anchorName();
-	    if ( a == name || 
+	    if ( a == name ||
 		 (a.contains( '#' ) && QStringList::split( '#', a ).contains( name ) ) ) {
 		setContentsPos( contentsX(), QMIN( cursor.parag()->rect().top() + cursor.totalOffsetY(), contentsHeight() - visibleHeight() ) );
 		return;
