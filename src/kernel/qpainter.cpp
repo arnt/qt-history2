@@ -225,7 +225,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
 */
 
 /*! \enum Qt::RasterOp
-  
+
   \keyword raster operation
   \keyword raster op
 
@@ -314,7 +314,7 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   This enum type defines the pen styles supported by Qt, i.e., the
   lines that can be drawn using QPainter. The current styles
-  are: 
+  are:
 
   \value NoPen  no line at all.  For example, QPainter::drawRect()
   fills but does not draw any explicit boundary line.
@@ -376,7 +376,7 @@ QPainter::QPainter()
 
 /*!
   Constructs a painter that begins painting the paint device \a pd
-  immediately. Depending on the underlying graphic system the painter 
+  immediately. Depending on the underlying graphic system the painter
   will not be clipped to the boundaries of the paint device when \a unclipped is TRUE.
 
   This constructor is convenient for short-lived painters, e.g. in
@@ -2262,8 +2262,16 @@ void qt_format_text( const QFont& font, const QRect &r,
 		xoff += r.width() - br.width();
 	    else if ( tf & Qt::AlignHCenter )
 		xoff += ( r.width() - br.width() )/2;
+	    QRegion reg;
+	    if ( painter->hasClipping() )
+		reg = painter->clipRegion();
+	    reg = reg.unite( r );
+	    reg.translate( (int)painter->translationX(), (int)painter->translationY() );
+	    painter->save();
+	    painter->setClipRegion( reg );
 	    // AlignAuto must be equal to AlignLeft, as we wouldn't get here for BiDi text!
 	    painter->drawText(xoff, yoff, str, len);
+	    painter->restore();
 	}
 	return;
     }
