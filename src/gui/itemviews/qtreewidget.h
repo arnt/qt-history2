@@ -150,6 +150,10 @@ public:
     bool isVisible(const QTreeWidgetItem *item) const;
     void ensureItemVisible(const QTreeWidgetItem *item);
 
+    QList<QTreeWidgetItem*> findItems(const QString &text,
+                                      QAbstractItemModel::MatchFlags flags
+                                      = QAbstractItemModel::MatchDefault) const;
+
 public slots:
     void clear();
 

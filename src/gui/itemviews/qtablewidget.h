@@ -147,6 +147,10 @@ public:
     bool isVisible(const QTableWidgetItem *item) const;
     void ensureItemVisible(const QTableWidgetItem *item);
 
+    QList<QTableWidgetItem*> findItems(const QString &text,
+                                       QAbstractItemModel::MatchFlags flags
+                                       = QAbstractItemModel::MatchDefault) const;
+
 public slots:
     void insertRow(int row);
     void insertColumn(int column);

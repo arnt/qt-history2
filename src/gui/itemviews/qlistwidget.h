@@ -146,6 +146,10 @@ public:
     bool isVisible(const QListWidgetItem *item) const;
     void ensureItemVisible(const QListWidgetItem *item);
 
+    QList<QListWidgetItem*> findItems(const QString &text,
+                                      QAbstractItemModel::MatchFlags flags
+                                      = QAbstractItemModel::MatchDefault) const;
+
 public slots:
     void clear();
 

@@ -718,6 +718,23 @@ void QListWidget::ensureItemVisible(const QListWidgetItem *item)
 }
 
 /*!
+  Finds items that matches the \a text, using the criteria given in the \a flags.
+*/
+
+QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
+                                               QAbstractItemModel::MatchFlags flags) const
+{
+    QModelIndex topLeft = d->model()->index(0, 0);
+    int role = QAbstractItemModel::DisplayRole;
+    int hits = d->model()->rowCount();
+    QModelIndexList indexes = d->model()->match(topLeft, role, text,hits, flags);
+    QList<QListWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items << d->model()->at(indexes.at(i).row());
+    return items;
+}
+
+/*!
   Removes all items in the view.
 */
 void QListWidget::clear()
