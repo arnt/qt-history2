@@ -217,8 +217,6 @@ public:
     virtual void	setBackgroundMode( BackgroundMode );
     void 		setBackgroundMode( BackgroundMode, BackgroundMode );
 
-    QPoint backgroundOffset() const;
-
     const QColor &	foregroundColor() const;
 
     const QColor &	eraseColor() const;
@@ -425,7 +423,7 @@ public:
 
     virtual void setBackgroundOrigin( BackgroundOrigin );
     BackgroundOrigin backgroundOrigin() const;
-
+    QPoint backgroundOffset() const;
 
     // whats this help
     virtual bool customWhatsThis() const;
