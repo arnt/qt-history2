@@ -13,37 +13,6 @@ src/widgets/qlistview.h    2.49  agulbra  +4 -4
   update dirview and add it to the docs
 
 
-examples/application/application.cpp    1.10  hanord  +2 -2
-
-  Fixed typo
-
-
-examples/application/application.cpp    1.11  aavit  +18 -2
-
-  Removed qt.h because it didn't work on windows.
-
-
-examples/application/application.cpp    1.9  hanord  +4 -20
-
-  #include qt.h and use printer correctly on Windows (no QPrintDialog)
-
-
-examples/examples.pro    2.8  hanord  +1 -1
-tutorial/tutorial.pro    2.2  hanord  +1 -1
-
-  Uses the tmake template subdirs.t
-
-
-examples/picture/picture.cpp    1.5  aavit  +2 -1
-
-  must always return value from a function that's not void, otherwise msvc gets pissed.
-
-
-examples/widgets/widgets.pro    2.6  hanord  +1 -0
-
-  Fixed INCLUDEPATH for BC++
-
-
 src/dialogs/qfiledlg.cpp    2.68  hanord  +8 -12
 
   Rewrote setFilter to use QString and mid() - simpler code.
@@ -57,7 +26,7 @@ src/widgets/qwidgetstack.cpp    2.6  agulbra  +8 -3
 
   Call setPalettePropagation() and setFontPropagation() in the
   initialization.  Note that QWidgetStack now defaults to use
-  AllChildren - is that right?  I think it is.
+  AllChildren.
 
 
 src/dialogs/qmsgbox.cpp    2.47  hanord  +3 -3
@@ -99,16 +68,6 @@ src/kernel/qasyncimageio.h    1.17  warwick  +15 -15
   New names.
 
 
-src/kernel/qdialog.cpp    2.17  agulbra  +5 -5
-
-  nodoc, I'm afraid
-
-
-src/kernel/qdnd_x11.cpp    2.13  agulbra  +13 -5
-
-  tweaks
-
-
 src/kernel/qdnd_x11.cpp    2.14  agulbra  +8 -5
 src/kernel/qdragobject.cpp    2.14  agulbra  +21 -9
 
@@ -141,13 +100,7 @@ src/kernel/qfont.cpp    2.31  agulbra  +115 -63
 src/kernel/qfont.cpp    2.32  agulbra  +56 -65
 
   fixed some typos; removed some misleading text from the function
-  descriptions.  much still needs to be done.
-
-
-src/kernel/qfont.cpp    2.33  agulbra  +6 -5
-src/widgets/qgrpbox.cpp    2.11  agulbra  +9 -4
-
-  doc
+  descriptions.
 
 
 src/kernel/qgmanagr.cpp    2.34  paul  +22 -66
@@ -158,12 +111,6 @@ src/kernel/qgmanagr.cpp    2.34  paul  +22 -66
 src/kernel/qiconset.cpp    2.9  paul  +16 -8
 
   Handle mask better when generating disabled pixmaps
-
-
-src/kernel/qlayout.cpp    2.31  agulbra  +75 -24
-src/widgets/qlistview.cpp    2.114  agulbra  +7 -2
-
-  some docs
 
 
 src/kernel/qprn_x11.cpp    2.14  agulbra  +12 -1
@@ -179,16 +126,6 @@ src/kernel/qpsprn.cpp    2.25  agulbra  +12 -7
   
   also shrunk the output by a few bytes by removing extraneous newlines
   and one comment.
-
-
-src/kernel/qptr_x11.cpp    2.51  agulbra  +5 -5
-
-  speling
-
-
-src/kernel/qwidget.cpp    2.108  agulbra  +3 -3
-
-  de-iconified
 
 
 src/tools/qdatetm.cpp    2.14  agulbra  +19 -5
@@ -209,8 +146,7 @@ src/widgets/qbttngrp.cpp    2.12  agulbra  +5 -1
 src/widgets/qbutton.cpp    2.60  agulbra  +16 -17
 src/widgets/qbutton.h    2.16  agulbra  +3 -2
 
-  make setDown() public; this breaks binary compatibility on MSVC++, but
-  I'll ignore that.
+  make setDown() public; this breaks binary compatibility on MSVC++
   
   The way to start a context menu on press used to be to make a
   synthetic QMouseEvent indicating a release, and sendEvent() that.
@@ -232,20 +168,9 @@ src/widgets/qlined.cpp    2.79  paul  +2 -2
   Fix "index out of range" bug when typing past maxLength.
 
 
-src/widgets/qlistview.cpp    2.113  agulbra  +76 -59
-
-  "upd"
-
-
 src/widgets/qpopmenu.cpp    2.75  aavit  +2 -2
 
-  minimal improvement of checkmark look in wiondows style.
-
-
-src/widgets/qspinbox.h    2.18  hanord  +3 -4
-src/widgets/qwellarray.h    1.3  hanord  +2 -2
-
-  Use "" when #including Qt headers
+  minimal improvement of checkmark look in windows style.
 
 
 src/widgets/qsplitter.cpp    1.13  agulbra  +12 -12
