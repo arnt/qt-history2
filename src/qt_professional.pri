@@ -31,21 +31,6 @@
 	DEFINES     *= QT_MODULE_NETWORK
 }
 
-!workspace:contains( DEFINES, QT_INTERNAL_WORKSPACE ) {
-	CONFIG += workspace
-	WORKSPACE_CPP = $$QT_SOURCE_TREE/src/workspace
-	win32 {
-		WIN_ALL_H = $$QT_SOURCE_TREE/include
-		WORKSPACE_H = $$WIN_ALL_H
-	}
-	unix {
-		WORKSPACE_H = $$WORKSPACE_CPP
-	}
-	INCLUDEPATH += $$QT_SOURCE_TREE/src/workspace
-	include( $$QT_SOURCE_TREE/src/workspace/qt_workspace.pri )
-	DEFINES     *= QT_MODULE_WORKSPACE
-}
-
 !iconview:contains( DEFINES, QT_INTERNAL_ICONVIEW ) {
 	CONFIG += iconview
 	ICONVIEW_CPP = $$QT_SOURCE_TREE/src/iconview
@@ -74,21 +59,6 @@
 	INCLUDEPATH += $$QT_SOURCE_TREE/src/canvas
 	include( $$QT_SOURCE_TREE/src/canvas/qt_canvas.pri )
 	DEFINES     *= QT_MODULE_CANVAS
-}
-
-!table:contains( DEFINES, QT_INTERNAL_TABLE ) {
-	CONFIG += table
-	TABLE_CPP = $$QT_SOURCE_TREE/src/table
-	win32 {
-		WIN_ALL_H = $$QT_SOURCE_TREE/include
-		TABLE_H = $$WIN_ALL_H
-	}
-	unix {
-		TABLE_H = $$TABLE_CPP
-	}
-	INCLUDEPATH += $$QT_SOURCE_TREE/src/table
-	include( $$QT_SOURCE_TREE/src/table/qt_table.pri )
-	DEFINES     *= QT_MODULE_TABLE
 }
 
 contains(QT_PRODUCT,qt-professional) {
