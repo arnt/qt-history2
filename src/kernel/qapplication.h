@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#118 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#119 $
 **
 ** Definition of QApplication class
 **
@@ -73,10 +73,10 @@ public:
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
 
-    static QPalette *palette( const QWidget* = 0 );
+    static QPalette  palette( const QWidget* = 0 );
     static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE, const char* className = 0 );
 
-    static QFont    *font( const QWidget* = 0 );
+    static QFont     font( const QWidget* = 0 );
     static void	     setFont( const QFont &, bool updateAllWidgets=FALSE, const char* className = 0 );
     static QFontMetrics fontMetrics();
 
@@ -128,7 +128,7 @@ public:
     QString	     translate( const char * scope, const char * key ) const;
 
     static void 	setWinStyleHighlightColor( const QColor & );
-    static const QColor& 	winStyleHighlightColor();
+    static const QColor& winStyleHighlightColor();
 
     static void 	setDesktopSettingsAware( bool );
     static bool 	desktopSettingsAware();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#14 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1829,7 +1829,7 @@ void QTextDocument::init( const QString& doc, const QWidget* w, int margin )
 {
     //set up base style
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
-    QFont f = w?w->font(): *QApplication::font();
+    QFont f = w ? w->font(): QApplication::font();
     base->setFontFamily( f.family() );
     base->setFontItalic( f.italic() );
     base->setFontWeight( f.weight() );

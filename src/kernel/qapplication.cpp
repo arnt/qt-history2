@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#237 $
 **
 ** Implementation of QApplication class
 **
@@ -705,7 +705,7 @@ int QApplication::colorSpec()
     windows look less good.  Under X11 this is the same as \c
     NormalColor. Under Windows, Qt creates a Windows palette if the
     display supports 256 colors.
-    
+
   <li> \c QApplication::ManyColor.
     Use this choice if your application is very color hungry
     (e.g. it wants thousands of colors).
@@ -779,7 +779,7 @@ void QApplication::setColorSpec( int spec )
   \sa setPalette(), QWidget::palette()
 */
 
-QPalette *QApplication::palette(const QWidget* w)
+QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
@@ -787,24 +787,22 @@ QPalette *QApplication::palette(const QWidget* w)
 		 "called after the QApplication object has been created" );
     }
 #endif
-    if (w && app_palettes) {
-	QDictIterator<QPalette> it(*app_palettes);
+    if ( w && app_palettes ) {
+	QDictIterator<QPalette> it( *app_palettes );
 	const char* name;
-	while ( (name=(const char*)(void*)it.currentKeyLong()) ) {
-	    if ( w->isA(name) ) {
-		return it.current();
-	    }
+	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	    if ( w->isA(name) )
+		return *it.current();
 	    ++it; // ### ++it at end of loop, not beginning
 	}
 	(void) it.toFirst();
-	while ( (name=(const char*)(void*)it.currentKeyLong()) ) {
-	    if ( w->inherits( name ) ) {
-		return it.current();
-	    }
+	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	    if ( w->inherits( name ) )
+		return *it.current();
 	    ++it; // ### ++it at end of loop, not beginning
 	}
     }
-    return app_pal;
+    return *app_pal;
 }
 
 
@@ -857,7 +855,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
 		 && !w->testWState(WState_PaletteFixed) ) {// (and except fixed palettes)
-		w->setPalette( *QApplication::palette( w ) );
+		w->setPalette( QApplication::palette( w ) );
 	    }
 	}
     }
@@ -872,26 +870,24 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
-QFont *QApplication::font( const QWidget* w)
+QFont QApplication::font( const QWidget* w )
 {
-    if (w && app_fonts) {
-	QDictIterator<QFont> it(*app_fonts);
+    if ( w && app_fonts ) {
+	QDictIterator<QFont> it( *app_fonts );
 	const char* name;
-	while ( (name=(const char*)(void*)it.currentKeyLong()) ) {
-	    if ( w->isA(name) ) {
-		return it.current();
-	    }
+	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	    if ( w->isA( name ) )
+		return *it.current();
 	    ++it;
 	}
 	(void) it.toFirst();
-	while ( (name=(const char*)(void*)it.currentKeyLong()) ) {
-	    if ( w->inherits( name ) ) {
-		return it.current();
-	    }
+	while ( (name=(const char*)(void*)it.currentKeyLong()) != 0 ) {
+	    if ( w->inherits( name ) )
+		return *it.current();
 	    ++it;
 	}
     }
-    return app_font;
+    return *app_font;
 }
 
 
@@ -938,7 +934,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
 		 && !w->testWState(WState_FontFixed) ) // (and except fixed fonts)
-		w->setFont( *QApplication::font( w ) );
+		w->setFont( QApplication::font( w ) );
 	}
     }
 }
@@ -1360,7 +1356,7 @@ void QApplication::syncX()	{}		// do nothing
 
 void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
-    QPalette p( *palette() );
+    QPalette p( palette() );
     p.setColor( QColorGroup::Highlight, c );
     setPalette( p, TRUE);
 }
@@ -1372,7 +1368,7 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 */
 const QColor& QApplication::winStyleHighlightColor()
 {
-    return palette()->normal().highlight();
+    return palette().normal().highlight();
 }
 
 

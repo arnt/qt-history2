@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#415 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#416 $
 **
 ** Implementation of QWidget class
 **
@@ -520,7 +520,7 @@ inline bool QWidgetMapper::remove( WId id )
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget ),
       pal( parent ? parent->palette()		// use parent's palette
-           : *qApp->palette() )			// use application palette
+           : QApplication::palette() )		// use application palette
 {
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -1749,9 +1749,9 @@ const QPalette &QWidget::palette() const
 {
     if ( !testWState(WState_PaletteSet) ){
 	QWidget* that = (QWidget*)this;
-	that->pal = *QApplication::palette( that );
+	that->pal = QApplication::palette( that );
 	that->setWState(WState_PaletteSet);
-	if (that->pal == *QApplication::palette() && parentWidget() )
+	if ( that->pal == QApplication::palette() && parentWidget() )
 	    that->pal = parentWidget()->palette();
     }
     return pal;
@@ -1865,9 +1865,9 @@ const QFont &QWidget::font() const
 {
     if ( !testWState(WState_FontSet) ) {
 	QWidget* that = (QWidget*)this;
-	that->fnt = *QApplication::font( that );
+	that->fnt = QApplication::font( that );
 	that->setWState( WState_FontSet );
-	if (that->fnt == *QApplication::font() && that->parentWidget() )
+	if ( that->fnt == QApplication::font() && that->parentWidget() )
 	    that->fnt = that->parentWidget()->font();
     }
 	

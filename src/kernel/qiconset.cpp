@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#28 $
 **
 ** Implementation of QIconSet class
 **
@@ -317,7 +317,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    p->largeDisabled.pm
 			= new QPixmap( p->large.pm->width()+1,
 				       p->large.pm->height()+1);
-		    QColorGroup dis( QApplication::palette()->disabled() );
+		    QColorGroup dis( QApplication::palette().disabled() );
 		    p->largeDisabled.pm->fill( dis.background() );
 		    QPainter painter( p->largeDisabled.pm );
 		    painter.setPen( dis.base() );
@@ -394,7 +394,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,
 				       p->small.pm->height()+1);
-		    QColorGroup dis( QApplication::palette()->disabled() );
+		    QColorGroup dis( QApplication::palette().disabled() );
 		    p->smallDisabled.pm->fill( dis.background() );
 		    QPainter painter( p->smallDisabled.pm );
 		    painter.setPen( dis.base() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#485 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#486 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -544,9 +544,9 @@ static bool qt_set_desktop_properties()
     QPalette pal;
     QFont font;
     d >> pal >> font;
-    if ( !QApplication::palette() || pal != *QApplication::palette() )
+    if ( pal != QApplication::palette() )
 	QApplication::setPalette( pal, TRUE );
-    if (!QApplication::font() ||  font != *QApplication::font() )
+    if ( font != QApplication::font() )
 	QApplication::setFont( font, TRUE );
     return TRUE;
 }
@@ -665,7 +665,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
-	if ( !QApplication::palette() || pal != *QApplication::palette() )
+	if ( pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
     }
 }
@@ -2056,7 +2056,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	if ( passive_only ) return 0; // all below are interactions
 	if ( event->xclient.message_type == qt_unicode_key_press
 	     || event->xclient.message_type == qt_unicode_key_release ) {
-	    
+	
 	    QWidget *g = QWidget::keyboardGrabber();
 	    if ( g )
 		widget = (QETWidget*)g;
@@ -2064,14 +2064,14 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		widget = (QETWidget*)focus_widget;
 	    else
 		widget = (QETWidget*)widget->topLevelWidget();
-	    
+	
 	    if ( !widget || !widget->isEnabled() )
 		return 0;
 	    bool grab = g != 0;
-	    
+	
 	    QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
 				QEvent::KeyPress : QEvent::KeyRelease;
-	    
+	
 	    short *s = event->xclient.data.s;
 	    QChar c(s[6],s[5]);
 	    QString text;
@@ -2248,9 +2248,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    active_window->extra->topextra->embedded) {
 	    // we are embedded. Refuse focus, the out app will send us
 	    // qew_focus_in if that shall be necessary
-	    ((XEvent*)event)->xfocus.window 
+	    ((XEvent*)event)->xfocus.window
 		= active_window->extra->topextra->parentWinId;
-	    XSendEvent( appDpy, active_window->extra->topextra->parentWinId, 
+	    XSendEvent( appDpy, active_window->extra->topextra->parentWinId,
 			NoEventMask, FALSE, (XEvent*)event);
 	    active_window = old_active_window;
 	    return TRUE;
