@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#64 $
 **
 ** Implementation of QAccel class
 **
@@ -391,12 +391,13 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 	if ( k->state() & AltButton )
 	    key |= ALT;
 	QAccelItem *item = find_key( d->aitems, key, k->ascii() );
-	if ( item && item->enabled ) {
+	bool b = QWhatsThis::inWhatsThisMode();
+	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
-		if ( QWhatsThis::inWhatsThisMode() && !d->ignorewhatsthis ) {
+		if ( b && !d->ignorewhatsthis ) {
 		    QWhatsThis::leaveWhatsThisMode( item->whatsthis );
 		}
-		else {
+		else if ( item->enabled ){
 		    if ( item->signal )
 			item->signal->activate();
 		    else
@@ -458,7 +459,7 @@ int QAccel::shortcutKey( const QString &str )
 
   \arg \e id is the accelerator item id.
   \arg \e text is the Whats This help text in QML format
-  
+
   \sa whatsThis()
  */
 void QAccel::setWhatsThis( int id, const QString& text )
@@ -472,7 +473,7 @@ void QAccel::setWhatsThis( int id, const QString& text )
 /*!
   Returns the Whats This help text for the specified item \e id or
   QString::null if no text has been defined yet.
-  
+
   \sa setWhatsThis()
  */
 QString QAccel::whatsThis( int id ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#208 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#209 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1337,14 +1337,17 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     if ( actItem >= 0 ) {			// selected menu item!
 	register QMenuItem *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
+	bool b = QWhatsThis::inWhatsThisMode();
 	if ( !mi->isEnabled() ) {
-	    // nothing.
+	    if ( b ) {
+		byeMenuBar();
+		actSig( mi->id(), b);
+	    }
 	} else 	if ( popup ) {
 	    popup->setFirstItemActive();
 	} else {				// normal menu item
 	    byeMenuBar();			// deactivate menu bar
 	    if ( mi->isEnabled() ) {
-		bool b = QWhatsThis::inWhatsThisMode();
 		if ( mi->signal() && !b ) // activate signal
 		    mi->signal()->activate();
 		actSig( mi->id(), b );
@@ -1491,8 +1494,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    popup->setFirstItemActive();
 	} else {
 	    byeMenuBar();
-	    if ( mi->isEnabled() ) {
-		bool b = QWhatsThis::inWhatsThisMode();
+	    bool b = QWhatsThis::inWhatsThisMode();
+	    if ( mi->isEnabled() || b ) {
 		if ( mi->signal() && !b ) // activate signal
 		    mi->signal()->activate();
 		actSig( mi->id(), b );
@@ -1504,7 +1507,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	if ( actItem < 0 || e->state() != ShiftButton)
 	    break;
 	mi = mitems->at( actItem );
-	if ( mi->isEnabled() && !mi->whatsThis().isNull() ){
+	if ( !mi->whatsThis().isNull() ){
 	    if ( !QWhatsThis::inWhatsThisMode() )
 		QWhatsThis::enterWhatsThisMode();
 	    int y = itemPos( actItem) + cellHeight( actItem );
@@ -1546,8 +1549,8 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		popup->setFirstItemActive();
 	    } else {
 		byeMenuBar();
-		if ( mi->isEnabled() ) {
-		    bool b = QWhatsThis::inWhatsThisMode();
+		bool b = QWhatsThis::inWhatsThisMode();
+		if ( mi->isEnabled() || b ) {
 		    if ( mi->signal() && !b  ) // activate signal
 			mi->signal()->activate();
 		    actSig( mi->id(), b );
