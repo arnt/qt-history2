@@ -150,7 +150,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     switch (pe) {
 #ifndef QT_NO_LISTVIEW
     case PE_CheckListController: {
-	p->drawPixmap(r, QPixmap((const char **)check_list_controller_xpm));
+	p->drawPixmap(r.topLeft(), QPixmap((const char **)check_list_controller_xpm));
 	break; }
     case PE_CheckListExclusiveIndicator: {
 	QCheckListItem *item = opt.checkListItem();
