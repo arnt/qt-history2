@@ -1,8 +1,9 @@
 TEMPLATE        = app
-CONFIG                += qt warn_on console
-HEADERS                = ../shared/metatranslator.h \
+CONFIG          += qt warn_on console
+CONFIG          -= resource_fork
+HEADERS         = ../shared/metatranslator.h \
                   ../shared/proparser.h
-SOURCES                = fetchtr.cpp \
+SOURCES         = fetchtr.cpp \
                   main.cpp \
                   merge.cpp \
                   numberh.cpp \
@@ -13,9 +14,9 @@ SOURCES                = fetchtr.cpp \
 QT += xml
 include( ../../../src/qt_professional.pri )
 
-TARGET                = lupdate
-INCLUDEPATH        += ../shared
-DESTDIR                = ../../../bin
+TARGET          = lupdate
+INCLUDEPATH     += ../shared
+DESTDIR         = ../../../bin
 
 target.path=$$bins.path
 INSTALLS        += target
