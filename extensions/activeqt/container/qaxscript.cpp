@@ -305,6 +305,8 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 /*!
     \class QAxScriptEngine
     \brief The QAxScriptEngine class provides a wrapper around script code.
+    \module QAxContainer
+    \extension ActiveQt
 
     Every instance of the QAxScriptEngine class represents a piece of
     scripting code in a certain language. The class is usually not used 
@@ -557,6 +559,8 @@ long QAxScriptEngine::queryInterface( const QUuid &uuid, void **iface ) const
 /*!
     \class QAxScript qaxscript.h
     \brief The QAxScript class provides an interface to the Windows Script Host.
+    \module QAxContainer
+    \extension ActiveQt
 
     The QAxScript acts as a bridge between the COM objects embedded in the Qt 
     application through QAxObject or QAxWidget, and the scripting languages
@@ -788,14 +792,27 @@ QAxScriptEngine *QAxScript::load(const QString &file, const QString &name)
 
 /*!
     Calls \a function passing \a arguments as parameters, and returns
-    the result.
+    the result. The call returns when the script execution is finished.
+
+    In most script engines the only supported parameter type is "const
+    QVariant&". Ie. call a JavaScript function
+    \code
+    function setNumber(number)
+    {
+        n = number;
+    }
+    \endcode
+    using
+    \code
+    QValueList args;
+    args << 5;
+    script->call("setNumber(const QVariant&)", args);
+    \endcode
 
     Functions provided by script engines that don't support introspection 
     are not available and need to be called directly using 
     \link QAxBase::dynamicCall() dynamicCall \endlink on the respective 
     \link scriptEngine() script engine \endlink object.
-
-    The call returns when the script execution is finished.
 
     Note that calling this function can be significantely slower than 
     calling the script engine directly.
