@@ -4523,11 +4523,24 @@ QString QString::arg( const QString& a, int fieldWidth ) const
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
 
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
+
     \code
 	QString str;
 	str = QString("Decimal 63 is %1 in hexadecimal")
 		.arg(63, 0, 16);
 	// str == "Decimal 63 is 3f in hexadecimal"
+
+	QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
+	str = QString( "%1 %l2 %l3" )
+	    	.arg( 12345 )
+		.arg( 12345 )
+		.arg( 12345, 0, 16 );
+	// str == "12345 12,345 3039"
     \endcode
 */
 QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
@@ -4558,6 +4571,12 @@ QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
+
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
 */
 QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 {
@@ -4589,6 +4608,12 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
+
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
 */
 
 /*!
@@ -4598,6 +4623,12 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
+
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
 */
 
 /*!
@@ -4607,6 +4638,12 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
+
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
 */
 
 /*!
@@ -4616,6 +4653,12 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 
     \a a is expressed in base \a base, which is 10 by default and must
     be between 2 and 36.
+
+    The '%' may be followed by an 'l', in which case the sequence is
+    replaced with a localized representation of a. The conversion uses
+    the default locale, set by QLocale::setDefaultLocale(). If no default
+    locale was specified, the "C" locale is used. The 'l' flag is ignored 
+    if \a base is not 10.
 */
 
 
