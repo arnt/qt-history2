@@ -1239,6 +1239,26 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 */
 
 /*!
+    Creates a QStyleOptionToolBar. The members variables are
+    initialized to default values.
+*/
+
+QStyleOptionToolBar::QStyleOptionToolBar()
+    : QStyleOption(Version, SO_ToolBar)
+{
+}
+
+/*! \internal */
+QStyleOptionToolBar::QStyleOptionToolBar(int version)
+    : QStyleOption(version, SO_ToolBar)
+{ }
+
+/*!
+    \property QStyleOptionToolBar::orientation
+    \brief The orientation for the tool bar.
+*/
+
+/*!
     \class QStyleOptionTitleBar
     \brief The QStyleOptionTitleBar class is used to describe the
     parameters for drawing a title bar.
