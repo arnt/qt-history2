@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#2 $
+** $Id: //depot/qt/main/etc/trial/qapp_trial.cpp#3 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -18,6 +18,12 @@
 
 
 #define FINAL_TRIALDATE 2450723	    // Oct. 1st 1997
+
+
+#if defined(UNIX)
+#include <stdio.h>
+#endif
+
 
 /*****************************************************************************
   General encryption/decryption routines.
@@ -237,7 +243,11 @@ static int	 trial_messup_2 = 0;
 
 static int	 trial_julday_copy;
 
+#if defined(_OS_WIN32_)
 static SYSTEMTIME trial_t;
+#else
+static time_t	  trial_t;
+#endif
 
 
 /*****************************************************************************
@@ -394,10 +404,19 @@ TrialInfo::TrialInfo( const char *message,
     QRect r = childrenRect();
     resize( r.width()+2*r.x(), r.height()+2*r.y() );
 
+#if defined(_OS_WIN32_)
     GetLocalTime( &trial_t );
+#else
+    time( &trial_t );
+#endif
 
+#if defined(_OS_WIN32_)
     int sw = GetSystemMetrics( SM_CXSCREEN );
     int sh = GetSystemMetrics( SM_CYSCREEN );
+#else
+    int sw = DisplayWidth( appDpy, appScreen );
+    int sh = DisplayHeight( appDpy, appScreen );
+#endif
     move( sw/2 - width()/2, sh/2 - height()/2 );
     show();
 }
@@ -439,7 +458,11 @@ static void extract_trial_info()
 	return;
     qAddPostRoutine( cleanup_trial_info );
 
+#if defined(_OS_WIN32_)
     trial_timer = SetTimer( 0, 0, 4000, 0 );
+#else
+    trial_timer = qApp->startTimer( 4000 );
+#endif
 
     const char *p;
     int len;
@@ -451,12 +474,19 @@ static void extract_trial_info()
     p = td.data();
 
     if ( strncmp(trial_data,"2502200483trial",15)== 0 ) {
+#if defined(_OS_WIN32_)
 	MessageBox( 0,
-		    "The registration data uninitialized.\n"
+		    "The registration data is uninitialized.\n"
 		    "Please report to qt-bugs@troll.no.",
 		    "Qt Internal Error",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
+#else
+	fprintf( stderr, "Qt Internal Error:\n  "
+		 "The registration data is uninitialized. "
+		 "Please report to qt-bugs@troll.no.\n" );
+	exit( 1 );
+#endif
 	warning( dummy_1 );			// don't optimize them away
 	warning( dummy_2 );
 	warning( dummy_3 );
@@ -486,14 +516,21 @@ static void extract_trial_info()
     bool ok;
     ok = getTrialData( trial_key, &year, &month, &day, &serial );
     if ( ok )
-	ok = checkTrialInfo( trial_name, trial_company, trial_email, trial_key );
+	ok = checkTrialInfo( trial_name, trial_company, trial_email,trial_key);
     if ( !ok ) {
+#if defined(_OS_WIN32_)
 	MessageBox( 0,
 		    "The registration data is invalid.\n"
 		    "Please report to qt-bugs@troll.no.",
 		    "Qt Internal Error",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
+#else
+	fprintf( stderr, "Qt Internal Error:\n  "
+		 "The registration data is invalid. "
+		 "Please report to qt-bugs@troll.no.\n" );
+	exit( 1 );
+#endif
     }
 
     trial_date = QDate(year,month,day);;
@@ -501,12 +538,19 @@ static void extract_trial_info()
 
     int ndays = today_date.daysTo( trial_date );
     if ( ndays < 0 ) {
+#if defined(_OS_WIN32_)
 	MessageBox( 0,
 		    "The 30 day trial period has ended, please contact\n"
 		    "sales@troll.no for pricing and purchasing information.",
 		    "Qt Trial Ended",
 		    MB_OK | MB_ICONERROR );
 	ExitProcess( 1 );
+#else
+	fprintf( stderr, "Qt Trial Ended:\n  "
+		    "The 30 day trial period has ended, please contact\n  "
+		    "sales@troll.no for pricing and purchasing information." );
+	exit( 1 );
+#endif
     }
     QString msg(1024);
     msg.sprintf( unscrambleString(37391,trial_data_header,trial_len_header),
@@ -520,9 +564,19 @@ static void extract_trial_info()
 				unscrambleString(17517,trial_data_copyright,
 				trial_len_copyright) );
     trial_julday = julianDay(year,month,day);
+#if defined(_OS_WIN32_)
     today_julday = julianDay(trial_t.wYear,trial_t.wMonth,trial_t.wDay);
+#else
+    tm *t = localtime( &trial_t );
+    today_julday = julianDay(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
+#endif
     trial_messup_1 = trial_julday < today_julday;
     trial_messup_2 = trial_julday <= FINAL_TRIALDATE;
+#if defined(UNIX)
+    QApplication::flushX();
+    for ( int i=0; i<10; i++ )
+	qApp->processEvents();
+#endif
 }
 
 
