@@ -33,7 +33,7 @@ bootstrap { #Qt code
 	    qfile.cpp qregexp.cpp quuid.cpp qioengine.cpp \
 	    qvector.cpp qbitarray.cpp qdir.cpp qhash.cpp \
 	    qfileinfo.cpp qdatetime.cpp qstringlist.cpp qmap.cpp \
-	    qsettings.cpp qunicodetables.cpp qlocale.cpp qfileengine.cpp \
+	    qcoresettings.cpp qunicodetables.cpp qlocale.cpp qfileengine.cpp \
 	    qtemporaryfile.cpp
    HEADERS+=qchar.h qstring.h qstringmatcher.h \
             qtextstream.h qiodevice.h qglobal.h \
@@ -42,7 +42,7 @@ bootstrap { #Qt code
 	    qfile.h qregexp.h quuid.h \
 	    qvector.h qbitarray.h qdir.h qhash.h \
 	    qfileinfo.h qdatetime.h qstringlist.h qmap.h \
-	    qsettings.h qlocale.h qfileengine.h qioengine.h qtemporaryfile.h
+	    qcoresettings.h qlocale.h qfileengine.h qioengine.h qtemporaryfile.h
 
     exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
        DEFINES += HAVE_QCONFIG_CPP
@@ -51,10 +51,9 @@ bootstrap { #Qt code
 
     unix {
         SOURCES += qfileengine_unix.cpp
-        mac:SOURCES += qsettings_mac.cpp qurl.cpp qcore_mac.cpp
+        mac:SOURCES += qcoresettings_mac.cpp qurl.cpp qcore_mac.cpp
     } else:win32 {
-       SOURCES += qfileengine_win.cpp qsettings_win.cpp
-       HEADERS += qsettings.h
+       SOURCES += qfileengine_win.cpp qcoresettings_win.cpp
        win32-msvc*:LIBS += ole32.lib advapi32.lib
     }
     macx-*: LIBS += -framework CoreServices

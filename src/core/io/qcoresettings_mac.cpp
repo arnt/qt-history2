@@ -221,7 +221,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
 class QMacSettingsPrivate : public QCoreSettingsPrivate
 {
 public:
-    QMacSettingsPrivate(SettingsScope scope, const QString &organization,
+    QMacSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
                         const QString &application);
     ~QMacSettingsPrivate();
 
@@ -248,7 +248,7 @@ private:
     int numDomains;
 };
 
-QMacSettingsPrivate::QMacSettingsPrivate(SettingsScope scope, const QString &organization,
+QMacSettingsPrivate::QMacSettingsPrivate(Qt::SettingsScope scope, const QString &organization,
                                          const QString &application)
 {
     QString javaPackageName;
@@ -266,7 +266,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(SettingsScope scope, const QString &org
         javaPackageName.prepend(QLatin1String("com."));
     suiteId = javaPackageName;
 
-    if (scope == GlobalScope)
+    if (scope == Qt::GlobalScope)
         spec |= F_Global;
 
     if (application.isEmpty()) {
@@ -291,7 +291,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(SettingsScope scope, const QString &org
         }
     }
 
-    hostName = (scope == GlobalScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
+    hostName = (scope == Qt::GlobalScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
 }
 
 QMacSettingsPrivate::~QMacSettingsPrivate()
@@ -401,7 +401,7 @@ QCoreSettingsPrivate *QCoreSettingsPrivate::create(Qt::SettingsFormat format,
     if (format == Qt::NativeFormat) {
         return new QMacSettingsPrivate(scope, organization, application);
     } else {
-        QConfFileSettingsPrivate *p = QConfFileSettingsPrivate(format, scope,
+        QConfFileSettingsPrivate *p = new QConfFileSettingsPrivate(format, scope,
                                                                 organization, application);
         p->setStreamingFunctions(vts, stv);
         p->init();
