@@ -1450,20 +1450,20 @@ QString QTextDocument::fileName() const
 
 void QTextDocument::selectionStart( int id, int &paragId, int &index )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return;
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
     paragId = QMIN( sel.startCursor.parag()->paragId(), sel.endCursor.parag()->paragId() );
     index = sel.startCursor.index();
 }
 
 void QTextDocument::selectionEnd( int id, int &paragId, int &index )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return;
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
     paragId = QMAX( sel.startCursor.parag()->paragId(), sel.endCursor.parag()->paragId() );
     if ( paragId == sel.startCursor.parag()->paragId() )
 	index = sel.startCursor.parag()->selectionEnd( id );
@@ -1473,10 +1473,10 @@ void QTextDocument::selectionEnd( int id, int &paragId, int &index )
 
 QTextParag *QTextDocument::selectionStart( int id )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return 0;
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
     if ( sel.startCursor.parag()->paragId() <  sel.endCursor.parag()->paragId() )
 	return sel.startCursor.parag();
     return sel.endCursor.parag();
@@ -1484,10 +1484,10 @@ QTextParag *QTextDocument::selectionStart( int id )
 
 QTextParag *QTextDocument::selectionEnd( int id )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return 0;
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
     if ( sel.startCursor.parag()->paragId() >  sel.endCursor.parag()->paragId() )
 	return sel.startCursor.parag();
     return sel.endCursor.parag();
@@ -1495,11 +1495,11 @@ QTextParag *QTextDocument::selectionEnd( int id )
 
 bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return FALSE;
 
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
 
     QTextCursor start = sel.startCursor;
     QTextCursor end = *cursor;
@@ -1639,11 +1639,11 @@ void QTextDocument::selectAll( int id )
 
 bool QTextDocument::removeSelection( int id )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return FALSE;
 
-    Selection &sel = *it;
+    QTextDocumentSelection &sel = *it;
 
     QTextCursor c( this );
     QTextCursor tmp = sel.startCursor;
@@ -1689,11 +1689,11 @@ bool QTextDocument::removeSelection( int id )
 QString QTextDocument::selectedText( int id ) const
 {
     // ######## TODO: look at textFormat() and return rich text or plain text (like the text() method!)
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return QString::null;
 
-    Selection sel = *it;
+    QTextDocumentSelection sel = *it;
 
     QTextCursor c1 = sel.startCursor;
     QTextCursor c2 = sel.endCursor;
@@ -1721,11 +1721,11 @@ QString QTextDocument::selectedText( int id ) const
 
 void QTextDocument::setFormat( int id, QTextFormat *f, int flags )
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return;
 
-    Selection sel = *it;
+    QTextDocumentSelection sel = *it;
 
     QTextCursor c1 = sel.startCursor;
     QTextCursor c2 = sel.endCursor;
@@ -1763,11 +1763,11 @@ void QTextDocument::copySelectedText( int id )
 
 void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return;
 
-    Selection sel = *it;
+    QTextDocumentSelection sel = *it;
 
     QTextCursor c1 = sel.startCursor;
     QTextCursor c2 = sel.endCursor;
@@ -1815,11 +1815,11 @@ void QTextDocument::removeSelectedText( int id, QTextCursor *cursor )
 
 void QTextDocument::indentSelection( int id )
 {
-    QMap<int, Selection>::Iterator it = selections.find( id );
+    QMap<int, QTextDocumentSelection>::Iterator it = selections.find( id );
     if ( it == selections.end() )
 	return;
 
-    Selection sel = *it;
+    QTextDocumentSelection sel = *it;
     QTextParag *startParag = sel.startCursor.parag();
     QTextParag *endParag = sel.endCursor.parag();
     if ( sel.endCursor.parag()->paragId() < sel.startCursor.parag()->paragId() ) {
@@ -1910,11 +1910,11 @@ Qt::TextFormat QTextDocument::textFormat() const
 
 bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( selId );
+    QMap<int, QTextDocumentSelection>::ConstIterator it = selections.find( selId );
     if ( it == selections.end() )
 	return FALSE;
 
-    Selection sel = *it;
+    QTextDocumentSelection sel = *it;
     QTextParag *startParag = sel.startCursor.parag();
     QTextParag *endParag = sel.endCursor.parag();
     if ( sel.startCursor.parag() == sel.endCursor.parag() &&
@@ -2615,7 +2615,7 @@ QTextParag::~QTextParag()
     if ( tabArray )
 	delete [] tabArray;
     delete eData;
-    QMap<int, LineStart*>::Iterator it = lineStarts.begin();
+    QMap<int, QTextParagLineStart*>::Iterator it = lineStarts.begin();
     for ( ; it != lineStarts.end(); ++it )
 	delete *it;
 }
@@ -2759,11 +2759,11 @@ void QTextParag::format( int start, bool doMove )
 	    doc->flow()->updateHeight( i );
 	}
     }
-    QMap<int, LineStart*> oldLineStarts = lineStarts;
+    QMap<int, QTextParagLineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
     int y = formatter()->format( doc, this, start, oldLineStarts );
     r.setWidth( QMAX( r.width(), minimumWidth() ) );
-    QMap<int, LineStart*>::Iterator it = oldLineStarts.begin();
+    QMap<int, QTextParagLineStart*>::Iterator it = oldLineStarts.begin();
     for ( ; it != oldLineStarts.end(); ++it )
 	delete *it;
 
@@ -2828,7 +2828,7 @@ int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.end();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.end();
     --it;
     for ( ;; ) {
 	if ( i >= it.key() ) {
@@ -2853,7 +2853,7 @@ QTextString::Char *QTextParag::lineStartOfChar( int i, int *index, int *line ) c
 	( (QTextParag*)this )->format();
 
     int l = lineStarts.count() - 1;
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.end();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.end();
     --it;
     for ( ;; ) {
 	if ( i >= it.key() ) {
@@ -2887,7 +2887,7 @@ QTextString::Char *QTextParag::lineStartOfLine( int line, int *index ) const
 	( (QTextParag*)this )->format();
 
     if ( line >= 0 && line < (int)lineStarts.count() ) {
-	QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
+	QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
 	while ( line-- > 0 )
 	    ++it;
 	int i = it.key();
@@ -3501,7 +3501,7 @@ QTextFormatter::QTextFormatter()
 
 /* only used for bidi or complex text reordering
  */
-QTextParag::LineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line,
+QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line,
 						   QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     if( string->isBidi() )
@@ -3539,7 +3539,7 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextParag *parag, QTextStrin
     else
 	line->w = 0;
 
-    return new QTextParag::LineStart();
+    return new QTextParagLineStart();
 }
 
 struct QTextBidiRun {
@@ -3575,7 +3575,7 @@ struct QTextBidiRun {
 #endif
 
 // collects one line of the paragraph and transforms it to visual order
-QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextString *text, QTextParag::LineStart *line,
+QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextString *text, QTextParagLineStart *line,
 							QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
@@ -4158,7 +4158,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QText
 	}
 	r = runs.next();
     }
-    QTextParag::LineStart *ls = new QTextParag::LineStart( context, status );
+    QTextParagLineStart *ls = new QTextParagLineStart( context, status );
     context->deref();
     return ls;
 }
@@ -4212,13 +4212,13 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
     return FALSE;
 }
 
-void QTextFormatter::insertLineStart( QTextParag *parag, int index, QTextParag::LineStart *ls )
+void QTextFormatter::insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls )
 {
     if ( index > 0 ) { // we can assume that only first line starts are insrted multiple times
 	parag->lineStartList().insert( index, ls );
 	return;
     }
-    QMap<int, QTextParag::LineStart*>::Iterator it;
+    QMap<int, QTextParagLineStart*>::Iterator it;
     if ( ( it = parag->lineStartList().find( index ) ) == parag->lineStartList().end() ) {
 	parag->lineStartList().insert( index, ls );
     } else {
@@ -4235,7 +4235,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 }
 
 int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
-					int start, const QMap<int, QTextParag::LineStart*> & )
+					int start, const QMap<int, QTextParagLineStart*> & )
 {
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
@@ -4257,7 +4257,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	c = &parag->string()->at( 0 );
 
     int i = start;
-    QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
+    QTextParagLineStart *lineStart = new QTextParagLineStart( 0, 0, 0 );
     insertLineStart( parag, 0, lineStart );
 
     int col = 0;
@@ -4295,7 +4295,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = new QTextParag::LineStart( y, h, h );
+	    lineStart = new QTextParagLineStart( y, h, h );
 	    insertLineStart( parag, i, lineStart );
 	    c->lineStart = 1;
 	    firstChar = c;
@@ -4357,7 +4357,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 }
 
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
-				      int start, const QMap<int, QTextParag::LineStart*> & )
+				      int start, const QMap<int, QTextParagLineStart*> & )
 {
 //     if ( parag->string() )
 // 	QComplexText::glyphPositions( parag->string() );
@@ -4387,7 +4387,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	c = &parag->string()->at( 0 );
 
     int i = start;
-    QTextParag::LineStart *lineStart = new QTextParag::LineStart( 0, 0, 0 );
+    QTextParagLineStart *lineStart = new QTextParagLineStart( 0, 0, 0 );
     insertLineStart( parag, 0, lineStart );
     int lastBreak = -1;
     int tmpBaseLine = 0, tmph = 0;

@@ -583,6 +583,12 @@ template class Q_EXPORT QMap<int, bool>;
 // MOC_SKIP_END
 #endif
 
+struct Q_EXPORT QTextDocumentSelection
+{
+    QTextCursor startCursor, endCursor;
+    bool swapped;
+};
+
 class Q_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
@@ -767,11 +773,6 @@ private:
     QChar parseChar(const QString& doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
 
 private:
-    struct Selection {
-	QTextCursor startCursor, endCursor;
-	bool swapped;
-    };
-
     struct Q_EXPORT Focus {
 	QTextParag *parag;
 	int start, len;
@@ -782,7 +783,7 @@ private:
     QTextParag *fParag, *lParag;
     QTextPreProcessor *pProcessor;
     QMap<int, QColor> selectionColors;
-    QMap<int, Selection> selections;
+    QMap<int, QTextDocumentSelection> selections;
     QMap<int, bool> selectionText;
     QString filename;
     QTextCommandHistory *commandHistory;
@@ -949,39 +950,46 @@ template class Q_EXPORT QVector<QStyleSheetItem>;
 // MOC_SKIP_END
 #endif
 
+struct Q_EXPORT QTextParagSelection
+{
+    int start, end;
+};
+
+struct Q_EXPORT QTextParagLineStart
+{
+    QTextParagLineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
+    QTextParagLineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
+	w( 0 ), bidicontext( 0 )  {  }
+    QTextParagLineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
+	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
+    ~QTextParagLineStart() { if ( bidicontext ) bidicontext->deref();  }
+    void setContext( QTextBidiContext *c ) {
+	if ( c == bidicontext )
+	    return;
+	if ( bidicontext )
+	    bidicontext->deref();
+	bidicontext = c;
+	if ( bidicontext )
+	    bidicontext->ref();
+    }
+    QTextBidiContext *context() const { return bidicontext; }
+
+public:
+    ushort y, baseLine, h;
+    QTextBidiStatus status;
+    int w;
+	
+private:
+    QTextBidiContext *bidicontext;
+
+};
+
+
 class Q_EXPORT QTextParag
 {
     friend class QTextDocument;
 
 public:
-    struct LineStart {
-	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
-	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
-	    w( 0 ), bidicontext( 0 )  {  }
-	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
-	    status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
-	~LineStart() { if ( bidicontext ) bidicontext->deref();  }
-	void setContext( QTextBidiContext *c ) {
-	    if ( c == bidicontext )
-		return;
-	    if ( bidicontext )
-		bidicontext->deref();
-	    bidicontext = c;
-	    if ( bidicontext )
-		bidicontext->ref();
-	}
-	QTextBidiContext *context() const { return bidicontext; }
-
-    public:
-	ushort y, baseLine, h;
-	QTextBidiStatus status;
-	int w;
-	
-    private:
-	QTextBidiContext *bidicontext;
-
-    };
-
     QTextParag( QTextDocument *d, QTextParag *pr = 0, QTextParag *nx = 0, bool updateIds = TRUE );
     virtual ~QTextParag();
 
@@ -1054,7 +1062,7 @@ public:
     void setExtraData( void *data );
     void *extraData() const;
 
-    QMap<int, LineStart*> &lineStartList();
+    QMap<int, QTextParagLineStart*> &lineStartList();
 
     void setFormat( int index, int len, QTextFormat *f, bool useCollection = TRUE, int flags = -1 );
 
@@ -1124,11 +1132,8 @@ private:
 			  int *selectionEnds, const QColorGroup &cg, bool rightToLeft  );
 
 private:
-    struct Selection {
-	int start, end;
-    };
 
-    QMap<int, LineStart*> lineStarts;
+    QMap<int, QTextParagLineStart*> lineStarts;
     int invalid;
     QRect r;
     QTextParag *p, *n;
@@ -1141,7 +1146,7 @@ private:
     bool newLinesAllowed : 1;
     bool splittedInside : 1;
     bool lastInFrame : 1;
-    QMap<int, Selection> selections;
+    QMap<int, QTextParagSelection> selections;
     int state, id;
     QTextString *str;
     int align;
@@ -1170,7 +1175,7 @@ class Q_EXPORT QTextFormatter
 public:
     QTextFormatter();
     virtual ~QTextFormatter() {}
-    virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts ) = 0;
+    virtual int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts ) = 0;
 
     bool isWrapEnabled() const { return wrapEnabled;}
     int wrapAtColumn() const { return wrapColumn;}
@@ -1178,12 +1183,12 @@ public:
     virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
 
 protected:
-    virtual QTextParag::LineStart *formatLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+    virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextString::Char *start,
 					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
-    virtual QTextParag::LineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParag::LineStart *line, QTextString::Char *start,
+    virtual QTextParagLineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextString::Char *start,
 						    QTextString::Char *last, int align, int space );
     virtual bool isBreakable( QTextString *string, int pos ) const;
-    void insertLineStart( QTextParag *parag, int index, QTextParag::LineStart *ls );
+    void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
 
 private:
     bool wrapEnabled;
@@ -1202,7 +1207,7 @@ class Q_EXPORT QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords();
-    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
+    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts );
 
 };
 
@@ -1212,7 +1217,7 @@ class Q_EXPORT QTextFormatterBreakWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakWords();
-    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
+    int format( QTextDocument *doc, QTextParag *parag, int start, const QMap<int, QTextParagLineStart*> &oldLineStarts );
 
 };
 
@@ -1549,7 +1554,7 @@ inline bool QTextDocument::hasSelection( int id ) const
 
 inline void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
 {
-    Selection sel;
+    QTextDocumentSelection sel;
     sel.startCursor = *cursor;
     sel.endCursor = *cursor;
     sel.swapped = FALSE;
@@ -2028,13 +2033,13 @@ inline QTextParag *QTextParag::next() const
 
 inline void QTextParag::setSelection( int id, int start, int end )
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
     if ( it != selections.end() ) {
 	if ( start == ( *it ).start && end == ( *it ).end )
 	    return;
     }
 
-    Selection sel;
+    QTextParagSelection sel;
     sel.start = start;
     sel.end = end;
     selections[ id ] = sel;
@@ -2051,7 +2056,7 @@ inline void QTextParag::removeSelection( int id )
 
 inline int QTextParag::selectionStart( int id ) const
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return -1;
     return ( *it ).start;
@@ -2059,7 +2064,7 @@ inline int QTextParag::selectionStart( int id ) const
 
 inline int QTextParag::selectionEnd( int id ) const
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return -1;
     return ( *it ).end;
@@ -2067,7 +2072,7 @@ inline int QTextParag::selectionEnd( int id ) const
 
 inline bool QTextParag::hasSelection( int id ) const
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return FALSE;
     return ( *it ).start != ( *it ).end || length() == 1;
@@ -2080,7 +2085,7 @@ inline bool QTextParag::hasAnySelection() const
 
 inline bool QTextParag::fullSelected( int id ) const
 {
-    QMap<int, Selection>::ConstIterator it = selections.find( id );
+    QMap<int, QTextParagSelection>::ConstIterator it = selections.find( id );
     if ( it == selections.end() )
 	return FALSE;
     return ( *it ).start == 0 && ( *it ).end == str->length() - 1;
@@ -2120,7 +2125,7 @@ inline void QTextParag::setFirstPreProcess( bool b )
     firstPProcess = b;
 }
 
-inline QMap<int, QTextParag::LineStart*> &QTextParag::lineStartList()
+inline QMap<int, QTextParagLineStart*> &QTextParag::lineStartList()
 {
     return lineStarts;
 }
@@ -2135,7 +2140,7 @@ inline int QTextParag::lineY( int l ) const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
     return ( *it )->y;
@@ -2151,7 +2156,7 @@ inline int QTextParag::lineBaseLine( int l ) const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
     return ( *it )->baseLine;
@@ -2167,7 +2172,7 @@ inline int QTextParag::lineHeight( int l ) const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
     return ( *it )->h;
@@ -2187,7 +2192,7 @@ inline void QTextParag::lineInfo( int l, int &y, int &h, int &bl ) const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
+    QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
     y = ( *it )->y;
