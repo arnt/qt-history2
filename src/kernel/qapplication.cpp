@@ -2199,6 +2199,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	}
     }
 
+    bool consumed = FALSE;
     if ( receiver->isWidgetType() ) {
 	QWidget *widget = (QWidget*)receiver;
 
@@ -2217,17 +2218,21 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	       e->type() <= QEvent::DragResponse ) &&
 	     !widget->isEnabled() ) {
 	    ( (QMouseEvent*) e)->ignore();
-	    return FALSE;
+	    goto done;
 	}
 
 	// throw away any mouse-tracking-only mouse events
 	if ( e->type() == QEvent::MouseMove &&
 	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
-	     !widget->hasMouseTracking() )
-	    return TRUE;
+	     !widget->hasMouseTracking() ) {
+	    consumed = TRUE;
+	    goto done;
+	}
     }
-
-    return receiver->event( e );
+    consumed = receiver->event( e );
+ done:
+    e->spont = FALSE;
+    return consumed;
 }
 
 /*!
