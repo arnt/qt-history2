@@ -83,7 +83,6 @@ protected:
     virtual void afterSeek();
 
 private:
-    void init(const QString& query, QSqlDatabase db); // TODO - move me to private
     QSqlQueryPrivate* d;
 };
 

@@ -224,6 +224,21 @@ QSqlQuery::QSqlQuery(const QSqlQuery& other)
 }
 
 /*!
+    \internal
+*/
+static void qInit(QSqlQuery *q, const QString& query, QSqlDatabase db)
+{
+    QSqlDatabase database = db;
+    if (!database.isValid())
+        database = QSqlDatabase::database(QLatin1String(QSqlDatabase::defaultConnection), false);
+    if (database.isValid()) {
+        *q = QSqlQuery(database.driver()->createResult());
+    }
+    if (!query.isEmpty())
+        q->exec(query);
+}
+
+/*!
     Constructs a QSqlQuery object using the SQL \a query and the
     database \a db. If \a db is not specified, the application's
     default database is used. If \a query is not an empty string, it
@@ -233,7 +248,8 @@ QSqlQuery::QSqlQuery(const QSqlQuery& other)
 */
 QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
 {
-    init(query, db);
+    d = QSqlQueryPrivate::shared_null();
+    qInit(this, query, db);
 }
 
 /*!
@@ -244,24 +260,10 @@ QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase db)
 
 QSqlQuery::QSqlQuery(QSqlDatabase db)
 {
-    init(QString(), db);
+    d = QSqlQueryPrivate::shared_null();
+    qInit(this, QString(), db);
 }
 
-/*!
-    \internal
-*/
-void QSqlQuery::init(const QString& query, QSqlDatabase db)
-{
-    d = QSqlQueryPrivate::shared_null();
-    QSqlDatabase database = db;
-    if (!database.isValid())
-        database = QSqlDatabase::database(QLatin1String(QSqlDatabase::defaultConnection), false);
-    if (database.isValid()) {
-        *this = QSqlQuery(database.driver()->createResult());
-    }
-    if (!query.isEmpty())
-        exec(query);
-}
 
 /*!
     Assigns \a other to this object.
