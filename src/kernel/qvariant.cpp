@@ -1057,6 +1057,9 @@ void QVariant::load( QDataStream& s )
     switch( t ) {
     case Invalid:
 	{
+	    // Since we wrote something, we should read something
+	    QString x;
+	    s >> x;
 	    d->typ = t;
 	    d->is_null = TRUE;
 	}
