@@ -154,9 +154,10 @@ public:
 	QVariant v2 = env->stack()->pop();
 	QVariant v1 = env->stack()->pop();
 	if ( v1.type() == LOCALSQL_NULL_TYPE ||
-	     v2.type() == LOCALSQL_NULL_TYPE )
-	    env->stack()->push( LOCALSQL_NULL );
-	else
+	     v2.type() == LOCALSQL_NULL_TYPE ) {
+	    QVariant v; v.cast( LOCALSQL_NULL_TYPE );
+	    env->stack()->push( v );
+	} else
 	    env->stack()->push( bin(v1, v2) );
 	return 1;
     }
@@ -292,9 +293,10 @@ public:
 	if ( !checkStack(env, 1) )
 	    return 0;
 	QVariant v1 = env->stack()->pop();
-	if ( v1.type() == LOCALSQL_NULL_TYPE )
-	    env->stack()->push( LOCALSQL_NULL );
-	else
+	if ( v1.type() == LOCALSQL_NULL_TYPE ) {
+	    QVariant v; v.cast( LOCALSQL_NULL_TYPE );
+	    env->stack()->push( v );
+	} else
 	    env->stack()->push( un(v1) );
 	return 1;
     }

@@ -38,7 +38,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 
-//#define DEBUG_XBASE
+#define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
 
 class XbaseSys
@@ -141,9 +141,13 @@ static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 	case QVariant::CString:
 	case QVariant::Date:
 	    return TRUE;
+	case LOCALSQL_NULL_TYPE:
+	    return TRUE;
 	default:
 	    return FALSE;
 	}
+   case LOCALSQL_NULL_TYPE:
+       return TRUE;
     default:
 	return 0;
     }
@@ -233,7 +237,7 @@ public:
     {
 	xbShort rc;
 	bool nullify = FALSE;
-	if ( v.type() == QVariant::Invalid ) {
+	if ( v.type() == LOCALSQL_NULL_TYPE ) {
 	    nullify = TRUE;
 	}
 	switch ( xbaseTypeToVariant( file.GetFieldType(i) ) ) {
@@ -274,6 +278,7 @@ public:
 		data = "\0";
 	    else
 		data = v.toString().utf8();
+	    qDebug("putField, default: data:" + QString( data ));
 	    rc = file.PutField( i, data.data() );
 	    break;
 	}
@@ -289,15 +294,15 @@ public:
 	case 'N': { /* numeric */
 	    QString d( buf );
 	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
-		v = LOCALSQL_NULL;
+		v.cast( LOCALSQL_NULL_TYPE );
 	    else
 		v = d.toInt();
 	    break;
 	}
 	case 'F': { /* float */
 	    QString d( buf );
-	    if ( d.simplifyWhiteSpace().length() == 0 ) /* null? */
-		v = LOCALSQL_NULL;
+	    if ( d.simplifyWhiteSpace()[0] == '.' ) /* null? */
+		v.cast( LOCALSQL_NULL_TYPE );
 	    else
 		v = d.toDouble();
 	    break;
@@ -308,7 +313,7 @@ public:
 	    int m = date.mid( 4, 2 ).toInt();
 	    int d = date.mid( 6, 2 ).toInt();
 	    if ( !QDate::isValid( y, m, d ) ) /* null? */
-		v = LOCALSQL_NULL;
+		v.cast( LOCALSQL_NULL_TYPE );
 	    else
 		v = QDate( y, m, d );
 	    break;
@@ -316,7 +321,7 @@ public:
 	case 'L': { /* logical */
 	    QString d(buf);
 	    if ( d == "?" ) /* null? */
-		v = LOCALSQL_NULL;
+		v.cast( LOCALSQL_NULL_TYPE );
 	    else
 		v = QVariant( QString(buf).toInt(), 1 );
 	    break;
@@ -340,6 +345,8 @@ public:
 FileDriver::FileDriver( LocalSQLEnvironment* environment, const QString& name = QString::null )
     : nm( name ), env( environment )
 {
+    if ( nm.mid( nm.length()-4, 4 ) == ".dbf" )
+	nm = nm.mid( 0, nm.length()-4);
     d = new Private();
     setIsOpen( FALSE );
 }
@@ -932,7 +939,7 @@ bool FileDriver::update( const List& data )
 	}
 	if ( !canConvert( updateData[1].type(), xbaseTypeToVariant( d->file.GetFieldType( pos ) ) ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
-	    ERROR_RETURN( "Unable to update, invalid field type:" + QString(updateData[1].typeName()) +
+	    ERROR_RETURN( "Unable to update, invalid field type: " + QString(updateData[1].typeName()) +
 			  ", expected:" + QString( v.typeName() ) );
 	}
 	rc = d->putField( pos, updateData[1] );
@@ -1195,12 +1202,16 @@ bool FileDriver::createIndex( const List& data, bool unique, bool notnull )
 	/* create the index description string */
 	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "Internal error: Unable to create index, field not found:" + name );
+	    ERROR_RETURN( "Unable to create index, field not found:" + name );
 	}
 	if ( indexType == QVariant::Invalid ) /* save type of first indexed field */
 	    indexType = xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) );
-	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
-			  indexType ) ) {
+	if ( (indexType == QVariant::Double ||
+	      indexType == QVariant::Int) && data.count() > 1 ) {
+	    ERROR_RETURN( "Unable to create multiple numeric field index" );
+	}
+	if ( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) !=
+				 indexType ) {
 	    QVariant v1; v1.cast( indexType );
 	    QVariant v2; v2.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
 	    ERROR_RETURN( "Unable to create index, incompatible index field types: '" +

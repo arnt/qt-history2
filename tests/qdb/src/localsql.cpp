@@ -308,7 +308,11 @@ bool LocalSQL::addFileDriverAlias( const List& drivers, const QString fieldname,
 
 void LocalSQL::setPath( const QString& path )
 {
+    if ( path.length() == 0 )
+	return;
     d->path = path;
+    if ( d->path[ d->path.length()-1 ] == '/' )
+	d->path = d->path.mid( 0, d->path.length()-1 );
 }
 
 QString LocalSQL::path() const

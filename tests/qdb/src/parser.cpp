@@ -1614,10 +1614,12 @@ QVariant Parser::matchPrimaryExpr()
 	right = yyStr;
 	yyTok = getToken();
 	break;
-    case Tok_null:
-	right = LOCALSQL_NULL;
+    case Tok_null: {
+	QVariant v; v.cast( LOCALSQL_NULL_TYPE );
+	right = v;
 	yyTok = getToken();
 	break;
+    }
     default:
 	switch ( yyTok ) {
 	case Tok_avg:
@@ -1842,14 +1844,14 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	yyTok = getToken();
 	right = matchScalarExpr();
 
-	if ( left == LOCALSQL_NULL || right == LOCALSQL_NULL ) {
+	if ( left.type() == LOCALSQL_NULL_TYPE || right.type() == LOCALSQL_NULL_TYPE ) {
 	    /*
 	      We have 'foo = null' or 'null = foo'. Node_Eq has the
 	      wrong semantics for null values. We have to use
 	      Node_IsNull.
 	    */
 	    pred.append( (int) Node_IsNull );
-	    pred.append( left == LOCALSQL_NULL ? right : left );
+	    pred.append( left.type() == LOCALSQL_NULL_TYPE ? right : left );
 	} else {
 	    pred.append( (int) Node_Eq );
 	    pred.append( left );
@@ -1866,10 +1868,10 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	right = matchScalarExpr();
 	unot = TRUE;
 
-	if ( left == LOCALSQL_NULL || right == LOCALSQL_NULL ) {
+	if ( left.type() == LOCALSQL_NULL_TYPE || right.type() == LOCALSQL_NULL_TYPE ) {
 	    // see Tok_Eq above
 	    pred.append( (int) Node_IsNull );
-	    pred.append( left == LOCALSQL_NULL ? right : left );
+	    pred.append( left.type() == LOCALSQL_NULL_TYPE ? right : left );
 	} else {
 	    pred.append( (int) Node_Eq );
 	    pred.append( left );

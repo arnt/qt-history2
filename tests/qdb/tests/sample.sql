@@ -32,8 +32,8 @@ d1 date,
 c5673 char(2)
 );
 
-create index alltypesindex_1 on alltypes ( n1, n2 ); 
-create index alltypesindex_2 on alltypes ( c1 ); 
+create index alltypesindex_1 on alltypes ( n2 ); 
+create index alltypesindex_2 on alltypes ( c1, c2 ); 
 create index alltypesindex_3 on alltypes ( d1 ); 
 
 insert into alltypes values( 1, 12, 'latin1: ικλε ”™', 'more', '2001-01-11'); 
@@ -75,12 +75,13 @@ select n1, alltypes.* from alltypes;
 --select a.n1 from alltypes a, alltypes b ## currently fails
 
 -- another table
+drop table another;
 create table another
 (id int primary key,
 linkid int);
 create index another_link_idx on another(linkid);
 insert into another values (1,99);
-insert into another values (1,NULL);
+insert into another values (2,NULL);
 
 -- some joins
 select a.linkid, b.n1 from another a, alltypes b
