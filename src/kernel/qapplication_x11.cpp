@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#432 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#433 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3193,7 +3193,9 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_BackSpace,	Qt::Key_Backspace,
     XK_Return,		Qt::Key_Return,
     XK_Insert,		Qt::Key_Insert,
+    XK_KP_Insert,		Qt::Key_Insert,
     XK_Delete,		Qt::Key_Delete,
+    XK_KP_Delete,		Qt::Key_Delete,
     XK_Clear,		Qt::Key_Delete,
     XK_Pause,		Qt::Key_Pause,
     XK_Print,		Qt::Key_Print,
@@ -3207,6 +3209,14 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Down,		Qt::Key_Down,
     XK_Prior,		Qt::Key_Prior,
     XK_Next,		Qt::Key_Next,
+    XK_KP_Home,		Qt::Key_Home,
+    XK_KP_End,		Qt::Key_End,
+    XK_KP_Left,		Qt::Key_Left,
+    XK_KP_Up,		Qt::Key_Up,
+    XK_KP_Right,		Qt::Key_Right,
+    XK_KP_Down,		Qt::Key_Down,
+    XK_KP_Prior,		Qt::Key_Prior,
+    XK_KP_Next,		Qt::Key_Next,
     XK_Shift_L,		Qt::Key_Shift,		// modifiers
     XK_Shift_R,		Qt::Key_Shift,
     XK_Shift_Lock,	Qt::Key_Shift,
@@ -3234,18 +3244,6 @@ static KeySym KeyTbl[] = {			// keyboard mapping table
     XK_Menu,		Qt::Key_Menu,
     XK_Hyper_L,		Qt::Key_Hyper_L,
     XK_Hyper_R,		Qt::Key_Hyper_R,
-#if defined(XlibSpecificationRelease) && (XlibSpecificationRelease >= 6)
-    XK_KP_Insert,		Qt::Key_Insert,
-    XK_KP_Delete,		Qt::Key_Delete,
-    XK_KP_Home,		Qt::Key_Home,
-    XK_KP_End,		Qt::Key_End,
-    XK_KP_Left,		Qt::Key_Left,
-    XK_KP_Up,		Qt::Key_Up,
-    XK_KP_Right,		Qt::Key_Right,
-    XK_KP_Down,		Qt::Key_Down,
-    XK_KP_Prior,		Qt::Key_Prior,
-    XK_KP_Next,		Qt::Key_Next,
-#endif
     0,			0
 };
 
