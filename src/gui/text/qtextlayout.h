@@ -118,7 +118,8 @@ public:
     int nextCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
     int previousCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
 
-    void draw(QPainter *p, const QPointF &pos, const QRectF &clip = QRectF()) const;
+    void draw(QPainter *p, const QPointF &pos, const QVector<FormatRange> &selections = QVector<FormatRange>(),
+              const QRectF &clip = QRectF()) const;
     void drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const;
 
     QPointF position() const;
@@ -181,7 +182,7 @@ public:
 
     int lineNumber() const { return i; }
 
-    void draw(QPainter *p, const QPointF &point) const;
+    void draw(QPainter *p, const QPointF &point, const QTextLayout::FormatRange *selection = 0) const;
 
 private:
     QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}

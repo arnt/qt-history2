@@ -1738,7 +1738,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
     d->cursor = c;
 
     d->textLayout.setPreeditArea(d->cursor, e->preeditString());
-    d->formatOverrides.clear();
+    QList<QTextLayout::FormatRange> formats;
     for (int i = 0; i < e->attributes().size(); ++i) {
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type != QInputMethodEvent::TextFormat)
@@ -1749,9 +1749,10 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
             o.start = a.start + d->cursor;
             o.length = a.length;
             o.format = f;
-            d->formatOverrides.append(o);
+            formats.append(o);
         }
     }
+    d->textLayout.setAdditionalFormats(formats);
     d->updateTextLayout();
     update();
     if (!e->commitString().isEmpty())
@@ -1897,7 +1898,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setPen(pal.text().color());
     bool supressCursor = d->readOnly;
 
-    QList<QTextLayout::FormatRange> list = d->formatOverrides;
+    QVector<QTextLayout::FormatRange> selections;
     if (d->selstart < d->selend || (d->cursorVisible && d->maskData)) {
         QTextLayout::FormatRange o;
         const QPalette &pal = palette();
@@ -1913,15 +1914,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
             o.format.setBackgroundColor(pal.color(QPalette::Text));
             o.format.setTextColor(pal.color(QPalette::Background));
         }
-        list.append(o);
+        selections.append(o);
     }
-    d->textLayout.setAdditionalFormats(list);
 
     // Asian users see an IM selection text as cursor on candidate
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
     bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
-    d->textLayout.draw(&p, topLeft, r);
+    d->textLayout.draw(&p, topLeft, selections, r);
     if (showCursor)
         d->textLayout.drawCursor(&p, topLeft, d->cursor);
 

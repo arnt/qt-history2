@@ -796,7 +796,7 @@ qreal QTextLayout::maximumWidth() const
     Draws the whole layout on the \a painter at point \a pos with the
     given \a cursorPos.
 */
-void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRectF &clip) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<QTextLayout::FormatRange> &selections, const QRectF &clip) const
 {
     Q_ASSERT(lineCount() != 0);
 
@@ -820,6 +820,8 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRectF &clip) cons
             continue;
 
         l.draw(p, position);
+        for (int i = 0; i < selections.size(); ++i)
+            l.draw(p, position, selections.constData()+i);
     }
 
     if (!d->cacheGlyphs)
@@ -1295,13 +1297,25 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
     gf.width = w;
 }
 
-/*!
-    \internal
 
+static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const QTextCharFormat &chf, const QRectF &r)
+{
+    QColor c = chf.textColor();
+    if (!c.isValid())
+        p->setPen(defaultPen);
+
+    QColor bg = chf.backgroundColor();
+    if (bg.isValid())
+        p->fillRect(r, bg);
+    if (c.isValid())
+        p->setPen(c);
+}
+
+/*!
     Draws a line on painter \a p at position \a xpos, \a ypos. \a
     selection is reserved for internal use.
 */
-void QTextLine::draw(QPainter *p, const QPointF &pos) const
+void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatRange *selection) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -1337,18 +1351,34 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
         QScriptItem &si = eng->layoutData->items[item];
+        int si_len = eng->length(item);
         if (!si.num_glyphs)
             eng->shape(item);
 
+        if (selection && (si.position >= selection->start + selection->length
+                          || si.position + si_len <= selection->start)) {
+            x += si.width;
+            continue;
+        }
+
         if (si.isObject || si.isTab) {
-            // ############## use format overrides here!
-            p->save();
             if (eng->block.docHandle()) {
-                QTextFormat format = eng->formats()->format(eng->formatIndex(&si));
+                p->save();
+                QTextCharFormat format = eng->format(&si).toCharFormat();
+                if (selection)
+                    format.merge(selection->format);
+                setPenAndDrawBackground(p, pen, format, QRectF(x, y - line.ascent, si.width, line.height()));
                 eng->docLayout()->drawInlineObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
                                                    QTextInlineObject(item, eng), format);
+                if (selection) {
+                    QColor bg = format.backgroundColor();
+                    if (bg.isValid()) {
+                        bg.setAlpha(128);
+                        p->fillRect(QRectF(x, y-si.ascent, si.width, si.height()), bg);
+                    }
+                }
+                p->restore();
             }
-            p->restore();
 
             x += si.width;
             continue;
@@ -1365,7 +1395,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             end = lineEnd;
             ge = logClusters[end-si.position];
         } else {
-            end = si.position + eng->length(item);
+            end = si.position + si_len;
             ge = si.num_glyphs;
         }
 
@@ -1387,28 +1417,51 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             ++g;
         }
 
+        if (selection) {
+            int from = qMax(start, selection->start) - si.position;
+            int to = qMin(end, selection->start + selection->length) - si.position;
+            if (from >= to) {
+                x += gf.width;
+                continue;
+            }
+            int start_glyph = logClusters[from];
+            int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
+            qreal soff = 0;
+            qreal swidth = 0;
+            if (si.analysis.bidiLevel %2) {
+                for (int g = ge - 1; g >= end_glyph; --g)
+                    soff += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
+                for (int g = end_glyph - 1; g >= start_glyph; --g)
+                    swidth += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
+            } else {
+                for (int g = gs; g < start_glyph; ++g)
+                    soff += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
+                for (int g = start_glyph; g < end_glyph; ++g)
+                    swidth += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
+            }
+
+            QRectF rect(x + soff, y - line.ascent, swidth, line.height());
+            p->save();
+            p->setClipRect(rect);
+        }
+
+
         if (eng->block.docHandle()) {
-//             QTextFormat fmt = eng->format(&si);
-            QTextFormat fmt = eng->formats()->format(eng->formatIndex(&si));
+            QTextFormat fmt = eng->format(&si);
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
+            if (selection)
+                chf.merge(selection->format);
 
-            QColor bg = chf.backgroundColor();
-            QColor c = chf.textColor();
+            setPenAndDrawBackground(p, pen, chf, QRectF(x, y - line.ascent, gf.width, line.height()));
 
             QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
             if (valign == QTextCharFormat::AlignSubScript)
                 itemBaseLine += (si.ascent + si.descent + 1) / 6;
             else if (valign == QTextCharFormat::AlignSuperScript)
                 itemBaseLine -= (si.ascent + si.descent + 1) / 2;
-            f = eng->font(si);
-            if (!c.isValid())
-                p->setPen(pen);
 
-            if (bg.isValid())
-                p->fillRect(QRectF(x, y - line.ascent, gf.width, line.height()), bg);
-            if (c.isValid())
-                p->setPen(c);
+            f = eng->font(si);
         }
 
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
@@ -1426,52 +1479,10 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             drawMenuText(p, x, itemBaseLine, si, gf, eng, start, gs);
         } else {
             p->drawTextItem(QPointF(x, itemBaseLine), gf);
-
-            if (eng->specialData) {
-                for (int i = 0; i < eng->specialData->addFormats.size(); ++i) {
-                    const QTextLayout::FormatRange &o = eng->specialData->addFormats.at(i);
-                    int from = qMax(start, o.start) - si.position;
-                    int to = qMin(end, o.start + o.length) - si.position;
-                    if (from >= to)
-                        continue;
-                    int start_glyph = logClusters[from];
-                    int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
-                    qreal soff = 0;
-                    qreal swidth = 0;
-                    if (si.analysis.bidiLevel %2) {
-                        for (int g = ge - 1; g >= end_glyph; --g)
-                            soff += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
-                        for (int g = end_glyph - 1; g >= start_glyph; --g)
-                            swidth += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
-                    } else {
-                        for (int g = gs; g < start_glyph; ++g)
-                            soff += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
-                        for (int g = start_glyph; g < end_glyph; ++g)
-                            swidth += glyphs[g].advance.x() + qreal(glyphs[g].space_18d6)/qreal(64);
-                    }
-
-                    QRectF rect(x + soff, y - line.ascent, swidth, line.height());
-                    QColor color = o.format.backgroundColor();
-                    p->save();
-                    p->setClipRect(rect);
-                    if (color.isValid())
-                        p->fillRect(rect, color);
-                    color = o.format.textColor();
-                    if (color.isValid())
-                        p->setPen(color);
-
-                    QTextItemInt special_gf = gf;
-                    if (o.format.fontUnderline())
-                        special_gf.flags |= QTextItem::Underline;
-                    if (o.format.fontOverline())
-                        special_gf.flags |= QTextItem::Overline;
-                    if (o.format.fontStrikeOut())
-                        special_gf.flags |= QTextItem::StrikeOut;
-                    p->drawTextItem(QPointF(x, itemBaseLine), special_gf);
-                    p->restore();
-                }
-            }
         }
+        if (selection)
+            p->restore();
+
         x += gf.width;
     }
     p->setPen(pen);

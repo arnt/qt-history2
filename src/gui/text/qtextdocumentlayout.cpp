@@ -621,7 +621,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
         painter->fillRect(r, bgCol);
     }
 
-    QList<QTextLayout::FormatRange> overrides = tl->additionalFormats();
+    QVector<QTextLayout::FormatRange> selections;
     bool highlightListItem = false;
     if (context.cursor.hasSelection()) {
         int blpos = bl.position();
@@ -634,9 +634,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
             o.length = selEnd - selStart;
             o.format.setBackgroundColor(context.palette.color(QPalette::Highlight));
             o.format.setTextColor(context.palette.color(QPalette::HighlightedText));
-            QList<QTextLayout::FormatRange> newOverrides = overrides;
-            newOverrides.append(o);
-            const_cast<QTextLayout *>(tl)->setAdditionalFormats(newOverrides);
+            selections.append(o);
         }
         if (selStart <= 0 && selEnd >= 1)
             highlightListItem = true;
@@ -647,10 +645,9 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
         drawListItem(offset, painter, context, bl, highlightListItem);
 
     painter->setPen(context.palette.color(QPalette::Text));
-    tl->draw(painter, offset, context.clip);
+    tl->draw(painter, offset, selections, context.clip);
     if (cursor >= 0)
         tl->drawCursor(painter, offset, cursor);
-    const_cast<QTextLayout *>(tl)->setAdditionalFormats(overrides);
 }
 
 

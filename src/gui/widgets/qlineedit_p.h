@@ -156,7 +156,6 @@ public:
 
     // input methods
     bool composeMode() const { return !textLayout.preeditAreaText().isEmpty(); }
-    QList<QTextLayout::FormatRange> formatOverrides;
 
     // complex text layout
     QTextLayout textLayout;
