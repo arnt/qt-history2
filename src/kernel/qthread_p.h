@@ -68,8 +68,6 @@
 
 #if defined(Q_OS_LINUX)
 // Linux
-#  include <features.h>
-
 #  if (__GLIBC__ == 2) && (__GLIBC_MINOR__ == 0)
 // Linux with glibc 2.0.x - POSIX 1003.4a thread implementation
 #    define Q_HAS_CONDATTR
@@ -158,6 +156,15 @@ extern "C" { static void * start_thread(void * t); }
 
 
 #include <thread.h>
+// Function usleep() is in C library but not in header files on Solaris 2.5.1.
+// Not really a surprise, usleep() is specified by XPG4v2 and XPG4v2 is only
+// supported by Solaris 2.6 and better.
+// So we are trying to detect Solaris 2.5.1 using macro _XOPEN_UNIX which is
+// defined by <unistd.h> when XPG4v2 is supported.
+#if !defined(_XOPEN_UNIX)
+typedef unsigned int useconds_t;
+extern "C" int usleep(useconds_t);
+#endif
 
 
 class QMutex::Private {
