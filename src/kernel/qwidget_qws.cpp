@@ -787,30 +787,20 @@ bool QWidget::isMinimized() const
 void QWidget::showMaximized()
 {
     in_show_maximized = 1;
+    clearWState( WState_Minimized );
+    setWState(WState_Maximized);
     if ( testWFlags(WType_TopLevel) ) {
 	createTLExtra();
 #ifndef QT_NO_QWS_MANAGER
-	if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-	    bool resetState = FALSE;
-	    if ( !testWState(WState_Maximized) ) {
-		// The window decoration needs to know if the widget is maximized
-		setWState(WState_Maximized);
-		resetState = TRUE;
-	    }
+	if ( extra && extra->topextra && extra->topextra->qwsManager )
 	    extra->topextra->qwsManager->maximize();
-	    if ( resetState )
-		clearWState(WState_Maximized);
-	} else
+	else
 #endif
-	{
 	    setGeometry( qt_maxWindowRect );
-	}
     }
     show();
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
-    clearWState( WState_Minimized );
-    setWState(WState_Maximized);
     in_show_maximized = 0;
 }
 
@@ -924,7 +914,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	oldAlloc = allocatedRegion();
     }
 
-    if ( !r.contains(geometry()) ) // eg. might not FIT in max window rect
+    if ( !in_show_maximized && !r.contains(geometry()) ) // eg. might not FIT in max window rect
 	clearWState(WState_Maximized);
 
     crect = r;
