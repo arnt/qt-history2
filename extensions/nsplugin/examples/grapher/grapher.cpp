@@ -222,11 +222,13 @@ void Graph::paintBar(QPaintEvent* event)
 	    int bw = (w-w/4-x)/(data.count()-i);
 	    int bh = int((h-h/4-1)*rowdata[0].dbl/max);
 	    p.drawRect( w/8+x, h-h/8-1-bh, bw, bh );
-	    if (model.colType(1) == GraphModel::Label) {
+	    
+	    // ### This causes a crash, so comment out for now	    
+	    /*if (model.colType(1) == GraphModel::Label) {
 		p.drawText(w/8+x, h-h/8, bw, fh+h/8,
 		    WordBreak|AlignTop|AlignHCenter,
 		    *rowdata[1].str);
-	    }
+	    }*/
 	    i++;
 	    x+=bw;
 	}
@@ -324,9 +326,11 @@ void Graph::paintPie(QPaintEvent* event)
 	    double a = rowdata[0].dbl * 360 / total * M_PI / 180;
 	    int x = int(cos(apos+a/2)*w*5/16 + w/2 + 0.5);
 	    int y = int(sin(apos+a/2)*h*5/16 + h/2 + 0.5);
-	    p.drawText(x-w/8, y-h/8, w/4, h/4,
+	    
+	    // ### This causes a crash, so comment out for now
+	    /*p.drawText(x-w/8, y-h/8, w/4, h/4,
 		WordBreak|AlignCenter,
-		*rowdata[1].str);
+		*rowdata[1].str);*/
 	    apos += a;
 	}
     }
