@@ -2196,9 +2196,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	    tbrect = QRect( r.x(), r.y(), r.width(), th );
 	titlebar->setGeometry( tbrect );
 
-	if ( !style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
-	    th += frameWidth();
-	else
+	if ( style().styleHint( QStyle::SH_TitleBar_NoBorder, titlebar ) )
 	    th -= r.y();
 	cr = QRect( r.x(), r.y() + th + (shademode ? (frameWidth() * 3) : 0),
 		    r.width(), r.height() - th );
