@@ -2702,10 +2702,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 
   Qt currently supports the following image file formats: PNG,
   BMP, XBM, XPM and PNM.  The different PNM formats are: PBM
-  (P1), PGM (P2), PPM (P3), PBMRAW (P4), PGMRAW (P5) and PPMRAW (P6).
-
-  Additional formats are available with the
-  <a href="imageio.html">Qt Image IO Extension</a> package.
+  (P1 or P4), PGM (P2 or P5), PPM (P3 or P6).
 
   You will normally not need to use this class, QPixmap::load(),
   QPixmap::save() and QImage contain most of the needed functionality.
@@ -2713,7 +2710,8 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   For image files which contain sequences of images, only the first is
   read.  See the QMovie for loading multiple images.
 
-  PBM, PGM, and PPM format output is only supported in PPMRAW format.
+  PBM, PGM, and PPM format \e output is always in the more condensed
+  raw format.
 
   \warning Unisys has changed its position regarding GIF.  If you are
   in a country where Unisys holds a patent on LZW compression and/or
@@ -2780,20 +2778,26 @@ QImageIO::~QImageIO()
 class QImageHandler
 {
 public:
-    QImageHandler( const char *f, const char *h, bool tm,
+    QImageHandler( const char *f, const char *h, const QCString& fl,
 		   image_io_handler r, image_io_handler w );
     QCString	      format;			// image format
     QRegExp	      header;			// image header pattern
-    bool	      text_mode;		// image I/O mode
+    enum TMode { Untranslated=0, TranslateIn, TranslateInOut } text_mode;
     image_io_handler  read_image;		// image read function
     image_io_handler  write_image;		// image write function
+    bool	      obsolete;			// support not "published"
 };
 
-QImageHandler::QImageHandler( const char *f, const char *h, bool t,
+QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
 			      image_io_handler r, image_io_handler w )
     : format(f), header(QString::fromLatin1(h))
 {
-    text_mode	= t;
+    text_mode = Untranslated;
+    if ( fl.contains('t') )
+	text_mode = TranslateIn;
+    else if ( fl.contains('T') )
+	text_mode = TranslateInOut;
+    obsolete = fl.contains('O');
     read_image	= r;
     write_image = w;
 }
@@ -2816,17 +2820,17 @@ static void init_image_handlers()		// initialize image handlers
 	qAddPostRoutine( cleanup_image_handlers );
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
-	QImageIO::defineIOHandler( "PBM", "^P1", "T",
+	QImageIO::defineIOHandler( "PBM", "^P1", "t",
 				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PBMRAW", "^P4", 0,
+	QImageIO::defineIOHandler( "PBMRAW", "^P4", "O",
 				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PGM", "^P2", "T",
+	QImageIO::defineIOHandler( "PGM", "^P2", "t",
 				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PGMRAW", "^P5", 0,
+	QImageIO::defineIOHandler( "PGMRAW", "^P5", "O",
 				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PPM", "^P3", "T",
+	QImageIO::defineIOHandler( "PPM", "^P3", "t",
 				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PPMRAW", "^P6", 0,
+	QImageIO::defineIOHandler( "PPMRAW", "^P6", "O",
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
@@ -2902,7 +2906,7 @@ void QImageIO::defineIOHandler( const char *format,
     if ( !imageHandlers )
 	init_image_handlers();
     QImageHandler *p;
-    p = new QImageHandler( format, header, flags && *flags == 'T',
+    p = new QImageHandler( format, header, flags,
 			   read_image, write_image );
     CHECK_PTR( p );
     imageHandlers->insert( 0, p );
@@ -3118,8 +3122,12 @@ QStrList QImageIO::inputFormats()
 
     QImageHandler *p = imageHandlers->first();
     while ( p ) {
-	if ( p->read_image && !result.contains(p->format) )
+	if ( p->read_image
+	    && !p->obsolete
+	    && !result.contains(p->format) )
+	{
 	    result.inSort(p->format);
+	}
 	p = imageHandlers->next();
     }
 
@@ -3141,8 +3149,12 @@ QStrList QImageIO::outputFormats()
 
     QImageHandler *p = imageHandlers->first();
     while ( p ) {
-	if ( p->write_image && !result.contains(p->format) )
+	if ( p->write_image
+	    && !p->obsolete
+	    && !result.contains(p->format) )
+	{
 	    result.inSort(p->format);
+	}
 	p = imageHandlers->next();
     }
 
@@ -3278,7 +3290,8 @@ bool QImageIO::write()
 	;
     else if ( !fname.isEmpty() ) {
 	file.setName( fname );
-	int fmode = h->text_mode ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+	bool translate = h->text_mode==QImageHandler::TranslateInOut;
+	int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
 	if ( !file.open(fmode) )		// couldn't create file
 	    return FALSE;
 	iodev = &file;
@@ -3954,7 +3967,7 @@ static void write_pbm_image( QImageIO *iio )
 	    break;
 
 	case 8: {
-	    str.insert(1, '6');
+	    str.insert(1, gray ? '5' : '6');
 	    str.append("255\n");
 	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
@@ -3962,6 +3975,7 @@ static void write_pbm_image( QImageIO *iio )
 	    }
 	    QRgb  *color = image.colorTable();
 	    uchar *buf   = new uchar[w*3];
+	    const int channels = gray ? 1 : 3;
 	    for (uint y=0; y<h; y++) {
 		uchar *b = image.scanLine(y);
 		uchar *p = buf;
@@ -3969,8 +3983,6 @@ static void write_pbm_image( QImageIO *iio )
 		if ( gray ) {
 		    while ( p < end ) {
 			uchar g = (uchar)qGray(color[*b++]);
-			*p++ = g;
-			*p++ = g;
 			*p++ = g;
 		    }
 		} else {
@@ -3981,7 +3993,7 @@ static void write_pbm_image( QImageIO *iio )
 			*p++ = qBlue(rgb);
 		    }
 		}
-		if ( w*3 != (uint)out->writeBlock((char*)buf, w*3) ) {
+		if ( w*channels != (uint)out->writeBlock((char*)buf, w*channels) ) {
 		    iio->setStatus(1);
 		    return;
 		}
