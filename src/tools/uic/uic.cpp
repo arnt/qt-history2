@@ -78,11 +78,10 @@ bool Uic::write(QIODevice *in)
         //qWarning("Converting file '%s'", opt.inputFile.latin1());
         QProcess uic3;
         uic3.start(option().uic3, QStringList() << QLatin1String("-convert") << opt.inputFile);
-        if (!uic3.waitForStarted()) {
+        if (!uic3.waitForFinished()) {
             fprintf(stderr, "Couldn't start uic3: %s\n", uic3.errorString().local8Bit());
             return false;
         }
-        uic3.waitForFinished();
         QString contents = uic3.readAll();
         if (!doc.setContent(contents))
             return false;
