@@ -99,7 +99,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
 
-    if ( sw < 0 ) {				// get the screen size
+    if ( sw < 0 ) {				// get the (primary) screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
 	sh = GetSystemMetrics( SM_CYSCREEN );
     }
@@ -118,8 +118,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	popup = FALSE;				// force this flags off
-	fpos = QPoint(0, 0);
-	crect = QRect( fpos, QSize(sw, sh) );
+	QSize size;
+	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
+	    fpos = QPoint( GetSystemMetrics( 76 ), GetSystemMetrics( 77 ) ); // SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN
+	    size = QSize( GetSystemMetrics( 78 ), GetSystemMetrics( 79 ) );  // SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN
+	} else {
+	    fpos = QPoint( 0, 0);
+	    size = QSize( GetSystemMetrics( SM_CXSCREEN ), GetSystemMetrics( SM_CYSCREEN ) );
+	}
+	crect = QRect( fpos, size );
     }
 
     parentw = parentWidget() ? parentWidget()->winId() : 0;

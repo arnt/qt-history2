@@ -513,8 +513,10 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 			 ) : QApplication::desktop()->width() )
 		- w;
 
-	if ( x < 0 )
-	    x = 0;
+	int sx = QApplication::desktop()->x();
+	int sy = QApplication::desktop()->y();
+	if ( x < sx )
+	    x = sx;
 
 	int y;
 	if ( widget && h > widget->height() + 16 ) {
@@ -532,8 +534,8 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 				 pos.y() + widget->height())
 			    ) : QApplication:: desktop()->height() )
 		- h;
-	if ( y < 0 )
-	    y = 0;
+	if ( y < sy )
+	    y = sy;
 	
 	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
 	whatsThat->show();
