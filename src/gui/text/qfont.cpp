@@ -2383,7 +2383,7 @@ void QFontCache::timerEvent(QTimerEvent *)
                                       end = engineDataCache.end();
         for (; it != end; ++it) {
 #ifdef QFONTCACHE_DEBUG
-            FC_DEBUG("    %p: ref %2d", it.value(), it.value()->count);
+            FC_DEBUG("    %p: ref %2d", it.value(), int(it.value()->ref));
 
 #  if defined(Q_WS_X11) || defined(Q_WS_WIN)
             // print out all engines
