@@ -113,6 +113,15 @@
     The accelerator will be deleted when \e parent is deleted,
     and will consume relevant key events until then.
 
+    Please note that the accelerator
+    \code
+	accelerator->insertItem( QKeySequence("M") );
+    \endcode
+    can be triggered with both the key 'M', and with 'Shift + M',
+    unless a second accelerator is defined for the 'Shift + M'
+    combination. 
+
+
     Example:
     \code
 	QAccel *a = new QAccel( myWindow );	   // create accels for myWindow
@@ -325,39 +334,52 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	 e->key() <= Key_Alt )
 	 return FALSE;
 
-    int n = -1;
-    QAccelPrivate* accel = accels.first();
+    SequenceMatch result = Qt::NoMatch;
+    QKeySequence tocheck, partial;
+    QAccelPrivate* accel = 0;
     QAccelItem* item = 0;
     QAccelPrivate* firstaccel = 0;
     QAccelItem* firstitem = 0;
     QAccelPrivate* lastaccel = 0;
     QAccelItem* lastitem = 0;
-    SequenceMatch result = Qt::NoMatch;
-    QKeySequence tocheck, partial;
-    while ( accel ) {
-	if ( accel->enabled && correctSubWindow( w, accel ) ) {
-	    item = accel->aitems.last();
-	    while( item ) {
-		if ( item->enabled ) {
-		    if ( Qt::Identical == (result = match( e, item, tocheck )) ) {
-			if ( !firstaccel ) {
-			    firstaccel = accel;
-			    firstitem = item;
+    
+    QKeyEvent pe = *e;
+    int n = -1;
+    int hasShift = (e->state()&Qt::ShiftButton)?1:0;
+    bool matchFound = FALSE;
+    do {
+	accel = accels.first();
+	matchFound = FALSE;
+	while ( accel ) {
+	    if ( accel->enabled && correctSubWindow( w, accel ) ) {
+		item = accel->aitems.last();
+		while( item ) {
+		    if ( item->enabled ) {
+			if ( Qt::Identical == (result = match( &pe, item, tocheck )) ) {
+			    if ( !firstaccel ) {
+				firstaccel = accel;
+				firstitem = item;
+			    }
+			    lastaccel = accel;
+			    lastitem = item;
+			    n++;
+			    matchFound = TRUE;
+			    if ( n > QMAX(clash,0) )
+				goto doclash;
 			}
-			lastaccel = accel;
-			lastitem = item;
-			n++;
-			if ( n > QMAX(clash,0) )
-			    goto doclash;
+			if ( Qt::PartialMatch == result ) {
+			    partial = tocheck;
+			    matchFound = TRUE;
+			}
 		    }
-		    if ( Qt::PartialMatch == result )
-			partial = tocheck;
+		    item = accel->aitems.prev();
 		}
-		item = accel->aitems.prev();
 	    }
+	    accel = accels.next();
 	}
-	accel = accels.next();
-    }
+	pe = QKeyEvent( QEvent::Accel, pe.key(), pe.ascii(), pe.state()&~Qt::ShiftButton, pe.text() );
+    } while ( hasShift-- && !matchFound );
+
     mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
     if ( n < 0 ) { // no match found
 	currentState = partial.count() ? PartialMatch : NoMatch;
@@ -669,6 +691,9 @@ void QAccel::setItemEnabled( int id, bool enable )
     \endcode
 
     Of course, you can also send a signal as \a member.
+    When a slot is connected to a specific accelerator item, the
+    signal is only sent to this item and not to the accelerator
+    group. Thus, the signal \c activated(int id) is not emitted.
 
     \sa disconnectItem()
 */
