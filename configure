@@ -2626,13 +2626,12 @@ else
     done
 fi
 
-# work around for broken system header files in IRIX 6.5.18 - 6.5.22
+# work around for broken system header files in IRIX > 6.5.18
 case "$PLATFORM" in
 irix-cc*)
     IRIX_VERSION=`uname -R | awk '{FS=".";print $4}' | sed s/\[m\|f\]//g`
     MIPSPRO_MINOR_VERSION=`CC -version 2>&1 | awk '{FS=".";print $2}'`
-    if [ "$MIPSPRO_MINOR_VERSION" -gt "3" -a "$IRIX_VERSION" -ge "18" \
-	 -a "$IRIX_VERSION" -le "22" ]; then
+    if [ "$MIPSPRO_MINOR_VERSION" -gt "3" -a "$IRIX_VERSION" -ge "18" ]; then
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-LANG:libc_in_namespace_std=off\""
     fi
     ;;
@@ -2738,9 +2737,8 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 		EXTRA_CFLAGS="$EXTRA_CFLAGS -D${DEF}"
 	    done
         fi
-	if [ "$MIPSPRO_MINOR_VERSION" -gt "3" \
-	      -a "$IRIX_VERSION" -ge "18" -a "$IRIX_VERSION" -le "22" ]; then
-	    EXTRA_CFLAGS="$EXTRA_CFLAGS -LANG:libc_in_namespace_std=off"
+	if [ "$MIPSPRO_MINOR_VERSION" -gt "3" -a "$IRIX_VERSION" -ge "18" ]; then
+	    EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -LANG:libc_in_namespace_std=off"
 	fi
 	QMAKE_BIN_DIR="$QT_INSTALL_BINS"
 	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
