@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#14 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#15 $
 **
 ** Definition of QWhatsThis class
 **
@@ -43,8 +43,7 @@ public:
 
     // the common static functions
     static void add( QWidget *, const QString &);
-    static void add( QWidget *, const QPixmap &,
-		     const QString&, const QString &);
+    static void addQML( QWidget *, const QString &);
     static void remove( QWidget * );
     static QString textFor( QWidget * );
 
@@ -52,10 +51,10 @@ public:
 
     static void enterWhatsThisMode();
     //static int addMenuEntry( QPopupMenu *, QWidget *, const QString &= 0 );
-    
+
  public slots:
     void whatsThis();
-    
+
 };
 
 #endif

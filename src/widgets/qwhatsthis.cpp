@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#38 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -34,7 +34,7 @@
 #include "qkeycode.h"
 #include "qcursor.h"
 #include "qbitmap.h"
-
+#include "qml.h"
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -95,13 +95,12 @@ public:
     {
 	WhatsThisItem(): QShared() {}
 	~WhatsThisItem();
+	bool qml;
 	QString s;
-	QString t;
-	QPixmap pm;
     };
 
-    // the state machine
-    enum State { Inactive, Waiting, Displaying, FinalPress };
+    // the (these days pretty small) state machine
+    enum State { Inactive, Waiting };
 
     QWhatsThisPrivate();
     ~QWhatsThisPrivate();
@@ -109,7 +108,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     // say it.
-    void say( QWidget *, const QString& );
+    void say( QWidget *, const QString&, bool isQml );
 
     // setup and teardown
     static void tearDownWhatsThis();
@@ -278,46 +277,15 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     if ( !o || !e )
 	return FALSE;
 
+    if ( o == whatsThat ) {
+	if (e->type() == QEvent::MouseButtonPress ) {
+	    whatsThat->hide();
+	    return TRUE;
+	}
+	return FALSE;
+    }
+    
     switch( state ) {
-    case FinalPress:
-	if( e->type() == QEvent::MouseButtonRelease ) {
-	    if ( whatsThat )
-		whatsThat->hide();
-	    state = Inactive;
-	    qApp->removeEventFilter( this );
-	    if ( whatsThat )
-		whatsThat->hide();
-	    return TRUE;
-	} else if ( e->type() == QEvent::MouseMove ) {
-	    return TRUE;
-	}
-	break;
-    case Displaying:
-	if ( e->type() == QEvent::MouseButtonPress ) {
-	    if ( !qstrcmp( "QWhatsThisPrivate::Button", o->className() ) ) {
-		state = Inactive;
-		qApp->removeEventFilter( this );
-	    } else {
-		state = FinalPress;
-	    }
-	    return TRUE;
-	} else if ( e->type() == QEvent::MouseButtonRelease ||
-		    e->type() == QEvent::MouseMove ) {
-	    return TRUE;
-	} else if ( e->type() == QEvent::Accel ) {
-	    if ( whatsThat )
-		whatsThat->hide();
-	    ((QKeyEvent *)e)->accept();
-	    state = Inactive;
-	    qApp->removeEventFilter( this );
-	} else if ( e->type() == QEvent::FocusOut ||
-		    e->type() == QEvent::FocusIn ) {
-	    if ( whatsThat )
-		whatsThat->hide();
-	    state = Inactive;
-	    qApp->removeEventFilter( this );
-	}
-	break;
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
@@ -333,12 +301,10 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		++it;
 		b->setOn( FALSE );
 	    }
-	    if ( i ) {
-		state = Displaying;
-		say( w, i->s );
-	    } else {
-		state = FinalPress;
-	    }
+	    state = Inactive;
+	    qApp->removeEventFilter( this );
+	    if ( i )
+		say( w, i->s, i->qml );
 	    QApplication::restoreOverrideCursor();
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonPress ||
@@ -367,9 +333,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	    QWidget * w = ((QWidget *)o)->focusWidget();
  	    QWhatsThisPrivate::WhatsThisItem * i = 0;
  	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
- 		say( w, i->s );
- 		state = Displaying;
- 		qApp->installEventFilter( this );
+ 		say( w, i->s, i->qml );
 		((QKeyEvent *)e)->accept();
 		return TRUE;
  	    }
@@ -395,11 +359,19 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 }
 
 
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
     const int leftMargin = 18;   // *3
+
+    // make the widget, and set it up
+    if ( !whatsThat ) {
+	whatsThat = new QWidget( 0, "automatic what's this? widget",
+				 WType_Popup );
+	whatsThat->setBackgroundMode( QWidget::NoBackground );
+	whatsThat->installEventFilter( this );
+    }
 
     QWidget * desktop = QApplication::desktop();
 
@@ -409,12 +381,23 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     else if ( w > 300 )
 	w = 300;
 
-    QPixmap pm( 1,1 );
-    QPainter p( &pm );
-    QRect r = p.boundingRect( 0, 0, w, 1000,
-			      AlignLeft + AlignTop + WordBreak + ExpandTabs,
-			      text );
-    p.end();
+
+    QPainter p( whatsThat );
+    
+    QRect r;
+    QMLSimpleDocument* qmlDoc = 0;
+    
+    if ( isQml ) {
+	qmlDoc = new QMLSimpleDocument( text, whatsThat );
+	qmlDoc->setWidth( &p, w );
+	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
+    }
+    else {
+	r = p.boundingRect( 0, 0, w, 1000,
+			    AlignLeft + AlignTop + WordBreak + ExpandTabs,
+			    text );
+    }
+
     int h = r.height() + normalMargin + normalMargin;
     w = w + leftMargin + normalMargin;
 
@@ -469,19 +452,11 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     }
 #endif
 
-    // make the widget, and set it up
-    if ( !whatsThat ) {
-	whatsThat = new QWidget( 0, "automatic what's this? widget",
-				 WStyle_Customize +
-				 WStyle_NoBorder + WStyle_Tool );
-	whatsThat->setBackgroundMode( QWidget::NoBackground );
-    }
     whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
     whatsThat->show();
-
+    
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
-    p.begin( whatsThat );
 
     p.setPen( QApplication::palette()->normal().foreground() );
     p.drawRect( 0, 0, w, h );
@@ -489,9 +464,16 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
-    p.drawText( leftMargin, normalMargin, r.width(), r.height(),
-		AlignLeft + AlignTop + WordBreak + ExpandTabs,
-		text );
+    
+    if ( qmlDoc ) {
+	qmlDoc->draw( &p, leftMargin, normalMargin, r, whatsThat->colorGroup(), 0 );
+	delete qmlDoc;
+    }
+    else {
+	p.drawText( leftMargin, normalMargin, r.width(), r.height(),
+		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
+		    text );
+    }
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );
@@ -519,19 +501,6 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
 
 void QWhatsThis::add( QWidget * widget, const QString &text )
 {
-    QPixmap tmp;
-    add( widget, tmp, QString::null, text );
-}
-
-
-
-/*!  Adds \a text as What's This help for \a widget, with title line
-  \a title and icon \a icon.
-*/
-
-void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
-		      const QString& title, const QString& text )
-{
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
     if ( i )
@@ -539,8 +508,7 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 
     i = new QWhatsThisPrivate::WhatsThisItem;
     i->s = text;
-    i->t = title;
-    i->pm = icon;
+    i->qml = FALSE;
     wt->dict->insert( (void *)widget, i );
     QWidget * tlw = widget->topLevelWidget();
     if ( !wt->tlw->find( (void *)tlw ) ) {
@@ -548,6 +516,28 @@ void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
 	tlw->installEventFilter( wt );
     }
 }
+
+/*!  Adds \a qml text as What's This help for \a widget.
+*/
+
+void QWhatsThis::addQML( QWidget * widget, const QString &qml )
+{
+    QWhatsThisPrivate::setUpWhatsThis();
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
+    if ( i )
+	remove( widget );
+
+    i = new QWhatsThisPrivate::WhatsThisItem;
+    i->s = qml;
+    i->qml = TRUE;
+    wt->dict->insert( (void *)widget, i );
+    QWidget * tlw = widget->topLevelWidget();
+    if ( !wt->tlw->find( (void *)tlw ) ) {
+	wt->tlw->insert( (void *)tlw, tlw );
+	tlw->installEventFilter( wt );
+    }
+}
+
 
 
 /*!  Removes the What's This help for \a widget.  \sa add() */
