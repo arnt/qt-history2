@@ -173,6 +173,7 @@ public:
 
     QVariant property( const QCString& );
     bool setProperty( const QCString&, const QVariant& );
+    void addWidget( QWidget *w );
 
     void save() const;
     void close() const;

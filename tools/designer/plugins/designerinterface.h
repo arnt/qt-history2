@@ -133,6 +133,7 @@ interface DesignerFormInterface : public QUnknownInterface
 {
     virtual QVariant property( const QCString& ) = 0;
     virtual bool setProperty( const QCString&, const QVariant& ) = 0;
+    virtual void addWidget( QWidget *w ) = 0;
 
     virtual void save() const = 0;
     virtual void close() const = 0;

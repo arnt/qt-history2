@@ -734,6 +734,13 @@ bool DesignerFormInterfaceImpl::setProperty( const QCString& p, const QVariant& 
     return ( item && item->formWindow() ) ? item->formWindow()->setProperty( p, v ) : FALSE;
 }
 
+void DesignerFormInterfaceImpl::addWidget( QWidget *w )
+{
+    if ( !item || !item->formWindow() )
+	return;
+    item->formWindow()->insertWidget( w, TRUE );
+}
+
 void DesignerFormInterfaceImpl::save() const
 {
     FormWindow *fw = item->formWindow();
