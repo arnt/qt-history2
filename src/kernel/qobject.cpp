@@ -1850,9 +1850,9 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	return FALSE;
     QCString signal_name;
     QCString member_name;
-    const QMetaData *rm = 0;
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
+    int member_index = -1;
     if ( member ) {
 	member_name = qt_rmWS( member );
 	member = member_name.data();
@@ -1865,14 +1865,14 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	QMetaObject *rmeta = r->metaObject();
 
 	switch ( membcode ) {			// get receiver member
-	    case QSLOT_CODE:
-		rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
-		break;
-	    case QSIGNAL_CODE:
-		rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
-		break;
+	case QSLOT_CODE:
+	    member_index = rmeta->findSlot( member, TRUE );
+	    break;
+	case QSIGNAL_CODE:
+	    member_index = rmeta->findSignal( member, TRUE );
+	    break;
 	}
-	if ( !rm ) {				// no such member
+	if ( member_index < 0 ) {				// no such member
 #if defined(QT_CHECK_RANGE)
 	    err_member_notfound( membcode, r, member, "disconnect" );
 	    err_info_about_candidates( membcode, rmeta, member, "connect" );
@@ -1882,32 +1882,11 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	}
     }
 
-    QConnectionList *clist;
-    register QConnection *c;
     if ( signal == 0 ) {			// any/all signals
-	for ( int i = 0; i < (int) s->connections->size(); i++ ) {
-	    clist = (*s->connections)[i]; // for all signals...
-	    if ( !clist )
-		continue;
-	    c = clist->first();
-	    while ( c ) {			// for all receivers...
-		if ( r == 0 ) {			// remove all receivers
-		    removeObjFromList( c->object()->senderObjects, s );
-		    c = clist->next();
-		} else if ( r == c->object() &&
-			    (member == 0 ||
-			     qstrcmp(member,c->memberName()) == 0) ) {
-		    removeObjFromList( c->object()->senderObjects, s );
-		    clist->remove();
-		    c = clist->current();
-		} else {
-		    c = clist->next();
-		}
-	    }
-	    if ( r == 0 )			// disconnect all receivers
-		s->connections->insert( i, 0 );
-	}
-	s->disconnectNotify( 0 );
+	if ( disconnectInternal( s, -1, r, member_index ) )
+	    s->disconnectNotify( 0 );
+	else
+	    return FALSE;
     } else {					// specific signal
 	signal_name = qt_rmWS( signal );
 	signal = signal_name.data();
@@ -1928,6 +1907,50 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
 		return FALSE;
 	}
+
+	if ( disconnectInternal( s, signal_index, r, member_index ) )
+	    s->disconnectNotify( signal_name );
+	else
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+/*! \internal */
+
+bool QObject::disconnectInternal( const QObject *sender, int signal_index,
+				  const QObject *receiver, int member_index )
+{
+    QObject *s = (QObject*)sender;
+    QObject *r = (QObject*)receiver;
+
+    if ( !s->connections )
+	return FALSE;
+
+    QConnectionList *clist;
+    register QConnection *c;
+    if ( signal_index == -1 ) {
+	for ( int i = 0; i < (int) s->connections->size(); i++ ) {
+	    clist = (*s->connections)[i]; // for all signals...
+	    if ( !clist )
+		continue;
+	    c = clist->first();
+	    while ( c ) {			// for all receivers...
+		if ( r == 0 ) {			// remove all receivers
+		    removeObjFromList( c->object()->senderObjects, s );
+		    c = clist->next();
+		} else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
+		    removeObjFromList( c->object()->senderObjects, s );
+		    clist->remove();
+		    c = clist->current();
+		} else {
+		    c = clist->next();
+		}
+	    }
+	    if ( r == 0 )			// disconnect all receivers
+		s->connections->insert( i, 0 );
+	}
+    } else {
 	clist = s->connections->at( signal_index );
 	if ( !clist )
 	    return FALSE;
@@ -1937,8 +1960,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    if ( r == 0 ) {			// remove all receivers
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		c = clist->next();
-	    } else if ( r == c->object() && (member == 0 ||
-				      qstrcmp(member,c->memberName()) == 0) ) {
+	    } else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		clist->remove();
 		c = clist->current();
@@ -1948,11 +1970,9 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	}
 	if ( r == 0 )				// disconnect all receivers
 	    s->connections->insert( signal_index, 0 );
-	s->disconnectNotify( signal_name );
     }
     return TRUE;
 }
-
 
 /*!
     \fn QObject::destroyed()

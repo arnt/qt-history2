@@ -123,6 +123,8 @@ public:
     bool	 disconnect( const QObject *receiver, const char *member=0 );
     static void 	 connectInternal( const QObject *sender, int signal_index, const QObject *receiver,
 				  int membcode, int member_index );
+    static bool 	 disconnectInternal( const QObject *sender, int signal_index,
+					     const QObject *receiver, int member_index );
 
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
