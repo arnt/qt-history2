@@ -454,7 +454,9 @@ void qt_erase_background(QPaintDevice *pd, int screen,
         XSetForeground(dpy, gc, pixel);
     }
 
-    if (!brush.texture().isNull()) {
+    if (brush.texture().isNull()) {
+        XFillRectangle(dpy, hd, gc, x, y, w, h);
+    } else {
         XSetTile(dpy, gc, brush.texture().handle());
         XSetFillStyle(dpy, gc, FillTiled);
         XSetTSOrigin(dpy, gc, x-xoff, y-yoff);
