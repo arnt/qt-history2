@@ -79,7 +79,7 @@ bool QDir::isReadable() const
     char bigbuf[257];
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dPath,
-						    acceptAbsPath));
+						    true));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
     OSErr ret;
@@ -124,7 +124,7 @@ bool QDir::setCurrent(const QString& path)
     char bigbuf[257];
     const char * wingle=
            (const char *)QFile::encodeName(filePath(path,
-						    acceptAbsPath));
+						    true));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
     OSErr ret;
@@ -200,7 +200,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     char bigbuf[257];
     const char * wingle=
            (const char *)QFile::encodeName(filePath(dPath,
-						    acceptAbsPath));
+						    true));
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
     ret=FSMakeFSSpec((short)0,(long)0,(const unsigned char *)bigbuf,&myspec);
@@ -209,7 +209,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 	return false;
     }
     myvrefnum=myspec.vRefNum;
-    mydirid=myspec.parId;
+    mydirid=myspec.parID;
     char mybuffer[4000];
     
     HParamBlockRec params;
