@@ -48,6 +48,7 @@ public:
     bool contains(const QRect &r) const;
 
     void translate(int dx, int dy);
+    inline void translate(const QPoint &p) { translate(p.x(), p.y()); }
 
     QRegion unite(const QRegion &r) const;
     QRegion intersect(const QRegion &r) const;

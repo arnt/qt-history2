@@ -387,7 +387,12 @@ void QMacStyle::polish(QWidget* w)
 	pal.setBrush(QPalette::Background, background);
 	pal.setBrush(QPalette::Button, background);
 	w->setPalette(pal);
-    }
+    } 
+#endif
+
+#if QT_MACOSX_VERSION >= 0x1020
+    if(w->inherits("QGroupBox")) 
+	w->setAttribute(QWidget::WA_ContentsInherited, true);
 #endif
 
     if(w->inherits("QLineEdit")) {
@@ -580,6 +585,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	else
 #endif
 	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
+	p->fillRect(r, green);
 	break; }
     case PE_ArrowUp:
     case PE_ArrowDown:

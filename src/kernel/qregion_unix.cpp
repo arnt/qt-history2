@@ -2396,6 +2396,15 @@ bool QRegion::contains(const QRect &r) const
 
 
 /*!
+    \fn void QRegion::translate( const QPoint &p ) 
+    \overload
+
+    Translates (moves) the region by \a p.
+
+*/
+
+
+/*!
     Translates (moves) the region \a dx along the X axis and \a dy
     along the Y axis.
 */

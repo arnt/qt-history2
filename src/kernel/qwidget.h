@@ -469,7 +469,7 @@ public:
 	WA_OwnPalettePolicy,
 	WA_OwnFont
     };
-    void setAttribute(WidgetAttribute, bool);
+    void setAttribute(WidgetAttribute, bool = true);
     bool testAttribute(WidgetAttribute) const;
 
 protected:
@@ -614,6 +614,7 @@ private:
     friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
     friend void qt_event_request_updates(QWidget *, const QRegion &, bool subtract=FALSE);
     friend bool qt_window_rgn(WId, short, RgnHandle, bool);
+    friend void qt_erase_region( QWidget*, const QRegion&);
     friend class QDragManager;
 #endif
 

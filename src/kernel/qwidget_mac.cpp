@@ -29,6 +29,7 @@
 #include "qstyle.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
+#include "qstack.h"
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -181,7 +182,7 @@ inline bool qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r, bool 
 }
 
 // Paint event clipping magic
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
+extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidget *clipTo);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 
 enum paint_children_ops {
@@ -1356,10 +1357,9 @@ void QWidget::repaint(const QRegion &reg , bool erase)
 {
     if(!testWState(WState_BlockUpdates) && isVisible()) {
 	setWState(WState_InPaintEvent);
-	qt_set_paintevent_clipping(this, reg);
+	qt_set_paintevent_clipping(this, reg, NULL);
 	if(erase)
 	    this->erase(reg);
-
 	QPaintEvent e(reg);
 	QApplication::sendEvent(this, &e);
 	qt_clear_paintevent_clipping(this);
@@ -1826,21 +1826,19 @@ void QWidget::erase(int x, int y, int w, int h)
     erase(QRegion(x, y, w, h));
 }
 
-void QWidget::erase(const QRegion& reg)
+void qt_erase_region( QWidget* w, const QRegion& reg)
 {
-    if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
-	return;
     QRect rr(reg.boundingRect());
-    bool unclipped = testWFlags(WPaintUnclipped);
-    clearWFlags(WPaintUnclipped);
-    QPainter p(this);
-    if(unclipped)
-	setWFlags(WPaintUnclipped);
+    bool was_unclipped = w->testWFlags(Qt::WPaintUnclipped);
+    w->clearWFlags(Qt::WPaintUnclipped);
+    QPainter p(w);
+    if(was_unclipped)
+	w->setWFlags(Qt::WPaintUnclipped);
     p.setClipRegion(reg);
-    QBrush bg = background();
+    QBrush bg = w->background();
     if(bg.pixmap()) {
 	if(!bg.pixmap()->isNull()) {
-	    QPoint offset = backgroundOffset();
+	    QPoint offset = w->backgroundOffset();
 	    p.drawTiledPixmap(rr,*bg.pixmap(),
 			      QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
 				     rr.y()+(offset.y()%bg.pixmap()->height())));
@@ -1848,7 +1846,48 @@ void QWidget::erase(const QRegion& reg)
     } else {
 	p.fillRect(rr, bg.color());
     }
-    p.end();
+}
+
+void QWidget::erase(const QRegion& reg)
+{
+    if(testAttribute(WA_NoErase) || isDesktop() || !isVisible())
+	return;
+    if(!testWFlags(WType_TopLevel|WSubWindow) && 
+       palettePolicy().background() == QPalette::Inherited) {
+	QPoint offset(pos());
+	QStack<QWidget*> parents;
+	for(QWidget *p = parentWidget(); p; p = p->parentWidget()) { 
+	    parents.push(p);
+	    if(p->testWFlags(WType_TopLevel|WSubWindow) ||
+	       p->palettePolicy().background() != QPalette::Inherited)
+		break;
+	    offset += p->pos();
+	}
+	if(!parents.isEmpty()) {
+	    QWidget *p = parents.pop();
+	    QRegion preg = reg;
+	    preg.translate(offset);
+	    qt_set_paintevent_clipping(p, preg, this);
+	    qt_erase_region(p, preg);
+	    qt_clear_paintevent_clipping(p);
+	    for(;;) {
+		if(p->testAttribute(WA_ContentsInherited)) {
+		    p->setWState(WState_InPaintEvent);
+		    qt_set_paintevent_clipping(p, preg, this);
+		    QPaintEvent e(preg);
+		    QApplication::sendEvent(p, &e);
+		    qt_clear_paintevent_clipping(p);
+		    p->clearWState(WState_InPaintEvent);
+		}
+		if(parents.isEmpty())
+		    break;
+		p = parents.pop();
+		preg.translate(-p->pos());
+	    }
+	}
+	return;
+    }
+    qt_erase_region(this, reg);
 }
 
 

@@ -79,17 +79,19 @@ void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 /* paintevent magic to provide Windows semantics on Qt/Mac */
 class paintevent_item
 {
+    QWidget *clippedTo;
     QPaintDevice* dev;
     QRegion clipRegion;
 public:
-    paintevent_item(QPaintDevice *d, QRegion r) : dev(d), clipRegion(r) { }
+    paintevent_item(QPaintDevice *d, QRegion r, QWidget *c) : clippedTo(c), dev(d), clipRegion(r) { }
     inline bool operator==(QPaintDevice *rhs) const { return rhs == dev; }
+    inline QWidget *clip() const { return clippedTo; }
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
 };
 QPtrStack<paintevent_item> paintevents;
 
-void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
+void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidget *clip)
 {
     QRegion r = region;
     if(dev && dev->devType() == QInternal::Widget) {
@@ -97,7 +99,7 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 	QPoint mp(posInWindow(w));
 	r.translate(mp.x(), mp.y());
     }
-    paintevents.push(new paintevent_item(dev, r));
+    paintevents.push(new paintevent_item(dev, r, clip));
 }
 
 void qt_clear_paintevent_clipping(QPaintDevice *dev)
@@ -424,6 +426,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 	wh = vh = w->height();
 	if(!d->unclipped)
 	    d->unclipped = (bool)w->testWFlags(WPaintUnclipped);
+
 	if(!d->locked) {
 	    LockPortBits(GetWindowPort((WindowPtr)w->handle()));
 	    d->locked = TRUE;
@@ -1756,17 +1759,19 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 					  pdev->metric(QPaintDeviceMetrics::PdmHeight));
 	}
     } else if(pdev->devType() == QInternal::Widget) {                    // device is a widget
-	QWidget *w = (QWidget*)pdev;
 	paintevent_item *pevent = paintevents.current();
 	if(pevent && !((*pevent) == pdev))
 	    pevent = 0;
+	QWidget *w = (QWidget*)pdev, *clip = w;
+	if(pevent && pevent->clip()) 
+	    clip = pevent->clip();
 	if(!(remade_clip = force)) {
 	    if(pevent != d->cache.paintevent)
 		remade_clip = TRUE;
 	    else if(!w->isVisible())
 		remade_clip = d->cache.clip_serial;
 	    else
-		remade_clip = (d->cache.clip_serial != w->clippedSerial(!d->unclipped));
+		remade_clip = (d->cache.clip_serial != clip->clippedSerial(!d->unclipped));
 	}
 	if(remade_clip) {
 	    //offset painting in widget relative the tld
@@ -1780,11 +1785,11 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn) {
 #endif
 
 	    if(!w->isVisible()) {
-		d->cache.clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
+		d->cache.clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if not visible!!!
 		d->cache.clip_serial = 0;
 	    } else {
-		d->cache.clippedreg = w->clippedRegion(!d->unclipped);
-		d->cache.clip_serial = w->clippedSerial(!d->unclipped);
+		d->cache.clippedreg = clip->clippedRegion(!d->unclipped);
+		d->cache.clip_serial = clip->clippedSerial(!d->unclipped);
 	    }
 	    if(pevent)
 		d->cache.clippedreg &= pevent->region();
