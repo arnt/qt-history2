@@ -1,319 +1,144 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
 
 #include "paletteeditor.h"
 
-PaletteEditor::PaletteEditor(QWidget *parent, Qt::WFlags f, QMap<int, QString> *smap)
-    : QDialog(parent, f), snrMap(smap)
+#include <QtCore/qdebug.h>
+#include <QtGui/QMessageBox>
+
+PaletteEditor::PaletteEditor(QWidget *parent)
+    : QDialog(parent)
 {
-    setupUi(this);
-
-    editPalette = QApplication::palette();
-    setPreviewPalette(editPalette);
-
-    buttonCheckBox->setChecked(true);
-    inactiveCheckBox->setChecked(true);
-    disabledCheckBox->setChecked(true);
-    advPixmapButton->setButtonType(StyleButton::PixmapButton);
-
-    //connections
-    connect(paletteCombo, SIGNAL(activated(int)), this, SLOT(paletteSelected(int)));
-    connect(rolesCombo, SIGNAL(activated(int)), this, SLOT(roleSelected(int)));
-
-    connect(backgroundButton, SIGNAL(changed()), this, SLOT(onChooseBasicColor()));
-    connect(effectButton, SIGNAL(changed()), this, SLOT(onChooseBasicColor()));
-    connect(advColorButton, SIGNAL(changed()), this, SLOT(onChooseAdvancedColor()));
-
-    connect(advPixmapButton, SIGNAL(changed()), this, SLOT(onChoosePixmap()));
-
-    connect(buttonCheckBox, SIGNAL(toggled(bool)), this, SLOT(updatePaletteEditor()));
-    connect(disabledCheckBox, SIGNAL(toggled(bool)), this, SLOT(updatePaletteEditor()));
-    connect(inactiveCheckBox, SIGNAL(toggled(bool)), this, SLOT(updatePaletteEditor()));
-
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
-
-    //update the editor state
-    updatePaletteEditor();
+    ui.setupUi(this);
 }
 
 PaletteEditor::~PaletteEditor()
 {
 }
 
-void PaletteEditor::cleanUpsnrMap()
+void PaletteEditor::on_btnAdvanced_clicked()
 {
-    //checking the palette if there are unused keys in snrMap
-    QPalette::ColorGroup cg;
-    QPixmap p;
-    QList<int> tmpList;
+    QMessageBox::information(this, tr("Palette Editor..."), tr("Feature not yet implemented!"));
 
-    for (int i=0; i<3; ++i) {
-        cg = groupFromItem(i);
-        for (int j=0; j<16; ++j) {
-            p = editPalette.brush(cg, roleFromItem(j)).texture();
-            if (!p.isNull())
-                tmpList.append(p.serialNumber());
-        }
-    }
+#if 0 // ###
+    bool ok;
+    QPalette pal = PaletteEditorAdvanced::getPalette(&ok, m_editPalette, backgroundMode, this, "tune_palette", formWindow);
+    if (!ok) return;
+    m_editPalette = pal;
+#endif
 
-    //TODO: check if works...
-    QMap<int, QString>::iterator it = snrMap->begin();
-    while (it != snrMap->end()) {
-        if(!tmpList.contains(it.key()))
-            snrMap->remove(it.key());
-        ++it;
-    }
+    updatePreviewPalette();
 }
 
-void PaletteEditor::onChoosePixmap()
+void PaletteEditor::on_buttonMainColor_clicked()
 {
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
-    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentIndex());
-    const QBrush oldBrush = editPalette.brush(cg, cr);
-
-    QPixmap p(advPixmapButton->pixmapFileName());
-
-    if (!p.isNull())
-    {
-        QBrush b(editPalette.brush(cg, cr));
-        b.setTexture(p);
-        editPalette.setBrush(cg, cr, b);
-
-        //add the snr and filename to the map...
-        snrMap->insertMulti(p.serialNumber(), advPixmapButton->pixmapFileName());
-
-        if (inactiveCheckBox->isChecked())
-            buildInactive();
-
-        if (disabledCheckBox->isChecked())
-            buildDisabled();
-
-        //remove unused keys from snrMap
-        cleanUpsnrMap();
-
-        setPreviewPalette(editPalette);
-        updatePaletteEditor();
-    }
+    buildPalette();
 }
 
-void PaletteEditor::onChooseAdvancedColor()
+void PaletteEditor::on_buttonMainColor2_clicked()
 {
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
-    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentIndex());
-
-    QBrush b(editPalette.brush(cg, cr));
-    b.setColor(advColorButton->brush().color());
-    editPalette.setBrush(cg, cr, b);
-
-    if (buttonCheckBox->isChecked())
-        buildEffect(cg);
-
-    if (inactiveCheckBox->isChecked())
-        buildInactive();
-
-    if (disabledCheckBox->isChecked())
-        buildDisabled();
-
-    setPreviewPalette(editPalette);
-    updatePaletteEditor();
+    buildPalette();
 }
 
-void PaletteEditor::onChooseBasicColor()
+void PaletteEditor::on_paletteCombo_activated(int)
 {
-    editPalette = QPalette(effectButton->brush().color(),
-        backgroundButton->brush().color());
-
-    setPreviewPalette(editPalette);
-    updatePaletteEditor();
+    updatePreviewPalette();
 }
 
-void PaletteEditor::roleSelected(int item)
+void PaletteEditor::buildPalette()
 {
-    updatePaletteEditor();
-    Q_UNUSED(item);
+    QColor btn = ui.buttonMainColor->brush().color();
+    QColor back = ui.buttonMainColor2->brush().color();
+
+    setEditPalette(QPalette(btn, back));
 }
 
-void PaletteEditor::paletteSelected(int item)
+void PaletteEditor::buildActiveEffect()
 {
-    setPreviewPalette(editPalette);
-    updatePaletteEditor();
-    Q_UNUSED(item);
+    QColor btn = m_editPalette.color(QPalette::Button);
+
+    QPalette temp(btn, btn);
+    temp.setCurrentColorGroup(QPalette::Active);
+
+    m_editPalette.setCurrentColorGroup(QPalette::Active);
+
+    m_editPalette.setBrush(QPalette::Light, temp.light());
+    m_editPalette.setBrush(QPalette::Midlight, temp.midlight());
+    m_editPalette.setBrush(QPalette::Mid, temp.mid());
+    m_editPalette.setBrush(QPalette::Dark, temp.dark());
+    m_editPalette.setBrush(QPalette::Shadow, temp.shadow());
 }
 
-QPalette::ColorGroup PaletteEditor::groupFromItem(int item)
+void PaletteEditor::updatePaletteEffect(QPalette::ColorGroup g)
 {
-    switch(item)
-    {
-    case 0:
-        return QPalette::Active;
-    case 1:
-        return QPalette::Inactive;
-    case 2:
-        return QPalette::Disabled;
-    default:
-        return QPalette::NColorGroups;
+    QColor btn = m_editPalette.color(g, QPalette::Button);
+
+    QColor light = btn.light(150);
+    QColor midlight = btn.light(115);
+    QColor mid = btn.dark(150);
+    QColor dark = btn.dark();
+    QColor shadow = Qt::black;
+
+    m_editPalette.setColor(g, QPalette::Light, light);
+    m_editPalette.setColor(g, QPalette::Midlight, midlight);
+    m_editPalette.setColor(g, QPalette::Mid, mid);
+    m_editPalette.setColor(g, QPalette::Dark, dark);
+    m_editPalette.setColor(g, QPalette::Shadow, shadow);
+}
+
+QPalette::ColorGroup PaletteEditor::selectedColorGroup() const
+{
+    switch (ui.paletteCombo->currentIndex()) {
+    default: return QPalette::Active;
+    case 0: return QPalette::Active;
+    case 1: return QPalette::Inactive;
+    case 2: return QPalette::Disabled;
     }
 }
 
-QPalette::ColorRole PaletteEditor::roleFromItem(int item)
+void PaletteEditor::updatePreviewPalette()
 {
-    switch(item)
-    {
-    case 0:
-        return QPalette::Background;
-    case 1:
-        return QPalette::Foreground;
-    case 2:
-        return QPalette::Base;
-    case 3:
-        return QPalette::Text;
-    case 4:
-        return QPalette::Button;
-    case 5:
-        return QPalette::ButtonText;
-    case 6:
-        return QPalette::Light;
-    case 7:
-        return QPalette::Midlight;
-    case 8:
-        return QPalette::Mid;
-    case 9:
-        return QPalette::Dark;
-    case 10:
-        return QPalette::Shadow;
-    case 11:
-        return QPalette::Highlight;
-    case 12:
-        return QPalette::HighlightedText;
-    case 13:
-        return QPalette::BrightText;
-    case 14:
-        return QPalette::Link;
-    case 15:
-        return QPalette::LinkVisited;
-    default:
-        return QPalette::NColorRoles;
+    QPalette::ColorGroup g = selectedColorGroup();
+
+    // build the preview palette
+    QPalette previewPalette = m_editPalette;
+    for (QPalette::ColorRole r = QPalette::Foreground; r < QPalette::NColorRoles; reinterpret_cast<int&>(r)++) {
+        previewPalette.setColor(QPalette::Active, r, m_editPalette.color(g, r));
+        previewPalette.setColor(QPalette::Inactive, r, m_editPalette.color(g, r));
+        previewPalette.setColor(QPalette::Disabled, r, m_editPalette.color(g, r));
     }
+
+    ui.previewFrame->setPreviewPalette(previewPalette);
 }
 
-void PaletteEditor::buildInactive()
+void PaletteEditor::updateStyledButtons()
 {
-    copyColorGroup(editPalette, editPalette, QPalette::Active, QPalette::Inactive);
+    ui.buttonMainColor->setBrush(m_editPalette.color(QPalette::Active, QPalette::Button));
+    ui.buttonMainColor2->setBrush(m_editPalette.color(QPalette::Active, QPalette::Background));
 }
 
-void PaletteEditor::buildDisabled()
+void PaletteEditor::setEditPalette(const QPalette& pal)
 {
-    copyColorGroup(editPalette, editPalette, QPalette::Active, QPalette::Disabled);
-    editPalette.setColor(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-    editPalette.setColor(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
-    editPalette.setColor(QPalette::Disabled, QPalette::Text, Qt::darkGray);
+    m_editPalette = pal;
+    buildActiveEffect();
+    updatePaletteEffect(QPalette::Inactive);
+    updatePaletteEffect(QPalette::Disabled);
+    updatePreviewPalette();
+    updateStyledButtons();
 }
 
-void PaletteEditor::buildEffect(QPalette::ColorGroup cg)
+QPalette PaletteEditor::editPalette() const
 {
-    QColor light, midlight, mid, dark, shadow;
-    QColor btn = editPalette.color(cg, QPalette::Button);
-
-    light = btn.light(150);
-    midlight = btn.light(115);
-    mid = btn.dark(150);
-    dark = btn.dark();
-    shadow = Qt::black;
-
-    editPalette.setColor(cg, QPalette::Light, light);
-    editPalette.setColor(cg, QPalette::Midlight, midlight);
-    editPalette.setColor(cg, QPalette::Mid, mid);
-    editPalette.setColor(cg, QPalette::Dark, dark);
-    editPalette.setColor(cg, QPalette::Shadow, shadow);
+    return m_editPalette;
 }
 
-void PaletteEditor::copyColorGroup(const QPalette &fpal, QPalette &tpal, QPalette::ColorGroup fcg, QPalette::ColorGroup tcg)
+
+QPalette PaletteEditor::getPalette(QWidget* parent, const QPalette &init, int *ok)
 {
-    QPalette::ColorRole clrRole;
-    for (int i=0; i<16; ++i) {
-        clrRole = roleFromItem(i);
-        tpal.setBrush(tcg, clrRole, fpal.brush(fcg, clrRole));
-    }
+    PaletteEditor dlg(parent);
+    dlg.setEditPalette(init);
+
+    int result = dlg.exec();
+    if (ok) *ok = result;
+
+    return result == QDialog::Accepted ? dlg.editPalette() : init;
 }
 
-void PaletteEditor::setPreviewPalette(const QPalette &pal)
-{
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
-
-    copyColorGroup(pal, previewPalette, cg, QPalette::Active);
-    copyColorGroup(pal, previewPalette, cg, QPalette::Inactive);
-    copyColorGroup(pal, previewPalette, cg, QPalette::Disabled);
-
-    previewWindow->setPalette(pal);
-}
-
-void PaletteEditor::updatePaletteEditor()
-{
-    effectButton->setBrush(editPalette.brush(QPalette::Active, QPalette::Button));
-    backgroundButton->setBrush(editPalette.brush(QPalette::Active, QPalette::Background));
-
-    int groupItem = paletteCombo->currentIndex();
-    int roleItem = rolesCombo->currentIndex();
-    QPalette::ColorGroup cg = groupFromItem(groupItem);
-    QPalette::ColorRole cr = roleFromItem(roleItem);
-
-    advColorButton->setBrush(editPalette.brush(cg, cr));
-
-    //This will delete the pixmap, because the pixmap is'n in the palette...
-    advPixmapButton->setBrush(editPalette.brush(cg, cr));
-
-    bool roleDisabled = (inactiveCheckBox->isChecked() && (cg == QPalette::Inactive)) ||
-        (disabledCheckBox->isChecked() && (cg == QPalette::Disabled));
-    bool advButtonDisabled = (buttonCheckBox->isChecked()) && (roleItem > 5) && (roleItem < 11);
-
-    rolesGroup->setEnabled(!roleDisabled);
-    advColorButton->setEnabled(!advButtonDisabled);
-    advPixmapButton->setEnabled(!advButtonDisabled && snrMap);
-    colorLabel->setEnabled(!advButtonDisabled);
-    pixmapLabel->setEnabled(!advButtonDisabled);
-}
-
-void PaletteEditor::setPal( const QPalette& pal )
-{
-    editPalette = pal;
-    setPreviewPalette(pal);
-}
-
-QPalette PaletteEditor::pal() const
-{
-    return editPalette;
-}
-
-QPalette PaletteEditor::getPalette(bool *ok, const QPalette &init,
-                                   QWidget *parent, QMap<int, QString> *snrMap)
-{
-    PaletteEditor* dlg = new PaletteEditor(parent, 0, snrMap);
-
-    if (init != QPalette())
-        dlg->setPal(init);
-    int resultCode = dlg->exec();
-
-    QPalette result = init;
-    if (resultCode == QDialog::Accepted) {
-        if (ok)
-            *ok = true;
-        result = dlg->pal();
-    }
-    else {
-        if (ok)
-            *ok = false;
-    }
-    delete dlg;
-    return result;
-}

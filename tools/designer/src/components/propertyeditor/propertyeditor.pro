@@ -18,14 +18,16 @@ HEADERS += propertyeditor.h \
     paletteeditor.h \
     paletteeditorbutton.h \
     previewwidget.h \
-    stylebutton.h
+    previewframe.h \
+    styledbutton.h
 
 SOURCES += propertyeditor.cpp \
     actioneditor.cpp \
     paletteeditor.cpp \
     paletteeditorbutton.cpp \
     previewwidget.cpp \
-    stylebutton.cpp
+    previewframe.cpp \
+    styledbutton.cpp
 
 #PRECOMPILED_HEADER=propertyeditor_pch.h
 

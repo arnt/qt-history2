@@ -32,9 +32,9 @@ void PaletteEditorButton::setPalette(const QPalette &palette)
 
 void PaletteEditorButton::showPaletteEditor()
 {
-    bool ok = false;
-    QPalette pal = PaletteEditor::getPalette(&ok, m_palette, this);
-    if (ok) {
+    int result;
+    QPalette pal = PaletteEditor::getPalette(this, m_palette, &result);
+    if (result == QDialog::Accepted) {
         m_palette = pal;
         emit changed();
     }
