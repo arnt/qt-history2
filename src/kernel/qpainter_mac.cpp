@@ -240,8 +240,12 @@ static int ropCodes[] = {			// ROP translation table
 
 void QPainter::updatePen()
 {
-    if ( !pdev || !pdev->handle() )
-	return;
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].pen = &cpen;
+	if ( !pdev->cmd( QPaintDevice::PdcSetPen, this, param ) || !hd )
+	    return;
+    }
 
     //pen color
     ::RGBColor f;
@@ -279,9 +283,6 @@ void QPainter::updatePen()
 
 void QPainter::updateBrush()
 {
-    if( !pdev || !pdev->handle() )
-	return;
-
     if ( testf( ExtDev ) ) {
         QPDevCmdParam param[1];
         param[0].brush = &cbrush;
@@ -924,7 +925,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
             QPDevCmdParam param[1];
             QRect r( x, y, w, h );
             param[0].rect = &r;
-            if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) /*|| !hdc*/ )
+            if ( !pdev->cmd( QPaintDevice::PdcDrawRect, this, param ) /*|| !hdc*/ )
                 return;
         }
         if ( txop == TxRotShear ) {             // rotate/shear polygon
@@ -1693,7 +1694,13 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		QPainter paint(&bm); 		// draw text in bitmap
 		paint.setPen( color1 );
 		paint.setFont( dfont );
+#if 1
 		paint.drawText( tx, ty, str, len );
+#else
+		paint.drawPoint( aw - 4, ah - 1 );
+		paint.drawPoint( aw - 5, ah - 1 );
+		qDebug( "aw %d, ah %d", aw - 1 , ah - 1 );
+#endif
 		paint.end();
 
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
@@ -1729,7 +1736,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 	    unclippedBitBlt(pdev, x, y, wx_bm, 0, 0, wx_bm->width(), 
-			    wx_bm->height(), CopyROP, FALSE );
+			    wx_bm->height(), CopyROP, TRUE );
 	    if(create_new_bm)
 		ins_text_bitmap( bm_key, wx_bm );
 	    return;
