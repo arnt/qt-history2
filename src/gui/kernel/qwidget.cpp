@@ -2598,31 +2598,33 @@ QPalette::ColorRole QWidget::backgroundRole() const
 
   \sa backgroundRole(), foregroundRole()
  */
+
 void QWidget::setBackgroundRole(QPalette::ColorRole role)
 {
-    d->bg_role = role;
+    QWidgetPrivate *dd = d; //### workaround for gcc 3.3.x compiler bug
+    dd->bg_role = role;
     setAttribute(Qt::WA_SetBackgroundRole);
     if (!testAttribute(Qt::WA_SetForegroundRole))
         switch (role) {
         case QPalette::Button:
-            d->fg_role = QPalette::ButtonText;
+            dd->fg_role = QPalette::ButtonText;
             break;
         case QPalette::Base:
-            d->fg_role = QPalette::Text;
+            dd->fg_role = QPalette::Text;
             break;
         case QPalette::Dark:
         case QPalette::Shadow:
-            d->fg_role = QPalette::Light;
+            dd->fg_role = QPalette::Light;
             break;
         case QPalette::Highlight:
-            d->fg_role = QPalette::HighlightedText;
+            dd->fg_role = QPalette::HighlightedText;
             break;
         default:
-            d->fg_role = QPalette::Foreground;
+            dd->fg_role = QPalette::Foreground;
             break;
         }
-    d->updateSystemBackground();
-    d->propagatePaletteChange();
+    dd->updateSystemBackground();
+    dd->propagatePaletteChange();
 }
 
 /*!
