@@ -90,6 +90,7 @@ static const XlfdEncoding xlfd_encoding[] = {
     { "iso8859-14", 7, 110, make_tag('i','s','o','8'), make_tag('9','-','1','4') },
     { "iso8859-15", 8, 111, make_tag('i','s','o','8'), make_tag('9','-','1','5') },
     { "hp-roman8", 9, 2004, make_tag('h','p','-','r'), make_tag('m','a','n','8') },
+#define LAST_LATIN_ENCODING 9
     { "iso8859-5", 10, 8, make_tag('i','s','o','8'), make_tag('5','9','-','5') },
     { "*-cp1251", 11, 2251, 0, make_tag('1','2','5','1') },
     { "koi8-ru", 12, 2084, make_tag('k','o','i','8'), make_tag('8','-','r','u') },
@@ -1355,6 +1356,8 @@ QFontEngine *loadEngine( QFont::Script script,
 			 QtFontStyle *style, QtFontSize *size,
 			 QtFontEncoding *encoding, bool forced_encoding )
 {
+    Q_UNUSED(script);
+
     if ( fp && fp->rawMode ) {
 	QByteArray xlfd = request.family.toLatin1();
 	FM_DEBUG( "Loading XLFD (rawmode) '%s'", xlfd.data() );
@@ -1480,16 +1483,10 @@ QFontEngine *loadEngine( QFont::Script script,
 
     QFontEngine *fe = 0;
     const int mib = xlfd_encoding[ encoding->encoding ].mib;
-    switch ( script ) {
-    case QFont::Latin:
-	if ( ! forced_encoding ) {
-	    fe = new QFontEngineLatinXLFD( xfs, xlfd, mib );
-	    break;
-	}
-
-    default:
+    if (encoding->encoding <= LAST_LATIN_ENCODING && !forced_encoding) {
+	fe = new QFontEngineLatinXLFD( xfs, xlfd, mib );
+    } else {
 	fe = new QFontEngineXLFD( xfs, xlfd, mib );
-	break;
     }
 
     fe->setScale( scale );
