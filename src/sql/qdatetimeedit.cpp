@@ -34,7 +34,6 @@
 ** not clear to you.
 **
 **********************************************************************/
-/*! \file datetime/main.cpp */
 
 #include "qdatetimeedit.h"
 

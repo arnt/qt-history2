@@ -1283,7 +1283,7 @@ int QCheckTableItem::rtti() const
 
 /*! \file table/small-table-demo/main.cpp */
 /*! \file table/bigtable/main.cpp */
-/*! \file statistics/statistics.cpp */
+/*! \file table/statistics/statistics.cpp */
 
 /*! \class QTable qtable.h
     \ingroup advanced
