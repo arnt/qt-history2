@@ -1340,7 +1340,7 @@ void QTextEngine::justify(const QScriptLine &line)
 	for (int i = 0; i < nPoints; ++i) {
 	    if (justificationPoints[i].type == type) {
 		Q26Dot6 add = need/n;
- 		qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
+//  		qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
 		justificationPoints[i].glyph->space_18d6 = add.value();
 		need -= add;
 		--n;
