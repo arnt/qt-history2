@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#49 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#49 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -499,6 +499,8 @@ void QWidget::show()
 	    }
 	}
     }
+    if ( testWFlags(WType_Popup) )
+	raise();
     if ( testWFlags(WStyle_Tool) )
 	SetWindowPos( winId(), 0,
 		      frect.x(), frect.y(), crect.width(), crect.height(),
