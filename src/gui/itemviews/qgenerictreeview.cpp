@@ -1213,7 +1213,7 @@ int QGenericTreeViewPrivate::coordinate(int item) const
         return y + (itemHeight * (item - itemAt(v)));
     }
     // item is above the viewport - estimated y
-    return y - (itemHeight * item);
+    return y - (itemHeight * (i - item));
 }
 
 int QGenericTreeViewPrivate::item(int coordinate) const
