@@ -74,7 +74,7 @@
   \mainclass
 
   It contains the main event loop, where all events from the window
-  system and other sources are processed and dispatched.  It also
+  system and other sources are processed and dispatched. It also
   handles the application's initialization and finalization, and
   provides session management. It also handles most system-wide and
   application-wide settings.
@@ -94,7 +94,7 @@
 
   \i It performs event handling, meaning that it receives events
   from the underlying window system and dispatches them to the relevant
-  widgets.  By using sendEvent() and postEvent() you can send your own
+  widgets. By using sendEvent() and postEvent() you can send your own
   events to widgets.
 
   \i It parses common command line arguments and sets its internal
@@ -145,15 +145,17 @@
 
   Since it also deals with common command line arguments, it is
   usually a good idea to create it \e before any interpretation or
-  modification of \c argv is done in the application itself.  (Note
+  modification of \c argv is done in the application itself. (Note
   also that for X11, setMainWidget() may change the main widget
-  according to the \c -geometry option.  To preserve this
+  according to the \c -geometry option. To preserve this
   functionality, you must set your defaults before setMainWidget() and
   any overrides after.)
 
-  <strong>Groups of functions:</strong>
-  \list
-     \i System settings:
+  \table
+    \header \i21 Groups of functions
+    \row
+     \i System settings
+     \i
 	desktopSettingsAware(),
 	setDesktopSettingsAware(),
 	cursorFlashTime(),
@@ -168,7 +170,9 @@
 	setFont(),
 	fontMetrics().
 
-     \i Event handling:
+    \row
+     \i Event handling
+     \i
 	exec(),
 	processEvents(),
 	enter_loop(),
@@ -179,28 +183,39 @@
 	postEvent(),
 	sendPostedEvents(),
 	removePostedEvents(),
+	hasPendingEvents(),
 	notify(),
 	macEventFilter(),
+	qwsEventFilter(),
 	x11EventFilter(),
 	x11ProcessEvent(),
 	winEventFilter().
 
-     \i GUI Styles:
+    \row
+     \i GUI Styles
+     \i
 	style(),
 	setStyle(),
 	polish().
 
-     \i Color usage:
+    \row
+     \i Color usage
+     \i
 	colorSpec(),
-	setColorSpec().
+	setColorSpec(),
+	qwsSetCustomColors().
 
-     \i Text handling:
+    \row
+     \i Text handling
+     \i
 	setDefaultCodec(),
 	installTranslator(),
 	removeTranslator()
 	translate().
 
-     \i Widgets:
+    \row
+     \i Widgets
+     \i
 	mainWidget(),
 	setMainWidget(),
 	allWidgets(),
@@ -210,36 +225,55 @@
 	activeModalWidget(),
 	clipboard(),
 	focusWidget(),
+	winFocus(),
 	activeWindow(),
 	widgetAt().
 
-     \i Advanced cursor handling:
+    \row
+     \i Advanced cursor handling
+     \i
 	hasGlobalMouseTracking(),
 	setGlobalMouseTracking(),
 	overrideCursor(),
 	setOverrideCursor(),
 	restoreOverrideCursor().
 
-     \i X Window System synchronization:
+    \row
+     \i X Window System synchronization
+     \i
 	flushX(),
 	syncX().
 
-     \i Session management:
+    \row
+     \i Session management
+     \i
 	isSessionRestored(),
 	sessionId(),
 	commitData(),
-	saveState()
+	saveState().
 
-     \i Miscellaneous:
+    \row
+    \i Threading
+    \i
+	lock(), unlock(), locked(), tryLock(),
+	wakeUpGuiThread()
+
+    \row
+     \i Miscellaneous
+     \i
 	closeAllWindows(),
 	startingUp(),
 	closingDown(),
-  \endlist
+	setEnableRemoteControl(),
+	remoteControlEnabled()
+	applicationId(),
+	type().
+  \endtable
 
   \e {Non-GUI programs:} While Qt is not optimized or
   designed for writing non-GUI programs, it's possible to use
   \link tools.html some of its classes \endlink without creating a
-  QApplication.  This can be useful if you wish to share code between
+  QApplication. This can be useful if you wish to share code between
   a non-GUI server and a GUI client.
 
   \headerfile qnamespace.h
@@ -358,7 +392,7 @@ static QVFuncList *postRList = 0;		// list of post routines
   \relates QApplication
 
   Adds a global routine that will be called from the QApplication
-  destructor.  This function is normally used to add cleanup routines
+  destructor. This function is normally used to add cleanup routines
   for program-wide functionality.
 
   The function given by \a p should take no arguments and return
@@ -380,12 +414,12 @@ static QVFuncList *postRList = 0;		// list of post routines
   \endcode
 
   Note that for an application- or module-wide cleanup,
-  qAddPostRoutine() is often not suitable.  People have a tendency to
+  qAddPostRoutine() is often not suitable. People have a tendency to
   make such modules dynamically loaded, and then unload those modules
   long before the QApplication destructor is called, for example.
 
   For modules and libraries, using a reference-counted initialization
-  manager or Qt' parent-child delete mechanism may be better.  Here is
+  manager or Qt' parent-child delete mechanism may be better. Here is
   an example of a private class which uses the parent-child mechanism
   to call a cleanup function at the right time:
 
@@ -653,7 +687,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
        on an 8-bit display.
   \i -ncols \e count, limits the number of colors allocated in the
        color cube on an 8-bit display, if the application is using the
-       \c QApplication::ManyColor color specification.  If \e count is
+       \c QApplication::ManyColor color specification. If \e count is
        216 then a 6x6x6 color cube is used (i.e. 6 levels of red, 6 of green,
        and 6 of blue); for other values, a cube
        approximately proportional to a 2x3x1 cube is used.
@@ -780,7 +814,7 @@ QApplication::Type QApplication::type() const
 
 #if defined(Q_WS_X11)
 /*!
-  Create an application, given an already open display \a dpy.  If \a
+  Create an application, given an already open display \a dpy. If \a
   visual and \a colormap are non-zero, the application will use those as
   the default Visual and Colormap contexts.
 
@@ -811,7 +845,7 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 
 /*!
   Create an application, given an already open display \a dpy and using
-  \a argc command line arguments in \a argv.  If \a
+  \a argc command line arguments in \a argv. If \a
   visual and \a colormap are non-zero, the application will use those as
   the default Visual and Colormap contexts.
 
@@ -1018,7 +1052,7 @@ QWidget *QApplication::activeModalWidget()
 
 /*!
   Cleans up any window system resources that were allocated by this
-  application.  Sets the global variable \c qApp to 0.
+  application. Sets the global variable \c qApp to 0.
 */
 
 QApplication::~QApplication()
@@ -1520,7 +1554,7 @@ void QApplication::setLibraryPaths( const QStringList &paths )
 }
 
 /*!
-  Append \a path to the end of the library path list.  If \a path is
+  Append \a path to the end of the library path list. If \a path is
   empty or already in the path list, the path list is not changed.
   The default path list consists of a single entry, \c $QTDIR/plugins.
 
@@ -1695,7 +1729,7 @@ QFont QApplication::font( const QWidget *w )
   QObject::inherits()).
 
   On application start-up, the default font depends on the window
-  system.  It can vary depending on both the window system version and
+  system. It can vary depending on both the window system version and
   the locale. This function lets you override the default font; but
   overriding may be a bad idea because, for example, some locales need
   extra-large fonts to support their special characters.
@@ -1984,7 +2018,7 @@ void QApplication::closeAllWindows()
   \fn void QApplication::aboutToQuit()
 
   This signal is emitted when the application is about to quit the
-  main event loop.  This may happen either after a call to quit() from
+  main event loop. This may happen either after a call to quit() from
   inside the application or when the users shuts down the entire
   desktop session.
 
@@ -2033,30 +2067,31 @@ void QApplication::closeAllWindows()
   the top-level object if the receiver is not interested in the event
   (i.e., it returns FALSE).
 
-  Reimplementing this virtual function is one of five ways to process
-  an event:
+  There are five different ways that events can be processed;
+  reimplementing this virtual function is just one of them. All five
+  approaches are listed below:
   \list 1
-  \i Reimplementing this function.  Very powerful,
-  you get complete control, but of course only one subclass can be
-  qApp.
+  \i Reimplementing this function. This is very powerful, providing
+  complete control; but only one subclass can be qApp.
 
-  \i Installing an event filter on qApp.  Such an event filter gets
+  \i Installing an event filter on qApp. Such an event filter is able
   to process all events for all widgets, so it's just as powerful as
-  reimplementing notify(), and in this way it's possible to have more
-  than one application-global event filter.  Global event filters get
-  to see even mouse events for \link QWidget::isEnabled() disabled
+  reimplementing notify(); furthermore, it's possible to have more
+  than one application-global event filter. Global event filters even
+  see mouse events for \link QWidget::isEnabled() disabled
   widgets, \endlink and if \link setGlobalMouseTracking() global mouse
-  tracking \endlink is enabled, mouse move events for all widgets.
+  tracking \endlink is enabled, as well as mouse move events for all
+  widgets.
 
-  \i Reimplementing QObject::event() (as QWidget does).  If you do
-  this you get tab key presses, and you get to see the events before
+  \i Reimplementing QObject::event() (as QWidget does). If you do
+  this you get Tab key presses, and you get to see the events before
   any widget-specific event filters.
 
-  \i Installing an event filter on the object.  Such an even filter
+  \i Installing an event filter on the object. Such an even filter
   gets all the events except Tab and Shift-Tab key presses.
 
-  \i Finally, reimplementing paintEvent(), mousePressEvent() and so
-  on.  This is the normal, easiest and least powerful way.
+  \i Reimplementing paintEvent(), mousePressEvent() and so
+  on. This is the commonest, easiest and least powerful way.
   \endlist
 
   \sa QObject::event(), installEventFilter()
@@ -2307,7 +2342,8 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 }
 
 /*!
-  Returns TRUE if an application object has not been created yet.
+  Returns TRUE if an application object has not been created yet;
+  otherwise returns FALSE.
 
   \sa closingDown()
 */
@@ -2318,7 +2354,8 @@ bool QApplication::startingUp()
 }
 
 /*!
-  Returns TRUE if the application objects are being destroyed.
+  Returns TRUE if the application objects are being destroyed;
+  otherwise returns FALSE.
 
   \sa startingUp()
 */
@@ -2348,7 +2385,7 @@ void QApplication::processEvents()
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
-  event processing must be grafted into existing program loops.
+  event processing must be grafted onto existing program loops.
 
   Using this function in new applications may be an indication of design
   problems.
@@ -2395,7 +2432,7 @@ void QApplication::syncX()	{}		// do nothing
 /*!
   \fn WindowsVersion QApplication::winVersion()
 
-  Returns the version of the Windows operating system running:
+  Returns the version of the Windows operating system that is running:
 
   \list
   \i Qt::WV_95 - Windows 95
@@ -2461,7 +2498,7 @@ void QApplication::installTranslator( QTranslator * mf )
 
 /*!
   Removes the message file \a mf from the list of message files used by
-  this application.  (It does not delete the message file from the file
+  this application. (It does not delete the message file from the file
   system.)
 
   \sa installTranslator() translate(), QObject::tr()
@@ -2557,13 +2594,13 @@ QTextCodec* QApplication::defaultCodec() const
   conveniently.
 
   \a context is typically a class name (e.g., "MyDialog") and
-  \a sourceText is either English text or a short marker text, if
+  \a sourceText is either English text or a short identifying text, if
   the output text will be very long (as for help texts).
 
   \a comment is a disambiguating comment, for when the same \a
-  sourceText is used in different roles within one context. By
-  default, it is null.
-  \a encoding indicates the 8-bit encoding of character stings
+  sourceText is used in different roles within the same context. By
+  default, it is null. \a encoding indicates the 8-bit encoding of
+  character stings
 
   See the \l QTranslator documentation for more information about
   contexts and comments.
@@ -2616,7 +2653,7 @@ QString QApplication::translate( const char * context, const char * sourceText,
 
 /*!
   Adds the event \a event with the object \a receiver as the receiver of the
-  event to an event queue and returns immediately.
+  event, to an event queue and returns immediately.
 
   The event must be allocated on the heap since the post event queue
   will take ownership of the event and delete it once it has been posted.
@@ -2736,7 +2773,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	// global list
 	QPostEventList * l = receiver ? receiver->postedEvents : globalPostedEvents;
 
-	// okay.  here is the tricky loop.  be careful about optimizing
+	// okay. here is the tricky loop. be careful about optimizing
 	// this, it looks the way it does for good reasons.
 	QPostEventListIt it( *l );
 	QPostEvent *pe;
@@ -2761,9 +2798,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		// delivering out of it. r->postedEvents maybe *l
 		if ( r->postedEvents ) {
 		    r->postedEvents->removeRef( pe );
-		    // if possible, get rid of that list.  this is not
+		    // if possible, get rid of that list. this is not
 		    // ideal - we will create and delete a list for
-		    // each update() call.  it would be better if we'd
+		    // each update() call. it would be better if we'd
 		    // leave the list empty here, and delete it
 		    // somewhere else if it isn't being used.
 		    if ( r->postedEvents->isEmpty() ) {
@@ -2840,7 +2877,7 @@ void QApplication::removePostedEvents( QObject *receiver )
   Removes \a event from the queue of posted events, and emits a
   warning message if appropriate.
 
-  \warning This function can be \e really slow.  Avoid using it, if
+  \warning This function can be \e really slow. Avoid using it, if
   possible.
 */
 
@@ -2944,7 +2981,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 
 /*!\internal
 
-  Sets the active window as a reaction on a system event. Call this
+  Sets the active window in reaction to a system event. Call this
   from the platform specific event handlers.
 
   It sets the activeWindow() and focusWidget() attributes and sends
@@ -3109,13 +3146,13 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 
   The desktop widget is useful for obtaining the size of the screen.
   It may also be possible to draw on the desktop. We recommend against
-  assuming that it's possible to draw on the desktop, as it works on
-  some operating systems and not on others.
+  assuming that it's possible to draw on the desktop, since this does
+  not work on all operating systems.
 
   \code
     QDesktopWidget *d = QApplication::desktop();
-    int w=d->width();			// returns desktop width
-    int h=d->height();			// returns desktop height
+    int w = d->width();	    // returns desktop width
+    int h = d->height();    // returns desktop height
   \endcode
 */
 
@@ -3145,7 +3182,7 @@ QClipboard *QApplication::clipboard()
 
 /*!
   By default, Qt will try to use the current standard colors, fonts
-  etc. from the underlying window system's desktop settings,
+  etc., from the underlying window system's desktop settings,
   and use them for all relevant widgets. This behavior can be switched off
   by calling this function with \a on set to FALSE.
 
@@ -3155,7 +3192,7 @@ QClipboard *QApplication::clipboard()
   \code
   int main( int argc, char** argv ) {
     QApplication::setDesktopSettingsAware( FALSE ); // I know better than the user
-    QApplication myApp( argc, argv ); // give me default fonts & colors
+    QApplication myApp( argc, argv ); // Use default fonts & colors
     ...
   }
   \endcode
@@ -3169,7 +3206,7 @@ void QApplication::setDesktopSettingsAware( bool on )
 }
 
 /*!
-  Returns the value set by setDesktopSettingsAware(), by default TRUE.
+  Returns the value set by setDesktopSettingsAware(); by default TRUE.
 
   \sa setDesktopSettingsAware()
 */
@@ -3229,7 +3266,7 @@ void QApplication::exit_loop()
 
 
 /*!
-  Returns the current loop level
+  Returns the current loop level.
 
   \sa enter_loop(), exit_loop()
 */
@@ -3243,48 +3280,54 @@ int QApplication::loopLevel() const
 
 
 /*! \fn void QApplication::lock()
-  Lock the Qt library mutex.  If another thread has already locked the
+
+  Lock the Qt library mutex. If another thread has already locked the
   mutex, the calling thread will block until the other thread has
   unlocked the mutex.
 
-  \sa unlock(), locked()
+  \sa unlock() locked() \link threads.html Thread Support in Qt\endlink
 */
 
 
 /*! \fn void QApplication::unlock(bool wakeUpGui)
-  Unlock the Qt library mutex.  if \a wakeUpGui is TRUE (the default),
+
+  Unlock the Qt library mutex. If \a wakeUpGui is TRUE (the default),
   then the GUI thread will be woken with QApplication::wakeUpGuiThread().
 
-  \sa lock(), locked()
+  \sa lock(), locked() \link threads.html Thread Support in Qt\endlink
 */
 
 
 /*! \fn bool QApplication::locked()
-  Returns TRUE if the Qt library mutex is locked by a different thread,
+
+  Returns TRUE if the Qt library mutex is locked by a different thread;
   otherwise returns FALSE.
 
-  \warning Due to differing implementations of recursive mutexes on
-  supported platforms, calling this function from the same thread that
-  previous locked the mutex will give undefined results.
+  \warning Due to different implementations of recursive mutexes on
+  the supported platforms, calling this function from the same thread
+  that previously locked the mutex will give undefined results.
 
-  \sa lock() unlock()
+  \sa lock() unlock() \link threads.html Thread Support in Qt\endlink
 */
 
 /*! \fn bool QApplication::tryLock()
-  Attempts to lock the Qt library mutex.  If the lock was obtained, this
-  function returns TRUE.  If another thread has locked the mutex, this
-  function returns FALSE, instead of waiting for the lock to become available.
+
+  Attempts to lock the Qt library mutex, and returns immediately. If
+  the lock was obtained, this function returns TRUE. If another thread
+  has locked the mutex, this function returns FALSE, instead of
+  waiting for the lock to become available.
 
   The mutex must be unlocked with unlock() before another thread can
   successfully lock it.
 
-  \sa lock(), unlock()
+  \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
 */
 
 /*! \fn void QApplication::wakeUpGuiThread()
+
   Wakes up the GUI thread.
 
-  \sa guiThreadAwake()
+  \sa guiThreadAwake() \link threads.html Thread Support in Qt\endlink
 */
 
 
@@ -3343,7 +3386,7 @@ bool QApplication::tryLock()
   \fn bool QApplication::isSessionRestored() const
 
   Returns TRUE if the application has been restored from an earlier
-  session.
+  session; otherwise returns FALSE.
 
   \sa sessionId(), commitData(), saveState()
 */
@@ -3352,7 +3395,7 @@ bool QApplication::tryLock()
 /*!
   \fn QString QApplication::sessionId() const
 
-  Returns the identifier of the current session.
+  Returns the current session's identifier.
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
@@ -3392,11 +3435,11 @@ bool QApplication::tryLock()
   Instead, the session manager may or may not do this afterwards,
   depending on the context.
 
-  <strong>Important</strong><br> Within this function, no user
-  interaction is possible, \e unless you ask the session manager \a sm
-  for explicit permission. See QSessionManager::allowsInteraction()
-  and QSessionManager::allowsErrorInteraction() for details and
-  example usage.
+  \warning Within this function, no user interaction is possible, \e
+  unless you ask the session manager \a sm for explicit permission.
+  See QSessionManager::allowsInteraction() and
+  QSessionManager::allowsErrorInteraction() for details and example
+  usage.
 
   The default implementation requests interaction and sends a close
   event to all visible top level widgets. If any event was
@@ -3439,25 +3482,25 @@ void QApplication::commitData( QSessionManager& sm  )
 /*!
   \fn void QApplication::saveState( QSessionManager& sm )
 
-  This function deals with session management.  It is invoked when the
+  This function deals with session management. It is invoked when the
   \link QSessionManager session manager \endlink wants the application
   to preserve its state for a future session.
 
-  For a text editor this would mean creating a temporary file that
-  includes the current contents of the edit buffers, the location of
+  For example, a text editor would create a temporary file that
+  includes the current contents of its edit buffers, the location of
   the cursor and other aspects of the current editing session.
 
   Note that you should never exit the application within this
-  function.  Instead, the session manager may or may not do this
+  function. Instead, the session manager may or may not do this
   afterwards, depending on the context. Futhermore, most session
   managers will very likely request a saved state immediately after
   the application has been started. This permits the session manager
   to learn about the application's restart policy.
 
-  <strong>Important</strong><br> Within this function, no user
-  interaction is possible, \e unless you ask the session manager \a sm
-  for explicit permission. See QSessionManager::allowsInteraction()
-  and QSessionManager::allowsErrorInteraction() for details.
+  \warning Within this function, no user interaction is possible, \e
+  unless you ask the session manager \a sm for explicit permission.
+  See QSessionManager::allowsInteraction() and
+  QSessionManager::allowsErrorInteraction() for details.
 
   \sa isSessionRestored(), sessionId(), commitData()
 */
@@ -3480,9 +3523,9 @@ void QApplication::setStartDragTime( int ms )
 /*!
   If you support drag and drop in you application and a drag should
   start after a mouse click and after a certain time elapsed, you
-  should use the value which this method returns as delay (in ms).
+  should use the value which this method returns as the delay (in ms).
 
-  Qt internally uses also this delay e.g. in QTextView or QLineEdit
+  Qt also uses this delay internally, e.g. in QTextView and QLineEdit,
   for starting a drag.
 
   The default value is 500 ms.
@@ -3496,7 +3539,7 @@ int QApplication::startDragTime()
 }
 
 /*!
-  Sets the distance after which a drag should start to \a l ms.
+  Sets the distance after which a drag should start to \a l pixels.
 
   \sa startDragDistance()
 */
@@ -3510,17 +3553,19 @@ void QApplication::setStartDragDistance( int l )
   If you support drag and drop in you application and a drag should
   start after a mouse click and after moving the mouse a certain
   distance, you should use the value which this method returns as the
-  distance. So if the mouse position of the click is stored in \c
+  distance.
+
+  For example, if the mouse position of the click is stored in \c
   startPos and the current position (e.g. in the mouse move event) is
   \c currPos, you can find out if a drag should be started with code
   like this:
-
   \code
-  if ( ( startPos - currPos ).manhattanLength() > QApplication::startDragDistance() )
-      startTheDrag();
+  if ( ( startPos - currPos ).manhattanLength() >
+       QApplication::startDragDistance() )
+    startTheDrag();
   \endcode
 
-  Qt internally uses this value too, e.g. in the QFileDialog.
+  Qt uses this value internally, e.g. in QFileDialog.
 
   The default value is 4 pixels.
 
@@ -3535,7 +3580,8 @@ int QApplication::startDragDistance()
 /*!
   If \a b is TRUE, all dialogs and widgets will be laid out in a
   mirrored fashion, as required by right to left languages such as
-  Hebrew and Arabic.
+  Arabic and Hebrew. If \a b is FALSE, dialogs and widgets are laid
+  out left to right.
 
   Changing this flag in runtime does not cause a relayout of already
   instantiated widgets.
@@ -3561,7 +3607,8 @@ void QApplication::setReverseLayout( bool b )
 
 /*!
     Returns TRUE if all dialogs and widgets will be laid out in a
-    mirrored fashion.
+    mirrored (right to left) fashion. Returns FALSE if dialogs and
+    widgets will be laid out left to right.
 
   \sa setReverseLayout()
 */
@@ -3610,14 +3657,14 @@ bool QApplication::reverseLayout()
   For sophisticated session managers provided on Unix/X11, QSessionManager
   offers further possibilites to fine-tune an application's session
   management behavior: setRestartCommand(), setDiscardCommand(),
-  setRestartHint(), setProperty(), requestPhase2().  See the respective
+  setRestartHint(), setProperty(), requestPhase2(). See the respective
   function descriptions for further details.
 */
 
 /*! \enum QSessionManager::RestartHint
 
   This enum type defines the circumstances under which this
-  application wants to be restarted by the session manager.  The
+  application wants to be restarted by the session manager. The
   current values are
 
   \value RestartIfRunning  if the application is still running when
@@ -3625,7 +3672,7 @@ bool QApplication::reverseLayout()
   the next session.
 
   \value RestartAnyway  the application wants to be started at the
-  start of the next session, no matter what.  (This is useful for
+  start of the next session, no matter what. (This is useful for
   utilities that run just after startup and then quit.)
 
   \value RestartImmediately  the application wants to be started
@@ -3676,7 +3723,7 @@ bool QApplication::reverseLayout()
   \fn bool QSessionManager::allowsInteraction()
 
   Asks the session manager for permission to interact with the
-  user.  Returns TRUE if interaction is permitted; otherwise
+  user. Returns TRUE if interaction is permitted; otherwise
   returns FALSE.
 
   The rationale behind this mechanism is to make it possible to
@@ -3756,7 +3803,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn void QSessionManager::cancel()
 
-  Tells the session manager to cancel the shutdown process.   Applications
+  Tells the session manager to cancel the shutdown process.  Applications
   should not call this function without first asking the user.
 
   \sa allowsInteraction(), allowsErrorInteraction()
@@ -3792,7 +3839,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn void QSessionManager::setRestartCommand( const QStringList& command )
 
   If the session manager is capable of restoring sessions it will
-  execute \a command in order to restore the application.  The command
+  execute \a command in order to restore the application. The command
   defaults to
 
   \code
@@ -3801,14 +3848,14 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   The \c -session option is mandatory; otherwise QApplication cannot
   tell whether it has been restored or what the current session
-  identifier is.  See QApplication::isSessionRestored() and
+  identifier is. See QApplication::isSessionRestored() and
   QApplication::sessionId() for details.
 
   If your application is very simple, it may be possible to store the
-  entire application state in additional command line options.  This
+  entire application state in additional command line options. This
   is usually a very bad idea because command lines are often limited
   to a few hundred bytes. Instead, use QSettings, or temporary files
-  or a database for this purpose.  By marking the data with the unique
+  or a database for this purpose. By marking the data with the unique
   sessionId(), you will be able to restore the application in a future
   session.
 

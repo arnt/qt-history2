@@ -159,6 +159,11 @@ value; if you revert a property that has an initial value but no default
 value (by clicking the red 'X') the value will become empty unless the
 property, e.g. name, is not allowed to be empty.
 
+If multiple widgets are selected, the property editor shows the
+properties that the selected widgets have in common. Changing one of
+these properties will cause all the selected widgets to have this
+property changed.
+
 \index Undo and Redo!Properties
 \index Properties!Undo and Redo!Undo and Redo
 \index Redo!Undo and Redo

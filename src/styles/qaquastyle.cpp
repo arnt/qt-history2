@@ -444,27 +444,27 @@ void QAquaStylePrivate::doFocus(QWidget *w)
   \brief The QAquaStyle class implements the Aqua 'Look and Feel'.
   \ingroup appearance
 
-  The class tries to emulate
-  the Mac OS X Aqua GUI style using the QStyle system. There are
-  additional issues that you will also need to consider, to make your
-  program compatible with the \link
-  http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
+  The class tries to emulate the Mac OS X Aqua GUI style using the
+  QStyle system. There are additional issues that should be taken into
+  consideration to make an application compatible with the
+  \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html
   Aqua Style Guidelines \endlink. Some of these issues are outlined
   below.
 
   \list
 
   \i Layout - The restrictions on window layout are such that some
-  things cannot be achieved using QLayout as it is today. Changes are being
-  considered (and feedback would be appreciated) to make layouts QStyle-able.
-  Some of these restrictions involve horizontal and vertical widget
-  alignment and widget size (covered below).
+  aspects of layout that are style-dependent cannot be achieved using
+  QLayout. Changes are being considered (and feedback would be
+  appreciated) to make layouts QStyle-able. Some of the restrictions
+  involve horizontal and vertical widget alignment and widget size
+  (covered below).
 
-  \i Widget size - Aqua allows widgets to have specific fixed sizes. Qt
-  does not implement this behaviour to maintain cross-platform
-  compatibility. As a result you may scale a widget to any size and
-  QAquaStyle will respect your size, even if it is not appropriate
-  in terms of the Aqua Style Guidelines.
+  \i Widget size - Aqua allows widgets to have specific fixed sizes.
+  Qt does not implement this behaviour so as to maintain
+  cross-platform compatibility. As a result you may scale a widget to
+  any size and QAquaStyle will respect your size, even if it is not
+  appropriate in terms of the Aqua Style Guidelines.
 
   \i Effects - QAquaStyle is an emulating style. Not all of the
   animations and effects have been completed. If you notice any
