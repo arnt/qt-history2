@@ -21,8 +21,7 @@
 
 
 class QLCDNumberPrivate;
-
-class Q_GUI_EXPORT QLCDNumber : public QFrame                // LCD number widget
+class Q_GUI_EXPORT QLCDNumber : public QFrame // LCD number widget
 {
     Q_OBJECT
     Q_ENUMS(Mode SegmentStyle)
@@ -34,83 +33,65 @@ class Q_GUI_EXPORT QLCDNumber : public QFrame                // LCD number widge
     Q_PROPERTY(int intValue READ intValue WRITE display)
 
 public:
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
-#endif
     QLCDNumber(QWidget* parent = 0);
     QLCDNumber(uint numDigits, QWidget* parent = 0);
     ~QLCDNumber();
 
-    enum Mode { Hex, Dec, Oct, Bin
+    enum Mode {
+        Hex, Dec, Oct, Bin
 #ifdef QT_COMPAT
-	    , HEX = Hex, DEC = Dec, OCT = Oct, BIN = Bin
+        , HEX = Hex, DEC = Dec, OCT = Oct, BIN = Bin
 #endif
     };
-    enum SegmentStyle { Outline, Filled, Flat };
+    enum SegmentStyle {
+        Outline, Filled, Flat
+    };
 
-    bool    smallDecimalPoint() const;
+    bool smallDecimalPoint() const;
 
-    int            numDigits() const;
-    virtual void setNumDigits(int nDigits);
+    int numDigits() const;
+    void setNumDigits(int nDigits);
 
-    bool    checkOverflow(double num) const;
-    bool    checkOverflow(int          num) const;
+    bool checkOverflow(double num) const;
+    bool checkOverflow(int num) const;
 
     Mode mode() const;
-    virtual void setMode(Mode);
+    void setMode(Mode);
 
     SegmentStyle segmentStyle() const;
-    virtual void setSegmentStyle(SegmentStyle);
+    void setSegmentStyle(SegmentStyle);
 
-    double  value() const;
-    int            intValue() const;
+    double value() const;
+    int intValue() const;
 
     QSize sizeHint() const;
 
 public slots:
-    void    display(const QString &str);
-    void    display(int num);
-    void    display(double num);
-    virtual void setHexMode();
-    virtual void setDecMode();
-    virtual void setOctMode();
-    virtual void setBinMode();
-    virtual void setSmallDecimalPoint(bool);
+    void display(const QString &str);
+    void display(int num);
+    void display(double num);
+    void setHexMode();
+    void setDecMode();
+    void setOctMode();
+    void setBinMode();
+    void setSmallDecimalPoint(bool);
 
 signals:
-    void    overflow();
+    void overflow();
 
 protected:
-    void    paintEvent(QPaintEvent *);
+    void paintEvent(QPaintEvent *);
+
+public:
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
+#endif
 
 private:
     Q_DISABLE_COPY(QLCDNumber)
-
-    void    init();
-    void    internalDisplay(const QString &);
-    void    internalSetString(const QString& s);
-    void    drawString(const QString& s, QPainter &, QBitArray * = 0, bool = true);
-    //void    drawString(const QString &, QPainter &, QBitArray * = 0) const;
-    void    drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
-    void    drawSegment(const QPoint &, char, QPainter &, int, bool = false);
-
-    int            ndigits;
-    double  val;
-    uint    base        : 2;
-    uint    smallPoint        : 1;
-    uint    fill        : 1;
-    uint    shadow        : 1;
-    QString digitStr;
-    QBitArray points;
-    QLCDNumberPrivate * d;
+    Q_DECLARE_PRIVATE(QLCDNumber)
 };
-
-inline bool QLCDNumber::smallDecimalPoint() const
-{ return smallPoint; }
-
-inline int QLCDNumber::numDigits() const
-{ return ndigits; }
 
 #endif // QT_NO_LCDNUMBER
 

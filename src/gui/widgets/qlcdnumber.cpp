@@ -15,7 +15,28 @@
 #ifndef QT_NO_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
+#include "private/qframe_p.h"
 
+class QLCDNumberPrivate : public QFramePrivate
+{
+    Q_DECLARE_PUBLIC(QLCDNumber)
+public:
+    void init();
+    void internalSetString(const QString& s);
+    void drawString(const QString& s, QPainter &, QBitArray * = 0, bool = true);
+    //void drawString(const QString &, QPainter &, QBitArray * = 0) const;
+    void drawDigit(const QPoint &, QPainter &, int, char, char = ' ');
+    void drawSegment(const QPoint &, char, QPainter &, int, bool = false);
+
+    int ndigits;
+    double val;
+    uint base : 2;
+    uint smallPoint : 1;
+    uint fill : 1;
+    uint shadow : 1;
+    QString digitStr;
+    QBitArray points;
+};
 
 /*!
     \class QLCDNumber qlcdnumber.h
@@ -288,11 +309,12 @@ static const char *getSegments(char ch)               // gets list of segments f
 */
 
 QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
-        : QFrame(parent)
+        : QFrame(*new QLCDNumberPrivate, parent)
 {
     setObjectName(name);
-    ndigits = 5;
-    init();
+    Q_D(QLCDNumber);
+    d->ndigits = 5;
+    d->init();
 }
 
 
@@ -309,11 +331,12 @@ QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
 */
 
 QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent, const char *name)
-        : QFrame(parent)
+        : QFrame(*new QLCDNumberPrivate, parent)
 {
     setObjectName(name);
-    ndigits = numDigits;
-    init();
+    Q_D(QLCDNumber);
+    d->ndigits = numDigits;
+    d->init();
 }
 #endif //QT_COMPAT
 
@@ -328,10 +351,11 @@ QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent, const char *name)
 */
 
 QLCDNumber::QLCDNumber(QWidget *parent)
-        : QFrame(parent)
+        : QFrame(*new QLCDNumberPrivate, parent)
 {
-    ndigits = 5;
-    init();
+    Q_D(QLCDNumber);
+    d->ndigits = 5;
+    d->init();
 }
 
 
@@ -347,26 +371,24 @@ QLCDNumber::QLCDNumber(QWidget *parent)
 */
 
 QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent)
-        : QFrame(parent)
+        : QFrame(*new QLCDNumberPrivate, parent)
 {
-    ndigits = numDigits;
-    init();
+    Q_D(QLCDNumber);
+    d->ndigits = numDigits;
+    d->init();
 }
 
-/*!
-  \internal
-*/
-
-void QLCDNumber::init()
+void QLCDNumberPrivate::init()
 {
-    setFrameStyle(QFrame::Box | QFrame::Raised);
+    Q_Q(QLCDNumber);
+
+    q->setFrameStyle(QFrame::Box | QFrame::Raised);
     val        = 0;
-    base       = DEC;
+    base       = QLCDNumber::Dec;
     smallPoint = false;
-    setNumDigits(ndigits);
-    setSegmentStyle(Outline);
-    d = 0;
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+    q->setNumDigits(ndigits);
+    q->setSegmentStyle(QLCDNumber::Outline);
+    q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 }
 
 /*!
@@ -391,6 +413,7 @@ QLCDNumber::~QLCDNumber()
 
 void QLCDNumber::setNumDigits(int numDigits)
 {
+    Q_D(QLCDNumber);
     if (numDigits > 99) {
         qWarning("QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
                  objectName().local8Bit());
@@ -401,42 +424,47 @@ void QLCDNumber::setNumDigits(int numDigits)
                  objectName().local8Bit());
         numDigits = 0;
     }
-    if (digitStr.isNull()) {                  // from constructor
-        ndigits = numDigits;
-        digitStr.fill(' ', ndigits);
-        points.fill(0, ndigits);
-        digitStr[ndigits - 1] = '0';            // "0" is the default number
+    if (d->digitStr.isNull()) {                  // from constructor
+        d->ndigits = numDigits;
+        d->digitStr.fill(' ', d->ndigits);
+        d->points.fill(0, d->ndigits);
+        d->digitStr[d->ndigits - 1] = '0';            // "0" is the default number
     } else {
-        bool doDisplay = ndigits == 0;
-        if (numDigits == ndigits)             // no change
+        bool doDisplay = d->ndigits == 0;
+        if (numDigits == d->ndigits)             // no change
             return;
         register int i;
         int dif;
-        if (numDigits > ndigits) {            // expand
-            dif = numDigits - ndigits;
+        if (numDigits > d->ndigits) {            // expand
+            dif = numDigits - d->ndigits;
             QString buf;
             buf.fill(' ', dif);
-            digitStr.insert(0, buf);
-            points.resize(numDigits);
+            d->digitStr.insert(0, buf);
+            d->points.resize(numDigits);
             for (i=numDigits-1; i>=dif; i--)
-                points.setBit(i, points.testBit(i-dif));
+                d->points.setBit(i, d->points.testBit(i-dif));
             for (i=0; i<dif; i++)
-                points.clearBit(i);
+                d->points.clearBit(i);
         } else {                                        // shrink
-            dif = ndigits - numDigits;
-            digitStr = digitStr.right(numDigits);
-            QBitArray tmpPoints = points;
-            points.resize(numDigits);
+            dif = d->ndigits - numDigits;
+            d->digitStr = d->digitStr.right(numDigits);
+            QBitArray tmpPoints = d->points;
+            d->points.resize(numDigits);
             for (i=0; i<(int)numDigits; i++)
-                points.setBit(i, tmpPoints.testBit(i+dif));
+                d->points.setBit(i, tmpPoints.testBit(i+dif));
         }
-        ndigits = numDigits;
+        d->ndigits = numDigits;
         if (doDisplay)
             display(value());
         update();
     }
 }
 
+int QLCDNumber::numDigits() const
+{
+    Q_D(const QLCDNumber);
+    return d->ndigits;
+}
 
 /*!
     \overload
@@ -449,8 +477,9 @@ void QLCDNumber::setNumDigits(int numDigits)
 
 bool QLCDNumber::checkOverflow(int num) const
 {
+    Q_D(const QLCDNumber);
     bool of;
-    int2string(num, base, ndigits, &of);
+    int2string(num, d->base, d->ndigits, &of);
     return of;
 }
 
@@ -464,8 +493,9 @@ bool QLCDNumber::checkOverflow(int num) const
 
 bool QLCDNumber::checkOverflow(double num) const
 {
+    Q_D(const QLCDNumber);
     bool of;
-    double2string(num, base, ndigits, &of);
+    double2string(num, d->base, d->ndigits, &of);
     return of;
 }
 
@@ -484,14 +514,15 @@ bool QLCDNumber::checkOverflow(double num) const
 
 QLCDNumber::Mode QLCDNumber::mode() const
 {
-    return (QLCDNumber::Mode) base;
+    Q_D(const QLCDNumber);
+    return (QLCDNumber::Mode) d->base;
 }
 
 void QLCDNumber::setMode(Mode m)
 {
-    base = m;
-
-    display(val);
+    Q_D(QLCDNumber);
+    d->base = m;
+    display(d->val);
 }
 
 
@@ -508,7 +539,8 @@ void QLCDNumber::setMode(Mode m)
 
 double QLCDNumber::value() const
 {
-    return val;
+    Q_D(const QLCDNumber);
+    return d->val;
 }
 
 /*!
@@ -518,13 +550,14 @@ double QLCDNumber::value() const
 */
 void QLCDNumber::display(double num)
 {
-    val = num;
+    Q_D(QLCDNumber);
+    d->val = num;
     bool of;
-    QString s = double2string(num, base, ndigits, &of);
+    QString s = double2string(d->val, d->base, d->ndigits, &of);
     if (of)
         emit overflow();
     else
-        internalSetString(s);
+        d->internalSetString(s);
 }
 
 /*!
@@ -540,7 +573,8 @@ void QLCDNumber::display(double num)
 */
 int QLCDNumber::intValue() const
 {
-    return (int)(val < 0 ? val - 0.5 : val + 0.5);
+    Q_D(const QLCDNumber);
+    return qRound(d->val);
 }
 
 
@@ -551,13 +585,14 @@ int QLCDNumber::intValue() const
 */
 void QLCDNumber::display(int num)
 {
-    val = (double)num;
+    Q_D(QLCDNumber);
+    d->val = (double)num;
     bool of;
-    QString s = int2string(num, base, ndigits, &of);
+    QString s = int2string(num, d->base, d->ndigits, &of);
     if (of)
         emit overflow();
     else
-        internalSetString(s);
+        d->internalSetString(s);
 }
 
 
@@ -576,12 +611,13 @@ void QLCDNumber::display(int num)
 
 void QLCDNumber::display(const QString &s)
 {
-    val = 0;
+    Q_D(QLCDNumber);
+    d->val = 0;
     bool ok = false;
     double v = s.toDouble(&ok);
     if (ok)
-        val = v;
-    internalSetString(s);
+        d->val = v;
+    d->internalSetString(s);
 }
 
 /*!
@@ -652,8 +688,17 @@ void QLCDNumber::setBinMode()
 
 void QLCDNumber::setSmallDecimalPoint(bool b)
 {
-    smallPoint = b;
+    Q_D(QLCDNumber);
+    d->smallPoint = b;
+    update();
 }
+
+bool QLCDNumber::smallDecimalPoint() const
+{
+    Q_D(const QLCDNumber);
+    return d->smallPoint;
+}
+
 
 
 /*!\reimp
@@ -662,26 +707,19 @@ void QLCDNumber::setSmallDecimalPoint(bool b)
 
 void QLCDNumber::paintEvent(QPaintEvent *)
 {
+    Q_D(QLCDNumber);
     QPainter p(this);
     drawFrame(&p);
-    if (smallPoint)
-        drawString(digitStr, p, &points, false);
+    if (d->smallPoint)
+        d->drawString(d->digitStr, p, &d->points, false);
     else
-        drawString(digitStr, p, 0, false);
+        d->drawString(d->digitStr, p, 0, false);
 }
 
 
-/*!
-  \internal
-*/
-
-void QLCDNumber::internalDisplay(const QString &)
+void QLCDNumberPrivate::internalSetString(const QString& s)
 {
-    // Not used anymore
-}
-
-void QLCDNumber::internalSetString(const QString& s)
-{
+    Q_Q(QLCDNumber);
     QString buffer;
     int i;
     int len = s.length();
@@ -734,25 +772,26 @@ void QLCDNumber::internalSetString(const QString& s)
     digitStr = buffer;
     if (smallPoint)
         points = newPoints;
-    repaint(contentsRect());
+    q->update();
 }
 
 /*!
   \internal
 */
 
-void QLCDNumber::drawString(const QString &s, QPainter &p,
-                             QBitArray *newPoints, bool newString)
+void QLCDNumberPrivate::drawString(const QString &s, QPainter &p,
+                                   QBitArray *newPoints, bool newString)
 {
+    Q_Q(QLCDNumber);
     QPoint  pos;
 
     int digitSpace = smallPoint ? 2 : 1;
-    int xSegLen    = width()*5/(ndigits*(5 + digitSpace) + digitSpace);
-    int ySegLen    = height()*5/12;
+    int xSegLen    = q->width()*5/(ndigits*(5 + digitSpace) + digitSpace);
+    int ySegLen    = q->height()*5/12;
     int segLen     = ySegLen > xSegLen ? xSegLen : ySegLen;
     int xAdvance   = segLen*(5 + digitSpace)/5;
-    int xOffset    = (width() - ndigits*xAdvance + segLen/5)/2;
-    int yOffset    = (height() - segLen*2)/2;
+    int xOffset    = (q->width() - ndigits*xAdvance + segLen/5)/2;
+    int yOffset    = (q->height() - segLen*2)/2;
 
     for (int i=0;  i<ndigits; i++) {
         pos = QPoint(xOffset + xAdvance*i, yOffset);
@@ -783,8 +822,8 @@ void QLCDNumber::drawString(const QString &s, QPainter &p,
   \internal
 */
 
-void QLCDNumber::drawDigit(const QPoint &pos, QPainter &p, int segLen,
-                            char newCh, char oldCh)
+void QLCDNumberPrivate::drawDigit(const QPoint &pos, QPainter &p, int segLen,
+                                  char newCh, char oldCh)
 {
 // Draws and/or erases segments to change display of a single digit
 // from oldCh to newCh
@@ -839,23 +878,24 @@ static void addPoint(QPointArray &a, const QPoint &p)
   \internal
 */
 
-void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
-                              int segLen, bool erase)
+void QLCDNumberPrivate::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
+                                    int segLen, bool erase)
 {
+    Q_Q(QLCDNumber);
     QPoint ppt;
     QPoint pt = pos;
     int width = segLen/5;
 
-    const QPalette &pal = palette();
+    const QPalette &pal = q->palette();
     QColor lightColor,darkColor,fgColor;
     if (erase){
-        lightColor = pal.color(backgroundRole());
+        lightColor = pal.color(q->backgroundRole());
         darkColor  = lightColor;
         fgColor    = lightColor;
     } else {
         lightColor = pal.light().color();
         darkColor  = pal.dark().color();
-        fgColor    = pal.color(foregroundRole());
+        fgColor    = pal.color(q->foregroundRole());
     }
 
 
@@ -982,7 +1022,7 @@ void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
         default :
             qWarning("QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     objectName().local8Bit(), segmentNo);
+                     q->objectName().local8Bit(), segmentNo);
         }
         // End exact copy
         p.setPen(fgColor);
@@ -1116,7 +1156,7 @@ void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
         default :
             qWarning("QLCDNumber::drawSegment: (%s) Internal error."
                      "  Illegal segment id: %d\n",
-                     objectName().local8Bit(), segmentNo);
+                     q->objectName().local8Bit(), segmentNo);
         }
 
 #undef LINETO
@@ -1146,17 +1186,19 @@ void QLCDNumber::drawSegment(const QPoint &pos, char segmentNo, QPainter &p,
 */
 void QLCDNumber::setSegmentStyle(SegmentStyle s)
 {
-    fill = (s == Flat || s == Filled);
-    shadow = (s == Outline || s == Filled);
+    Q_D(QLCDNumber);
+    d->fill = (s == Flat || s == Filled);
+    d->shadow = (s == Outline || s == Filled);
     update();
 }
 
 QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
 {
-    Q_ASSERT(fill || shadow);
-    if (!fill && shadow)
+    Q_D(const QLCDNumber);
+    Q_ASSERT(d->fill || d->shadow);
+    if (!d->fill && d->shadow)
         return Outline;
-    if (fill && shadow)
+    if (d->fill && d->shadow)
         return Filled;
     return Flat;
 }
@@ -1168,5 +1210,6 @@ QSize QLCDNumber::sizeHint() const
 {
     return QSize(10 + 9 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 23);
 }
+
 
 #endif // QT_NO_LCDNUMBER
