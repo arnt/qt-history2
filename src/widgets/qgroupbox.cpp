@@ -703,7 +703,7 @@ bool QGroupBox::isFlat() const
 
 void QGroupBox::setFlat( bool b )
 {
-    if ( bFlat == b )
+    if ( (bool)bFlat == b )
 	return;
     bFlat = b;
     update();
