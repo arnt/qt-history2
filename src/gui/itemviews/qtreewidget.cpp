@@ -1120,10 +1120,10 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   \ingroup model-view
 
   The QTreeWidget class is a convenience class that provides a standard
-  tree view based on Qt's Model/View architecture, but which presents the
-  classic item-based interface used by the \c QListView class in Qt 3.
-  This class uses a default model to hold items, each of which is an instance
-  of the QTreeWidgetItem class.
+  tree view based on Qt's Model/View architecture with a classic item-based
+  interface similar to that used by the \c QListView class in Qt 3.
+  This class uses a default model to hold items, each of which is a
+  QTreeWidgetItem.
 
   Developers who do not need the flexibility of the Model/View framework
   can use this class to create simple hierarchical lists very easily. A more
@@ -1146,26 +1146,25 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
 /*!
     \fn void QTreeWidget::clicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
-    This signal is emitted when a mouse button is clicked. The \a item
-    may be 0 if the mouse was not clicked on an item. The \a column
-    returns the item column clicked, or -1 if no column was
-    clicked. The button clicked is specified by \a button (see
-    \l{Qt::ButtonState}).
+    This signal is emitted when the user clicks inside the widget.
+    The \a item given is the item that was clicked, or 0 if no item was clicked.
+    The \a column is the column that contained the item, or -1 if no item was
+    clicked.
+    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
     \fn void QTreeWidget::doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button)
 
-    This signal is emitted when a mouse button is double clicked. The
-    \a item may be 0 if the mouse was not clicked on an item. The \a
-    column returns the item column clicked, or -1 if no column was
-    clicked. The button clicked is specified by \a button (see
-    \l{Qt::ButtonState}).
+    This signal is emitted when the user double clicks inside the widget.
+    The \a item given is the item that was clicked, or 0 if no item was clicked.
+    The \a column is the column that contained the item, or -1 if no item was
+    clicked.
+    The button clicked is specified by \a button (see \l{Qt::ButtonState}).
 */
 
 /*!
-  Constructs a tree view with the given \a parent widget, using the default
-  model
+  Constructs a tree view with the given \a parent widget.
 */
 
 QTreeWidget::QTreeWidget(QWidget *parent)
@@ -1219,7 +1218,7 @@ int QTreeWidget::columnCount() const
 }
 
 /*!
-  Sets the number of header \a columns in the tree view.
+  Sets the number of header \a columns in the tree widget.
 */
 
 void QTreeWidget::setColumnCount(int columns)
@@ -1228,7 +1227,8 @@ void QTreeWidget::setColumnCount(int columns)
 }
 
 /*!
-  Returns the top level item at \a index or 0 if the item does not exist.
+  Returns the top level item at the given \a index, or 0 if the item does
+  not exist.
 */
 
 QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
@@ -1257,7 +1257,7 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 }
 
 /*!
-  Appends the \a item as a top-level item in the view.
+  Appends the \a item as a top-level item in the widget.
 
   \sa insertToplevelItem()
 */
@@ -1302,8 +1302,8 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 }
 
 /*!
-  Adds a column for each item in the \a labels list and
-  sets the header label.
+  Adds a column in the header for each item in the \a labels list, and sets
+  the label for each column.
 */
 void QTreeWidget::setHeaderLabels(const QStringList &labels)
 {
@@ -1325,7 +1325,7 @@ QTreeWidgetItem *QTreeWidget::currentItem() const
 }
 
 /*!
-  Sets the current item to the given \a item.
+  Sets the current \a item in the tree widget.
 
   \sa currentItem()
 */
@@ -1338,8 +1338,8 @@ void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 }
 
 /*!
-  Sorts the items in the view in the given \a order
-  by the values in the given \a column.
+  Sorts the items in the widget in the specified \a order by the values in
+  the given \a column.
 */
 
 void QTreeWidget::sortItems(int column, Qt::SortOrder order)
@@ -1349,8 +1349,8 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 }
 
 /*!
-  Enables sorting of the items in the view by clicking on a header section
-  if \a enable is true, otherwise sorting is disabled.
+  If \a enable is true, the items in the widget will be sorted if the user
+  clicks on a header section; otherwise sorting is disabled.
 */
 
 void QTreeWidget::setSortingEnabled(bool enable)
@@ -1361,8 +1361,8 @@ void QTreeWidget::setSortingEnabled(bool enable)
 }
 
 /*!
-  Returns if sorting by clicking on a header section is enabled,
-  otherwise returns false.
+  Returns if sorting is enabled; otherwise returns false.
+  Sorting is enabled when the user clicks on a header section.
 */
 
 bool QTreeWidget::isSortingEnabled() const
@@ -1371,9 +1371,7 @@ bool QTreeWidget::isSortingEnabled() const
 }
 
 /*!
-  Opens a persistent editor in the given \a item, in the given \a column.
-
-  The editor is created by the delegate.
+  Opens a persistent editor for the \a item in the given \a column.
 */
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
@@ -1384,9 +1382,10 @@ void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 }
 
 /*!
-  Closes the persistent editor in the given \a item, in the given \a column.
+  Closes the persistent editor for the \a item in the given \a column.
 
-  If no persistent editor is open in the given item and column, nothing is done.
+  This function has no effect if no persistent editor is open for this
+  combination of item and column.
 */
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
@@ -1397,7 +1396,7 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 }
 
 /*!
-  Returns true if the \a item is selected, otherwise returns false.
+  Returns true if the \a item is selected; otherwise returns false.
 */
 
 bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
@@ -1433,7 +1432,8 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
-  Finds items that matches the \a text, using the criteria given in the \a flags.
+  Returns a list of items that match the \a text, using the criteria given
+  in the \a flags.
 */
 
 QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
@@ -1450,7 +1450,7 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
 }
 
 /*!
-  Returns true if the \a item is in the viewport, otherwise returns false.
+  Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
 bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
@@ -1462,7 +1462,7 @@ bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Returns true if the \a item is open; otherwise returns false.
+  Returns true if the given \a item is open; otherwise returns false.
 */
 
 bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
@@ -1473,7 +1473,7 @@ bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Scrolls the view if necessary to ensure that the \a item is visible.
+  Ensures that the \a item is visible, scrolling the view if necessary.
 */
 
 void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
@@ -1484,7 +1484,8 @@ void QTreeWidget::ensureItemVisible(const QTreeWidgetItem *item)
 }
 
 /*!
-    Opens the \a item.
+    Opens the \a item. This causes the tree containing the item's children
+    to be expanded.
 */
 
 void QTreeWidget::openItem(const QTreeWidgetItem *item)
@@ -1495,7 +1496,8 @@ void QTreeWidget::openItem(const QTreeWidgetItem *item)
 }
 
 /*!
-    Closes the \a item.
+    Closes the \a item. This causes the tree containing the item's children
+    to be collapsed.
 */
 
 void QTreeWidget::closeItem(const QTreeWidgetItem *item)
@@ -1506,7 +1508,7 @@ void QTreeWidget::closeItem(const QTreeWidgetItem *item)
 }
 
 /*!
-  Sorts all items in the view by the value in the given \a column.
+  Sorts all items in the widget by the values in the given \a column.
   The items are sorted in the order given by the sort indicator in the header.
 */
 
@@ -1534,7 +1536,7 @@ void QTreeWidget::clear()
 }
 
 /*!
-  Appends a tree view \a item to the tree view.
+  Appends an \a item to the tree widget.
 */
 
 void QTreeWidget::appendItem(QTreeWidgetItem *item)
@@ -1543,7 +1545,7 @@ void QTreeWidget::appendItem(QTreeWidgetItem *item)
 }
 
 /*!
-  Removes a tree view \a item from tree view.
+  Removes an \a item from the tree widget.
 */
 
 void QTreeWidget::removeItem(QTreeWidgetItem *item)
