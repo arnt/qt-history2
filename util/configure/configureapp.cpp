@@ -285,7 +285,7 @@ void Configure::parseCmdLine()
         } else if( (*args) == "-I" ) {
 	    ++args;
 	    qmakeIncludes += (*args);
-	} else if( (*args) == "-l" ) {
+	} else if( (*args) == "-L" ) {
 	    ++args;
 	    qmakeLibs += (*args);
 	}
@@ -417,6 +417,7 @@ bool Configure::displayHelp()
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
 	    cout << "                         " << (*config).latin1() << endl;
 
+	cout << endl;
 	cout << "-qt-gif              Enable GIF support." << endl;
 	cout << "-no-gif            * Disable GIF support." << endl << endl;
 
@@ -426,7 +427,7 @@ bool Configure::displayHelp()
 
 	cout << "-no-png              PNG support through plugin." << endl;
 	cout << "-qt-png            * Compile in PNG support." << endl;
-	cout << "-system-png	      Use existing libPNG in system." << endl  << endl;
+	cout << "-system-png          Use existing libPNG in system." << endl  << endl;
 
 	cout << "-no-mng            * MNG support through plugin." << endl;
 	cout << "-qt-mng              Compile in MNG support." << endl;
@@ -457,27 +458,39 @@ bool Configure::displayHelp()
 
 	cout << "-D <define>          Add <define> to the list of defines." << endl;
 	cout << "-I <includepath>     Add <includepath> to the include searchpath." << endl;
-	cout << "-l <library>         Add <library> to the library list." << endl << endl;
+	cout << "-L <library>         Add <library> to the library list." << endl << endl;
 
-	cout << "-enable-*            Enable the specified module, where module is one of" << endl;
-	cout << "                     " << modules.join( " " ) << endl << endl;
+	cout << "-enable-*            Enable the specified module" << endl;
+	cout << "-disable-*           Disable the specified module" << endl;
+	cout << "                     where module is one of" << endl;
+	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module )
+	    cout << "                         " << (*module).latin1() << endl;
+	cout << endl;
 
-	cout << "-disable-*           Disable the specified module, where module is one of" << endl;
-	cout << "                     " << modules.join( " " ) << endl << endl;
+	cout << "-qt-sql-*            Build the specified Sql driver into Qt" << endl;
+	cout << "-plugin-sql-*        Build the specified Sql driver into a plugin" << endl;
+	cout << "-no-sql-*          * Don't build the specified Sql driver" << endl;
+	cout << "                     where sql driver is one of" << endl;
+	cout << "                         mysql" << endl;
+	cout << "                         psql" << endl;
+	cout << "                         oci" << endl;
+	cout << "                         odbc" << endl;
+	cout << "                         tds" << endl << endl;
 
-	cout << "-qt-sql-*	      Build the specified Sql driver into Qt" << endl;
-	cout << "-plugin-sql-*	      Build the specified Sql driver into a plugin" << endl;
-	cout << "-no-sql-*	    * Don't build the specified Sql driver" << endl;
-	cout << "		      where sql driver is one of mysql, psql, oci, odbc, tds" << endl << endl;
-	
-	cout << "-qt-style-*	    * Build the specified style into Qt" << endl;
+	cout << "-qt-style-*        * Build the specified style into Qt" << endl;
 	cout << "-plugin-style-*      Build the specified style into a plugin" << endl;
-	cout << "-no-style-*	      Don't build the specified style" << endl;
-	cout << "                     where style is one of windows, motif, cde, sgi, motifplus, platinum" << endl << endl;
+	cout << "-no-style-*          Don't build the specified style" << endl;
+	cout << "                     where style is one of" << endl;
+	cout << "                         windows" << endl;
+	cout << "                         motif" << endl;
+	cout << "                         cde" << endl;
+	cout << "                         sgi" << endl;
+	cout << "                         motifplus" << endl;
+	cout << "                         platinum" << endl << endl;
 
 	cout << "-redo                Run configure with the same parameters as last time." << endl;
-	cout << "-saveconfig <config> Run configure and save the parameters as custom config <config>." << endl;
-	cout << "-loadconfig <config> Run configure with the parameters from custom config <config>." << endl;
+	cout << "-saveconfig <config> Run configure and save the parameters as <config>." << endl;
+	cout << "-loadconfig <config> Run configure with the parameters from <config>." << endl;
 	return true;
     }
     return false;
