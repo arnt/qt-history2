@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#5 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -264,6 +264,33 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
  */
 
+
+/*!
+  \class QLayoutItem qabstractlayout.h
+  \brief The abstract items with a QLayout manipulates.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
+
+/*!
+  \class QSpacerItem qabstractlayout.h
+  \brief A QLayoutItem that represents blank space.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
+
+/*!
+  \class QWidgetItem qabstractlayout.h
+  \brief A QLayoutItem that represents widget.
+
+  For custom layouts.
+
+  \sa QLayout
+*/
 
 /*!
   \fn QLayoutItem::SearchResult QLayout::removeWidget (QWidget *w )

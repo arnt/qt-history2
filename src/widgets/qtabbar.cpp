@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#44 $
 **
 ** Implementation of QTabBar class
 **
@@ -24,6 +24,15 @@
 #include "qaccel.h"
 
 #include <ctype.h>
+
+/*!
+  \class QTab qtabbar.h
+  \brief The structures in a QTabBar.
+
+  For custom QTabBar tab headings.
+
+  \sa QTabBar
+*/
 
 QTab::~QTab()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#139 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#140 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -430,6 +430,30 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
     QChar bl = uctolower(*b);
     return al.row == bl.row ? al.cell - bl.cell : al.row - bl.row;
 }
+
+
+/*!
+  \class QChar qstring.h
+  \brief A Unicode character.
+
+  QChar values are normally used in combination with QString.
+
+  They can be constructed from:
+   <dl>
+    <dt>\c char
+      <dd>the char is assumed to be a Latin-1 character,
+	    for example QChar('Q') is the Unicode character U0051
+	    and QChar('t') is the Unicode character U0074.
+    <dt>\c short
+      <dd>the MSB is the high-order byte (row) of the Unicode character,
+	    for example QChar(ushort(0x6817)) is the Unicode character
+	    U6817 meaning <em>kuri</em> - chestnut tree - in Japanese.
+    <dt>\c char, \c char
+      <dd>the characters are LSB and MSB respectively,
+	    for example QChar(0x25,0x04) is the Unicode character U0425
+	    which is the Cyrillic letter YA which looks like a mirrored R.
+   </dl>
+*/
 
 
 /*!
@@ -3797,7 +3821,7 @@ QDataStream &operator>>( QDataStream &s, Q1String &str )
 */
 
 /*!
-  \class QConstString
+  \class QConstString qstring.h
   \brief A QString which uses constant Unicode data.
 
   In order to minimize copying, highly optimized applications

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#73 $
 **
 ** Implementation of event classes
 **
@@ -946,4 +946,44 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn void   QDropEvent::ignore()
 
   The opposite of accept().
+*/
+
+/*!
+  \class QDragEnterEvent qevent.h
+  \brief The event sent to widgets when a drag-and-drop first drags onto it.
+
+  This event is always immediated followed by a QDragMoveEvent, thus you need
+  only respond to one or the other event.
+
+  \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent
+*/
+
+/*!
+  \class QDragLeaveEvent qevent.h
+  \brief The event sent to widgets when a drag-and-drop leaves it.
+
+  This event is always preceded by a QDragEnterEvent and a series
+  of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
+
+  \sa QDragEnterEvent, QDragMoveEvent, QDropEvent
+*/
+
+/*!
+  \class QHideEvent qevent.h
+  \brief The event sent after a widget is hidden.
+
+  This event is sent just before QWidget::hide() returns, and also when
+  a top-level window has been hidden (iconified) by the user.
+
+  \sa QShowEvent
+*/
+
+/*!
+  \class QShowEvent qevent.h
+  \brief The event sent after a widget is shown.
+
+  This event is sent just after the window system shows the window, including
+  after a top-level window has been shown (un-iconified) by the user.
+
+  \sa QHideEvent
 */
