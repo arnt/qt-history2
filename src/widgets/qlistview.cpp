@@ -61,7 +61,22 @@ const int Unsorted = 16383;
 static QBitmap * verticalLine = 0;
 static QBitmap * horizontalLine = 0;
 
+static QPixmap *buffer = 0;
+
 QCleanUpHandler<QBitmap> qlv_cleanup_bitmap;
+QCleanUpHandler<QPixmap> qlv_cleanup_pixmap;
+
+static QPixmap *getCacheBuffer( const QSize &sz )
+{
+    if ( !buffer ) {
+	qlv_cleanup_pixmap.addCleanUp( buffer );
+	buffer = new QPixmap;
+    }
+
+    if ( buffer->width() < sz.width() || buffer->height() < sz.height() )
+	buffer->resize( sz );
+    return buffer;
+}
 
 struct QListViewPrivate
 {
@@ -195,6 +210,7 @@ struct QListViewPrivate
     bool clearing;
     bool makeCurrentVisibleOnUpdate;
     bool pressedSelected;
+    bool useDoubleBuffer;
 
     QSize sizeHint;
 };
@@ -1143,8 +1159,10 @@ void QListViewItem::setText( int column, const QString &text )
 	lsc = Unsorted;
     QListView * lv = listView();
     widthChanged( column );
-    if ( lv )
-	listView()->triggerUpdate();
+    if ( lv ) {
+	lv->triggerUpdate();
+	lv->d->useDoubleBuffer = TRUE;
+    }
 }
 
 
@@ -1206,8 +1224,10 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 	invalidateHeight();
     }
     QListView *lv = listView();
-    if ( lv )
+    if ( lv ) {
 	lv->triggerUpdate();
+	lv->d->useDoubleBuffer = TRUE;
+    }
 }
 
 
@@ -1794,6 +1814,7 @@ void QListView::init()
     d->makeCurrentVisibleOnUpdate = TRUE;
     d->selectAnchor = 0;
     d->select = TRUE;
+    d->useDoubleBuffer = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -1971,7 +1992,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    x = fx;
 	    c = fc;
 	    // draw to last interesting column
-	    while( c < lc && d->drawables ) {
+	    while ( c < lc && d->drawables ) {
 		int i = d->h->mapToLogical( c );
 		cs = d->h->cellSize( c );
 		r.setRect( x - ox, current->y - oy, cs, ih );
@@ -1981,8 +2002,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->save();
 		p->translate( r.left(), r.top() );
 		int ac = d->h->mapToLogical( c );
-		current->i->paintCell( p, colorGroup(), ac, r.width(),
-				       columnAlignment( ac ) );
+		if ( d->useDoubleBuffer ) {
+		    QSize ps( r.width(), current->i->height() );
+		    QPixmap *pm = getCacheBuffer( ps );
+		    QPainter dp( pm );
+		    current->i->paintCell( &dp, colorGroup(), ac, r.width(),
+					   columnAlignment( ac ) );
+		    dp.end();
+		    p->drawPixmap( QPoint( 0, 0 ), *pm, QRect( 0, 0, ps.width(), ps.height() ) );
+		} else {
+		    current->i->paintCell( p, colorGroup(), ac, r.width(),
+					   columnAlignment( ac ) );
+		}
 		p->restore();
 		x += cs;
 		c++;
@@ -1990,6 +2021,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    if ( current->i == d->focusItem && hasFocus() &&
 		 !d->allColumnsShowFocus ) {
 		p->save();
+		p->setClipping( FALSE );
 		int c = d->h->mapToActual( 0 );
 		QRect r( d->h->cellPos( c ) - ox, current->y - oy, d->h->cellSize( c ), ih );
 		if ( current->i->parentItem )
@@ -2563,6 +2595,7 @@ void QListView::updateContents()
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
+    d->useDoubleBuffer = FALSE;
     if ( d->makeCurrentVisibleOnUpdate )
 	ensureItemVisible( d->focusItem );
     d->makeCurrentVisibleOnUpdate = TRUE;
@@ -2620,10 +2653,9 @@ void QListView::handleSizeChange( int section, int os, int ns )
 
     // (lars) need to fix alignment here?
     int align = columnAlignment( section );
-    if ( align != AlignAuto && align != AlignLeft ) {
+    if ( align != AlignAuto && align != AlignLeft )
 	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
 			     d->h->cellSize( actual ), visibleHeight() );
-    }
 }
 
 
@@ -2634,7 +2666,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
 
 void QListView::updateDirtyItems()
 {
-    if ( d->timer->isActive() || !d->dirtyItems)
+    if ( d->timer->isActive() || !d->dirtyItems )
 	return;
     QRect ir;
     QPtrDictIterator<void> it( *(d->dirtyItems) );
@@ -2686,10 +2718,13 @@ void QListView::triggerUpdate()
     if ( !isVisible() || !isUpdatesEnabled() )
 	return; // it will update when shown, or something.
 
+#if 0 // ### why that, just kills performance
     if ( d && d->drawables ) {
 	delete d->drawables;
 	d->drawables = 0;
     }
+#endif
+
     d->timer->start( 0, TRUE );
 }
 
