@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#190 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#191 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -799,6 +799,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
+    if ( dragScrolling )
+	dragScrolling = FALSE;
     if ( d->inDoubleClick ) {
 	d->inDoubleClick = FALSE;
 	return;
@@ -822,8 +824,6 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	return;
     }
 
-    if ( dragScrolling )
-	dragScrolling = FALSE;
     if ( e->button() != LeftButton )
 	return;
 
@@ -1460,6 +1460,9 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	minP = QMIN( minP, QMIN( cursorPos, minMark() ) );
 	maxP = QMAX( maxP, QMAX( cursorPos, maxMark() ) );
 	
+	if ( offset > cursorPos )
+	    offset = cursorPos;
+
 	if ( (alignmentFlag & AlignLeft) && (tbuf == t || tbuf == t.right( tbuf.length() ) ) ) {
 	    int i = 0;
 	    while( i < minP && t[i] == tbuf[i] )
@@ -1476,14 +1479,11 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    maxP = i;
 	    repaintArea( minP, maxP );
 	} else {
-	    if ( offset > cursorPos )
-		offset = cursorPos;
 	    tbuf = t;
 	    ed = TRUE;
 	    d->pmDirty = TRUE;
 	    QFontMetrics fm = fontMetrics();
-	    int x = offset > cursorPos ? 0 // ?: for scrolling
-			: fm.width( t.mid( offset, cursorPos - offset ) );
+	    int x = fm.width( t.mid( offset, cursorPos - offset ) );
 	    int margin = frame() ? 2 : 0;
 	    if ( x >= width() - margin ) {
 		while( x >= width() - margin ) {
@@ -1528,11 +1528,12 @@ void QLineEdit::insert( const QString &newText )
     int ncp = QMIN( cp+t.length(), (uint)maxLength() );
     cursorOn = FALSE;
     blinkSlot();
+    validateAndSet( test, ncp, ncp, ncp );
     if (validateAndSet( test, ncp, ncp, ncp )) {
-	if ( offset > cp ) {
-	    offset = cp;
-	    repaintArea( offset, ncp );
-	}
+        if ( offset > cp ) {
+            offset = cp;
+            repaintArea( offset, ncp );
+        }
     }
 }
 
