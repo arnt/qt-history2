@@ -112,7 +112,7 @@ Q26Dot6 QFontEngine::underlinePosition() const
 
 HDC QFontEngine::dc() const
 {
-    if ( hdc || (QSysInfo::WindowsVersion & Qt::WV_NT_based) ) // either NT_based or Printer
+    if ( hdc || (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) ) // either NT_based or Printer
 	return hdc;
     Q_ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
@@ -226,7 +226,7 @@ QFontEngineWin::QFontEngineWin( const QString &name, HDC _hdc, HFONT _hfont, boo
 #ifndef Q_OS_TEMP
     // TextOutW doesn't work for symbol fonts on Windows 95!
     // since we're using glyph indices we don't care for ttfs about this!
-    if ( QSysInfo::WindowsVersion == Qt::WV_95 && !ttf &&
+    if ( QSysInfo::WindowsVersion == QSysInfo::WV_95 && !ttf &&
 	 ( _name == QLatin1String("Marlett") || _name == QLatin1String("Symbol") ||
 	   _name == QLatin1String("Webdings") || _name == QLatin1String("Wingdings") ) )
 	    useTextOutA = TRUE;
@@ -253,7 +253,7 @@ bool QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyp
 
     HDC hdc = dc();
     unsigned int glyph;
-    int overhang = (QSysInfo::WindowsVersion & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+    int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
     for( register int i = 0; i < len; i++ ) {
 	glyph = glyphs[i].glyph;
 	glyphs[i].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
@@ -287,7 +287,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     int angle = 0;
     bool transform = FALSE;
 
-    if (state->txop >= QPainter::TxScale && !(QSysInfo::WindowsVersion & Qt::WV_NT_based)) {
+    if (state->txop >= QPainter::TxScale && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
 	// Draw rotated and sheared text on Windows 95, 98
 
 	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
@@ -447,7 +447,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	WCHAR ch = glyph;
 	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
 	Q_UNUSED( res );
-	int overhang = (QSysInfo::WindowsVersion & Qt::WV_DOS_based) ? tm.a.tmOverhang : 0;
+	int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
 	return glyph_metrics_t( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0 );
     } else {
 	DWORD res = 0;
@@ -660,7 +660,7 @@ QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
 {
     cache_cost = 1;
-    hdc = (QSysInfo::WindowsVersion & Qt::WV_NT_based) ? GetDC( 0 ) : shared_dc;
+    hdc = (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) ? GetDC( 0 ) : shared_dc;
 #ifndef Q_OS_TEMP
     hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
 #endif

@@ -1240,7 +1240,7 @@ void QTabBar::updateArrowButtons()
 	d->scrolls = (d->lstatic.last()->r.right() - d->lstatic.first()->r.left() > width());
     }
     if ( d->scrolls ) {
-	const int arrowWidth = QMAX( d->btnWidth, QApplication::globalStrut().width() );
+	const int arrowWidth = qMax( d->btnWidth, QApplication::globalStrut().width() );
 	if ( QApplication::reverseLayout() ) {
 	    d->rightB->setGeometry( arrowWidth, 0, arrowWidth, height() );
 	    d->leftB->setGeometry( 0, 0, arrowWidth, height() );

@@ -37,7 +37,7 @@
 
 #define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
-static int qt_winver = Qt::WV_NT;
+static QSysInfo::WinVersion qt_winver = QSysInfo::WV_NT;
 
 /*****************************************************************************
   QPainter internal pen and brush cache
@@ -421,7 +421,7 @@ bool QWin32PaintEngine::end()
     } else if (d->device->devType() == QInternal::Pixmap) {
 	QPixmap *pm = (QPixmap *)d->device;
 	if (pm->optimization() == QPixmap::MemoryOptim &&
-	     (qt_winver & WV_DOS_based))
+	     (qt_winver & QSysInfo::WV_DOS_based))
 	    pm->allocCell();
     }
 
@@ -979,7 +979,7 @@ void QWin32PaintEngine::updatePen(QPainterState *state)
     }
 #ifndef Q_OS_TEMP
     if (((state->pen.width() != 0) || state->pen.width() > 1) &&
-	 (qt_winver & WV_NT_based || d->pStyle == SolidLine)) {
+	 (qt_winver & QSysInfo::WV_NT_based || d->pStyle == SolidLine)) {
 	LOGBRUSH lb;
 	lb.lbStyle = 0;
 	lb.lbColor = d->pColor;

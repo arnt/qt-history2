@@ -1045,8 +1045,8 @@ int QMenuBar::itemAtPos( const QPoint &pos_ )
     // Fitts' Law for edges - compensate for the extra margin
     // added in calculateRects()
     const int margin = 2;
-    pos.setX( QMAX( margin, QMIN( width() - margin, pos.x())));
-    pos.setY( QMAX( margin, QMIN( height() - margin, pos.y())));
+    pos.setX( qMax( margin, qMin( width() - margin, pos.x())));
+    pos.setY( qMax( margin, qMin( height() - margin, pos.y())));
     while ( i < (int)mitems->count() ) {
 	if ( !irects[i].isEmpty() && irects[i].contains( pos ) ) {
 	    QMenuItem *mi = mitems->at(i);

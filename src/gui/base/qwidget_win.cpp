@@ -153,7 +153,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( desktop ) {				// desktop widget
 	popup = FALSE;				// force this flags off
 #ifndef Q_OS_TEMP
-	if ( QSysInfo::WindowsVersion != Qt::WV_NT && QSysInfo::WindowsVersion != Qt::WV_95 )
+	if ( QSysInfo::WindowsVersion != QSysInfo::WV_NT && QSysInfo::WindowsVersion != QSysInfo::WV_95 )
 	    data->crect.setRect( GetSystemMetrics( 76 /* SM_XVIRTUALSCREEN  */ ), GetSystemMetrics( 77 /* SM_YVIRTUALSCREEN  */ ),
 			   GetSystemMetrics( 78 /* SM_CXVIRTUALSCREEN */ ), GetSystemMetrics( 79 /* SM_CYVIRTUALSCREEN */ ) );
 	else
@@ -1767,7 +1767,7 @@ void QWidget::setWindowOpacity(double level)
     if ((wl&Q_WS_EX_LAYERED) == 0)
 	SetWindowLongA(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
 
-    level = QMIN(QMAX(level, 0), 1.0);
+    level = qMin(qMax(level, 0), 1.0);
     (*ptrSetLayeredWindowAttributes)(winId(), 0, (int)(level * 255), Q_LWA_ALPHA);
     d->topData()->opacity = (uchar)(level * 255);
 

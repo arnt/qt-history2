@@ -104,8 +104,8 @@ void QInputContext::translateIMEvent( QWSIMEvent *e, QWidget *keywidget )
 		composition = new QString;
 	}
 
-	const int cpos = QMAX(0, QMIN(e->simpleData.cpos, int(txt.length())));
-	const int selLen = QMIN( e->simpleData.selLen, int(txt.length())-cpos);
+	const int cpos = qMax(0, qMin(e->simpleData.cpos, int(txt.length())));
+	const int selLen = qMin( e->simpleData.selLen, int(txt.length())-cpos);
 
 	QIMEvent out( QEvent::IMCompose, txt, 
 			     cpos, 

@@ -288,7 +288,7 @@ bool QPrinter::newPage()
     bool success = FALSE;
     if ( hdc && state == PST_ACTIVE ) {
         bool restorePainter = FALSE;
-        if ( (QSysInfo::WindowsVersion& Qt::WV_DOS_based) && painter && painter->isActive() ) {
+        if ( (QSysInfo::WindowsVersion& QSysInfo::WV_DOS_based) && painter && painter->isActive() ) {
             painter->save();               // EndPage/StartPage ruins the DC
             restorePainter = TRUE;
         }
@@ -305,7 +305,7 @@ bool QPrinter::newPage()
         if ( !success )
 	    state = PST_ABORTED;
 
-        if ( QSysInfo::WindowsVersion & Qt::WV_DOS_based )
+        if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based )
 	    setPrinterMapping( hdc, res );
         if ( restorePainter ) {
             painter->restore();
@@ -1282,7 +1282,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
     else if ( d > 8 ) {
 	// some windows printer drivers on 95/98 can't handle 32 bit DIBs,
 	// so we have to use 24 bits in that case.
-	if ( QSysInfo::WindowsVersion & Qt::WV_DOS_based )
+	if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based )
 	    d = 24;
 	else
 	    d = 32;

@@ -1148,7 +1148,7 @@ void QWorkspace::showMaximizeControls()
 	    if(pm.width() > iconSize || pm.height() > iconSize) {
 		QImage im;
 		im = pm;
-		pm = im.smoothScale( QMIN(iconSize, pm.width()), QMIN(iconSize, pm.height()) );
+		pm = im.smoothScale( qMin(iconSize, pm.width()), qMin(iconSize, pm.height()) );
 	    }
 	    d->maxtools->setPixmap( pm );
 	} else {

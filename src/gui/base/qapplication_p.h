@@ -55,7 +55,7 @@ extern QClipboard *qt_clipboard;
 #endif
 
 #if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
-extern Qt::WindowsVersion qt_winver;
+extern QSysInfo::WinVersion qt_winver;
 enum { QT_TABLET_NPACKETQSIZE = 128 };
 # ifdef Q_OS_TEMP
   extern DWORD qt_cever;

@@ -7861,7 +7861,7 @@ void QListView::adjustColumn( int col )
 	w = qMax( w, iw );
 	item = item->itemBelow();
     }
-    w = QMAX( w, QApplication::globalStrut().width() );
+    w = qMax( w, QApplication::globalStrut().width() );
 
     d->h->adjustHeaderSize( oldw - w );
     if (oldw != w) {

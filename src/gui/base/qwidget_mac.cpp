@@ -2601,7 +2601,7 @@ void QWidget::setWindowOpacity(double level)
     if(!isTopLevel())
 	return;
 
-    level = QMIN(QMAX(level, 0), 1.0);
+    level = qMin(qMax(level, 0), 1.0);
     QMacSavedPortInfo::setWindowAlpha(this, level);
     d->topData()->opacity = (uchar)(level * 255);
 }

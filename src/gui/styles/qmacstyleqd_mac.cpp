@@ -2179,7 +2179,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	    w += 2;
         if (::qt_cast<QComboBox*>(widget->parentWidget())
             && widget->parentWidget()->isVisible())
-	    w = QMAX(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
+	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
 			SC_ComboBoxEditField).width());
 	else
 	    w += 12;

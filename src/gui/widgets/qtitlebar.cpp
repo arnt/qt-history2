@@ -186,7 +186,7 @@ void QTitleBar::readColors()
 	pal.setColor( QPalette::Inactive, QPalette::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
 	pal.setColor( QPalette::Active, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
 	pal.setColor( QPalette::Inactive, QPalette::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
-	if ( QSysInfo::WindowsVersion != Qt::WV_95 && QSysInfo::WindowsVersion != WV_NT ) {
+	if ( QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT ) {
 	    colorsInitialized = TRUE;
 	    BOOL gradient;
 	    QT_WA( {
