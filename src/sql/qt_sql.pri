@@ -70,7 +70,7 @@ sql {
 			LIBS += -lmysqlclient
 		}
 		win32 {
-			LIBS += mysqlclient.lib
+			LIBS += libmysql.lib
 		}
 	}
 	
