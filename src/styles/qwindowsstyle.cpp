@@ -1347,9 +1347,10 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		if ( (child->isExpandable() || child->childCount()) &&
 		     (child->height() > 0) ) {
 		    // needs a box
-		    p->setPen( cg.text() );
+		    p->setPen( cg.mid() );
 		    p->drawRect( bx-4, linebot-4, 9, 9 );
 		    // plus or minus
+		    p->setPen( cg.text() );
 		    p->drawLine( bx - 2, linebot, bx + 2, linebot );
 		    if ( !child->isOpen() )
 			p->drawLine( bx, linebot - 2, bx, linebot + 2 );
