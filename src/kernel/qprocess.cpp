@@ -158,6 +158,13 @@
     readyReadStdout() and readyReadStderr() signals and read the data
     as soon as it becomes available.
 
+    Note: Under Windows there are certain problems starting 16-bit applications
+    and capture their output. Microsoft recommends to use an intermediate
+    application to start 16-bit applications. See Knowledge Base article \link
+    http://support.microsoft.com/default.aspx?scid=KB;en-us;q150956 Q150956
+    \endlink for details on this and example code for an intermediate
+    application.
+
     \sa QSocket
 */
 
