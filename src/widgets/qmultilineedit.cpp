@@ -211,10 +211,45 @@ static const int scroll_margin = 16;     // auto-scroll edge in DND
 #define FIXED_COLUMN_WRAP ( (d->wrapmode & 3) == FixedColumnWrap )
 #define BREAK_WITHIN_WORDS ( (d->wrapmode & BreakWithinWords) == BreakWithinWords )
 
+static int defTabStop = 8;
+
 static int tabStopDist( const QFontMetrics &fm )
 {
-    return 8*fm.width( QChar('x') );
+    return defTabStop*fm.width( QChar('x') );
 }
+
+
+/*!
+  Sets the distance between tab stops for all QMultiLineEdit instances
+  to \ex, which is measured in multiples of the width of a lower case 'x'
+  in the widget's font. The initial value is 8.
+  
+  \warning This function does not cause a redraw. It is best to call
+  it before any QMultiLineEdit widgets are shown.
+
+  \sa defaultTabStop()
+*/
+
+void QMultiLineEdit::setDefaultTabStop( int ex )
+{
+    defTabStop = ex;
+}
+
+
+
+/*!
+  Returns the distance between tab stops.
+  
+  \sa setDefaultTabStop();
+*/
+
+int QMultiLineEdit::defaultTabStop()
+{
+    return defTabStop;
+}
+
+
+
 
 static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint start, uint nChars, int align )
 {
@@ -3765,3 +3800,4 @@ int QMultiLineEdit::undoDepth() const
 {
     return d->undodepth;
 }
+

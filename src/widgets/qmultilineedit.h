@@ -130,6 +130,8 @@ public:
     virtual void       setReadOnly( bool );
     virtual void       setOverwriteMode( bool );
 
+    static void setDefaultTabStop( int ex );
+    static int defaultTabStop();
 public slots:
     void       clear();
     void       append( const QString &);

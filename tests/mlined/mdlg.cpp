@@ -8,6 +8,7 @@
 
 MDialog::MDialog()
 {
+    QMultiLineEdit::setDefaultTabStop( 3 );
     fs = 0;
 
     QMenuBar* mb = new QMenuBar( this );
@@ -123,13 +124,13 @@ MDialog::MDialog()
     //connect( pb, SIGNAL(toggled(bool)), m, SLOT(setOverwriteMode(bool)));
 #if 1
     m->setText( "To be, or not to be: that is the question:\n"
-	       "Whether 'tis nobler in the mind to suffer\n"
-	       "The slings and arrows of outrageous fortune,\n"
+	       "	Whether 'tis nobler in the mind to suffer\n"
+	       "	The slings and arrows of outrageous fortune,\n"
 	       "Or to take arms against a sea of troubles,\n"
 	       "And by opposing end them?  To die: to sleep;\n"
 	       "No more; and by a sleep to say we end\n"
-	       "The heart-ache and the thousand natural shocks\n"
-	       "That flesh is heir to, 'tis a consummation\n"
+	       "		The heart-ache and the thousand natural shocks\n"
+	       "		That flesh is heir to, 'tis a consummation\n"
 	       "Devoutly to be wish'd.  To die, to sleep;\n"
 	       "To sleep: perchance to dream: ay, there's the rub;\n"
 	       "For in that sleep of death what dreams may come\n"
