@@ -673,9 +673,11 @@ bool QObject::event( QEvent *e )
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
 	return TRUE;
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     case QEvent::Accessibility:
 	accessibilityEvent( e );
 	return TRUE;
+#endif
     default:
 	break;
     }
