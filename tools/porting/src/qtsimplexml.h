@@ -30,7 +30,7 @@ public:
 
     QString name() const;
     QString text() const;
-
+    int numChildren() const;
     bool isValid() const;
 
     const QtSimpleXml &operator [](int index) const;

@@ -14,10 +14,28 @@
 #ifndef RULESFROMXML_H
 #define RULESFROMXML_H
 
+#include <QList>
+#include <QPair>
+#include <QStringList>
 #include "qtsimplexml.h"
 #include "tokenreplacements.h"
-#include <QList>
-#include <QStringList>
+
+class RuleDescription
+{
+public:
+    explicit RuleDescription(QtSimpleXml &replacementRule) {
+        qt3 = replacementRule["Qt3"].text();
+        qt4 = replacementRule["Qt4"].text();
+        ruleType = replacementRule.attribute("Type");
+    }
+    QString qt3;
+    QString qt4;
+    QString ruleType;
+    bool operator==(const RuleDescription &other) const
+    {
+        return (qt3 == other.qt3 && qt4 == other.qt4 && ruleType == other.ruleType);
+    }
+};
 
 class PortingRules
 {
@@ -34,14 +52,23 @@ public:
     QStringList getInheritsQt();
 private:
     static PortingRules *theInstance;
-    QtSimpleXml xml;
+
     QList<TokenReplacement*> tokenRules;
     QStringList qt3Headers;
     QStringList qt4Headers;
     QStringList neededHeaders;
     QStringList inheritsQtClass;
-    void parseXml();
+    QList<RuleDescription> disabledRules;
+    void parseXml(const QString fileName);
     void checkScopeAddRule(/*const */QtSimpleXml &currentRule);
+    QtSimpleXml *loadXml(const QString fileName) const ;
+    QString resolveFileName(const QString currentFileName,
+                            const QString includeFileName) const;
+    bool isReplacementRule(const QString ruleType) const;
+    void disableRule(QtSimpleXml &replacementRule);
+    bool isRuleDisabled(QtSimpleXml &replacementRule) const;
+    void addLogWarning(const QString text) const;
+    void addLogError(const QString text) const;
 };
 
 #endif

@@ -13,6 +13,8 @@
 
 #include "portingrules.h"
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include <iostream>
 #include "logger.h"
 using std::cout;
@@ -31,8 +33,8 @@ PortingRules *PortingRules::instance()
     if(theInstance) {
         return theInstance;
     } else {
-        cout << "Error: must create a PortingRules"
-             << "instance before calling instance()" << endl;
+        cout << "Error: must create a PortingRules instance with"
+             << "createInstance() before calling instance()" << endl;
         return 0;
     }
 }
@@ -47,26 +49,20 @@ void PortingRules::deleteInstance()
 
 PortingRules::PortingRules(QString xmlFilePath)
 {
-    QFile f(xmlFilePath);
-    if(!f.open(QIODevice::ReadOnly)) {
-        qFatal("Could not find rule file %s", xmlFilePath.toLatin1().constData());
-    }
-    if(!xml.setContent(&f))
-        qFatal("Xml parsing failed! Error: %s", xml.errorString().toLatin1().constData());
-    parseXml();
+    parseXml(xmlFilePath);
 }
 
 QList<TokenReplacement*> PortingRules::getNoPreprocessPortingTokenRules()
 {
     if(tokenRules.isEmpty())
-         Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", "Warning: token rules list is empty"));
+         addLogWarning("Warning: token rules list is empty");
     return tokenRules;
 }
 
 QStringList PortingRules::getHeaderList(QtVersion qtVersion)
 {
     if(qt3Headers.isEmpty() || qt4Headers.isEmpty())
-         Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", "Warning: headers list is empty"));
+         addLogWarning("Warning: headers list is empty");
 
     if (qtVersion==Qt3)
         return qt3Headers;
@@ -77,42 +73,62 @@ QStringList PortingRules::getHeaderList(QtVersion qtVersion)
 QStringList PortingRules::getNeededHeaderList()
 {
     if(neededHeaders.isEmpty())
-         Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", "Warning: headers list is empty"));
+         addLogWarning("Warning: needed headers list is empty");
     return neededHeaders;
 }
 
 QStringList PortingRules::getInheritsQt()
 {
     if(tokenRules.isEmpty())
-        Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", "Warning: inheritsQtClass list is empty"));
+        addLogWarning("Warning: inheritsQtClass list is empty");
     return inheritsQtClass;
 }
 
-void PortingRules::parseXml()
+/*
+    Loads rule xml file given by fileName, and sets up data structures.
+    The rules can generally be divided into to types, replacement rules and
+    info rules.
+
+    Replacement rules has the form Qt3Symobl -> Qt4Symbol
+    Info rules includes the NeedHeader, Qt3Header, Qt4Header, InhertitsQt
+    rule types.
+*/
+void PortingRules::parseXml(QString fileName)
 {
-    int ruleCount = xml["Rules"]["Count"].text().toInt();
-    ++ruleCount; //Hack! compensate for off-by-one error somewhere in QtSimpleXml
+    QtSimpleXml *xmlPointer = loadXml(fileName);
+    QtSimpleXml &xml(*xmlPointer);
+
+    int ruleCount = xml["Rules"].numChildren();
+    ++ruleCount;
 
     for(int rule=0; rule<ruleCount; ++rule) {
         QtSimpleXml &currentRule = xml["Rules"][rule];
-
         QString ruleType = currentRule.attribute("Type");
-        if(ruleType == "RenamedHeader") {
-                      tokenRules.append(new IncludeTokenReplacement(
-                     currentRule["Qt3"].text().toLatin1(),
-                     currentRule["Qt4"].text().toLatin1()));
-        }
-        else if(ruleType == "RenamedClass" || ruleType == "RenamedToken" ) {
-            tokenRules.append(new ClassNameReplacement(
-                    currentRule["Qt3"].text().toLatin1(),
-                    currentRule["Qt4"].text().toLatin1()));
-        }
-        else if(ruleType == "RenamedEnumvalue" ||
-                ruleType == "RenamedType" ||
-                ruleType == "RenamedQtSymbol" ) {
-            checkScopeAddRule(currentRule);
-        }
-        else if(ruleType == "NeedHeader") {
+
+        if(isReplacementRule(ruleType)) {
+            QString qt3Symbol = currentRule["Qt3"].text();
+            QString qt4Symbol = currentRule["Qt4"].text();
+
+            QString disable = currentRule.attribute("Disable");
+            if(disable == "True" || disable == "true") {
+                disableRule(currentRule);
+                continue;
+            }
+
+            if (isRuleDisabled(currentRule))
+                continue;
+
+            if(ruleType == "RenamedHeader") {
+                tokenRules.append(new IncludeTokenReplacement(
+                        qt3Symbol.toLatin1(), qt4Symbol.toLatin1()));
+            } else if(ruleType == "RenamedClass" || ruleType == "RenamedToken" ) {
+                tokenRules.append(new ClassNameReplacement(
+                        qt3Symbol.toLatin1(), qt4Symbol.toLatin1()));
+            } else if(ruleType == "RenamedEnumvalue" || ruleType == "RenamedType" ||
+                    ruleType == "RenamedQtSymbol" ) {
+                checkScopeAddRule(currentRule);
+            }
+        } else if(ruleType == "NeedHeader") {
             neededHeaders += currentRule["Header"].text();
         }
         else if(ruleType == "qt3Header") {
@@ -125,7 +141,18 @@ void PortingRules::parseXml()
             inheritsQtClass += currentRule.text();
         }
     }
+
+    QString includeFile = xml["Rules"]["Include"].text();
+
+    if(includeFile != QString()) {
+        QString resolvedIncludeFile = resolveFileName(fileName, includeFile);
+        if (!resolvedIncludeFile.isEmpty())
+            parseXml(resolvedIncludeFile);
+    }
+
+    delete xmlPointer;
 }
+
 /*
     Check if the rule in currentRule describes a qualified name
     (like QButton::ToggleState). If so, create a scoped ScopedTokenReplacement,
@@ -140,4 +167,83 @@ void PortingRules::checkScopeAddRule(/*const */QtSimpleXml &currentRule)
         tokenRules.append(new ScopedTokenReplacement(oldToken, newToken));
     else
         tokenRules.append(new GenericTokenReplacement(oldToken, newToken));
+}
+
+/*
+    Loads the xml-file given by fileName into a new'ed QtSimpleXml, which is
+    returned by pointer.
+*/
+QtSimpleXml *PortingRules::loadXml(const QString fileName) const
+{
+    QFile f(fileName);
+    if(!f.open(QIODevice::ReadOnly)) {
+        qFatal("Could not find rule file %s", fileName.toLatin1().constData());
+    }
+    QtSimpleXml *xml = new QtSimpleXml();
+    if(!xml->setContent(&f))
+        addLogError(QByteArray("Xml parsing failed: ") + xml->errorString().toLatin1());
+
+    return xml;
+}
+
+/*
+    Resolves includeFilePath against currentFilePath. If currentFilePath
+    contains foo/bar.xml, and includeFilePath contains bar2.xml, the returned
+    result will be foo/bar2.xml. If includeFilePath is absolute, it is returned
+    unmodified.
+*/
+QString PortingRules::resolveFileName(const QString currentFilePath,
+                                      const QString includeFilePath) const
+{
+    if(QFileInfo(includeFilePath).isAbsolute())
+        return includeFilePath;
+    QString relativeDirectory = QFileInfo(currentFilePath).dir().dirName();
+    QString testFileName = relativeDirectory + "/" + includeFilePath;
+    if (QFile::exists(testFileName))
+        return testFileName;
+
+    return QString();
+}
+/*
+    Checks if a rule is a replacement rule.
+*/
+bool PortingRules::isReplacementRule(const QString ruleType) const
+{
+    return (ruleType == "RenamedHeader" || ruleType == "RenamedClass" ||
+            ruleType == "RenamedToken" || ruleType == "RenamedEnumvalue" ||
+            ruleType == "RenamedType" || ruleType == "RenamedQtSymbol" );
+}
+
+/*
+    Disables a replacement rule given by the replacementRule parameter
+*/
+void PortingRules::disableRule(QtSimpleXml &replacementRule)
+{
+    RuleDescription ruleDescription(replacementRule);
+    return disabledRules.append(ruleDescription);
+}
+
+/*
+    Checks if a replacement rule is disabled or not
+*/
+bool PortingRules::isRuleDisabled(QtSimpleXml &replacementRule) const
+{
+    RuleDescription ruleDescription(replacementRule);
+    return disabledRules.contains(ruleDescription);
+}
+
+/*
+    Adds a warning to the global logger.
+*/
+void PortingRules::addLogWarning(const QString text) const
+{
+    Logger::instance()->addEntry(new PlainLogEntry("Warning", "Porting", text));
+}
+
+/*
+    Adds an error to the global logger.
+*/
+void PortingRules::addLogError(const QString text) const
+{
+    Logger::instance()->addEntry(new PlainLogEntry("Error", "Porting", text));
 }

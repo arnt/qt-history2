@@ -130,6 +130,11 @@ QString QtSimpleXml::text() const
     return s;
 }
 
+int QtSimpleXml::numChildren() const
+{
+    return children.count();
+}
+
 bool QtSimpleXml::isValid() const
 {
     return valid;
