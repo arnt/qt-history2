@@ -118,23 +118,27 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QWhatsThis::add( toolb, "This is a <b>QToolButton</b>. It lives in a "
 		     "QToolBar. This particular button doesn't do anything "
 		     "useful." );
+    tools->addWidget(toolb);
 
     QPixmap saveIcon( filesave );
     toolb = new QToolButton( saveIcon, "toolbutton 2", QString::null,
 			     this, SLOT(dummy()),
 			     tools, "save file" );
     QWhatsThis::add( toolb, "This is also a <b>QToolButton</b>." );
+    tools->addWidget(toolb);
 
     QPixmap  printIcon( fileprint );
     toolb = new QToolButton( printIcon, "toolbutton 3", QString::null,
 			     this, SLOT(dummy()),
 			     tools, "print file" );
     QWhatsThis::add( toolb, "This is the third <b>QToolButton</b>.");
+    tools->addWidget(toolb);
 
     toolb = QWhatsThis::whatsThisButton( tools );
     QWhatsThis::add( toolb, "This is a <b>What's This</b> button "
 		     "It enables the user to ask for help "
 		     "about widgets on the screen.");
+    tools->addWidget(toolb);
 
     // Install an application-global event filter to catch control+leftbutton
     qApp->installEventFilter( this );
@@ -209,11 +213,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 				  QMessageBox::Ok + QMessageBox::Default );
     }
 
-
-    (void) new QMovie( MOVIEFILENAME );
-
-
-#if 0
+#if 1
     // Create a label containing a QMovie
     movie = QMovie( MOVIEFILENAME );
     movielabel = new QLabel( central, "label0" );
@@ -523,7 +523,6 @@ void WidgetView::movieUpdate( const QRect& )
 
 void WidgetView::movieStatus( int s )
 {
-#if 1
     switch ( s ) {
       case QMovie::SourceEmpty:
       case QMovie::UnrecognizedFormat:
@@ -537,7 +536,6 @@ void WidgetView::movieStatus( int s )
 	if ( movielabel->movie() )	 	// for flicker-free animation:
 	    movielabel->setAttribute(WA_NoSystemBackground, true);
     }
-#endif
 }
 
 
