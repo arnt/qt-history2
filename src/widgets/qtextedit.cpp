@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#38 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -210,12 +210,12 @@ static bool block_set_alignment = FALSE;
 
     The background color is set differently than other widgets, using
     setPaper(). You specify a brush style which could be a plain color
-    or a complex pixmap. 
-    
+    or a complex pixmap.
+
     Hypertext links are automatically underlined; this can be changed
     with setLinkUnderline(). The tab stop width is set with
-    setTabStopWidth(). 
-    
+    setTabStopWidth().
+
     The zoomIn() and zoomOut() functions can be used to resize the text
     by increasing (decreasing for zoomOut()) the point size used. Images
     are not affected by the zoom functions.
@@ -281,7 +281,7 @@ static bool block_set_alignment = FALSE;
     of the cursor, using setOverwriteMode().
 
     QTextEdit can also be used as read-only text viewer. Call
-    setReadOnly( TRUE ) to disable editing. A read-only QTextEdit 
+    setReadOnly( TRUE ) to disable editing. A read-only QTextEdit
     provides the same functionality as the (obsolete) QTextView.
     (QTextView is still supplied for compatibility with old code.)
 
@@ -530,22 +530,22 @@ QTextEdit::QTextEdit( QWidget *parent, const char *name )
     init();
 }
 
-/*!  
+/*!
     Constructs a QTextEdit with parent \a parent and name \a name. The
-    text edit will display the text \a text using context \a context. 
+    text edit will display the text \a text using context \a context.
 
     The \a context is a path which the text edit's QMimeSourceFactory
     uses to resolve the locations of files and images. It is passed to
     the mimeSourceFactory() when quering data.
 
-    For example if the text contains an image tag, 
+    For example if the text contains an image tag,
     \c{<img src="image.png">}, and the context is "path/to/look/in", the
     QMimeSourceFactory will try to load the image from
-    "path/to/look/in/image.png". If the tag was 
+    "path/to/look/in/image.png". If the tag was
     \c{<img src="/image.png">}, the context will not be used (because
     QMimeSourceFactory recognizes that we have used an absolute path)
     and will try to load "/image.png". The context is applied in exactly
-    the same way to \e hrefs, for example, 
+    the same way to \e hrefs, for example,
     \c{<a href="target.html">Target</a>}, would resolve to
     "path/to/look/in/target.html".
 
@@ -2522,7 +2522,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
   and select text; modifying the text is not possible.
 */
 
-/*!  
+/*!
     Finds the next occurrence of the string, \a expr, starting from
     character position \e *\a index within paragraph \e *\a para. Both
     \a index and \a para must be non-null int pointers.
@@ -2602,8 +2602,8 @@ void QTextEdit::getCursorPosition( int *parag, int *index ) const
 {
     if ( !parag || !index )
 	return;
-    parag = cursor->parag()->paragId();
-    index = cursor->index();
+    *parag = cursor->parag()->paragId();
+    *index = cursor->index();
 }
 
 /*!
@@ -3416,7 +3416,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   at the right edge of the text edit. Wrapping occurs at whitespace,
   keeping whole words intact. If you want wrapping to occur within
   words use setWrapPolicy(). If you set a wrap mode of \c
-  FixedPixelWidth or \c FixedColumnWidth you should also call 
+  FixedPixelWidth or \c FixedColumnWidth you should also call
   setWrapColumnOrWidth() with the width you want.
 
   \sa QTextEdit::WordWrap, wrapColumnOrWidth, wrapPolicy,
@@ -3632,7 +3632,7 @@ bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color )
     return TRUE;
 }
 
-/*! 
+/*!
     This function is called to create a right mouse button popup menu.
     If you want to create a custom popup menu, reimplement this function
     and return the created popup menu. Ownership of the popup menu is
