@@ -302,7 +302,7 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output) {
         printf("QPainter::drawHelper: fillRule=%d, shape=%d, op=%d, emulation=0x%x ( ",
-           fillRule, shape, op, emulationSpecifier);
+               fillRule, shape, op, emulationSpecifier);
         static struct { uint value; const char *text; } emuMap[] = {
             {    0x0001, "CoordTransform "},
             {    0x0002, "PenWidthTransform "},
@@ -345,24 +345,27 @@ void QPainterPrivate::draw_helper(const void *data, Qt::FillRule fillRule, Shape
         // Custom fill, gradients, alpha and patterns
         if ((emulationSpecifier & QPaintEngine::LinearGradients)
             || (emulationSpecifier & QPaintEngine::AlphaFill)
-            || (emulationSpecifier & QPaintEngine::PatternTransform)) {
+            || (emulationSpecifier & QPaintEngine::PatternTransform))
+        {
             if (((emulationSpecifier & QPaintEngine::LinearGradients)
                  && engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
                 || ((emulationSpecifier & QPaintEngine::AlphaFill)
                     && engine->hasFeature(QPaintEngine::AlphaFillPolygon)))
-                {
+            {
                 if (shape == PathShape) {
                     q->drawPath(*reinterpret_cast<const QPainterPath *>(data));
                 } else {
                     QPolygon pg = draw_helper_xpolygon(data, shape);
-                    if (outlineMode == PathBased) {
-                        q->save();
-                        q->setPen(Qt::NoPen);
+                    QPen old_pen = state->pen;
+                    if (old_pen.style() != Qt::NoPen) {
+                        state->pen = Qt::NoPen;
+                        engine->setDirty(QPaintEngine::DirtyPen);
                         engine->updateState(state);
                     }
                     engine->drawPolygon(pg, QPaintEngine::PolygonDrawMode(fillRule));
-                    if (outlineMode == PathBased) {
-                        q->restore();
+                    if (old_pen.style() != Qt::NoPen) {
+                        state->pen = old_pen;
+                        engine->setDirty(QPaintEngine::DirtyPen);
                     }
                 }
             } else {
