@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 1.6 1995/12/18 16:56:46 hanord Exp $
+** $Id: debug.doc,v 1.7 1995/12/27 18:17:10 hanord Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -48,15 +48,16 @@ The -sync option is only valid for the X-Windows version of Qt.
 
 Qt has three functions for writing out warning and debug text.
 <ul>
-<li> debug() for writing debug output for testing etc.
-<li> warning() for writing warning output when program errors occur.
-<li> fatal() for writing fatal error messages and exit.
+<li>\link ::debug() debug()\endlink for writing debug output for testing etc.
+<li>\link ::warning() warning()\endlink for writing warning output when program
+errors occur.
+<li>\link ::fatal() fatal()\endlink for writing fatal error messages and exit.
 </ul>
 
 The Qt implementation of these functions prints the text to the \c stderr
 output under UNIX/X-Windows and to the debugger under Windows.  You can
 take over these functions by installing a message handler;
-qInstallMsgHandler().
+\link ::qInstallMsgHandler() qInstallMsgHandler()\endlink.
 
 
 <hr>
@@ -66,10 +67,10 @@ The header file qglobal.h contains many debugging macros and #defines.
 
 To important macros are:
 <ul>
-<li> \c ASSERT(b) where b is a boolean expression, writes the warning:
-     "ASSERT: 'b' in file file.cpp (234)" if b is FALSE.
-<li> \c CHECK_PTR(p) where p is a pointer.  Writes the warning
-     "In file file.cpp, line 234: Out of memory" if p is null.
+<li>\link ::ASSERT ASSERT(b)\endlink where b is a boolean expression, writes
+the warning: "ASSERT: 'b' in file file.cpp (234)" if b is FALSE.
+<li>\link ::CHECK_PTR() CHECK_PTR(p)\endlink where p is a pointer.
+Writes the warning "In file file.cpp, line 234: Out of memory" if p is null.
 </ul>
 
 These macros are useful for detecting program errors.
@@ -93,7 +94,7 @@ Example of misuse:
   char *alloc( int size )
   {
       char *p;
-      CHECK_PTR( p = new char[size] );	// do not do this!
+      CHECK_PTR( p = new char[size] );	// never do this!
       return p;
   }
 \endcode
