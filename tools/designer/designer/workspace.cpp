@@ -275,7 +275,6 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     header()->hide();
     setSorting( 0 );
     setResizePolicy( QScrollView::Manual );
-    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
     QPalette p( palette() );
     p.setColor( QColorGroup::Base, QColor( *backColor2 ) );
     (void)*selectedBack; // hack

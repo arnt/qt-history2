@@ -3551,7 +3551,6 @@ PropertyEditor::PropertyEditor( QWidget *parent )
 		  WStyle_StaysOnTop | WStyle_Tool |WStyle_MinMax | WStyle_SysMenu )
 {
     setCaption( tr( "Property Editor" ) );
-    setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
     wid = 0;
     formwindow = 0;
     listview = new PropertyList( this );
