@@ -3360,26 +3360,7 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
     if (idx == l)
         return QByteArray();
 
-    if (compareNoCase(uc + idx, nan()))
-        return QByteArray("nan");
-
     QByteArray result;
-
-    QChar c = uc[idx];
-
-    if (c == plus()) {
-        result.append('+');
-        ++idx;
-    }
-    else if (c == minus()) {
-        result.append('-');
-        ++idx;
-    }
-
-    if (compareNoCase(uc + idx, infinity())) {
-        result.append("inf");
-        return result;
-    }
 
     while (idx < l) {
         QChar c = uc[idx];
