@@ -5207,11 +5207,6 @@ static const char * const def_item_xpm[] = {
 static QPixmap *defaultIcon = 0;
 static const int BoxSize = 16;
 
-struct QCheckListItemPrivate
-{
-    bool enabled;
-};
-
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
   \a tt. Note that a RadioButton must be the child of a Controller,
@@ -5304,8 +5299,6 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 void QCheckListItem::init()
 {
     on = FALSE;
-    reserved = new QCheckListItemPrivate;
-    reserved->enabled = TRUE;
     if ( !defaultIcon )
 	defaultIcon = new QPixmap( (const char **)def_item_xpm );
     if ( myType == Controller ) {
@@ -5320,7 +5313,6 @@ void QCheckListItem::init()
 */
 QCheckListItem::~QCheckListItem()
 {
-    delete (QCheckListItemPrivate*)reserved;
 }
 
 /*! \fn QCheckListItem::Type QCheckListItem::type() const
@@ -5368,27 +5360,6 @@ void QCheckListItem::activate()
     } else if ( myType == RadioButton ) {
 	setOn( TRUE );
     }
-}
-
-/*!
-    If \a b is TRUE the item is enabled; otherwise the item is
-    disabled. If the item is disabled, the user can't change its state
-    (see setOn()/isOn()) of the item.
-*/
-
-void QCheckListItem::setEnabled( bool b )
-{
-    reserved->enabled = b;
-}
-
-/*!  Retuns TRUE if the item is enabled; otherwise returns FALSE.
-
-  \sa setEnabled()
-*/
-
-bool QCheckListItem::isEnabled() const
-{
-    return reserved->enabled;
 }
 
 /*!

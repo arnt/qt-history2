@@ -474,9 +474,6 @@ public:
     QString text() const { return QListViewItem::text( 0 ); }
     QString text( int n ) const { return QListViewItem::text( n ); }
 
-    void setEnabled( bool b );
-    bool isEnabled() const;
-
     int rtti() const;
     static int RTTI;
 
@@ -490,8 +487,6 @@ private:
     Type myType;
     bool on;
     QCheckListItem *exclusive;
-
-    QCheckListItemPrivate *reserved;
 };
 
 class Q_EXPORT QListViewItemIterator
