@@ -49,7 +49,7 @@ class DocParser;
 */
 class Doc
 {
-    friend DocParser;
+    friend class DocParser;
 
 public:
     enum Kind { Null, Fn, Class, Enum, Property, Page, Base64, Plainpage,
