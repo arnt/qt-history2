@@ -54,7 +54,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)
+MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(FALSE),
+							init_already(FALSE), moc_aware(FALSE), project(p)
 {
 }
 
@@ -422,14 +423,12 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 }
 
 void
-MakefileGenerator::init()
+MakefileGenerator::initOutPaths()
 {
-    if(init_already)
+    if(init_opath_already)
 	return;
-    init_already = TRUE;
-
+    init_opath_already = TRUE;
     QMap<QString, QStringList> &v = project->variables();
-    { //opaths
 	if(!v.contains("QMAKE_ABSOLUTE_SOURCE_PATH")) {
 	    if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty() &&
 	       v.contains("QMAKE_ABSOLUTE_SOURCE_ROOT")) {
@@ -486,8 +485,18 @@ MakefileGenerator::init()
 	    }
 	}
 	QDir::current().cd( currentDir );
-    }
 
+}
+
+void
+MakefileGenerator::init()
+{
+    initOutPaths();
+    if(init_already)
+	return;
+    init_already = TRUE;
+
+    QMap<QString, QStringList> &v = project->variables();
     QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
 			    QString("HEADERS"), QString("HEADERS_ORIG"),
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
@@ -1825,3 +1834,5 @@ MakefileGenerator::create(QMakeProject *proj)
     }
     return mkfile;
 }
+
+

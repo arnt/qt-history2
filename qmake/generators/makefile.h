@@ -44,7 +44,7 @@
 class MakefileGenerator
 {
     QString spec;
-    bool init_already, moc_aware;
+    bool init_opath_already, init_already, moc_aware;
     QStringList createObjectList(const QString &var);
     QString build_args();
     QMap<QString, QString> depHeuristics, depKeyMap;
@@ -92,6 +92,7 @@ protected:
     bool writeHeader(QTextStream &);
     virtual bool writeMakefile(QTextStream &);
     virtual bool writeMakeQmake(QTextStream &);
+    void initOutPaths();
     virtual void init();
 
     //for installs
