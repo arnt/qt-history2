@@ -19,6 +19,7 @@
 
 #include "glaccum.h"
 #include "jitter.h"
+#include "math.h"
 
 #define ACSIZE  8
 #define PI_ 3.14159265358979323846
