@@ -4973,7 +4973,8 @@ bool QWidget::macEvent( MSG * )
     return FALSE;
 }
 
-#elif defined(Q_WS_WIN)
+#endif
+#if defined(Q_WS_WIN)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -4988,26 +4989,34 @@ bool QWidget::macEvent( MSG * )
 
   \sa QApplication::winEventFilter()
 */
-
-/*!
-    \internal
-*/
 bool QWidget::winEvent( MSG * )
 {
     return FALSE;
 }
 
-#elif defined(Q_WS_X11)
+#endif
+#if defined(Q_WS_X11)
 
 /*!
-    \internal
+  This special event handler can be reimplemented in a subclass to receive
+  native X11 events.
+
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
+
+  \warning This function is not portable.
+
+  \sa QApplication::x11EventFilter()
 */
 bool QWidget::x11Event( XEvent * )
 {
     return FALSE;
 }
 
-#elif defined(Q_WS_QWS)
+#endif
+#if defined(Q_WS_QWS)
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
@@ -5021,10 +5030,6 @@ bool QWidget::x11Event( XEvent * )
   \warning This function is not portable.
 
   \sa QApplication::qwsEventFilter()
-*/
-
-/*!
-    \internal
 */
 bool QWidget::qwsEvent( QWSEvent * )
 {
