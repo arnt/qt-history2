@@ -107,71 +107,77 @@ inline static T *v_cast(QCoreVariant::Private *d)
     return reinterpret_cast<T*>(&d->data.ptr);
 }
 
+template <class T>
+inline static void v_construct(QCoreVariant::Private *x)
+{
+    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
+        x->data.shared = new QCoreVariant::PrivateShared(new T);
+        x->is_shared = true;
+    } else {
+        new (&x->data.ptr) T;
+    }
+}
 
-#define QCONSTRUCT(vType) \
-    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) {\
-        x->data.shared = new QCoreVariant::PrivateShared(new vType( \
-                    *static_cast<const vType *>(copy))); \
-        x->is_shared = true; \
-    } else \
-        new (&x->data.ptr) vType(*static_cast<const vType *>(copy))
-
-#define QCONSTRUCT_EMPTY(vType) \
-    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) { \
-        x->data.shared = new QCoreVariant::PrivateShared(new vType); \
-        x->is_shared = true; \
-    } else \
-        new (&x->data.ptr) vType
+template <class T>
+inline static void v_construct(QCoreVariant::Private *x, const void *copy)
+{
+    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
+        x->data.shared = new QCoreVariant::PrivateShared(new T(*static_cast<const T *>(copy)));
+        x->is_shared = true;
+    } else {
+        new (&x->data.ptr) T(*static_cast<const T *>(copy));
+    }
+}
 
 static void construct(QCoreVariant::Private *x, const void *copy)
 {
-    x->is_shared = false;
+   x->is_shared = false;
 
-    if (copy) {
+   if (copy) {
         switch(x->type) {
         case QCoreVariant::String:
-            QCONSTRUCT(QString);
+            v_construct<QString>(x, copy);
             break;
         case QCoreVariant::Char:
-            QCONSTRUCT(QChar);
+            v_construct<QChar>(x, copy);
             break;
         case QCoreVariant::StringList:
-            QCONSTRUCT(QStringList);
+            v_construct<QStringList>(x, copy);
             break;
 #ifndef QT_NO_TEMPLATE_VARIANT
         case QCoreVariant::Map:
-            QCONSTRUCT(QCoreVariantMap);
+            v_construct<QCoreVariantMap>(x, copy);
             break;
         case QCoreVariant::List:
-            QCONSTRUCT(QCoreVariantList);
+            v_construct<QCoreVariantList>(x, copy);
             break;
 #endif
         case QCoreVariant::Date:
-            QCONSTRUCT(QDate);
+            v_construct<QDate>(x, copy);
             break;
         case QCoreVariant::Time:
-            QCONSTRUCT(QTime);
+            v_construct<QTime>(x, copy);
             break;
         case QCoreVariant::DateTime:
-            QCONSTRUCT(QDateTime);
+            v_construct<QDateTime>(x, copy);
             break;
         case QCoreVariant::ByteArray:
-            QCONSTRUCT(QByteArray);
+            v_construct<QByteArray>(x, copy);
             break;
         case QCoreVariant::BitArray:
-            QCONSTRUCT(QBitArray);
+            v_construct<QBitArray>(x, copy);
             break;
         case QCoreVariant::Size:
-            QCONSTRUCT(QSize);
+            v_construct<QSize>(x, copy);
             break;
         case QCoreVariant::Url:
-            QCONSTRUCT(QUrl);
+            v_construct<QUrl>(x, copy);
             break;
         case QCoreVariant::Rect:
-            QCONSTRUCT(QRect);
+            v_construct<QRect>(x, copy);
             break;
         case QCoreVariant::Point:
-            QCONSTRUCT(QPoint);
+            v_construct<QPoint>(x, copy);
             break;
         case QCoreVariant::Int:
             x->data.i = *static_cast<const int *>(copy);
@@ -207,48 +213,48 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QCoreVariant::UserType:
             break;
         case QCoreVariant::String:
-            QCONSTRUCT_EMPTY(QString);
+            v_construct<QString>(x);
             break;
         case QCoreVariant::Char:
-            QCONSTRUCT_EMPTY(QChar);
+            v_construct<QChar>(x);
             break;
         case QCoreVariant::StringList:
-            QCONSTRUCT_EMPTY(QStringList);
+            v_construct<QStringList>(x);
             break;
 #ifndef QT_NO_TEMPLATE_VARIANT
         case QCoreVariant::Map:
-            QCONSTRUCT_EMPTY(QCoreVariantMap);
+            v_construct<QCoreVariantMap>(x);
             break;
         case QCoreVariant::List:
-            QCONSTRUCT_EMPTY(QCoreVariantList);
+            v_construct<QCoreVariantList>(x);
             break;
 #endif
         case QCoreVariant::Date:
-            QCONSTRUCT_EMPTY(QDate);
+            v_construct<QDate>(x);
             break;
         case QCoreVariant::Time:
-            QCONSTRUCT_EMPTY(QTime);
+            v_construct<QTime>(x);
             break;
         case QCoreVariant::DateTime:
-            QCONSTRUCT_EMPTY(QDateTime);
+            v_construct<QDateTime>(x);
             break;
         case QCoreVariant::ByteArray:
-            QCONSTRUCT_EMPTY(QByteArray);
+            v_construct<QByteArray>(x);
             break;
         case QCoreVariant::BitArray:
-            QCONSTRUCT_EMPTY(QBitArray);
+            v_construct<QBitArray>(x);
             break;
         case QCoreVariant::Size:
-            QCONSTRUCT_EMPTY(QSize);
+            v_construct<QSize>(x);
             break;
         case QCoreVariant::Url:
-            QCONSTRUCT_EMPTY(QUrl);
+            v_construct<QUrl>(x);
             break;
         case QCoreVariant::Point:
-            QCONSTRUCT_EMPTY(QPoint);
+            v_construct<QPoint>(x);
             break;
         case QCoreVariant::Rect:
-            QCONSTRUCT_EMPTY(QRect);
+            v_construct<QRect>(x);
             break;
         case QCoreVariant::Int:
             x->data.i = 0;
@@ -277,60 +283,63 @@ static void construct(QCoreVariant::Private *x, const void *copy)
     }
 }
 
-#define QCLEAR(vType) \
-    if (sizeof(vType) > sizeof(QCoreVariant::Private::Data)) {\
-        delete static_cast<vType *>(d->data.shared->ptr); \
-        delete d->data.shared; \
-    } else { \
-        reinterpret_cast<vType *>(&d->data.ptr)->~vType(); \
+template <class T>
+inline static void v_clear(QCoreVariant::Private *d)
+{
+    if (sizeof(T) > sizeof(QCoreVariant::Private::Data)) {
+        delete v_cast<T>(d);
+        delete d->data.shared;
+    } else {
+        reinterpret_cast<T *>(&d->data.ptr)->~T();
     }
+}
 
 static void clear(QCoreVariant::Private *d)
 {
     switch (d->type) {
     case QCoreVariant::String:
-        QCLEAR(QString);
+        v_clear<QString>(d);
         break;
     case QCoreVariant::Char:
-        QCLEAR(QChar);
+        v_clear<QChar>(d);
         break;
     case QCoreVariant::StringList:
-        QCLEAR(QStringList);
+        v_clear<QStringList>(d);
         break;
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-        QCLEAR(QCoreVariantMap);
+        v_clear<QCoreVariantMap>(d);
         break;
     case QCoreVariant::List:
-        QCLEAR(QCoreVariantList);
+        v_clear<QCoreVariantList>(d);
         break;
 #endif
     case QCoreVariant::Date:
-        QCLEAR(QDate);
+        v_clear<QDate>(d);
         break;
     case QCoreVariant::Time:
-        QCLEAR(QTime);
+        v_clear<QTime>(d);
         break;
     case QCoreVariant::DateTime:
-        QCLEAR(QDateTime);
+        v_clear<QDateTime>(d);
         break;
     case QCoreVariant::ByteArray:
-        QCLEAR(QByteArray);
+        v_clear<QByteArray>(d);
         break;
     case QCoreVariant::BitArray:
-        QCLEAR(QBitArray);
+        v_clear<QBitArray>(d);
         break;
     case QCoreVariant::Point:
-        QCLEAR(QPoint);
+        v_clear<QPoint>(d);
         break;
     case QCoreVariant::Size:
-        QCLEAR(QSize);
+        v_clear<QSize>(d);
         break;
     case QCoreVariant::Url:
-        QCLEAR(QUrl);
+        v_clear<QUrl>(d);
         break;
     case QCoreVariant::Rect:
-        QCLEAR(QRect);
+        v_clear<QRect>(d);
         break;
     case QCoreVariant::LongLong:
     case QCoreVariant::ULongLong:
@@ -1287,7 +1296,7 @@ QCoreVariant::QCoreVariant(const QCoreVariant &p)
         d.data.shared = p.d.data.shared;
         ++d.data.shared->ref;
     } else {
-        construct(&d, p.constData());
+        handler->construct(&d, p.constData());
     }
     d.is_null = p.d.is_null;
 }
@@ -2256,7 +2265,7 @@ const void *QCoreVariant::constData() const
     case QCoreVariant::BitArray:
         return v_cast<QBitArray>(&d);
     default:
-        return d.is_shared ? d.data.shared->ptr : d.data.ptr;
+        return d.is_shared ? d.data.shared->ptr : &d.data.ptr;
     }
 }
 
