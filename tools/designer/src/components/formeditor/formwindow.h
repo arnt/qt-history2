@@ -50,11 +50,11 @@ class SignalSlotEditor;
 class FormWindowDnDItem : public AbstractDnDItem
 {
     Q_OBJECT
-public:    
+public:
     FormWindowDnDItem(QWidget *widget);
     FormWindowDnDItem(DomUI *dom_ui, QWidget *widget);
     virtual ~FormWindowDnDItem();
-    
+
     virtual DomUI *domUi() const;
     virtual QWidget *decoration() const;
     virtual QWidget *widget() const;
@@ -63,6 +63,14 @@ private:
     QWidget *m_decoration, *m_widget;
     DomUI *m_dom_ui;
     QPoint m_hot_spot;
+};
+
+class InvisibleWidget: public QWidget
+{
+    Q_OBJECT
+public:
+    InvisibleWidget(QWidget *parent = 0)
+        : QWidget(parent) {}
 };
 
 class QT_FORMEDITOR_EXPORT FormWindow: public AbstractFormWindow
@@ -74,13 +82,13 @@ public:
         DefaultMargin = 11,
         DefaultSpacing = 6
     };
-    
+
     enum HighlightMode
     {
         Restore,
         Highlight
     };
-    
+
 public:
     FormWindow(FormEditor *core, QWidget *parent = 0, Qt::WFlags flags = 0);
     virtual ~FormWindow();
@@ -92,10 +100,10 @@ public:
     virtual bool hasFeature(Feature f) const;
     virtual Feature features() const;
     virtual void setFeatures(Feature f);
-    
+
     virtual EditMode editMode() const;
     virtual void setEditMode(EditMode mode);
-    
+
     QString fileName() const;
     void setFileName(const QString &fileName);
 
@@ -113,7 +121,7 @@ public:
     QWidget *currentWidget() const;
     void setCurrentWidget(QWidget *currentWidget);
 
-    virtual QSize sizeHint() const 
+    virtual QSize sizeHint() const
     { return QSize(400, 300); }  /// ### remove me
 
     bool hasInsertedChildren(QWidget *w) const;
@@ -136,7 +144,7 @@ public:
     inline QList<QWidget *> widgets() const { return m_widgets; }
     inline int widgetCount() const { return m_widgets.count(); }
     inline QWidget *widgetAt(int index) const { return m_widgets.at(index); }
-    
+
     QList<QWidget *> widgets(QWidget *widget) const;
 
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
@@ -153,7 +161,7 @@ public:
 
     inline QtUndoStack *commandHistory() const
     { return m_commandHistory; }
-    
+
     void beginCommand(const QString &description);
     void endCommand();
 
@@ -170,15 +178,15 @@ public:
     virtual QWidget *widgetAt(const QPoint &pos);
     virtual void highlightWidget(QWidget *w, const QPoint &pos,
                                     HighlightMode mode = Highlight);
-                      
+
     DomConnections *saveConnections();
     void createConnections(DomConnections *connections, QWidget *parent);
-                      
-    inline void emitGeometryChanged(QWidget *w) 
+
+    inline void emitGeometryChanged(QWidget *w)
     { emit geometryChanged(w); }
 
     void updateOrderIndicators();
-                                             
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
     void geometryChanged(QWidget *w);
@@ -208,7 +216,7 @@ public slots:
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);
-    
+
 private slots:
     void selectionChangedTimerDone();
     void invalidCheckedSelections();
@@ -261,7 +269,7 @@ private:
 
     static int widgetDepth(QWidget *w);
     static bool isChildOf(QWidget *c, const QWidget *p);
-    
+
 private:
     Feature m_feature;
     FormEditor *m_core;
@@ -307,7 +315,7 @@ private:
     QList<QWidget*> stackedWidgets;
 
     QMap<QWidget*, QPalette> palettesBeforeHighlight;
-    
+
     QRubberBand *m_rubberBand;
 
     QTimer *m_selectionChangedTimer;
@@ -316,7 +324,7 @@ private:
 
     SignalSlotEditor *m_signalSlotEditor;
     EditMode m_editMode;
-    
+
 private:
     friend class FormWindowManager;
     friend class SizeHandle;
