@@ -34,7 +34,7 @@
 class QSettingsNode;
 
 
-class Q_EXPORT QSettings : public QObject
+class QSettings : public QObject
 {
     Q_OBJECT
 

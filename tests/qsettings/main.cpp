@@ -9,7 +9,11 @@
 #include <qiconset.h>
 #include <qpointarray.h>
 
+#ifdef _OS_UNIX_
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 
 
 int main(int argc, char **argv) {
