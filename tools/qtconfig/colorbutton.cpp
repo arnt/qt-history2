@@ -79,7 +79,9 @@ void ColorButton::drawButton(QPainter *p)
     buttonOptions.state = (isDown() ? QStyle::State_Sunken : QStyle::State_Raised);
     style()->drawPrimitive(QStyle::PE_PanelButtonBevel, &buttonOptions, p, this);
 
+    p->save();
     drawButtonLabel(p);
+    p->restore();
 
     QStyleOptionFocusRect frectOptions;
     frectOptions.init(this);
@@ -96,7 +98,7 @@ void ColorButton::drawButtonLabel(QPainter *p)
 
     p->setPen(palette().color(cg, QPalette::ButtonText));
     p->setBrush(col);
-    p->drawRect(width() / 4, height() / 4, width() / 2, height() / 2);
+    p->drawRect(width() / 4, height() / 4, width() / 2 - 1, height() / 2 - 1);
 }
 
 
