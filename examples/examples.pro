@@ -67,12 +67,12 @@ opengl:SUBDIRS +=   opengl/box \
 nas:SUBDIRS += 	    sound
 iconview:SUBDIRS += fileiconview \
 		    iconview
-network:SUBDIRS +=  clientserver/client \
-		    clientserver/server \
-		    ftpclient \
-		    httpd \
-		    mail \
-		    networkprotocol
+network:SUBDIRS +=  network/clientserver/client \
+		    network/clientserver/server \
+		    network/ftpclient \
+		    network/httpd \
+		    network/mail \
+		    network/networkprotocol
 workspace:SUBDIRS+= mdi
 table:SUBDIRS +=    statistics \
 		    table
