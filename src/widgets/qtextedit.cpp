@@ -4513,7 +4513,13 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 	    case Key_C: case Key_F16: // Copy key on Sun keyboards
 		copy();
 		break;
+#ifdef Q_WS_WIN
+	    case Key_A:
+		selectAll();
+		break;
+#endif
 	    }
+
 	}
 	return FALSE;
     }
