@@ -41,18 +41,18 @@
 /*!
   \class QMetaData qmetaobject.h
 
-  \brief The QMetaData class provides a struct that contains a member function that is known by the meta object system.
+  \brief The QMetaData struct provides information about  a member function that is known by the meta object system.
 
   \internal
 
-  The struct consists of two members, \e name and \e ptr:
+  The struct consists of three members, \e name, \e method  and \e access:
 
   \code
     const char *name;				// - member name
-    QMember ptr;				// - member pointer
+    const QUMethod* method;			// - detailed method description
+    enum Access { Private, Protected, Public };
+    Access access;				// - access permission
   \endcode
-
-  \e QMember is a void QObject member function.
  */
 
 /*!
@@ -179,14 +179,14 @@ static int optDictSize( int n )
 
 /*!\internal
  */
-QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
-			  const QMetaData *slot_data, int n_slots,
-			  const QMetaData *signal_data, int n_signals,
+QMetaObject::QMetaObject( const char *const class_name, QMetaObject *super_class,
+			  const QMetaData *const slot_data, int n_slots,
+			  const QMetaData *const signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
-			  const QMetaProperty *prop_data, int n_props,
-			  const QMetaEnum *enum_data, int n_enums,
+			  const QMetaProperty *const prop_data, int n_props,
+			  const QMetaEnum *const enum_data, int n_enums,
 #endif
-			  const QClassInfo *class_info, int n_info )
+			  const QClassInfo *const class_info, int n_info )
 {
     classname = class_name;			// set meta data
     superclass = super_class;
@@ -288,32 +288,36 @@ int QMetaObject::numSignals( bool super ) const	// number of signals
 
 
 /*!  \internal
-  Returns the meta data of the slot with index \a index or 0 if no
+
+  Returns the meta data of the slot with the name \a n or 0 if no
   such slot exists.
 
   If  \a super is TRUE, inherited slots are included.
  */
-const QMetaData *QMetaObject::slot( int index, bool super ) const
+const QMetaData* QMetaObject::slot( int index, bool super ) const
 {
     int idx = index - ( super ? slotOffset() : 0 );
-    if ( slotDict && idx >= 0 && idx < (int) slotDict->count() )
+    if ( slotDict && idx >= 0 && idx < (int) slotDict->count() ) {
 	return slotData + idx;
+    }
     if ( !super || !superclass )
 	return 0;
     return superclass->slot( index, super );
 }
 
 /*!  \internal
-  Returns the meta data of the signal with \a index index or 0 if no
+
+  Returns the meta data of the signal with the name \a n or 0 if no
   such signal exists.
 
   If  \a super is TRUE, inherited signals are included.
  */
-const QMetaData *QMetaObject::signal( int index, bool super ) const
+const QMetaData* QMetaObject::signal( int index, bool super ) const
 {
     int idx = index - ( super ? signalOffset() : 0 );
-    if ( signalDict && idx >= 0 && idx < (int) signalDict->count() )
+    if ( signalDict && idx >= 0 && idx < (int) signalDict->count() ) {
 	return signalData + idx;
+    }
     if ( !super || !superclass )
 	return 0;
     return superclass->signal( index, super );
@@ -401,7 +405,7 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 
 /*!\internal
  */
-QMemberDict *QMetaObject::init( const QMetaData *data, int n )
+QMemberDict *QMetaObject::init( const QMetaData * data, int n )
 {
     if ( n == 0 )				// nothing, then make no dict
 	return 0;

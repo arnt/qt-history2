@@ -54,12 +54,10 @@ class QMetaObjectPrivate;
 struct QMetaData				// - member function meta data
 {						//   for signal and slots
     const char *name;				// - member name
-    QMember ptr;				// - member "pointer"
     const QUMethod* method;			// - detailed method description
     enum Access { Private, Protected, Public };
     Access access;				// - access permission
 };
-
 
 #ifndef QT_NO_PROPERTIES
 struct QMetaEnum				// enumerator meta data
@@ -138,13 +136,13 @@ class Q_EXPORT QMetaObject			// meta object class
 {
 public:
     QMetaObject( const char *class_name, QMetaObject *superclass,
-		 const QMetaData *slot_data,	int n_slots,
-		 const QMetaData *signal_data, int n_signals,
+		 const QMetaData * const slot_data, int n_slots,
+		 const QMetaData * const signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
-		 const QMetaProperty *prop_data, int n_props,
-		 const QMetaEnum *enum_data, int n_enums,
+		 const QMetaProperty *const prop_data, int n_props,
+		 const QMetaEnum *const enum_data, int n_enums,
 #endif
-		 const QClassInfo *class_info, int n_info );
+		 const QClassInfo *const class_info, int n_info );
 
 
     virtual ~QMetaObject();
@@ -162,8 +160,8 @@ public:
     int		findSlot( const char *, bool super = FALSE ) const;
     int		findSignal( const char *, bool super = FALSE ) const;
 
-    const QMetaData	*slot( int index, bool super = FALSE ) const;
-    const QMetaData	*signal( int index, bool super = FALSE ) const;
+    const QMetaData 	*slot( int index, bool super = FALSE ) const;
+    const QMetaData 	*signal( int index, bool super = FALSE ) const;
 
     QStrList	slotNames( bool super = FALSE ) const;
     QStrList	signalNames( bool super = FALSE ) const;
@@ -187,13 +185,13 @@ public:
     // Windows-DLL limitation: objects can only be deleted within a
     // DLL if they were actually created within that DLL.
     static QMetaObject	*new_metaobject( const char *, QMetaObject *,
-					const QMetaData *, int,
-					const QMetaData *, int,
+					const QMetaData *const, int,
+					const QMetaData *const, int,
 #ifndef QT_NO_PROPERTIES
-					const QMetaProperty *prop_data, int n_props,
-					const QMetaEnum *enum_data, int n_enums,
+					const QMetaProperty *const prop_data, int n_props,
+					const QMetaEnum *const enum_data, int n_enums,
 #endif
-					const QClassInfo * class_info, int n_info );
+					const QClassInfo *const  class_info, int n_info );
 #ifndef QT_NO_PROPERTIES
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
 #endif

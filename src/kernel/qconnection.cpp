@@ -48,7 +48,7 @@
   outside world.
 */
 
-QConnection::QConnection( const QObject *object, QMember member,
+QConnection::QConnection( const QObject *object, int member,
 			  const char *memberName, int memberType )
 {
     obj = (QObject *)object;
@@ -79,7 +79,7 @@ QConnection::QConnection( const QObject *object, QMember member,
 */
 
 /*!
-  \fn QMember QConnection::member() const
+  \fn int QConnection::member() const
 */
 
 /*!

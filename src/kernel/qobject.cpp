@@ -1563,17 +1563,16 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     member++;					// skip code
 
     QMetaObject *rmeta = r->metaObject();
-    const QMetaData   *rm = 0;
-
+    int member_index = -1;
     switch ( membcode ) {			// get receiver member
 	case QSLOT_CODE:
-	    rm = rmeta->slot( rmeta->findSlot( member, TRUE ), TRUE );
+	    member_index = rmeta->findSlot( member, TRUE );
 	    break;
 	case QSIGNAL_CODE:
-	    rm = rmeta->signal( rmeta->findSignal( member, TRUE ), TRUE );
+	    member_index = rmeta->findSignal( member, TRUE );
 	    break;
     }
-    if ( !rm ) {
+    if ( member_index < 0  ) {
 #if defined(QT_CHECK_RANGE)
 	err_member_notfound( membcode, r, member, "connect" );
 	err_info_about_candidates( membcode, rmeta, member, "connect" );
@@ -1588,7 +1587,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 		 s->className(), signal,
 		 r->className(), member );
 #endif
-    connectInternal( sender, signal_index, receiver, membcode, rm->ptr );
+    connectInternal( sender, signal_index, receiver, membcode, member_index );
     s->connectNotify( signal_name );
     return TRUE;
 }

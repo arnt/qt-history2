@@ -184,6 +184,68 @@ QCString uTypeExtra( QCString ctype )
 }
 
 
+/*
+  Attention!
+  This table is copied from qvariant.cpp. If you change
+  one, change both.
+*/
+static const int ntypes = 32;
+static const char* const type_map[ntypes] =
+{
+    0,
+    "QMap<QString,QVariant>",
+    "QValueList<QVariant>",
+    "QString",
+    "QStringList",
+    "QFont",
+    "QPixmap",
+    "QBrush",
+    "QRect",
+    "QSize",
+    "QColor",
+    "QPalette",
+    "QColorGroup",
+    "QIconSet",
+    "QPoint",
+    "QImage",
+    "int",
+    "uint",
+    "bool",
+    "double",
+    "QCString",
+    "QPointArray",
+    "QRegion",
+    "QBitmap",
+    "QCursor",
+    "QSizePolicy",
+    "QDate",
+    "QTime",
+    "QDateTime",
+    "QByteArray",
+    "QBitArray",
+    "QKeySequence"
+};
+
+int qvariant_nameToType( const char* name )
+{
+    for ( int i = 0; i < ntypes; i++ ) {
+	if ( !qstrcmp( type_map[i], name ) )
+	    return i;
+    }
+    return 0;
+}
+
+
+/*!
+  Returns TRUE if the type is a QVariant types.
+*/
+bool isVariantType( const char* type )
+{
+    return qvariant_nameToType( type ) != 0;
+}
+
+
+
 
 static QCString rmWS( const char * );
 
@@ -391,59 +453,6 @@ class ClassInfoList : public QPtrList<ClassInfo> {	// list of class infos
 public:
     ClassInfoList() { setAutoDelete( TRUE ); }
 };
-
-
-/*
-  Attention!
-  This table is copied from qvariant.cpp. If you change
-  one, change both.
-*/
-static const int ntypes = 32;
-static const char* const type_map[ntypes] =
-{
-    0,
-    "QMap<QString,QVariant>",
-    "QValueList<QVariant>",
-    "QString",
-    "QStringList",
-    "QFont",
-    "QPixmap",
-    "QBrush",
-    "QRect",
-    "QSize",
-    "QColor",
-    "QPalette",
-    "QColorGroup",
-    "QIconSet",
-    "QPoint",
-    "QImage",
-    "int",
-    "uint",
-    "bool",
-    "double",
-    "QCString",
-    "QPointArray",
-    "QRegion",
-    "QBitmap",
-    "QCursor",
-    "QSizePolicy",
-    "QDate",
-    "QTime",
-    "QDateTime",
-    "QByteArray",
-    "QBitArray",
-    "QKeySequence"
-};
-
-int qvariant_nameToType( const char* name )
-{
-    for ( int i = 0; i < ntypes; i++ ) {
-	if ( !qstrcmp( type_map[i], name ) )
-	    return i;
-    }
-    return 0;
-}
-
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
 
@@ -2317,13 +2326,15 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 {
     Function *f;
     for ( f=list->first(); f; f=list->next() ) {
-	bool hasReturnValue = FALSE;
+	bool hasReturnValue = f->type != "void" && (validUType( f->type ) || isVariantType( f->type) );
 
-	if ( ( f->type != "void" && validUType( f->type ) ) || !f->args->isEmpty() ) {
+	if ( hasReturnValue || !f->args->isEmpty() ) {
 	    fprintf( out, "    static const QUParameter param_%s_%d[] = {\n", functype, list->at() );
-	    if ( f->type != "void" ) {
-		hasReturnValue = TRUE;
-		fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), stringRefExtra(uTypeExtra(f->type)).data() );
+	    if ( hasReturnValue ) {
+		if ( validUType( f->type ) )
+		    fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), stringRefExtra(uTypeExtra(f->type)).data() );
+		else
+		    fprintf( out, "\t{ 0, pQUType_QVariant, %s, QUParameter::Out }", stringRefExtra(uTypeExtra(f->type)).data() );
 		if ( !f->args->isEmpty() )
 		    fprintf( out, ",\n" );
 	    }
@@ -2357,7 +2368,6 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	else
 	    fprintf( out, " 0 };\n" );
 
-
 	QCString typstr = "";
 	int count = 0;
 	Argument *a = f->args->first();
@@ -2376,13 +2386,10 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	f->signature += ")";
     }
     if ( list->count() ) {
-	fprintf( out, "    int %s_offset = parentObject->%sOffset() + parentObject->numS%ss();\n",
-		 functype, functype, functype+1 );
 	fprintf(out,"    static const QMetaData %s_tbl[] = {\n", functype );
 	f = list->first();
 	while ( f ) {
 	    fprintf( out, "\t{ \"%s\",", f->signature.data() );
-	    fprintf( out, " %s_offset + %d,", functype, list->at() );
 	    fprintf( out, " &%s_%d,", functype, list->at() );
 	    fprintf( out, " QMetaData::%s }", f->accessAsString() );
 	    f = list->next();
@@ -2409,15 +2416,6 @@ bool isEnumType( const char* type )
 {
     return enumIndex( type ) >= 0 ||  ( g->qtEnums.contains( type ) || g->qtSets.contains( type ) );
 }
-
-/*!
-  Returns TRUE if the type is a QVariant types.
-*/
-bool isVariantType( const char* type )
-{
-    return qvariant_nameToType( type ) != 0;
-}
-
 
 bool isPropertyType( const char* type )
 {
@@ -2873,9 +2871,15 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\n\n" );
     }
 
-    if ( !g->props.isEmpty() && !g->hasVariantIncluded ) {
-	fprintf( out, "#include <%sqvariant.h>\n", (const char*)g->qtPath );
-	g->hasVariantIncluded = TRUE;
+    if ( !g->hasVariantIncluded ) {
+	bool needToIncludeVariant = !g->props.isEmpty();
+	for ( Function* f =g->slots.first(); f && !needToIncludeVariant; f=g->slots.next() )
+	    needToIncludeVariant = ( f->type != "void" && !validUType( f->type ) && isVariantType( f->type) );
+
+	if ( needToIncludeVariant ) {
+	    fprintf( out, "#include <%sqvariant.h>\n", (const char*)g->qtPath );
+	    g->hasVariantIncluded = TRUE;
+	}
     }
 
     bool isQObject =  g->className == "QObject" ;
@@ -3048,11 +3052,14 @@ void generateClass()		      // generate C++ source code for a class
 	if ( !a ) {
 	    predef_call_func = "activate_signal";
 	} else if ( f->args->count() == 1 ) {
-	    QCString utype = uType( (a->leftType + ' ' + a->rightType).simplifyWhiteSpace() );
-	    if ( utype == "bool" )
-		predef_call_func = "activate_signal_bool";
-	    else if ( utype == "QString" || utype == "int" || utype == "double"  )
-		predef_call_func = "activate_signal";
+	    QCString ctype = (a->leftType + ' ' + a->rightType).simplifyWhiteSpace();
+	    if ( !isInOut( ctype ) ) {
+		QCString utype = uType( ctype );
+		if ( utype == "bool" )
+		    predef_call_func = "activate_signal_bool";
+		else if ( utype == "QString" || utype == "int" || utype == "double"  )
+		    predef_call_func = "activate_signal";
+	    }
 	}
 
 	if ( !predef_call_func && !included_list_headers ) {
@@ -3115,6 +3122,22 @@ void generateClass()		      // generate C++ source code for a class
 		}
 	    }
 	    fprintf( out, "    activate_signal( clist, o );\n" );
+	    
+	    // get return values from inOut parameters
+	    if ( !f->args->isEmpty() ) {
+		offset = 0;
+		Argument* a = f->args->first();
+		while ( a ) {
+		    QCString type = a->leftType + ' ' + a->rightType;
+		    type = type.simplifyWhiteSpace();
+		    if ( isInOut( type ) ) {
+			QCString utype = uType( type );
+			fprintf( out, "    t%d = pQUType_%s->get(o+%d);\n", offset, utype.data(), offset+1 );
+		    }
+		    a = f->args->next();
+		    offset++;
+		}
+	    }
 	    fprintf( out, "}\n" );
 	}
 	
@@ -3139,10 +3162,17 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 
 	    fprintf( out, "    case %d: ", slotindex );
-	    bool hasReturn = FALSE;
-	    if ( f->type != "void" && validUType( f->type )) {
-		hasReturn = TRUE;
-		fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
+	    bool hasReturnValue = FALSE;
+	    bool hasVariantReturn = FALSE;
+	    if ( f->type != "void" )  {
+		if (  validUType( f->type )) {
+		    hasReturnValue = TRUE;
+		    fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
+		} else if ( isVariantType( f->type ) ) {
+		    hasReturnValue = hasVariantReturn = TRUE;
+		    // do not need special handling for bool since this is handled as utype
+		    fprintf( out, "pQUType_QVariant->set(_o,QVariant(" );
+		}
 	    }
 	    int offset = 0;
 	    fprintf( out, "%s(", f->name.data() );
@@ -3165,7 +3195,9 @@ void generateClass()		      // generate C++ source code for a class
 		offset++;
 	    }
 	    fprintf( out, ")" );
-	    if ( hasReturn )
+	    if ( hasReturnValue )
+		fprintf( out, ")" );
+	    if ( hasVariantReturn )
 		fprintf( out, ")" );
 	    fprintf( out, "; break;\n" );
 	}
@@ -3208,9 +3240,9 @@ void generateClass()		      // generate C++ source code for a class
 	    }
 
 	    fprintf( out, "    case %d: ", signalindex );
-	    bool hasReturn = FALSE;
+	    bool hasReturnValue = FALSE;
 	    if ( f->type != "void" && validUType( f->type )) {
-		hasReturn = TRUE;
+		hasReturnValue = TRUE;
 		fprintf( out, "pQUType_%s->set(_o,", uType(f->type).data() );
 	    }
 	    int offset = 0;
@@ -3234,7 +3266,7 @@ void generateClass()		      // generate C++ source code for a class
 		offset++;
 	    }
 	    fprintf( out, ")" );
-	    if ( hasReturn )
+	    if ( hasReturnValue )
 		fprintf( out, ")" );
 	    fprintf( out, "; break;\n" );
 	}
