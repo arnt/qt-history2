@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#81 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#81 $");
 
 
 static const int fontFields = 14;
@@ -964,11 +964,11 @@ int QFontMetrics::width( const char *str, int len ) const
 
   If \e len is negative (default value), the whole string is used.
 
-  Note that the bounding rectangle may extend to the left of (0,0) and
-  that the text output may cover \e all pixels in the bounding rectangle.
+  Note that the bounding rectangle may extend to the left of (0,0),
+  e.g. for italicized fonts, and that the text output may cover \e all
+  pixels in the bounding rectangle.
 
-  \sa width()
-*/
+  \sa width() */
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
