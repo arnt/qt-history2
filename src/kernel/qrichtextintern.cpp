@@ -20,7 +20,7 @@ public:
 
     QString c;
 
-    inline bool isSpace() const {return c[0].isSpace();}
+    inline bool isSpace() const {return c[0] == ' ';}
     inline bool isNewline() const {return c[0] == '\n';}
     inline bool isNull() const {return c.isNull();}
 

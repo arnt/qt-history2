@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#9 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -271,7 +271,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     int lastWidth = 0;
     int lastAsc = rasc;
     int lastDesc = rdesc;
-    bool noSpaceFound = TRUE;
+    bool noSpaceFound = TRUE; // TRUE;
 
     QTextIterator prev = it;
 
@@ -279,8 +279,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     while ( it != end ) {
 	int h,a,d;
 	if (it->isSimpleNode) {
-	    if ( it.parentNode() != prev.parentNode()
-		 && it.parentNode()->font() != p->font() ) {
+	    if ( it.parentNode()->font() != p->font() ) {
 		p->setFont( it.parentNode()->font() );
 		fm = p->fontMetrics();
 	    }
@@ -309,7 +308,8 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    }
 	}
 	
-	if (tx > width - fm.width(' ') && *it != first && !it->isSpace() )
+	if (tx > width - fm.width(' ') && !noSpaceFound  && !it->isSpace() )
+// 	if (tx > width - fm.width(' ') && *it != first && !it->isSpace() )
 	    break;
 
 	rh = QMAX( rh, h );
@@ -328,8 +328,8 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    lastAsc = rasc;
 	    lastDesc = rdesc;
 	    lastWidth = tx;
-	    if (noSpaceFound && prev->isSpace())
-		noSpaceFound = FALSE;
+ 	    if (noSpaceFound && prev->isSpace())
+ 		noSpaceFound = FALSE;
 	}
 	if ( prev->isNewline() )
 	    break;
@@ -359,7 +359,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
     }
 
     min = lastWidth;
-    
+
     ++it;
 
 }
@@ -1090,7 +1090,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     colwidth = QMAX( width, widthUsed) / ncols;
     if (colwidth < 10)
  	colwidth = 10;
-    
+
     if (!oldRows.isEmpty() || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
 	// optimize the refresh
@@ -1903,7 +1903,7 @@ bool QTextDocument::parse (QTextContainer* current, QTextNode* lastChild, const 
  		return FALSE;
  	    }
 	
-	    QTextNode* tag = sheet_->tag(tagname, attr, *provider_);
+	    QTextNode* tag = sheet_->tag(tagname, attr, *provider_, emptyTag );
 	    if (tag->isContainer ) {
 		QTextContainer* ctag = (QTextContainer*) tag;
 		bool cpre = ctag->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
@@ -2062,7 +2062,7 @@ QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
     if ( s == "amp")
 	return '&';
     if ( s == "nbsp")
-	return ' ';
+	return 0x00a0U;
     if ( s == "aring")
 	return 'å';
     if ( s == "oslash")
@@ -2122,13 +2122,20 @@ QString QTextDocument::parsePlainText(const QString& doc, int& pos, bool pre, bo
 	    if ( justOneWord && !s.isEmpty() ) {
 		return s;
 	    }
-	    while ( !pre && pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
-		pos++;
+	    
+	    if ( pre ) {
+		s += doc[pos];
 	    }
-	    if (pre && doc[pos] == '\n')
-		s += '\n';
-	    else
-		s += ' ';
+	    else { // non-pre mode: collapse whitespace except nbsp
+		while ( pos+1 < int(doc.length() ) && 
+			doc[pos+1].isSpace()  && doc[pos+1] != QChar(0x00a0U) )
+		    pos++;
+		
+		if (doc[pos] != QChar(0x00a0U) )
+		    s += ' ';
+		else
+		    s += doc[pos];
+	    }
 	    pos++;
 	    if ( justOneWord )
 		return s;

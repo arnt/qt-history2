@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#4 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -859,7 +859,7 @@ QTextNode* QStyleSheet::tag( const QString& name,
 	return new QTextImage(attr, provider);
     else if (style->name() == s_hr)
 	return new QTextHorizontalLine(attr, provider);
-    else if (style->name() == s_br) {
+    else if (style->name() == s_br ) {
 	QTextNode* result = new QTextNode;
 	result->c = '\n';
 	return result;
