@@ -56,7 +56,7 @@ To build the plugins the following commands are neccesarry (assuming
 that QT was installed in C:\QT and Oracle Client in C:\ORACLE):
 
 cd %QTDIR%\src\sql\src\oci
-qmake -o Makefile "INCLUDEPATH=C:\ORACLE\OCI\INCLUDE" "LIBS=C:\ORACLE\OCI\LIB\MSVC\OCI.LIB" oci.pro
+qmake -o Makefile "INCLUDEPATH=C:\ORACLE\OCI\INCLUDE" oci.pro
 nmake
 
 If you are using a Borland compiler, replace "nmake" with "make" in the statement

@@ -25,11 +25,10 @@ available ODBC drivers.
 Notes on Windows:
 
 The ODBC header and include files should already be installed in the
-right directories. You just have to tell your linker to include the file
-"ODBC32.LIB". To do this, run qmake as follows:
+right directories. You just have to build the plugin as follows:
 
 cd %QTDIR%\src\sql\src\odbc
-qmake -o Makefile "LIBS=ODBC32.LIB" odbc.pro
+qmake -o Makefile odbc.pro
 nmake
 
 If you are using a Borland compiler, replace "nmake" with "make" in the statement
