@@ -66,6 +66,42 @@ qreal QFontEngine::underlinePosition() const
 
 
 // ------------------------------------------------------------------
+// Multi XLFD engine
+// ------------------------------------------------------------------
+
+QFontEngineMultiXLFD::QFontEngineMultiXLFD(const QList<QByteArray> &l, int s)
+    : QFontEngineMulti(l.size()), xlfds(l), screen(s)
+{ loadEngine(0); }
+
+QFontEngineMultiXLFD::~QFontEngineMultiXLFD()
+{ }
+
+void QFontEngineMultiXLFD::loadEngine(int at)
+{
+    Q_ASSERT(at < engines.size());
+    Q_ASSERT(engines.at(at) == 0);
+    // from qfontdatabase_x11.cpp
+    extern bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi);
+    QFontDef fontDef;
+    qt_fillFontDef(xlfds.at(at), &fontDef, QX11Info::appDpiY());
+    QFontCache::Key key(fontDef, -1, screen);
+    QFontEngine *fontEngine = QFontCache::instance->findEngine(key);
+    if (!fontEngine) {
+        const QByteArray &xlfd = xlfds.at(at);
+        XFontStruct *xfs = XLoadQueryFont(QX11Info::display(), xlfd.constData());
+        // from qfontdatabase_x11.cpp
+        extern int qt_mib_for_xlfd_encoding(const char *encoding);
+        QByteArray encoding = xlfd.mid(xlfd.lastIndexOf('-', xlfd.size() - 3) + 1);
+        const int mib = qt_mib_for_xlfd_encoding(encoding.constData());
+        fontEngine = new QFontEngineXLFD(xfs, xlfd, mib);
+        fontEngine->fontDef = fontDef;
+        QFontCache::instance->insertEngine(key, fontEngine);
+    }
+    ++fontEngine->ref;
+    engines[at] = fontEngine;
+}
+
+// ------------------------------------------------------------------
 // Xlfd cont engine
 // ------------------------------------------------------------------
 
