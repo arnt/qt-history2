@@ -5346,7 +5346,14 @@ void QWidget::dropEvent(QDropEvent *)
     they are shown. The spontaneous show events of top-level widgets
     are delivered afterwards.
 
-    \sa event(), QShowEvent
+    Note: A widget receives spontaneous show and hide events when its
+    mapping status is changed by the window system, e.g. a spontaneous
+    hide event when the user minimizes the window, and a spontaneous
+    show event when the window is restored again. After receiving a
+    spontaneous hide event, a widget is still considered visible in
+    the sense of isVisible().
+
+    \sa visible, event(), QShowEvent
 */
 void QWidget::showEvent(QShowEvent *)
 {
@@ -5361,7 +5368,14 @@ void QWidget::showEvent(QShowEvent *)
     Hide events are sent to widgets immediately after they have been
     hidden.
 
-    \sa event(), QHideEvent
+    Note: A widget receives spontaneous show and hide events when its
+    mapping status is changed by the window system, e.g. a spontaneous
+    hide event when the user minimizes the window, and a spontaneous
+    show event when the window is restored again. After receiving a
+    spontaneous hide event, a widget is still considered visible in
+    the sense of isVisible().
+
+    \sa visible, event(), QHideEvent
 */
 void QWidget::hideEvent(QHideEvent *)
 {
