@@ -155,7 +155,7 @@ void QThread::postEvent( QObject * o, QEvent * e )
     qApp->wakeUpGuiThread();
 }
 
-static void * start_thread(QThread * t)
+extern "C" static void * start_thread(QThread * t)
 {
   t->run();
 }
