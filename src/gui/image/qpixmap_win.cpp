@@ -363,7 +363,7 @@ void QPixmap::fill(const QColor &fillColor)
         return;
 
     if (fillColor.alpha() != 255) {
-        QImage im = toImage().convertDepth(32);
+        QImage im(width(), height(), 32);
         im.fill(fillColor.rgba());
         im.setAlphaBuffer(true);
         *this = im;
