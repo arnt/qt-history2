@@ -124,7 +124,7 @@ Overviews
 \i \link overviews-list.html All Overviews and HOWTOs \endlink
 \i \link object.html   Qt Object Model \endlink
 \i \link signalsandslots.html   Signals and Slots \endlink
-\i \link layout.html   Layout Management  \endlink
+\i \link geometry.html   Window Geometry  \endlink
 \i \link eventsandfilters.html   Events and Event Filters \endlink
 \i \link i18n.html   Internationalization (i18n)  \endlink
 \i \link debug.html   Debugging Techniques \endlink
