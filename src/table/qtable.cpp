@@ -132,14 +132,12 @@ struct QTablePrivate
     QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ),
 		      inMenuMode( FALSE ), redirectMouseEvent( FALSE )
     {
-	hiddenRows.setAutoDelete( TRUE );
-	hiddenCols.setAutoDelete( TRUE );
     }
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
     uint inMenuMode : 1;
     uint redirectMouseEvent : 1;
-    QIntDict<int> hiddenRows, hiddenCols;
+    QHash<int, int> hiddenRows, hiddenCols;
     QTimer *geomTimer;
     int lastVisRow;
     int lastVisCol;
@@ -2039,16 +2037,11 @@ void QTable::init( int rows, int cols )
     connect( d->geomTimer, SIGNAL( timeout() ), this, SLOT( updateGeometriesSlot() ) );
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
-    roRows.setAutoDelete( TRUE );
-    roCols.setAutoDelete( TRUE );
     setSorting( FALSE );
 
     mousePressed = FALSE;
 
     selMode = Multi;
-
-    contents.setAutoDelete( TRUE );
-    widgets.setAutoDelete( TRUE );
 
     setResizePolicy( Manual );
     selections.setAutoDelete( TRUE );
@@ -2077,9 +2070,6 @@ void QTable::init( int rows, int cols )
 	leftHeader->resizeSection( i, qMax( 20, QApplication::globalStrut().width() ) );
     topHeader->setUpdatesEnabled( TRUE );
     leftHeader->setUpdatesEnabled( TRUE );
-
-    // Prepare for contents
-    contents.setAutoDelete( FALSE );
 
     // Connect header, table and scrollbars
     connect( horizontalScrollBar(), SIGNAL( valueChanged(int) ),
@@ -2128,9 +2118,10 @@ QTable::~QTable()
 {
     delete d;
     setUpdatesEnabled( FALSE );
-    contents.setAutoDelete( TRUE );
-    contents.clear();
-    widgets.clear();
+    for (int i = 0; i < contents.size(); ++i)
+	delete contents.at(i);
+    for (int i = 0; i < widgets.size(); ++i)
+	delete widgets.at(i);
 }
 
 void QTable::setReadOnly( bool b )
@@ -2160,7 +2151,7 @@ void QTable::setReadOnly( bool b )
 void QTable::setRowReadOnly( int row, bool ro )
 {
     if ( ro )
-	roRows.replace( row, new int( 0 ) );
+	roRows[row] = 0;
     else
 	roRows.remove( row );
 
@@ -2190,7 +2181,7 @@ void QTable::setRowReadOnly( int row, bool ro )
 void QTable::setColumnReadOnly( int col, bool ro )
 {
     if ( ro )
-	roCols.replace( col, new int( 0 ) );
+	roCols[col] = 0;
     else
 	roCols.remove( col );
 
@@ -2235,7 +2226,7 @@ bool QTable::isReadOnly() const
 
 bool QTable::isRowReadOnly( int row ) const
 {
-    return (roRows.find( row ) != 0);
+    return roRows.contains( row );
 }
 
 /*!
@@ -2251,7 +2242,7 @@ bool QTable::isRowReadOnly( int row ) const
 
 bool QTable::isColumnReadOnly( int col ) const
 {
-    return (roCols.find( col ) != 0);
+    return roCols.contains( col );
 }
 
 void QTable::setSelectionMode( SelectionMode mode )
@@ -2319,10 +2310,8 @@ void QTable::updateHeaderStates()
     ( (QTableHeader*)verticalHeader() )->setSectionStateToAll( QTableHeader::Normal );
     ( (QTableHeader*)horizontalHeader() )->setSectionStateToAll( QTableHeader::Normal );
 
-    QPtrListIterator<QTableSelection> it( selections );
-    QTableSelection *s;
-    while ( ( s = it.current() ) != 0 ) {
-	++it;
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *s = selections.at(i);
 	if ( s->isActive() ) {
 	    if ( s->leftCol() == 0 &&
 		 s->rightCol() == numCols() - 1 ) {
@@ -2435,6 +2424,14 @@ bool QTable::rowMovingEnabled() const
     return mRows;
 }
 
+static void resize(QVector<QWidget *> &widgets, int len)
+{
+    int clen = widgets.size();
+    widgets.resize( len );
+    for (int i=clen; i < len; ++i)
+	widgets[i] = 0;
+}
+
 /*!
     This is called when QTable's internal array needs to be resized to
     \a len elements.
@@ -2446,8 +2443,11 @@ bool QTable::rowMovingEnabled() const
 
 void QTable::resizeData( int len )
 {
+    int clen = contents.size();
     contents.resize( len );
-    widgets.resize( len );
+    for (int i=clen; i < len; ++i)
+	contents[i] = 0;
+    ::resize(widgets, len);
 }
 
 /*!
@@ -2472,46 +2472,30 @@ void QTable::resizeData( int len )
 
 void QTable::swapRows( int row1, int row2, bool swapHeader )
 {
+    if (row1 < 0 || row1 >= numRows() || row2 < 0 || row2 >= numRows())
+	return;
+
     if ( swapHeader )
 	leftHeader->swapSections( row1, row2, FALSE );
 
-    QPtrVector<QTableItem> tmpContents;
-    tmpContents.resize( numCols() );
-    QPtrVector<QWidget> tmpWidgets;
-    tmpWidgets.resize( numCols() );
-    int i;
+    for ( int i = 0; i < numCols(); ++i ) {
+	int idx1 = indexOf(row1, i);
+	int idx2 = indexOf(row2, i);
 
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( FALSE );
-    for ( i = 0; i < numCols(); ++i ) {
-	QTableItem *i1, *i2;
-	i1 = item( row1, i );
-	i2 = item( row2, i );
-	if ( i1 || i2 ) {
-	    tmpContents.insert( i, i1 );
-	    contents.remove( indexOf( row1, i ) );
-	    contents.insert( indexOf( row1, i ), i2 );
-	    contents.remove( indexOf( row2, i ) );
-	    contents.insert( indexOf( row2, i ), tmpContents[ i ] );
-	    if ( contents[ indexOf( row1, i ) ] )
-		contents[ indexOf( row1, i ) ]->setRow( row1 );
-	    if ( contents[ indexOf( row2, i ) ] )
-		contents[ indexOf( row2, i ) ]->setRow( row2 );
-	}
+	QTableItem *i1 = contents[idx1];
+	QTableItem *i2 = contents[idx2];
+	contents[idx1] = i2;
+	contents[idx2] = i1;
+	if (i2)
+	    i2->setRow(row1);
+	if (i1)
+	    i1->setRow(row2);
 
-	QWidget *w1, *w2;
-	w1 = cellWidget( row1, i );
-	w2 = cellWidget( row2, i );
-	if ( w1 || w2 ) {
-	    tmpWidgets.insert( i, w1 );
-	    widgets.remove( indexOf( row1, i ) );
-	    widgets.insert( indexOf( row1, i ), w2 );
-	    widgets.remove( indexOf( row2, i ) );
-	    widgets.insert( indexOf( row2, i ), tmpWidgets[ i ] );
-	}
+	QWidget *w1 = widgets[idx1];
+	QWidget *w2 = widgets[idx2];
+	widgets[idx1] = w2;
+	widgets[idx2] = w1;
     }
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( TRUE );
 
     updateRowWidgets( row1 );
     updateRowWidgets( row2 );
@@ -2581,46 +2565,30 @@ void QTable::setTopMargin( int m )
 
 void QTable::swapColumns( int col1, int col2, bool swapHeader )
 {
+    if (col1 < 0 || col1 >= numCols() || col2 < 0 || col2 >= numCols())
+	return;
+
     if ( swapHeader )
 	topHeader->swapSections( col1, col2, FALSE );
 
-    QPtrVector<QTableItem> tmpContents;
-    tmpContents.resize( numRows() );
-    QPtrVector<QWidget> tmpWidgets;
-    tmpWidgets.resize( numRows() );
-    int i;
+    for (int i = 0; i < numRows(); ++i) {
+	int idx1 = indexOf(i, col1);
+	int idx2 = indexOf(i, col2);
 
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( FALSE );
-    for ( i = 0; i < numRows(); ++i ) {
-	QTableItem *i1, *i2;
-	i1 = item( i, col1 );
-	i2 = item( i, col2 );
-	if ( i1 || i2 ) {
-	    tmpContents.insert( i, i1 );
-	    contents.remove( indexOf( i, col1 ) );
-	    contents.insert( indexOf( i, col1 ), i2 );
-	    contents.remove( indexOf( i, col2 ) );
-	    contents.insert( indexOf( i, col2 ), tmpContents[ i ] );
-	    if ( contents[ indexOf( i, col1 ) ] )
-		contents[ indexOf( i, col1 ) ]->setCol( col1 );
-	    if ( contents[ indexOf( i, col2 ) ] )
-		contents[ indexOf( i, col2 ) ]->setCol( col2 );
-	}
+	QTableItem *i1 = contents[idx1];
+	QTableItem *i2 = contents[idx2];
+	contents[idx1] = i2;
+	contents[idx2] = i1;
+	if (i2)
+	    i2->setCol(col1);
+	if (i1)
+	    i1->setCol(col2);
 
-	QWidget *w1, *w2;
-	w1 = cellWidget( i, col1 );
-	w2 = cellWidget( i, col2 );
-	if ( w1 || w2 ) {
-	    tmpWidgets.insert( i, w1 );
-	    widgets.remove( indexOf( i, col1 ) );
-	    widgets.insert( indexOf( i, col1 ), w2 );
-	    widgets.remove( indexOf( i, col2 ) );
-	    widgets.insert( indexOf( i, col2 ), tmpWidgets[ i ] );
-	}
+	QWidget *w1 = widgets[idx1];
+	QWidget *w2 = widgets[idx2];
+	widgets[idx1] = w2;
+	widgets[idx2] = w1;
     }
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( TRUE );
 
     columnWidthChanged( col1 );
     columnWidthChanged( col2 );
@@ -2649,44 +2617,31 @@ void QTable::swapColumns( int col1, int col2, bool swapHeader )
 
 void QTable::swapCells( int row1, int col1, int row2, int col2 )
 {
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( FALSE );
-    QTableItem *i1, *i2;
-    i1 = item( row1, col1 );
-    i2 = item( row2, col2 );
-    if ( i1 || i2 ) {
-	QTableItem *tmp = i1;
-	contents.remove( indexOf( row1, col1 ) );
-	contents.insert( indexOf( row1, col1 ), i2 );
-	contents.remove( indexOf( row2, col2 ) );
-	contents.insert( indexOf( row2, col2 ), tmp );
-	if ( contents[ indexOf( row1, col1 ) ] ) {
-	    contents[ indexOf( row1, col1 ) ]->setRow( row1 );
-	    contents[ indexOf( row1, col1 ) ]->setCol( col1 );
-	}
-	if ( contents[ indexOf( row2, col2 ) ] ) {
-	    contents[ indexOf( row2, col2 ) ]->setRow( row2 );
-	    contents[ indexOf( row2, col2 ) ]->setCol( col2 );
-	}
-    }
+    if (row1 < 0 || row1 >= numRows() || row2 < 0 || row2 >= numRows() ||
+	col1 < 0 || col1 >= numCols() || col2 < 0 || col2 >= numCols())
+	return;
 
-    QWidget *w1, *w2;
-    w1 = cellWidget( row1, col1 );
-    w2 = cellWidget( row2, col2 );
-    if ( w1 || w2 ) {
-	QWidget *tmp = w1;
-	widgets.remove( indexOf( row1, col1 ) );
-	widgets.insert( indexOf( row1, col1 ), w2 );
-	widgets.remove( indexOf( row2, col2 ) );
-	widgets.insert( indexOf( row2, col2 ), tmp );
-    }
+    int idx1 = indexOf(row1, col1);
+    int idx2 = indexOf(row2, col2);
+
+    QTableItem *i1 = contents[idx1];
+    QTableItem *i2 = contents[idx2];
+    contents[idx1] = i2;
+    contents[idx2] = i1;
+    if (i2)
+	i2->setCol(col1);
+    if (i1)
+	i1->setCol(col2);
+
+    QWidget *w1 = widgets[idx1];
+    QWidget *w2 = widgets[idx2];
+    widgets[idx1] = w2;
+    widgets[idx2] = w1;
 
     updateRowWidgets( row1 );
     updateRowWidgets( row2 );
     updateColWidgets( col1 );
     updateColWidgets( col2 );
-    contents.setAutoDelete( FALSE );
-    widgets.setAutoDelete( TRUE );
 }
 
 static bool is_child_of( QWidget *child, QWidget *parent )
@@ -2730,10 +2685,8 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     bool currentInSelection = FALSE;
 
-    QPtrListIterator<QTableSelection> it( selections );
-    QTableSelection *s;
-    while ( ( s = it.current() ) != 0 ) {
-	++it;
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *s = selections.at(i);
 	if ( s->isActive() &&
 	     curRow >= s->topRow() &&
 	     curRow <= s->bottomRow() &&
@@ -3006,7 +2959,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 QTableItem *QTable::item( int row, int col ) const
 {
     if ( row < 0 || col < 0 || row > numRows() - 1 ||
-	 col > numCols() - 1 || row * col >= (int)contents.size() )
+	 col > numCols() - 1 || row * col >= contents.size() )
 	return 0;
 
     return contents[ indexOf( row, col ) ];	// contents array lookup
@@ -3029,14 +2982,16 @@ void QTable::setItem( int row, int col, QTableItem *item )
     if ( !item )
 	return;
 
-    if ( (int)contents.size() != numRows() * numCols() )
+    if ( contents.size() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
 
     int orow = item->row();
     int ocol = item->col();
     clearCell( row, col );
 
-    contents.insert( indexOf( row, col ), item );
+    int idx = indexOf( row, col );
+    delete contents.at(idx);
+    contents.insert( idx, item );
     item->setRow( row );
     item->setCol( col );
     item->t = this;
@@ -3059,12 +3014,12 @@ void QTable::setItem( int row, int col, QTableItem *item )
 
 void QTable::clearCell( int row, int col )
 {
-    if ( (int)contents.size() != numRows() * numCols() )
+    if ( contents.size() != numRows() * numCols() )
 	resizeData( numRows() * numCols() );
     clearCellWidget( row, col );
-    contents.setAutoDelete( TRUE );
-    contents.remove( indexOf( row, col ) );
-    contents.setAutoDelete( FALSE );
+    int idx = indexOf( row, col );
+    delete contents.at(idx);
+    contents[idx] = 0;
 }
 
 /*!
@@ -3275,10 +3230,8 @@ bool QTable::isSelected( int row, int col ) const
 
 bool QTable::isSelected( int row, int col, bool includeCurrent ) const
 {
-    QPtrListIterator<QTableSelection> it( selections );
-    QTableSelection *s;
-    while ( ( s = it.current() ) != 0 ) {
-	++it;
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *s = selections.at(i);
 	if ( s->isActive() &&
 	     row >= s->topRow() &&
 	     row <= s->bottomRow() &&
@@ -3304,10 +3257,8 @@ bool QTable::isSelected( int row, int col, bool includeCurrent ) const
 bool QTable::isRowSelected( int row, bool full ) const
 {
     if ( !full ) {
-	QPtrListIterator<QTableSelection> it( selections );
-	QTableSelection *s;
-	while ( ( s = it.current() ) != 0 ) {
-	    ++it;
+	for (int i = 0; i < selections.size(); ++i) {
+	    QTableSelection *s = selections.at(i);
 	    if ( s->isActive() &&
 		 row >= s->topRow() &&
 		 row <= s->bottomRow() )
@@ -3316,10 +3267,8 @@ bool QTable::isRowSelected( int row, bool full ) const
 	    return TRUE;
 	}
     } else {
-	QPtrListIterator<QTableSelection> it( selections );
-	QTableSelection *s;
-	while ( ( s = it.current() ) != 0 ) {
-	    ++it;
+	for (int i = 0; i < selections.size(); ++i) {
+	    QTableSelection *s = selections.at(i);
 	    if ( s->isActive() &&
 		 row >= s->topRow() &&
 		 row <= s->bottomRow() &&
@@ -3345,10 +3294,8 @@ bool QTable::isRowSelected( int row, bool full ) const
 bool QTable::isColumnSelected( int col, bool full ) const
 {
     if ( !full ) {
-	QPtrListIterator<QTableSelection> it( selections );
-	QTableSelection *s;
-	while ( ( s = it.current() ) != 0 ) {
-	    ++it;
+	for (int i = 0; i < selections.size(); ++i) {
+	    QTableSelection *s = selections.at(i);
 	    if ( s->isActive() &&
 		 col >= s->leftCol() &&
 		 col <= s->rightCol() )
@@ -3357,10 +3304,8 @@ bool QTable::isColumnSelected( int col, bool full ) const
 	    return TRUE;
 	}
     } else {
-	QPtrListIterator<QTableSelection> it( selections );
-	QTableSelection *s;
-	while ( ( s = it.current() ) != 0 ) {
-	    ++it;
+	for (int i = 0; i < selections.size(); ++i) {
+	    QTableSelection *s = selections.at(i);
 	    if ( s->isActive() &&
 		 col >= s->leftCol() &&
 		 col <= s->rightCol() &&
@@ -3439,9 +3384,10 @@ int QTable::addSelection( const QTableSelection &s )
 void QTable::removeSelection( const QTableSelection &s )
 {
     selections.setAutoDelete( FALSE );
-    for ( QTableSelection *sel = selections.first(); sel; sel = selections.next() ) {
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *sel = selections.at(i);
 	if ( s == *sel ) {
-	    selections.removeRef( sel );
+	    selections.remove( sel );
 	    repaintSelections( sel, 0, TRUE, TRUE );
 	    if ( sel == currentSel )
 		currentSel = 0;
@@ -3468,7 +3414,7 @@ void QTable::removeSelection( int num )
     QTableSelection *s = selections.at( num );
     if ( s == currentSel )
 	currentSel = 0;
-    selections.removeRef( s );
+    selections.remove( s );
     repaintContents( FALSE );
 }
 
@@ -3483,7 +3429,7 @@ int QTable::currentSelection() const
 {
     if ( !currentSel )
 	return -1;
-    return ( (QTable*)this )->selections.findRef( currentSel );
+    return ( (QTable*)this )->selections.indexOf( currentSel );
 }
 
 /*! Selects the range starting at \a start_row and \a start_col and
@@ -4184,7 +4130,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 			if ( currentSel ) {
 			    oldSelection = *currentSel;
 			    hasOldSel = TRUE;
-			    selections.removeRef( currentSel );
+			    selections.remove( currentSel );
 			    leftHeader->setSectionState( oldSelection.topRow(), QTableHeader::Normal );
 			}
 		    }
@@ -4690,8 +4636,8 @@ int QTable::numCols() const
     return topHeader->count();
 }
 
-void QTable::saveContents( QPtrVector<QTableItem> &tmp,
-			   QPtrVector<QTable::TableWidget> &tmp2)
+void QTable::saveContents( QVector<QTableItem *> &tmp,
+			   QVector<QTable::TableWidget *> &tmp2)
 {
     int nCols = numCols();
     if ( editRow != -1 && editCol != -1 )
@@ -4739,12 +4685,8 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 	}
     }
 
-    contents.setAutoDelete( FALSE );
     contents.clear();
-    contents.setAutoDelete( TRUE );
-    widgets.setAutoDelete( FALSE );
     widgets.clear();
-    widgets.setAutoDelete( TRUE );
     resizeData( numRows() * numCols() );
 
     // keep numStretches in sync
@@ -4754,8 +4696,8 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
      header->numStretches = n;
 }
 
-void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
-			      QPtrVector<QTable::TableWidget> &tmp2 )
+void QTable::restoreContents( QVector<QTableItem *> &tmp,
+			      QVector<QTable::TableWidget *> &tmp2 )
 {
     int i;
     int nCols = numCols();
@@ -4763,7 +4705,7 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 	QTableItem *it = tmp[ i ];
 	if ( it ) {
 	    int idx = ( it->row() * nCols ) + it->col();
-	    if ( (uint)idx < contents.size() &&
+	    if ( idx < contents.size() &&
 		 it->row() == idx /  nCols && it->col() == idx % nCols ) {
 		contents.insert( idx, it );
 		if ( it->rowSpan() > 1 || it->colSpan() > 1 ) {
@@ -4772,7 +4714,7 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 			ridx = idx + irow * nCols;
 			for ( int icol = 0; icol < it->colSpan(); icol++ ) {
 			    iidx = ridx + icol;
-			    if ( idx != iidx && (uint)iidx < contents.size() )
+			    if ( idx != iidx && iidx < contents.size() )
 				contents.insert( iidx, it );
 			}
 		    }
@@ -4787,7 +4729,7 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 	TableWidget *w = tmp2[ i ];
 	if ( w ) {
 	    int idx = ( w->row * nCols ) + w->col;
-	    if ( (uint)idx < widgets.size() &&
+	    if ( idx < widgets.size() &&
 		 w->row == idx / nCols && w->col == idx % nCols )
 		widgets.insert( idx, w->wid );
 	    else
@@ -4823,14 +4765,12 @@ void QTable::setNumRows( int r )
 
     if (r < numRows()) {
 	// Removed rows are no longer hidden, and should thus be removed from "hiddenRows"
-	for (int rr = numRows()-1; rr >= r; --rr) {
-	    if (d->hiddenRows.find(rr))
-		d->hiddenRows.remove(rr);
-	}
+	for (int rr = numRows()-1; rr >= r; --rr)
+	    d->hiddenRows.remove(rr);
     }
 
-    QPtrVector<QTableItem> tmp;
-    QPtrVector<TableWidget> tmp2;
+    QVector<QTableItem *> tmp;
+    QVector<TableWidget *> tmp2;
     saveContents( tmp, tmp2 );
 
     bool isUpdatesEnabled = leftHeader->isUpdatesEnabled();
@@ -4870,14 +4810,12 @@ void QTable::setNumCols( int c )
 
     if (c < numCols()) {
 	// Removed columns are no longer hidden, and should thus be removed from "hiddenCols"
-	for (int cc = numCols()-1; cc >= c; --cc) {
-	    if (d->hiddenCols.find(cc))
-		d->hiddenCols.remove(cc);
-	}
+	for (int cc = numCols()-1; cc >= c; --cc)
+	    d->hiddenCols.remove(cc);
     }
 
-    QPtrVector<QTableItem> tmp;
-    QPtrVector<TableWidget> tmp2;
+    QVector<QTableItem *> tmp;
+    QVector<TableWidget *> tmp2;
     saveContents( tmp, tmp2 );
 
     bool isUpdatesEnabled = topHeader->isUpdatesEnabled();
@@ -5288,7 +5226,8 @@ void QTable::repaintSelections()
 	return;
 
     QRect r;
-    for ( QTableSelection *s = selections.first(); s; s = selections.next() ) {
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *s = selections.at(i);
 	bool b;
 	r = r.unite( rangeGeometry( s->topRow(),
 				    s->leftCol(),
@@ -5313,7 +5252,8 @@ void QTable::clearSelection( bool repaint )
     bool needRepaint = !selections.isEmpty();
 
     QRect r;
-    for ( QTableSelection *s = selections.first(); s; s = selections.next() ) {
+    for (int i = 0; i < selections.size(); ++i) {
+	QTableSelection *s = selections.at(i);
 	bool b;
 	r = r.unite( rangeGeometry( s->topRow(),
 				    s->leftCol(),
@@ -5377,17 +5317,17 @@ QRect QTable::rangeGeometry( int topRow, int leftCol,
 void QTable::activateNextCell()
 {
     int firstRow = 0;
-    while ( d->hiddenRows.find( firstRow ) )
+    while ( d->hiddenRows.contains( firstRow ) )
 	firstRow++;
     int firstCol = 0;
-    while ( d->hiddenCols.find( firstCol ) )
+    while ( d->hiddenCols.contains( firstCol ) )
 	firstCol++;
     int nextRow = curRow;
     int nextCol = curCol;
-    while ( d->hiddenRows.find( ++nextRow ) );
+    while ( d->hiddenRows.contains( ++nextRow ) );
     if ( nextRow >= numRows() ) {
 	nextRow = firstRow;
-	while ( d->hiddenCols.find( ++nextCol ) );
+	while ( d->hiddenCols.contains( ++nextCol ) );
 	if ( nextCol >= numCols() )
 		nextCol = firstCol;
     }
@@ -5543,9 +5483,9 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
 void QTable::hideRow( int row )
 {
-    if ( d->hiddenRows.find( row ) )
+    if ( !numRows() || d->hiddenRows.contains( row ) )
 	return;
-    d->hiddenRows.replace( row, new int( leftHeader->sectionSize( row ) ) );
+    d->hiddenRows.insert( row, leftHeader->sectionSize( row ) );
     leftHeader->resizeSection( row, 0 );
     leftHeader->setResizeEnabled( FALSE, row );
     if ( isRowStretchable(row) )
@@ -5569,9 +5509,9 @@ void QTable::hideRow( int row )
 
 void QTable::hideColumn( int col )
 {
-    if ( !numCols() || d->hiddenCols.find( col ) )
+    if ( !numCols() || d->hiddenCols.contains( col ) )
 	return;
-    d->hiddenCols.replace( col, new int( topHeader->sectionSize( col ) ) );
+    d->hiddenCols.insert( col, topHeader->sectionSize( col ) );
     topHeader->resizeSection( col, 0 );
     topHeader->setResizeEnabled( FALSE, col );
     if ( isColumnStretchable(col) )
@@ -5595,9 +5535,8 @@ void QTable::hideColumn( int col )
 
 void QTable::showRow( int row )
 {
-    int *h = d->hiddenRows.find( row );
-    if ( h ) {
-	int rh = *h;
+    if (!d->hiddenRows.contains(row)) {
+	int rh = d->hiddenRows.value( row );
 	d->hiddenRows.remove( row );
 	setRowHeight( row, rh );
 	if ( isRowStretchable(row) )
@@ -5616,9 +5555,8 @@ void QTable::showRow( int row )
 
 void QTable::showColumn( int col )
 {
-    int *w = d->hiddenCols.find( col );
-    if ( w ) {
-	int cw = *w;
+    if (!d->hiddenCols.contains(col)) {
+	int cw = d->hiddenCols.value( col );
 	d->hiddenCols.remove( col );
 	setColumnWidth( col, cw );
 	if ( isColumnStretchable( col ) )
@@ -5637,7 +5575,7 @@ void QTable::showColumn( int col )
 */
 bool QTable::isRowHidden( int row ) const
 {
-    return d->hiddenRows.find( row );
+    return d->hiddenRows.contains( row );
 }
 
 /*!
@@ -5648,7 +5586,7 @@ bool QTable::isRowHidden( int row ) const
 */
 bool QTable::isColumnHidden( int col ) const
 {
-    return d->hiddenCols.find( col );
+    return d->hiddenCols.contains( col );
 }
 
 /*!
@@ -5659,9 +5597,8 @@ bool QTable::isColumnHidden( int col ) const
 
 void QTable::setColumnWidth( int col, int w )
 {
-    int *ow = d->hiddenCols.find( col );
-    if ( ow ) {
-	d->hiddenCols.replace( col, new int( w ) );
+    if (d->hiddenCols.contains(col)) {
+	d->hiddenCols[col] = w;
     } else {
 	topHeader->resizeSection( col, w );
 	columnWidthChanged( col );
@@ -5676,9 +5613,8 @@ void QTable::setColumnWidth( int col, int w )
 
 void QTable::setRowHeight( int row, int h )
 {
-    int *oh = d->hiddenRows.find( row );
-    if ( oh ) {
-	d->hiddenRows.replace( row, new int( h ) );
+    if (d->hiddenRows.contains(row)) {
+	d->hiddenRows[row] = h;
     } else {
 	leftHeader->resizeSection( row, h );
 	rowHeightChanged( row );
@@ -5761,7 +5697,7 @@ void QTable::setColumnStretchable( int col, bool stretch )
 {
     topHeader->setSectionStretchable( col, stretch );
 
-    if ( stretch && d->hiddenCols.find(col) )
+    if ( stretch && d->hiddenCols.contains(col) )
 	topHeader->numStretches--;
 }
 
@@ -5781,7 +5717,7 @@ void QTable::setRowStretchable( int row, bool stretch )
 {
     leftHeader->setSectionStretchable( row, stretch );
 
-    if ( stretch && d->hiddenRows.find(row) )
+    if ( stretch && d->hiddenRows.contains(row) )
 	leftHeader->numStretches--;
 }
 
@@ -5827,7 +5763,6 @@ void QTable::takeItem( QTableItem *i )
     if ( !i )
 	return;
     QRect rect = cellGeometry( i->row(), i->col() );
-    contents.setAutoDelete( FALSE );
     int bottom = i->row() + i->rowSpan();
     if ( bottom > numRows() )
 	bottom = numRows();
@@ -5836,9 +5771,8 @@ void QTable::takeItem( QTableItem *i )
 	right = numCols();
     for ( int r = i->row(); r < bottom; ++r ) {
 	for ( int c = i->col(); c < right; ++c )
-	    contents.remove( indexOf( r, c ) );
+	    contents[indexOf( r, c )] = 0;
     }
-    contents.setAutoDelete( TRUE );
     repaintContents( rect, FALSE );
     int orow = i->row();
     int ocol = i->col();
@@ -5899,11 +5833,11 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
 
 void QTable::insertWidget( int row, int col, QWidget *w )
 {
-    if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
+    if ( row < 0 || col < 0 || row >= numRows() || col >= numCols() )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	widgets.resize( numRows() * numCols() );
+	::resize(widgets, numRows() * numCols() );
 
     widgets.insert( indexOf( row, col ), w );
 }
@@ -5920,11 +5854,11 @@ void QTable::insertWidget( int row, int col, QWidget *w )
 
 QWidget *QTable::cellWidget( int row, int col ) const
 {
-    if ( row < 0 || col < 0 || row > numRows() - 1 || col > numCols() - 1 )
+    if ( row < 0 || col < 0 || row >= numRows() || col >= numCols() )
 	return 0;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	( (QTable*)this )->widgets.resize( numRows() * numCols() );
+	::resize(const_cast<QTable *>(this)->widgets, numRows() * numCols());
 
     return widgets[ indexOf( row, col ) ];
 }
@@ -5949,16 +5883,14 @@ void QTable::clearCellWidget( int row, int col )
 	return;
 
     if ( (int)widgets.size() != numRows() * numCols() )
-	widgets.resize( numRows() * numCols() );
+	::resize(widgets, numRows() * numCols() );
 
     QWidget *w = cellWidget( row, col );
     if ( w ) {
 	w->removeEventFilter( this );
 	w->deleteLater();
     }
-    widgets.setAutoDelete( FALSE );
-    widgets.remove( indexOf( row, col ) );
-    widgets.setAutoDelete( TRUE );
+    widgets[indexOf( row, col )] = 0;
 }
 
 /*!
@@ -6068,9 +6000,8 @@ void QTable::removeRow( int row )
 {
     if ( row < 0 || row >= numRows() )
 	return;
-    if ( row < numRows() - 1 ) {
-	if (d->hiddenRows.find(row))
-	    d->hiddenRows.remove(row);
+    if (row <= numRows()) {
+	d->hiddenRows.remove(row);
 
 	for ( int i = row; i < numRows() - 1; ++i )
 	    ( (QTableHeader*)verticalHeader() )->swapSections( i, i + 1 );
@@ -6118,9 +6049,8 @@ void QTable::removeColumn( int col )
 {
     if ( col < 0 || col >= numCols() )
 	return;
-    if ( col < numCols() - 1 ) {
-	if (d->hiddenCols.find(col))
-	    d->hiddenCols.remove(col);
+    if ( col <= numCols() ) {
+	d->hiddenCols.remove(col);
 
 	for ( int i = col; i < numCols() - 1; ++i )
 	    ( (QTableHeader*)horizontalHeader() )->swapSections( i, i + 1 );
@@ -6838,14 +6768,14 @@ void QTableHeader::updateStretches()
     blockSignals( TRUE );
     for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	if ( !stretchable[i] ||
-	     ( stretchable[i] && table->d->hiddenCols[i] ) )
+	     ( stretchable[i] && table->d->hiddenCols.contains(i) ) )
 	    continue;
 	pd += sectionSize( i );
     }
     pd /= numStretches;
     for ( i = 0; i < (int)stretchable.count(); ++i ) {
 	if ( !stretchable[i] ||
-	     ( stretchable[i] && table->d->hiddenCols[i] ) )
+	     ( stretchable[i] && table->d->hiddenCols.contains(i) ) )
 	    continue;
 	if ( i == (int)stretchable.count() - 1 &&
 	     sectionPos( i ) + pd < dim )

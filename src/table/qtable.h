@@ -18,14 +18,13 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
-#include "qptrvector.h"
 #include "qheader.h"
 #include "qmemarray.h"
-#include "qptrlist.h"
 #include "qguardedptr.h"
 #include "qshared.h"
-#include "qintdict.h"
+#include "qhash.h"
 #include "qstringlist.h"
+#include "qvector.h"
 #endif // QT_H
 
 
@@ -468,24 +467,24 @@ private:
 	QWidget *wid;
 	int row, col;
     };
-    void saveContents( QPtrVector<QTableItem> &tmp,
-		       QPtrVector<TableWidget> &tmp2 );
+    void saveContents( QVector<QTableItem *> &tmp,
+		       QVector<TableWidget *> &tmp2 );
     void updateHeaderAndResizeContents( QTableHeader *header,
 					int num, int colRow,
 					int width, bool &updateBefore );
-    void restoreContents( QPtrVector<QTableItem> &tmp,
-			  QPtrVector<TableWidget> &tmp2 );
+    void restoreContents( QVector<QTableItem *> &tmp,
+			  QVector<TableWidget *> &tmp2 );
     void finishContentsResze( bool updateBefore );
 
 private:
-    QPtrVector<QTableItem> contents;
-    QPtrVector<QWidget> widgets;
+    QVector<QTableItem *> contents;
+    QVector<QWidget *> widgets;
     int curRow;
     int curCol;
     QTableHeader *leftHeader, *topHeader;
     EditMode edMode;
     int editCol, editRow;
-    QPtrList<QTableSelection> selections;
+    QList<QTableSelection *> selections;
     QTableSelection *currentSel;
     QTimer *autoScrollTimer;
     int lastSortCol;
@@ -504,8 +503,8 @@ private:
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;
-    QIntDict<int> roRows;
-    QIntDict<int> roCols;
+    QHash<int, int> roRows;
+    QHash<int, int> roCols;
     int startDragRow;
     int startDragCol;
     QPoint dragStartPos;
