@@ -232,6 +232,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 }
 
 
+#if QT_FEATURE_TRANSFORMATIONS
 /*!
   Returns a transformed copy of this bitmap, using \a matrix.
 
@@ -243,7 +244,6 @@ QBitmap &QBitmap::operator=( const QImage &image )
 
 QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
 {
-#if QT_FEATURE_TRANSFORMATIONS
     QPixmap pm = QPixmap::xForm( matrix );
     QBitmap bm;
     // Here we fake the pixmap to think it's a QBitmap. With this trick,
@@ -252,8 +252,8 @@ QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
     pm.data->bitmap = TRUE;
     bm = pm;
     return bm;
-#endif // QT_FEATURE_TRANSFORMATIONS
 }
+#endif // QT_FEATURE_TRANSFORMATIONS
 
 
 
