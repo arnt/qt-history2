@@ -295,6 +295,10 @@ This change implies some API incompatibilities for QStringList:
 QValueList now inherits from QList, but is kept source compatible to
 the Qt3 class.
 
+QList<Type>::Iterators become invalid on modifying the list (functions
+like append(), prepend()), use index based access instead when
+modifying the list.
+
 \section1 QObject
 
 children() and QueryList now return a QObjectList instead of a pointer
