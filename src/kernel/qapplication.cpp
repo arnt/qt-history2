@@ -2265,6 +2265,16 @@ void QApplication::installTranslator( QTranslator * mf )
 	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
 	    " and Arabic) to get proper widget layout." ) == "RTL" )
 	setReverseLayout( TRUE );
+
+    if ( loop_level ) {
+	QWidgetList *list = topLevelWidgets();
+	QWidgetListIt it( *list );
+	QWidget *w;
+	while ( ( w=it.current() ) != 0 ) {
+	    ++it;
+	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	}
+    }
 }
 
 /*!
@@ -2283,6 +2293,16 @@ void QApplication::removeTranslator( QTranslator * mf )
     while ( translators->current() && translators->current() != mf )
 	translators->next();
     translators->take();
+
+    if ( loop_level ) {
+	QWidgetList *list = topLevelWidgets();
+	QWidgetListIt it( *list );
+	QWidget *w;
+	while ( ( w=it.current() ) != 0 ) {
+	    ++it;
+	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	}
+    }
 }
 
 

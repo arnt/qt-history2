@@ -51,6 +51,7 @@
 #include "qstylefactory.h"
 #include "qcleanuphandler.h"
 #include "qstyle.h"
+#include "qmetaobject.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -4296,6 +4297,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 
+	case QEvent::LanguageChange:
 	case QEvent::LocaleChange:
 	    if ( children() ) {
 		QObjectListIt it( *children() );
@@ -4305,6 +4307,11 @@ bool QWidget::event( QEvent *e )
 		    QApplication::sendEvent( o, e );
 		}
 	    }
+	    if ( e->type() == QEvent::LanguageChange ) {
+		int index = metaObject()->findSlot( "retranslateStrings()", TRUE );
+		if ( index >= 0 )
+		    qt_invoke( index, 0 );
+	    }
 	    break;
 
 	default:
@@ -4312,7 +4319,6 @@ bool QWidget::event( QEvent *e )
     }
     return TRUE;
 }
-
 
 /*!
   This event handler, for event \a e, can be reimplemented in a

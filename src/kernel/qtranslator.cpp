@@ -43,6 +43,7 @@
 #ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
+#include "qwidgetlist.h"
 
 #if defined(Q_OS_UNIX)
 #define QT_USE_MMAP
@@ -616,6 +617,17 @@ void QTranslator::clear()
     delete d->messages;
     d->messages = 0;
 #endif
+
+    if ( qApp && qApp->loopLevel() ) {
+	QWidgetList *list = QApplication::topLevelWidgets();
+	QWidgetListIt it( *list );
+	QWidget *w;
+	while ( ( w=it.current() ) != 0 ) {
+	    ++it;
+	    qApp->postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	}
+	delete list;
+    }
 }
 
 #ifndef QT_NO_TRANSLATION_BUILDER

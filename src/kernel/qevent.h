@@ -121,6 +121,7 @@ public:
 	Accessibility = 86,			// accessibility information is requested
 	Tablet = 87,				// Wacom Tablet Event
 	LocaleChange = 88,			// the system locale changed
+	LanguageChange = 89,			// the application language changed
 	User = 1000,				// first user event id
 	MaxUser  = 65535                        // last user event id
     };
