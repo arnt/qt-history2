@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#63 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#62 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#63 $";
 #endif
 
 
@@ -512,11 +512,11 @@ Gives this widget the keyboard input focus.
 
 void QWidget::setFocus()			// set keyboard input focus
 {
-    if ( this == qApp->focus_widget )		// has already focus
+    QWidget *oldFocus = qApp->focusWidget();
+    if ( this == oldFocus )			// has already focus
 	return;
     if ( !acceptFocus() )			// cannot take focus
 	return;
-    QWidget *oldFocus = qApp->focus_widget;
     if ( oldFocus ) {				// goodbye to old focus widget
 	qApp->focus_widget = 0;
 	QFocusEvent out( Event_FocusOut );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#45 $
 **
 ** Implementation of QWidget class
 **
@@ -22,7 +22,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#45 $";
 #endif
 
 /*!
@@ -481,6 +481,21 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
 }
 
 /*!
+Enables or disables the keyboard input focus events for the widget.
+
+Focus events are initially disabled.
+*/
+
+void QWidget::setAcceptFocus( bool enable )
+{
+    if ( enable )
+	setFlag( WState_AcceptFocus );
+    else
+	clearFlag( WState_AcceptFocus );
+}
+
+
+/*!
 Translates the widget coordinate \e pos to global screen coordinates.
 \sa mapFromGlobal().
 */
@@ -694,6 +709,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
 		    w = w->parentWidget();
 		}
 	    }
+#if 0
 	    bool res = FALSE;
 	    if ( k->key() == Key_Tab )
 		res = focusNextChild();
@@ -701,7 +717,10 @@ bool QWidget::event( QEvent *e )		// receive event(),
 		res = focusPrevChild();
 	    if ( res )
 		break;
-	    keyPressEvent( k );
+#endif
+	    if ( qApp->focusWidget() )
+		w = qApp->focusWidget();
+	    w->keyPressEvent( k );
 #if defined(_WS_X11_)
 	    if ( !k->isAccepted() && !testFlag(WType_Overlap) && parentObj )
 		return parentObj->event( e );	// pass event to parent
