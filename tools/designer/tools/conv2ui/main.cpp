@@ -24,6 +24,7 @@
 #include <qdir.h>
 #include <stdio.h>
 #include "filterinterface.h"
+#include <qfileinfo.h>
 
 class Conv2ui {
 public:
@@ -71,7 +72,7 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 	return FALSE;
     }
 
-    QString tag = getTag( filename ); // ###FIX: file tag == type ( for now )
+    QString tag = getTag( filename );
     QStringList lst = importFiltersManager->featureList();
 
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -99,16 +100,16 @@ bool Conv2ui::convert( const QString & filename, const QDir & dest )
 
 QStringList Conv2ui::featureList()
 {
-    if ( !importFiltersManager ) return 0;
+    if ( !importFiltersManager ) {
+	return 0;
+    }
     return importFiltersManager->featureList();
 }
 
 QString Conv2ui::getTag( const QString & filename )
 {
-    int idx = filename.find( '.', 0 );
-    QString filetag = filename;
-    filetag.remove( 0, idx );
-    return filetag;
+    QFileInfo info( filename );
+    return info.extension();
 }
 
 QString Conv2ui::absName( const QString & filename )
