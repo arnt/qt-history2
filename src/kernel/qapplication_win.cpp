@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#427 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#428 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -42,6 +42,7 @@
 #include "qwhatsthis.h" // ######## dependency
 #include <ctype.h>
 #include "qt_windows.h"
+#include <windowsx.h>
 #include <limits.h>
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
@@ -2310,10 +2311,10 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 
 	POINT curPos;
-	// ### here we want to use the point that has been delivered by the
-	// ### message, but this doesn't seem to work as expected
-	GetCursorPos( &curPos );		// compress mouse move
-
+	DWORD ol_pos = GetMessagePos();
+	curPos.x = GET_X_LPARAM(ol_pos);
+	curPos.y = GET_Y_LPARAM(ol_pos);
+ 
 	if ( curPos.x == gpos.x && curPos.y == gpos.y )
 	    return TRUE;			// same global position
 	gpos = curPos;
@@ -2327,8 +2328,11 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
     } else {
-	GetCursorPos( &gpos );
-	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
+	DWORD ol_pos = GetMessagePos();
+	gpos.x = GET_X_LPARAM(ol_pos);
+	gpos.y = GET_Y_LPARAM(ol_pos);
+
+ 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
 	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
 	    // Magic for masked widgets
