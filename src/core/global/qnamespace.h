@@ -848,6 +848,36 @@ public:
     };
 
     // Documented in qmainwindow.cpp
+    enum DockWindowArea {
+        DockWindowAreaLeft   = 0x1,
+        DockWindowAreaRight  = 0x2,
+        DockWindowAreaTop    = 0x4,
+        DockWindowAreaBottom = 0x8,
+
+        DockWindowAreaMask   = 0xf,
+        AllDockWindowAreas   = DockWindowAreaMask,
+
+        NDockWindowAreas     = 4
+    };
+
+    Q_DECLARE_FLAGS(DockWindowAreaFlags, DockWindowArea);
+
+    // Documented in qmainwindow.cpp
+    enum ToolBarArea {
+        ToolBarAreaLeft   = 0x1,
+        ToolBarAreaRight  = 0x2,
+        ToolBarAreaTop    = 0x4,
+        ToolBarAreaBottom = 0x8,
+
+        ToolBarAreaMask   = 0xf,
+        AllToolBarAreas   = ToolBarAreaMask,
+
+        NToolBarAreas     = 4
+    };
+
+    Q_DECLARE_FLAGS(ToolBarAreaFlags, ToolBarArea);
+
+    // Documented in qmainwindow.cpp
     enum Dock {
         DockUnmanaged,
         DockTornOff,
@@ -976,6 +1006,8 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::StringComparison);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreaFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreaFlags);
 
 class Q_CORE_EXPORT QInternal {
 public:
@@ -990,6 +1022,11 @@ public:
         ExternalDevice = 0x10,
         // used to emulate some of the behaviour different between Qt2 and Qt3 (mainly for printing)
         CompatibilityMode = 0x20
+    };
+    enum RelayoutType {
+        RelayoutNormal,
+        RelayoutDragging,
+        RelayoutDropped
     };
 };
 
