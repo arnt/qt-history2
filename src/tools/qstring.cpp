@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#77 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#76 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#77 $")
 
 
 /*****************************************************************************
@@ -1089,12 +1089,6 @@ QString QString::simplifyWhiteSpace() const
 }
 
 
-/*! \fn QString &QString::prepend( const char * s )
-
-  Prepend \s to the string.
-
-  \sa insert() */
-
 /*----------------------------------------------------------------------------
   Insert \e s into the string before position \e index.
 
@@ -1152,6 +1146,14 @@ QString &QString::insert( uint index, char c )	// insert char
     buf[1] = '\0';
     return insert( index, buf );
 }
+
+/*----------------------------------------------------------------------------
+  \fn QString &QString::prepend( const char *s )
+
+  Prepend \s to the string. Equivalent to insert(0,s).
+
+  \sa insert()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Removes \e len characters starting at position \e index from the
