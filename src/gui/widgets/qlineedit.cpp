@@ -262,9 +262,10 @@ QLineEdit::~QLineEdit()
 */
 QString QLineEdit::text() const
 {
+    QString res = d->text;
     if (d->maskData)
-        return d->stripString(d->text);
-    return (d->text.isNull() ? QString::fromLatin1("") : d->text);
+        res = d->stripString(d->text);
+    return (res.isNull() ? QString::fromLatin1("") : res);
 }
 
 void QLineEdit::setText(const QString& text)
