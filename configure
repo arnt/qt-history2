@@ -954,7 +954,7 @@ then
 	"
 	;;
      Linux:*)
-	PLATFORM=linux-${ARCH}g++
+	PLATFORM=linux-g++
 	PLATFORM_NOTES="
 	    - Also available for Linux: linux-kcc linux-icc linux-cxx
 	"
@@ -1607,9 +1607,9 @@ then
     then
 	Platform="Qt/Mac"
     else
-	echo >&2
-	echo "Internal error." >&2
-	echo >&2
+	echo
+	echo "Internal error."
+	echo
 	exit 2
     fi
     echo
@@ -1907,8 +1907,6 @@ else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
 
-
-
 if [ -n "$QCONFIG_FLAGS" ]
 then
     for cfg in $QCONFIG_FLAGS
@@ -1922,10 +1920,6 @@ cat >>$outpath/include/qconfig.h.new << EOF
 EOF
     done
 fi
-
-
-
-
 
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
 if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new
@@ -1969,7 +1963,7 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-if [ "x$CFG_EMBEDDED" != "xno" ]
+if [ "x$CFG_EMBEDDED" = "xyes" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$CFG_EMBEDDED"
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
