@@ -105,6 +105,10 @@ BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
+    if ( rects ) {
+	refcount++;
+	return;
+    }
     rects = new QMemArray<QRect>();
     workrects = new QMemArray<QRect>();
     if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
