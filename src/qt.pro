@@ -302,6 +302,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
+		  kernel/qfontdatabase.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
