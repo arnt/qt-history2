@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#20 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#20 $";
 #endif
 
 
@@ -846,7 +846,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    else
 		type = Event_MouseButtonPress;
 	    lastWindow = event->xbutton.window; // save state
-	    lastButton = event->xbutton.button;
+	    lastButton = button;
 	    lastTime = event->xbutton.time;
 	    lastX = event->xbutton.x;
 	    lastY = event->xbutton.y;
