@@ -1,6 +1,8 @@
 #ifndef QEVENTDISPATCHER_UNIX_H
 #define QEVENTDISPATCHER_UNIX_H
 
+#include <sys/types.h>
+#include <sys/time.h>
 #include "qabstracteventdispatcher.h"
 
 class QEventDispatcherUNIXPrivate;
