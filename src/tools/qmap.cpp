@@ -4,7 +4,7 @@ QMapData QMapData::shared_null = {
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     0,
 #endif
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, Q_ATOMIC_INIT(1), -1, 0, 0
+    { (QMapData::Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, 0, Q_ATOMIC_INIT(1), -1, 0, 0
 };
 
 QMapData *QMapData::createData()
