@@ -123,6 +123,81 @@ static const unsigned char aqua_vsbr_tip_up_mask_bits[] = {
    0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f, 0xff, 0x3f };
 
 /* XPM */
+static char * aqua_hdr_down_act_xpm[] = {
+"7 17 54 1",
+" 	c None",
+".	c #18398C",
+"+	c #183994",
+"@	c #103184",
+"#	c #10398C",
+"$	c #10318C",
+"%	c #5A7BB5",
+"&	c #527BAD",
+"*	c #5273AD",
+"=	c #739CBD",
+"-	c #7B9CC6",
+";	c #739CC6",
+">	c #7394BD",
+",	c #84A5CE",
+"'	c #8CADCE",
+")	c #8CA5CE",
+"!	c #84A5C6",
+"~	c #739CCE",
+"{	c #7BA5CE",
+"]	c #73A5CE",
+"^	c #5A94CE",
+"/	c #5A94C6",
+"(	c #528CC6",
+"_	c #5A8CC6",
+":	c #6394CE",
+"<	c #6B9CD6",
+"[	c #6BA5D6",
+"}	c #73A5D6",
+"|	c #73A5DE",
+"1	c #7BADDE",
+"2	c #73ADDE",
+"3	c #84B5E7",
+"4	c #8CBDEF",
+"5	c #8CBDF7",
+"6	c #94BDF7",
+"7	c #8CBDE7",
+"8	c #94BDEF",
+"9	c #94C6EF",
+"0	c #94C6E7",
+"a	c #9CC6E7",
+"b	c #9CCEEF",
+"c	c #9CCEE7",
+"d	c #A5D6EF",
+"e	c #A5CEE7",
+"f	c #ADD6F7",
+"g	c #A5CEEF",
+"h	c #A5D6E7",
+"i	c #ADD6EF",
+"j	c #6B8CBD",
+"k	c #6B94BD",
+"l	c #6384B5",
+"m	c #6B84BD",
+"n	c #6B84B5",
+"o	c #6B8CB5",
+".+@##.$",
+"%&%%%&*",
+"=-;=>-;",
+",'')'!!",
+"'!'',''",
+"~{~]{;{",
+"^/^(_^_",
+"/^:/::^",
+"<[}[<<[",
+"|1|211|",
+"3433335",
+"6787877",
+"9009999",
+"abbbcac",
+"cdcefgg",
+"dhdhihh",
+"jklmnjo"};
+
+/* XPM */
 static char * aqua_hdr_act_xpm[] = {
 "     6    17       17            1",
 ". c #284b9f",
@@ -12358,8 +12433,13 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hdr_" + sizestr, px );
 
-	QPixmap a3((const char **) aqua_hdr_down_xpm );
+	QPixmap a3((const char **) aqua_hdr_down_act_xpm );
         im = a3;
+        px = im.smoothScale( im.width(), size );
+        QPixmapCache::insert( "$qt_aqua_hdr_down_act_" + sizestr, px );
+
+	QPixmap a4((const char **) aqua_hdr_down_xpm );
+        im = a4;
         px = im.smoothScale( im.width(), size );
         QPixmapCache::insert( "$qt_aqua_hdr_down_" + sizestr, px );
     }
