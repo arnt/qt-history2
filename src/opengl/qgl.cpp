@@ -1110,7 +1110,7 @@ void QGLContext::deleteTexture(GLuint id)
 
 /*!
     This function sets the max size for the texture cache. The size is
-    in KB.
+    in KB. By default the max cache size is ~64 MB.
 */
 void QGLContext::setMaxTextureCacheSize(int size)
 {
