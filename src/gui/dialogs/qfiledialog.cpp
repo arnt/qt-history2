@@ -172,7 +172,6 @@ public:
     QItemSelectionModel *selections;
     QListView *listView;
     QTreeView *treeView;
-    QFileDialog::ViewMode viewMode;
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
 
@@ -664,7 +663,6 @@ QString QFileDialog::selectedFilter() const
 
 void QFileDialog::setViewMode(ViewMode mode)
 {
-    d->viewMode = mode;
     if (mode == Detail)
         d->showDetailClicked();
     else
@@ -683,7 +681,7 @@ void QFileDialog::setViewMode(ViewMode mode)
 
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
-    return d->viewMode;
+    return (d->listMode->isShown() ? List : Detail);
 }
 
 void QFileDialog::setFileMode(FileMode mode)
@@ -892,7 +890,6 @@ QFileDialogPrivate::QFileDialogPrivate()
       model(0),
       listView(0),
       treeView(0),
-      viewMode(QFileDialog::Detail),
       fileMode(QFileDialog::AnyFile),
       acceptMode(QFileDialog::AcceptOpen),
       lookIn(0),
@@ -1180,8 +1177,7 @@ void QFileDialogPrivate::setCurrentDir(const QString &path)
 void QFileDialogPrivate::showContextMenu(const QPoint &pos)
 {
     QAbstractItemView *view = 0;
-    // FIXME: should we have a currentView() ?
-    if (viewMode == QFileDialog::Detail)
+    if (q->viewMode() == QFileDialog::Detail)
         view = treeView;
     else
         view = listView;
@@ -1210,7 +1206,7 @@ void QFileDialogPrivate::showContextMenu(const QPoint &pos)
         menu.addAction(showHiddenAction);
     }
 
-    menu.exec();
+    menu.exec(view->mapToGlobal(pos));
 }
 
 /*!
@@ -1467,6 +1463,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setWrapping(true);
     listView->setResizeMode(QListView::Adjust);
     listView->setEditTriggers(QAbstractItemView::EditKeyPressed);
+    listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     grid->addWidget(listView, 1, 0, 1, 6);
 
@@ -1498,6 +1495,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->hide();
     treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
     treeView->resizeColumnToContents(0);
+    treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     grid->addWidget(treeView, 1, 0, 1, 6);
 
