@@ -465,7 +465,7 @@ QODBCResult::QODBCResult( const QODBCDriver * db, QODBCPrivate* p )
 
 QODBCResult::~QODBCResult()
 {
-    if ( d->hStmt ) {
+    if ( d->hStmt && driver()->isOpen() ) {
 	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 #ifdef QT_CHECK_RANGE
 	if ( r!= SQL_SUCCESS )
