@@ -518,11 +518,13 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	return;
     }
 
-    if ( !text().isNull() ) {
+    QColor btnText =  colorGroup().buttonText();
+
+    if ( !text().isNull() && !usesTextLabel() ) {
 	style().drawItem( p, x, y, w, h,
 			  AlignCenter + ShowPrefix,
 			  colorGroup(), isEnabled(),
-			  0, text() );
+			  0, text(), text().length(), &btnText );
     } else {
 	QPixmap pm;
 	if ( usesBigPixmap() ) {
@@ -549,7 +551,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	    style().drawItem( p, x, h - fh, w, fh,
 			      AlignCenter + ShowPrefix,
 			      colorGroup(), isEnabled(),
-			      0, textLabel() );
+			      0, textLabel(), textLabel().length(), &btnText );
  	} else {
 	    style().drawItem( p, x, y, w, h,
 			      AlignCenter, colorGroup(), TRUE, &pm, QString::null );
