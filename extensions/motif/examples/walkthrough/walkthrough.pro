@@ -8,7 +8,8 @@ INCLUDEPATH += . Exm Xmd
 LIBS += -lXm -lqmotif
 
 # Input
-FORMS    = pageeditdialog.ui
+FORMS    = pageeditdialog.ui \
+           mainwindow.ui
 HEADERS += page.h \
            Exm/CommandB.h \
            Exm/CommandBP.h \
@@ -18,8 +19,6 @@ HEADERS += page.h \
            Exm/SimpleP.h \
            Exm/TabB.h \
            Exm/TabBP.h \
-           Xmd/Help.h \
-           Xmd/HelpP.h \
            Xmd/Menus.h \
            Xmd/Print.h \
            Xmd/PrintP.h
@@ -30,6 +29,5 @@ SOURCES += actions.cpp \
            Exm/ExmString.c \
            Exm/Simple.c \
            Exm/TabB.c \
-           Xmd/Help.c \
            Xmd/Menus.c \
            Xmd/Print.c

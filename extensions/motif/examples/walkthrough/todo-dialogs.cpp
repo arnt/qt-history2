@@ -43,9 +43,6 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #endif
 #endif
 
-// Qt MainWindow
-#include "mainwindow.h"
-
 // Qt includes
 #include <qapplication.h>
 #include <qfiledialog.h>
@@ -62,14 +59,15 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #include <X11/Xatom.h>
 /* Motif include files */
 #include <Xm/Xm.h>
-// #include <Xm/CascadeBG.h>
+#include <Xm/CascadeBG.h>
+// #include <Xm/FileSB.h>
 #include <Xm/Label.h>
-// #include <Xm/MainW.h>
+#include <Xm/MainW.h>
 #include <Xm/Notebook.h>
-// #include <Xm/PushBG.h>
-// #include <Xm/RowColumn.h>
-// #include <Xm/ScrolledW.h>
-// #include <Xm/Separator.h>
+#include <Xm/PushBG.h>
+#include <Xm/RowColumn.h>
+#include <Xm/ScrolledW.h>
+#include <Xm/Separator.h>
 #include <Xm/Text.h>
 
 // Wrap non-standard includes with extern "C"
@@ -92,7 +90,7 @@ char * fallback_resources[] = {
 "*text.rows: 24",
 "*text.columns: 80",
 "*print_manager.printerList: lp,./todo.txt",
-// "*help_manager.helpFile: todo",
+// "*help_manager.helpFie: todo",
 "*notebook.frameShadowThickness: 2",
 "*notebook.bindingType:	XmSPIRAL",
 NULL
@@ -114,13 +112,14 @@ XrmOptionDescRec optionDesc[] = {
   {"-todoFile", "*todoFile", XrmoptionSepArg, NULL}
 };
 
-// static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
+static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
 static void TextChanged(Widget, XtPointer, XtPointer);
 
 // Wrap extern/callback functions and global variables with extern "C"
 extern "C" {
 
-    // void manageCB(Widget, Widget, XtPointer);
+    void manageCB(Widget, Widget, XtPointer);
+    // void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
     void New(Widget, char*, XmPushButtonCallbackStruct *);
     // void Open(Widget, char*, XmFileSelectionBoxCallbackStruct *);
     void Open(Widget, XtPointer, XmPushButtonCallbackStruct *);
@@ -141,8 +140,9 @@ extern "C" {
 
     extern Page pages[];
 
-    Widget /* shell, */ notebook, textw, labelw;
+    Widget shell, notebook, textw, labelw;
     // Widget help_widget;
+    // Widget file_dialog;
     int currentPage = 1;
     int modified;
     extern int maxpages;
@@ -151,11 +151,17 @@ extern "C" {
 } // extern "C"
 
 
-int main( int argc, char **argv )
+int
+main(int argc, char* argv[])
 {
+  Widget mainw, menubar;
+  Widget *file_menu, *edit_menu, *selected_menu, *help_menu, temp;
+  // Widget print_widget;
+  Cardinal size;
   XtAppContext context;
   Arg args[10];
   int n, i;
+  // XmString tmp;
   char temppath[256];
 
   if (argc == 2 && strcmp(argv[1], "-help") == 0) {
@@ -166,37 +172,94 @@ int main( int argc, char **argv )
   QMotif integrator( APP_CLASS, NULL,
 		     optionDesc, XtNumber(optionDesc) );
   QApplication app( argc, argv );
-  MainWindow mainwindow;
-  app.setMainWidget( &mainwindow );
+  QMotifWidget toplevel( 0, xmMainWindowWidgetClass,
+			 NULL, 0, "mainw" );
 
   context	= integrator.applicationContext();
+  mainw		= toplevel.motifWidget();
+  shell		= XtParent( mainw );
+  XtGetApplicationResources(shell, (XtPointer) &options,
+			    resources, XtNumber(resources),
+			    (Arg *) NULL, 0);
+
+  XtManageChild(mainw);
+
+  menubar	= XmCreateMenuBar(mainw, "menub", NULL, 0);
+  XtManageChild(menubar);
 
   n = 0;
   XtSetArg(args[n], XmNcurrentPageNumber, 1); n++;
   XtSetArg(args[n], XmNlastPageNumber, 100); n++;
-
-  QMotifWidget *center =
-      new QMotifWidget( &mainwindow, xmNotebookWidgetClass,
-			args, n, "notebook" );
-  mainwindow.setCentralWidget( center );
-  notebook = center->motifWidget();
-
+  notebook	= XmCreateNotebook(mainw, "notebook", args, n);
+  XtManageChild(notebook);
   XtAddCallback(notebook, XmNpageChangedCallback,
 		(XtCallbackProc) PageChange, NULL);
 
   n = 0;
+  XtSetArg(args[n], XmNmenuBar, menubar); n++;
+  XtSetValues(mainw, args, n);
+
+  n = 0;
   XtSetArg(args[n], XmNpageNumber, 1); n++;
   XtSetArg(args[n], XmNeditMode, XmMULTI_LINE_EDIT); n++;
-  textw = XmCreateScrolledText(notebook, "text", args, n);
+  textw		= XmCreateScrolledText(notebook, "text", args, n);
   XtManageChild(textw);
-  XtAddCallback(textw, XmNvalueChangedCallback,
-		(XtCallbackProc) TextChanged, NULL);
+  XtAddCallback(textw, XmNvalueChangedCallback, TextChanged, NULL);
 
   n = 0;
   XtSetArg(args[n], XmNnotebookChildType, XmSTATUS_AREA); n++;
   XtSetArg(args[n], XmNpageNumber, 1); n++;
-  labelw = XmCreateLabel(notebook, "label", args, n);
+  labelw	= XmCreateLabel(notebook, "label", args, n);
   XtManageChild(labelw);
+
+  XmdCreateMenu(FILE_MENU, menubar, &file_menu, &size);
+  XtAddCallback(file_menu[FILE_NEW], XmNactivateCallback,
+		(XtCallbackProc) New, NULL);
+  // XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
+  //               (XtCallbackProc) PresentFDialog, (XtPointer) Open);
+  XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
+		(XtCallbackProc) Open, (XtPointer) &toplevel);
+  XtAddCallback(file_menu[FILE_EXIT], XmNactivateCallback,
+		(XtCallbackProc) QuitAppl, NULL);
+  // XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
+  //               (XtCallbackProc) PresentFDialog, (XtPointer) Save);
+  XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
+		(XtCallbackProc) Save, (XtPointer) &toplevel);
+  XtAddCallback(file_menu[FILE_SAVE], XmNactivateCallback,
+		(XtCallbackProc) SaveIt, NULL);
+
+  XmdCreateMenu(SELECTED_MENU, menubar, &selected_menu, &size);
+  XtUnmanageChildren(selected_menu, size);
+  XtManageChild(selected_menu[SELECTED_PROPERTIES]);
+  // XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
+  //               (XtCallbackProc) EditPage, NULL);
+  XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
+		(XtCallbackProc) EditPage, (XtPointer) &toplevel );
+  XtManageChild(selected_menu[SELECTED_NEW]);
+  XtAddCallback(selected_menu[SELECTED_NEW], XmNactivateCallback,
+		(XtCallbackProc) NewPage, NULL);
+  XtManageChild(selected_menu[SELECTED_DELETE]);
+  // XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
+  //               (XtCallbackProc) DeletePage, NULL);
+  XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
+		(XtCallbackProc) DeletePage, (XtPointer) &toplevel);
+
+  // XmdCreateMenu(HELP_MENU, menubar, &help_menu, &size);
+  // XtUnmanageChildren(help_menu, size);
+  // XtManageChild(help_menu[HELP_OVERVIEW]);
+
+  // print_widget = XmdCreatePrintDialog(shell, "print_manager", NULL, 0);
+  // XtAddCallback(print_widget, XmdNprintCallback,
+  //               (XtCallbackProc) Print, NULL);
+  // tmp = XmStringCreateLocalized("About Printing");
+  XtAddCallback(file_menu[FILE_PRINT], XmNactivateCallback,
+		(XtCallbackProc) ShowPrintDialog, (XtPointer) &toplevel);
+
+  // help_widget = XmdCreateHelpDialog(shell, "help_manager", NULL, 0);
+  // XtAddCallback(help_menu[HELP_OVERVIEW], XmNactivateCallback,
+  //               (XtCallbackProc) help_cb, (XtPointer) 0);
+  // XtAddCallback(print_widget, XmNhelpCallback,
+  //               (XtCallbackProc) help_cb, (XtPointer) 1);
 
   user = getpwuid(getuid());
   for (i = 0; i < MAXPAGES; i++) {
@@ -212,10 +275,12 @@ int main( int argc, char **argv )
     options.todoFile = XtNewString(options.todoFile);
   }
 
+  XtVaSetValues(shell, XmNtitle, options.todoFile,
+		XmNtitleEncoding, XA_STRING, NULL, NULL);
   ReadDB(options.todoFile);
   SetPage(0);
 
-  mainwindow.show();
+  toplevel.show();
 
   // Eventloop integration
   /*
@@ -229,15 +294,14 @@ int main( int argc, char **argv )
   return app.exec();
 }
 
-// Unneeded static QuitAppl function
-// static void
-// QuitAppl(Widget w, char *i, XmPushButtonCallbackStruct *e)
-// {
-//   exit(0);
-// }
+static void
+QuitAppl(Widget w, char *i, XmPushButtonCallbackStruct *e)
+{
+  exit(0);
+}
 
 static void
-TextChanged(Widget, XtPointer, XtPointer)
+TextChanged(Widget w, XtPointer i, XtPointer i2)
 {
   modified = 1;
 }
@@ -247,14 +311,23 @@ TextChanged(Widget, XtPointer, XtPointer)
 //      Widget widget;
 //      Widget w_to_manage;
 //      XtPointer callback_data;
-// void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
+void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
+{
+  if (w_to_manage != (Widget) NULL)
+    XtManageChild(w_to_manage);
+}
+
+// Callback to show the XmFileSelectionBox dialog
+// void
+// PresentFDialog(Widget w, XtPointer cb, XmPushButtonCallbackStruct *cs)
 // {
-//   if (w_to_manage != (Widget) NULL)
-//     XtManageChild(w_to_manage);
+//   XtRemoveAllCallbacks(file_dialog, XmNokCallback);
+//   XtAddCallback(file_dialog, XmNokCallback, (XtCallbackProc) cb, NULL);
+//   XtManageChild(file_dialog);
 // }
 
 void
-New( Widget, char *, XmPushButtonCallbackStruct * )
+New(Widget w, char* ignore, XmPushButtonCallbackStruct *cs)
 {
   char buf[128];
   char *str;
@@ -270,15 +343,15 @@ New( Widget, char *, XmPushButtonCallbackStruct * )
   ReadDB(str);
   XtFree(options.todoFile);
   options.todoFile = str;
-  // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-  //               XA_STRING, NULL, NULL);
+  XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
+		XA_STRING, NULL, NULL);
   SetPage(0);
 }
 
 // Save using QFileDialog
 void
-Save(Widget, XtPointer client_data,
-     XmPushButtonCallbackStruct *)
+Save(Widget /*unused*/, XtPointer client_data,
+     XmPushButtonCallbackStruct */*unused*/)
 {
   QWidget *toplevel = (QWidget *) client_data;
   QString filename =
@@ -290,15 +363,15 @@ Save(Widget, XtPointer client_data,
     SaveDB(str);
     XtFree(options.todoFile);
     options.todoFile = str;
-    // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-    //               XA_STRING, NULL, NULL);
+    XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
+		  XA_STRING, NULL, NULL);
   }
 }
 
 // Open using QFileDialog
 void
-Open(Widget, XtPointer client_data,
-     XmPushButtonCallbackStruct *)
+Open(Widget /*unused*/, XtPointer client_data,
+     XmPushButtonCallbackStruct */*unused*/)
 {
   QWidget *toplevel = (QWidget *) client_data;
   QString filename =
@@ -310,8 +383,8 @@ Open(Widget, XtPointer client_data,
     ReadDB(str);
     XtFree(options.todoFile);
     options.todoFile = str;
-    // XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
-    //               XA_STRING, NULL, NULL);
+    XtVaSetValues(shell, XmNtitle, str, XmNtitleEncoding,
+		  XA_STRING, NULL, NULL);
   }
 }
 
@@ -347,7 +420,7 @@ void ShowPrintDialog(Widget, XtPointer client_data,
 }
 
 void
-Print(Widget, char *, XmdPrintCallbackStruct *cb)
+Print(Widget w, char *ignore, XmdPrintCallbackStruct *cb)
 {
   int i;
   FILE *temp;
