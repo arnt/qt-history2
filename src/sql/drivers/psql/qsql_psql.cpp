@@ -270,7 +270,8 @@ QTime qTimeFromDouble( double tm )
 
 QVariant QPSQLResult::data( int i )
 {
-    QVariant::Type type = qFieldType( d, i );
+    int ptype = PQftype( d->result, i );
+    QVariant::Type type = qDecodePSQLType( ptype );
     QString val;
     if ( d->isUtf8 ) {
 	val = QString::fromUtf8( PQgetvalue( d->result, at(), i ) );
@@ -289,9 +290,15 @@ QVariant QPSQLResult::data( int i )
 	} else {
 	    return QVariant( val );
 	}
-    case QVariant::Int:    // keep these as strings so we don't loose precision
+    case QVariant::Int:
+	if ( ptype == INT8OID )
+	    // keep these as strings so we don't loose precision
+	    return QVariant( val );
+	return QVariant( val.toInt() );
     case QVariant::Double:
-	return QVariant( val );
+	if ( ptype == NUMERICOID )
+	    return QVariant( val );
+	return QVariant( val.toDouble() );
     case QVariant::Date:
 	if ( val.isEmpty() ) {
 	    return QVariant( QDate() );
