@@ -1,3 +1,4 @@
+//depot/qt/main/tools/designer/uilib/qwidgetfactory.h#8 - edit change 55390 (text)
  /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
@@ -33,12 +34,9 @@
 
 class QWidget;
 class QLayout;
-class QDomDocument;
 class QDomElement;
 class QListViewItem;
 class QTable;
-class QWidgetFactoryPrivate;
-class UibStrTable;
 
 class QWidgetFactory
 {
@@ -63,11 +61,9 @@ private:
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg );
     QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type );
     LayoutType layoutType( QLayout *l ) const;
-    void setProperty( QObject* widget, const QString &prop, QVariant value );
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
     void createSpacer( const QDomElement &e, QLayout *layout );
     QImage loadFromCollection( const QString &name );
-    QPixmap loadPixmap( const QString &name );
     QPixmap loadPixmap( const QDomElement &e );
     QColorGroup loadColorGroup( const QDomElement &e );
     void createColumn( const QDomElement &e, QWidget *widget );
@@ -80,17 +76,7 @@ private:
     void loadFunctions( const QDomElement &e );
     QAction *findAction( const QString &name );
     void loadExtraSource();
-    QString translate( const char *sourceText, const char *comment = "" );
-
-    void inputSpacer( const UibStrTable& strings, QDataStream& in,
-    		      QLayout *parent );
-    QObject *inputObject( QObject **objects, int& numObjects,
-			  const UibStrTable& strings, QDataStream& in, 
-			  QObject *parent, QCString className = "" );
-    QWidget *createFromUiFile( QDomDocument doc, QObject *connector,
-			       QWidget *parent, const char *name );
-    QWidget *createFromUibFile( QDataStream& in, QObject *connector,
-				QWidget *parent, const char *name );
+    QString translate( const QString& sourceText, const QString& comment = "" );
 
 private:
     struct Image {
@@ -140,7 +126,7 @@ private:
 
     QValueList<Image> images;
     QWidget *toplevel;
-    QWidgetFactoryPrivate *d;
+    QListViewItem *lastItem;
     QMap<QString, QString> *dbControls;
     QMap<QString, QStringList> dbTables;
     QMap<QWidget*, SqlWidgetConnection> sqlWidgetConnections;
@@ -150,11 +136,11 @@ private:
     QMap<QObject *, EventFunction> eventMap;
     QMap<QString, QString> languageSlots;
     QMap<QString, Functions*> languageFunctions;
-    QStringList vars;
+    QStringList variables;
     QStringList noDatabaseWidgets;
     bool usePixmapCollection;
-    int defMargin;
-    int defSpacing;
+    int defMargin, defSpacing;
+
 };
 
 #endif
