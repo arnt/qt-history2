@@ -5,6 +5,7 @@
 #include "qstring.h"
 #include "qvariant.h"
 #include "qvaluelist.h"
+#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -42,7 +43,7 @@ private:
     bool          nul;
 };
 
-class QSqlFieldList : public QValueList<QSqlField>
+class QSqlFieldList
 {
 public:
     QSqlFieldList();
@@ -53,6 +54,14 @@ public:
     QSqlField& field( int i );
     QSqlField& field( const QString& name );
     int position( const QString& name );
+    void append( const QSqlField& field );
+    void clear();
+    uint count() const;
+    QString toString() const;
+private:
+    QString fieldListStr;
+    QMap< QString, int > posMap;
+    QValueList< QSqlField > fieldList;
 };
 
 #endif	// QT_NO_SQL

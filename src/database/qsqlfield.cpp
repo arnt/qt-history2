@@ -116,8 +116,9 @@ QSqlFieldList::QSqlFieldList()
 */
 
 QSqlFieldList::QSqlFieldList( const QSqlFieldList& l )
-    : QValueList<QSqlField>( l )
 {
+    fieldList = l.fieldList;
+    fieldListStr = l.fieldListStr;
 }
 
 /*!
@@ -141,13 +142,12 @@ QVariant& QSqlFieldList::operator[]( int i )
 #ifdef CHECK_RANGE
     static QVariant dbg;
     
-    if( (unsigned int) i > count() ){
+    if( (unsigned int) i > fieldList.count() ){
 	qWarning( "QSqlFieldList warning: index out of range" );
 	return dbg;
     }
 #endif // CHECK_RANGE
-    
-    return QValueList<QSqlField>::operator[](i).value();
+    return fieldList[ i ].value();
 }
 
 /*!
@@ -161,13 +161,12 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 #ifdef CHECK_RANGE
     static QVariant dbg;
     
-    if( (unsigned int) position( name ) > count() ){
+    if( (unsigned int) position( name ) > fieldList.count() ){
 	qWarning( "QSqlFieldList warning: index out of range" );
 	return dbg;
     }
 #endif // CHECK_RANGE
-
-    return QValueList<QSqlField>::operator[]( position( name ) ).value();
+    return fieldList[ position( name ) ].value();
 }
 
 /*!
@@ -178,7 +177,7 @@ QVariant& QSqlFieldList::operator[]( const QString& name )
 
 QSqlField& QSqlFieldList::field( int i )
 {
-    return QValueList<QSqlField>::operator[](i);
+    return fieldList[ i ];
 }
 
 /*!
@@ -189,7 +188,7 @@ QSqlField& QSqlFieldList::field( int i )
 
 QSqlField& QSqlFieldList::field( const QString& name )
 {
-    return QValueList<QSqlField>::operator[]( position( name ) );
+    return fieldList[ position( name ) ];
 }
 
 /*!
@@ -200,11 +199,58 @@ QSqlField& QSqlFieldList::field( const QString& name )
 
 int QSqlFieldList::position( const QString& name )
 {
-    for (uint i = 0; i < count(); ++i ) {
-	if ( (*at(i)).name() == name )
-	    return i;
-    }
+    if ( posMap.contains( name ) )
+	return posMap[ name ];
     return -1;
+}
+
+/*!
+  Appends the field \a field to the end of the list of fields.
+
+*/
+
+void QSqlFieldList::append( const QSqlField& field )
+{
+    if ( fieldListStr.isNull() )
+	fieldListStr = field.name();
+    else
+	fieldListStr = ", " + field.name();
+    posMap[ field.name() ] = fieldList.count();    
+    fieldList.append( field );    
+}
+
+/*!
+  Removes all fields from the list.
+
+*/
+
+void QSqlFieldList::clear()
+{
+    fieldListStr = QString::null;
+    fieldList.clear();
+    posMap.clear();
+}
+
+/*!
+  Returns a comma-separated list of field names as a string.  This
+  string is suitable for use in, for example, generating a select
+  statement.
+
+*/
+
+QString QSqlFieldList::toString() const
+{
+    return fieldListStr;
+}
+
+/*!
+  Returns the number of fields in the list.
+
+*/
+
+uint QSqlFieldList::count() const
+{
+    return fieldList.count();
 }
 
 #endif
