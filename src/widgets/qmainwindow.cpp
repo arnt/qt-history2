@@ -2159,7 +2159,7 @@ void QMainWindow::setUpLayout()
 
     d->lBottom = new QToolLayout( d->tll, d->bottom, QBoxLayout::Down, d->justify );
 
-    if ( d->sb && d->sb->isVisibleTo( this ) ) {
+    if ( d->sb ) {
 	d->tll->addWidget( d->sb, 0 );
 	// make the sb stay on top of tool bars if there isn't enough space
 	d->sb->raise();
@@ -2305,6 +2305,11 @@ void QMainWindow::childEvent( QChildEvent* e)
 	} else if ( e->child()->isWidgetType() ) {
 	    removeToolBar( (QToolBar *)(e->child()) );
 	    triggerLayout();
+	}
+    } else if ( e->type() == QEvent::ChildInserted ) {
+	if ( e->child()->inherits( "QStatusBar" ) ) {
+	    d->sb = (QStatusBar*)e->child();
+	    triggerLayout( TRUE );
 	}
     }
 }
@@ -2533,8 +2538,7 @@ void QMainWindow::triggerLayout( bool deleteLayout )
     } else {
 	delete d->tll;
 	d->tll = 0;
-	if ( isVisibleTo(0) )
-	    setUpLayout();
+	setUpLayout();
     }
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
 }
