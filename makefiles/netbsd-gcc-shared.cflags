@@ -1,6 +1,6 @@
 CC="gcc"
 CFLAGS="-O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include"
-LFLAGS="-L/usr/X11R6/lib""
+LFLAGS="-L/usr/X11R6/lib"
 LIBS="-lqt"
 SHELL="/bin/sh"
 LIBCFLAGS="-fPIC"

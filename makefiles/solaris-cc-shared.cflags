@@ -1,7 +1,7 @@
 CC="CC"
 CFLAGS="-O2 -pto -I/usr/openwin/include"
 LFLAGS=""
-LIBS="-lqt""
+LIBS="-lqt"
 SHELL="/bin/sh"
 LIBCFLAGS="-pic"
 YACCCFLAGS=""

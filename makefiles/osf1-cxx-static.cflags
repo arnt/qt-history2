@@ -1,7 +1,7 @@
 CC="cxx"
 CFLAGS="-O2 -x cxx -w  -D_POSIX_SOURCE -D_OSF_SOURCE -D_AES_SOURCE"
 LFLAGS=""
-LIBS="-lqt -lX11""
+LIBS="-lqt -lX11"
 SHELL="/bin/sh"
 LIBCFLAGS=""
 YACCCFLAGS="-Olimit 1000"

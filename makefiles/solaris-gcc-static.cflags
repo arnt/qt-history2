@@ -1,7 +1,7 @@
 CC="gcc"
 CFLAGS="-O2 -fno-strength-reduce -Wall -W -I/usr/openwin/include"
 LFLAGS="-L/usr/openwin/lib"
-LIBS="-lqt -lX11""
+LIBS="-lqt -lX11"
 SHELL="/bin/sh"
 LIBCFLAGS=""
 YACCCFLAGS="-Wno-unused -Wno-parentheses"
