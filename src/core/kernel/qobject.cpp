@@ -386,10 +386,15 @@ QObject::~QObject()
             }
         }
 
-        d->connections->lock.release();
-        d->connections->lock.~QSpinLock();
-
-        qFree(d->connections);
+        if (d->connections->active) {
+            d->connections->orphaned = true;
+            d->connections->lock.release();
+        } else {
+            if (d->connections->connections != d->connections->stack)
+                qFree(d->connections->connections);
+            d->connections->lock.~QSpinLock();
+            qFree(d->connections);
+        }
         d->connections = 0;
     }
 
@@ -404,10 +409,7 @@ QObject::~QObject()
         if (!--d->senders->ref) {
             if (d->senders->senders != d->senders->stack)
                 qFree(d->senders->senders);
-
-            d->senders->lock.release();
             d->senders->lock.~QSpinLock();
-
             qFree(d->senders);
         } else {
             d->senders->lock.release();
@@ -1369,7 +1371,6 @@ void QObjectPrivate::refSender(QObject *sender)
 
         s->lock.acquire();
         if (!q_atomic_test_and_set_ptr(&senders, 0, s)) {
-            s->lock.release();
             s->lock.~QSpinLock();
             qFree(s);
         } else {
@@ -1496,10 +1497,7 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
     if (!--senders->ref) {
         if (senders->senders != senders->stack)
             qFree(senders->senders);
-
-        senders->lock.release();
         senders->lock.~QSpinLock();
-
         qFree(senders);
     } else {
         senders->lock.release();
@@ -1613,10 +1611,11 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
         c->count = 1;
         c->active = false;
         c->dirty = false;
+        c->orphaned = false;
+        c->connections = c->stack;
 
         c->lock.acquire();
         if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
-            c->lock.release();
             c->lock.~QSpinLock();
             qFree(c);
         } else {
@@ -1645,14 +1644,28 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
             connections->dirty = false;
         }
 
-
         // pick the first spare item from the end, otherwise grow the list
         i = connections->count;
-        while (i >0 && !connections->connections[i-1].receiver)
-            --i;
+        if (!connections->active) {
+            while (i > 0 && !connections->connections[i-1].receiver)
+                --i;
+        }
         if (i == connections->count) {
-            connections = (Connections *) qRealloc(connections, sizeof(Connections) +
-                                                   i*sizeof(Connections::Connection));
+            if (connections->connections != connections->stack) {
+                connections->connections =
+                    (Connections::Connection *)
+                    qRealloc(connections->connections, (i+1) * sizeof(Connections::Connection));
+            } else if (connections->active) {
+                // cannot realloc
+                connections->connections =
+                    (Connections::Connection *) qMalloc((i+1) * sizeof(Connections::Connection));
+                ::memcpy(connections->connections, connections->stack,
+                         i * sizeof(Connections::Connection));
+            } else {
+                connections = (Connections *) qRealloc(connections, sizeof(Connections) +
+                                                       i*sizeof(Connections::Connection));
+                connections->connections = connections->stack;
+            }
             ++connections->count;
         }
     }
@@ -1699,6 +1712,40 @@ void QObjectPrivate::removeReceiver(QObject *receiver)
                 c.types = 0;
             }
         }
+    }
+}
+
+/*! \internal
+    Sets the active flag on \a connections.
+
+    Note: The connections will be LOCKED when this function returns.
+    Use resetActive() to clear the active flag and release the lock.
+*/
+bool QObjectPrivate::setActive(Connections *connections)
+{
+    connections->lock.acquire();
+    const bool was_active = connections->active;
+    connections->active = true;
+    return was_active;
+}
+
+/*! \internal
+    Resets the active flag on \a connections.  \a connections is
+    destroyed if it is no longer active and has been orphaned.
+
+    Note: The connections lock MUST be LOCKED before calling this
+    function.  The lock will be UNLOCKED when this function returns.
+*/
+void QObjectPrivate::resetActive(Connections *connections, bool was_active)
+{
+    connections->active = was_active;
+    if (!connections->active && connections->orphaned) {
+        if (connections->connections != connections->stack)
+            qFree(connections->connections);
+        connections->lock.~QSpinLock();
+        qFree(connections);
+    } else {
+        connections->lock.release();
     }
 }
 
@@ -2281,28 +2328,23 @@ void QMetaObject::connectSlotsByName(const QObject *o)
  */
 void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 {
-    if (obj->d->blockSig || !obj->d->connections)
+    QObjectPrivate::Connections *connections = obj->d->connections;
+
+    if (obj->d->blockSig || !connections)
         return;
-    int i = 0;
-    QObjectPrivate::Connections::Connection *c = 0, *nc = 0;
-    bool first = true;
+
+    bool was_active = QObjectPrivate::setActive(connections);
+    int last_connection = connections->count;
+
     void *static_argv[] = { 0 };
     if (!argv)
         argv = static_argv;
-    for (; first || c != 0; c = nc) {
-        obj->d->connections->lock.acquire();
-        obj->d->connections->active = true;
-        if (first) {
-            first = false;
-            c = obj->d->findConnection(signal_index, i);
-            if (!c) {
-                obj->d->connections->lock.release();
-                break;
-            }
-        }
-        // find the next connection before activating the current
-        // connection
-        nc = obj->d->findConnection(signal_index, i);
+
+    for (int i = 0; i < last_connection; ++i) {
+        QObjectPrivate::Connections::Connection * const c = connections->connections + i;
+        if (!c->receiver || c->signal != signal_index)
+            continue;
+
         // determine if this connection should be sent immediately or
         // put into the event queue
         const bool queued = (c->type == Qt::QueuedConnection
@@ -2314,14 +2356,9 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
             c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
             if (!c->types) // cannot queue arguments
                 c->types = &DIRECT_CONNECTION_ONLY;
-            if (c->types == &DIRECT_CONNECTION_ONLY) { // cannot activate
-                obj->d->connections->lock.release();
+            if (c->types == &DIRECT_CONNECTION_ONLY) // cannot activate
                 continue;
-            }
         }
-
-        obj->d->connections->active = false;
-        obj->d->connections->lock.release();
 
         if (queued) { // QueuedConnection
             int nargs = 1; // include return type
@@ -2339,6 +2376,8 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
                                                            c->member >> 1, obj,
                                                            nargs, types, args));
         } else { // DirectConnection
+            connections->lock.release();
+
             QObjectPrivate::Senders *senders = c->receiver->d->senders;
             QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
 #if defined(QT_NO_EXCEPTIONS)
@@ -2348,12 +2387,22 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
                 c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
             } catch (...) {
                 QObjectPrivate::resetCurrentSender(senders, sender);
+
+                connections->lock.acquire();
+                QObjectPrivate::resetActive(connections, was_active);-
+
                 throw;
             }
 #endif
             QObjectPrivate::resetCurrentSender(senders, sender);
+
+            connections->lock.acquire();
+            if (connections->orphaned)
+                break;
         }
     }
+
+    QObjectPrivate::resetActive(connections, was_active);
 }
 
 /*!\internal

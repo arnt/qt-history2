@@ -57,6 +57,7 @@ public:
         QSpinLock lock;
         uint active : 1;
         uint dirty : 1;
+        uint orphaned : 1;
         int count;
         struct Connection {
             int signal;
@@ -67,13 +68,18 @@ public:
             int member;
             int type; // 0 == auto, 1 == direct, 2 == queued
             int *types;
-        } connections[1];
+        };
+        Connection *connections;
+        Connection stack[1];
     };
     Connections *connections;
     static int *queuedConnectionTypes(const char *signal);
     void addConnection(int signal, QObject *receiver, int member, int type = 0, int *types = 0);
     Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
+
+    static bool setActive(Connections *connections);
+    static void resetActive(Connections *connections, bool was_active);
 
     // slot connections
     struct Senders
