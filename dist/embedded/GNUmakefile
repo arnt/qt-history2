@@ -4,6 +4,10 @@ SUBDIRS = 	src \
 QT_EMBEDDED = 1
 export QT_EMBEDDED
 
+QTDIR = $(PWD)
+export QTDIR
+
+
 all: bin/moc $(SUBDIRS) 
 
 $(SUBDIRS): include FORCE
