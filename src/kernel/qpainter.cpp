@@ -417,8 +417,8 @@ QPainter::QPainter()
 QPainter::QPainter( const QPaintDevice *pd )
 {
     init();
-    begin( pd );
-    flags |= CtorBegin;
+    if ( begin( pd ) )
+	flags |= CtorBegin;
 }
 
 
@@ -433,8 +433,8 @@ QPainter::QPainter( const QPaintDevice *pd,
 		    const QWidget *copyAttributes )
 {
     init();
-    begin( pd, copyAttributes );
-    flags |= CtorBegin;
+    if ( begin( pd, copyAttributes ) )
+	flags |= CtorBegin;
 }
 
 

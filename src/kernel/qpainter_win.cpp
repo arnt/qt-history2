@@ -700,6 +700,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( testf(ExtDev) ) {			// external device
 	if ( !pdev->cmd(QPaintDevice::PdcBegin,this,0) ) {
 	    pdev = 0;				// could not begin
+	    clearf( IsActive | DirtyFont | ExtDev );
 	    return FALSE;
 	}
 	if ( tabstops )				// update tabstops for device
