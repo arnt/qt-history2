@@ -2927,7 +2927,7 @@ QPainter::RenderHints QPainter::renderHints() const
 	qWarning("Painter must be active to set rendering hints");
 	return 0;
     }
-    d->engine->renderHints();
+    return d->engine->renderHints();
 }
 
 
