@@ -1848,6 +1848,7 @@ QCString combinePath( const char *infile, const char *outfile )
 {
     QFileInfo inFileInfo( QDir::current(), QFile::decodeName(infile) );
     QFileInfo outFileInfo( QDir::current(), QFile::decodeName(outfile) );
+    int numCommonComponents = 0;
 
     QStringList inSplitted =
 	QStringList::split( '/', inFileInfo.dir().canonicalPath(), TRUE );
@@ -1858,13 +1859,27 @@ QCString combinePath( const char *infile, const char *outfile )
 	    inSplitted.first() == outSplitted.first() ) {
 	inSplitted.remove( inSplitted.begin() );
 	outSplitted.remove( outSplitted.begin() );
+	numCommonComponents++;
     }
-    while ( !outSplitted.isEmpty() ) {
-	outSplitted.remove( outSplitted.begin() );
-	inSplitted.prepend( ".." );
+
+    if ( numCommonComponents < 2 ) {
+	/*
+	  The paths don't have the same drive, or they don't have the
+	  same root directory. Use an absolute path.
+	*/
+	return QFile::encodeName( inFileInfo.filePath() );
+    } else {
+	/*
+	  The paths have something in common. Use a path relative to
+	  the output file.
+	*/
+	while ( !outSplitted.isEmpty() ) {
+	    outSplitted.remove( outSplitted.begin() );
+	    inSplitted.prepend( ".." );
+	}
+	inSplitted.append( inFileInfo.fileName() );
+	return QFile::encodeName( inSplitted.join("/") );
     }
-    inSplitted.append( inFileInfo.fileName() );
-    return QFile::encodeName( inSplitted.join("/") );
 }
 
 
