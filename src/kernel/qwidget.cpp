@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#191 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#190 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#191 $");
 
 
 /*!
@@ -1962,6 +1962,11 @@ void QWidget::setCRect( const QRect &r )
   <li> \c QWidget::NoFocus, the widget does not accept focus
   </ul>
 
+  As a special case to support applications not utilizing focus,
+  \link isTopLevel() Top-level widgets \endlink that have
+  NoFocus policy will receive focus events and
+  gain keyboard events.
+
   \sa isFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
 */
@@ -2572,6 +2577,10 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   The default implementation ignores the event.
 
+  As a special case to support applications not utilizing focus,
+  \link isTopLevel() Top-level widgets \endlink that have
+  NoFocus policy will receive keyboard events.
+
   \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusPolicy(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
@@ -2615,13 +2624,19 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
   QColorGroup color group\endlink changes from normal to active.  You
   may want to call repaint(FALSE) to reduce flicker in any reimplementation.
 
+  As a special case to support applications not utilizing focus,
+  \link isTopLevel() Top-level widgets \endlink that have
+  \link focusPolicy() NoFocus policy\endlink will receive focus events and
+  gain keyboard events, but the repaint is not done by default.
+
   \sa focusOutEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
 */
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
-    repaint();
+    if ( focusPolicy() != NoFocus || !isTopLevel() )
+	repaint();
 }
 
 /*!
@@ -2641,7 +2656,8 @@ void QWidget::focusInEvent( QFocusEvent * )
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
-    repaint();
+    if ( focusPolicy() != NoFocus || !isTopLevel() )
+	repaint();
 }
 
 /*!
