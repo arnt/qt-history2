@@ -62,9 +62,9 @@ public:
     int indexOf(QWidget *widget) const;
     int count() const;
 
-    enum TabPosition { North, South, West, East,
+    enum TabPosition { North, South, West, East
 #ifdef QT_COMPAT
-        Top = North, Bottom = South
+        , Top = North, Bottom = South
 #endif
     };
     TabPosition tabPosition() const;

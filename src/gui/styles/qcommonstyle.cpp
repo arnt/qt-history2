@@ -1280,13 +1280,13 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 p->setBrush(tab->palette.base());
             else
                 p->setBrush(tab->palette.background());
-            p->setPen(tab->palette.foreground().color());            
+            p->setPen(tab->palette.foreground().color());
             int y;
             int x;
-            QPolygon a(10);            
+            QPolygon a(10);
             switch (tab->shape) {
-            case QTabBar::TriangularAbove:
-            case QTabBar::TriangularBelow: {
+            case QTabBar::TriangularNorth:
+            case QTabBar::TriangularSouth: {
                 a.setPoint(0, 0, -1);
                 a.setPoint(1, 0, 0);
                 y = tab->rect.height() - 2;
@@ -1378,7 +1378,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 tr.setLeft(tr.left() + tabIcon.width() + 4);
             }
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
-            
+
             if (verticalTabs)
                 p->restore();
 
@@ -3085,7 +3085,7 @@ QPixmap QCommonStyle::generatedIconPixmap(IconMode iconMode, const QPixmap &pixm
 
         QBitmap pixmapMask(pixmap.size());
         pixmapMask.fill(Qt::color0);
-        
+
         QPainter painter;
         painter.begin(&pixmapMask);
         painter.drawPixmap(0, 0, pixmap);

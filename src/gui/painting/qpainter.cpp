@@ -2921,6 +2921,7 @@ void QPainter::drawChord(const QRectF &r, int a, int alen)
     drawPath(path);
 }
 
+#ifdef QT_COMPAT
 /*!
     Draws \a nlines separate lines from points defined in \a a,
     starting at \a{a}\e{[index]} (\a index defaults to 0). If \a nlines is
@@ -2976,7 +2977,7 @@ void QPainter::drawLineSegments(const QPolygon &a, int index, int nlines)
 
     d->engine->drawLines(lines.data(), lines.size());
 }
-
+#endif // QT_COMPAT
 /*!
     Draws the first \a lineCount lines in the array \a lines
     using the current pen.
