@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#82 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#81 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#82 $";
 #endif
 
 
@@ -1005,7 +1005,7 @@ void QWidget::setSizeIncrement( int w, int h )
   \sa repaint()
 */
 
-void QWidget::erase( int x, int y, int w, int h );
+void QWidget::erase( int x, int y, int w, int h )
 {
     XClearArea( dpy, ident, x, y, w, h, FALSE );
 }
