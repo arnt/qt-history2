@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#34 $
+** $Id: //depot/qt/main/src/tools/qstring.h#35 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -36,6 +36,15 @@ inline char *hack_strrchr( const char *s, int c )
 #define strrchr hack_strrchr
 #endif
 
+#if defined(_OS_SUN_)
+// sunos does not have strotoul: we hack it
+#include <stdlib.h>
+extern "C" inline unsigned long int strtoul ( const char *nptr, 
+					      char **endptr, int base) {
+    long int almost = strtol( nptr, endptr, base );
+    return (unsigned long int) almost & 0x7fffffff;
+}
+#endif;
 
 // --------------------------------------------------------------------------
 // Safe and portable C string functions; extensions to standard string.h
