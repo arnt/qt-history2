@@ -7,7 +7,7 @@ design tool.
 \endquote
 
   \index Clipboard
-  \index Drag-and-drop
+  \index Drag and drop
 
 Qt provides all the classes and functions necessary to create modern
 GUI applications. Qt can be used to create both 'main window' style
@@ -15,7 +15,7 @@ applications with a menu bar, toolbars and status bar surrounding a
 central area, and dialog style applications that use buttons and
 possibly tabs to present options and information. Qt supports both
 SDI (single document interface) and MDI (multiple document
-interface). Qt also supports drag-and-drop and the clipboard.
+interface). Qt also supports drag and drop and the clipboard.
 
   \index Toolbar
 
@@ -484,5 +484,5 @@ multi-threading, and provides four threading classes: \Class
 QThread, \Class QMutex, \Class QSemaphore and \Class QWaitCondition.
 
 \ONLINES
-\Online threads.html
+\Online http://doc.trolltech.com/3.0/threads.html
 \ENDONLINES

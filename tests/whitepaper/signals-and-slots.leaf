@@ -47,7 +47,7 @@ calling the \Func connect() function to relate the signal to the
 slot. Qt's signals and slots mechanism does not require classes to
 have knowledge of each other, which makes it much easier to develop
 highly reusable classes. Signals and slots are type safe, with type
-errors being reported by the compiler rather than by crashes.
+errors being reported by warnings rather than by crashes.
 
   \index clicked()
   \index quit()
@@ -153,8 +153,9 @@ setBalance() slot, which sets \c y's balance to 2450.
 
 One object's signal can be connected to many different slots, and
 many signals can be connected to one slot in a particular object.
-Connections can be made between any signal and slot, provided that
-their arguments are compatible.
+Connections are made between signals and slots whose parameters have
+the same types. A slot can have fewer parameters than the signal and
+ignore the extra parameters.
 
 \section1 Meta Object Compiler
 
@@ -187,7 +188,7 @@ information. The meta object compiler also makes the cross-platform
 introspection of C++ programs possible.
 
 \ONLINES
-\Online object.html
-\Online signalsandslots.html
-\Online moc.html
+\Online http://doc.trolltech.com/3.0/object.html
+\Online http://doc.trolltech.com/3.0/signalsandslots.html
+\Online http://doc.trolltech.com/3.0/moc.html
 \ENDONLINES

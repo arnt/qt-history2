@@ -38,7 +38,7 @@ calling the @Func connect() function to relate the signal to the
 slot. Qt's signals and slots mechanism does not require classes to
 have knowledge of each other, which makes it much easier to develop
 highly reusable classes. Signals and slots are type safe, with type
-errors being reported by the compiler rather than by crashes.
+errors being reported by warnings rather than by crashes.
   callback @Index { Callback }
   communication @Index { Communication }
   connection @Index { Connection }
@@ -151,8 +151,9 @@ setBalance() slot, which sets @F y's balance to 2450.
 @PP
 One object's signal can be connected to many different slots, and
 many signals can be connected to one slot in a particular object.
-Connections can be made between any signal and slot, provided that
-their arguments are compatible.
+Connections are made between signals and slots whose parameters have
+the same types. A slot can have fewer parameters than the signal and
+ignore the extra parameters.
 @End @SubSection
 @SubSection
     @Title { Meta Object Compiler }

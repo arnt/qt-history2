@@ -11,7 +11,7 @@ for special requirements.
 Qt provides a full set of widgets. Widgets are visual elements that
 are combined to create user interfaces. Buttons, menus, scroll bars,
 message boxes, application windows, etc., are all examples of
-widgets. Qt's widgets are not arbitrarily divided between 'controls'
+widgets. Qt's widgets are not arbitrarily divided between `controls'
 and `containers'; all widgets can be used both as controls and as
 containers. Custom widgets can easily be created by subclassing
 existing Qt widgets, or created from scratch on the rare occasion

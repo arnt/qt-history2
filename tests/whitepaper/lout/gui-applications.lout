@@ -14,9 +14,9 @@ applications with a menu bar, toolbars and status bar surrounding a
 central area, and dialog style applications that use buttons and
 possibly tabs to present options and information. Qt supports both
 SDI (single document interface) and MDI (multiple document
-interface). Qt also supports drag-and-drop and the clipboard.
+interface). Qt also supports drag and drop and the clipboard.
   clipboard @Index { Clipboard }
-  draganddrop @Index { Drag-and-drop }
+  draganddrop @Index { Drag and drop }
 @PP
 Tool bars can be moved around within the toolbar area (called the
 `dock area'), dragged to other dock areas, or floated as tool

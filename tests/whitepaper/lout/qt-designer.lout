@@ -17,7 +17,7 @@ form to place the widget. The widget's properties can then be changed
 using the property editor. The precise positions and sizes of the
 widgets does not matter. Developers select widgets and apply layouts
 to them. For example, some button widgets could be selected and laid
-out side-by-side by choosing the 'lay out horizontally' option. This
+out side-by-side by choosing the `lay out horizontally' option. This
 approach makes design very fast, and the finished forms will scale
 properly to fit whatever window size the end-user prefers. See 
 Layouts @Xref{layouts} for information about Qt's automatic layouts.

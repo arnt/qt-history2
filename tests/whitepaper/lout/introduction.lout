@@ -32,9 +32,9 @@ complete applications, are presented. To evaluate Qt for 30 days, visit
 @PP
 Qt includes a rich set of widgets @Xref widgets (`controls' in Windows
 terminology) that provide standard GUI functionality. Qt introduces an
-innovative alternative for inter-object communication, called `Signals
-and Slots' @Xref{signals.and.slots}, that replaces the old and unsafe
-callback technique. Qt also provides a conventional Events
+innovative alternative for inter-object communication, called `signals
+and slots' @Xref{signals.and.slots}, that replaces the old and unsafe
+callback technique. Qt also provides a conventional events
 @Xref{events} model for handling mouse clicks, key presses, etc. Qt's
 cross-platform GUI applications @Xref{gui.applications} can use all
 the user interface functionality required by modern applications, such
@@ -104,7 +104,6 @@ system, visual form design and elegant API.
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/references/customers/"}@LLP
-@Href{"http://www.trolltech.com/products/techpartners.html"}@LLP
 @Href{"http://www.trolltech.com/references/partners/"}@LLP
 @End @SubSection
 @EndSubSections

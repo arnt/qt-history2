@@ -259,8 +259,8 @@ to ensure that accelerators and ending punctuation are translated
 correctly.
 
 \ONLINES
-\Online i18n.html
-\Online unicode.html
-\Online scripts.html
-\Online linguist-manual.html
+\Online http://doc.trolltech.com/3.0/i18n.html
+\Online http://doc.trolltech.com/3.0/unicode.html
+\Online http://doc.trolltech.com/3.0/scripts.html
+\Online http://doc.trolltech.com/3.0/linguist-manual.html
 \ENDONLINES

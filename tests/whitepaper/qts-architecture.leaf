@@ -46,15 +46,15 @@ to obscure bugs in applications.
   \index X Window System
 
 Qt is professionally supported, and takes advantage of the available
-platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single
-source tree, a Qt application can be converted into an executable
-simply by recompiling on the target platforms. Although Qt is a
-cross-platform toolkit, customers have found it to be easier to learn
-and more productive than platform-specific toolkits. Many customers
-use Qt for single-platform development, both on Windows and on Unix,
-preferring Qt's fully object-oriented approach.
+platforms: Microsoft Windows, X11, Mac OS X and Embedded Linux. Using
+a single source tree, a Qt application can be converted into an
+executable simply by recompiling on the target platforms. Although Qt
+is a cross-platform toolkit, customers have found it to be easier to
+learn and more productive than platform-specific toolkits. Many
+customers use Qt for single-platform development, both on Windows and
+on Unix, preferring Qt's fully object-oriented approach.
 
-\section1 Windows
+\section1 Microsoft Windows
 
   \index Common controls
   \index File dialog
@@ -88,7 +88,14 @@ provide accessibility.
 
   \index Multiple screens
 
-Qt also supports multiple screens on Windows.
+Qt also supports multiple screens on Microsoft Windows.
+
+  \index Borland C++
+  \index Microsoft Visual C++
+  \index Visual C++
+
+Qt/Windows customers create Qt applications using Microsoft Visual
+C++ and Borland C++.
 
 \section1 X11
 
@@ -130,6 +137,24 @@ supports the RENDER extension for anti-aliased fonts and
 alpha-blending. Qt provides on-the-spot editing for X Input Methods. 
 Qt supports multiple screens both with traditional multi-head and
 with Xinerama.
+
+  \index AIX
+  \index BSDI
+  \index FreeBSD
+  \index GCC
+  \index HP-UX
+  \index Irix
+  \index Linux
+  \index NetBSD
+  \index OpenBSD
+  \index Solaris
+  \index Tru64
+  \index UnixWare
+
+Qt supports the following versions of Unix: AIX, BSDI, FreeBSD,
+HP-UX, Irix, Linux, NetBSD, OpenBSD, Solaris, Tru64 and UnixWare. See
+\l http://www.trolltech.com/products/platforms/ for an up-to-date
+list of supported compilers and operating system versions.
 
 \section1 Mac OS X
 

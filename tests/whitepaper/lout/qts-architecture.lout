@@ -59,7 +59,7 @@ applications.
 #@IncludeGraphic { "images/architecture-diag.eps" }
 @PP
 Qt uses the low-level APIs of the different platforms it supports.
-This differs from traditional 'layered' cross-platform toolkits that
+This differs from traditional `layered' cross-platform toolkits that
 are thin wrappers over single-platform toolkits (e.g. MFC on Windows
 and Motif on X11). Layered toolkits are usually slow, since every
 function call to the library results in many additional calls down
@@ -72,13 +72,13 @@ to obscure bugs in applications.
   layeredtoolkits @Index { Layered toolkits }
 @PP
 Qt is professionally supported, and takes advantage of the available
-platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single
-source tree, a Qt application can be converted into an executable
-simply by recompiling on the target platforms. Although Qt is a
-cross-platform toolkit, customers have found it to be easier to learn
-and more productive than platform-specific toolkits. Many customers
-use Qt for single-platform development, both on Windows and on Unix,
-preferring Qt's fully object-oriented approach.
+platforms: Microsoft Windows, X11, Mac OS X and Embedded Linux. Using
+a single source tree, a Qt application can be converted into an
+executable simply by recompiling on the target platforms. Although Qt
+is a cross-platform toolkit, customers have found it to be easier to
+learn and more productive than platform-specific toolkits. Many
+customers use Qt for single-platform development, both on Windows and
+on Unix, preferring Qt's fully object-oriented approach.
   embeddedlinux @Index { Embedded Linux }
   linux @Index { Linux }
   macintosh @Index { Macintosh }
@@ -89,13 +89,13 @@ preferring Qt's fully object-oriented approach.
   xwindowsystem @Index { X Window System }
 @BeginSubSections
 @SubSection
-    @Title { Windows }
-    @Tag { windows }
+    @Title { Microsoft Windows }
+    @Tag { microsoft.windows }
 @Begin
 @PP
 "Qt/Windows" uses the Win32 API and GDI for events and drawing
 primitives. Qt does not use MFC or any other toolkit. In particular,
-Qt does not use the inflexible 'common controls', but rather provides
+Qt does not use the inflexible `common controls', but rather provides
 its own more powerful, customizable widgets. (For non-specialized
 uses, Qt uses the native Windows file and print dialogs.)
   commoncontrols @Index { Common controls }
@@ -120,8 +120,14 @@ accessibility information of the base widget. Custom widgets can also
 provide accessibility.
   accessibility @Index { Accessibility }
 @PP
-Qt also supports multiple screens on Windows.
+Qt also supports multiple screens on Microsoft Windows.
   multiplescreens @Index { Multiple screens }
+@PP
+  borlandc @Index { Borland C++ }
+  microsoftvisualc @Index { Microsoft Visual C++ }
+  visualc @Index { Visual C++ }
+"Qt/Windows" customers create Qt applications using Microsoft Visual
+C++ and Borland C++.
 @End @SubSection
 @SubSection
     @Title { X11 }
@@ -162,6 +168,23 @@ with Xinerama.
   xextensions @Index { X extensions }
   xim @Index { XIM }
   xinerama @Index { Xinerama }
+@PP
+Qt supports the following versions of Unix: AIX, BSDI, FreeBSD,
+HP-UX, Irix, Linux, NetBSD, OpenBSD, Solaris, Tru64 and UnixWare. See
+@Href{"http://www.trolltech.com/products/platforms/"} for an
+up-to-date list of supported compilers and operating system versions.
+  aix @Index { AIX }
+  bsdi @Index { BSDI }
+  freebsd @Index { FreeBSD }
+  gcc @Index { GCC }
+  hpux @Index { HP-UX }
+  irix @Index { Irix }
+  linux @Index { Linux }
+  netbsd @Index { NetBSD }
+  openbsd @Index { OpenBSD }
+  solaris @Index { Solaris }
+  tru64 @Index { Tru64 }
+  unixware @Index { UnixWare }
 @End @SubSection
 @SubSection
     @Title { Mac OS X }

@@ -152,7 +152,7 @@ applications in their customers' native languages.
   translation @Index { Translation }
 @PP
 To make a string translatable, simply wrap it in a call to @Func tr()
-(read 'translate'):
+(read `translate'):
   tr @Index { tr() }
 @IndentedDisplay @CP @Begin
 saveButton->setText( tr("Save") );

@@ -17,28 +17,28 @@ public:
 
 MyDialog::MyDialog()
 {
-    // quote
-    setCaption( "International Trader" );
+// quote
+setCaption( "International Trader" );
 
-    QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
-    buttonBox->addWidget( new QPushButton("OK", this) );
-    buttonBox->addWidget( new QPushButton("Cancel", this) );
-    buttonBox->addStretch( 1 );
-    buttonBox->addWidget( new QPushButton("Help", this) );
+QVBoxLayout *buttonBox = new QVBoxLayout( 6 );
+buttonBox->addWidget( new QPushButton("OK", this) );
+buttonBox->addWidget( new QPushButton("Cancel", this) );
+buttonBox->addStretch( 1 );
+buttonBox->addWidget( new QPushButton("Help", this) );
 
-    QListBox *countryList = new QListBox( this );
-    countryList->insertItem( "Canada" );
-    /* ... */
-    countryList->insertItem( "United States of America" );
+QListBox *countryList = new QListBox( this );
+countryList->insertItem( "Canada" );
+/* ... */
+countryList->insertItem( "United States of America" );
 
-    QHBoxLayout *middleBox = new QHBoxLayout( 11 );
-    middleBox->addWidget( countryList );
-    middleBox->addLayout( buttonBox );
+QHBoxLayout *middleBox = new QHBoxLayout( 11 );
+middleBox->addWidget( countryList );
+middleBox->addLayout( buttonBox );
 
-    QVBoxLayout *topLevelBox = new QVBoxLayout( this, 6, 11 ); 
-    topLevelBox->addWidget( new QLabel("Select a country", this) );
-    topLevelBox->addLayout( middleBox );
-    // endquote
+QVBoxLayout *topLevelBox = new QVBoxLayout( this, 6, 11 ); 
+topLevelBox->addWidget( new QLabel("Select a country", this) );
+topLevelBox->addLayout( middleBox );
+// endquote
 
     countryList->insertItem( "France" );
     countryList->insertItem( "Germany" );

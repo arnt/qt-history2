@@ -1,5 +1,7 @@
 \title Qt Whitepaper
 
+\tableofcontents
+
 \input introduction.leaf
 \input widgets.leaf
 \input signals-and-slots.leaf

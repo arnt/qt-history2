@@ -4,7 +4,7 @@
 Layouts provide a powerful and flexible alternative to using
 fixed sizes and positions. Layouts free programmers from having to
 perform size and position calculations, and provide automatic scaling
-to suit users screens.
+to suit the user's screen, language and fonts.
 \endquote
 
   \index Automatic layout
@@ -21,11 +21,18 @@ to suit users screens.
   \index Size
 
 Qt provides layout managers for organizing child widgets within the
-parent widget's area. They feature automatic positioning of child
-widgets, automatic resizing, sensible minimum and default sizes for
-top-level widgets and automatic repositioning when the contents or
-the font changes. \l {Qt Designer} is optimized for laying out
-widgets using layout managers.
+parent widget's area. They feature automatic positioning and resizing
+of child widgets, sensible minimum and default sizes for top-level
+widgets and automatic repositioning when the contents or the font
+changes. \l {Qt Designer} is optimized for laying out widgets using
+layout managers.
+
+  \img login.png
+  \caption English, French and French with layouts
+
+Layouts are also useful for internationalization. With fixed sizes
+and positions, the translation text is often truncated; with layouts,
+the child widgets are automatically resized.
 
 \section1 Built-in Layout Managers
 
@@ -186,6 +193,6 @@ in a widget by reimplementing \Func QWidget::resizeEvent() and by
 calling \Func QWidget::setGeometry() on each child widget.
 
 \ONLINES
-\Online layout.html
-\Online customlayout.html
+\Online http://doc.trolltech.com/3.0/layout.html
+\Online http://doc.trolltech.com/3.0/customlayout.html
 \ENDONLINES

@@ -6,15 +6,15 @@
 Layouts provide a powerful and flexible alternative to using
 fixed sizes and positions. Layouts free programmers from having to
 perform size and position calculations, and provide automatic scaling
-to suit users screens.
+to suit the user's screen, language and fonts.
 } }
 @PP
 Qt provides layout managers for organizing child widgets within the
-parent widget's area. They feature automatic positioning of child
-widgets, automatic resizing, sensible minimum and default sizes for
-top-level widgets and automatic repositioning when the contents or
-the font changes. @QDR is optimized for laying out
-widgets using layout managers.
+parent widget's area. They feature automatic positioning and resizing
+of child widgets, sensible minimum and default sizes for top-level
+widgets and automatic repositioning when the contents or the font
+changes. @QDR is optimized for laying out widgets using
+layout managers.
   automaticlayout @Index { Automatic layout }
   childwidget @Index { Child widget }
   defaultwidgetsize @Index { Default widget size }
@@ -27,6 +27,13 @@ widgets using layout managers.
   repositioning @Index { Repositioning }
   resizing @Index { Resizing }
   size @Index { Size }
+@Figure
+    @Caption { English, French and French with layouts }
+0.5 @Scale @IncludeGraphic { "images/login.eps" }
+@PP
+Layouts are also useful for internationalization. With fixed sizes
+and positions, the translation text is often truncated; with layouts,
+the child widgets are automatically resized.
 @BeginSubSections
 @SubSection
     @Title { Built-in Layout Managers }
@@ -97,7 +104,7 @@ should be allocated to widget A and one third to widget B.
 #@ListItem @I{Setting alignments.}
 @EndList
 @PP
-The `spacing' between managed widgets and the 'margin' around the
+The `spacing' between managed widgets and the `margin' around the
 whole layout can also be set by the programmer. By default, @QDR sets
 industry-standard values based on the context.
   designer @Index { Designer }
@@ -205,4 +212,3 @@ calling @Func QWidget::setGeometry() on each child widget.
 @End @SubSection
 @EndSubSections
 @End @Section
-

@@ -147,7 +147,7 @@ optionally take ownership of the objects they contain and
 automatically delete them when the collection is destroyed.
 
 \ONLINES
-\Online qtl.html
-\Online collections.html
-\Online shclass.html
+\Online http://doc.trolltech.com/3.0/qtl.html
+\Online http://doc.trolltech.com/3.0/collections.html
+\Online http://doc.trolltech.com/3.0/shclass.html
 \ENDONLINES

@@ -85,6 +85,6 @@ It is even possible to reimplement \Func QApplication::notify(), the
 event dispatcher, for complete control.
 
 \ONLINES
-\Online eventsandfilters.html
-\Online qapplication.html#notify
+\Online http://doc.trolltech.com/3.0/eventsandfilters.html
+\Online http://doc.trolltech.com/3.0/qapplication.html#notify
 \ENDONLINES

@@ -145,5 +145,5 @@ connected to the appropriate buttons using \l {Qt Designer}.
   \printline }
 
 \ONLINES
-\Online designer-manual.html
+\Online http://doc.trolltech.com/3.0/designer-manual.html
 \ENDONLINES

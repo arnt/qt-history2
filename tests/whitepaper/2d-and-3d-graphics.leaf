@@ -1,13 +1,12 @@
 \chapter 2D and 3D Graphics
 
 \quote
-Qt provides excellent support for 2D and 3D graphics. Qt's 2D graphics
-classes support painting (bitmapped graphics) and drawing (vector
-graphics). Animation and collision detection are also supported. Qt
-can load and save a wide and extensible range of image formats. Qt can
-draw Unicode rich text, rotated and sheared as required. Qt is the
-de-facto standard GUI toolkit for platform-independent OpenGL
-programming.
+Qt provides excellent support for 2D and 3D graphics. Qt's 2D
+graphics classes support bitmapped and vector graphics. Animation and
+collision detection are also supported. Qt can load and save a wide
+and extensible range of image formats. Qt can draw Unicode rich text,
+rotated and sheared as required. Qt is the de-facto standard GUI
+toolkit for platform-independent OpenGL programming.
 \endquote
 
 \section1 2D Graphics
@@ -203,6 +202,9 @@ bar-graph example.
 
 \section2 Canvas
 
+  \img canvas.png
+  \caption The KAsteroids game written with \Class QCanvas
+
   \index Animation
   \index Canvas
   \index QCanvas
@@ -211,7 +213,8 @@ bar-graph example.
 The \Class QCanvas class provides a high-level interface to 2D
 graphics. It can handle a very large number of 'canvas items' that
 represent lines, rectangles, ellipses, texts, pixmaps, animated
-sprites, etc.
+sprites, etc. Canvas items can easily be made interactive (e.g. user
+movable).
 
   \index Collision testing
   \index Custom canvas item
@@ -242,8 +245,9 @@ with different translations, scales, rotations and shears.
   \index Visualisation
 
 \Class QCanvas is ideal for data visualisation. It has been used by
-customers for drawing road maps and for presenting graphs. It is also
-suitable for 2D games.
+customers for drawing road maps and for presenting network
+topologies. It is also suitable for fast 2D games with lots of
+sprites.
 
 \section1 3D Graphics
 
@@ -323,9 +327,9 @@ created:
   \printline }
 
 \ONLINES
-\Online coordsys.html
-\Online canvas.html
-\Online opengl.html
+\Online http://doc.trolltech.com/3.0/coordsys.html
+\Online http://doc.trolltech.com/3.0/canvas.html
+\Online http://doc.trolltech.com/3.0/opengl.html
 \ENDONLINES
 
 \FOOTNOTE

@@ -100,6 +100,9 @@ precompiled dynamic libraries or as plugins.
     @Caption { One of Klar{@Char{adieresis}}lvdalens Datakonsult's
 	       many commercial components }
 0.5 @Scale @IncludeGraphic { "images/klaralvdalen.eps" }
+@DP
+@OLREF @LP
+@Href{"http://doc.trolltech.com/3.0/plugins-howto.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section

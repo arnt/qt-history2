@@ -233,6 +233,6 @@ functionality for \Class QSocket and \Class QServerSocket, and can be
 used for UDP.
 
 \ONLINES
-\Online xml.html
-\Online datastreamformat.html
+\Online http://doc.trolltech.com/3.0/xml.html
+\Online http://doc.trolltech.com/3.0/datastreamformat.html
 \ENDONLINES
