@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#27 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#28 $
 **
 ** Definition of QButton widget class
 **
@@ -45,6 +45,10 @@ signals:
     void	pressed();
     void	released();
     void	clicked();
+    void	stateChanged( bool );
+
+public slots:
+    void	press();
 
 protected:
     void	switchOn();

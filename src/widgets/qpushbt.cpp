@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#54 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#54 $")
 
 
 /*----------------------------------------------------------------------------
@@ -291,8 +291,9 @@ void QPushButton::drawButton( QPainter *paint )
     int w, h;
     w = x2 + 1;
     h = y2 + 1;
-    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d", gs, palette().serialNumber(),
-		   isDown(), defButton, w, h );
+    pmkey.sprintf( "$qt_push_%d_%d_%d_%d_%d_%d_%d", gs, 
+		   palette().serialNumber(), isDown(), defButton, w, h,
+		   toggleButton() && isOn() );
     QPixmap *pm = QPixmapCache::find( pmkey );
     QPainter pmpaint;
     if ( pm ) {					// pixmap exists
@@ -341,7 +342,7 @@ void QPushButton::drawButton( QPainter *paint )
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
     }
     else if ( gs == WindowsStyle ) {		// Windows push button
-	if ( isDown() ) {
+	if ( isDown() || isOn() ) {
 	    if ( defButton ) {
 		p->setPen( black );
 		p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
@@ -421,8 +422,15 @@ void QPushButton::drawButton( QPainter *paint )
 	    y2 -= extraMotifHeight/2;
 	}
 	QBrush fill( fillcol );
-	qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, isDown(), 2,
-			 updated ? &fill : 0 );
+	if ( isDown() )
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 2,
+			     updated ? &fill : 0 );
+	else if ( toggleButton() && isOn() ) // ### how should it look?
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, 1,
+			     updated ? &fill : 0 );
+	else
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE, 2,
+			     updated ? &fill : 0 );
     }
     if ( p->brush().style() != NoBrush )
 	p->setBrush( NoBrush );
@@ -477,8 +485,13 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	const QPixmap *pm = pixmap();
 	if ( pm->width() > w || pm->height() > h )
 	    p->setClipRect( x, y, w, h );
-	if ( pm->depth() == 1 )
+	if ( gs == WindowsStyle && !isDown() && isOn() ) {
+	     if ( pm->depth() == 1 )
+		 p->setBackgroundColor( g.background().light() );
+	     // ### do proper dithering.. this kindaworks for metis
+	} else {
 	    p->setBackgroundColor( g.background() );
+	}
 	x += w/2 - pm->width()/2;		// center
 	y += h/2 - pm->height()/2;
 	p->drawPixmap( x, y, *pm );

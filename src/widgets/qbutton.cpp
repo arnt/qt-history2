@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#36 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#37 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#37 $")
 
 
 /*----------------------------------------------------------------------------
@@ -221,6 +221,31 @@ void QButton::setAutoResize( bool enable )
 }
 
 
+/*! \fn void QButton::stateChanged( bool )
+
+  This signal is emitted whenever a toggle button changes status.
+  This may be because of a user action, because the press() slot is
+  activated, or because switchOn() or switchOff() are called. */
+
+
+/*! This slot "presses" a toggle button, such that its state is
+  toggled.  This is intended for keyboard accelerators.
+
+  The slot does nothing for other buttons.
+
+  \sa clicked() isOn() switchOn() */
+
+void QButton::press() {
+    if ( !toggleButton() )
+	return;
+
+    if ( isOn() )
+	switchOff();
+    else
+	switchOn();
+}
+
+
 /*----------------------------------------------------------------------------
   \fn bool QButton::isOn() const
   Returns TRUE if this toggle button has been switched ON, or FALSE
@@ -242,8 +267,10 @@ void QButton::switchOn()
 #endif
     bool lastOn = buttonOn;
     buttonOn = TRUE;
-    if ( !lastOn )				// changed state
+    if ( !lastOn ) {				// changed state
 	repaint( FALSE );			// redraw
+	emit stateChanged( TRUE );
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -260,8 +287,10 @@ void QButton::switchOff()
 #endif
     bool lastOn = buttonOn;
     buttonOn = FALSE;
-    if ( lastOn )				// changed state
+    if ( lastOn ) {				// changed state
 	repaint( FALSE );			// redraw
+	emit stateChanged( FALSE );
+    }
 }
 
 
@@ -358,6 +387,8 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 	repaint( FALSE );
 	emit released();
 	emit clicked();
+	if ( toggleBt )
+	    emit stateChanged( buttonOn );
     }
     else {
 	repaint( FALSE );
