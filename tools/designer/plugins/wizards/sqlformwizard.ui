@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>611</width>
+            <width>607</width>
             <height>402</height>
         </rect>
     </property>
@@ -396,7 +396,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>11</number>
+                <number>0</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -1253,7 +1253,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>11</number>
+                <number>0</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -1628,7 +1628,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>11</number>
+                <number>0</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -2181,7 +2181,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>11</number>
+                <number>0</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -2620,7 +2620,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>11</number>
+                <number>0</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -3071,7 +3071,6 @@
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">addField()</slot>
     <slot access="protected" language="C++">addSortField()</slot>
-    <slot access="protected" language="C++">connectionSelected( const QString &amp; )</slot>
     <slot access="protected" language="C++">fieldDown()</slot>
     <slot access="protected" language="C++">fieldUp()</slot>
     <slot access="protected" language="C++">reSortSortField()</slot>
@@ -3080,16 +3079,20 @@
     <slot access="protected" language="C++">setupDatabaseConnections()</slot>
     <slot access="protected" language="C++">sortFieldDown()</slot>
     <slot access="protected" language="C++">sortFieldUp()</slot>
+    <slot access="protected" language="C++">connectionSelected( const QString &amp; )</slot>
     <slot access="protected" language="C++">tableSelected( const QString &amp; )</slot>
 </connections>
 <functions>
+    <function name="init()" >{
+    
+}</function>
+    <function name="destroy()" >{
+    
+}</function>
     <function name="addField()" >{
     
 }</function>
     <function name="addSortField()" >{
-    
-}</function>
-    <function name="connectionSelected(const QString&amp;)" >{
     
 }</function>
     <function name="fieldDown()" >{
@@ -3114,6 +3117,9 @@
     
 }</function>
     <function name="sortFieldUp()" >{
+    
+}</function>
+    <function name="connectionSelected(const QString&amp;)" >{
     
 }</function>
     <function name="tableSelected(const QString&amp;)" >{
