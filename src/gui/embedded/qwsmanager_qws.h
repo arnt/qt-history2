@@ -51,7 +51,7 @@ protected slots:
     void styleMenuTriggered(QAction *item);
 
 protected:
-    void handleMove();
+    void handleMove(const QPoint &);
 
     virtual bool event(QEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *);

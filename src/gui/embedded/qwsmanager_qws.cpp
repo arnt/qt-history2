@@ -35,6 +35,7 @@
 #include "qpaintengine_qws.h"
 #include "qdecorationfactory_qws.h"
 
+#include "qlayout.h"
 
 #define d d_func()
 #define q q_func()
@@ -65,19 +66,18 @@ public:
     };
     QAction *menuActions[LastMenuAction];
 
-    int dx;
-    int dy;
-
     static QWidget *active;
-    static QPoint mousePos;
+    static QPoint mousePressPos;
+    static QPoint lastMousePos;
 };
 QWidget *QWSManagerPrivate::active = 0;
-QPoint QWSManagerPrivate::mousePos;
+QPoint QWSManagerPrivate::mousePressPos;
+QPoint QWSManagerPrivate::lastMousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
     : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0), menuBtn(0),
-      closeBtn(0), minimizeBtn(0), maximizeBtn(0), dx(0), dy(0)
+      closeBtn(0), minimizeBtn(0), maximizeBtn(0)
 {
 }
 
@@ -160,11 +160,9 @@ bool QWSManager::event(QEvent *e)
 
 void QWSManager::mousePressEvent(QMouseEvent *e)
 {
-
-    d->mousePos = e->globalPos();
-    d->dx = 0;
-    d->dy = 0;
-    d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
+    d->mousePressPos = e->globalPos();
+    d->lastMousePos = d->mousePressPos;
+    d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePressPos);
     switch (d->activeRegion) {
     case QDecoration::Menu:
         menu(d->managed->geometry().topLeft());
@@ -201,8 +199,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 {
     d->managed->releaseMouse();
     if (e->button() == Qt::LeftButton) {
-        handleMove();
-        d->mousePos = e->globalPos();
+        //handleMove();
         int itm = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
         int activatedItem = d->activeRegion;
         d->activeRegion = QDecoration::None;
@@ -269,10 +266,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
             g.setY(qt_maxWindowRect.bottom());
     }
 
-    d->dx = g.x() - d->mousePos.x();
-    d->dy = g.y() - d->mousePos.y();
-
-    handleMove();
+    handleMove(g);
 
     // button regions
     int r = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
@@ -282,10 +276,11 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     setMouseOver(d->maximizeBtn, r == QDecoration::Maximize);
 }
 
-void QWSManager::handleMove()
+void QWSManager::handleMove(const QPoint &g)
 {
-    if (!d->dx && !d->dy)
+    if (g == d->lastMousePos)
         return;
+    d->lastMousePos = g;
 
     if ( d->managed->isMaximized() )
         return;
@@ -297,76 +292,74 @@ void QWSManager::handleMove()
 
     QRect geom(d->managed->geometry());
 
-    switch (d->activeRegion) {
-        case QDecoration::Title:
-            geom = QRect(x + d->dx, y + d->dy, w, h);
-            break;
+    if (d->activeRegion == QDecoration::Title) {
+        QPoint delta = g - d->mousePressPos;
+        geom = QRect(x + delta.x(), y + delta.y(), w, h);
+        d->mousePressPos = g;
+    } else {
+        bool keepTop = true;
+        bool keepLeft = true;
+        switch (d->activeRegion) {
         case QDecoration::Top:
-            geom = QRect(x, y + d->dy, w, h - d->dy);
+            geom.setTop(g.y());
+            keepTop = false;
             break;
         case QDecoration::Bottom:
-            geom = QRect(x, y, w, h + d->dy);
+            geom.setBottom(g.y());
+            keepTop = true;
             break;
         case QDecoration::Left:
-            geom = QRect(x + d->dx, y, w - d->dx, h);
+            geom.setLeft(g.x());
+            keepLeft = false;
             break;
         case QDecoration::Right:
-            geom = QRect(x, y, w + d->dx, h);
+            geom.setRight(g.x());
+            keepLeft = true;
             break;
         case QDecoration::TopRight:
-            geom = QRect(x, y + d->dy, w + d->dx, h - d->dy);
+            geom.setTopRight(g);
+            keepLeft = true;
+            keepTop = false;
             break;
         case QDecoration::TopLeft:
-            geom = QRect(x + d->dx, y + d->dy, w - d->dx, h - d->dy);
+            geom.setTopLeft(g);
+            keepLeft = false;
+            keepTop = false;
             break;
         case QDecoration::BottomLeft:
-            geom = QRect(x + d->dx, y, w - d->dx, h + d->dy);
+            geom.setBottomLeft(g);
+            keepLeft = false;
+            keepTop = true;
             break;
         case QDecoration::BottomRight:
-            geom = QRect(x, y, w + d->dx, h + d->dy);
+            geom.setBottomRight(g);
+            keepLeft = true;
+            keepTop = true;
             break;
         default:
             return;
+        }
+
+        QSize newSize = QLayout::closestAcceptableSize(d->managed, geom.size());
+
+        if (keepTop)
+            geom.setHeight(newSize.height());
+        else
+            geom.setTop(geom.top() - (newSize.height() - geom.height()));
+
+        if (keepLeft)
+            geom.setWidth(newSize.width());
+        else
+            geom.setLeft(geom.left() - (newSize.width() - geom.width()));
     }
 
-    if (geom.width() >= d->managed->minimumWidth()
-            && geom.width() <= d->managed->maximumWidth()) {
-        d->mousePos.setX(d->mousePos.x() + d->dx);
-    } else if (geom.width() < d->managed->minimumWidth()) {
-        if (x != geom.x()) {
-            geom.setX(x+(w-d->managed->minimumWidth()));
-            d->mousePos.setX(geom.x());
-        } else {
-            d->mousePos.setX(x+d->managed->minimumWidth());
-        }
-        geom.setWidth(d->managed->minimumWidth());
-    } else {
-        geom.setX(x);
-        geom.setWidth(w);
-    }
-    if (geom.height() >= d->managed->minimumHeight()
-            && geom.height() <= d->managed->maximumHeight()) {
-        d->mousePos.setY(d->mousePos.y() + d->dy);
-    } else if (geom.height() < d->managed->minimumHeight()) {
-        if (y != geom.y()) {
-            geom.setY(y+(h-d->managed->minimumHeight()));
-            d->mousePos.setY(d->mousePos.y()+(geom.y()-y));
-        } else {
-            d->mousePos.setY(y+d->managed->minimumHeight());
-        }
-        geom.setHeight(d->managed->minimumHeight());
-    } else {
-        geom.setY(y);
-        geom.setHeight(h);
-    }
+
+
 
     if (geom != d->managed->geometry()) {
         QApplication::sendPostedEvents();
         d->managed->setGeometry(geom);
     }
-
-    d->dx = 0;
-    d->dy = 0;
 }
 
 void QWSManager::paintEvent(QPaintEvent *)
@@ -486,12 +479,11 @@ void QWSManager::menuTriggered(QAction *item)
                || item == d->menuActions[QWSManagerPrivate::NormalizeAction]) {
         toggleMaximize();
     } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
-        d->mousePos = QCursor::pos();
+        d->mousePressPos = QCursor::pos();
         d->activeRegion = QDecoration::Title;
         d->active = d->managed;
         d->managed->grabMouse();
     } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
-        d->mousePos = QCursor::pos();
         d->activeRegion = QDecoration::BottomRight;
         d->active = d->managed;
         d->managed->grabMouse();
