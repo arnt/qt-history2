@@ -534,7 +534,10 @@ Q4MenuPrivate::QMacMenuPrivate::removeAction(QMacMenuAction *action)
 {
     if(!action)
 	return;
-    DeleteMenuItem(action->menu, qt_mac_menu_find_action(action->menu, action));
+    if(action->command == kHICommandQuit || action->command == kHICommandPreferences) 
+	qt_mac_command_set_enabled(action->menu, action->command, false);
+    else
+	DeleteMenuItem(action->menu, qt_mac_menu_find_action(action->menu, action));
     actionItems.remove(action);
 }
 

@@ -904,7 +904,6 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     if(appName)
 	qApp->setObjectName(appName);
     if(qt_is_gui_used) {
-	qt_mac_command_set_enabled(0, kHICommandQuit, false);
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
