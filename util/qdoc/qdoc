@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#81 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#82 $
 #
 # this is a massive hack, written very quickly
 #
@@ -199,7 +199,7 @@ sub processdocs {
 
 	$classes{$1.".html"} .= $class
 	    if ($doc =~ s/\s*\\ingroup\s+(.*?)
-		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
+		(?:(?:\n\s*)|(?:$ ))/\n\n/sx);
 	$capt{$url} = $1 
 	    if ($doc =~ s/\s*\\capt\s+(.*?)
 		(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/sx);
@@ -208,7 +208,7 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
-	$doc =~ s-\s*\\warning\s+-<p><strong>Warning: </strong>-gs;
+	$doc =~ s-\s*\\warning\s+-<p><strong>Warning:</strong> -gs;
 	if (!$internal) {
 	    $doc =~ s/^\s*\\internal\s/For internal use only.\\internal /s;
 	    $doc =~ s/\\internal\s.*//s;
@@ -241,16 +241,12 @@ sub processdocs {
 	{
 #print $1, " ", $2, " ", $3, " (", $4, ") ", $5, " <=> ", $6, "\n";
 	    $string = $6;
-	    $tryagain = $2 . "::" . $3;
+	    $tryagain = $&;
 	    $_ = &manglefn( $1, $2, $3, $4, $5);
 	    if ($type{$_} eq "fn") {
 		sprintf("<a href=%s>%s</a>", $_, $string);
-	    } elsif (defined($anchor{$tryagain})) {
-		sprintf("<a href=%s>%s</a>", 
-			$anchor{$tryagain}, &html($string));
 	    } else {
-		print "SEX: ", $string, "\n";
-		sprintf("%s", $string);
+		sprintf("%s", $tryagain);
 	    }
 	}
 	-egsx;
@@ -430,18 +426,16 @@ sub manglefn {
     $d = "(";
     foreach (split(/\s*,\s*/, $sig)) {
 # kill argument name
-	s/^\s*((?:
-		(?:const\s+)|
-		(?:volatile\s+)|
-		(?:signed\s+)|
-		(?:unsigned\s+)|
-		(?:long\s+)|
-		(?:short\s+)|
-		(?:struct\s+)|
-		(?:union\s+)|
-		(?:class\s+)|
-		(?:enum\s+)
-		)*\w+[\s\*\&]*?)\s*\b[\w<>_]+\s*(?:=.*?\s*)?$/$1/gsx;
+	s/\s*=.*//s;
+	if ( !(s/([\&\*]).*/$1/) && (/((?:\w+\s+)*?)\s*([\w<>]*)\s+(\w+)$/s)) {
+	    if (($2 ne "class") && ($2 ne "enum") && ($2 ne "union") &&
+		($2 ne "struct") && ($2 ne "const") && ($2 ne "volatile") &&
+		($3 ne "int") && ($3 ne "float") && ($3 ne "char") &&
+		($3 ne "short") && ($3 ne "long") && ($3 ne "unsigned") &&
+		($3 ne "signed") && ($2 ne "")) {
+		s/\s*\w+$//;
+	    }
+	}
 # strip spaces around & and *
 	s/\s*([\*\&])\s*/$1/;
 # kill default and change spaces into -
@@ -1032,6 +1026,10 @@ sub printclass {
     local ( $class, $file, $tail, $fnheader, $fntail, %fndocs );
 
     $class = $name{$url};
+    if (!$internal && ($doc{$url} =~ /^\s*$/)) {
+	print "skipping internal class ", $class, "\n";
+	next;
+    }
 
     die "$class ($url) is not a class" if ( $type{$url} ne "class" );
 
@@ -1402,9 +1400,9 @@ sub inheritanceindex {
 	|| die "can't open $outputdir/hierarchy.html for writing";
     print O $doctype, "
 <html>
-<head><title>Qt toolkit - class hierarchy</title></head>
+<head><title>Qt Toolkit - Class Hierarchy</title></head>
 <body>
-<h1>Qt class hierarchy</h1>
+<h1>Qt Class Hierarchy</h1>
 
 <p>This inheritance list is sorted roughly, but not completely,
 alphabetically.
