@@ -1,8 +1,7 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS	= qcppsyntaxhighlighter.h
+HEADERS	= 
 		
-SOURCES	= main.cpp \
-		  qcppsyntaxhighlighter.cpp
+SOURCES	= main.cpp
 		
 TARGET		= qtextedit
