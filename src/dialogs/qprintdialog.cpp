@@ -523,7 +523,7 @@ static char *parseNsswitchPrintersEntry( QListView * printers, char *line )
 		skipSpaces();
 
 		if ( lastStatus == status )
-		    stop = ( action == Return );
+		    stop = ( action == (char) Return );
 	    }
 	} else {
 	    if ( stop )
@@ -563,12 +563,11 @@ static char *parseNsswitchConf( QListView * printers )
 
     char *defaultPrinter = 0;
 
-    int lineLength;
     char *line = new char[1025];
     line[1024] = '\0';
 
     while ( !nc.atEnd() &&
-	    (lineLength = nc.readLine(line, 1024)) > 0 ) {
+	    nc.readLine(line, 1024) > 0 ) {
 	if ( strncmp(line, "printers", 8) == 0 ) {
 	    defaultPrinter = parseNsswitchPrintersEntry( printers, line );
 	    delete[] line;
