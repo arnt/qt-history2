@@ -40,6 +40,7 @@
 #include "../../qsqlresult.h"
 #include "../../qsqlfield.h"
 #include "../../qsqldriver.h"
+#include <libpq-fe.h>
 
 class QPSQLPrivate;
 class QPSQLDriver;
@@ -50,6 +51,7 @@ class QPSQLResult : public QSqlResult
 public:
     QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p );
     ~QPSQLResult();
+    PGresult* result();
 protected:
     void		cleanup();
     bool		fetch( int i );
@@ -90,6 +92,8 @@ public:
     QSqlRecord          record( const QSqlQuery& query ) const;
 
     Protocol            protocol() const { return pro; }
+    PGconn*             connection();
+
 protected:
     bool		beginTransaction();
     bool		commitTransaction();

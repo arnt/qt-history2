@@ -41,7 +41,6 @@
 #include <qdatetime.h>
 #include <qpointarray.h>
 #include <postgres.h>
-#include <libpq-fe.h>
 #include <libpq/libpq-fs.h>
 #include <catalog/pg_type.h>
 #include <utils/geo_decls.h>
@@ -186,6 +185,11 @@ QPSQLResult::~QPSQLResult()
 {
     cleanup();
     delete d;
+}
+
+PGresult* QPSQLResult::result()
+{
+    return d->result;
 }
 
 void QPSQLResult::cleanup()
@@ -409,6 +413,11 @@ QPSQLDriver::~QPSQLDriver()
     if ( d->connection )
 	PQfinish( d->connection );
     delete d;
+}
+
+PGconn* QPSQLDriver::connection()
+{
+    return d->connection;
 }
 
 bool QPSQLDriver::hasTransactionSupport() const
