@@ -2476,7 +2476,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
     // And draw the rectangles (transformed as needed)
     QMemArray<QRect> r = reg.rects();
     for ( int i = 0; i < (int)r.count(); ++i)
-	p->fillRect( r[ i ], viewport()->backgroundBrush() );
+	p->fillRect( QRect(viewportToContents2(r[i].topLeft()),r[i].size()), viewport()->backgroundBrush() );
 }
 
 /*! Returns the QTableItem representing the contents of the cell at \a
