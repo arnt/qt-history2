@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#61 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#61 $");
 
 
 /*!
@@ -242,6 +242,8 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
 	br.setBottom( br.bottom()+2);
+	br = br.intersect( QRect(0,0,width(),height()) );
+
 	if ( gs == WindowsStyle ) {
 	    p->drawWinFocusRect( br );
 	} else {
