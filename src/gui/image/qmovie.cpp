@@ -241,7 +241,7 @@ void QMoviePrivate::init(bool fully)
     framenumber = 0;
     frameperiod = -1;
     if (fully)
-        polltimer->start(0);
+        polltimer->start(0, true);
     if (fully)
         frametimer->stop();
     lasttimerinterval = -1;
@@ -288,6 +288,7 @@ void QMoviePrivate::flushBuffer()
 
     if (error)
         frametimer->stop();
+    pollForData();
 }
 
 void QMoviePrivate::updatePixmapFromImage()
@@ -534,6 +535,7 @@ void QMoviePrivate::pollForData()
             source->reset();
             framenumber = 0;
             movie_ended = false;
+            polltimer->start(0, true);
         } else {
             delete decoder;
             decoder = 0;
@@ -548,8 +550,12 @@ void QMoviePrivate::pollForData()
         }
     } else if(int space = bufferSpace()) {
         int avail = source->readBlock((char*)buffer, space);
-        if(avail > 0)
-           receive(buffer, avail);
+        if(avail > 0) 
+            receive(buffer, avail);
+        if(avail == -1) 
+            source->close();
+        else
+            polltimer->start(0, true);
     }
 }
 
