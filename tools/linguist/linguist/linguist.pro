@@ -25,13 +25,15 @@ SOURCES		= finddialog.cpp \
 		  ../shared/metatranslator.cpp
 FORMS		= about.ui
 
+win32:RC_FILE	= linguist.rc
+
 DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../bin
 TARGET		= linguist
 INCLUDEPATH	= ../pics \
-		  ../shared \
+		  ../shared
 
 PROJECTNAME	= Qt Linguist
 
