@@ -463,6 +463,7 @@ static void qt_set_windows_resources()
                      (fg.blue()+btn.blue())/2);
     pal.setColor(QPalette::Disabled, QPalette::Foreground, disabled);
     pal.setColor(QPalette::Disabled, QPalette::Text, disabled);
+    pal.setColor(QPalette::Disabled, QPalette::ButtonText, disabled);
     pal.setColor(QPalette::Disabled, QPalette::Highlight,
                   QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))));
     pal.setColor(QPalette::Disabled, QPalette::HighlightedText,

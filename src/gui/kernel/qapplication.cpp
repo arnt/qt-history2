@@ -491,6 +491,7 @@ void qt_create_std_palette()
         new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray, Qt::black, Qt::white);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, Qt::darkGray);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, qt_std_pal->background());
 }
 
