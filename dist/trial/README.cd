@@ -132,20 +132,16 @@ Installation instructions for Qt/X11
 In the Unix directory on this CD, you will find the Qt/X11 evaluation
 package:
 
-qt-x11-2.3.0.tar
+qt-x11-free-3.0.2.tar
 
 In a shell, cd to where you want to install the Qt/X11 evaluation, for
 example your home directory. Then unpack the archive by giving the command
 
-tar xf /cdrom/Unix/qt-x11-2.3.0.tar
+tar xf /cdrom/Unix/qt-x11-free-3.0.2.tar
 
 (replace "/cdrom" with the mount point of your CD-ROM drive). This will
-create a directory called qt-2.3.0. Further installation instructions are
-then available in the file qt-2.3.0/INSTALL.
-
-The tmake makefile generation utility is provided in the file
-tmake-1.7.tar.gz. Please refer to the README and README.tmake files in the
-installation directory for further information about tmake.
+create a directory called qt-x11-free-3.0.2. Further installation
+instructions are then available in the file qt-x11-free-3.0.2/INSTALL.
 
 
 Copyright (c) 2002 Trolltech AS. Qt is a trademark of Trolltech AS.
