@@ -199,6 +199,7 @@ void QFont::init()
     CHECK_PTR( d );
     d->req.pointSize	 = 0;
     d->req.styleHint	 = AnyStyle;
+    d->req.styleStrategie= NoStrategie;
     d->req.charSet	 = defaultCharSet;
     d->req.weight	 = 0;
     d->req.italic	 = FALSE;
@@ -679,6 +680,16 @@ void QFont::setFixedPitch( bool enable )
     }
 }
 
+/*!
+  Returns the StyleStratgie set by setStyleHint()
+
+  \sa setStyleHint()
+*/
+
+QFont::StyleStrategie QFont::styleStrategie() const
+{
+    return (StyleStrategie)d->req.styleStrategie;
+}
 
 /*!
   Returns the StyleHint set by setStyleHint().
@@ -706,11 +717,28 @@ QFont::StyleHint QFont::styleHint() const
 */
 
 /*!
-  Sets the style hint.
+  \enum QFont::StyleStrategie
+
+  The style strategie tells the font matching algorithm what type
+  of fonts should be used to find an appropriate default family.
+
+  The algorithm won't prefer any type of font if \c NoStratgie is 
+  provided.
+
+  The other available strategies are \c QFont::BitmapFont, \c
+  QFont::DeviceFont, \c QFont::OutlineFont
+*/
+
+/*!
+  Sets the style hint and strategie.
 
   The style hint has a default value of \c AnyStyle which leaves the
   task of finding a good default family to the font matching
   algorithm.
+
+  The style strategie has a default value of \c NoStrategie which tells
+  the algorithm not to prefer any type of font.
+  Right now, the X version only supports bitmap fonts.
 
   In the example below the push button will
   display its text label with the Bavaria font family if this family
@@ -727,24 +755,36 @@ QFont::StyleHint QFont::styleHint() const
 	QPushButton  push("Push me");
 
 	QFont font( "Bavaria", 18 );	    // preferred family is Bavaria
-	font.setStyleHint( QFont::Serif );  // can also use any serif font
+	font.setStyleHint( QFont::Serif )    // can also use any serif font
 
 	push.setFont( font );
 	return app.exec( &push );
     }
   \endcode
 
-  \sa QFont::StyleHint, styleHint(), QFontInfo
+  \sa QFont::StyleHint, styleHint(), QFont::StyleStrategie, styleStrategie(), QFontInfo
 */
 
-void QFont::setStyleHint( StyleHint hint )
+void QFont::setStyleHint( StyleHint hint, StyleStrategie strategie )
 {
     if ( (StyleHint)d->req.styleHint != hint ) {
 	detach();
-	d->req.styleHint     = hint;
-	d->req.hintSetByUser = TRUE;
-	d->req.dirty	     = TRUE;
+	d->req.styleHint	= hint;
+	d->req.styleStrategie	= strategie;
+	d->req.hintSetByUser	= TRUE;
+	d->req.dirty		= TRUE;
     }
+}
+
+/*!
+  Sets the style hint.
+
+  \sa setStyleHint()
+*/
+
+void QFont::setStyleHint( StyleHint hint ) //#### merge with above in 3.0
+{
+    setStyleHint( hint, NoStrategie );
 }
 
 /*!
