@@ -76,7 +76,7 @@
                                         <cstring>textLabel6</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>&amp;Path:</string>
+                                        <string>Base &amp;Path:</string>
                                     </property>
                                     <property name="buddy" stdset="0">
                                         <cstring>lePath</cstring>

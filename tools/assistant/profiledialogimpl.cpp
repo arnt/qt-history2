@@ -171,7 +171,9 @@ void ProfileDialog::setProfileIcon()
 
 void ProfileDialog::addDocFile()
 {
-    QFileDialog *fd = new QFileDialog( QDir::homeDirPath(), "xml Files (*.xml)", this );
+    QFileDialog *fd = new QFileDialog( QDir::homeDirPath(),
+	"*.xml", this );
+    fd->addFilter( "Documentation Content Files *.dcf" );
     fd->setCaption( tr( "Qt Assistant - Add Documentation" ) );
 
     if ( fd->exec() == QDialog::Accepted ) {
@@ -246,9 +248,12 @@ void ProfileDialog::removeDocFile()
 
 void ProfileDialog::saveProfileInFile()
 {
-    QString fileName = QFileDialog::getSaveFileName( QDir::homeDirPath(), "*", this, "saveProfileAs",
+    QString fileName = QFileDialog::getSaveFileName( QDir::homeDirPath(),
+	"Assistant Profiles (*.adp)", this, "saveProfileAs",
 	tr( "Qt Assistant - Save Profile As" ) );
     if ( !fileName.isEmpty() ) {
+	if ( !fileName.endsWith( ".adp" ) )
+	    fileName += ".adp";
 	profile->props["name"] = leName->text();
 	profile->props["aboutmenutext"] = leAboutMenuText->text();
 	profile->props["title"] = leTitle->text();

@@ -398,7 +398,7 @@ or later in the settings dialog.
 For small documentation sets the sidebar might not be necessary. You
 can hide the side bar on startup with the option
 \code
-assistant -onlyBrowser
+assistant -hideSidebar
 \endcode
 
 
@@ -430,7 +430,7 @@ documentation.
 An example of a content file that uses all the available tags and
 attributes is shown below:
 
-\c demodoc.xml
+\c demodoc.dcf
 
 \code
 <!DOCTYPE DCF>

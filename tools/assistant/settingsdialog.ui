@@ -237,6 +237,20 @@
                                 <property name="name">
                                     <cstring>buttonBrowse</cstring>
                                 </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>30</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
                                 <property name="text">
                                     <string>...</string>
                                 </property>
@@ -270,6 +284,20 @@
                             <widget class="QPushButton">
                                 <property name="name">
                                     <cstring>buttonHome</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>30</width>
+                                        <height>32767</height>
+                                    </size>
                                 </property>
                                 <property name="text">
                                     <string>...</string>
@@ -334,6 +362,20 @@
                             <widget class="QPushButton">
                                 <property name="name">
                                     <cstring>buttonPDF</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>30</width>
+                                        <height>32767</height>
+                                    </size>
                                 </property>
                                 <property name="text">
                                     <string>...</string>
@@ -551,8 +593,14 @@
     <tabstop>linkUnderlineCB</tabstop>
     <tabstop>browserApp</tabstop>
     <tabstop>buttonBrowse</tabstop>
-    <tabstop>buttonDelete</tabstop>
+    <tabstop>homePage</tabstop>
+    <tabstop>buttonHome</tabstop>
+    <tabstop>pdfApp</tabstop>
+    <tabstop>buttonPDF</tabstop>
+    <tabstop>profileView</tabstop>
     <tabstop>buttonAdd</tabstop>
+    <tabstop>buttonModify</tabstop>
+    <tabstop>buttonDelete</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>

@@ -53,7 +53,7 @@ bool ProfileHandler::startElement( const QString & /*namespaceURI*/,
 {
     switch( state ) {
     case StateNone:
-	if ( qName.lower() != "profile" )
+	if ( qName.lower() != "adp" )
 	    return FALSE;
 	state = StateProfile;
 	break;
@@ -300,8 +300,8 @@ void Profile::save( const QString &name )
     QTextStream s( &file );
     s.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
-    s << "<!DOCTYPE PROFILE>"<< endl;
-    s << "<PROFILE>" << endl;
+    s << "<!DOCTYPE ADP>"<< endl;
+    s << "<ADP>" << endl;
 
     QValueList<QString> keys = props.keys();
     QValueList<QString>::ConstIterator it = keys.begin();
@@ -335,6 +335,6 @@ void Profile::save( const QString &name )
 	s << indent << "</documentation>" << endl;
 	++docfiles;
     }
-    s << "</PROFILE>";
+    s << "</ADP>";
     file.close();
 }

@@ -82,6 +82,7 @@ void MainWindow::init()
 	dw->hide();
 
     setObjectsEnabled( FALSE );
+    tabs->setup();
     QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
 
@@ -132,8 +133,6 @@ void MainWindow::setup()
 		    helpDock, SLOT( toggleSearch() ) );
 
     Config *config = Config::configuration();
-
-    tabs->setup();
 
     setupBookmarkMenu();
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );

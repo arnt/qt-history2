@@ -185,8 +185,7 @@ int main( int argc, char ** argv )
 		printf( "                         path of the profile is taken.\n" );
 		printf( "                         For further informations have a look\n" );
 		printf( "                         at the assistant online help.\n" );
-		printf( " -onlyBrowser            assistant will only have the browser,\n" );
-		printf( "                         i.e. the side bar will be hidden.\n" );
+		printf( " -hideSidebar            assistant will hide the sidebar.\n" );
 		printf( " -help                   shows this help\n" );
 		exit( 0 );
 	    } else if ( QString( argv[i] ).lower() == "-resourcedir" ) {
