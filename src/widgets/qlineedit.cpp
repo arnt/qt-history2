@@ -1527,16 +1527,19 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 	     e->key() != Key_Delete &&
 	     e->key() != Key_Backspace ) {
 #ifdef Q_WS_X11
-	    // the X11 keyboard layout is broken and does not reverse
-	    // braces correctly. This is a hack to get halfway correct
-	    // behaviour
-	    if ( d->isRightToLeft() ) {
-		QChar *c = (QChar *)t.unicode();
-		int l = t.length();
-		while( l-- ) {
-		    if ( c->mirrored() )
-			*c = c->mirroredChar();
-		    c++;
+	    extern bool qt_hebrew_keyboard_hack;
+	    if ( qt_hebrew_keyboard_hack ) {
+		// the X11 keyboard layout is broken and does not reverse
+		// braces correctly. This is a hack to get halfway correct
+		// behaviour
+		if ( d->isRightToLeft() ) {
+		    QChar *c = (QChar *)t.unicode();
+		    int l = t.length();
+		    while( l-- ) {
+			if ( c->mirrored() )
+			    *c = c->mirroredChar();
+			c++;
+		    }
 		}
 	    }
 #endif

@@ -283,6 +283,7 @@ static long qt_mode_switch_remove_mask = 0;
 
 // flags for extensions for special Languages, currently only for RTL languages
 static bool 	qt_use_rtl_extensions = FALSE;
+bool qt_hebrew_keyboard_hack = FALSE;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -1669,6 +1670,8 @@ void qt_init_internal( int *argcptr, char **argv,
 
 	int screen;
 	QString serverVendor( ServerVendor( appDpy) );
+	if (serverVendor.contains("XFree86") && VendorRelease(appDpy) < 40300000)
+	    qt_hebrew_keyboard_hack = TRUE;
 
 	for ( screen = 0; screen < appScreenCount; ++screen ) {
 	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(appDpy, screen);
