@@ -138,7 +138,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   }
   data->uninit = FALSE;
 
-  if ( 0 && img.hasAlphaBuffer() ) {
+  if ( img.hasAlphaBuffer() ) {
     QBitmap m;
     m = img.createAlphaMask( conversion_flags );
     setMask( m );
