@@ -40,6 +40,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "QMAKE_INTERNAL" ] = "yes";
     dictionary[ "LEAN" ] = "no";
     dictionary[ "STL" ] = "no";
+    dictionary[ "ACCESSIBILITY" ] = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -168,6 +169,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "STL" ] = "yes";
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
+	else if( (*args) == "-accessibility" )
+	    dictionary[ "ACCESSIBILITY" ] = "yes";
+	else if( (*args) == "-no-accessibility" )
+	    dictionary[ "ACCESSIBILITY" ] = "no";
 
 	// Scan to see if any specific modules and drivers are enabled or disabled
 	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -235,7 +240,9 @@ bool ConfigureApp::displayHelp()
 	cout << "-no-jpeg          * Disable JPEG support." << endl;
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
 	cout << "-stl                Enable STL support." << endl;
-	cout << "-no-stl           * Disable STL support." << endl << endl;
+	cout << "-no-stl           * Disable STL support." << endl;
+	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp                Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-lean               Only process the Qt core projects." << endl;
@@ -267,6 +274,11 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "THREAD" ] == "yes" ) {
 	qmakeConfig += "thread";
 	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
+	qmakeDefines += "QT_THREAD_SUPPORT";
+    }
+    if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
+	qmakeConfig += "accessibility";
+	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
     }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
