@@ -211,7 +211,7 @@ void QDockWidgetTitleBar::updateGui()
 QDockWidget::QDockWidget( QWidget *parent, const char *name )
     : QFrame( parent, name, WStyle_Customize | WStyle_NoBorderEx ), curPlace( OutsideDock ),
       wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), closeEnabled( FALSE ), resizeEnabled( FALSE ),
-      addY( 0 ), addX( 0 )
+      addY( 0 ), addX( 0 ), sizeHintSet( FALSE )
 {
     titleBar = new QDockWidgetTitleBar( this );
     handle = new QDockWidgetHandle( this );
@@ -220,6 +220,9 @@ QDockWidget::QDockWidget( QWidget *parent, const char *name )
     updateGui();
     setCloseEnabled( TRUE );
     setResizeEnabled( TRUE );
+    stretchable[ Horizontal ] = FALSE;
+    stretchable[ Vertical ] = FALSE;
+    updateSizePolicy();
 }
 
 void QDockWidget::resizeEvent( QResizeEvent *e )
@@ -390,6 +393,14 @@ QSize QDockWidget::sizeHint() const
 	return QFrame::sizeHint();
     QSize s = wid->sizeHint();
     s += QSize( addX, addY );
+
+    if ( sizeHintSet ) {
+	if ( !dockArea || dockArea->orientation() == Horizontal )
+	    s.setHeight( sh.height() );
+	else
+	    s.setWidth( sh.width() );
+    }
+    
     return s;
 }
 
@@ -409,6 +420,49 @@ QSize QDockWidget::minimumSizeHint() const
     QSize s = wid->minimumSizeHint();
     s += QSize( addX, addY );
     return s;
+}
+
+void QDockWidget::setSizeHint( const QSize &s )
+{
+    sh = s;
+    sizeHintSet = TRUE;
+}
+
+void QDockWidget::unsetSizeHint()
+{
+    sizeHintSet = FALSE;
+}
+
+void QDockWidget::updateSizePolicy()
+{
+    if ( !dockArea || dockArea->orientation() == Horizontal )
+ 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+				    isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
+    else
+ 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed, 
+				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
+}
+
+void QDockWidget::setHorizontalStretchable( bool b )
+{
+    stretchable[ Horizontal ] = b;
+    updateSizePolicy();
+}
+
+void QDockWidget::setVerticalStretchable( bool b )
+{
+    stretchable[ Vertical ] = b;
+    updateSizePolicy();
+}
+
+bool QDockWidget::isHorizontalStretchable() const
+{
+    return stretchable[ Horizontal ];
+}
+
+bool QDockWidget::isVerticalStretchable() const
+{
+    return stretchable[ Vertical ];
 }
 
 #include "qdockwidget.moc"

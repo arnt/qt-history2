@@ -35,6 +35,14 @@ public:
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
+
+    void setSizeHint( const QSize &s );
+    void unsetSizeHint();
+
+    void setHorizontalStretchable( bool b );
+    void setVerticalStretchable( bool b );
+    bool isHorizontalStretchable() const;
+    bool isVerticalStretchable() const;
     
 protected:
     void resizeEvent( QResizeEvent *e );
@@ -47,7 +55,8 @@ private:
     void startRectDraw( const QPoint &so );
     void endRectDraw();
     void updatePosition( const QPoint &globalPos  );
-
+    void updateSizePolicy();
+    
 private:
     QDockWidgetHandle *handle;
     QDockWidgetTitleBar *titleBar;
@@ -62,6 +71,9 @@ private:
     QRect startRect;
     QPoint startOffset;
     int addY, addX;
+    bool sizeHintSet;
+    QSize sh;
+    bool stretchable[ 2 ];
     
 };
 
