@@ -758,13 +758,15 @@ void QWidget::hideWindow()
 	qwsDisplay()->requestFocus(winId(),FALSE);
     } else {
 	QWidget *p = parentWidget();
-	p->setChildrenAllocatedDirty( geometry(), this );
-	p->paintable_region_dirty = TRUE;
-	if ( p->overlapping_children )
-	    p->overlapping_children = -1;
-	if ( p->isVisible() ) {
-	    QApplication::postEvent( p, new QPaintEvent(geometry(), TRUE) );
-	    paint_children( p,geometry(),TRUE );
+	if ( p ) {
+	    p->setChildrenAllocatedDirty( geometry(), this );
+	    p->paintable_region_dirty = TRUE;
+	    if ( p->overlapping_children )
+		p->overlapping_children = -1;
+	    if ( p->isVisible() ) {
+		QApplication::postEvent( p, new QPaintEvent(geometry(), TRUE) );
+		paint_children( p,geometry(),TRUE );
+	    }
 	}
     }
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
