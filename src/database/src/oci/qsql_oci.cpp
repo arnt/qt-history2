@@ -261,13 +261,6 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 QOCIResult::~QOCIResult()
 {
     int r(0);
-    if ( d->sql ) {
-	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
-#ifdef CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "QOCIResult: Unable to free statement handle: " + qOraWarn( d ) );
-#endif
-    }
     delete d;
     if ( cols )
 	delete cols;
@@ -276,18 +269,14 @@ QOCIResult::~QOCIResult()
 bool QOCIResult::reset ( const QString& query )
 {
     int r(0);
-    if ( d->sql ) {
-	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
-#ifdef CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
-#endif
-    }
     if ( cols ) {
 	delete cols;
 	cols = 0;
     }
+    currentSize = 0;
     rowCache.clear();
+    if ( query.isNull() )
+	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->sql,
 			OCI_HTYPE_STMT,
@@ -361,12 +350,23 @@ bool QOCIResult::reset ( const QString& query )
     }
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( "QOCIResult::reset: " + qOraWarn( d ) );
+	qWarning( query + "QOCIResult::reset: " + qOraWarn( d ) );
 #endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
-    setActive( TRUE) ;
+    while ( fetchNext() )
+	; // cache it all
+    if ( d->sql ) {
+	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
+#ifdef CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }    
+    setAt( -1 );
+    setActive( TRUE);
+    currentSize = rowCache.count();
     return TRUE;
 }
 
@@ -381,10 +381,11 @@ bool QOCIResult::fetchNext()
 			    1,
 			    OCI_FETCH_NEXT,
 			    OCI_DEFAULT );
-//    if( r==OCI_ERROR)
-//	qDebug("next error" + qOraWarn(d));
-//    if ( r==OCI_SUCCESS_WITH_INFO)
-//	qDebug("next success with info" + qOraWarn(d));
+//     if( r==OCI_ERROR)
+// 	qDebug("next error" + qOraWarn(d));
+//     if ( r==OCI_SUCCESS_WITH_INFO)
+// 	qDebug("next success with info" + qOraWarn(d));
+//     qDebug("next:" + qOraWarn(d));
     if ( r != 0 ) {
 	setAt( BeforeFirst );
 	return FALSE;
@@ -441,8 +442,8 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    setAt( AfterLast );
-    return FALSE;
+    setAt( size()-1 );
+    return TRUE;
 }
 
 QVariant QOCIResult::data( int field )
@@ -458,6 +459,8 @@ bool QOCIResult::isNull( int field ) const
 QSqlFieldList QOCIResult::fields()
 {
     QSqlFieldList fil;
+    if ( !isActive() )
+	return fil;
     ub4 numCols = 0;
     int r  = OCIAttrGet( (dvoid*)d->sql,
     				OCI_HTYPE_STMT,
@@ -480,7 +483,7 @@ QSqlFieldList QOCIResult::fields()
 
 int QOCIResult::size() const
 {
-    return -1; // not supported
+    return currentSize;
 }
 
 int QOCIResult::affectedRows() const
@@ -647,10 +650,12 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
+    qDebug( stmt.arg( tablename ) );
     t.setQuery( stmt.arg( tablename ) );
     QSqlIndex idx( tablename );
-    if ( t.next() )
+    if ( t.next() ) {
 	idx.append( QSqlField( t[0].toString(), t.at(), qDecodeOCIType(t[1].toInt()) ));
+    }
     return idx;
     return QSqlIndex();
 }

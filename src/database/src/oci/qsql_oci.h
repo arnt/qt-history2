@@ -32,6 +32,7 @@ private:
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
     RowsetCache     	rowCache;
+    uint                currentSize;
 };
 
 class QOCIDriver : public QSqlDriver
