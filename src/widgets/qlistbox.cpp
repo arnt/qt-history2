@@ -3778,21 +3778,21 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 {
     if ( text.isEmpty() )
 	return 0;
-
-    if ( compare == CaseSensitive )
-        compare |= ExactMatch;
     
+    if ( compare == CaseSensitive || compare == 0 )
+        compare |= ExactMatch;
+
+    QString comtxt = text;
+    if ( ! (compare & CaseSensitive ) )
+        comtxt = text.lower();
+   
     QListBoxItem *item = d->current;
     if ( item ) {
         QString itmtxt = item->text();
-        QString comtxt = text;
 
         for ( ; item; item = item->n ) {
-
-            if ( ! (compare & CaseSensitive) ) {
+            if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
-                comtxt = text.lower();
-            }
             
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt ) 
@@ -3818,10 +3818,8 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
         item = d->head;
         
         for ( ; item && item != d->current; item = item->n ) {
-            if ( ! (compare & CaseSensitive) ) {
+            if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text().lower();
-                comtxt = text.lower();
-            }
             
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt ) 

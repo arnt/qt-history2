@@ -3398,27 +3398,74 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
   \a cs is TRUE, then the search is case-sensitive.
 */
 
-QIconViewItem *QIconView::findItem( const QString &text, bool cs ) const
+QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const
 {
     if ( !d->firstItem )
         return 0;
 
+    if ( compare == CaseSensitive /* || compare == 0 */)
+        compare |= ExactMatch;
+    
+    QString comtxt = text;
+    if ( ! (compare & CaseSensitive) )
+        comtxt = text.lower();
+
     QIconViewItem *item = d->currentItem;
-    for ( ; item; item = item->next ) {
-        if ( cs && item->text().left( text.length() ) == text )
-            return item;
-        else if ( !cs && item->text().lower().left( text.length() ) == text.lower() )
-            return item;
-    }
+    if ( item ) {
+        QString itmtxt = item->text();
 
-    item = d->firstItem;
-    for ( ; item && item != d->currentItem; item = item->next ) {
-        if ( cs && item->text().left( text.length() ) == text )
-            return item;
-        else if ( !cs && item->text().lower().left( text.length() ) == text.lower() )
-            return item;
+        for ( ; item; item = item->next ) {
+            if ( ! (compare & CaseSensitive) )
+                itmtxt = item->text().lower();
+            
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, FALSE ) )
+                    return item;
+            }
+        }
+        
+        item = d->firstItem;
+        
+        for ( ; item && item != d->currentItem; item = item->next ) {
+            if ( ! (compare & CaseSensitive) )
+                itmtxt = item->text().lower();
+            
+            if ( compare & ExactMatch ) {
+                if ( itmtxt == comtxt ) 
+                    return item;
+            }
+            
+            if ( compare & BeginsWith ) {
+                if ( itmtxt.startsWith( comtxt ) )
+                    return item;
+            }
+            
+            if ( compare & EndsWith ) {
+                if ( itmtxt.right( comtxt.length() ) == comtxt )
+                    return item;
+            }
+            
+            if ( compare & Contains ) {
+                if ( itmtxt.contains( comtxt, FALSE ) )
+                    return item;
+            }
+        }
     }
-
     return 0;
 }
 
