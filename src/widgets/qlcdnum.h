@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.h#11 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.h#12 $
 **
 ** Definition of QLCDNumber class
 **
@@ -27,7 +27,7 @@ public:
 
     enum Mode { HEX, DEC, OCT, BIN };
 
-    bool    smallDecimalPoint() { return (bool)smallPoint; }
+    bool    smallDecimalPoint() const { return (bool)smallPoint; }
 
     int	    numDigits() const	{ return ndigits; }
     void    setNumDigits( int nDigits );
