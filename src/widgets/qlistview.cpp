@@ -1963,6 +1963,7 @@ void QListView::init()
 
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
+    viewport()->setBackgroundMode( PaletteBase );
 }
 
 /*!
@@ -2695,10 +2696,6 @@ void QListView::show()
     // Reimplemented to setx the correct background mode and viewed
     // area size.
     if ( !isVisible() ) {
-	QWidget * v = viewport();
-	if ( v )
-	    v->setBackgroundMode( PaletteBase );
-
 	reconfigureItems();
 	updateGeometries();
     }
