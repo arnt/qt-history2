@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#87 $
 **
 ** Definition of QIconView widget class
 **
@@ -1879,7 +1879,7 @@ void QIconView::orderItemsInGrid()
 {
     if ( !d->firstItem || !d->lastItem )
 	return;
-    
+
     int w = 0, h = 0, y = d->spacing;
 
     QIconViewItem *item = d->firstItem;
@@ -3358,7 +3358,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    y += h + d->spacing;
 	}
 
-       
+
     } else { // -------------------------------- SOUTH ------------------------------
 	
 	int x = y;
@@ -3389,18 +3389,25 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    // now move the items
 	    item = begin;
 	    while ( TRUE ) {
-		if ( item == begin )
-		    item->move( x + ( w - item->width() ) / 2, d->spacing );
-		else
-		    item->move( x + ( w - item->width() ) / 2,
+		if ( d->itemTextPos == Bottom ) {
+		    if ( item == begin )
+			item->move( x + ( w - item->width() ) / 2, d->spacing );
+		    else
+			item->move( x + ( w - item->width() ) / 2,
 				item->prev->y() + item->prev->height() + d->spacing );
+		} else {
+		    if ( item == begin )
+			item->move( x, d->spacing );
+		    else
+			item->move( x, item->prev->y() + item->prev->height() + d->spacing );
+		}
 		if ( item == end )
 		    break;
 		item = item->next;
 	    }
-	    x += w + d->spacing; 
+	    x += w + d->spacing;
 	}
-    
+
 	y = x;
     }	
 
