@@ -131,9 +131,15 @@ QMutex::QMutex(bool recursive)
     d->owner = 0;
     d->count = 0;
 
-    pthread_mutex_init(&d->mutex, NULL);
-    if (d->recursive)
-        pthread_mutex_init(&d->mutex2, NULL);
+    int code;
+    code = pthread_mutex_init(&d->mutex, NULL);
+    if (code != 0)
+	qWarning("QMutex: cannot create mutex: %s", strerror(code));
+    if (d->recursive) {
+        code = pthread_mutex_init(&d->mutex2, NULL);
+	if (code != 0)
+	    qWarning("QMutex: cannot create support mutex: %s", strerror(code));
+    }
 }
 
 /*!
@@ -144,11 +150,15 @@ QMutex::QMutex(bool recursive)
 */
 QMutex::~QMutex()
 {
-    if (d->recursive)
-        pthread_mutex_destroy(&d->mutex2);
-    int code = pthread_mutex_destroy(&d->mutex);
+    int code;
+    if (d->recursive) {
+        code = pthread_mutex_destroy(&d->mutex2);
+	if (code != 0)
+	    qWarning("QMutex: cannot destroy support mutex: %s", strerror(code));
+    }
+    code = pthread_mutex_destroy(&d->mutex);
     if (code != 0)
-        qWarning("QMutex: destroy failure: %s", strerror(code));
+        qWarning("QMutex: cannot destroy mutex: %s", strerror(code));
 
     delete d;
 }
@@ -161,8 +171,11 @@ QMutex::~QMutex()
 */
 void QMutex::lock()
 {
+    int code;
     if (! d->recursive) {
-        pthread_mutex_lock(&d->mutex);
+        code = pthread_mutex_lock(&d->mutex);
+	if (code != 0)
+	    qWarning("QMutex::lock: %s", strerror(code));
         return;
     }
 
@@ -172,7 +185,11 @@ void QMutex::lock()
         d->count++;
     } else {
         pthread_mutex_unlock(&d->mutex2);
-        pthread_mutex_lock(&d->mutex);
+
+        code = pthread_mutex_lock(&d->mutex);
+	if (code != 0)
+	    qWarning("QMutex::lock: %s", strerror(code));
+
         pthread_mutex_lock(&d->mutex2);
         d->count = 1;
         d->owner = pthread_self();
@@ -194,10 +211,14 @@ void QMutex::lock()
 */
 bool QMutex::tryLock()
 {
+    int code;
     if (! d->recursive) {
-        int code = pthread_mutex_trylock(&d->mutex);
-        if (code != 0)
-            return false;
+	code = pthread_mutex_trylock(&d->mutex);
+        if (code != 0) {
+            if (code != EBUSY)
+                qWarning("QMutex:tryLock: %s", strerror(code));
+	    return false;
+	}
         return true;
     }
 
@@ -208,11 +229,11 @@ bool QMutex::tryLock()
     if (d->count > 0 && d->owner == pthread_self()) {
         d->count++;
     } else {
-        int code = pthread_mutex_trylock(&d->mutex);
+	code = pthread_mutex_trylock(&d->mutex);
 
-        if (code) {
+        if (code != 0) {
             if (code != EBUSY)
-                qWarning("QMutex:tryLock() failure: %s", strerror(code));
+                qWarning("QMutex:tryLock: %s", strerror(code));
             ret = false;
         } else {
             d->count = 1;
@@ -235,8 +256,11 @@ bool QMutex::tryLock()
 */
 void QMutex::unlock()
 {
+    int code;
     if (! d->recursive) {
-        pthread_mutex_unlock(&d->mutex);
+	code = pthread_mutex_unlock(&d->mutex);
+	if (code != 0)
+	    qWarning("QMutex::unlock: %s", strerror(code));
         return;
     }
 
@@ -247,7 +271,9 @@ void QMutex::unlock()
         // in the docs
         if (d->count && (--d->count) < 1) {
             d->count = 0;
-            pthread_mutex_unlock(&d->mutex);
+	    code = pthread_mutex_unlock(&d->mutex);
+	    if (code != 0)
+		qWarning("QMutex::unlock: %s", strerror(code));
         }
     } else {
         qWarning("QMutex::unlock: unlock from different thread than locker");
