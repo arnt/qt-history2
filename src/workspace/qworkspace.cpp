@@ -305,10 +305,14 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 		    this, SLOT( activateNextWindow() ) );
     a->connectItem( a->insertItem( CTRL + Key_Tab),
 		    this, SLOT( activateNextWindow() ) );
+    a->connectItem( a->insertItem( Key_Forward ),
+		    this, SLOT( activateNextWindow() ) );
 
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_F6),
 		    this, SLOT( activatePreviousWindow() ) );
     a->connectItem( a->insertItem( CTRL + SHIFT + Key_Tab),
+		    this, SLOT( activatePreviousWindow() ) );
+    a->connectItem( a->insertItem( Key_Back ),
 		    this, SLOT( activatePreviousWindow() ) );
 
     a->connectItem( a->insertItem( CTRL + Key_F4 ),
