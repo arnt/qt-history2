@@ -778,6 +778,51 @@ void QTextEditPrivate::adjustScrollbars()
 */
 
 /*!
+    \property QTextEdit::undoRedoEnabled
+    \brief whether undo and redo are enabled
+
+    Users are only able to undo or redo actions if this property is
+    true, and if there is an action that can be undone (or redone).
+*/
+
+/*!
+    \enum QTextEdit::WordWrap
+
+    \value NoWrap
+    \value WidgetWidth
+    \value FixedPixelWidth
+    \value FixedColumnWidth
+*/
+
+/*!
+    \enum QTextEdit::AutoFormattingFlag
+
+    \value AutoNone Don't do any automatic formatting.
+    \value AutoBulletList Automatically create bullet lists (e.g. when
+    the user enters an asterisk ('*') in the left most column, or
+    presses Enter in an existing list item.
+    \value AutoAll Apply all automatic formatting. Currently only
+    automatic bullet lists are supported.
+*/
+
+/*!
+    \enum QTextEdit::CursorAction
+
+    \value MoveBackward
+    \value MoveForward
+    \value MoveWordBackward
+    \value MoveWordForward
+    \value MoveUp
+    \value MoveDown
+    \value MoveLineStart
+    \value MoveLineEnd
+    \value MoveHome
+    \value MoveEnd
+    \value MovePageUp
+    \value MovePageDown
+*/
+
+/*!
     Constructs an empty QTextEdit with parent \a
     parent.
 */

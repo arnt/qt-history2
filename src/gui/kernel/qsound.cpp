@@ -103,7 +103,7 @@ public:
     is used if available, otherwise all operations work silently. NAS
     supports WAVE and AU files.
 
-    On Mac OS X we use \l{http://quicktime.apple.com/}{QuickTime) for sound.
+    On Mac OS X we use \l{http://quicktime.apple.com/}{QuickTime} for sound.
     All QuickTime formats are supported by Qt/Mac.
 
     On Qt/Embedded, a built-in mixing sound server is used, which
