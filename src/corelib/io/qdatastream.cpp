@@ -704,6 +704,19 @@ QDataStream &QDataStream::operator>>(qint64 &i)
 }
 
 /*!
+    Reads a boolean value from the stream into \a i. Returns a
+    reference to the stream.
+*/
+QDataStream &QDataStream::operator>>(bool &i)
+{
+    qint8 v;
+    *this >> v;
+    i = bool(v);
+    return *this;
+}
+
+
+/*!
     \overload
 
     Reads a 32-bit floating point number from the stream into \a f,
@@ -988,6 +1001,18 @@ QDataStream &QDataStream::operator<<(qint64 i)
     Writes an unsigned integer, \a i, to the stream as a 32-bit
     unsigned integer (quint32). Returns a reference to the stream.
 */
+
+/*!
+    Writes a boolean value, \a i, to the stream. Returns a reference
+    to the stream.
+*/
+
+QDataStream &QDataStream::operator<<(bool i)
+{
+    CHECK_STREAM_PRECOND(*this)
+    dev->putChar(qint8(i));
+    return *this;
+}
 
 /*!
     \overload

@@ -98,6 +98,7 @@ public:
     QDataStream &operator>>(qint64 &i);
     QDataStream &operator>>(quint64 &i);
 
+    QDataStream &operator>>(bool &i);
     QDataStream &operator>>(float &f);
     QDataStream &operator>>(double &f);
 #ifdef QT_USE_FIXED_POINT
@@ -113,6 +114,7 @@ public:
     QDataStream &operator<<(quint32 i);
     QDataStream &operator<<(qint64 i);
     QDataStream &operator<<(quint64 i);
+    QDataStream &operator<<(bool i);
     QDataStream &operator<<(float f);
     QDataStream &operator<<(double f);
 #ifdef QT_USE_FIXED_POINT

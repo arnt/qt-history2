@@ -1566,11 +1566,14 @@ void QSplitter::changeEvent(QEvent *ev)
     QFrame::changeEvent(ev);
 }
 
+static const qint32 SplitterMagic = 0xff;
+
 /*!
     Saves the state of the splitter's layout.
 
     Typically this is used in conjunction with QSettings to remember the size
-    for a future session. Here is an example:
+    for a future session. The \a version number is stored as part of the data.
+    Here is an example:
 
     \quotefromfile snippets/splitter/splitter.cpp
     \skipto SAVE
@@ -1579,29 +1582,19 @@ void QSplitter::changeEvent(QEvent *ev)
 
     \sa restoreState()
 */
-QByteArray QSplitter::saveState() const
+QByteArray QSplitter::saveState(int version) const
 {
-    QByteArray b;
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
 
-    bool first = true;
-    b.append('[');
-
-    for (int i = 0; i < d->list.size(); ++i) {
-        QSplitterLayoutStruct *s = d->list.at(i);
-
-        if (!first)
-            b.append(',');
-
-        if (s->widget->isExplicitlyHidden()) {
-            b.append('H');
-        } else {
-            b.append(QByteArray::number(d->pick(s->rect.size())));
-        }
-        first = false;
-
-    }
-    b.append(']');
-    return b;
+    stream << qint32(SplitterMagic);
+    stream << qint32(version);    
+    stream << sizes();
+    stream << childrenCollapsible();
+    stream << qint32(handleWidth());
+    stream << opaqueResize();
+    stream << qint32(orientation());
+    return data;
 }
 
 /*!
@@ -1619,44 +1612,39 @@ QByteArray QSplitter::saveState() const
 
     \sa saveState()
 */
-bool QSplitter::restoreState(const QByteArray &state)
+bool QSplitter::restoreState(const QByteArray &state, int version)
 {
-    int index = 0;
-    int i = 0;
-    int n = d->list.count();
+    QByteArray sd = state;
+    QDataStream stream(&sd, QIODevice::ReadOnly);
+    QList<int> list;    
+    bool b;
+    qint32 i;
+    qint32 marker;
+    qint32 v;
 
-    if (i < state.size() && state.at(i) == '[') {
-        ++i;
-        while (i < state.size() && state.at(i) != ']') {
-            if (index == n)
-                break;
-            QSplitterLayoutStruct *s = d->list.at(index);
-            if (state.at(i) == 'H') {
-                s->widget->hide();
-                ++i;
-            } else {
-                s->widget->show();
-                int dim = 0;
-                while (i < state.size() && isdigit(state.at(i))) {
-                    dim *= 10;
-                    dim += state.at(i) - '0';
-                    ++i;
-                }
-                s->sizer = dim;
-                if (dim == 0)
-                    d->setGeo(s, 0, 0);
-            }
-            if (state.at(i) == ',') {
-                ++i;
-            } else {
-                break;
-            }
-            ++index;
-        }
-        d->doResize();
-        return (state.at(i) == ']');
-    }
-    return false;
+    stream >> marker;
+    stream >> v;
+    Q_ASSERT(marker == SplitterMagic && v == version);
+    if (marker != SplitterMagic || v != version)
+        return false;
+    
+    stream >> list;
+    setSizes(list);
+
+    stream >> b;
+    setChildrenCollapsible(b);
+
+    stream >> i;
+    setHandleWidth(i);
+
+    stream >> b;
+    setOpaqueResize(b);
+
+    stream >> i;
+    setOrientation(Qt::Orientation(i));
+    d->doResize();
+
+    return true;
 }
 
 /*!
