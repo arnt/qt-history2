@@ -6369,15 +6369,11 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	//	QFontMetrics fm( lv->font() );
 	//	int d = fm.height();
 	int x = 0;
-	int y = 0;
 	if ( !parentControl )
 	    x += 3;
 	if ( align == AlignCenter )
 	    x = (width - boxsize - fm.width(text()))/2;
-	if ( align & AlignVCenter )
-	    y = ( ( height() - boxsize ) / 2 ) + marg;
-	else
-	    y = (fm.height() + 2 + marg - boxsize) / 2;
+	int y = (fm.height() + 2 + marg - boxsize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 
 	if ( ( myType == CheckBox ) || ( myType == CheckBoxController ) ) {
