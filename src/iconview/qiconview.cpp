@@ -5733,7 +5733,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	item->d->container2 = c;
     }
     if ( contentsWidth() < irect.right() || contentsHeight() < irect.bottom() )
-	resizeContents( irect.right(), irect.bottom() );
+	resizeContents( QMAX( contentsWidth(), irect.right() ), QMAX( contentsHeight(), irect.bottom() ) );
 }
 
 /*!
