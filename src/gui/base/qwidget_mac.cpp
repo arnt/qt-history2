@@ -846,7 +846,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	Rect r;
 	SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
 	WindowClass wclass = kSheetWindowClass;
-	if(popup)
+	if(popup || testWFlags(WStyle_Splash) == WStyle_Splash)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
@@ -854,33 +854,36 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
 #endif
-	else if(testWFlags(WStyle_Tool) || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
+	else if (testWFlags(WStyle_Tool) && qstrcmp(name(), "toolTipTip") == 0) // Tool tips
+	    wclass = kHelpWindowClass;
+	else if(testWFlags(WStyle_Tool)
+                || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wclass = kFloatingWindowClass;
-	else if (dialog)
+	else if(dialog)
 	    wclass = kToolbarWindowClass;
 	else
 	    wclass = kDocumentWindowClass;
 
 	WindowGroupRef grp = 0;
 	WindowAttributes wattr = kWindowNoAttributes;
-	if (testWFlags(WStyle_Customize)) {
-	    if (qt_mac_is_macsheet(this)) {
+	if(testWFlags(WStyle_Customize)) {
+	    if(qt_mac_is_macsheet(this)) {
 		grp = GetWindowGroupOfClass(kMovableModalWindowClass);
 		wclass = kSheetWindowClass;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
                 // Shift things around a bit to get the correct window class based on the presence
                 // (or lack) of the border.
-		if (testWFlags(WStyle_NoBorder)) {
-		    if (wclass == kDocumentWindowClass)
+		if(testWFlags(WStyle_NoBorder)) {
+		    if(wclass == kDocumentWindowClass)
 			wclass = kPlainWindowClass;
-		    else if (wclass == kFloatingWindowClass)
-			wclass = kModalWindowClass;
+		    else if(wclass == kFloatingWindowClass)
+			wclass = kToolbarWindowClass;
 		} else {
-		    if (wclass != kModalWindowClass)
+		    if(wclass != kModalWindowClass)
 			wattr |= kWindowResizableAttribute;
-                    if (wclass == kToolbarWindowClass) {
-                        if (!parentWidget() || parentWidget()->isDesktop())
+                    if(wclass == kToolbarWindowClass) {
+                        if(!parentWidget() || parentWidget()->isDesktop())
                             wclass = kDocumentWindowClass;
                         else
                             wclass = kFloatingWindowClass;
@@ -888,14 +891,14 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		}
 		// Only add extra decorations (well, buttons) for widgets that can have them
 		// and have an actual border we can put them on.
-                if (wclass != kModalWindowClass && wclass != kMovableModalWindowClass
+                if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
                     && wclass != kSheetWindowClass && wclass != kPlainWindowClass
                     && !testWFlags(WStyle_NoBorder)) {
-		    if (testWFlags(WStyle_Maximize))
+		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
-		    if (testWFlags(WStyle_Minimize))
+		    if(testWFlags(WStyle_Minimize))
 			wattr |= kWindowCollapseBoxAttribute;
-		    if (testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
+		    if(testWFlags(WStyle_Title) || testWFlags(WStyle_SysMenu))
 		       wattr |= kWindowCloseBoxAttribute;
 		}
 	    }
@@ -905,6 +908,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(testWFlags(WStyle_Tool))
 	    wattr |= kWindowHideOnSuspendAttribute;
 	wattr |= kWindowLiveResizeAttribute;
+	if(testWFlags(WStyle_Tool) && testWFlags(WStyle_Splash) != WStyle_Splash)
+	    wattr |= kWindowHideOnSuspendAttribute;
 
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
@@ -922,6 +927,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ADD_DEBUG_WINDOW_NAME(kWindowNoActivatesAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowLiveResizeAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowHideOnSuspendAttribute),
 	    { 0, 0 }
 	}, known_classes[] = {
 	    ADD_DEBUG_WINDOW_NAME(kPlainWindowClass),
@@ -1593,8 +1599,13 @@ void QWidget::showWindow()
 	else if(qt_mac_is_macdrawer(this))
 	    OpenDrawer((WindowPtr)hd, kWindowEdgeDefault, true);
 #endif
-	else
+	else {
 	    ShowHide((WindowPtr)hd, true);	//now actually show it
+            // it seems that collapse window doesn't work unless the window is actually shown,
+            // so catch it again.
+            if (windowState() & WindowMinimized)
+                CollapseWindow((WindowPtr)hd, true);
+        }
 #ifndef QMAC_NO_FAKECURSOR
 	if (qstrcmp(name(), "fake_cursor") != 0)
 #endif
