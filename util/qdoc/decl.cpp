@@ -13,6 +13,7 @@
 #include "htmlwriter.h"
 #include "messages.h"
 
+
 static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 			       const Decl *context,
 			       const QString& var = QString::null )
@@ -47,6 +48,10 @@ static void printHtmlShortMembers( HtmlWriter& out,
 
 	QValueList<Decl *>::ConstIterator m = members.begin();
 	while( m != members.end() ) {
+	    if( !config->isInternal() && (*m)->internal() ) {
+		++m;
+		continue;
+	    }
 	    out.putsMeta( "<li><div class=fn>" );
 	    (*m)->printHtmlShort( out );
 	    if ( (*m)->internal() )
@@ -96,6 +101,10 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	QMap<QString, Decl *>::ConstIterator m = members.begin();
 	while ( m != members.end() ) {
+	    if( !config->isInternal() && (*m)->internal() ) {
+		++m;
+		continue;
+	    }
 	    out.putsMeta( "<h3 class=fn>" );
 	    (*m)->printHtmlLong( out );
 	    out.putsMeta( "</h3>" );
@@ -716,7 +725,7 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	while ( p != properties().end() ) {
 	    out.printfMeta( "<tr><td>%s<td>%s<td>%s<td>%s\n",
 			    (*p).type().latin1(), (*p).name().latin1(),
-			    ( (*p).readFunction().isEmpty() 
+			    ( (*p).readFunction().isEmpty()
 			      ? "&nbsp; " : (*p).readFunction().latin1() ),
 			    ( (*p).writeFunction().isEmpty()
 			      ? "&nbsp;" : (*p).writeFunction().latin1() ) );
