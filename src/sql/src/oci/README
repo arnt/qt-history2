@@ -55,18 +55,18 @@ Oracle Client Installation CD is sufficient to build the plugin.
 To build the plugins the following commands are neccesarry (assuming
 that QT was installed in C:\QT and Oracle Client in C:\ORACLE):
 
-cd \qt\src\sql\src\oci
+cd %QTDIR%\src\sql\src\oci
 qmake -o Makefile "INCLUDEPATH=C:\ORACLE\OCI\INCLUDE" "LIBS=C:\ORACLE\OCI\LIB\MSVC\OCI.LIB" oci.pro
 nmake
 
-If you are using a Borland compiler, replace "MSVC" with "BC" in the statement
+If you are using a Borland compiler, replace "nmake" with "make" in the statement
 above.
 
-Please note that the Makefile may not contain path names with special chars
-like space, so it is recommended to use the 8.3 Filename instead.
+Please note that the Makefile may not contain path names with special characters
+like spaces, so it is recommended that you use the 8.3 filename equivalent instead.
  
-Example: If Oracle is installed in "c:\program files\Oracle", use the
-following path as argument for qmake: "C:\progra~1\oracle"
+For example: If Oracle is installed in "c:\program files\Oracle", use the
+following path as an argument for qmake: "C:\progra~1\oracle"
 
 
 
