@@ -46,7 +46,7 @@
 //
 // The operating system, must be one of: (_OS_x_)
 //
-//   MAC	- Macintosh
+//   MAC	- Mac OS
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
@@ -144,21 +144,21 @@
 //
 //   SYM	- Symantec C++ for both PC and Macintosh
 //   MPW	- MPW C++
-//   MWERKS	- Metroworks CodeWarrior
+//   MWERKS	- Metrowerks CodeWarrior
 //   MSVC	- Microsoft Visual C/C++
 //   BOR	- Borland/Turbo C++
 //   WAT	- Watcom C++
 //   GNU	- GNU C++
 //   COMEAU	- Comeau C++
 //   EDG	- Edison Design Group C++
-//   OC		- CenterLine ObjectCenter C++
+//   OC		- CenterLine C++
 //   SUN	- Sun C++
 //   DEC	- DEC C++
 //   HP		- HPUX C++
 //   USLC	- SCO UnixWare C++
+//   CDS	- Reliant C++
 //   KAI	- KAI C++
 //
-
 
 // Should be sorted most-authorative to least-authorative
 
@@ -166,6 +166,7 @@
 #  define _CC_SYM_
 #elif defined( __KCC )
 #  define _CC_KAI_
+// defines __EDG__?
 #  define Q_HAS_BOOL_TYPE
 #elif defined(applec)
 #  define _CC_MPW_
@@ -203,8 +204,6 @@
 #  define _CC_XLC_
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ >= 0x400
-// documented in the VisualAge 4 Redbook
-// observed on VisualAge 5
 #    define Q_HAS_BOOL_TYPE
 #  endif
 #  if __xlC__ <= 0x0306
@@ -212,24 +211,22 @@
 // observed on C and C++ compilers 3.6
 #    define Q_TEMPLATE_NEEDS_EXPLICIT_CONVERSION
 #  endif
-#elif defined(como40)
-#  define _CC_EDG_
+#elif defined(__COMO__) || defined(como40)
+// one documented, the other observed (?)
+// defines __EDG__
 #  define _CC_COMEAU_
-#  define Q_HAS_BOOL_TYPE
 #  define Q_C_CALLBACKS
 #elif defined(__USLC__)
+// defines __EDG__ on UnixWare7 only
 #  define _CC_USLC_
-#  ifdef __EDG__
-// UnixWare7
+#elif defined(__EDG__) || defined(__EDG)
+// one documented by EDG, the other documented by SGI
+#  if defined(_BOOL)
 #    define Q_HAS_BOOL_TYPE
 #  endif
-#elif defined(__EDG) || defined(__EDG__)
-// one observed on SGI DCC, the other documented
-#if defined(_BOOL)
-#  define Q_HAS_BOOL_TYPE
-#endif
 #  define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
+// defines __EDG__?
 #  define _CC_OC_
 #elif defined(__SUNPRO_CC)
 #  define _CC_SUN_
@@ -238,14 +235,17 @@
 #    define Q_C_CALLBACKS
 #  endif
 #elif defined(__DECCXX)
+// defines __EDG__?
 #  define _CC_DEC_
 #  if __DECCXX_VER >= 60060005
 #    define Q_HAS_BOOL_TYPE
 #  endif
 #elif defined(__CDS__)
+// defines __EDG__?
 #  define _CC_CDS_
 #  define Q_HAS_BOOL_TYPE
 #elif defined(_OS_HPUX_)
+// __HP_aCC was not defined by first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define _CC_HP_ACC_
 #    define Q_HAS_BOOL_TYPE
@@ -262,7 +262,17 @@
 #  define Q_PACKED
 #endif
 
-// Window system setting
+
+//
+// The window system, must be one of: (_WS_x_)
+//
+//   MAC	- Mac OS
+//   QWS	- Qt/Embedded
+//   WIN32	- Windows
+//   X11	- X Window System
+//   PM		- unsupported
+//   WIN16	- unsupported
+//
 
 #if defined(_OS_MAC_)
 #  define _WS_MAC_
@@ -274,6 +284,7 @@
 #elif defined(_OS_WIN32_)
 #  define _WS_WIN32_
 #elif defined(_OS_OS2_)
+#  define _WS_PM_
 #  error "Qt does not work with OS/2 Presentation Manager or Workplace Shell"
 #elif defined(_OS_UNIX_)
 #  ifdef QWS
@@ -302,11 +313,9 @@
 // Useful type definitions for Qt
 //
 
-#if defined(bool)
+#if defined(bool) // ### What's this???
 #  define Q_HAS_BOOL_TYPE
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
-#  define Q_HAS_BOOL_TYPE
-#elif defined(sgi) && defined(_BOOL)
 #  define Q_HAS_BOOL_TYPE
 #endif
 
@@ -387,6 +396,7 @@ typedef unsigned int	Q_UINT32;		// 32 bit unsigned
 typedef long		Q_INT64;		// up to 64 bit signed
 typedef unsigned long	Q_UINT64;		// up to 64 bit unsigned
 
+
 //
 // Data stream functions is provided by many classes (defined in qdatastream.h)
 //
@@ -394,6 +404,9 @@ typedef unsigned long	Q_UINT64;		// up to 64 bit unsigned
 class QDataStream;
 
 
+//
+// Some platform specific stuff
+//
 
 #ifdef _WS_WIN_
 extern bool qt_winunicode;
@@ -402,6 +415,7 @@ extern bool qt_winunicode;
 #ifndef QT_H
 #include <qfeatures.h>
 #endif // QT_H
+
 
 //
 // Create Qt DLL if QT_DLL is defined (Windows only)
@@ -434,6 +448,7 @@ extern bool qt_winunicode;
 #  define Q_EXPORT
 #endif
 
+
 //
 // System information
 //
@@ -441,21 +456,6 @@ extern bool qt_winunicode;
 Q_EXPORT const char *qVersion();
 Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 
-
-//
-// Debugging and error handling
-//
-
-#if !defined(NO_CHECK)
-#  define CHECK_STATE				// check state of objects etc.
-#  define CHECK_RANGE				// check range of indexes etc.
-#  define CHECK_NULL				// check null pointers
-#  define CHECK_MATH				// check math functions
-#endif
-
-#if !defined(NO_DEBUG) && !defined(DEBUG)
-#  define DEBUG					// display debug messages
-#endif
 
 //
 // Avoid some particularly useless warnings from some stupid compilers.
@@ -487,11 +487,29 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #  endif
 #endif
 
+
 //
 // Use to avoid "unused parameter" warnings
 //
 
 #define Q_UNUSED(x) (void)x;
+
+
+//
+// Debugging and error handling
+//
+
+#if !defined(NO_CHECK)
+#  define CHECK_STATE				// check state of objects etc.
+#  define CHECK_RANGE				// check range of indexes etc.
+#  define CHECK_NULL				// check null pointers
+#  define CHECK_MATH				// check math functions
+#endif
+
+#if !defined(NO_DEBUG) && !defined(DEBUG)
+#  define DEBUG					// display debug messages
+#endif
+
 
 Q_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_) && !defined(__INSURE__)
@@ -565,8 +583,8 @@ enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-// source compatibility with Qt 2.x
 #if !defined(QT_CLEAN_NAMESPACE)
+// source compatibility with Qt 2.x
 typedef QtMsgHandler msg_handler;
 #endif
 
