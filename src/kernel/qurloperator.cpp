@@ -595,6 +595,8 @@ QPtrList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QStri
 		 this, SLOT( continueCopy( QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
 		 this, SIGNAL( finished( QNetworkOperation * ) ) );
+	connect( gProt, SIGNAL( connectionStateChanged( int, const QString & ) ),
+		 this, SIGNAL( connectionStateChanged( int, const QString & ) ) );
 
 	connect( pProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
 		 this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ) );
