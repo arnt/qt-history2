@@ -1734,23 +1734,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QPoint p(where.h, where.v);
 	    QPoint plocal(widget->mapFromGlobal(p));
 	    bool was_context = FALSE;
-	    if(ekind == kEventMouseDown &&
-	       ((button == QMouseEvent::RightButton) ||
-		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
-		QApplication::sendSpontaneousEvent(widget, &cme);
-		was_context = cme.isAccepted();
-	    }
-#ifdef DEBUG_MOUSE_MAPS
-	    const char *event_desc = edesc;
-	    if(was_context)
-		event_desc = "Context Menu";
-	    else if(etype == QEvent::MouseButtonDblClick)
-		event_desc = "Double Click";
-	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
-		   plocal.x(), plocal.y(), event_desc, widget, widget->name(),
-		   widget->className(), button, state|keys, wheel_delta);
-#endif
 	    if(!was_context) {
 		if(etype == QEvent::MouseButtonPress) {
 		    qt_mac_dblclick.active = TRUE;
@@ -1780,10 +1763,30 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			}
 		    }
 #endif
-		    QMouseEvent qme(etype, plocal, p, button, state | keys);
+		    int macButton = button;
+		    if(button == QMouseEvent::LeftButton && (modifiers & controlKey))
+			macButton = QMouseEvent::RightButton;
+		    QMouseEvent qme(etype, plocal, p, macButton, state | keys);
 		    QApplication::sendSpontaneousEvent(widget, &qme);
 		}
 	    }
+	    if(ekind == kEventMouseDown &&
+	       ((button == QMouseEvent::RightButton) ||
+		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
+		QApplication::sendSpontaneousEvent(widget, &cme);
+		was_context = cme.isAccepted();
+	    }
+#ifdef DEBUG_MOUSE_MAPS
+	    const char *event_desc = edesc;
+	    if(was_context)
+		event_desc = "Context Menu";
+	    else if(etype == QEvent::MouseButtonDblClick)
+		event_desc = "Double Click";
+	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
+		   plocal.x(), plocal.y(), event_desc, widget, widget->name(),
+		   widget->className(), button, state|keys, wheel_delta);
+#endif
 	} else {
 	    handled_event = FALSE;
 	}
