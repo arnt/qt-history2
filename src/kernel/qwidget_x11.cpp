@@ -2419,7 +2419,7 @@ void QWidget::updateFrameStrut() const
     QWidget *that = (QWidget *) this;
 
     if (! isVisible() || isDesktop()) {
-	that->fstrut_dirty = isVisible();
+	that->fstrut_dirty = (! isVisible());
 	return;
     }
 
