@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qshared.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT

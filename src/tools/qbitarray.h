@@ -1,166 +1,103 @@
-/****************************************************************************
-** $Id: $
-**
-** Definition of QBitArray class
-**
-** Created : 940118
-**
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
-**
-** This file is part of the tools module of the Qt GUI Toolkit.
-**
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses may use this file in accordance with the Qt Commercial License
-** Agreement provided with the Software.
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-**   information about Qt Commercial License Agreements.
-** See http://www.trolltech.com/qpl/ for QPL licensing information.
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
-**
-** Contact info@trolltech.com if any conditions of this licensing are
-** not clear to you.
-**
-**********************************************************************/
-
 #ifndef QBITARRAY_H
 #define QBITARRAY_H
 
 #ifndef QT_H
-#include "qstring.h"
+#include "qbytearray.h"
 #endif // QT_H
 
-
-/*****************************************************************************
-  QBitVal class; a context class for QBitArray::operator[]
- *****************************************************************************/
-
-class QBitArray;
-
-class Q_EXPORT QBitVal
+class QBitRef;
+class QBitArray
 {
-private:
-    QBitArray *array;
-    uint    index;
+    friend QDataStream &operator<<( QDataStream &, const QBitArray & );
+    friend QDataStream &operator>>( QDataStream &, QBitArray & );
+    QByteArray d;
 public:
-    QBitVal( QBitArray *a, uint i ) : array(a), index(i) {}
-    operator int();
-    QBitVal &operator=( const QBitVal &v );
-    QBitVal &operator=( bool v );
-};
+    inline QBitArray(){};
+    QBitArray(int size, bool val = false);
 
+    int size() const;
+    void resize(int size);
 
-/*****************************************************************************
-  QBitArray class
- *****************************************************************************/
+    inline void  detach() { d.detach(); }
+    inline bool isDetached() const { return d.isDetached(); }
 
-class Q_EXPORT QBitArray : public QByteArray
-{
-public:
-    QBitArray();
-    QBitArray( uint size );
-    QBitArray( const QBitArray &a ) : QByteArray( a ) {}
+    bool testBit(int i) const;
+    void setBit(int i);
+    void setBit(int i, bool val);
+    void clearBit(int i);
+    bool toggleBit(int i);
 
-    QBitArray &operator=( const QBitArray & );
+    const bool at(int i) const;
+    QBitRef operator[](int i);
+    const bool operator[](int i) const;
 
-    uint    size() const;
-    bool    resize( uint size );
-
-    bool    fill( bool v, int size = -1 );
-
-    void    detach();
-    QBitArray copy() const;
-
-    bool    testBit( uint index ) const;
-    void    setBit( uint index );
-    void    setBit( uint index, bool value );
-    void    clearBit( uint index );
-    bool    toggleBit( uint index );
-
-    bool    at( uint index ) const;
-    QBitVal operator[]( int index );
-    bool operator[]( int index ) const;
-
-    QBitArray &operator&=( const QBitArray & );
-    QBitArray &operator|=( const QBitArray & );
-    QBitArray &operator^=( const QBitArray & );
+    QBitArray& operator&=(const QBitArray &);
+    QBitArray& operator|=(const QBitArray &);
+    QBitArray& operator^=(const QBitArray &);
     QBitArray  operator~() const;
 
-protected:
-    struct bitarr_data : public QGArray::array_data {
-	uint   nbits;
-    };
-    array_data *newData()		    { return new bitarr_data; }
-    void	deleteData( array_data *d ) { delete (bitarr_data*)d; }
-private:
-    void    pad0();
+    inline bool operator==(const QBitArray& a) const { return d == a.d; }
+    inline bool operator!=(const QBitArray& a) const { return d != a.d; }
+
+#ifndef QT_NO_COMPAT
+    inline bool fill(bool val, int size = -1){ *this=QBitArray(size<0?d.size():size,val); return true; }
+    inline bool isNull() { return d.isNull(); }
+#endif
+
+    inline bool ensure_constructed()
+    { return d.ensure_constructed(); }
 };
 
+inline int QBitArray::size() const { return d.size() * 8 - *d.data(); }
 
-inline QBitArray &QBitArray::operator=( const QBitArray &a )
-{ return (QBitArray&)assign( a ); }
+QBitArray operator&(const QBitArray &, const QBitArray &);
+QBitArray operator|(const QBitArray &, const QBitArray &);
+QBitArray operator^(const QBitArray &, const QBitArray &);
 
-inline uint QBitArray::size() const
-{ return ((bitarr_data*)sharedBlock())->nbits; }
+inline bool QBitArray::testBit(int i) const
+{ Q_ASSERT(i >= 0); if (i >= size()) return false;
+ return (*((uchar*)d.data()+1+(i>>3)) & (1 << (i & 7))) != 0; }
 
-inline void QBitArray::setBit( uint index, bool value )
-{ if ( value ) setBit(index); else clearBit(index); }
+inline void QBitArray::setBit(int i)
+{ Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
+ *((uchar*)d.detach()+1+(i>>3)) |= (1 << (i & 7)); }
 
-inline bool QBitArray::at( uint index ) const
-{ return testBit(index); }
+inline void QBitArray::clearBit(int i)
+{ Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
+ *((uchar*)d.detach()+1+(i>>3)) &= ~(1 << (i & 7)); }
 
-inline QBitVal QBitArray::operator[]( int index )
-{ return QBitVal( (QBitArray*)this, index ); }
+inline void QBitArray::setBit(int i, bool val)
+{ if (val) setBit(i); else clearBit(i); }
 
-inline bool QBitArray::operator[]( int index ) const
-{ return testBit( index ); }
+inline bool QBitArray::toggleBit(int i)
+{ Q_ASSERT(i >= 0); if (i >= size()) resize(i+1);
+ uchar b = 1<< (i&7); uchar* p = (uchar*)d.detach()+1+(i>>3);
+ uchar c = *p&b; *p^=b; return c!=0; }
 
+inline const bool QBitArray::operator[](int i) const { return testBit(i); }
+inline const bool QBitArray::at(int i) const { return testBit(i); }
 
-/*****************************************************************************
-  Misc. QBitArray operator functions
- *****************************************************************************/
-
-Q_EXPORT QBitArray operator&( const QBitArray &, const QBitArray & );
-Q_EXPORT QBitArray operator|( const QBitArray &, const QBitArray & );
-Q_EXPORT QBitArray operator^( const QBitArray &, const QBitArray & );
-
-
-inline QBitVal::operator int()
+class QBitRef
 {
-    return array->testBit( index );
-}
+private:
+    QBitArray& a;
+    int i;
+    inline QBitRef(QBitArray& array, int idx) : a(array), i(idx) {}
+    friend class QBitArray;
+public:
+    inline operator bool() const { return a.testBit(i); }
+    QBitRef& operator=(const QBitRef& val) { a.setBit(i, val); return *this; }
+    QBitRef& operator=(bool val) { a.setBit(i, val); return *this; }
+};
 
-inline QBitVal &QBitVal::operator=( const QBitVal &v )
-{
-    array->setBit( index, v.array->testBit(v.index) );
-    return *this;
-}
-
-inline QBitVal &QBitVal::operator=( bool v )
-{
-    array->setBit( index, v );
-    return *this;
-}
+inline QBitRef QBitArray::operator[](int i)
+{ Q_ASSERT(i >= 0); return QBitRef(*this, i); }
 
 
-/*****************************************************************************
-  QBitArray stream functions
- *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
 #endif
+
 
 #endif // QBITARRAY_H

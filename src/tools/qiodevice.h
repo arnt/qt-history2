@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #endif // QT_H
 
 

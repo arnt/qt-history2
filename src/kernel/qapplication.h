@@ -42,7 +42,6 @@
 #include "qdesktopwidget.h"
 #include "qasciidict.h"
 #include "qpalette.h"
-#include "qtranslator.h"
 #include "qstrlist.h"
 #include "qstringlist.h"
 #endif // QT_H

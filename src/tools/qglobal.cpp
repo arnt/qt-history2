@@ -356,13 +356,13 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 #ifdef Q_OS_MAC
 QString cfstring2qstring(CFStringRef str)
 {
-    CFIndex length = CFStringGetLength(str); 
-    if(const UniChar *chars = CFStringGetCharactersPtr(str)) 
+    CFIndex length = CFStringGetLength(str);
+    if(const UniChar *chars = CFStringGetCharactersPtr(str))
 	return QString((QChar *)chars, length);
-    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar)); 
-    CFStringGetCharacters(str, CFRangeMake(0, length), buffer); 
+    UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar));
+    CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
     QString ret((QChar *)buffer, length);
-    free(buffer); 
+    free(buffer);
     return ret;
 }
 
@@ -549,7 +549,7 @@ void qFatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(_DEBUG) 
+#elif defined(Q_OS_TEMP) && defined(_DEBUG)
 	QString fstr;
 	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
@@ -742,7 +742,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 	     );
 #endif
     }
-    QCString s( obj );
+    QByteArray s( obj );
     s += "::";
     s += oldfunc;
     if ( obsoleteDict->find(s.data()) == 0 ) {
@@ -886,3 +886,9 @@ unsigned int qt_int_sqrt( unsigned int n )
     return p;
 }
 
+
+void *qMalloc(size_t size) { return ::malloc(size); }
+void qFree(void *ptr) { ::free(ptr); }
+void *qRealloc(void *ptr, size_t size) { return ::realloc(ptr, size); }
+int qRand(void) { return ::rand(); }
+void *qMemCopy(void *dest, const void *src, size_t n) { return ::memcpy(dest, src, n); }

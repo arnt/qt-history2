@@ -112,6 +112,7 @@
  */
 
 #include "qeucjpcodec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -122,7 +123,7 @@ static const uchar Ss3 = 0x8f;	// Single Shift 3
 #define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
 #define	IsEucChar(c)	(((c) >= 0xa1) && ((c) <= 0xfe))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 /*!
   Constructs a QEucJpCodec.
@@ -167,11 +168,11 @@ int QEucJpCodec::mibEnum() const
 /*!
   \reimp
 */
-QCString QEucJpCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QEucJpCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*3+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -203,7 +204,7 @@ QCString QEucJpCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
     lenInOut = cursor - (uchar*)rstr.data();
-    rstr.truncate(lenInOut);
+    rstr.resize(lenInOut);
     return rstr;
 }
 

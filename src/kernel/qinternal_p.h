@@ -53,8 +53,8 @@
 #include "qnamespace.h"
 #include "qrect.h"
 #include "qptrlist.h"
-#include "qcstring.h"
 #include "qiodevice.h"
+#include "qbytearray.h"
 #endif // QT_H
 
 class QWidget;
@@ -199,7 +199,7 @@ inline void QMembuf::clear()
 { buf->clear(); _size=0; _index=0; }
 
 inline QByteArray QMembuf::readAll()
-{ QByteArray ba(_size); consumeBytes(_size,ba.data()); return ba; }
+{ QByteArray ba(_size); consumeBytes(_size,ba.detach()); return ba; }
 
 inline bool QMembuf::canReadLine() const
 { return ((QMembuf*)this)->scanNewline( 0 ); }

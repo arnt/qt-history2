@@ -1678,7 +1678,7 @@ void QFont::cacheStatistics()
 QDataStream &operator<<( QDataStream &s, const QFont &font )
 {
     if ( s.version() == 1 ) {
-	QCString fam( font.d->request.family.latin1() );
+	QByteArray fam( font.d->request.family.latin1() );
 	s << fam;
     } else {
 	s << font.d->request.family;
@@ -1726,7 +1726,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     Q_UINT8 styleHint, styleStrategy = QFont::PreferDefault, charSet, weight, bits;
 
     if ( s.version() == 1 ) {
-	QCString fam;
+	QByteArray fam;
 	s >> fam;
 	font.d->request.family = QString( fam );
     } else {

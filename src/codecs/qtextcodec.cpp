@@ -50,7 +50,6 @@
 #include "qutfcodec.h"
 #include "qnamespace.h"
 #ifndef QT_NO_CODECS
-#include "qrtlcodec.h"
 #include "qtsciicodec.h"
 #endif // QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -157,7 +156,7 @@ class QTextStatelessEncoder: public QTextEncoder {
     const QTextCodec* codec;
 public:
     QTextStatelessEncoder(const QTextCodec*);
-    QCString fromUnicode(const QString& uc, int& lenInOut);
+    QByteArray fromUnicode(const QString& uc, int& lenInOut);
 };
 
 
@@ -174,7 +173,7 @@ QTextStatelessEncoder::QTextStatelessEncoder(const QTextCodec* c) :
 }
 
 
-QCString QTextStatelessEncoder::fromUnicode(const QString& uc, int& lenInOut)
+QByteArray QTextStatelessEncoder::fromUnicode(const QString& uc, int& lenInOut)
 {
     return codec->fromUnicode(uc,lenInOut);
 }
@@ -262,7 +261,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
     to do this is:
 
     \code
-    QCString locallyEncoded = "..."; // text to convert
+    QByteArray locallyEncoded = "..."; // text to convert
     QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
     QString unicodeString = codec->toUnicode( locallyEncoded );
     \endcode
@@ -274,7 +273,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
     \code
     QString unicodeString = "..."; // any Unicode text
     QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
-    QCString locallyEncoded = codec->fromUnicode( unicodeString );
+    QByteArray locallyEncoded = codec->fromUnicode( unicodeString );
     \endcode
 
     Some care must be taken when trying to convert the data in chunks,
@@ -367,11 +366,11 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
     Return a QTextEncoder.
 
     \code
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const
+    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const
     \endcode
     Converts \e lenInOut characters (of type QChar) from the start of
-    the string \e uc, returning a QCString result, and also returning
-    the \link QCString::length() length\endlink of the result in
+    the string \e uc, returning a QByteArray result, and also returning
+    the \link QByteArray::length() length\endlink of the result in
     \e lenInOut.
 
     Again, these are mutually recursive so only one needs to be implemented,
@@ -564,7 +563,7 @@ public:
     ~QWindowsLocalCodec();
 
     QString toUnicode(const char* chars, int len) const;
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -591,13 +590,13 @@ QString QWindowsLocalCodec::toUnicode(const char* chars, int len) const
     }
     if ( len < 0 )
 	return qt_winMB2QString( chars );
-    QCString s(chars,len+1);
+    QByteArray s(chars,len+1);
     return qt_winMB2QString(s);
 }
 
-QCString QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QWindowsLocalCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString r = qt_winQString2MB( uc, lenInOut );
+    QByteArray r = qt_winQString2MB( uc, lenInOut );
     lenInOut = r.length();
     return r;
 }
@@ -619,7 +618,7 @@ int QWindowsLocalCodec::heuristicContentMatch(const char* chars, int len) const
     // ### Not a bad default implementation?
     QString t = toUnicode(chars,len);
     int l = t.length();
-    QCString mb = fromUnicode(t,l);
+    QByteArray mb = fromUnicode(t,l);
     int i=0;
     while ( i < len ) {
 	if ( chars[i] == mb[i] )
@@ -712,7 +711,7 @@ static const char * const probably_koi8_rlocales[] = {
 static QTextCodec * ru_RU_hack( const char * i ) {
     QTextCodec * ru_RU_codec = 0;
 
-    QCString origlocale = setlocale( LC_CTYPE, i );
+    QByteArray origlocale(setlocale( LC_CTYPE, i ));
     // unicode   koi8r   latin5   name
     // 0x044E    0xC0    0xEE     CYRILLIC SMALL LETTER YU
     // 0x042E    0xE0    0xCE     CYRILLIC CAPITAL LETTER YU
@@ -948,8 +947,8 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
     negative or too large, the length of \a uc is used instead.
 
     Converts \a lenInOut characters (not bytes) from \a uc, producing
-    a QCString. \a lenInOut will be set to the \link
-    QCString::length() length\endlink of the result (in bytes).
+    a QByteArray. \a lenInOut will be set to the \link
+    QByteArray::length() length\endlink of the result (in bytes).
 
     The default implementation makes an encoder with makeEncoder() and
     converts the input with that. Note that the default makeEncoder()
@@ -958,10 +957,10 @@ QString QTextCodec::toUnicode(const char* chars, int len) const
     avoid infinite recursion.
 */
 
-QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     QTextEncoder* i = makeEncoder();
-    QCString result = i->fromUnicode(uc, lenInOut);
+    QByteArray result = i->fromUnicode(uc, lenInOut);
     delete i;
     return result;
 }
@@ -976,7 +975,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
     if( len < 0 )
 	len = str.length() - pos;
     a = fromUnicode( str.mid(pos, len) );
-    if( a.size() > 0 && a[(int)a.size() - 1] == '\0' )
+    if( a.size() > 0 && ((char)a[(int)a.size() - 1]) == '\0' )
 	a.resize( a.size() - 1 );
     return a;
 }
@@ -986,7 +985,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
 
     \a uc is the unicode source string.
 */
-QCString QTextCodec::fromUnicode(const QString& uc) const
+QByteArray QTextCodec::fromUnicode(const QString& uc) const
 {
     int l = uc.length();
     return fromUnicode(uc,l);
@@ -1019,30 +1018,6 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 /*!
     \overload
 
-    \a a contains the source characters; \a len contains the number of
-    characters in \a a to use.
-*/
-QString QTextCodec::toUnicode(const QCString& a, int len) const
-{
-    int l = a.length();
-    l = QMIN( l, len );
-    return toUnicode( a.data(), l );
-}
-
-/*!
-    \overload
-
-    \a a contains the source characters.
-*/
-QString QTextCodec::toUnicode(const QCString& a) const
-{
-    int l = a.length();
-    return toUnicode( a.data(), l );
-}
-
-/*!
-    \overload
-
     \a chars contains the source characters.
 */
 QString QTextCodec::toUnicode(const char* chars) const
@@ -1055,7 +1030,7 @@ QString QTextCodec::toUnicode(const char* chars) const
 */
 unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) const
 {
-    QCString result = QTextCodec::fromUnicode(QString(str[pos]));
+    QByteArray result = QTextCodec::fromUnicode(QString(str[pos]));
     uchar *ch = (uchar *) result.data();
     ushort retval = 0;
     if (result.size() > 2) {
@@ -1074,7 +1049,7 @@ unsigned short QTextCodec::characterFromUnicode(const QString &str, int pos) con
 */
 bool QTextCodec::canEncode( QChar ch ) const
 {
-    return toUnicode(fromUnicode(ch)) == ch;
+    return toUnicode(fromUnicode(QString(ch))) == QString(ch);
 }
 
 /*!
@@ -1111,11 +1086,11 @@ QTextEncoder::~QTextEncoder()
 }
 
 /*!
-    \fn QCString QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
+    \fn QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 
     Converts \a lenInOut characters (not bytes) from \a uc, producing
-    a QCString. \a lenInOut will be set to the \link
-    QCString::length() length\endlink of the result (in bytes).
+    a QByteArray. \a lenInOut will be set to the \link
+    QByteArray::length() length\endlink of the result (in bytes).
 
     The encoder is free to record state to use when subsequent calls
     are made to this function (for example, it might change modes with
@@ -1154,6 +1129,7 @@ QTextDecoder::~QTextDecoder()
     enough state to continue with the next call to this function.
 */
 
+#if 0
 #define CHAINED 0xffff
 
 struct QMultiByteUnicodeTable {
@@ -1198,7 +1174,7 @@ public:
 class QTextCodecFromIOD : public QTextCodec {
     friend class QTextCodecFromIODDecoder;
 
-    QCString n;
+    QByteArray n;
 
     // If from_unicode_page[row()][cell()] is 0 and from_unicode_page_multiByte,
     //  use from_unicode_page_multiByte[row()][cell()] as string.
@@ -1434,12 +1410,12 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QCString fromUnicode(const QString& uc, int& lenInOut) const
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const
     {
 	if (lenInOut > (int)uc.length())
 	    lenInOut = uc.length();
 	int rlen = lenInOut*max_bytes_per_char;
-	QCString rstr(rlen);
+	QByteArray rstr(rlen);
 	char* cursor = rstr.data();
 	char* s=0;
 	int l = lenInOut;
@@ -1497,6 +1473,7 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
     }
     return result;
 }
+#endif
 
 #ifndef QT_NO_CODECS
 // Cannot use <pre> or \code
@@ -1528,12 +1505,15 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 */
 QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 {
+    return 0;
+#if 0
     QTextCodecFromIOD* r = new QTextCodecFromIOD(iod);
     if ( !r->ok() ) {
 	delete r;
 	r = 0;
     }
     return r;
+#endif
 }
 
 /*!
@@ -1542,6 +1522,7 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 */
 QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 {
+#if 0
     QFile f(filename);
     if (f.open(IO_ReadOnly)) {
 	QTextCodecFromIOD* r = new QTextCodecFromIOD(&f);
@@ -1550,6 +1531,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 	else
 	    return r;
     }
+#endif
     return 0;
 }
 
@@ -1561,7 +1543,7 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 
 const char* QTextCodec::locale()
 {
-    static QCString lang;
+    static QByteArray lang;
     lang = getenv( "LANG" );
 
 #if !defined( QWS ) && defined( Q_OS_MAC )
@@ -1619,7 +1601,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
@@ -2302,7 +2284,7 @@ QString QSimpleTextCodec::toUnicode(const char* chars, int len) const
 }
 
 
-QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
+QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 {
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
@@ -2313,7 +2295,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QCString r( len+1 );
+    QByteArray r( len+1 );
     int i = len;
     int u;
     const QChar* ucp = uc.unicode();
@@ -2402,7 +2384,7 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
     if ( qstricmp( hint, mimeName() ) == 0 )
 	return 10000; // return a large value
     if ( hint[0]=='k' ) {
-	QCString lhint = QCString(hint).lower();
+	QString lhint = QString(hint).lower();
 	// Help people with messy fonts
 	if ( lhint == "koi8-1" )
 	    return QTextCodec::heuristicNameMatch("koi8-r")-1;
@@ -2455,7 +2437,7 @@ public:
     using QTextCodec::toUnicode;
 #endif
     QString toUnicode(const char* chars, int len) const;
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
     void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -2479,12 +2461,12 @@ QString QLatin1Codec::toUnicode(const char* chars, int len) const
 }
 
 
-QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
+QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QCString r( len+1 );
-    char *d = r.data();
+    QByteArray r( len+1 );
+    char *d = r.detach();
     int i = 0;
     const QChar *ch = uc.unicode();
     while ( i < len ) {
@@ -2558,7 +2540,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
     void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -2683,12 +2665,12 @@ void QLatin15Codec::fromUnicode( const QChar *in, unsigned short *out, int lengt
 }
 
 
-QCString QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
+QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QCString r( len+1 );
-    char *d = r.data();
+    QByteArray r( len+1 );
+    char *d = r.detach();
     int i = 0;
     const QChar *ch = uc.unicode();
     while ( i < len ) {
@@ -2868,9 +2850,6 @@ static void realSetup()
 
     (void)new QTsciiCodec;
 #endif // QT_NO_CODECS
-#ifndef QT_NO_CODEC_HEBREW
-    (void)new QHebrewCodec;
-#endif
 #ifndef QT_NO_BIG_CODECS
     (void)new QBig5Codec;
     (void)new QBig5hkscsCodec;
@@ -2991,7 +2970,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     \fn QTextCodec* QTextCodec::codecForCStrings()
 
     Returns the codec used by QString to convert to and from const
-    char* and QCStrings. If this function returns 0 (the default),
+    char* and QByteArrays. If this function returns 0 (the default),
     QString assumes Latin-1.
 
     \sa setCodecForCStrings()
@@ -3002,7 +2981,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     \nonreentrant
 
     Sets the codec used by QString to convert to and from const char*
-    and QCStrings. If \a c is 0 (the default), QString assumes Latin-1.
+    and QByteArrays. If \a c is 0 (the default), QString assumes Latin-1.
 
     \sa codecForCStrings(), setCodecForTr(), setCodecForCStrings()
 */

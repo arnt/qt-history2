@@ -2,7 +2,7 @@
 ** $Id$
 **
 ** Definition of the extended char array operations,
-** and QByteArray and QCString classes
+** and QCString class
 **
 ** Created : 920609
 **
@@ -40,98 +40,8 @@
 #define QCSTRING_H
 
 #ifndef QT_H
-#include "qmemarray.h"
+#include "qbytearray.h"
 #endif // QT_H
-
-#include <string.h>
-
-
-/*****************************************************************************
-  Safe and portable C string functions; extensions to standard string.h
- *****************************************************************************/
-
-Q_EXPORT void *qmemmove( void *dst, const void *src, uint len );
-
-Q_EXPORT char *qstrdup( const char * );
-
-Q_EXPORT inline uint qstrlen( const char *str )
-{ return str ? (uint)strlen(str) : 0; }
-
-Q_EXPORT inline char *qstrcpy( char *dst, const char *src )
-{ return src ? strcpy(dst, src) : 0; }
-
-Q_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
-
-Q_EXPORT inline int qstrcmp( const char *str1, const char *str2 )
-{
-    return ( str1 && str2 ) ? strcmp( str1, str2 )
-			    : ( str1 ? 1 : ( str2 ? -1 : 0 ) );
-}
-
-Q_EXPORT inline int qstrncmp( const char *str1, const char *str2, uint len )
-{
-    return ( str1 && str2 ) ? strncmp( str1, str2, len )
-			    : ( str1 ? 1 : ( str2 ? -1 : 0 ) );
-}
-
-Q_EXPORT int qstricmp( const char *, const char * );
-
-Q_EXPORT int qstrnicmp( const char *, const char *, uint len );
-
-#ifndef QT_CLEAN_NAMESPACE
-Q_EXPORT inline uint cstrlen( const char *str )
-{ return (uint)strlen(str); }
-
-Q_EXPORT inline char *cstrcpy( char *dst, const char *src )
-{ return strcpy(dst,src); }
-
-Q_EXPORT inline int cstrcmp( const char *str1, const char *str2 )
-{ return strcmp(str1,str2); }
-
-Q_EXPORT inline int cstrncmp( const char *str1, const char *str2, uint len )
-{ return strncmp(str1,str2,len); }
-#endif
-
-
-// qChecksum: Internet checksum
-
-Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
-
-/*****************************************************************************
-  QByteArray class
- *****************************************************************************/
-
-#if defined(Q_QDOC)
-/*
-  We want qdoc to document QByteArray as a real class that inherits
-  QMemArray<char> and that is inherited by QBitArray.
-*/
-class QByteArray : public QMemArray<char>
-{
-public:
-    QByteArray();
-    QByteArray( int size );
-};
-#else
-typedef QMemArray<char> QByteArray;
-#endif
-
-#ifndef QT_NO_COMPRESS
-Q_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
-Q_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
-Q_EXPORT inline QByteArray qCompress( const QByteArray& data)
-{ return qCompress( (const uchar*)data.data(), data.size() ); }
-Q_EXPORT inline QByteArray qUncompress( const QByteArray& data )
-{ return qUncompress( (const uchar*)data.data(), data.size() ); }
-#endif
-
-/*****************************************************************************
-  QByteArray stream functions
- *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
-#endif
 
 /*****************************************************************************
   QCString class
@@ -139,48 +49,33 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
 
 class QRegExp;
 
-class Q_EXPORT QCString : public QByteArray	// C string class
+class Q_EXPORT QCString : public QByteArray
 {
 public:
-    QCString() {}				// make null string
-    QCString( int size );			// allocate size incl. \0
-    QCString( const QCString &s ) : QByteArray( s ) {}
-    QCString( const char *str );		// deep copy
-    QCString( const char *str, uint maxlen );	// deep copy, max length
-    ~QCString();
+    QCString() {}
+    QCString(int size) : QByteArray(size, '\0') {}
+    QCString(const QCString &s) : QByteArray( s ) {}
+    QCString(const QByteArray &ba) : QByteArray(ba) {}
+    QCString(const char *str ) : QByteArray(str) {}
+    QCString(const char *str, uint maxlen) : QByteArray(str, maxlen) {}
 
-    QCString    &operator=( const QCString &s );// shallow copy
-    QCString    &operator=( const char *str );	// deep copy
+    QCString    &operator=( const QCString &s ) {
+	QByteArray::operator=(s); return *this;
+    }
+    QCString    &operator=( const char *str ) {
+	QByteArray::operator=(str); return *this;
+    }
+    QCString    &operator=(const QByteArray &ba) {
+	QByteArray::operator=(ba); return *this;
+    }
 
-    bool	isNull()	const;
-    bool	isEmpty()	const;
-    uint	length()	const;
-    bool	resize( uint newlen );
-    bool	truncate( uint pos );
-    bool	fill( char c, int len = -1 );
 
-    QCString	copy()	const;
-
+    QCString	copy()	const { return *this; }
     QCString    &sprintf( const char *format, ... );
 
-    int		find( char c, int index=0, bool cs=TRUE ) const;
-    int		find( const char *str, int index=0, bool cs=TRUE ) const;
-#ifndef QT_NO_REGEXP
-    int		find( const QRegExp &, int index=0 ) const;
-#endif
-    int		findRev( char c, int index=-1, bool cs=TRUE) const;
-    int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
-#ifndef QT_NO_REGEXP_CAPTURE
-    int		findRev( const QRegExp &, int index=-1 ) const;
-#endif
-    int		contains( char c, bool cs=TRUE ) const;
-    int		contains( const char *str, bool cs=TRUE ) const;
-#ifndef QT_NO_REGEXP
-    int		contains( const QRegExp & ) const;
-#endif
-    QCString	left( uint len )  const;
-    QCString	right( uint len ) const;
-    QCString	mid( uint index, uint len=0xffffffff) const;
+    QCString	left( uint len )  const { return QByteArray::left(len); }
+    QCString	right( uint len ) const { return QByteArray::right(len); }
+    QCString	mid( uint index, uint len=0xffffffff) const { return QByteArray::mid(index, len); }
 
     QCString	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
     QCString	rightJustify( uint width, char fill=' ',bool trunc=FALSE)const;
@@ -191,18 +86,15 @@ public:
     QCString	stripWhiteSpace()	const;
     QCString	simplifyWhiteSpace()	const;
 
-    QCString    &insert( uint index, const char * );
-    QCString    &insert( uint index, char );
-    QCString    &append( const char * );
-    QCString    &prepend( const char * );
-    QCString    &remove( uint index, uint len );
-    QCString    &replace( uint index, uint len, const char * );
-#ifndef QT_NO_REGEXP
-    QCString    &replace( const QRegExp &, const char * );
-#endif
-    QCString    &replace( char c, const char *after );
-    QCString    &replace( const char *, const char * );
-    QCString    &replace( char, char );
+    QCString    &insert( uint index, const char *c ) { QByteArray::insert(index, c); return *this; }
+    QCString    &insert( uint index, char c) { QByteArray::insert(index, c); return *this; }
+    QCString    &append( const char *c ) { QByteArray::append(c); return *this; }
+    QCString    &prepend( const char *c ) { QByteArray::prepend(c); return *this; }
+    QCString    &remove( uint index, uint len ) { QByteArray::remove(index, len); return *this; }
+    QCString    &replace( uint index, uint len, const char *c ) { QByteArray::replace(index, len, c); return *this; }
+    QCString    &replace( char c, const char *after ) { QByteArray::replace(c, after); return *this; }
+    QCString    &replace( const char *b, const char *a ) { QByteArray::replace(b, a); return *this; }
+    QCString    &replace( char b, char a ) { QByteArray::replace(b, a); return *this; }
 
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
@@ -213,7 +105,7 @@ public:
     float	toFloat( bool *ok=0 )	const;
     double	toDouble( bool *ok=0 )	const;
 
-    QCString    &setStr( const char *s );
+    QCString    &setStr( const char *s ) { *this = s; return *this; }
     QCString    &setNum( short );
     QCString    &setNum( ushort );
     QCString    &setNum( int );
@@ -226,10 +118,6 @@ public:
     bool	setExpand( uint index, char c );
 
 		operator const char *() const;
-    QCString    &operator+=( const char *str );
-    QCString    &operator+=( char c );
-private:
-    int	find( const char *str, int index, bool cs, uint l ) const;
 };
 
 
@@ -237,40 +125,17 @@ private:
   QCString stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator<<( QDataStream &, const QCString & );
-Q_EXPORT QDataStream &operator>>( QDataStream &, QCString & );
+inline Q_EXPORT QDataStream &operator<<( QDataStream &d, const QCString &s ) {
+    return operator<<(d, static_cast<const QByteArray &>(s));
+}
+inline Q_EXPORT QDataStream &operator>>( QDataStream &d, QCString &s ) {
+    return operator>>(d, static_cast<QByteArray &>(s));
+}
 #endif
 
 /*****************************************************************************
   QCString inline functions
  *****************************************************************************/
-
-inline QCString &QCString::operator=( const QCString &s )
-{ return (QCString&)assign( s ); }
-
-inline QCString &QCString::operator=( const char *str )
-{ return (QCString&)duplicate( str, qstrlen(str)+1 ); }
-
-inline bool QCString::isNull() const
-{ return data() == 0; }
-
-inline bool QCString::isEmpty() const
-{ return data() == 0 || *data() == '\0'; }
-
-inline uint QCString::length() const
-{ return qstrlen( data() ); }
-
-inline bool QCString::truncate( uint pos )
-{ return resize(pos+1); }
-
-inline QCString QCString::copy() const
-{ return QCString( data() ); }
-
-inline QCString &QCString::prepend( const char *s )
-{ return insert(0,s); }
-
-inline QCString &QCString::append( const char *s )
-{ return operator+=(s); }
 
 inline QCString &QCString::setNum( short n )
 { return setNum((long)n); }
@@ -386,4 +251,5 @@ Q_EXPORT inline const QCString operator+( char c1, const QCString &s2 )
     return tmp;
 }
 #include "qwinexport.h"
+#include "qbytearray.h"
 #endif // QCSTRING_H

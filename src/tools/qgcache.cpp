@@ -39,6 +39,7 @@
 #include "qptrlist.h"
 #include "qdict.h"
 #include "qstring.h"
+#include "qcstring.h"
 
 /*!
   \class QGCache qgcache.h

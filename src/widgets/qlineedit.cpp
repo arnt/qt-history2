@@ -65,6 +65,8 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
+#include <limits.h>
+
 #define innerMargin 1
 
 struct QLineEditPrivate : public Qt
@@ -2011,7 +2013,7 @@ void QLineEdit::dropEvent( QDropEvent* e )
 {
     QString str;
     // try text/plain
-    QCString plain = "plain";
+    QString plain("plain");
     bool decoded = QTextDrag::decode(e, str, plain);
     // otherwise we'll accept any kind of text (like text/uri-list)
     if (! decoded)

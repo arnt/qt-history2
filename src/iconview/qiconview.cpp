@@ -520,9 +520,9 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 */
 
 QIconDragItem::QIconDragItem()
-    : ba( (int)strlen( "no data" ) )
+    : ba( 7 /*(int)strlen( "no data" )*/ )
 {
-    memcpy( ba.data(), "no data", strlen( "no data" ) );
+    memcpy( ba.detach(), "no data", 7 /*strlen( "no data" )*/ );
 }
 
 /*!
@@ -694,7 +694,7 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
     }
 
     QByteArray a( s.length() + 1 );
-    memcpy( a.data(), s.latin1(), a.size() );
+    memcpy( a.detach(), s.latin1(), a.size() );
     return a;
 }
 
@@ -747,7 +747,7 @@ bool QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &ls
 		tr.setHeight( ( *it ).toInt() );
 	    } else if ( i == 8 ) {
 		QByteArray d( ( *it ).length() );
-		memcpy( d.data(), ( *it ).latin1(), ( *it ).length() );
+		memcpy( d.detach(), ( *it ).latin1(), ( *it ).length() );
 		item.item.setPixmapRect( ir );
 		item.item.setTextRect( tr );
 		item.data.setData( d );

@@ -64,6 +64,7 @@ void yyerror( const char *msg );
 #include "qptrlist.h"
 #include "qregexp.h"
 #include "qstrlist.h"
+#include "qcstring.h"
 #ifdef MOC_MWERKS_PLUGIN
 # ifdef Q_OS_MACX
 #  undef OLD_DEBUG
@@ -307,7 +308,7 @@ bool isVariantType( const char* type )
 */
 void fixRightAngles( QCString *str )
 {
-    str->replace( QRegExp(">>"), "> >" );
+    str->replace( ">>", "> >" );
 }
 
 static QCString rmWS( const char * );
@@ -1652,7 +1653,7 @@ int main( int argc, char **argv )
     for ( int n=1; n<argc && error==0; n++ ) {
 	QCString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
-	    QCString opt = &arg[1];
+	    QCString opt = arg.data()+1;
 	    if ( opt[0] == 'o' ) {		// output redirection
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
@@ -1661,7 +1662,7 @@ int main( int argc, char **argv )
 		    }
 		    g->outputFile = argv[++n];
 		} else
-		    g->outputFile = &opt[1];
+		    g->outputFile = opt.data()+1;
 	    } else if ( opt == "i" ) {		// no #include statement
 		g->noInclude   = TRUE;
 		autoInclude = FALSE;
@@ -1669,7 +1670,7 @@ int main( int argc, char **argv )
 		g->noInclude   = FALSE;
 		autoInclude = FALSE;
 		if ( opt[1] )			// -fsomething.h
-		    g->includeFiles.append( &opt[1] );
+		    g->includeFiles.append( opt.data()+1 );
 	    } else if ( opt[0] == 'p' ) {	// include file path
 		if ( opt[1] == '\0' ) {
 		    if ( !(n < argc-1) ) {
@@ -1678,7 +1679,7 @@ int main( int argc, char **argv )
 		    }
 		    g->includePath = argv[++n];
 		} else {
-		    g->includePath = &opt[1];
+		    g->includePath = opt.data()+1;
 		}
 	    } else if ( opt[0] == 'q' ) {	// qt include file path
 		if ( opt[1] == '\0' ) {
@@ -1688,9 +1689,9 @@ int main( int argc, char **argv )
 		    }
 		    g->qtPath = argv[++n];
 		} else {
-		    g->qtPath = &opt[1];
+		    g->qtPath = opt.data()+1;
 		}
-		replace(g->qtPath.data(),'\\','/');
+		replace(g->qtPath.detach(),'\\','/');
 		if ( g->qtPath.right(1) != "/" )
 		    g->qtPath += '/';
 	    } else if ( opt == "v" ) {		// version number
@@ -2123,7 +2124,7 @@ inline bool isSpace( char x )
 static QCString rmWS( const char *src )
 {
     QCString result( qstrlen(src)+1 );
-    char *d = result.data();
+    char *d = result.detach();
     char *s = (char *)src;
     char last = 0;
     while( *s && isSpace(*s) )			// skip leading space
@@ -2839,7 +2840,7 @@ void generateClass()		      // generate C++ source code for a class
 	while ( i>0 && g->fileName[i-1] != '/' && g->fileName[i-1] != '\\' )
 	    i--;				// skip path
 	if ( i >= 0 )
-	    fn = &g->fileName[i];
+	    fn = g->fileName.data()+1;
 	fprintf( out, hdr1, (const char*)qualifiedClassName(),(const char*)fn);
 	fprintf( out, hdr2, (const char*)dstr );
 	fprintf( out, hdr3 );

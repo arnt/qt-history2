@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qucom_p.h"
-
+#include <qcstring.h>
 // Standard types
 
 // {DE56510E-4E9F-4b76-A3C2-D1E2EF42F1AC}
@@ -511,7 +511,7 @@ bool QUType_QString::convertTo( QUObject *o, QUType *t )
 {
     QString *str = (QString *)o->payload.ptr;
     if ( isEqual( t, &static_QUType_charstar ) ) {
-	o->payload.charstar.ptr = qstrdup( str->local8Bit().data() );
+	o->payload.charstar.ptr = qstrdup( str->local8Bit() );
 	o->payload.charstar.owner = TRUE;
 	o->type = &static_QUType_charstar;
     } else if ( isEqual( t,  &static_QUType_int ) ) {

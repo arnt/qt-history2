@@ -406,11 +406,9 @@ Q_LONG QFile::readLine( char *p, Q_ULONG maxlen )
 Q_LONG QFile::readLine( QString& s, Q_ULONG maxlen )
 {
     QByteArray ba(maxlen);
-    Q_LONG l = readLine(ba.data(),maxlen);
-    if ( l >= 0 ) {
-	ba.truncate(l);
-	s = QString(ba);
-    }
+    Q_LONG l = readLine(ba.detach(),maxlen);
+    if ( l >= 0 )
+	s = QString::fromLatin1(ba.data(), l);
     return l;
 }
 
@@ -552,9 +550,9 @@ int QFile::ungetch( int ch )
 }
 
 
-static QCString locale_encoder( const QString &fileName )
+static QByteArray locale_encoder( const QString &fileName )
 {
-    return fileName.local8Bit();
+    return fileName.toLocal8Bit();
 }
 
 
@@ -582,7 +580,7 @@ static QFile::EncoderFn encoder = locale_encoder;
     \sa decodeName()
 */
 
-QCString QFile::encodeName( const QString &fileName )
+QByteArray QFile::encodeName( const QString &fileName )
 {
     return (*encoder)(fileName);
 }
@@ -607,7 +605,7 @@ void QFile::setEncodingFunction( EncoderFn f )
 }
 
 static
-QString locale_decoder( const QCString &localFileName )
+QString locale_decoder( const QByteArray &localFileName )
 {
     return QString::fromLocal8Bit(localFileName);
 }
@@ -619,9 +617,14 @@ static QFile::DecoderFn decoder = locale_decoder;
 
     \sa setDecodingFunction()
 */
-QString QFile::decodeName( const QCString &localFileName )
+QString QFile::decodeName( const QByteArray &localFileName )
 {
     return (*decoder)(localFileName);
+}
+
+QString QFile::decodeName( const char *localFileName )
+{
+    return decodeName(QByteArray(localFileName));
 }
 
 /*!

@@ -319,7 +319,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
     variable back to \c{const char **} when you create the QPixmap.
 */
 
-QPixmap::QPixmap( const char *xpm[] )
+QPixmap::QPixmap( const char * const xpm[] )
     : QPaintDevice( QInternal::Pixmap )
 {
     init( 0, 0, 0, FALSE, defOptim );

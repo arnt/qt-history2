@@ -1004,7 +1004,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	qSysInfo( &systemWordSize, &systemBigEndian );
 
     for ( ;; ) {
-	Q_UINT32 h = elfHash( QCString(sourceText) + comment );
+	Q_UINT32 h = elfHash( QByteArray(sourceText) + comment );
 
 	char *r = (char *) bsearch( &h, d->offsetArray->data(), numItems,
 				    2 * sizeof(Q_UINT32),

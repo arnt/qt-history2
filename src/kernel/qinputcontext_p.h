@@ -58,7 +58,7 @@ class QString;
 
 
 #ifdef Q_WS_X11
-#include "qarray.h"
+#include "qbytearray.h"
 #include "qwindowdefs.h"
 #include "qt_x11_p.h"
 #endif
@@ -83,7 +83,7 @@ public:
     void setComposeArea(int, int, int, int);
     void reset();
 
-    int lookupString(XKeyEvent *, QCString &, KeySym *, Status *) const;
+    int lookupString(XKeyEvent *, QByteArray &, KeySym *, Status *) const;
     void setXFontSet(const QFont &);
 
     void *ic;

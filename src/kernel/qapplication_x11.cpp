@@ -87,6 +87,7 @@
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
+#include <private/qunicodetables_p.h>
 
 // Input method stuff - UNFINISHED
 #include "qinputcontext_p.h"
@@ -1100,7 +1101,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !qt_std_pal )
 	qt_create_std_palette();
 
-    QCString resFont, resFG, resBG, resEF, sysFont;
+    QString resFont, resFG, resBG, resEF, sysFont;
 
     QApplication::setEffectEnabled( Qt::UI_General, FALSE);
     QApplication::setEffectEnabled( Qt::UI_AnimateMenu, FALSE);
@@ -1113,7 +1114,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( QApplication::desktopSettingsAware() && !QApplication::x11_apply_settings()  ) {
 	int format;
 	ulong  nitems, after = 1;
-	QCString res;
+	QString res;
 	long offset = 0;
 	Atom type = None;
 
@@ -1130,9 +1131,9 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		XFree( (char *)data );
 	}
 
-	QCString key, value;
+	QString key, value;
 	int l = 0, r;
-	QCString apn = appName;
+	QString apn = appName;
 	int apnl = apn.length();
 	int resl = res.length();
 
@@ -1140,7 +1141,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    r = res.find( '\n', l );
 	    if ( r < 0 )
 		r = resl;
-	    while ( isspace((uchar) res[l]) )
+	    while ( ::isSpace(res[l]) )
 		l++;
 	    bool mine = FALSE;
 	    if ( res[l] == '*' &&
@@ -1150,7 +1151,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		{
 		    // OPTIMIZED, since we only want "*[fbgs].."
 
-		    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
+		    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
 		    int i = item.find( ":" );
 		    key = item.left( i ).stripWhiteSpace().mid(1).lower();
 		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
@@ -1159,7 +1160,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		    if ( res.mid(l,apnl) == apn &&
 			 (res[l+apnl] == '.' || res[l+apnl] == '*' ) )
 			{
-			    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
+			    QString item = res.mid( l, r - l ).simplifyWhiteSpace();
 			    int i = item.find( ":" );
 			    key = item.left( i ).stripWhiteSpace().mid(apnl+1).lower();
 			    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
@@ -1428,12 +1429,12 @@ void qt_x11_create_wm_client_leader()
 		     (unsigned char *)&qt_x11_wm_client_leader, 1 );
 
     // If we are session managed, inform the window manager about it
-    QCString session = qApp->sessionId().latin1();
+    QByteArray session = qApp->sessionId().toLatin1();
     if ( !session.isEmpty() ) {
 	XChangeProperty( QPaintDevice::x11AppDisplay(),
 			 qt_x11_wm_client_leader, qt_sm_client_id,
 			 XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)session.data(), session.length() );
+			 (unsigned char *)session.detach(), session.size() );
     }
 }
 
@@ -1541,7 +1542,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		argv[j++] = argv[i];
 		continue;
 	    }
-	    QCString arg = argv[i];
+	    QByteArray arg(argv[i]);
 	    if ( arg == "-display" ) {
 		if ( ++i < argc )
 		    appDpyName = argv[i];
@@ -1580,7 +1581,7 @@ void qt_init_internal( int *argcptr, char **argv,
 		    qt_ncols_option = QMAX(0,atoi(argv[i]));
 	    } else if ( arg == "-visual" ) {  // xv and netscape use this name
 		if ( ++i < argc ) {
-		    QCString s = QCString(argv[i]).lower();
+		    QString s = QString(argv[i]).lower();
 		    if ( s == "truecolor" ) {
 			qt_visual_option = TrueColor;
 		    } else {
@@ -1590,7 +1591,7 @@ void qt_init_internal( int *argcptr, char **argv,
 #ifndef QT_NO_XIM
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
-		    QCString s = QCString(argv[i]).lower();
+		    QString s = QString(argv[i]).lower();
 		    if ( s == "onthespot" )
 			xim_preferred_style = XIMPreeditCallbacks |
 					      XIMStatusNothing;
@@ -1624,7 +1625,7 @@ void qt_init_internal( int *argcptr, char **argv,
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 	if ( !appNoGrab && !appDoGrab ) {
-	    QCString s;
+	    QString s;
 	    s.sprintf( "/proc/%d/cmdline", getppid() );
 	    QFile f( s );
 	    if ( f.open( IO_ReadOnly ) ) {
@@ -3523,7 +3524,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		if ((qt_xim_style & XIMPreeditCallbacks) && event->xkey.keycode == 0 &&
 		     qic && qic->composing && qic->focusWidget) {
 		    // input method has sent us a commit string
-		    QCString data(513);
+		    QByteArray data(513);
 		    KeySym sym;    // unused
 		    Status status; // unused
 		    QString text;
@@ -4888,7 +4889,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     // some XmbLookupString implementations don't return buffer overflow correctly,
     // so we increase the input buffer to allow for long strings...
     // 256 chars * 2 bytes + 1 null-term == 513 bytes
-    QCString chars(513);
+    QByteArray chars(513);
     QChar converted;
     KeySym key = 0;
 
@@ -4941,7 +4942,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
 	if ( !mb ) {
 	    count = XLookupString( &xkeyevent,
-				   chars.data(), chars.size(), &key, 0 );
+				   chars.detach(), chars.size(), &key, 0 );
 	}
 	if ( count && !keycode ) {
 	    keycode = composingKeycode;
@@ -6289,7 +6290,7 @@ void QSessionManager::setManagerProperty( const QString& name, const QString& va
 {
     SmPropValue prop;
     prop.length = value.length();
-    prop.value = (SmPointer) value.utf8().data();
+    prop.value = (SmPointer) value.utf8();
     sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
 }
 
@@ -6299,7 +6300,7 @@ void QSessionManager::setManagerProperty( const QString& name, const QStringList
     int count = 0;
     for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
       prop[ count ].length = (*it).length();
-      prop[ count ].value = (char*)(*it).utf8().data();
+      prop[ count ].value = (char*)(*it).utf8();
       ++count;
     }
     sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );

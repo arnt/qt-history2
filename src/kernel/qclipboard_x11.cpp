@@ -425,13 +425,15 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	break;
     }
 
-    bool ok = buffer->resize( proplen + (nullterm ? 1 : 0) );
+    int newSize = proplen + (nullterm ? 1 : 0);
+    buffer->resize(newSize);
 
+    bool ok = (buffer->size() == newSize);
 #if defined(QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: buffer resized to %d", buffer->size());
 #endif
 
-    if ( ok ) {
+    if (ok) {
 	// could allocate buffer
 
 	while ( bytes_left ) {
@@ -449,14 +451,14 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    // Here we check if we get a buffer overflow and tries to
 	    // recover -- this shouldn't normally happen, but it doesn't
 	    // hurt to be defensive
-	    if (buffer_offset + length > buffer->size()) {
+	    if ((int)(buffer_offset + length) > buffer->size()) {
 		length = buffer->size() - buffer_offset;
 
 		// escape loop
 		bytes_left = 0;
 	    }
 
-	    memcpy(buffer->data() + buffer_offset, data, length);
+	    memcpy(buffer->detach() + buffer_offset, data, length);
 	    buffer_offset += length;
 
 	    XFree( (char*)data );
@@ -478,14 +480,14 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 		 count && list_ret ) {
 		offset = strlen( list_ret[0] );
 		buffer->resize( offset + ( nullterm ? 1 : 0 ) );
-		memcpy( buffer->data(), list_ret[0], offset );
+		memcpy( buffer->detach(), list_ret[0], offset );
 	    }
  	    if (list_ret) XFreeStringList(list_ret);
  	}
 
 	// zero-terminate (for text)
        	if (nullterm)
-	    buffer->at(buffer_offset) = '\0';
+	    buffer[buffer_offset] = '\0';
     }
 
     // correct size, not 0-term.
@@ -523,7 +525,8 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	// Reserve buffer + zero-terminator (for text data)
 	// We want to complete the INCR transfer even if we cannot
 	// allocate more memory
-	alloc_error = !buf.resize(nbytes+1);
+	buf.resize(nbytes+1);
+	alloc_error = buf.size() != nbytes+1;
     }
 
     for (;;) {
@@ -539,17 +542,18 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 	    if ( length == 0 ) {		// no more data, we're done
 		if ( nullterm ) {
 		    buf.resize( offset+1 );
-		    buf.at( offset ) = '\0';
+		    buf[offset] = '\0';
 		}
 		break;
 	    } else if ( !alloc_error ) {
 		if ( offset+length > (int)buf.size() ) {
-		    if ( !buf.resize(offset+length+65535) ) {
+		    buf.resize(offset+length+65535);
+		    if ( buf.size() != offset+length+65535 ) {
 			alloc_error = TRUE;
 			length = buf.size() - offset;
 		    }
 		}
-		memcpy( buf.data()+offset, tmp_buf.data(), length );
+		memcpy( buf.detach()+offset, tmp_buf.data(), length );
 		tmp_buf.resize( 0 );
 		offset += length;
 	    }
@@ -957,9 +961,11 @@ bool QClipboard::event( QEvent *e )
 			// encoding of choice, so we choose the encoding of the locale
 			fmt = "text/plain";
 			data = d->source()->encodedData( fmt );
-			if( data.resize(data.size() + 1) )
+			int newSize = data.size() + 1;
+			data.resize(newSize);
+			if (data.size() == newSize)
 			    data[data.size() - 1] = '\0';
-			char *list[] = { data.data(), NULL };
+			char *list[] = { data.detach(), NULL };
 
 			XICCEncodingStyle style;
 			if ( target == xa_compound_text )
@@ -981,8 +987,7 @@ bool QClipboard::event( QEvent *e )
 			    case 16: sz = sizeof(short); break;
 			    case 32: sz = sizeof( long); break;
 			    }
-			    data.duplicate((const char *)textprop.value,
-					   textprop.nitems * sz);
+			    data = QByteArray((const char *)textprop.value, textprop.nitems * sz);
 
 			    XFree( textprop.value );
 			}
@@ -1057,7 +1062,7 @@ bool QClipboard::event( QEvent *e )
 				    xtarget, qt_xdnd_atom_to_str(xtarget), xformat);
 #endif
 
-			    const unsigned int increment =
+			    const int increment =
 				(XMaxRequestSize(dpy) >= 65536 ?
 				 65536 : XMaxRequestSize(dpy));
 			    if ( data.size() > increment ) {
@@ -1229,7 +1234,7 @@ const char* QClipboardWatcher::format( int n ) const
 QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     if ( !fmt || empty() )
-	return QByteArray( 0 );
+	return QByteArray();
 
 #ifdef QCLIPBOARD_DEBUG
     qDebug( "QClipboardWatcher::encodedData: fetching format '%s'", fmt );
@@ -1255,7 +1260,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	    int x,y;
 	    uint w,h,bw,d;
 	    if ( ! xpm )
-		return QByteArray( 0 );
+		return QByteArray();
 	    XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
 	    QImageIO iio;
 	    GC gc = XCreateGC( dpy, xpm, 0, 0 );

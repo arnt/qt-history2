@@ -60,10 +60,10 @@ public:
     QSqlQuery* query()
     {
 	if ( !q )
-	    q = new QSqlQuery( 0, db );
+	    q = new QSqlQuery( QString(), db );
 	return q;
     }
-    
+
     int               lastAt;
     QString           nm;         //name
     QSqlIndex         srt;        //sort
@@ -980,7 +980,7 @@ int QSqlCursor::insert( bool invalidate )
     int k = d->editBuffer.count();
     if ( k == 0 )
 	return 0;
-    
+
     QString fList;
     QString vList;
     bool comma = FALSE;
@@ -1302,7 +1302,7 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
 {
     int ar = 0;
     QSqlQuery* sql = 0;
-    
+
     if ( invalidate ) {
 	sql = (QSqlQuery*)this;
 	d->lastAt = QSql::BeforeFirst;
@@ -1311,12 +1311,12 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
     }
     if ( !sql )
 	return 0;
-    
+
     if ( invalidate || sql->lastQuery() != q ) {
 	if ( !sql->prepare( q ) )
 	    return 0;
     }
-    
+
     int cnt = 0;
     int fieldCount = (int)count();
     for ( int j = 0; j < fieldCount; ++j ) {

@@ -725,7 +725,7 @@ bool QProcess::start( QStringList *env )
     }
 
     // construct the arguments for exec
-    QCString *arglistQ = new QCString[ _arguments.count() + 1 ];
+    QByteArray *arglistQ = new QByteArray[ _arguments.count() + 1 ];
     const char** arglist = new const char*[ _arguments.count() + 1 ];
     int i = 0;
     for ( QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it ) {
@@ -806,7 +806,7 @@ bool QProcess::start( QStringList *env )
 		getenv( ld_library_path ) != 0;
 	    if ( setLibraryPath )
 		numEntries++;
-	    QCString *envlistQ = new QCString[ numEntries + 1 ];
+	    QByteArray *envlistQ = new QByteArray[ numEntries + 1 ];
 	    const char** envlist = new const char*[ numEntries + 1 ];
 	    int i = 0;
 	    if ( setLibraryPath ) {
@@ -1195,7 +1195,7 @@ void QProcess::socketRead( int fd )
     // try to read data first (if it fails, the filedescriptor was closed)
     const int basize = 4096;
     QByteArray *ba = new QByteArray( basize );
-    n = ::read( fd, ba->data(), basize );
+    n = ::read( fd, ba->detach(), basize );
     if ( n > 0 ) {
 	ba->resize( n );
 	buffer->append( ba );
@@ -1241,7 +1241,7 @@ void QProcess::socketRead( int fd )
 	FD_SET( fd, &fds );
 	// read data
 	ba = new QByteArray( basize );
-	n = ::read( fd, ba->data(), basize );
+	n = ::read( fd, ba->detach(), basize );
 	if ( n > 0 ) {
 	    ba->resize( n );
 	    buffer->append( ba );

@@ -594,7 +594,7 @@ QWidget * QDragObject::source()
 */
 
 static
-void stripws(QCString& s)
+void stripws(QByteArray& s)
 {
     int f;
     while ( (f=s.find(' ')) >= 0 )
@@ -604,7 +604,7 @@ void stripws(QCString& s)
 static
 const char * staticCharset(int i)
 {
-    static QCString localcharset;
+    static QByteArray localcharset;
 
     switch ( i ) {
       case 0:
@@ -637,16 +637,16 @@ public:
     enum { nfmt=4 };
 
     QString txt;
-    QCString fmt[nfmt];
-    QCString subtype;
+    QByteArray fmt[nfmt];
+    QString subtype;
 
-    void setSubType(const QCString & st)
+    void setSubType(const QString & st)
     {
 	subtype = st.lower();
 	for ( int i=0; i<nfmt; i++ ) {
 	    fmt[i] = "text/";
 	    fmt[i].append(subtype);
-	    QCString cs = staticCharset(i);
+	    QByteArray cs(staticCharset(i));
 	    if ( !cs.isEmpty() ) {
 		fmt[i].append(";charset=");
 		fmt[i].append(cs);
@@ -666,7 +666,7 @@ inline QTextDragPrivate::QTextDragPrivate()
     is "text/plain". You might use this to declare that the text is
     "text/html" by calling setSubtype("html").
 */
-void QTextDrag::setSubtype( const QCString & st)
+void QTextDrag::setSubtype( const QString & st)
 {
     d->setSubType(st);
 }
@@ -747,11 +747,11 @@ const char * QTextDrag::format(int i) const
     return d->fmt[i];
 }
 
-QTextCodec* findcharset(const QCString& mimetype)
+QTextCodec* findcharset(const QByteArray& mimetype)
 {
     int i=mimetype.find("charset=");
     if ( i >= 0 ) {
-	QCString cs = mimetype.mid(i+8);
+	QByteArray cs = mimetype.mid(i+8);
 	stripws(cs);
 	i = cs.find(';');
 	if ( i >= 0 )
@@ -774,7 +774,7 @@ QTextCodec* findcodec(const QMimeSource* e)
     const char* f;
     int i;
     for ( i=0; (f=e->format(i)); i++ )
-	if ( (r = findcharset(QCString(f).lower())) )
+	if ( (r = findcharset(QByteArray(f).lower())) )
 	    return r;
     return 0;
 }
@@ -785,9 +785,9 @@ QTextCodec* findcodec(const QMimeSource* e)
 */
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
-    QCString r;
+    QByteArray r;
     if ( 0==qstrnicmp(mime,"text/",5) ) {
-	QCString m(mime);
+	QByteArray m(mime);
 	m = m.lower();
 	QTextCodec *codec = findcharset(m);
 	if ( !codec )
@@ -802,7 +802,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 #endif
 	r = codec->fromUnicode(text);
 	if (!codec || codec->mibEnum() != 1000) {
-	    // Don't include NUL in size (QCString::resize() adds NUL)
+	    // Don't include NUL in size (QByteArray::resize() adds NUL)
 #if defined(Q_WS_WIN)
 	    // This is needed to ensure the \0 isn't lost on Windows 95
 	    if ( qWinVersion() & Qt::WV_DOS_based )
@@ -842,7 +842,7 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 
     \sa canDecode()
 */
-bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
+bool QTextDrag::decode( const QMimeSource* e, QString& str, QString& subtype )
 {
     if(!e)
 	return FALSE;
@@ -856,12 +856,12 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
 	if ( 0==qstrnicmp(mime,"text/",5) ) {
-	    QCString m(mime);
+	    QByteArray m(mime);
 	    m = m.lower();
 	    int semi = m.find(';');
 	    if ( semi < 0 )
 		semi = m.length();
-	    QCString foundst = m.mid(5,semi-5);
+	    QString foundst = m.mid(5,semi-5);
 	    if ( subtype.isNull() || foundst == subtype ) {
 		QTextCodec* codec = findcharset(m);
 		if ( codec ) {
@@ -888,7 +888,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 			m->clearCache();
 			m->cacheType = QMimeSource::Text;
 			m->cache.txt.str = new QString( str );
-			m->cache.txt.subtype = new QCString( subtype );
+			m->cache.txt.subtype = new QString( subtype );
 
 			return TRUE;
 		    }
@@ -907,8 +907,8 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 */
 bool QTextDrag::decode( const QMimeSource* e, QString& str )
 {
-    QCString st;
-    return decode(e,str,st);
+    QString st;
+    return decode(e, str, st);
 }
 
 
@@ -1006,8 +1006,8 @@ void QImageDrag::setImage( QImage image )
 const char * QImageDrag::format(int i) const
 {
     if ( i < (int)ofmts.count() ) {
-	static QCString str;
-	str.sprintf("image/%s",(((QImageDrag*)this)->ofmts).at(i));
+	static QByteArray str("image/");
+	str += (((QImageDrag*)this)->ofmts).at(i);
 	str = str.lower();
 	if ( str == "image/pbmraw" )
 	    str = "image/ppm";
@@ -1023,7 +1023,7 @@ const char * QImageDrag::format(int i) const
 QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
-	QCString f = fmt+6;
+	QByteArray f(fmt+6);
 	QByteArray data;
 	QBuffer w( data );
 	w.open( IO_WriteOnly );
@@ -1049,8 +1049,8 @@ bool QImageDrag::canDecode( const QMimeSource* e ) {
 
     fileFormats.first();
     while ( fileFormats.current()) {
-	QCString format = fileFormats.current();
-	QCString type = "image/" + format.lower();
+	QByteArray format(fileFormats.current());
+	QByteArray type = "image/" + format.lower();
 	if ( e->provides(type.data()))
 	    return TRUE;
 	fileFormats.next();
@@ -1081,10 +1081,10 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 	fileFormats.insert(0,"PNG");
     fileFormats.first();
     while ( fileFormats.current() ) {
-	QCString format = fileFormats.current();
+	QByteArray format(fileFormats.current());
 	fileFormats.next();
 
-       	QCString type = "image/" + format.lower();
+       	QByteArray type = "image/" + format.lower();
 	if ( ! e->provides( type.data() ) ) continue;
 	payload = e->encodedData( type.data() );
 	if ( !payload.isEmpty() )
@@ -1203,7 +1203,7 @@ const char * QStoredDrag::format(int i) const
 
 void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 {
-    d->enc = encodedData.copy();
+    d->enc = encodedData;
 }
 
 /*!
@@ -1286,8 +1286,8 @@ void QUriDrag::setUris( QStrList uris )
     for ( const char* s = uris.first(); s; s = uris.next() ) {
 	int l = qstrlen(s);
 	a.resize(c+l+2);
-	memcpy(a.data()+c,s,l);
-	memcpy(a.data()+c+l,"\r\n",2);
+	memcpy(a.detach()+c,s,l);
+	memcpy(a.detach()+c+l,"\r\n",2);
 	c+=l+2;
     }
     a.resize(c+1);
@@ -1326,7 +1326,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 	    while (c < payload.size() && d[c] && d[c]!='\r'
 		    && d[c] != '\n')
 		c++;
-	    QCString s(d+f,c-f+1);
+	    QByteArray s(d+f,c-f+1);
 	    if ( s[0] != '#' ) // non-comment?
 		l.append( s );
 	    // Skip junk
@@ -1388,10 +1388,10 @@ void QUriDrag::setUnicodeUris( const QStringList & uuris )
 
     \sa uriToLocalFile()
 */
-QCString QUriDrag::unicodeUriToUri(const QString& uuri)
+QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
 {
-    QCString utf8 = uuri.utf8();
-    QCString escutf8;
+    QByteArray utf8 = uuri.toUtf8();
+    QByteArray escutf8;
     int n = utf8.length();
     for (int i=0; i<n; i++) {
 	if ( utf8[i] >= 'a' && utf8[i] <= 'z'
@@ -1417,9 +1417,9 @@ QCString QUriDrag::unicodeUriToUri(const QString& uuri)
 	    escutf8 += utf8[i];
 	} else {
 	    // Everything else is escaped as %HH
-	    QCString s(4);
+	    QString s;
 	    s.sprintf("%%%02x",(uchar)utf8[i]);
-	    escutf8 += s;
+	    escutf8 += s.latin1();
 	}
     }
     return escutf8;
@@ -1430,7 +1430,7 @@ QCString QUriDrag::unicodeUriToUri(const QString& uuri)
 
     \sa uriToLocalFile()
 */
-QCString QUriDrag::localFileToUri(const QString& filename)
+QByteArray QUriDrag::localFileToUri(const QString& filename)
 {
     QString r = filename;
 #ifdef Q_WS_WIN
@@ -1471,7 +1471,7 @@ QCString QUriDrag::localFileToUri(const QString& filename)
 */
 QString QUriDrag::uriToUnicodeUri(const char* uri)
 {
-    QCString utf8;
+    QByteArray utf8;
 
     while (*uri) {
 	switch (*uri) {
@@ -1660,7 +1660,7 @@ void QColorDrag::setColor( const QColor &col )
     rgba[ 1 ] = col.green() * 0xFF;
     rgba[ 2 ] = col.blue()  * 0xFF;
     rgba[ 3 ] = 0xFFFF; // Alpha not supported yet.
-    memcpy( data.data(), rgba, sizeof( rgba) );
+    memcpy( data.detach(), rgba, sizeof( rgba) );
     setEncodedData( data );
 }
 

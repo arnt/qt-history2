@@ -280,7 +280,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	int blockSize = calcBlockSize( f.size() );
 	if ( (int)f.size() < blockSize ) {
 	    s.resize( f.size() );
-	    f.readBlock( s.data(), f.size() );
+	    f.readBlock( s.detach(), f.size() );
 	    emit data( s, op );
 	    emit dataTransferProgress( f.size(), f.size(), op );
 #ifdef QLOCALFS_DEBUG
@@ -293,13 +293,13 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 		if ( operationInProgress() != op )
 		    return;
 		if ( remaining >= blockSize ) {
-		    f.readBlock( s.data(), blockSize );
+		    f.readBlock( s.detach(), blockSize );
 		    emit data( s, op );
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= blockSize;
 		} else {
 		    s.resize( remaining );
-		    f.readBlock( s.data(), remaining );
+		    f.readBlock( s.detach(), remaining );
 		    emit data( s, op );
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;

@@ -51,8 +51,8 @@ public:
     QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
     QImageTextKeyLang() { }
 
-    QCString key;
-    QCString lang;
+    QByteArray key;
+    QByteArray lang;
 
     bool operator< (const QImageTextKeyLang& other) const
 	{ return key < other.key || key==other.key && lang < other.lang; }
@@ -315,7 +315,7 @@ private:
 
     QImage	im;				// image
     int		iostat;				// IO status
-    QCString	frmt;				// image format
+    QByteArray	frmt;				// image format
     QIODevice  *iodev;				// IO device
     QString	fname;				// file name
     char       *params;				// image parameters //### change to QImageIOData *d in 3.0

@@ -118,7 +118,7 @@ QString QFileInfo::readLink() const
     int len = readlink( QFile::encodeName(fn).data(), s, PATH_MAX );
     if ( len >= 0 ) {
 	s[len] = '\0';
-	r = QFile::decodeName(s);
+	r = QFile::decodeName(QByteArray(s));
     }
 #endif
 
@@ -142,7 +142,7 @@ QString QFileInfo::owner() const
 {
     passwd *pw = getpwuid( ownerId() );
     if ( pw )
-	return QFile::decodeName( pw->pw_name );
+	return QFile::decodeName( QByteArray(pw->pw_name) );
     return QString::null;
 }
 
@@ -179,7 +179,7 @@ QString QFileInfo::group() const
 {
     struct group *gr = getgrgid( groupId() );
     if ( gr )
-	return QFile::decodeName( gr->gr_name );
+	return QFile::decodeName( QByteArray(gr->gr_name) );
     return QString::null;
 }
 

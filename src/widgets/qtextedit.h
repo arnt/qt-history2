@@ -339,7 +339,7 @@ public slots:
     virtual void cut();
     virtual void paste();
 #ifndef QT_NO_CLIPBOARD
-    virtual void pasteSubType( const QCString &subtype );
+    virtual void pasteSubType( const QByteArray &subtype );
 #endif
     virtual void clear();
     virtual void del();
@@ -395,7 +395,7 @@ public slots:
     void setMaxLogLines( int numLines );
     int maxLogLines();
 #endif
-    
+
 signals:
     void textChanged();
     void selectionChanged();
@@ -498,7 +498,7 @@ private:
     void makeParagVisible( QTextParagraph *p );
     void normalCopy();
 #ifndef QT_NO_MIME
-    QCString pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
+    QByteArray pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
     QTextDrag *dragObject( QWidget *parent = 0 ) const;
 #endif
 #ifndef QT_NO_MIMECLIPBOARD
@@ -547,7 +547,7 @@ private slots:
 
 private:
 #ifndef QT_NO_CLIPBOARD
-    void pasteSubType( const QCString &subtype, QMimeSource *m );
+    void pasteSubType( const QByteArray &subtype, QMimeSource *m );
 #endif
 
 private:

@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qshared.h"
 #include "qrect.h"
+#include "qmemarray.h"
 #endif // QT_H
 
 #ifdef Q_WS_X11

@@ -44,13 +44,13 @@ int QUtf8Codec::mibEnum() const
     return 106;
 }
 
-QCString QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = uc.length();
     if (lenInOut > 0)
 	l = QMIN(l, lenInOut);
     int rlen = l*3+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     const QChar *ch = uc.unicode();
     for (int i=0; i < l; i++) {
@@ -242,19 +242,20 @@ public:
     {
     }
 
-    QCString fromUnicode(const QString& uc, int& lenInOut)
+    QByteArray fromUnicode(const QString& uc, int& lenInOut)
     {
 	if ( headerdone ) {
 	    lenInOut = uc.length()*sizeof(QChar);
-	    QCString d(lenInOut);
-	    memcpy(d.data(),uc.unicode(),lenInOut);
+	    QByteArray d(lenInOut);
+	    memcpy(d.detach(),uc.unicode(),lenInOut);
 	    return d;
 	} else {
 	    headerdone = TRUE;
 	    lenInOut = (1+uc.length())*sizeof(QChar);
-	    QCString d(lenInOut);
-	    memcpy(d.data(),&QChar::byteOrderMark,sizeof(QChar));
-	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
+	    QByteArray d(lenInOut);
+	    QChar bom(QChar::byteOrderMark);
+	    memcpy(d.detach(),&bom,sizeof(QChar));
+	    memcpy(d.detach()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));
 	    return d;
 	}
     }

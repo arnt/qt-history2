@@ -401,7 +401,7 @@ void QLCDNumber::setNumDigits( int numDigits )
         } else {                                        // shrink
             dif = ndigits - numDigits;
             digitStr = digitStr.right( numDigits );
-            QBitArray tmpPoints = points.copy();
+            QBitArray tmpPoints = points;
             points.resize( numDigits );
             for ( i=0; i<(int)numDigits; i++ )
                 points.setBit( i, tmpPoints.testBit(i+dif) );

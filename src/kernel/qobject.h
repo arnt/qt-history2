@@ -63,7 +63,7 @@ struct QUObject;
 class Q_EXPORT QObject: public Qt
 {
     Q_OBJECT
-    Q_PROPERTY( QCString name READ name WRITE setName )
+    Q_PROPERTY( QByteArray name READ name WRITE setName )
 
 public:
     QObject( QObject *parent=0, const char *name=0 );
@@ -180,7 +180,7 @@ protected:
     virtual void disconnectNotify( const char *signal );
     virtual bool checkConnectArgs( const char *signal, const QObject *receiver,
 				   const char *member );
-    static QCString normalizeSignalSlot( const char *signalSlot );
+    static QByteArray normalizeSignalSlot( const char *signalSlot );
 
 private:
     uint	isSignal   : 1;

@@ -1822,7 +1822,7 @@ QDateTime QSettings::lastModificationTime( const QString &key )
 bool QSettings::writeEntry(const QString &key, const QStringList &value,
 			   const QChar &separator)
 {
-    QString s(value.join(separator));
+    QString s(value.join(QString(separator)));
     return writeEntry(key, s);
 }
 

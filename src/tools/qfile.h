@@ -57,10 +57,11 @@ public:
     QString	name()	const;
     void	setName( const QString &name );
 
-    typedef QCString (*EncoderFn)( const QString &fileName );
-    typedef QString (*DecoderFn)( const QCString &localfileName );
-    static QCString encodeName( const QString &fileName );
-    static QString decodeName( const QCString &localFileName );
+    typedef QByteArray (*EncoderFn)( const QString &fileName );
+    typedef QString (*DecoderFn)( const QByteArray &localfileName );
+    static QByteArray encodeName( const QString &fileName );
+    static QString decodeName( const QByteArray &localFileName );
+    static QString decodeName( const char *localFileName );
     static void setEncodingFunction( EncoderFn );
     static void setDecodingFunction( DecoderFn );
 
@@ -108,7 +109,7 @@ protected:
 private:
     void	init();
     void	setErrorStringErrno( int );
-    QCString	ungetchBuffer;
+    QByteArray	ungetchBuffer;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -11,6 +11,7 @@ OBJECTS_DIR	= .
 SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qptrcollection.cpp  \
 		  ../tools/qcstring.cpp	    \
+		  ../tools/qbytearray.cpp	    \
 		  ../tools/qdatastream.cpp  \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qfile.cpp	    \
@@ -23,6 +24,7 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qgvector.cpp	    \
 		  ../tools/qiodevice.cpp    \
 		  ../tools/qregexp.cpp	    \
+		  ../tools/qchar.cpp	    \
 		  ../tools/qstring.cpp	    \
                   ../tools/qunicodetables.cpp \
 		  ../tools/qstringlist.cpp  \

@@ -93,9 +93,9 @@ unsigned short QFontLaoCodec::characterFromUnicode(const QString &str, int pos) 
     return 0;
 }
 
-QCString QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString rstring( lenInOut+1 );
+    QByteArray rstring( lenInOut+1 );
     uchar *rdata = (uchar *) rstring.data();
     const QChar *sdata = uc.unicode();
     int i = 0;

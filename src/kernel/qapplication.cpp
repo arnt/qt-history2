@@ -586,8 +586,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QCString arg = argv[i];
-	QCString s;
+	QString arg = argv[i];
+	QString s;
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    // obsolete argument
 	} else if ( arg.find( "-style=", 0, FALSE ) != -1 ) {
@@ -597,9 +597,9 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    s = s.lower();
 #ifndef QT_NO_SESSIONMANAGER
 	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
-	    QCString s = argv[++i];
-	    if ( !s.isEmpty() ) {
-		session_id = QString::fromLatin1( s );
+	    ++i;
+	    if ( argv[i] && *argv[i] ) {
+		session_id = QString::fromLatin1( argv[i] );
 		int p = session_id.find( '_' );
 		if ( p >= 0 ) {
 		    if ( !session_key )
@@ -1577,7 +1577,7 @@ QString QApplication::applicationFilePath()
 #ifdef Q_WS_WIN
     return QDir::cleanDirPath( QFile::decodeName( qAppFileName() ) );
 #else
-    QString argv0 = QFile::decodeName( argv()[0] );
+    QString argv0 = QFile::decodeName( QByteArray(argv()[0]) );
     QString absPath;
 
     if ( argv0[0] == '/' ) {

@@ -221,7 +221,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	QCString perm;
+	QByteArray perm;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
@@ -552,7 +552,7 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
 	    p++;
 	    nread++;
 	}
-	ungetchBuffer.truncate( l - nread );
+	ungetchBuffer.resize( l - nread );
     }
 
     if ( nread < len ) {

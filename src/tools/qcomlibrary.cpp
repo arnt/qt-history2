@@ -90,7 +90,7 @@ bool QComLibrary::unload()
 }
 
 static bool qt_verify( const QString& library, uint version, uint flags,
-		    const QCString &key, bool warn )
+		    const QByteArray &key, bool warn )
 {
     uint our_flags = 1;
 #if defined(QT_THREAD_SUPPORT)
@@ -207,7 +207,7 @@ static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
   returns TRUE if the string s was correctly parsed, FALSE otherwise.
 */
 static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
-				   QCString *key )
+				   QByteArray *key )
 {
     bool ret = TRUE;
 
@@ -229,9 +229,9 @@ static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
 	    qt_token_info pinfo2("..-", 3);
 	    if ( qt_tokenize( pinfo.results[ 1 ], pinfo.lengths[ 1 ],
 			      &advance, pinfo2 ) != -1 ) {
-		QCString m( pinfo2.results[ 0 ], pinfo2.lengths[ 0 ] + 1 );
-		QCString n( pinfo2.results[ 1 ], pinfo2.lengths[ 1 ] + 1 );
-		QCString p( pinfo2.results[ 2 ], pinfo2.lengths[ 2 ] + 1 );
+		QString m = QByteArray( pinfo2.results[ 0 ], pinfo2.lengths[ 0 ] );
+		QString n = QByteArray( pinfo2.results[ 1 ], pinfo2.lengths[ 1 ] );
+		QString p = QByteArray( pinfo2.results[ 2 ], pinfo2.lengths[ 2 ] );
 		*version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
 	    } else {
 		ret = FALSE;
@@ -257,7 +257,7 @@ static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
 	} else if ( qstrncmp( "buildkey", pinfo.results[ 0 ],
 			      pinfo.lengths[ 0 ] ) == 0 ){
 	    // save buildkey
-	    *key = QCString( pinfo.results[ 1 ], pinfo.lengths[ 1 ] + 1 );
+	    *key = QByteArray( pinfo.results[ 1 ], pinfo.lengths[ 1 ] + 1 );
 	}
     } while ( parse == 1 && parselen > 0 );
 
@@ -321,7 +321,7 @@ static long qt_find_pattern( const char *s, ulong s_len,
   Returns  TRUE if version/flags/key information is present and succesfully read.
 */
 static bool qt_unix_query( const QString &library, uint *version, uint *flags,
-			   QCString *key )
+			   QByteArray *key )
 {
     QFile file( library );
     if (! file.open( IO_ReadOnly ) ) {
@@ -348,7 +348,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 #endif // USE_MMAP
 	// try reading the data into memory instead
 	data = file.readAll();
-	filedata = data.data();
+	filedata = data.detach();
 	fdlen = data.size();
 #ifdef USE_MMAP
     }
@@ -393,7 +393,7 @@ void QComLibrary::createInstanceInternal()
 		     .arg( library() );
     QStringList reg;
     uint flags = 0;
-    QCString key;
+    QByteArray key;
     bool query_done = FALSE;
     bool warn_mismatch = TRUE;
 

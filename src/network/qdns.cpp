@@ -1003,7 +1003,7 @@ void QDnsManager::retransmit()
 void QDnsManager::answer()
 {
     QByteArray a( 16383 ); // large enough for anything, one suspects
-    int r = socket->readBlock( a.data(), a.size() );
+    int r = socket->readBlock( a.detach(), a.size() );
 #if defined(QDNS_DEBUG)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
 	   socket->peerAddress().toString().ascii(), socket->peerPort() );
@@ -1169,7 +1169,7 @@ void QDnsManager::transmitQuery( int i )
 	delete q;
 	QTimer::singleShot( 1000*10, QDnsManager::manager(), SLOT(cleanCache()) );
 	// and don't process anything more
-	return; 
+	return;
     }
 
     socket->writeBlock( p.data(), pp, *ns->at( q->step % ns->count() ), 53 );

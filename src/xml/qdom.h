@@ -312,11 +312,9 @@ public:
     QDomElement documentElement() const;
 
     // Qt extensions
-    bool setContent( const QCString& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QByteArray& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QString& text, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( QIODevice* dev, bool namespaceProcessing, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
-    bool setContent( const QCString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0 );
     bool setContent( const QByteArray& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( const QString& text, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
     bool setContent( QIODevice* dev, QString *errorMsg=0, int *errorLine=0, int *errorColumn=0  );
@@ -326,10 +324,8 @@ public:
     bool isDocument() const;
 
     // Qt extensions
-    QString toString() const; // ### Qt 4: merge the two overloads
-    QString toString( int ) const;
-    QCString toCString() const; // ### Qt 4: merge the two overloads
-    QCString toCString( int ) const;
+    QString toString( int = 1 ) const;
+    QByteArray toByteArray( int = 1 ) const;
 
 private:
     QDomDocument( QDomDocumentPrivate* );

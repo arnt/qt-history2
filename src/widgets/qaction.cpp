@@ -177,9 +177,9 @@ QActionPrivate::QActionPrivate()
       key( 0 ), accel( 0 ), accelid( 0 ),
 #endif
       enabled( TRUE ), visible( TRUE ), toggleaction( FALSE ), on( FALSE ),
-      forceDisabled( FALSE ), 
+      forceDisabled( FALSE ),
 #ifndef QT_NO_TOOLTIP
-      tipGroup( 0 ), 
+      tipGroup( 0 ),
 #endif
       d_group( 0 )
 {
@@ -943,7 +943,7 @@ bool QAction::addTo( QWidget* w )
 	if ( !qstrcmp( name(), "qt_separator_action" ) ) {
 	    ((QToolBar*)w)->addSeparator();
 	} else {
-	    QCString bname = name() + QCString( "_action_button" );
+	    QByteArray bname = name() + QByteArray( "_action_button" );
 	    QToolButton* btn = new QToolButton( (QToolBar*) w, bname );
 	    addedTo( btn, w );
 	    btn->setToggleButton( d->toggleaction );

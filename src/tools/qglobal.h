@@ -37,6 +37,7 @@
 
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
+#include <stddef.h>
 
 #define QT_VERSION_STR   "3.2.0-beta1"
 /*
@@ -1036,6 +1037,35 @@ Q_EXPORT const char *qInstallPathPlugins();
 Q_EXPORT const char *qInstallPathData();
 
 #endif // __cplusplus
+
+
+#ifndef QT_NO_QBOOL
+class QBool
+{
+    bool b;
+    inline operator int() const;
+public:
+    inline QBool(bool b):b(b){};
+    inline operator bool() const {return b;}
+    inline bool operator!() const {return !b;}
+};
+inline bool operator==(QBool b1, bool b2) { return (bool)b1 == b2; }
+inline bool operator==(bool b1, QBool b2) { return b1 == (bool)b2; }
+inline bool operator==(QBool b1, QBool b2) { return (bool)b1 == (bool)b2; }
+inline bool operator!=(QBool b1, bool b2) { return (bool)b1 != b2; }
+inline bool operator!=(bool b1, QBool b2) { return b1 != (bool)b2; }
+inline bool operator!=(QBool b1, QBool b2) { return (bool)b1 != (bool)b2; }
+#else
+typedef bool QBool;
+#endif // QT_NO_QBOOL
+
+
+void *qMalloc(size_t size);
+void qFree(void *ptr);
+void *qRealloc(void *ptr, size_t size);
+int qRand(void);
+void *qMemCopy(void *dest, const void *src, size_t n);
+
 
 // compilers which follow outdated template instantiation rules
 // require a class to have a comparison operator to exist when

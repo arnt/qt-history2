@@ -86,7 +86,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QCString fromUnicode(const QString& uc, int& lenInOut) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
     int heuristicContentMatch(const char* chars, int len) const;

@@ -120,14 +120,14 @@ public:
     ~QTextDrag();
 
     virtual void setText( const QString &);
-    virtual void setSubtype( const QCString &);
+    virtual void setSubtype( const QString &);
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QString& s );
-    static bool decode( const QMimeSource* e, QString& s, QCString& subtype );
+    static bool decode( const QMimeSource* e, QString& s, QString& subtype );
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
@@ -178,9 +178,9 @@ public:
     virtual void setUris( QStrList uris );
 
     static QString uriToLocalFile(const char*);
-    static QCString localFileToUri(const QString&);
+    static QByteArray localFileToUri(const QString&);
     static QString uriToUnicodeUri(const char*);
-    static QCString unicodeUriToUri(const QString&);
+    static QByteArray unicodeUriToUri(const QString&);
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QStrList& i );
     static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );

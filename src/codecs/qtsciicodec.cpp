@@ -90,6 +90,7 @@
 */
 
 #include "qtsciicodec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_CODECS
 
@@ -97,7 +98,7 @@ static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3);
 static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)	(((c) >= 0x80) && ((c) <= 0xfd))
-#define	QValidChar(u)	((u) ? QChar((u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((u)) : QChar(QChar::replacement))
 
 /*! \reimp */
 int QTsciiCodec::mibEnum() const
@@ -107,11 +108,11 @@ int QTsciiCodec::mibEnum() const
 }
 
 /*! \reimp */
-QCString QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = QMIN((int)uc.length(), lenInOut);
     int rlen = l+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i = 0; i < l; i++) {
 	QChar ch = uc[i];

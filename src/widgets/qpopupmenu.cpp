@@ -1067,17 +1067,18 @@ void QPopupMenu::updateSize()
 		if (! mi->text().isNull()) {
 		    QString s = mi->text();
 		    int t;
+		    // ##### search for similar places and replace by regular fm.width( ... , Qt::AlignLeft, .... )
 		    if ( (t = s.find('\t')) >= 0 ) { // string contains tab
 			w += fm.width( s, t );
-			w -= s.contains('&') * fm.width('&');
-			w += s.contains("&&") * fm.width('&');
+			w -= s.count('&') * fm.width('&');
+			w += s.count("&&") * fm.width('&');
 			int tw = fm.width( s.mid(t + 1) );
 			if ( tw > tab)
 			    tab = tw;
 		    } else {
 			w += fm.width( s );
-			w -= s.contains('&') * fm.width('&');
-			w += s.contains("&&") * fm.width('&');
+			w -= s.count('&') * fm.width('&');
+			w += s.count("&&") * fm.width('&');
 		    }
 		} else if (mi->pixmap())
 		    w += mi->pixmap()->width();
@@ -1116,7 +1117,7 @@ void QPopupMenu::updateSize()
 		    height = d->scroll.scrollableSize - scrheight;
 		    break;
 		}
-	    } 
+	    }
 	} else if( height + 2*frameWidth() >= dh ) {
 	    ncols++;
 	    max_height = QMAX(max_height, height - itemHeight);
@@ -2021,7 +2022,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	while ( top->parentMenu )
 	    top = top->parentMenu;
 	if ( top->isMenuBar ) {
-	    int beforeId = top->actItem; 
+	    int beforeId = top->actItem;
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
 	    if ( beforeId != top->actItem )
 		ok_key = TRUE;
@@ -2114,7 +2115,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     }
 
 #ifdef Q_OS_WIN32
-    if ( !ok_key && 
+    if ( !ok_key &&
 	!( e->key() == Key_Control || e->key() == Key_Shift || e->key() == Key_Meta ) )
 	qApp->beep();
 #endif // Q_OS_WIN32

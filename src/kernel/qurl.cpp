@@ -1168,10 +1168,10 @@ void QUrl::encode( QString& url )
     if ( url.isEmpty() )
 	return;
 
-    QCString curl = url.utf8();
+    QByteArray curl = url.toUtf8();
     int oldlen = curl.length();
 
-    const QCString special( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" );
+    const QByteArray special( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" );
     QString newUrl;
     int newlen = 0;
 
@@ -1219,10 +1219,10 @@ void QUrl::decode( QString& url )
 	return;
 
     int newlen = 0;
-    QCString curl = url.utf8();
+    QByteArray curl = url.toUtf8();
     int oldlen = curl.length();
 
-    QCString newUrl(oldlen);
+    QByteArray newUrl(oldlen);
 
     int i = 0;
     while ( i < oldlen ) {
@@ -1233,7 +1233,7 @@ void QUrl::decode( QString& url )
 	}
 	newUrl [ newlen++ ] = c;
     }
-    newUrl.truncate( newlen );
+    newUrl.resize( newlen );
 
     url = QString::fromUtf8(newUrl.data());
 }

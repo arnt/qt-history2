@@ -76,9 +76,9 @@ unsigned short QFontKsc5601Codec::characterFromUnicode(const QString &str, int p
     return qt_UnicodeToKsc5601((str.unicode() + pos)->unicode());
 }
 
-QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

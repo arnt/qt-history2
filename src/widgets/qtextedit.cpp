@@ -136,8 +136,8 @@ public:
     virtual QByteArray encodedData( const char *mime ) const;
     virtual const char* format( int i ) const;
 
-    static bool decode( QMimeSource *e, QString &str, const QCString &mimetype,
-			const QCString &subtype );
+    static bool decode( QMimeSource *e, QString &str, const QString &mimetype,
+			const QString &subtype );
     static bool canDecode( QMimeSource* e );
 
 private:
@@ -153,13 +153,13 @@ QRichTextDrag::QRichTextDrag( QWidget *dragSource, const char *name )
 QByteArray QRichTextDrag::encodedData( const char *mime ) const
 {
     if ( qstrcmp( "application/x-qrichtext", mime ) == 0 ) {
-	return richTxt.utf8(); // #### perhaps we should use USC2 instead?
+	return richTxt.toUtf8(); // #### perhaps we should use USC2 instead?
     } else
 	return QTextDrag::encodedData( mime );
 }
 
-bool QRichTextDrag::decode( QMimeSource *e, QString &str, const QCString &mimetype,
-			    const QCString &subtype )
+bool QRichTextDrag::decode( QMimeSource *e, QString &str, const QString &mimetype,
+			    const QString &subtype )
 {
     if ( mimetype == "application/x-qrichtext" ) {
 	// do richtext decode
@@ -175,8 +175,8 @@ bool QRichTextDrag::decode( QMimeSource *e, QString &str, const QCString &mimety
     }
 
     // do a regular text decode
-    QCString subt = subtype;
-    return QTextDrag::decode( e, str, subt );
+    QString st = subtype;
+    return QTextDrag::decode( e, str, st );
 }
 
 bool QRichTextDrag::canDecode( QMimeSource* e )
@@ -2579,7 +2579,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 		    subType = "x-qrichtext";
 	    }
 #ifndef QT_NO_CLIPBOARD
-	    pasteSubType( subType.latin1(), e );
+	    pasteSubType( subType.toLatin1(), e );
 #endif
 	    // emit appropriate signals.
 	    emit selectionChanged();
@@ -3192,7 +3192,7 @@ void QTextEdit::paste()
 	    subType = "x-qrichtext";
     }
 
-    pasteSubType( subType.latin1() );
+    pasteSubType( subType.toLatin1() );
     updateMicroFocusHint();
 #endif
 }
@@ -4825,7 +4825,7 @@ void QTextEdit::setDocument( QTextDocument *dc )
     \sa paste() cut() QTextEdit::copy()
 */
 
-void QTextEdit::pasteSubType( const QCString &subtype )
+void QTextEdit::pasteSubType( const QByteArray &subtype )
 {
 #ifndef QT_NO_MIMECLIPBOARD
     QMimeSource *m = QApplication::clipboard()->data( d->clipboard_mode );
@@ -4835,10 +4835,10 @@ void QTextEdit::pasteSubType( const QCString &subtype )
 
 /*! \internal */
 
-void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
+void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 {
 #ifndef QT_NO_DRAGANDDROP
-    QCString st = subtype;
+    QByteArray st = subtype;
     if ( subtype != "x-qrichtext" )
 	st.prepend( "text/" );
     else
@@ -4850,7 +4850,7 @@ void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
     if ( !m->provides( st.data() ) )
 	return;
     QString t;
-    if ( !QRichTextDrag::decode( m, t, st.data(), subtype ) )
+    if ( !QRichTextDrag::decode( m, t, st, subtype ) )
 	return;
     if ( st == "application/x-qrichtext" ) {
 	int start;
@@ -4954,14 +4954,14 @@ void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 */
 void QTextEdit::pasteSpecial( const QPoint& pt )
 {
-    QCString st = pickSpecial( QApplication::clipboard()->data( d->clipboard_mode ),
+    QByteArray st = pickSpecial( QApplication::clipboard()->data( d->clipboard_mode ),
 			       TRUE, pt );
     if ( !st.isEmpty() )
 	pasteSubType( st );
 }
 #endif
 #ifndef QT_NO_MIME
-QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint& pt )
+QByteArray QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint& pt )
 {
     if ( ms )  {
 #ifndef QT_NO_POPUPMENU
@@ -4985,7 +4985,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 	if ( n ) {
 	    int i = n ==1 && !always_ask ? popup.idAt( 0 ) : popup.exec( pt );
 	    if ( i >= 0 )
-		return popup.text(i).latin1();
+		return popup.text(i).toLatin1();
 	}
 #else
 	QString fmt;
@@ -5000,7 +5000,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
 	}
 #endif
     }
-    return QCString();
+    return QByteArray();
 }
 #endif // QT_NO_MIME
 #endif // QT_NO_CLIPBOARD
@@ -6616,7 +6616,7 @@ int QTextEdit::optimCharIndex( const QString &str, int mx ) const
     int tabs = 0;
     int tabWidth = tabStopWidth() - fm.width('\t');
     while ( i < str.length() ) {
-	tabs = str.left(i).contains( '\t' );
+	tabs = str.left(i).count( '\t' );
 	dd = fm.width(str.left( i )) + tabs*tabWidth - mx;
 	if ( QABS(dd) < dist || dist == dd ) {
 	    dist = QABS(dd);

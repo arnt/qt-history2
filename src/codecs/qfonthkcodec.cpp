@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "private/qfontcodecs_p.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -92,10 +93,10 @@ QFontBig5hkscsCodec::characterFromUnicode(const QString &str, int pos) const
     return 0;
 }
 
-QCString QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
     //qDebug("QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

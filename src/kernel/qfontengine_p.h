@@ -99,7 +99,7 @@ public:
     void getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const;
     void getCMap();
 
-    QCString _name;
+    QByteArray _name;
     HDC		hdc;
     HFONT	hfont;
     LOGFONT     logfont;
@@ -360,7 +360,7 @@ public:
 private:
     friend class QFontPrivate;
     XFontStruct *_fs;
-    QCString _name;
+    QByteArray _name;
     QTextCodec *_codec;
     float _scale; // needed for printing, to correctly scale font metrics for bitmap fonts
     int _cmap;

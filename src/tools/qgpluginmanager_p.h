@@ -67,7 +67,7 @@
 class Q_EXPORT QGPluginManager
 {
 public:
-    QGPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE );
+    QGPluginManager( const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = TRUE );
     ~QGPluginManager();
 
     void addLibraryPath( const QString& path );

@@ -88,6 +88,7 @@
 */
 
 #include "qsjiscodec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -99,7 +100,7 @@ static const uchar Esc = 0x1b;
 #define	IsSjisChar2(c)	(((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
 #define	IsUserDefinedChar1(c)	(((c) >= 0xf0) && ((c) <= 0xfc))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 /*!
   Creates a Shift-JIS codec. Note that this is done automatically by
@@ -140,11 +141,11 @@ int QSjisCodec::mibEnum() const
 /*!
   \reimp
 */
-QCString QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*2+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -169,7 +170,7 @@ QCString QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
     lenInOut = cursor - (uchar*)rstr.data();
-    rstr.truncate(lenInOut);
+    rstr.resize(lenInOut);
     return rstr;
 }
 

@@ -52,7 +52,7 @@
 #if defined QT_NON_COMMERCIAL
 #include "qnc_win.h"
 #endif
-
+#include <qcstring.h>
 
 // Internal class - don't touch
 

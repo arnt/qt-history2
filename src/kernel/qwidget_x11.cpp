@@ -978,9 +978,9 @@ qstring_to_xtp( const QString& s )
     static const QTextCodec* mapper = QTextCodec::codecForLocale();
     int errCode = 0;
     if ( mapper ) {
-	QCString mapped = mapper->fromUnicode(s);
+	QByteArray mapped = mapper->fromUnicode(s);
 	char* tl[2];
-	tl[0] = mapped.data();
+	tl[0] = mapped.detach();
 	tl[1] = 0;
 	errCode = XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
 					     tl, 1, XStdICCTextStyle, &tp );
@@ -990,7 +990,7 @@ qstring_to_xtp( const QString& s )
 #endif
     }
     if ( !mapper || errCode < 0 ) {
-	static QCString qcs;
+	static QByteArray qcs;
 	qcs = s.ascii();
 	tp.value = (uchar*)qcs.data();
 	tp.encoding = XA_STRING;

@@ -82,7 +82,7 @@
 
     QTextDecoder* makeDecoder() const;
 
-    QCString fromUnicode(const QString& uc, int& lenInOut) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     QString toUnicode(const char* chars, int len) const;
 
     int heuristicContentMatch(const char* chars, int len) const;
@@ -90,6 +90,7 @@
 */
 
 #include "qeuckrcodec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -98,7 +99,7 @@ unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
 
 #define	IsEucChar(c)	(((c) >= 0xa1) && ((c) <= 0xfe))
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 /*!
   \reimp
@@ -122,11 +123,11 @@ int QEucKrCodec::mibEnum() const
   \reimp
 */
 
-QCString QEucKrCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QEucKrCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
   int l = QMIN((int)uc.length(),lenInOut);
   int rlen = l*3+1;
-  QCString rstr(rlen);
+  QByteArray rstr(rlen);
   uchar* cursor = (uchar*)rstr.data();
   for (int i=0; i<l; i++) {
     QChar ch = uc[i];
@@ -144,7 +145,7 @@ QCString QEucKrCodec::fromUnicode(const QString& uc, int& lenInOut) const
     }
   }
   lenInOut = cursor - (uchar*)rstr.data();
-  rstr.truncate(lenInOut);
+  rstr.resize(lenInOut);
   return rstr;
 }
 

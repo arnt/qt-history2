@@ -11,7 +11,6 @@ tools {
 		  $$CODECS_H/qgb18030codec.h \
 		  $$CODECS_H/qjiscodec.h \
 		  $$CODECS_H/qjpunicode.h \
-		  $$CODECS_H/qrtlcodec.h \
 		  $$CODECS_H/qsjiscodec.h \
 		  $$CODECS_H/qtextcodec.h \
 		  $$CODECS_H/qtsciicodec.h \
@@ -28,7 +27,6 @@ tools {
 		  $$CODECS_CPP/qgb18030codec.cpp \
 		  $$CODECS_CPP/qjiscodec.cpp \
 		  $$CODECS_CPP/qjpunicode.cpp \
-		  $$CODECS_CPP/qrtlcodec.cpp \
 		  $$CODECS_CPP/qsjiscodec.cpp \
 		  $$CODECS_CPP/qtextcodec.cpp \
 		  $$CODECS_CPP/qtsciicodec.cpp \

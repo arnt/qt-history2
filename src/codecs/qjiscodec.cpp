@@ -130,6 +130,7 @@
 */
 
 #include "qjiscodec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -145,7 +146,7 @@ static const uchar Overline = 0x7e;
 #define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
 #define	IsJisChar(c)	(((c) >= 0x21) && ((c) <= 0x7e))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 enum Iso2022State{ Ascii, MinState = Ascii,
 		   JISX0201_Latin, JISX0201_Kana,
@@ -196,10 +197,10 @@ int QJisCodec::mibEnum() const
 }
 
 /*! \internal */
-QCString QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = QMIN((int)uc.length(),lenInOut);
-    QCString result;
+    QByteArray result;
     Iso2022State state = Ascii;
     Iso2022State prev = Ascii;
     for (int i=0; i<l; i++) {
@@ -253,7 +254,7 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
     if (prev != Ascii) {
 	result += Esc_Ascii;
     }
-    lenInOut = result.length();
+    lenInOut = result.size();
     return result;
 }
 

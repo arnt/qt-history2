@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qiodevice.h"
 #include "qstring.h"
+#include "qchar.h"
 #include <stdio.h>
 #endif // QT_H
 
@@ -89,7 +90,7 @@ public:
     QTextStream &operator>>( double & );
     QTextStream &operator>>( char * );
     QTextStream &operator>>( QString & );
-    QTextStream &operator>>( QCString & );
+    QTextStream &operator>>( QByteArray & );
 
     QTextStream &operator<<( QChar );
     QTextStream &operator<<( char );
@@ -103,7 +104,7 @@ public:
     QTextStream &operator<<( double );
     QTextStream &operator<<( const char* );
     QTextStream &operator<<( const QString & );
-    QTextStream &operator<<( const QCString & );
+    QTextStream &operator<<( const QByteArray & );
     QTextStream &operator<<( void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
@@ -262,7 +263,7 @@ inline int QTextStream::precision( int p )
   Returns one character from the stream, or EOF.
 */
 inline QChar QTextStream::ts_getc()
-{ QChar r; return ( !ts_getbuf( &r,1 ) ? r : QChar((ushort)0xffff) ); }
+{ QChar r; if ( !ts_getbuf( &r,1 ) ) r = QChar(0xffff); return r; }
 
 /*****************************************************************************
   QTextStream manipulators

@@ -96,6 +96,7 @@
 */
 
 #include "qbig5codec.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_BIG_CODECS
 
@@ -109,7 +110,7 @@ int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 #define IsSecondByteRange2(c)	(InRange((c), 0xA1, 0xFE))
 #define IsSecondByte(c)	(IsSecondByteRange1(c) || IsSecondByteRange2(c))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar::replacement)
+#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 
 /*! \reimp */
@@ -190,12 +191,12 @@ QTextDecoder* QBig5Codec::makeDecoder() const
 
 
 /*! \reimp */
-QCString QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     //qDebug("QBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*3+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -216,7 +217,7 @@ QCString QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
     lenInOut = cursor - (uchar*)rstr.data();
-    rstr.truncate(lenInOut);
+    rstr.resize(lenInOut);
     return rstr;
 }
 
@@ -476,12 +477,12 @@ QTextDecoder* QBig5hkscsCodec::makeDecoder() const
 
 
 /*! \reimp */
-QCString QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
+QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     //qDebug("QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     int l = QMIN((int)uc.length(),lenInOut);
     int rlen = l*3+1;
-    QCString rstr(rlen);
+    QByteArray rstr(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -499,7 +500,7 @@ QCString QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	}
     }
     lenInOut = cursor - (uchar*)rstr.data();
-    rstr.truncate(lenInOut);
+    rstr.resize(lenInOut);
     return rstr;
 }
 

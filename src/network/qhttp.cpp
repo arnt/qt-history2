@@ -1456,7 +1456,7 @@ QByteArray QHttp::readAll()
 {
     Q_ULONG avail = bytesAvailable();
     QByteArray tmp( avail );
-    Q_LONG read = readBlock( tmp.data(), avail );
+    Q_LONG read = readBlock( tmp.detach(), avail );
     tmp.resize( read );
     return tmp;
 }
@@ -1906,7 +1906,7 @@ void QHttp::slotBytesWritten( int written )
 	int max = QMIN( 4096, d->postDevice->size() - d->postDevice->at() );
 	QByteArray arr( max );
 
-	int n = d->postDevice->readBlock( arr.data(), max );
+	int n = d->postDevice->readBlock( arr.detach(), max );
 	if ( n != max ) {
 	    qWarning("Could not read enough bytes from the device");
 	    close();
@@ -2023,7 +2023,7 @@ void QHttp::slotReadyRead()
 			arr = new QByteArray( 0 );
 		    uint oldArrSize = arr->size();
 		    arr->resize( oldArrSize + toRead );
-		    Q_LONG read = d->socket.readBlock( arr->data()+oldArrSize, toRead );
+		    Q_LONG read = d->socket.readBlock( arr->detach()+oldArrSize, toRead );
 		    arr->resize( oldArrSize + read );
 
 		    d->chunkedSize -= read;
@@ -2043,7 +2043,7 @@ void QHttp::slotReadyRead()
 		n = QMIN( d->response.contentLength() - d->bytesDone, n );
 		if ( n > 0 ) {
 		    arr = new QByteArray( n );
-		    Q_LONG read = d->socket.readBlock( arr->data(), n );
+		    Q_LONG read = d->socket.readBlock( arr->detach(), n );
 		    arr->resize( read );
 		}
 		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )

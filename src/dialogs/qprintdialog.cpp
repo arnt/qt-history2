@@ -545,7 +545,7 @@ static char *parseNsswitchPrintersEntry( QListView * printers, char *line )
 	    if ( stop )
 		break;
 
-	    QCString source;
+	    QByteArray source;
 	    while ( !isspace((uchar) line[k]) && line[k] != '[' ) {
 		source += line[k];
 		k++;
@@ -648,7 +648,7 @@ static void parseSpoolInterface( QListView * printers )
 	if ( !configFile.open( IO_ReadOnly ) )
 	    continue;
 
-	QCString line( 1025 );
+	QByteArray line( 1025 );
 	QString namePrinter;
 	QString hostName;
 	QString hostPrinter;
@@ -660,7 +660,7 @@ static void parseSpoolInterface( QListView * printers )
 	QString hostPrinterKey( QString::fromLatin1("HOSTPRINTER=") );
 
 	while ( !configFile.atEnd() &&
-		(configFile.readLine(line.data(), 1024)) > 0 ) {
+		(configFile.readLine(line.detach(), 1024)) > 0 ) {
 	    QString uline = line;
 	    if ( uline.startsWith( typeKey )  ) {
 		printerType = line.mid( nameKey.length() );
@@ -788,7 +788,7 @@ static char * parseCupsOutput( QListView * printers )
 	int n = 0;
 	while ( n < nd ) {
 	    perhapsAddPrinter( printers, d[n].name,
-			       QPrintDialog::tr("Unknown Location"), 0 );
+			       QPrintDialog::tr("Unknown Location"), QString() );
 	    if ( d[n].is_default && !defaultPrinter )
 		defaultPrinter = qstrdup( d[n].instance );
 	    n++;

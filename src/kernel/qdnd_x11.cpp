@@ -173,7 +173,7 @@ static Atom qt_xdnd_dragsource_xid = 0;
 const int qt_xdnd_max_type = 100;
 static Atom qt_xdnd_types[qt_xdnd_max_type];
 
-static QIntDict<QCString> * qt_xdnd_drag_types = 0;
+static QIntDict<QByteArray> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // timer used when target wants "continuous" move messages (eg. scroll)
@@ -359,15 +359,15 @@ const char* qt_xdnd_atom_to_str( Atom a )
 	return "text/plain"; // some Xdnd clients are dumb
 
     if ( !qt_xdnd_drag_types ) {
-	qt_xdnd_drag_types = new QIntDict<QCString>( 17 );
+	qt_xdnd_drag_types = new QIntDict<QByteArray>( 17 );
 	qt_xdnd_drag_types->setAutoDelete( TRUE );
     }
-    QCString* result;
+    QByteArray* result;
     if ( !(result=qt_xdnd_drag_types->find( a )) ) {
 	const char* mimeType = XGetAtomName( QPaintDevice::x11AppDisplay(), a );
 	if ( !mimeType )
 	    return 0; // only happens on protocol error
-	result = new QCString( mimeType );
+	result = new QByteArray( mimeType );
 	qt_xdnd_drag_types->insert( (long)a, result );
 	XFree((void*)mimeType);
     }

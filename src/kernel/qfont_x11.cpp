@@ -112,9 +112,9 @@ static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
   Returns \a xlfd with all wildcards removed if a match for \a xlfd is
   found, otherwise it returns \a xlfd.
 */
-static QCString qt_fixXLFD( const QCString &xlfd )
+static QByteArray qt_fixXLFD( const QByteArray &xlfd )
 {
-    QCString ret = xlfd;
+    QByteArray ret = xlfd;
     int count = 0;
     char **fontNames =
 	XListFonts( QPaintDevice::x11AppDisplay(), xlfd, 32768, &count );
@@ -245,8 +245,8 @@ void QFont::initialize()
 
     // get some sample text based on the users locale. we use this to determine the
     // default script for the font system
-    QCString oldlctime = setlocale(LC_TIME, 0);
-    QCString lctime = setlocale(LC_TIME, "");
+    QByteArray oldlctime(setlocale(LC_TIME, 0));
+    QByteArray lctime(setlocale(LC_TIME, ""));
 
     time_t ttmp = time(0);
     struct tm *tt = 0;
@@ -497,9 +497,9 @@ void QFont::setRawName( const QString &name )
     detach();
 
     // from qfontdatabase_x11.cpp
-    extern bool qt_fillFontDef( const QCString &xlfd, QFontDef *fd, int screen );
+    extern bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen );
 
-    if ( ! qt_fillFontDef( qt_fixXLFD( name.latin1() ), &d->request, d->screen ) ) {
+    if ( ! qt_fillFontDef( qt_fixXLFD( name.toLatin1() ), &d->request, d->screen ) ) {
 #ifdef QT_CHECK_STATE
 	qWarning("QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1());
 #endif // QT_CHECK_STATE

@@ -40,7 +40,7 @@
 #include "qvariant.h"
 #ifndef QT_NO_VARIANT
 #include "qstring.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #include "qfont.h"
 #include "qpixmap.h"
 #include "qimage.h"
@@ -62,6 +62,7 @@
 #include "qbitarray.h"
 #include "qkeysequence.h"
 #include "qpen.h"
+#include "qcstring.h"
 
 #ifndef DBL_DIG
 #define DBL_DIG 10

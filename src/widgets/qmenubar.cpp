@@ -478,7 +478,7 @@ void QMenuBar::frameChanged()
 
 void QMenuBar::languageChange()
 {
-    menuContentsChanged(); 
+    menuContentsChanged();
 }
 
 /*!
@@ -923,8 +923,8 @@ int QMenuBar::calculateRects( int max_width )
 	    QString s = mi->text();
 	    w = fm.boundingRect( s ).width()
 		+ 2*motifItemHMargin;
-	    w -= s.contains('&')*fm.width('&');
-	    w += s.contains("&&")*fm.width('&');
+	    w -= s.count('&')*fm.width('&');
+	    w += s.count("&&")*fm.width('&');
 	    w = QMAX( w, QApplication::globalStrut().width() );
 	    h = QMAX( fm.height() + motifItemVMargin, QApplication::globalStrut().height() );
 	} else if ( mi->isSeparator() ) {	// separator item

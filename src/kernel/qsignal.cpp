@@ -127,7 +127,7 @@ QSignal::~QSignal()
 // Returns TRUE if it matches ".+(.*int.*"
 static inline bool intSignature( const char *member )
 {
-    QCString s( member );
+    QByteArray s( member );
     int p = s.find( '(' );
     return p > 0 && p < s.findRev( "int" );
 }

@@ -60,7 +60,7 @@ template<class Type>
 class QPluginManager : public QGPluginManager
 {
 public:
-    QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
+    QPluginManager( const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = TRUE )
 	: QGPluginManager( id, paths, suffix, cs ) {}
     QRESULT queryInterface(const QString& feature, Type** iface) const
     {

@@ -191,7 +191,7 @@ void QValidator::fixup( QString & ) const
     QValidator* validator = new QIntValidator( 100, 999, this );
     QLineEdit* edit = new QLineEdit( this );
 
-    // the edit lineedit will only accept integers between 100 and 999 
+    // the edit lineedit will only accept integers between 100 and 999
     edit->setValidator( validator );
     \endcode
 
@@ -428,7 +428,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	return Intermediate;
     bool ok = TRUE;
     double entered = input.toDouble( &ok );
-    int nume = input.contains( 'e', FALSE );
+    int nume = input.count( 'e', QString::CaseInsensitive );
     if ( !ok ) {
 	// explicit exponent regexp
 	QRegExp expexpexp( QString::fromLatin1("[Ee][+-]?\\d*$") );

@@ -205,8 +205,7 @@ QPicture::~QPicture()
 void QPicture::setData( const char* data, uint size )
 {
     detach();
-    QByteArray a( size );
-    memcpy( a.data(), data, size );
+    QByteArray a(data, size);
     d->pictb.setBuffer( a );			// set byte array in buffer
     d->resetFormat();				// we'll have to check
 }
@@ -433,7 +432,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
     Q_INT16	i_16, i1_16, i2_16;		// parameters...
     Q_INT8	i_8;
     Q_UINT32	ul;
-    QCString	str1;
+    QByteArray	str1;
     QString	str;
     QPoint	p, p1, p2;
     QRect	r;
@@ -795,8 +794,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    if ( formatMajor == 1 ) {
 		pictb.at( pos - 2 );
 		s << (Q_UINT8)PdcDrawText << (Q_UINT8)0;
-		QCString str1( (*p[1].str).latin1() );
-		s << *p[0].point << str1;
+		s << *p[0].point << (*p[1].str).toLatin1();
 	    }
 	    else {
 		s << *p[0].point << *p[1].str;
@@ -808,8 +806,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    if ( formatMajor == 1 ) {
 		pictb.at( pos - 2 );
 		s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
-		QCString str1( (*p[2].str).latin1() );
-		s << *p[0].rect << (Q_INT16)p[1].ival << str1;
+		s << *p[0].rect << (Q_INT16)p[1].ival << (*p[2].str).toLatin1();
 	    }
 	    else {
 		s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
@@ -902,7 +899,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	s << (Q_UINT32)0;				// extend the buffer
 	pictb.at(pos - 1);			// position to right index
 	s << (Q_UINT8)255;			// indicate 32-bit length
-	char *p = pictb.buffer().data();
+	char *p = pictb.buffer().detach();
 	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
 	s << (Q_UINT32)length;
 	newpos += 4;
@@ -1005,7 +1002,7 @@ QPicture QPicture::copy() const
 {
     QPicture p;
     QByteArray a( size() );
-    memcpy( a.data(), data(), size() );
+    memcpy( a.detach(), data(), size() );
     p.d->pictb.setBuffer( a );			// set byte array in buffer
     if ( d->pictb.isOpen() ) {			// copy buffer state
 	p.d->pictb.open( d->pictb.mode() );
@@ -1206,9 +1203,11 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     sr.setVersion( r.d->formatMajor );
     Q_UINT32 len;
     s >> len;
-    QByteArray data( len );
-    if ( len > 0 )
-	s.readRawBytes( data.data(), len );
+    QByteArray data;
+    if ( len > 0 ) {
+	data.resize(len);
+	s.readRawBytes( data.detach(), len );
+    }
 
     r.d->pictb.setBuffer( data );
     r.d->resetFormat();

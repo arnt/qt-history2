@@ -189,10 +189,10 @@ static inline bool isSpace( char x )
 #endif
 }
 
-static QCString qt_rmWS( const char *s )
+static QByteArray qt_rmWS( const char *s )
 {
-    QCString result( qstrlen(s)+1 );
-    char *d = result.data();
+    QByteArray result( qstrlen(s)+1 );
+    char *d = result.detach();
     char last = 0;
     while( *s && isSpace(*s) )			// skip leading space
 	s++;
@@ -285,10 +285,12 @@ static void qt_spy_signal( QObject* sender, int signal, QUObject* o )
     const QMetaData* sigData = mo->signal( signal - mo->signalOffset() );
     if ( !sigData )
 	return;
-    QCString s;
+    QByteArray s;
     mo = sender->metaObject();
     while ( mo ) {
-	s.sprintf( "%s_%s", mo->className(), sigData->name );
+	s = mo->className();
+	s += "_";
+	s += sigData->name;
 	int slot = qt_preliminary_signal_spy->metaObject()->findSlot( s, TRUE );
 	if ( slot >= 0 ) {
 #ifdef QT_THREAD_SUPPORT
@@ -1197,7 +1199,7 @@ QConnectionList *QObject::receivers( const char* signal ) const
 {
     if ( connections && signal ) {
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
-	    QCString s = qt_rmWS( signal+1 );
+	    QByteArray s = qt_rmWS( signal+1 );
 	    return receivers( metaObject()->findSignal( (const char*)s, TRUE ) );
 	} else {
 	    return receivers( metaObject()->findSignal(signal, TRUE ) );
@@ -1482,7 +1484,7 @@ static void err_info_about_candidates( int code,
 {
     if ( strstr(member,"const char*") ) {
 	// porting help
-	QCString newname = member;
+	QByteArray newname(member);
 	int p;
 	while ( (p=newname.find("const char*")) >= 0 ) {
 	    newname.replace(p, 11, "const QString&");
@@ -1629,10 +1631,10 @@ bool QObject::checkConnectArgs( const char    *signal,
     unnecessary whitespace.
 */
 
-QCString QObject::normalizeSignalSlot( const char *signalSlot )
+QByteArray QObject::normalizeSignalSlot( const char *signalSlot )
 {
     if ( !signalSlot )
-	return QCString();
+	return QByteArray();
     return  qt_rmWS( signalSlot );
 }
 
@@ -1729,8 +1731,8 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #endif
-    QCString signal_name = qt_rmWS( signal );	// white space stripped
-    QCString member_name = qt_rmWS( member );
+    QByteArray signal_name = qt_rmWS( signal );	// white space stripped
+    QByteArray member_name = qt_rmWS( member );
     signal = signal_name;
     member = member_name;
 
@@ -1956,8 +1958,8 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 #endif
     if ( !sender->connections )			// no connected signals
 	return FALSE;
-    QCString signal_name;
-    QCString member_name;
+    QByteArray signal_name;
+    QByteArray member_name;
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
     int member_index = -1;
@@ -2576,7 +2578,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 		    keys.append( (*it).stripWhiteSpace().latin1() );
 		v = QVariant( p->keysToValue( keys ) );
 	    } else {
-		v = QVariant( p->keyToValue( value.toCString().data() ) );
+		v = QVariant( p->keyToValue( value.toByteArray().data() ) );
 	    }
 	} else if ( v.type() != QVariant::Int && v.type() != QVariant::UInt ) {
 	    return FALSE;

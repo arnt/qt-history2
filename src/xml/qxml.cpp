@@ -918,7 +918,7 @@ void QXmlInputSource::init()
     inputDevice = 0;
     inputStream = 0;
 
-    setData( QString::null );
+    setData( QString() );
     encMapper = 0;
 }
 
@@ -1089,7 +1089,7 @@ void QXmlInputSource::fetchData()
 	    const int bufsize = 512;
 	    while ( !inputStream->device()->atEnd() ) {
 		rawData.resize( nread + bufsize );
-		nread += inputStream->device()->readBlock( rawData.data()+nread, bufsize );
+		nread += inputStream->device()->readBlock( rawData.detach()+nread, bufsize );
 	    }
 	    rawData.resize( nread );
 	}
@@ -7234,7 +7234,7 @@ void QXmlSimpleReader::next()
 	    d->xmlRefName.pop_back();
 	    count--;
 	} else {
-	    c = d->xmlRef.top().constref( 0 );
+	    c = d->xmlRef.top().at( 0 );
 	    d->xmlRef.top().remove( 0, 1 );
 	    return;
 	}

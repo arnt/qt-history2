@@ -38,6 +38,29 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
+/* The two macros below are to conserve the QBuffer semantics. The old
+ * bytearray had explicit sharing making it easy to write to it. Since
+ * it is now implicitly shared, we have the problem that we cannot
+ * modify the bytearray member b of QBuffer without triggering a
+ * detach. For this reason we store a pointer to the original
+ * bytearray and a copy of it.
+ *
+ * Before writing to the buffer, we check if b is detached. If it is,
+ * we use p, otherwise we assume the original pointer is still valid
+ * and write to that one.
+ *
+ * We can only use p and not b within BEGIN_BUFFER_WRITE/END_BUFFER_WRITE pairs.
+ */
+#define BEGIN_BUFFER_WRITE \
+    if (p == &b || b.isDetached()) \
+	p = &b;         \
+    else                \
+	b.clear()
+
+#define END_BUFFER_WRITE \
+    b = *p
+
+
 /*!
     \class QBuffer qbuffer.h
     \reentrant
@@ -84,9 +107,8 @@
 
 QBuffer::QBuffer()
 {
+    p = &b;
     setFlags( IO_Direct );
-    a_inc = 16;                                 // initial increment
-    a_len = 0;
     ioIndex = 0;
 }
 
@@ -112,13 +134,19 @@ QBuffer::QBuffer()
     \sa setBuffer()
 */
 
-QBuffer::QBuffer( QByteArray buf ) : a(buf)
+QBuffer::QBuffer( QByteArray &buf ) : b(buf), p(&buf)
 {
     setFlags( IO_Direct );
-    a_len = a.size();
-    a_inc = (a_len > 512) ? 512 : a_len;        // initial increment
-    if ( a_inc < 16 )
-        a_inc = 16;
+    ioIndex = 0;
+}
+
+/*!
+    Constructs a buffer that operates on \a buf.
+*/
+
+QBuffer::QBuffer( const QByteArray &buf ) : b(buf), p(&b)
+{
+    setFlags( IO_Direct );
     ioIndex = 0;
 }
 
@@ -128,6 +156,7 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
 
 QBuffer::~QBuffer()
 {
+    p = 0;
 }
 
 
@@ -143,7 +172,7 @@ QBuffer::~QBuffer()
     \sa buffer(), open(), close()
 */
 
-bool QBuffer::setBuffer( QByteArray buf )
+bool QBuffer::setBuffer( QByteArray &buf )
 {
     if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
@@ -151,11 +180,8 @@ bool QBuffer::setBuffer( QByteArray buf )
 #endif
         return FALSE;
     }
-    a = buf;
-    a_len = a.size();
-    a_inc = (a_len > 512) ? 512 : a_len;        // initial increment
-    if ( a_inc < 16 )
-        a_inc = 16;
+    b = buf;
+    p = &buf;
     ioIndex = 0;
     return TRUE;
 }
@@ -195,18 +221,17 @@ bool QBuffer::open( int m  )
         return FALSE;
     }
     setMode( m );
-    if ( m & IO_Truncate ) {                    // truncate buffer
-        a.resize( 0 );
-        a_len = 0;
-    }
-    if ( m & IO_Append ) {                      // append to end of buffer
-        ioIndex = a.size();
-    } else {
+    BEGIN_BUFFER_WRITE;
+    if ( m & IO_Truncate )
+        p->resize( 0 );
+    if ( m & IO_Append )                       // append to end of buffer
+        ioIndex = p->size();
+    else
         ioIndex = 0;
-    }
-    a_inc = 16;
+
     setState( IO_Open );
     resetStatus();
+    END_BUFFER_WRITE;
     return TRUE;
 }
 
@@ -223,7 +248,6 @@ void QBuffer::close()
     if ( isOpen() ) {
         setFlags( IO_Direct );
         ioIndex = 0;
-        a_inc = 16;
     }
 }
 
@@ -263,7 +287,8 @@ bool QBuffer::at( Offset pos )
         return FALSE;
     }
 #endif
-    if ( pos > a_len ) {
+    // #### maybe resize if not readonly?
+    if ( pos > b.size() ) {
 #if defined(QT_CHECK_RANGE)
 #if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
         qWarning( "QBuffer::at: Index %llu out of range", pos );
@@ -298,14 +323,14 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
         return -1;
     }
 #endif
-    if ( ioIndex + len > a.size() ) {   // overflow
-        if ( ioIndex >= a.size() ) {
+    if ( ioIndex + len > b.size() ) {   // overflow
+        if ( ioIndex >= b.size() ) {
             return 0;
         } else {
-            len = a.size() - ioIndex;
+            len = b.size() - ioIndex;
         }
     }
-    memcpy( p, a.data()+ioIndex, len );
+    memcpy( p, b.data()+ioIndex, len );
     ioIndex += len;
     return len;
 }
@@ -318,7 +343,7 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 */
 
 /*!
-    Writes \a len bytes from \a p into the buffer at the current
+    Writes \a len bytes from \a ptr into the buffer at the current
     index position, overwriting any characters there and extending the
     buffer if necessary. Returns the number of bytes actually written.
 
@@ -327,13 +352,13 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
     \sa readBlock()
 */
 
-Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
+Q_LONG QBuffer::writeBlock( const char *ptr, Q_ULONG len )
 {
     if ( len == 0 )
         return 0;
 
 #if defined(QT_CHECK_NULL)
-    if ( p == 0 ) {
+    if ( ptr == 0 ) {
         qWarning( "QBuffer::writeBlock: Null pointer error" );
         return -1;
     }
@@ -348,23 +373,21 @@ Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
         return -1;
     }
 #endif
-    if ( ioIndex + len >= a_len ) {             // overflow
-        Q_ULONG new_len = a_len + a_inc*((ioIndex+len-a_len)/a_inc+1);
-        if ( !a.resize( new_len ) ) {           // could not resize
+    BEGIN_BUFFER_WRITE;
+    if ( ioIndex + len >= p->size() ) {             // overflow
+	p->resize(ioIndex +len);
+        if ( p->size() != ioIndex +len ) {           // could not resize
 #if defined(QT_CHECK_NULL)
             qWarning( "QBuffer::writeBlock: Memory allocation error" );
 #endif
             setStatus( IO_ResourceError );
+	    END_BUFFER_WRITE;
             return -1;
         }
-        a_inc *= 2;                             // double increment
-        a_len = new_len;
-        a.shd->len = ioIndex + len;
     }
-    memcpy( a.data()+ioIndex, p, len );
+    memcpy( p->detach()+ioIndex, ptr, len );
     ioIndex += len;
-    if ( a.shd->len < ioIndex )
-        a.shd->len = ioIndex;                   // fake (not alloc'd) length
+    END_BUFFER_WRITE;
     return len;
 }
 
@@ -394,16 +417,16 @@ Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
     if ( maxlen == 0 )
         return 0;
     Q_ULONG start = ioIndex;
-    char *d = a.data() + ioIndex;
+    const char *d = b.data() + ioIndex;
     maxlen--;                                   // make room for 0-terminator
-    if ( a.size() - ioIndex < maxlen )
-        maxlen = a.size() - ioIndex;
+    if ( b.size() - ioIndex < maxlen )
+        maxlen = b.size() - ioIndex;
     while ( maxlen-- ) {
         if ( (*p++ = *d++) == '\n' )
             break;
     }
     *p = '\0';
-    ioIndex = d - a.data();
+    ioIndex = d - b.data();
     return ioIndex - start;
 }
 
@@ -424,11 +447,11 @@ int QBuffer::getch()
         return -1;
     }
 #endif
-    if ( ioIndex+1 > a.size() ) {               // overflow
+    if ( ioIndex+1 > b.size() ) {               // overflow
         setStatus( IO_ReadError );
         return -1;
     }
-    return uchar(*(a.data()+ioIndex++));
+    return uchar(*(b.data()+ioIndex++));
 }
 
 /*!
@@ -455,16 +478,18 @@ int QBuffer::putch( int ch )
         return -1;
     }
 #endif
-    if ( ioIndex + 1 >= a_len ) {               // overflow
+    BEGIN_BUFFER_WRITE;
+    if ( ioIndex + 1 >= p->size() ) {               // overflow
         char buf[1];
         buf[0] = (char)ch;
-        if ( writeBlock(buf,1) != 1 )
+        if ( writeBlock(buf,1) != 1 ) {
+	    END_BUFFER_WRITE;
             return -1;                          // write error
+	}
     } else {
-        *(a.data() + ioIndex++) = (char)ch;
-        if ( a.shd->len < ioIndex )
-            a.shd->len = ioIndex;
+        *(p->detach() + ioIndex++) = (char)ch;
     }
+    END_BUFFER_WRITE;
     return ch;
 }
 

@@ -541,11 +541,11 @@ static inline bool isFixedPitch( char **tokens )
   Returns TRUE if the the given xlfd is valid.  The fields lbearing
   and rbearing are not given any values.
 */
-bool qt_fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
+bool qt_fillFontDef( const QByteArray &xlfd, QFontDef *fd, int screen )
 {
     char *tokens[NFontFields];
-    QCString buffer = xlfd.copy();
-    if ( ! parseXFontName(buffer.data(), tokens) )
+    QByteArray buffer = xlfd;
+    if ( ! parseXFontName(buffer.detach(), tokens) )
 	return FALSE;
 
     fd->family = QString::fromLatin1(tokens[Family]);
@@ -600,7 +600,7 @@ static bool qt_fillFontDef( XFontStruct *fs, QFontDef *fd, int screen )
 	return FALSE;
 
     char *n = XGetAtomName( QPaintDevice::x11AppDisplay(), value );
-    QCString xlfd( n );
+    QByteArray xlfd( n );
     if ( n )
 	XFree( n );
     return qt_fillFontDef( xlfd.lower(), fd, screen );
@@ -673,7 +673,7 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 
     int fontCount;
     // force the X server to give us XLFDs
-    QCString xlfd_pattern = "-*-";
+    QByteArray xlfd_pattern("-*-");
     xlfd_pattern += reqFamily ? reqFamily : "*";
     xlfd_pattern += "-*-*-*-*-*-*-*-*-*-*-";
     xlfd_pattern += xlfd_for_id( encoding_id );
@@ -843,7 +843,7 @@ static void loadXft()
 	}
 #endif // QT_XFT2
 
-	QCString file = file_value;
+	QByteArray file(file_value);
 	family->fontFilename = file;
 	family->fontFileIndex = index_value;
 
@@ -950,7 +950,7 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned s
 static inline void checkXftCoverage( QtFontFamily *family )
 {
 #ifdef _POSIX_MAPPED_FILES
-    QCString ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
+    QByteArray ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
 	void *map;
 	// qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
@@ -1264,7 +1264,7 @@ QFontEngine *loadEngine( QFont::Script script,
 			 QtFontEncoding *encoding, bool forced_encoding )
 {
     if ( fp && fp->rawMode ) {
-	QCString xlfd = request.family.latin1();
+	QByteArray xlfd = request.family.toLatin1();
 	qDebug( "Loading XLFD (rawmode) '%s'", xlfd.data() );
 
 	XFontStruct *xfs;
@@ -1295,11 +1295,11 @@ QFontEngine *loadEngine( QFont::Script script,
 
 	if ( !foundry->name.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FOUNDRY,
-				 foundry->name.local8Bit().data() );
+				 foundry->name.local8Bit() );
 
 	if ( !family->rawName.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FAMILY,
-				 family->rawName.local8Bit().data() );
+				 family->rawName.local8Bit() );
 
 	const char *stylehint_value = 0;
 	switch ( request.styleHint ) {
@@ -1406,7 +1406,7 @@ QFontEngine *loadEngine( QFont::Script script,
     qDebug( "    using XLFD" );
 #endif // FONT_MATCH_DEBUG
 
-    QCString xlfd = "-";
+    QByteArray xlfd("-");
     xlfd += foundry->name.isEmpty() ? "*" : foundry->name.latin1();
     xlfd += "-";
     xlfd += family->name.isEmpty() ? "*" : family->name.latin1();

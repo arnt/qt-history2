@@ -3503,7 +3503,7 @@ bool QImage::save( QIODevice* device, const char* format, int quality ) const
 */
 
 bool QImage::doImageIO( QImageIO* io, int quality ) const
-{    
+{
     if ( !io )
 	return FALSE;
     io->setImage( *this );
@@ -3776,9 +3776,9 @@ QImageIO::~QImageIO()
 class QImageHandler
 {
 public:
-    QImageHandler( const char *f, const char *h, const QCString& fl,
+    QImageHandler( const char *f, const char *h, const QByteArray& fl,
 		   image_io_handler r, image_io_handler w );
-    QCString	      format;			// image format
+    QByteArray	      format;			// image format
     QRegExp	      header;			// image header pattern
     enum TMode { Untranslated=0, TranslateIn, TranslateInOut } text_mode;
     image_io_handler  read_image;		// image read function
@@ -3786,7 +3786,7 @@ public:
     bool	      obsolete;			// support not "published"
 };
 
-QImageHandler::QImageHandler( const char *f, const char *h, const QCString& fl,
+QImageHandler::QImageHandler( const char *f, const char *h, const QByteArray& fl,
 			      image_io_handler r, image_io_handler w )
     : format(f), header(QString::fromLatin1(h))
 {
@@ -3960,7 +3960,7 @@ void QImageIO::defineIOHandler( const char *format,
 {
     qt_init_image_handlers();
     QImageHandler *p;
-    p = new QImageHandler( format, header, flags,
+    p = new QImageHandler( format, header, QByteArray(flags),
 			   readImage, writeImage );
     Q_CHECK_PTR( p );
     imageHandlers->insert( 0, p );
@@ -5183,10 +5183,10 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 static void write_pbm_image( QImageIO *iio )
 {
     QIODevice* out = iio->ioDevice();
-    QCString str;
+    QString str;
 
     QImage  image  = iio->image();
-    QCString format = iio->format();
+    QByteArray format(iio->format());
     format = format.left(3);			// ignore RAW part
     bool gray = format == "PGM";
 
@@ -5537,7 +5537,7 @@ static void write_xbm_image( QImageIO *iio )
 // Skip until ", read until the next ", return the rest in *buf
 // Returns FALSE on error, TRUE on success
 
-static bool read_xpm_string( QCString &buf, QIODevice *d,
+static bool read_xpm_string( QByteArray &buf, QIODevice *d,
 			     const char * const *source, int &index )
 {
     if ( source ) {
@@ -5582,18 +5582,17 @@ static bool read_xpm_string( QCString &buf, QIODevice *d,
 static void read_xpm_image_or_array( QImageIO * iio, const char * const * source,
 				     QImage & image)
 {
-    QCString buf;
+    QByteArray buf;
+    buf.resize(200);
     QIODevice *d = 0;
-    buf.resize( 200 );
 
     int i, cpp, ncols, w, h, index = 0;
 
     if ( iio ) {
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
-	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
-	QRegExp r( QString::fromLatin1("/\\*.XPM.\\*/") );
-	if ( buf.find(r) == -1 )
+	d->readLine( buf.detach(), buf.size() );	// "/* XPM */"
+	if ( buf.find("/* XPM") != 0 )
 	    return;					// bad magic
     } else if ( !source ) {
 	return;
@@ -5626,28 +5625,28 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 	}
 	QString index;
 	index = buf.left( cpp );
-	buf = buf.mid( cpp ).simplifyWhiteSpace().lower();
-	buf.prepend( " " );
-	i = buf.find( " c " );
+	QString sbuf = QString(buf.mid( cpp )).simplifyWhiteSpace().lower();
+	sbuf.prepend( " " );
+	i = sbuf.find( " c " );
 	if ( i < 0 )
-	    i = buf.find( " g " );
+	    i = sbuf.find( " g " );
 	if ( i < 0 )
-	    i = buf.find( " g4 " );
+	    i = sbuf.find( " g4 " );
 	if ( i < 0 )
-	    i = buf.find( " m " );
+	    i = sbuf.find( " m " );
 	if ( i < 0 ) {
 #if defined(QT_CHECK_RANGE)
 	    qWarning( "QImage: XPM color specification is missing: %s", buf.data());
 #endif
 	    return;	// no c/g/g4/m specification at all
 	}
-	buf = buf.mid( i+3 );
+	sbuf = sbuf.mid( i+3 );
 	// Strip any other colorspec
-	int end = buf.find(' ', 4);
+	int end = sbuf.find(' ', 4);
 	if ( end >= 0 )
-	    buf.truncate(end);
-	buf = buf.stripWhiteSpace();
-	if ( buf == "none" ) {
+	    sbuf.truncate(end);
+	sbuf = sbuf.stripWhiteSpace();
+	if ( sbuf == "none" ) {
 	    image.setAlphaBuffer( TRUE );
 	    int transparentColor = currentColor;
 	    if ( image.depth() == 8 ) {
@@ -5659,10 +5658,10 @@ static void read_xpm_image_or_array( QImageIO * iio, const char * const * source
 		colorMap.insert( index, rgb );
 	    }
 	} else {
-	    if ( ((buf.length()-1) % 3) && (buf[0] == '#') ) {
-		buf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
+	    if ( ((sbuf.length()-1) % 3) && (sbuf[0] == '#') ) {
+		sbuf.truncate (((buf.length()-1) / 4 * 3) + 1); // remove alpha channel left by imagemagick
 	    }
-	    QColor c( buf.data() );
+	    QColor c( sbuf );
 	    if ( image.depth() == 8 ) {
 		image.setColor( currentColor, 0xff000000 | c.rgb() );
 		colorMap.insert( index, currentColor );
@@ -5835,7 +5834,7 @@ static void write_xpm_image( QImageIO * iio )
 	int cc = 0;
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
-	    QCString chars = xpm_color_name( cpp, colorMap[color] );
+	    QByteArray chars(xpm_color_name( cpp, colorMap[color] ));
 	    line[cc++] = chars[0];
 	    if ( cpp > 1 ) {
 		line[cc++] = chars[1];

@@ -708,18 +708,18 @@ bool QMembuf::scanNewline( QByteArray *store )
 	    a = buf->first();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
-	    p = a->data() + _index;
+	    p = a->detach() + _index;
 	    n = a->size() - _index;
 	} else {
 	    a = buf->next();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
-	    p = a->data();
+	    p = a->detach();
 	    n = a->size();
 	}
 	if ( store ) {
 	    while ( n-- > 0 ) {
-		*(store->data()+i) = *p;
+		*(store->detach()+i) = *p;
 		if ( ++i == (int)store->size() )
 		    store->resize( store->size() < 256
 				   ? 1024 : store->size()*4 );
@@ -728,7 +728,7 @@ bool QMembuf::scanNewline( QByteArray *store )
 			store->resize( i );
 			return FALSE;
 		    case '\n':
-			*(store->data()+i) = '\0';
+			*(store->detach()+i) = '\0';
 			store->resize( i );
 			return TRUE;
 		}
@@ -754,13 +754,13 @@ int QMembuf::ungetch( int ch )
 	QByteArray *ba = new QByteArray( 1 );
 	buf->insert( 0, ba );
 	_size++;
-	ba->at( 0 ) = ch;
+	(*ba)[0] = ch;
     } else {
 	// we can reuse a place in the buffer
 	QByteArray *ba = buf->first();
 	_index--;
 	_size++;
-	ba->at( _index ) = ch;
+	(*ba)[_index] = ch;
     }
     return ch;
 }

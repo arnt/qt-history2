@@ -1675,7 +1675,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			emptyTag = space = TRUE;
 			int index = QMAX( curpar->length(),1) - 1;
 			QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
-			curpar->append( QChar_linesep );
+			curpar->append( QString(QChar_linesep) );
 			curpar->setFormat( index, 1, &format );
 		    }  else if ( tagname == "hr" ) {
 			emptyTag = space = TRUE;
@@ -1726,7 +1726,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			if ( textEditMode ) {
 			    if ( attr.contains("style" ) ) {
 				QString a = attr["style"];
-				for ( int s = 0; s < a.contains(';')+1; s++ ) {
+				int count = a.count(';') + 1;
+				for ( int s = 0; s < count; s++ ) {
 				    QString style = a.section( ';', s, s );
 				    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {
 					scaleFontsFactor = double( formatCollection()->defaultFormat()->fn.pointSize() ) /
@@ -1764,7 +1765,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 #ifndef QT_NO_TEXTCUSTOMITEM
 		    int index = QMAX( curpar->length(),1) - 1;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
-		    curpar->append( QChar('*') );
+		    curpar->append( QString(QChar('*')) );
 		    QTextFormat* f = formatCollection()->format( &format );
 		    curpar->setFormat( index, 1, f );
 		    curpar->at( index )->setCustomItem( custom );
@@ -1885,7 +1886,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			if ( attr.contains( "style" ) ) {
 			    QString a = attr["style"];
 			    bool ok = TRUE;
-			    for ( int s = 0; ok && s < a.contains(';')+1; s++ ) {
+			    int count = a.count(';')+1;
+			    for ( int s = 0; ok && s < count; s++ ) {
 				QString style = a.section( ';', s, s );
 				if ( style.startsWith("margin-top:" ) && style.endsWith("px") )
 				    curpar->utm = 1+style.mid(11, style.length() - 13).toInt(&ok);
@@ -6339,7 +6341,8 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     }
     if ( attr.contains("style" ) ) {
 	QString a = attr["style"];
-	for ( int s = 0; s < a.contains(';')+1; s++ ) {
+	int count = a.count(';')+1;
+	for ( int s = 0; s < count; s++ ) {
 	    QString style = a.section( ';', s, s );
 	    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {
 		format.logicalFontSize = 0;
@@ -7049,22 +7052,22 @@ static const Entity entitylist [] = {
 
 
 
-static QMap<QCString, QChar> *html_map = 0;
+static QMap<QByteArray, QChar> *html_map = 0;
 static void qt_cleanup_html_map()
 {
     delete html_map;
     html_map = 0;
 }
 
-static QMap<QCString, QChar> *htmlMap()
+static QMap<QByteArray, QChar> *htmlMap()
 {
     if ( !html_map ) {
-	html_map = new QMap<QCString, QChar>;
+	html_map = new QMap<QByteArray, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
 
 	const Entity *ent = entitylist;
 	while( ent->code ) {
-	    html_map->insert( ent->name, QChar(ent->code) );
+	    html_map->insert( QByteArray(ent->name), QChar(ent->code) );
 	    ent++;
 	}
     }
@@ -7073,7 +7076,7 @@ static QMap<QCString, QChar> *htmlMap()
 
 QChar QTextDocument::parseHTMLSpecialChar(const QChar* doc, int length, int& pos)
 {
-    QCString s;
+    QString s;
     pos++;
     int recoverpos = pos;
     while ( pos < length && doc[pos] != ';' && !doc[pos].isSpace() && pos < recoverpos + 8 ) {
@@ -7093,7 +7096,7 @@ QChar QTextDocument::parseHTMLSpecialChar(const QChar* doc, int length, int& pos
 	return num;
     }
 
-    QMap<QCString, QChar>::Iterator it = htmlMap()->find(s);
+    QMap<QByteArray, QChar>::Iterator it = htmlMap()->find(s.toLatin1());
     if ( it != htmlMap()->end() ) {
 	return *it;
     }

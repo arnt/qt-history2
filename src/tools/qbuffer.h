@@ -48,11 +48,12 @@ class Q_EXPORT QBuffer : public QIODevice
 {
 public:
     QBuffer();
-    QBuffer( QByteArray );
+    QBuffer( QByteArray &b );
+    QBuffer( const QByteArray &b );
    ~QBuffer();
 
     QByteArray buffer() const;
-    bool  setBuffer( QByteArray );
+    bool  setBuffer( QByteArray &b );
 
     bool  open( int );
     void  close();
@@ -72,12 +73,8 @@ public:
     int	  putch( int );
     int	  ungetch( int );
 
-protected:
-    QByteArray a;
-
 private:
-    uint  a_len;
-    uint  a_inc;
+    QByteArray b, *p;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -88,10 +85,10 @@ private:	// Disabled copy constructor and operator=
 
 
 inline QByteArray QBuffer::buffer() const
-{ return a; }
+{ return b; }
 
 inline QIODevice::Offset QBuffer::size() const
-{ return (Offset)a.size(); }
+{ return (Offset)b.size(); }
 
 inline QIODevice::Offset QBuffer::at() const
 { return ioIndex; }

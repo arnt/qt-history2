@@ -6,8 +6,10 @@ tools {
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
 		  $$TOOLS_H/qbitarray.h \
+		  $$TOOLS_H/qbytearray.h \
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
+		  $$TOOLS_H/qchar.h \
 		  $$TOOLS_H/qcleanuphandler.h \
 		  $$TOOLS_P/qcomponentfactory_p.h \
 		  $$TOOLS_P/qcomlibrary_p.h \
@@ -103,7 +105,9 @@ tools {
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
+		  $$TOOLS_CPP/qbytearray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
+		  $$TOOLS_CPP/qchar.cpp \
 		  $$TOOLS_CPP/qcomponentfactory.cpp \
 		  $$TOOLS_CPP/qcomlibrary.cpp \
 		  $$TOOLS_CPP/qcstring.cpp \

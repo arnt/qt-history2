@@ -658,7 +658,7 @@ void QSocket::flush()
 	    int j = d->windex;
 	    int s = a->size() - j;
 	    while ( a && i+s < (int)out.size() ) {
-		memcpy( out.data()+i, a->data()+j, s );
+		memcpy( out.detach()+i, a->data()+j, s );
 		j = 0;
 		i += s;
 		a = d->wba.next();
@@ -916,11 +916,11 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 	// small buffer, resize
 	int i = a->size();
 	a->resize( i+len );
-	memcpy( a->data()+i, data, len );
+	memcpy( a->detach()+i, data, len );
     } else {
 	// append new buffer
 	a = new QByteArray( len );
-	memcpy( a->data(), data, len );
+	memcpy( a->detach(), data, len );
 	d->wba.append( a );
     }
     d->wsize += len;
@@ -1130,7 +1130,7 @@ void QSocket::sn_read( bool force )
 		return;
 	    }
 	    a = new QByteArray( nread );
-	    memcpy( a->data(), buf, nread );
+	    memcpy( a->detach(), buf, nread );
 	}
 
     } else {					// data to be read
@@ -1140,14 +1140,14 @@ void QSocket::sn_read( bool force )
 	if ( nbytes > (int)sizeof(buf) ) {
 	    // big
 	    a = new QByteArray( nbytes );
-	    nread = d->socket->readBlock( a->data(), maxToRead ? QMIN(nbytes,maxToRead) : nbytes );
+	    nread = d->socket->readBlock( a->detach(), maxToRead ? QMIN(nbytes,maxToRead) : nbytes );
 	} else {
 	    a = 0;
 	    nread = d->socket->readBlock( buf, maxToRead ? QMIN((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf) );
 	    if ( nread > 0 ) {
 		// ##### could setRawData
 		a = new QByteArray( nread );
-		memcpy( a->data(), buf, nread );
+		memcpy( a->detach(), buf, nread );
 	    }
 	}
 	if ( nread == 0 ) {

@@ -1093,7 +1093,7 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
     QRect bound;
     QString *label = d->labels[section];
     if ( label ) {
-	int lines = label->contains( '\n' ) + 1;
+	int lines = label->count( '\n' ) + 1;
 	bound.setHeight( fm.height() +  fm.lineSpacing() * (lines - 1) );
 	int w = 0;
 	for ( int i = 0; i < lines; ++i ) {

@@ -42,6 +42,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qvaluelist.h"
+#include "qcstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_TRANSLATION
@@ -88,9 +89,9 @@ public:
 
 private:
     uint h;
-    QCString cx;
-    QCString st;
-    QCString cm;
+    QByteArray cx;
+    QByteArray st;
+    QByteArray cm;
     QString tn;
 
     enum Tag { Tag_End = 1, Tag_SourceText16, Tag_Translation, Tag_Context16,

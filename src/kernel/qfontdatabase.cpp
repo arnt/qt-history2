@@ -327,7 +327,7 @@ struct QtFontFamily
     QString name;
     QString rawName;
 #ifdef Q_WS_X11
-    QCString fontFilename;
+    QByteArray fontFilename;
     int fontFileIndex;
 #endif
 

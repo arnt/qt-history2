@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "private/qfontcodecs_p.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -69,9 +70,9 @@ QFontJis0201Codec::characterFromUnicode(const QString &str, int pos) const
     return 0;
 }
 
-QCString QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString rstring( lenInOut+1 );
+    QByteArray rstring( lenInOut+1 );
     uchar *rdata = (uchar *) rstring.data();
     const QChar *sdata = uc.unicode();
     int i = 0;
@@ -158,9 +159,9 @@ unsigned short QFontJis0208Codec::characterFromUnicode(const QString &str, int p
     return convJP->unicodeToJisx0208((str.unicode() + pos)->unicode());
 }
 
-QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

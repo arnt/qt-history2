@@ -61,7 +61,7 @@ void QDir::slashify( QString& )
 QString QDir::homeDirPath()
 {
     QString d;
-    d = QFile::decodeName(getenv("HOME"));
+    d = QFile::decodeName(QByteArray(getenv("HOME")));
     slashify( d );
     if ( d.isNull() )
 	d = rootDirPath();
@@ -77,7 +77,7 @@ QString QDir::canonicalPath() const
 	// need the cast for old solaris versions of realpath that doesn't take
 	// a const char*.
 	if( ::realpath( (char*)QFile::encodeName( dPath ).data(), tmp ) )
-	    r = QFile::decodeName( tmp );
+	    r = QFile::decodeName( QByteArray(tmp) );
 	slashify( r );
 
     	// always make sure we go back to the current dir
@@ -146,7 +146,7 @@ QString QDir::currentDirPath()
     if ( ::stat( ".", &st ) == 0 ) {
 	char currentName[PATH_MAX+1];
 	if ( ::getcwd( currentName, PATH_MAX ) )
-	    result = QFile::decodeName(currentName);
+	    result = QFile::decodeName(QByteArray(currentName));
 #if defined(QT_DEBUG)
 	if ( result.isNull() )
 	    qWarning( "QDir::currentDirPath: getcwd() failed" );
@@ -218,7 +218,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     while ( (file = readdir(dir)) )
 #endif // QT_THREAD_SUPPORT && _POSIX_THREAD_SAFE_FUNCTIONS
     {
-	QString fn = QFile::decodeName(file->d_name);
+	QString fn = QFile::decodeName(QByteArray(file->d_name));
 	fi.setFile( *this, fn );
 	if ( !qt_matchFilterList(filters, fn) && !(allDirs && fi.isDir()) )
 	     continue;
@@ -241,7 +241,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( closedir(dir) != 0 ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: Cannot close the directory: %s",
-		  dPath.local8Bit().data() );
+		  dPath.local8Bit() );
 #endif
     }
 

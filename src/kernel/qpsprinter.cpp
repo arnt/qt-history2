@@ -59,6 +59,7 @@
 #include "qimage.h"
 #include "qdatetime.h"
 #include "qstring.h"
+#include "qbytearray.h"
 #include "qdict.h"
 #include "qmemarray.h"
 #include "qfile.h"
@@ -2345,7 +2346,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
         stream << y << " Y";
     d->textY = y;
 
-    QCString xyarray;
+    QByteArray xyarray;
     int xo = 0;
     int yo = 0;
 
@@ -3925,7 +3926,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFontEngine *f, QByteArray& d)
   data = d;
 
   int pos = 0;
-  char* p = data.data();
+  const char* p = data.data();
   QString fontname;
 
   if (p[ pos ] != '%' || p[ pos+1 ] != '!') { // PFA marker
@@ -3949,7 +3950,7 @@ QPSPrinterFontPFA::QPSPrinterFontPFA(const QFontEngine *f, QByteArray& d)
 void QPSPrinterFontPFA::download(QTextStream& s, bool global)
 {
     //qDebug("downloading pfa font %s", psname.latin1() );
-  char* p = data.data();
+  char* p = data.detach();
 
   emitPSFontNameList( s, psname, replacementList );
   s << "% Font resource\n";
@@ -4238,8 +4239,8 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
     if ( paint->font().strikeOut() )
         mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
                " " + toString( d->fm.lineWidth() ) + " Tl";
-    QCString mb;
-    QCString out;
+    QByteArray mb;
+    QByteArray out;
     QString dummy( QChar(0x20) );
 
     if ( si.analysis.bidiLevel % 2 ) {
@@ -4254,7 +4255,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		} else
 		    mb = "  ";
 
-		for ( unsigned int j = 0; j < mb.length (); j++ ) {
+		for ( unsigned int j = 0; j < mb.size (); j++ ) {
 		    if ( mb.at(j) == '(' || mb.at(j) == ')' || mb.at(j) == '\\' )
 			out += "\\";
 		    out += mb.at(j);
@@ -4273,7 +4274,7 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
 		} else
 		    mb = "  ";
 
-		for ( unsigned int j = 0; j < mb.length (); j++ ) {
+		for ( unsigned int j = 0; j < mb.size(); j++ ) {
 		    if ( mb.at(j) == '(' || mb.at(j) == ')' || mb.at(j) == '\\' )
 			out += "\\";
 		    out += mb.at(j);
@@ -4921,7 +4922,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont &f, int script, QPSPrinterPrivate *pr
 	    data = QByteArray( fontfile.size() );
 
 	    fontfile.open(IO_Raw | IO_ReadOnly);
-	    fontfile.readBlock(data.data(), fontfile.size());
+	    fontfile.readBlock(data.detach(), fontfile.size());
 	    fontfile.close();
 	}
     }
@@ -5573,8 +5574,7 @@ QByteArray compress( const QImage & image, bool gray ) {
         out[i] = c;
         i++;
     }
-    QByteArray outarr;
-    outarr.duplicate( out, outOffset );
+    QByteArray outarr(out, outOffset);
     free( out );
     delete [] pixel;
 

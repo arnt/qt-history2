@@ -396,21 +396,21 @@ enum Shape {
   leftChar() returns true if the char to the left is a left join-causing char
   rightChar() returns true if the char to the right is a right join-causing char
 */
-static inline const QChar *prevChar( const QString &str, int pos )
+static inline const QChar prevChar( const QString &str, int pos )
 {
     //qDebug("leftChar: pos=%d", pos);
     pos--;
     const QChar *ch = str.unicode() + pos;
     while( pos > -1 ) {
 	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return ch;
+	    return *ch;
 	pos--;
 	ch--;
     }
-    return &QChar::replacement;
+    return QChar::replacement;
 }
 
-static inline const QChar *nextChar( const QString &str, int pos)
+static inline const QChar nextChar( const QString &str, int pos)
 {
     pos++;
     int len = str.length();
@@ -418,24 +418,24 @@ static inline const QChar *nextChar( const QString &str, int pos)
     while( pos < len ) {
 	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
 	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return ch;
+	    return *ch;
 	// assume it's a transparent char, this might not be 100% correct
 	pos++;
 	ch++;
     }
-    return &QChar::replacement;
+    return QChar::replacement;
 }
 
 /* and the same thing for logical ordering :)
  */
 static inline bool prevLogicalCharJoins( const QString &str, int pos)
 {
-    return ( joining( *nextChar( str, pos ) ) != QChar::OtherJoining );
+    return ( joining( nextChar( str, pos ) ) != QChar::OtherJoining );
 }
 
 static inline bool nextLogicalCharJoins( const QString &str, int pos)
 {
-    QChar::Joining join = joining( *prevChar( str, pos ) );
+    QChar::Joining join = joining( prevChar( str, pos ) );
     return ( join == QChar::Dual || join == QChar::Center );
 }
 
@@ -809,15 +809,15 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    ushort map;
 	    switch ( c ) {
 		case 0x44: { // lam
-		    const QChar *pch = nextChar( uc, pos );
-		    if ( pch->row() == 0x06 ) {
-			switch ( pch->cell() ) {
+		    const QChar pch = nextChar( uc, pos );
+		    if ( pch.row() == 0x06 ) {
+			switch ( pch.cell() ) {
 			    case 0x22:
 			    case 0x23:
 			    case 0x25:
 			    case 0x27:
 // 				qDebug(" lam of lam-alef ligature");
-				map = arabicUnicodeLamAlefMapping[pch->cell() - 0x22][shape];
+				map = arabicUnicodeLamAlefMapping[pch.cell() - 0x22][shape];
 				goto next;
 			    default:
 				break;
@@ -829,7 +829,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 		case 0x23: // alef with hamza above
 		case 0x25: // alef with hamza below
 		case 0x27: // alef
-		    if ( prevChar( uc, pos )->unicode() == 0x0644 ) {
+		    if ( prevChar( uc, pos ).unicode() == 0x0644 ) {
 			// have a lam alef ligature
 			//qDebug(" alef of lam-alef ligature");
 			goto skip;

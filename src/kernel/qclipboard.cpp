@@ -191,10 +191,10 @@ QClipboard::~QClipboard()
 
     \sa setText(), data(), QString::operator!()
 */
-QString QClipboard::text( QCString &subtype, Mode mode ) const
+QString QClipboard::text( QString &subtype, Mode mode ) const
 {
     QString r;
-    QTextDrag::decode( data( mode ) ,r, subtype );
+    QTextDrag::decode( data( mode ), r, subtype );
     return r;
 }
 
@@ -207,7 +207,7 @@ QString QClipboard::text( QCString &subtype, Mode mode ) const
     QClipboard::Clipboard.
 */
 // ### remove 4.0
-QString QClipboard::text( QCString& subtype ) const
+QString QClipboard::text( QString& subtype ) const
 {
     return text( subtype, selectionModeEnabled() ? Selection : Clipboard );
 }
@@ -226,7 +226,7 @@ QString QClipboard::text( QCString& subtype ) const
 */
 QString QClipboard::text( Mode mode ) const
 {
-    QCString subtype = "plain";
+    QString subtype("plain");
     return text( subtype, mode );
 }
 

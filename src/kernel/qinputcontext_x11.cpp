@@ -483,19 +483,19 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 }
 
 
-int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
+int QInputContext::lookupString(XKeyEvent *event, QByteArray &chars,
 				KeySym *key, Status *status) const
 {
     int count = 0;
 
 #if !defined(QT_NO_XIM)
     if (qt_xim && ic) {
-	count = XmbLookupString((XIC) ic, event, chars.data(),
+	count = XmbLookupString((XIC) ic, event, chars.detach(),
 				chars.size(), key, status);
 
 	if ((*status) == XBufferOverflow ) {
 	    chars.resize(count + 1);
-	    count = XmbLookupString((XIC) ic, event, chars.data(),
+	    count = XmbLookupString((XIC) ic, event, chars.detach(),
 				    chars.size(), key, status);
 	}
     }

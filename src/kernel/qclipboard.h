@@ -69,7 +69,7 @@ public:
 
     // ### default arg mode = Clipboard in 4.0 for all of these
     QString     text( Mode mode )	 const;
-    QString     text( QCString& subtype, Mode mode ) const;
+    QString     text( QString& subtype, Mode mode ) const;
     void	setText( const QString &, Mode mode );
 
 #ifndef QT_NO_MIMECLIPBOARD
@@ -84,7 +84,7 @@ public:
 
     // ### remove all of these in 4.0
     QString     text()	 const;
-    QString     text(QCString& subtype) const;
+    QString     text(QString& subtype) const;
     void	setText( const QString &);
 
 #ifndef QT_NO_MIMECLIPBOARD

@@ -1272,6 +1272,7 @@ void QRegExpEngine::match( const QString& str, int pos, bool minimal,
 			   QMemArray<int>& captured )
 {
     bool matched = FALSE;
+    QChar null(QChar::null);
 
 #ifndef QT_NO_REGEXP_OPTIM
     if ( trivial && !oneTest ) {
@@ -1284,7 +1285,7 @@ void QRegExpEngine::match( const QString& str, int pos, bool minimal,
 	mmStr = &str;
 	mmIn = str.unicode();
 	if ( mmIn == 0 )
-	    mmIn = &QChar::null;
+	    mmIn = &null;
 	mmPos = pos;
 	mmCaretPos = caretIndex;
 	mmLen = str.length();

@@ -492,9 +492,9 @@ QString QProcess::readLineStdout()
 	// get rid of terminating \n or \r\n
 	if ( size>0 && a.at( size - 1 ) == '\n' ) {
 	    if ( size>1 && a.at( size - 2 ) == '\r' )
-		a.at( size - 2 ) = '\0';
+		a[size - 2] = '\0';
 	    else
-		a.at( size - 1 ) = '\0';
+		a[size - 1] = '\0';
 	}
 	return QString( a );
     } else if ( canReadLineStdout() ) {
@@ -521,9 +521,9 @@ QString QProcess::readLineStderr()
 	// get rid of terminating \n or \r\n
 	if ( size>0 && a.at( size - 1 ) == '\n' ) {
 	    if ( size>1 && a.at( size - 2 ) == '\r' )
-		a.at( size - 2 ) = '\0';
+		a[size - 2] = '\0';
 	    else
-		a.at( size - 1 ) = '\0';
+		a[size - 1] = '\0';
 	}
 	return QString( a );
     } else if ( canReadLineStderr() ) {
@@ -701,7 +701,7 @@ void QProcess::closeStdinLaunch()
 */
 void QProcess::writeToStdin( const QString& buf )
 {
-    QByteArray tmp = buf.local8Bit();
+    QByteArray tmp = buf.toLocal8Bit();
     tmp.resize( buf.length() );
     writeToStdin( tmp );
 }

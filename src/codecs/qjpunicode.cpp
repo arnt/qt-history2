@@ -82,6 +82,7 @@
 #include "qjpunicode.h"
 #ifndef QT_NO_BIG_CODECS
 #include "qcstring.h"
+#include "qstring.h"
 #ifdef Q_OS_TEMP
 #include "qwinfunctions_wce.h"
 #endif
@@ -762,10 +763,10 @@ QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
     const char * e = 0;
     if ( rule == Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
-	QCString env( e );
+	QString env( e );
 	for (int i = 0; i < (int)env.length(); ) {
 	    int j = env.find(',', i);
-	    QCString s;
+	    QByteArray s;
 	    if (j < 0) {
 		s = env.mid(i).stripWhiteSpace();
 		i = env.length();

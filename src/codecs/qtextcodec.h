@@ -51,7 +51,7 @@ class QFont;
 class Q_EXPORT QTextEncoder {
 public:
     virtual ~QTextEncoder();
-    virtual QCString fromUnicode(const QString& uc, int& lenInOut) = 0;
+    virtual QByteArray fromUnicode(const QString& uc, int& lenInOut) = 0;
 };
 
 class Q_EXPORT QTextDecoder {
@@ -92,13 +92,11 @@ public:
     virtual QTextEncoder* makeEncoder() const;
 
     virtual QString toUnicode(const char* chars, int len) const;
-    virtual QCString fromUnicode(const QString& uc, int& lenInOut) const;
+    virtual QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
 
-    QCString fromUnicode(const QString& uc) const;
+    QByteArray fromUnicode(const QString& uc) const;
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
-    QString toUnicode(const QCString&, int len) const;
-    QString toUnicode(const QCString&) const;
     QString toUnicode(const char* chars) const;
     virtual bool canEncode( QChar ) const;
     virtual bool canEncode( const QString& ) const;

@@ -270,17 +270,17 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 
 	// get the right mimetype
 	QString e = fi.extension(FALSE);
-	QCString mimetype = "application/octet-stream";
+	QByteArray mimetype("application/octet-stream");
 	const char* imgfmt;
 	if ( extensions.contains(e) )
 	    mimetype = extensions[e].latin1();
 	else if ( ( imgfmt = QImage::imageFormat( abs_name ) ) )
-	    mimetype = QCString("image/")+QCString(imgfmt).lower();
+	    mimetype = QByteArray("image/")+QByteArray(imgfmt).lower();
 
 	QFile f(abs_name);
 	if ( f.open(IO_ReadOnly) && f.size() ) {
 	    QByteArray ba(f.size());
-	    f.readBlock(ba.data(), ba.size());
+	    f.readBlock(ba.detach(), ba.size());
 	    QStoredDrag* sr = new QStoredDrag( mimetype );
 	    sr->setEncodedData( ba );
 	    r = sr;
@@ -349,6 +349,8 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
 	return d->stored[abs_name];
 
     QMimeSource* r = 0;
+    if (abs_name.isEmpty())
+	return r;
     QStringList::Iterator it;
     if ( abs_name[0] == '/'
 #ifdef Q_WS_WIN

@@ -440,7 +440,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
     if ( !checkValid() )
 	return 0;
 
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren, QString::null, QString::null, QString::null );
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpListChildren, QString(), QString(), QString() );
     return startOperation( res );
 }
 
@@ -1055,7 +1055,7 @@ void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 	QByteArray &s = put->raw( 1 );
 	int size = s.size();
 	s.resize( size + data_.size() );
-	memcpy( s.data() + size, data_.data(), data_.size() );
+	memcpy( s.detach() + size, data_.data(), data_.size() );
     }
     emit data( data_, op );
 }

@@ -68,7 +68,7 @@ private:
 	struct
 	{
 	    QString *str;
-	    QCString *subtype;
+	    QString *subtype;
 	} txt;
 	struct
 	{

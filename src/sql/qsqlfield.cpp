@@ -124,7 +124,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     ro = other.ro;
     nul = other.nul;
     d->type = other.d->type;
-    return *this;    
+    return *this;
 }
 
 /*!
@@ -190,7 +190,7 @@ void QSqlField::setValue( const QVariant& value )
     if ( value.type() != d->type ) {
 	if ( !val.canCast( d->type ) )
 	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
-		      nm.local8Bit().data(), value.typeName(), QVariant::typeToName( d->type ) );
+		      nm.local8Bit(), value.typeName(), QVariant::typeToName( d->type ) );
     }
     val = value;
     if ( val.type() != QVariant::Invalid )

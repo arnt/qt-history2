@@ -591,8 +591,8 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     }
     QFontMetrics fm = p->fontMetrics();
     int fw = fm.width( t->label );
-    fw -= t->label.contains('&') * fm.width('&');
-    fw += t->label.contains("&&") * fm.width('&');
+    fw -= t->label.count('&') * fm.width('&');
+    fw += t->label.count("&&") * fm.width('&');
     int w = iw + fw + 4;
     int h = QMAX(fm.height() + 4, ih );
     paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
@@ -1061,8 +1061,8 @@ void QTabBar::layoutTabs()
 	t = lstatic->first();
     while ( t ) {
 	int lw = fm.width( t->label );
-	lw -= t->label.contains('&') * fm.width('&');
-	lw += t->label.contains("&&") * fm.width('&');
+	lw -= t->label.count('&') * fm.width('&');
+	lw += t->label.count("&&") * fm.width('&');
 	int iw = 0;
 	int ih = 0;
 	if ( t->iconset != 0 ) {

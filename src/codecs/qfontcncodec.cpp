@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "private/qfontcodecs_p.h"
+#include <qcstring.h>
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
@@ -84,9 +85,9 @@ unsigned short QFontGb2312Codec::characterFromUnicode(const QString &str, int po
     return 0;
 }
 
-QCString QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
@@ -173,9 +174,9 @@ unsigned short QFontGbkCodec::characterFromUnicode(const QString &str, int pos) 
     return 0;
 }
 
-QCString QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
@@ -254,9 +255,9 @@ QFontGb18030_0Codec::characterFromUnicode(const QString &str, int pos) const
     return 0;
 }
 
-QCString QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
-    QCString result(lenInOut * 2 + 1);
+    QByteArray result(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 

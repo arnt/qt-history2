@@ -5184,10 +5184,10 @@ QDomNodePrivate* QDomEntityPrivate::cloneNode( bool deep)
 /*
   Encode an entity value upon saving.
 */
-static QCString encodeEntity( const QCString& str )
+static QByteArray encodeEntity( const QByteArray& str )
 {
-    QCString tmp( str );
-    uint len = tmp.length();
+    QByteArray tmp( str );
+    uint len = tmp.size();
     uint i = 0;
     const char* d = tmp.data();
     while ( i < len ) {
@@ -5220,7 +5220,7 @@ static QCString encodeEntity( const QCString& str )
 void QDomEntityPrivate::save( QTextStream& s, int, int ) const
 {
     if ( m_sys.isNull() && m_pub.isNull() ) {
-	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">" << endl;
+	s << "<!ENTITY " << name << " \"" << encodeEntity( value.toUtf8() ) << "\">" << endl;
     } else {
 	s << "<!ENTITY " << name << " ";
 	if ( m_pub.isNull() ) {
@@ -6190,19 +6190,6 @@ bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessin
 /*!
     \overload
 
-    This function reads the XML document from the C string \a buffer.
-
-    \warning This function does not try to detect the encoding:
-    instead it assumes that the C string is UTF-8 encoded.
-*/
-bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
-{
-    return setContent( QString::fromUtf8( buffer, buffer.length() ), namespaceProcessing, errorMsg, errorLine, errorColumn );
-}
-
-/*!
-    \overload
-
     This function reads the XML document from the IO device \a dev.
 */
 bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
@@ -6243,21 +6230,6 @@ bool QDomDocument::setContent( const QByteArray& buffer, QString *errorMsg, int 
 /*!
     \overload
 
-    This function reads the XML document from the C string \a buffer.
-
-    No namespace processing is performed.
-
-    \warning This function does not try to detect the encoding:
-    instead it assumes that the C string is UTF-8 encoded.
-*/
-bool QDomDocument::setContent( const QCString& buffer, QString *errorMsg, int *errorLine, int *errorColumn  )
-{
-    return setContent( buffer, FALSE, errorMsg, errorLine, errorColumn );
-}
-
-/*!
-    \overload
-
     This function reads the XML document from the IO device \a dev.
 
     No namespace processing is performed.
@@ -6271,22 +6243,10 @@ bool QDomDocument::setContent( QIODevice* dev, QString *errorMsg, int *errorLine
 /*!
     Converts the parsed document back to its textual representation.
 
-    \sa toCString()
-*/
-QString QDomDocument::toString() const
-{
-    QString str;
-    QTextStream s( str, IO_WriteOnly );
-    save( s, 1 );
-
-    return str;
-}
-
-/*!
-    \overload
-
     This function uses \a indent as the amount of space to indent
     subelements.
+
+    \sa toCString()
 */
 QString QDomDocument::toString( int indent ) const
 {
@@ -6299,28 +6259,18 @@ QString QDomDocument::toString( int indent ) const
 
 /*!
     Converts the parsed document back to its textual representation
-    and returns a QCString for that is encoded in UTF-8.
-
-    \sa toString()
-*/
-QCString QDomDocument::toCString() const
-{
-    // ### if there is an encoding specified in the xml declaration, this
-    // encoding declaration should be changed to utf8
-    return toString().utf8();
-}
-
-/*!
-    \overload
+    and returns a QByteArray for that is encoded in UTF-8.
 
     This function uses \a indent as the amount of space to indent
     subelements.
+
+    \sa toString()
 */
-QCString QDomDocument::toCString( int indent ) const
+QByteArray QDomDocument::toByteArray( int indent ) const
 {
     // ### if there is an encoding specified in the xml declaration, this
     // encoding declaration should be changed to utf8
-    return toString( indent ).utf8();
+    return toString( indent ).toUtf8();
 }
 
 

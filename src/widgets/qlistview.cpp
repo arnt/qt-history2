@@ -1551,7 +1551,7 @@ void QListViewItem::setup()
     if ( mlenabled ) {
 	h = ph;
 	for ( int c = 0; c < v->columns(); ++c ) {
-	    int lines = text( c ).contains( QChar('\n') ) + 1;
+	    int lines = text( c ).count( QChar('\n') ) + 1;
 	    int tmph = v->d->fontMetricsHeight
 		       + v->fontMetrics().lineSpacing() * ( lines - 1 );
 	    h = QMAX( h, tmph );
@@ -1824,9 +1824,9 @@ void QListViewItem::setText( int column, const QString &text )
     int newLc = 0;
     if ( mlenabled ) {
 	if ( !l->text.isEmpty() )
-	    oldLc = l->text.contains( QChar( '\n' ) ) + 1;
+	    oldLc = l->text.count( QChar( '\n' ) ) + 1;
 	if ( !text.isEmpty() )
-	    newLc = text.contains( QChar( '\n' ) ) + 1;
+	    newLc = text.count( QChar( '\n' ) ) + 1;
     }
 
     l->dirty = TRUE;

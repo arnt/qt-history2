@@ -41,6 +41,7 @@
 #ifndef QT_H
 #include "qwindowdefs.h"
 #include "qrect.h"
+#include "qshared.h"
 #endif // QT_H
 
 #if defined(Q_WS_QWS)
