@@ -55,6 +55,7 @@ if [ "${platform}" = "win" ]; then
   echo "Removing X11-only files" >&2
   cd ${DISTDIR}/qt
   rm -rf makefiles
+  rm -f src/kernel/qpsprn.cpp
 fi
 
 if [ "${freecomm}" = "free" ]; then
