@@ -6,6 +6,7 @@ TARGET  = package
 win32:DESTDIR = ../../../bin
 unix:LIBS += -L$(QTDIR)/util/install/archive -larq
 win32:LIBS += ../archive/arq.lib
+DEFINES -= UNICODE
 
 win32:SOURCES += \
 	../../../src/3rdparty/zlib/adler32.c \

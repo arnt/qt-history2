@@ -657,7 +657,8 @@ void SetupWizardImpl::showPageConfig()
     sqlfolder->setOpen( true );
 
     folder = new QCheckListItem( sqlfolder, "TDS" );
-    folder->setOpen( true );
+    folder->setOpen( findFileInPaths( "ntwdblib.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+		     findFileInPaths( "sqldb.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/TDS", "Off", &settingsOK );
     tdsOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     tdsOff->setOn( entry == "Off" );
@@ -672,7 +673,8 @@ void SetupWizardImpl::showPageConfig()
 	tdsOff->setOn( true );
 
     folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
-    folder->setOpen( true );
+    folder->setOpen( findFileInPaths( "libpqdll.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+		     findFileInPaths( "libpq-fe.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/PostgreSQL", "Off", &settingsOK );
     psqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     psqlOff->setOn( entry == "Off" );
@@ -687,7 +689,8 @@ void SetupWizardImpl::showPageConfig()
 	psqlOff->setOn( true );
 
     folder = new QCheckListItem( sqlfolder, "OCI" );
-    folder->setOpen( true );
+    folder->setOpen( findFileInPaths( "oci.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+		     findFileInPaths( "oci.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/OCI", "Off", &settingsOK );
     ociOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     ociOff->setOn( entry == "Off" );
@@ -702,7 +705,8 @@ void SetupWizardImpl::showPageConfig()
 	ociOff->setOn( true );
 
     folder = new QCheckListItem( sqlfolder, "MySQL" );
-    folder->setOpen( true );
+    folder->setOpen( findFileInPaths( "libmysql.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+		     findFileInPaths( "mysql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/MySQL", "Off", &settingsOK );
     mysqlOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     mysqlOff->setOn( entry == "Off" );
@@ -717,7 +721,8 @@ void SetupWizardImpl::showPageConfig()
 	mysqlOff->setOn( true );
 
     folder = new QCheckListItem( sqlfolder, "ODBC" );
-    folder->setOpen( true );
+    folder->setOpen( findFileInPaths( "odbc32.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+		     findFileInPaths( "sql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) );
     entry = settings.readEntry( "/Trolltech/Qt/Sql Drivers/ODBC", "Off", &settingsOK );
     odbcOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton ); 
     odbcOff->setOn( entry == "Off" );
@@ -786,10 +791,10 @@ void SetupWizardImpl::showPageConfig()
 
     bool canXPStyle = findXPSupport();
     folder = new QCheckListItem( stfolder, "Windows XP" );
-    folder->setOpen( true );
+    folder->setOpen( canXPStyle );
     entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows XP", canXPStyle ? "Plugin" : "Off", &settingsOK );
     xpOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    xpOff->setOn( entry == "Off" );
+    xpOff->setOn( entry == "Off" || !canXPStyle );
     xpPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
     xpPlugin->setOn( entry == "Plugin" && canXPStyle );
     xpPlugin->setEnabled( canXPStyle );
@@ -928,38 +933,42 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     }
     return; // ### at the moment, the other options are not available in the evaluation version
 #endif
-    if( ( i == mysqlDirect || i == mysqlPlugin ) && 
+    if( mysqlDirect && ( i == mysqlDirect->parent() || i == mysqlDirect || i == mysqlPlugin ) && 
 	!(findFileInPaths( "libmysql.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "mysql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The MySQL driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( ( i == ociDirect || i == ociPlugin ) && 
+    if( ociDirect && ( i == ociDirect->parent() || i == ociDirect || i == ociPlugin ) && 
 	!(findFileInPaths( "oci.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "oci.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The OCI driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( ( i == odbcDirect || i == odbcPlugin ) && 
+    if( odbcDirect && ( i == odbcDirect->parent() || i == odbcDirect || i == odbcPlugin ) && 
 	!(findFileInPaths( "odbc32.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "sql.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The ODBC driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if( ( i == psqlDirect || i == psqlPlugin ) && 
+    if( psqlDirect && ( i == psqlDirect->parent() || i == psqlDirect || i == psqlPlugin ) && 
 	!(findFileInPaths( "libpqdll.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "libpq-fe.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if ( ( i == tdsDirect || i == tdsPlugin ) &&
+    if ( tdsDirect && ( i == tdsDirect->parent() || i == tdsDirect || i == tdsPlugin ) &&
 	!(findFileInPaths( "ntwdblib.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "sqldb.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
-	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
+	QMessageBox::warning( this, "Client libraries needed", "The TDS driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
-    if ( i == xpDirect )
-	QMessageBox::warning( this, "Unsupported configuration", "The Windows XP style requires XP components and\n"
-								 "can only be used as a plugin with a shared Qt DLL." );
-    if ( i == xpPlugin && !findXPSupport() )
+    if ( !findXPSupport() && ( i == xpPlugin || i == xpDirect || i == xpPlugin->parent() ) ) {
 	QMessageBox::warning( this, "Platform SDK needed", "The Windows XP style requires a Platform SDK with support for\n"
 							   "Windows XP to be installed properly. The required libraries and\n"
 							   "headers were not found in the LIB and INCLUDE environment variable paths." );
+    }
+    if ( ( i == tabletOn->parent() || i == tabletOn ) &&
+	!findFileInPaths( "wintab.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) 
+    {
+	QMessageBox::warning( this, "SDK required", "Qt might may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    }
 
     if ( i->text(0) == "Required" ) {
 	configPage->explainOption->setText( tr("These modules are a necessary part of the Qt library. "

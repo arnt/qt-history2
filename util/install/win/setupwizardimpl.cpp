@@ -554,18 +554,19 @@ void SetupWizardImpl::stopProcesses()
 
 void SetupWizardImpl::clickedPath()
 {
-    QFileDialog dlg;
     QDir dir( optionsPage->installPath->text() );
 
 #if defined(Q_OS_WIN32)
     if( !dir.exists() )
-	dir.setPath( "C:\\" );
+	dir.setPath( "C:\\Qt" );
 
-    dlg.setDir( dir );
-    dlg.setMode( QFileDialog::DirectoryOnly );
-    if( dlg.exec() ) {
-	optionsPage->installPath->setText( QDir::convertSeparators(dlg.dir()->absPath()) );
-    }
+    QString dest = QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
+    if ( dest.isNull() )
+	dest = "C:\\Qt";
+    if ( dest.right(1) == "\\" )
+	dest += "Qt";
+    dir.setPath( dest );
+    optionsPage->installPath->setText( QDir::convertSeparators(dir.absPath()) );
 #elif defined(Q_OS_MACX)
     if( !dir.exists() )
 	dir.setPath( "/" );
@@ -1069,8 +1070,8 @@ void SetupWizardImpl::showPageLicense()
 				     + makeCmds[ globalInformation.sysId() ] +
 #endif
 				     "'.\nMake sure the path to it "
-				     "is present in the PATH environment variable.\n"
-				     "The installation can't continue." );
+				     "is present in the PATH environment variable\n"
+				     "and restart the installation." );
     }
     licenseChanged();
 }
