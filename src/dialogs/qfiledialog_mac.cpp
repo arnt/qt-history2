@@ -46,8 +46,10 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
 
     QList<QRegExp> ret;
     QStringList filts = QStringList::split( sep, f);
-    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) 
-	ret.append(new QRegExp(extractFilter(*it)));
+    for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it ) {
+	qDebug("::%s::", extractFilter((*it)).latin1());
+	ret.append(new QRegExp(extractFilter((*it)), TRUE, TRUE));
+    }
     return ret;
 }
 
@@ -63,28 +65,24 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	if( !theInfo->isFolder ) {
 	    AliasHandle alias;
 	    Str63 str;
-	    QString tmpstr("");
 	    char tmp[sizeof(Str63)+2];
 	    FSSpec      FSSpec;
 	    AliasInfoType x = 0;
 
 	    AEGetDescData( theItem, &FSSpec, sizeof(FSSpec));
-	    tmp[0] = '/';
 
 	    if(NewAlias( NULL, &FSSpec, &alias ) != noErr) 
 		return true;
-	    while(1) {
-		GetAliasInfo(alias, (AliasInfoType)x++, str);
-		if(!str[0])
-		    break;
-		strncpy((char *)tmp+1, (const char *)str+1, str[0]);
-		tmp[str[0]+1] = '\0';
-		tmpstr.prepend((char *)tmp);
-	    }
-
-	    for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
-		if(it.current()->match( tmpstr ))
-		    return true;
+	    GetAliasInfo(alias, (AliasInfoType)x++, str);
+	    if(str[0]) {
+		strncpy((char *)tmp, (const char *)str+1, str[0]);
+		tmp[str[0]] = '\0';
+		
+		qDebug("%s", tmp);
+		for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
+		    if(it.current()->match( tmp ))
+			return true;
+		}
 	    }
 	    return false;
 	}
