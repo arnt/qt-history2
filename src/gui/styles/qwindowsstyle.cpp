@@ -21,6 +21,7 @@
 #include "qdrawutil.h" // for now
 #include "qevent.h"
 #include "qmenu.h"
+#include "qmenubar.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
 #include "qrubberband.h"
@@ -89,7 +90,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 
     switch(e->type()) {
     case QEvent::KeyPress:
-        if (((QKeyEvent*)e)->key() == Qt::Key_Alt) {
+        if (static_cast<QKeyEvent *>(e)->key() == Qt::Key_Alt) {
             widget = widget->topLevelWidget();
 
             // Alt has been pressed - find all widgets that care
@@ -105,12 +106,21 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             alt_down = true;
 
             // Repaint all relevant widgets
-            for (int pos=0; pos<l.size(); ++pos) {
-                QWidget *w = static_cast<QWidget*>(l.at(pos));
-                w->repaint();
-            }
+            for (int pos = 0; pos<l.size(); ++pos)
+                l.at(pos)->repaint();
         }
         break;
+    case QEvent::KeyRelease:
+	if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Alt) {
+	    widget = widget->topLevelWidget();
+
+	    // Update state and repaint the menubars.
+	    alt_down = false;
+            QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
+            for (int i = 0; i < l.size(); ++i)
+                l.at(i)->repaint();
+	}
+	break;
     case QEvent::Close:
         // Reset widget when closing
         seenAlt.removeAll(widget);
@@ -1039,10 +1049,47 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
             BOOL cues;
             SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
-            ret = cues ? 1 : 0;
+            ret = int(cues);
             // Do nothing if we always paint underlines
-            if (!ret && opt && d) {
-                ret = 1;
+            if (!ret && widget && d) {
+                const QMenuBar *menuBar = ::qt_cast<const QMenuBar*>(widget);
+                const QMenu *popupMenu = 0;
+                if (!menuBar)
+                    popupMenu = ::qt_cast<const QMenu *>(widget);
+
+                // If we paint a menubar draw underlines if it has focus, or if alt is down,
+                // or if a popup menu belonging to the menubar is active and paints underlines
+                if (menuBar) {
+                    if (menuBar->hasFocus()) {
+                        ret = 1;
+                    } else if (d->altDown()) {
+                        ret = 1;
+                    } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
+                        popupMenu = qt_cast<const QMenu *>(qApp->focusWidget());
+                        if (qt_cast<QMenuBar *>(popupMenu->parentWidget()) == menuBar) {
+                            if (d->hasSeenAlt(menuBar))
+                                ret = 1;
+                        }
+                    }
+                    // If we paint a popup menu draw underlines if the respective menubar does
+                } else if (popupMenu) {
+                    const QMenu *menu = popupMenu;
+                    const QMenuBar *bar = 0;
+                    while (menu || bar) {
+                        if (bar) {
+                            if (d->hasSeenAlt(bar)) {
+                                ret = 1;
+                                break;
+                            }
+                        }
+                        QWidget *nextWidget = menu ? menu->parentWidget() : bar->parentWidget();
+                        bar = qt_cast<const QMenuBar *>(nextWidget);
+                        menu = qt_cast<const QMenu *>(nextWidget);
+                    }
+                    // Otherwise draw underlines if the toplevel widget has seen an alt-press
+                } else if (d->hasSeenAlt(widget)) {
+                    ret = 1;
+                }
             }
         }
         break;
