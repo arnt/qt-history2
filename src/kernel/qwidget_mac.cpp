@@ -1381,7 +1381,7 @@ void QWidget::setName( const char * )
 void QWidget::propagateUpdates(int , int , int w, int h)
 {
   SetPortWindowPort((WindowPtr)handle());
-  QRect paintRect( 0, 0, w, h );
+   QRect paintRect( 0, 0, w, h );
 
   if(!testWFlags(WRepaintNoErase))
     erase(0, 0, w, h);
@@ -1405,68 +1405,44 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 }
 
 
-RgnHandle QWidget::clippedRegion()
+QRegion QWidget::clippedRegion()
 {
-    QPoint mp = posInWindow(this);
-    Rect rect;
-
-    //clippedRgn will contain my clipped area
-    RgnHandle clippedRgn = NewRgn();
-    OpenRgn();
-    SetRect(&rect,mp.x(),mp.y(),mp.x()+width(),mp.y()+height());
-    FrameRect(&rect);
-    CloseRgn(clippedRgn);
+    QPoint mp = posInWindow(this), tmp;
+    QRegion clippedRgn(mp.x(), mp.y(), width(), height());
 
     //clip out my children
     if(const QObjectList *chldnlst=children()) {
-	RgnHandle chldRgns = NewRgn();
+	QRegion chldRgns;
 	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 	    if((*it)->isWidgetType()) {
 		QWidget *cw = (QWidget *)(*it);
 		if(cw->isVisible() && cw->back_type != 3) {
-		    QPoint cmp = posInWindow(cw);
-		    RgnHandle chldRgn = NewRgn();
-		    OpenRgn();
-		    SetRect(&rect, cmp.x(), cmp.y(), cmp.x()+cw->width(), cmp.y()+cw->height());
-		    FrameRect(&rect);
-		    CloseRgn(chldRgn);
-
-		    UnionRgn(chldRgn, chldRgns, chldRgns);
-		    DisposeRgn(chldRgn);
+		    tmp  = posInWindow(cw);
+		    chldRgns += QRegion(tmp.x(), tmp.y(), cw->width(), cw->height());
 		}
 	    }
 	}
-	SectRgn(chldRgns, clippedRgn, chldRgns);
-	XorRgn(chldRgns, clippedRgn, clippedRgn);
+	clippedRgn = (chldRgns & clippedRgn) ^ clippedRgn;
     }
 
     //clip away my siblings
     if(!isTopLevel() && parentWidget()) {
 	if(const QObjectList *siblst = parentWidget()->children()) {
-	    RgnHandle sibRgns = NewRgn();
+	    QRegion sibRgns;
 	    //loop to this because its in zorder, and i don't care about people behind me
 	    QObjectListIt it(*siblst);
 	    for(it.toLast(); it.current() && it.current() != this; --it) {
 		if((*it)->isWidgetType()) {
 		    QWidget *sw = (QWidget *)(*it);
 		    if(sw->isVisible()) {
-			QPoint smp = posInWindow(sw);
-			RgnHandle sibRgn = NewRgn();
-			OpenRgn();
-			SetRect(&rect, smp.x(), smp.y(), smp.x()+sw->width(), smp.y()+sw->height());
-			FrameRect(&rect);
-			CloseRgn(sibRgn);
-
-			UnionRgn(sibRgn, sibRgns, sibRgns);
-			DisposeRgn(sibRgn);
+			tmp = posInWindow(sw);
+			sibRgns += QRegion(tmp.x(), tmp.y(), sw->width(), sw->height());
 		    }
 		}
 	    }
-	    SectRgn(sibRgns, clippedRgn, sibRgns);
-	    XorRgn(sibRgns, clippedRgn, clippedRgn);
+	    clippedRgn = (sibRgns & clippedRgn) ^ clippedRgn;
 	}
     }
-
     return clippedRgn;
 }
 

@@ -402,16 +402,9 @@ bool QPainter::begin( const QPaintDevice *pd )
         ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth ); // sanders
         wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight ); // sanders
     } else {
-	if(!clip_set) { //clip to the whole region
-	    Rect rect;
-	    SetRect(&rect,0,0,ww,wh);
-
-	    savedclip = NewRgn();
-	    OpenRgn();
-	    FrameRect(&rect);
-	    CloseRgn(savedclip);
-	}
-	SetClip(savedclip);
+	if(!clip_set) //clip to the whole region
+	    savedclip = QRegion(0, 0, ww, wh);
+	SetClip((RgnHandle)savedclip.handle());
     }
 
     if ( ww == 0 )
@@ -471,7 +464,6 @@ bool QPainter::end()				// end painting
 
     //reset the value we got in begin()
     SetGWorld(savedworld,savedhandle);
-    DisposeRgn(savedclip);
 
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );

@@ -354,7 +354,7 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #elif defined(_WS_MAC_)
-    RgnHandle savedclip;
+    QRegion savedclip;
     GWorldPtr savedworld;
     GDHandle savedhandle;
 

@@ -93,7 +93,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
     data->rgn = NewRgn();
 
     Rect rect;
-    SetRect(&rect, rr.x(), rr.y(), rr.x()+rr.x()+rr.width(), rr.y()+rr.height());
+    SetRect(&rect, rr.x(), rr.y(), rr.x()+rr.width(), rr.y()+rr.height());
     OpenRgn();
     if ( t == Rectangle )			// rectangular region
 	FrameRect(&rect);

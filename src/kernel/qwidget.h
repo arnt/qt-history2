@@ -415,7 +415,7 @@ public:
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
 #if defined(_WS_MAC_)
-    RgnHandle clippedRegion();
+    QRegion clippedRegion();
 #endif
 
 protected:
