@@ -30,26 +30,14 @@ public:
 	TkNodeType_Node,
 	TkOperator,
 	TkFunctionName,
-	TkAxisName_Child,
-	TkAxisName_Descendant,
-	TkAxisName_Parent,
-	TkAxisName_Ancestor,
-	TkAxisName_FollowingSibling,
-	TkAxisName_PrecedingSibling,
-	TkAxisName_Following,
-	TkAxisName_Preceding,
-	TkAxisName_Attribute,
-	TkAxisName_Namespace,
-	TkAxisName_Self,
-	TkAxisName_DescendantOrSelf,
-	TkAxisName_AncestorOrSelf,
+	TkAxisName,
 	TkLiteral,
 	TkNumber,
 	TkVariableReference
     };
 
     enum Operator {
-	OpNone,
+	OpError,
 	OpAnd,		// 'and'
 	OpOr,		// 'or'
 	OpMod,		// 'mod'
@@ -66,6 +54,23 @@ public:
 	OpLtEq,		// '<='
 	OpGt,		// '>'
 	OpGtEq		// '>='
+    };
+
+    enum Axis {
+	AxError,
+	AxChild,
+	AxDescendant,
+	AxParent,
+	AxAncestor,
+	AxFollowingSibling,
+	AxPrecedingSibling,
+	AxFollowing,
+	AxPreceding,
+	AxAttribute,
+	AxNamespace,
+	AxSelf,
+	AxDescendantOrSelf,
+	AxAncestorOrSelf
     };
 };
 
@@ -133,7 +138,6 @@ public:
 
 	bool forceVariableReference = FALSE;
 	QChar parseChar = expr[parsePos];
-qDebug( QString(parseChar) );
 
 	// look for numbers
 	// Attention: This test must occur before the test for a single '.' in
@@ -198,7 +202,7 @@ qDebug( QString(parseChar) );
 		    break;
 		default:
 		    token = TkOperator;
-		    str = "*";
+		    op = OpMultiply;
 		    break;
 	    }
 	    goto finished;
@@ -345,31 +349,44 @@ qDebug( QString(parseChar) );
 	    } else if ( parseChar == ':' ) {
 		if ( lookAhead(1) == ':' ) {
 		    if ( str == "child" ) {
-			token = TkAxisName_Child;
+			token = TkAxisName;
+			axis = AxChild;
 		    } else if ( str == "descendant" ) {
-			token = TkAxisName_Descendant;
+			token = TkAxisName;
+			axis = AxDescendant;
 		    } else if ( str == "parent" ) {
-			token = TkAxisName_Parent;
+			token = TkAxisName;
+			axis = AxParent;
 		    } else if ( str == "ancestor" ) {
-			token = TkAxisName_Ancestor;
+			token = TkAxisName;
+			axis = AxAncestor;
 		    } else if ( str == "following-sibling" ) {
-			token = TkAxisName_FollowingSibling;
+			token = TkAxisName;
+			axis = AxFollowingSibling;
 		    } else if ( str == "preceding-sibling" ) {
-			token = TkAxisName_PrecedingSibling;
+			token = TkAxisName;
+			axis = AxPrecedingSibling;
 		    } else if ( str == "following" ) {
-			token = TkAxisName_Following;
+			token = TkAxisName;
+			axis = AxFollowing;
 		    } else if ( str == "preceding" ) {
-			token = TkAxisName_Preceding;
+			token = TkAxisName;
+			axis = AxPreceding;
 		    } else if ( str == "attribute" ) {
-			token = TkAxisName_Attribute;
+			token = TkAxisName;
+			axis = AxAttribute;
 		    } else if ( str == "namespace" ) {
-			token = TkAxisName_Namespace;
+			token = TkAxisName;
+			axis = AxNamespace;
 		    } else if ( str == "self" ) {
-			token = TkAxisName_Self;
+			token = TkAxisName;
+			axis = AxSelf;
 		    } else if ( str == "descendant-or-self" ) {
-			token = TkAxisName_DescendantOrSelf;
+			token = TkAxisName;
+			axis = AxDescendantOrSelf;
 		    } else if ( str == "ancestor-or-self" ) {
-			token = TkAxisName_AncestorOrSelf;
+			token = TkAxisName;
+			axis = AxAncestorOrSelf;
 		    } else {
 			token = TkError;
 		    }
@@ -418,13 +435,23 @@ qDebug( QString(parseChar) );
 	    return 0;
     }
 
-    // Returns the operator for TkOperator tokens, otherwise OpNone is returned.
+    // Returns the operator for TkOperator tokens, otherwise OpError is
+    // returned.
     Operator getOperator() const
     {
 	if ( token == TkOperator )
 	    return op;
 	else
-	    return OpNone;
+	    return OpError;
+    }
+
+    // Returns the axis for TkAxisName tokens, otherwise AxError is returned.
+    Axis getAxis() const
+    {
+	if ( token == TkAxisName )
+	    return axis;
+	else
+	    return AxError;
     }
 
     bool atEnd() const
@@ -453,6 +480,7 @@ private:
 
     QString str;
     Operator op;
+    Axis axis;
 };
 
 
@@ -484,7 +512,7 @@ public:
     QXPathAtom* parse()
     {
 	Token token;
-	State s = SExpr;
+//	State s = SExpr;
 	QXPathAtom *act_root = 0;
 
 	while ( !lex->atEnd() ) {
@@ -524,19 +552,7 @@ public:
 		    break;
 		case TkFunctionName:
 		    break;
-		case TkAxisName_Child:
-		case TkAxisName_Descendant:
-		case TkAxisName_Parent:
-		case TkAxisName_Ancestor:
-		case TkAxisName_FollowingSibling:
-		case TkAxisName_PrecedingSibling:
-		case TkAxisName_Following:
-		case TkAxisName_Preceding:
-		case TkAxisName_Attribute:
-		case TkAxisName_Namespace:
-		case TkAxisName_Self:
-		case TkAxisName_DescendantOrSelf:
-		case TkAxisName_AncestorOrSelf:
+		case TkAxisName:
 		    break;
 		case TkLiteral:
 		    break;
