@@ -30,6 +30,7 @@
 #include "qimage.h"
 #endif // QT_H
 
+#if QT_FEATURE_ASYNC_IMAGE_IO
 
 
 class Q_EXPORT QImageConsumer {
@@ -88,5 +89,6 @@ private:
     QImageDecoderPrivate *d;
 };
 
+#endif // QT_FEATURE_ASYNC_IMAGE_IO
 
 #endif // QASYNCIMAGEIO_H

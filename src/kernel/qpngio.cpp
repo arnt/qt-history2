@@ -650,6 +650,7 @@ bool QPNGImagePacker::packImage(const QImage& img)
 }
 
 
+#if QT_FEATURE_ASYNC_IMAGE_IO
 
 class Q_EXPORT QPNGFormat : public QImageFormat {
 public:
@@ -999,12 +1000,16 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 
 static QPNGFormatType* globalPngFormatTypeObject = 0;
 
+#endif // QT_FEATURE_ASYNC_IMAGE_IO
+
 void qCleanupPngIO()
 {
+#if QT_FEATURE_ASYNC_IMAGE_IO
     if ( globalPngFormatTypeObject ) {
 	delete globalPngFormatTypeObject;
 	globalPngFormatTypeObject = 0;
     }
+#endif
 }
 
 void qInitPngIO()
@@ -1014,7 +1019,9 @@ void qInitPngIO()
 	done = TRUE;
 	QImageIO::defineIOHandler( "PNG", "^.PNG\r", 0, read_png_image,
 				   write_png_image);
+#if QT_FEATURE_ASYNC_IMAGE_IO
 	globalPngFormatTypeObject = new QPNGFormatType;
+#endif
 	qAddPostRoutine( qCleanupPngIO );
     }
 }

@@ -2877,7 +2877,9 @@ static void read_xpm_image( QImageIO * );
 static void write_xpm_image( QImageIO * );
 #endif
 
+#if QT_FEATURE_ASYNC_IMAGE_IO
 static void read_async_image( QImageIO * ); // Not in table of handlers
+#endif
 
 /*****************************************************************************
   Misc. utility functions
@@ -3348,9 +3350,12 @@ const char *QImageIO::imageFormat( QIODevice *d )
     int pos   = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
+    const char* format;
+#if QT_FEATURE_ASYNC_IMAGE_IO
     // Try asynchronous loaders first (before we 0->1 the header),
     // but overwrite if found in IOHandlers.
-    const char* format = QImageDecoder::formatName((uchar*)buf, rdlen);
+    format = QImageDecoder::formatName((uchar*)buf, rdlen);
+#endif
 
     for ( int n = 0; n<rdlen; n++ )
 	if ( buf[n] == '\0' )
@@ -3382,8 +3387,10 @@ QStrList QImageIO::inputFormats()
     if ( imageHandlers == 0 )
 	init_image_handlers();
 
+#if QT_FEATURE_ASYNC_IMAGE_IO
     // Include asynchronous loaders first.
     result = QImageDecoder::inputFormats();
+#endif
 
     QImageHandler *p = imageHandlers->first();
     while ( p ) {
@@ -3501,10 +3508,13 @@ bool QImageIO::read()
 
     if ( h && h->read_image ) {
 	(*h->read_image)( this );
-    } else {
+    }
+#if QT_FEATURE_ASYNC_IMAGE_IO
+    else {
 	// Format name, but no handler - must be an asychronous reader
 	read_async_image( this );
     }
+#endif
 
     if ( file.isOpen() ) {			// image was read using file
 	file.close();
@@ -4312,6 +4322,8 @@ static void write_pbm_image( QImageIO *iio )
 
 #endif // QT_FEATURE_IMAGIO_PPM
 
+#if QT_FEATURE_ASYNC_IMAGE_IO
+
 class QImageIOFrameGrabber : public QImageConsumer {
 public:
     QImageIOFrameGrabber() : framecount(0) { }
@@ -4373,6 +4385,8 @@ static void read_async_image( QImageIO *iio )
 
     delete consumer;
 }
+
+#endif // QT_FEATURE_ASYNC_IMAGE_IO
 
 #if QT_FEATURE_IMAGIO_XBM
 
