@@ -2732,6 +2732,8 @@ QFont::Script QFontPrivate::scriptForChar( const QChar &c )
 	return QFont::Greek;
 
     case 0x20:
+        if (cell == 0xac)                   // &euro;
+            return QFont::LatinExtendedA_15;
 	if (cell <= 0x6f)
 	    break;
 	if (cell <= 0x9f)
