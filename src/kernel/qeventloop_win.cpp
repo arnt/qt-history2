@@ -98,7 +98,7 @@ static bool dispatchTimer( uint timerId, MSG *msg )
 // Timer activation (called from the event loop when WM_TIMER arrives)
 //
 
-static bool activateTimer( uint id )		// activate timer
+bool activateTimer( uint id )		// activate timer
 {
     if ( !timerVec )				// should never happen
 	return FALSE;
@@ -110,7 +110,7 @@ static bool activateTimer( uint id )		// activate timer
     return TRUE;				// timer event was processed
 }
 
-static void activateZeroTimers()		// activate full-speed timers
+void activateZeroTimers()		// activate full-speed timers
 {
     if ( !timerVec )
 	return;

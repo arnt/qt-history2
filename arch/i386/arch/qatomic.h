@@ -69,8 +69,8 @@ inline void *q_cas_ptr(void * volatile *pointer, void *expected, void *newval)
 
 // compiler doesn't support inline assembly
 extern "C" {
-    int q_cas_32(volatile int *ptr, int expected, int newval);
-    void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
+    Q_KERNEL_EXPORT int q_cas_32(volatile int *ptr, int expected, int newval);
+    Q_KERNEL_EXPORT void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval);
 }
 
 #endif
