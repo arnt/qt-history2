@@ -314,6 +314,17 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
                             out[i] = qRgb(in[0], in[1], in[2]);
                         }
                     }
+                } else if (cinfo.out_color_space == JCS_CMYK) {
+                    for (uint j = 0; j < cinfo.output_height; ++j) {
+                        uchar *in = image.scanLine(j) + cinfo.output_width * 4;
+                        QRgb *out = (QRgb*)image.scanLine(j);
+
+                        for (uint i = cinfo.output_width; i--; ) {
+                            in-=4;
+                            int k = in[3];
+                            out[i] = qRgb(k * in[0] / 255, k * in[1] / 255, k * in[2] / 255);
+                        }
+                    }
                 }
                 if (cinfo.density_unit == 1) {
                     image.setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
