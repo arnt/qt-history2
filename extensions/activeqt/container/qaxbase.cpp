@@ -86,26 +86,48 @@ class QAxEventSink : public IDispatch,
 		     public IPropertyNotifySink
 {
 public:
-    QAxEventSink( QAxBase *com ) : combase( com ), ref( 1 ) {}
+    QAxEventSink( QAxBase *com )
+	: combase( com ), ref( 1 ), cpoint( 0 ), ciid( IID_NULL )
+    {}
     virtual ~QAxEventSink()
     {
-	Q_ASSERT( !connection.cpoint );
+	Q_ASSERT( !cpoint );
+    }
+
+    QUuid connectionInterface() const
+    {
+	return ciid;
+    }
+    QMap<DISPID, QString> signalMap() const
+    {
+	return sigs;
+    }
+    QMap<DISPID, QString> propertyMap() const
+    {
+	return props;
+    }
+    QMap<DISPID, QString> propSignalMap() const
+    {
+	return propsigs;
     }
 
     // add a connection
-    void advise( IConnectionPoint *cpoint, IID iid )
+    void advise( IConnectionPoint *cp, IID iid )
     {
-	connection = Connection( cpoint, iid, 0 );
-	cpoint->Advise( (IUnknown*)(IDispatch*)this, &connection.cookie );
+	cpoint = cp;
+	cpoint->AddRef();
+	ciid = iid;
+	cpoint->Advise( (IUnknown*)(IDispatch*)this, &cookie );
     }
 
     // disconnect from all connection points
     void unadvise()
     {
-	if ( connection.cpoint ) {
-	    connection.cpoint->Unadvise( connection.cookie );
-	    connection.cpoint->Release();
-	    connection.cpoint = 0;
+	combase = 0;
+	if ( cpoint ) {
+	    cpoint->Unadvise( cookie );
+	    cpoint->Release();
+	    cpoint = 0;
 	}
     }
 
@@ -151,7 +173,7 @@ public:
 	    *ppvObject = (IDispatch*)this;
 	else if ( riid == IID_IPropertyNotifySink )
 	    *ppvObject = (IPropertyNotifySink*)this;
-	else if ( connection.iid == riid )
+	else if ( ciid == riid )
 	    *ppvObject = (IDispatch*)this;
 	else
 	    return E_NOINTERFACE;
@@ -179,6 +201,8 @@ public:
 	    return DISP_E_UNKNOWNINTERFACE;
 	if ( wFlags != DISPATCH_METHOD )
 	    return DISP_E_MEMBERNOTFOUND;
+	if ( !combase )
+	    return E_UNEXPECTED;
 
 	QMetaObject *meta = combase->metaObject();
 	QString signame = sigs[dispIdMember];
@@ -282,9 +306,8 @@ public:
     HRESULT __stdcall OnChanged( DISPID dispID )
     {
 	// verify input
-	if ( dispID == DISPID_UNKNOWN ) {
+	if ( dispID == DISPID_UNKNOWN || !combase )
 	    return S_OK;
-	}
 
 	QMetaObject *meta = combase->metaObject();
 	QString propname = props[dispID];
@@ -334,33 +357,17 @@ public:
     }
     HRESULT __stdcall OnRequestEdit( DISPID dispID )
     {
-	if ( dispID == DISPID_UNKNOWN ) {
+	if ( dispID == DISPID_UNKNOWN || !combase )
 	    return S_OK;
-	}
+
 	QString propname = props[dispID];
 	return combase->propertyWritable( propname ) ? S_OK : S_FALSE;
     }
 
-private:
-    struct Connection
-    {
-	Connection()
-	    : cpoint( 0 ), iid( IID_NULL ), cookie( 0 )
-	{
-	}
-	Connection( IConnectionPoint *point, IID i, ULONG c )
-	    : cpoint( point ), iid(i), cookie(c)
-	{
-	    cpoint->AddRef();
-	}
+    IConnectionPoint *cpoint;
+    IID ciid;
+    ULONG cookie;
 
-	IConnectionPoint *cpoint;
-	IID iid;
-	ULONG cookie;
-
-	bool operator==( const Connection &other ) const { return iid == other.iid; }
-    };
-    Connection connection;
     QMap<DISPID, QString> sigs;
     QMap<DISPID, QString> propsigs;
     QMap<DISPID, QString> props;
@@ -481,6 +488,15 @@ public:
 
     const QMetaEnum *const enums;
     int numEnums;
+
+    // save information about QAxEventSink connections, and connect when found in cache
+    QValueList<QUuid> connectionInterfaces;
+    // DISPID -> signal name
+    QMap< QUuid, QMap<DISPID, QString> > sigs;
+    // DISPID -> property changed signal name
+    QMap< QUuid, QMap<DISPID, QString> > propsigs;
+    // DISPID -> property name
+    QMap< QUuid, QMap<DISPID, QString> > props;
 };
 
 static QCache<QAxMetaObject> *mo_cache = 0;
@@ -722,10 +738,10 @@ bool QAxBase::setControl( const QString &c )
 	    QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
 	    for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
 		QString clsid = *it;
-		QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-		if ( subkeys.contains( "Control" ) ) {
-		    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
-		    if ( name == c ) {
+		QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
+		if ( name == c ) {
+		    QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
+		    if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
 			ctrl = clsid;
 			break;
 		    }
@@ -1217,6 +1233,7 @@ QMetaObject *QAxBase::metaObject() const
 	    }
 	    if ( info ) info->Release();
 
+	    // ### event interfaces!!
 	    if ( !interfaceID.isEmpty() )
 		cacheKey = QString( "%1$%2$%3" ).arg( interfaceID ).arg( d->useEventSink ).arg( d->useClassInfo );
 	}
@@ -1226,6 +1243,28 @@ QMetaObject *QAxBase::metaObject() const
 	d->metaobj = metaObjectCache()->find( cacheKey );
 	if ( d->metaobj ) {
 	    d->cachedMetaObject = TRUE;
+	    QValueList<QUuid>::Iterator it = d->metaobj->connectionInterfaces.begin();
+	    while ( it != d->metaobj->connectionInterfaces.end() ) {
+		QUuid iid = *it;
+		++it;
+
+		IConnectionPointContainer *cpoints = 0;
+		d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
+		IConnectionPoint *cpoint = 0;
+		if ( cpoints )
+		    cpoints->FindConnectionPoint( iid, &cpoint );
+		if ( cpoint ) {
+		    QAxEventSink *sink = new QAxEventSink( that );
+		    sink->advise( cpoint, iid );
+		    d->eventSink.insert( iid, sink );
+		    sink->sigs = d->metaobj->sigs[iid];
+		    int csigs = sink->sigs.count();
+		    sink->props = d->metaobj->props[iid];
+		    sink->propsigs = d->metaobj->propsigs[iid];
+		    cpoints->Release();
+		}
+	    }
+
 	    return d->metaobj;
 	}
     }
@@ -1331,6 +1370,10 @@ QMetaObject *QAxBase::metaObject() const
 	    info->GetTypeAttr( &typeattr );
 	    bool interesting = TRUE;
 	    if ( typeattr ) {
+		if ( !(typeattr->wTypeFlags & TYPEFLAG_FDISPATCHABLE) ) {
+		    info->ReleaseTypeAttr( typeattr );
+		    break;
+		}
 		// get number of functions, variables, and implemented interfaces
 		nFuncs = typeattr->cFuncs;
 		nVars = typeattr->cVars;
@@ -1375,13 +1418,28 @@ QMetaObject *QAxBase::metaObject() const
 		UINT maxNames = 255;
 		UINT maxNamesOut;
 		info->GetNames( funcdesc->memid, (BSTR*)&bstrNames, maxNames, &maxNamesOut );
+		if ( maxNamesOut )
+		    function = BSTRToQString( bstrNames[0] );
+		if ( ( maxNamesOut == 3 && function == "QueryInterface" ) ||
+		     ( maxNamesOut == 1 && function == "AddRef" ) ||
+		     ( maxNamesOut == 1 && function == "Release" ) ||
+		     ( maxNamesOut == 9 && function == "Invoke" ) ||
+		     ( maxNamesOut == 6 && function == "GetIDsOfNames" ) ||
+		     ( maxNamesOut == 2 && function == "GetTypeInfoCount" ) ||
+		     ( maxNamesOut == 4 && function == "GetTypeInfo" ) ) {
+		    for ( int p = 0; p < (int)maxNamesOut; ++ p )
+			SysFreeString( bstrNames[p] );
+		    continue;
+		}
+
 		for ( int p = 0; p < (int)maxNamesOut; ++ p ) {
-		    QString paramName = BSTRToQString( bstrNames[p] );
+		    QString paramName;
+		    if ( p )
+			BSTRToQString( bstrNames[p] );
 		    SysFreeString( bstrNames[p] );
 
 		    // function name
 		    if ( !p ) {
-			function = paramName;
 			prototype = function + "(";
 
 			// get return value
@@ -1416,6 +1474,7 @@ QMetaObject *QAxBase::metaObject() const
 		    if ( p < funcdesc->cParams )
 			prototype += ",";
 		}
+
 		if ( !!prototype )
 		    prototype += ")";
 
@@ -2028,6 +2087,17 @@ QMetaObject *QAxBase::metaObject() const
     if ( !cacheKey.isEmpty() ) {
 	metaObjectCache()->insert( cacheKey, d->metaobj );
 	d->cachedMetaObject = TRUE;
+	QDictIterator<QAxEventSink> it( d->eventSink );
+	while ( it.current() ) {
+	    QAxEventSink *sink = it.current();
+	    ++it;
+	    QUuid ciid = sink->connectionInterface();
+
+	    d->metaobj->connectionInterfaces.append( ciid );
+	    d->metaobj->sigs.insert( ciid, sink->signalMap() );
+	    d->metaobj->props.insert( ciid, sink->propertyMap() );
+	    d->metaobj->propsigs.insert( ciid, sink->propSignalMap() );
+	}
     }
 
     return d->metaobj;
@@ -2104,25 +2174,25 @@ QString QAxBase::generateDocumentation()
     return docu;
 }
 
-static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that )
+static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const char *name )
 {
     switch( hres ) {
     case S_OK:
 	return TRUE;
     case DISP_E_BADPARAMCOUNT:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Bad parameter count." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Bad parameter count.", name );
 #endif
 	return FALSE;
     case DISP_E_BADVARTYPE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Bad variant type." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Bad variant type.", name );
 #endif
 	return FALSE;
     case DISP_E_EXCEPTION:
 	{
 #if defined(QT_CHECK_STATE)
-	    qWarning( "QAxBase: Error calling IDispatch member: Exception thrown by server." );
+	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name );
 #endif
 	    const QMetaObject *mo = that->metaObject();
 	    int exceptionSignal = mo->findSignal( "exception(int,const QString&,const QString&,const QString&)" );
@@ -2140,7 +2210,10 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that )
 		static_QUType_int.set( o+1, code );
 		static_QUType_QString.set( o+2, source );
 		static_QUType_QString.set( o+3, desc );
-		static_QUType_QString.set( o+4, QString( "%1 [%2]" ).arg(help).arg(helpContext) );
+		if ( !!help && !!helpContext )
+		    static_QUType_QString.set( o+4, QString( "%1 [%2]" ).arg(help).arg(helpContext) );
+		else
+		    static_QUType_QString.set( o+4, QString::null );
 		that->qt_emit( exceptionSignal, o );
 		static_QUType_QString.clear( o+4 );
 		static_QUType_QString.clear( o+3 );
@@ -2151,47 +2224,47 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that )
 	return FALSE;
     case DISP_E_MEMBERNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Member not found." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Member not found.", name );
 #endif
 	return FALSE;
     case DISP_E_NONAMEDARGS:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: No named arguments." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: No named arguments.", name );
 #endif
 	return FALSE;
     case DISP_E_OVERFLOW:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Overflow." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Overflow.", name );
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Parameter not found." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter not found.", name );
 #endif
 	return FALSE;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Type mismatch." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch.", name );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNINTERFACE:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Unknown interface." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown interface.", name );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNLCID:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Unknown locale ID." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown locale ID.", name );
 #endif
 	return FALSE;
     case DISP_E_PARAMNOTOPTIONAL:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Non-optional parameter missing." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Non-optional parameter missing.", name );
 #endif
 	return FALSE;
     default:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member: Unknown error." );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Unknown error.", name );
 #endif
 	return FALSE;
     }
@@ -2289,7 +2362,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     }
     delete [] params.rgvarg;
 
-    return checkHRESULT( hres, &excepinfo, this );
+    return checkHRESULT( hres, &excepinfo, this, slot->name );
 }
 
 /*!
@@ -2367,7 +2440,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		    break;
 		}
 
-		return checkHRESULT( hres, &excepinfo, this );
+		return checkHRESULT( hres, &excepinfo, this, prop->n );
 	    }
 	case 1: // Get
 	    {
@@ -2380,7 +2453,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 
 		EXCEPINFO excepinfo;
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0 );
-		if ( !checkHRESULT( hres, &excepinfo, this ) )
+		if ( !checkHRESULT( hres, &excepinfo, this, prop->n ) )
 		    return FALSE;
 
 		// map result VARIANTARG to QVariant
@@ -2543,7 +2616,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     }
     delete[] arg;
 
-    return checkHRESULT( hres, &excepinfo, this );
+    return checkHRESULT( hres, &excepinfo, this, function );
 }
 
 

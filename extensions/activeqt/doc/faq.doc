@@ -1,15 +1,32 @@
-/*! \page qaxserver-compiler.html
+/*! \page qaxcontainer-faq.html
+
+    \title QAxContainer FAQ
+
+    \section1 The QAxContainer build system
+
+    To build Qt applications that can host ActiveX controls, simply
+    link the application against the qaxcontainer library by adding
+    \code
+    LIBS += qaxcontainer.lib
+    \endcode
+    to the application's \c .pro file.
+
+    \section1 Distributing QAxContainer applications
+
+    If the Qt library is build statically the QAxContainer library
+    will also be static, and you don't need to redistribute any
+    binaries except the application executable.
+
+    To distribute your application when Qt and QAxContainer are
+    shared DLLs provide both DLLs either in the system path, or
+    in the same directory as the application executable itself.
+*/
+
+/*! \page qaxserver-faq.html
 
     \title QAxServer FAQ
 
-    \section1 The ActiveQt build system
-
-    To build Qt applications that can serve ActiveX controls, simply
-    link the application against the qaxcontainer library by adding
-    \code
-    LIBS += <location>\qaxcontainer.lib
-    \endcode
-    to the application's \c .pro file. \c <location> is usually %QTDIR%\lib.
+    \section1 The QAxServer build system
 
     To be able to build ActiveX controls with Qt, the build system
     must be extended to include some additional build steps that are
@@ -129,12 +146,61 @@
 
     To debug an in-process server, set the server project as the
     active project, and specify a client "executable for debug
-    session" in the project settings. You can set breakpoints in your
-    code, and also step into ActiveQt and Qt code if you installed the
-    debug version.
+    session" in the project settings (e.g. use the ActiveX Test Container). 
+    You can set breakpoints in your code, and also step into ActiveQt and 
+    Qt code if you installed the debug version.
 
     To debug an executable server, run the application in a debugger
-    and start with the command line parameter "-activex". COM will use
-    the existing process for the next client trying to create an
-    ActiveX control.
+    and start with the command line parameter "-activex". Then start
+    your client and create an instance of your ActiveX control. COM 
+    will use the existing process for the next client trying to create 
+    an ActiveX control.
+
+    \section1 Distributing QAxServer binaries
+
+    ActiveX servers written with Qt can use Qt either as a shared library,
+    or link Qt statically into the binary. Both ways will produce rather
+    large packages (either the server binary itself becomes large, or
+    you have to ship the Qt DLL), and in general you would probably not
+    use Qt to write small and lightweight ActiveX controls.
+
+    \section2 Installing stand-alone Servers
+
+    When your ActiveX server can also run as a stand-alone application,
+    run the server executable with the \c -regserver command line
+    parameter after installing the executable on the target system.
+    After that the controls provided by the server will be available to
+    ActiveX clients.
+
+    \section2 Installing In-process Servers
+
+    When your ActiveX server is part of an installation package, use the
+    \c regsvr32 tool provided by Microsoft to register the controls on
+    the target system. If this tool is not present, load the DLL into
+    your installer process, resolve the \c DllRegisterServer symbol and
+    call the function:
+
+    \code
+    HMODULE dll = LoadLibrary( "myserver.dll" );
+    typedef HRESULT(__stdcall *DllRegisterServerProc)();
+    DllRegisterServerProc DllRegisterServer = 
+        (DllRegisterServerProc)GetProcAddress( dll, "DllRegisterServer" );
+
+    HRESULT res = E_FAIL;
+    if ( DllRegisterServer )
+	res = DllRegisterServer();
+    if ( res != S_OK )
+        // error handling
+    \endcode
+
+    \section2 Distributing Servers over the Internet
+
+    If you want to use controls in your server in web-pages you need to
+    make the server available to the browser used to view your page, and
+    you need to specify the location of the server package in your page.
+
+    To specify the location of a server, use the CODEBASE attribute in
+    the OBJECT tag of your web-site. The value can point to the server
+    file itself, to an \c INF file listing other files the server requires
+    (e.g. the Qt DLL), or a compressed \c CAB archive.
 */

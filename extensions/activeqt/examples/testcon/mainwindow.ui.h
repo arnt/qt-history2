@@ -96,12 +96,14 @@ void MainWindow::logException( int code, const QString&source, const QString&des
     if ( !container )
 	return;
 
-    QString str = QString( "%1: Exception code %2 thrown by %3 (%4)" ).
+    QString str = QString( "%1: Exception code %2 thrown by %3" ).
 	arg( container->caption() ).arg( code ).arg( source );
     logDebug->append( str );
 
     if ( !help.isEmpty() )
 	logDebug->append( "\tHelp available at " + help );
+    else
+	logDebug->append( "\tNo help available." );
 }
 
 void MainWindow::setControl()

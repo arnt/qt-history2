@@ -143,9 +143,9 @@
     </connection>
     <connection>
         <sender>ActiveXList</sender>
-        <signal>highlighted(const QString&amp;)</signal>
+        <signal>highlighted(QListBoxItem*)</signal>
         <receiver>QActiveXSelect</receiver>
-        <slot>controlSelected(const QString&amp;)</slot>
+        <slot>controlSelected(QListBoxItem*)</slot>
     </connection>
     <connection>
         <sender>ActiveXList</sender>
@@ -168,7 +168,7 @@
 </variables>
 <slots>
     <slot>init()</slot>
-    <slot>controlSelected( const QString &amp; ctrl )</slot>
+    <slot>controlSelected( QListBoxItem *ctrl )</slot>
     <slot>openLater()</slot>
     <slot>setActiveX( QAxWidget * ax )</slot>
     <slot>setDesigner( DesignerInterface * des )</slot>

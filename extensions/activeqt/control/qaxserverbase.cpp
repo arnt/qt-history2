@@ -1376,7 +1376,10 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		int p;
 		for ( p = 0; p < signalcount; ++p ) {
 		    QUObject *obj = _o + p + 1;
-		    QUObjectToVARIANT( obj, arg, signal ? signal->method->parameters + p : 0 );
+		    const QUParameter *param = signal ? signal->method->parameters + p : 0;
+		    QUObjectToVARIANT( obj, arg, param );
+		    if ( param && ( param->inOut & QUParameter::Out ) )
+			arg.vt |= VT_BYREF;
 		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
 		}
 		// call listeners (through IDispatch)

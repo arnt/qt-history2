@@ -29,6 +29,23 @@
 #include <qsettings.h>
 #include <qapplication.h>
 
+class ListBoxText : public QListBoxText
+{
+public:
+    ListBoxText( QListBox *box, const QString &name, const QString &id )
+	: QListBoxText( box, name ), ID( id )
+    {
+    }
+
+    QString clsid() const
+    {
+	return ID;
+    }
+
+private:
+    QString ID;
+};
+
 void QActiveXSelect::init()
 {
     activex = 0;
@@ -38,9 +55,10 @@ void QActiveXSelect::init()
     for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
 	QString clsid = *it;
 	QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
-	if ( subkeys.contains( "Control" ) ) {
+	if ( subkeys.contains( "Control" ) || subkeys.contains( "Insertable" ) ) {
 	    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
-	    ActiveXList->insertItem( name );
+	    if ( !name.isEmpty() )
+		(void)new ListBoxText( ActiveXList, name, clsid );
 	}
     }
     ActiveXList->sort();
@@ -50,9 +68,12 @@ void QActiveXSelect::init()
 }
 
 
-void QActiveXSelect::controlSelected( const QString &ctrl )
+void QActiveXSelect::controlSelected( QListBoxItem *ctrl )
 {
-    ActiveX->setText( ctrl );
+    if ( !ctrl )
+	return;
+
+    ActiveX->setText( ((ListBoxText*)ctrl)->clsid() );
 }
 
 void QActiveXSelect::openLater()

@@ -16,6 +16,7 @@ void InvokeMethod::invoke()
     if ( !activex )
 	return;
     
+    setValue();
     QCString method = comboMethods->currentText();
     QVariant var[8];
     int p = 0;
@@ -26,7 +27,10 @@ void InvokeMethod::invoke()
 	var[p] = parameter->text(2);
 	++p;
     }
-    activex->dynamicCall( method, var[0], var[1], var[2], var[3], var[4], var[5], var[6], var[7] );
+    QVariant result = activex->dynamicCall( method, var[0], var[1], var[2], var[3], var[4], var[5], var[6], var[7] );
+    QString resString = result.toString();
+    QString resType = result.typeName();
+    editReturn->setText( resType + " " + resString );
 }
 
 void InvokeMethod::methodSelected( const QString &method )

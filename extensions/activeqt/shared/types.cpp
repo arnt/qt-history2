@@ -455,12 +455,14 @@ VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param )
 	    preset->convertFrom( &obj, &static_QUType_QVariant );
 	}
     }
-    
+
     if ( obj.type == &static_QUType_Null )
 	static_QUType_QVariant.set( &obj, var );
 
     VARIANT res;
     QUObjectToVARIANT( &obj, res, param );
+    if ( param->inOut & QUParameter::Out )
+	res.vt |= VT_BYREF;
 
     obj.type->clear( &obj );
 
