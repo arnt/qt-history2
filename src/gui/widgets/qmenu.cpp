@@ -1200,6 +1200,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     d->tearoffHighlighted = 0;
     d->motions = 0;
 
+    ensurePolished(); // Get the right font
     d->updateActions();
     QPoint pos = p;
     QSize size = sizeHint() + contentsMarginSize();
