@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#89 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#89 $");
 
 
 /*****************************************************************************
@@ -278,6 +278,21 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 	hd = pixmap.hd;				// copy QPaintDevice drawable
     }
+}
+
+/*!  
+  Constructs a pixmap from the file \e fileName. If the file does not
+  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+
+  The parameters are passed on to load().
+
+  \sa isNull(), load(), loadFromData(), save(), imageFormat() */
+
+QPixmap::QPixmap( const char *fileName, const char *format, ColorMode mode )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    if ( !load( fileName, format, mode ) )
+	init( 0, 0, 0 );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#60 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#61 $
 **
 ** Definition of QPixmap class
 **
@@ -22,10 +22,13 @@ class QPixmap : public QPaintDevice		// pixmap class
 friend class QPaintDevice;
 friend class QPainter;
 public:
+    enum ColorMode { Auto, Color, Mono };
+
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
     QPixmap( const QPixmap & );
+    QPixmap( const char *fileName, const char *format=0, ColorMode mode=Auto );
    ~QPixmap();
 
     QPixmap    &operator=( const QPixmap & );
@@ -53,8 +56,6 @@ public:
 
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
-
-    enum ColorMode { Auto, Color, Mono };
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#28 $
 **
 ** Implementation of QBitmap class
 **
@@ -12,7 +12,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#28 $");
 
 
 /*!
@@ -123,6 +123,23 @@ QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
 QBitmap::QBitmap( const QBitmap &bitmap )
     : QPixmap( bitmap )
 {
+}
+
+/*!  
+  Constructs a pixmap from the file \e fileName. If the file does not
+  exist, or is of an unknown format, the pixmap becomes a null pixmap.
+
+  The parameters are passed on to QPixmap::load().
+
+  \sa QPixmap::isNull(), QPixmap::load(), QPixmap::loadFromData(),
+  QPixmap::save(), QPixmap::imageFormat()
+*/
+
+QBitmap::QBitmap( const char *fileName, const char *format )
+    : QPixmap() // Will set bitmap to null bitmap, explicit call for clarity
+{
+    data->bitmap = TRUE;
+    load( fileName, format, Mono );
 }
 
 
