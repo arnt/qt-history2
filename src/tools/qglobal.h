@@ -521,6 +521,7 @@
 #elif defined(Q_OS_UNIX)
 #  if defined(QWS)
 #    define Q_WS_QWS
+#    define QT_NO_QWS_IM
 #  elif defined(Q_OS_MACX)
 #    define Q_WS_MACX
 #  else

@@ -461,12 +461,13 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
 {
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
-
+#ifndef QT_NO_QWS_IM
     if ( text ) {
 	QPoint p( x, y + height );
 	QPoint gp = mapToGlobal( p );
 	qwsDisplay()->setMicroFocus( gp.x(), gp.y());
     }
+#endif
 }
 
 

@@ -2639,6 +2639,7 @@ void QWSServer::name_region( const QWSRegionNameCommand *cmd )
     invokeRegionName( cmd, client[-1] );
 }
 
+#ifndef QT_NO_QWS_IM
 void QWSServer::set_micro_focus( const QWSSetMicroFocusCommand *cmd )
 {
     invokeSetMicroFocus( cmd, client[-1] );
@@ -2648,6 +2649,7 @@ void QWSServer::reset_im( const QWSResetIMCommand *cmd )
 {
     invokeResetIM( cmd, client[-1] );
 }
+#endif
 
 
 void QWSServer::openDisplay()
@@ -2976,6 +2978,7 @@ void QWSServer::disconnectClient( QWSClient *c )
 }
 
 
+#ifndef QT_NO_QWS_IM
 
 /*!
   \class QWSInputMethod
@@ -3093,7 +3096,7 @@ void QWSInputMethod::setFont( const QFont& )
   input widget receiving the event.
 */
 
-
+#endif
 
 /*!
     \fn  QWSWindow::QWSWindow(int i, QWSClient * client)
