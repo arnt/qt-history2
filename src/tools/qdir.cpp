@@ -227,6 +227,14 @@ QDir::QDir( const QDir &d )
     sortS = d.sortS;
 }
 
+/*!
+    Refreshes the directory information.
+*/
+void QDir::refresh() const
+{
+    QDir* that = (QDir*) this;
+    that->dirty = TRUE;
+}
 
 void QDir::init()
 {

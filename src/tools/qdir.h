@@ -178,6 +178,7 @@ public:
     static bool match( const QString &filter, const QString &fileName );
     static QString cleanDirPath( const QString &dirPath );
     static bool isRelativePath( const QString &path );
+    void refresh() const;
 
 private:
 #ifdef Q_OS_MAC
