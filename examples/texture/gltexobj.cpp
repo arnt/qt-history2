@@ -20,7 +20,11 @@
 #include "gltexobj.h"
 #include <qimage.h>
 #include <qtimer.h>
+#if defined(Q_OS_MAC)
+#include <glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 
 const int redrawWait = 50;
