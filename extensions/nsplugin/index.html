@@ -20,14 +20,37 @@ that they can be used on both Unix/Linux and Windows/95/NT.
 
 <h2>How-to</h2>
 
-First, build the Netscape Plugin extension library, found in the
-<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
-Then, to find out how to write Qt-based Netscape Plugins,
-read the <a href=html/annotated.html>plugin class documentation</a>, and
-examine the example plugins listed below.
-Note that under Windows, plugins must be named
-<tt>np</tt><i>something</i><tt>.dll</tt>,
-or the browser will ignore them.
+<ol>
+ <li>Build the Netscape Plugin extension library, found in the
+	<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
+	This produces a static library to be linked with your plugin code.
+ <li>Read the <a href=html/annotated.html>plugin class documentation</a>, and
+	examine the example plugins listed below.
+ <li>Do most of your development as a stand-alone Qt application - debugging
+	Netscape Plugins is cumbersome.
+ <li>Note the platform-specific build steps below.
+</ol>
+
+We are working on streamlining the build process for Qt-based Netscape Plugins.
+
+<h3>Building under X11</h3>
+
+<ul>
+ <li>The Makefiles in the examples are appropriate for UNIX/X11.
+ <li>The user must install the resulting Shared Object in the Plugins
+	directory of the browser.
+</ul>
+
+<h3>Building under Windows</h3>
+
+<ul>
+ <li>Plugins must be named <tt>np</tt><i>name</i><tt>.dll</tt>,
+     or the browser will ignore them.
+ <li>The link step must include <tt>/def:</tt><i>name</i><tt>.def</tt>
+ <li>The link step must include <tt>/dll</tt>
+ <li>The user must install the resulting DLL in the Plugins directory
+	of the browser.
+</ul>
 
 <h2>Examples</h2>
 
@@ -51,7 +74,7 @@ remaining problems.
 
 <ul>
  <li> Some instability with Beta release Netscape Communicator for X11.
- <li> Crashes on Windows when Browser in backgrounded.
+ <li> Crashes on Windows when Browser is put in background.
  <li> Popup windows can hang X server.
  <li> Keyboard problems on Windows.
 </ul>
