@@ -35,7 +35,7 @@ tools {
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qmutex.h \
-		  $$TOOLS_H/qmutex_p.h \
+		  $$TOOLS_P/qmutex_p.h \
 		  $$TOOLS_H/qpluginmanager.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
