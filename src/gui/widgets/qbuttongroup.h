@@ -46,6 +46,11 @@ public:
 signals:
     void buttonChecked(QAbstractButton *);
 
+#ifdef QT_COMPAT
+public:
+    inline QT_COMPAT void insert(QAbstractButton *b) { addButton(b); }
+    inline QT_COMPAT void remove(QAbstractButton *b) { removeButton(b); }
+#endif
 private:
     friend class QAbstractButton;
     friend class QAbstractButtonPrivate;
