@@ -126,13 +126,16 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     short movieResFile;
     Movie aMovie = nil;
 
-    QString macFilename = filename;
-//    if(QDir::isRelativePath(macFilename))
-//	macFilename.prepend(':');
+    QString macFilename;
+    if(QDir::isRelativePath(macFilename)) {
+	macFilename.prepend(QDir::currentDirPath() + ":");
+//	macFilename.prepend(volumename + ":");
+	//FIXME: prepend the volume name to the macFilename 
+    } else {
+	macFilename = filename.mid(1);
+    }
     while ( macFilename.find( "/" ) != -1 )
 	macFilename.replace( macFilename.find( "/" ), 1, ":" );
-    //FIXME: prepend the volume name to the macFilename 
-
     err = FSpLocationFromFullPath( macFilename.length(), macFilename.latin1(),
 				   &fileSpec ); 
     if ( err != noErr ) 
