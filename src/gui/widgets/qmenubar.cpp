@@ -38,7 +38,6 @@
 
 QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
-    const_cast<QMenuBarPrivate*>(this)->updateActions();
     for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
          i != actionRects.constEnd(); ++i) {
         if(i.value().contains(p))
@@ -591,6 +590,7 @@ bool QMenuBar::isDefaultUp() const
 void QMenuBar::resizeEvent(QResizeEvent *)
 {
     d->itemsDirty = 1;
+    d->updateActions();
 }
 
 /*!
@@ -598,8 +598,6 @@ void QMenuBar::resizeEvent(QResizeEvent *)
 */
 void QMenuBar::paintEvent(QPaintEvent *e)
 {
-    d->updateActions();
-
     QPainter p(this);
     QRegion emptyArea(rect());
 
@@ -653,7 +651,6 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != Qt::LeftButton)
         return;
-    d->updateActions();
     QAction *action = d->actionAt(e->pos());
     if (!action) {
         d->setCurrentAction(0);
@@ -843,7 +840,10 @@ void QMenuBar::actionEvent(QActionEvent *e)
     } else if(e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
     }
-    update();
+    if (isVisible()) {
+        d->updateActions();
+        update();
+    }
 }
 
 /*!
@@ -851,7 +851,6 @@ void QMenuBar::actionEvent(QActionEvent *e)
 */
 void QMenuBar::focusInEvent(QFocusEvent *)
 {
-    d->updateActions();
     if(!d->currentAction && !d->actionList.isEmpty())
         d->setCurrentAction(d->actionList.first());
 }
@@ -1025,7 +1024,6 @@ QAction *QMenuBar::actionAtPos(const QPoint &pt) const
 */
 QRect QMenuBar::actionGeometry(QAction *act) const
 {
-    const_cast<QMenuBarPrivate*>(d)->updateActions();
     return d->actionRect(act);
 }
 
