@@ -22,7 +22,7 @@
 #include <qhash.h>
 #include <qmap.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qmetaobject.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
@@ -147,7 +147,7 @@ public:
 
 // Window creation
     HWND create(HWND hWndParent, RECT& rcPos);
-    HMENU createPopup(QPopupMenu *popup, HMENU oldMenu = 0);
+    HMENU createPopup(QMenu *popup, HMENU oldMenu = 0);
     void createMenu(QMenuBar *menuBar);
     void removeMenu();
 
@@ -360,10 +360,11 @@ private:
     HMENU hmenuShared;
     HOLEMENU holemenu;
     HWND hwndMenuOwner;
-    QMap<HMENU, QPopupMenu*> menuMap;
+    QMap<HMENU, QMenu*> menuMap;
+    QMap<UINT, QAction*> actionMap;
     QPointer<QMenuBar> menuBar;
     QPointer<QStatusBar> statusBar;
-    QPointer<QPopupMenu> currentPopup;
+    QPointer<QMenu> currentPopup;
 
     SIZE sizeExtent;
     RECT rcPos;
@@ -1440,61 +1441,43 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     case WM_MENUSELECT:
     case WM_COMMAND:
-        /* XXXX
 	if (that->qt.widget) {
 	    QMenuBar *menuBar = that->menuBar;
 	    if (!menuBar)
 		break;
 
-	    int qtid = 0;
+            QObject *menuObject = 0;
 	    bool menuClosed = false;
-	    if (uMsg == WM_COMMAND)
-		qtid = int(wParam);
-	    else if (!lParam)
+
+            if (uMsg == WM_COMMAND) {
+		menuObject = that->actionMap.value(wParam);
+            } else if (!lParam) {
 		menuClosed = true;
-	    else
-		qtid = LOWORD(wParam);
+                menuObject = that->currentPopup;
+            } else {
+                menuObject = that->actionMap.value(LOWORD(wParam));
+            }
 
-	    QMenuData *menu = 0;
-	    QMenuItem *qitem = menuClosed ? 0 : menuBar->findItem(qtid, &menu);
-	    if (uMsg == WM_MENUSELECT && !qitem && !menuClosed) {
-		qtid |= 0xffff0000;
-		qitem = menuBar->findItem(qtid, &menu);
-	    }
-	    QObject *menuObject = 0;
-	    if (menuClosed)
-		menuObject = that->currentPopup;
-	    else if (((HackMenuData*)menu)->isMenuBar)
-		menuObject = (QMenuBar*)menu;
-	    else if (((HackMenuData*)menu)->isPopupMenu)
-		menuObject = (QPopupMenu*)menu;
-
-	    if (menuObject && (menuClosed || qitem)) {
+	    if (menuObject) {
 		const QMetaObject *mo = menuObject->metaObject();
 		int index = -1;
 
 		if (uMsg == WM_COMMAND)
-		    index = mo->indexOfSignal("activated(int)");
+		    index = mo->indexOfSignal("activated()");
 		else if (menuClosed)
 		    index = mo->indexOfSignal("aboutToHide()");
 		else
-		    index = mo->indexOfSignal("highlighted(int)");
+		    index = mo->indexOfSignal("hovered()");
 
 		if (index < 0)
 		    break;
 
-		if (menuClosed) {
-		    menuObject->qt_metacall(QMetaObject::EmitSignal, index, 0);
-		} else {
-		    void *argv[] = {0, &qtid};
-		    if (uMsg == WM_COMMAND && qitem->signal())	    // activate signal
-			qitem->signal()->activate();
-		    menuObject->qt_metacall(QMetaObject::EmitSignal, index, argv);
-		}
+		menuObject->qt_metacall(QMetaObject::EmitSignal, index, 0);
+                if (menuClosed || uMsg == WM_COMMAND)
+                    that->currentPopup = 0;
 		return 0;
 	    }
 	}
-        */
 	break;
 
     default:
@@ -1580,10 +1563,10 @@ HWND QAxServerBase::create(HWND hWndParent, RECT& rcPos)
 /*
     Recoursively creates Win32 submenus.
 */
-HMENU QAxServerBase::createPopup(QPopupMenu *popup, HMENU oldMenu)
+HMENU QAxServerBase::createPopup(QMenu *popup, HMENU oldMenu)
 {
     HMENU popupMenu = oldMenu ? oldMenu : CreatePopupMenu();
-    menuMap[popupMenu] = popup;
+    menuMap.insert(popupMenu, popup);
 
     if (oldMenu) while (GetMenuItemCount(oldMenu)) {
 	DeleteMenu(oldMenu, 0, MF_BYPOSITION);
@@ -1592,26 +1575,33 @@ HMENU QAxServerBase::createPopup(QPopupMenu *popup, HMENU oldMenu)
     const QList<QAction*> actions = popup->actions();
     for (int i = 0; i < actions.count(); ++i) {
         QAction *action = actions.at(i);
-
-	uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
-	if (action->isSeparator())
-	    flags |= MF_SEPARATOR;
-/*	else if (action->popup())
-	    flags |= MF_POPUP;*/
-	else
-	    flags |= MF_STRING;
-	if (action->isChecked())
-	    flags |= MF_CHECKED;
-
-	UINT itemId = /*flags & MF_POPUP  ? (UINT_PTR)createPopup(qitem->popup()) :*/ (uint)action;
-	QT_WA({
-	    AppendMenuW(popupMenu, flags, itemId, (TCHAR*)action->text().utf16());
-	}, {
-	    AppendMenuA(popupMenu, flags, itemId, action->text().local8Bit());
-	});
+        
+        uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
+        if (action->isSeparator())
+            flags |= MF_SEPARATOR;
+        else if (action->menu())
+            flags |= MF_POPUP;
+        else
+            flags |= MF_STRING;
+        if (action->isChecked())
+            flags |= MF_CHECKED;
+        
+	ushort itemId;
+        if (flags & MF_POPUP) {
+            itemId = (ushort)createPopup(action->menu());
+        } else {
+            itemId = (ushort)action;
+            actionMap.remove(itemId);
+            actionMap.insert(itemId, action);
+        }
+        QT_WA({
+            AppendMenuW(popupMenu, flags, itemId, (TCHAR*)action->text().utf16());
+        }, {
+            AppendMenuA(popupMenu, flags, itemId, action->text().local8Bit());
+        });
     }
     if (oldMenu)
-	DrawMenuBar(hwndMenuOwner);
+        DrawMenuBar(hwndMenuOwner);
     return popupMenu;
 }
 
@@ -1633,7 +1623,7 @@ void QAxServerBase::createMenu(QMenuBar *menuBar)
         uint flags = action->isEnabled() ? MF_ENABLED : MF_GRAYED;
 	if (action->isSeparator())
 	    flags |= MF_SEPARATOR;
-	else if (true) //action->popup())
+	else if (action->menu())
 	    flags |= MF_POPUP;
 	else
 	    flags |= MF_STRING;
@@ -1645,13 +1635,18 @@ void QAxServerBase::createMenu(QMenuBar *menuBar)
 	else
 	    object++;
 
-	UINT itemId = /*flags & MF_POPUP ? (UINT)createPopup(qitem->popup()) :*/ (uint)action;
+	ushort itemId;
+        if (flags & MF_POPUP) {
+            itemId = (ushort)createPopup(action->menu());
+        } else {
+            itemId = (ushort)action;
+            actionMap.insert(itemId, action);
+        }
 	QT_WA({
 	    AppendMenuW(hmenuShared, flags, itemId, (TCHAR*)action->text().utf16());
 	} , {
 	    AppendMenuA(hmenuShared, flags, itemId, action->text().local8Bit());
 	});
-
     }
 
     OLEMENUGROUPWIDTHS menuWidths = {0,edit,0,object,0,help};
