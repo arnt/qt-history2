@@ -5786,6 +5786,7 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 void QCheckListItem::init()
 {
     d = new QCheckListItemPrivate();
+    on = FALSE; // ### remove on ver 4
     if ( myType == CheckBoxController || myType == CheckBox ) {
 	d->statesDict = new QPtrDict<ToggleState>(101);
 	d->statesDict->setAutoDelete( TRUE );
@@ -5814,13 +5815,10 @@ QCheckListItem::~QCheckListItem()
 */
 
 /* IGNORE!
-   Returns TRUE if the item is toggled on; otherwise returns FALSE.
-*/
-bool QCheckListItem::isOn() const
-{
-    return (d->currentState == On);
-}
+   \fn  bool QCheckListItem::isOn() const
 
+    Returns TRUE if the item is toggled on; otherwise returns FALSE.
+*/
 
 /* IGNORE!
    Sets tristate to \a if the Type is either a CheckBoxController or CheckBox.
@@ -5886,7 +5884,7 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 	return;
 
     if ( myType == CheckBox ) {
-	d->currentState = s;
+	setCurrentState( s );
 	stateChange( state() );
   	if ( update && parent() && parent()->rtti() == 1
   	     && ((QCheckListItem*)parent())->type() == CheckBoxController )
@@ -5914,14 +5912,14 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 		    updateController();
 		} else {
 		    // if there are no children we simply set the CheckBoxController and update its parent
-		    d->currentState = s;
+		    setCurrentState( s );
 		    stateChange( state() );
 		    if ( parent() && parent()->rtti() == 1
 			 && ((QCheckListItem*)parent())->type() == CheckBoxController )
 			((QCheckListItem*)parent())->updateController( TRUE, TRUE );
 		}
 	    } else {
-		d->currentState = s;
+		setCurrentState( s );
 		stateChange( state() );
 	    }
 
@@ -5930,18 +5928,35 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 	if ( s == On ) {
 	    if ( d->exclusive && d->exclusive->d->exclusive != this )
 		d->exclusive->turnOffChild();
-	    d->currentState = s;
+	    setCurrentState( s );
 	    if ( d->exclusive )
 		d->exclusive->d->exclusive = this;
 	} else {
 	    if ( d->exclusive && d->exclusive->d->exclusive == this )
 		d->exclusive->d->exclusive = 0;
-	    d->currentState = Off;
+	    setCurrentState( Off );
 	}
 	stateChange( state() );
     }
     repaint();
 }
+
+/*
+  this function is needed becase we need to update "on" everytime
+  we update d->currentState. In order to retain binary compatibility
+  the inline function isOn() needs the "on" bool
+  ### should be changed in ver 4
+*/
+void QCheckListItem::setCurrentState( ToggleState s )
+{
+    d->currentState = s;
+    if (d->currentState == On)
+	on = TRUE;
+    else
+	on = FALSE;
+}
+
+
 
 /* IGNORE!
   updates the internally stored state of this item for the parent (key)
@@ -6079,7 +6094,7 @@ void QCheckListItem::restoreState( void *key, int depth )
 {
     switch ( type() ) {
     case CheckBox:
-	d->currentState = storedState( key );
+	setCurrentState( storedState( key ) );
 	stateChange( state() );
 	repaint();
 	break;
@@ -6151,7 +6166,7 @@ void QCheckListItem::updateController( bool update , bool store )
 	item = item->nextSibling();
     }
     if ( internalState() != theState ) {
-	d->currentState = theState;
+	setCurrentState( theState );
 	if ( store && internalState() == On )
 	    updateStoredState( (void*) this );
 	stateChange( state() );

@@ -491,7 +491,7 @@ public:
     void setup();
 
     virtual void setOn( bool );
-    bool isOn() const;
+    bool isOn() const { return on; }
     Type type() const { return myType; }
     QString text() const { return QListViewItem::text( 0 ); }
     QString text( int n ) const { return QListViewItem::text( n ); }
@@ -519,9 +519,10 @@ private:
     void updateController( bool update = TRUE , bool store = FALSE );
     void updateStoredState( void *key );
     void setState( ToggleState s, bool update, bool store );
+    void setCurrentState( ToggleState s );
 
     Type myType;
-    bool unused; // ### remove in ver4
+    bool on; // ### remove in ver4
     QCheckListItemPrivate *d;
 };
 
