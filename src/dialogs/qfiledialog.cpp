@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#303 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#304 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3649,7 +3649,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     if ( !bShowHiddenFiles && inf.name() != ".." &&
 	 inf.name()[ 0 ] == QChar( '.' ) )
 	return;
-    
+
     QFileDialogPrivate::File * i = 0;
     QFileDialogPrivate::MCItem *i2 = 0;
     i = new QFileDialogPrivate::File( d, &inf, files );
@@ -3813,12 +3813,14 @@ void QFileDialog::resortDir()
 		continue;
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	    item->i = item2;
 	}
 	for ( i = num - 1; i >= 0; --i ) {
 	    if ( !items[ i ].isDir() )
 		continue;
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	    item->i = item2;
 	}
     } else {
 	for ( i = 0; i < num; ++i ) {
@@ -3826,14 +3828,16 @@ void QFileDialog::resortDir()
 		continue;
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	    item->i = item2;
 	}
 	for ( i = 0; i < num; ++i ) {
 	    if ( items[ i ].isDir() )
 		continue;
 	    item = new QFileDialogPrivate::File( d, &items[ i ], files );
 	    item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	    item->i = item2;
 	}
     }
-    
+
     delete [] items;
 }
