@@ -1,5 +1,4 @@
 /****************************************************************************
-** $Id$
 **
 ** Definition of QSNAPScreen and QGfxSNAP classes for Embedded Qt
 **
@@ -119,4 +118,3 @@ private:
 #endif // QT_NO_QWS_SNAP
 
 #endif // QGFXSNAP_QWS_H
-
