@@ -101,31 +101,15 @@ public:
     }
         
     QMimeSource *source() const { return src; }
-    
-    void addTransferredPixmap(QPixmap pm)
-    { /* TODO: queue them */
-	transferred[tindex] = pm;
-	tindex=(tindex+1)%2;
-    }
-    void clearTransfers()
-    {
-	transferred[0] = QPixmap();
-	transferred[1] = QPixmap();
-    }
-
     void clear();
 
     // private:
     QMimeSource *src;
-
-    QPixmap transferred[2];
-    int tindex;
 };
 
 QClipboardData::QClipboardData()
 {
     src = 0;
-    tindex=0;
 }
 
 QClipboardData::~QClipboardData()
