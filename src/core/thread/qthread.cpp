@@ -21,10 +21,6 @@
 
 #include "qthread_p.h"
 
-#define d d_func()
-#define q q_func()
-
-
 
 /*
   QThreadData
@@ -35,7 +31,7 @@ QThreadData::QThreadData()
 { }
 
 QThreadData *QThreadData::get(QThread *thread)
-{ return thread ? &thread->d->data : 0; }
+{ return thread ? &thread->d_func()->data : 0; }
 
 
 
@@ -181,6 +177,7 @@ QThread::QThread()
 */
 QThread::~QThread()
 {
+    Q_D(QThread);
     QMutexLocker locker(d->mutex());
     if (d->running && !d->finished)
         qWarning("QThread object destroyed while thread is still running.");
@@ -191,6 +188,7 @@ QThread::~QThread()
 */
 bool QThread::isFinished() const
 {
+    Q_D(const QThread);
     QMutexLocker locker(d->mutex());
     return d->finished;
 }
@@ -200,6 +198,7 @@ bool QThread::isFinished() const
 */
 bool QThread::isRunning() const
 {
+    Q_D(const QThread);
     QMutexLocker locker(d->mutex());
     return d->running;
 }
@@ -216,6 +215,7 @@ bool QThread::isRunning() const
 */
 void QThread::setStackSize(uint stackSize)
 {
+    Q_D(QThread);
     QMutexLocker locker(d->mutex());
     Q_ASSERT_X(!d->running, "QThread::setStackSize",
                "cannot change stack size while the thread is running");
@@ -228,6 +228,7 @@ void QThread::setStackSize(uint stackSize)
 */
 uint QThread::stackSize() const
 {
+    Q_D(const QThread);
     QMutexLocker locker(d->mutex());
     return d->stackSize;
 }
@@ -254,6 +255,7 @@ uint QThread::stackSize() const
 */
 void QThread::exit(int retcode)
 {
+    Q_D(QThread);
     QEventLoop *eventLoop = d->data.eventLoop;
     if (eventLoop)
         eventLoop->exit(retcode);

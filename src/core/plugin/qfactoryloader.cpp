@@ -29,15 +29,13 @@ public:
     QStringList keyList;
 };
 
-#define d d_func()
-#define q q_func()
-
-
 QFactoryLoader::QFactoryLoader(const char *iid,
                                const QStringList &paths, const QString &suffix,
                                Qt::CaseSensitivity cs, QObject *parent)
     :QObject(*new QFactoryLoaderPrivate, parent)
 {
+    Q_D(QFactoryLoader);
+
     QStringList filters;
 #if defined(Q_OS_WIN32)
     filters << QLatin1String("*.dll");
@@ -116,18 +114,21 @@ QFactoryLoader::QFactoryLoader(const char *iid,
 
 QFactoryLoader::~QFactoryLoader()
 {
+    Q_D(QFactoryLoader);
     for (int i = 0; i < d->libraryList.count(); ++i)
         d->libraryList.at(i)->release();
 }
 
 QStringList QFactoryLoader::keys() const
 {
+    Q_D(const QFactoryLoader);
     return d->keyList;
 }
 
 QObject *QFactoryLoader::instance(const QString &key) const
 {
-    if (QLibraryPrivate* library = d->keyMap.value(key))
+    Q_D(const QFactoryLoader);
+    if (QLibraryPrivate* library = d->keyMap.value(key)) {
         if (library->instance || library->loadPlugin()) {
             if (QObject *obj = library->instance()) {
                 if (!obj->parent())
@@ -135,5 +136,6 @@ QObject *QFactoryLoader::instance(const QString &key) const
                 return obj;
             }
         }
+    }
     return 0;
 }

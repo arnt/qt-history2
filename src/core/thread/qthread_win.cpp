@@ -28,8 +28,6 @@
 #include <process.h>
 #endif
 
-#define d d_func()
-
 static DWORD qt_current_data_tls_index = TLS_OUT_OF_INDEXES;
 static DWORD qt_current_thread_tls_index = TLS_OUT_OF_INDEXES;
 void qt_create_tls()
@@ -72,11 +70,10 @@ void QThreadData::setCurrent(QThreadData *data)
 unsigned int __stdcall QThreadPrivate::start(void *arg)
 {
     TlsSetValue(qt_current_thread_tls_index, arg);
-
     QThread::setTerminationEnabled(true);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData::setCurrent(&thr->d->data);
+    QThreadData::setCurrent(&thr->d_func()->data);
 
     emit thr->started();
     QThread::setTerminationEnabled(true);
@@ -89,28 +86,29 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
 void QThreadPrivate::finish(void *arg, bool lockAnyway)
 {
     QThread *thr = reinterpret_cast<QThread *>(arg);
+    QThreadPrivate *d = thr->d_func();
 
     if (lockAnyway)
-        thr->d->mutex()->lock();
-    thr->d->running = false;
-    thr->d->finished = true;
-    if (thr->d->terminated)
+        d->mutex()->lock();
+    d->running = false;
+    d->finished = true;
+    if (d->terminated)
         emit thr->terminated();
-    thr->d->terminated = false;
+    d->terminated = false;
     emit thr->finished();
 
-    QThreadStorageData::finish(thr->d->data.tls);
-    thr->d->data.tls = 0;
+    QThreadStorageData::finish(d->data.tls);
+    d->data.tls = 0;
 
-    if (!thr->d->waiters) {
-        CloseHandle(thr->d->handle);
-        thr->d->handle = 0;
+    if (!d->waiters) {
+        CloseHandle(d->handle);
+        d->handle = 0;
     }
 
-    thr->d->id = 0;
+    d->id = 0;
 
     if (lockAnyway)
-        thr->d->mutex()->unlock();
+        d->mutex()->unlock();
 }
 
 
@@ -146,6 +144,7 @@ void QThread::usleep(unsigned long usecs)
 
 void QThread::start(Priority priority)
 {
+    Q_D(QThread);
     QMutexLocker locker(d->mutex());
 
     if (d->running && !d->finished) {
@@ -224,6 +223,7 @@ void QThread::start(Priority priority)
 
 void QThread::terminate()
 {
+    Q_D(QThread);
     QMutexLocker locker(d->mutex());
     if (!d->running)
         return;
@@ -238,6 +238,7 @@ void QThread::terminate()
 
 bool QThread::wait(unsigned long time)
 {
+    Q_D(QThread);
     QMutexLocker locker(d->mutex());
 
     if (d->id == GetCurrentThreadId()) {
@@ -277,12 +278,13 @@ bool QThread::wait(unsigned long time)
 void QThread::setTerminationEnabled(bool enabled)
 {
     QThread *thr = currentQThread();
+    QThreadPrivate *d = thr->d_func();
     Q_ASSERT_X(thr != 0, "QThread::setTerminationEnabled()", 
                "Current thread was not started with QThread.");
-    QMutexLocker locker(thr->d->mutex());
-    thr->d->terminationEnabled = enabled;
-    if (enabled && thr->d->terminatePending) {
-        thr->d->terminated = true;
+    QMutexLocker locker(d->mutex());
+    d->terminationEnabled = enabled;
+    if (enabled && d->terminatePending) {
+        d->terminated = true;
         QThreadPrivate::finish(thr, false);
         locker.unlock(); // don't leave the mutex locked!
         _endthreadex(0);

@@ -17,9 +17,6 @@
 #include <qregexp.h>
 #include <private/qfileengine_p.h>
 
-#define d d_func()
-#define q q_func()
-
 #ifdef open
 #undef open
 #endif
@@ -56,27 +53,25 @@ protected:
     QResourceFileEnginePrivate() : offset(0), resource(0) { }
 };
 
-bool
-QResourceFileEngine::mkdir(const QString &, QDir::Recursion) const
+bool QResourceFileEngine::mkdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
 
-bool
-QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
+bool QResourceFileEngine::rmdir(const QString &, QDir::Recursion) const
 {
     return false;
 }
 
-bool
-QResourceFileEngine::setSize(QIODevice::Offset) 
+bool QResourceFileEngine::setSize(QIODevice::Offset) 
 {
     return false;
 }
 
-QStringList
-QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
+QStringList QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
 {
+    Q_D(const QResourceFileEngine);
+
     const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
     const bool doFiles    = (filterSpec & QDir::Files) != 0;
     const bool doReadable = (filterSpec & QDir::Readable) != 0;
@@ -115,29 +110,29 @@ QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
     return ret;
 }
 
-bool
-QResourceFileEngine::caseSensitive() const
+bool QResourceFileEngine::caseSensitive() const
 {
     return true;
 }
 
 QResourceFileEngine::QResourceFileEngine(const QString &file) : QFileEngine(*new QResourceFileEnginePrivate)
 {
+    Q_D(QResourceFileEngine);
     d->file = file;
 }
 
-void
-QResourceFileEngine::setFileName(const QString &file)
+void QResourceFileEngine::setFileName(const QString &file)
 {
+    Q_D(QResourceFileEngine);
     if(file != d->file) {
         d->resource = 0;
         d->file = file;
     }
 }
 
-bool
-QResourceFileEngine::open(int flags)
+bool QResourceFileEngine::open(int flags)
 {
+    Q_D(QResourceFileEngine);
     if (d->file.isEmpty()) {
         qWarning("QFSFileEngine::open: No file name specified");
         return false;
@@ -149,21 +144,19 @@ QResourceFileEngine::open(int flags)
     return true;
 }
 
-bool
-QResourceFileEngine::close()
+bool QResourceFileEngine::close()
 {
     return true;
 }
 
-void
-QResourceFileEngine::flush()
+void QResourceFileEngine::flush()
 {
 
 }
 
-Q_LONGLONG
-QResourceFileEngine::read(char *data, Q_LONGLONG len)
+Q_LONGLONG QResourceFileEngine::read(char *data, Q_LONGLONG len)
 {
+    Q_D(QResourceFileEngine);
     if(len > d->resource->size()-d->offset) {
         len = d->resource->size()-d->offset;
         if(!len)
@@ -174,80 +167,74 @@ QResourceFileEngine::read(char *data, Q_LONGLONG len)
     return len;
 }
 
-Q_LONGLONG
-QResourceFileEngine::write(const char *, Q_LONGLONG)
+Q_LONGLONG QResourceFileEngine::write(const char *, Q_LONGLONG)
 {
     return -1;
 }
 
-int
-QResourceFileEngine::ungetch(int)
+int QResourceFileEngine::ungetch(int)
 {
     return -1;
 }
 
-bool
-QResourceFileEngine::remove()
+bool QResourceFileEngine::remove()
 {
     return false;
 }
 
-bool
-QResourceFileEngine::rename(const QString &)
+bool QResourceFileEngine::rename(const QString &)
 {
     return false;
 }
 
-bool
-QResourceFileEngine::link(const QString &)
+bool QResourceFileEngine::link(const QString &)
 {
     return false;
 }
 
-QFile::Offset
-QResourceFileEngine::size() const
+QFile::Offset QResourceFileEngine::size() const
 {
+    Q_D(const QResourceFileEngine);
+
     if(!d->resource)
 	d->resource = QResource::find(d->file);
     return d->resource->size();
 }
 
-QFile::Offset
-QResourceFileEngine::at() const
+QFile::Offset QResourceFileEngine::at() const
 {
+    Q_D(const QResourceFileEngine);
     return d->offset;
 }
 
-bool
-QResourceFileEngine::atEnd() const
+bool QResourceFileEngine::atEnd() const
 {
+    Q_D(const QResourceFileEngine);
     return d->offset == d->resource->size();
 }
 
-bool
-QResourceFileEngine::seek(QFile::Offset pos)
+bool QResourceFileEngine::seek(QFile::Offset pos)
 {
+    Q_D(QResourceFileEngine);
     if(d->offset > d->resource->size())
         return false;
     d->offset = pos;
     return true;
 }
 
-bool
-QResourceFileEngine::isSequential() const
+bool QResourceFileEngine::isSequential() const
 {
     return false;
 }
 
-uchar *
-QResourceFileEngine::map(Q_LONG /*len*/)
+uchar *QResourceFileEngine::map(Q_LONG /*len*/)
 {
     return 0;
 }
 
-QFileEngine::FileFlags
-QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
+QFileEngine::FileFlags QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
 {
+    Q_D(const QResourceFileEngine);
     QFileEngine::FileFlags ret = 0;
     if(!d->resource && !(d->resource = qt_find_resource(d->file)))
         return ret;
@@ -267,15 +254,14 @@ QResourceFileEngine::fileFlags(QFileEngine::FileFlags type) const
     return ret;
 }
 
-bool
-QResourceFileEngine::chmod(uint) 
+bool QResourceFileEngine::chmod(uint) 
 {
     return false;
 }
 
-QString
-QResourceFileEngine::fileName(FileName file) const
+QString QResourceFileEngine::fileName(FileName file) const
 {
+    Q_D(const QResourceFileEngine);
     if(file == BaseName) {
 	int slash = d->file.lastIndexOf(QLatin1Char('/'));
 	if (slash == -1) {
@@ -305,33 +291,28 @@ QResourceFileEngine::fileName(FileName file) const
 
 }
 
-bool
-QResourceFileEngine::isRelativePath() const
+bool QResourceFileEngine::isRelativePath() const
 {
     return false;
 }
 
-uint
-QResourceFileEngine::ownerId(FileOwner) const
+uint QResourceFileEngine::ownerId(FileOwner) const
 {
     static const uint nobodyID = (uint) -2;
     return nobodyID;
 }
 
-QString
-QResourceFileEngine::owner(FileOwner) const
+QString QResourceFileEngine::owner(FileOwner) const
 {
     return QString::null;
 }
 
-QDateTime
-QResourceFileEngine::fileTime(FileTime) const
+QDateTime QResourceFileEngine::fileTime(FileTime) const
 {
     return QDateTime();
 }
 
-QFileEngine::Type
-QResourceFileEngine::type() const
+QFileEngine::Type QResourceFileEngine::type() const
 {
     return QFileEngine::Resource;
 }

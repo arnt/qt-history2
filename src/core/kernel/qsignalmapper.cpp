@@ -15,8 +15,6 @@
 #ifndef QT_NO_SIGNALMAPPER
 #include "qhash.h"
 #include "qobject_p.h"
-#define d d_func()
-#define q q_func()
 
 struct Rec
 {
@@ -139,6 +137,8 @@ QSignalMapper::~QSignalMapper()
 */
 void QSignalMapper::setMapping(const QObject *sender, int id)
 {
+    Q_D(QSignalMapper);
+
     Rec &rec = getRec(this, d->hash, sender);
     rec.has_int = true;
     rec.int_id = id;
@@ -155,6 +155,8 @@ void QSignalMapper::setMapping(const QObject *sender, int id)
 */
 void QSignalMapper::setMapping(const QObject *sender, const QString &id)
 {
+    Q_D(QSignalMapper);
+
     Rec &rec = getRec(this, d->hash, sender);
     rec.has_str = true;
     rec.str_id = id;
@@ -169,6 +171,8 @@ void QSignalMapper::setMapping(const QObject *sender, const QString &id)
 */
 QObject *QSignalMapper::mapping(int id) const
 {
+    Q_D(const QSignalMapper);
+
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
     while (i != d->hash.end()) {
         if (i->has_int && i->int_id == id)
@@ -183,6 +187,8 @@ QObject *QSignalMapper::mapping(int id) const
 */
 QObject *QSignalMapper::mapping(const QString &id) const
 {
+    Q_D(const QSignalMapper);
+
     QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
     while (i != d->hash.end()) {
         if (i->has_str && i->str_id == id)
@@ -199,6 +205,8 @@ QObject *QSignalMapper::mapping(const QString &id) const
 */
 void QSignalMapper::removeMappings(const QObject *sender)
 {
+    Q_D(QSignalMapper);
+
     d->hash.remove(sender);
 }
 
@@ -212,6 +220,8 @@ void QSignalMapper::removeMapping()
 */
 void QSignalMapper::map()
 {
+    Q_D(QSignalMapper);
+
     QHash<const QObject *, Rec>::iterator i = d->hash.find(sender());
     if (i != d->hash.constEnd()) {
         if (i->has_int)
