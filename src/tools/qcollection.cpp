@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#10 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,7 +12,7 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------
@@ -21,8 +21,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#9 $")
 
   \ingroup collection
 
-  The QCollection class is an abstract superclass for the Qt collection
-  classes QDict, QList etc. via QGDict, QGList etc.
+  The QCollection class is an abstract base class for the Qt \link
+  collection.html collection classes\endlink QDict, QList etc. via QGDict,
+  QGList etc.
 
   A QCollection knows only about the number of objects in the collection and
   the \link setAutoDelete() deletion strategy\endlink.
@@ -32,6 +33,19 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#9 $")
   create the real collections cast the \c GCI to the required type.
 
   \sa \link collection.html Collection Classes\endlink
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn QCollection::QCollection()
+  Constructs a collection. The constructor is protected because QCollection
+  is an abstract class.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QCollection::~QCollection()
+  Destroys the collection. The destructor is protected because QCollection
+  is an abstract class.
  ----------------------------------------------------------------------------*/
 
 
@@ -60,12 +74,12 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#9 $")
 
 
 /*----------------------------------------------------------------------------
-  \fn virtual uint count() const = 0
+  \fn virtual uint QCollection::count() const = 0
   Returns the number of objects in the collection.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn virtual void clear() = 0
+  \fn virtual void QCollection::clear() = 0
   Removes all objects from the collection.  The objects will be deleted
   if auto-delete has been enabled.
   \sa setAutoDelete()

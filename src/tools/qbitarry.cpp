@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#30 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#30 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -97,7 +97,7 @@ QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QBitArray &QBitArray::QBitArray &operator=( const QBitArray &a )
+  \fn QBitArray &QBitArray::operator=( const QBitArray &a )
   Assigns a shallow copy of \e a to this bit array and returns a reference
   to this array.
  ----------------------------------------------------------------------------*/

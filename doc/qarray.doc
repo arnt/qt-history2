@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.8 1995/12/20 22:24:46 hanord Exp $
+** $Id: qarray.doc,v 1.9 1996/02/23 16:59:40 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -177,7 +177,7 @@
 
   The array is a null array if size() == 0.
 
-  \sa isNull()
+  \sa isNull(), resize()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -203,6 +203,19 @@
   Returns TRUE if successful, or FALSE if the memory cannot be allocated.
 
   New elements will not be initialized.
+
+  \sa size()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QArray::truncate( uint pos )
+  Truncates the array at position \e pos.
+
+  Returns TRUE if successful, or FALSE if the memory cannot be allocated.
+
+  Equivalent to resize(\e pos).
+
+  \sa resize()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
