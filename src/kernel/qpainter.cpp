@@ -2881,6 +2881,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
 	    int ascent = asc, descent = desc, lineLeft, lineRight;
 	    textLayout.setLineWidth( r.width()-rb-lb + add );
+
 	    textLayout.endLine( 0, height, tf, &ascent, &descent, &lineLeft, &lineRight );
 
 	    //qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
