@@ -336,7 +336,7 @@ QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
 
 void QPixmap::detach()
 {
-    if (data->count ! 1)
+    if (data->count != 1)
         *this = copy();
     data->uninit = FALSE;
 }
