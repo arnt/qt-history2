@@ -79,7 +79,7 @@ Even the implementation is straight-forward:
 \skipto include
 \printuntil qstring.h
 
-First we overload \l QXmlContentHandler::startElement() with a non-empty version.
+First we overload \l QXmlContentHandler::startDocument() with a non-empty version.
 
 \printline startDocument
 \printuntil }

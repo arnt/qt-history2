@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#92 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#93 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -254,7 +254,7 @@ QString QXmlParseException::systemId() const
 
   \module XML
 
-  The reader reports a QXmlLocator to the content handler before he starts to
+  The reader reports a QXmlLocator to the content handler before it starts to
   parse the document. This is done with the
   QXmlContentHandler::setDocumentLocator() function. The handler classes can
   now use this locator to get the actual position the reader is at.
@@ -1119,7 +1119,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn void QXmlContentHandler::setDocumentLocator( QXmlLocator* locator )
 
-  The reader calls this function before he starts parsing the document. The
+  The reader calls this function before it starts parsing the document. The
   argument \a locator is a pointer to a QXmlLocator which allows the
   application to get the actual position of the parsing in the document.
 
@@ -1129,7 +1129,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::startDocument()
 
-  The reader calls this function when he starts parsing the document.
+  The reader calls this function when it starts parsing the document.
   The reader calls this function only once before any other functions in
   this class or in the QXmlDTDHandler class are called (except
   QXmlContentHandler::setDocumentLocator()).
@@ -1143,7 +1143,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::endDocument()
 
-  The reader calls this function after he has finished the parsing. It
+  The reader calls this function after it has finished the parsing. It
   is only called once. It is the last function of all handler functions that is
   called. It is called after the reader has read all input or has abandoned
   parsing because of a fatal error.
@@ -1196,7 +1196,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts )
 
-  The reader calls this function when he has parsed a start element tag.
+  The reader calls this function when it has parsed a start element tag.
 
   There is a corresponding endElement() call when the corresponding end
   element tag was read. The startElement() and endElement() calls are always
@@ -1226,7 +1226,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::endElement( const QString& namespaceURI, const QString& localName, const QString& qName )
 
-  The reader calls this function when he has parsed an end element tag with the
+  The reader calls this function when it has parsed an end element tag with the
   qualified name \a qName, the local name \a localName and the namespace URI \a
   namespaceURI.
 
@@ -1241,7 +1241,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::characters( const QString& ch )
 
-  The reader calls this function when he has parsed a chunk of character
+  The reader calls this function when it has parsed a chunk of character
   data (either normal character data or character data inside a CDATA section;
   if you have to distinguish between those two types you have to use
   QXmlLexicalHandler::startCDATA() and QXmlLexicalHandler::endCDATA() in
@@ -1273,7 +1273,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlContentHandler::processingInstruction( const QString& target, const QString& data )
 
-  The reader calls this function when he has parsed a processing
+  The reader calls this function when it has parsed a processing
   instruction.
 
   \a target is the target name of the processing instruction and \a data is the
@@ -1384,7 +1384,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlDTDHandler::notationDecl( const QString& name, const QString& publicId, const QString& systemId )
 
-  The reader calls this function when he has parsed a notation declaration.
+  The reader calls this function when it has parsed a notation declaration.
 
   The argument \a name is the notation name, \a publicId is the notations's
   public identifier and \a systemId is the notations's system identifier.
@@ -1396,7 +1396,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlDTDHandler::unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName )
 
-  The reader calls this function when he finds an unparsed entity declaration.
+  The reader calls this function when it finds an unparsed entity declaration.
 
   The argument \a name is the unparsed entity's name, \a publicId is the
   entity's public identifier, \a systemId is the entity's system identifier and
@@ -1433,12 +1433,12 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 /*!
   \fn bool QXmlEntityResolver::resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret )
 
-  The reader calls this function before he opens any external entity,
+  The reader calls this function before it opens any external entity,
   except the top-level document entity. The application may request the reader
   to resolve the entity itself (\a ret is 0) or to use an entirely different
   input source (\a ret points to the input source).
 
-  The reader deletes the input source \a ret when he no longer needs it. So
+  The reader deletes the input source \a ret when it no longer needs it. So
   you should allocate it on the heap with \c new.
 
   The argument \a publicId is the public identifier of the external entity, \a
