@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#46 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -472,88 +472,6 @@ bool QClipboard::event( QEvent *e )
 
     return TRUE;
 }
-
-/*!
-  Returns the clipboard text, or a
-  \link QString::operator!() null string\endlink
-  if the clipboard does not contain any text.
-  \sa setText()
-*/
-
-QString QClipboard::text() const
-{
-    QString r;
-    QTextDrag::decode(data(),r);
-    return r;
-}
-
-/*!
-  Copies \e text into the clipboard.
-  \sa text(), setData()
-*/
-
-void QClipboard::setText( const QString &text )
-{
-    setData(new QTextDrag(text));
-}
-
-
-/*!
-  Returns the clipboard image, or null if the clipboard does not contain
-  an image.
-  \sa setText()
-*/
-
-QImage QClipboard::image() const
-{
-    QImage r;
-    QImageDrag::decode(data(),r);
-    return r;
-}
-
-/*!
-  Copies \e image into the clipboard.
-
-  This is just a shorthand for:
-  \code
-    setData(new QImageDrag(image))
-  \endcode
-
-  \sa image(), setData()
-*/
-
-void QClipboard::setImage( const QImage &image )
-{
-    setData(new QImageDrag(image));
-}
-
-
-/*!
-  Returns the clipboard pixmap, or null if the clipboard does not contains
-  any pixmap. Note that this usually looses more information than image().
-  \sa setText(), image()
-*/
-
-QPixmap QClipboard::pixmap() const
-{
-    QPixmap r;
-    QImageDrag::decode(data(),r);
-    return r;
-}
-
-/*!
-  Copies \e pixmap into the clipboard.
-  Note that this usually looses more information than setImage(),
-  as the data may be converted to an image for transfer.
-  \sa pixmap()
-*/
-
-void QClipboard::setPixmap( const QPixmap &pixmap )
-{
-    // *could* just use the handle, but that is X hackery, MIME is better.
-    setData(new QImageDrag(pixmap.convertToImage()));
-}
-
 
 class QClipboardWatcher : public QMimeSource {
 public:

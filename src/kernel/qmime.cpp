@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#5 $
 **
 ** Implementation of MIME support
 **
@@ -74,4 +74,5 @@ bool QMimeSource::provides(const char* mimeType) const
 
   Returns the \e ith format, or NULL.
 */
+
 

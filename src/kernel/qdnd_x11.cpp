@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#82 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -705,6 +705,8 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 static Qt::ButtonState oldstate;
 void QDragManager::updateMode( ButtonState newstate )
 {
+    // #### Doesn't update on keypress, user needs to move mouse
+
     if ( newstate == oldstate )
 	return;
     const int both = ShiftButton|ControlButton;

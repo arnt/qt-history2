@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#4 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#5 $
 **
 ** Definition of mime classes
 **
@@ -28,6 +28,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qlist.h"
 #endif // QT_H
 
 class Q_EXPORT QMimeSource {
@@ -37,5 +38,39 @@ public:
     virtual bool provides( const char* ) const;
     virtual QByteArray encodedData( const char* ) const = 0;
 };
+
+#ifdef _WS_WIN_
+
+/*
+  Encapsulation of conversion between MIME and Windows CLIPFORMAT.
+  Not need on X11, as the underlying protocol uses the MIME standard
+  directly.
+*/
+
+class Q_EXPORT QWindowsMime {
+public:
+    QWindowsMime();
+    virtual ~QWindowsMime();
+
+    static void initialize();
+
+    static QList<QWindowsMime> all();
+    static QWindowsMime* convertor( const char* mime, int cf );
+    static const char* cfToMime(int cf);
+
+    static int registerMimeType(const char *mime);
+
+    virtual const char* convertorName()=0;
+    virtual int countCf()=0;
+    virtual int cf(int index)=0;
+    virtual bool canConvert( const char* mime, int cf )=0;
+    virtual const char* mimeFor(int cf)=0;
+    virtual int cfFor(const char* )=0;
+    virtual QByteArray convertToMime( QByteArray data, const char* mime, int cf )=0;
+    virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
+};
+
+#endif
+
 
 #endif // QMIME_H

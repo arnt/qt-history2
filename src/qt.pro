@@ -227,6 +227,7 @@ win32:SOURCES	= kernel/qapplication_win.cpp \
 		  kernel/qcursor_win.cpp \
 		  kernel/qdnd_win.cpp \
 		  kernel/qfont_win.cpp \
+		  kernel/qmime_win.cpp \
 		  kernel/qpicture_win.cpp \
 		  kernel/qpixmap_win.cpp \
 		  kernel/qprinter_win.cpp \

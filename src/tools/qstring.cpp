@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#223 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#224 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12496,7 +12496,9 @@ QString QString::fromLatin1(const char* chars, int len)
 */
 
 /*!
-  Returns the string encoded in a locale-specific format.
+  Returns the string encoded in a locale-specific format.  On X11, this
+  is the QTextCodec::codecForLocale().  On Windows, it is a system-defined
+  encoding.
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 
@@ -12504,10 +12506,14 @@ QString QString::fromLatin1(const char* chars, int len)
 */
 QCString QString::local8Bit() const
 {
+#ifdef _WS_X11_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
+#else
+    return qt_winQString2MB( *this );
+#endif
 }
 
 /*!
@@ -12522,11 +12528,15 @@ QCString QString::local8Bit() const
 */
 QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
+#ifdef _WS_X11_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = strlen(local8Bit);
     return codec
 	    ? codec->toUnicode(local8Bit, len)
 	    : QString(local8Bit,len+1);
+#else
+    return qt_winMB2QString( local8Bit, len );
+#endif
 }
 
 /*!
@@ -13018,7 +13028,7 @@ QCString qt_winQString2MB( const QString& s )
     return mb;
 }
 
-QString qt_winMB2QString( const char* mb )
+QString qt_winMB2QString( const char* mb, int mblen )
 {
     const int wclen_auto = 4096;
     QChar wc_auto[wclen_auto];
@@ -13026,7 +13036,7 @@ QString qt_winMB2QString( const char* mb )
     QChar *wc = wc_auto;
     int len;
     while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-		mb, -1, (ushort*)wc, wclen )) )
+		mb, mblen, (ushort*)wc, wclen )) )
     {
 	int r = GetLastError();
 	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
@@ -13036,7 +13046,7 @@ QString qt_winMB2QString( const char* mb )
 		break;
 	    } else {
 		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-				    mb, -1, 0, 0 );
+				    mb, mblen, 0, 0 );
 		wc = new QChar[wclen];
 		// and try again...
 	    }

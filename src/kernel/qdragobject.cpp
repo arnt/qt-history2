@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#80 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -527,7 +527,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
     if ( 0==strnicmp(mime,"text/",5) ) {
 	QTextCodec *codec = 0;
 	if ( 0==stricmp(mime,"text/plain") ) {
-	    codec = QTextCodec::codecForLocale();
+	    // local
 	} else if ( 0==stricmp(mime,"text/utf16")
 	         || 0==stricmp(mime,"text/utf8") ) {
 	    codec = QTextCodec::codecForName(mime+5);
@@ -535,8 +535,12 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	if (codec) {
 	    int l;
 	    r = codec->fromUnicode(txt,l);
+debug("QTextDrag::encodedData(%s) -> codec %s -> %d bytes",
+mime,codec->name(),r.size());
 	} else {
-	    r = txt.latin1();
+	    r = txt.local8Bit();
+debug("QTextDrag::encodedData(%s) -> local8Bit -> %d bytes",
+mime,r.size());
 	}
     }
     return r;
@@ -567,12 +571,13 @@ bool QTextDrag::decode( QMimeSource* e, QString& str )
     for ( int i=0; !codec && text_formats[i]; i++ ) {
 	payload = e->encodedData(text_formats[i]);
 	if ( payload.size() ) {
-	    codec = QTextCodec::codecForName(text_formats[i]+5); // 5="text/"
-	    if ( !codec && !text_formats[i+1] ) {
+	    if ( !text_formats[i+1] ) {
 		// text/plain
-		str = QCString(payload);
+		str = QString::fromLocal8Bit(payload);
 		return TRUE;
 	    }
+	    const char* subtype = text_formats[i]+5; // 5="text/"
+	    codec = QTextCodec::codecForName(subtype);
 	}
     }
     if ( !codec )

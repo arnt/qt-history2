@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#285 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#286 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -28,6 +28,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qsessionmanager.h"
+#include "qmime.h"
 #include <ctype.h>
 #include "qt_windows.h"
 
@@ -117,8 +118,6 @@ QObject	       *qt_clipboard = 0;
 static bool	qt_try_modal( QWidget *, MSG * );
 
 static int	translateKeyCode( int );
-
-void		qt_init_windows_mime();		// qdnd_win.cpp
 
 QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
 
@@ -483,8 +482,7 @@ void qt_init( int *argcptr, char **argv )
 
   // Misc. initialization
 
-    qt_init_windows_mime();
-
+    QWindowsMime::initialize();
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -1442,12 +1440,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	case WM_CHANGECBCHAIN:
 	case WM_DRAWCLIPBOARD:
+	case WM_RENDERFORMAT:
+	case WM_RENDERALLFORMATS:
 	    if ( qt_clipboard ) {
 		QCustomEvent e( QEvent::Clipboard, &msg );
 		QApplication::sendEvent( qt_clipboard, &e );
 		return 0;
 	    }
-						// NOTE: fall-through!
+	    // NOTE: fall-through!
 	default:
 	    result = FALSE;			// event was not processed
 	    break;
@@ -1620,12 +1620,12 @@ void QApplication::closePopup( QWidget *popup )
 	active_window = activeBeforePopup;	// windows does not have
 	// A reasonable focus handling for ours popups => we have
 	// to restore the focus manually.
-	if (active_window && active_window->focusWidget())
-	    active_window->focusWidget()->setFocus();
-	else
-	    active_window->setFocus();
-    }
-     else {
+	if ( active_window )
+	    if (active_window->focusWidget())
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
+    } else {
  	// Popups are not focus-handled by the window system (the
  	// first popup grabbed the keyboard), so we have to do that
  	// manually: A popup was closed, so the previous popup gets
@@ -1635,7 +1635,7 @@ void QApplication::closePopup( QWidget *popup )
 	     active_window->focusWidget()->setFocus();
 	 else
 	     active_window->setFocus();
-     }
+    }
 }
 
 
