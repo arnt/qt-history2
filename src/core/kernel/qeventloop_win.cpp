@@ -17,6 +17,7 @@
 #include "qhash.h"
 #include "qsocketnotifier.h"
 #include "qt_windows.h"
+#include <private/qthread_p.h>
 #define d d_func()
 #define q q_func()
 
@@ -532,10 +533,10 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
     bool shortcut = d->exitloop || d->quitnow;
 
     QThreadData *data = QThreadData::current();
-    const bool canWait = (data->postEventList.size() == 0
-                          && !d->exitloop
-                          && !d->quitnow
-                          && (flags & WaitForMore));
+    bool canWait = (data->postEventList.size() == 0
+                    && !d->exitloop
+                    && !d->quitnow
+                    && (flags & WaitForMore));
 
     if (flags & ExcludeUserInput) {
         // purge all userinput messages from eventloop
