@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#283 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#284 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2728,7 +2728,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     }
     i->paint( p );
     if ( d->current == i && hasFocus() )
-	style().drawFocusRect( p, QRect( 1, 1, cw-2, ch-2 ),
+	style().drawFocusRect( p, QRect( 0, 0, cw, ch ),
 			       g, i->selected() ? &g.highlight() : &g.base(),
 			       TRUE );
 }
