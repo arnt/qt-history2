@@ -188,7 +188,7 @@ struct QLineEditPrivate : public Qt
     void moveCursor( int pos, bool mark = FALSE );
     void setText( const QString& txt );
     int xToPos( int x, QTextItem::CursorPosition = QTextItem::BetweenCharacters ) const;
-    inline int visualAlignment() const { return alignment ? alignment : ( isRightToLeft() ? AlignRight : AlignLeft ); }
+    inline int visualAlignment() const { return alignment ? alignment : int( isRightToLeft() ? AlignRight : AlignLeft ); }
     QRect cursorRect() const;
     void updateMicroFocusHint();
 
@@ -2488,7 +2488,7 @@ QString QLineEditPrivate::maskString( uint pos, const QString &str, bool clear) 
 	if ( strIndex < str.length() ) {
 	    if ( maskData[ i ].separator ) {
 		s += maskData[ i ].maskChar;
-		if ( str[(int)strIndex].unicode() == maskData[ i ].maskChar )
+		if ( str[(int)strIndex] == maskData[ i ].maskChar )
 		    strIndex++;
 	    } else {
 		if ( isValidInput( str[(int)strIndex], maskData[ i ].maskChar ) ) {
