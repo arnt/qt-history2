@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#130 $
 **
 ** Implementation of QListView widget class
 **
@@ -1260,6 +1260,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->h->setTracking(TRUE);
     d->buttonDown = FALSE;
     d->ignoreDoubleClick = FALSE;
+    d->column.setAutoDelete( TRUE );
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -1295,6 +1296,7 @@ QListView::~QListView()
 {
     d->focusItem = 0;
     d->currentSelected = 0;
+    delete d->dirtyItems;
     delete d->r;
     delete d;
 }
@@ -1528,14 +1530,11 @@ void QListView::buildDrawableList() const
     // used to work around lack of support for mutable
     QList<QListViewPrivate::DrawableItem> * dl;
 
-    if ( d->drawables ) {
-	dl = ((QListView *)this)->d->drawables;
-	dl->clear();
-    } else {
-	dl = new QList<QListViewPrivate::DrawableItem>;
-	dl->setAutoDelete( TRUE );
-	((QListView *)this)->d->drawables = dl;
-    }
+    dl = new QList<QListViewPrivate::DrawableItem>;
+    dl->setAutoDelete( TRUE );
+    if ( d->drawables )
+	delete ((QListView *)this)->d->drawables;
+    ((QListView *)this)->d->drawables = dl;
 
     while ( !stack.isEmpty() ) {
 	cur = stack.pop();
