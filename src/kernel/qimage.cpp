@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#174 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2384,15 +2384,15 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
 
   PBM, PGM, and PPM format output is only supported in PPMRAW format.
 
-  \warning Unisys has changed its position regarding GIF.  If you are
+  \warning Unisys has changed its position regarding GIF.  If you are 
   in a country where Unisys holds a patent on LZW compression and/or
-  decompression, Unisys may require a license from you.  These
-  countries include Canada, Japan, the USA, France, Germany, Italy and
-  the UK.  There is more information on Unisys web site: <a
+  decompression, Unisys may require you to license that technology. 
+  These countries include Canada, Japan, the USA, France, Germany,
+  Italy and the UK.  There is more information on Unisys web site: <a
   href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
   Unisys' position.</a> GIF support may be removed in a future version
-  of Qt.  We recommend using the PNG format, which is available in the
-  <a href="imageio.html">Qt Image IO Extension</a> package.
+  of Qt.  We recommend using the PNG format, which is available in the 
+  <a href="imageio.html">Qt Image IO Extension</a> package.  
 
   \sa QImage, QPixmap, QFile, QMovie
 */
