@@ -1340,18 +1340,28 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break;
     case PE_IndicatorRadioButton:
         {
-#define INTARRLEN(x) sizeof(x)/(sizeof(int)*2)
-            static const int pts1[] = {              // dark lines
-                1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-            static const int pts2[] = {              // black lines
-                2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-            static const int pts3[] = {              // background lines
-                2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-            static const int pts4[] = {              // white lines
-                2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-                11,4, 10,3, 10,2 };
-            static const int pts5[] = {              // inner fill
-                4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+#define PTSARRLEN(x) sizeof(x)/(sizeof(QPoint))
+            static const QPoint pts1[] = {              // dark lines
+                QPoint(1, 9), QPoint(1, 8), QPoint(0, 7), QPoint(0, 4), QPoint(1, 3), QPoint(1, 2),
+                QPoint(2, 1), QPoint(3, 1), QPoint(4, 0), QPoint(7, 0), QPoint(8, 1), QPoint(9, 1)
+            };
+            static const QPoint pts2[] = {              // black lines
+                QPoint(2, 8), QPoint(1, 7), QPoint(1, 4), QPoint(2, 3), QPoint(2, 2), QPoint(3, 2),
+                QPoint(4, 1), QPoint(7, 1), QPoint(8, 2), QPoint(9, 2)
+            };
+            static const QPoint pts3[] = {              // background lines
+                QPoint(2, 9), QPoint(3, 9), QPoint(4, 10), QPoint(7, 10), QPoint(8, 9), QPoint(9, 9),
+                QPoint(9, 8), QPoint(10, 7), QPoint(10, 4), QPoint(9, 3)
+            };
+            static const QPoint pts4[] = {              // white lines
+                QPoint(2, 10), QPoint(3, 10), QPoint(4, 11), QPoint(7, 11), QPoint(8, 10),
+                QPoint(9, 10), QPoint(10, 9), QPoint(10, 8), QPoint(11, 7), QPoint(11, 4),
+                QPoint(10, 3), QPoint(10, 2)
+            };
+            static const QPoint pts5[] = {              // inner fill
+                QPoint(4, 2), QPoint(7, 2), QPoint(9, 4), QPoint(9, 7), QPoint(7, 9), QPoint(4, 9),
+                QPoint(2, 7), QPoint(2, 4)
+            };
 
             // make sure the indicator is square
             QRect ir = opt->rect;
@@ -1369,30 +1379,29 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             bool enabled = opt->state & Style_Enabled;
             bool on = opt->state & Style_On;
             QPolygon a;
-            a.setPoints(INTARRLEN(pts1), pts1);
-            a.translate(ir.x(), ir.y());
+            p->translate(ir.x(), ir.y());
+
             p->setPen(opt->palette.dark().color());
-            p->drawPolyline(a);
-            a.setPoints(INTARRLEN(pts2), pts2);
-            a.translate(ir.x(), ir.y());
+            p->drawPolyline(pts1, PTSARRLEN(pts1));
+
             p->setPen(opt->palette.shadow().color());
-            p->drawPolyline(a);
-            a.setPoints(INTARRLEN(pts3), pts3);
-            a.translate(ir.x(), ir.y());
+            p->drawPolyline(pts2, PTSARRLEN(pts2));
+
             p->setPen(opt->palette.midlight().color());
-            p->drawPolyline(a);
-            a.setPoints(INTARRLEN(pts4), pts4);
-            a.translate(ir.x(), ir.y());
+            p->drawPolyline(pts3, PTSARRLEN(pts3));
+
             p->setPen(opt->palette.light().color());
-            p->drawPolyline(a);
-            a.setPoints(INTARRLEN(pts5), pts5);
-            a.translate(ir.x(), ir.y());
+            p->drawPolyline(pts4, PTSARRLEN(pts4));
+
             QColor fillColor = (down || !enabled)
                                ? opt->palette.button().color()
                                : opt->palette.base().color();
             p->setPen(fillColor);
             p->setBrush(fillColor) ;
-            p->drawPolygon(a);
+            p->drawPolygon(pts5, PTSARRLEN(pts5));
+
+            p->translate(-ir.x(), -ir.y()); // restore translate
+
             if (on) {
                 p->setPen(Qt::NoPen);
                 p->setBrush(opt->palette.text());
@@ -1875,7 +1884,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                             r2.right() - 1, r2.bottom());
                 p->drawPoint(r2.right() - 1, r2.bottom() - 1);
                 p->drawLine(r2.right(), r2.bottom() - 1, r2.right(), r2.top() + 2);
-                
+
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left() + (selected ? 0 : 2), r2.top(), r2.right() - 2, r2.top());
                 break; }
