@@ -35,6 +35,8 @@
 
 #include <qfeatures.h>
 
+#include <stdlib.h>
+
 const int dbsize = 300;
 const int dbcustom = 200;
 const int dbdictsize = 211;

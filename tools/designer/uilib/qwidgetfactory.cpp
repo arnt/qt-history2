@@ -88,6 +88,8 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 
+#include <stdlib.h>
+
 static QPtrList<QWidgetFactory> widgetFactories;
 static QPluginManager<EventInterface> *eventInterfaceManager = 0;
 static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
