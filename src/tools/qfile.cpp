@@ -70,7 +70,7 @@ extern bool qt_file_access( const QString& fn, int t );
 	int n = 1;
 	while ( !t.eof() ) {	    // until end of file...
 	    s = t.readLine();	    // line of text excluding '\n'
-	    printf( "%3d: %s\n", n++, (const char *)s );
+	    printf( "%3d: %s\n", n++, s.latin1() );
 	}
 	f.close();
     }
