@@ -116,6 +116,14 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
     QStringList ret;
     QValueStack<QChar> quote;
     for(int x = 0; x < (int)vals.length(); x++) {
+#if 0
+	//I don't think I can do this, because you could have a trailing slash before your next
+	//argument (ie a directory) which would cause problems. I will need to test more, but I'm
+	//a bit nervous to change it now..
+	if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == ' '  || (do_semicolon && vals[x+1] == ';')))
+	    build += QString(vals[x++]) + QString(vals[x++]);
+	else 
+#endif
 	if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == '\'' || vals[x+1] == '"'))
 	    build += vals[x++]; //get that 'escape'
 	else if(!quote.isEmpty() && vals[x] == quote.top())
