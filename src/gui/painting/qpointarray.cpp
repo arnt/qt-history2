@@ -368,7 +368,7 @@ QRect QPointArray::boundingRect() const
 }
 
 
-#ifndef QT_COMPAT
+#ifdef QT_COMPAT
 /*!
     Sets the points of the array to those describing an arc of an
     ellipse with size, width \a w by height \a h, and position (\a x,
