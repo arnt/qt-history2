@@ -52,10 +52,10 @@
 
     The use of a pointer-based tree structure means that, when passing a
     model index to a view, we can use record the address of the
-    corresponding item in the index (see QModelIndex::createIndex()) and
-    retrieve it later with QModelIndex::data(). This makes writing the model
-    easier and ensures that all model indexes that refer to the same item
-    have the same internal data pointer.
+    corresponding item in the index (see QAbstractItemModel::createIndex())
+    and retrieve it later with QModelIndex::data(). This makes writing the
+    model easier and ensures that all model indexes that refer to the same
+    item have the same internal data pointer.
 
     With the appropriate data structure in place, we can create a tree model
     with a minimal amount of extra code to supply model indexes and data to
@@ -175,7 +175,7 @@
     Note that, since the root item in the model will not have a parent, this
     function will return zero in that case. We need to ensure that the model
     handles this case correctly when we implement the \c TreeModel::parent()
-    function later.
+    function.
 
     \section1 TreeModel Class Definition
 
@@ -187,7 +187,7 @@
 
     This class is similar to most other subclasses of QAbstractItemModel that
     provide read-only models. Only the form of the constructor and the
-    \c addModelData() function are specific to this model. In addition, we
+    \c setupModelData() function are specific to this model. In addition, we
     provide a destructor to clean up when the model is destroyed.
 
     \section1 TreeModel Class Implementation
@@ -207,7 +207,8 @@
     the model.
 
     The model's internal data structure is populated with items by the
-    \c setupModelData() function. We will examine this function later.
+    \c setupModelData() function. We will examine this function separately
+    at the end of this document.
 
     The destructor ensures that the root item and all of its descendants
     are deleted when the model is destroyed:
@@ -308,4 +309,41 @@
     specified in the constructor, or hard coded into the \c headerData()
     function.
 
+    \section1 Setting Up the Data in the Model
+
+    We use the \c setupModelData() function to set up the initial data in
+    the model. This function parses a text file, extracting strings of
+    text to use in the model, and creates item objects that record both
+    the data and the overall model structure.
+    Naturally, this function works in a way that is very specific to
+    this model. We provide the following description of its behavior,
+    and refer the reader to the example code itself for more information.
+
+    We begin with a text file in the following format:
+
+    \code
+    Getting Started				How to familiarize yourself with Qt Designer
+        Launching Designer			Running the Qt Designer application
+        The User Interface			How to interact with Qt Designer
+    \endcode
+    \dots
+    \code
+    Connection Editing Mode			Connecting widgets together with signals and slots
+        Connecting Objects			Making connections in Qt Designer
+        Editing Connections			Changing existing connections
+    \endcode
+
+    We process the text file with the following two rules:
+
+    \list
+    \o For each pair of strings on each line, create an item (or node)
+       in a tree structure, and place each string in a column of data
+       in the item.
+    \o When the first string on a line is indented with respect to the
+       first string on the previous line, make the item a child of the
+       previous item created.
+    \endlist
+
+    To ensure that the model works correctly, it is only necessary to
+    create instances of \c TreeItem with the correct data and parent item.
 */
