@@ -235,7 +235,7 @@ public:
     int y()		const { return p.y(); };
     int globalX()	const { return g.x(); };
     int globalY()	const { return g.y(); };
-    TabletDevices device() 	const { return TabletDevices(dev); };
+    TabletDevice device() 	const { return TabletDevice(dev); };
     int isAccepted() const { return accpt; };
     void accept() { accpt = TRUE; };
     void ignore() { accpt = FALSE; };
