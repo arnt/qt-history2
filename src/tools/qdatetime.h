@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#13 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#14 $
 **
 ** Definition of date and time classes
 **
@@ -133,13 +133,13 @@ public:
     QDateTime( const QDate & );
     QDateTime( const QDate &, const QTime & );
 
-    bool   isNull()	const { return d.isNull() && t.isNull(); }
-    bool   isValid()	const { return d.isValid() && t.isValid(); }
+    bool   isNull()	const		{ return d.isNull() && t.isNull(); }
+    bool   isValid()	const		{ return d.isValid() && t.isValid(); }
 
-    QDate  date()	const { return d; }
-    QTime  time()	const { return t; }
-    void   setDate( QDate date ) { d=date; }
-    void   setTime( QTime time ) { t=time; }
+    QDate  date()	const		{ return d; }
+    QTime  time()	const		{ return t; }
+    void   setDate( const QDate &date ) { d=date; }
+    void   setTime( const QTime &time ) { t=time; }
     void   setTime_t( ulong secsSince1Jan1970UTC );
 
     QString toString()	const;
