@@ -437,14 +437,7 @@ static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengt
 		r == SQL_SUCCESS ? rSize = lengthIndicator : rSize = colSize;
 		if ( lengthIndicator == SQL_NO_TOTAL ) // size cannot be determined
 		    rSize = colSize;
-		// NB! This is not a memleak - the mem will be deleted by QByteArray when
-		// no longer ref'd
-		char * tmp = (char *) malloc( rSize + fieldVal.size() );
-		if ( fieldVal.size() )
-		    memcpy( tmp, fieldVal.data(), fieldVal.size() );
-		memcpy( tmp + fieldVal.size(), buf, rSize );
-		fieldVal = fieldVal.assign( tmp, fieldVal.size() + rSize );
-
+		fieldVal.append( QByteArray( buf, rSize ) );
 		if ( r == SQL_SUCCESS ) // the whole field was read in one chunk
 		    break;
 	    }
@@ -775,7 +768,7 @@ bool QDB2Result::exec()
 #endif
 		    // fall through
 	        default: {
-		    QCString * str = new QCString( val.asString().local8Bit() );
+		    QByteArray * str = new QByteArray( val.asString().local8Bit() );
 		    tmpStorage.append( qAutoDeleter(str) );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
@@ -784,7 +777,7 @@ bool QDB2Result::exec()
 					  SQL_VARCHAR,
 					  str->length() + 1,
 					  0,
-					  (void *) str->data(),
+					  (void *) str->detach(),
 					  str->length() + 1,
 					  ind );
 		    break; }
