@@ -450,7 +450,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             QRegion region = s->txop > QPainter::TxNone
                              ? (s->clipRegion * s->clipRegionMatrix)
                              : s->clipRegion;
-            if (joinWithPath)
+            if (joinWithPath && !s->clipPathRegion.isEmpty())
                 region &= s->clipPathRegion * s->clipPathMatrix;
             updateClipRegion(region, s->clipEnabled);
         }
