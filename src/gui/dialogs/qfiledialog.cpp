@@ -766,6 +766,22 @@ QAbstractItemDelegate *QFileDialog::itemDelegate() const
 }
 
 /*!
+  \brief set the icon provider used by the filedialog.
+*/
+void QFileDialog::setIconProvider(QFileIconProvider *provider)
+{
+    d->model->setIconProvider(provider);
+}
+
+/*!
+  \brief returns the icon provider used by the filedialog.
+*/
+QFileIconProvider *QFileDialog::iconProvider() const
+{
+    return d->model->iconProvider();
+}
+
+/*!
  \reimp*/
 
 void QFileDialog::done(int result)

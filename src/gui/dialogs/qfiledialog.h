@@ -20,6 +20,7 @@
 
 class QMenu;
 class QModelIndex;
+class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
 
@@ -78,6 +79,9 @@ public:
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
+
+    void setIconProvider(QFileIconProvider *provider);
+    QFileIconProvider *iconProvider() const;
 
 signals:
     void filesSelected(const QStringList &);
