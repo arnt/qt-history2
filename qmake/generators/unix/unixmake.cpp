@@ -83,7 +83,8 @@ UnixMakefileGenerator::init()
 		       (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && project->isActiveConfig("dll")) ||
                        (project->first("TARGET") == "qt" ||
 			project->first("TARGET") == "qte" ||
-			project->first("TARGET") == "qt-mt");
+			project->first("TARGET") == "qt-mt" ||
+			project->first("TARGET") == "qte-mt");
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
@@ -134,7 +135,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
 	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-		(project->first("TARGET") == "qt-mt") ) ) {
+		(project->first("TARGET") == "qt-mt") || (project->first("TARGET") == "qte-mt") ) ) {
 	    if ( !project->variables()["QMAKE_LIBDIR_QT"].isEmpty() ) {
 		if ( !project->variables()["QMAKE_RPATH"].isEmpty() )
 		    project->variables()["QMAKE_LIBDIR_FLAGS"].append(project->first("QMAKE_RPATH") +
@@ -165,7 +166,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_OPENGL"));
 	}
 	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-	     (project->first("TARGET") == "qt-mt") )
+	     (project->first("TARGET") == "qt-mt") || (project->first("TARGET") == "qte-mt") )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
 	else 
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
