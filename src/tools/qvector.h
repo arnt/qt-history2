@@ -21,7 +21,7 @@ struct Q_EXPORT QVectorData
 
 template <typename T>
 struct QVectorTypedData
-{ 
+{
     QAtomic ref;
     int alloc, size;
     T array[1];
@@ -241,10 +241,12 @@ void QVector<T>::realloc(int size, int alloc)
     }
     if (QTypeInfo<T>::isComplex) {
 	if (size < d->size) {
-	    i = d->array + d->size;
 	    j = d->array + size;
-	    while (i-- != j)
-		i->~T();
+	    if (d == x.d) {
+		i = d->array + d->size;
+		while (i-- != j)
+		    i->~T();
+	    }
 	    i = x.d->array + size;
 	} else {
 	    i = x.d->array + size;
