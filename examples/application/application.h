@@ -35,7 +35,6 @@ private slots:
     void load( const QString &fileName );
     void save();
     void saveAs();
-    void pageSetup();
     void print();
 
     void about();
