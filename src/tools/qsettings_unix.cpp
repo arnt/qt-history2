@@ -54,8 +54,8 @@
   the key. A key is a unicode string which consists of \e two or more
   subkeys. A subkey is a slash, '/', followed by one or more unicode
   characters (excluding slashes, newlines, carriage returns and equals,
-  '=', signs). The associated data, called the entry, may be a boolean,
-  an integer, a double, a string or a list of strings.
+  '=', signs). The associated data, called the entry or value, may be a
+  boolean, an integer, a double, a string or a list of strings.
 
     Example settings:
     \code
@@ -77,7 +77,7 @@
     settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
     // Use default values if the keys don't exist
     QString bgColor = settings.readEntry( "/MyApplication/background color", "white" );
-    int width = settings.readIntEntry( "/MyApplication/geometry/width", 640 );
+    int width = settings.readNumEntry( "/MyApplication/geometry/width", 640 );
     // ...
     \endcode
 
@@ -114,6 +114,19 @@
     \endcode
     \c subkeys is empty.
 
+    If you wish to use a different search path call insertSearchPath()
+    as often as necessary to add your preferred paths. Call
+    removeSearchPath() to remove any unwanted paths.
+
+    Since settings for Windows are stored in the registry there are size
+    limits as follows:
+    <ul>
+    <li>A subkey may not exceed 255 characters.
+    <li>An entry's value may not exceed 16,300 characters.
+    <li>All the values of a key (for example, all the 'recent files'
+    subkeys values), may not exceed 64K characters.
+    </ul>
+
     <b>Notes for Unix Applications</b>
 
     There is no universally accepted place for storing application
@@ -130,9 +143,8 @@
     ones returned. Files for which the user does not have access rights
     will be skipped.
 
-    If you wish to use a different search path call insertSearchPath()
-    as often as necessary to add your preferred paths. Call
-    removeSearchPath() to remove any unwanted paths.
+    For cross-platform applications you should ensure that the Windows
+    size limitations are not exceeded.
 */
 
 /*!
