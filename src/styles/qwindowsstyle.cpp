@@ -93,7 +93,7 @@ static bool use2000style = TRUE;
 */
 QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 {
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN32)
     if (qWinVersion() == Qt::WV_2000 ||
 	qWinVersion() == Qt::WV_98 ||
 	qWinVersion() == Qt::WV_XP)

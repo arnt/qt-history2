@@ -1682,7 +1682,7 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
     fname = filename;
 
     if ( QFile::exists( filename ) ) {
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN32)
 	QString cmd = "copy " + filename + " " + filename + ".bak";
 	system( cmd.latin1() );
 #else
