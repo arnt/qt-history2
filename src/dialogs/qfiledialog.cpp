@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#278 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#279 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1701,8 +1701,8 @@ void QFileDialog::init()
     h->addSpacing( 8 );
     h->addWidget( d->newFolder );
     h->addSpacing( 8 );
-    h->addWidget( d->detailView );
     h->addWidget( d->mcView );
+    h->addWidget( d->detailView );
     h->addWidget( d->previewInfo );
     h->addWidget( d->previewContents );
 
@@ -2447,7 +2447,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 	t = d->extraLabel->sizeHint();
 	RM;
     }
-    d->pathL->setFixedSize( r );
+    d->pathL->setFixedSize( d->pathL->sizeHint() );
     d->fileL->setFixedSize( r );
     d->typeL->setFixedSize( r );
     if ( d->extraLabel )
