@@ -4036,7 +4036,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
   charproc_data cd;
 
   glyphset[charindex] = true;
-  printf("subsetting %s ==> ",glyphName(charindex).latin1());
+  //printf("subsetting %s ==> ",glyphName(charindex).latin1());
 
   /* Get a pointer to the data. */
   BYTE* glyph = charprocFindGlyphData( charindex );
@@ -4060,7 +4060,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       glyph += 2;
 
       glyphset[ glyphIndex ] = true;
-      printf("%s ",glyphName(glyphIndex).latin1());
+      //printf("%s ",glyphName(glyphIndex).latin1());
 	     
       if(flags & ARG_1_AND_2_ARE_WORDS) {
 	glyph += 2;
@@ -4084,7 +4084,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       }
     } while(flags & MORE_COMPONENTS);
   }
-  printf("\n");
+  //printf("\n");
 }
 
 
@@ -4846,6 +4846,7 @@ public:
     { return p->defineFont( stream, ps, f, key, d ); }
     void    download(QTextStream& s, bool global) { p->download(s, global); }
     QPSPrinterFontPrivate *handle() { return p; }
+    QString xfontname;
 private:
   QByteArray       data;
   QPSPrinterFontPrivate* p;
@@ -4862,7 +4863,6 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
     : p(0)
 {
     QString fontfilename;
-    QString xfontname;
     QString fontname;
 
     // ### implement similar code for QWS and WIN
@@ -4876,15 +4876,16 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 #ifndef QT_NO_XFTFREETYPE
     if ( qt_has_xft && fs && fs != (QFontStruct *)-1 && fs->xfthandle ) {
-	qDebug("fontstruct name: %s", fs->name.data());
+	//qDebug("fontstruct name: %s", fs->name.data());
 	XftPattern *pattern = XftNameParse(fs->name.data());
 	//qDebug("xfthandle=%p", font);
 	char *filename = 0;
 	XftResult res;
 	XftPattern *f = XftFontMatch(qt_xdisplay(), 0, pattern, &res);
 	XftPatternGetString (f, XFT_FILE, 0, &filename);
-	qDebug("filename for font is '%s'", filename);
-	fontfilename = QString::fromLatin1( filename );
+	//qDebug("filename for font is '%s'", filename);
+	if ( filename )
+	    fontfilename = QString::fromLatin1( filename );
 	XftPatternDestroy( f );
 	XftPatternDestroy( pattern );
     } else
@@ -5056,7 +5057,7 @@ void QPSPrinter::setFont( const QFont & fnt, int script )
 
     QString key;
 
-    key.sprintf( "%s %d %d", ps.ascii(), f.pointSize(), script );
+    key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
     QString * tmp;
     tmp = d->headerFontNames.find( key );
     if ( !tmp && !d->buffer )
