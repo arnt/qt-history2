@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#169 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#170 $
 **
 ** Definition of QWidget class
 **
@@ -298,6 +298,8 @@ protected:
     virtual bool macEvent( MSG * );		// Macintosh event
 #elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows event
+#elif defined(_WS_X11_)
+    virtual bool x11Event( XEvent * );		// X11 event
 #endif
 
     virtual void updateMask();
