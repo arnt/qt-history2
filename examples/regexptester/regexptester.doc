@@ -31,5 +31,5 @@
     
     Main:
     
-    \include action/main.cpp
+    \include regexptester/main.cpp
 */   
