@@ -15,15 +15,12 @@
 #define AB_CENTRALWIDGET_H
 
 #include <qwidget.h>
-#include <qlistview.h>
 
-class QTabWidget;
-class QTreeView;
-class QGridLayout;
-class QLineEdit;
-class QPushButton;
-class QCheckBox;
 class AddressBookModel;
+class QLineEdit;
+class QModelIndex;
+class QPushButton;
+class QTreeView;
 
 class AddressView : public QWidget
 {
@@ -37,27 +34,15 @@ protected slots:
     void changeEntry();
     void itemSelected(const QModelIndex &index, int button);
     void selectionChanged();
-    void toggleFirstName();
-    void toggleLastName();
-    void toggleAddress();
-    void toggleEMail();
-    void findEntries();
 
     void updateOutlook();
 
 protected:
-    void setupTabWidget();
-    void setupTreeView();
-
     AddressBookModel *model;
 
-    QGridLayout *mainGrid;
-    QTabWidget *tabWidget;
     QTreeView *treeView;
-    QPushButton *add, *change, *find;
-    QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail,
-        *sFirstName, *sLastName, *sAddress, *sEMail;
-    QCheckBox *cFirstName, *cLastName, *cAddress, *cEMail;
+    QPushButton *add, *change;
+    QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail;
 };
 
 #endif

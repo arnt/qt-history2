@@ -14,16 +14,12 @@
 #include "addressview.h"
 
 #include <qcache.h>
-#include <qcheckbox.h>
 #include <qfile.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qpushbutton.h>
-#include <qtabwidget.h>
-#include <qtextstream.h>
 #include <qtreeview.h>
-#include <qwidget.h>
 
 #include "msoutl.h"
 
@@ -175,138 +171,63 @@ void AddressBookModel::update()
 AddressView::AddressView(QWidget *parent)
 : QWidget(parent)
 {
-    mainGrid = new QGridLayout(this);
+    QGridLayout *mainGrid = new QGridLayout(this);
 
-    setupTabWidget();
-    setupTreeView();
-
-    mainGrid->setRowStretch(0, 0);
-    mainGrid->setRowStretch(1, 1);
-}
-
-void AddressView::setupTabWidget()
-{
-    tabWidget = new QTabWidget(this);
-
-    QWidget *input = new QWidget(tabWidget);
-    QGridLayout *grid1 = new QGridLayout(input /*, 2, 5, 5, 5*/);
-
-    QLabel *liFirstName = new QLabel("First &Name", input);
+    QLabel *liFirstName = new QLabel("First &Name", this);
     liFirstName->resize(liFirstName->sizeHint());
-    grid1->addWidget(liFirstName, 0, 0);
+    mainGrid->addWidget(liFirstName, 0, 0);
 
-    QLabel *liLastName = new QLabel("&Last Name", input);
+    QLabel *liLastName = new QLabel("&Last Name", this);
     liLastName->resize(liLastName->sizeHint());
-    grid1->addWidget(liLastName, 0, 1);
+    mainGrid->addWidget(liLastName, 0, 1);
 
-    QLabel *liAddress = new QLabel("Add&ress", input);
+    QLabel *liAddress = new QLabel("Add&ress", this);
     liAddress->resize(liAddress->sizeHint());
-    grid1->addWidget(liAddress, 0, 2);
+    mainGrid->addWidget(liAddress, 0, 2);
 
-    QLabel *liEMail = new QLabel("&E-Mail", input);
+    QLabel *liEMail = new QLabel("&E-Mail", this);
     liEMail->resize(liEMail->sizeHint());
-    grid1->addWidget(liEMail, 0, 3);
+    mainGrid->addWidget(liEMail, 0, 3);
 
-    add = new QPushButton("A&dd", input);
+    add = new QPushButton("A&dd", this);
     add->resize(add->sizeHint());
-    grid1->addWidget(add, 0, 4);
+    mainGrid->addWidget(add, 0, 4);
     connect(add, SIGNAL(clicked()), this, SLOT(addEntry()));
 
-    iFirstName = new QLineEdit(input);
+    iFirstName = new QLineEdit(this);
     iFirstName->resize(iFirstName->sizeHint());
-    grid1->addWidget(iFirstName, 1, 0);
+    mainGrid->addWidget(iFirstName, 1, 0);
     liFirstName->setBuddy(iFirstName);
 
-    iLastName = new QLineEdit(input);
+    iLastName = new QLineEdit(this);
     iLastName->resize(iLastName->sizeHint());
-    grid1->addWidget(iLastName, 1, 1);
+    mainGrid->addWidget(iLastName, 1, 1);
     liLastName->setBuddy(iLastName);
 
-    iAddress = new QLineEdit(input);
+    iAddress = new QLineEdit(this);
     iAddress->resize(iAddress->sizeHint());
-    grid1->addWidget(iAddress, 1, 2);
+    mainGrid->addWidget(iAddress, 1, 2);
     liAddress->setBuddy(iAddress);
 
-    iEMail = new QLineEdit(input);
+    iEMail = new QLineEdit(this);
     iEMail->resize(iEMail->sizeHint());
-    grid1->addWidget(iEMail, 1, 3);
+    mainGrid->addWidget(iEMail, 1, 3);
     liEMail->setBuddy(iEMail);
 
-    change = new QPushButton("&Change", input);
+    change = new QPushButton("&Change", this);
     change->resize(change->sizeHint());
-    grid1->addWidget(change, 1, 4);
+    mainGrid->addWidget(change, 1, 4);
     connect(change, SIGNAL(clicked()), this, SLOT(changeEntry()));
 
-    tabWidget->addTab(input, "&Add/Change Entry");
-
-    // --------------------------------------
-
-    QWidget *search = new QWidget(this);
-    QGridLayout *grid2 = new QGridLayout(search/*, 2, 5, 5, 5*/);
-
-    cFirstName = new QCheckBox("First &Name", search);
-    cFirstName->resize(cFirstName->sizeHint());
-    grid2->addWidget(cFirstName, 0, 0);
-    connect(cFirstName, SIGNAL(clicked()), this, SLOT(toggleFirstName()));
-
-    cLastName = new QCheckBox("&Last Name", search);
-    cLastName->resize(cLastName->sizeHint());
-    grid2->addWidget(cLastName, 0, 1);
-    connect(cLastName, SIGNAL(clicked()), this, SLOT(toggleLastName()));
-
-    cAddress = new QCheckBox("Add&ress", search);
-    cAddress->resize(cAddress->sizeHint());
-    grid2->addWidget(cAddress, 0, 2);
-    connect(cAddress, SIGNAL(clicked()), this, SLOT(toggleAddress()));
-
-    cEMail = new QCheckBox("&E-Mail", search);
-    cEMail->resize(cEMail->sizeHint());
-    grid2->addWidget(cEMail, 0, 3);
-    connect(cEMail, SIGNAL(clicked()), this, SLOT(toggleEMail()));
-
-    sFirstName = new QLineEdit(search);
-    sFirstName->resize(sFirstName->sizeHint());
-    grid2->addWidget(sFirstName, 1, 0);
-
-    sLastName = new QLineEdit(search);
-    sLastName->resize(sLastName->sizeHint());
-    grid2->addWidget(sLastName, 1, 1);
-
-    sAddress = new QLineEdit(search);
-    sAddress->resize(sAddress->sizeHint());
-    grid2->addWidget(sAddress, 1, 2);
-
-    sEMail = new QLineEdit(search);
-    sEMail->resize(sEMail->sizeHint());
-    grid2->addWidget(sEMail, 1, 3);
-
-    find = new QPushButton("F&ind", search);
-    find->resize(find->sizeHint());
-    grid2->addWidget(find, 1, 4);
-    connect(find, SIGNAL(clicked()), this, SLOT(findEntries()));
-
-    cFirstName->setChecked(TRUE);
-    sFirstName->setEnabled(TRUE);
-    sLastName->setEnabled(FALSE);
-    sAddress->setEnabled(FALSE);
-    sEMail->setEnabled(FALSE);
-
-    tabWidget->addTab(search, "&Search");
-
-    mainGrid->addWidget(tabWidget, 0, 0);
-}
-
-void AddressView::setupTreeView()
-{
     treeView = new QTreeView(this);
 
-    treeView->setSelectionMode(QListView::SingleSelection);
+    treeView->setSelectionMode(QTreeView::SingleSelection);
     model = new AddressBookModel(this);
     treeView->setModel(model);
 
     connect(treeView, SIGNAL(clicked(QModelIndex, int)), this, SLOT(itemSelected(QModelIndex, int)));
 
-    mainGrid->addWidget(treeView, 1, 0);
+    mainGrid->addWidget(treeView, 2, 0, 1, 5);
 }
 
 void AddressView::updateOutlook()
@@ -353,102 +274,4 @@ void AddressView::itemSelected(const QModelIndex &index, int button)
     iLastName->setText(model->data(model->index(index.row(), 1)).toString());
     iAddress->setText(model->data(model->index(index.row(), 2)).toString());
     iEMail->setText(model->data(model->index(index.row(), 3)).toString());
-}
-
-void AddressView::toggleFirstName()
-{
-    sFirstName->setText("");
-
-    if (cFirstName->isChecked()) {
-        sFirstName->setEnabled(TRUE);
-        sFirstName->setFocus();
-    }
-    else
-        sFirstName->setEnabled(FALSE);
-}
-
-void AddressView::toggleLastName()
-{
-    sLastName->setText("");
-
-    if (cLastName->isChecked()) {
-        sLastName->setEnabled(TRUE);
-        sLastName->setFocus();
-    }
-    else
-        sLastName->setEnabled(FALSE);
-}
-
-void AddressView::toggleAddress()
-{
-    sAddress->setText("");
-
-    if (cAddress->isChecked()) {
-        sAddress->setEnabled(TRUE);
-        sAddress->setFocus();
-    }
-    else
-        sAddress->setEnabled(FALSE);
-}
-
-void AddressView::toggleEMail()
-{
-    sEMail->setText("");
-
-    if (cEMail->isChecked()) {
-        sEMail->setEnabled(TRUE);
-        sEMail->setFocus();
-    }
-    else
-        sEMail->setEnabled(FALSE);
-}
-
-void AddressView::findEntries()
-{
-#if 0
-    if (!cFirstName->isChecked() &&
-         !cLastName->isChecked() &&
-         !cAddress->isChecked() &&
-         !cEMail->isChecked()) {
-        listView->clearSelection();
-        return;
-    }
-
-    QListViewItemIterator it(listView);
-
-    for (; it.current(); ++it) {
-        bool select = TRUE;
-
-        if (cFirstName->isChecked()) {
-            if (select && it.current()->text(0).contains(sFirstName->text()))
-                select = TRUE;
-            else
-                select = FALSE;
-        }
-        if (cLastName->isChecked()) {
-            if (select && it.current()->text(1).contains(sLastName->text()))
-                select = TRUE;
-            else
-                select = FALSE;
-        }
-        if (cAddress->isChecked()) {
-            if (select && it.current()->text(2).contains(sAddress->text()))
-                select = TRUE;
-            else
-                select = FALSE;
-        }
-        if (cEMail->isChecked()) {
-            if (select && it.current()->text(3).contains(sEMail->text()))
-                select = TRUE;
-            else
-                select = FALSE;
-        }
-
-        if (select)
-            it.current()->setSelected(TRUE);
-        else
-            it.current()->setSelected(FALSE);
-        it.current()->repaint();
-    }
-#endif
 }
