@@ -1749,8 +1749,27 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                             indeps += QByteArray(buff, read_in);
                         }
                         fclose(proc);
-                        if(!indeps.isEmpty())
-                            deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                        if(!indeps.isEmpty()) {
+                            QStringList dep_cmd_deps = indeps.replace('\n', ' ').simplified().split(' ');
+                            for(int i = 0; i < dep_cmd_deps.count(); ++i) {
+                                QString &file = dep_cmd_deps[i];
+                                if(!exists(file)) {
+                                    QString localFile;
+                                    QList<QMakeLocalFileName> depdirs = QMakeSourceFileInfo::dependencyPaths();
+                                    for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin();
+                                        it != depdirs.end(); ++it) {
+                                        if(exists((*it).real() + Option::dir_sep + file)) {
+                                            localFile = (*it).local() + Option::dir_sep + file;
+                                            break;
+                                        }
+                                    }
+                                    file = localFile;
+                                }
+                                if(!file.isEmpty())
+                                    file = fileFixify(file);
+                            }
+                            deps += dep_cmd_deps;
+                        }
                     }
                 }
             }
@@ -1800,8 +1819,27 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                         indeps += QByteArray(buff, read_in);
                     }
                     fclose(proc);
-                    if(!indeps.isEmpty())
-                        deps += fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                    if(!indeps.isEmpty()) {
+                        QStringList dep_cmd_deps = indeps.replace('\n', ' ').simplified().split(' ');
+                        for(int i = 0; i < dep_cmd_deps.count(); ++i) {
+                            QString &file = dep_cmd_deps[i];
+                            if(!exists(file)) {
+                                QString localFile;
+                                QList<QMakeLocalFileName> depdirs = QMakeSourceFileInfo::dependencyPaths();
+                                for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin();
+                                    it != depdirs.end(); ++it) {
+                                    if(exists((*it).real() + Option::dir_sep + file)) {
+                                        localFile = (*it).local() + Option::dir_sep + file;
+                                        break;
+                                    }
+                                }
+                                file = localFile;
+                            }
+                            if(!file.isEmpty())
+                                file = fileFixify(file);
+                        }
+                        deps += dep_cmd_deps;
+                    }
                 }
                 //use the depend system to find includes of these included files
                 QStringList inc_deps;
