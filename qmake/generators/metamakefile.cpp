@@ -79,7 +79,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
         return false;
 
     Build *glue = 0;
-    if(makefiles.count() > 1) {
+    if(!makefiles.first()->name.isNull()) {
         glue = new Build;
         glue->makefile = createMakefileGenerator(project);
         makefiles += glue;
@@ -113,7 +113,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
                 }
             }
         } else {
-            using_stdout = true; //kind of..
+           using_stdout = true; //kind of..
         }
 
         if(!build->makefile)
@@ -122,11 +122,10 @@ MetaMakefileGenerator::write(const QString &oldpwd)
             ret = build->makefile->writeProjectMakefile();
         else
             ret = build->makefile->write();
-        if(!ret) {
-            if(!using_stdout)
-                QFile::remove(Option::output.name());
-        } else {
+        if(!using_stdout) {
             Option::output.close();
+            if(!ret)
+                QFile::remove(Option::output.name());
         }
 
         // debugging
