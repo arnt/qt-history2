@@ -438,7 +438,7 @@ void QMotifDialog::hide()
 /*!
     Convenient Xt/Motif callback to accept the QMotifDialog.
 
-    The widget is passed in \a widget and the data in \a client_data.
+    The data is passed in \a client_data.
 */
 void QMotifDialog::acceptCallback( Widget, XtPointer client_data, XtPointer )
 {
@@ -449,7 +449,7 @@ void QMotifDialog::acceptCallback( Widget, XtPointer client_data, XtPointer )
 /*!
     Convenient Xt/Motif callback to reject the QMotifDialog.
 
-    The widget is passed in \a widget and the data in \a client_data.
+    The data is passed in \a client_data.
 */
 void QMotifDialog::rejectCallback( Widget, XtPointer client_data, XtPointer )
 {
