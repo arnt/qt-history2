@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#11 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#12 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -29,10 +29,10 @@
 #include "qobject.h"
 #include "qurl.h"
 #include "qlist.h"
+#include "qnetworkprotocol.h"
 
 struct QUrlOperatorPrivate;
 class QUrlInfo;
-class QNetworkOperation;
 
 class Q_EXPORT QUrlOperator : public QObject, public QUrl
 {

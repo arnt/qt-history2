@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#33 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -179,48 +179,6 @@ struct QNetworkProtocolPrivate
 	ConConnected,
 	ConClosed
   \a data is a message text.
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitNewChild( const QUrlInfo &, QNetworkOperation *op );
-
-  Emits the signal newChild( const QUrlInfo &, QNetworkOperation * ).
-*/
-
-/*!
-  \fn void QNetworkOperation::emitFinished( QNetworkOperation *op )
-
-  Emits the signal finished( QNetworkOperation * ).
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitStart( QNetworkOperation *op )
-
-  Emits the signal start( QNetworkOperation * ).
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *op )
-
-  Emits the signal createdDirectory( const QUrlInfo &, QNetworkOperation *op ).
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitRemoved( QNetworkOperation *op )
-
-  Emits the signal removed( QNetworkOperation * ).
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitItemChanged( QNetworkOperation *op )
-
-  Emits the signal itemChanged( QNetworkOperation * ).
-*/
-
-/*!
-  \fn void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *op )
-
-  Emits the signal data( const QCString &, QNetworkOperation * ).
 */
 
 /*!
@@ -766,11 +724,23 @@ struct QNetworkOperationPrivate
     QNetworkProtocol::Error errorCode;
 };
 
+/*!
+  \fn void QNetworkProtocol::emitNewChild( const QUrlInfo &, QNetworkOperation *op );
+
+  Emits the signal newChild( const QUrlInfo &, QNetworkOperation * ).
+*/
+
 void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitNewChild( i, res );
 }
+
+/*!
+  \fn void QNetworkOperation::emitFinished( QNetworkOperation *op )
+
+  Emits the signal finished( QNetworkOperation * ).
+*/
 
 void QNetworkProtocol::emitFinished( QNetworkOperation *res )
 {
@@ -778,11 +748,23 @@ void QNetworkProtocol::emitFinished( QNetworkOperation *res )
 	url()->emitFinished( res );
 }
 
+/*!
+  \fn void QNetworkProtocol::emitStart( QNetworkOperation *op )
+
+  Emits the signal start( QNetworkOperation * ).
+*/
+
 void QNetworkProtocol::emitStart( QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitStart( res );
 }
+
+/*!
+  \fn void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *op )
+
+  Emits the signal createdDirectory( const QUrlInfo &, QNetworkOperation *op ).
+*/
 
 void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
 {
@@ -790,17 +772,35 @@ void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperatio
 	url()->emitCreatedDirectory( i, res );
 }
 
+/*!
+  \fn void QNetworkProtocol::emitRemoved( QNetworkOperation *op )
+
+  Emits the signal removed( QNetworkOperation * ).
+*/
+
 void QNetworkProtocol::emitRemoved( QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitRemoved( res );
 }
 
+/*!
+  \fn void QNetworkProtocol::emitItemChanged( QNetworkOperation *op )
+
+  Emits the signal itemChanged( QNetworkOperation * ).
+*/
+
 void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitItemChanged( res );
 }
+
+/*!
+  \fn void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *op )
+
+  Emits the signal data( const QCString &, QNetworkOperation * ).
+*/
 
 void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *res )
 {

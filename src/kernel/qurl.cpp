@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#56 $
 **
 ** Implementation of QUrl class
 **
@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #include "qurl.h"
+#include "qnetworkprotocol.h"
 
 #include <stdlib.h>
 
