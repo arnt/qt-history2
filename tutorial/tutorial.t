@@ -11,13 +11,23 @@ SUBDIRS =	#$ ExpandList("SUBDIRS");
 
 ####### Targets
 
-all: $(SUBDIRS)
-
-$(SUBDIRS): FORCE
-	cd $@; $(MAKE)
+all: #$ $text = $is_unix ? '$(SUBDIRS)' : 'targets';
 
 showdirs:
 	@echo $(SUBDIRS)
+
+#${
+    if ( $is_unix ) {
+	$text = "\$(SUBDIRS): FORCE\n\tcd \$@; \$(MAKE)";
+    } else {
+	$text = "targets:\n";
+	@t = split(/\s+/,$project{"SUBDIRS"});
+	foreach $d ( @t ) {
+	    $text = $text . "\tcd $d\n\t\$(MAKE) -f $d.mak\n\tcd ..\n";
+	}
+	chop $text;
+    }
+#$}
 
 galore:
 #${
