@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#36 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#37 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -62,18 +62,7 @@
 // you just define _BSD for AIX.
 #endif
 #include <sys/types.h>
-
-#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
-// Needed for FIONREAD.
-// FIONREAD is #defined in <sys/filio.h>.
-// Have <sys/ioctl.h> include <sys/filio.h>.
-#  define BSD_COMP
-#  include <sys/ioctl.h>
-#  undef BSD_COMP
-#else
-#  include <sys/ioctl.h>
-#endif
-
+#include <sys/ioctl.h>
 #include <sys/file.h>
 #include <sys/time.h>
 #include <fcntl.h>
