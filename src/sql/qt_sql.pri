@@ -61,10 +61,14 @@ sql {
 		SOURCES += $$SQL_CPP/drivers/psql/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
 		unix {
-			LIBS += -lpq
+			!contains( LIBS, .*pq.* ) {
+				LIBS *= -lpq
+			}
 		}
 		win32 {
-			LIBS += libpqdll.lib
+			!contains( LIBS, .*libpq.* ) {
+				LIBS *= libpqdll.lib
+			}
 #			win32-msvc: { 
 #				LIBS *= delayimp.lib
 #				QMAKE_LFLAGS += /DELAYLOAD:libpqdll.dll
@@ -80,17 +84,21 @@ sql {
 		SOURCES += $$SQL_CPP/drivers/mysql/qsql_mysql.cpp
 		DEFINES += QT_SQL_MYSQL
 		unix {
-			LIBS += -lmysqlclient
+			!contains( LIBS, .*mysql.* ) {
+				LIBS    *= -lmysqlclient
+			}
 		}
 		win32 {
-			LIBS += libmysql.lib
+			!contains( LIBS, .*mysql.* ) {
+				LIBS    *= libmysql.lib
+			}
 #			win32-msvc: { 
 #				LIBS *= delayimp.lib
 #				QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
 #			}
 #			win32-borland: {
 #				QMAKE_LFLAGS += /dlibmysql.dll
-#			}		
+#			}
 		}
 	}
 	
@@ -112,7 +120,9 @@ sql {
 		SOURCES += $$SQL_CPP/drivers/oci/qsql_oci.cpp
 		DEFINES += QT_SQL_OCI
 		unix {
-			LIBS += -lclntsh -lwtc8
+			!contains( LIBS, .*clnts.* ) {
+			    LIBS += -lclntsh -lwtc8
+			}
 		}
 		win32 {
 			LIBS += oci.lib
