@@ -774,7 +774,7 @@ void QWidget::repaint(const QRegion& rgn)
 #endif
 
         // Contents propagation list
-        QPoint offset;
+        QPoint offset = redirectionOffset;
         QStack<QWidget*> parents;
         QWidget *w = this;
         while (w->d->isBackgroundInherited()) {
