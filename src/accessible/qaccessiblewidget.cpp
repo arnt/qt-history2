@@ -101,9 +101,16 @@ int QAccessibleWidget::childAt(int x, int y) const
     QPoint rp = w->mapFromGlobal(QPoint(x, y));
 
     QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+    int ccount = childCount();
 
-    if ( list.isEmpty() )
+    // a complex control
+    if ( list.count() < ccount ) {
+	for (int i = 1; i <= ccount; ++i) {
+	    if (rect(i).contains(x, y))
+		return i;
+	}
 	return 0;
+    }
 
     QList<QObject*>::Iterator it = list.begin();
     QWidget *child = 0;
@@ -310,12 +317,9 @@ int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 /*! \reimp */
 bool QAccessibleWidget::doAction(int action, int control)
 {
-#if defined(QT_DEBUG)
     if ( control )
 	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
-#else
-    Q_UNUSED(control);
-#endif
+
     if (action == SetFocus && widget()->focusPolicy() != QWidget::NoFocus ) {
 	widget()->setFocus();
 	return TRUE;
@@ -326,12 +330,8 @@ bool QAccessibleWidget::doAction(int action, int control)
 /*! \reimp */
 int QAccessibleWidget::defaultAction(int control) const
 {
-#if defined(QT_DEBUG)
     if ( control )
-	qWarning( "QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
-#else
-    Q_UNUSED(control);
-#endif
+	qWarning( "QAccessibleWidget::defaultAction: This implementation does not support subelements! (ID %d unknown for %s)", control, widget()->className() );
 
     return SetFocus;
 }
