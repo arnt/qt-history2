@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#33 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -129,8 +129,8 @@ public slots:
     void sigchldHnd( int );
 
 public:
-    struct sigaction *oldactChld;
-    struct sigaction *oldactPipe;
+    struct sigaction oldactChld;
+    struct sigaction oldactPipe;
     QList<QProcess> *procList;
     int sigchldFd[2];
 };
@@ -169,7 +169,7 @@ QProcessManager::QProcessManager()
 #if defined(SA_RESTART)
     act.sa_flags |= SA_RESTART;
 #endif
-    if ( sigaction( SIGCHLD, &act, oldactChld ) != 0 )
+    if ( sigaction( SIGCHLD, &act, &oldactChld ) != 0 )
 	qWarning( "Error installing SIGCHLD handler" );
 
 #if defined(QT_QPROCESS_DEBUG)
@@ -179,7 +179,7 @@ QProcessManager::QProcessManager()
     sigemptyset( &(act.sa_mask) );
     sigaddset( &(act.sa_mask), SIGPIPE );
     act.sa_flags = 0;
-    if ( sigaction( SIGPIPE, &act, oldactPipe ) != 0 )
+    if ( sigaction( SIGPIPE, &act, &oldactPipe ) != 0 )
 	qWarning( "Error installing SIGPIPE handler" );
 }
 
@@ -197,13 +197,13 @@ QProcessManager::~QProcessManager()
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: restore old sigchild handler" );
 #endif
-    if ( sigaction( SIGCHLD, oldactChld, 0 ) != 0 )
+    if ( sigaction( SIGCHLD, &oldactChld, 0 ) != 0 )
 	qWarning( "Error restoring SIGCHLD handler" );
 
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcessManager: restore old sigpipe handler" );
 #endif
-    if ( sigaction( SIGPIPE, oldactPipe, 0 ) != 0 )
+    if ( sigaction( SIGPIPE, &oldactPipe, 0 ) != 0 )
 	qWarning( "Error restoring SIGPIPE handler" );
 }
 
@@ -277,11 +277,8 @@ QProcessPrivate::~QProcessPrivate()
 
     if ( procManager != 0 ) {
 	if ( procManager->remove( d ) ) {
-#if 0
-// ### why does it segfaults if I delete the procManager?
 	    delete procManager;
 	    procManager = 0;
-#endif
 	}
     }
 
