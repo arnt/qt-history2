@@ -832,11 +832,17 @@ public:
 
 static QDnsManager * globalManager;
 
+static void cleanupDns()
+{
+    delete globalManager;
+}
 
 QDnsManager * QDnsManager::manager()
 {
-    if ( !globalManager )
+    if ( !globalManager ) {
+        qAddPostRoutine(cleanupDns);
 	new QDnsManager();
+    }
     return globalManager;
 }
 
@@ -933,6 +939,7 @@ QDnsManager::~QDnsManager()
 {
     if ( globalManager )
 	globalManager = 0;
+    delete socket;
 }
 
 static Q_UINT32 lastSweep = 0;
