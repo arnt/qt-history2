@@ -3,17 +3,24 @@
 # Find revision transitions where change occurs.
 #
 
+$all=0;
 $maxsim=20;
 $long_format=1;
+$p4carg=1;
 
 while ( @ARGV ) {
   if ( $ARGV[0] eq "-c" ) {
     shift;
     $keychange = $ARGV[0];
+  } elsif ( $ARGV[0] eq "-a" || $ARGV[0] eq "-all" ) {
+    $all = 1; # Headers and diffs
   } elsif ( $ARGV[0] eq "-l" || $ARGV[0] eq "-long" ) {
     $long_format = 1;
   } elsif ( $ARGV[0] eq "-s" || $ARGV[0] eq "-short" ) {
     $long_format = 0;
+  } elsif ( $ARGV[0] eq "-u" ) {
+    shift;
+    $p4carg="$p4carg -u $ARGV[0]";
   } elsif ( !$pattern ) {
     $pattern = $ARGV[0];
   } else {
@@ -32,7 +39,7 @@ map { m/(.*)#/ && $is_file{$1}++ } <P4>;
 defined %is_file || die
     "No such files: $file\n";
 
-open p4, "p4 changes $file |";
+open p4, "p4 changes $p4carg $file |";
 
 sub flush {
     for $i ( 0..$n-1 ) {
@@ -54,7 +61,7 @@ sub flush {
 	  if ( /^==== (.*)#/ ) {
 	    $on = $is_file{$1};
 	  } elsif ( $on ) {
-	    if ( /^[<>]/ && $_ =~ m{$pattern}sm ) {
+	    if ( ($all || /^[<>]/) && $_ =~ m{$pattern}sm ) {
 	      if ( $long_format ) {
 		if ( $first_match ) {
 		  $first_match = 0;
