@@ -95,7 +95,7 @@ private:
     QIconSetPrivate *d;
 };
 
-class Q_EXPORT QIconFactory : public QShared
+class Q_EXPORT QIconFactory : private QShared
 {
 public:
     QIconFactory();
