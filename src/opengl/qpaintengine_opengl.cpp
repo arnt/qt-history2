@@ -21,6 +21,7 @@
 #include "qpen.h"
 #include "qvarlengtharray.h"
 #include <private/qpainter_p.h>
+#include <qdebug.h>
 
 #ifdef Q_OS_MAC
 # include <OpenGL/glu.h>
@@ -61,6 +62,7 @@ public:
     QBrush cbrush;
     QBrush bgbrush;
     Qt::BGMode bgmode;
+    QRegion crgn;
 };
 
 static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
@@ -78,7 +80,7 @@ QOpenGLPaintEngine::QOpenGLPaintEngine()
 				       | PixmapScale
 		                       | AlphaFill
 		                       | AlphaPixmap
-				       | LinearGradientFill
+ 				       | LinearGradientFill
 		                       | PaintOutsidePaintEvent))
 {
 }
@@ -94,8 +96,9 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     dgl->setAutoBufferSwap(false);
     setActive(true);
     dgl->makeCurrent();
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
     dgl->qglClearColor(dgl->palette().brush(QPalette::Background).color());
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
@@ -112,6 +115,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 bool QOpenGLPaintEngine::end()
 {
     dgl->makeCurrent();
+    glPopAttrib();
     glFlush();
     dgl->swapBuffers();
     setActive(false);
@@ -127,10 +131,10 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
     }
-    if (pen.width() == 0)
+    if (pen.widthF() < 0.000001)
         glLineWidth(1);
     else
-        glLineWidth(pen.width());
+        glLineWidth(pen.widthF());
 }
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
@@ -434,10 +438,8 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     glLoadMatrixd(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation op)
+void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
-    Q_UNUSED(op);
-    bool clip = !rgn.isEmpty();
     bool useStencilBuffer = dgl->format().stencil();
     bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
 
@@ -447,39 +449,55 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation 
 	return;
 
     dgl->makeCurrent();
-    if (clip) {
-	if (useStencilBuffer) {
-	    glClearStencil(0x0);
-	    glClear(GL_STENCIL_BUFFER_BIT);
-	    glClearStencil(0x1);
-	} else {
-	    glClearDepth(0x0);
-	    glClear(GL_DEPTH_BUFFER_BIT);
-	    glDepthMask(true);
-	    glClearDepth(0x1);
-	}
+    if (op == Qt::NoClip) {
+        d->crgn = QRegion();
+        glDisable(useStencilBuffer ? GL_STENCIL_TEST : GL_DEPTH_TEST);
+        return;
+    }
 
-	const QVector<QRect> rects = rgn.rects();
-	glEnable(GL_SCISSOR_TEST);
-	for (int i = 0; i < rects.size(); ++i) {
-	    glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
-		      rects.at(i).width(), rects.at(i).height());
-	    glClear(useStencilBuffer ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
-	}
-	glDisable(GL_SCISSOR_TEST);
-
-	if (useStencilBuffer) {
-	    glStencilFunc(GL_EQUAL, 0x1, 0x1);
-	    glEnable(GL_STENCIL_TEST);
-	} else {
- 	    glDepthFunc(GL_LEQUAL);
- 	    glEnable(GL_DEPTH_TEST);
-	}
+    if (useStencilBuffer) {
+        glClearStencil(0x0);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glClearStencil(0x1);
     } else {
-	if (useStencilBuffer)
-	    glDisable(GL_STENCIL_TEST);
-	else
-	    glDisable(GL_DEPTH_TEST);
+        glClearDepth(0x0);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glDepthMask(true);
+        glClearDepth(0x1);
+    }
+
+    switch (op) {
+    case Qt::ReplaceClip:
+        d->crgn = clipRegion;
+        break;
+    case Qt::IntersectClip:
+        if (!d->crgn.isEmpty())
+            d->crgn &= clipRegion;
+        else
+            d->crgn = clipRegion;
+        break;
+    case Qt::UniteClip:
+        d->crgn |= clipRegion;
+        break;
+    case Qt::NoClip:
+        break;
+    }
+
+    const QVector<QRect> rects = d->crgn.rects();
+    glEnable(GL_SCISSOR_TEST);
+    for (int i = 0; i < rects.size(); ++i) {
+        glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
+                  rects.at(i).width(), rects.at(i).height());
+        glClear(useStencilBuffer ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
+    }
+    glDisable(GL_SCISSOR_TEST);
+
+    if (useStencilBuffer) {
+        glStencilFunc(GL_EQUAL, 0x1, 0x1);
+        glEnable(GL_STENCIL_TEST);
+    } else {
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_DEPTH_TEST);
     }
 }
 
