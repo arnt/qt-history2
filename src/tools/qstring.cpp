@@ -15801,7 +15801,9 @@ int QString::localeAwareCompare( const QString& s ) const
 #endif
 #ifndef Q_OS_TEMP
     {
-	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, local8Bit(), length(), s.local8Bit(), s.length() );
+	QCString s1 = local8Bit();
+	QCString s2 = s.local8Bit();
+	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length() );
 	switch ( res ) {
 	case CSTR_LESS_THAN:
 	    return -1;
@@ -16383,8 +16385,8 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 {
     if ( uclen < 0 )
 	uclen = s.length();
-    if ( s.latin1() == 0 )
-    return QCString();
+    if ( s.isNull() )
+	return QCString();
     if ( uclen == 0 )
 	return QCString("");
     BOOL used_def;
