@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#19 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#19 $";
 #endif
 
 
@@ -254,8 +254,6 @@ Draws the label contents using the painter \e p.
 
 void QLabel::drawContents( QPainter *p )
 {
-    QRect r = frameRect();
-    r = contentsRect();
     p->setPen( colorGroup().text() );
     p->drawText( contentsRect(), align, str );
 }
