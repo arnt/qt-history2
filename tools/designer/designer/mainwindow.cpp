@@ -3354,7 +3354,7 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
     singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
-    eProject = new Project( "#####", projectName, projectSettingsPluginManager, FALSE );
+    eProject = new Project( projectName, projectName, projectSettingsPluginManager, FALSE );
     eProject->setLanguage( lang );
     projects.insert( a, eProject );
     a->setOn( TRUE );

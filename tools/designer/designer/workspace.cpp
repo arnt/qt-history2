@@ -253,10 +253,13 @@ QString WorkspaceItem::text( int column ) const
 	return QListViewItem::text( column );
     switch( t ) {
     case ProjectType:
-	if ( project->isDummy() )
+	if ( project->isDummy() ) {
 	    return Project::tr("<No Project>" );
-	else if ( MainWindow::self->singleProjectMode() )
-	    return project->projectName();
+	} else if ( MainWindow::self->singleProjectMode() ) {
+	    QString s = project->makeRelative( project->fileName() );
+	    s = s.left( s.find( '.' ) );
+	    return s;
+	}
 	return project->makeRelative( project->fileName() );
     case FormFileType:
 	if ( !MainWindow::self->singleProjectMode() )
