@@ -874,6 +874,26 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
 
+    QListIterator<QWidget> it( d->icons );
+    while ( it.current() ) {
+	QWorkspaceChild* w = (QWorkspaceChild*)it.current();
+	++it;
+	QWidget *icon = w->iconw;
+	int x = w->x();
+	int y = w->y();
+	bool m = FALSE;
+	if ( x+w->width() > width() ) {
+	    m = TRUE;
+	    x = width() - w->width();
+	}
+	if ( y+w->height() > height() ) {
+	    y = height() - w->height();
+	    m = TRUE;
+	}
+	if ( m )
+	    w->move( x, y );
+    }
+
     for ( QWorkspaceChild *c = d->windows.first(); c; c = d->windows.next() ) {
 	if ( c->windowWidget() && !c->windowWidget()->testWFlags( WStyle_Tool ) )
 	    continue;
