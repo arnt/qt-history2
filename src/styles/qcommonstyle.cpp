@@ -589,8 +589,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		     flags & Style_Enabled, checkbox->pixmap(), checkbox->text());
 
 	    if (flags & Style_HasFocus) {
-		QRect fr = subRect(SR_CheckBoxFocusRect, widget);
-		fr.moveBy(r.left() - 1, r.top());
+		QRect fr = visualRect(subRect(SR_CheckBoxFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
 	    break;
@@ -609,8 +608,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		     flags & Style_Enabled, radiobutton->pixmap(), radiobutton->text());
 
 	    if (flags & Style_HasFocus) {
-		QRect fr = subRect(SR_RadioButtonFocusRect, widget);
-		fr.moveBy(r.left() - 1, r.top());
+		QRect fr = visualRect(subRect(SR_RadioButtonFocusRect, widget), widget);
 		drawPrimitive(PE_FocusRect, p, fr, cg, flags);
 	    }
 	    break;
@@ -930,11 +928,12 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 	    QRect cr = subRect(SR_CheckBoxContents, widget);
-	    cr.moveTopLeft( QPoint(0, 0) );
 
 	    QPainter p(checkbox);
-	    rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
-			    checkbox->isEnabled(), checkbox->pixmap(), checkbox->text());
+	    rect = itemRect(&p, cr, AlignLeft | AlignVCenter | ShowPrefix,
+			    checkbox->isEnabled(),
+			    checkbox->pixmap(),
+			    checkbox->text());
 
 	    rect.addCoords( -3, -2, 3, 2 );
 	    rect = rect.intersect(wrect);
@@ -944,7 +943,8 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
     case SR_RadioButtonIndicator:
 	{
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight );
-	    rect.setRect(0, ( wrect.height() - h ) / 2, pixelMetric( PM_ExclusiveIndicatorWidth ), h );
+	    rect.setRect(0, ( wrect.height() - h ) / 2,
+			 pixelMetric( PM_ExclusiveIndicatorWidth ), h );
 	    break;
 	}
 
@@ -960,11 +960,11 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 	    QRect cr = subRect(SR_RadioButtonContents, widget);
-	    cr.moveTopLeft( QPoint( 0, 0 ) );
 
 	    QPainter p(radiobutton);
-	    rect = itemRect(&p, cr, AlignAuto | AlignVCenter | ShowPrefix,
-			    radiobutton->isEnabled(), radiobutton->pixmap(),
+	    rect = itemRect(&p, cr, AlignLeft | AlignVCenter | ShowPrefix,
+			    radiobutton->isEnabled(),
+			    radiobutton->pixmap(),
 			    radiobutton->text());
 
 	    rect.addCoords( -3, -2, 3, 2 );
