@@ -24,16 +24,16 @@ MyArea::MyArea()
 {
 }
 
-int MyArea::lineWidth(int x, int y, int h = 0) const
+int MyArea::lineWidth(int, int y, int) const
 {
     if(y>100 && y< 500) {
-	return 700-2*(sqrt(40000- (y-300)*(y-300)) );
+	return (int) (700-2*(sqrt(40000- (y-300)*(y-300)) ));
     }  else {
 	return 700;
     }
 }
 
-QRect MyArea::lineRect(int x, int y, int h) const
+QRect MyArea::lineRect(int, int y, int h) const
 {
     if(y>100 && y< 700) {
 	int x = (int) sqrt(40000 - (y-300)*(y-300));
@@ -59,8 +59,6 @@ MyView::MyView()
     f->setFont(fnt);
     printf("using font %s\n", fnt.rawName().latin1());
     
-    QTextCodec *c = QTextCodec::codecForName("ISO 8859-8");
-
     QString aStr = testStr1;
     //    aStr += aStr;
     //aStr = "some text.";

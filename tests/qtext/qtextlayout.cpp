@@ -419,9 +419,9 @@ bool QTextRow::checkComplexText()
     return false;
 }
 
-int QTextRow::logicalPosition(int visualPosition) const
+int QTextRow::visualPosition(int logicalPosition) const
 {
-    return visualPosition;
+    return bidiReorderLine(logicalPosition);
 }
 
 
@@ -454,7 +454,7 @@ struct QBidiRun {
 
 
 // collects one line of the paragraph and transforms it to visual order
-void QTextRow::bidiReorderLine()
+int QTextRow::bidiReorderLine(int posToCheck = -1, bool logicalToVisual)
 {
     //printf("doing BiDi reordering from %d to %d!\n", start, len+start);
 
@@ -946,6 +946,37 @@ void QTextRow::bidiReorderLine()
     }
 #endif
 
+    if(posToCheck != -1) {
+	// just want to logical<-->visual mapping
+	r = runs.first();
+	if(logicalToVisual) {
+	    int visual = 0;
+	    while(r) {
+		if(r->start <= posToCheck && r->stop > posToCheck) {
+		    if( r->level%2 ) // odd level
+			visual += r->stop - posToCheck;
+		    else
+			visual += posToCheck - r->start;
+		    return visual;
+		}
+		visual += r->stop - r->start;
+		r = runs.next();
+	    }
+	} else {
+	    while(r) {
+		if(r->stop - r->start > posToCheck) {
+		    if( r->level%2 )
+			return r->stop - posToCheck;
+		    else
+			return r->start + posToCheck;
+		}
+		posToCheck -= r->stop - r->start;
+		r = runs.next();
+	    }
+	}
+	return -1;
+    }
+	
     // now construct the reordered string out of the runs...
 
     reorderedText.clear();
@@ -974,6 +1005,7 @@ void QTextRow::bidiReorderLine()
 	}
 	r = runs.next();
     }
+    return -1;
 }
 
 // ========================================================
@@ -1093,8 +1125,7 @@ void QTextAreaCursor::insert( const QString &s, bool checkNewLine )
     if ( checkNewLine )
 	justInsert = ( s.find( '\n' ) == -1 );
     if ( justInsert ) {
-	int logicalIdx = line->logicalPosition(idx);
-	idx = parag->insert( logicalIdx, s );
+	idx = parag->insert( idx, s );
 	while( idx > line->length() ) {
 	    idx -= line->length();
 	    line = line->next();

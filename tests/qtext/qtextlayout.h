@@ -139,11 +139,11 @@ public:
 
     bool hasComplexText() const { return complexText; }
 
-    int logicalPosition(int visualPosition) const;
+    int visualPosition(int logicalPosition) const;
     
 private:
     bool checkComplexText();
-    void bidiReorderLine();
+    int bidiReorderLine(int pos = -1, bool logicalToVisual = true);
     void drawBuffer( QPainter &painter, int x, int y, const QString &buffer, int startX,
 		     int bw, bool drawSelections,
 		     QRichTextFormat *lastFormat, int i, int *selectionStarts,
@@ -156,13 +156,14 @@ private:
     QBidiStatus bidiStatus;
     int start;
     short len;
-    QRect bRect;
     short bl;
     short tw;
     QRichTextString *text;
     QRichTextString reorderedText;
+    QRect bRect;
 
     QTextRow *p, *n;
+
 };
 
 // =================================================================
