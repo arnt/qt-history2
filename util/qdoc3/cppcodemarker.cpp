@@ -300,8 +300,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    FastSection publicSignals(classe, "Signals", "signal", "signals" );
 	    FastSection publicSlots(classe, "Public Slots", "public slot", "public slots");
 	    FastSection publicTypes(classe, "Public Types", "public type", "public types");
-	    FastSection readOnlyProperties(classe, "Read-Only Properties", "read-only property",
-				           "read-only properties");
+	    FastSection properties(classe, "Properties", "property", "properties");
 	    FastSection relatedNonMembers(classe, "Related Non-Members", "related non-member",
                                           "related non-members");
 	    FastSection staticPrivateMembers(classe, "Static Private Members", "static private member",
@@ -310,8 +309,6 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 					       "static protected member", "static protected members");
 	    FastSection staticPublicMembers(classe, "Static Public Members", "static public member",
 					    "static public members");
-	    FastSection writableProperties(classe, "Writable Properties", "writable property",
-				           "writable properties");
 
 	    NodeList::ConstIterator r = classe->relatedNodes().begin();
             while (r != classe->relatedNodes().end()) {
@@ -346,12 +343,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        } else if ( isStatic ) {
 		            insert( staticPublicMembers, *c, style, status);
 		        } else if ( (*c)->type() == Node::Property ) {
-			    const PropertyNode *property = static_cast<const PropertyNode *>(*c);
-                            if (property->setters().isEmpty()) {
-			        insert( readOnlyProperties, *c, style, status );
-			    } else {
-			        insert( writableProperties, *c, style, status );
-                            }
+                            insert(properties, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
 		            FunctionNode *function = static_cast<FunctionNode *>(*c);
                             if (!function->associatedProperty())
@@ -393,8 +385,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    }
 
 	    append( sections, publicTypes );
-	    append( sections, writableProperties );
-	    append( sections, readOnlyProperties );
+	    append( sections, properties );
 	    append( sections, publicFunctions );
 	    append( sections, publicSlots );
 	    append( sections, publicSignals );
