@@ -614,6 +614,7 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
     QValueListConstIterator<QString> it, it2, it3;
     for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
 	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
+	QString signature = *it;
 	QString specifier;
 	QString pure;
 	QString type = *it2;
@@ -624,7 +625,9 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 	    pure = " = 0";
 	type.replace( ">>", "> >" );
-	out << "    " << specifier << type << " " << *it << pure << ";" << endl;
+	if ( !signature.contains("operator") )
+	    signature.replace( ">>", "> >" );
+	out << "    " << specifier << type << " " << signature << pure << ";" << endl;
     }
     out << endl;
 }
