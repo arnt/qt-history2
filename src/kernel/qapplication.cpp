@@ -2012,8 +2012,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	postedEventReceivers->clear();
 
     if ( *l && !receiver ) {
+	QPostEventList* tmp = postedEvents;
 	postedEvents = 0;
-	delete *l;
+	delete tmp;
     }
 }
 
