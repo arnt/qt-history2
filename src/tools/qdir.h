@@ -169,6 +169,8 @@ private:
     virtual bool readDirEntries( const QString &nameFilter,
 				 int FilterSpec, int SortSpec  );
 
+    static void slashify ( QString &);
+
     QString	dPath;
     QStringList   *fList;
     QFileInfoList *fiList;
@@ -209,6 +211,12 @@ inline bool QDir::operator!=( const QDir &d ) const
 {
     return !(*this == d);
 }
+
+
+struct QDirSortItem {
+    QString filename_cache;
+    QFileInfo* item;
+};
 
 
 #endif // QDIR_H

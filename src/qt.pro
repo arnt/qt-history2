@@ -243,7 +243,10 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
-win32:SOURCES	= kernel/qapplication_win.cpp \
+win32:SOURCES	= tools/qdir_win.cpp \
+	 	  tools/qfile_win.cpp \
+		  tools/qfileinfo_win.cpp \
+		  kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
 		  kernel/qcursor_win.cpp \
@@ -261,7 +264,10 @@ win32:SOURCES	= kernel/qapplication_win.cpp \
 
 win32:SOURCES  += kernel/qole_win.c
 
-unix:SOURCES    =  kernel/qapplication_x11.cpp \
+unix:SOURCES    = tools/qdir_unix.cpp \
+		  tools/qfile_unix.cpp \
+		  tools/qfileinfo_unix.cpp \
+		  kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
