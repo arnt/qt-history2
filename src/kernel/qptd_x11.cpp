@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#38 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#38 $";
 #endif
 
 
@@ -338,9 +338,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 }
 
 
-/*!
-  \relates QPaintDevice
-  \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
+/*!  \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
+
   Overloaded bitBlt() with the destination point \e dp and source rectangle
   \e sr.
+
+  \relates QPaintDevice
 */
