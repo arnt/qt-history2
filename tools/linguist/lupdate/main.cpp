@@ -101,7 +101,8 @@ int main( int argc, char **argv )
                      it.key() == QString("SOURCES") ) {
                     fetchtr_cpp( *t, &fetchedTor, defaultContext, TRUE );
                     metSomething = TRUE;
-                } else if ( it.key() == QString("INTERFACES") ) {
+                } else if ( it.key() == QString("INTERFACES") ||
+			    it.key() == QString("FORMS") ) {
                     fetchtr_ui( *t, &fetchedTor, defaultContext, TRUE );
 		    fetchtr_cpp( *t + QString(".h"), &fetchedTor,
 				 defaultContext, FALSE );

@@ -30,7 +30,7 @@ determining which language to load at runtime. This is explained in
 
 \index HEADERS!in Project Files
 \index SOURCES!in Project Files
-\index INTERFACES!in Project Files
+\index FORMS!in Project Files
 \index TRANSLATIONS!in Project Files
 
 An example of a complete \c .pro file with four translation source files:
@@ -40,7 +40,7 @@ An example of a complete \c .pro file with four translation source files:
     SOURCES         = main-dlg.cpp \
 		      options-dlg.cpp \
 		      main.cpp 
-    INTERFACES      = search-dlg.ui
+    FORMS           = search-dlg.ui
     TRANSLATIONS    = superapp_dk.ts \
 		      superapp_fi.ts \
 		      superapp_no.ts \

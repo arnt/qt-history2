@@ -50,7 +50,7 @@ HEADERS         = funnydialog.h \\
 SOURCES         = funnydialog.cpp \\
                   main.cpp \\
                   wackywidget.cpp
-INTERFACES      = fancybox.ui
+FORMS           = fancybox.ui
 TRANSLATIONS    = gnomovision_dk.ts \\
                   gnomovision_fi.ts \\
                   gnomovision_no.ts \\
@@ -61,7 +61,7 @@ TRANSLATIONS    = gnomovision_dk.ts \\
 When running
 .B lupdate
 on this project file, the translatable strings in all the files
-listed in the HEADERS, SOURCES and INTERFACES entries will be put in
+listed in the HEADERS, SOURCES and FORMS entries will be put in
 the translation files listed in the TRANSLATIONS entry. Previous
 translations will be reused as far as possible, and translated
 strings that have vanished from the source files are marked obsolete.

@@ -28,4 +28,4 @@ INCLUDEPATH	= ../pics \
 		  ../shared \
 		  ../../../src/kernel
 DESTDIR		= ../../../bin
-INTERFACES	= about.ui
+FORMS		= about.ui

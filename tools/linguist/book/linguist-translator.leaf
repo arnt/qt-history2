@@ -421,15 +421,15 @@ number of projects and applications.
     \list
     \i \e {Prev Unfinished Ctrl+K} \BR moves to the nearest previous
     unfinished source phrase (unfinished means untranslated or
-    translated but failed validation)
+    translated but failed validation).
     \i \e {Next Unfinished Ctrl+L} \BR moves to the next unfinished source
-    phrase
-    \i \e {Prev Shift+Ctrl+K} \BR moves to the previous source phrase
-    \i \e {Next Shift+Ctrl+L} \BR moves to the next source phrase
+    phrase.
+    \i \e {Prev Shift+Ctrl+K} \BR moves to the previous source phrase.
+    \i \e {Next Shift+Ctrl+L} \BR moves to the next source phrase.
     \i \e {Done \& NextCtrl+Enter} \BR mark this phrase as 'done'
-    (translated) and move to the next unfinished source phrase
+    (translated) and move to the next unfinished source phrase.
     \i \e {Begin from Source Ctrl+B} \BR copies the source text into
-    the translation
+    the translation.
     \endlist
 
 \i \e {Validation} (See the \l Validation section)
