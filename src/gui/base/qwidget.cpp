@@ -4560,13 +4560,30 @@ bool QWidget::event( QEvent *e )
 
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
-	if (d->whatsThis) {
-	    QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->whatsThis, this);
-	} else
+	if (d->whatsThis)
+            QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
+	else
 	    return false;
 	break;
 #endif
-
+#ifdef QT_ACCESSIBILITY_SUPPORT
+    case QEvent::AccessibleQueryHelp: {
+        QAccessibleInterface *iface = 0;
+        if (d->whatsThis && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+            iface->setText(QAccessible::Help, 0, d->whatsThis);
+            iface->release();
+            return true;
+        }
+        break; }
+    case QEvent::AccessibleQueryDescription: {
+        QAccessibleInterface *iface = 0;
+        if (d->toolTip && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+            iface->setText(QAccessible::Description, 0, d->toolTip);
+            iface->release();
+            return true;
+        }
+        break; }
+#endif
     case QEvent::EmbeddingControl:
 	clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 	d->topData()->ftop = 0;

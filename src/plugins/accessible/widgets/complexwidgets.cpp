@@ -1,6 +1,8 @@
 #include "complexwidgets.h"
 
 #include <qaccel.h>
+#include <qapplication.h>
+#include <qevent.h>
 #include <qheader.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
@@ -53,16 +55,20 @@ QString QAccessibleHeader::text(Text t, int child) const
 {
     QString str;
 
-    if (child <= childCount()) switch (t) {
-    case Name:
-	str = header()->label(child - 1);
-	break;
-    case Description:
-	str = QToolTip::textFor(widget(), header()->sectionRect(child-1).center());
-	break;
-    case Help:
-	str = QWhatsThis::textFor(widget(), header()->sectionRect(child-1).center());
-	break;
+    if (child <= childCount()) {
+        switch (t) {
+        case Name:
+	    str = header()->label(child - 1);
+	    break;
+        case Description:
+	    str = QToolTip::textFor(widget(), header()->sectionRect(child-1).center());
+	    break;
+        case Help: {
+            QPoint p(header()->sectionRect(child-1).center());
+            QHelpEvent event(QEvent::AccessibleQueryHelp, p, header()->mapToGlobal(p));
+            QApplication::sendEvent(widget(), &event);
+	    break; }
+        }
     }
     if (str.isEmpty())
 	str = QAccessibleWidget::text(t, child);;

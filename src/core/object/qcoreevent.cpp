@@ -156,6 +156,9 @@
     \value WindowTitleChange
     \value WindowUnblocked
 
+    \value AccessibleQueryHelp Used by the accessibility module to find out the help text for complex widgets.
+    \value AccessibleQueryDescription Used by the accessibility module to find out the description for comple x widgets.
+
     \value User  User defined event.
     \value MaxUser  Last user event id.
 

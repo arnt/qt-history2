@@ -112,6 +112,9 @@ public:
 	ToolTip = 110,
 	WhatsThis = 111,
 	StatusTip = 112,
+        
+        AccessibleQueryHelp = 113,              // query help text
+        AccessibleQueryDescription = 114,       // query description text
 
 #ifdef QT_COMPAT
 	CaptionChange = WindowTitleChange,

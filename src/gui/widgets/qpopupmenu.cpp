@@ -1535,15 +1535,29 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
 */
 bool QPopupMenu::event(QEvent *e)
 {
-    if (e->type() == QEvent::WhatsThis) {
-	int item = itemAtPos(static_cast<QHelpEvent*>(e)->pos());
-	if (item != -1) {
-	    QMenuItem *mi = mitems->at(item);
-	    if (mi->whatsThis())
-		QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
-				     mi->whatsThis(), this);
+    switch (e->type()) {
+    case QEvent::WhatsThis: {
+        QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
+        if (mi && mi->whatsThis()) {
+            QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(),
+				 mi->whatsThis(), this);
 	    return true;
 	}
+    break; }
+#ifdef QT_ACCESSIBILITY_SUPPORT
+    case QEvent::AccessibleQueryHelp: {
+        QAccessibleInterface *iface = 0;
+        QMenuItem *mi = mitems->value(itemAtPos(static_cast<QHelpEvent *>(e)->pos()), 0);
+        if (mi && mi->whatsThis()
+            && QAccessible::queryAccessibleInterface(this, &iface) && iface) {
+            iface->setText(QAccessible::Help, 0, mi->whatsThis());
+            iface->release();
+            return true;
+        }
+        break; }
+#endif
+    default:
+        break;
     }
     return QFrame::event(e);
 }
