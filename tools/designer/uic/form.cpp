@@ -586,14 +586,13 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	    specifier = "virtual ";
 	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 	    pure = " = 0";
-	QString fname = Parser::cleanArgs( *it );
-	out << "    " << specifier << type << " " << fname << pure << ";" << endl;
+	out << "    " << specifier << type << " " << *it << pure << ";" << endl;
     }
     out << endl;
 }
 
 /*!
-  Creates an implementation ( cpp-file ) for the form given in \a e
+  Creates an implementation (cpp-file) for the form given in \a e.
 
   \sa createFormDecl(), createObjectImpl()
  */
