@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#50 $
 **
 ** Implementation of QBitArray class
 **
@@ -520,6 +520,31 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
     tmp ^= a2;
     return tmp;
 }
+
+
+/*! \enum QBitArray::array_data
+
+  \warning This will be renamed in the next major release of Qt.  Until
+  then it is undocumented and we recommend against its use.
+
+  \internal
+
+  ### 3.0 rename ###
+*/
+
+
+/*! \fn QBitArray::array_data * QBitArray::newData()
+
+  \internal
+  Someone who knows: Explain, please.  ### 3.0 ###
+*/
+
+
+/*! \fn void  QBitArray::deleteData ( QBitArray::array_data * d)
+
+  \internal
+  Someone who knows: Explain, please.  ### 3.0 ###
+*/
 
 
 /*****************************************************************************
