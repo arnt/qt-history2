@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
@@ -873,7 +873,7 @@ DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &
 
 int
 DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
-					QString filter)
+					const QString& filter)
 {
     if(project->isActiveConfig("flat"))
 	return 0;

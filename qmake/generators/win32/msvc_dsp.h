@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -43,7 +43,7 @@
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
     QString currentGroup;
-    int beginGroupForFile(QString file, QTextStream &, const QString filter="");
+    int beginGroupForFile(QString file, QTextStream &, const QString& filter="");
     int endGroups(QTextStream &);
 
     bool init_flag;

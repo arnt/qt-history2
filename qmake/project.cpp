@@ -122,7 +122,7 @@ QMakeProject::QMakeProject()
 }
 
 bool
-QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
+QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
     s.replace(QRegExp("#.*$"), ""); /* bye comments */
@@ -355,7 +355,7 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(QString file, QMap<QString, QStringList> &place)
+QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 {
     parser_info pi = parser;
     /* scope blocks start at true */
@@ -363,22 +363,22 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
     scope_flag = 0x01;
     scope_block = 0;
 
-    file = Option::fixPathToLocalOS(file);
-    doVariableReplace(file, place);
+    QString filename = Option::fixPathToLocalOS(file);
+    doVariableReplace(filename, place);
     bool ret = FALSE, using_stdin = FALSE;
     QFile qfile;
-    if(!strcmp(file, "-")) {
+    if(!strcmp(filename, "-")) {
 	qfile.setName("");
 	ret = qfile.open(IO_ReadOnly, stdin);
 	using_stdin = TRUE;
     } else {
-	qfile.setName(file);
+	qfile.setName(filename);
 	ret = qfile.open(IO_ReadOnly);
     }
     if ( ret ) {
 	QTextStream t( &qfile );
 	QString s, line;
-	parser.file = file;
+	parser.file = filename;
 	parser.line_no = 0;
 	while ( !t.eof() ) {
 	    parser.line_no++;
@@ -408,7 +408,7 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(QString project, QString)
+QMakeProject::read(const QString &project, QString)
 {
     if(cfile.isEmpty()) {
 	// hack to get the Option stuff in there
@@ -620,7 +620,7 @@ QMakeProject::isActiveConfig(const QString &x)
 }
 
 bool
-QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, QStringList> &place)
+QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QString, QStringList> &place)
 {
     QStringList args = split_arg_list(params);
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
@@ -632,7 +632,7 @@ QMakeProject::doProjectTest(QString func, const QString &params, QMap<QString, Q
 }
 
 bool
-QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStringList> &place)
+QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString, QStringList> &place)
 {
     for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
 	(*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space

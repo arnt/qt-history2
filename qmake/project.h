@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -48,16 +48,16 @@ class QMakeProject
 
     QString pfile, cfile;
     QMap<QString, QStringList> vars, base_vars, cache;
-    bool parse(QString text, QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, const QString &params, QMap<QString, QStringList> &place);
-    bool doProjectTest(QString func, QStringList args, QMap<QString, QStringList> &place);
+    bool parse(const QString &text, QMap<QString, QStringList> &place);
+    bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
+    bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
     QString doVariableReplace(QString &str, const QMap<QString, QStringList> &place);
 
 public:
     QMakeProject();
 
-    bool read(QString project, QString pwd);
+    bool read(const QString &project, QString pwd);
     QString projectFile();
     QString configFile();
 
@@ -69,7 +69,7 @@ public:
 
 protected:
     friend class MakefileGenerator;
-    bool read(QString file, QMap<QString, QStringList> &place);
+    bool read(const QString &file, QMap<QString, QStringList> &place);
 
 };
 
