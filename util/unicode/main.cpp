@@ -909,7 +909,7 @@ QByteArray createUnicodeScriptEnumDeclaration()
         declaration += ",\n    ";
         declaration += scriptName;
     }
-    declaration += "\n};\n\n";
+    declaration += ",\n    ScriptCount\n};\n\n";
 
     unicodeScriptSentinel = ((uniqueScripts + 16) / 32) * 32; // a multiple of 32
     declaration += "enum { ScriptSentinel = ";
