@@ -1328,9 +1328,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 			      down ? Style_Down : Style_Raised);
 
+		p->save();
 		if( down )
-		    ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
+		    p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
 		drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+		p->restore();
 	    }
 
 	    if ( titlebar->window() ) {
@@ -1342,9 +1344,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
 
+		    p->save();
 		    if( down )
-			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
-		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
+    		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+		    p->restore();
 		}
 
 		if ( controls & SC_TitleBarNormalButton || controls & SC_TitleBarMinButton ) {
@@ -1360,9 +1364,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
 
+		    p->save();
 		    if( down )
-			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+		    p->restore();
 		}
 
 		if ( controls & SC_TitleBarShadeButton ) {
@@ -1372,9 +1378,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    pm = QPixmap(stylePixmap(SP_TitleBarShadeButton, widget));
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
+		    p->save();
 		    if( down )
-			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+		    p->restore();
 		}
 
 		if ( controls & SC_TitleBarUnshadeButton ) {
@@ -1384,9 +1392,11 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		    pm = QPixmap(stylePixmap(SP_TitleBarUnshadeButton, widget));
 		    drawPrimitive(PE_ButtonTool, p, ir, titlebar->colorGroup(),
 				  down ? Style_Down : Style_Raised);
+		    p->save();
 		    if( down )
-			ir.addCoords( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical), 0, 0 );
+			p->translate( pixelMetric(PM_ButtonShiftHorizontal), pixelMetric(PM_ButtonShiftVertical) );
 		    drawItem( p, ir, AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+		    p->restore();
 		}
 	    }
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -1767,8 +1777,8 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
-	    const int titleBarHeight = pixelMetric( PM_TitleBarHeight, widget );
-	    const int controlHeight = titleBarHeight - 3;
+	    const int controlTop = widget->testWFlags( WStyle_Tool ) ? 1 : 2;
+	    const int controlHeight = widget->height() - controlTop * 2;
 
 	    switch (sc) {
 	    case SC_TitleBarLabel:
@@ -1793,13 +1803,13 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		break;
 
 	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-( controlHeight + 1 ), 2, controlHeight, controlHeight);
+		rect.setRect(titlebar->width()-( controlHeight + 1 ), controlTop, controlHeight, controlHeight);
 		break;
 
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2), 2, controlHeight, controlHeight);
+		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2), controlTop, controlHeight, controlHeight);
 		break;
 
 	    case SC_TitleBarMinButton:
@@ -1810,12 +1820,12 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 			offset *= 2;
 		    else
 			offset *= 3;
-		    rect.setRect(titlebar->width() - offset, 2, controlHeight, controlHeight);
+		    rect.setRect(titlebar->width() - offset, controlTop, controlHeight, controlHeight);
 		}
 		break;
 
 	    case SC_TitleBarSysMenu:
-		rect.setRect( 3, 2, controlHeight, controlHeight);
+		rect.setRect( 3, controlTop, controlHeight, controlHeight);
 		break;
 
 	    default:

@@ -880,7 +880,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
 	    ret = GetSystemMetrics( SM_CYSMCAPTION );
 	} else {
-	    ret = GetSystemMetrics( SM_CYCAPTION ) - 1;
+	    ret = GetSystemMetrics( SM_CYCAPTION );
 	}
 	break;
 #endif
