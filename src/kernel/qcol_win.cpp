@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#36 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#36 $");
 
 
 /*****************************************************************************
@@ -71,10 +71,10 @@ void QColor::initialize()
     static struct {
 	WORD	     palVersion;
 	WORD	     palNumEntries;
-	PALETTEENTRY palPalEntries[256];
+	BYTE         palPalEntries[1024];
     } rgb8palette = {
 	0x300,
-	256,
+	256, {
 	  0,  0,  0,  0,  63,  0,  0,  0, 104,  0,  0,  0, 128,  0,  0,  0,
 	171,  0,  0,  0, 200,  0,  0,  0, 229,  0,  0,  0, 255,  0,  0,  0,
 	  0, 63,  0,  0,  63, 63,  0,  0, 104, 63,  0,  0, 139, 63,  0,  0,
@@ -138,7 +138,7 @@ void QColor::initialize()
 	  0,229,255,  0,  63,229,255,  0, 104,229,255,  0, 139,229,255,  0,
 	171,229,255,  0, 200,229,255,  0, 229,229,255,  0, 255,251,240,  0,
 	  0,255,255,  0,  63,255,255,  0, 104,255,255,  0, 139,255,255,  0,
-	171,255,255,  0, 200,255,255,  0, 229,255,255,  0, 255,255,255,  0 };
+	171,255,255,  0, 200,255,255,  0, 229,255,255,  0, 255,255,255,  0 } };
 
     hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
 
