@@ -27,10 +27,6 @@
 **
 **********************************************************************/
 
-/* broken things:
-   we don't animate yet
-*/
-
 #include "qmacstyle_mac.h"
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
