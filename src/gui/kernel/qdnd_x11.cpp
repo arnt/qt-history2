@@ -110,6 +110,9 @@ bool qt_xdnd_dragging = false;
 
 static bool waiting_for_status = false;
 
+// used to preset each new QDragMoveEvent
+static Qt::DropAction last_target_accepted_action = Qt::IgnoreAction;
+
 // Shift/Ctrl handling, and final drop status
 static Qt::DropAction global_accepted_action = Qt::CopyAction;
 static Qt::DropActions possible_actions = Qt::IgnoreAction;
@@ -474,8 +477,11 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 qt_xdnd_current_position = p;
                 //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
+                last_target_accepted_action = Qt::IgnoreAction;
                 QDragEnterEvent de(p, possible_actions, dropData);
                 QApplication::sendEvent(target_widget, &de);
+                if (de.isAccepted())
+                    last_target_accepted_action = de.dropAction();
             }
         }
 
@@ -487,12 +493,18 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             qt_xdnd_current_position = p;
             //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
+            if (last_target_accepted_action != QDrag::IgnoreAcction) {
+                me.setDropAction(last_target_accepted_action);
+                me.accept();
+            }
             QApplication::sendEvent(c, &me);
             if (me.isAccepted()) {
                 response.data.l[1] = 1; // yes
                 accepted_action = me.dropAction();
+                last_target_accepted_action = accepted_action;
             } else {
                 response.data.l[0] = 0;
+                last_target_accepted_action = QDrag::IgnoreAcction;
             }
             answerRect = me.answerRect().intersect(c->rect());
         }

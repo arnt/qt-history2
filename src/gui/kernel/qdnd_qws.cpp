@@ -212,6 +212,10 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                         manager->emitTargetChanged(object->target());
                 } else if (cw) {
                     QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData);
+                    if (global_accepted_action != Qt::IgnoreAction) {
+                        dme.setDropAction(global_accepted_action);
+                        dme.accept();
+                    }
                     QApplication::sendEvent(cw, &dme);
                     willDrop = dme.isAccepted();
                     global_accepted_action = willDrop ? dme.dropAction() : Qt::IgnoreAction;

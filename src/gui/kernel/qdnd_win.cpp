@@ -638,6 +638,10 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     QDragManager *manager = QDragManager::self();
     QMimeData *md = manager->source() ? manager->dragPrivate()->data : manager->dropData;
     QDragMoveEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
+    if (choosenEffect != DROPEFFECT_NONE) {
+        e.setDropAction(translateToQDragDropAction(choosenEffect));
+        e.accept();
+    }
     QApplication::sendEvent(widget, &e);
 
     answerRect = e.answerRect();
