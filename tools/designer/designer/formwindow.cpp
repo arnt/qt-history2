@@ -203,16 +203,14 @@ void FormWindow::initSlots()
     } else {
 	QString code = MetaDataBase::formCode( this );
 	if ( code.isEmpty() ) {
-	    code= "/****************************************************************************\n"
-		  "** ui.h extension file, included from the uic-generated form implementation.\n"
-		  "** \n"
-		  "** Add custom slot implementations here. Use a slot init() for\n"
-		  "** initialization code called during construction, and a slot destroy()\n"
-		  "** for cleanup code called during destruction.\n"
-		  "**\n"
-		  "** This file gets modified by Qt Designer whenever you add, rename or\n"
-		  "** remove custom slots. Implementation code does not get lost.\n"
-		  "*****************************************************************************/\n";
+	    code=
+		"/****************************************************************************\n"
+		"** ui.h extension file, included from the uic-generated form implementation.\n"
+		"**\n"
+		"** If you wish to add, delete or rename slots use Qt Designer which will\n"
+		"** update this file, preserving your code. Create an init() slot in place of\n"
+		"** a constructor, and a destroy() slot in place of a destructor.\n"
+		"*****************************************************************************/\n";
 	    MetaDataBase::setFormCode( this, code );
 	}
     }
