@@ -13,10 +13,11 @@
 
 #include "qhboxwidget.h"
 #ifndef QT_NO_HBOXWIDGET
-#include "qlayout.h"
+#include "qboxlayout.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qmenubar.h"
+#include "qframe_p.h"
 
 /*!
     \class QHBoxWidget qhboxwidget.h
@@ -44,6 +45,15 @@
 */
 
 
+class QHBoxWidgetPrivate : public QFramePrivate
+{
+    Q_DECLARE_PUBLIC(QHBoxWidget)
+public:
+    QHBoxWidgetPrivate() :lay(0) {}
+
+    QBoxLayout *lay;
+};
+
 #ifdef QT3_SUPPORT
 /*! \obsolete
     Constructs an hbox widget with parent \a parent, called \a name.
@@ -53,12 +63,13 @@
 QHBoxWidget::QHBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
     :QFrame(parent, f)
 {
+    Q_D(QHBoxWidget);
     QString nm(name);
     setObjectName(nm);
-    lay = new QHBoxLayout(this);
-    lay->setMargin(0);
-    lay->setSpacing(frameWidth());
-    lay->setObjectName(nm);
+    d->lay = new QHBoxLayout(this);
+    d->lay->setMargin(0);
+    d->lay->setSpacing(frameWidth());
+    d->lay->setObjectName(nm);
 }
 #endif
 
@@ -70,9 +81,10 @@ QHBoxWidget::QHBoxWidget(QWidget *parent, const char *name, Qt::WFlags f)
 QHBoxWidget::QHBoxWidget(QWidget *parent, Qt::WFlags f)
     :QFrame(parent, f)
 {
-    lay = new QHBoxLayout(this);
-    lay->setMargin(0);
-    lay->setSpacing(frameWidth());
+    Q_D(QHBoxWidget);
+    d->lay = new QHBoxLayout(this);
+    d->lay->setMargin(0);
+    d->lay->setSpacing(frameWidth());
 }
 
 /*!
@@ -90,27 +102,29 @@ QHBoxWidget::QHBoxWidget(QWidget *parent, Qt::WFlags f)
 QHBoxWidget::QHBoxWidget(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
     :QFrame(parent, f)
 {
-    lay = new QBoxLayout(orientation == Qt::Horizontal
+    Q_D(QHBoxWidget);
+    d->lay = new QBoxLayout(orientation == Qt::Horizontal
                          ? QBoxLayout::LeftToRight
                          : QBoxLayout::Down, this);
-    lay->setMargin(0);
-    lay->setSpacing(frameWidth());
+    d->lay->setMargin(0);
+    d->lay->setSpacing(frameWidth());
 }
 
 /*! \reimp
  */
 void QHBoxWidget::childEvent(QChildEvent *e)
 {
+    Q_D(QHBoxWidget);
     QWidget *child = qobject_cast<QWidget*>(e->child());
     if (!child || child->isWindow())
         return;
     if (e->added()) {
-        lay->addWidget(child);
+        d->lay->addWidget(child);
     } else if (e->polished()) {
         QMenuBar *mb;
         if ((mb=qobject_cast<QMenuBar*>(child))) {
-            lay->removeWidget(mb);
-            lay->setMenuBar(mb);
+            d->lay->removeWidget(mb);
+            d->lay->setMenuBar(mb);
         }
     }
 }
@@ -158,10 +172,12 @@ QSize QHBoxWidget::sizeHint() const
 */
 bool QHBoxWidget::setStretchFactor(QWidget* w, int stretch)
 {
+    Q_D(QHBoxWidget);
+
 #ifdef QT3_SUPPORT
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
 #endif
-    return lay->setStretchFactor(w, stretch);
+    return d->lay->setStretchFactor(w, stretch);
 }
 #endif

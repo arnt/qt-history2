@@ -21,7 +21,7 @@
 #ifndef QT_NO_HBOXWIDGET
 
 
-class QBoxLayout;
+class QHBoxWidgetPrivate;
 
 class Q_GUI_EXPORT QHBoxWidget : public QFrame
 {
@@ -46,7 +46,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QHBoxWidget)
-    QBoxLayout *lay;
+    Q_DECLARE_PRIVATE(QHBoxWidget)
 };
 
 #endif // QT_NO_HBOX

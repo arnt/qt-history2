@@ -18,7 +18,7 @@
 
 #ifndef QT_NO_GRIDWIDGET
 
-class QGridLayout;
+class QGridWidgetPrivate;
 
 class Q_GUI_EXPORT QGridWidget : public QFrame
 {
@@ -42,8 +42,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QGridWidget)
-
-    QGridLayout *lay;
+    Q_DECLARE_PRIVATE(QGridWidget)
 };
 
 #endif // QT_NO_GRIDWIDGET

@@ -14,10 +14,12 @@
 
 #include "qgridwidget.h"
 #ifndef QT_NO_GRIDWIDGET
-#include "qlayout.h"
+#include "qgridlayout.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qmenubar.h"
+#include "qframe_p.h"
+
 /*!
     \class QGridWidget qgridwidget.h
     \brief The QGridWidget class provides simple geometry management of its children.
@@ -42,6 +44,17 @@
     \sa QVBoxWidget QHBoxWidget
 */
 
+
+class QGridWidgetPrivate : public QFramePrivate
+{
+    Q_DECLARE_PUBLIC(QGridWidget)
+public:
+    QGridWidgetPrivate() :lay(0) {}
+
+    QGridLayout *lay;
+};
+
+
 /*!
     Constructs a grid widget with parent \a parent.
     If \a orientation is \c Qt::Horizontal, \a n specifies the number of
@@ -51,8 +64,10 @@
 QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
-    lay = new QGridLayout(this);
-    lay->setDefaultPositioning(n, orientation);
+    Q_D(QGridWidget);
+
+    d->lay = new QGridLayout(this);
+    d->lay->setDefaultPositioning(n, orientation);
 }
 
 
@@ -65,8 +80,9 @@ QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt
 QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
-    lay = new QGridLayout(this);
-    lay->setDefaultPositioning(n, Qt::Horizontal);
+    Q_D(QGridWidget);
+    d->lay = new QGridLayout(this);
+    d->lay->setDefaultPositioning(n, Qt::Horizontal);
 }
 
 
@@ -78,10 +94,11 @@ QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
 QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
+    Q_D(QGridWidget);
     setObjectName(name);
-    lay = new QGridLayout(this);
-    lay->setObjectName(name);
-    lay->setDefaultPositioning(n, orientation);
+    d->lay = new QGridLayout(this);
+    d->lay->setObjectName(name);
+    d->lay->setDefaultPositioning(n, orientation);
 }
 
 /*!
@@ -91,10 +108,11 @@ QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, co
 QGridWidget::QGridWidget(int n, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
+    Q_D(QGridWidget);
     setObjectName(name);
-    lay = new QGridLayout(this);
-    lay->setObjectName(name);
-    lay->setDefaultPositioning(n, Qt::Horizontal);
+    d->lay = new QGridLayout(this);
+    d->lay->setObjectName(name);
+    d->lay->setDefaultPositioning(n, Qt::Horizontal);
 }
 #endif
 
@@ -103,16 +121,17 @@ QGridWidget::QGridWidget(int n, QWidget *parent, const char *name, Qt::WFlags f)
 */
 void QGridWidget::childEvent(QChildEvent *e)
 {
+    Q_D(QGridWidget);
     QWidget *child = qobject_cast<QWidget*>(e->child());
     if (!child || child->isWindow())
         return;
     if (e->added()) {
-        lay->addWidget(child);
+        d->lay->addWidget(child);
     } else if (e->polished()) {
         QMenuBar *mb;
         if ((mb=qobject_cast<QMenuBar*>(child))) {
-            lay->removeWidget(mb);
-            lay->setMenuBar(mb);
+            d->lay->removeWidget(mb);
+            d->lay->setMenuBar(mb);
         }
     }
 }
