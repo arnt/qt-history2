@@ -742,6 +742,8 @@ void QPainter::restore()
 	setBackgroundMode( (BGMode)ps->bgm );
     if ( ps->rop != rop || hardRestore )
 	setRasterOp( (RasterOp)ps->rop );
+    if ( ps->bro != bro || hardRestore )
+	setBrushOrigin( ps->bro );
 #if 0
     if ( ps->pu != pu )				// !!!not used
 	pu = ps->pu;
