@@ -42,23 +42,40 @@ status() {
 #parse commandline
 showhelp()
 {
-    [ ! -z "$1" ] && echo "Unknown Option: $1"
+    [ ! -z "$1" ] && echo "******** Unknown Option: $1 ********"
     echo "$0 [options]"
     echo
-    echo "Options:"
-    echo "-manifest <file>"
-    echo "-local <directory>"
-    echo "-outdir <directory>"
-    echo "-qdoc <executable>"
-    echo "-no-professional"
-    echo "-no-enterprise"
-    echo "-no-id"
-    echo "-no-doc"
-    echo "-no-win"
-    echo "-no-x11"
-    echo "-no-qws"
-    echo "-no-free"
-    echo "-no-gzip"
+    echo "Options can be any of:"
+    echo
+
+    echo "Paths:"
+    echo "  -manifest <file>     : Specify path to manifest file (if not there, will be created)"
+    echo "  -local <directory>   : Specify path to pre-p4'd depot"
+    echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
+    echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
+    echo
+
+    echo "Editions:"
+    echo "  -no-professional / -do-professional  : Toggle professional build"
+    echo "  -no-enterprise / -do-enterprise      : Toggle enterprise build"
+    echo "  -no-free / -do-free                  : Toggle free build"
+    echo
+
+    echo "Platforms:"
+    echo "  -no-mac / -do-mac   (default $DO_MAC)"
+    echo "  -no-win / -do-win   (default $DO_WIN)"
+    echo "  -no-x11 / -do-x11   (default $DO_X11)"
+    echo "  -no-qws / -do-qws   (default $DO_QWS)"
+    echo
+
+    echo "Various:"
+    echo "  -no-id / -do-id      : Toggle whether to generate $Id: //depot/qt/main/util/scripts/mkdists#62 $ tag"
+    echo "  -no-doc / -do-doc    : Toggle whether to generate documentation"
+    echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
+
+    echo "___"
+    echo "All options can be in long form --option=value as well (where value is no for -no-* options,"
+    echo "and yes for -do-* options)"
     exit 666
 }
 
