@@ -275,7 +275,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     return (nevents > 0);
 }
 
-bool QEventLoop::hasPendingEvents()
+bool QEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
     return qGlobalPostedEventsCount() || qt_fbdpy->eventPending();
