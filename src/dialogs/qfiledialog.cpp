@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#289 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#290 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1524,7 +1524,7 @@ void QFileDialog::init()
 
     d->url = QUrl( QDir::currentDirPath() );
     d->oldUrl = d->url;
-    
+
     connect( &d->url, SIGNAL( start( int ) ),
              this, SLOT( urlStart( int ) ) );
     connect( &d->url, SIGNAL( finished( int ) ),
@@ -3581,10 +3581,10 @@ void QFileDialog::urlStart( int action )
 	else
 	    d->cdToParent->setEnabled( TRUE );
     } else if ( action == QUrl::ActCopyFiles ) {
-	d->progressDia = new QProgressDialog( this );
+	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Copy File" ) );
     } else if ( action == QUrl::ActMoveFiles ) {
-	d->progressDia = new QProgressDialog( this );
+	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Move File" ) );
     }
 }
