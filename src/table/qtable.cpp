@@ -558,6 +558,12 @@ void QTableItem::setText( const QString &str )
   Note that the painter is not clipped by default in order to get maximum
   efficiency. If you want clipping, use
 
+    \code
+    p->setClipRect( table()->cellRect(row, col), QPainter::ClipPainter );
+    //... your drawing code
+    p->setClipping( FALSE );
+    \endcode
+
 */
 
 void QTableItem::paint( QPainter *p, const QColorGroup &cg,
@@ -2850,7 +2856,10 @@ void QTable::ensureCellVisible( int row, int col )
 {
     int cw = columnWidth( col );
     int rh = rowHeight( row );
-    ensureVisible( columnPos( col ) + cw / 2, rowPos( row ) + rh / 2, cw / 2, rh / 2 );
+    if ( cw < visibleWidth() )
+	ensureVisible( columnPos( col ) + cw / 2, rowPos( row ) + rh / 2, cw / 2, rh / 2 );
+    else
+	ensureVisible( columnPos( col ), rowPos( row ) + rh / 2, 0, rh / 2 );
 }
 
 /*!
