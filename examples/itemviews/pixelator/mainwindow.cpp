@@ -63,8 +63,8 @@ void MainWindow::openImage(const QString &fileName)
 
         printAction->setEnabled(true);
 
-        int rows = model->rowCount(QModelIndex::Null);
-        int columns = model->columnCount(QModelIndex::Null);
+        int rows = model->rowCount(QModelIndex());
+        int columns = model->columnCount(QModelIndex());
         for (int row = 0; row < rows; ++row)
             view->resizeRowToContents(row);
         for (int column = 0; column < columns; ++column)
@@ -74,7 +74,7 @@ void MainWindow::openImage(const QString &fileName)
 
 void MainWindow::printImage()
 {
-    if (model->rowCount(QModelIndex::Null)*model->columnCount(QModelIndex::Null)
+    if (model->rowCount(QModelIndex())*model->columnCount(QModelIndex())
         > 90000) {
         int answer = QMessageBox::question(this, tr("Large Image Size"),
             tr("The printed image may be very large. Are you sure that "
@@ -94,8 +94,8 @@ void MainWindow::printImage()
     QPainter painter;
     painter.begin(&printer);
 
-    int rows = model->rowCount(QModelIndex::Null);
-    int columns = model->columnCount(QModelIndex::Null);
+    int rows = model->rowCount(QModelIndex());
+    int columns = model->columnCount(QModelIndex());
     int sourceWidth = (columns+1) * ItemSize;
     int sourceHeight = (rows+1) * ItemSize;
 
@@ -111,7 +111,7 @@ void MainWindow::printImage()
     painter.translate(-sourceWidth/2, -sourceHeight/2);
 
     QStyleOptionViewItem option;
-    QModelIndex parent = QModelIndex::Null;
+    QModelIndex parent = QModelIndex();
 
     QProgressDialog progress(tr("Printing..."), tr("Cancel"), 0, rows, this);
     float y = ItemSize/2;

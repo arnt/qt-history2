@@ -1,4 +1,3 @@
-//depot/qt/main/examples/itemviews/pixelator/imagemodel.cpp#1 - branch change 154710 (text)
 #include <QtGui>
 
 #include "imagemodel.h"
@@ -9,12 +8,12 @@ ImageModel::ImageModel(const QImage &image, QObject *parent)
     modelImage = QImage(image);
 }
 
-int ImageModel::rowCount() const
+int ImageModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return modelImage.height();
 }
 
-int ImageModel::columnCount() const
+int ImageModel::columnCount(const QModelIndex &/*parent*/) const
 {
     return modelImage.width();
 }
