@@ -1953,6 +1953,8 @@ void QComboBox::setEditable( bool y )
 	    setUpListBox();
 	setUpLineEdit();
 	d->ed->show();
+	if ( currentItem() )
+	    setEditText( currentText() );
 	setFocusPolicy( StrongFocus );
     } else {
 	delete d->ed;
