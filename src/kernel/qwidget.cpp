@@ -3451,6 +3451,10 @@ void QWidget::polish()
 
 bool QWidget::close( bool alsoDelete )
 {
+    if ( testWState(WState_Closing) )
+	return;
+    setWState( WState_Closing );
+
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
@@ -3474,6 +3478,7 @@ bool QWidget::close( bool alsoDelete )
 	if ( isMain )
 	    qApp->quit();
     }
+    clearWState( WState_Closing );
     return accept;
 }
 

@@ -262,7 +262,7 @@ int QDialog::exec()
 
 
 /*!
-  Hides the dialog and sets the result code to \e r.
+  Closes the dialog and sets the result code to \e r.
 
   Equivalent to calling hide(), then setResult(\e r ).
 
@@ -280,12 +280,12 @@ int QDialog::exec()
 
 void QDialog::done( int r )
 {
-    hide();
+    close();
     setResult( r );
 }
 
 /*!
-  Hides the dialog and sets the result code to \c Accepted.
+  Closes the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
 */
@@ -296,7 +296,7 @@ void QDialog::accept()
 }
 
 /*!
-  Hides the dialog and sets the result code to \c Rejected.
+  Closes the dialog and sets the result code to \c Rejected.
 
   Equivalent to done(Rejected);
 */

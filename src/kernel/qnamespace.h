@@ -120,7 +120,8 @@ public:
 	WState_Reserved4	= 0x00080000,
 	WState_TranslateBackground = 0x00100000,
 	WState_ForceDisabled	= 0x00200000,
-	WState_Exposed		= 0x00400000
+	WState_Exposed		= 0x00400000,
+	WState_Closing		= 0x00800000
     };
 
     // Widget flags2

@@ -526,9 +526,9 @@ private:
     uint	 propagate_font : 2; // obsolete
     uint	 propagate_palette : 2; // obsolete
     uint	 focus_policy : 4;
-    uint 	own_font :1;
-    uint 	own_palette :1;
-    uint 	sizehint_forced :1;
+    uint 	 own_font :1;
+    uint 	 own_palette :1;
+    uint 	 sizehint_forced :1;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;
