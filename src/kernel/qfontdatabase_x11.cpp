@@ -1545,7 +1545,9 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script, const QFontDef &requ
 
     QChar sample = sampleCharacter( script );
     if ( fe && !canRender( fe, sample ) ) {
-	qWarning( "  WARN: font loaded cannot render sample 0x%04x", sample.unicode() );
+#ifdef FONT_MATCH_DEBUG
+	qDebug( "  WARN: font loaded cannot render sample 0x%04x", sample.unicode() );
+#endif // FONT_MATCH_DEBUG
 	delete fe;
 	fe = 0;
     }
