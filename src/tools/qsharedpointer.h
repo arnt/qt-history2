@@ -29,6 +29,9 @@ public:
     const T * operator->() const { return d; }
     operator T *() { return d; }
     operator const T *() const { return d; }
+    T * data() { return d; }
+    const T * data() const { return d; }
+    const T * constData() const { return d; }
 
     QExplicitSharedPointer() { d = 0; }
     ~QExplicitSharedPointer() { if (d && !--d->ref) delete d; }
@@ -67,6 +70,8 @@ public:
     const T * operator->() const { return d; }
     operator T *() { if (d && d->ref != 1) detach(); return d; }
     operator const T *() const { return d; }
+    T * data() { if (d && d->ref != 1) detach(); return d; }
+    const T * data() const { return d; }
 
     QSharedPointer() : QExplicitSharedPointer<T>() {}
 
