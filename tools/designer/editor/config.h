@@ -4,20 +4,21 @@
 #include <qfont.h>
 #include <qcolor.h>
 #include <qmap.h>
+#include "dlldefs.h"
 
-struct ConfigStyle
+struct EDITOR_EXPORT ConfigStyle
 {
-	QFont font;
-	QColor color;
+    QFont font;
+    QColor color;
 };
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QString, ConfigStyle>;
+template class EDITOR_EXPORT QMap<QString, ConfigStyle>;
 // MOC_SKIP_END
 #endif
 
-struct Config
+struct EDITOR_EXPORT Config
 {
     QMap<QString, ConfigStyle> styles;
 
