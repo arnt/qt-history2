@@ -114,7 +114,7 @@
 #define Is3rdByte(c)        (InRange((c), 0x81, 0xFE))
 #define Is4thByte(c)        (InRange((c), 0x30, 0x39))
 
-#define QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 /* User-defined areas:        UDA 1: 0xAAA1 - 0xAFFE (564/0)
                         UDA 2: 0xF8A1 - 0xFEFE (658/0)
@@ -239,12 +239,12 @@ QString QGb18030Codec::toUnicode(const char* chars, int len) const
                 }
                 i += clen;
             } else if (i < len) {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
                 i++;
             }
         } else {
             // Invalid or undefined
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
             i++;
         }
     }
@@ -347,7 +347,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
               case 1:
@@ -359,7 +359,7 @@ public:
                     if (clen == 2) {
                         result += QValidChar(u);
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                     nbuf = 0;
                 } else if (Is2ndByteIn4Bytes(ch)) {
@@ -367,7 +367,7 @@ public:
                     nbuf = 2;
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                     nbuf = 0;
                 }
                 break;
@@ -377,7 +377,7 @@ public:
                     buf[2] = ch;
                     nbuf = 3;
                 } else {
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                     nbuf = 0;
                 }
                 break;
@@ -390,10 +390,10 @@ public:
                     if (clen == 4) {
                         result += QValidChar(u);
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
                 break;
@@ -513,7 +513,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
               case 1:
@@ -525,12 +525,12 @@ public:
                     if (clen == 2) {
                         result += QValidChar(u);
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                     nbuf = 0;
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                     nbuf = 0;
                 }
                 break;
@@ -601,15 +601,15 @@ QString QGbkCodec::toUnicode(const char* chars, int len) const
                 result += QValidChar(u);
                 i += 2;
             } else if (clen == 4) {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
                 i += 4;
             } else if (i < len) {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
                 i++;
             }
         } else {
             // Invalid or undefined
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
             i++;
         }
     }
@@ -713,7 +713,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
               case 1:
@@ -725,12 +725,12 @@ public:
                     if (clen == 2) {
                         result += QValidChar(u);
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                     nbuf = 0;
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                     nbuf = 0;
                 }
                 break;
@@ -803,15 +803,15 @@ QString QGb2312Codec::toUnicode(const char* chars, int len) const
                 if (clen == 2 && IsByteInGb2312(ch) && IsByteInGb2312((uchar)(chars[i+1])))
                     result += QValidChar(u);
                 else
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 i += clen;
             } else if (i < len) {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
                 i++;
             }
         } else {
             // Invalid or undefined
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
             i++;
         }
     }
@@ -9179,22 +9179,22 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
                 } else {
                     /* undefined or reserved area */
                     len = 1;
-                    uni = QChar::replacement;
+                    uni = QChar::ReplacementCharacter;
                 }
             }
             else {
                 len = 1;
-                uni = QChar::replacement;
+                uni = QChar::ReplacementCharacter;
             }
         }
         else {
             len = 1;
-            uni = QChar::replacement;
+            uni = QChar::ReplacementCharacter;
         }
     }
     else {
         len = 1;
-        uni = QChar::replacement;
+        uni = QChar::ReplacementCharacter;
     }
     return uni;
 }

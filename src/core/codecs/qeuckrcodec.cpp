@@ -75,7 +75,7 @@ unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 unsigned int qt_UnicodeToKsc5601(unsigned int unicode);
 
 #define        IsEucChar(c)        (((c) >= 0xa1) && ((c) <= 0xfe))
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 /*!
   \reimp
@@ -149,14 +149,14 @@ QString QEucKrCodec::toUnicode(const char* chars, int len) const
                     result += QValidChar(u);
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else {
             // Invalid
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
         }
     }
     return result;
@@ -279,7 +279,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
             case 1:
@@ -289,7 +289,7 @@ public:
                     result += QValidChar(u);
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
                 break;

@@ -78,7 +78,7 @@ enum {
 #define        IsSjisChar2(c)        (((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
 #define        IsUserDefinedChar1(c)        (((c) >= 0xf0) && ((c) <= 0xfc))
 
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 /*!
   Creates a Shift-JIS codec. Note that this is done automatically by
@@ -171,20 +171,20 @@ QString QSjisCodec::toUnicode(const char* chars, int len) const
                 uchar c2 = chars[++i];
                 if (IsSjisChar2(c2)) {
                     if (IsUserDefinedChar1(ch)) {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     } else {
                         uint u = conv->sjisToUnicode(ch, c2);
                         result += QValidChar(u);
                     }
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else {
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
         }
     }
     return result;
@@ -306,21 +306,21 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
               case 1:
                 // JIS X 0208
                 if (IsSjisChar2(ch)) {
                     if (IsUserDefinedChar1(buf[0])) {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     } else {
                         uint u = conv->sjisToUnicode(buf[0], ch);
                         result += QValidChar(u);
                     }
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
                 break;

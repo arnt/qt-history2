@@ -124,7 +124,7 @@ enum {
 #define        IsKana(c)        (((c) >= 0xa1) && ((c) <= 0xdf))
 #define        IsJisChar(c)        (((c) >= 0x21) && ((c) <= 0x7e))
 
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 enum Iso2022State{ Ascii, MinState = Ascii,
                    JISX0201_Latin, JISX0201_Kana,
@@ -338,7 +338,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
                 }
                 break;
               default:
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
                 break;
             }
         }
@@ -644,7 +644,7 @@ public:
                             buf[nbuf++] = ch;
                             break;
                           default:
-                            result += QChar::replacement;
+                            result += QChar::ReplacementCharacter;
                             break;
                         }
                         break;
@@ -660,7 +660,7 @@ public:
                             result += QValidChar(u);
                             break;
                           default:
-                            result += QChar::replacement;
+                            result += QChar::ReplacementCharacter;
                             break;
                         }
                         nbuf = 0;

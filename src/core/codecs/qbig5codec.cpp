@@ -86,7 +86,7 @@ int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 #define IsSecondByteRange2(c)        (InRange((c), 0xA1, 0xFE))
 #define IsSecondByte(c)        (IsSecondByteRange1(c) || IsSecondByteRange2(c))
 
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 
 /*! \reimp */
@@ -131,7 +131,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
             case 1:
@@ -143,11 +143,11 @@ public:
                         result += QValidChar(u);
                     else {
                         // Error
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
                 break;
@@ -218,19 +218,19 @@ QString QBig5Codec::toUnicode(const char* chars, int len) const
                     if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
                         result += QValidChar(u);
                     else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
                 // Bad String
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else {
             // Invalid
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
         }
     }
     return result;
@@ -418,7 +418,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
             case 1:
@@ -430,11 +430,11 @@ public:
                         result += QValidChar(u);
                     else {
                         // Error
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
                     // Error
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
                 break;
@@ -502,19 +502,19 @@ QString QBig5hkscsCodec::toUnicode(const char* chars, int len) const
                     if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
                         result += QValidChar(u);
                     else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
                 // Bad String
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else {
             // Invalid
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
         }
     }
     return result;

@@ -99,7 +99,7 @@ static const uchar Ss3 = 0x8f;        // Single Shift 3
 #define        IsKana(c)        (((c) >= 0xa1) && ((c) <= 0xdf))
 #define        IsEucChar(c)        (((c) >= 0xa1) && ((c) <= 0xfe))
 
-#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::ReplacementCharacter))
 
 /*!
   Constructs a QEucJpCodec.
@@ -205,7 +205,7 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
                     result += QValidChar(u);
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             }
         } else if (ch == Ss3) {
@@ -220,17 +220,17 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
                             result += QValidChar(u);
                         } else {
                             i--;
-                            result += QChar::replacement;
+                            result += QChar::ReplacementCharacter;
                         }
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else if (IsEucChar(ch)) {
             // JIS X 0208
@@ -241,14 +241,14 @@ QString QEucJpCodec::toUnicode(const char* chars, int len) const
                     result += QValidChar(u);
                 } else {
                     i--;
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
             } else {
-                result += QChar::replacement;
+                result += QChar::ReplacementCharacter;
             }
         } else {
             // Invalid
-            result += QChar::replacement;
+            result += QChar::ReplacementCharacter;
         }
     }
     return result;
@@ -399,7 +399,7 @@ public:
                     nbuf = 1;
                 } else {
                     // Invalid
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 break;
               case 1:
@@ -409,7 +409,7 @@ public:
                         uint u = conv->jisx0201ToUnicode(ch);
                         result += QValidChar(u);
                     } else {
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                     nbuf = 0;
                 } else if (buf[0] == Ss3) {
@@ -419,7 +419,7 @@ public:
                         nbuf = 2;
                     } else {
                         // Error
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                         nbuf = 0;
                     }
                 } else {
@@ -429,7 +429,7 @@ public:
                         result += QValidChar(u);
                     } else {
                         // Error
-                        result += QChar::replacement;
+                        result += QChar::ReplacementCharacter;
                     }
                     nbuf = 0;
                 }
@@ -440,7 +440,7 @@ public:
                     uint u = conv->jisx0212ToUnicode(buf[1] & 0x7f, ch & 0x7f);
                     result += QValidChar(u);
                 } else {
-                    result += QChar::replacement;
+                    result += QChar::ReplacementCharacter;
                 }
                 nbuf = 0;
             }
