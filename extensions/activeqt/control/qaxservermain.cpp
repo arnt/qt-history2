@@ -32,25 +32,13 @@
 #include <qfile.h>
 #include <private/qucom_p.h>
 #include <qdir.h>
-
 #include <qt_windows.h>
-
-/*
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0400
-#endif
-*/
-#define _ATL_APARTMENT_THREADED
-#define STRICT
 
 #include "qaxbindable.h"
 #include "qaxfactory.h"
 #include "../shared/types.h"
 
-#include <atlbase.h>
-#include "qaxserverbase.h"
-
-#ifdef DEBUG
+#ifdef QT_DEBUG
 const DWORD dwTimeOut = 1000;
 const DWORD dwPause = 500;
 #else
@@ -58,68 +46,111 @@ const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
 const DWORD dwPause = 1000; // time to wait for threads to finish up
 #endif
 
-#ifdef Q_OS_TEMP
-EXTERN_C int __cdecl main( int, char ** );
-#else
-EXTERN_C int main( int, char ** );
-#endif
-CExeModule _Module;
-ITypeLib *typeLibrary = 0;
+// Some global variables to store module information
+bool qAxIsServer = FALSE;
+HANDLE qAxInstance = 0;
+ITypeLib *qAxTypeLibrary = 0;
+char qAxModuleFilename[MAX_PATH];
 
+// The QAxFactory instance
+static QAxFactoryInterface* _factory;
 
-// Passed to CreateThread to monitor the shutdown event
-static DWORD WINAPI MonitorProc(void* pv)
+// Some local variables to handle module lifetime
+static bool qAxActivity = FALSE;
+static long qAxModuleRef = 0;
+static HANDLE hEventShutdown;
+static CRITICAL_SECTION qAxModuleSection;
+static DWORD dwThreadID;
+
+void qAxInit()
 {
-    CExeModule* p = (CExeModule*)pv;
-    p->MonitorShutdown();
-    return 0;
+    InitializeCriticalSection( &qAxModuleSection );
+
+    QString libFile( qAxModuleFilename );
+    BSTR oleLibFile = QStringToBSTR( libFile );
+    LoadTypeLibEx( oleLibFile, REGKIND_NONE, &qAxTypeLibrary );
+    SysFreeString( oleLibFile );
 }
 
-LONG CExeModule::Unlock()
+void qAxCleanup()
 {
-    LONG l = CComModule::Unlock();
-    if ( !l ) {
-        bActivity = TRUE;
+    if ( _factory ) {
+	_factory->release();
+	_factory = 0;
+    }
+
+    if ( qAxTypeLibrary ) {
+	qAxTypeLibrary->Release();
+	qAxTypeLibrary = 0;
+    }
+
+    DeleteCriticalSection( &qAxModuleSection );
+}
+
+unsigned long qAxLock()
+{
+    EnterCriticalSection( &qAxModuleSection );
+    unsigned long ref = ++qAxModuleRef;
+    LeaveCriticalSection( &qAxModuleSection );
+    return ref;
+}
+
+unsigned long qAxUnlock()
+{
+    EnterCriticalSection( &qAxModuleSection );
+    unsigned long ref = --qAxModuleRef;
+    LeaveCriticalSection( &qAxModuleSection );
+
+    if ( !ref ) {
+        qAxActivity = TRUE;
         if ( hEventShutdown )
 	    SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
     }
-    return l;
+    return ref;
 }
 
-//Monitors the shutdown event
-void CExeModule::MonitorShutdown()
+unsigned long qAxLockCount()
+{
+    return qAxModuleRef;
+}
+
+// Monitors the shutdown event
+static DWORD WINAPI MonitorProc(void* pv)
 {
     while (1) {
         WaitForSingleObject(hEventShutdown, INFINITE);
         DWORD dwWait=0;
         do {
-            bActivity = FALSE;
+            qAxActivity = FALSE;
             dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
-        } while (dwWait == WAIT_OBJECT_0);
+        } while ( dwWait == WAIT_OBJECT_0 );
         // timed out
-        if (!bActivity && m_nLockCnt == 0) { // if no activity let's really bail
+        if ( !qAxActivity && !qAxModuleRef ) // if no activity let's really bail
             break;
-        }
     }
     CloseHandle(hEventShutdown);
     PostThreadMessage(dwThreadID, WM_QUIT, 0, 0);
     PostQuitMessage( 0 );
+
+    return 0;
 }
 
-bool CExeModule::StartMonitor()
+// Starts the monitoring thread
+static bool StartMonitor()
 {
-    hEventShutdown = CreateEvent( 0, FALSE, FALSE, 0 );
+    dwThreadID = GetCurrentThreadId();
+    hEventShutdown = CreateEventA( 0, FALSE, FALSE, 0 );
     if ( hEventShutdown == 0 )
         return FALSE;
     DWORD dwThreadID;
-    HANDLE h = CreateThread(NULL, 0, MonitorProc, this, 0, &dwThreadID);
+    HANDLE h = CreateThread( 0, 0, MonitorProc, 0, 0, &dwThreadID );
     return (h != NULL);
 }
 
 extern QUnknownInterface *ucm_instantiate();
 extern HRESULT __stdcall GetClassObject( void *pv, const GUID &iid, void **ppUnk );
 
-QAxFactoryInterface *CExeModule::factory()
+QAxFactoryInterface *qAxFactory()
 {
     if ( !_factory ) {
 	QInterfacePtr<QUnknownInterface> unknown = ucm_instantiate();
@@ -129,46 +160,19 @@ QAxFactoryInterface *CExeModule::factory()
     return _factory;
 }
 
-// dummy function used in object map.
-// We have our own factory to do that
-static HRESULT WINAPI CreateInstance( void *pUnkOuter, REFIID iid, void **ppUnk )
-{
-    HRESULT nRes = E_OUTOFMEMORY;
-    return nRes;
-}
-
-
-// Dummy method for object map
-static void WINAPI ObjectMain( bool /*bStarting*/ )
-{
-}
-
-// Dummy method for object map
-static LPCTSTR WINAPI GetObjectDescription()
-{
-    return 0;
-}
-
-// Dummy method for object map
-static const _ATL_CATMAP_ENTRY* GetCategoryMap()
-{
-    return 0;
-}
-
-char module_filename[MAX_PATH];
 
 
 // (Un)Register the ActiveX server in the registry.
 // The QAxFactory implementation provides the information.
 HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 {
-    QString file = QString::fromLocal8Bit(module_filename );
+    QString file = QString::fromLocal8Bit( qAxModuleFilename );
     QString path = file.left( file.findRev( "\\" )+1 );
     QString module = file.right( file.length() - path.length() );
     module = module.left( module.findRev( "." ) );
 
-    const QString appId = _Module.factory()->appID().toString().upper();
-    const QString libId = _Module.factory()->typeLibID().toString().upper();
+    const QString appId = qAxFactory()->appID().toString().upper();
+    const QString libId = qAxFactory()->typeLibID().toString().upper();
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
@@ -184,11 +188,11 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/.", path );
 	settings.writeEntry( "/TypeLib/" + libId + "/1.0/.", module + " 1.0 Type Library" );
 
-	QStringList keys = _Module.factory()->featureList();
+	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	    const QString classId = _Module.factory()->classID(*key).toString().upper();
-	    const QString eventId = _Module.factory()->eventsID(*key).toString().upper();
-	    const QString ifaceId = _Module.factory()->interfaceID(*key).toString().upper();
+	    const QString classId = qAxFactory()->classID(*key).toString().upper();
+	    const QString eventId = qAxFactory()->eventsID(*key).toString().upper();
+	    const QString ifaceId = qAxFactory()->interfaceID(*key).toString().upper();
 	    const QString className = *key;
 	    
 	    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
@@ -229,17 +233,17 @@ HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/.", libId );
 	    settings.writeEntry( "/Interface/" + eventId + "/TypeLib/Version", "1.0" );
 	    
-	    _Module.factory()->registerClass( *key, &settings );
+	    qAxFactory()->registerClass( *key, &settings );
 	}
     } else {
-	QStringList keys = _Module.factory()->featureList();
+	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	    const QString classId = _Module.factory()->classID(*key).toString().upper();
-	    const QString eventId = _Module.factory()->eventsID(*key).toString().upper();
-	    const QString ifaceId = _Module.factory()->interfaceID(*key).toString().upper();
+	    const QString classId = qAxFactory()->classID(*key).toString().upper();
+	    const QString eventId = qAxFactory()->eventsID(*key).toString().upper();
+	    const QString ifaceId = qAxFactory()->interfaceID(*key).toString().upper();
 	    const QString className = *key;
 
-	    _Module.factory()->unregisterClass( *key, &settings );
+	    qAxFactory()->unregisterClass( *key, &settings );
 	    
 	    settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
 	    settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
@@ -496,11 +500,11 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
     }
 
-    QString filebase = module_filename;
+    QString filebase = qAxModuleFilename;
     filebase = filebase.left( filebase.findRev( "." ) );
     
     out << "/****************************************************************************" << endl;
-    out << "** Interface definition generated from '" << module_filename << "'" << endl;
+    out << "** Interface definition generated from '" << qAxModuleFilename << "'" << endl;
     out << "**" << endl;
     out << "** Created:  " << QDateTime::currentDateTime().toString() << endl;
     out << "**" << endl;
@@ -516,9 +520,9 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
     int argc;
     QApplication app( argc, 0 );
 
-    QString appID = _Module.factory()->appID().toString().upper();
+    QString appID = qAxFactory()->appID().toString().upper();
     STRIPCB(appID);
-    QString typeLibID = _Module.factory()->typeLibID().toString().upper();
+    QString typeLibID = qAxFactory()->typeLibID().toString().upper();
     STRIPCB(typeLibID);
     QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
 
@@ -533,7 +537,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
     out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
 
 
-    QStringList keys = _Module.factory()->featureList();
+    QStringList keys = qAxFactory()->featureList();
     QStringList::Iterator key;
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	delete mapping;
@@ -542,12 +546,12 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	int i;
 
 	QString className = *key;
-	QWidget *w = _Module.factory()->create( className );
+	QWidget *w = qAxFactory()->create( className );
 	QMetaObject *mo = w ? w->metaObject() : 0;
 	if ( !mo )
 	    return E_FAIL;
 
-	QString topclass = _Module.factory()->exposeToSuperClass( className );
+	QString topclass = qAxFactory()->exposeToSuperClass( className );
 
 	QMetaObject *pmo = mo;
 	do {
@@ -564,11 +568,11 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	if ( bind )
 	    hasStockEvents = bind->hasStockEvents();
 
-	QString classID = _Module.factory()->classID( className ).toString().upper();
+	QString classID = qAxFactory()->classID( className ).toString().upper();
 	STRIPCB(classID);
-	QString interfaceID = _Module.factory()->interfaceID( className ).toString().upper();
+	QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
 	STRIPCB(interfaceID);
-	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
+	QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
 	STRIPCB(eventsID);
 
 #if QT_VERSION >= 0x030100
@@ -778,21 +782,21 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
     return S_OK;
 }
 
-QInterfacePtr<QAxFactoryInterface> CExeModule::_factory = 0;
-bool is_server = FALSE;
-
 /////////////////////////////////////////////////////////////////////////////
 //
 #if defined( Q_OS_TEMP )
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+EXTERN_C int __cdecl main( int, char ** );
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+EXTERN_C int main( int, char ** );
 #endif
 
-extern "C" int WINAPI WinMain(HINSTANCE hInstance, 
+EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, 
     HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    GetModuleFileNameA( 0, module_filename, MAX_PATH-1 );
+    GetModuleFileNameA( 0, qAxModuleFilename, MAX_PATH-1 );
+    qAxInstance = hInstance;
 
     lpCmdLine = GetCommandLineA(); //this line necessary for _ATL_MIN_CRT
     QString cmdLine = QString::fromLatin1( lpCmdLine );
@@ -850,20 +854,13 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    nRet = main( argc, argv.data() );
 	} else {
 	    HRESULT hRes = CoInitialize(NULL);
+	    qAxInit();
 
-	    QString libFile( module_filename );
-	    BSTR oleLibFile = QStringToBSTR( libFile );
-	    LoadTypeLibEx( oleLibFile, REGKIND_NONE, &typeLibrary );
-	    SysFreeString( oleLibFile );
-
-	    QStringList keys = _Module.factory()->featureList();
+	    QStringList keys = qAxFactory()->featureList();
 	    if ( !keys.count() )
 		return nRet;
 
-	    const IID TypeLib = _Module.factory()->typeLibID();
-	    _Module.Init(0, hInstance, &TypeLib );
-	    _Module.dwThreadID = GetCurrentThreadId();
-	    _Module.StartMonitor();
+	    StartMonitor();
 
 	    int object = 0;
 	    DWORD *dwRegister = new DWORD[keys.count()];
@@ -872,16 +869,17 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    object = 0;
 	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {
 		IUnknown* p = 0;
-		CLSID clsid = _Module.factory()->classID( *key );
+		CLSID clsid = qAxFactory()->classID( *key );
 
-		HRESULT hRes = GetClassObject( CreateInstance, clsid, (void**) &p );
+		// Create a QClassFactory (implemented in qaxserverbase.cpp)
+		HRESULT hRes = GetClassObject( 0, clsid, (void**)&p );
 		if ( SUCCEEDED(hRes) )
 		    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, dwRegister+object );
 		if ( p )
 		    p->Release();
 	    }
 
-	    is_server = TRUE;
+	    qAxIsServer = TRUE;
 	    nRet = main( argc, argv.data() );
 
 	    object = 0;
@@ -891,11 +889,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 
 	    Sleep(dwPause); //wait for any threads to finish
 
-	    _Module.Term();
-
-	    if ( typeLibrary )
-		typeLibrary->Release();
-
+	    qAxCleanup();
 	    CoUninitialize();
 	}
 	delete[] cmdp;

@@ -327,7 +327,7 @@ QString QAxFactory::exposeToSuperClass( const QString &key ) const
     return "QWidget";
 }
 
-extern bool is_server;
+extern bool qAxIsServer;
 
 /*!
     Returns TRUE if the application has been started as an ActiveX server;
@@ -350,5 +350,5 @@ extern bool is_server;
 
 bool QAxFactory::isServer()
 {
-    return is_server;
+    return qAxIsServer;
 }

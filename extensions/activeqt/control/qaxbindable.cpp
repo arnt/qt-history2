@@ -31,7 +31,15 @@
 #include <qmetaobject.h>
 
 #include <qt_windows.h> //IUnknown
-#include "qaxserverbase.h"
+
+struct IAxServerBase : public IUnknown
+{
+    virtual QObject *qObject() = 0;
+    virtual QWidget *widget() = 0;
+    virtual void emitPropertyChanged( long dispId ) = 0;
+    virtual bool emitRequestPropertyChange( long dispId ) = 0;
+    virtual QIntDict<QMetaProperty> *propertyList() = 0;
+};
 
 /*!
     \class QAxBindable qaxbindable.h

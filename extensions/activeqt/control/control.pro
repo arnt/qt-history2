@@ -9,8 +9,7 @@ internal {
 	ACTIVEQT_H  = $$QT_SOURCE_TREE/include
 }
 
-HEADERS     = $$ACTIVEQT_H/qaxserverbase.h \
-	      $$ACTIVEQT_H/qaxbindable.h \
+HEADERS     = $$ACTIVEQT_H/qaxbindable.h \
 	      $$ACTIVEQT_H/qaxfactory.h \
 	      ../shared/types.h
 
