@@ -4467,6 +4467,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 
     bool singleStep = FALSE;
     bool selectCurrent = TRUE;
+    bool wasNavigation = TRUE;
 
     switch( e->key() ) {
     case Key_Backspace:
@@ -4609,6 +4610,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     default:
 	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
 	    selectCurrent = FALSE;
+	    wasNavigation = FALSE;
 	    QString input( d->currentPrefix );
 	    QListViewItem * keyItem = i;
 	    QTime now( QTime::currentTime() );
@@ -4684,9 +4686,9 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->selectAnchor = i;
 
     setCurrentItem( i );
-    if ( i->isSelectable() ) {
-	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
-    }
+    if ( i->isSelectable() )
+	handleItemChange( old, wasNavigation && (e->state() & ShiftButton),
+			  wasNavigation && (e->state() & ControlButton) );
 
     if ( d->focusItem && !d->focusItem->isSelected() && d->selectionMode == Single && selectCurrent )
 	setSelected( d->focusItem, TRUE );
@@ -4803,9 +4805,9 @@ bool QListView::isMultiSelection() const
 void QListView::setSelectionMode( SelectionMode mode )
 {
     if ( d->selectionMode == mode )
-	return;    
-    
-    if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) && 
+	return;
+
+    if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) &&
 	 ( mode == QListView::Single || mode == QListView::NoSelection ) ){
 	clearSelection();
 	if ( ( mode == QListView::Single ) && currentItem() )
