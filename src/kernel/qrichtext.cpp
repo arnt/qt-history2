@@ -5739,10 +5739,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     QPainter *painter = QTextFormat::painter();
     int col = 0;
     int ww = 0;
-    QChar lastChr;
-    QTextFormat *lastFormat = 0;
+    QChar lastChr = c->c;
+    QTextFormat *lastFormat = c->format();
     for ( ; i < len; ++i, ++col ) {
-	if ( c ) {
+	if ( i ) {
+	    c = &parag->string()->at(i-1);
 	    lastChr = c->c;
 	    lastFormat = c->format();
 	}
