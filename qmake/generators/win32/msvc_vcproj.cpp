@@ -329,7 +329,7 @@ bool VcprojGenerator::writeProjectMakefile()
 	    mergedProjects.at(0)->writePrlFile();
         mergedProject.Name = project->first("QMAKE_ORIG_TARGET");
         mergedProject.Version = mergedProjects.at(0)->vcProject.Version;
-        mergedProject.ProjectGUID = getProjectUUID();
+        mergedProject.ProjectGUID = getProjectUUID().toString().toUpper();
         mergedProject.Keyword = project->first("VCPROJ_KEYWORD");
         mergedProject.SccProjectName = mergedProjects.at(0)->vcProject.SccProjectName;
         mergedProject.SccLocalPath = mergedProjects.at(0)->vcProject.SccLocalPath;
@@ -357,8 +357,8 @@ QUuid VcprojGenerator::getProjectUUID(const QString &filename)
     QUuid uuid = project->first("GUID");
 
     // If none, create one based on the MD5 of absolute project path
-    if(uuid.isNull() || !filename.isNull()) {
-        QString abspath = filename.isNull()?project->first("QMAKE_MAKEFILE"):filename;
+    if(uuid.isNull() || !filename.isEmpty()) {
+        QString abspath = filename.isEmpty()?project->first("QMAKE_MAKEFILE"):filename;
         qtMD5(abspath.toUtf8(), (unsigned char*)(&uuid));
         validUUID = !uuid.isNull();
         uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
@@ -739,7 +739,6 @@ void VcprojGenerator::initProject()
         break;
     }
 
-    vcProject.ProjectGUID = getProjectUUID().toString().toUpper();
     vcProject.Keyword = project->first("VCPROJ_KEYWORD");
     vcProject.PlatformName = (vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32");
     // These are not used by Qt, but may be used by customers
