@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#49 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#49 $");
 
 
 const int Unsorted = 32767;
@@ -2400,6 +2400,23 @@ void QCheckListItem::init()
     }
     exclusive = 0;
 }
+
+
+/*! 
+  \fn QCheckListItem::Type QCheckListItem::type () const
+
+  Returns the type of this item.
+*/
+
+/*! 
+  \fn  bool QCheckListItem::isOn () const
+  Returns TRUE if this item is toggled on, FALSE otherwise.
+*/
+/*!
+  \fn const char* QCheckListItem::text () const
+  Returns the text of this item.
+*/
+
 
 /*!
   If this is a Controller that has RadioButton children, turn off the
