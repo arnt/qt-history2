@@ -27,6 +27,7 @@
 
 #include <qapplication.h>
 #include <qbuffer.h>
+#include <qfocusdata.h>
 #include <qguardedptr.h>
 #include <qintdict.h>
 #include <qmenubar.h>
@@ -1009,7 +1010,16 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    spSite->OnFocus(TRUE);
 		    spSite->Release();
 		}
-		that->activeqt->setFocus();
+		if ( that->activeqt->focusWidget() )
+		    that->activeqt->focusWidget()->setFocus();
+		else {
+		    QFocusData *focusData = ((HackWidget*)that->activeqt)->focusData();
+		    QWidget *candidate = focusData->first();
+		    if ( candidate->focusPolicy() != QWidget::NoFocus )
+			candidate->setFocus();
+		    else
+			((HackWidget*)candidate)->focusNextPrevChild( TRUE );
+		}
 	    }
 	}
 	break;
@@ -2655,9 +2665,32 @@ HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
     switch ( LOWORD( pMsg->wParam ) ) {
     case VK_TAB:
 	{
-	    bool next = ((HackWidget*)activeqt)->focusNextPrevChild( TRUE );
-	    if ( next )
-		return S_OK;
+	    if ( isUIActive ) {
+		bool shift = ::GetKeyState(VK_SHIFT) < 0;
+		QFocusData *data = ((HackWidget*)activeqt)->focusData();
+		bool giveUp = TRUE;
+		if ( shift ) {
+		    if ( activeqt->focusWidget() != data->first() ) {
+			giveUp = FALSE;
+			((HackWidget*)activeqt)->focusNextPrevChild( FALSE );
+		    }
+		} else {
+		    if ( activeqt->focusWidget() != data->last() ) {
+			giveUp = FALSE;
+			((HackWidget*)activeqt)->focusNextPrevChild( TRUE );
+		    }
+		}
+		if ( giveUp ) {
+/*		    IOleControlSite *spSite = 0;
+		    m_spClientSite->QueryInterface( IID_IOleControlSite, (void**)&spSite );
+		    if ( spSite ) {
+			spSite->OnFocus(FALSE);
+			spSite->Release();
+		    }*/
+		} else {
+		    return S_OK;
+		}
+	    }
 	}
 	return S_FALSE;
     }
