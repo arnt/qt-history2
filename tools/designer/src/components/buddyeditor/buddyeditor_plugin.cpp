@@ -40,7 +40,9 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Buddies"), this);
-    
+    m_action->setIcon(QIcon(":/trolltech/formeditor/images/buddytool.png"));
+    m_action->setEnabled(false);
+
     setParent(core);
     m_core = core;
     m_initialized = true;
@@ -50,6 +52,9 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
 
     connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
             this, SLOT(removeFormWindow(AbstractFormWindow*)));
+
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
 }
 
 AbstractFormEditor *BuddyEditorPlugin::core() const
@@ -86,3 +91,7 @@ QAction *BuddyEditorPlugin::action() const
     return m_action;
 }
 
+void BuddyEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+{
+    m_action->setEnabled(formWindow != 0);
+}

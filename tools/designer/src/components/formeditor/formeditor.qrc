@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/trolltech/formeditor">
+    <file>images/widgettool.png</file>
+    <file>images/signalslottool.png</file>
+    <file>images/buddytool.png</file>
+    <file>images/tabordertool.png</file>
     <file>images/adjustsize.png</file>
     <file>images/edithlayoutsplit.png</file>
     <file>images/left.png</file>

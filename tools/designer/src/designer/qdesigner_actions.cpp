@@ -35,6 +35,7 @@
 #include <QtGui/QCloseEvent>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
+#include <QtGui/QIcon>
 
 #include <QtCore/QPluginLoader>
 
@@ -159,11 +160,16 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 // edit mode actions
 //
 
-    QAction *editWidgetsAction = new QAction(tr("Edit Widgets"), this);
-    editWidgetsAction->setCheckable(true);
-    connect(editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgets()));
-    m_toolActions->addAction(editWidgetsAction);
-    editWidgetsAction->setChecked(true);
+    m_editWidgetsAction = new QAction(tr("Edit Widgets"), this);
+    m_editWidgetsAction->setCheckable(true);
+    m_editWidgetsAction->setShortcut(tr("F2"));
+    m_editWidgetsAction->setIcon(QIcon(":/trolltech/formeditor/images/widgettool.png"));
+    connect(formWindowManager, SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+    connect(m_editWidgetsAction, SIGNAL(triggered()), this, SLOT(editWidgets()));
+    m_toolActions->addAction(m_editWidgetsAction);
+    m_editWidgetsAction->setChecked(true);
+    m_editWidgetsAction->setEnabled(false);
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
         if (AbstractFormEditorPlugin *formEditorPlugin = qt_cast<AbstractFormEditorPlugin*>(plugin)) {
@@ -586,4 +592,9 @@ void QDesignerActions::shutdown()
     QApplication::sendEvent(qDesigner, &ev);
     if (ev.isAccepted())
         qDesigner->quit();
+}
+
+void QDesignerActions::activeFormWindowChanged(AbstractFormWindow *formWindow)
+{
+    m_editWidgetsAction->setEnabled(formWindow != 0);
 }

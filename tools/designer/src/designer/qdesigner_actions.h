@@ -99,6 +99,9 @@ public:
 //
     QAction *showWorkbenchAction() const;
 
+public slots:
+    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+    
 private slots:
     void setWorkbenchVisible(bool visible);
     void createForm();
@@ -112,6 +115,7 @@ private slots:
     void shutdown();
     void editWidgets();
 
+    
 private:
     bool saveFormAs(AbstractFormWindow *fw);
     void fixActionContext();
@@ -127,6 +131,8 @@ private:
     QActionGroup *m_windowActions;
     QActionGroup *m_toolActions;
 
+    QAction *m_editWidgetsAction;
+    
     QAction *m_newFormAction;
     QAction *m_openFormAction;
     QAction *m_saveFormAction;

@@ -40,6 +40,9 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Signals/Slots"), this);
+    m_action->setShortcut(tr("F3"));
+    m_action->setIcon(QIcon(":/trolltech/formeditor/images/signalslottool.png"));
+    m_action->setEnabled(false);
     
     setParent(core);
     m_core = core;
@@ -50,6 +53,9 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
 
     connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
             this, SLOT(removeFormWindow(AbstractFormWindow*)));
+
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
 }
 
 AbstractFormEditor *SignalSlotEditorPlugin::core() const
@@ -84,4 +90,9 @@ void SignalSlotEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
 QAction *SignalSlotEditorPlugin::action() const
 {
     return m_action;
+}
+
+void SignalSlotEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+{
+    m_action->setEnabled(formWindow != 0);
 }

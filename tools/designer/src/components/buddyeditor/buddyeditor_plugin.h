@@ -39,6 +39,9 @@ public:
     
     virtual AbstractFormEditor *core() const;
 
+public slots:
+    void activeFormWindowChanged(AbstractFormWindow *formWindow);
+
 private slots:
     void addFormWindow(AbstractFormWindow *formWindow);
     void removeFormWindow(AbstractFormWindow *formWindow);

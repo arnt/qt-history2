@@ -40,6 +40,8 @@ void TabOrderEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Tab Order"), this);
+    m_action->setIcon(QIcon(":/trolltech/formeditor/images/tabordertool.png"));
+    m_action->setEnabled(false);
 
     setParent(core);
     m_core = core;
@@ -50,6 +52,14 @@ void TabOrderEditorPlugin::initialize(AbstractFormEditor *core)
 
     connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
             this, SLOT(removeFormWindow(AbstractFormWindow*)));
+
+    connect(core->formWindowManager(), SIGNAL(activeFormWindowChanged(AbstractFormWindow*)),
+                this, SLOT(activeFormWindowChanged(AbstractFormWindow *)));
+}
+
+void TabOrderEditorPlugin::activeFormWindowChanged(AbstractFormWindow *formWindow)
+{
+    m_action->setEnabled(formWindow != 0);
 }
 
 AbstractFormEditor *TabOrderEditorPlugin::core() const

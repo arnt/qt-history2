@@ -101,6 +101,12 @@ void QDesignerMainWindow::initialize()
             editToolBar->addAction(action);
     }
 
+    QToolBar *toolToolBar = addToolBar("Tools");
+    foreach (QAction *action, m_actionManager->toolActions()->actions()) {
+        if (action->icon().isNull() == false)
+            toolToolBar->addAction(action);
+    }
+    
     QToolBar *formToolBar = addToolBar("Form");
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         if (action->icon().isNull() == false)
