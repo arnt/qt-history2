@@ -462,8 +462,9 @@ void QTextHTMLImporter::import()
 
             if (hasBlock) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
+                d->fragments.last().charFormat = d->formatCollection.indexForFormat(node->charFormat());
             } else {
-                appendBlock(block);
+                appendBlock(block, node->charFormat());
             }
             hasBlock = true;
         } else if (node->isImage) {
