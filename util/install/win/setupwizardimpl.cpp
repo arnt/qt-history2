@@ -743,7 +743,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	folder = new QCheckListItem( imfolder, "MNG" );
 	folder->setOpen( true );
-	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/MNG", "Plugin", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Plugin", &settingsOK );
 	mngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	mngPlugin->setOn( entry == "Plugin" );
 	mngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
@@ -753,7 +753,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	folder = new QCheckListItem( imfolder, "JPEG" );
 	folder->setOpen( true );
-	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/JPEG", "Plugin", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/JPEG", "Plugin", &settingsOK );
 	jpegPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	jpegPlugin->setOn( entry == "Plugin" );
 	jpegPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
@@ -763,7 +763,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	folder = new QCheckListItem( imfolder, "PNG" );
 	folder->setOpen( true );
-	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Direct", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/PNG", "Direct", &settingsOK );
 	pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	pngPlugin->setOn( entry == "Plugin" );
 	pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
@@ -786,6 +786,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	tdsDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	tdsDirect->setOn( entry == "Direct" );
 	tdsDirect->setEnabled( enterprise );
+	if ( !enterprise )
+	    tdsOff->setOn( true );
 
 	folder = new QCheckListItem( sqlfolder, "PostgreSQL" );
 	folder->setOpen( true );
@@ -799,6 +801,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	psqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	psqlDirect->setOn( entry == "Direct" );
 	psqlDirect->setEnabled( enterprise );
+	if ( !enterprise )
+	    psqlOff->setOn( true );
 
 	folder = new QCheckListItem( sqlfolder, "OCI" );
 	folder->setOpen( true );
@@ -812,6 +816,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	ociDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	ociDirect->setOn( entry == "Direct" );
 	ociDirect->setEnabled( enterprise );
+	if ( !enterprise )
+	    ociOff->setOn( true );
 
 	folder = new QCheckListItem( sqlfolder, "MySQL" );
 	folder->setOpen( true );
@@ -825,6 +831,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	mysqlDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	mysqlDirect->setOn( entry == "Direct" );
 	mysqlDirect->setEnabled( enterprise );
+	if ( !enterprise )
+	    mysqlOff->setOn( true );
 
 	folder = new QCheckListItem( sqlfolder, "ODBC" );
 	folder->setOpen( true );
@@ -838,6 +846,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	odbcDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
 	odbcDirect->setOn( entry == "Direct" );
 	odbcDirect->setEnabled( enterprise );
+	if ( !enterprise )
+	    odbcOff->setOn( true );
 
 	QCheckListItem *stfolder = new QCheckListItem( advancedList, "Styles" );
 	stfolder->setOpen( true );
@@ -1316,10 +1326,10 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 
     QCheckListItem *item = (QCheckListItem*)i;
     if ( item->type() != QCheckListItem::RadioButton )
-		return;
-	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
+	return;
+    bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
 
-	if ( item->text(0) == "Static" && item->isOn() ) {
+    if ( item->text(0) == "Static" && item->isOn() ) {
 	if ( !QMessageBox::information( this, "Are you sure?", "It will not be possible to build components "
 				  "or plugins if you select the static build of the Qt library.\n"
 				  "New features, e.g souce code editing in Qt Designer, will not "
@@ -1332,86 +1342,86 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 		if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
 		item->setOn( true );
 		configList->setCurrentItem( item );
-		}
+	    }
 	} else {
-		if ( accOn->isOn() ) {
+	    if ( accOn->isOn() ) {
 		accOn->setOn( false );
 		accOff->setOn( true );
-		}
-		if ( bigCodecsOff->isOn() ) {
+	    }
+	    if ( bigCodecsOff->isOn() ) {
 		bigCodecsOn->setOn( true );
 		bigCodecsOff->setOn( false );
-		}
-		if ( mngPlugin->isOn() ) {
+	    }
+	    if ( mngPlugin->isOn() ) {
 		mngDirect->setOn( true );
 		mngPlugin->setOn( false );
-		}
-		if ( pngPlugin->isOn() ) {
+	    }
+	    if ( pngPlugin->isOn() ) {
 		pngDirect->setOn( true );
 		pngPlugin->setOn( false );
-		}
-		if ( jpegPlugin->isOn() ) {
+	    }
+	    if ( jpegPlugin->isOn() ) {
 		jpegDirect->setOn( true );
 		jpegPlugin->setOn( false );
-		}
-		if ( sgiPlugin->isOn() ) {
+	    }
+	    if ( sgiPlugin->isOn() ) {
 		sgiPlugin->setOn( false );
 		sgiDirect->setOn( true );
-		}
-		if ( cdePlugin->isOn() ) {
+	    }
+	    if ( cdePlugin->isOn() ) {
 		cdePlugin->setOn( false );
 		cdeDirect->setOn( true );
-		}
-		if ( motifplusPlugin->isOn() ) {
+	    }
+	    if ( motifplusPlugin->isOn() ) {
 		motifplusPlugin->setOn( false );
 		motifplusDirect->setOn( true );
-		}
-		if ( platinumPlugin->isOn() ) {
+	    }
+	    if ( platinumPlugin->isOn() ) {
 		platinumPlugin->setOn( false );
 		platinumDirect->setOn( true );
-		}
-		if ( enterprise ) {
+	    }
+	    if ( enterprise ) {
 		if ( mysqlPlugin->isOn() ) {
-			mysqlPlugin->setOn( false );
-			mysqlDirect->setOn( true );
+		    mysqlPlugin->setOn( false );
+		    mysqlDirect->setOn( true );
 		}
 		if ( ociPlugin->isOn() ) {
-			ociPlugin->setOn( false );
-			ociDirect->setOn( true );
+		    ociPlugin->setOn( false );
+		    ociDirect->setOn( true );
 		}
 		if ( odbcPlugin->isOn() ) {
-			odbcPlugin->setOn( false );
-			odbcDirect->setOn( true );
+		    odbcPlugin->setOn( false );
+		    odbcDirect->setOn( true );
 		}
 		if ( psqlPlugin->isOn() ) {
-			psqlPlugin->setOn( false );
-			psqlDirect->setOn( true );
+		    psqlPlugin->setOn( false );
+		    psqlDirect->setOn( true );
 		}
 		if ( tdsPlugin->isOn() ) {
-			tdsPlugin->setOn( false );
-			tdsDirect->setOn( true );
+		    tdsPlugin->setOn( false );
+		    tdsDirect->setOn( true );
 		}
-		}
+	    }
 
-		accOn->setEnabled( false );
-		bigCodecsOff->setEnabled( false );
-		mngPlugin->setEnabled( false );
-		pngPlugin->setEnabled( false );
-		jpegPlugin->setEnabled( false );
-		sgiPlugin->setEnabled( false );
-		cdePlugin->setEnabled( false );
-		motifplusPlugin->setEnabled( false );
-		platinumPlugin->setEnabled( false );
-		if ( enterprise ) {
+	    accOn->setEnabled( false );
+	    bigCodecsOff->setEnabled( false );
+	    mngPlugin->setEnabled( false );
+	    pngPlugin->setEnabled( false );
+	    jpegPlugin->setEnabled( false );
+	    sgiPlugin->setEnabled( false );
+	    cdePlugin->setEnabled( false );
+	    motifplusPlugin->setEnabled( false );
+	    platinumPlugin->setEnabled( false );
+	    if ( enterprise ) {
 		mysqlPlugin->setEnabled( false );
 		ociPlugin->setEnabled( false );
 		odbcPlugin->setEnabled( false );
 		psqlPlugin->setEnabled( false );
 		tdsPlugin->setEnabled( false );
-		}
+	    }
 	}
 	return;
-	} else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
+    } else if ( item->text( 0 ) == "Shared" && item->isOn() ) {
 	accOn->setEnabled( true );
 	bigCodecsOff->setEnabled( true );
 	mngPlugin->setEnabled( true );
@@ -1422,13 +1432,13 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 	motifplusPlugin->setEnabled( true );
 	platinumPlugin->setEnabled( true );
 	if ( enterprise ) {
-		mysqlPlugin->setEnabled( true );
-		ociPlugin->setEnabled( true );
-		odbcPlugin->setEnabled( true );
-		psqlPlugin->setEnabled( true );
-		tdsPlugin->setEnabled( true );
+	    mysqlPlugin->setEnabled( true );
+	    ociPlugin->setEnabled( true );
+	    odbcPlugin->setEnabled( true );
+	    psqlPlugin->setEnabled( true );
+	    tdsPlugin->setEnabled( true );
 	}
-	}
+    }
 }
 
 void SetupWizardImpl::optionSelected( QListViewItem *i )
@@ -1459,6 +1469,11 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if( ( i == psqlDirect || i == psqlPlugin ) && 
 	!(findFileInPaths( "libpqdll.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
 	  findFileInPaths( "libpq-fe.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
+	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
+				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
+    if ( ( i == tdsDirect || i == tdsPlugin ) &&
+	!(findFileInPaths( "ntwdblib.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) && 
+	  findFileInPaths( "sqldb.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	QMessageBox::warning( this, "Client libraries needed", "The PostgreSQL driver may not build and link properly because\n"
 				    "the client libraries and headers were not found in the LIB and INCLUDE environment variable paths." );
     
