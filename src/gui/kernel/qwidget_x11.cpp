@@ -943,7 +943,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 	QInputContext *qic = inputContext();
 	if(qic) {
 	    QPoint gp = mapToGlobal( QPoint( x, y ) );
-	    qic->setMicroFocus(QRect(gp.x(), gp.y(), width, height), *f);
+	    qic->setMicroFocus(QRect(gp.x(), gp.y(), width, height), f ? *f : font());
         }
     }
 #endif
