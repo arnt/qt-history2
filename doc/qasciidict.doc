@@ -61,7 +61,7 @@
 
     Example:
     \code
-    QAsciiDict<QLineEdit> fields;
+    QAsciiDict<QLineEdit> fields; // char* keys, QLineEdit* values
     fields.insert( "forename", new QLineEdit( this ) );
     fields.insert( "surname", new QLineEdit( this ) );
 

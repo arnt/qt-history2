@@ -59,7 +59,7 @@
 
     Example:
     \code
-    QIntDict<QLineEdit> fields;
+    QIntDict<QLineEdit> fields; // long int keys, QLineEdit* values
     for ( int i = 0; i < 3; i++ )
 	fields.insert( i, new QLineEdit( this ) );
 

@@ -109,7 +109,7 @@
 
     Example #1:
     \code
-    QDict<QLineEdit> fields;
+    QDict<QLineEdit> fields; // QString keys, QLineEdit* values
     fields.insert( "forename", new QLineEdit( this ) );
     fields.insert( "surname", new QLineEdit( this ) );
 

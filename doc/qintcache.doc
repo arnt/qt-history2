@@ -115,8 +115,6 @@
     Removes all items from the cache and then destroys the int cache.
     If auto-deletion is enabled the cache's items are deleted. All
     iterators that access this cache will be reset.
-
-    \sa setAutoDelete()
 */
 
 /*!
