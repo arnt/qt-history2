@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#237 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#238 $
 **
 ** Implementation of QListView widget class
 **
@@ -1680,7 +1680,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 
 		p->save();
-                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		//WINDOWSBUG### should use this
+                //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		int ac = d->h->mapToLogical( c );
 		current->i->paintCell( p, colorGroup(), ac, r.width(),
@@ -1689,7 +1690,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		if ( c == 0 && current->i == d->focusItem && hasFocus() &&
 		     !d->allColumnsShowFocus ) {
 		    p->save();
-		    p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		    //WINDOWSBUG### should use this
+		    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		    current->i->paintFocus( p, colorGroup(), r );
 		    p->restore();
 		}
@@ -1725,7 +1727,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    if ( r.isValid() ) {
 		p->save();
-		p->setClipRect( r );
+		//WINDOWSBUG### should use this
+		//p->setClipRect( r );
 		p->translate( rleft-ox, crtop-oy );
 		current->i->paintBranches( p, colorGroup(), treeStepSize(),
 					   rtop - crtop, r.height(), style() );
@@ -1747,7 +1750,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		w++;
 	    }
 	    r.setRect( x, current->y - oy, w, ih );
-	    p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+	    //WINDOWSBUG### should use this
+	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 	    current->i->paintFocus( p, colorGroup(), r );
 	    p->restore();
 	}
