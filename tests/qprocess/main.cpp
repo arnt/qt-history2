@@ -104,13 +104,25 @@ int main( int argc, char **argv )
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(useOwnEnvironment(bool)) );
 	cb->setChecked( FALSE );
-	cb = new QCheckBox( "Stdout", &vb );
+	cb = new QCheckBox( "Connect Stdout", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectStdout(bool)) );
 	cb->setChecked( TRUE );
-	cb = new QCheckBox( "Stderr", &vb );
+	cb = new QCheckBox( "Connect Stderr", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),
 		&factory, SLOT(connectStderr(bool)) );
+	cb->setChecked( TRUE );
+	cb = new QCheckBox( "Communication Stdin", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(communicationStdin(bool)) );
+	cb->setChecked( TRUE );
+	cb = new QCheckBox( "Communication Stdout", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(communicationStdout(bool)) );
+	cb->setChecked( TRUE );
+	cb = new QCheckBox( "Communication Stderr", &vb );
+	QObject::connect( cb, SIGNAL(toggled(bool)),
+		&factory, SLOT(communicationStderr(bool)) );
 	cb->setChecked( TRUE );
 	cb = new QCheckBox( "Exit Notify", &vb );
 	QObject::connect( cb, SIGNAL(toggled(bool)),

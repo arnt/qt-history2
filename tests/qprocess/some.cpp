@@ -17,10 +17,11 @@ QFile Some::logFile( "outputLog" );
 /*
  * Some
 */
-Some::Some( QObject *p, bool start, bool uOwnEnvironment, bool cStdout, bool cStderr, bool cExit, int com )
+Some::Some( QObject *p, bool start, bool uOwnEnvironment, int comm, bool cStdout, bool cStderr, bool cExit, int com )
     : QObject( p ), stdoutConnected( FALSE ), stderrConnected( FALSE ), exitConnected( FALSE )
 {
     proc = new QProcess( this );
+    proc->setCommunication( comm );
 
     // io stuff
     QLineEdit *in = new QLineEdit( &main );
@@ -303,37 +304,37 @@ void Some::logMessage( const QString& )
 
 void SomeFactory::startProcess0()
 {
-    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 0 );
+    new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 0 );
 }
 
 void SomeFactory::startProcess1()
 {
-    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 1 );
+    new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 1 );
 }
 
 void SomeFactory::startProcess2()
 {
-    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 2 );
+    new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::startProcess3()
 {
-    new Some( parent, TRUE, uOwnEnvironment, cStdout, cStderr, cExit, 3 );
+    new Some( parent, TRUE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 3 );
 }
 
 void SomeFactory::launchProcess0()
 {
-    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 0 );
+    new Some( parent, FALSE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 0 );
 }
 
 void SomeFactory::launchProcess1()
 {
-    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 1 );
+    new Some( parent, FALSE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 1 );
 }
 
 void SomeFactory::launchProcess2()
 {
-    new Some( parent, FALSE, uOwnEnvironment, cStdout, cStderr, cExit, 2 );
+    new Some( parent, FALSE, uOwnEnvironment, communication(), cStdout, cStderr, cExit, 2 );
 }
 
 void SomeFactory::quit()
@@ -343,9 +344,36 @@ void SomeFactory::quit()
     emit quitted();
 }
 
+int SomeFactory::communication()
+{
+    int comm = 0;
+    if ( commStdin )
+	comm |= QProcess::Stdin;
+    if ( commStdout )
+	comm |= QProcess::Stdout;
+    if ( commStderr )
+	comm |= QProcess::Stderr;
+    return comm;
+}
+
 void SomeFactory::useOwnEnvironment( bool enable )
 {
     uOwnEnvironment = enable;
+}
+
+void SomeFactory::communicationStdout( bool enable )
+{
+    commStdout = enable;
+}
+
+void SomeFactory::communicationStderr( bool enable )
+{
+    commStderr = enable;
+}
+
+void SomeFactory::communicationStdin( bool enable )
+{
+    commStdin = enable;
 }
 
 void SomeFactory::connectStdout( bool enable )
