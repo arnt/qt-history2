@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#28 $
+# $Id: //depot/qt/main/GNUmakefile.inc#29 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -15,7 +15,7 @@ ifdef QT_EMBEDDED
 
 PROFLIBS=\$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libfreetype.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libpng.a \$$(QTDIR)/src/.obj/$(PROJOBJ)profile/libz.a \$$(QTDIR)/src/3rdparty/libmng/libmng.a \$$(QTDIR)/src/3rdparty/jpgsrc/libjpeg.a
 ifeq ($(PROJECT),qt)
-PROJECT=qt-e
+PROJECT=qt
 endif
 ifeq ($(QT_EMBEDDED),mips)
 # MIPS_OPT="-mcpu=r4000 -mips3" # Doesn't work?
@@ -83,24 +83,24 @@ ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)debug
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).debug \
-	    "CONFIG+=debug" "OBJECTS_DIR=.obj/$(PROJOBJ)debug" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).debug \
+	    "CONFIG+=debug" $(TMAKEHACK)
 
 GNUmakefile$(PROJMAK).release: $(PROJECT).pro
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)release
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).release \
-	    "CONFIG+=release" "OBJECTS_DIR=.obj/$(PROJOBJ)release" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)release" $(PROJECT).pro -o GNUmakefile$(PROJMAK).release \
+	    "CONFIG+=release" $(TMAKEHACK)
 
 GNUmakefile$(PROJMAK).release-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)release-debug
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).release-debug \
-	    "CONFIG+=release" "OBJECTS_DIR=.obj/$(PROJOBJ)release-debug" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)release-debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).release-debug \
+	    "CONFIG+=release" $(TMAKEHACK)
 	perl -pi \
 	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g /' \
 		GNUmakefile$(PROJMAK).release-debug
@@ -110,24 +110,24 @@ ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)static-debug
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-debug \
-	    "CONFIG+=staticlib debug" "OBJECTS_DIR=.obj/$(PROJOBJ)static-debug"
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)static-debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-debug \
+	    "CONFIG+=staticlib debug"
 
 GNUmakefile$(PROJMAK).static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)static-release
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-release \
-	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/$(PROJOBJ)static-release" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)static-release" $(PROJECT).pro -o GNUmakefile$(PROJMAK).static-release \
+	    "CONFIG+=staticlib release" $(TMAKEHACK)
 
 GNUmakefile$(PROJMAK).profile: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)profile
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).profile \
-	    "CONFIG+=staticlib release" "OBJECTS_DIR=.obj/$(PROJOBJ)profile" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)profile" $(PROJECT).pro -o GNUmakefile$(PROJMAK).profile \
+	    "CONFIG+=staticlib release" $(TMAKEHACK)
 	perl -pi \
 	    -e 's/^([CL]X*)FLAGS\s*=/$$1FLAGS=-g -pg /; s|-lqt|\$$(QTDIR)/lib$(PROJMAK)/libqt.a $(PROFLIBS) |' GNUmakefile$(PROJMAK).profile
 
@@ -136,46 +136,46 @@ ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-debug
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-debug \
-	    "CONFIG+=debug" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-debug" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-debug \
+	    "CONFIG+=debug" "TMAKE_CXX=gcc" $(TMAKEHACK)
 
 GNUmakefile$(PROJMAK).gcc-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-release
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-release \
-	    "CONFIG+=release" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-release"
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-release" $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-release \
+	    "CONFIG+=release" "TMAKE_CXX=gcc"
 
 GNUmakefile$(PROJMAK).gcc-static-debug: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-static-debug
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-debug \
-	    "CONFIG+=staticlib debug" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-debug" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-debug" $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-debug \
+	    "CONFIG+=staticlib debug" "TMAKE_CXX=gcc"
 
 GNUmakefile$(PROJMAK).gcc-static-release: $(PROJECT).pro GNUmakefile
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
 endif
 	@mkdir -p .obj/$(PROJOBJ)gcc-static-release
-	tmake $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-release \
-	    "CONFIG+=staticlib release" "TMAKE_CXX=gcc" "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-release" $(TMAKEHACK)
+	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-release" $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-release \
+	    "CONFIG+=staticlib release" "TMAKE_CXX=gcc" $(TMAKEHACK)
 
 
 
 showfiles:
-	@tmake $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")'
+	@tmake $(TMAKEPREHACK) $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")'
 
 showheaders:
-	@tmake $(PROJECT).pro -e 'Expand("HEADERS")'
+	@tmake $(TMAKEPREHACK) $(PROJECT).pro -e 'Expand("HEADERS")'
 
 showsources:
-	@tmake $(PROJECT).pro -e 'Expand("SOURCES")'
+	@tmake $(TMAKEPREHACK) $(PROJECT).pro -e 'Expand("SOURCES")'
 
 tags: $(PROJECT).pro
-	@tmake $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")' \
+	@tmake $(TMAKEPREHACK) $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")' \
 		| fmt -1 | etags --c++ -
 
 

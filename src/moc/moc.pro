@@ -24,8 +24,11 @@ SOURCES		= $$MOCGEN		    \
 		  ../tools/qregexp.cpp	    \
 		  ../tools/qstring.cpp	    \
 		  ../tools/qstringlist.cpp  \
-		  ../tools/qtextcodec.cpp   \
-		  ../tools/qtextstream.cpp
+		  ../tools/qtextstream.cpp  \
+		  ../tools/qbitarray.cpp    \
+		  ../tools/qmap.cpp         \
+		  ../tools/qgcache.cpp      \
+		  ../tools/qtextcodec.cpp
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp
 
