@@ -233,7 +233,8 @@ QStringList Q3FileDialog::macGetOpenFileNames(const QString &filter, QString *pw
     static const int w = 450, h = 350;
     options.location.h = options.location.v = -1;
     if(parent && parent->isVisible()) {
-        if(parent->window()->windowType() != Qt::Desktop) {
+        Qt::WindowType wt = parent->window()->windowType();
+        if (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
@@ -410,7 +411,8 @@ QString Q3FileDialog::macGetSaveFileName(const QString &start, const QString &fi
         options.windowTitle = CFStringCreateWithCharacters(NULL, (UniChar *)caption.unicode(),
                                                            caption.length());
     if(parent && parent->isVisible()) {
-        if(parent->window()->windowType() != Qt::Desktop) {
+        Qt::WindowType wt = parent->window()->windowType();
+        if (wt != Qt::Desktop && wt != Qt::Sheet && wt != Qt::Drawer) {
             options.modality = kWindowModalityWindowModal;
             options.parentWindow = qt_mac_window_for(parent);
         } else {
