@@ -1,4 +1,4 @@
-1.07a -
+1.08a -
 
    qmake has been changed to allow features to be introduced without changes to
    C++ sources (ie project files).
@@ -11,6 +11,10 @@
 
    improved support for subdirs with .pro's listed
    support for QCONFIG added to add functionality from Qt
+
+1.07a -
+
+   support for precompiled headers added
 
 1.06b -
   
