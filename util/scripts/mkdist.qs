@@ -35,8 +35,7 @@ const tabSize = 4;
  * Purging filters that will be moved into files later
  */
 
-var checkoutRemove = [ new RegExp("^gif"),
-		       new RegExp("^tests"),
+var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tmake"),
 		       new RegExp("^util"),
 		       new RegExp("^examples"),
@@ -52,6 +51,8 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^tools/qembed"),
 		       new RegExp("^tools/qvfb"),
 
+		       new RegExp("^src/gui/painting/makepsheader.pl"),
+		       new RegExp("^src/gui/painting/qpsprinter"),
 		       new RegExp("^src/gui/itemviews/qlistview"),
 		       new RegExp("^src/gui/itemviews/qtreeview"),
 		       new RegExp("^src/gui/itemviews/qtableview"),
@@ -64,7 +65,8 @@ var platformKeep = new Array();
 var editionRemove = new Array();
 var editionKeep = new Array();
 
-platformRemove["win"] = [ new RegExp("^dist"),
+platformRemove["win"] = [ new RegExp("^gif"),
+			  new RegExp("^dist"),
 			  new RegExp("^config.tests"),
 			  new RegExp("^extensions/motif"),
 			  new RegExp("^include/QtMotif"),
@@ -83,7 +85,8 @@ platformRemove["win"] = [ new RegExp("^dist"),
 			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
-platformRemove["x11"] = [ new RegExp("^dist"),
+platformRemove["x11"] = [ new RegExp("^gif"),
+			  new RegExp("^dist"),
 			  new RegExp("^extensions"),
 			  new RegExp("^include/ActiveQt"),
 			  new RegExp("^include/QtNsPlugin"),
@@ -99,7 +102,8 @@ platformRemove["x11"] = [ new RegExp("^dist"),
 			  new RegExp("^bin/configure.exe") ];
 platformKeep["x11"] = [ new RegExp(".") ];
 
-platformRemove["mac"] = [ new RegExp("^dist"),
+platformRemove["mac"] = [ new RegExp("^gif"),
+			  new RegExp("^dist"),
 			  new RegExp("^extensions"),
 			  new RegExp("^include/ActiveQt"),
 			  new RegExp("^include/QtNsPlugin"),
@@ -610,7 +614,7 @@ function qdoc(packageDir)
 function replaceTags(packageDir, fileList, platform, edition, platName)
 {
     var replace = new Array();
-    replace[Date().getYear().toString()] = /\$THISYEAR\$/;
+    replace[Date().getYear().toString()] = /\$THISYEAR\$/g;
     replace[options["version"]] = /\%VERSION\%/g;
     replace[platName] = /\%DISTNAME\%/g;
     
