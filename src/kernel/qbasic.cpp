@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#23 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#23 $");
 
 
 
@@ -672,8 +672,16 @@ void QBasicManager::resizeAll()
 
     xC->recalc();
     yC->recalc();
-    xC->distribute( lookupTable, border, main->width() - 2*border );
-    yC->distribute( lookupTable, border, main->height() - 2*border );
+
+    QSize max = main->maximumSize();
+    QSize min = main->minimumSize();
+
+    // size may not be set yet
+    int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
+    int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
+    
+    xC->distribute( lookupTable, border, ww - 2*border );
+    yC->distribute( lookupTable, border, hh - 2*border );
 
     QIntDictIterator<WidgetInfo> it( lookupTable );
 

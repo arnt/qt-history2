@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#15 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#16 $
 **
 **  Geometry Management
 **
@@ -21,7 +21,7 @@ public:
     virtual ~QLayout();
     int defaultBorder() const { return defBorder; }
 
-    bool doIt() { return bm->doIt(); }
+    bool doIt();
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
     
