@@ -119,6 +119,7 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
         qt_sendSpontaneousEvent(::activeWidget ? ::activeWidget : w, &ime);
         ::activeWidget = 0;
     }
+    return true;
 }
 
 
