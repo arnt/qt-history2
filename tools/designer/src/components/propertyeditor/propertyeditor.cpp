@@ -307,13 +307,13 @@ QString PixmapProperty::toString() const
 
 QVariant PixmapProperty::decoration() const
 {
-    static QPixmap empty_pm;
-    if (empty_pm.isNull())
-        empty_pm = QPixmap(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
+    static QIcon empty_icon;
+    if (empty_icon.isNull())
+        empty_icon = QIcon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
 
     if (m_value.isNull())
-        return qVariantFromValue(empty_pm);
-    return qVariantFromValue(m_value);
+        return qVariantFromValue(empty_icon);
+    return qVariantFromValue(QIcon(m_value));
 }
 
 QWidget *PixmapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
