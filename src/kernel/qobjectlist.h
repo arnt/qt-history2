@@ -70,7 +70,7 @@ public:
 		 QPtrListIterator<QObject>::operator=( i ); }
 };
 
-#if QT_VERSION < 390
+#if (QT_VERSION-0 < 0x040000)
 class Q_EXPORT QObjectListIt : public QPtrListIterator<QObject>
 {
 public:
