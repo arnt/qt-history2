@@ -28,9 +28,11 @@ private:
 };
 
 
-MyWidget::MyWidget( QWidget *parent=0, const char *name=0 )
+MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
+    setMinimumSize( 500, 355 );
+
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
@@ -71,10 +73,9 @@ void MyWidget::resizeEvent( QResizeEvent *e )
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+
     MyWidget w;
     w.setGeometry( 100, 100, 500, 355 );
-    w.setMinimumSize( 500, 355 );
-
     a.setMainWidget( &w );
     w.show();
     return a.exec();

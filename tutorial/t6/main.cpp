@@ -24,9 +24,9 @@ private:
 LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
         : QWidget( parent, name )
 {
-    lcd  = new QLCDNumber( 3, this, "lcd"  );
+    lcd  = new QLCDNumber( 2, this, "lcd"  );
     lcd->move( 0, 0 );
-    sBar = new QScrollBar( 0, 100, 1, 10, 0, QScrollBar::Horizontal 
+    sBar = new QScrollBar( 0, 99, 1, 10, 0, QScrollBar::Horizontal, 
                            this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
@@ -50,11 +50,13 @@ private:
 };
 
 
-MyWidget::MyWidget( QWidget *parent=0, const char *name=0 )
+MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    quit = new QPushButton( "Quit!", this, "quit" );
-    quit->setGeometry( 10, 10, 120, 40 );
+    setMinimumSize( 200, 300 );
+
+    quit = new QPushButton( "Quit", this, "quit" );
+    quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
@@ -74,10 +76,9 @@ void MyWidget::resizeEvent( QResizeEvent *e )
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+
     MyWidget w;
     w.setGeometry( 100, 100, 400, 400 );
-    w.setMinimumSize( 200, 300 );
-
     a.setMainWidget( &w );
     w.show();
     return a.exec();

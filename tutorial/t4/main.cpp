@@ -1,5 +1,5 @@
 //
-// Qt Tutorial 4
+ // Qt Tutorial 4
 //
 //
 
@@ -14,12 +14,16 @@ public:
     MyWidget( QWidget *parent=0, const char *name=0 );
 };
 
-MyWidget::MyWidget( QWidget *parent=0, const char *name=0 )
+
+MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    QPushButton *quit = new QPushButton( "Quit!", this, "quit" );
-    quit->move( 40, 40 );
-    quit->resize( 120, 40 );
+    setMinimumSize( 200, 120 );
+    setMaximumSize( 200, 120 );
+
+    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
+    quit->move( 62, 40 );
+    quit->resize( 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
@@ -32,8 +36,6 @@ int main( int argc, char **argv )
 
     MyWidget w;
     w.setGeometry( 100, 100, 200, 120 );
-    w.setMinimumSize( 200, 120 );
-    w.setMaximumSize( 200, 120 );
 
     a.setMainWidget( &w );
     w.show();

@@ -31,7 +31,6 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
 
     cannon = new CannonField( this, "canonfield" );
     cannon->setBackgroundColor( QColor( 250, 250, 200) );
-    cannon->raise();
 
     connect( angle, SIGNAL(valueChanged(int)), cannon, SLOT(setAngle(int)) );
     connect( force, SIGNAL(valueChanged(int)), cannon, SLOT(setForce(int)) );
