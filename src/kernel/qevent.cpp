@@ -70,7 +70,7 @@
   event.
 
   \sa QObject::event() QObject::installEventFilter() QWidget::event()
-  QApplication::sendEvent() QAppilcation::postEvent()
+  QApplication::sendEvent() QApplication::postEvent()
   QApplication::processEvents()
 */
 
