@@ -20,7 +20,7 @@
 #include "qfontdatabase.h"
 #include "qpaintdevice.h"
 #include "qpainter.h"
-#include "qstackarray.h"
+#include "qvarlengtharray.h"
 
 #include "qpaintengine_x11.h"
 #include <private/qpaintengine_x11_p.h>
@@ -285,7 +285,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
 		break;
 	    }
 
-	QStackArray<unsigned short> ch(len);
+	QVarLengthArray<unsigned short> ch(len);
 	QChar *chars = (QChar *)ch.data();
 	if ( haveNbsp || mirrored ) {
 	    for ( int i = 0; i < len; i++ )
@@ -295,7 +295,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
 	    for ( int i = 0; i < len; i++ )
 		chars[i] = (str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode());
 	}
-	QStackArray<glyph_t> g(len);
+	QVarLengthArray<glyph_t> g(len);
 	_codec->fromUnicode( chars, g, len );
 	for ( int i = 0; i < len; i++ )
 	    glyphs[i].glyph = g[i];
@@ -379,7 +379,7 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, 
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    QStackArray<XChar2b> chars(si.num_glyphs);
+    QVarLengthArray<XChar2b> chars(si.num_glyphs);
 
     for (int i = 0; i < si.num_glyphs; i++) {
 	chars[i].byte1 = glyphs[i].glyph >> 8;
@@ -600,7 +600,7 @@ const char *QFontEngineXLFD::name() const
 
 bool QFontEngineXLFD::canRender( const QChar *string, int len )
 {
-    QStackArray<QGlyphLayout, 256> glyphs(len);
+    QVarLengthArray<QGlyphLayout, 256> glyphs(len);
     int nglyphs = len;
     if ( stringToCMap( string, len, glyphs, &nglyphs, FALSE ) == OutOfMemory ) {
 	glyphs.resize(nglyphs);
@@ -1300,7 +1300,7 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     if ( textFlags != 0 )
 	drawLines( p, this, yorig, xorig, si.width, textFlags );
 
-    QStackArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
+    QVarLengthArray<XftGlyphSpec,256> glyphSpec(si.num_glyphs);
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {

@@ -17,7 +17,7 @@
 #include <qgfxraster_qws.h>
 #include <private/qunicodetables_p.h>
 #include <qbitmap.h>
-#include <qstackarray.h>
+#include <qvarlengtharray.h>
 #include <private/qpainter_p.h>
 #include "qpaintengine_qws.h"
 #define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
@@ -203,8 +203,8 @@ void QFontEngine::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int 
 
     QGlyphLayout *glyphs = si.glyphs;
 
-    QStackArray<QtFontEnginePos> positions(si.num_glyphs);
-    QStackArray<unsigned short> g(si.num_glyphs);
+    QVarLengthArray<QtFontEnginePos> positions(si.num_glyphs);
+    QVarLengthArray<ushort> g(si.num_glyphs);
 
     for (int i = 0; i < si.num_glyphs; ++i)
 	g[i] = glyphs[i].glyph;

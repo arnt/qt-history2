@@ -16,7 +16,7 @@
 #include <qfont.h>
 #include <qapplication.h>
 #include <qpainter.h>
-#include <qstackarray.h>
+#include <qvarlengtharray.h>
 #include <qtextformat.h>
 #include "qtextformat_p.h"
 
@@ -540,8 +540,8 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
     else if (eng->textFlags & Qt::AlignHCenter)
 	x += (line.width - line.textWidth)/2;
 
-    QStackArray<int> visualOrder(nItems);
-    QStackArray<unsigned char> levels(nItems);
+    QVarLengthArray<int> visualOrder(nItems);
+    QVarLengthArray<uchar> levels(nItems);
     for (int i = 0; i < nItems; ++i)
 	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels, visualOrder);
@@ -708,8 +708,8 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
     else if (eng->textFlags & Qt::AlignHCenter)
 	x += (line.width - line.textWidth)/2;
 
-    QStackArray<int> visualOrder(nItems);
-    QStackArray<unsigned char> levels(nItems);
+    QVarLengthArray<int> visualOrder(nItems);
+    QVarLengthArray<uchar> levels(nItems);
     for (int i = 0; i < nItems; ++i)
 	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels, visualOrder);
@@ -769,8 +769,8 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
     else if (eng->textFlags & Qt::AlignHCenter)
 	x -= (line.width - line.textWidth)/2;
 
-    QStackArray<int> visualOrder(nItems);
-    QStackArray<unsigned char> levels(nItems);
+    QVarLengthArray<int> visualOrder(nItems);
+    QVarLengthArray<unsigned char> levels(nItems);
     for (int i = 0; i < nItems; ++i)
 	levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels, visualOrder);

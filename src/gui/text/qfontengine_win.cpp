@@ -26,7 +26,7 @@
 
 #include <private/qpainter_p.h>
 #include "qpaintengine.h"
-#include "qstackarray.h"
+#include "qvarlengtharray.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979
@@ -384,7 +384,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 		}
 	    } else {
 		// fast path
-		QStackArray<wchar_t> g(si.num_glyphs);
+		QVarLengthArray<wchar_t> g(si.num_glyphs);
 		for (int i = 0; i < si.num_glyphs; ++i)
 		    g[i] = glyphs[i].glyph;
 		// fast path

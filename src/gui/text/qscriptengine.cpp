@@ -19,7 +19,7 @@
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
 #include <stdlib.h>
-#include <qstackarray.h>
+#include <qvarlengtharray.h>
 
 
 #undef None
@@ -858,8 +858,8 @@ static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QS
     convertToCMap( string.unicode() + from, len, engine, si );
     heuristicSetGlyphAttributes( string, from, len, engine, si );
 
-    QStackArray<char> glyphVariant(si->num_glyphs);
-    QStackArray<bool> apply(si->num_glyphs);
+    QVarLengthArray<char> glyphVariant(si->num_glyphs);
+    QVarLengthArray<bool> apply(si->num_glyphs);
 
     for ( int i = 0; i < si->num_glyphs; i++ )
 	glyphVariant[i] = glyphVariantLogical( string, from + i );
@@ -963,7 +963,7 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     QGlyphLayout *glyphs = engine->glyphs( si );
     unsigned short *logClusters = engine->logClusters( si );
 
-    QStackArray<unsigned short> shapedChars(len);
+    QVarLengthArray<ushort> shapedChars(len);
 
     int slen;
     shapedString( text, from, len, (QChar *)(unsigned short*)shapedChars, &slen, (si->analysis.bidiLevel%2),

@@ -13,10 +13,10 @@
 ****************************************************************************/
 
 // ### 4.0: examine Q_EXPORT's below. The respective symbols had all
-// been in use (e.g. in the KDE wm ) before the introduction of a version
+// been in use (e.g. in the KDE wm) before the introduction of a version
 // map. One might want to turn some of them into proper public API and
 // provide a proper alternative for others. See also the exports in
-// qapplication_win.cpp which suggest a unification.
+// qapplication_win.cpp, which suggest a unification.
 
 #include "qplatformdefs.h"
 
@@ -4167,7 +4167,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 	    // map the window if we were waiting for a transition to
 	    // withdrawn
 	    if ( X11->deferred_map.contains( this ) ) {
-		X11->deferred_map.take( this );
+		X11->deferred_map.remove( this );
 		XMapWindow( X11->display, winId() );
 	    }
 	} else if (d->topData()->parentWinId != QX11Info::appRootWindow(x11Info()->screen())) {
@@ -4196,7 +4196,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
 		    // map the window if we were waiting for a
 		    // transition to withdrawn
 		    if ( X11->deferred_map.contains( this ) ) {
-			X11->deferred_map.take( this );
+			X11->deferred_map.remove( this );
 			XMapWindow( X11->display, winId() );
 		    }
 		    break;

@@ -1164,9 +1164,9 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     int len = syllableLength;
     IDEBUG(">>>>> devanagari shape: from=%d, len=%d invalid=%d", from, len, invalid);
 
-    QStackArray<unsigned short> reordered(len+4);
-    QStackArray<QGlyphLayout> glyphs(len+4);
-    QStackArray<unsigned char> position(len+4);
+    QVarLengthArray<unsigned short> reordered(len+4);
+    QVarLengthArray<QGlyphLayout> glyphs(len+4);
+    QVarLengthArray<unsigned char> position(len+4);
 
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
@@ -1486,8 +1486,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	// the open type engine manually afterwards.  for indic this
 	// is rather simple, as all chars just point to the first
 	// glyph in the syllable.
-	QStackArray<unsigned short> logClusters(len);
-	QStackArray<bool> where(len);
+	QVarLengthArray<unsigned short> logClusters(len);
+	QVarLengthArray<bool> where(len);
 	memset(where, 0, len*sizeof(bool));
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
@@ -1878,8 +1878,8 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
     int len = syllableLength;
 
     int i;
-    QStackArray<unsigned short> reordered(len+4);
-    QStackArray<QGlyphLayout> glyphs(len+4);
+    QVarLengthArray<unsigned short> reordered(len+4);
+    QVarLengthArray<QGlyphLayout> glyphs(len+4);
 
     const QChar *str = string.unicode() + from;
     if ( invalid ) {
@@ -1912,7 +1912,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
 	// This also means we have to correct the logCluster output from the open type engine manually afterwards.
 	// for indic this is rather simple, as all chars just point to the first glyph in the syllable.
-	QStackArray<unsigned short> logClusters(len);
+	QVarLengthArray<unsigned short> logClusters(len);
 	for (i = 0; i < len; ++i)
 	    logClusters[i] = i;
 
@@ -2660,8 +2660,8 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 #ifndef QT_NO_XFTFREETYPE
     if (openType && !composed) {
 
-	QStackArray<QGlyphLayout> glyphs(len);
-	QStackArray<unsigned short> logClusters(len);
+	QVarLengthArray<QGlyphLayout> glyphs(len);
+	QVarLengthArray<unsigned short> logClusters(len);
 
 	for (i = 0; i < len; i++) {
 	    glyphs[i].attributes.mark = FALSE;

@@ -1,5 +1,5 @@
 /*!
-    \class QStack qstack.h
+    \class QStack
     \brief The QStack class is a template class that provides a stack.
 
     \ingroup qtl
@@ -9,11 +9,11 @@
     \reentrant
 
     Define a template instance QStack\<X\> to create a stack of values
-    that all have the class X.
+    of type X.
 
     A stack is a last in, first out (LIFO) structure. Items are added
-    to the top of the stack with push() and retrieved from the top
-    with pop(). The top() function provides access to the topmost item
+    to the top of the stack using push() and retrieved from the top
+    using pop(). The top() function provides access to the topmost item
     without removing it.
 
     Example:
@@ -33,7 +33,7 @@
 
     QStack is a specialized QVector provided for convenience.  All of
     QVector's functionality also applies to QStack, for example the
-    facility to iterate over all elements using QVectorIterator<T>, or
+    facility to iterate over all elements using QVector<T>::Iterator, or
     the possibility to reserve extra capacity with reserve().
 
     Some classes cannot be used within a QStack directly, for example
@@ -76,7 +76,7 @@
 /*!
     \fn void  QStack::push(const T& t)
 
-    Adds element, \a t, to the top of the stack. Last in, first out.
+    Adds element \a t to the top of the stack. Last in, first out.
 
     \sa pop(), top()
 */
@@ -107,8 +107,3 @@
 
     \sa top() push()
 */
-
-
-
-
-

@@ -12,15 +12,16 @@ HEADERS +=  \
 	tools/qlocale.h \
 	tools/qlocale_p.h \
 	tools/qmap.h \
+	tools/qqueue.h \
 	tools/qregexp.h \
 	tools/qshared.h \
 	tools/qsharedpointer.h \
 	tools/qstack.h \
-	tools/qstackarray.h \
 	tools/qstring.h \
 	tools/qstringlist.h \
 	tools/qtl.h \
 	tools/qunicodetables_p.h \
+	tools/qvarlengtharray.h \
 	tools/qvector.h
 
 
@@ -34,6 +35,7 @@ SOURCES += \
 	tools/qlist.cpp \
 	tools/qlocale.cpp \
 	tools/qmap.cpp \
+	tools/qqueue.cpp \
 	tools/qregexp.cpp \
 	tools/qshared.cpp \
 	tools/qsharedpointer.cpp \

@@ -5,7 +5,6 @@
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
 ** Generated : Fri Jul 18 17:33:23 EST 2003
-
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
 **
@@ -222,7 +221,7 @@
 #include <qsqlresult.h>
 #include <qsqlselectcursor.h>
 #include <qstack.h>
-#include <qstackarray.h>
+#include <qvarlengtharray.h>
 #include <qstatusbar.h>
 #include "qbasictimer.h"
 #include <qcoreapplication.h>

@@ -335,7 +335,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextItem &si, int t
 		x += glyphs->advance;
 	    }
 	} else {
-	    QStackArray<wchar_t> g(si.num_glyphs);
+	    QVarLengthArray<wchar_t> g(si.num_glyphs);
 	    for (int i = 0; i < si.num_glyphs; ++i)
 		g[i] = glyphs[i].glyph;
 	    // fast path

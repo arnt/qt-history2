@@ -6,7 +6,6 @@
 #include <qstack.h>
 #include <qdebug.h>
 #include <qstylesheet.h>
-#include <qstackarray.h>
 
 #include "qtextdocument.h"
 #include "qtextglobal.h"
@@ -16,7 +15,7 @@
 #define QChar_linesep QChar(0x2028U) // in QChar maybe?
 
 #define MAX_ENTITY 259
-static const struct QTextHtmlEntity { const char *name; Q_UINT16 code; } entities [MAX_ENTITY]= {
+static const struct QTextHtmlEntity { const char *name; Q_UINT16 code; } entities[MAX_ENTITY]= {
     { "AElig", 0x00c6 },
     { "Aacute", 0x00c1 },
     { "Acirc", 0x00c2 },
@@ -1025,6 +1024,3 @@ QByteArray QTextHtmlFilter::save() const
     return ba;
 }
 #endif
-
-
-

@@ -21,7 +21,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
 #include <qpixmapcache.h>
-#include <qstackarray.h>
+#include <qvarlengtharray.h>
 
 #include <ApplicationServices/ApplicationServices.h>
 
@@ -173,7 +173,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 	    x += glyphs->advance;
 	}
     } else {
-	QStackArray<unsigned short> g(si.num_glyphs);
+	QVarLengthArray<ushort> g(si.num_glyphs);
 	for (int i = 0; i < si.num_glyphs; ++i)
 	    g[i] = glyphs[i].glyph;
 	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);

@@ -6,10 +6,10 @@
 #endif // QT_H
 
 template<class T, int prealloc = 256>
-class QStackArray
+class QVarLengthArray
 {
 public:
-    inline QStackArray(int size = 0)
+    inline QVarLengthArray(int size = 0)
 	: a(prealloc), s(size) {
 	ptr = reinterpret_cast<T*>(array);
 	if (s > prealloc)
@@ -20,7 +20,7 @@ public:
 		new (--i) T;
 	}
     }
-    inline ~QStackArray() {
+    inline ~QVarLengthArray() {
 	if (QTypeInfo<T>::isComplex) {
 	    T *i = ptr + s;
 	    while (i-- != ptr)
@@ -62,8 +62,8 @@ public:
 private:
     // disallow construction on the heap and copying
     void *operator new(size_t sz);
-    QStackArray(const QStackArray &);
-    QStackArray &operator =(const QStackArray &);
+    QVarLengthArray(const QVarLengthArray &);
+    QVarLengthArray &operator =(const QVarLengthArray &);
     void realloc(int size, int alloc);
     int a;
     int s;
@@ -72,7 +72,7 @@ private:
 };
 
 template <class T, int prealloc>
-Q_OUTOFLINE_TEMPLATE void QStackArray<T, prealloc>::realloc(int size, int alloc)
+Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, prealloc>::realloc(int size, int alloc)
 {
     T *oldPtr = ptr;
     if (alloc > a) {
@@ -112,6 +112,5 @@ Q_OUTOFLINE_TEMPLATE void QStackArray<T, prealloc>::realloc(int size, int alloc)
     if (oldPtr != (T*)array && oldPtr != ptr)
 	qFree(oldPtr);
 }
-
 
 #endif

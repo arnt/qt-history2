@@ -729,7 +729,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
 	if ( isTopLevel() )
-	    X11->deferred_map.take(this);
+	    X11->deferred_map.remove(this);
 	if ( testWFlags(WShowModal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -1771,7 +1771,7 @@ void QWidget::hideWindow()
     clearWState( WState_Exposed );
     deactivateWidgetCleanup();
     if ( isTopLevel() ) {
-	X11->deferred_map.take(this);
+	X11->deferred_map.remove(this);
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( d->xinfo->display(), winId(), d->xinfo->screen() );
 
