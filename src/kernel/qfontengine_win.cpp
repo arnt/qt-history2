@@ -3,6 +3,12 @@
 #include "qt_windows.h"
 #include "qapplication_p.h"
 
+// defined in qtextengine_win.cpp
+typedef void *SCRIPT_CACHE;
+typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
+extern fScriptFreeCache ScriptFreeCache;
+
+
 static unsigned char *getCMap( HDC hdc );
 static Q_UINT16 getGlyphIndex( unsigned char *table, unsigned short unicode );
 
@@ -45,6 +51,10 @@ QFontEngine::~QFontEngine()
 	}
     } );
     delete [] cmap;
+
+    // for Uniscribe
+    if ( ScriptFreeCache )
+	ScriptFreeCache( &script_cache );
 }
 
 HDC QFontEngine::dc() const
@@ -261,119 +271,21 @@ QFontEngine::Type QFontEngineWin::type() const
 
 // Uniscribe engine
 #if 0
-QFontEngine::Error QFontEngineUniscribe::stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const
-{
-    if ( *nglyphs < len ) {
-	*nglyphs = len;
-	return OutOfMemory;
-    }
-
-    getGlyphIndexes( str, len, glyphs );
-
-    if ( advances ) {
-	HDC hdc = dc();
-	for( int i = 0; i < len; i++ ) {
-	    SIZE  size;
-	    GetTextExtentPoint32W( hdc, (wchar_t *)str, 1, &size );
-	    *advances = size.cx;
-	    advances++;
-	    str++;
-	}
-    }
-
-    *nglyphs = len;
-    return NoError;
-}
+typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *, 
+					 const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
+extern fScriptTextOut ScriptTextOut;
 
 void QFontEngineUniscribe::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
 {
+    ScriptTextOut( 
     HDC hdc = dc();
-    unsigned int options = ETO_NUMERICSLATIN;
-    if ( ttf )
-	options |= ETO_GLYPH_INDEX;
-
-    if ( !reverse ) {
-	// hack to get symbol fonts working on Win95. See also QFontPrivate::load()
-	if ( useTextOutA ) {
-	    // can only happen if !ttf
-	    for( int i = 0; i < numGlyphs; i++ ) {
-    		QChar chr = *glyphs;
-		QConstString str( &chr, 1 );
-		QCString cstr = str.string().local8Bit();
-		TextOutA( hdc, x + offsets->x, y + offsets->y, cstr.data(), cstr.length() );
-		x += *advances;
-		glyphs++;
-		offsets++;
-		advances++;
-	    }
-	} else {
-    		ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, (wchar_t *)glyphs, numGlyphs, advances );
-	}
-    } else {
-	offsets += numGlyphs;
-	advances += numGlyphs;
-	glyphs += numGlyphs;
-	for( int i = 0; i < numGlyphs; i++ ) {
-	    glyphs--;
-	    offsets--;
-	    advances--;
-    	    wchar_t chr = *glyphs;
-    	    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
-	    x += *advances;
-	}
-    }
-}
-
-QGlyphMetrics QFontEngineUniscribe::boundingBox( const glyph_t *glyphs,
-				const advance_t *advances, const offset_t *offsets, int numGlyphs )
-{
-    if ( numGlyphs == 0 )
-	return QGlyphMetrics();
-
-    int w = 0;
-    const advance_t *end = advances + numGlyphs;
-    while( end > advances )
-	w += *(--end);
-
-    return QGlyphMetrics(0, -tm.w.tmAscent, w, tm.w.tmHeight, w, 0 );
-}
-
-QGlyphMetrics QFontEngineUniscribe::boundingBox( glyph_t glyph )
-{
-    GLYPHMETRICS gm;
-
-    if( !ttf ) {
-	SIZE s;
-	WCHAR ch = glyph;
-	BOOL res = GetTextExtentPoint32W( dc(), &ch, 1, &s );
-	return QGlyphMetrics( 0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx, 0 );
-    } else {
-	DWORD res = 0;
-	MAT2 mat;
-	mat.eM11.value = mat.eM22.value = 1;
-	mat.eM11.fract = mat.eM22.fract = 0;
-	mat.eM21.value = mat.eM12.value = 0;
-	mat.eM21.fract = mat.eM12.fract = 0;
-	QT_WA( {
-	    res = GetGlyphOutlineW( dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat );
-	} , {
-	    res = GetGlyphOutlineA( dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat );
-	} );
-	if ( res != GDI_ERROR )
-	    return QGlyphMetrics( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY, 
-				  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY );
-    }
-    return QGlyphMetrics();
+    ScriptTextOut( hdc, script_cache, x, y, 0, 0, analysis, 0, 0, glyphs, numGlyphs, advances, 0, offsets );
 }
 
 bool QFontEngineUniscribe::canRender( const QChar *string,  int len )
 {
-    while( len-- ) {
-	if ( getGlyphIndex( cmap, string->unicode() ) == 0 ) 
-	    return FALSE;
-	string++;
-    }
+    // ### get default glyph for script and then check.
     return TRUE;
 }
 

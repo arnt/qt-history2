@@ -257,15 +257,8 @@ public:
 class QFontEngineUniscribe : public QFontEngineWin
 {
 public:
-    Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
-
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
-
-    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
-				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
-    QGlyphMetrics boundingBox( glyph_t glyph );
-
     bool canRender( const QChar *string,  int len );
 
     Type type() const;

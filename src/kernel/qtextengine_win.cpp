@@ -76,11 +76,11 @@ typedef HRESULT (WINAPI *fScriptBreak)( const WCHAR *, int, const QScriptAnalysi
 //typedef HRESULT (WINAPI *fScriptGetFontProperties)( HDC, SCRIPT_CACHE *, SCRIPT_FONTPROPERTIES * );
 typedef HRESULT (WINAPI *fScriptGetProperties)( const SCRIPT_PROPERTIES ***, int *);
 
-static fScriptFreeCache ScriptFreeCache = 0;
+fScriptFreeCache ScriptFreeCache = 0;
 static fScriptItemize ScriptItemize = 0;
 static fScriptShape ScriptShape = 0;
 static fScriptPlace ScriptPlace = 0;
-static fScriptTextOut ScriptTextOut = 0;
+fScriptTextOut ScriptTextOut = 0;
 static fScriptBreak ScriptBreak = 0;
 //static fScriptGetFontProperties ScriptGetFontProperties = 0;
 static fScriptGetProperties ScriptGetProperties = 0;
