@@ -100,7 +100,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // Runic
     { 0                      }, // Ogham
 
-    { "iso8859-8"        , 0 }, // Hebrew
+    { "iso8859-8-i"        , 0 }, // Hebrew
     { 0                      }, // HebrewPresentation
 
     { "iso8859-6.8x"     , 0 }, // // Arabic
