@@ -1136,7 +1136,7 @@ int main(int argc, char** argv)
 
 /*!
   \class QNPWidget qnp.h
-  \brief A QWidget that is a Web-browser plugin window
+  \brief The QNPWidget class a QWidget that is a Web-browser plugin window.
 
   \extension NSPlugin
 
@@ -1350,7 +1350,7 @@ void QNPWidget::unsetWindow()
 
 /*!
   \class QNPInstance qnp.h
-  \brief A QObject that is a Web-browser plugin
+  \brief The QNPInstance class provides a QObject that is a Web-browser plugin.
 
   \extension NSPlugin
 
@@ -1699,7 +1699,7 @@ void* QNPInstance::getJavaPeer() const
 
 /*!
   \class QNPStream qnp.h
-  \brief A stream of data provided to a QNPInstance by the browser.
+  \brief The QNPStream class provides a stream of data provided to a QNPInstance by the browser.
 
   \extension NSPlugin
 
@@ -1843,7 +1843,7 @@ int QNPStream::write( int len, void* buffer )
 
 /*!
   \class QNPlugin qnp.h
-  \brief The plugin central factory.
+  \brief The QNPlugin class provides the plugin central factory.
 
   \extension NSPlugin
 
@@ -1969,7 +1969,7 @@ void* QNPlugin::getJavaClass()
 
 /*!
   This function is called when the plugin is shutting down,
-  with \a jc set to the value returned earlier by getJavaClass().
+  with jc set to the value returned earlier by getJavaClass().
   The function should \e unuse the Java class and return 0.
 */
 void QNPlugin::unuseJavaClass()

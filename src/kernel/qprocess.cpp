@@ -386,7 +386,7 @@ QString QProcess::readLineStderr()
 
 /*!
   This private function scans for any occurrence of \n or \r\n in the
-  buffer \a buf. It stores the text in the byte array \a store if it is
+  buffer \e buf. It stores the text in the byte array \a store if it is
   non-null.
 */
 bool QProcess::scanNewline( bool stdOut, QByteArray *store )

@@ -2402,11 +2402,6 @@ void QApplication::processEvents( int maxtime )
 
 extern uint qGlobalPostedEventsCount();
 
-/*!
-  This function returns TRUE if there are pending events, and returns FALSE
-  if there are not.  Pending events can be either from the window system or
-  posted events using QApplication::postEvent().
-*/
 bool QApplication::hasPendingEvents()
 {
     return qGlobalPostedEventsCount() || qt_fbdpy->eventPending();

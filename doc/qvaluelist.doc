@@ -462,7 +462,7 @@
 */
 
 /*!
-  \fn const T& QValueList::operator[] ( uint i ) const
+  \fn const T& QValueList::operator[] ( size_type i ) const
 
   \warning This function is a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
@@ -476,7 +476,7 @@
 */
 
 /*!
-  \fn T& QValueList::operator[] ( uint i )
+  \fn T& QValueList::operator[] ( size_type i )
 
   \warning This function is a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
@@ -492,7 +492,7 @@
 */
 
 /*!
-  \fn iterator QValueList::at( uint i )
+  \fn iterator QValueList::at( size_type i )
 
 
   Returns an iterator pointing to the item at position \e i in the list, or
@@ -500,7 +500,7 @@
 */
 
 /*!
-  \fn const_iterator QValueList::at( uint i ) const
+  \fn const_iterator QValueList::at( size_type i ) const
 
   \warning This function is a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for

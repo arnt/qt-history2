@@ -93,7 +93,7 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 /*!
   \class QUrl qurl.h
 
-  \brief The QUrl class provides an URL parser and simplifies working with URLs.
+  \brief The QUrl class provides a URL parser and simplifies working with URLs.
 
   \ingroup misc
 

@@ -638,6 +638,7 @@ erase the widget.  This allows smart-repainting to avoid flicker.
 \value WGroupLeader  makes this widget or window a group
 leader. Modality of secondary windows only affects windows within the
 same group.
+
 */
 
 
@@ -1217,26 +1218,6 @@ void QWidget::styleChange( QStyle& )
   any input.
 
   \sa isTopLevel(), isDialog(), QDialog
-*/
-
-
-/*! \property QWidget::enabled
-    \brief whether the widget is enabled
-
-  An enabled widget receives keyboard and mouse events; a disabled
-  widget does not.  Note that an enabled widget receives keyboard
-  events only when it is in focus.
-
-  Some widgets display themselves differently when they are disabled.
-  For example a button might draw its label grayed out. If your widget
-  needs to know when it becomes enabled or disabled, you can
-  reimplement the enabledChange() function.
-
-  Disabling a widget implicitely disables all its children.  Enabling
-  respectively enables all child widgets unless they have been
-  explicitly disabled.
-
-  \sa isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
 */
 
 /*!
@@ -1903,7 +1884,7 @@ void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &colo
   sets a modified QPalette with setPalette(). The palette is modified
   according to the widget's \e {background mode}. For example, if the
   background mode is PaletteButton the palette entry
-  QColorGroup::ButtonText is set to \a color.
+  QColorGroup::ButtonText is set to color.
 
   \sa setPalette() QApplication:setPalette() backgroundMode()
       foregroundColor() setBackgroundMode() setEraseColor()
@@ -1933,7 +1914,7 @@ void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & col
 #endif
 }
 
-/*! \fn const QColor& eraseColor() const
+/*! \fn const QColor& QWidget::eraseColor() const
 
   Returns the erase color of the widget.
 
@@ -2894,8 +2875,8 @@ QFocusData * QWidget::focusData( bool create )
 
 
 /*!
-  Enables key event compression, if \a enable is TRUE, and disables it
-  if \a enable is FALSE.
+  Enables key event compression, if \a compress is TRUE, and disables it
+  if \a compress is FALSE.
 
   By default key compression is off, so widgets receive one key press
   event for each key press (or more, since autorepeat is usually on).
@@ -5086,7 +5067,7 @@ void QWidget::updateGeometry()
   A convenience version of reparent that does not take widget
   flags as argument.
 
-  Calls reparent(\a parent, getWFlags()&~WType_Mask, \a p, \a showit )
+  Calls reparent(\a parent, getWFlags()&~WType_Mask, \a p, \a showIt )
 */
 void  QWidget::reparent( QWidget *parent, const QPoint & p,
 			 bool showIt )

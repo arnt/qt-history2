@@ -275,7 +275,7 @@ static void np_do_timers( void*, void* )
 
 /*!
   \class QXtApplication qxt.h
-  \brief Allows mixing of Xt/Motif and Qt widgets.
+  \brief The QXtApplication class allows mixing of Xt/Motif and Qt widgets.
 
   \extension Xt/Motif
 
@@ -369,7 +369,7 @@ void QXtApplication::init()
 
 /*!
   \class QXtWidget qxt.h
-  \brief Allows mixing of Xt/Motif and Qt widgets.
+  \brief The QXtWidget class allows mixing of Xt/Motif and Qt widgets.
 
   \extension Xt/Motif
 

@@ -853,7 +853,7 @@ QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 }
 
 /*!
-  \overload QCString QTextCodec::fromUnicode(const QString& uc) const
+  \overload
   \internal
 */
 QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
@@ -868,7 +868,7 @@ QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
 }
 
 /*!
-  \overload QCString QTextCodec::fromUnicode(const QString& uc) const
+  \overload 
 */
 QCString QTextCodec::fromUnicode(const QString& uc) const
 {
@@ -877,7 +877,7 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 }
 
 /*!
-  \overload QString QTextCodec::toUnicode(const QByteArray& a, int len) const
+  \overload
 */
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
@@ -887,7 +887,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 }
 
 /*!
-  \overload QString QTextCodec::toUnicode(const QByteArray& a) const
+  \overload
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -896,7 +896,7 @@ QString QTextCodec::toUnicode(const QByteArray& a) const
 }
 
 /*!
-  \overload QString QTextCodec::toUnicode(const QCString& a, int len) const
+  \overload
 */
 QString QTextCodec::toUnicode(const QCString& a, int len) const
 {
@@ -906,7 +906,7 @@ QString QTextCodec::toUnicode(const QCString& a, int len) const
 }
 
 /*!
-  \overload QString QTextCodec::toUnicode(const QCString& a) const
+  \overload
 */
 QString QTextCodec::toUnicode(const QCString& a) const
 {
@@ -915,7 +915,7 @@ QString QTextCodec::toUnicode(const QCString& a) const
 }
 
 /*!
-  \overload QString QTextCodec::toUnicode(const char* chars) const
+  \overload
 */
 QString QTextCodec::toUnicode(const char* chars) const
 {

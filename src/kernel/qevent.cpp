@@ -165,7 +165,7 @@
 */
 
 /*!
-  \fn bool QEvent::spontaneous () const
+  \fn bool QEvent::spontaneous() const
 
   Returns TRUE if the event originated outside the application,
   i.e. it is a system event.
@@ -439,7 +439,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-  \fn QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
+  \fn QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
 
   Constructs a wheel event object.
 
@@ -457,7 +457,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 }
 
 /*!
-  \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint&globalPos, int delta, int state )
+  \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
 
   Constructs a wheel event object.
 
@@ -579,14 +579,6 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   \value UNICODE_ACCEL - the accelerator is specified as a Unicode code
   point, not a Qt Key
 */
-
-/*! \enum Qt::Modifier
-
-  This enum type lists all the keys known by Qt.  The currently
-  defined values are listed in qnamespace.h; they are not individually
-  defined and documented at present.
-*/
-
 
 /*!
   \class QKeyEvent qevent.h
@@ -766,7 +758,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   \fn QFocusEvent::QFocusEvent( Type type )
   Constructs a focus event object.
 
-  The \a type parameter must be either \a QEvent::FocusIn or \a QEvent::FocusOut.
+  The \a type parameter must be either \c QEvent::FocusIn or \c QEvent::FocusOut.
 */
 
 
@@ -1152,17 +1144,6 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn ButtonState QMouseEvent::state() const
-
-  Returns the button state (a combination of mouse buttons and keyboard
-  modifiers), i.e., what buttons and keys were being held depressed
-  immediately before the event was generated.
-
-  The returned value is \c LeftButton, \c RightButton, \c MidButton,
-  \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
-*/
-
-/*!
   \fn bool QContextMenuEvent::isAccepted() const
   Returns TRUE if the receiver of the event has taken the context.
   \sa accept(), ignore()
@@ -1203,6 +1184,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
             right mouse button was clicked, but this is platform specific.
    \value Keyboard  The keyboard somehow caused this event to be sent. On windows
             this means the menu button was pressed.
+   \value Other	    The event was sent by another way (i.e. not by the mouse or 
+	    keyboard).
 */
 
 
@@ -1234,8 +1217,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Constructs a child event object. The \a child is the object that is to
   be removed or inserted.
 
-  The \a type parameter must be either \a QEvent::ChildInserted
-  or \a QEvent::ChildRemoved.
+  The \a type parameter must be either \c QEvent::ChildInserted
+  or \c QEvent::ChildRemoved.
 */
 
 /*!
@@ -1511,7 +1494,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragEnterEvent qevent.h
-  \brief The event sent to widgets when a drag-and-drop first drags onto it.
+  \brief A QDragEnterEvent is an event sent to widgets when a drag-and-drop first drags onto it.
 
   This event is always immediate followed by a QDragMoveEvent, thus you need
   only respond to one or the other event.  Note that this class inherits most
@@ -1530,7 +1513,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
-  \brief The event sent to widgets when a drag-and-drop leaves it.
+  \brief A QDragLeaveEvent is an event sent to widgets when a drag-and-drop leaves it.
 
   This event is always preceded by a QDragEnterEvent and a series
   of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
@@ -1547,7 +1530,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QHideEvent qevent.h
-  \brief The event sent after a widget is hidden.
+  \brief A QHideEvent is an event sent after a widget is hidden.
 
   This event is sent just before QWidget::hide() returns, and also when
   a top-level window has been hidden (iconified) by the user.
@@ -1564,14 +1547,14 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
-  \fn QHideEvent::QHideEvent
+  \fn QHideEvent::QHideEvent()
 
   Constructs a QHideEvent.
 */
 
 /*!
   \class QShowEvent qevent.h
-  \brief The event sent when a widget is shown.
+  \brief A QShowEvent is an event sent when a widget is shown.
 
   There are two kinds of show events: spontaneous show events by the
   window system and internal show events. Spontaneous show events are
@@ -1584,7 +1567,7 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
-  \fn QShowEvent::QShowEvent
+  \fn QShowEvent::QShowEvent()
 
   Constructs a QShowEvent.
 */

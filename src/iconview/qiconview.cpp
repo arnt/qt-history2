@@ -694,7 +694,7 @@ void QIconDragData::setTextRect( const QRect &r )
 
 /*!
   \class QIconViewItem qiconview.h
-  \brief The QIconViewItem class is a single item in a QIconView.
+  \brief The QIconViewItem class provides a single item in a QIconView.
   \module iconview
 
   A QIconViewItem contains an icon, a string and optionally a sort key,

@@ -1394,11 +1394,9 @@ static QStringList emptyList;
 
 /*! \class QFontDatabase qfontdatabase.h
 
-  \brief Provides information about available fonts.
-  \ingroup environment
-
-  The QFontDatabase class provides information about the available fonts of the
+  \brief The QFontDatabase class provides information about available fonts of the
   underlying window system.
+  \ingroup environment
 
   Most often you will simply want to query the database for all font
   families(), and their respective pointSizes() and styles().

@@ -2025,7 +2025,7 @@ void QApplication::syncX()	{}		// do nothing
 */
 
 /*!
-  \fn Qt::WindowsVersion QApplication::winVersion()
+  \fn WindowsVersion QApplication::winVersion()
 
   Returns the version of the Windows operating system running:
 
