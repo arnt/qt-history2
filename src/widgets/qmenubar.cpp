@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#25 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#25 $";
 #endif
 
 
@@ -392,7 +392,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	    p->drawShadePanel( r, g.background(), g.background(),
 			       motifItemFrame );
 	if ( mi->pixmap() )
-	    p->drawPixMap( r.left() + motifItemFrame,
+	    p->drawPixmap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
 			   *mi->pixmap() );
 	else if ( mi->string() ) {

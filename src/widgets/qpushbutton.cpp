@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#23 $
 **
 ** Implementation of QPushButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#23 $";
 #endif
 
 
@@ -178,7 +178,7 @@ void QPushButton::drawButton( QPainter *paint )
 		   isDown(), defButton, w, h );
     QPixmap *pm = QPixmap::find( pmkey );
     if ( pm ) {					// pixmap exists
-	p->drawPixMap( 0, 0, *pm );
+	p->drawPixmap( 0, 0, *pm );
 	drawButtonFace( p );
 	lastDown = isDown();
 	lastDef = defButton;
@@ -295,7 +295,7 @@ void QPushButton::drawButton( QPainter *paint )
     if ( use_pm ) {
 	pmpaint.end();
 	p = paint;				// draw in default device
-	p->drawPixMap( 0, 0, *pm );
+	p->drawPixmap( 0, 0, *pm );
 	QPixmap::insert( pmkey, pm );		// save for later use
     }
 #endif

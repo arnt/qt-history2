@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#26 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#26 $";
 #endif
 
 
@@ -607,7 +607,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	QPixmap *pixmap = mi->pixmap();
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( OpaqueMode );
-	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
+	p->drawPixmap( motifItemFrame + motifItemHMargin, motifItemFrame,
 		       *pixmap );
 	if ( pixmap->depth() == 1 )
 	    p->setBackgroundMode( TransparentMode );
