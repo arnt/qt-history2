@@ -34,11 +34,11 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
     else if (widgetName == QLatin1String("QButtonGroup"))
         return &Q3ButtonGroup::staticMetaObject;
     else if (widgetName == QLatin1String("QDateEdit"))
-        return &QDateTimeEdit::staticMetaObject;
+        return &Q3DateEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QTimeEdit"))
-        return &QDateTimeEdit::staticMetaObject;
+        return &Q3TimeEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QDateTimeEdit"))
-        return &QDateTimeEdit::staticMetaObject;
+        return &Q3DateTimeEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QListBox"))
         return &QListBox::staticMetaObject;
     else if (widgetName == QLatin1String("QListView") ||
