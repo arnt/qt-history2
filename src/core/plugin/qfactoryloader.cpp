@@ -110,7 +110,6 @@ QStringList QFactoryLoader::keys() const
 
 QObject *QFactoryLoader::instance(const QString &key) const
 {
-    QStaticLocker locker;
     if (QLibraryPrivate* library = keyMap.value(key))
         if (library->instance || library->loadPlugin())
             return library->instance();

@@ -134,13 +134,4 @@ private:
 
 #endif // QT_NO_THREAD
 
-class Q_CORE_EXPORT QStaticLocker : public QMutexLocker
-{
-    static QStaticMutex staticLocker;
-public:
-    inline QStaticLocker()
-        :QMutexLocker(staticLocker){}
-};
-
-
 #endif // QMUTEX_H

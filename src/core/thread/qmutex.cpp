@@ -13,8 +13,6 @@
 #include "qmutex.h"
 #include "qatomic.h"
 
-QStaticMutex QStaticLocker::staticLocker = 0;
-
 QMutexLocker::QMutexLocker(QStaticMutex &m)
 {
     if (!m) { // mutex not yet initialized... do it now

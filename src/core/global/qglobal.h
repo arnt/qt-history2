@@ -1195,12 +1195,12 @@ static type *name() { static type this_##name; return &this_##name; }
 static type *name(){ static type this_##name args; return &this_##name; }
 
 #define Q_GLOBAL_STATIC_LOCKED(type, name) \
-static type *static_##name(){ static type this_##name; return &this_##name; } \
-static type *name(){ QStaticLocker locker; return static_##name(); } \
+static type *static_##name() { static type this_##name; return &this_##name; } \
+static type *name() { static QStaticMutex mutex = 0; QMutexLocker locker(mutex); return static_##name(); }
 
 #define Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(type, name, args) \
-static type *static_##name(){ static type this_##name args; return &this_##name; } \
-static type *name(){ QStaticLocker locker; return static_##name(); } \
+static type *static_##name() { static type this_##name args; return &this_##name; } \
+static type *name() { static QStaticMutex mutex = 0; QMutexLocker locker(mutex); return static_##name(); }
 
 //
 // Install paths from configure

@@ -3738,18 +3738,27 @@ QImageHandler::QImageHandler(const char *f, const char *h, const QByteArray& fl,
 typedef QList<QImageHandler *> QIHList;
 static QIHList imageHandlers;
 
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+                          (QImageFormatInterface_iid,
+                           QCoreApplication::libraryPaths(),
+                           "/imageformats"))
+
 void qt_init_image_plugins()
 {
-    QStaticLocker locker;
+    static QStaticMutex mutex = 0;
+    QMutexLocker locker(mutex);
     static bool loaded = false;
     if (loaded)
         return;
     loaded = true;
-    static QFactoryLoader loader(QImageFormatInterface_iid, QCoreApplication::libraryPaths(), "/imageformats");
-    QStringList keys = loader.keys();
-    for (int i = 0; i < keys.count(); ++i)
-        if (QImageFormatInterface *format = qt_cast<QImageFormatInterface*>(loader.instance(keys.at(i))))
+    QFactoryLoader *loader = ::loader();
+    QStringList keys = loader->keys();
+    for (int i = 0; i < keys.count(); ++i) {
+        QImageFormatInterface *format =
+            qt_cast<QImageFormatInterface*>(loader->instance(keys.at(i)));
+        if (format)
             format->installIOHandler(keys.at(i));
+    }
 }
 
 static void cleanup()

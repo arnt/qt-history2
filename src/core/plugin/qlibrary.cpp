@@ -323,7 +323,7 @@ static bool qt_unix_query(const QString &library, uint *version, QByteArray *key
 #endif // Q_OS_UNIX
 
 typedef QMap<QString, QLibraryPrivate*> LibraryMap;
-Q_GLOBAL_STATIC(LibraryMap, libraryMap)
+Q_GLOBAL_STATIC_LOCKED(LibraryMap, libraryMap)
 
 QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
     :pHnd(0), fileName(canonicalFileName), instance(0), qt_version(0), pluginState(MightBeAPlugin)
@@ -335,7 +335,6 @@ QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
 
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
 {
-    QStaticLocker locker;
     if (QLibraryPrivate *lib = libraryMap()->value(canonicalFileName)) {
         ++lib->libraryUnloadCount;
         ++lib->libraryRefCount;
@@ -346,7 +345,6 @@ QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &canonicalFileName)
 
 QLibraryPrivate::~QLibraryPrivate()
 {
-    QStaticLocker locker;
     QLibraryPrivate *that = libraryMap()->take(fileName);
     Q_ASSERT(this == that);
 }
