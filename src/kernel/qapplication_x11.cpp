@@ -46,13 +46,10 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
-#include "qintdict.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
 #include "qsocketnotifier.h"
 #include "qsessionmanager.h"
-#include "qdict.h"
-#include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qsettings.h"
@@ -4446,15 +4443,6 @@ static const unsigned int KeyTbl[] = {		// keyboard mapping table
 };
 
 
-static QIntDict<void>    *keyDict  = 0;
-
-static void deleteKeyDicts()
-{
-    if ( keyDict )
-	delete keyDict;
-    keyDict = 0;
-}
-
 #if !defined(QT_NO_XIM)
 static const unsigned short katakanaKeysymsToUnicode[] = {
     0x0000, 0x3002, 0x300C, 0x300D, 0x3001, 0x30FB, 0x30F2, 0x30A1,
@@ -4606,6 +4594,8 @@ static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 }
 #endif
 
+static QHash<int, KeySym>    keyDict;
+
 
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state,
 					   int& code, QEvent::Type &type, bool willRepeat )
@@ -4618,11 +4608,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     QChar converted;
     KeySym key = 0;
 
-    if ( !keyDict ) {
-	keyDict = new QIntDict<void>( 13 );
-	keyDict->setAutoDelete( FALSE );
-	qAddPostRoutine( deleteKeyDicts );
-    }
+    keyDict.ensure_constructed();
 
     QWidget* tlw = topLevelWidget();
 
@@ -4669,7 +4655,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    composingKeycode = 0;
 	}
 	if ( key )
-	    keyDict->replace( keycode, (void*)key );
+	    keyDict[keycode] = key;
 	// all keysyms smaller than that are actally keys that can be mapped
 	// to unicode chars
 	if ( count == 0 && key < 0xff00 ) {
@@ -4722,10 +4708,10 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    chars[count] = '\0';
 	tlw = 0;
     } else {
-	key = (int)(long)keyDict->find( keycode );
+	key = keyDict.value(keycode, 0);
 	if ( key )
 	    if( !willRepeat ) // Take out key of dictionary only if this call.
-		keyDict->take( keycode );
+		keyDict.take(keycode);
     }
 #endif // !QT_NO_XIM
 
