@@ -1227,6 +1227,7 @@ public:
   The partial specialization to catch all pointers.
 */
 template <typename T> inline void qInit(T *&t) { t = 0; }
+template <typename T> inline void qInit(const T *&t) { t = 0; }
 template <typename T> inline void qDelete(T *&t)
 {
     if (false) t->~T(); // provoke compile error if T is not a fully-defined type
