@@ -155,28 +155,31 @@ private:
     void invalidate();
 
     Spec cspec;
+    struct ARGB {
+	ushort alpha;
+	ushort red;
+	ushort green;
+	ushort blue;
+	ushort pad;
+    };
+    struct AHSV {
+	ushort alpha;
+	ushort hue;
+	ushort saturation;
+	ushort value;
+	ushort pad;
+    };
+    struct ACMYK {
+	ushort alpha;
+	ushort cyan;
+	ushort magenta;
+	ushort yellow;
+	ushort black;
+    };
     union {
-        struct {
-            ushort alpha;
-            ushort red;
-            ushort green;
-            ushort blue;
-            ushort pad;
-        } argb;
-        struct {
-            ushort alpha;
-            ushort hue;
-            ushort saturation;
-            ushort value;
-            ushort pad;
-        } ahsv;
-        struct {
-            ushort alpha;
-            ushort cyan;
-            ushort magenta;
-            ushort yellow;
-            ushort black;
-        } acmyk;
+	ARGB argb;
+	AHSV ahsv;
+	ACMYK acmyk;
     };
 
     friend class QColormap;
