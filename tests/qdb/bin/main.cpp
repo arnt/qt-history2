@@ -30,7 +30,7 @@
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
-#include <xdb/xbase.h>
+#include <xbase.h>
 
 static QString appname;
 

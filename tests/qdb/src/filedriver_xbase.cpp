@@ -25,8 +25,8 @@
 
 #include "sqlinterpreter.h"
 
-#include <xdb/xbase.h>
-#include <xdb/xbexcept.h>
+#include <xbase.h>
+#include <xbexcept.h>
 
 #include <qarray.h>
 #include <qdatetime.h>
@@ -172,7 +172,7 @@ public:
 	    QDate d = v.toDate();
 	    QString val;
 	    if ( nullify )
-		val = "17521113"; /* an invalid QDate */
+		val = "17520913"; /* an invalid QDate */
 	    else
 		val = QString( QString::number( d.year() ) +
 				   QString::number( d.month() ).rightJustify( 2, '0' ) +
@@ -890,8 +890,7 @@ bool FileDriver::update( const List& data )
 	    ERROR_RETURN( "Internal error: Unable to update, expected 2 field descriptors, got " +
 			  QString::number( updateData.count() ) );
 	}
-	List fieldDesc = updateData[0].toList();
-	QString name = fieldDesc[0].toString();
+	QString name = updateData[0].toString();
 	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "Unable to update, field not found:" + name );

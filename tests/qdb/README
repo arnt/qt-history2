@@ -55,7 +55,8 @@ Installation
 
 2. Ensure that XBase is installed and compiled.  To use the XBase
 which is included in this distribution, do the following:
-	cd xdb-1.2.0
+	tar xzf xbase-snapshot
+	cd xbase-snapshot
 	./configure
 	make
 	make install

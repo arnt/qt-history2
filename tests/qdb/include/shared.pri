@@ -27,6 +27,6 @@ CONFIG		+= qt warn_on debug console
 DEFINES		+= QT_LITE_UNICODE
 INCLUDEPATH	+= ../include
 xbase {
-	INCLUDEPATH	+= $$XBASE_ROOT
+	INCLUDEPATH	+= $$XBASE_ROOT/include/$$XBASE_LIB
 }
 

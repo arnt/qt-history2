@@ -22,6 +22,21 @@
 #
 #!/bin/sh
 
+if [ "$1" == "--help" ]
+then
+    echo 'Configure Options:'
+    echo
+    echo '--help            This help'
+    echo 
+    echo 'The XBASEDIR environment variable can be used to specify'
+    echo 'the location of the xbase library (default "/usr/local")'
+    echo
+    echo 'The XBASELIB environment variable can be used to specify'
+    echo 'the name of the xbase library (default "xbase")'
+    echo
+    exit 0
+fi
+
 if [ -z "$QTDIR" ]
 then
     echo
@@ -38,13 +53,19 @@ fi
 
 if [ -z "$XBASEDIR" ]
 then
-XBASEDIR=../xdb
+XBASEDIR=/usr/local
+fi
+
+if [ -z "$XBASELIB" ]
+then
+XBASELIB=xbase
 fi
 
 cat >.qmake.cache <<EOF
 OBJECTS_DIR=.obj
 MOC_DIR=.moc
 XBASE_ROOT=$XBASEDIR
+XBASE_LIB=$XBASELIB
 EOF
 
 TOP=`pwd`
