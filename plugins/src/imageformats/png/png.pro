@@ -32,7 +32,7 @@ system-png {
 	    ../../../../src/3rdparty/libpng/pngwutil.c
 }
 
-!system-zlib:!win32:SOURCES += \
+!system-zlib:SOURCES += \
 	../../../../src/3rdparty/zlib/adler32.c \
 	../../../../src/3rdparty/zlib/compress.c \
 	../../../../src/3rdparty/zlib/crc32.c \
