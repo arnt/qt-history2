@@ -90,7 +90,7 @@ if ( ask("dvips") ) {
     for my $dvi ( @dvi ) {
 	my $ps = shift @ps;
 	push @ps, $ps;
-	perform("dvips -q $dvi -o $ps");
+	perform("dvips -t $SIZE -q $dvi -o $ps");
     }
 }
 if ( ask("ps2pdf") ) {

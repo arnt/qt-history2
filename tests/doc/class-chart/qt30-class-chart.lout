@@ -233,7 +233,7 @@ Apple Roman
 	    W { QBYTEARRAY:: @Node paint { cyan } { QByteArray } }
 	@Rowa
 	    B { QCURSOR:: @ANode { QCursor } } 
-	    E { QIMEVENT:: @Node paint { lightblue } { QIMEvent } } 
+	    E { QIMEVENT:: @Node paint { lightblue } halign { right } { QIMEvent } } 
 	    F { QACTION:: @Node paint { yellow } { QAction } } 
 	    L { QCOMBOBOX:: @Node { QComboBox } } 
 	    M { QCHECKBOX:: @Node { QCheckBox } } 
