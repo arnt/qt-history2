@@ -175,6 +175,8 @@ The \e {Setup Toolbar} wizard page is used to populate a toolbar
 	toolbars are not functional yet but we will rectify this as we
 	progress.
 
+	Click \Menu{File|Save} to save the form as \File richedit.ui.
+
 	\section2 Creating and Deleting Actions and Action Groups
 
 	    \section3 Creating Actions
