@@ -7,10 +7,11 @@ following options:
 
 	./configure [-with-sql-driver-<name>] [-without-sql-driver-<name>]
 
-This will configure the Qt library to compile the specified driver
-into the Qt lib itself.  
+Where <name> is the name of the driver, for example 'psql'.  This will
+configure the Qt library to compile the specified driver into the Qt
+lib itself.
 
-For example, to build the postgres driver directly into the Qt
+For example, to build the PostgreSQL driver directly into the Qt
 library, configure Qt like this:
 
 	./configure -with-sql-driver-psql
