@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#68 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#68 $");
 
 
 /*----------------------------------------------------------------------------
@@ -921,16 +921,18 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
  *****************************************************************************/
 
 // standard image io handlers (defined below)
-static void read_gif_image( QImageIO * ) NOT_USED_FN;
-static void write_gif_image( QImageIO * ) NOT_USED_FN;
 static void read_bmp_image( QImageIO * );
 static void write_bmp_image( QImageIO * );
 static void read_pbm_image( QImageIO * );
 static void write_pbm_image( QImageIO * );
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
+#if 0
+static void read_gif_image( QImageIO * ) NOT_USED_FN;
+static void write_gif_image( QImageIO * ) NOT_USED_FN;
 static void read_xpm_image( QImageIO * ) NOT_USED_FN;
 static void write_xpm_image( QImageIO * ) NOT_USED_FN;
+#endif
 
 
 /*****************************************************************************
