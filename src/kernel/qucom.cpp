@@ -165,11 +165,13 @@ bool QUType_idisp::convertFrom( QUObject *o, QUType *t )
 
 bool QUType_idisp::convertTo( QUObject *o, QUType *t )
 {
+#ifndef QT_NO_COMPONENT
     if ( isEqual( t, pQUType_iface ) ) {
 	o->payload.iface = o->payload.idisp;
 	o->type = pQUType_iface;
 	return true;
     }
+#endif    
     return false;
 }
 
@@ -468,3 +470,5 @@ void QUType_QVariant::clear( QUObject *o )
     delete (QVariant*)o->payload.ptr;
     o->payload.ptr = 0;
 }
+
+
