@@ -45,6 +45,7 @@ SUBDIRS	 =	aclock \
 		qtl \
 		qwerty \
 		rangecontrols \
+		regexptester \
 		richtext \
 		rot13 \
 		scribble \
