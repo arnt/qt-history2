@@ -167,8 +167,8 @@ main(int argc, char* argv[])
 				    &argc, argv,
 				    fallback_resources, 0);
 
-  XtGetApplicationResources(shell, (XtPointer) &options,
-			    resources, XtNumber(resources), (Arg *) NULL, 0);
+  XtGetApplicationResources(shell, (XtPointer) &options, resources,
+			    XtNumber(resources), (Arg *) NULL, 0);
 
   QMotif integrator( APP_CLASS, context );
   QApplication app( XtDisplay(shell), argc, argv );
