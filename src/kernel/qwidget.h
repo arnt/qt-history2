@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#67 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#68 $
 **
 ** Definition of QWidget class
 **
@@ -35,7 +35,8 @@ public:
   // GUI style setting
 
     GUIStyle	 style() const;
-    void	 setStyle( GUIStyle );
+    virtual void setStyle( GUIStyle );
+    virtual bool styleChange( GUIStyle );
 
   // Widget control functions
 
@@ -79,20 +80,25 @@ public:
     const QColor &backgroundColor() const;
     const QColor &foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
+    virtual bool backgroundColorChange( const QColor & );
+
     const QPixmap *backgroundPixmap() const;
     virtual void setBackgroundPixmap( const QPixmap & );
+    virtual bool backgroundPixmapChange( const QPixmap & );
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;
     virtual void       setPalette( const QPalette & );
+    virtual bool       paletteChange( const QPalette & );
 
     const QFont &font()		const;
     virtual void setFont( const QFont & );
+    virtual bool fontChange( const QFont & );
     QFontMetrics fontMetrics()	const;
     QFontInfo	 fontInfo()	const;
 
     const QCursor &cursor() const;
-    void	 setCursor( const QCursor & );
+    virtual void setCursor( const QCursor & );
 
     const char  *caption()	const;
     void    	 setCaption( const char * );

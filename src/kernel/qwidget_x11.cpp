@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#113 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#112 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#113 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -317,23 +317,21 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
   The background color is independent of the widget color group.
   Setting a new palette overwrites the background color.
 
-  \code
-    QWidget w;
-    w.setBackgroundColor( yellow );
-  \endcode
-
-  \sa backgroundColor(), setPalette(), setBackgroundPixmap()
+  \sa backgroundColor(), backgroundColorChange(), setPalette(),
+  setBackgroundPixmap()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
+    QColor old = bg_col;
     bg_col = color;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
-    update();
+    if ( backgroundColorChange(old) )
+	repaint();
 }
 
 /*----------------------------------------------------------------------------
@@ -341,11 +339,14 @@ void QWidget::setBackgroundColor( const QColor &color )
 
   The background pixmap is tiled.
 
-  \sa setBackgroundColor()
+  \sa backgroundPixmap(), backgroundPixmapChange(), setBackgroundColor()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
+    QPixmap old;
+    if ( extra && extra->bg_pix )
+	old = *extra->bg_pix;
     if ( pixmap.isNull() ) {
 	XSetWindowBackground( dpy, ident, bg_col.pixel() );
 	if ( extra && extra->bg_pix ) {
@@ -368,7 +369,8 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
-    update();
+    if ( backgroundPixmapChange(old) )
+	repaint();
 }
 
 
@@ -739,7 +741,7 @@ bool QWidget::focusPrevChild()
   \sa update(), repaint(), paintEvent()
  ----------------------------------------------------------------------------*/
 
-bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
+bool QWidget::enableUpdates( bool enable )
 {
     bool last = !testWFlags( WNoUpdates );
     if ( enable )
@@ -1003,7 +1005,7 @@ void QWidget::move( int x, int y )
   \sa move(), setGeometry(), resizeEvent()
  ----------------------------------------------------------------------------*/
 
-void QWidget::resize( int w, int h )		// resize widget
+void QWidget::resize( int w, int h )
 {
     if ( w < 1 )				// invalid size
 	w = 1;
