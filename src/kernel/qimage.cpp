@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#353 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#354 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2673,8 +2673,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     // target image data
     int wd;
     int hd;
-    int dbpl; // bytes per line in destination
-    int dbytes; // bytes total in destination
 
     int bpp = depth();
     bool depth1 = (bpp == 1);
@@ -2707,40 +2705,13 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	return im;
     }
 
-#if 1
-    // create target image (some of the code is from QImage::create())
-    QImage dImage( copy() );
-    dImage.freeBits();
-#ifdef Q_WS_QWS
-    dbpl = (wd*bpp+7)/8;
-#else
-    dbpl = ((wd*bpp+31)/32)*4;
-#endif
-    dbytes = dbpl*hd;
-    int ptbl   = hd*sizeof(uchar*);		// pointer table size
-    int size   = dbytes + ptbl;			// total size of data block
-    uchar **pp  = (uchar **)malloc( size );	// alloc image bits
-    if ( !pp ) {				// no memory
-	return QImage();
-    }
-    dImage.data->w = wd;
-    dImage.data->h = hd;
-    dImage.data->nbytes  = dbytes;
-    dImage.data->bits = pp;			// set image pointer
-    uchar *d = (uchar*)(pp + hd);		// setup scanline pointers
-    for ( y=hd; y>0; y-- ) {
-	*pp++ = d;
-	d += dbpl;
-    }
-    dImage.data->alpha = alpha;
-#else
     // create target image (some of the code is from QImage::copy())
     QImage dImage( wd, hd, depth(), numColors(), bitOrder() );
     memcpy( dImage.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     dImage.setAlphaBuffer( hasAlphaBuffer() );
     dImage.data->dpmx = dotsPerMeterX();
     dImage.data->dpmy = dotsPerMeterY();
-#endif
+
     switch ( bpp ) {
 	// initizialize the data
 	case 1:
@@ -2783,6 +2754,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     uchar *p = dImage.bits();
     bool msbfirst = systemByteOrder() == BigEndian; // ### is this right?
 
+    int dbpl = dImage.bytesPerLine();
     for ( y=0; y<hd; y++ ) {			// for each target scanline
 	p = dImage.scanLine( y );
 	trigx = m21ydx;
