@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#36 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#36 $")
 
 
 /*****************************************************************************
