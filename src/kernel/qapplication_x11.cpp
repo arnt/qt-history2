@@ -6002,6 +6002,8 @@ void QSmSocketReceiver::socketActivated(int)
     IceProcessMessages( SmcGetIceConnection( smcConnection ), 0, 0);
 }
 
+
+#undef Bool
 #include "qapplication_x11.moc"
 
 class QSessionManager::Data

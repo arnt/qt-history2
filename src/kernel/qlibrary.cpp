@@ -255,7 +255,7 @@ void* QLibrary::Private::resolveSymbol( const char* symbol )
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	qDebug( "Couldn't resolve symbol \"%1\"", symbol );
 #endif
-	return 0;
+	return;
     }
     return address;
 }

@@ -4,6 +4,9 @@
 #include <memory.h>
 
 #ifndef UCOM_EXPORT
+#define UCOM_EXPORT Q_EXPORT
+#endif
+#ifndef UCOM_EXPORT
 #error "UCOM_EXPORT undefined"
 #endif
 

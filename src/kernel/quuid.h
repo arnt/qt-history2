@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qstring.h>
-#include <qucom.h>
+#include <ucom.h>
 #endif // QT_H
 
 #include <memory.h>

@@ -17,10 +17,10 @@ void UType_QString::set( UObject *o, const QString& v )
 bool UType_QString::canConvertFrom( UObject *o, UType *t )
 {
     if ( isEqual( t, pUType_charstar ) ||
-	 isEqual( t, pUType_double ) || 
+	 isEqual( t, pUType_double ) ||
 	 isEqual( t, pUType_int ) )
 	return true;
-    
+
     return t->canConvertTo( o, this );
 }
 
@@ -74,5 +74,47 @@ void UType_QString::clear( UObject *o )
     delete (QString*)o->payload.ptr;
     o->payload.ptr = 0;
 }
+
+
+// 6dc75d58-a1d9-4417-b591-d45c63a3a4ea
+const UUid TID_UType_QVariant =
+{ 0x6dc75d58, 0xa1d9, 0x4417, { 0xb5, 0x91, 0xd4, 0x5c, 0x63, 0xa3, 0xa4, 0xea } };
+static UType_QVariant static_UType_QVariant;
+UType_QVariant *pUType_QVariant = &static_UType_QVariant;
+const UUid *UType_QVariant::uuid() const { return &TID_UType_QVariant; }
+const char *UType_QVariant::desc() const { return "QVariant"; }
+
+void UType_QVariant::set( UObject *o, const QVariant& v )
+{
+    o->payload.ptr = new QVariant( v );
+    o->type = this;
+}
+
+bool UType_QVariant::canConvertFrom( UObject *o, UType *t )
+{
+    return t->canConvertTo( o, this );
+}
+
+bool UType_QVariant::canConvertTo( UObject * /*o*/, UType *t )
+{
+    return false;
+}
+
+bool UType_QVariant::convertFrom( UObject *o, UType *t )
+{
+    return t->convertTo( o, this );
+}
+
+bool UType_QVariant::convertTo( UObject *o, UType *t )
+{
+    return false;
+}
+
+void UType_QVariant::clear( UObject *o )
+{
+    delete (QVariant*)o->payload.ptr;
+    o->payload.ptr = 0;
+}
+
 
 #include "ucom.cpp"
