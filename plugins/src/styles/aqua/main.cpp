@@ -6,7 +6,7 @@ class AquaStyle : public QStylePlugin
 public:
     AquaStyle();
 
-    QStringList featureList() const;
+    QStringList keys() const;
     QStyle *create( const QString& );
 };
 
@@ -15,7 +15,7 @@ AquaStyle::AquaStyle()
 {
 }
 
-QStringList AquaStyle::featureList() const
+QStringList AquaStyle::keys() const
 {
     QStringList list;
     list << "Aqua";
@@ -30,4 +30,4 @@ QStyle* AquaStyle::create( const QString& s )
     return 0;
 }
 
-Q_EXPORT_PLUGIN( QStylePlugin )
+Q_EXPORT_PLUGIN( AquaStyle )
