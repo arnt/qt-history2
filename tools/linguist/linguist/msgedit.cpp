@@ -204,7 +204,15 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
+    p = srcTextLbl->palette();
+    p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
+    p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
+    srcTextLbl->setPalette( p );
     transLbl   = new QLabel( tr("Translation"), this, "translation label" );
+    p = transLbl->palette();
+    p.setColor( QPalette::Active, QColorGroup::Background, palette().active().base() );
+    p.setColor( QPalette::Inactive, QColorGroup::Background, palette().inactive().base() );
+    transLbl->setPalette( p );
 
     QFont fnt = font();
     fnt.setBold( TRUE );
