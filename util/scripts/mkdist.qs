@@ -16,7 +16,7 @@ const validVars = ["branch", "version"];       // variables with arbitrary value
 
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "jpg", "bmp", "any", "pic", "ppm",
-			  "exe", "zip", "qm", "ico"];
+			  "exe", "zip", "qm", "ico", "wav"];
 
 const user = System.getenv("USER");
 
