@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#18 $
 **
 ** Implementation of QStringList
 **
@@ -131,6 +131,28 @@ QStringList QStringList::split( const QString &sep, const QString &str )
     int l = str.length() - 1;
     if ( !str.mid( j, l - j + 1 ).isEmpty() )
         lst.append( str.mid( j, l - j + 1 ) );
+
+    return lst;
+}
+
+QStringList QStringList::split( const QRegExp &sep, const QString &str )
+{
+    QStringList lst;
+
+    int j = 0;
+    int i = str.find( sep, j );
+    int len = 0;
+
+    while ( i != -1 ) {
+	if ( str.mid( j, i - j ).length() > 0 )
+	    lst.append( str.mid( j, i - j ) );
+	j = i + len;
+	i = sep.match( str, j, &len );
+    }
+
+    int l = str.length() - 1;
+    if ( !str.mid( j, l - j + 1 ).isEmpty() )
+	lst.append( str.mid( j, l - j + 1 ) );
 
     return lst;
 }
