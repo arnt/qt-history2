@@ -66,6 +66,10 @@ QFSFileEngine::open(int flags)
         d->setError(QFile::OpenError, QLatin1String("No file name specified"));
         return false;
     }
+
+    if (flags & QFile::Append)
+        flags |= QFile::WriteOnly;
+
     int oflags = QT_OPEN_RDONLY;
     if ((flags & QFile::ReadWrite) == QFile::ReadWrite) {
         oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
@@ -73,12 +77,10 @@ QFSFileEngine::open(int flags)
         oflags = QT_OPEN_WRONLY | QT_OPEN_CREAT;
     }
 
-    if (flags & QFile::WriteOnly) {
-        if (flags & QFile::Append)
-            oflags |= QT_OPEN_APPEND;
-        else
-            oflags |= QT_OPEN_TRUNC;
-        if (flags & QFile::Truncate)
+    if (flags & QFile::Append) {
+         oflags |= QT_OPEN_APPEND;
+    } else if (flags & QFile::WriteOnly) {
+        if ((flags & QFile::Truncate) || !(flags & QFile::ReadOnly))
             oflags |= QT_OPEN_TRUNC;
     }
 
