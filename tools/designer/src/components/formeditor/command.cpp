@@ -37,7 +37,7 @@ FormEditorCommand::FormEditorCommand(const QString &description, FormEditor *cor
       m_core(core)
 {
 }
-    
+
 FormEditor *FormEditorCommand::core() const
 {
     return m_core;
@@ -49,7 +49,7 @@ FormWindowManagerCommand::FormWindowManagerCommand(const QString &description, F
       m_formWindowManager(formWindowManager)
 {
 }
-    
+
 FormWindowManager *FormWindowManagerCommand::formWindowManager() const
 {
     return m_formWindowManager;
@@ -61,12 +61,12 @@ FormWindowCommand::FormWindowCommand(const QString &description, FormWindow *for
       m_formWindow(formWindow)
 {
 }
-    
+
 FormWindow *FormWindowCommand::formWindow() const
 {
     return m_formWindow;
 }
-    
+
 bool FormWindowCommand::hasLayout(QWidget *widget) const
 {
     AbstractFormEditor *core = formWindow()->core();
@@ -74,15 +74,15 @@ bool FormWindowCommand::hasLayout(QWidget *widget) const
         AbstractMetaDataBaseItem *item = core->metaDataBase()->item(widget);
         return item != 0;
     }
-    
+
     return false;
 }
-    
+
 void FormWindowCommand::checkObjectName(QWidget *widget)
 {
     if (widget->objectName().isEmpty())
         qWarning("invalid object name");
-    
+
     AbstractFormEditor *core = formWindow()->core();
     if (AbstractMetaDataBaseItem *item = core->metaDataBase()->item(widget)) {
         item->setName(widget->objectName());
@@ -94,15 +94,15 @@ void FormWindowCommand::checkSelection(QWidget *widget)
     if (formWindow()->isWidgetSelected(widget))
         formWindow()->updateSelection(widget);
 }
- 
+
 void FormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
 {
     Q_ASSERT(widget);
-    
+
     if (widget->parentWidget() != parentWidget)
         widget->setParent(parentWidget);
 }
-   
+
 // ---- SetPropertyCommand ----
 SetPropertyCommand::SetPropertyCommand(FormWindow *formWindow)
     : FormWindowCommand(QString::null, formWindow),
@@ -126,41 +126,42 @@ QWidget *SetPropertyCommand::parentWidget() const
 void SetPropertyCommand::init(QWidget *widget, const QString &propertyName, const QVariant &newValue)
 {
     Q_ASSERT(widget);
-    
+
     m_widget = widget;
     m_parentWidget = widget->parentWidget();
     m_propertyName = propertyName;
     m_newValue = newValue;
-    
+
     AbstractFormEditor *core = formWindow()->core();
     m_propertySheet = qt_extension<IPropertySheet*>(core->extensionManager(), widget);
     Q_ASSERT(m_propertySheet);
-        
+
     m_index = m_propertySheet->indexOf(m_propertyName);
     Q_ASSERT(m_index != -1);
-    
+
     m_changed = m_propertySheet->isChanged(m_index);
     m_oldValue = m_propertySheet->property(m_index);
-    
+
     setDescription(tr("changed '%1' of '%2'").arg(m_propertyName).arg(m_widget->objectName()));
 }
-    
+
 void SetPropertyCommand::redo()
 {
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
-    
+
     m_propertySheet->setProperty(m_index, m_newValue);
     m_changed = m_propertySheet->isChanged(m_index);
     m_propertySheet->setChanged(m_index, true);
-    
+
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
+        formWindow()->emitGeometryChanged(m_widget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
-    
+
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
             propertyEditor->setPropertyValue(propertyName(), m_newValue);
@@ -171,17 +172,18 @@ void SetPropertyCommand::undo()
 {
     Q_ASSERT(m_propertySheet);
     Q_ASSERT(m_index != -1);
-    
+
     m_propertySheet->setProperty(m_index, m_oldValue);
     m_propertySheet->setChanged(m_index, m_changed);
-    
+
     if (m_propertyName == QLatin1String("geometry")) {
         checkSelection(m_widget);
         checkParent(m_widget, m_parentWidget);
+        formWindow()->emitGeometryChanged(m_widget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
     }
-    
+
     if (AbstractPropertyEditor *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == widget())
             propertyEditor->setPropertyValue(propertyName(), m_oldValue);
@@ -196,7 +198,7 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -209,14 +211,14 @@ InsertWidgetCommand::InsertWidgetCommand(FormWindow *formWindow)
 void InsertWidgetCommand::init(QWidget *widget)
 {
     m_widget = widget;
-    
+
     setDescription(tr("Insert '%1'").arg(widget->objectName()));
 }
 
 void InsertWidgetCommand::redo()
 {
     checkObjectName(m_widget);
-    
+
     QWidget *parentWidget = m_widget->parentWidget();
     if (QLayoutWidget *g = qt_cast<QLayoutWidget*>(parentWidget)) {
         g->insertWidget(m_widget);
@@ -226,7 +228,7 @@ void InsertWidgetCommand::redo()
         support.insertWidget(m_widget);
         formWindow()->emitGeometryChanged(parentWidget);
     }
-    
+
     formWindow()->manageWidget(m_widget);
     m_widget->show();
 }
@@ -242,7 +244,7 @@ void InsertWidgetCommand::undo()
         support.removeWidget(m_widget);
         formWindow()->emitGeometryChanged(parentWidget);
     }
-    
+
     formWindow()->unmanageWidget(m_widget);
     m_widget->hide();
 }
@@ -261,7 +263,7 @@ void RaiseWidgetCommand::init(QWidget *widget)
 
 void RaiseWidgetCommand::redo()
 {
-    m_widget->raise();    
+    m_widget->raise();
 }
 
 void RaiseWidgetCommand::undo()
@@ -282,7 +284,7 @@ void LowerWidgetCommand::init(QWidget *widget)
 
 void LowerWidgetCommand::redo()
 {
-    m_widget->raise();    
+    m_widget->raise();
 }
 
 void LowerWidgetCommand::undo()
@@ -300,12 +302,12 @@ void DeleteWidgetCommand::init(QWidget *widget)
     m_widget = widget;
     m_parentWidget = widget->parentWidget();
     m_geometry = widget->geometry();
-    
+
     m_layoutType = LayoutInfo::NoLayout;
     m_index = -1;
     if (hasLayout(m_parentWidget)) {
         m_layoutType = LayoutInfo::layoutType(formWindow()->core(), m_parentWidget);
-        
+
         switch (m_layoutType) {
             case LayoutInfo::VBox:
                 m_index = static_cast<QVBoxLayout*>(m_parentWidget->layout())->findWidget(m_widget);
@@ -316,19 +318,19 @@ void DeleteWidgetCommand::init(QWidget *widget)
             case LayoutInfo::Grid: {
                 m_index = 0;
                 while (QLayoutItem *item = m_parentWidget->layout()->itemAt(m_index)) {
-                    if (item->widget() == m_widget) 
+                    if (item->widget() == m_widget)
                         break;
                     ++m_index;
                 }
-                
+
                 static_cast<QGridLayout*>(m_parentWidget->layout())->getItemPosition(m_index, &m_row, &m_col, &m_rowspan, &m_colspan);
             } break;
-                
+
             default:
                 break;
         } // end switch
     }
-    
+
     setDescription(tr("Delete '%1'").arg(widget->objectName()));
 }
 
@@ -342,18 +344,18 @@ void DeleteWidgetCommand::redo()
     }
 
     formWindow()->unmanageWidget(m_widget);
-    m_widget->hide();    
+    m_widget->hide();
     m_widget->setParent(formWindow());
-    
+
     formWindow()->emitGeometryChanged(m_parentWidget);
 }
 
 void DeleteWidgetCommand::undo()
 {
-    m_widget->setParent(m_parentWidget);    
+    m_widget->setParent(m_parentWidget);
     m_widget->setGeometry(m_geometry);
     formWindow()->manageWidget(m_widget);
-    
+
     // ### set up alignment
     switch (m_layoutType) {
         case LayoutInfo::VBox:
@@ -382,20 +384,20 @@ ReparentWidgetCommand::ReparentWidgetCommand(FormWindow *formWindow)
 void ReparentWidgetCommand::init(QWidget *widget, QWidget *parentWidget)
 {
     Q_ASSERT(widget);
-    
+
     m_widget = widget;
     m_oldParentWidget = widget->parentWidget();
     m_newParentWidget = parentWidget;
-    
+
     m_oldPos = m_widget->pos();
     m_newPos = m_newParentWidget->mapFromGlobal(m_oldParentWidget->mapToGlobal(m_oldPos));
-    
+
     setDescription(tr("Reparent '%1'").arg(widget->objectName()));
 }
 
 void ReparentWidgetCommand::redo()
 {
-    m_widget->setParent(m_newParentWidget);    
+    m_widget->setParent(m_newParentWidget);
     m_widget->move(m_newPos);
     m_widget->show();
 }
@@ -417,15 +419,15 @@ LayoutCommand::~LayoutCommand()
 {
     m_layout->deleteLater();
 }
-    
-void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, LayoutInfo::Type layoutType, 
+
+void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, LayoutInfo::Type layoutType,
         QWidget *layoutBase, bool splitter)
 {
     m_parentWidget = parentWidget;
     m_widgets = widgets;
     QPoint grid = formWindow()->grid();
     QSize sz(qMax(5, grid.x()), qMax(5, grid.y()));
-    
+
     switch (layoutType) {
         case LayoutInfo::Grid:
             m_layout = new GridLayout(widgets, m_parentWidget, formWindow(), layoutBase, sz);
@@ -442,10 +444,10 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
         default:
             Q_ASSERT(0);
     }
-    
+
     m_layout->setup();
 }
-    
+
 void LayoutCommand::redo()
 {
     m_layout->doLayout();
@@ -476,7 +478,7 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 {
     m_widgets = widgets;
     m_layoutBase = layoutBase;
-    
+
     AbstractFormEditor *core = formWindow()->core();
     LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
 
@@ -485,7 +487,7 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
         m_margin = item->margin();
         m_spacing = item->spacing();
     }
-    
+
     QPoint grid = formWindow()->grid();
 
     m_layout = 0;
@@ -503,7 +505,7 @@ void BreakLayoutCommand::redo()
 {
     if (!m_layout)
         return;
-        
+
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
     for (int i = 0; i < m_widgets.size(); ++i) {
@@ -522,7 +524,7 @@ void BreakLayoutCommand::undo()
     m_layout->doLayout();
 
     AbstractFormEditor *core = formWindow()->core();
-    
+
     QWidget *container = core->widgetFactory()->containerOfWidget(m_layoutBase);
 
     if (AbstractMetaDataBaseItem *item = core->metaDataBase()->item(container)) {
@@ -537,7 +539,7 @@ ToolBoxCommand::ToolBoxCommand(FormWindow *formWindow)
 {
 }
 
-ToolBoxCommand::~ToolBoxCommand()    
+ToolBoxCommand::~ToolBoxCommand()
 {
 }
 
@@ -553,8 +555,8 @@ void ToolBoxCommand::init(QToolBox *toolBox)
 void ToolBoxCommand::removePage()
 {
     m_toolBox->removeItem(m_index);
-    
-    m_widget->hide();    
+
+    m_widget->hide();
     m_widget->setParent(formWindow());
 }
 
@@ -562,7 +564,7 @@ void ToolBoxCommand::addPage()
 {
     m_widget->setParent(m_toolBox);
     m_toolBox->insertItem(m_index, m_widget, m_itemIcon, m_itemText);
-    
+
     m_widget->show();
 }
 
@@ -605,15 +607,15 @@ AddToolBoxPageCommand::~AddToolBoxPageCommand()
 void AddToolBoxPageCommand::init(QToolBox *toolBox)
 {
     m_toolBox = toolBox;
-    
+
     m_index = m_toolBox->currentIndex();
     m_widget = new QDesignerWidget(formWindow(), m_toolBox);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
-    
+
     setDescription(tr("Add Page"));
-    
-    AbstractFormEditor *core = formWindow()->core();    
+
+    AbstractFormEditor *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
 }
 
@@ -633,7 +635,7 @@ TabWidgetCommand::TabWidgetCommand(FormWindow *formWindow)
 {
 }
 
-TabWidgetCommand::~TabWidgetCommand()    
+TabWidgetCommand::~TabWidgetCommand()
 {
 }
 
@@ -649,8 +651,8 @@ void TabWidgetCommand::init(QTabWidget *tabWidget)
 void TabWidgetCommand::removePage()
 {
     m_tabWidget->removeTab(m_index);
-    
-    m_widget->hide();    
+
+    m_widget->hide();
     m_widget->setParent(formWindow());
 }
 
@@ -658,7 +660,7 @@ void TabWidgetCommand::addPage()
 {
     m_widget->setParent(m_tabWidget);
     m_tabWidget->insertTab(m_index, m_widget, m_itemIcon, m_itemText);
-    
+
     m_widget->show();
 }
 
@@ -701,15 +703,15 @@ AddTabPageCommand::~AddTabPageCommand()
 void AddTabPageCommand::init(QTabWidget *tabWidget)
 {
     m_tabWidget = tabWidget;
-    
+
     m_index = m_tabWidget->currentIndex();
     m_widget = new QDesignerWidget(formWindow(), m_tabWidget);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
-    
+
     setDescription(tr("Add Page"));
-    
-    AbstractFormEditor *core = formWindow()->core();    
+
+    AbstractFormEditor *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
 }
 
@@ -729,7 +731,7 @@ StackedWidgetCommand::StackedWidgetCommand(FormWindow *formWindow)
 {
 }
 
-StackedWidgetCommand::~StackedWidgetCommand()    
+StackedWidgetCommand::~StackedWidgetCommand()
 {
 }
 
@@ -743,8 +745,8 @@ void StackedWidgetCommand::init(QStackedWidget *stackedWidget)
 void StackedWidgetCommand::removePage()
 {
     m_stackedWidget->removeWidget(m_stackedWidget->widget(m_index));
-    
-    m_widget->hide();    
+
+    m_widget->hide();
     m_widget->setParent(formWindow());
 }
 
@@ -752,7 +754,7 @@ void StackedWidgetCommand::addPage()
 {
     m_widget->setParent(m_stackedWidget);
     m_stackedWidget->insertWidget(m_index, m_widget);
-    
+
     m_widget->show();
 }
 
@@ -795,13 +797,13 @@ AddStackedWidgetPageCommand::~AddStackedWidgetPageCommand()
 void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 {
     m_stackedWidget = stackedWidget;
-    
+
     m_index = m_stackedWidget->currentIndex();
     m_widget = new QDesignerWidget(formWindow(), m_stackedWidget);
-    
+
     setDescription(tr("Add Page"));
-    
-    AbstractFormEditor *core = formWindow()->core();    
+
+    AbstractFormEditor *core = formWindow()->core();
     core->metaDataBase()->add(m_widget);
 }
 
@@ -816,7 +818,7 @@ void AddStackedWidgetPageCommand::undo()
 }
 
 // ---- TabOrderCommand ----
-TabOrderCommand::TabOrderCommand(FormWindow *formWindow)    
+TabOrderCommand::TabOrderCommand(FormWindow *formWindow)
     : FormWindowCommand(tr("Change Tab order"), formWindow),
       m_widgetItem(0)
 {
@@ -826,7 +828,7 @@ void TabOrderCommand::init(const QList<QWidget*> &newTabOrder)
 {
     AbstractFormEditor *core = formWindow()->core();
     Q_ASSERT(core);
-    
+
     m_widgetItem = core->metaDataBase()->item(formWindow());
     Q_ASSERT(m_widgetItem);
     m_oldTabOrder = m_widgetItem->tabOrder();
