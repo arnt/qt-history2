@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#237 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -17,6 +17,8 @@
 #include "qwidcoll.h"
 #include "qobjcoll.h"
 #include "qaccel.h"
+#include "qdragobject.h"
+#include "qfocusdata.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -29,7 +31,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#236 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#237 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -221,6 +223,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
 		       WStyle_MinMax );
 	}
+	//
+	extern Atom qt_xdnd_aware;
+	Atom qt_xdnd_version = (Atom)2;
+	XChangeProperty ( dpy, id, qt_xdnd_aware,
+			  XA_ATOM, 32, PropModeReplace,
+			  (unsigned char *)&qt_xdnd_version, 1 );
     }
 
     if ( !initializeWindow ) {
@@ -489,6 +497,10 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
     if ( parent ) {
 	QChildEvent *e = new QChildEvent( Event_ChildInserted, this );
 	QApplication::postEvent( parent, e );
+    } else {
+	QFocusData *fd = focusData( TRUE );
+	if ( fd->focusWidgets.findRef(this) < 0 )
+ 	    fd->focusWidgets.append( this );
     }
 }
 
@@ -1397,8 +1409,13 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 {
 #if defined(CHECK_RANGE)
     if ( maxw > QCOORD_MAX || maxh > QCOORD_MAX )
-	warning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
-		 QCOORD_MAX, QCOORD_MAX );
+	warning("QWidget::setMaximumSize: (%s/%s) "
+		"The largest allowed size is (%d,%d)",
+		 name( "unnamed" ), className(), QCOORD_MAX, QCOORD_MAX );
+    if ( maxw < 0 || maxh < 0 )
+	warning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
+		"are not possible",
+		name( "unnamed" ), className(), maxw, maxh );
 #endif
     createExtra();
     if ( extra->maxw == maxw && extra->maxh == maxh )
@@ -1642,17 +1659,11 @@ int QWidget::metric( int m ) const
     registerDropType( "text/plain" );
     retisterDropType( "image/gif" );
   \endcode
+
+  You can also use QDragManager::registerDropType() directly.
 */
 
 void QWidget::registerDropType( const char * mimeType )
 {
-    extern Atom qt_xdnd_aware;
-
-    extern void qt_xdnd_add_type( const char * );
-    qt_xdnd_add_type( mimeType );
-
-    Atom qt_xdnd_version = (Atom)1;
-    XChangeProperty ( dpy, winId(), qt_xdnd_aware, XA_ATOM, 32,
-		      PropModeReplace,
-		      (unsigned char *)&qt_xdnd_version, 1 );
+    QDragManager::registerDropType( this, mimeType );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#10 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#10 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -34,61 +34,27 @@ struct QDragData {
     QString fmt;
     QByteArray enc;
     bool autoDelete;
-
-    // the one-of-a-kind drag manager
-    class Manager: public QObject {
-    public:
-	Manager();
-	~Manager();
-
-	bool eventFilter( QObject *, QEvent * );
-
-	void startDrag( QDragObject * );
-
-	void cancel();
-	void move( const QPoint & );
-	void drop( const QPoint & );
-
-    private:
-	QByteArray enc;
-	QDragObject * object;
-
-	QWidget * dragSource;
-	QWidget * dropWidget;
-	bool beingCancelled;
-	bool restoreCursor;
-
-	friend QDragObject;
-    };
 };
 
 
-// and here it is
-static QDragData::Manager * manager = 0;
-
-static void clean_up_drag_manager() {
-    delete manager;
-    manager = 0;
-}
+// the universe's only drag manager
+static QDragManager * manager = 0;
 
 
-
-QDragData::Manager::Manager()
-    : QObject( 0, "global drag manager" )
+QDragManager::QDragManager()
+    : QObject( qApp, "global drag manager" )
 {
     object = 0;
     dragSource = 0;
     dropWidget = 0;
-    if ( !manager ) {
+    if ( !manager )
 	manager = this;
-	qAddPostRoutine( clean_up_drag_manager );
-    }
     beingCancelled = FALSE;
     restoreCursor = FALSE;
 }
 
 
-QDragData::Manager::~Manager()
+QDragManager::~QDragManager()
 {
     if ( restoreCursor )
 	QApplication::restoreOverrideCursor();
@@ -97,7 +63,7 @@ QDragData::Manager::~Manager()
 
 
 
-void QDragData::Manager::startDrag( QDragObject * o )
+void QDragManager::startDrag( QDragObject * o )
 {
     if ( object == o ) {
 	debug( "meaningless" );
@@ -113,134 +79,11 @@ void QDragData::Manager::startDrag( QDragObject * o )
     object = o;
     dragSource = (QWidget *)(object->parent());
     dragSource->installEventFilter( this );
+    debug( "started drag" );
 }
 
 
-void QDragData::Manager::cancel()
-{
-    debug( "c " );
-    if ( object ) {
-	beingCancelled = TRUE;
-	if ( object->autoDelete() )
-	    delete object;
-	object = 0;
-    }
-    if ( dropWidget ) {
-	// send cancel event
-	dropWidget = 0;
-    }
-    if ( restoreCursor ) {
-	QApplication::restoreOverrideCursor();
-	restoreCursor = FALSE;
-    }
-}
-
-
-void QDragData::Manager::move( const QPoint & globalPos )
-{
-    bool a = TRUE;
-
-    int lx, ly;
-    QWidget * w;
-#if defined( _WS_X11_ )
-    Window target;
-    if ( !XTranslateCoordinates(qt_xdisplay(), qt_xrootwin(), qt_xrootwin(),
-				globalPos.x(), globalPos.y(),
-				&lx, &ly, &target) ) {
-	// somehow got to a different screen?  ignore for now
-	return;
-    }
-    w = QWidget::find( target );
-#elif defined(_WS_WIN_)
-    return;
-#endif
-
-
-    if ( w ) {
-	// this process, so short-circuit
-
-	QPoint local = w->mapFromGlobal( globalPos );
-	QWidget * dest = 0;
-	while ( w->children() && !dest ) {
-	    bool doneWithThisOne = FALSE;
-	    QWidget * c;
-	    QObjectListIt it( *w->children() );
-	    it.toLast();
-	    while( !doneWithThisOne && (c=((QWidget*)(it.current()))) != 0 ) {
-		--it;
-		if ( c->isWidgetType() &&
-		     c->geometry().contains( local ) ) {
-		    doneWithThisOne = TRUE;
-		    w = c;
-		    local = w->mapFromParent( local );
-		}
-	    }
-	    if ( !doneWithThisOne )
-		dest = w;
-	}
-	if ( !dest )
-	    dest = w;
-	
-	if ( dropWidget && dropWidget != dest ) {
-	    QDragLeaveEvent m;
-	    QApplication::sendEvent( dropWidget, &m );
-	}
-	QDragMoveEvent m( local, QString( object->format() ) );
-	QApplication::sendEvent( dest, &m );
-	a = m.isAccepted();
-	dropWidget = a ? dest : 0;
-	QApplication::setOverrideCursor( a ? arrowCursor : crossCursor,
-					 restoreCursor );
-	restoreCursor = TRUE;
-    } else {
-	// another process, so do the IPC thing
-#if defined( _WS_X11_ )
-	qt_xdnd_send_move( target, object, globalPos );
-#elif defined(_WS_WIN_)
-	QApplication::setOverrideCursor( crossCursor,
-					 restoreCursor );
-	restoreCursor = TRUE;
-#endif
-    }
-}
-
-
-void QDragData::Manager::drop( const QPoint & globalPos )
-{
-    debug( "d " );
-    if ( dropWidget ) {
-	if ( enc.isEmpty() )
-	    enc = object->encodedData();
-	QDropEvent m( dropWidget->mapFromGlobal( globalPos ),
-		      QString( object->format() ), enc );
-	QApplication::sendEvent( dropWidget, &m );
-	// was it accepted?  who cares!
-    }
-
-    if ( restoreCursor )
-	QApplication::restoreOverrideCursor();
-    dropWidget = 0;
-    restoreCursor = FALSE;
-
-    if ( object ) {
-	if ( object->autoDelete() )
-	    delete object;
-	object = 0;
-    }
-
-    if ( !enc.isEmpty() ) {
-	enc.detach();
-	enc.resize( 0 );
-    }
-
-    if ( dragSource ) {
-	dragSource->removeEventFilter( this );
-	dragSource = 0;
-    }
-}
-
-
-bool QDragData::Manager::eventFilter( QObject * o, QEvent * e)
+bool QDragManager::eventFilter( QObject * o, QEvent * e)
 {
     if ( o != dragSource ) {
 	debug( "unexpected event for object %p - %s/%s",
@@ -268,7 +111,7 @@ bool QDragData::Manager::eventFilter( QObject * o, QEvent * e)
 	move( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
 	return TRUE;
     } else if ( e->type() == Event_MouseButtonRelease ) {
-	drop( dragSource->mapToGlobal( ((QMouseEvent *)e)->pos() ) );
+	drop();
 	return TRUE;
     } else if ( e->type() == Event_KeyPress &&
 		((QKeyEvent*)e)->key() == Key_Escape ) {
@@ -319,7 +162,8 @@ QDragObject::~QDragObject()
 
 void QDragObject::startDrag()
 {
-    manager->startDrag( this );
+    if ( manager )
+	manager->startDrag( this );
 }
 
 
@@ -340,8 +184,8 @@ void QDragObject::setEncodedData( QByteArray & encodedData )
 {
     d->enc = encodedData;
     d->enc.detach();
-    if ( !manager )
-	(void)new QDragData::Manager();
+    if ( !manager && qApp )
+	(void)new QDragManager();
 }
 
 
@@ -445,6 +289,7 @@ QTextDragObject::QTextDragObject( QWidget * parent, const char * name )
     : QDragObject( parent, name )
 {
     // nothing
+    setFormat( "text/plain" );
 }
 
 

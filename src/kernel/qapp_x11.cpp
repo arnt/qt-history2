@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#304 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#305 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#304 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#305 $");
 
 
 /*****************************************************************************
@@ -129,7 +129,7 @@ Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
-static Atom	qt_wm_state;
+Atom		qt_wm_state;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -189,12 +189,14 @@ extern void qt_handle_xdnd_position( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_status( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
 extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_finished( QWidget *, const XEvent * );
 // client message atoms
 extern Atom qt_xdnd_enter;
 extern Atom qt_xdnd_position;
 extern Atom qt_xdnd_status;
 extern Atom qt_xdnd_leave;
 extern Atom qt_xdnd_drop;
+extern Atom qt_xdnd_finished;
 // thatsall
 
 void qt_x11_intern_atom( const char *, Atom * );
@@ -381,7 +383,7 @@ static struct {
     { 0, /* anything */ QFont::Latin1 }
 };
 
-    
+
 	
 static void set_local_font()
 {
@@ -2000,6 +2002,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    qt_handle_xdnd_leave( widget, event );
 		} else if ( event->xclient.message_type == qt_xdnd_drop ) {
 		    qt_handle_xdnd_drop( widget, event );
+		} else if ( event->xclient.message_type == qt_xdnd_finished ) {
+		    qt_handle_xdnd_finished( widget, event );
 		}
 	    }
 	    break;

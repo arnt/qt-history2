@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#22 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#22 $");
 
 
 /*****************************************************************************
@@ -186,8 +186,8 @@ void QClipboard::clear()
 }
 
 
-static bool waitForEvent( Display *dpy, Window win, int type, XEvent *event,
-			  int timeout )
+bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
+			     int timeout )
 {
     QTime started = QTime::currentTime();
     QTime now = started;
@@ -209,10 +209,13 @@ static inline int maxSelectionIncr( Display *dpy )
 	4*65536 : XMaxRequestSize(dpy)*4 - 100;
 }
 
-static bool readProperty( Display *dpy, Window win, Atom property,
-			  bool deleteProperty,
-			  QByteArray *buffer, int *size, Atom *type,
-			  int *format )
+
+// uglehack: externed into qt_xdnd.cpp.  qt is really not designed for
+// single-platform, multi-purpose blocks of code...
+bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
+			   bool deleteProperty,
+			   QByteArray *buffer, int *size, Atom *type,
+			   int *format )
 {
     int	   maxsize = maxSelectionIncr(dpy);
     ulong  bytes_left;
@@ -272,8 +275,9 @@ static bool readProperty( Display *dpy, Window win, Atom property,
 }
 
 
-static QByteArray readIncrementalProperty( Display *dpy, Window win,
-					   Atom property, int nbytes )
+// this is externed into qt_xdnd.cpp too.
+QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
+					      Atom property, int nbytes )
 {
     XEvent event;
 
@@ -297,13 +301,15 @@ static QByteArray readIncrementalProperty( Display *dpy, Window win,
     }
 
     while ( TRUE ) {
-	if ( !waitForEvent(dpy,win,PropertyNotify,(XEvent*)&event,5000) )
+	if ( !qt_xclb_wait_for_event(dpy,win,PropertyNotify,
+				     (XEvent*)&event,5000) )
 	    break;
 	XFlush( dpy );
 	if ( event.xproperty.atom != property ||
 	     event.xproperty.state != PropertyNewValue )
 	    continue;
-	if ( readProperty(dpy, win, property, TRUE, &tmp_buf, &length,0, 0) ) {
+	if ( qt_xclb_read_property(dpy, win, property, TRUE, &tmp_buf,
+					&length,0, 0) ) {
 	    if ( length == 0 ) {		// no more data, we're done
 		buf.at( offset ) = '\0';
 		buf.resize( offset+1 );
@@ -372,17 +378,19 @@ void *QClipboard::data( const char *format ) const
     XFlush( dpy );
 
     XEvent xevent;
-    if ( !waitForEvent(dpy,win,SelectionNotify,&xevent,5000) )
+    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
 	return 0;
 
     static QByteArray buf;
     Atom   type;
 
-    if ( readProperty(dpy,win,qt_selection_property,TRUE,&buf,0,&type,0) ) {
+    if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
+			       &buf,0,&type,0) ) {
 	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
 	    int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
-	    buf = readIncrementalProperty( dpy, win, qt_selection_property,
-					   nbytes );
+	    buf = qt_xclb_read_incremental_property( dpy, win,
+						     qt_selection_property,
+						     nbytes );
 	} else if ( type != XA_STRING ) {
 #if 0
 	    // For debugging

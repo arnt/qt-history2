@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#45 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#46 $
 **
 ** Definition of event classes
 **
@@ -201,20 +201,25 @@ protected:
 #define Q_CLOSE_EVENT(x)	((QCloseEvent*)x)
 
 
+// this class is rather closed at the moment.  if you need to create
+// your own QDragMoveEvent objects, write to qt-bugs@troll.no and
+// we'll try to find a way to extend it so it covers your needs.
+
 class QDragMoveEvent : public QEvent
 {
 public:
-    QDragMoveEvent( const QPoint& pos, const QString & f )
-	: QEvent(Event_DragMove), p(pos), fmt(f), accpt(FALSE) {}
-    const QPoint &pos() const	{ return p; }
-    bool   isAccepted() const	{ return accpt; }
+    QDragMoveEvent( const QPoint& pos )
+	: QEvent(Event_DragMove), p(pos), accpt(FALSE), d(0) {}
+    const QPoint& pos() const   { return p; }
+    bool   isAccepted() const   { return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    const char * format() const { return fmt; }
+    const char * format( int n = 0 );
+    const QByteArray data( const char * );
 protected:
     QPoint p;
-    const QString fmt;
     bool   accpt;
+    void * d;
 };
 
 
@@ -240,19 +245,16 @@ public:
 class QDropEvent : public QEvent
 {
 public:
-    QDropEvent( const QPoint& pos, const QByteArray & f, const QByteArray & e )
-	: QEvent(Event_Drop), p(pos), accpt(FALSE), fmt(f), enc(e) {}
+    QDropEvent( const QPoint& pos )
+	: QEvent(Event_Drop), p(pos), accpt(FALSE) {}
     const QPoint &pos() const	{ return p; }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
-    const char * format() const { return fmt; }
-    const QByteArray & payload() const { return enc; }
+    const QByteArray & data( const char * );
 protected:
     QPoint p;
     bool   accpt;
-    const QString fmt;
-    const QByteArray enc;
 };
 
 

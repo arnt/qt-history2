@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#127 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#127 $");
 
 
 struct QLineEditPrivate {
@@ -649,7 +649,6 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     if ( e->button() == MidButton ) {
 	insert( QApplication::clipboard()->text() );
 	return;
-#if 0
     } else if ( hasMarkedText() &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
@@ -658,7 +657,6 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	tdo->setText( markedText() );
 	tdo->startDrag();
 	return;
-#endif
     }
 
     int m1 = minMark();
@@ -1196,7 +1194,12 @@ bool QLineEdit::event( QEvent * e )
 	return TRUE;
     } else if ( e->type() == Event_Drop ) {
 	QDropEvent * de = (QDropEvent *) e;
-	insert( *(QString*)&(de->payload()) );
+	QByteArray payload = de->data( "text/plain" );
+	if ( payload.isNull() ) {
+	    de->ignore();
+	    return TRUE;
+	}
+	insert( payload.data() );
 	de->accept();
 	return TRUE;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#5 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#6 $
 **
 ** Definition of QDragObject
 **
@@ -38,7 +38,7 @@ public:
     virtual void encode();
 
     QWidget * source();
-    
+
 private:
     QDragData * d;
 };
@@ -53,6 +53,42 @@ public:
     ~QTextDragObject();
 
     void setText( const char * );
+};
+
+
+// QDragManager is not part of the public API.  It is defined in a
+// header file simply so different .cpp files can implement different
+// member functions.
+// 
+
+class QDragManager: public QObject {
+    Q_OBJECT
+
+public:
+    static void registerDropType( QWidget *, const char * );
+
+private:
+    QDragManager();
+    ~QDragManager();
+    // only friend classes can use QDragManager.
+    friend class QDragObject;
+
+    bool eventFilter( QObject *, QEvent * );
+
+    void startDrag( QDragObject * );
+
+    void cancel();
+    void move( const QPoint & );
+    void drop();
+
+private:
+    QByteArray enc;
+    QDragObject * object;
+    
+    QWidget * dragSource;
+    QWidget * dropWidget;
+    bool beingCancelled;
+    bool restoreCursor;
 };
 
 
