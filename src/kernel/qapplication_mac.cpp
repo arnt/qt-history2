@@ -1440,7 +1440,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QApplication::sendPostedEvents();
 	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-		    if ( !widget->isHidden() && !widget->isDesktop())
+		    if ( !widget->isHidden() )
 			widget->propagateUpdates();
 		}
 		delete list;

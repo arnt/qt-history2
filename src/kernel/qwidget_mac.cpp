@@ -44,6 +44,7 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include <qcursor.h>
+#include <qtimer.h>
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
@@ -121,11 +122,9 @@ tatic inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, b
 }
 inline void qt_dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
 {
-    if(!w->testWFlags( Qt::WType_Desktop )) {
-	debug_wndw_rgn(where, w, r, FALSE);
-	InvalWindowRect((WindowPtr)w->handle(), r);
-	qt_event_request_updates();
-    }
+    debug_wndw_rgn(where, w, r, FALSE);
+    InvalWindowRect((WindowPtr)w->handle(), r);
+    qt_event_request_updates();
 }
 inline void qt_dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
 {
@@ -134,21 +133,17 @@ inline void qt_dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
 	return;
     }
 
-    if(!w->testWFlags( Qt::WType_Desktop )) {
-	debug_wndw_rgn(where, w, r, FALSE);
-	InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
-	qt_event_request_updates();
-    }
+    debug_wndw_rgn(where, w, r, FALSE);
+    InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
+    qt_event_request_updates();
 }
 
 #define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
 #else
 static inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const Rect *r) 
 { 
-    if(!p->testWFlags( Qt::WType_Desktop )) {
-	InvalWindowRect((WindowPtr)p->handle(), r); 
-	qt_event_request_updates();
-    }
+    InvalWindowRect((WindowPtr)p->handle(), r); 
+    qt_event_request_updates();
 }
 inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r) 
 { 
@@ -157,10 +152,8 @@ inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r)
 	return;
     }
 
-    if(!p->testWFlags( Qt::WType_Desktop )) {
-	InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
-	qt_event_request_updates();
-    }
+    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
+    qt_event_request_updates();
 }
 #define qt_dirty_wndw_rgn(x, who, where) qt_dirty_wndw_rgn_internal(who, where)
 #define clean_wndw_rgn(x, y, z)
@@ -238,14 +231,14 @@ static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 }
 
 static void *qt_root_win() {
-     WindowPtr ret = NULL;
+    WindowPtr ret = NULL;
 #ifdef Q_WS_MAC9
     //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
     //GetCWMgrPort(ret);
 #else if defined(Q_WS_MACX)
-     Rect r;
-     SetRect(&r, 0, 0, 1024, 768);
-     CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &ret);     
+    Rect r;
+    SetRect(&r, 0, 0, 1024, 768);
+    CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &ret);     
 #endif //MACX
     return (void *) ret;
 }
@@ -348,6 +341,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	hd = (void *)id;
 	setWinId(id);
     } else if ( desktop ) {			// desktop widget
+	own_id = 1;
 	hd = (void *)qt_root_win();
 	id = (WId)hd;
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -435,6 +429,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	mac_window_count--;
 	DisposeWindow((WindowPtr)destroyw);
     }
+    if(desktop) 
+	QTimer::singleShot(0, this, SLOT(show()));
 }
 
 void qt_mac_destroy_widget(QWidget *w); //qapplication_mac.cpp
@@ -470,12 +466,9 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
             qt_leave_modal( this );
         else if ( testWFlags(WType_Popup) )
             qApp->closePopup( this );
-	if ( testWFlags(WType_Desktop) ) {
-	} else {
-	    if ( destroyWindow && isTopLevel() && hd && own_id) {
-		mac_window_count--;
-	        DisposeWindow( (WindowPtr)hd );
-	    }
+	if ( destroyWindow && isTopLevel() && hd && own_id) {
+	    mac_window_count--;
+	    DisposeWindow( (WindowPtr)hd );
 	}
     }
     hd=0;
@@ -855,21 +848,21 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	if(!testWFlags( WType_Desktop )) {
-	    //ick, this is needed because docks are updated by it and mac paints immediatly..
-	    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+	//ick, this is needed because docks are updated by it and mac paints immediatly..
+	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 
 #ifdef Q_WS_MACX  //handle transition
-	    if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
-		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
-					  kWindowSheetTransitionEffect, 
-					  kWindowShowTransitionAction, NULL);
-	    }
-#endif
-	    //now actually show it
-	    ShowHide((WindowPtr)hd, 1);
-	    setActiveWindow();
+	if(!isDesktop() &&
+	   qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
+	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
+				      kWindowSheetTransitionEffect, 
+				      kWindowShowTransitionAction, NULL);
 	}
+#endif
+	//now actually show it
+	ShowHide((WindowPtr)hd, 1);
+	if(!isDesktop())
+	    setActiveWindow();
     } else { 
 	qt_dirty_wndw_rgn("showwindow",this, mac_rect(posInWindow(this), geometry().size()));
     }
