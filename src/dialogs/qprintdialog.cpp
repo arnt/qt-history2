@@ -145,7 +145,7 @@ static void parsePrintcap( QListView * printers )
     bool atEnd = FALSE;
 
     while( !atEnd ) {
-	if ( printcap.atEnd() || printcap.readLine( line_ascii, 1024 ) <= 0 ) 
+	if ( printcap.atEnd() || printcap.readLine( line_ascii, 1024 ) <= 0 )
 	    atEnd = TRUE;
 	QString line = line_ascii;
 	line = line.stripWhiteSpace();
@@ -157,7 +157,7 @@ static void parsePrintcap( QListView * printers )
 	    printerDesc += line;
 	    if ( !atEnd ) continue;
         }
-	
+
 	if ( printerDesc.length() > 1 ) {
             printerDesc = printerDesc.simplifyWhiteSpace();
             int i = printerDesc.find( ':' );
@@ -729,12 +729,12 @@ QPrintDialog::~QPrintDialog()
 /*!
   This method allows you to specify a global printdialog, given in \a
   pd, that will be used instead of the default one provided by Qt.
-  
+
   This is useful, as there are many different printing systems on
   Unix, and we can not possibly support all of them. Calling this
   method before using a printer for the first time allows you to set
   up your own printdialog to use.
-  
+
   \sa setupPrinters()
 */
 void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
@@ -753,7 +753,7 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
   cannot support all of them. If you have a custom
   printing system that Qt does not support (i.e. the autodetection of
   available printers fails), you can use this method to specify your
-  own printers. 
+  own printers.
 
   This virtual method should return FALSE if you couldn't set up the
   printers in the \a printers list. In this case Qt will try its own
@@ -763,6 +763,7 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
 
   \sa setGlobalPrintDialog
 */
+// ### parameter exposing internal type without docu.
 bool QPrintDialog::setupPrinters ( QListView * )
 {
     return FALSE;
