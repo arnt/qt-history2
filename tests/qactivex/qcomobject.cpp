@@ -918,7 +918,22 @@ QComBase::~QComBase()
 
 /*!
     \property control
-    \brief the name of the COM object.
+    \brief the name of the COM object. This can be the UUID of the component, or the name.
+
+    The most efficient way to set this property is by using the UUID of the registered component, e.g.
+    \code
+    ctrl->setControl( "{8E27C92B-1264-101C-8A2F-040224009C02}" );
+    \endcode
+    The second fastest way is to use the class name of the registered control (with or without version number), e.g.
+    \code
+    ctrl->setControl( "MSCal.Calendar" );
+    \endcode
+    The slowest, but easiest to use way is to use the full name of the control, e.g.
+    \code
+    ctrl->setControl( "Calendar Control 9.0" );
+    \endcode
+
+    The read function of the control will always return the UUID of the control, no matter how you set the property.
 */
 void QComBase::setControl( const QString &c )
 {
@@ -927,8 +942,31 @@ void QComBase::setControl( const QString &c )
 
     clear();
     ctrl = c;
+    QUuid uuid( ctrl );
+    if ( uuid.isNull() ) {
+	QSettings controls;
+	ctrl = controls.readEntry( "/Classes/" + c + "/CLSID/Default" );
+	if ( ctrl.isEmpty() ) {
+	    QStringList clsids = controls.subkeyList( "/Classes/CLSID" );
+	    for ( QStringList::Iterator it = clsids.begin(); it != clsids.end(); ++it ) {
+		QString clsid = *it;
+		QStringList subkeys = controls.subkeyList( "/Classes/CLSID/" + clsid );
+		if ( subkeys.contains( "Control" ) ) {
+		    QString name = controls.readEntry( "/Classes/CLSID/" + clsid + "/Default" );
+		    if ( name == c ) {
+			ctrl = clsid;
+			break;
+		    }
+		}
+	    }
+	}
+    }
     if ( !!ctrl )
 	initialize( &ptr );
+#ifndef QT_NO_DEBUG
+    if ( isNull() )
+	qWarning( "QComBase::setControl: requested control %s could not be instantiated.", c.latin1() );
+#endif
 }
 
 QString QComBase::control() const

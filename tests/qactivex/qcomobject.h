@@ -8,7 +8,13 @@ struct IUnknown;
 class QAxEventSink;
 struct QUuid;
 
-class QComBase
+#if defined(QT_PLUGIN)
+#define QCOM_EXPORT __declspec(dllexport)
+#else
+#define QCOM_EXPORT __declspec(dllimport)
+#endif
+
+class QCOM_EXPORT QComBase
 {
 public:
     QComBase( IUnknown *iface = 0 );
@@ -52,7 +58,7 @@ private:
     QString ctrl;
 };
 
-class QComObject : public QObject, public QComBase
+class QCOM_EXPORT QComObject : public QObject, public QComBase
 {
 public:
     QMetaObject *metaObject() const;

@@ -6,7 +6,7 @@
 
 class QClientSite;
 
-class QActiveX : public QWidget, public QComBase
+class QCOM_EXPORT QActiveX : public QWidget, public QComBase
 {
     friend class QClientSite;
 public:

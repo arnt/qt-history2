@@ -12,7 +12,7 @@
 #include <qmetaobject.h>
 #include <qsettings.h>
 
-#include "qactivex.h"
+#include <qactivex.h>
 
 
 class Browser : public QDialog

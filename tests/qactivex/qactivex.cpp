@@ -861,6 +861,7 @@ void QActiveX::clear()
     }
 
     bool wasVisible = isVisible();
+    bool wasHidden = isHidden();
     QRect geom = geometry();
     hide();
     destroy();
@@ -868,6 +869,8 @@ void QActiveX::clear()
     setGeometry( geom );
     if ( wasVisible )
 	show();
+    else if ( !wasHidden )
+	clearWState( WState_ForceHide );
 
     QComBase::clear();
 
