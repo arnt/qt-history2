@@ -18,7 +18,7 @@
 #include <qlistview.h>
 
 class QTabWidget;
-class QListView;
+class QTreeView;
 class QGridLayout;
 class QLineEdit;
 class QPushButton;
@@ -51,13 +51,13 @@ protected slots:
 
 protected:
     void setupTabWidget();
-    void setupListView();
+    void setupTreeView();
 
     AddressBookModel *model;
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;
-    QListView *listView;
+    QTreeView *treeView;
     QPushButton *add, *change, *find;
     QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail,
         *sFirstName, *sLastName, *sAddress, *sEMail;

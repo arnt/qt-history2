@@ -32,18 +32,16 @@
 #include "centralwidget.h"
 
 #include <qcache.h>
-
-#include <qtabwidget.h>
-#include <qlistview.h>
-#include <qlayout.h>
-#include <qwidget.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qlineedit.h>
-#include <qlabel.h>
 #include <qcheckbox.h>
 #include <qfile.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
+#include <qtabwidget.h>
 #include <qtextstream.h>
+#include <qtreeview.h>
+#include <qwidget.h>
 
 #include "msoutl.h"
 
@@ -59,7 +57,9 @@ public:
     ~AddressBookModel();
 
     int rowCount() const;
+    int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     void addItem(const QString &firstName, const QString &lastName, const QString &address, const QString &email);
     void update();
@@ -96,14 +96,18 @@ int AddressBookModel::rowCount() const
     return contactItems ? contactItems->Count() : 0;
 }
 
+int AddressBookModel::columnCount(const QModelIndex &parent) const
+{
+    return 4;
+}
+
 QVariant AddressBookModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return index.column();
-    if (index.type() == QModelIndex::VerticalHeader)
-        return index.row();
+
+    if (role != DisplayRole)
+        return QVariant();
 
     QStringList data;
     if (!cache.contains(index)) {
@@ -113,8 +117,30 @@ QVariant AddressBookModel::data(const QModelIndex &index, int role) const
     } else {
         data = *cache.find(index);
     }
+
     if (index.column() < data.count())
         return data.at(index.column());
+
+    return QVariant();
+}
+
+QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (role != DisplayRole)
+        return QVariant();
+
+    switch (section) {
+    case 0:
+        return "First Name";
+    case 1:
+        return "Last Name";
+    case 2:
+        return "Address";
+    case 3:
+        return "Email";
+    default:
+        break;
+    }
 
     return QVariant();
 }
@@ -145,10 +171,9 @@ ABCentralWidget::ABCentralWidget(QWidget *parent)
 : QWidget(parent)
 {
     mainGrid = new QGridLayout(this);
-//    mainGrid->setNumRows(2, 1, 5, 5);
 
     setupTabWidget();
-    setupListView();
+    setupTreeView();
 
     mainGrid->setRowStretch(0, 0);
     mainGrid->setRowStretch(1, 1);
@@ -313,24 +338,17 @@ void ABCentralWidget::setupTabWidget()
     mainGrid->addWidget(tabWidget, 0, 0);
 }
 
-void ABCentralWidget::setupListView()
+void ABCentralWidget::setupTreeView()
 {
-    listView = new QListView(this);
-/*
-    listView->addColumn("First Name");
-    listView->addColumn("Last Name");
-    listView->addColumn("Address");
-    listView->addColumn("E-Mail");
-*/
+    treeView = new QTreeView(this);
 
-    listView->setSelectionMode(QListView::SingleSelection);
+    treeView->setSelectionMode(QListView::SingleSelection);
     model = new AddressBookModel(this);
-    listView->setModel(model);
+    treeView->setModel(model);
 
-    connect(listView, SIGNAL(clicked(QModelIndex, int)), this, SLOT(itemSelected(QModelIndex, int)));
+    connect(treeView, SIGNAL(clicked(QModelIndex, int)), this, SLOT(itemSelected(QModelIndex, int)));
 
-    mainGrid->addWidget(listView, 1, 0);
-//    listView->setAllColumnsShowFocus(TRUE);
+    mainGrid->addWidget(treeView, 1, 0);
 }
 
 void ABCentralWidget::updateOutlook()
@@ -388,7 +406,7 @@ void ABCentralWidget::itemSelected(const QModelIndex &index, int button)
     if (!index.isValid() || button != Qt::LeftButton)
 	return;
 
-    QAbstractItemModel *model = listView->model();
+    QAbstractItemModel *model = treeView->model();
     iFirstName->setText(model->data(model->index(index.row(), 0)).toString());
     iLastName->setText(model->data(model->index(index.row(), 1)).toString());
     iAddress->setText(model->data(model->index(index.row(), 2)).toString());
