@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#16 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -378,9 +378,9 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 	info_ptr->sig_bit.alpha = 8;
     }
 
-    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
+    // Qt==ARGB==Big(ARGB)==Little(BGRA)
+    if ( QImage::systemByteOrder() == QImage::LittleEndian ) {
 	png_set_bgr(png_ptr);
-	png_set_swap_alpha(png_ptr);
     }
 
     if (off_x || off_y) {
