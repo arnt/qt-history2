@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_STYLE
 
+#include "qmenu.h"
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qpainter.h"
@@ -969,7 +970,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	break;
 #endif // QT_NO_PROGRESSBAR
 
-    case CE_MenuBarItem:
+    case CE_Q3MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
 	    if (opt.isDefault())
@@ -2431,8 +2432,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 12;
 	break;
 
-    case PM_PopupMenuFrameHorizontalExtra:
-    case PM_PopupMenuFrameVerticalExtra:
+	
+    case PM_MenuFrameHorizontalExtra:
+    case PM_MenuFrameVerticalExtra:
 	ret = 0;
 	break;
 
@@ -2572,8 +2574,43 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    break;
 	}
 
-    case CT_PopupMenuItem:
+    case CT_MenuItem:
 	{
+#ifndef QT_NO_MENU
+	    if (opt.isDefault())
+		break;
+	    const Q4Menu *menu = (const Q4Menu *)widget;
+	    bool checkable = menu->isCheckable();
+	    QAction *act = opt.action();
+	    int maxpmw = opt.maxIconWidth();
+
+	    int w = sz.width(), h = sz.height();
+	    if(act->isSeparator()) {
+		w = 10;
+		h = 2;
+	    } else if(act->icon().isNull()) {
+		h = qMax(h, act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+	    }
+
+	    if (!act->text().isNull()) {
+		if (act->text().contains('\t'))
+		    w += 12;
+	    }
+
+	    if (maxpmw)
+		w += maxpmw + 6;
+	    if (checkable && maxpmw < 20)
+		w += 20 - maxpmw;
+	    if (checkable || maxpmw > 0)
+		w += 2;
+	    w += 12;
+	    sz = QSize(w, h);
+#endif
+	    break;
+	}
+
+#ifdef QT_COMPAT
+    case CT_Q3PopupMenuItem: {
 #ifndef QT_NO_POPUPMENU
 	    if (opt.isDefault())
 		break;
@@ -2621,6 +2658,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 #endif
 	    break;
 	}
+#endif
 
     case CT_LineEdit:
     case CT_Header:

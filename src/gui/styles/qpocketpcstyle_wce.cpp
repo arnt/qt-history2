@@ -467,12 +467,6 @@ void QPocketPCStyle::unpolish(QWidget *w)
 
 
 /*! \reimp */
-void QPocketPCStyle::polishPopupMenu(QPopupMenu* p)
-{
-}
-
-
-/*! \reimp */
 int QPocketPCStyle::pixelMetric(PixelMetric    pixelmetric,
 			        const QWidget *widget) const
 {
@@ -1214,7 +1208,7 @@ QSize QPocketPCStyle::sizeFromContents(ContentsType	   contents,
 #endif
 
     switch (contents) {
-    case CT_PopupMenuItem:
+    case CT_Q3PopupMenuItem:
 	{
 	    if (! widget || opt.isDefault())
 		break;
@@ -2363,7 +2357,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 #endif // QT_NO_TABBAR
 
 #ifndef QT_NO_POPUPMENU
-    case CE_PopupMenuItem:
+    case CE_Q3PopupMenuItem:
 	{
 	    if (! widget || opt.isDefault())
 		break;
@@ -2540,7 +2534,7 @@ void QPocketPCStyle::drawControl(ControlElement	     control,
 	}
 #endif
 
-    case CE_MenuBarItem:
+    case CE_Q3MenuBarItem:
 	{
 	    bool active = flags & Style_Active;
 	    bool hasFocus = flags & Style_HasFocus;

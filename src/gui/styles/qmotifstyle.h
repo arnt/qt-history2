@@ -44,8 +44,6 @@ public:
     void polish( QWidget* );
     void polish( QApplication* );
 
-    void polishPopupMenu( QPopupMenu* );
-
     // new style API
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,

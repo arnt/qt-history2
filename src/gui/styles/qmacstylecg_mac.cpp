@@ -504,7 +504,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                  &(pal.buttonText().color()) );
 #endif
         break; }
-    case CE_PopupMenuItem: {
+    case CE_Q3PopupMenuItem: {
         if (!widget || opt.isDefault())
             break;
         const QPopupMenu *popup = static_cast<const QPopupMenu *>(widget);

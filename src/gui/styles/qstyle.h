@@ -24,6 +24,7 @@
 #ifndef QT_NO_STYLE
 
 class QPopupMenu;
+class QAction;
 class QMenuItem;
 class QTab;
 class QListViewItem;
@@ -44,9 +45,14 @@ public:
 	def(FALSE), i1(in1), i2(in2) {}
     QStyleOption(int in1, int in2, int in3, int in4) :
 	def(FALSE), i1(in1), i2(in2), i3(in3), i4(in4) {}
+    QStyleOption(QAction* a) : def(FALSE), act(a) {}
+    QStyleOption(QAction* a, int in1) : def(FALSE), act(a), i1(in1) {}
+    QStyleOption(QAction* a, int in1, int in2) : def(FALSE), act(a), i1(in1), i2(in2) {}
+#ifdef QT_COMPAT
     QStyleOption(QMenuItem* m) : def(FALSE), mi(m) {}
     QStyleOption(QMenuItem* m, int in1) : def(FALSE), mi(m), i1(in1) {}
     QStyleOption(QMenuItem* m, int in1, int in2) : def(FALSE), mi(m), i1(in1), i2(in2) {}
+#endif
     QStyleOption(const QColor& c) : def(FALSE), cl(&c) {}
     QStyleOption(QTab* t) : def(FALSE), tb(t) {}
     QStyleOption(QListViewItem* i) : def(FALSE), li(i) {}
@@ -66,6 +72,7 @@ public:
 
     int headerSection() const { return i1; }
     QMenuItem* menuItem() const { return mi; }
+    QAction* action() const { return act; }
     int maxIconWidth() const { return i1; }
     int tabWidth() const { return i2; }
 
@@ -84,12 +91,12 @@ private:
     // NOTE: none of these components have constructors.
     bool def;
     bool b1,b2,b3; // reserved
+    QAction *act;
     QMenuItem* mi;
     QTab* tb;
     QListViewItem* li;
     const QColor* cl;
-    int i1, i2, i3, i4;
-    int i5, i6; // reserved
+    int i1, i2, i3, i4, i5, i6; // reserved
     QCheckListItem* cli;
     void *p1, *p2, *p3, *p4; // reserved
     // (padded to 64 bytes on some architectures)
@@ -275,18 +282,29 @@ public:
 	CE_ProgressBarContents,
 	CE_ProgressBarLabel,
 
-	CE_PopupMenuItem,
+	CE_MenuItem,
+	CE_MenuScroller,
+	CE_MenuVerticalExtra,
+	CE_MenuHorizontalExtra,
+	CE_MenuEmptyArea,
+
 	CE_MenuBarItem,
+	CE_MenuBarEmptyArea,
 
 	CE_ToolButtonLabel,
-	CE_MenuBarEmptyArea,
-	CE_PopupMenuScroller,
-	CE_DockWindowEmptyArea,
-	CE_PopupMenuVerticalExtra,
-	CE_PopupMenuHorizontalExtra,
 
+	CE_DockWindowEmptyArea,
 	CE_ToolBoxTab,
 	CE_HeaderLabel,
+
+#ifdef QT_COMPAT
+	CE_Q3PopupMenuItem, 
+	CE_Q3PopupMenuScroller,
+	CE_Q3MenuBarItem,
+	CE_Q3MenuBarEmptyArea,
+	CE_PopupMenuVerticalExtra = CE_MenuVerticalExtra,
+	CE_PopupMenuHorizontalExtra = CE_MenuHorizontalExtra,
+#endif
 
 	// do not add any values below/greater than this
 	CE_CustomBase =		0xf0000000
@@ -472,15 +490,16 @@ public:
 	PM_SplitterWidth,
 	PM_TitleBarHeight,
 
+	PM_MenuScrollerHeight,
+	PM_MenuFrameHorizontalExtra,
+	PM_MenuFrameVerticalExtra,
+
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
 	PM_ExclusiveIndicatorHeight,
-	PM_PopupMenuScrollerHeight,
 	PM_CheckListButtonSize,
 	PM_CheckListControllerSize,
-	PM_PopupMenuFrameHorizontalExtra,
-	PM_PopupMenuFrameVerticalExtra,
 
 	PM_DialogButtonsSeparator,
 	PM_DialogButtonsButtonWidth,
@@ -497,6 +516,12 @@ public:
 
 	PM_MenuBarItemSpacing,
 	PM_ToolBarItemSpacing,
+
+#ifdef QT_COMPAT
+	PM_Q3PopupMenuScrollerHeight,
+	PM_PopupMenuFrameHorizontalExtra = PM_MenuFrameVerticalExtra,
+	PM_PopupMenuFrameVerticalExtra = PM_MenuFrameHorizontalExtra,
+#endif
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000
@@ -515,7 +540,7 @@ public:
 	CT_Splitter,
 	CT_DockWindow,
 	CT_ProgressBar,
-	CT_PopupMenuItem,
+	CT_MenuItem,
 	CT_TabBarTab,
 	CT_Slider,
 	CT_Header,
@@ -525,6 +550,11 @@ public:
 	CT_SizeGrip,
 	CT_TabWidget,
 	CT_DialogButtons,
+
+#ifdef QT_COMPAT
+	CT_Q3MenuBar,
+	CT_Q3PopupMenuItem,
+#endif
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000

@@ -94,7 +94,7 @@ void QCDEStyle::drawControl( ControlElement element,
 {
 
     switch( element ) {
-    case CE_MenuBarItem:
+    case CE_Q3MenuBarItem:
 	{
 	    if ( how & Style_Active )  // active item
 		qDrawShadePanel( p, r, pal, TRUE, 1,

@@ -888,21 +888,25 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_ProgressBarContents  the progress indicator of a QProgressBar.
     \value CE_ProgressBarLabel  the text label of a QProgressBar.
 
-    \value CE_PopupMenuItem  a menu item in a QPopupMenu.
-    \value CE_PopupMenuScroller scrolling areas in a popumenu when the
-	style supports scrolling.
-    \value CE_PopupMenuHorizontalExtra extra frame area set aside with PM_PopupMenuFrameHorizontalExtra
-    \value CE_PopupMenuVerticalExtra extra frame area set aside with PM_PopupMenuFrameVerticalExtra
-
-    \value CE_MenuBarItem  a menu item in a QMenuBar.
-
     \value CE_ToolButtonLabel a tool button's label.
 
+    \value CE_MenuBarItem  a menu item in a Q3MenuBar.
     \value CE_MenuBarEmptyArea the empty area of a QMenuBar.
+
+    \value CE_MenuItem  a menu item in a QMenu.
+    \value CE_MenuScroller scrolling areas in a QMenu when the
+	style supports scrolling.
+
     \value CE_DockWindowEmptyArea the empty area of a QDockWindow.
 
     \value CE_ToolBoxTab the toolbox's tab area
     \value CE_HeaderLabel the header's label
+
+    \value CE_Q3PopupMenuItem  a menu item in a Q3PopupMenu.
+    \value CE_Q3PopupMenuScroller scrolling areas in a popumenu when the
+	style supports scrolling.
+    \value CE_Q3MenuBarItem  a menu item in a Q3MenuBar.
+    \value CE_Q3MenuBarEmptyArea the empty area of a Q3MenuBar.
 
     \value CE_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be
@@ -1545,16 +1549,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_Splitter
     \value CT_DockWindow
     \value CT_ProgressBar
-    \value CT_PopupMenuItem
+    \value CT_MenuItem
+    \value CT_MenuBar
     \value CT_TabBarTab
     \value CT_Slider
     \value CT_Header
     \value CT_LineEdit
-    \value CT_MenuBar
     \value CT_SpinBox
     \value CT_SizeGrip
     \value CT_TabWidget
     \value CT_DialogButtons
+
+    \value CT_Q3PopupMenuItem
+    \value CT_Q3MenuBar
 
     \value CT_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Custom values

@@ -566,24 +566,24 @@ void QFrame::drawFrame(QPainter *p)
 
     case PopupPanel:
     {
-	int vextra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this),
-	    hextra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
+	int vextra = style().pixelMetric(QStyle::PM_MenuFrameVerticalExtra, this),
+	    hextra = style().pixelMetric(QStyle::PM_MenuFrameHorizontalExtra, this);
 	if(vextra > 0 || hextra > 0) {
 	    QRect fr = frameRect();
 	    int   fw = d->frameWidth;
 	    if(vextra > 0) {
-		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
+		style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
 				    pal, flags, opt);
-		style().drawControl(QStyle::CE_PopupMenuVerticalExtra, p, this,
+		style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
 				    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
 				    pal, flags, opt);
 	    }
 	    if(hextra > 0) {
-		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
+		style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
 				    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
 				    pal, flags, opt);
-		style().drawControl(QStyle::CE_PopupMenuHorizontalExtra, p, this,
+		style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
 				    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
 				    pal, flags, opt);
 	    }

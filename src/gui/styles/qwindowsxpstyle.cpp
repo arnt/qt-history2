@@ -1150,8 +1150,9 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	stateId = 1;
 	break;
 
+#ifdef QT_COMPAT
 #ifndef QT_NO_POPUPMENU
-    case CE_PopupMenuItem:
+    case CE_Q3PopupMenuItem:
 	{
 	    if (! widget || opt.isDefault())
 		break;
@@ -1334,8 +1335,9 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif
+#endif
 
-    case CE_MenuBarItem:
+    case CE_Q3MenuBarItem:
 	{
 	    if (opt.isDefault())
 		break;
@@ -2462,7 +2464,7 @@ QSize QWindowsXPStyle::sizeFromContents( ContentsType contents,
     QSize sz(contentsSize);
 
     switch (contents) {
-    case CT_PopupMenuItem:
+    case CT_Q3PopupMenuItem:
 	{
 #ifndef QT_NO_POPUPMENU
 	    if (! widget || opt.isDefault())

@@ -38,7 +38,6 @@ public:
 
     virtual void polish( QApplication* );
     virtual void polish( QWidget* );
-    virtual void polishPopupMenu( QPopupMenu* );
     virtual void unPolish( QApplication* );
     virtual void unpolish( QWidget* );
 

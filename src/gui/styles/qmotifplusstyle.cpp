@@ -17,6 +17,7 @@
 #if !defined(QT_NO_STYLE_MOTIFPLUS) || defined(QT_PLUGIN)
 
 #include "qevent.h"
+#include "qmenu.h"
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qpainter.h"
@@ -122,7 +123,7 @@ static void drawMotifPlusShade(QPainter *p, const QRect &r,
 */
 QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 {
-    if ( !singleton )
+    if (!singleton)
         singleton = new QMotifPlusStylePrivate;
     else
         singleton->ref++;
@@ -133,7 +134,7 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(TRUE)
 /*! \reimp */
 QMotifPlusStyle::~QMotifPlusStyle()
 {
-    if ( singleton && --singleton->ref <= 0) {
+    if (singleton && --singleton->ref <= 0) {
         delete singleton;
         singleton = 0;
     }
@@ -239,9 +240,9 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) cons
 
 
 /*! \reimp */
-void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
+void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
 				     QPainter *p, const QRect &r, const QPalette &pal,
-				     SFlags flags, const QStyleOption& opt ) const
+				     SFlags flags, const QStyleOption& opt) const
 {
     switch (pe) {
     case PE_HeaderSection:
@@ -250,7 +251,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ButtonBevel:
     case PE_ButtonTool:
 	if (flags & (Style_Down | Style_On | Style_Raised | Style_Sunken))
-	    drawMotifPlusShade( p, r, pal, bool(flags & (Style_Down | Style_On)),
+	    drawMotifPlusShade(p, r, pal, bool(flags & (Style_Down | Style_On)),
 				bool(flags & Style_MouseOver));
 	else if (flags & Style_MouseOver)
 	    p->fillRect(r, pal.brush(QPalette::Midlight));
@@ -262,9 +263,9 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
     case PE_PanelPopup:
     case PE_PanelMenuBar:
     case PE_PanelDockWindow:
-	if ( opt.lineWidth() )
-	    drawMotifPlusShade( p, r, pal, (flags & Style_Sunken), (flags & Style_MouseOver));
-	else if ( flags & Style_MouseOver )
+	if (opt.lineWidth())
+	    drawMotifPlusShade(p, r, pal, (flags & Style_Sunken), (flags & Style_MouseOver));
+	else if (flags & Style_MouseOver)
 	    p->fillRect(r, pal.brush(QPalette::Midlight));
 	else
 	    p->fillRect(r, pal.brush(QPalette::Button));
@@ -411,7 +412,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	    switch (pe) {
 	    case PE_ArrowUp:
 		{
-		    poly.setPoint(0, x + (w / 2), y );
+		    poly.setPoint(0, x + (w / 2), y);
 		    poly.setPoint(1, x, y + h - 1);
 		    poly.setPoint(2, x + w - 1, y + h - 1);
 		    p->drawPolygon(poly);
@@ -555,7 +556,7 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 			p->setPen(black);
 		    else
 			p->setPen(button);
-		    p->drawLine( x + w - 1, y + (h / 2), x + 1, y + 1);
+		    p->drawLine(x + w - 1, y + (h / 2), x + 1, y + 1);
 
 		    if (down)
 			p->setPen(pal.dark());
@@ -608,13 +609,13 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 
 /*! \reimp
 */
-void QMotifPlusStyle::drawControl( ControlElement element,
+void QMotifPlusStyle::drawControl(ControlElement element,
 				   QPainter *p,
 				   const QWidget *widget,
 				   const QRect &r,
 				   const QPalette &pal,
 				   SFlags flags,
-				   const QStyleOption& opt ) const
+				   const QStyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
 	flags |= Style_MouseOver;
@@ -697,7 +698,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    break;
 	}
 
-    case CE_MenuBarItem:
+    case CE_Q3MenuBarItem:
 	{
 #ifndef QT_NO_MENUDATA
 	    if (opt.isDefault())
@@ -717,8 +718,130 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	}
 
 
+#ifndef QT_NO_MENU
+    case CE_MenuItem:
+	{
+	    if(!widget || opt.isDefault())
+		break;
+
+	    Q4Menu *menu = (Q4Menu *)widget;
+	    QAction *mi = opt.action();
+	    if(!mi)
+		break;
+
+	    int tab = opt.tabWidth();
+	    int maxpmw = opt.maxIconWidth();
+	    bool dis = ! (flags & Style_Enabled);
+	    bool checkable = menu->isCheckable();
+	    bool act = flags & Style_Active;
+	    int x, y, w, h;
+
+	    r.rect(&x, &y, &w, &h);
+
+	    if (checkable)
+		maxpmw = qMax(maxpmw, 15);
+
+	    int checkcol = maxpmw;
+	    if (mi && mi->isSeparator()) {
+		p->setPen(pal.dark());
+		p->drawLine(x, y, x+w, y);
+		p->setPen(pal.light());
+		p->drawLine(x, y+1, x+w, y+1);
+		return;
+	    }
+
+	    if (act && !dis)
+		drawMotifPlusShade(p, QRect(x, y, w, h), pal, FALSE, TRUE);
+	    else
+		p->fillRect(x, y, w, h, pal.brush(QPalette::Button));
+
+	    if(!mi)
+		return;
+
+	    QRect vrect = visualRect(QRect(x+2, y+2, checkcol, h-2), r);
+	    if(mi->isChecked()) {
+		if(!mi->icon().isNull()) 
+		    qDrawShadePanel(p, vrect.x(), y+2, checkcol, h-2*2,
+				    pal, TRUE, 1, &pal.brush(QPalette::Midlight));
+	    } else if (!act) {
+		p->fillRect(vrect, pal.brush(QPalette::Button));
+	    }
+
+	    if(!mi->icon().isNull()) {              // draw iconset
+		QIconSet::Mode mode = (!dis) ? QIconSet::Normal : QIconSet::Disabled;
+
+		if (act && !dis)
+		    mode = QIconSet::Active;
+
+		QPixmap pixmap;
+		if(checkable && mi->isChecked())
+		    pixmap = mi->icon().pixmap(QIconSet::Small, mode, QIconSet::On);
+		else
+		    pixmap = mi->icon().pixmap(QIconSet::Small, mode);
+
+		int pixw = pixmap.width();
+		int pixh = pixmap.height();
+
+		QRect pmr(0, 0, pixw, pixh);
+
+		pmr.moveCenter(vrect.center());
+
+		p->setPen(pal.text());
+		p->drawPixmap(pmr.topLeft(), pixmap);
+
+	    } else if (checkable) {
+		if (mi->isChecked()) {
+		    SFlags cflags = Style_Default;
+		    if (! dis)
+			cflags |= Style_Enabled;
+		    if (act)
+			cflags |= Style_On;
+
+		    drawPrimitive(PE_CheckMark, p, vrect, pal, cflags);
+		}
+	    }
+
+	    p->setPen(pal.buttonText());
+
+	    QColor discol;
+	    if (dis) {
+		discol = pal.text();
+		p->setPen(discol);
+	    }
+
+	    vrect = visualRect(QRect(x + checkcol + 4, y + 2,
+				      w - checkcol - tab - 3, h - 4), r);
+
+	    QString s = mi->text();
+	    if (!s.isNull()) {                        // draw text
+		int t = s.indexOf('\t');
+		int m = 2;
+		int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+		text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
+		if (t >= 0) {                         // draw tab text
+		    QRect vr = visualRect(QRect(x+w-tab-2-2,
+						 y+m, tab, h-2*m), r);
+		    p->drawText(vr.x(),
+				 y+m, tab, h-2*m, text_flags, s.mid(t+1));
+		}
+		p->drawText(vrect.x(), y + 2, w - checkcol -tab - 3, h - 4,
+			    text_flags, s, t);
+	    }
+
+	    if (mi->menu()) {
+		int hh = h / 2;
+		QStyle::PrimitiveElement arrow = (QApplication::reverseLayout() ? PE_ArrowLeft : PE_ArrowRight);
+		vrect = visualRect(QRect(x + w - hh - 6, y + (hh / 2), hh, hh), r);
+		drawPrimitive(arrow, p, vrect, pal,
+			      ((act && !dis) ? Style_Down : Style_Default) | ((!dis) ? Style_Enabled : Style_Default));
+	    }
+	    break;
+	}
+#endif // QT_NO_MENU
+
+#ifdef QT_COMPAT
 #ifndef QT_NO_POPUPMENU
-    case CE_PopupMenuItem:
+    case CE_Q3PopupMenuItem:
 	{
 	    if (! widget || opt.isDefault())
 		break;
@@ -857,6 +980,7 @@ void QMotifPlusStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_POPUPMENU
+#endif
 
     case CE_TabBarTab:
 	{
@@ -988,19 +1112,19 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 
     case SR_CheckBoxIndicator:
 	{
-	    int h = pixelMetric( PM_IndicatorHeight );
-	    rect.setRect(( widget->rect().height() - h ) / 2,
-			 ( widget->rect().height() - h ) / 2,
-			 pixelMetric( PM_IndicatorWidth ), h );
+	    int h = pixelMetric(PM_IndicatorHeight);
+	    rect.setRect((widget->rect().height() - h) / 2,
+			 (widget->rect().height() - h) / 2,
+			 pixelMetric(PM_IndicatorWidth), h);
 	    break;
 	}
 
     case SR_RadioButtonIndicator:
 	{
-	    int h = pixelMetric( PM_ExclusiveIndicatorHeight );
-	    rect.setRect( ( widget->rect().height() - h ) / 2,
-			  ( widget->rect().height() - h ) / 2,
-			  pixelMetric( PM_ExclusiveIndicatorWidth ), h );
+	    int h = pixelMetric(PM_ExclusiveIndicatorHeight);
+	    rect.setRect((widget->rect().height() - h) / 2,
+			  (widget->rect().height() - h) / 2,
+			  pixelMetric(PM_ExclusiveIndicatorWidth), h);
 	    break;
 	}
 
@@ -1028,11 +1152,11 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 	{
 #ifndef QT_NO_SLIDER
 	    const QSlider *slider = (const QSlider *) widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget );
-	    int thickness = pixelMetric( PM_SliderControlThickness, widget );
+	    int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
+	    int thickness = pixelMetric(PM_SliderControlThickness, widget);
 	    int x, y, wi, he;
 
-	    if ( slider->orientation() == Horizontal ) {
+	    if (slider->orientation() == Horizontal) {
 		x = 0;
 		y = tickOffset;
 		wi = slider->width();
@@ -1067,7 +1191,7 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 			    SFlags flags,
 			    SCFlags controls,
 			    SCFlags active,
-			    const QStyleOption& opt ) const
+			    const QStyleOption& opt) const
 {
     if (widget == singleton->hoverWidget)
 	flags |= Style_MouseOver;
@@ -1247,11 +1371,11 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
 	    if (controls & SC_SpinWidgetUp) {
 		flags = Style_Enabled;
-		if (active == SC_SpinWidgetUp )
+		if (active == SC_SpinWidgetUp)
 		    flags |= Style_Down;
 
 		PrimitiveElement pe;
-		if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
 		    pe = PE_SpinWidgetPlus;
 		else
 		    pe = PE_SpinWidgetUp;
@@ -1265,11 +1389,11 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 
 	    if (controls & SC_SpinWidgetDown) {
 		flags = Style_Enabled;
-		if (active == SC_SpinWidgetDown )
+		if (active == SC_SpinWidgetDown)
 		    flags |= Style_Down;
 
 		PrimitiveElement pe;
-		if ( sw->buttonSymbols() == QSpinWidget::PlusMinus )
+		if (sw->buttonSymbols() == QSpinWidget::PlusMinus)
 		    pe = PE_SpinWidgetMinus;
 		else
 		    pe = PE_SpinWidgetDown;
@@ -1299,9 +1423,9 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		drawMotifPlusShade(p, groove, pal, TRUE, FALSE,
 				   &pal.brush(QPalette::Mid));
 
-		if ( flags & Style_HasFocus ) {
-		    QRect fr = subRect( SR_SliderFocusRect, widget );
-		    drawPrimitive( PE_FocusRect, p, fr, pal, flags );
+		if (flags & Style_HasFocus) {
+		    QRect fr = subRect(SR_SliderFocusRect, widget);
+		    drawPrimitive(PE_FocusRect, p, fr, pal, flags);
 		}
 	    }
 
@@ -1313,14 +1437,14 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 		    flags &= ~Style_MouseOver;
 		drawPrimitive(PE_ButtonBevel, p, handle, pal, flags | Style_Raised);
 
-		if ( slider->orientation() == Horizontal ) {
+		if (slider->orientation() == Horizontal) {
 		    QCOORD mid = handle.x() + handle.width() / 2;
-		    qDrawShadeLine( p, mid,  handle.y() + 1, mid ,
+		    qDrawShadeLine(p, mid,  handle.y() + 1, mid ,
 				    handle.y() + handle.height() - 3,
 				    pal, TRUE, 1);
 		} else {
 		    QCOORD mid = handle.y() + handle.height() / 2;
-		    qDrawShadeLine( p, handle.x() + 1, mid,
+		    qDrawShadeLine(p, handle.x() + 1, mid,
 				    handle.x() + handle.width() - 3, mid,
 				    pal, TRUE, 1);
 		}
@@ -1349,13 +1473,13 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 {
     switch (control) {
     case CC_SpinWidget: {
-	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	    int fw = pixelMetric(PM_SpinBoxFrameWidth, 0);
 	    QSize bs;
-	    bs.setHeight( (widget->height() + 1)/2 );
-	    if ( bs.height() < 10 )
-		bs.setHeight( 10 );
-	    bs.setWidth( bs.height() ); // 1.6 -approximate golden mean
-	    bs = bs.expandedTo( QApplication::globalStrut() );
+	    bs.setHeight((widget->height() + 1)/2);
+	    if (bs.height() < 10)
+		bs.setHeight(10);
+	    bs.setWidth(bs.height()); // 1.6 -approximate golden mean
+	    bs = bs.expandedTo(QApplication::globalStrut());
 	    int y = 0;
 	    int x, lx, rx, h;
 	    x = widget->width() - y - bs.width();
@@ -1363,7 +1487,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    rx = x - fw * 2;
 	    h = bs.height() * 2;
 
-	    switch ( subcontrol ) {
+	    switch (subcontrol) {
 	    case SC_SpinWidgetUp:
 		return QRect(x + 1, y, bs.width(), bs.height() - 1);
 	    case SC_SpinWidgetDown:
@@ -1373,7 +1497,7 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    case SC_SpinWidgetEditField:
 		return QRect(lx, fw, rx, h - 2*fw);
 	    case SC_SpinWidgetFrame:
-		return QRect( 0, 0, widget->width() - bs.width(), h);
+		return QRect(0, 0, widget->width() - bs.width(), h);
 	    default:
 		break;
 	    }
@@ -1420,16 +1544,16 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 
 	if (subcontrol == SC_SliderHandle) {
 	    const QSlider *slider = (const QSlider *) widget;
-	    int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
-	    int thickness   = pixelMetric( PM_SliderControlThickness, widget );
-	    int len         = pixelMetric( PM_SliderLength, widget ) + 2;
+	    int tickOffset  = pixelMetric(PM_SliderTickmarkOffset, widget);
+	    int thickness   = pixelMetric(PM_SliderControlThickness, widget);
+	    int len         = pixelMetric(PM_SliderLength, widget) + 2;
 	    int sliderPos   = slider->sliderPosition();
 	    int motifBorder = 2;
 
-	    if ( slider->orientation() == Horizontal )
-		return QRect( sliderPos + motifBorder, tickOffset + motifBorder, len,
-			      thickness - 2*motifBorder );
-	    return QRect( tickOffset + motifBorder, sliderPos + motifBorder,
+	    if (slider->orientation() == Horizontal)
+		return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
+			      thickness - 2*motifBorder);
+	    return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
 			  thickness - 2*motifBorder, len);
 	}
 	break; }

@@ -122,7 +122,8 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 				 SFlags flags, const QStyleOption& opt )
 {
     switch ( element ) {
-    case CE_PopupMenuItem:
+#ifdef QT_COMPAT
+    case CE_Q3PopupMenuItem:
 	{
 	    if (! widget || opt.isDefault())
 		break;
@@ -282,6 +283,7 @@ void QCompactStyle::drawControl( ControlElement element, QPainter *p, const QWid
 	    }
 	}
 	break;
+#endif
 
     default:
 	QWindowsStyle::drawControl( element, p, widget, r, pal, flags, opt );

@@ -43,8 +43,6 @@ public:
 
     void polish( QPalette & );
 
-    virtual void polishPopupMenu( QPopupMenu* );
-
     // new stuff
     void drawPrimitive( PrimitiveElement pe,
 			QPainter *p,

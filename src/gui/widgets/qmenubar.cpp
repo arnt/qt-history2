@@ -1114,14 +1114,14 @@ void QMenuBar::drawContents( QPainter *p )
 		flags |= QStyle::Style_Down;
 	    if (hasFocus() || hasmouse || popupvisible)
 		flags |= QStyle::Style_HasFocus;
-	    style().drawControl(QStyle::CE_MenuBarItem, p, this,
+	    style().drawControl(QStyle::CE_Q3MenuBarItem, p, this,
 				r, pal, flags, QStyleOption(mi));
 	}
     }
 
     p->save();
     p->setClipRegion(reg);
-    style().drawControl(QStyle::CE_MenuBarEmptyArea, p, this, contentsRect(), pal);
+    style().drawControl(QStyle::CE_Q3MenuBarEmptyArea, p, this, contentsRect(), pal);
     p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1541,7 +1541,7 @@ QSize QMenuBar::sizeHint() const
 	    s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
     s.setHeight( h );
-    return (style().sizeFromContents(QStyle::CT_MenuBar, this, s.
+    return (style().sizeFromContents(QStyle::CT_Q3MenuBar, this, s.
 				     expandedTo(QApplication::globalStrut())));
 }
 

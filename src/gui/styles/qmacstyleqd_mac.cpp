@@ -17,6 +17,7 @@
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
+#include "qmenu.h"
 #include <qpainter.h>
 #include <private/qpainter_p.h>
 #include <qpaintengine_mac.h>
@@ -347,13 +348,7 @@ void QMacStyleQD::polish(QWidget* w)
 	if (::qt_cast<QGroupBox*>(w))
 	    w->setAttribute(QWidget::WA_ContentsPropagated, true);
     }
-    QLineEdit *lined;
-    QDialogButtons *btns;
-    QToolButton *btn;
-    QToolBar *bar;
-    QPopupMenu *popup;
-    QTitleBar *tb;
-    if ((lined = ::qt_cast<QLineEdit*>(w)) != 0) {
+    if (QLineEdit *lined = ::qt_cast<QLineEdit*>(w)) {
 #if 0
         if(::qt_cast<QComboBox*>(w->parentWidget()))
 	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
@@ -361,14 +356,15 @@ void QMacStyleQD::polish(QWidget* w)
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
 	lined->setLineWidth(frame_size);
 #else
+	Q_UNUSED(lined);
 # warning "Do we need to replace this with something else for the new QLineEdit? --Sam"	
 #endif
-    } else if ((btns = ::qt_cast<QDialogButtons*>(w)) != 0) {
+    } else if (QDialogButtons *btns = ::qt_cast<QDialogButtons*>(w)) {
 	if(btns->buttonText(QDialogButtons::Help).isNull())
 	    btns->setButtonText(QDialogButtons::Help, "?");
-    } else if ((btn = ::qt_cast<QToolButton*>(w)) != 0) {
+    } else if (QToolButton *btn = ::qt_cast<QToolButton*>(w)) {
         btn->setAutoRaise(FALSE);
-    } else if ((bar = ::qt_cast<QToolBar*>(w)) != 0) {
+    } else if (QToolBar *bar = ::qt_cast<QToolBar*>(w)) {
 	QBoxLayout * layout = bar->boxLayout();
 	layout->setSpacing(0);
 	layout->setMargin(0);
@@ -377,11 +373,15 @@ void QMacStyleQD::polish(QWidget* w)
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
 	label->setWindowOpacity(0.95);
-    } else if ((popup = ::qt_cast<QPopupMenu*>(w)) != 0) {
+#ifdef QT_COMPAT
+    } else if (QPopupMenu *popup = ::qt_cast<QPopupMenu*>(w)) {
 	popup->setMargin(0);
 	popup->setLineWidth(0);
 	w->setWindowOpacity(0.95);
-    } else if ((tb = ::qt_cast<QTitleBar *>(w)) != 0) {
+#endif
+    } else if (Q4Menu *menu = ::qt_cast<Q4Menu*>(w)) {
+	menu->setWindowOpacity(0.95);
+    } else if (QTitleBar *tb = ::qt_cast<QTitleBar *>(w)) {
 //	w->font().setPixelSize(10);
 	tb->setAutoRaise(TRUE);
     }
@@ -394,7 +394,11 @@ void QMacStyleQD::unPolish(QWidget* w)
     if (btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(TRUE);
+#ifdef QT_COMPAT
     } else if (::qt_cast<QPopupMenu*>(w)) {
+	w->setWindowOpacity(1.0);
+#endif
+    } else if (::qt_cast<Q4Menu*>(w)) {
 	w->setWindowOpacity(1.0);
     }
 }
@@ -685,14 +689,17 @@ void QMacStyleQD::drawControl(ControlElement element,
     case CE_ToolBoxTab: 
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
 	break;
-    case CE_PopupMenuHorizontalExtra:
-    case CE_PopupMenuVerticalExtra:
-    case CE_PopupMenuScroller: {
+#ifdef QT_COMPAT
+    case CE_Q3PopupMenuScroller: 
+#endif
+    case CE_MenuHorizontalExtra:
+    case CE_MenuVerticalExtra:
+    case CE_MenuScroller: {
 	Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
 	     irect = *qt_glb_mac_rect(r, p, FALSE);
 	ThemeMenuState tms = kThemeMenuActive;
 	ThemeMenuItemType tmit = kThemeMenuItemPlain;
-	if(element == CE_PopupMenuScroller) {
+	if(element == CE_MenuScroller) {
 	    if(how & Style_Active)
 		tms |= kThemeMenuSelected;
 	    if((how & Style_Down))
@@ -700,6 +707,7 @@ void QMacStyleQD::drawControl(ControlElement element,
 	    else
 		tmit = kThemeMenuItemScrollUpArrow;
 	}
+	p->fillRect(r, blue);
 	((QMacStyleQDPainter *)p)->setport();
 	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
 	break; }
@@ -709,7 +717,147 @@ void QMacStyleQD::drawControl(ControlElement element,
 	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p, FALSE), kThemeMenuBarNormal,
 				   kThemeMenuSquareMenuBar);
 	break;
-    case CE_PopupMenuItem: {
+    case CE_MenuItem: {
+	if(!widget || opt.isDefault())
+	    break;
+	Q4Menu *menu = (Q4Menu *)widget;
+	QAction *mi = opt.action();
+
+	bool dis = mi ? !mi->isEnabled() : FALSE;
+	int tab = opt.tabWidth();
+	int maxpmw = opt.maxIconWidth();
+	bool checked = mi ? mi->isChecked() : FALSE;
+	bool checkable = menu->isCheckable();
+	bool act = how & Style_Active;
+	Rect mrect = *qt_glb_mac_rect(menu->rect(), p),
+	     irect = *qt_glb_mac_rect(r, p, FALSE);
+
+	if(checkable)
+	    maxpmw = qMax(maxpmw, 12); // space for the checkmarks
+
+	ThemeMenuState tms = kThemeMenuActive;
+	if(dis)
+	    tms |= kThemeMenuDisabled;
+	if(how & Style_Active)
+	    tms |= kThemeMenuSelected;
+	ThemeMenuItemType tmit = kThemeMenuItemPlain;
+	if(mi && mi->menu())
+	    tmit |= kThemeMenuItemHierarchical;
+	if(mi && !mi->icon().isNull())
+	    tmit |= kThemeMenuItemHasIcon;
+	((QMacStyleQDPainter *)p)->setport();
+	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
+
+	if(mi && mi->isSeparator()) {
+	    ((QMacStyleQDPainter *)p)->setport();
+	    DrawThemeMenuSeparator(&irect);
+	    return;
+	}
+
+	int x, y, w, h;
+	r.rect(&x, &y, &w, &h);
+	int checkcol = maxpmw;
+	bool reverse = QApplication::reverseLayout();
+	int xpos = x;
+	if(reverse)
+	    xpos += w - checkcol;
+	if(mi && !mi->icon().isNull()) {              // draw iconset
+	    if(checked) {
+		QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
+		if(act && !dis) {
+		    qDrawShadePanel(p, vrect.x(), y, checkcol, h,
+				     pal, TRUE, 1, &pal.brush(QPalette::Button));
+		} else {
+		    QBrush fill(pal.light(), Dense4Pattern);
+		    // set the brush origin for the hash pattern to the x/y coordinate
+		    // of the menu item's checkmark... this way, the check marks have
+		    // a consistent look
+		    QPoint origin = p->brushOrigin();
+		    p->setBrushOrigin(vrect.x(), y);
+		    qDrawShadePanel(p, vrect.x(), y, checkcol, h, pal, TRUE, 1,
+				     &fill);
+		    // restore the previous brush origin
+		    p->setBrushOrigin(origin);
+		}
+	    }
+
+	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+	    if(act && !dis)
+		mode = QIconSet::Active;
+	    QPixmap pixmap;
+	    if(mi) {
+		if(checkable && checked)
+		    pixmap = mi->icon().pixmap(QIconSet::Small, mode, QIconSet::On);
+		else
+		    pixmap = mi->icon().pixmap(QIconSet::Small, mode);
+	    }
+	    int pixw = pixmap.width();
+	    int pixh = pixmap.height();
+	    if(act && !dis && checked)
+		qDrawShadePanel(p, xpos, y, checkcol, h, pal, FALSE, 1, &pal.brush(QPalette::Button));
+	    QRect cr(xpos, y, checkcol, h);
+	    QRect pmr(0, 0, pixw, pixh);
+	    pmr.moveCenter(cr.center());
+	    p->setPen(pal.text());
+	    p->drawPixmap(pmr.topLeft(), pixmap);
+	} else  if(checkable && checked) {  // just "checking"...
+	    int mw = checkcol + macItemFrame;
+	    int mh = h - 2*macItemFrame;
+	    int xp = xpos;
+	    if(reverse)
+		xp -= macItemFrame;
+	    else
+		xp += macItemFrame;
+
+	    SFlags cflags = Style_Default;
+	    if(!dis)
+		cflags |= Style_Enabled;
+	    if(act)
+		cflags |= Style_On;
+	    drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), pal, cflags);
+	}
+
+	if(dis)
+	    p->setPen(pal.text());
+	else if(act)
+	    p->setPen(pal.highlightedText());
+	else
+	    p->setPen(pal.buttonText());
+
+	int xm = macItemFrame + checkcol + macItemHMargin;
+	if(reverse)
+	    xpos = macItemFrame + tab;
+	else
+	    xpos += xm;
+
+	if(mi) {
+	    QString s = mi->text();
+	    if (!s.isNull()) {                        // draw text
+		int t = s.indexOf('\t');
+		int m = macItemVMargin;
+		int text_flags = AlignRight | AlignVCenter | NoAccel | DontClip | SingleLine;
+		if (t >= 0) {                         // draw tab text
+		    int xp;
+		    if (reverse)
+			xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
+		    else
+			xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame + 1;
+		    QFont font(p->font());
+		    int oldWeight = font.weight();
+		    font.setWeight(QFont::Bold);
+		    p->setFont(font);
+		    p->drawText(xp, y + m, tab, h - 2 * m, text_flags, s.mid(t + 1));
+		    s = s.left(t);
+		    font.setWeight(oldWeight);
+		    p->setFont(font);
+		}
+		text_flags ^= AlignRight;
+		p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
+	    }
+	}
+	break; }
+#ifdef QT_COMPAT
+    case CE_Q3PopupMenuItem: {
 	if(!widget || opt.isDefault())
 	    break;
 	QPopupMenu *popupmenu = (QPopupMenu *)widget;
@@ -859,7 +1007,8 @@ void QMacStyleQD::drawControl(ControlElement element,
 	    }
 	}
 	break; }
-    case CE_MenuBarItem: {
+#endif
+    case CE_Q3MenuBarItem: {
 	if(!widget)
 	    break;
 	const QMenuBar *mbar = (const QMenuBar *)widget;
@@ -1536,7 +1685,10 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	else
 	    ret = sz.width();
 	break; }
-    case PM_PopupMenuScrollerHeight:
+#ifdef QT_COMPAT
+    case PM_Q3PopupMenuScrollerHeight:
+#endif
+    case PM_MenuScrollerHeight:
 #if 0
 	SInt16 ash, asw;
 	GetThemeMenuItemExtra(kThemeMenuItemScrollUpArrow, &ash, &asw);
@@ -1635,7 +1787,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	    tm = kThemeMetricSmallRadioButtonWidth;
 	GetThemeMetric(tm, &ret);
 	break; }
-    case PM_PopupMenuFrameVerticalExtra:
+    case PM_MenuFrameVerticalExtra:
 	ret = 4;
 	break;
     default:
@@ -2135,7 +2287,47 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	if(sz.height() > lth)
 	    sz.setHeight(lth);
 	break; }
-    case CT_PopupMenuItem: {
+    case CT_MenuItem: {
+	if(!widget || opt.isDefault())
+	    break;
+	const Q4Menu *menu = (const Q4Menu *) widget;
+	bool checkable = menu->isCheckable();
+	QAction *mi = opt.action();
+	int maxpmw = opt.maxIconWidth();
+	int w = sz.width(), h = sz.height();
+
+	if(mi->isSeparator()) {
+	    w = 10;
+	    SInt16 ash;
+	    GetThemeMenuSeparatorHeight(&ash);
+	    h = ash;
+	} else {
+	    h = qMax(h, menu->fontMetrics().height() + 2);
+	    if(!mi->icon().isNull())
+		h = qMax(h, mi->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+	}
+
+	if(!mi->text().isNull()) {
+	    if(mi->text().indexOf('\t') >= 0)
+		w += 12;
+	}
+
+	if(maxpmw)
+	    w += maxpmw + 6;
+	if(checkable && maxpmw < 20)
+	    w += 20 - maxpmw;
+	if(checkable || maxpmw > 0)
+	    w += 2;
+        if (::qt_cast<QComboBox*>(widget->parentWidget())
+            && widget->parentWidget()->isVisible())
+	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
+			SC_ComboBoxEditField).width());
+	else
+	    w += 12;
+	sz = QSize(w, h);
+	break; }
+#ifdef QT_COMPAT
+    case CT_Q3PopupMenuItem: {
 	if(!widget || opt.isDefault())
 	    break;
 	const QPopupMenu *popup = (const QPopupMenu *) widget;
@@ -2185,6 +2377,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	    w += 12;
 	sz = QSize(w, h);
 	break; }
+#endif
     case CT_PushButton:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	sz = QSize(sz.width() + 16, sz.height()); //##
