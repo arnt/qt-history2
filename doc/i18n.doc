@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.12 1999/03/18 02:42:32 warwick Exp $
+** $Id: i18n.doc,v 1.13 1999/03/18 05:23:47 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -117,9 +117,9 @@ in the following stages:
 	    a .po file, which can be converted to a .qm file that QTranslator
 	    can load.</i>
 	</p>
- <li><b>Use the QString::arg() for simple arguments.</b>
+ <li><b>Use QString::arg() for simple arguments.</b>
 	<p>
-	The printf style of inserting arguments in strings
+	The printf() style of inserting arguments in strings
 	is a poor choice for internationalized text, as it is often
 	necessary to change the order of arguments when translating.
 	The QString::arg() functions offer simple
