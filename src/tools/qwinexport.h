@@ -196,12 +196,24 @@ QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
 #endif
 
 // qsqlextension template exports
-#if defined(Q_DEFINED_QSQLEXTENSION) && defined(Q_DEFINED_QMAP) && defined(Q_DEFINED_QVALUEVECTOR) && defined(Q_DEFINED_QSTRING) && !defined(Q_EXPORTED_QSQLEXTENSION_TEMPLATES)
+#if defined(Q_DEFINED_QSQLEXTENSION) && !defined(Q_EXPORTED_QSQLEXTENSION_TEMPLATES)
 #define Q_EXPORTED_QSQLEXTENSION_TEMPLATES
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<int,QString>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
-QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QValueVector<Holder>;
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QVector<Holder>;
 #endif
 
+
+// ### Begin attempt to make 4.0 compile on MSVC 6.0
+#if defined(Q_DEFINED_QSQLINDEX) && !defined(Q_EXPORTED_QSQLINDEX_TEMPLATES)
+#define Q_EXPORTED_QSQLINDEX_TEMPLATES
+QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QList<bool>;
+#endif
+
+#if defined(Q_DEFINED_QOBJECTLIST) && !defined(Q_EXPORTED_QOBJECTLISTCLEANUPHANDLER_TEMPLATES)
+#define Q_EXPORTED_QOBJECTLISTCLEANUPHANDLER_TEMPLATES
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QObject*>;
+#endif
 
 // MOC_SKIP_END
 #endif // template defined

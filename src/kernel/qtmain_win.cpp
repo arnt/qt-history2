@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qapplication.h"
+#include "qmemarray.h"
 #include "qt_windows.h"
 
 /*

@@ -20,6 +20,9 @@
 #include "qobject.h"
 #endif // QT_H
 
+#define Q_DEFINED_QOBJECTLIST
+#include "qwinexport.h"
+
 class Q_EXPORT QObjectCleanupHandler : public QObject
 {
     Q_OBJECT

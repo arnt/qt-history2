@@ -33,6 +33,9 @@
 
 #ifndef QT_NO_SQL
 
+#define Q_DEFINED_QSQLINDEX
+#include "qwinexport.h"
+
 class QSqlCursor;
 
 class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
@@ -68,7 +71,5 @@ private:
     QList<bool> sorts;
 };
 
-#define Q_DEFINED_QSQLINDEX
-#include "qwinexport.h"
 #endif	// QT_NO_SQL
 #endif

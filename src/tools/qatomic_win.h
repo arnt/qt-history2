@@ -1,5 +1,6 @@
 #ifndef QATOMIC_WIN_H
 #ifndef QT_H
+#include "qglobal.h"
 #endif // QT_H
 #define QATOMIC_WIN_H
 
