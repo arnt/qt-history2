@@ -2033,7 +2033,8 @@ void QLineEditPrivate::drag()
 {
     dndTimer.stop();
     QTextDrag *tdo = new QTextDrag( q->selectedText(), q );
-    if ( tdo->drag() && !readOnly ) {
+    // ### fix the check QDragObject::target() != q in Qt4 (should not be needed)
+    if ( tdo->drag() && !readOnly && QDragObject::target() != q ) {
 	int priorState = undoState;
 	removeSelectedText();
 	finishChange( priorState );
