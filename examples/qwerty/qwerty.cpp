@@ -65,9 +65,10 @@ Editor::Editor( QWidget * parent , const char * name )
 
     edit->insertItem( "To &Uppercase",   this, SLOT(toUpper()),   ALT+Key_U );
     edit->insertItem( "To &Lowercase",   this, SLOT(toLower()),   ALT+Key_L );
+#ifndef QT_NO_FONTDIALOG
     edit->insertSeparator();
     edit->insertItem( "&Select Font" ,	 this, SLOT(font()),     ALT+Key_F );
-
+#endif
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
     connect( e, SIGNAL( textChanged() ), this, SLOT( textChanged() ) );
@@ -90,11 +91,13 @@ Editor::~Editor()
 
 void Editor::font()
 {
+#ifndef QT_NO_FONTDIALOG
     bool ok;
     QFont f = QFontDialog::getFont( &ok, e->font() );
     if ( ok ) {
         e->setFont( f );
     }
+#endif
 }
 
 
