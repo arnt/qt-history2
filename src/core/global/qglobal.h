@@ -1626,7 +1626,10 @@ public:
 struct QForeachMemory {
     inline QForeachMemory(void *):done(0){}
     int done;
-    char padding[256];
+    union {
+        void *dummy;
+        char padding[256];
+    };
 };
 
 template<typename T>
@@ -1664,7 +1667,10 @@ template <int size>
 struct QForeachMemory {
     inline QForeachMemory(void *):done(0){}
     int done;
-    char padding[size];
+    union {
+        void *dummy;
+        char padding[size];
+    };
 };
 
 template<typename T>
