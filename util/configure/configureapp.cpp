@@ -467,8 +467,6 @@ void ConfigureApp::generateConfigfiles()
 	outStream << endl;
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
-	if( licenseInfo[ "PRODUCTS" ] != "qt-enterprise" )
-	    outStream << "#define QT_LICENSE_PROFESSIONAL" << endl;
 
 	outFile.close();
 //	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
