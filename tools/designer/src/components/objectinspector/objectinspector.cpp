@@ -110,6 +110,12 @@ void ObjectInspector::setFormWindow(AbstractFormWindow *fw)
         QString className;
         if (AbstractWidgetDataBaseItem *widgetItem = db->item(db->indexOfObject(object, true))) {
             className = widgetItem->name();
+
+            if (object->isWidgetType() && className == QLatin1String("QLayoutWidget")
+                    && static_cast<QWidget*>(object)->layout()) {
+                className = QLatin1String(static_cast<QWidget*>(object)->layout()->metaObject()->className());
+            }
+
             item->setText(1, className);
             item->setIcon(0, widgetItem->icon());
         }
