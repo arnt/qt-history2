@@ -446,6 +446,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	WindowClass wclass = kSheetWindowClass;
 	if(testWFlags(WType_Popup) )
 	    wclass = kToolbarWindowClass;
+	else if(testWFlags(WShowModal))
+	    wclass = kDocumentWindowClass;
 	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
 	else if(dialog)

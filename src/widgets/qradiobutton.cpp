@@ -186,7 +186,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	kf |= 2;
     if ( isEnabled() )
 	kf |= 4;
-    if( topLevelWidget() != qApp->activeWindow())
+    if( isActiveWindow() )
 	kf |= 8;
     if ( hasMouse() )
 	kf |= 16;

@@ -512,7 +512,10 @@ public:
 	SH_MenuBar_MouseTracking,
 
 	// bool - gray out selected items when loosing focus
-	SH_ItemView_ChangeHighlightOnFocus
+	SH_ItemView_ChangeHighlightOnFocus,
+
+	// bool - supports shared activation among modeless widgets
+	SH_Widget_ShareActivation
     };
 
     virtual int styleHint( StyleHint stylehint,

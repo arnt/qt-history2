@@ -188,7 +188,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	kf |= 2;
     if ( hasFocus() )
 	kf |= 4;				// active vs. normal colorgroup
-    if( topLevelWidget() != qApp->activeWindow())
+    if( isActiveWindow() )
 	kf |= 8;
     if ( hasMouse() )
 	kf |= 16;

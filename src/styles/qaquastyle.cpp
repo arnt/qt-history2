@@ -1612,6 +1612,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
 {
     int ret = 0;
     switch(sh) {
+    case SH_Widget_ShareActivation:
+	ret = TRUE;
+	break;
     case SH_Header_ArrowAlignment:
 	ret = Qt::AlignRight;
 	break;

@@ -3068,8 +3068,21 @@ void QWidget::setKeyCompression(bool compress)
 */
 bool QWidget::isActiveWindow() const
 {
-    return (topLevelWidget() == qApp->activeWindow() )||
-	     ( isVisible() && topLevelWidget()->isPopup() );
+    QWidget *tlw = topLevelWidget();
+    if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
+	return TRUE;
+    if(style().styleHint(QStyle::SH_Widget_ShareActivation, this, NULL)) {
+	if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&
+	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
+	   return TRUE;
+	QWidget *w = qApp->activeWindow();
+	while( w && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget() ) {
+	    w = w->parentWidget()->topLevelWidget();
+	    if( w == tlw )
+		return TRUE;
+	}
+    }
+    return FALSE;
 }
 
 /*!

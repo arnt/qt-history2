@@ -481,7 +481,7 @@ void QMenuBar::macUpdateMenuBar()
     static bool first = TRUE;
     if(QWidget *w = qApp->activeWindow()) {
 	QMenuBar *mb = menubars->find((int)w);
-	while(!mb && w->parentWidget())
+	while(!mb && w->dialog() && !w->testWFlags(WShowModal) && w->parentWidget())
 	    mb = menubars->find((int)(w = w->parentWidget()));
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))
