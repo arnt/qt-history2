@@ -229,14 +229,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     if ( project->isActiveConfig("embedded") && !project->variables()["PRECOMPH"].isEmpty() ) {
+	QString outdir = project->variables()["MOC_DIR"].first();
+	QString qt_dot_h = Option::fixPathToLocalOS(project->variables()["PRECOMPH"].first());
 	t << "###### Combined headers" << endl << endl;
-	t << "allmoc.cpp: " << var("PRECOMPH") << " " << " \\\n\t\t" 
+	t << outdir << "allmoc.cpp: " << qt_dot_h << " " << " \\\n\t\t" 
 	  << varList("HEADERS_ORIG") << "\n\t"
-	  << "echo '#include \"" << var("PRECOMPH") << "\"' >allmoc.cpp" << "\n\t"
-	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >allmoc.h allmoc.cpp" << "\n\t"
-	  << "$(MOC) -o allmoc.cpp allmoc.h" << "\n\t"
-	  << "perl -pi -e 's{\"allmoc.h\"}{\"" << var("PRECOMPH") << "\"}' allmoc.cpp" << "\n\t"
-	  << "rm allmoc.h" << endl << endl;
+	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
+	  << "$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " << outdir << "allmoc.cpp" << "\n\t"
+	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
+	  << "perl -pi -e 's{\"allmoc.h\"}{\"" << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
+	  << "rm " << outdir << "allmoc.h" << endl << endl;
     }
 }
 
@@ -403,7 +405,7 @@ UnixMakefileGenerator::init()
     }
     project->variables()["TMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( project->isActiveConfig("embedded") && !project->variables()["PRECOMPH"].isEmpty() ) {
-	project->variables()["SOURCES"].append("allmoc.cpp");
+	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "allmoc.cpp");
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }

@@ -45,6 +45,24 @@
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already(FALSE), moc_aware(FALSE)
 {
+    QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
+    for(int x = 0; dirs[x] != QString::null; x++) {
+	QString &path = project->variables()[dirs[x]].first();
+	path = Option::fixPathToTargetOS(path);
+	if (!path.isEmpty()) {
+	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
+		path += Option::dir_sep;
+
+	    QString build;
+	    if(path.left(1) == Option::dir_sep)
+		build = Option::dir_sep;
+	    QStringList subs = QStringList::split(Option::dir_sep, path);
+	    for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
+		build += (*subit) + QDir::separator();
+		QDir::current().mkdir(build);
+	    }
+	}
+    }
 }
 
 bool
@@ -157,28 +175,6 @@ MakefileGenerator::init()
     init_already = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
-    /* fix up dirs */
-    {
-        QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
-        for(int x = 0; dirs[x] != QString::null; x++) {
-            QString &path = v[dirs[x]].first();
-            path = Option::fixPathToTargetOS(path);
-            if (!path.isEmpty()) {
-                if(path.right(Option::dir_sep.length()) != Option::dir_sep)
-                    path += Option::dir_sep;
-
-                QString build;
-		if(path.left(1) == Option::dir_sep)
-		    build = Option::dir_sep;
-                QStringList subs = QStringList::split(Option::dir_sep, path);
-                for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
-                    build += (*subit) + QDir::separator();
-                    QDir::current().mkdir(build);
-                }
-            }
-        }
-    }
-
     /* get deps and mocables */
     {
 	QStringList incDirs;
