@@ -892,7 +892,11 @@ bool QProcess::start( QStringList *env )
 	    int n = ::read( fd[0], &buf, 1 );
 	    if ( n==1 ) {
 		// socket was not closed => error
-		::waitpid( pid, 0, WNOHANG );
+		if ( ::waitpid( pid, 0, WNOHANG ) != pid ) {
+		    // The wait did not succeed yet, so try again when we get
+		    // the sigchild (to avoid zombies).
+		    d->newProc( pid, 0 );
+		}
 		d->proc = 0;
 		goto error;
 	    } else if ( n==-1 ) {
