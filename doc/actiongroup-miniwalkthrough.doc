@@ -19,37 +19,37 @@ Walkthrough featuring QAction</A>.
 
 \include action/actiongroup/tiny_editor.cpp
 
-As its name suggests this is a very tiny program. It might
-look unusual for an editor but it does not even provide the possibility  
+As its name, \e tiny_editor, suggests this is a very small program. It might
+be unusual for an editor but it does not even provide the possibility  
 to open a file given as a commandline argument. The reason for this
-is simple: This has nothing to to with a QActionGroup. 
-
-When you read through it and happen to be unsure about something: The
-<A HREF="simple-application.html#simplemain">Simple Application Walkthrough</A>
-explains the elements of a typical Qt main program in detail.
+is simple: It has nothing to to with QActionGroups. 
 
 The crucial point in the above \e main() is that we make \e editor, an object
 constructed from a self-written class \e Editor, the main widget in our
-application. This class is defined in \e editor.h -- let's have a look at it...
+application. This class is defined in \e editor.h.
+
+When you read through the code and happen to be unsure about something: The
+<A HREF="simple-application.html#simplemain">Simple Application Walkthrough</A>
+explains the elements of a typical Qt main program in detail.
 
 
 <h2>The interface of the Editor class</h2>
 
 Before implementing the \e Editor class we should think about what it
 is supposed to do. Fortunately Qt provides a full-featured rich text editor
-class, \l QTextEdit, thus the only thing left for us is to give it a user interface.
+class, \l QTextEdit. The only thing left for us is to give it a user interface.
 
 \include action/actiongroup/editor.h
 
 As we look for a means to implement one-of-many choices, a nice example would
-involve two buttons that make the user change the font color: If the
-user invokes the \e setRedFont action the font color changes from default black
+involve two buttons that make the user change the font color: If he or she
+invokes the \e setRedFont action the font color changes from default black
 to red.  
 
 To do this color change we need a slot, \e setFontColor() that takes care 
 about the signal the action emits.
 
-The \e Editor class is derived from \l QMainWindow. Only the constructor
+The \e Editor class itself is derived from \l QMainWindow. Only the constructor
 might be called from outside the class. 
 
 
@@ -57,37 +57,39 @@ might be called from outside the class.
 
 \dontinclude action/actiongroup/editor.cpp
 
-\printuntil qmenubar.h
+\printuntil qaction.h
 
 It's not that much that we need for our tiny editor: QTextEdit, QMenuBar,
-QToolBar, QPopUpMenu and last but not least QAction and QActionGroup from 
+QToolBar, QPopupMenu and last but not least QAction and QActionGroup from 
 \e qaction.h. 
 
 \printuntil black.xpm
 
 The two buttons -- one to switch to red as font color, one to switch back to
-default black -- need an icon to be nicely presented in the tool bar.
-With these two lines we include two variables that contain the pixmap definition: 
-\e black_xpm and \e red_xpm.
+default black -- need icons to be presented nicely in the tool bar.
+With the above two lines we include two variables that contain the 
+appropriate pixmap definitions: \e red_xpm and \e black_xpm.
 
 \printuntil colors
 
-If one one the buttons is on, the other one must be off. The easiest way to
+If one of the buttons is on, the other one must be off. The easiest way to
 to this is to create an action group, \e colors, that controls this 
 exclusive behaviour.
 This is done by setting the third argument of the QActionGroup constructor to
 \e TRUE (we could omit it because it's the default). 
-As simple as that we get an \e exclusive action group that will look after
-its member actions and switch off all other toggle actions whenever one is toggled
-on. 
+As simple as this we get an \e exclusive action group that will look after
+its member actions and switch off all other toggle actions except the one 
+that is on. 
 
 \printuntil blackfontcolor
 
 Then we create our first action, the one that sets the font color back
-to default black. It is called \e setBlackFont and is equipped with a description text()
-reading \e black, a menuText() reading \e Font color: \e black, an iconSet()
-derived from the \e black_xpm pixmap and \e ALT+B as keyboard accel()erator.
-Its last argument, \e TRUE, is responsible for making it a toggle action
+to default black. It is called \e setBlackFont and is equipped with a descriptive 
+QAction::text() reading \e black, a QAction::menuText() reading 
+<em>Font color: black</em>, an QAction::iconSet()
+derived from the \e black_xpm pixmap and \e ALT+B as keyboard accelerator.
+Its last argument, \e TRUE, is responsible for making \e setBlackFont  
+a toggle action
 that can be switched on or off. Most importantly \e setBlackFont becomes a member
 of the \e colors action group at creation time: \e colors is defined to
 be its parent.
@@ -102,7 +104,7 @@ the QActionGroup is notified internally and emits the \l QActionGroup::selected(
 in turn. \l QActionGroup::selected() carries the action that caused the signal as its argument.
 
 All we have to do now is to connect this signal to a slot that changes
-the font color to red or black depending on which action was toggled:
+the font color to red or black depending on the toggled action:
 
 \printuntil setFontColor( QAction * )
 
@@ -111,7 +113,7 @@ Thus let's recall what we have done so far: We created two toggle actions,
 \e setRedFont and \e setBlackFont. Because they are children of an
 \e exclusive QActionGroup named \e colors it is impossible for the user
 to type red and black at the same time: Whenever he or she invokes
-one of the actions the other changes state to off and \e colors
+one of the actions the other one changes state to off, \e colors
 emits a \l QActionGroup::selected() signal and the \e setFontColor() slot takes care
 of it.
 
@@ -128,14 +130,14 @@ parent action group to \e toolbar and are done. \e colors makes sure
 that \e setBlackFont and \e setRedFont find themselves presented
 in the tool bar: \e setBlackFont as a tool button decorated with the 
 \e black_xpm pixmap on the left, \e setRedFont (because it was
-added to \e colors later) on the right.
+added to \e colors later) to its right.
 
 \printuntil "&Font"
 
 Next we create a popup menu and insert it into the menu bar
 under the \e Font entry.
 
-In a menu with this name of course a user expects to find more
+In a menu with this name a user would certainly expect to find more
 than just two entries to change the font color. You might want to
 add other font related actions in the future, and therefore it 
 would be nice to group \e setBlackFont and \e setRedFont in 
@@ -147,7 +149,7 @@ to group together all of its members in a single submenu:
 
 \printline colors->setUsesDropDown
 
-This however causes a problem: A submenu entry must have a
+This however causes a problem: a submenu entry must have a
 menu text, and up to now we don't have any.
 
 When we recall that action groups intrinsically are QActions
@@ -166,7 +168,7 @@ the \e font popup menu.
 
 \printline editor
 
-And last but not least we create the heart of \e Editor,
+Last but not least we create the heart of \e Editor,
 the rich text editor ...
 
 \printline setCentralWidget
@@ -183,14 +185,14 @@ or black depending on which action was toggled on.
 \printline coloraction
 \printline {
 
-As the \l QActionGroup::selected() signal it is connected to carries the
+As the \l QActionGroup::selected() signal carries the
 relevant action as its argument, the first thing we have to do
 is to preserve it in the \e coloraction variable for later use.
 
 \printuntil setColor( red )
 
-If it is \e setRedFont action we change the \e editor's 
-(font) color() to \e red.
+If \e coloraction is the same as \e setRedFont we change the \e editor's 
+font color to \e red.
 
 \printuntil setColor( black
 
