@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#232 $
+** $Id: //depot/qt/main/src/moc/moc.y#233 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -3022,6 +3022,7 @@ void generateDispatch()
 	    if ( f->type != "void" ) {
 		hasReturn = TRUE;
 		fprintf( out, "pUType_%s->set(o,", uType(f->type).data() );
+		offset++;
 	    }
 	    fprintf( out, "%s(", f->name.data() );
 	    Argument* a = f->args->first();
@@ -3119,7 +3120,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#232 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#233 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
