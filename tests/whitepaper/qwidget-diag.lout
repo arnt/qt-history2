@@ -1,0 +1,26 @@
+# Execute:
+# % rm *.li* *.ld*
+# % lout -EPS qwidget-diag.lout > qwidget-diag.eps
+
+@SysInclude { diag }
+@SysInclude { doc }
+@Doc @Text @Begin
+@Diag
+    font { Helvetica Base }
+{
+@HTree {
+    @CurveBox QObject
+    @LeftSub @CurveBox QTimer
+    @RightSub {
+	@CurveBox QWidget
+	@FirstSub @CurveBox QDialog
+	@NextSub {
+	    @CurveBox QFrame
+	    @LeftSub @CurveBox QLabel
+	    @RightSub @CurveBox QLineEdit
+	}
+	@NextSub @CurveBox QSpinBox
+    }
+}
+}
+@End @Text

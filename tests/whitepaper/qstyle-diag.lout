@@ -1,0 +1,29 @@
+# Execute:
+# % rm *.li* *.ld*
+# % lout -EPS qstyle-diag.lout > qstyle-diag.eps
+
+@SysInclude { diag }
+@SysInclude { doc }
+@Doc @Text @Begin
+@Diag
+    font { Helvetica Base }
+{
+@HTree {
+    @CurveBox QStyle 
+    @RightSub {
+	@CurveBox QCommonStyle
+	@LeftSub {
+	    @CurveBox QMotifStyle
+	    @FirstSub @CurveBox QCDEStyle
+	    @NextSub @CurveBox QMotifPlusStyle
+	    @NextSub @CurveBox QSGIStyle
+	}
+	@RightSub {
+	    @CurveBox QWindowsStyle
+	    @LeftSub @CurveBox QAquaStyle
+	    @RightSub @CurveBox QPlatinumStyle
+	}
+    }
+}
+}
+@End @Text
