@@ -123,9 +123,7 @@ class Q_XML_EXPORT QXmlInputSource
 {
 public:
     QXmlInputSource();
-    explicit QXmlInputSource(QIODevice *dev);
-    explicit QXmlInputSource(QFile& file); // obsolete
-    explicit QXmlInputSource(QTextStream& stream); // obsolete
+    QXmlInputSource(QIODevice *dev);
     virtual ~QXmlInputSource();
 
     virtual void setData(const QString& dat);
@@ -137,6 +135,11 @@ public:
 
     static const QChar EndOfData;
     static const QChar EndOfDocument;
+
+#ifdef QT3_SUPPORT
+    QT3_SUPPORT_CONSTRUCTOR QXmlInputSource(QFile& file);
+    QT3_SUPPORT_CONSTRUCTOR QXmlInputSource(QTextStream& stream);
+#endif
 
 protected:
     virtual QString fromRawData(const QByteArray &data, bool beginning = false);
@@ -154,7 +157,8 @@ private:
 class Q_XML_EXPORT QXmlParseException
 {
 public:
-    explicit QXmlParseException(const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="");
+    explicit QXmlParseException(const QString &name = QString(), int c = -1, int l = -1,
+                                const QString &p = QString(), const QString &s = QString());
     ~QXmlParseException();
 
     int columnNumber() const;

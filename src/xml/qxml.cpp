@@ -1186,8 +1186,12 @@ QXmlInputSource::QXmlInputSource(QIODevice *dev)
     d->inputDevice = dev;
 }
 
-/*! \obsolete
-  Constructs an input source and gets the data from the text stream \a stream.
+#ifdef QT3_SUPPORT
+/*!
+    Use the QXmlInputSource(QIODevice *) constructor instead, with
+    the device used by \a stream.
+
+    \sa QTextStream::device()
 */
 QXmlInputSource::QXmlInputSource(QTextStream& stream)
 {
@@ -1195,15 +1199,15 @@ QXmlInputSource::QXmlInputSource(QTextStream& stream)
     d->inputStream = &stream;
 }
 
-/*! \obsolete
-  Constructs an input source and gets the data from the file \a file. If the
-  file cannot be read the input source is empty.
+/*!
+    Use QXmlInputSource(&\a file) instead.
 */
 QXmlInputSource::QXmlInputSource(QFile& file)
 {
     init();
     d->inputDevice = &file;
 }
+#endif
 
 /*!
     Destructor.
