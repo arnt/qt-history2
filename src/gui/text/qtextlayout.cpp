@@ -1364,13 +1364,19 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 if (selection)
                     format.merge(selection->format);
                 setPenAndDrawBackground(p, pen, format, QRectF(x, y - line.ascent, si.width, line.height()));
-                eng->docLayout()->drawInlineObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
+                QRectF itemRect(x, y-si.ascent, si.width, si.height());
+                eng->docLayout()->drawInlineObject(p, itemRect,
                                                    QTextInlineObject(item, eng), format);
                 if (selection) {
                     QColor bg = format.backgroundColor();
                     if (bg.isValid()) {
                         bg.setAlpha(128);
-                        p->fillRect(QRectF(x, y-si.ascent, si.width, si.height()), bg);
+                        p->fillRect(itemRect, bg);
+                    }
+                    int outline = format.intProperty(QTextFormat::OutlineWidth);
+                    if (outline) {
+                        p->setPen(QPen(Qt::black, 1, Qt::DotLine));
+                        p->drawRect(itemRect);
                     }
                 }
                 p->restore();
@@ -1437,6 +1443,11 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             }
 
             QRectF rect(x + soff, y - line.ascent, swidth, line.height());
+            int outline = selection->format.intProperty(QTextFormat::OutlineWidth);
+            if (outline) {
+                p->setPen(QPen(Qt::black, 1, Qt::DotLine));
+                p->drawRect(rect);
+            }
             p->save();
             p->setClipRect(rect);
         }

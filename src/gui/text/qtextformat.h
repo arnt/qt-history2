@@ -100,6 +100,8 @@ public:
         CssFloat = 0x0800,
         LayoutDirection = 0x0801,
 
+        OutlineWidth = 0x810,
+
         // paragraph
         BlockDirection = 0x1000,
         BlockAlignment = 0x1010,

@@ -140,6 +140,9 @@ public:
 
     QTextCursor selectedWordOnDoubleClick;
     QTextCursor selectedLineOnDoubleClick;
+
+    // for QTextBrowser:
+    QTextCursor focusIndicator;
 };
 
 #endif // QTEXTEDIT_P_H

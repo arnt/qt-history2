@@ -1654,6 +1654,12 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
         selection.format.setTextColor(q->palette().color(QPalette::HighlightedText));
         ctx.selections.append(selection);
     }
+    if (focusIndicator.hasSelection()) {
+        QAbstractTextDocumentLayout::Selection selection;
+        selection.cursor = focusIndicator;
+        selection.format.setProperty(QTextFormat::OutlineWidth, 1);
+        ctx.selections.append(selection);
+    }
     ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);

@@ -49,8 +49,6 @@ public:
 
     bool forceLoadOnSourceChange;
 
-    QTextCursor focusIndicator;
-
     QString findFile(const QUrl &name) const;
 
     inline void documentModified()
