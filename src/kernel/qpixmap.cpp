@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#20 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,18 +15,9 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#20 $";
 #endif
 
-
-/*!
-Detaches from shared pixmap data and makes sure that this pixmap is the
-only one referring the data.
-
-If multiple pixmaps share common data, this pixmap dereferences the
-data and gets a copy of the data. Nothing will be done if there is just
-a single reference.
-*/
 
 void QPixmap::detach()				// detach shared pixmap
 {
@@ -36,34 +27,22 @@ void QPixmap::detach()				// detach shared pixmap
 	data->uninit = FALSE;
 	return;
     }
-    *this = copy();
-}
-
-/*!
-Returns a deep copy of the pixmap.  All pixels are copied using bitBlt().
-\sa operator=().
-*/
-
-QPixmap QPixmap::copy() const
-{
-    QPixmap tmp( data->w, data->h, data->d );
+    QPixmap tmp( data->w, data->h, data->d );	// make copy
     tmp.data->bitmap = data->bitmap;
-    bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
-    return tmp;
+    bitBlt(  &tmp, 0,0, this, 0,0, data->w, data->h );
+    *this = tmp;
 }
 
 
 /*!
-\fn void QPixmap::resize( const QSize &s )
-Synonymous resize() which takes a QSize parameter.
+  \fn void QPixmap::resize( const QSize &size )
+  Synonymous resize() which takes a QSize parameter.
 */
 
 /*!
-Resizes the pixmap to \e w width and \e h height.
-
-New pixels will be uninitialized (random) if the pixmap is expanded.
-
-A valid pixmap will be created if it is a null pixmap.
+  Resizes the pixmap to \e w width and \e h height. <br>
+  New pixels will be uninitialized (random) if the pixmap is expanded. <br>
+  A valid pixmap will be created if it is a null pixmap. <br>
 */
 
 void QPixmap::resize( int w, int h )
@@ -85,10 +64,9 @@ void QPixmap::resize( int w, int h )
 
 
 /*!
-Returns a string that specifies the image format of the file \e fileName,
-or null if the file cannot be read or if the format cannot be recognized.
-
-\sa load() and save().
+  Returns a string that specifies the image format of the file \e fileName,
+  or null if the file cannot be read or if the format cannot be recognized.
+  \sa load(), save()
 */
 
 const char *QPixmap::imageFormat( const char *fileName )
@@ -98,16 +76,16 @@ const char *QPixmap::imageFormat( const char *fileName )
 
 
 /*!
-Loads an image from the file \e fileName into the pixmap.
-Returns TRUE if successful, or FALSE if the image could not be loaded.
+  Loads an image from the file \e fileName into the pixmap.
+  Returns TRUE if successful, or FALSE if the image could not be loaded.
 
-If \e format is specified, then the loader will try to read the image
-using the specified format.  If \e format is not specified (default),
-the loader reads a few bytes from the header to guess the file format.
+  If \e format is specified, then the loader will try to read the image
+  using the specified format.  If \e format is not specified (default),
+  the loader reads a few bytes from the header to guess the file format.
 
-The QImageIO documentation describes the different image formats.
+  The QImageIO documentation lists the supported image formats.
 
-\sa save() and imageFormat().
+  \sa save(), imageFormat()
 */
 
 bool QPixmap::load( const char *fileName, const char *format )
@@ -124,11 +102,10 @@ bool QPixmap::load( const char *fileName, const char *format )
 }
 
 /*!
-Saves the pixmap to the file \e fileName, using the image file format
-\e format.  Returns TRUE if successful, or FALSE if the image could not
-be saved.
-
-\sa load() and imageFormat().
+  Saves the pixmap to the file \e fileName, using the image file format
+  \e format.  Returns TRUE if successful, or FALSE if the image could not
+  be saved.
+  \sa load(), imageFormat()
 */
 
 bool QPixmap::save( const char *fileName, const char *format ) const
@@ -143,7 +120,14 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 }
 
 
-/*! Writes a pixmap to the stream as a BMP image. \related QPixmap */
+// --------------------------------------------------------------------------
+// QPixmap stream functions
+//
+
+/*!
+  \relates QPixmap
+  Writes a pixmap to the stream as a BMP image.
+*/
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
@@ -155,7 +139,10 @@ QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
     return s;
 }
 
-/*! Reads a pixmap from the stream as a BMP image. \related QPixmap */
+/*!
+  \relates QPixmap
+  Reads a pixmap from the stream as a BMP image.
+*/
 
 QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#32 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#33 $
 **
 ** Definition of QPixmap class
 **
@@ -25,13 +25,12 @@ friend class QPainter;
 public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
-    QPixmap( const QSize &sz,  int depth=-1 );
+    QPixmap( const QSize &, int depth=-1 );
     QPixmap( const QPixmap & );
    ~QPixmap();
 
     QPixmap &operator=( const QPixmap & );
     QPixmap &operator=( const QImage  & );
-    QPixmap copy() const;
 
     bool    isNull()	const;
 
@@ -66,6 +65,10 @@ protected:
 
     virtual void detach();
 
+#if defined(_WS_WIN_) || defined(_WS_PM_)
+    HANDLE  hbm() const;
+#endif
+
 #if defined(_WS_WIN_)
     HANDLE allocMemDC();
     void   freeMemDC();
@@ -79,8 +82,6 @@ protected:
 	uint   uninit : 1;
 	uint   bitmap : 1;
 #if defined(_WS_WIN_)
-	HANDLE allocMemDC();
-	void   freeMemDC();
 	HANDLE hbm;
 #elif defined(_WS_PM_)
 	HANDLE hdcmem;
@@ -111,6 +112,14 @@ inline bool QPixmap::isNull() const
     return data->hbm == 0;
 #endif
 }
+
+#if defined(_WS_WIN_) || defined(_WS_PM_)
+inline HANDLE QPixmap::hbm() const
+{
+    return data->hbm;
+}
+#endif
+
 
 // --------------------------------------------------------------------------
 // QPixmap stream functions
