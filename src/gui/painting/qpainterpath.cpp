@@ -14,11 +14,11 @@
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 
+#include <private/qbezier_p.h>
+#include <private/qfontengine_p.h>
 #include <private/qobject_p.h>
 #include <private/qtextengine_p.h>
-#include <private/qfontengine_p.h>
 
-#include <qbezier.h>
 #include <qbitmap.h>
 #include <qdebug.h>
 #include <qlist.h>

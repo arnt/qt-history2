@@ -631,7 +631,7 @@ void QPointArray::makeEllipse(int x, int y, int w, int h)
 
 #ifndef QT_NO_BEZIER
 
-#include "qbezier.h"
+#include "qbezier_p.h"
 
 /*!
     Returns the Bezier points for the four control points in this

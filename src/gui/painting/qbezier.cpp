@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qbezier.h"
+#include "qbezier_p.h"
 #include <qpolygon.h>
 #include <qline.h>
 #include <qstack.h>
