@@ -1365,21 +1365,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                     interval = 1;
                 int fudge = len / 2;
                 int pos;
-                if (slider->orientation == Qt::Horizontal) {
-                    if (ticks & QSlider::Above)
-                        p->fillRect(0, 0, slider->rect.width(), tickOffset,
-                                    slider->palette.brush(QPalette::Background));
-                    if (ticks & QSlider::Below)
-                        p->fillRect(0, tickOffset + thickness, slider->rect.width(), tickOffset,
-                                    slider->palette.brush(QPalette::Background));
-                } else {
-                    if (ticks & QSlider::Above)
-                        p->fillRect(0, 0, tickOffset, slider->rect.width(),
-                                    slider->palette.brush(QPalette::Background));
-                    if (ticks & QSlider::Below)
-                        p->fillRect(tickOffset + thickness, 0, tickOffset, slider->rect.height(),
-                                    slider->palette.brush(QPalette::Background));
-                }
                 p->setPen(slider->palette.foreground());
                 int v = slider->minimum;
                 while (v <= slider->maximum + 1) {

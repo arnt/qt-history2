@@ -1706,8 +1706,6 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 bool tickAbove = slider->tickmarks == QSlider::Above;
                 bool tickBelow = slider->tickmarks == QSlider::Below;
 
-                p->fillRect(x, y, wi, he, slider->palette.brush(QPalette::Background));
-
                 if (slider->state & Style_HasFocus) {
                     QStyleOptionFocusRect fropt(0);
                     fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
