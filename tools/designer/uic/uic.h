@@ -130,6 +130,7 @@ private:
     bool isFrameworkCodeGenerated( const QDomElement& e );
     QString getDatabaseInfo( const QDomElement& e, const QString& tag );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
+    void writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst );
     QStringList dbConnections;
     QMap< QString, QStringList > dbCursors;
     QMap< QString, QStringList > dbForms;

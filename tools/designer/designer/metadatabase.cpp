@@ -57,7 +57,8 @@ public:
     QValueList<MetaDataBase::Connection> connections;
     QValueList<MetaDataBase::Function> functionList;
     QValueList<MetaDataBase::Include> includes;
-    QStringList forwards, variables, sigs;
+    QValueList<MetaDataBase::Variable> variables;
+    QStringList forwards, sigs;
     QWidgetList tabOrder;
     MetaDataBase::MetaInfo metaInfo;
     QCursor cursor;
@@ -157,7 +158,7 @@ void MetaDataBase::setPropertyChanged( QObject *o, const QString &property, bool
 			    isPropertyChanged( o, "hAlign" ) ||
 			    isPropertyChanged( o, "vAlign" ) ||
 			    isPropertyChanged( o, "wordwrap" ) );
-	doUpdate = TRUE;	
+	doUpdate = TRUE;
     }
 
     if ( doUpdate && property == "alignment" ) {
@@ -709,15 +710,13 @@ void MetaDataBase::removeFunction( QObject *o, const QCString &function, const Q
 		  o, o->name(), o->className() );
 	return;
     }
-
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
-	Function f = *it;
-	if ( f.function == function &&
-	     f.specifier == specifier &&
-	     f.access == access &&
-	     f.type == type &&
-	     ( language.isEmpty() || f.language == language ) &&
-	       ( returnType.isEmpty() || f.returnType == returnType ) ) {
+	if ( (*it).function == function &&
+	     (*it).specifier == specifier &&
+	     (*it).access == access &&
+	     (*it).type == type &&
+	     ( language.isEmpty() || (*it).language == language ) &&
+	       ( returnType.isEmpty() || (*it).returnType == returnType ) ) {
 	    r->functionList.remove( it );
 	    break;
 	}
@@ -733,10 +732,8 @@ void MetaDataBase::removeFunction( QObject *o, const QString &function )
 		  o, o->name(), o->className() );
 	return;
     }
-
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
-	Function f = *it;
-	if ( normalizeFunction( f.function ) == normalizeFunction( function ) ) {
+	if ( normalizeFunction( (*it).function ) == normalizeFunction( function ) ) {
 	    r->functionList.remove( it );
 	    break;
 	}
@@ -768,7 +765,7 @@ QValueList<MetaDataBase::Function> MetaDataBase::slotList( QObject *o )
     QValueList<Function> slotList;
     for ( QValueList<Function>::Iterator it = r->functionList.begin(); it != r->functionList.end(); ++it ) {
 	if ( (*it).type == "slot" )
-	    slotList.append( *it );	
+	    slotList.append( *it );
     }
     return slotList;
 }
@@ -1038,7 +1035,7 @@ QStringList MetaDataBase::forwards( QObject *o )
     return r->forwards;
 }
 
-void MetaDataBase::setVariables( QObject *o, const QStringList &vars )
+void MetaDataBase::setVariables( QObject *o, const QValueList<Variable> &vars )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -1051,17 +1048,78 @@ void MetaDataBase::setVariables( QObject *o, const QStringList &vars )
     r->variables = vars;
 }
 
-QStringList MetaDataBase::variables( QObject *o )
+void MetaDataBase::addVariable( QObject *o, const QString &name, const QString &access )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return QStringList();
+	return;
+    }
+    Variable v;
+    v.varName = name;
+    v.varAccess = access;
+    r->variables << v;
+}
+
+void MetaDataBase::removeVariable( QObject *o, const QString &name )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+    QValueList<Variable>::Iterator it = r->variables.begin();
+    for ( ; it != r->variables.end(); ++it ) {
+	if ( (*it).varName == name ) {
+	    r->variables.remove( it );
+	    break;
+	}
+    }
+}
+
+QValueList<MetaDataBase::Variable> MetaDataBase::variables( QObject *o )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QValueList<MetaDataBase::Variable>();
     }
 
     return r->variables;
+}
+
+bool MetaDataBase::hasVariable( QObject *o, const QString &name )
+{
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return FALSE;
+    }
+
+    QValueList<Variable>::Iterator it = r->variables.begin();
+    for ( ; it != r->variables.end(); ++it ) {
+	if ( extractVariableName( name ) == extractVariableName( (*it).varName ) )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+QString MetaDataBase::extractVariableName( const QString &name )
+{
+    QString n = name.right( name.length() - name.findRev( ' ' ) - 1 );
+    if ( n[ 0 ] == '*' || n[ 0 ] == '&' )
+	n[ 0 ] = ' ';
+    if ( n[ n.length() - 1 ] == ';' )
+	n[ n.length() - 1 ] = ' ';
+    return n.simplifyWhiteSpace();
 }
 
 void MetaDataBase::setSignalList( QObject *o, const QStringList &sigs )

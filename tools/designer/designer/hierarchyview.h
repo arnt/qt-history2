@@ -54,7 +54,12 @@ public:
 	FunctPublic,
 	FunctProtected,
 	FunctPrivate,
-	Function
+	Function,
+	VarParent,
+	VarPublic,
+	VarProtected,
+	VarPrivate,
+	Variable
     };
 
     HierarchyItem( Type type, QListViewItem *parent,
@@ -142,6 +147,7 @@ public:
     FormDefinitionView( QWidget *parent, FormWindow *fw );
 
     void setup();
+    void setupVariables();
     void refresh( bool doDelete = TRUE );
     void setCurrent( QWidget *w );
 
@@ -150,17 +156,18 @@ protected:
 
 private:
     void save( QListViewItem *p, QListViewItem *i );
+    void execFunctionDialog( const QString &access, const QString &type );
 
 private slots:
     void objectClicked( QListViewItem *i );
     void showRMBMenu( QListViewItem *, const QPoint & );
     void renamed( QListViewItem *i );
-    void editVars();
 
 private:
     bool popupOpen;
     HierarchyItem *itemSlots, *itemPrivate, *itemProtected, *itemPublic;
     HierarchyItem *itemFunct, *itemFunctPriv, *itemFunctProt, *itemFunctPubl;
+    HierarchyItem *itemVar, *itemVarPriv, *itemVarProt, *itemVarPubl;
 };
 
 

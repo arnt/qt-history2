@@ -133,8 +133,8 @@ private:
     QListViewItem *lastItem;
 
     QValueList<MetaDataBase::Include> metaIncludes;
+    QValueList<MetaDataBase::Variable> metaVariables;
     QStringList metaForwards;
-    QStringList metaVariables;
     QStringList metaSignals;
     MetaDataBase::MetaInfo metaInfo;
     QMap<QString, QString> dbControls;

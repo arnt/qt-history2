@@ -97,12 +97,10 @@ QPopupMenu *CppEditor::createPopupMenu( const QPoint &p )
     int adddeclid = m->insertItem( tr( "Add Include File (in Declaration)..." ), this, SLOT( addInclDecl() ) );
     int addimplid = m->insertItem( tr( "Add Include File (in Implementation)..." ), this, SLOT( addInclImpl() ) );
     int addforid = m->insertItem( tr( "Add Forward Declaration..." ), this, SLOT( addForward() ) );
-    int addvarid = m->insertItem( tr( "Add Class Variable..." ), this, SLOT( addVar() ) );
     if ( !dIface->currentForm() ) {
 	m->setItemEnabled( adddeclid, FALSE );
 	m->setItemEnabled( addimplid, FALSE );
 	m->setItemEnabled( addforid, FALSE );
-	m->setItemEnabled( addvarid, FALSE );
     }
     return m;
 }
@@ -147,20 +145,6 @@ void CppEditor::addForward()
     QStringList lst = form->forwardDeclarations();
     lst << s;
     form->setForwardDeclarations( lst );
-}
-
-void CppEditor::addVar()
-{
-    if ( !dIface )
-	return;
-    QString s = QInputDialog::getText( tr( "Add Class Variable" ),
-				       tr( "Input this using the format  <b>type var;</b>" ) );
-    if ( s.isEmpty() )
-	return;
-    DesignerFormWindow *form = dIface->currentForm();
-    QStringList lst = form->variables();
-    lst << s;
-    form->setVariables( lst );
 }
 
 void CppEditor::paste()

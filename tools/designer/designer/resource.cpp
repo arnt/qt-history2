@@ -269,7 +269,10 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	} else if ( e.tagName() == "forward" ) { // compatibility with old betas
 	    metaForwards << e.firstChild().toText().data();
 	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
-	    metaVariables << e.firstChild().toText().data();
+	    MetaDataBase::Variable v;
+	    v.varName = e.firstChild().toText().data();
+	    v.varAccess = "protected";
+	    metaVariables << v;
 	} else if ( e.tagName() == "author" ) {
 	    metaInfo.author = e.firstChild().toText().data();
 	} else if ( e.tagName() == "class" ) {
@@ -311,7 +314,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     if ( !w )
 	return FALSE;
     if ( previewMode )
-	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), TRUE );	
+	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), TRUE );
 #else
     if ( !createObject( widget, formwindow) )
 	return FALSE;
@@ -342,9 +345,17 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     }
 
     if ( !variables.isNull() ) {
-	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "variable" )
-		metaVariables << n.firstChild().toText().data();
+	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull();
+	      n = n.nextSibling().toElement() ) {
+	    if ( n.tagName() == "variable" ) {
+		MetaDataBase::Variable v;
+		v.varName = n.firstChild().toText().data();
+		v.varAccess = n.attribute( "access", "protected" );
+		if ( v.varAccess.isEmpty() )
+		    v.varAccess = "protected";
+		metaVariables << v;
+	    }
+	}
     }
     if ( !signals.isNull() ) {
 	for ( QDomElement n = signals.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
@@ -366,8 +377,6 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 		if ( function.returnType.isEmpty() )
 		    function.returnType = "void";
 		function.function = n.firstChild().toText().data();
-		
-		
 		if ( !MetaDataBase::hasFunction( formwindow, function.function, TRUE ) )
 		    MetaDataBase::addFunction( formwindow, function.function, function.specifier,
 					       function.access, "slot", function.language, function.returnType );
@@ -432,7 +441,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
 
-    loadExtraSource( formwindow, currFileName, langIface, hasFunctions ); // twice???
+    loadExtraSource( formwindow, currFileName, langIface, hasFunctions );
 
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
@@ -1027,7 +1036,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 		changed << "geometry";
 	}
     } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)... now clean enough???
-	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )	
+	if ( MetaDataBase::spacing( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
 	    changed << "spacing";
 	if ( MetaDataBase::margin( WidgetFactory::containerOfWidget( WidgetFactory::layoutParent( (QLayout*)w ) ) ) > -1 )
 	    changed << "margin";
@@ -2289,21 +2298,21 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	if ( !includes.isEmpty() || needExtensionInclude ) {
 	    ts << makeIndent( indent ) << "<includes>" << endl;
 	    indent++;
-	
+
 	    for ( QValueList<MetaDataBase::Include>::Iterator it = includes.begin(); it != includes.end(); ++it ) {
 		ts << makeIndent( indent ) << "<include location=\"" << (*it).location
 		   << "\" impldecl=\"" << (*it).implDecl << "\">" << (*it).header << "</include>" << endl;
 		if ( needExtensionInclude )
 		    needExtensionInclude = (*it).header != extensionInclude;
 	    }
-	
+
 	    if ( needExtensionInclude )
 		ts << makeIndent( indent ) << "<include location=\"local\" impldecl=\"in implementation\">"
 		   << extensionInclude << "</include>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</includes>" << endl;
 	}
-	
+
 	QStringList forwards = MetaDataBase::forwards( formwindow );
 	if ( !forwards.isEmpty() ) {
 	    ts << makeIndent( indent ) << "<forwards>" << endl;
@@ -2313,12 +2322,19 @@ void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
 	    indent--;
 	    ts << makeIndent( indent ) << "</forwards>" << endl;
 	}
-	QStringList vars = MetaDataBase::variables( formwindow );
-	if ( !vars.isEmpty() ) {
+	QValueList<MetaDataBase::Variable> varLst = MetaDataBase::variables( formwindow );
+	if ( !varLst.isEmpty() ) {
 	    ts << makeIndent( indent ) << "<variables>" << endl;
 	    indent++;
-	    for ( QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3 )
-		ts << makeIndent( indent ) << "<variable>" << entitize( *it3 ) << "</variable>" << endl;
+
+	    QValueList<MetaDataBase::Variable>::Iterator it = varLst.begin();
+	    for ( ; it != varLst.end(); ++it ) {
+		ts << makeIndent( indent ) << "<variable";
+		if ( (*it).varAccess != "protected" )
+		    ts << " access=\"" << (*it).varAccess << "\"";
+
+		ts << ">" << entitize( (*it).varName ) << "</variable>" << endl;
+	    }
 	    indent--;
 	    ts << makeIndent( indent ) << "</variables>" << endl;
 	}
@@ -2700,7 +2716,7 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
 
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
-	
+
 	if ( MetaDataBase::hasFunction( formwindow, (*fit).name.latin1() ) ) {
 	    QString access = (*fit).access;
 	    if ( !MainWindow::self || !MainWindow::self->currProject()->isCpp() )

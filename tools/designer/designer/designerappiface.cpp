@@ -726,7 +726,7 @@ void DesignerFormWindowImpl::addConnection( QObject *sender, const char *signal,
 }
 
 void DesignerFormWindowImpl::addFunction( const QCString &function, const QString &specifier,
-					  const QString &access, const QString &type, 
+					  const QString &access, const QString &type,
 					  const QString &language, const QString &returnType )
 {
     MetaDataBase::addFunction( formWindow, function, specifier, access, type, language, returnType );
@@ -900,17 +900,6 @@ QStringList DesignerFormWindowImpl::forwardDeclarations() const
 void DesignerFormWindowImpl::setForwardDeclarations( const QStringList &lst )
 {
     MetaDataBase::setForwards( formWindow, lst );
-    formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
-}
-
-QStringList DesignerFormWindowImpl::variables() const
-{
-    return MetaDataBase::variables( formWindow );
-}
-
-void DesignerFormWindowImpl::setVariables( const QStringList &lst )
-{
-    MetaDataBase::setVariables( formWindow, lst );
     formWindow->mainWindow()->objectHierarchy()->formDefinitionView()->setup();
 }
 

@@ -23,6 +23,7 @@
 #include "widgetdatabase.h"
 #include "domtool.h"
 #include <qstringlist.h>
+#include <qvaluelist.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #define NO_STATIC_COLORS
@@ -177,7 +178,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	}
     }
 
-    QStringList::Iterator it, it2, it3;
+    QStringList::Iterator it;
 
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
@@ -287,7 +288,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << endl;
     out << "class " << ( !exportMacro.isEmpty() ? QString( exportMacro + " " ) : QString( "" ) ) <<
 	nameOfClass << " : public " << objClass << endl;
-    out << "{ " << endl;
+    out << "{" << endl;
 
 /* tmake ignore Q_OBJECT */
     out << "    Q_OBJECT" << endl;
@@ -311,14 +312,11 @@ void Uic::createFormDecl( const QDomElement &e )
     out << endl;
 
     // children
-    bool needEventHandler = FALSE;
     bool needPolish = FALSE;
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
 	createObjectDecl( n );
-	needEventHandler = needEventHandler ||
-			   !DomTool::propertiesOfType( n, "font" ).isEmpty() ;
 	QString s = getClassName( n );
 	if ( s == "QDataTable" || s == "QDataBrowser" ) {
 	    if ( isFrameworkCodeGenerated( n ) )
@@ -341,27 +339,29 @@ void Uic::createFormDecl( const QDomElement &e )
 		createMenuBarDecl( a );
 	}
     }
-
     out << endl;
 
     // database connections
     dbConnections = unique( dbConnections );
+    bool hadOutput = FALSE;
     for ( it = dbConnections.begin(); it != dbConnections.end(); ++it ) {
 	if ( !(*it).isEmpty() ) {
 	    // only need pointers to non-default connections
-	    if ( (*it) != "(default)" && !(*it).isEmpty() )
+	    if ( (*it) != "(default)" && !(*it).isEmpty() ) {
 		out << indent << "QSqlDatabase* " << *it << "Connection;" << endl;
+		hadOutput = TRUE;
+	    }
 	}
     }
-
-    out << endl;
-
+    if ( hadOutput )
+	out << endl;
 
     // find functions...
     QStringList publicSlots, protectedSlots, privateSlots;
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
-    QStringList publicFunct, protectedFunct, privateFunct;
+
+    QStringList publicFuncts, protectedFuncts, privateFuncts;
     QStringList publicFunctRetTyp, protectedFunctRetTyp, privateFunctRetTyp;
     QStringList publicFunctSpec, protectedFunctSpec, privateFunctSpec;
 
@@ -379,7 +379,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	if ( functionName.endsWith( ";" ) )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
-	QString access = n.attribute( "access" );	
+	QString access = n.attribute( "access" );
 	if ( access == "protected" ) {
 	    protectedSlots += functionName;
 	    protectedSlotTypes += returnType;
@@ -397,7 +397,7 @@ void Uic::createFormDecl( const QDomElement &e )
 
     nl = e.parentNode().toElement().elementsByTagName( "function" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
+	n = nl.item( i ).toElement();
 	if ( n.parentNode().toElement().tagName() != "functions" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
@@ -409,7 +409,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	    functionName = functionName.left( functionName.length() - 1 );
 	QString specifier = n.attribute( "specifier" );
 	QString access = n.attribute( "access" );
-	
+
 	if ( functType == "slot" ) {
 	    if ( access == "protected" ) {
 		protectedSlots += functionName;
@@ -426,76 +426,74 @@ void Uic::createFormDecl( const QDomElement &e )
 	    }
 	} else {
 	    if ( access == "protected" ) {
-		protectedFunct += functionName;
+		protectedFuncts += functionName;
 		protectedFunctRetTyp += returnType;
 		protectedFunctSpec += specifier;
 	    } else if ( access == "private" ) {
-		privateFunct += functionName;
+		privateFuncts += functionName;
 		privateFunctRetTyp += returnType;
 		privateFunctSpec += specifier;
 	    } else {
-		publicFunct += functionName;
+		publicFuncts += functionName;
 		publicFunctRetTyp += returnType;
 		publicFunctSpec += specifier;
 	    }
-	}		
+	}
     }
 
-    // create public functions
-    for ( it = publicFunct.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
-	  it != publicFunct.end(); ++it, ++it2, ++it3 ) {
-	bool createDecl = TRUE;
-	QString specifier;
-	QString pure;
-	QString type = *it2;
-	if ( type.isEmpty() )
-	    type = "void";
-	if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-	    specifier = "virtual ";
-	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-	    pure = " = 0";
-	QString fname = Parser::cleanArgs( *it );
-	
-	if ( createDecl )
-	    out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+    QStringList publicVars, protectedVars, privateVars;
+    nl = e.parentNode().toElement().elementsByTagName( "variable" );
+    for ( i = 0; i < (int)nl.length(); i++ ) {
+	n = nl.item( i ).toElement();
+	// Because of compatibility the next lines have to be commented out.
+	// Someday it should be uncommented.
+	//if ( n.parentNode().toElement().tagName() != "variables" )
+	//    continue;
+	QString access = n.attribute( "access", "protected" );
+	QString var = n.firstChild().toText().data().stripWhiteSpace();
+	if ( !var.endsWith( ";" ) )
+	    var += ";";
+	if ( access == "public" )
+	    publicVars += var;
+	else if ( access == "private" )
+	    privateVars += var;
+	else
+	    protectedVars += var;
     }
-    out << endl;
 
-    // create public additional slots
-    out << "public slots:" << endl;
-    for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
-	  it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	bool createDecl = TRUE;
-	QString specifier;
-	QString pure;
-	QString type = *it2;
-	if ( type.isEmpty() )
-	    type = "void";
-	if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-	    specifier = "virtual ";
-	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-	    pure = " = 0";
-	QString fname = Parser::cleanArgs( *it );
-	if ( createDecl )
-	    out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+    if ( !publicFuncts.isEmpty() ) {
+	writeFunctionsDecl( publicFuncts, publicFunctRetTyp, publicFunctSpec );
+	out << endl;
     }
-    if ( needPolish )
-	out << indent << "void polish();" << endl;
-    out << indent << "virtual void retranslateStrings();" << endl;
-    out << endl;
+    if ( !publicVars.isEmpty() ) {
+	for ( it = publicVars.begin(); it != publicVars.end(); ++it )
+	    out << indent << *it << endl;
+	out << endl;
+    }
 
+    if ( needPolish || !publicSlots.isEmpty() ) {
+	out << "public slots:" << endl;
+	if ( needPolish ) {
+	    out << indent << "virtual void polish();" << endl;
+	    out << endl;
+	}
+	if ( !publicSlots.isEmpty() ) {
+	    writeFunctionsDecl( publicSlots, publicSlotTypes, publicSlotSpecifier );
+	    out << endl;
+	}
+    }
 
     // find signals
     QStringList extraSignals;
     nl = e.parentNode().toElement().elementsByTagName( "signal" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
-	n = nl.item(i).toElement();
+	n = nl.item( i ).toElement();
 	if ( n.parentNode().toElement().tagName() != "signals"
 	     && n.parentNode().toElement().tagName() != "connections" )
 	    continue;
 	if ( n.attribute( "language", "C++" ) != "C++" )
 	    continue;
-	QString sigName = n.firstChild().toText().data().stripWhiteSpace();	
+	QString sigName = n.firstChild().toText().data().stripWhiteSpace();
 	if ( sigName.endsWith( ";" ) )
 	    sigName = sigName.left( sigName.length() - 1 );
 	extraSignals += sigName;
@@ -509,128 +507,51 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << endl;
     }
 
-    // create protected functions
-    if ( !protectedFunct.isEmpty() ) {
-	out << "protected:" << endl;
-	for ( it = protectedFunct.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
-	      it != protectedFunct.end(); ++it, ++it2, ++it3 ) {
-	    bool createDecl = TRUE;
-	    QString specifier;
-	    QString pure;
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-		specifier = "virtual ";
-	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-		pure = " = 0";
-	    QString fname = Parser::cleanArgs( *it );
-	    if ( createDecl )
-		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
-	}
+    out << "protected:" << endl;
+    out << indent << "virtual void retranslateStrings();" << endl;
+    out << endl;
+    if ( !protectedFuncts.isEmpty() ) {
+	writeFunctionsDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
 	out << endl;
     }
-
-    // create private functions
-    if ( !privateFunct.isEmpty() ) {
-	out << "private:" << endl;
-	for ( it = privateFunct.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
-	      it != privateFunct.end(); ++it, ++it2, ++it3 ) {
-	    bool createDecl = TRUE;
-	    QString specifier;
-	    QString pure;
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-		specifier = "virtual ";
-	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-		pure = " = 0";
-	    QString fname = Parser::cleanArgs( *it );
-	    if ( createDecl )
-		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
-	}
+    if ( !protectedVars.isEmpty() ) {
+	for ( it = protectedVars.begin(); it != protectedVars.end(); ++it )
+	    out << indent << *it << endl;
 	out << endl;
     }
-
-
-    // create protected additional slots
-    if ( !protectedSlots.isEmpty() ) {
-	out << "protected slots:" << endl;
-	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
-	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
-	    bool createDecl = TRUE;
-	    QString specifier;
-	    QString pure;
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-		specifier = "virtual ";
-	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-		pure = " = 0";
-	    QString fname = Parser::cleanArgs( *it );
-	    if ( createDecl )
-		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
-	}
-	out << endl;
-    }
-
-    // create protected additional slots
-    if ( !privateSlots.isEmpty() ) {
-	out << "private slots:" << endl;
-	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
-	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
-	    bool createDecl = TRUE;
-	    QString specifier;
-	    QString pure;
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-		specifier = "virtual ";
-	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-		pure = " = 0";
-	    QString fname = Parser::cleanArgs( *it );
-	    if ( createDecl )
-		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
-	}
-	out << endl;
-    }
-
-    bool needProtected = needEventHandler;
-    for ( it = layouts.begin(); !needProtected && it != layouts.end(); ++it )
-	needProtected = needProtected || e.elementsByTagName( *it ).count() > 0 ;
-    if ( needProtected )
-	out << "protected:" << endl;
 
     // child layouts
-    registerLayouts(e);
+    registerLayouts( e );
+    out << endl;
 
-    // handle application events
-    if ( needEventHandler && FALSE )
-	out << "    bool event( QEvent* );" << endl;
-
-    //## multiple ctor initialization, needed anymore?
-    //    out << indent << "void init" << nameOfClass << "();" << endl;
-
-    nl = e.parentNode().toElement().elementsByTagName( "variable" );
-    if ( nl.length() > 0 ) {
-	if ( !needProtected )
-	    out << "protected:" << endl;
+    if ( !protectedSlots.isEmpty() ) {
+	out << "protected slots:" << endl;
+	writeFunctionsDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
 	out << endl;
-	for ( i = 0; i < (int) nl.length(); i++ ) {
-	    QString v = nl.item( i ).firstChild().toText().data().stripWhiteSpace();
-	    if ( !v.endsWith( ";" ) )
-		v += ";";
-	    out << indent << v << endl;
+    }
+
+    // create all private stuff
+    if ( !privateFuncts.isEmpty() || !privateVars.isEmpty() || !imageMembers.isEmpty() ) {
+	out << "private:" << endl;
+	if ( !privateFuncts.isEmpty() ) {
+	    writeFunctionsDecl( privateFuncts, privateFunctRetTyp, privateFunctSpec );
+	    out << endl;
+	}
+	if ( !privateVars.isEmpty() ) {
+	    for ( it = privateVars.begin(); it != privateVars.end(); ++it )
+		out << indent << *it << endl;
+	    out << endl;
+	}
+	if ( !imageMembers.isEmpty() ) {
+	    out << imageMembers;
+	    out << endl;
 	}
     }
 
-    if ( !imageMembers.isEmpty() ) {
+    if ( !privateSlots.isEmpty() ) {
+	out << "private slots:" << endl;
+	writeFunctionsDecl( privateSlots, privateSlotTypes, privateSlotSpecifier );
 	out << endl;
-	out << "private:" << endl;
-	out << imageMembers;
     }
 
     out << "};" << endl;
@@ -638,7 +559,24 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "#endif // " << protector << endl;
 }
 
-
+void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst )
+{
+    QValueListConstIterator<QString> it, it2, it3;
+    for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
+	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
+	QString specifier;
+	QString pure;
+	QString type = *it2;
+	if ( type.isEmpty() )
+	    type = "void";
+	if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
+	    specifier = "virtual ";
+	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
+	    pure = " = 0";
+	QString fname = Parser::cleanArgs( *it );
+	out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+    }
+}
 
 /*!
   Creates an implementation ( cpp-file ) for the form given in \a e
@@ -665,6 +603,7 @@ void Uic::createFormImpl( const QDomElement &e )
     QStringList extraFuncts;
     QStringList extraFunctTyp;
 
+    // for compatibility
     nl = e.parentNode().toElement().elementsByTagName( "slot" );
     for ( i = 0; i < (int) nl.length(); i++ ) {
 	n = nl.item(i).toElement();
@@ -695,16 +634,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	/*
-	if ( n.tagName() == "functions" ) { // compatibility
-	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "function" ) {
-		    QString fname = n2.attribute( "name" );
-		    fname = Parser::cleanArgs( fname );
-		    functionImpls.insert( fname, n2.firstChild().toText().data() );
-		}
-	    }
-	} else*/ if ( n.tagName() == "customwidgets" ) {
+	if ( n.tagName() == "customwidgets" ) {
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "customwidget" ) {
@@ -1145,7 +1075,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    sender = "this";
 		if ( receiver == objName )
 		    receiver = "this";
-		
+
 		out << indent << "connect( " << sender << ", SIGNAL( " << signal << " ), "
 		    << receiver << ", SLOT( " << slot << " ) );" << endl;
 	    }

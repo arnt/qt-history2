@@ -117,6 +117,16 @@ public:
 	QString implDecl;
     };
 
+    struct Variable
+    {
+	QString varName;
+	QString varAccess;
+	bool operator==( const Variable &v ) const {
+	    return varName == v.varName &&
+		   varAccess == v.varAccess;
+	}
+    };
+
     struct MetaInfo
     {
 	QString className;
@@ -195,8 +205,12 @@ public:
     static void setForwards( QObject *o, const QStringList &fwds );
     static QStringList forwards( QObject *o );
 
-    static void setVariables( QObject *o, const QStringList &vars );
-    static QStringList variables( QObject *o );
+    static void setVariables( QObject *o, const QValueList<Variable> &vars );
+    static void addVariable( QObject *o, const QString &name, const QString &access );
+    static void removeVariable( QObject *o, const QString &name );
+    static QValueList<Variable> variables( QObject *o );
+    static bool hasVariable( QObject *o, const QString &name );
+    static QString extractVariableName( const QString &name );
 
     static void setSignalList( QObject *o, const QStringList &sigs );
     static QStringList signalList( QObject *o );

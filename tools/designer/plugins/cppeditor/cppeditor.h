@@ -53,7 +53,6 @@ private slots:
     void addInclDecl();
     void addInclImpl();
     void addForward();
-    void addVar();
 
 protected:
     EditorCompletion *completion;

@@ -33,6 +33,7 @@
 #include "listeditor.h"
 #include "actiondnd.h"
 #include "actioneditorimpl.h"
+#include "variabledialogimpl.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -48,6 +49,7 @@
 #include "../interfaces/languageinterface.h"
 #include <qworkspace.h>
 #include <qaccel.h>
+#include <qmessagebox.h>
 
 #include <stdlib.h>
 
@@ -654,7 +656,6 @@ FormDefinitionView::FormDefinitionView( QWidget *parent, FormWindow *fw )
 	     this, SLOT( renamed( QListViewItem * ) ) );
     popupOpen = FALSE;
     QAccel *a = new QAccel( MainWindow::self );
-    a->connectItem( a->insertItem( ALT + Key_V ), this, SLOT( editVars() ) );
 }
 
 void FormDefinitionView::setup()
@@ -686,8 +687,48 @@ void FormDefinitionView::setup()
 	}
 	lIface->release();
     }
-
+    setupVariables();
     refresh( FALSE );
+}
+
+void FormDefinitionView::setupVariables()
+{
+    HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this,
+						tr( "Class Variables" ), QString::null, QString::null );
+    itemVar->setPixmap( 0, *folderPixmap );
+    itemVar->setOpen( TRUE );
+
+    itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, tr( "Private" ),
+				     QString::null, QString::null );
+    itemVarProt = new HierarchyItem( HierarchyItem::VarProtected, itemVar, tr( "Protected" ),
+				     QString::null, QString::null );
+    itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, tr( "Public" ),
+				     QString::null, QString::null );
+
+    QValueList<MetaDataBase::Variable> varList = MetaDataBase::variables( formWindow );
+    QValueList<MetaDataBase::Variable>::Iterator it = --( varList.end() );
+    if ( !varList.isEmpty() && itemVar ) {
+	for (;;) {
+	    QListViewItem *item = 0;
+	    if ( (*it).varAccess == "public" )
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarPubl, (*it).varName,
+					  QString::null, QString::null );
+	    else if ( (*it).varAccess == "private" )
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarPriv, (*it).varName,
+					  QString::null, QString::null );
+	    else // default is protected
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarProt, (*it).varName,
+					  QString::null, QString::null );
+	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
+	    if ( it == varList.begin() )
+		break;
+	    --it;
+	}
+    }
+    itemVar->setOpen( TRUE );
+    itemVarPriv->setOpen( TRUE );
+    itemVarProt->setOpen( TRUE );
+    itemVarPubl->setOpen( TRUE );
 }
 
 void FormDefinitionView::refresh( bool doDelete )
@@ -748,7 +789,7 @@ void FormDefinitionView::refresh( bool doDelete )
     if ( !functionList.isEmpty() && itemFunct ) {
 	for (;;) {
 	    QListViewItem *item = 0;
-	    if ( (*it).type == "slot" ) {
+	    if ( (*it).type == "slot" &&  formWindow->project()->isCpp() ) {
 		if ( (*it).access == "protected" )
 		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, (*it).function,
 					      QString::null, QString::null );
@@ -758,7 +799,7 @@ void FormDefinitionView::refresh( bool doDelete )
 		else // default is public
 		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, (*it).function,
 					      QString::null, QString::null );
-	    } else {		
+	    } else {
 		if ( (*it).access == "protected" )
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, (*it).function,
 					      QString::null, QString::null );
@@ -768,7 +809,7 @@ void FormDefinitionView::refresh( bool doDelete )
 		else // default is public
 		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function,
 					      QString::null, QString::null );
-	    } 		
+	    }
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == functionList.begin() )
 		break;
@@ -828,6 +869,12 @@ static HierarchyItem::Type getChildType( int type )
     case HierarchyItem::FunctPrivate:
     case HierarchyItem::Function:
 	return HierarchyItem::Function;
+    case HierarchyItem::VarParent:
+    case HierarchyItem::VarPublic:
+    case HierarchyItem::VarProtected:
+    case HierarchyItem::VarPrivate:
+    case HierarchyItem::Variable:
+	return HierarchyItem::Variable;
     }
     return (HierarchyItem::Type)type;
 }
@@ -851,233 +898,182 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( !i )
 	return;
-    if ( i->rtti() == HierarchyItem::SlotParent || i->rtti() == HierarchyItem::FunctParent )
+
+    if ( i->rtti() == HierarchyItem::SlotParent || i->rtti() == HierarchyItem::FunctParent ||
+	 i->rtti() == HierarchyItem::VarParent )
 	return;
-	
+
     HierarchyItem::Type t = getChildType( i->rtti() );
     if ( (int)t == i->rtti() )
 	i = i->parent();
-    if ( formWindow->project()->isCpp() &&
-	 ( i->rtti() == HierarchyItem::SlotPublic ||
-	   i->rtti() == HierarchyItem::SlotProtected ||
-	   i->rtti() == HierarchyItem::SlotPrivate ) ) {
-	EditFunctions dlg( this, formWindow );
-	QString access = "public";
-	if ( i->rtti() == HierarchyItem::SlotProtected )
-	    access = "protected";
-	else if  ( i->rtti() == HierarchyItem::SlotPrivate )
-	    access = "private";
-	dlg.functionAdd( access, "slot" );
-	dlg.exec();
-    } else if ( formWindow->project()->isCpp() &&
-		( i->rtti() == HierarchyItem::FunctPublic ||
-		  i->rtti() == HierarchyItem::FunctProtected ||
-		  i->rtti() == HierarchyItem::FunctPrivate ) ) {
-	EditFunctions dlg( this, formWindow );
-	QString access = "public";
-	if ( i->rtti() == HierarchyItem::FunctProtected )
-	    access = "protected";
-	else if ( i->rtti() == HierarchyItem::FunctPrivate )
-	    access = "private";
-	dlg.functionAdd( access, "function" );	
-	dlg.exec();	
 
-    } else {
+    if ( formWindow->project()->isCpp() )
+	switch( i->rtti() ) {
+	case HierarchyItem::FunctPublic:
+	    execFunctionDialog( "public", "function" );
+	    break;
+	case HierarchyItem::FunctProtected:
+	    execFunctionDialog( "protected", "function" );
+	    break;
+	case HierarchyItem::FunctPrivate:
+	    execFunctionDialog( "private", "function" );
+	    break;
+	case HierarchyItem::SlotPublic:
+	    execFunctionDialog( "public", "slot" );
+	    break;
+	case HierarchyItem::SlotProtected:
+	    execFunctionDialog( "protected", "slot" );
+	    break;
+	case HierarchyItem::SlotPrivate:
+	    execFunctionDialog( "private", "slot" );
+	    break;
+	case HierarchyItem::VarPublic:
+	case HierarchyItem::VarProtected:
+	case HierarchyItem::VarPrivate: {
+	    VariableDialog varDia( formWindow, this );
+	    varDia.exec();
+	    break;
+	}
+	default:
+	    insertEntry( i );
+    } else
 	insertEntry( i );
-    }
 }
 
+void FormDefinitionView::execFunctionDialog( const QString &access, const QString &type )
+{
+    EditFunctions dlg( this, formWindow );
+    dlg.functionAdd( access, type );
+    dlg.exec();
+}
 
 void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
 
-    if ( i->rtti() == HierarchyItem::FunctParent && !formWindow->project()->isCpp() )
-	return;
+    const int EDIT = 1;
+    const int NEW = 2;
+    const int DELETE = 3;
+    const int PROPS = 4;
+    const int GOIMPL = 5;
 
-    if ( i->rtti() == HierarchyItem::SlotParent ) {
-	QPopupMenu menu;
-	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ) );
-	if ( menu.exec( pos ) != -1 ) {
-	    EditFunctions dlg( this, formWindow );
-	    dlg.functionAdd( "public", "slot" );
-	    dlg.exec();
-	}
-	return;
-    }
+    QPopupMenu menu;
+    bool insertDelete = FALSE;
 
-    if ( i->rtti() == HierarchyItem::FunctParent ) {
-	QPopupMenu menu;
-	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ) );
-	if ( menu.exec( pos ) != -1 ) {
-	    EditFunctions dlg( this, formWindow );
-	    dlg.functionAdd( "public", "function" );
-	    dlg.exec();
-	}
-	return;
+    if ( i->rtti() == HierarchyItem::FunctParent || i->rtti() == HierarchyItem::SlotParent ||
+	 i->rtti() == HierarchyItem::VarParent ) {
+	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ), EDIT );
+    } else
+	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW );
+    if ( i->rtti() == HierarchyItem::DefinitionParent || i->rtti() == HierarchyItem::Variable ||
+	 i->rtti() == HierarchyItem::Definition ) {
+	menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Edit..." ), EDIT );
     }
-
-    if ( i->rtti() == HierarchyItem::Slot ) {
-	QPopupMenu menu;
-	const int PROPS = 1;
-	const int EDIT = 2;
-	const int REMOVE = 3;
-	const int NEW_ITEM = 4;
-	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
-	if ( formWindow->project()->isCpp() )
-	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
-        if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
-	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
-	menu.insertSeparator();
-	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), REMOVE );
-	popupOpen = TRUE;
-	int res = menu.exec( pos );
-	popupOpen = FALSE;
-	if ( res == NEW_ITEM ) {
-	    if ( formWindow->project()->isCpp() ) {
-		EditFunctions dlg( this, formWindow );
-		QString access = "public";
-		if ( i->parent() && i->parent()->rtti() == HierarchyItem::SlotProtected )
-		    access = "protected";
-		else if  ( i->parent() && i->parent()->rtti() == HierarchyItem::SlotPrivate )
-		    access = "private";
-		dlg.functionAdd( access, "slot" );
-		dlg.exec();
-	    } else {
-		insertEntry( i->parent() );
-	    }
-	} else if ( res == PROPS ) {
-	    EditFunctions dlg( this, formWindow );
-	    dlg.setCurrentFunction( MetaDataBase::normalizeFunction( i->text( 0 ) ) );
-	    dlg.exec();
-	} else if ( res == EDIT ) {
-	    formWindow->mainWindow()->editFunction( i->text( 0 ) );
-	} else if ( res == REMOVE ) {
-	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
-	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
-	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    MainWindow::self->functionsChanged();
-	}
-	return;
-    }
-    if ( i->rtti() == HierarchyItem::Function ) {
-	QPopupMenu menu;
-	const int PROPS = 1;
-	const int EDIT = 2;
-	const int REMOVE = 3;
-	const int NEW_ITEM = 4;
-	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
+    if ( i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ) {
 	if ( formWindow->project()->isCpp() )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
 	if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
-	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
-	menu.insertSeparator();
-	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), REMOVE );
-	popupOpen = TRUE;
-	int res = menu.exec( pos );
-	popupOpen = FALSE;
-	if ( res == NEW_ITEM ) {
-	    if ( formWindow->project()->isCpp() ) {
-		EditFunctions dlg( this, formWindow );
-		QString access = "public";
-		if ( i->parent() && i->parent()->rtti() == HierarchyItem::FunctProtected )
-		    access = "protected";
-		else if  ( i->parent() && i->parent()->rtti() == HierarchyItem::FunctPrivate )
-		    access = "private";
-		dlg.functionAdd( access, "function" );
-		dlg.exec();
-	    } else {
-		insertEntry( i->parent() );
-	    }
-	} else if ( res == PROPS ) {
-	    EditFunctions dlg( this, formWindow );
-	    dlg.setCurrentFunction( MetaDataBase::normalizeFunction( i->text( 0 ) ) );
-	    dlg.exec();
-	} else if ( res == EDIT ) {
-	    formWindow->mainWindow()->editFunction( i->text( 0 ) );
-	} else if ( res == REMOVE ) {
-	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
-	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
-	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
-	    MainWindow::self->functionsChanged();
-	}
-	return;
+	    menu.insertItem( tr( "Goto Implementation" ), GOIMPL );
+	insertDelete = TRUE;
     }
-
-    QPopupMenu menu;
-    const int NEW_ITEM = 1;
-    const int DEL_ITEM = 2;
-    const int EDIT_ITEM = 3;
-    menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
-    if ( i->rtti() == HierarchyItem::Definition || i->rtti() == HierarchyItem::DefinitionParent ) {
-	if ( i->text( 0 ) == "Class Variables" ||
-	     i->parent() && i->parent()->text( 0 ) == "Class Variables" )
-	    menu.insertItem( tr( "Edit...\tAlt+V" ), EDIT_ITEM );
-	else
-	    menu.insertItem( tr( "Edit..." ), EDIT_ITEM );
-    }
-    if ( i->parent() && i->rtti() != HierarchyItem::SlotPublic &&
-	 i->rtti() != HierarchyItem::SlotProtected &&
-	 i->rtti() != HierarchyItem::SlotPrivate &&
-	 i->rtti() != HierarchyItem::FunctPublic &&
-	 i->rtti() != HierarchyItem::FunctProtected &&
-	 i->rtti() != HierarchyItem::FunctPrivate ) {
+    if ( insertDelete || i->rtti() == HierarchyItem::Variable ||
+	 i->rtti() == HierarchyItem::Function || i->rtti() == HierarchyItem::Slot ||
+	 i->rtti() == HierarchyItem::Definition ) {
 	menu.insertSeparator();
-	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), DEL_ITEM );
+	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete..." ), DELETE );
     }
     popupOpen = TRUE;
     int res = menu.exec( pos );
     popupOpen = FALSE;
-    if ( res == NEW_ITEM ) {
+    if ( res == -1 )
+	return;
+
+    if ( res == EDIT ) {
+	switch( i->rtti() ) {
+	case HierarchyItem::FunctParent:
+	    execFunctionDialog( "public", "function" );
+	    break;
+	case HierarchyItem::SlotParent:
+	    execFunctionDialog( "public", "slot" );
+	    break;
+	case HierarchyItem::VarParent:
+	case HierarchyItem::VarPublic:
+	case HierarchyItem::VarProtected:
+	case HierarchyItem::VarPrivate:
+	case HierarchyItem::Variable: {
+	    VariableDialog varDia( formWindow, this );
+	    varDia.exec();
+	    break;
+	}
+	case HierarchyItem::Definition:
+	case HierarchyItem::DefinitionParent:
+	    LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
+	    if ( !lIface )
+		return;
+	    if ( i->rtti() == HierarchyItem::Definition )
+		i = i->parent();
+	    ListEditor dia( this, 0, TRUE );
+	    dia.setCaption( tr( "Edit %1" ).arg( i->text( 0 ) ) );
+	    QStringList entries = lIface->definitionEntries( i->text( 0 ), MainWindow::self->designerInterface() );
+	    dia.setList( entries );
+	    dia.exec();
+	    lIface->setDefinitionEntries( i->text( 0 ), dia.items(), MainWindow::self->designerInterface() );
+	    refresh( TRUE );
+	    formWindow->commandHistory()->setModified( TRUE );
+	}
+    } else if ( res == NEW ) {
 	HierarchyItem::Type t = getChildType( i->rtti() );
 	if ( (int)t == i->rtti() )
 	    i = i->parent();
-	if ( formWindow->project()->isCpp() &&
-	     ( i->rtti() == HierarchyItem::SlotPublic ||
-	       i->rtti() == HierarchyItem::SlotProtected ||
-	       i->rtti() == HierarchyItem::SlotPrivate ) ) {
-	    EditFunctions dlg( this, formWindow );
-	    QString access = "public";
-	    if ( i->rtti() == HierarchyItem::SlotProtected )
-		access = "protected";
-	    else if  ( i->rtti() == HierarchyItem::SlotPrivate )
-		access = "private";
-	    dlg.functionAdd( access, "slot" );
-	    dlg.exec();
-	} else if ( formWindow->project()->isCpp() &&
-	    ( i->rtti() == HierarchyItem::FunctPublic ||
-	      i->rtti() == HierarchyItem::FunctProtected ||
-	      i->rtti() == HierarchyItem::FunctPrivate ) ) {
-	    EditFunctions dlg( this, formWindow );
-	    QString access = "public";
-	    if ( i->rtti() == HierarchyItem::FunctProtected )
-		access = "protected";
-	    else if ( i->rtti() == HierarchyItem::FunctPrivate )
-		access = "private";
-	    dlg.functionAdd( access, "function" );
-	    dlg.exec();	
-	} else {
+	switch( i->rtti() ) {
+	case HierarchyItem::SlotPublic:
+	    execFunctionDialog( "public", "slot" );
+	    break;
+	case HierarchyItem::SlotProtected:
+	    execFunctionDialog( "protected", "slot" );
+	    break;
+	case HierarchyItem::SlotPrivate:
+	    execFunctionDialog( "private" , "slot" );
+	    break;
+	case HierarchyItem::FunctPublic:
+	    execFunctionDialog( "public", "function" );
+	    break;
+	case HierarchyItem::FunctProtected:
+	    execFunctionDialog( "protected", "function" );
+	    break;
+	case HierarchyItem::FunctPrivate:
+	    execFunctionDialog( "private" , "function" );
+	    break;
+    	default:
 	    insertEntry( i );
 	}
-    } else if ( res == DEL_ITEM ) {
-	QListViewItem *p = i->parent();
-	delete i;
-	save( p, 0 );
-    } else if ( res == EDIT_ITEM ) {
-	LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
-	if ( !lIface )
-	    return;
-	if ( i->rtti() == HierarchyItem::Definition )
-	    i = i->parent();
-	ListEditor dia( this, 0, TRUE );
-	dia.setCaption( tr( "Edit %1" ).arg( i->text( 0 ) ) );
-	QStringList entries = lIface->definitionEntries( i->text( 0 ), MainWindow::self->designerInterface() );
-	dia.setList( entries );
-	dia.exec();
-	lIface->setDefinitionEntries( i->text( 0 ), dia.items(), MainWindow::self->designerInterface() );
-	refresh( TRUE );
-	formWindow->commandHistory()->setModified( TRUE );
+    } else if ( res == DELETE ) {
+	if ( i->rtti() == HierarchyItem::Slot || i->rtti() == HierarchyItem::Function ) {
+	    MetaDataBase::removeFunction( formWindow, i->text( 0 ) );
+	    EditFunctions::removeFunctionFromCode( i->text( 0 ), formWindow );
+	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	    MainWindow::self->functionsChanged();
+	} else if ( i->rtti() == HierarchyItem::Variable ) {
+	    MetaDataBase::removeVariable( formWindow, i->text( 0 ) );
+	    formWindow->mainWindow()->objectHierarchy()->updateFormDefinitionView();
+	} else {
+	    QListViewItem *p = i->parent();
+	    delete i;
+	    save( p, 0 );
+	}
+    } else if ( res == PROPS ) {
+	if ( i->rtti() == HierarchyItem::Slot ||
+	     i->rtti() == HierarchyItem::Function ) {
+	    EditFunctions dlg( this, formWindow );
+	    dlg.setCurrentFunction( MetaDataBase::normalizeFunction( i->text( 0 ) ) );
+	    dlg.exec();
+	}
+    } else if ( res == GOIMPL ) {
+	if ( i->rtti() == HierarchyItem::Slot ||
+	     i->rtti() == HierarchyItem::Function ) {
+	    formWindow->mainWindow()->editFunction( i->text( 0 ) );
+	}
     }
 }
 
@@ -1090,50 +1086,45 @@ void FormDefinitionView::renamed( QListViewItem *i )
     save( i->parent(), i );
 }
 
+
 void FormDefinitionView::save( QListViewItem *p, QListViewItem *i )
 {
     if ( i && i->text( 0 ).isEmpty() ) {
 	delete i;
 	return;
     }
-    if ( i && ( (i->rtti() == HierarchyItem::Slot) || (i->rtti() == HierarchyItem::Function) ) ) {
-	MetaDataBase::addFunction( formWindow, i->text( 0 ).latin1(), "virtual", p->text( 0 ),
-			           i->text( 4 ), formWindow->project()->language(), "void" );
-	MainWindow::self->editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
-					formWindow->project()->language(), TRUE );
-	MainWindow::self->objectHierarchy()->updateFormDefinitionView();
-	return;
-    }
 
-    LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
-    if ( !lIface )
-	return;
-    QStringList lst;
-    i = p->firstChild();
-    while ( i ) {
-	lst << i->text( 0 );
-	i = i->nextSibling();
+    if ( i && i->rtti() == HierarchyItem::Variable ) {
+	i->setRenameEnabled( 0, FALSE );
+	QString varName = i->text( 0 );
+	varName = varName.simplifyWhiteSpace();
+	if ( varName[varName.length() - 1] != ';' )
+	    varName += ";";
+	if ( MetaDataBase::hasVariable( formWindow, varName ) ) {
+	    QMessageBox::information( this, tr( "Edit Variables" ),
+				      tr( "This variable has already been declared!" ) );
+	} else {
+	    if ( p->rtti() == HierarchyItem::VarPublic )
+		MetaDataBase::addVariable( formWindow, varName, "public" );
+	    else if ( p->rtti() == HierarchyItem::VarProtected )
+		MetaDataBase::addVariable( formWindow, varName, "protected" );
+	    else if ( p->rtti() == HierarchyItem::VarPrivate )
+		MetaDataBase::addVariable( formWindow, varName, "private" );
+	}
+    } else {
+	LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
+	if ( !lIface )
+	    return;
+	QStringList lst;
+	i = p->firstChild();
+	while ( i ) {
+	    lst << i->text( 0 );
+	    i = i->nextSibling();
+	}
+	lIface->setDefinitionEntries( p->text( 0 ), lst, formWindow->mainWindow()->designerInterface() );
+	lIface->release();
     }
-    lIface->setDefinitionEntries( p->text( 0 ), lst, formWindow->mainWindow()->designerInterface() );
-    lIface->release();
     setup();
-    formWindow->commandHistory()->setModified( TRUE );
-}
-
-void FormDefinitionView::editVars()
-{
-    if ( !formWindow )
-	return;
-    LanguageInterface *lIface = MetaDataBase::languageInterface( formWindow->project()->language() );
-    if ( !lIface )
-	return;
-    ListEditor dia( this, 0, TRUE );
-    dia.setCaption( tr( "Edit Class Variables" ) );
-    QStringList entries = lIface->definitionEntries( "Class Variables", MainWindow::self->designerInterface() );
-    dia.setList( entries );
-    dia.exec();
-    lIface->setDefinitionEntries( "Class Variables", dia.items(), MainWindow::self->designerInterface() );
-    refresh( TRUE );
     formWindow->commandHistory()->setModified( TRUE );
 }
 
