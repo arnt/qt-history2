@@ -91,32 +91,24 @@ static bool qt_find_qlibrary_info_config()
             return true;
         }
     }
-    if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
-        QString qtconfig = QString::fromUtf8(qtconfig_str);
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
-    }
-    if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
-        QString qtconfig = QString::fromUtf8(qtdir) + "/" + "qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
-    }
-    { //look in the home dir
-        QString qtconfig = QDir::homePath() + "/" + ".qt.conf";
-        if(QFile::exists(qtconfig)) {
-            qt_library_config_file = qtconfig;
-            return true;
-        }
-    }
 #ifndef QT_NO_QOBJECT
     if(QCoreApplication *app = QCoreApplication::instance()) { //walk up the file system from the exe to (a) root
         if(app->argv() && app->argv()[0]) {
             bool trySearch = true;
-            QString exe = app->argv()[0];
+            QString exe;
+#ifndef Q_OS_WIN
+            exe = app->argv()[0];
+#else
+            QT_WA({
+                unsigned short module_name[256];
+                GetModuleFileNameW(0, reinterpret_cast<wchar_t *>(module_name), sizeof(module_name));
+                exe = QString::fromUtf16(module_name);
+            }, {
+                char module_name[256];
+                GetModuleFileNameA(0, module_name, sizeof(module_name));
+                exe = QString::fromLocal8Bit(module_name);
+            });
+#endif // Q_OS_WIN
             if(QDir::isRelativePath(exe)) {
                 if((exe.indexOf('/') != -1
 #ifdef Q_OS_WIN
@@ -157,6 +149,27 @@ static bool qt_find_qlibrary_info_config()
         }
     }
 #endif
+    if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
+        QString qtconfig = QString::fromUtf8(qtdir) + "/" + "qt.conf";
+        if(QFile::exists(qtconfig)) {
+            qt_library_config_file = qtconfig;
+            return true;
+        }
+    }
+    if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
+        QString qtconfig = QString::fromUtf8(qtconfig_str);
+        if(QFile::exists(qtconfig)) {
+            qt_library_config_file = qtconfig;
+            return true;
+        }
+    }
+    { //look in the home dir
+        QString qtconfig = QDir::homePath() + "/" + ".qt.conf";
+        if(QFile::exists(qtconfig)) {
+            qt_library_config_file = qtconfig;
+            return true;
+        }
+    }
     { //walk up the file system from PWD to (a) root
         QDir pwd = QDir::current();
         while(1) {
