@@ -130,8 +130,8 @@ public:
 class QFontStruct : public QShared
 {
 public:
-	QFontStruct( const QString &key );
-	~QFontStruct() { reset(); }
+    QFontStruct( const QString &key );
+    ~QFontStruct() { reset(); }
     bool	    dirty()      const { return hfont == 0; }
     HDC		    dc()	 const;
     HFONT	    font()	 const { return hfont; }
@@ -149,7 +149,7 @@ public:
 	TEXTMETRICA	a;
     } tm;
     int		lw;
-	int cache_cost;
+    int cache_cost;
 //    friend void QFont::initFontInfo() const;
 };
 
@@ -231,7 +231,7 @@ public:
 	: QShared(), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-
+	Q_ASSERT(!fp.paintdevice);
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
@@ -439,7 +439,10 @@ public:
     QPaintDevice *paintdevice;
 
 #ifdef Q_WS_WIN
-    ~QFontPrivate() { if( fin ) fin->deref(); }
+    ~QFontPrivate() { 
+	if( fin )
+	    fin->deref();
+    }
     void load();
     void initFontInfo();
     HFONT create( bool *stockFont, HDC hdc = 0, bool compatMode = FALSE );

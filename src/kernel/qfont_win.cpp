@@ -321,18 +321,18 @@ void QFontPrivate::load()
 
     QFontStruct *qfs = 0;
     QString k = key();
-    if ( !paintdevice ) {
-	// we can't cache printer fonts as the HDC will get 
-	// deleted between two printings.
-    	qfs = fontCache->find( k );
-    }
+    if ( paintdevice )
+	k += QString::number( (Q_LONG)paintdevice->handle() );
+    qfs = fontCache->find( k );
 
     if ( !qfs ) {			// font was never loaded
 	qfs = new QFontStruct( k );
 	Q_CHECK_PTR( qfs );
+    } else {
+	qfs->ref();
     }
-    qfs->ref();
-    if ( fin ) fin->deref();
+    if ( fin ) 
+	fin->deref();
     fin = qfs;
 
     if ( !fin->font() ) {			// font not loaded
@@ -341,7 +341,12 @@ void QFontPrivate::load()
 	else if ( qt_winver & Qt::WV_NT_based )
 	    fin->hdc = GetDC(0);
 	fin->hfont = create( &fin->stockFont, fin->hdc );
-	SelectObject( fin->dc(), fin->hfont );
+	HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
+#ifndef QT_NO_DEBUG
+	if ( !obj ) {
+	    qSystemWarning( "QFontPrivate: SelectObject failed" );
+	}
+#endif
 	BOOL res;
 #ifdef Q_OS_TEMP
 	res = GetTextMetricsW( fin->dc(), &fin->tm.w );
@@ -357,8 +362,11 @@ void QFontPrivate::load()
 	if ( !res )
 	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
-	if ( !paintdevice )
-		fontCache->insert( fin->key(), fin, 1 );
+	int cost = request.pointSize > 0 ? request.pointSize*2000 : request.pixelSize*2000;
+	if ( paintdevice )
+	    cost *= 10;
+	fin->cache_cost = cost;
+	fontCache->insert( k, fin, cost );
     }
     initFontInfo();
     exactMatch = TRUE;
@@ -407,8 +415,12 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	if ( stockFont )
 	    *stockFont = TRUE;
 	HFONT hfont = (HFONT)GetStockObject( f );
-	if ( !hfont )
+	if ( !hfont ) {
+#ifndef QT_NO_DEBUG
+	    qSystemWarning( "GetStockObject failed" );
+#endif
 	    hfont = systemFont();
+	}
 	return hfont;
     }
 
@@ -550,6 +562,10 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
 	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
+#ifndef QT_NO_DEBUG
+	if ( !hfont )
+	    qSystemWarning( "CreateFontIndirect failed" );
+#endif
 #  ifndef Q_OS_TEMP
     } else 
 #  endif
