@@ -19,7 +19,7 @@
 #include <QtCore/QPointer>
 #include "preferenceinterface.h"
 
-class DesignerPreferences : public QObject, public PreferenceInterface
+class DesignerPreferences : public PreferenceInterface
 {
     Q_OBJECT
 public:

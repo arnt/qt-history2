@@ -21,11 +21,11 @@
 #include <pluginmanager.h>
 #include "preferenceinterface.h"
 
-class PluginPreferences : public QObject, public PreferenceInterface
+class PluginPreferences : public PreferenceInterface
 {
     Q_OBJECT
 public:
-    PluginPreferences(PluginManager *pluginManager, QObject *parent = 0);
+    PluginPreferences(PluginManager *plugin_manager, QObject *parent = 0);
     ~PluginPreferences();
 
     //PreferenceInterface
@@ -36,9 +36,15 @@ public:
     bool saveSettings();
     bool readSettings();
 
+signals:
+    void updateWidget();    
+    
 private:
     bool m_dirty;
-    PluginManager *m_pluginManager;
+    PluginManager *m_plugin_manager;
+    QStringList m_plugin_paths, m_disabled_plugins;
+    
+    friend class PluginPreferenceWidget;
 };
 
 #endif

@@ -73,6 +73,7 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
             item->setIcon(0, icon);
         item->setText(1, QString::number(index));
         item->setText(2, QString::number(listIndex));
+        connect(iface, SIGNAL(changed()), this, SLOT(preferenceChanged()));
     }
     // add in all the dynamic things into the list here
     // ...
@@ -104,16 +105,17 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     QBoxLayout *layout = new QHBoxLayout();
     mainLayout->addLayout(layout);
     layout->addStretch();
-    QPushButton *cmdOK = new QPushButton(tr("OK"), this);
-    cmdOK->setDefault(true);
-    connect(cmdOK, SIGNAL(clicked()), this, SLOT(accept()));
+    m_ok_button = new QPushButton(tr("Ok"), this);
+    m_ok_button->setEnabled(false);
+    m_ok_button->setDefault(true);
+    connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     QPushButton *cmdCancel = new QPushButton(tr("Cancel"), this);
     connect(cmdCancel, SIGNAL(clicked()), this, SLOT(reject()));
 #ifdef Q_WS_MAC
     layout->addWidget(cmdCancel);
-    layout->addWidget(cmdOK);
+    layout->addWidget(m_ok_button);
 #else
-    layout->addWidget(cmdOK);
+    layout->addWidget(m_ok_button);
     layout->addWidget(cmdCancel);
 #endif
 }
@@ -164,5 +166,10 @@ void PreferenceDialog::accept()
             iface->saveSettings();
     }
     QDialog::accept();
+}
+
+void PreferenceDialog::preferenceChanged()
+{
+    m_ok_button->setEnabled(true);
 }
 

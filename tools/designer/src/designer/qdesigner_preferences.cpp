@@ -18,7 +18,7 @@
 #include <QtGui/QVBoxLayout>
 
 DesignerPreferences::DesignerPreferences(QObject *parent)
-    : QObject(parent), m_dirty(false), m_showNewDialog(true)
+    : PreferenceInterface(parent), m_dirty(false), m_showNewDialog(true)
 {
 }
 

@@ -30,6 +30,9 @@ QDesigner::QDesigner(int &argc, char **argv)
       m_session(0),
       m_mainWindow(0)
 {
+    setOrganizationDomain(QLatin1String("Trolltech"));
+    setApplicationName(QLatin1String("Designer"));
+
     qInitResources_formeditor();
     qInitResources_widgetbox();
 

@@ -22,6 +22,7 @@ class QStackedWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
 class AbstractFormEditor;
+class QPushButton;
 
 class PreferenceDialog : public QDialog
 {
@@ -34,11 +35,13 @@ private slots:
     void accept();
     void reject();
     void changePane(QTreeWidgetItem *);
+    void preferenceChanged();
 
 private:
     QList<PreferenceInterface *> m_preferences;
     QStackedWidget *m_stack;
     QTreeWidget *m_treeWidget;
     AbstractFormEditor *m_core;
+    QPushButton *m_ok_button;
 };
 #endif
