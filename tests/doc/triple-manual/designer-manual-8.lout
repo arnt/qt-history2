@@ -2,7 +2,7 @@
     @Title { Creating Database Applications }
     @Tag { creating.database.applications }
 @Begin
-@PP
+@LP
 This chapter shows you how to use Qt's data-aware widgets from
 databases @Index{ Databases } sql @Index{ SQL } within @QDR. It
 demonstrates @Code{INSERT}, @Code{UPDATE} and @Code{DELETE} in both
@@ -13,7 +13,7 @@ simple approach to foreign key handling is presented here; a more
 sophisticated approach is shown in the online SQL module
 documentation.
 
-@PP
+@LP
 If you wish to run the examples or create your own applications
 databases @RawIndex{ Databases }
 databases.drivers @SubIndex{ Drivers }
@@ -35,7 +35,7 @@ of writing the drivers that Qt supports are QODBC3 (Open Database
 Connectivity), QOCI8 (Oracle), QPSQL7 (PostgreSQL 6 and 7) and
 QMYSQL3 (MySQL).
 
-@PP
+@LP
 Although you can use the Qt data-aware widgets to browse and
 widgets @RawIndex{ Widgets }
 widgets.data.aware @SubIndex{ Data Aware }
@@ -81,7 +81,7 @@ been tested with PostgreSQL 6 and PostgreSQL 7. You may need to modify
 the SQL in this file to recreate the example database on your own
 system.
 
-@PP
+@LP
 Schema @Code{CREATE TABLE} Statements
 @LD @Code @RawVerbatim @Begin
     CREATE TABLE author (
@@ -116,7 +116,7 @@ the vast majority of SQL databases.
     @Title { Setting Up Database Connections }
     @Tag { setting.up.database.connections }
 @Begin
-@PP
+@LP
 There are two aspects of database connections that we must consider.
 databases @RawIndex{ Databases }
 databases.connecting.to.database.servers @SubIndex{ Connecting to Database Servers }
@@ -134,7 +134,7 @@ that we create.
 @Figure
     @Caption { @I{Database Connections Dialog} }
  0.45 @Scale @IncludeGraphic { "images/database-connections.eps.gz" }
-@PP
+@LP
 Choose @Option{Project"|"Database Connections} from the menu bar.
 The @Win{Database Connections} dialog will appear. Click @B{New
 Connection}. For applications that use a single database it will
@@ -151,7 +151,7 @@ dialog. You can now close the dialog; the connection settings
 will remain in effect until you change or delete them or exit
 from @QDR.
 
-@PP
+@LP
 @QDR can remember database connection settings in
 projects @RawIndex{ Projects }
 projects.database.connections @SubIndex{ Database Connections }
@@ -182,7 +182,7 @@ in @QDR.
     @Title { Setting Up Connections for Applications }
     @Tag{setting.up.connections.for.applications}
 @Begin
-@PP
+@LP
 The applications you create must make their own connections to
 the SQL database. We provide an example function, @Func{createConnections()},
 createconnections @Index{ createConnections() }
@@ -212,7 +212,7 @@ bool createConnections()
     return TRUE;
 }
 @End @RawVerbatim
-@PP
+@LP
 We call @Func{addDatabase()} passing it the name of the adddatabase
 @Index{ addDatabase() } driver we wish to use. We then set the
 connection information by calling the @Code{set}... functions. Finally
@@ -236,7 +236,7 @@ otherwise we output some error information and return @FALSE.
 @End @RawVerbatim
 @Filename{"qt/tools/designer/examples/book/book1/main.cpp"}
 /0.1vx
-@PP
+@LP
 All the examples presented in this chapter call
 @Func{createConnections()} databases @RawIndex{ Databases }
 databases.connecting.to.multiple.database.servers @SubIndex{
@@ -249,7 +249,7 @@ databases use the two-argument form of @Func{addDatabase()}, passing
 it both the name of the driver and a unique identifier. This is
 explained further in the Qt SQL Module documentation.
 
-@PP
+@LP
 You do not need to keep a reference to database connections.
 qsqldatabase.database @Index{ QSqlDatabase::database() }
 If you use a single database connection, this becomes the default
@@ -257,7 +257,7 @@ connection and database functions will use this connection automatically.
 We can always get a pointer to any of our connections by calling
 @Func{QSqlDatabase::database()}.
 
-@PP
+@LP
 If you create a @File{"main.cpp"} file using @QDR,
 this file will @I{not} include @Func{createConnections()}.
 We do not include this function because it needs the username
@@ -274,7 +274,7 @@ function.
     @Title { Using QDataTable }
     @Tag { using.qdatatable }
 @Begin
-@PP
+@LP
 @Class{QDataTable}qdatatable @Index{ QDataTable }s may be placed on
 any form to provide browsing of database tables and views.
 @Class{QDataTable}qdatatable @Index{ QDataTable }s can also be used to
@@ -292,7 +292,7 @@ combining data from several tables and views) we might use several
     @Title { Quickly Viewing a Database Table }
     @Tag{quickly.viewing.a.database.table}
 @Begin
-@PP
+@LP
 This example, along with all the other examples in this chapter, has
 the project name 'book' and uses the database created by the book.sql
 @Index{ book.sql } @File{"book.sql"} script. As we work through the
@@ -313,11 +313,11 @@ appear in the left hand list box. (If this doesn't happen you'll need
 to contact your database systems administrator for help.) Close the
 dialog.
 
-@PP
+@LP
 We will now create a new form with a @Class{QDataTable}qdatatable
 @Index{ QDataTable } that's connected to one of our database tables.
 
-@PP
+@LP
 Click @Option{File"|"New}. The @Win{New File} dialog presents us with
 a number of form templates to choose from. Choose the 'Dialog'
 form and click @OK. Now click @Option{File"|"Save}. You will be
@@ -328,7 +328,7 @@ prompted for a filename, call it @File{"book.ui"}.
     @Title { Setting up a QDataTable}
     @Tag{setting.up.a.qdatatable}
 @Begin
-@PP
+@LP
 To place a @Class{QDataTable}qdatatable @Index{ QDataTable } widget on
 the form either click @Option{Tools"|"Views"|"QDataTable} databases
 @RawIndex{ Databases } databases.sql.table.wizard @SubIndex{ SQL Table
@@ -411,12 +411,12 @@ and left clicking @Option{Edit}.
     @Title { Laying out the Form }
     @Tag{laying.out.the.form}
 @Begin
-@PP
+@LP
 Click on the form and click the @Option{Lay Out Vertically} toolbar
 button. Now click @Option{Preview"|"Preview Form}; the form will run
 and the table will automatically display all the records.
 
-@PP
+@LP
 To turn the form we've created into an executable application we must
 add the main.cpp @Index{ main.cpp } @File{"main.cpp"} file to the
 project file and make the project. We should also do some renaming to
@@ -471,7 +471,7 @@ your database's documentation for details.
     @Title { Inserting Records in QDataTables}
     @Tag{inserting.records.in.qdatatables}
 @Begin
-@PP
+@LP
 Record insertion into a relational database usually requires
 inserting.records @Index{ Inserting Records } databases @RawIndex{
 Databases } databases.inserting.records @SubIndex{ Inserting Records }
@@ -541,7 +541,7 @@ as well as @Code{UPDATE} and @Code{DELETE}. We could easily have added
 additional code to insert default values, e.g. today's date into a
 date field, if necessary.
 
-@PP
+@LP
 Browsing is supported by clicking records and by using the arrow
 databases @RawIndex{ Databases } databases.browsing @SubIndex{
 Browsing } databases @RawIndex{ Databases } databases.confirmations
@@ -609,7 +609,7 @@ You can change this default behaviour programmatically if required.
     @Title { Relating Two Tables Together (Master-Detail)}
     @Tag{relating.two.tables.together.master.detail}
 @Begin
-@PP
+@LP
 Databases often have pairs of tables that are related. For example,
 databases @RawIndex{ Databases } databases.master.detail.relationships
 @SubIndex{ Master-Detail Relationships } master.detail.relationships
@@ -621,7 +621,7 @@ QDataTable } that we can use to browse through the authors table and a
 second @Class{QDataTable}qdatatable @Index{ QDataTable } to show the
 books they've written.
 
-@PP
+@LP
 Open the book project if it isn't already open @QDR. We will modify
 this project to show two @Class{QDataTable}qdatatable @Index{
 QDataTable }s that relate the author table to the book table.
@@ -737,7 +737,7 @@ always return to the table editor to change these settings later.
     @Title { Filtering One QDataTable by Another }
     @Tag{filtering.one.qdatatable.by.another}
 @Begin
-@PP
+@LP
 To filter the book table's records we need to capture the author
 databases @RawIndex{ Databases } databases.relating.tables @SubIndex{
 Relating Tables } @Class{QDataTable}qdatatable @Index{ QDataTable }'s
@@ -783,7 +783,7 @@ the results of the filter.
     @Title { Preparing the Interface for Drilldown }
     @Tag{preparing.the.interface.for.drilldown}
 @Begin
-@PP
+@LP
 We can now browse and edit authors and see their books in the
 databases @RawIndex{ Databases } databases.drilldown @SubIndex{
 Drilldown } drilldown @Index{ Drilldown } BookDataTable. In the next
@@ -841,7 +841,7 @@ slot. Click @OK.
     @Title { Setting up a QDataBrowser}
     @Tag{setting.up.a.qdatabrowser}
 @Begin
-@PP
+@LP
 We will now create a new form to allow users to edit book records.
 databases @RawIndex{ Databases } databases.drilldown @SubIndex{
 Drilldown } drilldown @Index{ Drilldown } databases @RawIndex{
@@ -1018,7 +1018,7 @@ each @Code{DELETE}.
     @Title { Performing the Drilldown }
     @Tag{performing.the.drilldown}
 @Begin
-@PP
+@LP
 We now have a working form for editing book records. We need
 databases @RawIndex{ Databases }
 databases.drilldown @SubIndex{ Drilldown }
@@ -1096,7 +1096,7 @@ will handle the foreign key relationship to author.
     @Title { Inserting into a QDataBrowser}
     @Tag{inserting.into.a.qdatabrowser}
 @Begin
-@PP
+@LP
 We will create a slot to receive the Edit Books form's primeinsert
 @Index{ primeInsert() } @Func{primeInsert()} signal so that we can
 insert a unique primary key.
@@ -1150,7 +1150,7 @@ button's @Func{clicked()} signal to the EditBookForm's
     @Title { Handling Foreign Keys in a QDataBrowser}
     @Tag{handling.foreign.keys.in.a.qdatabrowser}
 @Begin
-@PP
+@LP
 Qt's SQL module provides two approaches to dealing with foreign
 foreign.keys @Index{ Foreign Keys }
 databases @RawIndex{ Databases }
@@ -1161,7 +1161,7 @@ This approach is described in the Qt SQL Module documentation,
 particularly the StatusPicker example. A simpler approach that
 can be taken wholly within @QDR is presented here.
 
-@PP
+@LP
 We will add a new field to the EditBookForm so that authors can
 be edited along with the title and price. Once we've handled
 the visual design we'll write the code to make it all work.
@@ -1387,7 +1387,7 @@ is to subclass a cursor and use this for our lookups. This is
 described in the Qt SQL Module documentation, particulary the
 section on subclassing @Class{QSqlCursor}qsqlcursor @Index{ QSqlCursor }.
 
-@PP
+@LP
 The 'book' example demonstrates the basic techniques needed for
 SQL programming with Qt. Additional information on the Qt SQL
 classes, especially the @Class{QSqlQuery}qsqlquery @Index{ QSqlQuery } and @Class{QSqlCursor}qsqlcursor @Index{ QSqlCursor } classes

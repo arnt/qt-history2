@@ -7,7 +7,7 @@
     @Title { Introduction }
     @Tag { introductionxxxx }
 @Begin
-@PP
+@LP
 This chapter describes and explains every @QDR dialog.
 
 @End @Section
@@ -15,37 +15,43 @@ This chapter describes and explains every @QDR dialog.
     @Title { The Menu Dialogs }
     @Tag { the.menu.dialogs }
 @Begin
-@LD @Heading { Qt Designer New"/"Open Dialog{@PageMark{qt.designer.new.open.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Qt Designer New"/"Open Dialog }
+    @Tag{qt.designer.new.open.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Qt Designer New"/"Open} }
- 0.3 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz"
-}
-@PP
+    @Caption { @I{Qt Designer New"/"Open} }
+ 0.45 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
+@LP
 Start up @QDR to invoke the @Win{Qt Designer New"/"Open}
 dialog. This dialog contains three tabs to use depending on what
 you want to do once you start up @QDR.
 
-@LD @I { The New File"/"Project Tab{@PageMark{the.new.file.project.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title { The New File"/"Project Tab }
+    @Tag{the.new.file.project.tab}
+@Begin
+@LP
 This tab is the default when you start up @QDR. Choose
 to start a new project or to create a file by selecting the appropriate
 icon from the window. For more information about the different
 file types available, see the The File Dialogs [p.~@PageOf{the.file.dialogs}] section.
 
-@PP
+@LP
 Click the "\""Don't show this dialog in the future"\"" checkbox to
 hide the dialog the next time you start up @QDR.
 
-@LD @I { The Open File"/"Project Tab{@PageMark{the.open.file.project.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title { The Open File"/"Project Tab }
+    @Tag{the.open.file.project.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Open File"/"Project} }
- 0.3 @Scale @IncludeGraphic { "images/rd-startdesigntab2.eps.gz"
-}
-@PP
+    @Caption { @I{Open File"/"Project} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-startdesigntab2.eps.gz" }
+@LP
 Click this tab to open an already existing file or project. The
 tab shows the current directory and default file type. To choose
 a different directory, click the 'Look In' combobox. Choose a
@@ -58,42 +64,51 @@ toolbar button to view the folders and file names along with
 their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
-@PP
+@LP
 Click @OK to open the selected file. Click @Cancel to leave
 the dialog without opening a new file.
 
-@LD @I { The Recently Opened Tab{@PageMark{the.recently.opened.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title { The Recently Opened Tab }
+    @Tag{the.recently.opened.tab}
+@Begin
+@LP
 This tab displays all of the recently opened files or projects
 in a window. Select a file or project and then click @OK to
 open it.
 
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The File Dialogs }
     @Tag { the.file.dialogs }
 @Begin
-@PP
 @Figure
-    @Caption { 
-@I{New File} }
- 0.3 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz"
-}
-@LD @Heading { New File Dialog{@PageMark{new.file.dialog}} }
-@PP
+    @Caption { @I{New File} }
+ 0.45 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
+@BeginSubSections
+@SubSection
+    @Title { New File Dialog }
+    @Tag{new.file.dialog}
+@Begin
+@LP
 Click @Option{File"|"New} (or press @Option{Ctrl+N}) to invoke the
 @Win{New
 File} dialog. This dialog offers four kinds of files to choose
 from: @Cpp Project, Forms, Source files, and Main files.
 
-@PP
+@LP
 The 'Insert Into' drop-down combobox lists the open projects,
 defaulting to the current project. New files are added to the
 project displayed in this combobox. To add a new file to a different
 project, choose the project you want to use in the 'Insert Into'
 combobox.
 
-@PP
+@LP
 The 'Dialog' file type is highlighted by default when the @Win{New
 File} dialog pops up. Click on the file type you want to use
 and click @OK to create it. Click @Cancel to leave the
@@ -102,27 +117,41 @@ Project, the 'Insert Into' combobox will be disabled, since it
 is not possible to insert a new @Cpp Project into an existing
 project.
 
-@LD @I { @Cpp Project Files{@PageMark{c.project.files}} }
-@PP
-Click @Option{@Cpp Project} to start a new project. This option invokes
-the Project Settings Dialog [p.~@PageOf{project.settings.dialog}]. @Cpp projects are saved as @File{".pro"}
-files, which include the information @QDR needs to
-manage projects. When you add a form to your project in @QDR, it is automatically added to the FORMS section of
-the project file. The @File{".pro"} file contains the list
-of forms (@File{".ui"} files) used in the project. @QDR reads and writes @File{".ui"} files, e.g. form.ui.
-The uic (user interface compiler) creates both a header file,
-e.g. form.h, and an implementation file, e.g. form.cpp, from
-the @File{".ui"} file.
+@BeginSubSubSections
+@SubSubSection
+    @Title { @Cpp Project Files }
+    @Tag{c.project.files}
+@Begin
+@LP
+Click @Option{@Cpp Project} to start a new project. This option
+invokes the Project Settings Dialog
+[p.~@PageOf{project.settings.dialog}]. @Cpp projects are saved as
+@File{".pro"} files, which include the information @QDR needs to
+manage projects. When you add a form to your project in @QDR, it is
+automatically added to the FORMS section of the project file. The
+@File{".pro"} file contains the list of forms (@File{".ui"} files)
+used in the project. @QDR reads and writes @File{".ui"} files, e.g.
+form.ui. The uic (user interface compiler) creates both a header file,
+e.g. form.h, and an implementation file, e.g. form.cpp, from the
+@File{".ui"} file.
 
-@LD @I { Dialog Forms{@PageMark{dialog.forms}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title { Dialog Forms }
+    @Tag{dialog.forms}
+@Begin
+@LP
 Click @Option{Dialog} to create a plain dialog form. Typically, this
 type of form is used to present the user with configuration options,
 or to present related sets of choices, for example, printer setting
 dialogs and find and replace dialogs.
 
-@LD @I { Wizard Forms{@PageMark{wizard.forms}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Wizard Forms }
+    @Tag{wizard.forms}
+@Begin
+@LP
 Click @Option{Wizard} to create a wizard form. A wizard is a special
 type of input dialog that consists of a sequence of dialog pages.
 A wizard's purpose is to assist a user by automating a task by
@@ -132,81 +161,121 @@ may find difficult to learn or do. Initially the wizard form
 consists of a single dialog page. Use the right click context
 menu to add additional pages and to change page titles.
 
-@LD @I { Widget Forms{@PageMark{widget.forms}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Widget Forms }
+    @Tag{widget.forms}
+@Begin
+@LP
 Click @Option{Widget} to create a form whose superclass is QWidget
 rather than QDialog.
 
-@LD @I { Main Window Form{@PageMark{main.window.form}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Main Window Form }
+    @Tag{main.window.form}
+@Begin
+@LP
 Click @Option{Main Window} to invoke the Main Window Wizard. This
 wizard is used to create actions, menu options and toolbars through
 which the user can invoke actions. This form is used to create
 typical main-window style applications.
 
-@LD @I { Configuration Dialog Form{@PageMark{configuration.dialog.form}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Configuration Dialog Form }
+    @Tag{configuration.dialog.form}
+@Begin
+@LP
 Click @Option{Configuration Dialog} creates a form with a listbox
 on the left, and a tabwidget filling the body of the form, along
 with Help, OK and Cancel buttons.
 
-@LD @I { Dialog with Buttons (Bottom) Form{@PageMark{dialog.with.buttons.bottom.form}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Dialog with Buttons (Bottom) Form }
+    @Tag{dialog.with.buttons.bottom.form}
+@Begin
+@LP
 The @Option{Dialog with Buttons (Bottom)} form is a template with
 default buttons at the bottom of the form.
 
-@LD @I { Dialog with Buttons Form (Right){@PageMark{dialog.with.buttons.form.right}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Dialog with Buttons Form (Right) }
+    @Tag{dialog.with.buttons.form.right}
+@Begin
+@LP
 The @Option{Dialog with Buttons (Right)} form is a template with default
 buttons at the right of the form.
 
-@LD @I { Tab Dialog Form{@PageMark{tab.dialog.form}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Tab Dialog Form }
+    @Tag{tab.dialog.form}
+@Begin
+@LP
 The @Option{Tab Dialog} form has a tab widget as its central widget,
 along with Help, OK and Cancel buttons along the bottom.
 
-@LD @I { @Cpp Source File{@PageMark{c.source.file}} }
-@PP
-Click @Option{@Cpp Source File [p.~@PageOf{c.source.file}]} to create a new empty @Cpp file. The
-file will automatically be added to the project when it is saved.
+@End @SubSubSection
+@SubSubSection
+    @Title {@Cpp Source File }
+    @Tag{c.source.file}
+@Begin
+@LP
+Click @Option{@Cpp Source File [p.~@PageOf{c.source.file}]} to create
+a new empty @Cpp file. The file will automatically be added to the
+project when it is saved.
 
-@LD @I { @Cpp Header File{@PageMark{c.header.file}} }
-@PP
-Click @Option{@Cpp Header File [p.~@PageOf{c.header.file}]} to create a new empty @Cpp header file.
-The file will automatically be added to the project when it is
-saved.
+@End @SubSubSection
+@SubSubSection
+    @Title {@Cpp Header File }
+    @Tag{c.header.file}
+@Begin
+@LP
+Click @Option{@Cpp Header File [p.~@PageOf{c.header.file}]} to create
+a new empty @Cpp header file. The file will automatically be added to
+the project when it is saved.
 
-@LD @I { @Cpp Main File{@PageMark{c.main.file}} }
-@PP
-Click @Option{@Cpp Main File [p.~@PageOf{c.main.file}]} to invoke the Configure Main-File Dialog [p.~@PageOf{configure.main.file.dialog}]
-which will create a basic @File{"main.cpp"} file automatically.
-@Cpp Main file is not an option if you do not have a project open.
-In addition, this file type is not avalable in the @Win{Qt Designer New"/"Open} dialog because you cannot create a main.cpp file
-without creating a project.
+@End @SubSubSection
+@SubSubSection
+    @Title {@Cpp Main File }
+    @Tag{c.main.file}
+@Begin
+@LP
+Click @Option{@Cpp Main File [p.~@PageOf{c.main.file}]} to invoke the
+Configure Main-File Dialog [p.~@PageOf{configure.main.file.dialog}]
+which will create a basic @File{"main.cpp"} file automatically. @Cpp
+Main file is not an option if you do not have a project open. In
+addition, this file type is not avalable in the @Win{Qt Designer
+New"/"Open} dialog because you cannot create a main.cpp file without
+creating a project.
 
-@LD @I { Configure Main-File Dialog{@PageMark{configure.main.file.dialog}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Configure Main-File Dialog }
+    @Tag{configure.main.file.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Configure Main-File} }
- 0.3 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz"
-}
-@PP
+    @Caption { @I{Configure Main-File} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz" }
+@LP
 Click @Option{File"|"New"|"@Cpp Main-File} to invoke the @Win{Configure
 Main-File} dialog. Use this dialog to configure the main file
 and its forms.
 
-@PP
+@LP
 To change the default file name, type it in the 'Filename' line
 edit. Choose the form to use as the application's main form from
 the line edit by clicking it.
 
-@PP
+@LP
 Click @OK to accept the configurations and @QDR
 will create a default @File{"main.cpp"} file. Click @Cancel
 to leave the dialog.
 
-@PP
+@LP
 Note for database programmers: If you create a @File{"main.cpp"}
 file using @QDR, this file will @I{not} include the
 @Func{createConnections()} function. We do not include
@@ -216,19 +285,22 @@ from our simple example function. As a result, applications that
 preview correctly in @QDR will not run unless you
 implement your own database connections function.
 
-@LD @Heading { File Open Dialog{@PageMark{file.open.dialog}} }
-@PP
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { File Open Dialog }
+    @Tag{file.open.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{File Open} }
- 0.3 @Scale @IncludeGraphic { "images/rd-open.eps.gz"
-}
-@PP
+    @Caption { @I{File Open} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-open.eps.gz" }
+@LP
 Click @Option{File"|"Open} (or press@Option{Ctrl+O}) to invoke the
 @Win{Open}
 dialog. Use this dialog to open existing files.
 
-@PP
+@LP
 The @Win{Open} dialog shows the current directory and default file
 type. To choose a different directory, click the 'Look In' combobox.
 Choose a file and the name will appear in the 'File Name' combobox.
@@ -240,25 +312,26 @@ toolbar button to view the folders and file names along with
 their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
-@PP
+@LP
 Click @Option{Open} to open the selected file. Click @Cancel to
 leave the dialog without opening a new file.
 
-@PP
+@LP
 Note: For Windows, the System File Dialogs are used.
 
-@LD @Heading { Save As Dialog{@PageMark{save.as.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Save As Dialog }
+    @Tag{save.as.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Save As Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-saveas.eps.gz"
-}
-@PP
+    @Caption { @I{Save As Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveas.eps.gz" }
+@LP
 Click @Option{File"|"Save As} to invoke the @Win{Save As} dialog. Use
 this dialog to save files to a directory.
 
-@PP
+@LP
 The @Win{Save As} dialog shows the current directory and default
 file type. To choose a different directory, click the 'Look In'
 combobox. Choose a file and the name will appear in the 'File
@@ -271,25 +344,26 @@ names along with their size, type, date, and attributes. Click
 the Size, Type, Date, or Attributes column headers to sort the
 folders or files.
 
-@PP
+@LP
 Click @Option{Save} to save the selected file. Click @Cancel to
 leave the dialog without saving the file.
 
-@PP
+@LP
 Note: For Windows, the System File Dialogs are used.
 
-@LD @Heading { Save Form As Dialog{@PageMark{save.form.as.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Save Form As Dialog }
+    @Tag{save.form.as.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Save Form As} }
- 0.3 @Scale @IncludeGraphic { "images/rd-saveformas.eps.gz"
-}
-@PP
+    @Caption { @I{Save Form As} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveformas.eps.gz" }
+@LP
 Click @Option{File"|"Save As} to invoke the @Win{Save Form As} when
 saving a form.
 
-@PP
+@LP
 The @Win{Save Form As} dialog shows the current directory and the
 default file type. To choose a different directory, click the
 'Look In' combobox. Choose a file and the name will appear in
@@ -302,55 +376,59 @@ and file names along with their size, type, date, and attributes.
 Click the Size, Type, Date, or Attributes column headers to sort
 the folders or files.
 
-@PP
+@LP
 Click @Option{Save} to save the selected form. Click @Cancel to
 leave the dialog without saving the form.
 
-@LD @Heading { Create Template Dialog{@PageMark{create.template.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Create Template Dialog }
+    @Tag{create.template.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Create Template Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-template.eps.gz"
-}
-@PP
+    @Caption { @I{Create Template Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-template.eps.gz" }
+@LP
 Click @Option{File"|"Create Template} to invoke the @Win{Create Template}
 dialog. Use this dialog to create templates.
 
-@PP
+@LP
 The 'Template Name' line edit defaults to 'New Template'. To
 change the name to a different name, type it in the line edit.
 Click the 'Baseclass for Template' scroll bar to choose a base
 class for the template.
 
-@PP
+@LP
 Click @Option{Create} to create the template. Click @Cancel to
 leave the dialog without creating a template.
 
-@PP
+@LP
 If you create a template it will appear in the New File Dialog [p.~@PageOf{new.file.dialog}].
 Templates are useful when you have to produce a large number
 of similar forms, or where you want to 'brand' your forms.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Edit Dialogs }
     @Tag { the.edit.dialogs }
 @Begin
-@LD @Heading { Edit Functions Dialog{@PageMark{edit.functions.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Edit Functions Dialog }
+    @Tag{edit.functions.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Functions} }
- 0.3 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Functions} }
+ 0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
+@LP
 Click @Option{Edit"|"Slots} to invoke the @Win{Edit Functions} dialog.
 Use this dialog to edit or create slots and functions which are
 used in conjunction with signals to provide communication between
 objects.
 
-@PP
+@LP
 When this dialog is invoked, all existing slots and functions
 are shown in the listview. The column headers Function, Return
 Type, Specifier, Access, Type, and In Use provide details about
@@ -365,25 +443,26 @@ To change the type of a function (function or slot), click the
 Type combobox. To remove a function, click the function you want
 to delete, and then click the @Option{Delete Function} button.
 
-@PP
+@LP
 Click @OK to save all changes made to the functions. Click
 @Cancel to leave the dialog without making any changes to
 the functions.
 
-@LD @Heading { View and Edit Connections Dialog{@PageMark{view.and.edit.connections.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { View and Edit Connections Dialog }
+    @Tag{view.and.edit.connections.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{View and Edit Connections} }
- 0.3 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz"
-}
-@PP
+    @Caption { @I{View and Edit Connections} }
+ 0.45 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
+@LP
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
 dialog. This dialog is also accessed by right-clicking any of
 the widgets. Use this dialog to view and edit signal and slot
 connections.
 
-@PP
+@LP
 When this dialog is invoked, all existing connections are shown
 in the listbox. The column headers Sender, Signal, Receiver,
 and Slot provide details about each connection. Click the column
@@ -397,40 +476,49 @@ the Receiver in the currently selected connection and then click
 the @Option{Edit Slots} button. This will invoke the @Win{Edit Functions}
 dialog.
 
-@PP
+@LP
 Click @OK to save all changes made to the connections. Click
 @Cancel to leave the dialog without making any changes to
 the connections.
 
-@LD @Heading { Form Settings Dialog{@PageMark{form.settings.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Form Settings Dialog }
+    @Tag{form.settings.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Form Settings} }
- 0.3 @Scale @IncludeGraphic { "images/rd-formset.eps.gz"
-}
-@PP
+    @Caption { @I{Form Settings} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-formset.eps.gz" }
+@LP
 Click @Option{Edit"|"Form Settings} to invoke the @Win{Form Settings}
 dialog. Use this dialog to save the form's settings, pixmap,
 and layout properties.
 
-@LD @I { Settings{@PageMark{settings}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {Settings }
+    @Tag{settings}
+@Begin
+@LP
 In the Settings section, you can change or add the name of the
 class that will be created by typing in the 'Class Name' line
 edit. Note that the default name is the form name, but it can
 be changed. You can also enter text to the 'Comment' and 'Author'
 line edits or leave them blank, since they are not required.
 
-@LD @I { Pixmaps{@PageMark{pixmaps}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Pixmaps }
+    @Tag{pixmaps}
+@Begin
+@LP
 The default (for projects) is 'Project Imagefile'. This is the
-recommended option. Images are handled automatically, with @QDR storing the images in a subdirectory, and @File{"uic"}
-producing code that contains the images and the necessary supporting
-code. Each image is stored just once, no matter how many forms
-it is used in.
+recommended option. Images are handled automatically, with @QDR
+storing the images in a subdirectory, and @File{"uic"} producing code
+that contains the images and the necessary supporting code. Each image
+is stored just once, no matter how many forms it is used in.
 
-@PP
+@LP
 If you do not want @QDR to handle the images, (or
 are not using a project) choose either 'Save Inline' or 'Use
 Function'. 'Save Inline' saves the pixmaps in the @File{".ui"}
@@ -443,41 +531,52 @@ function will be used in the generated code for loading pixmaps.
 Your function will be called with the text you put in the pixmap
 property (e.g. the image name) whenever an image is required.
 
-@LD @I { Layouts{@PageMark{layouts}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title { Layouts}
+    @Tag{layouts}
+@Begin
+@LP
 Click the 'Default Margin' spinbox or the 'Default Spacing' spinbox
 to change the default layout settings of the current form.
 
-@PP
+@LP
 To use the functions in the generated code to dynamically retrieve
 values for the layout's default margin and spacing, check the
 Use Functions chechbox. In the Margin and Spacing line edits,
 specify the function names (no signatures or parantheses) which
 should be used to retrieve the margin and spacing.
 
-@PP
+@LP
 Click @OK to accept changes to the form settings. Click @Cancel
 to leave the dialog without making any changes.
 
-@LD @Heading { Preferences Dialog{@PageMark{preferences.dialog}} }
-@PP
+@End @SubSubSection
+@EndSubSections
+@End @SubSection
+@SubSection
+    @Title { Preferences Dialog }
+    @Tag{preferences.dialog}
+@Begin
+@LP
 Click @Option{Edit"|"Preferences} to invoke the @Win{Preferences} dialog.
 This dialog has a tab for 'General' preferences. If you have
 the @Cpp Editor plugin, the dialog will also have a tab for the
 @Cpp Editor.
 
-@LD @I { General Tab{@PageMark{general.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {General Tab }
+    @Tag{general.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Preferences- General Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz"
-}
-@PP
+    @Caption { @I{Preferences- General Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz" }
+@LP
 The 'General' tab has sections for Background, Grid, General,
 and Toolbars.
 
-@PP
+@LP
 The Background section defaults to 'Pixmap'. To change the default,
 click the @Option{Select a Pixmap} button next to the 'Pixmap' radio
 button to invoke the @Win{Choose a Pixmap... Dialog}. Click the
@@ -486,24 +585,23 @@ of a pixmap. Click the @Option{Choose a Color} button located to the
 right of the 'Color' radio button to invoke the @Win{Select Color
 Dialog}.
 
-@PP
-The 'General' section of the General tab has three checkboxes
-that are checked by default. Click the 'Restore last workspace
-on startup' checkbox to save the size and positions of the windows
-and toolbars of @QDR. The next time you start up @QDR, the windows and toolbars are restored to their last
-positions. Click the 'Show Splash Screen on startup' checkbox
-to display the @QDR splash screen when you start up
+@LP
+The 'General' section of the General tab has three checkboxes that are
+checked by default. Click the 'Restore last workspace on startup'
+checkbox to save the size and positions of the windows and toolbars of
+@QDR. The next time you start up @QDR, the windows and toolbars are
+restored to their last positions. Click the 'Show Splash Screen on
+startup' checkbox to display the @QDR splash screen when you start up
 the application. Click the 'Disable Database Auto-Edit in Preview'
 checkbox to disable the ability to update or delete data in the
 database to which you are connected when working with database
-widgets. To change the path @QDR uses to find it's
-online documentation, click the 'Documentation Path' line edit
-and type a new path. It would be unlikely to have to change this
-path. Another way to change the path is to click the @Option{...}
-button located to the right of the line edit. This invokes the
-@Win{Find Directory Dialog}.
+widgets. To change the path @QDR uses to find it's online
+documentation, click the 'Documentation Path' line edit and type a new
+path. It would be unlikely to have to change this path. Another way to
+change the path is to click the @Option{...} button located to the
+right of the line edit. This invokes the @Win{Find Directory Dialog}.
 
-@PP
+@LP
 The 'Grid' section has options for customizing the grid on the
 form. The 'Show Grid' checkbox located above the 'Grid' section
 is checked by default. Developers using @QDR almost
@@ -518,19 +616,20 @@ resolution. When it is unchecked, the 'Grid-X' and 'Grid-Y' spin
 boxes are disabled. Click the 'Grid X' and 'Grid Y' spinboxes
 to customize the grid settings for all forms.
 
-@PP
+@LP
 The 'Toolbars' section has a 'Show Text Labels' checkbox. Click
 the checkbox to display the text labels for each icon shown in
 the @QDR toolbar.
 
-@LD @I { @Cpp Editor Tab{@PageMark{c.editor.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {@Cpp Editor Tab }
+    @Tag{c.editor.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Preferences- @Cpp Editor Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz"
-}
-@PP
+    @Caption { @I{Preferences- @Cpp Editor Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz" }
+@LP
 The @Cpp Editor tab provides options for customizing the editor.
 The 'Syntax Highlighting' section lets you change the way the
 syntax is viewed in the editor. Click the 'Element' listbox and
@@ -544,31 +643,37 @@ Click the @Option{Color} button to invoke the @Win{Select Color Dialog}.
 As you make changes to each element, you can view the changes
 in the 'Preview' line edit.
 
-@PP
+@LP
 The 'Options' section has the Wordwrap, Completion, and Parentheses
 Matching checkboxes checked by default. Click the checkboxes
 to de-select them.
 
-@PP
+@LP
 Click @OK to accept changes to @Win{Preferences} dialog. Click
 @Cancel to leave the dialog without making any changes.
 
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Project Dialogs }
     @Tag { the.project.dialogs }
 @Begin
-@LD @Heading { Add Dialog{@PageMark{add.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Add Dialog }
+    @Tag{add.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Add Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-add.eps.gz" }
-@PP
+    @Caption { @I{Add Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-add.eps.gz" }
+@LP
 Click @Option{Project"|"Add File} to invoke the @Win{Add} dialog. Use
 this dialog to add files to the current project.
 
-@PP
+@LP
 The @Win{Add} dialog defaults the directory and file type. To choose
 a different directory, click the 'Look In' combobox. Choose a
 file and the name will appear in the 'File Name' combobox. To
@@ -580,27 +685,28 @@ toolbar button to view the folders and file names along with
 their size, type, date, and attributes. Click the Size, Type,
 Date, or Attributes column headers to sort the folders or files.
 
-@PP
+@LP
 Click @Option{Open} to open the selected file. Click @Cancel to
 leave the dialog without opening a file.
 
-@LD @Heading { Manage Image Collection Dialog{@PageMark{manage.image.collection.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Manage Image Collection Dialog }
+    @Tag{manage.image.collection.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Manage Image Collection} }
- 0.3 @Scale @IncludeGraphic { "images/rd-image.eps.gz"
-}
-@PP
+    @Caption { @I{Manage Image Collection} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-image.eps.gz" }
+@LP
 Click @Option{Project"|"Image Collection} to invoke the @Win{Manage
 Image Collection Dialog}. Use this dialog to view the project's
 images, add new images, or delete images.
 
-@PP
+@LP
 To add an image, click the @Option{Add} button to invoke the @Win{Choose
 Images... Dialog}.
 
-@PP
+@LP
 The Choose Images dialog shows the current the directory and
 the default file type. To choose a different directory, click
 the 'Look In' combobox. Choose a file and the name will appear
@@ -616,27 +722,28 @@ the Size, Type, Date, or Attributes column headers to sort the
 folders or files. Click @Option{Open} to open the selected file. Click
 @Cancel to leave the dialog without opening a file.
 
-@PP
+@LP
 To delete an image from from the iconview, click the image and
 then click the @Option{Delete} button.
 
-@PP
+@LP
 Changes made to the image collection are applied immediately.
 Click the @Close button to leave the dialog.
 
-@LD @Heading { Edit Database Connections Dialog{@PageMark{edit.database.connections.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Database Connections Dialog }
+    @Tag{edit.database.connections.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Database Connections} }
- 0.3 @Scale @IncludeGraphic { "images/rd-dbconn.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Database Connections} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-dbconn.eps.gz" }
+@LP
 Click @Option{Project"|"Database Connections} to invoke the @Win{Edit
 Database Connections Dialog}. Use this dialog to connect your
 project to a database or to edit the current connections.
 
-@PP
+@LP
 Click @Option{New Connection} to create a new database connection.
 For applications that use a single database it will probably
 be most convenient to use the default connection name of '(default)'.
@@ -649,27 +756,32 @@ administrator. When the Connection information has been completed
 click Connect. If the connection is made the connection name
 will appear in the list box on the left hand side of the dialog.
 
-@PP
+@LP
 To remove a connection, click the connection in the listbox and
 then click the @Option{Delete Connection} button.
 
-@PP
+@LP
 Click @Close to leave the @Win{Database Connections} dialog.
 
-@LD @Heading { Project Settings Dialog{@PageMark{project.settings.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Project Settings Dialog }
+    @Tag{project.settings.dialog}
+@Begin
+@LP
 Click @Option{Project"|"Project Settings} to invoke the @Win{Project
 Settings Dialog}. Use this dialog to make changes to the project
 settings.
 
-@LD @I { Settings Tab{@PageMark{settings.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {Settings Tab }
+    @Tag{settings.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Project Settings- Settings Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-projset.eps.gz"
-}
-@PP
+    @Caption { @I{Project Settings- Settings Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-projset.eps.gz" }
+@LP
 The 'Settings' tab shows information about the project. The Project
 File line edit defaults the project name. To change the name,
 type the new name in the line edit or click the @Option{...}
@@ -679,14 +791,15 @@ in the 'Database File' line edit type the new name in the line
 edit or click the @Option{...} button to invoke the @Win{Save
 As Dialog}.
 
-@LD @I { @Cpp Tab{@PageMark{c.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {@Cpp Tab }
+    @Tag{c.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Project Settings- @Cpp Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-projset2.eps.gz"
-}
-@PP
+    @Caption { @I{Project Settings- @Cpp Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-projset2.eps.gz" }
+@LP
 Click the @Cpp Tab [p.~@PageOf{c.tab}] to change the @File{"qmake"} options.
 See the qmake documentation for details on what these options
 mean. Click the 'Template' combobox and choose application or
@@ -705,29 +818,34 @@ select a platform. Includepath specifies the directories that
 should be searched for include files when compiling the project.
 Type the 'Includepath' values in the line edit.
 
-@PP
+@LP
 Cick @OK to accept changes to the project settings. Click
 @Cancel to exit the dialog without making any changes to the
 project settings.
 
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Search Dialogs }
     @Tag { the.search.dialogs }
 @Begin
-@LD @Heading { Find Text Dialog{@PageMark{find.text.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Find Text Dialog }
+    @Tag{find.text.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Find Text} }
- 0.3 @Scale @IncludeGraphic { "images/rd-find.eps.gz"
-}
-@PP
-Click @Option{Search"|"Find} (or press @Option{Ctrl+F}) to invoke the Find
-Text Dialog [p.~@PageOf{text.dialog}]. Use this dialog to find specific text in a project
-file.
+    @Caption { @I{Find Text} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-find.eps.gz" }
+@LP
+Click @Option{Search"|"Find} (or press @Option{Ctrl+F}) to invoke the
+Find Text Dialog [p.~@PageOf{text.dialog}]. Use this dialog to find
+specific text in a project file.
 
-@PP
+@LP
 To find the text you want in a file, type the text in the 'Find'
 combobox. You can make the search more specific by checking any
 or all of the checkboxes in the 'Options' section. Click the
@@ -741,22 +859,23 @@ the file. Click the @Option{Find} button to start the search. When
 the text is found, it is highlighted in the file. Continue clicking
 @Option{Find} to search for subsequent occurrences of the search text.
 
-@PP
+@LP
 Click the @Close button to leave the dialog.
 
-@LD @Heading { Replace Text Dialog{@PageMark{replace.text.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Replace Text Dialog }
+    @Tag{replace.text.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Replace Text} }
- 0.3 @Scale @IncludeGraphic { "images/rd-replace.eps.gz"
-}
-@PP
+    @Caption { @I{Replace Text} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-replace.eps.gz" }
+@LP
 Click @Option{Search"|"Replace} (or press @Option{Ctrl+R}) to invoke the
 @Win{Replace Text Dialog}. Use this dialog to replace text in a
 project file.
 
-@PP
+@LP
 To replace text, type the text you would like to replace in the
 'Find' combobox. Type the new text in the 'Replace' combobox.
 You can make the search more specific by checking any or all
@@ -768,49 +887,56 @@ the search from the beginning of the file. The 'Direction' section
 offers the 'Forward' radio button and the 'Backward' radio button
 to specify the direction to perform the search in the file.
 
-@PP
+@LP
 Click the @Option{Replace} button to search and replace the text.
 When the text is found, it is highlighted in the file. Continue
 clicking @Option{Replace} button to search and replace each occurrence
 of the text in the file. Click @Option{Replace All} button to replace
 all occurences of the search text in the file at once.
 
-@PP
+@LP
 Click the @Close button to leave the dialog.
 
-@LD @Heading { Goto Line Dialog{@PageMark{goto.line.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Goto Line Dialog }
+    @Tag{goto.line.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Goto Line} }
- 0.3 @Scale @IncludeGraphic { "images/rd-goto.eps.gz"
-}
-@PP
+    @Caption { @I{Goto Line} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-goto.eps.gz" }
+@LP
 Click @Option{Search"|"Goto line} (or press @Option{Alt+G}) to invoke the
 @Win{Goto Line Dialog}. Use this dialog to go to a specific line
 in the file.
 
-@PP
+@LP
 To choose a line number, type the number in the 'Line' spinbox,
 or click the up and down arrows in the spinbox. Click the @Option{Goto}
 button. The cursor is placed at the beginning of the line in
 the file.
 
-@PP
+@LP
 Click the @Close button to leave the dialog.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Tools Dialog }
     @Tag { the.tools.dialog }
 @Begin
-@LD @Heading { Edit Custom Widgets Dialog{@PageMark{edit.custom.widgets.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Edit Custom Widgets Dialog }
+    @Tag{edit.custom.widgets.dialog}
+@Begin
+@LP
 The @Win{Edit Custom Widgets} dialog is invoked by clicking
 @Option{Tools"|"Custom"|"Edit Custom Widgets}. Use this dialog to
 create custom widgets.
 
-@PP
+@LP
 Custom widgets are created in code. They may contain a combination
 of existing widgets but with additional functionality, slots
 and signals, or they may be written from scratch, or a mixture
@@ -831,17 +957,18 @@ save the descriptions of the listed custom widgets, click the
 To delete a widget, click the widget in the listbox and then
 click the @Option{Delete Widget} button.
 
-@PP
+@LP
 Click @Close to leave the Edit Custom Widgets dialog.
 
-@LD @I { The Definition Tab{@PageMark{the.definition.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {The Definition Tab }
+    @Tag{the.definition.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Custom Widgets- Definition Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-cwidgdef.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Custom Widgets- Definition Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-cwidgdef.eps.gz" }
+@LP
 To create a custom widget, click @Option{New Widget}. Click the Definition
 tab if you are not already there. You should change the 'Class'
 name from 'MyCustomWidget' to a unique name by typing in the
@@ -863,14 +990,15 @@ of the widget. Click the 'Container Widget' checkbox if the custom
 widget you are creating should be able to contain other widgets
 (children).
 
-@LD @I { The Signals Tab{@PageMark{the.signals.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {The Signals Tab }
+    @Tag{the.signals.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Custom Widgets- Signals Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-cwidgsig.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Custom Widgets- Signals Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-cwidgsig.eps.gz" }
+@LP
 Click the Signals tab to view a list of all the signals the selected
 custom widget can emit. To add a new signal, click the @B{New
 Signal} button. Click the 'Signal' line edit and provide an argument
@@ -878,14 +1006,15 @@ for the signal and give the signal a unique name. To delete a
 signal from the listbox, click the signal to choose it and then
 click the @Option{Delete Signal} button.
 
-@LD @I { The Slots Tab{@PageMark{the.slots.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {The Slots Tab }
+    @Tag{the.slots.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Custom Widgets- Slots Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-cwidgslot.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Custom Widgets- Slots Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-cwidgslot.eps.gz" }
+@LP
 Click the Slots tab to view a list of all the slots for the selected
 custom widget. Click the 'Slot' or 'Access' cloumn headers to
 sort the slots in the listbox. To add a slot, click the @B{New
@@ -895,14 +1024,15 @@ combobox to choose between public or protected access for your
 widget. To delete a slot from the listbox, click the slot and
 then click @Option{Delete Slot}.
 
-@LD @I { The Properties Tab{@PageMark{the.properties.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {The Properties Tab }
+    @Tag{the.properties.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Custom Widgets- Properties Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-cwidgprop.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Custom Widgets- Properties Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-cwidgprop.eps.gz" }
+@LP
 Click the Properties tab to view the list of properties for the
 selected widget. Click the 'Property' or 'Type' column headers
 to sort the properties in the listbox. To add a property, click
@@ -913,16 +1043,19 @@ system of Qt. To choose a property type, click the 'Type' combobox.
 To delete a property from the listbox, click the property and
 then click the @Option{Delete Property} button.
 
-@PP
+@LP
 Click @Close to leave the @Win{Edit Custom Widgets} dialog.
 
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {Configure Toolbox }
+    @Tag{configure.toolbox}
+@Begin
 @Figure
-    @Caption { 
-@I{Configure Toolbox} }
- 0.3 @Scale @IncludeGraphic { "images/rd-configtb.eps.gz"
+    @Caption { @I{Configure Toolbox} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-configtb.eps.gz"
 }
-@PP
+@LP
 Click @Option{Tools"|"Configure Toolbox} to invoke the @Win{Configure
 Toolbox Dialog}. This dialog is used to view a list of available
 tools and a list of the tools in the Common Widgets category
@@ -933,170 +1066,191 @@ category. To remove a widget from the Common Widgets list, click
 a widget, then click @Option{Remove}. To move a widget up or down
 in the Common Widgets list, click the up or down arrows.
 
-@PP
+@LP
 Click @OK to accept the configurations to the toolbox. Click
 @Cancel to leave the dialog.
 
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Help Dialogs }
     @Tag { the.help.dialogs }
 @Begin
-@LD @Heading { About Qt Designer Dialog{@PageMark{about.qt.designer.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { About Qt Designer Dialog }
+    @Tag{about.qt.designer.dialog}
+@Begin
+@LP
 Click @Option{Help"|"About} to invoke the @Win{About Qt Designer Dialog}.
 This dialog provides information about @QDR such as
 the version, the licensing terms, conditions, and disclaimers.
 
-@PP
+@LP
 Click the 'x' located at the top right corner of the dialog to
 close the dialog.
 
-@LD @Heading { About Qt Dialog{@PageMark{about.qt.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { About Qt Dialog }
+    @Tag{about.qt.dialog}
+@Begin
+@LP
 Click @Option{Help"|"About Qt} to invoke the @Win{About Qt Dialog}.
 This dialog provides information about Qt.
 
-@PP
+@LP
 Click the 'x' located at the title of the dialog to close the
 dialog.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Widget Dialogs }
     @Tag { the.widget.dialogs }
 @Begin
-@LD @Heading { Edit Text Dialog{@PageMark{edit.text.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Edit Text Dialog }
+    @Tag{edit.text.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Text} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edittext1.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Text} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edittext1.eps.gz" }
+@LP
 The @Win{Edit Text} dialog is invoked by right-clicking the following
 widgets: TextEdit, TextLabel, and PixmapLabel and selecting @B{Edit
 Text}.
 
-@PP
+@LP
 Use this dialog to apply HTML formatting to your text using the
 format toolbars and menus.
 
-@PP
+@LP
 Click @OK to accept the text and formatting. Click @Cancel
 to leave the dialog without saving any text or formatting.
 
-@LD @Heading { Edit Text Dialog{@PageMark{edit.text.dialogx}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Text Dialog }
+    @Tag{edit.text.dialogx}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Text} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edittext2.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Text} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edittext2.eps.gz" }
+@LP
 The @Win{Edit Text} dialog is invoked by right-clicking the following
 widgets: PushButton, RadioButton, CheckBox, and ToolButton and
 selecting @Option{Edit Text}.
 
-@PP
+@LP
 Use this dialog to change the widget's text.
 
-@PP
+@LP
 Click @OK to accept changes to the text. Click @Cancel
 to leave the dialog without making changes to the text.
 
-@LD @Heading { Text Dialog{@PageMark{text.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Text Dialog }
+    @Tag{text.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Text Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-text.eps.gz"
-}
-@PP
+    @Caption { @I{Text Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-text.eps.gz" }
+@LP
 The @Win{Text} dialog is invoked by right-clicking the LineEdit
 widget.
 
-@PP
+@LP
 Used this dialog to change the line edit's text.
 
-@PP
+@LP
 Click @OK to accept changes to the text. Click @Cancel
 to leave the dialog without making changes to the text.
 
-@LD @Heading { Title Dialog{@PageMark{title.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Title Dialog }
+    @Tag{title.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Title Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-title.eps.gz"
-}
-@PP
+    @Caption { @I{Title Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-title.eps.gz" }
+@LP
 The @Win{Title} dialog is invoked by right-clicking the following
 widgets: ButtonGroup and GroupBox and selecting @Option{Edit Title}.
 
-@PP
+@LP
 Use this dialog to change the title of a selected widget by typing
 the new title in the line edit.
 
-@PP
+@LP
 Click @OK to accept changes to the title. Click @Cancel
 to leave the dialog without making changes to the title.
 
-@LD @Heading { Page Title Dialog{@PageMark{page.title.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Page Title Dialog }
+    @Tag{page.title.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Page Title Dialog} }
- 0.3 @Scale @IncludeGraphic { "images/rd-pagetitle.eps.gz"
-}
-@PP
+    @Caption { @I{Page Title Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-pagetitle.eps.gz" }
+@LP
 The @Win{Page Title} dialog is invoked by right clicking the TabWidget
 and selecting @Option{Edit Page Title}.
 
-@PP
+@LP
 Use this dialog to change the title of each tab in the Tab widget.
 
-@PP
+@LP
 Click @OK to accept new page titles. Click @Cancel to leave
 the dialog without making any changes.
 
-@LD @Heading { Choose an Image Dialog{@PageMark{choose.an.image.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Choose an Image Dialog }
+    @Tag{choose.an.image.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Choose an Image} }
- 0.3 @Scale @IncludeGraphic { "images/rd-chooseanimage.eps.gz"
-}
-@PP
+    @Caption { @I{Choose an Image} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-chooseanimage.eps.gz" }
+@LP
 The @Win{Choose an Image} dialog is used to choose an image to
 use for a widget.
 
-@PP
+@LP
 To choose an image from the listbox, click the image and then
 click @OK. To add an image, click the @Option{Add} button to invoke
 the @Win{Choose Images...} dialog. To delete an image, click the
 image in the listbox and then click the @Option{Delete} button.
 
-@PP
+@LP
 Click @Cancel to leave the dialog without making any changes
 to images.
 
-@LD @Heading { Edit Listbox Dialog{@PageMark{edit.listbox.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Listbox Dialog }
+    @Tag{edit.listbox.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Listbox} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edlistbox.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Listbox} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edlistbox.eps.gz" }
+@LP
 The @Win{Edit Listbox} dialog is invoked by right-clicking the
 Listbox widget and selecting @Option{Edit}.
 
-@PP
+@LP
 Use this dialog to add items to the list box and to change the
 item's properties.
 
-@PP
+@LP
 To add an item to the listbox, click the @Option{New Item}. If you
 want to change the default name of the item, click the 'Text'
 line edit in the 'Item Properties' section and type a new name
@@ -1108,28 +1262,33 @@ button. To move an item up or down in the listbox, click the
 @Option{Move Up} or @Option{Move Down} buttons. Click @Option{Apply} to accept
 the changes.
 
-@PP
+@LP
 Click @Option{Apply} to accept changes to the listbox widget. Click
 @OK to leave the dialog once the changes have been accepted.
 Click @Cancel to leave the dialog without saving any changes.
 
-@LD @Heading { Edit Listview{@PageMark{edit.listview}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Listview }
+    @Tag{edit.listview}
+@Begin
+@LP
 The @Win{Edit Listview} dialog is invoked by right-clicking the
 listview widget and selecting @Option{Edit}.
 
-@PP
+@LP
 Use this dialog to add items to the listview. The @Win{Edit} Listview
 dialog has two tabs, one for items and one for columns.
 
-@LD @I { The Items Tab{@PageMark{the.items.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {The Items Tab }
+    @Tag{the.items.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Listview: Items Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edlistview.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Listview: Items Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edlistview.eps.gz" }
+@LP
 The dialog defaults to the Items tab. Use this tab to add, change,
 or remove items in the listview. To add a new item, click the
 @Option{New Item} button. The new item is shown at the top of the
@@ -1145,14 +1304,15 @@ up or down within the hierarchy level, click the @Option{Move Up}
 or @Option{Move Down} buttons. To move an item up or down one level,
 click the @Option{Move Left} or @Option{Move Right} buttons.
 
-@LD @I { The Columns Tab{@PageMark{the.columns.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {The Columns Tab }
+    @Tag{the.columns.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Listview: Columns Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edlistview2.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Listview: Columns Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edlistview2.eps.gz" }
+@LP
 Click this tab to change the column configuration of the listview.
 To add a column, click the @Option{New Column} button. The new column
 is shown at the top of the listbox. To change the column name,
@@ -1167,23 +1327,26 @@ listbox and then click the @Option{Delete Column} button. To move
 a column up or down in the listbox, click the @Option{Move Up} or
 the @Option{Move Down} buttons.
 
-@PP
+@LP
 Click @Option{Apply} to accept changes to the listview widget. Click
 @OK to leave the dialog once the changes have been accepted.
 Click @Cancel to leave the dialog without saving any changes.
 
-@LD @Heading { Edit Iconview Dialog{@PageMark{edit.iconview.dialog}} }
-@PP
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@SubSection
+    @Title { Edit Iconview Dialog }
+    @Tag{edit.iconview.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Iconview} }
- 0.3 @Scale @IncludeGraphic { "images/rd-ediconview.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Iconview} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-ediconview.eps.gz" }
+@LP
 The @Win{Edit Iconview} dialog is invoked by right-clicking the
 iconview widget and selecting @Option{Edit}.
 
-@PP
+@LP
 Use the dialog to add, change, or remove items from the iconview.
 To add an item to the iconview, click the @Option{New Item} button.
 To change the name of the item, click the 'Text' line edit and
@@ -1192,28 +1355,33 @@ which invokes the @Win{Choose an Image} dialog. To remove a pixmap,
 click the @Option{Delete Pixmap} button. To delete an item from the
 iconview, click the item and then click the @Option{Delete Item} button.
 
-@PP
+@LP
 Click @Option{Apply} to accept changes to the iconview widget. Click
 @OK to leave the dialog once the changes have been accepted.
 Click @Cancel to leave the dialog without saving any changes.
 
-@LD @Heading { Edit Table Dialog{@PageMark{edit.table.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Table Dialog }
+    @Tag{edit.table.dialog}
+@Begin
+@LP
 The @Win{Edit Table} dialog is invoked by right-clicking the following
 widgets: Table and DataTable and selecting 'Edit'.
 
-@PP
+@LP
 Use the dialog to add, change, or remove columns or rows from
 the table.
 
-@LD @I { The Column Tab{@PageMark{the.column.tab}} }
-@PP
+@BeginSubSubSections
+@SubSubSection
+    @Title {The Column Tab }
+    @Tag{the.column.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Table- Columns Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edtablecol.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Table- Columns Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edtablecol.eps.gz" }
+@LP
 To add a column to the table, click the @Option{New Column} button.
 To delete a column from the table, click the column you want
 to delete from the table, or click the column number in the 'Columns'
@@ -1225,14 +1393,15 @@ column of the selected item, click the @Option{Delete Pixmap} button.
 To move a column in the listbox, click the @Option{Move Up} or @B{Move
 Down} buttons.
 
-@LD @I { The Rows Tab{@PageMark{the.rows.tab}} }
-@PP
+@End @SubSubSection
+@SubSubSection
+    @Title {The Rows Tab }
+    @Tag{the.rows.tab}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Table- Rows Tab} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edtablerow.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Table- Rows Tab} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edtablerow.eps.gz" }
+@LP
 To add a row to the table, click the @Option{New Row} button. To delete
 a row from the table, click the row you want to delete from the
 table, or click the row number in the 'Rows' listbox and then
@@ -1244,24 +1413,29 @@ a pixmap from the current row of the selected item, click the
 @Option{Delete Pixmap} button. To move a row in the listbox, click
 the @Option{Move Up} or @Option{Move Down} buttons.
 
-@PP
+@LP
 Click @Option{Apply} to accept changes to the table widget. Click
 @OK to leave the dialog once the changes have been accepted.
 Click @Cancel to leave the dialog without saving any changes.
 
+@End @SubSubSection
+@EndSubSubSections
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Property Editor Dialogs }
     @Tag { the.property.editor.dialogs }
 @Begin
-@LD @Heading { Choose a Pixmap Dialog{@PageMark{choose.a.pixmap.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Choose a Pixmap Dialog }
+    @Tag{choose.a.pixmap.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Choose a Pixmap} }
- 0.3 @Scale @IncludeGraphic { "images/rd-chooseapixmap.eps.gz"
-}
-@PP
+    @Caption { @I{Choose a Pixmap} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-chooseapixmap.eps.gz" }
+@LP
 The @Win{Choose a Pixmap} dialog is invoked by clicking the button
 next to the paletteBackgroundPixmap or the pixmap property in
 the property editor. It is also invoked by right-clicking the
@@ -1271,10 +1445,10 @@ the following widgets: Table, DataTable, ListBox, ComboBox, ListView,
 and IconView, and selecting @Option{Edit} and then choosing the "\""Select
 a Pixmap"\"" button.
 
-@PP
+@LP
 Use this dialog to select a pixmap to use in the current project.
 
-@PP
+@LP
 The @Win{Choose a Pixmap} dialog shows the current directory and
 the default file type. To choose a different directory, click
 the 'Look In' combobox. Choose a file and the name will appear
@@ -1289,27 +1463,28 @@ headers to sort the folders or files. View a sample of the pixmap
 file you select in the preview box located on the right side
 of the dialog.
 
-@PP
+@LP
 Click @OK to accept the pixmap file. Click @Cancel to leave
 the dialog without choosing a pixmap file.
 
-@LD @Heading { Select Color Dialog{@PageMark{select.color.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Select Color Dialog }
+    @Tag{select.color.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Select Color} }
- 0.3 @Scale @IncludeGraphic { "images/rd-selcolor.eps.gz"
-}
-@PP
+    @Caption { @I{Select Color} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-selcolor.eps.gz" }
+@LP
 The @Win{Select Color} dialog is invoked by clicking the button
 next to the paletteForegroundColor and the paletteBackgroundColor
 properties in the property editor.
 
-@PP
+@LP
 Use this dialog to select color preferences or to create color
 palettes.
 
-@PP
+@LP
 Choose a color from the 'Basic Colors' section and a sample of
 the color will appear in the small preview box at the bottom
 of the dialog. To the right of the color sample, you will see
@@ -1325,29 +1500,30 @@ from the 'Basic Colors' section. Another way to add colors is
 to click the @Option{Add to Custom Colors} when you have chosen a
 color.
 
-@PP
+@LP
 Click @OK to accept changes to the @Win{Select Color} dialog.
 Click @Cancel to exit the dialog without selecting a color
 or adding custom colors.
 
-@LD @Heading { Edit Palette Dialog{@PageMark{edit.palette.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Palette Dialog }
+    @Tag{edit.palette.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Palette} }
- 0.3 @Scale @IncludeGraphic { "images/rd-edpalette.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Palette} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edpalette.eps.gz" }
+@LP
 The @Win{Edit Palette} dialog is invoked by clicking the button
 next to the palette property in the property editor.
 
-@PP
+@LP
 Use this dialog to change the palette of the current widget or
 form. You can use a generated palette, or select colors for each
 color group and each color role. The palette can be tested with
 different widget layouts in the preview section.
 
-@PP
+@LP
 The 'Build Palette' section contains three buttons to help you
 build the palette. Click the @Option{3-D Effects} button to invoke
 the @Win{Select Color} dialog. Click the @Option{Background} to invoke
@@ -1355,22 +1531,23 @@ the @Win{Select Color} dialog. Click the @Option{Tune Palette} button
 to invoke the @Win{Tune Palette} dialog. Click the 'Select Palette'
 combobox in the 'Preview' section to choose a palette to preview.
 
-@PP
+@LP
 Click @OK to accept the changes to the palette. Click @Cancel
 to leave the dialog without making changes to the palette.
 
-@LD @Heading { Tune Palette Dialog{@PageMark{tune.palette.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Tune Palette Dialog }
+    @Tag{tune.palette.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Tune Palette} }
- 0.3 @Scale @IncludeGraphic { "images/rd-tunepalette.eps.gz"
-}
-@PP
+    @Caption { @I{Tune Palette} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-tunepalette.eps.gz" }
+@LP
 The @Win{Tune Palette} dialog is used to choose options for a widget's
 palette.
 
-@PP
+@LP
 Click the 'Select Palette' combobox to choose options for active,
 inactive, or disabled palettes. If you choose 'Active Palette',
 the dialog presents three categories used for designing the palette.
@@ -1389,25 +1566,26 @@ to enable the 'Choose 3-D effect color role' combobox. Click
 the combobox to select a color role for the 3-D effects. Click
 the @Option{Select Color} button to invoke the @Win{Select Color} dialog.
 
-@PP
+@LP
 Click @OK to accept changes to the palette. Click @Cancel
 to leave the dialog without making changes to the palette.
 
-@LD @Heading { Select Font Dialog{@PageMark{select.font.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Select Font Dialog }
+    @Tag{select.font.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Select Font} }
- 0.3 @Scale @IncludeGraphic { "images/rd-selfont.eps.gz"
-}
-@PP
+    @Caption { @I{Select Font} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-selfont.eps.gz" }
+@LP
 The @Win{Select Font} dialog is invoked by clicking the button
 next to the font property in the property editor.
 
-@PP
+@LP
 Use this dialog to make changes to the font size and style.
 
-@PP
+@LP
 Click the 'Font' listbox to choose a font type. The current selected
 type appears in the line edit above the 'Font' listbox. Click
 the 'Font Style' listbox to choose a style for the font. The
@@ -1421,23 +1599,26 @@ a 'Strikeout' or 'Underline' effect for the selected font. Click
 the 'Script' and choose a style of writing. View your font selections
 and styles in the 'Sample' listbox.
 
-@PP
+@LP
 Click @OK to accept changes to the font. Click @Cancel
 to leave the dialog without making any changes to the font.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Message Boxes }
     @Tag { the.message.boxes }
 @Begin
-@LD @Heading { Save Project Settings Dialog{@PageMark{save.project.settings.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Save Project Settings Dialog }
+    @Tag{save.project.settings.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Save Project Settings} }
- 0.3 @Scale @IncludeGraphic { "images/rd-saveprojset.eps.gz"
-}
-@PP
+    @Caption { @I{Save Project Settings} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveprojset.eps.gz" }
+@LP
 The @Win{Save Project Settings} message box is invoked by clicking
 @Option{File"|"Close} or @Option{File"|"Exit} for an open project with
 unsaved changes. The dialog displays the text 'Save changes to
@@ -1448,14 +1629,15 @@ close the project without saving any changes. Click @Cancel
 to leave the dialog without closing the project and without making
 any changes.
 
-@LD @Heading { Save Form Dialog{@PageMark{save.form.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Save Form Dialog }
+    @Tag{save.form.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Save Form} }
- 0.3 @Scale @IncludeGraphic { "images/rd-saveform.eps.gz"
-}
-@PP
+    @Caption { @I{Save Form} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveform.eps.gz" }
+@LP
 The @Win{Save Form} message is invoked in several ways. One way
 is to click @Option{File"|"Close} for a form that has never been saved,
 or has been saved previously but has had changes made to it.
@@ -1469,30 +1651,33 @@ without saving the form if it has not been saved previously.
 Click @Cancel to leave the dialog without closing or exiting
 the form and without saving the form.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @Section
     @Title { The Object Explorer Dialogs }
     @Tag { the.object.explorer.dialogs }
 @Begin
-@PP
+@LP
 Some dialogs are invoked by clicking the options available in
 the Object Explorer window.
 
-@LD @Heading { Edit Forward Declarations Dialog{@PageMark{edit.forward.declarations.dialog}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Edit Forward Declarations Dialog }
+    @Tag{edit.forward.declarations.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Forward Declarations} }
- 0.3 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Forward Declarations} }
+ 0.45 @Scale @IncludeGraphic { "images/mw-editforw.eps.gz" }
+@LP
 From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Forward Declarations' folder and select 'Edit' from the
 context menu to invoke the @Win{Edit Forward Declarations} dialog.
 Use this dialog to add, edit, or remove declarations in the source
 code.
 
-@PP
+@LP
 To add a new declaration, click the @Option{Add} button. A line edit
 will appear for you to type the declaration. Press @Option{Enter}
 after you have typed the declaration. To delete a declaration
@@ -1501,24 +1686,25 @@ To rename an existing declaration, click the declaration and
 then click @Option{Rename}. The cursor will appear in the line edit,
 allowing you to change the name.
 
-@PP
+@LP
 Click @Close to leave the @Win{Edit Forward Declarations} dialog.
 
-@LD @Heading { Edit Includes (in Declaration) Dialog{@PageMark{edit.includes.in.declaration.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Includes (in Declaration) Dialog }
+    @Tag{edit.includes.in.declaration.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Includes (in Declaration)} }
- 0.3 @Scale @IncludeGraphic { "images/rd-editincdec.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Includes (in Declaration)} }
+ 0.45 @Scale @IncludeGraphic { "images/rd-editincdec.eps.gz" }
+@LP
 From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Includes (in Declaration)' folder and select 'Edit' from
 the context menu to invoke the @Win{Edit Includes (in Declarations)}
 dialog. Use this dialog to add, edit, or remove includes in the
 source code.
 
-@PP
+@LP
 To add a new include, click the @Option{Add} button. A line edit will
 appear for you to type the include. Press @Option{Enter} after you
 have typed the include. To delete an include from the listbox,
@@ -1526,25 +1712,26 @@ click the include and then click @Option{Remove}. To rename an existing
 include, click the include and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
-@PP
+@LP
 Click @Close to leave the @Win{Edit Include (in Declaration)}
 dialog.
 
-@LD @Heading { Edit Includes (in Implementation) Dialog{@PageMark{edit.includes.in.implementation.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Includes (in Implementation) Dialog }
+    @Tag{edit.includes.in.implementation.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Includes (in Implementation)} }
- 0.3 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Includes (in Implementation)} }
+ 0.45 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
+@LP
 From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Includes (in Implementation)' folder and select 'Edit' from
 the context menu to invoke the @Win{Edit Includes (in Implementation)}
 dialog. Use this dialog to add, edit, or remove includes in the
 source code.
 
-@PP
+@LP
 To add a new include, click the @Option{Add} button. A line edit will
 appear for you to type the include. Press @Option{Enter} after you
 have typed the include. To delete an include from the listbox,
@@ -1552,25 +1739,26 @@ click the include and then click @Option{Remove}. To rename an existing
 include, click the include and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
-@PP
+@LP
 Click @Close to leave the @Win{Edit Include (in Implementation)}
 dialog.
 
-@LD @Heading { Edit Class Variables Dialog{@PageMark{edit.class.variables.dialog}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Edit Class Variables Dialog }
+    @Tag{edit.class.variables.dialog}
+@Begin
 @Figure
-    @Caption { 
-@I{Edit Class Variables} }
- 0.3 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz"
-}
-@PP
+    @Caption { @I{Edit Class Variables} }
+ 0.45 @Scale @IncludeGraphic { "images/mw-editvar.eps.gz" }
+@LP
 From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Class Variables' folder and select 'Edit' from the context
 menu to invoke the @Win{Edit Class Variables} dialog. Use this
 dialog to add, edit, or remove class variables in the source
 code.
 
-@PP
+@LP
 To add a new variable, click the @Option{Add} button. A line edit
 will appear for you to type the variable. Press enter after you
 have typed the variable. To delete an include from the listbox,
@@ -1578,9 +1766,11 @@ click the variable and then click @Option{Remove}. To rename an existing
 variable, click the variable and then click @Option{Rename}. The cursor
 will appear in the line edit, allowing you to change the name.
 
-@PP
+@LP
 Click @Close to leave the @Win{Edit Class Variables} dialog.
 
+@End @SubSection
+@EndSubSections
 @End @Section
 @EndSections
 @End @Chapter

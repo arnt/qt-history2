@@ -7,7 +7,7 @@
     @Title { Introduction }
     @Tag { introductionxxx }
 @Begin
-@PP
+@LP
 @QDR's toolbar buttons provide fast access to common
 functionality. Toolbar buttons are grouped in several toolbars.
 Toolbars have a handle at the left hand side which can be clicked
@@ -26,13 +26,10 @@ then click the name of the tool dock window you wish to restore.
     @Title { The File Toolbar Buttons }
     @Tag { the.file.toolbar.buttons }
 @Begin
-@PP
 @Figure
-    @Caption { 
-@I{File Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-file.eps.gz"
-}
-@NumberedList
+    @Caption { @I{File Toolbuttons} }
+ @IncludeGraphic { "images/rtb-file.eps.gz" }
+@BulletList
 @LI{
 @Option{New}@LLP
 
@@ -55,13 +52,10 @@ then click the name of the tool dock window you wish to restore.
     @Title { The Edit Toolbar Buttons }
     @Tag { the.edit.toolbar.buttons }
 @Begin
-@PP
 @Figure
-    @Caption { 
-@I{Edit Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-edit.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Edit Toolbuttons} }
+ @IncludeGraphic { "images/rtb-edit.eps.gz" }
+@BulletList
 @LI{
 @Option{Undo}@LLP
 
@@ -88,13 +82,10 @@ then click the name of the tool dock window you wish to restore.
     @Title { The Search Toolbar Buttons }
     @Tag { the.search.toolbar.buttons }
 @Begin
-@PP
 @Figure
-    @Caption { 
-@I{Search Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-search.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Search Toolbuttons} }
+ @IncludeGraphic { "images/rtb-search.eps.gz" }
+@BulletList
 @LI{
 @Option{Find}@LLP
 
@@ -109,7 +100,7 @@ then click the name of the tool dock window you wish to restore.
     @Title { The Tools Toolbar Buttons }
     @Tag { the.tools.toolbar.buttons }
 @Begin
-@PP
+@LP
 The tools toolbar buttons are available through toolbars (as
 they have always been prior to Qt 3.1), and also via the new
 Toolbox. From Qt 3.1, the tools toolbars are hidden and the Toolbox
@@ -120,7 +111,7 @@ setup, you can access the toolbars by clicking @Option{Windows"|"Toolbars}
 and then selecting the toolbars you want to be visible from the
 context menu.
 
-@PP
+@LP
 The Toolbox contains categories describing the type of toolbuttons
 you can find within each catgory. Click a category name to access
 the toolbuttons in that category. To use a widget in a category,
@@ -128,27 +119,25 @@ click the widget to activate it. Click the 'x' in the right hand
 corner of the Toolbox to close it. To make the Toolbox appear
 again, click @Option{Window"|"Views"|"Toolbox}.
 
-@PP
 @Figure
-    @Caption { 
-@I{The Toolbox} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-toolbox.eps.gz"
-}
-@PP
+    @Caption { @I{The Toolbox} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-toolbox.eps.gz" }
+@LP
 If you want to add the same kind of widget several times to a
 form, for example, several push buttons, @I{double click} the
 widget's toolbar button. After this, each time you click the
 form a new widget will be added. Click the @Option{Pointer} toolbar
 button to leave this mode.
 
-@LD @Heading { Tools{@PageMark{tools}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title { Tools }
+    @Tag{tools}
+@Begin
 @Figure
-    @Caption { 
-@I{Tools} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tools.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Tools} }
+ @IncludeGraphic { "images/rtb-tools.eps.gz" }
+@BulletList
 @LI{
 @Option{Pointer}@LLP
 
@@ -166,14 +155,15 @@ button to leave this mode.
 
  Click this toolbar button (or press @Option{F5}) to set a buddy to a label. Then click on a label and drag the line to the widget that you want to be the buddy. Release the mouse button and the buddy is set.}
 @EndList
-@LD @Heading { Buttons{@PageMark{buttons}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Buttons }
+    @Tag{buttons}
+@Begin
 @Figure
-    @Caption { 
-@I{Buttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbbuttons.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Buttons} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbbuttons.eps.gz" }
+@BulletList
 @LI{
 @Option{PushButton}@LLP
 
@@ -191,14 +181,15 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a CheckBox on the form.}
 @EndList
-@LD @Heading { Containers{@PageMark{containers}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Containers }
+    @Tag{containers}
+@Begin
 @Figure
-    @Caption { 
-@I{Containers} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbcontain.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Containers} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbcontain.eps.gz" }
+@BulletList
 @LI{
 @Option{GroupBox}@LLP
 
@@ -216,14 +207,15 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a TabWidget on the form. To add or remove tabs, right click the tab widget and choose 'Add Page' or 'Remove Page'.}
 @EndList
-@LD @Heading { Views{@PageMark{views}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Views }
+    @Tag{views}
+@Begin
 @Figure
-    @Caption { 
-@I{Views} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbviews.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Views} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbviews.eps.gz" }
+@BulletList
 @LI{
 @Option{ListBox}@LLP
 
@@ -241,14 +233,15 @@ button to leave this mode.
 
  Click this toolbar button, then click the form to place a Table on the form.}
 @EndList
-@LD @Heading { Database{@PageMark{database}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Database }
+    @Tag{database}
+@Begin
 @Figure
-    @Caption { 
-@I{Database Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbdatabase.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Database Toolbuttons} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbdatabase.eps.gz" }
+@BulletList
 @LI{
 @Option{DataTable}@LLP
 
@@ -262,14 +255,15 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a DataView on the form.}
 @EndList
-@LD @Heading { Input{@PageMark{input}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Input }
+    @Tag{input}
+@Begin
 @Figure
-    @Caption { 
-@I{Input Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbinput.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Input Toolbuttons} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbinput.eps.gz" }
+@BulletList
 @LI{
 @Option{LineEdit}@LLP
 
@@ -311,14 +305,15 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a Dial on the form.}
 @EndList
-@LD @Heading { Display{@PageMark{display}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Display }
+    @Tag{display}
+@Begin
 @Figure
-    @Caption { 
-@I{Display Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbdisplay.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Display Toolbuttons} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbdisplay.eps.gz" }
+@BulletList
 @LI{
 @Option{TextLabel}@LLP
 
@@ -344,27 +339,31 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a TextBrowser on the form.}
 @EndList
-@LD @Heading { Custom{@PageMark{custom}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title { Custom }
+    @Tag{custom}
+@Begin
 @Figure
-    @Caption { 
-@I{Custom Widget Toolbutton} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-tbcustom.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Custom Widget Toolbutton} }
+ 0.5 @Scale @IncludeGraphic { "images/rtb-tbcustom.eps.gz" }
+@BulletList
 @LI{
 @Option{My Custom Widget}@LLP
 
  Click this toolbar button, then click the form, to place a Custom Widget on the form. Note: this toolbar button only appears if you have created a custom widget using @Option{Tools"|"Custom"|"Edit Custom Widgets}.}
 @EndList
-@LD @Heading { The Layout Toolbar Buttons{@PageMark{the.layout.toolbar.buttons}} }
-@PP
+@End @SubSection
+@EndSubSections
+@End @Section
+@Section
+    @Title {The Layout Toolbar Buttons }
+    @Tag{the.layout.toolbar.buttons}
+@Begin
 @Figure
-    @Caption { 
-@I{Layout Toolbuttons} }
- 0.3 @Scale @IncludeGraphic { "images/rtb-layout.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Layout Toolbuttons} }
+ @IncludeGraphic { "images/rtb-layout.eps.gz" }
+@BulletList
 @LI{
 @Option{Adjust Size}@LLP
 
@@ -403,13 +402,10 @@ button to leave this mode.
     @Title { The Help Toolbar Button }
     @Tag { the.help.toolbar.button }
 @Begin
-@PP
 @Figure
-    @Caption { 
-@I{Help Toolbutton} }
- 0.3 @Scale @IncludeGraphic { "images/qd-helptoolbuttons3.eps.gz"
-}
-@NumberedList
+    @Caption { @I{Help Toolbutton} }
+ @IncludeGraphic { "images/qd-helptoolbuttons3.eps.gz" }
+@BulletList
 @LI{
 @Option{What's This?}@LLP
 

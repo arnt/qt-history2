@@ -7,14 +7,14 @@ Adding new documentation to @QAT is straight-forward.
 You simply specify a new documentation content file for @I{Qt
 Assistant} to use.
 
-@PP
+@LP
 Click @Option{Edit"|"Settings} to invoke the @I{Settings} dialog.
 Click the @Option{Documentations} tab. Now click @Option{Add} to invoke
 a file open dialog. Select the new documentation's content file.
 (This file must be an XML file in @QAT's documentation
 content file format.)
 
-@PP
+@LP
 Another way to add your own documentation is, to start @I{Qt
 Assistant} with the commandline option '-addContentFile' followed
 by the documentation content file. For example:
@@ -25,14 +25,14 @@ assistant -addContentFile /mycompany/myapp/help.xml
 no mainwindow will be shown. This way can be used when adding
 documentation during an installation process.
 
-@PP
+@LP
 If the new documentation belongs to a category which does not
 currently appear in the Categories list box, you can add the
 category using the @I{Settings} dialog. It is not normally necessary
 to do this manually since @QAT detects new categories
 and adds them automatically.
 
-@PP
+@LP
 The format of the documentation content file is described in
 the following section.
 
@@ -46,7 +46,7 @@ The file must contain the documentation's table of contents and
 all important keywords for the index. Furthermore, it should
 inherit a category specification.
 
-@PP
+@LP
 An example of a content file with all available tags is shown
 below:
 
@@ -79,11 +79,11 @@ below:
 Sections may be nested as deeply as necessary. All references
 should be related.
 
-@PP
+@LP
 Note that any @Code{keyword} tags for a given section
 must appear @I{before} any sections nested within the given section.
 
-@PP
+@LP
 The paths in the @Code{refs} attribute are always written
 Unix-style (forward slashes) and are relative to the location
 of the documentation content file itself.

@@ -50,7 +50,7 @@
   # @HeadingFont	{ Bold			} # font for @Heading
   # @FixedWidthFont	{ Courier Base -1p	} # font for @F
   # @ParaGap		{ 1.3vx @OrIfPlain 1f	} # gap between paragraphs
-  # @ParaIndent		{ 2.00f	@OrIfPlain 5s	} # first-line indent for @PP
+  # @ParaIndent		{ 2.00f	@OrIfPlain 5s	} # first-line indent for @LP
   # @DisplayGap		{ 1.00v	@OrIfPlain 1f	} # gap above, below displays
   @DisplayGap		{ 0.75v	@OrIfPlain 1f	} # gap above, below displays
   # @DisplayIndent	{ 2.00f	@OrIfPlain 5s	} # @IndentedDisplay indent
@@ -392,6 +392,7 @@
   # @ChapterInContents		{ Yes		} # add chapters to contents
   # @SectionInContents		{ Yes		} # add sections to contents
   # @SubSectionInContents	{ Yes		} # add subsections to contents
+  @SubSectionInContents		{ No		} # add subsections to contents
   # @SubSubSectionInContents	{ No		} # add sub-subsects to contents
   # @AppendixInContents		{ Yes		} # add appendices to contents
   # @SubAppendixInContents	{ Yes		} # add subappendices to contents

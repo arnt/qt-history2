@@ -22,7 +22,7 @@ an item to hide its sub-items.
 }
 @LI{
 The @Option{Index} tab is used to look up key words or phrases. See
-@TitlePageRef{the.minute.guide.to.using.qt.assistant} for how to use this
+@NamePageRef{the.minute.guide.to.using.qt.assistant} for how to use this
 tab.
 }
 @LI{
@@ -36,7 +36,7 @@ to delete the highlighted bookmark.
 }
 @LI{
 The @Option{Search} tab provides full text search of @I{all} the documents.
-For further information see @TitlePageRef{full.text.searching}.
+For further information see @NamePageRef{full.text.searching}.
 }
 @EndList
 
@@ -50,7 +50,7 @@ press @Option{Ctrl+T}, @Option{Ctrl+I}, @Option{Ctrl+B} or
 Bookmarks tab, or press @Option{Ctrl+S} to show it on the (full text)
 Search tab.
 
-@PP
+@LP
 The Sidebar is a dock window, so you can drag it to the top,
 left, right or bottom of @QAT's window, or you can
 drag it outside @QAT to float it.
@@ -255,7 +255,7 @@ the files until you find the documentation you want to add and then
 click @OK. Click @Option{Delete} to remove obsolete
 documentation from the Documentation list box. Read more about adding
 your own documentation in
-@TitlePageRef{adding.documentation.to.qt.assistant}.
+@NamePageRef{adding.documentation.to.qt.assistant}.
 }
 @LI{ @I{Categories} --- All documentation is categorized, for example,
 development, office, multimedia, etc. To create a new category, type
@@ -264,7 +264,7 @@ new category appears in the Categories list box with a checkbox to its
 left. Leave the box checked to display all of the category's available
 documentation. To remove a category, select it from the list box and
 click @Option{Delete}. For further information about categories read
-@TitlePageRef{adding.documentation.to.qt.assistant}.}
+@NamePageRef{adding.documentation.to.qt.assistant}.}
 @EndList
 @End @SubSubSection
 @EndSubSubSections

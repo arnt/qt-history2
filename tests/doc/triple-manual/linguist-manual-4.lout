@@ -6,7 +6,7 @@
 Support for multiple languages is extremely simple in Qt applications,
 and adds little overhead to the programmer's workload.
 
-@PP
+@LP
 Qt minimizes the performance cost of using translations by translating
 the phrases for each window as they are created. In most applications
 the main window is created just once. Dialogs are often created
@@ -16,7 +16,7 @@ for the translated windows. Only those windows that are created,
 destroyed and subsequently created will have a translation performance
 cost.
 
-@PP
+@LP
 Creating applications that can switch language at runtime is
 possible with Qt, but requires a certain amount of programmer
 intervention and will of course incur some runtime performance
@@ -32,7 +32,7 @@ Programmers should make their application look for and load the
 appropriate translation file and mark user-visible text and Ctrl
 keyboard accelerators as targets for translation.
 
-@PP
+@LP
 Each piece of text that requires translating requires context
 to help the translator identify where in the program the text
 occurs. In the case of multiple identical texts that require
@@ -92,7 +92,7 @@ qmake.project.files @SubIndex{ Project Files }
     TRANSLATIONS    = tt2_fr.ts \
                       tt2_nl.ts
 @End @RawVerbatim
-See the @TitlePageRef{lupdate} and @TitlePageRef{lrelease} sections.
+See the @NamePageRef{lupdate} and @NamePageRef{lrelease} sections.
 
 @End @SubSection
 @SubSection
@@ -152,7 +152,7 @@ qtranslator @Index{ QTranslator }
 qstring @Index{ QString }
 qtextcodec @Index{ QTextCodec }
 
-@PP
+@LP
 If there is no translation file for the current locale the application
 will fall back to using the original source text.
 
@@ -179,7 +179,7 @@ All @Class{QObject}qobject @Index{ QObject } subclasses that use the
 @Code{Q_OBJECT} macro implement the @Func{tr()} function.
 qpushbutton @Index{ QPushButton }
 q.object @Index{ Q_OBJECT }
-@PP
+@LP
 Although the @Func{tr()} call is normally made directly since
 it is usually called as a member function of a @Class{QObject}qobject
 @Index{ QObject } subclass, in other cases an explicit class name can
@@ -278,7 +278,7 @@ translator.in.comments @SubIndex{ in Comments }
 translator.comments @Index{ Translator Comments }
 comments @RawIndex{ Comments }
 comments.for.translators @SubIndex{ for Translators }
-@PP
+@LP
 You can work around this limitation by putting a @Code{TRANSLATOR}
 comment at the beginning of the source files that use @Func{MyClass::tr()}:
 @LD @Code @RawVerbatim @Begin
@@ -325,7 +325,7 @@ These macros merely mark the text for extraction by @File{lupdate}.
 The macros expand to just the text (without the context).
 qlabel @Index{ QLabel }
 
-@PP
+@LP
 Example of QT_TR_NOOP():
 @LD @Code @RawVerbatim @Begin
     QString FriendlyConversation::greeting( int greet_type )
@@ -479,7 +479,7 @@ qpushbutton @Index{ QPushButton }
 tr @Index{ tr() }
 qobject @RawIndex{ QObject }
 qobject.tr @SubIndex{ tr() }
-@PP
+@LP
 All classes that inherit @Class{QObject}qobject @Index{ QObject } have a
 @Func{tr()} function. Inside a member function of a
 @Class{QObject}qobject @Index{ QObject } class, we simply write 
@@ -524,7 +524,7 @@ namely Latin.
 ts.files @Index{ .ts Files }
 translation.source.files @Index{ Translation Source Files }
 qm.files @Index{ .qm Files }
-qt.message.files @Index{ Qt Message Files }@PP
+qt.message.files @Index{ Qt Message Files }@LP
 Note that the file extension is @File{.ts}, not @File{.qm}.
 The @File{.ts} translation source format is designed for
 use during the application's development. Programmers or release
@@ -532,7 +532,7 @@ managers run the @File{lupdate} program to generate and update @File{.ts}
 files with the source text that is extracted from the source
 code. Translators read and update the @File{.ts} files
 using @QLT adding and editing their translations.
-@PP
+@LP
 The @File{.ts} format is human-readable XML that can be
 emailed directly and is easy to put under version control. If
 you edit this file manually, be aware that the default encoding
@@ -541,7 +541,7 @@ a Latin-1 character such as '{@Char oslash}' (Norwegian o with
 slash) is to use an XML entity: `"&""#"xf8;'. This will work
 for any Unicode character.
 xml @Index{ XML }
-@PP
+@LP
 Once the translations are complete the @File{lrelease} program is used
 to convert the @File{.ts} files into the @File{.qm}
 Qt message file format. The @File{.qm} format is a compact
@@ -551,7 +551,7 @@ files (as specified in the HEADERS and SOURCES lines of the project
 file) and extract the strings that appear in @Func{tr()}
 function calls.
 lupdate @Index{ lupdate }
-@PP
+@LP
 @File{lupdate} is used to create and update the message files (@File{tt1_la.ts}
 in this case) to keep them in sync with the source code. It is
 safe to run @File{lupdate} at any time, as @File{lupdate} does not remove any
@@ -560,7 +560,7 @@ the @File{.ts} files are updated whenever the source changes.
 ts.files @Index{ .ts Files }
 translation.source.files @Index{ Translation Source Files }
 xml @Index{ XML }
-@PP
+@LP
 Try running @File{lupdate} right now, like this:
 @LD @Code @RawVerbatim @Begin
     lupdate -verbose tt1.pro
@@ -602,7 +602,7 @@ You should now see the text `QPushButton' in the top left pane.
 Double-click it, then click on `Hello world!' and enter `Orbis,
 te saluto!' in the @Win{Translation} pane (the middle right of
 the window). Don't forget the exclamation mark!
-@PP
+@LP
 Click the @Option{Done} checkbox and choose @Option{File"|"Save} from the
 menu bar. The @File{.ts} file will no longer contain
 @LD @Code @RawVerbatim @Begin
@@ -755,7 +755,7 @@ keyboard accelerators may need to be changed and having all the
 source texts in a particular context (class) grouped together
 makes it easier for the translator to perform any accelerator
 changes without introducing conflicts.
-@PP
+@LP
 In @File{arrowpad.cpp} we implement the @Code{ArrowPad}
 class.
 @LD @Code @RawVerbatim @Begin
@@ -782,7 +782,7 @@ qmainwindow @Index{ QMainWindow }
 q.object @Index{ Q_OBJECT }
 mainwindow @RawIndex{ MainWindow }
 mainwindow.in.translation.tutorial @SubIndex{ in Translation Tutorial }
-@PP
+@LP
 In the implementation of @Code{MainWindow}, @File{mainwindow.cpp},
 we create an instance of our @Code{ArrowPad} class
 
@@ -804,7 +804,7 @@ and a German translator `Strg+E' (for Beenden). When using
 should be used with the second argument describing the function
 that the accelerator performs.
 main @Index{ main() }
-@PP
+@LP
 Our @Func{main()} function is defined in @File{main.cpp}
 as usual.
 
@@ -831,7 +831,7 @@ lang @RawIndex{ LANG }
 lang.environment.variable @SubIndex{ Environment Variable }
 environment.variables @RawIndex{ Environment Variables }
 environment.variables.lang @SubIndex{ LANG } 
-@PP
+@LP
 If there is no @File{.qm} message file for the locale
 chosen the original source text will be used and no error raised.
 
@@ -845,7 +845,7 @@ We'll begin by translating the example application into French.
 Start @QLT with @File{tt2_fr.ts}. You should
 get the seven source texts (`"&"Up', `"&"Left', etc.) grouped
 in two contexts (`ArrowPad' and `MainWindow').
-@PP
+@LP
 Now, enter the following translations:
 @NumberedList
 @LI{
@@ -883,7 +883,7 @@ Ctrl+Q - Ctrl+Q
 It's quickest to press @Option{Alt+D} (which clicks the @Option{Done "&"
 Next} button) after typing each translation, since this marks
 the translation as done and moves on to the next source text.
-@PP
+@LP
 Save the file and do the same for Dutch working with @File{tt2_nl.ts}:
 
 @NumberedList
@@ -927,12 +927,12 @@ line tool @File{lrelease} ensures that @I{all} the @File{.qm}
 files for the application are created without us having to remember
 to load and @Option{File"|"Release} each one individually from @QLT.
 
-@PP
+@LP
 In practice we would include calls to @File{lupdate} and @File{lrelease} in
 the application's makefile to ensure that the latest translations
 are used.
 
-@PP
+@LP
 Type
 @LD @Code @RawVerbatim @Begin
     lrelease tt2.pro
@@ -982,12 +982,12 @@ i.e. by unchecking the `done' checkbox; run @File{lupdate}, then @File{lrelease}
 then the example. What effect did this change have?
 canada @Index{ Canada }
 french.canada @Index{ French Canada }
-@PP
+@LP
 Set @Code{LANG=fr_CA} (French Canada) and run the example
 program again. Explain why the result is the same as with 
 @Code{LANG=fr}.
 
-@PP
+@LP
 Change one of the accelerators in the Dutch translation to eliminate
 the conflict between @Option{"&"Bestand} and @Option{"&"Boven}.
 @End @SubSubSection
@@ -1017,18 +1017,18 @@ contains some Portuguese translations for this example.
 portuguese.language @Index{ Portuguese Language }
 brazilian.language @Index{ Brazilian Language }
 troll.print @Index{ Troll Print }
-@PP
+@LP
 We will consider two releases of the same application: Troll
 Print 1.0 and 1.1. We will learn to reuse the translations created
 for one release in a subsequent release. (In this tutorial, you
 need to edit some source files. It's probably best to copy all
 the files to a new temporary directory and work from there.)
 
-@PP
+@LP
 Troll Print is a toy example application that lets the user choose
 printer settings. It comes in two versions: English and Portuguese.
 
-@PP
+@LP
 Version 1.0 consists of these files:
 tt.pro @Index{ tt3.pro }
 tt.pt.ts @Index{ tt3_pt.ts }
@@ -1074,7 +1074,7 @@ qvbox @Index{ QVBox }
 q.object @Index{ Q_OBJECT }
 printpanel @RawIndex{ PrintPanel }
 printpanel.in.translation.tutorial @SubIndex{ in Translation Tutorial } 
-@PP
+@LP
 The implementation file is @File{printpanel.cpp}.
 @LD @Code @RawVerbatim @Begin
     /*
@@ -1111,7 +1111,7 @@ qhbuttongroup @Index{ QHButtonGroup }
 qradiobutton @Index{ QRadioButton }
 mainwindow @RawIndex{ MainWindow }
 mainwindow.in.translation.tutorial @SubIndex{ in Translation Tutorial }
-@PP
+@LP
 The header file for @Code{MainWindow}, @File{mainwindow.h},
 contains no surprises. In the implementation, @File{mainwindow.cpp},
 we have some user-visible source texts that must be marked for
@@ -1160,7 +1160,7 @@ main @Index{ main() }
 We will use the translations in the @File{tt3_pt.ts} file
 that is provided.
 
-@PP
+@LP
 Set the @Code{LANG} environment variable to @Code{pt},
 and then run @File{tt3}. You should still see the English
 version, as shown in the @I{Tutorial 3 Screenshot, `Troll Print
@@ -1177,7 +1177,7 @@ wrong. In good Portuguese, the second occurrence of `Enabled'
 should be `Ativadas', not `Ativado' and the ending for the second
 translation of `Disabled' must change similarly too.
 
-@PP
+@LP
 If you open @File{tt3_pt.ts} using @QLT, you
 will see that there is just one occurrence of `Enabled' and of
 `Disabled' in the translation source file, even though there
@@ -1188,7 +1188,7 @@ translation is wrong, the programmer must disambiguate the duplicate
 occurrences. This is easily achieved by using the two argument
 form of @Func{tr()}.
 
-@PP
+@LP
 We can easily determine which file must be changed because the
 translator's `context' is in fact the class name for the class
 where the texts that must be changed appears. In this case the
@@ -1212,7 +1212,7 @@ qradiobutton @Index{ QRadioButton }
 lupdate @Index{ lupdate }
 tt.pt.ts @Index{ tt3_pt.ts }
 
-@PP
+@LP
 First, the translation source file now contains @I{three} `Enabled',
 `Disabled' pairs. The first pair is marked `(obs.)' signifying
 that they are obsolete. This is because these texts appeared
@@ -1222,14 +1222,14 @@ comment, and the third pair has `colors' as their comment. The
 comments are shown in the @Win{Source text and comments} area in
 @QLT.
 
-@PP
+@LP
 Second, the translation text `Ativado' and `Desativado' have
 been automatically used as translations for the new `Enabled'
 and `Disabled' texts, again to minimize the translator's work.
 Of course in this case these are not correct for the second occurrence
 of each word, but they provide a good starting point.
 
-@PP
+@LP
 Change the second `Ativado' into `Ativadas' and the second
 `Desativado'
 into `Desativadas', then save and quit. Run @File{lrelease} to obtain
@@ -1255,7 +1255,7 @@ translator.in.comments @SubIndex{ in Comments }
 translator.comments @Index{ Translator Comments }
 comments @RawIndex{ Comments }
 comments.for.translators @SubIndex{ for Translators }
-@PP
+@LP
 An additional way of helping the translator is to provide information
 on how to navigate to the particular part of the application
 that contains the source texts they must translate. This helps
@@ -1279,7 +1279,7 @@ and load in @File{tt3_pt.ts}. You should see the comments
 in the @Win{Source text and comments} area as you browse through
 the list of source texts.
 
-@PP
+@LP
 Sometimes, particularly with large programs, it can be difficult
 for the translator to find their translations and check that
 they're correct. Comments that provide good navigation information
@@ -1321,7 +1321,7 @@ Update the copyright year to 1999-2000 in @File{mainwindow.cpp}.
 @EndList
 (Of course the version number and copyright year would be consts
 or "#"defines in a real application.)
-@PP
+@LP
 Once finished, run @File{lupdate}, then open @File{tt3_pt.ts}
 in @QLT. The following items are of special interest:
 
@@ -1372,13 +1372,13 @@ Two-sided - unmarked, i.e. untranslated.
 Notice that @File{lupdate} works hard behind the scenes to make revisions
 easier, and it's pretty smart with numbers.
 
-@PP
+@LP
 Go over the translations in @Code{MainWindow} and mark
 these as `done'. Translate `TROLL PRINT' as `TROLL IMPRIMIR'.
 When you're translating `Two-sided', press the @Option{Guess Again}
 button to translate `Two-sided', but change the `2' into `Dois'.
 
-@PP
+@LP
 Save and quit, then run @File{lrelease}. The Portuguese version should
 look like this:
 
@@ -1403,7 +1403,7 @@ translating.qt @Index{ Translating Qt }
 qt @RawIndex{ Qt }
 qt.translating.qt @SubIndex{ Translating Qt }
 
-@PP
+@LP
 Now set @Code{LANG=en} to get the original English version:
 
 @Figure
@@ -1420,12 +1420,12 @@ Now set @Code{LANG=en} to get the original English version:
 These tutorials cover all that you need to know to prepare your
 Qt applications for translation.
 
-@PP
+@LP
 At the beginning of a project add the translation source files
 to be used to the project file and add calls to @File{lupdate} and @File{lrelease}
 to the make file.
 
-@PP
+@LP
 During the project all the programmer must do is wrap any user-visible
 text in @Func{tr()} calls. They should also use the two
 argument form for Ctrl key accelerators, or when asked by the

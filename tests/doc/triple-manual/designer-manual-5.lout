@@ -7,7 +7,7 @@
     @Title { Introduction }
     @Tag { introductionxxxxxxx }
 @Begin
-@PP
+@LP
 In Qt 2.x, @QDR was a visual form designer for editing
 files in the @File{.ui} file format. @QDR's
 primary goal was to turn the most tedious part of GUI programming
@@ -19,7 +19,7 @@ utility -- the user interface compiler @File{uic} -- is
 used during the build process of an application to generate @Cpp
 code from those XML descriptions.
 
-@PP
+@LP
 For Qt 3.0 our ambitions for @QDR have grown beyond
 single dialog editing. In addition to many new design features
 like the ability to creating main windows and actions, the new
@@ -41,12 +41,12 @@ files at runtime which provides great scope for design customization
 separate from the underlying code.
 }
 @EndList
-@PP
+@LP
 The purpose of this chapter is to explain the motivation for
 making these changes, describe the new concepts involved and
 show how these features work internally.
 
-@PP
+@LP
 @QDR is and remains a visual design tool: it is not
 a complete integrated development environment. Our policy is
 to make GUI development as easy and powerful as possible without
@@ -55,7 +55,7 @@ it easy to create and modify GUI designs, but you can still achieve
 the same results directly in code using a plain text editor if
 you prefer.
 
-@PP
+@LP
 To make working more convenient, @QDR now includes
 a @Cpp editor (as a plugin). If you want to create or edit a form,
 use @QDR. If you want edit code for that form, you
@@ -70,7 +70,7 @@ Studio, etc. you can still do so.
     @Title { Project management }
     @Tag { project.management }
 @Begin
-@PP
+@LP
 Reading and writing single, non-connected @File{.ui} files
 is conceptually simple and worked fairly well in Qt 2.x. However,
 it lacked certain features that made us introduce project management
@@ -87,7 +87,7 @@ Sharing images between different forms.
 Sharing database information between different forms.
 }
 @EndList
-@PP
+@LP
 The following sections explain these benefits in more detail,
 and why project management is required to achieve them.
 
@@ -113,7 +113,7 @@ several forms needed to use the same images. Furthermore the
 images were stored in the XML @File{.ui} files which made
 them large.
 
-@PP
+@LP
 As a workaround, we introduced a pixmap-loading function that
 you could define in @QDR. It then was your responsibility
 to provide the implementation of this function in your application
@@ -122,7 +122,7 @@ see the images during the design process in @QDR.
 This not only makes designing a form less visually interesting,
 but also has a noticeable impact on geometry management.
 
-@PP
+@LP
 In the Qt 3.0 version of @QDR we've introduced the
 concept of a project image collection. If you use a project you
 can add images to the project's image collection, and these images
@@ -134,7 +134,7 @@ creates a source file which contains both the image data in binary
 format and a function to instantiate the images. The images are
 accessible by all forms in the project and the data is shared.
 
-@PP
+@LP
 A further benefit of using an image collection is that the images
 are added to the default QMimeSourceFactory. This way they are
 accessible from rich-text labels, What's This? context help and
@@ -153,7 +153,7 @@ Qt 3.0 introduces a brand new database module, the Qt SQL module.
 @QDR is fully integrated with the SQL module and can
 show live data from the databases that you connect to.
 
-@PP
+@LP
 When you've opened or created a project you can set up its database
 connections using the @Win{Edit Database Connections} dialog (invoked
 by the @Option{Project"|"Database Connections} menu option). The connections
@@ -162,7 +162,7 @@ a project you can reconnect by going to the @I{Edit Database
 Connections} dialog, clicking a connection in the list and clicking
 the @Option{Connect} button.
 
-@PP
+@LP
 In most non-trivial database applications you will want to access
 the database from more than one form. This is why the @File{.db}
 file is part of a project, not just part of a single form.
@@ -182,7 +182,7 @@ project @File{.pro} files. These files already contain
 the list of forms, @File{.ui} files, used in the project
 for @File{uic}.
 
-@PP
+@LP
 We've extended the sections in the @File{.pro} file to
 include the extra information that @QDR needs to manage
 projects. For example, when you add a form to your project in
@@ -192,7 +192,7 @@ the required build rules without any further work. Similarly,
 the images are added to the IMAGES section and thus gets automatically
 compiled into your executable.
 
-@PP
+@LP
 We don't force you to use @File{qmake}; if you prefer
 another build system, for example automake"/"autoconf or jam,
 you can still continue to use it. Look upon the @File{.pro}
@@ -207,7 +207,7 @@ files and the images collection to your own Makefiles.
     @Title { Extending the functionality of a form }
     @Tag { extending.the.functionality.of.a.form }
 @Begin
-@PP
+@LP
 First let us look at a small figure that shows the relationship
 between @File{.ui} files, generated code and application
 code:
@@ -260,7 +260,7 @@ The application code in @File{main.cpp}
 instantiate the @Class{QApplication} qapplication @Index {
 QApplication } object and start off the event loop.
 
-@PP
+@LP
 While this approach is simple, it isn't sufficient for more complex
 dialogs. Complex dialogs tend to have quite a lot of logic attached
 to the form's widgets, more logic than can usually be expressed
@@ -273,7 +273,7 @@ this method is that it's not exactly Qt-style. If you were not
 using @QDR, you would almost always add the logic
 to the form itself, where it belongs.
 
-@PP
+@LP
 This is why the capability of adding custom slots and member
 variables to a form was added to @QDR early on. The
 big additional benefit with this approach is that you can use
@@ -283,7 +283,7 @@ to predefined slots. The @File{uic} then adds an empty
 stub for each custom slot to the generated @File{form.cpp}
 implementation file.
 
-@PP
+@LP
 The big question now is how to add custom implementation code
 to those custom slots. Adding code to the generated @File{form.cpp}
 is not an option, as this file gets recreated by the @File{uic}
@@ -356,11 +356,11 @@ custom slots, this approach gives the user a way to do extra
 initialization work in the constructor of the subclass, and extra
 cleanups in the destructor.
 
-@PP
+@LP
 Because of these benefits and its flexibility, this approach
 became the primary way of using @QDR in Qt 2.x.
 
-@PP
+@LP
 @B{Note:} To keep the namespace clean, most users did not follow
 the Form and FormImpl naming scheme shown in the figure, but
 instead named their @QDR forms FormBase and their
@@ -399,12 +399,12 @@ can make a noticeable difference in terms of compilation speed
 and code size.
 }
 @EndList
-@PP
+@LP
 There may be more disadvantages, but these were reason enough
 for us to investigate alternative solutions. For Qt 3.0, we came
 up with a new concept, the @I{ui.h extension}.
 
-@PP
+@LP
 This is how it works:
 
 @Figure
@@ -470,7 +470,7 @@ file even though it contains @Cpp code is because it is always
 @I{included}, and because it is easier to integrate into the
 build process with a @File{.h} extension.
 
-@PP
+@LP
 The @File{form.ui.h} file has a special position among
 all other files. It is a @I{shared} source file that gets written
 and read by both the user and @QDR. As such it is
@@ -493,11 +493,11 @@ Whenever the user removes a custom slot, @QDR removes
 it from the @File{.ui.h} file.
 }
 @EndList
-@PP
+@LP
 This way integrity is guaranteed, there is no more need for subclassing
 and no more danger of forgotten or misspelled slots in subclasses.
 
-@PP
+@LP
 You can edit @File{.ui.h} files either directly in @I{Qt
 Designer} with the built-in @Cpp editor plugin, or with whatever
 editor you prefer. You should only put slot implementations in
@@ -512,7 +512,7 @@ will keep your changes.
     @Title { Construction and destruction }
     @Tag{construction.and.destruction}
 @Begin
-@PP
+@LP
 The @File{ui.h} extension approach has one disadvantage
 compared to subclassing. The @File{ui.h} file only contains
 custom slot implementations, but the objects are still entirely
@@ -521,7 +521,7 @@ code. This leaves the user without the possibility of doing further
 form initializations or cleanups that you normally would do within
 the constructor and destructor functions of a @Cpp class.
 
-@PP
+@LP
 To work around this limitation, we created the init"/"destroy
 convention. If you add a slot @Func{Form::init()} to your
 form, this slot will be called automatically at the end of the
@@ -542,14 +542,14 @@ write your implementation code either using @QDR's
     @Title { Loading forms dynamically }
     @Tag { loading.forms.dynamically }
 @Begin
-@PP
+@LP
 We extracted the part of @QDR that is responsible
 for loading and previewing a form into a library of its own,
 @File{libqui}. A new class @Class{QWidgetFactory}qwidgetfactory @Index{ QWidgetFactory } makes it
 possible to load @File{.ui} files at runtime and instantiate
 forms from them.
 
-@PP
+@LP
 This dynamic approach keeps the GUI design and the code separate
 and is useful in environments where the GUI may have to change
 more often than the underlying application logic. Ultimately,
@@ -557,13 +557,13 @@ you can provide users of your application the ability to modify
 the graphical user interface without the need for a complete
 @Cpp development environment.
 
-@PP
+@LP
 Since the .ui file is not compiled it cannot include any @Cpp
 code, (e.g. custom slot implementations). We provide a way of
 adding those implementations via a controlling QObject subclass
 that you pass as receiver to the widget factory.
 
-@PP
+@LP
 This concept and its usage is explained in detail in
 @NamePageRef{subclassing.and.dynamic.dialogs}.
 

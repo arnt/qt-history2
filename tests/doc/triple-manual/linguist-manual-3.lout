@@ -21,21 +21,21 @@ qt.linguist @Index{ Qt Linguist }
 contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
 
-@PP
+@LP
 To start, run @QLT, either from the taskbar menu,
 or by double clicking the desktop icon, or type @File{linguist}
 (followed by @Option{Enter}) at the command line. Once @QLT
 has started choose @Option{File"|"Open} from the menu bar and select
 a @File{.ts} translation source file to work on.
 
-@PP
+@LP
 @QLT's main window is divided into four main areas.
 The left hand side contains the Context list, the top right is
 the Source text area, the middle right is the translation area
 and the bottom right is the phrases and guesses area. We'll describe
 them in detail later.
 
-@PP
+@LP
 Click on one of the contexts in the context list (left hand side)
 and then click on one of the phrases that appears in the Source
 text area (top right). The phrase will be copied into the translation
@@ -44,7 +44,7 @@ in the translation. Click @Option{Ctrl+Enter} (Done "&" Next) to confirm
 that you have completed the translation and to move on to the
 next phrase that requires translation.
 
-@PP
+@LP
 The cycle of entering a translation then pressing @Option{Ctrl+Enter}
 can be repeated until all the translations are done or until
 you finish the session. Linguist will attempt to fill the `phrases
@@ -84,12 +84,12 @@ version.
 contexts @RawIndex{ Contexts }
 contexts.for.translation @SubIndex{ for Translation }
 
-@PP
+@LP
 The contexts are ordered alphabetically. The phrases within each
 context are in the order in which they appear in the source program
 and this may not be the order in which they are shown on screen.
 
-@PP
+@LP
 The Context List is a dockable window so it can be dragged to
 another position in the main window, or dragged out of the main
 window to be a window in its own right. If you move the Context
@@ -111,7 +111,7 @@ has failed validation. The second column 'Source text' shows
 the text that must be translated. The third column shows the
 translation.
 
-@PP
+@LP
 @QLT provides three kinds of validation: accelerator,
 punctuation and phrase. If the source text contains an accelerator
 i.e. an ampersand, '"&"' and the translated text does not contain
@@ -121,9 +121,9 @@ mark, e.g. '?', '!' or '.' and the translation ends with a different
 punctuation mark the translation will fail the punctuation validation.
 If the source text has a translation in one of the open phrase
 books that differs from the translation used the translation
-will fail phrase validation. (See @TitlePageRef{validation}.)
+will fail phrase validation. (See @NamePageRef{validation}.)
 
-@PP
+@LP
 The Source Text Area is a dockable window.
 
 @End @SubSection
@@ -165,7 +165,7 @@ phrases.in.qt.linguist @SubIndex{ in Qt Linguist }
 guesses @RawIndex{ Guesses }
 guesses.in.qt.linguist @SubIndex{ in Qt Linguist }
 
-@PP
+@LP
 The Phrases and Guesses Area is a dockable window.
 @End @SubSection
 @EndSubSections
@@ -208,7 +208,7 @@ contexts.for.translation @SubIndex{ for Translation }
 comments @RawIndex{ Comments }
 comments.for.translators @SubIndex{ for Translators }
 
-@PP
+@LP
 If a phrase occurs more than once in a particular context it
 will only be shown once in @QLT's context list and
 the translation will be applied to every occurrence within the
@@ -231,7 +231,7 @@ normally come in two forms: Alt key and Ctrl key accelerators.
 accelerators @Index{ Accelerators }
 keyboard.accelerators @Index{ Keyboard Accelerators }
 alt.key @Index{ Alt Key }
-@PP
+@LP
 Alt key accelerators are used for menus and buttons. The underlining
 signifies that pressing the Alt key with the underlined letter
 is the same as clicking the menu item with the mouse. For example,
@@ -251,7 +251,7 @@ using the same letter in the same context, must be avoided. Note
 that some Alt key accelerators, usually those on the menu bar,
 may apply in other contexts.
 
-@PP
+@LP
 Ctrl key accelerators can exist independently of any visual control.
 They are often used to invoke actions in menus that would otherwise
 take several keystrokes or mouse clicks. They may also be used
@@ -277,7 +277,7 @@ letter (or digit) is chosen, the translation should always be in the
 form `Ctrl+' followed by the letter or digit in upper case. As
 with Alt key accelerators, if the translator changes the key it must
 not conflict with any other Ctrl key accelerator.
-@PP
+@LP
 Later versions of @QLT are expected to help the translator
 avoid accelerator conflicts.
 
@@ -313,7 +313,7 @@ If the translated text is similar to the source text, click the
 @Option{Begin from Source} button (press @Option{Alt+T}) which will copy
 the source text into the translation area.
 
-@PP
+@LP
 @QLT automatically lists phrases from the open phrase
 books and similar or identical phrases that have already been
 translated in the Phrases and guesses area.
@@ -337,7 +337,7 @@ phrases @RawIndex{ Phrases }
 phrases.in.qt.linguist @SubIndex{ in Qt Linguist }
 phrase.books @Index{ Phrase Books }
 
-@PP
+@LP
 If the translator reaches an untranslated phrase that is the
 same as a source phrase in the phrase book, @QLT will
 show the phrase book entry in the @Win{Relevant phrases} panel
@@ -350,7 +350,7 @@ translations for a family of applications can be produced once
 in the phrase book and the phrase book used for the majority
 of translations in each application.
 
-@PP
+@LP
 Before a phrase book can be edited it must be created or if it
 already exists, opened. Create a new phrase book by selecting
 @Option{Phrase"|"New Phrase Book} from the menu bar. You must enter
@@ -359,7 +359,7 @@ A newly created phrase book is automatically opened. Open an
 existing phrase book by choosing @Option{Phrase"|"Open Phrase Book}
 from the menu bar.
 
-@PP
+@LP
 To add a new phrase click the @Option{New Phrase} button (or press
 Alt+N) and type in a new source phrase. Press Tab and type in
 the translation. Optionally press Tab and enter a definition
@@ -367,17 +367,17 @@ the translation. Optionally press Tab and enter a definition
 same source phrase. This process may be repeated as often as
 necessary.
 
-@PP
+@LP
 You can delete a phrase by selecting it in the phrases list and
 clicking Remove Phrase.
 
-@PP
+@LP
 Click the @Option{Save} button (press Alt+S) and then click the
 @Close
 button (press Esc) once you've finished adding (and removing)
 phrases.
 
-@PP
+@LP
 When a phrase or set of phrases appears in the phrase book double
 clicking the required target phrase will copy it to the translation
 pane at the text cursor position. If you want to @I{replace}
@@ -426,13 +426,13 @@ are marked with a question mark in the source text pane. If you
 switch validation off and then switch it on later, @QLT
 will recheck all phrases and mark any that fail validation.
 
-@PP
+@LP
 If any phrase in a context is invalid then the context itself
 will be marked with a question mark; if all the phrases in a
 context are done and are valid the context will be marked with
 a tick.
 
-@PP
+@LP
 Note that only phrases which are marked as done (with a tick)
 will appear in the application. Invalid phrases and phrases which
 are translated but not marked as done are kept in the translation
@@ -553,7 +553,7 @@ unfinished source phrase.}
 Copies the source text into the translation.}
 @EndList}
 @LI{
-@Option{Validation} (See @TitlePageRef{validation})
+@Option{Validation} (See @NamePageRef{validation})
 
 @TaggedList labelwidth { 10f }
 @TagItem{ Accelerators} {
@@ -566,7 +566,7 @@ Sets validation on or off for matching against translations that are
 in the current phrase book.}
 @EndList}
 @LI{
-@Option{Phrase} (See @TitlePageRef{creating.and.using.phrase.books} for
+@Option{Phrase} (See @NamePageRef{creating.and.using.phrase.books} for
 details.)
 
 @TaggedList labelwidth { 10f }

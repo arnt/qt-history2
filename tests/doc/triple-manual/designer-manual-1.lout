@@ -21,7 +21,7 @@ immediately productive in the new version since the interface
 is very similar. But you will find new widgets and new and improved
 functionality which have been developed as a result of your feedback.
 
-@PP
+@LP
 @QDR helps you build user interfaces with layout tools that move and
 scale your widgets (@I{controls} in Windows terminology) automatically
 at runtime. The resulting interfaces are both functional and
@@ -33,7 +33,7 @@ code. Those who prefer to separate generated code from hand crafted
 code can continue to use the subclassing approach pioneered in the
 first version of @QDR.
 
-@PP
+@LP
 The manual introduces you to @QDR by leading you through
 the development of example applications. The first seven chapters
 are tutorials, each designed to be as self-contained as possible.
@@ -46,13 +46,13 @@ controls.widgets @SubIndex{ Widgets }
 
 @BulletList
 @LI{
-The @TitlePageRef{quick.start} chapter is a fast hands-on tutorial that takes
+The @NamePageRef{quick.start} chapter is a fast hands-on tutorial that takes
 you through the creation of a short, simple dialog application.
 The aim of this chapter is to give you a feel for how @QDR
 works, with explanations and details deferred to later chapters.
 }
 @LI{
-The @TitlePageRef{creating.a.main.window.application} chapter
+The @NamePageRef{creating.a.main.window.application} chapter
 introduces @QDR and takes you step by step through the creation of
 a small but fully functional application. Along the way you will
 learn how to create a main window with menus, toolbars and a
@@ -66,39 +66,39 @@ also explain how to use @File{qmake} to generate a Makefile
 so that you can compile and run the application.
 }
 @LI{
-The @TitlePageRef{creating.dialogs} chapter we will create the custom
+The @NamePageRef{creating.dialogs} chapter we will create the custom
 dialogs required by the main window application created in chapter
 two. In addition to demonstrating various ways of creating dialogs,
 you will also learn how to lay out forms using the layout tools.
 }
 @LI{
-The @TitlePageRef{the.designer.approach} chapter provides information on
+The @NamePageRef{the.designer.approach} chapter provides information on
 the @QDR approach to developing applications, and
 explains some of the rationale behind @QDR.
 }
 @LI{
-The @TitlePageRef{subclassing.and.dynamic.dialogs} chapter will show you
-how to subclass a form; this allows you to clearly separate the
-user interface from the underlying code that implements its functionality.
-Additional information on @File{qmake} and @File{uic}
-is included in this chapter. This chapter will also explain how
-you can dynamically load dialogs from
-
-ui @Index{ .ui } @File{.ui} files into your application using @Class{QWidgetFactory} and how to access the widgets and sub-widgets of these dialogs.}
+The @NamePageRef{subclassing.and.dynamic.dialogs} chapter will show
+you how to subclass a form; this allows you to clearly separate the
+user interface from the underlying code that implements its
+functionality. Additional information on @File{qmake} and @File{uic}
+is included in this chapter. This chapter will also explain how you
+can dynamically load dialogs from ui @Index{ .ui } @File{.ui} files
+into your application using @Class{QWidgetFactory} and how to access
+the widgets and sub-widgets of these dialogs.}
 @LI{
-The @TitlePageRef{creating.custom.widgets} chapter explains how you can create
+The @NamePageRef{creating.custom.widgets} chapter explains how you can create
 your own custom widgets. Both the simple method, that was introduced
 with the first version of @QDR, and the new more powerful
 method using plugins, are explained.
 }
 @LI{
-The @TitlePageRef{creating.database.applications} chapter introduces Qt's
+The @NamePageRef{creating.database.applications} chapter introduces Qt's
 SQL classes and takes you through an example that demonstrates
 how to execute SQL queries and how to set up master-detail relationships,
 perform drilldown and handle foreign keys.
 }
 @LI{
-The @TitlePageRef{customizing.and.integrating.qt.designer} chapter focuses
+The @NamePageRef{customizing.and.integrating.qt.designer} chapter focuses
 on @QDR itself, showing you how to customize Designer,
 how to integrate Designer with Visual Studio and how to create
 Makefiles.
@@ -122,11 +122,11 @@ available, and a small but increasing number of Qt books. Qt
 comes with extensive online documentation and many example applications
 that you can try.
 
-@PP
-The Enterprise Edition of Qt includes the Qt SQL module. In Creating
-Database Applications we demonstrate how to build SQL applications
-with @QDR; this chapter requires some knowledge of
-SQL and relational databases.
+@LP
+The Enterprise Edition of Qt includes the Qt SQL module. In
+@NamePageRef{creating.database.applications} we demonstrate how to
+build SQL applications with @QDR; this chapter requires some knowledge
+of SQL and relational databases.
 
 @End @Section
 @Section
@@ -144,7 +144,7 @@ enhancements have been incorporated, from small improvements
 in the user interface to improved efficiency, for example the
 ability to share pixmaps across all the forms in an application.
 
-@PP
+@LP
 This version of @QDR introduces project files which
 make it easy to switch between all the forms in an application,
 and to maintain a common set of database settings and images.
@@ -152,13 +152,13 @@ Although subclassing is fully supported, writing code directly
 in @QDR offers a number of advantages which are covered
 in The Designer Approach chapter.
 
-@PP
+@LP
 A new library @File{libqui} has also been introduced which allows you
 to load dialogs dynamically at runtime from @QDR's @File{.ui} files.
 This allows you to provide your application's users with considerable
 interface customizability without them needing to use @Cpp.
 
-@PP
+@LP
 Although the new version of @QDR introduces new approaches
 and techniques you can ignore these aspects and simply use it
 in exactly the same way as you used the version supplied with
@@ -202,10 +202,9 @@ When you select multiple-widgets their common properties are
 shown in the property editor and can be changed collectively.
 }
 @EndList
-@PP
 @Figure
     @Caption { @QDR }
- 0.35 @Scale @IncludeGraphic { "images/qd-preface.eps.gz" }
+    0.35 @Scale @IncludeGraphic { "images/qd-preface.eps.gz" }
 @End @Section
 @Section
     @Title { Feedback }

@@ -37,7 +37,7 @@ We added this action to the menubar (in the @Option{Edit} menu), and
 to the toolbar. Now we need to connect this action to a slot
 so that we can make it add a color.
 
-@PP
+@LP
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
 dialog. Click @Option{New} to create a new connection. Change the
 Sender to `editAddAction', the signal to @Func{activated()} and the
@@ -59,7 +59,7 @@ rubber.band.selecting @Index{ Rubber band, Selecting } selecting
 @RawIndex{ Selecting } selecting.rubber.band @SubIndex{ Rubber band }
 grouping.widgets @Index{ Grouping Widgets } widgets @RawIndex{ Widgets
 } widgets.grouping @SubIndex{ Grouping }
-@PP
+@LP
 If you want to insert a widget into a gap between widgets which
 are in a layout we can click the toolbar button for the new widget
 and then click in the gap. @QDR will ask us if we
@@ -68,7 +68,7 @@ layout will be broken and our widget inserted. We can then select
 the widgets and groups we want to lay out and lay them out again.
 The same effect can be achieved by clicking the group and either
 clicking the @Option{Break Layout} toolbar button or pressing @Option{Ctrl+B}.
-@PP
+@LP
 Multiple widgets can be selected in five different ways:
 @NumberedList
 @LI{
@@ -144,7 +144,7 @@ We can use one of Qt's static dialogs to get the user to choose
 a color, but we need our own dialog to get them to give it a
 name. We'll create that dialog now.
 
-@PP
+@LP
 Click @Option{File"|"New} to invoke the @Win{New File} dialog, then
 click @Option{Dialog}, then click @OK. Drag a corner of the new form
 to make it a lot smaller. Change the form's name (in the Property
@@ -152,12 +152,12 @@ Editor) to `ColorNameForm', and change its caption to `Color
 Tool -- Color Name'. Click @Option{File"|"Save}, then click @Option{Save}
 to save it.
 
-@PP
+@LP
 We'll now add some widgets to the dialog. Don't worry about precise
 positioning or sizing; we'll get @QDR to lay the form
 out perfectly for us shortly.
 
-@PP
+@LP
 We need to create a @Class{QLabel}qlabel @Index{ QLabel } that will show the color the user
 has chosen. Click the TextLabel tool in the Toolbox, then click
 on the left hand side of the form. Change the label's @Prop{name}
@@ -167,24 +167,24 @@ choose the `editraise.xpm' image. Change the @Prop{minimumSize}
 property's @Prop{width} sub-property to 80, and set the @Prop{scaledContents}
 property to True.
 
-@PP
+@LP
 Click the TextLabel tool again, then click to the right of the
 colorLabel, towards the top of the form. Change the @Prop{text}
 property to `"&"Name'. Note that the ampersand is displayed;
 this is because a @Class{QLabel}qlabel @Index{ QLabel } cannot accept focus and we haven't
 specified a focus widget (`buddy') yet.
 
-@PP
+@LP
 Click the LineEdit tool, then click to the right of the `Name'
 label, again towards the top of the form. Change the @Prop{name}
 property to `colorLineEdit'.
 
-@PP
+@LP
 Click on the `Name' label and change its @Prop{buddy} property to
 `colorLineEdit'. The ampersand has now disappeared and @Option{Alt+N}
 will set the focus in the colorLineEdit.
 
-@PP
+@LP
 Click the PushButton tool, then click below the `Name' label.
 Change the button's @Prop{name} property to `okPushButton', its
 @Prop{text} property to `OK', and its @Prop{default} property to True.
@@ -207,7 +207,7 @@ and its @Prop{text} property to `Cancel'.
 Now that we've created and roughly placed the widgets we need
 we are ready to lay them out.
 
-@PP
+@LP
 The process of laying out widgets is essentially two steps:
 
 @NumberedList
@@ -222,12 +222,12 @@ more convenient in certain situations that others. We'll show
 several different approaches to selecting widgets as we lay out
 this form.
 
-@PP
+@LP
 We will lay out the `Name' label and the line edit side by side.
 Then we'll do the same for the buttons, and finally we'll lay
 out these two layouts in relation to the colorLabel.
 
-@PP
+@LP
 Click the form to deselect any selected widgets. Click the form
 above the `Name' label and drag the black rectangular elastic
 band so that it touches both the `Name' label and the line edit;
@@ -264,7 +264,7 @@ the OK button in the @Option{Objects} tab. (The @Option{Objects} tab only ever
 highlights @I{one} object; but the form shows that both buttons
 are selected.) Click the @Option{Lay Out Horizontally} toolbar button.
 
-@PP
+@LP
 Click the form to deselect any selected widgets. In @Win{Objects
 Explorer},
 click `Layout1' (which contains the `Name' label and the line
@@ -272,11 +272,11 @@ edit), then @Option{Shift+Click} `Layout2' (which contains the buttons)
 so that both layouts are selected on the form. Click the @Option{Lay
 Out Vertically} toolbar button.
 
-@PP
+@LP
 Now that we've got our two layouts (and the colorLabel widget),
 we'll lay them all out in relation to the form.
 
-@PP
+@LP
 Click the form to deselect any selected widgets. Click the @Option{Lay
 Out Horizontally} toolbar button to lay out the form. (The form
 gets laid out because no widgets or layouts are selected.)
@@ -296,14 +296,14 @@ the buttons not to make use of that space. This is achieved by
 inserting `spacers'; these have no visible appearance to the
 user, but consume excess space.
 
-@PP
+@LP
 We need to break the form layout so that we can insert spacers
 and lay out the form once more. Click the red rectangle of `Layout3',
 the layout that lays out the entire form. (We could just have
 easily have clicked the layout in @Win{Object Explorer}.) Click the
 @Option{Break Layout} toolbar button.
 
-@PP
+@LP
 We could add a spacer to the left of the buttons and lay that
 out with the buttons. But to save creating an extra layout, instead
 we'll break the layout that contains the buttons and lay them
@@ -315,14 +315,14 @@ toolbar), then click the form to the left of the OK button and
 drag horizontally. A horizontal Spacer (indicated by a blue `spring')
 is now left of the OK button.
 
-@PP
+@LP
 Since the Spacer is already selected, we'll simply extend the
 selection to include the buttons. @Option{Shift+Click} the OK and
 cancel buttons in turn so that both buttons and the Spacer are
 selected. Now click @Option{Lay Out Horizontally} (or press @Option{Ctrl+H}).
 The Spacer is now in place and able to consume excess space.
 
-@PP
+@LP
 Now we'll put a Spacer between the layout containing the line
 edit and the layout we've just created (containing the buttons)
 to consume any excess space between them. Click the Spacer tool,
@@ -332,7 +332,7 @@ to extend the selection to include both the layouts. @Option{Shift+Click}
 the layouts in @Win{Object Explorer}'s @Option{Objects} tab. Now click
 @Option{Lay Out Vertically} (or press @Option{Ctrl+L}).
 
-@PP
+@LP
 Now we'll lay out the form itself. Click the form to deselect
 any selected widgets or layouts. Then click @Option{Lay Out Horizontally}.
 
@@ -345,7 +345,7 @@ So far the form doesn't look very different from before. Try
 previewing it (@Option{Ctrl+T}) and resizing it. No matter how large
 or small you make it, the form always remains nicely proportioned.
 
-@PP
+@LP
 This is the beauty of using layouts rather than fixed sizes.
 It is especially useful if your program is translated into different
 languages since the labels will automatically and proportionally
@@ -354,14 +354,14 @@ able to use your forms on a wide variety of screen sizes from
 giant desktop screens to small laptop screens. (And, you can,
 of course, use fixed sizes and positions if you wish.)
 
-@PP
+@LP
 Resize the form in @QDR. Notice that the form has
 a minimum size; this is because all the widgets it contains have
 minimum sizes. (You can override this if you wish.) The size
 you make the form in @QDR will become the form's default
 size.
 
-@PP
+@LP
 When previewing the form, try pressing @Option{Tab} to move between
 widgets that can accept focus. It is most likely that the tab
 order is correct. If it isn't, we can easily change it: see the
@@ -375,11 +375,11 @@ form. The order in which the focus moves is called the tab order.
 tab.order @Index{ Tab Order } tab.order.mode @RawIndex{ Tab Order Mode
 } tab.order.mode.tab.order @SubIndex{ Tab Order }
 @SBPP
-To change a form's tab order click the @TitlePageRef{tab.order}
+To change a form's tab order click the @NamePageRef{tab.order}
 toolbar button. This will put @QDR into tab order mode; a number in a
 blue circle will appear next to every widget that can accept focus.
 
-@PP
+@LP
 To change the tab order, click every widget in turn in the order
 you want them to accept focus. If a widget already has the right
 tab order number you must @I{still click it} unless that widget
@@ -388,7 +388,7 @@ numbers; in which case you can stop. Press @Option{Esc} to leave tab
 order mode. You can test the tab order by previewing (@Option{Ctrl+T})
 and pressing the @Option{Tab} key.
 
-@PP
+@LP
 If you prefer the tab order that you had before this one, click
 @Option{Edit"|"Undo} (or press @Option{Ctrl+Z}).
 @LP
@@ -414,11 +414,11 @@ format allows duplicate colors, but we will choose not to allow
 them to be added.) If the user clicks @Cancel we'll just close
 the dialog.
 
-@PP
+@LP
 Click @Option{Ctrl+T} to preview the form. Click the @Cancel button;
 notice that it does nothing.
 
-@PP
+@LP
 We'll connect the cancel button first because it is the easiest.
 Click @Option{Edit"|"Connections} to invoke the @Win{View and Edit Connections}
 dialogs. Click @Option{New} to create a new connection. Set the Sender
@@ -430,7 +430,7 @@ in preview mode. Click @OK to close the dialog, then click
 @Option{Ctrl+T} to preview. Clicking the @Cancel button will now
 close the form, even in preview mode.
 
-@PP
+@LP
 Now we'll connect the OK button. Click @Option{Edit"|"Connections}
 to invoke the @Win{View and Edit Connections} dialogs. Click @Option{New}
 to create a new connection. Set the Sender to `okPushButton',
@@ -452,12 +452,12 @@ to see if the color name entered already exists, so we must also
 provide a function through which a form-global list of color
 names can be set.
 
-@PP
+@LP
 Click `colornameform.ui.h' in the @Win{Project Overview} window to
 invoke the code editor. The editor shows a single empty slot,
 @Func{validate()}.
 
-@PP
+@LP
 We need to add some include files and also a form-global variable
 to hold the color names. We could add this information in the
 same way as we did for the main form, by right-clicking the appropriate
@@ -473,13 +473,13 @@ For includes there is no difference between adding an include to
 @Win{Object Explorer}'s @Option{Members} @Option{Includes (in
 Implementation)} and typing the include directly in the @File{.ui.h}
 file.
-@PP
+@LP
 The situation is different for variables. If you add these to
 @Option{Members}, @Option{Class Variables}, they will be included as
 private variables in the class definition. If you type them at the top
 of the @File{.ui.h} file they will be form-global variables.
 }
-@PP
+@LP
 We'll start by adding some includes.
 @LD @Code @RawVerbatim @Begin
     #include <qcolor.h>
@@ -488,7 +488,7 @@ We'll start by adding some includes.
 @End @RawVerbatim
 Enter these above the @Func{validate()} function.
 
-@PP
+@LP
 We also need a variable to hold the list of colors.
 
 @LD @Code @RawVerbatim @Begin
@@ -500,7 +500,7 @@ qmap @Index{ QMap }
 qstring @Index{ QString }
 qcolor @Index{ QColor }
 
-@PP
+@LP
 We also need a function that the caller can call to populate
 the @Var{m_colors} map with the current colors.
 
@@ -536,7 +536,7 @@ value.) If the color already exists we simply select it; an alternative
 would be to pop up a message box.
 qstring @Index{ QString }
 
-@PP
+@LP
 The dialog is now complete. The next stage is to make use of
 it from the main form by coding the @Func{editAdd()} slot.
 
@@ -557,11 +557,11 @@ the dialog's colorLabel (to set it to the chosen color), and
 the dialog's line edit (to retrieve the color name), so we'll
 need appropriate headers for these too.
 
-@PP
+@LP
 Click `MainForm' in the @Win{Project Overview} window so that @Win{Object
 Explorer} shows the main form's objects.
 
-@PP
+@LP
 Click @Win{Object Explorer}'s @Option{Members} tab. Right click
 @Option{Includes (in
 Implementation)}, then click @Option{Edit} to invoke the @Win{Edit Includes
@@ -571,7 +571,7 @@ We also need to include the header for the form we've just created,
 so add @Code @Verbatim{"colornameform.h"}, and since it is our last entry press
 @Option{Enter}, then click @Close.
 
-@PP
+@LP
 You should now have added the following declarations to your
 includes (in implementation):
 
@@ -584,7 +584,7 @@ includes (in implementation):
 @LLP
 "\""colornameform.h"\""
 }
-@PP
+@LP
 Now we're ready to enter the @Func{editAdd()} slot's code.
 Click `mainform.ui.h' in the @Win{Project Overview} to invoke the code
 editor.
@@ -646,7 +646,7 @@ qstring @Index{ QString }
 qchecktableitem @Index{ QCheckTableItem }
 qiconviewitem @Index{ QIconViewItem }
 
-@PP
+@LP
 If the user chose a color we want to show their chosen color
 in our custom dialog, so we create a pixmap and fill it with
 their chosen color. We create an instance of our ColorNameForm
@@ -656,20 +656,20 @@ function will work correctly). We set its colorLabel's pixmap
 to the pixmap we've just created, i.e. to a rectangle in the
 user's chosen color.
 
-@PP
+@LP
 We execute (@Func{exec()}) the dialog. If the user clicks
 @OK (and the color name they've entered is valid), the call will
 return a true value. In this case we retrieve the name they've
 entered from the line edit and create a new entry in the @Var{m_colors}
 map using the name the user has given and the color they chose.
 
-@PP
+@LP
 At this point we could simply mark the views `dirty' and call
 repopulate. Instead we'll add the new color to each view directly
 and save the overhead of a full update (which might be considerable
 if we have thousands of colors).
 
-@PP
+@LP
 We create a pixmap and fill it with the new color. We then insert
 a new row in the table and set the columns to the new color's
 values, in the same way as we've already seen in the @Func{populate()}
@@ -678,13 +678,13 @@ we mark the data as changed so that the user will be prompted
 to save if they attempt to exit or load another color file before
 they've saved this one.
 
-@PP
+@LP
 Try building and running the application. You should now be able
 to add your own colors. (If it doesn't build see the
-@TitlePageRef{troubleshooting}
+@NamePageRef{troubleshooting}
 section.)
 
-@PP
+@LP
 The application is essentially complete. We can load and save
 color files, we can show them in the table or icon view and users
 can add and delete colors. But if the user has a color file with
@@ -726,7 +726,7 @@ to make it smaller. Use the Property Editor to change the form's
 @Prop{name} property to `FindForm', and its @Prop{caption} property
 to `Color Tool -- Find Color'.
 
-@PP
+@LP
 Press @Option{Ctrl+S} (or click @Option{File"|"Save}) to save the form,
 then click @Option{Save}.
 
@@ -742,24 +742,24 @@ for'. (The ampersand will show on the form because we haven't
 yet provided a focus widget `buddy' for the @Option{Alt+L} keyboard
 shortcut; we'll do that in a moment.)
 
-@PP
+@LP
 Click the LineEdit tool, then click on the form to the right
 of the `Look for' label. Change its @Prop{name} property to `findLineEdit'.
 Click on the `Look for' label and change its @Prop{buddy} property
 to `findLineEdit'.
 
-@PP
+@LP
 Click the PushButton tool and click on the form below the left-end
 of the line edit. Change the @Prop{name} property to `findPushButton',
 its @Prop{text} property to `"&"Find' and its @Prop{default} property
 to True.
 
-@PP
+@LP
 Click the PushButton tool again and click on the form to the
 right of the `Find' button. Change the @Prop{name} property to `closePushButton'
 and the @Prop{text} property to `Close'.
 
-@PP
+@LP
 We know from experience with the previous form that we'll need
 a spacer above the buttons and to the left of the buttons. Click
 on the Spacer tool, then click to the left of the `Find' button;
@@ -780,7 +780,7 @@ drag vertically a little, then release.
 Now that we've created and roughly placed the widgets we need
 we are ready to lay them out.
 
-@PP
+@LP
 Click the form to deselect any selected widgets. Click to the
 right and below the `Close' button and drag the rubber band rectangle
 so that it @I{touches} both buttons and the spacer to the @I{left}
@@ -792,12 +792,12 @@ and try again. Once the Spacer (to the left of the `Find' button)
 and both buttons are selected, click the @Option{Lay Out Horizontally}
 toolbar button.
 
-@PP
+@LP
 Lay out the `Look for' label and the line edit horizontally.
 (Click the `Look for' label, then @Option{Shift+Click} the line edit,
 the press @Option{Ctrl+H}.)
 
-@PP
+@LP
 We can now lay out the form itself. Click the form, then press
 @Option{Ctrl+L} (lay out vertically). You may want to resize the form
 slightly, perhaps to make it smaller. Try previewing the form
@@ -821,7 +821,7 @@ the term and click `Find' as often as they like; each time they
 click the next matching term is found. We are going to use the
 second approach.
 
-@PP
+@LP
 Since the searching takes place through the data held by the
 main form, and since we want any found term to be highlighted
 by the main form, we'll put most of the code for the search in
@@ -830,10 +830,10 @@ signal whenever the user clicks the `Find' button, and we'll
 provide a slot that the main form can call to notify the FindForm
 that no matching color was found.
 
-@PP
+@LP
 Invoke the @Win{View and Edit Connections} dialog. (Click @Option{Edit"|"Connections}.)
 
-@PP
+@LP
 Connect the closePushButton's @Func{clicked()} signal
 to the form's @Func{accept()} slot. (Click @Option{New}, then
 change the Sender to `closePushButton', change the Signal to
@@ -842,7 +842,7 @@ to @Func{accept()}.) Since this functionality is achieved purely through
 signal and slot connections it will work in preview mode, i.e.
 if you preview and click the `Close' button, the form will close.
 
-@PP
+@LP
 Connect the findPushButton's @Func{clicked()} signal to
 a newly created @Func{find()} slot. (Click @Option{New}, then change the
 Sender to `findPushButton', change the Signal to @Func{clicked()},
@@ -851,14 +851,14 @@ the @Win{Edit Functions} dialog; change the slot's name to @Func{find()},
 then click @OK. Back in the @Win{View and Edit Connections}
 dialog, change the slot to the newly created @Func{find()} slot.)
 
-@PP
+@LP
 Close the @Win{View and Edit Connections} dialog. (Click @OK.)
 
-@PP
+@LP
 When the user clicks the `Find' button we want to emit a signal
 so that the main form can look for the text.
 
-@PP
+@LP
 Click @Win{Object Explorer}'s @Option{Members} tab, then right click
 @Option{Signals}
 and click @Option{New}. Enter @Code{lookfor(const QString"&")}. We'll emit
@@ -895,7 +895,7 @@ and perform the search.
 If the term isn't found all we'll do is highlight the text. An
 alternative would be to popup a message box.
 
-@PP
+@LP
 The dialog's code is simple because we're pushing all the work
 onto the main form.
 
@@ -914,23 +914,23 @@ view, starting at the color after the color they're on. We will
 create just one instance of the FindForm and keep a pointer to
 it so that we can show and hide it as necessary.
 
-@PP
+@LP
 We need to include the FindForm, and we also need to declare
 the `findForm' variable we put (commented out) in the @Func{init()}
 function.
 
-@PP
+@LP
 Click on `mainform.ui.h' in the @Win{Project Overview}. This will invoke
 the code editor and set @Win{Object Explorer} to show objects in the
 MainForm.
 
-@PP
+@LP
 Add @Code @Verbatim{"findform.h"} to @Option{Includes (in
 Declaration)}. (Click @Win{Object
 Explorer}'s @Option{Members} tab, right click @Option{Includes (in Declaration)},
 click @Option{New}, enter @Code @Verbatim{"findform.h"}, then press @Option{Enter}.)
 
-@PP
+@LP
 You should now have added the following declaration to your includes
 (in declaration):
 
@@ -940,7 +940,7 @@ In the class variables add @Code{FindForm *findForm;}. (Right click
 @Option{Class Variables}, click @Option{New}, enter @Code{FindForm *findForm;},
 then press @Option{Enter}.)
 
-@PP
+@LP
 You should now have added the following variable to your class
 variables:
 
@@ -951,7 +951,7 @@ variables:
 Uncomment the line @Code{findForm = 0;} in the @Func{init()}
 function.
 
-@PP
+@LP
 We can now implement the @Func{editFind()} slot.
 
 @LD @Code @RawVerbatim @Begin
@@ -1020,34 +1020,34 @@ qstring @Index{ QString }
 qwidget @Index{ QWidget }
 qiconviewitem @Index{ QIconViewItem }
 
-@PP
+@LP
 We take a lower case copy of the text because we want to do a
 case-insensitive search. We find out which view the user is using
 (so that we can look in the right one), and set a flag @Var{found},
 that we'll use further on.
 
-@PP
+@LP
 If the user is using the table view we start looking from the
 row following the row they're on. If we get a match we select
 the row containing the match, set @Var{found} to @TRUE
 and stop looking. If we didn't find a match we set the current
 cell back to the cell we started from.
 
-@PP
+@LP
 If the user is using the icon view, we start looking from the
 item following the current item. If we find a match we select
 the corresponding item and ensure that it is visible. Again,
 if we didn't find a match we set the current item to be the item
 we started looking from.
 
-@PP
+@LP
 If we found the text, the relevant item is highlighted (because
 we have selected it) in the user's view. If we didn't find the
 text we issue a message on the status bar and call the FindForm's
 @Func{notfound()} function (which simply selects the search
 text).
 
-@PP
+@LP
 Functions that are typed directly into the code editor become
 public functions (unless their return value is @Code{void}
 in which case they become public slots). These can be changed
@@ -1057,10 +1057,10 @@ to be a slot because we connect to it. Click @Win{Object Explorer}'s
 @Option{Properties}. This invokes the @Win{Edit Functions} dialog. Change
 the Type to `slot', then click @OK.
 
-@PP
+@LP
 Save the application (@Option{Ctrl+S}), then build it and try out
 some searches. (If it doesn't build see the
-@TitlePageRef{troubleshooting} section.)
+@NamePageRef{troubleshooting} section.)
 
 @End @SubSection
 @EndSubSections
@@ -1091,18 +1091,18 @@ property to `Color Tool -- Options'. Drag a corner of the form
 to make it a bit smaller. Now save the form and accept the default
 name.
 
-@PP
+@LP
 Click the GroupBox tool (in the Containers toolbox) and click
 towards the top left of the form. Roughly drag the group box
 to make it wider. Change its @Prop{title} property to `Table View'.
 
-@PP
+@LP
 Click the CheckBox tool (in the Common Widgets toolbox), and
 click @I{inside} the group box. Change the checkbox's @Prop{name}
 to `webCheckBox', its @Prop{text} property to `Indicate "&"Web Colors'
 and its @Prop{checked} property to True.
 
-@PP
+@LP
 Up to now we've always placed all our widgets and then laid them
 out at the end. But we can lay out widgets as we go along if
 we prefer. Click the group box, then press @Option{Ctrl+H} (lay out
@@ -1116,12 +1116,12 @@ Click the ButtonGroup tool and click below the table view group
 box. Change this group's @Prop{title} property to `Copy to Clipboard
 As' and drag a corner to make it larger.
 
-@PP
+@LP
 We want to add three radio buttons to the clipboard group. When
 there are a lot of identical widgets to add we can use @QDR's multiple
 placement mode to work more quickly.
 
-@PP
+@LP
 @I{Double} click the @Option{RadioButton} tool to enter multiple placement
 mode. Now every click on the form will create a radio button.
 Click inside, and towards the top of, the clipboard group box.
@@ -1138,15 +1138,15 @@ Click the first (top-most) radio button. Change its @Prop{name}
 property to `hexRadioButton', its @Prop{text} property to `"&"Hex,
 e.g. "#"AB52F7', and its @Prop{checked} property to True.
 
-@PP
+@LP
 Click the second (middle) radio button. Change its @Prop{name} property
 to `nameRadioButton' and its text to `"&"Name, e.g. light blue'.
 
-@PP
+@LP
 Click the third (bottom) radio button. Change its @Prop{name} property
 to `rgbRadioButton' and its text to `"&"RGB, e.g. 51,255,102'.
 
-@PP
+@LP
 Click the clipboard group to select it, then click @Option{Ctrl+L}
 (lay out vertically).
 
@@ -1162,7 +1162,7 @@ property to True. Click the PushButton tool again, then click
 to the right of the @OK button. Change this button's name to `cancelPushButton'
 and its text to `Cancel')
 
-@PP
+@LP
 To lay out the buttons add a horizontal Spacer to the left of
 the OK button, then lay out the Spacer and the buttons horizontally.
 (Click the Spacer tool, then click the form to the left of the
@@ -1195,7 +1195,7 @@ will read the data from the form's widgets and act accordingly.
 All we need to do is connect up the OK and Cancel buttons; there's
 no code to write at all.
 
-@PP
+@LP
 Connect the OK button to the form's @Func{accept()} slot
 and the Cancel button to the form's @Func{reject()} slot.
 (Click @Option{Edit"|"Connections}, then click @Option{New}. Change the
@@ -1217,11 +1217,11 @@ Click on `mainform.ui.h' in the @Win{Project Overview} to invoke the
 code editor and to set the MainForm as @QDR's current
 form.
 
-@PP
+@LP
 We need to create a slot that will invoke the options form and
 to connect the optionsAction action to this slot.
 
-@PP
+@LP
 Invoke the @Win{View and Edit Connections} dialog and create a
 new connection from the optionsAction to a new slot called `editOptions'.
 (Click @Option{Edit"|"Connections}, then click @Option{New}. Change the
@@ -1231,7 +1231,7 @@ the @Win{Edit Functions} dialog. Change the slot's name to @Func{editOptions()},
 then click @OK. Make the Slot function the newly created @Func{editOptions()}
 slot. Click @OK.)
 
-@PP
+@LP
 Now we're ready to code the slot.
 
 @LD @Code @RawVerbatim @Begin
@@ -1277,7 +1277,7 @@ we mark the table as `dirty' since it will need updating. We
 then call @Func{populate()} which will update the table
 view if required.
 
-@PP
+@LP
 Because we use our OptionsForm and access its radio buttons and
 checkbox we must add @Code @Verbatim{"optionsform.h"}, @Code
 @Verbatim{"qradiobutton.h"} and @Code @Verbatim{"qcheckbox.h"} to our
@@ -1289,7 +1289,7 @@ enter @Code @Verbatim{"qradiobutton.h"}; click @Option{Add} again and
 enter @Code @Verbatim{"qcheckbox.h"}. Press @Option{Enter}, then click
 @Close.)
 
-@PP
+@LP
 You should now have added the following declarations to your
 includes (in implementation):
 
@@ -1318,7 +1318,7 @@ start up, and of saving settings last, e.g. at application termination.
 But we will code saving settings first, since then we'll know
 what it is that we must load.
 
-@PP
+@LP
 Qt 3.0 introduced a new class @Class{QSettings}qsettings @Index{ QSettings }, that handles user
 settings in a platform independent way (e.g. it uses the registry
 on windows and rc files on Unix). Add the @Code @Verbatim{"qsettings.h"} header
@@ -1327,7 +1327,7 @@ to the includes in implementation. (Click @Win{Object Explorer}'s
 tab, right click @Option{Includes (in Implementation)}, click @Option{New},
 enter @Code @Verbatim{"qsettings.h"}, then press @Option{Enter}.)
 
-@PP
+@LP
 You should now have added the following declaration to your includes
 (in implementation):
 
@@ -1396,22 +1396,22 @@ first time the user has run the application). Again, the @Func{insertSearchPath(
 call should be made on all platforms.
 qsettings @Index{ QSettings }
 
-@PP
+@LP
 In response to the settings we switch to the view the user was
 looking at when they last exited the program. We also resize
 and move the main window to the size and position it was last
 used in.
 
-@PP
+@LP
 Uncomment the @Code{loadSettings();} line in the @Func{init()}
 function.
 
-@PP
+@LP
 Build the application and run it. Change to the icon view and
 change one or two of the options in the options dialog. Move
 the window and resize it. Exit the application and restart it;
 your view, window size and position and your options are all
-restored. (If it doesn't build see the @TitlePageRef{troubleshooting} section.)
+restored. (If it doesn't build see the @NamePageRef{troubleshooting} section.)
 
 @End @Section
 @Section
@@ -1451,7 +1451,7 @@ in how @QDR's layouts translate into code, look at
 the @File{.cpp} files that are generated when you build
 the application.)
 
-@PP
+@LP
 The rest of this part of the manual covers more advanced features
 and the second part is a reference section covering all @I{Qt
 Designer}'s dialogs, menu options and toolbar buttons. We recommend

@@ -27,17 +27,16 @@ the phrase `deep copy'
 
 The wildcard (@B{*}) character cannot be used within quotes.
 
-@PP
+@LP
 The list of documents is ordered according to the number of occurrences
 of the search text they contain, with those with the highest
 number of occurrences appearing first. Simply click any document
 in the list to have it display in the document pane.
 
-@PP
+@LP
 If the documentation is changed, e.g. if new documents are added
 or old ones removed, @QAT will reindex. At present
 this only works for latin1 encoded documents, i.e. Unicode is
 not yet supported.
-
 
 @End @Section

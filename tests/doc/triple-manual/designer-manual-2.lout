@@ -11,12 +11,12 @@ and slots connections, laying out and adding custom code. This
 chapter only covers a proportion of @QDR's functionality
 and explanations and details are mostly left for the more detailed
 @File{colortool} tutorial presented in the 
-@TitlePageRef{creating.a.main.window.application} and
-@TitlePageRef{creating.dialogs} chapters.
+@NamePageRef{creating.a.main.window.application} and
+@NamePageRef{creating.dialogs} chapters.
 
 @Figure
     @Caption { The Metric Conversion Dialog }
- 0.5 @Scale @IncludeGraphic { "images/qsmetric.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qsmetric.eps.gz" }
 @BeginSections
 @Section
     @Title { Starting and Exiting @QDR }
@@ -44,7 +44,6 @@ the @Win{New"/"Open} dialog. We'll just click @Cancel to skip
 it.
 }
 @EndList
-
 @End @SubSection
 @SubSection
     @Title { Exiting }
@@ -66,7 +65,7 @@ The metric conversion application is a standard @Cpp application,
 so we must create a @Cpp project and add our files and code to
 this project.
 
-@PP
+@LP
 Create the new project as follows:
 
 @NumberedList
@@ -74,7 +73,7 @@ Create the new project as follows:
 Click @Option{File"|"New} to invoke the @Win{New File} dialog.
 }
 @LI{
-Click @Option{@Cpp Project} to create a @Cpp project, then click @OK
+Click @Option{C++ Project} to create a @Cpp project, then click @OK
 to pop up the @Win{Project Settings} dialog.
 }
 @LI{
@@ -96,7 +95,7 @@ Click @Option{File"|"Save} to save the project.
 @EndList
 @Figure 
     @Caption { The Project Settings Dialog }
-    0.5 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-projset.eps.gz" }
 
 @End @Section
 @Section
@@ -120,9 +119,9 @@ click @Option{Save} to save it.
 @EndList
 @Figure
     @Caption { The blank metric conversion form }
-    0.5 @Scale @IncludeGraphic { "images/qs-newdlg.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-newdlg.eps.gz" }
 @LP
-See also @TitlePageRef{creating.dialogs} and @TitlePageRef{layouts}.
+See also @NamePageRef{creating.dialogs} and @NamePageRef{layouts}.
 
 @BeginSubSections
 @SubSection
@@ -152,9 +151,9 @@ of the labels since the layout tools will handle this automatically.
 Click the @Option{Pointer} toolbar button to de-select the text label.
 }
 @EndList
-See also @TitlePageRef{adding.the.widgets}.
+See also @NamePageRef{adding.the.widgets}.
 
-@PP
+@LP
 Now we will change the properties of the text labels to suit
 the application.
 
@@ -182,9 +181,9 @@ Click the fifth label. Change the label's @Prop{text} property to
 @EndList
 @Figure
     @Caption { The blank metric conversion form's labels }
-    0.5 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-txtlbl.eps.gz" }
 @LP
-See also @TitlePageRef{using.the.property.editor}.
+See also @NamePageRef{using.the.property.editor}.
 @End @SubSubSection
 @SubSubSection
     @Title { Adding Line Edits, Comboboxes, and Spinboxes }
@@ -235,7 +234,7 @@ Click @Option{File"|"Save}.
 
 @Figure
     @Caption { The metric conversion form's editing widgets }
-    0.5 @Scale @IncludeGraphic { "images/qs-addwidg.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-addwidg.eps.gz" }
 @End @SubSubSection
 @SubSubSection
     @Title { Creating ``Buddies'' }
@@ -245,7 +244,7 @@ Click @Option{File"|"Save}.
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating `buddies'.
 
-@PP
+@LP
 A widget that does not accept focus itself, e.g. a @Class{QLabel}
 qlabel @Index { QLabel }, can have an accelerator that will pass the
 focus to its `buddy', e.g. a @Class{QLineEdit} qlineedit @Index {
@@ -315,7 +314,7 @@ Click the third push button and change its @Prop{name} to
 
 @Figure
     @Caption { The metric conversion form's buttons }
-    0.5 @Scale @IncludeGraphic { "images/qs-pushbutt.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-pushbutt.eps.gz" }
 
 @End @SubSubSection
 @SubSubSection
@@ -348,13 +347,15 @@ Click the @Option{Spacer} button and click just below the spin box
 and drag vertically towards the buttons; then release. A vertical
 spacer will appear.
 }
+@LI{
+Click @Option{File"|"Save} to save the dialog.
+}
 @EndList
 
 @Figure
     @Caption { The metric conversion form's spacers }
-    0.5 @Scale @IncludeGraphic { "images/qs-spacers.eps.gz" }
-@LP
-Click @Option{File"|"Save} to save the dialog.
+    0.45 @Scale @IncludeGraphic { "images/qs-spacers.eps.gz" }
+
 @End @SubSubSection
 @SubSubSection
     @Title { Editing Widgets }
@@ -364,7 +365,7 @@ Click @Option{File"|"Save} to save the dialog.
 We'll now edit some of the widgets to contain the values needed
 for the conversions.
 
-@PP
+@LP
 The fromComboBox:
 
 @NumberedList
@@ -385,7 +386,7 @@ Click @OK to close the Edit Listbox dialog.
 
 @Figure
     @Caption { The Edit Listbox Dialog }
-    0.5 @Scale @IncludeGraphic { "images/qs-editlistbox1.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-editlistbox1.eps.gz" }
 @LP
 The toComboBox:
 
@@ -430,7 +431,7 @@ Click the @Option{Lay Out in a Grid} (@Option{Ctrl+G}) toolbar button.
 @LLP
 @Figure
     @Caption { Using a Grid Layout }
-    @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-laygrid.eps.gz"
+    @Location { Raw } 0.45 @Scale @IncludeGraphic { "images/qs-laygrid.eps.gz"
 }
 
 }
@@ -443,7 +444,7 @@ Click the @Option{Lay Out Horizontally} toolbar button.
 @LLP
 @Figure
     @Caption { Using a Horizontal Layout }
-    @Location { Raw } 0.5 @Scale @IncludeGraphic { "images/qs-layhoriz.eps.gz" }
+    @Location { Raw } 0.45 @Scale @IncludeGraphic { "images/qs-layhoriz.eps.gz" }
 
 }
 @LI{
@@ -458,12 +459,12 @@ Finally, click the dialog and then click the @Option{Adjust Size}
 
 @Figure
     @Caption { Using a Vertical Layout }
-    0.5 @Scale @IncludeGraphic { "images/qs-layvert.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-layvert.eps.gz" }
 @LP
 Click @Option{File"|"Save} to save the dialog.
 
-@PP
-See also @TitlePageRef{laying.out.the.widgets}.
+@LP
+See also @NamePageRef{laying.out.the.widgets}.
 @BeginSubSubSections
 @SubSubSection
     @Title { Tab Order }
@@ -487,7 +488,7 @@ Press @Option{Esc} to leave tab order mode.
 @EndList
 @Figure
     @Caption { Tab Order Mode }
-    0.5 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-taborder.eps.gz" }
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -512,7 +513,7 @@ button and the Quit button. We also need to connect some of the
 other widgets. For convenience, we can do all of our connections
 in one go using the @Win{View and Edit Connections} dialog.
 
-@PP
+@LP
 We will now connect our clearButton:
 
 @NumberedList
@@ -546,7 +547,7 @@ numberLineEdit for the Receiver, and @Func{setfocus()} for the Slot.
 
 @Figure
     @Caption { The View and Edit Connections Dialog }
-    0.5 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-editconn1.eps.gz" }
 @LP
 We also need to connect the quit button to the form:
 
@@ -584,7 +585,7 @@ Select @Func{convert()} from the Slot combobox to complete our connection.
 @EndList
 @Figure
     @Caption { The Edit Functions Dialog }
-    0.5 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
+    0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
 @LP
 We will now connect the last few widgets:
 
@@ -611,15 +612,16 @@ Click @Option{New}.
 Select toComboBox as the Sender, @Func{activated(int)} as the Signal,
 ConversionForm as the Receiver, and @Func{convert()} as the Slot.
 }
+@LI{
+Click @OK to exit the View and Edit Connections dialog.
+}
+@LI{
+Click @Option{Save} to save the project.
+}
 @EndList
 @Figure
     @Caption { The View and Edit Connections Dialog }
-    0.5 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
-@LP
-Click @OK to exit the View and Edit Connections dialog.
-
-@PP
-Click @Option{Save} to save the project.
+    0.45 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
 
 @End @SubSection
 @EndSubSections
@@ -697,10 +699,9 @@ precise output unit we support. We then scale it to the selected
 output unit. Finally, we put the result in the resultLineEdit.
 qstring @Index{ QString }
 
-@PP
+@LP
 Next, we will implement the @Func{init()} function which
 is called when the dialog is created.
-
 @LD @Code @RawVerbatim @Begin
     void ConversionForm::init()
     {
@@ -717,7 +718,7 @@ the top of the form, right above the @Func{init()}. Lastly,
 we set the initial input.
 qdoublevalidator @Index{ QDoubleValidator }
 
-@PP
+@LP
 We are almost ready to run the application. Before we compile
 the application, we need a @File{main.cpp} file.
 

@@ -12,8 +12,8 @@ The Guide begins with a brief overview of the issues that must
 be considered, followed by chapters devoted to each role and
 the supporting tools provided.
 
-@PP
-The @TitlePageRef{release.manager} chapter is aimed at the person with
+@LP
+The @NamePageRef{release.manager} chapter is aimed at the person with
 overall responsibility for the release of the application. They will
 typically coordinate the work of the software engineers and the
 translator. The chapter describes the use of two tools. The @File{lupdate}
@@ -21,14 +21,14 @@ tool is used to synchronize source code and translations. The @File{lrelease}
 tool is used to create runtime translation files for use by the
 released application.
 
-@PP
-The @TitlePageRef{translators} chapter is for translators. It
+@LP
+The @NamePageRef{translators} chapter is for translators. It
 describes the use of the @QLT tool. No computer knowledge
 beyond the ability to start a program and use a text editor or word
 processor is required.
 
-@PP
-The @TitlePageRef{programmers} chapter is for Qt programmers. It
+@LP
+The @NamePageRef{programmers} chapter is for Qt programmers. It
 explains how to create Qt applications that are able to use translated
 text. It also provides guidance on how to help the translator identify
 the context in which phrases appear. This chapter's three short
@@ -45,7 +45,7 @@ consists of either single words or short phrases. These typically
 appear as window titles, menu items, pop-up help text (balloon
 help), and labels to buttons, check boxes and radio buttons.
 
-@PP
+@LP
 The phrases are entered into the source code by the programmer
 in their native language using a simple but special syntax to
 identify that the phrases require translation. The Qt tools provide
@@ -65,7 +65,7 @@ translations are required. @QLT also provides a phrase
 book facility to help ensure consistent translations across multiple
 applications and projects.
 
-@PP
+@LP
 Translators and programmers must address a number of issues because
 of the subtleties and complexities of human language:
 

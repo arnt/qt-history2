@@ -2,7 +2,7 @@
     @Title { Reference: The .ui File Format }
     @Tag { reference.the.ui.file.format }
 @Begin
-@PP
+@LP
 @QDR stores forms in @File{".ui"} files. These
 files use an XML format to represent form elements and their
 characteristics. This document provides an overview of the XML
@@ -10,117 +10,60 @@ format used, and should provide enough information for developers
 to write their own @File{".ui"} parsers so that they can
 read and modify @File{".ui"} files programatically.
 
-@PP
+@LP
 One way to parse a @File{".ui"} file is to use Qt and the
 @Class{QDomDocument}qdomdocument @Index{ QDomDocument } class; this is how @QDR does it:
 see the @File{"uilib/qwidgetfactory.h"} and @File{"uilib/qwidgetfactory.cpp"}
 source files. For information on dynamically loading and running
 @File{".ui"} files see Loading and Executing a Dynamic Dialog.
 
-@PP
+@LP
 The doctype of a @File{".ui"} file is simply "\""UI"\"", so the
 doctype tag is:
 
 @LD @Code @RawVerbatim @Begin
-
 <!DOCTYPE UI>
 @End @RawVerbatim
-@PP
+@LP
 The root element is a "\""UI"\"", which encloses the entire contents:
 
 @LD @Code @RawVerbatim @Begin
-
 <UI version="3.1" stdsetdef="1">
 ...
 </UI>
 @End @RawVerbatim
-@PP
+@LP
 Within the UI entity, there may one or zero of the following
 element types:
 
-@NumberedList
-@LI{
-actions - actions, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms
-}
-@LI{
-author - the form's author
-}
-@LI{
-class - the form's class name
-}
-@LI{
-comment - comments, e.g. copyright notices
-}
-@LI{
-connections - signal"/"slot connections
-}
-@LI{
-customwidgets - custom widgets (old-style)
-}
-@LI{
-exportmacro - Windows-specific
-}
-@LI{
-forwards - forward declarations
-}
-@LI{
-functions - function declarations
-}
-@LI{
-images - embedded images: only for @File{".ui"} files than
-include embedded images; images are normally stored in a separate
-@File{"images"} directory
-}
-@LI{
-includes - include files
-}
-@LI{
-layoutdefaults - default values for layout attributes
-}
-@LI{
-layoutfunctions - dynamic default values for layout attributes
-}
-@LI{
-menubar - menu bar, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms
-}
-@LI{
-pixmapfunction - the name of the function to use for retrieving
-pixmaps if neither embedded nor external pixmaps are being used
-}
-@LI{
-pixmapinproject - an element whose presence ndicates that the
-pixmaps are handled by the @File{".pro"} file
-}
-@LI{
-signals - signal declarations
-}
-@LI{
-slots - slot declarations
-}
-@LI{
-tabstops - the form's tab order
-}
-@LI{
-toolbars - toolbars, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms
-}
-@LI{
-variables - class variables
-}
-@LI{
-widget - the form itself; this element may contain other elements,
-including other @Code{widget} elements
-}
-@LI{
-forward - Qt 3.x beta backwards compatibility
-}
-@LI{
-include - Qt 2.x backwards compatibility
-}
-@LI{
-variable - Qt 3.x beta backwards compatibility
-}
+@VeryWideTaggedList
+@TagItem{ actions }{ actions, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms }
+@TagItem{ author }{ the form's author }
+@TagItem{ class }{ the form's class name }
+@TagItem{ comment }{ comments, e.g. copyright notices }
+@TagItem{ connections }{ signal"/"slot connections }
+@TagItem{ customwidgets }{ custom widgets (old-style) }
+@TagItem{ exportmacro }{ Windows-specific }
+@TagItem{ forwards }{ forward declarations }
+@TagItem{ functions }{ function declarations }
+@TagItem{ images }{ embedded images: only for @File{".ui"} files than include embedded images; images are normally stored in a separate @File{"images"} directory }
+@TagItem{ includes }{ include files }
+@TagItem{ layoutdefaults }{ default values for layout attributes }
+@TagItem{ layoutfunctions }{ dynamic default values for layout attributes }
+@TagItem{ menubar }{ menu bar, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms }
+@TagItem{ pixmapfunction }{ the name of the function to use for retrieving pixmaps if neither embedded nor external pixmaps are being used }
+@TagItem{ pixmapinproject }{ an element whose presence ndicates that the pixmaps are handled by the @File{".pro"} file }
+@TagItem{ signals }{ signal declarations }
+@TagItem{ slots }{ slot declarations }
+@TagItem{ tabstops }{ the form's tab order }
+@TagItem{ toolbars }{ toolbars, for @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms }
+@TagItem{ variables }{ class variables }
+@TagItem{ widget }{ the form itself; this element may contain other elements, including other @Code{widget} elements }
+@TagItem{ forward }{ Qt 3.x beta backwards compatibility }
+@TagItem{ include }{ Qt 2.x backwards compatibility }
+@TagItem{ variable }{ Qt 3.x beta backwards compatibility }
 @EndList
-@PP
+@LP
 The ordering of elements is arbitrary, although it is common
 for the class element to be first.
 
@@ -129,74 +72,76 @@ for the class element to be first.
     @Title { UI Elements }
     @Tag { ui.elements }
 @Begin
-@LD @Heading { actions{@PageMark{actions}} }
-@PP
+@BeginSubSections
+@SubSection
+    @Title {  actions}
+    @Tag{actions}
+@Begin
+@LP
 This element is used to store the form's actions. It only occurs
 in @Class{QMainWindow}qmainwindow @Index{ QMainWindow } forms.
 
-@PP
+@LP
 The @Code{actions} element contains one or more @Code{action}
 elements. Each @Code{action} element contains one or more
 properties. Each property has a @Code{name} attribute,
 and a single value which is contained within a datatype element.
 
 @LD @Code @RawVerbatim @Begin
-
 <actions>
     <action>
-        @PP
-
-
+        <property name="name">
             <cstring>fileNewAction</cstring>
         </property>
-        @PP
-
-
+        <property name="iconSet">
             <iconset>filenew</iconset>
         </property>
-        @PP
-
-
+        <property name="text">
             <string>New</string>
         </property>
-        @PP
-
-
+        <property name="menuText">
             <string>&amp;New</string>
         </property>
-        @PP
-
-
+        <property name="accel">
             <number>4194382</number>
         </property>
     </action>
     ...
 </actions>
 @End @RawVerbatim
-@LD @Heading { author{@PageMark{author}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {author  }
+    @Tag{author}
+@Begin
+@LP
 This element is used to store the author's name as a simple string.
 
 @LD @Code @RawVerbatim @Begin
-
 <author>Barney Rubble</author>
 @End @RawVerbatim
-@LD @Heading { class{@PageMark{class}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {class  }
+    @Tag{class}
+@Begin
+@LP
 This element is used to store the form's class name as a simple
 string.
 
 @LD @Code @RawVerbatim @Begin
-
 <class>InsuranceForm</class>
 @End @RawVerbatim
-@LD @Heading { comment{@PageMark{comment}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {comment  }
+    @Tag{comment}
+@Begin
+@LP
 This element is used to store comments, for example, copyright
 notices, as a simple string.
 
 @LD @Code @RawVerbatim @Begin
-
 <comment>*********************************************************************
 ** Copyright (C) 2002 Trolltech AS.  All rights reserved.
 **
@@ -217,12 +162,16 @@ notices, as a simple string.
 **
 *********************************************************************</comment>
 @End @RawVerbatim
-@LD @Heading { connections{@PageMark{connections}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {connections  }
+    @Tag{connections}
+@Begin
+@LP
 This element is used to record the signals and slots connections
 in the form.
 
-@PP
+@LP
 The @Code{connections} element contains one or more 
 @Code{connection} elements and one or more @Code{slot}
 elements. Each @Code{connection} element identifies the
@@ -230,10 +179,9 @@ signaling object and its signal, and the receiving object and
 its slot.
 
 @LD @Code @RawVerbatim @Begin
-
 <connections>
     ...
-    <connection language="@Cpp">
+    <connection language="C++">
         <sender>alignActionGroup</sender>
         <signal>selected(QAction*)</signal>
         <receiver>EditorForm</receiver>
@@ -243,19 +191,23 @@ its slot.
 </connections>
 @End @RawVerbatim
 qaction @Index{ QAction }
-@LD @Heading { customwidgets{@PageMark{customwidgets}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {customwidgets  }
+    @Tag{customwidgets}
+@Begin
+@LP
 @QDR can operate with custom widgets. A custom widget
 is represented in a @File{".ui"} file using the @Code{<customwidget>}
 element.
 
-@PP
+@LP
 Note that these are the 'old-style' custom widgets that show
 up on the form as grey rectangles. Use plugins to seamlessly
 integrate your custom widgets into @QDR -- see Creating
 Custom Widgets with Plugins.
 
-@PP
+@LP
 Each custom widget has a class name and a header file. They also
 have a size hint and size policy. A pixmap can be specified;
 this is displayed on a @QDR toolbar button which the
@@ -264,7 +216,6 @@ widgets usually emit signals, and these are listed. The name
 and type of any properties that the widget has are also included.
 
 @LD @Code @RawVerbatim @Begin
-
 <customwidgets>
     <customwidget>
         <class>StyledButton</class>
@@ -278,28 +229,24 @@ and type of any properties that the widget has are also included.
             <hordata>5</hordata>
             <verdata>5</verdata>
         </sizepolicy>
-        @PP
-image0</pixmap>
-
+        <pixmap>image0</pixmap>
         <signal>clicked()</signal>
         <signal>changed()</signal>
-        @PP
-color</property>
-
-        @PP
-pixmap</property>
-
-        @PP
-scale</property>
-
+        <property type="Color">color</property>
+        <property type="Pixmap">pixmap</property>
+        <property type="Bool">scale</property>
     </customwidget>
 </customwidgets>
 @End @RawVerbatim
-@LD @Heading { exportmacro{@PageMark{exportmacro}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {exportmacro  }
+    @Tag{exportmacro}
+@Begin
+@LP
 This tag is only relevant to Windows users.
 
-@PP
+@LP
 If you have a class that requires some Windows-specific export
 macro, e.g. for classes in a DLL that need to be declared like
 this: @Code{class win_specific_declaration_goes_here Class},
@@ -316,30 +263,36 @@ the macro's name in the 'export macro' sub-property of the form's
 name property.
 }
 @EndList
-@PP
+@LP
 Following these steps will ensure that uic will create the correct
 @Code{class YOUR_MACRO Form} declarations.
 
 @LD @Code @RawVerbatim @Begin
-
 <exportmacro>EDITOR_EXPORT</exportmacro>
 @End @RawVerbatim
-@LD @Heading { forwards{@PageMark{forwards}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {forwards  }
+    @Tag{forwards}
+@Begin
+@LP
 It is sometimes necessary to forward declare classes, particularly
 if code is being written in @File{".ui.h"} files within
 @QDR. Each forward declaration is listed as it should
 appear in the generated @Cpp code.
 
 @LD @Code @RawVerbatim @Begin
-
 <forwards>
     <forward>class QStringList;</forward>
 </forwards>
 @End @RawVerbatim
 qstringlist @Index{ QStringList }
-@LD @Heading { functions{@PageMark{functions}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {functions  }
+    @Tag{functions}
+@Begin
+@LP
 The @Code{functions} element contains a list of functions.
 Functions are standard @Cpp functions. It is possible to specify
 various attributes to create a function's signature, for example:
@@ -362,40 +315,46 @@ language: specifies the programming language. Default: @Code{@Cpp}
 }
 @EndList
 @LD @Code @RawVerbatim @Begin
-
 <functions>
     <function access="private" specifier="non virtual">isValid()</function>
     <function access="public" returnType="QString">getMessage()</function>
 </functions>
 @End @RawVerbatim
 qstring @Index{ QString }
-@LD @Heading { images{@PageMark{images}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {images  }
+    @Tag{images}
+@Begin
+@LP
 Images are normally stored in their own files and associated
 with forms using project files. This has the advantage that images
 can be shared across any number of forms in a project, and between
 projects.
 
-@PP
+@LP
 In some cases it may be desireable to store image data directly
 in a form, and the @Code{<image>} tag allows for this.
 
-@PP
+@LP
 It is possible to store images in both PNG and XPM formats, although
 in practice only XPM is recommended because of bugs in some PNG
 libraries. See the @Code{saveImageData} function in 
 @File{resource.cpp} to see how the image data is encoded.
 
 @LD @Code @RawVerbatim @Begin
-
 <images>
     <image name="image0">
         <data format="XPM.GZ" length="409">789cd3d7528808f055d0d2e72a2e492cc94c5648ce482c52d04a29cdcdad8c8eb5ade6523234530022630543251d2e253d856405bffcbc54105b19c856360003103711c6b53006ab440370316528264b4c198450c5808a94d1ed00aac214832b43124b544ec414d34b4c4c441103f11341120831309758313d0cf3b0840b7258d55a73010092c14eca</data>
     </image>
 </images>
 @End @RawVerbatim
-@LD @Heading { includes{@PageMark{includes}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {includes  }
+    @Tag{includes}
+@Begin
+@LP
 It is sometimes necessary to @Code{"#"include} header
 files in a @File{".ui"} file. Header files may be 'local',
 i.e. relative to the project's directory, or 'global', i.e. part
@@ -403,12 +362,11 @@ of Qt or the compilers standard libraries. Header files are declared
 in the implementation wherever possible, although sometimes it
 is necessary to declare them in the declaration (header) file.
 
-@PP
+@LP
 @QDR automatically adds @Code{<include>} tags
 for a @File{".ui"}'s @File{".ui.h"} file.
 
 @LD @Code @RawVerbatim @Begin
-
 <includes>
     <include location="local" impldecl="in implementation">pixmapcollection.h</include>
     <include location="local" impldecl="in implementation">pixmapchooser.h</include>
@@ -419,28 +377,34 @@ for a @File{".ui"}'s @File{".ui.h"} file.
     <include location="local" impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
 </includes>
 @End @RawVerbatim
-@LD @Heading { layoutdefaults{@PageMark{layoutdefaults}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {layoutdefaults  }
+    @Tag{layoutdefaults}
+@Begin
+@LP
 Every form has a default spacing and margin size. These can be
 overridden on a case-by-case basis.
 
 @LD @Code @RawVerbatim @Begin
-
 <layoutdefaults spacing="6" margin="11"/>
 @End @RawVerbatim
-@PP
+@LP
 See also layoutfunctions.
 
-@LD @Heading { layoutfunctions{@PageMark{layoutfunctions}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {layoutfunctions  }
+    @Tag{layoutfunctions}
+@Begin
+@LP
 Sometimes the spacing and margin values should be determined
 dynamically, e.g. to provide a common look in a windowmanager.
 
 @LD @Code @RawVerbatim @Begin
-
 <layoutfunctions spacing="LayoutClass::spacing" margin="LayoutClass::margin"/>
 @End @RawVerbatim
-@PP
+@LP
 The rules for determining @Code{margin} and @Code{spacing}
 values are these:
 
@@ -458,18 +422,19 @@ If no integer value or function is specified then the default
 value from @Code{layoutdefaults} is used.
 }
 @EndList
-@LD @Heading { menubar{@PageMark{menubar}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {menubar  }
+    @Tag{menubar}
+@Begin
+@LP
 Applications that use @Class{QMainWindow}qmainwindow @Index{ QMainWindow } often have a menubar. The
 menubar has a name property and one or more popup menu items.
 Each menu item has one or more actions and optionally separators.
 
 @LD @Code @RawVerbatim @Begin
-
 <menubar>
-    @PP
-
-
+    <property name="name">
         <cstring>menubar</cstring>
     </property>
     <item text="&amp;File" name="PopupMenu">
@@ -483,56 +448,79 @@ Each menu item has one or more actions and optionally separators.
     </item>
 </menubar>
 @End @RawVerbatim
-@LD @Heading { pixmapfunction{@PageMark{pixmapfunction}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {pixmapfunction  }
+    @Tag{pixmapfunction}
+@Begin
+@LP
 Images are normally included by listing their filenames in project
 files. Images can also be included inline using the images tag.
 Another way of dealing with images is to specify a function name.
 This function will be called, with the name (or 'key') of the
 relevant image, and is responsible for loading the appropriate
 image. To specify such a function the 
-@Code{"splashScreen</pixmapfunction>"} tag is used.
-@LD @Heading { pixmapinproject{@PageMark{pixmapinproject}} }
-@PP
+@Code{<pixmapfunction>} tag is used.
+@LD @Code @RawVerbatim @Begin
+<pixmapfunction>splashScreen</pixmapfunction>
+@End @RawVerbatim
+@End @SubSection
+@SubSection
+    @Title {pixmapinproject  }
+    @Tag{pixmapinproject}
+@Begin
+@LP
 Most applications store their images as separate files listed
 in the application's project file. This can be signified by including
-the @Code{??} tag. 
+the @Code{<pixmapinproject>} tag. 
+@LD @Code @RawVerbatim @Begin
+<pixmapinproject/>
+@End @RawVerbatim
 
-@LD @Heading { signals{@PageMark{signals}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {signals  }
+    @Tag{signals}
+@Begin
+@LP
 All the signals are listed Within a @Code{<signals>} tag.
 
 @LD @Code @RawVerbatim @Begin
-
 <signals>
     <signal>somethingChanged()</signal>
 </signals>
 @End @RawVerbatim
-@LD @Heading { slots{@PageMark{slots}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {slots  }
+    @Tag{slots}
+@Begin
+@LP
 The @Code{slots} element contains a list of slots. Each
 @Code{slot} element provides a slot's prototype.
 
 @LD @Code @RawVerbatim @Begin
-
 <slots>
-    <slot access="public" specifier="virtual" language="@Cpp" 
+    <slot access="public" specifier="virtual" language="C++" 
         returnType="void">changeAlignment(QAction* align)</slot>
 </slots>
 @End @RawVerbatim
 qaction @Index{ QAction }
-@PP
+@LP
 For available attributes see functions.
 
-@LD @Heading { tabstops{@PageMark{tabstops}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {tabstops  }
+    @Tag{tabstops}
+@Begin
+@LP
 Tabstops indicate the widgets that get the focus as the user
 tabs through the form. The @Code{<tabstops>} tag contains
 a list of tabstops, in order, each of which holds the name of
 a widget.
 
 @LD @Code @RawVerbatim @Begin
-
 <tabstops>
     <tabstop>templateView</tabstop>
     <tabstop>helpButton</tabstop>
@@ -540,8 +528,12 @@ a widget.
     <tabstop>buttonCancel</tabstop>
 </tabstops>
 @End @RawVerbatim
-@LD @Heading { toolbars{@PageMark{toolbars}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {toolbars  }
+    @Tag{toolbars}
+@Begin
+@LP
 Forms that have toolbars (dock windows) use the @Code{<toolbars>}
 tag to hold the details. These forms are normally @Class{QMainWindow}qmainwindow @Index{ QMainWindow }s
 (or subclasses). Each toolbar has a dock attribute which identifies
@@ -553,17 +545,12 @@ case the @Code{<toolbar>} tag includes appropriate
 property values for the relevant widget.
 
 @LD @Code @RawVerbatim @Begin
-
 <toolbars>
     <toolbar dock="2">
-        @PP
-
-
+        <property name="name">
             <cstring>toolBar</cstring>
         </property>
-        @PP
-
-
+        <property name="label">
             <string>Tools</string>
         </property>
         <action name="fileNewAction"/>
@@ -577,14 +564,10 @@ property values for the relevant widget.
         <action name="editPasteAction"/>
     </toolbar>
     <toolbar dock="2">
-        @PP
-
-
+        <property name="name">
             <cstring>Toolbar</cstring>
         </property>
-        @PP
-
-
+        <property name="label">
             <string>Toolbar</string>
         </property>
         <action name="leftAlignAction"/>
@@ -596,26 +579,18 @@ property values for the relevant widget.
         <action name="underlineAction"/>
         <separator/>
         <widget class="QComboBox">
-            @PP
-
-
+            <property name="name">
                 <cstring>fontComboBox</cstring>
             </property>
         </widget>
         <widget class="QSpinBox">
-            @PP
-
-
+            <property name="name">
                 <cstring>SpinBox2</cstring>
             </property>
-            @PP
-
-
+            <property name="minValue">
                 <number>6</number>
             </property>
-            @PP
-
-
+            <property name="value">
                 <number>10</number>
             </property>
         </widget>
@@ -624,8 +599,12 @@ property values for the relevant widget.
 @End @RawVerbatim
 qcombobox @Index{ QComboBox }
 qspinbox @Index{ QSpinBox }
-@LD @Heading { variables{@PageMark{variables}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {variables  }
+    @Tag{variables}
+@Begin
+@LP
 Module variables are held in the @Code{<variables>} tag.
 Variable type names often include < and >, which must be stored
 as entities. It is also possible to specify the access type -
@@ -633,7 +612,6 @@ either @Code{public}, @Code{protected} or @Code{private}.
 Default is @Code{protected}.
 
 @LD @Code @RawVerbatim @Begin
-
 <variables>
     <variable access="private">SettingsDialog * settings;</variable>
     <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
@@ -647,14 +625,18 @@ qmap @Index{ QMap }
 qstring @Index{ QString }
 qguardedptr @Index{ QGuardedPtr }
 qptrlist @Index{ QPtrList }
-@LD @Heading { widget{@PageMark{widget}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {widget  }
+    @Tag{widget}
+@Begin
+@LP
 Widgets are used at multiple levels within a @Code{.ui}
 file. The whole form itself is a widget, and it contains other
 widgets, usually within the context of layouts such as hboxes,
 vboxes and grids.
 
-@PP
+@LP
 Below is an example of a complete @File{.ui} file. The
 form itself is a @Class{QWidget}qwidget @Index{ QWidget } with various non-default properties
 set. This widget contains a single hbox, which also has some
@@ -662,18 +644,13 @@ non-default properties, and which contains a single @Class{QTextBrowser}qtextbro
 widget.
 
 @LD @Code @RawVerbatim @Begin
-
 <!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>WinIntroPage</class>
 <widget class="QWidget">
-    @PP
-
-
+    <property name="name">
         <cstring>WinIntroPage</cstring>
     </property>
-    @PP
-
-
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
@@ -681,36 +658,24 @@ widget.
             <height>228</height>
         </rect>
     </property>
-    @PP
-
-
+    <property name="caption">
         <string>Form1</string>
     </property>
     <hbox>
-        @PP
-
-
+        <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        @PP
-
-
+        <property name="margin">
             <number>11</number>
         </property>
-        @PP
-
-
+        <property name="spacing">
             <number>6</number>
         </property>
         <widget class="QTextBrowser">
-            @PP
-
-
+            <property name="name">
                 <cstring>TextBrowser1</cstring>
             </property>
-            @PP
-
-
+            <property name="text">
                 <string>This program installs Qt.</string>
             </property>
         </widget>
@@ -721,21 +686,34 @@ widget.
 @End @RawVerbatim
 qwidget @Index{ QWidget }
 qtextbrowser @Index{ QTextBrowser }
-@LD @Heading { forward{@PageMark{forward}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {forward  }
+    @Tag{forward}
+@Begin
+@LP
 @I{ This tag is included for Qt 3.x beta backwards compatibility,
 and should not be used. Use forwards instead. }
 
-@LD @Heading { include{@PageMark{include}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {include  }
+    @Tag{include}
+@Begin
+@LP
 @I{ This tag is included for Qt 2.x beta backwards compatibility,
 and should not be used. Use includes instead. }
 
-@LD @Heading { variable{@PageMark{variable}} }
-@PP
+@End @SubSection
+@SubSection
+    @Title {variable  }
+    @Tag{variable}
+@Begin
+@LP
 @I{ This tag is included for Qt 3.x beta backwards compatibility,
 and should not be used. Use variables instead. }
 
+@End @SubSection
 @End @Section
 @Section
     @Title { Datatype Elements }
@@ -743,17 +721,19 @@ and should not be used. Use variables instead. }
 @Begin
 @NumberedList
 @LI{
-@Code{bool} - a boolean value (0 or 1), e.g. @Code{<bool>1</bool>}
+@Code{bool} - a boolean value (0 or 1), e.g. @Code{"<bool>1</bool>"}
 }
 @LI{
-@Code{color} - a color, e.g. @Code{<color><red>192</red><green>0</green><blue>255</blue></color>}
+@Code{color} - a color, e.g.
+@Code{"<color><red>192</red><green>0</green><blue>255</blue></color>"}
 }
 @LI{
-@Code{cstring} - a C string value (8-bit), e.g. @Code{<cstring>Some text</cstring>}
+@Code{cstring} - a C string value (8-bit), e.g.
+@Code{"<cstring>Some text</cstring>"}
 }
 @LI{
 @Code{cursor} - an integer which indicates the cursor
-type, e.g. @Code{<cursor>4</cursor>}. The valid integers
+type, e.g. @Code{"<cursor>4</cursor>"}. The valid integers
 for the cursor type are:
 
 @NumberedList
@@ -804,18 +784,15 @@ for the cursor type are:
 }
 @EndList}
 @LI{
-@Code{enum} - an enum name, e.g. @Code{<enum>StrongFocus</enum>}
+@Code{enum} - an enum name, e.g. @Code{"<enum>StrongFocus</enum>"}
 }
 @LI{
 @Code{font} - a font description, e.g.
 
 @LD @Code @RawVerbatim @Begin
-
 <font>
     <family>Helvetica</family>
-    @PP
-16</pointsize>
-
+    <pointsize>16</pointsize>
     <weight>50</weight>
     <italic>1</italic>
     <underline>0</underline>
@@ -824,11 +801,11 @@ for the cursor type are:
 @End @RawVerbatim}
 @LI{
 @Code{iconset} - an iconset (see @Code{pixmap}),
-e.g. @Code{<iconset>filenew</iconset>}
+e.g. @Code{"<iconset>filenew</iconset>"}
 }
 @LI{
 @Code{number} - an integer with an optional sign, e.g.
-@Code{<number>947</number>}
+@Code{"<number>947</number>"}
 }
 @LI{
 @Code{palette} - a palette
@@ -840,22 +817,19 @@ the key is used if a user defined function is used to access
 the pixmap. It is also possible for pixmaps to be included inline.
 Example: 
 @LD @Code @RawVerbatim @Begin
-
-chair</pixmap>
+<pixmap>chair</pixmap>
 @End @RawVerbatim
 }
 @LI{
 @Code{point} - a point, e.g. 
 @LD @Code @RawVerbatim @Begin
-
-<x>15</x><y>95</y></point>
+<point><x>15</x><y>95</y></point>
 @End @RawVerbatim
 }
 @LI{
 @Code{rect} - a rectangle, e.g.
 
 @LD @Code @RawVerbatim @Begin
-
 <rect>
     <x>20</x>
     <y>35</y>
@@ -865,14 +839,15 @@ chair</pixmap>
 @End @RawVerbatim}
 @LI{
 @Code{set} - a list of names separated by "|"'s, e.g.
-@Code{<set>AlignLeft|AlignTop</set>}
+@Code{"<set>AlignLeft|AlignTop</set>"}
 }
 @LI{
-@Code{size} - a size, e.g. @Code{<size><width>150</width><height>105</height></size>}
+@Code{size} - a size, e.g.
+@Code{"<size><width>150</width><height>105</height></size>"}
 }
 @LI{
 @Code{sizepolicy} - an integer which indicates the size
-type, e.g. @Code{<hsizetype>5</hsizetype><vsizetype>4</vsizetype>}.
+type, e.g. @Code{"<hsizetype>5</hsizetype><vsizetype>4</vsizetype>"}.
 The valid integers for the size type are:
 
 @NumberedList
@@ -897,20 +872,17 @@ The valid integers for the size type are:
 @EndList}
 @LI{
 @Code{string} - a Unicode string value (in UTF8), e.g.
-@Code{<string>Some text</string>}
+@Code{"<string>Some text</string>"}
 }
 @EndList
 @LD @Heading { Complex Datatype Elements{@PageMark{complex.datatype.elements}} }
 @LD @I { palette{@PageMark{palette}} }
-@PP
+@LP
 This element holds colors for user interface elements for each
 color group. For example:
 
 @LD @Code @RawVerbatim @Begin
-
-@PP
-
-
+<palette>
   <active>
     <color> ... Foreground    ... </color>
     <color> ... Button        ... </color>
@@ -939,9 +911,10 @@ color group. For example:
   </inactive>
 </palette>
 @End @RawVerbatim
-@PP
+@LP
 See color for the format of the @Code{<color>} element.
 
+@EndSubSections
 @End @Section
 @EndSections
 @End @Chapter

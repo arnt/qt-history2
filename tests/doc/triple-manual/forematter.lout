@@ -2,7 +2,7 @@
 @DP
 @DP
 @DP
-Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved.
+Copyright @CopyRight 2003 Trolltech AS. All Rights Reserved.
 @DP
 Printed in Norway
 @DP
@@ -11,7 +11,7 @@ Printing History:
 @ID lines @Break {
 1st Edition, 2001
 2nd Printing, 2001
-2nd Edition, 2002
+2nd Edition, 2003
 }
 @DP @DP @DP @DP 
 Trolltech{@TradeMark}, Qt{@TradeMark} and the Trolltech logo are
@@ -39,5 +39,5 @@ the prior written permission of Trolltech AS.
 ISBN 82-92340-01-7
 @DP
 MAN300101NO-12"/"02 
-@PP
+@LP
 

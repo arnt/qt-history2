@@ -8,7 +8,7 @@ Two tools are provided for the release manager, @File{lupdate} and
 don't have to use @File{qmake}, though.
 release.manager @Index{ Release Manager }
 
-@PP
+@LP
 A third tool, @File{qm2ts}, can be used for converting
 Qt 2.x message files to @File{.ts} files.
 
@@ -35,9 +35,9 @@ translations.in.project.files @SubIndex{ in Project Files }
 @End @RawVerbatim
 Using a locale within the translation file name is useful for
 determining which language to load at runtime. This is explained
-in @TitlePageRef{programmers}.
+in @NamePageRef{programmers}.
 
-@PP
+@LP
 An example of a complete @File{.pro} file with four translation
 source files:
 headers @RawIndex{ HEADERS }
@@ -74,7 +74,7 @@ defaultcodec.in.project.files @SubIndex{ in Project Files }
 chinese.language @Index{ Chinese Language }
 japanese.language @Index{ Japanese Language }
 
-@PP
+@LP
 If you do use the @Func{QApplication::defaultCodec()} mechanism in your
 application, @QLT needs you to set the @Code{DEFAULTCODEC}
 entry in the @File{.pro} file as well. For example:
@@ -90,7 +90,7 @@ entry in the @File{.pro} file as well. For example:
 @LP
 Usage: @Code{lupdate myproject.pro}
 lupdate @Index{ lupdate }
-@PP
+@LP
 This is a simple command line tool. @File{lupdate} reads a Qt @File{.pro}
 project file, finds the translatable strings in the specified
 source, header and @QDR interface files, and produces
@@ -99,14 +99,14 @@ the project file. The translation files are given to the translator
 who uses @QLT to read the files and insert the translations.
 qt.designer @Index{ Qt Designer }
 
-@PP
+@LP
 Companies that have their own translators in-house may find it
 useful to run @File{lupdate} regularly, perhaps monthly, as the application
 develops. This will lead to a fairly low volume of translation
 work spread evenly over the life of the project and will allow
 the translators to support a number of projects simultaneously.
 
-@PP
+@LP
 Companies that hire in translators as required may prefer to
 run @File{lupdate} only a few times in the application's life cycle,
 the first time might be just before the first test phase. This
@@ -116,7 +116,7 @@ with those found during the initial test phase. The second and
 any subsequent @File{lupdate} runs would probably take place during
 the final beta phase.
 
-@PP
+@LP
 The @File{.ts} file format is a simple human-readable
 XML format that can be used with version control systems if required.
 ts.files @Index{ .ts Files }
@@ -132,7 +132,7 @@ xml @Index{ XML }
 Usage: @Code{lrelease myproject.pro}
 lrelease @Index{ lrelease }
 
-@PP
+@LP
 This is another simple command line tool. It reads a Qt @File{.pro}
 project file and produces the @File{.qm} files used by
 the application, one for each @File{.ts} translation source
@@ -142,7 +142,7 @@ for translations.
 qm.files @Index{ .qm Files }
 qt.message.files @Index{ Qt Message Files }
 
-@PP
+@LP
 This tool is run whenever a release of the application is to
 be made, from initial test version through to final release version.
 If the @File{.qm} files are not created, e.g. because
@@ -152,7 +152,7 @@ text the programmers placed in the source files. Once the
 @File{.qm} files are available the application will detect
 them and use them automatically.
 
-@PP
+@LP
 Note that @File{lrelease} will only incorporate translations that are
 marked as `done'. If a translation is missing, or has failed
 validation, the original text will be used instead.

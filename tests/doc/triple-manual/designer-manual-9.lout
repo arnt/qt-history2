@@ -7,13 +7,13 @@
     @Title { Customizing Qt Designer }
     @Tag { customizing.qt.designer }
 @Begin
-@PP
+@LP
 @QDR can be customized in two ways: you can add custom widgets, and
 you can change aspects of how @QDR works. Custom widgets are covered
 in Creating Custom Widgets [p.~@PageOf{creating.custom.widgets}]. This
 section will focus on customizing @QDR itself.
 
-@PP
+@LP
 @QDR's toolbars are all dockable so they can be dragged
 by their toolbar handles and arranged how you like. The Files,
 Object Hierarchy, Property Editor and Output Windows are also
@@ -21,7 +21,7 @@ dockable so you can also drag them to the positions that you
 prefer. You can also make them into floating windows by dragging
 them outside @QDR's dock areas.
 
-@PP
+@LP
 General preferences can be set by clicking @Option{Edit"|"Preferences}
 to invoke the @Win{Preferences} dialog. If you check the 'Restore
 Last Workspace on Startup' checkbox then @QDR will
@@ -31,7 +31,7 @@ either by selecting a color or a pixmap. You can also switch
 off the grid (uncheck Show Grid) since using layouts makes the
 grid redundant.
 
-@PP
+@LP
 The @Win{Preferences} dialog may have additional tabs, depending
 plugins @Index{ Plugins } code.editing @RawIndex{ Code Editing }
 code.editing.preferences @SubIndex{ Preferences } preferences
@@ -39,7 +39,7 @@ code.editing.preferences @SubIndex{ Preferences } preferences
 Editing } on what plugins you have installed. We'll describe the @Cpp
 Editor tab since this is installed by default.
 
-@PP
+@LP
 The @Cpp Editor tab is used to set your preferred fonts for syntax
 highlighting in @QDR's code editor. The base font
 for all elements is set in the 'Standard' element which is the
@@ -52,11 +52,11 @@ inherit its setting.
     @Title { Qt Designer's Code Editor }
     @Tag{qt.designer.s.code.editor}
 @Begin
-@PP
+@LP
 The code editor is available if an Editor plugin is installed.
 The @Cpp Editor plugin is installed by default.
 
-@PP
+@LP
 The code keypresses.qt.designer.s.code.editor @Index{ Keypresses (Qt
 Designer's code editor) } editor provides the following keystrokes:
 
@@ -101,13 +101,13 @@ Designer's code editor) } editor provides the following keystrokes:
     @Rowa A { Tab } B { Completion (see below)}
 }
 
-@PP
+@LP
 To select (mark) text hold down the Shift key whilst pressing
 one of the movement keystrokes, for example, @Option{Shift+Right Arrow}
 will select the character to the right, and @Option{Shift+Ctrl+Right
 Arrow} will select the word to the right, etc.
 
-@PP
+@LP
 Pressing @Option{Alt+I} starts incremental search. The characters
 you type will appear in the Incremental Search line edit in the
 Search toolbar and the cursor will be moved to the first matching
@@ -115,7 +115,7 @@ text in the editor. As you type the search will continue. Press
 @Option{Return} to move to the next match and press @Option{Esc} to cancel
 the search at the position you've reached.
 
-@PP
+@LP
 Pressing @Option{Tab} after you've typed one or more characters invokes
 completion. Completion works like this: start typing some text
 then press @Option{Tab}. If the editor can find another item of text
@@ -125,7 +125,7 @@ a list of choices. You can use the arrow keys to choose a piece
 of text then press @Option{Return}, or press @Option{Esc} to continue typing.
 You can switch off completion in the @Win{Preferences} dialog.
 
-@PP
+@LP
 When you enter @Code{->} or @Code{.} the editor
 will pop up a command completion list; use the arrow keys to
 move to the item you want and press @Option{Return}, or press @Option{Esc}
@@ -138,7 +138,7 @@ to ignore the list.
     @Title { Creating and Using Templates }
     @Tag { creating.and.using.templates }
 @Begin
-@PP
+@LP
 @QDR supports two approaches to creating template creating.templates
 @Index{ Creating Templates } templates @RawIndex{ Templates }
 templates.creating.and.using @SubIndex{ Creating and Using } forms.
@@ -153,13 +153,13 @@ techniques.
     @Title { Simple Templates }
     @Tag{simple.templates}
 @Begin
-@PP
+@LP
 These templates are most useful when you want to create a whole
 set of forms which all have some common widgets. For example,
 you might have a project that will require many forms, all of
 which need to be branded with a company name and logo.
 
-@PP
+@LP
 First we'll create the simple template.
 
 @NumberedList
@@ -189,7 +189,7 @@ Right click the form in the Forms list, then click Remove form
 from project.
 }
 @EndList
-@PP
+@LP
 Now that we have the simple template we are ready to use it.
 Click @Option{File"|"New} to invoke the @Win{New File} dialog. One of
 the templates that will appear is 'Simple Dialog'. Click the
@@ -203,7 +203,7 @@ be prompted for a new form name.
     @Title { Base-class Templates }
     @Tag{base.class.templates}
 @Begin
-@PP
+@LP
 These templates are useful when you want to provide some default
 templates @RawIndex{ Templates }
 templates.base.class.templates @SubIndex{ Base Class Templates }
@@ -214,11 +214,11 @@ We won't describe the class itself, but will focus instead on
 making use of it as a @QDR template. The source for
 the class is in @File{"qt/tools/designer/examples/sizeaware"}.
 
-@PP
+@LP
 The template can either be based on a custom widget or on any
 existing container widget.
 
-@PP
+@LP
 If you want to base the template on a custom widget you must
 first add it to @QDR's custom widgets. Click @B{Tools"|"Custom"|"Edit
 Custom Widgets} to invoke the @Win{Edit Custom Widgets} dialog.
@@ -231,7 +231,7 @@ properties. Click the Properties tab. Click @Option{New Property}
 and change the property name to 'company'. Click the @Option{New Property}
 again and change the property name to 'settingsFile'. Click @Close.
 
-@PP
+@LP
 To create a template, based on an existing widget or on your
 own custom widget, click @Option{File"|"Create Template} to invoke
 the @Win{Create Template} dialog. Change the Template Name to 'SizeAware'
@@ -239,7 +239,7 @@ and click the SizeAware base class, then click @Option{Create}. The
 dialog will create the template and close itself immediately.
 Close @QDR and restart it.
 
-@PP
+@LP
 A new template, 'SizeAware' is now available from the list of
 templates. Click @Option{File"|"New}, click SizeAware and click @OK.
 Note that the two properties, company and settingsFile, are available
@@ -256,12 +256,12 @@ a single main window.)
     @Title { Integrating Qt Designer with Visual Studio }
     @Tag { integrating.qt.designer.with.visual.studio }
 @Begin
-@PP
+@LP
 @QDR can be integrated into Visual Studio 6.0 using the qmsdev.dsp
 @Index{ qmsdev.dsp } @File{"qmsdev.dsp"} file that is supplied with
 Qt. Visual Studio.Net does not support this integration.
 
-@PP
+@LP
 Start visual.studio @Index{ Visual Studio } up Visual Studio and click
 @Option{File"|"Open Workspace}. Open
 @File{"%QTDIR%\\tools\\designer\\"}
@@ -280,7 +280,7 @@ click the @Option{Browse} button. Change the file type to 'Add-ins
 qmsdev.dll @Index{ qmsdev.dll } @File{"qmsdev.dll"} file, click
 @Option{Open}, then click @Close.
 
-@PP
+@LP
 A new toolbar will appear in Visual Studio with the following
 toolbar buttons:
 
@@ -314,7 +314,7 @@ file
 Double clicking a ui @Index{ .ui } @File{".ui"} file in the workspace
 overview will now launch @QDR.
 
-@PP
+@LP
 If you create a macros @RawIndex{ Macros } macros.q.object @SubIndex{
 Q_OBJECT } q.object @Index{ Q_OBJECT } cpp @Index{ .cpp }
 @File{".cpp"} file which contains the @File{"Q_OBJECT"} macro you will
@@ -333,7 +333,7 @@ to invoke the Project Settings dialog. Click the Custom Build tab.
 Click the @Option{Dependencies} button to pop up the User Defined
 Dependencies dialog. Type in @Code{"$(InputDir)\$(InputPath)"}, then
 press @Option{Return}. Click @OK to leave the Dependencies dialog,
-then click @OK to leave the Project Settings dialog. @PP If you wish
+then click @OK to leave the Project Settings dialog. @LP If you wish
 to delete the add-in remove it from the toolbar then delete the
 qmsdev.dll @Index{ qmsdev.dll } @File{"qmsdev.dll"} file from the
 add-ins directory.
@@ -343,7 +343,7 @@ add-ins directory.
     @Title { Creating Makefiles without qmake }
     @Tag{creating.makefiles.without.qmake}
 @Begin
-@PP
+@LP
 The @File{"qmake"} tool provided with Qt can create Makefiles
 makefiles @Index{ Makefiles } appropriate to your platform based on
 pro @Index{ .pro } @File{".pro"} project files. This section describes
@@ -351,7 +351,7 @@ the dependencies involved in building a Qt application and gives a
 couple of simple example Makefiles. This section assumes that you have
 a good understanding of Makefiles.
 
-@PP
+@LP
 @QDR produces macros @RawIndex{ Macros } macros.q.object @SubIndex{
 Q_OBJECT } q.object @Index{ Q_OBJECT } ui @Index{ .ui } @File{".ui"}
 files which are used to generate h @Index{ .h } @File{".h"} and cpp
@@ -367,7 +367,7 @@ file 'file.moc' should be generated which must be @Code{"#"include}d
 in the cpp @Index{ .cpp } @File{".cpp"}, normally at the end. This
 requires an extra dependency being created.
 
-@PP
+@LP
 Processing ui @Index{ .ui } @File{".ui"} files with @File{"uic"} is
 done @I{twice}:
 @LD @Code @RawVerbatim @Begin
@@ -393,7 +393,7 @@ we mention it here because it can be useful for command line
 users. Note also that the command line for @Code{-subdecl}
 and for @Code{-subimpl} are subtly different.
 
-@PP
+@LP
 For implementation files that contain classes which inherit from
 @Class{QObject}qobject @Index{ QObject } we must create moc files:
 @LD @Code @RawVerbatim @Begin
@@ -428,7 +428,7 @@ Note that you may need to include the full path to the commands
 in your Makefile, and under Windows the filenames are
 moc.exe @Index{ moc.exe } @File{"moc.exe"} and
 uic.exe @Index{ uic.exe } @File{"uic.exe"}.
-@PP
+@LP
 In Unix"/"Linux environments the @File{"make"} command may
 be able to do more for us, so we should be able to use a simpler
 Makefile like this:
@@ -459,14 +459,14 @@ examples supplied with Qt.
     @Title { Importing Foreign File Formats }
     @Tag { importing.foreign.file.formats }
 @Begin
-@PP
+@LP
 To import a file in a supported foreign file format click
 @Option{File"|"Open}, foreign.file.formats @Index{ Foreign File
 Formats } then click the File Type combobox to choose the file type
 you wish to load. Click the required file and @QDR will convert and
 load the file.
 
-@PP
+@LP
 The filters that @QDR uses to read foreign file formats
 are 'works in progress'. You may have different filters available
 in your version of @QDR than those described here.
@@ -479,26 +479,26 @@ Type combobox.
     @Title { Importing Qt Architect Files }
     @Tag{importing.qt.architect.files}
 @Begin
-@PP
+@LP
 Qt Architect is a free GUI builder for Qt written by Jeff Harris
 foreign.file.formats @RawIndex{ Foreign File Formats }
 foreign.file.formats.qt.architect @SubIndex{ Qt Architect }
 qt.architect @Index{ Qt Architect } and Klaus Ebner. The dlg @Index{
 .dlg } @File{".dlg"} extension is associated with Qt Architect dialog
-files. @PP @QDR can read files generated by Qt Architect version 2.1
+files. @LP @QDR can read files generated by Qt Architect version 2.1
 and above. When given a dlg @Index{ .dlg } @File{".dlg"} file from a
 previous version of Qt Architect, @QDR tells you how to convert it to
 the file format of version 2.1. (The conversion procedure varies
 depending on the version of the dlg @Index{ .dlg } @File{".dlg"}
 file.)
 
-@PP
+@LP
 The import filter does a good job of importing dlg @Index{ .dlg }
 @File{".dlg"} files; the result is almost identical to what you get in
 Qt Architect. However, the @Cpp code that uses the dialogs will
 probably need some adaptation.
 
-@PP
+@LP
 There are a few drawbacks to converting Qt Architect files to @QDR's
 format due to differences between the two tools; these are listed
 below:
@@ -540,24 +540,24 @@ files. These have to be restored manually in @QDR.}
     @Title { Importing Glade Files }
     @Tag{importing.glade.files}
 @Begin
-@PP
+@LP
 Glade is a free GUI builder for GTK+ and GNOME written by Damon
 foreign.file.formats @RawIndex{ Foreign File Formats }
 foreign.file.formats.glade @SubIndex{ Glade } glade @Index{ Glade }
 Chaplin. The glade @Index{ .glade } @File{".glade"} extension is
 associated with Glade files.
 
-@PP
+@LP
 @QDR has been tested with Glade files up to version
 0.6.0 and might work with later versions as well.
 
-@PP
+@LP
 Although Glade does not target Qt, the layout system and the
 widget set of GTK+ are similar to those of Qt, so the filter
 will retain most of the information in the
 
 glade @Index{ .glade } @File{".glade"} file.
-@PP
+@LP
 There are some considerations regarding the conversion of Glade
 files, as listed below:
 

@@ -7,7 +7,7 @@
     @Title { Introduction }
     @Tag { introductionxx }
 @Begin
-@PP
+@LP
 @QDR provides menu options that invoke the actions
 necessary to create applications. Many menu options lead to dialog
 boxes that provide additional options and functionality. The
@@ -26,7 +26,7 @@ that appears in the relevant chapter.
     @Caption { @I{The File Menu} }
     0.5 @Scale @IncludeGraphic { "images/rmo-filemenu.eps.gz" }
 
-@PP
+@LP
 This menu is invoked with @Option{Alt+F}, and provides the following
 files @Index{ Files }
 adding @RawIndex{ Adding }
@@ -111,7 +111,7 @@ See also @NamePageRef{the.file.toolbar.buttons}.
 @Figure
     @Caption { @I{The Edit Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-editmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+E}, and provides the following
 undo.and.redo @Index{ Undo and Redo }
 options:
@@ -193,7 +193,7 @@ See also @NamePageRef{the.edit.toolbar.buttons}.
 @Figure
     @Caption { @I{The Project Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-projectmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+O}, and provides the following
 projects @RawIndex{ Projects }
 projects.active.project @SubIndex{ Active Project }
@@ -244,7 +244,7 @@ See also @NamePageRef{the.file.toolbar.buttons}.
 @Figure
     @Caption { @I{The Search Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-searchmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+S}, and provides the following
 find.text.dialog @Index{ Find Text Dialog }
 options:
@@ -285,7 +285,7 @@ See also @NamePageRef{the.search.toolbar.buttons}.
 @Figure
     @Caption { @I{The Tools Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-toolsmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+T}, and provides the following
 tools @RawIndex{ Tools }
 tools.pointer @SubIndex{ Pointer }
@@ -558,7 +558,7 @@ See also @NamePageRef{the.tools.toolbar.buttons}.
     @Caption { @I{The Layout Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-layoutmenu.eps.gz" }
 
-@PP
+@LP
 This menu is invoked with @Option{Alt+L}, and provides the following
 layouts @Index{ Layouts }
 layouts @RawIndex{ Layouts }
@@ -636,7 +636,7 @@ See also @NamePageRef{the.layout.toolbar.buttons}.
     @Caption { @I{The Preview Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-previewmenu.eps.gz" }
 
-@PP
+@LP
 This menu is invoked with @Option{Alt+P}, and provides the following
 previewing @Index{ Previewing }
 options:
@@ -680,7 +680,7 @@ options:
 @Figure
     @Caption { @I{The Window Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-windowmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+W}, and provides the following
 options:
 
@@ -807,7 +807,7 @@ windows.object.explorer @SubIndex{ Object Explorer }}
 @Figure
     @Caption { @I{The Help Menu} }
  0.5 @Scale @IncludeGraphic { "images/rmo-helpmenu.eps.gz" }
-@PP
+@LP
 This menu is invoked with @Option{Alt+H}, and provides the following
 options:
 
