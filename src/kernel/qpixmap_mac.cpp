@@ -46,6 +46,27 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 #endif
 }
 
+static inline QRgb qt_conv16ToRgb( ushort c ) {
+    static const int qt_rbits = (565/100);
+    static const int qt_gbits = (565/10%10);
+    static const int qt_bbits = (565%10);
+    static const int qt_red_shift = qt_bbits+qt_gbits-(8-qt_rbits);
+    static const int qt_green_shift = qt_bbits-(8-qt_gbits);
+    static const int qt_neg_blue_shift = 8-qt_bbits;
+    static const int qt_blue_mask = (1<<qt_bbits)-1;
+    static const int qt_green_mask = (1<<(qt_gbits+qt_bbits))-((1<<qt_bbits)-1);
+    static const int qt_red_mask = (1<<(qt_rbits+qt_gbits+qt_bbits))-(1<<(qt_gbits+qt_bbits));
+
+    const int r=(c & qt_red_mask);
+    const int g=(c & qt_green_mask);
+    const int b=(c & qt_blue_mask);
+    const int tr = r >> qt_red_shift;
+    const int tg = g >> qt_green_shift;
+    const int tb = b << qt_neg_blue_shift;
+
+    return qRgb(tr,tg,tb);
+}
+
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
@@ -131,19 +152,44 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 
-    QRgb *q;
-    QImage i32 = image.convertDepth(32);
-    unsigned short sbpr = i32.bytesPerLine();
-    QRgb *sptr = (QRgb *)i32.bits(), *srow;
+    QRgb q;
+    int sdpt = image.depth();
+    unsigned short sbpr = image.bytesPerLine();
+    uchar *sptr = image.bits(), *srow;
 
     char mode = true32b;
     SwapMMUMode(&mode);
     for(int yy=0;yy<image.height();yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
-	srow = (QRgb *)((char *)sptr + (yy * sbpr));
+	srow = sptr + (yy * sbpr);
 	for(int xx=0;xx<image.width();xx++) {
-	    q = (srow + xx);
-	    *(drow + xx) = /*qAlpha(*q) << 24 |*/ qRed(*q) << 16 | qGreen(*q) << 8 | qBlue(*q);
+	    switch(sdpt) {
+	    case 1:
+	    {
+		char one_bit = *(srow + (xx / 8));
+		if(image.bitOrder()==QImage::BigEndian)
+		    one_bit = one_bit >> (7 - (xx % 8));
+		else
+		    one_bit = one_bit >> (xx % 8);
+		q = 0;
+		if(!(one_bit & 0x01))
+		    q = (255 << 16) | (255 << 8) | 255;
+		break;
+	    }
+	    case 8:
+		q = image.color(*(srow + xx));
+		break;
+	    case 16:
+		q = qt_conv16ToRgb(*(((ushort *)srow) + xx));
+		break;
+	    case 32:
+		q = *(((QRgb *)srow) + xx);
+		break;
+	    default:
+		qDebug("Oops: Forgot a depth %s:%d", __FILE__, __LINE__);
+		break;
+	    }
+	    *(drow + xx) = q;
 	}
     }
     SwapMMUMode(&mode);
