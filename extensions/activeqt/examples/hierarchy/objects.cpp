@@ -67,6 +67,6 @@ QSize QSubWidget::sizeHint() const
 void QSubWidget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.setPen(palette().text());
+    painter.setPen(palette().text().color());
     painter.drawText(rect(), Qt::AlignCenter, lbl);
 }
