@@ -6,23 +6,23 @@ Severe
 
 Accelerators that have been set in a form can't be used in
 designer anymore (e.g. a Alt-P in a form inhibits the Alt-P-
-accelerator for the Preview menu). 
+accelerator for the Preview menu).
 
 Create->Template lists only container classes not form classes
 
 No possibility to include custom templates in "New File" dialog
 (Create->Template should have a file dialog)
- 
-The View Connections dialog (Edit->Connections) mustn't be blocking
-(there should be a possibility to have an eye on existing 
-connections while designing) 
 
-Edit Connections dialog: 
+The View Connections dialog (Edit->Connections) mustn't be blocking
+(there should be a possibility to have an eye on existing
+connections while designing)
+
+Edit Connections dialog:
     Connect button should be disabled after a connection was created
-    by clicking signal and slot (prevent double creations by 
+    by clicking signal and slot (prevent double creations by
     pressing the Connect button in addition)
 
-    To be consistent with the mouse way, marking signal and slot 
+    To be consistent with the mouse way, marking signal and slot
     by keyboard must not require pressing Connect additionally
     to actually create the connection
 
@@ -46,12 +46,7 @@ Cosmetic
 
 The File menu should have a Close entry for the current form
 
-The Connection tool should not be switched off automatically when
-the Edit Connection dialog is closed (to be consistent with the 
-pointer and tab order tools: people might want to make connections
-for several widgets at once) 
-
-Wishlist 
+Wishlist
 --------
 
-Display the current size of a form in the property editor 
+Display the current size of a form in the property editor
