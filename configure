@@ -1079,12 +1079,18 @@ then
     #   	Of course XFree86 is not affected by this Xsun bug, so ideally
     #   	we should disable XKB support on Solaris + Xsun only, not on
     #   	Solaris + XFree86. But then how to detect Xsun vs. XFree86?
-    [ `uname -s` = "SunOS" -a `uname -r` = "5.7" ] && XKB=no
-    #   Link-time problems with XKB on Tru64
-    [ `uname -s` = "OSF1" ] && XKB=no
+    #   Work around link-time problems on Tru64
+    if [ `uname -s` = "OSF1" -o `uname -s` = "SunOS" -a `uname -r` = "5.7" ]
+    then
+	if [ "x$VERBOSE" = "xyes" ]
+	then
+	   echo "XKB extension is not supported on this platform."
+	fi
+	XKB=no
+    fi
     if [ $XKB != no ]
     then
-        XKB=yes
+	XKB=yes
 	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
     fi
 fi
@@ -1851,7 +1857,7 @@ else
     echo
 fi
 
-if [ -n "$VERBOSE" ]
+if [ "x$VERBOSE" = "xyes" ]
 then
     echo "QMake vars....... $QMAKE_VARS"
     echo "QMake switches... $QMAKE_SWITCHES"
@@ -1939,7 +1945,7 @@ do
     else
 	echo "  for $a\c"
     fi
-    if [ "$VERBOSE" = "yes" ]
+    if [ "x$VERBOSE" = "xyes" ]
     then
 	echo " (`basename $SPEC`)"
 	if echo '\c' | grep '\c' >/dev/null
