@@ -58,6 +58,7 @@ public:
     QModelIndex itemBelow(const QModelIndex &index) const;
 
     void doItemsLayout();
+    void reset();
 
 signals:
     void expanded(const QModelIndex &index);
@@ -77,7 +78,6 @@ protected slots:
 
 protected:
     QTreeView(QTreeViewPrivate &dd, QWidget *parent = 0);
-    void reset();
     void scrollContentsBy(int dx, int dy);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);

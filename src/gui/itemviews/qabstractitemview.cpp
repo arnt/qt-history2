@@ -550,7 +550,9 @@ QModelIndex QAbstractItemView::currentItem() const
 */
 void QAbstractItemView::reset()
 {
+    bool block = blockSignals(true);
     setRoot(QModelIndex::Null); // does a relayout
+    blockSignals(block); // the views will be updated later
 }
 
 /*!

@@ -669,6 +669,17 @@ void QTreeView::doItemsLayout()
 }
 
 /*!
+  \reimpl
+*/
+
+void QTreeView::reset()
+{
+    d->opened.clear();
+    d->items.clear();
+    QAbstractItemView::reset();
+}
+
+/*!
   Returns the horizontal offset.
 */
 
@@ -821,17 +832,6 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     int topPos = d->coordinate(top);
 
     return QRect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
-}
-
-/*!
-  \internal
-*/
-
-void QTreeView::reset()
-{
-    d->opened.clear();
-    d->items.clear();
-    QAbstractItemView::reset();
 }
 
 /*!

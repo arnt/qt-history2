@@ -80,11 +80,11 @@ public:
     QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();
+    void reset();
 
 protected:
     QListView(QListViewPrivate &, QWidget *parent = 0);
 
-    void reset();
     void scrollContentsBy(int dx, int dy);
     void resizeContents(int width, int height);
 
