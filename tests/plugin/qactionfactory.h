@@ -19,15 +19,9 @@ public:
 
 private:
     virtual QString factoryName() const = 0;
+
     virtual QStringList enumerateActions() = 0;
     virtual QAction* newAction( const QString& classname, QObject* parent = 0 ) = 0;
-};
-
-class QDefaultActionFactory : public QActionFactory
-{
-    QString factoryName() const { return "QDefaultActionFactory"; }
-    QStringList enumerateActions();
-    QAction* newAction( const QString& actionname, QObject* parent = 0 );
 };
 
 #endif // QACTIONFACTORY_H

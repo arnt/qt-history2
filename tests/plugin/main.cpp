@@ -14,17 +14,25 @@ int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
 
-    QWidgetFactory::installWidgetFactory( new QDefaultWidgetFactory );
+    // installing all available factories
+    QWidgetFactory::installWidgetFactory( new QDefaultWidgetFactory ); 
     QPlugInManager* pm = new QPlugInManager("./plugin");
     QWidgetFactory::installWidgetFactory( pm );
     QActionFactory::installActionFactory( pm );
 
+    bool ok;
+    QWidget* loaded = QWidgetFactory::createWidget( "widgetpreview.ui", ok );
+    if ( loaded )
+	loaded->show();
+
+    // little test scenario
     QMainWindow mw;
     QScrollView sv( &mw );
     QHBox b( sv.viewport() );
     b.setFixedHeight( 200 );
     sv.addChild( &b );
 
+    // creating all available widgets and adding them to the little test scenario
     QStringList widgets = QWidgetFactory::widgetList();
     for ( uint i = 0; i < widgets.count(); i++ ) {
 	QWidget* w = QWidgetFactory::createWidget( widgets[i], &b);
@@ -32,6 +40,7 @@ int main( int argc, char** argv )
 	    QToolTip::add( w, QString(w->className()) + " (" + QWidgetFactory::widgetFactory( w->className() ) + ")" );
     }
 
+    // creating a nice popupmenu and add all available actions
     QPopupMenu pop;
     QStringList actions = QActionFactory::actionList();
     for ( uint j = 0; j < actions.count(); j++ ) {
@@ -39,11 +48,11 @@ int main( int argc, char** argv )
 	if ( a )
 	    a->addTo( &pop );
     }
-    
+
     mw.menuBar()->insertItem( "&AddIn", &pop );
     
+    // the rest ist silence...
     mw.setCentralWidget( &sv );
-
     app.setMainWidget( &mw );
     mw.show();
 

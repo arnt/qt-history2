@@ -1,5 +1,6 @@
 #include "qwidgetfactory.h"
 #include <qdict.h>
+#include <qfile.h>
 
 #include <qbuttongroup.h>
 #include <qcheckbox.h>
@@ -43,32 +44,49 @@
 #include <qworkspace.h>
 
 static const unsigned int prime[6] = { 53, 151, 503, 1511, 5101, 15101 };
-int primeSize = 0;
-QDict<QWidgetFactory> factories( prime[0] );
+static int primeSize = 0;
+static QDict<QWidgetFactory> factories( prime[0] );
 
-QWidget* QWidgetFactory::createWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
-{
-    QWidgetFactory* fact = factories[classname];
+/*!
+  \class QWidgetFactory qwidgetfactory.h
+  \brief Factory-class for widgets.
+*/
 
-    if ( fact )
-	return fact->newWidget( classname, parent, name, f );
-    return 0;
-}
+/*!
+  Installs a QWidgetFactory.
+  Gets the list of widgets \a factory provides. Prints a warning if a widget is 
+  already supported. In this case createWidget() uses the factory added last.
 
+  \sa widgetList()
+*/
 void QWidgetFactory::installWidgetFactory( QWidgetFactory* factory )
 {
     QStringList widgets = factory->enumerateWidgets();
     for ( uint w = 0; w < widgets.count(); w++ ) {
-	if ( factories[widgets[w]] && factories[widgets[w]] != factory )
-	    qWarning("More than one factory creating %s", widgets[w].latin1() );
-	factories.insert( widgets[w], factory );
+	if ( factories["WIDGET_"+widgets[w]] && factories["WIDGET_"+widgets[w]] != factory )
+	    qWarning("More than one factory provides %s", widgets[w].latin1() );
+	factories.insert( "WIDGET_"+widgets[w], factory );
     }
+    QStringList filetypes = factory->enumerateFileTypes();
+    for ( uint f = 0; f < filetypes.count(); f++ ) {
+	if ( factories["FILE_"+filetypes[f]] && factories["FILE_"+filetypes[f]] != factory )
+	    qWarning("More than one factory supports %s", filetypes[f].latin1() );
+	factories.insert( "FILE_"+filetypes[f], factory );
+    }
+
     if ( factories.count() > prime[primeSize] ) {
 	if ( ++primeSize < 6 )
 	    factories.resize( prime[++primeSize] );
     }
 }
 
+/*!
+  Removes a factory.
+  All widgets and filetypes supported by \a factory are no longer available by
+  createWidget()
+
+  \sa installWidgetFactory()
+*/
 void QWidgetFactory::removeWidgetFactory( QWidgetFactory* factory )
 {
     QDictIterator<QWidgetFactory> it( factories );
@@ -81,6 +99,11 @@ void QWidgetFactory::removeWidgetFactory( QWidgetFactory* factory )
     }
 }
 
+/*!
+  Returns a list of installed factories
+
+  \sa installWidgetFactory()
+*/
 QList<QWidgetFactory> QWidgetFactory::factoryList()
 {
     QList<QWidgetFactory> list;
@@ -97,6 +120,11 @@ QList<QWidgetFactory> QWidgetFactory::factoryList()
     return list;
 }
 
+/*!
+  Returns a list of names of all supported widgets.
+
+  \sa installWidgetFactory(), enumerateWidgets()
+*/
 QStringList QWidgetFactory::widgetList()
 {
     QStringList list;
@@ -116,15 +144,150 @@ QStringList QWidgetFactory::widgetList()
     return list;
 }
 
+/*!
+  Returns the name of the factory that provides the widget \a classname.
+
+  \sa installWidgetFactory()
+*/
 QString QWidgetFactory::widgetFactory( const QString& classname )
 {
-    QWidgetFactory* f = factories[classname];
+    QWidgetFactory* f = factories["WIDGET_"+classname];
     if ( f )
 	return f->factoryName();
     else
 	return "";
 }
 
+/*!
+  Returns a widget of class \a classname.
+  Looks up the widget factory that provides \a classname and creates
+  the widget with \a parent, \a name and \a f.
+  Returns 0 if the widget could not be created.
+
+  \sa installWidgetFactory()
+*/
+QWidget* QWidgetFactory::createWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
+{
+    QWidgetFactory* fact = factories["WIDGET_"+classname];
+
+    if ( fact )
+	return fact->newWidget( classname, parent, name, f );
+    return 0;
+}
+
+/*!
+  Loads the file \a filename, creates and returns the widget if successful.
+  Returns 0 if the widget could not be created.
+
+  \sa processFile(), createWidget()
+*/
+QWidget* QWidgetFactory::createWidget( const QString &filename, bool &ok, QWidget *parent, const char *name, Qt::WFlags f )
+{
+    ok = FALSE;
+
+    if ( filename.isEmpty() )
+	return 0;
+
+    QFile file( filename );
+    if ( !file.open( IO_ReadOnly ) )
+	return 0;
+
+    QString fileext = "";
+    int extpos = filename.findRev( '.' );
+    if ( extpos != -1 )
+	fileext = filename.right( filename.length() - extpos );
+
+    QWidgetFactory* fact = factories["FILE_"+fileext];
+    if ( fact ) {
+	QWidget* w = fact->processFile( &file, ok );
+	file.close();
+	if ( w ) {
+	    w->reparent( parent, f, w->pos() );
+	    w->setName( name );
+	}
+	return w;
+    }
+
+    return 0;
+}
+
+/*!
+  Processes the file \a f and returns a widget if successful.
+
+  This method gets called by createWidget().
+  Reimplement this function to add support for custom filetypes.
+*/
+QWidget* QWidgetFactory::processFile( QFile* f, bool &ok )
+{
+    ok = FALSE;
+
+/*
+    QDomDocument doc;
+    if ( !doc.setContent( f ) ) {
+	return 0;
+    }
+*/
+    // TODO: process doc
+
+    ok = TRUE;
+    return 0;
+}
+
+/*!
+  Returns a list of supported file types.
+
+  Reimplement this function to add support for custom filetypes.
+*/
+QStringList QWidgetFactory::enumerateFileTypes()
+{
+    QStringList list;
+
+    list << ".ui";
+
+    return list;
+}
+
+/*!
+  \fn QWidget* QWidgetFactory::newWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
+
+  Creates and returns a widget registered with \a classname and passes \a parent, \a name
+  and \a f to the widgets's constructor if successful. Otherwise returns 0.
+  
+  You have to reimplement this function in your factories to add support for custom widgets.
+  Note that newWidget() is declared as private, so you musn't call the super-class.
+
+  \sa enumerateWidgets()
+*/
+
+/*!
+  \fn QStringList QWidgetFactory::enumerateWidgets()
+
+  Returns a list of widget-classes supported by this factory.
+  You have to reimplement this function in your factories to add support for custom widgets.
+  Note that newWidget() is declared as private, so you musn't call the super-class.
+
+  \sa newWidget()
+*/
+
+/*!
+  \fn QString QWidgetFactory::factoryName() const
+
+  Returns the name of the this factory.
+  You have to reimplement this function in your factories.
+*/
+
+/*!
+  \class QDefaultWidgetFactory qwidgetfactory.h
+
+  \brief Provides support for standard Qt-widgets.
+*/
+
+/*!
+  \reimp
+
+  Note that some widget classes don't provide a constructor with a WFlags-parameter 
+  in which case \a f is ignored silently.
+*/
 QWidget* QDefaultWidgetFactory::newWidget( const QString& classname, QWidget* parent, const char* name, Qt::WFlags f )
 {
     QWidget* widget = 0;
@@ -219,6 +382,9 @@ QWidget* QDefaultWidgetFactory::newWidget( const QString& classname, QWidget* pa
     return widget;
 }
 
+/*!
+  \reimp
+*/
 QStringList QDefaultWidgetFactory::enumerateWidgets()
 {
     QStringList list;
@@ -267,3 +433,8 @@ QStringList QDefaultWidgetFactory::enumerateWidgets()
 
     return list;
 }
+
+/*!
+  \fn QString QDefaultWidgetFactory::factoryName() const
+  \reimp
+*/

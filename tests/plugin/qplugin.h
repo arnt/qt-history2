@@ -3,8 +3,6 @@
 
 #include "qwidgetfactory.h"
 #include "qactionfactory.h"
-
-#include "qdict.h"
 #include "qwindowdefs.h"
 
 class QAction;
@@ -16,30 +14,7 @@ class QAction;
 #include <dlfnc.h>
 #endif
 
-class QPlugIn
-{
-    friend class QPlugInManager;
-public:
-    QPlugIn( HINSTANCE pHnd );
-    ~QPlugIn();
-
-private:
-    HINSTANCE pHnd;
-
-    typedef QWidget* (*CREATEWIDGETPROC)(const QString&, QWidget* = 0, const char* = 0, Qt::WFlags = 0 );
-    typedef const char* (*ENUMERATEWIDGETSPROC)();
-
-    typedef QAction* (*CREATEACTIONPROC)(const QString&, QObject* = 0 );
-    typedef const char* (*ENUMERATEACTIONSPROC)();
-
-    CREATEWIDGETPROC createWidget;
-    ENUMERATEWIDGETSPROC enumerateWidgets;
-
-    CREATEACTIONPROC createAction;
-    ENUMERATEACTIONSPROC enumerateActions;
-};
-
-class QPlugInManager : public QDefaultWidgetFactory, public QDefaultActionFactory
+class QPlugInManager : public QWidgetFactory, public QActionFactory
 {
 public:
     QPlugInManager();
@@ -50,16 +25,17 @@ public:
 
 private:
     QString factoryName() const { return "QPlugInManager"; }
+
     QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0, Qt::WFlags f = 0 );
     QStringList enumerateWidgets();
+
+    QWidget* processFile( QFile* dev, bool &ok );
+    QStringList enumerateFileTypes();    
 
     QAction* newAction( const QString& actionname, QObject* parent = 0 );
     QStringList enumerateActions();
 
     void init();
-
-    QDict<QPlugIn> pHnds;
-    QDict<QPlugIn> pLibs;
 };
 
 #endif // QPLUGIN_H
