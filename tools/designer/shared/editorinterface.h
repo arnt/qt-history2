@@ -2,6 +2,7 @@
 #define EDITORINTERFACE_H
 
 #include <qcomponentinterface.h>
+#include <qmap.h>
 
 class QWidget;
 class QObjectList;
@@ -30,6 +31,7 @@ public:
     virtual void scrollTo( const QString &txt ) = 0;
     virtual void splitView() = 0;
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
+    virtual QMap<QString, QString> functions() const = 0;
 
 };
 

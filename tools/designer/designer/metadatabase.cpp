@@ -49,6 +49,7 @@ public:
     QMap<int, QString> pixmapArguments;
     QMap<QString, QString> columnFields;
     QMap<QString, QString> eventFunctions;
+    QMap<QString, QString> functionBodies;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -1057,4 +1058,34 @@ void MetaDataBase::setEditor( bool b )
 bool MetaDataBase::hasEditor()
 {
     return editorInstalled;
+}
+
+void MetaDataBase::setFunctionBodies( QObject *o, const QMap<QString, QString> &bodies )
+{
+    if ( !o )
+	return;
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return;
+    }
+
+    r->functionBodies = bodies;
+}
+
+QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )
+{
+    if ( !o )
+	return QMap<QString, QString>();
+    setupDataBase();
+    MetaDataBaseRecord *r = db->find( (void*)o );
+    if ( !r ) {
+	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
+		  o, o->name(), o->className() );
+	return QMap<QString, QString>();
+    }
+
+    return r->functionBodies;
 }

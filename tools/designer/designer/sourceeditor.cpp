@@ -31,15 +31,29 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface )
     resize( 600, 400 );
 }
 
+class NormalizeObject : public QObject
+{
+public:
+    NormalizeObject() : QObject() {}
+    static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
+};
+
+
 void SourceEditor::setForm( FormWindow *fw )
 {
+    save();
     formWindow = fw;
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
+    QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow );
     QString txt;
     for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
 	txt += "function " + QString( (*it).slot );
-	txt += "\n{\n    \n}\n\n";
+	QMap<QString, QString>::Iterator bit = bodies.find( NormalizeObject::normalizeSignalSlot( (*it).slot ) );
+	if ( bit != bodies.end() )
+	    txt += "\n" + *bit + "\n\n";
+	else
+	    txt += "\n{\n    \n}\n\n";
     }
     iFace->setText( txt );
     if ( fw->project() )
@@ -56,3 +70,8 @@ void SourceEditor::closeEvent( QCloseEvent *e )
     emit hidden();
     e->accept();
 }
+
+void SourceEditor::save()
+{
+    QMap<QString, QString> functions = iFace->functions();
+    MetaDataBase::setFunctionBodies( formWindow, functions );}
