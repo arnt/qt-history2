@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#50 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -115,22 +115,23 @@ plain colors for each parameter.
 \sa QBrush
 */
  QColorGroup::QColorGroup( const QBrush &foreground, const QBrush &button,
-	  const QBrush &light, const QBrush &dark, const QBrush &mid,
-	  const QBrush &text,  const QBrush &bright_text, const QBrush &base,
-	  const QBrush &background)
+			   const QBrush &light, const QBrush &dark,
+			   const QBrush &mid, const QBrush &text,
+			   const QBrush &bright_text, const QBrush &base,
+			   const QBrush &background)
 {
     br = new QBrush[NColorRoles];
     br[Foreground]      = foreground;
-    br[Button] 	 = button;
-    br[Light] 		 = light;
-    br[Dark] 		 = dark;
-    br[Mid] 		 = mid;
-    br[Text] 		 = text;
-    br[BrightText] 	 = bright_text;
-    br[ButtonText] 	 = text;
-    br[Base] 		 = base;
-    br[Background] 	 = background;
-    br[Midlight] 	 = QBrush( br[Button].color().light(115));
+    br[Button] 	 	= button;
+    br[Light] 		= light;
+    br[Dark] 		= dark;
+    br[Mid] 		= mid;
+    br[Text] 		= text;
+    br[BrightText] 	= bright_text;
+    br[ButtonText] 	= text;
+    br[Base] 		= base;
+    br[Background] 	= background;
+    br[Midlight] 	= QBrush( br[Button].color().light(115));
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
@@ -811,8 +812,7 @@ QDataStream &operator<<( QDataStream &s, const QColorGroup &g )
 	  << g.mid()
 	  << g.text()
 	  << g.base();
-    }
-    else {
+    } else {
 	for( int r = 0 ; r < QColorGroup::NColorRoles ; r++ )
 	    s << g.brush( (QColorGroup::ColorRole)r);
     }
@@ -838,8 +838,7 @@ QDataStream &operator>>( QDataStream &s, QColorGroup &g )
 	n.setColor( QColorGroup::Text, text );
 	n.setColor( QColorGroup::Base, base );
 	g = n;
-    }
-    else {
+    } else {
 	QBrush tmp;
 	for( int r = 0 ; r < QColorGroup::NColorRoles; r++ ) {
 	    s >> tmp;
@@ -871,7 +870,8 @@ QDataStream &operator<<( QDataStream &s, const QPalette &p )
 }
 
 
-void readV1ColorGroup( QDataStream &s, QColorGroup &g, QPalette::ColorGroup r )
+void readV1ColorGroup( QDataStream &s, QColorGroup &g,
+		       QPalette::ColorGroup r )
 {
     QColor fg, bg, light, dark, mid, text, base;
     s >> fg >> bg >> light >> dark >> mid >> text >> base;
@@ -910,8 +910,7 @@ QDataStream &operator>>( QDataStream &s, QPalette &p )
 	readV1ColorGroup( s, normal, QPalette::Normal );
 	readV1ColorGroup( s, disabled, QPalette::Disabled );
 	readV1ColorGroup( s, active, QPalette::Active );
-    }
-    else {
+    } else {
 	s >> normal >> disabled >> active;
     }
     QPalette newpal( normal, disabled, active );
@@ -955,6 +954,8 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 	break;
     case Active:
 	return data->active.br[r];
+	break;
+    default:
 	break;
     };
 #if defined(CHECK_RANGE)
