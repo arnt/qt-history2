@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qwidget.h>
 #include <qdrag.h>
 #include <qpixmap.h>
 #include <qpoint.h>
