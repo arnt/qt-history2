@@ -830,19 +830,19 @@ bool QApplication::x11_apply_settings()
     QStringList strlist;
     int i, num;
     QPalette pal(QApplication::palette());
-    strlist = settings.readListEntry("/qt/Palette/active", ';');
+    qDebug("/qt/Palette/active %d %d", strlist.count(), QColorGroup::NColorRoles);
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
-    strlist = settings.readListEntry("/qt/Palette/inactive", ';');
+    strlist = settings.readListEntry("/qt/Palette/inactive");
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i,
 			 QColor(strlist[i]));
     }
-    strlist = settings.readListEntry("/qt/Palette/disabled", ';');
+    strlist = settings.readListEntry("/qt/Palette/disabled");
     if (strlist.count() == QColorGroup::NColorRoles) {
 	for (i = 0; i < QColorGroup::NColorRoles; i++)
 	    pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i,
@@ -927,7 +927,7 @@ bool QApplication::x11_apply_settings()
     }
 
     QStringList effects =
-	settings.readListEntry("/qt/GUIEffects", ';');
+	settings.readListEntry("/qt/GUIEffects");
 
     if (! effects.isEmpty()) {
 	if ( effects.contains("none") )
@@ -956,7 +956,7 @@ bool QApplication::x11_apply_settings()
 	while (it != fontsubs.end()) {
 	    fam = (*it++).latin1();
 	    skey = "/qt/Font Substitutions/" + fam;
-	    subs = settings.readListEntry(skey, ';');
+	    subs = settings.readListEntry(skey);
 	    QFont::insertSubstitutions(fam, subs);
 	}
     }
