@@ -2069,12 +2069,12 @@ QMenu *QTextEdit::createStandardContextMenu()
 }
 
 /*!
-  returns a QTextCursor at position \a pos (in contents coordinates).
+  returns a QTextCursor at position \a pos (in viewport coordinates).
 */
 QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
 {
     Q_D(const QTextEdit);
-    int cursorPos = d->doc->documentLayout()->hitTest(pos, Qt::FuzzyHit);
+    int cursorPos = d->doc->documentLayout()->hitTest(d->translateCoordinates(pos), Qt::FuzzyHit);
     if (cursorPos == -1)
         cursorPos = 0;
     QTextCursor c(d->doc);
@@ -2083,7 +2083,7 @@ QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
 }
 
 /*!
-  returns a rectangle (in contents coordinates) that includes the
+  returns a rectangle (in viewport coordinates) that includes the
   \a cursor.
  */
 QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
@@ -2096,15 +2096,21 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
     QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
     const int relativePos = cursor.position() - block.position();
     QTextLine line = layout->lineForTextPosition(relativePos);
-    if (!line.isValid())
-        return QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
 
-    return QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
-                 10, qRound(line.ascent() + line.descent()+1.));
+    QRect r;
+
+    if (line.isValid()) 
+        r = QRect(qRound(layoutPos.x() + line.cursorToX(relativePos))-5, qRound(layoutPos.y() + line.y()),
+                  10, qRound(line.ascent() + line.descent()+1.));
+    else
+        r = QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
+
+    r.translate(-d->hbar->value(),-d->vbar->value());
+    return r;
 }
 
 /*!
-  returns a rectangle (in contents coordinates) that includes the
+  returns a rectangle (in viewport coordinates) that includes the
   cursor of the text edit.
  */
 QRect QTextEdit::cursorRect() const

@@ -72,7 +72,7 @@ public:
 
     void update(const QRect &contentsRect);
 
-    inline QPoint translateCoordinates(const QPoint &point)
+    inline QPoint translateCoordinates(const QPoint &point) const
     { return QPoint(point.x() + hbar->value(), point.y() + vbar->value()); }
 
     void selectionChanged();
