@@ -853,6 +853,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
 {
+    setAttribute(WA_PaintOnScreen); // disable double buffering
     d = new QMainWindowPrivate;
 #ifdef Q_WS_MACX
     d->opaque = TRUE;
