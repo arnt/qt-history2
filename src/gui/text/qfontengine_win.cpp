@@ -264,7 +264,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
         for(register int i = 0; i < len; i++) {
             unsigned int glyph = glyphs[i].glyph;
-            if(glyph >= designAdvancesSize) {
+            if(int(glyph) >= designAdvancesSize) {
                 int newSize = (glyph + 256) >> 8 << 8;
                 designAdvances = (float *)realloc(designAdvances, newSize*sizeof(float));
                 for(int i = designAdvancesSize; i < newSize; ++i)
@@ -356,15 +356,15 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 static inline float kerning(int left, int right, const QFontEngineWin::KernPair *pairs, int numPairs)
 {
     int left_right = (left << 16) + right;
-    
+
     left = 0, right = numPairs - 1;
     while (left <= right) {
         int middle = left + ( ( right - left ) >> 1 );
 
-        if(pairs[middle].left_right == left_right) 
+        if(pairs[middle].left_right == left_right)
             return pairs[middle].adjust;
 
-        if (pairs[middle].left_right < left_right)
+        if (int(pairs[middle].left_right) < left_right)
             left = middle + 1;
         else
             right = middle - 1;
