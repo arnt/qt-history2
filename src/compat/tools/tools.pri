@@ -21,6 +21,7 @@ HEADERS +=      tools/q3asciicache.h \
                 tools/q3ptrqueue.h \
                 tools/q3ptrstack.h \
                 tools/q3ptrvector.h \
+                tools/q3semaphore.h \
                 tools/q3shared.h \
                 tools/q3sortedlist.h \
                 tools/q3strlist.h \
@@ -37,5 +38,6 @@ SOURCES +=      tools/q3cstring.cpp \
                 tools/q3gdict.cpp \
                 tools/q3glist.cpp \
                 tools/q3gvector.cpp \
+                tools/q3semaphore.cpp \
                 tools/q3shared.cpp \
                 tools/q3ptrcollection.cpp

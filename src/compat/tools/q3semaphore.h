@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#ifndef QSEMAPHORE_H
-#define QSEMAPHORE_H
+#ifndef Q3SEMAPHORE_H
+#define Q3SEMAPHORE_H
 
 #include "qglobal.h"
 
-class QSemaphorePrivate;
+class Q3SemaphorePrivate;
 
-class Q_CORE_EXPORT QSemaphore
+class Q_COMPAT_EXPORT Q3Semaphore
 {
 public:
-    QSemaphore(int);
-    virtual ~QSemaphore();
+    Q3Semaphore(int);
+    virtual ~Q3Semaphore();
 
     int available() const;
     int total() const;
@@ -37,9 +37,9 @@ public:
     bool tryAccess(int);
 
 private:
-    Q_DISABLE_COPY(QSemaphore)
+    Q_DISABLE_COPY(Q3Semaphore)
 
-    QSemaphorePrivate *d;
+    Q3SemaphorePrivate *d;
 };
 
-#endif // QSEMAPHORE_H
+#endif // Q3SEMAPHORE_H

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsemaphore.h"
+#include "q3semaphore.h"
 
 #include "qmutex.h"
 #include "qwaitcondition.h"
@@ -20,15 +20,13 @@
 
 
 /*!
-    \class QSemaphore qsemaphore.h
+    \class Q3Semaphore q3semaphore.h
     \threadsafe
-    \brief The QSemaphore class provides a robust integer semaphore.
+    \brief The Q3Semaphore class provides a robust integer semaphore.
 
-    \ingroup thread
-    \ingroup environment
-    \mainclass
+    \compat
 
-    A QSemaphore can be used to serialize thread execution, in a
+    A Q3Semaphore can be used to serialize thread execution, in a
     similar way to a QMutex. A semaphore differs from a mutex, in
     that a semaphore can be accessed by more than one thread at a
     time.
@@ -62,9 +60,9 @@
 */
 
 
-class QSemaphorePrivate {
+class Q3SemaphorePrivate {
 public:
-    QSemaphorePrivate(int);
+    Q3SemaphorePrivate(int);
 
     QMutex mutex;
     QWaitCondition cond;
@@ -73,7 +71,7 @@ public:
 };
 
 
-QSemaphorePrivate::QSemaphorePrivate(int m)
+Q3SemaphorePrivate::Q3SemaphorePrivate(int m)
     : mutex(false), value(0), max(m)
 {
 }
@@ -83,9 +81,9 @@ QSemaphorePrivate::QSemaphorePrivate(int m)
     Creates a new semaphore. The semaphore can be concurrently
     accessed at most \a maxcount times.
 */
-QSemaphore::QSemaphore(int maxcount)
+Q3Semaphore::Q3Semaphore(int maxcount)
 {
-    d = new QSemaphorePrivate(maxcount);
+    d = new Q3SemaphorePrivate(maxcount);
 }
 
 
@@ -95,7 +93,7 @@ QSemaphore::QSemaphore(int maxcount)
     \warning If you destroy a semaphore that has accesses in use the
     resultant behavior is undefined.
 */
-QSemaphore::~QSemaphore()
+Q3Semaphore::~Q3Semaphore()
 {
     delete d;
 }
@@ -108,7 +106,7 @@ QSemaphore::~QSemaphore()
     call will block until it can get access, i.e. until available() \>
     0.
 */
-int QSemaphore::operator++(int)
+int Q3Semaphore::operator++(int)
 {
     QMutexLocker locker(&d->mutex);
     while (d->value >= d->max)
@@ -128,7 +126,7 @@ int QSemaphore::operator++(int)
     Release access of the semaphore. This wakes all threads waiting
     for access to the semaphore.
 */
-int QSemaphore::operator--(int)
+int Q3Semaphore::operator--(int)
 {
     QMutexLocker locker(&d->mutex);
 
@@ -147,12 +145,12 @@ int QSemaphore::operator--(int)
     call will block until it can get all the accesses it wants, i.e.
     until available() \>= \a n.
 */
-int QSemaphore::operator+=(int n)
+int Q3Semaphore::operator+=(int n)
 {
     QMutexLocker locker(&d->mutex);
 
     if (n < 0 || n > d->max) {
-        qWarning("QSemaphore::operator+=: parameter %d out of range", n);
+        qWarning("Q3Semaphore::operator+=: parameter %d out of range", n);
         n = n < 0 ? 0 : d->max;
     }
 
@@ -168,12 +166,12 @@ int QSemaphore::operator+=(int n)
 /*!
     Release \a n accesses to the semaphore.
 */
-int QSemaphore::operator-=(int n)
+int Q3Semaphore::operator-=(int n)
 {
     QMutexLocker locker(&d->mutex);
 
     if (n < 0 || n > d->value) {
-        qWarning("QSemaphore::operator-=: parameter %d out of range", n);
+        qWarning("Q3Semaphore::operator-=: parameter %d out of range", n);
         n = n < 0 ? 0 : d->value;
     }
 
@@ -188,7 +186,7 @@ int QSemaphore::operator-=(int n)
     Returns the number of accesses currently available to the
     semaphore.
 */
-int QSemaphore::available() const
+int Q3Semaphore::available() const
 {
     QMutexLocker locker(&d->mutex);
     return d->max - d->value;
@@ -198,7 +196,7 @@ int QSemaphore::available() const
 /*!
     Returns the total number of accesses to the semaphore.
 */
-int QSemaphore::total() const
+int Q3Semaphore::total() const
 {
     QMutexLocker locker(&d->mutex);
     return d->max;
@@ -211,7 +209,7 @@ int QSemaphore::total() const
     this function will take \a n accesses and return true. This
     function does \e not block.
 */
-bool QSemaphore::tryAccess(int n)
+bool Q3Semaphore::tryAccess(int n)
 {
     QMutexLocker locker(&d->mutex);
 
