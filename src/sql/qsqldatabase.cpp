@@ -99,10 +99,11 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-class QSqlDatabaseManager : public QObject
+class QSqlDatabaseManager
 {
 public:
-    QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
+    //QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
+    QSqlDatabaseManager();
     ~QSqlDatabaseManager();
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
@@ -118,9 +119,9 @@ protected:
 
 */
 
-QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
-    : QObject( parent, name ),
-      dbDict( 1 )
+QSqlDatabaseManager::QSqlDatabaseManager(/* QObject * parent, const char * name*/ )
+    //    : QObject( parent, name ),
+    : dbDict( 1 )
 {
 }
 
@@ -135,12 +136,10 @@ QSqlDatabaseManager::~QSqlDatabaseManager()
     QDictIterator< QSqlDatabase > it( dbDict );
     while ( it.current() ) {
 	it.current()->close();
+	delete it.current();
 	++it;
     }
-    dbDict.setAutoDelete( TRUE );
 }
-
-static QSqlDatabaseManager * sqlConnection = 0;
 
 /*!
   \internal
@@ -148,6 +147,7 @@ static QSqlDatabaseManager * sqlConnection = 0;
 */
 QSqlDatabaseManager* QSqlDatabaseManager::instance()
 {
+#if 0
     if ( !sqlConnection ) {
 	if( qApp == 0 ){
 	    qWarning( "QSqlDatabaseManager: A QApplication object has to be "
@@ -156,7 +156,9 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 	}
 	sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
     }
-    return sqlConnection;
+#endif
+    static QSqlDatabaseManager sqlConnection;
+    return &sqlConnection;
 }
 
 /*!  Returns a pointer to the database connection with name \a name.  If \a open
