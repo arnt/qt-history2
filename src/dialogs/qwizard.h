@@ -122,8 +122,8 @@ private:
 
     void layOut();
 
-    class QWizardPrivate;
-    QWizardPrivate *d;
+    class Private;
+    Private *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

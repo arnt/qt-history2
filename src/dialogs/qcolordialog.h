@@ -71,9 +71,9 @@ private:
 
     void showCustom( bool=TRUE );
 private:
-    class QColorDialogPrivate;
-    QColorDialogPrivate *d;
-    friend class QColorDialogPrivate;
+    class Private;
+    Private *d;
+    friend class Private;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -130,8 +130,8 @@ private:
     void setSizes();
     void setUpLayout();
 
-    class QTabPrivate;
-    QTabPrivate *d;
+    class Private;
+    Private *d;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QTabDialog( const QTabDialog & );

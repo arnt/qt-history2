@@ -122,9 +122,9 @@ private:
     static QFont getFont( bool *ok, const QFont *def,
 			  QWidget *parent = 0, const char* name = 0);
 
-    class QFontDialogPrivate;
-    QFontDialogPrivate * d;
-    friend class QFontDialogPrivate;
+    class Private;
+    Private * d;
+    friend class Private;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

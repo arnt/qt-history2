@@ -65,10 +65,10 @@
   <img src=qfontdlg-m.png> <img src=qfontdlg-w.png>
 */
 
-class QFontDialog::QFontDialogPrivate
+class QFontDialog::Private
 {
 public:
-    QFontDialogPrivate(){};
+    Private(){};
     QLabel * familyAccel;
     QLineEdit * familyEdit;
     QListBox * familyList;
@@ -127,7 +127,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     : QDialog( parent, name, modal, f )
 {
     setSizeGripEnabled( TRUE );
-    d = new QFontDialogPrivate;
+    d = new Private;
     // grid
     d->familyEdit = new QLineEdit( this, "font family I" );
     d->familyEdit->setFocusPolicy( StrongFocus );

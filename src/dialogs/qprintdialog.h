@@ -79,8 +79,8 @@ private slots:
     void fileNameEditChanged( const QString &text );
 
 private:
-    class QPrintDialogPrivate;
-    QPrintDialogPrivate *d;
+    class Private;
+    Private *d;
 
     QGroupBox * setupDestination();
     QGroupBox * setupOptions();

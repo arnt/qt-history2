@@ -61,10 +61,10 @@ static const int margin_tb   = 10;
 static const int spacing     = 4;
 
 
-class QProgressDialog::QProgressData
+class QProgressDialog::Data
 {
 public:
-    QProgressData( QProgressDialog* that, QWidget* parent,
+    Data( QProgressDialog* that, QWidget* parent,
 		   const QString& labelText,
 		   int totalSteps ) :
 	creator( parent ),
@@ -303,7 +303,7 @@ void QProgressDialog::init( QWidget *creator,
 			    const QString& lbl, const QString& canc,
 			    int totstps)
 {
-    d = new QProgressData(this, creator, lbl, totstps);
+    d = new Data(this, creator, lbl, totstps);
     d->autoClose = TRUE;
     d->autoReset = TRUE;
     d->forceHide = FALSE;

@@ -71,7 +71,7 @@
 
 // REVISED: warwick
 
-class QPrintDialog::QPrintDialogPrivate
+class QPrintDialog::Private
 {
 public:
     QPrinter * printer;
@@ -108,7 +108,7 @@ public:
 
     QPrinter::PageSize indexToPageSize[QPrinter::NPageSize];
 
-    static void isc( QPrintDialogPrivate * d, const QString & text,
+    static void isc( Private * d, const QString & text,
 		     QPrinter::PageSize ps );
 
 };
@@ -637,7 +637,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	QDialog::setIcon( *qApp->mainWidget()->icon() );
 
-    d = new QPrintDialogPrivate;
+    d = new Private;
     d->numCopies = 1;
 
     QBoxLayout * tll = new QBoxLayout( this, QBoxLayout::Down, 12, 0 );
@@ -1028,7 +1028,7 @@ QGroupBox * QPrintDialog::setupOptions()
 }
 
 
-void QPrintDialog::QPrintDialogPrivate::isc( QPrintDialogPrivate * d,
+void QPrintDialog::Private::isc( Private * d,
 					     const QString & text,
 					     QPrinter::PageSize ps )
 {
@@ -1071,44 +1071,44 @@ QGroupBox * QPrintDialog::setupPaper()
     for( n=0; n<QPrinter::NPageSize; n++ )
 	d->indexToPageSize[n] = QPrinter::A4;
 
-    QPrintDialogPrivate::isc( d, tr( "A0 (841 x 1189 mm)" ), QPrinter::A0 );
-    QPrintDialogPrivate::isc( d, tr( "A1 (594 x 841 mm)" ), QPrinter::A1 );
-    QPrintDialogPrivate::isc( d, tr( "A2 (420 x 594 mm)" ), QPrinter::A2 );
-    QPrintDialogPrivate::isc( d, tr( "A3 (297 x 420 mm)" ), QPrinter::A3 );
-    QPrintDialogPrivate::isc( d, tr( "A4 (210x297 mm, 8.26x11.7 inches)" ),
+    Private::isc( d, tr( "A0 (841 x 1189 mm)" ), QPrinter::A0 );
+    Private::isc( d, tr( "A1 (594 x 841 mm)" ), QPrinter::A1 );
+    Private::isc( d, tr( "A2 (420 x 594 mm)" ), QPrinter::A2 );
+    Private::isc( d, tr( "A3 (297 x 420 mm)" ), QPrinter::A3 );
+    Private::isc( d, tr( "A4 (210x297 mm, 8.26x11.7 inches)" ),
 			      QPrinter::A4 );
-    QPrintDialogPrivate::isc( d, tr( "A5 (148 x 210 mm)" ), QPrinter::A5 );
-    QPrintDialogPrivate::isc( d, tr( "A6 (105 x 148 mm)" ), QPrinter::A6 );
-    QPrintDialogPrivate::isc( d, tr( "A7 (74 x 105 mm)" ), QPrinter::A7 );
-    QPrintDialogPrivate::isc( d, tr( "A8 (52 x 74 mm)" ), QPrinter::A8 );
-    QPrintDialogPrivate::isc( d, tr( "A9 (37 x 52 mm)" ), QPrinter::A9 );
-    QPrintDialogPrivate::isc( d, tr( "B0 (1030 x 1456 mm)" ), QPrinter::B0 );
-    QPrintDialogPrivate::isc( d, tr( "B1 (728 x 1030 mm)" ), QPrinter::B1 );
-    QPrintDialogPrivate::isc( d, tr( "B10 (32 x 45 mm)" ), QPrinter::B10 );
-    QPrintDialogPrivate::isc( d, tr( "B2 (515 x 728 mm)" ), QPrinter::B2 );
-    QPrintDialogPrivate::isc( d, tr( "B3 (364 x 515 mm)" ), QPrinter::B3 );
-    QPrintDialogPrivate::isc( d, tr( "B4 (257 x 364 mm)" ), QPrinter::B4 );
-    QPrintDialogPrivate::isc( d, tr( "B5 (182x257 mm, 7.17x10.13 inches)" ),
+    Private::isc( d, tr( "A5 (148 x 210 mm)" ), QPrinter::A5 );
+    Private::isc( d, tr( "A6 (105 x 148 mm)" ), QPrinter::A6 );
+    Private::isc( d, tr( "A7 (74 x 105 mm)" ), QPrinter::A7 );
+    Private::isc( d, tr( "A8 (52 x 74 mm)" ), QPrinter::A8 );
+    Private::isc( d, tr( "A9 (37 x 52 mm)" ), QPrinter::A9 );
+    Private::isc( d, tr( "B0 (1030 x 1456 mm)" ), QPrinter::B0 );
+    Private::isc( d, tr( "B1 (728 x 1030 mm)" ), QPrinter::B1 );
+    Private::isc( d, tr( "B10 (32 x 45 mm)" ), QPrinter::B10 );
+    Private::isc( d, tr( "B2 (515 x 728 mm)" ), QPrinter::B2 );
+    Private::isc( d, tr( "B3 (364 x 515 mm)" ), QPrinter::B3 );
+    Private::isc( d, tr( "B4 (257 x 364 mm)" ), QPrinter::B4 );
+    Private::isc( d, tr( "B5 (182x257 mm, 7.17x10.13 inches)" ),
 			      QPrinter::B5 );
-    QPrintDialogPrivate::isc( d, tr( "B6 (128 x 182 mm)" ), QPrinter::B5 );
-    QPrintDialogPrivate::isc( d, tr( "B7 (91 x 128 mm)" ), QPrinter::B7 );
-    QPrintDialogPrivate::isc( d, tr( "B8 (64 x 91 mm)" ), QPrinter::B8 );
-    QPrintDialogPrivate::isc( d, tr( "B9 (45 x 64 mm)" ), QPrinter::B9 );
-    QPrintDialogPrivate::isc( d, tr( "C5E (163 x 229 mm)" ), QPrinter::C5E );
-    QPrintDialogPrivate::isc( d, tr( "DLE (110 x 220 mm)" ), QPrinter::DLE );
-    QPrintDialogPrivate::isc( d, tr( "Executive (7.5x10 inches, 191x254 mm)" ),
+    Private::isc( d, tr( "B6 (128 x 182 mm)" ), QPrinter::B5 );
+    Private::isc( d, tr( "B7 (91 x 128 mm)" ), QPrinter::B7 );
+    Private::isc( d, tr( "B8 (64 x 91 mm)" ), QPrinter::B8 );
+    Private::isc( d, tr( "B9 (45 x 64 mm)" ), QPrinter::B9 );
+    Private::isc( d, tr( "C5E (163 x 229 mm)" ), QPrinter::C5E );
+    Private::isc( d, tr( "DLE (110 x 220 mm)" ), QPrinter::DLE );
+    Private::isc( d, tr( "Executive (7.5x10 inches, 191x254 mm)" ),
 			      QPrinter::Executive );
-    QPrintDialogPrivate::isc( d, tr( "Folio (210 x 330 mm)" ),
+    Private::isc( d, tr( "Folio (210 x 330 mm)" ),
 			      QPrinter::Folio );
-    QPrintDialogPrivate::isc( d, tr( "Ledger (432 x 279 mm)" ),
+    Private::isc( d, tr( "Ledger (432 x 279 mm)" ),
 			      QPrinter::Ledger );
-    QPrintDialogPrivate::isc( d, tr( "Legal (8.5x14 inches, 216x356 mm)" ),
+    Private::isc( d, tr( "Legal (8.5x14 inches, 216x356 mm)" ),
 			      QPrinter::Legal );
-    QPrintDialogPrivate::isc( d, tr( "Letter (8.5x11 inches, 216x279 mm)" ),
+    Private::isc( d, tr( "Letter (8.5x11 inches, 216x279 mm)" ),
 			      QPrinter::Letter );
-    QPrintDialogPrivate::isc( d, tr( "Tabloid (279 x 432 mm)" ),
+    Private::isc( d, tr( "Tabloid (279 x 432 mm)" ),
 			      QPrinter::Tabloid );
-    QPrintDialogPrivate::isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ),
+    Private::isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ),
 			      QPrinter::Comm10E );
 
     connect( d->sizeCombo, SIGNAL( activated( int ) ),

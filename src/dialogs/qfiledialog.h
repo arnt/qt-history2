@@ -273,8 +273,8 @@ private:
     friend class QFileListView;
     friend class QFileListBox;
 
-    class QFileDialogPrivate;
-    QFileDialogPrivate *d;
+    class Private;
+    Private *d;
     QFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter

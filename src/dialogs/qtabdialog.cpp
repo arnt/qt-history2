@@ -193,10 +193,10 @@
 
 // add comments about delete, ok and apply
 
-class QTabDialog::QTabPrivate
+class QTabDialog::Private
 {
 public:
-    QTabPrivate();
+    Private();
 
     QTabWidget* tw;
 
@@ -209,7 +209,7 @@ public:
     QBoxLayout * tll;
 };
 
-QTabDialog::QTabPrivate::QTabPrivate()
+QTabDialog::Private::Private()
 	: tw(0),
 	  ok(0), cb(0), db(0), hb(0), ab(0),
 	  tll(0)
@@ -223,7 +223,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 			WFlags f )
     : QDialog( parent, name, modal, f )
 {
-    d = new QTabPrivate;
+    d = new Private;
     Q_CHECK_PTR( d );
 
     d->tw = new QTabWidget( this, "tab widget" );

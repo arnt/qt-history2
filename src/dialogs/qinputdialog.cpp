@@ -49,7 +49,7 @@
 #include <qvalidator.h>
 #include <qapplication.h>
 
-class QInputDialog::QInputDialogPrivate
+class QInputDialog::Private
 {
 public:
     friend class QInputDialog;
@@ -128,7 +128,7 @@ QInputDialog::QInputDialog( const QString &label, QWidget* parent, const char* n
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	QDialog::setIcon( *qApp->mainWidget()->icon() );
 
-    d = new QInputDialogPrivate;
+    d = new Private;
     d->lineEdit = 0;
     d->spinBox = 0;
     d->comboBox = 0;

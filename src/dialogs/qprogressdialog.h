@@ -116,8 +116,8 @@ private:
     void	   layout();
     QLabel	  *label()  const;
     QProgressBar  *bar()    const;
-    class QProgressData;
-    QProgressData *d;
+    class Data;
+    Data *d;
     QTimer	  *forceTimer;
 
 private:	// Disabled copy constructor and operator=
