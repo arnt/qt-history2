@@ -831,9 +831,10 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        startFormat( ATOM_FORMATTING_SUPERSCRIPT, command );
 		        break;
 		    case CMD_TABLE:
+                        x = getRestOfLine();
 		        if ( openCommand(command) ) {
 			    leavePara();
-			    append(Atom::TableLeft);
+			    append(Atom::TableLeft, x);
                             inTableHeader = false;
                             inTableRow = false;
                             inTableItem = false;

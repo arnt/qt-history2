@@ -443,7 +443,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             out() << "</p>\n";
             in_para = false;
         }
-        out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+	if (!atom->string().isEmpty()) {
+            if (atom->string().contains("%"))
+                out() << "<table width=\"" << atom->string() << "\" "
+                      << "align=\"center\" cellpadding=\"2\" "
+                      << "cellspacing=\"1\" border=\"0\">\n";
+            else
+                out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
+        } else
+            out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
         numTableRows = 0;
 	break;
     case Atom::TableRight:
