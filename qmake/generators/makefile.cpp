@@ -59,8 +59,22 @@
 #define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 #endif
 
+static QString mkdir_p_asstring(const QString &dir)
+{
+    QString ret =  "@$(CHK_DIR_EXISTS) " + dir + " ";
+    if(Option::target_mode == Option::TARG_WIN_MODE)
+	ret += "$(MKDIR)";
+    else
+	ret += "|| $(MKDIR)";
+    ret += " " + dir;
+    return ret;
+}
+
 static bool createDir(const QString& fullPath)
 {
+    if(QFile::exists(fullPath))
+	return FALSE;
+
     QDir dirTmp;
     bool ret = TRUE;
     QString pathComponent, tmpPath;
@@ -173,7 +187,8 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 		interesting = FALSE;
 	    if(interesting) {
 		*(big_buffer+x+len) = '\0';
-		debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", fn_target.latin1(), line_count, big_buffer+x);
+		debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", fn_target.latin1(), 
+			  line_count, big_buffer+x);
 
 		int ext_pos = fn_target.findRev('.');
 		int ext_len = fn_target.length() - ext_pos;
@@ -185,7 +200,8 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 		    mocFile = fn_target.left(dir_pos+1);
 
 		bool cpp_ext = FALSE;
-		for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
+		for(QStringList::Iterator cppit = Option::cpp_ext.begin(); 
+		    cppit != Option::cpp_ext.end(); ++cppit) {
 		    if((cpp_ext = (fn_target.right(ext_len) == (*cppit))))
 			break;
 		}
@@ -193,7 +209,8 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		    project->variables()["_SRCMOC"].append(mocFile);
 		} else if(project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
+		    for(QStringList::Iterator hit = Option::h_ext.begin(); 
+			hit != Option::h_ext.end(); ++hit) {
 			if((fn_target.right(ext_len) == (*hit))) {
 			    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) +
 				       Option::cpp_ext.first();
@@ -449,6 +466,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				if(!fqn.isEmpty() && !fqn.endsWith(Option::dir_sep))
 				    fqn += Option::dir_sep;
 				fqn += inc_file;
+				from_source_dir = FALSE;  //uics go in the output_dir (so don't fix them)
+				fqn = fileFixify(fqn, QDir::currentDirPath(), Option::output_dir);
 				goto handle_fqn;
 			    }
 			}
@@ -488,9 +507,9 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
 				    } else if(!findMocSource(fqn).endsWith(fn)) {
-					/* Not really a very good test, but this will at least avoid confusion
-					   if it really does happen (since tmake/qmake previously didn't even
-					   allow this the test is mostly accurate) */
+					/* Not really a very good test, but this will at least avoid 
+					   confusion if it really does happen (since tmake/qmake
+					   previously didn't even allow this the test is mostly accurate) */
 					warn_msg(WarnLogic,
 						 "Found potential multiple MOC include %s (%s) in '%s'",
 						 inc.latin1(), fqn.latin1(), fix_env_fn.latin1());
@@ -984,10 +1003,11 @@ MakefileGenerator::init()
 
     //UI files
     {
+	QStringList &includepath = project->variables()["INCLUDEPATH"];
 	if(!project->isEmpty("UI_DIR"))
-	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR"));
+	    includepath.append(project->first("UI_DIR"));
 	else if(!project->isEmpty("UI_HEADERS_DIR"))
-	    project->variables()["INCLUDEPATH"].append(project->first("UI_HEADERS_DIR"));
+	    includepath.append(project->first("UI_HEADERS_DIR"));
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["FORMS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -998,19 +1018,20 @@ MakefileGenerator::init()
 		QString d = fi.dirPath();
 		if( d == ".")
 		    d = QDir::currentDirPath();
-		d = fileFixify(d);
-		if( !project->variables()["INCLUDEPATH"].contains(d))
-		    project->variables()["INCLUDEPATH"].append(d);
+		d = fileFixify(d, QDir::currentDirPath(), Option::output_dir);
+		if(!includepath.contains(d))
+		    includepath.append(d);
 	    } else {
 		if(decl.isEmpty() && !project->isEmpty("UI_HEADERS_DIR"))
 		    decl = project->first("UI_HEADERS_DIR");
-		if ( !decl.isEmpty() || (project->isEmpty("UI_HEADERS_DIR") && !project->isEmpty("UI_SOURCES_DIR")) ) {
+		if(!decl.isEmpty() || (project->isEmpty("UI_HEADERS_DIR") && 
+				       !project->isEmpty("UI_SOURCES_DIR")) ) {
 		    QString d = fi.dirPath();
 		    if( d == ".")
 			d = QDir::currentDirPath();
-		    d = fileFixify(d);
-		    if( !project->variables()["INCLUDEPATH"].contains(d))
-			project->variables()["INCLUDEPATH"].append(d);
+		    d = fileFixify(d, QDir::currentDirPath(), Option::output_dir);
+		    if(includepath.contains(d))
+			includepath.append(d);
 		}
 		if(impl.isEmpty() && !project->isEmpty("UI_SOURCES_DIR"))
 		    impl = project->first("UI_SOURCES_DIR");
@@ -1021,8 +1042,18 @@ MakefileGenerator::init()
 			decl = fi.dirPath() + Option::dir_sep;
 		}
 	    }
-	    impl = fileFixify(impl + fi.baseName(TRUE) + Option::cpp_ext.first());
-	    decl = fileFixify(decl + fi.baseName(TRUE) + Option::h_ext.first());
+	    impl = fileFixify(impl, QDir::currentDirPath(), Option::output_dir);
+	    impl += Option::dir_sep + fi.baseName(TRUE) + Option::cpp_ext.first();
+	    if(Option::output_dir != QDir::currentDirPath() && 
+	       project->isEmpty("UI_DIR") && project->isEmpty("UI_HEADERS_DIR")) {
+		QString decl_fixed = fileFixify(decl, QDir::currentDirPath(), Option::output_dir);
+		if(!includepath.contains(decl_fixed))
+		    includepath.append(decl_fixed);
+		if(!includepath.contains(decl))
+		    project->variables()["INCLUDEPATH"].append(decl);
+	    }
+	    decl = fileFixify(decl, QDir::currentDirPath(), Option::output_dir);
+	    decl += Option::dir_sep + fi.baseName(TRUE) + Option::h_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(decl, "HEADERS");
 	    decls.append(decl);
@@ -1068,9 +1099,9 @@ MakefileGenerator::init()
 	}
 	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
     }
-
-    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
-	project->variables()["INCLUDEPATH"].append(Option::output_dir);
+    if(Option::output_dir != QDir::currentDirPath()) 
+	project->variables()["INCLUDEPATH"].append(fileFixify(Option::output_dir, Option::output_dir,
+							      Option::output_dir));
 
     //moc files
     if ( mocAware() ) {
@@ -1359,20 +1390,36 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
     for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
 	QString deps = findDependencies((*it)).join(" \\\n\t\t"), decl, impl;
 	{
-	    QString tmp = (*it);
+	    QString tmp = (*it), impl_dir, decl_dir;
 	    decl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::h_ext.first());
+	    decl = fileFixify(decl, QDir::currentDirPath(), Option::output_dir);
+	    int dlen = decl.findRev(Option::dir_sep) + 1;	    
 	    tmp = (*it);
 	    impl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::cpp_ext.first());
-		int dlen = (*it).findRev(Option::dir_sep) + 1;
+	    impl = fileFixify(impl, QDir::currentDirPath(), Option::output_dir);
+	    int ilen = decl.findRev(Option::dir_sep) + 1;	    
 	    if(!project->isEmpty("UI_DIR")) {
+		impl_dir = project->first("UI_DIR");
 		decl = project->first("UI_DIR") + decl.right(decl.length() - dlen);
-		impl = project->first("UI_DIR") + impl.right(impl.length() - dlen);
+		impl = project->first("UI_DIR") + impl.right(impl.length() - ilen);
 	    } else {
-		if(!project->isEmpty("UI_HEADERS_DIR"))
+		if(!project->isEmpty("UI_HEADERS_DIR")) {
+		    decl_dir = project->first("UI_HEADERS_DIR");
 		    decl = project->first("UI_HEADERS_DIR") + decl.right(decl.length() - dlen);
-		if(!project->isEmpty("UI_SOURCES_DIR"))
-		    impl = project->first("UI_SOURCES_DIR") + impl.right(impl.length() - dlen);
-	    }
+		}
+		if(!project->isEmpty("UI_SOURCES_DIR")) {
+		    impl_dir = project->first("UI_SOURCES_DIR");
+		    impl = project->first("UI_SOURCES_DIR") + impl.right(impl.length() - ilen);
+		}
+	    } 
+	    if(decl_dir.isEmpty()) 
+		decl_dir = decl.left(dlen);
+	    if(impl_dir.isEmpty()) 
+		impl_dir = impl.left(ilen);
+	    if(!impl_dir.isEmpty()) 
+		createDir(Option::output_dir + Option::dir_sep + impl_dir);
+	    if(!decl_dir.isEmpty() && decl_dir != impl_dir) 
+		createDir(Option::output_dir + Option::dir_sep + decl_dir);
 	}
 	t << decl << ": " << (*it) << " " << deps << "\n\t"
 	  << "$(UIC) " << (*it) << " -o " << decl << endl << endl;
@@ -1665,13 +1712,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
-	      << "@$(CHK_DIR_EXISTS) " << ( root + dst ) <<
-#ifdef Q_WS_WIN
-	      " $(MKDIR) "
-#else
-	      " || $(MKDIR) "
-#endif
-	      << ( root + dst ) << "\n\t"
+	      << mkdir_p_asstring(root+dst) << "\n\t"
 	      << target << endl << endl;
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {
@@ -1996,6 +2037,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	}
     }
     file = Option::fixPathToTargetOS(file, FALSE);
+    if(file.isEmpty())
+	file = ".";
     if(!quote.isNull())
 	file = quote + file + quote;
     debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
