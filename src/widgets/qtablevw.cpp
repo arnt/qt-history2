@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#67 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#67 $");
 
 
 const int sbDim = 16;
@@ -2327,7 +2327,7 @@ void QTableView::showOrHideScrollBars()
 
 void QTableView::updateTableSize()
 {
-    updateScrollBars( horSteps | horGeometry | horRange |
-		      verSteps | verGeometry | verRange );
+    updateScrollBars( horSteps |  horRange |
+		      verSteps |  verRange );
     showOrHideScrollBars();    
 }
