@@ -61,6 +61,7 @@ void QInputContext::retrieveMarkedText(QWidget *)
 
 void QInputContext::translateIMEvent(QWSIMEvent *e, QWidget *keywidget)
 {
+#if 0
     if (e->simpleData.type == QWSServer::IMMarkedText) {
         retrieveMarkedText(keywidget);
         return;
@@ -124,6 +125,7 @@ void QInputContext::translateIMEvent(QWSIMEvent *e, QWidget *keywidget)
 
     }
     sendEndToPrev = false;
+#endif
 }
 
 void QInputContext::reset(QWidget *f)
@@ -167,6 +169,7 @@ void QInputContext::notifyWidgetDeletion(QWidget *w)
 //Cleaning up if the IM hasn't done so
 void QInputContext::cleanup()
 {
+#if 0
     qDebug("============= QInputContext::cleanup =========");
     //send appropriate InputMethodEnd event if necessary
     if (composeMode) {
@@ -176,7 +179,7 @@ void QInputContext::cleanup()
         composeMode = false;
         *composition = QString::null;
     }
-
+#endif
     reset();
 }
 

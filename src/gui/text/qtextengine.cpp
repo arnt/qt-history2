@@ -141,8 +141,8 @@ static QChar::Direction basicDirection(const QString &str)
 
 static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
 {
-    QScriptItemArray &items = engine->items;
-    const QChar *text = engine->string.unicode();
+    QScriptItemArray &items = engine->layoutData->items;
+    const QChar *text = engine->layoutData->string.unicode();
 
     if (start > stop) {
         // #### the algorithm is currently not really safe against this. Still needs fixing.
@@ -255,12 +255,12 @@ static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
     // ### should get rid of this!
     bool first = true;
 
-    int length = engine->string.length();
+    int length = engine->layoutData->string.length();
 
     if (!length)
         return;
 
-    const QChar *unicode = engine->string.unicode();
+    const QChar *unicode = engine->layoutData->string.unicode();
     int current = 0;
 
     QChar::Direction dir = rightToLeft ? QChar::DirR : QChar::DirL;
@@ -846,24 +846,19 @@ static void init(QTextEngine *e)
 #endif
 
     e->direction = QChar::DirON;
-    e->haveCharAttributes = false;
-    e->widthOnly = false;
     e->textColorFromPalette = false;
     e->itemization_mode = 0;
 
     e->pal = 0;
 
-    e->allocated = 0;
-    e->memory = 0;
-    e->num_glyphs = 0;
-    e->used = 0;
+    e->layoutData = 0;
+
     e->minWidth = 0.;
     e->maxWidth = 0.;
 
     e->cursorPos = -1;
     e->underlinePositions = 0;
-    e->invalid = true;
-    e->preedit = 0;
+    e->specialData = 0;
 }
 
 QTextEngine::QTextEngine()
@@ -886,7 +881,7 @@ void QTextEngine::setText(const QString &str)
 {
     pal = 0;
     invalidate();
-    string = str;
+    text = str;
 }
 
 QTextEngine::~QTextEngine()
@@ -894,43 +889,42 @@ QTextEngine::~QTextEngine()
     if (fnt && !--fnt->ref)
         delete fnt;
     delete pal;
-    free(memory);
-    allocated = 0;
+    delete layoutData;
 }
 
 void QTextEngine::reallocate(int totalGlyphs)
 {
-    int space_charAttributes = sizeof(QCharAttributes)*string.length()/sizeof(void*) + 1;
-    int space_logClusters = sizeof(unsigned short)*string.length()/sizeof(void*) + 1;
+    int space_charAttributes = sizeof(QCharAttributes)*layoutData->string.length()/sizeof(void*) + 1;
+    int space_logClusters = sizeof(unsigned short)*layoutData->string.length()/sizeof(void*) + 1;
     int space_glyphs = sizeof(QGlyphLayout)*totalGlyphs/sizeof(void*) + 1;
 
     int newAllocated = space_charAttributes + space_glyphs + space_logClusters;
-    memory = (void **)::realloc(memory, newAllocated*sizeof(void *));
+    layoutData->memory = (void **)::realloc(layoutData->memory, newAllocated*sizeof(void *));
 
-    void **m = memory;
+    void **m = layoutData->memory;
     m += space_charAttributes;
     logClustersPtr = (unsigned short *) m;
     m += space_logClusters;
     glyphPtr = (QGlyphLayout *) m;
 
-    memset(((char *)memory) + allocated*sizeof(void *), 0, (newAllocated-allocated)*sizeof(void *));
+    memset(((char *)layoutData->memory) + layoutData->allocated*sizeof(void *), 0,
+           (newAllocated - layoutData->allocated)*sizeof(void *));
 
-    allocated = newAllocated;
-    num_glyphs = totalGlyphs;
+    layoutData->allocated = newAllocated;
+    layoutData->num_glyphs = totalGlyphs;
 }
 
 
 const QCharAttributes *QTextEngine::attributes()
 {
-    if (haveCharAttributes)
-        return (QCharAttributes *) memory;
+    if (layoutData && layoutData->haveCharAttributes)
+        return (QCharAttributes *) layoutData->memory;
 
-    if (items.size() == 0)
-        itemize();
-    ensureSpace(string.length());
+    itemize();
+    ensureSpace(layoutData->string.length());
 
-    for (int i = 0; i < items.size(); i++) {
-        QScriptItem &si = items[i];
+    for (int i = 0; i < layoutData->items.size(); i++) {
+        QScriptItem &si = layoutData->items[i];
         int from = si.position;
         int len = length(i);
         int script = si.analysis.script;
@@ -940,35 +934,19 @@ const QCharAttributes *QTextEngine::attributes()
         }
 #endif
         Q_ASSERT(script < QFont::NScripts);
-        qt_scriptEngines[script].charAttributes(script, string, from, len, (QCharAttributes *) memory);
+        qt_scriptEngines[script].charAttributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
     }
 
-    calcLineBreaks(string, (QCharAttributes *) memory);
-    haveCharAttributes = true;
-    return (QCharAttributes *) memory;
-}
-
-void QTextEngine::setBoundary(int strPos)
-{
-    if (strPos <= 0 || strPos >= string.length())
-        return;
-
-    int itemToSplit = 0;
-    while (itemToSplit < items.size() && items[itemToSplit].position <= strPos)
-        itemToSplit++;
-    itemToSplit--;
-    if (items[itemToSplit].position == strPos) {
-        // already a split at the requested position
-        return;
-    }
-    splitItem(itemToSplit, strPos - items[itemToSplit].position);
+    calcLineBreaks(layoutData->string, (QCharAttributes *) layoutData->memory);
+    layoutData->haveCharAttributes = true;
+    return (QCharAttributes *) layoutData->memory;
 }
 
 void QTextEngine::shape(int item) const
 {
-    if (items[item].isObject) {
+    if (layoutData->items[item].isObject) {
         if (block.docHandle()) {
-            QTextFormat format = formats()->format(formatIndex(&items[item]));
+            QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
             // ##### const cast
             docLayout()->setSize(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
         }
@@ -977,71 +955,63 @@ void QTextEngine::shape(int item) const
     }
 }
 
-void QTextEngine::splitItem(int item, int pos)
+void QTextEngine::invalidate()
 {
-    if (pos <= 0)
-        return;
-
-    items.insert(item+1, QScriptItem(items[item]));
-    QScriptItem &oldItem = items[item];
-    QScriptItem &newItem = items[item+1];
-    newItem.position += pos;
-
-    if (oldItem.num_glyphs) {
-        // already shaped, break glyphs aswell
-        int breakGlyph = logClusters(&oldItem)[pos];
-
-        newItem.num_glyphs = oldItem.num_glyphs - breakGlyph;
-        oldItem.num_glyphs = breakGlyph;
-        newItem.glyph_data_offset = oldItem.glyph_data_offset + breakGlyph;
-
-        for (int i = 0; i < newItem.num_glyphs; i++)
-            logClusters(&newItem)[i] -= breakGlyph;
-
-        qReal w = 0;
-        const QGlyphLayout *g = glyphs(&oldItem);
-        for(int j = 0; j < breakGlyph; ++j)
-            w += (g++)->advance.x();
-
-        newItem.width = oldItem.width - w;
-        oldItem.width = w;
-    }
-
-//     qDebug("split at position %d itempos=%d", pos, item);
+    freeMemory();
+    lines.clear();
+    boundingRect = QRect();
+    minWidth = 0;
+    maxWidth = 0;
 }
 
-void QTextEngine::itemize()
+void QTextEngine::validate() const
+{
+    if (layoutData)
+        return;
+    layoutData = new LayoutData();
+    if (block.docHandle())
+        layoutData->string = block.text();
+    else
+        layoutData->string = text;
+    if (specialData && specialData->preeditPosition != -1)
+        layoutData->string.insert(specialData->preeditPosition, specialData->preeditText);
+}
+
+
+void QTextEngine::itemize() const
 {
     validate();
-    items.clear();
-    if (string.length() == 0)
+    if (layoutData->items.size())
+        return;
+
+    if (layoutData->string.length() == 0)
         return;
 
     if (!(itemization_mode & QTextLayout::NoBidi)) {
-        if (direction == QChar::DirON)
-            direction = basicDirection(string);
-        bidiItemize(this, direction == QChar::DirR, itemization_mode);
+        QChar::Direction d = direction;
+        if (d == QChar::DirON)
+            d = basicDirection(layoutData->string);
+        bidiItemize(const_cast<QTextEngine *>(this), d == QChar::DirR, itemization_mode);
     } else {
         BidiControl control(false);
         if (itemization_mode & QTextLayout::SingleLine)
             control.singleLine = true;
         int start = 0;
-        int stop = string.length() - 1;
-        appendItems(this, start, stop, control, QChar::DirL);
+        int stop = layoutData->string.length() - 1;
+        appendItems(const_cast<QTextEngine *>(this), start, stop, control, QChar::DirL);
     }
-    if ((itemization_mode & QTextEngine::WidthOnly) == WidthOnly)
-        widthOnly = true;
 
-    if (block.docHandle())
-        setFormatsFromDocument();
+    addRequiredBoundaries();
 }
 
 int QTextEngine::findItem(int strPos) const
 {
+    itemize();
+
     // ##### use binary search
     int item;
-    for (item = items.size()-1; item > 0; --item) {
-        if (items[item].position <= strPos)
+    for (item = layoutData->items.size()-1; item > 0; --item) {
+        if (layoutData->items[item].position <= strPos)
             break;
     }
     return item;
@@ -1049,11 +1019,13 @@ int QTextEngine::findItem(int strPos) const
 
 qReal QTextEngine::width(int from, int len) const
 {
+    itemize();
+
     qReal w = 0;
 
 //     qDebug("QTextEngine::width(from = %d, len = %d), numItems=%d, strleng=%d", from,  len, items.size(), string.length());
-    for (int i = 0; i < items.size(); i++) {
-        const QScriptItem *si = items.constData() + i;
+    for (int i = 0; i < layoutData->items.size(); i++) {
+        const QScriptItem *si = layoutData->items.constData() + i;
         int pos = si->position;
         int ilen = length(i);
 //          qDebug("item %d: from %d len %d", i, pos, ilen);
@@ -1100,10 +1072,12 @@ qReal QTextEngine::width(int from, int len) const
 
 glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 {
+    itemize();
+
     glyph_metrics_t gm;
 
-    for (int i = 0; i < items.size(); i++) {
-        const QScriptItem *si = items.constData() + i;
+    for (int i = 0; i < layoutData->items.size(); i++) {
+        const QScriptItem *si = layoutData->items.constData() + i;
         int pos = si->position;
         int ilen = length(i);
         if (pos > from + len)
@@ -1225,6 +1199,8 @@ void QTextEngine::justify(const QScriptLine &line)
     if ((option.alignment() & Qt::AlignHorizontal_Mask) != Qt::AlignJustify)
         return;
 
+    itemize();
+
     // justify line
     int maxJustify = 0;
 
@@ -1253,13 +1229,13 @@ void QTextEngine::justify(const QScriptLine &line)
     // store pointers to the glyph data that could get reallocated by the shaping
     // process.
     for (int i = 0; i < nItems; ++i) {
-        QScriptItem &si = items[firstItem + i];
+        QScriptItem &si = layoutData->items[firstItem + i];
         if (!si.num_glyphs)
             shape(firstItem + i);
     }
 
     for (int i = 0; i < nItems; ++i) {
-        QScriptItem &si = items[firstItem + i];
+        QScriptItem &si = layoutData->items[firstItem + i];
 
         int kashida_type = QGlyphLayout::Arabic_Normal;
         int kashida_pos = -1;
@@ -1324,7 +1300,7 @@ void QTextEngine::justify(const QScriptLine &line)
     }
 
     // don't justify last line. Return here, so we ensure justificationType etc. are reset.
-    if (line.from + (int)line.length == string.length()) {
+    if (line.from + (int)line.length == layoutData->string.length()) {
         const_cast<QScriptLine &>(line).justified = true;
         return;
     }
@@ -1405,54 +1381,97 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
     descent = e->descent();
 }
 
-void QTextEngine::freeMemory()
+QTextEngine::LayoutData::LayoutData()
 {
-    free(memory);
     memory = 0;
-    haveCharAttributes = false;
     allocated = 0;
     num_glyphs = 0;
     used = 0;
+    haveCharAttributes = false;
+}
+
+QTextEngine::LayoutData::~LayoutData()
+{
+    free(memory);
+    memory = 0;
+}
+
+void QTextEngine::freeMemory()
+{
+    delete layoutData;
+    layoutData = 0;
     for (int i = 0; i < lines.size(); ++i) {
         lines[i].justified = 0;
         lines[i].gridfitted = 0;
     }
-//     for (int i = 0; i < items.size(); ++i)
-//         items[i].num_glyphs = 0;
-    items.clear();
 }
 
-void QTextEngine::invalidate()
-{
-    freeMemory();
-    lines.clear();
-    boundingRect = QRect();
-    minWidth = 0;
-    maxWidth = 0;
-    invalid = true;
-}
-
-void QTextEngine::validate()
-{
-    if (invalid && block.docHandle())
-        string = block.text();
-    invalid = false;
-}
-
-void QTextEngine::setFormatsFromDocument()
+void QTextEngine::addRequiredBoundaries() const
 {
     int position = 0;
 
     const QTextDocumentPrivate *p = block.docHandle();
-    QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
-    QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
-    int format = it.value()->format;
+    if (p) {
+        QTextDocumentPrivate::FragmentIterator it = p->find(block.position());
+        QTextDocumentPrivate::FragmentIterator end = p->find(block.position() + block.length() - 1); // -1 to omit the block separator char
+        int format = it.value()->format;
 
-    for (; it != end; ++it) {
-        const QTextFragmentData * const frag = it.value();
-        if (format != frag->format)
-            setBoundary(position);
-        format = frag->format;
-        position += frag->size;
+        for (; it != end; ++it) {
+            const QTextFragmentData * const frag = it.value();
+            if (format != frag->format)
+                setBoundary(position);
+            format = frag->format;
+            position += frag->size;
+        }
     }
 }
+
+void QTextEngine::setBoundary(int strPos) const
+{
+    if (strPos <= 0 || strPos >= layoutData->string.length())
+        return;
+
+    int itemToSplit = 0;
+    while (itemToSplit < layoutData->items.size() && layoutData->items[itemToSplit].position <= strPos)
+        itemToSplit++;
+    itemToSplit--;
+    if (layoutData->items[itemToSplit].position == strPos) {
+        // already a split at the requested position
+        return;
+    }
+    splitItem(itemToSplit, strPos - layoutData->items[itemToSplit].position);
+}
+
+void QTextEngine::splitItem(int item, int pos) const
+{
+    if (pos <= 0)
+        return;
+
+    layoutData->items.insert(item + 1, QScriptItem(layoutData->items[item]));
+    QScriptItem &oldItem = layoutData->items[item];
+    QScriptItem &newItem = layoutData->items[item+1];
+    newItem.position += pos;
+
+    if (oldItem.num_glyphs) {
+        // already shaped, break glyphs aswell
+        int breakGlyph = logClusters(&oldItem)[pos];
+
+        newItem.num_glyphs = oldItem.num_glyphs - breakGlyph;
+        oldItem.num_glyphs = breakGlyph;
+        newItem.glyph_data_offset = oldItem.glyph_data_offset + breakGlyph;
+
+        for (int i = 0; i < newItem.num_glyphs; i++)
+            logClusters(&newItem)[i] -= breakGlyph;
+
+        qReal w = 0;
+        const QGlyphLayout *g = glyphs(&oldItem);
+        for(int j = 0; j < breakGlyph; ++j)
+            w += (g++)->advance.x();
+
+        newItem.width = oldItem.width - w;
+        oldItem.width = w;
+    }
+
+//     qDebug("split at position %d itempos=%d", pos, item);
+}
+

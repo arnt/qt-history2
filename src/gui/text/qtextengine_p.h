@@ -264,13 +264,16 @@ public:
     Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag)
 
     void setMode(int mode) { itemization_mode = mode; }
-    void itemize();
+
+    void invalidate();
+
+    void validate() const;
+    void itemize() const;
 
     static void bidiReorder(int numRuns, const Q_UINT8 *levels, int *visualOrder);
 
     const QCharAttributes *attributes();
 
-    void setBoundary(int strPos);
     void shape(int item) const;
 
     void justify(const QScriptLine &si);
@@ -279,17 +282,15 @@ public:
     glyph_metrics_t boundingBox(int from,  int len) const;
 
     int length(int item) const {
-        const QScriptItem &si = items[item];
+        const QScriptItem &si = layoutData->items[item];
         int from = si.position;
         item++;
-        return (item < items.size() ? items[item].position : string.length()) - from;
+        return (item < layoutData->items.size() ? layoutData->items[item].position : layoutData->string.length()) - from;
     }
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
     QFont font(const QScriptItem &si) const;
     QFont font() const;
-
-    void splitItem(int item, int pos);
 
     unsigned short *logClustersPtr;
     QGlyphLayout *glyphPtr;
@@ -301,16 +302,13 @@ public:
 
     void reallocate(int totalGlyphs);
     inline void ensureSpace(int nGlyphs) const {
-        if (num_glyphs - used < nGlyphs)
-            const_cast<QTextEngine *>(this)->reallocate((((used + nGlyphs)*3/2 + 15) >> 4) << 4);
+        if (layoutData->num_glyphs - layoutData->used < nGlyphs)
+            const_cast<QTextEngine *>(this)->reallocate((((layoutData->used + nGlyphs)*3/2 + 15) >> 4) << 4);
     }
 
     void freeMemory();
 
     int findItem(int strPos) const;
-    void setFormatsFromDocument();
-    void invalidate();
-    void validate();
     inline QTextFormatCollection *formats() const {
         return block.docHandle()->formatCollection();
     }
@@ -327,26 +325,17 @@ public:
 
     mutable QScriptLineArray lines;
 
-    QString string;
+    QString text;
     QFontPrivate *fnt;
     QTextBlock block;
 
     QChar::Direction direction : 5;
-    unsigned int haveCharAttributes : 1;
-    unsigned int widthOnly : 1;
     unsigned int textColorFromPalette : 1;
-    unsigned int invalid : 1;
     unsigned int reserved : 7;
     unsigned int itemization_mode : 16;
     QTextOption option;
 
     QPalette *pal;
-
-    mutable QScriptItemArray items;
-    int allocated;
-    void **memory;
-    int num_glyphs;
-    mutable int used;
 
     qReal minWidth;
     qReal maxWidth;
@@ -356,15 +345,31 @@ public:
     int cursorPos;
     int *underlinePositions;
 
-
-    struct Preedit {
-        int position;
-        QString text;
-//        QList<QInputMethodEvent::Attribute> attributes;
+    struct LayoutData {
+        LayoutData();
+        ~LayoutData();
+        mutable QScriptItemArray items;
+        int allocated;
+        void **memory;
+        int num_glyphs;
+        mutable int used;
+        bool haveCharAttributes;
+        QString string;
     };
-    Preedit *preedit;
+    mutable LayoutData *layoutData;
+
+    struct SpecialData {
+        int preeditPosition;
+        QString preeditText;
+        QList<QTextLayout::FormatOverride> overrides;
+    };
+    SpecialData *specialData;
 private:
+    void setBoundary(int strPos) const;
+    void addRequiredBoundaries() const;
     void shapeText(int item) const;
+    void splitItem(int item, int pos) const;
+
 };
 
 #endif // QTEXTENGINE_P_H

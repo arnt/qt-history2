@@ -1524,6 +1524,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         return;
     }
 
+#if 0
+    // ########################
     switch(e->type()) {
     case QEvent::InputMethodStart:
         if (hasSelectedText())
@@ -1576,6 +1578,7 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
     default:
         Q_ASSERT(false);
     }
+#endif
     repaintChanged();
 }
 

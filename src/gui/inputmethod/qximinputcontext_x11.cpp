@@ -38,6 +38,9 @@
 #include "qstring.h"
 #include "qlist.h"
 #include "qtextcodec.h"
+#include "qevent.h"
+#include "qlist.h"
+#include "qtextformat.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -101,7 +104,6 @@ extern "C" {
 	XIM_DEBUG("xic_start_callback");
 
 	data->clear();
-	qic->sendIMEvent(QEvent::InputMethodStart);
         data->composing = true;
 
 	return 0;
@@ -123,7 +125,6 @@ extern "C" {
 
 	if(!data->composing) {
 	    data->clear();
-	    qic->sendIMEvent(QEvent::InputMethodStart);
             data->composing = true;
         }
 
@@ -136,7 +137,8 @@ extern "C" {
 		XIM_DEBUG("compose emptied");
 		// if the composition string has been emptied, we need
 		// to send an InputMethodEnd event
-		qic->sendIMEvent(QEvent::InputMethodEnd);
+                QInputMethodEvent e(QString::null, QString(), QList<QInputMethodEvent::Attribute>());
+		qic->sendEvent(e);
 		data->clear();
 
 		// if the commit string has coming after here, InputMethodStart
@@ -185,7 +187,7 @@ extern "C" {
 
             // figure out where the selection starts, and how long it is
             bool started = false;
-            for (int x = 0; x < data->selectedChars.size(); ++x) {
+            for (int x = 0; x < qMin(data->selectedChars.size(), data->text.length()); ++x) {
                 if (started) {
                     if (data->selectedChars.testBit(x)) ++sellen;
                     else break;
@@ -207,7 +209,8 @@ extern "C" {
 		XIM_DEBUG("compose emptied 2 text=%s", data->text.toUtf8().constData());
 		// if the composition string has been emptied, we need
 		// to send an InputMethodEnd event
-		qic->sendIMEvent(QEvent::InputMethodEnd);
+                QInputMethodEvent e(QString::null, QString(), QList<QInputMethodEvent::Attribute>());
+		qic->sendEvent(e);
 		data->clear();
 		// if the commit string has coming after here, InputMethodStart
 		// will be sent dynamically
@@ -215,9 +218,23 @@ extern "C" {
 	    }
 	}
 
+        if (!sellen)
+            cursor = data->text.length();
         XIM_DEBUG("sending compose: '%s', cursor=%d, sellen=%d",
                   data->text.toUtf8().constData(), cursor, sellen);
-	qic->sendIMEvent(QEvent::InputMethodCompose, data->text, cursor, sellen);
+        QList<QInputMethodEvent::Attribute> attrs;
+        if (cursor > 0)
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, cursor,
+                                                  qic->standardFormat(QInputContext::PreeditFormat));
+        if (sellen)
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, cursor, sellen,
+                                                  qic->standardFormat(QInputContext::SelectionFormat));
+        if (cursor + sellen < data->text.length())
+            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
+                                                  cursor + sellen, data->text.length() - cursor - sellen,
+                                                  qic->standardFormat(QInputContext::PreeditFormat));
+        QInputMethodEvent e(data->text, QString(), attrs);
+	qic->sendEvent(e);
 
 	return 0;
     }
@@ -230,12 +247,6 @@ extern "C" {
         XIM_DEBUG("xic_done_callback");
 	// Don't send InputMethodEnd here. QXIMInputContext::x11FilterEvent()
 	// handles InputMethodEnd with commit string.
-#if 0
-	if (qic->isComposing())
-	    qic->sendIMEvent(QEvent::InputMethodEnd);
-	data->clear();
-#endif
-
 	return 0;
     }
 }
@@ -475,14 +486,15 @@ void QXIMInputContext::reset()
     if (!data)
         return;
 
-    data->clear();
     if (data->ic) {
         char *mb = XmbResetIC(data->ic);
         if (mb) {
-            sendIMEvent(QEvent::InputMethodEnd, QString::fromLocal8Bit(mb));
+            QInputMethodEvent e(QString::null, QString::fromLocal8Bit(mb), QList<QInputMethodEvent::Attribute>());
+            sendEvent(e);
             XFree(mb);
         }
     }
+    data->clear();
 }
 
 void QXIMInputContext::widgetDestroyed(QWidget *w)
@@ -502,11 +514,10 @@ void QXIMInputContext::mouseHandler(int pos, QMouseEvent *)
 {
     XIM_DEBUG("QXIMInputContext::mouseHandler pos=%d", pos);
     ICData *data = ximData.value(focusWidget());
-    Q_ASSERT(data);
-    if (pos < 0 || pos > data->text.length()) {
-	sendIMEvent(QEvent::InputMethodEnd);
+    if (!data)
+        return;
+    if (pos < 0 || pos > data->text.length())
         reset();
-    }
     // ##### handle mouse position
 }
 
@@ -588,13 +599,15 @@ bool QXIMInputContext::x11FilterEvent(QWidget *keywidget, XEvent *event)
     if (count > 0)
         text = qt_input_mapper->toUnicode(string.constData() , count);
 
+#if 0
     if (!(xim_style & XIMPreeditCallbacks) || !isComposing()) {
         // ############### send a regular key event here!
-        // there is no composing state
-        sendIMEvent(QEvent::InputMethodStart);
+        ;
     }
+#endif
 
-    sendIMEvent(QEvent::InputMethodEnd, text);
+    QInputMethodEvent e(QString::null, text, QList<QInputMethodEvent::Attribute>());
+    sendEvent(e);
     data->clear();
     return true;
 }

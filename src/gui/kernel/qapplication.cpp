@@ -1015,7 +1015,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
           || event->type() == QEvent::QWSUpdate
 #endif
           || event->type() == QEvent::LanguageChange
-	  || event->type() == QEvent::InputMethodCompose)) {
+	  || event->type() == QEvent::InputMethod)) {
         for (int i = 0; i < postedEvents->size(); ++i) {
             const QPostEvent &cur = postedEvents->at(i);
             if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
@@ -1039,7 +1039,7 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 #endif
             } else if (cur.event->type() == QEvent::LanguageChange) {
                 ;
-	    } else if ( cur.event->type() == QEvent::InputMethodCompose ) {
+	    } else if ( cur.event->type() == QEvent::InputMethod ) {
                 *(QInputMethodEvent *)(cur.event) = *(QInputMethodEvent *)event;
             } else {
                 continue;

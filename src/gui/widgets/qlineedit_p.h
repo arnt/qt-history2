@@ -30,6 +30,7 @@
 #include <qtextlayout.h>
 #include <qbasictimer.h>
 #include <qstyleoption.h>
+#include <qtextlayout.h>
 
 class QLineEditPrivate : public QWidgetPrivate
 {
@@ -42,8 +43,7 @@ public:
           direction(QChar::DirON), dragEnabled(1), contextMenuEnabled(1), alignment(0),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
-          modifiedState(0), undoState(0), selstart(0), selend(0),
-          imstart(0), imend(0), imselstart(0), imselend(0)
+          modifiedState(0), undoState(0), selstart(0), selend(0)
         {}
     ~QLineEditPrivate()
     {
@@ -156,11 +156,8 @@ public:
     int findInMask(int pos, bool forward, bool findSeparator, QChar searchChar = QChar()) const;
 
     // input methods
-    int imstart, imend, imselstart, imselend;
-    bool composeMode() const { return preeditLength(); }
-    bool hasIMSelection() const { return imSelectionLength(); }
-    int preeditLength() const { return ( imend - imstart ); }
-    int imSelectionLength() const { return ( imselend - imselstart ); }
+    bool composeMode() const { return !textLayout.preeditAreaText().isEmpty(); }
+    QList<QTextLayout::FormatOverride> formatOverrides;
 
     // complex text layout
     QTextLayout textLayout;

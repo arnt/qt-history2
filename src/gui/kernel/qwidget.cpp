@@ -4539,9 +4539,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::ShortcutOverride:
         break;
 
-    case QEvent::InputMethodStart:
-    case QEvent::InputMethodCompose:
-    case QEvent::InputMethodEnd:
+    case QEvent::InputMethod:
         inputMethodEvent((QInputMethodEvent *) e);
         break;
 

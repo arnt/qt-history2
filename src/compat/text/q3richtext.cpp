@@ -3836,7 +3836,7 @@ void Q3TextString::checkBidi() const
     textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
-    QScriptItem *item = &textEngine.items[textEngine.items.size()-1];
+    QScriptItem *item = &textEngine.layoutData->items[textEngine.layoutData->items.size()-1];
     unsigned char bidiLevel = item->analysis.bidiLevel;
     if (bidiLevel)
         that->bidi = true;
@@ -3844,7 +3844,7 @@ void Q3TextString::checkBidi() const
     while (ch >= start) {
         if (item->position > pos) {
             --item;
-            Q_ASSERT(item >= &textEngine.items[0]);
+            Q_ASSERT(item >= &textEngine.layoutData->items[0]);
             bidiLevel = item->analysis.bidiLevel;
             if (bidiLevel)
                 that->bidi = true;

@@ -1565,10 +1565,6 @@ void QTextEdit::paintEvent(QPaintEvent *e)
     ctx.palette = palette();
     ctx.textColorFromPalette = true;
     ctx.rect = r;
-    ctx.imStart = d->imstart;
-    ctx.imEnd = d->imend;
-    ctx.imSelectionStart = d->imselstart;
-    ctx.imSelectionEnd = d->imselend;
     ctx.focusIndicator = d->focusIndicator;
 
     d->doc->documentLayout()->draw(&p, ctx);
@@ -1611,9 +1607,10 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
             }
 
 #ifdef Q_WS_X11
-            if (d->imstart != d->imend) {
-                inputContext()->mouseHandler(cursorPos - d->imstart, e);
-                if (d->imstart != d->imend)
+            QTextLayout *layout = d->cursor.block().layout();
+            if (!layout->preeditAreaText().isEmpty()) {
+                inputContext()->mouseHandler(cursorPos - d->cursor.position(), e);
+                if (!layout->preeditAreaText().isEmpty())
                     return;
             }
 #endif
@@ -1872,31 +1869,33 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
-    switch(e->type()) {
-    case QEvent::InputMethodStart:
-        d->cursor.removeSelectedText();
-        d->imstart = d->imend = d->imselstart = d->imselend = d->cursor.position();
-        break;
-    case QEvent::InputMethodCompose:
-        d->cursor.setPosition(d->imstart);
-        d->cursor.setPosition(d->imend, QTextCursor::KeepAnchor);
-        d->cursor.insertText(e->text());
-        d->imend = d->imstart + e->text().length();
-        d->imselstart = d->imstart + e->cursorPos();
-        d->imselend = d->imselstart + e->selectionLength();
-        d->cursor.setPosition(d->imselstart);
-        d->viewport->update();
-        break;
-    case QEvent::InputMethodEnd:
-        d->cursor.setPosition(d->imstart);
-        d->cursor.setPosition(d->imend, QTextCursor::KeepAnchor);
-        d->cursor.insertText(e->text());
-        d->imselstart = d->imselend = d->imend = d->imstart = 0;
-        d->viewport->update();
-        break;
-    default:
-        Q_ASSERT(false);
+    d->cursor.removeSelectedText();
+
+    // insert commit string
+    d->cursor.beginEditBlock();
+    if (!e->commitText().isEmpty())
+        d->cursor.insertText(e->commitText());
+
+    QTextBlock block = d->cursor.block();
+    QTextLayout *layout = block.layout();
+    layout->setPreeditArea(d->cursor.position() - block.position(), e->preeditText());
+    QList<QTextLayout::FormatOverride> overrides;
+    for (int i = 0; i < e->attributes().size(); ++i) {
+        const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+        if (a.type != QInputMethodEvent::TextFormat)
+            continue;
+        QTextCharFormat f = a.value.toTextFormat().toCharFormat();
+        if (f.isValid()) {
+            QTextLayout::FormatOverride o;
+            o.from = a.start + d->cursor.position() - block.position();
+            o.length = a.length;
+            o.format = f;
+            overrides.append(o);
+        }
     }
+    layout->setFormatOverrides(overrides);
+    d->cursor.endEditBlock();
+    d->doc->documentLayout()->documentChange(block.position(), block.length(), block.length());
 }
 
 /*!\reimp

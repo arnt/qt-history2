@@ -2142,6 +2142,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                   0, unilen, 0, unicode);
                 QString text((QChar*)unicode, unilen / sizeof(UniChar));
                 DisposePtr((char*)unicode);
+#if 0 // #### IME
                 if(doc->inputWidget()) {
                     long fixed_length = 0;
                     GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
@@ -2184,6 +2185,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         QApplication::sendSpontaneousEvent(doc->inputWidget(), &imcompose);
                     }
                 }
+#endif
             }
         } else if(ekind == kEventTextInputUnicodeForKeyEvent) {
             EventRef key_ev = 0;
@@ -2199,6 +2201,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             unsigned char chr = 0;
             GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
+#if 0 // #### IME
             if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
                 QInputMethodEvent imstart(QEvent::InputMethodStart, QString::null, -1);
                 QApplication::sendSpontaneousEvent(widget, &imstart);
@@ -2208,6 +2211,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     QApplication::sendSpontaneousEvent(widget, &imend);
                 }
             }
+#endif
         }
         if(!handled_event) //just bail now
             return eventNotHandledErr;

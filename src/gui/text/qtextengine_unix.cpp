@@ -21,28 +21,26 @@
 
 void QTextEngine::shapeText(int item) const
 {
-    assert(item < items.size());
-    QScriptItem &si = items[item];
+    assert(item < layoutData->items.size());
+    QScriptItem &si = layoutData->items[item];
 
     if (si.num_glyphs)
         return;
 
-    si.glyph_data_offset = used;
+    si.glyph_data_offset = layoutData->used;
 
     QFontEngine *font = fontEngine(si);
 
-    if (!widthOnly) {
-        si.ascent = font->ascent();
-        si.descent = font->descent();
-    }
+    si.ascent = font->ascent();
+    si.descent = font->descent();
 
     QShaperItem shaper_item;
     shaper_item.script = si.analysis.script;
-    shaper_item.string = &string;
+    shaper_item.string = &layoutData->string;
     shaper_item.from = si.position;
     shaper_item.length = length(item);
     shaper_item.font = font;
-    shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
+    shaper_item.num_glyphs = qMax(layoutData->num_glyphs - layoutData->used, shaper_item.length);
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
     if (option.usesDesignMetrics())
         shaper_item.flags |= DesignMetrics;
@@ -51,7 +49,7 @@ void QTextEngine::shapeText(int item) const
     while (1) {
 //         qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
         ensureSpace(shaper_item.num_glyphs);
-        shaper_item.num_glyphs = num_glyphs - used;
+        shaper_item.num_glyphs = layoutData->num_glyphs - layoutData->used;
 //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
         shaper_item.glyphs = glyphs(&si);
         shaper_item.log_clusters = logClusters(&si);
@@ -62,7 +60,7 @@ void QTextEngine::shapeText(int item) const
 //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
     si.num_glyphs = shaper_item.num_glyphs;
 
-    used += si.num_glyphs;
+    layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = shaper_item.glyphs;
     // ############ general solution needed

@@ -3692,8 +3692,8 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 
     if (dir != Auto) {
         int level = dir == RTL ? 1 : 0;
-        for (int i = engine->items.size()-1; i >= 0; i--)
-            engine->items[i].analysis.bidiLevel = level;
+        for (int i = engine->layoutData->items.size()-1; i >= 0; i--)
+            engine->layoutData->items[i].analysis.bidiLevel = level;
     }
 
     QTextLine line = layout.createLine();

@@ -1628,8 +1628,8 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 #if defined Q_WS_X11 && !defined QT_NO_IM
     if ( composeMode() ) {
 	int cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
-	int mousePos = cursor - d->imstart;
-	if ( mousePos < 0 || mousePos >= d->preeditLength() ) {
+	int mousePos = cursor - d->cursor;
+	if ( mousePos < 0 || mousePos >= d->textLayout.preeditAreaText().length() ) {
             mousePos = -1;
 	    // don't send move events outside the preedit area
             if ( e->type() == QEvent::MouseMove )
@@ -1640,7 +1640,8 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
         if ( qic )
             // may be causing reset() in some input methods
             qic->mouseHandler(mousePos, e);
-	return TRUE;
+        if (!d->textLayout.preeditAreaText().isEmpty())
+            return TRUE;
     }
 #else
     Q_UNUSED(e);
@@ -1657,39 +1658,32 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         e->ignore();
         return;
     }
-    switch(e->type()) {
-    case QEvent::InputMethodStart:
-        d->removeSelectedText();
-        d->imstart = d->imend = d->imselstart = d->imselend = d->cursor;
-        break;
-    case QEvent::InputMethodCompose:
-        d->text.replace(d->imstart, d->imend - d->imstart, e->text());
-        d->imend = d->imstart + e->text().length();
-        d->imselstart = d->imstart + e->cursorPos();
-        d->imselend = d->imselstart + e->selectionLength();
-#if 0
-        d->cursor = e->selectionLength() ? d->imend : d->imselend;
-#else
-        // Cursor placement code is changed for Asian input method that
-        // shows candidate window. This behavior is same as Qt/E 2.3.7
-        // which supports Asian input methods. Asian input methods need
-        // start point of IM selection text to place candidate window as
-        // adjacent to the selection text.
-        d->cursor = d->imselstart;
-#endif
-        d->updateTextLayout();
-        update();
-        d->emitCursorPositionChanged();
-        break;
-    case QEvent::InputMethodEnd:
-        d->text.remove(d->imstart, d->imend - d->imstart);
-        d->cursor = d->imselstart = d->imselend = d->imend = d->imstart;
-        d->textDirty = true;
-        insert(e->text());
-        break;
-    default:
-        Q_ASSERT(false);
+
+    d->removeSelectedText();
+
+    // insert commit string
+    if (!e->commitText().isEmpty())
+        d->insert(e->commitText());
+
+    d->textLayout.setPreeditArea(d->cursor, e->preeditText());
+    d->formatOverrides.clear();
+    for (int i = 0; i < e->attributes().size(); ++i) {
+        const QInputMethodEvent::Attribute &a = e->attributes().at(i);
+        if (a.type != QInputMethodEvent::TextFormat)
+            continue;
+        QTextCharFormat f = a.value.toTextFormat().toCharFormat();
+        if (f.isValid()) {
+            QTextLayout::FormatOverride o;
+            o.from = a.start + d->cursor;
+            o.length = a.length;
+            o.format = f;
+            d->formatOverrides.append(o);
+        }
     }
+    d->updateTextLayout();
+    update();
+    if (!e->commitText().isEmpty())
+        d->emitCursorPositionChanged();
 }
 
 /*!\reimp
@@ -1726,10 +1720,9 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
     }
     QStyleOptionFrame opt = d->getStyleOption();
-    if(!hasSelectedText() || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
+    if((!hasSelectedText() && d->textLayout.preeditAreaText().isEmpty())
+       || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
-    if ( d->hasIMSelection() )
-	d->cursor = d->imselstart;
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(true);
@@ -1832,34 +1825,31 @@ void QLineEdit::paintEvent(QPaintEvent *)
     p.setPen(pal.text().color());
     bool supressCursor = d->readOnly;
 
-    QTextLayout::Selection sel[4];
-    int nSel = 0;
-    if (d->selstart < d->selend) {
-        sel[nSel].setRange(d->selstart, d->selend - d->selstart);
-        sel[nSel].setType(QTextLayout::Highlight);
-        ++nSel;
+    QList<QTextLayout::FormatOverride> list = d->formatOverrides;
+    if (d->selstart < d->selend || (d->cursorVisible && d->maskData)) {
+        QTextLayout::FormatOverride o;
+        const QPalette &pal = q->palette();
+        if (d->selstart < d->selend) {
+            o.from = d->selstart;
+            o.length = d->selend - d->selstart;
+            o.format.setBackgroundColor(pal.color(QPalette::Highlight));
+            o.format.setTextColor(pal.color(QPalette::HighlightedText));
+        } else {
+            // mask selection
+            o.from = d->cursor;
+            o.length = 1;
+            o.format.setBackgroundColor(pal.color(QPalette::Text));
+            o.format.setTextColor(pal.color(QPalette::Background));
+        }
+        list.append(o);
     }
-    if (d->composeMode()) {
-        sel[nSel].setRange(d->imstart, d->preeditLength());
-        sel[nSel].setType(QTextLayout::ImText);
-        ++nSel;
-    }
-    if (d->hasIMSelection()) {
-        sel[nSel].setRange(d->imselstart, d->imSelectionLength());
-        sel[nSel].setType(QTextLayout::ImSelection);
-        ++nSel;
-    }
-    if (d->cursorVisible && d->maskData && d->selend <= d->selstart) {
-        sel[nSel].setRange(d->cursor, 1);
-        sel[nSel].setType(QTextLayout::ImSelection);
-        ++nSel;
-    }
+    d->textLayout.setFormatOverrides(list);
 
-    // Asian users regard IM selection text as cursor on candidate
-    // selection phase of input method, so ordinary cursor should be
-    // invisible if IM selection text exists.
-    bool showCursor = (d->cursorVisible && !supressCursor && !d->hasIMSelection());
-    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : -1, sel, nSel);
+    // Asian users see an IM selection text as cursor on candidate
+    // selection phase of input method, so the ordinary cursor should be
+    // invisible if we have a preedit string.
+    bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
+    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : -1, 0, 0);
 
 }
 
@@ -2082,9 +2072,8 @@ void QLineEditPrivate::updateTextLayout()
     // replace all non-printable characters with spaces (to avoid
     // drawing boxes when using fonts that don't have glyphs for such
     // characters)
-    const QString &displayText = q->displayText();
-    QString str(displayText.unicode(), displayText.length());
-    QChar* uc = (QChar*)str.unicode();
+    QString str = q->displayText();
+    QChar* uc = str.data();
     for (int i = 0; i < (int)str.length(); ++i) {
         if (! uc[i].isPrint())
             uc[i] = QChar(0x0020);
@@ -2096,6 +2085,7 @@ void QLineEditPrivate::updateTextLayout()
         dir = q->layoutDirection() == Qt::LeftToRight ? QChar::DirL : QChar::DirR;
     textLayout.setDirection(dir);
     textLayout.setLayoutMode(QTextLayout::SingleLine);
+
     textLayout.beginLayout();
     QTextLine l = textLayout.createLine();
     l.layout(0x100000);
@@ -2148,6 +2138,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
             anchor = cursor;
         selstart = qMin(anchor, pos);
         selend = qMax(anchor, pos);
+        updateTextLayout();
     } else {
         deselect();
     }

@@ -443,8 +443,8 @@ bool QInputContext::endComposition(QWidget *fw)
         fw = qApp->focusWidget();
 
     if (fw) {
-        QInputMethodEvent e(QEvent::InputMethodEnd, QString::null, -1);
-        result = qt_sendSpontaneousEvent(fw, &e);
+//         QInputMethodEvent e(QEvent::InputMethodEnd, QString::null, -1);
+//         result = qt_sendSpontaneousEvent(fw, &e);
     }
 
     if (imeComposition)
@@ -463,8 +463,8 @@ void QInputContext::accept(QWidget *fw)
 #endif
 
     if (fw && imePosition != -1) {
-        QInputMethodEvent e(QEvent::InputMethodEnd, imeComposition ? *imeComposition : QString(), -1);
-        qt_sendSpontaneousEvent(fw, &e);
+//         QInputMethodEvent e(QEvent::InputMethodEnd, imeComposition ? *imeComposition : QString(), -1);
+//         qt_sendSpontaneousEvent(fw, &e);
     }
 
     if (imeComposition)
@@ -493,8 +493,8 @@ bool QInputContext::startComposition()
 
     QWidget *fw = qApp->focusWidget();
     if (fw) {
-        QInputMethodEvent e(QEvent::InputMethodStart, QString::null, -1);
-        result = qt_sendSpontaneousEvent(fw, &e);
+//         QInputMethodEvent e(QEvent::InputMethodStart, QString::null, -1);
+//         result = qt_sendSpontaneousEvent(fw, &e);
         imePosition = 0;
     }
     return result;
@@ -536,9 +536,9 @@ bool QInputContext::composition(LPARAM lParam)
             // a fixed result, return the converted string
             *imeComposition = getString(imc, GCS_RESULTSTR);
             imePosition = -1;
-            QInputMethodEvent e(QEvent::InputMethodEnd, *imeComposition, imePosition);
+//             QInputMethodEvent e(QEvent::InputMethodEnd, *imeComposition, imePosition);
             *imeComposition = QString::null;
-            result = qt_sendSpontaneousEvent(fw, &e);
+//             result = qt_sendSpontaneousEvent(fw, &e);
         }
         else if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {
             if (imePosition == -1) {
@@ -558,8 +558,8 @@ bool QInputContext::composition(LPARAM lParam)
            if (selLength != 0)
                 imePosition = selStart;
 
-            QInputMethodEvent e(QEvent::InputMethodCompose, *imeComposition, imePosition, selLength);
-            result = qt_sendSpontaneousEvent(fw, &e);
+//             QInputMethodEvent e(QEvent::InputMethodCompose, *imeComposition, imePosition, selLength);
+//             result = qt_sendSpontaneousEvent(fw, &e);
         }
         releaseContext(fw->winId(), imc);
     }

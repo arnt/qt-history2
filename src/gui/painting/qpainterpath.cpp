@@ -865,7 +865,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     if (!sl.length)
         return;
 
-    int nItems = eng->items.size();
+    int nItems = eng->layoutData->items.size();
 
     qReal x(point.x());
     qReal y(point.y());
@@ -873,12 +873,12 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<uchar> levels(nItems);
     for (int i = 0; i < nItems; ++i)
-        levels[i] = eng->items[i].analysis.bidiLevel;
+        levels[i] = eng->layoutData->items[i].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i];
-        QScriptItem &si = eng->items[item];
+        QScriptItem &si = eng->layoutData->items[item];
 
         if (!si.isTab && !si.isObject) {
             QGlyphLayout *glyphs = eng->glyphs(&si);

@@ -331,51 +331,35 @@ protected:
     uint reas : 8;
 };
 
-#if 0
-class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
+// ################ add support for string replacement!
+class Q_GUI_EXPORT QInputMethodEvent : public QEvent
 {
 public:
-    QInputMethodEvent(const QString &text);
-
     enum AttributeType {
-       UnderLineColor,
-       BackgroundColor,
-       CursorPosition,
-       ReplaceString,
+       TextFormat,
+       Cursor,
        Language,
-       RubyText
+       Ruby
     };
     struct Attribute {
+        Attribute(AttributeType t, int s, int l, QVariant val) : type(t), start(s), length(l), value(val) {}
         AttributeType type;
-        QVariant value;
         int start;
         int length;
+        QVariant value;
     };
-    void setAttribute(const Attribute &value);
-    QVariant attribute(AttributeType a) const;
-    QList<Attribute> attributes() const;
+    QInputMethodEvent(const QString &preeditText, const QString &commitText, const QList<Attribute> &attributes);
 
+    const QList<Attribute> &attributes() const { return attrs; }
+    const QString &preeditText() const { return preedit; }
+    const QString &commitText() const { return commit; }
+
+    QInputMethodEvent(const QInputMethodEvent &other);
 private:
-    QList<Attribute> attributes;
     QString preedit;
+    QString commit;
+    QList<Attribute> attrs;
 };
-#else
-class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
-{
-public:
-    QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength = 0);
-    ~QInputMethodEvent();
-
-    inline const QString &text() const { return txt; }
-    inline int cursorPos() const { return cpos; }
-    inline int selectionLength() const { return selLen; }
-
-private:
-    QString txt;
-    int cpos;
-    int selLen;
-};
-#endif
 
 #ifndef QT_NO_DRAGANDDROP
 

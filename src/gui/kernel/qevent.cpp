@@ -1127,9 +1127,9 @@ Qt::ButtonState QContextMenuEvent::state() const
 
     \i <b>Composing</b><br>
     With every new key pressed, the input method will try to create a
-    matching string for the text typed so far. While the input context
-    is active, the user can only move the cursor inside the string
-    belonging to this input context.
+    matching string for the text typed so far called preedit
+    string. While the input context is active, the user can only move
+    the cursor inside the string belonging to this input context.
 
     \i <b>Completing</b><br>
     At some point, the user will activate a user interface component
@@ -1139,77 +1139,70 @@ Qt::ButtonState QContextMenuEvent::state() const
     case the input context will be closed.
     \endlist
 
-    These three stages are represented by three different types of
-    events: InputMethodStart, InputMethodCompose, and InputMethodEnd. All of these events are
-    delivered to the imEvent() method. When a new input context is
-    created, an InputMethodStart event will be sent to the widget.  The widget
-    can then update internal data structures to reflect this.
+    QInputMethodEvent models these three stages, and transfers the
+    information needed to correctly render the intermediate result. A
+    QInputMethodEvent has two main parameters: preeditText() and
+    commitText(). The preeditText() parameter gives the currently
+    active preedit string. The commitText() parameter gives a text
+    that should get added to the text of the editor widget. It usually
+    is a result of the input operations and has to be inserted to the
+    widgets text directly before the preedit string.
 
-    After this, an InputMethodCompose event will be sent to the widget for
-    every key the user presses. It will contain the current
-    composition string the widget has to show and the current cursor
-    position within the composition string. This string is temporary
-    and can change with every key the user types, so the widget will
-    need to store the state before the composition started (the state
-    it had when it received the InputMethodStart event).
+    A number of attributes control the visual appearance of the
+    preedit string (the visual appearance of text outside the preedit
+    string is controlled by the widget only). The AttributeType enum
+    describes the different attributes that can be set.
 
-    Usually, widgets try to mark the part of the text that is part of
-    the current composition in a way that is visible to the user. A
-    commonly used visual cue is to use a dotted underline.
+    A class implementing the inputMethodEvent() should at least
+    understand and honor the following attributes: UnderLineColor,
+    BackgroundColor and CursorPosition.
 
-    After the user has selected the final string, an InputMethodEnd event will
-    be sent to the widget. The event contains the final string the
-    user selected, and could be empty if they canceled the
-    composition. This string should be accepted as the final text the
-    user entered, and the intermediate composition string should be
-    cleared.
-
-    If the user clicks another widget, taking the focus out of the
-    widget where the composition is taking place, the InputMethodEnd event will
-    be sent and the string it holds will be the result of the
-    composition up to that point (which may be an empty string).
-
+    Since input methods need to be able to query certain properties
+    from the widget, the widget must also implement the
+    inputMethodQuery() method of QWidget.
 */
 
 /*!
-    Constructs a new QInputMethodEvent with the accept flag set to false.  The
-    event \a type can be QEvent::InputMethodStart, QEvent::InputMethodCompose, or
-    QEvent::InputMethodEnd. The \a text contains the current compostion string,
-    and \a cursorPosition is the current position of the cursor inside
-    the \a text.  \a selLength characters are selected (default is 0).
-*/
-QInputMethodEvent::QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength)
-    : QInputEvent(type), txt(text), cpos(cursorPosition), selLen(selLength)
-{}
+  \enum QInputMethodEvent::AttributeType
 
-QInputMethodEvent::~QInputMethodEvent()
+  \value TextFormat
+  A QTextCharFormat for the part of the preedit string specified by
+  start and length. value contains a QVariant of type QTextFormat
+  specifying rendering of this part of the preedit string. There
+  should be at most one format for every part of the preedit
+  string. If several are specified for any character in the string the
+  behaviour is undefined.
+
+  \value Cursor
+  If set, a cursor should be shown inside the preedit string at
+  position start. if value is a QVariant of type QColor this color
+  will be used for rendering the cursor, otherwise the color of the
+  surrounding text will be used. There should be at most one Cursor
+  attribute per event. If several are specified the behaviour is undefined.
+
+  \value Language
+  The variant contains a QLocale object specifying the language of a
+  certain part of the preedit string. There should be at most one
+  language set for every part of the preedit string. If several are
+  specified for any character in the string the behaviour is undefined.
+
+  \value Ruby
+  The ruby text for a part of the preedit string. There should be at
+  most one ruby text set for every part of the preedit string. If
+  several are specified for any character in the string the behaviour
+  is undefined.
+*/
+
+QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QString &commitText,
+                                     const QList<QInputMethodEvent::Attribute> &attributes)
+    : QEvent(QEvent::InputMethod), preedit(preeditText), commit(commitText), attrs(attributes)
 {
 }
 
-/*!
-    \fn const QString &QInputMethodEvent::text() const
-
-    Returns the composition text. This is a null string for an
-    InputMethodStart event, and contains the final accepted string (which may be
-    empty) in the InputMethodEnd event.
-*/
-
-/*!
-    \fn int QInputMethodEvent::cursorPos() const
-
-    Returns the current cursor position inside the composition string.
-    Will return -1 for InputMethodStart event and InputMethodEnd event.
-*/
-
-/*!
-    \fn int QInputMethodEvent::selectionLength() const
-
-    Returns the number of characters in the composition string,
-    starting at cursorPos(), that should be marked as selected by the
-    input widget receiving the event.
-    Will return 0 for InputMethodStart event and InputMethodEnd event.
-*/
-
+QInputMethodEvent::QInputMethodEvent(const QInputMethodEvent &other)
+    : QEvent(QEvent::InputMethod), preedit(other.preedit), commit(other.commit), attrs(other.attrs)
+{
+}
 
 /*!
     \class QTabletEvent qevent.h

@@ -14,7 +14,7 @@
 #include "qtextengine_p.h"
 
 void QTextEngine::shapeText(int item) const
-{    
+{
     assert(item < items.size());
     QScriptItem &si = items[item];
 
@@ -25,10 +25,8 @@ void QTextEngine::shapeText(int item) const
 
     QFontEngine *font = fontEngine(si);
 
-    if (!widthOnly) {
-        si.ascent = font->ascent();
-        si.descent = font->descent();
-    }
+    si.ascent = font->ascent();
+    si.descent = font->descent();
 
     QShaperItem shaper_item;
     shaper_item.script = si.analysis.script;

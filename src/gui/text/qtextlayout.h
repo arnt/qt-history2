@@ -21,6 +21,7 @@
 #include "QtGui/qcolor.h"
 #include "QtCore/qobject.h"
 #include "QtGui/qevent.h"
+#include "QtGui/qtextformat.h"
 
 class QTextEngine;
 class QFont;
@@ -99,12 +100,18 @@ public:
     };
     void setPalette(const QPalette &, PaletteFlags f = None);
 
-#if 0
-    void setPreeditArea(int position, const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes);
-    bool hasPreeditArea() const;
+    void setPreeditArea(int position, const QString &text);
     int preeditAreaPosition() const;
     QString preeditAreaText() const;
-#endif
+
+    struct FormatOverride {
+        int from;
+        int length;
+        QTextCharFormat format;
+    };
+    void setFormatOverrides(const QList<FormatOverride> &overrides);
+    QList<FormatOverride> formatOverrides() const;
+    void clearFormatOverrides();
 
     enum LayoutModeFlags {
         MultiLine = 0,

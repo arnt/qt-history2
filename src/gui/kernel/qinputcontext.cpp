@@ -37,6 +37,8 @@
 #include "qwidget.h"
 #include "private/qobject_p.h"
 #include "qmenu.h"
+#include "qtextformat.h"
+#include "qpalette.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -52,11 +54,6 @@ public:
     {}
 
     QWidget *focusWidget;
-
-    void sendIMEventInternal(QEvent::Type type,
-			      const QString &text = QString::null,
-			      int cursorPosition = -1, int selLength = 0);
-
 };
 
 
@@ -370,104 +367,23 @@ bool QInputContext::filterEvent(const QEvent * /*event*/)
     \sa QInputMethodEvent, sendIMEvent(), sendIMEventInternal(),
 */
 
-/*!
-    \internal
-    Sends a QInputMethodEvent to the client via imEventGenerated()
-    signal. Ordinary input method should not call this function
-    directly.
 
-    \sa QInputMethodEvent, sendIMEvent(), imEventGenerated()
-*/
-void QInputContextPrivate::sendIMEventInternal(QEvent::Type type,
-                                                const QString &text,
-                                                int cursorPosition, int selLength)
-{
-    if (!focusWidget)
-	return;
-    Q_ASSERT(type >= QEvent::InputMethodStart && type <= QEvent::InputMethodEnd);
-
-#ifdef IM_DEBUG
-    if (type == QEvent::InputMethodStart) {
-	qDebug("sending InputMethodStart with %d chars to %p",
-		text.length(), focusWidget);
-    } else if (type == QEvent::InputMethodEnd) {
-	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
-		text.length(), focusWidget, text.utf8());
-    } else if (type == QEvent::InputMethodCompose) {
-	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
-		focusWidget, text.length(), cursorPosition, selLength, text.utf8());
-    }
-#endif
-
-    QInputMethodEvent event(type, text, cursorPosition, selLength);
-    qApp->sendEvent(focusWidget, &event);
-}
-
-
-/*!
-    Call this function to send QInputMethodEvent to the text widget. This
-    function constructs a QInputMethodEvent based on the arguments and send it
-    to the appropriate widget. Ordinary input method should not
-    reimplement this function.
-
-    \a type is either \c QEvent::InputMethodStart or \c QEvent::InputMethodCompose or \c
-    QEvent::InputMethodEnd. You have to send a \c QEvent::InputMethodStart to start
-    composing, then send several \c QEvent::InputMethodCompose to update the
-    preedit of the widget, and finalize the composition with sending
-    \c QEvent::InputMethodEnd.
-
-    \c QEvent::InputMethodStart should always be sent without arguments as:
-    \code
-    sendIMEvent(QEvent::InputMethodStart)
-    \endcode
-
-    And \c QEvent::InputMethodCompose can be sent without cursor:
-    \code
-    sendIMEvent(QEvent::InputMethodCompose, QString("a text"))
-    \endcode
-
-    Or optionally with cursor with \a cursorPosition:
-    \code
-    sendIMEvent(QEvent::InputMethodCompose, QString("a text with cursor"), 12)
-    \endcode
-    Note that \a cursorPosition also specifies microfocus position.
-
-    Or optionally with selection text:
-    \code
-    sendIMEvent(QEvent::InputMethodCompose, QString("a text with selection"), 12, 9)
-    \endcode
-    \a cursorPosition and \a selLength must be within the \a text. The
-    \a cursorPosition also specifies microfocus position in the case:
-
-    \c QEvent::InputMethodEnd can be sent without arguments to terminate the
-    composition with null string:
-    \code
-    sendIMEvent(QEvent::InputMethodEnd)
-    \endcode
-
-    Or optionally accepts \a text to commit a string:
-    \code
-    sendIMEvent(QEvent::InputMethodEnd, QString("a text"))
-    \endcode
+/*!  Sends an input method event to the current focus
+  widget. Implementations of QInputContext should call this method to
+  send the generated input method events and not
+  QApplication::sendEvent(), as the events might have to get dispatched
+  to a different application on some platforms.
 
     \sa QInputMethodEvent, setMicroFocus()
 */
-void QInputContext::sendIMEvent(QEvent::Type type, const QString &text,
-                                 int cursorPosition, int selLength)
+void QInputContext::sendEvent(const QInputMethodEvent &event)
 {
-    Q_D(QInputContext);
-#if defined(Q_WS_X11)
+    QWidget *focus = focusWidget();
     if (!focusWidget())
 	return;
-#endif
 
-    if (type == QEvent::InputMethodStart) {
-	d->sendIMEventInternal(type, text, cursorPosition, selLength);
-    } else if (type == QEvent::InputMethodEnd) {
-	d->sendIMEventInternal(type, text, cursorPosition, selLength);
-    } else if (type == QEvent::InputMethodCompose) {
-	d->sendIMEventInternal(type, text, cursorPosition, selLength);
-    }
+    QInputMethodEvent e(event);
+    qApp->sendEvent(focus, &e);
 }
 
 
@@ -595,6 +511,31 @@ void QInputContext::widgetDestroyed(QWidget *w)
 QList<QAction *> QInputContext::actions()
 {
     return QList<QAction *>();
+}
+
+QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
+{
+    const QPalette &pal = focusWidget()->palette();
+
+    QTextCharFormat fmt;
+    QColor bg;
+    switch (s) {
+    case QInputContext::PreeditFormat: {
+        fmt.setFontUnderline(true);
+        int h1, s1, v1, h2, s2, v2;
+        pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
+        pal.color(QPalette::Background).getHsv(&h2, &s2, &v2);
+        bg.setHsv(h1, s1, (v1 + v2) / 2);
+        break;
+    }
+    case QInputContext::SelectionFormat: {
+        bg = pal.text().color();
+        fmt.setTextColor(pal.background().color());
+        break;
+    }
+    }
+    fmt.setBackgroundColor(bg);
+    return fmt;
 }
 
 #ifdef Q_WS_X11

@@ -40,7 +40,7 @@ class QTextEditPrivate : public QViewportPrivate
 public:
     inline QTextEditPrivate()
         : doc(0), cursorOn(false),
-	  imstart(0), imend(0), imselstart(0), imselend(0), readOnly(false),
+	  readOnly(false),
           autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
@@ -99,17 +99,15 @@ public:
     void setBlinkingCursorEnabled(bool enable);
 
     // input methods
-    bool composeMode() const { return preeditLength(); }
-    bool hasIMSelection() const { return imSelectionLength(); }
-    int preeditLength() const { return ( imend - imstart ); }
-    int imSelectionLength() const { return ( imselend - imselstart ); }
+//     bool composeMode() const { return preeditLength(); }
+//     bool hasIMSelection() const { return imSelectionLength(); }
+//     int preeditLength() const { return ( imend - imstart ); }
+//     int imSelectionLength() const { return ( imselend - imselstart ); }
 
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
     QTextCharFormat lastCharFormat;
-
-    int imstart, imend, imselstart, imselend;
 
     bool readOnly; /* ### move to document? */
 

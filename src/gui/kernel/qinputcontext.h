@@ -73,10 +73,13 @@ public:
 #endif // Q_WS_X11
     virtual bool filterEvent( const QEvent *event );
 
-    virtual void sendIMEvent( QEvent::Type type,
-			      const QString &text = QString::null,
-			      int cursorPosition = -1, int selLength = 0 );
+    void sendEvent(const QInputMethodEvent &event);
 
+    enum StandardFormat {
+        PreeditFormat,
+        SelectionFormat
+    };
+    QTextFormat standardFormat(StandardFormat s) const;
 private:
     friend class QWidget;
     friend class QInputContextFactory;
