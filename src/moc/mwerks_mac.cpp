@@ -128,20 +128,24 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
     	char	msg[400];
 		sprintf(msg, "\"%s\" No relevant classes found. No output generated.", source.data());
 		CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
-	} else if (mocd == moc_success && !dotmoc)
+	} else if ( (mocd == moc_success || mocd == moc_not_time) && !dotmoc)
 	{
-    	long			whichFile;
-	    CWNewProjectEntryInfo ei;
-	    memset(&ei, '\0', sizeof(ei));
-	    ei.groupPath = "Mocified";
-		err = CWAddProjectEntry(context, &destSpec, true, &ei, &whichFile);
-		if (!CWSUCCESS(err))
-		{
-			char	msg[200];
-			sprintf(msg, "\"%s\" not added", dest.data());
-			CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
-		}
-		CWSetModDate(context, &destSpec, NULL, true);
+	    CWFileSpec sp = destSpec;
+	    if( CWGetProjectFile( context, &destSpec ) != cwNoErr) {
+	       	long			whichFile;
+	        CWNewProjectEntryInfo ei;
+	        memset(&ei, '\0', sizeof(ei));
+	        ei.groupPath = "Mocified";
+		    err = CWAddProjectEntry(context, &destSpec, true, &ei, &whichFile);
+		    if (!CWSUCCESS(err))
+		    {
+			    char	msg[200];
+			    sprintf(msg, "\"%s\" not added", dest.data());
+			    CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
+		    }
+		    if(mocd == moc_success)
+		        CWSetModDate(context, &destSpec, NULL, true);
+	    }
 	}
 	return (cwNoErr);
 }
