@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#61 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#61 $");
 
 
 /*!
@@ -83,12 +83,17 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
     move( 0, 0 );
-    if ( style() == MotifStyle ) {
-	setFrameStyle( QFrame::Panel | QFrame::Raised );
-	setLineWidth( motifBarFrame );
-    }
-    else {
-	setFrameStyle( QFrame::NoFrame );
+    switch ( style() ) {
+	case WindowsStyle:
+	    setFrameStyle( QFrame::NoFrame );
+	    setMouseTracking( TRUE );
+	    break;
+	case MotifStyle:
+	    setFrameStyle( QFrame::Panel | QFrame::Raised );
+	    setLineWidth( motifBarFrame );
+	    break;
+	default:
+	    break;
     }
 }
 
@@ -514,11 +519,11 @@ void QMenuBar::drawContents( QPainter *p )
 	    else					// incognito frame
 		qDrawPlainRect( p, r, g.background(), motifItemFrame );
 	}
-	if ( mi->pixmap() )
+	if ( mi->pixmap() ) {
 	    p->drawPixmap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
 			   *mi->pixmap() );
-	else if ( mi->text() ) {
+	} else if ( mi->text() ) {
 	    if ( !mi->isEnabled() && mi->popup() == 0 )
 		p->setPen( palette().disabled().text() );
 	    else {
@@ -540,6 +545,8 @@ void QMenuBar::drawContents( QPainter *p )
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
@@ -560,14 +567,13 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	if ( popup->isVisible() ) {		// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
-	}
-	else {					// open sub menu
+	} else {				// open sub menu
 	    hidePopups();
 	    openActPopup();
 	}
-    }
-    else
+    } else {
 	hidePopups();
+    }
 }
 
 
@@ -577,22 +583,23 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    if ( e->button() != LeftButton )
+	return;
     mouseBtDn = FALSE;				// mouse button up
     int item = itemAtPos( e->pos() );
     if ( actItem == -1 && item != -1 )		// ignore mouse release
 	return;
     actItem = item;
     repaint( FALSE );
-    if ( actItem >= 0 ) {			// selected menu item!
+    if ( actItem >= 0 ) {			// selected a menu item
 	QMenuItem  *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
 	if ( popup ) {
 	    if ( style() == MacStyle )
 		popup->hide();
-	    else
+	    else if ( !hasMouseTracking() )
 		popup->setFirstItemActive();
-	}
-	else {					// not a popup
+	} else {				// not a popup
 	    actItem = -1;
 	    repaint( FALSE );
 	    if ( mi->signal() )			// activate signal
@@ -610,6 +617,8 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( !(mouseBtDn || (actItem >= 0 && hasMouseTracking())) )
+	return;
     int item = itemAtPos( e->pos() );
     if ( item == -1 )
 	return;

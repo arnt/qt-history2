@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#79 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#79 $");
 
 
 // Motif style parameters
@@ -95,6 +95,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     switch ( style() ) {
 	case WindowsStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	    setMouseTracking( TRUE );
 	    break;
 	case MotifStyle:
 	    setFrameStyle( QFrame::Panel | QFrame::Raised );
@@ -775,7 +776,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) ) {
+	if ( !rect().contains(e->pos()) && !tryMenuBar(e) ) {
 	    hide();
 	    byeMenuBar();
 	}
@@ -794,15 +795,14 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	    popup->actItem = -1;
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
-	}
-	else {					// open sub menu
+	} else {				// open sub menu
 	    hidePopups();
 	    killTimers();
 	    startTimer( 20 );
 	}
-    }
-    else
+    } else {
 	hidePopups();
+    }
 }
 
 /*!
@@ -834,8 +834,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		    actSig( mi->id() );
 	    }
 	}
-    }
-    else {
+    } else {
 	hideAllPopups();
 	byeMenuBar();
     }
@@ -847,6 +846,8 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
+    if ( (e->state() & MouseButtonMask) == 0 && !hasMouseTracking() )
+	return;
     int	 item = itemAtPos( e->pos() );
     if ( item == -1 ) {				// no valid item
 	if ( popupActive == -1 ) {		// no active popup sub menu
@@ -857,8 +858,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	}
 	if ( !rect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
-    }
-    else {					// mouse on valid item
+    } else {					// mouse on valid item
 	register QMenuItem *mi = mitems->at( item );
 	QPopupMenu *popup = mi->popup();
 	if ( actItem == item ) {
