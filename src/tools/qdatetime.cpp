@@ -390,19 +390,22 @@ int QDate::daysInYear() const
 {
     int y, m, d;
     julianToGregorian( jd, y, m, d );
-    return leapYear(y) ? 366 : 365;
+    return leapYear( y ) ? 366 : 365;
 }
 
 /*!
-  Returns the week number (1 to 53) as defined by ISO 8601, and stores
-  the year in \a *year unless \a year is null (the default).
+  Returns the week number (1 to 53), and stores the year in \a
+  *yearNumber unless \a yearNumber is null (the default).
 
   Returns 0 if the date is invalid.
 
-  ISO 8601 defines weeks that start on Monday, and the first week on the first Thursday
-  on the year and an implied maximum of 53 weeks.  That's why the year is also returned.
-  For example, 1 January 2000 has week number 52 in the year 1999, and 31 December 2002
-  has week number 1 in the year 2003.
+  In accordance with ISO 8601, weeks start on Monday and the first
+  Thursday of a year is always in week 1 of that year. Most years
+  have 52 weeks, but some have 53.
+
+  \a *yearNumber is not always the same as year(). For example, 1
+  January 2000 has week number 52 in the year 1999, and 31 December
+  2002 has week number 1 in the year 2003.
 
   \sa isValid()
 */
