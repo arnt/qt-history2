@@ -176,11 +176,11 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		QStringList roles;
 		if ( !prop->readFunction().isEmpty() ) {
 		    funcs.append( prop->readFunction() );
-		    roles.append( QString("retrieve") );
+		    roles.append( QString("set") );
 		}
 		if ( !prop->writeFunction().isEmpty() ) {
 		    funcs.append( prop->writeFunction() );
-		    roles.append( QString("modify") );
+		    roles.append( QString("get") );
 		}
 		if ( !prop->resetFunction().isEmpty() ) {
 		    funcs.append( prop->resetFunction() );
@@ -191,12 +191,16 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		QStringList::ConstIterator r = roles.begin();
 		QValueStack<QString> seps = separators( funcs.count(),
 							QString(".\n") );
-		out.putsMeta( "<p>Call " );
+		out.putsMeta( "<p>" );
 		while ( f != funcs.end() ) {
-		    out.printfMeta( "<a href=\"#%s\">%s</a>() to ",
-				    Decl::ref(*f).latin1(), (*f).latin1() );
-		    out.puts( *r );
+		    QString role = *r;
+		    if ( f == funcs.begin() )
+			role[0] = role[0].upper();
+
+		    out.puts( role.latin1() );
 		    out.puts( f == funcs.begin() ? " this property" : " it" );
+		    out.printfMeta( " with <a href=\"#%s\">%s</a>()",
+				    Decl::ref(*f).latin1(), (*f).latin1() );
 		    out.puts( seps.pop() );
 		    ++r;
 		    ++f;

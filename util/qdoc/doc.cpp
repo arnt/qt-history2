@@ -947,7 +947,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( yyIn.mid(yyPos, 6) == QString("\\brief") ) {
 		    yyPos += 6;
 		    brief = getRestOfParagraph( yyIn, yyPos ).stripWhiteSpace();
-		    yyOut += QString( "<p>Represents " ) + brief +
+		    yyOut += QString( "<p>This property holds " ) + brief +
 			     QString( ".\n<p>" );
 		} else {
 		    warning( 2, location(),
