@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#287 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#288 $
 **
 ** Implementation of QWidget class
 **
@@ -2394,19 +2394,6 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 	setWFlags( WState_ClickToFocus );
     else
 	clearWFlags( WState_ClickToFocus );
-}
-
-
-void QWidget::setAcceptFocus( bool enable )
-{
-    if ( enable ) {
-	QFocusData * f = focusData( TRUE );
-	if ( f->focusWidgets.findRef( this ) < 0 )
- 	    f->focusWidgets.append( this );
-	setWFlags( WState_TabToFocus | WState_ClickToFocus );
-    } else {
-	clearWFlags( WState_TabToFocus | WState_ClickToFocus );
-    }
 }
 
 

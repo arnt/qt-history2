@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#272 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#273 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1228,7 +1228,7 @@ void QWidget::resize( int w, int h )
 	w = s.width();
 	h = s.height();
     }
-#endif    
+#endif
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);

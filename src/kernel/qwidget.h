@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#172 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#173 $
 **
 ** Definition of QWidget class
 **
@@ -316,10 +316,6 @@ protected:
     virtual void paletteChange( const QPalette & );
     virtual void fontChange( const QFont & );
 
-#if 1	/* OBSOLETE */
-    bool	 acceptFocus()	const;
-    virtual void setAcceptFocus( bool );
-#endif
     int		 metric( int )	const;
 
     virtual void create( WId = 0, bool initializeWindow = TRUE,
@@ -362,10 +358,10 @@ private:
     void	 sendDeferredEvents();
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
-    virtual void	 setBackgroundFromMode();
-    virtual void	 setBackgroundColorDirect( const QColor & );
-    virtual void	 setBackgroundModeDirect( BackgroundMode );
-    virtual void	 setBackgroundEmpty();
+    virtual void setBackgroundFromMode();
+    virtual void setBackgroundColorDirect( const QColor & );
+    virtual void setBackgroundModeDirect( BackgroundMode );
+    virtual void setBackgroundEmpty();
 
     WId		 winid;
     WFlags	 flags;
@@ -535,9 +531,6 @@ inline QWidget *QWidget::parentWidget() const
 
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
-
-inline bool QWidget::acceptFocus() const
-{ return testWFlags(WState_ClickToFocus|WState_TabToFocus); }
 
 inline WFlags QWidget::getWFlags() const
 { return flags; }
