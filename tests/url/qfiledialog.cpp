@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#32 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#33 $
 **
 ** Implementation of QFileDialog class
 **
@@ -311,7 +311,7 @@ struct QFileDialogPrivate {
 
     QVBoxLayout * topLevelLayout;
     QHBoxLayout * extraWidgetsLayout;
-    QLabel * extraLabel;
+    QLabel * extraLabel, *extraWidgetsSpace;
     QWidget * extraWidget;
     QButton * extraButton;
 
@@ -1660,7 +1660,8 @@ void QFileDialog::init()
     d->extraLabel = 0;
     d->extraWidget = 0;
     d->extraButton = 0;
-
+    d->extraWidgetsSpace = 0;
+    
     QHBoxLayout * h;
 
     if ( d->infoPreview || d->contentsPreview ) {
@@ -1690,7 +1691,6 @@ void QFileDialog::init()
     if ( d->contentsPreview )
 	h->addWidget( d->previewContents );
     h->addSpacing( 16 );
-
 
     if ( d->splitter && d->infoPreview || d->contentsPreview )
 	d->topLevelLayout->addWidget( d->splitter );
@@ -2505,11 +2505,17 @@ r.setHeight( QMAX(r.height(),t.height()) )
     if ( d->extraButton ) {
 	t = d->extraButton->sizeHint();
 	RM;
+    } else if ( d->extraWidgetsSpace ) {
+	t = d->extraWidgetsSpace->sizeHint();
+	RM;
     }
+    
     okB->setFixedSize( r );
     cancelB->setFixedSize( r );
     if ( d->extraButton )
 	d->extraButton->setFixedSize( r );
+    else if ( d->extraWidgetsSpace )
+	d->extraWidgetsSpace->setFixedSize( r );
 
     d->topLevelLayout->activate();
 
@@ -3053,25 +3059,38 @@ QFileDialog::Mode QFileDialog::mode() const
 
 void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 {
+    d->geometryDirty = TRUE;
     if ( !l && !w && !b )
 	return;
+
     if ( d->extraLabel || d->extraWidget || d->extraButton )
 	return;
-
+    
     d->extraWidgetsLayout = new QHBoxLayout();
     d->topLevelLayout->addLayout( d->extraWidgetsLayout );
 
+    if ( !l ) 
+	l = new QLabel( this );
     d->extraLabel = l;
     if ( l )
 	d->extraWidgetsLayout->addWidget( l );
+
+    if ( !w )
+	w = new QWidget( this );
     d->extraWidget = w;
-    if ( w )
+    if ( w ) {
 	d->extraWidgetsLayout->addWidget( w );
+	d->extraWidgetsLayout->addSpacing( 15 );
+    }
+    
     d->extraButton = b;
     if ( b )
 	d->extraWidgetsLayout->addWidget( b );
-
-    d->topLevelLayout->activate();
+    else {
+	d->extraWidgetsSpace = new QLabel( this );
+	d->extraWidgetsLayout->addWidget( d->extraWidgetsSpace );
+    }
+    
     updateGeometries();
 }
 
