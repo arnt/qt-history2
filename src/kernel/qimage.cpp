@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#131 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#131 $");
 
 
 /*!
@@ -1418,16 +1418,65 @@ QImage QImage::convertDepth( int depth, int conversion_flags ) const
 /*!
   \overload QImage QImage::convertDepth( int depth ) const
 */
+
 QImage QImage::convertDepth( int depth ) const
 {
     return convertDepth( depth, 0 );
 }
 
 /*!
+  Tests if the ( \a x, \a y ) is a valid coordinate in the image.
+*/
+
+bool QImage::valid( int x, int y ) const
+{
+    return x >= 0 && x < width()
+        && y >= 0 && y < height();
+}
+
+/*!
+  Returns the pixel index at the given coordinates.
+
+  If (x,y) is not \link valid() valid\endlink, or if
+  the image is not a paletted image (depth() \> 8), the results
+  are undefined.
+*/
+
+int QImage::pixelIndex( int x, int y ) const
+{
+#if defined(CHECK_RANGE)
+    if ( x < 0 || x > width() ) {
+	warning( "QImage::pixel: x=%d out of range", x );
+	return -12345;
+    }
+#endif
+    uchar * s = scanLine( y );
+    switch( depth() ) {
+    case 1:
+	if ( bitOrder() == QImage::LittleEndian )
+	    return (*(s + (x >> 3)) >> (x & 7)) & 1;
+	else
+	    return (*(s + (x >> 3)) >> (7- (x & 7))) & 1;
+    case 8:
+	return (int)s[x];
+    case 32:
+#if defined(CHECK_RANGE)
+	warning( "QImage::pixelIndex: Not applicable for 32-bit images "
+		 "(no palette)" );
+#endif
+	return 0;
+    }
+    return 0;
+}
+
+
+/*!
   Returns the actual color of the pixel at the given coordinates.
+
   If (x,y) is not \link valid() on the image\endlink, the results
   are undefined.
 */
+
 QRgb QImage::pixel( int x, int y ) const
 {
 #if defined(CHECK_RANGE)
@@ -1454,51 +1503,13 @@ QRgb QImage::pixel( int x, int y ) const
 
 
 /*!
-  Tests if the ( \a x, \a y ) is a valid coordinate in the image.
-*/
-bool QImage::valid( int x, int y ) const
-{
-    return x >= 0 && x < width()
-        && y >= 0 && y < height();
-}
-
-/*!
-  Returns the pixel index at the given coordinates.
-  If (x,y) is not \link valid() valid\endlink, or if
-  the image is not a paletted image (depth() \> 8), the results
-  are undefined.
-*/
-int QImage::pixelIndex( int x, int y ) const
-{
-#if defined(CHECK_RANGE)
-    if ( x < 0 || x > width() ) {
-	warning( "QImage::pixel: x=%d out of range", x );
-	return -12345;
-    }
-#endif
-    uchar * s = scanLine( y );
-    switch( depth() ) {
-    case 1:
-	if ( bitOrder() == QImage::LittleEndian )
-	    return (*(s + (x >> 3)) >> (x & 7)) & 1;
-	else
-	    return (*(s + (x >> 3)) >> (7- (x & 7))) & 1;
-    case 8:
-	return (int)s[x];
-    case 32:
-	warning("QImage::index used on 32-bit (paletteless) image");
-	return 0;
-    }
-    return 0;
-}
-
-
-/*!
   Sets the pixel index or color at the given coordinates.
+
   If (x,y) is not \link valid() valid\endlink, or if
   the image is a paletted image (depth() \<= 8) and \a index_or_rgb
   \>= numColors(), the results are undefined.
 */
+
 void QImage::setPixel( int x, int y, uint index_or_rgb )
 {
     if ( x < 0 || x > width() ) {
@@ -1511,8 +1522,8 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	uchar * s = scanLine( y );
 	if ( index_or_rgb > 1) {
 #if defined(CHECK_RANGE)
-		warning( "QImage::setPixel: index=%d out of range",
-			 index_or_rgb );
+	    warning( "QImage::setPixel: index=%d out of range",
+		     index_or_rgb );
 #endif
 	} else if ( bitOrder() == QImage::LittleEndian ) {
 	    if (index_or_rgb==0)
@@ -1540,6 +1551,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
 	s[x] = index_or_rgb;
     }
 }
+
 
 /*!
   Converts the bit order of the image to \e bitOrder and returns the converted
