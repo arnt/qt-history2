@@ -653,7 +653,6 @@ QPlugInManagerSignalEmitter::QPlugInManagerSignalEmitter()
 */
 void QPlugInManagerSignalEmitter::emitFeatureAdded( const QString& feature ) 
 {
-    qDebug( "Emitting featureAdded( %s )", feature.latin1() );
     emit featureAdded( feature ); 
 }
 
@@ -662,7 +661,6 @@ void QPlugInManagerSignalEmitter::emitFeatureAdded( const QString& feature )
 */
 void QPlugInManagerSignalEmitter::emitFeatureRemoved( const QString& feature ) 
 { 
-    qDebug( "Emitting featureRemoved( %s )", feature.latin1() );
     emit featureRemoved( feature ); 
 }
 
