@@ -168,7 +168,7 @@ public:
     QFileDialog::FileMode fileMode;
     QFileDialog::AcceptMode acceptMode;
 
-    QModelIndexList history;
+    QList<QPersistentModelIndex> history;
 
     QFrame *frame;
     QComboBox *lookIn;
@@ -749,6 +749,17 @@ void QFileDialog::accept()
     QStringList files = selectedFiles();
     QString fn = d->fileName->text();
 
+    // special case for ".."
+    if (fn == "..") {
+        d->upClicked();
+        bool block = d->fileName->blockSignals(true);
+        d->fileName->setText(fn);
+        d->fileName->selectAll();
+        d->fileName->blockSignals(block);
+        return;
+    }
+
+    // if we have no selected items, use the name in the lineedit
     if (files.count() < 1)
         files.append(fn);
 
