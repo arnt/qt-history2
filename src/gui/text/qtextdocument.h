@@ -3,8 +3,8 @@
 
 #include <qobject.h>
 #include <qsharedpointer.h>
+#include <private/qtextpiecetable_p.h>
 
-class QTextPieceTable;
 class QTextFormatCollection;
 class QTextListManager;
 class QTextTableManager;

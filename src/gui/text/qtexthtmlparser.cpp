@@ -10,6 +10,7 @@
 #include "qtextdocument.h"
 #include "qtextglobal_p.h"
 #include <private/qtextformat_p.h>
+#include <private/qtextpiecetable_p.h>
 #include "qtextcursor.h"
 
 #define QChar_linesep QChar(0x2028U) // in QChar maybe?
