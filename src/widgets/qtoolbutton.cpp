@@ -238,7 +238,9 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 			   parent->mainWindow()->toolTipGroup(), grouptext );
 	else
 	    QToolTip::add( this, textLabel );
-    }
+    } else if ( !grouptext.isEmpty() )
+	QToolTip::add( this, 0,
+		parent->mainWindow()->toolTipGroup(), grouptext );
 #endif
 }
 

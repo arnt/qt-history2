@@ -572,6 +572,8 @@ void QTipManager::hideTip()
 	if ( currentTip && currentTip->group &&
 	     !currentTip->group->del && !currentTip->groupText.isEmpty() )
 	    removeTimer->start( 100, TRUE );
+    } else if ( currentTip && currentTip->group ) {
+	removeTimer->start( 100, TRUE );
     }
 
     previousTip = currentTip;
