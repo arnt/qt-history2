@@ -8,7 +8,8 @@ void MainWindowWizardBase::init()
 
 void MainWindowWizardBase::destroy()
 {
-
+    if ( dIface )
+	dIface->release();
 }
 
 void MainWindowWizardBase::currentSettingChanged()
