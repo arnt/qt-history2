@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#171 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#172 $
 **
 ** Implementation of QListView widget class
 **
@@ -2817,10 +2817,12 @@ void QListView::setCurrentItem( QListViewItem * i )
     d->focusItem = i;
 
     if ( i != prev ) {
-	repaintItem( i );
+	if ( i )
+	    repaintItem( i );
 	if ( prev )
 	    repaintItem( prev );
-	emit currentChanged( i );
+	if ( i )
+	    emit currentChanged( i );
     }
 }
 
@@ -3111,6 +3113,8 @@ void QListViewItem::repaint() const
 
 void QListView::repaintItem( const QListViewItem * item ) const
 {
+    if ( !item )
+	return;
     d->dirtyItemTimer->start( 0, TRUE );
     if ( !d->dirtyItems )
 	d->dirtyItems = new QPtrDict<void>();
