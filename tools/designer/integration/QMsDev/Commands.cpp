@@ -955,11 +955,11 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	instancecall = "( 0, 0, TRUE )";
 	runapp = "dialog.exec();\n\n\treturn 0;";
     } else {
-	classheader = dialog.m_name + "window";
-	classname = projectName + "Window";
-	instancename = "window";
+	classheader = dialog.m_name + "mainwindow";
+	classname = projectName + "MainWindow";
+	instancename = "mainwindow";
 	instancecall = "";
-	runapp = "window.show();\n\n\treturn app.exec();";
+	runapp = "mainwindow.show();\n\n\treturn app.exec();";
     }
 
     CString baseDir = dialog.m_location + "\\";

@@ -222,9 +222,9 @@ const char dialog_cpp[] = {
 };
 
 const char window_h[] = {
-    "#include <qmainwindow.h>\n"
+    "#include \"$QMSDEVCLASSNAMEBase.h\"\n"
     "\n\n"
-    "class $QMSDEVCLASSNAME : public QMainWindow\n"
+    "class $QMSDEVCLASSNAME : public $QMSDEVCLASSNAMEBase\n"
     "{\n"
     "\tQ_OBJECT\n"
     "public:\n"
@@ -237,7 +237,7 @@ const char window_cpp[] = {
     "#include \"$QMSDEVCLASSHEADER.h\"\n"
     "\n\n"
     "$QMSDEVCLASSNAME::$QMSDEVCLASSNAME( QWidget* parent, const char* name, WFlags f )\n"
-    "\t: QMainWindow( parent, name, f )\n"
+    "\t: $QMSDEVCLASSNAMEBase( parent, name, f )\n"
     "{\n"
     "\tsetCaption(\"$QMSDEVPROJECTNAME\");\n"
     "\n"
@@ -353,10 +353,10 @@ const char readme_txt[] = {
 
 const char mainwinbase_ui[] = {
     "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">\n"
-    "<class>Form2</class>\n"
+    "<class>$QMSDEVCLASSNAMEBase</class>\n"
     "<widget class=\"QMainWindow\">\n"
     "\t<property name=\"name\">\n"
-    "\t\t<cstring>Form2</cstring>\n"
+    "\t\t<cstring>$QMSDEVCLASSNAMEBase</cstring>\n"
     "\t</property>\n"
     "\t<property name=\"geometry\">\n"
     "\t\t<rect>\n"
@@ -367,7 +367,7 @@ const char mainwinbase_ui[] = {
     "\t\t</rect>\n"
     "\t</property>\n"
     "\t<property name=\"caption\">\n"
-    "\t<string>Form2</string>\n"
+    "\t<string>$QMSDEVPROJECTNAME</string>\n"
     "\t</property>\n"
     "</widget>\n"
     "<toolbars>\n"
