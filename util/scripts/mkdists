@@ -298,16 +298,14 @@ mkdir -p "$DISTDIR/qt/doc"
 mkdir -p "$DISTDIR/qt/doc/html"
 mkdir -p "$DISTDIR/qt/doc/man"
 mkdir -p "$DISTDIR/qt/doc/html/designer"
-mkdir -p "$DISTDIR/qt/doc/html/designer/figures"
-mkdir -p "$DISTDIR/qt/doc/html/designer/arrows"
+mkdir -p "$DISTDIR/qt/doc/html/designer/images"
 mkdir -p "$DISTDIR/qt/doc/man/man3"
 # and do the moc.1 hack here
 mkdir -p "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
-cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
-cp $DISTDIR/qt/tools/designer/manual/figures/*.png $DISTDIR/qt/doc/html/designer/figures
-cp $DISTDIR/qt/tools/designer/manual/arrows/*.png $DISTDIR/qt/doc/html/designer/arrows
+cp $DISTDIR/qt/tools/designer/manual/sgml/manual/*.html $DISTDIR/qt/doc/html/designer
+cp $DISTDIR/qt/tools/designer/manual/images/*.png $DISTDIR/qt/doc/html/designer/images
 rm -rf $DISTDIR/qt/tools/designer/manual
 rm -rf $DISTDIR/qt/tools/designer/doc
 # clean designer
@@ -759,8 +757,7 @@ for plat in mac win x11 embedded; do
 	#do the documentation
 	if [ "x$DO_DOC" = "xyes" ]; then
 	    status "Running qdoc.."
-	    echo $PLATDIR
-	    echo "$QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf"
+	    $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/util/qdoc/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc, stopped"
 	    QTDIR=$PLATDIR $QDOC_PATH $DISTDIR/qt/tools/linguist/qdoc.conf >/dev/null 2>&1 || die "could not run qdoc (linguist), stopped"
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
