@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#71 $
 **
 ** Implementation of QPointArray class
 **
@@ -479,11 +479,11 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 
     int n = offset;
     for (i = (PIV2 << m) >> 16; i >= 0; --i) {
-        a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
-        ux -= vx >> m;
-        vx += ux >> m;
-        uy -= vy >> m;
-        vy += uy >> m;
+	a[n++] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
+	ux -= vx >> m;
+	vx += ux >> m;
+	uy -= vy >> m;
+	vy += uy >> m;
     }
     offset = n;
 
@@ -755,7 +755,7 @@ static int pnt_on_line( const double* p, const double* q, const double* t )
  */
 
     if ( QABS((q[1]-p[1])*(t[0]-p[0])-(t[1]-p[1])*(q[0]-p[0])) >=
-        (QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
+	(QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
 
     if (((q[0]<p[0])&&(p[0]<t[0])) || ((q[1]<p[1])&&(p[1]<t[1])))
 	return 1 ;
@@ -779,7 +779,7 @@ static void polygonizeQBezier( double* acc, int& accsize,
 	if ( accsize >= maxsize-4 )
 	    return;
 	// Running out of space - approximate by a line.
-        acc[accsize++] = ctrl[0];
+	acc[accsize++] = ctrl[0];
 	acc[accsize++] = ctrl[1];
 	acc[accsize++] = ctrl[6];
 	acc[accsize++] = ctrl[7];

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#269 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#270 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10406,7 +10406,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \class QString qstring.h
 
   \brief The QString class provides an abstraction of Unicode text and
-          the classic C zero-terminated char array (<var>char*</var>).
+	  the classic C zero-terminated char array (<var>char*</var>).
 
   \ingroup tools
   \ingroup shared
@@ -11960,7 +11960,7 @@ ok_in_base( QChar c, int base )
 	return c.isDigit() && c.digitValue() < base;
     else
 	return c.isDigit() || (c >= 'a' && c < char('a'+base-10))
-	                   || (c >= 'A' && c < char('A'+base-10));
+			   || (c >= 'A' && c < char('A'+base-10));
 }
 
 /*!
@@ -13188,11 +13188,11 @@ QConstString::QConstString( QChar* unicode, uint length ) :
 QConstString::~QConstString()
 {
     if ( d->count > 1 ) {
-        QChar* cp = (QChar*)new QDummyChar[ d->len ];
-        memcpy( cp, d->unicode, d->len*sizeof(QChar) );
-        d->unicode = cp;
+	QChar* cp = (QChar*)new QDummyChar[ d->len ];
+	memcpy( cp, d->unicode, d->len*sizeof(QChar) );
+	d->unicode = cp;
     } else {
-        d->unicode = 0;
+	d->unicode = 0;
     }
 
     // The original d->unicode is now unlinked.

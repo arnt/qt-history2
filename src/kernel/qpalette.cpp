@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#54 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -736,13 +736,13 @@ void readV1ColorGroup( QDataStream &s, QColorGroup &g,
     QPalette p( bg );
     QColorGroup n;
     switch ( r ) {
-        case QPalette::Disabled:
+	case QPalette::Disabled:
 	    n = p.disabled();
 	    break;
-        case QPalette::Active:
+	case QPalette::Active:
 	    n = p.active();
 	    break;
-        default:
+	default:
 	    n = p.normal();
 	    break;
     }

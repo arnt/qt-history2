@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#6 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -101,7 +101,7 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
      if (!sunken) {
 	 p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill :
-                                         g.brush( QColorGroup::Button ));
+					 g.brush( QColorGroup::Button ));
 	 // the bright side
 	 p->setPen(g.shadow());
 	 p->drawLine(x, y, x+w-1, y);
@@ -131,45 +131,45 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawLine(x+w-1, y, x+w-1, y+h-1);
 
 
- 	 // top left corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x, y);
- 	 p->drawPoint(x+1, y);
- 	 p->drawPoint(x, y+1);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+1, y+1);
- 	 p->setPen(white);
- 	 p->drawPoint(x+3, y+3);
- 	 // bottom left corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x, y+h-1);
- 	 p->drawPoint(x+1, y+h-1);
- 	 p->drawPoint(x, y+h-2);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+1, y+h-2);
- 	 // top right corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x+w-1, y);
- 	 p->drawPoint(x+w-2, y);
- 	 p->drawPoint(x+w-1, y+1);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+w-2, y+1);
- 	 // bottom right corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x+w-1, y+h-1);
- 	 p->drawPoint(x+w-2, y+h-1);
- 	 p->drawPoint(x+w-1, y+h-2);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+w-2, y+h-2);
- 	 p->setPen(g.dark());
- 	 p->drawPoint(x+w-3, y+h-3);
- 	 p->setPen(g.mid());
- 	 p->drawPoint(x+w-4, y+h-4);
+	 // top left corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x, y);
+	 p->drawPoint(x+1, y);
+	 p->drawPoint(x, y+1);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+1, y+1);
+	 p->setPen(white);
+	 p->drawPoint(x+3, y+3);
+	 // bottom left corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x, y+h-1);
+	 p->drawPoint(x+1, y+h-1);
+	 p->drawPoint(x, y+h-2);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+1, y+h-2);
+	 // top right corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x+w-1, y);
+	 p->drawPoint(x+w-2, y);
+	 p->drawPoint(x+w-1, y+1);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+w-2, y+1);
+	 // bottom right corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x+w-1, y+h-1);
+	 p->drawPoint(x+w-2, y+h-1);
+	 p->drawPoint(x+w-1, y+h-2);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+w-2, y+h-2);
+	 p->setPen(g.dark());
+	 p->drawPoint(x+w-3, y+h-3);
+	 p->setPen(g.mid());
+	 p->drawPoint(x+w-4, y+h-4);
 
      }
      else {
 	 p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
-                                           g.brush( QColorGroup::Dark ));
+					   g.brush( QColorGroup::Dark ));
 
 	 // the dark side
 	 p->setPen(g.shadow());
@@ -191,40 +191,40 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 	 p->drawLine(x, y+h-1,x+w-1, y+h-1);
 	 p->drawLine(x+w-1, y, x+w-1, y+h-1);
 
- 	 // top left corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x, y);
- 	 p->drawPoint(x+1, y);
- 	 p->drawPoint(x, y+1);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+1, y+1);
- 	 p->setPen(g.dark().dark());
- 	 p->drawPoint(x+3, y+3);
- 	 // bottom left corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x, y+h-1);
- 	 p->drawPoint(x+1, y+h-1);
- 	 p->drawPoint(x, y+h-2);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+1, y+h-2);
- 	 // top right corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x+w-1, y);
- 	 p->drawPoint(x+w-2, y);
- 	 p->drawPoint(x+w-1, y+1);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+w-2, y+1);
- 	 // bottom right corner:
- 	 p->setPen(g.background());
- 	 p->drawPoint(x+w-1, y+h-1);
- 	 p->drawPoint(x+w-2, y+h-1);
- 	 p->drawPoint(x+w-1, y+h-2);
- 	 p->setPen(g.shadow());
- 	 p->drawPoint(x+w-2, y+h-2);
- 	 p->setPen(g.dark());
- 	 p->drawPoint(x+w-3, y+h-3);
- 	 p->setPen(g.mid());
- 	 p->drawPoint(x+w-4, y+h-4);
+	 // top left corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x, y);
+	 p->drawPoint(x+1, y);
+	 p->drawPoint(x, y+1);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+1, y+1);
+	 p->setPen(g.dark().dark());
+	 p->drawPoint(x+3, y+3);
+	 // bottom left corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x, y+h-1);
+	 p->drawPoint(x+1, y+h-1);
+	 p->drawPoint(x, y+h-2);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+1, y+h-2);
+	 // top right corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x+w-1, y);
+	 p->drawPoint(x+w-2, y);
+	 p->drawPoint(x+w-1, y+1);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+w-2, y+1);
+	 // bottom right corner:
+	 p->setPen(g.background());
+	 p->drawPoint(x+w-1, y+h-1);
+	 p->drawPoint(x+w-2, y+h-1);
+	 p->drawPoint(x+w-1, y+h-2);
+	 p->setPen(g.shadow());
+	 p->drawPoint(x+w-2, y+h-2);
+	 p->setPen(g.dark());
+	 p->drawPoint(x+w-3, y+h-3);
+	 p->setPen(g.mid());
+	 p->drawPoint(x+w-4, y+h-4);
 	
 
      }
@@ -268,7 +268,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	
 	if (!sunken) {
 	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
-                                             g.brush( QColorGroup::Button ));
+					     g.brush( QColorGroup::Button ));
 	    // the bright side
 	    p->setPen(g.dark());
 	    p->drawLine(x, y, x+w-1, y);
@@ -292,7 +292,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	}
 	else {
 	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
-			                       g.brush( QColorGroup::Mid ));
+					       g.brush( QColorGroup::Mid ));
 
 	    // the dark side
 	    p->setPen(g.dark().dark());
@@ -320,7 +320,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	
 	if (!sunken) {
 	    p->fillRect(x+3, y+3, w-6, h-6,fill ? * fill :
-			                    g.brush( QColorGroup::Button ));
+					    g.brush( QColorGroup::Button ));
 	    // the bright side
 	    p->setPen(g.button().dark());
 	    p->drawLine(x, y, x+w-1, y);
@@ -353,7 +353,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	}
 	else {
 	    p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill :
-			                          g.brush( QColorGroup::Mid ));
+						  g.brush( QColorGroup::Mid ));
 
 	    // the dark side
 	    p->setPen(g.dark().dark().dark());
@@ -532,19 +532,19 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
     maxLength  = length - b*2 - buttonDim*2 - 1;
 
      if ( sb->maxValue() == sb->minValue() ) {
- 	sliderLength = maxLength;
+	sliderLength = maxLength;
      } else {
- 	sliderLength = (sb->pageStep()*maxLength)/
- 			(sb->maxValue()-sb->minValue()+sb->pageStep());
+	sliderLength = (sb->pageStep()*maxLength)/
+			(sb->maxValue()-sb->minValue()+sb->pageStep());
 	uint range = sb->maxValue()-sb->minValue();
- 	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
- 	    sliderLength = SLIDER_MIN;
- 	if ( sliderLength > maxLength )
- 	    sliderLength = maxLength;
+	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
+	    sliderLength = SLIDER_MIN;
+	if ( sliderLength > maxLength )
+	    sliderLength = maxLength;
      }
      /*	Old macintosh, but they changed it for 8.5
       if (maxLength >=  buttonDim)
- 	 sliderLength = buttonDim; // macintosh
+	 sliderLength = buttonDim; // macintosh
 
 	 */
 	
@@ -625,7 +625,7 @@ void QPlatinumStyle::drawScrollBarBackground( QPainter *p, int x, int y, int w, 
  */
 QStyle::ScrollControl QPlatinumStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
-        if ( !sb->rect().contains( p ) )
+	if ( !sb->rect().contains( p ) )
 	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
     scrollBarMetrics( sb, sliderMin, sliderMax, sliderLength, buttonDim );
@@ -686,16 +686,16 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     int extent = HORIZONTAL ? sb->height() : sb->width();
 
     if ( HORIZONTAL ) {
- 	subY = addY = ( extent - dimB ) / 2;
- 	subX = length - dimB - dimB - b; //b;
- 	addX = length - dimB - b;
+	subY = addY = ( extent - dimB ) / 2;
+	subX = length - dimB - dimB - b; //b;
+	addX = length - dimB - b;
 // 	subY = addY = ( extent - dimB ) / 2;
 // 	subX = b;
 // 	addX = b + dimB; //length - dimB - b;
     } else {
- 	subX = addX = ( extent - dimB ) / 2;
- 	subY = length - dimB - dimB - b; //b;
- 	addY = length - dimB - b;
+	subX = addX = ( extent - dimB ) / 2;
+	subY = length - dimB - dimB - b; //b;
+	addY = length - dimB - b;
     }
 
     subB.setRect( subX,subY,dimB,dimB );
@@ -704,10 +704,10 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
     int sliderEnd = sliderStart + sliderLength;
     int sliderW = extent - b*2;
     if ( HORIZONTAL ) {
- 	subPageR.setRect( b + 1, b,
- 			  sliderStart - 1 , sliderW );
- 	addPageR.setRect( sliderEnd, b, subX - sliderEnd, sliderW );
- 	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
+	subPageR.setRect( b + 1, b,
+			  sliderStart - 1 , sliderW );
+	addPageR.setRect( sliderEnd, b, subX - sliderEnd, sliderW );
+	sliderR .setRect( sliderStart, b, sliderLength, sliderW );
 // 	subPageR.setRect( subB.right() + 1, b,
 // 			  sliderStart - subB.right() - 1 , sliderW );
 // 	addPageR.setRect( sliderEnd, b, addX - sliderEnd, sliderW );
@@ -722,16 +722,16 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 
     bool maxedOut = (sb->maxValue() == sb->minValue());
     if ( controls & AddLine ) {
- 	drawBevelButton( p, addB.x(), addB.y(),
- 			 addB.width(), addB.height(), g,
- 			 ADD_LINE_ACTIVE);
+	drawBevelButton( p, addB.x(), addB.y(),
+			 addB.width(), addB.height(), g,
+			 ADD_LINE_ACTIVE);
 	p->setPen(g.shadow());
 	p->drawRect( addB );
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   FALSE, addB.x()+2, addB.y()+2,
 		   addB.width()-4, addB.height()-4, g, !maxedOut,
 		   ADD_LINE_ACTIVE ? &g.brush( QColorGroup::Mid )    :
-           		             &g.brush( QColorGroup::Button ));
+				     &g.brush( QColorGroup::Button ));
     }
     if ( controls & SubLine ) {
 	drawBevelButton( p, subB.x(), subB.y(),
@@ -743,7 +743,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 		    FALSE, subB.x()+2, subB.y()+2,
 		   subB.width()-4, subB.height()-4, g, !maxedOut,
 		   SUB_LINE_ACTIVE ? &g.brush( QColorGroup::Mid )    :
-                                     &g.brush( QColorGroup::Button ));
+				     &g.brush( QColorGroup::Button ));
     }
 
 
@@ -783,7 +783,7 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 		      const QColorGroup &g, bool horizontal )
 {
 	if (!horizontal) {
- 	    if (h > 20) {
+	    if (h > 20) {
 		y += (h-20)/2 ;
 		h = 20;
 	    }
@@ -803,7 +803,7 @@ void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
 	    }
 	}
 	else {
- 	    if (w > 20) {
+	    if (w > 20) {
 		x += (w-20)/2 ;
 		w = 20;
 	    }
@@ -943,7 +943,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
 	4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
     p->eraseRect(x,y,w,h);
     p->setBrush((down||on) ? g.brush( QColorGroup::Dark )   :
-		             g.brush( QColorGroup::Button ));
+			     g.brush( QColorGroup::Button ));
     p->setPen(NoPen);
     p->drawEllipse( x, y, 15, 15);
     p->setPen( g.shadow() );
@@ -1210,21 +1210,21 @@ void QPlatinumStyle::drawSlider( QPainter *p,
 	p->drawLine(x1, y1+1, x1,y2-1);
 	p->drawLine( x2-my+2, y1, x2, y1+my-2);
 	p->drawLine( x2-my+2, y2, x2, y1+my+2);
- 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
- 	p->drawLine(x1+1, y1, x2-my+2, y1);
- 	p->drawLine(x1+1, y2, x2-my+2, y2);
+	p->drawLine(x2, y1+my-2, x2, y1+my+2);
+	p->drawLine(x1+1, y1, x2-my+2, y1);
+	p->drawLine(x1+1, y2, x2-my+2, y2);
 	
 	// light shadow
 	p->setPen(c3);
 	p->drawLine(x1+1, y1+2, x1+1,y2-2);
- 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
+	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
 	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
 	
 	// dark shadow
 	p->setPen(c1);
- 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
+	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
 	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
- 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
+	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
 	
 	
 	drawRiffles(p, x, y+2, w-3, h-4, g, TRUE);
@@ -1278,19 +1278,19 @@ void QPlatinumStyle::drawSliderMask( QPainter *p,
 	p->drawLine(x1, y1+1, x1,y2-1);
 	p->drawLine( x2-my+2, y1, x2, y1+my-2);
 	p->drawLine( x2-my+2, y2, x2, y1+my+2);
- 	p->drawLine(x2, y1+my-2, x2, y1+my+2);
- 	p->drawLine(x1+1, y1, x2-my+2, y1);
- 	p->drawLine(x1+1, y2, x2-my+2, y2);
+	p->drawLine(x2, y1+my-2, x2, y1+my+2);
+	p->drawLine(x1+1, y1, x2-my+2, y1);
+	p->drawLine(x1+1, y2, x2-my+2, y2);
 	
 	// light shadow
 	p->drawLine(x1+1, y1+2, x1+1,y2-2);
- 	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
+	p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
 	p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
 	
 	// dark shadow
- 	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
+	p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
 	p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
- 	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
+	p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
 	
     }
     else { // Horizontal

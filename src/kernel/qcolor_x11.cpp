@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#97 $
 **
 ** Implementation of QColor class for X11
 **
@@ -518,7 +518,7 @@ static void init_context_stack()
   \code
     QPixmap loadPixmap( QString fileName )
     {
-        static int alloc_context = 0;
+	static int alloc_context = 0;
 	if ( alloc_context )
 	    QColor::destroyAllocContext( alloc_context );
 	alloc_context = QColor::enterAllocContext();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#234 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#235 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -1299,7 +1299,7 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 //
 
 static bool dither_to_1( const QImage *src, QImage *dst,
-		         int conversion_flags, bool fromalpha )
+			 int conversion_flags, bool fromalpha )
 {
     if ( !dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian) )
 	return FALSE;				// something failed
@@ -1630,7 +1630,7 @@ QImage QImage::convertDepth( int depth ) const
 bool QImage::valid( int x, int y ) const
 {
     return x >= 0 && x < width()
-        && y >= 0 && y < height();
+	&& y >= 0 && y < height();
 }
 
 /*!
@@ -1696,7 +1696,7 @@ QRgb QImage::pixel( int x, int y ) const
     case 32:
 	return ((QRgb*)s)[x];
     default:
-        return 100367;
+	return 100367;
     }
 }
 
@@ -1791,7 +1791,7 @@ static
 bool isGray(QRgb c)
 {
     return qRed(c) == qGreen(c)
-        && qRed(c) == qBlue(c);
+	&& qRed(c) == qBlue(c);
 }
 
 /*!
@@ -3755,7 +3755,7 @@ static void write_pbm_image( QImageIO *iio )
     str.sprintf("P\n%d %d\n", w, h);
 
     switch (image.depth()) {
-        case 1: {
+	case 1: {
 	    str.insert(1, '4');
 	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
@@ -3765,7 +3765,7 @@ static void write_pbm_image( QImageIO *iio )
 	    for (uint y=0; y<h; y++) {
 		uchar* line = image.scanLine(y);
 		if ( w != (uint)out->writeBlock((char*)line, w) ) {
-	    	    iio->setStatus(1);
+		    iio->setStatus(1);
 		    return;
 		}
 	    }
@@ -3897,7 +3897,7 @@ static void read_async_image( QImageIO *iio )
 		d->at( startAt + totLen );
 	    else
 		; // ### We have (probably) read too much from the stream into
-	          // the buffer, and there is no way to put it back!
+		  // the buffer, and there is no way to put it back!
 	    iio->setImage(decoder.image());
 	    iio->setStatus(0);
 	    break;

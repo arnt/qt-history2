@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#24 $
 **
 ** Implementation of QConnection class
 **
@@ -49,7 +49,7 @@ QConnection::QConnection( const QObject *object, QMember member,
     mbr_name = memberName;
     nargs = 0;
     if ( strstr(memberName,"()") == 0 ) {
-        const char *p = memberName;
+	const char *p = memberName;
 	nargs++;
 	while ( *p ) {
 	    if ( *p++ == ',' )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#70 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -239,7 +239,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	    x = 8;
 	qDrawItem( &paint, style(), x, 0, tw, h, AlignCenter + ShowPrefix,
 		   colorGroup(), isEnabled(), 0, str, lenvisible, 0 );
- 	QRect r( x, 0, tw, h );
+	QRect r( x, 0, tw, h );
 	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
     }
     drawFrame( &paint );			// draw the frame
@@ -258,7 +258,7 @@ void QGroupBox::updateMask(){
      QBitmap bm( size() );
      bm.fill( color0 );
      {
- 	QPainter p( &bm, this );
+	QPainter p( &bm, this );
 	QFontMetrics fm = p.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
@@ -276,9 +276,9 @@ void QGroupBox::updateMask(){
 		x = r.width() - tw - 8;
 	    else				// left alignment
 		x = 8;
- 	    t.setRect( x, 0, tw, h );
+	    t.setRect( x, 0, tw, h );
 	}
- 	p.fillRect( r, color1 );
+	p.fillRect( r, color1 );
 	if ( tw ) {					// draw the title
 	    p.setPen( color1 );
 	    p.drawText( t, AlignCenter, str, len );
@@ -353,7 +353,7 @@ void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
     if ( !grid || !c->inserted() || !c->child()->isWidgetType() )
-        return;
+	return;
     QWidget *w = (QWidget*)c->child();
     insertWid( w );
 }
@@ -366,7 +366,7 @@ void QGroupBox::insertWid( QWidget* _w )
 	return;
 
     if ( row >= nRows || col >= nCols )
-        grid->expand( row+1, col+1 );
+	grid->expand( row+1, col+1 );
     grid->addWidget( _w, row, col );
     skip();
 }
@@ -483,7 +483,7 @@ bool QGroupBox::setConfiguration( const QDomElement& element )
 	vbox->addWidget( w );
 	QDomElement e = element.firstChild().toElement();
 	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-        {
+	{
 	    if ( e.tagName() == "Widget" )
 	    {
 		if ( !e.firstChild().toElement().toWidget( w ) )

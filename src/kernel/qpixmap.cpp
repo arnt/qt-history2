@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#117 $
 **
 ** Implementation of QPixmap class
 **
@@ -395,7 +395,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
     QPainter p( &pix );
     p.translate( -ur.x(), -ur.y() );	// use widget coordinate system
-                                        // when drawing on pixmap
+					// when drawing on pixmap
     //    ... draw on pixmap ...
 
     p.end();

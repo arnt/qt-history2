@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#163 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -833,8 +833,8 @@ QImage QPixmap::convertToImage() const
 		image.setColor( j++,
 				 ( msk ? 0xff000000 : 0 )
 				 | qRgb( (carr[i].red   >> 8) & 255,
-			                 (carr[i].green >> 8) & 255,
-			                 (carr[i].blue  >> 8) & 255 ) );
+					 (carr[i].green >> 8) & 255,
+					 (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
 	delete [] carr;
@@ -859,12 +859,12 @@ QImage QPixmap::convertToImage() const
    <dd>
     <ul>
      <li> \c AutoColor (default) - If the \e image has \link
-               QImage::depth() depth\endlink 1 and contains only
-               black and white pixels, then the pixmap becomes monochrome.
+	       QImage::depth() depth\endlink 1 and contains only
+	       black and white pixels, then the pixmap becomes monochrome.
      <li> \c ColorOnly - The pixmap is dithered/converted to the
-               \link defaultDepth() native display depth\endlink.
+	       \link defaultDepth() native display depth\endlink.
      <li> \c MonoOnly - The pixmap becomes monochrome.  If necessary,
-               it is dithered using the chosen dithering algorithm.
+	       it is dithered using the chosen dithering algorithm.
     </ul>
    <dt>Dithering mode preference, for RGB channels
    <dd>
@@ -1096,10 +1096,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    for (n=2; n<16; n*=2) {
 		for (i=0; i<n; i++) {
 		    for (j=0; j<n; j++) {
-		        D[i][j]*=4;
-		        D[i+n][j]=D[i][j]+2;
-		        D[i][j+n]=D[i][j]+3;
-		        D[i+n][j+n]=D[i][j]+1;
+			D[i][j]*=4;
+			D[i+n][j]=D[i][j]+2;
+			D[i][j+n]=D[i][j]+3;
+			D[i+n][j+n]=D[i][j]+1;
 		    }
 		}
 	    }

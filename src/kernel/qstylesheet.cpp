@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#20 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -483,7 +483,7 @@ QStyleSheetItem::WhiteSpaceMode QStyleSheetItem::whiteSpaceMode() const
 	- white spaces in the document only serve as seperators.
 	Multiple spaces or indentation therefore is ignored.
    <li> \c WhiteSpacePre
-          - white spaces are preserved. This is particulary useful to
+	  - white spaces are preserved. This is particulary useful to
 	  display programming code.
   </ul>
  */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#122 $
 **
 ** Implementation of layout classes
 **
@@ -267,7 +267,7 @@ QSize QLayoutArray::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
 {
     QLayoutArray *This = (QLayoutArray*)this;
     This->setupLayoutData( spacer );
-            //###A very clever optimizer could cause trouble
+	    //###A very clever optimizer could cause trouble
     int w = 0;
     int h = 0;
     int n = 0;
@@ -491,7 +491,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
     }
     /*
     if ( wh < sizeHint ) {
-        qGeomCalc( chain, start, end-start+1, 0, sizeHint, spacing );
+	qGeomCalc( chain, start, end-start+1, 0, sizeHint, spacing );
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].sizeHint < chain[i].size )
 		chain[i].sizeHint = chain[i].size;
@@ -507,60 +507,60 @@ void QLayoutArray::setupLayoutData( int spacing )
 {
 #ifndef QT_LAYOUT_DISABLE_CACHING
     if ( !needRecalc )
-        return;
+	return;
 #endif
     has_hfw = FALSE;
     int i;
     for ( i = 0; i < rr; i++ ) {
-        rowData[i].initParameters();
+	rowData[i].initParameters();
     }
     for ( i = 0; i < cc; i++ ) {
-        colData[i].initParameters();
+	colData[i].initParameters();
     }
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
     while ( (box=it.current()) != 0 ) {
-        ++it;
-        addData( box );
-        has_hfw = has_hfw || box->item()->hasHeightForWidth();
+	++it;
+	addData( box );
+	has_hfw = has_hfw || box->item()->hasHeightForWidth();
 
     }
 
     if ( multi ) {
-        QListIterator<QMultiBox> it( *multi );
-        QMultiBox * mbox;
-        while ( (mbox=it.current()) != 0 ) {
-            ++it;
-            QLayoutBox *box = mbox->box();
-            int r1 = box->row;
-            int c1 = box->col;
-            int r2 = mbox->torow;
-            int c2 = mbox->tocol;
-            if ( r2 < 0 )
-                r2 = rr-1;
-            if ( c2 < 0 )
-                c2 = cc-1;
-            QSize hint = box->sizeHint();
-            QSize min = box->minimumSize();
-            if ( r1 == r2 ) {
-                addData( box, TRUE, FALSE );
-            } else {
-                distributeMultiBox( rowData, spacing, r1, r2,
-                                    min.height(), hint.height() );
-            }
-            if ( c1 == c2 ) {
-                addData( box, FALSE, TRUE );
-            } else {
-                distributeMultiBox( colData, spacing, c1, c2,
-                                    min.width(), hint.width() );
-            }
-        }
+	QListIterator<QMultiBox> it( *multi );
+	QMultiBox * mbox;
+	while ( (mbox=it.current()) != 0 ) {
+	    ++it;
+	    QLayoutBox *box = mbox->box();
+	    int r1 = box->row;
+	    int c1 = box->col;
+	    int r2 = mbox->torow;
+	    int c2 = mbox->tocol;
+	    if ( r2 < 0 )
+		r2 = rr-1;
+	    if ( c2 < 0 )
+		c2 = cc-1;
+	    QSize hint = box->sizeHint();
+	    QSize min = box->minimumSize();
+	    if ( r1 == r2 ) {
+		addData( box, TRUE, FALSE );
+	    } else {
+		distributeMultiBox( rowData, spacing, r1, r2,
+				    min.height(), hint.height() );
+	    }
+	    if ( c1 == c2 ) {
+		addData( box, FALSE, TRUE );
+	    } else {
+		distributeMultiBox( colData, spacing, c1, c2,
+				    min.width(), hint.width() );
+	    }
+	}
     }
     for ( i = 0; i < rr; i++ ) {
-        rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
+	rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
     }
     for ( i = 0; i < cc; i++ ) {
-        colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
+	colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
     }
 
 
@@ -582,7 +582,7 @@ void QLayoutArray::addHfwData ( QLayoutBox *box )
 					    rData[box->row].minimumSize );
     } else {
 
-        QSize hint = box->sizeHint();
+	QSize hint = box->sizeHint();
 	QSize minS = box->minimumSize();
 	rData[box->row].sizeHint = QMAX( hint.height(),
 				     rData[box->row].sizeHint );
@@ -617,14 +617,14 @@ void QLayoutArray::setupHfwLayoutData( int spacing )
 	while ( (mbox=it.current()) != 0 ) {
 	    ++it;
 	    QLayoutBox *box = mbox->box();
-            int r1 = box->row;
-            //int c1 = box->col;
-            int r2 = mbox->torow;
-            //int c2 = mbox->tocol;  NOT USED
-            if ( r2 < 0 )
-                r2 = rr-1;
-            //if ( c2 < 0 )
-                //c2 = cc-1;
+	    int r1 = box->row;
+	    //int c1 = box->col;
+	    int r2 = mbox->torow;
+	    //int c2 = mbox->tocol;  NOT USED
+	    if ( r2 < 0 )
+		r2 = rr-1;
+	    //if ( c2 < 0 )
+		//c2 = cc-1;
 	    QSize hint = box->sizeHint(); //#### must hfw-ify!
 	    //(however, distributeMultiBox ignores sizeHint now...)
 	    QSize min = box->minimumSize();
@@ -1269,7 +1269,7 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
     for( ; !row.isNull(); row = row.nextSibling().toElement() )
     {
 	if ( row.tagName() == "Row" )
-        {
+	{
 	    if ( row.hasAttribute( "spacing" ) )
 		addRowSpacing( r, row.attribute( "spacing" ).toInt() );
 	    if ( row.hasAttribute( "stretch" ) )
@@ -1281,7 +1281,7 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 	    for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
 	    {
 		if ( cell.tagName() == "Cell" )
-	        {
+		{
 		    int multicol = 1;
 		    int multirow = 1;
 		    if ( cell.hasAttribute( "multicol" ) )
@@ -1483,7 +1483,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int space,
  const char *name )
-        : QLayout( parentLayout, space, name )
+	: QLayout( parentLayout, space, name )
 {
     data = new QBoxLayoutData;
     dir = d;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#73 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -287,10 +287,10 @@ QLayoutIterator QLayoutItem::iterator()
   int MyLayout::heightForWidth( int w ) const
   {
       if ( cache_dirty || cached_width != w ) {
-          //Not all C++ compilers support "mutable" yet:
-          MyLayout * mthis = (MyLayout*)this;
+	  //Not all C++ compilers support "mutable" yet:
+	  MyLayout * mthis = (MyLayout*)this;
 	  int h = calculateHeightForWidth( w );
-          mthis->cached_hfw = h;
+	  mthis->cached_hfw = h;
 	  return h;
       }
       return cached_hfw;
@@ -1047,7 +1047,7 @@ QSize QLayout::totalMaximumSize() const
 
     if ( isTopLevel() )
 	s = QSize( QMIN( s.width() + b, QWIDGETSIZE_MAX ),
-	           QMIN( s.height() + h, QWIDGETSIZE_MAX ) );
+		   QMIN( s.height() + h, QWIDGETSIZE_MAX ) );
     return s;
 }
 
@@ -1305,9 +1305,9 @@ bool QLayout::activate()
 		(eg. the horizontal direction of a pushbutton)
     <li> \c Maximum - the sizeHint() is a maximum, the widget can be shrunk
 		any amount without detriment if other widgets need the space
-	       	(eg. a separator line)
+		(eg. a separator line)
     <li> \c Preferred - the sizeHint() is best, but the widget can
- 		be shrunk below that and still be useful. The widget
+		be shrunk below that and still be useful. The widget
 		can be expanded, but there is no advantage to it being
 		larger than sizeHint()
 		(the default QWidget policy)
@@ -1316,7 +1316,7 @@ bool QLayout::activate()
 		should get as much space as possible.
 		(not currently used by any standard Qt widgets)
     <li> \c Expanding - the sizeHint() is a sensible size, but the widget can
- 		be shrunk below that and still be useful.
+		be shrunk below that and still be useful.
 		The widget can make use of extra space, so it should
 		get as much space as possible.
 		(eg. the horizontal direction of a slider)
@@ -1442,7 +1442,7 @@ QGLayoutIterator::~QGLayoutIterator()
       QLayoutIterator it = lay->iterator();
       QLayoutItem *child;
       while ( (child = it.current() ) ) {
-          paintLayout( p, child );
+	  paintLayout( p, child );
 	  it.next();
       }
       p->drawRect( lay->geometry() );
@@ -1451,7 +1451,7 @@ QGLayoutIterator::~QGLayoutIterator()
   {
       QPainter p( this );
       if ( layout() )
-          paintLayout( &p, layout() );
+	  paintLayout( &p, layout() );
   }
   \endcode
 

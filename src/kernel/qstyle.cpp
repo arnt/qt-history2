@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#41 $
 **
 ** Implementation of QStyle class
 **
@@ -334,7 +334,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		const QColorGroup &g, bool sunken,
 		int lineWidth, const QBrush* fill)
 {
-        if ( w == 0 || h == 0 )
+	if ( w == 0 || h == 0 )
 	return;
 #if defined(CHECK_RANGE)
     ASSERT( w > 0 && h > 0 && lineWidth >= 0 );

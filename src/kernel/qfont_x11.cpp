@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#187 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -247,7 +247,7 @@ typedef QDict<QXFontName> QFontNameDict;
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
-                                                // default character set:
+						// default character set:
 QFont::CharSet QFont::defaultCharSet = QFont::AnyCharSet;
 
 //
@@ -857,11 +857,11 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	score |= CharSetScore;
     } else if ( charSet() == KOI8R ) {
        if ( strcmp( tokens[CharsetRegistry], "koi8" ) == 0 &&
-            (strcmp( tokens[CharsetEncoding], "r" ) == 0
-             || strcmp( tokens[CharsetEncoding], "1" ) == 0) )
-               score |= CharSetScore;
+	    (strcmp( tokens[CharsetEncoding], "r" ) == 0
+	     || strcmp( tokens[CharsetEncoding], "1" ) == 0) )
+	       score |= CharSetScore;
        else
-               exactMatch = FALSE;
+	       exactMatch = FALSE;
     } else if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	// need to mask away non-8859 charsets here
 	switch( charSet() ) {
@@ -961,9 +961,9 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	}
     } else if ( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
 	// Yes...
-        score |= CharSetScore;
+	score |= CharSetScore;
 	// But it's big...
-        score &= ~NonUnicodeScore;
+	score &= ~NonUnicodeScore;
     } else {
 	exactMatch = FALSE;
     }
@@ -1154,7 +1154,7 @@ QCString QFont_Private::bestFamilyMember( const char *foundry,
 					  const char *family, int *score )
 {
     const int prettyGoodScore = CharsetEncoding | SizeScore |
-                                WeightScore | SlantScore | WidthScore;
+				WeightScore | SlantScore | WidthScore;
 
     char pattern[256];
     int testScore = 0;

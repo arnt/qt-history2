@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#228 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -172,8 +172,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	title = qAppName();
 
 	// The WState_Created flag is checked by translateConfigEvent() in
-        // qapplication_win.cpp. We switch it off temporarily to avoid move
-        // and resize events during creation
+	// qapplication_win.cpp. We switch it off temporarily to avoid move
+	// and resize events during creation
     clearWState( WState_Created );
 
     if ( window ) {				// override the old window
@@ -382,7 +382,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
+	    fd->focusWidgets.append( this );
     }
     if ( accept_drops )
 	setAcceptDrops( TRUE );
@@ -735,7 +735,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( r.isEmpty() )
 	    return; // nothing to do
 	QRegion reg = r;
- 	ValidateRgn( winId(), reg.handle() );
+	ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( r, erase );
 	qt_set_paintevent_clipping( this, r );
 	if ( erase )
@@ -748,7 +748,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
- 	ValidateRgn( winId(), reg.handle() );
+	ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
@@ -784,7 +784,7 @@ void QWidget::showWindow()
 void QWidget::hideWindow()
 {
     if ( isTopLevel() && parentWidget()&& isActiveWindow()  ) {
- 	SetActiveWindow( parentWidget()->winId() );
+	SetActiveWindow( parentWidget()->winId() );
     }
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
@@ -1040,12 +1040,12 @@ int QWidget::metric( int m ) const
 	case QPaintDeviceMetrics::PdmWidthMM:
 	    val = crect.width()
 		    * GetDeviceCaps( gdc, HORZSIZE )
-	            / GetDeviceCaps( gdc, HORZRES );
+		    / GetDeviceCaps( gdc, HORZRES );
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
 	    val = crect.height()
 		    * GetDeviceCaps( gdc, VERTSIZE )
-	            / GetDeviceCaps( gdc, VERTRES );
+		    / GetDeviceCaps( gdc, VERTRES );
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
 	    if ( GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE )

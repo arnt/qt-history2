@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#549 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#550 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -608,7 +608,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	    fnt.setCharSet( QFont::charSetForLocale() );
 
 	if ( fnt != QApplication::font() )
- 	    QApplication::setFont( fnt, TRUE );
+	    QApplication::setFont( fnt, TRUE );
     }
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {// set app colors
 	QColor btn;
@@ -1891,7 +1891,7 @@ static int sn_activate()
 		QApplication::sendEvent( sn->obj, &event );
 		n_act++;
 	    }
-        }
+	}
     }
     return n_act;
 }
@@ -2153,7 +2153,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     QETWidget *keywidget=0;
     bool grabbed=FALSE;
     if ( event->type==XKeyPress || event->type==XKeyRelease ) {
-        keywidget = (QETWidget*)QWidget::keyboardGrabber();
+	keywidget = (QETWidget*)QWidget::keyboardGrabber();
 	if ( keywidget ) {
 	    grabbed = TRUE;
 	} else {
@@ -2225,15 +2225,15 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget ) {				// don't know this window
 	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
 	    {
- 		// Danger - make sure we don't lock the server
- 		switch ( event->type ) {
- 		case ButtonPress:
- 		case ButtonRelease:
- 		case XKeyPress:
- 		case XKeyRelease:
- 		    widget->close();
- 		    return 1;
- 		}
+		// Danger - make sure we don't lock the server
+		switch ( event->type ) {
+		case ButtonPress:
+		case ButtonRelease:
+		case XKeyPress:
+		case XKeyRelease:
+		    widget->close();
+		    return 1;
+		}
 	    } else {
 		void qt_np_process_foreign_event(XEvent*); // in qnpsupport.cpp
 		qt_np_process_foreign_event( event );
@@ -2684,10 +2684,10 @@ void QApplication::closePopup( QWidget *popup )
 	active_window = 0;
     }
      else {
- 	// popups are not focus-handled by the window system (the
- 	// first popup grabbed the keyboard), so we have to do that
- 	// manually: A popup was closed, so the previous popup gets
- 	// the focus.
+	// popups are not focus-handled by the window system (the
+	// first popup grabbed the keyboard), so we have to do that
+	// manually: A popup was closed, so the previous popup gets
+	// the focus.
 	 active_window = popupWidgets->getLast();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
@@ -3231,7 +3231,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( mouseActWindow == event->xbutton.window &&
 		 mouseButtonPressed == button &&
 		 (long)event->xbutton.time -(long)mouseButtonPressTime
-                       < QApplication::doubleClickInterval() &&
+		       < QApplication::doubleClickInterval() &&
 		 QABS(event->xbutton.x - mouseXPos) < 5 &&
 		 QABS(event->xbutton.y - mouseYPos) < 5 ) {
 		type = QEvent::MouseButtonDblClick;
@@ -3260,12 +3260,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( qApp->inPopupMode() ) {			// in popup mode
 	QWidget *popup = qApp->activePopupWidget();
-  	if ( popup != this ) {
-  	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
-  		popup = this;
-  	    else				// send to last popup
- 		pos = popup->mapFromGlobal( globalPos );
-  	}
+	if ( popup != this ) {
+	    if ( testWFlags(WType_Popup) && rect().contains(pos) )
+		popup = this;
+	    else				// send to last popup
+		pos = popup->mapFromGlobal( globalPos );
+	}
 	bool releaseAfter = FALSE;
 	QWidget *popupChild  = findChildWidget( popup, pos );
 	QWidget *popupTarget = popupChild ? popupChild : popup;
@@ -3615,9 +3615,9 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 
     // convert chars (8bit) to text (unicode).
     if ( input_mapper )
-        text = input_mapper->toUnicode(chars,count);
+	text = input_mapper->toUnicode(chars,count);
     else
-        text = chars;
+	text = chars;
     return TRUE;
 }
 
@@ -4518,9 +4518,9 @@ static QMetaObjectInit init_QSmSocketReceiver(&QSmSocketReceiver::staticMetaObje
 void QSmSocketReceiver::initMetaObject()
 {
     if ( metaObj )
-        return;
+	return;
     if ( strcmp(QObject::className(), "QObject") != 0 )
-        badSuperclassWarning("QSmSocketReceiver","QObject");
+	badSuperclassWarning("QSmSocketReceiver","QObject");
 
     staticMetaObject();
 }
@@ -4533,7 +4533,7 @@ QString QSmSocketReceiver::tr(const char* s)
 void QSmSocketReceiver::staticMetaObject()
 {
     if ( metaObj )
-        return;
+	return;
     QObject::staticMetaObject();
 
     typedef void(QSmSocketReceiver::*m1_t0)(int);
@@ -4542,9 +4542,9 @@ void QSmSocketReceiver::staticMetaObject()
     slot_tbl[0].name = "socketActivated(int)";
     slot_tbl[0].ptr = *((QMember*)&v1_0);
     metaObj = QMetaObject::new_metaobject(
-        "QSmSocketReceiver", "QObject",
-        slot_tbl, 1,
-        0, 0 );
+	"QSmSocketReceiver", "QObject",
+	slot_tbl, 1,
+	0, 0 );
 }
 
 class QSessionManagerData

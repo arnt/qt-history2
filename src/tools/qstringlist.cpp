@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#22 $
 **
 ** Implementation of QStringList
 **
@@ -46,7 +46,7 @@
 
   Example:
   \code
-  	QStringList list;
+	QStringList list;
 
 	// three different ways of appending values:
 	list.append( "Torben");
@@ -122,15 +122,15 @@ QStringList QStringList::split( const QString &sep, const QString &str )
     int i = str.find( sep, j );
 
     while ( i != -1 ) {
-        if ( str.mid( j, i - j ).length() > 0 )
-            lst.append( str.mid( j, i - j ) );
-        j = i + sep.length();
-        i = str.find( sep, j );
+	if ( str.mid( j, i - j ).length() > 0 )
+	    lst.append( str.mid( j, i - j ) );
+	j = i + sep.length();
+	i = str.find( sep, j );
     }
 
     int l = str.length() - 1;
     if ( !str.mid( j, l - j + 1 ).isEmpty() )
-        lst.append( str.mid( j, l - j + 1 ) );
+	lst.append( str.mid( j, l - j + 1 ) );
 
     return lst;
 }

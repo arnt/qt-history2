@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#95 $
 **
 ** Implementation of QSlider class
 **
@@ -465,19 +465,19 @@ void QSlider::paintEvent( QPaintEvent * )
 	    mid += style().sliderLength() / 8;
 	if ( ticks & Below )
 	    mid -= style().sliderLength() / 8;
- 	if ( orient == Horizontal ) {
- 	    style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
- 				     g, mid, Horizontal );
- 	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
- 	    p.fillRect( 0, tickOffset + thickness(),
- 			width(), height()/*###*/, g.background() );
+	if ( orient == Horizontal ) {
+	    style().drawSliderGroove(&p, 0, tickOffset, width(), thickness(),
+				     g, mid, Horizontal );
+	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
+	    p.fillRect( 0, tickOffset + thickness(),
+			width(), height()/*###*/, g.background() );
 	}
 	else {
- 	    style().drawSliderGroove( &p, tickOffset, 0, thickness(), height(),
+	    style().drawSliderGroove( &p, tickOffset, 0, thickness(), height(),
 				      g, mid, Vertical );
- 	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
- 	    p.fillRect( tickOffset + thickness(), 0,
- 			width()/*###*/, height(), g.background() );
+	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
+	    p.fillRect( tickOffset + thickness(), 0,
+			width()/*###*/, height(), g.background() );
 	}
     }
     int interval = tickInt;
@@ -533,12 +533,12 @@ void QSlider::updateMask()
 	    mid += style().sliderLength() / 8;
 	if ( ticks & Below )
 	    mid -= style().sliderLength() / 8;
- 	if ( orient == Horizontal ) {
- 	    style().drawSliderGrooveMask(&p, 0, tickOffset, width(), thickness(),
+	if ( orient == Horizontal ) {
+	    style().drawSliderGrooveMask(&p, 0, tickOffset, width(), thickness(),
 					 mid, Horizontal );
 	}
 	else {
- 	    style().drawSliderGrooveMask( &p, tickOffset, 0, thickness(), height(),
+	    style().drawSliderGrooveMask( &p, tickOffset, 0, thickness(), height(),
 					  mid, Vertical );
 	}
 	style().drawSliderMask( &p, sliderR.x(), sliderR.y(),
@@ -589,7 +589,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
     } else if ( orient == Horizontal && e->pos().x() < r.left() //### goodPart
 		|| orient == Vertical && e->pos().y() < r.top() ) {
 	state = TimingDown;
-        subtractPage();
+	subtractPage();
 	if ( !timer )
 	    timer = new QTimer( this );
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#168 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1237,7 +1237,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	  && ((QPixmap*)pdev)->depth()==1
 	  && bg_mode == TransparentMode )
 	{
- 	    if ( cbrush.color() == color0 )
+	    if ( cbrush.color() == color0 )
 		// DPna  dest = dest AND NOT pattern
 		PatBlt( hdc, x, y, w, h, 0x000A0329 );
 	    else
@@ -1249,7 +1249,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 	}
     } else {
-        Rectangle( hdc, x, y, x+w, y+h );
+	Rectangle( hdc, x, y, x+w, y+h );
     }
 }
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#224 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#225 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -298,16 +298,16 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
 	d->listBox()->resize( 100, 10 );
 	
 	connect( d->listBox(), SIGNAL(selected(int)),
-		             SLOT(internalActivate(int)) );
+			     SLOT(internalActivate(int)) );
 	connect( d->listBox(), SIGNAL(highlighted(int)),
-		             SLOT(internalHighlight(int)));
+			     SLOT(internalHighlight(int)));
     } else {
 	d = new QComboData();
 	d->setPopupMenu( new QPopupMenu );
 	connect( d->popup(), SIGNAL(activated(int)),
-		             SLOT(internalActivate(int)) );
+			     SLOT(internalActivate(int)) );
 	connect( d->popup(), SIGNAL(highlighted(int)),
-		             SLOT(internalHighlight(int)) );
+			     SLOT(internalHighlight(int)) );
     }
     d->ed                    = 0;
     d->current               = 0;
@@ -578,9 +578,9 @@ void QComboBox::insertItem( const QString &t, int index )
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
-        d->listBox()->insertItem( t, index );
+	d->listBox()->insertItem( t, index );
     else
-        d->popup()->insertItem( t, index, index );
+	d->popup()->insertItem( t, index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current && d->current < count()  ) {
@@ -610,9 +610,9 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox() )
-        d->listBox()->insertItem( pixmap, index );
+	d->listBox()->insertItem( pixmap, index );
     else
-        d->popup()->insertItem( pixmap, index, index );
+	d->popup()->insertItem( pixmap, index, index );
     if ( !append )
 	reIndex();
     if ( index == d->current )
@@ -1115,8 +1115,8 @@ void QComboBox::paintEvent( QPaintEvent * )
 	
 	if ( hasFocus()) {
 	    if (!d->ed) {
- 		p.fillRect( textR.x(), textR.y(),
- 			    textR.width(), textR.height(),
+		p.fillRect( textR.x(), textR.y(),
+			    textR.width(), textR.height(),
 			    g.brush( QColorGroup::Highlight ) );
 		
 	    }
@@ -1275,9 +1275,9 @@ void QComboBox::focusInEvent( QFocusEvent * )
 static int listHeight( QListBox *l, int sl )
 {
     if ( l->count() > 0 )
-        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height(l);
+	return QMIN( l->count(), (uint)sl) * l->item( 0 )->height(l);
     else
-        return l->sizeHint().height();
+	return l->sizeHint().height();
 }
 
 
@@ -1293,7 +1293,7 @@ void QComboBox::popup()
 	return;
 
     if ( d->usingListBox() ) {
-	                // Send all listbox events to eventFilter():
+			// Send all listbox events to eventFilter():
 	d->listBox()->installEventFilter( this );
 	d->listBox()->viewport()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
@@ -1518,7 +1518,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    switch( ((QKeyEvent *)event)->key() ) {
 	    case Key_Up:
 	    case Key_Down:
- 		if ( !(((QKeyEvent *)event)->state() & AltButton) )
+		if ( !(((QKeyEvent *)event)->state() & AltButton) )
 		    break;
 	    case Key_F4:
 	    case Key_Escape:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#54 $
 **
 ** Implementation of QMetaObject class
 **
@@ -222,7 +222,7 @@ QMetaObject *QMetaObject::new_metaobject( const char *class_name,
 {
     return new QMetaObject( class_name, superclass_name, slot_data, n_slots,
 			    signal_data, n_signals, prop_data, n_props,
-                            enum_data, n_enums );
+			    enum_data, n_enums );
 }
 #else // QT_BUILDER
 QMetaObject *QMetaObject::new_metaobject( const char *class_name,

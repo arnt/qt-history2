@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#99 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -827,9 +827,9 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 bool QImageDrag::canDecode( const QMimeSource* e )
 {
     return e->provides( "image/png" )
-        || e->provides( "image/ppm" )
-        || e->provides( "image/bmp" )
-        || ( qt_builtin_gif_reader() && e->provides( "image/gif" ) );
+	|| e->provides( "image/ppm" )
+	|| e->provides( "image/bmp" )
+	|| ( qt_builtin_gif_reader() && e->provides( "image/gif" ) );
     // ### more Qt images types
 }
 

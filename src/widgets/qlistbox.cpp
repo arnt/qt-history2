@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#297 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#298 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1005,10 +1005,10 @@ void QListBox::clear()
     QListBoxItem * i = d->head;
     d->head = 0;
     while ( i ) {
-        QListBoxItem * n = i->n;
-        i->n = i->p = 0;
-        delete i;
-        i = n;
+	QListBoxItem * n = i->n;
+	i->n = i->p = 0;
+	delete i;
+	i = n;
     }
     d->count = 0;
     triggerUpdate( TRUE );
@@ -1179,34 +1179,34 @@ void QListBox::setCurrentItem( int index )
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( d->current == i )
-        return;
+	return;
     QListBoxItem * o = d->current;
     d->current = i;
 
     if ( selectionMode() == Single ) {
-        if ( o )
-            setSelected( o, FALSE );
-        if ( i )
-            setSelected( i, TRUE );
+	if ( o )
+	    setSelected( o, FALSE );
+	if ( i )
+	    setSelected( i, TRUE );
     }
 
     int ind = index( i );
     d->currentColumn = ind / numRows();
     d->currentRow = ind % numRows();
     if ( o )
-        updateItem( o );
+	updateItem( o );
     if ( i )
-        updateItem( i );
+	updateItem( i );
     // scroll after the items are redrawn
     d->visibleTimer->start( 1, TRUE );
 
     QString tmp;
     if ( i )
-        tmp = i->text();
+	tmp = i->text();
     int tmp2 = index( i );
     emit highlighted( i );
     if ( !tmp.isNull() )
-        emit highlighted( tmp );
+	emit highlighted( tmp );
     emit highlighted( tmp2 );
 }
 
@@ -1543,48 +1543,48 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	}
 	break;
     case Key_Left:
-        if ( currentColumn() > 0 ) {
-            setCurrentItem( currentItem() - numRows() );
-            if ( e->state() & ShiftButton )
-                toggleCurrentItem();
-        } else if ( numColumns() > 1 && currentItem() > 0 ) {
-            int row = currentRow();
-            setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
+	if ( currentColumn() > 0 ) {
+	    setCurrentItem( currentItem() - numRows() );
+	    if ( e->state() & ShiftButton )
+		toggleCurrentItem();
+	} else if ( numColumns() > 1 && currentItem() > 0 ) {
+	    int row = currentRow();
+	    setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
 
-            if ( currentItem() == -1 )
-                setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
+	    if ( currentItem() == -1 )
+		setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
 
-            if ( e->state() & ShiftButton )
-                toggleCurrentItem();
-        } else {
-            QApplication::sendEvent( horizontalScrollBar(), e );
+	    if ( e->state() & ShiftButton )
+		toggleCurrentItem();
+	} else {
+	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
 	break;
     case Key_Right:
-        if ( currentColumn() < numColumns()-1 ) {
-            int row = currentRow();
-            int i = currentItem();
-            setCurrentItem( currentItem() + numRows() );
+	if ( currentColumn() < numColumns()-1 ) {
+	    int row = currentRow();
+	    int i = currentItem();
+	    setCurrentItem( currentItem() + numRows() );
 
-            if ( currentItem() == -1 ) {
-                if ( row < numRows() - 1 )
-                    setCurrentItem( row + 1 );
-                else
-                    setCurrentItem( i );
-            }
+	    if ( currentItem() == -1 ) {
+		if ( row < numRows() - 1 )
+		    setCurrentItem( row + 1 );
+		else
+		    setCurrentItem( i );
+	    }
 
-            if ( e->state() & ShiftButton )
-                toggleCurrentItem();
-        } else if ( numColumns() > 1 && currentRow() < numRows() ) {
-            if ( currentRow() + 1 < numRows() ) {
-                setCurrentItem( currentRow() + 1 );
+	    if ( e->state() & ShiftButton )
+		toggleCurrentItem();
+	} else if ( numColumns() > 1 && currentRow() < numRows() ) {
+	    if ( currentRow() + 1 < numRows() ) {
+		setCurrentItem( currentRow() + 1 );
 
-                if ( e->state() & ShiftButton )
-                    toggleCurrentItem();
-            }
-        } else {
-            QApplication::sendEvent( horizontalScrollBar(), e );
-        }
+		if ( e->state() & ShiftButton )
+		    toggleCurrentItem();
+	    }
+	} else {
+	    QApplication::sendEvent( horizontalScrollBar(), e );
+	}
 	break;
     case Key_Next:
 	{
@@ -1730,7 +1730,7 @@ void QListBox::focusInEvent( QFocusEvent * )
 {
     emitChangedSignal( FALSE );
     if ( !d->current && d->head )
-        setCurrentItem( d->head );
+	setCurrentItem( d->head );
     if ( d->current )
 	updateItem( currentItem() );
 }
@@ -2630,19 +2630,19 @@ void QListBox::setVariableWidth( bool enable )
 void QListBox::refreshSlot()
 {
     if ( d->mustPaintAll ||
-         d->layoutDirty ) {
-        d->mustPaintAll = FALSE;
-        doLayout();
-        if ( hasFocus() &&
-             d->currentColumn >= 0 &&
-             d->currentRow >= 0 &&
-             ( d->columnPos[d->currentColumn] < contentsX() ||
-               d->columnPos[d->currentColumn+1]>contentsX()+visibleWidth() ||
-               d->rowPos[d->currentRow] < contentsY() ||
-               d->rowPos[d->currentRow+1] > contentsY()+visibleHeight() ) )
-            ensureCurrentVisible();
-        viewport()->repaint( FALSE );
-        return;
+	 d->layoutDirty ) {
+	d->mustPaintAll = FALSE;
+	doLayout();
+	if ( hasFocus() &&
+	     d->currentColumn >= 0 &&
+	     d->currentRow >= 0 &&
+	     ( d->columnPos[d->currentColumn] < contentsX() ||
+	       d->columnPos[d->currentColumn+1]>contentsX()+visibleWidth() ||
+	       d->rowPos[d->currentRow] < contentsY() ||
+	       d->rowPos[d->currentRow+1] > contentsY()+visibleHeight() ) )
+	    ensureCurrentVisible();
+	viewport()->repaint( FALSE );
+	return;
     }
 
     QRegion r;
@@ -2652,38 +2652,38 @@ void QListBox::refreshSlot()
     int row = 0;
     int top = row;
     while( col < (int)d->columnPos.size()-1 && d->columnPos[col+1] < x )
-        col++;
+	col++;
     while( top < (int)d->rowPos.size()-1 && d->rowPos[top+1] < y )
-        top++;
+	top++;
     QListBoxItem * i = item( col * numRows() );
 
     while ( i && (int)col < numCols() &&
-            d->columnPos[col] < x + visibleWidth()  ) {
-        int cw = d->columnPos[col+1] - d->columnPos[col];
-        while ( i && row < top ) {
-            i = i->n;
-            row++;
-        }
-        while ( i && row < numRows() && d->rowPos[row] <
-                y + visibleHeight() ) {
-            if ( i->dirty )
-                r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
-                                    cw, d->rowPos[row+1] - d->rowPos[row] ) );
-            row++;
-            i = i->n;
-        }
-        while ( i && row < numRows() ) {
-            i = i->n;
-            row++;
-        }
-        row = 0;
-        col++;
+	    d->columnPos[col] < x + visibleWidth()  ) {
+	int cw = d->columnPos[col+1] - d->columnPos[col];
+	while ( i && row < top ) {
+	    i = i->n;
+	    row++;
+	}
+	while ( i && row < numRows() && d->rowPos[row] <
+		y + visibleHeight() ) {
+	    if ( i->dirty )
+		r = r.unite( QRect( d->columnPos[col] - x, d->rowPos[row] - y,
+				    cw, d->rowPos[row+1] - d->rowPos[row] ) );
+	    row++;
+	    i = i->n;
+	}
+	while ( i && row < numRows() ) {
+	    i = i->n;
+	    row++;
+	}
+	row = 0;
+	col++;
     }
 
     if ( r.isEmpty() )
-        viewport()->repaint( FALSE );
+	viewport()->repaint( FALSE );
     else
-        viewport()->repaint( r, FALSE );
+	viewport()->repaint( r, FALSE );
 }
 
 

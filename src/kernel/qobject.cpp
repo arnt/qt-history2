@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#222 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#223 $
 **
 ** Implementation of QObject class
 **
@@ -276,9 +276,9 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
   \code
     QListBox * c = (QListBox *)::qt_find_obj_child(myWidget,QListBox,
-                                                   "listboxname");
+						   "listboxname");
     if ( c )
-        c->insertItem( "another string" );
+	c->insertItem( "another string" );
   \endcode
 */
 
@@ -2872,7 +2872,7 @@ QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
     {
 	QMetaObject* m = metaObject();
 	if ( m )
-        {
+	{
 	    QStringList props = m->propertyNames();
 
 	    QStringList::Iterator it = props.begin();
@@ -2881,7 +2881,7 @@ QDomElement QObject::configuration( QDomDocument& doc, bool properties ) const
 		QMetaProperty* p = m->property( *it, TRUE );
 		QVariant prop;
 		if ( property( p->name, &prop ) )
-	        {
+		{
 		    // Save enums as attributes
 		    if ( p->enumType )
 			e.setAttribute( p->name, prop.stringValue() );

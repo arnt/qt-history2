@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#51 $
 **
 ** Implementation of QToolBar class
 **
@@ -402,8 +402,8 @@ void QToolBar::clear()
 	return;
     QObjectList list = *children();
     for (QObjectListIt it(list); it.current(); ++it) {
-        if ( it.current()->isWidgetType() )
-            delete it.current();
+	if ( it.current()->isWidgetType() )
+	    delete it.current();
     }
 }
 

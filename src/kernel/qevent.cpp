@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#102 $
 **
 ** Implementation of event classes
 **
@@ -976,7 +976,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
    <li>\c Link. The source should somehow create a link to the location
 	    specified by the data.
    <li>\c Move.  The source should somehow move the object from the location
-            specified by the data to a new location.
+	    specified by the data to a new location.
    <li>\c Private.  The target has special knowledge of the MIME type, which
 	    the source should respond to similar to a Copy.
    <li>\c UserAction.  The source and target can co-operate using special

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#81 $
 **
 ** Implementation of QTabBar class
 **
@@ -340,7 +340,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 */
 
 void QTabBar::paintLabel( QPainter* p, const QRect& br,
-                          QTab* t, bool has_focus ) const
+			  QTab* t, bool has_focus ) const
 {
 
     QRect r = br;

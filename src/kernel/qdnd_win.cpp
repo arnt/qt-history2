@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#68 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -57,8 +57,8 @@ static bool acceptact = FALSE;
 */
 #define OleStdGetDropEffect(grfKeyState)    \
     ( (grfKeyState & MK_CONTROL) ?          \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
-        ( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
+	( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
+	( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
 
 // Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
@@ -196,10 +196,10 @@ public:
     STDMETHOD(QueryGetData)(LPFORMATETC pformatetc );
     STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
     STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
-                       BOOL fRelease);
+		       BOOL fRelease);
     STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
     STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf,
-                      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
+		      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
     STDMETHOD(DUnadvise)(DWORD dwConnection);
     STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
 
@@ -539,11 +539,11 @@ STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
     if (fEscapePressed)
-        return ResultFromScode(DRAGDROP_S_CANCEL);
+	return ResultFromScode(DRAGDROP_S_CANCEL);
     else if (!(grfKeyState & MK_LBUTTON))
-        return ResultFromScode(DRAGDROP_S_DROP);
+	return ResultFromScode(DRAGDROP_S_DROP);
     else
-        return NOERROR;
+	return NOERROR;
 }
 
 STDMETHODIMP
@@ -724,19 +724,19 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
     LPFORMATETC fmtetc = someFormats(object,n);
 
     if (dwDirection == DATADIR_GET){
-        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
-        if (*ppenumFormatEtc == NULL)
-            sc = E_OUTOFMEMORY;
+	*ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
+	if (*ppenumFormatEtc == NULL)
+	    sc = E_OUTOFMEMORY;
 
     } else if (dwDirection == DATADIR_SET){
-        // A data transfer object that is used to transfer data
-        //    (either via the clipboard or drag/drop does NOT
-        //    accept SetData on ANY format.
-        sc = E_NOTIMPL;
-        goto error;
+	// A data transfer object that is used to transfer data
+	//    (either via the clipboard or drag/drop does NOT
+	//    accept SetData on ANY format.
+	sc = E_NOTIMPL;
+	goto error;
     } else {
-        sc = E_INVALIDARG;
-        goto error;
+	sc = E_INVALIDARG;
+	goto error;
     }
 
 error:
@@ -747,7 +747,7 @@ error:
 
 STDMETHODIMP
 QOleDataObject::DAdvise(FORMATETC FAR*, DWORD,
-                       LPADVISESINK, DWORD FAR* )
+		       LPADVISESINK, DWORD FAR* )
 {
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
@@ -903,28 +903,28 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
     DWORD dwOKEffects = *pdwEffect;
 
     if (!acceptfmt)
-        goto dropeffect_none;
+	goto dropeffect_none;
 
     *pdwEffect = OleStdGetDropEffect(grfKeyState);
     if (*pdwEffect == 0) {
-        // No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
-        if (DROPEFFECT_MOVE & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_MOVE;
-        } else if (DROPEFFECT_COPY & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_COPY;
-        } else if (DROPEFFECT_LINK & dwOKEffects) {
-            *pdwEffect = DROPEFFECT_LINK;
+	// No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
+	if (DROPEFFECT_MOVE & dwOKEffects) {
+	    *pdwEffect = DROPEFFECT_MOVE;
+	} else if (DROPEFFECT_COPY & dwOKEffects) {
+	    *pdwEffect = DROPEFFECT_COPY;
+	} else if (DROPEFFECT_LINK & dwOKEffects) {
+	    *pdwEffect = DROPEFFECT_LINK;
 	}
-        else goto dropeffect_none;
+	else goto dropeffect_none;
     }
     else {
-        // Check if the drag source application allows the drop effect desired by user.
-        // The drag source specifies this in DoDragDrop
-        if (!(*pdwEffect & dwOKEffects))
-            goto dropeffect_none;
-        // We don't accept links
-        //if (*pdwEffect == DROPEFFECT_LINK)
-            //goto dropeffect_none;
+	// Check if the drag source application allows the drop effect desired by user.
+	// The drag source specifies this in DoDragDrop
+	if (!(*pdwEffect & dwOKEffects))
+	    goto dropeffect_none;
+	// We don't accept links
+	//if (*pdwEffect == DROPEFFECT_LINK)
+	    //goto dropeffect_none;
     }
     return TRUE;
 

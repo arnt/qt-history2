@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#141 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -196,11 +196,11 @@ QFont::QFont()
     const QFont * tmp = QApplication::font();
 
     if ( tmp ) {
-        d = tmp->d;
+	d = tmp->d;
 	d->ref();
     } else {          // QApplication has not been constructed.
 	QFont f = QFont( "Helvetica" );
-        d = f.d;
+	d = f.d;
 	d->ref();
     }
 #else
@@ -943,31 +943,31 @@ QString QFont::encodingName( CharSet cs )
 	result = "iso8859-15";
 	break;
     case QFont::KOI8R:
-        result = "KOI8-R";
+	result = "KOI8-R";
 	break;
     case QFont::Set_Ja:
-        result = "Set_Ja";
+	result = "Set_Ja";
 	break;
     case QFont::Set_Ko:
-        result = "Set_Ko";
+	result = "Set_Ko";
 	break;
     case QFont::Set_Th_TH:
-        result = "Set_Th_TH";
+	result = "Set_Th_TH";
 	break;
     case QFont::Set_Zh:
-        result = "Set_Zh";
+	result = "Set_Zh";
 	break;
     case QFont::Set_Zh_TW:
-        result = "Set_Zh_TW";
+	result = "Set_Zh_TW";
 	break;
     case QFont::Set_Big5:
 	 result = "Set_Big5";
 	 break;
     case QFont::AnyCharSet:
-        result = "AnyCharSet";
+	result = "AnyCharSet";
 	break;
     case QFont::Unicode:
-        result = "iso10646";
+	result = "iso10646";
 	break;
     }
     return result;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#75 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -78,8 +78,8 @@ struct QMultiLineData
 	lr_marg(3),
 	echomode(QMultiLineEdit::Normal),
 	val(0),
-        dnd_primed(FALSE),
-        dnd_forcecursor(FALSE),
+	dnd_primed(FALSE),
+	dnd_forcecursor(FALSE),
 	dnd_timer(0)
 		{}
     bool isHandlingEvent;
@@ -478,9 +478,9 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 	    // TODO: set it other times, eg. when scrollbar moves view
 	    QWMatrix wm = painter->worldMatrix();
- 	    setMicroFocusHint( int(wm.dx()+cXPos),
- 			       int (wm.dy()+cYPos),
- 			       1, fm.ascent() );
+	    setMicroFocusHint( int(wm.dx()+cXPos),
+			       int (wm.dy()+cYPos),
+			       1, fm.ascent() );
 	}
     }
     p.end();
@@ -1439,7 +1439,7 @@ void QMultiLineEdit::cursorUp( bool mark, bool clear_mark )
 	if ( cursorY < 0 ) {
 	    cursorY = 0;
 	}
-        cursorX = mapFromView( curXPos, cursorY );
+	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( oldY, 0, FALSE );
@@ -1478,7 +1478,7 @@ void QMultiLineEdit::cursorDown( bool mark, bool clear_mark )
 	if ( cursorY > lastLin ) {
 	    cursorY = lastLin;
 	}
-        cursorX = mapFromView( curXPos, cursorY );
+	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
 	updateCell( oldY, 0, FALSE );
@@ -1943,10 +1943,10 @@ void QMultiLineEdit::dropEvent( QDropEvent* event )
 	    } else {
 		// Do nothing.
 	    }
-        } else {
+	} else {
 	    setCursorPixelPosition(event->pos());
 	    insert(text, TRUE);
-        }
+	}
 	// TODO: mark dropped text (probably in 3 cases above)
     }
 }
@@ -2311,7 +2311,7 @@ void QMultiLineEdit::clipboardChanged()
  void QMultiLineEdit::setWidth( int w )
  {
     if ( w ==d->maxLineWidth )
-        return;
+	return;
      bool u = autoUpdate();
      setAutoUpdate( FALSE );
      d->maxLineWidth = w;
@@ -2683,7 +2683,7 @@ QString QMultiLineEdit::stringShown(int row) const
     if ( !s ) return QString::null;
     switch ( d->echomode ) {
       case Normal:
-    	if (!*s) return QString::fromLatin1("");
+	if (!*s) return QString::fromLatin1("");
 	return *s;
       case Password:
 	{

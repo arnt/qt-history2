@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#91 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#92 $
 **
 ** Implementation of QFile class
 **
@@ -43,7 +43,7 @@
 QCString qt_win95Name(const QString s)
 {
     if ( s[0] == '/' && s[1] == '/' ) {
- 	// Win95 cannot handle slash-slash needs slosh-slosh.
+	// Win95 cannot handle slash-slash needs slosh-slosh.
 	QString ss(s);
 	ss[0] = '\\';
 	ss[1] = '\\';
@@ -240,9 +240,9 @@ bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
-        qWarning( "QFile::remove: Empty or NULL file name" );
+	qWarning( "QFile::remove: Empty or NULL file name" );
 #endif
-        return FALSE;
+	return FALSE;
     }
 #if defined(UNIX)
     return unlink( QFile::encodeName(fileName) ) == 0;	// unlink more common in UNIX

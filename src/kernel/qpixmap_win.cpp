@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#91 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -120,7 +120,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->w = w;
     data->h = h;
     if ( data->optim == MemoryOptim && qt_winver != WV_NT ) {
-        hdc = 0;
+	hdc = 0;
 	if ( allocCell() >= 0 )			// successful
 	    return;
     }
@@ -679,7 +679,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( data->mask ) {
 	    QBitmap bm =
 		data->selfmask ? *((QBitmap*)(&pm)) :
-				         data->mask->xForm(matrix);
+					 data->mask->xForm(matrix);
 	    pm.setMask( bm );
 	}
 	return pm;

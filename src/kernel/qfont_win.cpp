@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#122 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -224,7 +224,7 @@ void QFontCache::deleteItem( Item d )
 
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-                                                // default character set:
+						// default character set:
 // ### Not used until we have support for for codecs on Windows 95/98
 QFont::CharSet     QFont::defaultCharSet = QFont::AnyCharSet;
 

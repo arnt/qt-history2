@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#6 $
 **
 ** Implementation of QResource classes
 **
@@ -341,7 +341,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	if ( item->hasAttrib( "size" ) )
 	  font.setPointSize( item->intAttrib( "size" ) );
 	if ( item->hasAttrib( "weight" ) )
-        {
+	{
 	  QString w = item->attrib( "weight" );
 	  if ( w == "light" )
 	    font.setWeight( QFont::Light );
@@ -374,7 +374,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 
 	if ( item->hasAttrib( "x" ) && item->hasAttrib( "y" ) &&
 	     item->hasAttrib( "width" ) && item->hasAttrib( "height" ) )
-        {
+	{
 	  QRect rect( item->intAttrib( "x" ), item->intAttrib( "y" ),
 		      item->intAttrib( "width" ), item->intAttrib( "height" ) );
 	  return QProperty( rect );
@@ -393,7 +393,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	  return QProperty();
 	
 	if ( item->hasAttrib( "width" ) && item->hasAttrib( "height" ) )
-        {
+	{
 	  QSize size( item->intAttrib( "width" ), item->intAttrib( "height" ) );
 	  return QProperty( size );
 	}
@@ -410,7 +410,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	  return QProperty();
 
 	if ( item->hasAttrib( "x" ) && item->hasAttrib( "y" ) )
-        {
+	{
 	  QPoint point( item->intAttrib( "x" ), item->intAttrib( "y" ) );
 	  return QProperty( point );
 	}
@@ -430,7 +430,7 @@ QProperty QResourceItem::property( const QString& name, QProperty::Type type ) c
 	
 	item = item->firstChild();
 	for( ; item; item = item->nextSibling() )
-        {
+	{
 	  if ( item->type() == "li" )
 	  {  
 	    QString str = "";

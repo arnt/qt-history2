@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#247 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#248 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -804,7 +804,7 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
     e->accept();
     hide();
      if ( parentMenu && parentMenu->isMenuBar )
- 	byeMenuBar();
+	byeMenuBar();
 }
 
 
@@ -831,9 +831,9 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
 	int lastActItem = actItem;
-        actItem = item;
-        if ( actItem != lastActItem && lastActItem >= 0 )
-            updateRow( lastActItem );
+	actItem = item;
+	if ( actItem != lastActItem && lastActItem >= 0 )
+	    updateRow( lastActItem );
 	updateRow( actItem );
 	hilitSig( mi->id() );
     }
@@ -943,9 +943,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
 
-        int lastActItem = actItem;
+	int lastActItem = actItem;
 	actItem = item;
-        if ( lastActItem >= 0 )
+	if ( lastActItem >= 0 )
 	    updateRow( lastActItem );
 	updateRow( actItem );
 	hilitSig( mi->id() );
@@ -1293,19 +1293,19 @@ void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
     connectModalRecursionSafety = doConnect;
 
     if ( doConnect )
-        connect( this, SIGNAL(activated(int)),
-                 receiver, SLOT(modalActivation(int)) );
+	connect( this, SIGNAL(activated(int)),
+		 receiver, SLOT(modalActivation(int)) );
     else
-        disconnect( this, SIGNAL(activated(int)),
-                    receiver, SLOT(modalActivation(int)) );
+	disconnect( this, SIGNAL(activated(int)),
+		    receiver, SLOT(modalActivation(int)) );
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
-        ++it;
-        if ( mi->popup() && mi->popup() != receiver
+	++it;
+	if ( mi->popup() && mi->popup() != receiver
 	     && (bool)(mi->popup()->connectModalRecursionSafety) != doConnect )
-            mi->popup()->connectModal( receiver, doConnect ); //avoid circular
+	    mi->popup()->connectModal( receiver, doConnect ); //avoid circular
     }
 }
 

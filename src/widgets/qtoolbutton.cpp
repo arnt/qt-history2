@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#60 $
 **
 ** Implementation of QToolButton class
 **
@@ -387,13 +387,13 @@ void QToolButton::drawButton( QPainter * p )
     drawButtonLabel( p );
 
     if ( hasFocus() ) {
-        if ( style() == WindowsStyle ) {
-            p->drawWinFocusRect( 3, 3, width()-6, height()-6,
-                                 colorGroup().background() );
-        } else {
-            p->setPen( black );
-            p->drawRect( 3, 3, width()-6, height()-6 );
-        }
+	if ( style() == WindowsStyle ) {
+	    p->drawWinFocusRect( 3, 3, width()-6, height()-6,
+				 colorGroup().background() );
+	} else {
+	    p->setPen( black );
+	    p->drawRect( 3, 3, width()-6, height()-6 );
+	}
     }
 }
 

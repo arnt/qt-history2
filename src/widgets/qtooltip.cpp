@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#92 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -546,9 +546,9 @@ void QTipManager::hideTip()
 
   \code
     QToolTip::add( quitButton, "Leave the application", g,
-                   "Leave the application, without asking for confirmation" );
+		   "Leave the application, without asking for confirmation" );
     QToolTip::add( closeButton, "Close this window", g,
-                   "Close this window, without asking for confirmation" );
+		   "Close this window, without asking for confirmation" );
   \endcode
 
   To add a tip to a fixed rectangle within a widget, call the static
@@ -890,13 +890,13 @@ void QToolTip::clear()
   \code
     QToolTipGroup * g = new QToolTipGroup( this, "tool tip relay" );
     connect( g, SIGNAL(showTip(const QString&)),
-             myLabel, SLOT(setText(const QString&)) );
+	     myLabel, SLOT(setText(const QString&)) );
     connect( g, SIGNAL(removeTip()),
-             myLabel, SLOT(clear()) );
+	     myLabel, SLOT(clear()) );
     QToolTip::add( giraffeButton, "feed giraffe",
-                   g, "Give the giraffe a meal" );
+		   g, "Give the giraffe a meal" );
     QToolTip::add( gorillaButton, "feed gorilla",
-                   g, "Give the gorilla a meal" );
+		   g, "Give the gorilla a meal" );
   \endcode
 
   This example makes the object myLabel (which you have to supply)
@@ -985,7 +985,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.86 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.87 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

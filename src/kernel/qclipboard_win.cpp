@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#36 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -34,7 +34,7 @@
 static HWND nextClipboardViewer = 0;
 static bool inClipboardChain = FALSE;
 extern Qt::WindowsVersion qt_winver;
- 		// defined in qapplication_win.cpp
+		// defined in qapplication_win.cpp
 
 
 static QWidget *clipboardOwner()
@@ -217,10 +217,10 @@ void renderFormat(int cf)
 	    int len = md.size();
 	    //qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
 	    HANDLE h = GlobalAlloc( GHND, len );
-            char *d = (char *)GlobalLock( h );
-            memcpy( d, md.data(), len );
-            SetClipboardData( cf, h );		
-            GlobalUnlock( h );
+	    char *d = (char *)GlobalLock( h );
+	    memcpy( d, md.data(), len );
+	    SetClipboardData( cf, h );		
+	    GlobalUnlock( h );
 	    return;
 	}
     }

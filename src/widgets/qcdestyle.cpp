@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcdestyle.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qcdestyle.cpp#2 $
 **
 ** Implementation of CDE-like style class
 **
@@ -93,7 +93,7 @@ void QCDEStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 
     if ( dim > 3 ) {
 	bFill.resize( dim & 1 ? 3 : 4 );
- 	bTop.resize( 2 );
+	bTop.resize( 2 );
 	bBot.resize( 2 );
 	bLeft.resize( 2 );
 	bLeft.putPoints( 0, 2, 0,0, 0,dim-1 );
@@ -196,7 +196,7 @@ void QCDEStyle::drawIndicator( QPainter* p,
 {
     bool showUp = !down && s == QButton::Off;
     QBrush fill =  down ? g.brush( QColorGroup::Mid )   : 
-                          g.brush( QColorGroup::Button );
+			  g.brush( QColorGroup::Button );
     qDrawShadePanel( p, x, y, w, h, g, !showUp, defaultFrameWidth(), &fill );
 
     if (s != QButton::Off) {
@@ -254,7 +254,7 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     QColor fillColor = on ? g.dark() : g.background();
     p->setPen( fillColor );
     p->setBrush( on ?  g.brush( QColorGroup::Dark )        : 
-                       g.brush( QColorGroup::Background ) );
+		       g.brush( QColorGroup::Background ) );
     p->drawPolygon( a );
 }
 

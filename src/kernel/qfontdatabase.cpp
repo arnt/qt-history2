@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#22 $
 **
 ** Implementation of font database class.
 **
@@ -120,8 +120,8 @@ class QtFontStyle
 {
 public:
     QtFontStyle( QtFontCharSet *prnt, const QString &n )
-	               { p                = prnt;
-		         nm		  = n;
+		       { p                = prnt;
+			 nm		  = n;
 			 bitmapScalable   = FALSE;
 			 smoothlyScalable = FALSE;
 			 weightDirty      = TRUE;
@@ -184,13 +184,13 @@ private:
 class QtFontCharSet {
 public:
     QtFontCharSet( QtFontFamily *prnt, const QString n )
-                          { p                = prnt;
+			  { p                = prnt;
 			    nm               = n;
 			    // charSet          = QFont::AnyCharSet;
 			    dirty            = TRUE;
 			    namesDirty       = TRUE;
-                            bitmapScalable   = FALSE;
-                            smoothlyScalable = FALSE;
+			    bitmapScalable   = FALSE;
+			    smoothlyScalable = FALSE;
 			    normalStyle      = 0;
 			    italicStyle      = 0;
 			    boldStyle        = 0;
@@ -253,14 +253,14 @@ class QtFontFamily
 public:
     QtFontFamily( QtFontFoundry *prnt, const QString &n )
 	{ p                = prnt;
-          nm               = n;
+	  nm               = n;
 	  namesDirty       = TRUE;
-          bitmapScalable   = FALSE;
-          smoothlyScalable = FALSE;
-          scalableDirty    = TRUE;
-          localeDirty      = TRUE;
+	  bitmapScalable   = FALSE;
+	  smoothlyScalable = FALSE;
+	  scalableDirty    = TRUE;
+	  localeDirty      = TRUE;
 	  supportsLocale   = FALSE;
-        }
+	}
 
     const QString &name() const { return nm; }
 
@@ -548,7 +548,7 @@ void QtFontCharSet::refresh() const
 
     bool smooth = TRUE;
     bool bitmap = TRUE;
-                 // Anything bolder than Normal qualifies as bold:
+		 // Anything bolder than Normal qualifies as bold:
     int  bestBoldDiff             = QFont::Bold - QFont::Normal;
     int  bestItalicBoldDiff       = QFont::Bold - QFont::Normal;
     //int  bestLesserItalicBoldDiff = QFont::Bold - QFont::Normal; NOT USED
@@ -747,7 +747,7 @@ const QtFontFamily *QtFontFoundry::family( const QString &n ) const
 static bool localeNeedsSet()
 {
     return QFont::charSetForLocale() >= QFont::Set_1 &&
-           QFont::charSetForLocale() <= QFont::Set_N
+	   QFont::charSetForLocale() <= QFont::Set_N
 	|| QFont::charSetForLocale() == QFont::Set_Big5;
 }
 
@@ -818,7 +818,7 @@ const QtFontFamily *QFontDatabasePrivate::family( const QString &name ) const
 	if ( name.contains('-') ) {
 	    int i = name.find('-');
 	    QString foundryName = name.left( i );
-    	    QString familyName = name.right( name.length() - i - 1 );
+	    QString familyName = name.right( name.length() - i - 1 );
 	    fndry = foundry( foundryName );
 	    if ( fndry ) {
 		fam = fndry->family( familyName );
@@ -1486,7 +1486,7 @@ QString QFontDatabase::charSetSample( const QString &charSetName )
 {
     QFont::CharSet cs = getCharSet( charSetName );
     if ( cs == QFont::AnyCharSet )
-        cs = QFont::ISO_8859_1;
+	cs = QFont::ISO_8859_1;
     return getCharSetSample( cs );
 }
 

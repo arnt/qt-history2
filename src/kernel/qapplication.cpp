@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#277 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#278 $
 **
 ** Implementation of QApplication class
 **
@@ -281,7 +281,7 @@ static QColor * winHighlightColor = 0;
 static void create_palettes()			// creates default palettes
 {
     if ( stdPalette )
-        delete stdPalette;
+	delete stdPalette;
 
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
@@ -308,7 +308,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 {
     // process platform-indep command line
     if ( !is_gui_used )
-        return;
+	return;
 
     int argc = *argcptr;
     int i, j;
@@ -430,8 +430,8 @@ QApplication::QApplication( int &argc, char **argv)
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
-        argc = 0;
-        argv = &empty;
+	argc = 0;
+	argv = &empty;
     }
     qt_init( &argc, argv );   // Must be called before initialize()
     process_cmdline( &argc, argv );
@@ -462,8 +462,8 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
     init_precmdline();
     static char *empty = "";
     if ( argc == 0 || argv == 0 ) {
-        argc = 0;
-        argv = &empty;
+	argc = 0;
+	argv = &empty;
     }
     qt_init( &argc, argv );   // Must be called before initialize()
     process_cmdline( &argc, argv );
@@ -522,9 +522,9 @@ void QApplication::initialize( int argc, char **argv )
 
     if (!app_style) {
 #if defined(_WS_WIN_)
-        app_style = new QWindowsStyle;// default style for Windows
+	app_style = new QWindowsStyle;// default style for Windows
 #elif defined(_WS_X11_)
-        app_style = new QMotifStyle;// default style for X Windows
+	app_style = new QMotifStyle;// default style for X Windows
 #endif
     }
 
@@ -534,8 +534,8 @@ void QApplication::initialize( int argc, char **argv )
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #if 0
     if ( makeqdevel ) {
-        qdevel = new QDeveloper;
-        qdevel->show();
+	qdevel = new QDeveloper;
+	qdevel->show();
     }
 #endif
     // connect to the session manager
@@ -757,10 +757,10 @@ int QApplication::colorSpec()
 	    the \link QApplication::QApplication() -visual \endlink
 	    option.
       <li> For 256-color displays which have a true color visual with more
-            than 256 colors, use that visual.  Silicon Graphics X
-            servers have this feature, for example.  They provide an 8
-            bit visual by default but can deliver true color when
-            asked.
+	    than 256 colors, use that visual.  Silicon Graphics X
+	    servers have this feature, for example.  They provide an 8
+	    bit visual by default but can deliver true color when
+	    asked.
 
     </ul>
   </ul>
@@ -820,30 +820,30 @@ QPalette QApplication::palette(const QWidget* w)
 {
 #if defined(CHECK_STATE)
     if ( !qApp ) {
-        qWarning( "QApplication::palette: This function can only be "
-                  "called after the QApplication object has been created" );
+	qWarning( "QApplication::palette: This function can only be "
+		  "called after the QApplication object has been created" );
     }
 #endif
     if ( !app_pal ) {
-        if ( !stdPalette )
-            create_palettes();
-        app_pal = new QPalette( *stdPalette );
+	if ( !stdPalette )
+	    create_palettes();
+	app_pal = new QPalette( *stdPalette );
     }
 
     if ( w && app_palettes ) {
-        QAsciiDictIterator<QPalette> it( *app_palettes );
-        const char* name;
-        while ( (name=it.currentKey()) != 0 ) {
+	QAsciiDictIterator<QPalette> it( *app_palettes );
+	const char* name;
+	while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->isA(name) )
-                return *it.current();
-            ++it;
-        }
-        it.toFirst();
-        while ( (name=it.currentKey()) != 0 ) {
+		return *it.current();
+	    ++it;
+	}
+	it.toFirst();
+	while ( (name=it.currentKey()) != 0 ) {
 	    if ( w->inherits( name ) )
 		return *it.current();
-            ++it;
-        }
+	    ++it;
+	}
     }
     return *app_pal;
 }
@@ -871,18 +871,18 @@ QPalette QApplication::palette( const QWidget* w, const char* className  )
     if ( w )
 	return palette( w );
     if ( !app_pal ) {
-        if ( !stdPalette )
-            create_palettes();
-        app_pal = new QPalette( *stdPalette );
+	if ( !stdPalette )
+	    create_palettes();
+	app_pal = new QPalette( *stdPalette );
     }
     if ( w && app_palettes ) {
-        QAsciiDictIterator<QPalette> it( *app_palettes );
-        const char* name;
-        while ( (name=it.currentKey()) != 0 ) {
+	QAsciiDictIterator<QPalette> it( *app_palettes );
+	const char* name;
+	while ( (name=it.currentKey()) != 0 ) {
 	    if ( qstrcmp( className, name ) == 0 )
 		return *it.current();
 	    ++it;
-        }
+	}
     }
     return *app_pal;
 }
@@ -977,8 +977,8 @@ QFont QApplication::font( const QWidget* w )
 	}
     }
     if ( !app_font ) {
-        app_font = new QFont( "Helvtica" );
-        CHECK_PTR( app_font );
+	app_font = new QFont( "Helvtica" );
+	CHECK_PTR( app_font );
     }
     return *app_font;
 }
@@ -1129,7 +1129,7 @@ QWidgetList *QApplication::topLevelWidgets()
     QWidgetList	 *list = QApplication::allWidgets();
     QWidgetListIt it( *list );		// iterate over the widgets
     while ( it.current() ) {		// for each top level widget...
-        it.current()->update();
+	it.current()->update();
 	++it;
     }
     delete list;			// delete the list, not the widgets
@@ -2190,7 +2190,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 \code
 void MyApplication::commitData( QSessionManager& sm ) {
     if ( sm.allowsInteraction() ) {
-        switch ( QMessageBox::warning( yourMainWindow, "Application Name",
+	switch ( QMessageBox::warning( yourMainWindow, "Application Name",
 					"Save changes to Document Foo?",
 					tr("&Yes"),
 					tr("&No"),
@@ -2259,22 +2259,22 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   <ul>
   <li> \c RestartIfRunning
-          - This is the default hint. If the application still
-             runs by the time the session is shut down, it shall be
-             restarted.
+	  - This is the default hint. If the application still
+	     runs by the time the session is shut down, it shall be
+	     restarted.
   <li> \c RestartAnyway
-            - Restart the application in the next session, regardless
-            whether it runs at the end of this session or not. This is
-            in particulary useful for configuration utilities that
-            just run during startup and quit themselves after
-            finishing their task.
+	    - Restart the application in the next session, regardless
+	    whether it runs at the end of this session or not. This is
+	    in particulary useful for configuration utilities that
+	    just run during startup and quit themselves after
+	    finishing their task.
   <li> \c RestartImmediately
-          - Ensure that the application runs all the time. If it exits during the
+	  - Ensure that the application runs all the time. If it exits during the
 	  session for whatever reason, restart it immediately.
 	  This might be useful for desktop utilities that are supposed
 	  to run permanentely, for example a file manager.
   <li> \c RestartNever
-          - Do not restart this application under any circumstances.
+	  - Do not restart this application under any circumstances.
   </ul>
 
   The default hint is \c RestartIfRunning. Note that these flags are
@@ -2300,7 +2300,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   defaults to
 
   \code
-               appname -session  id
+	       appname -session  id
   \endcode
 
   The \c -session option is mandatory, otherwise QApplication can not

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#117 $
 **
 ** Implementation of QScrollView class
 **
@@ -1043,19 +1043,19 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
-        case QEvent::DragEnter:
+	case QEvent::DragEnter:
 	    viewportDragEnterEvent( (QDragEnterEvent*)e );
 	    break;
-        case QEvent::DragMove:
+	case QEvent::DragMove:
 	    viewportDragMoveEvent( (QDragMoveEvent*)e );
 	    break;
-        case QEvent::DragLeave:
+	case QEvent::DragLeave:
 	    viewportDragLeaveEvent( (QDragLeaveEvent*)e );
 	    break;
-        case QEvent::Drop:
+	case QEvent::Drop:
 	    viewportDropEvent( (QDropEvent*)e );
 	    break;
-        case QEvent::Wheel:
+	case QEvent::Wheel:
 	    viewportWheelEvent( (QWheelEvent*)e );
 	    break;
 

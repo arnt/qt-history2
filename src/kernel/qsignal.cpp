@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#33 $
 **
 ** Implementation of QSignal class
 **
@@ -219,7 +219,7 @@ void QSignal::initMetaObject()			// initialize meta object
     signal_tbl[0].name = "x(int)";
     signal_tbl[0].ptr = *((QMember*)&v2_0);
     metaObj = QMetaObject::new_metaobject(
-        "QSignal", "QObject",
-        0, 0,
-        signal_tbl, 1 );
+	"QSignal", "QObject",
+	0, 0,
+	signal_tbl, 1 );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#79 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1354,17 +1354,17 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
 	if ( r.tagName() == "ToolBar" )
-        {
+	{
 	    if ( !r.firstChild().toElement().toWidget( this ) )
 		return FALSE;
 	}
 	else if ( r.tagName() == "MenuBar" )
-        {
+	{
 	    QDomElement c = r.firstChild().toElement();
 	    if ( c.isNull() )
 		return FALSE;
 	    if ( c.tagName() != "QMenuBar" )
-            {
+	    {
 		// ## Torben: Can we support derived types, too ?
 		warning("Only <QMenuBar> is allowed inside tag <MenuBar>");
 		return FALSE;
@@ -1375,7 +1375,7 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 		return FALSE;
 	}
 	else if ( r.tagName() == "CentralWidget" )
-        {
+	{
 	    QDomElement ch = r.firstChild().toElement();
 	    if ( ch.tagName() == "Widget" )
 	    {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#28 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -423,7 +423,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
     }
 
     if ( frames_written > 0 )
-        png_set_sig_bytes(png_ptr, 8);
+	png_set_sig_bytes(png_ptr, 8);
 
     if ( image.dotsPerMeterX() > 0 || image.dotsPerMeterY() > 0 ) {
 	png_set_pHYs(png_ptr, info_ptr,
@@ -747,7 +747,7 @@ QImageFormat* QPNGFormatType::decoderFor(
      && buffer[5]==10
      && buffer[6]==26
      && buffer[7]==10)
-        return new QPNGFormat;
+	return new QPNGFormat;
     return 0;
 }
 

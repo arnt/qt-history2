@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#18 $
 **
 ** Implementation of Motif-like style class
 **
@@ -154,7 +154,7 @@ void QMotifStyle::polish( QApplication* a )
 
 void QMotifStyle::drawIndicator( QPainter* p,
 				 int x, int y, int w, int h, const QColorGroup &g,
-			         int s, bool down, bool /*enabled*/ )
+				 int s, bool down, bool /*enabled*/ )
 {
     bool on = s != QButton::Off;
     bool showUp = !(down ^ on);
@@ -195,7 +195,7 @@ void QMotifStyle::drawExclusiveIndicator( QPainter* p,
     p->eraseRect( x, y, w, h );
     p->setPen( NoPen );
     p->setBrush( showUp ? g.brush( QColorGroup::Button ) :
-                          g.brush( QColorGroup::Mid ) )  ;
+			  g.brush( QColorGroup::Mid ) )  ;
     a.translate( x, y );
     p->drawPolygon( a );			// clear inner area
     p->setPen( showUp ? g.light() : g.dark() );
@@ -493,7 +493,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.bottom()-o, r.width()-3, 2),
 			 tb->palette().normal().brush( QColorGroup::Background ));
- 	    p->setPen( tb->colorGroup().background() );
+	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
 // 	    if (o)
 // 		p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
@@ -526,7 +526,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	    p->drawPoint( r.right() - 1, r.top() + 1 );
 	}
     } else if ( tb->shape()  == QTabBar::RoundedBelow ) {
-        if ( selected ) {
+	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
 			 tb->palette().normal().brush( QColorGroup::Background ));
 	    p->setPen( tb->colorGroup().background() );
@@ -541,7 +541,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	}
 
 	p->drawLine( r.right() - 1, r.top(),
-                     r.right() - 1, r.bottom() - 2 );
+		     r.right() - 1, r.bottom() - 2 );
 	p->drawPoint( r.right() - 2, r.bottom() - 2 );
 	p->drawLine( r.right() - 2, r.bottom() - 1,
 		     r.left() + 1, r.bottom() - 1 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#51 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -584,7 +584,7 @@ QImageFormat* QGIFFormatType::decoderFor(
      && buffer[3]=='8'
      && (buffer[4]=='9' || buffer[4]=='7')
      && buffer[5]=='a')
-        return new QGIFFormat;
+	return new QGIFFormat;
     return 0;
 }
 
@@ -1135,7 +1135,7 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
 		    right-left+1);
 	    if (consumer && !out_of_bounds)
-	        consumer->changed(QRect(left, y, right-left+1, my+1));
+		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=top+4; }
 	} break;
@@ -1146,8 +1146,8 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	    for (i=1; i<=my; i++)
 		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
 		    right-left+1);
-    	    if (consumer && !out_of_bounds)
-	        consumer->changed(QRect(left, y, right-left+1, my+1));
+	    if (consumer && !out_of_bounds)
+		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
 	    if (y>bottom) { interlace++; y=top+2; }
 	} break;
@@ -1159,7 +1159,7 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
 		    right-left+1);
 	    if (consumer && !out_of_bounds)
-	        consumer->changed(QRect(left, y, right-left+1, my+1));
+		consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=4;
 	    if (y>bottom) { interlace++; y=top+1; }
 	} break;

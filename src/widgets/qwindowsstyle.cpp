@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#16 $
 **
 ** Implementation of Windows-like style class
 **
@@ -311,7 +311,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     QColor fillColor = down ? g.button() : g.base();
     p->setPen( fillColor );
     p->setBrush( down ?  g.brush( QColorGroup::Button ) :
-                         g.brush( QColorGroup::Base ) ) ;
+			 g.brush( QColorGroup::Base ) ) ;
     p->drawPolygon( a );
     if ( on ) {
 	p->setPen( NoPen );
@@ -356,7 +356,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     if (sunken)
 	drawWinShades( p, x, y, w, h,
 		       g.shadow(), g.light(), g.dark(), g.button(),
-                       fill?fill: &g.brush( QColorGroup::Button ) );
+		       fill?fill: &g.brush( QColorGroup::Button ) );
     else
 	drawWinShades( p, x, y, w, h,
 		       g.light(), g.shadow(), g.midlight(), g.dark(),
@@ -453,8 +453,8 @@ void QWindowsStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 				     const QBrush *fill )
 {
     qDrawWinPanel(p, x, y, w, h, g, TRUE,
-                   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
-                                      &g.brush( QColorGroup::Background )));
+		   fill?fill:(enabled?&g.brush( QColorGroup::Base ):
+				      &g.brush( QColorGroup::Background )));
     // the special reversed left shadow panel ( slightly different from drawPanel() )
     qDrawWinPanel(p, w-2-16,2,16,h-4, g, sunken);
     drawArrow( p, QStyle::DownArrow, sunken,
@@ -502,7 +502,7 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
 			 tb->palette().normal().brush( QColorGroup::Background ));
- 	    p->setPen( tb->colorGroup().background() );
+	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
 // 	    p->drawLine( r.left()+1, r.bottom()-1, r.right()-2, r.bottom()-1 );
 	    p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
@@ -518,7 +518,7 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	p->drawLine( r.left()+2, r.top(),
 		     r.right() - 2, r.top() );
 	if ( r.left() > 0 ) {
- 	    p->setPen( tb->colorGroup().midlight() );
+	    p->setPen( tb->colorGroup().midlight() );
 	}
 	p->drawPoint( r.left(), r.bottom());
 	
@@ -535,10 +535,10 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
 	p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - (selected?1:2));
 	p->drawPoint( r.right() - 1, r.top() + 1 );
     } else if ( tb->shape() == QTabBar::RoundedBelow ) {
-        if ( selected ) {
+	if ( selected ) {
 	    p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
 			 tb->palette().normal().brush( QColorGroup::Background ));
- 	    p->setPen( tb->colorGroup().background() );
+	    p->setPen( tb->colorGroup().background() );
 // 	    p->drawLine( r.left()+1, r.top(), r.right()-2, r.top() );
 	    p->drawLine( r.left()+1, r.top(), r.left()+1, r.bottom()-2 );
 	    p->setPen( tb->colorGroup().dark() );
@@ -607,7 +607,7 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int 
 	sliderLength = (sb->pageStep()*maxLength)/
 			(sb->maxValue()-sb->minValue()+sb->pageStep());
 	uint range = sb->maxValue()-sb->minValue();
- 	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
+	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
 	    sliderLength = SLIDER_MIN;
 	if ( sliderLength > maxLength )
 	    sliderLength = maxLength;
@@ -689,8 +689,8 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
     }
     QBrush br =
 	g.brush( QColorGroup::Light ).pixmap() ?
-                 g.brush( QColorGroup::Light )     :
-                 QBrush(g.light(), Dense4Pattern);
+		 g.brush( QColorGroup::Light )     :
+		 QBrush(g.light(), Dense4Pattern);
     p->setBrush( br );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
@@ -703,8 +703,8 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 	    QColor c = p->backgroundColor();
 // 	    p->fillRect( AddPage == activeControl? addPageR : subPageR, g.fillDark() );
 	    p->setBackgroundColor( g.dark() );
- 	    p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
- 	    p->drawRect( AddPage == activeControl? addPageR : subPageR );
+	    p->setBrush( QBrush(g.shadow(), Dense4Pattern) );
+	    p->drawRect( AddPage == activeControl? addPageR : subPageR );
 	    p->setBackgroundColor( c );
 	    p->setBrush( b );
 	}

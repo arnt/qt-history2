@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#321 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#322 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -404,8 +404,8 @@ static void qt_set_windows_resources()
 			 disabled, Qt::white, Qt::white, cg.background() );
 	
 	QPalette pal(cg, dcg, cg);
- 	QApplication::setPalette( pal, TRUE, "QPopupMenu");
- 	QApplication::setPalette( pal, TRUE, "QMenuBar");
+	QApplication::setPalette( pal, TRUE, "QPopupMenu");
+	QApplication::setPalette( pal, TRUE, "QMenuBar");
     }
 
     QColor ttip(colorref2qrgb(GetSysColor(COLOR_INFOBK)));
@@ -423,7 +423,7 @@ static void qt_set_windows_resources()
 			 disabled, Qt::white, Qt::white, cg.background() );
 	
 	QPalette pal(cg, dcg, cg);
- 	QApplication::setPalette( pal, TRUE, "QTipLabel");
+	QApplication::setPalette( pal, TRUE, "QTipLabel");
     }
 }
 
@@ -582,7 +582,7 @@ static void msgHandler( QtMsgType t, const char* str )
     s += "\n";
     OutputDebugStringA( s.data() );
     if ( t == QtFatalMsg )
-        ExitProcess( 1 );
+	ExitProcess( 1 );
 }
 
 
@@ -1706,10 +1706,10 @@ void QApplication::closePopup( QWidget *popup )
 	    else
 		active_window->setFocus();
     } else {
- 	// Popups are not focus-handled by the window system (the
- 	// first popup grabbed the keyboard), so we have to do that
- 	// manually: A popup was closed, so the previous popup gets
- 	// the focus.
+	// Popups are not focus-handled by the window system (the
+	// first popup grabbed the keyboard), so we have to do that
+	// manually: A popup was closed, so the previous popup gets
+	// the focus.
 	 active_window = popupWidgets->getLast();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
@@ -2191,7 +2191,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		    setAutoCapture( w->winId() );
 		QMouseEvent* e = new QMouseEvent( type,
 				      w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
-			              QPoint(gpos.x,gpos.y), button, state );
+				      QPoint(gpos.x,gpos.y), button, state );
 		QApplication::postEvent( w, e );
 	    }
 	}
@@ -2432,11 +2432,11 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     else {
 	int code = translateKeyCode( msg.wParam );
 	// If the bit 24 of lParm is set you received a enter,
-        // otherwise a Return. (This is the extended key bit)
+	// otherwise a Return. (This is the extended key bit)
 	if ((code == Qt::Key_Return) && (msg.lParam & 0x1000000))
 	    code = Qt::Key_Enter;
 	int t = msg.message;
-        if ( t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN ) {
+	if ( t == WM_KEYDOWN || t == WM_IME_KEYDOWN || t == WM_SYSKEYDOWN ) {
 	    // KEYDOWN
 	    KeyRec* rec = find_key_rec( msg.wParam, FALSE );
 	    // Find uch
@@ -2452,7 +2452,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( t == WM_SYSKEYDOWN &&
 		     uch.isLetter() && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
-    		    uch = uch.lower(); //Alt-letter
+		    uch = uch.lower(); //Alt-letter
 		}
 		if ( !code && !uch.row() )
 		    code = asciiToKeycode(uch.cell(), state);
@@ -2518,7 +2518,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    }
 	
 
-        } else {
+	} else {
 	    // Must be KEYUP
 	    KeyRec* rec = find_key_rec( msg.wParam, TRUE );
 	    if ( !rec ) {
@@ -2532,7 +2532,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		if ( code == Qt::Key_Alt )
 		    k0 = TRUE; // don't let window see the meta key
 	    }
-        }
+	}
     }
 
     return k0 || k1;

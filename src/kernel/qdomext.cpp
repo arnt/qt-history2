@@ -385,7 +385,7 @@ void QDomElement::setProperty( const QString& name, const QVariant& prop )
   case QVariant::Pixmap:
     {
 	if ( !prop.pixmapValue().isNull() )
-        {
+	{
 	    QString n = ownerDocument().mimeSourceFactory()->pixmapName( prop.pixmapValue() );
 	    ASSERT( !n.isEmpty() );
 	    setAttribute( name, n );

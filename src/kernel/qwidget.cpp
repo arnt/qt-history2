@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#465 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#466 $
 **
 ** Implementation of QWidget class
 **
@@ -245,7 +245,7 @@
 	testWFlags().
 
   <li> What's this help:
-  	customWhatsThis()
+	customWhatsThis()
   </ul>
 
   Every widget's constructor accepts two or three standard arguments:
@@ -473,14 +473,14 @@ static
 QPalette default_palette( QWidget *parent )
 {
     return parent ? parent->palette()           // use parent's palette
-           : QApplication::palette();
+	   : QApplication::palette();
 }
 // helper function - borland needs it.
 static
 QFont default_font( QWidget *parent )
 {
     return parent ? parent->font()           // use parent's font
-           : QApplication::font();
+	   : QApplication::font();
 }
 
 /*!
@@ -558,7 +558,7 @@ QFont default_font( QWidget *parent )
   Example:
   \code
     QLabel *toolTip = new QLabel( 0, "myToolTip",
-			 	  WStyle_Customize | WStyle_NoBorder |
+				  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
 
@@ -590,7 +590,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     if ( isTopLevel() ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
+	    fd->focusWidgets.append( this );
     } else {
 	if ( !parentWidget()->isEnabled() )
 	    setWState( WState_Disabled );
@@ -2807,7 +2807,7 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
     if ( policy ) {
 	QFocusData * f = focusData( TRUE );
 	if ( f->focusWidgets.findRef( this ) < 0 )
- 	    f->focusWidgets.append( this );
+	    f->focusWidgets.append( this );
     }
     focus_policy = (uint)policy;
 }
@@ -3359,7 +3359,7 @@ QSize QWidget::minimumSizeHint() const
   <dt>WState_Disabled<dd> The widget does not receive any mouse
        or keyboard events.
   <dt>WState_ForceDisabled<dd> The widget is explicitely disabled, i.e. it will remain
-        disabled even when all its ancestors are set to enabled
+	disabled even when all its ancestors are set to enabled
 	state. This implies WState_Disabled.
   <dt>WState_Visible<dd> The widget is currently visible.
   <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e.it will remain invisible
@@ -3381,7 +3381,7 @@ QSize QWidget::minimumSizeHint() const
   <dt>WState_FontSet<dd> The font has been set.
   <dt>WState_FontFixed<dd> The widget has a fixed font.
   <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
-           window system by the program itself.
+	   window system by the program itself.
   </dl>
 
   Widget type flags:
@@ -3424,10 +3424,10 @@ QSize QWidget::minimumSizeHint() const
   <dt>WMouseNoMask<dd> Even if the widget has a mask, mouse events
 			are delivered for the entire rectangle.
   <dt>WNorthWestGravity<dd> Indicates that the widget contents is
-                                        north-west aligned and static. On resize, you will
-                                        recieve paint events consequentely only for the
+					north-west aligned and static. On resize, you will
+					recieve paint events consequentely only for the
 			newly visible parts of the widget.
-                                        This allows even more smart-repainting to
+					This allows even more smart-repainting to
 			avoid even more flicker.   In case you need
 			to repaint areas in addition (what shouldn't
 			be the case with true north-west gravity),
@@ -4199,7 +4199,7 @@ void QWidget::setPalettePropagation( PropagationMode m )
 
     \code
     if ( autoMask() )
-          updateMask();
+	  updateMask();
     \endcode
 
     at the end of your event handlers. Same holds for all member

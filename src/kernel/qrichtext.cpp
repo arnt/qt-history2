@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#32 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -351,8 +351,8 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    lastDesc = rdesc;
 	    lastWidth = tx;
 	    lastBearing = fm.minRightBearing();
- 	    if (noSpaceFound && prev->isSpace())
- 		noSpaceFound = FALSE;
+	    if (noSpaceFound && prev->isSpace())
+		noSpaceFound = FALSE;
 	}
 	if ( prev->isNewline() )
 	    break;
@@ -560,10 +560,10 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	    if (it->isSimpleNode) {
 		// Get rid of garbage at last of line (\n etc. at visible
 		// on Windows. ### Matthias: Fix in parser?
- 		int len = s.length();
- 		if ( len > 0 && s[len-1] < (char)32 ) {
- 		   len--;
- 		}
+		int len = s.length();
+		if ( len > 0 && s[len-1] < (char)32 ) {
+		   len--;
+		}
 		p->drawText(tx+obx-ox, y+oby-oy+base, s, len);
 	    }
 	    else {
@@ -597,7 +597,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 			else
 			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *to.paper);
 		    }
- 		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
+		    ((QTextCustomNode*)*it)->draw(p,tx+obx,y+oby+base-h,
 						  ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, to);
 		
 		    if ( it->isSelected ) {
@@ -1077,9 +1077,9 @@ void QTextBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int 
 	QTextRow* row = rows.first();
 	QRect r (obx-ox + row->x - 25, oby-oy + row->y, 25, row->height); //#### label width
 	if ( to.paper ) {
- 	    if ( to.paper->pixmap() )
- 		p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
- 	    else
+	    if ( to.paper->pixmap() )
+		p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
+	    else
 		p->fillRect(r, *to.paper );
 	}
 	
@@ -1223,7 +1223,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
     widthUsed *= ncols;
     colwidth = QMAX( width, widthUsed) / ncols;
     if (colwidth < 10)
- 	colwidth = 10;
+	colwidth = 10;
 
     if (!oldRows.isEmpty() || ncols > 1 ) {
 	// do multi columns if required. Also check with the old rows to
@@ -1274,7 +1274,7 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 	height += QMAX( ((QTextContainer*)next)->style->margin( QStyleSheetItem::MarginTop), marginbottom);
     } else {
 	// nothing to collapse
-        height += marginbottom;
+	height += marginbottom;
     }
 }
 
@@ -2048,10 +2048,10 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 	
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
- 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
- 		pos = beforePos;
- 		return FALSE;
- 	    }
+	    if ( nstyle && !nstyle->selfNesting() && ( tagname == current->style->name() ) ) {
+		pos = beforePos;
+		return FALSE;
+	    }
 
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
 		QString msg;
@@ -2174,8 +2174,8 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
 		n->isLastSibling = 1;
 		lastChild = n;
 		//l = n; NOT USED
- 		if (!pre && doc[pos] == '<')
- 		    (void) eatSpace(doc, pos);
+		if (!pre && doc[pos] == '<')
+		    (void) eatSpace(doc, pos);
 	    }
 	}
     }
@@ -2216,23 +2216,23 @@ QMap<QCString, QChar> *htmlMap()
     if ( !html_map ){
 	html_map = new QMap<QCString, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
-  	html_map->insert("lt", '<');
-  	html_map->insert("gt", '>');
-  	html_map->insert("amp", '&');
-  	html_map->insert("nbsp", 0x00a0U);
-  	html_map->insert("aring", 'å');
-  	html_map->insert("oslash", 'ø');
-  	html_map->insert("ouml", 'ö');
-  	html_map->insert("auml", 'ä');
-  	html_map->insert("uuml", 'ü');
-  	html_map->insert("Ouml", 'Ö');
-  	html_map->insert("Auml", 'Ä');
-  	html_map->insert("Uuml", 'Ü');
-  	html_map->insert("szlig", 'ß');
-  	html_map->insert("copy", '©');
-  	html_map->insert("deg", '°');
-  	html_map->insert("micro", 'µ');
-  	html_map->insert("plusmn", '±');
+	html_map->insert("lt", '<');
+	html_map->insert("gt", '>');
+	html_map->insert("amp", '&');
+	html_map->insert("nbsp", 0x00a0U);
+	html_map->insert("aring", 'å');
+	html_map->insert("oslash", 'ø');
+	html_map->insert("ouml", 'ö');
+	html_map->insert("auml", 'ä');
+	html_map->insert("uuml", 'ü');
+	html_map->insert("Ouml", 'Ö');
+	html_map->insert("Auml", 'Ä');
+	html_map->insert("Uuml", 'Ü');
+	html_map->insert("szlig", 'ß');
+	html_map->insert("copy", '©');
+	html_map->insert("deg", '°');
+	html_map->insert("micro", 'µ');
+	html_map->insert("plusmn", '±');
     }
     return html_map;
 }
