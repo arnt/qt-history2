@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#12 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,12 +18,14 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#12 $";
 #endif
 
 /*!
 \class QComboBox qcombo.h
 \brief The QComboBox widget is a combined button and popup list.
+
+\ingroup realwidgets
 
 A combo box is a kind of popup menu that is opened by pressing a button.
 The popup list contains a number of string/pixmap items.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#19 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#19 $";
 #endif
 
 
@@ -22,6 +22,9 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#18 $";
   \class QFrame qframe.h
   \brief The QFrame class is the base class of widgets that have an (optional)
   frame.
+
+  \ingroup abstractwidgets
+  \ingroup realwidgets
 
   The QLabel and QGroupBox widgets are examples of widgets that inherit
   QFrame to allow frames around these widgets.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#11 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,13 +16,15 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#11 $";
 #endif
 
 
 /*!
 \class QButtonGroup qbttngrp.h
 \brief The QButtonGroup widget organizes QButton widgets in a group.
+
+\ingroup realwidgets
 
 A button group widget makes it easier to deal with groups of buttons.  A
 button in a button group can be associated with a unique identifer. The
