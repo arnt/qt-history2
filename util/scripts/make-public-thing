@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#1 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#2 $
 
 use File::Find;
 
@@ -43,6 +43,8 @@ sub copy {
     }
 }
 
+die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf';
+    if ( ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf" );
 
 ($junk, $junk, $junk, $d, $m, $y, $junk, $junk, $junk) =
   localtime( time() - 30 * 86400 );
@@ -71,11 +73,26 @@ cd qt
 cp gif/*.gif doc/html
 export QTDIR=$base/head/qt
 make -C src include
+
+# Generate and check-in documentation
 perl util/qdoc/qdoc
 cd doc/html
 mkdir $base/cvs/qt/html
 cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
-for B in *.html ; do ci -mnone -t-'' -u \$B ../../../../cvs/qt/html/\${B},v ; done
+for B in *.html
+do
+  ci -mnone -t-'' -u \$B ../../../../cvs/qt/html/\${B},v
+done
+cd ../..
+
+# Generate and check-in X11 Makefiles
+export QTDIR=$base/cvs/qt
+for B in `util/scripts/makeunixmake -p`
+do
+  cd \$(dirname \$B)
+  ci -mnone -t-'' -u \$(basename \$B)
+done
+
 cd $base/cvs/qt
 mv gif/*.gif,v html
 rm -rf bin bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
