@@ -32,8 +32,8 @@
 
 #include <qtextstream.h>
 #include <qobjectlist.h>
-#include <qlabel.h>
 #include <qsettings.h>
+#include <qsplashscreen.h>
 #include <qdir.h>
 
 #include <stdlib.h>
@@ -47,10 +47,6 @@
 #if defined(Q_WS_WIN)
 #include <qt_windows.h>
 #include <process.h>
-#endif
-
-#if defined(Q_WS_X11)
-extern void qt_wait_for_window_manager( QWidget* );
 #endif
 
 #if defined(Q_OS_UNIX)
@@ -185,7 +181,7 @@ int main( int argc, char *argv[] )
     qInitImages_designer();
 #endif
 
-    QLabel *splash = a.showSplash();
+    QSplashScreen *splash = a.showSplash();
 
     MainWindow *mw = new MainWindow( creatPid );
     a.setMainWidget( mw );
@@ -205,9 +201,8 @@ int main( int argc, char *argv[] )
     } else {
 	mw->show();
     }
-#if defined(Q_WS_X11)
-    qt_wait_for_window_manager( mw );
-#endif
+    if ( splash )
+	splash->finish( mw );
     delete splash;
 
     QApplication::restoreOverrideCursor();

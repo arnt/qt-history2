@@ -26,27 +26,23 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qsettings.h>
-#include <qlabel.h>
-#include <qpainter.h>
+#include <qsplashscreen.h>
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
 #include <process.h>
 #endif
 
-static QLabel *splash = 0;
+static QSplashScreen *splash = 0;
 
 void set_splash_status( const QString &txt )
 {
     if ( !splash )
 	return;
-    splash->repaint( FALSE );
-    QPainter p( splash );
-    p.setPen( Qt::black );
-    p.drawText( splash->width() - splash->fontMetrics().width( txt ) - 5, splash->fontMetrics().height(), txt );
-    QString s = "Licensed to " + QString::fromLatin1( QT_PRODUCT_LICENSEE );
-    p.drawText( splash->width() - splash->fontMetrics().width( s ) - 5, 2 * splash->fontMetrics().height() + 1, s );
-    QApplication::flush();
+    QString splashText = "Licensed to "
+			 + QString::fromLatin1( QT_PRODUCT_LICENSEE ) + "\n"
+			 + txt;
+    splash->setStatus( splashText, Qt::AlignRight|Qt::AlignTop );
 }
 
 DesignerApplication::DesignerApplication( int &argc, char **argv )
@@ -54,13 +50,13 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
 {
 #if defined(Q_WS_WIN)
     if ( winVersion() & Qt::WV_NT_based )
-	    DESIGNER_OPENFILE = RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE");
+	DESIGNER_OPENFILE = RegisterWindowMessage((TCHAR*)"QT_DESIGNER_OPEN_FILE");
     else
-	    DESIGNER_OPENFILE = RegisterWindowMessageA("QT_DESIGNER_OPEN_FILE");
+	DESIGNER_OPENFILE = RegisterWindowMessageA("QT_DESIGNER_OPEN_FILE");
 #endif
 }
 
-QLabel *DesignerApplication::showSplash()
+QSplashScreen *DesignerApplication::showSplash()
 {
     QRect screen = QApplication::desktop()->screenGeometry();
     QSettings config;
@@ -76,16 +72,8 @@ QLabel *DesignerApplication::showSplash()
     screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
 
     if ( show ) {
-	splash = new QLabel( 0, "splash", WDestructiveClose | WStyle_Customize | WStyle_NoBorder | WX11BypassWM | WStyle_StaysOnTop );
-	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( QPixmap::fromMimeSource( "designer_splash.png" ) );
-	splash->adjustSize();
-	splash->setFixedSize(splash->sizeHint());
-	splash->setCaption( "Qt Designer" );
-	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
+	splash = new QSplashScreen( QPixmap::fromMimeSource("designer_splash.png") );
 	splash->show();
-	splash->repaint( FALSE );
-	QApplication::flush();
 	set_splash_status( "Initializing..." );
     }
 

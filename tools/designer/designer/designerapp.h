@@ -21,8 +21,7 @@
 #ifndef DESIGNERAPP_H
 #define DESIGNERAPP_H
 
-class QLabel;
-
+class QSplashScreen;
 
 #include <qapplication.h>
 
@@ -33,7 +32,7 @@ public:
 
     DesignerApplication( int &argc, char **argv );
 
-    QLabel *showSplash();
+    QSplashScreen *showSplash();
     static void closeSplash();
 
     static QString settingsKey();
@@ -49,6 +48,5 @@ protected:
 #endif
 
 };
-
 
 #endif
