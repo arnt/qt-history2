@@ -383,7 +383,7 @@ QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 }
 
 
-static const char * button_image[] = {
+static const char * const button_image[] = {
 "16 16 3 1",
 " 	c None",
 "o	c #000000",
@@ -409,7 +409,7 @@ static const char * button_image[] = {
 QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     : QToolButton( parent, name )
 {
-    QPixmap p( button_image );
+    QPixmap p( (const char**)button_image );
     setPixmap( p );
     setToggleButton( TRUE );
     setAutoRaise( TRUE );
