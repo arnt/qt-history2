@@ -472,22 +472,19 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     }
 
     if(p && p->type() == QPaintEngine::QuickDraw) {
-	if(widget && !widget->isTopLevel()) { //offset correctly..
-	    QPoint pos = posInWindow(widget);
-	    x += pos.x();
-	    y += pos.y();
-	}
-
+	QPoint pt;
 	QRegion rgn;
 	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
-	mgc->setupQDPort(false, 0, &rgn);
+	mgc->setupQDPort(false, &pt, &rgn);
+	x += pt.x();
+	y += pt.y();
 	if(task & DRAW) { //we need to flip the translation here because we flip it internally
 	    QVector<QRect> rs = rgn.rects();
 	    qDebug("draw (%s)", QString(s, use_len).latin1());
 	    for(int i = 0; i < rs.count(); i++)
 		qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
-	    extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
-	    qt_mac_clip_cg(ctx, rgn, 0);
+//	    extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
+//	    qt_mac_clip_cg(ctx, rgn, 0);
 	}
 
 	ATSUFontID fond;
