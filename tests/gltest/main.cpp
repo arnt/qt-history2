@@ -20,6 +20,17 @@ int main( int argc, char ** argv ) {
 	GLInfo info(0);
 	info.resize( 640, 480 );
 	res = info.exec();
+    } else if ( argc > 1 && QString(argv[1]) == "-l" ) {
+	GLInfo info(0);
+	QString s = info.getText();
+	QStringList l = info.getViewList();
+	qWarning( s );
+	//         .... .. ....... . .. . .... . . . . . . . .. .. .. .. .. .. . .
+	qWarning( " Id  CB Draw to T Bz L Type D S R G B A X Dp St Ra Ga Ba Aa N B\n"
+		  "---------------------------------------------------------------" );
+	QStringList::ConstIterator it;
+	for ( it = l.begin(); it != l.end(); ++it )
+	    qWarning( *it );
     } else {
 	ApplicationWindow * mw = new ApplicationWindow();
 	mw->setCaption( "Qt Example - Open GL (MDI)" );

@@ -81,7 +81,7 @@ protected:
     void print_extension_list(const char *ext);
     void print_visual_info(Display *dpy, int scrnum);
 #elif defined(Q_WS_WIN)
-	void VisualInfo(HDC hDC);
+    void VisualInfo( HDC hDC );
 #endif
 };
 

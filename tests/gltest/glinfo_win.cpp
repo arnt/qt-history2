@@ -129,17 +129,17 @@ QString GLInfo::getText()
     dc = GetDC( winId() );
     VisualInfo( dc );	
     ReleaseDC( winId(), dc );
-
     return *infotext;
 }
 
 QStringList GLInfo::getViewList()
 {
-  return *viewlist;
+    return *viewlist;
 }
 
-void GLInfo::VisualInfo(HDC hDC)
+void GLInfo::VisualInfo( HDC hDC )
 {
+    QStringList list;
     QString str;
     int i, maxpf;
     PIXELFORMATDESCRIPTOR pfd;
@@ -147,7 +147,6 @@ void GLInfo::VisualInfo(HDC hDC)
     /* calling DescribePixelFormat() with NULL args return maximum
        number of pixel formats */
     maxpf = DescribePixelFormat(hDC, 0, 0, NULL);
-	
 	
     /* loop through all the pixel formats */
     for(i = 1; i <= maxpf; i++) { 
@@ -159,15 +158,15 @@ void GLInfo::VisualInfo(HDC hDC)
 	    continue;
 		
 	/* print out the information for this pixel format */
-	str.sprintf("0x%02x %d ", i, pfd.cColorBits);
+	str.sprintf("0x%02x %2d ", i, pfd.cColorBits);
 		
 	//printf("%2d ", pfd.cColorBits);
 	if(pfd.dwFlags & PFD_DRAW_TO_WINDOW && pfd.dwFlags & PFD_DRAW_TO_BITMAP )
 	    str.sprintf("%swin/bmp ", (const char*)str);
 	else if(pfd.dwFlags & PFD_DRAW_TO_WINDOW )
-	    str.sprintf("%swindow ", (const char*)str);
+	    str.sprintf("%swindow  ", (const char*)str);
 	else if(pfd.dwFlags & PFD_DRAW_TO_BITMAP) 
-	    str.sprintf("%sbitmap ", (const char*)str);
+	    str.sprintf("%sbitmap  ", (const char*)str);
 	else 
 	    str.sprintf("%s. ", (const char*)str);
 		
@@ -175,74 +174,22 @@ void GLInfo::VisualInfo(HDC hDC)
 	str.sprintf("%s0 %2d ", (const char*)str, pfd.cColorBits);
 		
 	/* bReserved field indicates number of over/underlays */
-	if(pfd.bReserved) 
-	    str.sprintf("%s%d ", (const char*)str, pfd.bReserved);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.iPixelType == PFD_TYPE_RGBA)
-	    str.sprintf("%srgba ", (const char*)str);
-	else
-	    str.sprintf("%scolor_index ", (const char*)str);
-
+	str.sprintf("%s%d ", (const char*)str, pfd.bReserved);
+	str.sprintf("%srgba ", (const char*)str);
 	str.sprintf("%s%c %c ", (const char*)str, 
 		    pfd.dwFlags & PFD_DOUBLEBUFFER ? 'y' : 'n',
 		    pfd.dwFlags & PFD_STEREO ? 'y' : 'n');
-		
-	if(pfd.cRedBits && pfd.iPixelType == PFD_TYPE_RGBA)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cRedBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str); 
-		
-	if(pfd.cGreenBits && pfd.iPixelType == PFD_TYPE_RGBA)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cGreenBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cBlueBits && pfd.iPixelType == PFD_TYPE_RGBA)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cBlueBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAlphaBits && pfd.iPixelType == PFD_TYPE_RGBA)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAlphaBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAuxBuffers)     
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAuxBuffers);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cDepthBits)      
-	    str.sprintf("%s%d ", (const char*)str, pfd.cDepthBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cStencilBits)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cStencilBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAccumRedBits)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumRedBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAccumGreenBits)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumGreenBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAccumBlueBits)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumBlueBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
-		
-	if(pfd.cAccumAlphaBits)
-	    str.sprintf("%s%d ", (const char*)str, pfd.cAccumAlphaBits);
-	else 
-	    str.sprintf("%s0 ", (const char*)str);
+	str.sprintf("%s%d ", (const char*)str, pfd.cRedBits);
+	str.sprintf("%s%d ", (const char*)str, pfd.cGreenBits);
+	str.sprintf("%s%d ", (const char*)str, pfd.cBlueBits);
+	str.sprintf("%s%d ", (const char*)str, pfd.cAlphaBits);
+	str.sprintf("%s%d ", (const char*)str, pfd.cAuxBuffers);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cDepthBits);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cStencilBits);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cAccumRedBits);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cAccumGreenBits);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cAccumBlueBits);
+	str.sprintf("%s%2d ", (const char*)str, pfd.cAccumAlphaBits);
 
 	/* no multisample in Win32 */
 	str.sprintf("%s0 0", (const char*)str);
