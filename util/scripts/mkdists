@@ -621,12 +621,12 @@ for plat in mac win x11 embedded; do
 	dist_for_edition=$edition
 	case $edition in
 	enterprise|enterprise-US)
-	    [ "$edition" = "us-enterprise" ] && [ "$pack_US" = "no" ] && continue
+	    [ "$edition" = "enterprise-US" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
 	professional|professional-US)
-	    [ "$edition" = "us-professional" ] && [ "$pack_US" = "no" ] && continue
+	    [ "$edition" = "professional-US" ] && [ "$pack_US" = "no" ] && continue
 	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
