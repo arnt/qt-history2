@@ -53,6 +53,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qsettings.h"
+#include "qpopupmenu.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* name );
@@ -319,9 +320,8 @@ void QWellArray::setSelected( int row, int col )
     if ( row >= 0 )
 	emit selected( row, col );
 
-    if ( isVisible() && parentWidget() && parentWidget()->inherits("QPopupMenu") )
+    if ( isVisible() && ::qt_cast<QPopupMenu>(parentWidget()) )
 	parentWidget()->close();
-
 }
 
 

@@ -41,6 +41,7 @@
 #include "qapplication.h"
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
+#include "qtoolbar.h"
 
 /*!
     \class QLayoutItem
@@ -746,7 +747,7 @@ QWidget * QLayout::mainWidget()
 {
     if ( !topLevel ) {
 	if ( parent() ) {
-	    Q_ASSERT( parent()->inherits( "QLayout" ) );
+	    Q_ASSERT( ::qt_cast<QLayout>(parent()) );
 	    return ((QLayout*)parent())->mainWidget();
 	} else {
 	    return 0;
@@ -866,7 +867,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 		QWidget *w = (QWidget *)c->child();
 		if ( !w->isTopLevel() ) {
 #ifndef QT_NO_MENUBAR
-		    if ( w->inherits( "QMenuBar" ) && ( !w->parent() || !w->parent()->inherits( "QToolBar" ) ) )
+		    if ( ::qt_cast<QMenuBar>(w) && ( !w->parent() || !::qt_cast<QToolBar>(w) ) )
 			menubar = (QMenuBar *)w;
 		    else
 #endif
