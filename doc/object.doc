@@ -214,7 +214,7 @@ by some compiler vendors. However, as a compiler- and
 platform-independent library, Qt cannot rely on non-standard compiler
 features like \c __property or \c [property]. Our solution works with
 any standard C++ compiler on every platform we support. It's based on
-the meta object System that also provides object communication through
+the meta-object system that also provides object communication through
 signals and slots.
 
 The \c Q_PROPERTY macro in a class declaration declares a
