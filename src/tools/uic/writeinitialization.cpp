@@ -838,8 +838,6 @@ void WriteInitialization::initializeListView(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
-    refreshOut << option.indent << varName << "->clear();\n";
-
     // columns
     QList<DomColumn*> columns = w->elementColumn();
     for (int i=0; i<columns.size(); ++i) {
@@ -869,7 +867,11 @@ void WriteInitialization::initializeListView(DomWidget *w)
         }
     }
 
-    initializeListViewItems(className, varName, w->elementItem());
+    if (w->elementItem().size()) {
+        refreshOut << option.indent << varName << "->clear();\n";
+
+        initializeListViewItems(className, varName, w->elementItem());
+    }
 }
 
 void WriteInitialization::initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
