@@ -47,8 +47,10 @@ public:
     static const Q_INT8 decimal_info[];
     static const Q_UINT16 symmetricPairs[];
     static const int symmetricPairsSize;
-#endif
     static const Q_UINT8 line_break_info[];
+#else
+    static const Q_UINT8 latin1_line_break_info[];
+#endif
     static const unsigned char otherScripts[];
     static const unsigned char indicScripts[];
     static const unsigned char scriptTable[];
@@ -193,8 +195,13 @@ inline bool isSpace( const QChar &ch )
 
 inline int lineBreakClass( const QChar &ch )
 {
+#ifdef QT_NO_UNICODETABLES
+    return ch.row() ? QUnicodeTables::LineBreak_AL
+	: QUnicodeTables::latin1_line_break_info[ch.cell()];
+#else
     register int pos = ((int)QUnicodeTables::line_break_info[ch.row()] << 8) + ch.cell();
     return QUnicodeTables::line_break_info[pos];
+#endif
 }
 
 inline int scriptForChar( ushort uc )
