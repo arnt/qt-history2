@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#6 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#7 $
 **
 ** Definition of QIconView widget class
 **
@@ -102,6 +102,23 @@ protected:
     QString startText;
 
 };
+
+/*****************************************************************************
+ *
+ * Class QIconViewBackground
+ *
+ *****************************************************************************/
+
+class QIconViewBackground
+{
+public:
+    QIconViewBackground();
+    
+    virtual void paint( QPainter *p, const QRect &rect, int xOffset, int yOffset,
+                        const QSize &size ) = 0;
+    
+};
+
 
 /*****************************************************************************
  *
@@ -239,7 +256,7 @@ public:
         Fixed = 0,
         Adjust
     };
-    
+
     QIconView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QIconView();
 
@@ -282,9 +299,12 @@ public:
 
     virtual void setAlignMode( AlignMode am );
     virtual AlignMode alignMode() const;
-    
+
     virtual void setResizeMode( ResizeMode am );
     virtual ResizeMode resizeMode() const;
+
+    virtual void setBackground( QIconViewBackground *bg, bool deleteOld = TRUE );
+    virtual QIconViewBackground* background() const;
 
 signals:
     void dropped( QDropEvent *e );

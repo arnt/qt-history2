@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#10 $
 **
 ** Definition of QIconView widget class
 **
@@ -109,6 +109,7 @@ struct QIconViewPrivate
     QIconView::AlignMode alignMode;
     QIconView::ResizeMode resizeMode;
     int mostOuter;
+    QIconViewBackground *bg;
 };
 
 /*****************************************************************************
@@ -135,6 +136,16 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
         emit returnPressed();
     else
         QMultiLineEdit::keyPressEvent( e ) ;
+}
+
+/*****************************************************************************
+ *
+ * Struct QIconViewBackground
+ *
+ *****************************************************************************/
+
+QIconViewBackground::QIconViewBackground()
+{
 }
 
 /*****************************************************************************
@@ -713,7 +724,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->resizeMode = Fixed;
     d->mostOuter = 0;
     d->dropped = FALSE;
-
+    d->bg = 0;
+    
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -723,7 +735,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setFocusPolicy( QWidget::StrongFocus );
     viewport()->setFocusPolicy( QWidget::StrongFocus );
 
-    viewport()->setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( NoBackground );
     viewport()->setFocusProxy( this );
 }
 
@@ -924,8 +936,18 @@ void QIconView::doAutoScroll()
 
 void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    p->fillRect( cx, cy, cw, ch, colorGroup().base() );
-
+    if ( !d->bg )
+        p->fillRect( cx, cy, cw, ch, colorGroup().base() );
+    else {
+        p->save();
+        p->resetXForm();
+        QRect r( contentsToViewport( QPoint( cx, cy ) ), QSize( cw, ch ) );
+        p->setClipRect( r );
+        QSize s( viewport()->width(), viewport()->height() );
+        d->bg->paint( p, r, contentsX(), contentsY(), s );
+        p->restore();
+    }
+    
     if ( !d->firstItem )
         return;
 
@@ -1091,6 +1113,20 @@ void QIconView::setResizeMode( ResizeMode rm )
 QIconView::ResizeMode QIconView::resizeMode() const
 {
     return d->resizeMode;
+}
+
+void QIconView::setBackground( QIconViewBackground *bg, bool deleteOld )
+{
+    if ( d->bg && deleteOld )
+        delete d->bg;
+    
+    d->bg = bg;
+    
+}
+
+QIconViewBackground* QIconView::background() const
+{
+    return d->bg;
 }
 
 void QIconView::contentsMousePressEvent( QMouseEvent *e )
