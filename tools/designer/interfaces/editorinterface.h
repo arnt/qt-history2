@@ -34,7 +34,7 @@ class QObject;
 #define IID_EditorInterface QUuid( 0x8668161a, 0x6037, 0x4220, 0x86, 0xb6, 0xcc, 0xaa, 0x20, 0x12, 0x7d, 0xf8 )
 #endif
 
-struct EditorInterface : public QFeatureListInterface
+struct EditorInterface : public QUnknownInterface
 {
     virtual QWidget *editor( QWidget *parent, QUnknownInterface *designerIface ) = 0;
 

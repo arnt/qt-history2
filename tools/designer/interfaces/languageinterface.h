@@ -29,7 +29,7 @@
 #define IID_LanguageInterface QUuid( 0xf208499a, 0x6f69, 0x4883, 0x92, 0x19, 0x6e, 0x93, 0x6e, 0x55, 0xa3, 0x30 )
 #endif
 
-struct LanguageInterface : public QFeatureListInterface
+struct LanguageInterface : public QUnknownInterface
 {
     struct Function
     {

@@ -30,7 +30,7 @@
 #define IID_PreferenceInterface QUuid( 0x5c168ee7, 0x4bee, 0x469f, 0x99, 0x95, 0x6a, 0xfd, 0xb0, 0x4c, 0xe5, 0xa2 )
 #endif
 
-struct PreferenceInterface : public QFeatureListInterface
+struct PreferenceInterface : public QUnknownInterface
 {
     struct Preference
     {
@@ -41,8 +41,8 @@ struct PreferenceInterface : public QFeatureListInterface
 	const char *accept_slot;
     };
 
-    virtual Preference *globalPreference( const QString &feature ) = 0;
-    virtual Preference *projectSetting( const QString &feature ) = 0;
+    virtual Preference *globalPreference() = 0;
+    virtual Preference *projectSetting() = 0;
     virtual QStringList projectSettings() const = 0;
     virtual void connectTo( QUnknownInterface *appInterface ) = 0;
     virtual void deletePreferenceObject( Preference * ) = 0;

@@ -30,7 +30,7 @@ class QObject;
 #define IID_InterpreterInterface QUuid( 0x11cad9ec, 0x4e3c, 0x418b, 0x8e, 0x90, 0xe1, 0xb8, 0xc0, 0xc1, 0xf4, 0x8f )
 #endif
 
-struct InterpreterInterface : public QFeatureListInterface
+struct InterpreterInterface : public QUnknownInterface
 {
     virtual bool exec( QObject *obj, const QString &code ) = 0;
     virtual void setBreakPoints( QObject *obj, const QValueList<int> &lst ) = 0;

@@ -29,7 +29,7 @@
 #define IID_EventInterface QUuid( 0x9958cfbc, 0x64f9, 0x44ce, 0xa6, 0x5e, 0x2c, 0x6c, 0x11, 0x96, 0x9a, 0x7b )
 #endif
 
-class EventInterface : public QFeatureListInterface
+class EventInterface : public QUnknownInterface
 {
 public:
     virtual QStringList events( QObject *obj ) const = 0;
