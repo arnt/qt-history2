@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#6 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -30,6 +30,9 @@
 #if defined(_WS_X11_)
 #include "qt_x11.h"
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
+#elif defined (_WS_WIN_ )
+#include "qobjectlist.h"
+#include "qt_windows.h"
 #endif
 
 /*! \class QSizeGrip qsizegrip.h
@@ -148,8 +151,13 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    topLevelWidget()->resize( w, h );
-
+    QWidget* tlw = topLevelWidget();
+    tlw->resize( w, h );
+#ifdef _WS_WIN_
+    MSG msg;
+    while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
+      ;
+#endif
     QApplication::syncX();
 }
 

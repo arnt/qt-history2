@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#274 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#275 $
 **
 ** Implementation of QListView widget class
 **
@@ -2131,7 +2131,7 @@ int QListView::columnAlignment( int column ) const
 
 
 
-/*!  Reimplemented to set the correct background mode and viewed area
+/*!  Reimplemented to setx the correct background mode and viewed area
   size. */
 
 void QListView::show()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#112 $
 **
 ** Implementation of QScrollView class
 **
@@ -402,6 +402,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     d->viewport.installEventFilter( this );
 
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+    setLineWidth( style().defaultFrameWidth() );
 }
 
 /*! Destructs the QScrollView.  Any children added with addChild()
@@ -696,9 +697,12 @@ An override - ensures scrollbars are correct size upon resize.
 void QScrollView::resize( int w, int h )
 {
     // Need both this and resize event, due to deferred resize event.
+    bool u = isUpdatesEnabled();
+    setUpdatesEnabled( FALSE );
     QWidget::resize( w, h );
     updateScrollBars();
     d->hideOrShowAll(this);
+    setUpdatesEnabled( u );
 }
 
 /*!
@@ -714,9 +718,12 @@ An override - ensures scrollbars are correct size upon resize.
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
 {
+    bool u = isUpdatesEnabled();
+    setUpdatesEnabled( FALSE );
     QFrame::resizeEvent( event );
     updateScrollBars();
     d->hideOrShowAll(this);
+    setUpdatesEnabled( u );
 }
 
 
@@ -1788,11 +1795,12 @@ void QScrollView::changeFrameRect(const QRect& r)
     QRect oldr = frameRect();
     if (oldr != r) {
 	setFrameRect(r);
-	if ( frameWidth() ) {
-	    // Redraw frames
-	    update(r);
-	    update(oldr);
-	}
+	//### do _not_ update, we'll receive a paint event anyway
+ 	if ( frameWidth() ) {
+ 	    // Redraw frames
+ 	    update(r);
+ 	    update(oldr);
+ 	}
     }
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#313 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#314 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2530,7 +2530,10 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     QWheelEvent e( globalPos, delta, state );
     e.ignore();	
 
-    QWidget* w = this;
+    QWidget* w = QApplication::widgetAt( globalPos, TRUE );
+    if ( !w)
+      w = this;
+
     while ( w->focusProxy() )
 	w = w->focusProxy();
     if ( w->focusPolicy() == QWidget::WheelFocus ) 

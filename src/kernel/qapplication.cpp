@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#264 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#265 $
 **
 ** Implementation of QApplication class
 **
@@ -845,6 +845,8 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	app_pal = pal;
 	CHECK_PTR( app_pal );
 	delete old;
+	delete app_palettes;
+	app_palettes = 0;
     }
     else {
 	if (!app_palettes){
@@ -928,6 +930,8 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
 	delete app_font;
 	app_font = new QFont( font );
 	CHECK_PTR( app_font );
+	delete app_fonts;
+	app_fonts = 0;
     }
     else {
 	if (!app_fonts){

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#279 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#280 $
 **
 ** Implementation of QListBox widget class
 **
@@ -544,11 +544,9 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(refreshSlot()) );
     connect( d->visibleTimer, SIGNAL(timeout()),
 	     this, SLOT(ensureCurrentVisible()) );
-    setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
-    setBackgroundMode( PaletteBase );
+    viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this ); 
     viewport()->setFocusPolicy( WheelFocus );
-    viewport()->setBackgroundMode( PaletteBase );
 }
 
 
@@ -2699,9 +2697,12 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	d->layoutDirty = TRUE;
     }
     d->updateTimer->stop();
+    bool u = isUpdatesEnabled();
+    setUpdatesEnabled( FALSE );
     doLayout();
     QScrollView::resizeEvent( e );
     ensureCurrentVisible();
+    setUpdatesEnabled( u );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#23 $
 **
 ** Implementation of QTabWidget class
 **
@@ -186,7 +186,7 @@ void QTabWidget::addTab( QWidget *child, QTab* tab)
     tab->enabled = TRUE;
     int id = d->tabs->addTab( tab );
     d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+    if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
 	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
@@ -254,7 +254,7 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
     tab->enabled = TRUE;
     int id = d->tabs->insertTab( tab, index );
     d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+    if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
 	d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setUpLayout();
 }
@@ -350,7 +350,7 @@ void QTabWidget::showPage( QWidget * w)
     if ( id >= 0 ) {
 	d->stack->raiseWidget( w );
 	d->tabs->setCurrentTab( id );
-	if ( d->stack->frameStyle() != QFrame::StyledPanel | QFrame::Raised )
+	if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
 	    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#220 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -108,8 +108,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	// other window because it could be cleared using the WM_ERASEBKND
 	// message.  Therefore we assume white.
 	bg_col = white;
-    } else {
-	bg_col = pal.normal().background();	// default background color
     }
 
     if ( modal || popup || desktop ) {		// these are top-level, too
@@ -734,6 +732,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	QRect r(x,y,w,h);
 	if ( r.isEmpty() )
 	    return; // nothing to do
+	QRegion reg = r;
+ 	ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( r, erase );
 	qt_set_paintevent_clipping( this, r );
 	if ( erase )
@@ -746,6 +746,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
+ 	ValidateRgn( winId(), reg.handle() );
 	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
