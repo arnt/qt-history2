@@ -33,6 +33,7 @@ public:
     PMResolution resolution;
     QString outputFilename;
     bool outputToFile;
+    bool fullPage;
     QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
         format(0), settings(0),session(0) {}
     void initialize();
