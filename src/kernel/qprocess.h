@@ -122,6 +122,7 @@ private slots:
     void socketRead( int fd );
     void socketWrite( int fd );
     void timeout();
+    void closeStdinLaunch();
 
 private:
     friend class QProcessPrivate;

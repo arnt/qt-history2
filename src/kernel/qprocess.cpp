@@ -178,7 +178,7 @@ bool QProcess::launch( const QString& buf )
 {
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
-		this, SLOT(closeStdin()) );
+		this, SLOT(closeStdinLaunch()) );
 	dataStdin( buf );
 	return TRUE;
     } else {
@@ -192,12 +192,22 @@ bool QProcess::launch( const QByteArray& buf )
 {
     if ( start() ) {
 	connect( this, SIGNAL(wroteStdin()),
-		this, SLOT(closeStdin()) );
+		this, SLOT(closeStdinLaunch()) );
 	dataStdin( buf );
 	return TRUE;
     } else {
 	return FALSE;
     }
+}
+
+/*!
+  This slot is used by the launch() functions to close stdin.
+*/
+void QProcess::closeStdinLaunch()
+{
+    disconnect( this, SIGNAL(wroteStdin()),
+	    this, SLOT(closeStdinLaunch()) );
+    closeStdin();
 }
 
 
