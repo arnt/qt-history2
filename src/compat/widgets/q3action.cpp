@@ -1803,8 +1803,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
         if (d->dropdown) {
             Q3ActionGroupPrivate::Action4Item *ai = new Q3ActionGroupPrivate::Action4Item;
             if(!ai->action)  { //static
-                ai->action = new QAction;
-                ai->action->setMenu(new QMenu);
+                ai->action = menu->menuAction();
                 if (!iconSet().isNull())
                     ai->action->setIcon(iconSet());
                 if (menuText().isEmpty())
