@@ -13,6 +13,7 @@
 
 #include <private/qdatabuffer_p.h>
 #include <private/qpainter_p.h>
+#include <private/qtextengine_p.h>
 
 #include "qpaintengine_raster_p.h"
 
