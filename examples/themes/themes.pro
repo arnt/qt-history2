@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on release no_batch
 HEADERS		= themes.h \
 		  ../buttongroups/buttongroups.h \
 		  ../lineedits/lineedits.h \
@@ -10,7 +10,7 @@ HEADERS		= themes.h \
 		  ../richtext/richtext.h \
 		  wood.h \
 		  metal.h
-		
+
 SOURCES		= themes.cpp \
 		  main.cpp \
 		  ../buttongroups/buttongroups.cpp \
