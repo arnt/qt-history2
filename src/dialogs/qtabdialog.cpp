@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#76 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#77 $
 **
 ** Implementation of QTabDialog class
 **
@@ -97,7 +97,7 @@
   While tab dialogs can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess out of a tab
   dialog.  Here is some advice.  For more, see e.g. the <a
-  href="http://www.uie.com/tabbed.html">UIE web page on tab
+  href="http://world.std.com/~uieweb/tabbed.htm">UIE web page on tab
   dialogs.</a>
 
   <ol><li> Make sure that each page forms a logical whole which is
