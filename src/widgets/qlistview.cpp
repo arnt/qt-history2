@@ -182,12 +182,7 @@ struct QListViewPrivate
 
     // sort column and order   #### may need to move to QHeader [subclass]
     int sortcolumn;
-// work around a bug in the IRIX MIPSpro compiler when generating o32 binaries
-#if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32)
-    bool ascending		:2;
-#else
     bool ascending		:1;
-#endif
     bool sortIndicator		:1;
     // whether to select or deselect during this mouse press.
     bool allColumnsShowFocus	:1;
