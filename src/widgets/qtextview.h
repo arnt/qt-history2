@@ -134,6 +134,8 @@ public:
 
     QString anchorAt( const QPoint& pos );
 
+    QSize sizeHint() const;
+
 public slots:
     virtual void setMimeSourceFactory( QMimeSourceFactory* factory );
     virtual void setStyleSheet( QStyleSheet* styleSheet );

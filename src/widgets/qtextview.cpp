@@ -2433,3 +2433,11 @@ void  QTextView::setHScrollBarMode( ScrollBarMode sm )
 {
     setMode = sm;
 }
+
+/*! \reimp */
+
+QSize QTextView::sizeHint() const
+{
+    // ### calculate a reasonable one
+    return QSize( 100, 100 );
+}
