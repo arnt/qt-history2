@@ -1187,8 +1187,10 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		disposal=Disposal((hold[1]>>2)&0x7);
 		//UNUSED: waitforuser=!!((hold[1]>>1)&0x1);
 		int delay=count>3 ? LM(hold[2], hold[3]) : 1;
-		if ( delay < 1 )
-		    delay = 1;
+		// IE and mozilla use a minimum delay of 10. With the minumum delay of 10
+		// we are compatible to them and avoid huge loads on the app and xserver.
+		if ( delay < 10 )
+		    delay = 10;
 
 		bool havetrans=hold[1]&0x1;
  		trans_index = havetrans ? hold[4] : -1;
