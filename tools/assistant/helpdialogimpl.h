@@ -87,6 +87,7 @@ public:
     QString docHomePage( const QString &doc );
 
 protected slots:
+    void showTopic( QListViewItem *item );
     void loadIndexFile();
     void insertContents();
     void setupFullTextIndex();

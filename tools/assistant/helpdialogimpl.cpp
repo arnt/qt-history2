@@ -155,15 +155,15 @@ void HelpDialog::initialize()
     connect( tabWidget, SIGNAL( selected(const QString&) ),
 	     this, SLOT( currentTabChanged(const QString&) ) );
     connect( listContents, SIGNAL( clicked(QListViewItem*) ),
-	     this, SLOT( showTopic() ) );
+	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listContents, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentContentsChanged(QListViewItem*) ) );
     connect( listContents, SIGNAL( selectionChanged(QListViewItem*) ),
 	     this, SLOT( currentContentsChanged(QListViewItem*) ) );
     connect( listContents, SIGNAL( doubleClicked(QListViewItem*) ),
-	     this, SLOT( showTopic() ) );
+	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listContents, SIGNAL( returnPressed(QListViewItem*) ),
-	     this, SLOT( showTopic() ) );
+	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listContents, SIGNAL( contextMenuRequested( QListViewItem*, const QPoint&, int ) ),
 	     this, SLOT( showItemMenu( QListViewItem*, const QPoint& ) ) );
     connect( editIndex, SIGNAL( returnPressed() ),
@@ -181,9 +181,9 @@ void HelpDialog::initialize()
     connect( listIndex, SIGNAL( contextMenuRequested( QListBoxItem*, const QPoint& ) ),
 	     this, SLOT( showItemMenu( QListBoxItem*, const QPoint& ) ) );
     connect( listBookmarks, SIGNAL( clicked(QListViewItem*) ),
-	     this, SLOT( showTopic() ) );
+	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listBookmarks, SIGNAL( returnPressed(QListViewItem*) ),
-	     this, SLOT( showTopic() ) );
+	     this, SLOT( showTopic(QListViewItem*) ) );
     connect( listBookmarks, SIGNAL( selectionChanged(QListViewItem*) ),
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
     connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
@@ -552,6 +552,12 @@ void HelpDialog::showInitDoneMessage()
 
 void HelpDialog::currentIndexChanged( QListBoxItem * )
 {
+}
+
+void HelpDialog::showTopic( QListViewItem *item )
+{
+    if ( item )
+	showTopic();
 }
 
 void HelpDialog::showTopic()
