@@ -186,6 +186,8 @@ Config::Config( int argc, char **argv )
 	if ( opt == QString("--version") || opt == QString("-v") ) {
 	    argv[i - 1][0] = '\0';
 	    showVersion();
+	} else if ( opt == QString("--help") || opt == QString("-h") ) {
+	    showHelp();
 	} else if ( opt == QString("--") ) {
 	    argv[i - 1][0] = '\0';
 	    if ( i < argc )
