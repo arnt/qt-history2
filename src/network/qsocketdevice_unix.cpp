@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#37 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#38 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -113,13 +113,13 @@
 #endif
 
 // This mess defines SOCKLEN_T to socklen_t or whatever else.
-// Single XPG5/SUSv2 says it's to be socklen_t. XNS4/SUS say
-// it's to be size_t but of course that would have been be way
-// too easy... Some XNS4/SUS platforms also support POSIX.1g
-// Draft 6.6 (March 1997) and switched to socklen_t early.
-// Classically it's int.
-// size_t has been phased out because it is not compatible
-// with IPv6.  Want more?
+// Single XPG5/SUSv2 and common sense say it's to be socklen_t.
+// XNS4/SUS says it's to be size_t but most platforms do not
+// apply the standard. size_t has been phased out because it is
+// not compatible with IPv6 or LP64. Also some XNS4/SUS platforms
+// also support POSIX.1g Draft 6.6 (March 1997) and have switched
+// to socklen_t earlier. Classically it's int.
+// Want more?
 //	The Single UNIX Specification, Version 2
 //		- http://www.opengroup.org/onlinepubs/007908799/
 //		- http://www.UNIX-systems.org/apis.html
@@ -134,47 +134,9 @@
 #  undef SOCKLEN_T
 #endif
 
-// ### The old code is commented but I don't delete it to ease the
-// ### transition.
-
-#if 0 // ### remove before 3.0
-
-#if defined(Q_OS_LINUX) && defined(__GLIBC__) && ( __GLIBC__ >= 2 )
-// new linux is Single Unix 1998, not old linux
-#  define SOCKLEN_T socklen_t
-#elif defined(Q_OS_MACX)
-#  define SOCKLEN_T int
-#elif defined(BSD4_4)
-// freebsd
-#  define SOCKLEN_T socklen_t
-#elif defined(Q_OS_UNIXWARE7)
-#  define SOCKLEN_T size_t
-#elif defined(Q_OS_AIX)
-#  ifdef _AIX43
-// AIX 4.3
-#    define SOCKLEN_T socklen_t
-#  elif _AIX42
-// AIX 4.2
-#    define SOCKLEN_T size_t
-#  else
-// AIX 4.1
-#    define SOCKLEN_T int
-#  endif
-#elif defined(Q_OS_QNX)
-#  define SOCKLEN_T size_t
-#else
-// Most unixes are Single Unix 1995 compliant (at least by default) including
-// irix, osf1/tru64, solaris, hp-ux and old linux. We do not specify Single
-// Unix 1998 even when it is available.
-#  define SOCKLEN_T int
-#endif
-
-#else // ### remove before 3.0
-
 #include <unistd.h>
 #if defined(Q_OS_MACX)
 #  define SOCKLEN_T int
-#  define QT_SOCKARG_INT
 #elif defined(BSD4_4)
 // int       - FreeBSD 1.0 through 3.5.1
 //             OpenBSD 2.1 through 2.4
@@ -186,95 +148,62 @@
 // ### and BSDs which use socklen_t? Or maybe this is not an issue
 // ### because those that use int are way too old?
 #  define SOCKLEN_T socklen_t
-#  define QT_SOCKARG_SOCKLEN_T
-#elif defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
-// XPG5 interfaces
-#  define SOCKLEN_T socklen_t
-#  define QT_SOCKARG_SOCKLEN_T
 #elif defined(__GLIBC__) && (__GLIBC__ >= 2)
-// We do not define XPG5 explicitly so the X/Open feature test macros
-// are not defined.  However the GNU C library does use XPG5 (not to
-// mention upcoming XPG6) interfaces.
 #  define SOCKLEN_T socklen_t
-#  define QT_SOCKARG_SOCKLEN_T
-// XPG4v2 is complicated so we handle it on a platform by platform basis.
+#elif defined(Q_OS_AIX)
+#  if defined(_XOPEN_VERSION) && (_XOPEN_VERSION >= 500)
+// AIX 4.3 is SUSv2/XPG5.
+#    define SOCKLEN_T socklen_t
+#  elif defined(_XOPEN_UNIX)
+// AIX 4.2 is SUS/XPG4v2.
+#    define SOCKLEN_T size_t
+#  else
+// AIX 4.1 is plain XPG4.
+#    define SOCKLEN_T int
+#  endif
+#elif defined(Q_OS_UNIXWARE7)
+// UnixWare 7 is XPG4v2.
+#  define SOCKLEN_T size_t
+#elif defined(Q_OS_QNX)
+// QNX supports infamous XPG4v2 sockets.
+#  define SOCKLEN_T size_t
+#else
+// Fall through. XNS4 sockets are not the default on most XPG4v2 platforms.
 // From Sun's "Notes on 64-bit Drivers and STREAMS - A White Paper":
 // 	Under UNIX95, the XNS4.2 definitions were only available under
 // 	a specific compilation environment through feature-test macros
 // 	specifically requesting them.
 // 	The standard environment provided the older Berkeley-style
 // 	prototypes.
-// NOTE1:
-// 	Which feature-test macros trigger the infamous size_t?
-// 	Is the last sentence true of Solaris only or are there
-// 	many vendors shipping implementations with default size_t?
-// 	At least QNX and UnixWare 7 use size_t by default.
-// NOTE2:
-// 	Could it be that some platforms have POSIX.1g Draft 6.6 (March 1997)
-// 	overload XPG4v2 thus requesting socklen_t?
-#elif defined(Q_OS_AIX)
-#  ifdef _AIX43
-// AIX 4.3.1 is SUSv2/XPG5 compliant so it should be caught by the
-// _XOPEN_VERSION test above anyway.
-#    define SOCKLEN_T socklen_t
-#    define QT_SOCKARG_SOCKLEN_T
-#  elif _AIX42
-// AIX 4.2 is XPG4v2 compliant.
-#    define SOCKLEN_T size_t
-#    define QT_SOCKARG_SIZE_T
-#  else
-// AIX 4.1 is XPG4 compliant so it should fall through anyway.
-#    define SOCKLEN_T int
-#    define QT_SOCKARG_INT
-#  endif
-#elif defined(Q_OS_UNIXWARE7)
-// AIX 4.2 is XPG4v2 compliant and supports infamous XPG4v2 sockets.
-#  define SOCKLEN_T size_t
-#  define QT_SOCKARG_SIZE_T
-#elif defined(Q_OS_QNX)
-// QNX supports infamous XPG4v2 sockets.
-#  define SOCKLEN_T size_t
-#  define QT_SOCKARG_SIZE_T
-#else
-// fall through for POSIX, XPG3, XPG4
+// This is not very clear:
+// 	=> Which feature-test macros trigger the infamous size_t?
+// 	   Does the last sentence apply to Solaris only or are there
+// 	   many vendors shipping implementations with default size_t?
+// 	   At least AIX 4.2, UnixWare 7 and QNX use size_t by default.
+// 	=> Could it be that some platforms have POSIX.1g Draft 6.6
+// 	   (March 1997) overload XPG4v2 thus requesting socklen_t?
 #  define SOCKLEN_T int
-#  define QT_SOCKARG_INT
 #endif
 
-// Now a few hacks that depend on SOCKLEN_T.
-
-#if defined(Q_OS_OSF)
 // Tru64 sometimes redefines accept().
 static inline
-#  if defined(QT_SOCKARG_SOCKLEN_T)
-int qt_accept_hack(int s, struct sockaddr *addr, socklen_t *addrlen)
-#  else
-// All supported Tru64 platforms down to DIGITAL UNIX 4.0D use size_t.
-int qt_accept_hack(int s, struct sockaddr *addr, size_t *addrlen)
-#  endif
+int qt_accept_hack( int s, struct sockaddr *addr, SOCKLEN_T *addrlen )
 {
-    return accept( s, addr, addrlen );
+    return ::accept( s, addr, addrlen );
 }
-#  if defined(accept)
-#    undef accept
-#  endif
-#  define QT_ACCEPT_HACK
+#if defined(accept)
+#  undef accept
 #endif
 
-#if defined(Q_OS_UNIXWARE7)
 // UnixWare 7 redefines listen() to _listen() in <socket.h>.
 static inline
 int qt_listen_hack( int s, int backlog )
 {
-    return listen( s, backlog );
+    return ::listen( s, backlog );
 }
-#  if defined(listen)
-#    undef listen
-#  endif
-#  define QT_LISTEN_HACK
+#if defined(listen)
+#  undef listen
 #endif
-
-#endif // ### remove before 3.0
 
 // The next mess deals with EAGAIN and/or EWOULDBLOCK.
 #if !defined(EAGAIN) && !defined(EWOULDBLOCK)
@@ -405,7 +334,7 @@ void QSocketDevice::setBlocking( bool enable )
 	return;
     int tmp = ::fcntl(fd, F_GETFL, 0);
     if ( tmp >= 0 )
-	tmp = fcntl( fd, F_SETFL, enable ? (tmp&!O_NDELAY) : (tmp|O_NDELAY) );
+	tmp = ::fcntl( fd, F_SETFL, enable ? (tmp&!O_NDELAY) : (tmp|O_NDELAY) );
     if ( tmp >= 0 )
 	return;
     if ( e )
@@ -665,11 +594,7 @@ bool QSocketDevice::listen( int backlog )
 {
     if ( !isValid() )
 	return FALSE;
-#if defined(QT_LISTEN_HACK)
     if ( qt_listen_hack( fd, backlog ) >= 0 )
-#else
-    if ( ::listen( fd, backlog ) >= 0 )
-#endif
 	return TRUE;
     if ( !e )
 	e = Impossible;
@@ -690,11 +615,7 @@ int QSocketDevice::accept()
 	return FALSE;
     struct sockaddr aa;
     SOCKLEN_T l = sizeof(struct sockaddr);
-#if defined(QT_ACCEPT_HACK)
     int s = qt_accept_hack( fd, (struct sockaddr*)&aa, &l );
-#else
-    int s = ::accept( fd, (struct sockaddr*)&aa, &l );
-#endif
     // we'll blithely throw away the stuff accept() wrote to aa
     if ( s < 0 && e == NoError ) {
 	switch( errno ) {
