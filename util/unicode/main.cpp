@@ -1073,9 +1073,11 @@ static QByteArray createCompositionInfo()
            "       (ucs4 < 0x" + QByteArray::number(BMP_END, 16) + " \\\n"
            "        ? (uc_decomposition_trie[uc_decomposition_trie[ucs4>>" + QByteArray::number(BMP_SHIFT) +
            "] + (ucs4 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")]) \\\n"
-           "        : (uc_decomposition_trie[uc_decomposition_trie[((ucs4 - 0x" + QByteArray::number(BMP_END, 16) +
+           "        : (ucs4 < 0x" + QByteArray::number(SMP_END, 16) + "\\\n"
+           "           ? uc_decomposition_trie[uc_decomposition_trie[((ucs4 - 0x" + QByteArray::number(BMP_END, 16) +
            ")>>" + QByteArray::number(SMP_SHIFT) + ") + 0x" + QByteArray::number(BMP_END/BMP_BLOCKSIZE, 16) + "]"
-           " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]))\n\n"
+           " + (ucs4 & 0x" + QByteArray::number(SMP_BLOCKSIZE-1, 16) + ")]\\\n"
+           "           : 0xffff))\n\n"
 
            "static const unsigned short uc_decomposition_map[] = {\n";
 
@@ -1202,8 +1204,9 @@ static QByteArray createLigatureInfo()
     out += "\n};\n\n"
 
            "#define GET_LIGATURE_INDEX(u2) "
-           "(uc_ligature_trie[uc_ligature_trie[u2>>" + QByteArray::number(BMP_SHIFT) +
-           "] + (u2 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")]);\n\n"
+           "(u2 < 0x" + QByteArray::number(BMP_END, 16) + " ? "
+           "uc_ligature_trie[uc_ligature_trie[u2>>" + QByteArray::number(BMP_SHIFT) +
+           "] + (u2 & 0x" + QByteArray::number(BMP_BLOCKSIZE-1, 16)+ ")] : 0xffff);\n\n"
 
            "static const unsigned short uc_ligature_map [] = {\n";
 
