@@ -60,6 +60,7 @@ int SimpleFlow::heightForWidth( int w ) const
 	SimpleFlow * mthis = (SimpleFlow*)this;
 	int h = mthis->doLayout( QRect(0,0,w,0), TRUE );
 	mthis->cached_hfw = h;
+	mthis->cached_width = w;
 	return h;
     }
     return cached_hfw;
