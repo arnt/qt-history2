@@ -93,6 +93,9 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
+typedef struct Point Point;
+typedef struct OpaqueEventHandlerCallRef*  EventHandlerCallRef;
+typedef struct OpaqueEventRef*          EventRef;
 typedef long int OSStatus;
 typedef struct OpaqueScrapRef *ScrapRef;
 typedef struct OpaqueRgnHandle *RgnHandle;
