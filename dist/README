@@ -9,10 +9,12 @@ The Qt API is very unlikely to undergo any significant changes before
 the final release is made, so we encourage you to begin enjoying Qt
 3.0 right now.
 
-A few classes are marked in the documentation with "The API for this
-class is under development and is subject to change". These classes
-are not yet suitable for production work. This includes the
-accessability API, the style engine and parts of the component system.
+The style engine (QStyle) has been rewritten and has a new API, which
+is incompatible with the old one. This change was required to stay
+flexible enough for the future. Until now only the Windows- and
+Motif-Style have been ported to the new API. The other styles included
+in Qt will be ported to the new API until Qt 3.0 beta 3 and are not
+available in the Qt 3.0 beta 2 release.
 
 Detailed changes information on what's new in Qt 3.0 is included in
 the Online Reference Documentation.  For a brief overview, see
