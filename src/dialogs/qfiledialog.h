@@ -69,18 +69,19 @@ class Q_EXPORT QFileDialog : public QDialog
 
     Q_OBJECT
     // ##### Why are this readonly properties ?
-    Q_PROPERTY( QString, "selectedFile", selectedFile, 0 )
-    Q_PROPERTY( QString, "selectedFilter", selectedFilter, 0 )
-    Q_PROPERTY( QStringList, "selectedFiles", selectedFiles, 0 )
+    Q_PROPERTY( QString selectedFile READ selectedFile )
+    Q_PROPERTY( QString selectedFilter READ selectedFilter )
+    Q_PROPERTY( QStringList selectedFiles READ selectedFiles )
     // #### Should not we be able to set the path ?
-    Q_PROPERTY( QString, "dirPath", dirPath, 0 )
-    Q_PROPERTY( bool, "showHiddenFiles", showHiddenFiles, setShowHiddenFiles )
-    Q_PROPERTY( Mode, "mode", mode, setMode )
+    Q_PROPERTY( QString dirPath READ dirPath )
+    Q_PROPERTY( bool showHiddenFiles READ showHiddenFiles WRITE setShowHiddenFiles )
+    Q_PROPERTY( Mode mode READ mode WRITE setMode )
     // This property is broken! Since it uses int and not ViewMode.
     // We are only interested in List or Detail View.
-    // Q_PROPERTY( int, "viewMode", viewMode, setViewMode )
-    Q_PROPERTY( bool, "infoPreview", isInfoPreviewEnabled, setInfoPreviewEnabled )
-    Q_PROPERTY( bool, "contentsPreview", isContentsPreviewEnabled, setContentsPreviewEnabled )
+    Q_PROPERTY( ViewMode viewMode READ viewMode WRITE setViewMode )
+    Q_PROPERTY( PreviewMode previewMode READ previewMode WRITE setPreviewMode )
+    Q_PROPERTY( bool infoPreview READ isInfoPreviewEnabled WRITE setInfoPreviewEnabled )
+    Q_PROPERTY( bool contentsPreview READ isContentsPreviewEnabled WRITE setContentsPreviewEnabled )
 	
 public:
     QFileDialog( const QString& dirName, const QString& filter = QString::null,
@@ -139,7 +140,7 @@ public:
     ViewMode viewMode() const;
     void setPreviewMode( PreviewMode m );
     PreviewMode previewMode() const;
-    
+
     bool eventFilter( QObject *, QEvent * );
 
     bool isInfoPreviewEnabled() const;

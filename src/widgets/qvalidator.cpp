@@ -253,7 +253,7 @@ void QIntValidator::setRange( int bottom, int top )
 
 /*!
   Sets the validator to accept no numbers smaller than \a bottom.
-  
+
   \sa setRange()
 */
 void QIntValidator::setBottom( int bottom )
@@ -263,7 +263,7 @@ void QIntValidator::setBottom( int bottom )
 
 /*!
   Sets the validator to accept no numbers bigger than \a top.
-  
+
   \sa setRange()
 */
 void QIntValidator::setTop( int top )
@@ -408,22 +408,22 @@ void QDoubleValidator::setRange( double bottom, double top, int decimals )
 
 /*!
   Sets the validator to accept no numbers smaller than \a bottom.
-  
+
   \sa setRange()
 */
 
-void QDoubleValidator::setBottom( int bottom )
+void QDoubleValidator::setBottom( double bottom )
 {
     setRange( bottom, top(), decimals() );
 }
 
 /*!
   Sets the validator to accept no numbers bigger than \a top.
-  
+
   \sa setRange()
 */
 
-void QDoubleValidator::setTop( int top )
+void QDoubleValidator::setTop( double top )
 {
     setRange( bottom(), top, decimals() );
 }

@@ -38,14 +38,14 @@ class QTimer;
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl
 {
     Q_OBJECT
-    Q_PROPERTY( int, "minValue", minValue, setMinValue )
-    Q_PROPERTY( int, "maxValue", maxValue, setMaxValue )
-    Q_PROPERTY( int, "lineStep", lineStep, setLineStep )
-    Q_PROPERTY( int, "pageStep", pageStep, setPageStep )
-    Q_PROPERTY( int, "value", value, setValue )
-    Q_PROPERTY( bool, "tracking", tracking, setTracking )
-    Q_PROPERTY( bool, "draggingSlider", draggingSlider, 0 )
-    // ##### Q_PROPERTY( Orientation, "orientation", orientation, setOrientation )
+    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
+    Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
+    Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
+    Q_PROPERTY( int pageStep READ pageStep WRITE setPageStep )
+    Q_PROPERTY( int value READ value WRITE setValue )
+    Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
+    Q_PROPERTY( bool draggingSlider READ draggingSlider )
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
 	
 public:
     QScrollBar( QWidget *parent, const char *name=0 );

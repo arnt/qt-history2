@@ -41,13 +41,13 @@ struct QSpinBoxPrivate;
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "text", text, 0 )
-    Q_PROPERTY( QString, "prefix", prefix, setPrefix )
-    Q_PROPERTY( QString, "suffix", suffix, setSuffix )
-    Q_PROPERTY( QString, "cleanText", cleanText, 0 )
-    Q_PROPERTY( QString, "specialValueText", specialValueText, setSpecialValueText )
-    Q_PROPERTY( bool, "wrapping", wrapping, setWrapping )
-    Q_PROPERTY( ButtonSymbols, "buttonSymbols", buttonSymbols, setButtonSymbols )
+    Q_PROPERTY( QString text READ text )
+    Q_PROPERTY( QString prefix READ prefix WRITE setPrefix )
+    Q_PROPERTY( QString suffix READ suffix WRITE setSuffix )
+    Q_PROPERTY( QString cleanText READ cleanText )
+    Q_PROPERTY( QString specialValueText READ specialValueText WRITE setSpecialValueText )
+    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
+    Q_PROPERTY( ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols )
 	
 public:
     QSpinBox( QWidget* parent = 0, const char *name = 0 );

@@ -49,8 +49,8 @@ public:
 class Q_EXPORT QIntValidator: public QValidator
 {
     Q_OBJECT
-    Q_PROPERTY( int, "bottom", bottom, setBottom )
-    Q_PROPERTY( int, "top", top, setTop )
+    Q_PROPERTY( int bottom READ bottom WRITE setBottom )
+    Q_PROPERTY( int top READ top WRITE setTop )
 
 public:
     QIntValidator( QWidget * parent, const char *name = 0 );
@@ -75,9 +75,9 @@ private:
 class Q_EXPORT QDoubleValidator: public QValidator
 {
     Q_OBJECT
-    Q_PROPERTY( double, "bottom", bottom, setBottom )
-    Q_PROPERTY( double, "top", top, setTop )
-    Q_PROPERTY( int, "decimals", decimals, setDecimals )
+    Q_PROPERTY( double bottom READ bottom WRITE setBottom )
+    Q_PROPERTY( double top READ top WRITE setTop )
+    Q_PROPERTY( int decimals READ decimals WRITE setDecimals )
 	
 public:
     QDoubleValidator( QWidget * parent, const char *name = 0 );
@@ -88,10 +88,10 @@ public:
     QValidator::State validate( QString &, int & ) const;
 
     virtual void setRange( double bottom, double top, int decimals = 0 );
-    void setBottom( int );
-    void setTop( int );
+    void setBottom( double );
+    void setTop( double );
     void setDecimals( int );
-    
+
     double bottom() const { return b; }
     double top() const { return t; }
     int decimals() const { return d; }

@@ -45,19 +45,19 @@ class Q_EXPORT QListBox : public QScrollView
     friend class QListBoxItem;
 
     Q_OBJECT
-    Q_PROPERTY( int, "count", count, 0 )
-    Q_PROPERTY( int, "numItemsVisible", numItemsVisible, 0 )
-    Q_PROPERTY( int, "currentItem", currentItem, setCurrentItem )
-    Q_PROPERTY( QString, "currentText", currentText, 0 )
-    Q_PROPERTY( int, "topItem", topItem, setTopItem )
-    Q_PROPERTY( SelectionMode, "selectionMode", selectionMode, setSelectionMode )
-    Q_PROPERTY( bool, "multiSelection", isMultiSelection, setMultiSelection )
-    Q_PROPERTY( LayoutMode, "columnMode", columnMode, setColumnMode )
-    Q_PROPERTY( LayoutMode, "rowMode", rowMode, setRowMode )
-    Q_PROPERTY( int, "numColumns", numColumns, 0 )
-    Q_PROPERTY( int, "numRows", numRows, 0 )
-    Q_PROPERTY( bool, "variableWidth", variableWidth, setVariableWidth )
-    Q_PROPERTY( bool, "variableHeight", variableHeight, setVariableHeight )
+    Q_PROPERTY( uint count READ count )
+    Q_PROPERTY( int numItemsVisible READ numItemsVisible )
+    Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
+    Q_PROPERTY( QString currentText READ currentText )
+    Q_PROPERTY( int topItem READ topItem WRITE setTopItem )
+    Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
+    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection )
+    Q_PROPERTY( LayoutMode columnMode READ columnMode WRITE setColumnMode )
+    Q_PROPERTY( LayoutMode rowMode READ rowMode WRITE setRowMode )
+    Q_PROPERTY( int numColumns READ numColumns )
+    Q_PROPERTY( int numRows READ numRows )
+    Q_PROPERTY( bool variableWidth READ variableWidth WRITE setVariableWidth )
+    Q_PROPERTY( bool variableHeight READ variableHeight WRITE setVariableHeight )
 	
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );

@@ -37,10 +37,10 @@ class QProgressBarPrivate;
 class Q_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( int, "totalSteps", totalSteps, setTotalSteps )
-    Q_PROPERTY( int, "progress", progress, setProgress )
-    Q_PROPERTY( bool, "centerIndicator", centerIndicator, setCenterIndicator )
-    Q_PROPERTY( bool, "indicatorFollowsStyle", indicatorFollowsStyle, setIndicatorFollowsStyle )
+    Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )
+    Q_PROPERTY( int progress READ progress WRITE setProgress )
+    Q_PROPERTY( bool centerIndicator READ centerIndicator WRITE setCenterIndicator )
+    Q_PROPERTY( bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle )
 	
 public:
     QProgressBar( QWidget *parent=0, const char *name=0, WFlags f=0 );

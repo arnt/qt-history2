@@ -119,9 +119,11 @@ public:
 
 struct Property
 {
-    Property( int l, const char* t, const char* n, const char* s, const char* g)
+    Property( int l, const char* t, const char* n, const char* s, const char* g,
+	      const QCString& st, int d, const QCString& de, bool nd, bool ov )
 	: lineNo(l), type(t), name(n), set(s), get(g), setfunc(0), getfunc(0),
-	  sspec(Unspecified), gspec(Unspecified)
+	  sspec(Unspecified), gspec(Unspecified), defaultValue( de ), stored( st ),
+	  designable( d ), nodefault( nd ), override( ov )
     {}
 
     int lineNo;
@@ -129,6 +131,11 @@ struct Property
     QCString name;
     QCString set;
     QCString get;
+    QCString defaultValue;
+    QCString stored;
+    int designable; // Allowed values are TRUE, FALSE and -1
+    bool nodefault;
+    bool override;
 
     Function* setfunc;
     Function* getfunc;
@@ -258,8 +265,11 @@ bool	   Q_PROPERTYdetected;			// TRUE if current class
 						// contains at least one Q_PROPERTY macro
 
 // some temporary values
-QCString   tmpExpression;
-int	   tmpYYStart;
+QCString   tmpExpression;			// Used to store the characters the lexer
+						// is currently skipping (see addExpressionChar and friends)
+int	   tmpYYStart;				// Used to store the lexers current mode
+int	   tmpYYStart2;				// Used to store the lexers current mode
+						// (if tmpYYStart is already used)
 
 const int  formatRevision = 7;			// moc output format revision
 
@@ -327,6 +337,14 @@ const int  formatRevision = 7;			// moc output format revision
 %token			Q_PROPERTY
 %token			Q_CLASSINFO
 
+%token			READ
+%token			WRITE
+%token			STORED
+%token			DEFAULT
+%token			NODEFAULT
+%token			DESIGNABLE
+%token			OVERRIDE
+
 %type  <string>		class_name
 %type  <string>		template_class_name
 %type  <string>		template_spec
@@ -364,7 +382,6 @@ const int  formatRevision = 7;			// moc output format revision
 %type  <string>		ptr_operator
 %type  <string>		ptr_operators
 %type  <string>		ptr_operators_opt
-%type  <string>		prop_access_function
 
 %%
 declaration_seq:	  /* empty */
@@ -782,13 +799,9 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			      Q_OBJECTdetected = TRUE;
 			  }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
-			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
-				  {
-				      checkIdentifier( $6 );
-				      Q_PROPERTYdetected = TRUE;
-				      props.append( new Property( lineNo, $4,$6,$10,$8) );
-				      BEGIN tmpYYStart;
-				  }
+			  '(' property ')' {
+						BEGIN tmpYYStart;
+				   	   }
 			  opt_property_candidates
 			| Q_CLASSINFO { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' STRING ',' STRING ')'
@@ -1072,10 +1085,59 @@ enum_list:		  /* empty */
 enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 ); }
 			| IDENTIFIER '=' { expLevel=0; }
 			  enumerator_expression {  if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 );  }
+			;
 
+property:		  OVERRIDE IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; propStored = ""; propOverride = TRUE;
+						propDesignable = -1; propDefault = ""; propNoDefault = FALSE; }
+			  prop_statements
+				{ 				
+					checkIdentifier( $3 );
+					Q_PROPERTYdetected = TRUE;
+					props.append( new Property( lineNo, $2, $3, propWrite, propRead, propStored,
+								    propDesignable, propDefault, propNoDefault, TRUE ) );
+				}
+			| IDENTIFIER IDENTIFIER { propWrite = ""; propRead = ""; propStored = "true"; propOverride = FALSE;
+						  propDesignable = TRUE; propDefault = ""; propNoDefault = TRUE; }
+			  prop_statements
+				{ 	
+					if ( propRead.isEmpty() )
+						moc_err( "A property must at least feature a read method." );
+					checkIdentifier( $2 );
+					Q_PROPERTYdetected = TRUE;
+					props.append( new Property( lineNo, $1, $2, propWrite, propRead, propStored,
+								    propDesignable, propDefault, propNoDefault, FALSE ) );
+				}
+			;
 
-prop_access_function:	  IDENTIFIER 	{ $$ = $1; }
-			| '0'		{ $$ = ""; }
+prop_statements:	  /* empty */
+			| READ IDENTIFIER prop_statements { propRead = $2; }
+			| WRITE IDENTIFIER prop_statements { propWrite = $2; }
+			| STORED IDENTIFIER prop_statements { propStored = $2; }
+			| DESIGNABLE IDENTIFIER
+				{
+					if ( strcmp( $2, "true" ) == 0 )
+						propDesignable = TRUE;
+					else if ( strcmp( $2, "false" ) == 0 )
+						propDesignable = FALSE;
+					else
+						moc_err( "DESIGNABLE may only be followed by 'true' or 'false'" );
+				}
+			  prop_statements
+			| DEFAULT { initExpression(); expLevel = 1; BEGIN IN_PROPDEF; }
+			  prop_default prop_statements {
+					 if ( tmpExpression.stripWhiteSpace().isEmpty() )
+				             moc_err( "The default expression for a property may not be empty." );
+					 propDefault = tmpExpression;
+					 propNoDefault = FALSE;
+				       }
+			| NODEFAULT {
+					if ( !propOverride ) moc_err( "NODEFAULT can only be used together with OVERRIDE" );
+					propDefault = ""; propNoDefault = TRUE;
+				    }
+			  prop_statements
+			;
+			
+prop_default:	  	 /* empty */  {  }
 			;
 
 %%
@@ -1118,7 +1180,14 @@ EnumList  enums;				// enums used in properties
 PropList  props;				// list of all properties
 ClassInfoList	infos;				// list of all class infos
 
-
+// Used to store the values in the Q_PROPERTY macro
+QCString propWrite;				// set function
+QCString propRead;				// get function
+QCString propDefault;				// default expression
+QCString propStored;				// "true", "false" or function or empty if not specified
+bool propOverride;				// Wether OVERRIDE was detected
+int propDesignable;				// Wether DESIGNABLE was TRUE or FALSE or not specified (-1)
+bool propNoDefault;				// No default given or NODEFAULT
 
 FILE  *out;					// output file
 
@@ -1741,15 +1810,10 @@ void generateTypedef( Function* f, int num )
 }
 
 
-
-
-bool isPropertyType( const char* type, bool test_enums = TRUE )
+bool isPropertyType( const char* type )
 {
     if ( qvariant_nameToType( type ) != 0 )
 	return TRUE;
-
-    if ( !test_enums )
-	return FALSE;
 
     for( QListIterator<Enum> lit( enums ); lit.current(); ++lit ) {
 	if ( lit.current()->name == type )
@@ -1763,8 +1827,7 @@ void finishProps()
     int entry = 0;
     for( QListIterator<Property> it( props ); it.current(); ++it ) {
 	if ( !isPropertyType( it.current()->type ) ||
-	     it.current()->getfunc == 0 ||
-	     it.current()->setfunc == 0  )
+	     it.current()->override )
 	    fprintf( out, "    metaObj->resolveProperty( &props_tbl[%d] );\n", entry );
 	++entry;
     }
@@ -1833,7 +1896,6 @@ int generateProps()
 		if ( tmp.left(6) == "const " )
 		    tmp = tmp.mid( 6, tmp.length() - 6 );
 		tmp = tmp.simplifyWhiteSpace();
-
 		if ( p->type == tmp ) {
 		    p->gspec = spec;
 		    p->getfunc = f;
@@ -1847,7 +1909,9 @@ int generateProps()
 		    fprintf( stderr, "   Have been looking for public get functions \n"
 			     "      %s %s() const\n"
 			     "      %s& %s() const\n"
+			     "      const %s& %s() const\n"
 			     "      %s* %s() const\n",
+			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get,
 			     (const char*) p->type, (const char*) p->get );
@@ -1950,6 +2014,53 @@ int generateProps()
 	    }
 	}
 
+	// Resolve and verify the STORED function (if any)
+	if ( !p->stored.isEmpty() & p->stored != "true" && p->stored != "false" ) {
+	    bool found = FALSE;
+	    FuncList candidates = propfuncs.find( p->stored );
+	    for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+		if ( f->qualifier != "const" ) // stored functions must be const
+		    continue;
+		if ( f->args && !f->args->isEmpty() ) // and must not take any arguments
+		    continue;
+
+		if ( f->type == "bool" )
+		    found = TRUE;
+	    }
+	    if ( !found ) {
+		if ( displayWarnings ) {
+		    fprintf( stderr, "%s:%d: Warning: Property '%s' not storeable.\n",
+			     fileName.data(), p->lineNo, (const char*) p->name );
+		    fprintf( stderr, "   Have been looking for public function \n"
+			     "      bool %s() const\n",
+			     (const char*) p->stored );
+
+		    if ( candidates.isEmpty() ) {
+			fprintf( stderr, "   but found nothing.\n");
+		    } else {
+			fprintf( stderr, "   but only found the missmatching candidate(s)\n");
+			for ( Function* f = candidates.first(); f; f = candidates.next() ) {
+			    QCString typstr = "";
+			    Argument *a = f->args->first();
+			    int count = 0;
+			    while ( a ) {
+				if ( !a->leftType.isEmpty() || ! a->rightType.isEmpty() ) {
+				    if ( count++ )
+					typstr += ",";
+				    typstr += a->leftType;
+				    typstr += a->rightType;
+				}
+				a = f->args->next();
+			    }
+			    fprintf( stderr, "      %s:%d: %s %s(%s) %s\n", fileName.data(), f->lineNo,
+				     (const char*) f->type,(const char*) f->name, (const char*) typstr,
+				     f->qualifier.isNull()?"":(const char*) f->qualifier );
+			}
+		    }
+		}
+	    }
+	}
+
     }
 
     //
@@ -2027,6 +2138,31 @@ int generateProps()
 		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
 	    else if (!isPropertyType( it.current()->type ) )
 		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
+
+	    // Handle STORED
+	    if ( it.current()->stored == "false" )
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotStoreable);\n", entry );
+	    else if ( !it.current()->stored.isEmpty() && it.current()->stored != "true" )
+	    {
+		fprintf( out, "    typedef bool(%s::*s3_t%d)()const;\n", (const char*)className, count );
+		fprintf( out, "    s3_t%d sv3_%d = &%s::%s;\n", count, count, (const char*)className,
+			 (const char*)it.current()->stored );
+		fprintf( out, "    props_tbl[%d].store = *((QMember*)&sv3_%d);\n", entry, count );
+	    }
+	    // else { Default is TRUE -> do nothing }
+
+	    // OVERRIDE but no STORED ?
+	    if ( it.current()->override && it.current()->stored.isEmpty() )
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedStoreable);\n", entry );
+
+	    // Handle DESIGNABLE
+	    if ( it.current()->designable == false )
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::NotDesignable);\n", entry );
+	    // else { Default is TRUE -> do nothing }
+
+	    // OVERRIDE but no DESIGNABLE ?
+	    if ( it.current()->override && it.current()->designable == -1 )
+		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedDesignable);\n", entry );
 
 	    ++entry;
 	    count += 2;

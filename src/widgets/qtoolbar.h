@@ -38,9 +38,9 @@ class QToolBarPrivate;
 class Q_EXPORT QToolBar: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "label", label, setLabel )
-    Q_PROPERTY( bool, "hStretchable", isHorizontalStretchable, setHorizontalStretchable )
-    Q_PROPERTY( bool, "vStretchable", isVerticalStretchable, setVerticalStretchable )
+    Q_PROPERTY( QString label READ label WRITE setLabel )
+    Q_PROPERTY( bool hStretchable READ isHorizontalStretchable WRITE setHorizontalStretchable )
+    Q_PROPERTY( bool vStretchable READ isVerticalStretchable WRITE setVerticalStretchable )
     // ####### Should support Orientation, too!
 public:
     QToolBar( const QString &label,

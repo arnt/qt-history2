@@ -37,9 +37,9 @@ struct QMBData;
 class Q_EXPORT QMessageBox : public QDialog
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "text", text, setText )
-    Q_PROPERTY( Icon, "icon", icon, setIcon )
-    Q_PROPERTY( QPixmap, "iconPixmap", iconPixmap, setIconPixmap )
+    Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( Icon icon READ icon WRITE setIcon )
+    Q_PROPERTY( QPixmap iconPixmap READ iconPixmap WRITE setIconPixmap )
     // #### Add Qt::TextFormat
 
 public:

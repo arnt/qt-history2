@@ -57,9 +57,9 @@ class QMetaProperty 				// property meta data
 public:
     QMetaProperty()
 	:t(0),n(0),
-	 get(0),set(0),enumData(0),
+	 get(0),set(0),store(0),enumData(0),
 	 gspec(Unspecified),sspec(Unspecified),
-	 flags(0)
+	 /* dv(0),*/ flags(0)
     {
     }
 
@@ -67,30 +67,43 @@ public:
     const char*	name() const { return n; }		// name of the property
 
     bool writeable() const { return set != 0; }
-    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum) ; }
+    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStoreable ) ; }
 
     bool isEnumType() const { return enumData != 0; }
     QStrList enumKeys() const;			// enumeration names
 
+    // const QVariant* defaultValue() const { return dv; }
+    // bool hasDefaultValue() const { return ( dv && dv->isValid() ); }
+    
+    bool isStoreable() const { return !testFlags( NotStoreable | UnresolvedStoreable ); }
+    bool isDesignable() const { return !testFlags( NotDesignable | UnresolvedDesignable ); }
+    
     const char* t;
     const char* n;
     QMember 	get;				// get-function or 0 ( 0 indicates an error )
     QMember 	set;				// set-function or 0
+    QMember 	store;				// store-function or 0
     QMetaEnum	*enumData; 			// a pointer to the enum specification or 0
-    
+
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
     Specification gspec;			// specification of the get-function
     Specification sspec;			// specification of the set-function
 
     enum Flags  {
-	UnresolvedEnum = 0x00000001
+	UnresolvedEnum       = 0x00000001,
+	UnresolvedStoreable  = 0x00000002,
+	UnresolvedDesignable = 0x00000004,
+	NotDesignable        = 0x00000008,
+	NotStoreable         = 0x00000010,
     };
 
-    inline bool testFlags( Flags f ) const
-	{ return (flags & (uint)f) == (uint)f; }
-    inline void setFlags( Flags f )
+    // QVariant* dv;
+    
+    inline bool testFlags( uint f ) const
+	{ return (flags & (uint)f) != (uint)0; }
+    inline void setFlags( uint f )
 	{ flags |= (uint)f; }
-    inline void clearFlags( Flags f )
+    inline void clearFlags( uint f )
 	{ flags &= ~(uint)f; }
 
 private:

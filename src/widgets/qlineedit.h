@@ -44,17 +44,17 @@ Q_OBJECT
 class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
-    
-    Q_PROPERTY( QString, "text", text, setText )
-    Q_PROPERTY( int, "maxLength", maxLength, setMaxLength )
-    Q_PROPERTY( bool, "frame", setFrame, frame )
-    Q_PROPERTY( EchoMode, "echoMode", echoMode, setEchoMode )
-    Q_PROPERTY( QString, "displayText", displayText, 0 )
-    Q_PROPERTY( int, "cursorPosition", cursorPosition, setCursorPosition )
-    Q_PROPERTY( int, "alignment", alignment, setAlignment )
-    Q_PROPERTY( bool, "edited", edited, setEdited )
-    Q_PROPERTY( bool, "hasMarkedText", hasMarkedText, 0 )
-    Q_PROPERTY( QString, "markedText", markedText, 0 )
+
+    Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )
+    Q_PROPERTY( bool frame READ frame WRITE setFrame )
+    Q_PROPERTY( EchoMode echoMode READ echoMode WRITE setEchoMode )
+    Q_PROPERTY( QString displayText READ displayText )
+    Q_PROPERTY( int cursorPosition READ cursorPosition WRITE setCursorPosition )
+    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
+    Q_PROPERTY( bool edited READ edited WRITE setEdited )
+    Q_PROPERTY( bool hasMarkedText READ hasMarkedText )
+    Q_PROPERTY( QString markedText READ markedText )
 	
 public:
     QLineEdit( QWidget *parent, const char *name=0 );

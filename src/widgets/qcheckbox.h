@@ -33,7 +33,7 @@
 class Q_EXPORT QCheckBox : public QButton
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "checked", isChecked, setChecked )
+    Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
 
 public:
     QCheckBox( QWidget *parent, const char *name=0 );

@@ -171,13 +171,13 @@ class Q_EXPORT QListView: public QScrollView
     friend class QListViewItem;
 
     Q_OBJECT
-    Q_PROPERTY( int, "columns", columns, 0 )
-    Q_PROPERTY( bool, "multiSelection", isMultiSelection, setMultiSelection )
-    Q_PROPERTY( SelectionMode, "selectionMode", selectionMode, setSelectionMode )
-    Q_PROPERTY( int, "childCount", childCount, 0 )
-    Q_PROPERTY( bool, "allColumnsShowFocus", allColumnsShowFocus, setAllColumnsShowFocus )
-    Q_PROPERTY( int, "itemMargin", itemMargin, setItemMargin )
-    Q_PROPERTY( bool, "rootIsDecorated", rootIsDecorated, setRootIsDecorated )
+    Q_PROPERTY( int columns READ columns )
+    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection )
+    Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
+    Q_PROPERTY( int childCount READ childCount )
+    Q_PROPERTY( bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus )
+    Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
+    Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
 	
 public:
     QListView( QWidget * parent = 0, const char *name = 0 );

@@ -41,10 +41,10 @@ class QMainWindowPrivate;
 class Q_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "rightJustification", rightJustification, setRightJustification )
-    Q_PROPERTY( bool, "usesBigPixmaps", usesBigPixmaps, setUsesBigPixmaps )
-    Q_PROPERTY( bool, "usesTextLabel", usesTextLabel, setUsesTextLabel )
-    Q_PROPERTY( bool, "toolBarsMovable", toolBarsMovable, setToolBarsMovable )
+    Q_PROPERTY( bool rightJustification READ rightJustification WRITE setRightJustification )
+    Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
+    Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
+    Q_PROPERTY( bool toolBarsMovable READ toolBarsMovable WRITE setToolBarsMovable )
 
 public:
     QMainWindow( QWidget * parent = 0, const char * name = 0, WFlags f = WType_TopLevel );

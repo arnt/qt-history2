@@ -39,15 +39,15 @@ struct QSliderData;
 class Q_EXPORT QSlider : public QWidget, public QRangeControl
 {
     Q_OBJECT
-    Q_PROPERTY( int, "minValue", minValue, setMinValue )
-    Q_PROPERTY( int, "maxValue", maxValue, setMaxValue )
-    Q_PROPERTY( int, "lineStep", lineStep, setLineStep )
-    Q_PROPERTY( int, "pageStep", pageStep, setPageStep )
-    Q_PROPERTY( int, "value", value, setValue )
-    Q_PROPERTY( bool, "tracking", tracking, setTracking )
-    // ##### Q_PROPERTY( Orientation, "orientation", orientation, setOrientation )
-    Q_PROPERTY( TickSetting, "tickmarks", tickmarks, setTickmarks )
-    Q_PROPERTY( int, "tickInterval", tickInterval, setTickInterval )
+    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
+    Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
+    Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
+    Q_PROPERTY( int pageStep READ pageStep WRITE setPageStep )
+    Q_PROPERTY( int value READ value WRITE setValue )
+    Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+    Q_PROPERTY( TickSetting tickmarks READ tickmarks WRITE setTickmarks )
+    Q_PROPERTY( int tickInterval READ tickInterval WRITE setTickInterval )
 	
 public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,

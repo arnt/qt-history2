@@ -39,12 +39,12 @@ struct QProgressData;
 class Q_EXPORT QProgressDialog : public QSemiModal
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "wasCancelled", wasCancelled, 0 )
-    Q_PROPERTY( int, "totalSteps", totalSteps, setTotalSteps )
-    Q_PROPERTY( int, "progress", progress, setProgress )
-    Q_PROPERTY( bool, "autoReset", autoReset, setAutoReset )
-    Q_PROPERTY( bool, "autoClose", autoClose, setAutoClose )
-    Q_PROPERTY( QString, "labelText", labelText, setLabelText )
+    Q_PROPERTY( bool wasCancelled READ wasCancelled )
+    Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )
+    Q_PROPERTY( int progress READ progress WRITE setProgress )
+    Q_PROPERTY( bool autoReset READ autoReset WRITE setAutoReset )
+    Q_PROPERTY( bool autoClose READ autoClose WRITE setAutoClose )
+    Q_PROPERTY( QString labelText READ labelText WRITE setLabelText )
 	
 public:
     QProgressDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,

@@ -35,10 +35,10 @@ struct QWellArrayData;
 class Q_EXPORT QWellArray : public QTableView
 {
     Q_OBJECT
-    // #### Not const Q_PROPERTY( int, "numCols", numCols, 0 )
-    // #### Not const Q_PROPERTY( int, "numRows", numRows, 0 )
-    // #### Not const Q_PROPERTY( int, "selectedColumn", selectedColumn, 0 )
-    // #### Not const Q_PROPERTY( int, "selectedRow", selectedRow, 0 )
+    Q_PROPERTY( int numCols READ numCols )
+    Q_PROPERTY( int numRows READ numRows )
+    Q_PROPERTY( int selectedColumn READ selectedColumn )
+    Q_PROPERTY( int selectedRow READ selectedRow )
 	
 public:
     QWellArray( QWidget *parent=0, const char *name=0, bool popup = FALSE );
@@ -47,11 +47,19 @@ public:
     QString cellContent( int row, int col ) const;
     // ### Paul !!! virtual void setCellContent( int row, int col, const QString &);
 
+    // ##### Obsolete since not const
     int numCols() { return nCols; }
     int numRows() { return nRows; }
 
+    int numCols() const { return nCols; }
+    int numRows() const { return nRows; }
+
+    // ##### Obsolete since not const
     int selectedColumn() { return selCol; }
     int selectedRow() { return selRow; }
+
+    int selectedColumn() const { return selCol; }
+    int selectedRow() const { return selRow; }
 
     virtual void setSelected( int row, int col );
 

@@ -43,7 +43,7 @@ class QVariant;
 
 class Q_EXPORT QObject: public Qt
 {
-    Q_PROPERTY( QCString, "name", name, setName )
+    Q_PROPERTY( QCString name READ name WRITE setName )
 	
 public:
     QObject( QObject *parent=0, const char *name=0 );

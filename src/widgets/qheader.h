@@ -38,9 +38,9 @@ class Q_EXPORT QHeader : public QWidget
 {
     Q_OBJECT
     // #### Orientation is missing
-    Q_PROPERTY( bool, "tracking", tracking, setTracking )
-    Q_PROPERTY( int, "count", count, 0 )
-    Q_PROPERTY( int, "offset", offset, setOffset )
+    Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
+    Q_PROPERTY( int count READ count )
+    Q_PROPERTY( int offset READ offset WRITE setOffset )
 	
 public:
     QHeader( QWidget *parent=0, const char *name=0 );

@@ -40,8 +40,8 @@ class QSpacerItem;
 class Q_EXPORT QGroupBox : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "title", title, setTitle )
-    Q_PROPERTY( int, "alignment", alignment, setAlignment )
+    Q_PROPERTY( QString title READ title WRITE setTitle )
+    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
 	
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );

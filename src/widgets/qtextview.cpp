@@ -483,6 +483,14 @@ const QBrush& QTextView::paper()
 }
 
 /*!
+  Returns the brush used to paint the background.
+*/
+const QBrush& QTextView::paper() const
+{
+    return d->papcolgrp.brush( QColorGroup::Base );
+}
+
+/*!
   \reimp
 */
 void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
@@ -616,7 +624,7 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 
 
 /*!  Returns TRUE if there is any text selected, FALSE otherwise.
-  
+
   \sa selectedText()
 */
 bool QTextView::hasSelectedText() const
@@ -625,14 +633,14 @@ bool QTextView::hasSelectedText() const
 }
 
 /*!  Returns a copy of the selected text in plain text format.
-  
+
   \sa hasSelectedText()
  */
 QString QTextView::selectedText() const
 {
     return richText().selectedText();
 }
-    
+
 
 /*!
   Copies the marked text to the clipboard.
@@ -682,7 +690,7 @@ void QTextView::viewportMouseMoveEvent( QMouseEvent* e)
 	    d->dragTimer->stop();
 	    doStartDrag();
 	}
-    } 
+    }
 }
 
 /*!
@@ -848,7 +856,7 @@ void QTextView::doAutoScroll()
     doSelection( pos );
 }
 
-void QTextView::doSelection( const QPoint& pos ) 
+void QTextView::doSelection( const QPoint& pos )
 {
     QPainter p(viewport());
 
@@ -860,12 +868,12 @@ void QTextView::doSelection( const QPoint& pos )
 	repaintContents( richText().flow()->updateRect(), FALSE );
 	richText().flow()->validateRect();
     }
-    
+
     if ( pos.y() < 0 || pos.y() > visibleHeight() )
 	d->scrollTimer->start( 100, FALSE );
     else
 	d->scrollTimer->stop();
-}    
+}
 
 void QTextView::clipboardChanged()
 {

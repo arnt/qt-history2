@@ -39,7 +39,7 @@ class QTextBrowserData;
 class Q_EXPORT QTextBrowser : public QTextView
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "source", source, setSource )
+    Q_PROPERTY( QString source READ source WRITE setSource )
 
 public:
     QTextBrowser( QWidget *parent=0, const char *name=0 );

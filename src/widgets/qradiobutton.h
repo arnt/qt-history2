@@ -33,7 +33,7 @@
 class Q_EXPORT QRadioButton : public QButton
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "checked", isChecked, setChecked )
+    Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
 
 public:
     QRadioButton( QWidget *parent, const char *name=0 );

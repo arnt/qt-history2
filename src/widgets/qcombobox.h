@@ -42,15 +42,15 @@ class QListBox;
 class Q_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( int, "count", count, 0 )
-    Q_PROPERTY( QString, "currentText", currentText, 0 )
-    Q_PROPERTY( int, "currentItem", currentItem, setCurrentItem )
-    Q_PROPERTY( bool, "autoResize", autoResize, setAutoResize )
-    Q_PROPERTY( int, "sizeLimit", sizeLimit, setSizeLimit )
-    Q_PROPERTY( int, "maxCount", maxCount, setMaxCount )
-    Q_PROPERTY( Policy, "insertionPolicy", insertionPolicy, setInsertionPolicy )
-    Q_PROPERTY( bool, "autoCompletion", autoCompletion, setAutoCompletion )
-    Q_PROPERTY( bool, "duplicatesEnabled", duplicatesEnabled, setDuplicatesEnabled )
+    Q_PROPERTY( int count READ count )
+    Q_PROPERTY( QString currentText READ currentText )
+    Q_PROPERTY( int currentItem READ currentItem WRITE setCurrentItem )
+    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
+    Q_PROPERTY( int sizeLimit READ sizeLimit WRITE setSizeLimit )
+    Q_PROPERTY( int maxCount READ maxCount WRITE setMaxCount )
+    Q_PROPERTY( Policy insertionPolicy READ insertionPolicy WRITE setInsertionPolicy )
+    Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
+    Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
 	
 public:
     QComboBox( QWidget *parent=0, const char *name=0 );

@@ -42,14 +42,14 @@ class QToolBar;
 class Q_EXPORT QToolButton: public QButton
 {
     Q_OBJECT
-    Q_PROPERTY( QIconSet, "onIconSet", onIconSet, setOnIconSet )
-    Q_PROPERTY( QIconSet, "offIconSet", offIconSet, setOffIconSet )
-    Q_PROPERTY( bool, "usesBigPixmap", usesBigPixmap, setUsesBigPixmap )
-    Q_PROPERTY( bool, "usesTextLabel", usesTextLabel, setUsesTextLabel )
-    Q_PROPERTY( QString, "textLabel", textLabel, setTextLabel )
-    Q_PROPERTY( int, "popupDelay", popupDelay, setPopupDelay )
-    Q_PROPERTY( bool, "autoRaise", autoRaise, setAutoRaise )
-    Q_PROPERTY( bool, "on", 0, setOn )
+    Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet )
+    Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet )
+    Q_PROPERTY( bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap )
+    Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
+    Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
+    Q_PROPERTY( int popupDelay READ popupDelay WRITE setPopupDelay )
+    Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
+    Q_PROPERTY( OVERRIDE bool on WRITE setOn )
 	
 public:
     QToolButton( QWidget * parent, const char *name = 0 );
@@ -69,11 +69,11 @@ public:
 
     void setOnIconSet( const QIconSet& );
     void setOffIconSet( const QIconSet& );
-    QIconSet onIconSet() const;    
+    QIconSet onIconSet() const;
     QIconSet offIconSet( ) const;
     virtual void setIconSet( const QIconSet &, bool on = FALSE );
     QIconSet iconSet( bool on = FALSE) const;
-    
+
     bool usesBigPixmap() const { return ubp; }
     bool usesTextLabel() const { return utl; }
     QString textLabel() const { return tl; }
@@ -90,13 +90,14 @@ public:
 public slots:
     virtual void setUsesBigPixmap( bool enable );
     virtual void setUsesTextLabel( bool enable );
-    virtual void setTextLabel( const QString &, bool = TRUE );
+    virtual void setTextLabel( const QString &, bool );
 
     virtual void setToggleButton( bool enable ); //### fjern virtual 3.0
 
     virtual void setOn( bool enable ); //### fjern virtual 3.0
     void toggle();
-
+    void setTextLabel( const QString & );
+    
 protected:
     void drawButton( QPainter * );
     void drawButtonLabel( QPainter * );

@@ -44,11 +44,11 @@ class Q_EXPORT QTextView : public QScrollView
     Q_OBJECT
     // ######### Should support property textFormat
     // ######### setText should not have the default parameter
-    Q_PROPERTY( QBrush, "paper", paper, setPaper )
-    Q_PROPERTY( QColorGroup, "paperColorGroup", paperColorGroup, setPaperColorGroup )
-    Q_PROPERTY( QColor, "linkColor", linkColor, setLinkColor )
-    Q_PROPERTY( bool, "linkUnderline", linkUnderline, setLinkUnderline )
-    Q_PROPERTY( QString, "documentTitle", documentTitle, 0 )
+    Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
+    Q_PROPERTY( QColorGroup paperColorGroup READ paperColorGroup WRITE setPaperColorGroup )
+    Q_PROPERTY( QColor linkColor READ linkColor WRITE setLinkColor )
+    Q_PROPERTY( bool linkUnderline READ linkUnderline WRITE setLinkUnderline )
+    Q_PROPERTY( QString documentTitle READ documentTitle )
 	
 public:
     QTextView(QWidget *parent=0, const char *name=0);
@@ -70,8 +70,10 @@ public:
 
     // convenience functions
     void setPaper( const QBrush& pap);
+    // ##### This non const thing is obsolete
     const QBrush& paper();
-
+    const QBrush& paper() const;
+    
     void setPaperColorGroup( const QColorGroup& colgrp);
     const QColorGroup &paperColorGroup() const;
 

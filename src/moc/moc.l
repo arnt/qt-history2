@@ -62,7 +62,7 @@ extern void addExpressionString( const char * );
 extern void moc_warn( const char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -87,14 +87,14 @@ extern void moc_warn( const char *msg );
 <IN_CLASS>"}"			{ classPLevel--;Y;if (classPLevel == 0)
                                                       {X;return '}';} }
 <IN_CLASS>"public"		{ X;if( classPLevel == 1 ) return PUBLIC; }
-<IN_CLASS>"protected"		{ X;if( classPLevel == 1 )return PROTECTED; }
-<IN_CLASS>"private"		{ X;if( classPLevel == 1 )return PRIVATE; }
-<IN_CLASS>"signals"		{ X;if( classPLevel == 1 )return SIGNALS; }
-<IN_CLASS>"slots"		{ X;if( classPLevel == 1 )return SLOTS; }
-<IN_CLASS>"enum"		{ X;if( classPLevel == 1 )return ENUM_IN_CLASS; }
-<IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 )return Q_OBJECT; }
-<IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 )return Q_PROPERTY; }
-<IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 )return Q_CLASSINFO; }
+<IN_CLASS>"protected"		{ X;if( classPLevel == 1 ) return PROTECTED; }
+<IN_CLASS>"private"		{ X;if( classPLevel == 1 ) return PRIVATE; }
+<IN_CLASS>"signals"		{ X;if( classPLevel == 1 ) return SIGNALS; }
+<IN_CLASS>"slots"		{ X;if( classPLevel == 1 ) return SLOTS; }
+<IN_CLASS>"enum"		{ X;if( classPLevel == 1 ) return ENUM_IN_CLASS; }
+<IN_CLASS>"Q_OBJECT"		{ X;if( classPLevel == 1 ) return Q_OBJECT; }
+<IN_CLASS>"Q_PROPERTY"		{ X;if( classPLevel == 1 ) return Q_PROPERTY; }
+<IN_CLASS>"Q_CLASSINFO"		{ X;if( classPLevel == 1 ) return Q_CLASSINFO; }
 
 <IN_NAMESPACE>"{"		{ namespacePLevel++;Y; }
 <IN_NAMESPACE>"}"		{ namespacePLevel--;Y;if (namespacePLevel == 0)
@@ -116,9 +116,33 @@ extern void moc_warn( const char *msg );
 <QT_DEF>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
 
 <IN_PROPERTY>"("		{ X; return '('; }
-<IN_PROPERTY>","		{ X; return ','; }
 <IN_PROPERTY>")"		{ X; return ')'; }
-<IN_PROPERTY>"0"		{ X; return '0'; }
+<IN_PROPERTY>"READ"		{ X; return READ; }
+<IN_PROPERTY>"WRITE"		{ X; return WRITE; }
+<IN_PROPERTY>"STORED"		{ X; return STORED; }
+<IN_PROPERTY>"DEFAULT"		{ X; return DEFAULT; }
+<IN_PROPERTY>"NODEFAULT"	{ X; return NODEFAULT; }
+<IN_PROPERTY>"DESIGNABLE"	{ X; return DESIGNABLE; }
+<IN_PROPERTY>"OVERRIDE"		{ X; return OVERRIDE; }
+
+<IN_PROPDEF>"READ"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return READ; }
+<IN_PROPDEF>"WRITE"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return WRITE; }
+<IN_PROPDEF>"STORED"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return STORED; }
+<IN_PROPDEF>"DEFAULT"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return DEFAULT; }
+<IN_PROPDEF>"DESIGNABLE"	{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return DESIGNABLE; }
+<IN_PROPDEF>"NODEFAULT"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return NODEFAULT; }
+<IN_PROPDEF>"("			{ addExpressionChar( '(' ); expLevel++;X; }
+<IN_PROPDEF>")"			{ expLevel--;Y;if (expLevel == 0)
+					{ X; BEGIN IN_PROPERTY; return ')';}
+				  else
+					{ addExpressionChar( ')' ); }
+				}
+<IN_PROPDEF>"["			{ addExpressionChar( '[' ); expLevel++;X; }
+<IN_PROPDEF>"]"			{ expLevel--;X;if (expLevel == 0)
+					{ X; BEGIN IN_PROPERTY; return ']';}
+				  else
+					{ addExpressionChar( ']' ); }
+				}
 
 <IN_EXPR>"("			{ expLevel++;X; }
 <IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
@@ -269,14 +293,25 @@ extern void moc_warn( const char *msg );
 			}
 
 
-<IN_PROPERTY>\"[^"]*	     { if (yytext[yyleng - 1] == '\\') {
+<IN_PROPDEF>\"[^"]*	     { if (yytext[yyleng - 1] == '\\') {
 			      yymore();
 			  }
 			  else {
 			      X;
-			      yylval.string = qstrdup(yytext+1);
+			      addExpressionString( yytext );
+			      addExpressionChar( '"' );
 			      input();		/* discard the '"' */
-			      return STRING;
+			 }
+			}
+
+<IN_PROPDEF>\'[^']*	     { if (yytext[yyleng - 1] == '\\') {
+			      yymore();
+			  }
+			  else {
+			      X;
+			      addExpressionString( yytext );
+			      addExpressionChar( '"' );
+			      input();		/* discard the ''' */
 			 }
 			}
 
@@ -431,7 +466,7 @@ extern void moc_warn( const char *msg );
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
 <IN_ENUM>.		  { addExpressionChar( yytext[0] ); }
 <IN_TEMPL_ARGS>.	  { addExpressionChar( yytext[0] ); }
-<IN_PROPERTY>.		  { return CHAR_VAL; }
+<IN_PROPDEF>.		  { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.		;
 <SKIP>.		        ;
 <QT_DEF>.		{

@@ -33,14 +33,14 @@
 class Q_EXPORT QFrame : public QWidget			// frame class
 {
     Q_OBJECT
-    Q_PROPERTY( int, "frameWidth", frameWidth, 0 )
-    Q_PROPERTY( QRect, "contentsRect", contentsRect, 0 )
-    Q_PROPERTY( Shape, "frameShape", frameShape, setFrameShape )
-    Q_PROPERTY( Shadow, "frameShadow", frameShadow, setFrameShadow )
-    Q_PROPERTY( int, "lineWidth", lineWidth, setLineWidth )
-    Q_PROPERTY( int, "margin", margin, setMargin )
-    Q_PROPERTY( int, "midLineWidth", midLineWidth, setMidLineWidth )
-    Q_PROPERTY( QRect, "frameRect", frameRect, setFrameRect )
+    Q_PROPERTY( int frameWidth READ frameWidth )
+    Q_PROPERTY( QRect contentsRect READ contentsRect )
+    Q_PROPERTY( Shape frameShape READ frameShape WRITE setFrameShape )
+    Q_PROPERTY( Shadow frameShadow READ frameShadow WRITE setFrameShadow )
+    Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
+    Q_PROPERTY( int margin READ margin WRITE setMargin )
+    Q_PROPERTY( int midLineWidth READ midLineWidth WRITE setMidLineWidth )
+    Q_PROPERTY( QRect frameRect READ frameRect WRITE setFrameRect )
 	
 public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0,

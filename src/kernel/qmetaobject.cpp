@@ -424,6 +424,26 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 		    prop->sspec = p->sspec;
 		}
 	    }
+
+	    if ( prop->testFlags( QMetaProperty::UnresolvedStoreable ) )
+	    {
+		if ( !p->testFlags( QMetaProperty::UnresolvedStoreable ) )
+		{
+		    prop->clearFlags( QMetaProperty::UnresolvedStoreable );
+		    if ( p->testFlags( QMetaProperty::NotStoreable ) )
+			prop->setFlags( QMetaProperty::NotStoreable );
+		    prop->store = p->store;
+		}
+	    }
+	    if ( prop->testFlags( QMetaProperty::UnresolvedDesignable ) )
+	    {
+		if ( !p->testFlags( QMetaProperty::UnresolvedDesignable ) )
+		{
+		    prop->clearFlags( QMetaProperty::UnresolvedDesignable );
+		    if ( p->testFlags( QMetaProperty::NotDesignable ) )
+			prop->setFlags( QMetaProperty::NotDesignable );
+		}
+	    }
 	}
 	if ( prop->testFlags( QMetaProperty::UnresolvedEnum ) ) {
 	    QMetaEnum* e = super->enumerator( prop->t);
@@ -434,6 +454,9 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	}
 	super = super->superclass;
     }
+	    
+    if ( !prop->isValid() )
+	qDebug("Could not resolve property %s::%s. Property not available.", className(), prop->name() );
 }
 
 

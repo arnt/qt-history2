@@ -34,12 +34,12 @@
 class Q_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "toggleButton", 0, setToggleButton )
-    Q_PROPERTY( bool, "autoDefault", autoDefault, setAutoDefault )
-    Q_PROPERTY( bool, "default", isDefault, setDefault )
-    Q_PROPERTY( bool, "menuButton", isMenuButton, setIsMenuButton )
-    Q_PROPERTY( bool, "on", 0, setOn )
-    Q_PROPERTY( QIconSet, "iconSet", iconSet, setIconSet )
+    Q_PROPERTY( OVERRIDE bool toggleButton WRITE setToggleButton )
+    Q_PROPERTY( bool autoDefault READ autoDefault WRITE setAutoDefault )
+    Q_PROPERTY( bool default READ isDefault WRITE setDefault )
+    Q_PROPERTY( bool menuButton READ isMenuButton WRITE setIsMenuButton )
+    Q_PROPERTY( OVERRIDE bool on WRITE setOn )
+    Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );

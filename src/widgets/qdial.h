@@ -38,11 +38,11 @@ class QDialPrivate;
 class Q_EXPORT QDial: public QWidget, public QRangeControl
 {
     Q_OBJECT
-    Q_PROPERTY( bool, "tracking", tracking, setTracking )
-    Q_PROPERTY( bool, "wrapping", wrapping, setWrapping )
-    Q_PROPERTY( int, "notchSize", notchSize, 0 )
-    Q_PROPERTY( double, "notchTarget", notchTarget, setNotchTarget )
-    Q_PROPERTY( bool, "notchesVisible", notchesVisible, setNotchesVisible )
+    Q_PROPERTY( bool tracking READ tracking WRITE setTracking )
+    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
+    Q_PROPERTY( int notchSize READ notchSize )
+    Q_PROPERTY( double notchTarget READ notchTarget WRITE setNotchTarget )
+    Q_PROPERTY( bool notchesVisible READ notchesVisible WRITE setNotchesVisible )
 	
 public:
     QDial( QWidget *parent=0, const char *name=0 );

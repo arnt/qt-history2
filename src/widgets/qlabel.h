@@ -36,12 +36,12 @@ class QLabelPrivate;
 class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( QString, "text", text, setText )
-    Q_PROPERTY( QPixmap, "pixmap", pixmap, setPixmap )
+    Q_PROPERTY( QString text READ text WRITE setText )
+    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     // #### Add Qt::TextFormat
-    Q_PROPERTY( int, "alignment", alignment, setAlignment )
-    Q_PROPERTY( int, "indent", indent, setIndent )
-    Q_PROPERTY( bool, "autoResize", autoResize, setAutoResize )
+    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
+    Q_PROPERTY( int indent READ indent WRITE setIndent )
+    Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize )
 	
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );

@@ -78,7 +78,7 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
     init();
     if ( parent->inherits( "QToolBar" ) ) {
 	setAutoRaise( TRUE );
-	QToolBar* tb = (QToolBar*)parent; 
+	QToolBar* tb = (QToolBar*)parent;
 	if ( tb->mainWindow() ) {
 	    connect( tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
 	             this, SLOT(setUsesBigPixmap(bool)) );
@@ -558,6 +558,15 @@ bool QToolButton::uses3D() const
 
 
 /*!  Sets the label of this button to \a newLabel, and automatically
+  sets it as tool tip too.
+*/
+
+void QToolButton::setTextLabel( const QString &newLabel )
+{
+    setTextLabel( newLabel, TRUE );
+}
+
+/*!  Sets the label of this button to \a newLabel, and automatically
   sets it as tool tip too if \a tipToo is TRUE.
 */
 
@@ -576,7 +585,7 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 /*!
   Sets the icon that is used when the button
   is in on-state.
-  
+
   \sa setIconSet
 */
 void QToolButton::setOnIconSet( const QIconSet& set )
@@ -587,7 +596,7 @@ void QToolButton::setOnIconSet( const QIconSet& set )
 /*!
   Sets the icon that is used when the button
   is in off-state.
-  
+
   \sa setIconSet
 */
 void QToolButton::setOffIconSet( const QIconSet& set )
@@ -598,7 +607,7 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 /*!
   Returns the icon set which is used if the toolbutton
   is in on-state.
-  
+
   \sa iconSet()
 */
 QIconSet QToolButton::onIconSet() const
@@ -609,7 +618,7 @@ QIconSet QToolButton::onIconSet() const
 /*!
   Returns the icon set which is used if the toolbutton
   is in off-state.
-  
+
   \sa iconSet()
 */
 QIconSet QToolButton::offIconSet( ) const
