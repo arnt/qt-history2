@@ -534,7 +534,7 @@ bool QSqlRecord::isGenerated( int i ) const
     generating SQL SELECT statements.  If a \a prefix is specified,
     e.g. a table name, all fields are prefixed in the form:
 
-  "\a prefix. <fieldname>"
+  "\a prefix. \<fieldname\>"
 */
 
 QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
@@ -559,7 +559,7 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
   included. (See isGenerated() ). If \a prefix is supplied, e.g. a
   table name, all fields are prefixed in the form:
 
-  "\a prefix. <fieldname>"
+  "\a prefix. \<fieldname\>"
 
 */
 
@@ -586,7 +586,6 @@ QString QSqlRecord::createField( int i, const QString& prefix ) const
 }
 
 /*!  Returns the number of fields in the record.
-
 */
 
 uint QSqlRecord::count() const
