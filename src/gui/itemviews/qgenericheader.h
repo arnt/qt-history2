@@ -1,0 +1,101 @@
+#ifndef QGENERICHEADER_H
+#define QGENERICHEADER_H
+
+#include <qabstractitemview.h>
+
+class QGenericHeaderPrivate;
+
+class QGenericHeader : public QAbstractItemView
+{
+    Q_OBJECT
+
+public:
+
+    enum ResizeMode
+    {
+	NoResize, // don't change the size (let the user decide)
+	Stretch, // fill available visible space
+	Content // set size to fit the content
+    };
+    
+    QGenericHeader(QGenericItemModel *model, Orientation orientation, QWidget *parent = 0, const char *name = 0);
+    virtual ~QGenericHeader();
+
+    Orientation orientation() const;
+    int offset() const;
+    QSize sizeHint() const;
+    int sectionSizeHint(int section, bool all = true) const;
+
+    int sectionAt(int position) const;
+    int sectionSize(int section) const;
+    int sectionPosition(int section) const;
+
+    void moveSection(int from, int to);
+    void resizeSection(int section, int size);
+
+    void hideSection(int section);
+    void showSection(int section);
+    bool isSectionHidden(int section) const;
+
+    int count() const;
+    int index(int section) const;
+    int section(int index) const;
+
+    void setMovable(bool movable);
+    bool isMovable() const;
+
+    void setClickable(bool clickable);
+    bool isClickable() const;
+
+    void setResizeMode(ResizeMode mode);
+    void setResizeMode(ResizeMode mode, int section);
+    ResizeMode resizeMode(int section) const;
+
+    void setSortIndicator(int section, SortOrder order);
+    int sortIndicatorSection() const;
+    SortOrder sortIndicatorOrder() const;
+
+public slots:
+    void setOffset(int offset);
+
+signals:
+    void sectionIndexChanged(int section, int oldIndex, int newIndex);
+    void sectionSizeChanged(int section, int oldSize, int newSize);
+    void sectionClicked(int section, ButtonState state);
+    void sectionCountChanged(int oldCount, int newCount);
+
+protected slots:
+    void updateSection(int section);
+    void resizeSections();
+
+protected:
+    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void initializeSections(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    
+    void drawContents(QPainter *p, int cx, int cy, int cw, int ch);
+
+    void viewportMousePressEvent(QMouseEvent *e);
+    void viewportMouseMoveEvent(QMouseEvent *e);
+    void viewportMouseReleaseEvent(QMouseEvent *e);
+    void resizeEvent(QResizeEvent *e);
+    
+    virtual void paintSection(QPainter *painter, QItemDelegate *delegate, QItemOptions *options,
+			      const QModelIndex &item);
+
+    int indexAt(int position) const;
+    
+    QModelIndex itemAt(int x, int y) const;
+    QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
+			  ButtonState state);
+    QRect itemRect(const QModelIndex &item) const;
+    QModelIndex item(int section) const;
+    void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
+    QRect selectionRect(const QItemSelection *selection) const;
+
+private:
+    QGenericHeaderPrivate *d;
+};
+
+#endif

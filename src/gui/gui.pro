@@ -25,6 +25,7 @@ include(styles/styles.pri)
 include(widgets/widgets.pri)
 include(dialogs/dialogs.pri)
 include(accessible/accessible.pri)
+include(itemviews/itemviews.pri)
 
 # ##### this should go away eventually
 include(compat.pri)
