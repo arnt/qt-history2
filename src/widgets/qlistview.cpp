@@ -7191,6 +7191,7 @@ QListViewItemIterator::~QListViewItemIterator()
 	    }
 	}
     }
+    delete d;
 }
 
 /*!
