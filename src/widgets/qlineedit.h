@@ -15,8 +15,6 @@
 #ifndef QLINEEDIT_H
 #define QLINEEDIT_H
 
-struct QLineEditPrivate;
-
 class QValidator;
 class QPopupMenu;
 
@@ -26,6 +24,8 @@ class QPopupMenu;
 #endif // QT_H
 
 #ifndef QT_NO_LINEEDIT
+
+class QLineEditPrivate;
 
 class Q_GUI_EXPORT QLineEdit : public QFrame
 {
@@ -186,10 +186,8 @@ public:
     bool getSelection( int *, int * ); // obsolete
 
 private:
-    friend struct QLineEditPrivate;
-    QLineEditPrivate * d;
+    Q_DECL_PRIVATE(QLineEdit);
 
-private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );
     QLineEdit &operator=( const QLineEdit & );

@@ -13,6 +13,8 @@
 ****************************************************************************/
 
 #include "qlineedit.h"
+#include "qlineedit_p.h"
+
 #ifndef QT_NO_LINEEDIT
 #include "qevent.h"
 #include "qpainter.h"
@@ -47,199 +49,8 @@
 
 #define innerMargin 1
 
-struct QLineEditPrivate : public Qt
-{
-    QLineEditPrivate( QLineEdit *q )
-	: q(q), cursor(0), cursorTimer(0), frame(1),
-	  cursorVisible(0), separator(0), readOnly(0), modified(0),
-	  direction(QChar::DirON), dragEnabled(1), alignment(0),
-	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
-	  ascent(0), maxLength(32767), menuId(0),
-	  hscroll(0), validator(0), maskData(0),
-	  undoState(0), selstart(0), selend(0),
-	  imstart(0), imend(0), imselstart(0), imselend(0)
-	{}
-    void init( const QString&);
-
-    QLineEdit *q;
-    QString text;
-    int cursor;
-    int cursorTimer; // -1 for non blinking cursor.
-    QPoint tripleClick;
-    QBasicTimer tripleClickTimer;
-    uint frame : 1;
-    uint cursorVisible : 1;
-    uint separator : 1;
-    uint readOnly : 1;
-    uint modified : 1;
-    uint direction : 5;
-    uint dragEnabled : 1;
-    uint alignment : 3;
-    uint echoMode : 2;
-    uint textDirty : 1;
-    uint selDirty : 1;
-    uint validInput : 1;
-    int ascent;
-    int maxLength;
-    int menuId;
-    int hscroll;
-    QChar passwordChar; // obsolete
-
-    void finishChange( int validateFromState = -1, bool setModified = TRUE );
-
-    const QValidator* validator;
-    struct MaskInputData {
-	enum Casemode { NoCaseMode, Upper, Lower };
-	QChar maskChar; // either the separator char or the inputmask
-	bool separator;
-	Casemode caseMode;
-    };
-    QString inputMask;
-    QChar blank;
-    MaskInputData *maskData;
-    inline int nextMaskBlank( int pos ) {
-	int c = findInMask( pos, TRUE, FALSE );
-	separator |= ( c != pos );
-	return ( c != -1 ?  c : maxLength );
-    }
-    inline int prevMaskBlank( int pos ) {
-	int c = findInMask( pos, FALSE, FALSE );
-	separator |= ( c != pos );
-	return ( c != -1 ? c : 0 );
-    }
-
-    void setCursorVisible( bool visible );
-
-
-    // undo/redo handling
-    enum CommandType { Separator, Insert, Remove, Delete, RemoveSelection, DeleteSelection };
-    struct Command {
-	inline Command(){}
-	inline Command( CommandType type, int pos, QChar c )
-	    :type(type),c(c),pos(pos){}
-	uint type : 4;
-	QChar c;
-	int pos;
-    };
-    int undoState;
-    QVector<Command> history;
-    void addCommand( const Command& cmd );
-    void insert( const QString& s );
-    void del( bool wasBackspace = FALSE );
-    void remove( int pos );
-
-    inline void separate() { separator = TRUE; }
-    inline void undo( int until = -1 ) {
-	if ( !isUndoAvailable() )
-	    return;
-	deselect();
-	while ( undoState && undoState > until ) {
-	    Command& cmd = history[--undoState];
-	    switch ( cmd.type ) {
-	    case Insert:
-		text.remove( cmd.pos, 1);
-		cursor = cmd.pos;
-		break;
-	    case Remove:
-	    case RemoveSelection:
-		text.insert( cmd.pos, cmd.c );
-		cursor = cmd.pos + 1;
-		break;
-	    case Delete:
-	    case DeleteSelection:
-		text.insert( cmd.pos, cmd.c );
-		cursor = cmd.pos;
-		break;
-	    case Separator:
-		continue;
-	    }
-	    if ( until < 0 && undoState ) {
-		Command& next = history[undoState-1];
-		if ( next.type != cmd.type && next.type < RemoveSelection
-		     && !( cmd.type >= RemoveSelection && next.type != Separator ) )
-		    break;
-	    }
-	}
-	modified = ( undoState != 0 );
-	textDirty = TRUE;
-    }
-    inline void redo() {
-	if ( !isRedoAvailable() )
-	    return;
-	deselect();
-	while ( undoState < (int)history.size() ) {
-	    Command& cmd = history[undoState++];
-	    switch ( cmd.type ) {
-	    case Insert:
-		text.insert( cmd.pos, cmd.c );
-		cursor = cmd.pos + 1;
-		break;
-	    case Remove:
-	    case Delete:
-	    case RemoveSelection:
-	    case DeleteSelection:
-		text.remove( cmd.pos, 1 );
-		cursor = cmd.pos;
-		break;
-	    case Separator:
-		continue;
-	    }
-	    if ( undoState < (int)history.size() ) {
-		Command& next = history[undoState];
-		if ( next.type != cmd.type && cmd.type < RemoveSelection
-		     && !( next.type >= RemoveSelection && cmd.type != Separator ) )
-		    break;
-	    }
-	}
-	textDirty = TRUE;
-    }
-    inline bool isUndoAvailable() const { return !readOnly && undoState; }
-    inline bool isRedoAvailable() const { return !readOnly && undoState < (int)history.size(); }
-
-    // bidi
-    inline bool isRightToLeft() const { return direction==QChar::DirON?text.isRightToLeft():(direction==QChar::DirR); }
-
-    // selection
-    int selstart, selend;
-    inline bool allSelected() const { return !text.isEmpty() && selstart == 0 && selend == (int)text.length(); }
-    inline bool hasSelectedText() const { return !text.isEmpty() && selend > selstart; }
-    inline void deselect() { selDirty |= (selend > selstart); selstart = selend = 0; }
-    void removeSelectedText();
-#ifndef QT_NO_CLIPBOARD
-    void copy( bool clipboard = TRUE ) const;
-#endif
-    inline bool inSelection( int x ) const
-    { if ( selstart >= selend ) return FALSE;
-    int pos = xToPos( x, QTextLine::OnCharacters );  return pos >= selstart && pos < selend; }
-
-    // masking
-    void parseInputMask( const QString &maskFields );
-    bool isValidInput( QChar key, QChar mask ) const;
-    QString maskString( uint pos, const QString &str, bool clear = FALSE ) const;
-    QString clearString( uint pos, uint len ) const;
-    QString stripString( const QString &str ) const;
-    int findInMask( int pos, bool forward, bool findSeparator, QChar searchChar = QChar() ) const;
-
-    // input methods
-    int imstart, imend, imselstart, imselend;
-
-    // complex text layout
-    QTextLayout textLayout;
-    void updateTextLayout();
-    void moveCursor( int pos, bool mark = FALSE );
-    void setText( const QString& txt );
-    int xToPos( int x, QTextLine::CursorPosition = QTextLine::BetweenCharacters ) const;
-    inline int visualAlignment() const { return alignment ? alignment : int( isRightToLeft() ? AlignRight : AlignLeft ); }
-    QRect cursorRect() const;
-    void updateMicroFocusHint();
-
-#ifndef QT_NO_DRAGANDDROP
-    // drag and drop
-    QPoint dndPos;
-    QBasicTimer dndTimer;
-    void drag();
-#endif
-};
+#define d d_func()
+#define q q_func()
 
 
 /*!
@@ -359,8 +170,9 @@ struct QLineEditPrivate : public Qt
 */
 
 QLineEdit::QLineEdit( QWidget* parent, const char* name )
-    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
+    : QFrame(*new QLineEditPrivate, parent)
 {
+    setObjectName(name);
     d->init( QString::null );
 }
 
@@ -377,8 +189,9 @@ QLineEdit::QLineEdit( QWidget* parent, const char* name )
 */
 
 QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name )
-    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
+    : QFrame(*new QLineEditPrivate, parent)
 {
+    setObjectName(name);
     d->init( contents );
 }
 
@@ -396,8 +209,9 @@ QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name
     \sa setMask() text()
 */
 QLineEdit::QLineEdit( const QString& contents, const QString &inputMask, QWidget* parent, const char* name )
-    : QFrame( parent, name ), d(new QLineEditPrivate( this ))
+    : QFrame(*new QLineEditPrivate, parent)
 {
+    setObjectName(name);
     d->parseInputMask( inputMask );
     if ( d->maskData ) {
 	QString ms = d->maskString( 0, contents );
@@ -1849,7 +1663,7 @@ void QLineEdit::drawContents( QPainter *p )
 
     // draw text, selections and cursors
     p->setPen( pal.text() );
-    bool supressCursor = d->readOnly, hasRightToLeft = d->isRightToLeft();
+    bool supressCursor = d->readOnly;
     int textflags = 0;
     if ( font().underline() )
 	textflags |= Qt::Underline;
@@ -2664,6 +2478,72 @@ int QLineEditPrivate::findInMask( int pos, bool forward, bool findSeparator, QCh
 	i += step;
     }
     return -1;
+}
+
+void QLineEditPrivate::undo(int until) {
+    if ( !isUndoAvailable() )
+	return;
+    deselect();
+    while ( undoState && undoState > until ) {
+	Command& cmd = history[--undoState];
+	switch ( cmd.type ) {
+	case Insert:
+	    text.remove( cmd.pos, 1);
+	    cursor = cmd.pos;
+	    break;
+	case Remove:
+	case RemoveSelection:
+	    text.insert( cmd.pos, cmd.c );
+	    cursor = cmd.pos + 1;
+	    break;
+	case Delete:
+	case DeleteSelection:
+	    text.insert( cmd.pos, cmd.c );
+	    cursor = cmd.pos;
+	    break;
+	case Separator:
+	    continue;
+	}
+	if ( until < 0 && undoState ) {
+	    Command& next = history[undoState-1];
+	    if ( next.type != cmd.type && next.type < RemoveSelection
+		 && !( cmd.type >= RemoveSelection && next.type != Separator ) )
+		break;
+	}
+    }
+    modified = ( undoState != 0 );
+    textDirty = TRUE;
+}
+
+void QLineEditPrivate::redo() {
+    if ( !isRedoAvailable() )
+	return;
+    deselect();
+    while ( undoState < (int)history.size() ) {
+	Command& cmd = history[undoState++];
+	switch ( cmd.type ) {
+	case Insert:
+	    text.insert( cmd.pos, cmd.c );
+	    cursor = cmd.pos + 1;
+	    break;
+	case Remove:
+	case Delete:
+	case RemoveSelection:
+	case DeleteSelection:
+	    text.remove( cmd.pos, 1 );
+	    cursor = cmd.pos;
+	    break;
+	case Separator:
+	    continue;
+	}
+	if ( undoState < (int)history.size() ) {
+	    Command& next = history[undoState];
+	    if ( next.type != cmd.type && cmd.type < RemoveSelection
+		 && !( next.type >= RemoveSelection && cmd.type != Separator ) )
+		break;
+	}
+    }
+    textDirty = TRUE;
 }
 
 

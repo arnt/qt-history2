@@ -343,11 +343,11 @@ int QFrame::margin() const
 
 void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 {
-    int frameType  = frameStyle & QFrame::MShape;
-    int frameStyle = frameStyle & QFrame::MShadow;
+    int frameShape  = frameStyle & QFrame::MShape;
+    int frameShadow = frameStyle & QFrame::MShadow;
 
     if (resetLineMetrics) {
-	switch (frameType) {
+	switch (frameShape) {
 	case QFrame::MenuBarPanel:
 	    margin = 0;
 	    lineWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
@@ -367,14 +367,14 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 
     frameWidth = -1;
 
-    switch (frameType) {
+    switch (frameShape) {
 
     case QFrame::NoFrame:
 	frameWidth = 0;
 	break;
 
     case QFrame::Box:
-	switch (frameStyle) {
+	switch (frameShadow) {
 	case QFrame::Plain:
 	    frameWidth = lineWidth;
 	    break;
@@ -392,7 +392,7 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
     case QFrame::GroupBoxPanel:
     case QFrame::Panel:
     case QFrame::StyledPanel:
-	switch (frameStyle) {
+	switch (frameShadow) {
 	case QFrame::Plain:
 	case QFrame::Raised:
 	case QFrame::Sunken:
@@ -402,7 +402,7 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 	break;
 
     case QFrame::WinPanel:
-	switch (frameStyle) {
+	switch (frameShadow) {
 	case QFrame::Plain:
 	case QFrame::Raised:
 	case QFrame::Sunken:
@@ -418,7 +418,7 @@ void QFramePrivate::updateFrameWidth(bool resetLineMetrics)
 	break;
     case QFrame::HLine:
     case QFrame::VLine:
-	switch (frameStyle) {
+	switch (frameShadow) {
 	case QFrame::Plain:
 	    frameWidth = lineWidth;
 	    break;
@@ -498,8 +498,8 @@ QRect QFrame::contentsRect() const
 {
     QRect r = frameRect();
     int   w = frameWidth();                     // total width
-    int frameType  = d->frameStyle & MShape;
-    if (frameType == PopupPanel) {
+    int frameShape  = d->frameStyle & MShape;
+    if (frameShape == PopupPanel) {
 	int vExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this);
 	int hExtra = style().pixelMetric(QStyle::PM_PopupMenuFrameHorizontalExtra, this);
 	r.setRect(r.x()+w+hExtra, r.y()+w+vExtra, r.width()-w*2-hExtra*2, r.height()-w*2-vExtra*2);
