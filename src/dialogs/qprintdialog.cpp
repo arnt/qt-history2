@@ -425,8 +425,8 @@ static char * parsePrintersConf( QListView * printers )
 }
 
 // NIS only tested on Solaris
-#ifndef Q_OS_SOLARIS
-#undef QT_NO_NIS
+#if defined(Q_OS_SOLARIS) && !defined(QT_NO_NIS)
+#define QT_NO_NIS
 #endif
 
 #ifndef QT_NO_NIS
@@ -434,7 +434,7 @@ static char * parsePrintersConf( QListView * printers )
 #ifndef BOOL_DEFINED
 #define BOOL_DEFINED
 #endif
- 
+
 #include <rpcsvc/ypclnt.h>
 #include <rpcsvc/yp_prot.h>
 
@@ -453,13 +453,13 @@ static int foreach( int /* status */, char * /* key */, int /* keyLen */,
 #if defined(Q_C_CALLBACKS)
 }
 #endif
- 
+
 static int retrieveNisPrinters( QListView * printers )
 {
     char printersConfByname[] = "printers.conf.byname";
     char *domain;
     int err;
- 
+
     err = yp_get_default_domain( &domain );
     if ( err == 0 ) {
 	ypall_callback cb = { (int (*)(...)) foreach, (char *) printers };
