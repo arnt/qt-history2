@@ -5811,7 +5811,7 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
-        d->pageStream << POINT(sub.firstPoint()) << "MT\n";
+        d->pageStream << POINT(sub.startPoint) << "MT\n";
 
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
