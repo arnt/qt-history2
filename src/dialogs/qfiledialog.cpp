@@ -793,7 +793,9 @@ struct QFileDialogPrivate {
 	      const QUrlInfo * fi, QListView * parent, QListViewItem * after )
 	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 ), hasMimePixmap( FALSE )
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
-
+	~File() 
+	{ if ( d->pendingItems.findRef( this ) ) d->pendingItems.removeRef( this ); }
+	
 	QString text( int column ) const;
 	const QPixmap * pixmap( int ) const;
 
@@ -884,7 +886,8 @@ struct QFileDialogPrivate {
     QSizeGrip *sizeGrip;
 
     QTimer *mimeTypeTimer;
-
+    const QNetworkOperation *currListChildren;
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1964,7 +1967,8 @@ void QFileDialog::init()
 
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
-
+    d->currListChildren = 0;
+    
     connect( &d->url, SIGNAL( start( QNetworkOperation * ) ),
              this, SLOT( urlStart( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
@@ -2606,9 +2610,10 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
+    d->pendingItems.clear();
     if ( d->mimeTypeTimer->isActive() )
 	d->mimeTypeTimer->stop();
-    d->url.listChildren();
+    d->currListChildren = d->url.listChildren();
 }
 
 
@@ -4332,7 +4337,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    rereadDir();
 	} else
 	    ; // another error happened, no need to go back to last dir
-    } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
+    } else if ( op->operation() == QNetworkProtocol::OpListChildren && 
+		op == d->currListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {
 
 	    QUrlInfo ui( d->url, ".." );
@@ -4660,8 +4666,7 @@ void QFileDialog::resortDir()
 	item = new QFileDialogPrivate::File( d, i, files );
 	item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item, item2 );
 	item->i = item2;
-	if ( d->mode != ExistingFiles )
-	    d->pendingItems.append( item );
+	d->pendingItems.append( item );
 	if ( d->mode == ExistingFiles && item->info.isDir() ||
 	     d->mode == Directory ) {
 	    item->setSelectable( FALSE );
