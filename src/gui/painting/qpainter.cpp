@@ -3267,23 +3267,50 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     QPainter p(pixmap);
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
-	int xtop1, xtop2, xbot1;
+	// Make sure we fill left to right.
+	if (gstop.x() < gstart.x()) {
+	    qt_swap(gcol1, gcol2);
+	    qt_swap(gstart, gstop);
+	}
+	// Find the location where the lines covering the gradient intersect
+	// the lines making up the top and bottom of the target rectangle.
+	// Note: This might be outside the target rect, but that is ok.
+	int xtop1, xtop2, xbot1, xbot2;
 	if (dy == 0) {
-	    xtop1 = xbot1 = rx;
-	    xtop2 = rx+rw;
+	    xtop1 = xbot1 = gstart.x();
+	    xtop2 = xbot2 = gstop.x();
 	} else {
-	    // Make sure we fill left to right...
-	    if (gstop.x() < gstart.x()) {
-		qt_swap(gstart, gstop);
-		qt_swap(dx, dy);
-	    }
 	    double gamma = double(dx) / double(-dy);
 	    xtop1 = qRound((ry - gstart.y() + gamma * gstart.x()) / gamma);
 	    xtop2 = qRound((rx - gstop.y() + gamma * gstop.x()) / gamma);
 	    xbot1 = qRound(((ry+rh) - gstart.y() + gamma*gstart.x()) / gamma);
+	    xbot2 = qRound(((ry+rh) - gstop.y() + gamma*gstop.x()) / gamma);
 	    Q_ASSERT(xtop2 > xtop1);
 	}
 
+	p.setPen(Qt::NoPen);
+
+	// Fill the area to the left of the gradient
+	QPointArray leftFill;
+	leftFill << QPoint(0, 0) << QPoint(0, rh);
+	if (xbot1 > rx)
+	    leftFill << QPoint(xbot1-rx+1, rh);
+	if (xtop1 > rx)
+	    leftFill << QPoint(xtop1-rx+1, 0);
+	p.setBrush(gcol1);
+	p.drawPolygon(leftFill);
+
+	// Fill the area to the right of the gradient
+	QPointArray rightFill;
+	rightFill << QPoint(rw, 0) << QPoint(rw, rh);
+	if (xbot2 < rx+rw)
+	    rightFill << QPoint(xbot2-rx-1, rh);
+	if (xtop2 < rx+rw)
+	    rightFill << QPoint(xtop2-rx-1, 0);
+	p.setBrush(gcol2);
+	p.drawPolygon(rightFill);
+
+	// Fill the gradient.
 	double r = gcol1.red();
 	double g = gcol1.green();
 	double b = gcol1.blue();
@@ -3291,7 +3318,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	double rinc = (gcol2.red()-r) / steps;
 	double ginc = (gcol2.green()-g) / steps;
 	double binc = (gcol2.blue()-b) / steps;
-	for (int x=0; x<steps; ++x) {
+	for (int x=0; x<=steps; ++x) {
 	    p.setPen(QColor(int(r), int(g), int(b)));
 	    p.drawLine(x+xtop1-rx, 0, x+xbot1-rx, rh);
 	    r += rinc;
@@ -3300,22 +3327,45 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	}
 
     } else {
-	int yleft1, yleft2, yright1;
+	// Fill Verticallty
+	// Code below is a conceptually equal to the one above except that all
+	// coords are swapped x <-> y.
+	// Make sure we fill top to bottom...
+	if (gstop.y() < gstart.y()) {
+	    qt_swap(gstart, gstop);
+	    qt_swap(gcol1, gcol2);
+	}
+	int yleft1, yleft2, yright1, yright2;
 	if (dx == 0) {
-	    yleft1 = yright1 = ry;
-	    yleft2 = ry+rh;
+	    yleft1 = yright1 = gstart.y();
+	    yleft2 = yright2 = gstop.y();
 	} else {
-	    // Make sure we fill left to right...
-	    if (gstop.y() < gstart.y()) {
-		qt_swap(gstart, gstop);
-		qt_swap(dx, dy);
-	    }
 	    double gamma = double(dy) / double(-dx);
 	    yleft1 = qRound((rx - gstart.x() + gamma * gstart.y()) / gamma);
 	    yleft2 = qRound((rx - gstop.x() + gamma * gstop.y()) / gamma);
 	    yright1 = qRound(((rx+rw) - gstart.x() + gamma*gstart.y()) / gamma);
+	    yright2 = qRound(((rx+rw) - gstop.x() + gamma*gstop.y()) / gamma);
 	    Q_ASSERT(yleft2 > yleft1);
 	}
+
+	p.setPen(Qt::NoPen);
+	QPointArray topFill;
+	topFill << QPoint(0, 0) << QPoint(rw, 0);
+	if (yright1 > ry)
+	    topFill << QPoint(rw, yright1-ry);
+	if (yleft1 > ry)
+	    topFill << QPoint(0, yleft1-ry);
+	p.setBrush(gcol1);
+	p.drawPolygon(topFill);
+
+	QPointArray bottomFill;
+	bottomFill << QPoint(0, rh) << QPoint(rw, rh);
+	if (yright2 < ry+rh)
+	    bottomFill << QPoint(rw, yright2-ry-1);
+	if (yleft2 < ry+rh)
+	    bottomFill << QPoint(0, yleft2-ry-1);
+	p.setBrush(gcol2);
+	p.drawPolygon(bottomFill);
 
 	double r = gcol1.red();
 	double g = gcol1.green();
@@ -3324,7 +3374,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 	double rinc = (gcol2.red()-r) / steps;
 	double ginc = (gcol2.green()-g) / steps;
 	double binc = (gcol2.blue()-b) / steps;
-	for (int y=0; y<steps; ++y) {
+	for (int y=0; y<=steps; ++y) {
 	    p.setPen(QColor(int(r), int(g), int(b)));
 	    p.drawLine(0, y+yleft1-ry, rw, y+yright1-ry);
 	    r += rinc;
