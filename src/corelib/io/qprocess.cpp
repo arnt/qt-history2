@@ -1166,13 +1166,21 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     Starts the program \a program in a new process. \a program is a
     single string of text containing both the program name and its
     arguments. The arguments are separated by one or more
-    spaces. Example:
+    spaces. For example:
 
     \code
         QProcess process;
         process.start("del /s *.txt");
         // same as process.start("del", QStringList() << "/s" << "*.txt");
         ...
+    \endcode
+
+    The \a program string can also contain quotes, to ensure that arguments
+    containing spaces are correctly supplied to the new process. For example:
+
+    \code
+        QProcess process;
+        process.start("dir \"My Documents\"");
     \endcode
 
     The OpenMode is set to \a mode.
