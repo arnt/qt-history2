@@ -19,10 +19,6 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qlist.h"
 
-#ifndef QT_NO_STL
-#include <iterator>
-#endif
-
 class QByteArray;
 class QString;
 

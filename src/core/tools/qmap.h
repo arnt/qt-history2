@@ -19,7 +19,6 @@
 #include "QtCore/qlist.h"
 
 #ifndef QT_NO_STL
-#include <iterator>
 #include <map>
 #endif
 
@@ -123,8 +122,8 @@ public:
 
     QMap<Key, T> &operator=(const QMap<Key, T> &other);
 #ifndef QT_NO_STL
-    QMap(const typename std::map<Key, T> &other);
-    QMap<Key, T> &operator=(const typename std::map<Key,T> &other);
+    explicit QMap(const typename std::map<Key, T> &other);
+    std::map<Key, T> toStdMap() const;
 #endif
 
     bool operator==(const QMap<Key, T> &other) const;
@@ -790,12 +789,18 @@ Q_OUTOFLINE_TEMPLATE QMap<Key, T>::QMap(const std::map<Key, T> &other)
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const typename std::map<Key,T> &other)
+Q_OUTOFLINE_TEMPLATE  std::map<Key, T> QMap<Key, T>::toStdMap() const
 {
-    *this = QMap(other);
-    return *this;
+    std::map<Key, T> map;
+    const_iterator it = end();
+    while (it != begin()) {
+        --it;
+        map.insert((*it).first, (*it).second);
+    }
+    return map;
 }
-#endif
+
+#endif // QT_NO_STL
 
 template <class Key, class T>
 class QMultiMap : public QMap<Key, T>
