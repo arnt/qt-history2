@@ -18,20 +18,14 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
-#include "qcombobox.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
-#include "qlabel.h"
 #include "qmenu.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
-#include "qpushbutton.h"
 #include "qrubberband.h"
-#include "qscrollbar.h"
-#include "qslider.h"
 #include "qstyleoption.h"
 #include "qtabbar.h"
-#include "qtabwidget.h"
 #include "qwidget.h"
 
 #if defined(Q_WS_WIN)
