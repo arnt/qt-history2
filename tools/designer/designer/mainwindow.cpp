@@ -2448,6 +2448,7 @@ void MainWindow::projectSelected( QAction *a )
     if ( currentProject )
 	currentProject->setActive( FALSE );
     Project *p = *projects.find( a );
+    p->setActive( TRUE );
     if ( currentProject == p )
 	return;
     currentProject = p;
@@ -2455,7 +2456,6 @@ void MainWindow::projectSelected( QAction *a )
 	formList->setProject( currentProject );
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
-    currentProject->setActive( TRUE );
 
 #if 0
     workSpace()->blockSignals( TRUE );
