@@ -820,10 +820,6 @@ QGLContext::QGLContext(const QGLFormat &format)
 
 QGLContext::~QGLContext()
 {
-    reset();
-    if (d)
-        delete d;
-
     // remove any textures cached in this context
     if (qt_txCache) {
 	QList<int> keys = qt_txCache->keys();
@@ -838,6 +834,9 @@ QGLContext::~QGLContext()
 	    qt_txCache = 0;
 	}
     }
+
+    reset();
+    delete d;
 }
 
 /*!
