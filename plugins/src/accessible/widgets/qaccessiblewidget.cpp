@@ -2,7 +2,6 @@
 
 #include <qapplication.h>
 #include <qstyle.h>
-#include <qobjectlist.h>
 #include <qpushbutton.h>
 #include <qslider.h>
 #include <qdial.h>
@@ -33,24 +32,21 @@
 QString buddyString( QWidget *widget )
 {
     QWidget *parent = widget->parentWidget();
-    QObjectList *ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
-    if ( !ol || !ol->count() ) {
-	delete ol;
+    QObjectList ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
+    if ( !ol.count() )
 	return QString::null;
-    }
 
     QString str;
 
-    QObjectListIterator it(*ol);
-    while ( it.current() ) {
-	QLabel *label = (QLabel*)it.current();
+    QList<QObject*>::Iterator it = ol.begin();
+    while ( it != ol.end() ) {
+	QLabel *label = (QLabel*)*it;
 	++it;
 	if ( label->buddy() == widget ) {
 	    str = label->text();
 	    break;
 	}
     }
-    delete ol;
     if ( !!str )
 	return str;
 
@@ -139,24 +135,23 @@ int QAccessibleWidget::controlAt( int x, int y ) const
 
     QPoint rp = w->mapFromGlobal( QPoint( x, y ) );
 
-    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
+    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
 
-    if ( !list || list->isEmpty() )
+    if ( list.isEmpty() )
 	return 0;
 
-    QObjectListIterator it( *list );
+    QList<QObject*>::Iterator it = list.begin();
     QWidget *child = 0;
     int index = 1;
-    while ( ( child = (QWidget*)it.current() ) ) {
+    while ( it != list.end() ) {
+	child = (QWidget*)*it;
 	if ( !child->isTopLevel() && !child->isHidden() && child->geometry().contains( rp ) ) {
-	    delete list;
 	    return index;
 	}
 	++it;
 	++index;
     }
-    delete list;
-    return 0;
+    return index;
 }
 
 /*! \reimp */
@@ -187,50 +182,38 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
     switch ( dir ) {
     case NavFirstChild:
 	{
-	    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    bool has = !list->isEmpty();
-	    delete list;
-	    return has ? 1 : -1;
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    return list.isEmpty() ? -1 : 1;
 	}
     case NavLastChild:
 	{
-	    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    bool has = !list->isEmpty();
-	    delete list;
-	    return has ? childCount() : -1;
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    return list.isEmpty() ? -1 : list.count();
 	}
     case NavNext:
     case NavPrevious:
 	{
 	    QWidget *parent = w->parentWidget();
-	    QObjectList *sl = parent ? parent->queryList( "QWidget", 0, FALSE, FALSE ) : 0;
-	    if ( !sl )
+	    if (!parent)
+		return -1;
+	    QObjectList sl = parent->queryList( "QWidget", 0, FALSE, FALSE );
+	    if (sl.isEmpty())
 		return -1;
 	    QObject *sib;
-	    QObjectListIterator it( *sl );
 	    int index;
 	    if ( dir == NavNext ) {
-		index = 1;
-		while ( ( sib = it.current() ) ) {
-		    ++it;
-		    ++index;
+		for (index = 0; index < sl.count()-1; ++index) {
+		    sib = sl.at(index);
 		    if ( sib == w )
-			break;
+			return index+2;
 		}
 	    } else {
-		it.toLast();
-		index = sl->count();
-		while ( ( sib = it.current() ) ) {
-		    --it;
-		    --index;
+		for (index = sl.count()-1; index > 0; --index) {
+		    sib = sl.at(index);
 		    if ( sib == w )
-			break;
+			return index;
 		}
 	    }
-	    sib = it.current();
-	    delete sl;
-	    if ( sib )
-		return index;
 	    return -1;
 	}
 	break;
@@ -239,14 +222,15 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 	    if ( w->hasFocus() )
 		return 0;
 
-	    QWidget *w2 = w->focusWidget();
-	    if ( !w2 )
+	    QWidget *fw = w->focusWidget();
+	    if ( !fw )
 		return -1;
 
-	    QObjectList *list = w->queryList( "QWidget", 0, FALSE, FALSE );
-	    int index = list->findRef( w2 );
-	    delete list;
-	    return ( index != -1 ) ? index+1 : -1;
+	    QObjectList list = w->queryList( "QWidget", 0, FALSE, FALSE );
+	    int index = list.indexOf(fw);
+	    if (index != -1)
+		++index;
+	    return index;
 	}
     default:
 	qWarning( "QAccessibleWidget::navigate: unhandled request" );
@@ -258,27 +242,21 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
-    QObjectList *cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
-    if ( !cl )
-	return 0;
-
-    int count = cl->count();
-    delete cl;
-    return count;
+    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    return cl.count();
 }
 
 /*! \reimp */
 QRESULT QAccessibleWidget::queryChild( int control, QAccessibleInterface **iface ) const
 {
     *iface = 0;
-    QObjectList *cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
-    if ( !cl )
+    QObjectList cl = widget()->queryList( "QWidget", 0, FALSE, FALSE );
+    if ( cl.isEmpty() )
 	return QS_FALSE;
 
     QObject *o = 0;
-    if ( cl->count() >= (uint)control )
-	o = cl->at( control-1 );
-    delete cl;
+    if ( cl.count() >= control )
+	o = cl.at( control-1 );
 
     if ( !o )
 	return QS_FALSE;
