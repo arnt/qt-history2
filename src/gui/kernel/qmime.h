@@ -109,6 +109,7 @@ public:
 
 private:
     friend class QClipboardWatcher;
+    friend class QDragManager;
     friend class QDropData;
     friend class QOleDataObject;
 
@@ -116,7 +117,7 @@ private:
     static QStringList allMimesForFormats(struct IDataObject *pDataObj);
     static QWindowsMime *converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData);
     static QVector<FORMATETC> allFormatsForMime(const QMimeData *mimeData);
-    static int QWindowsMime::registerMimeType(const QString &mime);
+    static int registerMimeType(const QString &mime);
 };
 
 #endif
