@@ -96,6 +96,9 @@ public:
     { return "License agreement"; }
     QString shortTitle() const
     { return "License agreement"; }
+
+private slots:
+    void licenseAction(int);
 };
 
 class LicensePageImpl : public LicensePage, public Page

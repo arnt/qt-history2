@@ -354,6 +354,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     filesCompiled( 0 ),
     licensePage( 0 ),
     licenseAgreementPage( 0 ),
+    licenseAgreementPageQsa( 0 ),
     optionsPage( 0 ),
     foldersPage( 0 ),
     configPage( 0 ),
@@ -380,7 +381,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     // try to read the archive header information and use them instead of
     // QT_VERSION_STR if possible
     QArchiveHeader *archiveHeader = 0;
+#if defined(QSA)
+    ResourceLoader rcLoader( "QSA_ARQ", 500 );
+#else
     ResourceLoader rcLoader( "QT_ARQ", 500 );
+#endif
     if ( rcLoader.isValid() ) {
 	// First, try to find qt.arq as a binary resource to the file.
 	QArchive ar;
@@ -522,6 +527,9 @@ void SetupWizardImpl::initPages()
 	ADD_PAGE( licensePage,		LicensePageImpl		)
 #endif
 	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl)
+#if defined(QSA)
+	ADD_PAGE( licenseAgreementPageQsa, LicenseAgreementPageImpl)
+#endif
 	ADD_PAGE( optionsPage,		OptionsPageImpl		)
 #if !defined(Q_OS_UNIX)
 	ADD_PAGE( foldersPage,		FoldersPageImpl		)
@@ -538,6 +546,9 @@ void SetupWizardImpl::initPages()
     }
     if ( licenseAgreementPage ) {
 	setNextEnabled( licenseAgreementPage, FALSE );
+    }
+    if ( licenseAgreementPageQsa ) {
+	setNextEnabled( licenseAgreementPageQsa, FALSE );
     }
     if ( progressPage ) {
 	setBackEnabled( progressPage, FALSE );
@@ -567,9 +578,6 @@ void SetupWizardImpl::initConnections()
     if ( foldersPage ) {
 	connect( foldersPage->folderPathButton, SIGNAL(clicked()), SLOT(clickedFolderPath()));
 	connect( foldersPage->devSysPathButton, SIGNAL(clicked()), SLOT(clickedDevSysPath()));
-    }
-    if ( licenseAgreementPage ) {
-	connect( licenseAgreementPage->licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
     }
     if ( licensePage ) {
 	connect( licensePage->readLicenseButton, SIGNAL(clicked()), SLOT(clickedLicenseFile()));
@@ -699,14 +707,6 @@ void SetupWizardImpl::clickedSystem( int sys )
 	    break;
     }
 #endif
-}
-
-void SetupWizardImpl::licenseAction( int act )
-{
-    if( act )
-	setNextEnabled( licenseAgreementPage, false );
-    else
-	setNextEnabled( licenseAgreementPage, true );
 }
 
 void SetupWizardImpl::readCleanerOutput()
@@ -1207,6 +1207,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	showPageLicense();
     } else if( newPage == licenseAgreementPage ) {
 	readLicenseAgreement();
+    } else if( newPage == licenseAgreementPageQsa ) {
+	readLicenseAgreement();
     } else if( newPage == optionsPage ) {
 	showPageOptions();
     } else if( newPage == foldersPage ) {
@@ -1654,7 +1656,7 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
     }
-#if defined(EVAL_CD) && !defined(QSA)
+#if defined(EVAL_CD)
     finishMsg += "\n\n"
 		 "The Trolltech technical support service is available to "
 		 "Qt Professional and Enterprise Edition licensees. As an "
@@ -2303,9 +2305,20 @@ void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
     ResourceLoader *rcLoader;
-#if defined(EVAL) || defined(EDU)
+#if defined(QSA)
+    LicenseAgreementPageImpl *lap;
+    if ( currentPage() == licenseAgreementPageQsa ) {
+	lap = licenseAgreementPageQsa;
+	rcLoader = new ResourceLoader( "LICENSE_QSA" );
+    } else {
+	lap = licenseAgreementPage;
+	rcLoader = new ResourceLoader( "LICENSE" );
+    }
+#elif defined(EVAL) || defined(EDU)
+    LicenseAgreementPageImpl *lap = licenseAgreementPage;
     rcLoader = new ResourceLoader( "LICENSE" );
 #else
+    LicenseAgreementPageImpl *lap = licenseAgreementPage;
     if ( usLicense ) {
 	rcLoader = new ResourceLoader( "LICENSE-US" );
     } else {
@@ -2313,13 +2326,13 @@ void SetupWizardImpl::readLicenseAgreement()
     }
 #endif
     if ( rcLoader->isValid() ) {
-	licenseAgreementPage->introText->setText( rcLoader->data() );
-	licenseAgreementPage->acceptLicense->setEnabled( TRUE );
+	lap->introText->setText( rcLoader->data() );
+	lap->acceptLicense->setEnabled( TRUE );
     } else {
 	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, tr("Package corrupted"),
 		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
-	licenseAgreementPage->acceptLicense->setEnabled( FALSE );
+	lap->acceptLicense->setEnabled( FALSE );
     }
     delete rcLoader;
 }

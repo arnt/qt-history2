@@ -50,7 +50,6 @@ private slots:
     void clickedPath();
     void clickedSystem( int );
     void sysOtherComboChanged( int ); 
-    void licenseAction( int );
     void clickedFolderPath();
     void clickedDevSysPath();
     void clickedLicenseFile();
@@ -173,6 +172,7 @@ private:
 
     // wizard pages
     LicenseAgreementPageImpl	*licenseAgreementPage;
+    LicenseAgreementPageImpl	*licenseAgreementPageQsa;
     LicensePageImpl		*licensePage;
     OptionsPageImpl		*optionsPage;
     FoldersPageImpl		*foldersPage;

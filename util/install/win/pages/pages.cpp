@@ -13,10 +13,13 @@
 #include <qtabwidget.h>
 #include <qvalidator.h>
 #include <qmessagebox.h>
+#include <setupwizardimpl.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #endif
+
+extern SetupWizardImpl *wizard;
 
 BuildPageImpl::BuildPageImpl( QWidget* parent, const char* name, WFlags fl )
     : BuildPage( parent, name, fl )
@@ -87,6 +90,15 @@ FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
 LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char* name, WFlags fl )
     : LicenseAgreementPage( parent, name, fl )
 {
+    connect( licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
+}
+
+void LicenseAgreementPageImpl::licenseAction(int act)
+{
+    if( act )
+	wizard->setNextEnabled( this, false );
+    else
+	wizard->setNextEnabled( this, true );
 }
 
 LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
@@ -147,15 +159,15 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
 
 QValidator::State InstallPathValidator::validate( QString& input, int& ) const
 {
-    if ( ( globalInformation.sysId() == GlobalInformation::MSVC || 
-	   globalInformation.sysId() == GlobalInformation::MSVCNET ) 
+    if ( ( globalInformation.sysId() == GlobalInformation::MSVC ||
+	   globalInformation.sysId() == GlobalInformation::MSVCNET )
 	   && input.contains( QRegExp("\\s") ) ) {
 	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
 	return Intermediate;
     } else if ( globalInformation.sysId() == GlobalInformation::Borland && input.contains( "-" ) ) {
 	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation in the "
 			      "Borland linker" );
-    	return Intermediate;
+	return Intermediate;
     }
     return Acceptable;
 }
@@ -175,7 +187,7 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
     QString base("QtMac-");
-#if defined(EVAL) 
+#if defined(EVAL)
     base += "Eval-";
 #elif defined(EDU)
     base += "Edu-";

@@ -6,6 +6,7 @@
 #include "environment.h"
 
 GlobalInformation globalInformation;
+SetupWizardImpl *wizard = 0;
 
 #if defined(Q_OS_WIN32)
 static bool addArchive( const QString& name )
@@ -83,7 +84,6 @@ static bool addArchive( const QString& name )
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
-    SetupWizardImpl* w;
     int res( -1 );
 
     for( int i = 0; i < app.argc(); i++ ) {
@@ -120,14 +120,14 @@ int main( int argc, char** argv )
 	}
     }
 
-    if( w = new SetupWizardImpl( NULL, NULL, false, Qt::WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title ) ) {
-	w->show();
+    if( wizard = new SetupWizardImpl( NULL, NULL, false, Qt::WStyle_NormalBorder | Qt::WStyle_Customize | Qt::WStyle_MinMax | Qt::WStyle_SysMenu | Qt::WStyle_Title ) ) {
+	wizard->show();
 
-	app.setMainWidget( w );
+	app.setMainWidget( wizard );
 
 	res = app.exec();
 
-	w->stopProcesses();
+	wizard->stopProcesses();
     }
 
     return res;
