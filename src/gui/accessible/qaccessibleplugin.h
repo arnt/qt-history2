@@ -17,12 +17,12 @@
 
 #ifndef QT_H
 #include "qaccessible.h"
-#include "qstringlist.h"
 #include "qfactoryinterface.h"
 #endif // QT_H
 
 #ifndef QT_NO_ACCESSIBILITY
 
+class QStringList;
 class QAccessibleInterface;
 
 struct Q_GUI_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFactoryInterface
