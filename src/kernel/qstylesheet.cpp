@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#29 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -101,6 +101,7 @@ public:
   <li> \c MarginAll - all margins (left, right, top and bottom )
   <li> \c MarginVertical - top and bottom margin
   <li> \c MarginHorizontal - left and right margin
+  </ul>
 */
 
 /*!
@@ -1137,7 +1138,7 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
 
 /*!
   \enum Qt::TextFormat
-  
+
   This enum is used in widgets that can display both plain text and
   rich text, e.g. QLabel. It is used for deciding whether a text
   string should be interpreted as the one or the other. This is
