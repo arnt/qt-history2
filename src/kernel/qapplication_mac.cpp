@@ -551,14 +551,35 @@ void qt_event_request_sockact(QGuiEventLoop *loop) {
     PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
     ReleaseEvent(request_sockact_pending);
 }
+
+static EventRef request_showsheet = 0;
+
+static void cleanupEventRef(EventRef &event)
+{
+    ReleaseEvent(event);
+    event = 0;
+}
+
+static bool qt_event_remove(EventRef event)
+{
+    if (event) {
+	if (IsEventInQueue(GetMainEventQueue(), event))  {
+	    RemoveEventFromQueue(GetMainEventQueue(), event);
+	    cleanupEventRef(event);
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
+
 void qt_event_request_showsheet(QWidget *w)
 {
-    EventRef ctx = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &ctx);
-    SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), ctx, kEventPriorityStandard);
-    ReleaseEvent(ctx);
+    qt_event_remove(request_showsheet);
+    CreateEvent(0, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
+		kEventAttributeUserEvent, &request_showsheet);
+    SetEventParameter(request_showsheet, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), request_showsheet, kEventPriorityStandard);
+    ReleaseEvent(request_showsheet);
 }
 
 static QList<WId> request_updates_pending_list;
@@ -628,26 +649,46 @@ void qt_event_request_wakeup()
 		     kEventPriorityHigh);
     ReleaseEvent(request_wakeup_pending);
 }
-static EventRef request_activate_pending = NULL;
+
+static EventRef request_activate_pending = 0;
+
 bool qt_event_remove_activate()
 {
-    if(request_activate_pending) {
-	if(IsEventInQueue(GetMainEventQueue(), request_activate_pending)) 
-	    RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
-	return TRUE;
-    }
-    return FALSE;
+    return qt_event_remove(request_activate_pending);
 }
+
 void qt_event_request_activate(QWidget *w)
 {
-    qt_event_remove_activate();
-
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
+    qt_event_remove(request_activate_pending);
+    CreateEvent(0, kEventClassQt, kEventQtRequestActivate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &request_activate_pending);
     SetEventParameter(request_activate_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue(GetMainEventQueue(), request_activate_pending, kEventPriorityHigh);
     ReleaseEvent(request_activate_pending);
 }
+
+static void qt_event_cleanup(QWidget *w, EventRef event)
+{
+    if (event) {
+	if (IsEventInQueue(GetMainEventQueue(), event))  {
+	    QWidget *widget = 0;
+	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0, sizeof(widget), 0, &widget);
+	    if (w == widget) {
+		RemoveEventFromQueue(GetMainEventQueue(), request_activate_pending);
+		cleanupEventRef(request_activate_pending);
+	    }
+	}
+    }
+}
+
+void qt_event_cleanup_for_widget(QWidget *w)
+{
+    if (w) {
+	qt_event_cleanup(w, request_activate_pending);
+	qt_event_cleanup(w, request_showsheet);
+    }
+}
+
 void qt_event_request_timer(MacTimerInfo *tmr)
 {
     EventRef tmr_ev = NULL;

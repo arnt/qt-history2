@@ -65,6 +65,7 @@ void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_activate(QWidget *); //qapplication_mac.cpp
 bool qt_event_remove_activate(); //qapplication_mac.cpp
+void qt_event_cleanup_for_widget(QWidget *w); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 bool qt_nograb();
@@ -973,6 +974,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 {
     deactivateWidgetCleanup();
+    qt_event_cleanup_for_widget(this);
     qt_mac_unicode_cleanup(this);
     if(isDesktop() && hd == qt_root_win && destroyWindow && own_id)
 	qt_root_win_widgets.remove(this);
@@ -1531,6 +1533,7 @@ void QWidget::hideWindow()
 	qt_dirty_wndw_rgn("hide",this, mac_rect(posInWindow(this), geometry().size()));
     }
     deactivateWidgetCleanup();
+    qt_event_cleanup_for_widget(this);
 }
 
 void QWidget::setWindowState(uint newstate)
