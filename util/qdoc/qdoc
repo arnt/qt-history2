@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#178 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#179 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1959,7 +1959,7 @@ sub classlist {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
 	    $ex = "";
 	    if ( defined( $extension{ $url } ) ) {
-		$ex = " <b>($extension{$url})</b> ";
+		$ex = " ($extension{$url})";
 	    }
 	    $result = join( "", $result, "<li><a href=\"", $url, "\">",
 			   $name{$url}, "</a>", $ex, "\n" );
