@@ -18,7 +18,7 @@ public:
     QSize sizeHint() const;
 
     void append( QWidget *w ) { widgetList.append( w ); }
-    
+
 protected:
     void paintEvent( QPaintEvent * );
     void mouseMoveEvent( QMouseEvent * );
@@ -262,9 +262,9 @@ void QDockArea::setupLayout()
     }
 
     QDockAreaHandle *lastHandle = 0;
-    
+
     for ( QDockWidgetData *d = dockWidgets.first(); d; d = dockWidgets.next() ) {
-	resizeable[ d->section ] = d->dockWidget->isResizeEnabled();
+	resizeable[ d->section ] = resizeable[ d->section ] || d->dockWidget->isResizeEnabled();
 	if ( d->dockWidget->isResizeEnabled() ) {
 	    if ( lastHandle )
 		lastHandle->append( d->dockWidget );
@@ -283,6 +283,9 @@ void QDockArea::setupLayout()
 	}
     }
 
+    if ( lastHandle )
+	lastHandle->hide();
+    
     for ( i = 0; i < sections; ++i ) {
 	if ( resizeable[ i ] ) {
 	    QWidget *w = new QDockAreaHandle( orientation(), this, *wlv[ i ] );
