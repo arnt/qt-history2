@@ -1778,6 +1778,7 @@ void QMainWindow::setRightJustification( bool enable )
 
 
 /*!
+    \obsolete
     \property QMainWindow::rightJustification
     \brief whether the main window right-justifies its dock windows
 
