@@ -824,24 +824,24 @@ public:
  record.
 */
 
-class PushField : public Label
+class PushFieldValue : public Label
 {
 public:
-    PushField( const QVariant& id,
+    PushFieldValue( const QVariant& id,
 	       const QVariant& P2,
 	       const QString& label = QString::null )
 	: Label( id, P2, label ) {}
-    QString name() const { return "PushField"; }
+    QString name() const { return "PushFieldValue"; }
     int exec( Interpreter::Environment* env )
     {
 	Interpreter::FileDriver& drv = env->fileDriver( p1.toInt() );
 	if ( !drv.isOpen() ) {
-	    env->program().setLastError("PushField: file not open!" );
+	    env->program().setLastError("PushFieldValue: file not open!" );
 	    return 0;
 	}
 	QVariant v;
 	if ( !drv.field( p2.toInt(), v ) ) {
-	    env->program().setLastError("PushField: unable to get field value!");
+	    env->program().setLastError("PushFieldValue: unable to get field value!");
 	    return FALSE;
 	}
 	env->stack().push( v );
