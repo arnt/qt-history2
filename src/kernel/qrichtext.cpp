@@ -3611,6 +3611,9 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
 	}
     }
+    if ( i + 1 < length() && at( i + 1 )->lineStart && at( i )->c.unicode() == 0xad ) {
+	painter.drawText( startX + bw, lastY + baseLine, "\xad" );
+    }
     if ( lastFormat->isMisspelled() ) {
 	painter.save();
 	painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
