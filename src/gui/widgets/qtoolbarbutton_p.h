@@ -39,15 +39,19 @@ public:
     QToolBarButton(QWidget *parent);
     ~QToolBarButton();
 
-    void setUsesTextLabel(bool enable);
-    bool usesTextLabel() const;
-
     void setMenu(QMenu *menu);
     QMenu *menu() const;
     void showMenu();
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+    Qt::IconSize iconSize() const;
+    Qt::ToolButtonStyle toolButtonStyle() const;
+
+public slots:
+    void setIconSize(Qt::IconSize iconSize);
+    void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
     bool hitButton(const QPoint &pos) const;

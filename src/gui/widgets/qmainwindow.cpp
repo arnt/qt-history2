@@ -29,7 +29,12 @@
 class QMainWindowPrivate : public QWidgetPrivate
 {
 public:
+    inline QMainWindowPrivate()
+        : layout(0), iconSize(Qt::AutomaticIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
+    { }
     QMainWindowLayout *layout;
+    Qt::IconSize iconSize;
+    Qt::ToolButtonStyle toolButtonStyle;
 };
 
 
@@ -109,6 +114,40 @@ QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
  */
 QMainWindow::~QMainWindow()
 { }
+
+/*! \property QMainWindow::iconSize
+    \brief size of toolbar icons in this mainwindow.
+
+    The default is Qt::AutomaticIconSize.
+*/
+
+Qt::IconSize QMainWindow::iconSize() const
+{ return d->iconSize; }
+
+void QMainWindow::setIconSize(Qt::IconSize iconSize)
+{
+    if (d->iconSize == iconSize)
+        return;
+    d->iconSize = iconSize;
+    emit iconSizeChanged(d->iconSize);
+}
+
+/*! \property QMainWindow::toolButtonStyle
+    \brief style of toolbar buttons in this mainwindow.
+
+    The default is Qt::ToolButtonIconOnly.
+*/
+
+Qt::ToolButtonStyle QMainWindow::toolButtonStyle() const
+{ return d->toolButtonStyle; }
+
+void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
+{
+    if (d->toolButtonStyle == toolButtonStyle)
+        return;
+    d->toolButtonStyle = toolButtonStyle;
+    emit toolButtonStyleChanged(d->toolButtonStyle);
+}
 
 /*!
     Returns the menu bar for the main window. This function creates
@@ -240,6 +279,11 @@ void QMainWindow::addToolBar(QToolBar *toolbar, Qt::ToolBarArea area)
     Q_ASSERT_X(toolbar->isDockable(area),
                "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
 
+    connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
+            toolbar, SLOT(setIconSize(Qt::IconSize)));
+    connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+            toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
+
     d->layout->addToolBar(toolbar, area);
 
     if (isVisible())
@@ -272,6 +316,11 @@ void QMainWindow::addToolBarBlock(QToolBar *toolbar, Qt::ToolBarArea area)
     Q_ASSERT_X(toolbar->isDockable(area),
                "QMainWIndow::addToolBar", "specified 'area' is not in 'allowedAreas'");
 
+    connect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
+            toolbar, SLOT(setIconSize(Qt::IconSize)));
+    connect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+            toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
+
     d->layout->addToolBarBlock(toolbar, area);
 
     if (isVisible())
@@ -297,7 +346,14 @@ void QMainWindow::insertToolBarBlock(QToolBar *before, QToolBar *toolbar, Qt::To
     Removes the \a toolbar from the main window.
 */
 void QMainWindow::removeToolBar(QToolBar *toolbar)
-{ d->layout->removeWidget(toolbar); }
+{
+    disconnect(this, SIGNAL(iconSizeChanged(Qt::IconSize)),
+               toolbar, SLOT(setIconSize(Qt::IconSize)));
+    disconnect(this, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+               toolbar, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
+
+    d->layout->removeWidget(toolbar);
+}
 
 /*!
     Returns the tool bar area for \a toolbar.

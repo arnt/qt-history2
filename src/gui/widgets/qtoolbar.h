@@ -33,6 +33,8 @@ class Q_GUI_EXPORT QToolBar : public QWidget
                DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) != 0))
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation
                DESIGNABLE (qt_cast<QMainWindow *>(parentWidget()) == 0))
+    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
 
 public:
     QToolBar(QWidget *parent = 0);
@@ -90,8 +92,17 @@ public:
     { return windowTitle(); }
 #endif
 
+    Qt::IconSize iconSize() const;
+    Qt::ToolButtonStyle toolButtonStyle() const;
+
+public slots:
+    void setIconSize(Qt::IconSize iconSize);
+    void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
+
 signals:
     void actionTriggered(QAction *action);
+    void iconSizeChanged(Qt::IconSize iconSize);
+    void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
     void actionEvent(QActionEvent *event);

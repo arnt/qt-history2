@@ -27,9 +27,18 @@ class Q_GUI_EXPORT QMainWindow : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QMainWindow)
 
+    Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
+
 public:
     QMainWindow(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~QMainWindow();
+
+    Qt::IconSize iconSize() const;
+    void setIconSize(Qt::IconSize iconSize);
+
+    Qt::ToolButtonStyle toolButtonStyle() const;
+    void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
     QMenuBar *menuBar() const;
     void setMenuBar(QMenuBar *menubar);
@@ -61,6 +70,10 @@ public:
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
 #endif
+
+signals:
+    void iconSizeChanged(Qt::IconSize iconSize);
+    void toolButtonStyleChanged(Qt::ToolButtonStyle toolButtonStyle);
 
 protected:
     void childEvent(QChildEvent *event);

@@ -32,22 +32,22 @@ class QToolBarButtonPrivate : public QAbstractButtonPrivate
     Q_DECLARE_PUBLIC(QToolBarButton)
 
 public:
+    Qt::IconSize iconSize;
+    Qt::ToolButtonStyle toolButtonStyle;
     QPointer<QMenu> menu;
-    uint usesTextLabel : 1;
-
     QToolBarButtonPrivate();
     QStyleOptionButton getStyleOption() const;
 };
 
 QToolBarButtonPrivate::QToolBarButtonPrivate()
-    : usesTextLabel(false)
+    : iconSize(Qt::AutomaticIconSize), toolButtonStyle(Qt::ToolButtonIconOnly)
 { }
 
 QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const
 {
     QStyleOptionButton opt;
     opt.init(q);
-    if (usesTextLabel)
+    if (toolButtonStyle != Qt::ToolButtonIconOnly)
         opt.text = text;
     opt.icon = icon;
 
@@ -79,15 +79,7 @@ QToolBarButton::QToolBarButton(QWidget *parent)
 QToolBarButton::~QToolBarButton()
 { }
 
-void QToolBarButton::setUsesTextLabel(bool enable)
-{
-    d->usesTextLabel = enable;
-}
 
-bool QToolBarButton::usesTextLabel() const
-{
-    return d->usesTextLabel;
-}
 
 void QToolBarButton::setMenu(QMenu *menu)
 {
@@ -116,16 +108,43 @@ QSize QToolBarButton::sizeHint() const
     const QString text = d->text;
     const QFontMetrics fm = fontMetrics();
     QSize sz = icon.size();
-    if (d->usesTextLabel) {
+    if (d->toolButtonStyle != Qt::ToolButtonIconOnly) {
         sz.rwidth() += fm.width(text);
         sz.rheight() = qMax(sz.height(), fm.lineSpacing());
     }
-
     return style()->sizeFromContents(QStyle::CT_ToolBarButton, &opt, sz, fm, this);
 }
 
 QSize QToolBarButton::minimumSizeHint() const
 { return sizeHint(); }
+
+Qt::IconSize QToolBarButton::iconSize() const
+{ return d->iconSize; }
+
+Qt::ToolButtonStyle QToolBarButton::toolButtonStyle() const
+{ return d->toolButtonStyle; }
+
+void QToolBarButton::setIconSize(Qt::IconSize iconSize)
+{
+    if (d->iconSize == iconSize)
+        return;
+    d->iconSize = iconSize;
+    if (isVisible()) {
+        updateGeometry();
+        update();
+    }
+}
+
+void QToolBarButton::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
+{
+    if (d->toolButtonStyle == toolButtonStyle)
+        return;
+    d->toolButtonStyle = toolButtonStyle;
+    if (isVisible()) {
+        updateGeometry();
+        update();
+    }
+}
 
 bool QToolBarButton::hitButton(const QPoint &pos) const
 {

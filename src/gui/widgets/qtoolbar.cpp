@@ -115,6 +115,10 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         item.widget = new QToolBarSeparator(q);
     } else {
         QToolBarButton *button = new QToolBarButton(q);
+        QObject::connect(q, SIGNAL(iconSizeChanged(Qt::IconSize)),
+                         button, SLOT(setIconSize(Qt::IconSize)));
+        QObject::connect(q, SIGNAL(toolButtonStyleChanged(Qt::ToolButtonStyle)),
+                         button, SLOT(setToolButtonStyle(Qt::ToolButtonStyle)));
         button->addAction(action);
         QObject::connect(action, SIGNAL(triggered()), q, SLOT(actionTriggered()));
         if (action->menu()) {
@@ -296,6 +300,38 @@ void QToolBar::setOrientation(Qt::Orientation orientation)
 
 Qt::Orientation QToolBar::orientation() const
 { return d->orientation; }
+
+/*! \property QToolBar::iconSize
+    \brief size of icons in the toolbar.
+
+    The default is Qt::AutomaticIconSize.
+*/
+
+Qt::IconSize QToolBar::iconSize() const
+{ return d->iconSize; }
+
+void QToolBar::setIconSize(Qt::IconSize iconSize)
+{
+    d->iconSize = iconSize;
+    emit iconSizeChanged(d->iconSize);
+}
+
+/*! \property QToolBar::toolButtonStyle
+    \brief style of toolbar buttons.
+
+    The defaults is Qt::ToolButtonIconOnly.
+*/
+
+Qt::ToolButtonStyle QToolBar::toolButtonStyle() const
+{ return d->toolButtonStyle; }
+
+void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
+{
+    if (d->toolButtonStyle = toolButtonStyle)
+        return;
+    d->toolButtonStyle = toolButtonStyle;
+    emit toolButtonStyleChanged(d->toolButtonStyle);
+}
 
 /*!
     Removes all actions from the toolbar.
