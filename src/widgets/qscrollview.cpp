@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#49 $
 **
 ** Implementation of QScrollView class
 **
@@ -1170,7 +1170,10 @@ bool QScrollView::focusNextPrevChild( bool next )
 {
     QFocusData *f = focusData();
 
-    QWidget *startingPoint = f->current();
+    QWidget *startingPoint = f->home();
+
+    if (!startingPoint)
+	return FALSE;
 
     ChildRec *r = focusWidget() ? d->ancestorRec(focusWidget()) : 0;
     if ( r && r->wantshown && !r->child->isVisible() )
@@ -1178,9 +1181,6 @@ bool QScrollView::focusNextPrevChild( bool next )
 
     QWidget *candidate = 0;
     QWidget *w = next ? f->next() : f->prev();
-    if (!w) {
-	w = next ? f->first() : f->last();
-    }
 
     while ( w && w != startingPoint ) {
 	while( w!=startingPoint ) {
@@ -1190,9 +1190,6 @@ bool QScrollView::focusNextPrevChild( bool next )
 		break;
 	    }
 	    w = next ? f->next() : f->prev();
-	    if ( !w ) {
-		w = next ? f->first() : f->last();
-	    }
 	}
 
 	if ( !candidate )

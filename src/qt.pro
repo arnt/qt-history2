@@ -36,6 +36,7 @@ HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$KERNEL_H/qdragobject.h \
 		  $$KERNEL_H/qdrawutil.h \
 		  $$KERNEL_H/qevent.h \
+		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_H/qfontdata.h \
 		  $$KERNEL_H/qfontinfo.h \
@@ -162,6 +163,7 @@ SOURCES		= dialogs/qfiledialog.cpp \
 		  kernel/qdragobject.cpp \
 		  kernel/qdrawutil.cpp \
 		  kernel/qevent.cpp \
+		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
 		  kernel/qgmanager.cpp \
 		  kernel/qiconset.cpp \

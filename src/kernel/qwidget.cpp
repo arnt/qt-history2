@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#251 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#252 $
 **
 ** Implementation of QWidget class
 **
@@ -2047,6 +2047,8 @@ void QWidget::clearFocus()
   only the top-level widget will thus make the choice of where to redirect
   focus.  By overriding this method for an object, you thus gain control
   of focus traversal for all child widgets.
+
+  \sa focusData()
 */
 
 bool QWidget::focusNextPrevChild( bool next )
