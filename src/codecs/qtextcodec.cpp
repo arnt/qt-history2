@@ -442,17 +442,8 @@ static QString lettersAndNumbers( const char * input )
 	c = *input;
 	if ( c.isLetter() || c.isNumber() )
 	    result += c.lower();
-	if ( input[1] ) {
-	    // add space at character class transition, except
-	    // transition from upper-case to lower-case letter
-	    QChar n( input[1] );
-	    if ( c.isLetter() && n.isLetter() ) {
-		if ( c == c.lower() && n == n.upper() )
-		    result += ' ';
-	    } else if ( c.category() != n.category() ) {
-		result += ' ';
-	    }
-	}
+	else 
+	    result += ' ';
 	input++;
     }
     return result.simplifyWhiteSpace();
@@ -468,7 +459,7 @@ static QString lettersAndNumbers( const char * input )
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
     // if they're the same, return a perfect score.
-    if ( name && hint && *name && *hint && strcmp( name, hint ) == 0 )
+    if ( name && hint && *name && *hint && qstricmp( name, hint ) == 0 )
 	return qstrlen( hint );
 
     // if the letters and numbers are the same, we have an "almost"
@@ -2409,18 +2400,19 @@ int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
     if ( qstricmp( hint, mimeName() ) == 0 )
 	return 10000; // return a large value
     if ( hint[0]=='k' ) {
+	QCString lhint = QCString(hint).lower();
 	// Help people with messy fonts
-	if ( QCString(hint) == "koi8-1" )
+	if ( lhint == "koi8-1" )
 	    return QTextCodec::heuristicNameMatch("koi8-r")-1;
-	if ( QCString(hint) == "koi8-ru" )
+	if ( lhint == "koi8-ru" )
 	    return QTextCodec::heuristicNameMatch("koi8-r")-1;
-    } else if ( hint[0] == 't' && QCString(name()) == "ISO 8859-11" ) {
+    } else if ( hint[0] == 't' && mibEnum() == 2259 /* iso8859-11 */ ) {
 	// 8859-11 and tis620 are byte by byte equivalent
 	int i = simpleHeuristicNameMatch("tis620-0", hint);
 	if( !i )
 	    i = simpleHeuristicNameMatch("tis-620", hint);
 	if( i ) return i;
-    } else if ( QCString(name()) == "ISO 8859-6" ) {
+    } else if ( mibEnum() == 82 /* ISO 8859-6 */ ) {
 	int i = simpleHeuristicNameMatch("ISO 8859-6-I", hint);
 	if ( i )
 	    return i;
