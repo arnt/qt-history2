@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#102 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#103 $
 **
 ** Global type declarations and definitions
 **
@@ -37,6 +37,7 @@
 //   BSDI	- BSDI Unix
 //   SCO	- SCO of some sort
 //   AIX	- AIX Unix
+//   UNIXWARE	- SCO UnixWare
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
@@ -78,6 +79,8 @@
 #define _OS_SCO_
 #elif defined(_AIX)
 #define _OS_AIX_
+#elif defined(_UNIXWARE)
+#define _OS_UNIXWARE_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
@@ -105,6 +108,7 @@
 //   SUN	- Sun C++
 //   DEC	- DEC C++
 //   HP		- HPUX C++
+//   USLC	- SCO UnixWare C++
 //
 
 #if defined(__SC__)
@@ -133,6 +137,8 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
+#elif defined(__USLC__)
+#define _CC_USLC_
 #elif defined(_OS_HPUX_)
 // this test from from aCC online help
 #if __cplusplus >= 199707L
