@@ -163,7 +163,7 @@ class ShapedItemPrivate
 {
 public:
     ShapedItemPrivate()
-	: num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), advances( 0 ), logClusters( 0 ),
+	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), fontEngine( 0 ),
 	  from( 0 ), length( 0 ), enginePrivate( 0 ) {}
     ~ShapedItemPrivate() {
