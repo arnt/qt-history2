@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#6 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#6 $";
 #endif
 
 
@@ -32,11 +32,11 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#5 $";
 //
 
 static char    *appName;			// application name
-static Display *display;			// X11 display
-static char    *display_name = 0;		// X11 display name
-static int	screen;				// X11 screen number
-static Window	root_win;			// X11 root window
-static Atom	wm_delete_window;		// delete window protocol
+static Display *appDpy;				// X11 application display
+static char    *appDpyName = 0;			// X11 display name
+static int	appScreen;			// X11 screen number
+static Window	appRootWin;			// X11 root window
+Atom		q_wm_delete_window;		// delete window protocol
 
 typedef void  (*VFPTR)();
 static VFPTR   *cleanupRvec = 0;		// vector of cleanup routines
@@ -95,27 +95,27 @@ int main( int argc, char **argv )
   // Get command line params
 
     if ( argc > 2 && strcmp(argv[1],"-display") == 0 ) {
-	display_name = argv[2];
+	appDpyName = argv[2];
 	argc -= 2;
 	argv += 2;
     }
 
   // Connect to X server
 
-    if ( ( display = XOpenDisplay(display_name) ) == 0 ) {
+    if ( ( appDpy = XOpenDisplay(appDpyName) ) == 0 ) {
 	fatal( "%s: cannot connect to X server %s", appName,
-	       XDisplayName(display_name) );
+	       XDisplayName(appDpyName) );
 	return 1;
     }
 
   // Get X parameters
 
-    screen = DefaultScreen(display);
-    root_win = RootWindow(display,screen);
+    appScreen = DefaultScreen(appDpy);
+    appRootWin = RootWindow(appDpy,appScreen);
 
   // Support protocols
 
-    wm_delete_window = XInternAtom( display, "WM_DELETE_WINDOW", FALSE );
+    q_wm_delete_window = XInternAtom( appDpy, "WM_DELETE_WINDOW", FALSE );
 
   // Misc. initialization
 
@@ -144,7 +144,7 @@ int main( int argc, char **argv )
     QColor::cleanup();
     cleanupTimers();
 
-    XCloseDisplay( display );			// close X display, clean-up
+    XCloseDisplay( appDpy );			// close X display
 
 #if defined(TRACE_FS)
     stopFSTrace();
@@ -185,22 +185,17 @@ char *qAppName()				// get application name
 
 Display *qXDisplay()				// get current X display
 {
-    return display;
+    return appDpy;
 }
 
 int qXScreen()					// get current X screen
 {
-    return screen;
+    return appScreen;
 }
 
 Window qXRootWin()				// get X root window
 {
-    return root_win;
-}
-
-Atom qXDelWinProtocol()				// get X delete win protocol
-{
-    return wm_delete_window;
+    return appRootWin;
 }
 
 
@@ -211,7 +206,7 @@ Atom qXDelWinProtocol()				// get X delete win protocol
 int QApplication::exec( QWidget *mainWidget )	// main event loop
 {
     fd_set in_fdset;				// used by select()
-    int	   x_fd = XConnectionNumber( display ); // X network socket
+    int	   x_fd = XConnectionNumber( appDpy );	// X network socket
     int	   fd_width = x_fd + 1;
 
     XEvent event;
@@ -219,13 +214,13 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 
     while ( quit_now == FALSE ) {		// until qapp->quit() called
 
-	while ( XPending(display) ) {		// also flushes output buffer
+	while ( XPending(appDpy) ) {		// also flushes output buffer
 
 	    int evt_type = Event_None;
 
 	    if ( quit_now )			// quit between events
 		break;
-	    XNextEvent( display, &event );	// get next event
+	    XNextEvent( appDpy, &event );	// get next event
 
 	    if ( x11EventFilter( &event ) )	// send event through filter
 		continue;
@@ -273,11 +268,21 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    evt_type = Event_Leave;
 		    break;
 
+		case UnmapNotify:		// window hidden
+		    widget->clearFlag( WState_Visible );
+		    break;
+
+		case MapNotify:			// window shown
+		    widget->setFlag( WState_Visible );
+		    break;
+
 		case ClientMessage:		// client message
-		    if ( (event.xclient.format == 32) &&
-			 (event.xclient.data.l[0] == wm_delete_window) ) {
-			if ( widget->translateCloseEvent( &event ) )
-			    delete widget;
+		    if ( (event.xclient.format == 32) ) {
+			long *l = event.xclient.data.l;
+			if ( *l == q_wm_delete_window ) {
+			    if ( widget->translateCloseEvent( &event ) )
+				delete widget;
+			}
 		    }
 		    break;
 
@@ -285,7 +290,7 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    break;
 
 		case ReparentNotify:		// window manager reparents
-		    if ( event.xreparent.parent != root_win ) {
+		    if ( event.xreparent.parent != appRootWin ) {
 			XWindowAttributes a1, a2;
 			Window parent = event.xreparent.parent;
 			XGetWindowAttributes( widget->dpy, widget->id(), &a1 );
@@ -857,7 +862,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 // Paint event translation
 //
 // When receiving many expose events, we compress them (union of all expose
-// rectangles) into one event which is sent to the widget
+// rectangles) into one event which is sent to the widget.
 //
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
@@ -876,7 +881,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 	}
 	else					// make union rectangle
 	    paintRect = paintRect.unite( rect );
-	if ( !XCheckTypedWindowEvent( display, id(), type, xevt ) )
+	if ( !XCheckTypedWindowEvent( display(), id(), type, xevt ) )
 	    break;
 	if ( qApp->x11EventFilter( xevt ) )	// send event through filter
 	    break;
@@ -966,7 +971,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	if ( !parentWidget() ) {		// top level widget
 	    int x, y;
 	    Window child;
-	    XTranslateCoordinates( display, id(), DefaultRootWindow(display),
+	    XTranslateCoordinates( display(), id(),
+				   DefaultRootWindow(display()),
 				   newPos.x(), newPos.y(), &x, &y, &child );
 	    newPos = QPoint(x,y) - newPos;	// get right position
 	}
@@ -1006,23 +1012,23 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 
 bool QWinInfo::initialize()
 {
-    int dispDepth = DisplayPlanes( display, screen );
+    int dispDepth = DisplayPlanes( appDpy, appScreen );
     nColors = 1 << dispDepth;
     if ( dispDepth == 1 )			// two colors
 	dispType = MonochromeDisplay;
     else {					// grayscale or color
 	XVisualInfo vis_info;
 	int i = DirectColor;
-	while ( !XMatchVisualInfo(display,screen,dispDepth,i,&vis_info) )
+	while ( !XMatchVisualInfo(appDpy,appScreen,dispDepth,i,&vis_info) )
 	    i--;
 	if ( i < StaticColor )
 	    dispType = GrayscaleDisplay;
 	else
 	    dispType = ColorDisplay;
     }
-    dispSize = QSize( DisplayWidth(display,screen),
-		      DisplayHeight(display,screen) );
-    dispSizeMM = QSize( DisplayWidthMM(display,screen),
-			DisplayHeightMM(display,screen) );
+    dispSize = QSize( DisplayWidth(appDpy,appScreen),
+		      DisplayHeight(appDpy,appScreen) );
+    dispSizeMM = QSize( DisplayWidthMM(appDpy,appScreen),
+			DisplayHeightMM(appDpy,appScreen) );
     return TRUE;
 }
