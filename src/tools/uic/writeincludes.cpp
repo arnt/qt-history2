@@ -105,8 +105,8 @@ void WriteIncludes::add(const QString &className)
         m_includes.insert(header, true);
     }
 
-    if (className.mid(1) == QLatin1String("ListView")) {
-        m_includes.insert("qheader.h", true);
+    if (className == QLatin1String("Q3ListView")) {
+        m_includes.insert("q3header.h", true);
     }
 }
 

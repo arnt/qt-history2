@@ -395,6 +395,14 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
 {
     bool isTopLevel = m_widgetChain.count() == 1;
 
+    if (className == QLatin1String("QAxWidget")) {
+        QHash<QString, DomProperty*> properties = propertyMap(lst);
+        if (properties.contains("control")) {
+            DomProperty *p = properties.value("control");
+            output << option.indent << varName << "->setControl("
+                   << fixString(p->elementString()) << ");\n";
+        }
+    }
 
     for (int i=0; i<lst.size(); ++i) {
         DomProperty *p = lst.at(i);
@@ -417,8 +425,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
                     && className == QLatin1String("QAxWidget")) {
-            output << option.indent << varName << "->setControl("
-                   << fixString(p->elementString()) << ");\n";
+            // already done ;)
             continue;
         } else if (propertyName == QLatin1String("database")
                     && p->elementStringList()) {
@@ -790,7 +797,7 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
 
         QString itemName = driver->unique("__item");
         output << "\n";
-        output << option.indent << "QListViewItem *" << itemName << " = new QListViewItem(" << varName << ");\n";
+        output << option.indent << "Q3ListViewItem *" << itemName << " = new Q3ListViewItem(" << varName << ");\n";
 
         int textCount = 0, pixCount = 0;
         QList<DomProperty*> properties = item->elementProperty();
