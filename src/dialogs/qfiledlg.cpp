@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#9 $")
 
 
 /*----------------------------------------------------------------------------
@@ -256,6 +256,12 @@ void QFileDialog::rereadDir()
   the dialog.
  ----------------------------------------------------------------------------*/
 
+#if defined(_WS_WIN_)
+static char *win_filter[] = {
+    "All Files", "*.*",
+    "" };
+#endif
+
 QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
 {
@@ -265,7 +271,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     char *dir = 0;
     if ( !dirName || !*dirName ) {
 	dir = new char[maxstrlen];
-	GetSystemDirectory( dir, maxstrlen );
+	GetCurrentDirectory( maxstrlen, dir );
     }
     char *file = new char[maxstrlen];
     file[0] = '\0';
@@ -274,7 +280,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
     ofn.hwndOwner	= parent ? parent->id() : 0;
-    ofn.lpstrFilter	= 0;			// not implemented
+    ofn.lpstrFilter	= win_filter[0];	// !!!must fix
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = dir ? dir : dirName;
@@ -312,6 +318,38 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
 {
+#if defined(_WS_WIN_)
+
+    const int maxstrlen = 256;
+    char *dir = 0;
+    if ( !dirName || !*dirName ) {
+	dir = new char[maxstrlen];
+	GetCurrentDirectory( maxstrlen, dir );
+    }
+    char *file = new char[maxstrlen];
+    file[0] = '\0';
+
+    OPENFILENAME ofn;
+    memset( &ofn, 0, sizeof(OPENFILENAME) );
+    ofn.lStructSize	= sizeof(OPENFILENAME);
+    ofn.hwndOwner	= parent ? parent->id() : 0;
+    ofn.lpstrFilter	= win_filter[0];	// !!!must fix
+    ofn.lpstrFile	= file;
+    ofn.nMaxFile	= maxstrlen;
+    ofn.lpstrInitialDir = dir ? dir : dirName;
+    ofn.lpstrTitle	= "Open";
+    ofn.Flags		= OFN_CREATEPROMPT;
+
+    QString result;
+    if ( GetSaveFileName(&ofn) )
+	result = file;
+
+    delete [] file;
+    delete [] dir;
+    return result;
+
+#else
+
     QFileDialog *dlg = new QFileDialog( dirName, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Save As" );
@@ -320,6 +358,8 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 	result = dlg->selectedFile();
     delete dlg;
     return result;
+
+#endif
 }
 
 
