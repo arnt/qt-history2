@@ -11,36 +11,36 @@
 ****************************************************************************/
 #include "textedit.h"
 
-#include <qaction.h>
-#include <qmenubar.h>
-#include <qpopupmenu.h>
-#include <qtoolbar.h>
-#include <qtabwidget.h>
-#include <qapplication.h>
-#include <qfontdatabase.h>
-#include <qcombobox.h>
-#include <qlineedit.h>
-#include <qfileinfo.h>
-#include <qfile.h>
-#include <qprinter.h>
-#include <qpaintdevicemetrics.h>
-#include <qcolordialog.h>
-#include <qpainter.h>
-#include <qlist.h>
-#include <qtextcodec.h>
-#include <qspinbox.h>
-#include <qdebug.h>
-#include <qtextdocumentfragment.h>
-#include <qfiledialog.h>
-#include <qclipboard.h>
-#include <qtextedit.h>
-#include <qtextcursor.h>
-#include <qtextformat.h>
-#include <qtextdocument.h>
-#include <qtexttable.h>
-#include <qprintdialog.h>
 #include <private/qtextdocumentlayout_p.h>
+#include <qaction.h>
+#include <qapplication.h>
+#include <qclipboard.h>
+#include <qcolordialog.h>
+#include <qcombobox.h>
+#include <qdebug.h>
+#include <qfile.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
+#include <qfontdatabase.h>
+#include <qlineedit.h>
+#include <qlist.h>
+#include <qmenu.h>
+#include <qmenubar.h>
+#include <qpaintdevicemetrics.h>
+#include <qpainter.h>
+#include <qprintdialog.h>
+#include <qprinter.h>
 #include <qspinbox.h>
+#include <qspinbox.h>
+#include <qtabwidget.h>
+#include <qtextcodec.h>
+#include <qtextcursor.h>
+#include <qtextdocument.h>
+#include <qtextdocumentfragment.h>
+#include <qtextedit.h>
+#include <qtextformat.h>
+#include <qtexttable.h>
+#include <qtoolbar.h>
 
 #include <limits.h>
 
@@ -95,7 +95,7 @@ void TextEdit::setupFileActions()
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(tr("Save &As..."), 0, this);
+    a = new QAction(tr("Save &As..."), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
     menu->addAction(a);
     menu->addSeparator();
@@ -106,7 +106,7 @@ void TextEdit::setupFileActions()
     tb->addAction(a);
     menu->addAction(a);
 
-    a = new QAction(tr("&Close"), 0, this);
+    a = new QAction(tr("&Close"), this);
     connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
     menu->addAction(a);
 
