@@ -2606,7 +2606,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     } else if (syllableLength == 3) {
 	int LIndex = ch[0].unicode() - Hangul_LBase;
 	int VIndex = ch[1].unicode() - Hangul_VBase;
-	int TIndex = ch[1].unicode() - Hangul_TBase;
+	int TIndex = ch[2].unicode() - Hangul_TBase;
 	if (LIndex >= 0 && LIndex < Hangul_LCount &&
 	    VIndex >= 0 && VIndex < Hangul_VCount &&
 	    TIndex >= 0 && TIndex < Hangul_TCount )
