@@ -583,6 +583,8 @@ void QWorkspace::removeIcon( QWidget* w)
     w->hide();
  }
 
+/*!\reimp
+ */
 void QWorkspace::resizeEvent( QResizeEvent * )
 {
     if ( d->maxClient )
@@ -590,6 +592,8 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     layoutIcons();
 }
 
+/*!\reimp
+ */
 void QWorkspace::showEvent( QShowEvent *e )
 {
     QWidget::showEvent( e );
@@ -813,7 +817,8 @@ bool QWorkspace::maximizeControls() const
 
 
 
-QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
+QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent, 
+						  const char* name, bool iconMode )
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     workspace = w;
@@ -1060,7 +1065,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     int th = titlebar->sizeHint().height();
 
     bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, th + BORDER + TITLEBAR_SEPARATION + contentsRect().y() ), TRUE  );
+    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, 
+				     th + BORDER + TITLEBAR_SEPARATION + contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
 	QSize cs = clientw->sizeHint();
@@ -1068,7 +1074,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION+2*BORDER );
 	resize( s );
     } else {
-	resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + th +2*BORDER);
+	resize( clientw->width() + 2*frameWidth() + 2*BORDER, 
+		clientw->height() + 2*frameWidth() + th +2*BORDER);
     }
 
     clientw->installEventFilter( this );
