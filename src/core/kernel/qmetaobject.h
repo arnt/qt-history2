@@ -16,9 +16,9 @@
 
 #ifndef QT_H
 #include "qobjectdefs.h"
+#include "qcorevariant.h"
 #endif // QT_H
 
-class QCoreVariant;
 template <typename T> class QList;
 
 class Q_CORE_EXPORT QMetaMember
@@ -78,7 +78,7 @@ public:
 
     const char *name() const;
     const char *typeName() const;
-    int type() const;
+    QCoreVariant::Type type() const;
 
     bool isReadable() const;
     bool isWritable() const;

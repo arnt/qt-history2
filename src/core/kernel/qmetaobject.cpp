@@ -1253,15 +1253,15 @@ const char *QMetaProperty::typeName() const
     Returns this property's type. The return value is one
     of the values of the QCoreVariant::Type enumeration.
 */
-int QMetaProperty::type() const
+QCoreVariant::Type QMetaProperty::type() const
 {
     if (!mobj[QMetaObject::ReadProperty])
-        return 0;
+        return QCoreVariant::Invalid;
 
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
 
-    uint type = flags >> 24;
+    QCoreVariant::Type type = QCoreVariant::Type(flags >> 24);
     if (type)
         return type;
     if (isEnumType())
@@ -1354,7 +1354,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
             t = QMetaType::type(typeName);
         if (t == QCoreVariant::Invalid)
             t = QCoreVariant::nameToType(typeName);
-        if (t == QCoreVariant::Invalid)
+        if (t == QCoreVariant::Invalid || t == QCoreVariant::UserType)
             return QCoreVariant();
     }
     QCoreVariant value;
