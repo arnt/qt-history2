@@ -125,7 +125,7 @@ template <class T>
 Q_INLINE_TEMPLATE QSet<T> &QSet<T>::merge(const QSet<T> &other)
 {
     QSet<T> copy(other);
-    const_iterator i = copy.constEnd();
+    typename QSet<T>::const_iterator i = copy.constEnd();
     while (i != copy.constBegin()) {
         --i;
         insert(*i);
@@ -138,7 +138,7 @@ Q_INLINE_TEMPLATE QSet<T> &QSet<T>::intersect(const QSet<T> &other)
 {
     QSet<T> copy1(*this);
     QSet<T> copy2(other);
-    const_iterator i = copy1.constEnd();
+    typename QSet<T>::const_iterator i = copy1.constEnd();
     while (i != copy1.constBegin()) {
         --i;
         if (!copy2.contains(*i))
@@ -152,7 +152,7 @@ Q_INLINE_TEMPLATE QSet<T> &QSet<T>::subtract(const QSet<T> &other)
 {
     QSet<T> copy1(*this);
     QSet<T> copy2(other);
-    const_iterator i = copy1.constEnd();
+    typename QSet<T>::const_iterator i = copy1.constEnd();
     while (i != copy1.constBegin()) {
         --i;
         if (copy2.contains(*i))
@@ -165,7 +165,7 @@ template <typename T>
 Q_OUTOFLINE_TEMPLATE QList<T> QSet<T>::toList() const
 {
     QList<T> result;
-    const_iterator i = constBegin();
+    typename QSet<T>::const_iterator i = constBegin();
     while (i != constEnd()) {
         result.append(*i);
         ++i;
