@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#7 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#8 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -84,7 +84,7 @@ public:
     GCI	  toFirst();				// move to first item
 
     GCI	  get() const;				// get current item
-    char *getKey() const;			// get current key
+    const char *getKey() const;			// get current key
 
     GCI	  operator()();				// get current and move to next
     GCI	  operator++();				// move to next item (prefix)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdict.h#8 $
+** $Id: //depot/qt/main/src/tools/qdict.h#9 $
 **
 ** Definition of QDict template/macro class
 **
@@ -73,7 +73,7 @@ public:									      \
     operator type *() const   { return (type *)QGDictIterator::get(); }	      \
     type *current()   const   { return (type *)QGDictIterator::get(); }	      \
     const char *currentKey() const					      \
-    			      { return (const char*)QGDictIterator::getKey();}\
+    			      { return QGDictIterator::getKey();}	      \
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }\
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }\
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}\
@@ -128,7 +128,7 @@ public:
     operator type *() const   { return (type *)QGDictIterator::get(); }
     type *current()   const   { return (type *)QGDictIterator::get(); }
     const char *currentKey() const
-    			      { return (const char*)QGDictIterator::getKey();}
+    			      { return QGDictIterator::getKey();}
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
