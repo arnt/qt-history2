@@ -435,10 +435,12 @@ void QPrinter::readPdlg( void* pdv )
     if ( pd->hDevNames ) {
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         if ( dn ) {
-            TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
-            setPrinterName( qt_winQString( prName ) );
+	    // order is important here since setPrinterName() calls
+	    // setDefaultPrinter() which modifies the DEVNAMES structure
             TCHAR* drName = ((TCHAR*)dn) + dn->wDriverOffset;
             setPrintProgram( qt_winQString( drName ) );
+            TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
+            setPrinterName( qt_winQString( prName ) );
         }
         GlobalUnlock( pd->hDevNames );
     }
@@ -502,10 +504,12 @@ void QPrinter::readPdlgA( void* pdv )
         DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
         // (There is no DEVNAMESA)
         if ( dn ) {
-            char* prName = ((char*)dn) + dn->wDeviceOffset;
-            setPrinterName( QString::fromLocal8Bit( prName ) );
+	    // order is important here since setPrinterName() calls
+	    // setDefaultPrinter() which modifies the DEVNAMES structure
             char* drName = ((char*)dn) + dn->wDriverOffset;
             setPrintProgram( QString::fromLocal8Bit( drName ) );
+            char* prName = ((char*)dn) + dn->wDeviceOffset;
+            setPrinterName( QString::fromLocal8Bit( prName ) );
         }
         GlobalUnlock( pd->hDevNames );
     }
