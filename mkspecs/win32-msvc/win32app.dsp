@@ -51,8 +51,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib $$MSVCDSP_LIBS /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /machine:I386 $$MSVCDSP_TARGET
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib /nologo /subsystem:$$MSVCDSP_SUBSYSTEM $$MSVCDSP_NODEFLIBS /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib $$MSVCDSP_LIBS /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /machine:I386 $$MSVCDSP_NODEFLIBS $$MSVCDSP_TARGET 
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
 
@@ -76,8 +76,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib $$MSVCDSP_LIBS /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /debug /machine:I386 $$MSVCDSP_TARGET /nodefaultlib:"libc" /pdbtype:sept
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /debug /machine:I386 $$MSVCDSP_NODEFLIBS /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib winmm.lib wsock32.lib $$MSVCDSP_LIBS /nologo /subsystem:$$MSVCDSP_SUBSYSTEM /debug /machine:I386 $$MSVCDSP_TARGET $$MSVCDSP_NODEFLIBS /pdbtype:sept
 
 !ENDIF 
 
