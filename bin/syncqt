@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt#22 $
+# $Id: //depot/qt/main/bin/syncqt#23 $
 #
 # Synchronizes Qt header files - internal Trolltech tool.
 #   - Creates symlinks on Unix.
@@ -66,6 +66,9 @@ if ( check_unix() ) {
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
+	if ( -l $h && ! -f $h ) {
+	    unlink $h;
+	}
 	if ( ! -l $h ) {
 	    symlink("../" . $f, $h);
 	    print "symlink created for $f\n";
