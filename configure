@@ -333,7 +333,7 @@ else
     EMBEDDED=no
 fi
 KDE=no
-VERBOSE=
+VERBOSE=no
 DEBUG=no
 SHARED=yes
 GIF=no
@@ -915,8 +915,14 @@ then
    if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
    then
        XFTFREETYPE=yes
-       $x11tests/xfreetype.test $XQMAKESPEC $VERBOSE && XFTFREETYPE=no
+       $x11tests/xfreetype.test $XQMAKESPEC $VERBOSE $x11tests && XFTFREETYPE=no
    fi
+   # Add freetype2 include path
+   if [ $XFTFREETYPE = yes ] && [ -f $x11tests/xfreetype.inc ]
+   then
+       I_FLAGS="$IFLAGS -I`cat $x11tests/xfreetype.inc`"
+   fi
+   rm -f $x11tests/xfreetype.inc
    # Auto-detect session management support
    if [ $SM = auto ]
    then

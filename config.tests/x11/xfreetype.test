@@ -1,9 +1,14 @@
 #!/bin/sh
 
 
+# initialization
+
 XFREETYPE=yes
 XCONFIG=$1/qmake.conf
 VERBOSE=$2
+x11tests=$3
+
+rm -f xfreetype.inc
 
 
 # debuggery
@@ -44,6 +49,36 @@ fi
 
 # check for headers
 
+XFT_H=
+if [ "$XFREETYPE" = "yes" ]
+then
+    INC="X11/Xft/Xft.h"
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    INCDIRS="$XDIRS /usr/include /include"
+    F=
+    for INCDIR in $INCDIRS
+    do
+	if [ -f $INCDIR/$INC ]
+	then
+	    F=yes
+	    XFT_H=$INCDIR/$INC
+	    if [ "$VERBOSE" = "yes" ]
+	    then
+		echo "  Found $INC in $INCDIR"
+	    fi
+	    break
+	fi
+    done
+    if [ -z "$F" ]
+    then
+	XFREETYPE=no
+	if [ "$VERBOSE" = "yes" ]
+	then
+	    echo "  Could not find $INC anywhere in $INCDIRS"
+	fi
+    fi
+fi
+
 if [ "$XFREETYPE" = "yes" ]
 then
     INC="X11/Xft/XftFreetype.h"
@@ -73,6 +108,55 @@ then
 fi
 
 
+# check for XftNameUnparse in X11/Xft/Xft.h
+if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
+then
+    grep XftNameUnparse $XFT_H >/dev/null || XFREETYPE=no
+    if [ "$VERBOSE" = "yes" ]
+    then
+	if [ "$XFREETYPE" = "yes" ]
+	then
+	    echo "  Found XftNameUnparse in $XFT_H"
+	else
+	    echo "  Could not find XftNameUnparse in $XFT_H"
+	fi
+    fi
+fi
+
+
+#check for freetype2 headers
+FREETYPE2_INCDIR=
+if [ "$XFREETYPE" = "yes" ]
+then
+    INC="freetype2/freetype/freetype.h"
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    LDIRS=`sed -n -e '/^QMAKE_INCDIR[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    INCDIRS="$XDIRS $LDIRS /usr/include /include"
+    F=
+    for INCDIR in $INCDIRS
+    do
+	if [ -f $INCDIR/$INC ]
+	then
+	    F=yes
+	    FREETYPE2_INCDIR=$INCDIR/freetype2
+	    if [ "$VERBOSE" = "yes" ]
+	    then
+		echo "  Found $INC in $INCDIR"
+	    fi
+	    break
+	fi
+    done
+    if [ -z "$F" ]
+    then
+	XFREETYPE=no
+	if [ "$VERBOSE" = "yes" ]
+	then
+	    echo "  Could not find $INC anywhere in $INCDIRS"
+	fi
+    fi    
+fi
+
+
 # done
 
 if [ "$XFREETYPE" != "yes" ]
@@ -86,6 +170,7 @@ else
     if [ "$VERBOSE" = "yes" ]
     then
 	echo "XftFreeType enabled."
+	echo "$FREETYPE2_INCDIR" > $x11tests/xfreetype.inc
     fi
     exit 1
 fi
