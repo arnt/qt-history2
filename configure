@@ -60,6 +60,10 @@ if [ "$relpath" != `pwd` ]; then
        fi
     done
 
+    # symlink the mkspecs directory
+    rm -f $outpath/mkspecs
+    ln -s $relpath/mkspecs $outpath/mkspecs
+
     # symlink the include directory
     rm -f $outpath/include
     ln -s $relpath/include $outpath/include
