@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#73 $
 **
 ** Definition of QIconView widget class
 **
@@ -162,7 +162,7 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
-    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - ( item->iconView()->itemTextPos() == QIconView::Bottom ? 
+    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - ( item->iconView()->itemTextPos() == QIconView::Bottom ?
 			  0 : item->iconRect().width() ) );
     setMaxLength( item->iconView()->maxItemTextLength() );
     setAlignment( Qt::AlignCenter );
@@ -1117,7 +1117,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 
     int pw = 0;
     int ph = 0;
-    
+
     pw = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width() + 2;
     ph = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).height() + 2;
 
@@ -1350,6 +1350,16 @@ void QIconViewItem::setView( QIconView *v )
    </ul>
 */
 
+/*! \enum QIconView::ItemTextPos
+
+   This enum type specifies the position of the item text in relation to the icon.
+
+   <ul>
+   <li> \c Bottom (The text is drawn at the bottom of the icon)
+   <li> \c Right (The text is drawn at the right of the icon) 
+   </ul>
+*/
+
 /*! \fn void  QIconView::dropped (QDropEvent * e)
   This signal is emitted, when a drop event occured onto the viewport (not onto an icon),
   which the iconview itself can't handle
@@ -1436,7 +1446,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->dirty = FALSE;
     d->rearrangeEnabled = TRUE;
     d->itemTextPos = Bottom;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -2018,6 +2028,11 @@ int QIconView::spacing() const
     return d->spacing;
 }
 
+/*!
+  Sets the position, where the text of the items is drawn. This can be Bottom
+  or Right.
+*/
+
 void QIconView::setItemTextPos( ItemTextPos pos )
 {
     if ( pos == d->itemTextPos )
@@ -2031,6 +2046,10 @@ void QIconView::setItemTextPos( ItemTextPos pos )
 
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 }
+
+/*!
+  Returns the position, at which the text of the items are drawn.
+*/
 
 QIconView::ItemTextPos QIconView::itemTextPos() const
 {
