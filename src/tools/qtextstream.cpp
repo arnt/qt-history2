@@ -2077,7 +2077,7 @@ QTextStream &QTextStream::operator<<( const QString& s )
     The \a ptr is output as an unsigned long hexadecimal integer.
 */
 
-QTextStream &QTextStream::operator<<( void *ptr )
+QTextStream &QTextStream::operator<<( const void *ptr )
 {
     int f = flags();
     setf( hex, basefield );

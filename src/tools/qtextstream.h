@@ -82,7 +82,7 @@ public:
     QTextStream &operator<<( const char* );
     QTextStream &operator<<( const QString & );
     QTextStream &operator<<( const QByteArray & );
-    QTextStream &operator<<( void * );		// any pointer
+    QTextStream &operator<<( const void * );		// any pointer
 
     QTextStream &readRawBytes( char *, uint len );
     QTextStream &writeRawBytes( const char* , uint len );

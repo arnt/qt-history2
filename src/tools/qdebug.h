@@ -51,7 +51,7 @@ public:
     inline QDebug &operator<<(const char* t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const QString & t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const QByteArray & t) { d->ts << t; return maybeSpace(); }
-    inline QDebug &operator<<(void * t) { d->ts << t; return maybeSpace(); }
+    inline QDebug &operator<<(const void * t) { d->ts << t; return maybeSpace(); }
     template <class T>
     inline QDebug &operator<<(const QList<T> &list)
     {
