@@ -77,7 +77,7 @@
  *****************************************************************************/
 //#define DEBUG_EVENTS [like EventDebug but more specific to Qt]
 //#define DEBUG_DROPPED_EVENTS
-#define DEBUG_KEY_MAPS
+//#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 //#define DEBUG_MODAL_EVENTS
 //#define DEBUG_PLATFORM_SETTINGS
