@@ -4446,8 +4446,13 @@ void QListBox::sort( bool ascending )
     d->last = item;
 
     delete [] items;
-    setContentsPos( 0, contentsHeight() - visibleHeight() );
+
+    // We have to update explicitly in case the current "vieport" overlaps the
+    // new viewport we set (starting at (0,0)).
+    bool haveToUpdate = contentsX() < visibleWidth() || contentsY() < visibleHeight();
     setContentsPos( 0, 0 );
+    if ( haveToUpdate )
+	updateContents( 0, 0, visibleWidth(), visibleHeight() );
 }
 
 void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
