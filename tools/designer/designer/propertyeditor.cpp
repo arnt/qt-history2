@@ -577,11 +577,15 @@ QLineEdit *PropertyTextItem::lined()
 	lin = new QLineEdit( listview->viewport() );
 
     if ( asciiOnly ) {
-	if ( PropertyItem::name() == "name" )
+	if ( PropertyItem::name() == "name" ) {
 	    lin->setValidator( new AsciiValidator( lin, "ascii_validator" ) );
-	else
+	    if ( qstrcmp( listview->propertyEditor()->formWindow()->name(), "qt_fakewindow" ) == 0 )
+		lin->setEnabled( FALSE );
+	} else {
 	    lin->setValidator( new AsciiValidator( QString("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-							   "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"), lin, "ascii_validator" ) );
+							   "¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿"),
+						   lin, "ascii_validator" ) );
+	}
     } if ( !hasMultiLines ) {
 	lin->hide();
     } else {
