@@ -207,7 +207,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     fnt.setStrikeOut( TRUE );
     id = popup->insertItem( new MyMenuItem( "&Strike", fnt ) );
     popup->insertSeparator();
-			
+
     well = new QWellArray(0,0, TRUE );
     connect( well, SIGNAL( selected(int,int) ), this, SLOT( wellArraySelected(int,int)) );
     popup->insertItem( well );
@@ -736,8 +736,6 @@ void WidgetView::showProperties()
 	const char* s = "readwrite";
 	if (!p->writeable() )
 	    s = "read-only";
-	else if (!p->readable() )
-	    s = "write-only";
 	qDebug("%d: %s  ( %s, %s )", ++i, p->name, s, p->type );
     }
 }

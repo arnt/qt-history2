@@ -4388,6 +4388,31 @@ int QApplication::doubleClickInterval()
 }
 
 
+/*!  
+  Sets the number of lines to scroll when the mouse wheel is
+  rotated.
+  
+  If this number exceeds the number of visible lines in a certain
+  widget, the widget should interpreted the scroll operation as a
+  single page up / page down operation instead.
+  
+  \sa wheelScrollLines()
+ */
+void QApplication::setWheelScrollLines( int n )
+{
+    wheel_scroll_lines = n;
+}
+
+/*!
+  Returns the number of lines to scroll when the mouse wheel is rotated.
+  
+  \sa setWheelScrollLines()
+ */
+int QApplication::wheelScrollLines()
+{
+    return wheel_scroll_lines;
+}
+
 
 /*****************************************************************************
   Session management support (-D QT_SM_SUPPORT to enable it)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#354 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#355 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -33,6 +33,7 @@
 #include "qwhatsthis.h" // ######## dependency
 #include <ctype.h>
 #include "qt_windows.h"
+#include <limits.h>
 
 #if defined(__CYGWIN32__)
 #define __INSIDE_CYGWIN32__
@@ -2896,6 +2897,30 @@ int QApplication::doubleClickInterval()
     if ( ms != 0 )
 	return ms;
     return mouse_double_click_time;
+}
+
+void QApplication::setWheelScrollLines( int n )
+{
+#ifdef SPI_SETWHEELSCROLLLINES
+    if ( n < 0 )
+	n = 0;
+    SystemParametersInfo( SPI_SETWHEELSCROLLLINES, (uint)n, 0, 0 );
+#else
+    wheel_scroll_lines = n;
+#endif
+}
+
+int QApplication::wheelScrollLines()
+{
+#ifdef SPI_GETWHEELSCROLLLINES
+    uint i = 3;
+    SystemParametersInfo( SPI_GETWHEELSCROLLLINES, sizeof( uint ), &i, 0 );
+    if ( i > INT_MAX )
+	i = INT_MAX;
+    return i;
+#else
+    return wheel_scroll_lines;
+#endif
 }
 
 /*****************************************************************************

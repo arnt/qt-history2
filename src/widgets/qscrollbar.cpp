@@ -433,7 +433,8 @@ void QScrollBar::wheelEvent( QWheelEvent *e ){
 	offset = 0;
     }
     e->accept();
-    int step = QMAX(pageStep()/8,2*lineStep() );
+    int step = QMIN( QApplication::wheelScrollLines()*lineStep(),
+		     pageStep() );
     if ( e->state() & ControlButton )
 	step = pageStep();
     offset += -e->delta()*step/120;
@@ -617,7 +618,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	else
 	    newSliderPos = (HORIZONTAL ? e->pos().x() :
 			    e->pos().y()) -clickOffset;
-	
+
 	if ( newSliderPos < sliderMin )
 	    newSliderPos = sliderMin;
 	else if ( newSliderPos > sliderMax )

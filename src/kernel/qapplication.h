@@ -153,6 +153,9 @@ public:
     static void      setDoubleClickInterval( int );
     static int       doubleClickInterval();
 
+    static void      setWheelScrollLines( int );
+    static int       wheelScrollLines();
+
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
@@ -224,6 +227,7 @@ private:
     static bool	     obey_desktop_settings;
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
+    static int	     wheel_scroll_lines;
     QList<QTranslator> *translators;
     QSessionManager *session_manager;
     QString	     session_id;
