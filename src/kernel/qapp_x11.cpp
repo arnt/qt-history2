@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#17 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -13,7 +13,6 @@
 #include "qapp.h"
 #include "qevent.h"
 #include "qwidget.h"
-#include "qwininfo.h"
 #include "qlist.h"
 #include <stdlib.h>
 #include <signal.h>
@@ -23,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#17 $";
 #endif
 
 
@@ -138,7 +137,6 @@ int main( int argc, char **argv )
 
   // Misc. initialization
 
-    QWinInfo::initialize();
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -1264,32 +1262,4 @@ static void cleanupGCCache()			// cleanup the GC cache
     }
     gcList->setAutoDelete( TRUE );
     delete gcList;
-}
-
-
-// --------------------------------------------------------------------------
-// QWinInfo::initialize() - Gets window system specific attributes
-//
-
-bool QWinInfo::initialize()
-{
-    int dispDepth = DisplayPlanes( appDpy, appScreen );
-    nColors = 1 << dispDepth;
-    if ( dispDepth == 1 )			// two colors
-	dispType = MonochromeDisplay;
-    else {					// grayscale or color
-	XVisualInfo vis_info;
-	int i = DirectColor;
-	while ( !XMatchVisualInfo(appDpy,appScreen,dispDepth,i,&vis_info) )
-	    i--;
-	if ( i < StaticColor )
-	    dispType = GrayscaleDisplay;
-	else
-	    dispType = ColorDisplay;
-    }
-    dispSize = QSize( DisplayWidth(appDpy,appScreen),
-		      DisplayHeight(appDpy,appScreen) );
-    dispSizeMM = QSize( DisplayWidthMM(appDpy,appScreen),
-			DisplayHeightMM(appDpy,appScreen) );
-    return TRUE;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#7 $
 **
 ** Implementation of QColor class for X11
 **
@@ -11,14 +11,13 @@
 *****************************************************************************/
 
 #include "qcolor.h"
-#include "qwininfo.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#7 $";
 #endif
 
 
@@ -75,7 +74,7 @@ void QColor::initialize()			// called from startup routines
     Display *dpy = qXDisplay();
     int screen = qXScreen();
     cmap = DefaultColormap( dpy, screen );	// create colormap
-    ncol = QWinInfo::numColors();		// number of colors
+    ncol = DisplayCells( dpy, screen );		// number of colors
     int dictsize = 211;				// standard dict size
     if ( ncol > 256 )
 	dictsize = 2113;
