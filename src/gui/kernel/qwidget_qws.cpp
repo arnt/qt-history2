@@ -330,7 +330,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         if (testWFlags(WType_Desktop)) {
         } else {
             if (parentWidget() && parentWidget()->testWState(WState_Created)) {
-                hideWindow();
+                hide_sys();
             }
             if (destroyWindow && isTopLevel())
                 qwsDisplay()->destroyRegion(winId());
@@ -340,7 +340,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 }
 
 
-void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
 {
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
@@ -356,7 +356,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
         old_winid = 0;
 
     if (!isTopLevel() && parentWidget() && parentWidget()->testWState(WState_Created))
-        hideWindow();
+        hide_sys();
 
     setWinId(0);
 
@@ -462,7 +462,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 }
 
 
-void QWidgetPrivate::setFont_syshelper(QFont *)
+void QWidgetPrivate::setFont_sys(QFont *)
 {
 }
 
@@ -732,7 +732,7 @@ void QWidget::repaint(const QRegion& rgn)
         d->updatePropagatedBackground(&rgn);
 }
 
-void QWidget::showWindow()
+void QWidget::show_sys()
 {
     if (testWFlags(WType_TopLevel)) {
         updateRequestedRegion(mapToGlobal(QPoint(0,0)));
@@ -762,7 +762,7 @@ void QWidget::showWindow()
 }
 
 
-void QWidget::hideWindow()
+void QWidget::hide_sys()
 {
     deactivateWidgetCleanup();
 
@@ -979,7 +979,7 @@ void qt_clearRegion(QWidget *w, const QRegion &r, const QColor &c, bool dev)
 }
 */
 
-void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
+void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     if (d->extra) {                                // any size restrictions?
         w = qMin(w,d->extra->maxw);
@@ -987,10 +987,10 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
         w = qMax(w,d->extra->minw);
         h = qMax(h,d->extra->minh);
     }
-    if (w < 1)                                // invalid size
-        w = 1;
-    if (h < 1)
-        h = 1;
+    if (isTopLevel()) {
+        w = qMax(1, w);
+        h = qMax(1, h);
+    }
 
     QPoint oldp = geometry().topLeft();
     QSize olds = size();

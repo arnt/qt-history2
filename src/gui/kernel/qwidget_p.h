@@ -151,7 +151,7 @@ public:
     void resolvePalette();
 #endif
 
-    void setFont_syshelper(QFont *f = 0);
+    void setFont_sys(QFont *f = 0);
     void setFont_helper(const QFont &);
     void resolveFont();
 

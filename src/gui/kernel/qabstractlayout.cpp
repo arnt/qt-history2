@@ -404,8 +404,8 @@ int QWidgetItem::heightForWidth(int w) const
         hfw = wid->maximumHeight();
     if (hfw < wid->minimumHeight())
         hfw = wid->minimumHeight();
-    if (hfw < 1)
-        hfw = 1;
+    if (hfw < 0)
+        hfw = 0;
     return hfw;
 }
 
@@ -516,7 +516,7 @@ QSize QWidgetItem::sizeHint() const
         if (wid->sizePolicy().verData() == QSizePolicy::Ignored)
             s.setHeight(1);
         s = s.boundedTo(wid->maximumSize())
-            .expandedTo(wid->minimumSize()).expandedTo(QSize(1, 1));
+            .expandedTo(wid->minimumSize());
     }
     return s;
 }

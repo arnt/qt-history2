@@ -2012,9 +2012,9 @@ QPoint QWidget::pos() const
     visible, it is guaranteed to receive an event before it is shown.
 
     The size is adjusted if it lies outside the range defined by
-    minimumSize() and maximumSize(). Furthermore, the size is always
-    at least QSize(1, 1). For toplevel widgets, the minimum size
-    might be larger, depending on the window manager.
+    minimumSize() and maximumSize(). For toplevel widgets, the minimum size
+    is always at least QSize(1, 1), and it might be larger, depending on
+    the window manager.
 
     If you want a top-level window to have a fixed size, call
     setResizeMode(QLayout::FreeResize) on its layout.
@@ -2743,7 +2743,7 @@ void QWidgetPrivate::setFont_helper(const QFont &font)
         }
     }
     if (q->hasFocus())
-        setFont_syshelper();
+        setFont_sys();
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
 #ifdef QT_COMPAT
@@ -3408,9 +3408,9 @@ QSize QWidget::frameSize() const
 void QWidget::move(int x, int y)
 {
     QPoint oldp = pos();
-    setGeometry_helper(x + geometry().x() - QWidget::x(),
-                         y + geometry().y() - QWidget::y(),
-                         width(), height(), true);
+    setGeometry_sys(x + geometry().x() - QWidget::x(),
+                    y + geometry().y() - QWidget::y(),
+                    width(), height(), true);
     setAttribute(WA_Moved);
     if (oldp != pos())
         d->updateInheritedBackground();
@@ -3425,7 +3425,7 @@ void QWidget::resize(int w, int h)
 {
     setAttribute(WA_InvalidSize, false);
     QSize olds = size();
-    setGeometry_helper(geometry().x(), geometry().y(), w, h, false);
+    setGeometry_sys(geometry().x(), geometry().y(), w, h, false);
     setAttribute(WA_Resized);
     if (testAttribute(WA_ContentsPropagated) &&  olds != size())
         d->updatePropagatedBackground();
@@ -3441,7 +3441,7 @@ void QWidget::setGeometry(int x, int y, int w, int h)
     setAttribute(WA_InvalidSize, false);
     QPoint oldp = pos();
     QSize olds = size();
-    setGeometry_helper(x, y, w, h, true);
+    setGeometry_sys(x, y, w, h, true);
     setAttribute(WA_Resized);
     setAttribute(WA_Moved);
 
@@ -3793,7 +3793,7 @@ void QWidget::show_helper()
         qt_enter_modal(this);
 
     setAttribute(WA_Mapped);
-    showWindow();
+    show_sys();
 
 #if !defined(Q_WS_WIN)
     if (testWFlags(WType_Popup))
@@ -3848,7 +3848,7 @@ void QWidget::hide_helper()
 #endif
 
     setAttribute(WA_Mapped, false);
-    hideWindow();
+    hide_sys();
 
     bool wasVisible = testWState(WState_Visible);
 
@@ -3903,7 +3903,18 @@ void QWidget::showChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() || widget->testWState(WState_Hidden))
+        if (widget->isTopLevel() ) {
+#if defined( Q_WS_MAC ) && 0
+            extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+            extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
+            if(!qt_mac_is_macsheet(this) && !qt_mac_is_macdrawer(this))
+                continue;
+            qDebug("go on my son..");
+#else
+            continue;
+#endif            
+        }
+        if (widget->testWState(WState_Hidden))
             continue;
         if (spontaneous) {
             widget->setAttribute(WA_Mapped);
@@ -4549,7 +4560,7 @@ bool QWidget::event(QEvent *e)
             QApplication::sendEvent(focusProxy(), e);
         }
         focusInEvent((QFocusEvent*)e);
-        d->setFont_syshelper();
+        d->setFont_sys();
     }
         break;
 
@@ -4637,7 +4648,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::ShowWindowRequest:
         if (isShown())
-            showWindow();
+            show_sys();
         break;
 
     case QEvent::ApplicationFontChange:
@@ -5735,7 +5746,7 @@ void QWidget::setParent_helper(QObject *parent)
 void QWidget::setParent(QWidget *parent, WFlags f)
 {
     bool resized = testAttribute(WA_Resized);
-    reparent_helper(parent, f, QPoint(0,0), false);
+    reparent_sys(parent, f, QPoint(0,0), false);
     setAttribute(WA_Resized, resized);
     QEvent e(QEvent::Reparent);
     QApplication::sendEvent(this, &e);

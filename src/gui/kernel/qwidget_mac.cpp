@@ -1000,7 +1000,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     setWinId(0);
 }
 
-void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
 {
     QCursor oldcurs;
     bool setcurs=testAttribute(WA_SetCursor);
@@ -1104,7 +1104,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
     }
 }
 
-void QWidgetPrivate::setFont_syshelper(QFont *)
+void QWidgetPrivate::setFont_sys(QFont *)
 {
 }
 
@@ -1344,7 +1344,7 @@ void QWidget::repaint(const QRegion &rgn)
 #endif
 }
 
-void QWidget::showWindow()
+void QWidget::show_sys()
 {
     if(isDesktop()) //desktop is always visible
         return;
@@ -1388,7 +1388,7 @@ void QWidget::showWindow()
     }
 }
 
-void QWidget::hideWindow()
+void QWidget::hide_sys()
 {
     if(isDesktop()) //you can't hide the desktop!
         return;
@@ -1717,7 +1717,7 @@ void QWidgetPrivate::setWSGeometry()
 }
 
 
-void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
+void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     if(isTopLevel() && isMove) {
         d->createTLExtra();
@@ -1754,10 +1754,11 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
             }
         }
     }
-    if(w < 1)                                // invalid size
-        w = 1;
-    if(h < 1)
-        h = 1;
+
+    if (isTopLevel()) {
+        w = qMax(1, w);
+        h = qMax(1, h);
+    }
 
     QPoint oldp = pos();
     QSize  olds = size();

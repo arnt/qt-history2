@@ -399,7 +399,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         DestroyWindow(destroyw);
     }
 
-    d->setFont_syshelper();
+    d->setFont_sys();
     QInputContext::enable(this, data->im_enabled & isEnabled());
 
     if (destroyOldWindow && d->paintEngine) {
@@ -438,7 +438,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 }
 
 
-void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = data->winid;
@@ -538,7 +538,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 }
 
 
-void QWidgetPrivate::setFont_syshelper(QFont *f)
+void QWidgetPrivate::setFont_sys(QFont *f)
 {
     QInputContext::setFont(q, (f ? *f : q->font()));
 }
@@ -551,7 +551,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 
     if (text)
         QInputContext::setFocusHint(x, y, width, height, this);
-    d->setFont_syshelper(f);
+    d->setFont_sys(f);
 
     if (QRect(x, y, width, height) != microFocusHint()) {
         if (d && d->extraData())
@@ -1143,7 +1143,7 @@ void QWidget::setWindowState(uint newstate)
   Platform-specific part of QWidget::hide().
 */
 
-void QWidget::hideWindow()
+void QWidget::hide_sys()
 {
     deactivateWidgetCleanup();
     ShowWindow(winId(), SW_HIDE);
@@ -1156,7 +1156,7 @@ void QWidget::hideWindow()
   \internal
   Platform-specific part of QWidget::show().
 */
-void QWidget::showWindow()
+void QWidget::show_sys()
 {
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_SHOW_WINDOW
@@ -1193,7 +1193,7 @@ void QWidget::showWindow()
 #  include <aygshell.h>
 # endif
 
-void QWidget::showWindow()
+void QWidget::show_sys()
 {
     if (testAttribute(WA_OutsideWSRange))
         return;
@@ -1240,7 +1240,7 @@ void QWidget::showMinimized()
     }
 
     if (isVisible())
-        showWindow();
+        show_sys();
     else
         show();
 
@@ -1268,7 +1268,7 @@ void QWidget::showMaximized()
     }
 
     if (isVisible())
-        showWindow();
+        show_sys();
     else
         show();
 
@@ -1482,7 +1482,7 @@ void QWidgetPrivate::setWSGeometry()
 //
 void qWinRequestConfig(WId, int, int, int, int, int);
 
-void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
+void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     if (d->extra) {                                // any size restrictions?
         w = qMin(w,d->extra->maxw);
@@ -1490,10 +1490,12 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
         w = qMax(w,d->extra->minw);
         h = qMax(h,d->extra->minh);
     }
-    if (w < 1)                                // invalid size
-        w = 1;
-    if (h < 1)
-        h = 1;
+    if (isTopLevel()) {
+        d->topData()->normalGeometry = QRect(0, 0, -1, -1);
+        w = qMax(1, w);
+        h = qMax(1, h);
+    }
+
     QSize  oldSize(size());
     QPoint oldPos(pos());
 
@@ -1517,8 +1519,6 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 
     clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
-    if (isTopLevel())
-        d->topData()->normalGeometry = QRect(0, 0, -1, -1);
     if (testWState(WState_ConfigPending)) {        // processing config event
         qWinRequestConfig(winId(), isMove ? 2 : 1, x, y, w, h);
     } else {

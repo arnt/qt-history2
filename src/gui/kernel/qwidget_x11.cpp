@@ -778,7 +778,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     }
 }
 
-void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
+void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
 {
     extern void qPRCreate(const QWidget *, Window);
 
@@ -975,7 +975,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 }
 
 
-void QWidgetPrivate::setFont_syshelper(QFont *)
+void QWidgetPrivate::setFont_sys(QFont *)
 {
     // Nothing
 }
@@ -1752,7 +1752,7 @@ void QWidget::setWindowState(uint newstate)
   Platform-specific part of QWidget::show().
 */
 
-void QWidget::showWindow()
+void QWidget::show_sys()
 {
     if (isTopLevel() ) {
         XWMHints *h = XGetWMHints(d->xinfo->display(), winId());
@@ -1825,7 +1825,7 @@ void QWidget::showWindow()
   Platform-specific part of QWidget::hide().
 */
 
-void QWidget::hideWindow()
+void QWidget::hide_sys()
 {
     clearWState(WState_Exposed);
     deactivateWidgetCleanup();
@@ -2090,7 +2090,7 @@ void QWidgetPrivate::setWSGeometry()
     }
 }
 
-void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
+void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
     Display *dpy = d->xinfo->display();
 
@@ -2098,18 +2098,17 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
         return;
     clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
-    if (isTopLevel())
-        d->topData()->normalGeometry = QRect(0,0,-1,-1);
     if (d->extra) {                                // any size restrictions?
         w = qMin(w,d->extra->maxw);
         h = qMin(h,d->extra->maxh);
         w = qMax(w,d->extra->minw);
         h = qMax(h,d->extra->minh);
     }
-    if (w < 1)                                // invalid size
-        w = 1;
-    if (h < 1)
-        h = 1;
+    if (isTopLevel()) {
+        d->topData()->normalGeometry = QRect(0,0,-1,-1);
+        w = qMax(1, w);
+        h = qMax(1, h);
+    }
     QPoint oldPos(pos());
     QSize oldSize(size());
     QRect oldGeom(data->crect);

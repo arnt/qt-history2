@@ -257,7 +257,6 @@ QSize qSmartMinSize(const QWidgetItem *i)
     if (i->hasHeightForWidth() && min.height() == 0 && min.width() > 0)
         s.setHeight(i->heightForWidth(s.width()));
 
-    s = s.expandedTo(QSize(1, 1));
     return s;
 }
 

@@ -585,15 +585,15 @@ protected:
     QWidget(QWidgetPrivate &d, QWidget* parent, WFlags f);
 private:
     void setWinId(WId);
-    void showWindow();
-    void hideWindow();
     void showChildren(bool spontaneous);
     void hideChildren(bool spontaneous);
     void setParent_helper(QObject *parent);
-    void reparent_helper(QWidget *parent, WFlags, const QPoint &,  bool showIt);
+    void reparent_sys(QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void deactivateWidgetCleanup();
-    void setGeometry_helper(int, int, int, int, bool);
+    void setGeometry_sys(int, int, int, int, bool);
     void show_helper();
+    void show_sys();
+    void hide_sys();
     void hide_helper();
     void setEnabled_helper(bool);
     void reparentFocusWidgets(QWidget *);
