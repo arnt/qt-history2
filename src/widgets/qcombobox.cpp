@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#36 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -514,9 +514,13 @@ void QComboBox::paintEvent( QPaintEvent * )
   Handles mouse press events for the combo box.
  ----------------------------------------------------------------------------*/
 
-void QComboBox::mousePressEvent( QMouseEvent * )
+void QComboBox::mousePressEvent( QMouseEvent * e )
 {
     popup();
+    QMouseEvent me( Event_MouseButtonPress,
+		    d->popup->mapFromGlobal(mapToGlobal( e->pos() ) ),
+		    e->button(), e->state() );
+    QApplication::sendEvent( d->popup, &me );
 }
 
 /*----------------------------------------------------------------------------
