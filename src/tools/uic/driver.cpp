@@ -114,7 +114,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
         name = unique("var");
     }
 
-    if (alreadyUsed) {
+    if (alreadyUsed && className.size()) {
         fprintf(stderr, "Warning: name %s is already used\n", instanceName.latin1());
     }
 
