@@ -5,7 +5,7 @@
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -32,6 +32,8 @@
 #include <qapplication.h>
 #include <qdesktopwidget.h>
 #include "qt_mac.h"
+#include <string.h>
+
 const unsigned char * p_str(const QString &s); //qglobal.cpp
 
 QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* )

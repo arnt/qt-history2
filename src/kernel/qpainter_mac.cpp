@@ -35,8 +35,6 @@
 #include "qintdict.h"
 #include "qfontdata_p.h"
 #include "qtextcodec.h"
-#include <ctype.h>
-#include <stdlib.h>
 #include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h"
 #include "qt_mac.h"
@@ -46,6 +44,9 @@
 #ifndef QMAC_NO_QUARTZ
 # include <ApplicationServices/ApplicationServices.h>
 #endif
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
 
 static const int TxNone      = 0;		// transformation codes
 static const int TxTranslate = 1;		// also in qpainter.cpp

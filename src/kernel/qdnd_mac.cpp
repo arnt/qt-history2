@@ -41,6 +41,7 @@
 #include "qpainter.h"
 #include "qcursor.h"
 #include <stdlib.h>
+#include <string.h>
 
 struct QMacDndExtra {
     QWidget *widget;

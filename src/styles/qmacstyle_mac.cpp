@@ -57,6 +57,8 @@
 #include "qwidgetlist.h"
 #include "private/qaquastyle_p.h"
 
+#include <string.h>
+
 #define QMAC_NO_MACSTYLE_ANIMATE //just disable animations for now
 
 //externals

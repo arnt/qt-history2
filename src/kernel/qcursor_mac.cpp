@@ -38,6 +38,7 @@
 # include <ApplicationServices/ApplicationServices.h>
 #endif
 #include <stdlib.h>
+#include <string.h>
 
 // NOT REVISED
 

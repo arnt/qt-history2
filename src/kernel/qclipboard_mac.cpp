@@ -38,6 +38,7 @@
 #include "qapplication_p.h"
 #include "qt_mac.h"
 #include <stdlib.h>
+#include <string.h>
 
 /*****************************************************************************
   QClipboard debug facilities

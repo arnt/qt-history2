@@ -34,6 +34,7 @@
 #include "qt_mac.h"
 
 #include <limits.h>
+#include <string.h>
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
