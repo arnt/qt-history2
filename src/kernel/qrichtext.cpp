@@ -2163,7 +2163,6 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = QMAX( m, mar );
 	}
 	stylesPar->uflm =m - stylesPar->firstLineMargin();
-	qDebug("set the flm to %d", stylesPar->uflm );
 
 	// do the bogus line "spacing", which really is just an extra margin
 	item = mainStyle;
