@@ -51,8 +51,8 @@
     environment variable to \c win32-msvc.  If you are using Solaris and
     g++, you would set this environment variable to \c solaris-g++.
 
-    The following is a list of environment variables available to choose
-    from when setting QMAKESPEC:
+    The following is a list of environment variables to choose from when
+    setting QMAKESPEC:
 
     \code
         aix-64       hpux-cc    irix-032      netbsd-g++  solaris-cc   unixware7-g++
@@ -93,9 +93,10 @@
     \c qmake uses information stored in project (.pro) files to determine
     what should go in the makefiles it generates.
 
-    A basic project file contains information about the application, for
-    example, which files are needed to compile the application, and which
-    configuration settings to use.
+    A basic project file contains information about the application. It
+    declares the resources that are required to build the application,
+    such as the files used to compile the application, any user interface
+    descriptions, and which configuration settings to use.
 
     Here's a simple example project file:
 
@@ -602,7 +603,7 @@
     example, if the subdirectory is called \c myapp then the project file
     in that directory should be called \c myapp.pro in that directory.
 
-    \section1 The \c CONFIG Variable
+    \section1 The CONFIG Variable
 
     The config variable specifies the options that the compiler should use
     and the libraries that should be linked against.  Anything can be
@@ -624,11 +625,23 @@
     \i qt - The application is a Qt application and should link against the Qt library.
     \i thread - The application is a multi-threaded application.
     \i x11 - The application is an X11 application or library.
-    \i windows - \c app template only: the application is a Windows window application.
+    \endlist
+
+    When using the \c app template, the type of application to be built can be specified
+    with the following options:
+
+    \list
+    \i windows - The application is a Windows GUI application.
     \i console - \c app template only: the application is a Windows console application.
-    \i dll - \c lib template only: The library is a shared library (dll).
-    \i staticlib - \c lib template only: The library is a static library.
-    \i plugin - \c lib template only: The library is a plugin; this enables the dll option.
+    \endlist
+
+    When using the \c lib template, the following options determine the type of
+    library that is built:
+
+    \list
+    \i dll - The library is a shared library (dll).
+    \i staticlib The library is a static library.
+    \i plugin - The library is a plugin; this also enables the dll option.
     \endlist
 
     For example, if your application uses the Qt library and you want to
@@ -642,6 +655,45 @@
     Note, that you must use "+=", not "=", or \c qmake will not be able to
     use the settings used to build Qt as a guide as what type of Qt
     library was built.
+
+    \section1 Declaring Qt Libraries
+
+    If you enable qmake's support for Qt with the \c CONFIG variable, it is
+    possible to further specify which of the Qt libraries you will link with
+    your application. This is achieved with the \c QT variable which can be
+    used to declare the required extension modules. For example, we can enable
+    the XML and network modules in the following way:
+
+    \code
+        CONFIG += qt
+        QT += network xml
+    \endcode
+
+    Note that \c QT includes the core and GUI modules by default, so the above
+    declaration \e adds the network and XML modules to this default list. The
+    following assignment \e omits the default modules, and will lead to errors
+    when the application's source code is being compiled:
+
+    \code
+        QT = network xml # This will omit the core and GUI modules.
+    \endcode
+
+    The table below shows the options that can be used with the \c QT variable
+    and the features that are associated with each of them:
+
+    \table
+    \header \i Option                     \i Features
+    \row    \i core (included by default) \i Classes that provide fundamental Qt
+                                             features
+    \row    \i gui  (included by default) \i Widgets and other GUI classes
+    \row    \i network   \i \l{networking.html}{Network Module} classes
+    \row    \i opengl    \i \l{opengl.html}{OpenGL Module} classes
+    \row    \i sql       \i \l{sql.html}{SQL Module} classes
+    \row    \i xml       \i \l{xml.html}{XML Module} classes
+    \row    \i compat    \i Enables the use of compatibility classes (see the
+                            \l{porting4.html}{Porting to Qt 4} guide)
+    \endtable
+
 */
 
 /*!
@@ -932,7 +984,7 @@
 
     \section2 quote(string)
 
-    This will place a whole value into a single entity, \n \r and \t can
+    This will place a whole value into a single entity, \\n \\r and \\t can
     be used to generate literal carriage returns, line feeds and tabs
     (respectively). The return value will not be quoted (double or single)
     but will be placed into a single entry (for literal expansion).
