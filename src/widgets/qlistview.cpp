@@ -6655,7 +6655,7 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
     return *this;
 }
 
-QListViewItemIterator* QListViewItemIterator::operator*()
+QListViewItem* QListViewItemIterator::operator*()
 {
     return curr;    
 }

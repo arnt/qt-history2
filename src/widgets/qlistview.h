@@ -519,7 +519,7 @@ public:
     const QListViewItemIterator operator--( int );
     QListViewItemIterator &operator-=( int j );
 
-    QListViewItemIterator* operator*()
+    QListViewItem* operator*();
     QListViewItem *current() const;
 
 protected:
