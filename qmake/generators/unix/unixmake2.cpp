@@ -648,7 +648,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(project->isActiveConfig("resource_fork") && !project->isEmpty("QMAKE_INFO_PLIST")) {
         //copy the plist
         QString icon = fileFixify(var("ICON"));
-        QString info_plist = project->first("QMAKE_INFO_PLIST"),
+        QString info_plist = fileFixify(project->first("QMAKE_INFO_PLIST")),
             info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
         QString destdir = project->first("DESTDIR");
         t << info_plist_out << ": " << "\n\t";
