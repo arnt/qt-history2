@@ -567,8 +567,6 @@ void QObject::setObjectName( const char *name )
 	delete [] (char*) d->objectName;
     d->ownObjectName = true;
     d->objectName = name ? qstrdup(name) : 0;
-    QEvent e(QEvent::ObjectNameChange);
-    QCoreApplication::sendEvent(q, &e);
 }
 
 /*!
@@ -580,8 +578,6 @@ void QObject::setObjectNameConst(const char *name)
 	delete [] (char*) d->objectName;
     d->ownObjectName = false;
     d->objectName = name;
-    QEvent e(QEvent::ObjectNameChange);
-    QCoreApplication::sendEvent(q, &e);
 }
 
 /*!

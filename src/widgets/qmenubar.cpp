@@ -277,6 +277,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     setGeometry( 0, 0, width(), h );
 
     setMouseTracking( style().styleHint(QStyle::SH_MenuBar_MouseTracking) );
+    setAttribute(WA_CustomWhatsThis);
 }
 
 
@@ -1477,16 +1478,6 @@ void QMenuBar::setupAccelerators()
     }
 }
 #endif
-
-/*!
-    \reimp
- */
-bool QMenuBar::customWhatsThis() const
-{
-    return TRUE;
-}
-
-
 
 /*!
     \reimp

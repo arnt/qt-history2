@@ -52,8 +52,6 @@ public:
     void	setDefaultUp( bool );
     bool	isDefaultUp() const;
 
-    bool customWhatsThis() const;
-
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize minimumSizeHint() const;

@@ -48,6 +48,7 @@ struct QTLWExtra {
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString  caption;				// widget caption
     QString  iconText;				// widget icon text
+    QString  role;				// widget role
     QPixmap *icon;				// widget icon
 #endif
     short    incw, inch;			// size increments
@@ -203,7 +204,11 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
+
+    // ### TODO: reorganize private/extra/topextra to safe memory
     QPointer<QWidget> compositeChildGrab;
+    QString toolTip, statusTip, whatsThis;
+
 #ifndef QT_NO_PALETTE
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;

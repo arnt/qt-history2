@@ -31,6 +31,9 @@ public:
     QPopupMenu( QWidget* parent=0, const char* name=0 );
     ~QPopupMenu();
 
+    void setWhatsThis( int id, const QString& s) { QMenuData::setWhatsThis(id, s); }
+    QString whatsThis( int id ) const { return QMenuData::whatsThis(id); }
+
     void	popup( const QPoint & pos, int indexAtPoint = -1 ); // open
     void	updateItem( int id );
 
@@ -49,8 +52,6 @@ public:
 
     int 	idAt( int index ) const { return QMenuData::idAt( index ); }
     int 	idAt( const QPoint& pos ) const;
-
-    bool 	customWhatsThis() const;
 
     int		insertTearOffHandle( int id=-1, int index=-1 );
 

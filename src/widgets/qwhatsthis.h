@@ -27,6 +27,36 @@ class QToolButton;
 class QPopupMenu;
 class QStyleSheet;
 
+class Q_GUI_EXPORT Q4WhatsThis: public Qt
+{
+    Q4WhatsThis();
+    Q4WhatsThis(const Q4WhatsThis &);
+public:
+    static void setFont( const QFont &font );
+    static QFont font();
+
+    static void setPalette( const QPalette &palette );
+    static QPalette palette();
+
+    static void add( QWidget *w, const QString &s); // deprecated
+    static QToolButton * whatsThisButton( QWidget * parent ); // deprecated
+
+    static void enterWhatsThisMode();
+    static bool inWhatsThisMode();
+    static void leaveWhatsThisMode();
+
+    static void showText(int x, int y, const QString &text);
+    static void showText(int x, int y, const QString &text,
+			 const QObject *receiver, const char *member);
+    static inline void showText(const QPoint &pos, const QString &text)
+	{ showText(pos.x(), pos.y(), text); }
+    static void showText(const QPoint &pos, const QString &text,
+			 const QObject *receiver, const char *member)
+	{ showText(pos.x(), pos.y(), text, receiver, member); }
+};
+
+#if 1 // def QT_COMPAT
+
 class Q_GUI_EXPORT QWhatsThis: public Qt
 {
 public:
@@ -37,8 +67,8 @@ public:
     virtual bool clicked( const QString& href );
 
     // the common static functions
-    static void setFont( const QFont &font );    
-    
+    static void setFont( const QFont &font );
+
     static void add( QWidget *, const QString &);
     static void remove( QWidget * );
     static QString textFor( QWidget *, const QPoint & pos = QPoint(), bool includeParents = FALSE );
@@ -51,6 +81,7 @@ public:
 
     static void display( const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0 );
 };
+#endif // QT_COMPAT
 
 #endif // QT_NO_WHATSTHIS
 

@@ -21,6 +21,31 @@
 
 #ifndef QT_NO_TOOLTIP
 
+class Q_GUI_EXPORT Q4ToolTip: public Qt
+{
+    Q4ToolTip();
+    Q4ToolTip(const Q4ToolTip &);
+public:
+    static void setFont( const QFont &font );
+    static QFont font();
+
+    static void setPalette( const QPalette &palette );
+    static QPalette palette();
+
+    static inline void add( QWidget *w, const QString &s) { w->setToolTip(s); } // deprecated
+
+    static void showText(int x, int y, const QString &text);
+    static void showText(int x, int y, const QString &text,
+			 const QObject *receiver, const char *member);
+    static inline void showText(const QPoint &pos, const QString &text)
+	{ showText(pos.x(), pos.y(), text); }
+    static void showText(const QPoint &pos, const QString &text,
+			 const QObject *receiver, const char *member)
+	{ showText(pos.x(), pos.y(), text, receiver, member); }
+};
+
+
+#if 1 // def QT_COMPAT
 
 class QTipManager;
 class QIconViewToolTip;
@@ -116,6 +141,7 @@ private:
     friend class QTipManager;
 };
 
+#endif // QT_COMPAT
 
 #endif // QT_NO_TOOLTIP
 

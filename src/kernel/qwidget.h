@@ -115,13 +115,16 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QRect microFocusHint READ microFocusHint )
     Q_PROPERTY( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
     Q_PROPERTY( bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false )
-    Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
     Q_PROPERTY( bool inputMethodEnabled READ isInputMethodEnabled WRITE setInputMethodEnabled DESIGNABLE false SCRIPTABLE false )
     Q_PROPERTY( QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel )
     Q_PROPERTY( QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel )
     Q_PROPERTY( QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel )
     Q_PROPERTY( double windowTransparency READ windowTransparency WRITE setWindowTransparency DESIGNABLE false)
     Q_PROPERTY( bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
+    Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
+    Q_PROPERTY( QString statusTip READ statusTip WRITE setStatusTip )
+    Q_PROPERTY( QString whatsThis READ whatsThis WRITE setWhatsThis )
+
 
 public:
     QWidget(QWidget* parent = 0, WFlags f = 0 );
@@ -243,6 +246,8 @@ public:
     QPixmap windowIcon() const; // ### should be const QPixmap&, and QApplication::icon()
     void setWindowIconText( const QString &);
     QString windowIconText() const;
+    void setWindowRole(const QString &);
+    QString windowRole() const;
 
     void setWindowTransparency(double level);
     double windowTransparency() const;
@@ -250,6 +255,14 @@ public:
     bool isWindowModified() const;
     void setWindowModified(bool);
 
+    void setToolTip(const QString &);
+    QString toolTip() const;
+
+    void setStatusTip(const QString &);
+    QString statusTip() const;
+
+    void setWhatsThis(const QString &);
+    QString whatsThis() const;
 
     // Keyboard input focus functions
 
@@ -389,9 +402,6 @@ public:
     void setAutoMask(bool);
     bool		autoMask() const;
 
-    // whats this help
-    virtual bool customWhatsThis() const;
-
     QWidget *parentWidget() const;
 
     WState		testWState( WState s ) const;
@@ -442,7 +452,8 @@ public:
 	WA_InvalidSize,
 	WA_MacMetalStyle, //mac only
 	WA_CompositeParent,
-	WA_CompositeChild
+	WA_CompositeChild,
+	WA_CustomWhatsThis
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;

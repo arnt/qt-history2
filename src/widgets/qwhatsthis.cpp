@@ -96,7 +96,7 @@
     help texts.
 
     If you wish to control the "What's this?" behavior of a widget
-    manually see QWidget::customWhatsThis().
+    manually see QWidget::WA_CustomWhatsThis.
 
     The What's This object can be removed using QWhatsThis::remove(),
     although this is rarely necessary because it is automatically
@@ -500,7 +500,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    QWidget * w = (QWidget *) o;
 	    if ( ( (QMouseEvent*)e)->button() == RightButton )
 		return FALSE; // ignore RMB
-	    if ( w->customWhatsThis() )
+	    if (w->testAttribute(QWidget::WA_CustomWhatsThis))
 		return FALSE;
 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
 	    QMouseEvent* me = (QMouseEvent*) e;
@@ -527,16 +527,16 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	} else if ( e->type() == QEvent::MouseButtonRelease ) {
 	    if ( ( (QMouseEvent*)e)->button() == RightButton )
 		return FALSE; // ignore RMB
-	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
+	    return !o->isWidgetType() || !((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis);
 	} else if ( e->type() == QEvent::MouseMove ) {
-	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
+	    return !o->isWidgetType() || !((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis);
 	} else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent* kev = (QKeyEvent*)e;
 
 	    if ( kev->key() == Qt::Key_Escape ) {
 		leaveWhatsThisMode();
 		return TRUE;
-	    } else if ( o->isWidgetType() && ((QWidget*)o)->customWhatsThis() ) {
+	    } else if ( o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis) ) {
 		return FALSE;
 	    } else if ( kev->key() == Key_Menu ||
 			( kev->key() == Key_F10 &&
@@ -955,6 +955,13 @@ void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
 void QWhatsThis::setFont( const QFont &font )
 {
     QApplication::setFont( font, TRUE, "QWhatsThat" );
+}
+
+/*!\obsolete
+ */
+void Q4WhatsThis::add( QWidget *w, const QString &s)
+{
+    w->setWhatsThis(s);
 }
 
 #include "qwhatsthis.moc"

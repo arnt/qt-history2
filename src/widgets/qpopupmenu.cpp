@@ -272,6 +272,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     connectModalRecursionSafety = 0;
 
     setFocusPolicy( StrongFocus );
+    setAttribute(WA_CustomWhatsThis);
 }
 
 /*!
@@ -2490,15 +2491,6 @@ int QPopupMenu::idAt( const QPoint& pos ) const
 
     \sa QMenuData::setId(), QMenuData::indexOf()
 */
-
-
-/*!
-    \reimp
- */
-bool QPopupMenu::customWhatsThis() const
-{
-    return TRUE;
-}
 
 
 /*!

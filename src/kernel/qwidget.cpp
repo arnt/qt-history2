@@ -46,6 +46,7 @@
 #define q q_func()
 
 
+
 QWidgetPrivate::~QWidgetPrivate()
 {
     if ( extra )
@@ -244,7 +245,7 @@ QWidgetPrivate::~QWidgetPrivate()
 	metric().
 
     \row \i What's this help \i
-	customWhatsThis()
+	setWhatsThis()
 
     \row \i Internal kernel<br>functions \i
 	focusNextPrevChild(),
@@ -2712,13 +2713,37 @@ QPixmap QWidget::windowIcon() const
     This property only makes sense for top-level widgets. If no icon
     text has been set, this functions returns QString::null.
 
-    \sa icon, caption
+    \sa windowIcon, windowTitle
 */
 
 QString QWidget::windowIconText() const
 {
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
 	: QString();
+}
+
+/*!
+    \property QWidget::windowRole
+    \brief the widget's window role
+
+    This property only makes sense for top-level widgets. If no role
+    has been set, this functions returns QString::null.
+
+    \sa windowIcon, windowTitle
+*/
+
+QString QWidget::windowRole() const
+{
+    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->role
+	: QString();
+}
+
+void QWidget::setWindowRole(const QString &role)
+{
+#if defined(Q_WS_X11)
+    d->topData()->role = role;
+    d->setWindowRole(role.utf8());
+#endif
 }
 
 /*!
@@ -4432,7 +4457,6 @@ bool QWidget::event( QEvent *e )
     case QEvent::PaletteChange:
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
-    case QEvent::ObjectNameChange:
 	changeEvent(e);
 	break;
 
@@ -4576,13 +4600,6 @@ void QWidget::changeEvent( QEvent * e )
     case QEvent::PaletteChange:
 	update();
 	break;
-
-#if defined(Q_WS_X11)
-    case QEvent::ObjectNameChange:
-	if (isTopLevel())
-	    d->setWindowRole(objectName());
-	break;
-#endif
 
     default:
 	break;
@@ -5363,29 +5380,6 @@ int QWidget::heightForWidth( int w ) const
 }
 
 /*!
-    \property QWidget::customWhatsThis
-    \brief whether the widget wants to handle What's This help manually
-
-    The default implementation of customWhatsThis() returns FALSE,
-    which means the widget will not receive any events in Whats This
-    mode.
-
-    The widget may leave What's This mode by calling
-    QWhatsThis::leaveWhatsThisMode(), with or without actually
-    displaying any help text.
-
-    You can also reimplement customWhatsThis() if your widget is a
-    "passive interactor" supposed to work under all circumstances.
-    Simply don't call QWhatsThis::leaveWhatsThisMode() in that case.
-
-    \sa QWhatsThis::inWhatsThisMode() QWhatsThis::leaveWhatsThisMode()
-*/
-bool QWidget::customWhatsThis() const
-{
-    return FALSE;
-}
-
-/*!
     Returns the visible child widget at pixel position \a (x, y) in
     the widget's own coordinate system. If there is no visible child
     widget at the specified position, returns 0.
@@ -5787,7 +5781,9 @@ const QPixmap *QWidget::icon() const
     to intercept events meant for the child widget in a subclass of
     the parent widget. \i Widget author.
 
-    \endtable
+    \row \i WA_CustomWhatsThis \i Indicates that the widget wants to
+    continue operating normally in What's This mode \i Set by widget
+    author \endtable
 */
 
 /*!
@@ -5851,3 +5847,49 @@ bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 
   This feature is only present on MacOS and Windows 2000 and newer.
 */
+
+
+/*!
+  \property QWidget::toolTip
+
+  \brief the widget's tooltip
+*/
+void QWidget::setToolTip(const QString &s)
+{
+    d->toolTip = s;
+}
+
+QString QWidget::toolTip() const
+{
+    return d->toolTip;
+}
+
+/*!
+  \property QWidget::statusTip
+
+  \brief the widget's status tip
+*/
+void QWidget::setStatusTip(const QString &s)
+{
+    d->statusTip = s;
+}
+
+QString QWidget::statusTip() const
+{
+    return d->statusTip;
+}
+
+/*!
+  \property QWidget::whatsThis
+
+  \brief the widget's What's This help.
+*/
+void QWidget::setWhatsThis(const QString &s)
+{
+    d->whatsThis = s;
+}
+
+QString QWidget::whatsThis() const
+{
+    return d->whatsThis;
+}
