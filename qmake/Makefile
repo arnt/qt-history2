@@ -1,14 +1,15 @@
 !IF "$(QMAKESPEC)" == "win32-msvc" || "$(QMAKESPEC)" == "win32-msvc.net" || "$(QMAKESPEC)" == "win32-icc"
 #
-# specific stuff for nmake
+# specific stuff for NMake and ICC
 #
 !if "$(QMAKESPEC)" == "win32-icc"
 CXX	    =   icl
-LINKQMAKE   =	xilink $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+LINK	    =   xilink
 !else
 CXX         =   cl
-LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+LINK	    =   link
 !endif
+
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\src\core\arch\generic \
@@ -19,8 +20,10 @@ CFLAGS	    =	/c /Fo$@ \
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =
 LIBS	    =	ole32.lib advapi32.lib
+LINKQMAKE   =	$(LINK) $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !ELSE
+
 #
 # specific stuff for Borland make
 #
