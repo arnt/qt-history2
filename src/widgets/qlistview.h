@@ -257,10 +257,6 @@ public:
     void setShowSortIndicator( bool show );
     bool showSortIndicator() const;
 
-#ifdef QT_BUILDER
-    bool event( QEvent* event );
-#endif // QT_BUILDER
-
 public slots:
     void triggerUpdate();
     void setContentsPos( int x, int y );

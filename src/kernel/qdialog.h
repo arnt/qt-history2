@@ -35,7 +35,6 @@ Q_OBJECT
 #endif
 
 class QPushButton;
-class QConfigureEvent;
 
 class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
