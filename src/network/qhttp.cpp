@@ -1338,17 +1338,17 @@ QHttp::QHttp()
     bytesRead = 0;
     client = new QHttpClient( this );
     connect( client, SIGNAL(responseChunk(const QHttpResponseHeader&, const QByteArray&)),
-	    this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
+	     this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
     connect( client, SIGNAL(finished()),
-	    this, SLOT(requestFinished()) );
+	     this, SLOT(requestFinished()) );
     connect( client, SIGNAL(requestFailed( int )),
-	    this, SLOT(requestFailed( int )) );
+	     this, SLOT(requestFailed( int )) );
     connect( client, SIGNAL(connected()),
-	    SLOT(connected()) );
+	     SLOT(connected()) );
     connect( client, SIGNAL(closed()),
-	    SLOT(closed()) );
+	     SLOT(closed()) );
     connect( client, SIGNAL(hostFound()),
-	    SLOT(hostFound()) );
+	     SLOT(hostFound()) );
 }
 
 /*!
@@ -1373,6 +1373,7 @@ void QHttp::operationGet( QNetworkOperation *op )
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
 	return; // ### store the request for later?
 
+    bytesRead = 0;
     op->setState( StInProgress );
     QUrl u( operationInProgress()->arg( 0 ) );
     QHttpRequestHeader header( "GET", u.encodedPathAndQuery() );
@@ -1386,12 +1387,13 @@ void QHttp::operationPut( QNetworkOperation *op )
 {
     int cstate = client->state();
     if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Idle )
-	return; // ### store the request for later?
+	return; // ### ditto
 
+    bytesRead = 0;
     op->setState( StInProgress );
     QUrl u( operationInProgress()->arg( 0 ) );
     QHttpRequestHeader header( "POST", u.encodedPathAndQuery() );
-    //header.setContentType( "text/plain" );
+    // header.setContentType( "text/plain" );
     header.setValue( "Host", u.host() );
     client->request( u.host(), u.port() != -1 ? u.port() : 80, header, op->rawArg(1) );
 }
@@ -1405,7 +1407,7 @@ void QHttp::reply( const QHttpResponseHeader &rep, const QByteArray & dataA )
 	    op->setProtocolDetail(
 		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
 						    );
-	    switch (rep.statusCode() ) {
+	    switch ( rep.statusCode() ) {
 		case 401:
 		case 403:
 		case 405:
