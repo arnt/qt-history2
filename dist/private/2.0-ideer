@@ -91,6 +91,11 @@ QListView *Event() redirection is BAD.  Especially since QScrollView
  already does something similar.
 QPaintEvent should have a region(), and we should use it throughout.
 Change QMultiLineEdit to use QString* much less - use QString instead.
+Q*Dict must use QString, so the QIntDict and QPtrDict hackery
+ needs to be done some other way (eg. implement QDictTemplate that
+ can use any ket type)
+Add activate_signal(const char* signal, QString) for fast QString signals
+Split Q1String, QByteArray, etc. out of qstring.h, making it cheaper to #include.
 
 
 ARNT'S THINGS:
