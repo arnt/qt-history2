@@ -407,9 +407,11 @@ QMetaCallEvent::~QMetaCallEvent()
     by name and optionally type using findChild() or findChildren(),
     and get the list of tree roots using objectTrees().
 
-    Every object has an objectName() and can report its className()
-    and whether it inherits() another class in the QObject inheritance
-    hierarchy.
+    Every object has an objectName() and its class name can be found
+    via the corresponding metaObject() (see QMetaObject::className()).
+    You can determine whether the object's class inherits another
+    class in the QObject inheritance hierarchy by using the
+    inherits() function.
 
     When an object is deleted, it emits a destroyed() signal. You can
     catch this signal to avoid dangling references to QObjects. The
