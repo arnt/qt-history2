@@ -586,6 +586,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
+    qDebug( "QPSQLDriver::primaryIndex:" + tablename );
     QSqlIndex idx( tablename );
     if ( !isOpen() )
 	return idx;
@@ -595,7 +596,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     case QPSQLDriver::Version6:
     case QPSQLDriver::Version7:
 	stmt = "select a.attname, c2.relname from pg_attribute a, pg_class c1,"
-		  "pg_class c2, pg_index i where c1.relname = '%1' "
+		  "pg_class c2, pg_index i where c2.relname = '%1_pkey' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;";
 	break;
