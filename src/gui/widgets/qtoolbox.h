@@ -34,18 +34,18 @@ public:
     QToolBox(QWidget *parent = 0, const char *name = 0, WFlags f = 0);
     ~QToolBox();
 
-    int addItem(QWidget *widget, const QString &label);
-    int addItem(QWidget *widget, const QIconSet &icon, const QString &label);
-    int insertItem(int index, QWidget *widget, const QString &label);
-    int insertItem(int index, QWidget *widget, const QIconSet &icon, const QString &label);
+    int addItem(QWidget *widget, const QString &text);
+    int addItem(QWidget *widget, const QIconSet &icon, const QString &text);
+    int insertItem(int index, QWidget *widget, const QString &text);
+    int insertItem(int index, QWidget *widget, const QIconSet &icon, const QString &text);
 
     void removeItem(int index);
 
     void setItemEnabled(int index, bool enabled);
     bool isItemEnabled(int index) const;
 
-    void setItemLabel(int index, const QString &label);
-    QString itemLabel(int index) const;
+    void setItemText(int index, const QString &text);
+    QString itemText(int index) const;
 
     void setItemIcon(int index, const QIconSet &icon);
     QIconSet itemIcon(int index) const;
@@ -82,6 +82,8 @@ private:
 
 #ifdef QT_COMPAT
 public:
+    inline QT_COMPAT void setItemLabel(int index, const QString &text) { setItemText(index, text); }
+    inline QT_COMPAT QString itemLabel(int index) const { return itemText(index); }
     inline QT_COMPAT QWidget *currentItem() const { return widget(currentIndex()); }
     inline QT_COMPAT void setCurrentItem(QWidget *item) { setCurrentIndex(indexOf(item)); }
     inline QT_COMPAT void setItemIconSet(int index, const QIconSet &icon) { setItemIcon(index, icon); }
@@ -93,13 +95,13 @@ public:
 };
 
 
-inline int QToolBox::addItem(QWidget *item, const QString &label)
-{ return insertItem(-1, item, QIconSet(), label); }
+inline int QToolBox::addItem(QWidget *item, const QString &text)
+{ return insertItem(-1, item, QIconSet(), text); }
 inline int QToolBox::addItem(QWidget *item, const QIconSet &iconSet,
-                              const QString &label)
-{ return insertItem(-1, item, iconSet, label); }
-inline int QToolBox::insertItem(int index, QWidget *item, const QString &label)
-{ return insertItem(index, item, QIconSet(), label); }
+                              const QString &text)
+{ return insertItem(-1, item, iconSet, text); }
+inline int QToolBox::insertItem(int index, QWidget *item, const QString &text)
+{ return insertItem(index, item, QIconSet(), text); }
 
 #endif // QT_NO_TOOLBOX
 #endif

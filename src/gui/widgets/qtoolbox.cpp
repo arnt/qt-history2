@@ -63,8 +63,6 @@ public:
     }
 
     inline void setSelected(bool b) { selected = b; update(); }
-    inline void setTextLabel(const QString &text) { label = text; update(); }
-    inline QString textLabel() const { return label; }
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
@@ -74,7 +72,6 @@ protected:
 
 private:
     bool selected;
-    QString label;
 };
 
 
@@ -88,7 +85,7 @@ public:
         QWidget *widget;
         QString toolTip;
 
-        inline void setTextLabel(const QString &text) { button->setTextLabel(text); }
+        inline void setText(const QString &text) { button->setText(text); }
         inline void setIcon(const QIconSet &is) { button->setIcon(is); }
         inline void setToolTip(const QString &tip)
         {
@@ -163,7 +160,7 @@ QSize QToolBoxButton::sizeHint() const
     QSize iconSize(8, 8);
     if (!icon().isNull())
         iconSize += icon().pixmap(QIconSet::Small, QIconSet::Normal).size() + QSize(2, 0);
-    QSize textSize = fontMetrics().size(Qt::ShowPrefix, label) + QSize(0, 8);
+    QSize textSize = fontMetrics().size(Qt::ShowPrefix, text()) + QSize(0, 8);
 
     QSize total(iconSize.width() + textSize.width(), qMax(iconSize.height(), textSize.height()));
     return total.expandedTo(QApplication::globalStrut());
@@ -179,6 +176,7 @@ QSize QToolBoxButton::minimumSizeHint() const
 void QToolBoxButton::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
+    QString text = QAbstractButton::text();
     QPainter *p = &paint;
     QStyle::SFlags flags = QStyle::Style_Default;
     const QPalette &pal = palette();
@@ -215,15 +213,15 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     }
 
     QString txt;
-    if (p->fontMetrics().width(label) < tr.width()) {
-        txt = label;
+    if (p->fontMetrics().width(text) < tr.width()) {
+        txt = text;
     } else {
-        txt = label.left(1);
+        txt = text.left(1);
         int ew = p->fontMetrics().width("...");
         int i = 1;
         while (p->fontMetrics().width(txt) + ew +
-                p->fontMetrics().width(label[i])  < tr.width())
-            txt += label[i++];
+                p->fontMetrics().width(text[i])  < tr.width())
+            txt += text[i++];
         txt += "...";
     }
 
@@ -262,10 +260,11 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     Every tab has an index position within the column of tabs. A tab's
     item is a QWidget.
 
-    Each item has an itemLabel(), an optional icon, itemIconSet(), an
-    optional itemToolTip(), and a \link item() widget\endlink. The
-    item's attributes can be changed with setItemLabel(),
-    setItemIconSet(), and setItemToolTip().
+    Each item has an itemText(), an optional itemIcon(), an optional
+    itemToolTip(), and a widget(). The item's attributes can be
+    changed with setItemText(), setItemIcon(), and
+    setItemToolTip(). Each item can be enabled or disabled
+    individually with setItemEnabled().
 
     Items are added using addItem(), or inserted at particular
     positions using insertItem(). The total number of items is given
@@ -312,38 +311,38 @@ QToolBox::~QToolBox()
 }
 
 /*!
-    \fn int QToolBox::addItem(QWidget *w, const QString &label)
+    \fn int QToolBox::addItem(QWidget *w, const QString &text)
     \overload
 
     Adds the widget \a w in a new tab at bottom of the toolbox. The
-    new tab's label is set to \a label. Returns the new tab's index.
+    new tab's text is set to \a text. Returns the new tab's index.
 */
 
 /*!
-    \fn int QToolBox::addItem(QWidget *widget, const QIconSet &iconSet,const QString &label)
+    \fn int QToolBox::addItem(QWidget *widget, const QIconSet &iconSet,const QString &text)
     Adds the \a widget in a new tab at bottom of the toolbox. The
-    new tab's label is set to \a label, and the \a iconSet is
-    displayed to the left of the \a label.  Returns the new tab's index.
+    new tab's text is set to \a text, and the \a iconSet is
+    displayed to the left of the \a text.  Returns the new tab's index.
 */
 
 /*!
-    \fn int QToolBox::insertItem(int index, QWidget *widget, const QString &label)
+    \fn int QToolBox::insertItem(int index, QWidget *widget, const QString &text)
     \overload
 
     Inserts the \a widget at position \a index, or at the bottom
-    of the toolbox if \a index is out of range. The new item's label is
-    set to \a label. Returns the new item's index.
+    of the toolbox if \a index is out of range. The new item's text is
+    set to \a text. Returns the new item's index.
 */
 
 /*!
     Inserts the \a widget at position \a index, or at the bottom
-    of the toolbox if \a index is out of range. The new item's label
-    is set to \a label, and the \a icon is displayed to the left of
-    the \a label. Returns the new item's index.
+    of the toolbox if \a index is out of range. The new item's text
+    is set to \a text, and the \a icon is displayed to the left of
+    the \a text. Returns the new item's index.
 */
 
 int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
-                           const QString &label)
+                           const QString &text)
 {
     if (!widget)
         return -1;
@@ -352,7 +351,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
 
     QToolBoxPrivate::Page c;
     c.widget = widget;
-    c.button = new QToolBoxButton(this, label.latin1());
+    c.button = new QToolBoxButton(this, text.latin1());
     connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
     c.sv = new QScrollView(this);
@@ -361,7 +360,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
     c.sv->addChild(widget);
     c.sv->setFrameStyle(QFrame::NoFrame);
 
-    c.setTextLabel(label);
+    c.setText(text);
     c.setIcon(icon);
 
     if (index < 0 || index >= (int)d->pageList.count()) {
@@ -555,14 +554,14 @@ void QToolBox::setItemEnabled(int index, bool enabled)
 
 
 /*!
-    Sets the label of the item at position \a index to \a label.
+    Sets the text of the item at position \a index to \a text.
 */
 
-void QToolBox::setItemLabel(int index, const QString &label)
+void QToolBox::setItemText(int index, const QString &text)
 {
     QToolBoxPrivate::Page *c = d->page(index);
     if (c)
-        c->setTextLabel(label);
+        c->setText(text);
 }
 
 /*!
@@ -598,14 +597,14 @@ bool QToolBox::isItemEnabled(int index) const
 }
 
 /*!
-    Returns the label of the item at position \a index, or an empty string if
+    Returns the text of the item at position \a index, or an empty string if
     \a index is out of range.
 */
 
-QString QToolBox::itemLabel(int index) const
+QString QToolBox::itemText(int index) const
 {
     QToolBoxPrivate::Page *c = d->page(index);
-    return (c ? c->button->textLabel() : QString());
+    return (c ? c->button->text() : QString());
 }
 
 /*!
@@ -647,6 +646,8 @@ void QToolBox::changeEvent(QEvent *ev)
 /*!
   This virtual handler is called after a new item was added or
   inserted at position \a index.
+
+  \sa tabRemoved()
  */
 void QToolBox::itemInserted(int index)
 {
@@ -656,6 +657,8 @@ void QToolBox::itemInserted(int index)
 /*!
   This virtual handler is called after an item was removed from
   position \a index.
+
+  \sa tabInserted()
  */
 void QToolBox::itemRemoved(int index)
 {
