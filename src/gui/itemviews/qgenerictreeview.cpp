@@ -1,9 +1,9 @@
 #include "qgenerictreeview.h"
-#include "qgenericvector.h"
 #include <qgenericheader.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qpainter.h>
+#include <qvector.h>
 #include <qstyle.h>
 #include <qevent.h>
 #include <qpen.h>
@@ -19,13 +19,37 @@
   This class implements a tree representation of a QGenericItemView working
   on a QGenericItemModel.
 */
-    
+
+template <typename T>
+inline void expand(QVector<T> &vec, int after, size_t n)
+{
+    size_t m = vec.size() - after - 1;
+    vec.resize(vec.size() + n);
+    T *b = (T*)vec.data();
+    T *src = b + after + 1;
+    T *dst = src + n;
+    memmove(dst, src, m * sizeof(T));
+}
+
+template <typename T>
+inline void collaps(QVector<T> &vec, int after, size_t n)
+{
+    if (after + 1 + n < (size_t)vec.size()) {
+	T *b = vec.data();
+	T *dst = b + after + 1;
+	T *src = dst + n;
+	size_t m = vec.size() - n - after - 1;
+	memmove(dst, src, m * sizeof(T));
+    }
+    vec.resize(vec.size() - n);
+}
+  
 /*
 struct Expanded {
     QModelIndex index;
     uint open : 1;
     uint total : 31;
-    QGenericVector<Expanded> expanded;
+    QVector<Expanded> expanded;
 };
 */
 struct QGenericTreeViewItem { // 20 bytes
@@ -77,7 +101,7 @@ public:
     int indent;
 
     //Expanded expanded;
-    QGenericVector<QGenericTreeViewItem> items;
+    QVector<QGenericTreeViewItem> items;
     int itemHeight; // this is just a number; contentsHeight() / numItems
 
     int layout_parent_index;
@@ -360,7 +384,7 @@ bool QGenericTreeView::doItemsLayout(int num)
     if (d->layout_from_index == -1)
 	d->items.resize(count);
     else
-	d->items.expand(d->layout_from_index, count);
+	expand<QGenericTreeViewItem>(d->items, d->layout_from_index, count);
     QGenericTreeViewItem *items = d->items.data();
     int level = d->layout_parent_index >= 0 ? items[d->layout_parent_index].level + 1 : 0;
     int first = d->layout_from_index + 1;
@@ -432,7 +456,7 @@ void QGenericTreeViewPrivate::close(int i)
 	parent = model->parent(parent);
 	idx = viewIndex(parent); // FIXME: slow
     }
-    items.collaps(i, total);
+    collaps<QGenericTreeViewItem>(items, i, total);
     int height = total * itemHeight;
     q->resizeContents(q->contentsWidth(), q->contentsHeight() - height);
     q->updateContents();

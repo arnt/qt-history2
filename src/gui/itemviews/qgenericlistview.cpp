@@ -1,12 +1,29 @@
 #include "qgenericlistview.h"
-#include <qgenericvector.h>
 #include <qitemdelegate.h>
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qpainter.h>
+#include <qvector.h>
 #include <qstyle.h>
 #include <qevent.h>
 #include <private/qobject_p.h>
+
+template <typename T>
+int bsearch(const QVector<T> &vec, const T &item, int first, int last)
+{
+    T val;
+    int mid;
+    while (true) {
+	mid = first + ((last - first) >> 1);
+	val = vec[mid];
+	if (val == item || (last - first) < 2)
+	    return mid;
+	if (val > item)
+	    last = mid;
+	if (val < item)
+	    first = mid;
+    }
+}
 
 template <class T>
 class BinTree
@@ -20,14 +37,14 @@ public:
 	uint type : 2;
     };
 
-    typedef void callback(QGenericVector<int> &leaf, const QRect &area, uint visited, void *data);
+    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, void *data);
 
     inline BinTree() : depth_(6), visited(0) {}
 
     void create(int n);
     void destroy();
-    static void insert(QGenericVector<int> &leaf, const QRect &area, uint visited, void *data);
-    static void remove(QGenericVector<int> &leaf, const QRect &area, uint visited, void *data);
+    static void insert(QVector<int> &leaf, const QRect &area, uint visited, void *data);
+    static void remove(QVector<int> &leaf, const QRect &area, uint visited, void *data);
 
     inline void climbTree(const QRect &rect, callback *function, void *data);
 
@@ -48,8 +65,8 @@ public:
     inline void moveItem(const QPoint &dest, const QRect &rect, int idx);
 
     inline int leafCount() const;
-    inline const QGenericVector<int> &const_leaf(int idx) const;
-    inline QGenericVector<int> &leaf(int idx);
+    inline const QVector<int> &const_leaf(int idx) const;
+    inline QVector<int> &leaf(int idx);
     inline void clearLeaf(int idx);
 
     inline int nodeCount() const;
@@ -63,9 +80,9 @@ private:
 
     uint depth_ : 8;
     mutable uint visited : 16;
-    QGenericVector<T> itemVector;
-    QGenericVector<Node> nodeVector;
-    mutable QGenericVector< QGenericVector<int> > leafVector; // the leaves are just indices into the itemVector
+    QVector<T> itemVector;
+    QVector<Node> nodeVector;
+    mutable QVector< QVector<int> > leafVector; // the leaves are just indices into the itemVector
 };
 
 template <class T>
@@ -121,15 +138,13 @@ void BinTree<T>::setItemPosition(int x, int y, int idx)
 template <class T>
 void BinTree<T>::appendItem(T &item)
 {
-//    qDebug("appendItem");
     itemVector.append(item);
 }
 
 template <class T>
 void BinTree<T>::insertItem(T &item, const QRect &rect, int idx)
 {
-//    qDebug("insertItem");
-    itemVector.insert(idx, item);
+    itemVector.insert(idx + 1, 1, item); // insert after idx
     climbTree(rect, &insert, (void*)idx, 0);
 }
 
@@ -137,7 +152,7 @@ template <class T>
 void BinTree<T>::removeItem(const QRect &rect, int idx)
 {
     climbTree(rect, &remove, (void*)idx, 0);
-    itemVector.remove(idx);
+    itemVector.remove(idx, 1);
 }
 
 template <class T>
@@ -156,13 +171,13 @@ int BinTree<T>::leafCount() const
 }
 
 template <class T>
-const QGenericVector<int> &BinTree<T>::const_leaf(int idx) const
+const QVector<int> &BinTree<T>::const_leaf(int idx) const
 {
     return leafVector.at(idx);
 }
 
 template <class T>
-QGenericVector<int> &BinTree<T>::leaf(int idx)
+QVector<int> &BinTree<T>::leaf(int idx)
 {
     return leafVector[idx];
 }
@@ -215,13 +230,13 @@ void BinTree<T>::destroy()
 }
 
 template <class T>
-void BinTree<T>::insert(QGenericVector<int> &leaf, const QRect &, uint, void *data)
+void BinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, void *data)
 {
     leaf.push_back((int)data);
 }
 
 template <class T>
-void BinTree<T>::remove(QGenericVector<int> &leaf, const QRect &, uint, void *data)
+void BinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
 {
     int idx = (int)data;
     for (int i = 0; i < (int)leaf.count(); ++i) {
@@ -344,7 +359,7 @@ public:
     inline QModelIndex listViewItemToIndex(const QGenericListViewItem item) const
     { return q->model()->index(itemIndex(item), 0, q->root()); }
     int itemIndex(const QGenericListViewItem item) const;
-    static void addLeaf(QGenericVector<int> &leaf,
+    static void addLeaf(QVector<int> &leaf,
  			const QRect &area, uint visited, void *data);
     void createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
 			 const QRect &bounds, int spacing, int delta);
@@ -364,16 +379,16 @@ public:
     QRect layoutBounds;
     QSize contentsSize; // used for static
     // used for intersecting set1
-    mutable QGenericVector<QModelIndex> intersectVector;
+    mutable QVector<QModelIndex> intersectVector;
     // used when items are movable
     BinTree<QGenericListViewItem> tree;
     // used when items are static
-    QGenericVector<int> xposVector;
-    QGenericVector<int> yposVector;
-    QGenericVector<int> wrapVector;
+    QVector<int> xposVector;
+    QVector<int> yposVector;
+    QVector<int> wrapVector;
     int layoutWraps;
     // used when dragging
-    QGenericVector<QModelIndex> draggedItems; // indices to the tree.itemVector
+    QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
     mutable QRect draggedItemsRect;
     mutable QPoint draggedItemsPos;
     QSize itemSize; // used when all items are of the same height
@@ -435,7 +450,7 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     QItemSelection *selection = new QItemSelection;
     QModelIndex tl;
     QModelIndex br;
-    QGenericVector<QModelIndex>::iterator it = d->intersectVector.begin();
+    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
 	if (!tl.isValid() && !br.isValid()) {
 	    tl = br = *it;
@@ -576,7 +591,7 @@ void QGenericListView::drawContents(QPainter *painter, int cx, int cy, int cw, i
     QItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
     bool focus = viewport()->hasFocus() && current.isValid();
-    QGenericVector<QModelIndex>::iterator it = d->intersectVector.begin();
+    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
  	options.itemRect = itemRect(*it);//d->indexToListViewItem(*it).rect();
  	options.selected = selections ? selections->isSelected(*it) : false;
@@ -698,7 +713,7 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
     int dist = 0;
     int minDist = 0;
     QModelIndex closest;
-    QGenericVector<QModelIndex>::iterator it = d->intersectVector.begin();
+    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
 	dist = (d->indexToListViewItem(*it).rect().topLeft() - pos).manhattanLength();
 	if (dist < minDist || minDist == 0) {
@@ -1122,7 +1137,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     q->getViewOptions(&options);
     QItemDelegate *delegate = q->itemDelegate();
     QPoint delta = pos - q->dragRect().topLeft();
-    QGenericVector<QModelIndex>::const_iterator it = draggedItems.begin();
+    QVector<QModelIndex>::const_iterator it = draggedItems.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
     draggedItemsRect.setRect(item.x + delta.x(), item.y + delta.y(), item.w, item.h);
     for (; it != draggedItems.end(); ++it) {
@@ -1191,7 +1206,7 @@ int QGenericListViewPrivate::itemIndex(const QGenericListViewItem item) const
     return -1;
 }
 
-void QGenericListViewPrivate::addLeaf(QGenericVector<int> &leaf, const QRect &area,
+void QGenericListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
 				      uint visited, void *data)
 {
     QGenericListViewItem *vi;
