@@ -44,7 +44,7 @@
 ###############################################################################
  
 @Use { @BasicSetup
-  @InitialFont	{ Palatino Base 11p	} # initial font
+  @InitialFont	{ Times Base 11p	} # initial font
   @InitialBreak	{{unbreakablefirst unbreakablelast adjust 1.2fx hyphen} @OrIfPlain {ragged 1fx nohyphen}}
   @InitialSpace	{ tex			} # initial space style
   @InitialLanguage	{ English		} # initial language
@@ -80,7 +80,7 @@
 ###############################################################################
 
 @Use { @DocumentSetup
-  @PageType		{ A4	@OrIfPlain Other} # page type (width, height)
+  @PageType		{ Letter @OrIfPlain Other} # page type (width, height)
   # @PageWidth		{ 80s			} # page width if type Other
   # @PageHeight		{ 66f			} # page height if type Other
   # @PageOrientation	{ Portrait		} # Portrait, Landscape, etc.

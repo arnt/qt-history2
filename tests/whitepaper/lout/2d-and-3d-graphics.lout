@@ -316,6 +316,7 @@ that accept a @Class QColor argument and work in any mode.
   qcolor @Index { QColor }
   qglclearcolor @Index { qglClearColor() }
   qglcolor @Index { qglColor() }
+@NP
 @End @SubSection
 @SubSection
     @Title { A 3D Example }

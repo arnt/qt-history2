@@ -1,0 +1,27 @@
+# whitepaper-a4.lout
+# whitepaper-a4-times.lout
+# whitepaper-us-times.lout
+@Include { mycprint }
+@SysInclude { diag }
+@SysInclude { tbl }
+# mydefs
+@Report
+    @Title {Qt 3.0 Whitepaper}
+    @Author { Trolltech }
+    @Abstract { @Include { abstract.lout } }
+//
+@Include { introduction.lout }
+@Include { widgets.lout }
+@Include { signals-and-slots.lout }
+@Include { gui-applications.lout }
+@Include { qt-designer.lout }
+@Include { 2d-and-3d-graphics.lout }
+@Include { databases.lout }
+@Include { internationalization.lout }
+@Include { styles-and-themes.lout }
+@Include { layouts.lout }
+@Include { events.lout }
+@Include { input-output-and-networking.lout }
+@Include { collection-classes.lout }
+@Include { plugins-and-dynamic-libraries.lout }
+@Include { qts-architecture.lout }

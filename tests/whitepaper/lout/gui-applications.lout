@@ -497,6 +497,7 @@ QThread, @Class QMutex, @Class QSemaphore and @Class QWaitCondition.
 @DP
 @OLREF @LP
 @Href{"http://doc.trolltech.com/3.0/threads.html"}@LLP
+@NP
 @End @SubSection
 @EndSubSections
 @End @Section
