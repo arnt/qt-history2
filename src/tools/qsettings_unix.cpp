@@ -875,6 +875,164 @@ bool QSettings::removeEntry(const QString &key)
 
 
 /*!
+  Returns a list of entries under \a key. For example, when this function
+  is called with "/MyProgram" as  \a key, and these keys are present:
+
+  <ul>
+  <li>/MyProgram/colors
+  <li>/MyProgram/font
+  <li>/MyProgram/recentfiles/one
+  <li>/MyProgram/recentfiles/two
+  <li>/MyProgram/recentfiles/three
+  </ul>
+
+  This function will return a list with \e colors and \e font in the list,
+  excluding the subkey \e recentfiles.  To get a list of subkeys, use
+  QSettings::listSubkeys()
+*/
+QStringList QSettings::listEntries(const QString &key)
+{
+
+#ifdef QT_CHECK_STATE
+    if (key.isNull() || key.isEmpty()) {
+	qWarning("QSettings::listEntries: invalid null/empty key.");
+
+	return QStringList();
+    }
+#endif // QT_CHECK_STATE
+
+    QString realkey;
+    if (key[0] == '/') {
+	// parse our key
+	QStringList list(QStringList::split('/', key));
+
+#ifdef QT_CHECK_STATE
+	if (list.count() < 1) {
+	    qWarning("QSettings::listEntries: invalid key '%s'", key.latin1());
+
+	    return QStringList();
+	}
+#endif // QT_CHECK_STATE
+
+	if (list.count() == 1) {
+	    d->heading = list[0];
+	    d->group = "General";
+	} else {
+	    d->heading = list[0];
+	    d->group = list[1];
+
+	    // remove the group from the list
+	    list.remove(list.at(1));
+	    // remove the heading from the list
+	    list.remove(list.at(0));
+
+	    realkey = list.join("/");
+	}
+    } else
+	realkey = key;
+
+    int start = realkey.length();
+
+    QSettingsGroup grp = d->readGroup();
+    QSettingsGroup::Iterator it = grp.begin();
+    QStringList ret;
+    QString itkey;
+    while (it != grp.end()) {
+	itkey = it.key();
+	it++;
+
+	if (start > 0 && itkey.left(start) != realkey)
+	    continue;
+	else if (itkey.find('/', start) != -1)
+	    continue;
+
+	ret << itkey;
+    }
+
+    return ret;
+}
+
+
+/*!
+  Returns a list of subkeys under \a key.  For example, when this function
+  is called with "/MyProgram" as  \a key, and these keys are present:
+
+  <ul>
+  <li>/MyProgram/colors
+  <li>/MyProgram/font
+  <li>/MyProgram/recentfiles/one
+  <li>/MyProgram/recentfiles/two
+  <li>/MyProgram/recentfiles/three
+  </ul>
+
+  this function will return a list with \e recentfiles in the list,
+  excluding the entries \e colors and \e font.  To get a list of entries,
+  QSettings::listEntries()
+*/
+QStringList QSettings::listSubkeys(const QString &key)
+{
+
+#ifdef QT_CHECK_STATE
+    if (key.isNull() || key.isEmpty()) {
+	qWarning("QSettings::listSubkeys: invalid null/empty key.");
+
+	return QStringList();
+    }
+#endif // QT_CHECK_STATE
+
+    QString realkey;
+    if (key[0] == '/') {
+	// parse our key
+	QStringList list(QStringList::split('/', key));
+
+#ifdef QT_CHECK_STATE
+	if (list.count() < 1) {
+	    qWarning("QSettings::listSubkeys: invalid key '%s'", key.latin1());
+
+	    return QStringList();
+	}
+#endif // QT_CHECK_STATE
+
+	if (list.count() == 1) {
+	    d->heading = list[0];
+	    d->group = "General";
+	} else {
+	    d->heading = list[0];
+	    d->group = list[1];
+
+	    // remove the group from the list
+	    list.remove(list.at(1));
+	    // remove the heading from the list
+	    list.remove(list.at(0));
+
+	    realkey = list.join("/");
+	}
+    } else
+	realkey = key;
+
+    int start = realkey.length();
+
+    QSettingsGroup grp = d->readGroup();
+    QSettingsGroup::Iterator it = grp.begin();
+    QStringList ret;
+    QString itkey;
+    while (it != grp.end()) {
+	itkey = it.key();
+	it++;
+
+	if (start > 0 && itkey.left(start) != realkey)
+	    continue;
+	else if (itkey.find('/', start) == -1)
+	    continue;
+
+	ret << itkey;
+    }
+
+    return ret;
+}
+
+
+/*!
   This function returns the time of last modification for \a key.
 */
 QDateTime QSettings::lastModficationTime(const QString &key)
