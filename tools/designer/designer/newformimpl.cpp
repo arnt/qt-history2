@@ -274,31 +274,31 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 
     QString templPath = templatePath;
     if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
-	if ( QFileInfo( "../templates" ).exists() ) {
-	    templPath = "../templates";
-	} else {
-	    QString qtdir = getenv( "QTDIR" );
-	    if ( QFileInfo( qtdir + "/tools/designer/templates" ).exists() )
-		templPath = qtdir + "/tools/designer/templates";
+	QString path = getenv( "QTDIR" );
+	if ( !path.isEmpty() ) {
+	    path.append( "/tools/designer/templates" );
+	    if ( QFileInfo( path ).exists() )
+		templPath = path;
 	}
     }
-
-    QDir dir( templPath  );
-    const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
-    if ( filist ) {
-	QFileInfoListIterator it( *filist );
-	QFileInfo *fi;
-	while ( ( fi = it.current() ) != 0 ) {
-	    ++it;
-	    if ( !fi->isFile() || fi->extension() != "ui" )
-		continue;
-	    QString name = fi->baseName();
-	    name = name.replace( QRegExp( "_" ), " " );
-	    CustomFormItem *ci = new CustomFormItem( templateView, name );
-	    allItems.append( ci );
-	    ci->setDragEnabled( FALSE );
-	    ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
-	    ci->setTemplateFile( fi->absFilePath() );
+    if ( !templPath.isEmpty() ) {
+	QDir dir( templPath  );
+	const QFileInfoList *filist = dir.entryInfoList( QDir::DefaultFilter, QDir::DirsFirst | QDir::Name );
+	if ( filist ) {
+	    QFileInfoListIterator it( *filist );
+	    QFileInfo *fi;
+	    while ( ( fi = it.current() ) != 0 ) {
+		++it;
+		if ( !fi->isFile() || fi->extension() != "ui" )
+		    continue;
+		QString name = fi->baseName();
+		name = name.replace( QRegExp( "_" ), " " );
+		CustomFormItem *ci = new CustomFormItem( templateView, name );
+		allItems.append( ci );
+		ci->setDragEnabled( FALSE );
+		ci->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
+		ci->setTemplateFile( fi->absFilePath() );
+	    }
 	}
     }
 
