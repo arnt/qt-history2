@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#478 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#479 $
 **
 ** Implementation of QWidget class
 **
@@ -3248,8 +3248,10 @@ bool QWidget::close( bool alsoDelete )
 		delete this;
 	}
     }
-    if ( accept && checkLastWindowClosed ) {	// last window closed?
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noMoreToplevels() )
+    if ( accept  ) {	// last window closed?
+	if ( checkLastWindowClosed 
+	     && qApp->receivers(SIGNAL(lastWindowClosed())) 
+	     && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
 	if ( isMain )
 	    qApp->quit();
