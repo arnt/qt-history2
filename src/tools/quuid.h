@@ -154,7 +154,7 @@ struct Q_EXPORT QUuid
     }
 #endif
 
-    ulong   data1;
+    ulong   data1; // ### should be uint instead of ulong (64-bit platforms)
     ushort  data2;
     ushort  data3;
     uchar   data4[ 8 ];
