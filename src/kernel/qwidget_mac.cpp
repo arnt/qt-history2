@@ -240,11 +240,12 @@ static bool qt_create_root_win() {
     //GetCWMgrPort(ret);
 #else if defined(Q_WS_MACX)
     Rect r;
-    GDHandle g = GetMainDevice();
-    if(g)
-	SetRect(&r, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
-    else
-	qDebug("Whoa! error %s:%d", __FILE__, __LINE__);
+    int w = 0, h = 0;
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) {
+	w = QMAX(w, (*g)->gdRect.right);
+	h = QMAX(h, (*g)->gdRect.bottom);
+    }
+    SetRect(&r, 0, 0, w, h);
     CreateNewWindow(kOverlayWindowClass, kWindowNoAttributes, &r, &qt_root_win);
 #endif //MACX
     if(!qt_root_win)
@@ -371,7 +372,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( !parentWidget() || parentWidget()->isDesktop() )
 	setWFlags( WType_TopLevel );            // top-level widget
 
-    static short int sw = -1, sh = -1;                // screen size
+    QRect dskr;
+    if(isDesktop()) {
+	if(GDHandle g = GetMainDevice()) 
+	    dskr = QRect(0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom);
+    } else {
+	if(QDesktopWidget *dsk = QApplication::desktop()) {
+	    int d = dsk->primaryScreen();
+	    if(parentWidget() && !parentWidget()->isDesktop()) 
+		d = dsk->screenNumber(parentWidget());
+	    dskr = dsk->screenGeometry(d);
+	}
+    }
+    int sw = dskr.width(), sh = dskr.height();                // screen size
     bool topLevel = testWFlags( WType_TopLevel );
     bool popup = testWFlags( WType_Popup );
     bool dialog = testWFlags( WType_Dialog );
@@ -380,15 +393,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
     if ( !window )                              // always initialize
 	initializeWindow=TRUE;
-
-    if ( sw < 0 ) {
-	GDHandle g = GetMainDevice();
-	if(g) {
-	    sw = (*g)->gdRect.right;
-	    sh = (*g)->gdRect.bottom;
-	}
-    }
-
     bg_col = pal.normal().background();
 
     if ( dialog || popup || desktop ) {          // these are top-level, too
@@ -1050,20 +1054,33 @@ void QWidget::showMinimized()
 
 void QWidget::showMaximized()
 {
-    if(isMaximized())
+    if(isMaximized() || isDesktop())
 	return;
     if ( testWFlags(WType_TopLevel) ) {
+	QDesktopWidget *dsk = QApplication::desktop();
+	int scrn = dsk->screenNumber(this);
+	QRect r = dsk->screenGeometry(scrn);
+	if(scrn == dsk->primaryScreen())
+	    r.setY(GetMBarHeight());
+	if(QTLWExtra *tlextra = topData()) {
+	    if ( tlextra->normalGeometry.width() < 0 )
+		tlextra->normalGeometry = geometry();
+	    if(fstrut_dirty)
+		updateFrameStrut();
+	    r.setX(r.x() + tlextra->fleft);
+	    r.setY(r.y() + tlextra->ftop);
+	    r.setRight(r.right() - tlextra->fright);
+	    r.setBottom(r.bottom() - tlextra->fbottom);
+	}
 	Rect bounds;
-	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
+	SetRect(&bounds, r.x(), r.y(), r.right(), r.bottom());
+	SetWindowStandardState((WindowPtr)hd, &bounds);
 	ZoomWindow( (WindowPtr)hd, inZoomOut, FALSE);
 	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
-	qt_dirty_wndw_rgn("showMaxim",this, &bounds);
+	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 	QRect orect(geometry().x(), geometry().y(), width(), height());
-	QMacSavedPortInfo savedInfo(this);
-	Point p = { 0, 0 };
-	LocalToGlobal(&p);
-	crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
+	crect.setRect( bounds.left, bounds.top, bounds.right, bounds.bottom );
 
 	if(isVisible()) {
 	    dirtyClippedRegion(TRUE);
@@ -1101,11 +1118,6 @@ void QWidget::showNormal()
 	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
 
 	    QRect orect(x(), y(), width(), height());
-	    QMacSavedPortInfo savedInfo(this);
-	    Point p = { 0, 0 };
-	    LocalToGlobal(&p);
-	    crect.setRect( p.h, p.v, bounds.right, bounds.bottom );
-
 	    if(isVisible()) {
 		dirtyClippedRegion(TRUE);
 
@@ -1116,14 +1128,6 @@ void QWidget::showNormal()
 		QResizeEvent qre( size(), orect.size());
 		QApplication::sendEvent( this, &qre );
 	    }
-	}
-
-	QRect r = topData()->normalGeometry;
-	if ( r.width() >= 0 ) {
-	    // the widget has been maximized
-	    topData()->normalGeometry = QRect(0,0,-1,-1);
-	    resize( r.size() );
-	    move( r.topLeft() );
 	}
     }
     dirtyClippedRegion(TRUE);
