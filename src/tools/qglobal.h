@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#318 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#319 $
 **
 ** Global type declarations and definitions
 **
@@ -212,7 +212,6 @@
 #  define Q_CC_GNU
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
-#    define Q_SPURIOUS_NON_VOID_WARNING
 #  endif
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 95
 #    define Q_DELETING_VOID_UNDEFINED

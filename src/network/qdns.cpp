@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#45 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#46 $
 **
 ** Implementation of QDns class.
 **
@@ -314,23 +314,19 @@ QString QDnsAnswer::readString()
 		r += QChar( answer[p++] );
 	    break;
 	default:
-	    ok = FALSE;
-	    return QString::null;
+	    goto not_ok;
 	case 3:
 	    int q = ( (answer[p] & 0x3f) << 8 ) + answer[p+1];
-	    if ( q >= pp || q >= p ) {
-		ok = FALSE;
-		return QString::null;
-	    }
+	    if ( q >= pp || q >= p )
+		goto not_ok;
 	    if ( p >= pp )
 		pp = p + 2;
 	    p = q;
-	    break;
 	}
     }
-#if defined(Q_SPURIOUS_NON_VOID_WARNING)
+not_ok:
+    ok = FALSE;
     return QString::null;
-#endif
 }
 
 
