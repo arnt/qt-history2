@@ -85,7 +85,8 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
 
 	if ( !enumDisplayMonitors || !getMonitorInfo ) {
-	    rects.at( screenCount ) = that->rect();
+	    for ( int i = 0; i < screenCount; ++i )
+		rects.at( i ) = that->rect();
 	    return;
 	}
 	// Calls enumCallback
@@ -93,6 +94,9 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	enumDisplayMonitors = 0;
 	getMonitorInfo = 0;
 	FreeLibrary( user32hnd );
+    } else {
+	rects.resize( 1 );
+	rects.at( 0 ) = that->rect();
     }
 }
 
@@ -198,7 +202,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 
 	return d->rects[ screen ];
     } else {
-	return rect();
+	return d->rects[ d->primaryScreen ];
     }
 }
 
@@ -230,7 +234,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 	}
 	return maxScreen;
     } else {
-	return 0;
+	return d->primaryScreen;
     }
 }
 
@@ -246,8 +250,6 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 	    if ( d->rects[i].contains( point ) )
 		return i;
 	}
-	return d->primaryScreen;
-    } else {
-	return 0;
     }
+    return d->primaryScreen;
 }
