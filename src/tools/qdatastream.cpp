@@ -217,6 +217,8 @@ static bool systemBigEndian;
 
 static const int DefaultStreamVersion = 5;
 // ### On next version bump, QPen::width() should not be restricted to 8-bit values.
+// ### On next version bump, when streaming invalid QVariants, just the type should
+// be written, no "data" after it
 // 5 is default in Qt 3.1
 // 4 is default in Qt 3.0
 // 3 is default in Qt 2.1
