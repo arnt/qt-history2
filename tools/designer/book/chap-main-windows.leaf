@@ -285,7 +285,7 @@ separator to appear in the finished toolbar.
 
 Copy the New, Open and Save Actions to the Toolbar list box. Copy a
 \<Separator\> to the Toolbar list box. Change the Category to Edit and
-copy the Cut Copy and Find actions to the Toolbar list box. Click
+copy the Cut, Copy and Find actions to the Toolbar list box. Click
 \Button Next and then click \Button Finish.
 
 \img mw-settoolwiz.png
@@ -390,9 +390,9 @@ relevant to our application, so we'll delete them.
 
 Click the Object Explorer's Members tab. Right click the filePrint()
 slot, then click Delete from the popup menu. In the same way delete
-the editUndo(), editRedo() and editPaste() slots. (Right click
-editUndo(), then click Delete, etc.) Later we'll see how to create new
-slots when we add further functionality to the application.
+the editUndo(), editRedo() and editPaste() slots. Later we'll see how
+to create new slots when we add further functionality to the
+application.
 
 Right click the filePrintAction action in the Action Editor window,
 then click Delete Action from the popup menu. In the same way delete
@@ -404,15 +404,13 @@ redundant separators.
 Click the form's \Menu File menu. (Note, we're clicking our newly
 created form's \Menu File menu, not \QD's \Menu File menu!) There are
 \e two separators above the Exit menu option (the \Menu File|Print
-option was in-between until we deleted it). Right click one of these
-separators, then click Delete Separator. Don't worry if you miss and
-delete a menu option by accident: if you delete the wrong thing click
-\Menu Edit|Undo to undelete. The form's \Menu Edit menu has a
+option was in-between until we deleted it). Click one of these
+separators, then press the \Key Delete key. Don't worry if you miss
+and delete a menu option by accident: if you delete the wrong thing
+click \Menu Edit|Undo to undelete. The form's \Menu Edit menu has a
 redundant separator at the top (the undo and redo options were there).
-Delete this separator in the same way. (Click the form's \Menu Edit
-menu, right click the separator, click Delete Separator.) Again, don't
-worry if you delete a menu option by mistake, just press \Key Ctrl+Z
-to undo.
+Delete this separator in the same way. Again, don't worry if you
+delete a menu option by mistake, just press \Key Ctrl+Z to undo.
 
 Click \Menu{File|Save} to save the form.
 
@@ -496,14 +494,12 @@ views we will be offering, and allow the user to add colors and set
 their preferred options. We'll prepare the way by creating a new menu
 for the view options and by adding a separator to the toolbar. 
 
-Right click the form's menu bar to pop up its context menu, then click
-the \Menu{Add Menu Item} option. This creates a new menu item called
-"Menu" to the right of the existing menu bar items. Click "Menu" and
-drag it to the left of the "Help" menu and release it there. (A
-vertical red line indicates its position.) Right click "Menu", then
-click \Menu{Rename Menu Item}. Change its name to "\&View". The \&
-(ampserand) makes the following letter an \Key Alt key accelerator
-(i.e. in this case \Key Alt+V will pop up the \Menu{View} menu).
+Click "new menu" on the menu bar and type "&View" over
+the text. The & (ampersand) makes the following letter a key
+accelerator (i.e., in this case Alt+V will pop up the View menu).
+
+\img mw-newmenuitem.png
+\caption The Menu Bar
 
 \sidebar Duplicate Accelerators
 
@@ -515,27 +511,32 @@ spot the problem if it occurs.
 
 \endsidebar
 
-We could create a new toolbar for the view menu items, but instead
+Drag the View menu to the left of the "Help" menu and
+release it there. (A vertical red line indicates its position.)
+
+\img mw-dragviewitem.png
+\caption Dragging the View Menu Item 
+
+We could create a new toolbar for the View menu items, but instead
 we'll put a separator at the end of the existing toolbar and add the
-view options after the separator. (Alternatively we could have created
-an entirely new toolbar. See \l{Creating and Populating Toolbars} for
-more information on doing this.) Right click the right-most toolbar
-button ("Find"), then click \Menu{Insert Separator}.
+View options after the separator. Right click the right-most toolbar
+button ("Find"), then click \Menu{Insert Separator}. Alternatively, we
+could have created an entirely new toolbar. See \l {Creating and
+Populating Toolbars} for more information on doing this. 
 
-\img mw-addmenuitem.png
-
-Now we'll create our form's custom actions.
+\img mw-separator.png 
+\caption Insert Separator in the Toolbar Menu
 
 \sidebar Creating and Populating Toolbars
 
 \index Creating Toolbars
 \index Adding!Toolbars
 \index Toolbars, Creating
-A new toolbar is created by right clicking on the menu bar (or to the
-right of the existing toolbar(s)) then clicking \Menu{Add Toolbar}.
-The new toolbar is empty and is visible only by its \e{toolbar
-handle}. (Toolbar handle's are usually represented as a gray area
-containing either two thick vertical lines or with many small pits).
+A new toolbar is created by clicking to the right of the existing
+toolbars, then clicking \Menu{Add Toolbar}. The new toolbar is empty
+and is visible only by its \e{toolbar handle}. (Toolbar handle's are
+usually represented as a gray area containing either two thick
+vertical lines or with many small pits).
 
 \omit \img qd-chapmainwin-toolbarhandle.png \endomit
 \img mw-toolbarpits.png
@@ -581,10 +582,9 @@ dragged to different docking points (top, left, right and bottom of a
 \l QMainWindow or subclass), or dragged out of the application as
 independent tool windows. 
 
-\img mw-actiongroup.png
-\caption Toolbar with all the Actions Added
+\endsidebar
 
-\section3 Adding Widgets to the Toolbar
+\sidebar Adding Widgets to the Toolbar
 
 \index Toolbars!Adding Widgets
 \index Widgets!Adding to Toolbars
@@ -616,55 +616,83 @@ and \Widget {Line Edit}s.
 
 \endsidebar
 
-\section3 Adding the Options Action
+\section2 Adding the Options Action
 
 Right click the first action in the Action Editor, then click
 \Menu{New Action}. The Property Editor now shows the new action's
 properties. Change the action's name to "optionsAction". Click the
 ellipsis button on the \Property{iconSet} property to pop up the
-\Widget{Choose an Image} dialog. Click the \Button{Add...} button to pop
-up the \Widget{Choose Images...} file selection dialog. Navigate to
-\c{qt/tools/examples/colortool/images}; click the \c{tabwidget.png} image,
-then click \Button{Open}. The \c{tabwidget.png} image now appears
-highlighted in the \Widget{Choose an Image} dialog; click \OK to use
-it. Change the \Property{text} property to "Options" and change the
+\Widget{Choose a Pixmap...} dialog. Navigate to
+\c{/tools/designer/examples/colortool/images}; click the \c{tabwidget.png}
+image. The \c{tabwidget.png} image appears highlighted in the
+\Widget{Choose a Pixmap...} dialog; click \OK to use it. Change the
+\Property{text} property to "Options" and change the
 \Property{menuText} property to "\&Options...".
 
-Click the optionsAction in the Action Editor and drag it to the Edit
-menu. The Edit menu will pop up; drag the optionsAction down the menu
+Click the Options action in the Action Editor and drag it to the Edit
+menu. The Edit menu will pop up; drag the Options action down the menu
 (a horizontal red line indicates its position), and drop it at the end
-after the "Find" option.
+after the "Find" item.
 
-Since we also want to make this option available from the toolbar,
-click the optionsAction again, and this time drag it to the toolbar.
-Drop it to the left of the scissors (Cut) toolbar button. (A
-horizontal red line indicates its position during the drag.)
+\sidebar Alternative Approach to Adding the Options Action
+
+Click Edit on the menu bar and then click "new item", located after
+the Find menu item. Type "&Options" over "new item" to rename it and
+press \Key Enter. Move the arrow key to the space to the left of the
+Options menu item (the pixmap field) and press \Key Enter. The
+\Widget{Choose a Pixmap...} dialog pops up. Navigate to
+\c{/tools/designer/examples/colortool/images}; click the \c{tabwidget.png}
+image. The \c{tabwidget.png} image appears highlighted in the
+\Widget{Choose a Pixmap...} dialog; click \OK to use it. The pixmap now
+appears next to the Options item in the menu.  
+
+\endsidebar
 
 The options action ought to be visually separated from the other Edit
-menu options. Click the form's Edit menu, then right click the
-"Find" option, then click \Menu{Insert Separator}.
+menu options. Click the form's Edit menu, then click and drag the "new
+separator" item to the space above the Options item.
+
+Since we also want to make this option available from the toolbar,
+click the Options action in the Action Editor and drag it to the
+toolbar. Drop it to the right of the magnifying glass (Find) toolbar
+button; a horizontal red line indicates its position during the
+drag.
 
 We'll connect and code this action later.
 
-\section3 Adding the Add Action
+\section2 Adding the Add Action
 
 Right click the first action in the Action Editor, then click
 \Menu{New Action}. Change the action's \Property{name} property to
 "editAddAction". Change its \Property{iconSet} property to
-\c{widgetstack.png}. (Click the \Property{iconSet} property's ellipsis
-button, click \Button{Add...}, click \c{widgetstack.png}, then click
-\Button{Open}, then click \OK.) Change the \Property{text} property to
+\c{widgetstack.png}. Change the \Property{text} property to
 "Add" and the \Property{menuText} property to "\&Add...". Change the
 \Property{accel} property to "Ctrl+A".
 
-Click the editAddAction and drag it to be the first item in the Edit
+Click the Add action and drag it to be the first item in the Edit
 menu. (Drag it to the edit menu and drop it when the horizontal red
-line is above the "Cut" menu option.)
+line is above the "Cut" menu item.)
 
-Click the editAddAction again, and this time drag it to the toolbar.
+\sidebar Alternative Approach to Adding the Add Action
+
+Click Edit on the menu bar and then click "new item", located after
+the Find menu item. Type "&Add" over "new item" to rename it and press
+\Key Enter. Move the arrow key to the space to the left of the Add
+item and press \Key Enter. The \Widget{Choose a Pixmap...} dialog pops up.
+Navigate to \c{/tools/designer/examples/colortool/images}; click the
+\c{widgetstack.png} image. The \c{widgetstack.png} image appears
+highlighted in the \Widget{Choose a Pixmap...} dialog; click \OK to use
+it. The pixmap now appears next to the Add item in the menu. Finally,
+move the arrow key to the space to the right of the Add item and
+and press "Ctrl+A". The accelerator key combination now appears next
+to the Add menu item.    
+
+\endsidebar
+
+Click the editAddAction in the Action Editor and drag it to the toolbar.
 Drop it to the left of the scissors (Cut) toolbar button. 
 
-\section4 Tidying Up
+\section2 Tidying Up
 
 We're going to use "Cut" for deleting colors, so we'll change the
 user-visible name to "Delete" to make its meaning clearer. Click the
@@ -676,10 +704,21 @@ A side-effect of the above change is that \Key Alt+C (originally used
 for "Cut") is now unused. Click the editCopyAction action in the
 Action Editor, and change its \Property{menuText} property to "\&Copy".
 
+\sidebar Alternate Approach to Renaming Actions
+
+To change the name of the Cut action to "Delete", click Edit on the
+menu bar and then click "Cut". Type "&Delete" over "Cut" and press
+enter. 
+
+To change name of the Copy action to "&Copy", click Edit on the menu bar and
+then click "Copy". Type "&Copy" over "Copy" and press enter.
+
+\endsidebar
+
 We can always check to see if there are any accelerator conflicts by
 clicking \Menu{Edit|Check Accelerators} (or \Key{Alt+R}).
 
-\section3 Adding an Action Group
+\section2 Adding an Action Group
 
 We want to provide the user with a choice of views, but since they can
 only use one view at a time we need to ensure that the menu options
@@ -735,7 +774,7 @@ Note that the Action Editor window is dockable, so if you don't want
 it to float freely you can drag it to one of \QD's dock areas (top,
 left, right, bottom of the main window) if preferred.
 
-\section4 Using an Action Group
+\section2 Using an Action Group
 
 Now that we've created the view actions we need to make them available
 to the user.
@@ -932,7 +971,7 @@ Press \Key Enter, to confirm the last variable, then click
 \CLOSE to close the dialog. All the variables now appear in
 Object Explorer's Members tab.
 
-\section3 Adding Forward Declarations
+\section2 Adding Forward Declarations
 
 Some of the variables we've created are of classes that need forward
 declarations. Right click Forward Declarations (in Object Explorer's
@@ -951,7 +990,7 @@ You should now have the following forward declarations:
 \i class QColor;
 \endlist
 
-\section3 Adding Includes
+\section2 Adding Includes
 
 Our form will also need some included files. Includes may be added in
 the declaration, or (for preference) in the implementation. Right
@@ -1071,7 +1110,7 @@ There is quite a lot of code to include in the application, but this
 does not mean that a lot of typing is required! All the code is
 reproduced here so, if you're reading an electronic copy, you can
 simply cut and paste. If you're reading a print copy, all the code is
-provided in \c{qt/tools/designer/examples/colortool}; simply open the
+provided in \c{/tools/designer/examples/colortool}; simply open the
 relevant \c{.ui.h} files and copy and paste from there into your own
 version of the project. 
 
@@ -1099,7 +1138,7 @@ Enter "Form1" as the Find text and "MainForm" as the Replace text,
 then click \Button{Replace All}. Click \CLOSE.
 
 
-\section3 Adding Constants
+\section2 Adding Constants
 
 \quotefile colortool/mainform.ui.h
 \skipto CLIP_AS_HEX
@@ -1117,7 +1156,7 @@ Since we're not subclassing if we want to have code executed during
 construction we must create an \Func{init()} function; this will be
 called at the end of the form's constructor.
 
-\section3 init() 
+\section2 init() 
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::init
@@ -1136,7 +1175,7 @@ call the \Func{clearData()} function that we'll write next; this
 function clears all the color data, and if called with "TRUE", it
 creates new colors with default values.
 
-\section3 clearData() 
+\section2 clearData() 
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::clearData
@@ -1153,7 +1192,7 @@ optionally fill the colors map with some standard colors. Finally we
 call \Func{populate()} which is the function we'll create next to fill
 the table and icon view with data.
 
-\section3 populate() 
+\section2 populate() 
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::populate
@@ -1198,7 +1237,7 @@ color name and provide a pixmap (generated by \Func{colorSwatch()},
 covered shortly) in the relevant color. Finally we set
 \c{m_icons_dirty} to "FALSE", since it is now up-to-date.
 
-\section3 isWebColor()
+\section2 isWebColor()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::isWebColor
@@ -1207,7 +1246,7 @@ covered shortly) in the relevant color. Finally we set
 The 216 web colors are those colors whose RGB (Red, Green, Blue)
 values are all in the set (0, 51, 102, 153, 204, 255). 
 
-\section3 colorSwatch()
+\section2 colorSwatch()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::colorSwatch
@@ -1279,7 +1318,7 @@ This ensures that our application will cleanly terminate. Later we'll
 revise this function to give the user the opportunity to save any
 unsaved data.
 
-\section3 Building and Running
+\section2 Building and Running
 
 We now have some code in the application and a \File{main.cpp}
 containing the \Func{main()} function, so we should be able to
@@ -1309,7 +1348,7 @@ We want to show information about the current color in the status bar,
 and we want to ensure that when the user changes their view or loads
 in a color file, the relevant view is updated.
 
-\section3 aboutToShow()
+\section2 aboutToShow()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::aboutToShow
@@ -1319,7 +1358,7 @@ We could have made \Func{populate()} a slot and connected directly to
 it. We've used the indirection because it's clearer and in a real
 application there would probably be more to do in this slot.
 
-\section3 changedTableColor()
+\section2 changedTableColor()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::changedTableColor
@@ -1331,7 +1370,7 @@ clicked in the table view. We call the \Func{changedColor()} function
 Note that we don't care about the column argument, so we could have
 left it out.
 
-\section3 changedIconColor()
+\section2 changedIconColor()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::changedIconColor
@@ -1341,7 +1380,7 @@ This slot is connected for the same purpose as
 \Func{changedTableColor()}, above. It also calls \Func{changedColor()}
 with the name of the current color.
 
-\section3 changedColor()
+\section2 changedColor()
 
 This is a function that we need to write from scratch. Simply enter
 its code into \QD's code editor and it will automatically appear in
@@ -1407,7 +1446,7 @@ one specially for the application. This has the advantage that we will
 be able to read and write \File{rgb.txt}, and that our format will be
 familiar to many users.
 
-\section3 fileNew()
+\section2 fileNew()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileNew
@@ -1420,7 +1459,7 @@ if it is okay to clear the existing data (with the call to
 \Func{okToClear()} which we'll look at next), and if it is okay, it
 initializes the form.
 
-\section3 okToClear()
+\section2 okToClear()
 
 Before we can create a new set of colors, or load an existing set, we
 must check to see if there are any unsaved changes. If there are, we
@@ -1450,7 +1489,7 @@ You should now have added the following declaration to your includes
 \i "qmessagebox.h"
 \endlist
 
-\section3 fileOpen()
+\section2 fileOpen()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileOpen
@@ -1473,7 +1512,7 @@ You should now have added the following declaration to your includes
 \i "qfiledialog.h"
 \endlist
 
-\section3 load()
+\section2 load()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::load
@@ -1557,7 +1596,7 @@ For more information on regexes see the \l QRegExp documentation.
 
 \endsidebar
 
-\section3 fileSaveAs()
+\section2 fileSaveAs()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileSaveAs
@@ -1573,7 +1612,7 @@ or cancelling. If the filename doesn't exist or does but the user has
 elected to continue the \c{m_filename} member is set and
 \Func{fileSave()} is called.
 
-\section3 fileSave()
+\section2 fileSave()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileSave
@@ -1590,7 +1629,7 @@ the comments at the beginning). We then iterate over every color in
 the \c{m_colors} map, writing them out in the \File{rgb.txt} file
 format.
 
-\section3 fileExit()
+\section2 fileExit()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::fileExit
@@ -1617,7 +1656,7 @@ Adding a new color, finding a color and handling user options all
 require custom dialogs, so we'll defer them until chapter three when
 we deal with dialogs.
 
-\section3 editCut()
+\section2 editCut()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::editCut
@@ -1635,7 +1674,7 @@ we deleted a color (i.e. there was a current color in one of the
 views), we remove it from the \c{m_colors} map and mark the data as
 changed.
 
-\section3 editCopy()
+\section2 editCopy()
 
 \quotefile colortool/mainform.ui.h
 \skipto MainForm::editCopy

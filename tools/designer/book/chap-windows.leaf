@@ -3,12 +3,11 @@
 \section1 Introduction
 
 By default \QD starts up with three windows on the left hand side.
-They are the \l{Project Overview Window}, the \l{Object Explorer Window},
-and the \l{Property Editor/Signal Handlers Window}. This chapter
-explains each window in detail.
-
-\img win-projoverview.png
-\caption Project Overview Window
+They are the \l{Project Overview Window}, the \l{Object Explorer
+Window}, and the \l{Property Editor/Signal Handlers Window}. In
+addition, \QD provides an Action Editor for creating actions for a
+form's menus and menu items. This chapter explains each window in
+detail.
 
 \section1 Project Overview Window
 
@@ -17,6 +16,9 @@ form or file single click it in the Files list. To rapidly switch
 between forms and files, type the name of the file in the line edit
 above the files list and \QD will perform an incremental search to show
 any matching files or forms.
+
+\img win-projoverview.png
+\caption Project Overview Window
 
 Right-click a file (or the project) to get a context menu of options,
 for example, 'Open form' or 'Remove form from project'.
@@ -141,6 +143,40 @@ The Output Window displays debugging output messages for errors found in the
 source code. 
 
 \endomit 
+
+\section1 Action Editor Window
+
+The Action Editor window is used to create actions that the user
+initiates through the user interface, for example, saving or printing a
+file. To access the Action Editor window, click
+\Menu{Window|Views|Action Editor} when a main window is active.
+
+\img qd-actioneditor.png
+\caption Action Editor
+
+The Action Editor contains three functions on its menu bar: create,
+delete, and connect. It also contains a listview that lists the
+existing actions.
+
+To create a new action, click the arrow on the Create a New Action
+icon on the menu bar. Choose to create a new action, a new action
+group, or a new dropdown action group. You can also create actions by
+right-clicking an existing action in the Action Editor listview and
+selecting the type of action you want to create from the popup menu.
+
+To delete an action from the listview, click the action you want to
+delete from the list, and then click Delete Current Action on the menu
+bar. You can also delete actions by right-clicking an existing action
+and in the Action Editor listview and then clicking Delete Action from the
+popup menu. 
+  
+To connect an action to a slot, click an action on the listview and
+then click the Connect icon on the menu bar to invoke the \Widget{View
+and Edit Connections} dialog. You can also connect an action to a slot
+by right-clicking an existing action and in the Action Editor listview
+and then clicking Connect Action from the popup menu. 
+ 
+
 
 
 
