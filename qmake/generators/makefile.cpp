@@ -431,7 +431,8 @@ MakefileGenerator::init()
 	    }
 	    for(QStringList::Iterator it = incDirs.begin(); it != incDirs.end(); ++it) {
 		QString r = (*it), l = Option::fixPathToLocalOS((*it));
-		deplist.append(new MakefileDependDir(r, l));
+		deplist.append(new MakefileDependDir(r.replace(QRegExp("\""),""), 
+						     l.replace(QRegExp("\""),"")));
 	    }
 	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
 	}
