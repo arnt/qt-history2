@@ -27,6 +27,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		      qaxwidget.cpp \
 		      qaxobject.cpp \
 		      qaxscript.cpp \
+		      qaxscriptwrapper.cpp \
 		      ../shared/types.cpp
 
     FORMS           = qactivexselect.ui
