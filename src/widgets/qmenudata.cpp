@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#95 $
 **
 ** Implementation of QMenuData class
 **
@@ -306,9 +306,15 @@ void QMenuData::setAllDirty( bool dirty )
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel
-  object.
+  Note that keyboard accerlators in Qt are not application global, but
+  bound to a certain toplevel window. Accelerators in QPopupMenu items
+  therefore only work for menus that are associated with a certain
+  window. This is true for popup menus that live in a menu bar, for
+  instance. In that case, the accelerator will be installed on the
+  menu bar itself. It also works for stand-alone popup menus that have
+  a toplevel widget in their parentWidget()- chain. The menu will then
+  install its accelerator object on that toplevel widget. For all
+  other cases, use an independent QAccel object.
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
@@ -342,9 +348,15 @@ int QMenuData::insertItem( const QString &text,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel
-  object.
+  Note that keyboard accerlators in Qt are not application global, but
+  bound to a certain toplevel window. Accelerators in QPopupMenu items
+  therefore only work for menus that are associated with a certain
+  window. This is true for popup menus that live in a menu bar, for
+  instance. In that case, the accelerator will be installed on the
+  menu bar itself. It also works for stand-alone popup menus that have
+  a toplevel widget in their parentWidget()- chain. The menu will then
+  install its accelerator object on that toplevel widget. For all
+  other cases, use an independent QAccel object.
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
@@ -378,9 +390,15 @@ int QMenuData::insertItem( const QIconSet& icon,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel
-  object.
+  Note that keyboard accerlators in Qt are not application global, but
+  bound to a certain toplevel window. Accelerators in QPopupMenu items
+  therefore only work for menus that are associated with a certain
+  window. This is true for popup menus that live in a menu bar, for
+  instance. In that case, the accelerator will be installed on the
+  menu bar itself. It also works for stand-alone popup menus that have
+  a toplevel widget in their parentWidget()- chain. The menu will then
+  install its accelerator object on that toplevel widget. For all
+  other cases, use an independent QAccel object.
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
@@ -415,9 +433,15 @@ int QMenuData::insertItem( const QPixmap &pixmap,
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel
-  object.
+  Note that keyboard accerlators in Qt are not application global, but
+  bound to a certain toplevel window. Accelerators in QPopupMenu items
+  therefore only work for menus that are associated with a certain
+  window. This is true for popup menus that live in a menu bar, for
+  instance. In that case, the accelerator will be installed on the
+  menu bar itself. It also works for stand-alone popup menus that have
+  a toplevel widget in their parentWidget()- chain. The menu will then
+  install its accelerator object on that toplevel widget. For all
+  other cases, use an independent QAccel object.
 
   \warning Be careful when passing a literal 0 to insertItem(), as
 	some C++ compilers choose the wrong overloaded function.
@@ -759,8 +783,15 @@ int QMenuData::accel( int id ) const
   menu item, for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Note that accelerators only work for QPopupMenu items that live in a
-  menu bar. For stand-alone popup menus, use an independent QAccel object.
+  Note that keyboard accerlators in Qt are not application global, but
+  bound to a certain toplevel window. Accelerators in QPopupMenu items
+  therefore only work for menus that are associated with a certain
+  window. This is true for popup menus that live in a menu bar, for
+  instance. In that case, the accelerator will be installed on the
+  menu bar itself. It also works for stand-alone popup menus that have
+  a toplevel widget in their parentWidget()- chain. The menu will then
+  install its accelerator object on that toplevel widget. For all
+  other cases, use an independent QAccel object.
 
   Example:
   \code

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#254 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#255 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -646,23 +646,41 @@ void QPopupMenu::updateAccel( QWidget *parent )
 {
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
+    
+    if ( !parent ) {
+	// we have no parent. Rather than ignoring any accelerators we try to find this popup's main window
+	QWidget *w = (QWidget *)this;
+	parent = w->parentWidget();
+	while ( (!w->testWFlags(WType_TopLevel) || !w->testWFlags(WType_Popup)) && parent ) {
+	    w = parent;
+	    parent = parent->parentWidget();
+	}
+    }
+    
+    if ( autoaccel && parent && autoaccel->parent() != parent ) {
+	delete autoaccel;
+	autoaccel = 0;
+    }
+    
     if ( parent == 0 && autoaccel == 0 )
-	return;
+ 	return;
+    
     if ( autoaccel )				// build it from scratch
 	autoaccel->clear();
+    else {
+	// create an autoaccel in any case, even if we might not use
+	// it immediately. Maybe the user needs it later.
+	autoaccel = new QAccel( parent );
+	connect( autoaccel, SIGNAL(activated(int)),
+		 SLOT(accelActivated(int)) );
+	connect( autoaccel, SIGNAL(destroyed()),
+		 SLOT(accelDestroyed()) );
+	if ( accelDisabled )
+	    autoaccel->setEnabled( FALSE );
+    }
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->key() ) {
-	    if ( !autoaccel ) {
-		autoaccel = new QAccel( parent );
-		CHECK_PTR( autoaccel );
-		connect( autoaccel, SIGNAL(activated(int)),
-			 SLOT(accelActivated(int)) );
-		connect( autoaccel, SIGNAL(destroyed()),
-			 SLOT(accelDestroyed()) );
-		if ( accelDisabled )
-		    autoaccel->setEnabled( FALSE );
-	    }
 	    int k = mi->key();
 	    int id = autoaccel->insertItem( k, mi->id() );
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
