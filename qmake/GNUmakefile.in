@@ -31,7 +31,7 @@ uqmake:
 qmake: $(OBJS) $(QTOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)
 	rm -f @OUT_QTDIR@/bin/$@
-	ln -s $(shell pwd)/$@ @OUT_QTDIR@/bin/$@
+	ln -s @OUT_QTDIR@/qmake/$@ @OUT_QTDIR@/bin/$@
 
 install: all
 	[ -d @QT_INSTALL_BINS@ ] || mkdir -p @QT_INSTALL_BINS@

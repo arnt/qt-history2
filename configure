@@ -1851,8 +1851,10 @@ then
 	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
 	QMAKE_DATA_DIR="$QT_INSTALL_DATA"
 	[ -z "$QMAKE_DATA_DIR" ] && QMAKE_DATA_DIR="${QT_INSTALL_PREFIX}"
+	QMAKE_OUT_QTDIR=".."
+	[ "$OPT_SHADOW" = "yes" ] && QMAKE_OUT_QTDIR="${outpath}"
         echo >>$mkfile
-	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
+	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$QMAKE_OUT_QTDIR,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
 	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
 	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
