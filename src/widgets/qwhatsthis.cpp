@@ -656,6 +656,8 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
 
 void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
 {
+    if ( text.isEmpty() )
+	return;
     // make a fresh widget, and set it up
     delete whatsThat;
     whatsThat = new QWhatsThat(
