@@ -203,6 +203,12 @@ void QPainterPrivate::draw_helper_fill_pattern(const void *data, Qt::FillRule fi
         if (state->bgMode == Qt::TransparentMode && pattern.isQBitmap())
             pattern.setMask(*static_cast<QBitmap *>(&pattern));
 
+        if (state->bgMode == Qt::OpaqueMode
+            && state->brush.style() != Qt::CustomPattern
+            && state->brush.style() != Qt::LinearGradientPattern) {
+            q->fillRect(bounds, state->bgBrush);
+        }
+
         q->drawTiledPixmap(bounds, pattern);
     }
     }
@@ -1207,7 +1213,7 @@ void QPainter::setClipping(bool enable)
 
     if (d->state->clipEnabled == enable)
         return;
-    
+
     d->state->clipEnabled = enable;
     d->engine->setDirty(QPaintEngine::DirtyClip);
     d->engine->updateState(d->state);
@@ -2823,6 +2829,9 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         QPixmap pmx = source.transform(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
+        if (pmx.depth() == 1 && !pmx.mask())
+            pmx.setMask(*(static_cast<QBitmap *>(&pmx)));
+
         if (!pmx.mask() && d->state->txop == QPainterPrivate::TxRotShear) {
             QBitmap bm_clip(sw, sh, 1);        // make full mask, xform it
             bm_clip.fill(Qt::color1);
@@ -3101,17 +3110,31 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
 
     if (d->state->txop > QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
-        // ##### what's this crap? Why do we need an image at all here?
-        // Yes we need it to preserve the alpha channel in the pixmap
-        // While setPixel() is needed to switch on alpha buffer on Embedded
-	QImage img(r.width(), r.height(), 32);
-        img.setPixel(0, 0, QColor(255, 0, 0, 127).rgb());
-	img.setAlphaBuffer(true);
-        QPixmap pm = img;
+        QPixmap pm;
+        if (pixmap.hasAlphaChannel()) {
+            // Needed to preserve the alpha channel in the pixmap
+            // While setPixel() is needed to switch on alpha buffer on Embedded
+            QImage img(r.width(), r.height(), 32);
+            img.setPixel(0, 0, QColor(255, 0, 0, 127).rgb());
+            img.setAlphaBuffer(true);
+            pm = img;
+        } else {
+            pm = QPixmap(r.width(), r.height());
+        }
         QPainter p(&pm);
         // Recursive call ok, since the pixmap is not transformed...
-	p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy), Qt::CopyPixmap);
+        p.setPen(pen());
+        p.setBackground(background());
+        p.setBackgroundMode(backgroundMode());
+        p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy), Qt::CopyPixmap);
         p.end();
+        if (pixmap.depth() == 1) {
+            QBitmap mask(pm.width(), pm.height(), true);
+            p.begin(&mask);
+            p.drawTiledPixmap(QRect(0, 0, r.width(), r.height()), pixmap, QPoint(sx, sy));
+            p.end();
+            pm.setMask(mask);
+        }
         drawPixmap(r.topLeft(), pm);
         return;
     }

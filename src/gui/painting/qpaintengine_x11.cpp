@@ -1834,7 +1834,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
     QBitmap *mask = 0;
-    if(mode == Qt::ComposePixmap)
+    if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
         mask = const_cast<QBitmap *>(pixmap.mask());
     bool mono = pixmap.depth() == 1;
 
@@ -1923,13 +1923,13 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     }
 
     if (mono) {
-   	XSetClipMask(d->dpy, d->gc, pixmap.handle());
-   	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
-	XSetBackground(d->dpy, d->gc,
-                       QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
-	XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
-	XSetClipMask(d->dpy, d->gc, XNone);
-  	XSetClipOrigin(d->dpy, d->gc, 0, 0);
+        XSetClipMask(d->dpy, d->gc, pixmap.handle());
+        XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
+        XSetBackground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->bg_brush.color()));
+        XSetForeground(d->dpy, d->gc, QColormap::instance(d->scrn).pixel(d->cpen.color()));
+        XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
+        XSetClipMask(d->dpy, d->gc, XNone);
+        XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
