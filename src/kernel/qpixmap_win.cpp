@@ -757,23 +757,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool doAlloc = ( QApplication::colorSpec() == QApplication::CustomColor
 		     && QColor::hPal() );
     if ( ncols == 0 && d > 8 ) {
-	switch( data->d ) {
-	case 16:
-	    coltbl[0] = 0x00F800; // R 1111100000000000 (5)
-	    coltbl[1] = 0x0007E0; // G 0000011111100000 (6)
-	    coltbl[2] = 0x00001F; // B 0000000000011111 (5)
-	    break;
-	case 32:
-	    coltbl[0] = 0xff0000; // R
-	    coltbl[1] = 0x00ff00; // G
-	    coltbl[2] = 0x0000ff; // B
-	    break;
-	default:
+	coltbl[0] = 0xff0000; // R
+	coltbl[1] = 0x00ff00; // G
+	coltbl[2] = 0x0000ff; // B
 #ifdef QT_CHECK_RANGE
+	if ( d != 32 )
 	    qWarning( "QPixmap::convertFromImage(): Unsupported bitmap depth (%d)", d );
 #endif
-	    break;
-	}
     }
 #endif
     for ( int i=0; i<ncols; i++ ) {		// copy color table
