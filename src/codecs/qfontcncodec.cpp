@@ -75,6 +75,14 @@ QString QFontGb2312Codec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString::null;
 }
 
+unsigned short QFontGb2312Codec::characterFromUnicode(const QString &str, int pos) const
+{
+    uchar buf[4];
+    int len = qt_UnicodeToGbk((str.unicode() + pos)->unicode(), buf);
+    if (len == 2 && buf[0] > 0xa0 && buf[1] > 0xa0)
+        return ((buf[0] & 0x7f) << 8) + (buf[1] & 0x7f);
+    return 0;
+}
 
 QCString QFontGb2312Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
@@ -156,6 +164,14 @@ QString QFontGbkCodec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString::null;
 }
 
+unsigned short QFontGbkCodec::characterFromUnicode(const QString &str, int pos) const
+{
+    uchar buf[4];
+    int len = qt_UnicodeToGbk((str.unicode() + pos)->unicode(), buf);
+    if (len == 2)
+        return (buf[0] << 8) + buf[1];
+    return 0;
+}
 
 QCString QFontGbkCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
@@ -229,6 +245,14 @@ QString QFontGb18030_0Codec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString::null;
 }
 
+unsigned short
+QFontGb18030_0Codec::characterFromUnicode(const QString &str, int pos) const
+{
+    const QChar * const ch = str.unicode() + pos;
+    if (ch->row () > 0 && !(ch->row () >= 0xd8 && ch->row () < 0xe0))
+        return ch->unicode();
+    return 0;
+}
 
 QCString QFontGb18030_0Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {

@@ -83,6 +83,14 @@ QString QFontBig5hkscsCodec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString::null;
 }
 
+unsigned short
+QFontBig5hkscsCodec::characterFromUnicode(const QString &str, int pos) const
+{
+    uchar c[2];
+    if (qt_UnicodeToBig5hkscs((str.unicode() + pos)->unicode(), c) == 2)
+        return (c[0] << 8) + c[1];
+    return 0;
+}
 
 QCString QFontBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {

@@ -71,6 +71,10 @@ QString QFontKsc5601Codec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString(); //###
 }
 
+unsigned short QFontKsc5601Codec::characterFromUnicode(const QString &str, int pos) const
+{
+    return qt_UnicodeToKsc5601((str.unicode() + pos)->unicode());
+}
 
 QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {

@@ -83,6 +83,16 @@ int QFontLaoCodec::mibEnum() const
     return -4242;
 }
 
+unsigned short QFontLaoCodec::characterFromUnicode(const QString &str, int pos) const
+{
+    const QChar * const ch = str.unicode() + pos;
+    if (ch->unicode() < 0x80)
+        return ch->unicode();
+    if ( ch->unicode() >= 0x0e80 && ch->unicode() <= 0x0eff )
+        return unicode_to_mulelao[ch->unicode() - 0x0e80];
+    return 0;
+}
+
 QCString QFontLaoCodec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
     QCString rstring( lenInOut+1 );

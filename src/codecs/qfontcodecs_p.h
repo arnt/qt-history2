@@ -77,6 +77,8 @@ public:
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
+
     int heuristicContentMatch(const char *, int) const;
     int heuristicNameMatch(const char* hint) const;
 
@@ -110,6 +112,8 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     int heuristicContentMatch(const char *, int) const;
     int heuristicNameMatch(const char* hint) const;
@@ -149,6 +153,8 @@ public:
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
+
     int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
@@ -179,6 +185,8 @@ public:
     // the length of the result in lenInOut.
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
+
     int heuristicContentMatch(const char *, int) const;
     bool canEncode( QChar ) const;
 };
@@ -205,6 +213,8 @@ public:
     // the string uc, returning a QCString result, and also returning
     // the length of the result in lenInOut.
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     int heuristicContentMatch(const char *, int) const;
     int heuristicNameMatch(const char* hint) const;
@@ -236,6 +246,8 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
@@ -270,6 +282,8 @@ public:
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
+
     int heuristicContentMatch(const char *, int) const;
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
@@ -300,6 +314,8 @@ public:
     // the length of the result in lenInOut.
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
 
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
+
     int heuristicContentMatch(const char *, int) const;
     int heuristicNameMatch(const char* hint) const;
 #if !defined(Q_NO_USING_KEYWORD)
@@ -322,6 +338,8 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     int heuristicContentMatch(const char *, int) const;
 

@@ -58,7 +58,16 @@ int QFontJis0201Codec::mibEnum() const
     return 15;
 }
 
-
+unsigned short
+QFontJis0201Codec::characterFromUnicode(const QString &str, int pos) const
+{
+    const QChar *c = str.unicode() + pos;
+    if ( c->unicode() < 0x80 )
+        return c->unicode();
+    if ( c->unicode() >= 0xff61 && c->unicode() <= 0xff9f )
+        return c->unicode() - 0xff61 + 0xa1;
+    return 0;
+}
 
 QCString QFontJis0201Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {
@@ -144,6 +153,10 @@ QString QFontJis0208Codec::toUnicode(const char* /*chars*/, int /*len*/) const
     return QString::null;
 }
 
+unsigned short QFontJis0208Codec::characterFromUnicode(const QString &str, int pos) const
+{
+    return convJP->unicodeToJisx0208((str.unicode() + pos)->unicode());
+}
 
 QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 {

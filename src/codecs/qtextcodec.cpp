@@ -2509,7 +2509,7 @@ unsigned short QLatin1Codec::characterFromUnicode(const QString &str, int pos) c
 {
     const QChar *ch = str.unicode() + pos;
     if (ch->row())
-	return (unsigned short) '?';
+        return 0;
     return (unsigned short) ch->cell();
 }
 
@@ -2702,7 +2702,7 @@ QCString QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 
 unsigned short QLatin15Codec::characterFromUnicode(const QString &str, int pos) const
 {
-    return latin15CharFromUnicode( str.unicode()[pos].unicode() );
+    return latin15CharFromUnicode( str.unicode()[pos].unicode(), FALSE );
 }
 
 
