@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#67 $
 **
 ** Implementation of QAccel class
 **
@@ -151,7 +151,7 @@ QAccel::~QAccel()
 {
     if ( d->tlw )
 	d->tlw->removeEventFilter( this );
-    delete (QAccelList *)d;
+    delete d;
 }
 
 
