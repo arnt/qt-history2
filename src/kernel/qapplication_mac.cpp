@@ -228,15 +228,21 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     p.h = x;
     p.v = y;
     WindowPtr wp;
-    short ret = FindWindow(p, &wp);
+    WindowPartCode wpc;
+    OSStatus err = FindWindowOfClass(&p, kAllWindowClasses, &wp, &wpc);
+    if(err != noErr) {
+	if(w)
+	    (*w) = NULL;
+	return 0;
+    }
 #if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
     if(wp && !unhandled_dialogs.find(wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
 	    tmp_w->hide();
-	    ret = qt_mac_find_window(x, y, w);
+	    wpc = qt_mac_find_window(x, y, w);
 	    tmp_w->show();
-	    return ret;
+	    return wpc;
 	}
     }
 #endif
@@ -249,7 +255,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 	    *w = NULL;
 	}
     }
-    return ret;
+    return wpc;
 }
 
 bool qt_nograb()				// application no-grab option
