@@ -24,21 +24,28 @@
 */
 
 #include "../include/localsql_qt.h"
+#include "../include/localsql.h"
 
 #include <qdatetime.h>
 #include <qregexp.h>
 #include <qdir.h>
-#include "../include/localsql.h"
+#include <qstring.h>
+#include <qtextstream.h>
 
 class LocalSQLResult::LocalSQLPrivate
 {
 public:
-    LocalSQLPrivate(){}
+    LocalSQLPrivate()
+	: stream( &error, IO_WriteOnly )
+    {
+    }
     QSqlError makeError( const QString& err )
     {
-	return QSqlError("LocalSQL: " + err, env.lastError(), 0);
+	return QSqlError("LocalSQL: " + err, error + ": " + env.lastError(), 0);
     }
     LocalSQL env;
+    QString error;
+    QTextStream stream;
 };
 
 LocalSQLResult::LocalSQLResult( const LocalSQLDriver* db, const QString& path )
@@ -57,6 +64,7 @@ LocalSQLResult::~LocalSQLResult()
 void LocalSQLResult::cleanup()
 {
     d->env.reset();
+    d->error = "";
     setAt( QSql::BeforeFirst );
     setActive( FALSE );
 }
@@ -143,7 +151,6 @@ bool LocalSQLResult::reset ( const QString& query )
 	return FALSE;
     }
     if ( !d->env.execute() ) {
-	//## this error is not propogating backwards!
 	setLastError( d->makeError( "Unable to execute query" ) );
 	return FALSE;
     }

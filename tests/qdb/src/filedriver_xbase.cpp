@@ -832,7 +832,8 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	if (  fieldnum == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
+	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
+					      value.type() ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
 	    ERROR_RETURN( "Incompatible types: '" + QString( value.typeName() ) + "' and '" +
 			  QString( v.typeName() ) + "'" );
@@ -1045,7 +1046,8 @@ bool FileDriver::createIndex( const List& data, bool unique )
 	if (  fieldnum == -1 ) {
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( type ) ) {
+	if ( !canConvert( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ),
+			  type ) ) {
 	    QVariant v1; v1.cast( type );
 	    QVariant v2; v2.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
 	    ERROR_RETURN( "Incompatible types: '" + QString( v1.typeName() ) + "' and '" +
