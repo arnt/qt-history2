@@ -39,27 +39,17 @@
 #include <qshortcut.h>
 #include <qregexp.h>
 #include <qdockwindow.h>
-#include <qtextcursor.h>
 #include <qfont.h>
 #include <qtreeview.h>
 #include <qwidgetview.h>
 #include <qtextdocumentfragment.h>
 #include <qtextcursor.h>
-#include <QTextCharFormat>
 #include <QTextBlock>
 
 static const int MaxCandidates = 5;
 
-QString richMeta(const QString& text)
-{
-    return QString("<small><font color=blue>(") + text + 
-        QString(")</font></small>");
-}
-
-QString richText(const QString& text)
-{
-    const char backTab[] = "\a\b\f\n\r\t";
-    const char * const friendlyBackTab[] = {
+const char MessageEditor::backTab[] = "\a\b\f\n\r\t";
+const char * const MessageEditor::friendlyBackTab[] = {
         QT_TRANSLATE_NOOP("MessageEditor", "bell"),
         QT_TRANSLATE_NOOP("MessageEditor", "backspace"),
         QT_TRANSLATE_NOOP("MessageEditor", "new page"),
@@ -67,43 +57,67 @@ QString richText(const QString& text)
         QT_TRANSLATE_NOOP("MessageEditor", "carriage return"),
         QT_TRANSLATE_NOOP("MessageEditor", "tab")
     };
-    QString rich;
 
-    for (int i = 0; i < (int) text.length(); ++i) {
+void MessageEditor::visualizeBackTabs(const QString &text, QTextEdit *te)
+{
+    te->clear();
+    QTextCursor tc(te->textCursor());
+    QTextCharFormat blueFormat = defFormat;
+    blueFormat.setTextColor(Qt::blue);
+    blueFormat.setFontItalic(true);
+    blueFormat.setProperty(QTextFormat::UserProperty, -1);
+
+    QString plainText = "";
+    for (int i = 0; i < (int) text.length(); ++i)
+    {
         int ch = text[i].unicode();
-
-        if (ch < 0x20) {
+        if (ch < 0x20)
+        {
+            if (!plainText.isEmpty())
+            {
+                tc.insertText(plainText, defFormat);
+                plainText.clear();
+            }
             const char *p = strchr(backTab, ch);
+            // store the character in the user format property
+            // in the first '(' in the phrase
+            blueFormat.setProperty(QTextFormat::UserProperty, ch);
+            tc.insertText(QString("("), blueFormat);
+            blueFormat.setProperty(QTextFormat::UserProperty, -1);
             if (p == 0)
-                rich += richMeta(QString::number(ch, 16));
+            {
+                tc.insertText(QString::number(ch, 16) + ")", blueFormat);
+            }
             else
-                rich += richMeta(MessageEditor::tr(friendlyBackTab[p - backTab]));
+            {
+                tc.insertText(MessageEditor::tr(friendlyBackTab[p - backTab]) + ")",
+                    blueFormat);
+                if (backTab[p - backTab] == '\n')
+                    tc.insertBlock();
+            }
         }
-        else if (ch == '<') {
-            rich += QString("&lt;");
-        }
-        else if (ch == '>') {
-            rich += QString("&gt;");
-        }
-        else if (ch == '&') {
-            rich += QString("&amp;");
-        }
-        else if (ch == ' ') {
+        // if a space is by itself, at the end, or beside other spaces
+        else if (ch == ' ')
+        {
             if (i == 0 || i == text.length() - 1 || text[i - 1].isSpace() ||
-                 text[i + 1].isSpace()) {
-                rich += richMeta(MessageEditor::tr("sp"));
+                text[i + 1].isSpace())
+            {
+                blueFormat.setProperty(QTextFormat::UserProperty, ch);
+                tc.insertText(QString("("), blueFormat);
+                blueFormat.setProperty(QTextFormat::UserProperty, -1);
+                tc.insertText(MessageEditor::tr("sp)"), blueFormat);
             }
-            else {
-                rich += ' ';
+            else
+            {
+                plainText += ' ';
             }
         }
-        else {
-            rich += QChar(ch);
+        else
+        {
+            plainText += QString(ch);
         }
-        if (ch == '\n')
-            rich += QString("<br>");
     }
-    return rich;
+    tc.insertText(plainText, defFormat);
 }
 
 SourceTextEdit::SourceTextEdit(QWidget *parent) : QTextEdit(parent)
@@ -122,19 +136,20 @@ void SourceTextEdit::copySelection()
     QTextDocument td;
     QTextCursor tc(&td);
     tc.insertFragment(tdf);
+    int ch;
 
-    int pos = 0;
-    tc.setPosition(pos);
-    
+    tc.movePosition(QTextCursor::Start);
     while(!tc.atEnd())
     {
-        // checking for blue is not the best approach,
-        // but it works...
-        if (tc.charFormat().textColor() == Qt::blue)
+        tc.movePosition(QTextCursor::NextCharacter);
+        ch = tc.charFormat().intProperty(QTextFormat::UserProperty);
+        if (ch != 0) // if wrong format
+        {
+            // delete char
             tc.deletePreviousChar();
-        else
-            ++pos;
-        tc.setPosition(pos);
+            if (ch != -1) // insert backtab
+                tc.insertText(QString(ch));
+        }
     }
 
     QApplication::clipboard()->setText(td.plainText());
@@ -495,6 +510,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     sw->setMinimumSize(QSize(100, 150));
     
     setWidget(sw);
+    defFormat = editorPage->srcText->currentCharFormat();
     editorPage->transText->installEventFilter(this);
     
     // Signals
@@ -613,16 +629,15 @@ void MessageEditor::showMessage(const QString &text,
     setEditionEnabled(!obsolete);
     sourceText = text;
 
-    editorPage->srcText->setHtml(QString("<p>") + richText(text) +
-        QString("</p>"));
+    visualizeBackTabs(text, editorPage->srcText);
 
     if (!fullContext.isEmpty() && !comment.isEmpty())
-        editorPage->cmtText->setHtml(richText(fullContext.simplified()) +
-            "\n" + richText(comment.simplified()));
+        visualizeBackTabs(fullContext.simplified() + "\n" + 
+            comment.simplified(), editorPage->cmtText);
     else if (!fullContext.isEmpty() && comment.isEmpty())
-        editorPage->cmtText->setHtml(richText(fullContext.simplified()));
+        visualizeBackTabs(fullContext.simplified(), editorPage->cmtText);
     else if (fullContext.isEmpty() && !comment.isEmpty())
-        editorPage->cmtText->setHtml(richText(comment.simplified()));
+        visualizeBackTabs(comment.simplified(), editorPage->cmtText);
     else
         editorPage->cmtText->clear();
 

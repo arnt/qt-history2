@@ -25,6 +25,7 @@
 #include <qframe.h>
 #include <qtextedit.h>
 #include <qwidgetview.h>
+#include <QTextCharFormat>
 
 template <typename T> class QList;
 class QSplitter;
@@ -32,7 +33,6 @@ class QDockWindow;
 class QLabel;
 class QTreeView;
 class QVBoxLayout;
-
 class EditorPage;
 class MetaTranslator;
 
@@ -248,6 +248,10 @@ protected:
     void resizeEvent(QResizeEvent *);
 
 private:
+    static const char backTab[];
+    static const char * const friendlyBackTab[];
+
+    void visualizeBackTabs(const QString &text, QTextEdit *te);
     void setTranslation(const QString &translation, bool emitt);
     void setEditionEnabled(bool enabled);
 
@@ -259,6 +263,7 @@ private:
     QLabel * phraseLbl;
     QTreeView *phraseTv;
     PhraseModel *phrMdl;
+    QTextCharFormat defFormat;
 
     ShadowWidget *sw;
 
