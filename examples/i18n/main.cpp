@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/i18n/main.cpp#1 $
+** $Id: //depot/qt/main/examples/i18n/main.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qtranslatordialog.h>
+#include <qtranslator.h>
 
 #include "mywidget.h"
 
