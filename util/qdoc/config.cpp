@@ -295,9 +295,7 @@ Config::Config( int argc, char **argv )
     if ( onlyfn.pattern().isEmpty() || !onlyfn.isValid() )
 	onlyfn.setPattern( QString(".*") );
 
-    // the .html extension is optional
-    onlyfn.setPattern( QString("(?:") + onlyfn.pattern() +
-		       QString(")(?:\\.html)?") );
+    onlyfn.setPattern( QString("(?:") + onlyfn.pattern() + QString(").*") );
 
     setMaxSimilarMessages( maxSim );
     setMaxMessages( maxAll );
@@ -463,6 +461,6 @@ void Config::showHelpShort()
 void Config::showVersion()
 {
     // $\lim_{t \rightarrow \infty} {\it qdoc\_version}(t) = 2$
-    printf( "qdoc version 1.94\n" );
+    printf( "qdoc version 1.95\n" );
     exit( EXIT_SUCCESS );
 }

@@ -1,5 +1,4 @@
-/*!
-  \page qdocdoc.html
+/*! \page qdocdoc.html
 
   \title User's Guide to qdoc
 
@@ -7,11 +6,24 @@
   <img src="badegakk.png" width=192 height=128
   alt="Badegakk, the official qdoc duck">
   </center>
-  This document gives an overview of qdoc syntax and usage. It
-  assumes that you understand the basic idea (documentation in C++
-  comments and a little more). It is not to be distributed outside
-  Trolltech, as our good documentation is a big competitive advantage.
-  A \link qtdoc.html companion document \endlink explains how to write
+
+  The User's Guide to qdoc has moved to \l qdoc.html.
+*/
+
+/*! \page qdoc.html
+
+  \title User's Guide to qdoc
+
+  <center>
+  <img src="badegakk.png" width=192 height=128
+  alt="Badegakk, the official qdoc duck">
+  </center>
+
+  This document is a reference for qdoc syntax and usage. It assumes
+  that you understand the basic idea: documentation in C++ comments
+  and a little more. It is not to be distributed outside Trolltech,
+  as our good documentation is a big competitive advantage. A
+  \link qtdoc.html companion document \endlink explains how to write
   documentation for Qt.
 
   This document has four sections:
@@ -30,7 +42,7 @@
 
   <h2>Giving commands to qdoc</h2>
 
-  Here follow all the commands recognized by qdoc:
+  A happy qdoc recognizes the following commands:
   \link #_amp \\\& \endlink,
   \link #_lt \\\< \endlink,
   \link #_gt \\\> \endlink,
@@ -45,7 +57,7 @@
   \link #class \\class \endlink,
   \link #classhierarchy \\classhierarchy \endlink,
   \link #classlist \\classlist \endlink,
-  \link #code \\code...\\endcode \endlink,
+  \link #code \\code ... \\endcode \endlink,
   \link #defgroup \\defgroup \endlink,
   \link #define \\define \endlink,
   \link #e \\e \endlink,
@@ -64,8 +76,7 @@
   \link #internal \\internal \endlink,
   \link #keyword \\keyword \endlink,
   \link #l \\l (ell) \endlink,
-  \link #line \\line \endlink,
-  \link #link \\link...\\end<!-- ignore me -->link \endlink,
+  \link #link \\link ... \\end<!-- ignore me -->link \endlink,
   \link #module \\module \endlink,
   \link #mustquote \\mustquote \endlink,
   \link #note \\note \endlink,
@@ -80,12 +91,10 @@
   \link #reimp \\reimp \endlink,
   \link #relates \\relates \endlink,
   \link #sa \\sa \endlink,
-  \link #skip \\skip \endlink,
   \link #skipline \\skipline \endlink,
   \link #skipto \\skipto \endlink,
   \link #skipuntil \\skipuntil \endlink,
   \link #title \\title \endlink,
-  \link #until \\until \endlink,
   \link #value \\value \endlink,
   \link #version \\version \endlink,
   \link #walkthrough \\walkthrough \endlink,
@@ -239,7 +248,10 @@
      <li> \c {\l http://www.trolltech.com/} - a URL.
     </ul>
 
-    Most of the time, the automatic links provided by qdoc are enough.
+    The automatic links provided by qdoc are almost always sufficient.
+    Otherwise, the commands \\l and
+    \link #link \\link ... \\end<!-- ignore me -->link \endlink
+    replace \<a href="..."\> totally.
 
    <p><li><a name="sa"></a>
     <b>\\sa</b> starts the "see also" section. The rest of the doc
@@ -268,7 +280,7 @@
     \link #l \\l (ell) \endlink command.
   </ul>
 
-  <h3>Common commands</h3>
+  <h3>Fairly common commands</h3>
 
   <ul>
    <p><li><a name="_amp"></a>
@@ -393,9 +405,10 @@
 
   <ul>
    <p><li><a name="code"></a>
-    <b>\\code ... \\endcode</b> delimits example C++ code. Within the
-    block, there are no special characters anymore. It's a good idea
-    to indent the code one step (four spaces) from the absolute left.
+    <b>\\code ... \\endcode</b> delimits example C++ code. The
+    example code is plain code; qdoc commands are disabled and
+    special characters need not be escaped. It's a good idea to
+    indent the code one step (four spaces) from the absolute left.
 
     Here's how to use the command:
     <pre>
@@ -501,10 +514,10 @@
 
       Some people use the term \e mouses to refer to
       multiple pointing devices individually known as a
-      \e mouse. Other call them \e mice.
+      \e mouse. Others call these \e mice.
 
-      Have you ever noticed that the title of half of
-      linguistic articles is of the form "X or Y?"?
+      Have you noticed that over half of linguistic
+      papers has a title of the form "X or Y?"?
     *&#47;</pre>
    The command should stand on its own line with the name of the HTML
    file to generate as argument (mouse.html).
@@ -526,7 +539,7 @@
 
    <p><li><a name="base64"></a>
     <b>\\base64</b> embeds binary files
-    <img src="finland.png" width=26 height=16 alt="flag of Finland">
+    <img src="finland.png" width=26 height=16 alt="finland.png">
     in C++ comments:
     <pre>
     /*! <u>\\base64</u> finland.png
@@ -916,17 +929,6 @@
 
    <p><li><a name="define"></a>
     <b>\\define</b> means nothing. Just remove it when you see it.
-
-   <p><li><a name="line"></a>
-    <b>\\line</b> has been renamed
-    \link #printline \\printline \endlink.
-
-   <p><li><a name="skip"></a>
-    <b>\\skip</b> has been renamed \link #skipto \\skipto \endlink.
-
-   <p><li><a name="until"></a>
-    <b>\\until</b> has been renamed
-    \link #printuntil \\printuntil \endlink.
   </ul>
 
   <a name="food"></a>
@@ -966,6 +968,13 @@
   \link #VERSIONSTR VERSIONSTR \endlink,
   \link #VERSIONSYM VERSIONSYM \endlink,
   \link #WARNINGLEVEL WARNINGLEVEL \endlink.
+
+  If an entry spans many lines, use a backslash at the end of every
+  line but the last:
+  <pre>
+    SOURCEDIRS      = kernel \\
+		      tools \\
+		      widgets</pre>
 
   <h3>Boring variables</h3>
 
@@ -1263,6 +1272,10 @@
     generating only qpushbutton.html and tutorial.html (and related
     files).
 
+    For convenience, you can specify only the prefix of the names to
+    generate. Thus, "--only=qpush,tut" is likely to be as effective as
+    "--only=qpushbutton,tutorial".
+
     The generated files have the same quality as usual, because all
     the include files and source files are read anyway.
    <p><li><a name="--output-dir"></a>
@@ -1288,7 +1301,8 @@
 
    <p><li><a name="--warning-level"></a>
     <b>--warning-level</b> sets the warning level (between 0 and 4).
-    Use "--warning-level=4" to get important and unimportant warnings
+    Use "--warning-level=0" to get only errors, and
+    "--warning-level=4" to get important and unimportant warnings
     alike.
   </ul>
 
@@ -1315,8 +1329,8 @@
     false. This might look silly, but some people got the habit of
     bracketing code with <nobr>"#if 1 ... #endif"</nobr> to have it
     processed by C++ but not by qdoc. A better solution is to use
-    <nobr>"#ifdef QDOC ... #endif"</nobr> and to
-    \link #--define --define \endlink QDOC.
+    <nobr>"#ifdef QDOC ... #endif"</nobr> and to use
+    \link #--define --define=QDOC \endlink.
 
    <p><li><a name="-h"></a>
     <b>-h</b> (cf. \link #--help --help \endlink) displays the list of
@@ -1361,9 +1375,10 @@
 
    <p><li><a name="-W"></a>
     <b>-W</b> (cf. \link #--warning-level --warning-level \endlink)
-    controls the warning level: "-W0", "-W1", "-W2", "-W3", "-W4".
-    Also, "-Wall" removes every limit and every warning is emitted,
-    and "-Wnone" shuts off all warnings.
+    controls the warning level: "-W0" (no warnings, only errors),
+    "-W1", ..., "-W4" (all warnings). Also, "-Wall" removes all
+    limits, and every warning is emitted, while "-Wnone" turns off
+    all warnings.
   </ul>
 
   <a name="join"></a>

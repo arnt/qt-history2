@@ -12,11 +12,34 @@
 
 class Resolver;
 
+class LineScore
+{
+public:
+    LineScore() : lin( 0 ), scor( 0 ) { }
+    LineScore( int line, int score ) : lin( line ), scor( score ) { }
+    LineScore( const LineScore& ls ) : lin( ls.lin ), scor( ls.scor ) { }
+
+    LineScore& operator=( const LineScore& ls ) {
+	lin = ls.lin;
+	scor = ls.scor;
+	return *this;
+    }
+
+    int line() const { return lin; }
+    int score() const { return scor; }
+
+private:
+    int lin;
+    int scor;
+};
+
+typedef QMap<QString, LineScore> ScoreMap;
+
 /*
   The Walkthrough class implements the C++ example walkthrough engine.
 
-  In the qdoc comments, '\include' or '\dontinclude' starts the walkthrough
-  engine.  Afterwards, special commands are sent to the engine.  These commands
+  In the qdoc comments, '\walkthrough' starts the walkthrough engine.
+  Afterwards, special commands are sent to the engine. These commands
   are
 
       \printline
@@ -33,8 +56,10 @@ class Walkthrough
 public:
     Walkthrough() : shutUp( FALSE ), justIncluded( TRUE ) { }
 
-    QString include( const QString& fileName, const Resolver *resolver = 0 );
-    void start( const QString& fileName, const Resolver *resolver = 0 );
+    void includePass1( const QString& fileName, const Resolver *resolver );
+    QString includePass2( const QString& fileName, const Resolver *resolver );
+    void startPass1( const QString& fileName, const Resolver *resolver );
+    void startPass2( const QString& fileName, const Resolver *resolver );
 
     QString printline( const QString& substr, const Location& docLoc );
     QString printto( const QString& substr, const Location& docLoc );
@@ -44,6 +69,7 @@ public:
     void skipuntil( const QString& substr, const Location& docLoc );
 
     const QString& filePath() const { return fpath; }
+    const ScoreMap& scoreMap() const { return scores; }
 
 private:
 #if defined(QT_DISABLE_COPY)
@@ -51,18 +77,20 @@ private:
     Walkthrough& operator=( const Walkthrough& w );
 #endif
 
-    QString start( bool localLinks, const QString& fileName,
+    QString start( bool include, bool firstPass, const QString& fileName,
 		   const Resolver *resolver );
 
     QString xline( const QString& substr, const Location& docLoc,
 		   const QString& command );
     QString xto( const QString& substr, const Location& docLoc,
-		   const QString& command );
+		 const QString& command );
     QString xuntil( const QString& substr, const Location& docLoc,
-		   const QString& command );
+		    const QString& command );
     QString getNextLine( const Location& docLoc );
 
     QString fpath;
+    OccurrenceMap occMap;
+    ScoreMap scores;
     QString fancyText;
     QStringList plainlines;
     QStringList fancylines;

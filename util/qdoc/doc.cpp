@@ -43,6 +43,7 @@
 
 static QString punctuation( ".,:;" );
 
+// ### speed up
 static bool isCppSym( QChar ch )
 {
     return isalnum( ch.latin1() ) || ch == QChar( '_' ) || ch == QChar( ':' );
@@ -310,7 +311,7 @@ private:
     DocParser& operator=( const DocParser& );
 #endif
 
-    Location& location();
+    const Location& location();
 
     void setKind( Doc::Kind kind, const QString& thanksToCommand );
     void setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand );
@@ -354,6 +355,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     yyOut.truncate( 0 );
     yyInPreOutput = FALSE;
 
+    Walkthrough walkthrough;
+    QString substr;
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
     QString enumPrefix, title, heading, prototype, relates, value, x;
@@ -614,22 +617,37 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		heading = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
 		break;
 	    case hash( 'i', 7 ):
-		consume( "ingroup" );
-		groupName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
+		if ( command.length() != 7 )
+		    break;
+		if ( command[2] == QChar('c') ) {
+		    check( "include" );
+		    fileName = getWord( yyIn, yyPos );
+		    skipRestOfLine( yyIn, yyPos );
 
-		if ( groupName.right(5) == QString(".html") ) {
-		    warning( 3, location(),
-			     "Group name after '\\ingroup' should not end with"
-			     " '.html'" );
-		    groupName.truncate( groupName.length() - 5 );
+		    if ( fileName.isEmpty() )
+			warning( 2, location(),
+				 "Expected file name after '\\include'" );
+		    else
+			walkthrough.includePass1( fileName, Doc::resolver() );
+		    yyOut += QChar( ' ' ) + fileName + QChar( '\n' );
+		} else {
+		    consume( "ingroup" );
+		    groupName = getWord( yyIn, yyPos );
+		    skipRestOfLine( yyIn, yyPos );
+
+		    if ( groupName.right(5) == QString(".html") ) {
+			warning( 3, location(),
+				 "Group name after '\\ingroup' should not end"
+				 " with '.html'" );
+			groupName.truncate( groupName.length() - 5 );
+		    }
+
+		    if ( groupName.isEmpty() )
+			warning( 2, location(),
+				 "Expected group name after '\\ingroup'" );
+		    else
+			groups.insert( groupName );
 		}
-
-		if ( groupName.isEmpty() )
-		    warning( 2, location(),
-			     "Expected group name after '\\ingroup'" );
-		else
-		    groups.insert( groupName );
 		break;
 	    case hash( 'i', 8 ):
 		consume( "internal" );
@@ -745,8 +763,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		setKind( Doc::Page, command );
 		break;
 	    case hash( 'p', 7 ):
-		check( "printto" );
+		consume( "printto" );
+		substr = getRestOfLine( yyIn, yyPos );
+		walkthrough.printto( substr, location() );
 		startPreOutput();
+		yyOut += QString( "\\printto " );
+		yyOut += substr;
+		yyOut += QChar( '\n' );
 		break;
 	    case hash( 'p', 9 ):
 		if ( command.length() != 9 )
@@ -764,12 +787,23 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			setKind( Doc::Plainpage, command );
 		    }
 		} else {
-		    check( "printline" );
+		    consume( "printline" );
+		    substr = getRestOfLine( yyIn, yyPos );
+		    walkthrough.printline( substr, location() );
 		    startPreOutput();
+		    yyOut += QString( "\\printline " );
+		    yyOut += substr;
+		    yyOut += QChar( '\n' );
 		}
 		break;
 	    case hash( 'p', 10 ):
-		check( "printuntil" );
+		consume( "printuntil" );
+		substr = getRestOfLine( yyIn, yyPos );
+		walkthrough.printuntil( substr, location() );
+		startPreOutput();
+		yyOut += QString( "\\printuntil " );
+		yyOut += substr;
+		yyOut += QChar( '\n' );
 		startPreOutput();
 		break;
 	    case hash( 'r', 5 ):
@@ -807,16 +841,31 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "\\skipto" );
 		break;
 	    case hash( 's', 6 ):
-		check( "skipto" );
+		consume( "skipto" );
+		substr = getRestOfLine( yyIn, yyPos );
+		walkthrough.skipto( substr, location() );
 		startPreOutput();
+		yyOut += QString( "\\skipto " );
+		yyOut += substr;
+		yyOut += QChar( '\n' );
 		break;
 	    case hash( 's', 8 ):
-		check( "skipline" );
+		consume( "skipline" );
+		substr = getRestOfLine( yyIn, yyPos );
+		walkthrough.skipline( substr, location() );
 		startPreOutput();
+		yyOut += QString( "\\skipline " );
+		yyOut += substr;
+		yyOut += QChar( '\n' );
 		break;
 	    case hash( 's', 9 ):
-		check( "skipuntil" );
+		consume( "skipuntil" );
+		substr = getRestOfLine( yyIn, yyPos );
+		walkthrough.skipuntil( substr, location() );
 		startPreOutput();
+		yyOut += QString( "\\skipuntil " );
+		yyOut += substr;
+		yyOut += QChar( '\n' );
 		break;
 	    case hash( 't', 5 ):
 		consume( "title" );
@@ -865,6 +914,21 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'w', 7 ):
 		consume( "warning" );
 		yyOut += QString( "<b>Warning:</b>" );
+		break;
+	    case hash( 'w', 11 ):
+		consume( "walkthrough" );
+		fileName = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+
+		if ( fileName.isEmpty() )
+		    warning( 2, location(),
+			     "Expected file name after '\\walkthrough'" );
+		else
+		    walkthrough.startPass1( fileName, Doc::resolver() );
+
+		yyOut += QString( "\\walkthrough " );
+		yyOut += fileName;
+		yyOut += QChar( '\n' );
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );
@@ -988,7 +1052,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     return doc;
 }
 
-Location& DocParser::location()
+const Location& DocParser::location()
 {
     while ( yyLocPos < yyPos )
 	yyLoc.advance( yyIn[yyLocPos++].latin1() );
@@ -1682,10 +1746,10 @@ QString Doc::finalHtml() const
     int end;
 
     Walkthrough walkthrough;
+    QString substr;
     QString fileName;
     QString link;
     QString name, ahref;
-    QString substr;
     StringSet dependsOn;
     bool metSpace = TRUE;
 
@@ -1756,14 +1820,10 @@ QString Doc::finalHtml() const
 	    case hash( 'i', 7 ):
 		consume( "include" );
 		fileName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
 
-		if ( fileName.isEmpty() ) {
-		    warning( 2, location(),
-			     "Expected file name after '\\include'" );
-		} else {
+		if ( !fileName.isEmpty() ) {
 		    yyOut += QString( "<pre>" );
-		    yyOut += walkthrough.include( fileName, resolver() );
+		    yyOut += walkthrough.includePass2( fileName, resolver() );
 		    yyOut += QString( "</pre>" );
 		    dependsOn.insert( walkthrough.filePath() );
 		}
@@ -1851,12 +1911,10 @@ QString Doc::finalHtml() const
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( fileName.isEmpty() ) {
-		    warning( 2, location(),
-			     "Expected file name after '\\walkthrough'" );
-		} else {
-		    walkthrough.start( fileName, resolver() );
+		if ( !fileName.isEmpty() ) {
+		    walkthrough.startPass2( fileName, resolver() );
 		    dependsOn.insert( walkthrough.filePath() );
+		    /// ### put dependsOn in first pass
 		}
 	    }
 	    if ( !consumed ) {
