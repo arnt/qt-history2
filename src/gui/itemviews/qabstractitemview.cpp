@@ -334,7 +334,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    Creates a new QAbstractItemView with parent \a parent.
+    Constructs an abstract item view with the given \a parent.
 */
 QAbstractItemView::QAbstractItemView(QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
