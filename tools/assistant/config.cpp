@@ -18,8 +18,8 @@
 #include <qfont.h>
 #include <qfontinfo.h>
 #include <qdir.h>
-#include <qfileinfo.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qsettings.h>
 #include <qxml.h>
 #include <qvaluelist.h>
@@ -103,8 +103,8 @@ void Config::load()
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readEntry( profkey + "Source" );
     sideBar = settings.readNumEntry( key + "SideBarPage" );
-    geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
-		  settings.readNumEntry( key + "GeometryY", 0 ),
+    geom.setRect( settings.readNumEntry( key + "GeometryX", QApplication::desktop()->availableGeometry().x() ),
+		  settings.readNumEntry( key + "GeometryY", QApplication::desktop()->availableGeometry().y() ),
 		  settings.readNumEntry( key + "GeometryWidth", 800 ),
 		  settings.readNumEntry( key + "GeometryHeight", 600 ) );
     maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
