@@ -490,6 +490,11 @@ QSqlDatabase
    in two new classes, QSqlFieldInfo and QSqlRecordInfo. See the
    class documentation for details.
 
+New Functions:
+	QSqlRecordInfo recordInfo ( const QString & tablename ) const
+	QSqlRecordInfo recordInfo ( const QSqlQuery & query ) const
+
+
 QSqlFieldInfo
 -------------
 
@@ -498,7 +503,7 @@ A new class that stores meta data associated with a SQL field.
 QSqlRecordInfo
 --------------
 
-A new class that stores meta data associated with a SQL record.
+A new class that is keeping a set of QSqlFieldInfo objects.
 
 QStatusBar
 ----------
