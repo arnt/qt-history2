@@ -439,12 +439,23 @@ int QDockAreaLayout::widthForHeight( int h ) const
   subclass.
 
   QMainWindow contains four QDockAreas which you can use for your
-  QToolbars and QDockWindows.
+  QToolbars and QDockWindows. See the QMainWindow documentation for 
+  information on adding your own dock areas to a QMainWindow.
 
   In most situations you do not need to use the QDockArea class
   directly. But if it makes sense for your application to have a
   QDockArea somewhere other than a QMainWindow you can always create
   your own QDockAreas using this class.
+
+  The QDockArea class maintains a position list of all its child dock
+  windows. Dock windows are added to a dock area from position 0
+  onwards. If a dock window is floated it still retains its position
+  since this is where the window will return if the user double clicks
+  its caption. Dock windows are laid out sequentially in position order
+  from left to right, and in the case of multiple rows of dock windows,
+  from top to bottom. A dock window's position can be determined with
+  hasDockWindow(). The position can be changed programmatically with
+  moveDockWindow(). 
 
   The streaming operators can write the positions of the dock windows in
   the dock area to a QTextStream. The positions can be read back later
@@ -486,7 +497,7 @@ int QDockAreaLayout::widthForHeight( int h ) const
 */
 
 /*! Creates a QDockArea with orientation \a o and HandlePosition \a
-    h, as a child of \a parent.
+    h.
 */
 
 QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const char *name )
@@ -569,7 +580,7 @@ int QDockArea::lineOf( int index )
   rectangle of the dock window and \a swap specifies whether or not the
   orientation of the dockwidget needs to be changed.
 
-  This function is used internally by QDockWindow. You should never need
+  This function is used internally by QDockWindow. You shouldn't need
   to call it yourself.
 */
 
@@ -865,7 +876,7 @@ int QDockArea::count() const
 }
 
 /*! Returns TRUE if this dock area contains one or more dock windows,
-    FALSE otherwise.
+    otherwise returns FALSE.
  */
 
 bool QDockArea::isEmpty() const
@@ -974,8 +985,8 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 }
 
 /*! 
-  Returns TRUE if \a dw could be docked into this dock area, FALSE
-  otherwise.
+  Returns TRUE if \a dw could be docked into this dock area, 
+  otherwise returns FALSE.
 */
 
 bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
@@ -1107,7 +1118,7 @@ bool QDockArea::isLastDockWindow( QDockWindow *dw )
 
 #ifndef QT_NO_TEXTSTREAM
 
-/* Writes the layout of the dock windows in the \a dockArea to the
+/*! Writes the layout of the dock windows in the \a dockArea to the
    text stream \a ts.
 
    \sa operator>>()
@@ -1127,7 +1138,7 @@ QTextStream &operator<<( QTextStream &ts, const QDockArea &dockArea )
     return ts;
 }
 
-/* Reads the layout description of the dock windows in the \a dockArea
+/*! Reads the layout description of the dock windows in the \a dockArea
    from the text stream \a ts and restores it. 
    The layout description must have been previously written by the
    operator<<() function.
