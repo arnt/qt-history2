@@ -431,7 +431,7 @@ int QColorDialog::customCount()
 }
 
 /*!
-    Returns custom color number \a i as a QRgb.
+    Returns custom color number \a i as a QRgb value.
 */
 QRgb QColorDialog::customColor(int i)
 {
@@ -441,7 +441,7 @@ QRgb QColorDialog::customColor(int i)
 }
 
 /*!
-    Sets custom color number \a i to the QRgb value \a c.
+    Set custom color number \a i to the QRgb value \a c.
 */
 void QColorDialog::setCustomColor(int i, QRgb c)
 {
@@ -452,7 +452,7 @@ void QColorDialog::setCustomColor(int i, QRgb c)
 }
 
 /*!
-    Sets standard color number \a i to the QRgb value \a c.
+    Set standard color number \a i to the QRgb value \a c.
 */
 
 void QColorDialog::setStandardColor(int i, QRgb c)
@@ -1385,6 +1385,11 @@ void QColorDialogPrivate::addCustom()
     custom colors are shared by all color dialogs, and remembered
     during the execution of the program. Use setCustomColor() to set
     the custom colors, and use customColor() to get them.
+
+    Additional widgets that allow users to pick colors are available
+    as \link
+    http://www.trolltech.com/products/solutions/index.html Qt
+    Solutions\endlink.
 
     \img qcolordlg-w.png
 */
