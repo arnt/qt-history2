@@ -25,7 +25,8 @@ enum {
 int
 main(int argc, char **argv)
 {
-    bool show_help = false, recursive = false, verbose = false;
+    bool show_help = false, recursive = false, 
+	   verbose = false, path = true;;
     char *error = 0;
     int compress_level = -1;
     QString outputFile, prefix;
@@ -66,6 +67,8 @@ main(int argc, char **argv)
                 show_help = true;
             } else if(opt == "no-compress") {
                 compress_level = 0;
+            } else if(opt == "no-path") {
+                path = false;
             } else {
                 error = "Unknown option";
             }
@@ -144,7 +147,7 @@ main(int argc, char **argv)
                 qDebug("Read file %s [Compressed %d%%]", files[file].filePath().latin1(), compressRatio);
             
             //header
-            const QString resource = QDir::cleanPath(prefix + "/" + files[file].filePath());
+            const QString resource = QDir::cleanPath(prefix + "/" + (path ? files[file].filePath() : files[file].fileName()));
             QString resource_name = resource;
             resource_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
             uchar flags = 0;

@@ -64,7 +64,7 @@ q3mimesourcefactory {
       else:QMAKE_RCC = $(QTDIR)/bin/rcc
    }
    image_collection.depends = $$QMAKE_RCC
-   image_collection.commands = $$QMAKE_RCC -prefix /qt/q3mimesourcefactory ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+   image_collection.commands = $$QMAKE_RCC -no-path -prefix /qt/q3mimesourcefactory ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 }
 QMAKE_EXTRA_COMPILERS += image_collection
 
