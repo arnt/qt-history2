@@ -204,86 +204,86 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	    generateOverload( node, marker );
     }
 
-    if ( node->doc().isEmpty() ) {
-	QString name = plainCode( marker->markedUpFullName(node, 0) );
-	node->location().warning( tr("No documentation for '%1'").arg(name) );
-    }
-    generateText(node->doc().body(), node, marker);
+    if (node->doc().isEmpty()) {
+	QString name = plainCode( marker->markedUpFullName(node, 0));
+	node->location().warning(tr("No documentation for '%1'").arg(name));
+    } else {
+        generateText(node->doc().body(), node, marker);
 
-    if ( node->type() == Node::Enum ) {
-	const EnumNode *enume = (const EnumNode *) node;
+        if ( node->type() == Node::Enum ) {
+	    const EnumNode *enume = (const EnumNode *) node;
 
-	Set<QString> definedItems;
-	QList<EnumItem>::ConstIterator it = enume->items().begin();
-	while ( it != enume->items().end() ) {
-	    definedItems.insert( (*it).name() );
-	    ++it;
-	}
-
-	Set<QString> documentedItems;
-	if ( enume->doc().enumItemNames() != 0 )
-	    documentedItems = *enume->doc().enumItemNames();
-
-	Set<QString> allItems = reunion( definedItems, documentedItems );
-	if ( allItems.count() > definedItems.count() ||
-	     allItems.count() > documentedItems.count() ) {
-	    Set<QString>::ConstIterator a = allItems.begin();
-	    while ( a != allItems.end() ) {
-		if ( !definedItems.contains(*a) ) {
-		    QString details;
-		    QString best = nearestName( *a, definedItems );
-		    if ( !best.isEmpty() && !documentedItems.contains(best) )
-			details = tr( "Maybe you meant '%1'?" ).arg( best );
-
-		    node->doc().location().warning( tr("No such enum item '%1'")
-						    .arg(*a),
-						    details );
-		} else if ( !documentedItems.contains(*a) ) {
-		    node->doc().location().warning( tr("Undocumented enum item"
-						       " '%1'").arg(*a) );
-		}
-		++a;
+	    Set<QString> definedItems;
+	    QList<EnumItem>::ConstIterator it = enume->items().begin();
+	    while ( it != enume->items().end() ) {
+	        definedItems.insert( (*it).name() );
+	        ++it;
 	    }
-	}
-    } else if ( node->type() == Node::Function ) {
-	const FunctionNode *func = (const FunctionNode *) node;
 
-	Set<QString> definedParams;
-	QList<Parameter>::ConstIterator p = func->parameters().begin();
-	while ( p != func->parameters().end() ) {
-	    if ( (*p).name().isEmpty() ) {
-		node->location().warning( tr("Missing parameter name") );
-	    } else {
-		definedParams.insert( (*p).name() );
+	    Set<QString> documentedItems;
+	    if ( enume->doc().enumItemNames() != 0 )
+	        documentedItems = *enume->doc().enumItemNames();
+
+	    Set<QString> allItems = reunion( definedItems, documentedItems );
+	    if ( allItems.count() > definedItems.count() ||
+	         allItems.count() > documentedItems.count() ) {
+	        Set<QString>::ConstIterator a = allItems.begin();
+	        while ( a != allItems.end() ) {
+		    if ( !definedItems.contains(*a) ) {
+		        QString details;
+		        QString best = nearestName( *a, definedItems );
+		        if ( !best.isEmpty() && !documentedItems.contains(best) )
+			    details = tr( "Maybe you meant '%1'?" ).arg( best );
+
+		        node->doc().location().warning(tr("No such enum item '%1'").arg(*a),
+						       details);
+		    } else if ( !documentedItems.contains(*a) ) {
+		        node->doc().location().warning(tr("Undocumented enum item '%1'").arg(*a));
+		    }
+		    ++a;
+	        }
 	    }
-	    ++p;
-	}
+        } else if ( node->type() == Node::Function ) {
+	    const FunctionNode *func = static_cast<const FunctionNode *>(node);
 
-	Set<QString> documentedParams;
-	if ( func->doc().parameterNames() != 0 )
-	    documentedParams = *func->doc().parameterNames();
-
-	Set<QString> allParams = reunion( definedParams, documentedParams );
-	if ( allParams.count() > definedParams.count() ||
-	     allParams.count() > documentedParams.count() ) {
-	    Set<QString>::ConstIterator a = allParams.begin();
-	    while ( a != allParams.end() ) {
-		if ( !definedParams.contains(*a) ) {
-		    QString details;
-		    QString best = nearestName( *a, definedParams );
-		    if ( !best.isEmpty() )
-			details = tr( "Maybe you meant '%1'?" ).arg( best );
-
-		    node->doc().location().warning(tr("No such parameter '%1'").arg(*a), details);
-		} else if ( !documentedParams.contains(*a) ) {
-		    node->doc().location().warning(tr("Undocumented parameter '%1'").arg(*a));
-		}
-		++a;
+	    Set<QString> definedParams;
+	    QList<Parameter>::ConstIterator p = func->parameters().begin();
+	    while ( p != func->parameters().end() ) {
+	        if ( (*p).name().isEmpty() ) {
+		    node->location().warning( tr("Missing parameter name") );
+	        } else {
+		    definedParams.insert( (*p).name() );
+	        }
+	        ++p;
 	    }
-	}
 
-	if ( func->reimplementedFrom() != 0 )
-	    generateReimplementedFrom( func, marker );
+	    Set<QString> documentedParams;
+	    if ( func->doc().parameterNames() != 0 )
+	        documentedParams = *func->doc().parameterNames();
+
+	    Set<QString> allParams = reunion( definedParams, documentedParams );
+	    if (allParams.count() > definedParams.count()
+		    || allParams.count() > documentedParams.count()) {
+	        Set<QString>::ConstIterator a = allParams.begin();
+	        while (a != allParams.end()) {
+		    if (!definedParams.contains(*a)) {
+		        QString details;
+		        QString best = nearestName(*a, definedParams);
+		        if ( !best.isEmpty() )
+			    details = tr("Maybe you meant '%1'?").arg(best);
+
+		        node->doc().location().warning(tr("No such parameter '%1'").arg(*a),
+						       details);
+		    } else if ( !documentedParams.contains(*a) ) {
+		        node->doc().location().warning(tr("Undocumented parameter '%1'").arg(*a));
+		    }
+		    ++a;
+	        }
+	    }
+
+	    if ( func->reimplementedFrom() != 0 )
+	        generateReimplementedFrom( func, marker );
+        }
     }
 }
 

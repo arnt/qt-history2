@@ -38,16 +38,16 @@ CppCodeParser::~CppCodeParser()
 {
 }
 
-void CppCodeParser::initializeParser( const Config& config )
+void CppCodeParser::initializeParser(const Config &config)
 {
-    CodeParser::initializeParser( config );
+    CodeParser::initializeParser(config);
 
-    nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
-    nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
-    nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );
-    nodeTypeMap.insert( COMMAND_TYPEDEF, Node::Typedef );
-    nodeTypeMap.insert( COMMAND_FN, Node::Function );
-    nodeTypeMap.insert( COMMAND_PROPERTY, Node::Property );
+    nodeTypeMap.insert(COMMAND_NAMESPACE, Node::Namespace);
+    nodeTypeMap.insert(COMMAND_CLASS, Node::Class);
+    nodeTypeMap.insert(COMMAND_ENUM, Node::Enum);
+    nodeTypeMap.insert(COMMAND_TYPEDEF, Node::Typedef);
+    nodeTypeMap.insert(COMMAND_FN, Node::Function);
+    nodeTypeMap.insert(COMMAND_PROPERTY, Node::Property);
 }
 
 void CppCodeParser::terminateParser()
@@ -175,8 +175,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 					    .arg(clone->name() + "()")
 					    .arg(COMMAND_FN) );
 		} else {
-		    doc.location().warning( tr("Missing '%1::' for '%2' in"
-					       " '\\%3'")
+		    doc.location().warning( tr("Missing '%1::' for '%2' in '\\%3'")
 					    .arg(lastPath.join("::"))
 					    .arg(clone->name() + "()")
 					    .arg(COMMAND_FN) );
@@ -197,13 +196,15 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	return func;
     } else if ( nodeTypeMap.contains(command) ) {
 	// ### split(" ") hack is there to support header file syntax
-	QStringList path = QStringList::split( "::",
-				   QStringList::split(" ", arg)[0] );
-	Node *node = tre->findNode( path, nodeTypeMap[command] );
+	QStringList path = QStringList::split("::", QStringList::split(" ", arg)[0]);
+	Node *node = tre->findNode(path
+#ifndef QDOC2_COMPAT
+				   , nodeTypeMap[command]
+#endif
+				   );
 	if ( node == 0 ) {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
-				    .arg(arg).arg(command) );
+	    doc.location().warning(tr("Cannot resolve '%1' specified with '\\%2'")
+				   .arg(arg).arg(command));
 	    lastPath = path;
 	}
 	return node;
@@ -975,9 +976,8 @@ bool CppCodeParser::matchDocsAndStuff()
     return TRUE;
 }
 
-bool CppCodeParser::makeFunctionNode( const QString& synopsis,
-				      QStringList *parentPathPtr,
-				      FunctionNode **funcPtr )
+bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *parentPathPtr,
+				     FunctionNode **funcPtr)
 {
     Tokenizer *outerTokenizer = tokenizer;
     int outerTok = tok;

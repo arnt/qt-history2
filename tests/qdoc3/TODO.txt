@@ -1,6 +1,10 @@
 MISC:
   * get rid of spurious 'global' functions
 
+  * make \enum work also for typedefs
+
+  * implement \legalese
+
   * implement \ingroup
   * implement \inmodule
   * implement \table

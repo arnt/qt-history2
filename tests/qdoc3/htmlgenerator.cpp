@@ -678,7 +678,6 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
 void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker,
 					const QMap<QString, const Node *> &classMap)
 {
-#if 0
     const int NumParagraphs = 27; // 26 letters plus symbols
     const int NumColumns = 5; // number of columns in the result
 
@@ -799,7 +798,6 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 	}
     }
     out() << "</table>\n";
-#endif
 }
 
 void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *marker)
