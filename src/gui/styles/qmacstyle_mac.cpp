@@ -628,7 +628,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 Qt::IconSize sz = Qt::SmallIconSize;
                 if(bt->iconSize() == Qt::LargeIconSize)
                     sz = Qt::LargeIconSize;
-                QSize iconSize = QIcon::pixmapSize(sz);
+                QSize iconSize = sz == Qt::SmallIconSize ? QSize(22, 22) : QSize(32, 32);
                 QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
@@ -2106,7 +2106,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                   Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip
                                   | Qt::TextSingleLine,
                                   mi->palette,
-                                  mi->icon.pixmap(Qt::SmallIconSize, (mi->state & QStyle::State_Enabled)QIcon::Normal:QIcon::Disabled),
+                                  mi->icon.pixmap(Qt::SmallIconSize,
+                          (mi->state & QStyle::State_Enabled) ? QIcon::Normal : QIcon::Disabled),
                                   &mi->palette.buttonText().color());
             } else {
                 q->drawItemText(p, mi->rect,
@@ -2380,20 +2381,20 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         }
         break;
     case QStyle::CC_Q3ListView:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->subControls & QStyle::SC_ListView)
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
+            if (lv->subControls & QStyle::SC_Q3ListView)
                 q->QWindowsStyle::drawComplexControl(cc, lv, p, widget);
-            if (lv->subControls & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
+            if (lv->subControls & (QStyle::SC_Q3ListViewBranch | QStyle::SC_Q3ListViewExpand)) {
                 int y = lv->rect.y();
                 int h = lv->rect.height();
                 int x = lv->rect.right() - 10;
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
-                    QStyleOptionListViewItem item = lv->items.at(i);
+                    QStyleOptionQ3ListViewItem item = lv->items.at(i);
                     if (y + item.height > 0 && (item.childCount > 0
-                        || (item.features & (QStyleOptionListViewItem::Expandable
-                                            | QStyleOptionListViewItem::Visible))
-                            == (QStyleOptionListViewItem::Expandable
-                                | QStyleOptionListViewItem::Visible))) {
+                        || (item.features & (QStyleOptionQ3ListViewItem::Expandable
+                                            | QStyleOptionQ3ListViewItem::Visible))
+                            == (QStyleOptionQ3ListViewItem::Expandable
+                                | QStyleOptionQ3ListViewItem::Visible))) {
                         QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + item.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
@@ -3941,21 +3942,21 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
         }
         break;
     case QStyle::CC_Q3ListView:
-        if (const QStyleOptionListView *lv = qt_cast<const QStyleOptionListView *>(opt)) {
-            if (lv->subControls & QStyle::SC_ListView)
+        if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
+            if (lv->subControls & QStyle::SC_Q3ListView)
                 q->QWindowsStyle::drawComplexControl(cc, lv, p, widget);
 
-            if (lv->subControls & (QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand)) {
+            if (lv->subControls & (QStyle::SC_Q3ListViewBranch | QStyle::SC_Q3ListViewExpand)) {
                 int y = lv->rect.y(),
                 h = lv->rect.height(),
                 x = lv->rect.right() - 10;
                 for (int i = 1; i < lv->items.size() && y < h; ++i) {
-                    QStyleOptionListViewItem child = lv->items.at(i);
+                    QStyleOptionQ3ListViewItem child = lv->items.at(i);
                     if (y + child.height > 0 && (child.childCount > 0
-                        || (child.features & (QStyleOptionListViewItem::Expandable
-                                            | QStyleOptionListViewItem::Visible))
-                            == (QStyleOptionListViewItem::Expandable
-                                | QStyleOptionListViewItem::Visible))) {
+                        || (child.features & (QStyleOptionQ3ListViewItem::Expandable
+                                            | QStyleOptionQ3ListViewItem::Visible))
+                            == (QStyleOptionQ3ListViewItem::Expandable
+                                | QStyleOptionQ3ListViewItem::Visible))) {
                         QStyleOption treeOpt(0);
                         treeOpt.rect.setRect(x, y + child.height / 2 - 4, 9, 9);
                         treeOpt.palette = lv->palette;
@@ -4956,7 +4957,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ScrollBar_StopMouseOverSlider:
         ret = true;
         break;
-    case SH_ListViewExpand_SelectMouseType:
+    case SH_Q3ListViewExpand_SelectMouseType:
     case SH_TabBar_SelectMouseType:
         ret = QEvent::MouseButtonRelease;
         break;

@@ -2071,7 +2071,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                                         selectedFilter,
                                                         true,
                                                         false);
-        for (int i = 0; i < sl.count(); ++i)
+        for (int i = 0; i < result.count(); ++i)
             result.replace(i, QUnicodeTables::normalize(result.at(i), QString::NormalizationForm_C));
         return result;
     }
