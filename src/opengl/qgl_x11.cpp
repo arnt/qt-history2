@@ -265,13 +265,15 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	return FALSE;
 
     if ( deviceIsPixmap() &&
-	 ((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() ) {
+	 ((XVisualInfo*)vi)->depth != d->paintDevice->x11Depth() &&
+	 ((XVisualInfo*)vi)->screen != d->paintDevice->x11Screen()) {
 	XFree( vi );
 	XVisualInfo appVisInfo;
 	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
 	appVisInfo.visualid = XVisualIDFromVisual( (Visual*)d->paintDevice->x11Visual() );
+	appVisInfo.screen = d->paintDevice->x11Screen();
 	int nvis;
-	vi = XGetVisualInfo( disp, VisualIDMask, &appVisInfo, &nvis );
+	vi = XGetVisualInfo( disp, VisualIDMask | VisualScreenMask, &appVisInfo, &nvis );
 	if ( !vi )
 	    return FALSE;
 
@@ -546,12 +548,12 @@ void QGLContext::doneCurrent()
 {
     // This is a bug-workaround for the Utah-GLX driver (v0.10, November 2000)
     // Calling glXMakeCurrent() without any drawable or context crashes
-    // the X server (tested with a Matrox G400 XFree86 v3.3.6, might work 
+    // the X server (tested with a Matrox G400 XFree86 v3.3.6, might work
     // with other cards). This does not happen with Accelerated X v2.0 Alpha.
-    
+
 #if defined(Q_OS_LINUX) || defined(Q_OS_FreeBSD)
-    static bool utahGLX = 
-	QString( glXGetClientString( d->paintDevice->x11Display(), 
+    static bool utahGLX =
+	QString( glXGetClientString( d->paintDevice->x11Display(),
 				     GLX_EXTENSIONS ) ).contains( "GLX_utah" );
     if ( !utahGLX )
 	glXMakeCurrent( d->paintDevice->x11Display(), 0, 0 );
@@ -754,7 +756,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 /*! \reimp */
 void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
-{    
+{
     // ### Another work-around for the Utah-GLX driver -
     // ### if the old context is not destroyed before the window is
     // ### reparented, it crashes badly (driver v0.10 November 2000)
@@ -765,7 +767,7 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 	delete glcx;
 	glcx = 0;
     }
-    QWidget::reparent( parent, f, p, showIt );  
+    QWidget::reparent( parent, f, p, showIt );
     setContext( new QGLContext( reqf, this ) );
     if ( showIt )
 	show();
@@ -867,6 +869,7 @@ void QGLWidget::setContext( QGLContext *context,
     Window p = RootWindow( x11Display(), DefaultScreen(x11Display()) ); //#
     if ( parentWidget() )
 	p = parentWidget()->winId();
+
     Window w = XCreateWindow( x11Display(), p,  x(), y(), width(), height(),
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
@@ -958,12 +961,12 @@ const QGLColormap & QGLWidget::colormap() const
 /*\internal
   Store color values in the given colormap.
 */
-static void qStoreColors( QWidget * tlw, Colormap cmap, 
+static void qStoreColors( QWidget * tlw, Colormap cmap,
 			  const QGLColormap & cols )
 {
     XColor c;
     QRgb color;
-    
+
     for ( int i = 0; i < cols.size(); i++ ) {
 	color = cols.entryRgb( i );
 	c.pixel = i;
@@ -985,7 +988,7 @@ static bool qCanAllocColors( QWidget * w )
     long mask;
     XVisualInfo templ;
     XVisualInfo * visuals;
-    VisualID id = XVisualIDFromVisual( (Visual *) 
+    VisualID id = XVisualIDFromVisual( (Visual *)
 				       w->topLevelWidget()->x11Visual() );
 
     mask = VisualScreenMask;
@@ -1013,7 +1016,7 @@ static bool qCanAllocColors( QWidget * w )
 
     if ( !validVisual )
 	return FALSE;
-    return TRUE; 
+    return TRUE;
 }
 
 void QGLWidget::setColormap( const QGLColormap & c )
@@ -1023,13 +1026,13 @@ void QGLWidget::setColormap( const QGLColormap & c )
     cmap = c;
     if ( !cmap.d )
 	return;
-    
+
     if ( !cmap.d->cmapHandle && !qCanAllocColors( this ) ) {
 	qWarning( "QGLWidget::setColormap: Cannot create a read/write "
 		  "colormap for this visual" );
 	return;
     }
-    
+
     // If the child GL widget is not of the same visual class as the
     // toplevel widget we will get in trouble..
     Window wid = tlw->winId();
@@ -1040,14 +1043,14 @@ void QGLWidget::setColormap( const QGLColormap & c )
 	wid = winId();
 	vis = (Visual *) x11Visual();
     }
-    
+
     if ( !cmap.d->cmapHandle ) // allocate a cmap if necessary
 	cmap.d->cmapHandle = XCreateColormap( x11Display(), wid, vis,
 					      AllocAll );
-    
+
     qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
     XSetWindowColormap( x11Display(), wid, (Colormap) cmap.d->cmapHandle );
-	
+
     // tell the wm that this window has a special colormap
     Window * cmw;
     Window * cmwret;
@@ -1075,15 +1078,15 @@ void QGLWidget::setColormap( const QGLColormap & c )
     delete [] cmw;
 }
 
-/*! \internal 
+/*! \internal
   Free up any allocated colormaps. This fn is only called for
   top-level widgets.
 */
 void QGLWidget::cleanupColormaps()
-{	
+{
     if ( !cmap.d )
 	return;
-    
+
     if ( cmap.d->cmapHandle ) {
 	XFreeColormap( topLevelWidget()->x11Display(),
 		       (Colormap) cmap.d->cmapHandle );
