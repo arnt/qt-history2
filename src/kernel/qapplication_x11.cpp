@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#544 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#545 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -355,7 +355,7 @@ extern "C" {
 
 static bool x11_ignore_badwindow;
 static bool x11_badwindow;
-    
+
     // starts to ignore bad window errors from X
 void qt_ignore_badwindow()
 {
@@ -380,7 +380,7 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
 	if ( x11_ignore_badwindow )
 	    return 0;
     }
-    else if ( err->error_code == BadMatch 
+    else if ( err->error_code == BadMatch
 	      && err->request_code == 42 /* X_SetInputFocus */ ) {
 	return 0;
     }
@@ -2320,8 +2320,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case EnterNotify:			// enter window
     case LeaveNotify: {			// leave window
 	qt_x_clipboardtime = event->xcrossing.time;
+	if ( event->xcrossing.detail == NotifyNormal )
+	    widget->translateMouseEvent( event ); //we don't get MotionNotify
 	QEvent e( event->type == EnterNotify ? QEvent::Enter : QEvent::Leave );
-	widget->translateMouseEvent( event ); //we don't get MotionNotify
 	QApplication::sendEvent( widget, &e );
     }
     break;
