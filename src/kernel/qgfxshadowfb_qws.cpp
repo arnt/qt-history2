@@ -176,8 +176,7 @@ bool QShadowFbScreen::connect( const QString &displaySpec )
 	return false;
 
     real_screen=data;
-    data=(uchar *)malloc(size);
-
+    
     to_update=QRect(0,0,w,h);
 
     return true;
@@ -185,7 +184,6 @@ bool QShadowFbScreen::connect( const QString &displaySpec )
 
 void QShadowFbScreen::disconnect()
 {
-    free(data);
     data=real_screen;
 
     QLinuxFbScreen::disconnect();
@@ -293,12 +291,10 @@ void QShadowFbScreen::checkUpdate()
 	    int width=( ( ( r.right()-r.left() ) +1 ) * d )/8;
 	    offset/=sizeof(PackType);
 	    width=( width + ( sizeof(PackType) ) ) / sizeof(PackType);
-	    PackType * dest=( ( PackType * ) (real_screen + 
+	    PackType * dest=( ( PackType * ) (real_screen +
 			    ( lstep*loopc2 ) ) ) + offset;
 	    PackType * src=( ( PackType * ) ( data+  ( lstep*loopc2 ) ) )
 			   + offset;
-	    unsigned int destcheck=(unsigned int)dest;
-	    unsigned int srccheck=(unsigned int)src;
 	    for(int loopc3=0;loopc3<width;loopc3++) {
 		*dest=*src;
 		dest++;
@@ -307,6 +303,55 @@ void QShadowFbScreen::checkUpdate()
 	}
     }
     to_update=QRegion();
+}
+
+int QShadowFbScreen::memoryNeeded( const QString &displaySpec )
+{	
+    // This is fairly ugly but I'm not sure how else to handle it
+
+    int myfd;
+    
+    // Check for explicitly specified device
+    const int len = 8; // "/dev/fbx"
+    int m = displaySpec.find( "/dev/fb" );
+    
+    QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
+
+    myfd=open( dev.latin1(), O_RDWR );
+    if (myfd<0) {
+	qWarning("Can't open framebuffer device %s",dev.latin1());
+	return FALSE;
+    }
+    
+    fb_fix_screeninfo finfo;
+    fb_var_screeninfo vinfo;
+
+    /* Get fixed screen information */
+    if (ioctl(myfd, FBIOGET_FSCREENINFO, &finfo)) {
+	perror("reading /dev/fb0");
+	qWarning("Error reading fixed information");
+	return FALSE;
+    }
+
+    /* Get variable screen information */
+    if (ioctl(myfd, FBIOGET_VSCREENINFO, &vinfo)) {
+	perror("reading /dev/fb0");
+	qWarning("Error reading variable information");
+	return FALSE;
+    }
+ 
+    return vinfo.yres*finfo.line_length;
+    
+    close(myfd);
+}
+
+int QShadowFbScreen::sharedRamSize(void * end)
+{
+    shadow_screen=(uchar *)end;
+    shadow_screen-=size;
+    data=shadow_screen;
+    int ret=QLinuxFbScreen::sharedRamSize((void *)shadow_screen);
+    return ret+size;
 }
 
 extern "C" QScreen * qt_get_screen_shadowfb( int display_id )

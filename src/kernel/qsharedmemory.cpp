@@ -37,7 +37,7 @@
 #include <sys/ipc.h>
 #include <sys/types.h>
 
-#if defined(QT_POSIX_QSHM)
+#if defined(QT_POSIX_QSHM) && defined(QT_NO_QWS_SHADOWFB)
 #include <fcntl.h>
 #include <sys/mman.h>
 

@@ -106,10 +106,13 @@ public:
     virtual void setMode(int,int,int);
     virtual void setDirty( const QRect& );
     void checkUpdate();
+    virtual int memoryNeeded(const QString&);
+    virtual int sharedRamSize(void *);
 
 private:
 
     uchar * real_screen;
+    uchar * shadow_screen;
     QShadowTimerHandler * timer;
     QRegion to_update;
 

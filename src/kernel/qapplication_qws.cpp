@@ -560,7 +560,10 @@ void QWSDisplay::Data::init()
 
 	shm = QSharedMemory(0,pipe.latin1());
 	if (shm.attach()) {
-	    qt_get_screen( qws_display_id, qws_display_spec );
+	    QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
+#ifndef QT_NO_QWS_SHADOWFB	 
+	    sharedRamSize += s->memoryNeeded(qws_display_spec);
+#endif
 	} else {
 	    perror("Can't attach to main ram memory.");
 	    exit(1);
@@ -574,10 +577,17 @@ void QWSDisplay::Data::init()
 	if ( !QWSDisplay::initLock( pipe, TRUE ) )
 	    qFatal( "Cannot get display lock" );
 
+	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
+
+#ifndef QT_NO_QWS_SHADOWFB
+	sharedRamSize += s->memoryNeeded(qws_display_spec);
+#endif
+	
 #ifndef QT_NO_QWS_MULTIPROCESS
+	
 	shm = QSharedMemory(sharedRamSize,pipe.latin1());
 	if (!shm.create())
-	    perror("Cannot attach to main ram shared memory\n");
+	    perror("Cannot create main ram shared memory\n");
 	if (!shm.attach())
 	    perror("Cannot attach to main ram shared memory\n");
 	sharedRam = (uchar *)shm.base();
@@ -588,7 +598,6 @@ void QWSDisplay::Data::init()
 	// the rest too
 	memset(sharedRam,0,sharedRamSize);
 
-	QScreen *s = qt_get_screen( qws_display_id, qws_display_spec );
     }
     setMaxWindowRect(QRect(0,0,qt_screen->width(),qt_screen->height()));
     int mouseoffset = 0;

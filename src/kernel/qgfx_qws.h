@@ -235,6 +235,10 @@ public:
 
     virtual void setDirty( const QRect& );
 
+#ifndef QT_NO_QWS_SHADOWFB
+    virtual int memoryNeeded(const QString&) { return 0; }
+#endif
+
 #ifndef QT_NO_QWS_REPEATER
     int * opType() { return screen_optype; }
     int * lastOp() { return screen_lastop; }
@@ -270,7 +274,7 @@ protected:
     int h;
     int d;
     int pixeltype;
-    
+
     int dw;
     int dh;
 
@@ -328,7 +332,7 @@ public:
 
     // current position
     virtual QPoint pos() const = 0;
-    
+
     // Fill operations - these use the current source (pixmap,
     // color, etc), and draws outline
     virtual void fillRect( int,int,int,int )=0;
@@ -347,7 +351,7 @@ public:
 
     enum SourceType { SourcePen, SourceImage, SourceAccel };
     enum PixelType { NormalPixel, BGRPixel };
-    
+
     // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
