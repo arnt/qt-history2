@@ -58,9 +58,9 @@ LightStyleV3::~LightStyleV3()
     delete basestyle;
 }
 
-void LightStyleV3::polishPopupMenu( QPopupMenu * )
+void LightStyleV3::polishPopupMenu( QPopupMenu *menu )
 {
-    // empty to satisy pure virtual requirements
+    menu->setMargin( pixelMetric( PM_DefaultFrameWidth ) );
 }
 
 /*
@@ -110,14 +110,14 @@ static void drawLightEtch( QPainter *p,
     pts.setPoint( 1, rect.left(),     rect.top() );
     pts.setPoint( 2, rect.left() + 1, rect.top() );
     pts.setPoint( 3, rect.right(),    rect.top() );
-    p->setPen( sunken ? color.dark( 115 ) : color.light( 115 ) );
+    p->setPen( sunken ? color.dark( 110 ) : color.light( 110 ) );
     p->drawLineSegments( pts );
 
     pts.setPoint( 0, rect.left(),     rect.bottom() );
     pts.setPoint( 1, rect.right(),    rect.bottom() );
     pts.setPoint( 2, rect.right(),    rect.bottom() - 1 );
     pts.setPoint( 3, rect.right(),    rect.top() + 1 );
-    p->setPen( sunken ? color.light( 115 ) : color.dark( 115 ) );
+    p->setPen( sunken ? color.light( 110 ) : color.dark( 110 ) );
     p->drawLineSegments( pts );
 }
 
@@ -131,13 +131,14 @@ static void drawLightBevel( QPainter *p,
 			    const QBrush *fill = 0 ) // contents fill
 {
     QRect br = rect;
+    bool darken = ( flags & ( QStyle::Style_ButtonDefault ) );
     bool bevel = ( flags & ( QStyle::Style_Down | QStyle::Style_On |
 			     QStyle::Style_Sunken | QStyle::Style_Raised ) );
     bool sunken = (flags & (QStyle::Style_Down | QStyle::Style_On |
 			    QStyle::Style_Sunken));
 
     if ( etch && linewidth > 0 ) {
-	drawLightEtch( p, br, cg.background(), true );
+	drawLightEtch( p, br, darken ? cg.dark() : cg.background(), true );
 	linewidth--;
 	br.addCoords( 1, 1, -1, -1 );
     }
@@ -145,7 +146,7 @@ static void drawLightBevel( QPainter *p,
     if ( ! br.isValid() )
 	return;
     if ( border && linewidth > 0 ) {
-	p->setPen( cg.dark() );
+	p->setPen( darken ? cg.shadow() : cg.dark() );
 	p->drawRect( br );
 	linewidth--;
 	br.addCoords( 1, 1, -1, -1 );
@@ -257,8 +258,6 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 
     case PE_ButtonCommand:
 	{
-	    QRect br = r;
-
 	    if (flags & QStyle::Style_Enabled) {
 		if (flags & (QStyle::Style_Down |
 			     QStyle::Style_On |
@@ -268,32 +267,29 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 		    fill = &cg.brush(QColorGroup::Button);
 	    } else
 		fill = &cg.brush(QColorGroup::Background);
-
-	    bool etch = true;
-	    if ( flags & Style_ButtonDefault ) {
-		etch = false;
-		br.addCoords( 1, 1, -1, -1 );
-	    }
-	    drawLightBevel( p, br, cg, flags,
-			    pixelMetric( PM_DefaultFrameWidth ) + ( etch ? 1 : 0 ),
-			    etch, true, fill );
+	    drawLightBevel( p, r, cg, flags, pixelMetric( PM_DefaultFrameWidth ) + 1,
+			    true, true, fill );
 	    break;
 	}
 
     case PE_ButtonBevel:
     case PE_ButtonTool:
-	if (flags & QStyle::Style_Enabled) {
-	    if (flags & (QStyle::Style_Down |
-			 QStyle::Style_On |
-			 QStyle::Style_Sunken))
-		fill = &cg.brush(QColorGroup::Midlight);
-	    else
-		fill = &cg.brush(QColorGroup::Button);
-	} else
-	    fill = &cg.brush(QColorGroup::Background);
-	drawLightBevel( p, r, cg, flags, pixelMetric( PM_DefaultFrameWidth ),
-			false, true, fill );
-	break;
+	{
+	    if (flags & QStyle::Style_Enabled) {
+		if (flags & (QStyle::Style_Down |
+			     QStyle::Style_On |
+			     QStyle::Style_Sunken))
+		    fill = &cg.brush(QColorGroup::Midlight);
+		else
+		    fill = &cg.brush(QColorGroup::Button);
+	    } else
+		fill = &cg.brush(QColorGroup::Background);
+	    bool border = ( ! ( flags & QStyle::Style_AutoRaise ) );
+	    drawLightBevel( p, r, cg, flags,
+			    pixelMetric( PM_DefaultFrameWidth ) - ( border ? 0 : 1 ),
+			    false, border, fill );
+	    break;
+	}
 
     case PE_ButtonDropDown:
 	{
@@ -343,8 +339,6 @@ void LightStyleV3::drawPrimitive( PrimitiveElement pe,
 	}
 
     case PE_ButtonDefault:
-	p->setPen( cg.shadow() );
-	p->drawRect( r );
 	break;
 
     case PE_Indicator:
@@ -885,19 +879,23 @@ void LightStyleV3::drawControl( ControlElement control,
 		// draw separator
 		p->fillRect(r, cg.brush(QColorGroup::Button));
 		p->setPen( cg.mid() );
-		p->drawLine(r.left() + 12,  r.top() + 1,
-			    r.right() - 12, r.top() + 1);
+		const int ypos = r.top() + r.height() / 2;
+		p->drawLine(r.left() + 12,  ypos - 1,
+			    r.right() - 12, ypos - 1);
 		p->setPen( cg.light() );
-		p->drawLine(r.left() + 12,  r.top() + 2,
-			    r.right() - 12, r.top() + 2);
+		p->drawLine(r.left() + 12,  ypos,
+			    r.right() - 12, ypos);
 		break;
 	    }
 
-	    if (flags & Style_Active)
-		qDrawShadePanel(p, r, cg, TRUE, 1,
-				&cg.brush(QColorGroup::Midlight));
-	    else
-		p->fillRect(r, cg.brush(QColorGroup::Button));
+	    if (flags & Style_Active) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Midlight ) );
+	    } else {
+		p->setPen( NoPen );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+	    }
+	    p->drawRect(r);
 
 	    if ( !mi )
 		break;
@@ -913,11 +911,6 @@ void LightStyleV3::drawControl( ControlElement control,
 	    tr.setCoords(sr.left() - tab - 4, r.top(), sr.left(), r.bottom());
 	    // item column
 	    ir.setCoords(cr.right() + 4, r.top(), tr.right() - 4, r.bottom());
-
-	    if (mi->isChecked() &&
-		! (flags & Style_Active) &
-		(flags & Style_Enabled))
-		qDrawShadePanel(p, cr, cg, TRUE, 1, &cg.brush(QColorGroup::Midlight));
 
 	    if (mi->iconSet()) {
 		QIconSet::Mode mode =
@@ -1017,10 +1010,14 @@ void LightStyleV3::drawControl( ControlElement control,
 
     case CE_MenuBarItem:
 	{
-	    if ( flags & Style_Active )
-		qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Midlight));
-	    else
-		p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	    if (flags & Style_Active) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Midlight ) );
+	    } else {
+		p->setPen( NoPen );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+	    }
+	    p->drawRect(r);
 
 	    if (data.isDefault())
 		break;
@@ -1067,9 +1064,10 @@ QRect LightStyleV3::subRect(SubRect subrect, const QWidget *widget) const
     switch (subrect) {
     case SR_PushButtonFocusRect:
 	{
-	    rect = QCommonStyle::subRect( SR_PushButtonContents, widget );
-	    int bm = pixelMetric( PM_ButtonMargin, widget ), hbm = bm / 2;
-	    rect.addCoords( hbm, hbm, -hbm, -hbm );
+	    rect = widget->rect();
+ 	    int delta = ( pixelMetric( PM_ButtonMargin, widget ) / 2 ) +
+			pixelMetric( PM_DefaultFrameWidth, widget );
+	    rect.addCoords( delta, delta, -delta, -delta );
   	    break;
   	}
 
@@ -1694,12 +1692,12 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 	    if (mi->custom()) {
 		w = mi->custom()->sizeHint().width();
 		h = mi->custom()->sizeHint().height();
-		if (! mi->custom()->fullSpan() && h < 22)
-		    h = 22;
+		if (! mi->custom()->fullSpan() && h < 16)
+		    h = 16;
 	    } else if(mi->widget()) {
 	    } else if (mi->isSeparator()) {
-		w = 10;
-		h = 4;
+		w = 32;
+		h = 8;
 	    } else {
 		// check is at least 16x16
 		if (h < 16)
@@ -1707,11 +1705,10 @@ QSize LightStyleV3::sizeFromContents( ContentsType contents,
 		if (mi->pixmap())
 		    h = QMAX(h, mi->pixmap()->height());
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popupmenu->fontMetrics().height() + 2);
+		    h = QMAX(h, popupmenu->fontMetrics().height() + 4);
 		if (mi->iconSet() != 0)
 		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height());
-		h += 2;
 	    }
 
 	    // check | 4 pixels | item | 8 pixels | accel | 4 pixels | check
