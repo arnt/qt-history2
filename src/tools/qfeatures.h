@@ -333,9 +333,11 @@
 /*!
     Virtual frame buffer
 */
-#define QT_NO_QWS_PS2
-
 //#define QT_NO_QWS_VFB
+/*!
+    Emachine support
+*/
+//#define QT_NO_QWS_PS2
 /*!
     Transformed frame buffer
 */
