@@ -42,10 +42,10 @@
         MyWidget::paintEvent(QPaintEvent *)
         {
             QPainter p;                   // our painter
-            QMatrix m;                   // our transformation matrix
+            QMatrix m;                    // our transformation matrix
             m.rotate(22.5);               // rotated coordinate system
             p.begin(this);                // start painting
-            p.setMatrix(m);          // use rotated coordinate system
+            p.setMatrix(m);               // use rotated coordinate system
             p.drawText(30,20, "detator"); // draw rotated text at 30,20
             p.end();                      // painting done
         }
