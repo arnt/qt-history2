@@ -973,8 +973,9 @@ for plat in mac win x11 qnx6 embedded; do
 		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
 		      ${TMP_FILE} >${create_dir}/README
 	       fi
-	       cp "$OUT_TREE/${PLATNAME}.tar" "$create_dir"
-               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
+	       SHORTNAME=`echo $PLATNAME | sed -e 's/beta/b/'`
+	       cp "$OUT_TREE/${PLATNAME}.tar" "$create_dir/${SHORTNAME}.tar"
+               stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir/${SHORTNAME}.tar"
 	       rm -rf "$create_dir"
             fi
 	elif [ "$plat" = "win" ]; then
