@@ -182,7 +182,7 @@ QGLFormat::QGLFormat()
     \c DirectRendering and \c IndirectRendering, etc.
 
     The \a plane parameter defaults to 0 and is the plane which this
-    format should be associated with. Not all OpenGL implmentations
+    format should be associated with. Not all OpenGL implementations
     supports overlay/underlay rendering planes.
 
     \sa defaultFormat(), setOption()

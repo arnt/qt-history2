@@ -6797,7 +6797,7 @@ void QTextEdit::optimDoAutoScroll()
     if ( doScroll )
 	ensureVisible( xx, yy, 1, 1 );
 
-    // if the text document is smaller than the heigth of the viewport
+    // if the text document is smaller than the height of the viewport
     // - redraw the whole thing otherwise calculate the rect that
     // needs drawing.
     if ( d->od->numLines * fm.lineSpacing() < viewport()->height() ) {

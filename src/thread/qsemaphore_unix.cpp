@@ -160,7 +160,7 @@ int QSemaphore::operator+=(int n)
     d->mutex.lock();
 
     if ( n < 0 || n > d->max ) {
-	qWarning( "QSemaphore::operator+=: paramter %d out of range", n );
+	qWarning( "QSemaphore::operator+=: parameter %d out of range", n );
 	n = n < 0 ? 0 : d->max;
     }
 
@@ -186,7 +186,7 @@ int QSemaphore::operator-=(int n)
     d->mutex.lock();
 
     if ( n < 0 || n > d->value ) {
-	qWarning( "QSemaphore::operator-=: paramter %d out of range", n );
+	qWarning( "QSemaphore::operator-=: parameter %d out of range", n );
 	n = n < 0 ? 0 : d->value;
     }
 

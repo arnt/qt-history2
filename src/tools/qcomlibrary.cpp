@@ -298,7 +298,7 @@ static long qt_find_pattern( const char *s, ulong s_len,
 
   Returns FALSE if version/flags/key information is not present, or if the
                 information could not be read.
-  Returns  TRUE if version/flags/key information is present and succesfully read.
+  Returns  TRUE if version/flags/key information is present and successfully read.
 */
 static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 			   QByteArray *key )
@@ -405,7 +405,7 @@ void QComLibrary::createInstanceInternal()
     if ( ! query_done ) {
 	// get the query information directly from the plugin without loading
 	if ( qt_unix_query( library(), &qt_version, &flags, &key ) ) {
- 	    // info read succesfully from library
+ 	    // info read successfully from library
  	    query_done = TRUE;
 	}
     }

@@ -37,18 +37,18 @@
     e.g. screen readers). The communication between clients and servers
     is a two-way communication:
 
-    \e AT \e Servers notify the clients about events through calls to the 
+    \e AT \e Servers notify the clients about events through calls to the
     updateAccessibility() function.
 
     \e AT \e Clients request information about the objects in the server.
-    The QAccessibleInterface class is the core interface and encapsulates 
+    The QAccessibleInterface class is the core interface and encapsulates
     this information in a pure virtual API. Implementations of the interface
     are provided by Qt through the queryAccessibleInterface() API.
 
     The communication between servers and clients is initialized by the
     setRootObject() function.
 
-    Function pointers can be installed to replace or extend the default behavior 
+    Function pointers can be installed to replace or extend the default behavior
     of the static functions in QAccessible.
 */
 
@@ -210,9 +210,9 @@
 
     \value Unrelated	    The objects are unrelated
     \value Self		    The objects are the same
-    \value Ancestor	    The first object is a parent of the 
+    \value Ancestor	    The first object is a parent of the
 			    second object
-    \value Child	    The first object is a direct child 
+    \value Child	    The first object is a direct child
 			    of the second object
     \value Descendent	    The first object is an indirect child
 			    of the second object
@@ -224,7 +224,7 @@
     \value Buddy	    The second object is the label of the
 			    first object
     \value Controller	    The first object controls the second object
-    \value Controlled	    The first object is controlled by the the 
+    \value Controlled	    The first object is controlled by the the
 			    second object
     \value LogicalMask	    A mask for the values above
     \value Above	    The first object is above the second object
@@ -289,7 +289,7 @@
 
     \a reason specifies the cause of the change, for example,
     ValueChange when the position of a slider has been changed. \a
-    child is the (1-based) index of the child element that has changed. 
+    child is the (1-based) index of the child element that has changed.
     When \a child is 0, the object itself has changed.
 
     Call this function whenever the state of your accessible object or
@@ -355,7 +355,7 @@ void qRemoveAccessibleObject(QObject *object)
 
     The function receives a QObject pointer, set the second
     parameter to the pointer of the corresponding QAccessibleInterface, and
-    return TRUE, or return FALSE if it doesn't provide a QAccessibleInterface 
+    return TRUE, or return FALSE if it doesn't provide a QAccessibleInterface
     for the QObject.
 
     Installed factories are called by queryAccessibilityInterface() until
@@ -414,7 +414,7 @@ void QAccessible::removeFactory(InterfaceFactory factory)
 }
 
 /*!
-    Installs \a handler as the function to be used by updateAccessibility, and 
+    Installs \a handler as the function to be used by updateAccessibility, and
     returns the previously installed function pointer.
 */
 QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handler)
@@ -425,7 +425,7 @@ QAccessible::UpdateHandler QAccessible::installUpdateHandler(UpdateHandler handl
 }
 
 /*!
-    Installs \a handler as the function to be used by setRootObject, and 
+    Installs \a handler as the function to be used by setRootObject, and
     returns the previously installed function pointer.
 */
 QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectHandler handler)
@@ -446,7 +446,7 @@ QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
 /*!
     Sets \a iface to point to the implementation of the
     QAccessibleInterface for \a object, and returns TRUE if
-    successfull, or sets \a iface to 0 and returns FALSE if
+    successful, or sets \a iface to 0 and returns FALSE if
     no accessibility implementation for \a object exists.
 
     The function calls all installed factory functions (in reverse
@@ -455,7 +455,7 @@ QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
     for the class the function loads installed accessibility plugins and tests
     if one plugin can provide the implementation.
 
-    If no implementation for the object's class is available the function tries to 
+    If no implementation for the object's class is available the function tries to
     find an implementation for the object's parent class.
 
     The caller has to release the interface returned in \a iface.
@@ -547,7 +547,7 @@ bool QAccessible::isActive()
 /*!
     \fn void QAccessible::setRootObject(QObject *object)
 
-    Sets the root accessible object of this application to \a object. 
+    Sets the root accessible object of this application to \a object.
     All other accessible objects in the application can be reached by the
     client using object navigation.
 
@@ -563,18 +563,18 @@ bool QAccessible::isActive()
 
 /*!
     \class QAccessibleInterface qaccessible.h
-    \brief The QAccessibleInterface class defines an interface that exposes information 
+    \brief The QAccessibleInterface class defines an interface that exposes information
     about accessible objects.
     \ingroup misc
 
-    Accessibility tools (also called AT Clients, e.g. screen readers or braille displays) 
-    require high-level information about the accessible objects in an application to 
+    Accessibility tools (also called AT Clients, e.g. screen readers or braille displays)
+    require high-level information about the accessible objects in an application to
     provide specialized output and input methods that make it possible for impaired
     users to use the application (applications providing this information are also called
     AT Servers).
 
     Every element that the user needs to interact with or react to is an accessible object,
-    and should provide this information. These are mainly visual objects, e.g. widgets and 
+    and should provide this information. These are mainly visual objects, e.g. widgets and
     widget contents, but can also be content, e.g. sounds.
 
     The AT client uses three basic concepts to acquire information about any accessible
@@ -583,7 +583,7 @@ bool QAccessible::isActive()
     \i \c Properties - The client can read information about accessible objects. In some
     cases the client can also modify those properties (ie. text in a line edit)
     \i \c Actions - The client can invoke actions of the object, e.g. press a push button
-    \i \c Relations and Navigation - The client can traverse from one accessible object to 
+    \i \c Relations and Navigation - The client can traverse from one accessible object to
     another, using the relations between objects
     \endlist
 
@@ -606,16 +606,16 @@ bool QAccessible::isActive()
 
     A QAccessibleInterface provides information about the accessible object, and
     can also provide information for the children of that object if those children
-    don't provide a QAccessibleInterface implementation themselves. This is 
-    practical if the object has many children (ie. items in a listview), or if the 
+    don't provide a QAccessibleInterface implementation themselves. This is
+    practical if the object has many children (ie. items in a listview), or if the
     children are an integral part of the object itself (ie. the different sections
     in a scrollbar).
 
     If an accessible object provides information about it's children through one
     QAccessibleInterface the children are referenced through indices. The index is
     1-based, e.g. 0 refers to the object itself, 1 to the first child etc.
-    
-    All functions in QAccessibleInterface that take a child index relate to the 
+
+    All functions in QAccessibleInterface that take a child index relate to the
     object itself if the index is 0, or to the child specified. If a child provides
     its own interface implementation (which can be retrieved through navigation)
     asking the parent for information about that child will usually not succeed.
@@ -625,7 +625,7 @@ bool QAccessible::isActive()
     The lifetime of QAccessibleInterface implementations is controlled by reference
     counting. Interfaces provided by QAccessible::queryAccessibleInterface() or
     through navigate() are referenced by the implementation, and the caller has to release()
-    the interface when it is no longer in use. addRef() needs to be  called if references to 
+    the interface when it is no longer in use. addRef() needs to be  called if references to
     the interface are added.
 
 \omit
@@ -697,10 +697,10 @@ bool QAccessible::isActive()
 /*!
     \fn int QAccessibleInterface::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 
-    Returns the relationship between this object's \a child and the \a other 's object 
+    Returns the relationship between this object's \a child and the \a other 's object
     \a otherChild. If \a child is zero the object's own relation is returned.
 
-    The returned value indicates the relation of the called object to the \a other object, 
+    The returned value indicates the relation of the called object to the \a other object,
     e.g. if \a other is child of this object the return value will be \c Ancestor.
 
     The return value is a combination of the bitflags in the \c Relation enumeration.
@@ -712,8 +712,8 @@ bool QAccessible::isActive()
     \fn int QAccessibleInterface::childAt(int x, int y) const
 
     Returns the 1-based index of the child that contains the screen coordinates
-    (\a x, \a y). This function returns 0 if the point is positioned on the object 
-    itself. If the tested point is outside the boundaries of the object this 
+    (\a x, \a y). This function returns 0 if the point is positioned on the object
+    itself. If the tested point is outside the boundaries of the object this
     function returns -1.
 
     This function is only relyable for visible objects (invisible object might
@@ -727,23 +727,23 @@ bool QAccessible::isActive()
 
     Navigates from this object to an object that has a relationship
     \a relation to this object.
-    
+
     The \a entry parameter has two different meanings:
     \list
-    \i Logical relations -  if multiple object with the requested relationship 
-    exist \a entry specifies which one to return. \a entry is 1-based, e.g. use 1 to 
+    \i Logical relations -  if multiple object with the requested relationship
+    exist \a entry specifies which one to return. \a entry is 1-based, e.g. use 1 to
     get the first (and possibly only) object with the requested relationship.
     \i Geometrical relations - the index of the child from which to start navigating
     into the specified direction. \a entry can be 0 to navigate to a sibling of this
     object, or non-null to navigate within contained children that don't provide their
     own accessible information.
     \endlist
-    
-    If an object is found \a target is set to point to the object, and the index 
-    of the child in \a target is returned. The return value is 0 if \a target itself 
+
+    If an object is found \a target is set to point to the object, and the index
+    of the child in \a target is returned. The return value is 0 if \a target itself
     is the requested object. \a target is set to null if this object is the target
     object (ie. the requested object is a handled by this object).
-    
+
     If no object is found \a target is set to null, and the return value is -1.
 
     The following code demonstrates how to use this function to navigate
@@ -768,7 +768,7 @@ bool QAccessible::isActive()
 /*!
     \fn QString QAccessibleInterface::text(Text t, int child) const
 
-    Returns the value of the text property \a t of the object or of 
+    Returns the value of the text property \a t of the object or of
     the object's child if \a child is not 0.
 
     The \e Name is a string used by clients to identify, find or
@@ -809,7 +809,7 @@ bool QAccessible::isActive()
 /*!
     \fn void QAccessibleInterface::setText(Text t, int child, const QString &text)
 
-    Sets the text property \a t of the object or of the object's 
+    Sets the text property \a t of the object or of the object's
     child if \a child is not 0 to \a text.
 
     Note that the text properties of most objects are read-only.
@@ -818,7 +818,7 @@ bool QAccessible::isActive()
 /*!
     \fn QRect QAccessibleInterface::rect(int child) const
 
-    Returns the geometry of the object or of the object's child if \a child 
+    Returns the geometry of the object or of the object's child if \a child
     is not 0. The geometry is in screen coordinates.
 
     This function is only relyable for visible objects (invisible object might
@@ -830,9 +830,9 @@ bool QAccessible::isActive()
 /*!
     \fn QAccessible::Role QAccessibleInterface::role(int child) const
 
-    Returns the role of the object or of the object's child if \a child 
+    Returns the role of the object or of the object's child if \a child
     is not 0. The role of an object is usually static.
-    
+
     All accessible objects have a role.
 
     \sa text(), state(), selection()
@@ -841,7 +841,7 @@ bool QAccessible::isActive()
 /*!
     \fn QAccessible::State QAccessibleInterface::state(int child) const
 
-    Returns the current state of the object or of the object's child if 
+    Returns the current state of the object or of the object's child if
     \a child is not 0.
 
     All accessible objects have a state.
@@ -863,7 +863,7 @@ bool QAccessible::isActive()
     \fn bool QAccessibleInterface::setSelected( int child, bool on, bool extend )
 
     Sets the selection of the child specified with \a child to \a
-    on. If \a extend is TRUE, all children between the focused child and 
+    on. If \a extend is TRUE, all children between the focused child and
     the specified child object have their selection set to \a on.
 
     Returns TRUE if the selection could be set; otherwise returns
@@ -885,7 +885,7 @@ bool QAccessible::isActive()
 /*!
     \fn int QAccessibleInterface::actionCount(int child) const
 
-    Returns the number of custom actions of the object or 
+    Returns the number of custom actions of the object or
     the object's child if \a child is not 0.
 
     The \c Action type enumerates predefined actions - those
@@ -908,7 +908,7 @@ bool QAccessible::isActive()
 /*!
     \fn QString QAccessibleInterface::actionText(int action, Text t, int child) const
 
-    Returns the text property \a t of the action \a action supported by 
+    Returns the text property \a t of the action \a action supported by
     the object or the object's child if \a child is not 0.
 
     \sa text(), actionCount()

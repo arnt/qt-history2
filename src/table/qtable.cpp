@@ -1658,7 +1658,7 @@ QSize QCheckTableItem::sizeHint() const
     size.
 
     Header labels are indexed via their section numbers. Note that the
-    default behavior of QHeader regarding section numbers is overriden
+    default behavior of QHeader regarding section numbers is overridden
     for QTable. See the explanation below in the Rows and Columns
     section in the discussion of moving columns and rows.
 
@@ -2791,7 +2791,7 @@ QRect QTable::cellRect( int row, int col ) const
     \overload
 
     Use the other paintCell() function. This function is only included
-    for backwards compatibilty.
+    for backwards compatibility.
 */
 
 void QTable::paintCell( QPainter* p, int row, int col,

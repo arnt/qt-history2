@@ -332,7 +332,7 @@ QRect QPicture::boundingRect() const
 
 /*!
     Sets the picture's bounding rectangle to \a r. The automatically
-    calculated value is overriden.
+    calculated value is overridden.
 */
 
 void QPicture::setBoundingRect( const QRect &r )

@@ -3111,7 +3111,7 @@ QPixmap *QTextDocument::bufferPixmap( const QSize &s )
     return buf_pixmap;
 }
 
-void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal, 
+void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal,
 			  const QBrush *paper )
 {
     if ( !firstParagraph() )
@@ -3155,7 +3155,7 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QPalette &pal,
     QTextFormat::setPainter(oldPainter);
 }
 
-void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, 
+void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy,
 				   int cw, int ch,
 				   QPixmap *&doubleBuffer, const QPalette &pal,
 				   bool drawCursor, QTextCursor *cursor, bool resetChanged )
@@ -3211,8 +3211,8 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     parag->document()->nextDoubleBuffered = FALSE;
 }
 
-QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, 
-				     const QPalette &pal, bool onlyChanged, bool drawCursor, 
+QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch,
+				     const QPalette &pal, bool onlyChanged, bool drawCursor,
 				     QTextCursor *cursor, bool resetChanged )
 {
     if ( withoutDoubleBuffer || par && par->withoutDoubleBuffer ) {
@@ -3259,7 +3259,7 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	    continue;
 	}
 
-	drawParagraph( p, parag, cx, cy, cw, ch, doubleBuffer, pal, drawCursor, 
+	drawParagraph( p, parag, cx, cy, cw, ch, doubleBuffer, pal, drawCursor,
 		       cursor, resetChanged );
 	parag = parag->next();
     }
@@ -4472,7 +4472,7 @@ void QTextParagraph::indent( int *oldIndent, int *newIndent )
     document()->indent()->indent( document(), this, oldIndent, newIndent );
 }
 
-void QTextParagraph::paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor, 
+void QTextParagraph::paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor,
 			    bool drawSelections, int clipx, int clipy, int clipw, int cliph )
 {
     if ( !visible )
@@ -4662,8 +4662,8 @@ void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
     }
 }
 
-void QTextParagraph::drawString( QPainter &painter, const QString &str, int start, int len, 
-				 int xstart, int y, int baseLine, int w, int h, 
+void QTextParagraph::drawString( QPainter &painter, const QString &str, int start, int len,
+				 int xstart, int y, int baseLine, int w, int h,
 				 bool drawSelections, int fullSelectionWidth,
 				 QTextStringChar *formatChar, const QPalette& pal,
 				 bool rightToLeft )
@@ -4679,7 +4679,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 
     if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() ) {
 	if ( format->useLinkColor() )
-	    painter.setPen(document()->linkColor.isValid() ? document()->linkColor : 
+	    painter.setPen(document()->linkColor.isValid() ? document()->linkColor :
 			   pal.link().color());
 	if ( document()->underlineLinks() ) {
 	    QFont fn = format->font();
@@ -4826,7 +4826,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 	painter.drawWinFocusRect( QRect( xstart, y, w, h ) );
 }
 
-void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int base, 
+void QTextParagraph::drawLabel( QPainter* p, int x, int y, int w, int h, int base,
 				const QPalette& pal )
 {
     QRect r ( x, y, w, h );
@@ -5772,7 +5772,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 #endif
 	// we break if
 	// 1. the last character was a hard break (QChar_linesep) or
-	// 2. the last charater was a own-line custom item (eg. table or ruler) or
+	// 2. the last character was a own-line custom item (eg. table or ruler) or
 	// 3. wrapping was enabled, it was not a space and following
 	// condition is true: We either had a breakable character
 	// previously or we ar allowed to break in words and - either
@@ -6586,7 +6586,7 @@ static void qrt_createSelectionPixmap( const QPalette &pal )
 }
 #endif
 
-void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		       const QPalette &pal, bool selected )
 {
     if ( placement() != PlaceInline ) {
@@ -6614,7 +6614,7 @@ void QTextImage::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch
 
     if ( selected && placement() == PlaceInline && is_printer( p ) ) {
 #if defined(Q_WS_X11)
-	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( pal.highlight(), 
+	p->fillRect( QRect( QPoint( x, y ), pm.size() ), QBrush( pal.highlight(),
 								 QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
 	if ( !qrt_selection )
@@ -6652,7 +6652,7 @@ QString QTextHorizontalLine::richText() const
     return "<hr>";
 }
 
-void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , 
+void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int ,
 				const QPalette& pal, bool selected )
 {
     QRect r( x, y, width, height);
@@ -6670,7 +6670,7 @@ void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int
 	QPalette pal2( pal );
 	if ( color.isValid() )
 	    pal2.setColor( pal2.currentColorGroup(), QPalette::Dark, color );
-	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, pal2, 
+	qDrawShadeLine( p, r.left() - 1, y + height / 2, r.right() + 1, y + height / 2, pal2,
 			TRUE, height / 8 );
     }
 }
@@ -7402,7 +7402,7 @@ QRect QTextFlow::boundingRect() const
 }
 
 
-void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch, 
+void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch,
 				   const QPalette &pal, bool selected )
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -7590,7 +7590,7 @@ void QTextTable::pageBreak( int  yt, QTextFlow* flow )
 }
 
 
-void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		      const QPalette &pal, bool selected )
 {
     if ( placement() != PlaceInline ) {
@@ -7602,7 +7602,7 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
-							cell->geometry().width(), 
+							cell->geometry().width(),
 							cell->geometry().height() ) ) ) {
 	    cell->draw( p, x+outerborder, y+outerborder, cx, cy, cw, ch, pal, selected );
 	    if ( border ) {
@@ -8094,7 +8094,7 @@ int QTextTableCell::verticalAlignmentOffset() const
     return parent->cellpadding;
 }
 
-void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, 
+void QTextTableCell::draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 			   const QPalette &pal, bool )
 {
     if ( cached_width != geom.width() ) {

@@ -1936,7 +1936,7 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     QString glyphname;
 
     for (range=0; range < numRanges; range++) {
-        //printf("outputing range %04x\n",range*256);
+        //printf("outputting range %04x\n",range*256);
         vector = "%% Font Page ";
 	vector += toHex((uchar)(range + rangeOffset));
         vector += "\n/";
@@ -2617,7 +2617,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
         download_sfnts(s);
 #endif
     /* If we are generating a Type 3 font, we will need to */
-    /* have the 'loca' and 'glyf' tables arround while */
+    /* have the 'loca' and 'glyf' tables around while */
     /* we are generating the CharStrings. */
     if(target_type == 3)
     {
@@ -2679,7 +2679,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     // === trailer ===
 
     /* If we are generating a type 3 font, we need to provide */
-    /* a BuildGlyph and BuildChar proceedures. */
+    /* a BuildGlyph and BuildChar procedures. */
     if( target_type == 3 ) {
         s << "\n";
 
@@ -2692,7 +2692,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 
         s << "\n";
 
-        /* This proceedure is for compatiblity with */
+        /* This procedure is for compatibility with */
         /* level 1 interpreters. */
         s << "/BuildChar {\n";
         s << " 1 index /Encoding get exch get\n";
@@ -2746,7 +2746,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
         /* is a procedure.  If it is, it executes it, otherwise, it */
         /* lets the TrueType rasterizer loose on it. */
 
-        /* When this proceedure is executed the stack contains */
+        /* When this procedure is executed the stack contains */
         /* the font dictionary and the character name.  We */
         /* exchange arguments and move the dictionary to the */
         /* dictionary stack. */
@@ -2770,7 +2770,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
         s << "  get dup xcheck\n";
         /* stack: CharStrings_entry */
 
-        /* If is a proceedure.  Execute according to RBIIp 277-278. */
+        /* If is a procedure.  Execute according to RBIIp 277-278. */
         s << "    {currentdict systemdict begin begin exec end end}\n";
 
         /* Is a TrueType character index, let the rasterizer at it. */
@@ -3289,7 +3289,7 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
 ** overflow the stack on certain level 1 interpreters.
 **
 ** Prepare to push another item onto the stack,
-** starting a new proceedure if necessary.
+** starting a new procedure if necessary.
 **
 ** Not all the stack depth calculations in this routine
 ** are perfectly accurate, but they do the job.

@@ -168,7 +168,7 @@ public:
 /*!
     \fn void QNetworkProtocol::createdDirectory( const QUrlInfo &i, QNetworkOperation *op )
 
-    This signal is emitted when mkdir() has been succesful and the
+    This signal is emitted when mkdir() has been successful and the
     directory has been created. \a i holds the information about the
     new directory. \a op is the pointer to the operation object which
     contains all the information about the operation, including the
@@ -183,7 +183,7 @@ public:
 /*!
     \fn void QNetworkProtocol::removed( QNetworkOperation *op )
 
-    This signal is emitted when remove() has been succesful and the
+    This signal is emitted when remove() has been successful and the
     file has been removed. \a op holds the file name of the removed
     file in the first argument, accessible with op->arg( 0 ). \a op is
     the pointer to the operation object which contains all the
@@ -261,7 +261,7 @@ public:
 
     \value StInProgress  The operation is being processed.
 
-    \value StDone  The operation has been processed succesfully.
+    \value StDone  The operation has been processed successfully.
 
     \value StFailed  The operation has been processed but an error occurred.
 

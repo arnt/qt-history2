@@ -140,7 +140,7 @@
 // Playing sounds
 //#define QT_NO_SOUND
 
-// Standard template library compatiblity
+// Standard template library compatibility
 //#define QT_NO_STL
 
 // QStringList

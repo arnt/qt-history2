@@ -1096,7 +1096,7 @@ void QDragManager::move( const QPoint & globalPos )
     if ( !XTranslateCoordinates( QPaintDevice::x11AppDisplay(), rootwin, rootwin,
 				 globalPos.x(), globalPos.y(),
 				 &lx, &ly, &target) )
-	// some wierd error...
+	// some weird error...
 	return;
 
     if ( target == rootwin ) {

@@ -6244,10 +6244,10 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 }
 
 /*
-  this function is needed becase we need to update "on" everytime
-  we update d->currentState. In order to retain binary compatibility
-  the inline function isOn() needs the "on" bool
-  ### should be changed in ver 4
+  this function is needed because we need to update "on" every time we
+  update d->currentState. In order to retain binary compatibility the
+  inline function isOn() needs the "on" bool ### should be changed in
+  ver 4
 */
 void QCheckListItem::setCurrentState( ToggleState s )
 {

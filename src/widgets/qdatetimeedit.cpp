@@ -776,7 +776,7 @@ public:
     int y;
     int m;
     int d;
-    // remebers the last entry for the day.
+    // remembers the last entry for the day.
     // if the day is 31 and you cycle through the months,
     // the day will be 31 again if you reach a month with 31 days
     // otherwise it will be the highest day in the month

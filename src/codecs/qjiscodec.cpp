@@ -312,7 +312,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
 		    result += QChar(ch);
 		    break;
 		}
-		/* fall throught */
+		/* fall through */
 	      case JISX0201_Latin:
 		u = conv->jisx0201ToUnicode(ch);
 		result += QValidChar(u);
@@ -628,7 +628,7 @@ public:
 				result += QChar(ch);
 				break;
 			    }
-			    /* fall throught */
+			    /* fall through */
 			  case JISX0201_Latin:
 			    u = conv->jisx0201ToUnicode(ch);
 			    result += QValidChar(u);

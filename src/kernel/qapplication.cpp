@@ -3194,7 +3194,7 @@ void QApplication::removePostedEvents( QObject *receiver )
     if ( !receiver->hasPostedEvents )
  	return;
 
-    // iterate over the object-specifc list and delete the events.
+    // iterate over the object-specific list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
     receiver->hasPostedEvents = false;

@@ -151,7 +151,7 @@ QLock::~QLock()
 /*!
     \fn bool QLock::isValid() const
 
-    Returns TRUE if the lock constructor was succesful; returns FALSE if
+    Returns TRUE if the lock constructor was successful; returns FALSE if
     the lock could not be created or was not available to connect to.
 */
 

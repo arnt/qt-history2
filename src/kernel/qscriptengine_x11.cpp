@@ -2179,7 +2179,7 @@ static inline unsigned char khmer_subscript_type(const QChar &uc) {
 //     IndV
 //    Number
 //
-// {...} == 0-2 occurences
+// {...} == 0-2 occurrences
 
 // According to the Unicode 3.0 standard, the syllable is as follows:
 //     Cons ( Coeng (Cons|IndV) )* Shift? DepV?

@@ -1571,7 +1571,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 
 
 /*!
-    Monitors events, recieved in \a e, to ensure the layout is updated.
+    Monitors events, received in \a e, to ensure the layout is updated.
 */
 void QMainWindow::childEvent( QChildEvent* e)
 {

@@ -617,7 +617,7 @@ void QFile::setDecodingFunction( DecoderFn f )
 }
 
 /*!
-    Returns a human readable description of the reason of an error that occured
+    Returns a human readable description of the reason of an error that occurred
     on the device. The error described by the string corresponds to changes of
     QIODevice::status(). If the status is reset, the error string is also reset.
 

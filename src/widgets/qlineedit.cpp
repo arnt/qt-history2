@@ -721,7 +721,7 @@ void QLineEdit::setAlignment( int flag )
 /*!
   \obsolete
   \fn void QLineEdit::cursorLeft( bool, int )
-  For compatibilty with older applications only. Use cursorBackward()
+  For compatibility with older applications only. Use cursorBackward()
   instead.
   \sa cursorBackward()
 */

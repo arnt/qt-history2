@@ -58,7 +58,7 @@ public:
     \ingroup text
 
     A style sheet item consists of a name and a set of attributes that
-    specifiy its font, color, etc. When used in a \link QStyleSheet
+    specify its font, color, etc. When used in a \link QStyleSheet
     style sheet\endlink (see styleSheet()), items define the name() of
     a rich text tag and the display property changes associated with
     it.

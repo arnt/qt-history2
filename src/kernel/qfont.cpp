@@ -224,7 +224,7 @@ QFontEngineData::~QFontEngineData()
 
     Use QApplication::setFont() to set the application's default font.
 
-    If a choosen X11 font does not include all the characters that
+    If a chosen X11 font does not include all the characters that
     need to be displayed, QFont will try to find the characters in the
     nearest equivalent fonts. When a QPainter draws a character from a
     font the QFont will report whether or not it has the character; if
@@ -386,7 +386,7 @@ QFontEngineData::~QFontEngineData()
     \value Ogham is an alphabetical script used to write a very early
 	   form of Irish.
     \value SpacingModifiers are small signs indicating modifications
-	   to the preceeding letter.
+	   to the preceding letter.
     \value CombiningMarks consist of diacritical marks not specific to
 	   a particular alphabet, diacritical marks used in
 	   combination with mathematical and technical symbols, and
@@ -3133,7 +3133,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 		      it.data().data->name() );
 
 	    if ( --it.data().data->cache_count == 0 ) {
-		FC_DEBUG( "    DELETE: last occurence in cache" );
+		FC_DEBUG( "    DELETE: last occurrence in cache" );
 
 		decreaseCost( it.data().data->cache_cost );
 		delete it.data().data;
@@ -3141,7 +3141,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 		/*
 		  this particular font engine is in the cache multiple
 		  times...  set current_cost to zero, so that we can
-		  keep looping to get rid of all occurences
+		  keep looping to get rid of all occurrences
 		*/
 		current_cost = 0;
 	    }

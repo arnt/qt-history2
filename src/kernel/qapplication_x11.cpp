@@ -706,7 +706,7 @@ static bool create_atoms_now = 0;
   qt_x11_intern_atom() - efficiently interns an atom, now or later.
 
   If the application is being initialized, this function stores the
-  adddress of the atom and qt_init_internal will do the actual work
+  address of the atom and qt_init_internal will do the actual work
   quickly. If the application is running, the atom is created here.
 
   Neither argument may point to temporary variables.

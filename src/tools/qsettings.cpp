@@ -415,7 +415,7 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 			value.append(line[i]);
 		}
 		if ( esc ) {
-		    // Backwards-compatiblity...
+		    // Backwards-compatibility...
 		    // still escaped at EOL - manually escaped "newline"
 		    if (stream.atEnd()) {
 			qWarning("QSettings: reached end of file, expected continued line");
