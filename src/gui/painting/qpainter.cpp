@@ -131,7 +131,7 @@ void QPainterPrivate::draw_helper_fill_pattern(const QPainterPath &path)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf(" -> fill_pattern()\n");
+        qDebug() << " -> fill_pattern()" << path.boundingRect();
 #endif
     Q_Q(QPainter);
     q->save();
@@ -169,15 +169,6 @@ void QPainterPrivate::draw_helper_fill_pattern(const QPainterPath &path)
             pattern = state->brush.texture();
         else
             pattern = qt_pixmapForBrush(state->brush.style(), true);
-
-        if (state->bgMode == Qt::TransparentMode && pattern.isQBitmap())
-            pattern.setMask(*static_cast<QBitmap *>(&pattern));
-
-        if (state->bgMode == Qt::OpaqueMode
-            && state->brush.style() != Qt::TexturePattern
-            && state->brush.style() != Qt::LinearGradientPattern) {
-            q->fillRect(bounds, state->bgBrush);
-        }
 
         q->drawTiledPixmap(bounds, pattern);
     }
@@ -337,7 +328,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
         // Custom fill, gradients, alpha and patterns
         if ((emulationSpecifier & QPaintEngine::LinearGradients)
             || (emulationSpecifier & QPaintEngine::AlphaFill)
-            || (emulationSpecifier & QPaintEngine::PatternTransform))
+            || (emulationSpecifier & QPaintEngine::PatternTransform)
+            || (emulationSpecifier & QPaintEngine::PatternBrush))
         {
             if (((emulationSpecifier & QPaintEngine::LinearGradients)
                  && engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
@@ -349,7 +341,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
                     draw_helper_fill_lineargradient(path);
                 else if (emulationSpecifier & QPaintEngine::AlphaFill)
                     draw_helper_fill_alpha(path);
-                else if (emulationSpecifier & QPaintEngine::PatternTransform)
+                else if (emulationSpecifier & QPaintEngine::PatternTransform
+                         || emulationSpecifier & QPaintEngine::PatternBrush)
                     draw_helper_fill_pattern(path);
             }
 
