@@ -48,7 +48,7 @@
 struct QUnknownInterface;
 struct QUuid;
 
-class Q_EXPORT QLibrary : public QObject
+class Q_EXPORT QLibrary : private QObject
 {
     Q_OBJECT
 
