@@ -470,7 +470,6 @@ QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
-static bool makeqdevel	 = FALSE;		// developer tool needed?
 QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
 #ifndef QT_NO_CLIPBOARD
 QClipboard	      *qt_clipboard = 0;	// global clipboard object
@@ -569,7 +568,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	QCString arg = argv[i];
 	QCString s;
 	if ( arg == "-qdevel" || arg == "-qdebug") {
-	    makeqdevel = !makeqdevel;
+	    // obsolete argument
 	} else if ( arg.find( "-style=", 0, FALSE ) != -1 ) {
 	    s = arg.right( arg.length() - 7 );
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
@@ -2362,7 +2361,7 @@ void QApplication::exit_loop()
 
 /*!
     \obsolete
-    
+
     Returns the current loop level.
 */
 int QApplication::loopLevel() const
