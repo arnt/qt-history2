@@ -957,7 +957,7 @@ const QObjectList *QObject::objectTrees()
   the objects's names must match.  If \a regexpMatch is FALSE, \a
   objName is a string and object names must match it exactly.
 
-  Note that \a ineritsClass uses single inheritance from QObject, the
+  Note that \a inheritsClass uses single inheritance from QObject, the
   way inherits() does.  According to inherits(), QMenuBar inherits
   QWidget but not QMenuData. This does not quite match reality, but is
   the best that can be done on the wide variety of compilers Qt

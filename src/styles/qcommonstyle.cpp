@@ -58,7 +58,7 @@
 // NOT REVISED
 /*!
   \class QCommonStyle qcommonstyle.h
-  \brief The QCommonStyle encapsulates the common Look and Feel of a GUI.
+  \brief The QCommonStyle class encapsulates the common Look and Feel of a GUI.
 
   \ingroup appearance
 

@@ -123,9 +123,9 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
 
   The currently defined values are:
 
-  \value Data  refresh the data
-  \value Column  refresh the list of fields, e.g. the column headings
-  \value All  refresh both the data and the list of fields
+  \value RefreshData  refresh the data
+  \value RefreshColumn  refresh the list of fields, e.g. the column headings
+  \value RefreshAll  refresh both the data and the list of fields
 */
 
 
@@ -133,7 +133,7 @@ void qt_debug_buffer( const QString& msg, QSqlRecord* cursor )
   \class QDataTable qdatatable.h
   \module sql
 
-  \brief This class provides a flexible SQL table widget that supports browsing and editing.
+  \brief The QDataTable class provides a flexible SQL table widget that supports browsing and editing.
 
   QDataTable supports various functions for presenting and editing SQL
   data from a \l QSqlCursor.
@@ -257,7 +257,7 @@ void QDataTable::addColumn( const QString& fieldName,
     d->fldWidth += width;
 }
 
-/*!  Sets column \a col to display field \a field.  If \a label is
+/*!  Sets column \a col to display field \a fieldName.  If \a label is
   specified, it is used as the column header label, otherwise the
   field's display label is used when setCursor() is called.
 
@@ -371,8 +371,8 @@ void QDataTable::setSort( const QSqlIndex& sort )
 /*! Returns the current sort used on the displayed data as a list of
   strings.  Each field is in the form:
 
-  "\a cursorname.\a fieldname ASC" (for ascending sort) or
-  "\a cursorname.\a fieldname DESC" (for descending sort)
+  "cursorname.fieldname ASC" (for ascending sort) or
+  "cursorname.fieldname DESC" (for descending sort)
 
   If there is no current cursor, an empty string list is returned.
 
@@ -1239,7 +1239,7 @@ void QDataTable::setAutoDelete( bool enable )
     d->cur.setAutoDelete( enable );
 }
 
-/*!  Sets the auto-edit property of the table to \a auto. The
+/*!  Sets the auto-edit property of the table to \a autoEdit. The
   default is FALSE.
 
   If the user begins an insert (or update) and then navigates to another
@@ -1889,19 +1889,20 @@ bool QDataTable::findBuffer( const QSqlIndex& idx, int atHint )
   default data values.
 */
 
-/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf ) This signal is
-  emitted after the cursor is primed for update by the table, when an
-  update action is beginning on the table.  The \a buf parameter
-  points to the edit buffer being updated. Connect to this signal in
-  order to, for example, provide some visual feedback that the user is
-  in 'insert mode'.
+/*! \fn void QDataTable::primeUpdate( QSqlRecord* buf ) 
+  This signal is emitted after the cursor is primed for update by the 
+  table, when an update action is beginning on the table.  The \a buf 
+  parameter points to the edit buffer being updated. Connect to this 
+  signal in order to, for example, provide some visual feedback that 
+  the user is in 'insert mode'.
 */
 
-/*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) This signal is
-  emitted after the cursor is primed for delete by the table, when a
-  delete action is beginning on the table.  The \a buf parameter
-  points to the edit buffer being deleted. Connect to this signal in
-  order to, for example, record auditing information on deletions.
+/*! \fn void QDataTable::primeDelete( QSqlRecord* buf ) 
+  This signal is emitted after the cursor is primed for delete by 
+  the table, when a delete action is beginning on the table.  The 
+  \a buf parameter points to the edit buffer being deleted. Connect 
+  to this signal in order to, for example, record auditing information 
+  on deletions.
 */
 
 /*! \fn void QDataTable::beforeInsert( QSqlRecord* buf )
