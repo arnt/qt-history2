@@ -141,15 +141,6 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 
     if (QWidget *managedWidget = findManagedWidget(fw, widget)) {
        switch (e->type()) {
-        case QEvent::Close: {
-            if (widget != fw)
-                break;
-
-            bool accept = true;
-            emit formWindowClosing(fw, &accept);
-            static_cast<QCloseEvent *>(e)->setAccepted(accept);
-        } break;
-
         case QEvent::Hide: {
             if (widget == managedWidget && fw->isWidgetSelected(managedWidget))
                 fw->hideSelection(widget);

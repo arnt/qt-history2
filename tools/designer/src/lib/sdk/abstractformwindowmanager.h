@@ -74,7 +74,6 @@ signals:
     void formWindowAdded(AbstractFormWindow *formWindow);
     void formWindowRemoved(AbstractFormWindow *formWindow);
     void activeFormWindowChanged(AbstractFormWindow *formWindow);
-    void formWindowClosing(AbstractFormWindow *formWindow, bool *accept);
 
 public slots:
     virtual void addFormWindow(AbstractFormWindow *formWindow);

@@ -22,6 +22,7 @@
 OrderIndicator::OrderIndicator(int i, QWidget* w, FormWindow *fw)
     : QWidget(fw), formWindow(fw)
 {
+    setAttribute(Qt::WA_MouseNoMask);
     setObjectName("order_indicator");
     order = -1;
     m_widget = w;
