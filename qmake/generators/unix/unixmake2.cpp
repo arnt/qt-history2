@@ -638,7 +638,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	fixEnvVariables(moc);
 	if(target != moc)
 	    t << "$(MOC): \n\t"
-	      << "( cd " << moc_dir << " ; $(MAKE) )"  << endl << endl;
+	      << "( cd " << moc_dir << " && $(MAKE) )"  << endl << endl;
     }
 
     writeMakeQmake(t);
