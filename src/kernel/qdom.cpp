@@ -3894,6 +3894,8 @@ QPixmap QDomMimeSourceFactory::pixmap( const QString& name )
 	pix = m->encodedData( "image/x-xpm" );
     if ( m && m->provides( "image/png" ) )
 	pix = QPixmap( m->encodedData( "image/png" ) );
+    if ( m && m->provides( "image/bmp" ) )
+	pix = QPixmap( m->encodedData( "image/bmp" ) );
     if ( m && m->provides( "image/jpeg" ) )
 	pix = QPixmap( m->encodedData( "image/jpeg" ) );
 
