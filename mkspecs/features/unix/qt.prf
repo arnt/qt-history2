@@ -6,11 +6,11 @@ CONFIG *= moc thread
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, QT) {
    qlib =
-   isEqual(QTLIB, gui):qlib = QtGUI
+   isEqual(QTLIB, gui):qlib = QtGui
    else:isEqual(QTLIB, network):qlib = QtNetwork
-   else:isEqual(QTLIB, xml):qlib = QtXML
+   else:isEqual(QTLIB, xml):qlib = QtXml
    else:isEqual(QTLIB, opengl):qlib = QtOpenGL
-   else:isEqual(QTLIB, sql):qlib = QtSQL
+   else:isEqual(QTLIB, sql):qlib = QtSql
    else:isEqual(QTLIB, core):qlib = QtCore
    else:isEqual(QTLIB, canvas):qlib = QtCanvas
    else:isEqual(QTLIB, compat):qlib = Qt3Compat
