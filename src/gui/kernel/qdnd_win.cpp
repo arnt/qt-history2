@@ -238,6 +238,12 @@ void QOleDataObject::releaseQt()
     }
 }
 
+
+const QMimeData *QOleDataObject::mimeData() const
+{
+    return data;
+}
+
 //---------------------------------------------------------------------
 //                    IUnknown Methods
 //---------------------------------------------------------------------

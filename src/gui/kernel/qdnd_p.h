@@ -109,12 +109,14 @@ private:
 
 
 #if defined(Q_WS_WIN)
+
 class QOleDataObject : public IDataObject
 {
 public:
     QOleDataObject(QMimeData *mimeData);
 
     void releaseQt();
+    const QMimeData *mimeData() const;
 
     // IUnknown methods 
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);

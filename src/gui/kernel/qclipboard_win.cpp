@@ -67,7 +67,7 @@ QStringList QClipboardWatcher::formats() const
     return fmts;
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &mime, QVariant::Type type) const
+QVariant QClipboardWatcher::retrieveData(const QString &mimeType, QVariant::Type type) const
 {
     QVariant result;
     IDataObject * pDataObj = 0;
@@ -75,10 +75,18 @@ QVariant QClipboardWatcher::retrieveData(const QString &mime, QVariant::Type typ
     if (OleGetClipboard(&pDataObj) != S_OK && !pDataObj) // Sanity
         return result;
 
-    QWindowsMime *converter = QWindowsMime::converterToMime(mime, pDataObj);
+    QWindowsMime *converter = QWindowsMime::converterToMime(mimeType, pDataObj);
 
-    if (converter)
-        result = converter->convertToMime(mime, type, pDataObj);
+    if (converter) {
+        result = converter->convertToMime(mimeType, type, pDataObj);
+        // if we just got a bytearray but we wanted more then try to decode
+        if (result.type() == QVariant::ByteArray && type != QVariant::ByteArray) {
+            QClipboardWatcher *that = const_cast<QClipboardWatcher *>(this);
+            that->setData(mimeType, result.toByteArray());
+            result = QMimeData::retrieveData(mimeType, type);
+            that->clear();
+        }
+    }
 
     pDataObj->Release();
 
@@ -234,6 +242,9 @@ const QMimeData *QClipboard::mimeData(Mode mode) const
         return 0;
 
     QClipboardData *data = clipboardData();
+    // sort cut for local copy / paste
+    if (ownsClipboard() && data->iData->mimeData())
+        return data->iData->mimeData();
     return &data->watcher;
 }
 

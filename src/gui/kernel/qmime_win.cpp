@@ -124,7 +124,7 @@ QStringList QWindowsMime::allMimesForFormats(struct IDataObject *pDataObj)
         while (S_OK == fmtenum->Next(1, &fmtetc, 0)) {
             for (int i=mimes.size()-1; i>=0; --i) {
                 QString format = mimes.at(i)->mimeForFormat(fmtetc);
-                if (!format.isEmpty()) {
+                if (!format.isEmpty() && !formats.contains(format)) {
                     formats += format;
                     break;
                 }
@@ -978,6 +978,82 @@ QString QBuiltInMimes::mimeForFormat(const FORMATETC &formatetc) const
 }
 
 
+class QLastResortMimes : public QWindowsMime
+{
+public:
+    QLatsResortMimes();
+
+    // for converting from Qt
+    bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
+    bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
+    QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const;
+    
+    // for converting to Qt
+    bool canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const;
+    QVariant convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const;
+    QString mimeForFormat(const FORMATETC &formatetc) const;
+
+private:
+    QMap<int, QString> formats;
+};
+
+bool QLastResortMimes::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
+{
+    // really check
+    return formatetc.tymed & TYMED_HGLOBAL 
+           && formats.contains(formatetc.cfFormat)
+           && mimeData->formats().contains(formats.value(formatetc.cfFormat));
+}
+
+bool QLastResortMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
+{
+    return canConvertFromMime(formatetc, mimeData)
+           && setData(mimeData->data(formats.value(getCf(formatetc))), pmedium);
+}
+
+QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
+{
+    QVector<FORMATETC> formatetcs;
+    if (!formats.keys(mimeType).isEmpty() && mimeData->formats().contains(mimeType)) {
+        formatetcs += setCf(formats.key(mimeType));
+    } else {
+        // register any other available formats
+        QStringList availableFormats = mimeData->formats();
+        for (int i=0; i<availableFormats.size(); ++i) {
+            int cf = QWindowsMime::registerMimeType(availableFormats.at(i));
+            if (!formats.keys().contains(cf)) {
+                QLastResortMimes *that = const_cast<QLastResortMimes *>(this);
+                that->formats.insert(cf, availableFormats.at(i));
+                formatetcs += setCf(cf);
+            }
+        }
+    }
+    return formatetcs;
+}
+
+bool QLastResortMimes::canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const
+{
+    return (!formats.keys(mimeType).isEmpty())
+           && canGetData(formats.key(mimeType), pDataObj);
+}
+
+QVariant QLastResortMimes::convertToMime(const QString &mimeType, QVariant::Type preferredType, struct IDataObject *pDataObj) const
+{
+    QVariant val;
+    if (canConverToMime(mimeType, pDataObj)) {
+        QByteArray data = getData(formats.key(mimeType), pDataObj);
+        if (!data.isEmpty())
+            val = data; // it should be enough to return the data and let QMimeData do the rest.
+    }
+    return val;
+}
+
+QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
+{
+    return formats.value(getCf(formatetc));
+}
+
+
 static
 void cleanup_mimes()
 {
@@ -991,6 +1067,7 @@ void cleanup_mimes()
 void QWindowsMime::initialize()
 {
     if (mimes.isEmpty()) {
+        new QLastResortMimes;
         new WindowsAnyMime;
         new QBuiltInMimes;
         qAddPostRoutine(cleanup_mimes);
