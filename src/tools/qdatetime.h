@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.h#49 $
+** $Id: //depot/qt/main/src/tools/qdatetime.h#50 $
 **
 ** Definition of date and time classes
 **
@@ -67,11 +67,11 @@ public:
     int	   daysInMonth() const;			// 28..31
     int	   daysInYear()	 const;			// 365 or 366
 
+#ifndef QT_NO_STRINGLIST
 #ifndef QT_NO_COMPAT
     static QString monthName( int month ) { return shortMonthName( month ); }
     static QString dayName( int weekday ) { return shortDayName( weekday ); }
 #endif
-
     static QString shortMonthName( int month );
     static QString shortDayName( int weekday );
     static QString longMonthName( int month );
@@ -81,7 +81,7 @@ public:
     static void setShortDayNames( const QStringList& names );
     static void setLongMonthNames( const QStringList& names );
     static void setLongDayNames( const QStringList& names );
-
+#endif
 #ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#127 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#128 $
 **
 ** Implementation of date and time classes
 **
@@ -134,14 +134,14 @@ extern const char * const qt_longDayNames[] = {
     QT_TRANSLATE_NOOP("QDate::longDay", "Saturday"),
     QT_TRANSLATE_NOOP("QDate::longDay", "Sunday")
 };
-
+#ifndef QT_NO_STRINGLIST
 static QStringList* qt_tr_shortMonthNames = 0;
 static QStringList* qt_tr_shortDayNames = 0;
 static QStringList* qt_tr_longMonthNames = 0;
 static QStringList* qt_tr_longDayNames = 0;
 
 static QCleanupHandler<QStringList> cleanup_tr_names;
-
+#endif
 /*****************************************************************************
   QDate member functions
  *****************************************************************************/
@@ -340,7 +340,7 @@ int QDate::daysInYear() const
 
   Use shortMonthName() instead.
 */
-
+#ifndef QT_NO_STRINGLIST
 /*!
   Returns the name of the \a month.
 
@@ -515,7 +515,7 @@ void QDate::setLongDayNames( const QStringList& names )
 	*qt_tr_longDayNames = names;
     }
 }
-
+#endif
 
 #ifndef QT_NO_SPRINTF
 /*!  Returns the date as a string.  The \a f parameter determines the
@@ -742,6 +742,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	}
 	break;
     default:
+#ifndef QT_NO_STRINGLIST
     case Qt::TextDate:
 	{
 	    QString monthName( s.mid( 4, 3 ) );
@@ -758,6 +759,8 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
+#endif    
+	break;
     }
     return QDate();
 }
