@@ -332,94 +332,23 @@ and implicitly changes the window system caption to the new name.
 
 \target printer
 
-\printuntil {
-\skipto Margin
-\printuntil pageNo
+\skipto ::print
+\printuntil aborted
+\printuntil aborted
+\printline }
+\printline }
 
 \e print() is called by the \e{File|Print} menu item and the \e filePrint 
 tool button.
 
-Because we don't want to print to the very edges of the paper, we use a
-little margin: 10 points. Furthermore we keep track of the page count.
+We present the user with the print setup dialog, and abandon printing
+if they cancel. 
 
-\printline setup
+We create a QSimpleRichText object and give it the text. This object
+is able to format the text nicely as one long page. We achieve
+pagination by printing one paper page's worth of text from the
+QSimpleRichText page at a time.
 
-\l QPrinter::setup() invokes a print dialog, configures the printer
-object, and returns TRUE if the user wants to print or FALSE if not.
-So we test the return value; if it's TRUE, we...
-
-\printline message
-
-... set a statusbar message in case printing takes a while.
-
-\printline QPainter
-\printuntil return
-
-We create a painter for the output and decide that we wish to paint
-on the printer or do nothing at all.
-
-\printuntil surface
-
-Then we select the font our \l QTextEdit object returns as its current
-one, and set up some variables we'll need.
-
-\printline for
-
-As long as the editing widget contains more lines, we want to print them.
-
-\printline if
-
-Before we print a line, we make sure that there is space for it on 
-the current page. If not, we start a new page:
-
-\printline QString
-\printuntil yPos
-
-(Four lines to tell the user what we're doing, two lines to do it.)
-
-\printline }
-
-Now we know that there's space for the current line ...
-
-\printuntil DontClip
-\printuntil e->text(
-
-... and we use the painter to print it. 
-
-In Qt, output to printers uses the same code as output to screen,
-pixmaps and picture metafiles. Therefore, we don't call a QPrinter
-function to draw text, but a QPainter function. QPainter works on all the
-output devices mentioned and has a device independent API. Most of its
-code is device independent, too, therefore it is less likely that your
-application will have odd bugs. (If the same code is used to print and to
-draw on the screen, it's less likely that you'll have print-only or
-screen-only bugs.)
-
-\printline yPos
-
-With this line, we keep count of how much of the paper we've used
-so far.
-
-\printline }
-\printline end
-
-At this point we've printed all of the text in the editing widget 
-and told the printer to finish off the last page. 
-
-\printline message
-
-Finally the user receives the message that we're done.
-
-\printline else
-\printline message
-\printline }
-
-If the user did not want to print (and \l QPrinter::setup() returned
-FALSE), we inform them.
-
-\printline }
-
-With a little effort we have printed a text document.
 
 Now let's see what happens when a user wishes to \e close()
 an \e ApplicationWindow.
@@ -439,7 +368,7 @@ close means that the window is going away for good.
 
 If the text hasn't been edited, we just accept the event. The window
 will be closed, and because we used the \e WDestructiveClose widget
-flag in the \link #ApplicationWindow \e ApplicationWindow() constructor\endlink, 
+flag in the \link #ApplicationWindow <i>ApplicationWindow()</i> constructor\endlink, 
 the widget will be deleted.
 
 \printline QMessageBox

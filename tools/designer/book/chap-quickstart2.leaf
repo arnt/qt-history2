@@ -54,7 +54,7 @@ close the \Widget{Project Settings} dialog.
 
 \img qs-projset.png
 
-See also \l{Creating the Project}.
+See also \l{Creating a Project}.
 
 \section1 Creating the Dialog
 
@@ -87,15 +87,14 @@ labels since the layout tools will handle this automatically.
 \i Click the \Button Pointer toolbar button to deselect the text label.
 \endlist
 
-See also \l{Adding the Widgets}.
-
 Now we will change the properties of the text labels to suit the
 application.
 
 \list
 \i Click on the top text label. Go to the \Widget{Property Editor}
 window and change the label's \Property{text} property to "Enter
-\&Number:".
+\&Number:". The \& (ampserand) makes the following letter an Alt key
+accelerator (keyboard shortcuts).
 \i Click the second label. Change the label's \Property{text} property
 to "Convert \&From:".
 \i Click the third label. Change the label's \Property{text} property to
@@ -127,7 +126,7 @@ ComboBox. Change the \Property{name} property of the first combobox to
 "toComboBox".
 \i Click the \Button LineEdit button and then click to the right of
 the "Result" label. Change its \Property{name} property to
-"resultLineEdit". Change the \Property{paletteBackground} property to
+"resultLineEdit". Change the \Property{paletteBackgroundColor} property to
 a shade of yellow (just to make the result stand out). Change \Property hAlign to AlignRight, \Property vAlign to AlignVCenter and \Property wordwrap to False. Now change the \Property{readOnly} property to
 "False", if it isn't already. 
 \i Click the \Button SpinBox button and then click to the right of the
@@ -149,15 +148,18 @@ by setting the first widget's \Property{buddy} property to the name of
 the buddy widget.
 
 \list
-\i Click the \Button{Set Buddy} button (\Key F5). Click the Enter
-Number label and drag the rubber band to the numberLineEdit; then
-release.
-\i Click the \Button{Set Buddy} button. Click the Convert From label
-and drag the rubber band to the fromComboBox; then release.
-\i Click the \Button{Set Buddy} button. Click the Convert To label
-and drag the rubber band to the toComboBox; then release.
-\i Click the \Button{Set Buddy} button. Click the Decimals label and
-drag the rubber band to the decimalsSpinBox; then release.
+\i Click the \Button{Set Buddy} button located on the Tools toolbar
+(or press \Key F5). Click the Enter Number label and drag the rubber
+band to the numberLineEdit; then release. 
+\i Click the \Button{Set
+Buddy} button. Click the Convert From label and drag the rubber band
+to the fromComboBox; then release.
+\i Click the \Button{Set Buddy}
+button. Click the Convert To label and drag the rubber band to the
+toComboBox; then release.
+\i Click the \Button{Set Buddy} button.
+Click the Decimals label and drag the rubber band to the
+decimalsSpinBox; then release.
 \endlist
 
 \section3 Adding Push Buttons
@@ -290,11 +292,12 @@ circle will appear next to every widget that can accept focus.
 
 \img qs-taborder.png
 
-See also \l{Changing the Tab Order}.
+See also \l{Changing the Tab Order}
 
 \section2 Previewing the Dialog
 
-To preview the dialog, press \Key{Ctrl+T}. Try dragging the corner of
+To preview the dialog, press \Key{Ctrl+T} or click \Menu
+{Preview|Preview Form} from the menubar. Try dragging the corner of
 the dialog to adjust the size. Note that the the widgets always stay
 in proportion no matter what size you make the dialog. Check the tab
 order of the widgets by pressing the \Key Tab key.
@@ -404,7 +407,7 @@ We are almost ready to run the application. Before we compile the
 application, we need a \c main.cpp file.
 
 \list
-\i Click \Menu{File|New} and click \c{main.cpp}.
+\i Click \Menu{File|New} and click C++ Main File (\c{main.cpp}).
 \i Accept the default selections for the Configure Main-File dialog. 
 \i Click \Button Save to save the project. 
 \endlist

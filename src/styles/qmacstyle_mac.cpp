@@ -325,6 +325,15 @@ static int mac_count = 0;
     documentation.
 */
 
+
+/*!
+    \enum QMacStyle::WidgetSizePolicy
+
+    \value SizeSmall
+    \value SizeLarge
+    \value SizeDefault
+*/
+
 /*!
     Constructs a QMacStyle object.
 */

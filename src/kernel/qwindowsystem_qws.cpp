@@ -1436,6 +1436,12 @@ void QWSServer::resetGfx()
 }
 
 #ifndef QT_NO_QWS_CURSOR
+/*!
+    If \a vis is TRUE, makes the cursor visible; if \a vis is FALSE,
+    makes the cursor invisible.
+
+    \sa isCursorVisible()
+*/
 void QWSServer::setCursorVisible( bool vis )
 {
     if ( qwsServer && qwsServer->haveviscurs != vis ) {
@@ -1446,6 +1452,11 @@ void QWSServer::setCursorVisible( bool vis )
     }
 }
 
+/*!
+    Returns TRUE if the cursor is visible; otherwise returns FALSE.
+
+    \sa setCursorVisible()
+*/
 bool QWSServer::isCursorVisible()
 {
     return qwsServer ? qwsServer->haveviscurs : TRUE;
