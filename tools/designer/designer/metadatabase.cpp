@@ -1554,12 +1554,12 @@ void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, cons
 	return;
     }
 
-    QMap<QString, QString>::Iterator it = r->functionBodies.find( oldName );
+    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( oldName ) );
     if ( it == r->functionBodies.end() )
 	return;
     QString body = *it;
     r->functionBodies.remove( it );
-    r->functionBodies.insert( newName, body );
+    r->functionBodies.insert( normalizeSlot( newName ), body );
     ( (FormWindow*)o )->formFile()->functionNameChanged( oldName, newName );
 }
 

@@ -195,7 +195,7 @@ void EditSlots::slotRemove()
 	return;
 
     slotListView->blockSignals( TRUE );
-    removedSlots << slotListView->currentItem()->text( 0 );
+    removedSlots << MetaDataBase::normalizeSlot( slotListView->currentItem()->text( 0 ) );
     delete slotListView->currentItem();
     if ( slotListView->currentItem() )
 	slotListView->setSelected( slotListView->currentItem(), TRUE );
