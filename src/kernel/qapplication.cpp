@@ -831,6 +831,10 @@ QApplication::~QApplication()
     delete desktopWidget;
     desktopWidget = 0;
     is_app_closing = TRUE;
+#ifndef QT_NO_CLIPBOARD
+    delete qt_clipboard;
+    qt_clipboard = 0;
+#endif
     QWidget::destroyMapper();
 #ifndef QT_NO_PALETTE
     delete qt_std_pal;
@@ -847,10 +851,6 @@ QApplication::~QApplication()
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
-#endif
-#ifndef QT_NO_CLIPBOARD
-    delete qt_clipboard;
-    qt_clipboard = 0;
 #endif
     qt_cleanup();
 #ifndef QT_NO_CURSOR
