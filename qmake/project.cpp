@@ -1507,8 +1507,8 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         QMakeProject proj(place);
         if(proj.doProjectInclude("default_pre", IncludeFlagFeature, place) == IncludeNoExist)
             proj.doProjectInclude("default", IncludeFlagFeature, place);
-        parsed = proj.read(file.toLatin1().constData(), place);
-        place = proj.variables(); //anything exported is caught here
+        parsed = proj.read(file.toLatin1().constData(), ReadProFile);
+        place = proj.variables();
     } else {
         parsed = read(file.toLatin1().constData(), place);
     }
