@@ -657,24 +657,35 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     QImage image( w, h, depth(), numColors(), bitOrder() );
 
-    if ( x < 0 || y < 0 || x + w > width() || y + h > height()
-	    || hasAlphaBuffer() ) {
+    if ( x < 0 || y < 0 || x + w > width() || y + h > height() ) {
 	// bitBlt will not cover entire image - clear it.
 	// ### should deal with each side separately for efficiency
 	image.fill(0);
-	if ( x < 0 ) { 
+	if ( x < 0 ) {
 	    dx = -x;
 	    x = 0;
 	}
 	if ( y < 0 ) {
-	    dy = -y;	
+	    dy = -y;
 	    y = 0;
 	}
     }
 
+    bool has_alpha = hasAlphaBuffer();
+    if ( has_alpha ) {
+	// alpha channel should be only copied, not used by bitBlt(), and
+	// this is mutable, we will restore the image state before returning
+	QImage *that = (QImage *) this;
+	that->setAlphaBuffer( FALSE );
+    }
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
-    image.setAlphaBuffer(hasAlphaBuffer());
     bitBlt( &image, dx, dy, this, x, y, -1, -1, conversion_flags );
+    if ( has_alpha ) {
+	// restore image state
+	QImage *that = (QImage *) this;
+	that->setAlphaBuffer( TRUE );
+    }
+    image.setAlphaBuffer(hasAlphaBuffer());
     return image;
 }
 

@@ -866,10 +866,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
 
 #ifndef QT_NO_XRENDER
-    if (src_pm && !mono_src && src_pm->data->alphapm) { // use RENDER to do the blit
-	QPixmap *alpha = src_pm->data->alphapm;
+    if (src_pm && !mono_src && ( src_pm->data->alphapm || ignoreMask ) ) {
+	// use RENDER to do the blit
+	QPixmap *alpha = ignoreMask ? 0 : src_pm->data->alphapm;
 	if (src->x11RenderHandle() &&
-	    alpha->x11RenderHandle() &&
+	    ( ignoreMask || alpha->x11RenderHandle() ) &&
 	    dst->x11RenderHandle()) {
 	    XRenderPictureAttributes pattr;
 	    ulong mask = 0;
@@ -883,8 +884,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	    if (mask)
 		XRenderChangePicture(dpy, dst->x11RenderHandle(), mask, &pattr);
-	    XRenderComposite(dpy, PictOpOver, src->x11RenderHandle(),
-			     alpha->x11RenderHandle(), dst->x11RenderHandle(),
+	    XRenderComposite(dpy, ignoreMask ? PictOpSrc : PictOpOver,
+			     src->x11RenderHandle(),
+			     ignoreMask ? None : alpha->x11RenderHandle(),
+			     dst->x11RenderHandle(),
 			     sx, sy, sx, sy, dx, dy, sw, sh);
 	    // restore attributes
 	    pattr.subwindow_mode = ClipByChildren;
