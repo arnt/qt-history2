@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#28 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#29 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1796,6 +1796,12 @@ QString QDomNode::namespaceURI() const
   namespace prefix must be specified during creation time; if a node was
   created with a namespace prefix, you can change it with setPrefix()
   afterwards.
+
+  If you create an elment or attribute with QDomDocument::createElement() or
+  QDomDocument::createAttribute(), the prefix will be null. If you use
+  QDomDocument::createElementNS() or QDomDocument::createAttributeNS() instead,
+  the prefix will not be null - even if the name does not have a prefix. In
+  that case, this function returns an empty, but not null string.
 
   \sa setPrefix() localName() namespaceURI() QDomDocument::createElementNS()
   QDomDocument::createAttributeNS()
@@ -5348,7 +5354,15 @@ QDomDocument::~QDomDocument()
   appropriate values. If \a namespaceProcessing is FALSE, the parser does no
   namespace processing when it reads the XML file.
 
+  If \a namespaceProcessing is TRUE, the function QDomNode::prefix() returns
+  not null for all elements and attributes (it returns an empty, but not null
+  string, if the element or attribute has no prefix).
+
+  If \a namespaceProcessing is FALSE, the functions QDomNode::prefix(),
+  QDomNode::localName() and QDomNode::namespaceURI() return a null string.
+
   \sa QDomNode::namespaceURI() QDomNode::localName() QDomNode::prefix()
+  QString::isNull() QString::isEmpty()
 */
 bool QDomDocument::setContent( const QString& text, bool namespaceProcessing )
 {
