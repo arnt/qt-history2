@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#248 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#249 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1385,8 +1385,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         }
         break;
     case Key_Down:
-        if ( numColumns() == 1 && currentItem() < (int)count() - 1 ||
-             numColumns() > 1 && currentItem() < (int)count() ) {
+        if ( currentItem() < (int)count() - 1 ) {
             if ( e->state() & ShiftButton ) {
                 int i = currentItem();
                 setCurrentItem( i + 1 );
@@ -1454,7 +1453,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                 i = currentItem() + numRows();
             else
                 i = currentItem() + numRows() - currentRow() - 1;
-            i = i > (int)count() ? (int)count() : i;
+            i = i > (int)count() - 1 ? (int)count() - 1 : i;
             setCurrentItem( i );
         }
 
@@ -1607,8 +1606,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     {
         int old = currentItem();
         int i = (int)count() - 1;
-        if ( numColumns() > 1 )
-            ++i;
         setCurrentItem( i );
 
         if ( d->selectionMode == Multi &&
@@ -2678,14 +2675,14 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
     if ( !item )
         return QRect( 0, 0, -1, -1 );
-    
+
     int i = index( item );
     int col = i / numRows();
     int row = i % numRows();
 
     int x = d->columnPos[ col ] - contentsX();
     int y = d->rowPos[ row ] - contentsY();
-    
+
     return QRect( x, y, d->columnPos[ col + 1 ] - d->columnPos[ col ],
                   d->rowPos[ row + 1 ] - d->rowPos[ row ] );
 }
