@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#265 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#266 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2319,8 +2319,7 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
 }
 
 
-/*!  Ensures that the currently selected item is visible.  If the list
-box is in multi-selection mode, this function has no effect.
+/*!  Ensures that the current item is visible.
 */
 
 void QListBox::ensureCurrentVisible()
@@ -2490,7 +2489,7 @@ void QListBox::setVariableWidth( bool enable )
 void QListBox::refreshSlot()
 {
     if ( d->mustPaintAll || d->layoutDirty ) {
-	d->mustPaintAll = FALSE;
+        d->mustPaintAll = FALSE;
         doLayout();
         viewport()->repaint( FALSE );
         return;
@@ -2790,6 +2789,7 @@ void QListBox::showEvent( QShowEvent * )
     d->ignoreMoves = FALSE;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
+    d->mustPaintAll = FALSE;
     if ( !d->init && isVisible() ) {
         ensureCurrentVisible();
         //d->init = TRUE;
