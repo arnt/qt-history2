@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#24 $
 **
 ** Implementation of QSocket class
 **
@@ -905,9 +905,10 @@ bool QSocket::canReadLine() const
   \sa canReadLine()
 */
 
-#if defined(_OS_LINUX_)
-#warning "Should QSocket::readLine return QByteArray/QCString?"
-// or bool readLine(QByteArray&)
+#if defined(_OS_LINUX_) && QT_VERSION > 200
+#warning "256 characters is laughable.  rewrite the whole function."
+#warning "and no it should not return QByteArray.  if we want that we write"
+#warning "a different function"
 #endif
 
 QString QSocket::readLine()

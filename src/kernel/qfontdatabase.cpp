@@ -934,7 +934,7 @@ void QFontDatabase::createDatabase()
     }
 }
 
-void newWinFont( void * p )
+void newWinFont( void * )
 {
 }
 #endif
@@ -974,7 +974,7 @@ void newWinFont( void * p )
     }
 
     const TCHAR* tc = f->elfLogFont.lfFaceName;
-    
+
     QString familyName;
     if ( qt_winver == Qt::WV_NT ) {
 	familyName = qt_winQString((void*)tc);
@@ -1009,7 +1009,7 @@ void newWinFont( void * p )
     //tc = ((NEWLOGFONT*)&f->elfLogFont)->lfStyle; // cowabunga, only works
                 // for true type fonts, don't know how to check for them
     tc = (TCHAR*)f->elfStyle;
-    
+
     QString styleName;
     if ( qt_winver == Qt::WV_NT ) {
 	styleName = qt_winQString((void*)tc);
