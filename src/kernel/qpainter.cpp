@@ -2247,6 +2247,32 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
+    bool simple = !decode & singleline & !showprefix & !expandtabs;
+    if ( simple )
+	simple &= str.simpleText();
+    
+    if ( simple ) {
+	// we can use a simple drawText instead of the QTextParag.
+	QFontMetrics fm(font);
+	QRect br = fm.boundingRect(str, len);
+	if ( brect ) *brect = br;
+	if ( painter ) {
+	    int xoff = r.x();
+	    int yoff = r.y() + fm.ascent();
+	    if ( tf & Qt::AlignBottom )
+		yoff += r.height() - br.height();
+	    else if ( tf & Qt::AlignVCenter )
+		yoff += ( r.height() - fm.height() )/2;
+	    if ( tf & Qt::AlignRight )
+		xoff += r.width() - br.width();
+	    else if ( tf & Qt::AlignHCenter )
+		xoff += ( r.width() - br.width() )/2;
+	    // AlignAuto must be equal to AlignLeft, as we wouldn't get here for BiDi text!
+	    painter->drawText(xoff, yoff, str, len);
+	}
+	return;
+    }
+    
 #if defined(QT_FORMAT_TEXT_DEBUG)
     qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
@@ -2329,13 +2355,6 @@ void qt_format_text( const QFont& font, const QRect &r,
     int xoff = 0;
     int yoff = 0;
     if ( painter || brect ) {
-#if 0 // ### don't need that anymore, as we just do parag->setAlignment() above. Lars, please check.
-	int align = QApplication::horizontalAlignment( tf );
-	if ( align & Qt::AlignRight )
-	    xoff += r.width() - parag->rect().width();
-	else if ( align & Qt::AlignHCenter )
-	    xoff += (r.width() - parag->rect().width())/2;
-#endif
 	if ( tf & Qt::AlignBottom )
 	    yoff += r.height() - parag->rect().height();
 	else if ( tf & Qt::AlignVCenter )

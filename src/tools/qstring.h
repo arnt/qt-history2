@@ -356,9 +356,9 @@ inline int operator>( QChar c1, QChar c2 ) { return !(c2>=c1); }
 // internal
 struct Q_EXPORT QStringData : public QShared {
     QStringData() :
-        unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
+        unicode(0), ascii(0), len(0), simpletext(1), maxl(0), dirty(0) { ref(); }
     QStringData(QChar *u, uint l, uint m) :
-        unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
+        unicode(u), ascii(0), len(l), simpletext(1), maxl(m), dirty(1) { }
 
     ~QStringData() { if ( unicode ) delete[] ((char*)unicode);
                      if ( ascii ) delete[] ascii; }
@@ -366,9 +366,17 @@ struct Q_EXPORT QStringData : public QShared {
     void deleteSelf();
     QChar *unicode;
     char *ascii;
-    uint len;
-    uint maxl:30;
-    uint dirtyascii:1;
+    void setDirty() {
+	if ( ascii ) {
+	    delete [] ascii;
+	    ascii = 0;
+	}
+	dirty = 1;
+    }
+    uint len : 30;
+    uint simpletext : 1;
+    uint maxl : 30;
+    uint dirty : 1;
 };
 
 
@@ -517,7 +525,7 @@ public:
         { // Optimized for easy-inlining by simple compilers.
             if (d->count!=1 || i>=d->len)
                 subat(i);
-            d->dirtyascii=1;
+            d->setDirty();
             return d->unicode[i];
         }
 
@@ -558,6 +566,8 @@ public:
 
     void setLength( uint newLength );
 
+    bool simpleText() const { if ( d->dirty ) checkSimpleText(); return (bool)d->simpletext; }
+    
 private:
     QString( int size, bool dummy );            // allocate size incl. \0
 
@@ -566,6 +576,8 @@ private:
     void subat( uint );
     bool findArg(int& pos, int& len) const;
 
+    void checkSimpleText() const;
+    
     static QChar* asciiToUnicode( const char*, uint * len, uint maxlen=(uint)-1 );
     static QChar* asciiToUnicode( const QByteArray&, uint * len );
     static char* unicodeToAscii( const QChar*, uint len );

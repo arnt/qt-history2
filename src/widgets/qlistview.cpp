@@ -1497,7 +1497,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( !t.isEmpty() ) {
 	if ( !reverse )
 	    r += iconWidth;
-	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter, t );
+	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter | SingleLine, t );
     }
 }
 

@@ -12707,7 +12707,7 @@ void QString::setLength( uint newLen )
         d = new QStringData( nd, newLen, newMax );
     } else {
         d->len = newLen;
-        d->dirtyascii = 1;
+        d->setDirty();
     }
 }
 
@@ -14581,16 +14581,11 @@ QString &QString::operator+=( char c )
 */
 const char* QString::latin1() const
 {
-    if ( d->ascii ) {
-        if ( d->dirtyascii )
-            delete [] d->ascii;
-        else
-            return d->ascii;
+    if ( !d->ascii ) {
+	Q2HELPER(stat_get_ascii++)
+	Q2HELPER(stat_get_ascii_size+=d->len)
+	d->ascii = unicodeToAscii( d->unicode, d->len );
     }
-    Q2HELPER(stat_get_ascii++)
-    Q2HELPER(stat_get_ascii_size+=d->len)
-    d->ascii = unicodeToAscii( d->unicode, d->len );
-    d->dirtyascii = 0;
     return d->ascii;
 }
 
@@ -14858,7 +14853,7 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
         d = new QStringData( nd, len, newMax );
     } else {
         d->len = len;
-        d->dirtyascii = 1;
+        d->setDirty();
         if ( unicode )
             memcpy( d->unicode, unicode, sizeof(QChar)*len );
     }
@@ -14922,6 +14917,22 @@ QString &QString::setLatin1( const char *str, int len )
             *p++ = *str++;
     }
     return *this;
+}
+
+void QString::checkSimpleText() const
+{
+    QChar *p = d->unicode;
+    int len = d->len;
+    d->simpletext = 1;
+    while( len-- ) {
+	uchar r = p->row();
+	// sort out regions of complex text formatting
+	if ( r > 0x04 && ( r < 0x11 || r > 0xfa ) ) {
+	    d->simpletext = 0;
+	    return;
+	}
+	p++;
+    }
 }
 
 
