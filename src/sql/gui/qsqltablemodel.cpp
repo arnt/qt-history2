@@ -833,18 +833,6 @@ void QSqlTableModel::setFilter(const QString &filter)
         select();
 }
 
-/*!
-    Returns true if \a item is a valid model index and the database field
-    is not read-only.
- */
-bool QSqlTableModel::isEditable(const QModelIndex &item) const
-{
-    if (item.data() || item.column() < 0 || item.column() >= d->rec.count()
-        || item.row() < 0 || d->rec.field(item.column()).isReadOnly())
-        return false;
-    return true;
-}
-
 /*! \reimp
  */
 void QSqlTableModel::clear()
@@ -853,3 +841,14 @@ void QSqlTableModel::clear()
     QSqlQueryModel::clear();
 }
 
+/*! \reimp
+ */
+QSqlTableModel::ItemFlags QSqlTableModel::flags(const QModelIndex &index) const
+{
+    if (index.data() || index.column() < 0 || index.column() >= d->rec.count()
+        || index.row() < 0)
+        return 0;
+    if (d->rec.field(index.column()).isReadOnly())
+        return ItemIsSelectable | ItemIsEnabled;
+    return ItemIsSelectable | ItemIsEnabled | ItemIsEditable;
+}
