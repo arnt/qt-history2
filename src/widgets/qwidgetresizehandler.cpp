@@ -99,6 +99,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     } break;
     case QEvent::MouseButtonRelease:
 	if ( e->button() == LeftButton ) {
+	    moveResizeMode = FALSE;
 	    buttonDown = FALSE;
 	    widget->releaseMouse();
 	    widget->releaseKeyboard();
@@ -124,7 +125,7 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 {
     QPoint pos = widget->mapFromGlobal( e->globalPos() );
-    if ( !buttonDown || ( e->state() & LeftButton ) == 0 ) {
+    if ( !moveResizeMode && ( !buttonDown || ( e->state() & LeftButton ) == 0 ) ) {
 	if ( pos.y() <= range && pos.x() <= range)
 	    mode = TopLeft;
 	else if ( pos.y() >= widget->height()-range && pos.x() >= widget->width()-range)
@@ -149,7 +150,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
 
-    if ( buttonDown && !isMovingEnabled() && mode == Center )
+    if ( buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode )
 	return;
 
     if ( widget->testWState( WState_ConfigPending ) )
@@ -211,7 +212,7 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
 	geom =  QRect( widget->geometry().topLeft(), QPoint( p.x(), widget->geometry().bottom() ) ) ;
 	break;
     case Center:
-	if ( isMovingEnabled() )
+	if ( isMovingEnabled() || moveResizeMode )
 	    geom.moveTopLeft( pp );
 	break;
     default:
@@ -386,6 +387,7 @@ void QWidgetResizeHandler::keyPressEvent( QKeyEvent * e )
     case Key_Space:
     case Key_Return:
     case Key_Enter:
+    case Key_Escape:
 	moveResizeMode = FALSE;
 	widget->releaseMouse();
 	widget->releaseKeyboard();
