@@ -40,7 +40,7 @@ QComboBoxPrivate::QComboBoxPrivate()
       duplicatesEnabled(false),
       arrowDown(false),
       skipCompletion(false),
-      frame(false),
+      frame(true),
       maxVisibleItems(10),
       maxCount(INT_MAX)
 {
