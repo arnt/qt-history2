@@ -324,11 +324,16 @@ static void parseEtcLpPrinters( QListView * printers )
 
 
 // solaris 2.6
-static char * parsePrintersConf( QListView * printers )
+static char * parsePrintersConf( QListView * printers, bool *found = 0 )
 {
     QFile pc( QString::fromLatin1("/etc/printers.conf") );
-    if ( !pc.open( IO_ReadOnly ) )
+    if ( !pc.open( IO_ReadOnly ) ) {
+	if ( *found )
+	    *found = FALSE;
 	return 0;
+    }
+    if ( *found )
+	*found = TRUE;
 
     char * line = new char[1025];
     line[1024] = '\0';
@@ -543,8 +548,10 @@ static char *parseNsswitchPrintersEntry( QListView * printers, char *line )
 		lastStatus = parsePrintcap( printers,
 			QDir::homeDirPath() + "/.printers" );
 	    } else if ( source == "files" ) {
-		defaultPrinter = parsePrintersConf( printers );
-		lastStatus = Success;
+		bool found;
+		defaultPrinter = parsePrintersConf( printers, &found );
+		if ( found )
+		    lastStatus = Success;
 #ifndef QT_NO_NIS
 	    } else if ( source == "nis" ) {
 		lastStatus = retrieveNisPrinters( printers );
