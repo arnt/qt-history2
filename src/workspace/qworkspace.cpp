@@ -2073,8 +2073,10 @@ QWorkspaceChild::~QWorkspaceChild()
     if ( parentWidget() && parentWidget()->inherits( "QWorkspace" ) ) {
 	if ( ((QWorkspace*)parentWidget())->d->active == this )
 	    ((QWorkspace*)parentWidget())->d->active = 0;
-	if ( ((QWorkspace*)parentWidget())->d->maxWindow == this )
+	if ( ((QWorkspace*)parentWidget())->d->maxWindow == this ) {
+	    ((QWorkspace*)parentWidget())->hideMaximizeControls();
 	    ((QWorkspace*)parentWidget())->d->maxWindow = 0;
+	}
     }
 }
 
