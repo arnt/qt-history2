@@ -25,9 +25,9 @@ struct Q_EXPORT QUuid
 	data4[6] = b7;
 	data4[7] = b8;
     }
-    QUuid( const QUuid &orig )
+    QUuid( const QUuid &uuid )
     {
-	memcpy( this, &orig, sizeof(QUuid) );
+	memcpy( this, &uuid, sizeof(QUuid) );
     }
     QUuid operator=(const QUuid &orig )
     {
@@ -36,20 +36,20 @@ struct Q_EXPORT QUuid
 	return uuid;
     }
 
+    bool operator==( const QUuid &uuid ) const
+    {
+	return !memcmp( this, &uuid, sizeof( QUuid ) );
+    }
+
+    bool operator!=( const QUuid &uuid ) const
+    {
+	return !( *this == uuid );
+    }
+
     uint   data1;
     ushort data2;
     ushort data3;
     uchar  data4[ 8 ];
 };
-
-inline bool operator==( const QUuid &uuid1, const QUuid &uuid2 )
-{
-    return !memcmp( &uuid1, &uuid2, sizeof( QUuid ) );
-}
-
-inline bool operator!=( const QUuid &uuid1, const QUuid &uuid2 )
-{
-    return !( uuid1 == uuid2 );
-}
 
 #endif //QUUIDDEF_H
