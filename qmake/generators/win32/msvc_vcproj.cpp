@@ -31,6 +31,15 @@
 const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
 const char* _regNet2003                = "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
 
+// Filter GUIDs (Don NOT change these!) -----------------------------
+const char* _GUIDSourceFiles           = "{E6E9E982-9FC4-454e-9CA8-A7130BAA7969}";
+const char* _GUIDHeaderFiles           = "{E20DD029-6ECC-40cc-8664-7BCE54B77DE1}";
+const char* _GUIDGeneratedFiles        = "{EB449A14-9DB3-49a4-96B9-75A100B5D27E}";
+const char* _GUIDResourceFiles         = "{E68C65EF-42A7-4d5e-A044-58F10C142C46}";
+const char* _GUIDLexYaccFiles          = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
+const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
+
+
 static QString keyPath(const QString &rKey)
 {
     int idx = rKey.lastIndexOf(QLatin1Char('\\'));
@@ -627,8 +636,6 @@ void VcprojGenerator::initProject()
     initSourceFiles();
     initHeaderFiles();
     initMOCFiles();
-    initFormsFiles();
-    initTranslationFiles();
     initLexYaccFiles();
     initResourceFiles();
 
@@ -892,6 +899,7 @@ void VcprojGenerator::initSourceFiles()
 {
     vcProject.SourceFiles.Name = "Source Files";
     vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
+    vcProject.SourceFiles.Guid = _GUIDSourceFiles;
 
     vcProject.SourceFiles.addFiles(project->variables()["SOURCES"]);
 
@@ -905,6 +913,8 @@ void VcprojGenerator::initHeaderFiles()
     QStringList list;
     vcProject.HeaderFiles.Name = "Header Files";
     vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
+    vcProject.HeaderFiles.Guid = _GUIDHeaderFiles;
+
     list += project->variables()["HEADERS"];
     if (usePCH) // Generated PCH cpp file
         vcProject.HeaderFiles.addFile(precompH);
@@ -920,8 +930,9 @@ void VcprojGenerator::initHeaderFiles()
 
 void VcprojGenerator::initMOCFiles()
 {
-    vcProject.MOCFiles.Name = "Generated MOC Files";
+    vcProject.MOCFiles.Name = "Generated Files";
     vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
+    vcProject.MOCFiles.Guid = _GUIDGeneratedFiles;
 
     // Create a list of the files being moc'ed
     QStringList &objl = project->variables()["OBJMOC"],
@@ -944,37 +955,12 @@ void VcprojGenerator::initMOCFiles()
     addMocArguments(vcProject.MOCFiles);
 }
 
-void VcprojGenerator::initFormsFiles()
-{
-    vcProject.FormFiles.Name = "Forms";
-    vcProject.FormFiles.ParseFiles = _False;
-    vcProject.FormFiles.Filter = "ui";
-
-    vcProject.FormFiles.addFiles(project->variables()["FORMS"]);
-
-    vcProject.FormFiles.Project = this;
-    vcProject.FormFiles.Config = &(vcProject.Configuration);
-    vcProject.FormFiles.CustomBuild = none;
-}
-
-void VcprojGenerator::initTranslationFiles()
-{
-    vcProject.TranslationFiles.Name = "Translations Files";
-    vcProject.TranslationFiles.ParseFiles = _False;
-    vcProject.TranslationFiles.Filter = "ts";
-
-    vcProject.TranslationFiles.addFiles(project->variables()["TRANSLATIONS"]);
-
-    vcProject.TranslationFiles.Project = this;
-    vcProject.TranslationFiles.Config = &(vcProject.Configuration);
-    vcProject.TranslationFiles.CustomBuild = none;
-}
-
 void VcprojGenerator::initLexYaccFiles()
 {
     vcProject.LexYaccFiles.Name = "Lex / Yacc Files";
     vcProject.LexYaccFiles.ParseFiles = _False;
     vcProject.LexYaccFiles.Filter = "l;y";
+    vcProject.LexYaccFiles.Guid = _GUIDLexYaccFiles;
 
     vcProject.LexYaccFiles.addFiles(project->variables()["LEXSOURCES"]);
     vcProject.LexYaccFiles.addFiles(project->variables()["YACCSOURCES"]);
@@ -986,16 +972,19 @@ void VcprojGenerator::initLexYaccFiles()
 
 void VcprojGenerator::initResourceFiles()
 {
-    vcProject.ResourceFiles.Name = "Resources";
+    vcProject.ResourceFiles.Name = "Resource Files";
     vcProject.ResourceFiles.ParseFiles = _False;
     vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts;qrc";
+    vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
+    vcProject.ResourceFiles.addFiles(project->variables()["FORMS"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["TRANSLATIONS"]);
     vcProject.ResourceFiles.addFiles(project->variables()["RESOURCES"]);
     vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
     vcProject.ResourceFiles.addFiles(project->variables()["RES_FILE"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
     vcProject.ResourceFiles.addFiles(project->variables()["IDLSOURCES"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
+    vcProject.ResourceFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
 
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);
@@ -1012,6 +1001,8 @@ void VcprojGenerator::initExtraCompilerOutputs()
         extraCompile.Name = (*it);
         extraCompile.ParseFiles = _False;
         extraCompile.Filter = "";
+        extraCompile.Guid = _GUIDExtraCompilerFiles + '-' + (*it);
+
 
         // If the extra compiler has a variable_out set the output file
         // is added to an other file list, and does not need its own..

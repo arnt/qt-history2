@@ -177,6 +177,7 @@ const char* _TypeLibraryName                    = "TypeLibraryName";
 const char* _TypeLibraryResourceID              = "TypeLibraryResourceID";
 const char* _UndefineAllPreprocessorDefinitions = "UndefineAllPreprocessorDefinitions";
 const char* _UndefinePreprocessorDefinitions    = "UndefinePreprocessorDefinitions";
+const char* _UniqueIdentifier                   = "UniqueIdentifier";
 const char* _UseOfATL                           = "UseOfATL";
 const char* _UseOfMfc                           = "UseOfMfc";
 const char* _UsePrecompiledHeader               = "UsePrecompiledHeader";
@@ -1995,8 +1996,9 @@ XmlOutput &operator<<(XmlOutput &xml, VCFilter &tool)
 
     xml << tag(_Filter)
             << attrS(_Name, tool.Name)
-            << attrT(_ParseFiles, tool.ParseFiles)
-            << attrS(_Filter, tool.Filter);
+            << attrS(_Filter, tool.Filter)
+            << attrS(_UniqueIdentifier, tool.Guid)
+            << attrT(_ParseFiles, tool.ParseFiles);
     for (int i = 0; i < tool.Files.count(); ++i) {
         const VCFilterFile &info = tool.Files.at(i);
         xml << tag(_File)
@@ -2042,8 +2044,6 @@ XmlOutput &operator<<(XmlOutput &xml, const VCProjectSingleConfig &tool)
                 << (VCFilter&)tool.SourceFiles
                 << (VCFilter&)tool.HeaderFiles
                 << (VCFilter&)tool.MOCFiles
-                << (VCFilter&)tool.FormFiles
-                << (VCFilter&)tool.TranslationFiles
                 << (VCFilter&)tool.LexYaccFiles
                 << (VCFilter&)tool.ResourceFiles;
     for(int j = 0; j < tool.ExtraCompilersFiles.size(); ++j)
@@ -2096,6 +2096,8 @@ void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCProject
 
 
 // VCProject --------------------------------------------------------
+// Output all configurations (by filtername) for a file (by info) 
+// A filters config output is in VCFilter.outputFileConfig()
 void VCProject::outputFileConfigs(XmlOutput &xml,
                                   const VCFilterFile &info,
                                   const QString &filtername)
@@ -2110,10 +2112,6 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
             filter = SingleProjects.at(i).HeaderFiles;
         } else if (filtername == "MOCFiles") {
             filter = SingleProjects.at(i).MOCFiles;
-        } else if (filtername == "FormFiles") {
-            filter = SingleProjects.at(i).FormFiles;
-        } else if (filtername == "TranslationFiles") {
-            filter = SingleProjects.at(i).TranslationFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "ResourceFiles") {
@@ -2127,6 +2125,7 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
     xml << closetag(_File);
 }
 
+// outputs a given filter for all existing configurations of a project
 void VCProject::outputFilter(XmlOutput &xml,
                              const QString &filtername)
 {
@@ -2136,7 +2135,7 @@ void VCProject::outputFilter(XmlOutput &xml,
     else
         root = new TreeNode;
 
-    QString name, extfilter;
+    QString name, extfilter, guid;
     triState parse;
 
     for (int i = 0; i < SingleProjects.count(); ++i) {
@@ -2147,10 +2146,6 @@ void VCProject::outputFilter(XmlOutput &xml,
             filter = SingleProjects.at(i).HeaderFiles;
         } else if (filtername == "MOCFiles") {
             filter = SingleProjects.at(i).MOCFiles;
-        } else if (filtername == "FormFiles") {
-            filter = SingleProjects.at(i).FormFiles;
-        } else if (filtername == "TranslationFiles") {
-            filter = SingleProjects.at(i).TranslationFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "ResourceFiles") {
@@ -2159,13 +2154,19 @@ void VCProject::outputFilter(XmlOutput &xml,
             // ExtraCompilers
             filter = SingleProjects[i].filterForExtraCompiler(filtername);
         }
+
+        // Merge all files in this filter to root tree
+        for (int x = 0; x < filter.Files.count(); ++x)
+            root->addElement(filter.Files.at(x));
+
+        // Save filter setting from first filter. Next filters
+        // may differ but we cannot handle that. (ex. extfilter)
         if (name.isEmpty()) {
             name = filter.Name;
             extfilter = filter.Filter;
             parse = filter.ParseFiles;
+            guid = filter.Guid;
         }
-        for (int x = 0; x < filter.Files.count(); ++x)
-            root->addElement(filter.Files.at(x));
     }
 
     if (!root->hasElements())
@@ -2174,9 +2175,10 @@ void VCProject::outputFilter(XmlOutput &xml,
     // Actual XML output ----------------------------------
     xml << tag(_Filter)
             << attrS(_Name, name)
-            << attrT(_ParseFiles, parse)
-            << attrS(_Filter, extfilter);
-    root->generateXML(xml, "", *this, filtername);
+            << attrS(_Filter, extfilter)
+            << attrS(_UniqueIdentifier, guid)
+            << attrT(_ParseFiles, parse);
+    root->generateXML(xml, "", *this, filtername); // output root tree
     xml << closetag(_Filter);
 
 }
@@ -2210,8 +2212,6 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
     tool.outputFilter(xml, "Sources");
     tool.outputFilter(xml, "Headers");
     tool.outputFilter(xml, "MOCFiles");
-    tool.outputFilter(xml, "FormFiles");
-    tool.outputFilter(xml, "TranslationFiles");
     tool.outputFilter(xml, "LexYaccFiles");
     tool.outputFilter(xml, "ResourceFiles");
     for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {

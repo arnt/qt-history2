@@ -750,6 +750,7 @@ public:
     // Variables
     QString                 Name;
     QString                 Filter;
+    QString                 Guid;
     triState                ParseFiles;
     VcprojGenerator*        Project;
     VCConfiguration*        Config;
@@ -790,8 +791,6 @@ public:
     VCFilter                SourceFiles;
     VCFilter                HeaderFiles;
     VCFilter                MOCFiles;
-    VCFilter                FormFiles;
-    VCFilter                TranslationFiles;
     VCFilter                LexYaccFiles;
     VCFilter                ResourceFiles;
     VCFilterList            ExtraCompilersFiles;

@@ -76,10 +76,8 @@ protected:
     void initSourceFiles();
     void initHeaderFiles();
     void initMOCFiles();
-    void initFormsFiles();
-    void initTranslationFiles();
-    void initLexYaccFiles();
     void initResourceFiles();
+    void initLexYaccFiles();
     void initExtraCompilerOutputs();
 
     void addMocArguments(VCFilter &filter);
