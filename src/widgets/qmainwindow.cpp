@@ -88,7 +88,8 @@
 
   Toolbars can be dragged by the user into each enabled docking area
   and inside each docking area to change the order of the toolbars
-  there.
+  there. This feature can be enabled and disabled using setMovableToolbarsEnabled().
+  By default this feature is enabled.
 
   An application with multiple toolbars should always save the layout
   of the toolbars (docking area and position there) and restore that
@@ -207,6 +208,8 @@ public:
     int oldiPos;
     QToolBar *oldCovering;
 
+    bool movable;
+    
     QMap< int, bool > dockable;
 };
 
@@ -408,6 +411,8 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d->dockable[ (int)Bottom ] = TRUE;
     d->dockable[ (int)Unmanaged ] = TRUE;
     d->dockable[ (int)TornOff ] = TRUE;
+
+    d->movable = TRUE;
 }
 
 
@@ -1236,8 +1241,10 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
 		o && o->inherits( "QToolBar" )  ) {
-	moveToolBar( (QToolBar *)o, (QMouseEvent *)e );
-	return TRUE;
+	if ( d->movable ) {
+	    moveToolBar( (QToolBar *)o, (QMouseEvent *)e );
+	    return TRUE;
+	}
     }
     return QWidget::eventFilter( o, e );
 }
@@ -1825,3 +1832,26 @@ QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
     return lst;
 }
 
+/*!
+  If \a enable is TRUE, the user is allowed to drag toolbars between and
+  in the toolbar docks. Else this feature is disabled.
+  
+  \sa setDockEnabled()
+*/
+
+void QMainWindow::setMovableToolbarsEnabled( bool enable )
+{
+    d->movable = enable;
+}
+
+/*!
+  Returns TRUE if the user is allowed to drag toolbars between and
+  in the toolbar docks, else FALSE.
+  
+  \sa setMovableToolbarsEnabled()
+*/
+
+bool QMainWindow::movableToolbarsEnabled() const
+{
+    return d->movable;
+}
