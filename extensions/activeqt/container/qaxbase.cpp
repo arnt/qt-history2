@@ -641,9 +641,9 @@ public:
     \i QColor&
     \row
     \i SAFEARRAY(VARIANT)
-    \i QValueList
-    \i const QValueList<QVariant>&
-    \i QValueList<QVariant>&
+    \i QValueList\<QVariant\>
+    \i const QValueList\<QVariant\>&
+    \i QValueList\<QVariant\>&
     \row
     \i SAFEARRAY(BYTE)
     \i QByteArray
@@ -651,7 +651,7 @@ public:
     \i QByteArray&
     \row
     \i VARIANT
-    \i type dependent
+    \i type-dependent
     \i const QVariant&
     \i QVariant&
     \row

@@ -236,6 +236,12 @@
     \i double
     \i double
     \row
+    \i Q_LLONG
+    \i CY
+    \row
+    \i Q_ULLONG
+    \i CY
+    \row
     \i QColor
     \i OLE_COLOR
     \row
@@ -243,6 +249,9 @@
     \i DATE
     \row
     \i QDateTime
+    \i DATE
+    \row
+    \i QTime
     \i DATE
     \row
     \i QFont
@@ -259,7 +268,10 @@
     Q150034 \endlink for more information.
     \endfootnote
     \row
-    \i QValueList
+    \i QVariant
+    \i VARIANT
+    \row
+    \i QValueList\<QVariant\>
     \i SAFEARRAY(VARIANT)
     \row
     \i QByteArray
