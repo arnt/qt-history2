@@ -110,6 +110,7 @@ class PropertyWhatsThis : public QWhatsThis
 public:
     PropertyWhatsThis( PropertyList *l );
     QString text( const QPoint &pos );
+    bool clicked( const QString& href );
 
 private:
     PropertyList *propertyList;
@@ -124,6 +125,13 @@ PropertyWhatsThis::PropertyWhatsThis( PropertyList *l )
 QString PropertyWhatsThis::text( const QPoint &pos )
 {
     return propertyList->whatsThisAt( pos );
+}
+
+bool PropertyWhatsThis::clicked( const QString& href )
+{
+    // ###TODO href is link or null
+    
+    return FALSE; // do not hide window
 }
 
 

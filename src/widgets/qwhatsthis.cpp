@@ -109,7 +109,8 @@
   For more control you can create a dedicated QWhatsThis object for a
   special widget. By subclassing and reimplementing QWhatsThis::text()
   it is possible to have different help texts, depending on the
-  position of the mouse click.
+  position of the mouse click. By reimplementing QWhatsThis::clicked()
+  it is possible to have hyperlinks inside the help texts.
 
   If you wish to control the What's This? behaviour of a widget manually see
   QWidget::customWhatsThis().
@@ -134,6 +135,35 @@ public slots:
     void mouseReleased();
 
 };
+
+
+class QWhatsThat : public QWidget
+{ 
+    Q_OBJECT
+public:
+    QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name );
+    ~QWhatsThat() ;
+    
+public slots:
+    void hide();
+    
+protected:
+    void mousePressEvent( QMouseEvent* );
+    void mouseReleaseEvent( QMouseEvent* );
+    void mouseMoveEvent( QMouseEvent* );
+    void keyPressEvent( QKeyEvent* );
+    void paintEvent( QPaintEvent* );
+    
+private: 
+    QString text;
+#ifndef QT_NO_RICHTEXT
+    QSimpleRichText* doc;
+#endif
+    QString anchor;
+    bool pressed;
+    QWidget* widget;
+};
+
 
 class QWhatsThisPrivate: public QObject
 {
@@ -163,7 +193,6 @@ public:
 
     // say it.
     void say( QWidget *, const QString&, const QPoint&  );
-    void say_helper(QWidget*,const QPoint& ppos,bool);
 
     // setup and teardown
     static void setUpWhatsThis();
@@ -172,7 +201,7 @@ public:
     void leaveWhatsThisMode();
 
     // variables
-    QWidget * whatsThat;
+    QWhatsThat * whatsThat;
     QPtrDict<WhatsThisItem> * dict;
     QPtrDict<QWidget> * tlw;
     QPtrDict<QWhatsThisButton> * buttons;
@@ -181,9 +210,7 @@ public:
 #ifndef QT_NO_CURSOR
     QCursor * cursor;
 #endif
-
-    QString currentText;
-
+    
 private slots:
     void cleanupWidget()
     {
@@ -192,15 +219,169 @@ private slots:
 	    QWhatsThis::remove((QWidget*)o);
     }
 
-    void whatsThatDestroyed()
-   {
-       whatsThat = 0;
-   }
-
 };
 
 // static, but static the less-typing way
 static QWhatsThisPrivate * wt = 0;
+
+const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
+const int vMargin = 8;
+const int hMargin = 12;
+
+QWhatsThat::QWhatsThat( QWidget* w, const QString& txt, QWidget* parent, const char* name )
+    : QWidget( parent, name, WType_Popup ), text( txt ), pressed( FALSE ), widget( w )
+{
+    setBackgroundMode( NoBackground );
+    setPalette( QToolTip::palette() );
+    setMouseTracking( TRUE );
+    setCursor( arrowCursor );
+    
+    if ( widget )
+	connect( widget, SIGNAL( destroyed() ), this, SLOT( hide() ) );
+    
+
+    QRect r;
+#ifndef QT_NO_RICHTEXT
+    doc = 0;
+    if ( QStyleSheet::mightBeRichText( text ) ) {
+	doc = new QSimpleRichText( text, font() );
+	doc->adjustSize();
+	r.setRect( 0, 0, doc->width(), doc->height() );
+    }
+    else
+#endif
+    {
+	int sw = QApplication::desktop()->width() / 3;
+	if ( sw < 200 )
+	    sw = 200;
+	else if ( sw > 300 )
+	    sw = 300;
+
+	r = fontMetrics().boundingRect( 0, 0, sw, 1000,
+					AlignAuto + AlignTop + WordBreak + ExpandTabs,
+					text );
+    }
+    resize( r.width() + 2*hMargin + shadowWidth, r.height() + 2*vMargin + shadowWidth );
+}
+
+QWhatsThat::~QWhatsThat()
+{
+    if ( wt && wt->whatsThat == this )
+	wt->whatsThat = 0;
+#ifndef QT_NO_RICHTEXT
+    if ( doc )
+	delete doc;
+#endif    
+}
+
+void QWhatsThat::hide()
+{
+    QWidget::hide();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
+#endif
+}
+
+void QWhatsThat::mousePressEvent( QMouseEvent* e )
+{
+    pressed = TRUE;
+    if ( e->button() == LeftButton && rect().contains( e->pos() ) ) {
+#ifndef QT_NO_RICHTEXT
+	if ( doc )
+	    anchor = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin) );
+#endif
+	return;
+    }
+    hide();
+}
+
+void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
+{
+    if ( !pressed )
+	return;
+#ifndef QT_NO_RICHTEXT
+    if ( e->button() == LeftButton && doc && rect().contains( e->pos() ) ) {
+	QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
+	QString href;
+	if ( anchor == a )
+	    href = a;
+	anchor = QString::null;
+	if ( widget && wt && wt->dict ) {
+	    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( widget );
+	    if ( i  && i->whatsthis && !i->whatsthis->clicked( href ) )
+		return;
+	}
+    }
+#endif
+    hide();
+}
+
+void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
+{
+#ifndef QT_NO_RICHTEXT
+    if ( !doc )
+	return;
+    QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
+    if ( !a.isEmpty() )
+	setCursor( pointingHandCursor );
+    else
+	setCursor( arrowCursor );
+#endif
+}
+
+
+void QWhatsThat::keyPressEvent( QKeyEvent* ) 
+{
+    hide();
+}
+
+
+
+void QWhatsThat::paintEvent( QPaintEvent* ) {
+    
+    // now for super-clever shadow stuff.  super-clever mostly in
+    // how many window system problems it skirts around.
+
+    int w = width();
+    int h = height();
+    QRect r = rect();
+    r.addCoords( hMargin, vMargin, -hMargin-shadowWidth, -vMargin-shadowWidth );
+
+    QPainter p( this);
+    p.setPen( colorGroup().foreground() );
+    p.drawRect( 0, 0, w, h );
+    p.setPen( colorGroup().mid() );
+    p.setBrush( colorGroup().brush( QColorGroup::Background ) );
+    p.drawRect( 1, 1, w-2, h-2 );
+    p.setPen( colorGroup().foreground() );
+
+#ifndef QT_NO_RICHTEXT
+    if ( doc ) {
+	doc->draw( &p, r.x(), r.y(), r, colorGroup(), 0 );
+    }
+    else
+#endif
+    {
+	p.drawText( r, AlignAuto + AlignTop + WordBreak + ExpandTabs, text );
+    }
+    p.setPen( colorGroup().shadow() );
+
+    p.drawPoint( w + 5, 6 );
+    p.drawLine( w + 3, 6,
+		w + 5, 8 );
+    p.drawLine( w + 1, 6,
+		w + 5, 10 );
+    int i;
+    for( i=7; i < h; i += 2 )
+	p.drawLine( w, i,
+		    w + 5, i + 5 );
+    for( i = w - i + h; i > 6; i -= 2 )
+	p.drawLine( i, h,
+		    i + 5, h + 5 );
+    for( ; i > 0 ; i -= 2 )
+	p.drawLine( 6, h + 6 - i,
+		    i + 5, h + 5 );
+}
 
 // the item
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
@@ -355,7 +536,6 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     delete dict;
     if ( whatsThat && !whatsThat->parentWidget() ) {
 	delete whatsThat;
-	whatsThat = 0;
     }
     // and finally lose wt
     wt = 0;
@@ -365,23 +545,6 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 {
     if ( !o || !e )
 	return FALSE;
-
-    if ( o == whatsThat ) {
-	if (e->type() == QEvent::MouseButtonPress  ||
-	    e->type() == QEvent::KeyPress ) {
-	    whatsThat->hide();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
-#endif
-	    return TRUE;
-	}
-#ifdef Q_WS_QWS
-       else if ( e->type() == QEvent::Paint ) {
-	   wt->say_helper(0,QPoint(0,0),FALSE);
-       }
-#endif
-	return FALSE;
-    }
 
     switch( state ) {
     case Waiting:
@@ -472,6 +635,7 @@ void QWhatsThisPrivate::setUpWhatsThis()
     }
 }
 
+
 void QWhatsThisPrivate::enterWhatsThisMode()
 {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -499,158 +663,72 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
 
 
 
-void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
-{
-    const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int vMargin = 8;
-    const int hMargin = 12;
-
-    if ( currentText.isEmpty() )
-	return;
-
-    QRect r;
-    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
-#ifndef QT_NO_RICHTEXT
-    QSimpleRichText* doc = 0;
-
-    if ( QStyleSheet::mightBeRichText( currentText ) ) {
-	doc = new QSimpleRichText( currentText, whatsThat->font() );
-	doc->adjustSize();
-	r.setRect( 0, 0, doc->width(), doc->height() );
-    }
-    else
-#endif
-    {
-	int sw = screen.width() / 3;
-	if ( sw < 200 )
-	    sw = 200;
-	else if ( sw > 300 )
-	    sw = 300;
-
-	r = whatsThat->fontMetrics().boundingRect( 0, 0, sw, 1000,
-			    AlignAuto + AlignTop + WordBreak + ExpandTabs,
-			    currentText );
-    }
-
-    int w = r.width() + 2*hMargin;
-    int h = r.height() + 2*vMargin;
-
-    if ( init ) {
-	// okay, now to find a suitable location
-
-	int x;
-	int sx = screen.x();
-	int sy = screen.y();
-
-	// first try locating the widget immediately above/below,
-	// with nice alignment if possible.
-	QPoint pos;
-	if ( widget )
-	    pos = widget->mapToGlobal( QPoint( 0,0 ) );
-
-	if ( widget && w > widget->width() + 16 )
-		x = pos.x() + widget->width()/2 - w/2;
-	else
-	    x = ppos.x() - w/2;
-
-	// squeeze it in if that would result in part of what's this
-	// being only partially visible
-	if ( x + w  + shadowWidth > sx+screen.width() )
-	    x = (widget? (QMIN(screen.width(),
-			      pos.x() + widget->width())
-			 ) : screen.width() )
-		- w;
-
-	if ( x < sx )
-	    x = sx;
-
-	int y;
-	if ( widget && h > widget->height() + 16 ) {
-	    y = pos.y() + widget->height() + 2; // below, two pixels spacing
-	    // what's this is above or below, wherever there's most space
-	    if ( y + h + 10 > sy+screen.height() )
-		y = pos.y() + 2 - shadowWidth - h; // above, overlap
-	}
-	y = ppos.y() + 2;
-
-	// squeeze it in if that would result in part of what's this
-	// being only partially visible
-	if ( y + h + shadowWidth > sy+screen.height() )
-	    y = ( widget ? (QMIN(screen.height(),
-				 pos.y() + widget->height())
-			    ) : screen.height() )
-		- h;
-	if ( y < sy )
-	    y = sy;
-
-	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
-	whatsThat->show();
-    }
-
-    // now for super-clever shadow stuff.  super-clever mostly in
-    // how many window system problems it skirts around.
-
-    QPainter p( whatsThat );
-    p.setPen( whatsThat->colorGroup().foreground() );
-    p.drawRect( 0, 0, w, h );
-    p.setPen( whatsThat->colorGroup().mid() );
-    p.setBrush( whatsThat->colorGroup().brush( QColorGroup::Background ) );
-    p.drawRect( 1, 1, w-2, h-2 );
-    p.setPen( whatsThat->colorGroup().foreground() );
-
-#ifndef QT_NO_RICHTEXT
-    if ( doc ) {
-	doc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
-	delete doc;
-    }
-    else
-#endif
-    {
-	p.drawText( hMargin, vMargin, r.width(), r.height(),
-		    AlignAuto + AlignTop + WordBreak + ExpandTabs,
-		    currentText );
-    }
-    p.setPen( whatsThat->colorGroup().shadow() );
-
-    p.drawPoint( w + 5, 6 );
-    p.drawLine( w + 3, 6,
-		w + 5, 8 );
-    p.drawLine( w + 1, 6,
-		w + 5, 10 );
-    int i;
-    for( i=7; i < h; i += 2 )
-	p.drawLine( w, i,
-		    w + 5, i + 5 );
-    for( i = w - i + h; i > 6; i -= 2 )
-	p.drawLine( i, h,
-		    i + 5, h + 5 );
-    for( ; i > 0 ; i -= 2 )
-	p.drawLine( 6, h + 6 - i,
-		    i + 5, h + 5 );
-}
-
 void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
 {
-    currentText = text;
-
     // make a fresh widget, and set it up
     delete whatsThat;
-    whatsThat = 0;
-
-    whatsThat = new QWidget(
+    whatsThat = new QWhatsThat(
+			       widget, text,
 #if defined(Q_WS_X11)
-			    QApplication::desktop()->screen( widget ? widget->x11Screen() :
-				    QCursor::x11Screen() ),
+			       QApplication::desktop()->screen( widget ? widget->x11Screen() :
+								QCursor::x11Screen() ),
 #else
-			    0,
+			       0,
 #endif
-			    "automatic what's this? widget",
-			    WType_Popup );
-    whatsThat->setBackgroundMode( QWidget::NoBackground );
-    whatsThat->setPalette( QToolTip::palette(), TRUE );
-    whatsThat->installEventFilter( this );
-    connect( whatsThat, SIGNAL( destroyed() ), this, SLOT( whatsThatDestroyed() ) );
-    say_helper(widget,ppos,TRUE);
+			       "automatic what's this? widget" );
+    
+    
+    // okay, now to find a suitable location
+    QRect screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( ppos ) );
+    int x;
+    int w = whatsThat->width();
+    int h = whatsThat->height();
+    int sx = screen.x();
+    int sy = screen.y();
+
+    // first try locating the widget immediately above/below,
+    // with nice alignment if possible.
+    QPoint pos;
+    if ( widget )
+	pos = widget->mapToGlobal( QPoint( 0,0 ) );
+
+    if ( widget && w > widget->width() + 16 )
+	x = pos.x() + widget->width()/2 - w/2;
+    else
+	x = ppos.x() - w/2;
+
+	// squeeze it in if that would result in part of what's this
+	// being only partially visible
+    if ( x + w  + shadowWidth > sx+screen.width() )
+	x = (widget? (QMIN(screen.width(),
+			   pos.x() + widget->width())
+		      ) : screen.width() )
+	    - w;
+
+    if ( x < sx )
+	x = sx;
+
+    int y;
+    if ( widget && h > widget->height() + 16 ) {
+	y = pos.y() + widget->height() + 2; // below, two pixels spacing
+	// what's this is above or below, wherever there's most space
+	if ( y + h + 10 > sy+screen.height() )
+	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
+    }
+    y = ppos.y() + 2;
+
+	// squeeze it in if that would result in part of what's this
+	// being only partially visible
+    if ( y + h + shadowWidth > sy+screen.height() )
+	y = ( widget ? (QMIN(screen.height(),
+			     pos.y() + widget->height())
+			) : screen.height() )
+	    - h;
+    if ( y < sy )
+	y = sy;
+
+    whatsThat->move( x, y );
+    whatsThat->show();
 }
 
 QWhatsThisPrivate::WhatsThisItem* QWhatsThisPrivate::newItem( QWidget * widget )
@@ -872,6 +950,23 @@ QWhatsThis::~QWhatsThis()
 QString QWhatsThis::text( const QPoint & )
 {
     return QString::null;
+}
+
+/*!  \fn bool QWhatsThis::clicked( const QString& href )
+
+  This virtual function is called when the user clicks inside the
+  What's This? window. \a href is the link the user clicked on, or
+  QString::null if there was no link.
+  
+  If the function returns TRUE (the default), the What's This? window
+  is closed, otherwise it remains visible.
+  
+  The default implementation ignores \a href and returns TRUE.
+  
+*/
+bool QWhatsThis::clicked( const QString& )
+{
+    return TRUE;
 }
 
 

@@ -55,6 +55,7 @@ public:
     virtual ~QWhatsThis();
 
     virtual QString text( const QPoint & );
+    virtual bool clicked( const QString& href );
 
     // the common static functions
     static void add( QWidget *, const QString &);
@@ -66,7 +67,7 @@ public:
     static void enterWhatsThisMode();
     static bool inWhatsThisMode();
     static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos() );
-    
+
     static void display( const QString& text, const QPoint& pos = QCursor::pos() );
 
 };
