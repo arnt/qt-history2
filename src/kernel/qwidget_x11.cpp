@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#382 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#383 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -445,6 +445,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 {
     extern void qPRCreate( const QWidget *, Window );
     Display *dpy = x11Display();
+    QCursor oldcurs;
+    bool setcurs=testWState(WState_OwnCursor);
+    if ( setcurs ) {
+	oldcurs = cursor();
+	unsetCursor();
+    }
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
@@ -498,6 +504,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	show();
     if ( old_winid )
 	qt_XDestroyWindow( this, dpy, old_winid );
+
+    if ( setcurs ) {
+	setCursor(oldcurs);
+    }
 
     QObjectList	*accelerators = queryList( "QAccel" );
     QObjectListIt it( *accelerators );
