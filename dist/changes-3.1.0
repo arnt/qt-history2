@@ -50,8 +50,8 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	work for non true type fonts.
 
 - QHeader
-	Speeded up sectionSizeHont() calculation which in return
-	speeds up all size/label calculations of QHeader.
+	Optimized the sectionSizeHint() calculation, which in turn 
+	speeds up all size/label calculations for QHeader.
 
 - QIconFactory
 	Avoid infinite loops when recursively calling
@@ -86,7 +86,7 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	enabled accept drops.
 
 - QListViewItem
-	Speeded up size claculation for multi-line items.
+	Optimized size claculation for multi-line items.
 
 - QMainWindow
 	Base the minimumSizeHint() on the sizeHint()s of the left and
@@ -138,7 +138,7 @@ the changes between Qt 3.1 beta2 and Qt 3.1 final.
 	Supports now global struts. (see QApplication::globalStrut()).
 
 - QTDSDriver
-	Binary datatypes work now.
+	Added support for binary datatypes.
 
 - QTextCodec
 	Added QTextCodec::codecForCStrings and QTextCodec::codecForTr.
