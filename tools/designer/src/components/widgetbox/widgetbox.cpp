@@ -751,7 +751,6 @@ void WidgetBoxTreeView::dropWidgets(const QList<AbstractDnDItem*> &item_list)
     if (last_item != 0) {
         save();
         setCurrentItem(last_item);
-        ensureItemVisible(last_item);
         editCurrentItem();
     }
 }
