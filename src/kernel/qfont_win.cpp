@@ -98,7 +98,7 @@ QFontStruct::QFontStruct( const QString &key )
 
 HDC QFontStruct::dc() const
 {
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( hdc || (qt_winver & Qt::WV_NT_based) ) // either NT_based or Printer
 	return hdc;
     Q_ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
@@ -322,7 +322,9 @@ void QFontPrivate::load()
     fin = qfs;
 
     if ( !fin->font() ) {			// font not loaded
-	if ( qt_winver & Qt::WV_NT_based )
+	if ( paintdevice )
+	    fin->hdc = paintdevice->handle();
+	else if ( qt_winver & Qt::WV_NT_based )
 	    fin->hdc = GetDC(0);
 	fin->hfont = create( &fin->stockFont, fin->hdc );
 	SelectObject( fin->dc(), fin->hfont );
@@ -353,10 +355,6 @@ void QFontPrivate::load()
 #define DEFAULT_GUI_FONT 17
 #endif
 
-HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF )
-{
-	return d->create(stockFont, hdc, VxF);
-}
 
 // compatMode is used to get Qt-2 compatibility when printing
 HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )

@@ -285,7 +285,6 @@ private:
 
 #if defined(Q_WS_WIN)
     void *textMetric() const;
-    HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
 #endif
 
     friend class QFontMetrics;

@@ -354,6 +354,7 @@ QFont::QFont( QFontPrivate *data, bool deep )
 QFont::QFont( QFontPrivate *data, QPaintDevice *pd )
 {
     d = new QFontPrivate( *data, pd );
+    d->request.dirty = TRUE;
     Q_CHECK_PTR( d );
 
     // now a single reference

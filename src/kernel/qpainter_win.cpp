@@ -389,10 +389,16 @@ void QPainter::updateFont()
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
 	bool vxfScale = testf(Qt2Compat) && testf(VxF)
 			&& ( dw != ww || dw != vw || dh != wh || dh != vh );
-	bool stockFont;
-	hfont = cfont.create( &stockFont, hdc, vxfScale );
-	killFont = !stockFont;
+	if ( pfont ) delete pfont;
+	pfont = new QFont( cfont.d, pdev );
+
+	hfont = pfont->handle();
+	killFont = FALSE;
     } else {
+	if ( pfont ) {
+	    delete pfont;
+	    pfont = 0;
+	}
 	hfont = cfont.handle();
 	killFont = FALSE;
     }
@@ -926,6 +932,11 @@ bool QPainter::end()
 	if ( pm->optimization() == QPixmap::MemoryOptim &&
 	     ( qt_winver & WV_DOS_based ) )
 	    pm->allocCell();
+    }
+
+    if ( pfont ) {
+	delete pfont;
+	pfont = 0;
     }
 
     flags = 0;
@@ -2230,6 +2241,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     if ( testf(DirtyFont) )
 	updateFont();
+    QFont *font = pfont;
+    if ( !font )
+	font = &cfont;
+
     bool force_bitmap = FALSE;//rop != CopyROP;
     if ( force_bitmap ) {
 #ifdef Q_OS_TEMP
@@ -2265,10 +2280,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-	    QFont dfont( cfont );
+	    QFont dfont( *font );
 	    QWMatrix mat2;
 	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
-		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
+		int newSize = qRound( m22() * (double)font->pointSize() ) - 1;
 		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
 		dfont.setPointSize( newSize );
 		QFontMetrics fm2( dfont );
@@ -2410,9 +2425,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
     //const TCHAR *tc = (const TCHAR *) qt_winTchar( shaped, FALSE );
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
-    cfont.d->buildCache( hdc, shaped, 0, len, cache );
+    font->d->buildCache( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
-	cfont.d->drawText( hdc, x, y, cache );
+	font->d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
     } else {
 	// Doesn't work for non-TrueType fonts, but we dealt with those
@@ -2420,7 +2435,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #ifndef Q_OS_TEMP
 	BeginPath(hdc);
 #endif
-	cfont.d->drawText( hdc, x, y, cache );
+	font->d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
 #ifndef Q_OS_TEMP
 	EndPath(hdc);
