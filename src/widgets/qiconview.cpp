@@ -282,7 +282,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
   in the QIconDrag object.
 
   See QIconView::dragObject() for more information.
-  
+
   An example, how to implement this, is in the QtFileIconView example.
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
 */
@@ -342,7 +342,11 @@ void QIconDragItem::setData( const QByteArray &d )
   If you want to use extended DnD functionality of the QIconView, normally it's
   enough to just create a QIconDrag object in QIconView::dragObject(). Then
   create for each item which should be dragged a QIconDragItem and set the
-  data it represents with QIconDragItem::setData(). 
+  data it represents with QIconDragItem::setData() and add this item to the
+  drag object using append().
+
+  If you want to offer the data in other mime-types too, derive a class from this
+  and implement the needed encoding and decoding here.
   
   An example, how to implement this, is in the QtFileIconView example
   (qt/examples/qfileiconview/qfileiconview.h and qt/examples/qfileiconview/qfileiconview.cpp)
@@ -367,7 +371,7 @@ QIconDrag::~QIconDrag()
 
 /*!
   Appends an icon drag item which should be stored in this
-  dragobject.
+  dragobject and the geometry of it.
 
   \sa QIconDragItem
 */
@@ -1465,7 +1469,7 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
   gives you all information about the drop. If the drag object of the drop was
   a QIconDrag, \a lst contains the list of the dropped items. You can get the data
   using QIconDragItem::data() of each item then.
-  
+
   So, if \a lst is not empty, use this data for further operations, else the drag
   was not a QIconDrag, so you have to decode \a e yourself and work with that.
 
@@ -1648,6 +1652,8 @@ void QIconViewItem::calcTmpText()
   If you want to have drag shapes drawn, you have to do quite a bit more and
   complex things:
 
+  ########### HAS TO BE UPDATED - NOT VALID ANYMORE
+  
   The first part is starting drags:
   If you want to reimplement DnD in the QIconView, because you need some
   extended functionality, you normally will not use QIconDrag as dragobject for your
@@ -1761,11 +1767,11 @@ void QIconViewItem::calcTmpText()
 /*! \fn void  QIconView::dropped (QDropEvent * e)
   This signal is emitted, when a drop event occured onto the viewport (not onto an icon),
   which the iconview itself can't handle.
-  
+
   \a e gives you all information about the drop. If the drag object of the drop was
   a QIconDrag, \a lst contains the list of the dropped items. You can get the data
   using QIconDragItem::data() of each item then.
-  
+
   So, if \a lst is not empty, use this data for further operations, else the drag
   was not a QIconDrag, so you have to decode \a e yourself and work with that.
 */
