@@ -2,27 +2,27 @@ DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt
 
-mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
+#mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
-unix:!mac:!hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
-hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.sl
+#unix:!mac:!hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
+#hpux*:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.sl
 
-unix:TARGETDEPS +=    ../../lib/libformeditor.a \
-    ../../lib/libobjectinspector.a \
-    ../../lib/libwidgetbox.a \
-    ../../lib/libimagecollection.a \
-    ../../lib/libshared.a \
-    ../../lib/libpropertyeditor.a \
-    ../../lib/libsignalsloteditor.a
+#unix:TARGETDEPS +=    ../../lib/libformeditor.a \
+#    ../../lib/libobjectinspector.a \
+#    ../../lib/libwidgetbox.a \
+#    ../../lib/libimagecollection.a \
+#    ../../lib/libshared.a \
+#    ../../lib/libpropertyeditor.a \
+#    ../../lib/libsignalsloteditor.a
 
-win32:TARGETDEPS += ../../../../lib/QtDesigner.lib \
-    ../../lib/formeditor.lib \
-    ../../lib/objectinspector.lib \
-    ../../lib/widgetbox.lib \
-    ../../lib/imagecollection.lib \
-    ../../lib/shared.lib \
-    ../../lib/propertyeditor.lib \
-    ../../lib/signalsloteditor.lib
+#win32:TARGETDEPS += ../../../../lib/QtDesigner.lib \
+#    ../../lib/formeditor.lib \
+#    ../../lib/objectinspector.lib \
+#    ../../lib/widgetbox.lib \
+#    ../../lib/imagecollection.lib \
+#    ../../lib/shared.lib \
+#    ../../lib/propertyeditor.lib \
+#    ../../lib/signalsloteditor.lib
 
 INCLUDEPATH += ../uilib \
     ../lib/sdk \
