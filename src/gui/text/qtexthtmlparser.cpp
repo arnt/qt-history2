@@ -834,7 +834,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     fontWeight = parent->fontWeight;
     color = parent->color;
     bgColor = parent->bgColor;
-    alignment = parent->alignment;
+
+    if (parent->id != Html_table)
+        alignment = parent->alignment;
+
     listStyle = parent->listStyle;
     anchorHref = parent->anchorHref;
     // makes no sense to inherit that property, a named anchor is a single point
