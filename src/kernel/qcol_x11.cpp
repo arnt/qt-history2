@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#66 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#66 $");
 
 
 /*****************************************************************************
@@ -542,7 +542,7 @@ uint QColor::alloc()
 	c = new QColorData;			// insert into color dict
 	CHECK_PTR( c );
 	c->pix	   = pix;
-	c->context = current_alloc_context;
+	c->context = colors_frozen ? 0 : current_alloc_context;
 	colorDict->insert( (long)rgbVal, c );	// store color in dict
     }
     return pix;
@@ -712,7 +712,7 @@ int QColor::currentAllocContext()
 void QColor::destroyAllocContext( int context )
 {
     init_context_stack();
-    if ( !color_init || g_truecolor )
+    if ( !color_init || g_truecolor || colors_frozen )
 	return; 
     ulong *pixels = new ulong[colorDict->count()];
     QColorData   *d;
