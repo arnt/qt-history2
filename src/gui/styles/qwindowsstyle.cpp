@@ -2437,22 +2437,23 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
         }
         break;
     case PE_Splitter: {
-        QRect r = opt->rect;
         QPen oldPen = p->pen();
         p->setPen(opt->palette.light());
         if (opt->state & Style_Horizontal) {
             p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.x(), r.y(), r.x(), r.height());
-            p->drawLine(opt->rect.right()-1, r.y(), r.right()-1, r.height());
+            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
+            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
+                        opt->rect.height());
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.right(), r.y(), r.right(), r.height());
+            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
         } else {
-            p->drawLine(opt->rect.x(), r.y() + 1, r.width(), r.y() + 1);
+            p->drawLine(opt->rect.x(), opt->rect.y() + 1, opt->rect.width(), opt->rect.y() + 1);
             p->setPen(opt->palette.dark());
-            p->drawLine(opt->rect.x(), r.bottom() - 1, r.width(), r.bottom() - 1);
+            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
+                        opt->rect.bottom() - 1);
             p->setPen(opt->palette.shadow());
-            p->drawLine(opt->rect.x(), r.bottom(), r.width(), r.bottom());
+            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
         }
         p->setPen(oldPen);
         break; }
