@@ -17,11 +17,11 @@ int main( int argc, char **argv )
     db->exec("create table qsql_master "
 	     "(id numeric(10) primary key,"
 	     "name char(30));");
-    
+
     QSqlRecord* buf;
-    
+
     QSqlCursor master( "qsql_master" );
-    buf = master.editBuffer( TRUE );
+    buf = master.primeInsert();
     buf->setValue( "id", 1 );
     buf->setValue( "name", "Trolltech" );
     master.insert();
@@ -37,8 +37,8 @@ int main( int argc, char **argv )
 	     "masterid numeric(10),"
 	     "name char(30));");
     QSqlCursor child( "qsql_child" );
-    buf = child.editBuffer( TRUE );
-    
+    buf = child.primeInsert();
+
     buf->setValue( "id", 1 );
     buf->setValue( "masterid", 1 );
     buf->setValue( "name", "db" );

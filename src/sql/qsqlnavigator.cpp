@@ -41,6 +41,16 @@
 #include "qsqlcursor.h"
 #include "qsqlform.h"
 
+/*!
+  \class QSqlNavigator qsqlnavigator.h
+  \brief Navigate a database cursor/form
+
+  \module sql
+
+  This class //###
+  
+*/
+
 /*!  Constructs a navigator.
 
 */
@@ -100,8 +110,8 @@ void QSqlNavigator::deleteRecord()
         cursor->select( cursor->filter(), cursor->sort() );
         if ( !cursor->seek( n ) )
             cursor->last();
-        cursor->primeEditBuffer();
-	QSqlForm* form = defaultForm();    
+        cursor->primeUpdate();
+	QSqlForm* form = defaultForm();
 	if ( form )
 	    form->readFields();
     }
@@ -118,8 +128,8 @@ void QSqlNavigator::firstRecord()
     if ( !cursor )
 	return;
     cursor->first();
-    cursor->primeEditBuffer();
-    QSqlForm* form = defaultForm();    
+    cursor->primeUpdate();
+    QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
 }
@@ -135,8 +145,8 @@ void QSqlNavigator::lastRecord()
     if ( !cursor )
 	return;
     cursor->last();
-    cursor->primeEditBuffer();
-    QSqlForm* form = defaultForm();    
+    cursor->primeUpdate();
+    QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
 }
@@ -154,8 +164,8 @@ void QSqlNavigator::nextRecord()
     if( !cursor->next() ) {
         cursor->last();
     }
-    cursor->primeEditBuffer();
-    QSqlForm* form = defaultForm();    
+    cursor->primeUpdate();
+    QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
 }
@@ -173,13 +183,14 @@ void QSqlNavigator::prevRecord()
     if( !cursor->prev() ) {
         cursor->first();
     }
-    cursor->primeEditBuffer();
-    QSqlForm* form = defaultForm();    
+    cursor->primeUpdate();
+    QSqlForm* form = defaultForm();
     if ( form )
 	form->readFields();
 }
 
-/*!  Clears the default cursor values and clears the default form.
+/*!  Clears the default cursor values and clears the widgets in the
+default form.
 
 */
 
@@ -192,7 +203,6 @@ void QSqlNavigator::clearForm()
     if ( form )
 	form->clearValues();
 }
-
 
 /*! Returns a pointer to the default cursor used for navigation, or 0
 if there is no default cursor.  The default implementation returns 0.

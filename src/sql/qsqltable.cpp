@@ -237,7 +237,7 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( cursor() && field && 
+    if ( cursor() && field &&
 	 cursor()->isVisible( field->name() ) &&
  	 !cursor()->primaryIndex().field( field->name() ) ) {
 	setNumCols( numCols() + 1 );
@@ -705,7 +705,7 @@ bool QSqlTable::beginInsert()
 	row = 0;
     setNumRows( d->insertPreRows + 1 );
     setCurrentCell( row, 0 );
-    d->editBuffer = d->cursor->editBuffer( TRUE );
+    d->editBuffer = d->cursor->primeInsert();
     emit beginInsert( d->editBuffer );
     d->mode = QSqlTable::Insert;
     int lastRow = row;
@@ -747,7 +747,7 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     setCurrentCell( row, col );
     d->mode = QSqlTable::Update;
     if ( d->cursor->seek( row ) ) {
-	d->editBuffer = d->cursor->editBuffer();
+	d->editBuffer = d->cursor->primeUpdate();
 	emit beginUpdate( d->editBuffer );
 	return QTable::beginEdit( row, col, replace );
     }
@@ -1061,15 +1061,15 @@ void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
 */
 void QSqlTable::find( const QString & str, bool caseSensitive, bool backwards )
 {
-    if ( !d->cursor ) 
+    if ( !d->cursor )
 	return;
 
     QSqlCursor * r = d->cursor;
     QString tmp, text;
-    uint  row = currentRow(), startRow = row, 
+    uint  row = currentRow(), startRow = row,
 	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
     bool  wrap = TRUE, found = FALSE;
-    
+
     if( str.isEmpty() || str.isNull() )
 	return;
 
@@ -1489,8 +1489,8 @@ int QSqlTable::fieldAlignment( const QSqlField* field )
 
 void QSqlTable::addColumns( const QSqlRecord& fieldList )
 {
-    for ( uint j = 0; j < fieldList.count(); ++j ) 
-	addColumn( fieldList.field(j) ); 
+    for ( uint j = 0; j < fieldList.count(); ++j )
+	addColumn( fieldList.field(j) );
 }
 
 /*!  If the \a sql driver supports query sizes, the number of rows in

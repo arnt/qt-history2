@@ -12,8 +12,8 @@ Form::Form( QWidget * parent, const char * name )
     cursor = new QSqlCursor( "simpletable" );
     cursor->select( cursor->primaryIndex() );
     cursor->next();
-    QSqlRecord * r = cursor->editBuffer();
-    
+    QSqlRecord * r = cursor->primeUpdate();
+
     form = new QSqlForm( this );
     form->insert( dateEdit, r->field("date") );
     form->insert( nameEdit, r->field("name") );
@@ -47,7 +47,7 @@ void Form::insert()
     QSqlQuery q("select max(id)+1 from simpletable;");
     if( q.next() ){
 	qDebug("id:" + cursor->value("id").toString() );
-	QSqlRecord * r = cursor->editBuffer( TRUE );
+	QSqlRecord * r = cursor->primeInsert();
 	r->setValue("id", q.value(0) );
 	form->writeFields();
 	cursor->insert();
@@ -58,20 +58,20 @@ void Form::insert()
 void Form::del()
 {
     int n = cursor->at();
-    
+
     if( cursor->del() ){
 	cursor->select( cursor->primaryIndex() );
 	if( !cursor->seek( n ) )
 	    cursor->last();
-	cursor->primeEditBuffer();
+	cursor->primeUpdate();
 	form->readFields();
-    }    
+    }
 }
 
 void Form::first()
 {
     cursor->first();
-    cursor->primeEditBuffer();
+    cursor->primeUpdate();
     form->readFields();
 }
 
@@ -80,7 +80,7 @@ void Form::prev()
     if( !cursor->prev() ){
 	cursor->first();
     }
-    cursor->primeEditBuffer();
+    cursor->primeUpdate();
     form->readFields();
 }
 
@@ -89,14 +89,14 @@ void Form::next()
     if( !cursor->next() ){
 	cursor->last();
     }
-    cursor->primeEditBuffer();
+    cursor->primeUpdate();
     form->readFields();
 }
 
 void Form::last()
 {
     cursor->last();
-    cursor->primeEditBuffer();
+    cursor->primeUpdate();
     form->readFields();
 }
 

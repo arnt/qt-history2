@@ -65,50 +65,48 @@ public:
 	Writable = 7
     };
 
-    QVariant          value( int i ) const;
-    QVariant          value( const QString& name ) const;
-    virtual QSqlIndex primaryIndex( bool prime = FALSE ) const;
-    virtual QSqlIndex index( const QStringList& fieldNames ) const;
-    QSqlIndex         index( const QString& fieldName ) const;
-    QSqlIndex         index( const char* fieldName ) const;
-    virtual void      setPrimaryIndex( const QSqlIndex& idx );
+    QVariant            value( int i ) const;
+    QVariant            value( const QString& name ) const;
+    virtual QSqlIndex   primaryIndex( bool prime = FALSE ) const;
+    virtual QSqlIndex   index( const QStringList& fieldNames ) const;
+    QSqlIndex           index( const QString& fieldName ) const;
+    QSqlIndex           index( const char* fieldName ) const;
+    virtual void        setPrimaryIndex( const QSqlIndex& idx );
 
 
-    virtual void        primeEditBuffer();
-    virtual QSqlRecord* editBuffer( bool prime = FALSE );
+    virtual QSqlRecord* editBuffer();
+    virtual QSqlRecord* primeInsert();
+    virtual QSqlRecord* primeUpdate();
     virtual int         insert( bool invalidate = TRUE );
     virtual int         update( bool invalidate = TRUE );
     virtual int         del( bool invalidate = TRUE );
 
-    virtual void      setMode( int flags );
-    int               mode() const;
-    virtual void      setCalculated( const QString& name, bool calculated );
-    bool              isCalculated( const QString& name ) const;
-    bool              isReadOnly() const;
-    bool              canInsert() const;
-    bool              canUpdate() const;
-    bool              canDelete() const;
+    virtual void        setMode( int flags );
+    int                 mode() const;
+    virtual void        setCalculated( const QString& name, bool calculated );
+    bool                isCalculated( const QString& name ) const;
+    bool                isReadOnly() const;
+    bool                canInsert() const;
+    bool                canUpdate() const;
+    bool                canDelete() const;
 
-    bool              select();
-    bool              select( const QSqlIndex& sort );
-    bool              select( const QSqlIndex & filter, const QSqlIndex & sort );
-    virtual bool      select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
+    bool                select();
+    bool                select( const QSqlIndex& sort );
+    bool                select( const QSqlIndex & filter, const QSqlIndex & sort );
+    virtual bool        select( const QString & filter, const QSqlIndex & sort = QSqlIndex() );
 
-    virtual void      setSort( const QSqlIndex& sort );
-    QSqlIndex         sort() const;
-    virtual void      setFilter( const QString& filter );
-    QString           filter() const;
-    virtual void      setName( const QString& name, bool autopopulate = TRUE );
-    QString           name() const;
-    QString           toString( const QString& prefix = QString::null,
+    virtual void        setSort( const QSqlIndex& sort );
+    QSqlIndex           sort() const;
+    virtual void        setFilter( const QString& filter );
+    QString             filter() const;
+    virtual void        setName( const QString& name, bool autopopulate = TRUE );
+    QString             name() const;
+    QString             toString( const QString& prefix = QString::null,
 				const QString& sep = "," ) const;
 
 protected:
     void              afterSeek();
     bool              exec( const QString & sql );
-
-    virtual void      primeInsert( QSqlRecord* buf );
-    virtual void      primeUpdate( QSqlRecord* buf );
 
     virtual QVariant  calculateField( const QString& name );
     virtual int       update( const QString & filter, bool invalidate = TRUE );

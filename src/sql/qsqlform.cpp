@@ -59,12 +59,12 @@
   <li>Display the form and let the user edit values etc.
   <li>Use writeFields() to update the data field values with the values in the editor widgets.
   </ol>
-  
+
   Note that a QSqlForm does \a not access the database directly, but
   most often via QSqlFields which are part of a QSqlCursor. A
   QSqlCursor::insert(), QSqlCursor::update() or QSqlCursor::del() call
   is needed to actually write values to the database.
-  
+
   Some sample code to initialize a form successfully:
 
   \code
@@ -72,17 +72,17 @@
   QSqlRecord * myBuffer;
   QSqlCursor   myCursor( "mytable" );
   QLineEdit    myEditor( this );
-  
+
   // Execute a query to make the cursor valid
   myCursor.select();
   // place the cursor over the first record
   myCursor.next();
-  myBuffer = myCursor.editBuffer();
-  
+  myBuffer = myCursor.primeUpdate();
+
   // Insert a field into the form that uses myEditor to edit the
   // field 'somefield' in 'mytable'
   myForm.insert( &myEditor, myBuffer->field( "somefield" ) );
-  
+
   // Will update myEditor with the value from the mapped database field
   myForm.readFields();
   ...
@@ -243,7 +243,7 @@ void QSqlForm::readFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+    QSqlPropertyMap * pmap = (propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : propertyMap;
 
     for(it = map.begin() ; it != map.end(); ++it ){
@@ -261,7 +261,7 @@ void QSqlForm::writeFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+    QSqlPropertyMap * pmap = (propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : propertyMap;
 
     for(it = map.begin() ; it != map.end(); ++it ){
@@ -280,9 +280,9 @@ void QSqlForm::writeFields()
 void QSqlForm::readField( QWidget * widget )
 {
     QSqlField * field = 0;
-    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+    QSqlPropertyMap * pmap = (propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : propertyMap;
-    
+
     field = widgetToField( widget );
     if( field )
         pmap->setProperty( widget, field->value() );
@@ -296,11 +296,11 @@ void QSqlForm::readField( QWidget * widget )
 void QSqlForm::writeField( QWidget * widget )
 {
     QSqlField * field = 0;
-    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+    QSqlPropertyMap * pmap = (propertyMap == 0) ?
 			     QSqlPropertyMap::defaultMap() : propertyMap;
 
     field = widgetToField( widget );
-    if( field ) 
+    if( field )
 	field->setValue( pmap->property( widget ) );
 }
 

@@ -13,7 +13,6 @@ Search::Search( QWidget * parent, const char * name )
     cursor = new QSqlCursor( "key_test" );
     cursor->select( cursor->primaryIndex() );
     cursor->next();
-    QSqlRecord * r = cursor->editBuffer();
     table->setCursor( cursor );
 }
 
@@ -25,7 +24,7 @@ void Search::close()
 
 void Search::search()
 {
-    table->find( searchString->text(), caseSensitive->isChecked(), 
+    table->find( searchString->text(), caseSensitive->isChecked(),
 		 backwards->isChecked() );
 }
 
