@@ -30,6 +30,14 @@
 #include <private/qobject_p.h>
 #endif // QT_H
 
+#include <qrect.h>
+#include <qregion.h>
+#include <qsizepolicy.h>
+#include <qwidget.h>
+
+#ifdef Q_WS_WIN
+#include <qt_windows.h>
+#endif // Q_WS_WIN
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.
@@ -46,6 +54,11 @@ class QCoreGraphicsPaintEnginePrivate;
 class QX11Info;
 #endif
 class QPaintEngine;
+class QPixmap;
+
+#ifndef QT_NO_STYLE
+class QStyle;
+#endif
 
 struct QTLWExtra {
 #ifndef QT_NO_WIDGET_TOPEXTRA
