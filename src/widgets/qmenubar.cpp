@@ -1189,14 +1189,20 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 
 QSize QMenuBar::sizeHint() const
 {
+    if ( badSize )
+	calculateRects();
     QSize s( 0, 0 );
     if ( irects ) {
 	for ( int i = 0; i < (int)mitems->count(); ++i )
 	    s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
-    s.setHeight( height() + 2 );
+    s.setHeight( height() );
     return s;
 }
+
+/*!
+  \reimp
+*/
 
 QSize QMenuBar::minimumSize() const
 {
@@ -1204,6 +1210,10 @@ QSize QMenuBar::minimumSize() const
 	return sizeHint();
     return QFrame::minimumSize();
 }
+
+/*!
+  \reimp
+*/
 
 QSize QMenuBar::minimumSizeHint() const
 {
