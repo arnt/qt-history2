@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#9 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -27,28 +27,13 @@
 
 /*!
   \class QDropSite qdropsite.h
-  \brief Encapsulates the requirements for implementing Drag-and-Drop dropping.
+  \brief Provides nothing and does nothing.
 
-  Multiply-inherit from a QWidget subclass and this class to make a widget
-  which can receive drag-and-drop events.  This slightly unusual arrangement
-  is due to binary-compatibility issues.  Qt 2.0 will allow the same technique,
-  but this class will be almost empty.
+  This class exists only so that old code will not break.  It does
+  nothing.  If your code uses it, you can safely delete it.
 
-  Example:
-  \code
-    class MyLabel : public QLabel, QDropSite {
-      public:
-	MyLabel( QWidget* parent ) :
-	    QLabel( parent ), QDropSite( this )
-	{
-	}
-
-	void dragEnterEvent( QDragEnterEvent * );
-	void dragMoveEvent( QDragMoveEvent * );
-	void dragLeaveEvent( QDragLeaveEvent * );
-	void dropEvent( QDropEvent * );
-    };
-  \endcode
+  It was used in Qt 1.x to do some drag and drop; that has since been
+  folded into QWidget.
 
   For detailed information about drag-and-drop, see the QDragObject class.
 
