@@ -203,13 +203,10 @@ Qt::HANDLE QThread::currentThread()
 */
 void QThread::initialize()
 {
-#ifdef QT_CHECK_STATE
-    Q_ASSERT( qt_global_mutexpool == 0 );
-    Q_ASSERT( qt_thread_mutexpool == 0 );
-#endif // QT_CHECK_STATE
-
-    qt_global_mutexpool = new QMutexPool( TRUE );
-    qt_thread_mutexpool = new QMutexPool( FALSE );
+    if ( ! qt_global_mutexpool )
+	qt_global_mutexpool = new QMutexPool( TRUE );
+    if ( ! qt_thread_mutexpool )
+	qt_thread_mutexpool = new QMutexPool( FALSE );
 }
 
 
@@ -300,6 +297,9 @@ void QThread::usleep( unsigned long usecs )
 */
 QThread::QThread()
 {
+    if ( ! qt_thread_mutexpool )
+	QThread::initialize();
+
     d = new QThreadPrivate;
     Q_CHECK_PTR( d );
 }
