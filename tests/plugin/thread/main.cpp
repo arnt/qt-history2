@@ -8,6 +8,31 @@
 #include <qstylefactory.h>
 
 #include <qsettings.h>
+#include <qthread.h>
+#include <qlabel.h>
+
+#include <qt_windows.h>
+
+class TestThread : public QThread
+{
+public:
+    TestThread() : QThread() {}
+
+protected:
+    void run();
+};
+
+void TestThread::run()
+{
+    QLabel label( 0 );
+    label.setText( "Text" );
+    label.show();
+
+    while ( 1 )
+    {
+	qApp->processOneEvent();
+    }
+}
 
 class TestComponent : public QObject, 
 		      public ActionInterface, 
@@ -43,13 +68,14 @@ public:
     QString version() const { return "beta"; }
     QString author() const { return "vohi@trolltech.com"; }
 
-    QUnknownInterface *createInstance( const QUuid &, const QUuid & );
+    QUnknownInterface *createInstance( const QUuid &, const QUuid &, QUnknownInterface *outer );
 
     static QUuid cid;
 
 
 private slots:
     void setStyle( const QString& );
+    void startThread();
 
 private:
     QGuardedCleanupHandler<QAction> actions;
@@ -110,6 +136,7 @@ QStringList TestComponent::featureList() const
 {
     QStringList list;
     list << "Set Style";
+    list << "Thread widget";
     return list;
 }
 
@@ -161,6 +188,12 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 
 	actions.add( ag );
 	return ag;
+    } else if ( actionname == "Thread widget" ) {
+	QAction *a = new QAction( "Start Thread", QIconSet(), "Start &Thread", 0, parent );
+	connect( a, SIGNAL( activated() ), this, SLOT( startThread() ) );
+
+	actions.add( a );
+	return a;
     }
 
     return 0;
@@ -169,6 +202,12 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 void TestComponent::setStyle( const QString& style )
 {
     QApplication::setStyle( style );
+}
+
+void TestComponent::startThread()
+{
+    TestThread *thread = new TestThread;
+    thread->start();
 }
 
 QString TestComponent::group( const QString & ) const
@@ -217,7 +256,7 @@ bool TestComponent::unregisterComponents() const
     return ok;
 }
 
-QUnknownInterface *TestComponent::createInstance( const QUuid &iid, const QUuid &cid )
+QUnknownInterface *TestComponent::createInstance( const QUuid &iid, const QUuid &cid, QUnknownInterface * )
 {
     if ( cid == TestComponent::cid ) {
 	TestComponent *comp = new TestComponent();
