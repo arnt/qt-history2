@@ -387,7 +387,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	    archiveHeader = ar.readArchiveHeader();
 	}
     }
+#if defined(EVAL) || defined(EDU)
+    int sysGroupButton = 1;
+#else
     int sysGroupButton = 2;
+#endif
 
     // First check for MSVC 6.0
     QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0", "InstallDir", QEnvironment::LocalMachine );
@@ -1127,9 +1131,15 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->installExtensions->setChecked( FALSE );
     optionsPage->installExtensions->setEnabled( FALSE );
 #  endif
-    optionsPage->sysMsvcNet->setEnabled( FALSE );
-    optionsPage->sysMsvc->setEnabled( FALSE );
-    optionsPage->sysBorland->setEnabled( FALSE );
+    if ( globalInformation.sysId()==GlobalInformation::Borland ) {
+	optionsPage->sysMsvcNet->setEnabled( FALSE );
+	optionsPage->sysMsvc->setEnabled( FALSE );
+	optionsPage->sysBorland->setEnabled( FALSE );
+    } else {
+	optionsPage->sysMsvcNet->setEnabled( TRUE );
+	optionsPage->sysMsvc->setEnabled( TRUE );
+	optionsPage->sysBorland->setEnabled( FALSE );
+    }
 #endif
 }
 
