@@ -1,45 +1,13 @@
-This is the sixth beta version of Qt 3.0.
+This is the final version of Qt 3.0.
 
 This new generation of the Qt application development framework
 contains many new features, improvements and extensions. It also
 includes a significantly improved Qt Designer, and introduces Qt
 Linguist, Qt Assistant and a new multi-platform build tool, 'qmake'.
 
-It is highly unlikely that the Qt API will undergo any significant
-changes before the final release, so we encourage you to begin using
-Qt 3.0 right away.
-
 Detailed information about the modifications and new features for Qt
 3.0 is included in the Online Reference Documentation.  For a brief
 overview, see http://www.trolltech.com/company/announce/30pre.html
-
-One significant change in this beta is the removal of QCom (Qt's
-component model) from the public API.
-
-Previous Qt 3.0 betas introduced a module called QCom that provides a
-COM-like component system. The feedback we received on this module
-during the 3.0 beta phase has been mixed. Many users think this module
-lacks the intuitiveness and compactness that they have learned to
-expect from a Qt API. Therefore, we have made the difficult decision
-to withdraw the QCom API from the Qt 3.0 release. We will continue to
-develop this API until it is evolved enough for our customers, and
-will include the improved version in a later release.
-
-We apologize for any inconvenience the QCom API change has
-caused. This decision was made as part of our ongoing efforts to
-maintain the soundness and quality of Qt.
-
-Please note that the new plugin functionality in 3.0 will still be
-provided. This includes using custom widgets in Qt Designer, as well
-as runtime addition of styles, codecs, SQL drivers, and image format
-handlers. This functionality is now available through a substantially
-simplified API.
-
-Also also note that it will still be convenient to add custom plugin
-capabilities to Qt 3.0 applications, since the new QLibrary class will
-still be available. This class takes care of the low-level,
-platform-dependent issues regarding loading of DLLs and obtaining
-pointers to the functions exported by the DLLs.
 
 Because of our recently increased development team, we have been able
 to realize far more of your requests in this release. Qt 3.0 is a
@@ -57,12 +25,6 @@ existing Qt 2.x-based program to Qt 3.0. Disclaimer: the guide is not
 entirely complete, so it is possible that you'll discover issues that
 are not yet covered in the documentation.
 
-Because of the many improvements and extensions and the few parts of
-the API which are still being finalized, we expect this beta period to
-last longer than what you are typically used to from Trolltech. Unlike
-previous Qt releases where most of the beta testing was done with
-snapshot releases, this beta is not yet a final release candidate.
-
 The most visible change for long term Qt users is the reworked build
 system. On MS-Windows, unpack the package and start installer.exe; on
 Unix, unpack the package and run ./configure. Compiling and installing
@@ -74,8 +36,8 @@ compatible with 'tmake'.
 To improve maintainaibility between different platforms, all specific
 platform #defines and #includes have been moved out of the Qt sources
 into a platform specific qplatformdefs.h file.  The files are located
-in qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this beta
-release, the following platforms have been tested:
+in qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this release,
+the following platforms have been tested:
 
 win32-borland
 win32-msvc
@@ -97,7 +59,7 @@ aix-xlc
 hpux-acc
 hpux-g++
 
-If you test the beta on an an unsupported version of Unix, please
+If you try to use Qt 3.0 on an an unsupported version of Unix, please
 contact us at support@trolltech.com so that we can assist you.
 
 
@@ -105,7 +67,7 @@ How to get the beta release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. To get better download times, use ftpsearch and
-search for qt-x11-free-3.0.0-beta6.tar.gz to find it on a mirror ftp
+search for qt-x11-free-3.0.0.tar.gz to find it on a mirror ftp
 site near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
