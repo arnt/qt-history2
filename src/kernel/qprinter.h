@@ -147,6 +147,15 @@ private:
     bool prepare(PMPrintSettings *);
     bool prepare(PMPageFormat *);
 #endif
+#if defined(Q_WS_WIN)
+    void        readPdlg( void* );
+    void        readPdlgA( void* );
+
+    bool        viewOffsetDone;
+    QPainter*   painter;
+    HANDLE hdevmode;
+    HANDLE hdevnames;
+#endif
 
     int         state;
     QString     printer_name;
@@ -165,12 +174,6 @@ private:
     short       from_pg, to_pg;
     short       min_pg,  max_pg;
     short       ncopies;
-#if defined(Q_WS_WIN)
-    bool        viewOffsetDone;
-    QPainter*   painter;
-    void        readPdlg( void* );
-    void        readPdlgA( void* );
-#endif
     int         res;
 
 private:        // Disabled copy constructor and operator=

@@ -53,11 +53,6 @@
 
 
 
-// ### CS097 These should become members of QPrinter:
-static HANDLE hdevmode  = 0;
-static HANDLE hdevnames = 0;
-
-
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
 QPrinter::QPrinter( PrinterMode m )
@@ -75,6 +70,8 @@ QPrinter::QPrinter( PrinterMode m )
     viewOffsetDone = FALSE;
     painter     = 0;
     doc_name = "document1";
+    hdevmode  = 0;
+    hdevnames = 0;
 
     if ( qt_winver & Qt::WV_NT_based ) {
         PRINTDLG pd;
