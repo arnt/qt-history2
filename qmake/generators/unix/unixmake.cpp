@@ -59,12 +59,11 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->variables()["TEMPLATE"].first() == "app" ||
-       project->variables()["TEMPLATE"].first() == "lib") {
+    if (project->variables()["TEMPLATE"].first() == "app" ||
+	project->variables()["TEMPLATE"].first() == "lib") {
 	writeMakeParts(t);
 	return MakefileGenerator::writeMakefile(t);
-    }
-    else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+    } else if(project->variables()["TEMPLATE"].first() == "subdirs") {
 	writeSubdirs(t);
 	return TRUE;
     }
@@ -377,9 +376,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << "clean:" << clean_targets << "\n\t"
       << "-rm -f $(OBJECTS) $(UICIMPLS) $(UICDECLS) $(TARGET)" << "\n\t";
-    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) 
+    if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty())
 	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
-    t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t") 
+    t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n\t"
       << varGlue("CLEAN_FILES","-rm -f "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
@@ -437,17 +436,19 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 	it++;
     }
 
-    // generate dependencies
-    QString tar, dep;
-    it = subdirs.begin();
-    while (it != subdirs.end()) {
-	tar = *it++;
-	if (it != subdirs.end()) {
-	    dep = *it;
-	    t << "sub-" << dep << ": sub-" << tar << endl;
+    if (project->isActiveConfig("ordered")) {
+	// generate dependencies
+	QString tar, dep;
+	it = subdirs.begin();
+	while (it != subdirs.end()) {
+	    tar = *it++;
+	    if (it != subdirs.end()) {
+		dep = *it;
+		t << "sub-" << dep << ": sub-" << tar << endl;
+	    }
 	}
+	t << endl;
     }
-    t << endl;
 
     writeMakeQmake(t);
 
@@ -654,7 +655,7 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGET) $(OBJECTS) $(OBJMOC)");
     } else {
 	project->variables()["TARGETA"].append(project->first("DESTDIR") + "lib" + project->first("TARGET") + ".a");
-	if ( !project->variables()["QMAKE_AR_CMD"].isEmpty() ) 
+	if ( !project->variables()["QMAKE_AR_CMD"].isEmpty() )
 	    project->variables()["QMAKE_AR_CMD"].first().replace(QRegExp("\\(TARGET\\)"),"(TARGETA)");
 	else
 	    project->variables()["QMAKE_AR_CMD"].append("$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)");
