@@ -223,6 +223,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
     opt.init(this);
     opt.rect = frameRect;
 
+    opt.state |= QStyle::State_Sunken;
     if (testAttribute(Qt::WA_UnderMouse))
         opt.state |= QStyle::State_MouseOver;
     opt.lineWidth = 1;
@@ -358,17 +359,17 @@ void QGroupBoxPrivate::calculateFrame()
 {
     int va = q->style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
 
-    d->topMargin = 0;
+    topMargin = 0;
     QFontMetrics fm = q->fontMetrics();
     if (checkbox) {
         topMargin = checkbox->sizeHint().height()/2;
         if (va & Qt::AlignTop)
             topMargin += fm.ascent() - fm.height()/2;
     } else if (title.size()) {
-        if(va & Qt::AlignVCenter)
-            d->topMargin = fm.height()/2;
-        else if(va & Qt::AlignTop)
-            d->topMargin = fm.height();
+        if (va & Qt::AlignVCenter)
+            topMargin = fm.height()/2;
+        else if (va & Qt::AlignTop)
+            topMargin = fm.height();
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
