@@ -16,12 +16,12 @@
 
 
 extern "C" {
-    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
-    int q_atomic_test_and_set_ptr(volatile void *, void *, void *);
-    int q_atomic_increment(volatile int *);
-    int q_atomic_decrement(volatile int *);
-    int q_atomic_set_int(volatile int *, int);
-    void *q_atomic_set_ptr(volatile void *, void *);
+    inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    inline int q_atomic_test_and_set_ptr(volatile void *, void *, void *);
+    inline int q_atomic_increment(volatile int *);
+    inline int q_atomic_decrement(volatile int *);
+    inline int q_atomic_set_int(volatile int *, int);
+    inline void *q_atomic_set_ptr(volatile void *, void *);
 } // extern "C"
 
 #include <arch/qatomic.h>
