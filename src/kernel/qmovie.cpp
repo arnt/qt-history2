@@ -385,7 +385,7 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
     }
 
     bitBlt(&mypixmap, area.left(), area.top(),
-	   &lines, off.x(), off.x(), area.width(), area.height(),
+	   &lines, off.x(), off.y(), area.width(), area.height(),
 	   CopyROP, !bg.isValid());
 
     if (!bg.isValid() && gimg.hasAlphaBuffer() && lines.mask()) {
