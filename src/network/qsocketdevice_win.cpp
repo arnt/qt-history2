@@ -137,7 +137,6 @@ bool QSocketDevice::blocking() const
 
 void QSocketDevice::setBlocking( bool enable )
 {
-    Q_UNUSED(enable)
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug( "QSocketDevice::setBlocking( %d )", enable );
 #endif
