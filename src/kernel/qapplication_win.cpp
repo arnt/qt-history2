@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#303 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#304 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2731,7 +2731,8 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QNonBaseApplication *, QString &session )
+QSessionManager::QSessionManager( QNonBaseApplication *app, QString &session )
+    : QObject( app, "session manager")
 {
     d = new QSessionManagerData;
     d->sessionId = session;

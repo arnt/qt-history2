@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#423 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#424 $
 **
 ** Implementation of QWidget class
 **
@@ -57,7 +57,7 @@
   level widgets without such decoration by the use of <a
   href="#widgetflags">widget flags</a>).  In Qt, QMainWindow and the
   various subclasses of QDialog are the most common top-level windows.
-  
+
   A widget without a parent widget is always a top-level widget.
 
   The opposite of top-level widgets are child widgets. Those are child
@@ -110,6 +110,7 @@
 	height(),
 	sizePolicy(),
 	sizeHint(),
+	updateGeometry(),
 	layout(),
 	setLayout()
 	move(),
@@ -251,7 +252,7 @@
   <li><code>QWidget *parent = 0</code> is the parent of the new widget.
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
-  parent's geometry (Unless you specify \c WType_TopLevel as 
+  parent's geometry (Unless you specify \c WType_TopLevel as
   widget flag).
   <li><code>const char * name = 0</code> is the widget name of the new
   widget.  The widget name is little used at the moment - the
@@ -1261,7 +1262,7 @@ QSize QWidget::sizeIncrement() const
 
 /*!
   Returns the widget base size
-  
+
   The base size is used to calculate a proper widget size in case the
   widget defines sizeIncrement().
 
@@ -3175,7 +3176,7 @@ void QWidget::adjustSize()
   The default implementation returns an invalid size if there is no layout
   for this widget, the layout's preferred size otherwise.
 
-  \sa QSize::isValid(), minimumSizeHint(), sizePolicy(), setMinimumSize()
+  \sa QSize::isValid(), minimumSizeHint(), sizePolicy(), setMinimumSize(), updateGeometry()
 */
 
 QSize QWidget::sizeHint() const
@@ -4127,7 +4128,7 @@ void QWidget::setLayout( QLayout *l )
   that  the widget can be freely resized,
   but prefers to be the size sizeHint() returns.
 
-  \sa sizeHint() QLayout QSizePolicy
+  \sa sizeHint() QLayout QSizePolicy, updateGeometry()
 */
 
 QSizePolicy QWidget::sizePolicy() const

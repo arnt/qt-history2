@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#250 $
 **
 ** Implementation of QApplication class
 **
@@ -517,7 +517,6 @@ void QApplication::initialize( int argc, char **argv )
 QApplication::~QApplication()
 {
     is_app_closing = TRUE;
-    delete session_manager;
     QWidget::destroyMapper();
     destroy_palettes();
     delete app_pal;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#16 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -503,8 +503,10 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	
 
     QPoint pp = p - moveOffset;
-    QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() ),
-	       QMIN( pp.y(), geometry().bottom() - minimumHeight() ) );
+    QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() +1 ),
+	       QMIN( pp.y(), geometry().bottom() - minimumHeight() + 1 ) );
+    mp = QPoint( QMAX( mp.x(), geometry().right() - maximumWidth() +1 ),
+		 QMAX( mp.y(), geometry().bottom() -maximumHeight() +1) );
 
 
     switch ( mode ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#505 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#506 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4051,7 +4051,8 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication * /* app*/, QString &session )
+QSessionManager::QSessionManager( QApplication * app, QString &session )
+    : QObject( app, "session manager" )
 {
     d = new QSessionManagerData;
     d->sessionId = session;
@@ -4398,7 +4399,8 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication * /* app */, QString &session )
+QSessionManager::QSessionManager( QApplication * app, QString &session )
+    : QObject( app, "session manager" )
 {
     d = new QSessionManagerData;
     d->sessionId = session;
