@@ -800,6 +800,7 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
     QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
+    QMAKE_ARGS="$QMAKE_ARGS \"DEFINES+=QWS\""
 #    case $EMBEDDED in
 #    mips)
 #	QMAKE_ARGS="$QMAKE_ARGS \"QMAKE_CXXFLAGS+=-fnonnull-objects -fshort-enums -fshared-data -fno-vtable-thunks\""
