@@ -1,85 +1,114 @@
-#include <qmessagefile.h>
+#include <qtranslator.h>
+#include <stdlib.h>
+#include <qfile.h>
 
-const char * s1 = "sex";
-const char * s2 = "vold";
-const char * s3 = "uff";
-const char * s4 = "hei";
+struct {
+    const char * i, * o, *s;
+} messages[] = {
+    { "essentials", "Essex", "establish" },
+    { "heterogeneousness", "heterogenous", "heterosexual" },
+    { "homosexual", "Honda", "Hondo" },
+    { "impregnable", "impregnate", "impress" },
+    { "middlemen", "middles", "Middlesex" },
+    { "pregnancy", "pregnant", "prehistoric" },
+    { "sewing", "sews", "sex" },
+    { "sexed", "sexes", "sexist" },
+    { "Sextans", "sextet", "sextillion" },
+    { "sexton", "sextuple", "sextuplet" },
+    { "sexual", "sexuality", "sexually" },
+    { "sexy", "Seychelles", "Seymour" },
+    { "Susquehanna", "Sussex", "sustain" },
+    { 0, 0, 0 }
+};
 
-//#define MESSAGE_LOAD
 
-main(int, char** )
+static int tries = 0;
+static bool find( QTranslator & m, int i )
 {
-    QMessageFile m( 0 );
-
-
-#ifdef MESSAGE_LOAD
-    m.load( "msg.tr" );
-#else
-    m.insert( 1, s1 );
-    m.insert( 123456, s2 );
-    m.insert( 257, s3 );
-    m.insert( 513, s4 );
-#endif
-    if ( !m.contains( 1, 0, 0 ) )
-	qDebug( "insertion failed(1)" );
-    if ( !m.contains( 123456, 0, 0 ) )
-	qDebug( "insertion failed(123456)" );
-    if ( !m.contains( 257, 0, 0 ) )
-	qDebug( "insertion failed(257)" );
-    if ( !m.contains( 513, 0, 0 ) )
-	qDebug( "insertion failed(513)" );
-
-    QString tmp;
-    tmp = m.find( 1, 0, 0 );
-    if ( tmp != s1 )
-	qDebug( "look-up failed(1) (<%s>)", tmp.ascii() );
-    tmp = m.find( 123456, 0, 0 );
-    if ( tmp != s2 )
-	qDebug( "look-up failed(123456) (<%s>)", tmp.ascii() );
-    tmp = m.find( 257, 0, 0 );
-    if ( tmp != s3 )
-	qDebug( "look-up failed(257) (<%s>)", tmp.ascii() );
-    tmp = m.find( 513, 0, 0 );
-    if ( tmp != s4 )
-	qDebug( "look-up failed(513) (<%s>)", tmp.ascii() );
-
-    m.squeeze();
-    tmp = m.find( 1, 0, 0 );
-    if ( tmp != s1 )
-	qDebug( "squeezed look-up failed(1) (<%s>)", tmp.ascii() );
-    tmp = m.find( 123456, 0, 0 );
-    if ( tmp != s2 )
-	qDebug( "squeezed look-up failed(123456) (<%s>)", tmp.ascii() );
-    tmp = m.find( 257, 0, 0 );
-    if ( tmp != s3 )
-	qDebug( "squeezed look-up failed(257) (<%s>)", tmp.ascii() );
-    tmp = m.find( 513, 0, 0 );
-    if ( tmp != s4 )
-	qDebug( "squeezed look-up failed(513) (<%s>)", tmp.ascii() );
-
-    m.unsqueeze();
-    tmp = m.find( 1, 0, 0 );
-    if ( tmp != s1 )
-	qDebug( "unsqueezed look-up failed(1) (<%s>)", tmp.ascii() );
-    tmp = m.find( 123456, 0, 0 );
-    if ( tmp != s2 )
-	qDebug( "unsqueezed look-up failed(123456) (<%s>)", tmp.ascii() );
-    tmp = m.find( 257, 0, 0 );
-    if ( tmp != s3 )
-	qDebug( "unsqueezed look-up failed(257) (<%s>)", tmp.ascii() );
-    tmp = m.find( 513, 0, 0 );
-    if ( tmp != s4 )
-	qDebug( "unsqueezed look-up failed(513) (<%s>)", tmp.ascii() );
-
-    QMessageFileIterator it( m );
-    if ( !it.toFirst() )
-	qDebug( "it.toFirst failed" );
-    QString *s;
-    while( (s=it.current()) != 0 ) {
-	qDebug( "saw %d: <%s> using iterator", it.currentKey(), s->ascii() );
-	++it;
+    if ( !m.find( messages[i].s, messages[i].i ).length() ) {
+	warning(  "failed to find %s in %s (item %i, after %d lookups)",
+		  messages[i].i, messages[i].s, i, tries );
+	return FALSE;
     }
-#ifndef MESSAGE_LOAD
-    m.save( "msg.tr" );
-#endif
+    tries++;
+    return TRUE;
+}
+
+
+static bool ripple( QTranslator & m )
+{
+    int i = 0;
+    while( messages[i].i ) {
+	if ( !find( m, i ) )
+	    return FALSE;
+	i++;
+    }
+    int c = i;
+
+    int j;
+    for( j=0; j<1000; j++ )
+	if ( !find( m, random()%c ) )
+	    return FALSE;
+    return TRUE;
+}
+
+
+static bool test( bool load )
+{
+    QTranslator m( 0 );
+    int i;
+
+    if ( load ) {
+	m.load( "msg.tr" );
+    } else {
+	i = 0;
+	while( messages[i].i ) {
+	    m.insert( messages[i].s, messages[i].i, messages[i].o );
+	    debug( "inserted %s -> %s", messages[i].i, messages[i].o );
+	    i++;
+	}
+    }
+
+    debug( "trying (%s)", load ? "just loaded" : "just inserted" );
+    if ( !ripple( m ) )
+	return FALSE;
+    if ( !load ) {
+	debug( "squeezing" );
+	m.squeeze();
+	if ( !ripple( m ) )
+	    return FALSE;
+    }
+    debug( "unsqueezing" );
+    m.unsqueeze();
+    if ( !ripple( m ) )
+	return FALSE;
+    debug( "squeezing" );
+    m.squeeze();
+    if ( !ripple( m ) ) {
+	m.unsqueeze();
+	if ( ripple( m ) )
+	    debug( "but then uns/ripple worked" );
+	return FALSE;
+    }
+
+    if ( !load )
+	m.save( "msg.tr" );
+    return TRUE;
+}
+
+
+
+int main(int, char** )
+{
+    QFile f( "/dev/random" );
+    char randomstuff[4];
+    if ( f.open( IO_ReadOnly ) && 
+	 f.readBlock( randomstuff, 4 ) == 4 )
+	::srandom( randomstuff[0] + 
+		   randomstuff[1] << 8 + 
+		   randomstuff[2] << 16 + 
+		   randomstuff[3] << 24 ); 
+	
+    if ( test( FALSE ) && test( TRUE ) )
+	qDebug( "okay, it worked." );
 }
