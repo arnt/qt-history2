@@ -13,6 +13,7 @@ static int tabSize;
   Constructs an empty location.
 */
 Location::Location()
+    : etcetera( FALSE )
 {
 }
 
@@ -20,6 +21,7 @@ Location::Location()
 
 */
 Location::Location( const QString& fileName )
+    : etcetera( FALSE )
 {
     push( fileName );
 }

@@ -1710,7 +1710,7 @@ void Doc::initialize( const Config& config )
     while ( c != commands.end() ) {
 	QString alias = config.getString( CONFIG_ALIAS + Config::dot + *c );
 	if ( reverseAliasMap.contains(alias) ) {
-	    Messages::warning( config.location(),
+	    Messages::warning( config.lastLocation(),
 			       Qdoc::tr("Command name '\\%1' cannot stand"
 					" for both '\\%2' and '\\%3'")
 			       .arg(alias)
@@ -1762,7 +1762,7 @@ void Doc::initialize( const Config& config )
 			QString other = Qdoc::tr( "default" );
 			if ( macro->defaultDef.isEmpty() )
 			    other = macro->otherDefs.begin().key();
-			Messages::warning( config.location(),
+			Messages::warning( config.lastLocation(),
 					   Qdoc::tr("Macro '\\%1' takes"
 						    " inconsistent number of"
 						    " arguments (%2 %3, %4 %5)")

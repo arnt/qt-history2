@@ -69,19 +69,19 @@ void Generator::initialize( const Config& config )
 {
     outDir = config.getString( CONFIG_OUTPUTDIR );
     if ( outDir.isEmpty() )
-	Messages::fatal( config.location(CONFIG_OUTPUTDIR),
+	Messages::fatal( config.lastLocation(),
 			 Qdoc::tr("No output directory specified in"
 				  " configuration file") );
 
     QDir dirInfo;
     if ( dirInfo.exists(outDir) ) {
 	if ( !removeDirContents(outDir) )
-	    Messages::error( config.location(CONFIG_OUTPUTDIR),
+	    Messages::error( config.lastLocation(),
 			     Qdoc::tr("Cannot empty output directory '%1'")
 			     .arg(outDir) );
     } else {
 	if ( !dirInfo.mkdir(outDir) )
-	    Messages::fatal( config.location(CONFIG_OUTPUTDIR),
+	    Messages::fatal( config.lastLocation(),
 			     Qdoc::tr("Cannot create output directory '%1'")
 			     .arg(outDir) );
     }

@@ -21,7 +21,7 @@ public:
 
     const QString& programName() const { return prog; }
     const Location& location() const { return loc; }
-    Location location( const QString& var ) const;
+    const Location& lastLocation() const { return lastLoc; }
     int getInt( const QString& var ) const;
     QString getString( const QString& var ) const;
     Set<QString> getStringSet( const QString& var ) const;
@@ -45,7 +45,9 @@ private:
 
     QString prog;
     Location loc;
-    QMap<QString, QStringList> map;
+    Location lastLoc;
+    QMap<QString, Location> locMap;
+    QMap<QString, QStringList> valueMap;
 };
 
 #define CONFIG_ALIAS                "alias"

@@ -23,6 +23,17 @@
 #include "tokenizer.h"
 #include "tree.h"
 
+static const struct {
+    const char *key;
+    const char *value;
+} defaults[] = {
+    { CONFIG_FALSEHOODS, "0" },
+    { CONFIG_FORMATS, "HTML" },
+    { CONFIG_LANGUAGE, "C++" },
+    { CONFIG_TABSIZE, "8" },
+    { 0, 0 }
+};
+
 static QDict<Tree> trees;
 static QPtrList<CodeParser> parsers;
 static QPtrList<CodeMarker> markers;
@@ -62,8 +73,17 @@ static void processQdocFile( const QString& fileName )
 
     Config config( Qdoc::tr("qdoc") );
 
+    int i = 0;
+    while ( defaults[i].key != 0 ) {
+	config.setStringList( defaults[i].key,
+			      QStringList() << defaults[i].value );
+	i++;
+    }
+
     Messages::initialize( config );
+    Location::initialize( config );
     config.load( fileName );
+    Location::terminate();
     Messages::terminate();
 
     QString prevCurrentDir = QDir::currentDirPath();
@@ -79,15 +99,12 @@ static void processQdocFile( const QString& fileName )
     CodeParser::initialize( config );
     Generator::initialize( config );
 
-    QString lang = config.getString( CONFIG_LANGUAGE );
-    Tree *tree = treeForLanguage( lang );
-
     QStringList fileNames = config.getStringList( CONFIG_TRANSLATORS );
     QStringList::Iterator fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
 	QTranslator *translator = new QTranslator( 0 );
 	if ( !translator->load(*fn) )
-	    Messages::error( config.location(),
+	    Messages::error( config.lastLocation(),
 			     Qdoc::tr("Cannot load translator '%1'")
 			     .arg(*fn) );
 	qApp->installTranslator( translator );
@@ -95,10 +112,18 @@ static void processQdocFile( const QString& fileName )
 	++fn;
     }
 
+    QString lang = config.getString( CONFIG_LANGUAGE );
+    Tree *tree = treeForLanguage( lang );
     CodeParser *codeParser = CodeParser::parserForLanguage( lang );
     if ( codeParser == 0 )
-	Messages::fatal( config.location(),
+	Messages::fatal( config.lastLocation(),
 			 Qdoc::tr("Cannot parse language '%1'").arg(lang) );
+    CodeMarker *marker = CodeMarker::markerForLanguage( lang );
+    if ( marker == 0 )
+	Messages::fatal( config.lastLocation(),
+			 Qdoc::tr("Cannot output documentation for"
+				  " language '%1'")
+			 .arg(lang) );
 
     QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
 					      "*.h" );
@@ -119,19 +144,12 @@ static void processQdocFile( const QString& fileName )
 	++s;
     }
 
-    CodeMarker *marker = CodeMarker::markerForLanguage( lang );
-    if ( marker == 0 )
-	Messages::fatal( config.location(),
-			 Qdoc::tr("Cannot output documentation for"
-				  " language '%1'")
-			 .arg(lang) );
-
     Set<QString> formats = config.getStringSet( CONFIG_FORMATS );
     Set<QString>::ConstIterator f = formats.begin();
     while ( f != formats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *f );
 	if ( generator == 0 )
-	    Messages::fatal( config.location(),
+	    Messages::fatal( config.lastLocation(),
 			     Qdoc::tr("Unknown documentation format '%1'")
 			     .arg(*f) );
 	generator->generateTree( tree, marker );

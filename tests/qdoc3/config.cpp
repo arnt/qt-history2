@@ -32,6 +32,7 @@ void Config::load( const QString& fileName )
     reset();
     load( Location::null, fileName );
     loc = Location( fileName );
+    lastLoc = Location( fileName );
 }
 
 /*!
@@ -39,15 +40,7 @@ void Config::load( const QString& fileName )
 */
 void Config::setStringList( const QString& var, const QStringList& values )
 {
-    map[var] = values;
-}
-
-/*!
-
-*/
-Location Config::location( const QString& /* var */ ) const
-{
-    return location();
+    valueMap[var] = values;
 }
 
 /*!
@@ -82,7 +75,9 @@ Set<QString> Config::getStringSet( const QString& var ) const
 
 QStringList Config::getStringList( const QString& var ) const
 {
-    return map[var];
+    if ( !locMap[var].isEmpty() )
+	(Location&) lastLoc = locMap[var];
+    return valueMap[var];
 }
 
 QRegExp Config::getRegExp( const QString& var ) const
@@ -124,16 +119,16 @@ Set<QString> Config::subVars( const QString& var ) const
 {
     Set<QString> result;
     QString varDot = var + ".";
-    QMap<QString, QStringList>::ConstIterator m = map.begin();
-    while ( m != map.end() ) {
-	if ( m.key().startsWith(varDot) ) {
-	    QString subVar = m.key().mid( varDot.length() );
+    QMap<QString, QStringList>::ConstIterator v = valueMap.begin();
+    while ( v != valueMap.end() ) {
+	if ( v.key().startsWith(varDot) ) {
+	    QString subVar = v.key().mid( varDot.length() );
 	    int dot = subVar.find( '.' );
 	    if ( dot != -1 )
 		subVar.truncate( dot );
 	    result.insert( subVar );
 	}
-	++m;
+	++v;
     }
     return result;
 }
@@ -175,24 +170,10 @@ QString Config::findFile( const QStringList& files, const QStringList& dirs,
 
 void Config::reset()
 {
-    static const struct {
-	const char *key;
-	const char *value;
-    } defs[] = {
-	{ CONFIG_FALSEHOODS, "0" },
-	{ CONFIG_FORMATS, "HTML" },
-	{ CONFIG_LANGUAGE, "C++" },
-	{ CONFIG_TABSIZE, "8" },
-	{ 0, 0 }
-    };
-    int i = 0;
-
     loc = Location::null;
-    map.clear();
-    while ( defs[i].key != 0 ) {
-	map[defs[i].key].append( defs[i].value );
-	i++;
-    }
+    lastLoc = Location::null;
+    locMap.clear();
+    valueMap.clear();
 }
 
 void Config::load( Location location, const QString& fileName )
@@ -229,6 +210,7 @@ void Config::load( Location location, const QString& fileName )
 		ADVANCE();
 	    } while ( text[i] != '\n' );
 	} else if ( text[i].isLetterOrNumber() ) {
+	    Location keyLoc = location;
 	    QRegExp keySyntax( "\\w+(?:\\.\\w+)*" );
 	    QString key;
 	    bool plus = FALSE;
@@ -333,9 +315,15 @@ void Config::load( Location location, const QString& fileName )
 		value.remove( "" );
 
 		if ( plus ) {
-		    map[key] += value;
+		    if ( locMap[key].isEmpty() ) {
+			locMap[key] = keyLoc;
+		    } else {
+			locMap[key].setEtc( TRUE );
+		    }
+		    valueMap[key] += value;
 		} else {
-		    map[key] = value;
+		    locMap[key] = keyLoc;
+		    valueMap[key] = value;
 		}
 	    }
 	} else {

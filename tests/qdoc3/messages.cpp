@@ -20,7 +20,7 @@ void Messages::initialize( const Config& config )
     if ( regExp.isValid() ) {
 	spuriousRegExp = new QRegExp( regExp );
     } else {
-	Messages::warning( config.location(CONFIG_SPURIOUS),
+	Messages::warning( config.lastLocation(),
 			   Qdoc::tr("Invalid regular expression '%1'")
 			   .arg(regExp.pattern()) );
     }
@@ -103,6 +103,7 @@ QString Messages::toString( const Location& location )
 	str = programName;
     } else {
 	Location loc2 = location;
+	loc2.setEtc( FALSE );
 	loc2.pop();
 	if ( !loc2.isEmpty() ) {
 	    QString blah = Qdoc::tr( "In file included from " );
@@ -124,7 +125,12 @@ QString Messages::toString( const Location& location )
 QString Messages::top( const Location& location )
 {
     QString str = location.pathAndFileName();
-    if ( location.lineNo() >= 1 )
+    if ( location.lineNo() >= 1 ) {
 	str += ":" + QString::number( location.lineNo() );
+	if ( location.columnNo() >= 1 )
+	    str += ":" + QString::number( location.columnNo() );
+    }
+    if ( location.etc() )
+	str += " (etc.)";
     return str;
 }
