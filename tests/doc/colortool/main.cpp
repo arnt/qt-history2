@@ -831,20 +831,14 @@ private:
 	    else
 		msg = QString( "Colors '%1'\n" ).arg( m_filename );
 	    msg += "has been changed.";
-	    switch( QMessageBox::information( this,
+	    int ans = QMessageBox::information( this,
 			"Color Tool -- Unsaved Changes",
 			msg, "&Save", "Cancel", "&Abandon",
-			0, 1 ) ) {
-		case 0:
-		    fileSave();
-		    break;
-		case 1: // fallthrough
-		default:
-		    return false;
-		    break;
-		case 2:
-		    break;
-	    }
+			0, 1 );
+	    if ( ans == 0 )
+		fileSave();
+	    else if ( ans == 1 )
+		return false;
 	}
 
 	return true;

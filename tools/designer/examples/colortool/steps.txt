@@ -74,6 +74,14 @@ menu. The Edit menu will pop up; drag the optionsAction down the menu
 (a red bar will show its position), and drop it at the end after the
 Find option.
 
+Right click the first action in the Action Editor, then click New
+Action.
+
+Change the action's name to 'editAddAction'. Click the elipsis to
+change its icon to pixlabel.png. Change the text property to 'Add' and
+the menu property to '&Add...'. Now click the action and drag it to
+be the first item in the Edit menu. Give it a shortcut of CTRL+A.
+
 Click the form's Edit menu, then right click the Find option and click
 Insert Separator.
 
@@ -82,6 +90,7 @@ property to Delete and its menu text to '&Delete'
 
 Click the editCopyAction in the Action Editor and change its menu text
 property to '&Copy'
+
 
 Click File|Save
 
@@ -122,7 +131,7 @@ click the middle of the form. Click the form itself, then click Lay
 Out Vertically. Rename the widget stack 'Widget Stack'. 
 
 Click the Views item in the Toolbox. Click Table, then click in the
-middle of the widget stack. Change the name property to Table, numRows
+middle of the widget stack. Change the name property to colorTable, numRows
 to 0 and readOnly to true. Right click the table, then click Edit to
 invoke the  Edit Table dialog. Change the Label for column 1 to
 'Name'. Click '2' in the Columns list and change the Label for column
@@ -132,7 +141,7 @@ property to 'tablePage'.
 
 Right click the widget stack, then click Add Page. Click IconView in
 the Toolbox and click in the middle of the widget stack. Change its
-name property to 'IconView' and its resizeMode to Adjust. 
+name property to 'colorIconView' and its resizeMode to Adjust. 
 Right click the icon view, then click Edit to invoke the Edit Iconview
 dialog. Delete the item then click OK. 
 Click the page object in the Object Explorer and change its name to
@@ -169,7 +178,7 @@ We want to show details of the current color in the status bar so we
 must create some signal slot connections.
 
 Click Edit|Connections to invoke the View and Edit Connections dialog.
-Click New to create a new connection. Change the sender to Table, and
+Click New to create a new connection. Change the sender to colorTable, and
 change the Signal to currentChanged(int,int). Change the receiver to
 MainForm. We need to create a new slot (that we'll code later). Click
 Edit Slots to invoke the Edit Functions dialog, and change the default
@@ -177,7 +186,7 @@ Edit Slots to invoke the Edit Functions dialog, and change the default
 change the Slot in the View and Edit Connections dialog to our new
 changedTableColor slot.
 
-Click New to create another connection. Change the sender to IconView
+Click New to create another connection. Change the sender to colorIconView
 and change the Signal to currentChanged(QIconViewItem*). Change the
 receiver to MainForm. Again, click Edit Slots, and create a new slot,
 this time called called changedIconColor(QIconViewItem*). Change the
@@ -186,14 +195,16 @@ changedIconColor slot.
 
 We also want to connect the widget stack's aboutToShow slot to our own
 slot. Click New and change the sender to WidgetStack. Change the
-Signal to aboutToShow(QWidget*) and change the receiver to MainForm.
-Create a new slot called aboutToShow(QWidget*) and make this the Slot
+Signal to aboutToShow(int) and change the receiver to MainForm.
+Create a new slot called aboutToShow(int) and make this the Slot
 that the widget stack's aboutToShow signal connects to.
 
 We also need to connect up our view menu's action group. Click New and
 change the sender to viewActionGroup. Change the Signal to
 selected(QAction*). Change the receiver to MainForm. Create a new slot
-called changeView(QAction*)  ###
+called changeView(QAction*)  and make this the slot that the selected
+signal connects to.
+
 
 
 CODE
@@ -205,7 +216,7 @@ Create the following consts:
 <<no tick pixmap -- use QCheckTableItems instead>>
 
 Create the init() function, the clear() function and the populate()
-function. Also colorSwatch().
+function. Also colorSwatch(), isWebColor(), .
 
 (Create main.cpp)
 Click File|New, then click main.cpp. This invokes the Configure
@@ -218,5 +229,38 @@ to
 
 Do File|Save and try executing the project:
 run qmake to generate the Makefile, then make then run 
+
+Now we'll write our custom slots.
+
+aboutToShow(int),
+changedTableColor(row)
+changedIconColor(QIconViewItem *)
+
+and a new function changedColor(const QString&)
+Because this updates the status bar we need to include (in
+Implementation) "qstatusbar.h".
+
+We now implement the file options, fileNew, fileOpen, fileSave and
+fileSaveAs.  We need to declare "qregexp.h", "qmessagebox",
+"qfiledialog.h" and "qfile.h". (The file format we are using for
+colors is that used by the X Consortium.)
+
+
+Now we'll implement the edit menu options.
+
+Before we can implement Add we must make a signal/slot connection.
+Click Edit|Connections to invoke the View and Edit Connections dialog.
+Click New and set the sender to be editAddAction, signal activated,
+receiver, MainForm and slot (a newly created editAdd()).
+
+Now we'll write the code for the editAdd() slot.
+We need to include qcolordialog.h. The code lets the use choose a
+color, but doesn't let them give it a name and doesn't actually add it
+to our table or icon view. In the next chapter we'll create a dialog
+to let the user name the color and we'll complete the implementation of
+this function.
+
+
+Now we'll implement editDelete().
 
 

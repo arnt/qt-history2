@@ -18,7 +18,8 @@ IMAGES	= images/filenew \
 	images/tabwidget.png \
 	images/table.png \
 	images/iconview.png \
-	images/richtextedit.png
+	images/richtextedit.png \
+	images/pixlabel.png
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DBFILE	= colortool.db

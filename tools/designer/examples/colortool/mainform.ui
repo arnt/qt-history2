@@ -8,20 +8,20 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>533</width>
-            <height>366</height>
+            <width>600</width>
+            <height>480</height>
         </rect>
     </property>
     <property name="caption">
         <string>Color Tool</string>
     </property>
-    <vbox>
+    <hbox>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
         <widget class="QWidgetStack">
             <property name="name">
-                <cstring>WidgetStack</cstring>
+                <cstring>colorWidgetStack</cstring>
             </property>
             <widget class="QWidget">
                 <property name="name">
@@ -30,7 +30,7 @@
                 <attribute name="id">
                     <number>0</number>
                 </attribute>
-                <vbox>
+                <hbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
@@ -51,7 +51,7 @@
                             </property>
                         </column>
                         <property name="name">
-                            <cstring>Table</cstring>
+                            <cstring>colorTable</cstring>
                         </property>
                         <property name="numRows">
                             <number>0</number>
@@ -63,11 +63,11 @@
                             <bool>true</bool>
                         </property>
                     </widget>
-                </vbox>
+                </hbox>
             </widget>
             <widget class="QWidget">
                 <property name="name">
-                    <cstring>iconPage</cstring>
+                    <cstring>iconsPage</cstring>
                 </property>
                 <attribute name="id">
                     <number>1</number>
@@ -78,16 +78,13 @@
                     </property>
                     <widget class="QIconView">
                         <property name="name">
-                            <cstring>IconView</cstring>
-                        </property>
-                        <property name="resizeMode">
-                            <enum>Adjust</enum>
+                            <cstring>colorIconView</cstring>
                         </property>
                     </widget>
                 </vbox>
             </widget>
         </widget>
-    </vbox>
+    </hbox>
 </widget>
 <menubar>
     <property name="name">
@@ -102,6 +99,7 @@
         <action name="fileExitAction"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
+        <action name="editAddAction"/>
         <action name="editCutAction"/>
         <action name="editCopyAction"/>
         <separator/>
@@ -132,9 +130,11 @@
         <action name="fileOpenAction"/>
         <action name="fileSaveAction"/>
         <separator/>
-        <action name="editCopyAction"/>
         <action name="editCutAction"/>
+        <action name="editCopyAction"/>
         <action name="editFindAction"/>
+        <separator/>
+        <action name="optionsAction"/>
         <separator/>
         <action name="viewTableAction"/>
         <action name="viewIconsAction"/>
@@ -344,9 +344,6 @@
             <property name="toggleAction">
                 <bool>true</bool>
             </property>
-            <property name="on">
-                <bool>true</bool>
-            </property>
             <property name="iconSet">
                 <iconset>table.png</iconset>
             </property>
@@ -387,47 +384,148 @@
             </property>
         </action>
     </actiongroup>
+    <action>
+        <property name="name">
+            <cstring>editAddAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>pixlabel.png</iconset>
+        </property>
+        <property name="text">
+            <string>Add</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Add...</string>
+        </property>
+        <property name="accel">
+            <number>4194369</number>
+        </property>
+    </action>
 </actions>
 <connections>
     <connection>
-        <sender>Table</sender>
+        <sender>fileNewAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>fileNew()</slot>
+    </connection>
+    <connection>
+        <sender>fileOpenAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>fileOpen()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>fileSave()</slot>
+    </connection>
+    <connection>
+        <sender>fileSaveAsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>fileSaveAs()</slot>
+    </connection>
+    <connection>
+        <sender>fileExitAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>fileExit()</slot>
+    </connection>
+    <connection>
+        <sender>editCutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>editCut()</slot>
+    </connection>
+    <connection>
+        <sender>editCopyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>editCopy()</slot>
+    </connection>
+    <connection>
+        <sender>editFindAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>editFind()</slot>
+    </connection>
+    <connection>
+        <sender>helpIndexAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>helpIndex()</slot>
+    </connection>
+    <connection>
+        <sender>helpContentsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>helpContents()</slot>
+    </connection>
+    <connection>
+        <sender>helpAboutAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>helpAbout()</slot>
+    </connection>
+    <connection>
+        <sender>colorTable</sender>
         <signal>currentChanged(int,int)</signal>
         <receiver>MainForm</receiver>
         <slot>changedTableColor(int,int)</slot>
     </connection>
     <connection>
-        <sender>IconView</sender>
+        <sender>colorIconView</sender>
         <signal>currentChanged(QIconViewItem*)</signal>
         <receiver>MainForm</receiver>
         <slot>changedIconColor(QIconViewItem*)</slot>
     </connection>
     <connection>
-        <sender>WidgetStack</sender>
-        <signal>aboutToShow(QWidget*)</signal>
+        <sender>colorWidgetStack</sender>
+        <signal>aboutToShow(int)</signal>
         <receiver>MainForm</receiver>
-        <slot>aboutToShow(QWidget*)</slot>
+        <slot>aboutToShow(int)</slot>
+    </connection>
+    <connection>
+        <sender>viewActionGroup</sender>
+        <signal>selected(QAction*)</signal>
+        <receiver>MainForm</receiver>
+        <slot>changeView(QAction*)</slot>
+    </connection>
+    <connection>
+        <sender>editAddAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainForm</receiver>
+        <slot>editAdd()</slot>
     </connection>
 </connections>
 <includes>
+    <include location="local" impldecl="in implementation">qcolordialog.h</include>
+    <include location="local" impldecl="in implementation">qregexp.h</include>
+    <include location="local" impldecl="in implementation">qfile.h</include>
+    <include location="local" impldecl="in implementation">qfiledialog.h</include>
     <include location="local" impldecl="in implementation">qapplication.h</include>
     <include location="local" impldecl="in implementation">qcolor.h</include>
     <include location="local" impldecl="in implementation">qstring.h</include>
     <include location="local" impldecl="in implementation">qpainter.h</include>
+    <include location="local" impldecl="in implementation">qstatusbar.h</include>
+    <include location="local" impldecl="in implementation">qmessagebox.h</include>
     <include location="local" impldecl="in implementation">mainform.ui.h</include>
 </includes>
 <forwards>
-    <forward>class QColor;</forward>
     <forward>class QString;</forward>
+    <forward>class QColor;</forward>
 </forwards>
 <variables>
-    <variable>bool m_show_web;</variable>
+    <variable>QStringList m_comments;</variable>
     <variable>QString m_filename;</variable>
-    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
     <variable>bool m_changed;</variable>
     <variable>bool m_table_dirty;</variable>
     <variable>bool m_icons_dirty;</variable>
     <variable>int m_clip_as;</variable>
-    <variable>QStringList m_comments;</variable>
+    <variable>bool m_show_web;</variable>
+    <variable>QMap&lt;QString,QColor&gt; m_colors;</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>
@@ -438,7 +536,8 @@
     <function type="slot">fileOpen()</function>
     <function type="slot">fileSave()</function>
     <function type="slot">fileSaveAs()</function>
-    <function type="function">filePrint()</function>
+    <function type="function">load( const QString &amp; filename )</function>
+    <function type="function" returnType="bool">okToClear()</function>
     <function type="slot">fileExit()</function>
     <function type="function">editUndo()</function>
     <function type="function">editRedo()</function>
@@ -446,12 +545,16 @@
     <function type="slot">editCopy()</function>
     <function type="function">editPaste()</function>
     <function type="slot">editFind()</function>
-    <function type="function">helpIndex()</function>
-    <function type="function">helpContents()</function>
-    <function type="function">helpAbout()</function>
-    <function type="slot">changedTableColor( int, int )</function>
-    <function type="slot">changedIconColor( QIconViewItem * )</function>
-    <function type="slot">aboutToShow( QWidget * )</function>
+    <function type="slot">helpIndex()</function>
+    <function type="slot">helpContents()</function>
+    <function type="slot">helpAbout()</function>
+    <function type="slot">changedTableColor( int row, int )</function>
+    <function type="slot">changedIconColor( QIconViewItem * item )</function>
+    <function type="function">changedColor( const QString &amp; name )</function>
+    <function type="slot">aboutToShow( int )</function>
+    <function type="slot">changeView( QAction * action )</function>
+    <function type="function" returnType="bool">isWebColor( int r, int g, int b )</function>
+    <function type="slot">editAdd()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
