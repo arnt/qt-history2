@@ -1553,6 +1553,8 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
     }
 
     triggerLayout();
+    // update, so that the line below the menubar may be drawn/earsed
+    update();
 }
 
 /*!
@@ -1769,10 +1771,7 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    // this code should only be used if there's a menu bar, in Windows
-    // Style, and there's a tool bar immediately below it.  or
-    // something like that.  I'll have to figure it out again.
-    if ( style() == WindowsStyle && d->mb ) {
+    if ( style() == WindowsStyle && d->mb && d->top && !d->top->isEmpty() ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
 	style().drawSeparator( &p, 0, y, width() - 1, y, colorGroup() );
