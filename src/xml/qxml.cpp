@@ -3357,6 +3357,7 @@ parseError:
 */
 bool QXmlSimpleReader::parseDoctype()
 {
+    bool startDTDwasReported = FALSE;
     // some init-stuff
     d->systemId = QString::null;
     d->publicId = QString::null;
@@ -3366,7 +3367,7 @@ bool QXmlSimpleReader::parseDoctype()
     const signed char Ws1              =  2; // eat_ws
     const signed char Doctype2         =  3; // read the doctype, part 2
     const signed char Ws2              =  4; // eat_ws
-    const signed char Sys              =  5; // read SYSTEM
+    const signed char Sys              =  5; // read SYSTEM or PUBLIC
     const signed char Ws3              =  6; // eat_ws
     const signed char MP               =  7; // markupdecl or PEReference
     const signed char PER              =  8; // PERReference
@@ -3465,6 +3466,13 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Done:
 		if ( lexicalHnd ) {
+		    if ( !startDTDwasReported ) {
+			startDTDwasReported = TRUE;
+			if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
+			    d->error = lexicalHnd->errorString();
+			    goto parseError;
+			}
+		    }
 		    if ( !lexicalHnd->endDTD() ) {
 			d->error = lexicalHnd->errorString();
 			goto parseError;
@@ -3487,12 +3495,6 @@ bool QXmlSimpleReader::parseDoctype()
 		break;
 	    case Doctype2:
 		d->doctype = name();
-		if ( lexicalHnd ) {
-		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
-			d->error = lexicalHnd->errorString();
-			goto parseError;
-		    }
-		}
 		break;
 	    case Sys:
 		if ( !parseOk ) {
@@ -3510,6 +3512,15 @@ bool QXmlSimpleReader::parseDoctype()
 		if ( !parseOk ) {
 		    d->error = XMLERR_ERRORPARSINGDOCTYPE;
 		    goto parseError;
+		}
+		break;
+	    case MP:
+		if ( !startDTDwasReported && lexicalHnd  ) {
+		    startDTDwasReported = TRUE;
+		    if ( !lexicalHnd->startDTD( d->doctype, d->publicId, d->systemId ) ) {
+			d->error = lexicalHnd->errorString();
+			goto parseError;
+		    }
 		}
 		break;
 	    case Done:
