@@ -1,0 +1,243 @@
+/*!
+\page designer-manual.html
+
+\title Qt Designer
+
+\section1 Overview
+
+\QD is Trolltech's tool for designing and building graphical user
+interfaces (GUIs) from Qt components. It allows you to design and build
+widgets and dialogs using on-screen forms using the same widgets that
+will be used in your application.
+Components created with \QD can also take advantage of Qt's
+signals and slots, and they can even be previewed so that you can
+be certain that they will look and feel exactly as you expect.
+
+\list
+\i \l{designer-getting-started.html}{Getting Started}
+  \list
+  \i \l{designer-getting-started.html#LaunchingDesigner}{Launching Designer}
+  \i \l{designer-getting-started.html#TheUserInterface}{The User Interface}
+  \endlist
+\i \l{designer-designing-a-component.html}{Designing a Component}
+  \list
+  \i \l{designer-designing-a-component.html#CreatingADialog}{Creating a Dialog}
+  \i \l{designer-designing-a-component.html#ComposingTheDialog}{Composing The Dialog}
+  \i \l{designer-designing-a-component.html#CreatingALayout}{Creating a Layout}
+  \endlist
+\i \l{designer-using-a-component.html}{Using a Component In Your Application}
+\endlist
+
+*/
+
+/*!
+\page designer-getting-started.html
+
+\title Getting Started
+
+\section1 Overview
+
+This manual covers the fundamental steps that most users will take when
+creating graphical user interfaces with \QD. We will introduce the
+main features of the tool by creating a simple dialog that we can use
+directly, or subclass in an example program.
+
+\image designer-getting-started.png A simple dialog produced with \QD.
+
+\target LaunchingDesigner
+\section1 Launching Designer
+
+The way that you launch \QD depends on your platform:
+
+\list
+\i On Windows, click the Start button, open the \e Programs submenu, open
+the \e{Qt 4} submenu, and click \e Designer.
+\i On Unix or Linux, you may find a \QD icon on the desktop background or
+in the desktop start menu under the \e Programming" or \e Development"
+submenus. You can launch \QD from this icon. Alternatively, you can
+enter \c{designer} in a terminal window.
+\i On Mac OS X, double click on \QD in the Finder.
+\endlist
+
+\target TheUserInterface
+\section1 The User Interface
+
+\QD provides a multi-window user interface that can be used natively, or
+from within an integrated development environment (IDE). You can arrange
+each of the tool panels to suit your own working style. The main window
+consists of a menu bar, a tool bar, and a toolbox that contains the
+widgets you can use to create your user interface.
+
+\table
+\row
+\i \inlineimage designer-menu-bar.png
+\i
+The menu bar provides all the standard functions for opening and closing
+forms, editing, and lets you control which of the tool panels are shown.
+When a new component is being designed, the form used to compose its
+user interface can also be managed from \QD's main menu.
+\endtable
+
+\table
+\row
+\i \inlineimage designer-tool-bar.png
+\i
+The tool bar displays common actions that are used when editing a form.
+These are also available via the main menu.
+\endtable
+
+\table
+\row
+\i \inlineimage designer-toolbox.png
+\i
+The toolbox provides common widgets that are used to design components.
+The toolbox contains groups of widgets in different categories.
+\omit
+It can also be extended to support user-defined categories.
+\endomit
+\endtable
+
+Most features of \QD are accessible via the menu bar, tool bar, or the
+toolbox. Some features are also available through context menus that can
+opened over the form windows. On most platforms, the right mouse button is
+used to open context menus.
+
+\l{designer-manual.html}{[Qt Designer]}
+\l{designer-designing-a-component.html}{[Designing a Component]}
+*/
+
+/*!
+\page designer-designing-a-component.html
+
+\title Designing a Component
+
+\tableofcontents
+
+\section1 Overview
+
+In this chapter we will look at the main steps that users will take
+when creating new graphical user interfaces with \QD. Usually,
+creating a new component for an application will involve various
+activities:
+
+\list
+\i Deciding which kind of component to use.
+\i Composing the user interface by adding widgets from the tool panel to
+   the form.
+\i Laying out the contents of the form.
+\i Setting the tab order of the widgets.
+\i Connecting widgets together with signals and slots by using the connection
+   editor.
+\i Previewing the form.
+\endlist
+
+Users may find that they they prefer to perform these activities in a
+different order, and we expect that for complex widgets the design process
+may involve many iterations of these steps. However, we present each of the
+activities in the above order, and leave it up to the user to find the
+approach that suits them best.
+
+In this chapter, we show how to use Designer to create a simple dialog
+which we will later use in a simple application. This is not intended
+to be a tutorial; the dialog is just a useful example that will help
+explain certain features of the tool.
+
+\target CreatingADialog
+\section1 Creating a Dialog
+
+\QD can be used to create user interfaces for different purposes,
+and provides different kinds of forms for each of these. The first choice
+that you face when creating a new user interface is to decide which kind of
+form you will be using; for example, you may require a dialog rather than
+a generic custom widget. New forms can be created by opening the \key File
+menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl+N}.
+
+\table
+\row \i
+\inlineimage designer-choosing-form.png Choosing a form for the component you need.
+\i \bold{Choosing a form:} \QD provides a number of forms that are suitable for
+different kinds of components. You can either choose one of these forms or
+open an form that was saved earlier.
+\endtable
+
+If your requirements later change so that you need to supply a different
+type of component, you can easily reuse the contents of your existing form.
+For our example, we select the form that is suitable for a dialog, and an
+empty form is created ready for use.
+
+\image designer-choosing-form.png Choosing a form for the component you need.
+
+\target ComposingTheDialog
+\section1 Composing The Dialog
+
+The empty form is displayed as an empty widget with a grid pattern overlayed
+on the widget area in a style similar to many drawing packages. 
+\QD provides two different editing modes: in form editing mode, widgets can
+be arranged, resized, and configured in the form; in connection editing mode,
+signals and slots connections can be made between the widgets.
+
+We ensure that \QD is in form editing mode by selecting the ### entry from
+the ### menu, or by pressing \key{Ctrl+A} while editing the form. This makes
+it possible to drag widgets from the main toolbox onto the form.
+
+\table
+\row \i
+\inlineimage designer-editing-connecting.png
+\i \bold{Editing modes:} In form editing mode, we can change the appearance
+of the form, add layouts, and edit the properties of each widget. In
+connection editing mode, we can connect widgets together using Qt's signals
+and slots mechanism.
+\endtable
+
+For our example, we will create a dialog that lets the user create an image
+with a given size and color depth - these properties can be represented by
+spinboxes and a combobox. We will also provide a line edit so that the user
+can specify a name for the image if they want.
+
+Before we begin adding widgets to the form, it is useful to resize it to
+give us the required amount of space to work with. We can make the form
+larger than necessary because it can be resized again later.
+
+We start composing the dialog by placing four text labels onto the form
+We do this by dragging each \e TextLabel from the \e Display section of the
+toolbox onto the form.
+
+\table
+\row \i
+\inlineimage designer-dragging-onto-form.png
+\i \bold{Drag and drop:} Widgets can be dragged from the toolbox and dropped
+onto the form. We can also create a clone of a widget on the form by holding
+down \key Ctrl and dragging the widget to a new position. The original widget
+will remain in place, and the clone can be dropped at the required location.
+\endtable
+
+
+\target CreatingALayout
+\section1 Creating a Layout
+
+In Qt, widget positions and sizes are organized by layouts. Before a form can
+be used, it is necessary to put each of the widgets into layouts, and set the
+form's overall layout. \QD provides all the standard types of layout, making
+it simple to experiment with different ways of laying out components.
+
+At any point during editing, we can experiment with the layout of the widgets
+on the form by selecting one of the standard Qt layouts. These can be selected
+in \QD's tool bar or from the form's context menu.
+
+
+
+\l{designer-getting-started.html}{[Getting Started]}
+\l{designer-manual.html}{[Up]}
+\l{designer-using-a-component.html}{[Using a Component In Your Application]}
+*/
+
+/*!
+\page designer-using-a-component.html
+
+\title Using a Component In Your Application
+
+
+\l{designer-designing-a-component.html}{[Designing a Component]}
+\l{designer-manual.html}{[Up]}
+
+*/
