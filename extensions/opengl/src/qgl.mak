@@ -56,6 +56,6 @@ qgl.obj: qgl.cpp
 moc_qgl.obj: moc_qgl.cpp \
 		..\..\include\qgl.h
 
-moc_qgl.cpp: qgl.h
-	$(MOC) qgl.h -o moc_qgl.cpp
+moc_qgl.cpp: ..\..\include\qgl.h
+	$(MOC) ..\..\include\qgl.h -o moc_qgl.cpp
 
