@@ -502,8 +502,10 @@ QFile::open(int mode)
         qWarning("QFile::open: No file name specified");
         return false;
     }
-    if(mode & (Append|WriteOnly)) //append implies write
+    if(mode & Append) //append implies write
         mode |= WriteOnly;
+    if(mode & WriteOnly)
+        mode |= Truncate;
     setFlags(IO_Direct);
     resetStatus();
     setMode(mode);
@@ -763,7 +765,7 @@ QFile::readBlock(char *data, Q_ULONG len)
         d->ungetchBuffer.resize(l - ret);
     }
     if(ret != len) {
-        ret += d->fileEngine->readBlock(data, len-ret);
+        ret += d->fileEngine->readBlock((uchar*)data, len-ret);
         if (len && ret <= 0) {
             ret = 0;
             setStatus(IO_ReadError, errno);
@@ -801,7 +803,7 @@ QFile::writeBlock(const char *data, Q_ULONG len)
         return -1;
     }
 
-    Q_ULONG ret = d->fileEngine->writeBlock(data, len);
+    Q_ULONG ret = d->fileEngine->writeBlock((const uchar *)data, len);
     if (ret != len) // write error
         setStatus(errno == ENOSPC ? IO_ResourceError : IO_WriteError, errno);
     return ret;
@@ -890,13 +892,13 @@ QFile::getch()
         qWarning("QFile::getch: Read operation not permitted");
         return EOF;
     }
-    char ret;
+    uchar ret;
     if (!d->ungetchBuffer.isEmpty()) {
         int len = d->ungetchBuffer.size();
         ret = d->ungetchBuffer[len - 1];
         d->ungetchBuffer.truncate(len - 1);
-    } else if(readBlock(&ret, 1) != 1) {
-        ret = EOF;
+    } else if(readBlock((char*)&ret, 1) != 1) {
+        return EOF;
     }
     return (int)ret;
 }

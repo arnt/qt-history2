@@ -34,8 +34,8 @@ public:
 
     virtual void setFileName(const QString &file) = 0;
 
-    virtual Q_LONG readBlock(char *data, Q_ULONG len) = 0;
-    virtual Q_LONG writeBlock(const char *data, Q_ULONG len) = 0;
+    virtual Q_LONG readBlock(uchar *data, Q_ULONG len) = 0;
+    virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len) = 0;
     
     virtual bool remove(const QString &) = 0;
 
@@ -80,8 +80,8 @@ public:
 
     virtual void setFileName(const QString &file);
 
-    virtual Q_LONG readBlock(char *data, Q_ULONG len);
-    virtual Q_LONG writeBlock(const char *data, Q_ULONG len);
+    virtual Q_LONG readBlock(uchar *data, Q_ULONG len);
+    virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len);
     
     virtual bool remove(const QString &);
 

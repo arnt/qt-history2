@@ -39,7 +39,8 @@ private:
 
     int fd;
     mutable uint sequential : 1;
-    mutable char cachedCharRead;
+    mutable uint hasCachedChar : 1;
+    mutable uchar cachedCharRead;
 };
 
 #endif /* __QFILEENGINE_P_H__ */

@@ -55,7 +55,7 @@ QFileEngine::~QFileEngine()
 //**************** QFSFileEnginePrivate
 QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
 {
-    cachedCharRead = -1;
+    hasCachedChar = 0;
     fd = -1;
     init();
 }
@@ -90,17 +90,10 @@ QFSFileEngine::open(int mode)
         oflags = QT_OPEN_RDWR;
     else if ((mode & QFile::WriteOnly) == QFile::WriteOnly)
         oflags = QT_OPEN_WRONLY;
-    if (mode & QFile::Append) {                // append to end of file?
-        if (mode & QFile::Truncate)
-            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
-        else
-            oflags |= (QT_OPEN_APPEND | QT_OPEN_CREAT);
-    } else if (mode & QFile::WriteOnly) {                // create/trunc if writable
-        if (mode & QFile::Truncate)
-            oflags |= (QT_OPEN_CREAT | QT_OPEN_TRUNC);
-        else
-            oflags |= QT_OPEN_CREAT;
-    }
+    if (mode & QFile::Append) 
+        oflags |= QT_OPEN_APPEND | QT_OPEN_CREAT;
+    else if(mode & QFile::WriteOnly)
+        oflags |= QT_OPEN_TRUNC | QT_OPEN_CREAT;
 #if defined(HAS_TEXT_FILEMODE)
     if (mode & QFile::Translate)
         oflags |= QT_OPEN_TEXT;
@@ -111,7 +104,7 @@ QFSFileEngine::open(int mode)
     if (mode & QFile::Async)
         oflags |= QT_OPEN_ASYNC;
 #endif
-    d->cachedCharRead = -1;
+    d->hasCachedChar = 0;
     d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
         d->sequential = 0;
@@ -122,8 +115,10 @@ QFSFileEngine::open(int mode)
         } else {
             struct stat st;
             ::fstat(d->fd, &st);
-            if(!st.st_size && readBlock(&d->cachedCharRead, 1) == 1)
+            if(!st.st_size && readBlock(&d->cachedCharRead, 1) == 1) {
+                d->cachedCharRead = 1;
                 d->sequential = 1;
+            }
         }
         return true;
     }
@@ -133,7 +128,7 @@ QFSFileEngine::open(int mode)
 bool
 QFSFileEngine::open(int, int fd)
 {
-    d->cachedCharRead = -1;
+    d->hasCachedChar = 0;
     d->fd = fd;
     if(d->fd != -1) {
         d->sequential = 0;
@@ -142,8 +137,10 @@ QFSFileEngine::open(int, int fd)
 	if ((st.st_mode & QT_STAT_MASK) != QT_STAT_REG || !fd) //stdin is non seekable
             d->sequential = 1;
 #ifdef Q_OS_UNIX
-	else if(!st.st_size && readBlock(&d->cachedCharRead, 1) == 1)
+	else if(!st.st_size && readBlock(&d->cachedCharRead, 1) == 1) {
+            d->hasCachedChar = 1;
 	    d->sequential = 1;
+        }
 #endif
         return true;
     }
@@ -167,24 +164,24 @@ QFSFileEngine::flush()
 }
 
 Q_LONG
-QFSFileEngine::readBlock(char *data, Q_ULONG len)
+QFSFileEngine::readBlock(uchar *data, Q_ULONG len)
 {
     int ret = 0;
-    if(d->cachedCharRead != -1) {
+    if(d->hasCachedChar) {
         *(data++) = d->cachedCharRead;
-        d->cachedCharRead = -1;
+        d->hasCachedChar = 0;
         len--;
         ret++;
     }
-    if(len > 0)
+    if(len > 0) 
         ret += QT_READ(d->fd, data, len);
     return ret;
 }
 
 Q_LONG
-QFSFileEngine::writeBlock(const char *data, Q_ULONG len)
+QFSFileEngine::writeBlock(const uchar *data, Q_ULONG len)
 {
-    return QT_WRITE(d->fd, (void *)data, len);
+    return QT_WRITE(d->fd, data, len);
 }
 
 QFile::Offset
@@ -196,7 +193,7 @@ QFSFileEngine::at() const
 bool
 QFSFileEngine::atEnd() const
 {
-    if(d->cachedCharRead != -1)
+    if(d->hasCachedChar)
         return false;
     return (at() == size());
 }
@@ -214,7 +211,7 @@ QFSFileEngine::seek(QFile::Offset pos)
         qWarning("QFile::at: Cannot set file position %lld", pos);
         return false;
     }
-    d->cachedCharRead = -1;
+    d->hasCachedChar = 0;
     return true;
 }
 
