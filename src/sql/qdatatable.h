@@ -115,8 +115,8 @@ public:
     QStringList  sort() const;
 
     void setCursor( QSqlCursor* cursor ) { setSqlCursor( cursor, FALSE, FALSE ); }
-    void setCursor( QSqlCursor* cursor = 0,
-			bool autoPopulate = FALSE,
+    void setCursor( QSqlCursor* cursor,
+			bool autoPopulate,
 			bool autoDelete = FALSE )
     { setSqlCursor( cursor, autoPopulate, autoDelete ); }
     virtual void setSqlCursor( QSqlCursor* cursor = 0,
