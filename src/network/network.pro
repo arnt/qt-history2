@@ -8,7 +8,7 @@ include(../qbase.pri)
 
 # Qt network module
 
-PRECOMPILED_HEADER = ../core/global/qt_pch.h
+PRECOMPILED_HEADER = ../corelib/global/qt_pch.h
 HEADERS += qftp.h \
            qhttp.h \
            qhostaddress.h \
