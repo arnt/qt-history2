@@ -295,7 +295,7 @@ void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
 
 static QPoint realWidgetPos( QWidget *w )
 {
-    if ( !w->parentWidget() || !w->parentWidget()->inherits( "QDockArea" ) ) 
+    if ( !w->parentWidget() || !w->parentWidget()->inherits( "QDockArea" ) )
 	return w->pos();
     return w->parentWidget()->mapToGlobal( w->geometry().topLeft() );
 }
@@ -972,15 +972,10 @@ void QDockWindow::resizeEvent( QResizeEvent *e )
 }
 
 
-void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area )
+void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea * )
 {
-    if ( !area ) {
-	r.setSize( size() );
-	return;
-    }
-
     QBoxLayout *bl = boxLayout()->createTmpCopy();
-    bl->setDirection( o == Vertical ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
+    bl->setDirection( o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom );
     bl->activate();
     r.setSize( bl->sizeHint() );
     bl->data = 0;
@@ -1036,7 +1031,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
 	w = 0;
     currRect.moveBy( pos.x(), pos.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
-	if ( startOrientation != Horizontal )
+	if ( startOrientation != Horizontal && inherits( "QToolBar" ) )
 	    swapRect( currRect, Horizontal, startOffset, (QDockArea*)w );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 3 ) );
@@ -1065,7 +1060,11 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     QDockArea *area = (QDockArea*)w;
     if( area->isVisibleTo( 0 ) ) {
 	state = InDock;
-	if ( startOrientation != ( area ? area->orientation() : Horizontal ) )
+	Orientation o = ( area ? area->orientation() :
+			  ( boxLayout()->direction() == QBoxLayout::LeftToRight ||
+			    boxLayout()->direction() == QBoxLayout::RightToLeft ?
+			    Horizontal : Vertical ) );
+	if ( startOrientation != o )
 	    swapRect( currRect, orientation(), startOffset, area );
 	if ( drawRect ) {
 	    unclippedPainter->setPen( QPen( gray, 1 ) );
@@ -1207,7 +1206,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		return;
 	    delete (QDockArea::DockWindowData*)dockWindowData;
 	    dockWindowData = dockArea->dockWindowData( this );
-	    dockArea->removeDockWindow( this, TRUE, startOrientation != Horizontal );
+	    dockArea->removeDockWindow( this, TRUE,
+					startOrientation != Horizontal && inherits( "QToolBar" ) );
 	}
 	dockArea = 0;
 	move( currRect.topLeft() );
@@ -1455,9 +1455,13 @@ bool QDockWindow::isStretchable() const
 
 Qt::Orientation QDockWindow::orientation() const
 {
-    if ( !dockArea || dockArea->orientation() == Horizontal )
+    if ( dockArea )
+	return dockArea->orientation();
+    if ( inherits( "QToolBar" ) )
 	return Horizontal;
-    return Vertical;
+    return ( ((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::LeftToRight ||
+	     ((QDockWindow*)this)->boxLayout()->direction() == QBoxLayout::RightToLeft ?
+	     Horizontal : Vertical );
 }
 
 int QDockWindow::offset() const
@@ -1610,7 +1614,7 @@ void QDockWindow::undock( QWidget *w )
     if ( dockArea ) {
 	delete (QDockArea::DockWindowData*)dockWindowData;
 	dockWindowData = dockArea->dockWindowData( this );
-	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal );
+	dockArea->removeDockWindow( this, TRUE, orientation() != Horizontal && inherits( "QToolBar" ) );
     }
     dockArea = 0;
     if ( lastPos != QPoint( -1, -1 ) && lastPos.x() > 0 && lastPos.y() > 0 )
