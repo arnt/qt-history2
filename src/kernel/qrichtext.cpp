@@ -1302,9 +1302,13 @@ int QTextDocument::widthUsed() const
 
 bool QTextDocument::setMinimumWidth( int w, QTextParag *p )
 {
+    if ( w == -1 ) {
+	minw = 0;
+	p = 0;
+    }
     if ( p == minwParag ) {
-	minw = w;
-	emit minimumWidthChanged( minw );
+ 	minw = w;
+ 	emit minimumWidthChanged( minw );
     } else if ( w > minw ) {
 	minw = w;
 	minwParag = p;
@@ -4153,9 +4157,6 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParagLineStart*> & )
 {
-//     if ( parag->string() )
-// 	QComplexText::glyphPositions( parag->string() );
-
     QTextStringChar *c = 0;
     QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
@@ -4174,7 +4175,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0;
     int w = dw - rdiff;
     bool fullWidth = TRUE;
+    int marg = left + rdiff;
     int minw = 0;
+    int tminw = marg;
 
     start = 0;
     if ( start == 0 )
@@ -4221,7 +4224,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	} else {
 	    ww = c->format()->width( ' ' );
 	}
-	
+
 	if ( c->isCustom() && c->customItem()->ownLine() ) {
 	    x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), left, 4 ) : left;
 	    w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), rm, 4 ) : 0 );
@@ -4240,19 +4243,21 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    c->lineStart = 1;
 	    firstChar = c;
 	    tmpBaseLine = lineStart->baseLine;
-	    lastBreak = -1;
+	    lastBreak = -2;
 	    x = 0xffffff;
-	    minw = QMAX( minw, QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
+	    minw = QMAX( minw, tminw );
+	    int tw = QMAX( c->customItem()->minimumWidth(), QMIN( c->customItem()->widthHint(), c->customItem()->width ) );
+	    if ( tw < 32000 )
+		tminw = tw;
+	    else
+		tminw = marg;
 	    continue;
 	}
-	if ( c->c != '\t' )
-	    minw = QMAX( ww, minw );
-	
-	if ( isWrapEnabled() &&
+	if ( isWrapEnabled() && lastBreak != -1 &&
 	     ( wrapAtColumn() == -1 && x + ww > w ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
 	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
-	    if ( lastBreak == -1 ) {
+	    if ( lastBreak < 0 ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
@@ -4282,8 +4287,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
-		if ( wrapAtColumn() != -1 )
-		    minw = QMAX( minw, w );
 		col = 0;
 	    } else {
 		i = lastBreak;
@@ -4312,8 +4315,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmpBaseLine = lineStart->baseLine;
 		lastBreak = -1;
 		col = 0;
-		if ( wrapAtColumn() != -1 )
-		    minw = QMAX( minw, w );
+		tminw = marg;
 		continue;
 	    }
 	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
@@ -4321,11 +4323,15 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
 	    }
+	    minw = QMAX( minw, tminw );
+	    tminw = marg + ww;
 	    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	    h = QMAX( h, tmph );
 	    lineStart->h = h;
-	    lastBreak = i;
+ 	    if ( i < len - 2 || c->c != ' ' )
+		lastBreak = i;
 	} else {
+	    tminw += ww;
 	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 	    tmph = QMAX( tmph, c->height() );
 	}
@@ -4345,6 +4351,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	delete lineStart;
     }
 
+    minw = QMAX( minw, tminw );
+
     int m = parag->bottomMargin();
     if ( parag->next() )
 	m = QMAX( m, parag->next()->topMargin() );
@@ -4358,8 +4366,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     if ( !isWrapEnabled() )
 	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
-    if ( doc )
-	doc->setMinimumWidth( minw, parag );
+    if ( doc ) {
+	if ( minw < 32000 )
+	    doc->setMinimumWidth( minw, parag );
+    }
 
     return y;
 }
@@ -5661,14 +5671,14 @@ void QTextTable::resize( QPainter* p, int nwidth )
     if ( nwidth >= 32000 )
 	nwidth = w;
     if ( stretch )
-	nwidth = nwidth * stretch / 100;
+  	nwidth = nwidth * stretch / 100;
 
     width = nwidth + 2*outerborder;
     layout->invalidate();
     int shw = layout->sizeHint().width() + 2*outerborder;
     int mw = layout->minimumSize().width() + 2*outerborder;
     if ( stretch )
-	width = QMAX( mw, nwidth );
+  	width = QMAX( mw, nwidth );
     else
 	width = QMAX( mw, QMIN( nwidth, shw ) );
 
@@ -5965,17 +5975,17 @@ QTextTableCell::~QTextTableCell()
 QSize QTextTableCell::sizeHint() const
 {
     if ( cached_sizehint != -1 )
-	return QSize( cached_sizehint, 0 );
+ 	return QSize( cached_sizehint, 0 );
     QTextTableCell *that = (QTextTableCell*)this;
     if ( stretch_ )
-	return QSize( ( that->cached_sizehint = QWIDGETSIZE_MAX ), 0 );
+ 	return QSize( ( that->cached_sizehint = QWIDGETSIZE_MAX ), 0 );
     return QSize( ( that->cached_sizehint = richtext->widthUsed() + 2 * ( table()->innerborder + 4 ) ), 0 );
 }
 
 QSize QTextTableCell::minimumSize() const
 {
     if ( stretch_ )
-	return QSize( QMAX( minw, parent->width * stretch_ / 100 - 2*parent->cellspacing), 0);
+ 	return QSize( QMAX( minw, parent->width * stretch_ / 100 - 2*parent->cellspacing), 0 );
     return QSize(QMAX( richtext->minimumWidth(), minw ),0);
 }
 

@@ -440,6 +440,8 @@ public:
 
     Placement placement() const { return place; }
     void adjustToPainter( QPainter* );
+    int widthHint() const { return width; }
+    int minimumWidth() const { return width; }
 
     QString richText() const;
 

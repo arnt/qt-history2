@@ -1251,6 +1251,7 @@ void QTextView::doResize()
 {
     if ( wrapMode != WidgetWidth )
 	return;
+    doc->setMinimumWidth( -1, 0 );
     resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
     QScrollView::setHScrollBarMode( AlwaysOff );
     doc->setWidth( visibleWidth() );
@@ -1741,6 +1742,7 @@ void QTextView::setText( const QString &txt, const QString &context )
     lastFormatted = 0;
     cursor->restoreState();
     doc->setText( txt, context );
+    doc->setMinimumWidth( -1, 0 );
     resizeContents( 0, 0 );
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
