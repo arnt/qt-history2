@@ -1343,7 +1343,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
     QStringList &objl = project->variables()[obj],
 		&srcl = project->variables()[src];
     QStringList::Iterator oit = objl.begin(), sit = srcl.begin();
-    QString regexpSrc("$src"), regexpObj("$obj");
+    QString stringSrc("$src"), stringObj("$obj");
     for( ;sit != srcl.end() && oit != objl.end(); oit++, sit++) {
 	QString hdr = findMocSource((*sit));
 	t << (*oit) << ": " << (*sit) << " "
@@ -1360,8 +1360,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj, const QString
 	}
 	if (!use_implicit_rule) {
 	    QString p = var("QMAKE_RUN_CXX");
-	    p.replace( regexpSrc, (*sit));
-	    p.replace( regexpObj, (*oit));
+	    p.replace(stringSrc, (*sit));
+	    p.replace(stringObj, (*oit));
 	    t << "\n\t" << p;
 	}
 	t << endl << endl;
@@ -1398,7 +1398,7 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	default_out_h = project->first("QMAKE_YACC_HEADER");
     if(!project->isEmpty("QMAKE_YACC_SOURCE"))
 	default_out_c = project->first("QMAKE_YACC_SOURCE");
-    QRegExp regexpBase("\\$base");
+    QString stringBase("$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString dir = fileFixify(Option::output_dir);
@@ -1414,8 +1414,8 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	} 
 	QString out_h = default_out_h, out_c = default_out_c;
 	if(!mangle.isEmpty()) {
-	    out_h.replace(regexpBase, mangle);
-	    out_c.replace(regexpBase, mangle);
+	    out_h.replace(stringBase, mangle);
+	    out_c.replace(stringBase, mangle);
 	}
 
 	t << impl << ": " << (*it) << "\n\t"
@@ -1437,7 +1437,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
     QString default_out_c = "lex.$base.c";
     if(!project->isEmpty("QMAKE_LEX_SOURCE"))
 	default_out_c = project->first("QMAKE_LEX_SOURCE");
-    QRegExp regexpBase("\\$base");
+    QString stringBase("$base");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString dir = fileFixify(Option::output_dir);
@@ -1452,7 +1452,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	}
 	QString out_c = default_out_c;
 	if(!stub.isEmpty()) 
-	    out_c.replace(regexpBase, stub);
+	    out_c.replace(stringBase, stub);
 
 	t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
 	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
