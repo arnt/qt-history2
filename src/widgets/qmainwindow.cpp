@@ -2507,19 +2507,19 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 		    QRect r = d->oldPosRect;
 		    int a = r.x() - op.x();
 		    int b = r.y() - op.y();
-		    int ap = a / 10;
-		    int bp = b / 10;
+		    int ap = a / 20;
+		    int bp = b / 20;
 		    QTime time;
 		    time.start();
 		    int i = 0;
 		    while ( TRUE ) {
-			if ( time.elapsed() > 30 ) {
+			if ( time.elapsed() > 10 ) {
 			    ++i;
 			    d->rectPainter->drawRect( r );
 			    r.moveBy( -ap, -bp );
 			    d->rectPainter->drawRect( r );
 			    qApp->processEvents();
-			    if ( i == 10 )
+			    if ( i == 20 )
 				break;
 			    time.start();
 			}
@@ -2577,16 +2577,16 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
-//     // if we will not be able to move the toolbar into the dock/rect
-//     // we got, it will not be moved at all - show this to the user
-//     if ( dock == Unmanaged || !isDockEnabled( dock ) ||
-// 	 !isDockEnabled( t, dock ) )
-// 	r = d->oldPosRect;
-
     // draw the new rect where the toolbar would be moved
     if ( d->rectPainter && !d->opaque ) {
 	if ( d->oldPosRectValid && d->oldPosRect != r )
 	    d->rectPainter->drawRect( d->oldPosRect );
+	if ( dock == Unmanaged || !isDockEnabled( dock ) ||
+	     !isDockEnabled( t, dock ) ) {
+	    d->rectPainter->setPen( QPen( color0, 2, DashLine ) );
+	} else {
+	    d->rectPainter->setPen( QPen( color0, 2 ) );
+	}
 	if ( !d->oldPosRectValid || d->oldPosRect != r )
 	    d->rectPainter->drawRect( r );
     } else if ( d->opaque ) {
