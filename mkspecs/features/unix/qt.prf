@@ -1,5 +1,9 @@
 CONFIG *= moc thread
-INCLUDEPATH += $$QMAKE_INCDIR_QT
+
+# make sure that the Qt includes are before all others... this
+# prevents us from picking up "stale" includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
+
 !debug:DEFINES += QT_NO_DEBUG
 
 !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
