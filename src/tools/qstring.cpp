@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#15 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#15 $";
 #endif
 
 
@@ -43,6 +43,17 @@ be modified without surprising anyone.
 // Safe and portable C string functions; extensions to standard string.h
 //
 
+/*!
+Some versions of memmove puke on your data if your source and
+destination blocks overlap.
+
+Not qmemmove.
+
+\arg \e dst is the pointer to the destination address
+\arg \e src is the pointer ot the source address
+\arg \e len is the number of bytes to copy
+*/
+
 void *qmemmove( void *dst, const void *src, uint len )
 {
     register char *d;
@@ -62,6 +73,11 @@ void *qmemmove( void *dst, const void *src, uint len )
     return dst;
 }
 
+/*!
+Allocates space for a copy of the string, copies it, and returns a
+pointer to the copy.
+*/
+
 char *q_strdup( const char *src )		// safe duplicate string
 {
     if ( !src )
@@ -70,6 +86,13 @@ char *q_strdup( const char *src )		// safe duplicate string
     CHECK_PTR( dst );
     return strcpy( dst, src );
 }
+
+/*!
+If \e str1 and \e str2 are both non-NULL, qstricmp() returns negative,
+0 or positive, just like the C library's stricmp().  If either \e str1
+or \e str2 but not both are NULL, qstricmp() returns a random non-zero
+value.  If both are NULL, qstricmp() returns 0.
+*/
 
 int qstricmp( const char *str1, const char *str2 )
 {						// compare case-insensitive
@@ -86,6 +109,14 @@ int qstricmp( const char *str1, const char *str2 )
 	    break;
     return res;
 }
+
+/*!
+If \e str1 and \e str2 are both non-NULL, qstrnicmp() returns
+negative, 0 or positive, just like the C library's strnicmp() or
+strncasecmp.  If either \e str1 or \e str2 but not both are NULL,
+qstrnicmp() returns a random non-zero value.  If both are NULL,
+qstrnicmp() returns 0.  Also see qstricmp().
+*/
 
 int qstrnicmp( const char *str1, const char *str2, uint len )
 {						// compare case-insensitive/len
@@ -139,6 +170,14 @@ static void createCRC16Table()			// build CRC16 lookup table
     }
 }
 
+/*!
+qchecksum() does a fairly fast CRC-16 checksom of \e len bytes starting at
+\e data.
+
+The checksum is independent of endianness.
+*/
+
+
 UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 {
     if ( !crc_tbl_init ) {			// create lookup table
@@ -164,6 +203,11 @@ UINT16 qchecksum( const char *data, uint len )	// generate CRC-16 checksum
 // --------------------------------------------------------------------------
 // QByteArray stream functions
 //
+
+/*!
+Fuck streams, fuck Bjarne, fuck everything that makes life difficult
+for my poor documentation generator.
+*/
 
 QDataStream &operator<<( QDataStream &s, const QByteArray &a )
 {
@@ -344,6 +388,12 @@ void QString::simplifyWhiteSpace()
 }
 
 
+/*!
+Fills the QString with bytes of value \e c.  If \e len is zero or 
+positive, the string is resized to \e len bytes (plus the final \0),
+if \e len is negative, \e len is discarded.
+*/
+
 bool QString::fill( char c, int len )		// fill string with c
 {
     if ( len < 0 )
@@ -354,6 +404,14 @@ bool QString::fill( char c, int len )		// fill string with c
     return TRUE;
 }
 
+
+/*!
+Finds the first occurence of \e c, at or after \e index.
+The search is case sensitive if \e cs is TRUE and case insensitive if 
+\e cs is FALSE.
+
+If there are no further occurences of \e c, find() returns -1.
+*/
 
 int QString::find( char c, int index, bool cs ) const
 {						// find char
@@ -372,6 +430,14 @@ int QString::find( char c, int index, bool cs ) const
     }
     return d ? (int)(d - data()) : -1;
 }
+
+/*!
+Finds the first occurence of \e str, starting at or after \e index.
+The search is case sensitive if \e cs is TRUE and case insensitive if
+\e cs is FALSE.
+
+If there are no further occurences of \e str, find() returns -1.
+*/
 
 int QString::find( const char *str, int index, bool cs ) const
 {						// find substring
@@ -443,6 +509,12 @@ int QString::findRev( const char *str, int index, bool cs ) const
     return -1;
 }
 
+
+/*!
+Returns the number of \e c's in the string.  The match is case sensitive
+if and only if \e cs is TRUE.
+*/
+
 int QString::contains( char c, bool cs ) const	// get # c's
 {
     int count = 0;
@@ -464,6 +536,17 @@ int QString::contains( char c, bool cs ) const	// get # c's
     }
     return count;
 }
+
+/*!
+Returns the number of occurences of \e str in the string.  The match is
+case insensitive if \e cs is specified and is FALSE.
+
+\code {{
+QString a = "banana";
+ASSERT( a.contains("ana") == 2 );
+}}
+
+*/
 
 int QString::contains( const char *str, bool cs ) const
 {						// get # str substrings
