@@ -340,7 +340,7 @@ static void init_layout_struct(const QMainWindowLayout * const layout,
     if (!ls.empty) {
         ls.minimumSize = pick(pos, info.item->minimumSize()) + ext;
         ls.maximumSize = pick(pos, info.item->maximumSize()) + ext;
-        ls.sizeHint  = info.size.isValid()
+        ls.sizeHint  = !info.size.isEmpty()
                        ? pick(pos, info.size)
                        : pick(pos, info.item->sizeHint()) + ext;
         // constrain sizeHint
@@ -482,7 +482,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 	    // position
  	    if (i == 0) { // first tool bar can't have an offset
-		if (num_tbs > 1 && info.size.isValid()
+		if (num_tbs > 1 && !info.size.isEmpty()
 		    && pick_perp(where, info.offset) > pick_perp(where, info.size)) {
 		    // swap if dragging it past the next one
 		    ToolBarLayoutInfo &next = tb_layout_info[k][i+1];
@@ -618,7 +618,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	for (int i = 0; i < num_tbs; ++i) {
 	    ToolBarLayoutInfo &info = tb_layout_info[k][i];
 	    QRect tb(info.pos, info.size);
-	    if (tb.isValid() && (relayout_type == QInternal::RelayoutNormal || info.is_dummy))
+	    if (!tb.isEmpty() && (relayout_type == QInternal::RelayoutNormal || info.is_dummy))
 		info.item->setGeometry(tb);
 	}
     }
@@ -650,7 +650,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         lsH[1].maximumSize =
             layout_info[CENTER].item ? layout_info[CENTER].item->maximumSize().width() : INT_MAX;
         lsH[1].sizeHint =
-            layout_info[CENTER].size.isValid()
+            !layout_info[CENTER].size.isEmpty()
             ? layout_info[CENTER].size.width()
             : (layout_info[CENTER].item ? layout_info[CENTER].item->sizeHint().width() : 0);
         // fix min/max sizes
@@ -687,7 +687,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         lsV[1].maximumSize =
             layout_info[CENTER].item ? layout_info[CENTER].item->maximumSize().height() : INT_MAX;
         lsV[1].sizeHint =
-            layout_info[CENTER].size.isValid()
+            !layout_info[CENTER].size.isEmpty()
             ? layout_info[CENTER].size.height()
             : (layout_info[CENTER].item ? layout_info[CENTER].item->sizeHint().height() : 0);
         // fix min/max sizes
@@ -921,13 +921,13 @@ QSize QMainWindowLayout::sizeHint() const
          + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
     const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
-    if (layout_info[LEFT].item && szL.isValid())
+    if (layout_info[LEFT].item && !szL.isEmpty())
         left += ext;
-    if (layout_info[RIGHT].item && szR.isValid())
+    if (layout_info[RIGHT].item && !szR.isEmpty())
         right += ext;
-    if (layout_info[TOP].item && szT.isValid())
+    if (layout_info[TOP].item && !szT.isEmpty())
         top += ext;
-    if (layout_info[BOTTOM].item && szT.isValid())
+    if (layout_info[BOTTOM].item && !szB.isEmpty())
         bottom += ext;
 
     VDEBUG("QMainWindowLayout::sizeHint:\n"
@@ -1012,16 +1012,16 @@ QSize QMainWindowLayout::minimumSize() const
          + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
     const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
-    if (layout_info[LEFT].item && szL.isValid())
+    if (layout_info[LEFT].item && !szL.isEmpty())
         left += ext;
-    if (layout_info[RIGHT].item && szR.isValid())
+    if (layout_info[RIGHT].item && !szR.isEmpty())
         right += ext;
-    if (layout_info[TOP].item && szT.isValid())
+    if (layout_info[TOP].item && !szT.isEmpty())
         top += ext;
-    if (layout_info[BOTTOM].item && szT.isValid())
+    if (layout_info[BOTTOM].item && !szB.isEmpty())
         bottom += ext;
 
-    VDEBUG("QMainWindowLayout::minimumSizeHint:\n"
+    VDEBUG("QMainWindowLayout::minimumSize:\n"
            "    %4dx%4d (l %4d r %4d t %4d b %4d w1 %4d w2 %4d w3 %4d, h1 %4d h2 %4d h3 %4d)",
            qMax(qMax(w1,w2),w3), qMax(qMax(h1,h2),h3),
            left, right, top, bottom, w1, w2, w3, h1, h2, h3);
