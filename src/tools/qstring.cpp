@@ -4486,6 +4486,12 @@ float QString::toFloat( bool *ok ) const
     return (float)toDouble( ok );
 }
 
+#ifndef LLONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#endif
+#ifndef LLONG_MIN
+#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#endif
 
 /*!
     Sets the string to the printed value of \a n in base \a base and
@@ -4499,7 +4505,7 @@ float QString::toFloat( bool *ok ) const
     \endcode
 */
 
-QString &QString::setNum( long n, int base )
+QString &QString::setNum( Q_INT64 n, int base )
 {
 #if defined(QT_CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
@@ -4514,7 +4520,7 @@ QString &QString::setNum( long n, int base )
     bool neg;
     if ( n < 0 ) {
 	neg = TRUE;
-	if ( n == LONG_MIN ) {
+	if ( n == LLONG_MIN ) {
 	    // Cannot always negate this special case
 	    QString s1, s2;
 	    s1.setNum(n/base, base );
@@ -4547,7 +4553,7 @@ QString &QString::setNum( long n, int base )
     The base is 10 by default and must be between 2 and 36.
 */
 
-QString &QString::setNum( ulong n, int base )
+QString &QString::setNum( Q_UINT64 n, int base )
 {
 #if defined(QT_CHECK_RANGE)
     if ( base < 2 || base > 36 ) {
@@ -4565,6 +4571,18 @@ QString &QString::setNum( ulong n, int base )
 	len++;
     } while ( n );
     return setUnicode(p,len);
+}
+
+// ### 4.0: inline
+QString &QString::setNum( long n, int base )
+{
+    return setNum( (Q_INT64)n, base );
+}
+
+// ### 4.0: inline
+QString &QString::setNum( ulong n, int base )
+{
+    return setNum( (Q_UINT64)n, base );
 }
 
 /*!
