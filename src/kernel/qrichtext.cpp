@@ -1281,6 +1281,7 @@ void QTextDocument::clear( bool createEmptyParag )
     fParag = lParag = 0;
     if ( createEmptyParag )
 	fParag = lParag = new QTextParag( this );
+    selections.clear();
 }
 
 int QTextDocument::widthUsed() const
