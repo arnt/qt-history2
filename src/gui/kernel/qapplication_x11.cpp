@@ -5010,14 +5010,17 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             } else {
                 setAttribute(Qt::WA_PendingResizeEvent, true);
             }
-            // remove unnecessary paint events from the queue
-            XEvent xevent;
-            while (XCheckTypedWindowEvent(X11->display, winId(), Expose, &xevent) &&
-                    ! qt_x11EventFilter(&xevent)  &&
-                    ! x11Event(&xevent)) // send event through filter
-                ;
-            if (!testAttribute(Qt::WA_StaticContents))
+
+            if (!testAttribute(Qt::WA_StaticContents)) {
+                // remove unnecessary paint events from the queue
+                XEvent xevent;
+                while (XCheckTypedWindowEvent(X11->display, winId(), Expose, &xevent) &&
+                        ! qt_x11EventFilter(&xevent)  &&
+                        ! x11Event(&xevent)) // send event through filter
+                    ;
+
                 testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+            }
         }
     } else {
         XEvent xevent;
