@@ -443,7 +443,7 @@ public:
     bool isValid() const;
 
     QCanvasPixmap* image(int i) const
-	{ return img[i]; }
+	{ return img ? img[i] : 0; }
     void setImage(int i, QCanvasPixmap* p);
     uint count() const
 	{ return (uint)framecount; }
