@@ -69,7 +69,7 @@ public:
 
 /*!
   \class QDirectPainter qdirectpainter_qws.h
-  \brief Direct access to the video hardware.
+  \brief The QDirectPainter class provides direct access to the video hardware.
 
   \ingroup graphics
 
@@ -167,10 +167,10 @@ int QDirectPainter::transformOrientation()
     return qt_screen->transformOrientation();
 }
 
-/*
+/*!
   Returns the number of rectangles in the clip region.
 
-  \sa rect(), region()
+  \sa rect(), clipRegion()
 */
 int QDirectPainter::numRects() const { return d->gfx->numRects(); }
 
@@ -178,7 +178,7 @@ int QDirectPainter::numRects() const { return d->gfx->numRects(); }
   Returns a reference to the rectangle \a i of the clip region.
   Valid values for \a i are 0 .. numRects()-1.
 
-  \sa region()
+  \sa clipRegion()
 */
 const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
 

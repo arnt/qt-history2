@@ -172,6 +172,7 @@ The \e {Setup Toolbar} wizard page is used to populate a toolbar
 
 \img qd-chapmainwin-mainwinwiz2.png
 \caption Main Window Wizard- Setting up the toolbar
+
 	\endlist
 
 	If you preview the form (\Key {Ctrl+T}) the File and Edit
