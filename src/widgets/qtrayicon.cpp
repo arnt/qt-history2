@@ -19,12 +19,12 @@ QTrayIcon::QTrayIcon( QObject *parent, const char *name )
 
 /*!
   Creates a QTrayIcon object displaying \a icon and \a tooltip, and opening
-  \a popup when clicked with the right mousebutton. \a parent and \a name are 
+  \a popup when clicked with the right mousebutton. \a parent and \a name are
   propagated to the QObject constructor. The icon is initially invisible.
 
   \sa show
 */
-QTrayIcon::QTrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name ) 
+QTrayIcon::QTrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name )
 : QObject(parent, name), pop(popup), pm(icon), tip(tooltip), d(0)
 {
 }
@@ -76,7 +76,7 @@ QPixmap QTrayIcon::icon() const
 }
 
 /*!
-  Sets the tooltip for the system tray entry to \a tooltip. On some systems, 
+  Sets the tooltip for the system tray entry to \a tooltip. On some systems,
   the tooltip's length is limited and will be truncated as necessary.
 */
 void QTrayIcon::setToolTip( const QString &tooltip )
@@ -192,6 +192,8 @@ void QTrayIcon::mouseReleaseEvent( QMouseEvent *e )
     case LeftButton:
 	emit clicked( e->globalPos() );
 	break;
+    default:
+	;
     }
     e->ignore();
 }
@@ -200,7 +202,7 @@ void QTrayIcon::mouseReleaseEvent( QMouseEvent *e )
   This event handler can be reimplemented in a subclass to receive
   mouse double click events for the system tray entry.
 
-  Note that the system tray entry gets a mousePressEvent() and a 
+  Note that the system tray entry gets a mousePressEvent() and a
   mouseReleaseEvent() before the mouseDoubleClickEvent().
 
   \sa mousePressEvent(), mouseReleaseEvent(),
@@ -217,14 +219,14 @@ void QTrayIcon::mouseDoubleClickEvent( QMouseEvent *e )
   \fn void QTrayIcon::clicked( const QPoint &p )
 
   This signal is emitted when the user clicks the system tray icon
-  with the left mouse button, with \a p being the global mouse position 
+  with the left mouse button, with \a p being the global mouse position
   at that moment.
 */
 
 /*!
   \fn void QTrayIcon::doubleClicked( const QPoint &p )
-  
+
   This signal is emitted when the user double clicks the system tray
-  icon with the left mouse button, with \a p being the global mouse position 
+  icon with the left mouse button, with \a p being the global mouse position
   at that moment.
 */
