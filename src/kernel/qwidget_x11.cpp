@@ -576,9 +576,11 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	oldcurs = cursor();
 	unsetCursor();
     }
+
+    // dnd unregister (we will register again below)
     bool accept_drops = acceptDrops();
-    if ( accept_drops )
-	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
+    setAcceptDrops( FALSE );
+    topData()->dnd = 0;
 
     // clear mouse tracking, re-enabled below
     bool mouse_tracking = hasMouseTracking();
@@ -673,6 +675,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     else {
 	if (parent)
 	    parent->checkChildrenDnd();
+	else
+	    checkChildrenDnd();
 	qt_dnd_enable(this, (extra && extra->children_use_dnd));
     }
 

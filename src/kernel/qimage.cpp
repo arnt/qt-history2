@@ -4378,7 +4378,7 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     int green_scale = 0;
     int blue_scale = 0;
 
-    if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 24 || nbits == 32) ||
+    if ( !(nbits == 1 || nbits == 4 || nbits == 8 || nbits == 16 || nbits == 24 || nbits == 32) ||
 	bi.biPlanes != 1 || comp > BMP_BITFIELDS )
 	return FALSE;					// weird BMP image
     if ( !(comp == BMP_RGB || (nbits == 4 && comp == BMP_RLE4) ||
