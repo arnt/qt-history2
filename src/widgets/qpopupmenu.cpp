@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#148 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#149 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#148 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#149 $");
 
 // Motif style parameters
 
@@ -538,6 +538,9 @@ void QPopupMenu::frameChanged()
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
+    // #### should move to QWidget - anything might need this functionality,
+    // #### since anything can have WType_Popup window flag.
+
     if ( mitems->count() == 0 )			// oops, empty
 	insertSeparator();			// Save Our Souls
     if ( badSize )
