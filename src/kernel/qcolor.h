@@ -131,7 +131,11 @@ inline QColor::QColor()
 { d.d32.argb = Invalid; d.d32.pix = Dirt; }
 
 inline QColor::QColor( int r, int g, int b )
-{ setRgb( r, g, b ); }
+{
+    d.d32.argb = Invalid;
+    d.d32.pix = Dirt;
+    setRgb( r, g, b );
+}
 
 inline QColor::QColor( const char *name )
 { setNamedColor( QString(name) ); }

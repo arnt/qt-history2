@@ -29,7 +29,7 @@ static int hex2int( QChar hexchar )
     else if ( hexchar >= 'a' && hexchar <= 'f' )
 	v = hexchar.cell() - 'a' + 10;
     else
-	v = 0;
+	v = -1;
     return v;
 }
 
@@ -39,26 +39,31 @@ bool qt_get_hex_rgb(const char *name, QRgb *rgb)
 	return FALSE;
     name++;
     int len = qstrlen(name);
+    int r, g, b;
     if ( len == 12 ) {
-	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
-		    (hex2int(name[4]) << 4) + hex2int(name[5]),
-		    (hex2int(name[8]) << 4) + hex2int(name[9]));
+	r = (hex2int(name[0]) << 4) + hex2int(name[1]);
+	g = (hex2int(name[4]) << 4) + hex2int(name[5]);
+	b = (hex2int(name[8]) << 4) + hex2int(name[9]);
     } else if ( len == 9 ) {
-	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
-		    (hex2int(name[3]) << 4) + hex2int(name[4]),
-		    (hex2int(name[6]) << 4) + hex2int(name[7]));
+	r = (hex2int(name[0]) << 4) + hex2int(name[1]);
+	g = (hex2int(name[3]) << 4) + hex2int(name[4]);
+	b = (hex2int(name[6]) << 4) + hex2int(name[7]);
     } else if ( len == 6 ) {
-	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[1]),
-		    (hex2int(name[2]) << 4) + hex2int(name[3]),
-		    (hex2int(name[4]) << 4) + hex2int(name[5]));
+	r = (hex2int(name[0]) << 4) + hex2int(name[1]);
+	g = (hex2int(name[2]) << 4) + hex2int(name[3]);
+	b = (hex2int(name[4]) << 4) + hex2int(name[5]);
     } else if ( len == 3 ) {
-	*rgb = qRgb((hex2int(name[0]) << 4) + hex2int(name[0]),
-		    (hex2int(name[1]) << 4) + hex2int(name[1]),
-		    (hex2int(name[2]) << 4) + hex2int(name[2]));
+	r = (hex2int(name[0]) << 4) + hex2int(name[0]);
+	g = (hex2int(name[1]) << 4) + hex2int(name[1]);
+	b = (hex2int(name[2]) << 4) + hex2int(name[2]);
     } else {
+	r = g = b = -1;
+    }
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
 	*rgb = 0;
 	return FALSE;
     }
+    *rgb = qRgb(r, g ,b);
     return TRUE;
 }
 

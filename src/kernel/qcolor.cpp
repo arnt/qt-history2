@@ -307,6 +307,8 @@ void QColor::setPixel( uint pixel )
 
 QColor::QColor( int x, int y, int z, Spec colorSpec )
 {
+    d.d32.argb = Invalid;
+    d.d32.pix = Dirt;
     if ( colorSpec == Hsv )
 	setHsv( x, y, z );
     else
@@ -416,10 +418,10 @@ QString QColor::name() const
     under Windows.
     \endlist
 
-    The color is left invalid if \a name cannot be parsed.
+    The color is invalid if \a name cannot be parsed.
 */
 
-void QColor::setNamedColor( const QString& name )
+void QColor::setNamedColor( const QString &name )
 {
     if ( name.isEmpty() ) {
 	d.argb = 0;
@@ -430,8 +432,11 @@ void QColor::setNamedColor( const QString& name )
 	}
     } else if ( name[0] == '#' ) {
 	QRgb rgb;
-	qt_get_hex_rgb(name.latin1(), &rgb);
-	setRgb( rgb );
+	if (!qt_get_hex_rgb(name.latin1(), &rgb)) {
+	    qWarning( "QColor::setNamedColor: could not parse color '%s'", name.latin1() );
+	} else {
+	    setRgb( rgb );
+	}
     } else {
 	setSystemNamedColor( name );
     }
@@ -601,8 +606,10 @@ void QColor::setHsv( int h, int s, int v )
 
 void QColor::setRgb( int r, int g, int b )
 {
-    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
+	return;
+    }
     d.argb = qRgb( r, g, b );
     if ( colormodel == d8 ) {
 	d.d8.invalid = FALSE;
