@@ -116,7 +116,7 @@ glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
 glyph_metrics_t QFontEngine::boundingBox( glyph_t glyph )
 {
     QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics( handle(), glyph);
-    return glyph_metrics_t( metrics->bearingx, metrics->bearingy, metrics->width, metrics->height, metrics->width, 0 );
+    return glyph_metrics_t( metrics->bearingx, metrics->bearingy, metrics->width, metrics->height, metrics->advance, 0 );
 }
 
 bool QFontEngine::canRender( const QChar *string,  int len )
