@@ -55,6 +55,7 @@ class QSyntaxHighlighter : public Qt
 
 public:
     QSyntaxHighlighter( QTextEdit *textEdit );
+    virtual ~QSyntaxHighlighter();
 
     virtual int highlightParagraph( const QString &text, int endStateOfLastPara ) = 0;
 

@@ -110,6 +110,14 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
     : para( 0 ), edit( textEdit ), d( 0 )
 {
     textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
+    textEdit->document()->invalidate();
+}
+
+/*! Destructor. Uninstalls this syntax highlighter from the textEdit() */
+
+QSyntaxHighlighter::~QSyntaxHighlighter()
+{
+    textEdit()->document()->setPreProcessor( 0 );
 }
 
 /*! \fn int QSyntaxHighlighterInternal::highlightParagraph( const QString &text, int endStateOfLastPara )
