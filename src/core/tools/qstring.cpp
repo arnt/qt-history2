@@ -5808,7 +5808,8 @@ void QString::updateProperties() const
 */
 
 /*! \fn bool QString::isRightToLeft() const
-  \internal
+
+    \internal
 */
 
 /*! \fn QChar *QString::data()
@@ -6240,3 +6241,191 @@ QDataStream &operator>>(QDataStream &in, QString &str)
     return in;
 }
 #endif // QT_NO_DATASTREAM
+
+/*!
+    \fn void QString::setLength(int nl)
+
+    Use resize() instead.
+*/
+
+/*!
+    \fn QString QString::copy() const
+
+    Use simple assignment instead. QString is implicitly shared so if
+    a copy is modified only the copy is changed.
+*/
+
+/*!
+    \fn QString &QString::remove(QChar c, bool cs)
+
+    Use the remove(QChar, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString &QString::remove(const QString  &s, bool cs)
+
+    Use the remove(QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString &QString::replace(QChar c, const QString  &after, bool cs)
+
+    Use the replace(QChar, QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString &QString::replace(const QString &before, const QString &after, bool cs)
+
+    Use the replace(QString, QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString &QString::replace(char c, const QString &after, bool cs)
+
+    Use the replace(QChar, QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString &QString::replace(char c, const QString &after, Qt::CaseSensitivity cs)
+
+    Use the replace(QChar, QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn int QString::find(QChar c, int i = 0, bool cs = true) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QString::find(const QString &s, int i = 0, bool cs = true) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QString::findRev(QChar c, int i = -1, bool cs = true) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn int QString::findRev(const QString &s, int i = -1, bool cs = true) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn int QString::find(const QRegExp &rx, int i=0) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn int QString::findRev(const QRegExp &rx, int i=-1) const
+
+    Use lastIndexOf() instead.
+*/
+
+/*!
+    \fn QBool QString::contains(QChar c, bool cs) const
+
+    Use the contains(QChar, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QBool QString::contains(const QString &s, bool cs) const
+
+    Use the contains(QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn bool QString::startsWith(const QString &s, bool cs) const
+
+    Use the startsWith(QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn bool QString::endsWith(const QString &s, bool cs) const
+
+    Use the endsWith(QString, Qt::CaseSensitive) overload instead.
+*/
+
+/*!
+    \fn QString QString::leftJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
+
+    Use leftJustified() instead.
+*/
+
+/*!
+    \fn QString QString::rightJustify(int width, QChar fill = QLatin1Char(' '), bool trunc=false) const
+
+    Use rightJustified() instead.
+*/
+
+/*!
+    \fn QString QString::lower() const
+
+    Use toLower() instead.
+*/
+
+/*!
+    \fn QString QString::upper() const
+
+    Use toUpper() instead.
+*/
+
+/*!
+    \fn QString QString::stripWhiteSpace() const
+
+    Use trimmed() instead.
+*/
+
+/*!
+    \fn QString QString::simplifyWhiteSpace() const
+
+    Use simplified() instead.
+*/
+
+/*!
+    \fn QString &QString::setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
+
+    Use setUtf16() instead.
+*/
+
+/*!
+    \fn ushort *QString::ucs2() const
+
+    Use utf16() instead.
+*/
+
+/*!
+    \fn QString QString::fromUcs2(const ushort *unicode, int size = -1)
+
+    Use fromUtf16() instead.
+*/
+
+/*!
+    \fn QString &QString::setAscii(const char *str, int len = -1)
+
+    Use fromAscii() instead.
+*/
+
+/*!
+    \fn QString &QString::setLatin1(const char *str, int len = -1)
+
+    Use fromLatin1() instead.
+*/
+
+/*!
+    \fn QChar QString::constref(uint i) const
+
+    Use at() instead.
+*/
+
+/*!
+    \fn QChar &QString::ref(uint i);
+
+###
+*/
+

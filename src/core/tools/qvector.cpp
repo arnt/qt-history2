@@ -177,6 +177,17 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa QVectorIterator, QVectorMutableIterator, QList, QLinkedList
 */
 
+/*!
+    \fn QVector<T> QVector::mid(int pos, int length = -1) const
+
+    Returns a vector whose elements are copied from this vector,
+    starting at position \a pos. If \a length is -1 (the default), all
+    elements after \a pos are copied; otherwise \a length elements (or
+    all remaining elements if there are less than \a length elements)
+    are copied.
+*/
+
+
 /*! \fn QVector::QVector()
 
     Constructs an empty vector.

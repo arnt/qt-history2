@@ -349,6 +349,16 @@ void **QListData::erase(void **xi)
     \sa QListIterator, QListMutableIterator, QLinkedList, QVector
 */
 
+/*!
+    \fn QList<T> QList<T>::mid(int pos, int length) const
+
+    Returns a list whose elements are copied from this list,
+    starting at position \a pos. If \a length is -1 (the default), all
+    elements after \a pos are copied; otherwise \a length elements (or
+    all remaining elements if there are less than \a length elements)
+    are copied.
+*/
+
 /*! \fn QList::QList()
 
     Constructs an empty list.
@@ -1114,6 +1124,35 @@ void **QListData::erase(void **xi)
     \sa operator==()
 */
 
+/*!
+    \fn bool QList::iterator::operator<(const iterator& other) const
+
+    Returns true if the item pointed to by this iterator is less than
+    the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::iterator::operator<=(const iterator& other) const
+
+    Returns true if the item pointed to by this iterator is less than
+    or equal to the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::iterator::operator>(const iterator& other) const
+
+    Returns true if the item pointed to by this iterator is greater
+    than the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::iterator::operator>=(const iterator& other) const
+
+    Returns true if the item pointed to by this iterator is greater
+    than or equal to the item pointed to by the \a other iterator.
+*/
+
+
 /*! \fn QList::iterator QList::iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
@@ -1339,6 +1378,34 @@ void **QListData::erase(void **xi)
     \sa operator==()
 */
 
+/*!
+    \fn bool QList::const_iterator::operator<(const const_iterator& other) const
+
+    Returns true if the item pointed to by this iterator is less than
+    the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::const_iterator::operator<=(const const_iterator& other) const
+
+    Returns true if the item pointed to by this iterator is less than
+    or equal to the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::const_iterator::operator>(const const_iterator& other) const
+
+    Returns true if the item pointed to by this iterator is greater
+    than the item pointed to by the \a other iterator.
+*/
+
+/*!
+    \fn bool QList::const_iterator::operator>=(const const_iterator& other) const
+
+    Returns true if the item pointed to by this iterator is greater
+    than or equal to the item pointed to by the \a other iterator.
+*/
+
 /*! \fn QList::const_iterator QList::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
@@ -1436,3 +1503,46 @@ void **QListData::erase(void **xi)
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
+
+/*!
+    \fn iterator QList::remove(iterator pos)
+
+    Use erase() instead.
+*/
+
+/*!
+    \fn int QList::remove(const T &t)
+
+    Use removeAll() instead.
+*/
+
+/*!
+    \fn int QList::findIndex(const T& t) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn iterator QList::find(const T& t)
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn const_iterator QList::find (const T& t) const
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn iterator QList::find(iterator from, const T& t)
+
+    Use indexOf() instead.
+*/
+
+/*!
+    \fn const_iterator QList::find(const_iterator from, const T& t) const
+
+    Use indexOf() instead.
+*/
+

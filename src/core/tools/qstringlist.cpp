@@ -402,3 +402,52 @@
     \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
 */
 #endif // QT_NO_DATASTREAM
+
+/*!
+    \fn QStringList QStringList::grep(const QString &str, bool cs = true) const
+
+    Use find() instead.
+*/
+
+/*!
+    \fn QStringList QStringList::grep(const QRegExp &rx) const
+
+    Use find() instead.
+*/
+
+/*!
+    \fn QStringList &QStringList::gres(const QString &before, const QString &after, bool cs = true)
+
+    Use replace() instead.
+*/
+
+/*!
+    \fn QStringList &QStringList::gres(const QRegExp &rx, const QString &after)
+
+    Use replace() instead.
+*/
+
+/*!
+    \fn Iterator QStringList::fromLast()
+
+    Use end() instead.
+
+    \oldcode
+    QStringList::Iterator i = list.fromLast();
+    \newcode
+    QStringList::Iterator i = list.isEmpty() ? list.end() : --list.end();
+    \endcode
+*/
+
+/*!
+    \fn ConstIterator QStringList::fromLast() const
+
+    Use end() instead.
+
+    \oldcode
+    QStringList::ConstIterator i = list.fromLast();
+    \newcode
+    QStringList::ConstIterator i = list.isEmpty() ? list.end() : --list.end();
+    \endcode
+*/
+

@@ -1519,3 +1519,35 @@ void QMapData::dump()
 
     \sa operator+=()
 */
+
+/*!
+    \fn T &QMap::iterator::data() const
+
+###
+*/
+
+/*!
+    \fn const T &QMap::const_iterator::data() const
+
+###
+*/
+
+/*!
+    \fn iterator QMap::remove(iterator it)
+
+    Use erase() instead.
+*/
+
+/*!
+    \fn iterator QMap::insert(const Key &key, const T &value, bool overwrite);
+
+    Use the two-argument insert() overload instead. If you want to
+    overwrite, remove() then insert().
+*/
+
+/*!
+    \fn iterator QMap::replace(const Key &key, const T &value)
+
+    Use remove() then insert().
+*/
+
