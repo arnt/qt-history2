@@ -2376,11 +2376,13 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::WindowDeactivate:
 	if ( titlebar )
 	    titlebar->setActive( FALSE );
+	repaint( FALSE );
 	break;
 
     case QEvent::WindowActivate:
 	if ( titlebar )
 	    titlebar->setActive( act );
+	repaint( FALSE );
 	break;
 
     default:
@@ -2477,7 +2479,7 @@ void QWorkspaceChild::drawFrame( QPainter *p )
     QStyle::SFlags flags = QStyle::Style_Default;
     QStyleOption opt(lineWidth(),midLineWidth());
 
-    if ( act )
+    if ( titlebar->isActive() )
 	flags |= QStyle::Style_Active;
 
     style().drawPrimitive( QStyle::PE_WindowFrame, p, rect(), colorGroup(), flags, opt );
@@ -2508,12 +2510,12 @@ void QWorkspaceChild::setActive( bool b )
 	return;
 
     act = b;
-    repaint( FALSE );
 
     if ( titlebar )
 	titlebar->setActive( act );
     if ( iconw )
 	iconw->setActive( act );
+    repaint( FALSE );
 
     QObjectList* ol = childWidget->queryList( "QWidget" );
     if ( act ) {
