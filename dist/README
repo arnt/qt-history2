@@ -3,27 +3,31 @@ This is the sixth beta version of Qt 3.0.
 This new generation of the Qt application development framework
 contains many new features, improvements and extensions. It also
 includes a significantly improved Qt Designer, and introduces Qt
-Linguist, Qt Assistant and a new multi-platform build tool, qmake.
+Linguist, Qt Assistant and a new multi-platform build tool, 'qmake'.
 
-The Qt API is very unlikely to undergo any significant changes before
-the final release is made, so we encourage you to begin enjoying Qt
-3.0 right now.
+It is highly unlikely that the Qt API will undergo any significant
+changes before the final release, so we encourage you to begin using
+Qt 3.0 right away.
 
-Detailed changes information on what's new in Qt 3.0 is included in
-the Online Reference Documentation.  For a brief overview, see
-http://www.trolltech.com/company/announce/30pre.html
+Detailed information about the modifications and new features for Qt
+3.0 is included in the Online Reference Documentation.  For a brief
+overview, see http://www.trolltech.com/company/announce/30pre.html
 
-One significant change though is the removal of QCom (Qt's component
-model) from the public API.
+One significant change in this beta is the removal of QCom (Qt's
+component model) from the public API.
 
 Previous Qt 3.0 betas introduced a module called QCom that provides a
 COM-like component system. The feedback we received on this module
 during the 3.0 beta phase has been mixed. Many users think this module
 lacks the intuitiveness and compactness that they have learned to
-expect from a Qt API. We have therefore made the difficult decision to
-withdraw the QCom API from the Qt 3.0 release. We will continue to
-develop this API until it is mature enough for our customers, and will
-include the improved version in a later release.
+expect from a Qt API. Therefore, we have made the difficult decision
+to withdraw the QCom API from the Qt 3.0 release. We will continue to
+develop this API until it is evolved enough for our customers, and
+will include the improved version in a later release.
+
+We apologize for any inconvenience the QCom API change has
+caused. This decision was made as part of our ongoing efforts to
+maintain the soundness and quality of Qt.
 
 Please note that the new plugin functionality in 3.0 will still be
 provided. This includes using custom widgets in Qt Designer, as well
@@ -31,18 +35,15 @@ as runtime addition of styles, codecs, SQL drivers, and image format
 handlers. This functionality is now available through a substantially
 simplified API.
 
-Please also note that it will still be convenient to add custom plugin
+Also also note that it will still be convenient to add custom plugin
 capabilities to Qt 3.0 applications, since the new QLibrary class will
 still be available. This class takes care of the low-level,
 platform-dependent issues regarding loading of DLLs and obtaining
 pointers to the functions exported by the DLLs.
 
-We apologize for any inconvenience this may have caused, but not for
-our efforts to maintain the soundness and quality of Qt.
-
-Thanks to our greatly enlarged development team we have been able to
-realise far more of your requests in this release. Qt 3.0 is a huge
-step towards realising our vision of an ideal cross-platform
+Because of out recently increased development team, we have been able
+to realize far more of your requests in this release. Qt 3.0 is a
+great step towards realizing our vision of an ideal cross-platform
 development tool.
 
 The Qt version 3.x series is not binary compatible with the 2.x
@@ -54,23 +55,23 @@ Qt 2.x series. See the document "Porting from Qt 2.x to Qt 3.0" in the
 Online Reference Documentation for information on how to port an
 existing Qt 2.x-based program to Qt 3.0. Disclaimer: the guide is not
 entirely complete, so it is possible that you'll discover issues that
-are not yet covered.
+are not yet covered in the documentation.
 
 Because of the many improvements and extensions and the few parts of
 the API which are still being finalised, we expect this beta period to
 last longer than what you are typically used to from Trolltech. Unlike
 previous Qt releases where most of the beta testing was done with
-snapshot releases, this is not yet a final release candidate.
+snapshot releases, this beta is not yet a final release candidate.
 
 The most visible change for long term Qt users is the reworked build
 system.  On MS-Windows, unpack the package and start installer.exe; on
 Unix, unpack the package and run ./configure. Compiling and installing
-Qt uses a new utility 'qmake' that we also recommend for writing Qt
-based applications. 'qmake' is the successor of our free software
-add-on 'tmake', and is written using Qt rather than Perl and is very
-compatible with its predecessor.
+Qt uses a new utility 'qmake' which we recommend for writing Qt­based
+applications. 'qmake' is the successor of our free software add-on
+'tmake', and is written using Qt rather than Perl. 'qmake' is fully
+compatible with 'tmake'.
 
-To improve maintainibility between different platforms, all specific
+To improve maintainaibility between different platforms, all specific
 platform #defines and #includes have been moved out of the Qt sources
 into a platform specific qplatformdefs.h file.  The files are located
 in qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this beta
@@ -96,8 +97,8 @@ aix-xlc
 hpux-acc
 hpux-g++
 
-If you test the beta on an a yet unsupported Unix, please contact us
-at support@trolltech.com so that we can assist you.
+If you test the beta on an an unsupported version of Unix, please
+contact us at support@trolltech.com so that we can assist you.
 
 
 How to get the beta release:
@@ -114,6 +115,6 @@ Enterprise Edition licensee and have not received this e-mail.
 
 
 Any problems encountered with the beta version should be reported to
-qt-bugs@trolltech.com, or on the snapshot-users mailing list.
+qt-bugs@trolltech.com, or to the snapshot-users mailing list.
 
 Qt is a trademark of Trolltech AS.
