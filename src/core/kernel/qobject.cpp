@@ -2272,7 +2272,7 @@ static void activate(QPublicObject * const sender, int signal_index, void **argv
 
 /*!\internal
  */
-void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
+void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 {
     if (obj->d->blockSig)
         return;
