@@ -437,7 +437,7 @@
     fields["surname"]->setText( "Simpson" );
     fields["age"]->setText( "45" );
 
-    QDictIterator<char> it( extra );
+    QDictIterator<QLineEdit> it( fields );
     for( ; it.current(); ++it )
 	cout << it.currentKey() << ": " << it.current()->text() << endl;
     cout << endl;
@@ -447,9 +447,9 @@
     //	surname: Simpson
     //	forename: Homer
   \endcode
-  In the example we insert some line edits into a dictionary, then
-  iterate over the dictionary printing the strings associated with
-  those line edits.
+  In the example we insert some pointers to line edits into a
+  dictionary, then iterate over the dictionary printing the strings
+  associated with the line edits.
 
   \sa QDict
 */

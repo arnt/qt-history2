@@ -84,7 +84,7 @@ present the relevant page. You can bookmark pages of particular
 interest and you can click the \Toolbutton Previous and \Toolbutton
 Next toolbar buttons to navigate within the pages you've visited. 
 
-Although \QA can used just like a web browser to navigate through the
+Although \QA can be used just like a web browser to navigate through the
 Qt documentation set, \QA offers a powerful means of navigation that
 web browsers don't provide. \QA uses an intelligent algorithm to index
 all the pages in the documentation sets that it presents so that you
@@ -128,7 +128,7 @@ tab.
 \i The \Toolbutton Bookmarks tab lists any bookmarks you've made.
 Double click a bookmark to make its page appear in the documentation
 window. The \Toolbutton Bookmarks tab has a \Button{New Bookmark}
-button a and \Button{Delete Bookmark} button at the bottom. Click
+button and a \Button{Delete Bookmark} button at the bottom. Click
 \Button{New Bookmark} to bookmark the page that is showing in the
 documentation window. Click a bookmark in the list, then click 
 \Button{Delete Bookmark} to delete the highlighted bookmark.
@@ -247,7 +247,7 @@ This dialog is used to set your preferences for \QA. You can change
 the base font used throughout by choosing a new font from the Font
 combobox. You can choose a new fixed-width font, e.g. used to show
 code snippets, by choosing a new font from the 'Fixed font' combobox.
-You can change the colour of hypertext links by clicking the 'Link
+You can change the color of hypertext links by clicking the 'Link
 color' color button. Uncheck the 'Underline links' checkbox if you
 don't want underlined links. Click \OK to confirm your changes or
 click \Button Cancel to keep the previous settings.
