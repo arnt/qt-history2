@@ -821,17 +821,16 @@ void QAbstractSpinBoxPrivate::init()
 {
     spinclicktimerinterval = q->style().styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, q);
     spinkeytimerinterval = q->style().styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, q);
-    lineEdit()->setObjectName(QString("lineedit for %1").arg(QString(q->objectName())).latin1());
-    edit->setAttribute(Qt::WA_CompositeChild);
+    lineEdit()->setAttribute(Qt::WA_CompositeChild);
+    edit->setFrame(false);
     q->setAttribute(Qt::WA_CompositeParent);
     q->setFocusProxy(edit);
+    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     if (useprivate) {
         edit->setValidator(new QSpinBoxValidator(this, q));
 	QObject::connect(edit, SIGNAL(textChanged(QString)), q, SLOT(editorTextChanged(QString)));
-        QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)), q,
-                         SLOT(editorCursorPositionChanged(int, int)));
+        QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)), q, SLOT(editorCursorPositionChanged(int, int)));
     }
-    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
 /*!
@@ -843,10 +842,8 @@ void QAbstractSpinBoxPrivate::init()
 
 QLineEdit *QAbstractSpinBoxPrivate::lineEdit()
 {
-    if (!edit) {
+    if (!edit)
         edit = new QLineEdit(q);
-        edit->setFrame(false);
-    }
     return edit;
 }
 
