@@ -28,4 +28,10 @@ tools {
 		  $$CODECS_CPP/qtsciicodec.cpp \
 		  $$CODECS_CPP/qutfcodec.cpp \
 		   $$CODECS_CPP/qtextcodecfactory.cpp
+
+	x11:SOURCES += $$CODECS_CPP/qfontcncodec.cpp \
+	               $$CODECS_CPP/qfontjpcodec.cpp \
+		       $$CODECS_CPP/qfontkrcodec.cpp \
+		       $$CODECS_CPP/qfonttwcodec.cpp
+	x11:HEADERS += $$CODECS_H/qfontcodecs_p.h
 }

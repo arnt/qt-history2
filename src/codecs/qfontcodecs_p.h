@@ -57,6 +57,7 @@
 
 
 #ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 
 class QJpUnicodeConv;
@@ -204,6 +205,7 @@ public:
 };
 
 
-#endif //QT_NO_CODECS
+#endif // QT_NO_BIG_CODECS
+#endif // QT_NO_CODECS
 
 #endif // QFONTCODECS_P_H

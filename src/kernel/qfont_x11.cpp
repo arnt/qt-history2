@@ -51,12 +51,14 @@
 #include <qtextcodec.h>
 #include <qcleanuphandler.h>
 
+#include "../codecs/qfontcodecs_p.h"
+
 #ifndef QT_NO_XFTFREETYPE
-#include <qintdict.h>
-#include <qpixmap.h>
-#include <qapplication.h> // for settings
-#include <qsettings.h>
-#include <netinet/in.h>
+#  include <qintdict.h>
+#  include <qpixmap.h>
+#  include <qapplication.h> // for settings
+#  include <qsettings.h>
+#  include <netinet/in.h>
 #endif // QT_NO_XFTFREETYPE
 
 #include <ctype.h>
@@ -105,8 +107,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // HebrewPresentation
 
     { "iso8859-6.8x"     , 0 }, // // Arabic
-    // "iso8859-6" - uncommented for now since arabic doesn't work at all
-    // for iso8859-6
+    // "iso8859-6" - commented for now since arabic doesn't work at all for iso8859-6
 
     { 0                      }, // ArabicPresentationA
     { 0                      }, // ArabicPresentationB
@@ -2369,10 +2370,14 @@ void QFont::initialize()
 
     setlocale(LC_TIME, (const char *) oldlctime);
 
-    // create font cache and name dict
-    if (QFontPrivate::fontCache)
-	return;
+#ifndef QT_NO_BIG_CODECS
+    (void) new QFontJis0208Codec;
+    (void) new QFontKsc5601Codec;
+    (void) new QFontGB2312Codec;
+    (void) new QFontBig5Codec;
+#endif // QT_NO_BIG_CODECS
 
+    // create font cache and name dict
     QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR(QFontPrivate::fontCache);
     cleanup_fontcache.add(QFontPrivate::fontCache);

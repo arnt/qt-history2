@@ -38,6 +38,7 @@
 #include "qfontcodecs_p.h"
 
 #ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 
 extern unsigned int qt_UnicodeToGBK(unsigned int code);
@@ -115,4 +116,5 @@ bool QFontGB2312Codec::canEncode( QChar ch ) const
 }
 
 
+#endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS

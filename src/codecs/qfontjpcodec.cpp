@@ -38,6 +38,7 @@
 #include "qfontcodecs_p.h"
 
 #ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 #include <qjpunicode.h>
 
 
@@ -110,4 +111,5 @@ bool QFontJis0208Codec::canEncode( QChar ch ) const
 }
 
 
+#endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS

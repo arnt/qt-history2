@@ -38,7 +38,7 @@
 #include "qfontcodecs_p.h"
 
 #ifndef QT_NO_CODECS
-
+#ifndef QT_NO_BIG_CODECS
 
 extern unsigned int qt_UnicodeToBig5(unsigned int unicode);
 
@@ -111,5 +111,5 @@ bool QFontBig5Codec::canEncode( QChar ch ) const
     return ( ch.row() > 0xa0 && ch.cell() > 0xa0 );
 }
 
-
+#endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
