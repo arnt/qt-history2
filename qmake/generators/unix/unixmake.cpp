@@ -562,28 +562,34 @@ UnixMakefileGenerator::init()
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
 {
-    QString ret;
+    QStringList ret;
     if(t == "target") {
 	if(project->variables()["TEMPLATE"].first() == "app") {
-	    ret = "$(TARGET)";
+	    ret << "$(TARGET)";
 	} else if(!project->isActiveConfig("staticlib")) {
-	    if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
-		ret = "$(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)";
-	    } else {
-		ret = "$(TARGET) $(TARGET0)";
-	    } if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
-		ret.sprintf("%s/$(TARGET) %s/$(TARGET0)", 
-			    var("DESTDIR").latin1(), var("DESTDIR").latin1());
-	    } else {
-		ret.sprintf("%s/$(TARGET) %s/$(TARGET0) %s/$(TARGET1) %s/$(TARGET2)", 
-			    var("DESTDIR").latin1(), var("DESTDIR").latin1(),
-			    var("DESTDIR").latin1(), var("DESTDIR").latin1());
-	    }
+	    if(project->isActiveConfig("plugin")) 
+		ret << "$(TARGETD)";
+	    else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) 
+		ret << "$(TARGET)" << "$(TARGET0)";
+	    else
+		ret << "$(TARGET)" << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
 	} else {
 	    ret = "$(TARGETA)";
 	}
     }
-    if(!ret.isEmpty()) 
-	return QString("$(COPY) -a ") + ret + QString(" ") + project->variables()["target.path"].first();
+    if(!ret.isEmpty()) {
+	QString targs, destdir=project->variables()["DESTDIR"].first();
+	for(QStringList::Iterator it = ret.begin(); it != ret.end(); it++) {
+	    QString tmp;
+	    if(!destdir.isEmpty())
+		tmp = destdir + Option::dir_sep;
+	    tmp += (*it);
+	    targs += Option::fixPathToTargetOS(tmp, FALSE) + " ";
+	}
+	if(Option::mode == Option::WIN_MODE) {
+	} else if(Option::mode == Option::UNIX_MODE) {
+	    return QString("$(COPY) -a ") + targs + project->variables()["target.path"].first();
+	}
+    }
     return "";
 }

@@ -8,3 +8,7 @@ sql {
 DESTDIR		= $(QTDIR)/plugins
 PROJECTNAME	= Wizards
 INCLUDEPATH	+= $(QTDIR)/tools/designer/interfaces
+
+target.path=$$plugins.path
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+INSTALLS += target

@@ -19,3 +19,7 @@ win32:LIBS	+= libpqdll.lib
 
 TARGET		= qsqlpsql
 DESTDIR		= $(QTDIR)/plugins
+
+target.path=$$plugins.path
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+INSTALLS += target

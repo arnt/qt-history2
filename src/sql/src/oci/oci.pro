@@ -14,3 +14,7 @@ unix:LIBS	+= -lclntsh
 
 DESTDIR		= $(QTDIR)/plugins
 TARGET		= qsqloci
+
+target.path=$$plugins.path
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins
+INSTALLS += target

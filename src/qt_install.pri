@@ -8,12 +8,6 @@ isEmpty(headers.path):headers.path=$$QT_PREFIX/headers
 headers.files = ../include/*.h
 INSTALLS += headers
 
-#plugins
-isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
-win32:plugins.files = $(QTDIR)/plugins/*
-unix:plugins.extra = $(COPY) -a $(QTDIR)/plugins/* $$plugins.path
-INSTALLS += plugins
-
 #docs
 isEmpty(docs.path):docs.path=$$QT_PREFIX/docs
 docs.files = ../doc/*
