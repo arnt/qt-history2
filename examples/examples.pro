@@ -12,6 +12,7 @@ SUBDIRS	=	aclock \
 		customlayout \
 		component \
 		dclock \
+		demo \
 		dirview \
 		dragdrop \
 		drawdemo \
@@ -57,7 +58,6 @@ SUBDIRS	=	aclock \
 		widgets \
 		wizard \
 		xform
-!contains(QT_PRODUCT,qt-professional): SUBDIRS += demo
 
 thread:SUBDIRS +=   thread/guithreads \
 		    thread/semaphores
