@@ -838,8 +838,9 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
-#endif
+#else
 	break;
+#endif
     }
     return QDate();
 }
