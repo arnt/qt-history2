@@ -1583,7 +1583,7 @@ void QDateEdit::fix()
 	else
 	    year = ( hiCentury*100 ) + year;
 	changed = TRUE;
-    } else if ( year > 99 && year <= 999 ) {
+    } else if ( year <= 999 ) {
 	int currentCentury = (int) floor( (double)currentDate.year()/100 );
 	year = ( currentCentury*100 ) + year;
 	changed = TRUE;
