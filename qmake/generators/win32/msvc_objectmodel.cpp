@@ -375,7 +375,7 @@ QTextStream &operator<<( QTextStream &strm, const VCCLCompilerTool &tool )
     strm << XPair( _ForcedIncludeFiles, tool.ForcedIncludeFiles );
     strm << XPair( _ForcedUsingFiles, tool.ForcedUsingFiles );
     strm << EPair( _GeneratePreprocessedFile, tool.GeneratePreprocessedFile );
-    strm << TPair( _GlobalOptimizations, tool.GlobalOptimizations );
+    strm << TPair( _GlobalOptimizations, tool.GlobalOptimizations ); 
     strm << TPair( _IgnoreStandardIncludePath, tool.IgnoreStandardIncludePath );
     strm << TPair( _ImproveFloatingPointConsistency, tool.ImproveFloatingPointConsistency );
     if ( tool.InlineFunctionExpansion != expandDefault ) strm << EPair( _InlineFunctionExpansion, tool.InlineFunctionExpansion );
@@ -1816,23 +1816,25 @@ void VCFilter::generateMOC( QTextStream &strm, QString str ) const
 	str = Project->findMocSource( mocOutput );
     }
 
-    strm << _begFileConfiguration;
-    strm << _Name5;
-    strm << Config->Name;
-    strm << "\">";
-    strm << _begTool5;
-    strm << _VCCustomBuildTool;
-    strm << _Description6;
-    strm << "Moc'ing " << str << "...\"";
-    strm << _CommandLine6;
-    strm << mocApp;
-    strm << " " << str << " -o " << mocOutput << "\"";
-    strm << _AdditionalDependencies6;
-    strm << mocApp << "\"";
-    strm << _Outputs6;
-    strm << mocOutput << "\"";
-    strm << "/>";
-    strm << _endFileConfiguration;
+    for ( uint i = 0; i < Config->count(); i++ ) {
+	strm << _begFileConfiguration;
+	strm << _Name5;
+	strm << (*Config)[i].Name;
+	strm << "\">";
+	strm << _begTool5;
+	strm << _VCCustomBuildTool;
+	strm << _Description6;
+	strm << "Moc'ing " << str << "...\"";
+	strm << _CommandLine6;
+	strm << mocApp;
+	strm << " " << str << " -o " << mocOutput << "\"";
+	strm << _AdditionalDependencies6;
+	strm << mocApp << "\"";
+	strm << _Outputs6;
+	strm << mocOutput << "\"";
+	strm << "/>";
+	strm << _endFileConfiguration;
+    }
 }
 
 void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
@@ -1872,24 +1874,26 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     if ( mocDir.isEmpty() )
 	mocDir = pname;
 
-    strm << _begFileConfiguration;
-    strm << _Name5;
-    strm << Config->Name;
-    strm << "\">";
-    strm << _begTool5;
-    strm << _VCCustomBuildTool;
-    strm << _Description6;
-    strm << "Uic'ing " << str << "...\"";
-    strm << _CommandLine6;
-    strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
-    strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
-    strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
-    strm << _AdditionalDependencies6;
-    strm << mocApp << ";" << uicApp << "\"";
-    strm << _Outputs6;
-    strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
-    strm << "/>";
-    strm << _endFileConfiguration;
+    for ( uint i = 0; i < Config->count(); i++ ) {
+	strm << _begFileConfiguration;
+	strm << _Name5;
+	strm << (*Config)[i].Name;
+	strm << "\">";
+	strm << _begTool5;
+	strm << _VCCustomBuildTool;
+	strm << _Description6;
+	strm << "Uic'ing " << str << "...\"";
+	strm << _CommandLine6;
+	strm << uicApp << " " << str << " -o " << uiHeaders << fname << ".h &amp;&amp; ";				// Create .h from .ui file
+	strm << uicApp << " " << str << " -i " << fname << ".h -o " << uiSources << fname << ".cpp &amp;&amp; ";	// Create .cpp from .ui file
+	strm << mocApp << " " << uiHeaders << fname << ".h -o " << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
+	strm << _AdditionalDependencies6;
+	strm << mocApp << ";" << uicApp << "\"";
+	strm << _Outputs6;
+	strm << uiHeaders << fname << ".h;" << uiSources << fname << ".cpp;" << mocDir << Option::h_moc_mod << fname << Option::h_moc_ext << "\"";
+	strm << "/>";
+	strm << _endFileConfiguration;
+    }
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
@@ -1920,6 +1924,9 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 // VCProject --------------------------------------------------------
 VCProject::VCProject()
 {
+    VCConfiguration conf;
+    Configuration += conf ; // Release
+    //Configuration += conf ; // Debug added later, after Release init
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCProject &tool )
@@ -1939,7 +1946,8 @@ QTextStream &operator<<( QTextStream &strm, const VCProject &tool )
     strm << "/>";
     strm << _endPlatforms;
     strm << _begConfigurations;
-    strm << tool.Configuration;
+    for ( uint i = 0; i < tool.Configuration.count(); i++ ) 
+	strm << tool.Configuration[i];
     strm << _endConfigurations;
     strm << _begFiles;
     strm << tool.SourceFiles;

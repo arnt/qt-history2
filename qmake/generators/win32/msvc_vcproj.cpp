@@ -407,7 +407,7 @@ void VcprojGenerator::initProject()
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     vcProject.Version = use_net2003_version() ? "7.10" : "7.00";
     vcProject.ProjectGUID = getProjectUUID().toString().upper();
-    vcProject.PlatformName = ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
+    vcProject.PlatformName = ( vcProject.Configuration[0].idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     // These are not used by Qt, but may be used by customers
     vcProject.SccProjectName = project->first("SCCPROJECTNAME");
     vcProject.SccLocalPath = project->first("SCCLOCALPATH");
@@ -429,35 +429,37 @@ void VcprojGenerator::initConfiguration()
     QString temp = project->first("BuildBrowserInformation");
     switch ( projectTarget ) {
     case SharedLib:
-        vcProject.Configuration.ConfigurationType = typeDynamicLibrary;
+        vcProject.Configuration[0].ConfigurationType = typeDynamicLibrary;
 	break;
     case StaticLib:
-        vcProject.Configuration.ConfigurationType = typeStaticLibrary;
+        vcProject.Configuration[0].ConfigurationType = typeStaticLibrary;
 	break;
     case Application:
     default:
-        vcProject.Configuration.ConfigurationType = typeApplication;
+        vcProject.Configuration[0].ConfigurationType = typeApplication;
 	break;
     }
-    vcProject.Configuration.Name =  ( project->isActiveConfig( "debug" ) ? "Debug|" : "Release|" );
-    vcProject.Configuration.Name += ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
-    vcProject.Configuration.ATLMinimizesCRunTimeLibraryUsage = ( project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True );
-    vcProject.Configuration.BuildBrowserInformation = triState( temp.isEmpty() ? (short)unset : temp.toShort() );
+
+    // Release version of the Configuration ---------------
+    VCConfiguration &RConf = vcProject.Configuration[0];
+    RConf.Name = "Release";
+    RConf.Name += ( RConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32" );
+    RConf.ATLMinimizesCRunTimeLibraryUsage = ( project->first("ATLMinimizesCRunTimeLibraryUsage").isEmpty() ? _False : _True );
+    RConf.BuildBrowserInformation = triState( temp.isEmpty() ? (short)unset : temp.toShort() );
     temp = project->first("CharacterSet");
-    vcProject.Configuration.CharacterSet = charSet( temp.isEmpty() ? (short)charSetNotSet : temp.toShort() );
-    vcProject.Configuration.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
-    vcProject.Configuration.ImportLibrary = vcProject.Configuration.linker.ImportLibrary;
-    vcProject.Configuration.IntermediateDirectory = project->first("OBJECTS_DIR");
-//    temp = (projectTarget == StaticLib) ? project->first("DESTDIR"):project->first("DLLDESTDIR");
-    vcProject.Configuration.OutputDirectory = "."; //( temp.isEmpty() ? QString(".") : temp );
-    vcProject.Configuration.PrimaryOutput = project->first("PrimaryOutput");
-    vcProject.Configuration.WholeProgramOptimization = vcProject.Configuration.compiler.WholeProgramOptimization;
+    RConf.CharacterSet = charSet( temp.isEmpty() ? (short)charSetNotSet : temp.toShort() );
+    RConf.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
+    RConf.ImportLibrary = RConf.linker.ImportLibrary;
+    RConf.IntermediateDirectory = project->first("OBJECTS_DIR");
+    RConf.OutputDirectory = ".";
+    RConf.PrimaryOutput = project->first("PrimaryOutput");
+    RConf.WholeProgramOptimization = RConf.compiler.WholeProgramOptimization;
     temp = project->first("UseOfATL");
     if ( !temp.isEmpty() )
-	vcProject.Configuration.UseOfATL = useOfATL( temp.toShort() );
+	RConf.UseOfATL = useOfATL( temp.toShort() );
     temp = project->first("UseOfMfc");
     if ( !temp.isEmpty() )
-        vcProject.Configuration.UseOfMfc = useOfMfc( temp.toShort() );
+        RConf.UseOfMfc = useOfMfc( temp.toShort() );
 
     // Configuration does not need parameters from
     // these sub XML items;
@@ -465,6 +467,41 @@ void VcprojGenerator::initConfiguration()
     initPreBuildEventTools();
     initPostBuildEventTools();
     initPreLinkEventTools();
+
+    // Debug version of the Configuration -----------------
+    VCConfiguration DConf = vcProject.Configuration[0]; // Create copy configuration for debug
+    DConf.Name = "Debug";
+    DConf.Name += ( DConf.idl.TargetEnvironment == midlTargetWin64 ? "|Win64" : "|Win32" );
+
+    // Set definite values in both configurations
+    RConf.compiler.PreprocessorDefinitions.remove("_DEBUG");
+    DConf.compiler.PreprocessorDefinitions.remove("NDEBUG");
+    RConf.compiler.PreprocessorDefinitions += "NDEBUG";
+    DConf.compiler.PreprocessorDefinitions += "_DEBUG";
+    RConf.linker.GenerateDebugInformation = _False;
+    DConf.linker.GenerateDebugInformation = _True;
+
+    // Modify configurations, based on Qt build
+    if ( project->isActiveConfig("debug") ) {
+	RConf.IntermediateDirectory =
+	RConf.compiler.AssemblerListingLocation =
+	RConf.compiler.ObjectFile = "Release\\";
+	RConf.librarian.OutputFile = 
+	RConf.linker.OutputFile = RConf.IntermediateDirectory + "\\" + project->first("MSVCPROJ_TARGET");
+	RConf.linker.parseOptions(project->variables()["QMAKE_LFLAGS_RELEASE"]);
+	RConf.compiler.parseOptions(project->variables()["QMAKE_CFLAGS_RELEASE"]);
+    } else {
+	DConf.IntermediateDirectory =
+	DConf.compiler.AssemblerListingLocation =
+	DConf.compiler.ObjectFile = "Debug\\";
+	DConf.librarian.OutputFile = 
+	DConf.linker.OutputFile = DConf.IntermediateDirectory + "\\" + project->first("MSVCPROJ_TARGET");
+	DConf.linker.DelayLoadDLLs.clear();
+	DConf.compiler.parseOptions(project->variables()["QMAKE_CFLAGS_DEBUG"]);
+    }
+
+    // Add Debug configuration to project
+    vcProject.Configuration += DConf;
 }
 
 void VcprojGenerator::initCompilerTool()
@@ -473,103 +510,112 @@ void VcprojGenerator::initCompilerTool()
     if ( placement.isEmpty() )
 	placement = ".\\";
 
-    vcProject.Configuration.compiler.AssemblerListingLocation = placement ;
-    vcProject.Configuration.compiler.ProgramDataBaseFileName = ".\\" ;
-    vcProject.Configuration.compiler.ObjectFile = placement ;
-    //vcProject.Configuration.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
+    VCConfiguration &RConf = vcProject.Configuration[0];
+    RConf.compiler.AssemblerListingLocation = placement ;
+    RConf.compiler.ProgramDataBaseFileName = ".\\" ;
+    RConf.compiler.ObjectFile = placement ;
+    //RConf.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
 
     vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
     if ( project->isActiveConfig("debug") ){
 	// Debug version
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
 	if ( project->isActiveConfig("thread") ) {
 	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
+		RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
 	    else
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"] );
+		RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"] );
 	} else {
-	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST_DBG"] );
+	    RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
 	}
     } else {
 	// Release version
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
-	vcProject.Configuration.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
-	vcProject.Configuration.compiler.PreprocessorDefinitions += "NDEBUG";
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
+	RConf.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
+	RConf.compiler.PreprocessorDefinitions += "NDEBUG";
 	if ( project->isActiveConfig("thread") ) {
 	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
+		RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
 	    else
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLL"] );
+		RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLL"] );
 	} else {
-	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST"] );
+	    RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
 	}
     }
 
     // Common for both release and debug
+    if ( project->isActiveConfig("warn_off") )
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_OFF"] );
+    else if ( project->isActiveConfig("warn_on") )
+	RConf.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_ON"] );
     if ( project->isActiveConfig("windows") )
-	vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
+	RConf.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
 
     // Can this be set for ALL configs?
     // If so, use qmake.conf!
     if ( projectTarget == SharedLib )
-	vcProject.Configuration.compiler.PreprocessorDefinitions += "_WINDOWS";
+	RConf.compiler.PreprocessorDefinitions += "_WINDOWS";
 
-    vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
-    vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
-    vcProject.Configuration.compiler.parseOptions( project->variables()["MSVCPROJ_INCPATH"] );
+    RConf.compiler.PreprocessorDefinitions += project->variables()["DEFINES"];
+    RConf.compiler.PreprocessorDefinitions += project->variables()["PRL_EXPORT_DEFINES"];
+    RConf.compiler.parseOptions( project->variables()["MSVCPROJ_INCPATH"] );
 }
 
 void VcprojGenerator::initLibrarianTool()
 {
-    vcProject.Configuration.librarian.OutputFile = project->first( "DESTDIR" );
-    if( vcProject.Configuration.librarian.OutputFile.isEmpty() )
-	vcProject.Configuration.librarian.OutputFile = ".\\";
+    VCConfiguration &RConf = vcProject.Configuration[0];
+    RConf.librarian.OutputFile = project->first( "DESTDIR" );
+    if( RConf.librarian.OutputFile.isEmpty() )
+	RConf.librarian.OutputFile = ".\\";
 
-    if( !vcProject.Configuration.librarian.OutputFile.endsWith("\\") )
-    	vcProject.Configuration.librarian.OutputFile += '\\';
+    if( !RConf.librarian.OutputFile.endsWith("\\") )
+    	RConf.librarian.OutputFile += '\\';
 
-    vcProject.Configuration.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
+    RConf.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
 }
 
 void VcprojGenerator::initLinkerTool()
 {
-    vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LFLAGS"] );
-    vcProject.Configuration.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
+    VCConfiguration &RConf = vcProject.Configuration[0];
+    RConf.linker.parseOptions( project->variables()["MSVCPROJ_LFLAGS"] );
+    RConf.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
 
     switch ( projectTarget ) {
     case Application:
-	vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
+	RConf.linker.OutputFile = project->first( "DESTDIR" );
 	break;
     case SharedLib:
-	vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
-	vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
+	RConf.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
+	RConf.linker.OutputFile = project->first( "DESTDIR" );
 	break;
     case StaticLib: //unhandled - added to remove warnings..
 	break;
     }
 
-    if( vcProject.Configuration.linker.OutputFile.isEmpty() )
-	vcProject.Configuration.linker.OutputFile = ".\\";
+    if( RConf.linker.OutputFile.isEmpty() )
+	RConf.linker.OutputFile = ".\\";
 
-    if( !vcProject.Configuration.linker.OutputFile.endsWith("\\") )
-    	vcProject.Configuration.linker.OutputFile += '\\';
+    if( !RConf.linker.OutputFile.endsWith("\\") )
+    	RConf.linker.OutputFile += '\\';
 
-    vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
+    RConf.linker.OutputFile += project->first("MSVCPROJ_TARGET");
 
     if ( project->isActiveConfig("debug") ){
-	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
+	RConf.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
     } else {
-        vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_RELEASE"] );
+        RConf.linker.parseOptions( project->variables()["QMAKE_LFLAGS_RELEASE"] );
     }
 
     if ( project->isActiveConfig("dll") ){
-	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_QT_DLL"] );
+	RConf.linker.parseOptions( project->variables()["QMAKE_LFLAGS_QT_DLL"] );
     }
 
     if ( project->isActiveConfig("console") ){
-	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_CONSOLE"] );
+	RConf.linker.parseOptions( project->variables()["QMAKE_LFLAGS_CONSOLE"] );
     } else {
-	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_WINDOWS"] );
+	RConf.linker.parseOptions( project->variables()["QMAKE_LFLAGS_WINDOWS"] );
     }
 
 }
@@ -584,11 +630,12 @@ void VcprojGenerator::initCustomBuildTool()
 
 void VcprojGenerator::initPreBuildEventTools()
 {
+    VCConfiguration &RConf = vcProject.Configuration[0];
     QString collectionName = project->first("QMAKE_IMAGE_COLLECTION");
     if( !collectionName.isEmpty() ) {
         QStringList& list = project->variables()["IMAGES"];
-	vcProject.Configuration.preBuild.Description = "Generate imagecollection";
-	//vcProject.Configuration.preBuild.AdditionalDependencies += list;
+	RConf.preBuild.Description = "Generate imagecollection";
+	//RConf.preBuild.AdditionalDependencies += list;
 
 	QFile imgs( ".imgcol" );
 	imgs.open( IO_WriteOnly );
@@ -599,25 +646,26 @@ void VcprojGenerator::initPreBuildEventTools()
 	    it++;
 	}
 
-	vcProject.Configuration.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + " -f .imgcol -o " + collectionName;
-	//vcProject.Configuration.preBuild.Outputs = collectionName;
+	RConf.preBuild.CommandLine = project->first("QMAKE_UIC") + " -embed " + project->first("QMAKE_ORIG_TARGET") + " -f .imgcol -o " + collectionName;
+	//RConf.preBuild.Outputs = collectionName;
 
     }
 }
 
 void VcprojGenerator::initPostBuildEventTools()
 {
+    VCConfiguration &RConf = vcProject.Configuration[0];
     if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() ) {
-	vcProject.Configuration.postBuild.Description = var("QMAKE_POST_LINK");
-	vcProject.Configuration.postBuild.CommandLine = var("QMAKE_POST_LINK");
-	vcProject.Configuration.postBuild.Description.replace(" && ", " &amp;&amp; ");
-	vcProject.Configuration.postBuild.CommandLine.replace(" && ", " &amp;&amp; ");
+	RConf.postBuild.Description = var("QMAKE_POST_LINK");
+	RConf.postBuild.CommandLine = var("QMAKE_POST_LINK");
+	RConf.postBuild.Description.replace(" && ", " &amp;&amp; ");
+	RConf.postBuild.CommandLine.replace(" && ", " &amp;&amp; ");
     }
     if ( !project->variables()["MSVCPROJ_COPY_DLL"].isEmpty() ) {
-	if ( !vcProject.Configuration.postBuild.CommandLine.isEmpty() )
-	    vcProject.Configuration.postBuild.CommandLine += " &amp;&amp; ";
-	vcProject.Configuration.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
-	vcProject.Configuration.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
+	if ( !RConf.postBuild.CommandLine.isEmpty() )
+	    RConf.postBuild.CommandLine += " &amp;&amp; ";
+	RConf.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
+	RConf.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
     if( project->isActiveConfig( "activeqt" ) ) {
 	QString name = project->first( "QMAKE_ORIG_TARGET" );
@@ -625,30 +673,30 @@ void VcprojGenerator::initPostBuildEventTools()
 	QString objdir = project->first( "OBJECTS_DIR" );
 	QString idc = project->first( "QMAKE_IDC" );
 
-	vcProject.Configuration.postBuild.Description = "Finalizing ActiveQt server...";
-	if ( !vcProject.Configuration.postBuild.CommandLine.isEmpty() )
-	    vcProject.Configuration.postBuild.CommandLine += " &amp;&amp; ";
+	RConf.postBuild.Description = "Finalizing ActiveQt server...";
+	if ( !RConf.postBuild.CommandLine.isEmpty() )
+	    RConf.postBuild.CommandLine += " &amp;&amp; ";
 
 	if( project->isActiveConfig( "dll" ) ) { // In process
-	    vcProject.Configuration.postBuild.CommandLine +=
+	    RConf.postBuild.CommandLine +=
 		// call idc to generate .idl file from .dll
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first( "QMAKE_IDL" ) + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll /regserver";
+		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".dll /regserver";
 	} else { // out of process
-	    vcProject.Configuration.postBuild.CommandLine =
+	    RConf.postBuild.CommandLine =
 		// call application to dump idl
-		vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		RConf.OutputDirectory + "\\" + nameext + ".exe -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first( "QMAKE_IDL" ) + " /nologo " + objdir + name + ".idl /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " " + RConf.OutputDirectory + "\\" + nameext + ".exe /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call app to register
-		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -regserver";
+		RConf.OutputDirectory + "\\" + nameext + " -regserver";
 	}
     }
 }
@@ -735,6 +783,7 @@ void VcprojGenerator::initLexYaccFiles()
     vcProject.LexYaccFiles.Files += project->variables()["YACCSOURCES"];
     vcProject.LexYaccFiles.Files.sort();
     vcProject.LexYaccFiles.Project = this;
+    vcProject.LexYaccFiles.Config = &(vcProject.Configuration);
     vcProject.LexYaccFiles.CustomBuild = lexyacc;
 }
 
@@ -749,6 +798,7 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Files += project->variables()["IDLSOURCES"];
     vcProject.ResourceFiles.Files.sort();
     vcProject.ResourceFiles.Project = this;
+    vcProject.ResourceFiles.Config = &(vcProject.Configuration);
     vcProject.ResourceFiles.CustomBuild = none;
 }
 

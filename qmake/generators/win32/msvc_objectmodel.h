@@ -711,7 +711,7 @@ public:
     triState		ParseFiles;
     QStringList		Files;
     VcprojGenerator*	Project;
-    VCConfiguration*	Config;
+    QValueList<VCConfiguration> *Config;
     customBuildCheck	CustomBuild;
 };
 
@@ -731,7 +731,7 @@ public:
     QString		PlatformName;
 
     // XML sub-parts
-    VCConfiguration	Configuration;
+    QValueList<VCConfiguration> Configuration;
     VCFilter		SourceFiles;
     VCFilter		HeaderFiles;
     VCFilter		MOCFiles;
