@@ -1,7 +1,13 @@
 #include "gllandscape.h"
 
+#ifdef Q_WS_MAC
+#include <gl.h>
+#include <glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
+
 #include <math.h>
 
 #include "fbm.h"

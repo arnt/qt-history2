@@ -19,7 +19,11 @@
 
 #include "gltexobj.h"
 #include <qimage.h>
+#ifdef Q_WS_MAC
+#include <glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 /*!
   Create a GLTexobj widget
