@@ -73,7 +73,7 @@
   \code
     QPushButton *pb = new QPushButton( "&Download", this );
   \endcode
-  In this example the accelerator is \e{Ctrl+D}, and the label text
+  In this example the accelerator is \e{Alt+D}, and the label text
   will be displayed as <b><u>D</u>ownload</b>.
 
    Push buttons can display a textual label or a pixmap, and
