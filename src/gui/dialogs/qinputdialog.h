@@ -82,7 +82,8 @@ public:
         { return getDouble(parent, caption, label, value, minValue, maxValue, decimals, ok, f); }
     inline static QT_COMPAT QString getItem(const QString &caption, const QString &label, const QStringList &list,
                            int current = 0, bool editable = true, bool *ok = 0,
-                           QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0);
+                           QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
+        { return getItem(parent, caption, label, list, current, editable, ok, f); }
 #endif
 private slots:
     void textChanged(const QString &s);
