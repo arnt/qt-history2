@@ -588,7 +588,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 end:
     if (win)
         ReleaseDC(win, myDc);
-    else if (deviceIsPixmap()) 
+    else if (deviceIsPixmap())
         d->paintDevice->releaseDC(myDc);
     return result;
 }
@@ -872,6 +872,13 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
         ReleaseDC(winId, glHdc);
     else if (deviceIsPixmap())
         d->paintDevice->releaseDC(glHdc);
+}
+
+
+// ### fix me
+void *QGLContext::getProcAddress(const QString &proc) const
+{
+    return 0;
 }
 
 /*****************************************************************************

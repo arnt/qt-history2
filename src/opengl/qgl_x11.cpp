@@ -20,6 +20,7 @@
 #include "qdesktopwidget.h"
 #include "qpixmap.h"
 #include "qhash.h"
+#include "qlibrary.h"
 #include <private/qfontengine_p.h>
 #include <private/qt_x11_p.h>
 
@@ -787,6 +788,30 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     f.setStyleStrategy(QFont::OpenGLCompatible);
     if (f.handle() && engine->type() == QFontEngine::XLFD)
         glXUseXFont((Font) f.handle(), 0, 256, listBase);
+}
+
+
+/*!
+    Returns a function pointer to the GL extension function passed in
+    \a proc. 0 is returned if a pointer to the function could not be
+    obtained.
+*/
+void *QGLContext::getProcAddress(const QString &proc) const
+{
+    typedef void *(*qt_glXGetProcAddressARB)(const GLubyte *);
+    static qt_glXGetProcAddressARB glXGetProcAddressARB = 0;
+
+    if (!glXGetProcAddressARB) {
+	const QX11Info *xinfo = qt_x11Info(d->paintDevice);
+	QString glxExt(glXGetClientString(xinfo->display(), GLX_EXTENSIONS));
+	if (glxExt.contains("GLX_ARB_get_proc_address")) {
+	    QLibrary lib("GL");
+	    glXGetProcAddressARB = (qt_glXGetProcAddressARB) lib.resolve("glXGetProcAddressARB");
+	    if (!glXGetProcAddressARB)
+		return 0;
+	}
+    }
+    return glXGetProcAddressARB((GLubyte *) proc.latin1());
 }
 
 /*****************************************************************************

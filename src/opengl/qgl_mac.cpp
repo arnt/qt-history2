@@ -233,7 +233,7 @@ void QGLContext::makeCurrent()
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 {
     RgnHandle macr = qt_mac_get_rgn();
-    GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);        
+    GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);
     QPoint wpos = posInWindow(widget);
     OffsetRgn(macr, wpos.x(), wpos.y());
     QRegion ret = qt_mac_convert_mac_region(macr);
@@ -244,7 +244,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
         for(int i = children.size()-1; i >= 0; i--) {
             QWidget *child = qt_cast<QWidget*>(children.at(i));
             if(child) {
-                if(child == last) 
+                if(child == last)
                     break;
                 if(child->isVisible()) {
                     GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
@@ -294,7 +294,7 @@ void QGLContext::updatePaintDevice()
                     aglDisable((AGLContext)cx, AGL_CLIP_REGION);
             } else {
                 QPoint wpos = posInWindow(w);
-                const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()), 
+                const GLint offs[4] = { wpos.x(), w->topLevelWidget()->height() - (wpos.y() + w->height()),
                                         w->width(), w->height() };
                 aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
                 aglSetInteger((AGLContext)cx, AGL_CLIP_REGION, (const GLint *)clp.handle(true));
@@ -391,6 +391,12 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     aglUseFont((AGLContext) cx, (int)fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 
+// ### fix me
+void *QGLContext::getProcAddress(const QString &proc) const
+{
+    return 0;
+}
+
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/
@@ -418,20 +424,20 @@ class QMacGLWindowChangeEvent : public QMacWindowChangeEvent
     EventHandlerRef event_handler;
     QGLWidget *context;
 public:
-    QMacGLWindowChangeEvent(QGLWidget *w) : context(w) { 
+    QMacGLWindowChangeEvent(QGLWidget *w) : context(w) {
         if(!glwindow_change_handlerUPP) {
             glwindow_change_handlerUPP = NewEventHandlerUPP(QMacGLWindowChangeEvent::globalEventProcessor);
             qAddPostRoutine(qt_clean_glwindow_change_handler);
         }
-        InstallControlEventHandler(reinterpret_cast<HIViewRef>(w->winId()), 
-                                   glwindow_change_handlerUPP, GetEventTypeCount(glwindow_change_events), 
+        InstallControlEventHandler(reinterpret_cast<HIViewRef>(w->winId()),
+                                   glwindow_change_handlerUPP, GetEventTypeCount(glwindow_change_events),
                                    glwindow_change_events, (void *)this, &event_handler);
     }
     ~QMacGLWindowChangeEvent() {
         RemoveEventHandler(event_handler);
     }
 protected:
-    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);    
+    static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
     void windowChanged() { context->d->updatePaintDevice(); }
 };
 
@@ -445,13 +451,13 @@ OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, E
     case kEventClassControl:
         if(ekind == kEventControlOwningWindowChanged
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-           || ekind == kEventControlVisibilityChanged 
+           || ekind == kEventControlVisibilityChanged
 #endif
            || ekind == kEventControlBoundsChanged) {
             extern void qt_event_request_window_change(); //qapplication_mac.cpp
             qt_event_request_window_change();
         }
-        break; 
+        break;
     default:
         break;
     }
@@ -466,7 +472,7 @@ void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 
     setAttribute(Qt::WA_NoBackground);
     setContext(context, shareWidget ? shareWidget->context() : 0);
-    
+
     if(isValid() && d->glcx->format().hasOverlay()) {
         d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
         if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
@@ -548,7 +554,7 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
         d->glcx->doneCurrent();
     QGLContext* oldcx = d->glcx;
     d->glcx = context;
-    if(!d->glcx->isValid()) 
+    if(!d->glcx->isValid())
         d->glcx->create(shareContext);
     if(deleteOldContext)
         delete oldcx;

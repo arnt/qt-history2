@@ -157,8 +157,8 @@ public:
 
     GLuint texture(const QPixmap &pm) const;
 
+    void *getProcAddress(const QString &proc) const;
     QPaintDevice* device() const;
-
     QColor overlayTransparentColor() const;
 
     static const QGLContext* currentContext();
