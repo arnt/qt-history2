@@ -7,6 +7,7 @@
 #include <iostream.h>
 #include <windows.h>
 
+#define ALLOW_REMOTE
 Configure::Configure( int& argc, char** argv )
 {
     int i;
@@ -66,6 +67,10 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_OCI" ]	    = "no";
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
+
+#ifdef ALLOW_REMOTE
+    dictionary[ "REMOTE" ]	    = "no";
+#endif
 
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -282,6 +287,11 @@ void Configure::parseCmdLine()
 
 	else if( (*args) == "-qmake-deps" )
 	    dictionary[ "DEPENDENCIES" ] = "yes";
+
+#ifdef ALLOW_REMOTE
+	else if( (*args) == "-remote" )
+	    dictionary[ "REMOTE" ] = "yes";
+#endif
 
 	else if( (*args) == "-D" ) {
 	    ++args;
@@ -536,6 +546,13 @@ void Configure::generateOutputVars()
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
     }
 
+#ifdef ALLOW_REMOTE
+    if( dictionary[ "REMOTE" ] == "yes" ) {
+        qmakeVars += "DEFINES += QT_REMOTE_CONTROL";
+	qmakeConfig += "remote";
+    }
+#endif
+
     if( !qmakeLibs.isEmpty() ) {
 	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
     }
@@ -747,7 +764,7 @@ void Configure::generateConfigfiles()
 
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	    if ( !CopyFileA( outName, qtDir + "/include", FALSE ) )
+	    if ( !CopyFileA( outName, qtDir + "/include/qconfig.h", FALSE ) )
 		qDebug("Couldn't copy %s to include", outName.latin1() );
 	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );	    
 	}
@@ -799,6 +816,11 @@ void Configure::displayConfig()
     cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
     cout << "Thread support.............." << dictionary[ "THREAD" ] << endl << endl;
 
+#ifdef ALLOW_REMOTE
+    if( dictionary[ "REMOTE" ] == "yes" ) {
+    cout << "Remote support..............yes" << endl;
+    }
+#endif
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;

@@ -242,6 +242,5 @@ kernel {
 	      SOURCES += $$KERNEL_CPP/qremotemessage.cpp \
 			$$KERNEL_CPP/qremotefactory.cpp \
 			$$KERNEL_CPP/qremoteplugin.cpp
-		DEFINES+=QT_REMOTE_CONTROL
 	}
 }
