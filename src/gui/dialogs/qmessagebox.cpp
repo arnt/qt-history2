@@ -493,8 +493,7 @@ QMessageBox::QMessageBox(QWidget *parent, const char *name)
         "Hardware failure.\n\nDisk error detected\nDo you want to stop?",
         QMessageBox::Question,
         QMessageBox::Yes | QMessageBox::Default,
-        QMessageBox::No  | QMessageBox::Escape
-        QMessageBox::NoButton);
+        QMessageBox::No | QMessageBox::Escape);
     if (mb.exec() == QMessageBox::No)
         // try again
     \endcode
