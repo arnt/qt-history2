@@ -1817,21 +1817,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 #ifndef Q_OS_TEMP
-	case WM_MOUSEACTIVATE:
-	    {
-		const QWidget *tlw = widget->topLevelWidget();
-		// Do not change activation if the clicked widget is inside a floating dock window
-		if ( tlw->inherits( "QDockWindow" ) ) {
-		    if ( tlw->focusWidget() )
-			RETURN(MA_ACTIVATE);
-		    SetForegroundWindow( tlw->winId() );
-		    if ( tlw->parentWidget() && !tlw->parentWidget()->isActiveWindow() )
-			tlw->parentWidget()->setActiveWindow();
-		    RETURN(MA_NOACTIVATE);
+	    case WM_MOUSEACTIVATE:
+		{
+		    const QWidget *tlw = widget->topLevelWidget();
+		    // Do not change activation if the clicked widget is inside a floating dock window
+		    if ( tlw->inherits( "QDockWindow" ) && qApp->activeWindow() )
+			RETURN(MA_NOACTIVATE);
 		}
-	    }
-	    result = FALSE;
-	    break;
+		result = FALSE;
+		break;
 #endif
 	    case WM_SHOWWINDOW:
 		if ( lParam == SW_PARENTOPENING ) {
