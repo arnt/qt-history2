@@ -215,9 +215,19 @@ void QSplashScreen::drawContents()
 {
     QPixmap textPix = d->pixmap;
     QPainter painter( &textPix, this );
-    painter.setPen( d->currColor );
+    drawContents( &painter );
+    setErasePixmap( textPix );
+}
+
+/*!
+  Draw the contents of the splash screen using painter \a painter.  The default
+  implementation draws the message passed by setStatus().  Reimplement this
+  function if you want to do your own drawing on the splash screen.
+*/
+void QSplashScreen::drawContents( QPainter *painter )
+{
+    painter->setPen( d->currColor );
     QRect r = rect();
     r.setRect( r.x() + 10, r.y() + 10, r.width() - 20, r.height() - 20 );
-    painter.drawText( r, d->currAlign, d->currStatus );
-    setErasePixmap( textPix );
+    painter->drawText( r, d->currAlign, d->currStatus );
 }

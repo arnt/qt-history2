@@ -58,10 +58,12 @@ public:
     void repaint();
 
 protected:
+    virtual void drawContents( QPainter *painter );
     void mousePressEvent( QMouseEvent * );
 
 private:
     void drawContents();
+
     QSplashScreenPrivate *d;
 };
 
