@@ -23,5 +23,6 @@ INTERFACES	= preferences.ui
 		
 TARGET		= editor
 DESTDIR		= ../../../lib
+DLLDESTDIR	= ../../../bin
 VERSION		= 1.0.0
 INCLUDEPATH	+= $(QTDIR)/src/kernel $(QTDIR)/tools/designer/interfaces
