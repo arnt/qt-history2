@@ -23,7 +23,7 @@
 #include <qdebug.h>
 
 #include <ibase.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <math.h>
 
