@@ -207,7 +207,7 @@ public:
 
     void play(const QString&) { }
     void play(QSound*s) { s->setLoops(0); }
-    void stop(QSound*) { s->setLoops(0); }
+    void stop(QSound*s) { s->setLoops(0); }
     bool okay() { return FALSE; }
 };
 
