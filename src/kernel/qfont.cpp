@@ -89,6 +89,8 @@ QFontEngineData::QFontEngineData()
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
     memset( engines, 0, QFont::LastPrivateScript * sizeof( QFontEngine * ) );
     memset( widthCache, 0, widthCacheSize*sizeof( uchar ) );
+#else
+    engine = 0;
 #endif // Q_WS_X11 || Q_WS_WIN
 }
 
@@ -2283,6 +2285,7 @@ void QFontCache::insertEngine( const Key &key, QFontEngine *engine )
 void QFontCache::increaseCost( uint cost )
 {
     cost = ( cost + 512 ) / 1024; // store cost in kb
+    cost = cost > 0 ? cost : 1;
     total_cost += cost;
 
 #ifdef QFONTCACHE_DEBUG
@@ -2308,6 +2311,7 @@ void QFontCache::increaseCost( uint cost )
 void QFontCache::decreaseCost( uint cost )
 {
     cost = ( cost + 512 ) / 1024; // cost is stored in kb
+    cost = cost > 0 ? cost : 1;
     Q_ASSERT( cost <= total_cost );
     total_cost -= cost;
 
@@ -2344,8 +2348,12 @@ void QFontCache::timerEvent( QTimerEvent * )
 	qDebug( "  SWEEP engine data:" );
 #endif // QFONTCACHE_DEBUG
 
+	// make sure the cost of each engine data is at least 1kb
+        const uint engine_data_cost =
+	    sizeof( QFontEngineData ) > 1024 ? sizeof( QFontEngineData ) : 1024;
+
 	EngineDataCache::ConstIterator it = engineDataCache.begin(),
-				      end = engineDataCache.end();
+	                              end = engineDataCache.end();
 	for ( ; it != end; ++it ) {
 #ifdef QFONTCACHE_DEBUG
 	    qDebug( "    %p: ref %2d", it.data(), it.data()->count );
@@ -2360,7 +2368,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 #endif // QFONTCACHE_DEBUG
 
 	    if ( it.data()->count > 0 )
-		in_use_cost += sizeof( QFontEngineData );
+		in_use_cost += engine_data_cost;
 	}
     }
 
