@@ -14,7 +14,8 @@ void WidgetsBase::destroy()
 void WidgetsBase::resetColors()
 {
     groupBox->setPalette( palette(), FALSE );
-    if(QObjectList *chldn = groupBox->queryList()) {
+    QObjectList *chldn = groupBox->queryList();
+    if ( chldn ) {
 	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
 	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget *)obj;
@@ -28,7 +29,8 @@ void WidgetsBase::resetColors()
 void WidgetsBase::setColor( const QString & color )
 {
     groupBox->setPalette( QColor( color ), FALSE );
-    if(QObjectList *chldn = groupBox->queryList()) {
+    QObjectList *chldn = groupBox->queryList();
+    if ( chldn ) {
 	for(QObject *obj=chldn->first(); obj; obj = chldn->next()) {
 	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget *)obj;

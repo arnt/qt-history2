@@ -57,6 +57,14 @@ public:
     void setProX( int index, double value );
     void setProY( int index, double value );
 
+#ifdef Q_FULL_TEMPLATE_INSTANTIATION
+    // xlC 3.x workaround
+    Q_DUMMY_COMPARISON_OPERATOR(Element)
+    bool operator!=( const Element& e) const {
+	return ( !(e == *this) );
+    }
+#endif
+
 private:
     void init( double value, QColor valueColor, int valuePattern,
 	       const QString& label, QColor labelColor );

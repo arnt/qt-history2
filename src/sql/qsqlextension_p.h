@@ -69,6 +69,7 @@ struct Param {
     Param( const QVariant& v = QVariant(), QSql::ParameterType t = QSql::In ): value( v ), typ( t ) {}
     QVariant value;
     QSql::ParameterType typ;
+    Q_DUMMY_COMPARISON_OPERATOR(Param)
 };
 
 struct Holder {
@@ -98,7 +99,7 @@ public:
     virtual QVariant parameterValue( int pos );
     void clearValues();
     void clearIndex();
-    
+
     enum BindMethod { BindByPosition, BindByName };
     BindMethod bindMethod();
     BindMethod bindm;

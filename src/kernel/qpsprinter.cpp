@@ -4168,9 +4168,9 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoi
                     mb = "  ";
 
 		for ( unsigned int j = 0; j < mb.length (); j++ ) {
-                    if ( mb[j] == '(' || mb[j] == ')' || mb[j] == '\\' )
+                    if ( mb.at(j) == '(' || mb.at(j) == ')' || mb.at(j) == '\\' )
                         out += "\\";
-                    out += mb[j];
+                    out += mb.at(j);
 		}
             }
         }
@@ -4945,7 +4945,7 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
 			    fs=fs.mid(fs.find('=')+1).stripWhiteSpace();
 			    bool end = FALSE;
 			    while( f.status()==IO_Ok && !end ) {
-				if ( fs[fs.length()-1] == ',' )
+				if ( fs[int(fs.length())-1] == ',' )
 				    fs = fs.left(fs.length()-1);
 				else
 				    end = TRUE;
