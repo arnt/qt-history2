@@ -241,7 +241,9 @@ QSqlIndex QSqlIndex::fromStringList( const QStringList& l, const QSqlCursor* cur
 	    desc = TRUE;
 	    f = f.mid( 0, f.length()-4 );
 	}
-	newSort.append( *( cursor->field( f.simplifyWhiteSpace() ) ), desc );
+	const QSqlField* field = cursor->field( f.simplifyWhiteSpace() );
+	if ( field )
+	    newSort.append( *field, desc );
     }
     return newSort;
 }
