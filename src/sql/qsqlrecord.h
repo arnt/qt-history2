@@ -68,10 +68,8 @@ public:
     virtual void         setValue( int i, const QVariant& val );
     virtual void         setValue( const QString& name, const QVariant& val );
     int                  position( const QString& name ) const;
-    QSqlField*           field( int i );
-    const QSqlField*     field( int i ) const;
-    QSqlField*           field( const QString& name );
-    const QSqlField*     field( const QString& name ) const;
+    QSqlField*           field( int i ) const;
+    QSqlField*           field( const QString& name ) const;
 
     virtual void         append( const QSqlField& field );
     virtual void         prepend( const QSqlField& field );
@@ -95,10 +93,8 @@ public:
 
 private:
     void                 init();
-    const QSqlField*     findField( int i ) const;
-    QSqlField*           findField( int i );
-    const QSqlField*     findField( const QString& name ) const;
-    QSqlField*           findField( const QString& name );
+    QSqlField*           findField( int i ) const;
+    QSqlField*           findField( const QString& name ) const;
     QSqlRecordPrivate*   d;
 };
 

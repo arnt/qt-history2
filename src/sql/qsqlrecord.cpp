@@ -74,7 +74,7 @@ public:
     \brief A set of database fields.
 
     \module sql
-    
+
     The QSqlRecord class encapsulates the functionality and
     characteristics of a database record (usually a table or view
     within the database), such as adding or removing fields, setting
@@ -175,17 +175,7 @@ int QSqlRecord::position( const QString& name ) const
 
 */
 
-QSqlField* QSqlRecord::field( int i )
-{
-    return findField( i );
-}
-
-/*!  Returns a pointer to the field at position \a pos within the
-  record, or 0 if it cannot be found.
-
-*/
-
-const QSqlField* QSqlRecord::field( int i ) const
+QSqlField* QSqlRecord::field( int i ) const
 {
     return findField( i );
 }
@@ -196,18 +186,7 @@ const QSqlField* QSqlRecord::field( int i ) const
 
 */
 
-QSqlField* QSqlRecord::field( const QString& name )
-{
-    return findField( name );
-}
-
-/*!  Returns a pointer to the field with name \a name within the
-  record, or 0 if it cannot be found.  Field names are not
-  case-sensitive.
-
-*/
-
-const QSqlField* QSqlRecord::field( const QString& name ) const
+QSqlField* QSqlRecord::field( const QString& name ) const
 {
     return findField( name );
 }
@@ -336,9 +315,9 @@ void QSqlRecord::setAlignment( const QString& name, int align )
 
    <ul>
    <li> If the field is a string data type, \c Qt::AlignLeft is returned.
-   
+
    <li> Otherwise, \c Qt::AlignRight is returned.
-   
+
    </ul>
 
    \sa setAlignment()
@@ -458,7 +437,7 @@ uint QSqlRecord::count() const
 
 */
 
-const QSqlField* QSqlRecord::findField( int i ) const
+QSqlField* QSqlRecord::findField( int i ) const
 {
 #ifdef QT_CHECK_RANGE
     if( (unsigned int) i > d->fieldList.count() ){
@@ -473,41 +452,9 @@ const QSqlField* QSqlRecord::findField( int i ) const
 
 */
 
-QSqlField* QSqlRecord::findField( int i )
+QSqlField* QSqlRecord::findField( const QString& name ) const
 {
 #ifdef QT_CHECK_RANGE
-    if( (unsigned int) i > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField: index out of range: " + QString::number( i ) );
-	return 0;
-    }
-#endif // QT_CHECK_RANGE
-    return &d->fieldList[ i ];
-}
-
-/*!  \internal
-
-*/
-
-const QSqlField* QSqlRecord::findField( const QString& name ) const
-{
-#ifdef QT_CHECK_RANGE
-    if( (unsigned int) position( name ) > d->fieldList.count() ){
-	qWarning( "QSqlRecord::findField: field not found: " + name );
-	return 0;
-    }
-#endif // QT_CHECK_RANGE
-    return &d->fieldList[ position( name ) ];
-}
-
-
-/*!  \internal
-
-*/
-
-QSqlField* QSqlRecord::findField( const QString& name )
-{
-#ifdef QT_CHECK_RANGE
-    static QSqlField dbg;
     if( (unsigned int) position( name ) > d->fieldList.count() ){
 	qWarning( "QSqlRecord::findField: field not found: " + name );
 	return 0;
