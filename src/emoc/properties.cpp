@@ -9,12 +9,21 @@
   */
 static const char* TorbensHack[] = {
   "+", "QWidget", "A simple Widget", "", "",
+  "void", "setCaption", "", "const QString&", ")",
+  "QString", "caption", "const", ")",
 
   "+", "QButton", "An abstract Button", "", "",
     "void", "setText", "", "const QString&", ")",
     "QString", "text", "const", ")",
 
+  "+", "QLabel", "", "", "",
+    "void", "setText", "", "const QString&", ")",
+    "QString", "text", "const", ")",
+
   "+", "QPushButton", "A push button", "", "",
+  "+", "QRadioButton", "", "", "",
+  "+", "QWizard", "", "", "",
+  "+", "QLineEdit", "", "", "",
 
   "+", "QGridLayout", "A grid layout", "", "",
 
@@ -35,7 +44,7 @@ static const char* TorbensHack[] = {
 
   "+", "DSpacing", "", "", "",
   "void", "setSpacing", "", "int", ")",
-  "int", "Spacing", "const", ")",
+  "int", "spacing", "const", ")",
 
   0
 };

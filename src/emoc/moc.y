@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/emoc/moc.y#6 $
+** $Id: //depot/qt/main/src/emoc/moc.y#7 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1894,7 +1894,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 1.6 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 1.7 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2070,7 +2070,7 @@ void generateClass()		      // generate C++ source code for a class
 	}
 	else if ( layout )
 	{
-	    fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
+	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
 	    fprintf( out, "    if ( _parent == 0 ) return new %s;\n",(const char*)className);
 	    fprintf( out, "    if ( _parent->inherits( \"QLayout\" ) ) return new %s( (QLayout*)_parent );\n",
 		     (const char*)className);
@@ -2079,7 +2079,7 @@ void generateClass()		      // generate C++ source code for a class
 	else
 	{
 	    // The hack ends here
-	    fprintf( out, "static QObject *factory( QObject* _parent )\n{\n" );
+	    fprintf( out, "static QObject *%s_factory( QObject* _parent )\n{\n", (const char*)className );
 	    fprintf( out, "    return new %s( (QWidget*)_parent );\n}\n\n", (const char*)className );
 	}
     }
@@ -2205,10 +2205,10 @@ void generateClass()		      // generate C++ source code for a class
         if ( !Q_BUILDERpixmap.isEmpty() )
            fprintf( out, "    metaObj->setPixmap( pixmap_%s );\n", (const char*)className );
         if ( hasFactory ) // This is one of Torbens hacks
-           fprintf( out, "    metaObj->setFactory( factory );\n", (const char*)className );
+           fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
     }
     else if ( Q_FACTORYdetected )
-        fprintf( out, "    metaObj->setFactory( factory );\n", (const char*)className );
+        fprintf( out, "    metaObj->setFactory( %s_factory );\n", (const char*)className );
     fprintf( out, "    return metaObj;\n}\n" );
 
 //
