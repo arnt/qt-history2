@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#15 $
 **
 ** Implementation of QPrinter class
 **
@@ -13,7 +13,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qprinter.cpp#15 $";
 #endif
 
 
@@ -260,7 +260,7 @@ void QPrinter::setCreator( const char *creator )
 
 
 /*----------------------------------------------------------------------------
-  \fn QPrinter::Orientation QPrinter::orientation() const
+  \fn Orientation QPrinter::orientation() const
   Returns the orientation setting. The default value is \c QPrinter::Portrait.
   \sa setOrientation()
  ----------------------------------------------------------------------------*/
@@ -286,7 +286,7 @@ void QPrinter::setOrientation( Orientation orientation )
 
 
 /*----------------------------------------------------------------------------
-  \fn QPrinter::PageSize QPrinter::pageSize() const
+  \fn PageSize QPrinter::pageSize() const
   Returns the printer page size. The default value is \c QPrinter::A4.
   \sa setPageSize()
  ----------------------------------------------------------------------------*/
@@ -320,7 +320,7 @@ void QPrinter::setPageSize( PageSize pageSize )
   this setting and printing accordingly.
   The default value is 1.
 
-  \sa setFromPage(), toPage()
+  \sa setFromTo(), toPage()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -329,7 +329,7 @@ void QPrinter::setPageSize( PageSize pageSize )
   this setting and printing accordingly.
   The default value is 1.
 
-  \sa setFromPage(), fromPage()
+  \sa setFromTo(), fromPage()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
