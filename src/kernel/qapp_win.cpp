@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#67 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -14,6 +14,7 @@
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
+#include "qdatetm.h"
 #include <ctype.h>
 
 #if defined(_CC_BOOL_DEF_)
@@ -24,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#67 $");
 
 
 /*****************************************************************************
@@ -724,44 +725,74 @@ int QApplication::exec()
 }
 
 
+bool QApplication::processNextEvent( bool canWait )
+{
+    MSG  msg;
+
+    if ( postedEvents && postedEvents->count() )
+	sendPostedEvents();
+
+    if ( canWait ) {				// can wait if necessary
+	if ( numZeroTimers ) {			// activate full-speed timers
+	    int ok;
+	    while ( numZeroTimers && !(ok=PeekMessage(&msg,0,0,0,PM_REMOVE)) )
+		activateZeroTimers();
+	    if ( !ok )				// no event
+		return FALSE;
+	} else {
+	    if ( !GetMessage(&msg,0,0,0) ) {
+		quit();				// WM_QUIT received
+		return FALSE;
+	    }
+	}
+    } else {					// no-wait mode
+	if ( !PeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
+	    if ( numZeroTimers > 0 )		// there are 0-timers
+		activateZeroTimers();
+	    return FALSE;
+	}
+    }
+
+    if ( winEventFilter(&msg) )			// pass through event filter
+	return TRUE;				//   the event was eaten up
+
+    if ( msg.message == WM_TIMER ) {		// timer message received
+	activateTimer( msg.wParam );
+	return TRUE;
+    }
+
+    if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
+	if ( translateKeyCode(msg.wParam) == 0 ) {
+	    TranslateMessage( &msg );		// translate to WM_CHAR
+	    return TRUE;
+	}
+    }
+    DispatchMessage( &msg );			// send to WndProc
+    if ( configRequests )			// any pending configs?
+	qWinProcessConfigRequests();
+
+    return TRUE;
+}
+
+
+void QApplication::processEvents()
+{
+    QTime start = QTime::currentTime();
+    QTime now;
+    while ( !quit_now && processNextEvent(FALSE) ) {
+	now = QTime::currentTime();
+	if ( start.msecsTo(now) > 3000 )	// 3 secs or more elapsed
+	    break;
+    }
+}
+
+
 int QApplication::enter_loop()
 {
     loop_level++;
 
-    while ( !quit_now && !app_exit_loop ) {
-
-	MSG msg;
-
-	if ( numZeroTimers ) {			// activate full-speed timers
-	    int m;
-	    while ( numZeroTimers && !(m=PeekMessage(&msg,0,0,0,PM_REMOVE)) )
-		activateZeroTimers();
-	    if ( !m )				// no event
-		continue;
-	}
-	else if ( !GetMessage(&msg,0,0,0) )
-	    break;
-
-	if ( winEventFilter( &msg ) )		// pass through event filter
-	    continue;
-
-	if ( msg.message == WM_TIMER ) {	// timer message received
-	    activateTimer( msg.wParam );
-	    continue;
-	}
-
-	if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
-	    if ( translateKeyCode(msg.wParam) == 0 ) {
-		TranslateMessage( &msg );	// translate to WM_CHAR
-		continue;
-	    }
-	}
-	DispatchMessage( &msg );		// send to WndProc
-	if ( configRequests )			// any pending configs?
-	    qWinProcessConfigRequests();
-	if ( postedEvents && postedEvents->count() )
-	    sendPostedEvents();
-    }
+    while ( !quit_now && !app_exit_loop )
+	processNextEvent( TRUE );
 
     app_exit_loop = FALSE;
     loop_level--;

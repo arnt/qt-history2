@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#183 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -15,13 +15,15 @@
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
+#include "qdatetm.h"
 #if defined(_OS_WIN32_)
 #define HANDLE dummy
 #include <winsock.h>
 #undef	HANDLE
 #else
-#define gettimeofday	__hide_gettimeofday
+#define gettimeofday	_qt__hide_gettimeofday
 #endif
+#define select		_qt_hide_select
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -31,8 +33,6 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
-#undef gettimeofday
-extern "C" int gettimeofday( struct timeval *, struct timezone * );
 
 #if defined(_OS_LINUX_) && defined(DEBUG)
 #include "qfile.h"
@@ -40,10 +40,15 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(_OS_IRIX_)
-#include <bstring.h> // bzero
+#include <bstring.h>	// bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#182 $");
+#undef gettimeofday
+extern "C" int gettimeofday( struct timeval *, struct timezone * );
+#undef select
+extern "C" int select( int, void *, void *, void *, struct timeval * );
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#183 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -97,6 +102,7 @@ static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidgetList *popupWidgets = 0;		// list of popup widgets
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
+static bool	    popupFilter( QWidget * );
 
 
 typedef void  (*VFPTR)();
@@ -111,7 +117,7 @@ static void	cleanupPostedEvents();
 static void	initTimers();
 static void	cleanupTimers();
 static timeval *waitTimer();
-static bool	activateTimers();
+static int	activateTimers();
 static timeval	watchtime;			// watch if time is turned back
 
 QObject	       *qt_clipboard = 0;
@@ -1067,14 +1073,15 @@ static void sn_cleanup()
 // processed.
 //
 
-static void sn_activate()
+static int sn_activate()
 {
     if ( !sn_rnd_dict ) {
 	sn_rnd_dict = new QObjRndDict( 53 );
 	CHECK_PTR( sn_rnd_dict );
 	qAddPostRoutine( sn_cleanup );
     }
-    for ( int i=0; i<3; i++ ) {			// for each list...
+    int i, n_act = 0;
+    for ( i=0; i<3; i++ ) {			// for each list...
 	if ( *sn_vec[i].list ) {		// any entries?
 	    QSNList  *list = *sn_vec[i].list;
 	    fd_set   *fds  = sn_vec[i].fdres;
@@ -1093,9 +1100,11 @@ static void sn_activate()
 	while ( (obj=it.current()) ) {
 	    ++it;
 	    QApplication::sendEvent( obj, &event );
+	    n_act++;
 	}
 	sn_rnd_dict->clear();
     }
+    return n_act;
 }
 
 
@@ -1116,13 +1125,285 @@ static void sn_activate()
   As a special case, modal widgets like QMessageBox can be used before
   calling exec(), because modal widget have a local event loop.
 
-  \sa quit(), setMainWidget()
+  \sa quit(), processEvents(), setMainWidget()
 */
 
 int QApplication::exec()
 {
     enter_loop();
     return quit_code;
+}
+
+
+/*!
+  Processes the next event and returns TRUE if there was an event
+  (excluding posted events or zero-timer events) to process.
+
+  This function returns immediately if \e canWait is FALSE. It might go
+  into a sleep/wait state if \e canWait is TRUE.
+
+  \sa processEvents()
+*/
+
+bool QApplication::processNextEvent( bool canWait )
+{
+    XEvent event;
+    int	   nevents = 0;
+
+    if ( postedEvents && postedEvents->count() )
+	sendPostedEvents();
+
+    while ( XPending(appDpy) ) {		// also flushes output buffer
+
+	if ( quit_now )				// quit between events
+	    return FALSE;
+	XNextEvent( appDpy, &event );		// get next event
+	nevents++;
+
+	if ( x11EventFilter(&event) )		// send through app filter
+	    return TRUE;
+
+	QETWidget *widget = (QETWidget*)QWidget::find( event.xany.window );
+
+	if ( wPRmapper ) {			// just did a widget recreate?
+	    if ( widget == 0 ) {		// not in std widget mapper
+		switch ( event.type ) {		// only for mouse/key events
+		    case ButtonPress:
+		    case ButtonRelease:
+		    case MotionNotify:
+		    case KeyPress:
+		    case KeyRelease:
+			widget = qPRFindWidget( event.xany.window );
+			break;
+		}
+	    }
+	    else if ( widget->testWFlags(WRecreated) )
+		qPRCleanup( widget );		// remove from alt mapper
+	}
+	if ( !widget )				// don't know this window
+	    continue;
+
+	if ( app_do_modal )			// modal event handling
+	    if ( !qt_try_modal(widget, &event) )
+		continue;
+
+	if ( popupWidgets ) {			// in popup mode
+	    switch ( event.type ) {
+		    // Mouse and keyboard events are handled by the
+		    // translate routines
+		case FocusIn:
+		case FocusOut:
+		case EnterNotify:
+		case LeaveNotify:
+		    if ( popupFilter(widget) )
+			return TRUE;
+		    break;
+	    }
+	}
+
+	if ( widget->x11Event(&event) )		// send trough widget filter
+	    return TRUE;
+
+	switch ( event.type ) {
+
+	    case ButtonPress:			// mouse event
+	    case ButtonRelease:
+	    case MotionNotify:
+		qt_x_clipboardtime = (event.type == MotionNotify) ?
+		    event.xmotion.time : event.xbutton.time;
+		if ( widget->isEnabled() ) {
+		    if ( event.type == ButtonPress &&
+			 event.xbutton.button == Button1 )
+			widget->setFocus();
+		    widget->translateMouseEvent( &event );
+		}
+		break;
+
+	    case KeyPress:			// keyboard event
+	    case KeyRelease: {
+		qt_x_clipboardtime = event.xkey.time;
+		QWidget *g = QWidget::keyboardGrabber();
+		if ( g )
+		    widget = (QETWidget*)g;
+		else if ( focus_widget )
+		    widget = (QETWidget*)focus_widget;
+		else
+		    widget = (QETWidget*)widget->topLevelWidget();
+		if ( widget->isEnabled() )
+		    widget->translateKeyEvent( &event, g != 0 );
+		}
+		break;
+
+	    case MappingNotify:			// keyboard mapping changed
+		XRefreshKeyboardMapping( &event.xmapping );
+		break;
+
+	    case GraphicsExpose:
+	    case Expose:			// paint event
+		widget->translatePaintEvent( &event );
+		break;
+
+	    case ConfigureNotify:		// window move/resize event
+		widget->translateConfigEvent( &event );
+		break;
+
+	    case FocusIn: {			// got focus
+		QWidget *w = widget;
+		while ( w->parentWidget() )	// go to top level
+		    w = w->parentWidget();
+		while ( w->focusChild )		// go down focus chain
+		    w = w->focusChild;
+		if ( w != focus_widget && w->isFocusEnabled() ) {
+		    focus_widget = w;
+		    QFocusEvent in( Event_FocusIn );
+		    QApplication::sendEvent( w, &in );
+		}
+		}
+		break;
+
+	    case FocusOut:			// lost focus
+		if ( focus_widget ) {
+		    QFocusEvent out( Event_FocusOut );
+		    QWidget *w = focus_widget;
+		    focus_widget = 0;
+		    QApplication::sendEvent( w, &out );
+		}
+		break;
+
+	    case EnterNotify:			// enter window
+	    case LeaveNotify: {			// leave window
+		if ( event.xcrossing.mode > 0 )
+		    break;
+		QEvent e( event.type == EnterNotify ?
+			  Event_Enter : Event_Leave );
+		QApplication::sendEvent( widget, &e );
+		}
+		break;
+
+	    case UnmapNotify:			// window hidden
+		widget->clearWFlags( WState_Visible );
+		break;
+
+	    case MapNotify:			// window shown
+		widget->setWFlags( WState_Visible );
+		break;
+
+	    case ClientMessage:			// client message
+		if ( (event.xclient.format == 32) ) {
+		    long *l = event.xclient.data.l;
+		    if ( *l == (long)q_wm_delete_window ) {
+			if ( widget->translateCloseEvent(&event) )
+			    delete widget;
+		    }
+		}
+		break;
+
+	    case ReparentNotify:		// window manager reparents
+		if ( event.xreparent.parent != appRootWin ) {
+		    XWindowAttributes a1, a2;
+		    while ( XCheckTypedWindowEvent( widget->x11Display(),
+						    widget->winId(),
+						    ReparentNotify,
+						    &event ) )
+			;			// skip old reparent events
+		    Window parent = event.xreparent.parent;
+		    XGetWindowAttributes( widget->x11Display(),
+					  widget->winId(), &a1 );
+		    XGetWindowAttributes( widget->x11Display(), parent,
+					  &a2 );
+		    QRect *r = &widget->crect;
+		    XWindowAttributes *a;
+		    if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
+			a = &a2;		// typical for mwm, fvwm
+		    else
+			a = &a1;		// typical for twm, olwm
+		    a->x += a2.border_width;
+		    a->y += a2.border_width;
+		    widget->frect = QRect(QPoint(r->left()	 - a->x,
+						 r->top()	 - a->y),
+					  QPoint(r->right()	 + a->x,
+						 r->bottom() + a->x) );
+		}
+		break;
+
+	    case SelectionClear:
+	    case SelectionNotify:
+	    case SelectionRequest:
+		if ( qt_clipboard ) {
+		    QCustomEvent e( Event_Clipboard, &event );
+		    QApplication::sendEvent( qt_clipboard, &e );
+		}
+		break;
+
+	    default:
+		break;
+	}
+    }
+
+    if ( quit_now || app_exit_loop )		// break immediatly
+	return FALSE;
+
+    timeval *tm = waitTimer();			// wait for timer or X event
+    if ( !canWait ) {
+	tm->tv_sec  = 0;			// no time to wait
+	tm->tv_usec = 0;
+    }
+    if ( sn_highest >= 0 ) {
+	if ( sn_read )
+	    app_readfds = sn_readfds;
+	else
+	    FD_ZERO( &app_readfds );
+	if ( sn_write )
+	    app_writefds = sn_writefds;
+	if ( sn_except )
+	    app_exceptfds = sn_exceptfds;
+    } else {
+	FD_ZERO( &app_readfds );
+    }
+    FD_SET( app_Xfd, &app_readfds );
+
+    int nsel;
+    nsel = select( QMAX(app_Xfd,sn_highest)+1,
+		   (void *) (&app_readfds),
+		   (void *) (sn_write  ? &app_writefds  : 0),
+		   (void *) (sn_except ? &app_exceptfds : 0),
+		   tm );
+#undef FDCAST
+
+    if ( nsel == -1 ) {
+	if ( errno == EINTR || errno == EAGAIN ) {
+	    errno = 0;
+	    return (nevents > 0);
+	} else {
+	    ; // select error
+	}
+    } else if ( nsel > 0 && sn_highest >= 0 ) {
+	nevents += sn_activate();
+    }
+
+    nevents += activateTimers();		// activate timers
+    qt_reset_color_avail();			// color approx. optimization
+
+    return (nevents > 0);
+}
+
+
+/*!
+  Processes all pending events and returns immediately.
+
+  You can call this function occasionally when you program is busy doing a
+  long operation (e.g. copying a file).
+*/
+
+void QApplication::processEvents()
+{
+    QTime start = QTime::currentTime();
+    QTime now;
+    while ( !quit_now && processNextEvent(FALSE) ) {
+	now = QTime::currentTime();
+	if ( start.msecsTo(now) > 3000 )	// 3 secs or more elapsed
+	    break;
+    }
 }
 
 
@@ -1136,234 +1417,8 @@ int QApplication::enter_loop()
 {
     loop_level++;
 
-    while ( !quit_now && !app_exit_loop ) {
-
-	if ( postedEvents && postedEvents->count() )
-	    sendPostedEvents();
-
-	XEvent event;
-	while ( XPending(appDpy) ) {		// also flushes output buffer
-
-	    if ( quit_now )			// quit between events
-		break;
-	    XNextEvent( appDpy, &event );	// get next event
-
-	    if ( x11EventFilter(&event) )	// send through app filter
-		continue;
-
-	    QETWidget *widget = (QETWidget*)QWidget::find( event.xany.window );
-
-	    if ( wPRmapper ) {			// just did a widget recreate?
-		if ( widget == 0 ) {		// not in std widget mapper
-		    switch ( event.type ) {	// only for mouse/key events
-			case ButtonPress:
-			case ButtonRelease:
-			case MotionNotify:
-			case KeyPress:
-			case KeyRelease:
-			    widget = qPRFindWidget( event.xany.window );
-			    break;
-		    }
-		}
-		else if ( widget->testWFlags(WRecreated) )
-		    qPRCleanup( widget );	// remove from alt mapper
-	    }
-	    if ( !widget )			// don't know this window
-		continue;
-
-	    if ( app_do_modal )			// modal event handling
-		if ( !qt_try_modal(widget, &event) )
-		    continue;
-
-	    if ( widget->x11Event(&event) )	// send trough widget filter
-		continue;
-
-	    switch ( event.type ) {
-
-		case ButtonPress:		// mouse event
-		case ButtonRelease:
-		case MotionNotify:
-		    qt_x_clipboardtime = (event.type == MotionNotify) ?
-				event.xmotion.time : event.xbutton.time;
-		    if ( widget->isEnabled() ) {
-			if ( event.type == ButtonPress &&
-			     event.xbutton.button == Button1 )
-			    widget->setFocus();
-			widget->translateMouseEvent( &event );
-		    }
-		    break;
-
-		case KeyPress:			// keyboard event
-		case KeyRelease: {
-		    qt_x_clipboardtime = event.xkey.time;
-		    QWidget *g = QWidget::keyboardGrabber();
-		    if ( g )
-			widget = (QETWidget*)g;
-		    else if ( focus_widget )
-			widget = (QETWidget*)focus_widget;
-		    else
-			widget = (QETWidget*)widget->topLevelWidget();
-		    if ( widget->isEnabled() )
-			widget->translateKeyEvent( &event, g != 0 );
-		    }
-		    break;
-
-		case MappingNotify:		// keyboard mapping changed
-		    XRefreshKeyboardMapping( &event.xmapping );
-		    break;
-
-		case GraphicsExpose:
-		case Expose:			// paint event
-		    widget->translatePaintEvent( &event );
-		    break;
-
-		case ConfigureNotify:		// window move/resize event
-		    widget->translateConfigEvent( &event );
-		    break;
-
-		case FocusIn: {			// got focus
-		    QWidget *w = widget;
-		    while ( w->parentWidget() ) // go to top level
-			w = w->parentWidget();
-		    while ( w->focusChild )	// go down focus chain
-			w = w->focusChild;
-		    if ( w != focus_widget && w->isFocusEnabled() ) {
-			focus_widget = w;
-			QFocusEvent in( Event_FocusIn );
-			QApplication::sendEvent( w, &in );
-		    }
-		    }
-		    break;
-
-		case FocusOut:			// lost focus
-		    if ( focus_widget ) {
-			QFocusEvent out( Event_FocusOut );
-			QWidget *w = focus_widget;
-			focus_widget = 0;
-			QApplication::sendEvent( w, &out );
-		    }
-		    break;
-
-		case EnterNotify:		// enter window
-		case LeaveNotify: {		// leave window
-		    if ( event.xcrossing.mode > 0 )
-			break;
-		    QEvent e( event.type == EnterNotify ?
-			      Event_Enter : Event_Leave );
-		    QApplication::sendEvent( widget, &e );
-		    }
-		    break;
-
-		case UnmapNotify:		// window hidden
-		    widget->clearWFlags( WState_Visible );
-		    break;
-
-		case MapNotify:			// window shown
-		    widget->setWFlags( WState_Visible );
-		    break;
-
-		case ClientMessage:		// client message
-		    if ( (event.xclient.format == 32) ) {
-			long *l = event.xclient.data.l;
-			if ( *l == (long)q_wm_delete_window ) {
-			    if ( widget->translateCloseEvent(&event) )
-				delete widget;
-			}
-		    }
-		    break;
-
-		case ReparentNotify:		// window manager reparents
-		    if ( event.xreparent.parent != appRootWin ) {
-			XWindowAttributes a1, a2;
-			while ( XCheckTypedWindowEvent( widget->x11Display(),
-							widget->winId(),
-							ReparentNotify,
-							&event ) )
-			    ;			// skip old reparent events
-			Window parent = event.xreparent.parent;
-			XGetWindowAttributes( widget->x11Display(),
-					      widget->winId(), &a1 );
-			XGetWindowAttributes( widget->x11Display(), parent,
-					      &a2 );
-			QRect *r = &widget->crect;
-			XWindowAttributes *a;
-			if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
-			    a = &a2;		// typical for mwm, fvwm
-			else
-			    a = &a1;		// typical for twm, olwm
-			a->x += a2.border_width;
-			a->y += a2.border_width;
-			widget->frect = QRect(QPoint(r->left()	 - a->x,
-						     r->top()	 - a->y),
-					      QPoint(r->right()	 + a->x,
-						     r->bottom() + a->x) );
-		    }
-		    break;
-
-		case SelectionClear:
-		case SelectionNotify:
-		case SelectionRequest:
-		    if ( qt_clipboard ) {
-			QCustomEvent e( Event_Clipboard, &event );
-			QApplication::sendEvent( qt_clipboard, &e );
-		    }
-		    break;
-
-		default:
-		    break;
-	    }
-	}
-
-	if ( quit_now || app_exit_loop )	// break immediatly
-	    break;
-
-	timeval *tm = waitTimer();		// wait for timer or X event
-
-	if ( sn_highest >= 0 ) {
-	    if ( sn_read )
-		app_readfds = sn_readfds;
-	    else
-		FD_ZERO( &app_readfds );
-	    if ( sn_write )
-		app_writefds = sn_writefds;
-	    if ( sn_except )
-		app_exceptfds = sn_exceptfds;
-	}
-	else {
-	    FD_ZERO( &app_readfds );
-	}
-	FD_SET( app_Xfd, &app_readfds );
-
-#if defined(_OS_HPUX_)
-#define FDCAST (int*)
-#else
-#define FDCAST
-#endif
-
-	int nsel;
-	nsel = select( QMAX(app_Xfd,sn_highest)+1,
-		       FDCAST (&app_readfds),
-		       FDCAST (sn_write	 ? &app_writefds  : 0),
-		       FDCAST (sn_except ? &app_exceptfds : 0),
-		       tm );
-#undef FDCAST
-
-	if ( nsel == -1 ) {
-	    if ( errno == EINTR || errno == EAGAIN ) {
-		errno = 0;
-		continue;
-	    }
-	    else
-		; // select error
-	}
-	else if ( nsel > 0 && sn_highest >= 0 ) {
-	    sn_activate();
-	}
-
-	activateTimers();			// activate timers
-	qt_reset_color_avail();			// color approx. optimization
-
-    }
+    while ( !quit_now && !app_exit_loop )
+	processNextEvent( TRUE );
 
     app_exit_loop = FALSE;
     loop_level--;
@@ -1498,6 +1553,15 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	Arguments:
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
+
+bool popupFilter( QWidget *widget )
+{
+    if ( popupWidgets ) {			// maybe eat the event
+	return widget != popupWidgets->last();
+    } else {
+	return FALSE;				// don't eat the event
+    }
+}
 
 void qt_open_popup( QWidget *popup )
 {
@@ -1718,7 +1782,12 @@ static void repairTimer( const timeval &time )	// repair broken timer
 // Timer activation functions (called from the event loop)
 //
 
-static timeval *waitTimer()			// time to wait for next timer
+/*
+  Returns the time to wait for the next timer, or null if no timers are
+  waiting.
+*/
+
+static timeval *waitTimer()
 {
     static timeval tm;
     bool first = TRUE;
@@ -1732,10 +1801,10 @@ static timeval *waitTimer()			// time to wait for next timer
 	    watchtime = currentTime;
 	}
 	TimerInfo *t = timerList->first();	// first waiting timer
-	if ( currentTime < t->timeout )		// time to wait
+	if ( currentTime < t->timeout ) {	// time to wait
 	    tm = t->timeout - currentTime;
-	else {
-	    tm.tv_sec = 0;			// no time to wait
+	} else {
+	    tm.tv_sec  = 0;			// no time to wait
 	    tm.tv_usec = 0;
 	}
 	return &tm;
@@ -1743,13 +1812,19 @@ static timeval *waitTimer()			// time to wait for next timer
     return 0;					// no timers
 }
 
-static bool activateTimers()			// activate timers
+/*
+  Activates the timer events that have expired. Returns the number of timers
+  (not 0-timer) that were activated.
+*/
+
+static int activateTimers()
 {
     if ( !timerList || !timerList->count() )	// no timers
-	return FALSE;
+	return 0;
     bool first = TRUE;
     timeval currentTime;
     int maxcount = timerList->count();
+    int n_act = 0;
     register TimerInfo *t;
     while ( maxcount-- ) {			// avoid starvation
 	getTime( currentTime );			// get current time
@@ -1767,8 +1842,10 @@ static bool activateTimers()			// activate timers
 	insertTimer( t );			// relink timer
 	QTimerEvent e( t->id );
 	QApplication::sendEvent( t->obj, &e );	// send event
+	if ( t->timeout.tv_usec > 0 || t->timeout.tv_sec > 0 )
+	    n_act++;
     }
-    return TRUE;
+    return n_act;
 }
 
 
@@ -1908,8 +1985,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( !testWFlags(WState_TrackMouse) )
 		type = 0;			// don't send event
 	}
-    }
-    else {					// button press or release
+    } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
 	switch ( event->xbutton.button ) {
@@ -1926,12 +2002,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		 QABS(event->xbutton.x - mouseXPos) < 5 &&
 		 QABS(event->xbutton.y - mouseYPos) < 5 ) {
 		type = Event_MouseButtonDblClick;
-	    }
-	    else
+		mouseButtonPressTime -= 2000;	// no double-click next time
+	    } else {
 		type = Event_MouseButtonPress;
-	    mouseButtonPressTime = event->xbutton.time;
-	}
-	else {					// mouse button released
+		mouseButtonPressTime = event->xbutton.time;
+	    }
+	} else {				// mouse button released
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
 		XUngrabPointer( dpy, CurrentTime );
@@ -1974,8 +2050,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 			      None, None, CurrentTime );
 	    }
 	}
-    }
-    else {
+    } else {
 	QWidget *widget = this;
 	QWidget *mg = QWidget::mouseGrabber();
 	if ( mg && mg != this ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#54 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#55 $
 **
 ** Definition of QApplication class
 **
@@ -59,6 +59,7 @@ public:
     static QWidget  *widgetAt( const QPoint &, bool child=FALSE );
 
     int		     exec();
+    void	     processEvents();
     int		     enter_loop();
     void	     exit_loop();
     static void	     exit( int retcode=0 );
@@ -98,6 +99,8 @@ public slots:
     void	     quit();
 
 private:
+    bool	     processNextEvent( bool );
+
     int		     app_argc;
     char	   **app_argv;
     bool	     quit_now;
