@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#132 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#133 $
 **
 ** Definition of QApplication class
 **
@@ -154,9 +154,6 @@ public:
     static void 	setDoubleClickInterval( int );
     static int 	doubleClickInterval();
 
-#if defined(_WS_WIN_)
-    static WindowsVersion winVersion();
-#endif
 
 #if defined(_WS_MAC_)
     void do_mouse_down(void *);
@@ -171,7 +168,9 @@ public:
 #endif
 
 #if defined(_WS_WIN_)
+    static WindowsVersion winVersion();
     void	     winFocus( QWidget *, bool );
+    static void	     winMouseButtonUp();
 #endif
 
 

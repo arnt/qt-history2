@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#320 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#321 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2057,6 +2057,14 @@ static int translateButtonState( int s, int type, int button )
 
 extern QCursor *qt_grab_cursor();
 
+// In DnD, the mouse release event never appears, so the 
+// mouse button state machine must be manually reset
+void QApplication::winMouseButtonUp()
+{
+    qt_button_down = 0;
+    releaseAutoCapture();
+}
+
 bool QETWidget::translateMouseEvent( const MSG &msg )
 {
     static QPoint pos;
@@ -2066,7 +2074,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     int	   state;
     int	   i;
 
-    if ( sm_blockUserInput ) // block user interaction during session management
+    if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
 
     for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
@@ -2181,8 +2189,9 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		}
 		if ( QWidget::mouseGrabber() == 0 )
 		    setAutoCapture( w->winId() );
-		QMouseEvent* e = new QMouseEvent( type, w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
-			   QPoint(gpos.x,gpos.y), button, state );
+		QMouseEvent* e = new QMouseEvent( type,
+				      w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
+			              QPoint(gpos.x,gpos.y), button, state );
 		QApplication::postEvent( w, e );
 	    }
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#67 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -881,6 +881,10 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	    de.setAction( QDropEvent::Link );
 	QApplication::sendEvent( widget, &de );
 	acceptact = de.isActionAccepted();
+
+	// We won't get any mouserelease-event, so manually adjust qApp state:
+	QApplication::winMouseButtonUp();
+
 	DragLeave();
 	return NOERROR;
     }
