@@ -68,7 +68,7 @@ public:
     static QString href( const QString& name,
 			 const QString& text = QString::null,
 			 bool propertize = FALSE );
-    static QString htmlQuoteList();
+    static QString htmlLegaleseList();
     static QString htmlHeaderFileList();
     static QString htmlClassList();
     static QString htmlAnnotatedClassList();
@@ -93,7 +93,7 @@ public:
     void setContainsExamples( const StringSet& included,
 			      const StringSet& thruwalked );
     void setDependsOn( const StringSet& dependsOn ) { deps = dependsOn; }
-    void setHtmlMustQuote( const QString& quote ) { q = quote; }
+    void setHtmlLegalese( const QString& legalese ) { q = legalese; }
     void setLink( const QString& link, const QString& title );
 
     Kind kind() const { return ki; }
@@ -142,7 +142,7 @@ private:
 
     static const Resolver *res;
     static QRegExp *megaRegExp;
-    static QMap<QString, QMap<QString, QString> > quotes;
+    static QMap<QString, QMap<QString, QString> > legaleses;
     static QMap<QString, QString> keywordLinks;
     static StringSet hflist;
     static QMap<QString, QString> clist;

@@ -475,8 +475,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     int base;
     int briefBegin = -1;
     int briefEnd = 0;
-    int mustquoteBegin = -1;
-    uint mustquoteEnd = 0;
+    int legaleseBegin = -1;
+    uint legaleseEnd = 0;
     int footnoteBegin = -1;
     bool internal = FALSE;
     bool overloads = FALSE;
@@ -753,7 +753,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		setKind( Doc::Example, command );
 		break;
 	    case hash( 'f', 8 ):
-		// see also \mustquote
+		// see also \legalese
 		consume( "footnote" );
 		skipSpaces( yyIn, yyPos );
 		footnoteBegin = yyOut.length();
@@ -879,6 +879,26 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += openedLists.top().begin();
 		}
 		break;
+#if 1
+	    case hash( 'm', 9 ):
+		// see also \footnote
+		consume( "mustquote" );
+		warning( 2, location(), "Command '%s' has been renamed '%s'",
+			 "\\mustquote", "\\legalese" );
+		command = QString( "legalese" );
+		// fall through
+#endif
+	    case hash( 'l', 8 ):
+		consume( "legalese" );
+		skipSpaces( yyIn, yyPos );
+		legaleseBegin = yyOut.length();
+		legaleseEnd = INT_MAX;
+		break;
+	    case hash( 'l', 12 ):
+legaleselist:
+		consume( "legaleselist" );
+		yyOut += Doc::htmlLegaleseList();
+		break;
 	    case hash( 'm', 6 ):
 		consume( "module" );
 		moduleName = getWord( yyIn, yyPos );
@@ -889,13 +909,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected module name after '\\module'" );
 		else
 		    setKindHasToBe( Doc::Class, command );
-		break;
-	    case hash( 'm', 9 ):
-		// see also \footnote
-		consume( "mustquote" );
-		skipSpaces( yyIn, yyPos );
-		mustquoteBegin = yyOut.length();
-		mustquoteEnd = INT_MAX;
 		break;
 	    case hash( 'n', 4 ):
 		consume( "note" );
@@ -1030,6 +1043,45 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    metNL = TRUE;
 		}
 		break;
+#if 1 // ###
+	    case hash( 'd', 11 ):
+		consume( "dontinclude" );
+		warning( 2, location(), "Command '%s' has been renamed '%s'",
+			 "\\dontinclude", "\\quotefile" );
+		goto quotefile;
+	    case hash( 'w', 11 ):
+		consume( "walkthrough" );
+#if 0
+		warning( 2, location(), "Command '%s' has been renamed '%s'",
+			 "\\walkthrough", "\\quotefile" );
+#endif
+		goto quotefile;
+#endif
+	    case hash( 'q', 9 ):
+#if 1
+		if ( command == QString("quotelist") ) {
+		    warning( 2, location(),
+			     "Command '%s' has been renamed '%s'",
+			     "\\quotelist", "\\legaleselist" );
+
+		    goto legaleselist;
+		}
+#endif
+		consume( "quotefile" );
+quotefile:
+		x = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+		if ( x != walk.fileName() )
+		    flushWalkthrough( walk, &included, &thruwalked );
+
+		if ( x.isEmpty() )
+		    warning( 2, location(),
+			     "Expected file name after '\\quotefile'" );
+		else
+		    walk.startPass1( x, Doc::resolver() );
+
+		yyOut += QString( "\\quotefile " ) + x + QChar( '\n' );
+		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
 		yyOut += QString( "Reimplemented for internal reasons; the API"
@@ -1047,7 +1099,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 's', 2 ):
 		consume( "sa" );
-		mustquoteEnd = yyOut.length();
+		legaleseEnd = yyOut.length();
 		if ( numBugs > 0 ) {
 		    yyOut += QString( "</ul>" );
 		    numBugs = 0;
@@ -1139,29 +1191,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'w', 7 ):
 		consume( "warning" );
 		yyOut += QString( "<b>Warning:</b>" );
-		break;
-#if 1 // ###
-	    case hash( 'd', 11 ):
-		consume( "dontinclude" );
-		warning( 2, location(), "Command '%s' has been renamed '%s'",
-			 "\\dontinclude", "\\walkthrough" );
-		command = QString( "walkthrough" );
-		/* fall through */
-#endif
-	    case hash( 'w', 11 ):
-		consume( "walkthrough" );
-		x = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
-		if ( x != walk.fileName() )
-		    flushWalkthrough( walk, &included, &thruwalked );
-
-		if ( x.isEmpty() )
-		    warning( 2, location(),
-			     "Expected file name after '\\walkthrough'" );
-		else
-		    walk.startPass1( x, Doc::resolver() );
-
-		yyOut += QString( "\\walkthrough " ) + x + QChar( '\n' );
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );
@@ -1308,10 +1337,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setKeywords( keywords );
     doc->setGroups( groups );
     doc->setContainsExamples( included, thruwalked );
-    if ( mustquoteBegin >= 0 )
-	doc->setHtmlMustQuote( yyOut.mid(mustquoteBegin,
-					 mustquoteEnd - mustquoteBegin)
-				    .stripWhiteSpace() );
+    if ( legaleseBegin >= 0 )
+	doc->setHtmlLegalese( yyOut.mid(legaleseBegin,
+					legaleseEnd - legaleseBegin)
+				   .stripWhiteSpace() );
     return doc;
 }
 
@@ -1502,7 +1531,8 @@ bool DocParser::valueIsDocumented()
 	    numNLs++;
 	pos++;
     }
-    return numNLs < 2 && yyIn.mid( pos, 6 ) != QString( "\\value" );
+    return pos < yyLen && numNLs < 2 &&
+	   yyIn.mid( pos, 6 ) != QString( "\\value" );
 }
 
 void DocParser::enterWalkthroughSnippet()
@@ -1553,7 +1583,7 @@ ExampleLocation& ExampleLocation::operator=( const ExampleLocation& el )
 
 const Resolver *Doc::res = 0;
 QRegExp *Doc::megaRegExp = 0;
-QMap<QString, QMap<QString, QString> > Doc::quotes;
+QMap<QString, QMap<QString, QString> > Doc::legaleses;
 QMap<QString, QString> Doc::keywordLinks;
 StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
@@ -1694,12 +1724,12 @@ QString Doc::href( const QString& name, const QString& text, bool propertize )
 	return QString( "<a href=\"%1\">%2</a>" ).arg( k ).arg( textx );
 }
 
-QString Doc::htmlQuoteList()
+QString Doc::htmlLegaleseList()
 {
     QString html;
 
-    QMap<QString, QMap<QString, QString> >::ConstIterator q = quotes.begin();
-    while ( q != quotes.end() ) {
+    QMap<QString, QMap<QString, QString> >::ConstIterator q = legaleses.begin();
+    while ( q != legaleses.end() ) {
 	html += QString( "<hr>\n" );
 	html += q.key();
 	html += QString( "<ul>\n" );
@@ -2062,7 +2092,7 @@ void Doc::setLink( const QString& link, const QString& title )
     QString kwordLnk;
 
     if ( !q.isEmpty() ) {
-	quotes[q].insert( link, title );
+	legaleses[q].insert( link, title );
 	q = QString::null;
     }
 
@@ -2326,10 +2356,6 @@ QString Doc::finalHtml() const
 		substr = getRestOfLine( yyIn, yyPos );
 		yyOut += walk.printuntil( substr, location() );
 		break;
-	    case hash( 'q', 9 ):
-		consume( "quotelist" );
-		yyOut += htmlQuoteList();
-		break;
 	    case hash( 's', 2 ):
 		consume( "sa" );
 		yyOut += htmlSeeAlso();
@@ -2486,7 +2512,7 @@ QString Doc::finalHtml() const
       Complain before it's too late.
     */
     if ( !q.isEmpty() )
-	warning( 1, location(), "Ignored '\\mustquote' (fix qdoc)" );
+	warning( 1, location(), "Ignored '\\legalese' (fix qdoc)" );
     else if ( !kwords.isEmpty() )
 	warning( 1, location(), "Ignored '\\keyword' (fix qdoc)" );
 

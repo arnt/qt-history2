@@ -80,10 +80,11 @@
   \link #internal \\internal \endlink,
   \link #keyword \\keyword \endlink,
   \link #l \\l&nbsp;(ell) \endlink,
+  \link #legalese \\legalese \endlink,
+  \link #legaleselist \\legaleselist \endlink,
   \link #link \\link...\\end<!-- ignore me -->link \endlink,
   \link #list \\list...\\endlist \endlink,
   \link #module \\module \endlink,
-  \link #mustquote \\mustquote \endlink,
   \link #note \\note \endlink,
   \link #obsolete \\obsolete \endlink,
   \link #omit \\omit...\\endomit \endlink,
@@ -94,7 +95,7 @@
   \link #printto \\printto \endlink,
   \link #printuntil \\printuntil \endlink,
   \link #property \\property \endlink,
-  \link #quotelist \\quotelist \endlink,
+  \link #quotefile \\quotefile \endlink,
   \link #r \\r \endlink,
   \link #reimp \\reimp \endlink,
   \link #relates \\relates \endlink,
@@ -107,7 +108,6 @@
   \link #title \\title \endlink,
   \link #value \\value \endlink,
   \link #version \\version \endlink,
-  \link #walkthrough \\walkthrough \endlink,
   \link #warning \\warning \endlink.
 
   \section2 Ubiquitous commands
@@ -452,7 +452,7 @@
     Theoreticians have shown that C-style comments cannot appear in
     example code.
 
-    The \link #walkthrough \\walkthrough \endlink commands may be used
+    The \link #quotefile \\quotefile \endlink commands may be used
     to include code snippets directly from C++ example files. This is
     more maintainable than duplicating the code.
 
@@ -836,22 +836,22 @@
 
     Do not confuse this command with \link #header \\header \endlink.
 
-   \i <a name="walkthrough"></a>
-    <b>\\walkthrough</b> enables use of walkthrough commands
+   \i <a name="quotefile"></a>
+    <b>\\quotefile</b> enables use of walkthrough commands
     (\link #printline \\printline \endlink and friends) to explain the
     example code chunk by chunk. See
     \link #printline \\printline \endlink below for an example.
 
    \i <a name="printline"></a>
     <b>\\printline</b> expands to the next non-blank source code line
-    of the current \link #walkthrough \\walkthrough \endlink file.
+    of the current \link #quotefile \\quotefile \endlink.
 
     To ensure the documentation is always in sync with the example
     source code, a substring of the code line should always be
     specified, like this:
     <pre>
     /*!
-      \\walkthrough hello/main.cpp
+      \\quotefile hello/main.cpp
 
       <u>\\printline</u> qapp
     *&#47;</pre>
@@ -902,7 +902,7 @@
 
    \i <a name="skipline"></a>
     <b>\\skipline</b> skips the next non-black source code line of the
-    current \link #walkthrough \\walkthrough \endlink file. This is
+    current \link #quotefile \\quotefile \endlink file. This is
     useful to hide redundant or otherwise boring portions of code. See
     also \link #printline \\printline \endlink.
 
@@ -928,27 +928,27 @@
     <b>\\skipuntil</b> skips all source code lines up to and
     \e including the first line containing the given substring.
 
-   \i <a name="mustquote"></a>
-    <b>\\mustquote</b> records the rest of the comment (excluding the
+   \i <a name="legalese"></a>
+    <b>\\legalese</b> records the rest of the comment (excluding the
     optional "see also" section) as licensing stuff:
     <pre>
     /*! \\fn void QPainter::drawCubicBezier( const QPointArray& a,
 					    int index )
       Draws a cubic Bezier curve.
 
-      <u>\\mustquote</u>
+      <u>\\legalese</u>
 
       Copyright (C) 1960 Pierre Bezier.
       You MAY use THIS software AT your OWN risks.
 
-      \\sa drawQuadBezier()
+      \\sa drawQuintaBezier()
     *&#47;</pre>
     All licensing stuff can be retrieved later using
-    \link #quotelist \\quotelist \endlink.
+    \link #legaleselist \\legaleselist \endlink.
 
-   \i <a name="quotelist"></a>
-    <b>\\quotelist</b> expands to all the licensing stuff gathered
-    with \link #mustquote \\mustquote \endlink. The stuff is put in
+   \i <a name="legaleselist"></a>
+    <b>\\legaleselist</b> expands to all the licensing stuff gathered
+    with \link #legalese \\legalese \endlink. The stuff is put in
     some arbitrary order, without duplicates.
 
    \i <a name="annotatedclasslist"></a>
