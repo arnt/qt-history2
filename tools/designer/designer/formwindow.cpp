@@ -708,7 +708,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 			targetContainer = wa;
 			hadOwnPalette = wa->ownPalette();
 			restoreColor = wa->backgroundColor();
-			wa->setBackgroundColor( wa->colorGroup().mid() );
+			wa->setBackgroundColor( wa->colorGroup().midlight() );
 		    }
 		}
 		else if ( targetContainer ) {
@@ -2343,8 +2343,15 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 	if ( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) ) &&
 	     it.current() != mainContainer() )
 	    continue;
-	if ( !it.current()->rect().contains( it.current()->mapFromGlobal( pos ) ) )
-	    continue;
+
+	// the rectangles of all ancestors of the container must contain the insert position
+	QWidget *w = it.current();
+	while ( w && !w->isTopLevel() ) {
+	    if ( !w->rect().contains( ( w->mapFromGlobal( pos ) ) ) )
+		break;
+	    w = w->parentWidget();
+	}
+	if ( !( w == 0 || w->isTopLevel() ) ) continue; // we did not get through the full while loop
 
 	int wd = widgetDepth( it.current() );
 	if ( wd == depth && container ) {
