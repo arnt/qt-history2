@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QSettings related classes.
+** Definition of QSettings related classes
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
