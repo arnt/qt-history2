@@ -23,7 +23,6 @@ class QTextCursor;
 class Q_GUI_EXPORT QTextList : public QTextBlockGroup
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextList)
 public:
     QTextList(QTextDocument *doc);
     ~QTextList();
@@ -46,6 +45,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QTextList)
+    Q_DECLARE_PRIVATE(QTextList)
 };
 
 #endif // QTEXTLIST_H

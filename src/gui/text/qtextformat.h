@@ -37,8 +37,6 @@ class QTextDocument;
 
 class Q_GUI_EXPORT QTextLength
 {
-    friend QDataStream &operator<<(QDataStream &, const QTextLength &);
-    friend QDataStream &operator>>(QDataStream &, QTextLength &);
 public:
     enum Type { VariableLength = 0, FixedLength, PercentageLength };
 
@@ -68,13 +66,12 @@ public:
 private:
     Type lengthType;
     int fixedValueOrPercentage;
+    friend QDataStream &operator<<(QDataStream &, const QTextLength &);
+    friend QDataStream &operator>>(QDataStream &, QTextLength &);
 };
 
 class Q_GUI_EXPORT QTextFormat
 {
-    friend class QTextFormatCollection;
-    friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
-    friend QDataStream &operator>>(QDataStream &, QTextFormat &);
 public:
     enum FormatType {
         InvalidFormat = -1,
@@ -244,6 +241,9 @@ public:
 
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
+    friend class QTextFormatCollection;
+    friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
+    friend QDataStream &operator>>(QDataStream &, QTextFormat &);
 };
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormat &format);

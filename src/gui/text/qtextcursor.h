@@ -34,7 +34,6 @@ class QTextBlock;
 
 class Q_GUI_EXPORT QTextCursor
 {
-    friend class QTextDocumentFragmentPrivate;
 public:
     QTextCursor();
     QTextCursor(QTextDocument *document);
@@ -45,7 +44,7 @@ public:
     QTextCursor &operator=(const QTextCursor &other);
     ~QTextCursor();
 
-    bool isNull() const; // ### or isValid() instead?
+    bool isNull() const;
 
     enum MoveMode {
         MoveAnchor,
@@ -157,6 +156,7 @@ public:
 
 private:
     QSharedDataPointer<QTextCursorPrivate> d;
+    friend class QTextDocumentFragmentPrivate;
 };
 
 #endif // QTEXTCURSOR_H
