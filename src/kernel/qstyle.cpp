@@ -1447,6 +1447,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	and the tab pages.
     \value PM_TabBarBaseOverlap number of pixels the tab bar overlaps
 	the tab bar base.
+    \value PM_TabBarScrollButtonWidth
     \value PM_TabBarTabShiftHorizontal horizontal pixel shift when a
         tab is selected.
     \value PM_TabBarTabShiftVertical vertical pixel shift when a
@@ -1713,6 +1714,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_CustomBase  base value for custom ControlElements. All
 	values above this are reserved for custom use. Therefore,
 	custom values must be greater than this value.
+
+    \value SH_ToolButton_Uses3D indicates whether QToolButtons should
+    use a 3D frame when the mouse is over them
 
     \value SH_ToolBox_SelectedPageTitleBold Boldness of the selected
     page title in a QToolBox.

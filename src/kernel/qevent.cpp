@@ -992,7 +992,16 @@ void QFocusEvent::resetReason()
     \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
 
     Constructs a paint event object with the rectangle that should be
-    updated. The region is given by \a paintRect.
+    updated. The region is given by \a paintRect. If \a erased is TRUE
+    the region will be cleared before repainting.
+*/
+
+/*!
+    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, const QRect &paintRect, bool erased=TRUE )
+
+    Constructs a paint event object with the rectangle \a paintRect
+    that should be updated. The region is given by \a paintRegion. If
+    \a erased is TRUE the region will be cleared before repainting.
 */
 
 /*!
@@ -1158,9 +1167,18 @@ void QFocusEvent::resetReason()
 */
 
 /*!
+    \fn QIconDragEvent::QIconDragEvent()
+
+    Constructs an icon drag event object with the accept parameter
+    flag set to FALSE.
+
+    \sa accept()
+*/
+
+/*!
     \fn bool QIconDragEvent::isAccepted() const
 
-    Returns TRUE if the receiver of the event has started a drag and 
+    Returns TRUE if the receiver of the event has started a drag and
     drop operation; otherwise returns FALSE.
 
     \sa accept(), ignore()
