@@ -426,6 +426,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		    static_QUType_varptr.set( obj, new QString( str ) );
 		    break;
 		}
+	    } else {
+		static_QUType_QString.set( obj, str );
 	    }
 	}
 	break;
