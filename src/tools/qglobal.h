@@ -233,7 +233,10 @@
 // but Compaq seem to have disabled this, as observed on Compaq C++ V6.3-002.
 #  if defined(__DECCXX)
 #    define Q_CC_DEC
-#    if __DECCXX_VER < 60060005
+#    if defined(_BOOL_EXISTS)
+// This is documented for Compaq C++ V6.3, not for Compaq C++ V5.7.
+#    elif __DECCXX_VER < 60060005
+// Versions prior to Compaq C++ V6.0-005, field-test version.
 #      define Q_NO_BOOL_TYPE
 #    endif
 #  else
