@@ -323,3 +323,12 @@ Qt::HANDLE QPaintDevice::handle() const
     return hd;
 }
 
+
+void QPaintDevice::setResolution( int )
+{
+}
+ 
+int QPaintDevice::resolution() const
+{
+    return metric( QPaintDeviceMetrics::PdmDpiY );
+}

@@ -85,6 +85,9 @@ public:
     bool	isExtDev() const;
     bool	paintingActive() const;
 
+    virtual void setResolution( int );
+    virtual int resolution() const;
+
     // Windows:	  get device context
     // X-Windows: get drawable
 #if defined(Q_WS_WIN)

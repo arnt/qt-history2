@@ -411,3 +411,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( dst_tmp )
 	ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
 }
+
+
+void QPaintDevice::setResolution( int )
+{
+}
+ 
+int QPaintDevice::resolution() const
+{
+    return metric( QPaintDeviceMetrics::PdmDpiY );
+}

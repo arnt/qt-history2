@@ -904,3 +904,20 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   \relates QPaintDevice
 */
 
+
+/*!
+  \internal
+*/
+// makes it possible to add a setResolution as we have in QPrinter for all
+// paintdevices without breaking bin compatibility.
+void QPaintDevice::setResolution( int )
+{
+}
+
+/*!\
+  internal
+*/
+int QPaintDevice::resolution() const
+{
+    return metric( QPaintDeviceMetrics::PdmDpiY );
+}

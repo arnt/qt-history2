@@ -98,7 +98,7 @@ public:
     virtual void setPageOrder( PageOrder );
     PageOrder	pageOrder() const;
 
-    virtual void setResolution( int );
+    void setResolution( int );
     int resolution() const;
 
     virtual void setColorMode( ColorMode );
