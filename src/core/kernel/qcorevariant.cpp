@@ -2288,6 +2288,9 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
     case QCoreVariant::ByteArray:
         dbg.nospace() << v.toByteArray();
         break;
+    case QCoreVariant::Url:
+        dbg.nospace() << v.toUrl();
+        break;
     case QCoreVariant::BitArray:
         //dbg.nospace() << v.toBitArray();
         break;
