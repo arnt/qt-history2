@@ -1036,7 +1036,7 @@ QStringList QFont::substitutes(const QString &familyName)
   If \e familyName already exists in the substitution table, it will
   be replaced with this new substitution.
 
-  \sa removeSubstitution(), substitutions(), substitute()
+  \sa insertSubstitutions(), removeSubstitution(), substitutions(), substitute()
 */
 void QFont::insertSubstitution(const QString &familyName,
 				const QString &substituteName)
@@ -1052,6 +1052,30 @@ void QFont::insertSubstitution(const QString &familyName,
     }
 
     list->prepend(substituteName);
+}
+
+
+/*!
+  Inserts the list of families in \a substituteNames into the substitution
+  table for \a familyName.
+
+  If \a familyName already exists in the substitution table, it will be
+  replaced with this new substitution.
+
+  \sa insertSubstitution, removeSubstitution, substitutions(), substitute()
+*/
+void QFont::insertSubstitutions(const QString &familyName,
+				const QStringList &substituteNames)
+{
+    initFontSubst();
+
+    QStringList *list = fontSubst->find(familyName);
+    if (! list) {
+	list = new QStringList;
+	fontSubst->insert(familyName, list);
+    }
+
+    *list += substituteNames;
 }
 
 

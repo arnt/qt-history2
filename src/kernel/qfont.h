@@ -154,6 +154,7 @@ public:
     static QStringList substitutes(const QString &);
     static QStringList substitutions();
     static void insertSubstitution(const QString&, const QString &);
+    static void insertSubstitutions(const QString&, const QStringList &);
     static void removeSubstitution(const QString &);
 
     static void initialize();
