@@ -208,7 +208,7 @@ class QDialogPrivate : public Qt
 public:
 
     QDialogPrivate()
-	: mainDef(0), orientation(Horizontal),extension(0)
+	: mainDef(0), orientation(Horizontal),extension(0), doShowExtension(FALSE)
 #ifndef QT_NO_SIZEGRIP
 	,resizer(0)
 #endif
@@ -218,6 +218,7 @@ public:
     QPushButton* mainDef;
     Orientation orientation;
     QWidget* extension;
+    bool doShowExtension;
     QSize size, min, max;
 #ifndef QT_NO_SIZEGRIP
     QSizeGrip* resizer;
@@ -552,6 +553,7 @@ void QDialog::show()
 	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget() );
     }
     QWidget::show();
+    showExtension( d->doShowExtension );
 #ifndef QT_NO_PUSHBUTTON
     QWidget *fw = focusWidget();
     QFocusData *fd = focusData();
@@ -855,14 +857,13 @@ QWidget* QDialog::extension() const
   This slot is usually connected to the \l QButton::toggled() signal
   of a QPushButton.
 
-  If the dialog is not visible, or has no extension, nothing happens.
-
   A dialog with a visible extension is not resizeable.
 
   \sa show(), setExtension(), setOrientation()
  */
 void QDialog::showExtension( bool showIt )
 {
+    d->doShowExtension = showIt;
     if ( !d->extension )
 	return;
     if ( !testWState(WState_Visible) )
