@@ -24,6 +24,11 @@
 #define d d_func()
 #define q q_func()
 
+struct QMacMenuBind {
+    QMacMenuBind() : qmenubar(0), qmenu(0) { }
+    Q4MenuBar *qmenubar;
+    Q4Menu *qmenu;
+};
 
 /*****************************************************************************
   QMenu debug facilities
@@ -32,8 +37,14 @@
 /*****************************************************************************
   QMenu globals
  *****************************************************************************/
-static int qt_mac_menu_command = 'QT00';
+static uint qt_mac_menu_command = 'QT00';
 static bool qt_mac_no_native_menubar = false;
+const UInt32 kMenuCreatorQt = 'cute';
+enum { 
+    kMenuPropertyQAction = 'QAcT',
+    kMenuPropertyQWidget = 'QWId',
+    kMenuPropertyCausedQWidget = 'QCAU'
+};
 
 /*****************************************************************************
   Externals
@@ -42,16 +53,14 @@ IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 
+
 /*****************************************************************************
   QMenu utility functions
  *****************************************************************************/
 inline static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
-    for(int w = 0; (w=str.indexOf('&', w)) != -1; ) {
-	if(w < (int)str.length()-1) {
+    for(int w = -1; (w=str.indexOf('&', w+1)) != -1; ) {
+	if(w < (int)str.length()-1) 
 	    str.remove(w, 1);
-	    if(str[w] == '&')
-		w++;
-	}
     }
     if(cf)
 	*cf = qstring2cfstring(str);
@@ -65,31 +74,81 @@ inline static void qt_mac_clear_menubar()
     InvalMenuBar();
 }
 
+bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent action_e)
+{
+    MenuItemIndex index;
+    {
+	MenuRef tmp_menu;
+	if(GetIndMenuItemWithCommandID(menu, command, 1, &tmp_menu, &index) == noErr) {
+	    if(!menu)
+		menu = tmp_menu;
+	    else if(tmp_menu != menu)
+		qWarning("This cannot happen!!");
+	}
+    }
+
+    //fire event
+    QAction *action = 0;
+    if(GetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), 0, &action) != noErr)
+	return false;
+    action->activate(action_e);
+
+    //now walk up firing for each "caused" widget (like in the platform independant menu)
+    while(menu) {
+	//fire
+	QWidget *widget = 0;
+	GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget);
+	if(Q4Menu *qmenu = ::qt_cast<Q4Menu*>(widget)) {
+	    if(action_e == QAction::Trigger) 
+		emit qmenu->activated(action);
+	    else if(action_e == QAction::Hover)
+		emit qmenu->highlighted(action);
+	} else if(Q4MenuBar *qmenubar = ::qt_cast<Q4MenuBar*>(widget)) {
+	    if(action_e == QAction::Trigger) 
+		emit qmenubar->activated(action);
+	    else if(action_e == QAction::Hover)
+		emit qmenubar->highlighted(action);
+	    break; //nothing more..
+	}
+
+	//walk up
+	QWidget *caused = 0;
+	if(GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), 0, &caused) != noErr) 
+	    break;
+	if(Q4Menu *qmenu2 = ::qt_cast<Q4Menu*>(caused))
+	    menu = qmenu2->macMenu();
+	else if(Q4MenuBar *qmenubar2 = ::qt_cast<Q4MenuBar*>(caused))
+	    menu = qmenubar2->macMenu();
+	else
+	    menu = 0;
+    }
+    return true;
+}
+
 //creation of the MenuRef
 static EventTypeSpec menu_events[] = {
+    { kEventClassCommand, kEventCommandProcess },
     { kEventClassMenu, kEventMenuTargetItem },
-    { kEventClassMenu, kEventMenuDispose }
 };
-struct QMacMenuBind {
-    QMacMenuBind() : qmenubar(0), qmenu(0), mac_menu(0), handler(0) { }
-    Q4MenuBar *qmenubar;
-    Q4Menu *qmenu;
-    MenuRef mac_menu;
-    EventHandlerRef handler;
-};
-QMAC_PASCAL OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *data)
+OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 {
     bool handled_event = true;
-    QMacMenuBind *mb = (QMacMenuBind*)data;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
+    case kEventClassCommand: {
+	HICommand cmd;
+	GetEventParameter(event, kEventParamDirectObject, typeHICommand,
+			  0, sizeof(cmd), 0, &cmd);
+	handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID, QAction::Trigger);
+	break; }
     case kEventClassMenu: {
+	MenuRef menu;
+	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(menu), NULL, &menu);
 	if(ekind == kEventMenuTargetItem) {
-	    qDebug("targeting %p %p", mb->qmenu, mb->qmenubar);
-	    handled_event = false;
-	} else if(ekind == kEventMenuDispose) {
-	    qDebug("dispose..");
-	    delete mb;
+	    MenuCommand command;
+	    GetEventParameter(event, kEventParamMenuCommand, typeMenuCommand,
+			      0, sizeof(command), 0, &command);
+	    handled_event = qt_mac_activate_action(menu, command, QAction::Hover);
 	} else {
 	    handled_event = false;
 	}
@@ -102,51 +161,35 @@ QMAC_PASCAL OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, v
 	return CallNextEventHandler(er, event);
     return noErr; //we eat the event
 }
+static EventHandlerRef mac_menu_event_handler = 0;
 static EventHandlerUPP mac_menu_eventUPP = 0;
-static void cleanup_menu_eventUPP()
+static void qt_mac_cleanup_menu_event()
 {
-    DisposeEventHandlerUPP(mac_menu_eventUPP);
-    mac_menu_eventUPP = 0;
+    if(mac_menu_event_handler) {
+	RemoveEventHandler(mac_menu_event_handler);
+	mac_menu_event_handler = 0;
+    }
+    if(mac_menu_eventUPP) {
+	DisposeEventHandlerUPP(mac_menu_eventUPP);
+	mac_menu_eventUPP = 0;
+    }
 }
-static const EventHandlerUPP make_menu_eventUPP()
-{
-    if(mac_menu_eventUPP)
-	return mac_menu_eventUPP;
-    qAddPostRoutine(cleanup_menu_eventUPP);
-    return mac_menu_eventUPP = NewEventHandlerUPP(qt_mac_menu_event);
-}
-static MenuRef qt_mac_create_menu(QMacMenuBind *mb) 
+static MenuRef qt_mac_create_menu(QWidget *w) 
 {
     MenuRef ret = 0;
     if(CreateNewMenu(0, 0, &ret) == noErr) {
-	InstallMenuEventHandler(ret, make_menu_eventUPP(), GetEventTypeCount(menu_events),
-				menu_events, mb, &mb->handler);
+	if(!mac_menu_event_handler) {
+	    mac_menu_eventUPP = NewEventHandlerUPP(qt_mac_menu_event);
+	    InstallEventHandler(GetApplicationEventTarget(), mac_menu_eventUPP, 
+				GetEventTypeCount(menu_events), menu_events, 0, 
+				&mac_menu_event_handler);
+	    qAddPostRoutine(qt_mac_cleanup_menu_event);
+	}
+	SetMenuItemProperty(ret, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(w), &w);
     } else {
 	qWarning("This really cannot happen!!");
     }
     return ret;
-}
-inline static MenuRef qt_mac_create_menu(Q4MenuBar *menubar) 
-{
-    QMacMenuBind *mb = new QMacMenuBind;
-    mb->qmenubar = menubar;
-    if(MenuRef mac_menu = qt_mac_create_menu(mb)) {
-	mb->mac_menu = mac_menu;
-	return mac_menu;
-    }
-    delete mb;
-    return 0;
-}
-inline static MenuRef qt_mac_create_menu(Q4Menu *menu) 
-{
-    QMacMenuBind *mb = new QMacMenuBind;
-    mb->qmenu = menu;
-    if(MenuRef mac_menu = qt_mac_create_menu(mb)) {
-	mb->mac_menu = mac_menu;
-	return mac_menu;
-    }
-    delete mb;
-    return 0;
 }
 
 /*****************************************************************************
@@ -171,58 +214,50 @@ Q4MenuPrivate::QMacMenuPrivate::addAction(QAction *a, QMacMenuAction *before)
 	return;
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
-    action->visible = 0;
     action->command = qt_mac_menu_command++;
+    action->ignore_accel = 0;
     addAction(action, before);
 }
 
 void 
 Q4MenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
     int before_index = actionItems.indexOf(before);
-    if(actionItems.indexOf(action) == -1)
-	actionItems.insert(before_index, action);
-    if(action->action->isVisible()) {
-	action->visible = 1;
-
-	MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
-	if(before)
-	    InsertMenuItemTextWithCFString(menu, 0, before_index-1, attr, action->command);
-	else
-	    AppendMenuItemTextWithCFString(menu, 0, attr, action->command, 0);
-	syncAction(action);
+    actionItems.insert(before_index, action);
+    
+    MenuItemIndex index = before_index;
+    MenuItemAttributes attr = kMenuItemAttrAutoRepeat;
+    if(before)
+	InsertMenuItemTextWithCFString(menu, 0, before_index-1, attr, action->command);
+    else
+	AppendMenuItemTextWithCFString(menu, 0, attr, action->command, &index);
+    {
+	QAction *qaction = action->action;
+	SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(qaction), &qaction);
     }
+    syncAction(action);
 }
 
 void 
 Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
     const short index = findActionIndex(action);
+
     if(!action->action->isVisible()) {
-	if(action->visible) {
-	    DeleteMenuItem(menu, index);
-	    action->visible = 0;
-	}
+	ChangeMenuItemAttributes(menu, index, kMenuItemAttrHidden, 0);
 	return;
-    } else if(!action->visible) {
-	QMacMenuAction *before = 0;
-	int index = actionItems.indexOf(action);
-	if(index+1 < actionItems.size())
-	    before = actionItems[index+1];
-	addAction(action, before);
-	return; //sync will be called from there..
     }
+    ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrHidden);
 
     if(action->action->isSeparator()) {
 	ChangeMenuItemAttributes(menu, index, kMenuItemAttrSeparator, 0);
 	return;
-    } else {
-	ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrSeparator);
     }
+    ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrSeparator);
 
     //find text (and accel)
     action->ignore_accel = 0;
@@ -259,6 +294,10 @@ Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
 	data.submenuHandle = action->action->menu()->macMenu();
+
+	QWidget *caused = 0;
+	GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
+	SetMenuItemProperty(data.submenuHandle, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
     } else { //respect some other items
 	//accelerators
 	if(accel.isEmpty()) {
@@ -328,10 +367,9 @@ Q4MenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 void 
 Q4MenuPrivate::QMacMenuPrivate::removeAction(QMacMenuAction *action)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
-    if(action->visible)
-	DeleteMenuItem(menu, findActionIndex(action));
+    DeleteMenuItem(menu, findActionIndex(action));
     actionItems.remove(action);
 }
 
@@ -389,7 +427,6 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *befo
 	return;
     QMacMenuAction *action = new QMacMenuAction;
     action->action = a;
-    action->visible = 0;
     action->command = qt_mac_menu_command++;
     addAction(action, before);
 }
@@ -400,18 +437,18 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenu
     if(!action || !menu)
 	return;
     int before_index = actionItems.indexOf(before);
-    if(actionItems.indexOf(action) == -1) {
-	qDebug("adding action %p (%d)", action, before_index);
-	actionItems.insert(before_index, action);
+    actionItems.insert(before_index, action);
+
+    MenuItemIndex index = before_index;
+    if(before)
+	InsertMenuItemTextWithCFString(menu, 0, before_index-1, 0, action->command);
+    else
+	AppendMenuItemTextWithCFString(menu, 0, 0, action->command, &index);
+    {
+	QAction *qaction = action->action;
+	SetMenuItemProperty(menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(qaction), &qaction);
     }
-    if(action->action->isVisible()) {
-	action->visible = 1;
-	if(before)
-	    InsertMenuItemTextWithCFString(menu, 0, before_index-1, 0, action->command);
-	else
-	    AppendMenuItemTextWithCFString(menu, 0, 0, action->command, 0);
-	syncAction(action);
-    }
+    syncAction(action);
 }
 
 void 
@@ -419,25 +456,28 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 {
     if(!action || !menu)
 	return;
+    const short index = findActionIndex(action);
+
     if(!action->action->isVisible()) {
-	if(action->visible) {
-	    DeleteMenuItem(menu, findActionIndex(action));
-	    action->visible = 0;
-	}
-	return;
-    } else if(!action->visible) {
-	QMacMenuAction *before = 0;
-	int index = actionItems.indexOf(action);
-	if(index+1 < actionItems.size())
-	    before = actionItems[index+1];
-	addAction(action, before);
+	ChangeMenuItemAttributes(menu, index, kMenuItemAttrHidden, 0);
 	return;
     }
+    ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrHidden);
+
+    if(action->action->isSeparator()) {
+	ChangeMenuItemAttributes(menu, index, kMenuItemAttrSeparator, 0);
+	return;
+    }
+    ChangeMenuItemAttributes(menu, index, 0, kMenuItemAttrSeparator);
 
     MenuRef submenu = 0;
     bool release_submenu = false;
     if(action->action->menu()) {
 	submenu = action->action->menu()->macMenu();
+
+	QWidget *caused = 0;
+	GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
+	SetMenuItemProperty(submenu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
     } else {
 	release_submenu = true;
 	CreateNewMenu(0, 0, &submenu);
@@ -455,8 +495,7 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 {
     if(!action || !menu)
 	return;
-    if(action->visible)
-	DeleteMenuItem(menu, findActionIndex(action));
+    DeleteMenuItem(menu, findActionIndex(action));
     actionItems.remove(action);
 }
 
