@@ -51,12 +51,14 @@ public:
         VLine = 0x0005, // vertical line
         StyledPanel = 0x0006, // rectangular panel depending on the GUI style
 
-        PopupPanel = 0x0007, // rectangular panel depending on the GUI style
-        MenuBarPanel = 0x0008,
-        ToolBarPanel = 0x0009,
-        LineEditPanel = 0x000a,
-        TabWidgetPanel = 0x000b,
-        GroupBoxPanel = 0x000c,
+#ifdef QT_COMPAT
+        PopupPanel = StyledPanel, // rectangular panel depending on the GUI style
+        MenuBarPanel = StyledPanel,
+        ToolBarPanel = StyledPanel,
+        LineEditPanel = StyledPanel,
+        TabWidgetPanel = StyledPanel,
+        GroupBoxPanel = StyledPanel,
+#endif
 
         MShape = 0x000f // mask for the shape
     };

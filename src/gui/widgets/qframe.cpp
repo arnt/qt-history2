@@ -64,8 +64,7 @@ QFramePrivate::QFramePrivate()
 
     The frame style is specified by a \link QFrame::Shape frame
     shape\endlink and a \link QFrame::Shadow shadow style\endlink. The
-    frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel, \c
-    PopupPanel, \c WinPanel, \c ToolBarPanel, \c MenuBarPanel, \c
+    frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel,
     HLine and \c VLine; the shadow styles are \c Plain, \c Raised and
     \c Sunken.
 
@@ -102,18 +101,10 @@ QFramePrivate::QFramePrivate()
     (useful as separator)
     \value VLine  QFrame draws a vertical line that frames nothing
     (useful as separator)
-    \value GroupBoxPanel draws a rectangular panel
     \value WinPanel draws a rectangular panel that can be raised or
     sunken like those in Windows 95. Specifying this shape sets
     the line width to 2 pixels. WinPanel is provided for compatibility.
     For GUI style independence we recommend using StyledPanel instead.
-    \value ToolBarPanel
-    \value MenuBarPanel
-    \value PopupPanel
-    \value LineEditPanel is used to draw a frame suitable for line edits. The
-    look depends upon the current GUI style.
-    \value TabWidgetPanel is used to draw a frame suitable for tab widgets. The
-    look depends upon the current GUI style.
     \omitvalue MShape
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
@@ -338,7 +329,6 @@ void QFramePrivate::updateFrameWidth()
     case QFrame::Box:
     case QFrame::HLine:
     case QFrame::VLine:
-    case QFrame::GroupBoxPanel:
         switch (frameShadow) {
         case QFrame::Plain:
             frameWidth = lineWidth;
@@ -350,18 +340,8 @@ void QFramePrivate::updateFrameWidth()
         }
         break;
 
-    case QFrame::LineEditPanel:
-    case QFrame::TabWidgetPanel:
-    case QFrame::PopupPanel:
     case QFrame::StyledPanel:
         frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
-        break;
-
-    case QFrame::MenuBarPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q);
-        break;
-    case QFrame::ToolBarPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, 0, q);
         break;
 
     case QFrame::WinPanel:
@@ -479,10 +459,6 @@ void QFrame::drawFrame(QPainter *p)
     case QFrame::Box:
     case QFrame::HLine:
     case QFrame::VLine:
-    case QFrame::GroupBoxPanel:
-        lw = d->lineWidth;
-        mlw = d->midLineWidth;
-        break;
     default:
         // most frame styles do not handle customized line and midline widths
         // (see updateFrameWidth()).
@@ -511,25 +487,6 @@ void QFrame::drawFrame(QPainter *p)
             qDrawShadeRect(p, opt.rect, opt.palette, frameShadow == Sunken, lw, mlw);
         break;
 
-    case LineEditPanel:
-        style().drawPrimitive(QStyle::PE_PanelLineEdit, &opt, p, this);
-        break;
-
-    case GroupBoxPanel:
-        style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, p, this);
-        break;
-
-    case TabWidgetPanel:
-        style().drawPrimitive(QStyle::PE_PanelTabWidget, &opt, p, this);
-        break;
-
-    case MenuBarPanel:
-        style().drawPrimitive(QStyle::PE_PanelMenuBar, &opt, p, this);
-        break;
-    case ToolBarPanel:
-        opt.rect = rect();
-        style().drawPrimitive(QStyle::PE_PanelDockWindow, &opt, p, this);
-        break;
 
     case StyledPanel:
         if (frameShadow == Plain)
@@ -537,43 +494,6 @@ void QFrame::drawFrame(QPainter *p)
         else
             style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
         break;
-
-    case PopupPanel:
-    {
-        int vmargin = style().pixelMetric(QStyle::PM_MenuVMargin, &opt, this),
-            hmargin = style().pixelMetric(QStyle::PM_MenuHMargin, &opt, this);
-        if (vmargin > 0 || hmargin > 0) {
-            QStyleOptionMenuItem menuOpt;
-            menuOpt.palette = opt.palette;
-            menuOpt.state = opt.state;
-            menuOpt.menuItemType = QStyleOptionMenuItem::Margin;
-            menuOpt.checkState = QStyleOptionMenuItem::NotCheckable;
-            menuOpt.maxIconWidth = lw;
-            menuOpt.tabWidth = mlw;
-            QRect fr = frameRect();
-            int   fw = d->frameWidth;
-            if (vmargin > 0) {
-                menuOpt.rect.setRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vmargin);
-                style().drawControl(QStyle::CE_MenuVMargin, &menuOpt, p, this);
-                menuOpt.rect.setRect(fr.x() + fw, fr.bottom() - fw - vmargin, fr.width() - (fw*2),
-                                     vmargin);
-                style().drawControl(QStyle::CE_MenuVMargin, &menuOpt, p, this);
-            }
-            if (hmargin > 0) {
-                menuOpt.rect.setRect(fr.x() + fw, fr.y() + fw + vmargin, hmargin,
-                                     fr.height() - (fw * 2) - vmargin);
-                style().drawControl(QStyle::CE_MenuHMargin, &menuOpt, p, this);
-                menuOpt.rect.setRect(fr.right() - fw - hmargin, fr.y() + fw + vmargin, hmargin,
-                                     fr.height() - (fw * 2) - vmargin);
-                style().drawControl(QStyle::CE_MenuHMargin, &opt, p, this);
-            }
-        }
-        if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground(), lw);
-        else
-            style().drawPrimitive(QStyle::PE_PanelPopup, &opt, p, this);
-        break;
-    }
 
     case Panel:
         if (frameShadow == Plain)
