@@ -404,7 +404,7 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd)
 		if(ncols) {
 		    image->setPixel(xx, yy, get_index(image,q));
 		} else {
-		    image->setPixel(xx,yy,Qt::red.rgb());
+		    image->setPixel(xx,yy,q);
 		}
 	    }
 	}
