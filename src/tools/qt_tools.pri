@@ -9,7 +9,7 @@ tools {
 		  $$TOOLS_H/qbuffer.h \
 		  $$TOOLS_H/qcache.h \
 		  $$TOOLS_H/qcleanuphandler.h \
-		  $$TOOLS_H/qptrcollection.h \
+		  $$TOOLS_H/qcomponentfactory.h \
 		  $$TOOLS_H/qcstring.h \
 		  $$TOOLS_H/qdatastream.h \
 		  $$TOOLS_H/qdatetime.h \
@@ -37,6 +37,7 @@ tools {
 		  $$TOOLS_H/qmutex.h \
 		  $$TOOLS_P/qmutex_p.h \
 		  $$TOOLS_H/qpluginmanager.h \
+		  $$TOOLS_H/qptrcollection.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qptrqueue.h \
 		  $$TOOLS_H/qregexp.h \
@@ -89,7 +90,7 @@ tools {
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
 		  $$TOOLS_CPP/qbuffer.cpp \
-		  $$TOOLS_CPP/qptrcollection.cpp \
+		  $$TOOLS_CPP/qcomponentfactory.cpp \
 		  $$TOOLS_CPP/qcstring.cpp \
 		  $$TOOLS_CPP/qdatastream.cpp \
 		  $$TOOLS_CPP/qdatetime.cpp \
@@ -106,6 +107,7 @@ tools {
 		  $$TOOLS_CPP/qiodevice.cpp \
 		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
+		  $$TOOLS_CPP/qptrcollection.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qsettings.cpp \

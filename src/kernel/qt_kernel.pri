@@ -15,7 +15,6 @@ kernel {
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_P/qcomplextext_p.h \
-		  $$KERNEL_H/qcomponentfactory.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
@@ -168,7 +167,6 @@ kernel {
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcomplextext.cpp \
-		  $$KERNEL_CPP/qcomponentfactory.cpp \
 		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
