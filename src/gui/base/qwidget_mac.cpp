@@ -61,6 +61,7 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
 QSize qt_initial_size(QWidget *w); //qwidget.cpp
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
@@ -236,7 +237,7 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
 	Rect null_rect; SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
-	if (ret == noErr) {
+	if(ret == noErr) {
 	    ret = SetWindowBounds(*w, kWindowContentRgn, geo);
 	    if(ret != noErr)
 		qWarning("%s:%d This error shouldn't really ever happen!!!", __FILE__, __LINE__);
@@ -1460,7 +1461,7 @@ void QWidget::setActiveWindow()
 	if(IsWindowActive((WindowPtr)tlw->handle())) {
 	    ActivateWindow((WindowPtr)tlw->handle(), true);
 	    qApp->setActiveWindow(tlw);
-	} else if (!isMinimized()){
+	} else if(!isMinimized()){
 	    SelectWindow((WindowPtr)tlw->handle());
 	}
     }
@@ -1582,9 +1583,9 @@ void QWidget::showWindow()
 	    int movex = x(), movey = y();
 	    QRect r = frameGeometry();
 	    QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
-		if (r.bottom() > avail.bottom())
+		if(r.bottom() > avail.bottom())
 		    movey = avail.bottom() - r.height();
-		if (r.right() > avail.right())
+		if(r.right() > avail.right())
 		    movex = avail.right() - r.width();
 		// +2 to prevent going under the menu bar
 		move(qMax(avail.left(), movex), qMax(avail.top() + 2, movey));
@@ -1604,11 +1605,11 @@ void QWidget::showWindow()
 	    ShowHide((WindowPtr)hd, true);	//now actually show it
             // it seems that collapse window doesn't work unless the window is actually shown,
             // so catch it again.
-            if (windowState() & WindowMinimized)
+            if(windowState() & WindowMinimized)
                 CollapseWindow((WindowPtr)hd, true);
         }
 #ifndef QMAC_NO_FAKECURSOR
-	if (qstrcmp(name(), "fake_cursor") != 0)
+	if(qstrcmp(name(), "fake_cursor") != 0)
 #endif
 	    qt_event_request_activate(this);
     } else if(!parentWidget() || parentWidget()->isVisible()) {
@@ -1663,7 +1664,7 @@ void QWidget::setWindowState(uint newstate)
 	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized))
 	    CollapseWindow((WindowPtr)hd, (newstate & WindowMinimized) ? true : false);
 
-	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
+	if((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
 	    if(newstate & WindowFullScreen) {
 		if(QTLWExtra *tlextra = d->topData()) {
 		    if(tlextra->normalGeometry.width() < 0) {
@@ -1676,7 +1677,25 @@ void QWidget::setWindowState(uint newstate)
 		}
 		setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 			  (getWFlags() & 0xffff0000)); 			  // preserve some widget flags
-		const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
+                // This is a bit evil, but it keeps things like toolbars from being
+                // obscured by the menubar as listed in task 41205.
+		int finalScreen = qApp->desktop()->screenNumber(this);
+		QRect screen = qApp->desktop()->screenGeometry(finalScreen);
+		GDHandle g = GetMainDevice();
+		int i = 0;
+		while (i < finalScreen) {
+		    g = GetNextDevice(g);
+		    ++i;
+		}
+		RgnHandle rgn = NewRgn();
+		// Give us the region that basically is the screen minus menubar and rectangle
+		// the dock has -- a tad bit more than GetAvailableWindowPositioningBounds.
+		if (GetAvailableWindowPositioningRegion(g, rgn) == noErr) {
+		    Rect r;
+		    GetRegionBounds(rgn, &r);
+		    screen = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+		}
+		DisposeRgn(rgn);
 		move(screen.topLeft());
 		resize(screen.size());
 	    } else {
@@ -1685,7 +1704,7 @@ void QWidget::setWindowState(uint newstate)
 	    }
 	}
 
-	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
+	if((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
 	    if(newstate & WindowMaximized) {
 		Rect bounds;
 		data->fstrut_dirty = TRUE;
@@ -1723,7 +1742,6 @@ void QWidget::setWindowState(uint newstate)
 			SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
 		    SetWindowUserState((WindowPtr)hd, &oldr);
 		    qt_dirty_wndw_rgn("showMaxim", this, mac_rect(rect()));
-
 		    SetWindowStandardState((WindowPtr)hd, &bounds);
 		    ZoomWindow((WindowPtr)hd, inZoomOut, false);
 
@@ -1739,10 +1757,15 @@ void QWidget::setWindowState(uint newstate)
 		    }
 		}
 	    } else {
+		ZoomWindow((WindowPtr)hd, inZoomIn, false);
+		if(QTLWExtra *tlextra = topData()) {
+		    if(tlextra->normalGeometry.width() < 0)
+			clearWState(WState_Resized);
+		}
 		Rect bounds;
 		ZoomWindow((WindowPtr)hd, inZoomIn, false);
 		GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
-		qt_dirty_wndw_rgn("showNormal",this, &bounds);
+		qt_dirty_wndw_rgn("un-maximize",this, &bounds);
 	    }
 	}
     }
@@ -1755,10 +1778,10 @@ void QWidget::setWindowState(uint newstate)
     if (newstate & WindowFullScreen)
 	data->widget_state |= WState_FullScreen;
 
-    if (needShow)
+    if(needShow)
 	show();
 
-    if (newstate & WindowActive)
+    if(newstate & WindowActive)
 	setActiveWindow();
 
     QEvent e(QEvent::WindowStateChange);
@@ -1838,7 +1861,6 @@ void QWidget::stackUnder(QWidget *w)
 	qt_dirty_wndw_rgn("stackUnder",this, clp);
     }
 }
-
 
 void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 {
