@@ -21,7 +21,7 @@
 #ifndef TEMPLATEWIZARDIFACE_H
 #define TEMPLATEWIZARDIFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 
 class QWidget;
 struct DesignerFormWindow;

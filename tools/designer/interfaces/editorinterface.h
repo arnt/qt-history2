@@ -21,7 +21,7 @@
 #ifndef EDITORINTERFACE_H
 #define EDITORINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qmap.h>
 #include <qvaluelist.h>
 

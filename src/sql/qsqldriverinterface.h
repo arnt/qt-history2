@@ -42,7 +42,7 @@
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #include "qstringlist.h"
 #endif // QT_H
 

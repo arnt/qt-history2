@@ -21,7 +21,7 @@
 #ifndef PROJECTSETTINGSINTERFACE_H
 #define PROJECTSETTINGSINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
 

@@ -21,7 +21,7 @@
 #ifndef PROGRAMINTERFACE_H
 #define PROGRAMINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qmap.h>
 
 // {87ced303-884f-449a-881a-ae8104932e3e}

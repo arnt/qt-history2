@@ -19,7 +19,6 @@
 **********************************************************************/
 
 #include "editorinterfaceimpl.h"
-#include <qcomponentinterface.h>
 #include "languageinterfaceimpl.h"
 #include "preferenceinterfaceimpl.h"
 

@@ -2,7 +2,7 @@
 #define QTEXTCODECINTERFACE_H
 
 #ifndef QT_H
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #endif // QT_H
 
 #ifndef QT_NO_TEXTCODEC

@@ -21,7 +21,7 @@
 #ifndef LANGUAGEINTERFACE_H
 #define LANGUAGEINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qvaluelist.h>
 
 // {f208499a-6f69-4883-9219-6e936e55a330}

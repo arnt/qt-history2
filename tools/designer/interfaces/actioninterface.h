@@ -21,7 +21,7 @@
 #ifndef ACTIONINTERFACE_H
 #define ACTIONINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 
 class QAction;
 class QObject;

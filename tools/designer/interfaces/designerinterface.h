@@ -21,7 +21,7 @@
 #ifndef DESIGNERINTERFACE_H
 #define DESIGNERINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qlist.h>
 #include <qstring.h>
 #include <qmap.h>

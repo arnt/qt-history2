@@ -34,7 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
 #define QT_DEBUG_COMPONENT 1
@@ -58,8 +58,15 @@ class QLibrary::QLibraryPrivate : private QObject
     Q_OBJECT
 public:
     QLibraryPrivate( QLibrary *lib ) 
-	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), unloadTimer( 0 ), library( lib )
+	: QObject( 0, lib->library().latin1() ), pHnd( 0 ), libIface( 0 ), unloadTimer( 0 ), library( lib )
     {}
+
+    ~QLibraryPrivate()
+    {
+	if ( libIface )
+	    libIface->release();
+	killTimer();
+    }
 
     void startTimer()
     {
@@ -80,6 +87,8 @@ public:
     void *pHnd;
 #endif
 
+    QLibraryInterface *libIface;
+
     bool loadLibrary();
     bool freeLibrary();
     void *resolveSymbol( const char * );
@@ -91,19 +100,11 @@ public slots:
     */
     void tryUnload() 
     {
-	if ( library->policy() == Manual )
+	if ( library->policy() == Manual || !pHnd || !libIface )
 	    return;
 
-	QLibraryInterface *lIface = (QLibraryInterface*)library->queryInterface( IID_QLibraryInterface );
-	if ( !lIface )
+	if ( !libIface->canUnload() )
 	    return;
-
-	if ( !lIface->canUnload() ) {
-	    lIface->release();
-	    return;
-	}
-
-	lIface->release();
 
     #if QT_DEBUG_COMPONENT == 1
 	if ( library->unload() )
@@ -124,7 +125,7 @@ class QLibrary::QLibraryPrivate
 {
 public:
     QLibraryPrivate( QLibrary *lib )
-	: pHnd( 0 ), library( lib )
+	: pHnd( 0 ), libIface( 0 ), library( lib )
     {}
 
     void startTimer()
@@ -140,6 +141,7 @@ public:
 #else
     void *pHnd;
 #endif
+    QLibraryInterface *libIface;
 
     bool loadLibrary();
     bool freeLibrary();
@@ -468,7 +470,7 @@ QLibrary::~QLibrary()
 
 /*!
   Loads the shared library and initializes the connection to the component server.
-  Returns a pointer to the QUnknownInterface provided by the component if the 
+  Returns a pointer to the QUnknownInterface provided by the component server if the 
   library was loaded successfully, otherwise unloades the library again and returns 
   null.
   If the component implements the QLibraryInterface, the init() function will
@@ -476,7 +478,11 @@ QLibrary::~QLibrary()
   If the policy is not Manual, the system will call the canUnload() function of 
   this interface and try to unload the library in regular intervalls.
 
-  This function gets called automatically by queryInterface.
+  \warning
+  This function gets called automatically by queryInterface, you should never need
+  to call this function. The returned interface is not referenced explicitely, and
+  you should not call \link QUnknownInterface::release release \endlink on the returned
+  interface.
 
   \sa setPolicy(), unload(), resolve
 */
@@ -503,13 +509,8 @@ QUnknownInterface* QLibrary::createInstance()
 #endif
 	entry = infoProc ? infoProc() : 0;
 	if ( entry ) {
-	    QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
-	    if ( piface ) {
-		bool ok = piface->init();
-		piface->release();
-		if ( !ok ) {
-		    entry->release();
-		    entry = 0;
+	    if ( ( d->libIface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface ) ) ) {
+		if ( !d->libIface->init() ) {
 #if defined(QT_DEBUG_COMPONENT)
 		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
 #endif
@@ -552,7 +553,7 @@ QUnknownInterface* QLibrary::createInstance()
       return 5 + 8;
   \endcode
 
-  \sa createInstance, queryInterface
+  \sa queryInterface
 */
 void *QLibrary::resolve( const char* symb )
 {
@@ -592,7 +593,7 @@ bool QLibrary::isLoaded() const
   which is in most cases a segmentation fault, so you should know what 
   you're doing!
 
-  \sa createInstance, queryInterface, resolve
+  \sa queryInterface, resolve
 */
 bool QLibrary::unload( bool force )
 {
@@ -600,18 +601,17 @@ bool QLibrary::unload( bool force )
 	return TRUE;
 
     if ( entry ) {
-	QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
-	if ( piface ) {
-	    piface->cleanup();
+	if ( d->libIface ) {
+	    d->libIface->cleanup();
 
-	    bool can = piface->canUnload();
-	    piface->release();
-	    if ( !can ) {
-#if QT_DEBUG_COMPONENT == 2
-		qDebug( "%s refuses to be unloaded!", libfile.latin1() );
-#endif
-		if ( !force )
-		    return FALSE;
+	    bool can = d->libIface->canUnload();
+	    can = ( d->libIface->release() <= 1 ) && can;
+	    // the "entry" member must be the last reference to the component
+	    if ( can || force ) {
+		d->libIface = 0;
+	    } else {
+		d->libIface->addRef();
+		return FALSE;
 	    }
 	}
 
@@ -619,9 +619,9 @@ bool QLibrary::unload( bool force )
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
 	    qDebug( "%s is still in use!", libfile.latin1() );
 #endif
-	    if ( force )
+	    if ( force ) {
 		delete entry;
-	    else {
+	    } else {
 		entry->addRef();
 		return FALSE;
 	    }

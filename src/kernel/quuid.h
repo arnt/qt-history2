@@ -1,8 +1,8 @@
-#ifndef QUUIDDEFS_H
-#define QUUIDDEFS_H
+#ifndef QUUID_H
+#define QUUID_H
 
 #ifndef QT_H
-#include <qglobal.h>
+#include <qstring.h>
 #endif // QT_H
 
 #include <memory.h>
@@ -24,9 +24,8 @@ typedef struct _GUID
 struct Q_EXPORT QUuid
 {
     QUuid()
-	: data1( 0 ), data2( 0 ), data3( 0 )
     {
-	memset( &data4, 0, sizeof(data4) );
+	memset( this, 0, sizeof(QUuid) );
     }
     QUuid( uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8 )
 	: data1( l ), data2( w1 ), data3( w2 )
@@ -45,15 +44,12 @@ struct Q_EXPORT QUuid
 	memcpy( this, &uuid, sizeof(QUuid) );
     }
 
-    // Implementented in qcomponentinterface.cpp
     QUuid( const QString & );
     QString toString() const;
 
     QUuid operator=(const QUuid &orig )
     {
-	QUuid uuid;
-	memcpy( &uuid, &orig, sizeof(QUuid) );
-	return uuid;
+	return QUuid( orig );
     }
 
     bool operator==( const QUuid &uuid ) const
@@ -76,9 +72,7 @@ struct Q_EXPORT QUuid
 
     QUuid operator=(const GUID &orig )
     {
-	QUuid uuid;
-	memcpy( &uuid, &orig, sizeof(QUuid) );
-	return uuid;
+	return QUuid( orig );
     }
 
     operator GUID() const
@@ -104,4 +98,4 @@ struct Q_EXPORT QUuid
     uchar  data4[ 8 ];
 };
 
-#endif //QUUIDDEF_H
+#endif //QUUID_H

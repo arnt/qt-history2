@@ -2,7 +2,7 @@
 #define QSTYLEINTERFACE_H
 
 #ifndef QT_H
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #include <qstringlist.h>
 #endif // QT_H
 

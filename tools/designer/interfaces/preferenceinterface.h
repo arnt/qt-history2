@@ -21,7 +21,7 @@
 #ifndef PREFERANCEINTERFACE_H
 #define PREFERANCEINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
 

@@ -21,7 +21,7 @@
 #ifndef FILTERINTERFACE_H
 #define FILTERINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 
 // {EA8CB381-59B5-44a8-BAE5-9BEA8295762A}
 #ifndef IID_ImportFilterInterface

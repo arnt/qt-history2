@@ -1,5 +1,4 @@
 #include "editorinterfaceimpl.h"
-#include <qcomponentinterface.h>
 #include "languageinterfaceimpl.h"
 
 class CommonInterface : public QUnknownInterface

@@ -40,7 +40,7 @@
 
 #ifndef QT_H
 #include "qlibrary.h"
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #include "qdict.h"
 #include "qmap.h"
 #include "qdir.h"

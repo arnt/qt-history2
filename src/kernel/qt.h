@@ -45,7 +45,7 @@
 #include <qfont.h>
 #include "qfontinfo.h"
 #include "qstyle.h"
-#include <quuiddefs.h>
+#include <quuid.h>
 #include "qcommonstyle.h"
 #include "qdatastream.h"
 #include "qwindowsstyle.h"
@@ -194,7 +194,7 @@
 #include "qsqlerror.h"
 #include "qsqlrecord.h"
 #include "qsqlquery.h"
-#include "qcomponentinterface.h"
+#include "qcom.h"
 #include "qeditorfactory.h"
 #include "qsqlindex.h"
 #include <qsqldriver.h>

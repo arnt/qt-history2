@@ -21,7 +21,7 @@
 #ifndef INTERPRETERINTERFACE_H
 #define INTERPRETERINTERFACE_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 
 class QObject;
 

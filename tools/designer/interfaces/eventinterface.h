@@ -21,7 +21,7 @@
 #ifndef EVENTINTERFACED_H
 #define EVENTINTERFACED_H
 
-#include <qcomponentinterface.h>
+#include <qcom.h>
 #include <qobject.h>
 
 // {9958cfbc-64f9-44ce-a65e-2c6c11969a7b}
