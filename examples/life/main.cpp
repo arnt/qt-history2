@@ -40,7 +40,7 @@ int main( int argc, char **argv )
 
     LifeDialog *life = new LifeDialog( scale );
     a.setMainWidget( life );
-    life->setCaption("Qt Example - Life");
+    life->setWindowTitle("Qt Example - Life");
     life->show();
 
     return a.exec();

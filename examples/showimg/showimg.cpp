@@ -355,7 +355,7 @@ bool ImageViewer::loadImage( const QString& fileName )
 	if ( ok )
 	    ok = reconvertImage();
 	if ( ok ) {
-	    setCaption( filename );			// set window caption
+	    setWindowTitle( filename );			// set window caption
 	    int w = pm.width();
 	    int h = pm.height();
 
@@ -623,7 +623,7 @@ void ImageViewer::setImage(const QImage& newimage)
 
     pickx = -1;
     clickx = -1;
-    setCaption( filename );			// set window caption
+    setWindowTitle( filename );			// set window caption
     int w = image.width();
     int h = image.height();
     if ( !w )

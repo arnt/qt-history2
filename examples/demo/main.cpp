@@ -67,7 +67,7 @@ static void qdemo_set_caption( CategoryInterface *c, int i )
 	return;
     QString title = Frame::tr( "Qt Demo Collection" );
     title += " - " + c->categoryName( i - c->categoryOffset() );
-    w->setCaption( title );
+    w->setWindowTitle( title );
 }
 
 class WidgetCategory : public CategoryInterface

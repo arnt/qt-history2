@@ -401,10 +401,10 @@ QWidget *QDragger::openDropWindow( const QRect &r, bool user )
     DropWindow *w = new DropWindow;
     if ( user ) {
 	tmp->userOpened = TRUE;
-	w->setCaption( "Drop window" );
+	w->setWindowTitle( "Drop window" );
     } else {
 	tmp->userOpened = FALSE;
-	w->setCaption( "Auto drop window" );
+	w->setWindowTitle( "Auto drop window" );
     }
     tmp->w = w;
     w->master = this;

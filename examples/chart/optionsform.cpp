@@ -20,7 +20,7 @@ OptionsForm::OptionsForm( QWidget* parent, const char* name,
 			  bool modal, WFlags f )
     : QDialog( parent, name, modal, f )
 {
-    setCaption( "Chart -- Options" );
+    setWindowTitle( "Chart -- Options" );
     resize( 320, 290 );
 
     optionsFormLayout = new QVBoxLayout( this, 11, 6 );

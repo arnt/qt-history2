@@ -89,7 +89,7 @@ int main( int argc, char **argv )
     s->setAlignment( Qt::AlignVCenter | Qt::AlignHCenter );
     gm->addWidget( s );
     a.setMainWidget( f );
-    f->setCaption("Qt Example - Custom Layout");
+    f->setWindowTitle("Qt Example - Custom Layout");
     f->show();
 
     int result = a.exec();

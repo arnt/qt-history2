@@ -29,7 +29,7 @@ int main( int argc, char ** argv )
     }
 
     AnimatedLabel m(animation);
-    m.setCaption("Qt Examples - Animated Label");
+    m.setWindowTitle("Qt Examples - Animated Label");
     app.setMainWidget( &m );
     m.show();
 

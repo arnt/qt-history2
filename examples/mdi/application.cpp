@@ -150,7 +150,7 @@ MDIWindow* ApplicationWindow::newDoc()
 {
     MDIWindow* w = new MDIWindow( ws, 0, WDestructiveClose );
     connect( w, SIGNAL( message(const QString&, int) ), statusBar(), SLOT( message(const QString&, int )) );
-    w->setCaption("unnamed document");
+    w->setWindowTitle("unnamed document");
     w->setIcon( QPixmap("document.xpm") );
     // show the very first window in maximized mode
     if ( ws->windowList().isEmpty() )
@@ -358,7 +358,7 @@ void MDIWindow::load( const QString& fn )
 
 
     }
-    setCaption( filename );
+    setWindowTitle( filename );
     emit message( QString("Loaded document %1").arg(filename), 2000 );
 }
 
@@ -381,7 +381,7 @@ void MDIWindow::save()
     t << text;
     f.close();
 
-    setCaption( filename );
+    setWindowTitle( filename );
 
     emit message( QString( "File %1 saved" ).arg( filename ), 2000 );
 }

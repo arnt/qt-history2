@@ -31,7 +31,7 @@ int main( int argc, char ** argv )
     }
 
     HelpWindow *help = new HelpWindow(home, ".", 0, "help viewer");
-    help->setCaption("Qt Example - Helpviewer");
+    help->setWindowTitle("Qt Example - Helpviewer");
     if ( QApplication::desktop()->width() > 400
 	 && QApplication::desktop()->height() > 500 )
 	help->show();

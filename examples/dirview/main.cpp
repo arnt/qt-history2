@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
     }
 
     mw.resize( 400, 400 );
-    mw.setCaption( "Qt Example - Directory Browser" );
+    mw.setWindowTitle( "Qt Example - Directory Browser" );
     mw.setAllColumnsShowFocus( TRUE );
     a.setMainWidget( &mw );
     mw.show();

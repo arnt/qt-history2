@@ -167,7 +167,7 @@ void FileMainWindow::setPathCombo()
 
 void FileMainWindow::directoryChanged( const QString &dir )
 {
-    setCaption( dir );
+    setWindowTitle( dir );
     setPathCombo();
 }
 

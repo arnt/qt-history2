@@ -95,7 +95,7 @@ int main( int argc, char ** argv )
     s3->setOpaqueResize( TRUE );
 
     a.setMainWidget( s1 );
-    s1->setCaption("Qt Example - Splitters");
+    s1->setWindowTitle("Qt Example - Splitters");
     s1->show();
     int result = a.exec();
     delete s1;

@@ -28,7 +28,7 @@ int main(int argc, char** argv)
     m.resize(sh.width(),
              sh.height()+3*m.statusBar()->height());
     app.setMainWidget(&m);
-    m.setCaption("Qt Example - QFD");
+    m.setWindowTitle("Qt Example - QFD");
     m.show();
 
     return app.exec();

@@ -96,7 +96,7 @@ void Frame::setCategories( const QList<CategoryInterface *> &l )
     toolBox = new QToolBox( dw );
     dw->setWidget( toolBox );
 
-    dw->setCaption( tr( "Demo Categories" ) );
+    dw->setWindowTitle( tr( "Demo Categories" ) );
 
     for ( int i = 0; i < categories.count(); ++i )
 	toolBox->addItem( createCategoryPage( categories.at(i) ),

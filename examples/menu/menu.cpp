@@ -152,7 +152,7 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     QPopupMenu* options = new QPopupMenu( this );
     Q_CHECK_PTR( options );
     options->insertTearOffHandle();
-    options->setCaption("Options");
+    options->setWindowTitle("Options");
     options->insertItem( "&Normal Font", this, SLOT(normal()) );
     options->insertSeparator();
 
@@ -350,7 +350,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     MenuExample m;
-    m.setCaption("Qt Examples - Menus");
+    m.setWindowTitle("Qt Examples - Menus");
     a.setMainWidget( &m );
     m.show();
     return a.exec();

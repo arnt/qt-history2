@@ -152,9 +152,9 @@ void HelpWindow::setForwardAvailable( bool b)
 void HelpWindow::textChanged()
 {
     if ( browser->documentTitle().isNull() )
-	setCaption( browser->context() );
+	setWindowTitle( browser->context() );
     else
-	setCaption( browser->documentTitle() ) ;
+	setWindowTitle( browser->documentTitle() ) ;
 
     selectedURL = caption();
     if ( !selectedURL.isEmpty() && pathCombo ) {

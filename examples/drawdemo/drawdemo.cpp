@@ -159,7 +159,7 @@ private:
 
 DrawView::DrawView()
 {
-    setCaption( "Qt Draw Demo Application" );
+    setWindowTitle( "Qt Draw Demo Application" );
     setBackgroundMode(PaletteBase);
 
     // Create a button group to contain all buttons
@@ -309,7 +309,7 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
     DrawView   draw;
     app.setMainWidget( &draw );
-    draw.setCaption("Qt Example - Drawdemo");
+    draw.setWindowTitle("Qt Example - Drawdemo");
     draw.show();
     return app.exec();
 }

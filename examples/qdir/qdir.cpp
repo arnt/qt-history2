@@ -345,7 +345,7 @@ int main( int argc, char ** argv )
 	    fd.setViewMode( QFileDialog::List );
 	    fd.setPreviewMode( QFileDialog::Contents );
 	}
-	fd.setCaption( caption );
+	fd.setWindowTitle( caption );
 	fd.setSelection( start );
 	if ( fd.exec() == QDialog::Accepted ) {
 	    QString result = fd.selectedFile();

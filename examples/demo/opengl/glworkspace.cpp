@@ -90,7 +90,7 @@ void GLWorkspace::newWirebox()
 {
     GLBox *gl = new GLBox( workspace, 0, WDestructiveClose );
     gl->setIcon( QPixmap( "opengl/wirebox.xpm" ) );
-    gl->setCaption( tr( "Wirebox" ) );
+    gl->setWindowTitle( tr( "Wirebox" ) );
     gl->resize( 320, 240 );
     gl->show();
 }
@@ -99,7 +99,7 @@ void GLWorkspace::newGear()
 {
     GLGear *gl = new GLGear( workspace, 0, WDestructiveClose );
     gl->setIcon( QPixmap( "opengl/gear.xpm" ) );
-    gl->setCaption( tr( "Gear" ) );
+    gl->setWindowTitle( tr( "Gear" ) );
     gl->resize( 320, 240 );
     gl->show();
 }
@@ -108,7 +108,7 @@ void GLWorkspace::newTexture()
 {
     GLTexobj *gl = new GLTexobj( workspace, 0, WDestructiveClose );
     gl->setIcon( QPixmap( "opengl/texture.xpm" ) );
-    gl->setCaption( tr( "Texture" ) );
+    gl->setWindowTitle( tr( "Texture" ) );
     gl->resize( 320, 240 );
     gl->show();
 }
@@ -117,7 +117,7 @@ void GLWorkspace::newNurbs()
 {
     GLGear *gl = new GLGear ( workspace, 0, WDestructiveClose );
     gl->setIcon( QPixmap( "opengl/nurbs.xpm" ) );
-    gl->setCaption( tr( "Nurbs" ) );
+    gl->setWindowTitle( tr( "Nurbs" ) );
     gl->resize( 320, 240 );
     gl->show();
 }
@@ -141,7 +141,7 @@ void GLWorkspace::filePrint( int x, int y )
     temppix.convertFromImage( temp );
     view.setPixmap( temppix );
     view.setIcon( QPixmap( "opengl/snapshot.xpm" ) );
-    view.setCaption( gl->caption() + " - Print preview" );
+    view.setWindowTitle( gl->caption() + " - Print preview" );
     if ( view.exec() ) {
 	QImage img = pm.convertToImage();
 	if ( view.checkInvert->isChecked() ) {

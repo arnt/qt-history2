@@ -26,7 +26,7 @@ int main( int argc, char **argv )
     int i;
     for ( i= argc <= 1 ? 0 : 1; i<argc; i++ ) {
 	Editor *e = new Editor;
-	e->setCaption("Qt Example - QWERTY");
+	e->setWindowTitle("Qt Example - QWERTY");
 	if ( i > 0 )
 	    e->load( argv[i] );
 	if ( isSmall ) {

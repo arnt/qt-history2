@@ -19,9 +19,9 @@ int main( int argc, char **argv )
     QApplication::setColorSpec( QApplication::CustomColor );
     QDragApplication a(argc,argv);
     QTetrix *tetrix = new QTetrix;
-    tetrix->setCaption("Tetrix");
+    tetrix->setWindowTitle("Tetrix");
     a.setMainWidget(tetrix);
-    tetrix->setCaption("Qt Example - Tetrix");
+    tetrix->setWindowTitle("Qt Example - Tetrix");
     tetrix->show();
     return a.exec();
 }

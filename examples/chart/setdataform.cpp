@@ -35,7 +35,7 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
     m_elements = elements;
     m_decimalPlaces = decimalPlaces;
 
-    setCaption( "Chart -- Set Data" );
+    setWindowTitle( "Chart -- Set Data" );
     resize( 540, 440 );
 
     tableButtonBox = new QVBoxLayout( this, 11, 6, "table button box layout" );

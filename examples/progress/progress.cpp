@@ -290,7 +290,7 @@ private:
 	    rects = n;
 	    pb = newProgressDialog("Drawing rectangles.\n"
 				   "Using timer event.", n, FALSE);
-	    pb->setCaption("Please Wait");
+	    pb->setWindowTitle("Please Wait");
 	    connect(pb, SIGNAL(canceled()), this, SLOT(stopDrawing()));
 	    enableDrawingItems(FALSE);
 	    timerId = startTimer(0);
@@ -298,7 +298,7 @@ private:
 	} else {
 	    QProgressDialog* lpb = newProgressDialog(
 			"Drawing rectangles.\nUsing loop.", n, TRUE);
-	    lpb->setCaption("Please Wait");
+	    lpb->setWindowTitle("Please Wait");
 
 	    QPainter p(this);
 	    for (int i=0; i<n; i++) {

@@ -31,7 +31,7 @@ public:
         QFrame(p, name, f),
 	sh(100,100)
     {
-        setCaption(fname);
+        setWindowTitle(fname);
         filename = fname;
         movie = m;
 

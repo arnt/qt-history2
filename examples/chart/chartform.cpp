@@ -250,7 +250,7 @@ ChartForm::~ChartForm()
 
 void ChartForm::init()
 {
-    setCaption( "Chart" );
+    setWindowTitle( "Chart" );
     m_filename = QString::null;
     m_changed = FALSE;
 

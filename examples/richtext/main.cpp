@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 
     MyRichText richtext;
     richtext.resize( 450, 350 );
-    richtext.setCaption( "Qt Example - Richtext" );
+    richtext.setWindowTitle( "Qt Example - Richtext" );
     a.setMainWidget( &richtext );
     richtext.show();
 

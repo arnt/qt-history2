@@ -183,7 +183,7 @@ void ApplicationWindow::load( const QString &fileName )
     QTextStream ts( &f );
     e->setText( ts.read() );
     e->setModified( FALSE );
-    setCaption( fileName );
+    setWindowTitle( fileName );
     statusBar()->message( "Loaded document " + fileName, 2000 );
 }
 
@@ -209,7 +209,7 @@ void ApplicationWindow::save()
 
     e->setModified( FALSE );
 
-    setCaption( filename );
+    setWindowTitle( filename );
 
     statusBar()->message( QString( "File %1 saved" ).arg( filename ), 2000 );
 }

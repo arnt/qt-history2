@@ -18,7 +18,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
     TellMe mw;
-    mw.setCaption( "Qt Example - Dynamic Tool Tips" );
+    mw.setWindowTitle( "Qt Example - Dynamic Tool Tips" );
     a.setMainWidget( &mw );
     mw.show();
     

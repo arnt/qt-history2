@@ -41,14 +41,14 @@ int main( int argc, char **argv )
 	// Create a window which looks after its own existence.
 	ImageViewer *w =
 	    new ImageViewer(0, "new window", Qt::WDestructiveClose | Qt::WResizeNoErase );
-	w->setCaption("Qt Example - Image Viewer");
+	w->setWindowTitle("Qt Example - Image Viewer");
 	w->show();
     } else {
 	for ( int i=1; i<argc; i++ ) {
 	    // Create a window which looks after its own existence.
 	    ImageViewer *w =
 		new ImageViewer(0, argv[i], Qt::WDestructiveClose | Qt::WResizeNoErase );
-	    w->setCaption("Qt Example - Image Viewer");
+	    w->setWindowTitle("Qt Example - Image Viewer");
 	    w->loadImage( argv[i] );
 	    w->show();
 	}

@@ -75,7 +75,7 @@ QString View::getOpenFileName()
 
     QFileDialog *dlg = new QFileDialog( workingDirectory,
 	    QString::null, 0, 0, TRUE );
-    dlg->setCaption( QFileDialog::tr( "Open" ) );
+    dlg->setWindowTitle( QFileDialog::tr( "Open" ) );
     dlg->setMode( QFileDialog::ExistingFile );
     QString result;
     if ( dlg->exec() == QDialog::Accepted ) {

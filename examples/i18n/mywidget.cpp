@@ -40,7 +40,7 @@ MyWidget::MyWidget( QWidget* parent, const char* name )
             QAccel::stringToKey(tr("Ctrl+Q")) );
     menuBar()->insertItem( tr("&File"), file );
 
-    setCaption( tr( "Internationalization Example" ) );
+    setWindowTitle( tr( "Internationalization Example" ) );
 
     QString l;
     QMessageBox::information( 0, tr("Language: English"), tr("Language: English"), tr( "E&xit" ) );

@@ -188,7 +188,7 @@ void Editor::load( const QString& fileName, int code )
 
     e->setAutoUpdate( TRUE );
     e->repaint();
-    setCaption( fileName );
+    setWindowTitle( fileName );
 
     changed = FALSE;
 }
@@ -273,7 +273,7 @@ bool Editor::saveAs( const QString& fileName, int code )
 	t.setEncoding( QTextStream::Latin1 );
     t << e->text();
     f.close();
-    setCaption( fileName );
+    setWindowTitle( fileName );
     changed = FALSE;
     return TRUE;
 }

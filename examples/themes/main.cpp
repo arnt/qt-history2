@@ -22,7 +22,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
     Themes themes;
-    themes.setCaption( "Qt Example - Themes (QStyle)" );
+    themes.setWindowTitle( "Qt Example - Themes (QStyle)" );
     themes.resize( 640, 400 );
     a.setMainWidget( &themes );
     themes.show();

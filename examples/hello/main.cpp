@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 	s = "Hello, World";
     Hello h( s );
 #ifndef QT_NO_WIDGET_TOPEXTRA	// for Qt/Embedded minimal build
-    h.setCaption( "Qt says hello" );
+    h.setWindowTitle( "Qt says hello" );
 #endif
     QObject::connect( &h, SIGNAL(clicked()), &a, SLOT(quit()) );
     h.setFont( QFont("times",32,QFont::Bold) );		// default font

@@ -123,7 +123,7 @@ void I18nDemo::newSlot(int id)
     qApp->installTranslator(&wrapper->translator);
 
     connect(wrapper, SIGNAL(destroyed()), SLOT(wrapperDead()));
-    wrapper->setCaption(tr("--language--"));
+    wrapper->setWindowTitle(tr("--language--"));
 
     TextEdit *te = new TextEdit(wrapper);
     te->layout()->setResizeMode( QLayout::FreeResize );

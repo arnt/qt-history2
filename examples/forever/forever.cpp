@@ -56,7 +56,7 @@ void Forever::updateCaption()
     QString s;
     s.sprintf( "Qt Example - Forever - %d rectangles/second", rectangles );
     rectangles = 0;
-    setCaption( s );
+    setWindowTitle( s );
 }
 
 
@@ -94,7 +94,7 @@ int main( int argc, char **argv )
     Forever always;				// create widget
     always.resize( 400, 250 );			// start up with size 400x250
     a.setMainWidget( &always );			// set as main widget
-    always.setCaption("Qt Example - Forever");
+    always.setWindowTitle("Qt Example - Forever");
     always.show();				// show widget
     return a.exec();				// run event loop
 }

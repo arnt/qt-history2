@@ -94,7 +94,7 @@ MyWidget* showLang(QString lang)
     translator->load( lang, "." );
     qApp->installTranslator( translator );
     MyWidget *m = new MyWidget;
-    m->setCaption("Qt Example - i18n - " + m->caption() );
+    m->setWindowTitle("Qt Example - i18n - " + m->caption() );
     return m;
 }
 
@@ -161,7 +161,7 @@ int main( int argc, char** argv )
 	QString lang = argv[1];
 	QWidget* m = showLang(lang);
 	app.setMainWidget( m );
-	m->setCaption("Qt Example - i18n");
+	m->setWindowTitle("Qt Example - i18n");
 	m->show();
     }
 

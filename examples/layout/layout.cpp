@@ -155,7 +155,7 @@ int main( int argc, char **argv )
 
     ExampleWidget f;
     a.setMainWidget(&f);
-    f.setCaption("Qt Example - Caption");
+    f.setWindowTitle("Qt Example - Caption");
     f.show();
 
     return a.exec();

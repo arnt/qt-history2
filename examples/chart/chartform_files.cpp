@@ -48,7 +48,7 @@ void ChartForm::load( const QString& filename )
     statusBar()->message( QString( "Read %1 values from \'%2\'%3" ).
 			  arg( i ).arg( filename ).arg( bad ), 3000 );
 
-    setCaption( QString( "Chart -- %1" ).arg( filename ) );
+    setWindowTitle( QString( "Chart -- %1" ).arg( filename ) );
     updateRecentFiles( filename );
 
     drawElements();
@@ -76,7 +76,7 @@ void ChartForm::fileSave()
 
     file.close();
 
-    setCaption( QString( "Chart -- %1" ).arg( m_filename ) );
+    setWindowTitle( QString( "Chart -- %1" ).arg( m_filename ) );
     statusBar()->message( QString( "Saved \'%1\'" ).arg( m_filename ), 2000 );
     m_changed = FALSE;
 }
