@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#72 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#72 $");
 
 
 static const int fontFields = 14;
@@ -53,8 +53,7 @@ static char   **getXFontNames( const char *pattern, int *count );
 static bool	smoothlyScalable( const char *fontName );
 static bool	fontExists( const char *fontName );
 static int	computeLineWidth( const char *fontName );
-static int	getWeight( const char *weightString,
-			   bool adjustScore = FALSE );
+static int	getWeight( const char *weightString, bool adjustScore=FALSE );
 
 
 // QFont_Private accesses QFont protected functions
@@ -75,7 +74,9 @@ public:
 
 
 /*****************************************************************************
-  QFontInternal contains an X font name (-*-*-..) and an X font struct.
+  QFontInternal contains X11 font data: an XLFD font name ("-*-*-..") and
+  an X font struct.
+
   Two global dictionaries and a cache hold QFontInternal objects, which
   are shared between all QFonts.
   This mechanism makes font loading much faster than using XLoadQueryFont.
@@ -84,16 +85,17 @@ public:
 class QFontInternal
 {
 public:
-    QFontInternal( const char * );
    ~QFontInternal();
     bool	 dirty() const;
     const char  *name()  const;
     XFontStruct *fontStruct() const;
     void	 setFontStruct( XFontStruct * );
-    void	 resetFontStruct();
+    void	 reset();
 private:
+    QFontInternal( const char * );
     QString	 n;
     XFontStruct *f;
+    friend QFontInternal *loadXFont( const QString &, bool * );
 };
 
 inline QFontInternal::QFontInternal( const char *name )
@@ -122,12 +124,7 @@ inline XFontStruct *QFontInternal::fontStruct() const
     return f;
 }
 
-inline void QFontInternal::setFontStruct( XFontStruct *fontStruct )
-{
-    f = fontStruct;
-}
-
-inline void QFontInternal::resetFontStruct()
+inline void QFontInternal::reset()
 {
     if ( f ) {
 	XFreeFont( QPaintDevice::x__Display(), f );
@@ -157,7 +154,7 @@ public:
 void QFontCache::deleteItem( GCI d )
 {
     QFontInternal *fin = (QFontInternal *)d;
-    fin->resetFontStruct();
+    fin->reset();
 }
 
 
@@ -251,7 +248,7 @@ void QFont::cleanup()
     fontDict->setAutoDelete( TRUE );
     delete defFont;
     defFont = 0;
-    delete fontCache;				// delete font cache
+    delete fontCache;
     delete fontDict;
     delete fontNameDict;
 }
@@ -333,17 +330,14 @@ bool QFont::dirty() const
 QString QFont::defaultFamily() const
 {
     switch( d->req.styleHint ) {
-	case Helvetica:
-	    return "helvetica";
 	case Times:
 	    return "times";
 	case Courier:
 	    return "courier";
 	case Decorative:
 	    return "old english";
+	case Helvetica:
 	case System:
-	    return "helvetica";
-	case AnyStyle:
 	default:
 	    return "helvetica";
     }
@@ -1128,7 +1122,7 @@ static QFontInternal *loadXFont( const QString &fontName, bool *newFont )
 	CHECK_PTR( fin );
 	fontDict->insert( fontName, fin );
     }
-    fin->setFontStruct( f );
+    fin->f = f;
     int sz = (f->max_bounds.ascent + f->max_bounds.descent)
 	      *f->max_bounds.width
 	      *(f->max_char_or_byte2 - f->min_char_or_byte2) / 8;
@@ -1154,12 +1148,12 @@ static bool parseXFontName( QString &fontName, char **tokens )
 	return FALSE;
     }
     int	  i;
-    char *tmp = fontName.data() + 1;
-    for ( i=0; i<fontFields && tmp && tmp[0]; i++ ) {
-	tokens[i] = tmp;
-	tmp = strchr( tmp, '-' );
-	if( tmp )
-	    *tmp++ = '\0';
+    char *f = fontName.data() + 1;
+    for ( i=0; i<fontFields && f && f[0]; i++ ) {
+	tokens[i] = f;
+	f = strchr( f, '-' );
+	if( f )
+	    *f++ = '\0';
     }
     if ( i < fontFields ) {
 	for( int j=i ; j<fontFields; j++ )
@@ -1177,8 +1171,7 @@ static bool parseXFontName( QString &fontName, char **tokens )
 static QString bestFitFamily( const QString &fam )
 {
     QString family = QFont::substitute( fam );
-    family.lower();
-    return family;
+    return family.lower();
 }
 
 
@@ -1189,12 +1182,13 @@ static QString bestFitFamily( const QString &fam )
 static char **getXFontNames( const char *pattern, int *count )
 {
     static int maxFonts = 256;
-    char **tmp;
+    char **list;
     while( 1 ) {
-	tmp = XListFonts( qt_xdisplay(), (char*) pattern, maxFonts, count );
+	list = XListFonts( QPaintDevice::x__Display(), (char*)pattern,
+			   maxFonts, count );
 	if ( *count != maxFonts || maxFonts >= 32768 )
-	    return tmp;
-	XFreeFontNames( tmp );
+	    return list;
+	XFreeFontNames( list );
 	maxFonts *= 2;
     }
 }
@@ -1218,10 +1212,9 @@ static bool fontExists( const char *fontName )
 {
     char **fontNames;
     int	   count;
-    fontNames	 = getXFontNames( fontName, &count );
-    bool success = ( count != 0 );
+    fontNames = getXFontNames( fontName, &count );
     XFreeFontNames( fontNames );
-    return success;
+    return count != 0;
 }
 
 
@@ -1253,40 +1246,52 @@ static int computeLineWidth( const char *fontName )
 // Converts a weight string to a value
 //
 
+Q_DECLARE(QDictM,int);
+QDictM(int) *weightDict = 0;
+
+static void cleanupWeightDict()
+{
+    delete weightDict;
+    weightDict = 0;
+}
+
 static int getWeight( const char *weightString, bool adjustScore )
 {
-    QString wStr = weightString;
-    wStr.lower();
-    if ( wStr == "medium" )
-	return (int) QFont::Normal;
-    if ( wStr == "bold" )
-	return (int) QFont::Bold;
-    if ( wStr == "demibold" )
-	return (int) QFont::DemiBold;
-    if ( wStr == "black" )
-	return (int) QFont::Black;
-    if ( wStr == "light" )
-	return (int) QFont::Light;
-    if ( wStr.contains( "bold" ) ) {
-	if( adjustScore )
+    if ( !weightDict ) {
+	qAddPostRoutine( cleanupWeightDict );
+	weightDict = new QDictM(int)( 17, FALSE ); // case insensitive
+	CHECK_PTR( weightDict );
+	weightDict->insert( "medium",   (int*)((int)QFont::Normal+1) );
+	weightDict->insert( "bold",     (int*)((int)QFont::Bold+1) );
+	weightDict->insert( "demibold", (int*)((int)QFont::DemiBold+1) );
+	weightDict->insert( "black",    (int*)((int)QFont::Black+1) );
+	weightDict->insert( "light",    (int*)((int)QFont::Light+1) );
+    }
+    int *p = weightDict->find(weightString);
+    if ( p )
+	return (int)p - 1;
+    QString s = weightString;
+    s = s.lower();
+    if ( s.contains("bold") ) {
+	if ( adjustScore )
 	    return (int) QFont::Bold - 1;  // - 1, not sure that this IS bold
-       else
+	else
 	    return (int) QFont::Bold;
     }
-    if ( wStr.contains( "light" ) ) {
-	if( adjustScore )
+    if ( s.contains("light") ) {
+	if ( adjustScore )
 	    return (int) QFont::Light - 1; // - 1, not sure that this IS light
        else
 	    return (int) QFont::Light;
     }
-    if ( wStr.contains( "black" ) ) {
-	if( adjustScore )
+    if ( s.contains("black") ) {
+	if ( adjustScore )
 	    return (int) QFont::Black - 1; // - 1, not sure this IS black
-       else
+	else
 	    return (int) QFont::Black;
     }
     if ( adjustScore )
-	return (int) QFont::Normal - 2; // - 2, we hope it's close to normal
+	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
     else
 	return (int) QFont::Normal;
 }
