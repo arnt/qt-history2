@@ -76,7 +76,8 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
 	e->installEventFilter( this );
-	dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
+	if ( iface )
+	    dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
 	connect( e, SIGNAL( intervalChanged() ), this, SLOT( intervalChanged() ) );
 	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );
     }
