@@ -268,7 +268,7 @@ void HierarchyList::objectClicked( QListViewItem *i )
 		 w->parent()->parent() &&
 		 ( w->parent()->parent()->inherits( "QTabWidget" ) ||
 		   w->parent()->parent()->inherits( "QWizard" ) ) ) {
-		if ( w->parent()->parent()->inherits( "QTabWidget" ) ) 
+		if ( w->parent()->parent()->inherits( "QTabWidget" ) )
 		    ( (QTabWidget*)w->parent()->parent() )->showPage( w );
 		else
 		    ( (QDesignerWizard*)w->parent()->parent() )->
@@ -416,8 +416,6 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	    name = ( (QTabWidget*)o->parent()->parent() )->tabLabel( (QWidget*)o );
 	else if ( o->parent()->parent()->inherits( "QWizard" ) )
 	    name = ( (QWizard*)o->parent()->parent() )->title( (QWidget*)o );
-	else
-	    name = ( (QDesignerWidgetStack*)o->parent() )->pageName();
     }
 
     if ( fakeMainWindow ) {
