@@ -211,7 +211,7 @@ void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
     QString grid_name;
     grid_name.sprintf("FormWindowGrid_%d_%d", mainWindow()->grid().x(), mainWindow()->grid().y());
     if( !QPixmapCache::find( grid_name, grid ) ) {
-	grid = QPixmap( 150 + ( 150 % mainWindow()->grid().x() ), 150 + ( 150 % mainWindow()->grid().y() ) );
+	grid = QPixmap( 350 + ( 350 % mainWindow()->grid().x() ), 350 + ( 350 % mainWindow()->grid().y() ) );
 	grid.fill( colorGroup().color( QColorGroup::Foreground ) );
 	QBitmap mask( grid.width(), grid.height() );
 	mask.fill( color0 );
