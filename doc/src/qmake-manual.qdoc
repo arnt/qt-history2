@@ -405,25 +405,27 @@
         \c qmake will output debugging information.
     \endlist
 
-    For projects that need to be built differently on each target
-    platform, with many subdirectories, \c qmake
-    can be 
-    You can set variables in the before running \c qmake to pass
-    in default values for the variables in the project file.
+    For projects that need to be built differently on each target platform, with
+    many subdirectories, you can run \c qmake with each of the following
+    options to set the corresponding platform-specific variable in each
+    project file:
 
     \list
     \i \c -unix \BR
         \c qmake will run in unix mode.  In this mode, Unix file
-        naming and path conventions will be used, additionally testing for unix 
+        naming and path conventions will be used, additionally testing for \c unix 
         (as a scope) will succeed. This is the default mode on all Unices. 
     \i \c -macx \BR
         \c qmake will run in Mac OS X mode.  In this mode, Unix file
-        naming and path conventions will be used, additionally testing for macx
+        naming and path conventions will be used, additionally testing for \c macx
         (as a scope) will succeed. This is the default mode on Mac OS X. 
     \i \c -win32 \BR
         \c qmake will run in win32 mode.  In this mode, Windows file naming and path
-        conventions will be used, additionally testing for win32 (as a scope) will succeed. 
-        This is the default mode on Windows.
+        conventions will be used, additionally testing for \c win32 (as a scope)
+        will succeed. This is the default mode on Windows.
+    \endlist
+
+    \list
     \i \c -t tmpl \BR
         \c qmake will override any set TEMPLATE variables with tmpl, but only
         \e after the .pro file has been processed.

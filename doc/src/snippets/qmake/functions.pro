@@ -6,7 +6,7 @@ for(dir, EXTRAS) {
 }
 
 SOURCES = paintwidget_mac.cpp paintwidget_unix.cpp paintwidget_win.cpp
-mac {
+macx {
     SOURCES = find(SOURCES, "_mac")
 }
 
