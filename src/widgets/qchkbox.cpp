@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#16 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#16 $";
 #endif
 
 
@@ -81,9 +81,15 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QSize 	 sz = size();
     QFontMetrics fm = fontMetrics();
     int		 x=0, y, w, h;
+    int		 wmore = 0;
 
     getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;
+
+    if ( gs == MacStyle || gs == WindowsStyle )
+	wmore = 1;
+    else if ( gs == MotifStyle )
+	wmore = 2;
 
 #define SAVE_CHECKBOX_PIXMAPS
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -95,7 +101,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	p->drawPixMap( x, y, *pm );
 	if ( label() ) {			// draw text extra
 	    p->pen().setColor( g.text() );
-	    p->drawText( x+w+6, sz.height()/2+fm.height()/2-fm.descent(),
+	    p->drawText( w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
 			 label() );
 	}
 	return;
@@ -185,19 +191,13 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	    tColor = g.light();			// button is up
 	    bColor = g.dark();
 	    fColor = g.background();
-	    down = FALSE;
 	}
 	else {					// button is down
 	    tColor = g.dark();
 	    bColor = g.light();
 	    fColor = g.mid();
-	    down = TRUE;
 	}
 	p->drawShadePanel( x, y, w, h, tColor, bColor, 2, fColor, TRUE );
-	if ( down ) {
-	    p->setPen( g.background() );
-	    p->drawRect( x+2, y+2, w-4, h-4 );
-	}
     }
 
 #if defined(SAVE_CHECKBOX_PIXMAPS)
@@ -211,6 +211,7 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 #endif
     if ( label() ) {				// draw check box text
 	p->pen().setColor( g.text() );
-	p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(), label() );
+	p->drawText( x+w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
+		     label() );
     }
 }

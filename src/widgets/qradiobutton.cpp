@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#16 $
 **
 ** Implementation of QRadioButton class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#16 $";
 #endif
 
 
@@ -90,9 +90,13 @@ void QRadioButton::drawButton( QPainter *paint )
     QSize	 sz = size();
     QFontMetrics fm = fontMetrics();
     int		 x  = 0, y, w, h;
+    int		 wless = 0;
 
     getSizeOfBitMap( gs, &w, &h );
     y = sz.height()/2 - w/2;
+
+    if ( gs == MacStyle || gs == WindowsStyle || gs == MotifStyle )
+	wless = 1;
 
 #define SAVE_RADIOBUTTON_PIXMAPS
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
@@ -104,7 +108,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->drawPixMap( x, y, *pm );
 	if ( label() ) {			// draw text extra
 	    p->pen().setColor( g.text() );
-	    p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(),
+	    p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
 			 label() );
 	}
 	return;
@@ -139,6 +143,7 @@ void QRadioButton::drawButton( QPainter *paint )
 	QPointArray a( QCOOTARRLEN(pts1), pts1 );
 	a.move( x, y );
 	p->eraseRect( x, y, w, h );
+	p->setPen( g.foreground() );
 	p->drawPolyline( a );
 	if ( isDown() ) {			// draw fat circle
 	    a.setPoints( QCOOTARRLEN(pts2), pts2 );
@@ -261,7 +266,8 @@ void QRadioButton::drawButton( QPainter *paint )
     if ( label() ) {
 	QFontMetrics fm = fontMetrics();
 	p->pen().setColor( g.text() );
-	p->drawText( w+6, sz.height()/2+fm.height()/2-fm.descent(), label() );
+	p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
+		     label() );
     }
 }
 
