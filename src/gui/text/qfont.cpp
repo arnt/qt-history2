@@ -1627,7 +1627,7 @@ static void set_font_bits(Q_UINT8 bits, QFontPrivate *f)
     // f->hintSetByUser      = (bits & 0x10) != 0;
     f->rawMode               = (bits & 0x20) != 0;
     f->kerning               = (bits & 0x40) != 0;
-    if (bits & 0x80 != 0)
+    if ((bits & 0x80) != 0)
         f->request.style         = QFont::StyleOblique;
 }
 
