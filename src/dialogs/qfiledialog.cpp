@@ -3461,10 +3461,19 @@ void QFileDialog::okClicked()
     }
 
     if ( mode() == ExistingFile ) {
-	QUrlOperator u( d->url, nameEdit->text() );
-        QFileInfo f( u.path() );
-	if ( !f.exists() )
-	    return;
+	QUrl u( d->url, nameEdit->text() );
+	if ( u.isLocalFile() ) {
+	    QFileInfo f( u.path() );
+	    if ( !f.exists() )
+		return;
+	} else {
+	    QNetworkProtocol *p = QNetworkProtocol::getNetworkProtocol( d->url.protocol() );
+	    if ( p && (p->supportedOperations()&QNetworkProtocol::OpListChildren) ) {
+		QUrlInfo ui( d->url, nameEdit->text() );
+		if ( !ui.isValid() )
+		    return;
+	    }
+	}
     }
 
     // If selection is valid, return it, else try
