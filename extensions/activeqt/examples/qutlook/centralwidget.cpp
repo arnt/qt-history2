@@ -59,6 +59,11 @@ ABCentralWidget::ABCentralWidget( QWidget *parent, const char *name )
 
 ABCentralWidget::~ABCentralWidget()
 {
+    // make sure we delete all subitems before we log off.
+    if ( contactItems && contactItems->parent() ) {
+	QObject *defFolder = contactItems->parent();
+	delete defFolder;
+    }
     if ( outlookSession )
 	outlookSession->dynamicCall( "Logoff()" );
 }
