@@ -1214,17 +1214,15 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
   it's possible to switch betrween opaque and transparent moving
   of toolbars.
 
-  By default the menubar of the mainwindow is not movable. If you need that,
-  you can just create another toolbar, and create a QMenuBar using this
-  toolbar as parent. Then set the menubar as the stretchable widget
-  of this toolbar. Most certainly you want also to disable the Left and
-  Right docks for this toolbar with setDockEnabled().
-  The MDI example (examples/mdi/application.cpp) demonstrates
-  how to implement all that, and here is some sample code for that
+  The main window's menubar is static  by default. If you want a movable
+  menubar, create a QMenuBar as stretchable widget inside its
+  own movable toolbar and restrict this toolbar to only live within the 
+  Top or Bottom dock:
   \code
   QToolBar *tb = new QToolBar( this );
   addToolBar( tb, tr( "Menubar" ), Top, FALSE );
   QMenuBar *mb = new QMenuBar( tb );
+  mb->setFrameStyle( QFrame::NoFrame );
   tb->setStretchableWidget( mb );
   setDockEnabled( tb, Left, FALSE );
   setDockEnabled( tb, Right, FALSE );
