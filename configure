@@ -83,6 +83,7 @@ if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
     Licensee="Free"
     Products="qt-free"
 # Evaluation version.
+# Qt/X11, Qt/Embedded, Qt/Mac
 elif [ -f $relpath/LICENSE.EVAL ]; then
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="eval"
@@ -117,7 +118,11 @@ elif [ -f $relpath/.LICENSE ]; then
     else
 	if [ -z "$LicenseKey" ]; then
 	    echo
-	    echo "Please enter your license key:"
+	    if echo '\c' | grep '\c' >/dev/null; then
+		echo -n "Please enter your license key: "
+	    else
+		echo "Please enter your license key: \c"
+	    fi
 	    read LicenseKey
 	fi
     fi
