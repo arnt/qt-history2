@@ -2395,7 +2395,8 @@ void QLineEdit::removeSelectedText()
 
 
 /*!
-    Undoes the last operation.
+    Undoes the last operation. Deselects any current selection, and updates
+    the selection start to the current cursor position.
 
     If a mask has been set, undo is disabled.
 */
@@ -2407,7 +2408,10 @@ void QLineEdit::undo()
 
     QString oldText = text( FALSE );
     d->undoRedoInfo.clear();
-    d->parag->undo( d->cursor );
+    if ( d->parag->undo( d->cursor ) ) {
+	d->selectionStart = d->cursor->index();
+	d->parag->removeSelection( QTextDocument::Standard );
+    }
     if ( oldText != text( FALSE ) )
 	emit textChanged( text( FALSE ) );
     update();
