@@ -12,12 +12,11 @@
 
 #include "progressbar.h"
 
-#include <qradiobutton.h>
-#include <qpushbutton.h>
-#include <qprogressbar.h>
 #include <qlayout.h>
-
-#include <qmotifstyle.h>
+#include <qprogressbar.h>
+#include <qpushbutton.h>
+#include <qradiobutton.h>
+#include <qtimer.h>
 
 /*
  * Constructor
@@ -25,14 +24,10 @@
  * Creates child widgets of the ProgressBar widget
  */
 
-ProgressBar::ProgressBar( QWidget *parent, const char *name )
-    : QButtonGroup( 0, Horizontal, "Progress Bar", parent, name ), timer()
+ProgressBar::ProgressBar( QWidget *parent )
+    : QWidget( parent)
 {
-    setMargin( 10 );
-
-    QGridLayout* toplayout = new QGridLayout( layout(), 2, 2, 5);
-
-    setRadioButtonExclusive( TRUE );
+    QGridLayout* toplayout = new QGridLayout( this, 2, 2, 5);
 
     // insert three radiobuttons which the user can use
     // to set the speed of the progress and two pushbuttons
@@ -63,12 +58,12 @@ ProgressBar::ProgressBar( QWidget *parent, const char *name )
     connect( start, SIGNAL( clicked() ), this, SLOT( slotStart() ) );
     connect( reset, SIGNAL( clicked() ), this, SLOT( slotReset() ) );
 
+    timer = new QTimer(this);
     // connect the timeout() SIGNAL of the progress-timer to a SLOT
-    connect( &timer, SIGNAL( timeout() ), this, SLOT( slotTimeout() ) );
+    connect( timer, SIGNAL( timeout() ), this, SLOT( slotTimeout() ) );
 
     // Let's start with normal speed...
     normal->setChecked( TRUE );
-
 
     // some contraints
     start->setFixedWidth( 80 );
@@ -102,14 +97,14 @@ void ProgressBar::slotStart()
     }
 
     // If the progress is not running...
-    if ( !timer.isActive() ) {
+    if ( !timer->isActive() ) {
         // ...start the timer (and so the progress) with a interval of 1 ms...
-        timer.start( 1 );
+        timer->start( 1 );
         // ...and rename the start/pause/continue button to Pause
         start->setText( "&Pause" );
     } else { // if the prgress is running...
         // ...stop the timer (and so the prgress)...
-        timer.stop();
+        timer->stop();
         // ...and rename the start/pause/continue button to Continue
         start->setText( "&Continue" );
     }
@@ -124,7 +119,7 @@ void ProgressBar::slotStart()
 void ProgressBar::slotReset()
 {
     // stop the timer and progress
-    timer.stop();
+    timer->stop();
 
     // rename the start/pause/continue button to Start...
     start->setText( "&Start" );

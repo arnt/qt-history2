@@ -13,31 +13,30 @@
 #ifndef PROGRESSBAR_H
 #define PROGRESSBAR_H
 
-#include <qbuttongroup.h>
-#include <qtimer.h>
+#include <qwidget.h>
 
 class QRadioButton;
 class QPushButton;
 class QProgressBar;
+class QTimer;
 
-class ProgressBar : public QButtonGroup
+class ProgressBar : public QWidget
 {
     Q_OBJECT
 
 public:
-    ProgressBar( QWidget *parent = 0, const char *name = 0 );
+    ProgressBar(QWidget *parent = 0);
 
 protected:
     QRadioButton *slow, *normal, *fast;
     QPushButton *start, *pause, *reset;
     QProgressBar *progress;
-    QTimer timer;
+    QTimer *timer;
 
 protected slots:
     void slotStart();
     void slotReset();
     void slotTimeout();
-
 };
 
 #endif
