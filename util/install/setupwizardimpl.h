@@ -103,6 +103,8 @@ private:
 
     QCheckListItem *bigCodecsOn, *bigCodecsOff;
 
+    QCheckListItem *tabletOn, *tabletOff;
+
     QCheckListItem *mngPresent, *mngDirect, *mngPlugin;
     QCheckListItem *jpegPresent, *jpegDirect, *jpegPlugin;
     QCheckListItem *pngPresent, *pngDirect, *pngPlugin;

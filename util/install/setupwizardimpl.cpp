@@ -265,6 +265,7 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 
 void SetupWizardImpl::doFinalIntegration()
 {
+    compileProgress->setProgress( compileProgress->totalSteps() );
     QString dirName, examplesName, tutorialsName;
     bool common( folderGroups->currentItem() == 1 );
 
@@ -272,21 +273,53 @@ void SetupWizardImpl::doFinalIntegration()
     case MSVC:
 	{
 	    QFile autoexp( devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
+	    if ( !autoexp.exists() ) {
+		autoexp.open( IO_WriteOnly );
+	    } else {
+		autoexp.open( IO_ReadOnly );
+		QString existingUserType = autoexp.readAll();
+		autoexp.close();
+		if ( existingUserType.find( "; Trolltech Qt" ) == -1 )
+		    autoexp.open( IO_WriteOnly | IO_Append );
+	    }
 
-	    if( autoexp.open( IO_ReadOnly ) ) { // First try to open the file to search for existing installations
-		QTextStream instream( &autoexp );
-		QString existingAutoexp;
+	    if( autoexp.isOpen() ) { // First try to open the file to search for existing installations
+		QTextStream outstream( &autoexp );
+		outstream << "; Trolltech Qt" << endl;
+		outstream << "QString=<d->unicode,su> len=<d->len,u>" << endl;
+		outstream << "QCString =<shd->data, s>" << endl;
+		outstream << "QPoint =x=<xp> y=<yp>" << endl;
+		outstream << "QRect =x1=<x1> y1=<y1> x2=<x2> y2=<y2>" << endl;
+		outstream << "QSize =width=<wd> height=<ht>" << endl;
+		outstream << "QWMatrix =m11=<_m11> m12=<_m12> m21=<_m21> m22=<_m22> dx=<_dx> dy=<_dy>" << endl;
+		outstream << "QVariant =Type=<d->typ> value=<d->value>" << endl;
+		outstream << "QValueList<*> =Count=<sh->nodes>" << endl;
+		outstream << "QPtrList<*> =Count=<numNodes>" << endl;
+		outstream << "QGuardedPtr<*> =ptr=<priv->obj>" << endl;
+		outstream << "QEvent =type=<t>" << endl;
+		outstream << "QObject =class=<metaObj->classname,s> name=<objname,s>" << endl;
+		autoexp.close();
+	    }
 
-		instream >> existingAutoexp;
-		if( existingAutoexp.find( "; Trolltech Qt" ) == -1 ) {
-		    autoexp.close();
-		    if( autoexp.open( IO_Append ) ) { // Reopen the file to append our autoexp additions
-			QTextStream outstream( &autoexp );
-			outstream << "; Trolltech Qt\nQString=<d->unicode,su> len=<d->len,u>\n";
-		    }
-		}
-		if( autoexp.isOpen() )
-		    autoexp.close();
+	    QFile usertype( devSysPath->text() + "\\Common\\MsDev98\\bin\\usertype.dat" );
+	    if ( !usertype.exists() ) {
+		usertype.open( IO_WriteOnly );
+	    } else {
+		usertype.open( IO_ReadOnly );
+		QString existingUserType = usertype.readAll();
+		usertype.close();
+		if ( existingUserType.find( "Q_OBJECT" ) == -1 )
+		    usertype.open( IO_WriteOnly | IO_Append );
+	    }
+	    if ( usertype.isOpen() ) {
+		QTextStream outstream( &usertype );
+		outstream << "Q_OBJECT" << endl;
+		outstream << "Q_PROPERTY" << endl;
+		outstream << "Q_ENUMS" << endl;
+		outstream << "emit" << endl;
+		outstream << "TRUE" << endl;
+		outstream << "FALSE" << endl;
+		usertype.close();
 	    }
 	}
 	break;
@@ -554,7 +587,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	    // general
 	    folder = new QCheckListItem ( configList, "Modules" );
-	    folder->setOpen( TRUE );
+	    folder->setOpen( true );
 
 	    QStringList licensedModules = QStringList::split( " ", "network canvas table xml opengl sql" );
 	    for( it = licensedModules.begin(); it != licensedModules.end(); ++it ) {
@@ -577,22 +610,22 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    }
 
 	    folder = new QCheckListItem ( configList, "Threading" );
-	    folder->setOpen( TRUE );
+	    folder->setOpen( true );
 	    item = new QCheckListItem( folder, "Threaded", QCheckListItem::RadioButton );
-	    item->setOn( TRUE );
+	    item->setOn( true );
 	    item = new QCheckListItem( folder, "Non-threaded", QCheckListItem::RadioButton );
 
 	    folder = new QCheckListItem ( configList, "Library" );
-	    folder->setOpen( TRUE );
+	    folder->setOpen( true );
 	    item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
 	    item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
-	    item->setOn( TRUE );
+	    item->setOn( true );
 
 	    folder = new QCheckListItem ( configList, "Build" );
-	    folder->setOpen( TRUE );
+	    folder->setOpen( true );
 	    item = new QCheckListItem( folder, "Debug", QCheckListItem::RadioButton );
 	    item = new QCheckListItem( folder, "Release", QCheckListItem::RadioButton );	
-	    item->setOn( TRUE );
+	    item->setOn( true );
 
 	    // Advanced options
 	    folder = new QCheckListItem ( advancedList, "SQL Drivers" );
@@ -615,6 +648,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    accOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
 	    accOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
 	    accOn->setOn( true );
+
+	    folder = new QCheckListItem( advancedList, "Tablet Support" );
+	    folder->setOpen( true );
+	    tabletOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	    tabletOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
+	    tabletOff->setOn( true );
+
 
 	    QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
 	    imfolder->setOpen( true );
@@ -784,6 +824,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    else
 		args += "-no-big-codecs";
 
+	    entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
+	    if ( entry == "On" )
+		args += "-tablet";
+	    else
+		args += "-no-tablet";
+
 	    entry = settings.readEntry( "/Trolltech/Qt/PNG", "Direct", &settingsOK );
 	    if ( entry == "Plugin" )
 		args += "-no-png";
@@ -866,6 +912,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		else
 		    outStream << "-no-big-codecs ";
 
+		entry = settings.readEntry( "/Trolltech/Qt/Tablet Support", "Off", &settingsOK );
+		if ( entry == "On" )
+		    outStream << "-tablet ";
+		else
+		    outStream << "-no-tablet ";
+
 		entry = settings.readEntry( "/Trolltech/Qt/PNG", "Direct", &settingsOK );
 		if ( entry == "Plugin" )
 		    outStream << "-no-png ";
@@ -937,9 +989,9 @@ void SetupWizardImpl::optionClicked( QListViewItem *i )
 				  "to use all or new features, e.g. new styles.\n\n"
 				  "Are you sure you want to build a static Qt library?",
 				  "No, I want to use the cool new stuff", "Yes" ) ) {
-	    item->setOn( FALSE );
+	    item->setOn( false );
 	    if ( ( item = (QCheckListItem*)configList->findItem( "Shared", 0, 0 ) ) ) {
-		item->setOn( TRUE );
+		item->setOn( true );
 		configList->setCurrentItem( item );
 	    }
 	} else {
@@ -1075,6 +1127,15 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"can be left out of the Qt library and will be loaded on demand.\n"
 				"Having the codecs in a plugin is not available with a static Qt "
 				"library." );
+    } else if ( i->text(0) == "Tablet Support" ) {
+	explainOption->setText( "Qt can support the Wacom brand tablet device." );
+    } else if ( i == tabletOff ) {
+	explainOption->setText( "Support for the Wacom tablet is disabled. This is the default option." );
+    } else if ( i == tabletOn ) {
+	explainOption->setText( "This option builds in support for Wacom(c) tablets. Note to build this "
+				"you must have built the Wintab SDK available at "
+				"http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
+				"set appropriately." );
     } else if ( i->text(0) == "Image Formats" ) {
 	explainOption->setText( "Qt ships with support for a wide range of common image formats. "
 				"Standard formats are always included in Qt, and some more special formats "
@@ -1322,16 +1383,16 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		    operationProgress->setProgress( totalFiles );
 		    logFiles( targetName );
 		} else {
-		    return FALSE;
+		    return false;
 		}
 		if( entryName.right( 4 ) == ".cpp" || 
 		    entryName.right( 2 ) == ".c" ||
 		    entryName.right( 4 ) == ".pro" ||
 		    entryName.right( 3 ) == ".ui" )
 		    filesToCompile++;
-		bool res = TRUE;
+		bool res = true;
 		if ( !QFile::exists( targetName ) )
-		    res = CopyFileA( entryName.local8Bit(), targetName.local8Bit(), FALSE );
+		    res = CopyFileA( entryName.local8Bit(), targetName.local8Bit(), false );
 
 		if ( res ) {
 		    totalFiles++;
