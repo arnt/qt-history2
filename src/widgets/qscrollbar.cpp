@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#141 $
 **
 ** Implementation of QScrollBar class
 **
@@ -775,11 +775,6 @@ void QScrollBar::styleChange( QStyle& old )
 	setBackgroundMode( PaletteBackground );
 
     QWidget::styleChange( old );
-}
-
-int QScrollBar::extent()
-{
-    return style().scrollBarExtent();
 }
 
 

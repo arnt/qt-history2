@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#47 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#48 $
 **
 ** Definition of QScrollBar class
 **
@@ -55,7 +55,6 @@ public:
     virtual void setPalette( const QPalette & );
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
-    int         extent();
 
 signals:
     void	valueChanged( int value );
