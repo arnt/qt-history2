@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#38 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#38 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -120,6 +120,10 @@ bool QWidget::create()
 	    setWinId( id );
 	}
     }  else if ( topLevel ) {			// create top level widget
+#if !defined(WS_EX_TOOLWINDOW)
+#define WS_EX_TOOLWINDOW 0x00000080
+#endif
+
 	if ( popup )
 	    id = CreateWindowEx( WS_EX_TOOLWINDOW, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -201,10 +205,15 @@ bool QWidget::destroy()
 }
 
 
-void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::recreate( QWidget *parent, WFlags, const QPoint &p,
 			bool showIt )
 {
-    debug( "QWidget::recreate: Not implemented" );
+    HANDLE np = parent ? parent->winId() : 0;
+    hide();
+    SetParent( winId(), np );
+    move( p.x(), p.y() );
+    if ( showIt )
+	show();
 }
 
 
