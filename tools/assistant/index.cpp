@@ -45,7 +45,7 @@ QDataStream &operator<<( QDataStream &s, const Document &l )
 }
 
 Index::Index( const QString &dp, const QString &hp )
-    : QObject( 0, 0 ), docPath( dp )
+    : QObject( 0 ), docPath( dp )
 {
     Q_UNUSED(hp);
 
@@ -56,7 +56,7 @@ Index::Index( const QString &dp, const QString &hp )
 }
 
 Index::Index( const QStringList &dl, const QString &hp )
-    : QObject( 0, 0 )
+    : QObject( 0 )
 {
     Q_UNUSED(hp);
     docList = dl;

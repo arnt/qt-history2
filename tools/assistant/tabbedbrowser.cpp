@@ -162,7 +162,8 @@ void TabbedBrowser::init()
     connect(ui.tab, SIGNAL(currentChanged(QWidget*)),
              this, SLOT(transferFocus()));
 
-    QTabBar *tabBar = (QTabBar*)ui.tab->child(0, "QTabBar", false);
+    QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
+
     int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace, (QWidget*)tabBar)
               + style().pixelMetric(QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar) : 0);
     int s = ui.tab->height() - m;

@@ -23,7 +23,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SettingsDialog(QWidget *parent, const char* name = 0);
+    SettingsDialog(QWidget *parent);
 
     inline QComboBox *fontCombo() const
     { return ui.fontCombo; }

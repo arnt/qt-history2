@@ -32,8 +32,8 @@
 #include <qmap.h>
 
 
-SettingsDialog::SettingsDialog(QWidget *parent, const char* name)
-    : QDialog(parent, name)
+SettingsDialog::SettingsDialog(QWidget *parent)
+    : QDialog(parent)
 {
     ui.setupUi(this);
     init();

@@ -67,7 +67,7 @@ private:
 
 
 AssistantSocket::AssistantSocket( int sock, QObject *parent )
-    : QSocket( parent, 0 )
+    : QSocket( parent )
 {
     connect( this, SIGNAL( readyRead() ),
              SLOT( readClient() ) );

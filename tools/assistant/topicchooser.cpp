@@ -18,7 +18,7 @@
 
 TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
                             const QStringList &lnks, const QString &title)
-    : QDialog(parent, 0, true), links(lnks), linkNames(lnkNames)
+    : QDialog(parent), links(lnks), linkNames(lnkNames)
 {
     ui.setupUi(this);
 

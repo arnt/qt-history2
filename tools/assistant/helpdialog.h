@@ -47,7 +47,7 @@ class SearchValidator : public QValidator
     Q_OBJECT
 public:
     SearchValidator(QObject *parent, const char *name = 0)
-        : QValidator(parent, name) {}
+        : QValidator(parent) {}
     ~SearchValidator() {}
     QValidator::State validate(QString &str, int &) const;
 };
