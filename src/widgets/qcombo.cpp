@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#126 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#126 $");
 
 
 /*!
@@ -145,7 +145,6 @@ struct QComboData
     int		current;
     int		maxCount;
     int		sizeLimit;
-    QLineEdit * ed;  // /bin/ed rules!
     QComboBox::Policy p;
     bool	usingListBox;
     bool	autoresize;
@@ -159,6 +158,26 @@ struct QComboData
 	QPopupMenu *popup;
 	QListBox   *listBox;
     };
+    bool	useCompletion;
+    bool	completeNow;
+    int		completeAt;
+
+    class ComboEdit: public QLineEdit
+    {
+    public:
+	ComboEdit( QWidget * parent )
+	    : QLineEdit( parent,"combo edit" )
+	{
+	}
+	bool validateAndSet( const char * newText, int newPos,
+				int newMarkAnchor, int newMarkDrag )
+	{ 
+	    return QLineEdit::validateAndSet( newText, newPos,
+					      newMarkAnchor, newMarkDrag );
+	}
+    };
+
+    ComboEdit * ed;  // /bin/ed rules!
 };
 
 
@@ -253,6 +272,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->arrowDown             = FALSE;
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
+    d->useCompletion = FALSE;
 
     setFocusPolicy( TabFocus );
 }
@@ -294,11 +314,12 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d->arrowDown = FALSE;
     d->discardNextMousePress = FALSE;
     d->shortClick = FALSE;
+    d->useCompletion = FALSE;
 
     setFocusPolicy( StrongFocus );
 
     if ( rw ) {
-	d->ed = new QLineEdit( this, "this is not /bin/ed" );
+	d->ed = new QComboData::ComboEdit( this );
 	if ( style() == WindowsStyle ) {
 	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
 	    d->ed->setFrame( FALSE );
@@ -1117,18 +1138,14 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 {
     int c;
 
-    if ( d->usingListBox &&
-	 (e->key() == Key_Up ||
-	  (style() == MotifStyle && e->key() == Key_Left && !d->ed)) ) {
+    if ( d->usingListBox && e->key() == Key_Up ) {
 	c = currentItem();
 	if ( c > 0 )
 	    setCurrentItem( c-1 );
 	else
 	    setCurrentItem( count()-1 );
 	e->accept();
-    } else if ( d->usingListBox &&
-		(e->key() == Key_Down ||
-		 (style() == MotifStyle && e->key() == Key_Right && !d->ed))){
+    } else if ( d->usingListBox && e->key() == Key_Down ) {
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
@@ -1142,6 +1159,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	popup();
 	return;
     } else {
+	e->ignore();
 	return;
     }
 
@@ -1265,6 +1283,8 @@ void QComboBox::currentChanged()
     repaint();
 }
 
+
+    
 /*!
   This event filter is used to manipulate the line editor in magic
   ways.  In Qt 2.0 it will all change, until then binary compatibility
@@ -1284,14 +1304,42 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
     else if ( object == d->ed ) {
 	if ( event->type() == Event_KeyPress ) {
 	    keyPressEvent( (QKeyEvent *)event );
-	    return ((QKeyEvent *)event)->isAccepted();
+	    if ( ((QKeyEvent *)event)->isAccepted() ) {
+		d->completeNow = FALSE;
+		return TRUE;
+	    } else {
+		d->completeNow = TRUE;
+		d->completeAt = d->ed->cursorPosition();
+	    }
 	} else if ( event->type() == Event_KeyRelease ) {
+	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );
 	    return ((QKeyEvent *)event)->isAccepted();
 	} else if ( (event->type() == Event_FocusIn ||
 		     event->type() == Event_FocusOut ) ) {
+	    d->completeNow = FALSE;
 	    // to get the focus indication right
 	    update();
+	} else if ( d->useCompletion && d->completeNow ) {
+	    if ( d->ed->text() &&  d->ed->cursorPosition() > d->completeAt &&
+		 d->ed->cursorPosition() == (int)qstrlen(d->ed->text()) ) {
+		d->completeNow = FALSE;
+		QString ct( d->ed->text() );
+		QString it;
+		int i =0;
+		while( i<count() ) {
+		    it = text( i );
+		    it.truncate( ct.length() );
+		    if ( it == ct )
+			break;
+		    i++;
+		}
+		if ( i < count() ) {
+		    it = text( i );
+		    d->ed->validateAndSet( it, ct.length(),
+					   ct.length(), it.length() );
+		}
+	    }
 	}
     } else if ( d->usingListBox && object == d->listBox ) {
 	QMouseEvent *e = (QMouseEvent*)event;
@@ -1661,4 +1709,31 @@ void QComboBox::setEditText( const char * newText )
 {
     if ( d && d->ed )
 	d->ed->setText( newText );
+}
+
+
+/*!  Sets this combo box to offer auto-completion while the user is
+  editing if \a enable is TRUE, or not to offer auto-completion of \a
+  enable is FALSE.
+  
+  The combo box uses the list of items as candidates for completion.
+  
+  \sa autoCompletion() setEditText()
+*/
+
+void QComboBox::setAutoCompletion( bool enable )
+{
+    d->useCompletion = enable && (d->ed != 0);
+    d->completeNow = FALSE;
+}
+
+
+/*!  Returns TRUE if this combo box is in auto-completion mode.
+  
+  \sa setAutoCompletion()
+*/
+
+bool QComboBox::autoCompletion() const
+{
+    return d->useCompletion;
 }

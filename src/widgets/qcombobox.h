@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#52 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#53 $
 **
 ** Definition of QComboBox class
 **
@@ -81,6 +81,9 @@ public:
 
     void	setListBox( QListBox * );
     QListBox * 	listBox() const;
+    
+    void	setAutoCompletion( bool );
+    bool	autoCompletion() const;
 
     bool	eventFilter( QObject *object, QEvent *event );
 
