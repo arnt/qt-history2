@@ -1241,6 +1241,12 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value StringList  a QStringList
     \value Time  a QTime
     \value UInt  an unsigned int
+    \value TextLength  a QTextLength
+    \value TextFormat  a QTextFormat
+    \value Char  a QChar
+    \value Locale  a QLocale
+    \value Url  a QUrl
+    \value PointArray  a QPointArray
 
     \value UserType
 
@@ -1454,6 +1460,12 @@ QVariant::QVariant(const char *val)
  */
 
 /*!
+  \fn QVariant::QVariant(const QSizeF &val)
+
+  Constructs a new variant with a size value of \a val.
+ */
+
+/*!
   \fn QVariant::QVariant(const QUrl &val)
 
   Constructs a new variant with a url value of \a val.
@@ -1505,6 +1517,17 @@ QVariant::QVariant(const char *val)
     Constructs a new variant with a list value, \a val.
 */
 
+/*!
+  \fn QVariant::QVariant(const QChar &c)
+
+  Constructs a new variant with a char value, \a c.
+*/
+
+/*!
+  \fn QVariant::QVariant(const QLocale &l)
+
+  Constructs a new variant with a locale value, \a l.
+*/
 
 QVariant::QVariant(Type type)
 { create(type, 0); }
@@ -2008,7 +2031,14 @@ QVariantMap QVariant::toMap() const
   \fn QSize QVariant::toSize() const
 
   Returns the variant as a QSize if the variant has type()
-  Size; otherwise returns an invalid QSize.
+  Size or SizeF; otherwise returns an invalid QSize.
+ */
+
+/*!
+  \fn QSizeF QVariant::toSizeF() const
+
+  Returns the variant as a QSizeF if the variant has type()
+  SizeF or Size; otherwise returns an invalid QSizeF.
  */
 
 /*!
@@ -2051,6 +2081,14 @@ QVariantMap QVariant::toMap() const
 
   Returns the variant as a QPointF if the variant has type()
   Point or PointF; otherwise returns an invalid QPointF.
+ */
+
+/*!
+  \fn QChar QVariant::toChar() const
+
+  Returns the variant as a QChar if the variant has type()
+  Char, String or contains a numeric value; otherwise returns
+  an invalid QChar.
  */
 
 /*!
@@ -2244,6 +2282,14 @@ QVariantList QVariant::toList() const
     return res;
 }
 #endif
+
+/*! \fn QVariant::canCast(Type t) const
+    Use canConvert() instead.
+*/
+
+/*! \fn QVariant::cast(Type t)
+    Use convert() instead.
+*/
 
 /*!
     Returns true if the variant's type can be cast to the requested
@@ -2647,7 +2693,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa setValue(), value()
 */
 
-/*! \fn QVariant qVariantFromValue(const T &)
+/*! \fn QVariant qVariantFromValue(const T &value)
 
     \relates QVariant
 
@@ -2657,7 +2703,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::fromValue()
 */
 
-/*! \fn void qVariantSetValue(QVariant &, const T &)
+/*! \fn void qVariantSetValue(QVariant &v, const T &value)
 
     \relates QVariant
 
@@ -2667,7 +2713,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::setValue()
 */
 
-/*! \fn T qVariantValue(const QVariant &)
+/*! \fn T qVariantValue(const QVariant &v)
 
     \relates QVariant
 
@@ -2677,7 +2723,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::value()
 */
 
-/*! \fn bool qVariantCanConvert(const QVariant &)
+/*! \fn bool qVariantCanConvert(const QVariant &v)
 
     \relates QVariant
 
