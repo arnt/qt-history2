@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#57 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -234,6 +234,7 @@ void QHeader::init( int n )
     //#############
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
+    setBackgroundMode( PaletteButton );
 }
 
 /*!
