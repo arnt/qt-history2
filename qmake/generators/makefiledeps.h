@@ -23,13 +23,13 @@ class SourceFiles;
 
 class QMakeLocalFileName {
     uint is_null : 1;
-    QString real_name, local_name;
+    mutable QString real_name, local_name;
 public:
     QMakeLocalFileName() : is_null(1) { }
     QMakeLocalFileName(const QString &);
     bool isNull() const { return is_null; }
-    const QString &real() const { return real_name; }
-    const QString &local() const { return local_name; }
+    inline const QString &real() const { return real_name; }
+    const QString &local() const;
 };
 
 class QMakeSourceFileInfo

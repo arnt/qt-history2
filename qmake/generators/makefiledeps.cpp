@@ -27,17 +27,30 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <qbuffer.h>
-#define QMAKE_EOL(x) (x == '\r' || x == '\n')
+
+#if 1
+#define qmake_endOfLine(c) (c == '\r' || c == '\n')
+#else
+inline bool qmake_endOfLine(const char c) { return (c == '\r' || c == '\n'); }
+#endif
 
 //#define QMAKE_USE_CACHE
 
 QMakeLocalFileName::QMakeLocalFileName(const QString &name) : is_null(name.isNull())
 {
     if(!is_null) {
-        real_name = name;
-        real_name.replace("\"","");
-        local_name = Option::fixPathToLocalOS(real_name, true);
+        if(name.at(0) == QLatin1Char('"') && name.at(name.length()-2) == QLatin1Char('"'))
+            real_name = name.mid(1, name.length()-2);
+        else
+            real_name = name;
     }
+}
+const QString
+&QMakeLocalFileName::local() const
+{
+    if(!is_null && local_name.isNull())
+        local_name = Option::fixPathToLocalOS(real_name, true);
+    return local_name;
 }
 
 struct SourceDependChildren;
@@ -406,7 +419,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 x++;
                 if(buffer_len >= x) {
                     if(*(buffer + x) == '/') { //c++ style comment
-                        for(; x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
+                        for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
                     } else if(*(buffer + x) == '*') { //c style comment
                         for(; x < buffer_len; x++) {
                             if(*(buffer + x) == '*') {
@@ -414,7 +427,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                                     x += 2;
                                     break;
                                 }
-                            } else if(QMAKE_EOL(*(buffer + x))) {
+                            } else if(qmake_endOfLine(*(buffer + x))) {
                                 line_count++;
                             }
                         }
@@ -438,7 +451,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                             x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t');
                             x++);
                         break;
-                    } else if(QMAKE_EOL(*(buffer+x+keyword_len))) {
+                    } else if(qmake_endOfLine(*(buffer+x+keyword_len))) {
                         x += keyword_len;
                         keyword_len = 0;
                         break;
@@ -457,7 +470,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     x++;
 
                     int inc_len;
-                    for(inc_len = 0; *(buffer + x + inc_len) != term && !QMAKE_EOL(*(buffer + x + inc_len)); inc_len++);
+                    for(inc_len = 0; *(buffer + x + inc_len) != term && !qmake_endOfLine(*(buffer + x + inc_len)); inc_len++);
                     *(buffer + x + inc_len) = '\0';
                     inc = buffer + x;
                 } else if(buffer_len >= x + 14 && !strncmp(buffer + x,  "qmake_warning ", 14)) {
@@ -473,7 +486,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         x++;
 
                     int msg_len;
-                    for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !QMAKE_EOL(*(buffer + x + msg_len)); msg_len++);
+                    for(msg_len = 0; (term && *(buffer + x + msg_len) != term) && !qmake_endOfLine(*(buffer + x + msg_len)); msg_len++);
                     *(buffer + x + msg_len) = '\0';
                     debug_msg(0, "%s:%d qmake_warning -- %s", file->file.local().toLatin1().constData(), line_count, buffer+x);
                 }
@@ -538,7 +551,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             }
         }
         //read past new line now..
-        for(; x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
+        for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
         line_count++;
     }
     if(dependencyMode() == Recursive) { //done last because buffer is shared
@@ -581,7 +594,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
     for(int x = 0; x < (buffer_len-Q_OBJECT_LEN); x++) {
         while(x < buffer_len && *(buffer+x) != '/' && *(buffer+x) != 'Q') {
             x++;
-            if(QMAKE_EOL(*(buffer+x)))
+            if(qmake_endOfLine(*(buffer+x)))
                 line_count++;
         }
         if(x >= buffer_len)
@@ -591,7 +604,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
             x++;
             if(buffer_len >= x) {
                 if(*(buffer + x) == '/') { //c++ style comment
-                    for(;x < buffer_len && !QMAKE_EOL(*(buffer + x)); x++);
+                    for(;x < buffer_len && !qmake_endOfLine(*(buffer + x)); x++);
                     line_count++;
                 } else if(*(buffer + x) == '*') { //c style comment
                     for(;x < buffer_len; x++) {
@@ -614,7 +627,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                                 x += 2;
                                 break;
                             }
-                        } else if(QMAKE_EOL(*(buffer + x))) {
+                        } else if(qmake_endOfLine(*(buffer + x))) {
                             line_count++;
                         }
                     }

@@ -2493,7 +2493,7 @@ MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file, bool forOpen)
 QFileInfo
 MakefileGenerator::findFileInfo(const QMakeLocalFileName &file)
 {
-    return fileInfo(file.real());
+    return fileInfo(file.local());
 }
 
 QMakeLocalFileName
