@@ -57,14 +57,16 @@
     decoder factories that have been installed; the format of the
     input is determined as the input is decoded.
 
-    The supported formats are MNG (if Qt is configured with MNG
-    support enabled) and GIF (if Qt is configured with GIF support
-    enabled, see qgif.h).
+    The supported formats are GIF (if Qt is configured with GIF
+    support enabled).
 
-    If Qt is configured to support GIF reading, we are required to
-    state that "The Graphics Interchange Format(c) is the Copyright
-    property of CompuServe Incorporated. GIF(sm) is a Service Mark
-    property of CompuServe Incorporated.
+    \legalese
+
+    Qt supports GIF reading if it is configured that way during
+    installation (see qgif.h). If it is, we are required to state that
+    "The Graphics Interchange Format(c) is the Copyright property of
+    CompuServe Incorporated. GIF(sm) is a Service Mark property of
+    CompuServe Incorporated."
 
     \warning If you are in a country that recognizes software patents
     and in which Unisys holds a patent on LZW compression and/or
@@ -73,7 +75,7 @@
     USA, France, Germany, Italy, and the UK. We believe that this
     patent will have expired world-wide by the end of 2004.
     Nonetheless, GIF support may be removed completely in a future
-    version of Qt. We recommend using the MNG or PNG formats instead.
+    version of Qt. We recommend using the PNG format instead.
 
     \img qmovie.png QMovie
 

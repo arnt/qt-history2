@@ -159,11 +159,11 @@ extern void qt_init_image_plugins();
     \warning If you are in a country that recognizes software patents
     and in which Unisys holds a patent on LZW compression and/or
     decompression and you want to use GIF, Unisys may require you to
-    license that technology. Such countries include Canada, Japan,
-    the USA, France, Germany, Italy and the UK.
-
-    GIF support may be removed completely in a future version of Qt.
-    We recommend using the MNG or PNG format.
+    license the technology. Such countries include Canada, Japan, the
+    USA, France, Germany, Italy and the UK. We believe that this
+    patent will have expired world-wide by the end of 2004.
+    Nonetheless, GIF support may be removed completely in a future
+    version of Qt. We recommend using the PNG format instead.
 */
 
 static const int max_header = 32;

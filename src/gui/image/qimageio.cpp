@@ -135,6 +135,14 @@ static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
     raw format. PPM and PGM files with more than 256 levels of
     intensity are scaled down when reading.
 
+    \legalese
+
+    Qt supports GIF reading if it is configured that way during
+    installation (see qgif.h). If it is, we are required to state that
+    "The Graphics Interchange Format(c) is the Copyright property of
+    CompuServe Incorporated. GIF(sm) is a Service Mark property of
+    CompuServe Incorporated."
+
     \warning If you are in a country which recognizes software patents
     and in which Unisys holds a patent on LZW compression and/or
     decompression and you want to use GIF, Unisys may require you to
