@@ -169,6 +169,9 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
   to data will continue to be valid as long as that data exists within
   the model.
 
+  It is good practice to check that persistent model indices are valid
+  before using them.
+
   \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemModel
 */
 
@@ -188,7 +191,8 @@ QPersistentModelIndex::QPersistentModelIndex()
 /*!
   \fn QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 
-  Creates a new QPersistentModelIndex that is a copy of the \a other persistent  model index.
+  Creates a new QPersistentModelIndex that is a copy of the \a other persistent
+  model index.
 */
 
 QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
@@ -229,7 +233,8 @@ QPersistentModelIndex::~QPersistentModelIndex()
 /*!
   \fn bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
-  Returns true if this persistent model index is smaller than the \a other persistent model index; otherwise false.
+  Returns true if this persistent model index is smaller than the \a other
+  persistent model index; otherwise returns false.
 */
 
 bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
@@ -238,7 +243,7 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 }
 
 /*!
-    Sets the persistent model index to refer to the same model index
+    Sets the persistent model index to refer to the same item in a model
     as the \a other persistent model index.
 */
 
@@ -339,7 +344,7 @@ bool QPersistentModelIndex::operator==(const QModelIndex &other) const
 /*!
     \fn bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
-    Returns true if this persistent  model index does not refer to the same
+    Returns true if this persistent model index does not refer to the same
     location as the \a other model index; otherwise returns false.
 */
 
@@ -372,12 +377,12 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \enum QModelIndex::Type
 
-    A model index locates an item in a view or in a view's horizontal
-    or vertical header.
+    Defines whether a model index refers to an item in a view, or in one of
+    the view's headers.
 
-    \value View
-    \value HorizontalHeader
-    \value VerticalHeader
+    \value View             The item belongs in a view.
+    \value HorizontalHeader The item belongs in a horizontal header.
+    \value VerticalHeader   The item belongs in a vertical header.
 */
 
 /*!
@@ -486,6 +491,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     then the model is a simple table of rows and columns. Each item
     has a unique index specified by a QModelIndex.
 
+    \img modelindex-no-parent.png
+
     Every item has an index(), and possibly a sibling() index; child
     items have a parent() index. hasChildren() is true for items that
     have children. Each item has a number of data elements associated
@@ -538,7 +545,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 #define q q_func()
 
 /*!
-    Constructs an abstract item model with parent \a parent.
+    Constructs an abstract item model with the given \a parent.
 */
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(*new QAbstractItemModelPrivate, parent)
@@ -562,10 +569,10 @@ QAbstractItemModel::~QAbstractItemModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &idx) const
+    \fn QModelIndex QAbstractItemModel::sibling(int row, int column, const QModelIndex &index) const
 
-    Returns the index of the sibling of the item at the given \a row,
-    \a column, and index \a idx.
+    Returns the model index of the sibling of the item specified by the given
+    \a row, \a column, and \a index.
 */
 
 
@@ -671,8 +678,10 @@ bool QAbstractItemModel::canDecode(QMimeSource *src) const
 }
 
 /*!
-    Decodes data from \a e, inserting the data under \a parent (if
-    possible).
+    \fn bool QAbstractItemModel::decode(QDropEvent *event, const QModelIndex &parent)
+
+    Decodes data contained in the \a event object, inserting it under the
+    \a parent index if possible.
 
     Returns true if the data was successfully decoded and inserted;
     otherwise returns false.
@@ -698,7 +707,7 @@ QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWid
     for the item at the given \a index.
 
     This must be reimplemented if you want to extend the model with
-    customized roles.
+    custom roles.
 
     \sa Role data()
 */
@@ -741,7 +750,8 @@ bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 /*!
     \fn QVariant QAbstractItemModel::data(const QModelIndex &index, int role) const = 0
 
-    Returns the data of role \a role for the item at \a index.
+    Returns the data stored under the given \a role for the item referred to
+    by the \a index.
 */
 
 /*!
@@ -887,7 +897,7 @@ void QAbstractItemModel::sort(int, Qt::SortOrder)
 }
 
 /*!
-    Returns true if the data at indexes \a left and \a right are
+    Returns true if the data referred to by indices \a left and \a right is
     equal; otherwise returns false.
 
     \sa greaterThan() lessThan()
@@ -920,7 +930,7 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 }
 
 /*!
-  Returns the 'buddy' of the item represented by \a index.
+  Returns the buddy of the item represented by \a index.
   When the used wants to edit an item that is not editable,
   the delegate may ask for the item's buddy, and edit that
   item instead.
@@ -945,12 +955,15 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 */
 
 /*!
-    Retuns a list of indexes for the items matching \a value in role
-    \a role based on the \a flags. The list may be empty. The search
-    starts from index \a start and continues until the number of
-    matching data items equals \a hits or the search reaches the last
-    row or \a start, depending on whether \c MatchWrap is specified
-    in \a flags or not.
+    Returns a list of indexes for the items where the data stored under
+    the given \a role matches the specified \a value. The way the search
+    is performed is defined by the \a flags given. The list that is
+    returned may be empty.
+
+    The search starts from the \a start index, and continues until the
+    number of matching data items equals \a hits, the search reaches
+    the last row, or the search reaches \a start again, depending on
+    whether \c MatchWrap is specified in \a flags or not.
 
     \sa QAbstractItemModel::MatchFlag
 */
@@ -1011,7 +1024,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const
 
     Creates a model index for the given \a row and \a column that
-    points to the given \a data and is of the given \a type.
+    points to the given \a data of the specified \a type.
 
     This function provides a consistent interface that model subclasses must
     use to create model indices.
