@@ -465,6 +465,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     int dt = pdev->devType();                   // get the device type
     bool reinit = flags != IsStartingUp;        // 2nd or 3rd etc. time called
     flags = IsActive | DirtyFont;               // init flags
+    hd  = pdev->handle();                       // get handle to drawable
 
     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 	// this is an extended device
@@ -618,7 +619,6 @@ bool QPainter::end()				// end painting
     d->saved = NULL;
     if(qt_mac_current_painter == this)
 	qt_mac_current_painter = NULL;
-
 #ifdef Q_WS_MACX
     if(pdev->painters == 1 &&
        pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
@@ -630,6 +630,7 @@ bool QPainter::end()				// end painting
 #endif
     flags = 0;
     pdev->painters--;
+    hd = NULL;
     pdev = 0;
     return TRUE;
 }

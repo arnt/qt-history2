@@ -277,7 +277,7 @@ public:
 
 #if defined(Q_WS_WIN)
     HDC		handle() const;
-#elif defined(Q_WS_X11)
+#elif defined(Q_WS_X11) || defined(Q_WS_MAC)
     HANDLE	handle() const;
 #endif
 
@@ -388,6 +388,7 @@ protected:
     QPoint	curPt;				// current point
     uint	clip_serial;			// clipping serial number
 #elif defined(Q_WS_MAC)
+    Qt::HANDLE	hd;				// handle to drawable
     void initPaintDevice(bool force=FALSE);
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
@@ -520,7 +521,7 @@ inline HDC QPainter::handle() const
 {
     return hdc;
 }
-#elif defined(Q_WS_X11)
+#elif defined(Q_WS_X11) || defined(Q_WS_MAC)
 inline Qt::HANDLE QPainter::handle() const
 {
     return hd;
