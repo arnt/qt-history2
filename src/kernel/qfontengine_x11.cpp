@@ -1968,16 +1968,60 @@ int QFontEngineXft::maxCharWidth() const
     return (int)(_font->max_advance_width*_scale);
 }
 
+static const ushort char_table[] = {
+	40,
+	67,
+	70,
+	75,
+	86,
+	88,
+	89,
+	91,
+	102,
+	114,
+	124,
+	127,
+	205,
+	645,
+	884,
+	922,
+	1070,
+	3636,
+	3660,
+	12386,
+	0
+};
+
+static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
+
+
 int QFontEngineXft::minLeftBearing() const
 {
-    // ### fix for Xft2
-    return 0;
+    if ( lbearing == SHRT_MIN )
+	minRightBearing(); // calculates both
+
+    return lbearing;
 }
 
 int QFontEngineXft::minRightBearing() const
 {
-    // ### fix for Xft2
-    return 0;
+    if ( rbearing == SHRT_MIN ) {
+	QFontEngineXft *that = (QFontEngineXft *)this;
+	that->lbearing = that->rbearing = 0;
+	QChar *ch = (QChar *)char_table;
+	glyph_t glyphs[char_table_entries];
+	int ng = char_table_entries;
+	stringToCMap(ch, char_table_entries, glyphs, 0, &ng, false);
+	while (--ng) {
+	    if (glyphs[ng]) {
+		glyph_metrics_t gi = that->boundingBox( glyphs[ng] );
+		that->lbearing = QMIN(lbearing, gi.x);
+		that->rbearing = QMIN(rbearing, gi.xoff - gi.x - gi.width);
+	    }
+	}
+    }
+
+    return rbearing;
 }
 
 int QFontEngineXft::cmap() const
