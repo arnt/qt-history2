@@ -111,6 +111,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwindowsstyle.h \
 		  $$KERNEL_H/qwmatrix.h \
+		  $$KERNEL_H/qproperty.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qbitarray.h \
 		  $$TOOLS_H/qbuffer.h \
@@ -326,6 +327,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindowsstyle.cpp \
 		  kernel/qwmatrix.cpp \
+		  kernel/qproperty.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcheckbox.cpp \
