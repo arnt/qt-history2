@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
-    <height>378</height>
+    <width>346</width>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -28,45 +28,6 @@
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item row="2" column="2" >
-    <widget class="QPushButton" name="closeButton" >
-     <property name="objectName" >
-      <string notr="true" >closeButton</string>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>259</x>
-       <y>345</y>
-       <width>75</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>&amp;Close</string>
-     </property>
-     <property name="default" >
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" >
-    <widget class="QPushButton" name="createButton" >
-     <property name="objectName" >
-      <string notr="true" >createButton</string>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>178</x>
-       <y>345</y>
-       <width>75</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="text" >
-      <string>C&amp;reate</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" >
     <spacer>
      <property name="objectName" >
@@ -75,9 +36,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>347</y>
-       <width>163</width>
-       <height>20</height>
+       <y>317</y>
+       <width>162</width>
+       <height>26</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -91,32 +52,65 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="1" >
-    <spacer>
+   <item row="2" column="1" >
+    <widget class="QPushButton" name="createButton" >
      <property name="objectName" >
-      <string notr="true" >verticalSpacer</string>
+      <string notr="true" >createButton</string>
      </property>
      <property name="geometry" >
       <rect>
-       <x>205</x>
-       <y>299</y>
-       <width>20</width>
-       <height>40</height>
+       <x>177</x>
+       <y>317</y>
+       <width>77</width>
+       <height>26</height>
       </rect>
      </property>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
+     <property name="text" >
+      <string>C&amp;reate</string>
      </property>
-     <property name="sizeType" >
-      <enum>Minimum</enum>
+    </widget>
+   </item>
+   <item row="2" column="2" >
+    <widget class="QPushButton" name="closeButton" >
+     <property name="objectName" >
+      <string notr="true" >closeButton</string>
      </property>
-     <property name="sizeHint" >
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
+     <property name="geometry" >
+      <rect>
+       <x>260</x>
+       <y>317</y>
+       <width>77</width>
+       <height>26</height>
+      </rect>
      </property>
-    </spacer>
+     <property name="text" >
+      <string>&amp;Close</string>
+     </property>
+     <property name="default" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="3" >
+    <widget class="QFrame" name="horizontalLine" >
+     <property name="objectName" >
+      <string notr="true" >horizontalLine</string>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>9</x>
+       <y>308</y>
+       <width>328</width>
+       <height>3</height>
+      </rect>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow" >
+      <enum>QFrame::Sunken</enum>
+     </property>
+    </widget>
    </item>
    <item row="0" column="0" colspan="3" >
     <widget class="QTreeWidget" name="treeWidget" >
@@ -127,9 +121,15 @@
       <rect>
        <x>9</x>
        <y>9</y>
-       <width>325</width>
-       <height>284</height>
+       <width>328</width>
+       <height>293</height>
       </rect>
+     </property>
+     <property name="rootIsDecorated" >
+      <bool>false</bool>
+     </property>
+     <property name="columnCount" >
+      <number>1</number>
      </property>
     </widget>
    </item>

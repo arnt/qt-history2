@@ -2,10 +2,10 @@
  <author></author>
  <comment></comment>
  <exportmacro></exportmacro>
- <class>Form</class>
+ <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow" >
   <property name="objectName" >
-   <string notr="true" >Form</string>
+   <string notr="true" >MainWindow</string>
   </property>
   <property name="geometry" >
    <rect>

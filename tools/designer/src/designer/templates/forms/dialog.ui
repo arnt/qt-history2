@@ -2,10 +2,10 @@
  <author></author>
  <comment></comment>
  <exportmacro></exportmacro>
- <class>Form</class>
+ <class>Dialog</class>
  <widget class="QDialog" name="Dialog" >
   <property name="objectName" >
-   <string notr="true" >Form</string>
+   <string notr="true" >Dialog</string>
   </property>
   <property name="geometry" >
    <rect>
