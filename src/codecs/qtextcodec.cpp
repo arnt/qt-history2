@@ -831,7 +831,7 @@ QCString QTextCodec::fromUnicode(const QString& uc) const
 QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 {
     int l = a.size();
-    if( l > 0 && a.data()[l] == '\0' ) l--;
+    if( l > 0 && a.data()[l - 1] == '\0' ) l--;
     l = QMIN( l, len );
     return toUnicode( a.data(), l );
 }
@@ -842,7 +842,7 @@ QString QTextCodec::toUnicode(const QByteArray& a, int len) const
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
     int l = a.size();
-    if( l > 0 && a.data()[l] == '\0' ) l--;
+    if( l > 0 && a.data()[l - 1] == '\0' ) l--;
     return toUnicode( a.data(), l );
 }
 
@@ -1371,7 +1371,7 @@ class QSimpleTextCodec: public QTextCodec
 public:
     QSimpleTextCodec( int );
     ~QSimpleTextCodec();
-    
+
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
@@ -1386,7 +1386,7 @@ public:
 
 private:
     void buildReverseMap();
-    
+
     int forwardIndex;
 #ifndef Q_WS_QWS
     QArray<unsigned char> *reverseMap;
@@ -1965,7 +1965,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     if ( !reverseMap )
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
-    
+
     if ( len <0 || len > (int)uc.length() )
         len = uc.length();
     QCString r( len+1 );
@@ -1996,7 +1996,7 @@ unsigned short QSimpleTextCodec::characterFromUnicode(const QString &str, int po
     if ( !reverseMap )
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
-    
+
     unsigned short u = str[pos].unicode();
     unsigned char* rmp = reverseMap->data();
     int rmsize = (int) reverseMap->size();
@@ -2011,7 +2011,7 @@ bool QSimpleTextCodec::canEncode( QChar ch ) const
     if ( !reverseMap )
 #endif
 	((QSimpleTextCodec *)this)->buildReverseMap();
-    
+
     unsigned short u = ch.unicode();
     unsigned char* rmp = reverseMap->data();
     int rmsize = (int) reverseMap->size();
