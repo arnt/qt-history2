@@ -156,7 +156,7 @@ void updateDragMode(DragReference drag) {
         else if(set_drag_mode == QDragObject::DragCopy)
             current_drag_action = QDropEvent::Copy;
         else
-            qDebug("Qt: internal: not sure how to handle..");
+            qWarning("Qt: internal: not sure how to handle..");
     }
 }
 
@@ -219,7 +219,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
             for(int i = 1; i <= cnt_items; i++) {
                 ItemReference ref = NULL;
                 if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
-                    qDebug("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
+                    qWarning("Qt: internal: OOps.. %s:%d", __FILE__, __LINE__);
                     return QByteArray();
                 }
                 if(GetFlavorDataSize(current_dropobj, ref, flav, &flavorsize) == noErr) {
@@ -407,7 +407,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 {
     if(qt_mac_in_drag) {     //just make sure..
-        qDebug("Qt: internal: WH0A, unexpected condition reached.");
+        qWarning("Qt: internal: WH0A, unexpected condition reached.");
         return false;
     }
     if(object == o)
