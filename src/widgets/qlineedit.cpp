@@ -830,6 +830,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     QTextParag *par;
     QTextCursor *c;
     d->getTextObjects(&par, &c);
+    int oldPos = c->index();
     c->place( p, par );
 #ifndef QT_NO_DRAGANDDROP
     if ( hasMarkedText() && echoMode() == Normal && !( e->state() & ShiftButton ) &&
@@ -841,8 +842,21 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
 #endif
-    d->selectionStart = d->cursor->index();
-    par->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
+    if ( !( e->state() && ShiftButton ) ) {
+	d->selectionStart = d->cursor->index();
+	par->setSelection( QTextDocument::Standard, d->selectionStart, d->selectionStart );
+    } else {
+	if ( par->selectionEnd( QTextDocument::Standard ) != oldPos &&
+	     par->selectionStart( QTextDocument::Standard ) != oldPos )
+	    d->selectionStart = oldPos;
+	int s = d->selectionStart;
+	int e = c->index();
+	if ( s > e ) {
+	    s = c->index();
+	    e = d->selectionStart;
+	}
+	par->setSelection( QTextDocument::Standard, s, e );
+    }
     d->releaseTextObjects( &par, &c);
     update();
     d->mousePressed = TRUE;
