@@ -127,6 +127,14 @@ private:
     QMap< QString, QStringList > dbCursors;
     QMap< QString, QStringList > dbForms;
 
+    static bool isMainWindow;
+    static QString mkBool( bool b );
+    static QString mkBool( const QString& s );
+    bool toBool( const QString& s );
+    static QString fixString( const QString &str );
+    static bool onlyAscii;
+    static QString mkStdSet( const QString& prop );
+
 };
 
 #endif

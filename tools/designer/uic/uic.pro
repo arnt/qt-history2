@@ -7,7 +7,7 @@ HEADERS	= uic.h \
 		  ../shared/parser.h \
 		  ../interfaces/widgetinterface.h
 
-SOURCES	= uic.cpp  \
+SOURCES	= uic.cpp  form.cpp object.cpp \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
 		  ../shared/parser.cpp \
