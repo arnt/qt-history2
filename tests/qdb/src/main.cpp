@@ -115,7 +115,7 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program()->append( new PushFieldDesc( 0, "id" ) );
     env.program()->append( new Push( QVariant( TRUE, 0 )  ) );
     env.program()->append( new PushList( 2 ) );
-    env.program()->append( new Noop( ) );
+    env.program()->append( new Sort( 0 ) );
     env.program()->append( new Close( 0 ) );
 
 #if 0
