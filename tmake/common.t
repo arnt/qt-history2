@@ -30,7 +30,7 @@ SYSCONF_LIBS		= #$ Expand('TMAKE_LIBS');
 SYSCONF_LFLAGS_SHOBJ	= #$ Expand('TMAKE_LFLAGS_SHLIB');
 
 # Meta-object compiler
-SYSCONF_MOC		= #$ Expand('TMAKE_MOC');
+SYSCONF_MOC		= $(QTDIR)/bin/moc
 
 # Linking shared libraries
 #   - Build the $(TARGET) library, eg. lib$(TARGET).so.0.0
