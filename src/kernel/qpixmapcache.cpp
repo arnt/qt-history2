@@ -14,6 +14,7 @@
 
 #include "qpixmapcache.h"
 #include "qcache.h"
+#include "qcleanuphandler.h"
 #include "qobject.h"
 
 /*!
@@ -121,12 +122,13 @@ bool QPMCache::insert( const QString& k, const QPixmap &d, int c )
     QCache<QString, QPixmap>::insert( k, new QPixmap(d), c );
     if ( !id ) {
 	id = startTimer( 30000 );
-	t = FALSE;
+	t = false;
     }
     return true;
 }
 
-static QPMCache pm_cache;			// global pixmap cache
+static QPMCache *pm_cache = 0;
+static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
   \obsolete
@@ -155,8 +157,9 @@ static QPMCache pm_cache;			// global pixmap cache
 
 QPixmap *QPixmapCache::find( const QString &key )
 {
-    pm_cache.ensure_constructed();
-    return pm_cache.find(key);
+    if (!pm_cache)
+	return 0;
+    return pm_cache->find(key);
 }
 
 
@@ -180,10 +183,12 @@ QPixmap *QPixmapCache::find( const QString &key )
 
 bool QPixmapCache::find( const QString &key, QPixmap& pm )
 {
-    pm_cache.ensure_constructed();
-    QPixmap *ptr = pm_cache.find(key);
+    if (!pm_cache)
+	return false;
+    QPixmap *ptr = pm_cache->find(key);
     if (ptr)
 	pm = *ptr;
+    return ptr != 0;
 }
 
 
@@ -208,8 +213,11 @@ bool QPixmapCache::find( const QString &key, QPixmap& pm )
 
 bool QPixmapCache::insert(const QString &key, QPixmap *pm)
 {
-    pm_cache.ensure_constructed();
-    return pm_cache.insert(key, *pm, pm->width()*pm->height()*pm->depth() / 8);
+    if (!pm_cache) {
+	pm_cache = new QPMCache;
+	qpm_cleanup_cache.set(&pm_cache);
+    }
+    return pm_cache->insert(key, *pm, pm->width()*pm->height()*pm->depth() / 8);
 }
 
 /*!
@@ -231,8 +239,11 @@ bool QPixmapCache::insert(const QString &key, QPixmap *pm)
 
 void QPixmapCache::insert(const QString &key, const QPixmap &pm)
 {
-    pm_cache.ensure_constructed();
-    pm_cache.insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
+    if (!pm_cache) {
+	pm_cache = new QPMCache;
+	qpm_cleanup_cache.set(&pm_cache);
+    }
+    pm_cache->insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
 }
 
 /*!
@@ -256,11 +267,11 @@ int QPixmapCache::cacheLimit()
     \sa cacheLimit()
 */
 
-void QPixmapCache::setCacheLimit( int n )
+void QPixmapCache::setCacheLimit(int n)
 {
     cache_limit = n;
-    pm_cache.ensure_constructed();
-    pm_cache.setMaxCost(1024 * cache_limit);
+    if (pm_cache)
+	pm_cache->setMaxCost(1024 * cache_limit);
 }
 
 /*!
@@ -268,8 +279,8 @@ void QPixmapCache::setCacheLimit( int n )
 */
 void QPixmapCache::remove(const QString &key)
 {
-    pm_cache.ensure_constructed();
-    pm_cache.remove(key);
+    if (pm_cache)
+	pm_cache->remove(key);
 }
 
 
@@ -279,6 +290,6 @@ void QPixmapCache::remove(const QString &key)
 
 void QPixmapCache::clear()
 {
-    pm_cache.ensure_constructed();
-    pm_cache.clear();
+    if (pm_cache)
+	pm_cache->clear();
 }
