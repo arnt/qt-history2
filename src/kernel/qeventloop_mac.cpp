@@ -43,6 +43,7 @@ TimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
 void qt_event_request_select(QEventLoop *); //qapplication_mac.cpp
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_wakeup(); //qapplication_mac.cpp
+bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =NULL); //qapplication_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
 
 //Local Statics
@@ -779,7 +780,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
 	    qt_replay_event = NULL;
-	    SendEventToWindow(ev, (WindowPtr)qt_mac_safe_pdev->handle());
+	    qt_mac_send_event(flags, ev, (WindowPtr)qt_mac_safe_pdev->handle());
 	    ReleaseEvent(ev);
 	}
 	QApplication::sendPostedEvents();
@@ -790,7 +791,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	    do {
 		if(ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event))
 		    break;
-		if(!SendEventToEventTarget(event, GetEventDispatcherTarget()))
+		if(qt_mac_send_event(flags, event))
 		    nevents++;
 		ReleaseEvent(event);
 	    } while(GetNumEventsInQueue(GetMainEventQueue()));

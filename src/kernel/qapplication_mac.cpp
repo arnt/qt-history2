@@ -1052,6 +1052,35 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
     ReleaseEvent(ctx);
 }
 
+bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
+{
+    if(flags != QEventLoop::AllEvents ) {
+	UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
+	if(flags & QEventLoop::ExcludeUserInput) {
+	    switch(eclass) {
+	    case kEventClassQt:
+		if(ekind == kEventQtRequestContext)
+		    return FALSE;
+		break;
+	    case kEventClassMouse:
+	    case kEventClassKeyboard:
+		return FALSE;
+	    }
+	}
+	if(flags & QEventLoop::ExcludeSocketNotifiers) {
+	    switch(eclass) {
+	    case kEventClassQt:
+		if(ekind == kEventQtRequestSelect)
+		    return FALSE;
+		break;
+	    }
+	}
+    }
+    if(pt)
+	return !SendEventToWindow(event, pt);
+    return !SendEventToEventTarget(event, GetEventDispatcherTarget());
+}
+
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
