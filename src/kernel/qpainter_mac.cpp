@@ -48,7 +48,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h"
 #include "qt_mac.h"
-#include <qstack.h>
+#include <qptrstack.h>
 #include <qtextcodec.h>
 #include <qprinter.h>
 
@@ -131,7 +131,7 @@ public:
     inline QPaintDevice *device() const { return dev; }
     inline QRegion region() const { return clipRegion; }
 };
-QStack<paintevent_item> paintevents;
+QPtrStack<paintevent_item> paintevents;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
@@ -1024,17 +1024,8 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     cpen.setStyle( DashLine );
     updatePen();
-    if ( cpen.style() != NoPen ) {
-	drawLine(x,y,x+(w-1),y);
-	drawLine(x+(w-1),y,x+(w-1),y+(h-1));
-	drawLine(x,y+(h-1),x+(w-1),y+(h-1));
-	drawLine(x,y,x,y+(h-1));
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
-    }
-
+    if ( cpen.style() != NoPen ) 
+	drawRect(x, y, w, h);
     setRasterOp( old_rop );
     setPen( old_pen );
     setBrush( old_brush );
@@ -1745,19 +1736,6 @@ QPoint QPainter::pos() const
 }
 
 inline void QPainter::initPaintDevice(bool force) {
-#if 0
-    /*this optimization causes weird interplay, a dirtyClippedRegion()
-      can happen in a widget between calls to this, need to find a solution
-      for now the optimization probably doesn't buy us so much to matter, maybe I
-      I want to FIXME? //Sam
-    */
-
-    if(!force && pdev == g_cur_paintdev) {
-	updateClipRegion();
-	return;
-    }
-#endif
-
     paintreg = clippedreg = QRegion(); //empty
     QMacSavedPortInfo::setPaintDevice(pdev);
 
