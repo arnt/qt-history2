@@ -6016,9 +6016,12 @@ void Q3FileDialog::setInfoPreview(QWidget *w, Q3FilePreview *preview)
 
     if (d->infoPreviewWidget) {
         d->preview->removeWidget(d->infoPreviewWidget);
+	if ((void*)d->infoPreviewer == (void*)d->infoPreviewWidget)
+	    d->infoPreviewer = 0;
         delete d->infoPreviewWidget;
     }
-    delete d->infoPreviewer;
+    if (d->infoPreviewer)
+	delete d->infoPreviewer;
     d->infoPreviewWidget = w;
     d->infoPreviewer = preview;
     w->reparent(d->preview, 0, QPoint(0, 0));
@@ -6073,9 +6076,12 @@ void Q3FileDialog::setContentsPreview(QWidget *w, Q3FilePreview *preview)
 
     if (d->contentsPreviewWidget) {
         d->preview->removeWidget(d->contentsPreviewWidget);
+	if ((void*)d->contentsPreviewWidget == (void*)d->contentsPreviewer)
+	    d->contentsPreviewer = 0;
         delete d->contentsPreviewWidget;
     }
-    delete d->contentsPreviewer;
+    if (d->contentsPreviewer)
+	delete d->contentsPreviewer;
     d->contentsPreviewWidget = w;
     d->contentsPreviewer = preview;
     w->reparent(d->preview, 0, QPoint(0, 0));
