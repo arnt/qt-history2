@@ -14,3 +14,5 @@ QDialog::keyPressEvent
 QImage::systemByteOrder ska'n vekk, elle?
 
 Klin inn kule sider mellom tutorial og doc i ps. (signal/slot, debugging, etc.)
+
+Alle changes filene paa web
