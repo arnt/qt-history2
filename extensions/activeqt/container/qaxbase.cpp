@@ -1858,7 +1858,7 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
         switch(funcdesc->invkind) {
         case INVOKE_PROPERTYGET: // property
         case INVOKE_PROPERTYPUT:
-            if (funcdesc->cParams <= 1) {
+            if (funcdesc->cParams - funcdesc->cParamsOpt <= 1) {
                 flags = Readable;
                 if (funcdesc->invkind == INVOKE_PROPERTYGET)
                     flags |= Readable;
@@ -1878,18 +1878,23 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                     flags |= Bindable;
                 }
                 addProperty(type, function, flags);
-                // don't generate slots for incomplete properties
-                if (type.isEmpty())
-                    break;
+
+                if (funcdesc->cParams <= 1) {
+                    // don't generate slots for incomplete properties
+                    if (type.isEmpty())
+                        break;
                 
-                // Done for getters
-                if (funcdesc->invkind == INVOKE_PROPERTYGET)
-                    break;
+                    // Done for getters
+                    if (funcdesc->invkind == INVOKE_PROPERTYGET)
+                        break;
                 
-                // generate setter slot
-                if (funcdesc->invkind == INVOKE_PROPERTYPUT && hasProperty(function)) {
+                    // generate setter slot
+                    if (funcdesc->invkind == INVOKE_PROPERTYPUT && hasProperty(function)) {
+                        addSetterSlot(function);
+                        break;
+                    }
+                } else if (funcdesc->invkind == INVOKE_PROPERTYPUT && hasProperty(function)) {
                     addSetterSlot(function);
-                    break;
                 }
             }
             // FALL THROUGH to support multi-variat properties
