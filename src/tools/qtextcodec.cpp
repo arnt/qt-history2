@@ -171,7 +171,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
       IANA character-sets encoding file</a>.
   </dl>
   If the encoding is multi-byte then it will have "state"; that is,
-  the interpretation of some bytes will be dependent on some preceeding
+  the interpretation of some bytes will be dependent on some preceding
   bytes.  For such an encoding, you will need to implement
   <dl>
    <dt> \c QTextDecoder* makeDecoder() const

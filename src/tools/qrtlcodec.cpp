@@ -388,7 +388,7 @@ bool QHebrewCodec::to8bit(const QChar ch, QCString *rstr) const
 
     if(converted) return TRUE;
 
-    // couldn't convert the char... lets try it's decomposition
+    // couldn't convert the char... lets try its decomposition
     QString d = ch.decomposition();
     if(d.isNull())
 	return FALSE;
@@ -468,7 +468,7 @@ bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
 
     if(converted) return TRUE;
 
-    // couldn't convert the char... lets try it's decomposition
+    // couldn't convert the char... lets try its decomposition
     QString d = ch.decomposition();
     if(d.isNull())
 	return FALSE;

@@ -2468,7 +2468,7 @@ bool QWidget::hasFocus() const
   Gives the keyboard input focus to the widget (or its focus proxy).
 
   First, a \link focusOutEvent() focus out event\endlink is sent to the
-  focus widget (if any) to tell it that it is about to loose the
+  focus widget (if any) to tell it that it is about to lose the
   focus. Then a \link focusInEvent() focus in event\endlink is sent to
   this widget to tell it that it just received the focus.
 
@@ -2540,7 +2540,7 @@ void QWidget::setFocus()
 
   If the widget has active focus, a \link focusOutEvent() focus out
   event\endlink is sent to this widget to tell it that it is about to
-  loose the focus.
+  lose the focus.
 
   This widget must enable focus setting in order to get the keyboard input
   focus, i.e. it must call setFocusPolicy().

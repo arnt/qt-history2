@@ -1444,7 +1444,7 @@ QString QTextStream::read()
 	start = 0;
 	for ( i=0; i<num; i++ ) {
 	    if ( buf[i] == '\r' ) {
-		// Only skip single cr's preceeding lf's
+		// Only skip single cr's preceding lf's
 		if ( skipped_cr ) {
 		    result += buf[i];
 		    start++;

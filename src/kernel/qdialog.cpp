@@ -175,7 +175,7 @@ QDialog::~QDialog()
   This function is called by the push button \e pushButton when it
   becomes the default button. If \a pushButton is 0, the dialogs
   default default button becomes the default button. This is what a
-  push button calls when it looses focus.
+  push button calls when it loses focus.
 */
 
 void QDialog::setDefault( QPushButton *pushButton )

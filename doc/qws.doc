@@ -373,11 +373,11 @@ i.e. without the <i>-qws</i> option.
 \title Porting your applications to Qt/Embedded
 
 Existing Qt applications should require no porting provided there is no
-platform dependant code.  Platform dependant code includes system calls,
+platform dependent code.  Platform dependent code includes system calls,
 calls to the underlying window system (Windows or X11), and Qt platform
 specific methods such as QApplication::x11EventFilter().
 <p>
-For cases where it is necessary to use platform dependant code there are
+For cases where it is necessary to use platform dependent code there are
 macros defined that can be used to enable/disable code for each platform
 using #ifdef directives:
 

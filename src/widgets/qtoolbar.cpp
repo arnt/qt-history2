@@ -902,7 +902,7 @@ prints immediately to the default printer).
 
 4.  Avoid turning toolbars into graphical menu bars.  To me, a toolbar should
 be efficient. Once you make almost all the items in a toolbar into graphical
-pull-down menus, you start to loose efficiency.
+pull-down menus, you start to lose efficiency.
 
 5.  Make sure that adjacent icons are distinctive. There are some toolbars
 where you see a group of 4-5 icons that represent related functions, but they

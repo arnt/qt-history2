@@ -203,7 +203,7 @@ void QActionPrivate::update( Update upd )
   If the parent is a QActionGroup, the action automatically becomes a
   member of it.
 
-  Note: for accelerators to work, the parent or one of it's ancestors
+  Note: for accelerators to work, the parent or one of its ancestors
   has to be the application window.
  */
 QAction::QAction( QObject* parent, const char* name, bool toggle )
@@ -223,7 +223,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
   If the parent is a QActionGroup, the action automatically becomes a
   member of it.
 
-  Note: for accelerators to work, the parent or one of it's ancestors
+  Note: for accelerators to work, the parent or one of its ancestors
   has to be the application window.
  */
 QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
@@ -249,7 +249,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
   If the parent is a QActionGroup, the action automatically becomes a
   member of it.
 
-  Note: for accelerators to work, the parent or one of it's ancestors
+  Note: for accelerators to work, the parent or one of its ancestors
   has to be the application window.
  */
 QAction::QAction( const QString& text, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
@@ -432,7 +432,7 @@ QString QAction::whatsThis() const
 /*!
   Sets the action's accelerator to \a key.
 
-  Note: For accelerators to work, the parent or one of it's ancestors
+  Note: For accelerators to work, the parent or one of its ancestors
   has to be the application window.
 
   \sa accel()

@@ -1490,7 +1490,7 @@ miSubtractO (register Region pReg, register QRect *r1, QRect *r1End,
 	else if (r2->left() <= x1)
 	{
 	    /*
-	     * Subtrahend preceeds minuend: nuke left edge of minuend.
+	     * Subtrahend precedes minuend: nuke left edge of minuend.
 	     */
 	    x1 = r2->right()+1;
 	    if (x1 > r1->right())

@@ -426,7 +426,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
 
     // if 0 or smaller , create a vbox-layout but no grid. This allows
-    // the designer to handle it's own grid layout in a group box.
+    // the designer to handle its own grid layout in a group box.
     if ( columns <= 0 )
 	return;
 
