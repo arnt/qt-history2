@@ -878,10 +878,13 @@ void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
     dirtyClippedRegion(TRUE);
-    if ( isTopLevel() ) 
+    if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
-    else if(isVisible()) 
+	if(parentWidget() && parentWidget()->isVisible())
+	    parentWidget()->setActiveWindow();
+    } else if(isVisible()) {
 	dirty_wndw_rgn("hidewindow",this, mac_rect(posInWindow(this), geometry().size()));
+    }
 }
 
 
