@@ -46,7 +46,7 @@ MainWindow::MainWindow()
     setupUi(this);
 
     pb = new QProgressBar( statusBar() );
-    pb->setPercentageVisible( FALSE );
+    pb->setTextVisible( FALSE );
     pb->hide();
     statusBar()->addWidget( pb, 0, TRUE );
 
@@ -65,8 +65,8 @@ void MainWindow::on_WebBrowser_ProgressChange( int a, int b )
 	return;
     }
     pb->show();
-    pb->setTotalSteps( b );
-    pb->setProgress( a );
+    pb->setRange(0, b );
+    pb->setValue( a );
 }
 
 
