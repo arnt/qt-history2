@@ -8,12 +8,12 @@ ARCH_H=$$ARCH_CPP/arch
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H
 
 HEADERS += $$ARCH_H/qatomic.h
-
 !*-g++* {
     *-64 {
         SOURCES += $$ARCH_CPP/qatomic64.s
     } else {
-        SOURCES += $$ARCH_CPP/qatomic32.s
+        macx-*: SOURCES += $$ARCH_CPP/qatomic32_mac.s
+        else: SOURCES += $$ARCH_CPP/qatomic32.s
     }
 }
 

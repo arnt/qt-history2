@@ -19,6 +19,9 @@
 #  include <qglobal.h>
 #endif // QT_H
 
+#define Q_HAVE_ATOMIC_SET
+#define Q_HAVE_ATOMIC_INCDEC
+
 extern "C" {
 
 #if defined(Q_CC_GNU)
@@ -68,8 +71,6 @@ extern "C" {
         return ret;
     }
 
-#define Q_HAVE_ATOMIC_INCDEC
-
     inline int q_atomic_increment(volatile int *ptr)
     {
         register int ret;
@@ -97,8 +98,6 @@ extern "C" {
                     : "cc", "memory");
         return ret;
     }
-
-#define Q_HAVE_ATOMIC_SET
 
     inline int q_atomic_set_int(volatile int *ptr, int newval)
     {
@@ -136,7 +135,7 @@ extern "C" {
     int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
 
     Q_CORE_EXPORT
-    void *q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
 
 #endif
 
