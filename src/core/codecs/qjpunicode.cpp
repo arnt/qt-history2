@@ -739,7 +739,7 @@ QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
     const char * e = 0;
     if ( rule == Default && (e=getenv("UNICODEMAP_JP")) != 0 ) {
-	QString env( e );
+	QByteArray env( e );
 	for (int i = 0; i < (int)env.length(); ) {
 	    int j = env.indexOf(',', i);
 	    QByteArray s;

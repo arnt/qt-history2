@@ -625,7 +625,7 @@ public:
 	subtype = st.toLower();
 	for ( int i=0; i<nfmt; i++ ) {
 	    fmt[i] = "text/";
-	    fmt[i].append(subtype);
+	    fmt[i].append(subtype.latin1());
 	    QByteArray cs(staticCharset(i));
 	    if ( !cs.isEmpty() ) {
 		fmt[i].append(";charset=");

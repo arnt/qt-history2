@@ -25,7 +25,7 @@ class QSqlPropertyMapPrivate
 {
 public:
     QSqlPropertyMapPrivate() {}
-    QMap< QString, QString > propertyMap;
+    QMap<QByteArray, QByteArray> propertyMap;
 };
 
 /*!
@@ -192,7 +192,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 {
     if( !widget ) return QVariant();
     const QMetaObject* mo = widget->metaObject();
-    while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
+    while ( mo && !d->propertyMap.contains(mo->className()) )
 	mo = mo->superClass();
 
     if ( !mo ) {
@@ -210,7 +210,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
     if( !widget ) return;
 
     const QMetaObject* mo = widget->metaObject();
-    while ( mo && !d->propertyMap.contains( QString( mo->className() ) ) )
+    while ( mo && !d->propertyMap.contains(mo->className() ) )
 	mo = mo->superClass();
     if ( !mo ) {
 	qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className() );
@@ -228,7 +228,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 void QSqlPropertyMap::insert( const QString & classname,
 			      const QString & property )
 {
-    d->propertyMap[ classname ] = property;
+    d->propertyMap[ classname.latin1() ] = property.latin1();
 }
 
 /*!
@@ -236,7 +236,7 @@ void QSqlPropertyMap::insert( const QString & classname,
 */
 void QSqlPropertyMap::remove( const QString & classname )
 {
-    d->propertyMap.remove( classname );
+    d->propertyMap.remove( classname.latin1() );
 }
 
 static QSqlPropertyMap * defaultmap = 0;

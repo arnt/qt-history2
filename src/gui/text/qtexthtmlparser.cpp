@@ -489,7 +489,7 @@ int QTextHtmlParser::findNextChild(int parent, int currentChild) const
     int i = currentChild + 1;
     for (; i < count(); ++i)
 	if (at(i).parent == parent) {
-	    if (at(i).tag == QLatin1String(tag))
+	    if (at(i).tag == tag)
 		return i;
 	    continue;
 	} else if (i == grandParent)

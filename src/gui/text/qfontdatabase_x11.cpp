@@ -926,7 +926,7 @@ static void load( const QString &family = QString::null, int script = -1 )
 	    if ( ( script == -1 && !f->xlfdLoaded ) ||
 		 ( !f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
 		   !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd) ) ) {
-		loadXlfds( family, -1 );
+		loadXlfds( family.latin1(), -1 );
 		f->fullyLoaded = TRUE;
 	    }
 	}
@@ -1227,19 +1227,19 @@ QFontEngine *loadEngine( QFont::Script script,
 	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QX11Info::appDpiY())
 	scale = (double)request.pixelSize/(double)px;
 
-    xlfd += QString::number( px ).latin1();
+    xlfd += QByteArray::number( px );
     xlfd += "-";
-    xlfd += QString::number( encoding->xpoint );
+    xlfd += QByteArray::number( encoding->xpoint );
     xlfd += "-";
-    xlfd += QString::number( encoding->xres );
+    xlfd += QByteArray::number( encoding->xres );
     xlfd += "-";
-    xlfd += QString::number( encoding->yres );
+    xlfd += QByteArray::number( encoding->yres );
     xlfd += "-";
 
     // ### handle cell spaced fonts
     xlfd += encoding->pitch;
     xlfd += "-";
-    xlfd += QString::number( encoding->avgwidth );
+    xlfd += QByteArray::number( encoding->avgwidth );
     xlfd += "-";
     xlfd += xlfd_for_id( encoding->encoding );
 

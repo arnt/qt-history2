@@ -186,7 +186,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
     if ( db && !db->isOpen() && open ) {
 	db->open();
 	if ( !db->isOpen() )
-	    qWarning("QSqlDatabaseManager::database: unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
+	    qWarning("QSqlDatabaseManager::database: unable to open database: %s: %s", db->lastError().databaseText().local8Bit(), db->lastError().driverText().local8Bit() );
 
     }
     return db;
@@ -628,7 +628,7 @@ void QSqlDatabase::init( const QString& type, const QString& )
     if ( !d->driver ) {
 
 	qWarning( "QSqlDatabase: %s driver not loaded", type.latin1() );
-	qWarning( "QSqlDatabase: available drivers: " + drivers().join(" ") );
+	qWarning( "QSqlDatabase: available drivers: %s", drivers().join(" ").latin1() );
 	d->driver = new QNullDriver();
 	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
     }

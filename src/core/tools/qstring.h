@@ -361,6 +361,10 @@ public:
     { return replace(c, after, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT QString &replace(const QString  &before, const QString  &after, bool cs)
     { return replace(before, after, cs?CaseSensitive:CaseInsensitive); }
+#ifndef QT_NO_CAST_FROM_ASCII
+    QString &replace(char c, const QString &after, bool cs)
+    { return replace(QChar(c), after, cs?CaseSensitive:CaseInsensitive); }
+#endif
     inline QT_COMPAT int find(QChar c, int i = 0, bool cs = true) const
     { return indexOf(c, i, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT int find(const QString &s, int i = 0, bool cs = true) const

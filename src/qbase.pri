@@ -76,4 +76,4 @@ unix {
 
 # ##### for now, until the mess is a bit more cleaned up and we can 
 # enable COMPAT warnings.
-DEFINES += QT_COMPAT_WARNINGS
+DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII

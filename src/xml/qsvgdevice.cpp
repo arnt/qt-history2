@@ -933,7 +933,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    // ### catch references to embedded .svg files
 	    QPixmap pix;
 	    if ( !pix.load( href ) ) {
-		qWarning( "QSvgDevice::play: Couldn't load image " + href );
+		qWarning( "QSvgDevice::play: Couldn't load image %s", href.latin1() );
 		break;
 	    }
 	    pt->drawPixmap( QRect( x1, y1, w, h ), pix );
@@ -971,7 +971,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    break;
 	}
     case InvalidElement:
-	qWarning( "QSvgDevice::play: unknown element type " + node.nodeName() );
+	qWarning( "QSvgDevice::play: unknown element type %s", node.nodeName().latin1() );
 	break;
     }
 
@@ -1057,7 +1057,7 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 {
     QRegExp reg( QString::fromLatin1("([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|%|pt|pc|cm|mm|in|)$") );
     if ( reg.search( str ) == -1 ) {
-	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
+	qWarning( "QSvgDevice::parseLen: couldn't parse %s", str.latin1() );
 	if ( ok )
 	    *ok = FALSE;
 	return 0.0;
@@ -1086,7 +1086,7 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
 	else if ( u == "pc" )
 	    dbl *= m.logicalDpiX() / 6.0;
 	else
-	    qWarning( "QSvgDevice::parseLen: Unknown unit " + u );
+	    qWarning( "QSvgDevice::parseLen: Unknown unit %s", u.latin1() );
     }
     if ( ok )
 	*ok = TRUE;

@@ -398,7 +398,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool prepend )
     if ( d->list.count() > 0 ) {
 	s = new QSplitterLayoutStruct;
 	s->resizeMode = KeepSize;
-	QString tmp = "qt_splithandle_";
+	QByteArray tmp = "qt_splithandle_";
 	tmp += w->objectName();
 	newHandle = new QSplitterHandle( orientation(), this, tmp );
 	s->wid = newHandle;

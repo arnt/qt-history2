@@ -60,7 +60,7 @@ QSqlIndex indexFromStringList( const QStringList& l, const QSqlCursor* cursor )
         if ( field )
             newSort.append( *field, desc );
         else
-            qWarning( "QSqlIndex::indexFromStringList: unknown field: '" + f + "'" );
+            qWarning( "QSqlIndex::indexFromStringList: unknown field: '%s'", f.latin1() );
     }
     return newSort;
 }

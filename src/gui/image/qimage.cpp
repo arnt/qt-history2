@@ -5164,7 +5164,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 static void write_pbm_image( QImageIO *iio )
 {
     QIODevice* out = iio->ioDevice();
-    QString str;
+    QByteArray str;
 
     QImage  image  = iio->image();
     QByteArray format(iio->format());
@@ -5193,7 +5193,10 @@ static void write_pbm_image( QImageIO *iio )
     uint w = image.width();
     uint h = image.height();
 
-    str.sprintf("P\n%d %d\n", w, h);
+    str = "P\n";
+    str += QByteArray::number(w);
+    str += ' ';
+    str += QByteArray::number(h);
 
     switch (image.depth()) {
 	case 1: {

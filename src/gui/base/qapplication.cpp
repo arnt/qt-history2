@@ -445,9 +445,10 @@ void qt_setMaxWindowRect(const QRect& r)
     moment.
 */
 
+// ######## move to QApplicationPrivate
 // Default application palettes and fonts (per widget type)
-Q_GUI_EXPORT QHash<QString, QPalette> *app_palettes = 0;
-Q_GUI_EXPORT QHash<QString, QFont> *app_fonts = 0;
+QHash<QByteArray, QPalette> app_palettes;
+QHash<QByteArray, QFont> app_fonts;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
@@ -504,17 +505,18 @@ void QApplication::process_cmdline()
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QString arg = argv[i];
+	QByteArray arg = argv[i];
+	arg = arg;
 	QString s;
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    // obsolete argument
-	} else if ( arg.indexOf( "-style=", 0, QString::CaseInsensitive ) != -1 ) {
-	    s = arg.right( arg.length() - 7 );
-	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
+	} else if ( arg.indexOf( "-style=", 0 ) != -1 ) {
+	    s = arg.right( arg.length() - 7 ).toLower();
+	} else if ( arg == "-style" && i < argc-1 ) {
 	    s = argv[++i];
 	    s = s.toLower();
 #ifndef QT_NO_SESSIONMANAGER
-	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
+	} else if ( arg == "-session" && i < argc-1 ) {
 	    ++i;
 	    if ( argv[i] && *argv[i] ) {
 		d->session_id = QString::fromLatin1( argv[i] );
@@ -904,13 +906,11 @@ QApplication::~QApplication()
     qt_std_pal = 0;
     delete app_pal;
     app_pal = 0;
-    delete app_palettes;
-    app_palettes = 0;
+    app_palettes.clear();
 #endif
     delete app_font;
     app_font = 0;
-    delete app_fonts;
-    app_fonts = 0;
+    app_fonts.clear();
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
@@ -1379,10 +1379,10 @@ QPalette QApplication::palette(const QWidget* w)
     }
 
     if ( w && app_palettes ) {
-	QHash<QString, QPalette>::ConstIterator it = app_palettes->find(w->className());
-        if (it != app_palettes->end())
+	QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->className());
+        if (it != app_palettes.constEnd())
 	    return *it;
-	for (it = app_palettes->constBegin(); it != app_palettes->constEnd(); ++it) {
+	for (it = app_palettes.constBegin(); it != app_palettes.constEnd(); ++it) {
 	    if (w->inherits(it.key()))
 		return it.value();
 	}
@@ -1421,22 +1421,12 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 	}
         if (app_palettes) {
 	    all = true;
-	    delete app_palettes;
-	    app_palettes = 0;
+	    app_palettes.clear();
 	}
 	qt_fix_tooltips();
     } else {
-	if (!app_palettes)
-	    app_palettes = new QHash<QString, QPalette>;
-
-	QHash<QString, QPalette>::Iterator it = app_palettes->find(className);
-        if (it != app_palettes->end()) {
-	    if (*it == pal)
-		return;
-	    *it = pal;
-        } else {
-	    app_palettes->insert(className, pal);
-        }
+	app_palettes.ensure_constructed();
+	app_palettes.insert(className, pal);
     }
 
     if (is_app_running && !is_app_closing) {
@@ -1462,10 +1452,10 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
 QFont QApplication::font( const QWidget *w )
 {
     if (w && app_fonts) {
-	QHash<QString, QFont>::ConstIterator it = app_fonts->find(w->className());
-        if (it != app_fonts->end())
+	QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(w->className());
+        if (it != app_fonts.constEnd())
 	    return it.value();
-	for (it = app_fonts->begin(); it != app_fonts->end(); ++it) {
+	for (it = app_fonts.begin(); it != app_fonts.end(); ++it) {
 	    if (w->inherits(it.key()))
 		return it.value();
 	}
@@ -1500,14 +1490,12 @@ void QApplication::setFont( const QFont &font, const char* className )
 	}
         if (app_fonts) {
 	    all = true;
-	    delete app_fonts;
-	    app_fonts = 0;
+	    app_fonts.clear();
 	}
         // ### qt_fix_tooltips() ?
     } else {
-	if (!app_fonts)
-	    app_fonts = new QHash<QString, QFont>;
-	app_fonts->insert(className, font);
+	app_fonts.ensure_constructed();
+	app_fonts.insert(className, font);
     }
     if (is_app_running && !is_app_closing) {
 	QEvent e( QEvent::ApplicationFontChange );
@@ -2469,7 +2457,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	       .arg(QString::number((ulong) QThread::currentThread(), 16))
 	       .arg(receiver->objectName())
 	       .arg(receiver->className())
-	       .arg(QString::number((ulong) receiver->thread(), 16)));
+	       .arg(QString::number((ulong) receiver->thread(), 16))
+	       .latin1());
 #endif
 
 #ifdef QT_COMPAT

@@ -157,7 +157,7 @@ QStyle *QStyleFactory::create( const QString& key )
 	    ret = iface->create( style );
     }
     if(ret)
-	ret->setObjectName(key);
+	ret->setObjectName(key.local8Bit());
 #endif
     return ret;
 }

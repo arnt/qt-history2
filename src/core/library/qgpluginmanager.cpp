@@ -175,8 +175,8 @@ public:
 */
 static int similarity( const QString& s1, const QString& s2 )
 {
-    QCoMatrix m1( s1 );
-    QCoMatrix m2( s2 );
+    QCoMatrix m1( s1.latin1() );
+    QCoMatrix m2( s2.latin1() );
     return ( 15 * (QCoMatrix::intersection(m1, m2).worth() + 1) ) /
 	   ( QCoMatrix::reunion(m1, m2).worth() + 1 );
 }

@@ -1497,7 +1497,7 @@ void QFtpProtocol::operationRemove( QNetworkOperation *op )
     op->setState( StInProgress );
 
     ftp.cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    remove( QUrl( op->arg( 0 ) ).path() );
+    remove( QUrl( op->arg( 0 ) ).path().ascii() );
 }
 
 /*!  \reimp

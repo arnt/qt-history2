@@ -864,7 +864,7 @@ bool QApplication::x11_apply_settings()
 
     QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
     if (defaultcodec != "none") {
-	QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+	QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
 	if (codec)
 	    qApp->setDefaultCodec(codec);
     }
@@ -2016,7 +2016,7 @@ void qt_init( QApplicationPrivate *priv, int,
 
 		QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
 		if (defaultcodec != "none") {
-		    QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
+		    QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
 		    if (codec)
 			qApp->setDefaultCodec(codec);
 		}

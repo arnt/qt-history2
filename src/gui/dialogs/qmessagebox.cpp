@@ -633,8 +633,8 @@ void QMessageBox::init( int button0, int button1, int button2 )
         if ( i >= mbd->numButtons ) {
             mbd->pb[i] = 0;
         } else {
-            QString buttonName;
-            buttonName.sprintf( "button%d", i+1 );
+            QByteArray buttonName = QByteArray::number(i+1);
+	    buttonName.prepend("button");
             mbd->pb[i] = new QPushButton(
                 tr(mb_texts[mbd->button[i]]),
                 this, buttonName );

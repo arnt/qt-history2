@@ -787,9 +787,9 @@ bool QProcess::start( QStringList *env )
 	    }
 #endif
 #ifndef Q_OS_QNX4
-	    ::execvp( command, (char*const*)arglist ); // ### cast not nice
+	    ::execvp( command.toLocal8Bit(), (char*const*)arglist ); // ### cast not nice
 #else
-	    ::execvp( command, (char const*const*)arglist ); // ### cast not nice
+	    ::execvp( command.toLocal8Bit(), (char const*const*)arglist ); // ### cast not nice
 #endif
 	} else { // start process with environment settins as specified in env
 	    // construct the environment for exec
@@ -799,14 +799,14 @@ bool QProcess::start( QStringList *env )
 #else
 	    QString ld_library_path("LD_LIBRARY_PATH");
 #endif
-	    bool setLibraryPath = env->find( QRegExp( "^" + ld_library_path + "=" ) ).empty() && getenv( ld_library_path ) != 0;
+	    bool setLibraryPath = env->find( QRegExp( "^" + ld_library_path + "=" ) ).empty() && getenv( ld_library_path.local8Bit() ) != 0;
 	    if ( setLibraryPath )
 		numEntries++;
 	    QByteArray *envlistQ = new QByteArray[ numEntries + 1 ];
 	    const char** envlist = new const char*[ numEntries + 1 ];
 	    int i = 0;
 	    if ( setLibraryPath ) {
-		envlistQ[i] = QString( ld_library_path + "=%1" ).arg( getenv( ld_library_path ) ).local8Bit();
+		envlistQ[i] = QString( ld_library_path + QLatin1String("=%1") ).arg( getenv( ld_library_path.local8Bit() ) ).toLocal8Bit();
 		envlist[i] = envlistQ[i];
 		i++;
 	    }

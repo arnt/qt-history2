@@ -6185,7 +6185,8 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
 		    // and possible parent tag
 		    cur = tag->prev;
 		    if ( !cur ) {
-			qWarning( "QTextEdit::optimParseTags: no left-tag for '<" + tag->tag + ">' in line %d.", tag->line + 1 );
+			qWarning( "QTextEdit::optimParseTags: no left-tag for '<%s>' in line %d.",
+				  tag->tag.latin1(), tag->line + 1 );
 			return; // something is wrong - give up
 		    }
 		    while ( cur ) {
@@ -6206,7 +6207,7 @@ void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
 				    }
 				    break;
 				} else if ( !cur->leftTag ) {
-				    qWarning( "QTextEdit::optimParseTags: mismatching %s-tag for '<" + cur->tag + ">' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->line + 1 );
+				    qWarning( "QTextEdit::optimParseTags: mismatching %s-tag for '<%s>' in line %d.", cur->tag[0] == '/' ? "left" : "right", cur->tag, cur->line + 1 );
 				    return; // something is amiss - give up
 				}
 			    }

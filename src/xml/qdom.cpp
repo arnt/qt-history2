@@ -5810,7 +5810,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int, int indent ) const
 	if ( enc.isEmpty() ) {
 	    s.setEncoding( QTextStream::UnicodeUTF8 );
 	} else {
-	    s.setCodec( QTextCodec::codecForName( enc ) );
+	    s.setCodec( QTextCodec::codecForName( enc.latin1() ) );
 	}
     } else {
 	s.setEncoding( QTextStream::UnicodeUTF8 );

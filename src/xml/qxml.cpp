@@ -1152,7 +1152,7 @@ QString QXmlInputSource::fromRawData( const QByteArray &data, bool beginning )
 		    }
 		}
 
-		codec = QTextCodec::codecForName( encoding );
+		codec = QTextCodec::codecForName( encoding.latin1() );
 		if ( codec == 0 ) {
 		    return input;
 		}
