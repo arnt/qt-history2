@@ -613,12 +613,6 @@
                     <property name="name">
                         <cstring>lineEdit</cstring>
                     </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
                     <property name="text">
                         <string>hot pink</string>
                     </property>
