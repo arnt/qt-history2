@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#119 $
 **
 ** Implementation of QScrollBar class
 **
@@ -587,7 +587,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	clickedAt = FALSE;
 	return;
     }
-    
+
     if ( !clickedAt || !(e->state() & LeftButton ||
 			 ((e->state() & MidButton) /*&&
 			  style() == MotifStyle*/)) )
@@ -632,7 +632,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
     }
     else if ( style() == WindowsStyle ) {
 	// stop scrolling when the mouse pointer leaves a control similar to push buttons
-	if ( pressedControl != PRIV->pointOver( e->pos() ) ) {
+	if ( (int)pressedControl != PRIV->pointOver( e->pos() ) ) {
 	    PRIV->drawControls( pressedControl, QStyle::NONE );
 	    isTiming = FALSE;
 	    killTimers();
