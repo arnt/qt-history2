@@ -79,69 +79,11 @@ static TRUSTEE_W currentUserTrusteeW;
 
 static void resolveLibs()
 {
-#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
-    static bool triedResolve = FALSE;
-    if ( !triedResolve ) {
-	// need to resolve the security info functions
-
-#ifdef QT_THREAD_SUPPORT
-	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &triedResolve ) : 0 );
-	// check triedResolve again, since another thread may have already
-	// done the initialization
-	if ( triedResolve ) {
-	    // another thread did initialize the security function pointers,
-	    // so we shouldn't do it again.
-	    return;
-	}
-#endif
-
-	triedResolve = TRUE;
-	if ( qWinVersion() & Qt::WV_NT_based ) {
-	    QLibrary lib("advapi32");
-	    lib.setAutoUnload( FALSE );
-
-	    ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve( "GetNamedSecurityInfoW" );
-	    ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve( "LookupAccountSidW" );
-	    ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve( "AllocateAndInitializeSid" );
-	    ptrBuildTrusteeWithSidW = (PtrBuildTrusteeWithSidW) lib.resolve( "BuildTrusteeWithSidW" );
-	    ptrBuildTrusteeWithNameW = (PtrBuildTrusteeWithNameW) lib.resolve( "BuildTrusteeWithNameW" );
-	    ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve( "GetEffectiveRightsFromAclW" );
-	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
-	    if ( ptrBuildTrusteeWithNameW ) {
-		QLibrary userLib("secur32");
-		typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
-		PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve( "GetUserNameExW" );
-		if ( ptrGetUserNameExW ) {
-		    static TCHAR buffer[258];
-		    DWORD bufferSize = 257;
-		    ptrGetUserNameExW( NameSamCompatible, (ushort*)buffer, &bufferSize );
-		    ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
-		}
-	    }
-	}
-    }
-#endif // QT_NO_COMPONENT, Q_OS_TEMP
 }
-
 
 static QString currentDirOfDrive( char ch )
 {
-    QString result;
-
-    QT_WA( {
-	TCHAR currentName[PATH_MAX];
-	if ( _wgetdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = QString::fromUcs2( (ushort*)currentName );
-	}
-    } , {
-	char currentName[PATH_MAX];
-	if ( _getdcwd( toupper( (uchar) ch ) - 'A' + 1, currentName, PATH_MAX ) >= 0 ) {
-	    result = QString::fromLocal8Bit(currentName);
-	}
-    } );
-    return result;
+    return QDir::currentDirPath();
 }
 
 
@@ -157,14 +99,10 @@ void QFileInfo::slashify( QString &s )
 
 void QFileInfo::makeAbs( QString &s )
 {
-    if ( s[ 1 ] != ':' && s[ 1 ] != '/' ) {
-	s.prepend( ":" );
-	s.prepend( _getdrive() + 'A' - 1 );
-    }
-    if ( s[ 1 ] == ':' && s.length() > 3 && s[ 2 ] != '/' ) {
-	QString d = currentDirOfDrive( (char)s[ 0 ].latin1() );
+    if ( s[0] != '/' ) {
+	QString d = QDir::currentDirPath();
 	slashify( d );
-	s = d + "/" + s.mid( 2, 0xFFFFFF );
+	s.prepend( d + "/" );
     }
 }
 
@@ -194,113 +132,16 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
-    QString fileLinked;
-
-    QT_WA( {
-	IShellLink *psl;                            // pointer to IShellLink i/f
-	HRESULT hres;
-	WIN32_FIND_DATA wfd;
-	TCHAR szGotPath[MAX_PATH];
-	// Get pointer to the IShellLink interface.
-
-	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-				    IID_IShellLink, (LPVOID *)&psl);
-
-	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
-	    IPersistFile *ppf;
-	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
-	    if (SUCCEEDED(hres))  {
-		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
-		if (SUCCEEDED(hres)) {        // Resolve the link.
-
-		    hres = psl->Resolve(0, SLR_ANY_MATCH);
-
-		    if (SUCCEEDED(hres)) {
-			memcpy( szGotPath, (TCHAR*)fn.ucs2(), (fn.length()+1)*sizeof(QChar) );
-			hres = psl->GetPath( szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH );
-			fileLinked = QString::fromUcs2( (ushort*)szGotPath );
-		    }
-		}
-		ppf->Release();
-	    }
-	    psl->Release();
-	}
-    } , {
-	IShellLinkA *psl;                            // pointer to IShellLink i/f
-	HRESULT hres;
-	WIN32_FIND_DATAA wfd;
-	QString fileLinked;
-	char szGotPath[MAX_PATH];
-	// Get pointer to the IShellLink interface.
-
-	hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-				    IID_IShellLinkA, (LPVOID *)&psl);
-
-	if (SUCCEEDED(hres)) {    // Get pointer to the IPersistFile interface.
-	    IPersistFile *ppf;
-	    hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
-	    if (SUCCEEDED(hres))  {
-		hres = ppf->Load( (LPOLESTR)fn.ucs2(), STGM_READ);
-		if (SUCCEEDED(hres)) {        // Resolve the link.
-
-		    hres = psl->Resolve(0, SLR_ANY_MATCH);
-
-		    if (SUCCEEDED(hres)) {
-			QCString lfn = fn.local8Bit();
-			memcpy( szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char) );
-			hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
-			fileLinked = QString::fromLocal8Bit(szGotPath);
-
-		    }
-		}
-		ppf->Release();
-	    }
-	    psl->Release();
-	}
-    } );
-
-    return fileLinked;
-#else
-    return QString();
-#endif // QT_NO_COMPONENT, Q_OS_TEMP
+    return QString::null;
 }
 
 Q_EXPORT int qt_ntfs_permission_lookup = 1;
-
 QString QFileInfo::owner() const
 {
-#if !defined(Q_OS_TEMP)
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
-	PSID pOwner = 0;
-	PSECURITY_DESCRIPTOR pSD;
-	QString name;
-	resolveLibs();
-	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, &pOwner, NULL, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lowner = 0, ldomain = 0;
-		SID_NAME_USE use;
-		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidW( NULL, pOwner, NULL, &lowner, NULL, &ldomain, &use );
-		TCHAR *owner = new TCHAR[lowner];
-		TCHAR *domain = new TCHAR[ldomain];
-		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(owner);
-		}
-		LocalFree( pSD );
-		delete [] owner;
-		delete [] domain;
-	    }
-	}
-	return name;
-    } else
-#endif
-	return QString::null;
+    return QString::null;
 }
 
 static const uint nobodyID = (uint) -2;
-
 uint QFileInfo::ownerId() const
 {
     return nobodyID;
@@ -308,34 +149,7 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#if !defined(Q_OS_TEMP)
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
-	PSID pGroup = 0;
-	PSECURITY_DESCRIPTOR pSD;
-	QString name;
-	resolveLibs();
-
-	if ( ptrGetNamedSecurityInfoW && ptrLookupAccountSidW ) {
-	    if ( ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT, GROUP_SECURITY_INFORMATION, NULL, &pGroup, NULL, NULL, &pSD ) == ERROR_SUCCESS ) {
-		DWORD lgroup = 0, ldomain = 0;
-		SID_NAME_USE use;
-		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidW( NULL, pGroup, NULL, &lgroup, NULL, &ldomain, &use );
-		TCHAR *group = new TCHAR[lgroup];
-		TCHAR *domain = new TCHAR[ldomain];
-		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
-		    name = qt_winQString(group);
-		}
-		LocalFree( pSD );
-		delete [] group;
-		delete [] domain;
-	    }
-	}
-	return name;
-    } else
-#endif
-	return QString::null;
+    return QString::null;
 }
 
 uint QFileInfo::groupId() const
@@ -345,82 +159,12 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-#if !defined(Q_OS_TEMP)
-    if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
-	PSID pGroup = 0;
-	PACL pDacl;
-	PSECURITY_DESCRIPTOR pSD;
-	ACCESS_MASK access_mask;
-
-	enum { ReadMask = 0x00000001, WriteMask = 0x00000002, ExecMask = 0x00000020 };
-	resolveLibs();
-
-	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
-	    DWORD res = ptrGetNamedSecurityInfoW( (wchar_t*)fn.ucs2(), SE_FILE_OBJECT,
-		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-		0, &pGroup, &pDacl, 0, &pSD );
-
-	    if ( res == ERROR_SUCCESS ) {
-		TRUSTEE_W trustee;
-		if ( p & ( ReadUser | WriteUser | ExeUser) ) {
-		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &currentUserTrusteeW, &access_mask ) != ERROR_SUCCESS )
-			access_mask = (ACCESS_MASK)-1; // ###
-		    if ( ( p & ReadUser ) && !( access_mask & ReadMask )   ||
-			( p & WriteUser ) && !( access_mask & WriteMask ) ||
-			( p & ExeUser ) && !( access_mask & ExecMask )      ) {
-			LocalFree( pSD );
-			return FALSE;
-		    }
-		}
-		if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
-		    ptrBuildTrusteeWithSidW( &trustee, pGroup );
-		    if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
-			access_mask = (ACCESS_MASK)-1; // ###
-		    if ( ( p & ReadGroup ) && !( access_mask & ReadMask )   ||
-			( p & WriteGroup ) && !( access_mask & WriteMask ) ||
-			( p & ExeGroup ) && !( access_mask & ExecMask )      ) {
-			LocalFree( pSD );
-			return FALSE;
-		    }
-		}
-		if ( p & ( ReadOther | WriteOther | ExeOther) ) {
-		    // Create SID for Everyone (World)
-		    SID_IDENTIFIER_AUTHORITY worldAuth = { SECURITY_WORLD_SID_AUTHORITY };
-		    PSID pWorld = 0;
-		    if ( ptrAllocateAndInitializeSid( &worldAuth, 1, SECURITY_WORLD_RID, 0,0,0,0,0,0,0, &pWorld ) ) {
-			ptrBuildTrusteeWithSidW( &trustee, pWorld );
-			if ( ptrGetEffectiveRightsFromAclW( pDacl, &trustee, &access_mask ) != ERROR_SUCCESS )
-			    access_mask = (ACCESS_MASK)-1; // ###
-			if ( ( p & ReadOther ) && !( access_mask & ReadMask )   ||
-			    ( p & WriteOther ) && !( access_mask & WriteMask ) ||
-			    ( p & ExeOther ) && !( access_mask & ExecMask )      ) {
-			    LocalFree( pSD );
-			    return FALSE;
-			}
-		    }
-		    ptrFreeSid( pWorld );
-		}
-		LocalFree( pSD );
-	    }
-	}
-    } 
-#endif // !Q_OS_TEMP
     // just check if it's ReadOnly
-
-    QT_WA( {
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
-	    if ( attr & FILE_ATTRIBUTE_READONLY )
-		return FALSE;
-	}
-    } , {
-	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
-	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
-	    if ( attr & FILE_ATTRIBUTE_READONLY )
-		return FALSE;
-	}
-    } );
-
+    if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
+	if ( attr & FILE_ATTRIBUTE_READONLY )
+	    return FALSE;
+    }
     return TRUE;
 }
 
@@ -429,9 +173,6 @@ void QFileInfo::doStat() const
     if ( fn.isEmpty() )
 	return;
 
-#ifndef Q_OS_TEMP
-    UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
-#endif
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
@@ -483,10 +224,6 @@ void QFileInfo::doStat() const
 	delete that->fic;
 	that->fic = 0;
     }
-
-#ifndef Q_OS_TEMP
-    SetErrorMode(oldmode);
-#endif
 }
 
 QString QFileInfo::dirPath( bool absPath ) const
@@ -537,9 +274,5 @@ QString QFileInfo::fileName() const
 */
 bool QFileInfo::isHidden() const
 {
-    QT_WA( {
-	return GetFileAttributesW( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
-    } , {
-    return GetFileAttributesA( fn.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN;
-    } );
+    return GetFileAttributes( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
 }
