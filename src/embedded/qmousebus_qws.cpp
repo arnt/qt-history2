@@ -48,7 +48,7 @@
 #include <termios.h>
 
 /*
- * bus mouse driver
+ * bus mouse driver (a.k.a. Logitech busmouse)
  */
 
 class QWSBusMouseHandlerPrivate : public QObject
@@ -151,12 +151,10 @@ void QWSBusMouseHandlerPrivate::readMouseData()
 	dx = 0;
 	dy = 0;
 	sendEvent = false;
-	if ( ((mb[0] & 0x4))  ) {
+	if ( ((mb[0] & 0x04)) )
 	    bstate |= Qt::LeftButton;
-	}
-	if ( ((mb[0] & 0x01)) ) {
+	if ( ((mb[0] & 0x01)) )
 	    bstate |= Qt::RightButton;
-	}
 
 	dx=(signed char)mb[1];
 	dy=(signed char)mb[2];
