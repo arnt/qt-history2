@@ -34,6 +34,7 @@ class TestInterface : public QObject, public QActionInterface
 public:
     TestInterface();
     ~TestInterface();
+
     QString name() { return "Test Actionplugin"; }
     QString description() { return "Test implementation of the QActionInterface"; }
     QString author() { return "vohi"; }
@@ -158,6 +159,10 @@ void TestInterface::toggleText()
 	    actionTurnOnText->setMenuText( "&Show Text" );
 	}
 	ifc->requestSetProperty( "usesTextLabel", !on );
+
+	QClientInterface menuIfc;
+	ifc->requestConnection( "PlugMenuInterface", &menuIfc );
+	menuIfc.requestSetProperty( "defaultUp", TRUE );
     }
 }
 
@@ -166,7 +171,7 @@ void TestInterface::selectWidget()
     QClientInterface* ifc;
     if ( ( ifc = clientInterface( "PlugMainWindowInterface" ) ) ) {
 	bool ok = FALSE;
-	QString wc = QInputDialog::getText( "Set central widget", "Enter widget class", "QWidget", &ok );
+	QString wc = QInputDialog::getText( "Set central widget", "Enter widget class", QLineEdit::Normal, "QWidget", &ok );
 	if ( ok ) {
 	    ifc->requestSetProperty( "centralWidget", wc );
 	}
@@ -233,19 +238,6 @@ extern "C"
 LIBEXPORT QActionInterface* loadInterface()
 {
     return new TestInterface();
-}
-
-LIBEXPORT bool onConnect( QApplication* theApp )
-{
-    qDebug("Action-Plugin: I've been loaded by %p", theApp );
-    return TRUE;
-}
-
-LIBEXPORT bool onDisconnect( QApplication* theApp )
-{
-    qDebug("Action-Plugin: I've been unloaded by %p", theApp);
-
-    return TRUE;
 }
 
 #if defined(__cplusplus)
