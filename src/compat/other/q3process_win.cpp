@@ -367,9 +367,9 @@ bool Q3Process::start( QStringList *env )
 	if ( appName.isNull() )
 	    applicationName = 0;
 	else
-	    applicationName = const_cast<char *>(appName.local8Bit());
+	    applicationName = const_cast<char *>(appName.toLocal8Bit().data());
 	success = CreateProcessA( applicationName,
-		const_cast<char *>(args.local8Bit()),
+		const_cast<char *>(args.toLocal8Bit().data()),
 		0, 0, TRUE, comms==0 ? CREATE_NEW_CONSOLE : DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
