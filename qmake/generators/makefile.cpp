@@ -1301,9 +1301,14 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString m = Option::fixPathToTargetOS(findMocDestination(*it));
-	if ( !m.isEmpty())
-	    t << m << ": $(MOC) " << (*it) << "\n\t"
+	if ( !m.isEmpty()) {
+	    QString deps;
+	    if(!project->isActiveConfig("no_mocdepend"))
+		deps += "$(MOC) ";
+	    deps += (*it);
+	    t << m << ": " << deps << "\n\t"
 	      << "$(MOC) " << (*it) << " -o " << m << endl << endl;
+	}
     }
 }
 

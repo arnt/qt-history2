@@ -544,15 +544,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "mocables: $(SRCMOC)" << endl << endl;
 
-    //this is an implicity depend on moc, so it will be built if necesary, however
-    //moc itself shouldn't have this dependancy - this is a little kludgy but it is
-    //better than the alternative for now.
-    QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET");
-    fixEnvVariables(target);
-    fixEnvVariables(moc);
-    if(target != moc) {
-	t << "$(MOC): \n\t"
-	  << "( cd $(QTDIR)/src/moc ; $(MAKE) )"  << endl << endl;
+    if(!project->isActiveConfig("no_mocdepend")) {
+	//this is an implicity depend on moc, so it will be built if necesary, however
+	//moc itself shouldn't have this dependancy - this is a little kludgy but it is
+	//better than the alternative for now.
+	QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET");
+	fixEnvVariables(target);
+	fixEnvVariables(moc);
+	if(target != moc) 
+	    t << "$(MOC): \n\t"
+	      << "( cd $(QTDIR)/src/moc ; $(MAKE) )"  << endl << endl;
     }
 
     writeMakeQmake(t);
