@@ -1725,6 +1725,7 @@ void QTextEdit::append(const QString &text)
     const bool atBottom = d->contentsY() >= d->contentsHeight() - d->viewport->height();
 
     QTextCursor cursor(d->doc);
+    cursor.beginEditBlock();
     cursor.movePosition(QTextCursor::End);
     cursor.insertBlock();
     if (f == Qt::PlainText) {
@@ -1733,6 +1734,7 @@ void QTextEdit::append(const QString &text)
         QTextDocumentFragment frag = QTextDocumentFragment::fromHTML(text);
         cursor.insertFragment(frag);
     }
+    cursor.endEditBlock();
 
     if (atBottom && d->vbar->isVisible())
         d->vbar->setValue(d->vbar->maximum() - d->viewport->height());
