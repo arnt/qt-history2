@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#51 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#52 $
 **
 ** Definition of QPainter class
 **
@@ -246,8 +246,10 @@ protected:
     HDC		hdc;				// device context
     HANDLE	hpen;				// current pen
     HANDLE	hbrush;				// current brush
-    uint	stockBrush	: 0;
-    uint	pixmapBrush	: 0;
+    HANDLE	hbrushbm;			// current brush bitmap
+    uint	stockBrush	: 1;
+    uint	pixmapBrush	: 1;
+    uint	tmpHandle	: 1;
 #elif defined(_WS_PM_)
     HPS		hps;				// presentation space
     int		dh;				// device height

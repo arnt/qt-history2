@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#15 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#16 $
 **
 ** Definition of QColor class
 **
@@ -91,12 +91,8 @@ private:
     static bool lalloc;
 #if defined(_WS_WIN_)
     static HANDLE hpal;
-    ulong  pix;
-#elif defined(_WS_PM_)
-    ulong  pix;
-#elif defined(_WS_X11_)
-    ulong  pix;
 #endif
+    ulong  pix;
     ulong  rgb;					// RGB value
 };
 

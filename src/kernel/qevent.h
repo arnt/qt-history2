@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#19 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#20 $
 **
 ** Definition of event classes
 **
@@ -82,7 +82,7 @@ class QMouseEvent : public QEvent		// mouse event
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
 	: QEvent(type)		{ p=pos; b=button; st=(ushort)state; }
-    const QPoint &pos()	const	{ return p; }	// mouse position
+    const QPoint &pos() const	{ return p; }	// mouse position
     int	   button()	const	{ return b; }	// button which caused event
     int	   state()	const	{ return st; }	// button state (OR'ed)
 protected:
@@ -97,11 +97,11 @@ protected:
 class QKeyEvent : public QEvent			// keyboard event
 {
 public:
-    QKeyEvent( int type, int kc, char ac, int state )
+    QKeyEvent( int type, int kc, uchar ac, int state )
 	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
 				  accpt=TRUE; accel=0; }
-    int	   key()	const	{ return k; }	// key code (Key_Code)
-    uchar  ascii()	const	{ return a; }	// ascii value
+    int	   key()	const	{ return k; }	// key code
+    uchar  ascii()	const	{ return (uchar )a; } // ascii value
     int	   state()	const	{ return st; }	// keyboard status
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
@@ -129,7 +129,7 @@ class QPaintEvent : public QEvent		// widget paint event
 public:
     QPaintEvent( const QRect &paintRect )
 	: QEvent(Event_Paint)	{ r=paintRect; }
-    const QRect &rect()	const	{ return r; }	// rectangle to be painted
+    const QRect &rect() const	{ return r; }	// rectangle to be painted
 protected:
     QRect r;
 };

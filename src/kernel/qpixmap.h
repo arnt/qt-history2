@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#36 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#37 $
 **
 ** Definition of QPixmap class
 **
@@ -29,72 +29,76 @@ public:
     QPixmap( const QPixmap & );
    ~QPixmap();
 
-    QPixmap &operator=( const QPixmap & );
-    QPixmap &operator=( const QImage  & );
+    QPixmap    &operator=( const QPixmap & );
+    QPixmap    &operator=( const QImage	 & );
 
-    bool    isNull()	const;
+    bool	isNull()	const;
 
-    int	    width()	const { return data->w; }
-    int	    height()	const { return data->h; }
-    QSize   size()	const { return QSize(data->w,data->h); }
-    QRect   rect()	const { return QRect(0,0,data->w,data->h); }
-    int	    depth()	const { return data->d; }
-    int	    numColors() const { return (1 << data->d); }
+    int		width()		const { return data->w; }
+    int		height()	const { return data->h; }
+    QSize	size()		const { return QSize(data->w,data->h); }
+    QRect	rect()		const { return QRect(0,0,data->w,data->h); }
+    int		depth()		const { return data->d; }
+    int		numColors()	const { return (1 << data->d); }
 
-    void    fill( const QColor &fillColor=white );
-    void    resize( int width, int height );
-    void    resize( const QSize & );
+    void	fill( const QColor &fillColor=white );
+    void	resize( int width, int height );
+    void	resize( const QSize & );
 
-    static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
+    static  QPixmap  grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
-    bool    enableImageCache( bool enable );
+    QPixmap	     xForm( const Q2DMatrix & ) const;
+    static Q2DMatrix trueMatrix( const Q2DMatrix &, int w, int h );
 
-    QPixmap		xForm( const Q2DMatrix & )	const;
-    static  Q2DMatrix	trueMatrix( const Q2DMatrix &, int w, int h );
+    QImage	convertToImage() const;
+    bool	convertFromImage( const QImage & );
 
-    QImage  convertToImage() const;
-    bool    convertFromImage( const QImage & );
-
-    static  const char *imageFormat( const char *fileName );
-    bool    load( const char *fileName, const char *format=0 );
-    bool    save( const char *fileName, const char *format ) const;
+    static const char *imageFormat( const char *fileName );
+    bool	load( const char *fileName, const char *format=0 );
+    bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
-    HANDLE  hbm() const;
+    HANDLE	hbm()		const;
 #endif
 
-    bool    isQBitmap()	  const;
+    bool	optimized()	const;
+    void	setOptimization( bool );
+    static bool optimizedAll();
+    static void setOptimizationAll( bool );
+
+    bool	isQBitmap()	const;
 
 protected:
     QPixmap( int w, int h, const char *data, bool isXbitmap );
-    long    metric( int ) const;		// get metric information
+    long	metric( int ) const;		// get metric information
     virtual void detach();
 
 #if defined(_WS_WIN_)
-    HANDLE allocMemDC();
-    void   freeMemDC();
+    HANDLE	allocMemDC();
+    void	freeMemDC();
 #endif
 
     struct QPixmapData : QShared {		// internal pixmap data
-	QCOORD w, h;
-	short  d;
-	uint   dirty  : 1;
-	uint   optim  : 1;
-	uint   uninit : 1;
-	uint   bitmap : 1;
+	QCOORD	w, h;
+	short	d;
+	uint	dirty  : 1;
+	uint	optim  : 1;
+	uint	uninit : 1;
+	uint	bitmap : 1;
 #if defined(_WS_WIN_)
-	HANDLE hbm;
+	HANDLE	hbm;
 #elif defined(_WS_PM_)
-	HANDLE hdcmem;
-	HANDLE hbm;
+	HANDLE	hdcmem;
+	HANDLE	hbm;
 #elif defined(_WS_X11_)
-	void  *ximage;
+	void   *ximage;
 #endif
     } *data;
 
 private:
-    void    init();
-    QPixmap copy() const;
+    void	init();
+    QPixmap	copy() const;
+    static bool optimAll;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp );
 };

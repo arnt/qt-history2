@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#27 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#28 $
 **
 ** Definition of QApplication class
 **
@@ -53,7 +53,7 @@ public:
     int		    enter_loop();
     void	    exit_loop();
     static void	    quit( int retcode = 0 );	// quit application
-    
+
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
     static void	    postEvent( QObject *receiver, QEvent *event );
@@ -67,13 +67,17 @@ public:
     static void	    syncX();			// syncronize with X server
 
 #if defined(_WS_MAC_)
-    virtual bool macEventFilter( MSG * );	// Macintosh event filter
+    virtual bool    macEventFilter( MSG * );	// Macintosh event filter
 #elif defined(_WS_WIN_)
-    virtual bool winEventFilter( MSG * );	// Windows event filter
+    virtual bool    winEventFilter( MSG * );	// Windows event filter
 #elif defined(_WS_PM_)
-    virtual bool pmEventFilter( QMSG * );	// OS/2 PM event filter
+    virtual bool    pmEventFilter( QMSG * );	// OS/2 PM event filter
 #elif defined(_WS_X11_)
-    virtual bool x11EventFilter( XEvent * );	// X11 event filter
+    virtual bool    x11EventFilter( XEvent * ); // X11 event filter
+#endif
+
+#if defined(_WS_WIN_)
+    void	    winFocus( QWidget *, bool );
 #endif
 
 private:

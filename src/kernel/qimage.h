@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#12 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#13 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -96,7 +96,7 @@ public:
    ~QImageIO();
 
 
-    QImage	image()		const	{ return im; }
+    const QImage &image()	const	{ return im; }
     int		status()	const	{ return iostat; }
     const char *format()	const	{ return frmt; }
     QIODevice  *ioDevice()	const	{ return iodev; }

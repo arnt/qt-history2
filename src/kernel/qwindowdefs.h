@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#57 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#58 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -93,6 +93,7 @@ typedef struct tagMSG MSG;
 HANDLE qWinAppInst();
 HANDLE qWinAppPrevInst();
 int    qWinAppCmdShow();
+HANDLE qt_display_dc();
 
 #endif // _WS_WIN16_ or _WS_WIN32_
 
@@ -131,12 +132,6 @@ GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
 #endif // _WS_X11_
-
-
-// Useful macros etc.
-
-class QListM_QPainter;				// internal class for QPainter
-#define QPnList QListM_QPainter
 
 
 // Global platform-independent types and functions

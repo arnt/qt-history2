@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#8 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#9 $
 **
 ** Definition of QDialog class
 **
@@ -31,7 +31,7 @@ public:
     enum DialogCode { Rejected, Accepted };
 
     int		exec();
-    int		result()  const	{ return rescode; }
+    int		result()  const { return rescode; }
 
     virtual void adjustSize();
 
