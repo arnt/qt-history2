@@ -309,6 +309,7 @@ qscrbar.o: /home/popcorn/home/hanord/qt/src/include/qregion.h
 qscrbar.o: /home/popcorn/home/hanord/qt/src/include/qpen.h
 qscrbar.o: /home/popcorn/home/hanord/qt/src/include/qbrush.h
 qscrbar.o: /home/popcorn/home/hanord/qt/src/include/qpntarry.h
+qscrbar.o: /home/popcorn/home/hanord/qt/src/include/qwxfmat.h
 mbutton.o: /home/popcorn/home/hanord/qt/src/include/qmetaobj.h
 mbutton.o: /home/popcorn/home/hanord/qt/src/include/qconnect.h
 mbutton.o: /home/popcorn/home/hanord/qt/src/include/qobject.h
