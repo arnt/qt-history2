@@ -98,7 +98,7 @@ close(INPUT);
 open(INPUT, 'qpsprinter.agl')
   or die "Can't open qpsprinter.ps";
 
-print "static const char *agl =\n";
+print "static const char * const agl =\n";
 
 $str = "\"";
 $string ="";
