@@ -36,6 +36,8 @@
 #include "qguardedptr.h"
 #include "qtooltip.h"
 #include "qwmatrix.h"
+#include "qpainter.h"
+
 
 // REVISED: arnt
 
@@ -90,6 +92,10 @@
 
 #if defined(_WS_WIN_)
 #include "qt_windows.h"
+
+extern Qt::WindowsVersion qt_winver;
+extern QRgb colorref2qrgb(COLORREF);
+
 const bool win32 = TRUE;
 #define TITLEBAR_SEPARATION 2
 #define BUTTON_WIDTH 16
@@ -327,6 +333,29 @@ static bool resizeHorizontalDirectionFixed = FALSE;
 static bool resizeVerticalDirectionFixed = FALSE;
 static bool inCaptionChange = FALSE;
 
+class QWorkspaceChildTitleBar;
+
+class Q_EXPORT QWorkspaceChildTitleLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent = 0, const char* name = 0 );
+
+    void setActive( bool act );
+    QColor leftColor() const { return left; }
+    QColor rightColor() const { return right; }
+
+protected:
+    void paintEvent( QPaintEvent* );
+    void resizeEvent( QResizeEvent* );
+
+private:
+    QPixmap buffer;
+    QColor left;
+    QColor right;
+    QColor textc;
+};
+
 class Q_EXPORT QWorkspaceChildTitleBar : public QWidget
 {
     Q_OBJECT
@@ -368,7 +397,7 @@ private:
     QToolButton* maxB;
     QToolButton* iconB;
     QToolButton* shadeB;
-    QLabel* titleL;
+    QWorkspaceChildTitleLabel* titleL;
     QLabel* iconL;
     int titleHeight;
     int border;
@@ -421,6 +450,8 @@ public slots:
     void setCaption( const QString& );
     void internalRaise();
 
+    void move( int x, int y );
+
 protected:
     void mousePressEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
@@ -429,7 +460,6 @@ protected:
     void leaveEvent( QEvent * );
     void childEvent( QChildEvent* );
     void keyPressEvent( QKeyEvent * );
-
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
 
@@ -915,7 +945,7 @@ void QWorkspace::showMaximizeControls()
 	iconB->setIconSet( QPixmap( (const char **)minimize_xpm ));
  	iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( iconB, SIGNAL( clicked() ),
-		 this, SLOT( minimizeMaximizedWindow() ) );
+		 this, SLOT( minimizeActiveWindow() ) );
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
 	QToolTip::add( restoreB, tr( "Restore Down" ) );
 	l->addWidget( restoreB );
@@ -923,7 +953,7 @@ void QWorkspace::showMaximizeControls()
 	restoreB->setIconSet( QPixmap( (const char **)normalize_xpm ));
  	restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( restoreB, SIGNAL( clicked() ),
-		 this, SLOT( normalizeMaximizedWindow() ) );
+		 this, SLOT( normalizeActiveWindow() ) );
 
 	l->addSpacing( 2 );
 	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
@@ -933,7 +963,7 @@ void QWorkspace::showMaximizeControls()
 	closeB->setIconSet( QPixmap( (const char **)close_xpm ) );
  	closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	connect( closeB, SIGNAL( clicked() ),
-		 this, SLOT( closeMaximizedWindow() ) );
+		 this, SLOT( closeActiveWindow() ) );
 
 	if ( !win32 ) {
 	    iconB->setAutoRaise( TRUE );
@@ -1013,25 +1043,6 @@ void QWorkspace::minimizeActiveWindow()
 {
     if  ( d->active )
 	d->active->showMinimized();
-}
-
-void QWorkspace::closeMaximizedWindow()
-{
-    QWidget* w = d->maxWindow  ? d->maxWindow->windowWidget() : 0;
-    if ( w )
-	w->close();
-}
-
-void QWorkspace::normalizeMaximizedWindow()
-{
-    if  ( d->maxWindow )
-	d->maxWindow->showNormal();
-}
-
-void QWorkspace::minimizeMaximizedWindow()
-{
-    if  ( d->maxWindow )
-	d->maxWindow->showMinimized();
 }
 
 void QWorkspace::showOperationMenu()
@@ -1183,7 +1194,7 @@ void QWorkspace::cascade()
 
 
 	    if ( p != c->pos() )
-		c->move( p );
+		c->QFrame::move( p );
 	} else {
 	    c->showNormal();
 	    c->setGeometry( x, y, w, h );
@@ -1242,7 +1253,7 @@ void QWorkspace::tile()
 
 
 	    if ( p != c->pos() )
-		c->move( p );
+		c->QFrame::move( p );
 	} else {
 	    c->showNormal();
 	    used[row*cols+col] = TRUE;
@@ -1277,7 +1288,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
     titleHeight = 18;
     border = 2;
 
-    titleL = new QLabel( this, "__workspace_child_title_bar" );
+    titleL = new QWorkspaceChildTitleLabel( this, "__workspace_child_title_bar" );
     titleL->setTextFormat( PlainText );
     titleL->setIndent( 2 );
 
@@ -1367,6 +1378,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
     }
 
     titleL->installEventFilter( this );
+    titleL->setAlignment( AlignLeft | AlignVCenter | SingleLine );
     QFont f = font();
     f.setBold( TRUE );
     if ( window && window->testWFlags( WStyle_Tool ) )
@@ -1444,7 +1456,7 @@ void QWorkspaceChildTitleBar::setText( const QString& title )
 	QToolTip::remove( titleL );
 	QToolTip::add( titleL, text );
 	int i = text.length();
-	while ( fm.width( text.left( i-- ) + "..." ) > ( rightmost-leftmost ) && i )
+	while ( (fm.width( text.left( i-- ) + "..." ) > ( rightmost-leftmost )) && i )
 	    ;
 	titleL->setText( text.left( i ) + "..." );
     } else {
@@ -1520,6 +1532,8 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * e )
 void QWorkspaceChildTitleBar::setActive( bool active )
 {
     act = active;
+    titleL->setActive( active );
+
     if ( active ) {
 	if ( imode && !win32 ){
 	    iconB->show();
@@ -1527,13 +1541,10 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	    closeB->show();
 	}
 	QColorGroup g = palette().active();
-	g.setColor( QColorGroup::Background,  palette().active().highlight() );
-	g.setColor( QColorGroup::Foreground,  palette().active().highlightedText() );
 	if ( win32 ) {
-	    titleL->setPalette( QPalette( g, g, g), TRUE );
-	    iconL->setPalette( QPalette( g, g, g), TRUE );
+	    g.setColor( QColorGroup::Background, titleL->leftColor() );
+	    iconL->setPalette( QPalette( g, g, g) );
 	} else {
-	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	    titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 	}
     } else {
@@ -1544,14 +1555,10 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	}
 	QColorGroup g = palette().inactive();
 	if ( win32 ) {
-	    g.setColor( QColorGroup::Background,  palette().inactive().dark() );
-	    g.setColor( QColorGroup::Foreground,  palette().inactive().background() );
-	    titleL->setPalette( QPalette( g, g, g), TRUE );
-	    iconL->setPalette( QPalette( g, g, g), TRUE );
+	    g.setColor( QColorGroup::Background, titleL->leftColor() );
+	    iconL->setPalette( QPalette( g, g, g) );
 	} else {
-	    titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 	    titleL->setFrameStyle( QFrame::NoFrame );
-	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	}
     }
     if ( imode )
@@ -1971,7 +1978,7 @@ QWidget* QWorkspaceChild::iconWidget() const
 	QVBox* vbox = new QVBox;
 	vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
 	vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
-	that->iconw = new QWorkspaceChildTitleBar( (QWorkspace*)parentWidget(), 0, vbox, 0, TRUE );
+	that->iconw = new QWorkspaceChildTitleBar( (QWorkspace*)parentWidget(), 0, vbox, "_workspacechild_icon_", TRUE );
 	iconw->setActive( isActive() );
 	connect( iconw, SIGNAL( doActivate() ),
 		 this, SLOT( activate() ) );
@@ -2016,13 +2023,13 @@ void QWorkspaceChild::showShaded()
     QToolTip::remove( titlebar->shadeB );
     ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
     if ( shademode ) {
-	QToolTip::add( titlebar->shadeB, tr( "Roll down" ) );
+	QToolTip::add( titlebar->shadeB, tr( "Roll up" ) );
 	titlebar->shadeB->setIconSet( QPixmap( (const char **)shade_xpm ) );
 	shademode = FALSE;
 	resize( shadeRestore );
 	setMinimumSize( shadeRestoreMin );
     } else {
-	QToolTip::add( titlebar->shadeB, tr( "Roll up" ) );
+	QToolTip::add( titlebar->shadeB, tr( "Roll down" ) );
 	titlebar->shadeB->setIconSet( QPixmap( (const char **)shade_xpm ).xForm( QWMatrix().rotate(-180) ) );
 	shadeRestore = size();
 	shadeRestoreMin = minimumSize();
@@ -2228,7 +2235,8 @@ void QWorkspaceChild::internalRaise()
     QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
 
     for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
-	if ( !c->windowWidget()->isHidden() &&
+	if ( c->windowWidget() && 
+	    !c->windowWidget()->isHidden() &&
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
@@ -2237,6 +2245,133 @@ void QWorkspaceChild::internalRaise()
 bool QWorkspaceChild::isShaded() const
 {
     return shademode;
+}
+
+void QWorkspaceChild::move( int x, int y )
+{
+    int nx = x;
+    int ny = y;
+    int dx = 10;
+    int dy = 10;
+
+    if ( QABS( x ) < dx ) {
+	nx = 0;
+	dx = QABS(x);
+    }
+    if ( QABS( y ) < dy ) {
+	ny = 0;
+	dy = QABS(y);
+    }
+    if ( QABS( x + width() - parentWidget()->width() ) < dx ) {
+	nx = parentWidget()->width() - width();
+	dx = QABS( x + width() - parentWidget()->width() );
+    }
+    if ( QABS( y + height() - parentWidget()->height() ) < dy ) {
+	ny = parentWidget()->height() - height();
+	dy = QABS( y + height() - parentWidget()->height() );
+    }
+
+/*    QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
+
+    for (QWorkspaceChild* c = l.first(); c; c = l.next() ) {
+	if ( c == this || c->windowWidget() && 
+	    !c->windowWidget()->testWFlags( WStyle_Tool ))
+	    continue;
+
+	if ( QABS( x + width() - c->x() ) < dx ) {
+	    nx = c->x() - width();
+	    dx = QABS( x + width() - c->x() );
+	}
+	if ( QABS( x - c->x() - c->width() ) < dx ) {
+	    nx = c->x() + c->width();
+	    dx = QABS( x - c->x() - c->width() );
+	}
+	if ( QABS( y + height() - c->y() ) < dy ) {
+	    ny = c->y() - height();
+	    dy = QABS( y + height() - c->y() );
+	}
+	if ( QABS( y - c->y() - c->height() ) < dy ) {
+	    ny = c->y() + c->height();
+	    dy = QABS( y - c->y() - c->height() );
+	}
+    }
+*/
+    QFrame::move( nx, ny );
+}
+
+QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* parent, const char* name )
+    : QLabel( parent, name, WRepaintNoErase | WResizeNoErase )
+{
+}
+
+void QWorkspaceChildTitleLabel::paintEvent( QPaintEvent* e )
+{
+    QPainter p(&buffer);
+    p.setFont( font() );
+
+    if ( left != right ) {
+	double rS = left.red();
+	double gS = left.green();
+	double bS = left.blue();
+
+	double rD = double(right.red() - rS) / width();
+	double gD = double(right.green() - gS) / width();
+	double bD = double(right.blue() - bS) / width();
+
+	for ( int x = frameWidth(); x < width()-2*frameWidth(); x++ ) {
+	    rS+=rD;
+	    gS+=gD;
+	    bS+=bD;
+	    p.setPen( QColor( rS, gS, bS ) );
+	    p.drawLine( x, frameWidth(), x, height()-2*frameWidth() );
+	}
+    } else {
+	p.fillRect( frameWidth(), frameWidth(), width()-2*frameWidth(), 
+	    height()-2*frameWidth(), left );
+    }
+    p.setPen( textc );
+    p.drawText( indent()+frameWidth(), frameWidth(), width()-2*frameWidth(), 
+	height()-2*frameWidth(), alignment(), text() );
+    p.end();
+
+    bitBlt( this, 0, 0, &buffer, 0, 0, width(), height() );
+}
+
+void QWorkspaceChildTitleLabel::resizeEvent( QResizeEvent* e )
+{
+    buffer.resize( size() );
+
+    QLabel::resizeEvent( e );
+}
+
+void QWorkspaceChildTitleLabel::setActive( bool a )
+{
+#ifdef _WS_WIN_
+    a ? left = colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) :
+	left = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION));
+    a ? textc = colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) :
+	textc = colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT));
+
+    right = left;
+
+    #if defined(SPI_GETGRADIENTCAPTIONS) //### not defined in current SDK
+    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 ){
+	bool gradient;
+	SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+	if ( gradient ) {
+	    a ? right = colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION)) :
+		right = colorref2qrgb(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+	}
+    }
+    #endif
+#else
+    a ? left = right = palette().active().highlight() :
+	left = right = palette().inactive().dark();
+    a ? textc = palette().active().highlightedText() : 
+	textc = palette().inactive().background();
+#endif
+
+    update();
 }
 
 #include "qworkspace.moc"
