@@ -41,13 +41,15 @@
     accessibility tools (AT Clients), such as screen readers and
     braille displays. Clients and servers communicate in the following way:
 
-    \e AT \e Servers notify the clients about events through calls to the
-    updateAccessibility() function.
+    \list
+    \i  \e{AT Servers} notify the clients about events through calls to the
+        updateAccessibility() function.
 
-    \e AT \e Clients request information about the objects in the server.
-    The QAccessibleInterface class is the core interface, and encapsulates
-    this information in a pure virtual API. Implementations of the interface
-    are provided by Qt through the queryAccessibleInterface() API.
+    \i  \e{AT Clients} request information about the objects in the server.
+        The QAccessibleInterface class is the core interface, and encapsulates
+        this information in a pure virtual API. Implementations of the interface
+        are provided by Qt through the queryAccessibleInterface() API.
+    \endlist
 
     The communication between servers and clients is initialized by the
     setRootObject() function.
