@@ -199,8 +199,8 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     if(!w || !w->isTopLevel())
 	return false;
 
-    w->createTLExtra();
-    w->extra->topextra->resizer += up;
+    w->d->createTLExtra();
+    w->d->extraData()->topextra->resizer += up;
 
     {
 	WindowClass wclass;
@@ -208,8 +208,9 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 	if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
 	    return TRUE;
     }
-    bool remove_grip = (w->extra->topextra->resizer ||
-			(w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh));
+    bool remove_grip = (w->d->extraData()->topextra->resizer ||
+			(w->d->extraData()->maxw && w->d->extraData()->maxh && 
+			 w->d->extraData()->maxw == w->d->extraData()->minw && w->d->extraData()->maxh == w->d->extraData()->minh));
 
     WindowAttributes attr;
     GetWindowAttributes((WindowRef)w->handle(), &attr);
@@ -936,7 +937,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	hd = (void *)id;
 	macWidgetChangedWindow();
 	setWinId(id);
-	if(extra && !extra->mask.isNull())
+	if(d->extra && !d->extra->mask.isNull())
 	   ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
 	    setWindowTransparency(180);
@@ -2532,10 +2533,10 @@ void QWidget::setWindowTransparency(double level)
 	return;
     level = QMIN(QMAX(level, 0), 1.0);
     QMacSavedPortInfo::setAlphaTransparency(this, level);
-    topData()->transparency = (uchar)(level*255);
+    d->topData()->transparency = (uchar)(level*255);
 }
 
 double QWidget::windowTransparency() const
 {
-    return isTopLevel() ? ((QWidget*)this)->topData()->transparency/255.0 : 1.0;
+    return isTopLevel() ? ((QWidget*)this)->d->topData()->transparency/255.0 : 1.0;
 }

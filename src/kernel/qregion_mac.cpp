@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qt_mac.h"
+#include "qkernelapplication.h"
 
 static QRegionPrivate qrp; //### make it work now without checking for null pointers all the time
 QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0, &qrp };
