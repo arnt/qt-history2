@@ -79,39 +79,28 @@ inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
 #define qt_alpha_pixel(s, t, a, ra) { int tmp = s*a + t*ra; t = qt_div_255(tmp); }
 #define qt_alpha_pixel_pm(s, t, ra) { int tmp = s + t*ra; t = qt_div_255(tmp); }
 
-static inline void qt_blend_pixel_opaque(ARGB src, ARGB *target, int coverage)
-{
-    int alpha = qt_div_255(coverage * src.a);
-    int rev_alpha = 255 - alpha;
-    qt_alpha_pixel(src.r, target->r, alpha, rev_alpha);
-    qt_alpha_pixel(src.g, target->g, alpha, rev_alpha);
-    qt_alpha_pixel(src.b, target->b, alpha, rev_alpha);
-    target->a = src.a + qt_div_255(rev_alpha * target->a);
-}
-
-static inline void qt_blend_pixel(ARGB src, ARGB *target, int coverage)
-{
-    int alpha = qt_div_255(coverage * src.a);
-    if (alpha == 255) {
-        *target = src;
-    } else {
-        int rev_alpha = 255 - alpha;
-        int res_alpha = alpha + qt_div_255(rev_alpha * target->a);
-
-        target->a = res_alpha;
-        if (res_alpha == 255) {
-            qt_alpha_pixel(src.r, target->r, alpha, rev_alpha);
-            qt_alpha_pixel(src.g, target->g, alpha, rev_alpha);
-            qt_alpha_pixel(src.b, target->b, alpha, rev_alpha);
-        } else
-            if (res_alpha != 0) {
-            rev_alpha *= target->a;
-            target->r = (src.r * alpha + qt_div_255(rev_alpha * target->r)) / res_alpha;
-            target->g = (src.g * alpha + qt_div_255(rev_alpha * target->g)) / res_alpha;
-            target->b = (src.b * alpha + qt_div_255(rev_alpha * target->b)) / res_alpha;
-        }
+#define qt_blend_pixel(src, target, coverage) \
+    {                                                             \
+        int alpha = qt_div_255(coverage * src.a);                 \
+        if (alpha == 255) {                                       \
+            *target = src;                                        \
+        } else {                                                  \
+            int rev_alpha = 255 - alpha;                               \
+            int res_alpha = alpha + qt_div_255(rev_alpha * target->a); \
+                                                                       \
+            target->a = res_alpha;                                     \
+            if (res_alpha == 255) {                                    \
+                qt_alpha_pixel(src.r, target->r, alpha, rev_alpha);    \
+                qt_alpha_pixel(src.g, target->g, alpha, rev_alpha);    \
+                qt_alpha_pixel(src.b, target->b, alpha, rev_alpha);    \
+            } else if (res_alpha != 0) {                                \
+                rev_alpha *= target->a;                                 \
+                target->r = (src.r * alpha + qt_div_255(rev_alpha * target->r)) / res_alpha; \
+                target->g = (src.g * alpha + qt_div_255(rev_alpha * target->g)) / res_alpha; \
+                target->b = (src.b * alpha + qt_div_255(rev_alpha * target->b)) / res_alpha; \
+            }                                                           \
+        }                                                               \
     }
-}
 
 static inline void qt_blend_pixel_premul(int pr, int pg, int pb, int alpha, ARGB *target)
 {
