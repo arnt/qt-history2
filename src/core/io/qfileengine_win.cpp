@@ -235,7 +235,7 @@ QFSFileEngine::rename(const QString &newName)
     });
 }
 
-QFile::Offset
+Q_LONGLONG
 QFSFileEngine::size() const
 {
     QT_STATBUF st;
@@ -1164,7 +1164,7 @@ bool QFSFileEngine::chmod(uint perms)
    return ret;
 }
 
-bool QFSFileEngine::setSize(QIODevice::Offset size)
+bool QFSFileEngine::setSize(Q_LONGLONG size)
 {
     if (d->fd != -1) {
         // resize open file
@@ -1172,7 +1172,7 @@ bool QFSFileEngine::setSize(QIODevice::Offset size)
         if (fh == INVALID_HANDLE_VALUE)
             return false;
 
-        QIODevice::Offset currentPos = at();
+        Q_LONGLONG currentPos = at();
         if (seek(size) && SetEndOfFile(fh)) {
             seek(qMin(currentPos, size));
             return true;

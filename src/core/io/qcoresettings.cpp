@@ -1042,7 +1042,7 @@ static void closeFile(QFile &file, QConfFile &confFile)
     close(fd);
 #else
     int increment;
-    if (file.mode() & QIODevice::ReadOnly)
+    if (file.deviceMode() & QIODevice::ReadOnly)
         increment = 1;
     else
         increment = FileLockSemMax;
