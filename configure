@@ -695,8 +695,7 @@ then
 fi
 MKSPEC="$relpath/mkspecs/${PLATFORM}"
 XMKSPEC="$relpath/mkspecs/${XPLATFORM}"
-
-if [ '!' -f "$MKSPEC" ]
+if [ '!' -d "$MKSPEC" ]
 then
     echo
     echo
@@ -706,7 +705,7 @@ then
     echo
     exit 2
 fi
-if [ '!' -f "$XMKSPEC" ]
+if [ '!' -d "$XMKSPEC" ]
 then
     echo
     echo
@@ -718,29 +717,28 @@ then
 fi
 
 # Setup qplatformdefs.h
-if [ '!' -f "$XMKSPEC.h" ]
+if [ '!' -f "${XMKSPEC}/qplatformdefs.h" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler port is not complete: ' $XPLATFORM
+    echo '   The specified platform/compiler port is not complete: ' $XMKSPEC/qplatformdefs.h
     echo '   Please contact qt-bugs@trolltech.com.'
     echo
     echo
     exit 2
 fi
 # Link the platform include file into the include directory
-rm -f ${relpath}/include/qplatformdefs.h
-ln -s ${relpath}/mkspecs/${XPLATFORM}.h ${relpath}/include/qplatformdefs.h
+ln -sf ${relpath}/mkspecs/${XPLATFORM}/qplatformdefs.h ${relpath}/include/
 
 # Auto-detect opengl support
 if echo $MODULES | grep opengl >/dev/null 
 then
-    LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC`
+    LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XMKSPEC/qmake.conf`
     for L in $LIBS
     do
 	F=
 	### fix (search for OpenGL libraries in X11 directory as well)
-	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC` /usr/lib /lib /usr/X11R6/lib
+	for LIB in `sed -n -e '/^QMAKE_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC/qmake.conf` /usr/lib /lib /usr/X11R6/lib
 	do
 	    if [ "`echo $LIB/lib$L.*`" != "$LIB"/lib$L.\* ]
 	    then
@@ -760,7 +758,7 @@ fi
 if [ $XRENDER = auto ]
 then
     XRENDER=yes
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC`
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC/qmake.conf`
     LIBDIRS="$XDIRS /usr/lib /lib"
 
     FOUND_LIB=
@@ -783,7 +781,7 @@ then
     if [ "$XRENDER" = "yes" ]
     then
 	INCS="X11/extensions/Xrender.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC/qmake.conf`
 	INCDIRS="$XDIRS /usr/include /include"
 
 	for I in $INCS
@@ -819,7 +817,7 @@ fi
 if [ $XFTFREETYPE = auto ]
 then
     XFTFREETYPE=yes
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC`
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC/qmake.conf`
     LIBDIRS="$XDIRS /usr/lib /lib"
 
     FOUND_LIB=
@@ -842,7 +840,7 @@ then
     if [ "$XFTFREETYPE" = "yes" ]
     then
 	INCS="X11/Xft/XftFreetype.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC/qmake.conf`
 	INCDIRS="$XDIRS /usr/include /include"
 
 	for I in $INCS
@@ -867,7 +865,7 @@ then
 fi
 
 # Find default thread option for target
-if grep >/dev/null '^QMAKE_LIBS_THREAD' $XMKSPEC
+if grep >/dev/null '^QMAKE_LIBS_THREAD' $XMKSPEC/qmake.conf
 then
     AUTOTHREAD=yes
     AUTOTHREAD=no  ####### leave off for now
@@ -880,7 +878,7 @@ then
     then
 	echo
 	echo "ERROR: Qt is not configured to support threading on this platform"
-	echo "       See the THREAD settings in $XMKSPEC"
+	echo "       See the THREAD settings in $XMKSPEC/qmake.conf"
 	echo
 	exit 2
     fi
@@ -895,7 +893,7 @@ fi
 if [ $SM = auto ]
 then
     SM=no
-    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+    for INC in `sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC/qmake.conf`
     do
 	if [ -f $INC/X11/SM/SM.h ]
 	then
@@ -910,7 +908,7 @@ if [ $XINERAMA = auto ]
 then
     XINERAMA=yes
 
-    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC`
+    XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XMKSPEC/qmake.conf`
     LIBDIRS="$XDIRS /usr/lib /lib"
 
     FOUND_LIB=
@@ -933,7 +931,7 @@ then
     if [ "$XINERAMA" = "yes" ]
     then
 	INCS="X11/extensions/Xinerama.h"
-	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC`
+	XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XMKSPEC/qmake.conf`
 	INCDIRS="$XDIRS /usr/include /include"
 
 	for I in $INCS
@@ -1450,7 +1448,7 @@ done
 
 if echo "$LD_LIBRARY_PATH" | grep >/dev/null $outpath/lib
 then
-    if grep >/dev/null QMAKE_RPATH $XMKSPEC
+    if grep >/dev/null QMAKE_RPATH $XMKSPEC/qmake.conf
     then
 	echo # Using -R/-rpath, so no need to warn
     else

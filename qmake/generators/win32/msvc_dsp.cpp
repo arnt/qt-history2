@@ -479,7 +479,7 @@ DspMakefileGenerator::findTemplate(QString file)
 {
     QString ret;
     if(!QFile::exists(ret = file) && !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))) &&
-	!QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/etc/" + file)))
+	!QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc/" + file)))
 	return "";
     return ret;
 }

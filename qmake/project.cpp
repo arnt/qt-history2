@@ -323,26 +323,24 @@ QMakeProject::read(QString project, QString pwd)
 	    }
 	    Option::specfile = getenv("MKSPEC");
 	}
-	if(Option::specfile.find(QDir::separator()) == -1) {
+	if(QDir::isRelativePath(Option::specfile)) {
 	    if(!getenv("QTDIR")) {
 		fprintf(stderr, "QTDIR has not been set, so mkspec cannot be deduced.\n");
 		return FALSE;
 	    }
 	    Option::specfile.prepend(QString(getenv("QTDIR")) + QDir::separator() + "mkspecs" + QDir::separator());
 	}
+	QString spec = Option::specfile + QDir::separator() + "qmake.conf";
+	debug_msg(1, "MKSPEC file: reading %s", spec.latin1());
 
-	debug_msg(1, "MKSPEC file: reading %s", Option::specfile.latin1());
-
-	if(!read(Option::specfile, base_vars)) {
-	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", Option::specfile.latin1());
+	if(!read(spec, base_vars)) {
+	    fprintf(stderr, "Failure to read MKSPEC file %s.\n", spec.latin1());
 	    return FALSE;
 	}
 	if(!cachefile.isEmpty()) {
 	    debug_msg(1, "QMAKECACHE file: reading %s", cachefile.latin1());
 	    read(cachefile, base_vars);
 	}
-
-	
 
 	cfile = project;
 	for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) {
