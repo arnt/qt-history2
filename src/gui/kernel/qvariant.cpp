@@ -81,6 +81,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             v_construct<QIcon>(x, copy);
             break;
 #endif
+        case QVariant::TextFormat:
+            v_construct<QTextFormat>(x, copy);
+            break;
         case QVariant::TextLength:
             v_construct<QTextLength>(x, copy);
             break;
@@ -143,6 +146,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             v_construct<QIcon>(x);
             break;
 #endif
+        case QVariant::TextFormat:
+            v_construct<QTextFormat>(x);
+            break;
         case QVariant::TextLength:
             v_construct<QTextLength>(x);
             break;
@@ -213,6 +219,9 @@ static void clear(QCoreVariant::Private *d)
         v_clear<QIcon>(d);
         break;
 #endif
+    case QVariant::TextFormat:
+        v_clear<QTextFormat>(d);
+        break;
     case QVariant::TextLength:
         v_clear<QTextLength>(d);
         break;
@@ -255,6 +264,7 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Icon:
         return v_cast<QIcon>(d)->isNull();
 #endif
+    case QVariant::TextFormat:
     case QVariant::TextLength:
     case QVariant::Cursor:
     case QVariant::StringList:
@@ -334,6 +344,12 @@ static void load(QVariant::Private *d, QDataStream &s)
         break;
     }
 #endif
+    case QVariant::TextFormat: {
+        QTextFormat x;
+        s >> x;
+        *v_cast<QTextFormat>(d) = x;
+        break;
+    }
     case QVariant::TextLength: {
         QTextLength x;
         s >> x;
@@ -416,6 +432,9 @@ static void save(const QVariant::Private *d, QDataStream &s)
         s << v_cast<QIcon>(d)->pixmap();
         break;
 #endif
+    case QVariant::TextFormat:
+        s << *v_cast<QTextFormat>(d);
+        break;
     case QVariant::TextLength:
         s << *v_cast<QTextLength>(d);
         break;
@@ -479,6 +498,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return v_cast<QIcon>(a)->pixmap().serialNumber()
                == v_cast<QIcon>(b)->pixmap().serialNumber();
 #endif
+    case QVariant::TextFormat:
+        return *v_cast<QTextFormat>(a) == *v_cast<QTextFormat>(b);
     case QVariant::TextLength:
         return *v_cast<QTextLength>(a) == *v_cast<QTextLength>(b);
     case QVariant::SizePolicy:
@@ -905,6 +926,7 @@ QVariant::QVariant(const QColorGroup &val) { create(ColorGroup, &val); }
 #ifndef QT_NO_ICON
 QVariant::QVariant(const QIcon &val) { create(Icon, &val); }
 #endif //QT_NO_ICON
+QVariant::QVariant(const QTextFormat &val) { create(TextFormat, &val); }
 QVariant::QVariant(const QTextLength &val) { create(TextLength, &val); }
 QVariant::QVariant(const QPolygon &val) { create(Polygon, &val); }
 QVariant::QVariant(const QRegion &val) { create(Region, &val); }
@@ -1146,6 +1168,13 @@ QTextLength QVariant::toTextLength() const
     return *v_cast<QTextLength>(&d);
 }
 
+QTextFormat QVariant::toTextFormat() const
+{
+    if (d.type != TextFormat)
+        return QTextFormat();
+
+    return *v_cast<QTextFormat>(&d);
+}
 
 #define Q_VARIANT_TO(f) \
 Q##f QVariant::to##f() const { \

@@ -16,6 +16,7 @@
 
 #include "QtCore/qstring.h"
 
+class QDataStream;
 struct QLocalePrivate;
 
 class Q_CORE_EXPORT QLocale
@@ -168,7 +169,7 @@ public:
         Nynorsk = 141,
         LastLanguage = Nynorsk
     };
-    
+
     enum Country {
         AnyCountry = 0,
         Afghanistan = 1,
@@ -456,6 +457,9 @@ public:
     { return toString(double(i), f, prec); }
     QString toString(double i, char f = 'g', int prec = 6) const;
 
+    inline bool operator==(const QLocale &other) const { return d == other.d; }
+    inline bool operator!=(const QLocale &other) const { return d != other.d; }
+
     static QString languageToString(Language language);
     static QString countryToString(Country country);
     static void setDefault(const QLocale &locale);
@@ -468,5 +472,10 @@ private:
     static const QLocalePrivate *default_d;
 };
 Q_DECLARE_TYPEINFO(QLocale, Q_MOVABLE_TYPE);
+
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLocale &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLocale &);
+#endif
 
 #endif // QLOCALE_H

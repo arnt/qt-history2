@@ -24,12 +24,15 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
+class QLocale;
 class QString;
 class QStringList;
 class QTime;
 class QPoint;
 class QSize;
 class QRect;
+class QTextFormat;
+class QTextLength;
 class QUrl;
 
 template <class Key, class Type> class QMap;
@@ -74,6 +77,8 @@ class Q_CORE_EXPORT QCoreVariant
         Char = 35,
         Url = 36,
         TextLength = 37,
+        TextFormat = 38,
+        Locale = 39,
         UserType = 63,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT_COMPAT
@@ -100,15 +105,14 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(Q_ULONGLONG ull);
     QCoreVariant(bool b);
     QCoreVariant(double d);
-
     QCoreVariant(const char *str);
+
     QCoreVariant(const QByteArray &bytearray);
     QCoreVariant(const QBitArray &bitarray);
     QCoreVariant(const QString &string);
     QCoreVariant(const QLatin1String &string);
     QCoreVariant(const QStringList &stringlist);
     QCoreVariant(const QChar &qchar);
-
     QCoreVariant(const QDate &date);
     QCoreVariant(const QTime &time);
     QCoreVariant(const QDateTime &datetime);
@@ -116,12 +120,11 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QList<QCoreVariant> &list);
     QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
-
     QCoreVariant(const QSize &size);
     QCoreVariant(const QRect &rect);
     QCoreVariant(const QPoint &pt);
-
     QCoreVariant(const QUrl &url);
+    QCoreVariant(const QLocale &locale);
 
     QCoreVariant& operator=(const QCoreVariant &other);
 
@@ -166,8 +169,8 @@ class Q_CORE_EXPORT QCoreVariant
     QPoint toPoint() const;
     QRect toRect() const;
     QSize toSize() const;
-
     QUrl toUrl() const;
+    QLocale toLocale() const;
 
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
@@ -348,6 +351,11 @@ inline int qt_variant_metatype_id(QUrl *) { return QCoreVariant::Url; }
 class QTextLength;
 template<>
 inline int qt_variant_metatype_id(QTextLength *) { return QCoreVariant::TextLength; }
+class QTextFormat;
+template<>
+inline int qt_variant_metatype_id(QTextFormat *) { return QCoreVariant::TextFormat; }
+template<>
+inline int qt_variant_metatype_id(QLocale*) { return QCoreVariant::Locale; }
 
 
 template <typename T>

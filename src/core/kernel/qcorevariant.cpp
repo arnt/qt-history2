@@ -26,6 +26,7 @@
 #include "qrect.h"
 #include "qsize.h"
 #include "qurl.h"
+#include "qlocale.h"
 #include "private/qcorevariant_p.h"
 
 #include <float.h>
@@ -77,6 +78,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             break;
         case QCoreVariant::Url:
             v_construct<QUrl>(x, copy);
+            break;
+        case QCoreVariant::Locale:
+            v_construct<QLocale>(x, copy);
             break;
         case QCoreVariant::Rect:
             v_construct<QRect>(x, copy);
@@ -155,6 +159,9 @@ static void construct(QCoreVariant::Private *x, const void *copy)
         case QCoreVariant::Url:
             v_construct<QUrl>(x);
             break;
+        case QCoreVariant::Locale:
+            v_construct<QLocale>(x);
+            break;
         case QCoreVariant::Point:
             v_construct<QPoint>(x);
             break;
@@ -232,6 +239,9 @@ static void clear(QCoreVariant::Private *d)
     case QCoreVariant::Url:
         v_clear<QUrl>(d);
         break;
+    case QCoreVariant::Locale:
+        v_clear<QLocale>(d);
+        break;
     case QCoreVariant::Rect:
         v_clear<QRect>(d);
         break;
@@ -284,6 +294,7 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::Point:
         return v_cast<QPoint>(d)->isNull();
     case QCoreVariant::Url:
+    case QCoreVariant::Locale:
     case QCoreVariant::StringList:
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
@@ -336,6 +347,9 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::Url:
         s >> *v_cast<QUrl>(d);
+        break;
+    case QCoreVariant::Locale:
+        s >> *v_cast<QLocale>(d);
         break;
     case QCoreVariant::Rect:
         s >> *v_cast<QRect>(d);
@@ -415,6 +429,9 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::Url:
         s << *v_cast<QUrl>(d);
+        break;
+    case QCoreVariant::Locale:
+        s << *v_cast<QLocale>(d);
         break;
     case QCoreVariant::Point:
         s << *v_cast<QPoint>(d);
@@ -502,6 +519,8 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         return *v_cast<QSize>(a) == *v_cast<QSize>(b);
     case QCoreVariant::Url:
         return *v_cast<QUrl>(a) == *v_cast<QUrl>(b);
+    case QCoreVariant::Locale:
+        return *v_cast<QLocale>(a) == *v_cast<QLocale>(b);
     case QCoreVariant::Rect:
         return *v_cast<QRect>(a) == *v_cast<QRect>(b);
     case QCoreVariant::Point:
@@ -1402,6 +1421,7 @@ QCoreVariant::QCoreVariant(const QPoint &pt) { create(Point, &pt); }
 QCoreVariant::QCoreVariant(const QRect &r) { create(Rect, &r); }
 QCoreVariant::QCoreVariant(const QSize &s) { create(Size, &s); }
 QCoreVariant::QCoreVariant(const QUrl &u) { create(Url, &u); }
+QCoreVariant::QCoreVariant(const QLocale &l) { create(Locale, &l); }
 
 /*!
     Returns the storage type of the value stored in the variant.
@@ -1713,6 +1733,7 @@ Q_VARIANT_TO(Rect)
 Q_VARIANT_TO(Size)
 Q_VARIANT_TO(Point)
 Q_VARIANT_TO(Url)
+Q_VARIANT_TO(Locale)
 
 /*!
   \fn QString QCoreVariant::toString() const
@@ -1840,10 +1861,17 @@ QCoreVariantMap QCoreVariant::toMap() const
  */
 
 /*!
-  \fn QSize QCoreVariant::toUrl() const
+  \fn QUrl QCoreVariant::toUrl() const
 
   Returns the variant as a QUrl if the variant has type()
   Url; otherwise returns an invalid QUrl.
+ */
+
+/*!
+  \fn QLocale QCoreVariant::toLocale() const
+
+  Returns the variant as a QLocale if the variant has type()
+  Locale; otherwise returns an invalid QLocale.
  */
 
 /*!
@@ -2147,6 +2175,8 @@ const void *QCoreVariant::constData() const
         return v_cast<QRect>(&d);
     case Url:
         return v_cast<QUrl>(&d);
+    case Locale:
+        return v_cast<QLocale>(&d);
     case Point:
         return v_cast<QPoint>(&d);
     case Size:

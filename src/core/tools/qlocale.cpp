@@ -13,6 +13,7 @@
 
 #include "qplatformdefs.h"
 
+#include "qdatastream.h"
 #include "qstring.h"
 #include "qlocale.h"
 #include "qlocale_p.h"
@@ -1572,6 +1573,22 @@ QString QLocalePrivate::nan() const
 {
     return QString::fromLatin1("nan");
 }
+
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &ds, const QLocale &l)
+{
+    ds << l.name();
+    return ds;
+}
+
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &ds, QLocale &l)
+{
+    QString s;
+    ds >> s;
+    l = QLocale(s);
+    return ds;
+}
+#endif
 
 #if defined(Q_OS_WIN)
 /* Win95 doesn't have a function to return the ISO lang/country name of the user's locale.

@@ -28,6 +28,7 @@ class QPalette;
 class QColorGroup;
 #endif
 class QIcon;
+class QTextFormat;
 class QTextLength;
 class QDataStream;
 class QPolygon;
@@ -64,6 +65,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QVariant(const QIcon &icon);
 #endif
     QVariant(const QTextLength &length);
+    QVariant(const QTextFormat &format);
     QVariant(const QPolygon &pointarray);
     QVariant(const QRegion &region);
     QVariant(const QBitmap &bitmap);
@@ -125,6 +127,7 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     QT_COMPAT QColorGroup toColorGroup() const;
 #endif
     QIcon toIcon() const;
+    QTextFormat toTextFormat() const;
     QTextLength toTextLength() const;
     const QPolygon toPolygon() const;
     QBitmap toBitmap() const;
