@@ -312,8 +312,7 @@ void SpreadSheet::sum()
 
 void SpreadSheet::clear()
 {
-    QList<QTableWidgetItem*> selected = table->selectedItems();
-    foreach (QTableWidgetItem *i, selected)
+    foreach (QTableWidgetItem *i, table->selectedItems())
         if (i) i->clear();
 }
 
