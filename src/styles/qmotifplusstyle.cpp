@@ -41,12 +41,12 @@ struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
         : hoverWidget(0), hovering(FALSE), sliderActive(FALSE), mousePressed(FALSE),
-          scrollbarElement(0), lastElement(0), ref(1)
+          scrollbarElement(0), ref(1)
     { ; }
 
     QGuardedPtr<QWidget> hoverWidget;
     bool hovering, sliderActive, mousePressed;
-    int scrollbarElement, lastElement, ref;
+    int scrollbarElement, ref;
     QPoint mousePos;
 };
 
@@ -1090,32 +1090,18 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   opt);
 	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    opt);
 
-	    bool skipUpdate = FALSE;
 	    if (singleton->hovering) {
 		if (addline.contains(singleton->mousePos)) {
-		    skipUpdate =
-			(singleton->scrollbarElement == SC_ScrollBarAddLine);
 		    singleton->scrollbarElement = SC_ScrollBarAddLine;
 		} else if (subline.contains(singleton->mousePos)) {
-		    skipUpdate =
-			(singleton->scrollbarElement == SC_ScrollBarSubLine);
 		    singleton->scrollbarElement = SC_ScrollBarSubLine;
 		} else if (slider.contains(singleton->mousePos)) {
-		    skipUpdate =
-			(singleton->scrollbarElement == SC_ScrollBarSlider);
 		    singleton->scrollbarElement = SC_ScrollBarSlider;
 		} else {
-		    skipUpdate =
-			(singleton->scrollbarElement == 0);
 		    singleton->scrollbarElement = 0;
 		}
 	    } else
 		singleton->scrollbarElement = 0;
-
-	    if (skipUpdate && singleton->scrollbarElement == singleton->lastElement)
-		break;
-
-	    singleton->lastElement = singleton->scrollbarElement;
 
 	    if (controls == (SC_ScrollBarAddLine | SC_ScrollBarSubLine |
 			     SC_ScrollBarAddPage | SC_ScrollBarSubPage |
