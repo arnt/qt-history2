@@ -1,26 +1,72 @@
 #!/bin/sh
 
-if [ -z $1 ]
-then
-	echo "usage: $0 number"
-	echo "  to show the last 'number' changes"
-	exit -1
-fi
+#
+# function declarations
+#
 
+function error
+{ 
+    echo
+    echo "usage:"
+    echo
+    echo "  $0 -n number"
+    echo "      to show the last 'number' changes"
+    echo
+    echo "  $0 -l label"
+    echo "      to show the changes made after the p4 label 'label'"
+    echo
+    exit -1
+}
 
 function separator
 {
-	echo
-	echo
-	echo "________________________________________________________________________________________________"
-	echo
-	echo
+    echo
+    echo
+    echo "________________________________________________________________________________________________"
+    echo
+    echo
 }
 
-for i in  `p4 changes -m $1 ... | cut -f 2 -d ' ' | sort` 
+function changesMaximum
+{
+    export CHANGES=`p4 changes -m $1 ... | cut -f 2 -d ' ' | sort`
+}
+
+function changesLabel
+{
+    TMPFILE=tmp_p4changelist_tmp
+    p4 changes "...@$1" > $TMPFILE
+    export CHANGES=`p4 changes ... | diff $TMPFILE - | grep Change | cut -f 3 -d ' ' | sort`
+    rm $TMPFILE
+}
+
+#
+# the main code
+#
+
+if [ -z $1 ]
+then
+    error
+else
+    if [ "x$1" = 'x-n' ] && [ -n "$2" ]
+    then
+	changesMaximum $2
+    elif [ "x$1" = 'x-l' ] && [ -n "$2" ]
+    then
+	changesLabel $2
+    else
+	error
+    fi
+fi
+
+echo "The following changes are considered:"
+echo
+echo "$CHANGES"
+
+for i in $CHANGES
 do
-	separator
-	p4 describe -du $i
+    separator
+    p4 describe -du $i
 done
 
 separator
