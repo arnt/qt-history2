@@ -20,7 +20,6 @@
 
 #define Q_MUTEX_T void*
 #include <private/qmutex_p.h>
-#include <private/qcriticalsection_p.h>
 
 //***********************************************************************
 // QWaitConditionPrivate
@@ -47,7 +46,7 @@ typedef QList<QWaitConditionEvent *> EventQueue;
 class QWaitConditionPrivate
 {
 public:
-    QCriticalSection cs;
+    QMutex mtx;
     EventQueue queue;
     EventQueue freeQueue;
 
@@ -58,7 +57,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 {
     bool ret = FALSE;
 
-    cs.enter();
+    mtx.lock();
     QWaitConditionEvent *wce =
 	freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeAt(0);
     wce->priority = GetThreadPriority(GetCurrentThread());
@@ -71,7 +70,7 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 	    break;
     }
     queue.insert(index, wce);
-    cs.leave();
+    mtx.unlock();
 
     if (mutex) mutex->unlock();
 
@@ -86,12 +85,12 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 
     if (mutex) mutex->lock();
 
-    cs.enter();
+    mtx.lock();
     // remove 'wce' from the queue
     queue.remove(wce);
     ResetEvent(wce->event);
     freeQueue.append(wce);
-    cs.leave();
+    mtx.unlock();
 
     return ret;
 }
@@ -122,7 +121,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     if ( !mutex )
 	return FALSE;
 
-    if ( mutex->d->type() == Q_MUTEX_RECURSIVE ) {
+    if (mutex->d->recursive) {
 #ifdef QT_CHECK_RANGE
 	qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
 #endif
@@ -134,23 +133,20 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
 void QWaitCondition::wakeOne()
 {
     // wake up the first thread in the queue
-    d->cs.enter();
+    QMutexLocker locker(&d->mtx);
     QWaitConditionEvent *first = d->queue.first();
     if (first)
 	SetEvent(first->event);
-    d->cs.leave();
 }
 
 void QWaitCondition::wakeAll()
 {
     // wake up the all threads in the queue
-    d->cs.enter();
-    QWaitConditionEvent *current = d->queue.first();
-    while (current) {
+    QMutexLocker locker(&d->mtx);
+    for (int i = 0; i < d->queue.size(); ++i) {
+	QWaitConditionEvent *current = d->queue.at(i);
 	SetEvent(current->event);
-	current = d->queue.next();
     }
-    d->cs.leave();
 }
 
 #endif // QT_THREAD_SUPPORT
