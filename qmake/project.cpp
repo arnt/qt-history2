@@ -1798,7 +1798,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 replacement = QDateTime::currentDateTime().toString();
             } else if(val == "_QMAKE_CACHE_") { //the .qmake.cache loaded
                 if(Option::mkfile::do_cache)
-                    replacement = Option::Option::mkfile::cachefile;
+                    replacement = Option::mkfile::cachefile;
             } else {
                 replacement = place[varMap(val)].join(QString(Option::field_sep));
             }
