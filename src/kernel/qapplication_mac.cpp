@@ -233,7 +233,7 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     if(err != noErr) {
 	if(w)
 	    (*w) = NULL;
-	return 0;
+	return wpc;
     }
 #if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
     if(wp && !unhandled_dialogs.contains(wp)) {
