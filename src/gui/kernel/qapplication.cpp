@@ -490,12 +490,23 @@ void qt_create_std_palette()
     QColor standardLightGray(0xd4, 0xd0, 0xc8); // win 2000 grey
     QColor light(standardLightGray.light());
     QColor dark(standardLightGray.dark());
+    QColor mid(Qt::gray);
+
+    if (QApplicationPrivate::app_style) {
+        if (QApplicationPrivate::app_style->inherits("QMotifStyle")) {
+            standardLightGray = QColor(0xcf, 0xcf, 0xcf);
+            mid = QColor(0xa6, 0xa6, 0xa6);
+            dark = QColor(0x79, 0x7d, 0x79);
+        }
+
+//            standardLightGray = QColor(0xb6, 0xb6, 0xcf); // nice CDE color
+    }
     qt_std_pal =
-        new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray, Qt::black, Qt::white);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, Qt::darkGray);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::ButtonText, Qt::darkGray);
-    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, qt_std_pal->background());
+        new QPalette(Qt::black, standardLightGray, light, dark, mid, Qt::black, Qt::white);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, dark);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, dark);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::ButtonText, dark);
+    qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, standardLightGray);
 }
 
 static void qt_fix_tooltips()
@@ -1111,18 +1122,11 @@ QStyle *QApplication::style()
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
-    QPalette app_pal_copy (*QApplicationPrivate::app_pal);
-    QApplicationPrivate::app_style->polish(*QApplicationPrivate::app_pal);
-
-    if (QApplicationPrivate::is_app_running && !QApplicationPrivate::is_app_closing
-        && (*QApplicationPrivate::app_pal != app_pal_copy)) {
-        QEvent e(QEvent::ApplicationPaletteChange);
-        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
-            register QWidget *w = *it;
-            sendEvent(w, &e);
-        }
+    setPalette(palette()); // polish
+    if (palette().isCopyOf(*qt_std_pal)) {
+        qt_create_std_palette();
+        setPalette(*qt_std_pal);
     }
-
     QApplicationPrivate::app_style->polish(qApp);
 #endif
     return QApplicationPrivate::app_style;
@@ -1455,13 +1459,13 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 {
     QPalette pal = palette;
 
-#ifndef QT_NO_STYLE
-    if (!startingUp()) // on startup this has been done already
-        qApp->style()->polish(pal);        // NB: non-const reference
-#endif
+    if (QApplicationPrivate::app_style)
+        QApplicationPrivate::app_style->polish(pal); // NB: non-const reference
     bool all = false;
     PaletteHash *hash = app_palettes();
     if (!className) {
+        if (QApplicationPrivate::app_pal && palette.isCopyOf(*QApplicationPrivate::app_pal))
+            return;
         if (!QApplicationPrivate::app_pal)
             QApplicationPrivate::app_pal = new QPalette(pal);
         else
