@@ -38,7 +38,7 @@ QString buddyString(const QWidget *widget)
 
     QGroupBox *groupbox = qt_cast<QGroupBox*>(parent);
     if (groupbox) {
-	qDebug(c"%s", groupbox->title().latin1());
+	qDebug("%s", groupbox->title().latin1());
 	return groupbox->title();
     }
 

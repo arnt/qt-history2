@@ -2297,6 +2297,7 @@ QString QString::fromLatin1(const char *s, int size)
 }
 
 #ifdef Q_OS_WIN32
+#include "qt_windows.h"
 
 QByteArray qt_winQString2MB( const QString& s, int uclen )
 {
