@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#23 $
 **
 ** Definition of QIconView widget class
 **
@@ -38,6 +38,7 @@
 #include <qcursor.h>
 #include <qkeycode.h>
 #include <qapplication.h>
+#include <qlineedit.h>
 
 static const char *unknown[] = {
     "32 32 11 1",
@@ -143,7 +144,7 @@ struct QIconViewPrivate
  *
  *****************************************************************************/
 
-class QIconViewItemLineEdit : public QMultiLineEdit
+class QIconViewItemLineEdit : public QLineEdit
 {
     Q_OBJECT
 
@@ -163,10 +164,9 @@ protected:
 };
 
 QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name )
-    : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
+    : QLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setText( text );
-    clearTableFlags();
 }
 
 void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
@@ -179,7 +179,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 	      e->key() == Key_Return )
 	emit returnPressed();
     else
-	QMultiLineEdit::keyPressEvent( e ) ;
+	QLineEdit::keyPressEvent( e ) ;
 }
 
 /*****************************************************************************
@@ -760,7 +760,7 @@ void QIconViewItem::rename()
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
     renameBox->resize( textRect().width() - 2, textRect().height() - 2 );
     view->addChild( renameBox, textRect( FALSE ).x() + 1, textRect( FALSE ).y() + 1 );
-    renameBox->setFrameStyle( QFrame::NoFrame );
+    renameBox->setFrame( FALSE );
     renameBox->selectAll();
     renameBox->setFocus();
     renameBox->show();
@@ -1783,9 +1783,6 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
     drawDragShape( d->oldDragPos );
 
-    if ( d->tmpCurrentItem )
-	repaintItem( d->tmpCurrentItem );
-
     QIconViewItem *old = d->tmpCurrentItem;
     d->tmpCurrentItem = 0;
 
@@ -1793,8 +1790,10 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 
     if ( item ) {
 	if ( item != old ) {
-	    if ( old )
+	    if ( old ) {
 		old->dragLeft();
+		repaintItem( old );
+	    }
 	    item->dragEntered();
 	}
 
@@ -1804,15 +1803,19 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	    e->ignore();
 
 	d->tmpCurrentItem = item;
-	QPainter p;
-	p.begin( viewport() );
-	p.translate( -contentsX(), -contentsY() );
-	item->paintFocus( &p );
-	p.end();
+	if ( d->tmpCurrentItem != old ) {
+	    QPainter p;
+	    p.begin( viewport() );
+	    p.translate( -contentsX(), -contentsY() );
+	    item->paintFocus( &p );
+	    p.end();
+	}
     } else {
 	e->acceptAction();
-	if ( old )
+	if ( old ) {
 	    old->dragLeft();
+	    repaintItem( old );
+	}
     }
 
     d->oldDragPos = contentsToViewport( e->pos() );

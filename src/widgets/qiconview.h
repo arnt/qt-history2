@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#12 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#13 $
 **
 ** Definition of QIconView widget class
 **
@@ -35,7 +35,6 @@
 #include <qfont.h>
 #include <qlist.h>
 #include <qdragobject.h>
-#include <qmultilineedit.h>
 #include <qstringlist.h>
 
 class QIconView;
