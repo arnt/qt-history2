@@ -14,9 +14,11 @@
 
 /*
   Here come the C++ tokens we support.  The first part contains
-  all-purpose tokens; then comes keywords. If you add a keyword, make
-  sure to modify the keyword array in tokenizer.cpp as well, and make
-  sure Tok_FirstKeyword and Tok_LastKeyword are right.
+  all-purpose tokens; then come keywords.
+  
+  If you add a keyword, make sure to modify the keyword array in
+  tokenizer.cpp as well, and possibly adjust Tok_FirstKeyword and
+  Tok_LastKeyword.
 */
 enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_LeftParenAster, Tok_Equal, Tok_LeftBrace, Tok_RightBrace,
@@ -35,7 +37,8 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_FirstKeyword = Tok_char, Tok_LastKeyword = Tok_Q_PROPERTY };
 
 /*
-  The Tokenizer class implements lexical analysis of C++ source files.
+  The Tokenizer class implements lexical analysis of C++ source
+  files.
 
   Not every operator or keyword of C++ is recognized; only those that
   are interesting to us. Some Qt keywords or macros are also

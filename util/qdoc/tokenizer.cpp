@@ -15,7 +15,7 @@
 /* qmake ignore Q_OBJECT */
 
 /*
-  If you change this, make sure to change tokenizer.h as well.
+  Keep in sync with tokenizer.h.
 */
 static const char kwords[][16] = {
     "char", "class", "const", "double", "enum", "inline", "int", "long",

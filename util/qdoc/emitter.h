@@ -75,7 +75,7 @@ private:
     QMap<QString, StringSet> findex;
     QMap<QString, StringSet> chierarchy;
     QMap<QString, QString> pmap;
-    QMap<QString, PropertyDoc *> pdoc;
+    QMap<QString, PropertyDecl *> props;
     QMap<QString, StringSet> wmap;
 };
 

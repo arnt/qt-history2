@@ -112,10 +112,12 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
 /*
   Returns a string suitable for writing to the propertydocs file (XML).
 */
-static QString fixedPropertyDoc( const QString& html )
+static QString fixedPropertyDoc( const QString& html, const QString& className )
 {
-    // HTML protect or XML protect, that's the same here
-    return htmlProtect( html, FALSE );
+    QString t = html;
+    t.replace( QRegExp(QString("href=\"#")),
+	       QString("href=\"%1#").arg(config->classRefHref(className)) );
+    return htmlProtect( t, FALSE );
 }
 
 void BookEmitter::start( const Resolver *resolver )
@@ -290,7 +292,7 @@ void DocEmitter::nailDownDocs()
 		if ( !(*p)->readFunction().isEmpty() ) {
 		    pmap.insert( key, link );
 		    if ( (*p)->doc() != 0 )
-			pdoc.insert( (*p)->fullName(), (*p)->propertyDoc() );
+			props.insert( (*p)->fullName(), *p );
 		}
 		++p;
 	    }
@@ -564,17 +566,27 @@ void DocEmitter::emitHtml() const
     /*
       Write a fifth special file: propertydocs. It's an XML file.
     */
-    if ( pdoc.count() > 0 ) {
+    if ( props.count() > 0 ) {
 	BinaryWriter propertydocs( QString("propertydocs") );
 
 	propertydocs.puts( "<!DOCTYPE PROP><PROP>\n" );
 
-	QMap<QString, PropertyDoc *>::ConstIterator p = pdoc.begin();
-	while ( p != pdoc.end() ) {
+	QMap<QString, PropertyDecl *>::ConstIterator p = props.begin();
+	while ( p != props.end() ) {
+	    QString className = (*p)->context()->name();
+
 	    propertydocs.puts( "<property>\n    <name>" );
 	    propertydocs.puts( p.key().latin1() );
-	    propertydocs.puts( "</name>\n    <doc>" );
-	    propertydocs.puts( fixedPropertyDoc((*p)->finalHtml()).latin1() );
+
+	    res->setCurrentClass( 0 );
+	    propertydocs.puts( QString("</name>\n    <doc href=\"%1\">")
+			       .arg(res->resolve((*p)->fullName()))
+			       .latin1() );
+
+	    res->setCurrentClass( (ClassDecl *) (*p)->context() );
+	    propertydocs.puts(
+		    fixedPropertyDoc((*p)->propertyDoc()->finalHtml(),
+				     className).latin1() );
 	    propertydocs.puts( "</doc>\n</property>\n" );
 	    ++p;
 	}
