@@ -226,7 +226,7 @@ int ListViewDnd::buildTreeList( ListViewItemList &list )
 
 QListViewItem *ListViewDnd::itemAt( QPoint & pos )
 {
-    pos.ry() -= src->header()->height() * 1.5;
+    pos.ry() -= (int)(src->header()->height() * 1.5);
     QListViewItem *result = src->itemAt( pos );
     while ( result && result->parent() )
 	result = result->parent();
