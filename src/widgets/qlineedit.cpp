@@ -1727,13 +1727,8 @@ void QLineEdit::updateOffset()
     int w = d->pm->width();
     int old = offset;
 
-    // there are five cases, so we consider each in turn.
-    if ( textWidth < 5 ) {
-	// nothing is to be drawn.  okay.
-	offset = 0;
-    } else if ( textWidth > w ) {
+    if ( textWidth > w ) {
 	// may need to scroll.
-
 	QString dt = displayText();
 	dt += QString::fromLatin1( "  " );
 	dt = dt.left( cursorPos + 2 );
@@ -1743,15 +1738,21 @@ void QLineEdit::updateOffset()
 	    offset = -fm.width( dt.left( cursorPos - 2 ) );
 	else if ( fm.width( dt ) + offset > w )
 	    offset = w - fm.width( dt );
-    } else if ( alignmentFlag == Qt::AlignRight ) {
-	// right-aligned text, space for all of it
-	offset = w - textWidth;
-    } else if ( alignmentFlag == Qt::AlignCenter ) {
-	// center-aligned text, space for all of it
-	offset = (w - textWidth)/2;
     } else {
-	// default: left-aligned, space for all of it.
-	offset = 0;
+	if ( textWidth < 5 ) {
+	    // nothing is to be drawn.  okay.
+	    textWidth = QMIN( 5, w );
+	}
+	if ( alignmentFlag == Qt::AlignRight ) {
+	    // right-aligned text, space for all of it
+	    offset = w - textWidth;
+	} else if ( alignmentFlag == Qt::AlignCenter ) {
+	    // center-aligned text, space for all of it
+	    offset = (w - textWidth)/2;
+	} else {
+	    // default: left-aligned, space for all of it
+	    offset = 0;
+	}
     }
 
     if ( old == offset && !d->pmDirty )
