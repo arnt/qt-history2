@@ -168,6 +168,8 @@ public:
     ~QTSMDocumentWrapper() {
 	DeleteTSMDocument(id);
     }
+    inline bool operator==(const QTSMDocumentWrapper &wrap) const {  return (act == wrap.act && wrap.id == id); }
+    inline bool operator!=(const QTSMDocumentWrapper &wrap) const {  return !operator==(wrap); }
     TSMDocumentID document() const { return id; }
 
     void setInputWidget(QWidget *w) { act = w; }
