@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#7 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#8 $
 #
 # this is a massive hack, written very quickly
 #
@@ -27,7 +27,7 @@
 sub urlencode {
     local($_) = @_;
 
-    s-\!|\%|\/|\<|\=|\>|\[|\]|\^|\||\~|\+-sprintf("+%02x", ord($&))-eg;
+    s-\!|\%|\/|\<|\=|\>|\[|\]|\^|\||\~|\_-sprintf("_%02x", ord($&))-eg;
     $_;
 }
 
@@ -52,6 +52,8 @@ sub processcode {
     s/\s+$/\n/s;
     s/\n\s*\n/\n<br>\n/gs;
     s!\\/(.*?\n)!//$1!gs;
+
+#   print $_, "\n";
 
     join($_, "<pre>\n", "</pre>\n");
 }
@@ -122,7 +124,7 @@ sub processdocs {
 
 	$doc =~ s-\\internal\s-<p><strong>Internal comments:</strong><p>\n-s;
 
-	$doc =~ s!\\code\s\{\{(.*?)\}\}!&processcode($1)!es;
+	$doc =~ s!\\code\s*\{\{(.*?)\}\}!&processcode($1)!esg;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 
@@ -137,7 +139,7 @@ sub processdocs {
 	    if ($4 eq "") {
 		if (!defined($word{$2})) {
 		    $word{$2}++;
-		    sprintf("%s%s", $1, &findlink($2, $class, $url, $3));
+		    sprintf("%s%s%s", $1, &findlink($2, $class, $url, $3), $3);
 		} else {
 		    sprintf("%s%s", $1, $2, $3);
 		}
@@ -265,7 +267,7 @@ sub readh {
 
 # { is \x7b and } is \x7d
     while ($h =~ m-\nclass\s+
-	   (\w*?)\s+
+	   ([^\n]*?)\s+
 	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
 	&storeclass($filename, $1, $2);
