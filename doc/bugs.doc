@@ -27,7 +27,7 @@
 
 <H2>Small</H2>
 <DL>
-    <DT><B>QPopupMenu</B> 
+    <DT><B>QPopupMenu</B>
     <DD>Fix <CODE>updateItem()</CODE> (qt-bugs/arc-06/13748).
 
     <DT><B>Dual Monitor support (Win32)</B>
@@ -36,12 +36,15 @@
 
 <H2>Cosmetic</H2>
 <DL>
-    <DT><B>QProgressBar</B> 
-    <DD>Avoid flickering. This means caching both the percentage value (which is 
-    already done) and the pixel position (which has not been done yet). 
+    <DT><B>QProgressBar</B>
+    <DD>Avoid flickering. This means caching both the percentage value (which is
+    already done) and the pixel position (which has not been done yet).
 
-    <DT><B>QPrintDialog</B> 
-    <DD>Try making it fit in a 640x480 display. 
+    <DT><B>QPrintDialog</B>
+    <DD>Try making it fit in a 640x480 display.
+
+    <DT><B>QFileDialog</B>
+    <DD>QFileDialog::getOpenFileName( "*" ) gets confused.
 </DL>
 
 */
