@@ -5941,9 +5941,9 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 
     if ( f ) {
 	if ( f->font() != defaultFormat->font() ) {
-	    if ( font().family() != defaultFormat->font().family()
-		 || font().pointSize() != defaultFormat->font().pointSize()
-		 || color().rgb() != defaultFormat->color().rgb() )
+	    if ( f->font().family() != defaultFormat->font().family()
+		 || f->font().pointSize() != defaultFormat->font().pointSize()
+		 || f->color().rgb() != defaultFormat->color().rgb() )
 		tag += "</font>";
 	    if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
 		tag += "</u>";
