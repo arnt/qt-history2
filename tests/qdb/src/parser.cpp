@@ -128,6 +128,11 @@ static QVariant resolvedField( int tableId, const QString& fieldName )
     return f;
 }
 
+static bool isIdent( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
+}
+
 static QString fixedColumnName( const QString& name )
 {
     QString out;
@@ -142,15 +147,24 @@ static QString fixedColumnName( const QString& name )
 		keepSpace = FALSE;
 	    }
 	} else {
-	    if ( pendingSpace ) {
+	    keepSpace = isIdent( ch );
+	    if ( pendingSpace && keepSpace ) {
 		out += QChar( ' ' );
 		pendingSpace = FALSE;
 	    }
 
-	    keepSpace = ( ch.isLetterOrNumber() || ch == QChar('_') );
+	    // normalize function names to lowercase
+	    if ( ch == QChar('(') ) {
+		int j = (int) out.length() - 1;
+		while ( j >= 0 && isIdent(out[j]) ) {
+		    out[j] = out[j].lower();
+		    j--;
+		}
+	    }
 	    out += ch;
 	}
     }
+qDebug( "[%s]", out.latin1() );
     return out;
 }
 
