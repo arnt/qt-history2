@@ -42,18 +42,18 @@
 
   By reimplementing paint(), key(), editor() and
   setContentFromEditor() you can change this.
-  
+
   As it is possible to put one item multiple times into a QTable (this
   is internally used e.g. for multicells), QTableItem is derived from
   QShared to do reference counting. So never do a
-  
+
   \code
   QTableItem *item = .....
   delete item;
   \endcode
-  
+
   but always do instead
-  
+
   \code
   QTableItem *item = .....
   if ( item && item->deref() == 0 )
@@ -338,7 +338,7 @@ int QTableItem::rowSpan() const
 /*! Returns the col-span of this item
  */
 
-int QTableItem::colSpan() const
+int QTableItem::columnSpan() const
 {
     return colspan;
 }
@@ -421,7 +421,7 @@ int QTableItem::colSpan() const
   Returns the current row.
 */
 
-/*! \fn int QTable::currentCol() const
+/*! \fn int QTable::currentColumn() const
 
   Returns the current column.
 */
@@ -461,7 +461,7 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 
     // Initialize headers
     int i = 0;
-    for ( i = 0; i < cols(); ++i ) {
+    for ( i = 0; i < columns(); ++i ) {
 	topHeader->setLabel( i, QString::number( i + 1 ) );
 	topHeader->resizeSection( i, 100 );
     }
@@ -557,7 +557,7 @@ bool QTable::showGrid() const
   else not.
 */
 
-void QTable::setColsMovable( bool b )
+void QTable::setColumnsMovable( bool b )
 {
     mCols = b;
 }
@@ -565,7 +565,7 @@ void QTable::setColsMovable( bool b )
 /*!  Returns wheather the columns can be moved by the user.
  */
 
-bool QTable::colsMovable() const
+bool QTable::columnsMovable() const
 {
     return mCols;
 }
@@ -609,7 +609,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     if ( rowlast == -1 )
 	rowlast = rows() - 1;
     if ( collast == -1 )
-	collast = cols() - 1;
+	collast = columns() - 1;
 
     // Go through the rows
     for ( int r = rowfirst; r <= rowlast; ++r ) {
@@ -630,7 +630,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	
 	    QTableItem *item = cellContent( r, c );
 	    if ( item &&
-		 ( item->colSpan() > 1 || item->rowSpan() > 1 ) ) {
+		 ( item->columnSpan() > 1 || item->rowSpan() > 1 ) ) {
 		bool goon = r == item->row && c == item->col ||
 			r == rowfirst && c == item->col ||
 			r == item->row && c == colfirst;
@@ -643,7 +643,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		    rowh += rowHeight( i + item->row );
 		colp = columnPos( item->col );
 		colw = 0;
-		for ( i = 0; i < item->colSpan(); ++i )
+		for ( i = 0; i < item->columnSpan(); ++i )
 		    colw += columnWidth( i + item->col );
 	    }
 	
@@ -678,7 +678,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     } else {
 	if ( curRow == rows() - 1 )
 	    focusRect.setHeight( focusRect.height() - 1 );
-	if ( curCol == cols() - 1 )
+	if ( curCol == columns() - 1 )
 	    focusRect.setWidth( focusRect.width() - 1 );
 	p->drawRect( focusRect.x() - 2, focusRect.y() - 2, focusRect.width() + 3, focusRect.height() + 3 );
     }
@@ -760,7 +760,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 
 QTableItem *QTable::cellContent( int row, int col ) const
 {
-    if ( row < 0 || col < 0 || row > rows() - 1 || col > cols() - 1 )
+    if ( row < 0 || col < 0 || row > rows() - 1 || col > columns() - 1 )
 	return 0;
     return contents[ indexOf( row, col ) ];	// contents array lookup
 }
@@ -873,11 +873,11 @@ void QTable::setCurrentCell( int row, int col )
 	updateCell( curRow, curCol );
 	ensureCellVisible( curRow, curCol );
 	emit currentChanged( row, col );
-	if ( !isColSelected( oldCol ) && !isRowSelected( oldRow ) ) {
+	if ( !isColumnSelected( oldCol ) && !isRowSelected( oldRow ) ) {
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
 	}
-	topHeader->setSectionState( curCol, isColSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
 	item = cellContent( curRow, curCol );
 	if ( item && item->editType() == QTableItem::OnCurrent )
@@ -915,7 +915,7 @@ bool QTable::isSelected( int row, int col ) const
 	     col >= s->leftCol &&
 	     col <= s->rightCol )
 	    return TRUE;
-	if ( row == currentRow() && col == currentCol() )
+	if ( row == currentRow() && col == currentColumn() )
 	    return TRUE;
     }
     return FALSE;
@@ -949,7 +949,7 @@ bool QTable::isRowSelected( int row, bool full ) const
 		 row >= s->topRow &&
 		 row <= s->bottomRow &&
 		 s->leftCol == 0 &&
-		 s->rightCol == cols() - 1 )
+		 s->rightCol == columns() - 1 )
 		return TRUE;
 	}
     }
@@ -961,7 +961,7 @@ bool QTable::isRowSelected( int row, bool full ) const
   else TRUE is only returned if all cells of the columns are selected.
 */
 
-bool QTable::isColSelected( int col, bool full ) const
+bool QTable::isColumnSelected( int col, bool full ) const
 {
     if ( !full ) {
 	QListIterator<SelectionRange> it( selections );
@@ -972,7 +972,7 @@ bool QTable::isColSelected( int col, bool full ) const
 		 col >= s->leftCol &&
 		 col <= s->rightCol )
 	    return TRUE;
-	if ( col == currentCol() )
+	if ( col == currentColumn() )
 	    return TRUE;
 	}
     } else {
@@ -1218,7 +1218,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	navigationKey = TRUE;
     	break;
     case Key_Right:
-	curCol = QMIN( cols() - 1, curCol + 1 );
+	curCol = QMIN( columns() - 1, curCol + 1 );
 	navigationKey = TRUE;
 	break;
     case Key_Up:
@@ -1309,7 +1309,7 @@ void QTable::resizeEvent( QResizeEvent *e )
 void QTable::showEvent( QShowEvent *e )
 {
     QScrollView::showEvent( e );
-    QRect r( cellGeometry( rows() - 1, cols() - 1 ) );
+    QRect r( cellGeometry( rows() - 1, columns() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
 }
@@ -1356,7 +1356,7 @@ void QTable::columnWidthChanged( int col )
     }
 
     QTableItem *item = 0;
-    for ( int j = col; j < cols(); ++j ) {
+    for ( int j = col; j < columns(); ++j ) {
 	for ( int i = 0; i < rows(); ++i ) {
 	    item = cellContent( i, j );
 	    if ( !item || item->editType() != QTableItem::Always || !item->lastEditor )
@@ -1396,7 +1396,7 @@ void QTable::rowHeightChanged( int row )
 
     QTableItem *item = 0;
     for ( int j = row; j < rows(); ++j ) {
-	for ( int i = 0; i < cols(); ++i ) {
+	for ( int i = 0; i < columns(); ++i ) {
 	    item = cellContent( j, i );
 	    if ( !item || item->editType() != QTableItem::Always || !item->lastEditor )
 		continue;
@@ -1557,7 +1557,7 @@ int QTable::rowAt( int pos ) const
 QRect QTable::cellGeometry( int row, int col ) const
 {
     QTableItem *item = cellContent( row, col );
-    if ( !item || item->rowSpan() == 1 && item->colSpan() == 1 )
+    if ( !item || item->rowSpan() == 1 && item->columnSpan() == 1 )
 	return QRect( columnPos( col ), rowPos( row ),
 		      columnWidth( col ), rowHeight( row ) );
 
@@ -1571,7 +1571,7 @@ QRect QTable::cellGeometry( int row, int col ) const
 	
     for ( int r = 1; r < item->rowSpan(); ++r )
 	    rect.setHeight( rect.height() + rowHeight( r + row ) );
-    for ( int c = 1; c < item->colSpan(); ++c )
+    for ( int c = 1; c < item->columnSpan(); ++c )
 	rect.setWidth( rect.width() + columnWidth( c + col ) );
 
     return rect;
@@ -1583,7 +1583,7 @@ QRect QTable::cellGeometry( int row, int col ) const
 
 QSize QTable::tableSize() const
 {
-    return QSize( columnPos( cols() - 1 ) + columnWidth( cols() - 1 ),
+    return QSize( columnPos( columns() - 1 ) + columnWidth( columns() - 1 ),
 		  rowPos( rows() - 1 ) + rowHeight( rows() - 1 ) );
 }
 
@@ -1598,7 +1598,7 @@ int QTable::rows() const
 /*!  Returns the number of columns of the table.
  */
 
-int QTable::cols() const
+int QTable::columns() const
 {
     return topHeader->count();
 }
@@ -1618,8 +1618,8 @@ void QTable::setRows( int r )
 	qWarning( "decreasing the number of rows is not implemented yet!" );
 	return;
     }
-    contents.resize( rows() * cols() );
-    QRect r2( cellGeometry( rows() - 1, cols() - 1 ) );
+    contents.resize( rows() * columns() );
+    QRect r2( cellGeometry( rows() - 1, columns() - 1 ) );
     resizeContents( r2.right() + 1, r2.bottom() + 1 );
     updateGeometries();
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
@@ -1628,20 +1628,20 @@ void QTable::setRows( int r )
 /*!  Sets the number of columns to \a c.
  */
 
-void QTable::setCols( int c )
+void QTable::setColumns( int c )
 {
-    if ( c > cols() ) {
+    if ( c > columns() ) {
 	clearSelection();
-	while ( cols() < c ) {
-	    topHeader->addLabel( QString::number( cols() + 1 ) );
-	    topHeader->resizeSection( cols() - 1, 100 );
+	while ( columns() < c ) {
+	    topHeader->addLabel( QString::number( columns() + 1 ) );
+	    topHeader->resizeSection( columns() - 1, 100 );
 	}
     } else {
 	qWarning( "decreasing the number of columns is not implemented yet!" );
 	return;
     }
-    contents.resize( rows() * cols() );
-    QRect r( cellGeometry( rows() - 1, cols() - 1 ) );
+    contents.resize( rows() * columns() );
+    QRect r( cellGeometry( rows() - 1, columns() - 1 ) );
     resizeContents( r.right() + 1, r.bottom() + 1 );
     updateGeometries();
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight(), FALSE );
@@ -1853,7 +1853,7 @@ QTable::EditMode QTable::editMode() const
 
 int QTable::indexOf( int row, int col ) const
 {
-    return ( row * cols() ) + col; // mapping from 2D table to 1D array
+    return ( row * columns() ) + col; // mapping from 2D table to 1D array
 }
 
 /*!  \internal
@@ -1878,10 +1878,10 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
     int i;
 
     if ( updateHorizontal ) {
-	for ( i = 0; i <= cols(); ++i ) {
-	    if ( !isColSelected( i ) )
+	for ( i = 0; i <= columns(); ++i ) {
+	    if ( !isColumnSelected( i ) )
 		topHeader->setSectionState( i, QTableHeader::Normal );
-	    else if ( isColSelected( i, TRUE ) )
+	    else if ( isColumnSelected( i, TRUE ) )
 		topHeader->setSectionState( i, QTableHeader::Selected );
 	    else
 		topHeader->setSectionState( i, QTableHeader::Bold );
@@ -1921,10 +1921,10 @@ void QTable::clearSelection()
 	repaintContents( r, FALSE );
 
     int i;
-    for ( i = 0; i <= cols(); ++i ) {
-	if ( !isColSelected( i ) && i != curCol )
+    for ( i = 0; i <= columns(); ++i ) {
+	if ( !isColumnSelected( i ) && i != curCol )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
-	else if ( isColSelected( i, TRUE ) )
+	else if ( isColumnSelected( i, TRUE ) )
 	    topHeader->setSectionState( i, QTableHeader::Selected );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
@@ -1965,7 +1965,7 @@ void QTable::activateNextCell()
     if ( !currentSelection || !currentSelection->active ) {
 	if ( curRow < rows() - 1 )
 	    setCurrentCell( curRow + 1, curCol );
-	else if ( curCol < cols() - 1 )
+	else if ( curCol < columns() - 1 )
 	    setCurrentCell( 0, curCol + 1 );
 	else
 	    setCurrentCell( 0, 0 );	
@@ -2002,7 +2002,7 @@ void QTable::fixCol( int &col, int x )
 	if ( x < 0 )
 	    col = 0;
 	else
-	    col = cols() - 1;
+	    col = columns() - 1;
     }
 }
 
@@ -2174,7 +2174,7 @@ void QTable::adjustRow( int row )
 {
     int h = 20;
     h = QMAX( h, leftHeader->fontMetrics().height() );
-    for ( int i = 0; i < cols(); ++i ) {
+    for ( int i = 0; i < columns(); ++i ) {
 	QTableItem *item = cellContent( row, i );
 	if ( !item )
 	    continue;
@@ -2410,7 +2410,8 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || cursor().shape() != ArrowCursor ||
-	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ? table->colsMovable() : table->rowsMovable() ) ) ) {
+	 ( ( e->state() & ControlButton ) == ControlButton && ( orientation() == Horizontal ? 
+								table->columnsMovable() : table->rowsMovable() ) ) ) {
 	QHeader::mouseMoveEvent( e );
 	return;
     }

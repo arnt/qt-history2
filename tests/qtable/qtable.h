@@ -74,7 +74,7 @@ public:
 
     virtual void setSpan( int rs, int cs );
     int rowSpan() const;
-    int colSpan() const;
+    int columnSpan() const;
 
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
@@ -125,9 +125,9 @@ public:
     QSize tableSize() const;
 
     virtual void setRows( int r );
-    virtual void setCols( int r );
+    virtual void setColumns( int r );
     int rows() const;
-    int cols() const;
+    int columns() const;
 
     void updateCell( int row, int col );
 
@@ -145,12 +145,12 @@ public:
 
     void setCurrentCell( int row, int col );
     int currentRow() const { return curRow; }
-    int currentCol() const { return curCol; }
+    int currentColumn() const { return curCol; }
     void ensureCellVisible( int row, int col );
 
     bool isSelected( int row, int col ) const;
     bool isRowSelected( int row, bool full = FALSE ) const;
-    bool isColSelected( int col, bool full = FALSE ) const;
+    bool isColumnSelected( int col, bool full = FALSE ) const;
     void clearSelection();
     int selectionCount() const;
     bool selection( int num, int &topRow, int &leftCol, int &bottomRow, int &rightCol );
@@ -158,8 +158,8 @@ public:
     void setShowGrid( bool b );
     bool showGrid() const;
 
-    void setColsMovable( bool b );
-    bool colsMovable() const;
+    void setColumnsMovable( bool b );
+    bool columnsMovable() const;
     void setRowsMovable( bool b );
     bool rowsMovable() const;
 
