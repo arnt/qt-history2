@@ -25,7 +25,8 @@ class QColormapPrivate
 public:
     QColormapPrivate()
         : mode(QColormap::Direct), depth(0),
-          colormap(0), visual(0),
+          colormap(0), defaultColormap(true),
+          visual(0), defaultVisual(true),
           r_max(0), g_max(0), b_max(0),
           r_shift(0), g_shift(0), b_shift(0)
     { ref = 0; }
@@ -36,7 +37,10 @@ public:
     int depth;
 
     Colormap colormap;
+    bool defaultColormap;
+
     Visual *visual;
+    bool defaultVisual;
 
     int r_max;
     int g_max;
@@ -89,7 +93,8 @@ static Visual *find_visual(Display *display,
                            int screen,
                            int visual_class,
                            int visual_id,
-                           int *depth)
+                           int *depth,
+                           bool *defaultVisual)
 {
     XVisualInfo *vi, rvi;
     int count;
@@ -106,6 +111,7 @@ static Visual *find_visual(Display *display,
     }
 
     Visual *visual = DefaultVisual(display, screen);
+    *defaultVisual = true;
     *depth = DefaultDepth(display, screen);
 
     vi = XGetVisualInfo(display, mask, &rvi, &count);
@@ -117,6 +123,7 @@ static Visual *find_visual(Display *display,
         }
         if (best >= 0 && best <= count && vi[best].visualid != XVisualIDFromVisual(visual)) {
             visual = vi[best].visual;
+            *defaultVisual = (visual == DefaultVisual(display, screen));
             *depth = vi[best].depth;
         }
     }
@@ -283,13 +290,16 @@ void QColormap::initialize()
         // defaults
         d->depth = DefaultDepth(display, i);
         d->colormap = DefaultColormap(display, i);
+        d->defaultColormap = true;
         d->visual = DefaultVisual(display, i);
+        d->defaultVisual = true;
 
         if ((X11->visual_class != -1 && X11->visual_class >= 0 && X11->visual_class < 6)
             || (X11->visual_id != -1)) {
             // look for a specific visual or type of visual
-            d->visual = find_visual(display, i, X11->visual_class, X11->visual_id, &d->depth);
-        } else {
+            d->visual = find_visual(display, i, X11->visual_class, X11->visual_id,
+                                    &d->depth, &d->defaultVisual);
+        } else if (!X11->custom_cmap) {
             XStandardColormap *stdcmap = 0;
             int ncmaps = 0;
             if (XGetRGBColormaps(display, RootWindow(display, i),
@@ -323,7 +333,9 @@ void QColormap::initialize()
 
                                 d->depth = vi[0].depth;
                                 d->colormap = stdcmap[c].colormap;
+                                d->defaultColormap = true;
                                 d->visual = vi[0].visual;
+                                d->defaultVisual = (d->visual == DefaultVisual(display, i));
 
                                 d->r_max = stdcmap[c].red_max   + 1;
                                 d->g_max = stdcmap[c].green_max + 1;
@@ -408,6 +420,15 @@ void QColormap::initialize()
             }
         }
 
+        if (((d->visual->c_class & 1) && X11->custom_cmap)
+            || d->visual != DefaultVisual(display, i)) {
+            // allocate custom colormap
+            d->colormap =
+                XCreateColormap(display, RootWindow(display, i), d->visual,
+                                d->visual->c_class == DirectColor ? AllocAll : AllocNone);
+            d->defaultColormap = false;
+        }
+
         switch (d->mode) {
         case Gray:
             init_gray(d, i);
@@ -422,9 +443,9 @@ void QColormap::initialize()
         QX11InfoData *screen = X11->screens + i;
         screen->depth = d->depth;
         screen->visual = d->visual;
-        screen->defaultVisual = (screen->visual == DefaultVisual(display, i));
+        screen->defaultVisual = d->defaultVisual;
         screen->colormap = d->colormap;
-        screen->defaultColormap = true;
+        screen->defaultColormap = d->defaultColormap;
         screen->cells = screen->visual->map_entries;
 
         // ###
@@ -466,8 +487,11 @@ QColormap::QColormap(const QColormap &colormap)
 
 QColormap::~QColormap()
 {
-    if (!--d->ref)
+    if (!--d->ref) {
+        if (!d->defaultColormap)
+            XFreeColormap(QX11Info::display(), d->colormap);
         delete d;
+    }
 }
 
 QColormap::Mode QColormap::mode() const
