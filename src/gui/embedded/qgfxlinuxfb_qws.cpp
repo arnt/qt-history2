@@ -464,6 +464,7 @@ bool QLinuxFbScreen::initDevice()
         }
     }
 #endif
+    if ((vinfo.bits_per_pixel==8) || (vinfo.bits_per_pixel==4) || (finfo.visual==FB_VISUAL_DIRECTCOLOR))
     {
         fb_cmap cmap;
         createPalette(cmap, vinfo, finfo);
