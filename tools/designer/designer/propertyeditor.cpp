@@ -425,9 +425,14 @@ void PropertyItem::placeEditor( QWidget *w )
 {
     createResetButton();
     QRect r = listview->itemRect( this );
-    if ( r == QRect( 0, 0, -1, -1 ) )
+    if ( !r.size().isValid() ) {
 	listview->ensureItemVisible( this );
-    r = listview->itemRect( this );
+#if defined(Q_WS_WIN)
+	listview->repaintContents( FALSE );
+#endif
+	r = listview->itemRect( this );
+    }
+    QRect ir = r;
     r.setX( listview->header()->sectionPos( 1 ) );
     r.setWidth( listview->header()->sectionSize( 1 ) - 1 );
     r.setWidth( r.width() - resetButton->width() - 2 );
