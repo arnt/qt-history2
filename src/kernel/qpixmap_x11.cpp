@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#82 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -10,14 +10,14 @@
 **
 *****************************************************************************/
 
-// Uncomment the next line to enable the MIT Shared Memory extention
+// Uncomment the next line to enable the MIT Shared Memory extension
 // #define MITSHM
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
 #include "qwmatrix.h"
 #include "qapp.h"
-#include <malloc.h>
+#include <stdlib.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#81 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#82 $")
 
 
 /*****************************************************************************

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#181 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -18,7 +18,7 @@
 #include "qlist.h"
 #include "qintdict.h"
 #include <ctype.h>
-#include <malloc.h>
+#include <stdlib.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#180 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#181 $")
 
 
 /*****************************************************************************
