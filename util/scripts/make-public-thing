@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#46 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#47 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -64,8 +64,8 @@ sub copyandstrip {
 	    $fd = undef;
 	    $ld = undef;
 	    foreach $f ( split( /\n/, $v ) ) {
-		if ( !( $f =~ /^(\S+)\s+(\d+)$/ ) ) {
-		    # should not happen...
+		if ( !( $f =~ /^(\d+\.\d+)\s+(\d+)$/ ) ) {
+		    # it's a branch.  ignore it.
 		} elsif ( $2 > $date ) {
 		    # keep that one.
 		} elsif ( !defined( $ld ) ) {
@@ -75,6 +75,7 @@ sub copyandstrip {
 		} elsif ( $ld eq "magic" ) {
 		    # last deleted revision
 		    $ld = $1;
+		    $fd = $1;
 		} else {
 		    # first deleted revision (afaik - we'll change it if we
 		    # see another)
