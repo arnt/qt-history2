@@ -41,16 +41,13 @@
 #endif // QT_THREAD_SUPPORT
 
 #include <windows.h>
-#ifndef Q_OS_TEMP
 #include <direct.h>
-#endif
 #include <objbase.h>
 #include <shlobj.h>
 #include <initguid.h>
 #include <ctype.h>
 #include <limits.h>
 
-#ifndef Q_OS_TEMP
 
 #include <accctrl.h>
 #define SECURITY_WIN32
@@ -74,12 +71,11 @@ static PtrFreeSid ptrFreeSid = 0;
 
 static TRUSTEE_W currentUserTrusteeW;
 
-#endif
 
 
 static void resolveLibs()
 {
-#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
+#if !defined(QT_NO_COMPONENT)
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	// need to resolve the security info functions
@@ -122,7 +118,7 @@ static void resolveLibs()
 	    }
 	}
     }
-#endif // QT_NO_COMPONENT, Q_OS_TEMP
+#endif // QT_NO_COMPONENT
 }
 
 
@@ -194,7 +190,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#if !defined(QT_NO_COMPONENT) && !defined(Q_OS_TEMP)
+#if !defined(QT_NO_COMPONENT)
     QString fileLinked;
 
     QT_WA( {
@@ -263,14 +259,13 @@ QString QFileInfo::readLink() const
     return fileLinked;
 #else
     return QString();
-#endif // QT_NO_COMPONENT, Q_OS_TEMP
+#endif // QT_NO_COMPONENT
 }
 
 Q_EXPORT int qt_ntfs_permission_lookup = 1;
 
 QString QFileInfo::owner() const
 {
-#if !defined(Q_OS_TEMP)
     if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
 	PSID pOwner = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -295,7 +290,6 @@ QString QFileInfo::owner() const
 	}
 	return name;
     } else
-#endif
 	return QString::null;
 }
 
@@ -308,7 +302,6 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-#if !defined(Q_OS_TEMP)
     if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
 	PSID pGroup = 0;
 	PSECURITY_DESCRIPTOR pSD;
@@ -334,7 +327,6 @@ QString QFileInfo::group() const
 	}
 	return name;
     } else
-#endif
 	return QString::null;
 }
 
@@ -345,7 +337,6 @@ uint QFileInfo::groupId() const
 
 bool QFileInfo::permission( int p ) const
 {
-#if !defined(Q_OS_TEMP)
     if ( ( qt_ntfs_permission_lookup > 0 ) && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
 	PSID pGroup = 0;
 	PACL pDacl;
@@ -403,8 +394,7 @@ bool QFileInfo::permission( int p ) const
 		LocalFree( pSD );
 	    }
 	}
-    } // !Q_OS_TEMP
-#endif
+    }
     // just check if it's ReadOnly
 
     QT_WA( {
@@ -429,9 +419,7 @@ void QFileInfo::doStat() const
     if ( fn.isEmpty() )
 	return;
 
-#ifndef Q_OS_TEMP
     UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
-#endif
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
@@ -484,9 +472,7 @@ void QFileInfo::doStat() const
 	that->fic = 0;
     }
 
-#ifndef Q_OS_TEMP
     SetErrorMode(oldmode);
-#endif
 }
 
 QString QFileInfo::dirPath( bool absPath ) const
