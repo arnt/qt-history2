@@ -48,7 +48,7 @@
 #endif
 
 class QObject;
-class UMethod;
+struct UMethod;
 
 struct QMetaData				// - member function meta data
 {						//   for signal and slots
