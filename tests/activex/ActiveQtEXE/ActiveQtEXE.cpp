@@ -11,7 +11,7 @@
 #include "activeqtexe.h"
 
 #include "ActiveQtEXE_i.c"
-#include "qActivex.h"
+#include "qactivex.h"
 #include <qapplication.h>
 
 
@@ -29,8 +29,7 @@ static DWORD WINAPI MonitorProc(void* pv)
 LONG CExeModule::Unlock()
 {
     LONG l = CComModule::Unlock();
-    if (l == 0)
-    {
+    if (l == 0) {
         bActivity = true;
         SetEvent(hEventShutdown); // tell monitor that we transitioned to zero
     }
@@ -40,18 +39,15 @@ LONG CExeModule::Unlock()
 //Monitors the shutdown event
 void CExeModule::MonitorShutdown()
 {
-    while (1)
-    {
+    while (1) {
         WaitForSingleObject(hEventShutdown, INFINITE);
         DWORD dwWait=0;
-        do
-        {
+        do {
             bActivity = false;
             dwWait = WaitForSingleObject(hEventShutdown, dwTimeOut);
         } while (dwWait == WAIT_OBJECT_0);
         // timed out
-        if (!bActivity && m_nLockCnt == 0) // if no activity let's really bail
-        {
+        if (!bActivity && m_nLockCnt == 0) { // if no activity let's really bail
             break;
         }
     }
@@ -78,11 +74,9 @@ END_OBJECT_MAP()
 
 LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
 {
-    while (p1 != NULL && *p1 != NULL)
-    {
+    while (p1 != NULL && *p1 != NULL) {
         LPCTSTR p = p2;
-        while (p != NULL && *p != NULL)
-        {
+        while (p != NULL && *p != NULL) {
             if (*p1 == *p)
                 return CharNext(p1);
             p = CharNext(p);
@@ -104,40 +98,33 @@ extern "C" int WINAPI _tWinMain(HINSTANCE hInstance,
     HRESULT hRes = CoInitialize(NULL);
 
     _ASSERTE(SUCCEEDED(hRes));
-    _Module.Init(ObjectMap, hInstance, &LIBID_ACTIVEQTEXELib);
+    _Module.Init (ObjectMap, hInstance, &LIBID_ACTIVEQTEXELib );
     _Module.dwThreadID = GetCurrentThreadId();
     TCHAR szTokens[] = _T("-/");
 
     int nRet = 0;
     BOOL bRun = TRUE;
     BOOL bRunMain = FALSE;
-    LPCTSTR lpszToken = FindOneOf(lpCmdLine, szTokens);
-    while (lpszToken != NULL)
-    {
-        if (lstrcmpi(lpszToken, _T("UnregServer"))==0)
-        {
+    LPCTSTR lpszToken = FindOneOf( lpCmdLine, szTokens );
+    while ( lpszToken != NULL ) {
+        if ( lstrcmpi( lpszToken, _T("UnregServer") ) == 0 ) {
             _Module.UpdateRegistryFromResource(IDR_ActiveQtEXE, FALSE);
             nRet = _Module.UnregisterServer(TRUE);
             bRun = FALSE;
             break;
-        }
-        if (lstrcmpi(lpszToken, _T("RegServer"))==0)
-        {
+        } else if ( lstrcmpi( lpszToken, _T("RegServer") ) == 0 ) {
             _Module.UpdateRegistryFromResource(IDR_ActiveQtEXE, TRUE);
             nRet = _Module.RegisterServer(TRUE);
             bRun = FALSE;
             break;
-        }
-	if ( lstrcmpi(lpszToken, _T("Run"))==0)
-	{
+        } else if ( lstrcmpi( lpszToken, _T("Run") ) == 0 ) {
 	    bRun = TRUE;
 	    bRunMain = TRUE;
 	}
         lpszToken = FindOneOf(lpszToken, szTokens);
     }
 
-    if (bRun)
-    {
+    if (bRun) {
 	int argc = 0;
 	if ( !bRunMain ) {
 	    QApplication app( argc, NULL );

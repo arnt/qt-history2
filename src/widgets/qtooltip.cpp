@@ -662,15 +662,15 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
   arguments.  (See the tooltip/tooltip.cpp example.)  Again, you can supply a
   \c{QToolTipGroup *} and another text if you want.
 
-  Both of these are one-liners and cover the vast majority of
-  cases.  The third and most general way to use QToolTip uses a pure
-  virtual function to decide whether to pop up a tool tip.  The
-  tooltip/tooltip.cpp example demonstrates this, too.  This mode can be
-  used to implement tips for text that can move as the user
-  scrolls, for example.
+  Both of these are one-liners and cover the majority of
+  cases. The third and most general way to use QToolTip requires you
+  to reimplement a pure virtual function to decide whether to pop up a
+  tool tip. The tooltip/tooltip.cpp example demonstrates this too.
+  This mode can be used to implement tips for text that can move as the
+  user scrolls, for example.
 
   To use QToolTip like this, you need to subclass QToolTip and reimplement
-  maybeTip().  QToolTip calls maybeTip() when a tip should pop up, and
+  maybeTip(). QToolTip calls maybeTip() when a tip should pop up, and
   maybeTip decides whether to show a tip.
 
   Tool tips can be globally disabled using QToolTip::setGloballyEnabled() or

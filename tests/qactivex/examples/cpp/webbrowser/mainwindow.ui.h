@@ -49,3 +49,8 @@ void MainWindow::init()
     
     WebBrowser->dynamicCall( "GoHome" );
 }
+
+void MainWindow::setTitle( const QString &title )
+{
+    setCaption( "Qt WebBrowser - " + title );
+}

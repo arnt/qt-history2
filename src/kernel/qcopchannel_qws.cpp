@@ -192,7 +192,7 @@ void QCopChannel::receive( const QCString &msg, const QByteArray &data )
 */
 
 /*!
-  Queries the server for the existance of \a channel.
+  Queries the server for the existence of \a channel.
 
   Returns TRUE if \a channel is registered.
  */

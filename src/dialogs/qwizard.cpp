@@ -379,7 +379,7 @@ void QWizard::back()
 	i--;
 
     if( i >= 0 )
-	if( d->pages.at( i ) )
+       if( d->pages.at( i ) )
 	    showPage( d->pages.at( i )->w );
 }
 

@@ -70,7 +70,16 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     if ( !reentrant && lParam ) {
 	reentrant = TRUE;
 	MSG *msg = (MSG*)lParam;
-	if ( msg->message >= WM_MOUSEFIRST && msg->message <= WM_MOUSELAST ) {
+	const uint message = msg->message;
+	bool mouse = message >= WM_MOUSEFIRST && message <= WM_MOUSELAST;
+	bool key = message == WM_CHAR || 
+		   message == WM_KEYDOWN ||
+		   message == WM_KEYUP ||
+		   message == WM_SYSKEYDOWN ||
+		   message == WM_SYSKEYUP ||
+		   message == WM_IME_CHAR ||
+		   message == WM_IME_KEYDOWN;
+	if ( mouse || key ) {
 	    HWND hwnd = msg->hwnd;
 	    QWidget *widget = QWidget::find( hwnd );
 	    while ( !widget && hwnd ) {
@@ -78,28 +87,31 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 		widget = QWidget::find( hwnd );
 	    }
 	    QActiveX *ax = widget ? (QActiveX*)widget->qt_cast( "QActiveX" ) : 0;
-	    if ( ax ) {
-		//::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
-		for ( i=0; (UINT)mouseTbl[i] != msg->message || !mouseTbl[i]; i += 3 )
-		    ;
-		if ( !mouseTbl[i] )
-		    return FALSE;
-		type   = (QEvent::Type)mouseTbl[++i];	// event type
-		button = mouseTbl[++i];			// which button
-		state  = translateButtonState( msg->wParam, type, button ); // button state
-		DWORD ol_pos = GetMessagePos();
-		gpos.x = LOWORD(ol_pos);
-		gpos.y = HIWORD(ol_pos);
-		pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
+	    if ( ax && msg->hwnd != ax->winId() ) {
+		if ( key ) {
+		    bool res = ::SendMessage( ax->winId(), message, msg->wParam, msg->lParam );
+		} else {
+		    for ( i=0; (UINT)mouseTbl[i] != message || !mouseTbl[i]; i += 3 )
+			;
+		    if ( !mouseTbl[i] )
+			return FALSE;
+		    type   = (QEvent::Type)mouseTbl[++i];	// event type
+		    button = mouseTbl[++i];			// which button
+		    state  = translateButtonState( msg->wParam, type, button ); // button state
+		    DWORD ol_pos = GetMessagePos();
+		    gpos.x = LOWORD(ol_pos);
+		    gpos.y = HIWORD(ol_pos);
+		    pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
 
-		QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-		QApplication::sendEvent( ax, &e );
-		if ( msg->message == WM_LBUTTONDOWN ) {
-		    //ax->setFocus();
+		    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+		    QApplication::sendEvent( ax, &e );
+		    if ( message == WM_LBUTTONDOWN ) {
+			//ax->setFocus();
+		    }
+		    // this would eat the event, but it doesn't work with designer...
+		    //if ( e.isAccepted() ) 
+			//msg->message = WM_NULL;
 		}
-		// this would eat the event, but it doesn't work with designer...
-/*		if ( e.isAccepted() ) 
-		    msg->message = WM_NULL;*/
 	    }
 	}
 	reentrant = FALSE;

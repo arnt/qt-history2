@@ -462,39 +462,44 @@ void SetupWizardImpl::showPageConfig()
 #if defined(EVAL)
     setBackEnabled( buildPage, false );
 
-    configPage->installList->setSorting( -1 );
+    static bool alreadyInitialized = FALSE;
+    if ( !alreadyInitialized ) {
+	configPage->installList->setSorting( -1 );
 
-    QCheckListItem *item;
-    QCheckListItem *folder;
-    QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
+	QCheckListItem *item;
+	QCheckListItem *folder;
+	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
 
-    folder = new QCheckListItem ( configPage->installList, "Database drivers" );
-    folder->setOpen( true );
+	folder = new QCheckListItem ( configPage->installList, "Database drivers" );
+	folder->setOpen( true );
 
-    item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
-    item->setOn( findFileInPaths( "ntwdblib.dll", paths ) );
-    tdsPluginInstall = item;
+	item = new QCheckListItem( folder, "TDS", QCheckListItem::CheckBox );
+	item->setOn( findFileInPaths( "ntwdblib.dll", paths ) );
+	tdsPluginInstall = item;
 
-    item = new QCheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
-    item->setOn( findFileInPaths( "oci.dll", paths ) );
-    ociPluginInstall = item;
+	item = new QCheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
+	item->setOn( findFileInPaths( "oci.dll", paths ) );
+	ociPluginInstall = item;
 
-    if ( globalInformation.sysId() != GlobalInformation::Borland ) {
-	// I was not able to make Postgres work with Borland
-	item = new QCheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+	if ( globalInformation.sysId() != GlobalInformation::Borland ) {
+	    // I was not able to make Postgres work with Borland
+	    item = new QCheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+	    item->setOn( TRUE );
+	    psqlPluginInstall = item;
+	} else {
+	    psqlPluginInstall = 0;
+	}
+
+	item = new QCheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
 	item->setOn( TRUE );
-	psqlPluginInstall = item;
-    } else {
-	psqlPluginInstall = 0;
+	mysqlPluginInstall = item;
+
+	item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
+	item->setOn( findFileInPaths( "odbc32.dll", paths ) );
+	odbcPluginInstall = item;
+
+	alreadyInitialized = TRUE;
     }
-
-    item = new QCheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
-    item->setOn( TRUE );
-    mysqlPluginInstall = item;
-
-    item = new QCheckListItem( folder, "ODBC", QCheckListItem::CheckBox );
-    item->setOn( findFileInPaths( "odbc32.dll", paths ) );
-    odbcPluginInstall = item;
 
     optionSelected( 0 );
 #else
@@ -877,7 +882,7 @@ void SetupWizardImpl::showPageBuild()
 void SetupWizardImpl::optionSelected( QListViewItem *i )
 {
     if ( !i ) {
-	configPage->explainOption->setText( tr("Change the configuration.") );
+	configPage->explainOption->setText( "" );
 	return;
     }
 

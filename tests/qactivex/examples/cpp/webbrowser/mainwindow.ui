@@ -134,6 +134,9 @@
         <property name="text">
             <string>Back</string>
         </property>
+        <property name="accel">
+            <number>4099</number>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -308,6 +311,12 @@
         <receiver>MainWindow</receiver>
         <slot>go()</slot>
     </connection>
+    <connection>
+        <sender>WebBrowser</sender>
+        <signal>TitleChange(const QString&amp;)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setTitle(const QString&amp;)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainwindow.ui.h</include>
@@ -320,9 +329,10 @@
 </variables>
 <slots>
     <slot>go()</slot>
+    <slot>init()</slot>
     <slot>newWindow()</slot>
     <slot>setProgress( int a, int b )</slot>
-    <slot>init()</slot>
+    <slot>setTitle( const QString &amp; title )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
