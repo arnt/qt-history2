@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#6 $
+** $Id: //depot/qt/main/src/tools/qmap.h#7 $
 **
 ** Definition of QMap class
 **
@@ -439,6 +439,8 @@ public:
   
   uint count() const { return sh->node_count; }
 
+  bool isEmpty() const { return sh->node_count == 0; }
+  
   Iterator insert( const Key& key, const T& value )
   {
     detach();
@@ -468,7 +470,7 @@ protected:
 };
 
 template<class Key, class T>
-QDataStream& operator>>( QDataStream&, QMap<Key,T>& m ) {
+QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     m.clear();
     uint c;
     s >> c;
