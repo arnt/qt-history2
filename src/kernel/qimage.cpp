@@ -5882,10 +5882,16 @@ haveSamePalette(const QImage& a, const QImage& b)
 }
 
 /*!
-    Copies a \a sw by \a sh pixel area from \a src to position (\a dx,
-    \a dy) in \a dst. The pixels copied from source (src) are
-    converted according to \a conversion_flags if it is incompatible
-    with the destination (dst).
+    \relates QImage
+
+    Copies a block of pixels from \a src to \a dst. The pixels
+    copied from source (src) are converted according to
+    \a conversion_flags if it is incompatible with the destination
+    (\a dst).
+
+    \a sx, \a sy is the top-left pixel in \a src, \a dx, \a dy
+    is the top-left position in \a dst and \a sw, \sh is the
+    size of the copied block.
 
     The copying is clipped if areas outside \a src or \a dst are
     specified.
