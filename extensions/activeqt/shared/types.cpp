@@ -633,9 +633,9 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		{
 		    Q_ULLONG *reference = (Q_ULLONG*)static_QUType_varptr.get( obj );
 		    if ( reference )
-			*reference = arg.cyVal.int64;
+			*reference = arg.pcyVal->int64;
 		    else
-			reference = new Q_ULLONG(arg.cyVal.int64);
+			reference = new Q_ULLONG(arg.pcyVal->int64);
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
@@ -643,9 +643,9 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		{
 		    Q_LLONG *reference = (Q_LLONG*)static_QUType_varptr.get( obj );
 		    if ( reference )
-			*reference = arg.cyVal.int64;
+			*reference = arg.pcyVal->int64;
 		    else
-			reference = new Q_LLONG(arg.cyVal.int64);
+			reference = new Q_LLONG(arg.pcyVal->int64);
 		    static_QUType_varptr.set( obj, reference );
 		}
 		break;
