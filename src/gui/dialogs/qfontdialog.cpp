@@ -92,7 +92,8 @@ public:
     }
     void currentChanged(const QModelIndex &current, const QModelIndex &previous) {
         QListView::currentChanged(current, previous);
-        emit highlighted(current.row());
+        if (current.isValid())
+            emit highlighted(current.row());
     }
     QString text(int i) const {
         return model()->list().at(i);
