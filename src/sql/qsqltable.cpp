@@ -434,6 +434,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
     if ( insertCancelled ) {
 	setNumRows( d->insertPreRows );
 	d->insertPreRows = -1;
+	viewport()->setFocus();
     }
     return b;
 }
