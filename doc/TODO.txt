@@ -108,7 +108,10 @@ BiDi (Lars)
     BiDi algorithm for all text displaying. ASA the QTextView,
     QTextBrowser, QTextEdit, QRichText part described in
     "Extending existing functionality" is working start integrating
-    the BiDi stuff into that.
+    the BiDi stuff into that. This also includes making layouts and
+    widgets rtl. Like a listview has to have the first column on the
+    right, scrollbars have to be at the right and not at the left,
+    menubars have to go from right to left, etc.
 
 Database classes (Dave)
     Description missing here...
@@ -152,7 +155,7 @@ QThread (Volker, Brad)
 
 Widgetflags (Matthias )
     Reordering, cleanups. Introducing of a new WType_Dialog for
-    secondard windows. Fix testWState and testWFlags. Currently 
+    secondard windows. Fix testWState and testWFlags. Currently
     they return true if _something_ is set. This is pretty pointless
     but used internally in Qt for some low-level optimizations. Those
     have to be identified and fixed.
@@ -170,7 +173,7 @@ Qt/X11 (Matthias, Brad)
 moc: (Matthias)
     new and faster signal and slot system
     Q_DISPATCH macro and Q_OBJECT extensions to support remote
-    function calls. 
+    function calls.
     Bridge to KDE's dcop system.
 
 QListView / QListBox:
