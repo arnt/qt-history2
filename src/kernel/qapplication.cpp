@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#92 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#92 $");
 
 
 /*!
@@ -88,7 +88,7 @@ GUIStyle QApplication::app_style = PMStyle;	// default style for OS/2 PM
 GUIStyle QApplication::app_style = MotifStyle;	// default style for X Windows
 #endif
 
-QApplication::ColorMode QApplication::app_cmode = QApplication::NormalColors;
+int	 QApplication::app_cspec = QApplication::NormalColor;
 
 
 static QPalette *motifPalette = 0;
@@ -276,48 +276,110 @@ void QApplication::setStyle( GUIStyle style )
 }
 
 
-/*!
-  Returns the application color mode.
-  \sa QApplication::setColorMode()
- */
+#if 1  /* OBSOLETE */
 
 QApplication::ColorMode QApplication::colorMode()
 {
-    return app_cmode;
+    return (QApplication::ColorMode)app_cspec;
 }
-
-/*!
-  Sets the application color mode to \e mode.
-
-  The application color mode controls how your application
-  allocates colors. You must set the color mode before
-  creating the QApplication object, otherwise the color mode
-  will not work.
-
-  The choices are:
-  <ul>
-  <li> \c QApplication::NormalColors (default). The application will
-  ask the window system for colors. This works well under X11, but
-  Windows may dither the colors if they are different from the Window's
-  20 standard colors and the display supports 256 colors or less.
-  <li> \c QApplication::CustomColors. Under X11, this is equal to
-  \c NormalColors. Under Windows, Qt will create a Windows palette
-  if the display supports 256 colors.
-  </ul>
-
-  Use \c CustomColors if your application needs custom colors under
-  Windows.
- */
 
 void QApplication::setColorMode( QApplication::ColorMode mode )
 {
+    app_cspec = mode;
+}
+#endif
+
+
+/*!
+  Returns the color specification.
+  \sa QApplication::setColorSpec()
+ */
+
+int QApplication::colorSpec()
+{
+    return app_cspec;
+}
+
+/*!
+  Sets the color specification for the application to \a spec.
+
+  The color specification controls how your application allocates
+  colors. You must set the color specification before you create the
+  QApplication object.
+
+  The choices are:
+  <ul>
+  <li> \c QApplication::NormalColor. This is the default color allocation
+  strategy. The application allocates system global colors. This work fine
+  for most applications under X11, but Windows dithers to the 20 standard
+  colors unless the display has true color support (more than 256 colors).
+
+  <li> \c QApplication::CustomColor. Under X11 this is the same as \c
+  NormalColor. Under Windows, Qt creates a Windows palette if the display
+  supports 256 colors.
+
+  <li> \c QApplication::PrivateColor. Under Windows this is the same as \c
+  CustomColor. Under X11, Qt uses a private colormap for the application.
+
+  <li> \c QApplication::TrueColor. Under Windows, this is equal to
+  \c NormalColor. Under X11, this option makes the application use
+  a true color visual if one exists but is not the default visual.
+  Silicon Graphics X servers have this feature. They provide an 8
+  bit visual as default but can deliver true color when asked.
+  </ul>
+
+  The settings are bit-coded and can be combined using | or +.
+
+  If you have an application that uses buttons, menus, texts and
+  pixmaps with few colors, you can probably use the \c NormalColor
+  specification (i.e. keep the default setting).
+
+  If your application needs some custom colors you should specify \c
+  CustomColor.  This only makes a difference on Windows - the application
+  gets more colors when it is active, but the background windows look
+  less good.
+
+  If the application is color hungry (e.g. it wants 200 colors), \c
+  PrivateColor is best.  On Windows, it is the same as \c CustomColor.
+  Under X, you get a private colormap.
+
+  If your application is very color hungry (e.g. it wants thousands of
+  colors), you can specify a combination such as \c
+  (TrueColor+PrivateColor) or \c (TrueColor+CustomColor).  These
+  combinations mean to use 24-bit color if that is available, and fall
+  back to \c PrivateColor or \c CustomColor respectively if not.
+  
+  Example:
+  \code
+  int main( int argc, char **argv )
+  {
+      QApplication::setColorSpec( QApplication::PrivateColor );
+      QApplication a( argc, argv );
+      ...
+  }
+  \endcode
+
+  To see what mode you end up with, you can call QColor::numBitPlanes()
+  once the QApplication object exists.  A value greater than 8 (typically
+  16,24 or 32) means true color.
+
+  \warning The X.h header file for X11 contains <code>#define TrueColor
+  </code>. If you include the X headers files (which is necessary only
+  when you bypass Qt and write Xlib-specific code), you must <code>#undef
+  TrueColor</code> to be able to specify \c QApplication::TrueColor.
+
+  \sa colorSpec(), QColor::numBitPlanes()
+*/
+
+void QApplication::setColorSpec( int spec )
+{
 #if defined(CHECK_STATE)
     if ( qApp ) {
-	warning( "QApplication::setColorMode: This function must be "
+	warning( "QApplication::setColorSpec: This function must be "
 		 "called before the QApplication object is created" );
     }
 #endif
-    app_cmode = mode;
+    app_cspec = spec;
 }
 
 

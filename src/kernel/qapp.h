@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#57 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#58 $
 **
 ** Definition of QApplication class
 **
@@ -31,16 +31,23 @@ public:
     static GUIStyle style();
     static void	    setStyle( GUIStyle );
 
-    enum ColorMode { NormalColors, CustomColors, ManyColors };
+#if 1  /* OBSOLETE */
+    enum ColorMode { NormalColors, CustomColors };
     static QApplication::ColorMode colorMode();
     static void      setColorMode( QApplication::ColorMode );
+#endif
+
+    enum ColorSpec { NormalColor=0, CustomColor=1, PrivateColor=3,
+		     TrueColor=4 };
+    static int	     colorSpec();
+    static void      setColorSpec( int );
 
     static QCursor  *overrideCursor();
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	     restoreOverrideCursor();
 
     static QPalette *palette();
-    static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE);
+    static void	     setPalette( const QPalette &,bool updateAllWidgets=FALSE);
 
     static QFont    *font();
     static void	     setFont( const QFont &, bool updateAllWidgets=FALSE );
@@ -106,7 +113,7 @@ private:
     bool	     quit_now;
     int		     quit_code;
     static GUIStyle  app_style;
-    static ColorMode app_cmode;
+    static int	     app_cspec;
     static QPalette  *app_pal;
     static QFont    *app_font;
     static QCursor  *app_cursor;
