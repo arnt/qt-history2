@@ -2223,7 +2223,7 @@ fi
 # find if the platform supports X/Open Large File compilation environment
 if [ "$CFG_LARGEFILE" = "auto" ]; then
     if $unixtests/largefile.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
-	if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+	if [ "$CFG_LARGEFILE" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
 	    echo "Large file support cannot be enabled due to functionality tests!"
 	    echo " Turn on verbose messaging (-v) to $0 to see the final report."
 	    echo " If you believe this message is in error you may use the continue"
