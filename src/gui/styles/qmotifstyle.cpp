@@ -400,9 +400,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 
         if (!(opt->state & State_Enabled))
             dim -= 2;
-
-        if (dim < 2)
-            break;
+        if(dim < 2)
+           break;
 
         // adjust size and center (to fix rotation below)
         if (rect.width() > dim) {
@@ -667,6 +666,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         arrowOpt.state |= State_Enabled;
         drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowLeft : PE_IndicatorArrowUp),
                       &arrowOpt, p, widget);
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case CE_ScrollBarAddLine:{
@@ -674,17 +675,24 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         arrowOpt.state |= State_Enabled;
         drawPrimitive(((opt->state & State_Horizontal) ? PE_IndicatorArrowRight : PE_IndicatorArrowDown),
                       &arrowOpt, p, widget);
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case CE_ScrollBarSubPage:
     case CE_ScrollBarAddPage:
-        p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
+        if (opt->state & State_Enabled)
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Mid));
+        else
+            p->fillRect(opt->rect, opt->palette.brush(QPalette::Background));
         break;
 
     case CE_ScrollBarSlider: {
         QStyleOption bevelOpt = *opt;
         bevelOpt.state = (opt->state | State_Raised) & ~State_Down;
         drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
+        if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+            p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
         break; }
 
     case CE_RadioButton:
@@ -1268,7 +1276,10 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                   handle = subControlRect(CC_Slider, opt, SC_SliderHandle, widget);
 
             if ((opt->subControls & SC_SliderGroove) && groove.isValid()) {
-                qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Mid));
+                if (opt->state & State_Enabled)
+                    qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Mid));
+                else
+                    qDrawShadePanel(p, groove, opt->palette, true, 2, &opt->palette.brush(QPalette::Background));
                 if ((opt->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOption focusOpt = *opt;
                     focusOpt.rect = subRect(SR_SliderFocusRect, opt, widget);
@@ -1290,6 +1301,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
                     qDrawShadeLine(p, handle.x(), mid, handle.x() + handle.width() - 2, mid, opt->palette,
                                    true, 1);
                 }
+                if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
+                    p->fillRect(handle, QBrush(p->background().color(), Qt::Dense5Pattern));
             }
 
             if (opt->subControls & SC_SliderTickmarks) {
