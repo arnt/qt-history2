@@ -78,8 +78,9 @@
   \fn QStrList QPlugInInterface::queryInterfaceList() const
 
   Reimplement this function to provide a list of interfaces your plugin
-  would like to use. The plugin-loader will connect your plugin's QClientInterface
-  to all matching interfaces the application provides.
+  would like to use to access application components. The plugin-loader 
+  will connect your plugin's QClientInterface to all matching interfaces 
+  the application provides as soon as the plugin is initialized.
 
   \sa clientInterface()
 */
@@ -89,6 +90,12 @@
 
   Returns a pointer to the client interface the plugin can use to access the
   application's interface \a request.
+  
+  \warning
+  This method returns null if the application does not provide an interface matching
+  the requests.
+
+  \sa QClientInterface, QApplicationInterface
 */
 
 /*
