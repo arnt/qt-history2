@@ -924,11 +924,31 @@ NPP_Print(NPP instance, NPPrint* printInfo)
 }
 
 extern "C" void
-NPP_URLNotify(NPP /*instance*/,
-    const char* /*url*/,
-    NPReason /*reason*/,
-    void* /*notifyData*/)
+NPP_URLNotify(NPP instance,
+              const char* url,
+              NPReason reason,
+              void* notifyData)
 {
+    debug("NPP_URLNotify(%s,%d)",url,reason);
+    if (instance != NULL) {
+        QNPInstance::Reason r;
+        switch (reason) {
+        case NPRES_DONE:
+            r = QNPInstance::ReasonDone;
+            break;
+        case NPRES_USER_BREAK:
+            r = QNPInstance::ReasonBreak;
+            break;
+        case NPRES_NETWORK_ERR:
+            r = QNPInstance::ReasonError;
+            break;
+        default:
+            r = QNPInstance::ReasonUnknown;
+            break;
+        }
+        _NPInstance* This = (_NPInstance*) instance->pdata;
+        This->instance->notifyURL(url, r, notifyData);
+    }
 }
 
 
@@ -1477,6 +1497,20 @@ void QNPInstance::postURL(const char* url, const char* window,
 /*!
   Print the instance full-page.  By default, this returns FALSE, causing the
   browser to call the (embedded) print() function instead.
+  Requests that the given URL be retrieved and sent to the named
+  window.  See Netscape's JavaScript documentation for an explanation
+  of window names.
+
+  See also:
+  <a href=http://developer.netscape.com/docs/manuals/communicator/plugin/refpgur.htm#npngeturlnotify>
+  Netscape: NPN_GetURLNotify method</a>
+*/
+void QNPInstance::getURLNotify(const char* url, const char* window, void*data)
+{
+    NPN_GetURLNotify( pi->npp, url, window, data );
+}
+
+/*!
 
   This function is not tested.
   It is an encapsulation of the NPP_Print
@@ -1518,6 +1552,21 @@ int QNPInstance::argc() const
 const char* QNPInstance::argn(int i) const
 {
     return pi->argn[i];
+}
+
+/*!
+  Called whenever an url is notified after call to NPN_GetURLNotify
+
+  This function is not tested.
+  It is an encapsulation of the NPP_URLNotify
+  function of the Netscape Plugin API.
+
+  See also:
+  <a href=http://developer.netscape.com/docs/manuals/communicator/plugin/refpgur.htm#nppurlnotify>
+  Netscape: NPP_URLNotify method</a>
+*/
+void QNPInstance::notifyURL(const char*, Reason, void*)
+{
 }
 
 /*!

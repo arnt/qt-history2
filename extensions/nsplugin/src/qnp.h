@@ -93,6 +93,12 @@ public:
     int argc() const;
     const char* argn(int) const;
     const char* argv(int) const;
+    enum Reason {
+        ReasonDone = 0,
+        ReasonBreak = 1,
+        ReasonError = 2,
+        ReasonUnknown = -1
+    };
     const char* arg(const char* name) const;
     enum InstanceMode { Embed=1, Full=2, Background=3 };
     InstanceMode mode() const;
@@ -113,6 +119,7 @@ public:
     virtual void streamDestroyed(QNPStream*);
 
     void status(const char* msg);
+    void getURLNotify(const char* url, const char* window=0, void*data=0);
 
     void getURL(const char* url, const char* window=0);
     void postURL(const char* url, const char* window,
@@ -124,6 +131,7 @@ public:
 
     void* getJavaPeer() const;
 
+    virtual void notifyURL(const char* url, Reason r, void* notifyData);
     virtual bool printFullPage();
     virtual void print(QPainter*);
 
