@@ -653,9 +653,6 @@ void QTabBar::paintEvent( QPaintEvent * e )
 
     QSharedDoubleBuffer buffer( this, e->rect() );
 
-    buffer.painter()->setBrushOrigin( rect().bottomLeft() );
-    buffer.painter()->fillRect( 0, 0, width(), height(),
-				colorGroup().brush( QColorGroup::Background ) );
     QTab * t;
     t = l->first();
     do {
