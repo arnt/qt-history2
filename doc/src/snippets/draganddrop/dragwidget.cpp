@@ -17,48 +17,37 @@ DragWidget::DragWidget(QWidget *parent)
     setAcceptDrops(true);
 }
 
+// Accept all actions, but deal with them separately later.
 void DragWidget::dragMoveEvent(QDragMoveEvent *event)
 {
-    // Accept all actions, but deal with them separately later.
     event->acceptProposedAction();
 }
 
 void DragWidget::dropEvent(QDropEvent *event)
 {
-    QMenu actionMenu(this);
-    QAction *copyAction = 0;
-    QAction *moveAction = 0;
-    QAction *linkAction = 0;
-    QAction *ignoreAction = 0;
-    if (event->possibleActions() & QDrag::CopyAction)
-        copyAction = actionMenu.addAction(tr("Copy"));
-    if (event->possibleActions() & QDrag::MoveAction)
-        moveAction = actionMenu.addAction(tr("Move"));
-    if (event->possibleActions() & QDrag::LinkAction)
-        linkAction = actionMenu.addAction(tr("Link"));
-    if (event->possibleActions() & QDrag::IgnoreAction)
-        ignoreAction = actionMenu.addAction(tr("Ignore"));
+    if (event->source() == this && event->possibleActions() & QDrag::MoveAction)
+        return;
 
-    QAction *result = actionMenu.exec(QCursor::pos());
-
-    if (copyAction && result == copyAction) {
-        event->setDropAction(QDrag::CopyAction);
-        emit dragResult(tr("The data was copied here."));
-    } else if (moveAction && result == moveAction) {
-        event->setDropAction(QDrag::MoveAction);
+    if (event->possibleActions() == QDrag::MoveAction) {
+        event->acceptProposedAction();
+        // Process the data from the event.
         emit dragResult(tr("The data was moved here."));
-    } else if (linkAction && result == linkAction) {
-        event->setDropAction(QDrag::LinkAction);
-        emit dragResult(tr("The data was linked here."));
+    } else if (event->possibleActions() == QDrag::CopyAction) {
+        event->acceptProposedAction();
+        // Process the data from the event.
+        emit dragResult(tr("The data was copied here."));
     } else {
-        event->setDropAction(QDrag::IgnoreAction);
-        emit dragResult(tr("The data was ignored."));
+        // Ignore the drop.
         return;
     }
+    // End of quote
 
     emit mimeTypes(event->mimeData()->formats());
     setData(event->mimeData()->formats()[0],
             event->mimeData()->data(event->mimeData()->formats()[0]));
+/*
+    ...
+*/
 }
 
 void DragWidget::mousePressEvent(QMouseEvent *event)
@@ -83,10 +72,8 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
 
     QDrag::DropAction dropAction;
 
-    if (event->button() & Qt::ShiftModifier) {
+    if (event->modifiers() & Qt::ShiftModifier)
         dropAction = drag->start(QDrag::MoveAction);
-        qDebug("Move");
-    }
     else
         dropAction = drag->start(QDrag::CopyAction);
 
@@ -101,6 +88,9 @@ void DragWidget::mouseMoveEvent(QMouseEvent *event)
             emit dragResult(tr("Unknown action."));
             break;
     }
+    /*
+    ...
+    */
 }
 
 void DragWidget::setData(const QString &mimetype, const QByteArray &newData)
