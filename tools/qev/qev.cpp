@@ -3,6 +3,7 @@
 class Widget : public QWidget
 {
 public:
+    Widget(){ setAttribute(Qt::WA_InputMethodEnabled); }
     QSize sizeHint() const { return QSize(20, 20); }
     bool event(QEvent *e) {
         if (e->type() == QEvent::ContextMenu)
