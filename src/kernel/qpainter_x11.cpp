@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#31 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#31 $";
 #endif
 
 
@@ -1776,7 +1776,7 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 QString get_tbm_key(  const QWorldMatrix &m, const char *str, int len )
 {
     QString s = str;
-    s.resize( len );
+    s.resize( len + 1 );    // eiriken FIXED  950202    s.resize( len );
     QString k;
     if ( len > 150 )
 	k.resize( len + 100 );
