@@ -1533,13 +1533,12 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir]
 	[-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ]
-	[-datadir dir] [-debug] [-release] [-qt-gif] [-no-gif] [-sm]
-	[-no-sm] [-qt-zlib] [-system-zlib] [-qt-libpng]
-	[-system-libpng] [-no-jpeg] [-system-jpeg] [-no-thread]
-	[-thread] [-no-nis] [-nis] [-no-cups] [-cups] [-no-largefile]
-	[-largefile] [-stl] [-no-stl] [-Istring] [-lstring] [-Lstring]
-	[-Rstring] [-disable-<module>] [-with-<module setting>]
-	[-without-<module setting>] [-fast] [-nofast]
+	[-datadir dir] [-debug] [-release] [-qt-gif] [-no-gif] [-no-sm]
+	[-sm] [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng]
+	[-no-thread] [-thread] [-no-nis] [-nis] [-no-cups] [-cups]
+	[-no-largefile] [-largefile] [-no-stl] [-stl]
+	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
+	[-with-<module setting>] [-without-<module setting>] [-fast] [-no-fast]
 
 Installation options:
 
@@ -1587,7 +1586,7 @@ Configure options:
 			 See src/kernel/qgif.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
-    -system-zlib ....... Use zlib from the operating system
+    -system-zlib ....... Use zlib from the operating system.
 			 See http://www.info-zip.org/pub/infozip/zlib
 
     -fast .............. Configure Qt quickly by generating Makefiles only for
@@ -1595,8 +1594,6 @@ Configure options:
 			 are created as wrappers, which will in turn run qmake.
  *  -no-fast ........... Configure Qt normally by generating Makefiles for all
 			 project files.
-
-    -profile ........... Enable profiling with gprof (adds -pg options)
 
     -no-exceptions ..... Disable exceptions on platforms that support it.
 
@@ -1823,7 +1820,11 @@ if [ "$Edition" = "free" ]; then
 	echo "Type 'yes' to accept this license offer."
 	echo "Type 'no' to decline this license offer."
 	echo
-	echo "Do you accept the terms of $affix license?"
+	if echo '\c' | grep '\c' >/dev/null; then
+	    echo -n "Do you accept the terms of $affix license? "
+	else
+	    echo "Do you accept the terms of $affix license? \c"
+	fi
 	read acceptance
 	if [ "$acceptance" = "yes" ]; then
 	    break
