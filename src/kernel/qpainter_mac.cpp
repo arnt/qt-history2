@@ -703,17 +703,17 @@ void QPainter::drawRect( int x, int y, int w, int h )
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRect( &rect );
-   /* FIXME FIXME this needs to be copied all over the place! */
+	/* FIXME FIXME this needs to be copied all over the place! */
     } else if(this->brush().style() == CustomPattern ) { 
 	updateBrush();
         QPixmap *pm = cbrush.data->pixmap;
 	if(pm && !pm->isNull()) {
 	    QRegion savedrgn = crgn; //save current region
-	    QRegion newrgn(x+offx, y+offy, w, h); 
+	    QRegion newrgn(x, y, w, h); 
 	    if(!crgn.isNull())
 		newrgn &= crgn;
 	    setClipRegion(newrgn); 
-	    drawTiledPixmap(x+offx, y+offy, w, h, *pm, bro.x(), bro.y()); 
+	    drawTiledPixmap(x, y, w, h, *pm, bro.x(), bro.y()); 
 	    setClipRegion(savedrgn); //restore region
 	}
     }
@@ -1422,3 +1422,10 @@ QPoint QPainter::pos() const
 }
 
 
+#if 0 //this is good for debugging and not much else, do not leave this in production
+GWorldPtr cgworld;
+GDHandle cghandle;
+GetGWorld(&cgworld, &cghandle);
+QRegion rup(dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
+QDFlushPortBuffer(cgworld, (RgnHandle)rup.handle());
+#endif

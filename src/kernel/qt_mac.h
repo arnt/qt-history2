@@ -25,6 +25,7 @@ class QMacSavedPortInfo
     GWorldPtr world;
     GDHandle handle;
     PenState pen; //go pennstate
+    RGBColor back, fore;
 public:
     QMacSavedPortInfo();
     ~QMacSavedPortInfo();
@@ -33,6 +34,8 @@ public:
 
 inline QMacSavedPortInfo::QMacSavedPortInfo()
 {
+    GetBackColor(&back);
+    GetForeColor(&fore);
     GetGWorld(&world, &handle);
     clip = NewRgn();
     GetClip(clip);
@@ -45,6 +48,8 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     SetClip(clip);
     DisposeRgn(clip);
     SetPenState(&pen);
+    RGBForeColor(&fore);
+    RGBBackColor(&back);
 }
 
 #endif

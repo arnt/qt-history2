@@ -133,6 +133,10 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 	  sh = pm->height();
   }
 
+  ::RGBColor f;
+  f.red = f.green = f.blue = 0;
+  RGBForeColor( &f );
+
   int dstoffx=0, dstoffy=0;
   const BitMap *dstbitmap=NULL;
   if(dst->devType() == QInternal::Widget) {
