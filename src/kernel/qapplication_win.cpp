@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#282 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#283 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2266,6 +2266,22 @@ static int asciiToKeycode(char a, int state)
     return a;
 }
 
+static
+QChar imechar_to_unicode(DWORD c)
+{
+    if ( qt_winver == Qt::WV_NT ) {
+	ushort uc = (ushort)c;
+	return QChar(uc&0xff,(uc>>8)&0xff);
+    } else {
+	char mb[2];
+	mb[0] = (c>>8)&0xff;
+	mb[1] = c&0xff;
+	ushort wc[1];
+	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
+	    mb, 2, wc, 1);
+	return QChar(wc[0]);
+    }
+}
 
 bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 {
@@ -2291,11 +2307,8 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
     }
     else if ( msg.message == WM_IME_CHAR ) {
-	debug("IME"); //###
 	// input method characters not found by our look-ahead
-	QString s;
-	ushort uc = (ushort)msg.wParam;
-	s += QChar(uc&0xff,(uc>>8)&0xff);
+	QString s = imechar_to_unicode(msg.wParam);
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
     }
@@ -2312,7 +2325,9 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 			      t == WM_IME_KEYDOWN ? WM_IME_CHAR : WM_SYSCHAR );
 	    if ( winPeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
 		// Found a XXX_CHAR
-		uch = QChar(wm_char.wParam & 0xff, (wm_char.wParam>>8) & 0xff);
+		uch = charType == WM_IME_CHAR
+			? imechar_to_unicode(wm_char.wParam)
+			: QChar(wm_char.wParam&0xff,(wm_char.wParam>>8)&0xff);
 		if ( t == WM_SYSKEYDOWN && !uch.row() &&
 		     isalpha(uch.cell()) && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
