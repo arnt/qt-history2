@@ -3,7 +3,7 @@
    NOTICE */
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.cpp#9 $
 **
 ** Implementation of QLayout functionality
 **
@@ -144,7 +144,7 @@ void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 	  Do a trial distribution and calculate how much it is off.
 	  If there are more deficit pixels than surplus pixels,
 	  give the minimum size items what they need, and repeat.
-	  Otherwise give to the maximum size items.
+	  Otherwise give to the maximum size items, and repeat.
 	
 	  I have a wonderful mathematical proof for the correctness of
 	  this principle, but unfortunately this comment is too

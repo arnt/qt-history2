@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#96 $
 **
 ** Implementation of layout classes
 **
@@ -1325,6 +1325,12 @@ public:
     QArray<QLayoutStruct> arr;
 };
 #endif
+
+#if 0
+class QBoxLayoutData :public QLayoutArray {
+};
+#endif
+
 
 /*!
   Creates a new QBoxLayout with direction \a d and main widget \a

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#39 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#40 $
 **
 ** Definition of layout classes
 **
@@ -96,7 +96,7 @@ private:	// Disabled copy constructor and operator=
 
 class QBoxLayoutData;
 
-class Q_EXPORT QBoxLayout : public QGridLayout
+class Q_EXPORT QBoxLayout : public QGridLayout //QLayout
 {
     Q_OBJECT
 public:
@@ -126,6 +126,20 @@ public:
 
     bool setStretchFactor( QWidget*, int stretch );
 
+//    QSize sizeHint() const;
+//    QSize minimumSize() const;
+//    QSize maximumSize() const;
+//    
+//    bool hasHeightForWidth() const;
+//    int heightForWidth( int ) const;
+//
+//    QSizePolicy::ExpandData expanding();
+//    void invalidate();
+//protected:
+//    void setGeometry( const QRect& );
+//    void add( QLayoutItem*, int row, int col );
+
+    
 private:
     //QBoxLayoutData *data;
     Direction dir;

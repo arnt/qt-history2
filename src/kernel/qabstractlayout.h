@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#21 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#22 $
 **
 ** Definition of the abstract layout base class
 **
@@ -40,6 +40,7 @@ class QLayoutItem;
 class Q_EXPORT QGLayoutIterator : public QShared
 {
 public:
+    virtual ~QGLayoutIterator();
     virtual QLayoutItem *next() = 0;
     virtual QLayoutItem *current() = 0;
     virtual void removeCurrent() = 0;
@@ -124,14 +125,14 @@ public:
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     QRect geometry() const;
-    void invalidate();
+    //void invalidate();
     virtual QWidget *widget();
 
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
 private:
-    QSize cachedSizeHint;
+    //QSize cachedSizeHint;
     QWidget *wid;
 };
 
@@ -140,10 +141,10 @@ class Q_EXPORT QLayout : public QObject, public QLayoutItem
 {
     Q_OBJECT
 public:
-    QLayout( QWidget *parent, int border=0, int autoBorder=-1,
+    QLayout( QWidget *parent, int border=0, int space=-1,
 	     const char *name=0 );
-    QLayout( QLayout *parentLayout, int autoBorder=-1, const char *name=0 );
-    QLayout( int autoBorder=-1, const char *name=0 );
+    QLayout( QLayout *parentLayout, int space=-1, const char *name=0 );
+    QLayout( int space=-1, const char *name=0 );
 
     ~QLayout();
     int spacing() const { return insideSpacing; }

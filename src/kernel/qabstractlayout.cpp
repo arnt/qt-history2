@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#49 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -456,21 +456,21 @@ QSize QSpacerItem::sizeHint() const
 	return QSize( width, height );
 }
 
-/*!
-  Invalidates any cached information.
- */
-void QWidgetItem::invalidate()
-{
-    cachedSizeHint = QSize();
-}
+///*!
+//  Invalidates any cached information.
+// */
+//void QWidgetItem::invalidate()
+//{
+//    cachedSizeHint = QSize();
+//}
 
 /*!
   Returns the preferred size of this item.
 */
 QSize QWidgetItem::sizeHint() const
 {
-    if ( cachedSizeHint.isValid() )
-	return cachedSizeHint;
+    //if ( cachedSizeHint.isValid() )
+    //	return cachedSizeHint;
     QSize s;
     if ( isEmpty() )
 	s =  QSize(0,0);
@@ -481,8 +481,8 @@ QSize QWidgetItem::sizeHint() const
 		  wid->sizeHint().width() : wid->minimumWidth(),
 		  wid->minimumHeight() == 0 ?
 		  wid->sizeHint().height() : wid->minimumHeight() );
-    
-    ((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
+
+    //((QWidgetItem*)this)->cachedSizeHint = s; //mutable hack
     return s;
 }
 
@@ -627,8 +627,18 @@ QLayout::QLayout( int space, const char *name )
   Implemented in subclasses to return an iterator that iterates over
   the children of this layout.
 
-  Layout implementors must subclass QGLayoutIterator.
+  A typical implementation will be:
+  \code
+  QLayoutIterator MyLayout::iterator()
+  {
+      QGLayoutIterator *i = new MyLayoutIterator( internal_data );
+      return QLayoutIterator( i );
+  }
+  \endcode
+  where MyLayoutIterator is a subclass of QGLayoutIterator.
 */
+
+
 
 /*!
   \fn void QLayout::add (QWidget * w)
@@ -1255,6 +1265,15 @@ Sets the hasHeightForWidth() flag to \a b.
  */
 
 
+/*! 
+  Destroys the iterator
+*/
+
+QGLayoutIterator::~QGLayoutIterator()
+{
+}
+
+
 /*!
   \class QLayoutIterator qabstractlayout.h
   \brief The QLayoutIterator class provides iterators over QLayoutItem
@@ -1297,15 +1316,16 @@ Sets the hasHeightForWidth() flag to \a b.
 
   All the functionality of QLayoutIterator is implemented by
   subclasses of QGLayoutIterator. Note that there is not much
-  point in subclassing QLayoutIterator, since ~QLayoutIterator() is not
-  virtual.
+  point in subclassing QLayoutIterator, since none of the functions
+  are virtual.
 */
 
 
 
 
-/*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *i )
-  Constructs an iterator based on \a i.
+/*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *gi )
+  Constructs an iterator based on \a gi. The constructed iterator takes 
+  ownership of \a gi, and will delete it.  
 
   This constructor is provided for layout implementors. Application
   programmers should use QLayoutItem::iterator() to create an iterator
@@ -1325,21 +1345,9 @@ Sets the hasHeightForWidth() flag to \a b.
   Assigns \a i to this iterator and returns a reference to this iterator.
 */
 
-/*! \fn uint QLayoutIterator::count() const
-  Returns the number of child items in the layout item this iterator
-  iterates over.
-*/
-
-/*! \fn bool QLayoutIterator::isEmpty() const
-  Returns TRUE if the layout item has no children.
-*/
-
-/*! \fn void QLayoutIterator::toFirst()
-   Moves the iterator to the first child item.
-*/
-
-/*! \fn void QLayoutIterator::next()
-  Moves the iterator to the next child item.
+/*! \fn QLayoutItem *QLayoutIterator::operator++()
+  Moves the iterator to the next child item, and returns that item, or 0
+  if there is no such item.
 */
 
 /*! \fn QLayoutItem *QLayoutIterator::current()
@@ -1422,3 +1430,4 @@ void QLayout::setAutoAdd( bool b )
 {
     autoNewChild = b;
 }
+
