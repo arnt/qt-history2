@@ -42,7 +42,7 @@ class Q_EXPORT QDialog : public QWidget			// dialog widget
 friend class QPushButton;
     Q_OBJECT
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
-    
+
 public:
     QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
@@ -73,7 +73,7 @@ public:
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
-    
+
 protected slots:
     virtual void done( int );
     virtual void accept();
@@ -102,5 +102,5 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#endif QT_NO_DIALOG
+#endif // QT_NO_DIALOG
 #endif // QDIALOG_H
