@@ -206,6 +206,17 @@ bool QFont::dirty() const
 }
 
 
+/*
+** Added by ebakke
+**
+** This is just a dummy.   Lars will provide the real function
+** when he gets to look at the code
+*/
+QRect QFontPrivate::boundingRect( const QChar &ch )
+{
+    return QRect(0, 0, 1, 1); //take that
+}
+
 QString QFontPrivate::defaultFamily() const
 {
     switch( request.styleHint ) {
@@ -856,3 +867,4 @@ const QFontDef *QFontInfo::spec() const
     }
 }
 #endif
+
