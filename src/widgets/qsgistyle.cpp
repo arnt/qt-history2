@@ -74,7 +74,7 @@ static QPoint mousePos(-1,-1);
 
   /sa QMotifStyle::useHighlightColors()
 */
-QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols )
+QSGIStyle::QSGIStyle( bool useHighlightCols ) : QMotifStyle( useHighlightCols ), isApplicationStyle( 0 )
 {
     setButtonDefaultIndicatorWidth( 4 ); // ### remove and reimplement virtual function
     setScrollBarExtent( 21,21 );
@@ -102,6 +102,7 @@ int QSGIStyle::defaultFrameWidth() const
 void
 QSGIStyle::polish( QApplication* app)
 {
+    isApplicationStyle = 1;
     QMotifStyle::polish( app );
 
     QFont f = QApplication::font();
@@ -116,8 +117,6 @@ QSGIStyle::polish( QApplication* app)
     pal.setColor( QColorGroup::Background, pal.active().midlight() );
     if (pal.active().button() == pal.active().background())
 	pal.setColor( QColorGroup::Button, pal.active().button().dark(110) );
-    QApplication::setPalette( pal );
-
     // darker basecolor in list-widgets
     pal.setColor( QColorGroup::Base, pal.active().base().dark(130) );
     if (! useHighlightColors() ) {
@@ -157,6 +156,39 @@ QSGIStyle::polish( QWidget* w )
 {
     QMotifStyle::polish(w);
 
+    if ( !isApplicationStyle ) {
+	QPalette sgiPal;
+
+	sgiPal.setColor( QColorGroup::Background, sgiPal.active().midlight() );
+	if (sgiPal.active().button() == sgiPal.active().background())
+	    sgiPal.setColor( QColorGroup::Button, sgiPal.active().button().dark(110) );
+	sgiPal.setColor( QColorGroup::Base, sgiPal.active().base().dark(130) );
+	if (! useHighlightColors() ) {
+	    sgiPal.setColor( QPalette::Active, QColorGroup::Highlight, sgiPal.active().text() );
+	    sgiPal.setColor( QPalette::Active, QColorGroup::HighlightedText, sgiPal.active().base() );
+	    sgiPal.setColor( QPalette::Inactive, QColorGroup::Highlight, sgiPal.inactive().text() );
+	    sgiPal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, sgiPal.inactive().base() );
+	    sgiPal.setColor( QPalette::Disabled, QColorGroup::Highlight, sgiPal.disabled().text() );
+	    sgiPal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, sgiPal.disabled().base() );
+	}
+
+	if ( w->inherits("QLineEdit") || w->inherits("QMultiLineEdit") ) {
+	    // different basecolor and highlighting in Q(Multi)LineEdit
+	    sgiPal.setColor( QColorGroup::Base, QColor(211,181,181) );
+	    sgiPal.setColor( QPalette::Active, QColorGroup::Highlight, sgiPal.active().midlight() );
+	    sgiPal.setColor( QPalette::Active, QColorGroup::HighlightedText, sgiPal.active().text() );
+	    sgiPal.setColor( QPalette::Inactive, QColorGroup::Highlight, sgiPal.inactive().midlight() );
+	    sgiPal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, sgiPal.inactive().text() );
+	    sgiPal.setColor( QPalette::Disabled, QColorGroup::Highlight, sgiPal.disabled().midlight() );
+	    sgiPal.setColor( QPalette::Disabled, QColorGroup::HighlightedText, sgiPal.disabled().text() );
+
+	} else if ( w->inherits("QMenuBar") || w->inherits("QToolBar") ) {
+	    sgiPal.setColor( QColorGroup::Button, sgiPal.active().midlight() );
+	}
+
+	w->setPalette( sgiPal );
+    }
+
     if ( w->inherits("QButton") || w->inherits("QSlider") || w->inherits("QScrollBar") ) {
 	w->installEventFilter( this );
 	w->setMouseTracking( TRUE );
@@ -166,7 +198,7 @@ QSGIStyle::polish( QWidget* w )
 	((QFrame*) w)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 	w->setBackgroundMode( QWidget::PaletteBackground );
     } else if ( w->inherits("QPopupMenu") ) {
-        ((QFrame*) w)->setLineWidth( defaultFrameWidth() + 1 );
+	((QFrame*) w)->setLineWidth( defaultFrameWidth() + 1 );
     } else if ( w->inherits("QToolBar") ) {
 	w->setBackgroundMode( QWidget::PaletteBackground );
     }
@@ -364,10 +396,7 @@ QSGIStyle::drawArrow( QPainter *p, ArrowType type, bool /*down*/,
 QSize
 QSGIStyle::indicatorSize() const
 {
-    int strutW = QApplication::globalStrut().width() * 0.66;
-    int strutH = QApplication::globalStrut().height() * 0.66;
-
-    return QSize(20,20).expandedTo( QSize( strutW, strutH ) );
+    return QSize( 20, 20 );
 }
 
 /*!

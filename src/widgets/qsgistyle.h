@@ -126,6 +126,7 @@ protected:
     bool eventFilter( QObject*, QEvent*);
 
 private:
+    uint isApplicationStyle :1;
     QGuardedPtr<QWidget> lastWidget;
 #if defined(Q_DISABLE_COPY)
     QSGIStyle( const QSGIStyle & );
