@@ -1268,16 +1268,17 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     it uses passive file transfer mode by default; see the
     documentation for setTransferMode() for more details about this.
 
+    Call setProxy() to make QFtp connect via an FTP proxy server.
+
     The functions currentId() and currentCommand() provide more
     information about the currently executing command.
 
     The functions hasPendingCommands() and clearPendingCommands()
     allow you to query and clear the list of pending commands.
 
-    The safest and easiest way to use the FTP protocol is to use
-    QUrlOperator() or the FTP commands described above. If you are an
-    experienced network programmer and want to have complete control
-    you can use rawCommand() to execute arbitrary FTP commands.
+    If you are an experienced network programmer and want to have
+    complete control you can use rawCommand() to execute arbitrary FTP
+    commands.
 
     \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator QHttp
 */
