@@ -101,7 +101,8 @@ class QMakeBufferedDevice : public QBuffer
 public:
     QMakeBufferedDevice(QIODevice *device) : QBuffer()
     {
-        maximum = 4096;
+        maximum = 102400; // 100K
+        buffer().reserve(maximum);
         used = 0;
         outDevice = device;
         open(QIODevice::WriteOnly);
