@@ -7,11 +7,12 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
+DISTDIR		= /tmp/qt-0.91
 
 ####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -felide-constructors -O2 -DCHECK_MEMORY
+CFLAGS		= -O2 -DCHECK_MEMORY
 CDBGFLAGS	= -g -DCHECK_MEMORY
 AOUTCFLAGS	= -b i486-linuxaout
 ELFCFLAGS	= -fPIC -b i486-linux
@@ -43,6 +44,7 @@ all:
 	@echo "  make elfdbg  - creates an ELF dynamic library w/debug info"
 	@echo "  make moc     - creates the meta object compiler"
 	@echo "  make tools   - creates the tools library"
+	@echo "  make dist    - make libraries for a distribution"
 	@exit 1
 
 #
@@ -52,7 +54,7 @@ all:
 tools: toolshack
 
 toolshack:
-	( cd tools ; make )
+	make -C tools
 
 #
 # Create the meta object compiler
@@ -61,7 +63,7 @@ toolshack:
 moc: tools mochack
 
 mochack:
-	( cd moc ; make )
+	make -C moc
 
 #
 # Create a library, called from aout, aoutdbg, elf and elfdbg
@@ -69,7 +71,7 @@ mochack:
 
 FORCE:
 
-lib: dirs
+lib: include
 	$(RM) -f tools/*.o
 	$(RM) -f kernel/*.o
 	$(RM) -f widgets/*.o
@@ -77,14 +79,14 @@ lib: dirs
 	$(MKDIR) -p $(OBJDIR)/kernel
 	$(MKDIR) -p $(OBJDIR)/widgets
 	-$(MV) -f $(OBJDIR)/tools/*.o tools
-	( cd tools; make obj 'CFLAGS=$(CFLAGS)' )
-	-$(MV) -f tools/*.o $(OBJDIR)/tools
+	make -C tools obj 'CFLAGS=$(CFLAGS)'
+	$(MV) -f tools/*.o $(OBJDIR)/tools
 	-$(MV) -f $(OBJDIR)/kernel/*.o kernel
-	( cd kernel; make obj 'CFLAGS=$(CFLAGS)' )
-	-$(MV) -f kernel/*.o $(OBJDIR)/kernel	
+	make -C kernel obj 'CFLAGS=$(CFLAGS)'
+	$(MV) -f kernel/*.o $(OBJDIR)/kernel	
 	-$(MV) -f $(OBJDIR)/widgets/*.o widgets
-	( cd widgets; make obj 'CFLAGS=$(CFLAGS)' )
-	-$(MV) -f widgets/*.o $(OBJDIR)/widgets
+	make -C widgets obj 'CFLAGS=$(CFLAGS)'
+	$(MV) -f widgets/*.o $(OBJDIR)/widgets
 
 aout:
 	make lib 'CFLAGS=$(CFLAGS) $(AOUTCFLAGS)' 'OBJDIR=obj/aout'
@@ -110,23 +112,37 @@ elfdbg:
 	$(CC) -shared -Wl,-soname -Wl,$(ELFTARGETPRE) \
 		-o $(ELFTARGET) obj/elfdbg/*/*.o -lX11 -lgcc -lc
 
+dist: include depend elf aout # be careful :)
+	-$(RM) -rf $(DISTDIR)
+	find /local/qt/examples -type d -print \
+	    | grep -v RCS \
+	    | sed s@/local@$(DISTDIR)/lib@ \
+	    | xargs mkdir -p
+	$(MKDIR) -p $(DISTDIR)/{lib/qt/include,lib/qt/doc,bin,man}
+	cp -fR /local/qt/install-extra/. $(DISTDIR)
+	cp -f $(INCDIR)/*.h $(DISTDIR)/lib/qt/include
+	cp -f /local/qt/doc/html/*.html $(DISTDIR)/lib/qt/doc
+	set -e ; for a in `find $(DISTDIR)/lib/qt/examples -type d -print` ; \
+	do \
+	    ( set -e ; cd $$a ; co -r `pwd | sed s@$(DISTDIR)/lib@/local@`/RCS/*,v ); \
+	done
+
+tar: dist
+	-rm $(DISTDIR).tar.gz
+	( set -e ; cd $(DISTDIR) ; tar cf misc.tar bin lib man )
+	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/elf.tar libqt.so* )
+	( set -e ; cd $(LIBDIR) ; tar cf $(DISTDIR)/aout.tar libqt.a )
+	( set -e ; cd $(DISTDIR)/.. ; tar cf $(DISTDIR).tar `basename $(DISTDIR)`/{INSTALL,README,ANNOUNCE,MANIFEST,LICENCE,misc.tar,aout.tar,elf.tar} ; gzip -f9 $(DISTDIR).tar )
+
 checkout: 
-	@for d in $(DIRS); \
-	do (cd $$d; echo "[--- $$d ---]"; \
-	    make checkout; \
-	) done
+	set -e ; for d in $(DIRS); do make -C $$d checkout ; done
 
 clean:
-	@for d in $(DIRS); \
-	do (cd $$d; echo "[--- $$d ---]"; \
-	    make clean \
-	) done
+	set -e ; for d in $(DIRS); do make -C $$d clean ; done
 
 depend dep:
-	@for d in $(DIRS); \
-	do (cd $$d; echo "[--- $$d ---]"; \
-	    make depend \
-	) done
+	set -e ; for d in $(DIRS); do make -C $$d depend ; done
 
-dirs:
-	ln -sf $(QTDIR)/src/{tools,kernel,widgets}/q*.h $(INCDIR)
+include:
+	-rm $(INCDIR)/*.h
+	set -e ; for d in $(DIRS); do make -C $$d include ; done
