@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#15 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#16 $
 **
 ** Implementation of Network Extension Library
 **
@@ -138,22 +138,15 @@ void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*m
 {
 }
 
-void QFtp::isUrlDir()
+bool QFtp::isUrlDir()
 {
     // #### todo
-    if ( url )
-	url->emitUrlIsDir();
-    emit urlIsDir();
-}
-
-void QFtp::isUrlFile()
-{
-    // #### todo
+    return TRUE;
 }
 
 int QFtp::supportedOperations() const
 {
-    return OpListEntries | OpMkdir | OpRemove | OpRename | OpCopy | OpIsUrlDir | OpIsUrlFile;
+    return OpListEntries | OpMkdir | OpRemove | OpRename | OpCopy | OpUrlIsDir;
 }
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
