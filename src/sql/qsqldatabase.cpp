@@ -786,9 +786,23 @@ bool QSqlDatabase::rollback()
     \brief the name of the database
 
     Note that the database name is the TNS Service Name for the QOCI8
-    (Oracle) driver, and the DSN or DSN filename for the QODBC3
-    driver. If a DSN filename is used, the file have to have a .dsn
-    extension.
+    (Oracle) driver.
+    
+    For the QODBC3 driver it can either be a DSN, a DSN filename (the
+    file has to have a .dsn extension), or a connection string. MS
+    Access users can for example use the following connection string
+    to open a .mdb file directly, instead of having to create a DSN
+    entry in the ODBC manager:
+    
+    \code
+    ...
+    db = QSqlDatabase::addDatabase( "QODBC3" );
+    db->setDatabaseName( "DRIVER={Microsoft Access Driver (*.mdb)};FIL={MS Access};DBQ=myaccessfile.mdb" );
+    if ( db->open() ) {
+        // success!
+    }
+    ...
+    \endcode
 
     There is no default value.
 */
