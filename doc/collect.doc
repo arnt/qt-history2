@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 1.4 1995/12/15 12:18:44 hanord Exp $
+** $Id: collect.doc,v 1.5 1995/12/15 14:51:32 hanord Exp $
 **
 ** Qt Collection Classes Documentation
 **
@@ -104,7 +104,7 @@ them out in the reverse order:
     }
 \endcode
 
-The program output is:
+Program output:
 \code
 	Ron earns 60000
 	Steve earns 80000
