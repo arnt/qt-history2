@@ -44,13 +44,11 @@ class QObjectUserData;
 
 typedef QList<QObject*> QObjectList;
 
-#ifndef QT_NO_MEMBER_TEMPLATES
 template<typename T> inline T qFindChild(const QObject *, const QString & = QString());
 template<typename T> inline QList<T> qFindChildren(const QObject *, const QString & = QString());
 # ifndef QT_NO_REGEXP
 template<typename T> inline QList<T> qFindChildren(const QObject *, const QRegExp &);
 # endif
-#endif
 
 class QObjectData {
 public:
@@ -315,20 +313,6 @@ template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IF
 
 #else
 
-#ifdef QT_NO_MEMBER_TEMPLATES
-template<typename T>
-inline T qFindChild(const QObject *o, const QString &name = QString())
-{ return static_cast<T>(qt_qFindChild_helper(o, name, reinterpret_cast<T>(0)->staticMetaObject)); }
-
-template<typename T>
-inline QList<T> qFindChildren(const QObject *o, const QString &name = QString())
-{
-    QList<T> list;
-    qt_qFindChildren_helper(o, name, 0, reinterpret_cast<T>(0)->staticMetaObject,
-                         reinterpret_cast<QList<void *>*>(&list));
-    return list;
-}
-#else
 template<typename T>
 inline T qFindChild(const QObject *o, const QString &name)
 { return static_cast<T>(qt_qFindChild_helper(o, name, reinterpret_cast<T>(0)->staticMetaObject)); }
@@ -341,7 +325,6 @@ inline QList<T> qFindChildren(const QObject *o, const QString &name)
                          reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
-#endif
 
 #ifndef QT_NO_REGEXP
 template<typename T>
