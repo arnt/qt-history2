@@ -4884,7 +4884,8 @@ bool QListView::rootIsDecorated() const
 
 
 /*!  Ensures that \a i is made visible, scrolling the list view
-  vertically as required.
+  vertically as required and opens (expands)also all parent items if they 
+  hide their children.
 
   \sa itemRect() QScrollView::ensureVisible()
 */
@@ -4893,6 +4894,13 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 {
     if ( !i )
 	return;
+    
+    QListViewItem *parent = i->parent();
+    while ( parent ) {
+	parent->setOpen( TRUE );
+	parent = parent->parent();
+    }
+    
     if ( d->r->maybeTotalHeight < 0 )
 	updateGeometries();
     int y = itemPos( i );
