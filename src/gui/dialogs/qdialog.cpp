@@ -25,7 +25,7 @@
 #include "qwhatsthis.h"
 #include "qpopupmenu.h"
 #include "qcursor.h"
-#include "private/qwidget_p.h"
+#include "private/qdialog_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
@@ -183,30 +183,6 @@
   property is enabled. By default, the size grip is disabled.
 */
 
-class QDialogPrivate : public QWidgetPrivate
-{
-    Q_DECLARE_PUBLIC(QWidget);
-public:
-
-    QDialogPrivate()
-        : mainDef(0), orientation(Horizontal),extension(0), doShowExtension(false)
-#ifndef QT_NO_SIZEGRIP
-        ,resizer(0)
-#endif
-        {
-    }
-
-    QPushButton* mainDef;
-    Orientation orientation;
-    QWidget* extension;
-    bool doShowExtension;
-    QSize size, min, max;
-#ifndef QT_NO_SIZEGRIP
-    QSizeGrip* resizer;
-#endif
-    QPoint lastRMBPress;
-};
-
 #define d d_func()
 #define q q_func()
 
@@ -244,6 +220,16 @@ QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
 {
     if (name)
         setObjectName(name);
+}
+
+/*!
+  \overload
+  \internal
+*/
+QDialog::QDialog(QDialogPrivate &dd, QWidget *parent, WFlags f)
+    : QWidget(dd, parent, f | WType_Dialog),
+      rescode(0), in_loop(0)
+{
 }
 
 /*!

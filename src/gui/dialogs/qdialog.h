@@ -76,6 +76,8 @@ protected slots:
     void        showExtension(bool);
 
 protected:
+    QDialog(QDialogPrivate &, QWidget *parent, WFlags f = 0);
+    
     void        setResult(int r)        { rescode = r; }
     void        keyPressEvent(QKeyEvent *);
     void        closeEvent(QCloseEvent *);

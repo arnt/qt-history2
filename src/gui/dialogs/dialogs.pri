@@ -3,6 +3,7 @@
 HEADERS += \
 	dialogs/qcolordialog.h \
 	dialogs/qdialog.h \
+	dialogs/qdialog_p.h \
 	dialogs/qerrormessage.h \
 	dialogs/qfontdialog.h \
 	dialogs/qmessagebox.h \
