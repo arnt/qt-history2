@@ -3595,13 +3595,14 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    double radAzim = (ort.orAzimuth / 10) * ( PI / 180 );
 	    double radAlt = abs(ort.orAltitude / 10) * ( PI / 180 );
 	    double tmpZ = sin( radAlt );
-	    double tmpX = cos(radAzim) * tmpZ;
+	    double tmpX = sin(radAzim) * cos(radAlt);
 	    double tmpY = cos(radAzim) * cos(radAlt);
 
 	    // ### this value is WRONG but it is close until I regain my math skills...
-	    double degX = (radAlt - (PI / 2)) * sin(radAzim);
+	    //double degX = (radAlt - (PI / 2)) * sin(radAzim);
+	    double degX = atan( tmpX / tmpZ );
 	    double degY = atan( tmpY / tmpZ );
-	    tiltX = -degX * ( 180 / PI );
+	    tiltX = degX * ( 180 / PI );
 	    tiltY = -degY * ( 180 / PI );
 	}
 
