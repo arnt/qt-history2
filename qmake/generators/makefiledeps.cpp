@@ -14,6 +14,7 @@
 #include "makefiledeps.h"
 #include "option.h"
 #include <qdir.h>
+#include <qdatetime.h>
 #include <qfileinfo.h>
 #if defined(Q_OS_UNIX)
 # include <unistd.h>
@@ -34,7 +35,7 @@
 #if 1
 #define qmake_endOfLine(c) (c == '\r' || c == '\n')
 #else
-inline bool qmake_endOfLine(const char c) { return (c == '\r' || c == '\n'); }
+inline bool qmake_endOfLine(const char &c) { return (c == '\r' || c == '\n'); }
 #endif
 
 //#define QMAKE_USE_CACHE
@@ -159,7 +160,7 @@ void SourceFiles::addFile(SourceFile *p, const char *k)
 
 void QMakeSourceFileInfo::dependTreeWalker(SourceFile *node, SourceDependChildren *place)
 {
-    if(node->traversed)
+    if(node->traversed || !node->exists)
         return;
     place->addChild(node);
     node->traversed = true; //set flag
@@ -724,8 +725,7 @@ void QMakeSourceFileInfo::saveCache(const QString &cf)
         }
         if(files->nodes) {
             for(int file = 0; file < files->num_nodes; ++file) {
-                for(SourceFiles::SourceFileNode *node = files->nodes[file];
-                    node; node = node->next) {
+                for(SourceFiles::SourceFileNode *node = files->nodes[file]; node; node = node->next) {
                     stream << node->file->file.local() << endl; //source
                     stream << node->file->type << endl; //type
 
@@ -745,6 +745,7 @@ void QMakeSourceFileInfo::saveCache(const QString &cf)
                 }
             }
         }
+        stream.flush();
         file.close();
     }
 #else
@@ -758,9 +759,12 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
         return;
 
 #ifdef QMAKE_USE_CACHE
-    struct stat cache_st;
+    QMakeLocalFileName cache_file(cf);
     int fd = open(QMakeLocalFileName(cf).local().toLatin1(), O_RDONLY);
-    if(fd == -1 || fstat(fd, &cache_st) || S_ISDIR(cache_st.st_mode))
+    if(fd == -1)
+        return;
+    QFileInfo cache_fi = findFileInfo(cache_file);
+    if(!cache_fi.exists() || cache_fi.isDir())
         return;
 
     QFile file;
@@ -794,8 +798,7 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
                 stream.skipWhiteSpace();
 
                 QMakeLocalFileName fn(source);
-                struct stat source_st;
-                bool source_exists = !stat(fn.local().toLatin1(), &source_st);
+                QFileInfo fi = findFileInfo(fn);
 
                 SourceFile *file = files->lookupFile(fn);
                 if(!file) {
@@ -803,9 +806,9 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
                     file->file = fn;
                     files->addFile(file);
                     file->type = (SourceFileType)type.toInt();
-                    file->exists = source_exists;
+                    file->exists = fi.exists();
                 }
-                if(source_exists && source_st.st_mtime < cache_st.st_mtime) {
+                if(fi.exists() && fi.lastModified() < cache_fi.lastModified()) {
                     if(!file->dep_checked) { //get depends
                         if(!file->deps)
                             file->deps = new SourceDependChildren;
@@ -813,13 +816,12 @@ void QMakeSourceFileInfo::loadCache(const QString &cf)
                         QStringList depend_list = depends.split(";", QString::SkipEmptyParts);
                         for(int depend = 0; depend < depend_list.size(); ++depend) {
                             QMakeLocalFileName dep_fn(depend_list.at(depend));
-                            struct stat dep_st;
-                            bool dep_exists = !stat(dep_fn.local().toLatin1(), &dep_st);
+                            QFileInfo dep_fi(findFileInfo(dep_fn));
                             SourceFile *dep = files->lookupFile(dep_fn);
                             if(!dep) {
                                 dep = new SourceFile;
                                 dep->file = dep_fn;
-                                dep->exists = dep_exists;
+                                dep->exists = dep_fi.exists();
                                 dep->type = QMakeSourceFileInfo::TYPE_UNKNOWN;
                                 files->addFile(dep);
                             }
