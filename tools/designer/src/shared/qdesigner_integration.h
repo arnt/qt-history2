@@ -14,6 +14,8 @@
 #ifndef QDESIGNER_INTEGRATION_H
 #define QDESIGNER_INTEGRATION_H
 
+#include "shared_global.h"
+
 #include <QtCore/QObject>
 
 class AbstractFormEditor;
@@ -23,7 +25,7 @@ class AbstractFormWindowManager;
 class QVariant;
 class QWidget;
 
-class QDesignerIntegration: public QObject
+class QT_SHARED_EXPORT QDesignerIntegration: public QObject
 {
     Q_OBJECT
 public:

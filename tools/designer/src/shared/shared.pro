@@ -30,6 +30,7 @@ HEADERS += \
     qdesigner_taskmenu.h \
     qdesigner_widget.h \
     qdesigner_propertysheet.h \
+    qdesigner_integration.h \
     invisible_widget.h \
     tree_widget.h \
     sheet_delegate.h \
@@ -54,6 +55,7 @@ SOURCES += \
     qdesigner_taskmenu.cpp \
     qdesigner_widget.cpp \
     qdesigner_propertysheet.cpp \
+    qdesigner_integration.cpp \
     invisible_widget.cpp \
     tree_widget.cpp \
     sheet_delegate.cpp \

@@ -19,7 +19,7 @@
 #include "qdesigner_widgetbox.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
-#include "qdesigner_integration.h"
+#include <qdesigner_integration.h>
 
 // components
 #include <formeditor/formeditor.h>
