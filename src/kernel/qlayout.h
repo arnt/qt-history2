@@ -122,7 +122,6 @@ public:
     ~QBoxLayout();
 
     void addItem( QLayoutItem * );
-    void insertItem( QLayoutItem *, int index );
 
     Direction direction() const { return dir; }
     void setDirection( Direction );
@@ -133,6 +132,14 @@ public:
     void addLayout( QLayout *layout, int stretch = 0 );
     void addStrut( int );
 
+    void insertItem( int index, QLayoutItem * );
+    void insertSpacing( int index, int size );
+    void insertStretch( int index, int stretch = 0 );
+    void insertWidget( int index, QWidget *widget, int stretch = 0, 
+		       int alignment = 0 );
+    void insertLayout( int index, QLayout *layout, int stretch = 0 );
+
+    
     bool setStretchFactor( QWidget*, int stretch );
     bool setStretchFactor( QLayout *l, int stretch );
 

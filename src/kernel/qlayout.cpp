@@ -1688,12 +1688,17 @@ void QBoxLayout::addItem( QLayoutItem *item )
 
 
 /*!
-  Inserts \a index to this box layout at index \a index.
+  Inserts \a item in this box layout at index \a index.  If \a index
+  is negative, the space is added at the end.  
+  
   \sa addItem(), findWidget()
 */
 
-void QBoxLayout::insertItem( QLayoutItem *item , int index )
+void QBoxLayout::insertItem( int index, QLayoutItem *item )
 {
+    if ( index < 0 )				// append
+	index = data->list.count();
+
     QBoxLayoutItem *it = new QBoxLayoutItem( item );
     data->list.insert( index, it );
     invalidate();
@@ -1702,51 +1707,49 @@ void QBoxLayout::insertItem( QLayoutItem *item , int index )
 
 
 /*!
-  Adds \a layout to the box, with serial stretch factor \a stretch.
+  Inserts a non-stretchable space at index \a index with size \a size.
+  If \a index is negative, the space is added at the end.
+  
+  QBoxLayout gives default border and spacing. This function adds
+  additional space.
 
-  \sa setAutoAdd(), addWidget(), addSpacing()
+  \sa insertStretch()
 */
-
-void QBoxLayout::addLayout( QLayout *layout, int stretch )
+void QBoxLayout::insertSpacing( int index, int size )
 {
-    addChildLayout( layout );
-    QBoxLayoutItem *it = new QBoxLayoutItem( layout, stretch );
-    data->list.append( it );
-    invalidate();
-}
+    if ( index < 0 )				// append
+	index = data->list.count();
 
-/*!
-  Adds a non-stretchable space with size \a size.  QBoxLayout gives
-  default border and spacing. This function adds additional space.
-
-  \sa addStretch()
-*/
-void QBoxLayout::addSpacing( int size )
-{
     //hack in QLayoutArray: spacers do not get insideSpacing
 
     QLayoutItem *b;
-    if ( horz( dir ) )
+    if ( horz( dir ) ) 
 	b = new QSpacerItem( size, 0, QSizePolicy::Fixed,
 			     QSizePolicy::Minimum );
     else
 	b = new QSpacerItem( 0, size, QSizePolicy::Minimum,
-					  QSizePolicy::Fixed );
+			     QSizePolicy::Fixed );
 
     QBoxLayoutItem *it = new QBoxLayoutItem( b );
     it->magic = TRUE;
-    data->list.append( it );
+    data->list.insert( index, it );
     invalidate();
 }
 
-/*!
-  Adds a stretchable space with zero minimum size
-  and stretch factor \a stretch.
 
-  \sa addSpacing()
+/*!
+  Inserts a stretchable space at index \a index with zero minimum size
+  and stretch factor \a stretch. If \a index is negative, the space
+  is added at the end.
+
+  \sa insertSpacing()
 */
-void QBoxLayout::addStretch( int stretch )
+
+void QBoxLayout::insertStretch( int index, int stretch )
 {
+    if ( index < 0 )				// append
+	index = data->list.count();
+
     //hack in QGridLayout: spacers do not get insideSpacing
     QLayoutItem *b;
     if ( horz( dir ) )
@@ -1755,11 +1758,144 @@ void QBoxLayout::addStretch( int stretch )
     else
 	b = new QSpacerItem( 0, 0,  QSizePolicy::Minimum,
 			     QSizePolicy::Expanding );
+
     QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
     it->magic = TRUE;
-    data->list.append( it );
+    data->list.insert( index, it );
     invalidate();
 }
+
+
+/*!
+  Inserts \a layout at index \a index, with serial stretch
+  factor \a stretch.  If \a index is negative, the layout is added at
+  the end.
+
+  \sa setAutoAdd(), insertWidget(), insertSpacing()
+*/
+
+void QBoxLayout::insertLayout( int index, QLayout *layout, int stretch )
+{
+    if ( index < 0 )				// append
+	index = data->list.count();
+
+    addChildLayout( layout );
+    QBoxLayoutItem *it = new QBoxLayoutItem( layout, stretch );
+    data->list.insert( index, it );
+    invalidate();
+}
+
+/*!
+  Inserts \a widget at index \a index, with a \a stretch
+  factor and \a alignment.  If \a index is negative, the widget is
+  added at the end.
+
+  The stretch factor applies only in the \link direction() direction
+  \endlink of the QBoxLayout, and is relative to the other boxes and
+  widgets in this QBoxLayout.  Widgets and boxes with higher stretch
+  factor grow more.
+
+  If the stretch factor is 0 and nothing else in the QBoxLayout has a
+  stretch factor greater than zero, the space is distributed according
+  to the QWidget:sizePolicy() of each widget that's involved.
+
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
+  that the widget fills the entire cell.
+
+  Note: The alignment parameter is interpreted more aggressively
+  than in previous versions of Qt.  A non-default alignment now
+  indicates that the widget should not grow to fill the available
+  space, but should be sized according to sizeHint().
+
+  \sa setAutoAdd(), insertLayout(), insertSpacing()
+*/
+
+void QBoxLayout::insertWidget( int index, QWidget *widget, int stretch, int
+alignment )
+{
+    if ( !checkWidget( this, widget ) )
+	 return;
+
+    if ( index < 0 )				// append
+	index = data->list.count();
+
+    QWidgetItem *b = new QWidgetItem( widget );
+    b->setAlignment( alignment );
+    QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
+    data->list.insert( index, it );
+    invalidate();
+}
+
+
+
+/*!
+  Adds a non-stretchable space with size \a size to the end of this
+  box layout. QBoxLayout gives default border and spacing. This
+  function adds additional space.
+
+  \sa insertSpacing(), addStretch()
+*/
+void QBoxLayout::addSpacing( int size ) 
+{
+    insertSpacing( -1, size );
+}
+
+/*!
+  Adds a stretchable space with zero minimum size and stretch factor
+  \a stretch to the end of this box layout.
+
+  \sa addSpacing()
+*/
+void QBoxLayout::addStretch( int stretch ) 
+{
+    insertStretch( -1, stretch );
+}
+
+/*!
+  Adds \a widget to the end of this box layout, with a stretch factor
+  \a stretch and alignment \a alignment.
+
+  The stretch factor applies only in the \link direction() direction
+  \endlink of the QBoxLayout, and is relative to the other boxes and
+  widgets in this QBoxLayout.  Widgets and boxes with higher stretch
+  factor grow more.
+
+  If the stretch factor is 0 and nothing else in the QBoxLayout has a
+  stretch factor greater than zero, the space is distributed according
+  to the QWidget:sizePolicy() of each widget that's involved.
+
+  Alignment is specified by \a alignment which is a bitwise OR of
+  Qt::AlignmentFlags values.
+  The default alignment is 0, which means
+  that the widget fills the entire cell.
+
+  Note: The alignment parameter is interpreted more aggressively
+  than in previous versions of Qt.  A non-default alignment now
+  indicates that the widget should not grow to fill the available
+  space, but should be sized according to sizeHint().
+
+  \sa insertWidget(), setAutoAdd(), addLayout(), addSpacing()
+*/
+
+void QBoxLayout::addWidget( QWidget *widget, int stretch, int
+alignment ) 
+{
+    insertWidget( -1, widget, stretch, alignment );
+}
+
+/*!
+  Adds \a layout to the end of the box, with serial stretch factor \a stretch.
+
+  \sa insertLayout(), setAutoAdd(), addWidget(), addSpacing()
+*/
+void QBoxLayout::addLayout( QLayout *layout, int stretch ) 
+{
+    insertLayout( -1, layout, stretch );
+}
+
+
 
 /*!
   Limits the perpendicular dimension of the box (e.g. height if the
@@ -1782,46 +1918,6 @@ void QBoxLayout::addStrut( int size )
     data->list.append( it );
     invalidate();
 }
-
-/*!
-  Adds \a widget to the box, with a \a stretch factor and
-  \a alignment.
-
-  The stretch factor applies only in the \link direction() direction
-  \endlink of the QBoxLayout, and is relative to the other boxes and
-  widgets in this QBoxLayout.  Widgets and boxes with higher stretch
-  factor grow more.
-
-  If the stretch factor is 0 and nothing else in the QBoxLayout has a
-  stretch factor greater than zero, the space is distributed according
-  to the QWidget:sizePolicy() of each widget that's involved.
-
-  Alignment is specified by \a alignment which is a bitwise OR of
-  Qt::AlignmentFlags values.
-  The default alignment is 0, which means
-  that the widget fills the entire cell.
-
-  Note: The alignment parameter is interpreted more aggressively
-  than in previous versions of Qt.  A non-default alignment now
-  indicates that the widget should not grow to fill the available
-  space, but should be sized according to sizeHint().
-
-  \sa setAutoAdd(), addLayout(), addSpacing()
-*/
-
-void QBoxLayout::addWidget( QWidget *widget, int stretch, int alignment )
-{
-    if ( !checkWidget( this, widget ) )
-	 return;
-    QWidgetItem *b = new QWidgetItem( widget );
-    b->setAlignment( alignment );
-    QBoxLayoutItem *it = new QBoxLayoutItem( b, stretch );
-    data->list.append( it );
-    invalidate();
-}
-
-
-
 
 
 /*!
