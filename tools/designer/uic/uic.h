@@ -85,7 +85,7 @@ private:
 
     QTextStream& out;
     QTextOStream trout;
-    QString retranslateStringsBody;
+    QString languageChangeBody;
     QStringList objectNames;
     QMap<QString,QString> objectMapper;
     QString indent;

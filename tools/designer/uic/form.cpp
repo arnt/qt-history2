@@ -504,8 +504,6 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << "protected:" << endl;
-    out << indent << "virtual void retranslateStrings();" << endl;
-    out << endl;
     if ( !protectedFuncts.isEmpty() )
 	writeFunctionsDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
     if ( !protectedVars.isEmpty() ) {
@@ -518,8 +516,15 @@ void Uic::createFormDecl( const QDomElement &e )
     registerLayouts( e );
     out << endl;
 
+#if QT_VERSION >= 0x030900
+#warning Make languageChange() a virtual protected non-slot member of QWidget
+#endif
+
+    out << "protected slots:" << endl;
+    out << "    virtual void languageChange();" << endl;
+
     if ( !protectedSlots.isEmpty() ) {
-	out << "protected slots:" << endl;
+	out << endl;
 	writeFunctionsDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
     }
 
@@ -1028,7 +1033,7 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( needEndl )
 	out << endl;
 
-    out << indent << "retranslateStrings();" << endl;
+    out << indent << "languageChange();" << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
@@ -1234,9 +1239,9 @@ void Uic::createFormImpl( const QDomElement &e )
     out << " *  Sets the strings of the subwidgets using the current" << endl;
     out << " *  language." << endl;
     out << " */" << endl;
-    out << "void " << nameOfClass << "::retranslateStrings()" << endl;
+    out << "void " << nameOfClass << "::languageChange()" << endl;
     out << "{" << endl;
-    out << retranslateStringsBody;
+    out << languageChangeBody;
     out << "}" << endl;
     out << endl;
 

@@ -108,7 +108,7 @@ QString Uic::mkStdSet( const QString& prop )
 Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
 	  bool decl, bool subcl, const QString &trm, const QString& subClass,
 	  bool omitForwardDecls )
-    : out( outStream ), trout( &retranslateStringsBody ), trmacro( trm ),
+    : out( outStream ), trout( &languageChangeBody ), trmacro( trm ),
       nofwd( omitForwardDecls )
 {
     fileName = fn;
