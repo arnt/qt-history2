@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#53 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#53 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -484,21 +484,20 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     makeEllipse( x, y, w, h );
     int npts = a3*size()/(16*360);		// # points in arc array
     QPointArray a(npts);
-    int i, j, inc;
-    i = a1*size()/(16*360);
+    int i = a1*size()/(16*360);
+    int j = 0;
     if ( a2 > 0 ) {
-	j = 0;
-	inc = 1;
+	while ( npts-- ) {
+	    if ( i >= (int)size() )			// wrap index
+		i = 0;
+	    a.QArrayM(QPointData)::at( j++ ) = QArrayM(QPointData)::at( i++ );
+	}
     } else {
-	j = npts - 1;
-	inc = -1;
-    }
-    while ( npts-- ) {
-	if ( i >= (int)size() )			// wrap index
-	    i = 0;
-	a.QArrayM(QPointData)::at( j ) = QArrayM(QPointData)::at( i );
-	i++;
-	j += inc;
+	while ( npts-- ) {
+	    if ( i < 0 )				// wrap index
+		i = (int)size()-1;
+	    a.QArrayM(QPointData)::at( j++ ) = QArrayM(QPointData)::at( i-- );
+	}
     }
     *this = a;
     return;
