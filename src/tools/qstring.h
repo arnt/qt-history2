@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#80 $
+** $Id: //depot/qt/main/src/tools/qstring.h#81 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -150,9 +150,9 @@ class QRegExp;
 
 class Q_EXPORT QChar {
 public:
-    QChar() : row(0), cell(0) { }
-    QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
-    QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
+    QChar() : cell(0), row(0) { }
+    QChar( uchar c, uchar r=0 ) : cell(c), row(r) { }
+    QChar( const QChar& c ) : cell(c.cell), row(c.row) { }
 
     QT_STATIC_CONST QChar null;
 
@@ -179,8 +179,8 @@ public:
     friend int operator>( const QChar& c, char ch );
     friend int operator>( char ch, const QChar& c );
 
-    uchar row;
     uchar cell;
+    uchar row;
 };
 
 inline int operator==( char ch, const QChar& c )
