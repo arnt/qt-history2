@@ -5631,7 +5631,7 @@ void QTable::insertColumns( int col, int count )
 
 /*!
     Removes row \a row, and deletes all its cells including any table
-    items and widgets the cells may contain.
+    items and widgets the cells may contain. Also clears the selection(s).
 
     \sa hideRow() insertRows() removeColumn() removeRows()
 */
@@ -5653,7 +5653,7 @@ void QTable::removeRow( int row )
 
     The array passed in must only contain valid rows (in the range
     from 0 to numRows() - 1) with no duplicates, and must be sorted in
-    ascending order.
+    ascending order. Also clears the selection(s).
 
     \sa removeRow() insertRows() removeColumns()
 */
@@ -5677,7 +5677,8 @@ void QTable::removeRows( const QMemArray<int> &rows )
 
 /*!
     Removes column \a col, and deletes all its cells including any
-    table items and widgets the cells may contain.
+    table items and widgets the cells may contain. Also clears the 
+    selection(s).
 
     \sa removeColumns() hideColumn() insertColumns() removeRow()
 */
@@ -5700,7 +5701,7 @@ void QTable::removeColumn( int col )
 
     The array passed in must only contain valid columns (in the range
     from 0 to numCols() - 1) with no duplicates, and must be sorted in
-    ascending order.
+    ascending order. Also clears the selection(s).
 
    \sa removeColumn() insertColumns() removeRows()
 */
