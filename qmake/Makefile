@@ -4,7 +4,7 @@
 #
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
-		/I. /Igenerators /Igenerators\mac /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
+		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 		/I$(QTDIR)\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL
 LFLAGS	    =	/DEBUG
@@ -21,7 +21,7 @@ BCB = $(MAKEDIR)\..
 CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -O1 \
-		-I. -Igenerators /Igenerators\mac -Igenerators\unix -Igenerators\win32 -I$(QTDIR)\include -I$(QTDIR)\src\tools \
+		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I$(QTDIR)\include -I$(QTDIR)\src\tools \
 		-I$(QTDIR)\mkspecs\win32-borland \
 		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
@@ -32,7 +32,7 @@ ADDCLEAN    =	qmake.tds
 
 #qmake code
 OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj msvc_nmake.obj msvc_dsp.obj option.obj \
-	winmakefile.obj projectgenerator.obj metrowerks_xml.obj
+	winmakefile.obj projectgenerator.obj metrowerks_xml.obj pbuilder_pbx.obj
 
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
@@ -167,3 +167,6 @@ projectgenerator.obj: generators/projectgenerator.cpp
 
 metrowerks_xml.obj: generators/mac/metrowerks_xml.cpp
 	$(CXX) $(CFLAGS) generators/mac/metrowerks_xml.cpp
+
+pbuilder_pbx.obj: generators/mac/pbuilder_pbx.cpp
+ 	$(CXX) $(CFLAGS) generators/mac/pbuilder_pbx.cpp
