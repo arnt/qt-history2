@@ -15,6 +15,7 @@
 #include <qsqlcursor.h>
 #include <qsqlselectcursor.h>
 #include <qdatatable.h>
+#include <qpopupmenu.h>
 
 #include "connect.h"
 #include "sqlsyntaxhighlighter.h"
@@ -38,6 +39,39 @@ void SqlEx::init()
     submitBtn->setEnabled( FALSE );
     conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );
     (void) new SqlSyntaxHighlighter( te );
+
+    popup = new QPopupMenu( this, "popup" );
+    popup->insertItem( "&Refresh tables", this, SLOT(refreshTables()) );
+
+    connect( lv, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
+	     this, SLOT(contextMenuRequested(QListViewItem*, const QPoint&, int)));
+}
+
+void SqlEx::refreshTables()
+{
+    lv->clear();
+    QSqlDatabase* db = QSqlDatabase::database( "SqlEx", TRUE );
+    if ( !db )
+	return;
+
+    QStringList tables = db->tables();
+    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
+        QListViewItem* lvi = new QListViewItem( lv, *it );
+        QSqlRecordInfo ri = db->recordInfo ( *it );
+        for ( QSqlRecordInfo::Iterator it = ri.begin(); it != ri.end(); ++it ) {
+            QString req;
+            if ( (*it).isRequired() > 0 ) {
+                req = "Yes";
+            } else if ( (*it).isRequired() == 0 ) {
+                req = "No";
+            } else {
+                req = "?";
+            }
+            QListViewItem* fi = new QListViewItem( lvi, (*it).name(),  + QVariant::typeToName( (*it).type() ), req );
+            lvi->insertItem( fi );
+        }
+        lv->insertItem( lvi );
+    }
 }
 
 void SqlEx::dbConnect()
@@ -67,26 +101,7 @@ void SqlEx::dbConnect()
 	return;
     }
     lbl->setText( "Double-Click on a table-name to view the contents" );
-    lv->clear();
-    
-    QStringList tables = db->tables();
-    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
-	QListViewItem* lvi = new QListViewItem( lv, *it );
-	QSqlRecordInfo ri = db->recordInfo ( *it );
-	for ( QSqlRecordInfo::Iterator it = ri.begin(); it != ri.end(); ++it ) {
-	    QString req;
-	    if ( (*it).isRequired() > 0 ) {
-		req = "Yes";
-	    } else if ( (*it).isRequired() == 0 ) {
-		req = "No";
-	    } else {
-		req = "?";
-	    }
-	    QListViewItem* fi = new QListViewItem( lvi, (*it).name(),  + QVariant::typeToName( (*it).type() ), req );
-	    lvi->insertItem( fi );
-	}
-	lv->insertItem( lvi );	
-    }
+    refreshTables();
     submitBtn->setEnabled( TRUE );
 }
 
@@ -127,3 +142,13 @@ void SqlEx::showTable( QListViewItem * item )
     dt->refresh( QDataTable::RefreshAll );
     lbl->setText( "Displaying table " + i->text( 0 ) );
 }
+
+void SqlEx::contextMenuRequested( QListViewItem*, const QPoint& pnt, int )
+{
+    // make sure connection exists
+    if ( !QSqlDatabase::database( "SqlEx", TRUE ) )
+	return;
+    // popup the popupmenu
+    popup->popup( pnt );
+}
+
