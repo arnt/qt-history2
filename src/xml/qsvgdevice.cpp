@@ -193,6 +193,13 @@ bool QSvgDevice::play( QPainter *painter )
 		   ? attr.namedItem( "width" ).nodeValue() : QString( "100%" );
     QString hstr = attr.contains( "height" )
 		   ? attr.namedItem( "height" ).nodeValue() : QString( "100%" );
+    double width = parseLen( wstr, 0, TRUE );
+    double height = parseLen( hstr, 0, FALSE );
+    brect.setWidth( int(width) );
+    brect.setHeight( int(height) );
+    painter->setClipRect( 0, 0, int(width), int(height),
+			  QPainter::CoordPainter );
+
     if ( attr.contains( "viewBox" ) ) {
 	QRegExp re( "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*,?"
 		    "\\s*(\\S+)\\s*,?\\s*(\\S+)\\s*" );
@@ -200,24 +207,20 @@ bool QSvgDevice::play( QPainter *painter )
 	    qWarning( "QSvgDevice::play: Invalid viewBox attribute.");
 	    return FALSE;
 	} else {
-	    int x = int(re.cap( 1 ).toDouble());
-	    int y = int(re.cap( 2 ).toDouble());
-	    int w = int(re.cap( 3 ).toDouble());
-	    int h = int(re.cap( 4 ).toDouble());
+	    double x = re.cap( 1 ).toDouble();
+	    double y = re.cap( 2 ).toDouble();
+	    double w = re.cap( 3 ).toDouble();
+	    double h = re.cap( 4 ).toDouble();
 	    if ( w < 0 || h < 0 ) {
 		qWarning( "QSvgDevice::play: Invalid viewBox dimension.");
 		return FALSE;
 	    } else if ( w == 0 || h == 0 ) {
 		return TRUE;
 	    }
-	    painter->setWindow( x, y, w, h );
+	    painter->translate( -x, -y );
+	    painter->scale( width/w, height/h );
 	}
     }
-    int w = int(parseLen( wstr, 0, TRUE ));
-    int h = int(parseLen( hstr, 0, FALSE ));
-    brect.setWidth( w );
-    brect.setHeight( h );
-    painter->setClipRect( 0, 0, w, h, QPainter::CoordPainter );
     if ( attr.contains( "transform" ) )
 	setTransform( attr.namedItem( "transform" ).nodeValue() );
 
