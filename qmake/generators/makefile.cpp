@@ -1677,10 +1677,17 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             mkfile.prepend((*it)->directory + Option::dir_sep);
             if(project->isActiveConfig("cd_change_global")) {
                 cdin = "\n\tcd " + (*it)->directory + "\n\t";
-                cdout = "\n\t@cd ..";
-                const int subLevels = (*it)->directory.count(Option::dir_sep);
-                for(int i = 0; i < subLevels; i++)
-                    cdout += Option::dir_sep + "..";
+
+		QDir pwd(Option::output_dir);
+		QStringList in = (*it)->directory.split(Option::dir_sep), out;
+		for(int i = 0; i < in.size(); i++) {
+		    if(in.at(i) == "..") 
+			out.prepend(QFileInfo(pwd.path()).fileName());
+		    else if(in.at(i) != ".") 
+			out.prepend("..");
+		    pwd.cd(in.at(i));
+		}
+                cdout = "\n\t@cd " + out.join(Option::dir_sep);
             } else {
                 cdin = "\n\tcd " + (*it)->directory + " && ";
             }
