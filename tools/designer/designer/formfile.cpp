@@ -52,6 +52,11 @@ FormFile::FormFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
       timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE )
 {
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( iface )
+	seperateSource = iface->supports( LanguageInterface::StoreFormCodeSeperate );
+    else
+	seperateSource = FALSE;
     pro->addFormFile( this );
     loadCode();
 }
@@ -383,7 +388,10 @@ static const char * const comment =
 
 bool FormFile::hasFormCode() const
 {
-    return !cod.isEmpty() && cod != QString( comment );
+    if ( seperateSource )
+	return !cod.isEmpty() && cod != QString( comment );
+    return QFile::exists( pro->makeAbsolute( codeFile() ) ) ||
+	formWindow() && !MetaDataBase::functionBodies( formWindow() ).isEmpty();
 }
 
 void FormFile::createFormCode()

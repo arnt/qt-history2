@@ -101,6 +101,7 @@ private:
     QString cod;
     TimeStamp timeStamp;
     bool codeEdited;
+    bool seperateSource;
 
 };
 
