@@ -33,8 +33,8 @@ Qt toolkit - Drag and Drop
 
   Drag-and-drop is a direct-manipulation model for allowing the user to
   transfer information between and within applications. It is similar
-  in function to the cut-and-paste clipboard model.  
-  
+  in function to the cut-and-paste clipboard model.
+
   <h3>Dragging</h3>
 
   To start a drag, for example in a \link QWidget::mouseMoveEvent
@@ -106,7 +106,7 @@ Qt toolkit - Drag and Drop
   <h3>The Clipboard</h3>
 
   The QDragObject, QDragEnterEvent, QDragMoveEvent, and QDropEvent
-  classes are all subclasses of QMimeSource - the class of objects 
+  classes are all subclasses of QMimeSource - the class of objects
   which provide
   typed
   information.  If you base your data
@@ -344,4 +344,21 @@ Qt toolkit - Drag and Drop
   MIME types.  This interface will be made public at some time, but
   if you need to do such translations now, contact your Qt
   Technical Support service.
-*/
+
+  On X11, Qt also supports drops via the Motif Drag&Drop Protocol. The
+  Xlib implementation of this protocol that formed the basis of the implementation in 
+  Qt is <pre> 
+/* Copyright 1996 Daniel Dardailler.
+
+   Permission to use, copy, modify, distribute, and sell this software
+   for any purpose is hereby granted without fee, provided that the above
+   copyright notice appear in all copies and that both that copyright
+   notice and this permission notice appear in supporting documentation,
+   and that the name of Daniel Dardailler not be used in advertising or
+   publicity pertaining to distribution of the software without specific,
+   written prior permission.  Daniel Dardailler makes no representations
+   about the suitability of this software for any purpose.  It is
+   provided "as is" without express or implied warranty.
+************************************************************/
+</pre>
+
