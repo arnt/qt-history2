@@ -760,10 +760,11 @@ QStringList QDir::entryList( const QString &nameFilter,
     if ( sortSpec == (int)DefaultSort )
 	sortSpec = sortS;
     QDir *that = (QDir*)this;			// mutable function
-    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
-	return *that->fList;
-    else
-	return QStringList();
+    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) ) {
+	if ( that->fList )
+	    return *that->fList;
+    }
+    return QStringList();
 }
 
 /*!
