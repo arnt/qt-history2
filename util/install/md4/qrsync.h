@@ -3,15 +3,15 @@
 **
 ** This file is part of Qt Palmtop Environment.
 **
-** Licensees holding valid Qt Palmtop Developer license may use this 
-** file in accordance with the Qt Palmtop Developer License Agreement 
+** Licensees holding valid Qt Palmtop Developer license may use this
+** file in accordance with the Qt Palmtop Developer License Agreement
 ** provided with the Software.
 **
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING 
-** THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING
+** THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR
 ** PURPOSE.
 **
-** email sales@trolltech.com for information about Qt Palmtop License 
+** email sales@trolltech.com for information about Qt Palmtop License
 ** Agreements.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
@@ -74,13 +74,14 @@ public:
 public:
     QString scrambled() const {
 	QString tmp;
-	tmp.sprintf( "%08x%08x%08x%08x", md4sum.uints[0]^0x9482, md4sum.uints[1]^0x5c1e, md4sum.uints[2]^0x0ae7, md4sum.uints[3]^2315 );
+// 	tmp.sprintf( "%08x%08x%08x%08x", md4sum.uints[0]^0x9482, md4sum.uints[1]^0x5c1e, md4sum.uints[2]^0x0ae7, md4sum.uints[3]^2315 );
+	tmp.sprintf( "%08X-%08X", md4sum.uints[0]^0x9482, md4sum.uints[1]^0x5c1e );
 	return tmp;
     }
     void dump() const {
 	qDebug("chksum = %x %x %x %x", md4sum.uints[0], md4sum.uints[1], md4sum.uints[2], md4sum.uints[3] );
     }
-private:    
+private:
     union {
 	unsigned char uchars[16];
 	Q_UINT32 uints[4];
