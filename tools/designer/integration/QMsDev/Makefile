@@ -6,7 +6,7 @@ STDAFXOPTIONS=/nologo /MD /W3 /GX /O2 /I "_$(QTDIR)\include" /D "WIN32" /D "NDEB
 LINKOPTS=/nologo /subsystem:windows /dll /incremental:no /pdb:qmsdev.pdb /machine:I386 /def:QMsDev.def /out:qmsdev.dll /implib:qmsdev.lib 
 CPPOPTS=/nologo /MD /W3 /GX /O2 /I "_$(QTDIR)\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "_USRDLL" /Fpqmsdev.pch /Yu"stdafx.h" /Fo.\\ /Fd.\\ /FD /c 
 #
-OBJS= Commands.obj DSAddIn.obj NewQtProjectDialog.obj CreateDSPDlg.obj QMsDev.obj StdAfx.obj QMsDev.res
+OBJS= Commands.obj DSAddIn.obj NewQtProjectDialog.obj QMsDev.obj StdAfx.obj QMsDev.res
 DEF_FILE=QMsDev.def
 #
 MTL=midl.exe
@@ -57,9 +57,6 @@ DSAddIn.obj: DSAddIn.cpp StdAfx.pch
 
 NewQtProjectDialog.obj: NewQtProjectDialog.cpp StdAfx.pch
    $(CPP) $(CPPOPTS) NewQtProjectDialog.cpp
-
-CreateDSPDlg.obj: CreateDSPDlg.cpp StdAfx.pch
-   $(CPP) $(CPPOPTS) CreateDSPDlg.cpp
 
 QMsDev.obj: QMsDev.cpp StdAfx.pch
    $(CPP) $(CPPOPTS) QMsDev.cpp
