@@ -1267,7 +1267,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	else if ( e->state() & ControlButton )
 	    copy();
 #endif
-	else 
+	else
 	    setOverwriteMode( !isOverwriteMode() );
 	break;
     case Key_Backspace:
@@ -3800,6 +3800,10 @@ void QTextEdit::setText( const QString &text, const QString &context )
     If \a expr is not found the function returns FALSE. If \a index
     and \a para are not 0 and \a expr is not found, \a *index
     and \a *para are undefined.
+
+    Please note that this function will make the next occurrence of
+    the string (if found) the current selection, and will thus
+    modify the cursor position.
 */
 
 bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
@@ -5431,7 +5435,7 @@ void QTextEdit::setFont( const QFont &f )
     \overload
 
     Zooms in on the text by by making the base font size one point
-    larger and recalculating all font sizes to be the new size. This 
+    larger and recalculating all font sizes to be the new size. This
     does not change the size of any images.
 
     \sa zoomOut()
@@ -5443,7 +5447,7 @@ void QTextEdit::setFont( const QFont &f )
     \overload
 
     Zooms out on the text by by making the base font size one point
-    smaller and recalculating all font sizes to be the new size. This 
+    smaller and recalculating all font sizes to be the new size. This
     does not change the size of any images.
 
     \sa zoomIn()
@@ -5452,7 +5456,7 @@ void QTextEdit::setFont( const QFont &f )
 
 /*!
     Zooms in on the text by by making the base font size \a range
-    points larger and recalculating all font sizes to be the new size. 
+    points larger and recalculating all font sizes to be the new size.
     This does not change the size of any images.
 
     \sa zoomOut()
@@ -5467,7 +5471,7 @@ void QTextEdit::zoomIn( int range )
 
 /*!
     Zooms out on the text by making the base font size \a range points
-    smaller and recalculating all font sizes to be the new size. This 
+    smaller and recalculating all font sizes to be the new size. This
     does not change the size of any images.
 
     \sa zoomIn()
@@ -5482,7 +5486,7 @@ void QTextEdit::zoomOut( int range )
 
 /*!
     Zooms the text by making the base font size \a size points and
-    recalculating all font sizes to be the new size. This does not 
+    recalculating all font sizes to be the new size. This does not
     change the size of any images.
 */
 
