@@ -34,7 +34,7 @@ target.path=$$libs.path
 
 INSTALLS += target
 
-hpux-g++: {
-QMAKE_CFLAGS += -fPIC
-QMAKE_CXXFLAGS += -fPIC
+unix {
+	QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
+	QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
 }
