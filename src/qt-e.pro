@@ -3,7 +3,7 @@ CONFIG		= qt warn_on release
 
 # Comment out the next line if you don't want use png/zlib in 3rdparty
 # Also see QT_FEATURE_IMAGIO_PNG in qfeatures.h
-CONFIG		+= png zlib
+#CONFIG		+= png zlib
 
 # Uncomment the next line if you want to use NAS sound
 #unix:DEFINES    += QT_NAS_SUPPORT
@@ -19,7 +19,8 @@ CONFIG		+= png zlib
 # win32:LIBS	+= libjpeg.lib
 
 # Uncomment the next line if you want to use the standard png/zlib libs
-# unix:LIBS	+= -lpng -lz
+# (or static-linked ones as we do in Qt/Embedded)
+LIBS	+= -lpng -lz
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
 # unix:LIBS += $$TMAKE_LIBS_X11SM
