@@ -1029,10 +1029,17 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	WRITE_DM_VAR( dm->dmPaperSize, winPageSize() )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
-	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, 0, 0 );
+	QString portName;
+	DEVNAMES *dn = (DEVNAMES*)GlobalLock(hdevnames);
+	if (dn) {
+	    portName = QString::fromLocal8Bit( ((char *)dn) + dn->wOutputOffset );
+	    GlobalUnlock(hdevnames);
+	}
+
+	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), portName.latin1(), DC_BINS, 0, 0 );
 	if( caps == DWORD( -1 ) ) caps = 0;
 	LPSTR bins = (LPSTR)(new WORD[caps]);
-	if( !DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, bins, 0 ) ) {
+	if( !DeviceCapabilitiesA( printer_name.latin1(), portName.latin1(), DC_BINS, bins, 0 ) ) {
 	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
 	} else {
 	    bool ok = FALSE;
