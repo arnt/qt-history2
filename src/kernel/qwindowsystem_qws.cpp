@@ -96,7 +96,7 @@ public:
     QWSClient *cursorClient;
     int mouseState;
     bool prevWin;
-    QPtrList<QWSWindow> deletedWindows;
+    QList<QWSWindow*> deletedWindows;
 };
 
 QWSScreenSaver::~QWSScreenSaver()
@@ -591,7 +591,7 @@ static void ignoreSignal( int )
 */
 
 /*!
-    \fn const QPtrList<QWSWindow> &QWSServer::clientWindows()
+    \fn const QList<QWSWindow*> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as
     applications add and remove wigdets so it should not be stored for
