@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#64 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#65 $
 #
 # this is a massive hack, written very quickly
 #
@@ -87,16 +87,24 @@ sub processcode {
 		" and ", $types{$2}, "\n" if ($1 ne $types{$2});
 	    } else {
 		$types{$2} = $1;
-#print "Variable ", $2, " has type ", $1, "\n";
 	    }
 	}
     }
+
     s@([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:-&gt;))\s*)([A-Za-z0-9_]+)@
 	if (defined($anchor{$types{$1} . "::" . $3})) {
 	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
 		    $anchor{$types{$1} . "::" . $3}, $3);
 	} else {
 	    sprintf("%s%s%s", $1, $2, $3);
+	}
+    @egsx;
+
+    s@\b([A-Za-z0-9_]+::[A-Za-z0-9_]+)\b@
+	if (defined($anchor{$1})) {
+	    sprintf("<a href=%s>%s</a>", $anchor{$1}, $1);
+	} else {
+	    sprintf("%s", $1);
 	}
     @egsx;
 
@@ -110,13 +118,13 @@ sub findlink {
     local ($_, $class, $url, $ismethod) = @_;
 
     if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
-	sprintf("<a href=%s>%s</a>", $anchor{$_}, $_);
+	sprintf("<a href=%s>%s</a>", $anchor{$_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
-	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
+	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, &html($_));
     } elsif ((($ismethod eq "(") || (/^[A-Z]/)) && 
 	     defined($anchor{"::" . $_}) && $anchor{"::" . $_} ne $url) {
-	sprintf("<a href=%s>%s</a>", $anchor{"::" . $_}, $_);
+	sprintf("<a href=%s>%s</a>", $anchor{"::" . $_}, &html($_));
     } else {
 	sprintf("%s", $_);
     }
@@ -223,11 +231,11 @@ sub processdocs {
 
 	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
-		sprintf("<a href=%s>%s</a>", $anchor{$1}, $2);
+		sprintf("<a href=%s>%s</a>", $anchor{$1}, &html($2));
 	    } else {
 		if (defined($anchor{$class . $1})) {
 		    sprintf("<a href=%s>%s</a>", 
-			    $anchor{$class . $1}, $2);
+			    $anchor{$class . $1}, &html($2));
 		} else {
 		    print "No link to '", $1, "' for '", $2, "'\n";
 		    sprintf("%s", $2);
@@ -387,7 +395,7 @@ sub manglefn {
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
     $type =~ s/-*([\*\&])-*/$1/g;
-    $type =~ s/^-?virtual-//;
+    $type =~ s/^-?virtual-?//;
     $type = "-" . $type if ($type ne "");
     $const = "-" . $const if ($const ne "");
     $url = $class . "::" . $name;
@@ -673,7 +681,6 @@ sub templates {
 }
     
 
-#    $inheritance{$url} = $inh if (defined($inh) && $inh ne "");
 
 
 sub readc {
@@ -749,7 +756,7 @@ sub readc {
 		$class =~ s/:://;
 		$type =~ s/^\s+//;
 		$type =~ s/\s+$//;
-	    } elsif ($name =~ /^\s*(\w+)\s*::\s*(\~?\w+)$/s) {
+	    } elsif ($name =~ /^\s*(?:virtual\s+)?(\w+)\s*::\s*(\~?\w+)$/s) {
 		$type = "";
 		$class = $1;
 		$name = $2;
@@ -965,325 +972,293 @@ sub fixdefvalues {
     }
 }
 
-#
-# as in 'sort weirdly keys %type'
-#
-sub weirdly {
-    local ($aa, $bb);
-
-    $aa = $name{$a};
-    $aa =~ tr/\~/_/;
-    $aa =~ s/^::/
-	if (defined($home{$a})) {
-	    sprintf("%s::", $home{$a});
-	} else {
-	    sprintf("~::");
-	}
-    /egsx;
-
-    $bb = $name{$b};
-    $bb =~ tr/\~/_/;
-    $bb =~ s/^::/
-	if (defined($home{$b})) {
-	    sprintf("%s::", $home{$b});
-	} else {
-	    sprintf("~::");
-	}
-    /egsx;
-
-    return ($aa cmp $bb);
-}
 
 
 
-sub printout {
-    local($url, $tail, $fnheader, $fntail);
+sub printclass {
+    local ( $url ) = @_;
+    local ( $class, $file, $tail, $fnheader, $fntail, %fndocs );
 
-    open(O, "> /dev/null") || die "cant open /dev/null";
-    $tail = "";
-    $fntail = "";
+    print "printclass: ", $name{$url}, ", ", $url, ", ", $type{$url}, "\n";
 
-    foreach $url ( sort weirdly keys %type ) {
-	my($file);
+    $class = $name{$url};
 
-	next unless ($url =~ m/\.html/);
+    die "$class ($url) is not a class" if ( $type{$url} ne "class" );
 
-	$file = $url;
-	$file =~ s/#.*//;
+    $file = $url;
+    $file =~ s/#.*//;
+    open(O, "> $outputdir/$file") 
+		|| die "can't open $outputdir/$file for writing,";
 
-	if ($file eq "globals.html") {
-	    print $url, "\n", $name{$url}, "\n", $def{$url}, "\n", $doc{$url}, "\n";
-	}
+    $documented{$url}++;
 
-	if ($file ne $cfile) {
-	    $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-	    print O $fntail, $tail;
-	    close(O);
-	    open(O, "> $outputdir/$file") 
-		|| die "can't open $outputdir/$file ($url) for writing";
-	    $cfile = $file;
-
-	    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
-	    if (defined ($cfiles{$includefile{$url}})) {
-		my(%files);
-		$files{$includefile{$url}}++;
-		$tail = join("\n", $tail,
-			      "<p>",
-			     "It was generated from the following files:",
-			     "<ul>",
-			     "<li>" . $includefile{$url} .
-			     (defined($dates{$includefile{$url}}) ? 
-			      (": " . $dates{$includefile{$url}}) :
-			      ("")),
-			     "");
-		foreach (sort split(/\s+/, $cfiles{$includefile{$url}})) {
-		    if ($_ ne "" && !defined($files{$_})) {
-			$files{$_}++;
-			if (defined($dates{$_})) {
-			    $tail = join("", $tail, "<li>", $_, ": ", $dates{$_}, "\n");
-			} else {
-			    $tail = join("", $tail, "<li>", $_);
-			}
-		    }
-		}
-		$tail .= "</ul>\n";
-	    }
-	    $tail .= $address;
-
-	    print O $doctype, "<html><head>\n<title>Qt Toolkit - ", 
-	    $name{$url}, 
-	    " Class</title>\n</head><body>\n",
-	    "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
-	}
-	if ($type{$url} eq "class") {
-	    my ($i, $family);
-	    if (defined($contrib{$url})) {
-		print O "<p>Contributed by ", $contrib{$url}, ".\n";
-	    }
-	    if (defined($brief{$url})) {
-		print O "<p>\n", $brief{$url}, "\n";
-		print O "<a href=#details>(details)</a>\n"
-		    if ($doc{$url} ne "");
-		$_ = $file;
-		s/\.html/-members.html/;
-		print O "<a href=", $_, ">", " (complete member list)</a>\n";
-	    }
-	    print O "<p>\n<code>#include &lt;<a href=", 
-	            $headerfiles{$includefile{$url}}, 
- 		    ">", $includefile{$url}, "</a>&gt;</code>\n"
-		if (defined($includefile{$url}));
-	    if ($relations{$name{$url}} =~ /\S/s) {
-		my($relatives, $name, $header);
-		$relatives = "<hr><p><h2>Related Functions</h2>\n";
-		$family = "<h2>Related Functions</h2>\n(Note that these are not member functions.)\n<ul>";
-		foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
-		    $name = $_;
-		    $name =~ s/^[^\#]*\#//;
-		    $header = $def{$_};
-		    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
-		    $relatives = join ("", $relatives, "<p><h3>", $header,
-				       "</h3>\n<p>", $doc{$_}, "\n");
-		    $header = $def{$_};
-		    $header =~ s@</?a.*?>@@gs; #okok, so it is stupid
-		    $header =~ 
-			s;([^\(]*\s)\b(\S+);$1<a href=$url#$name><strong>$2</strong></a>;s;
-		    $family = join( "\n<li>", $family, $header);
-		}
-		$tail = join("", $relatives, $tail);
-		$family = join ("", $family, "\n</ul>\n");
-	    }
-	    $i = "";
-	    foreach ( sort split(/\s*\,\s*/, $inheritance{$url}) ) {
-		my ($im, $ic);
-		if (/(\w+)\s+(\w+)/) {
-		    $im = $1;
-		    $ic = $2;
+    $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
+    $tail = "<hr><p>\nThis file is part of the <a href=qt.html>Qt toolkit</a>,\n<a href=licence.html>copyright</a> 1995\n<a href=troll.html>Troll Tech</a>, all rights reserved.\n";
+    if (defined ($cfiles{$includefile{$url}})) {
+	my(%files);
+	$files{$includefile{$url}}++;
+	$tail = join("\n", $tail,
+		     "<p>",
+		     "It was generated from the following files:",
+		     "<ul>",
+		     "<li>" . $includefile{$url} .
+		     (defined($dates{$includefile{$url}}) ? 
+		      (": " . $dates{$includefile{$url}}) :
+		      ("")),
+		     "");
+	foreach (sort split(/\s+/, $cfiles{$includefile{$url}})) {
+	    if ($_ ne "" && !defined($files{$_})) {
+		$files{$_}++;
+		if (defined($dates{$_})) {
+		    $tail = join("", $tail, "<li>", $_, ": ", $dates{$_}, "\n");
 		} else {
-		    $ic = $_;
-		    $im = "public";
-		}
-		if (($ic ne "") && ($im eq "public")) {
-		    if (defined($capt{$ic})) {
-			$i = join ("", $i, ", ", &al($ic), " (", $capt{$ic}, ")");
-		    } else {
-			$i = join ("", $i, ", ", &al($ic));
-		    }
+		    $tail = join("", $tail, "<li>", $_);
 		}
 	    }
-	    if ($i ne "") {
-		$i =~ s/^\,\s*//;
-		$i =~ s/\,([^,]+)$/ and$1/;
-		print O "<p>\nInherits ", $i, ".\n";
+	}
+	$tail .= "</ul>\n";
+    }
+    $tail .= $address;
+
+    print O $doctype, "<html><head>\n<title>Qt Toolkit - ", 
+    $class, 
+    " Class</title>\n</head><body>\n",
+    "<h1>", $name{$url}, " Class Reference</h1>\n<hr>\n";
+
+    my ($i, $family);
+    if (defined($brief{$url})) {
+	print O "<p>\n", $brief{$url}, "\n";
+	print O "<a href=#details>(details)</a>\n"
+	    if ($doc{$url} ne "");
+	$_ = $file;
+	s/\.html/-members.html/;
+	print O "<a href=", $_, ">", " (complete member list)</a>\n";
+    }
+    print O "<p>\n<code>#include &lt;<a href=", $headerfiles{$includefile{$url}}, ">", $includefile{$url}, "</a>&gt;</code>\n" if (defined($includefile{$url}));
+    if ($relations{$name{$url}} =~ /\S/s) {
+	my($relatives, $name, $header);
+	$relatives = "<hr><p><h2>Related Functions</h2>\n";
+	$family = "<h2>Related Functions</h2>\n(Note that these are not member functions.)\n<ul>";
+	foreach ( split( /\s+/, $relations{$name{$url}} ) ) {
+	    $name = $_;
+	    $name =~ s/^[^\#]*\#//;
+	    $header = $def{$_};
+	    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
+	    $relatives = join ("", $relatives, "<p><h3>", $header,
+			       "</h3>\n<p>", $doc{$_}, "\n");
+	    $header = $def{$_};
+	    $header =~ s@</?a.*?>@@gs; #okok, so it is stupid
+	    $header =~ 
+		s;([^\(]*\s)\b(\S+);$1<a href=$url#$name><strong>$2</strong></a>;s;
+	    $family = join( "\n<li>", $family, $header);
+	}
+	$tail = join("", $relatives, $tail);
+	$family = join ("", $family, "\n</ul>\n");
+    }
+
+    $i = "";
+    foreach ( sort split(/\s*\,\s*/, $inheritance{$url}) ) {
+	my ($im, $ic);
+	if (/(\w+)\s+(\w+)/) {
+	    $im = $1;
+	    $ic = $2;
+	} else {
+	    $ic = $_;
+	    $im = "public";
+	}
+	if (($ic ne "") && ($im eq "public")) {
+	    if (defined($capt{$ic})) {
+		$i = join ("", $i, ", ", &al($ic), " (", $capt{$ic}, ")");
+	    } else {
+		$i = join ("", $i, ", ", &al($ic));
 	    }
-	    if ($subclasses{$name{$url}} =~ /\S/) {
-		my ($ic);
-		$i = "";
-		foreach $ic ( sort split(/\s+/, $subclasses{$name{$url}}) ) {
-		    if (defined($capt{$ic})) {
-			$i = join ("", $i, ", ", &al($ic), 
-				   " (", $capt{$ic}, ")");
-		    } else {
-			$i = join ("", $i, ", ", &al($ic));
-		    }
-		}
-		$i =~ s/^\,\s*//;
-		$i =~ s/\,([^,]+)$/ and$1/;
-		print O "<p>Inherited by ", $i, ".\n";
+	}
+    }
+    if ($i ne "") {
+	$i =~ s/^\,\s*//;
+	$i =~ s/\,([^,]+)$/ and$1/;
+	print O "<p>\nInherits ", $i, ".\n";
+    }
+
+    if ($subclasses{$name{$url}} =~ /\S/) {
+	my ($ic);
+	$i = "";
+	foreach $ic ( sort split(/\s+/, $subclasses{$name{$url}}) ) {
+	    if (defined($capt{$ic})) {
+		$i = join ("", $i, ", ", &al($ic), " (", $capt{$ic}, ")");
+	    } else {
+		$i = join ("", $i, ", ", &al($ic));
 	    }
-	    if (defined($members{$url})) {
-		my (%m, $mode, $foreplay, $afterglow);
+	}
+	$i =~ s/^\,\s*//;
+	$i =~ s/\,([^,]+)$/ and$1/;
+	print O "<p>Inherited by ", $i, ".\n";
+    }
 
-		undef %m;
-		$mode = "Private";
-		foreach (split(/;/, $members{$url})) {
-		    $mode = ucfirst($1)
-			while (s/^\s*((?:
-				       (?:private\b\s*?)|
-				       (?:protected\b\s*?)|
-				       (?:public\b\s*?)|
-				       (?:signals\b\s*?)|
-				       (?:slots\b\s*?))+):\s*//sx);
-		    next if (/^\s*friend\b/);
-		    $mode =~ s/slots/Slots/;
-		    if (/((^)|([^\(]*\b))static\b/) {
-			s/(\s*)static\s*/$1/;
-			$m{"Static ".$mode} .= $_ . ";";
-		    } else {
-			$m{$mode} .= $_ . ";";
-		    }
-		}
-		foreach $mode ('Public', 'Public Slots', 'Signals',
-			       'Static Public', 'Protected', 
-			       'Protected Slots', 'Static Protected',
-			       'Private', 'Private Slots', 'Static Private') {
-		    my ($e1, $e2);
-		    next unless (defined($m{$mode}));
-		    $_ = $mode;
-		    $_ .= " Members" if (!/s$/);
-		    $foreplay = join("", "<h2>", $_, "</h2>\n<ul>\n");
-		    $afterglow = "";
-		    foreach (split (/;/, $m{$mode})) {
-			s/\s*([\(\)]+\s*)/ $1 /g;
-			s/\s*([,\*\&]+\s*(?!=))/$1 /g;
-			s-\s*//.*?\n\s*--;
-			s/^\s+//;
-			s/\s+$//;
-			s/\s+/ /g;
+    die "no members in class $class" unless (defined($members{$url}));
 
-			if (/^\s*(?:\}\s*)?((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
-									      )
-			    ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
-								       )
-			    \s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
-			    my ($u,$t,$mt,$f,$a,$ma,$c);
-			    $t = $1;
-			    $f = $2;
-			    $a = $3;
-			    $c = $4;
+    my (%m, $mode, $foreplay, $afterglow);
+    undef %m;
+    $mode = "Private";
+    foreach (split(/;/, $members{$url})) {
+	$mode = ucfirst($1)
+	    while (s/^\s*((?:
+			   (?:private\b\s*?)|
+			   (?:protected\b\s*?)|
+			   (?:public\b\s*?)|
+			   (?:signals\b\s*?)|
+			   (?:slots\b\s*?))+):\s*//sx);
+	next if (/^\s*friend\b/);
+	$mode =~ s/slots/Slots/;
+	if (/((^)|([^\(]*\b))static\b/) {
+	    s/(\s*)static\s*/$1/;
+	    $m{"Static ".$mode} .= $_ . ";";
+	} else {
+	    $m{$mode} .= $_ . ";";
+	}
+    }
+    foreach $mode ('Public', 'Public Slots', 'Signals',
+		   'Static Public', 'Protected', 
+		   'Protected Slots', 'Static Protected',
+		   'Private', 'Private Slots', 'Static Private') {
+	my ($e1, $e2);
+	next unless (defined($m{$mode}));
+	$_ = $mode;
+	$_ .= " Members" if (!/s$/);
+	$foreplay = join("", "<h2>", $_, "</h2>\n<ul>\n");
+	$afterglow = "";
+	foreach (split (/;/, $m{$mode})) {
+	    next if ($mode =~ /rivate/ && !$internal);
 
-			    $a =~ s/^\s+//s;
-			    $a =~ s/\s+$//s;
+	    $countall++;
 
-			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
-			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
-			    next if ($mode =~ /rivate/ && !$internal);
-			    if ($type{$u} eq "fn") {
-				$_ = join("", &html($t), "<a href=", $u,
-					  "><strong>", &html($f), 
-					  "</strong></a> (", &html($a), 
-					  ") ", $c);
-			    } else {
-				$_ = join("", &html($t), "<strong>", 
-					  &html($f), "</strong> (", 
-					  &html($a), ") ", $c);
-			    }
-			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
-				if (defined($capt{$u}));
-			} elsif (/^\s*enum\s+(\w+)/s &&
-				 defined($anchor{$name{$url} . "::" . $1})) {
-			    my($name);
-			    $name = $1;
-			    $_ = &html($_);
-			     s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
-			} elsif (/^\s*enum\s*\{/s) {
-			    $_ = &html($_); # don't do anything, but it's legal
-			} elsif (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
-			    my($u, $r, $c);
-			    $r = $1;
-			    $c = $2;
-			    $u = &manglefn($r, $name{$url}, 
-					   "_cast", "", $c);
-			    if ($type{$u} eq "fn") {
-				$_ = join("", "operator <a href=", $u,
-					  "><strong>", &html($r),
-					  "</strong></a> ()", $c);
-			    } else {
-				$_ = join("", "operator <strong>", &html($r),
-					  "</strong> ()", $c);
-			    }
-			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
-				if (defined($capt{$u}));
-			} else {
-			    $_ = "";
-			}
-			if (/\S/s) {
-			    print O $foreplay, "<li>", $_, "\n";
-			    $foreplay = "";
-			    $afterglow = "</ul>\n";
-			}
-		    }
-		    print O $afterglow;
-		}
-		if ($family =~ /\S/s) {
-		    print O $family;
-		}
-		if ($brief{$url} =~ /\S/s) {
-		    print O "<hr><p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+	    s/\s*([\(\)]+\s*)/ $1 /g;
+	    s/\s*([,\*\&]+\s*(?!=))/$1 /g;
+	    s-\s*//.*?\n\s*--;
+	    s/^\s+//;
+	    s/\s+$//;
+	    s/\s+/ /g;
+	    if (/^\s*(?:\}\s*)?((?:[^\(\~]*[\s\&\*]+)?)(?=[\w~]) (?# prelude
+								  )
+		((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
+							   )
+		\s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
+		my ($u,$t,$mt,$f,$a,$ma,$c);
+		$t = $1;
+		$f = $2;
+		$a = $3;
+		$c = $4;
+
+		$a =~ s/^\s+//s;
+		$a =~ s/\s+$//s;
+
+		$u = &manglefn($t, $name{$url}, $f, $a, $c);
+		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
+		if ($type{$u} eq "fn") {
+		    $_ = join("", &html($t), "<a href=", $u,
+			      "><strong>", &html($f), 
+			      "</strong></a> (", &html($a), 
+			      ") ", $c);
+		    $fndocs{$u}++;
 		} else {
-		    print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+		    print $u, "\n", $type{$u}, "\n";
+		    $_ = join("", &html($t), "<strong>", 
+			      &html($f), "</strong> (", 
+			      &html($a), ") ", $c);
 		}
+		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
+		    if (defined($capt{$u}));
+	    } elsif (/^\s*enum\s+(\w+)/s &&
+		     defined($anchor{$name{$url} . "::" . $1})) {
+		my($name);
+		$name = $1;
+		$_ = &html($_);
+		s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+	    } elsif (/^\s*enum\s*\{/s) {
+		$_ = &html($_); # don't do anything, but it's legal
+	    } elsif (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
+		my($u, $r, $c);
+		$r = $1;
+		$c = $2;
+		$u = &manglefn($r, $name{$url}, 
+			       "_cast", "", $c);
+		if ($type{$u} eq "fn") {
+		    $_ = join("", "operator <a href=", $u, "><strong>",
+			      &html($r), "</strong></a> ()", $c);
+		    $fndocs{$u}++;
+		} else {
+		    $_ = join("", "operator <strong>", &html($r),
+			      "</strong> ()", $c);
+		}
+		$_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
+		    if (defined($capt{$u}));
+	    } else {
+		$_ = "";
 	    }
-	} elsif (($type{$url} eq "fn") && 
-		 ($doc{$url} =~ /\S/s)) {
-	    my ($name, $class, $reimp);
-	    $class = $url;
-	    $class =~ s/\#.*//;
-	    $class = $name{$class} . "::";
-	    $_ = $def{$url};
-	    if (/$class/) {
-		$name = $url;
-		$name =~ s/^[^\#]*\#//;
-		print O $fnheader;
-		$fnheader = "";
-		$fntail = "\n";
-		s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
-		print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
+	    if (/\S/s) {
+		print O $foreplay, "<li>", $_, "\n";
+		$foreplay = "";
+		$afterglow = "</ul>\n";
+	    }
+	}
+	print O $afterglow;
+    }
+    if ($family =~ /\S/s) {
+	print O $family;
+    }
 
-		if ($url eq $anchor{$name{$url}}) {
-		    $name = $name{$url};
-		    $class = $name;
-		    $name =~ s/.*:://;
-		    $class =~ s/::.*//;
-		    $reimp = "";
-		    foreach $class ( sort split(/\s+/, $subclasses{$class})) {
-			$_ = join("::", $class, $name);
-			if (defined($anchor{$_}) && ($anchor{$_} ne $url)) {
-			    $reimp .= ", <a href=" . $anchor{$_} . ">"
-				. $class . "</a>";
-			}
+    if ($brief{$url} =~ /\S/s) {
+	print O "<hr><p><h2><a name=details>Detailed Description</a></h2>\n", $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
+    } else {
+	print O "<hr><p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+    }
+
+    foreach $url ( sort keys %fndocs ) {
+	next unless ($doc{$url} =~ /\S/s);
+
+	$documented{$url}++;
+	$countdoc++;
+
+	my ($name, $class, $reimp);
+	$class = $url;
+	$class =~ s/\#.*//;
+	$class = $name{$class} . "::";
+	$_ = $def{$url};
+	if (/$class/) {
+	    $name = $url;
+	    $name =~ s/^[^\#]*\#//;
+	    print O $fnheader;
+	    $fnheader = "";
+	    $fntail = "\n";
+	    s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
+	    print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
+
+	    if ($url eq $anchor{$name{$url}}) {
+		$name = $name{$url};
+		$class = $name;
+		$name =~ s/.*:://;
+		$class =~ s/::.*//;
+		$reimp = "";
+		foreach $class ( sort split(/\s+/, $subclasses{$class})) {
+		    $_ = join("::", $class, $name);
+		    if (defined($anchor{$_}) && ($anchor{$_} ne $url)) {
+			$reimp .= ", <a href=" . $anchor{$_} . ">"
+			    . $class . "</a>";
 		    }
-		    if ($reimp ne "") {
-			$reimp =~ s/^\,\s*/<p>Reimplemented in /;
-			$reimp =~ s/\,([^,]+)$/ and$1/;
-			print O $reimp, ".\n";
-		    }
+		}
+		if ($reimp ne "") {
+		    $reimp =~ s/^\,\s*/<p>Reimplemented in /;
+		    $reimp =~ s/\,([^,]+)$/ and$1/;
+		    print O $reimp, ".\n";
 		}
 	    }
 	}
     }
+
     print O $fntail, $tail;
     close(O);
 }
+
 
 sub classindex {
     open(O, "> $outputdir/classes.html")
@@ -1542,7 +1517,11 @@ if ($#ARGV > -1) {
 &writepages();
 &readfiles();
 
-&printout();
+foreach $c ( keys %doc ) {
+    if (($type{$c} eq "class") && ($anchor{$name{$c}} eq $c) ) {
+	&printclass($c);
+    }
+}
 
 if ($#ARGV > 4 || $#ARGV < 0) {
     &inheritanceindex();
@@ -1553,4 +1532,10 @@ if ($#ARGV > 4 || $#ARGV < 0) {
     &memberlists();
 }
 
-print "Documented entities: ", $uniq, "\n";
+foreach $c ( keys %doc ) {
+    print $def{$c}, "is undocumented\n"
+	if ($type{$c} eq "class" && !defined($documented{$c}));
+}
+
+print "Documented ", $countdoc, " member functions, left out ",
+    $countall-$countdoc, " private, undocumented or non-function members\n";
