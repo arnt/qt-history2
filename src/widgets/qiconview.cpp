@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#102 $
 **
 ** Definition of QIconView widget class
 **
@@ -225,8 +225,9 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
 /*!
   \class QIconDragItem qiconview.h
-  \brief The QIconDragItem is the interan data structure of a QIconDrag
-
+  \brief The QIconDragItem is the internal data structure of a QIconDrag
+  
+  
 */
 
 /*!
@@ -334,13 +335,13 @@ void QIconDragItem::setTextRect( const QRect &r )
   The QIconDrag is the drag object which is used for moving items in the
   iconview. The QIconDrag stores exact informations about the positions of
   the items, which are dragged, so that each iconview is able to draw drag
-  shades in correct psoitions.
+  shades in correct positions.
 
   It's suggested that, if you write a drag object for own QIconViewItems,
   you derive the drag object class from QIconDrag and just implement the
-  methods which are needed for encoding/decoding your data. Because if you
-  do this, the position informations will be stored in the drag object
-  too.
+  methods which are needed for encoding/decoding your data and the mimetype
+  handling. Because if you do this, the position informations will be stored 
+  in the drag object too.
 
   An example, how to implement this, is in the QtFileIconView example.
 */
@@ -1423,8 +1424,8 @@ void QIconViewItem::setIconRect( const QRect &r )
 
   The QIconView provides a widget which can contain lots of iconview items which can
   be selected, dragged and so on. The iconview can be used in double click mode
-  (default) or single click mode (behaves like a web page). For the programmer which 
-  uses the iconview these modes are transparent, this means the iconview does all the 
+  (default) or single click mode (behaves like a web page). For the programmer which
+  uses the iconview these modes are transparent, this means the iconview does all the
   work for that.
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
@@ -1432,7 +1433,7 @@ void QIconViewItem::setIconRect( const QRect &r )
   or the the right of the icons.
 
   The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
-  the iconview itself using DnD. So the QIconView provides some methods for 
+  the iconview itself using DnD. So the QIconView provides some methods for
   extended DnD too.
 
   There can be specified different selection modes, which describe if more that one item
@@ -1628,7 +1629,7 @@ QIconView::~QIconView()
 	delete d->singleClickSelectTimer;
 
     clearSingleClickConfig();
-    
+
     delete d;
 }
 
@@ -2054,9 +2055,9 @@ QIconView::SelectionMode QIconView::selectionMode() const
 
 /*!
   Sets the configuration for the single click mode. \a normalText
-  is the font and \a normalTextCol the color which should be used 
-  for the normal icon text. \a highlightedText is the font and 
-  \a highlightedTextCol the color which should be used for the icon 
+  is the font and \a normalTextCol the color which should be used
+  for the normal icon text. \a highlightedText is the font and
+  \a highlightedTextCol the color which should be used for the icon
   text, when the icon is highlighted (means, when the mouse cursor is
   over the item). \a highlightedCursor is the mouse cursor which should
   be used when the mouse is over an item. Passing NULL for one of these
@@ -2064,7 +2065,7 @@ QIconView::SelectionMode QIconView::selectionMode() const
   \a setCurrentInterval specifies the time interval (in ms) after which
   a highlighted item (item over which the mouse is) gets the current
   item and gets selected. Passing -1 here disables this feature.
-  
+
   The QIconView takes the ownership of the passed pointers. This means
   you must not delete them! The QIconView cares about deleting them.
 */
@@ -2074,7 +2075,7 @@ void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTe
 					     QCursor *highlightedCursor, int setCurrentInterval )
 {
     clearSingleClickConfig();
-    
+
     d->singleClickConfig.normalText = normalText;
     d->singleClickConfig.normalTextCol = normalTextCol;
     d->singleClickConfig.highlightedText = highlightedText;
@@ -2086,7 +2087,7 @@ void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTe
 /*!
   This methode gives back the current single click configuration
   using the parameters.
-  
+
   \sa QIconView::setSingleClickConfiguration(), QIconView::setUseSingleClickMode()
 */
 
@@ -2109,8 +2110,8 @@ void QIconView::singleClickConfiguration( QFont *normalText, QColor *normalTextC
   (can be configures in QIconView::setSingleClickConfiguration()).
   If \b is FALSE, the normal mode of the iconview is used, with double clicks
   and so on.
-  
-  If you use the QIconView you don't have to care about the difference of single 
+
+  If you use the QIconView you don't have to care about the difference of single
   click or double click modes. For you this is transparent (the QIconView translates
   the important signals and evets).
   So you can offer the user to switch between single and doubleclick mode, but
@@ -2127,7 +2128,7 @@ void QIconView::setUseSingleClickMode( bool b )
 /*!
   Returns TRUE if the iconview is in single click mode, or
   FALSE if it is in double click mode.
-  
+
   \sa QIconView::setUseSingleClickMode(), QIconView::setSingleClickConfiguration()
 */
 
@@ -3739,7 +3740,7 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
 /*!
   This slot selects the currentle highlighed item (if there is one).
   This is used in the single click mode.
-  
+
   \sa QIconView::setSingleClickConfiguration(), QIconView::setUseSingleClickMode()
 */
 
@@ -3759,7 +3760,7 @@ void QIconView::selectHighlightedItem()
 
 void QIconView::clearSingleClickConfig()
 {
-    if ( d->singleClickConfig.normalText ) 
+    if ( d->singleClickConfig.normalText )
 	delete d->singleClickConfig.normalText;
     if ( d->singleClickConfig.normalTextCol )
 	delete d->singleClickConfig.normalTextCol;
