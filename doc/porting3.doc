@@ -120,6 +120,9 @@ Header files that you might need to add #include directives for include:
     <li>\c <qstringlist.h>
     <li>\c <qstrlist.h>
     <li>\c <qvaluelist.h>
+    <li>\c <qfile.h>
+    <li>\c <qtimer.h>
+    <li>\c <qdir.h>
 </ul>
 
 <a name="Namespace"></a>
