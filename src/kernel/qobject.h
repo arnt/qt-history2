@@ -121,9 +121,9 @@ public:
 
     static bool connect(const QObject *sender, const char *signal,
 			const QObject *receiver, const char *member,
-			ConnectionType = DirectConnection);
+			ConnectionType = AutoConnection);
     inline bool connect(const QObject *sender, const char *signal,
-			const char *member, ConnectionType type = DirectConnection) const
+			const char *member, ConnectionType type = AutoConnection) const
 	{ return connect(sender, signal, this, member, type); }
 
     static bool disconnect(const QObject *sender, const char *signal,

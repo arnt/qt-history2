@@ -890,6 +890,7 @@ public:
     };
 
     enum ConnectionType {
+	AutoConnection,
 	DirectConnection,
 	QueuedConnection
     };

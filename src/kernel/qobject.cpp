@@ -1693,6 +1693,13 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	return false;
     }
 #endif
+#if defined(QT_THREAD_SUPPORT)
+    if (type == AutoConnection)
+	type = (sender->thread() == receiver->thread() ? DirectConnection : QueuedConnection);
+#else
+    if (type == AutoConnection)
+	type = DirectConnection;
+#endif
     QByteArray signal_name = QMetaObject::normalizedSignature(signal);
     signal = signal_name;
 
