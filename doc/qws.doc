@@ -235,7 +235,7 @@ The difference between smooth and non-smooth fonts is illustrated below
 (you may need to change your display to low resolution to see the difference).
 
 <center>
-<table width=100%>
+<table>
 <tr align=center>
 <td><img src=smooth.png>
 <td width=10% rowspan=2>
@@ -247,7 +247,7 @@ The difference between smooth and non-smooth fonts is illustrated below
 
 <p>
 In Qt/Embedded 2.2.0, smooth fonts use 8 times as much memory as non-smooth
-fonts (8 times as much). This multiplier will be reduced to a configurable
+fonts. This multiplier will be reduced to a configurable
 2 or 4 (ie. 4-level and 16-level shading rather than the current excessive
 256-level shading).
 
@@ -387,8 +387,22 @@ i.e. without the <i>-qws</i> option.
 
 <h1>Porting your applications to Qt/Embedded</h1>
 
-(not documented yet)
-Not much to do. Just don't use x11Event(), winEvent(), etc.
+Existing Qt applications should require no porting provided there is no
+platform dependant code.  Platform dependant code includes system calls,
+calls to the underlying window system (Windows or X11), and Qt platform
+specific methods such as QApplication::x11EventFilter().
+<p>
+For cases where it is necessary to use platform dependant code there are
+macros defined that can be used to enable/disable code for each platform
+using #ifdef directives:
+
+<table>
+<tr><th>Platform</th><th>Macro</th></tr>
+<tr><td>Qt/X11</td><td>_WS_X11_</td></tr>
+<tr><td>Qt/Windows</td><td>_WS_WIN_</td></tr>
+<tr><td>Qt/Embedded</td><td>_WS_QWS_</td></tr>
+</table>
+
 */
 
 
