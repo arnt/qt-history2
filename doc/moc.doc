@@ -163,7 +163,7 @@ suggest a makefile rule like this:
 
 \code
     NAME.o: NAME.moc
-    
+
     NAME.moc: NAME.cpp
             moc -i $< -o $@
 \endcode
@@ -184,7 +184,7 @@ that file are fully known.
 
 <h2>Invoking moc</h2>
 
-Here are the command-line options supported by the moc: 
+Here are the command-line options supported by the moc:
 
 <dl>
 <dt> -o <var>file</var> <dd> Write output to <var>file</var> rather
@@ -200,6 +200,13 @@ more class declarations. You should then #include the meta object
 code in the .cpp
 file.  If both -i and -f are present, the last one wins.
 <dt> -nw <dd> Do not generate any warnings.  Discouraged.
+<dt> -nw <dd> Do not scan for enumeration declarations to be used by
+the property system. When using this option, enumeration values are no
+longer available as data-types for properties defined in your class or
+its subclasses. Use this option if the moc fails parsing your class
+definition and you are sure you do not want to use
+properties. Otherwise, use MOC_SKIP_BEGIN ... MOC_SKIP_END to work
+around the parsing problem (see below).
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
 <dt> -dbg <dd> Treat all non-signal members as slots, for internal
 debugging purposes.  This is not useful for programming Qt clients.
@@ -305,7 +312,7 @@ better alternative.  Here is an example of illegal syntax:
         Q_OBJECT
     [...]
     public slots:
-        void apply(void (*applyFunction)(QList*, void*), char*);
+        void apply(void (*applyFunction)(QList*, void*), char*); // illegal
     };
 \endcode
 
@@ -339,7 +346,7 @@ the illegal syntax:
         Q_OBJECT
     [...]
     signals:
-        friend class ClassTemplate<char>;
+        friend class ClassTemplate<char>; // illegal
     };
 \endcode
 
@@ -353,7 +360,7 @@ illegal example:
     class Whatever : public QButtonGroup {
     [...]
     public slots:
-        void QButtonGroup::buttonPressed;
+        void QButtonGroup::buttonPressed; // illegal
     [...]
     };
 \endcode
@@ -400,13 +407,13 @@ Here's an example:
 	Q_OBJECT
     public:
         class B {
-	public slots:
-	    void b();       // Nested class with slot
+	public slots: 	// illegal
+	    void b();
 	[....]
         };
     signals:
-        class B {
-	    void b();       // Nested class in signals:
+        class B { 	// illegal
+	    void b();
 
 	[....]
         }:
@@ -426,7 +433,7 @@ of the illegal syntax:
 	Q_OBJECT
     public slots:
 	SomeClass( QObject *parent, const char *name )
-	    : QObject( parent, name ) {}
+	    : QObject( parent, name ) {}  // illegal
     [...]
     };
 \endcode
@@ -441,7 +448,7 @@ compile-time phenomenon.  This will fail:
     class SomeClass : public QObject {
         Q_OBJECT
     public slots:
-        void someSlot(int x=100);
+        void someSlot(int x=100); // illegal
     };
 \endcode
 

@@ -159,7 +159,7 @@ public:
 };
 
 
-struct ClassInfo 
+struct ClassInfo
 {
     ClassInfo( const char* n, const char* v )
 	: name(n), value(v)
@@ -201,7 +201,7 @@ bool	   lexDebug	   = FALSE;
 int	   lineNo;				// current line number
 bool	   errorControl	   = FALSE;		// controlled errors
 bool	   displayWarnings = TRUE;
-bool	   doProperties	   = TRUE;
+bool	   doEnums	   = TRUE;
 bool	   skipClass;				// don't generate for class
 bool	   skipFunc;				// don't generate for func
 bool	   templateClass;			// class is a template
@@ -214,6 +214,8 @@ AccessPerm tmpAccessPerm;			// current access permission
 AccessPerm subClassPerm;			// current access permission
 bool	   Q_OBJECTdetected;			// TRUE if current class
 						// contains the Q_OBJECT macro
+bool	   Q_PROPERTYdetected;			// TRUE if current class
+						// contains at least one Q_PROPERTY macro
 
 // some temporary values
 QCString   tmpExpression;
@@ -263,6 +265,7 @@ const int  formatRevision = 6;			// moc output format revision
 %token			DOUBLE
 %token			VOID
 %token			ENUM
+%token			ENUM_IN_CLASS
 %token			CLASS
 %token			STRUCT
 %token			UNION
@@ -741,15 +744,8 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			| Q_PROPERTY { tmpYYStart = YY_START; BEGIN IN_PROPERTY; }
 			  '(' IDENTIFIER ',' STRING ',' prop_access_function ',' prop_access_function ')'
 				  {
-				      if ( doProperties ) {
-					  if ( Q_OBJECTdetected )
-					      props.append( new Property( lineNo, $4,$6,$8,$10) );
-					  else
-					      moc_warn("Q_PROPERTY macro without prior Q_OBJECT."
-						       " Property discarded.");				    
-				      } else
-					  moc_warn("running with -np, but class contains "
-						   "Q_PROPERTY macro") ;
+				      Q_PROPERTYdetected = TRUE;
+				      props.append( new Property( lineNo, $4,$6,$8,$10) );
 				      BEGIN tmpYYStart;
 				  }
 			  opt_property_candidates
@@ -760,12 +756,14 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 				      BEGIN tmpYYStart;
 				  }
 			  opt_property_candidates
-
+			| ENUM_IN_CLASS { BEGIN QT_DEF; }
+			  enum_in_class_tail { BEGIN IN_CLASS;}
 			;
+
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
 			| SLOTS	  ':' opt_slot_declarations
-			| ':'		{ if ( doProperties && tmpAccessPerm == _PUBLIC && Q_OBJECTdetected )
+			| ':'		{ if ( tmpAccessPerm == _PUBLIC && Q_PROPERTYdetected )
                                                   BEGIN QT_DEF;
                                               else
                                                   BEGIN IN_CLASS;
@@ -1019,6 +1017,10 @@ opt_enum_name:		  /* empty */	{ BEGIN QT_DEF; tmpEnum->clear(); }
 					}
 			;
 
+enum_in_class_tail:	  IDENTIFIER IDENTIFIER
+			| enum_tail
+			;
+
 enum_list:		  /* empty */
 			| enumerator
 			| enum_list ',' enumerator
@@ -1135,8 +1137,8 @@ int main( int argc, char **argv )
 		errorControl = TRUE;
 	    } else if ( opt == "nw" ) {		// don't display warnings
 		displayWarnings = FALSE;
-	    } else if ( opt == "np" ) {		// don't do properties
-		doProperties = FALSE;
+	    } else if ( opt == "ne" ) {		// don't do enums
+		doEnums = FALSE;
 	    } else if ( opt == "ldbg" ) {	// lex debug output
 		lexDebug = TRUE;
 	    } else if ( opt == "ydbg" ) {	// yacc debug output
@@ -1184,7 +1186,7 @@ int main( int argc, char **argv )
 		 "\t-p path  Path prefix for included file\n"
 		 "\t-k       Do not stop on errors\n"
 		 "\t-nw      Do not display warnings\n"
-		 "\t-np      Do not scan for properties\n"
+		 "\t-ne      Do not scan for enumeration declarations\n"
 		 );
 	return 1;
     } else {
@@ -1296,11 +1298,12 @@ void init()					// initialize
 
 void initClass()				 // prepare for new class
 {
-    tmpAccessPerm    = _PRIVATE;
-    subClassPerm     = _PRIVATE;
-    Q_OBJECTdetected = FALSE;
-    skipClass	     = FALSE;
-    templateClass    = FALSE;
+    tmpAccessPerm      = _PRIVATE;
+    subClassPerm       = _PRIVATE;
+    Q_OBJECTdetected   = FALSE;
+    Q_PROPERTYdetected = FALSE;
+    skipClass	       = FALSE;
+    templateClass      = FALSE;
     slots.clear();
     signals.clear();
     propfuncs.clear();
@@ -1775,6 +1778,9 @@ int generateEnums()
 
 int generateProps()
 {
+    if ( displayWarnings && !Q_OBJECTdetected )
+	moc_err("The declaration of the class \"%s\" contains properties"
+		" but no Q_OBJECT macro!", className.data());
     //
     // Resolve and verify property access functions
     //
@@ -1966,7 +1972,7 @@ int generateProps()
 	int entry = 0;
 	for( QListIterator<Property> it( props ); it.current(); ++it ){
 	
-	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry, 
+	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry,
 		     (const char*)it.current()->type );
 	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
 		     entry, (const char*) it.current()->name );
@@ -1984,10 +1990,10 @@ int generateProps()
 		fprintf( out, "    props_tbl[%d].get = 0;\n", entry );
 
 
-	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n", 
+	    fprintf( out, "    props_tbl[%d].sspec = QMetaProperty::%s;\n",
 		     entry, Property::specToString(it.current()->sspec ));
-	    
-	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n", 
+	
+	    fprintf( out, "    props_tbl[%d].gspec = QMetaProperty::%s;\n",
 		     entry, Property::specToString(it.current()->gspec ));
 
 	    int enumpos = -1;
@@ -2016,6 +2022,10 @@ int generateClassInfos()
     if ( infos.isEmpty() )
 	return 0;
 
+    if ( displayWarnings && !Q_OBJECTdetected )
+	moc_err("The declaration of the class \"%s\" contains class infos"
+		" but no Q_OBJECT macro!", className.data());
+    
     fprintf( out, "    QClassInfo* classinfo_tbl = QMetaObject::new_classinfo( %i );\n", infos.count() );
 	
     int i = 0;
@@ -2041,10 +2051,10 @@ void generateClass()		      // generate C++ source code for a class
     if ( skipClass )				// don't generate for class
 	return;
     if ( !Q_OBJECTdetected ) {
-	if ( signals.count() == 0 && slots.count() == 0 )
+	if ( signals.count() == 0 && slots.count() == 0 && props.count() == 0 && infos.count() == 0 )
 	    return;
 	generatedCode = TRUE;
-	if ( displayWarnings )
+	if ( displayWarnings && (signals.count()+slots.count()) != 0 )
 	    moc_err("The declaration of the class \"%s\" contains slots "
 		    "and/or signals\n\t but no Q_OBJECT macro!", className.data());
     } else {
@@ -2137,13 +2147,13 @@ void generateClass()		      // generate C++ source code for a class
 // Build the enums array in staticMetaObject()
 // Enums HAVE to be generated BEFORE the properties
 //
-   int n_enums = doProperties? generateEnums() : 0;
+   int n_enums = generateEnums();
 
 //
 // Build property array in staticMetaObject()
 //
-   int n_props = doProperties? generateProps() : 0;
-   
+   int n_props = generateProps();
+
 //
 // Build class info  array in staticMetaObject()
 //
@@ -2369,7 +2379,7 @@ void addMember( Member m )
 	slots.append( tmpFunc );
 	// fall trough
     case PropertyCandidateMember:
-	if ( doProperties && !tmpFunc->name.isEmpty() && tmpFunc->accessPerm == _PUBLIC )
+	if ( !tmpFunc->name.isEmpty() && tmpFunc->accessPerm == _PUBLIC )
 	    propfuncs.append( tmpFunc );
     }
 

@@ -64,6 +64,16 @@ are present, the last one wins.
 .I "-nw"
 Do not generate any warnings. Discouraged.
 .TP
+.I "-ne"
+Do not scan for enumeration declarations to be used by the property system. When 
+using this  option, enumeration values are no longer available as data-types for 
+properties defined in your class or its subclasses. Use this option if the moc 
+fails parsing your class definition 
+.B
+and
+you are sure you do not want to use properties. Otherwise, use 
+MOC_SKIP_BEGIN ... MOC_SKIP_END to work around the parsing problem (see below).
+.TP
 .I "-ldbg"
 Write a flood of lex debug information on stdout.
 .TP
@@ -80,6 +90,16 @@ Makes
 prepend
 .IR path /
 to the file name of qt #include files in the generated code.
+.PP 
+You can explicitely tell the 
+.B moc 
+to not parse parts of a header
+file. It recognizes any C++ comment (//) that contains the substrings
+MOC_SKIP_BEGIN or MOC_SKIP_END. They work as you would expect and you
+can have several levels of them. The net result as seen by the 
+.B moc 
+is as if you had removed all lines between a MOC_SKIP_BEGIN and a
+MOC_SKIP_END
 .SH USAGE
 .B moc
 is almost always invoked by
@@ -364,7 +384,7 @@ Here's an example:
 .br
 	public slots: // illegal
 .br
-	    void b(); 
+	    void b();
 .br
 	[....]
 .br

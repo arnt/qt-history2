@@ -91,6 +91,7 @@ extern void moc_warn( char *msg );
 <IN_CLASS>"private"		{ X;return PRIVATE; }
 <IN_CLASS>"signals"		{ X;return SIGNALS; }
 <IN_CLASS>"slots"		{ X;return SLOTS; }
+<IN_CLASS>"enum"		{ X;return ENUM_IN_CLASS; }
 <IN_CLASS>"Q_OBJECT"		{ X;return Q_OBJECT; }
 <IN_CLASS>"Q_PROPERTY"		{ X;return Q_PROPERTY; }
 <IN_CLASS>"Q_CLASSINFO"		{ X;return Q_CLASSINFO; }
