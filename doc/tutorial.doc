@@ -332,9 +332,9 @@ We set its width to 200 pixels and the height to 120 pixels.
 
 A child is born.
 
-This QPushButton is created with both a text, "Quit", and a mother, w.
-A child widget is always on top of its mother.  When displayed, it is
-clipped by its mother's bounds.
+This QPushButton is created with both a text, "Quit", and a mother,
+box.  A child widget is always on top of its mother.  When displayed,
+it is clipped by its mother's bounds.
 
 The mother widget, the QVBox, automatically adds the child, centered
 in its box.  Since nothing else is added, the button gets all the
@@ -887,11 +887,13 @@ Try operating the slider to the bottom right...
 
 <h2>Excercises</h2>
 
-Use the bottom right slider to set all LCDs to 30.  Then set the
-top half to 29 by using the rightmost slider on the 2nd row.
-Now, use the one to the left of the last one operated to set the first seven
-LCDs back to 30.  Click on the left arrow on the bottom right slider.
-What happens? Why is this the correct behavior?
+Use the bottom right slider to set all LCDs to 50.  Then set the top
+half to 40 by clicking once to the left of the slider handle.  Now,
+use the one to the left of the last one operated to set the first
+seven LCDs back to 50.
+
+Click to the left of the handle on the bottom right slider.  What
+happens?  Why is this the correct behavior?
 
 You may now go on to \link t8.html chapter eight.  \endlink
 
