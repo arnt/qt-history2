@@ -3324,6 +3324,8 @@ void QListView::removeColumn( int index )
     d->column.resize( d->column.size() - 1 );
 
     d->h->removeLabel( index );
+    if (d->resizeMode == LastColumn && index > d->column.count()-1)
+	d->h->setStretchEnabled( TRUE, d->h->count() - 1 );
 
     updateGeometries();
     if ( d->column.count() == 0 )
