@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#351 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#352 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2462,7 +2462,6 @@ void QFileDialog::okClicked()
     if ( d->mode == Directory ) {
 	if ( d->ignoreReturn ) {
 	    d->ignoreReturn = FALSE;
-	    qDebug( "no" );
 	    return;
 	}
 	d->currentFileName = d->url.dirPath();
