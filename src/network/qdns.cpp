@@ -2044,7 +2044,13 @@ QStringList QDns::texts() const
 
 QString QDns::canonicalName() const
 {
-    QPtrList<QDnsRR> * cached = QDnsDomain::cached( this );
+    // the cname should work regardless of the recordType(), so set the record
+    // type temporarily to cname when you look at the cache
+    QDns *that = (QDns*) this; // mutable function
+    RecordType oldType = t;
+    that->t = Cname;
+    QPtrList<QDnsRR> * cached = QDnsDomain::cached( that );
+    that->t = oldType;
 
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
