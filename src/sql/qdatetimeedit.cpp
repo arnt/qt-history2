@@ -396,16 +396,24 @@ void QDateTimeEditBase::layoutArrows()
   \class QDateEdit qdatetimeedit.h
   \brief The QDateEdit class provides a combined line edit box and spin box to edit dates
 
-    The QDateEdit class provides a combined line edit box and spin box to edit dates
-
     QDateEdit allows the user to edit the date by using the keyboard or
     the arrow keys to increase/decrease date values.  The Tab key can be
-    used to move from field to field within the QDateEdit box.
+    used to move from field to field within the QDateEdit box. Dates
+    appear in year, month, day order by default. This can be changed by
+    calling setOrder(). It is recommended that the QDateEdit is
+    initialised with a date, e.g.
+    \code
+    QDateEdit *dateedit = new QDateEdit( QDate::currentDate(), this );
+    \endcode
 
     If illegal values are entered, they will be reverted to the last
-    known legal value. For example if the user enters 5000 for the day
-    value, and it was 12 before they stated editing, the value will be
-    reverted to 12.
+    known legal value when the user presses Return. For example if the
+    user enters 5000 for the year value, and it was 2000 before they
+    stated editing, the value will be reverted to 2000.  
+
+    See QDateTimeEdit for an example.
+
+    \sa QTimeEdit QDateTimeEdit
 
  */
 
@@ -450,7 +458,7 @@ void QDateEdit::someValueChanged()
 
 /*!
 
-  Set the date in this QDateEdit.
+  Set the date in this QDateEdit to \a d.
  */
 void QDateEdit::setDate( const QDate & d )
 {
@@ -504,11 +512,11 @@ QDate QDateEdit::date() const
 /*!
 
   Set the order in which each part of the date should appear in the edit
-  box.
+  box according to the \a fmt format string.
 
   The year is signified with 'Y', the month with 'M' and the day with
-  'D'. For the US the format would probably be 'MDY', for Japan, 'YMD',
-  for Europe, 'DMY'.
+  'D'. For the US the format would probably be 'MDY', for Japan, 'YMD'
+  (the default), for Europe, 'DMY'.
 
   \sa order
 */
@@ -557,7 +565,8 @@ QString QDateEdit::order() const
 }
 
 /*!
-  Set the separator string for this date editor.
+  Set the separator string for this date editor to \a s. 
+
  */
 void QDateEdit::setDateSeparator( const QString & s )
 {
@@ -567,7 +576,8 @@ void QDateEdit::setDateSeparator( const QString & s )
 }
 
 /*!
-  Returns the separator string for this date editor.
+  Returns the separator string for this date editor. The default is "-".
+
  */
 QString QDateEdit::dateSeparator() const
 {
@@ -667,17 +677,25 @@ void QDateEdit::resizeEvent( QResizeEvent * )
   \class QTimeEdit qdatetimeedit.h
   \brief The QTimeEdit class provides a combined line edit box and spin box to edit times
 
-  The QTimeEdit class provides a combined line edit box and spin box to edit times
+    QTimeEdit allows the user to edit the time by using the keyboard or
+    the arrow buttons to increase/decrease time values. Times appear in
+    the order hours, minutes, seconds using the 24 hour clock. The Tab
+    key can be used to move from field to field within the QTimeEdit
+    box. It is recommended that the QTimeEdit is initialised with a time, e.g.
+    \code
+    QTimeEdit *dateedit = new QTimeEdit( QTime::currentTime(), this );
+    \endcode
 
-  QTimeEdit allows the user to edit the time by using the
-  keyboard or the arrow buttons to increase/decrease time
-  values.  The Tab key can be used to move from field to field within
-  the QTimeEdit box.
 
   If illegal values are entered, these will be reverted to the last
-  known legal value. For example if the user entered 5000 for the hour
-  value, and it was 12 before they stated editing, the value will be
-  reverted to 12.
+  known legal value when the user presses Return. For example if the
+  user entered 99 for the hour value, and it was 12 before they stated
+  editing, the value will be reverted to 12. 
+
+    See QDateTimeEdit for an example.
+
+    \sa QDateEdit QDateTimeEdit
+
   */
 
 /*!
@@ -721,7 +739,7 @@ void QTimeEdit::init()
 
 /*!
 
-  Set the time in this QTimeEdit.
+  Set the time in this QTimeEdit to time \a t.
  */
 void QTimeEdit::setTime( const QTime & t )
 {
@@ -754,7 +772,7 @@ QTime QTimeEdit::time() const
 
 
 /*!
-  Set the separator string for this time editor.
+  Set the separator string for this time editor to \a s. 
  */
 void QTimeEdit::setTimeSeparator( const QString & s )
 {
@@ -764,7 +782,8 @@ void QTimeEdit::setTimeSeparator( const QString & s )
 }
 
 /*!
-  Returns the separator string for this time editor.
+  Returns the separator string for this time editor. The default is ":".
+
  */
 QString QTimeEdit::timeSeparator() const
 {
@@ -826,12 +845,66 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-  \brief The QDateTimeEdit class provides a combined line edit box and spin box to edit datetimes
+  \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit widget into a single widget for editing datetimes
 
-  The QDateTimeEdit class provides a combined line edit box and spin box to edit datetimes
+    QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed
+    side by side and offers the functionality of both. The user can edit
+    the date and time by using the keyboard or the arrow keys to
+    increase/decrease date or time values. The Tab key can be used to
+    move from field to field within the QDateTimeEdit box. Dates appear
+    in year, month, day order by default. This can be changed by calling
+    setOrder(). Times appear in the order hours, minutes, seconds using
+    the 24 hour clock. It is recommended that the QDateTimeEdit is
+    initialised with a datetime, e.g.
+    \code
+    QDateTimeEdit *dtedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
+    \endcode
 
-  QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed side by
-  side and offers the functionality of both.
+    If illegal values are entered, they will be reverted to the last
+    known legal value when the user presses Return. For example if the
+    user enters 5000 for the year value, and it was 2000 before they
+    stated editing, the value will be reverted to 2000.  
+
+    Example:
+    \code
+    #include <qapplication.h>
+    #include <qdatetimeedit.h>
+    #include <qdialog.h>
+    #include <qlayout.h>
+    #include <qpushbutton.h>
+
+    class MyDialog : public QDialog
+    {
+    public:
+	MyDialog();
+    };
+
+    MyDialog::MyDialog()
+    {
+	QGridLayout *layout   = new QGridLayout( this );
+	QDateEdit   *dateedit = new QDateEdit( QDate::currentDate(), this );
+	QTimeEdit   *timeedit = new QTimeEdit( QTime::currentTime(), this );
+	QDateTimeEdit *dtedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
+	QPushButton *button   = new QPushButton( "&Quit", this );
+	dateedit->setFocus();
+	layout->addWidget( dateedit, 0, 0 );
+	layout->addWidget( timeedit, 1, 0 );
+	layout->addWidget( dtedit,   2, 0 );
+	layout->addWidget( button,   3, 0 );
+	layout->activate();
+	connect( button, SIGNAL( clicked() ), qApp, SLOT( quit() ) ); 
+    }
+
+    int main( int argc, char *argv[] )
+    {
+	QApplication app( argc, argv );
+	MyDialog *dlg = new MyDialog();
+	dlg->resize( 300, 90 );
+	dlg->show();
+	app.setMainWidget( dlg );
+	return app.exec();
+    }
+    \endcode
 
   \sa QDateEdit QTimeEdit
   */
@@ -901,7 +974,7 @@ QSize QDateTimeEdit::sizeHint() const
     return de->sizeHint() + te->sizeHint();
 }
 
-/*!  Set the datetime in this QDateTimeEdit.
+/*!  Set the datetime in this QDateTimeEdit to \a dt.
  */
 
 void QDateTimeEdit::setDateTime( const QDateTime & dt )
@@ -918,35 +991,38 @@ QDateTime QDateTimeEdit::dateTime() const
     return QDateTime( de->date(), te->time() );
 }
 
-/*!  Set the separator for the date in this QDateTimeEdit.
+/*!  Set the separator for the date in this QDateTimeEdit to \a s. 
  */
 void QDateTimeEdit::setDateSeparator( const QString & s )
 {
     de->setDateSeparator( s );
 }
 
-/*!  Returns the separator for the date in this QDateTimeEdit.
+/*!  Returns the separator for the date in this QDateTimeEdit. 
+    The default is "-".
+
  */
 QString QDateTimeEdit::dateSeparator() const
 {
     return de->dateSeparator();
 }
 
-/*!  Set the separator for the time in this QDateTimeEdit.
+/*!  Set the separator for the time in this QDateTimeEdit to \a s.
  */
 void QDateTimeEdit::setTimeSeparator( const QString & s )
 {
     te->setTimeSeparator( s );
 }
 
-/*!  Returns the separator for the time in this QDateTimeEdit.
+/*!  Returns the separator for the time in this QDateTimeEdit. The
+    default is ":".
  */
 QString QDateTimeEdit::timeSeparator() const
 {
     return te->timeSeparator();
 }
 
-/*! \intern
+/*! \internal
  */
 
 void QDateTimeEdit::newValue( const QDate& )
@@ -955,7 +1031,7 @@ void QDateTimeEdit::newValue( const QDate& )
     emit valueChanged( dt );
 }
 
-/*! \intern
+/*! \internal
  */
 
 void QDateTimeEdit::newValue( const QTime& )
