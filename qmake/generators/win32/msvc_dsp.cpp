@@ -327,7 +327,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString fpath; 
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );
-		    fname = fname.right( fname.length() - lbs + 1 );
+		    fname = fname.right( fname.length() - lbs - 1 );
 		
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())
