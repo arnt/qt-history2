@@ -3509,7 +3509,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   file dialog and not a QFileDialog, unless the style of the application
   is set to something other than the native style. (Note that on Windows the
   dialog will spin a blocking modal event loop that will not dispatch any
-  QTimers).
+  QTimers, and on the Mac the filter argument is ignored.).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
