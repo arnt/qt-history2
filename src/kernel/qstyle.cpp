@@ -657,7 +657,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   also QProgressBar.
 
 
-  \value PE_CustomBase  base value for custom ControlElements.  All values above
+  \value PE_CustomBase  base value for custom PrimitiveElements.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 
@@ -1032,7 +1032,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
 
-  \value SR_CustomBase  base value for custom ControlElements.  All values above
+  \value SR_CustomBase  base value for custom SubRects.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 
@@ -1097,7 +1097,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CC_ListView
 
 
-  \value CC_CustomBase  base value for custom ControlElements.  All values above
+  \value CC_CustomBase  base value for custom ComplexControls.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 
@@ -1378,7 +1378,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
 
-  \value PM_CustomBase  base value for custom ControlElements.  All values above
+  \value PM_CustomBase  base value for custom PixelMetrics.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 
@@ -1427,7 +1427,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CT_PopupMenuItem
 
 
-  \value CT_CustomBase  base value for custom ControlElements.  All values above
+  \value CT_CustomBase  base value for custom ContentsTypes.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 
@@ -1565,9 +1565,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value SH_TitleBar_NoBorder the titlebar has no border
 
-    \value SH_ScrollBar_StopMouseOverSlider stops autorepeat when slider reaches mouse
+    \value SH_ScrollBar_StopMouseOverSlider stops paging when slider reaches mouse
 
-    \value SH_CustomBase  base value for custom ControlElements.  All values above
+    \value SH_CustomBase  base value for custom StyleHints.  All values above
            this are reserved for custom use.  Therefore, custom values must be
 	   greater than this value.
 
@@ -1607,7 +1607,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SP_DockWindowCloseButton  close button on dock windows;  see also QDockWindow.
 
 
-  \value SP_CustomBase  base value for custom ControlElements.  All values above
+  \value SP_CustomBase  base value for custom StylePixmaps.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
 

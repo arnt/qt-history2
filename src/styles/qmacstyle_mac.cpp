@@ -161,6 +161,27 @@ void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
 #undef private
 
 static int mac_count = 0;
+
+/*!
+  \class QMacStyle qaquastyle.h
+  \brief The QMacStyle class implements an Appearance Manager style.
+  \ingroup appearance
+
+  This class is implemented as a wrapper to the Apple Appearance Manager,
+  this will allow your application to be styled by whatever theme your
+  Macintosh is set to. This is done by having primitives in QStyle
+  implemented in terms of what the Macintosh normally would theme (ie the
+  Finder). The implementation is not without limitation however, many of
+  the same limitations outlined in QAquaStyle will appear in this style as
+  well.
+
+  Note that the functions provided by QMacStyle are reimplementations
+  of QStyle functions; see QStyle for their documentation.
+*/
+
+/*!
+  Constructs a QMacStyle object.
+*/
 QMacStyle::QMacStyle(  )  : QWindowsStyle()
 {
     d = new QMacStylePrivate;
@@ -168,12 +189,16 @@ QMacStyle::QMacStyle(  )  : QWindowsStyle()
 	RegisterAppearanceClient();
 }
 
+/*!
+  Destructs a QAquaStyle object.
+*/
 QMacStyle::~QMacStyle()
 {
     if(!(--mac_count))
 	UnregisterAppearanceClient();
 }
 
+/*! \reimp */
 void QMacStyle::polish( QApplication* app )
 {
     QPalette pal = app->palette();
@@ -225,6 +250,7 @@ void QMacStyle::polish( QWidget* w )
     qAquaPolishFont(w);
 }
 
+/*! \reimp */
 void QMacStyle::unPolish( QWidget* w )
 {
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
@@ -374,7 +400,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
     }
 }
 
-
+/*! \reimp */
 void QMacStyle::drawControl( ControlElement element,
 				 QPainter *p,
 				 const QWidget *widget,
@@ -632,6 +658,7 @@ void QMacStyle::drawControl( ControlElement element,
     }
 }
 
+/*! \reimp */
 void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
@@ -730,9 +757,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 	break; }
     case CC_ListView: {
-	if ( sub & SC_ListView ) {
+	if ( sub & SC_ListView ) 
 	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub, subActive, opt );
-	}
 	if ( sub & ( SC_ListViewBranch | SC_ListViewExpand ) ) {
 	    if (opt.isDefault())
 		break;
@@ -742,13 +768,10 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
-		    if ( child->isExpandable() || child->childCount() ) {
-			DrawThemePopupArrow(qt_glb_mac_rect(QRect(r.right() - 10, 
-								  (y + child->height()/2) - 4, 9, 9), 
-							    p->device()),
-					    child->isOpen() ? kThemeArrowDown : kThemeArrowRight,
-					    kThemeArrow5pt, kThemeStateActive, NULL, 0);
-		    }
+		    if ( child->isExpandable() || child->childCount() ) 
+			drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
+				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
+
 		}
 	    }
 	}
@@ -893,10 +916,14 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     }
 }
 
+/*! \reimp */
 int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_MaximumDragDistance:
+	ret = -1;
+	break;
     case PM_TabBarTabOverlap:
 	ret = 0;
 	break;
@@ -912,9 +939,6 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
 	ret = 0;
-	break;
-    case PM_MaximumDragDistance:
-	ret = -1;
 	break;
     case PM_SliderLength:
 	ret = 17;
@@ -945,6 +969,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     return ret;
 }
 
+/*! \reimp */
 QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
@@ -1037,6 +1062,7 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
     return ret;
 }
 
+/*! \reimp */
 QRect QMacStyle::subRect( SubRect r, const QWidget *w ) const
 {
     QRect ret;
@@ -1054,6 +1080,7 @@ QRect QMacStyle::subRect( SubRect r, const QWidget *w ) const
     return ret;
 }
 
+/*! \reimp */
 QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
 						 const QWidget *widget,
 						 const QPoint &pos,
@@ -1107,6 +1134,7 @@ QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
     return ret;
 }
 
+/*! \reimp */
 int QMacStyle::styleHint(StyleHint sh, const QWidget *w, 
 			  const QStyleOption &opt,QStyleHintReturn *d) const
 {
@@ -1140,6 +1168,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
     return ret;
 }
 
+/*! \reimp */
 QSize QMacStyle::sizeFromContents( ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
@@ -1210,6 +1239,7 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
     return sz;
 }
 
+/*! \reimp */
 bool QMacStyle::event(QEvent *e)
 {
     if(e->type() == QEvent::Style) {

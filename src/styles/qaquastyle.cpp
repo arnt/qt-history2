@@ -466,7 +466,9 @@ QAquaStyle::QAquaStyle()
     d->progressOff = 0;
 }
 
-/*!\reimp */
+/*!
+  Destructs a QAquaStyle object.
+*/
 QAquaStyle::~QAquaStyle()
 {
     delete d;
