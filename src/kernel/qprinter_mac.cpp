@@ -251,8 +251,11 @@ void QPrinter::interpret(PMPrintSettings *s)
 {
     //get values
     UInt32 from, to;
-    if(PMGetFirstPage(*s, &from) == noErr && PMGetLastPage(*s, &to) == noErr)
+    if(PMGetFirstPage(*s, &from) == noErr && PMGetLastPage(*s, &to) == noErr) {
+	if(to == INT_MAX)  //this means all pages!
+	    from = to = 0;
 	setFromTo(from, to);
+    }
 
     UInt32 copies;
     if(PMGetCopies(*s, &copies) == noErr)
