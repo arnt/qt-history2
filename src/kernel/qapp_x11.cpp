@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#200 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#201 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -12,6 +12,11 @@
 #define select		_qt_hide_select
 #define bzero		_qt_hide_bzero
 #define gettimeofday	_qt_hide_gettimeofday
+#include "qglobal.h"
+#if defined(_OS_WIN32_)
+#include <windows.h>
+#define HANDLE QT_HANDLE
+#endif
 #include "qapp.h"
 #include "qwidget.h"
 #include "qobjcoll.h"
@@ -19,16 +24,14 @@
 #include "qpainter.h"
 #include "qpmcache.h"
 #include "qdatetm.h"
-#if defined(_OS_WIN32_)
-#define HANDLE		_qt_hide_handle
-#include <winsock.h>
-#undef	HANDLE
-#endif
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
 #define	 GC GC_QQQ
+#if defined(_OS_WIN32_)
+#undef gettimeofday
+#endif
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
@@ -39,14 +42,26 @@
 #include <unistd.h>
 #endif
 
+#if defined(_OS_WIN32_) && defined(gettimeofday)
+#undef gettimeofday
+#include <sys/timeb.h>
+inline void gettimeofday( struct timeval *t, struct timezone * )
+{
+    struct _timeb tb;
+    _ftime( &tb );
+    t->tv_sec  = tb.time;
+    t->tv_usec = tb.millitm * 1000;
+}
+#else
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
+#endif // _OS_WIN32 etc.
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#200 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#201 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
