@@ -476,6 +476,13 @@ void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
     setFocus();
 }
 
+QWidget *QAbstractItemView::currentEditor() const
+{
+    if (d->state == Editing)
+	return d->currentEditor;
+    return 0;
+}
+
 void QAbstractItemView::updateCurrentEditor()
 {
     //  this presumes that only one editor is open at one time
@@ -516,6 +523,7 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
   	    viewportMouseDoubleClickEvent((QMouseEvent*)event);
 	    if (((QMouseEvent*)event)->isAccepted())
 		return true;
+	    break;
 	case QEvent::ContextMenu:
 	    viewportContextMenuEvent((QContextMenuEvent*)event);
 	    if (((QContextMenuEvent*)event)->isAccepted())
@@ -703,6 +711,7 @@ void QAbstractItemView::updateItem(const QModelIndex &item)
 
 void QAbstractItemView::updateRow(const QModelIndex &item)
 {
+    qDebug("updateRow");
     QModelIndex parent = model()->parent(item);
     int row = item.row();
     int columns = model()->columnCount(parent);

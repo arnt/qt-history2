@@ -97,6 +97,7 @@ protected:
 
     virtual bool startEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);
+    QWidget *currentEditor() const;
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(
