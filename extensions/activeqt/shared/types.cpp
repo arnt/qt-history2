@@ -510,14 +510,31 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_UI4|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
-	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
-	    if ( reference )
-		*reference = OLEColorToQColor( *arg.pulVal );
-	    else
-		reference = new QColor(OLEColorToQColor( *arg.pulVal ));
-	    static_QUType_varptr.set( obj, reference );
-	}
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
+	    switch ( vartype ) {
+	    case QVariant::Color:
+		{
+		    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
+		    if ( reference )
+			*reference = OLEColorToQColor( *arg.pulVal );
+		    else
+			reference = new QColor(OLEColorToQColor( *arg.pulVal ));
+		    static_QUType_varptr.set( obj, reference );
+		}
+		break;
+	    case QVariant::UInt:
+		{
+		    uint *reference = (uint*)static_QUType_varptr.get( obj );
+		    if ( reference )
+			*reference = *arg.pulVal;
+		    else
+			reference = new uint( *arg.pulVal );
+		    static_QUType_varptr.set( obj, reference );
+		}
+		break;
+	    }
+	} 
 	break;
     case VT_UINT:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
@@ -537,7 +554,14 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::UInt:
-		static_QUType_varptr.set( obj, new uint( *arg.puintVal ) );
+		{
+		    uint *reference = (uint*)static_QUType_varptr.get( obj );
+		    if ( reference )
+			*reference = *arg.puintVal;
+		    else
+			reference = new uint( *arg.puintVal );
+		    static_QUType_varptr.set( obj, reference );
+		}
 		break;
 	    }
 	}
