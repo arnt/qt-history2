@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of ________ class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -227,8 +227,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 		 cmd = var((*it) + ".commands"), deps;
 	if(targ.isEmpty())
 	    targ = (*it);
-	QStringList &depends = project->variables()[(*it) + ".depends"];
-	for(QStringList::Iterator dep_it = depends.begin(); dep_it != depends.end(); ++dep_it) {
+	QStringList &deplist = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
 	    QString dep = var((*dep_it) + ".target");
 	    if(dep.isEmpty())
 		dep = (*dep_it);
