@@ -264,8 +264,6 @@ public:
     static bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d);
     QRegion clippedRegion(bool do_children = false);
     uint clippedSerial(bool do_children = true);
-    Qt::HANDLE macCGHandle(bool b = true);
-    
 #endif
 };
 

@@ -1063,7 +1063,7 @@ inline bool QWidgetPrivate::qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *pa
 {
     CGContextRef ret = 0;
     if(paint_d->pdev->devType() == QInternal::Widget)
-	ret = static_cast<CGContextRef>(static_cast<QWidget *>(paint_d->pdev)->d_func()->macCGHandle(!paint_d->unclipped));
+	ret = static_cast<CGContextRef>(static_cast<QWidget *>(paint_d->pdev)->macCGHandle(!paint_d->unclipped));
     else
 	ret = static_cast<CGContextRef>(paint_d->pdev->macCGHandle());
     //apply paint event region (in global coords)

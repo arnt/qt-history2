@@ -2372,7 +2372,7 @@ uint QWidgetPrivate::clippedSerial(bool do_children)
 /*!
     \internal
 */
-Qt::HANDLE QWidgetPrivate::macCGHandle(bool do_children)
+Qt::HANDLE QWidget::macCGHandle(bool do_children)
 {
     //setup handle
     if(!q->cg_hd) {
@@ -2386,7 +2386,7 @@ Qt::HANDLE QWidgetPrivate::macCGHandle(bool do_children)
 	CGContextScaleCTM(cgr, 1, -1);
     }
     qt_mac_clip_cg_handle(static_cast<CGContextRef>(q->cg_hd),
-                          clippedRegion(do_children),
+                          d->clippedRegion(do_children),
                           QPoint(0, 0), false);
     return q->cg_hd;
 }
