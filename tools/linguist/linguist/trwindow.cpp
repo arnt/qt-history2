@@ -1356,6 +1356,7 @@ void TrWindow::print()
     int pageNum = 0;
 
     if ( printer.setup(this) ) {
+	QApplication::setOverrideCursor( WaitCursor );
 	printer.setDocName( filename );
 	statusBar()->message( tr("Printing...") );
 	PrintOut pout( &printer );
@@ -1380,7 +1381,10 @@ void TrWindow::print()
 		QString type;
 		switch ( m->message().type() ) {
 		case MetaTranslatorMessage::Finished:
-		    type = m->danger() ? tr( "(?)" ) : tr( "finished" );
+		    type = tr( "finished" );
+		    break;
+		case MetaTranslatorMessage::Unfinished:
+		    type = m->danger() ? tr( "(!)" ) : QString( "" );
 		    break;
 		case MetaTranslatorMessage::Obsolete:
 		    type = tr( "obsolete" );
@@ -1410,6 +1414,7 @@ void TrWindow::print()
 	    c = (ContextLVI *) c->nextSibling();
 	}
 	pout.flushLine( TRUE );
+	QApplication::restoreOverrideCursor();
 	statusBar()->message( tr("Printing completed"), MessageMS );
     } else {
 	statusBar()->message( tr("Printing aborted"), MessageMS );
