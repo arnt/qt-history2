@@ -21,7 +21,6 @@
 
 class QTableModel : public QAbstractTableModel
 {
-    friend class QTableWidget;
 public:
     QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
@@ -38,6 +37,11 @@ public:
     QTableWidgetItem *item(int row, int column) const;
     QTableWidgetItem *item(const QModelIndex &index) const;
     void removeItem(QTableWidgetItem *item);
+
+    void setHorizontalHeaderItem(int section, QTableWidgetItem *item);
+    void setVerticalHeaderItem(int section, QTableWidgetItem *item);
+    QTableWidgetItem *horizontalHeaderItem(int section);
+    QTableWidgetItem *verticalHeaderItem(int section);
 
     QModelIndex index(const QTableWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
@@ -75,19 +79,19 @@ QTableModel::~QTableModel()
 {
     for (int i = 0; i < r * c; ++i) {
         if (table.at(i)) {
-            table.at(i)->view = 0;
+            table.at(i)->model = 0;
             delete table.at(i);
         }
     }
     for (int j = 0; j < r; ++j) {
         if (verticalHeader.at(j)) {
-            verticalHeader.at(j)->view = 0;
+            verticalHeader.at(j)->model = 0;
             delete verticalHeader.at(j);
         }
     }
     for (int k = 0; k < c; ++k) {
         if (horizontalHeader.at(k)) {
-            horizontalHeader.at(k)->view = 0;
+            horizontalHeader.at(k)->model = 0;
             delete horizontalHeader.at(k);
         }
     }
@@ -123,6 +127,7 @@ bool QTableModel::removeColumns(int, const QModelIndex &, int)
 
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 {
+    item->model = this;
     table[tableIndex(row, column)] = item;
 }
 
@@ -140,6 +145,7 @@ QTableWidgetItem *QTableModel::takeItem(int row, int column)
 {
     long i = tableIndex(row, column);
     QTableWidgetItem *itm = table.at(i);
+    itm->model = 0;
     table[i] = 0;
     return itm;
 }
@@ -175,6 +181,30 @@ void QTableModel::removeItem(QTableWidgetItem *item)
         horizontalHeader[i] = 0;
         return;
     }
+}
+
+void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    item->model = this;
+    verticalHeader[section] = item;
+}
+
+void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    item->model = this;
+    horizontalHeader[section] = item;
+}
+
+QTableWidgetItem *QTableModel::horizontalHeaderItem(int section)
+{
+    return horizontalHeader.at(section);
+}
+
+QTableWidgetItem *QTableModel::verticalHeaderItem(int section)
+{
+    return verticalHeader.at(section);
 }
 
 QModelIndex QTableModel::index(const QTableWidgetItem *item) const
@@ -320,18 +350,18 @@ bool QTableModel::isValid(const QModelIndex &index) const
 // item
 
 QTableWidgetItem::QTableWidgetItem()
-    : view(0),
-      itemFlags(QAbstractItemModel::ItemIsEditable
+    : itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled)
+                |QAbstractItemModel::ItemIsEnabled),
+      model(0)
 {
 }
 
 QTableWidgetItem::~QTableWidgetItem()
 {
-    if (view)
-        view->removeItem(this);
+    if (model)
+        model->removeItem(this);
 }
 
 
@@ -506,61 +536,59 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
-    item->view = this;
     d->model()->setItem(row, column, item);
 }
 
 QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
-    QTableWidgetItem *itm = d->model()->takeItem(row, column);
-    itm->view = 0;
-    return itm;
+    return d->model()->takeItem(row, column);
 }
 
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 {
-    return d->model()->verticalHeader.at(row);
+    return d->model()->verticalHeaderItem(row);
 }
 
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
-    d->model()->verticalHeader[row] = item;
+    d->model()->setHorizontalHeaderItem(row, item);
 }
 
 QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 {
-    return d->model()->horizontalHeader.at(column);
+    return d->model()->horizontalHeaderItem(column);
 }
 
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
-    d->model()->horizontalHeader[column] = item;
+    d->model()->setVerticalHeaderItem(column, item);
 }
-
 
 void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
 {
-    QVector<QTableWidgetItem*> &header = d->model()->verticalHeader;
-    for (int i=0; i<header.count() && i<labels.count(); ++i) {
-        if (!header.at(i)) {
-            header[i] = new QTableWidgetItem();
-            header.at(i)->view = this;
+    QTableModel *model = d->model();
+    QTableWidgetItem *item = 0;
+    for (int i = 0; i < model->rowCount() && i < labels.count(); ++i) {
+        item = model->verticalHeaderItem(i);
+        if (!item) {
+            item = new QTableWidgetItem();
+            setVerticalHeaderItem(i, item);
         }
-        header.at(i)->setText(labels.at(i));
+        item->setText(labels.at(i));
     }
 }
 
 void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
 {
-    QVector<QTableWidgetItem*> &header = d->model()->horizontalHeader;
-    for (int i=0; i<header.count() && i<labels.count(); ++i) {
-        if (!header.at(i)) {
-            header[i] = new QTableWidgetItem();
-            header.at(i)->view = this;
+    QTableModel *model = d->model();
+    QTableWidgetItem *item = 0;
+    for (int i = 0; i < model->columnCount() && i < labels.count(); ++i) {
+        item = model->horizontalHeaderItem(i);
+        if (!item) {
+            item = new QTableWidgetItem();
+            setHorizontalHeaderItem(i, item);
         }
-        header.at(i)->setText(labels.at(i));
+        item->setText(labels.at(i));
     }
 }
 

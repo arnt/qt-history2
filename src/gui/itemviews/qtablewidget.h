@@ -16,12 +16,11 @@
 
 #include <qtableview.h>
 
-class QTableWidget;
+class QTableModel;
 
 class Q_GUI_EXPORT QTableWidgetItem
 {
     friend class QTableModel;
-    friend class QTableWidget;
 public:
     QTableWidgetItem();
     virtual ~QTableWidgetItem();
@@ -87,8 +86,8 @@ protected:
     };
 
     QVector<Data> values;
-    QTableWidget *view;
     QAbstractItemModel::ItemFlags itemFlags;
+    QTableModel *model;
 };
 
 class QTableWidgetPrivate;
