@@ -274,7 +274,7 @@ void NewForm::insertTemplates( QIconView *tView,
 	    templRoots << qtdir;
 	templRoots << qInstallPathData();
 	if(qtdir) //try the tools/designer directory last!
-	    templRoots << QString(qtdir) + "tools/designer";
+	    templRoots << QString(qtdir) + "/tools/designer";
 	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
 	    QString path = (*it) + "/templates";
 	    if ( QFile::exists( path )) {
