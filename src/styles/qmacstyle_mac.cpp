@@ -867,7 +867,7 @@ void QMacStyle::drawControl(ControlElement element,
 	} else if(!qAquaActive(cg)) {
 	    tts = kThemeTabNonFrontUnavailable;
 	} else if(!(how & Style_Enabled)) {
-	    tts = kThemeTextColorTabNonFrontInactive;
+	    tts = kThemeTabNonFrontInactive;
 	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
 	    tts = kThemeTabNonFrontPressed;
 	}
@@ -1711,6 +1711,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_GroupBox_TextLabelColor:
+	ret = (int) ( w ? w->colorGroup().foreground().rgb() : 0 );
+	break;
     case SH_PopupMenu_SloppySubMenus:
 	ret = TRUE;
 	break;

@@ -349,6 +349,7 @@ void qt_mac_update_os_settings()
 	    { "QMessageBoxLabel", kThemeTextColorAlertActive, kThemeTextColorAlertInactive },
 	    { "QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive },
 	    { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
+	    { "QGroupBox", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
 	    { "QPopupMenu", kThemeTextColorPopupLabelActive, kThemeTextColorPopupLabelInactive },
 	    { NULL, 0, 0 } };
 	QColor qc;
@@ -370,13 +371,20 @@ void qt_mac_update_os_settings()
 		pal.setColor(QPalette::Inactive, QColorGroup::HighlightedText, qc);
 		pal.setColor(QPalette::Disabled, QColorGroup::HighlightedText, qc);
 	    }
-	    if(!strcmp(mac_widget_colours[i].qt_class, "QPopupMenu")) { //more things get set for the popupmenu
+	    if(!strcmp(mac_widget_colours[i].qt_class, "QPopupMenu")) { //special
 		GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
 		pal.setBrush(QColorGroup::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
 		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
+	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton")) { //special
+		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
+			     pal.color(QPalette::Disabled, QColorGroup::Text));
+		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText, 
+			     pal.color(QPalette::Inactive, QColorGroup::Text));
+		pal.setColor(QPalette::Active, QColorGroup::ButtonText, 
+			     pal.color(QPalette::Active, QColorGroup::Text));
 	    }
 	    bool set_palette = TRUE;
 	    if(QApplication::app_palettes) {
