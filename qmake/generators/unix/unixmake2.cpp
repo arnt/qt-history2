@@ -406,11 +406,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     fixEnvVariables(target);
     fixEnvVariables(moc);
     if(target != moc) {
-	QString mocsrcd = project->first("QMAKE_MOC_SRC");
-	if(mocsrcd.isEmpty())
-	    mocsrcd = "$(QTDIR)/src/moc";
 	t << "$(MOC): \n\t"
-	  << "( cd " << mocsrcd << " ; $(MAKE) )"  << endl << endl;
+	  << "( cd $(QTDIR)/src/moc ; $(MAKE) )"  << endl << endl;
     }
 
     writeMakeQmake(t);
