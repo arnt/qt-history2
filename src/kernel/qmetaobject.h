@@ -97,7 +97,7 @@ public:
 
     bool stored( QObject* ) const;
     bool designable( QObject* ) const;
-    
+
     bool reset( QObject* ) const;
 
     const char* t; 			//internal
@@ -137,8 +137,8 @@ public:
 		 const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 		 const QMetaProperty *prop_data, int n_props,
-		 const QMetaEnum *enum_data, int n_enums,
 #endif
+		 const QMetaEnum *enum_data, int n_enums,
 		 const QClassInfo *class_info, int n_info );
 
 

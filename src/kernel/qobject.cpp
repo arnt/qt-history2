@@ -1834,38 +1834,6 @@ QString QObject::tr( const char *text, const char * comment )
 
 #endif
 
-#ifndef QT_NO_PROPERTIES
-static const QMetaEnum::Item enum_QObject0[10] = {
-    { "AlignLeft",  (int) Qt::AlignLeft },
-    { "AlignRight",  (int) Qt::AlignRight },
-    { "AlignHCenter",  (int) Qt::AlignHCenter },
-    { "AlignTop",  (int) Qt::AlignTop },
-    { "AlignBottom",  (int) Qt::AlignBottom },
-    { "AlignVCenter",  (int) Qt::AlignVCenter },
-    { "AlignCenter", (int) Qt::AlignCenter },
-    { "AlignAuto", (int) Qt::AlignAuto },
-    { "AlignJustify", (int) Qt::AlignJustify },
-    { "WordBreak", (int) Qt::WordBreak }
-};
-
-static const QMetaEnum::Item enum_QObject1[2] = {
-    { "Horizontal", (int) Qt::Horizontal },
-    { "Vertical", (int) Qt::Vertical }
-};
-
-static const QMetaEnum::Item enum_QObject2[3] = {
-    { "PlainText", (int) Qt::PlainText },
-    { "RichText", (int) Qt::RichText },
-    { "AutoText", (int) Qt::AutoText }
-};
-
-static const QMetaEnum enum_tbl_QObject[3] = {
-    { "Alignment", 10, enum_QObject0, TRUE },
-    { "Orientation", 2, enum_QObject1, FALSE },
-    { "TextFormat", 3, enum_QObject2, FALSE }
-};
-#endif // QT_NO_PROPERTIES
-
 /*!
   Initializes the \link metaObject() meta object\endlink of this
   object. This method is automatically executed on demand.
@@ -1875,6 +1843,36 @@ QMetaObject* QObject::staticMetaObject()
 {
     if ( metaObj )
 	return metaObj;
+
+    static const QMetaEnum::Item enum_0[] = {
+	{ "AlignLeft",  (int) Qt::AlignLeft },
+	{ "AlignRight",  (int) Qt::AlignRight },
+	{ "AlignHCenter",  (int) Qt::AlignHCenter },
+	{ "AlignTop",  (int) Qt::AlignTop },
+	{ "AlignBottom",  (int) Qt::AlignBottom },
+	{ "AlignVCenter",  (int) Qt::AlignVCenter },
+	{ "AlignCenter", (int) Qt::AlignCenter },
+	{ "AlignAuto", (int) Qt::AlignAuto },
+	{ "AlignJustify", (int) Qt::AlignJustify },
+	{ "WordBreak", (int) Qt::WordBreak }
+    };
+
+    static const QMetaEnum::Item enum_1[] = {
+	{ "Horizontal", (int) Qt::Horizontal },
+	{ "Vertical", (int) Qt::Vertical }
+    };
+
+    static const QMetaEnum::Item enum_2[] = {
+	{ "PlainText", (int) Qt::PlainText },
+	{ "RichText", (int) Qt::RichText },
+	{ "AutoText", (int) Qt::AutoText }
+    };
+
+    static const QMetaEnum enum_tbl[] = {
+	{ "Alignment", 10, enum_0, TRUE },
+	{ "Orientation", 2, enum_1, FALSE },
+	{ "TextFormat", 3, enum_2, FALSE }
+    };
 
     QMetaData *slot_tbl = new QMetaData[1];
     static const UMethod method_slot_1 = {"cleanupEventFilter", 0,  0 };
@@ -1898,9 +1896,9 @@ QMetaObject* QObject::staticMetaObject()
     metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,
 	signal_tbl, 1,
-#ifndef QT_NO_PROPERTIES
 	props_tbl, 1,
-        enum_tbl_QObject, 3,
+#ifndef QT_NO_PROPERTIES
+        enum_tbl, 3,
 #endif
         0, 0 );
 
@@ -1934,7 +1932,7 @@ void QObject::activate_signal( int signal )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
-    } else { 
+    } else {
 	QConnectionListIt it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
@@ -2131,7 +2129,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 {
     if ( !value.isValid() )
 	return FALSE;
-    
+
     QVariant v = value;
 
     QMetaObject* meta = metaObject();

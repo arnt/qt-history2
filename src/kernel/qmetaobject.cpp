@@ -118,13 +118,14 @@ class QMetaObject::Private
 {
 public:
     Private() :
+	enumData(0), numEnumData(0),
 #ifndef QT_NO_PROPERTIES
-	enumData(0), numEnumData(0),propData(0),numPropData(0),
+	propData(0),numPropData(0),
 #endif
 	classInfo(0), numClassInfo(0) {}
-#ifndef QT_NO_PROPERTIES
     const QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
+#ifndef QT_NO_PROPERTIES
     const QMetaProperty *propData;                    // property meta data
     int            numPropData;
 #endif
@@ -181,8 +182,8 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 			  const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 			  const QMetaProperty *prop_data, int n_props,
-			  const QMetaEnum *enum_data, int n_enums,
 #endif
+			  const QMetaEnum *enum_data, int n_enums,
 			  const QClassInfo *class_info, int n_info )
 {
     classname = class_name;			// set meta data
@@ -477,8 +478,11 @@ int QMetaObject::numProperties( bool super ) const	// number of signals
 const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {
-	if ( d->propData[i].isValid() && qstrcmp( d->propData[i].name(), name ) == 0 )
+	if ( d->propData[i].isValid() && qstrcmp( d->propData[i].name(), name ) == 0 ) {
+	    if ( d->propData[i].enumData )
+		qDebug("enum data = %s", d->propData[i].enumData->name );
 	    return &(d->propData[i]);
+	}
     }
     if ( !super || !superclass )
 	return 0;
@@ -795,10 +799,10 @@ bool QMetaProperty::designable( QObject* o ) const
 }
 
 
-/*!  
+/*!
   Tries to reset the property with a reset method. On success,
   returns TRUE, otherwise FALSE.
-  
+
   Reset methods are optional, usually only few properties support
   them.
  */

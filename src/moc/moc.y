@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#238 $
+** $Id: //depot/qt/main/src/moc/moc.y#239 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2565,7 +2565,7 @@ int generateProps()
 		if ( enumpos != -1 )
 		    fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
 		else
-		    fprintf( out, "    props_tbl[%d].enumData = parentObject->enumerator( \"%s\", TRUE );\n", entry, it.current()->name.data() );
+		    fprintf( out, "    props_tbl[%d].enumData = parentObject->enumerator( \"%s\", TRUE );\n", entry, it.current()->type.data() );
 	    }
 
 	    if ( it.current()->getfunc )
@@ -2634,7 +2634,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#238 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#239 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2793,12 +2793,11 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tprops_tbl, %d,\n", n_props );
     else
 	fprintf( out, "\t0, 0,\n" );
-
+    fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
     if ( n_enums )
 	fprintf( out, "\tenum_tbl, %d,\n", n_enums );
     else
 	fprintf( out, "\t0, 0,\n" );
-    fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     if ( n_infos )
 	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );

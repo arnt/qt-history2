@@ -97,7 +97,7 @@ struct Q_EXPORT QUuid
     // Convenience operators to cast from and to the UCOM type UUid.
     QUuid( const UUid &guid )
     {
-	memcpy( this, &guid, sizeof(GUID) );
+	memcpy( this, &guid, sizeof(UUid) );
     }
 
     QUuid operator=(const UUid &orig )
@@ -113,14 +113,14 @@ struct Q_EXPORT QUuid
 
     bool operator==( const UUid &guid ) const
     {
-	return !memcmp( this, &guid, sizeof(QUuid) );
+	return !memcmp( this, &guid, sizeof(UUid) );
     }
 
     bool operator!=( const UUid &guid ) const
     {
 	return !( *this == guid );
     }
-    
+
     uint   data1;
     ushort data2;
     ushort data3;
