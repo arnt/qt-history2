@@ -832,7 +832,7 @@ void QWidget::repaint(const QRegion& rgn)
     qt_set_paintevent_clipping(this, rgn);
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(QPoint(), br);
+        d->composeBackground(br);
 
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);

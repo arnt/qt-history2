@@ -313,7 +313,6 @@ public:
         WA_WState_InPaintEvent = 62,
         WA_WState_Reparented = 63,
         WA_WState_ConfigPending = 64,
-        WA_WState_AutoMask = 65,
         WA_WState_Polished = 66,
         WA_WState_DND = 67,
         WA_WState_OwnSizePolicy = 68,

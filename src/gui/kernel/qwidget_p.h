@@ -181,7 +181,7 @@ public:
 
     void setUpdatesEnabled_helper(bool );
 
-    void composeBackground(const QPoint &, const QRect &);
+    void composeBackground(const QRect &);
 
     QRect clipRect() const;
 

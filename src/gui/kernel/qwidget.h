@@ -446,10 +446,6 @@ public:
     void removeAction(QAction *action);
     QList<QAction*> actions() const;
 
-    // transparency and pseudo transparency
-    void setAutoMask(bool);
-    bool autoMask() const;
-
     QWidget *parentWidget() const;
 
     void setWindowFlags(Qt::WindowFlags type);
@@ -545,8 +541,6 @@ protected:
     virtual unsigned char *qwsScanLine(int) const;
     virtual int qwsBytesPerLine() const;
 #endif
-
-    virtual void updateMask();
 
     // Misc. protected functions
     virtual void changeEvent(QEvent *);

@@ -159,9 +159,7 @@ QWidgetPrivate::~QWidgetPrivate()
     \row \i Window contents \i
         update(),
         repaint(),
-        erase(),
-        scroll(),
-        updateMask().
+        scroll().
 
     \row \i Geometry \i
         pos(),
@@ -491,7 +489,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
   \i Qt::WA_WState_InPaintEvent Currently processing a paint event.
   \i Qt::WA_WState_Reparented The widget has been reparented.
   \i Qt::WA_WState_ConfigPending A configuration (resize/move) event is pending.
-  \i Qt::WA_WState_AutoMask The widget has an automatic mask, see setAutoMask().
   \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops().
   \endlist
 */
@@ -989,11 +986,11 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 }
 
 
-void QWidgetPrivate::composeBackground(const QPoint &oset, const QRect &crect)
+void QWidgetPrivate::composeBackground(const QRect &crect)
 {
     Q_Q(QWidget);
 
-    QPoint offset = oset;
+    QPoint offset;
     QVector<QWidget*> layers;
     QWidget *w = q;
     layers += w;
@@ -1012,28 +1009,27 @@ void QWidgetPrivate::composeBackground(const QPoint &oset, const QRect &crect)
         if (top != w)
             offset -= w->pos();
 
-        // Setup redirection from w to this widget.
-        QRect rr = crect;
-        rr.translate(offset);
-        bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
-        w->setAttribute(Qt::WA_WState_InPaintEvent);
-        QPainter::setRedirected(w, q, offset);
-
         // Do the background if needed.
         QBrush bgBrush = w->palette().brush(w->d_func()->bg_role);
         if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
-            QPainter bgPainter(w);
-            bgPainter.fillRect(rr, bgBrush);
+            QPainter bgPainter(q);
+            bgPainter.setBrushOrigin(-offset);
+            bgPainter.fillRect(crect, bgBrush);
         }
 
-        // Propegate contents if enabled and w is not the actual widget.
+        // Propagate contents if enabled and w is not the actual widget.
         if (w->testAttribute(Qt::WA_ContentsPropagated) && i>0) {
+            // Setup redirection from w to this widget.
+            QRect rr = crect;
+            rr.translate(offset);
+            bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
+            w->setAttribute(Qt::WA_WState_InPaintEvent);
+            QPainter::setRedirected(w, q, offset);
             QPaintEvent e(rr);
             QApplication::sendEvent(w, &e);
+            w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
+            QPainter::restoreRedirected(w);
         }
-
-        w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
-        QPainter::restoreRedirected(w);
     }
 }
 
@@ -1118,43 +1114,48 @@ QRect QWidgetPrivate::clipRect() const
     the background color of the widget.
 */
 
-void QPixmap::fill( const QWidget *widget, const QPoint &offset )
+void QPixmap::fill( const QWidget *widget, const QPoint &off )
 {
-    QPoint offs = offset;
-    QStack<QWidget*> parents;
-    QWidget *w = const_cast<QWidget *>(widget);
+    QPoint offset = off;
+    QVector<QWidget*> layers;
+    QWidget *w = const_cast<QWidget*>(widget);
+    layers += w;
+
+    // Build the stack of widgets to composite
     while (w->d_func()->isBackgroundInherited()) {
-        offs += w->pos();
-        w = w->parentWidget();
-        parents += w;
-    }
-    QBrush brush = widget->palette().brush(w->d_func()->bg_role);
-
-    if (brush.style() == Qt::SolidPattern) {
-        fill(brush.color());
-    } else {
-        QPainter p;
-        p.begin(this);
-        p.fillRect(rect(), brush);
+        offset += w->pos();
+        layers += (w = w->parentWidget());
     }
 
-    if (parents.size() == 0)
-        return;
+    QWidget *top = w;
+    for (int i=layers.size() - 1; i>=0; --i) {
+        w = layers.at(i);
 
-    w = parents.pop();
-    for (;;) {
-        if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-            QPainter::setRedirected(w, this, offs);
-            QRect rr = widget->d_func()->clipRect();
-            rr.translate(offs);
+        // Remove the offset for previous layer.
+        if (top != w)
+            offset -= w->pos();
+
+        // Do the background if needed.
+        QBrush bgBrush = w->palette().brush(w->d_func()->bg_role);
+        if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
+            QPainter bgPainter(this);
+            bgPainter.setBrushOrigin(-offset);
+            bgPainter.fillRect(rect(), bgBrush);
+        }
+
+        // Propagate contents if enabled and w is not the actual widget.
+        if (w->testAttribute(Qt::WA_ContentsPropagated) && i>0) {
+            // Setup redirection from w to this widget.
+            QRect rr = rect();
+            rr.translate(offset);
+            bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
+            w->setAttribute(Qt::WA_WState_InPaintEvent);
+            QPainter::setRedirected(w, this, offset);
             QPaintEvent e(rr);
             QApplication::sendEvent(w, &e);
+            w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
             QPainter::restoreRedirected(w);
         }
-        if (parents.size() == 0)
-            break;
-        w = parents.pop();
-        offs -= w->pos();
     }
 }
 
@@ -3950,7 +3951,6 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
 #ifdef QT3_SUPPORT
     bool isMain = (QApplicationPrivate::main_widget == q);
 #endif
-    Qt::WindowType type = q->windowType();
     bool quitOnClose = q->testAttribute(Qt::WA_QuitOnClose);
 
     if (mode != CloseNoEvent) {
@@ -4928,8 +4928,6 @@ void QWidget::focusInEvent(QFocusEvent *)
 {
     if (focusPolicy() != Qt::NoFocus || !isWindow()) {
         update();
-        if (testAttribute(Qt::WA_WState_AutoMask))
-            updateMask();
     }
 }
 
@@ -4954,11 +4952,8 @@ void QWidget::focusInEvent(QFocusEvent *)
 
 void QWidget::focusOutEvent(QFocusEvent *)
 {
-    if (focusPolicy() != Qt::NoFocus || !isWindow()){
+    if (focusPolicy() != Qt::NoFocus || !isWindow())
         update();
-        if (testAttribute(Qt::WA_WState_AutoMask))
-            updateMask();
-    }
 }
 
 /*!
@@ -5067,16 +5062,12 @@ void QWidget::moveEvent(QMoveEvent *)
     after processing the resize event. No drawing need be (or should
     be) done inside this handler.
 
-    The default implementation calls updateMask() if the widget has
-    \link QWidget::setAutoMask() automatic masking\endlink enabled.
 
     \sa moveEvent(), event(), resize(), QResizeEvent, paintEvent()
 */
 
 void QWidget::resizeEvent(QResizeEvent *)
 {
-    if (testAttribute(Qt::WA_WState_AutoMask))
-        updateMask();
 }
 
 /*!
@@ -5435,69 +5426,6 @@ void QWidget::ensurePolished() const
         QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
         QCoreApplication::sendEvent(d->parent, &e);
     }
-}
-
-/*!
-    \property QWidget::autoMask
-    \brief whether the auto mask feature is enabled for the widget
-
-    Transparent widgets use a mask to define their visible region.
-    QWidget has some built-in support to make the task of
-    recalculating the mask easier. When setting auto mask to true,
-    updateMask() will be called whenever the widget is resized or
-    changes its focus state. Note that you must reimplement
-    updateMask() (which should include a call to setMask()) or nothing
-    will happen.
-
-    Note: when you re-implement resizeEvent(), focusInEvent() or
-    focusOutEvent() in your custom widgets and still want to ensure
-    that the auto mask calculation works, you should add:
-
-    \code
-        if (autoMask())
-            updateMask();
-    \endcode
-
-    at the end of your event handlers. This is true for all member
-    functions that change the appearance of the widget in a way that
-    requires a recalculation of the mask.
-
-    While being a technically appealing concept, masks have a big
-    drawback: when using complex masks that cannot be expressed easily
-    with relatively simple regions, they can be very slow on some
-    window systems.
-
-    \sa autoMask() updateMask() setMask() clearMask()
-*/
-
-bool QWidget::autoMask() const
-{
-    return testAttribute(Qt::WA_WState_AutoMask);
-}
-
-void QWidget::setAutoMask(bool enable)
-{
-    if (enable == autoMask())
-        return;
-
-    if (enable) {
-        setAttribute(Qt::WA_WState_AutoMask);
-        updateMask();
-    } else {
-        setAttribute(Qt::WA_WState_AutoMask, false);
-        clearMask();
-    }
-}
-
-/*!
-    This function can be reimplemented in a subclass to support
-    transparent widgets. It should be called whenever a widget changes
-    state in a way that means that the shape mask must be recalculated.
-
-    \sa setAutoMask(), updateMask(), setMask(), clearMask()
-*/
-void QWidget::updateMask()
-{
 }
 
 /*!
@@ -5938,7 +5866,7 @@ const QPixmap *QWidget::icon() const
 void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
 {
     Q_D(QWidget);
-    Q_ASSERT_X(sizeof(d->high_attributes)*8 >= (Qt::WA_AttributeCount - 32),
+    Q_ASSERT_X(sizeof(d->high_attributes)*8 >= (Qt::WA_AttributeCount - sizeof(uint)*8),
                "QWidget::setAttribute(WidgetAttribute, bool)",
                "QWidgetPrivate::high_attributes[] too small to contain all attributes in WidgetAttribute");
     if (attribute < int(8*sizeof(uint))) {
