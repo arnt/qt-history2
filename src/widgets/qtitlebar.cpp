@@ -702,7 +702,7 @@ void QTitleBarLabel::frameChanged()
 
 void QTitleBarLabel::paintEvent( QPaintEvent* )
 {
-    QSharedDoubleBuffer buffer( FALSE, FALSE );
+    QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
     buffer.begin( this, rect() );
     drawLabel( buffer.painter() );
 }
