@@ -20,7 +20,6 @@ public:
 protected:
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     QLabel *iconLabel;
@@ -28,7 +27,7 @@ private:
     QPixmap iconPixmap;
     QPoint dragStartPosition;
     QTextEdit *commentEdit;
-    bool clicked;
+    bool dragging;
 };
 
 #endif

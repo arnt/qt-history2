@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    clicked = false;
+    dragging = false;
 
     QFrame *centralFrame = new QFrame(this);
 
@@ -32,17 +32,18 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton
-        && iconLabel->geometry().contains(event->pos())) {
-        clicked = true;
+        && iconLabel->geometry().contains(event->pos()))
         dragStartPosition = event->pos();
-    }
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!clicked)
+    if (!(event->buttons() & Qt::LeftButton))
         return;
-    if ((event->pos() - dragStartPosition).manhattanLength() <= 16)
+    if (dragging)
+        return;
+    if ((event->pos() - dragStartPosition).manhattanLength()
+         < QApplication::startDragDistance())
         return;
 
     QDrag *drag = new QDrag(this);
@@ -52,7 +53,10 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     drag->setMimeData(mimeData);
     drag->setPixmap(iconPixmap);
 
+    dragging = true;
     QDrag::DropAction dropAction = drag->start();
+    dragging = false;
+
     QString actionText;
     switch (dropAction) {
         case QDrag::CopyAction:
@@ -72,11 +76,4 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
             break;
     }
     statusBar()->message(actionText);
-    clicked = false;
-}
-
-void MainWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (event->button() == Qt::LeftButton)
-        clicked = false;
 }
