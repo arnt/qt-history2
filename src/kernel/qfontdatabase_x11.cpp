@@ -1268,6 +1268,7 @@ QFontEngine *loadEngine( QFont::Script script,
     return fe;
 }
 
+#ifndef QT_NO_XFTFREETYPE
 static void parseFontName(const QString &name, QString &foundry, QString &family)
 {
     if ( name.contains('[') && name.contains(']')) {
@@ -1285,7 +1286,6 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 	family = name;
     }
 }
-
 
 static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
@@ -1458,3 +1458,4 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     FcFontSetDestroy(fs);
     return fe;
 }
+#endif // QT_NO_XFTFREETYPE
