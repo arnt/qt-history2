@@ -3,6 +3,7 @@
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
+#include <qradiobutton.h>
 
 #include "../qprocess.h"
 
@@ -31,6 +32,7 @@ int main( int argc, char **argv )
 
     QLineEdit *in = new QLineEdit( &vb );
     QLabel *out = new QLabel( &vb );
+    QRadioButton *radio = new QRadioButton( "Process Exited", &vb );
     QPushButton *close = new QPushButton( "Close Stdin", &vb );
 
     QObject::connect( in, SIGNAL(textChanged(const QString&)),
@@ -39,6 +41,8 @@ int main( int argc, char **argv )
 	    &proc, SLOT(closeStdin()) );
     QObject::connect( &proc, SIGNAL(dataStdout(const QString&)),
 	    out, SLOT(setText(const QString&)) );
+    QObject::connect( &proc, SIGNAL(processExited()),
+	    radio, SLOT(toggle()) );
 
     if ( !proc.start() ) {
 	return -1 ;
