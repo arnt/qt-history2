@@ -16,15 +16,14 @@
 
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qmenubar.h>
 #include <qstatusbar.h>
 #include <qapplication.h>
 #include <qfiledialog.h>
 
 ABMainWindow::ABMainWindow()
-    : QMainWindow( 0, "example addressbook application" ),
-      filename( QString::null )
+    : QMainWindow(0), filename(QString::null)
 {
     setupMenuBar();
     setupFileTools();
@@ -40,35 +39,35 @@ ABMainWindow::~ABMainWindow()
 void ABMainWindow::setupMenuBar()
 {
     /*
-    QPopupMenu *file = new QPopupMenu( this );
-    menuBar()->insertItem( "&File", file );
+    QPopupMenu *file = new QPopupMenu(this);
+    menuBar()->insertItem("&File", file);
 
-    file->insertItem( "New", this, SLOT( fileNew() ), CTRL + Key_N );
-    file->insertItem( QPixmap( "fileopen.xpm" ), "Open", this, SLOT( fileOpen() ), CTRL + Key_O );
+    file->insertItem("New", this, SLOT(fileNew()), CTRL + Key_N);
+    file->insertItem(QPixmap("fileopen.xpm"), "Open", this, SLOT(fileOpen()), CTRL + Key_O);
     file->insertSeparator();
-    file->insertItem( QPixmap( "filesave.xpm" ), "Save", this, SLOT( fileSave() ), CTRL + Key_S );
-    file->insertItem( "Save As...", this, SLOT( fileSaveAs() ) );
+    file->insertItem(QPixmap("filesave.xpm"), "Save", this, SLOT(fileSave()), CTRL + Key_S);
+    file->insertItem("Save As...", this, SLOT(fileSaveAs()));
     file->insertSeparator();
-    file->insertItem( QPixmap( "fileprint.xpm" ), "Print...", this, SLOT( filePrint() ), CTRL + Key_P );
+    file->insertItem(QPixmap("fileprint.xpm"), "Print...", this, SLOT(filePrint()), CTRL + Key_P);
     file->insertSeparator();
-    file->insertItem( "Close", this, SLOT( closeWindow() ), CTRL + Key_W );
-    file->insertItem( "Quit", qApp, SLOT( quit() ), CTRL + Key_Q );*/
+    file->insertItem("Close", this, SLOT(closeWindow()), CTRL + Key_W);
+    file->insertItem("Quit", qApp, SLOT(quit()), CTRL + Key_Q);*/
 }
 
 void ABMainWindow::setupFileTools()
 {
-    //fileTools = new QToolBar( this, "file operations" );
+    //fileTools = new QToolBar(this, "file operations");
 }
 
 void ABMainWindow::setupStatusBar()
 {
-    //statusBar()->message( "Ready", 2000 );
+    //statusBar()->message("Ready", 2000);
 }
 
 void ABMainWindow::setupCentralWidget()
 {
-    view = new ABCentralWidget( this );
-    setCentralWidget( view );
+    view = new ABCentralWidget(this);
+    setCenterWidget(view);
 }
 
 void ABMainWindow::closeWindow()
@@ -82,27 +81,27 @@ void ABMainWindow::fileNew()
 
 void ABMainWindow::fileOpen()
 {
-    QString fn = QFileDialog::getOpenFileName( QString::null, QString::null, this );
-    if ( !fn.isEmpty() ) {
+    QString fn = QFileDialog::getOpenFileName(this);
+    if (!fn.isEmpty()) {
         filename = fn;
-        view->load( filename );
+        view->load(filename);
     }
 }
 
 void ABMainWindow::fileSave()
 {
-    if ( filename.isEmpty() ) {
+    if (filename.isEmpty()) {
         fileSaveAs();
         return;
     }
 
-    view->save( filename );
+    view->save(filename);
 }
 
 void ABMainWindow::fileSaveAs()
 {
-    QString fn = QFileDialog::getSaveFileName( QString::null, QString::null, this );
-    if ( !fn.isEmpty() ) {
+    QString fn = QFileDialog::getSaveFileName(this);
+    if (!fn.isEmpty()) {
         filename = fn;
         fileSave();
     }

@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET	 = qutlook
 
-CONFIG	+= qt warn_on release
+CONFIG	+= dumpcpp
 LIBS    += -lqaxcontainer
 
 HEADERS	 = centralwidget.h \
@@ -9,3 +9,5 @@ HEADERS	 = centralwidget.h \
 SOURCES	 = centralwidget.cpp \
 	   main.cpp \
 	   mainwindow.cpp
+
+TYPELIBS = "d:\program files\Microsoft Office\Office10\msoutl.olb"

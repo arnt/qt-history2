@@ -15,7 +15,6 @@
 #define AB_CENTRALWIDGET_H
 
 #include <qwidget.h>
-#include <qstring.h>
 #include <qlistview.h>
 
 class QTabWidget;
@@ -24,36 +23,23 @@ class QGridLayout;
 class QLineEdit;
 class QPushButton;
 class QCheckBox;
-class QAxObject;
-struct IDispatch;
-
-class ABListViewItem : public QListViewItem
-{
-public:
-    ABListViewItem( QListView *listview, QString firstName, QString lastName, QString address, QString eMail, QAxObject *contact );
-    ~ABListViewItem();
-
-    QAxObject *contactItem() const;
-
-private:
-    QAxObject *contact_item;
-};
+class AddressBookModel;
 
 class ABCentralWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    ABCentralWidget( QWidget *parent, const char *name = 0 );
+    ABCentralWidget(QWidget *parent);
     ~ABCentralWidget();
 
-    void save( const QString &filename );
-    void load( const QString &filename );
+    void save(const QString &filename);
+    void load(const QString &filename);
 
 protected slots:
     void addEntry();
     void changeEntry();
-    void itemSelected( QListViewItem* );
+    void itemSelected(const QModelIndex &index, int button);
     void selectionChanged();
     void toggleFirstName();
     void toggleLastName();
@@ -66,9 +52,8 @@ protected slots:
 protected:
     void setupTabWidget();
     void setupListView();
-    void setupOutlook();
 
-    QAxObject *outlook, *outlookSession, *contactItems;
+    AddressBookModel *model;
 
     QGridLayout *mainGrid;
     QTabWidget *tabWidget;
@@ -77,7 +62,6 @@ protected:
     QLineEdit *iFirstName, *iLastName, *iAddress, *iEMail,
         *sFirstName, *sLastName, *sAddress, *sEMail;
     QCheckBox *cFirstName, *cLastName, *cAddress, *cEMail;
-
 };
 
 #endif

@@ -15,16 +15,16 @@
 
 #include "mainwindow.h"
 
-int main( int argc, char ** argv )
+int main(int argc, char ** argv)
 {
-    QApplication a( argc, argv );
+    QApplication a(argc, argv);
 
     ABMainWindow *mw = new ABMainWindow();
-    mw->setWindowTitle( "Qt Example - Addressbook" );
-    a.setMainWidget( mw );
+    mw->setWindowTitle("Qt Example - Addressbook");
+    a.setMainWidget(mw);
     mw->show();
 
-    a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
     int result = a.exec();
     delete mw;
     return result;

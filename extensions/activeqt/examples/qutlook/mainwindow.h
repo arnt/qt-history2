@@ -15,16 +15,13 @@
 #define AB_MAINWINDOW_H
 
 #include <qmainwindow.h>
-#include <qstring.h>
 
 class QToolBar;
-class QPopupMenu;
 class ABCentralWidget;
 
-class ABMainWindow: public QMainWindow
+class ABMainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     ABMainWindow();
     ~ABMainWindow();
@@ -46,7 +43,6 @@ protected:
     QToolBar *fileTools;
     QString filename;
     ABCentralWidget *view;
-
 };
 
 
