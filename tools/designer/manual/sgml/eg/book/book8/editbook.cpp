@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file '/home/db/src/qt/main/tools/designer/manual/sgml/eg/book/book8/editbook.ui'
 **
-** Created: Fri Feb 23 12:24:42 2001
+** Created: Mon Feb 26 13:06:24 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -214,8 +214,8 @@
 }</function>
     <function name="primeInsertAuthor(QSqlRecord*)" >{
     QSqlQuery q; 
-    q.exec( "update sequence set sequence = sequence + 1 where tablename='author';" ); 
-    q.exec( "select sequence from sequence where tablename='author';" ); 
+    q.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='author';" ); 
+    q.exec( "SELECT sequence FROM sequence WHERE tablename='author';" ); 
     if ( q.next() ) { 
 	buffer-&gt;setValue( "id", q.value( 0 ) ); 
     } 

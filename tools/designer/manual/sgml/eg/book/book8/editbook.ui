@@ -392,8 +392,8 @@
 }</function>
     <function name="primeInsertBook(QSqlRecord*)" >{
     QSqlQuery q;  
-    q.exec( "update sequence set sequence = sequence + 1 where tablename='book';" );  
-    q.exec( "select sequence from sequence where tablename='book';" );  
+    q.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='book';" );  
+    q.exec( "SELECT sequence FROM sequence WHERE tablename='book';" );  
     if ( q.next() ) {  
 	buffer-&gt;setValue( "id", q.value( 0 ) );  
     }  
