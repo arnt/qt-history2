@@ -170,7 +170,7 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 	    reg.translate(-px.h, -px.v);
         }
 	widget->erase(reg);
-	InvalWindowRgn((WindowPtr)widget->handle(), (RgnHandle)reg.handle());
+	paint_children(widget, reg, TRUE);
     }
     return 0;
 }
@@ -705,6 +705,13 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
+
+	//clean this area now..
+	QPoint p(posInWindow(this));
+	QRegion clean(reg);
+	clean.translate(p.x(), p.y());
+	ValidWindowRgn((WindowPtr)hd, (RgnHandle)clean.handle());
+	
 #if 0
 	QDFlushPortBuffer(GetWindowPort((WindowPtr)handle()), NULL);
 #endif
@@ -717,8 +724,7 @@ void QWidget::showWindow()
     if ( isTopLevel() ) {
 #ifdef Q_WS_MACX
 	//handle transition
-	if(qApp->style().inherits("QAquaStyle") &&
-	   parentWidget() && testWFlags(WShowModal)) {
+	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) {
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
