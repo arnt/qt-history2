@@ -1740,8 +1740,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     if (mode == Qt::SmoothTransformation) {
         QImage image = toImage();
-        image.transform(matrix, mode);
-        return QPixmap(image);
+        return QPixmap(image.transform(matrix, mode));
     }
 
 
