@@ -573,7 +573,7 @@ QRegion QWMatrix::operator*(const QRegion &r) const
         if (_dx == 0.0 && _dy == 0.0) // Identity
             return r;
         QRegion copy(r);
-        copy.translate(_dx, _dy);
+        copy.translate((int)_dx, (int)_dy);
         return copy;
     }
 
