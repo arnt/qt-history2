@@ -330,7 +330,7 @@ QOleDataObject::QOleDataObject(QMimeData *mimeData)
 void QOleDataObject::releaseQt()
 {
     if (data) {
-        data->deleteLater();
+        delete data;
         data = 0;
     }
 }
@@ -777,6 +777,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
     object = 0;
+    o->setMimeData(0);
     o->deleteLater();
 
 #ifndef QT_NO_ACCESSIBILITY
