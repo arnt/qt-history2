@@ -54,11 +54,11 @@ public:
 
 	lpal->palVersion    = 0x300;
 	lpal->palNumEntries = 256;
-	hpal = CreatePalette( lpal );
+	map = CreatePalette( lpal );
 
-	if ( hpal != 0 ) {
+	if ( map != 0 ) {
 	    HDC hdc = GetDC( w->topLevelWidget()->winId() );
-	    SelectPalette( hdc, hpal, FALSE );
+	    SelectPalette( hdc, map, FALSE );
 	    ReleaseDC( w->topLevelWidget()->winId(), hdc );
 	    size   = 256;
 	    widget = w;
@@ -69,18 +69,18 @@ public:
     }
     
     ~QColormapPrivate() {
-	if ( widget && hpal ) {
+	if ( widget && map ) {
 	    HDC hdc = GetDC( widget->topLevelWidget()->winId() ); 
 	    SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
 			   FALSE );
-	    DeleteObject( hpal );
+	    DeleteObject( map );
 	    ReleaseDC( widget->topLevelWidget()->winId(), hdc );
 	}
     }
     
     bool valid;
     int size;
-    HPALETTE   hpal;
+    HPALETTE   map;
     QWidget *  widget;
     QArray< QRgb > cells;
 };
@@ -95,22 +95,38 @@ QColormap::QColormap( QWidget * w, const char * name )
 QColormap::QColormap( const QColormap & map )
     : QObject( map.d->widget, map.name() )
 {
+    d = map.d;
+    d->ref();
 }
 
 QColormap::~QColormap()
 {
-    if ( d->deref() )
+    if ( d->deref() ) {
 	delete d;
+	d = 0;
+    }
 }
 
 QColormap & QColormap::operator=( const QColormap & map )
 {
-    static QColormap dummy( d->widget ); // ### This is wrong. Fix it!
-    return dummy;
+    map.d->ref();
+    if ( d->deref() )
+	delete d;
+    d = map.d;
+
+    return *this;
 }
 
 void QColormap::detach()
 {
+    if ( d->count != 1 ) {
+	QColormap * newd = QColormapPrivate( d->widget );
+	newd->widget = d->widget;
+	newd->size   = d->size;
+	newd->valid  = d->valid;
+	newd->cells  = d->cells;
+	newd->cells.detach();
+    }
 }
 
 void QColormap::setRgb( int idx, QRgb color )
@@ -119,13 +135,15 @@ void QColormap::setRgb( int idx, QRgb color )
 	return;
     }
 
+    detach();
+    
     PALETTEENTRY pe;
     pe.peRed   = qRed( color );
     pe.peGreen = qGreen( color );
     pe.peBlue  = qBlue( color );
     pe.peFlags = 0;
 
-    SetPaletteEntries( d->hpal, idx, 1, &pe );
+    SetPaletteEntries( d->map, idx, 1, &pe );
     d->cells[ idx ] = color;
     // ### needed if we want to set a colormap AFTER the window has been created
     // ### - disabled for now (maybe add a QColormap::realize()??)
@@ -156,7 +174,7 @@ bool QColormap::isValid() const
 
 Qt::HANDLE QColormap::colormap() const
 {
-    return 0;
+    return d->map;
 }
 
 int QColormap::size() const
