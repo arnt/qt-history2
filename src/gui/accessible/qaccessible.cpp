@@ -31,28 +31,27 @@
     relating to accessibility.
     \ingroup accessibility
 
-    Accessible applications are applications that can be used by
-    people who are not able to use applications by conventional means.
+    Accessible applications can be used by people who are not able to
+    use applications by conventional means.
 
     The functions in this class are used for communication between
-    accessible applications (also called AT Servers) and tools that
-    make applications usable (also called AT Clients, e.g. screen
-    readers). The communication between clients and servers is a
-    two-way communication:
+    accessible applications (also called AT Servers) and
+    accessibility tools (AT Clients), such as screen readers and
+    braille displays. Clients and servers communicate in the following way:
 
     \e AT \e Servers notify the clients about events through calls to the
     updateAccessibility() function.
 
     \e AT \e Clients request information about the objects in the server.
-    The QAccessibleInterface class is the core interface and encapsulates
+    The QAccessibleInterface class is the core interface, and encapsulates
     this information in a pure virtual API. Implementations of the interface
     are provided by Qt through the queryAccessibleInterface() API.
 
     The communication between servers and clients is initialized by the
     setRootObject() function.
 
-    Function pointers can be installed to replace or extend the default behavior
-    of the static functions in QAccessible.
+    Function pointers can be installed to replace or extend the default
+    behavior of the static functions in QAccessible.
 */
 
 /*!
@@ -87,7 +86,7 @@
     \value Selectable       The object is selectable.
     \value Selected         The object is selected.
     \value SelfVoicing      The object describes itself through speech or sound.
-    \value Sizeable         The object can be resized, e.g. toplevel windows.
+    \value Sizeable         The object can be resized, e.g. top-level windows.
     \value Traversed        The object is linked and has been visited.
     \value Unavailable      The object is unavailable to the user, e.g. a disabled widget.
     \omit
@@ -104,7 +103,7 @@
 /*!
     \enum QAccessible::Event
 
-    This enum type defines accessible event types. The event types are:
+    This enum type defines accessible event types.
 
     \value AcceleratorChanged
     \value Alert
@@ -223,31 +222,31 @@
     This enum type defines bit flags that can be combined to indicate
     the relationship between two accessible objects.
 
-    \value Unrelated        The objects are unrelated
-    \value Self             The objects are the same
-    \value Ancestor         The first object is a parent of the second object
-    \value Child            The first object is a direct child of the second object
-    \value Descendent       The first object is an indirect child of the second object
-    \value Sibling          The objects are siblings
-    \value HierarchyMask    A mask for hierarchical relationships
+    \value Unrelated        The objects are unrelated.
+    \value Self             The objects are the same.
+    \value Ancestor         The first object is a parent of the second object.
+    \value Child            The first object is a direct child of the second object.
+    \value Descendent       The first object is an indirect child of the second object.
+    \value Sibling          The objects are siblings.
+    \value HierarchyMask    A mask for hierarchical relationships.
 
-    \value Up               The first object is above the second object
-    \value Down             The first object is below the second object
-    \value Left             The first object is left of the second object
-    \value Right            The first object is right of the second object
-    \value Covers           The first object covers the second object
-    \value Covered          The first object is covered by the second object
+    \value Up               The first object is above the second object.
+    \value Down             The first object is below the second object.
+    \value Left             The first object is left of the second object.
+    \value Right            The first object is right of the second object.
+    \value Covers           The first object covers the second object.
+    \value Covered          The first object is covered by the second object.
     \value GeometryMask     A mask for geometrical relationships. Geometrical relationships are only relevant between siblings.
 
-    \value FocusChild       The first object is the second object's focus child
-    \value Label            The first object is the label of the second object
-    \value Labelled         The first object is labelled by the second object
-    \value Controller       The first object controls the second object
-    \value Controlled       The first object is controlled by the second object
-    \value LogicalMask      A mask for logical relationships
+    \value FocusChild       The first object is the second object's focus child.
+    \value Label            The first object is the label of the second object.
+    \value Labelled         The first object is labelled by the second object.
+    \value Controller       The first object controls the second object.
+    \value Controlled       The first object is controlled by the second object.
+    \value LogicalMask      A mask for logical relationships.
 
     Implementations of relationTo() return a combination of these flags.
-    (clearly, some values are mutually exclusive).
+    Some values are mutually exclusive.
 
     Implementations of navigate() can accept only one distinct value.
 */
@@ -258,11 +257,11 @@
     This enum specifies string information that an accessible object
     returns.
 
-    \value Name         The name of the object
-    \value Description  A short text describing the object
-    \value Value        The value of the object
-    \value Help         A longer text giving information about how to use the object
-    \value Accelerator  The keyboard shortcut that executes the object's default action
+    \value Name         The name of the object.
+    \value Description  A short text describing the object.
+    \value Value        The value of the object.
+    \value Help         A longer text giving information about how to use the object.
+    \value Accelerator  The keyboard shortcut that executes the object's default action.
     \value UserText     The first value to be used for user defined text.
 */
 
@@ -381,7 +380,7 @@ void qRemoveAccessibleObject(QObject *object)
     \enum QAccessible::InterfaceFactory
 
     A function pointer type. Use a function with this prototype to install
-    interface factories with installFactory.
+    interface factories with installFactory().
 
     The function receives a QObject pointer, and if the QObject
     provides a QAccessibleInterface, it sets the second parameter to
@@ -463,8 +462,8 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
 
 /*!
     If a QAccessibleInterface implementation exists for \a object,
-    sets \a iface to point to the implementation, and returns true;
-    otherwise sets \a iface to 0 and returns false.
+    this function sets \a iface to point to the implementation, and
+    returns true; otherwise it sets \a iface to 0, and returns false.
 
     The function calls all installed factory functions (from most
     recently installed to least recently installed) until one is found
@@ -586,27 +585,27 @@ bool QAccessible::isActive()
     about accessible objects.
     \ingroup accessibility
 
-    Accessibility tools (also called AT Clients, e.g. screen readers
-    or braille displays) require high-level information about the
-    accessible objects in an application to provide specialized output
-    and input methods that make it possible for users who cannot use
-    conventional means, to use the application (applications providing
-    this information are also called AT Servers).
+    Accessibility tools (also called AT Clients), such as screen readers
+    or braille displays, require high-level information about
+    accessible objects in an application. Accessible objects provide
+    specialized input and output methods, making it possible for users
+    to use accessibility tools with enabled applications (AT Servers).
 
     Every element that the user needs to interact with or react to is
     an accessible object, and should provide this information. These
-    are mainly visual objects, e.g. widgets and widget elements, but
-    can also be content, e.g. sounds.
+    are mainly visual objects, such as widgets and widget elements, but
+    can also be content, such as sounds.
 
     The AT client uses three basic concepts to acquire information
     about any accessible object in an application:
     \list
-    \i \e Properties - The client can read information about
+    \i \e Properties The client can read information about
     accessible objects. In some cases the client can also modify these
-    properties (e.g. text in a line edit)
-    \i \e Actions - The client can invoke actions, e.g. press a button
-    \i \e Relationships \e and \e Navigation - The client can traverse from one
-    accessible object to another, using the relationships between objects
+    properties; such as text in a line edit.
+    \i \e Actions The client can invoke actions like pressing a button
+    or .
+    \i \e{Relationships and Navigation} The client can traverse from one
+    accessible object to another, using the relationships between objects.
     \endlist
 
     The QAccessibleInterface defines the API for these three concepts.
