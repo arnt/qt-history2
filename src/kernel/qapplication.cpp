@@ -316,6 +316,10 @@ void qt_init( Display* dpy, Qt::HANDLE, Qt::HANDLE );
 QApplication *qApp = 0;			// global application object
 
 QStyle   *QApplication::app_style      = 0;	// default application style
+#ifdef Q_WS_X11
+bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
+#endif // Q_WS_X11
+
 int	  QApplication::app_cspec      = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
 QPalette *QApplication::app_pal	       = 0;	// default application palette
@@ -1170,6 +1174,7 @@ QStyle& QApplication::style()
 	    style = *qt_style_override;
 	    delete qt_style_override;
 	    qt_style_override = 0;
+	    qt_explicit_app_style = TRUE;
 	} else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
 	    style = "PocketPC";
@@ -1246,6 +1251,7 @@ void QApplication::setStyle( QStyle *style )
 {
     QStyle* old = app_style;
     app_style = style;
+    qt_explicit_app_style = TRUE;
 
     if ( startingUp() ) {
 	delete old;

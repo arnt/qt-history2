@@ -912,11 +912,13 @@ bool QApplication::x11_apply_settings()
     }
 
     // read new QStyle
-    QString stylename = settings.readEntry("/qt/style");
-    if (! stylename.isNull() && ! stylename.isEmpty())
-	QApplication::setStyle(stylename);
-    else
-	stylename = "default";
+    extern bool qt_explicit_app_style; // defined in qapplication.cpp
+    QString stylename = settings.readEntry( "/qt/style" );
+    if ( !stylename.isNull() && !stylename.isEmpty() && !qt_explicit_app_style ) {
+	QApplication::setStyle( stylename );
+	// took the style from the user settings, so mark the explicit flag FALSE
+	qt_explicit_app_style = FALSE;
+    }
 
     num =
 	settings.readNumEntry("/qt/doubleClickInterval",
