@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#19 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#20 $
 **
 ** Implementation of QFontDialog
 **
@@ -298,7 +298,7 @@ QFontDialog::~QFontDialog()
 
 */
 QFont QFontDialog::getFont( bool *ok, const QFont &def,
-			    QWidget *parent = 0, const char* name = 0)
+			    QWidget *parent, const char* name)
 {
 #if 1
     return getFont( ok, &def, parent, name );
@@ -331,13 +331,13 @@ QFont QFontDialog::getFont( bool *ok, const QFont &def,
   \endcode
 
 */
-QFont QFontDialog::getFont( bool *ok, QWidget *parent = 0,const char* name = 0)
+QFont QFontDialog::getFont( bool *ok, QWidget *parent,const char* name)
 {
     return getFont( ok, 0, parent, name );
 }
 
 QFont QFontDialog::getFont( bool *ok, const QFont *def,
-			    QWidget *parent = 0, const char* name = 0)
+			    QWidget *parent, const char* name)
 {
     QFont result;
     if ( def )
