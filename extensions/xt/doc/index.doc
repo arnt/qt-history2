@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.3 1998/05/07 19:06:57 agulbra Exp $
+** $Id: index.doc,v 1.4 1998/06/30 16:47:08 aavit Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.3 1998/05/07 19:06:57 agulbra Exp $";
+static char ident[] = "$Id: index.doc,v 1.4 1998/06/30 16:47:08 aavit Exp $";
 #endif
 
 /*! \page xt.html
@@ -22,14 +22,15 @@ static char ident[] = "$Id: index.doc,v 1.3 1998/05/07 19:06:57 agulbra Exp $";
 <hr>
 
 <p>
-The Qt Xt/Motif Support Extension assists with migrating from old
-Xt and Motif GUI code to the more comfortable Qt toolkit.
+The Qt Xt/Motif Support Extension assists the migration of old
+Xt and Motif based code to the more comfortable Qt toolkit.
 
 <h2>Information</h2>
 
+The Qt Xt/Motif Extension consistsw of the following classes:
 <ul>
-  <li><a href=annotated.html>List of class for Xt/Motif support</a>
-  <li><a href=examples.html>Example programs</a>
+  <li><a href=qxtapplication.html>QXtApplication</a> Allows mixing of Xt/Motif and Qt widgets
+  <li><a href=qxtwidget.html>QXtWidget</a> Base widget for Xt/Motif and Qt combination
 </ul>
 
 <h2>How-to</h2>
@@ -40,9 +41,18 @@ Xt and Motif GUI code to the more comfortable Qt toolkit.
 	compiler, or at least that this is the case for the parts 
 	which need migration.
  <li>Decide whether you are writing a new Qt application reusing
-	old Xt widgets, or introducing new Qt widgets into an
-	existing Xt/Motif application.
+	old Xt widgets, or introducing new Qt widgets into an existing
+	Xt/Motif application. See the corresponding example program.
+
 </ol>
+
+<h2>Example Programs</h2>
+
+<ul>
+<li><a href="mainlyQt-editor-cpp.html">mainlyQt</a>
+<li><a href="mainlyXt-editor-cpp.html">mainlyXt</a>
+<li><a href="mainlyMotif-editor-cpp.html">mainlyMotif</a>
+</ul>
 
 <h2>Known Bugs</h2>
 

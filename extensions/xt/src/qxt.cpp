@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#4 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#5 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -255,7 +255,7 @@ static void np_do_timers( void*, void* )
   \class QXtApplication qxt.h
   \brief Allows mixing of Xt/Motif and Qt widgets.
 
-  \extension xt
+  \extension Xt/Motif
 
   The QXtApplication and QXtWidget classes allow old Xt or Motif widgets
   to be used in new Qt applications.  They also allow Qt widgets to
@@ -346,7 +346,7 @@ bool QXtApplication::x11EventFilter(XEvent* ev)
   \class QXtWidget qxt.h
   \brief Allows mixing of Xt/Motif and Qt widgets.
 
-  \extension xt
+  \extension Xt/Motif
 
   QXtWidget acts as a bridge between Xt and Qt. For utilizing old
   Xt widgets, it can be a QWidget

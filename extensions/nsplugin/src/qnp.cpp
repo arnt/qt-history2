@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#21 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#22 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -1090,7 +1090,7 @@ int main(int argc, char** argv)
   \class QNPWidget qnp.h
   \brief A QWidget that is a Web-browser plugin window
   
-  \extension nsplugin
+  \extension NSPlugin
 
   Derive from QNPWidget to create a widget that can be used as a
   Browser plugin window, or create one and add child widgets.
@@ -1294,7 +1294,7 @@ void QNPWidget::unsetWindow()
   \class QNPInstance qnp.h
   \brief a QObject that is a Web-browser plugin
 
-  \extension nsplugin
+  \extension NSPlugin
 
   Deriving from QNPInstance creates an object that represents a single
   &lt;EMBED&gt; tag in an HTML document.
@@ -1649,7 +1649,7 @@ void* QNPInstance::getJavaPeer() const
   \class QNPStream qnp.h
   \brief A stream of data provided to a QNPInstance by the browser.
 
-  \extension nsplugin
+  \extension NSPlugin
 
   Note that this is neither a QTextStream or a QDataStream.
 
@@ -1801,7 +1801,7 @@ int QNPStream::write( int len, void* buffer )
   \class QNPlugin qnp.h
   \brief The plugin central factory.
 
-  \extension nsplugin
+  \extension NSPlugin
 
   This class is the heart of the plugin.  One instance of this object is
   created when the plugin is \e first needed, by calling

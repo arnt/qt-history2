@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#68 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#69 $
 **
 ** Implementation of QMessageBox class
 **
@@ -1165,12 +1165,12 @@ int QMessageBox::critical( QWidget *parent, const char *caption,
 
 
 static const char *textAboutQt =
-"This program was developed with Qt, the cross-platform C++ GUI library.\n\n"
+"This program is developed with Qt, the multi-platform C++ GUI toolkit.\n\n"
 "Qt is a product of Troll Tech AS (http://www.troll.no).\n"
-"It is available under two different licenses:\n"
+"Qt is available under two different licenses:\n"
 "- The Free Edition, which may be used free of charge to develop\n"
-"  free software on the X Window System.\n"
-"- The Professional Edition, which may be used to make commercial\n"
+"  Free Software on the X Window System.\n"
+"- The Professional Edition, which may be used to develop commercial\n"
 "  software on both X and Microsoft Windows.\n\n"
 "Please contact sales@troll.no for information and pricing.";
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.7 1998/06/26 20:00:13 agulbra Exp $
+** $Id: qcache.doc,v 2.8 1998/06/30 16:47:07 aavit Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -731,6 +731,14 @@
 
   Returns the item \e jump positions after the current item, or null if
   it is beyond the last item.  Makes this the current item.
+*/
+
+
+/*!
+  \fn type *QIntCacheIterator::operator-=( uint jump )
+
+  Returns the item \e jump positions before the current item, or null if
+  it is beyond the first item.  Makes this the current item.
 */
 
 

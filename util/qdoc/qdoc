@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#179 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#180 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1620,7 +1620,7 @@ sub printclass {
 #	    print O "Part of the <a href=\"",
 #	    $extension{$url} . "\">" , $extension{$url},
 #	    "</a> extension.\n";
-	    print O "Part of the <b>", $extension{$url}, "</b> extension.\n";
+	    print O "This class is part of the <b>Qt ", $extension{$url}, " Extension.</b>\n";
 	}
 	print O "<a href=\"#details\">More...</a>\n"
 	    if ($doc{$url} ne "");
@@ -1862,8 +1862,8 @@ sub printclass {
 #	    print O "This class is part of the <a href=\"",
 #	    $extension{$url} . "\">" , $extension{$url},
 #	    "</a> extension.\n";
-	    print O "This class is part of the <b>", $extension{$url};
-	    print O "</b> extension.\nIt is not in the main library.\n<p>\n";
+	    print O "This class is defined in the <b>Qt ", $extension{$url};
+	    print O " Extension</b>, which can be found in the <tt>qt/extensions</tt> directory.\nIt is not included in the main Qt API.\n<p>\n";
 	}
 	print O $brief{$url}, "\n<p>\n", $doc{$url}, "\n";
     } else {
@@ -1959,7 +1959,7 @@ sub classlist {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
 	    $ex = "";
 	    if ( defined( $extension{ $url } ) ) {
-		$ex = " ($extension{$url})";
+		$ex = " <small><b>[$extension{$url}]</b></small>";
 	    }
 	    $result = join( "", $result, "<li><a href=\"", $url, "\">",
 			   $name{$url}, "</a>", $ex, "\n" );
@@ -1978,7 +1978,7 @@ sub annotatedclasslist {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
 	    $ex = "";
 	    if ( defined( $extension{ $url } ) ) {
-		$ex = " (<b>$extension{$url}</b> extension) ";
+		$ex = " <small><b>[Qt $extension{$url} Extension]</b></small>";
 	    }
 	    $result = join( "", $result,  "$preline<strong><a href=\"",
 			   $url, "\">", $name{$url}, "</a></strong>$sep",
