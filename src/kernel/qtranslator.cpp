@@ -317,7 +317,9 @@ QTranslator::QTranslator(QObject * parent)
 {
 }
 
-/*!\overload \obsolete
+/*!
+    \overload
+    \obsolete
  */
 QTranslator::QTranslator( QObject * parent, const char * name )
     : QObject(*new QTranslatorPrivate, parent)

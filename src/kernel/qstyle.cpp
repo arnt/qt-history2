@@ -500,7 +500,8 @@ QRect QStyle::itemRect( const QFontMetrics &fm, const QRect &r,
     \overload
 
     Returns the appropriate area within rectangle \a r in
-    which to draw \a pixmap using painter \a p.
+    which to draw the \a pixmap. The \a flags determine the \a
+    pixmap's alignment.
 */
 QRect QStyle::itemRect( const QRect &r,
 			int flags, const QPixmap &pixmap ) const

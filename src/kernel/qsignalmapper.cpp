@@ -72,7 +72,9 @@ QSignalMapper::QSignalMapper(QObject* parent) :
 {
 }
 
-/*!\overload \obsolete
+/*!
+    \overload
+    \obsolete
  */
 QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
     QObject(*new QSignalMapperPrivate, parent)

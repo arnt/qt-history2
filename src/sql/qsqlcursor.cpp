@@ -951,8 +951,6 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
 }
 
 /*!
-    \overload
-
     Inserts the current contents of the cursor's edit record buffer
     into the database, if the cursor allows inserts. Returns the
     number of rows affected by the insert. For error information, use

@@ -875,7 +875,7 @@ bool QAccessible::isActive()
 
     All objects provide a string for \e Name.
 
-    \sa role(), state(), selection()
+    \sa role(), state()
 */
 
 /*!
@@ -911,7 +911,7 @@ bool QAccessible::isActive()
 
     All accessible objects have a role.
 
-    \sa text(), state(), selection()
+    \sa text(), state()
 */
 
 /*!
@@ -923,7 +923,7 @@ bool QAccessible::isActive()
 
     All accessible objects have a state.
 
-    \sa text(), role(), selection()
+    \sa text(), role()
 */
 
 /*!

@@ -504,9 +504,9 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
 /*!
     Creates a QSqlDatabase connection called \a name that uses the
-    driver referred to by \a type, with the parent \a parent and the
-    object name \a objname. If the \a type is not recognized, the
-    database connection will have no functionality.
+    driver referred to by \a type, with the parent \a parent. If the
+    \a type is not recognized, the database connection will have no
+    functionality.
 
     The currently available drivers are:
 

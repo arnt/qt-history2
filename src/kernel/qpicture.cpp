@@ -990,6 +990,7 @@ QPicture QPicture::copy() const
   QPainter member functions
  *****************************************************************************/
 
+#ifdef Q_Q3PAINTER
 /*!
     Replays the picture \a pic translated by (\a x, \a y).
 
@@ -997,7 +998,6 @@ QPicture QPicture::copy() const
     called with (\a x, \a y) = (0, 0).
 */
 
-#ifdef Q_Q3PAINTER
 void QPainter::drawPicture( int x, int y, const QPicture &pic )
 {
     save();
@@ -1289,7 +1289,7 @@ QList<QByteArray> QPicture::outputFormats()
     \brief The QPictureIO class contains parameters for loading and
     saving pictures.
 
-    \ingroup pictures
+    \ingroup images
     \ingroup graphics
     \ingroup io
 

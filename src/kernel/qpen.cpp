@@ -135,7 +135,7 @@ QPen::QPen(const QColor &color, int width, PenStyle style)
 }
 
 /*!
-    Constructs a pen with the specified color \a cl and width \a w.
+    Constructs a pen with the specified color \a cl and width \a width.
     The pen style is set to \a s, the pen cap style to \a c and the
     pen join style to \a j.
 
@@ -253,7 +253,7 @@ void QPen::setStyle(PenStyle s)
 */
 
 /*!
-    Sets the pen width to \a w.
+    Sets the pen width to \a width.
 
     A line width of 0 will produce a 1 pixel wide line using a fast
     algorithm for diagonals. A line width of 1 will also produce a 1

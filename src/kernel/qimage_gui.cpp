@@ -30,7 +30,7 @@ QImage qFromMimeSource_helper( const QString &abs_name )
 }
 #endif
 
-/*!
+/*
     Sets the image bits to the \a pixmap contents and returns a
     reference to the image.
 

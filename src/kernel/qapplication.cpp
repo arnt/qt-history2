@@ -950,6 +950,9 @@ QApplication::~QApplication()
 
 
 
+/*!
+    \internal
+*/
 bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
 {
     if ( (event->type() == QEvent::UpdateRequest
@@ -1823,6 +1826,7 @@ void QApplication::syncX()	{}		// do nothing
   \sa setWinStyleHighlightColor()
 */
 
+#if defined(Q_OS_CYGWIN)
 /*!
   Returns the version of the Windows operating system that is running:
 
@@ -1841,8 +1845,6 @@ void QApplication::syncX()	{}		// do nothing
   Note that this function is implemented for the Windows version
   of Qt only.
 */
-
-#if defined(Q_OS_CYGWIN)
 Qt::WindowsVersion QApplication::winVersion()
 {
     return qt_winver;

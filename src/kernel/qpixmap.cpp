@@ -458,7 +458,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*!
     Returns the actual matrix used for transforming a pixmap with \a w
-    width and \a h height and matrix \a matrix.
+    width and \a h height and matrix \a m.
 
     When transforming a pixmap with xForm(), the transformation matrix
     is internally adjusted to compensate for unwanted translation,

@@ -1350,9 +1350,10 @@ const char* QMetaClassInfo::value() const
 
 /*!
     \class QMetaType qmetaobject.h
+    \brief The QMetaType class manages named types in the meta object system.
+
     \internal
 
-    \brief The QMetaType class manages named types in the meta object system.
 
     The class is used to queue signals and slots connections.
 */
@@ -1442,7 +1443,7 @@ void *QMetaType::copy(int type, void *data)
 }
 
 /*!
-  Destroys data, assuming it is of type \a type.
+  Destroys the \a data, assuming it is of type \a type.
  */
 void QMetaType::destroy(int type, void *data)
 {

@@ -2850,6 +2850,10 @@ static void realSetup()
 	setupLocaleMapper();
 }
 
+/*!
+    \internal
+    \overload
+*/
 void QTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
 {
     QConstString string( in, length );

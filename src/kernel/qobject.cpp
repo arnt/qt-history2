@@ -282,7 +282,9 @@ QObject::QObject(QObject *parent)
 }
 
 
-/*!\overload \obsolete
+/*!
+    \overload
+    \obsolete
  */
 QObject::QObject( QObject *parent, const char *name )
     :
@@ -896,6 +898,7 @@ Qt::HANDLE QObject::thread() const
 { return d->thread; }
 
 /*!
+    \internal
  */
 void QObject::setThread(Qt::HANDLE thread)
 {

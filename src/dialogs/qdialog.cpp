@@ -233,8 +233,10 @@ QDialog::QDialog( QWidget *parent, WFlags f )
 {
 }
 
-/*!\overload \obsolete
- */
+/*!
+    \overload
+    \obsolete
+*/
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( *new QDialogPrivate, parent,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
