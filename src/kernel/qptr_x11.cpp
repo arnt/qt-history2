@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#77 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#76 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#77 $";
 #endif
 
 
@@ -1266,6 +1266,10 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
+/*! Sets the brush origin to \e (x,y).  Changing the brush origin from
+  (0,0) to (1,1) and repainting will move the brush pattern one pixel
+  up and one pixel leftwards. */
+
 void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 {
     if ( !isActive() )
@@ -1300,6 +1304,13 @@ QRect QPainter::window() const			// get window
 {
     return QRect( wx, wy, ww, wh );
 }
+
+/*! Sets the coordinate system of the widget.  \e x and \e y define
+  the top left corner, \e w and \e h describe the width and height of
+  the coordinate system.  This doesn't change the widget in any way,
+  it changes the coordinates you use to refer to points within the
+  widget.  Qt will translate to the underlying window system's
+  coordinates. \sa Q2DMatrix. */
 
 void QPainter::setWindow( int x, int y, int w, int h )
 {						// set window

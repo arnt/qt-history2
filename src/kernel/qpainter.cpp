@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#26 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#26 $";
 #endif
 
 
@@ -500,15 +500,25 @@ void QPainter::fillRect( int x, int y, int w, int h, const QColor &color )
 // QPainter member functions (inline if DEBUG not defined)
 //
 
+/*! Sets the brush origin to \e p.  Changing the brush origin from
+  (0,0) to (1,1) and repainting will move the brush pattern one pixel
+  up and one pixel leftwards. */
+
 void QPainter::setBrushOrigin( const QPoint &p )
 {
     setBrushOrigin( p.x(), p.y() );
 }
 
+/*! Sets the coordinates of the widget to \e r.  This doesn't change
+  the widget in any way, it changes the coordinates you use to refer
+  to points within the widget.  Qt will translate to the underlying
+  window system's coordinates. \sa Q2DMatrix. */
+
 void QPainter::setWindow( const QRect &r )
 {
     setWindow( r.x(), r.y(), r.width(), r.height() );
 }
+
 
 void QPainter::setViewport( const QRect &r )
 {
@@ -636,8 +646,7 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 
 /*!
 \relates QPen
-Writes a pen to the stream.
-*/
+Writes a pen to the stream. */
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
@@ -667,7 +676,8 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 
 /*!
 \relates QBrush
-Writes a brush to the stream.
+Writes a brush to the stream.  Predefined brushes only need one byte,
+custom brushes need the bitmap too.
 */
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
@@ -680,7 +690,8 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 
 /*!
 \relates QBrush
-Reads a brush from the stream.
+Reads a brush from the stream.  Predefined brushes only need one byte,
+custom brushes need the bitmap too.
 */
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
