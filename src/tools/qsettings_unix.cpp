@@ -231,6 +231,10 @@ void QSettingsHeading::parseLine(const QString &l)
 	// empty line... we'll allow it
 	return;
 
+    if (line[0] == QChar('#'))
+	// commented line
+	return;
+
     if (line[0] == QChar('[')) {
 	QString gname = line;
 
@@ -995,7 +999,7 @@ bool QSettings::removeEntry(const QString &key)
     \endcode
     \c keys contains 'background color' and 'foreground color'. It does
     not contain 'geometry' because this key contains keys not entries.
-  
+
   \sa subkeyList()
 */
 QStringList QSettings::entryList(const QString &key) const
