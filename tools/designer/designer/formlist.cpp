@@ -119,7 +119,7 @@ void FormList::setProject( Project *pro )
 
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	(void)new FormListItem( this, tr( "unknown" ), *it, 0 );
+	(void)new FormListItem( this, tr( "<unknown>" ), *it, 0 );
     }
     updateHeader();
 }
@@ -127,8 +127,10 @@ void FormList::setProject( Project *pro )
 void FormList::addForm( FormWindow *fw )
 {
     if ( blockNewForms ) {
-	if ( currentItem() )
+	if ( currentItem() ) {
 	    ( (FormListItem*)currentItem() )->setFormWindow( fw );
+	    ( (FormListItem*)currentItem() )->setText( 0, fw->name() );
+	}
 	return;
     }
     updateHeader();
