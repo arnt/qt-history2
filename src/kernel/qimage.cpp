@@ -4036,9 +4036,9 @@ void QImageIO::setParameters( const char *parameters )
 }
 
 /*!
-  Sets the gamma value at which the image will be viewed. If the image format
-  stores a gamma value for which the image is intended to be used, then this
-  setting will be used to modify the image. Setting to 0.0 will disable
+  Sets the gamma value at which the image will be viewed to \a gamma. If the 
+  image format stores a gamma value for which the image is intended to be used, 
+  then this setting will be used to modify the image. Setting to 0.0 will disable
   gamma correction (ie. any specification in the file will be ignored).
 
   The default value is platform-dependent.
