@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#53 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -74,6 +74,8 @@ Atom qt_xdnd_status;
 Atom qt_xdnd_leave;
 Atom qt_xdnd_drop;
 Atom qt_xdnd_finished;
+// other atoms
+Atom qt_xdnd_action_copy;
 
 // end of copied stuff
 
@@ -206,6 +208,9 @@ void qt_xdnd_setup() {
 
     qt_x11_intern_atom( "XdndAware", &qt_xdnd_aware );
 
+    
+    qt_x11_intern_atom( "XdndActionCopy", &qt_xdnd_action_copy );
+
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "INCR", &qt_incr_atom );
 
@@ -289,13 +294,12 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QWidget * c = find_child( w, p );
 
-    if ( !c || !c->acceptDrops() && c->isDesktop() ) {
+    if ( !c || !c->acceptDrops() && c->isDesktop() )
 	return;
-    }
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	//	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
-	//      l[0], qt_xdnd_dragsource_xid );
+	//debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
+	//     l[0], qt_xdnd_dragsource_xid );
 	return;
     }
 
@@ -336,6 +340,9 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     if ( !c->acceptDrops() ) {
 	qt_xdnd_current_widget = 0;
 	answerRect = QRect( p, QSize( 1, 1 ) );
+    } else if ( l[4] != qt_xdnd_action_copy ) {
+	response.data.l[0] = 0;
+	answerRect = QRect( p, QSize( 1, 1 ) );
     } else {
 	qt_xdnd_current_widget = c;
 	qt_xdnd_current_position = p;
@@ -367,6 +374,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     response.data.l[2] = (answerRect.x() << 16) + answerRect.y();
     response.data.l[3] = (answerRect.width() << 16) + answerRect.height();
+    response.data.l[4] = qt_xdnd_action_copy;
 
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
 
@@ -392,7 +400,8 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
 
     QPoint p( (l[2] & 0xffff0000) >> 16, l[2] & 0x0000ffff );
     QSize s( (l[3] & 0xffff0000) >> 16, l[3] & 0x0000ffff );
-    if ( s.width() < 4096 && s.height() < 4097 &&
+    if ( (int)(l[1] & 2) == 0 &&
+	 s.width() < 4096 && s.height() < 4097 &&
 	 s.width() > 0 && s.height() > 0 )
 	qt_xdnd_source_sameanswer = QRect( p, s );
     else
@@ -734,7 +743,7 @@ void QDragManager::move( const QPoint & globalPos )
     move.data.l[1] = 0; // flags
     move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
     move.data.l[3] = qt_x_clipboardtime;
-    move.data.l[4] = 0;
+    move.data.l[4] = qt_xdnd_action_copy;
 
     if ( w )
 	qt_handle_xdnd_position( w, (const XEvent *)&move );
@@ -757,7 +766,7 @@ void QDragManager::drop()
     drop.data.l[0] = object->source()->winId();
     drop.data.l[1] = 1 << 24; // flags
     drop.data.l[2] = 0; // ###
-    drop.data.l[3] = 0;
+    drop.data.l[3] = qt_x_clipboardtime;
     drop.data.l[4] = 0;
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
