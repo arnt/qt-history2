@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#20 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#21 $
 **
 ** Definition of QFontInfo class
 **
@@ -49,16 +49,24 @@ private:
     static void reset( const QPainter * );
     const QFontDef *spec() const;
 
-    enum Type { FontInternal, FontInternalExactMatch, Widget, Painter };
+    enum Type { FontInternal, Widget, Painter };
     union {
-	int   t;
+	int   flags;
 	void *dummy;
-    } type;
+    } t;
     union {
 	QFontInternal *f;
 	QWidget	      *w;
 	QPainter      *p;
     } u;
+
+    int	    type()	     const { return t.flags & 0xff; }
+    bool    underlineFlag()  const { return (t.flags & 0x100) != 0; }
+    bool    strikeOutFlag()  const { return (t.flags & 0x200) != 0; }
+    bool    exactMatchFlag() const { return (t.flags & 0x400) != 0; }
+    void    setUnderlineFlag()	   { t.flags |= 0x100; }
+    void    setStrikeOutFlag()	   { t.flags |= 0x200; }
+    void    setExactMatchFlag()	   { t.flags |= 0x400; }
 
     friend class QWidget;
     friend class QPainter;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#65 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#65 $");
 
 
 /*!
@@ -440,6 +440,7 @@ void QFont::setUnderline( bool enable )
     if ( (bool)d->req.underline != enable ) {
 	detach();
 	d->req.underline = enable;
+	d->req.dirty = TRUE;
     }
 }
 
@@ -471,6 +472,7 @@ void QFont::setStrikeOut( bool enable )
     if ( (bool)d->req.strikeOut != enable ) {
 	detach();
 	d->req.strikeOut = enable;
+	d->req.dirty = TRUE;
     }
 }
 
@@ -1027,7 +1029,7 @@ void QFontMetrics::reset( const QWidget *w )
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->type.t == Widget && fm->u.w == w )
+	    if ( fm->type() == Widget && fm->u.w == w )
 		fm->u.w = 0;			// detach from widget
 	    fm = fm_list->next();
 	}
@@ -1044,7 +1046,7 @@ void QFontMetrics::reset( const QPainter *p )
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->type.t == Painter && fm->u.p == p )
+	    if ( fm->type() == Painter && fm->u.p == p )
 		fm->u.p = 0;			// detach from painter
 	    fm = fm_list->next();
 	}
@@ -1115,8 +1117,12 @@ void QFontMetrics::reset( const QPainter *p )
 
 QFontMetrics::QFontMetrics( const QFont &font )
 {
-    type.t = FontInternal;
+    t.flags = FontInternal;
     font.handle();
+    if ( font.underline() )
+	setUnderlineFlag();
+    if ( font.strikeOut() )
+	setStrikeOutFlag();
     u.f = font.d->fin;
 }
 
@@ -1130,7 +1136,7 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    type.t = Widget;
+    t.flags = Widget;
     u.w = (QWidget *)widget;
     u.w->setWFlags( WExportFontMetrics );
     insertFontMetrics( this );
@@ -1146,7 +1152,7 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    type.t = Painter;
+    t.flags = Painter;
     u.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
     if ( !u.p->isActive() )
@@ -1162,9 +1168,9 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 */
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : type(fm.type), u(fm.u)
+    : t(fm.t), u(fm.u)
 {
-    if ( type.t != FontInternal )
+    if ( type() != FontInternal )
 	insertFontMetrics( this );
 }
 
@@ -1174,7 +1180,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 
 QFontMetrics::~QFontMetrics()
 {
-    if ( type.t != FontInternal )
+    if ( type() != FontInternal )
 	removeFontMetrics( this );
 }
 
@@ -1185,11 +1191,11 @@ QFontMetrics::~QFontMetrics()
 
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
-    if ( type.t != FontInternal )
+    if ( type() != FontInternal )
 	removeFontMetrics( this );
-    type.t = fm.type.t;
+    t.flags = fm.t.flags;
     u = fm.u;
-    if ( type.t != FontInternal )
+    if ( type() != FontInternal )
 	insertFontMetrics( this );
     return *this;
 }
@@ -1237,7 +1243,7 @@ QRect QFontMetrics::boundingRect( char ch ) const
 
 const QFont &QFontMetrics::font() const
 {
-    switch ( type.t ) {
+    switch ( type() ) {
     case Widget:
 	return u.w->font();
     case Painter:
@@ -1297,7 +1303,7 @@ void QFontInfo::reset( const QWidget *w )
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->type.t == Widget && fi->u.w == w )
+	    if ( fi->type() == Widget && fi->u.w == w )
 		fi->u.w = 0;			// detach from widget
 	    fi = fi_list->next();
 	}
@@ -1314,7 +1320,7 @@ void QFontInfo::reset( const QPainter *p )
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->type.t == Painter && fi->u.p == p )
+	    if ( fi->type() == Painter && fi->u.p == p )
 		fi->u.p = 0;			// detach from painter
 	    fi = fi_list->next();
 	}
@@ -1391,11 +1397,14 @@ void QFontInfo::reset( const QPainter *p )
 
 QFontInfo::QFontInfo( const QFont &font )
 {
+    t.flags = FontInternal;
     font.handle();
+    if ( font.underline() )
+	setUnderlineFlag();
+    if ( font.strikeOut() )
+	setStrikeOutFlag();
     if ( font.exactMatch() )
-	type.t = FontInternalExactMatch;
-    else
-	type.t = FontInternal;
+	setExactMatchFlag();
     u.f = font.d->fin;
 }
 
@@ -1409,7 +1418,7 @@ QFontInfo::QFontInfo( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    type.t = Widget;
+    t.flags = Widget;
     u.w = (QWidget *)widget;
     u.w->setWFlags( WExportFontInfo );
     insertFontInfo( this );
@@ -1425,7 +1434,7 @@ QFontInfo::QFontInfo( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    type.t = Painter;
+    t.flags = Painter;
     u.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
     if ( !u.p->isActive() )
@@ -1441,9 +1450,9 @@ QFontInfo::QFontInfo( const QPainter *painter )
 */
 
 QFontInfo::QFontInfo( const QFontInfo &fi )
-    : type(fi.type), u(fi.u)
+    : t(fi.t), u(fi.u)
 {
-    if ( type.t != FontInternal && type.t != FontInternalExactMatch )
+    if ( type() != FontInternal )
 	insertFontInfo( this );
 }
 
@@ -1453,7 +1462,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 
 QFontInfo::~QFontInfo()
 {
-    if ( type.t != FontInternal && type.t != FontInternalExactMatch )
+    if ( type() != FontInternal )
 	removeFontInfo( this );
 }
 
@@ -1464,11 +1473,11 @@ QFontInfo::~QFontInfo()
 
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
-    if ( type.t != FontInternal && type.t != FontInternalExactMatch )
+    if ( type() != FontInternal )
 	removeFontInfo( this );
-    type.t = fi.type.t;
+    t.flags = fi.t.flags;
     u = fi.u;
-    if ( type.t != FontInternal && type.t != FontInternalExactMatch )
+    if ( type() != FontInternal )
 	insertFontInfo( this );
     return *this;
 }
@@ -1527,21 +1536,47 @@ int QFontInfo::weight() const
 /*!
   Returns the underline value of the matched window system font.
   \sa QFont::underline()
+
+  \internal Here we read the underline flag directly from the QFont.  This
+  is ok for X11 and for Windows because we always get what we want.
 */
 
 bool QFontInfo::underline() const
 {
-    return spec()->underline;
+    if ( type() == FontInternal ) {
+	return underlineFlag();
+    } else if ( type() == Widget && u.w ) {
+	return u.w->font().underline();
+    } else if ( type() == Painter && u.p ) {
+	return u.p->font().underline();
+    }
+#if defined(CHECK_NULL)
+    warning( "QFontInfo::underline: Invalid font info" );
+#endif
+    return FALSE;
 }
 
 /*!
   Returns the strike out value of the matched window system font.
   \sa QFont::strikeOut()
+
+  \internal Here we read the strikeOut flag directly from the QFont.  This
+  is ok for X11 and for Windows because we always get what we want.
 */
 
 bool QFontInfo::strikeOut() const
 {
-    return spec()->strikeOut;
+    if ( type() == FontInternal ) {
+	return strikeOutFlag();
+    } else if ( type() == Widget && u.w ) {
+	return u.w->font().strikeOut();
+    } else if ( type() == Painter && u.p ) {
+	return u.p->font().strikeOut();
+    }
+#if defined(CHECK_NULL)
+    warning( "QFontInfo::strikeOut: Invalid font info" );
+#endif
+    return FALSE;
 }
 
 /*!
@@ -1601,12 +1636,9 @@ bool QFontInfo::rawMode() const
 bool QFontInfo::exactMatch() const
 {
     bool m;
-    switch ( type.t ) {
+    switch ( type() ) {
     case FontInternal:
-	m = FALSE;
-	break;
-    case FontInternalExactMatch:
-	m = TRUE;
+	m = exactMatchFlag();
 	break;
     case Widget:
 	m = u.w->font().exactMatch();
@@ -1627,7 +1659,7 @@ bool QFontInfo::exactMatch() const
 
 const QFont &QFontInfo::font() const
 {
-    switch ( type.t ) {
+    switch ( type() ) {
     case Widget:
 	return u.w->font();
     case Painter:

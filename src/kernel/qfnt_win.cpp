@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#30 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#30 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -427,13 +427,13 @@ public:
 const QFontDef *QFontMetrics::spec() const
 {
     const QFontDef *s;
-    if ( type.t == FontInternal ) {
+    if ( type() == FontInternal ) {
 	s = u.f->spec();
-    } else if ( type.t == Widget && u.w ) {
+    } else if ( type() == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	s = f->d->fin->spec();
-    } else if ( type.t == Painter && u.p ) {
+    } else if ( type() == Painter && u.p ) {
 	QFont *f = (QFont *)&u.p->font();
 	f->handle();
 	s = f->d->fin->spec();
@@ -449,27 +449,24 @@ const QFontDef *QFontMetrics::spec() const
 
 void *QFontMetrics::textMetric() const
 {
-    void *tm;
-    if ( type.t == FontInternal ) {
-	tm = u.f->textMetric();
-    } else if ( type.t == Widget && u.w ) {
+    if ( type() == FontInternal ) {
+	return u.f->textMetric();
+    } else if ( type() == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
-	tm = f->d->fin->textMetric();
-    } else if ( type.t == Painter && u.p ) {
-	tm = ((QPainter_Protected*)u.p)->tm();
+	return f->d->fin->textMetric();
+    } else if ( type() == Painter && u.p ) {
+	return ((QPainter_Protected*)u.p)->tm();
     } else {
-	tm = 0;
-    }
 #if defined(CHECK_NULL)
-    if ( !tm )
 	warning( "QFontMetrics: Invalid font metrics" );
 #endif
-    return tm;
+	return 0;
+    }
 }
 
 #undef  TM
-#define TM (type.t == FontInternal ? u.f->textMetric() : (TEXTMETRIC*)textMetric())
+#define TM (type() == FontInternal ? u.f->textMetric() : (TEXTMETRIC*)textMetric())
 
 
 int QFontMetrics::ascent() const
@@ -504,16 +501,16 @@ int QFontMetrics::width( const char *str, int len ) const
     if ( len < 0 )
 	len = strlen( str );
     SIZE s;
-    if ( type.t == FontInternal ) {
+    if ( type() == FontInternal ) {
 	GetTextExtentPoint( u.f->dc(), str, len, &s );
 	return s.cx;
     }
     HDC hdc;
-    if ( type.t == Widget && u.w ) {
+    if ( type() == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	hdc = f->d->fin->dc();
-    } else if ( type.t == Painter && u.p ) {
+    } else if ( type() == Painter && u.p ) {
 	hdc = u.p->handle();
     } else {
 #if defined(CHECK_NULL)
@@ -531,18 +528,18 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 	len = strlen( str );
     SIZE s;
     TEXTMETRIC *tm = TM;
-    if ( type.t == FontInternal ) {
+    if ( type() == FontInternal ) {
 	GetTextExtentPoint32( u.f->dc(), str, len, &s );
 	return QRect( 0, -tm->tmAscent, s.cx, tm->tmAscent+tm->tmDescent );
     }
     HDC hdc;
     if ( !tm )
 	return QRect(0, 0, 0, 0);
-    if ( type.t == Widget && u.w ) {
+    if ( type() == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	hdc = f->d->fin->dc();
-    } else if ( type.t == Painter && u.p ) {
+    } else if ( type() == Painter && u.p ) {
 	hdc = u.p->handle();
     } else {
 #if defined(CHECK_NULL)
@@ -573,7 +570,7 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    if ( type.t == FontInternal ) {
+    if ( type() == FontInternal ) {
 	return u.f->lineWidth();
     } else {
 	QFont f = font();
@@ -590,13 +587,13 @@ int QFontMetrics::lineWidth() const
 const QFontDef *QFontInfo::spec() const
 {
     const QFontDef *s;
-    if ( type.t == FontInternal || type.t == FontInternalExactMatch ) {
+    if ( type() == FontInternal ) {
 	s = u.f->spec();
-    } else if ( type.t == Widget && u.w ) {
+    } else if ( type() == Widget && u.w ) {
 	QFont *f = (QFont *)&u.w->font();
 	f->handle();
 	s = f->d->fin->spec();
-    } else if ( type.t == Painter && u.p ) {
+    } else if ( type() == Painter && u.p ) {
 	QFont *f = (QFont *)&u.p->font();
 	f->handle();
 	s = f->d->fin->spec();
