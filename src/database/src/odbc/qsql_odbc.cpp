@@ -102,7 +102,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlResultField qMakeField( const QODBCPrivate* p, int i  )
+QSqlField qMakeField( const QODBCPrivate* p, int i  )
 {
     SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
@@ -124,7 +124,7 @@ QSqlResultField qMakeField( const QODBCPrivate* p, int i  )
 	qSystemWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlResultField( QString((char*)colName), i, type );
+    return QSqlField( QString((char*)colName), i, type );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
@@ -472,9 +472,9 @@ bool QODBCResult::isNull( int field ) const
     return nullCache[ field ];
 }
 
-QSqlResultFields QODBCResult::fields()
+QSqlFieldList QODBCResult::fields()
 {
-    QSqlResultFields fil;
+    QSqlFieldList fil;
     SQLRETURN r;
     SQLSMALLINT count;
     r = SQLNumResultCols( d->hStmt, &count );
@@ -484,7 +484,7 @@ QSqlResultFields QODBCResult::fields()
 #endif
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
-	    QSqlResultField fi = qMakeField( d, i );
+	    QSqlField fi = qMakeField( d, i );
 	    if ( isActive() && isValid() )
 		fi.value() = data( i );
             fil.append( fi );

@@ -18,7 +18,7 @@ protected:
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
     bool	isNull( int i ) const {return FALSE;Q_UNUSED(i);}
-    QSqlResultFields fields() {return QSqlResultFields();}
+    QSqlFieldList   fields() {return QSqlFieldList();}
     int             size() const {return 0;}
     int             affectedRows() const {return 0;}
 };

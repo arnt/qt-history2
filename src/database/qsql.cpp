@@ -363,7 +363,7 @@ bool QSql::last()
 
 */
 
-QSqlResultFields QSql::fields() const
+QSqlFieldList QSql::fields() const
 {
     return d->sqlResult->fields();
 }

@@ -23,7 +23,7 @@ protected:
     QVariant 		data( int field );
     bool		isNull( int field ) const;
     bool 		reset ( const QString& query );
-    QSqlResultFields    fields();
+    QSqlFieldList       fields();
     int                 size() const;
     int                 affectedRows() const;
 private:

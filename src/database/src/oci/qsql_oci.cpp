@@ -455,9 +455,9 @@ bool QOCIResult::isNull( int field ) const
     return cols->isNull( field );
 }
 
-QSqlResultFields QOCIResult::fields()
+QSqlFieldList QOCIResult::fields()
 {
-    QSqlResultFields fil;
+    QSqlFieldList fil;
     ub4 numCols = 0;
     int r  = OCIAttrGet( (dvoid*)d->sql,
     				OCI_HTYPE_STMT,
@@ -471,10 +471,9 @@ QSqlResultFields QOCIResult::fields()
 #endif
     for ( ub4 i = 0; i < numCols; ++i ) {
 	QSqlField fi = qMakeField( d, i );
-	QSqlResultField f ( fi.name(), fi.fieldNumber(), fi.type() );
 	if ( isActive() && isValid() )
-	    f.value() = data( i );
-	fil.append( f );
+	    fi.value() = data( i );
+	fil.append( fi );
     }
     return fil;
 }

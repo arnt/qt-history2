@@ -58,7 +58,7 @@ public:
     bool    	    previous();
     bool    	    first();
     bool    	    last();
-    QSqlResultFields fields() const;
+    QSqlFieldList   fields() const;
     int             size() const;
     int             affectedRows() const;
     QSqlError	    lastError() const;

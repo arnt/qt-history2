@@ -378,14 +378,14 @@ bool QPSQLResult::reset ( const QString& query )
     return FALSE;
 }
 
-QSqlResultFields QPSQLResult::fields()
+QSqlFieldList QPSQLResult::fields()
 {
-    QSqlResultFields fil;
+    QSqlFieldList fil;
     int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
 	QString name = PQfname( d->result, i );
 	QVariant::Type type = qDecodePSQLType( PQftype( d->result, i ) );
-	QSqlResultField rf( name, i, type );
+	QSqlField rf( name, i, type );
 	if ( isActive() && isValid() )
 	    rf.value() = data( i );
 	fil.append( rf );

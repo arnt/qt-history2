@@ -23,7 +23,7 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 {
     if ( !use() )
 	return 0;
-    return = ((QSqlDriverInterface*)plugInterface())->create( name );
+    return ((QSqlDriverInterface*)plugInterface())->create( name );
 }
 
 /*!

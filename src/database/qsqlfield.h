@@ -127,7 +127,6 @@ private:
     QValueList< T > fieldList;
 };
 
-typedef QSqlFields< QSqlResultField > QSqlResultFields;
 typedef QSqlFields< QSqlField > QSqlFieldList;
 
 #endif	// QT_NO_SQL

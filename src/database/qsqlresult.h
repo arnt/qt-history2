@@ -42,7 +42,7 @@ protected:
     virtual bool    fetchPrevious();
     virtual bool    fetchFirst() = 0;
     virtual bool    fetchLast() = 0;
-    virtual QSqlResultFields   fields() = 0;
+    virtual QSqlFieldList   fields() = 0;
     virtual int             size() const = 0;
     virtual int             affectedRows() const = 0;
 private:
