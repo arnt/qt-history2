@@ -4,6 +4,7 @@
 \index internationalization
 \index l10n
 \index localization
+\index multi-language
 
 \omit ### Mark, I'll need your help here ### \endomit
 
@@ -95,6 +96,7 @@ subclassing \Class QTextCodec.
 \index line breaking
 \index right-to-left languages
 \index text rendering
+\index writing systems
 
 Qt provides a powerful text-rendering engine for all text that is
 displayed on screen, from the simplest label to the most
@@ -122,6 +124,7 @@ installed input methods.
 \index QDateTimeEdit
 \index QTimeEdit
 \index dates
+\index locales
 \index times
 
 The editor classes for dates and times (\Class QDateEdit, \Class
@@ -167,6 +170,7 @@ provides additional information to the human translators.
 
 \index .qm
 \index QTranslator
+\index locales
 
 Translations are stored in \Class QTranslator objects, which use
 disk-based \c .qm files (Qt Message files). Each \c .qm file contains

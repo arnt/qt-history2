@@ -1,0 +1,122 @@
+\chapter Collection Classes
+
+\index collection classes
+\index containers
+\index iterators
+\index templates
+
+Qt provides a rich set of portable template collection classes (or \e
+containers) and associated iterators. They are heavily used
+internally, but are also provided as part of the Qt API. Unlike STL
+containers, they are optimized for speed and memory efficiency using
+two techniques: private classes and implicit sharing.
+
+\index bloat problem
+\index code bloat problem
+
+Template classes usually increase the size of executables
+dramatically, because the compiler generates essentially the same
+code for each specialized type. The Qt collection classes reduces
+code bloat by using the \e {private class} approach. Non-template
+private classes implement most of the functionality of collection
+classes by using void pointers, while the actual template collection
+classes are just thin layers above these.
+
+\section1 Value-based Collections
+
+\index value-based collections
+
+\index QTL
+\index STL
+\index algorithms!STL
+\index lists
+\index maps
+\index stacks
+\index vectors
+
+Qt provides six value-based collection classes: \Class QMap\<Key,
+T\>, \Class QStringList, \Class QValueList\<T\>, \Class
+QValueStack\<T\> and \Class QValueVector\<T\>. They have an interface
+very similar to the STL containers and are compatible with the STL
+algorithms.
+
+Qt itself does not depend on STL and provides a few STL algorithms:
+\Func qCopy(), \Func qFind(), \Func qHeapSort(), etc. On platforms
+with STL support, Qt provides automatic conversion operators between
+STL and Qt containers.
+
+\index copy on write
+\index implicit sharing
+\index reference counting
+\index sharing
+
+Qt's value-based collection classes are \e {implicitly shared}, also
+known as \e {copy on write}. Copies of instances of these classes
+share the same data in memory. Programmers need not be concerned
+about the data sharing; if the application modifies the contents of
+one of the copied objects, a deep copy of the data is automatically
+made so that the other objects are left unchanged. This mechanism is
+speed and memory efficient and relieves programmers from optimizing
+by hand.
+
+\omit
+They are represented by a pointer to a
+data block (with a reference count) that contains the items and that
+can be shared by multiple collection class instances. When one
+instance is modified, the data block is first copied so that the
+other instances remain intact. This mechanism is speed and memory
+efficient and relieves programmers from optimizing by hand. It is
+also totally transparent; programmers don't need to know about it.
+\endomit
+
+\index strings
+
+Qt uses implicit sharing for many other classes, including \Class
+QBitmap, \Class QBrush, \Class QCursor, \Class QFont, \Class
+QIconSet, \Class QPalette, \Class QPen, \Class QPicture, \Class
+QPixmap, \Class QRegion, \Class QRegExp and \Class QString.
+Programmers can safely and efficiently copy objects of these classes
+by value, avoiding the risks related to pointers. The implicitly
+shared \Class QString class makes string processing fast and easy.
+
+\section1 Pointer-based Collections
+
+\index caches
+\index dictionaries
+\index lists
+\index pointer-based collections
+\index queues
+\index stacks
+\index vectors
+
+Qt provides many low-level, generic pointer-based collection classes:
+\Class QCache\<T\>, \Class QDict\<Key, T\>, \Class QPtrList\<T\>,
+\Class QPtrQueue\<T\>, \Class QPtrStack\<T\> and \Class
+QPtrVector\<T\>. Only the pointers to the items are stored. These
+collection classes are very useful for storing pointers to \Class
+QWidget or \Class QObject instances.
+
+\index auto-delete
+\index delete
+\index ownership
+
+By calling \Func setAutoDelete(), the pointer-based collection
+classes can take ownership of the objects they contain and
+automatically delete them when the collection is destroyed.
+
+\index POD
+\index arrays
+\index memory arrays
+\index plain old data
+
+Qt also provides \Class QMemArray\<T\> with the subclasses \Class
+QBitArray, \Class QByteArray and \Class QPointArray. These classes
+are very efficient but handle only basic "plain old data" types.
+
+\section1 Further Reading
+
+\list
+\i \l http://doc.trolltech.com/qtl.html
+\i \l http://doc.trolltech.com/collections.html
+\i \l http://doc.trolltech.com/shclass.html
+\endlist

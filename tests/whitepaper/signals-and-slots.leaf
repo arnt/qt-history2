@@ -46,11 +46,11 @@ appear in the public, protected or private sections of a class.
 \index components
 \index reusability
 
-Communication using callbacks or message maps binds classes together,
-making it difficult to develop classes independently. Qt's signals
-and slots mechanism does not require classes to have knowledge of
-each other, which makes it much easier to develop highly reusable
-software components.
+Communication using old-fashioned callbacks or message maps binds
+classes together, making it difficult to develop classes
+independently. Qt's signals and slots mechanism does not require
+classes to have knowledge of each other, which makes it much easier
+to develop highly reusable software components.
 
 \section1 An Example
 
@@ -59,7 +59,7 @@ software components.
 To benefit from signals and slots, a class needs to inherit from
 \Class QObject or one of its subclasses and must include the \c
 Q_OBJECT macro in the class's definition. Signals are declared in the
-\c {signals} section of the class, while slots are declared in the \c
+\c signals section of the class, while slots are declared in the \c
 {public slots}, \c {protected slots} or \c {private slots} sections.
 
 \index inheriting in Qt
@@ -134,7 +134,7 @@ setBalance() slot, which sets \c y's balance to 2450.
 
 One object's signal can be connected to many different slots and many
 signals can be connected to one slot in a particular object. Connections
-can be made between any signal and slot, providing that their arguments
+can be made between any signal and slot, provided that their arguments
 are compatible.
 
 \section1 Meta Object Compiler

@@ -176,5 +176,4 @@ calling \Func QWidget::setGeometry() on each child widget.
 \list
 \i \l http://doc.trolltech.com/layout.html
 \i \l http://doc.trolltech.com/customlayout.html
-\i \l http://doc.trolltech.com/customlayout-example.html
 \endlist
