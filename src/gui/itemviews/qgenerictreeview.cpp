@@ -544,11 +544,11 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
     int max_dy = verticalScrollBar()->pageStep() * 10;
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (dx > max_dx || dy > max_dy) {
+    if (QABS(dx) > max_dx || QABS(dy) > max_dy) {
         d->viewport->update();
         return;
     }   
-        
+
     if (dx) {
         int value = horizontalScrollBar()->value();
         int section = d->header->section(value / d->horizontalFactor);
