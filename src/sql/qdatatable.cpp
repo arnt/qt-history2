@@ -201,10 +201,10 @@ QDataTable::QDataTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent
 
 void QDataTable::init()
 {
+    d = new QDataTablePrivate();
     setFocusProxy( viewport() );
     viewport()->setFocusPolicy( StrongFocus );
-
-    d = new QDataTablePrivate();
+    setAutoEdit( FALSE );
     setSelectionMode( NoSelection );
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
@@ -516,7 +516,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		conf = confirmCancel( QSql::Insert );
 	    if ( conf == Yes ) {
 		insertCancelled = TRUE;
-		endInsert(); // ### What happens to the keyboard focus?
+		endInsert();
 	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
@@ -558,7 +558,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	if ( !d->cancelMode && editorWidget && o == editorWidget &&
 	     ( d->dat.mode() == QSql::Insert) && !d->continuousEdit) {
 	    setCurrentCell( r, c );
-	    endEdit( r, c, TRUE, FALSE );
+	    endEdit( r, c, autoEdit(), FALSE );
 	    return TRUE;
 	}
 	break;
@@ -594,7 +594,7 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
     if ( d->dat.mode() != QSql::None )
-	endEdit( d->editRow, d->editCol, TRUE, FALSE );
+	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
     if ( !sqlCursor() ) {
 	QTable::contentsMousePressEvent( e );
 	return;
@@ -1221,6 +1221,27 @@ bool QDataTable::autoDelete() const
 void QDataTable::setAutoDelete( bool enable )
 {
     d->cur.setAutoDelete( enable );
+}
+
+/*!  Sets the auto-edit property of the table to \a auto. The
+  default is FALSE. ### more info
+
+*/
+
+void QDataTable::setAutoEdit( bool autoEdit )
+{
+    d->dat.setAutoEdit( autoEdit );
+}
+
+
+/*! Returns TRUE if the auto-edit property is on, otherwise FALSE is
+  returned.
+
+*/
+
+bool QDataTable::autoEdit() const
+{
+    return d->dat.autoEdit();
 }
 
 /*!  Sets the text to be displayed when a NULL value is encountered in

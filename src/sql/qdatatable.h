@@ -69,6 +69,7 @@ class Q_EXPORT QDataTable : public QTable
     Q_PROPERTY( bool confirmUpdate READ confirmUpdate WRITE setConfirmUpdate )
     Q_PROPERTY( bool confirmDelete READ confirmDelete WRITE setConfirmDelete )
     Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
+    Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
     Q_PROPERTY( int numCols READ numCols )
@@ -92,6 +93,7 @@ public:
     bool         confirmDelete() const;
     bool         confirmCancels() const;
     bool         autoDelete() const;
+    bool         autoEdit() const;
     QString      filter() const;
     QStringList  sort() const;
 
@@ -110,6 +112,7 @@ public:
     virtual void setConfirmDelete( bool confirm );
     virtual void setConfirmCancels( bool confirm );
     virtual void setAutoDelete( bool enable );
+    virtual void setAutoEdit( bool autoEdit );
     virtual void setFilter( const QString& filter );
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
