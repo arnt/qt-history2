@@ -7,5 +7,6 @@ CONFIG	+= ordered
 } else {
 
 	SUBDIRS	= idc \
-		  dumpdoc
+		  dumpdoc \
+		  dumpcpp
 }

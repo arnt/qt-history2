@@ -1,0 +1,66 @@
+/*! \page activeqt-tools-dumpdoc.html
+    \ingroup activeqt-tools
+    \title The DumpCpp Tool
+
+    The \c dumpcpp tool generates a C++ class for any COM object, or a C++ namespace
+    for a type library.
+
+    To generate a C++ class for a COM object, call \c dumpcpp with the following 
+    command line parameters:
+
+    \table
+    \header
+    \i Option
+    \i Result
+    \row
+    \i object
+    \i Generate documentation for \e object
+    \row
+    \i -o file
+    \i Writes the class declaration to \e {file}.h and meta object infomation to \e {file}.cpp
+    \row
+    \i -n namespace
+    \i Generate a C++ namespace \e namespace
+    \row
+    \i -c classname
+    \i Generate a C++ class \e classname
+    \row
+    \i -nometaobject
+    \i Do not generate a .cpp file with the meta object information. 
+    The meta object is then generated in runtime.
+    \row
+    \i -v
+    \i Print version information
+    \row
+    \i -h
+    \i Print help
+    \endtable
+
+    \e object must be an object installed on the local machine (ie.
+    remote objects are not supported), and can include subobjects
+    accessible through properties, ie.
+    \c Outlook.Application/Session/CurrentUser
+
+    To generate a C++ namespace for a type library call \c dumpcpp with the
+    following command line paramters:
+
+    \table
+    \header
+    \i Option
+    \i Result
+    \row
+    \i file
+    \i Generate documentation for the type library \e file
+    \row
+    \i -o file
+    \i Writes the namespace declaration to \e {file}.h and meta object infomation to \e {file}.cpp
+    \row
+    \i -nometaobject
+    \i Do not generate a .cpp file with the meta object information.
+    The meta object is then generated in runtime.
+    \endtable
+
+    To build the tool you must first build the
+    \link qaxcontainer.html QAxContainer \endlink library.
+    Then run your make tool in \c tools/dumpcpp.
+*/
