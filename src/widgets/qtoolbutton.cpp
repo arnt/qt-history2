@@ -62,7 +62,7 @@ public:
     QGuardedPtr<QPopupMenu> popup;
     QTimer* popupTimer;
     int delay;
-    Qt::ArrowType arrow	    : 2;
+    Qt::ArrowType arrow;
     uint instantPopup	    : 1;
     uint autoraise	    : 1;
     uint repeat		    : 1;
