@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#253 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#254 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1962,7 +1962,7 @@ void QListBox::setRowMode( LayoutMode mode )
 /*!  Sets the row layout mode for this list box to \c FixedNumber and sets the
   number of displayed rows accordingly.
 
-  \setColumnMode() rowMode() numRows()
+  \sa setColumnMode() rowMode() numRows()
 */
 
 void QListBox::setRowMode( int rows )
