@@ -4514,7 +4514,7 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
 #define d d_func()
 
 QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
-    : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
+    : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), clipOn(false), savedImage(0),
       bkMode(Qt::TransparentMode),
       fm(QFont()), textY(0), collate(false), copies(1), outputToFile(false), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::GrayScale),
