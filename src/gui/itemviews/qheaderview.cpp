@@ -1095,7 +1095,6 @@ void QHeaderView::paintEvent(QPaintEvent *e)
     int logical;
     int width = d->viewport->width();
     int height = d->viewport->height();
-    QModelIndex current = selectionModel()->currentIndex();
     bool highlight = false;
     QFont fnt(painter.font()); // save the painter font
     for (int i = start; i <= end; ++i) {

@@ -879,7 +879,6 @@ QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
     if (!(tl.isValid() && br.isValid()))
         return QRect();
 
-    QStyleOptionViewItem option = viewOptions();
     int bottomHeight = d->height(bottom);
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
