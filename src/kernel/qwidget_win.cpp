@@ -277,14 +277,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    fright = fr.right - crect.right();
 
 	    createTLExtra();
-	    extra->topextra->fsize = QSize(fr.right-fr.left+1,
-					   fr.bottom-fr.top+1);
  	} else {
 	    crect.setCoords( cr.left, cr.top, cr.right, cr.bottom );
+	    ftop = fleft = fbottom = fright = 0;
 	    // in case extra data already exists (eg. reparent()).  Set it.
-	    if ( extra && extra->topextra )
-		extra->topextra->fsize = QSize(cr.right-cr.left+1,
-					       cr.bottom-cr.top+1);
 	}
     }
 
@@ -966,7 +962,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    }
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
 	} else {
-	    crest.setRect( x, y, w, h );
+	    crect.setRect( x, y, w, h );
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	}
 	clearWState( WState_ConfigPending );
@@ -1272,4 +1268,34 @@ void QWidget::clearMask()
 void QWidget::setName( const char *name )
 {
     QObject::setName( name );
+}
+
+void QWidget::updateFrameStrut()
+{
+    if ( !fstrut_dirty || !isVisible() || isDesktop() )
+        return;
+
+    if ( !isTopLevel() ) {
+	fleft = fright = ftop = fbottom = 0;
+	return;
+    }
+
+    RECT  fr, cr;
+    GetWindowRect( winId(), &fr );
+    GetClientRect( winId(), &cr );
+
+    POINT pt;
+    pt.x = 0;
+    pt.y = 0;
+
+    ClientToScreen( winId(), &pt );
+    crect = QRect( QPoint( pt.x, pt.y ),
+ 		   QPoint( pt.x + cr.right, pt.y + cr.bottom ) );
+
+    ftop = crect.top() - fr.top;
+    fleft = crect.left() - fr.left;
+    fbottom = fr.bottom - crect.bottom();
+    fright = fr.right - crect.right();
+
+    fstrut_dirty = 0;
 }
