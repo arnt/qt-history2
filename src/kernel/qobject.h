@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#29 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#30 $
 **
 ** Definition of QObject class
 **
@@ -24,11 +24,11 @@ public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
 
-    virtual bool event( QEvent * );		// handle event
+    virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
 
     virtual QMetaObject *metaObject() const { return metaObj; }
-    virtual const char	*className()  const;	// get name of class
+    virtual const char	*className()  const;
 
     bool	isA( const char * )	 const;
     bool	inherits( const char * ) const;
@@ -41,9 +41,9 @@ public:
     bool	signalsBlocked()  const { return blockSig; }
     void	blockSignals( bool b );
 
-    int		startTimer( long interval );	// start timer events
-    void	killTimer( int id );		// kill timer event
-    void	killTimers();			// kill all timers for object
+    int		startTimer( int interval );
+    void	killTimer( int id );
+    void	killTimers();
 
     const QObjectList *children() const { return childObjects; }
     QObjectList	      *queryList( const char *inheritsClass = 0,
@@ -51,8 +51,8 @@ public:
 				  bool regexpMatch = TRUE,
 				  bool recursiveSearch = TRUE );
 
-    void	insertChild( QObject * );	// add child object
-    void	removeChild( QObject * );	// remove child object
+    void	insertChild( QObject * );
+    void	removeChild( QObject * );
 
     void	installEventFilter( const QObject * );
     void	removeEventFilter( const QObject * );
@@ -67,7 +67,7 @@ public:
 			    const QObject *receiver=0, const char *member=0 );
     bool	disconnect( const QObject *receiver, const char *member=0 );
 
-    void	dumpObjectTree();		// NOTE!!! For debugging
+    void	dumpObjectTree();
     void	dumpObjectInfo();
 
 signals:
@@ -82,33 +82,32 @@ protected:
     void	activate_signal( const char *signal, int );
     void	activate_signal( const char *signal, long );
     void	activate_signal( const char *signal, const char * );
-    QObject	*sender();			// sender of last signal
+    QObject	*sender();
 
-    virtual void initMetaObject();		// initialize meta object
+    virtual void initMetaObject();
 
     virtual void timerEvent( QTimerEvent * );
 
-    uint	isSignal   : 1;			// is signal object
-    uint	isWidget   : 1;			// is widget object
-    uint	hiPriority : 1;			// high priority object
-    uint	pendTimer  : 1;			// pending timer(s)
-    uint	pendEvent  : 1;			// pending event(s)
-    uint	blockSig   : 1;			// blocking signals
+    uint	isSignal   : 1;
+    uint	isWidget   : 1;
+    uint	hiPriority : 1;
+    uint	pendTimer  : 1;
+    uint	pendEvent  : 1;
+    uint	blockSig   : 1;
 
 private slots:
     void	cleanupEventFilter();
 
 private:
-    //    bool	 bind( const char *, const QObject *, const char * );
     QMetaObject *queryMetaObject() const;
-    static QMetaObject *metaObj;		// meta object for class
-    char	*objname;			// object name
-    QObject	*parentObj;			// parent object
-    QObjectList *childObjects;			// list of children objects
-    QSignalDict *connections;			// connections (signals out)
-    QObjectList *senderObjects;			// list of sender objects
-    QObjectList *eventFilters;			// list of event filters
-    QObject	*sigSender;			// sender of last signal
+    static QMetaObject *metaObj;
+    char	*objname;
+    QObject	*parentObj;
+    QObjectList *childObjects;
+    QSignalDict *connections;
+    QObjectList *senderObjects;
+    QObjectList *eventFilters;
+    QObject	*sigSender;
 
     friend class QApplication;
     friend class QWidget;

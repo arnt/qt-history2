@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#38 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#38 $")
 
 
 /*****************************************************************************
@@ -1015,7 +1015,7 @@ void qt_close_popup( QWidget *popup )
   qStartTimer( interval, obj )
 	Starts a timer which will run until it is killed with qKillTimer()
 	Arguments:
-	    long interval	timer interval in milliseconds
+	    int interval	timer interval in milliseconds
 	    QObject *obj	where to send the timer event
 	Returns:
 	    int			timer identifier, or zero if not successful
@@ -1097,7 +1097,6 @@ static void activateZeroTimers()		// activate full-speed timers
 	QTimerEvent e( t->ind + 1 );
 	QApplication::sendEvent( t->obj, &e );
     }
-
 }
 
 
@@ -1135,7 +1134,7 @@ static void cleanupTimers()			// remove pending timers
 // Main timer functions for starting and killing timers
 //
 
-int qStartTimer( long interval, QObject *obj )	// start timer
+int qStartTimer( int interval, QObject *obj )	// start timer
 {
     register TimerInfo *t;
     if ( !timerVec )				// initialize timer data

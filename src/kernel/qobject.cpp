@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#87 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#86 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#87 $")
 
 
 /*----------------------------------------------------------------------------
@@ -197,7 +197,7 @@ static bool checkCompatArgs( const char *signal, const char *member )
 
 // Event functions, implemented in qapp_xxx.cpp
 
-int   qStartTimer( long interval, QObject *obj );
+int   qStartTimer( int interval, QObject *obj );
 bool  qKillTimer( int id );
 bool  qKillTimer( QObject *obj );
 
@@ -669,7 +669,7 @@ void QObject::blockSignals( bool block )
   \sa timerEvent(), killTimer(), killTimers()
  ----------------------------------------------------------------------------*/
 
-int QObject::startTimer( long interval )
+int QObject::startTimer( int interval )
 {
     pendTimer = TRUE;				// set timer flag
     return qStartTimer( interval, (QObject *)this );

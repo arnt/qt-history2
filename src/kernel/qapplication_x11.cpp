@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#149 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#148 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#149 $")
 
 
 /*****************************************************************************
@@ -1575,7 +1575,7 @@ void qt_close_popup( QWidget *popup )
   qStartTimer( interval, obj )
 	Starts a timer which will run until it is killed with qKillTimer()
 	Arguments:
-	    long interval	timer interval in milliseconds
+	    int interval	timer interval in milliseconds
 	    QObject *obj	where to send the timer event
 	Returns:
 	    int			timer identifier, or zero if not successful
@@ -1812,7 +1812,7 @@ static void cleanupTimers()			// cleanup timer data structure
 // Main timer functions for starting and killing timers
 //
 
-int qStartTimer( long interval, QObject *obj )	// start timer
+int qStartTimer( int interval, QObject *obj )
 {
     if ( !timerList )				// initialize timer data
 	initTimers();
