@@ -7,7 +7,6 @@ HEADERS += \
 	codecs/qtextcodec.h \
 	codecs/qtsciicodec_p.h \
 	codecs/qutfcodec_p.h \
-	codecs/qtextcodecfactory.h \
 	codecs/qtextcodecplugin.h
 
 SOURCES += \
@@ -17,7 +16,6 @@ SOURCES += \
 	codecs/qtextcodec.cpp \
 	codecs/qtsciicodec.cpp \
 	codecs/qutfcodec.cpp \
-	codecs/qtextcodecfactory.cpp \
 	codecs/qtextcodecplugin.cpp
 
 unix {

@@ -20,7 +20,9 @@
 
 #include "qlist.h"
 #include "qfile.h"
-#include "qtextcodecfactory.h"
+#include "qcoreapplication.h"
+#include "qtextcodecplugin.h"
+#include "private/qfactoryloader_p.h"
 
 #include "qutfcodec_p.h"
 #include "qsimplecodec_p.h"
@@ -44,8 +46,36 @@
 #include <langinfo.h>
 #endif
 
+
+#ifndef QT_NO_COMPONENT
+Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
+    (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/codecs")))
+#endif
+
+static QTextCodec *createForName(const QString &name)
+{
+#ifndef QT_NO_COMPONENT
+    if (QTextCodecFactoryInterface *factory =
+        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+        return factory->create(name);
+#endif
+    return 0;
+}
+
+static QTextCodec *createForMib(int mib)
+{
+#ifndef QT_NO_COMPONENT
+    QString name = QLatin1String("MIB: ") + QString::number(mib);
+    if (QTextCodecFactoryInterface *factory =
+        qt_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
+        return factory->create(name);
+#endif
+    return 0;
+}
+
 static QList<QTextCodec*> *all = 0;
 static bool destroying_is_ok = false;
+
 static QTextCodec *localeMapper = 0;
 QTextCodec *QTextCodec::cftr = 0;
 
@@ -65,22 +95,9 @@ static void deleteAllCodecs()
     if (!all)
         return;
 
-    QMutexLocker locker(qt_global_mutexpool ?
-                         qt_global_mutexpool->get(&all) : 0);
-    if (!all)
-        return;
-
-    destroying_is_ok = true;
-
-    QList<QTextCodec*> *ball = all;
+    qDeleteAll(*all);
+    delete all;
     all = 0;
-    QList<QTextCodec*>::Iterator it;
-    for (it = ball->begin(); it != ball->end(); ++it) {
-        delete *it;
-        *it = 0;
-    }
-    ball->clear();
-    delete ball;
 
     destroying_is_ok = false;
 }
@@ -91,21 +108,6 @@ public:
     ~QTextCodecCleanup() { deleteAllCodecs(); }
 };
 static QTextCodecCleanup qtextcodec_cleanup;
-
-
-static void realSetup();
-
-static inline void setup()
-{
-    if (all) return;
-
-    QMutexLocker locker(qt_global_mutexpool ?
-                         qt_global_mutexpool->get(&all) : 0);
-    if (all) return;
-
-    realSetup();
-}
-
 
 
 #ifdef Q_OS_WIN32
@@ -383,8 +385,14 @@ static void setupLocaleMapper()
 }
 
 
-static void realSetup()
+static void setup()
 {
+    if (all) return;
+
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&all) : 0);
+    if (all) return;
+
     if (destroying_is_ok)
         qWarning("QTextCodec: Creating new codec during codec cleanup");
     all = new QList<QTextCodec*>;
@@ -648,71 +656,58 @@ QTextCodec::~QTextCodec()
 }
 
 
+static bool simpleHeuristicNameMatch(const QByteArray &name, const QByteArray &test)
+{
+    // if they're the same, return a perfect score
+    if (qstricmp(name, test) == 0)
+        return true;
+
+    const char *n = name.constData();
+    const char *h = test.constData();
+
+    // if the letters and numbers are the same, we have a match
+    while (*n != '\0') {
+        if (isalnum((uchar)*n)) {
+            for (;;) {
+                if (*h == '\0')
+                    return false;
+                if (isalnum((uchar)*h))
+                    break;
+                ++h;
+            }
+            if (tolower((uchar)*n) != tolower((uchar)*h))
+                return false;
+            ++h;
+        }
+        ++n;
+    }
+    return (*h == '\0');
+}
+
 /*!
     Searches all installed QTextCodec objects and returns the one
     which best matches \a name; the match is case-insensitive. Returns
     0 if no codec matching the name \a name could be found.
 */
-
 QTextCodec *QTextCodec::codecForName(const QByteArray &name)
 {
     if (name.isEmpty())
         return 0;
 
     setup();
-    QList<QTextCodec*>::ConstIterator i;
-    for (i = all->begin(); i != all->end(); ++i) {
-        QTextCodec *cursor = *i;
-        // ######## use aliases as well
-        if (cursor->name() == name)
+
+    for (int i = 0; i < all->size(); ++i) {
+        QTextCodec *cursor = all->at(i);
+        if (simpleHeuristicNameMatch(cursor->name(), name))
             return cursor;
+        QList<QByteArray> aliases = cursor->aliases();
+        for (int i = 0; i < aliases.size(); ++i)
+            if (simpleHeuristicNameMatch(aliases.at(i), name))
+                return cursor;
     }
 
-#if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
-    return QTextCodecFactory::createForName(name);
-#else
-    return 0;
-#endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
+    return createForName(name);
 }
-
-
-
-#if 0
-/*!
-    A simple utility function for heuristicNameMatch(): it does some
-    very minor character-skipping so that almost-exact matches score
-    high. \a name is the text we're matching and \a hint is used for
-    the comparison.
-*/
-int QTextCodec::simpleHeuristicNameMatch(const char *name, const char *hint)
-{
-    // if they're the same, return a perfect score
-    if (qstricmp(name, hint) == 0)
-        return qstrlen(hint);
-
-    const char *n = name;
-    const char *h = hint;
-
-    // if the letters and numbers are the same, we have an almost
-    // perfect match
-    while (*n != '\0') {
-        if (isalnum((uchar)*n)) {
-            for (;;) {
-                if (*h == '\0')
-                    return 0;
-                if (isalnum((uchar)*h))
-                    break;
-                ++h;
-            }
-            if (tolower((uchar)*n) != tolower((uchar)*h))
-                return 0;
-            ++h;
-        }
-        ++n;
-    }
-    return h - hint - 1;
-}
-#endif
 
 
 /*!
@@ -722,23 +717,15 @@ int QTextCodec::simpleHeuristicNameMatch(const char *name, const char *hint)
 QTextCodec* QTextCodec::codecForMib(int mib)
 {
     setup();
+
     QList<QTextCodec*>::ConstIterator i;
-    QTextCodec* result=0;
-    for (i = all->begin(); i != all->end(); ++i) {
-        result = *i;
-        if (result->mibEnum() == mib)
-            return result;
+    for (int i = 0; i < all->size(); ++i) {
+        QTextCodec *cursor = all->at(i);
+        if (cursor->mibEnum() == mib)
+            return cursor;
     }
 
-#if !defined(QT_NO_COMPONENT) && !defined(QT_LITE_COMPONENT)
-    if (!result || (result && result->mibEnum() != mib)) {
-        QTextCodec *codec = QTextCodecFactory::createForMib(mib);
-        if (codec)
-            result = codec;
-    }
-#endif // !QT_NO_COMPONENT !QT_LITE_COMPONENT
-
-    return result;
+    return createForMib(mib);
 }
 
 
@@ -749,7 +736,8 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 
     \sa codecForLocale()
 */
-void QTextCodec::setCodecForLocale(QTextCodec *c) {
+void QTextCodec::setCodecForLocale(QTextCodec *c)
+{
     localeMapper = c;
 }
 

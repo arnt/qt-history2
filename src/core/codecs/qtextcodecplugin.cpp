@@ -38,7 +38,7 @@
 /*!
     \fn QStringList QTextCodecPlugin::names() const
 
-    Returns the list of mime names supported by this plugin.
+    Returns the list of mime names and aliases supported by this plugin.
 
     \sa createForName()
 */
@@ -93,13 +93,13 @@ QStringList QTextCodecPlugin::keys() const
     QStringList keys = names();
     QList<int> mibs = mibEnums();
     for (int i = 0; i < mibs.count(); ++i)
-        keys += QLatin1String("MIB-") + QString::number(mibs.at(i));
+        keys += QLatin1String("MIB: ") + QString::number(mibs.at(i));
     return keys;
 }
 
 QTextCodec *QTextCodecPlugin::create(const QString &name)
 {
-    if (name.startsWith(QLatin1String("MIB-")))
+    if (name.startsWith(QLatin1String("MIB: ")))
         return createForMib(name.mid(4).toInt());
     return createForName(name);
 }
