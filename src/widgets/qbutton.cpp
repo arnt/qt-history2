@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#undef QT_NO_COMPAT
 #include "qbutton.h"
 #ifndef QT_NO_BUTTON
 #include "qbuttongroup.h"
