@@ -408,6 +408,7 @@ void QTextDocumentLayout::draw(QPainter *painter, const PaintContext &context)
 
 void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 {
+    Q_UNUSED(oldLength);
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
     QTextBlockIterator it = findBlock(from);
     QTextBlockIterator end = findBlock(from + length - 1);

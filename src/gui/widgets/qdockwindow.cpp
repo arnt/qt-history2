@@ -1113,6 +1113,9 @@ void QDockWindow::resizeEvent(QResizeEvent *e)
 
 void QDockWindow::swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *)
 {
+    Q_UNUSED(r);
+    Q_UNUSED(o);
+    Q_UNUSED(offset);
 #if 0
     QBoxLayout *bl = boxLayout()->createTmpCopy();
     bl->setDirection(o == Horizontal ? QBoxLayout::LeftToRight : QBoxLayout::TopToBottom);

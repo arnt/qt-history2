@@ -2180,6 +2180,9 @@ void QGdiplusPaintEngine::drawEllipse(const QRect &r)
 
 void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
+    Q_UNUSED(r);
+    Q_UNUSED(a);
+    Q_UNUSED(alen);
 //     int subtract = d->usePen ? 1 : 0;
 //     if (d->usePen) {
 //         d->graphics->DrawArc(d->pen, r.x(), r.y(),
@@ -2190,6 +2193,9 @@ void QGdiplusPaintEngine::drawArc(const QRect &r, int a, int alen)
 
 void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
 {
+    Q_UNUSED(r);
+    Q_UNUSED(a);
+    Q_UNUSED(alen);
 //     int subtract = d->usePen ? 1 : 0;
 //     if (d->brush) {
 //         d->graphics->FillPie(d->brush, r.x(), r.y(),
@@ -2205,6 +2211,9 @@ void QGdiplusPaintEngine::drawPie(const QRect &r, int a, int alen)
 
 void QGdiplusPaintEngine::drawChord(const QRect &r, int a, int alen)
 {
+    Q_UNUSED(r);
+    Q_UNUSED(a);
+    Q_UNUSED(alen);
 //     GraphicsPath path(FillModeAlternate);
 //     int subtract = d->usePen ? 1 : 0;
 //     path.AddArc(r.x(), r.y(), r.width()-subtract, r.height()-subtract, -a/16.0, -alen/16.0);
@@ -2217,6 +2226,9 @@ void QGdiplusPaintEngine::drawChord(const QRect &r, int a, int alen)
 
 void QGdiplusPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
+    Q_UNUSED(pa);
+    Q_UNUSED(index);
+    Q_UNUSED(nlines);
 //     if (d->usePen) {
 //         GraphicsPath path;
 //         for (int i=0; i<nlines*2; i+=2) {
@@ -2229,6 +2241,9 @@ void QGdiplusPaintEngine::drawLineSegments(const QPointArray &pa, int index, int
 
 void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
+    Q_UNUSED(pa);
+    Q_UNUSED(index);
+    Q_UNUSED(npoints);
 //     if (d->usePen) {
 //         GraphicsPath path;
 //         for (int i=1; i<npoints; ++i)
@@ -2240,6 +2255,10 @@ void QGdiplusPaintEngine::drawPolyline(const QPointArray &pa, int index, int npo
 
 void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
+    Q_UNUSED(pa);
+    Q_UNUSED(winding);
+    Q_UNUSED(index);
+    Q_UNUSED(npoints);
 //     if (d->usePen || d->brush) {
 //         Point *p = new Point[npoints];
 //         for (int i=0; i<npoints; ++i)
@@ -2255,6 +2274,9 @@ void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int i
 
 void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
+    Q_UNUSED(pa);
+    Q_UNUSED(index);
+    Q_UNUSED(npoints);
 //     drawPolygon(pa, index, npoints);
 }
 
@@ -2262,6 +2284,7 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
 
 void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
+    Q_UNUSED(imask);
     QtGpBitmap *bitmap = qt_convert_to_gdipbitmap(&pm);
     GdipDrawImageRectRectI(d->graphics, bitmap,
                            r.x(), r.y(), r.width(), r.height(),
@@ -2274,6 +2297,8 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
                                           const QPoint &, bool)
 {
+    Q_UNUSED(r);
+    Q_UNUSED(pm);
 //     QImage image = pm.convertToImage();
 //     Q_ASSERT(image.depth() == 32);
 //     Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), PixelFormat32bppARGB,
@@ -2287,6 +2312,8 @@ void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
 #ifndef QT_NO_BEZIER
 void QGdiplusPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 {
+    Q_UNUSED(pa);
+    Q_UNUSED(index);
 //     if (d->usePen) {
 //         Point *p = new Point[pa.size()];
 //         for (int i=0; i<pa.size() - index; ++i) {

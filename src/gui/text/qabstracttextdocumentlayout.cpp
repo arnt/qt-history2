@@ -75,6 +75,8 @@ void QAbstractTextDocumentLayout::setSize(QTextObject item, const QTextFormat &f
 
 void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
 {
+    Q_UNUSED(item);
+    Q_UNUSED(format);
 }
 
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,
