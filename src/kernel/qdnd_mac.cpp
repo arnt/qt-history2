@@ -335,15 +335,14 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     dragRegion.translate(boundsPoint.h, boundsPoint.v);
 #endif
 
+    qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, FALSE);
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extra->macDndExtra, theDrag );
-    //now let the mac take control..
-    qt_mac_in_drag = TRUE;
-    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );
-    qt_mac_in_drag = FALSE;
+    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );     //now let the mac take control..
     DisposeDrag( theDrag );
+    qt_mac_in_drag = FALSE;
     return !result;
 }
 
@@ -356,22 +355,21 @@ struct QMacDndExtra {
     QWidget *widget;
     bool acceptfmt;
     bool acceptact;
+    bool received;
     int ref;
 };
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
-    Point mouse;
-    QPoint globalMouse;
+    macDndExtra->received = TRUE;
     current_dropobj = theDrag;
+    Point mouse;
     GetDragMouse( theDrag, &mouse, 0L );
-    globalMouse = QPoint( mouse.h, mouse.v );
     QWidget *widget = QApplication::widgetAt( mouse.h, mouse.v, true );
-    if ( !widget || (!widget->acceptDrops()) )
+    if ( !widget || (!widget->acceptDrops()) ) 
 	return 1;
-
-    QDropEvent de( widget->mapFromGlobal( globalMouse ) );
+    QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
     QApplication::sendEvent( widget, &de );
     macDndExtra->acceptact = de.isActionAccepted();
     return 0;
@@ -395,6 +393,9 @@ static const DragReceiveHandlerUPP make_receiveUPP()
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag )
 {
+    if(theMessage == kDragRegionIdle || theMessage == kDragRegionEnd) //its already said and done
+	return 1;
+
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     Point mouse;
     QPoint globalMouse;
