@@ -369,7 +369,7 @@ struct XPThemeData
             if (hMirrored || vMirrored)
             {
                 QImage img = pm.toImage();
-                img = img.mirror(hMirrored, vMirrored);
+                img = img.mirrored(hMirrored, vMirrored);
                 pm = QPixmap::fromImage(img);
             }
             painter->drawPixmap(rec.x(), rec.y(), pm);
@@ -409,7 +409,7 @@ struct XPThemeData
                 if (hMirrored || vMirrored)
                 {
                     QImage img = pm.toImage();
-                    img = img.mirror(hMirrored, vMirrored);
+                    img = img.mirrored(hMirrored, vMirrored);
                     pm = QPixmap::fromImage(img);
                 }
 
