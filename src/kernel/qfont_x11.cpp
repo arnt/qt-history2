@@ -1754,7 +1754,7 @@ bool QFont_Private::fontmapping(const QString& filename)
 }
 
 QCString QFont_Private::bestMatchFontSetMember( const QString& family,
-		const char *wt, const char *slant, int size, int xdpi, int ydpi )
+		const char *wt, const char *slant, int size, int /*xdpi*/, int /*ydpi*/ )
 {
     static int read = 0;
 
