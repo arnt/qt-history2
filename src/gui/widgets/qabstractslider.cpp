@@ -91,6 +91,20 @@
 */
 
 /*!
+    \enum QAbstractSlider::SliderAction
+
+    \value SliderNoAction
+    \value SliderSingleStepAdd
+    \value SliderSingleStepSub
+    \value SliderPageStepAdd
+    \value SliderPageStepSub
+    \value SliderToMinimum
+    \value SliderToMaximum
+    \value SliderMove
+
+*/
+
+/*!
     \fn void QAbstractSlider::valueChanged(int value)
 
     This signal is emitted when the slider value has changed, with the
@@ -406,10 +420,10 @@ int QAbstractSlider::sliderPosition() const
     \property QAbstractSlider::value
     \brief the slider's current value
 
-   The slider forces the value to be within the legal range (\l
-   minimum <= \l value <= \l maximum).
+    The slider forces the value to be within the legal range:
+    \l minimum <= \l value <= \l maximum.
 
-   Changing the value also changes the \l sliderPosition.
+    Changing the value also changes the \l sliderPosition.
 */
 
 
@@ -548,7 +562,8 @@ void QAbstractSlider::timerEvent(QTimerEvent *e)
     }
 }
 
-/*!  Reimplement this virtual function to track slider changes such as
+/*!  
+  Reimplement this virtual function to track slider changes such as
   \c SliderRangeChange, \c SliderOrientationChange,
   \c SliderStepsChange, or \c SliderValueChange. The default
   implementation only updates the display.
