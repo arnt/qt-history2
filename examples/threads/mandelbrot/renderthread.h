@@ -26,17 +26,13 @@ protected:
     void run();
 
 private:
-    struct RenderParameters
-    {
-        float centerX;
-        float centerY;
-        float scaleFactor;
-        QSize resultSize;
-    };
-
     QMutex mutex;
-    QWaitCondition cond;
-    RenderParameters *parameters;
+    QWaitCondition condition;
+    float centerX;
+    float centerY;
+    float scaleFactor;
+    QSize resultSize;
+    bool restart;
     bool abort;
 };
 

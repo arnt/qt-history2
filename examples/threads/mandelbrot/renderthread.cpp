@@ -45,7 +45,7 @@ static uint rgbFromWaveLength(float wave)
 RenderThread::RenderThread(QObject *parent)
     : QThread(parent)
 {
-    parameters = 0;
+    restart = false;
     abort = false;
 
     for (int i = 0; i < ColormapSize; ++i)
@@ -54,75 +54,67 @@ RenderThread::RenderThread(QObject *parent)
 
 RenderThread::~RenderThread()
 {
+    mutex.lock();
     abort = true;
+    condition.wakeOne();
+    mutex.unlock();
+
     wait();
 }
 
 void RenderThread::run()
 {
     forever {
-        short limit = 4;
-        int lp;
-        float a1, a2, b1, b2;
-        int x, y;
-        float ax, ay;
-
         mutex.lock();
-        QSize resultSize = parameters->resultSize;
-        float scaleFactor = parameters->scaleFactor;
-        float centerX = parameters->centerX;
-        float centerY = parameters->centerY;
-        delete parameters;
-        parameters = 0;
+        QSize resultSize = this->resultSize;
+        float scaleFactor = this->scaleFactor;
+        float centerX = this->centerX;
+        float centerY = this->centerY;
         mutex.unlock();
 
         int halfWidth = resultSize.width() / 2;
         int halfHeight = resultSize.height() / 2;
         QImage image(resultSize, 32);
 
-        int passCount = 32;
-        for (int pass = 0; pass < passCount; ++pass) {
-            const int maxPrecision = (pass + 3) * 30;
+        const int MaxPrecision = 256;
+        int limit = 4;
 
-            for (y = -halfHeight; y < halfHeight; ++y) {
-                if (parameters)
-                    break;
-                if (abort)
-                    return;
-
-                QRgb *scanLine = (QRgb *) image.scanLine(y + halfHeight);
-                for (x = -halfWidth; x < halfWidth; ++x) {
-                    ax = centerX + (x * scaleFactor);
-                    ay = centerY + (y * scaleFactor);
-                    a1 = ax;
-                    b1 = ay;
-                    lp = 0;
-
-                    do {
-                        ++lp;
-                        a2 = a1 * a1 - b1 * b1 + ax;
-                        b2 = 2 * a1 * b1 + ay;
-                        a1 = a2;
-                        b1 = b2;
-                    } while (lp <= maxPrecision
-                             && (a1 * a1) + (b1 * b1) < limit);
-
-                    if (lp > maxPrecision)
-                        *scanLine++ = qRgb(0, 0, 0);
-                    else
-                        *scanLine++ = colormap[lp % ColormapSize];
-                }
-            }
-
-            if (!parameters) {
-                emit finishedRendering(image);
-            } else {
+        for (int y = -halfHeight; y < halfHeight; ++y) {
+            if (restart)
                 break;
+            if (abort)
+                return;
+
+            QRgb *scanLine =
+                   reinterpret_cast<QRgb *>(image.scanLine(y + halfHeight));
+            for (int x = -halfWidth; x < halfWidth; ++x) {
+                float ax = centerX + (x * scaleFactor);
+                float ay = centerY + (y * scaleFactor);
+                float a1 = ax;
+                float b1 = ay;
+                int numPasses = 0;
+
+                do {
+                    ++numPasses;
+                    float a2 = a1 * a1 - b1 * b1 + ax;
+                    float b2 = 2 * a1 * b1 + ay;
+                    a1 = a2;
+                    b1 = b2;
+                } while (numPasses <= MaxPrecision
+                         && (a1 * a1) + (b1 * b1) <= limit);
+
+                if (numPasses > MaxPrecision)
+                    *scanLine++ = qRgb(0, 0, 0);
+                else
+                    *scanLine++ = colormap[numPasses % ColormapSize];
             }
+            emit finishedRendering(image);
         }
 
-        if (!parameters)
-            break;
+        mutex.lock();
+        if (!restart)
+            condition.wait(&mutex);
+        mutex.unlock();
     }
 }
 
@@ -131,14 +123,15 @@ void RenderThread::render(float centerX, float centerY, float scaleFactor,
 {
     QMutexLocker locker(&mutex);
 
-    if (!parameters)
-        parameters = new RenderParameters;
+    this->centerX = centerX;
+    this->centerY = centerY;
+    this->scaleFactor = scaleFactor;
+    this->resultSize = resultSize;
 
-    parameters->centerX = centerX;
-    parameters->centerY = centerY;
-    parameters->scaleFactor = scaleFactor;
-    parameters->resultSize = resultSize;
-
-    if (!isRunning())
+    if (!isRunning()) {
         start(LowPriority);
+    } else {
+        restart = true;
+        condition.wakeOne();
+    }
 }
