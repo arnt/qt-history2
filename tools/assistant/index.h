@@ -6,10 +6,10 @@
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}
     Document() : docNumber( -1 ), frequency( 0 ) {}
-    bool operator==( const Document doc ) const {
+    bool operator==( const Document &doc ) const {
 	return docNumber == doc.docNumber;
     }
-    bool operator<( const Document doc ) const {
+    bool operator<( const Document &doc ) const {
 	return frequency > doc.frequency;
     }
     Q_INT16 docNumber;
