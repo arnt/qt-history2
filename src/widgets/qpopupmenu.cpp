@@ -398,14 +398,22 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     motion=0;
     actItem = -1;
 
+    QPoint mouse = QCursor::pos();
+    int hGuess = QEffects::RightScroll;
+    int vGuess = QEffects::DownScroll;
+    if ( x < mouse.x() )
+	hGuess = QEffects::LeftScroll;
+    if ( y < mouse.y() )
+	vGuess = QEffects::UpScroll;
+
     if ( QApplication::effectEnabled( UI_AnimateMenu ) && !preventAnimation ) {
 	if ( QApplication::effectEnabled( UI_FadeMenu ) ) {
 	    qFadeEffect( this );
 	} else {
 	    if ( parentMenu )
-		qScrollEffect( this, parentMenu->isPopupMenu ? 2 : 1 ); // 2 is horizontal, 1 is vertical
+		qScrollEffect( this, parentMenu->isPopupMenu ? hGuess : vGuess );
 	    else
-		qScrollEffect( this, 3 ); // 3 is diagonal
+		qScrollEffect( this, hGuess | vGuess );
 	}
     } else {
 	show();
@@ -1872,3 +1880,4 @@ void QPopupMenu::toggleTearOff()
 }
 
 #endif // QT_NO_COMPLEXWIDGETS
+

@@ -5,7 +5,19 @@
 
 class QWidget;
 
-extern void Q_EXPORT qScrollEffect( QWidget*, int orient = 1, int time = -1 );
+struct QEffects
+{
+    enum Direction {
+	LeftScroll	= 0x0001,
+	RightScroll	= 0x0002,
+	UpScroll	= 0x0004,
+	DownScroll	= 0x0008
+    };
+
+    typedef uint DirFlags;
+};
+
+extern void Q_EXPORT qScrollEffect( QWidget*, QEffects::DirFlags dir = QEffects::DownScroll, int time = -1 );
 extern void Q_EXPORT qFadeEffect( QWidget*, int time = 200 );
 
 #endif // QEFFECTS_H

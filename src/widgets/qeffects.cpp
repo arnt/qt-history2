@@ -26,7 +26,7 @@ public:
   and displays the pixmap resulting from the alpha blending.
 */
 
-class QAlphaWidget: public QWidget
+class QAlphaWidget: public QWidget, QEffects
 {
     Q_OBJECT
 public:
@@ -215,11 +215,11 @@ void QAlphaWidget::alphaBlend()
   and displays a scrolling pixmap.
 */
 
-class QRollEffect : public QWidget
+class QRollEffect : public QWidget, QEffects
 {
     Q_OBJECT
 public:
-    QRollEffect( QWidget* w, int orient );
+    QRollEffect( QWidget* w, DirFlags orient );
 
     void run( int time );
 
@@ -254,7 +254,7 @@ static QRollEffect* roll = 0;
 /*!
   Construct a QRollEffect widget.
 */
-QRollEffect::QRollEffect( QWidget* w, int orient )
+QRollEffect::QRollEffect( QWidget* w, DirFlags orient )
     : QWidget(0, 0,
 	      WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
 , orientation(orient)
@@ -272,12 +272,13 @@ QRollEffect::QRollEffect( QWidget* w, int orient )
 	totalHeight = widget->sizeHint().height();
     }
 
-    currentHeight = currentWidth = 0;
+    currentHeight = totalHeight;
+    currentWidth = totalWidth;
 
-    if ( orientation == 1 )
-	currentWidth = totalWidth;
-    else if ( orientation == 2 )
-	currentHeight = totalHeight;
+    if ( orientation & RightScroll || orientation & LeftScroll )
+	currentWidth = 0;
+    if ( orientation & DownScroll || orientation & UpScroll )
+	currentHeight = 0;
 
     pm = QPixmap::grabWidget( widget );
 }
@@ -287,9 +288,11 @@ QRollEffect::QRollEffect( QWidget* w, int orient )
 */
 void QRollEffect::paintEvent( QPaintEvent* )
 {
-    bitBlt( this, QMIN(0, currentWidth - totalWidth),
-	    QMIN(0, currentHeight - totalHeight),
-	    &pm, 0, 0, pm.width(), pm.height(), CopyROP, TRUE );
+    int x = orientation & RightScroll ? QMIN(0, currentWidth - totalWidth) : 0;
+    int y = orientation & DownScroll ? QMIN(0, currentHeight - totalHeight) : 0;
+
+    bitBlt( this, x, y, &pm, 
+		  0, 0, pm.width(), pm.height(), CopyROP, TRUE );
 }
 
 /*!
@@ -330,7 +333,7 @@ void QRollEffect::run( int time )
 
     if ( duration < 0 )
 	duration = QMIN( QMAX((totalWidth - currentWidth) +
-			      (totalHeight - currentHeight), 200 ), 300 );
+			      (totalHeight - currentHeight), 200 ), 400 );
 
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
@@ -367,7 +370,28 @@ void QRollEffect::scroll()
 	done = ( ( currentHeight >= totalHeight ) && 
 		 ( currentWidth >= totalWidth ) );
 
-        resize( QMIN( currentWidth, totalWidth ), QMIN( currentHeight, totalHeight ) );
+	int w, h;
+	int x, y;
+
+	if ( orientation & RightScroll || orientation & LeftScroll )
+	    w = QMIN( currentWidth, totalWidth );
+	else
+	    w = totalWidth;
+
+	if ( orientation & DownScroll || orientation & UpScroll )
+	    h = QMIN( currentHeight, totalHeight );
+	else
+	    h = totalHeight;
+
+	setUpdatesEnabled( FALSE );
+	if ( orientation & UpScroll || orientation & LeftScroll ) {
+	    x = widget->geometry().x() + totalWidth - currentWidth;
+	    y = widget->geometry().y() + totalHeight - currentHeight;
+	    move( x, y );
+	}
+	resize( w, h );	
+	setUpdatesEnabled( TRUE );
+	repaint( FALSE );
     }
     if ( done ) {
 	anim.stop();
@@ -399,7 +423,7 @@ void QRollEffect::scroll()
   \a orient may be 1 (vertical), 2 (horizontal)
   or 3 (diagonal).
 */
-void qScrollEffect( QWidget* w, int orient, int time )
+void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 {
     if ( roll ) {
 	delete roll;
