@@ -32,15 +32,12 @@ Q_CORE_EXPORT char *qstrdup(const char *);
 
 inline uint qstrlen(const char *str)
 { return str ? uint(strlen(str)) : 0; }
-inline char *qstrcpy(char *dst, const char *src)
-{ return src ? strcpy(dst, src) : 0; }
+
+char *qstrcpy(char *dst, const char *src);
 Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
 
-inline int qstrcmp(const char *str1, const char *str2)
-{
-    return (str1 && str2) ? strcmp(str1, str2)
-        : (str1 ? 1 : (str2 ? -1 : 0));
-}
+int qstrcmp(const char *str1, const char *str2);
+
 inline int qstrncmp(const char *str1, const char *str2, uint len)
 {
     return (str1 && str2) ? strncmp(str1, str2, len)

@@ -52,9 +52,7 @@ char *qstrdup(const char *src)
     return strcpy(dst, src);
 }
 
-/*! \fn char *qstrcpy(char *dst, const char *src)
-
-    \relates QByteArray
+/*! \relates QByteArray
 
     Copies all the characters up to and including the '\\0' from \a
     src into \a dst and returns a pointer to \a dst. If \a src is 0,
@@ -65,6 +63,11 @@ char *qstrdup(const char *src)
 
     \sa qstrncpy()
 */
+
+char *qstrcpy(char *dst, const char *src)
+{
+	return src ? strcpy(dst, src) : 0;
+}
 
 /*! \relates QByteArray
 
@@ -101,9 +104,7 @@ char *qstrncpy(char *dst, const char *src, uint len)
     or 0 if \a str is 0.
 */
 
-/*! \fn int qstrcmp(const char *str1, const char *str2);
-
-    \relates QByteArray
+/*! \relates QByteArray
 
     A safe strcmp() function.
 
@@ -119,6 +120,11 @@ char *qstrncpy(char *dst, const char *src, uint len)
     \sa qstrncmp(), qstricmp(), qstrnicmp(),
         \link #asciinotion Note on character comparisons \endlink
 */
+int qstrcmp(const char *str1, const char *str2)
+{
+    return (str1 && str2) ? strcmp(str1, str2)
+        : (str1 ? 1 : (str2 ? -1 : 0));
+}
 
 /*! \fn int qstrncmp(const char *str1, const char *str2, uint len);
 
