@@ -1007,8 +1007,8 @@ void QSplitter::moveSplitter(QCOORD p, int id)
     p = d->adjustPos(p, id, &farMin, &min, &max, &farMax);
     int oldP = d->pick(s->rect.topLeft());
 
-    QVarLengthArray<int> poss(d->list.count());
-    QVarLengthArray<int> ws(d->list.count());
+    QVarLengthArray<int, 32> poss(d->list.count());
+    QVarLengthArray<int, 32> ws(d->list.count());
     bool upLeft;
 
     if (isRightToLeft() && d->orient == Qt::Horizontal) {
