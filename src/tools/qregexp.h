@@ -80,7 +80,7 @@ public:
 	       bool indexIsStart = TRUE ) const;
 #endif
 
-#if defined(qdoc)
+#if defined(Q_QDOC)
     int search( const QString& str, int offset = 0,
 		CaretMode caretMode = CaretAtZero ) const;
     int searchRev( const QString& str, int offset = -1,

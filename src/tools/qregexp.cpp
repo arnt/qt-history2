@@ -3600,13 +3600,6 @@ int QRegExp::match( const QString& str, int index, int *len,
 }
 #endif // QT_NO_COMPAT
 
-/*!
-    \overload
-
-    This convenience function searches with a \c CaretMode of \c
-    CaretAtZero which is the most common usage.
-*/
-
 int QRegExp::search( const QString& str, int offset ) const
 {
     return search( str, offset, CaretAtZero );
@@ -3656,13 +3649,6 @@ int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
     return priv->captured[0];
 }
 
-
-/*!
-    \overload
-
-    This convenience function searches with a \c CaretMode of \c
-    CaretAtZero which is the most common usage.
-*/
 
 int QRegExp::searchRev( const QString& str, int offset ) const
 {
