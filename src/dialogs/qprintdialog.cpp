@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#59 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#60 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -28,6 +28,7 @@
 #include "qfiledialog.h"
 
 #include "qfile.h"
+#include "qtextstream.h"
 
 #include "qcombobox.h"
 #include "qframe.h"
@@ -173,6 +174,7 @@ static void parsePrintcap( QListView * printers )
     }
     delete[] line;
 }
+
 
 // solaris, not 2.6
 static void parseEtcLpPrinters( QListView * printers )
@@ -358,6 +360,8 @@ static char * parsePrintersConf( QListView * printers )
 static void parseEtcLpMember( QListView * printers )
 {
     QDir lp( "/etc/lp/member" );
+    if ( !lp.exists() )
+	return;
     const QFileInfoList * dirs = lp.entryInfoList();
     if ( !dirs )
 	return;
@@ -382,6 +386,8 @@ static void parseEtcLpMember( QListView * printers )
 static void parseSpoolInterface( QListView * printers )
 {
     QDir lp( "/usr/spool/lp/interface" );
+    if ( !lp.exists() )
+	return;
     const QFileInfoList * files = lp.entryInfoList();
     if( !files )
 	return;
@@ -444,6 +450,72 @@ static void parseSpoolInterface( QListView * printers )
 	}
     }
 }
+
+
+// Every unix must have its own.  It's a standard.  Here is AIX.
+static void parseQconfig( QListView * printers )
+{
+    QFile qconfig( "/etc/qconfig" );
+    if ( !qconfig.open( IO_ReadOnly ) )
+	return;
+
+    QTextStream ts( &qconfig );
+    QString line;
+    
+    QString stanzaName; // either a queue or a device name
+    bool up = TRUE; // queue up?  default TRUE, can be FALSE
+    QString remoteHost; // null if local
+    QString deviceName; // null if remote
+
+    // our basic strategy here is to process each line, detecting new
+    // stanzas.  each time we see a new stanza, we check if the
+    // previous stanza was a valid queue for a) a remote printer or b)
+    // a local printer.  if it wasn't, we assume that what we see is
+    // the start of the first stanza, or that the previous stanza was
+    // a device stanza, or that there is some syntax error (we don't
+    // report those).
+
+    do {
+	line = ts.readLine();
+	bool indented = line[0].isSpace();
+	line = line.simplifyWhiteSpace();
+
+	if ( indented && line.contains( '=' ) ) { // line in stanza
+	    
+	    int i = line.find( '=' );
+	    QString variable = line.left( i ).simplifyWhiteSpace();
+	    QString value=line.mid( i+1, line.length() ).simplifyWhiteSpace();
+	    if ( variable == "device" )
+		deviceName = value;
+	    else if ( variable == "host" )
+		remoteHost = value;
+	    else if ( variable == "up" )
+		up = !(value.lower() == "false");
+	} else if ( line[0] == '*' ) { // comment
+	    // nothing to do
+	} else if ( ts.atEnd() || // end of file, or beginning of new stanza
+		    ( !indented &&
+		      line.contains( QRegExp( "^[0-z][0-z]*:$" ) ) ) ) {
+	    if ( stanzaName.length() > 0 && stanzaName.length() < 21 ) {
+		if ( remoteHost.length() ) // remote printer
+		    perhapsAddPrinter( printers, stanzaName, remoteHost,
+				       QString::null );
+		else if ( deviceName.length() ) // local printer
+		    perhapsAddPrinter( printers, stanzaName, QString::null,
+				       QString::null );
+	    }
+	    line.truncate( line.length()-1 );
+	    if ( line.length() >= 1 && line.length() <= 20 )
+		stanzaName = line;
+	    up = TRUE;
+	    remoteHost = QString::null;
+	    deviceName = QString::null;
+	} else {
+	    // syntax error?  ignore.
+	}
+    } while( !ts.atEnd() );
+}
+
 
 static QPrintDialog * globalPrintDialog = 0;
 
@@ -598,13 +670,12 @@ QGroupBox * QPrintDialog::setupDestination()
 #if defined(UNIX)
     char * etcLpDefault = 0;
 
+    parsePrintcap( d->printers );
+    parseEtcLpMember( d->printers );
+    parseSpoolInterface( d->printers );
+    parseQconfig( d->printers );
+
     QFileInfo f;
-
-    // now do the tiresome unix printer lookup
-    f.setFile( "/etc/printcap" );
-    if ( f.isFile() && f.isReadable() )
-	parsePrintcap( d->printers );
-
     f.setFile( "/etc/lp/printers" );
     if ( f.isDir() ) {
 	parseEtcLpPrinters( d->printers );
@@ -631,14 +702,6 @@ QGroupBox * QPrintDialog::setupDestination()
 	    etcLpDefault = def;
 	}
     }
-
-    f.setFile( "/etc/lp/member" );
-    if ( f.isDir() )
-	parseEtcLpMember( d->printers );
-
-    f.setFile( "/usr/spool/lp/interface" );
-    if ( f.isDir() )
-	parseSpoolInterface( d->printers );
 
     // all printers hopefully known.  try to find a good default
     char * dollarPrinter;
