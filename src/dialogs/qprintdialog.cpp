@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#80 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#81 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -540,8 +540,7 @@ static void deleteGlobalPrintDialog()
     globalPrintDialog = 0;
 }
 
-/*! \internal
-
+/*!
   \class QPrintDialog qprintdialog.h
 
   \brief The QPrintDialog class provides a dialog for specifying
@@ -551,6 +550,8 @@ static void deleteGlobalPrintDialog()
 
   \warning This class is not present on all platforms; use
   QPrinter::setup() instead for portability.
+
+  \internal
 
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.

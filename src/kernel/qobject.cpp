@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#231 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#232 $
 **
 ** Implementation of QObject class
 **
@@ -1780,9 +1780,6 @@ void QObject::initMetaObject()
     staticMetaObject();
 }
 
-/*!
-  The functionality of initMetaObject(), provided as a static function.
-*/
 
 #ifdef QT_BUILDER
 QMetaObject* QObject::staticMetaObject()
@@ -1790,11 +1787,16 @@ QMetaObject* QObject::staticMetaObject()
     if ( metaObj )
 	return metaObj;
 #else // QT_BUILDER
+
+/*!
+  The functionality of initMetaObject(), provided as a static function.
+*/
 void QObject::staticMetaObject()
 {
     if ( metaObj )
 	return;
 #endif // QT_BUILDER
+
     typedef void(QObject::*m1_t0)();
     m1_t0 v1_0 = &QObject::cleanupEventFilter;
     QMetaData *slot_tbl = new QMetaData[1];

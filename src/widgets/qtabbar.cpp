@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#86 $
 **
 ** Implementation of QTabBar class
 **
@@ -368,7 +368,8 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     QRect r = br;
     if ( t->iconset) {
 	// the tab has an iconset, draw it in the right mode
-	QIconSet::Mode mode = (t->enabled && isEnabled())?QIconSet::Normal:QIconSet::Disabled;
+	QIconSet::Mode mode = (t->enabled && isEnabled())
+	    ? QIconSet::Normal : QIconSet::Disabled;
 	if ( mode == QIconSet::Normal && has_focus )
 	    mode = QIconSet::Active;
 	QPixmap pixmap = t->iconset->pixmap( QIconSet::Small, mode );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#98 $
 **
 ** Implementation of QMenuData class
 **
@@ -698,6 +698,13 @@ int QMenuData::insertItem( QWidget* widget, int id=-1, int index=-1 )
     return insertAny( 0, 0, 0, 0, id, index, widget );
 }
 
+#ifdef QT_BUILDER
+int QMenuData::insertSeparator( int index )
+{
+    return insertAny( 0, 0, 0, 0, 0, index );
+}
+
+#else
 
 /*!
   Inserts a separator at position \a index.
@@ -709,12 +716,6 @@ int QMenuData::insertItem( QWidget* widget, int id=-1, int index=-1 )
   menubar, all separator are ignored (to comply with the Windows style
   guide).
 */
-#ifdef QT_BUILDER
-int QMenuData::insertSeparator( int index )
-{
-    return insertAny( 0, 0, 0, 0, 0, index );
-}
-#else
 void QMenuData::insertSeparator( int index )
 {
     insertAny( 0, 0, 0, 0, 0, index );

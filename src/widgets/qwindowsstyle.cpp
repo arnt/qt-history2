@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#19 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1184,7 +1184,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
     }		
 
     if ( mi->iconSet() ) {		// draw iconset
-	QIconSet::Mode mode = dis?QIconSet::Disabled:QIconSet::Normal;
+	QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
 	if (act && !dis )
 	    mode = QIconSet::Active;
 	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
