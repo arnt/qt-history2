@@ -64,9 +64,11 @@ void MainForm::clearData( bool fillWithDefaults )
 void MainForm::populate()
 {
     if ( m_table_dirty ) {
-	for ( int row = 0; row < colorTable->numRows(); ++row )
-	    for ( int col = 0; col < colorTable->numCols(); ++col )
-		colorTable->clearCell( row, col );
+	for ( int r = 0; r < colorTable->numRows(); ++r ) {
+	    for ( int c = 0; c < colorTable->numCols(); ++c ) {
+		colorTable->clearCell( r, c );
+	    }
+	}
 
 	colorTable->setNumRows( m_colors.count() );
 	QPixmap pixmap( 22, 22 );
