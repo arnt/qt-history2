@@ -153,6 +153,8 @@ protected:
 
 private:
     int layoutItems( const QRect&, bool testonly = FALSE );
+    int extraPixels() const;
+
     QDockArea *left, *right;
     QWidget *central;
     QMainWindow *mainWindow;
@@ -175,10 +177,9 @@ QSize QMainWindowLayout::sizeHint() const
     }
     if ( central ) {
 	w += central->sizeHint().width();
-	int diff = mainWindow->d->topDock->isEmpty() ? 2 : 0;
-	h = QMAX( h, central->sizeHint().height() + 2 + diff );
+	int diff = extraPixels();
+	h = QMAX( h, central->sizeHint().height() + diff );
     }
-
     return QSize( w, h );
 }
 
@@ -200,10 +201,9 @@ QSize QMainWindowLayout::minimumSize() const
 	QSize min = central->minimumSize().isNull() ?
 		    central->minimumSizeHint() : central->minimumSize();
 	w += min.width();
-	int diff = mainWindow->d->topDock->isEmpty() ? 2 : 0;
-	h = QMAX( h, min.height() + 2 + diff );
+	int diff = extraPixels();
+	h = QMAX( h, min.height() + diff );
     }
-
     return QSize( w, h );
 }
 
@@ -242,9 +242,7 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
     if ( w < 0 )
 	w = 0;
 
-    int diff = 0;
-    if ( mainWindow->d->topDock->isEmpty() && !(mainWindow->d->leftDock->isEmpty() && mainWindow->d->rightDock->isEmpty() ) )
-	diff = 2;
+    int diff = extraPixels();
     if ( !testonly ) {
 	QRect g( geometry() );
 	if ( left )
@@ -261,7 +259,18 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
     return w;
 }
 
-void QMainWindowLayout::addItem( QLayoutItem * /*item*/ )
+int QMainWindowLayout::extraPixels() const
+{
+    if ( mainWindow->d->topDock->isEmpty() &&
+	 !(mainWindow->d->leftDock->isEmpty() &&
+	   mainWindow->d->rightDock->isEmpty()) ) {
+	return 2;
+    } else {
+	return 0;
+    }
+}
+
+void QMainWindowLayout::addItem( QLayoutItem * /* item */ )
 {
 }
 
@@ -1367,7 +1376,7 @@ void QMainWindow::setUpLayout()
 {
 #ifndef QT_NO_MENUBAR
     if ( !d->mb ) {
-	// slightly evil hack here.  reconsider this after 2.0
+	// slightly evil hack here.  reconsider this
 	QObjectList * l
 	    = ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
 	if ( l && l->count() )
@@ -1395,7 +1404,7 @@ void QMainWindow::setUpLayout()
     if ( d->mb && d->mb->isVisibleTo( this ) ) {
 	d->tll->setMenuBar( d->mb );
 	if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
-	    d->tll->addSpacing( d->movable ? 1  : 2 );
+	    d->tll->addSpacing( d->movable ? 1 : 2 );
     }
 #endif
 
@@ -1422,11 +1431,10 @@ void QMainWindow::setUpLayout()
     }
 }
 
-
 /*!  \reimp */
 void QMainWindow::show()
 {
-    if ( !d->tll)
+    if ( !d->tll )
 	setUpLayout();
     QWidget::show();
 }
