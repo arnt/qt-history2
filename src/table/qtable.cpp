@@ -5117,8 +5117,8 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     if ( oldSelection && !oldSelection->isActive() )
  	oldSelection = 0;
 
-    bool optimize1 = FALSE;
-    bool optimize2 = FALSE;
+    bool optimizeOld = FALSE;
+    bool optimizeNew = FALSE;
 
     QRect old;
     if ( oldSelection )
@@ -5126,7 +5126,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 			     oldSelection->leftCol(),
 			     oldSelection->bottomRow(),
 			     oldSelection->rightCol(),
-			     optimize1 );
+			     optimizeOld );
     else
 	old = QRect( 0, 0, 0, 0 );
 
@@ -5136,12 +5136,12 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 			     newSelection->leftCol(),
 			     newSelection->bottomRow(),
 			     newSelection->rightCol(),
-			     optimize2 );
+			     optimizeNew );
     else
 	cur = QRect( 0, 0, 0, 0 );
     int i;
 
-    if ( !optimize1 || !optimize2 ||
+    if ( !optimizeOld || !optimizeNew ||
 	 old.width() > SHRT_MAX || old.height() > SHRT_MAX ||
 	 cur.width() > SHRT_MAX || cur.height() > SHRT_MAX ) {
 	QRect rr = cur.unite( old );
@@ -5151,8 +5151,8 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 	cur = QRect( contentsToViewport2( cur.topLeft() ), cur.size() );
 	QRegion r1( old );
 	QRegion r2( cur );
-	QRegion r3 = r1.subtract( r2 );
-	QRegion r4 = r2.subtract( r1 );
+ 	QRegion r3 = r1.subtract( r2 );
+ 	QRegion r4 = r2.subtract( r1 );
 
 	for ( i = 0; i < (int)r3.rects().count(); ++i ) {
 	    QRect r( r3.rects()[ i ] );
@@ -6634,6 +6634,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	saveStates();
 	if ( table->selectionMode() != QTable::NoSelection ) {
 	    startPos = p;
+	    QTableSelection *oldSelection = table->currentSel;
 	    if ( orientation() == Vertical ) {
 		if ( !table->isRowSelected( secAt, TRUE ) ) {
 		    table->currentSel = new QTableSelection();
@@ -6657,6 +6658,10 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 		    table->setCurrentCell( 0, secAt );
 		}
 	    }
+	    table->repaintSelections( oldSelection, table->currentSel,
+				      orientation() == Horizontal,
+				      orientation() == Vertical );
+	    startPos = -1; // avoid calling updateSelections
 	}
     }
     if ( sectionAt( p ) != -1 )
