@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#13 $
 **
 ** Implementation of something useful
 **
@@ -13,13 +13,8 @@
 #include "qtimer.h"
 #include "qheader.h"
 #include "qpainter.h"
-#include "qscrbar.h"
-#include <stdlib.h>
 
-#include <qapp.h>
-#include <unistd.h>
-
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#13 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -306,7 +301,9 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
     p->fillRect( 0, 0, w, h, cg.base() );
 
     const QListViewItem * child = firstChild();
-    int linetop = y%4;
+    int linetop = 0, linebot = 0;
+
+    int dotoffset = y & 1;
 
     // each branch needs at most two lines, ie. four end points
     QPointArray dotlines( children() * 4 );
@@ -319,7 +316,6 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
     }
 
     int bx = w / 2;
-    int linebot = linetop;
 
     // paint stuff in the magical area
     while ( child && y < h ) {
@@ -342,7 +338,7 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 	    linetop = linebot;
 	} else {
 	    // just dotlinery
-	    dotlines[c++] = QPoint( bx + ((linebot - linetop) & 1), linebot );
+	    dotlines[c++] = QPoint( bx + 2, linebot ); // ### +2? +1?
 	    dotlines[c++] = QPoint( w, linebot );
 	}
 
@@ -364,6 +360,11 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
     } else {
 	// this could be done much faster on X11, but not on Windows.
 	// oh well.  do it the hard way.
+
+	// thought: keep around a 64*1 and a 1*64 bitmap such that
+	// drawPixmap'ing them is equivalent to drawing a horizontal
+	// or vertical line with the appropriate pen.
+	
 	QPointArray dots( (h+4)/2 + (children()*w+3)/4 );
 	// at most one dot for every second y coordinate, plus the
 	// spillover at the top.  at most dot for every second x
@@ -380,7 +381,7 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 	    // coordinate.
 	    if ( dotlines[line].y() == dotlines[line+1].y() ) {
 		end = dotlines[line+1].x();
-		point = dotlines[line].x(); 
+		point = dotlines[line].x();
 		other = dotlines[line].y();
 		while( point < end ) {
 		    dots[i++] = QPoint( point, other );
@@ -388,7 +389,9 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 		}
 	    } else {
 		end = dotlines[line+1].y();
-		point = dotlines[line].y(); 
+		point = dotlines[line].y();
+		if ( (point & 1) != dotoffset )
+		    point++;
 		other = dotlines[line].x();
 		while( point < end ) {
 		    dots[i++] = QPoint( other, point );
