@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qremotemessage_p.h"
-#include <assert.h>
 #include <qsocket.h>
 #include <qsocketdevice.h>
 
@@ -45,7 +44,7 @@
   \brief The QRemoteMessage class is a class that is used for exchanging messages between a
   Qt application and it's remote control. A typical use of such a remote functionality
   is testing. Hence the msg_type QRemoteMessage.
-  
+
 	Detailed description
 
    <strong>Groups of functions:</strong>
@@ -126,7 +125,7 @@ QRemoteMessage::~QRemoteMessage()
 }
 
 /*!
-    Clears the message so that the same instance can be used for the reception of 
+    Clears the message so that the same instance can be used for the reception of
     a new message.
 */
 
@@ -171,7 +170,7 @@ uint QRemoteMessage::primarySize()
 */
 
 void QRemoteMessage::send(QSocket *socket)
-{ 
+{
     QDataStream	stream(socket);
 
     if ((socket->state() != QSocket::Connected) ||
@@ -181,7 +180,7 @@ void QRemoteMessage::send(QSocket *socket)
 	return;
     }
 
-    assert(msg_type != "" && !msg_type.isNull());
+    Q_ASSERT(msg_type != "" && !msg_type.isNull());
 
     magic_id = magicId();
 
@@ -189,7 +188,7 @@ void QRemoteMessage::send(QSocket *socket)
 
     QByteArray dynaArray;
     QDataStream tmp(dynaArray,IO_WriteOnly);
-    
+
     tmp << msg_id;
     tmp << is_reply;
     tmp << retvalue;
@@ -204,7 +203,7 @@ void QRemoteMessage::send(QSocket *socket)
     tmp << hasPixmap;
     if (hasPixmap != 0)
 	tmp << internal_pixmap;
-    
+
     Q_UINT8 hasbyteArray;
     if (!internal_bytearray.isNull())
 	hasbyteArray = 1;
@@ -215,7 +214,7 @@ void QRemoteMessage::send(QSocket *socket)
 	tmp << internal_bytearray;
 
     tmp << magic_id;
-    
+
     size = dynaArray.count();
 
     stream << size;
@@ -223,7 +222,7 @@ void QRemoteMessage::send(QSocket *socket)
 }
 
 /*!
-    Sends a reply message over the \a socket connection using the current message id 
+    Sends a reply message over the \a socket connection using the current message id
     and the given \a retValue.
 */
 
@@ -250,7 +249,7 @@ bool QRemoteMessage::receive(QSocket *socket)
     if (!primary_data_read && (socket->size() >= (sizeof(magic_id) + sizeof(size)))) {
 
 	stream >> magic_id;
-	assert(magic_id == magicId());
+	Q_ASSERT(magic_id == magicId());
 	stream >> size;
 
 	primary_data_read = TRUE;
@@ -264,7 +263,7 @@ bool QRemoteMessage::receive(QSocket *socket)
 
 	tmp >> msg_id;
 	tmp >> is_reply;
-	assert((is_reply >= 0) && (is_reply <= 1));
+	Q_ASSERT((is_reply >= 0) && (is_reply <= 1));
 
 	tmp >> retvalue;
 	tmp >> msg_type;
@@ -272,19 +271,21 @@ bool QRemoteMessage::receive(QSocket *socket)
 
 	Q_UINT8 hasPixmap;
 	tmp >> hasPixmap;
-	assert((hasPixmap >= 0) && (hasPixmap <= 1));
+	// ### can't work
+	//Q_ASSERT((hasPixmap >= 0) && (hasPixmap <= 1));
 	internal_pixmap.resize(0,0);
-	if (hasPixmap == 1) 
+	if (hasPixmap == 1)
 		tmp >> internal_pixmap;
 	
 	Q_UINT8 hasbyteArray;
 	tmp >> hasbyteArray;
-	assert((hasbyteArray >= 0) && (hasbyteArray <= 1));
+	// ### can't work
+	//Q_ASSERT((hasbyteArray >= 0) && (hasbyteArray <= 1));
 	internal_bytearray.resize(0);
-	if (hasbyteArray == 1) 
+	if (hasbyteArray == 1)
 	    tmp >> internal_bytearray;
 	tmp >> magic_id;
-	assert(magicId() == magic_id);
+	Q_ASSERT(magicId() == magic_id);
 
 	return TRUE;
     }
@@ -361,7 +362,7 @@ QString QRemoteMessage::message() const
 */
 
 uint QRemoteMessage::messageId()  const
-{ 
+{
     return msg_id;
 }
 
@@ -370,7 +371,7 @@ uint QRemoteMessage::messageId()  const
 */
 
 bool QRemoteMessage::isReply() const
-{ 
+{
     return is_reply != 0;
 }
 
@@ -380,7 +381,7 @@ bool QRemoteMessage::isReply() const
 */
 
 int QRemoteMessage::retValue() const
-{ 
+{
     return retvalue;
 }
 
@@ -389,6 +390,6 @@ int QRemoteMessage::retValue() const
 */
 
 QString QRemoteMessage::msgType() const
-{ 
+{
     return msg_type;
 }
