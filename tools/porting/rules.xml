@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+**************************************************************************-->
 <Rules>
-    <Count>3443</Count>
+    <Count>3322</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -120,6 +132,10 @@
     <item Type="RenamedHeader" >
         <Qt4>q3groupbox.h</Qt4>
         <Qt3>qgroupbox.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>q3guardedptr.h</Qt4>
+        <Qt3>qguardedptr.h</Qt3>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>q3gvector.h</Qt4>
@@ -423,23 +439,11 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3AsciiCache</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3AsciiCacheIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3AsciiDict</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3AsciiDictIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3BaseBucket</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -559,10 +563,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3Dict</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3DictIterator</Name>
     </item>
     <item Type="Qt4Class" >
@@ -619,15 +619,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3GArray</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3GCache</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3GCacheIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -635,15 +627,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3GDictIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3GList</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3GListIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -656,6 +640,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3GroupBox</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Compat</Library>
+        <Name>Q3GuardedPtr</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -711,15 +699,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3IntCache</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3IntCacheIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3IntDict</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -831,19 +811,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
-        <Name>Q3PtrCollection</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3PtrDict</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
         <Name>Q3PtrDictIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3PtrList</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -852,10 +820,6 @@
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
         <Name>Q3PtrListStdIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>Q3PtrVector</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Compat</Library>
@@ -1066,94 +1030,6 @@
         <Name>Q3Workspace</Name>
     </item>
     <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QCheckListItem</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QColorDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QDns</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QDnsSocket</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QDragObject</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QFtp</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QHButtonGroup</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QHttp</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QHttpHeader</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QHttpRequestHeader</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QHttpResponseHeader</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QImageDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QNetworkProtocolDict</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QServerSocket</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QSocket</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QSocketDevice</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QStoredDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QTextDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QUriDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QUrl</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QUrlDrag</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>Qt3Compat</Library>
-        <Name>QVButtonGroup</Name>
-    </item>
-    <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QAbstractEventDispatcher</Name>
     </item>
@@ -1168,10 +1044,6 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QAtomicPointer</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QBackInsertIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -1364,10 +1236,6 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QHashNode</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QIODevice</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -1567,10 +1435,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QSignal&lt;void></Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QSignalEmitter</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1651,10 +1515,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QTextOStreamIterator</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QTextStream</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1715,10 +1575,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QTypeInfo&lt;T*></Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QUrl</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1752,10 +1608,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>Q3Painter</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>Q3StyleOption</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -1824,10 +1676,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QAccessibleFactoryInterface</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QAccessibleInterface</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -1936,10 +1784,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QContextMenuEvent</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QCOORD</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2199,10 +2043,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QIMEvent</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QInputContext</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2212,10 +2052,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QInputContextFactoryInterface</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QInputContextMenu</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2819,10 +2655,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QTextDocumentLoaderInterface</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QTextEdit</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2908,10 +2740,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QToolBarChangeEvent</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QToolBarSwitchEvent</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3338,10 +3166,6 @@
         <Name>QX11Info</Name>
     </item>
     <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QX11InfoData</Name>
-    </item>
-    <item Type="Qt4Class" >
         <Library>QtMotif</Library>
         <Name>QMotif</Name>
     </item>
@@ -3584,10 +3408,6 @@
     <item Type="Qt4Class" >
         <Library>QtSql</Library>
         <Name>QSqlTableModel</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtSql</Library>
-        <Name>QSqlVariant</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtSql</Library>
@@ -4007,13 +3827,9 @@
     <item Type="qt3Header" >qregexp.h</item>
     <item Type="qt3Header" >qregion.h</item>
     <item Type="qt3Header" >qrtlcodec.h</item>
-    <item Type="qt3Header" >qsaglobal.h</item>
-    <item Type="qt3Header" >qsargument.h</item>
-    <item Type="qt3Header" >qsconfig.h</item>
     <item Type="qt3Header" >qscrbar.h</item>
     <item Type="qt3Header" >qscrollbar.h</item>
     <item Type="qt3Header" >qscrollview.h</item>
-    <item Type="qt3Header" >qseditor.h</item>
     <item Type="qt3Header" >qsemaphore.h</item>
     <item Type="qt3Header" >qsemimodal.h</item>
     <item Type="qt3Header" >qserversocket.h</item>
@@ -4026,14 +3842,11 @@
     <item Type="qt3Header" >qsignalmapper.h</item>
     <item Type="qt3Header" >qsignalslotimp.h</item>
     <item Type="qt3Header" >qsimplerichtext.h</item>
-    <item Type="qt3Header" >qsinputdialogfactory.h</item>
-    <item Type="qt3Header" >qsinterpreter.h</item>
     <item Type="qt3Header" >qsize.h</item>
     <item Type="qt3Header" >qsizegrip.h</item>
     <item Type="qt3Header" >qsizepolicy.h</item>
     <item Type="qt3Header" >qsjiscodec.h</item>
     <item Type="qt3Header" >qslider.h</item>
-    <item Type="qt3Header" >qsobjectfactory.h</item>
     <item Type="qt3Header" >qsocket.h</item>
     <item Type="qt3Header" >qsocketdevice.h</item>
     <item Type="qt3Header" >qsocketnotifier.h</item>
@@ -4044,7 +3857,6 @@
     <item Type="qt3Header" >qspinbox.h</item>
     <item Type="qt3Header" >qsplashscreen.h</item>
     <item Type="qt3Header" >qsplitter.h</item>
-    <item Type="qt3Header" >qsproject.h</item>
     <item Type="qt3Header" >qsql.h</item>
     <item Type="qt3Header" >qsqlcursor.h</item>
     <item Type="qt3Header" >qsqldatabase.h</item>
@@ -4060,7 +3872,6 @@
     <item Type="qt3Header" >qsqlrecord.h</item>
     <item Type="qt3Header" >qsqlresult.h</item>
     <item Type="qt3Header" >qsqlselectcursor.h</item>
-    <item Type="qt3Header" >qsscript.h</item>
     <item Type="qt3Header" >qstack.h</item>
     <item Type="qt3Header" >qstatusbar.h</item>
     <item Type="qt3Header" >qstring.h</item>
@@ -4071,16 +3882,11 @@
     <item Type="qt3Header" >qstylefactory.h</item>
     <item Type="qt3Header" >qstyleplugin.h</item>
     <item Type="qt3Header" >qstylesheet.h</item>
-    <item Type="qt3Header" >qsutilfactory.h</item>
-    <item Type="qt3Header" >qsworkbench.h</item>
-    <item Type="qt3Header" >qswrapperfactory.h</item>
     <item Type="qt3Header" >qsyntaxhighlighter.h</item>
     <item Type="qt3Header" >qt.h</item>
     <item Type="qt3Header" >qt_mac.h</item>
     <item Type="qt3Header" >qt_mac9.h</item>
     <item Type="qt3Header" >qt_windows.h</item>
-    <item Type="qt3Header" >qt_x11.h</item>
-    <item Type="qt3Header" >qt_x11_p.h</item>
     <item Type="qt3Header" >qtabbar.h</item>
     <item Type="qt3Header" >qtabdialog.h</item>
     <item Type="qt3Header" >qtabdlg.h</item>
@@ -4152,10 +3958,8 @@
     <item Type="qt3Header" >qwskde2decoration_qws.h</item>
     <item Type="qt3Header" >qwskdedecoration_qws.h</item>
     <item Type="qt3Header" >qwskeyboard_qnx4.h</item>
-    <item Type="qt3Header" >qwskeyboard_qnx6.h</item>
     <item Type="qt3Header" >qwsmanager_qws.h</item>
     <item Type="qt3Header" >qwsmouse_qnx4.h</item>
-    <item Type="qt3Header" >qwsmouse_qnx6.h</item>
     <item Type="qt3Header" >qwsproperty_qws.h</item>
     <item Type="qt3Header" >qwsregionmanager_qws.h</item>
     <item Type="qt3Header" >qwssocket_qws.h</item>
@@ -4168,11 +3972,8 @@
     <item Type="qt4Header" >Q3Action</item>
     <item Type="qt4Header" >Q3ActionGroup</item>
     <item Type="qt4Header" >Q3AsciiBucket</item>
-    <item Type="qt4Header" >Q3AsciiCache</item>
     <item Type="qt4Header" >Q3AsciiCacheIterator</item>
-    <item Type="qt4Header" >Q3AsciiDict</item>
     <item Type="qt4Header" >Q3AsciiDictIterator</item>
-    <item Type="qt4Header" >Q3BaseBucket</item>
     <item Type="qt4Header" >Q3Button</item>
     <item Type="qt4Header" >Q3ButtonGroup</item>
     <item Type="qt4Header" >Q3CString</item>
@@ -4202,7 +4003,6 @@
     <item Type="qt4Header" >Q3DateTimeEdit</item>
     <item Type="qt4Header" >Q3DateTimeEditBase</item>
     <item Type="qt4Header" >Q3DeepCopy</item>
-    <item Type="qt4Header" >Q3Dict</item>
     <item Type="qt4Header" >Q3DictIterator</item>
     <item Type="qt4Header" >Q3Dns</item>
     <item Type="qt4Header" >Q3DnsSocket</item>
@@ -4217,17 +4017,14 @@
     <item Type="qt4Header" >Q3FilePreview</item>
     <item Type="qt4Header" >Q3Frame</item>
     <item Type="qt4Header" >Q3Ftp</item>
-    <item Type="qt4Header" >Q3GArray</item>
     <item Type="qt4Header" >Q3GCache</item>
-    <item Type="qt4Header" >Q3GCacheIterator</item>
     <item Type="qt4Header" >Q3GDict</item>
-    <item Type="qt4Header" >Q3GDictIterator</item>
     <item Type="qt4Header" >Q3GList</item>
-    <item Type="qt4Header" >Q3GListIterator</item>
     <item Type="qt4Header" >Q3GListStdIterator</item>
     <item Type="qt4Header" >Q3GVector</item>
     <item Type="qt4Header" >Q3GridView</item>
     <item Type="qt4Header" >Q3GroupBox</item>
+    <item Type="qt4Header" >Q3GuardedPtr</item>
     <item Type="qt4Header" >Q3HButtonGroup</item>
     <item Type="qt4Header" >Q3Header</item>
     <item Type="qt4Header" >Q3Http</item>
@@ -4240,9 +4037,7 @@
     <item Type="qt4Header" >Q3IconViewItem</item>
     <item Type="qt4Header" >Q3ImageDrag</item>
     <item Type="qt4Header" >Q3IntBucket</item>
-    <item Type="qt4Header" >Q3IntCache</item>
     <item Type="qt4Header" >Q3IntCacheIterator</item>
-    <item Type="qt4Header" >Q3IntDict</item>
     <item Type="qt4Header" >Q3IntDictIterator</item>
     <item Type="qt4Header" >Q3LNode</item>
     <item Type="qt4Header" >Q3ListBox</item>
@@ -4271,13 +4066,9 @@
     <item Type="qt4Header" >Q3ProgressBar</item>
     <item Type="qt4Header" >Q3ProgressDialog</item>
     <item Type="qt4Header" >Q3PtrBucket</item>
-    <item Type="qt4Header" >Q3PtrCollection</item>
-    <item Type="qt4Header" >Q3PtrDict</item>
     <item Type="qt4Header" >Q3PtrDictIterator</item>
-    <item Type="qt4Header" >Q3PtrList</item>
     <item Type="qt4Header" >Q3PtrListIterator</item>
     <item Type="qt4Header" >Q3PtrListStdIterator</item>
-    <item Type="qt4Header" >Q3PtrVector</item>
     <item Type="qt4Header" >Q3RangeControl</item>
     <item Type="qt4Header" >Q3ScrollView</item>
     <item Type="qt4Header" >Q3ServerSocket</item>
@@ -4303,7 +4094,6 @@
     <item Type="qt4Header" >Q3StrListIterator</item>
     <item Type="qt4Header" >Q3StrVec</item>
     <item Type="qt4Header" >Q3StringBucket</item>
-    <item Type="qt4Header" >Q3StyleOption</item>
     <item Type="qt4Header" >Q3StyleSheet</item>
     <item Type="qt4Header" >Q3StyleSheetItem</item>
     <item Type="qt4Header" >Q3SyntaxHighlighter</item>
@@ -4350,7 +4140,6 @@
     <item Type="qt4Header" >QAccessibleBridge</item>
     <item Type="qt4Header" >QAccessibleBridgeFactoryInterface</item>
     <item Type="qt4Header" >QAccessibleFactoryInterface</item>
-    <item Type="qt4Header" >QAccessibleInterface</item>
     <item Type="qt4Header" >QAccessibleObject</item>
     <item Type="qt4Header" >QAccessiblePlugin</item>
     <item Type="qt4Header" >QAccessibleWidget</item>
@@ -4373,7 +4162,6 @@
     <item Type="qt4Header" >QAxScriptManager</item>
     <item Type="qt4Header" >QAxSelect</item>
     <item Type="qt4Header" >QAxWidget</item>
-    <item Type="qt4Header" >QBackInsertIterator</item>
     <item Type="qt4Header" >QBasicAtomic</item>
     <item Type="qt4Header" >QBasicAtomicPointer</item>
     <item Type="qt4Header" >QBasicTimer</item>
@@ -4390,12 +4178,10 @@
     <item Type="qt4Header" >QByteArrayMatcher</item>
     <item Type="qt4Header" >QByteRef</item>
     <item Type="qt4Header" >QCDEStyle</item>
-    <item Type="qt4Header" >QCOORD</item>
     <item Type="qt4Header" >QCache</item>
     <item Type="qt4Header" >QChar</item>
     <item Type="qt4Header" >QCharRef</item>
     <item Type="qt4Header" >QCheckBox</item>
-    <item Type="qt4Header" >QCheckListItem</item>
     <item Type="qt4Header" >QChildEvent</item>
     <item Type="qt4Header" >QCleanupHandler</item>
     <item Type="qt4Header" >QClipboard</item>
@@ -4403,7 +4189,6 @@
     <item Type="qt4Header" >QCloseEvent</item>
     <item Type="qt4Header" >QColor</item>
     <item Type="qt4Header" >QColorDialog</item>
-    <item Type="qt4Header" >QColorDrag</item>
     <item Type="qt4Header" >QColorGroup</item>
     <item Type="qt4Header" >QColormap</item>
     <item Type="qt4Header" >QComboBox</item>
@@ -4442,9 +4227,7 @@
     <item Type="qt4Header" >QDirModel</item>
     <item Type="qt4Header" >QDirectPainter</item>
     <item Type="qt4Header" >QDns</item>
-    <item Type="qt4Header" >QDns</item>
     <item Type="qt4Header" >QDnsHostInfo</item>
-    <item Type="qt4Header" >QDnsSocket</item>
     <item Type="qt4Header" >QDockWindow</item>
     <item Type="qt4Header" >QDomAttr</item>
     <item Type="qt4Header" >QDomCDATASection</item>
@@ -4469,7 +4252,6 @@
     <item Type="qt4Header" >QDragEnterEvent</item>
     <item Type="qt4Header" >QDragLeaveEvent</item>
     <item Type="qt4Header" >QDragMoveEvent</item>
-    <item Type="qt4Header" >QDragObject</item>
     <item Type="qt4Header" >QDragResponseEvent</item>
     <item Type="qt4Header" >QDropEvent</item>
     <item Type="qt4Header" >QErrorMessage</item>
@@ -4501,7 +4283,6 @@
     <item Type="qt4Header" >QForeachMemory</item>
     <item Type="qt4Header" >QFrame</item>
     <item Type="qt4Header" >QFtp</item>
-    <item Type="qt4Header" >QFtp</item>
     <item Type="qt4Header" >QGL</item>
     <item Type="qt4Header" >QGLColormap</item>
     <item Type="qt4Header" >QGLContext</item>
@@ -4521,7 +4302,6 @@
     <item Type="qt4Header" >QGroupBox</item>
     <item Type="qt4Header" >QHBoxLayout</item>
     <item Type="qt4Header" >QHBoxWidget</item>
-    <item Type="qt4Header" >QHButtonGroup</item>
     <item Type="qt4Header" >QHash</item>
     <item Type="qt4Header" >QHashData</item>
     <item Type="qt4Header" >QHashNode</item>
@@ -4530,17 +4310,11 @@
     <item Type="qt4Header" >QHideEvent</item>
     <item Type="qt4Header" >QHostAddress</item>
     <item Type="qt4Header" >QHttp</item>
-    <item Type="qt4Header" >QHttp</item>
-    <item Type="qt4Header" >QHttpHeader</item>
     <item Type="qt4Header" >QHttpHeader</item>
     <item Type="qt4Header" >QHttpRequestHeader</item>
-    <item Type="qt4Header" >QHttpRequestHeader</item>
-    <item Type="qt4Header" >QHttpResponseHeader</item>
     <item Type="qt4Header" >QHttpResponseHeader</item>
     <item Type="qt4Header" >QIBaseDriver</item>
     <item Type="qt4Header" >QIBaseResult</item>
-    <item Type="qt4Header" >QIMEvent</item>
-    <item Type="qt4Header" >QIODevice</item>
     <item Type="qt4Header" >QIPv6Address</item>
     <item Type="qt4Header" >QIcon</item>
     <item Type="qt4Header" >QIconDragEvent</item>
@@ -4548,7 +4322,6 @@
     <item Type="qt4Header" >QImage</item>
     <item Type="qt4Header" >QImageConsumer</item>
     <item Type="qt4Header" >QImageDecoder</item>
-    <item Type="qt4Header" >QImageDrag</item>
     <item Type="qt4Header" >QImageFormat</item>
     <item Type="qt4Header" >QImageFormatInterface</item>
     <item Type="qt4Header" >QImageFormatType</item>
@@ -4557,7 +4330,6 @@
     <item Type="qt4Header" >QInputContext</item>
     <item Type="qt4Header" >QInputContextFactory</item>
     <item Type="qt4Header" >QInputContextFactoryInterface</item>
-    <item Type="qt4Header" >QInputContextMenu</item>
     <item Type="qt4Header" >QInputDialog</item>
     <item Type="qt4Header" >QInputEvent</item>
     <item Type="qt4Header" >QInputMethodEvent</item>
@@ -4638,7 +4410,6 @@
     <item Type="qt4Header" >QNPStream</item>
     <item Type="qt4Header" >QNPWidget</item>
     <item Type="qt4Header" >QNPlugin</item>
-    <item Type="qt4Header" >QNetworkProtocolDict</item>
     <item Type="qt4Header" >QNoDebug</item>
     <item Type="qt4Header" >QNoImplicitBoolCast</item>
     <item Type="qt4Header" >QOCI9Result</item>
@@ -4713,7 +4484,6 @@
     <item Type="qt4Header" >QScreenCursor</item>
     <item Type="qt4Header" >QScrollBar</item>
     <item Type="qt4Header" >QSemaphore</item>
-    <item Type="qt4Header" >QServerSocket</item>
     <item Type="qt4Header" >QSessionManager</item>
     <item Type="qt4Header" >QSettings</item>
     <item Type="qt4Header" >QShadowFbScreen</item>
@@ -4726,7 +4496,6 @@
     <item Type="qt4Header" >QShortcutEvent</item>
     <item Type="qt4Header" >QShowEvent</item>
     <item Type="qt4Header" >QSignal</item>
-    <item Type="qt4Header" >QSignal&lt;void></item>
     <item Type="qt4Header" >QSignalEmitter</item>
     <item Type="qt4Header" >QSignalMapper</item>
     <item Type="qt4Header" >QSingleCleanupHandler</item>
@@ -4735,8 +4504,6 @@
     <item Type="qt4Header" >QSizeGrip</item>
     <item Type="qt4Header" >QSizePolicy</item>
     <item Type="qt4Header" >QSlider</item>
-    <item Type="qt4Header" >QSocket</item>
-    <item Type="qt4Header" >QSocketDevice</item>
     <item Type="qt4Header" >QSocketNotifier</item>
     <item Type="qt4Header" >QSound</item>
     <item Type="qt4Header" >QSpacerItem</item>
@@ -4760,14 +4527,12 @@
     <item Type="qt4Header" >QSqlRelationalTableModel</item>
     <item Type="qt4Header" >QSqlResult</item>
     <item Type="qt4Header" >QSqlTableModel</item>
-    <item Type="qt4Header" >QSqlVariant</item>
     <item Type="qt4Header" >QStack</item>
     <item Type="qt4Header" >QStackedLayout</item>
     <item Type="qt4Header" >QStackedWidget</item>
     <item Type="qt4Header" >QStandardItemModel</item>
     <item Type="qt4Header" >QStatusBar</item>
     <item Type="qt4Header" >QStatusTipEvent</item>
-    <item Type="qt4Header" >QStoredDrag</item>
     <item Type="qt4Header" >QString</item>
     <item Type="qt4Header" >QStringList</item>
     <item Type="qt4Header" >QStringListIterator</item>
@@ -4825,8 +4590,6 @@
     <item Type="qt4Header" >QTextDecoder</item>
     <item Type="qt4Header" >QTextDocument</item>
     <item Type="qt4Header" >QTextDocumentFragment</item>
-    <item Type="qt4Header" >QTextDocumentLoaderInterface</item>
-    <item Type="qt4Header" >QTextDrag</item>
     <item Type="qt4Header" >QTextEdit</item>
     <item Type="qt4Header" >QTextEncoder</item>
     <item Type="qt4Header" >QTextFormat</item>
@@ -4844,7 +4607,6 @@
     <item Type="qt4Header" >QTextList</item>
     <item Type="qt4Header" >QTextListFormat</item>
     <item Type="qt4Header" >QTextOStream</item>
-    <item Type="qt4Header" >QTextOStreamIterator</item>
     <item Type="qt4Header" >QTextObject</item>
     <item Type="qt4Header" >QTextObjectInterface</item>
     <item Type="qt4Header" >QTextStream</item>
@@ -4862,7 +4624,6 @@
     <item Type="qt4Header" >QTimerEvent</item>
     <item Type="qt4Header" >QToolBar</item>
     <item Type="qt4Header" >QToolBarChangeEvent</item>
-    <item Type="qt4Header" >QToolBarSwitchEvent</item>
     <item Type="qt4Header" >QToolBox</item>
     <item Type="qt4Header" >QToolButton</item>
     <item Type="qt4Header" >QToolTip</item>
@@ -4873,17 +4634,12 @@
     <item Type="qt4Header" >QTreeWidget</item>
     <item Type="qt4Header" >QTreeWidgetItem</item>
     <item Type="qt4Header" >QTypeInfo</item>
-    <item Type="qt4Header" >QTypeInfo&lt;T*></item>
     <item Type="qt4Header" >QUdpSocket</item>
-    <item Type="qt4Header" >QUriDrag</item>
     <item Type="qt4Header" >QUrl</item>
-    <item Type="qt4Header" >QUrl</item>
-    <item Type="qt4Header" >QUrlDrag</item>
     <item Type="qt4Header" >QUrlInfo</item>
     <item Type="qt4Header" >QUuid</item>
     <item Type="qt4Header" >QVBoxLayout</item>
     <item Type="qt4Header" >QVBoxWidget</item>
-    <item Type="qt4Header" >QVButtonGroup</item>
     <item Type="qt4Header" >QVFbHeader</item>
     <item Type="qt4Header" >QVFbKeyData</item>
     <item Type="qt4Header" >QVFbScreen</item>
@@ -4987,7 +4743,6 @@
     <item Type="qt4Header" >QWindowsStyle</item>
     <item Type="qt4Header" >QWindowsXPStyle</item>
     <item Type="qt4Header" >QX11Info</item>
-    <item Type="qt4Header" >QX11InfoData</item>
     <item Type="qt4Header" >QXmlAttributes</item>
     <item Type="qt4Header" >QXmlContentHandler</item>
     <item Type="qt4Header" >QXmlDTDHandler</item>
@@ -9235,26 +8990,6 @@
         <Header>QTabletEvent</Header>
     </item>
     <item Type="NeedHeader" >
-        <Class>Q3PtrList</Class>
-        <Header>Q3PtrList</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3ValueList</Class>
-        <Header>Q3ValueList</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3MemArray</Class>
-        <Header>Q3MemArray</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>Q3StrList</Class>
-        <Header>Q3StrList</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>QPaintEvent</Class>
-        <Header>QPaintEvent</Header>
-    </item>
-    <item Type="NeedHeader" >
         <Class>QIconDragEvent</Class>
         <Header>QIconDragEvent</Header>
     </item>
@@ -9317,17 +9052,5 @@
     <item Type="NeedHeader" >
         <Class>QPixmap</Class>
         <Header>QPixmap</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>QTranslator</Class>
-        <Header>QTranslator</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>QLabel</Class>
-        <Header>QLabel</Header>
-    </item>
-    <item Type="NeedHeader" >
-        <Class>QImageIO</Class>
-        <Header>QImageIO</Header>
     </item>
 </Rules>
