@@ -2271,10 +2271,9 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    return DISP_E_BADPARAMCOUNT;
 
 		QVariant var = qt.object->property(property.name());
-		QByteArray ptype(property.type());
 		if (!var.isValid())
 		    res =  DISP_E_MEMBERNOTFOUND;
-		else if (!QVariantToVARIANT(var, *pvarResult, ptype))
+		else if (!QVariantToVARIANT(var, *pvarResult, 0))
 		    res = DISP_E_TYPEMISMATCH;
 		else
 		    res = S_OK;
@@ -2467,8 +2466,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		 *pDispParams->rgdispidNamedArgs != DISPID_PROPERTYPUT)
 		return DISP_E_BADPARAMCOUNT;
 
-	    QByteArray ptype(property.type());
-	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, ptype);
+	    QVariant var = VARIANTToQVariant(*pDispParams->rgvarg, property.type());
 	    if (!var.isValid()) {
 		if (puArgErr)
 		    *puArgErr = 0;
