@@ -326,6 +326,7 @@ void QBuffer::close()
     if(d->ioIndex == Q_LONGLONG(-1))
         return;
     d->ioIndex = Q_LONGLONG(-1);
+    QIODevice::close();
     return;
 }
 
