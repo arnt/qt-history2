@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#80 $
 **
 ** Implementation of QFrame widget class
 **
@@ -68,9 +68,9 @@
   setMidLineWidth() mid-line width\endlink.
 
   The frame style is specified by a frame shape and a shadow style.
-  The frame shapes are \c NoFrame, \c Box, \c Panel, \c WinPanel, \c
-  HLine and \c VLine, and the shadow styles are \c Plain, \c Raised
-  and \c Sunken.
+  The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel \c
+  WinPanel, \c HLine and \c VLine, and the shadow styles are \c Plain,
+  \c Raised and \c Sunken.
 
   The line width is the width of the frame border.
 
@@ -155,11 +155,12 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   level with the surrounding screen, but the border itself may be
   raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
-  Its look depends on the current GUI style.
+  <li> \c StyledPanel draws a rectangular panel with a look depending on 
+  the current GUI style.  It can be raised or sunken.
   <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
   Specifying this shape sets the line width to 2 pixels.  WinPanel provides
   fancy Windows 95-like shadows. WinPanel is provided for compatibility. For
-  GUI style independence it's recommened to use Panel with 
+  GUI style independence it's recommened to use StyledPanel with
   setLineWidth(2) instead.
   <li> \c HLine draws a horizontal line (vertically centered).
   <li> \c VLine draws a vertical line (horizontally centered).
@@ -540,6 +541,13 @@ void QFrame::drawFrame( QPainter *p )
 	break;
 
     case Panel:
+	if ( cstyle == Plain )
+	    qDrawPlainRect( p, r, g.foreground(), lwidth );
+	else
+	    qDrawShadePanel( p, r, g, cstyle == Sunken, lwidth );
+	break;
+
+    case StyledPanel:
 	if ( cstyle == Plain )
 	    qDrawPlainRect( p, r, g.foreground(), lwidth );
 	else

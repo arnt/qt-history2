@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#32 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#33 $
 **
 ** Definition of QFrame widget class
 **
@@ -44,6 +44,7 @@ public:
 	   WinPanel = 0x0003,			// rectangular panel (Windows)
 	   HLine    = 0x0004,			// horizontal line
 	   VLine    = 0x0005,			// vertical line
+	   StyledPanel = 0x0006,			// rectangular panel depending on the GUI style
 	   MShape   = 0x000f,
 	   Plain    = 0x0010,			// plain line
 	   Raised   = 0x0020,			// raised shadow effect

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#3 $
 **
 ** Implementation of QTabWidget class
 **
@@ -72,7 +72,7 @@
   While tab widgets can be a very good way to split up a complex
   dialog, it's also very easy to make a royal mess out of it. See
   QTabDialog for some design hints.
-  
+
   Most of the functionality in QTabWidget is provided by a QTabBar (at
   the top, providing the tabs) and a QWidgetStack (most of the area,
   organizing the individual pages).
@@ -93,7 +93,7 @@
 class QTabWidgetData
 {
 public:
-    QTabWidgetData() 
+    QTabWidgetData()
 	: tabs(0), stack(0), dirty( TRUE ), pos( QTabWidget::Top )
 	{};
     ~QTabWidgetData(){};
@@ -110,11 +110,11 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name)
     : QWidget( parent, name )
 {
     d = new QTabWidgetData;
-    
+
     d->stack = new QWidgetStack( this, "tab pages" );
     setTabBar( new QTabBar( this, "tab control" ) );
-    
-    d->stack->setFrameStyle( QFrame::Panel | QFrame::Raised );
+
+    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     d->stack->setLineWidth( 2 );
 }
 
@@ -336,7 +336,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 {
     if ( onlyCheck && !d->dirty )
 	return; // nothing to do
-    
+
     if ( !isVisible() ) {
 	d->dirty = TRUE;
 	return; // we'll do it later
@@ -351,7 +351,7 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	d->tabs->setGeometry( QMAX(0, lw-1), 0, t.width(), t.height() );
 	d->stack->setGeometry( 0, t.height()-lw, width(), height()-t.height()+lw );
     }
-	   
+	
     d->dirty = FALSE;
 }
 
@@ -376,8 +376,8 @@ void QTabWidget::showEvent( QShowEvent * )
 
 
 /*!
-  Returns the position of the tabs. 
-  
+  Returns the position of the tabs.
+
   Possible values are QTabWidget::Top and QTabWidget::Bottom.
   \sa setTabPosition()
  */
@@ -388,7 +388,7 @@ QTabWidget::TabPosition QTabWidget::tabPosition() const
 
 /*!
   Sets the position of the tabs to \e pos
-  
+
   Possible values are QTabWidget::Top and QTabWidget::Bottom.
   \sa tabPosition()
  */
@@ -417,7 +417,7 @@ void QTabWidget::setTabPosition( QTabWidget::TabPosition pos)
 /*!
   Returns the width of the margin. The margin is the distance between
   the innermost pixel of the frame and the outermost pixel of the
-  pages.  
+  pages.
 
   \sa setMargin()
 */
