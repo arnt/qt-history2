@@ -54,6 +54,7 @@ public:
 
     QString getClassName( const QDomElement& e );
     QString getObjectName( const QDomElement& e );
+    QString getLayoutName( const QDomElement& e );
     QString getInclude( const QString& className );
 
     QString setObjectProperty( const QString& objClass, const QString& obj, const QString &prop, const QDomElement &e, bool stdset );
@@ -65,6 +66,8 @@ public:
 
 
 private:
+    void registerLayouts ( const QDomElement& e );
+
     QTextStream& out;
     QStringList objectNames;
     QMap<QString,QString> objectMapper;

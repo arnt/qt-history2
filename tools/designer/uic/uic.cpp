@@ -142,6 +142,28 @@ QString Uic::getObjectName( const QDomElement& e )
     return QString::null;
 }
 
+/*! Extracts an layout name from \a e. It's stored in the 'name'
+ property of the preceeding sibling (the first child of a QLayoutWidget).
+ */
+QString Uic::getLayoutName( const QDomElement& e )
+{
+    QDomElement p = e.parentNode().toElement();
+    QString tail = QString::null;
+
+    if (getClassName(p) != "QLayoutWidget")
+	tail = "Layout";
+
+    QDomElement n;
+    for ( n = p.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	if ( n.tagName() == "property" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    if ( n2.tagName() == "name" && n2.firstChild().toText().data() == "name" ) {
+		return n2.nextSibling().toElement().firstChild().toText().data() + tail;
+	    }
+	}
+    }
+    return e.tagName();
+}
 
 QByteArray unzipXPM( QString data, ulong& length )
 {
@@ -405,11 +427,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	out << "protected:" << endl;
 
     // child layouts
-    for ( it = layouts.begin(); it != layouts.end(); ++it ) {
-	nl = e.elementsByTagName( *it );
-	for ( i = 0; i < (int) nl.length(); i++ )
-	    createObjectDecl( nl.item(i).toElement() );
-    }
+    registerLayouts(e);
 
     // handle application font and palette changes is required
     if ( needEventHandler )
@@ -418,6 +436,16 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "};" << endl;
     out << endl;
     out << "#endif // " << protector << endl;
+}
+
+void Uic::registerLayouts( const QDomElement &e )
+{
+    if (layouts.contains(e.tagName()))
+	createObjectDecl(e);
+
+    QDomNodeList nl = e.childNodes();
+    for (int i = 0; i < (int) nl.length(); ++i)
+	registerLayouts(nl.item(i).toElement());
 }
 
 /*!
@@ -650,8 +678,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-
-
     // create all children, some forms have special requirements
 
     if ( objClass == "QWizard" ) {
@@ -673,12 +699,12 @@ void Uic::createFormImpl( const QDomElement &e )
 		    out << indent << "setFinish( " << page << ", " << mkBool( DomTool::readAttribute( n, "finish", def).toBool() ) << endl;
 	    }
 	}
-     } else { // standard widgets
-	 for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	     if ( tags.contains( n.tagName()  ) )
-		 createObjectImpl( n, objName, "this" );
-	 }
-     }
+    } else { // standard widgets
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( tags.contains( n.tagName()  ) )
+		createObjectImpl( n, objName, "this" );
+	}
+    }
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
@@ -853,22 +879,23 @@ QString Uic::getInclude( const QString& className )
 void Uic::createObjectDecl( const QDomElement& e )
 {
     if ( e.tagName() == "vbox" ) {
-	out << "    QVBoxLayout* " << registerObject("vbox" ) << ";" << endl;
+	out << "    QVBoxLayout* " << registerObject(getLayoutName(e) ) << ";" << endl;
     } else if ( e.tagName() == "hbox" ) {
-	out << "    QHBoxLayout* " << registerObject("hbox" ) << ";" << endl;
+	out << "    QHBoxLayout* " << registerObject(getLayoutName(e) ) << ";" << endl;
     } else if ( e.tagName() == "grid" ) {
-	out << "    QGridLayout* " << registerObject("grid" ) << ";" << endl;
+	out << "    QGridLayout* " << registerObject(getLayoutName(e) ) << ";" << endl;
     } else {
 	QString objClass = getClassName( e );
 	if ( objClass.isEmpty() )
 	    return;
 	QString objName = getObjectName( e );
 	if ( objName.isEmpty() )
+	    return;	
+	// ignore QLayoutWidgets
+	if ( objClass == "QLayoutWidget" )
 	    return;
 	// register the object and unify its name
 	objName = registerObject( objName );
-	if ( objClass == "QLayoutWidget" )
-	    return;
 	if ( objClass == "Line" )
 	    objClass = "QFrame";
 	out << "    " << objClass << "* " << objName << ";" << endl;
@@ -913,7 +940,8 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	objClass = "QFrame";
 
     // register the object and unify its name
-    objName = registerObject( objName );
+    if (objClass != "QLayoutWidget" || layout.isEmpty())
+	objName = registerObject( objName );
 
     out << endl;
     if ( objClass == "QLayoutWidget" ) {
@@ -1224,7 +1252,7 @@ QString Uic::createLayoutImpl( const QDomElement &e, const QString& parentClass,
 	qlayout = "QGridLayout";
 
     bool isGrid = e.tagName() == "grid" ;
-    objName = registerObject( e.tagName() );
+    objName = registerObject( getLayoutName( e ) );
     layoutObjects += objName;
     int margin = DomTool::readProperty( e, "margin", BOXLAYOUT_DEFAULT_MARGIN ).toInt();
     int spacing = DomTool::readProperty( e, "spacing", BOXLAYOUT_DEFAULT_SPACING ).toInt();
