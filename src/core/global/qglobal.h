@@ -900,7 +900,11 @@ class QDataStream;
 #  ifdef Q_OS_WIN
 #    define Q_DECL_EXPORT __declspec(dllexport)
 #  else
-#    define Q_DECL_EXPORT
+#if __GNUC__ >= 4
+#define Q_DECL_EXPORT __attribute__((visibility("default")))
+#else
+#define Q_DECL_EXPORT
+#endif
 #  endif
 #endif
 #ifndef Q_DECL_IMPORT
@@ -987,28 +991,25 @@ class QDataStream;
 
 //defaults
 #ifndef Q_CORE_EXPORT
-#  define Q_CORE_EXPORT
+#  define Q_CORE_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_GUI_EXPORT
-#  define Q_GUI_EXPORT
+#  define Q_GUI_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_SQL_EXPORT
-#  define Q_SQL_EXPORT
+#  define Q_SQL_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_NETWORK_EXPORT
-#  define Q_NETWORK_EXPORT
-#endif
-#ifndef Q_CANVAS_EXPORT
-#  define Q_CANVAS_EXPORT
+#  define Q_NETWORK_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_OPENGL_EXPORT
-#  define Q_OPENGL_EXPORT
+#  define Q_OPENGL_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_XML_EXPORT
-#  define Q_XML_EXPORT
+#  define Q_XML_EXPORT Q_DECL_EXPORT
 #endif
 #ifndef Q_COMPAT_EXPORT
-#  define Q_COMPAT_EXPORT
+#  define Q_COMPAT_EXPORT Q_DECL_EXPORT
 #endif
 
 //
