@@ -4103,45 +4103,121 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 
 #include <math.h>
 
+struct Qargb {
+    Qargb() : a(0), r(0), g(0), b(0) {}
+    Qargb(uint pixel, uint scale) {
+        a = qAlpha(pixel)*scale;
+        r = a * qRed(pixel) / 255;
+        g = a * qGreen(pixel) / 255;
+        b = a * qBlue(pixel) / 255;
+    }
+    inline Qargb &operator += (const Qargb &o) {
+        a += o.a;
+        r += o.r;
+        g += o.g;
+        b += o.b;
+        return *this;
+    }
+    inline Qargb &operator *(uint scale) {
+        a *= scale;
+        r *= scale;
+        g *= scale;
+        b *= scale;
+        return *this;
+    }
+    inline QRgb toPixel(uint scale) const {
+        return qRgba(r/scale, g/scale, b/scale, a/scale);
+    }
+    uint a;
+    uint r;
+    uint g;
+    uint b;
+};
+
 static QImage shearX(const QImage &image, double scale, double shear)
 {
     qDebug("---> shearX: scale=%f, shear=%f", scale, shear);
     QImage result(qRound(image.width()*scale + QABS(shear*image.height())), image.height(), 32);
+
+    if (result.isNull())
+        return result;
+
     result.setAlphaBuffer(true);
     result.fill(0);
 
-    int height = image.height();
+    const int height = image.height();
     int width = image.width();
-    double skewoffset = shear < 0 ? -shear*(height-1) : 0;
 
-    const uchar * const *obits = image.jumpTable();
-    uchar **rbits = result.jumpTable();
+    const uchar * const *ibits = image.jumpTable();
+    uchar **obits = result.jumpTable();
 
-    if (scale == 1.) {
+    if (scale != 1.) {
+        qDebug("trying to scale");
+        int owidth = qRound(image.width()*scale);
+        uint p0 = owidth;
+        while (p0 >= 1024)
+            p0 /= 2;
+        uint q0 = width;
+        while (q0 >= 1024)
+            q0 /= 2;
+        const int area = p0*q0;
+
+        for (int y = 0; y < height; ++y) {
+            qDebug("y = %d", y);
+            const QRgb *iline = reinterpret_cast<const QRgb *>(ibits[y]);
+            QRgb *oline = reinterpret_cast<QRgb *>(obits[y]);
+
+            int p = p0; // owidth
+            int q = q0; // width
+            Qargb argb;
+            int ix = 0;
+            int ox = 0;
+            while (ox < owidth) {
+                Qargb pargb(iline[ix], p);
+                if (p > q) {
+                    argb += pargb * q;
+                    oline[ox] = argb.toPixel(area);
+                    argb = Qargb();
+                    ++ox;
+                    p -= q;
+                    q = q0;
+                } else {
+                    argb += pargb * p;
+                    q -= p;
+                    p = p0;
+                    ++ix;
+                }
+            }
+        }
+        width = owidth;
+        ibits = obits;
+    }
+
+    {
+        const double skewoffset = shear < 0 ? -shear*(height-1) : 0;
+
         for (int y = 0; y < height; ++y) {
             const double skew = shear*y + skewoffset;
             int skewi = (int(skew*256.));
-            int fraction = skewi & 0xff;
+            int fraction = 0x100 - skewi & 0xff;
             skewi >>= 8;
-            const QRgb *oline = reinterpret_cast<const QRgb *>(obits[y]);
-            QRgb *rline = reinterpret_cast<QRgb *>(rbits[y]);
+            const QRgb *iline = reinterpret_cast<const QRgb *>(ibits[y]);
+            QRgb *oline = reinterpret_cast<QRgb *>(obits[y]);
 
             uint lastPixel = 0;
-            for (int x = 0; x < width; ++x) {
-                QRgb pixel = oline[x];
+            for (int x = width - 1; x >= 0; --x) {
+                QRgb pixel = iline[x];
                 QRgb next = pixel;
                 next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
                     qRgba(
                         (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
                         (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
 
-                rline[x+skewi] = pixel - next + lastPixel;
+                oline[x+skewi] = pixel - next + lastPixel;
                 lastPixel = next;
             }
         }
-    } else if (scale > 1.) {
     }
-
     return result;
 }
 
@@ -4149,6 +4225,8 @@ static QImage shearY(const QImage &image, double scale, double shear)
 {
     qDebug("---> shearY: scale=%f, shear=%f", scale, shear);
     QImage result(image.width(), qRound(image.height()*scale + QABS(shear*image.width())), 32);
+    if (result.isNull())
+        return result;
     result.setAlphaBuffer(true);
     result.fill(0);
 
@@ -4351,16 +4429,16 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
         mat = QMatrix(1, 0, 0, -1, 0, 0) * mat;
     /* Now we've reduced the rotational part to the area -45 -- 45 degrees.
 
-       after these preparations all that's left to do to get to our transformed image is to scale
-       it to the projection of v1 and v2 onto the two chosen axes, and then shear.
+      after these preparations all that's left to do to get to our transformed image is to scale
+      it to the projection of v1 and v2 onto the two chosen axes, and then shear.
     */
     Q_ASSERT(mat.det() > 0);
 
 
-     QImage result = rotated.smoothScale(qRound(rotated.width()*mat.m11()), qRound(rotated.height()*mat.m22()));
-     mat = QMatrix(1., mat.m12()/mat.m11(), mat.m21()/mat.m22(), 1., 0., 0.);
+    QImage result = rotated.smoothScale(rotated.width(), qRound(rotated.height()*mat.m22()));
+    mat = QMatrix(mat.m11(), mat.m12(), mat.m21()/mat.m22(), 1., 0., 0.);
 
-    result = shearX(result, 1., mat.m12());
+    result = shearX(result, mat.m11(), mat.m12());
     result = shearY(result, 1., mat.m21());
 
     return result;
