@@ -1147,6 +1147,25 @@ long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
     return E_NOTIMPL;
 }
 
+static const char *const type_conversion[][2] =
+{
+    { "float", "double"},
+    { "short", "int"},
+    { "char", "int"},
+    { 0, 0 }
+};
+
+inline QString replaceType(const QString &type)
+{
+    int i = 0;
+    while (type_conversion[i][0]) {
+        if (type == type_conversion[i][0])
+            return type_conversion[i][1];
+        ++i;
+    }
+    return type;
+}
+
 class MetaObjectGenerator
 {
 public:
@@ -1167,32 +1186,6 @@ private:
 
     QString createPrototype(FUNCDESC *funcdesc, ITypeInfo *typeinfo, const QStringList &names,
 			    QString &type, QStringList &parameters);
-
-    QString constRefify( const QString& type )
-    {
-	QString crtype(type);
-/*
-	if ( type == "QString" )
-	    crtype = "const QString&";
-	else if ( type == "QDateTime" )
-	    crtype = "const QDateTime&";
-	else if ( type == "QVariant" )
-	    crtype = "const QVariant&";
-	else if ( type == "QColor" )
-	    crtype = "const QColor&";
-	else if ( type == "QFont" )
-	    crtype = "const QFont&";
-	else if ( type == "QPixmap" )
-	    crtype = "const QPixmap&";
-	else if ( type == "QList<QVariant>" )
-	    crtype = "const QList<QVariant>&";
-	else if ( type == "QByteArray" )
-	    crtype = "const QByteArray&";
-	else if ( type == "QStringList" )
-	    crtype = "const QStringList&";
-*/
-	return crtype;
-    }
 
     QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
     QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QString &function );
@@ -1271,8 +1264,8 @@ private:
     void addProperty(const QString &type, const QString &name, int flags)
     {
 	QPair<QString, int> &prop = property_list[name];
-	if (!type.isEmpty() && type != "HRESULT")
-	    prop.first = type;
+        if (!type.isEmpty() && type != "HRESULT")
+	    prop.first = replaceType(type);
 	prop.second |= flags;
     }
 
@@ -1397,10 +1390,10 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 	str = "bool";
 	break;
     case VT_I1:
-	str = "int"; //"char";
+	str = "char";
 	break;
     case VT_I2:
-	str = "int"; //"short";
+	str = "short";
 	break;
     case VT_I4:
     case VT_INT:
@@ -1416,7 +1409,7 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 	str = "Q_LLONG";
 	break;
     case VT_R4:
-	str = "double"; // float
+	str = "float";
 	break;
     case VT_R8:
 	str = "double";
@@ -1471,8 +1464,6 @@ QString MetaObjectGenerator::guessTypes( const TYPEDESC &tdesc, ITypeInfo *info,
 		str += "&";
 	    else if ( str == "QStringList" )
 		str += "&";
-	    else if ( str == "QVariant" )
-		str = constRefify(str);
 	    else if ( !str.isEmpty() && hasEnum(str) )
 		str += "&";
 	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
@@ -1675,7 +1666,7 @@ void MetaObjectGenerator::addChangedSignal(const QString &function, const QStrin
     }
     // generate changed signal
     QString signalName = function + "Changed";
-    QString signalProto = signalName + "(" + constRefify( type ) + ")";
+    QString signalProto = signalName + "(" + replaceType(type) + ")";
     if (!hasSignal( signalProto ))
 	addSignal(QString(), signalProto, function);
     if (eventSink)
@@ -1692,7 +1683,7 @@ void MetaObjectGenerator::addSetterSlot(const QString &property)
 	set = "set";
 	prototype[0].toUpper();
     }
-    prototype = set + prototype + "(" + constRefify(propertyType(property)) + ")";
+    prototype = set + prototype + "(" + propertyType(property) + ")";
     if (!hasSlot(prototype))
 	addSlot(QString(), prototype, property);
 }
@@ -1729,9 +1720,9 @@ QString MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *type
 		type = ptype;
 	} else {
 	    if (pdesc.wParamFlags & PARAMFLAG_FOUT && ptype.startsWith("const "))
-		prototype += ptype.mid( 6 );
+		prototype += ptype.mid(6);
 	    else
-		prototype += constRefify( ptype );
+		prototype += ptype;
 	    if ( optional )
 		paramName += "=0";
 	    parameters << paramName;
