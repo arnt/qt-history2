@@ -146,7 +146,7 @@ bool QTextCommandHistory::isRedoAvailable()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
+QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str )
     : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str )
 {
     for ( int j = 0; j < (int)text.size(); ++j ) {
@@ -155,7 +155,7 @@ QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const 
     }
 }
 
-QTextDeleteCommand::QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
+QTextDeleteCommand::QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str )
     : QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str )
 {
     for ( int i = 0; i < (int)text.size(); ++i ) {
@@ -352,7 +352,7 @@ void QTextCursor::invalidateNested()
     }
 }
 
-void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextString::Char> *formatting )
+void QTextCursor::insert( const QString &s, bool checkNewLine, QArray<QTextStringChar> *formatting )
 {
     tmpIndex = -1;
     bool justInsert = TRUE;
@@ -496,7 +496,7 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
     setParag( s, FALSE );
     int y = s->rect().y();
     int lines = s->lines();
-    QTextString::Char *chr = 0;
+    QTextStringChar *chr = 0;
     int index;
     int i = 0;
     int cy;
@@ -624,7 +624,7 @@ void QTextCursor::gotoUp()
 {
     int indexOfLineStart;
     int line;
-    QTextString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
     if ( !c )
 	return;
 
@@ -669,7 +669,7 @@ void QTextCursor::gotoDown()
 {
     int indexOfLineStart;
     int line;
-    QTextString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
     if ( !c )
 	return;
 
@@ -722,7 +722,7 @@ void QTextCursor::gotoLineEnd()
 {
     int indexOfLineStart;
     int line;
-    QTextString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
     if ( !c )
 	return;
 
@@ -739,7 +739,7 @@ void QTextCursor::gotoLineStart()
 {
     int indexOfLineStart;
     int line;
-    QTextString::Char *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
+    QTextStringChar *c = string->lineStartOfChar( idx, &indexOfLineStart, &line );
     if ( !c )
 	return;
 
@@ -2379,13 +2379,13 @@ void QTextString::insert( int index, const QString &s, QTextFormat *f )
     data.resize( data.size() + s.length() );
     if ( index < os ) {
 	memmove( data.data() + index + s.length(), data.data() + index,
-		 sizeof( Char ) * ( os - index ) );
+		 sizeof( QTextStringChar ) * ( os - index ) );
     }
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
 	data[ (int)index + i ].d.format = 0;
-	data[ (int)index + i ].type = Char::Regular;
+	data[ (int)index + i ].type = QTextStringChar::Regular;
 	data[ (int)index + i ].rightToLeft = 0;
 #if defined(Q_WS_X11)
 	//### workaround for broken courier fonts on X11
@@ -2406,20 +2406,20 @@ QTextString::~QTextString()
     clear();
 }
 
-void QTextString::insert( int index, Char *c )
+void QTextString::insert( int index, QTextStringChar *c )
 {
     int os = data.size();
     data.resize( data.size() + 1 );
     if ( index < os ) {
 	memmove( data.data() + index + 1, data.data() + index,
-		 sizeof( Char ) * ( os - index ) );
+		 sizeof( QTextStringChar ) * ( os - index ) );
     }
     data[ (int)index ].c = c->c;
     data[ (int)index ].x = 0;
     data[ (int)index ].lineStart = 0;
     data[ (int)index ].rightToLeft = 0;
     data[ (int)index ].d.format = 0;
-    data[ (int)index ].type = Char::Regular;
+    data[ (int)index ].type = QTextStringChar::Regular;
     data[ (int)index ].setFormat( c->format() );
     textChanged = TRUE;
 }
@@ -2459,7 +2459,7 @@ void QTextString::remove( int index, int len )
 	}
     }
     memmove( data.data() + index, data.data() + index + len,
-	     sizeof( Char ) * ( data.size() - index - len ) );
+	     sizeof( QTextStringChar ) * ( data.size() - index - len ) );
     data.resize( data.size() - len );
     textChanged = TRUE;
 }
@@ -2490,7 +2490,7 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 void QTextString::checkBidi() const
 {
     int len = data.size();
-    const Char *c = data.data();
+    const QTextStringChar *c = data.data();
     ((QTextString *)this)->bidi = FALSE;
     ((QTextString *)this)->rightToLeft = FALSE;
     while( len ) {
@@ -2546,7 +2546,7 @@ void QTextDocument::updateStyles()
     fCollection->updateStyles();
 }
 
-void QTextString::Char::setFormat( QTextFormat *f )
+void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
 	d.format = f;
@@ -2559,7 +2559,7 @@ void QTextString::Char::setFormat( QTextFormat *f )
     }
 }
 
-void QTextString::Char::setCustomItem( QTextCustomItem *i )
+void QTextStringChar::setCustomItem( QTextCustomItem *i )
 {
     if ( !isCustom() ) {
 	QTextFormat *f = format();
@@ -2575,11 +2575,11 @@ void QTextString::Char::setCustomItem( QTextCustomItem *i )
 int QTextString::width(int idx) const
 {
      int w = 0;
-     Char *c = &at( idx );
+     QTextStringChar *c = &at( idx );
      if( c->isCustom() ) {
 	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
 	     w = c->customItem()->width;
-     } else if ( c->type == Char::Mark ) {
+     } else if ( c->type == QTextStringChar::Mark ) {
 	 return 0;
      } else {
 	 int r = c->c.row();
@@ -2602,20 +2602,20 @@ int QTextString::width(int idx) const
      return w;
 }
 
-QArray<QTextString::Char> QTextString::subString( int start, int len ) const
+QArray<QTextStringChar> QTextString::subString( int start, int len ) const
 {
     if ( len == 0xFFFFFF )
 	len = data.size();
-    QArray<Char> a;
+    QArray<QTextStringChar> a;
     a.resize( len );
     for ( int i = 0; i < len; ++i ) {
-	Char *c = &data[ i + start ];
+	QTextStringChar *c = &data[ i + start ];
 	a[ i ].c = c->c;
 	a[ i ].x = 0;
 	a[ i ].lineStart = 0;
 	a[ i ].rightToLeft = 0;
 	a[ i ].d.format = 0;
-	a[ i ].type = Char::Regular;
+	a[ i ].type = QTextStringChar::Regular;
 	a[ i ].setFormat( c->format() );
 	if ( c->format() )
 	    c->format()->addRef();
@@ -2623,15 +2623,15 @@ QArray<QTextString::Char> QTextString::subString( int start, int len ) const
     return a;
 }
 
-QTextString::Char *QTextString::Char::clone() const
+QTextStringChar *QTextStringChar::clone() const
 {
-    Char *chr = new Char;
+    QTextStringChar *chr = new QTextStringChar;
     chr->c = c;
     chr->x = 0;
     chr->lineStart = 0;
     chr->rightToLeft = 0;
     chr->d.format = 0;
-    chr->type = Char::Regular;
+    chr->type = QTextStringChar::Regular;
     chr->setFormat( format() );
     if ( chr->format() )
 	chr->format()->addRef();
@@ -2766,7 +2766,7 @@ void QTextParag::truncate( int index )
 void QTextParag::remove( int index, int len )
 {
     for ( int i = index; i < len; ++i ) {
-	QTextString::Char *c = at( i );
+	QTextStringChar *c = at( i );
 	if ( doc && c->isCustom() ) {
 	    doc->unregisterCustomItem( c->customItem(), this );
 	    removeCustomItem();
@@ -2868,7 +2868,7 @@ void QTextParag::format( int start, bool doMove )
     for ( ; it != oldLineStarts.end(); ++it )
 	delete *it;
 
-    QTextString::Char *c = 0;
+    QTextStringChar *c = 0;
     if ( lineStarts.count() == 1 && ( !doc || doc->flow()->isEmpty() ) && !string()->isBidi() ) {
 	c = &str->at( str->length() - 1 );
 	r.setWidth( c->x + str->width( str->length() - 1 ) );
@@ -2948,7 +2948,7 @@ int QTextParag::lineHeightOfChar( int i, int *bl, int *y ) const
     return 15;
 }
 
-QTextString::Char *QTextParag::lineStartOfChar( int i, int *index, int *line ) const
+QTextStringChar *QTextParag::lineStartOfChar( int i, int *index, int *line ) const
 {
     if ( !isValid() )
 	( (QTextParag*)this )->format();
@@ -2982,7 +2982,7 @@ int QTextParag::lines() const
     return lineStarts.count();
 }
 
-QTextString::Char *QTextParag::lineStartOfLine( int line, int *index ) const
+QTextStringChar *QTextParag::lineStartOfLine( int line, int *index ) const
 {
     if ( !isValid() )
 	( (QTextParag*)this )->format();
@@ -3053,7 +3053,7 @@ void QTextParag::indent( int *oldIndent, int *newIndent )
 void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *cursor, bool drawSelections,
 			int clipx, int clipy, int clipw, int cliph )
 {
-    QTextString::Char *chr = at( 0 );
+    QTextStringChar *chr = at( 0 );
     int i = 0;
     int h = 0;
     int baseLine = 0, lastBaseLine = 0;
@@ -3064,7 +3064,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int cy = 0;
     int curx = -1, cury, curh;
     bool lastDirection = chr->rightToLeft;
-    QTextString::Char::Type lastType = chr->type;
+    QTextStringChar::Type lastType = chr->type;
     int tw = 0;
 
     QString qstr = str->toString();
@@ -3166,7 +3166,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( paintStart <= paintEnd ) {
 		// ### temporary hack until I get the new placement/shaping stuff working
 		int x = startX;
-		if ( lastType == QTextString::Char::Mark && i > 0 ) {
+		if ( lastType == QTextStringChar::Mark && i > 0 ) {
 		    if ( !lastDirection )
 			x += str->at(i - 1).d.mark->xoff;
 		    else if ( i > 1 )
@@ -3243,7 +3243,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 	// ### temporary hack until I get the new placement/shaping stuff working
 	int x = startX;
-	if ( lastType == QTextString::Char::Mark && i > 0 ) {
+	if ( lastType == QTextStringChar::Mark && i > 0 ) {
 	    if ( !lastDirection )
 		x += str->at(i - 1).d.mark->xoff;
 	    else if ( i > 1 )
@@ -3546,7 +3546,7 @@ QString QTextParag::richText() const
     QString s;
     QTextFormat *lastFormat = 0;
     for ( int i = 0; i < length(); ++i ) {
-	QTextString::Char *c = &str->at( i );
+	QTextStringChar *c = &str->at( i );
 	if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
 	    s += c->format()->makeFormatChangeTags( lastFormat );
 	    lastFormat = c->format();
@@ -3603,7 +3603,7 @@ QTextFormatter::QTextFormatter()
 /* only used for bidi or complex text reordering
  */
 QTextParagLineStart *QTextFormatter::formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line,
-						   QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
+						   QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     if( string->isBidi() )
 	return bidiReorderLine( parag, string, line, startChar, lastChar, align, space );
@@ -3677,7 +3677,7 @@ struct QTextBidiRun {
 
 // collects one line of the paragraph and transforms it to visual order
 QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextString *text, QTextParagLineStart *line,
-							QTextString::Char *startChar, QTextString::Char *lastChar, int align, int space )
+							QTextStringChar *startChar, QTextStringChar *lastChar, int align, int space )
 {
     int start = (startChar - &text->at(0));
     int last = (lastChar - &text->at(0) );
@@ -4206,7 +4206,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 	    // odd level, need to reverse the string
 	    int pos = r->stop;
 	    while(pos >= r->start) {
-		QTextString::Char *c = &text->at(pos);
+		QTextStringChar *c = &text->at(pos);
 		if( numSpaces && !first && isBreakable( text, pos ) ) {
 		    int s = space / numSpaces;
 		    toAdd += s;
@@ -4233,7 +4233,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 	} else {
 	    int pos = r->start;
 	    while(pos <= r->stop) {
-		QTextString::Char* c = &text->at(pos);
+		QTextStringChar* c = &text->at(pos);
 		if( numSpaces && !first && isBreakable( text, pos ) ) {
 		    int s = space / numSpaces;
 		    toAdd += s;
@@ -4338,8 +4338,8 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords()
 int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 					int start, const QMap<int, QTextParagLineStart*> & )
 {
-    QTextString::Char *c = 0;
-    QTextString::Char *firstChar = 0;
+    QTextStringChar *c = 0;
+    QTextStringChar *firstChar = 0;
     int left = doc ? parag->leftMargin() + 4 : 4;
     int x = left;
     int dw = parag->documentVisibleWidth() - ( doc ? 8 : 0 );
@@ -4463,8 +4463,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 //     if ( parag->string() )
 // 	QComplexText::glyphPositions( parag->string() );
 
-    QTextString::Char *c = 0;
-    QTextString::Char *firstChar = 0;
+    QTextStringChar *c = 0;
+    QTextStringChar *firstChar = 0;
     QTextString *string = parag->string();
     int left = doc ? parag->leftMargin() + 4 : 0;
     int x = left;

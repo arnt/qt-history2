@@ -473,7 +473,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     if( len == 0 ) {
         return QString::null;
     }
-    
+
     // we have to ignore NSMs at the beginning and add at the end.
     int num = uc.length() - from - len;
     const QChar *ch = uc.unicode() + from + len;
@@ -489,7 +489,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	from++;
     }
     if ( len == 0 ) return QString::null;
-    
+
     if( !shapeBuffer || len > shapeBufSize ) {
       if( shapeBuffer ) free( (void *) shapeBuffer );
       shapeBuffer = (QChar *) malloc( len*sizeof( QChar ) );
@@ -501,7 +501,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     int lenOut = 0;
     QChar *data = shapeBuffer;
     if ( dir == QPainter::RTL )
-	ch += len - 1; 
+	ch += len - 1;
     for ( int i = 0; i < len; i++ ) {
         uchar r = ch->row();
         uchar c = ch->cell();
@@ -592,7 +592,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 	    }
 	}
     }
-    
+
     return QConstString( shapeBuffer, lenOut ).string();
 }
 
@@ -641,7 +641,7 @@ void QComplexText::glyphPositions( QTextString *str )
     Shape shape = XIsolated;
 
     int len = str->length();
-    QTextString::Char *ch = &str->at( 0 );
+    QTextStringChar *ch = &str->at( 0 );
     int lastChar = -1;
     for ( int i = 0; i < len; i++ ) {
         // ignore custom Items
@@ -652,11 +652,11 @@ void QComplexText::glyphPositions( QTextString *str )
         }
 
         const QChar &c = ch->c;
-        QTextString::Char::Type type = QTextString::Char::Regular;
+        QTextStringChar::Type type = QTextStringChar::Regular;
         QChar shapedChar;
         bool join = FALSE;
         if ( c.isMark() ) {
-            type = QTextString::Char::Mark;
+            type = QTextStringChar::Mark;
             shape = lastShape;
         }
 #if 0
@@ -675,12 +675,12 @@ void QComplexText::glyphPositions( QTextString *str )
         }
 #endif
         switch( type ) {
-            case QTextString::Char::Mark:
-                if ( ch->type != QTextString::Char::Mark ) {
+            case QTextStringChar::Mark:
+                if ( ch->type != QTextStringChar::Mark ) {
                     QTextFormat *f = ch->d.format;
-                    ch->d.mark = new QTextString::Char::MarkData;
+                    ch->d.mark = new QTextStringChar::MarkData;
                     ch->d.mark->format = f;
-                    ch->type = QTextString::Char::Mark;
+                    ch->type = QTextStringChar::Mark;
                 }
                 // XXX position the glyph correctly!
                 if ( lastChar != -1  ) {
@@ -716,7 +716,7 @@ QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, in
     QChar baseChar = QComplexText::shapedCharacter( str, pos );
     QRect baseRect = f->boundingRect( baseChar );
     int baseOffset = f->textWidth( str, pos, 1 );
-    
+
     //qDebug( "base char: bounding rect at %d/%d (%d/%d)", baseRect.x(), baseRect.y(), baseRect.width(), baseRect.height() );
     int offset = f->request.pixelSize / 10 + 1;
     QPointArray pa( nmarks );

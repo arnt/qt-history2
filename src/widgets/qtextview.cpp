@@ -774,7 +774,7 @@ void QTextView::ensureCursorVisible()
 {
     lastFormatted = cursor->parag();
     formatMore();
-    QTextString::Char *chr = cursor->parag()->at( cursor->index() );
+    QTextStringChar *chr = cursor->parag()->at( cursor->index() );
     int h = cursor->parag()->lineHeightOfChar( cursor->index() );
     int x = cursor->parag()->rect().x() + chr->x + cursor->offsetX();
     int y = 0; int dummy;
@@ -1828,7 +1828,7 @@ int QTextView::lineOfChar( int parag, int chr )
 	return -1;
 
     int idx, line;
-    QTextString::Char *c = p->lineStartOfChar( chr, &idx, &line );
+    QTextStringChar *c = p->lineStartOfChar( chr, &idx, &line );
     if ( !c )
 	return -1;
 

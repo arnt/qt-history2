@@ -124,93 +124,95 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+class QTextStringChar
+{
+    friend class QTextString;
+
+public:
+    // this is never called, initialize variables in QTextString::insert()!!!
+    QTextStringChar() : lineStart( 0 ), type( Regular ) {d.format=0;}
+    ~QTextStringChar();
+    QChar c;
+    enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
+    uint lineStart : 1;
+    uint rightToLeft : 1;
+    uint hasCursor : 1;
+    uint canBreak : 1;
+    Type type : 3;
+	
+    int x;
+    int height() const;
+    int ascent() const;
+    int descent() const;
+    bool isCustom() const { return type == Custom; }
+    QTextFormat *format() const;
+    QTextCustomItem *customItem() const;
+    void setFormat( QTextFormat *f );
+    void setCustomItem( QTextCustomItem *i );
+    QTextStringChar *clone() const;
+	
+private:
+    struct CustomData
+    {
+	QTextFormat *format;
+	QTextCustomItem *custom;
+    };
+	
+    struct MarkData
+    {
+	QTextFormat *format;
+	short xoff; // x offset for painting the Mark
+	short yoff; // y offset for painting the Mark
+    };
+	
+    struct ShapedData
+    {
+	QTextFormat *format;
+	QChar shapedGlyph;
+    };
+	
+    struct LigatureData
+    {
+	QTextFormat *format;
+	QChar ligature;
+	unsigned short nchars; // length of the ligature in decomposed form
+    };
+	
+    QTextStringChar &operator=( const QTextStringChar & ) {
+	//abort();
+	return *this;
+    }
+
+    union {
+	QTextFormat* format;
+	CustomData* custom;
+	MarkData *mark;
+	ShapedData *shaped;
+	LigatureData *ligature;
+    } d;
+    friend class QComplexText;
+    friend class QTextParag;
+};
+
 class QTextString
 {
 public:
-    class Char
-    {
-	friend class QTextString;
-    public:
-	// this is never called, initialize variables in QTextString::insert()!!!
-	Char() : lineStart( 0 ), type( Regular ) {d.format=0;}
-	~Char();
-	QChar c;
-	enum Type { Regular, Custom, Mark, Shaped, LigatureFirst, Ligature };
-	uint lineStart : 1;
-	uint rightToLeft : 1;
-	uint hasCursor : 1;
-	uint canBreak : 1;
-	Type type : 3;
-	
-	int x;
-	int height() const;
-	int ascent() const;
-	int descent() const;
-	bool isCustom() const { return type == Custom; }
-	QTextFormat *format() const;
-	QTextCustomItem *customItem() const;
-	void setFormat( QTextFormat *f );
-	void setCustomItem( QTextCustomItem *i );
-	Char *clone() const;
-	
-    private:
-	struct CustomData
-	{
-	    QTextFormat *format;
-	    QTextCustomItem *custom;
-	};
-	
-	struct MarkData
-	{
-	    QTextFormat *format;
-	    short xoff; // x offset for painting the Mark
-	    short yoff; // y offset for painting the Mark
-	};
-	
-	struct ShapedData
-	{
-	    QTextFormat *format;
-	    QChar shapedGlyph;
-	};
-	
-	struct LigatureData
-	{
-	    QTextFormat *format;
-	    QChar ligature;
-	    unsigned short nchars; // length of the ligature in decomposed form
-	};
-	
-	Char &operator=( const Char & ) {
-	    //abort();
-	    return *this;
-	}
-
-	union {
-	    QTextFormat* format;
-	    CustomData* custom;
-	    MarkData *mark;
-	    ShapedData *shaped;
-	    LigatureData *ligature;
-	} d;
-	friend class QComplexText;
-	friend class QTextParag;
-    };
 
     QTextString();
     QTextString( const QTextString &s );
     ~QTextString();
 
     QString toString() const;
-    static QString toString( const QArray<Char> &data );
+    static QString toString( const QArray<QTextStringChar> &data );
     QString toReverseString() const;
 
-    Char &at( int i ) const;
+    QTextStringChar &at( int i ) const;
     int length() const;
 
     int width( int idx ) const;
 
     void insert( int index, const QString &s, QTextFormat *f );
-    void insert( int index, Char *c );
+    void insert( int index, QTextStringChar *c );
     void truncate( int index );
     void remove( int index, int len );
     void clear();
@@ -223,8 +225,8 @@ public:
     bool isBidi() const;
     bool isRightToLeft() const;
 
-    QArray<Char> subString( int start = 0, int len = 0xFFFFFF ) const;
-    QArray<Char> rawData() const { return data; }
+    QArray<QTextStringChar> subString( int start = 0, int len = 0xFFFFFF ) const;
+    QArray<QTextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
     void operator+=( const QString &s ) { insert( length(), s, 0 ); }
@@ -234,7 +236,7 @@ private:
     void checkBidi() const;
     void basicDirection() const;
 
-    QArray<Char> data;
+    QArray<QTextStringChar> data;
     uint textChanged : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1; // true if the basic direction of the paragraph is right to left.
@@ -293,7 +295,7 @@ public:
     void gotoWordLeft();
     void gotoWordRight();
 
-    void insert( const QString &s, bool checkNewLine, QArray<QTextString::Char> *formatting = 0 );
+    void insert( const QString &s, bool checkNewLine, QArray<QTextStringChar> *formatting = 0 );
     void splitAndInsertEmptyParag( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
     void killLine();
@@ -920,8 +922,8 @@ private:
 class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str );
-    QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str );
+    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str );
+    QTextDeleteCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str );
     virtual Commands type() const { return Delete; };
 
     virtual QTextCursor *execute( QTextCursor *c );
@@ -930,16 +932,16 @@ public:
 protected:
     int id, index;
     QTextParag *parag;
-    QArray<QTextString::Char> text;
+    QArray<QTextStringChar> text;
 
 };
 
 class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
-    QTextInsertCommand( QTextDocument *d, int i, int idx, const QArray<QTextString::Char> &str )
+    QTextInsertCommand( QTextDocument *d, int i, int idx, const QArray<QTextStringChar> &str )
 	: QTextDeleteCommand( d, i, idx, str ) {}
-    QTextInsertCommand( QTextParag *p, int idx, const QArray<QTextString::Char> &str )
+    QTextInsertCommand( QTextParag *p, int idx, const QArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     Commands type() const { return Insert; };
 
@@ -1018,7 +1020,7 @@ public:
     virtual ~QTextParag();
 
     QTextString *string() const;
-    QTextString::Char *at( int i ) const; // maybe remove later
+    QTextStringChar *at( int i ) const; // maybe remove later
     int length() const; // maybe remove later
 
     void setListStyle( QStyleSheetItem::ListStyle ls );
@@ -1056,9 +1058,9 @@ public:
     void setChanged( bool b, bool recursive = FALSE );
 
     int lineHeightOfChar( int i, int *bl = 0, int *y = 0 ) const;
-    QTextString::Char *lineStartOfChar( int i, int *index = 0, int *line = 0 ) const;
+    QTextStringChar *lineStartOfChar( int i, int *index = 0, int *line = 0 ) const;
     int lines() const;
-    QTextString::Char *lineStartOfLine( int line, int *index = 0 ) const;
+    QTextStringChar *lineStartOfLine( int line, int *index = 0 ) const;
     int lineY( int l ) const;
     int lineBaseLine( int l ) const;
     int lineHeight( int l ) const;
@@ -1207,10 +1209,10 @@ public:
     virtual void setWrapAtColumn( int c ) { wrapColumn = c; }
 
 protected:
-    virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextString::Char *start,
-					       QTextString::Char *last, int align = Qt::AlignAuto, int space = 0 );
-    virtual QTextParagLineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextString::Char *start,
-						    QTextString::Char *last, int align, int space );
+    virtual QTextParagLineStart *formatLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
+					       QTextStringChar *last, int align = Qt::AlignAuto, int space = 0 );
+    virtual QTextParagLineStart *bidiReorderLine( QTextParag *parag, QTextString *string, QTextParagLineStart *line, QTextStringChar *start,
+						    QTextStringChar *last, int align, int space );
     virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParag *parag, int index, QTextParagLineStart *ls );
 
@@ -1445,7 +1447,7 @@ inline void QTextCursor::checkIndex()
 
 inline int QTextCursor::x() const
 {
-    QTextString::Char *c = string->at( idx );
+    QTextStringChar *c = string->at( idx );
     int curx = c->x;
     if ( c->rightToLeft )
 	curx += string->string()->width( idx );
@@ -1959,17 +1961,17 @@ inline void QTextFormat::updateStyleFlags()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QTextString::Char &QTextString::at( int i ) const
+inline QTextStringChar &QTextString::at( int i ) const
 {
     return data[ i ];
 }
 
-inline QString QTextString::toString( const QArray<QTextString::Char> &data )
+inline QString QTextString::toString( const QArray<QTextStringChar> &data )
 {
     QString s;
     int l = data.size();
     s.setUnicode( 0, l );
-    Char *c = data.data();
+    QTextStringChar *c = data.data();
     QChar *uc = (QChar *)s.unicode();
     while ( l-- ) {
 	*uc = c->c;
@@ -1990,7 +1992,7 @@ inline QString QTextString::toReverseString() const
     QString s;
     int l = length();
     s.setUnicode(0, l);
-    Char *c = data.data() + (l-1);
+    QTextStringChar *c = data.data() + (l-1);
     QChar *uc = (QChar *)s.unicode();
     while ( l-- ) {
 	*uc = c->c;
@@ -2008,7 +2010,7 @@ inline int QTextString::length() const
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QTextString::Char *QTextParag::at( int i ) const
+inline QTextStringChar *QTextParag::at( int i ) const
 {
     return &str->at( i );
 }
@@ -2549,7 +2551,7 @@ inline QTextFormat *QTextFormatCollection::defaultFormat() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline QTextString::Char::~Char()
+inline QTextStringChar::~QTextStringChar()
 {
     if ( format() )
 	format()->removeRef();
@@ -2565,28 +2567,28 @@ inline QTextString::Char::~Char()
     }
 }
 
-inline QTextFormat *QTextString::Char::format() const
+inline QTextFormat *QTextStringChar::format() const
 {
     return (type == Regular) ? d.format : d.custom->format;
 }
 
 
-inline QTextCustomItem *QTextString::Char::customItem() const
+inline QTextCustomItem *QTextStringChar::customItem() const
 {
     return isCustom() ? d.custom->custom : 0;
 }
 
-inline int QTextString::Char::height() const
+inline int QTextStringChar::height() const
 {
     return !isCustom() ? format()->height() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
 }
 
-inline int QTextString::Char::ascent() const
+inline int QTextStringChar::ascent() const
 {
     return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
 }
 
-inline int QTextString::Char::descent() const
+inline int QTextStringChar::descent() const
 {
     return !isCustom() ? format()->descent() : 0;
 }
