@@ -378,7 +378,8 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     provided in QMainWindow, adding \l{QMenu}s to the menu bar and
     adding \l{QAction}s to the popup menus.
 
-    Example (from \l mainwindows/menus/mainwindow.cpp):
+    Example (from the \l{mainwindows/menus}{Menus} example):
+
     \quotefile mainwindows/menus/mainwindow.cpp
     \skipto fileMenu =
     \printuntil fileMenu->addAction(
@@ -418,8 +419,8 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
             created to call QApplication::quit()
     \endtable
 
-    \link menu-example.html menu/menu.cpp\endlink is an example of
-    QMenuBar and QMenu use.
+    The \l{mainwindows/menus}{Menus} example shows how to use
+    QMenuBar and QMenu.
 
     \sa QMenu QShortcut QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
 */

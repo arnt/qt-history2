@@ -2500,5 +2500,16 @@ int QMenu::findIdForAction(QAction *act) const
     Use hovered() instead.
 */
 
+/*!
+    \fn void QMenu::setCheckable(bool checkable)
+
+    Not necessary anymore. The \a checkable parameter is ignored.
+*/
+
+/*!
+    \fn bool QMenu::isCheckable() const
+
+    Not necessary anymore. Always returns true.
+*/
 
 #include "moc_qmenu.cpp"

@@ -2504,7 +2504,7 @@ void QTextEdit::setTabChangesFocus(bool b)
     \c FixedPixelWidth or \c FixedColumnWidth you should also call
     setWrapColumnOrWidth() with the width you want.
 
-    \sa LineWrap, lineWrapColumnOrWidth
+    \sa lineWrapColumnOrWidth
 */
 
 QTextEdit::LineWrapMode QTextEdit::lineWrapMode() const
@@ -2532,7 +2532,7 @@ void QTextEdit::setLineWrapMode(LineWrapMode wrap)
     column number (in character columns) from the left edge of the
     text edit at which text should be wrapped.
 
-    \sa wordWrap
+    \sa lineWrapMode
 */
 
 int QTextEdit::lineWrapColumnOrWidth() const

@@ -89,11 +89,11 @@ public:
 
     Clicking the up/down buttons or using the keyboard accelerator's
     up and down arrows will increase or decrease the current value in
-    steps of size lineStep(). If you want to change this behaviour you
+    steps of size singleStep(). If you want to change this behaviour you
     can reimplement the virtual function stepBy(). The minimum and
     maximum value and the step size can be set using one of the
     constructors, and can be changed later with setMinimum(),
-    setMaximum() and setLineStep().
+    setMaximum() and setSingleStep().
 
     Most spin boxes are directional, but QSpinBox can also operate as
     a circular spin box, i.e. if the range is 0-99 and the current
@@ -205,8 +205,7 @@ public:
     value of 1. The value is initially set to 0. It is parented to \a
     parent.
 
-    \sa minimum(), setMinimum(), maximum(), setMaximum(), lineStep(),
-    setLineStep()
+    \sa setMinimum(), setMaximum(), setSingleStep()
 */
 
 QSpinBox::QSpinBox(QWidget *parent)
@@ -246,8 +245,6 @@ QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name
 
     setValue() will emit valueChanged() if the new value is different
     from the old one.
-
-    \sa setValue()
 */
 
 int QSpinBox::value() const
@@ -380,8 +377,6 @@ void QSpinBox::setSpecialValueText(const QString &s)
     value will be incremented/decremented by the amount of the
     singleStep. The default value is 1. Setting a singleStep value of
     less than 0 does nothing.
-
-    \sa setSingleStep()
 */
 
 int QSpinBox::singleStep() const
@@ -518,10 +513,9 @@ int QSpinBox::valueFromText(const QString &text) const
     return d->validateAndInterpret(copy, pos, state).toInt();
 }
 
-/*
+/*!
   \reimp
 */
-
 QValidator::State QSpinBox::validate(QString &text, int &pos) const
 {
     QValidator::State state;
@@ -556,11 +550,11 @@ QValidator::State QSpinBox::validate(QString &text, int &pos) const
 
     Clicking the up and down buttons or using the keyboard accelerator's
     Up and Down arrows will increase or decrease the current value in
-    steps of size lineStep(). If you want to change this behavior you
+    steps of size singleStep(). If you want to change this behavior you
     can reimplement the virtual function stepBy(). The minimum and
     maximum value and the step size can be set using one of the
     constructors, and can be changed later with setMinimum(),
-    setMaximum() and setLineStep(). The spinbox has a default
+    setMaximum() and setSingleStep(). The spinbox has a default
     precision of 2 decimal places but this can be changed using
     setDecimals().
 
@@ -605,11 +599,8 @@ QValidator::State QSpinBox::validate(QString &text, int &pos) const
     value of 1.0 and a precision of 2 decimal places. The value is
     initially set to 0.00. The spin box has the given \a parent.
 
-    \sa minimum(), setMinimum(), maximum(), setMaximum(), lineStep(),
-    setLineStep()
+    \sa setMinimum(), setMaximum(), setSingleStep()
 */
-
-
 QDoubleSpinBox::QDoubleSpinBox(QWidget *parent)
     : QAbstractSpinBox(*new QDoubleSpinBoxPrivate, parent)
 {
@@ -621,10 +612,7 @@ QDoubleSpinBox::QDoubleSpinBox(QWidget *parent)
 
     setValue() will emit valueChanged() if the new value is different
     from the old one.
-
-    \sa setValue()
 */
-
 double QDoubleSpinBox::value() const
 {
     return d->value.toDouble();
@@ -754,11 +742,7 @@ void QDoubleSpinBox::setSpecialValueText(const QString &s)
     value will be incremented/decremented by the amount of the
     singleStep. The default value is 1.0. Setting a singleStep value
     of less than 0 does nothing.
-
-    \sa setSingleStep()
 */
-
-
 double QDoubleSpinBox::singleStep() const
 {
     return d->singlestep.toDouble();
@@ -892,10 +876,8 @@ QString QDoubleSpinBox::textFromValue(double v) const
 }
 
 /*!
-    \fn double QDoubleSpinBox::valueFromText(const QString &text) const
-
     This virtual function is used by the spin box whenever it needs to
-    interpret text entered by the user as a value. Note that neither
+    interpret \a text entered by the user as a value. Note that neither
     prefix() nor suffix() are included when this function is called by
     Qt.
 
@@ -905,9 +887,8 @@ QString QDoubleSpinBox::textFromValue(double v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    \sa valueFromText(), validate()
+    \sa textFromValue(), validate()
 */
-
 double QDoubleSpinBox::valueFromText(const QString &text) const
 {
     QString copy = text;
@@ -916,7 +897,7 @@ double QDoubleSpinBox::valueFromText(const QString &text) const
     return d->validateAndInterpret(copy, pos, state).toDouble();
 }
 
-/*
+/*!
   \reimp
 */
 QValidator::State QDoubleSpinBox::validate(QString &text, int &pos) const
@@ -927,7 +908,7 @@ QValidator::State QDoubleSpinBox::validate(QString &text, int &pos) const
 }
 
 
-/*
+/*!
   \reimp
 */
 void QDoubleSpinBox::fixup(QString &input) const

@@ -1405,6 +1405,12 @@ void QSplitter::setOpaqueResize(bool on)
 
     Use setStretchFactor() instead.
 */
+
+/*!
+    \fn void QSplitter::setCollapsible(QWidget *widget, bool collapsible)
+
+    Use setCollapsible(indexOf(\a widget, \a collapsible)) instead.
+*/
 #endif
 
 /*!
@@ -1686,10 +1692,7 @@ void QSplitter::setStretchFactor(int index, int stretch)
     \relates QSplitter
     \obsolete
 
-    Writes the sizes and the hidden state of the widgets in the
-    splitter \a splitter to the text stream \a ts.
-
-    \sa operator>>(), QSplitter::sizes(), QWidget::isExplicitlyHidden()
+    Use \a ts << \a{splitter}.saveState() instead.
 */
 
 QTextStream& operator<<(QTextStream& ts, const QSplitter& splitter)
@@ -1702,11 +1705,7 @@ QTextStream& operator<<(QTextStream& ts, const QSplitter& splitter)
     \relates QSplitter
     \obsolete
 
-    Reads the sizes and the hidden state of the widgets in the
-    splitter \a splitter from the text stream \a ts. The sizes must
-    have been previously written by the operator<<() function.
-
-    \sa operator<<(), QSplitter::setSizes(), QWidget::hide()
+    Use \a ts >> \a{splitter}.restoreState() instead.
 */
 
 QTextStream& operator>>(QTextStream& ts, QSplitter& splitter)

@@ -270,7 +270,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
     }
 }
 
-/*! \reimp */
+/*! \internal */
 void QSizeGrip::show()
 {
     Q_D(QSizeGrip);
@@ -278,7 +278,7 @@ void QSizeGrip::show()
     QWidget::show();
 }
 
-/*! \reimp */
+/*! \internal */
 void QSizeGrip::hide()
 {
     Q_D(QSizeGrip);

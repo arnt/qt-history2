@@ -173,7 +173,7 @@ void QMainWindowPrivate::init()
 
     \list
 
-    \o If \l{QDockWidget::floatable}{floatable} is \c true,
+    \o If \l{QDockWidget::floating}{floating} is \c true,
     QMainWindow chooses a dock area based on the position of the mouse
     pointer. If the mouse is within 50 pixels of the
     central widget's edge, the adjacent dock area is chosen.
@@ -182,7 +182,7 @@ void QMainWindowPrivate::init()
     Otherwise, the QRubberBand is shown under the mouse pointer, as
     above.
 
-    \o If \l{QDockWidget::floatable}{floatable} is \c false,
+    \o If \l{QDockWidget::floating}{floating} is \c false,
     QMainWindow chooses a dock area based on the distance between the
     mouse pointer and the center of the central widget. If the mouse
     comes within 50 pixels of the central widget's edge, the adjacent
@@ -195,7 +195,7 @@ void QMainWindowPrivate::init()
     In either case, dragging the mouse over another QDockWidget causes
     QMainWindow to choose the other QDockWidget's dock area.
 
-    When dragging outside the QMainWindow, the QDockWidget::floatable
+    When dragging outside the QMainWindow, the QDockWidget::floating
     property again controls feedback during dragging. When the
     property is \c false, dragging outside of the QMainWindow will show
     the rubberband over the QDockWidget's current location. This
@@ -438,7 +438,7 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
     window. The \a toolbar is placed at the end of the current tool
     bar block (i.e. line).
 
-    \sa insertToolBar() addToolBarBlock() insertToolBarBlock()
+    \sa insertToolBar() addToolBarBreak() insertToolBarBreak()
 */
 void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
@@ -485,7 +485,7 @@ QToolBar *QMainWindow::addToolBar(const QString &title)
     layout operation, this means that \a toolbar will appear to the left
     of the toolbar specified by \a before in a horizontal toolbar area.
 
-    \sa insertToolBarBlock() addToolBar() addToolBarBlock()
+    \sa insertToolBarBreak() addToolBar() addToolBarBreak()
 */
 void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
@@ -520,7 +520,7 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 /*!
     Returns the tool bar area for \a toolbar.
 
-    \sa addToolBar() addToolBarBlock() Qt::ToolBarArea
+    \sa addToolBar() addToolBarBreak() Qt::ToolBarArea
 */
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d->layout->toolBarArea(toolbar); }
