@@ -604,10 +604,13 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	    }
 	} else {
 	    emit aboutToBlock();
+	    locker.mutex()->unlock();
 	    if ( !winGetMessage(&msg,0,0,0) ) {
+		locker.mutex()->lock();
 		exit( 0 );				// WM_QUIT received
 		return FALSE;
 	    }
+	    locker.mutex()->lock();
 	}
     } else {					// no-wait mode
 	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
