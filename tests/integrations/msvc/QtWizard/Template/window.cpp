@@ -22,6 +22,11 @@ $$IF(QT_STATUSBAR)
 	m_pStatusBar = new QStatusBar( this );
 $$ENDIF
 
+$$IF(QT_BACKGROUND)
+	m_pBackground = new QPixmap( QString( "$$QT_BACKGROUND$$" ) );
+	m_pCentralWidget->setBackgroundPixmap( *m_pBackground );
+	m_pCentralWidget->setBackgroundMode( QWidget::FixedPixmap );
+$$ENDIF
 	setCentralWidget( m_pCentralWidget );
 
 }

@@ -150,6 +150,7 @@ FILESAVE.BMP            TEMPLATE DISCARDABLE    "Template\\filesave.bmp"
 FILEOPEN.BMP            TEMPLATE DISCARDABLE    "Template\\fileopen.bmp"
 FILEPRINT.BMP           TEMPLATE DISCARDABLE    "Template\\fileprint.bmp"
 FILENEW.BMP             TEMPLATE DISCARDABLE    "Template\\filenew.bmp"
+BACKGROUND.PNG          TEMPLATE DISCARDABLE    "Template\\background.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -159,11 +160,6 @@ FILENEW.BMP             TEMPLATE DISCARDABLE    "Template\\filenew.bmp"
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_QTWIZARD            ICON    DISCARDABLE     "res\\QtWizard.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
 
 /////////////////////////////////////////////////////////////////////////////
 //

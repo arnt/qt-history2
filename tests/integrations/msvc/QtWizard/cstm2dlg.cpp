@@ -167,6 +167,15 @@ BOOL CCustom2Dlg::OnDismiss()
 		QtWizardaw.m_Dictionary.RemoveKey( "QT_COMMENTS" );
 	}
 
+	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::WidgetTypes[ CQtWizardAppWiz::WIDGET_WORKSPACE ] )
+	{
+		QtWizardaw.m_Dictionary[ "QT_BACKGROUND" ] = "background.png";
+	}
+	else
+	{
+		QtWizardaw.m_Dictionary.RemoveKey( "QT_BACKGROUND" );
+	}
+
 	return TRUE;	// return FALSE if the dialog shouldn't be dismissed
 }
 

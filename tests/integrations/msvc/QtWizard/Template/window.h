@@ -30,5 +30,8 @@ $$IF(QT_STATUSBAR)
 	QStatusBar* m_pStatusBar;
 $$ENDIF
 
+$$IF(QT_BACKGROUND)
+	QPixmap* m_pBackground;
+$$ENDIF
 	$$QT_CENTRAL_WIDGET_TYPE$$* m_pCentralWidget;
 };
