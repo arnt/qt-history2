@@ -2186,13 +2186,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowShown) {
 	    widget->topLevelWidget()->setActiveWindow();
 	} else if(ekind == kEventWindowActivated) {
-	    WindowActivationScope scope;
-	    if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr && 
-	       scope == kWindowActivationScopeIndependent) {
-		if(GetFrontWindowOfClass(kAllWindowClasses, true) != wid)
-		    break;
-	    }
-
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
 		//so this is in for now, FIXME!
@@ -2208,8 +2201,23 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(widget && widget->topLevelWidget()->isVisible()) {
 		QWidget *tlw = widget->topLevelWidget();
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
-							    !tlw->testWFlags(WStyle_Tool)))
-		    app->setActiveWindow(tlw);
+							    !tlw->testWFlags(WStyle_Tool))) {
+		    bool just_send_event = FALSE;
+		    {
+			WindowActivationScope scope;
+			if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr && 
+			   scope == kWindowActivationScopeIndependent) {
+			    if(GetFrontWindowOfClass(kAllWindowClasses, true) != wid)
+				just_send_event = TRUE;
+			}
+		    }
+		    if(just_send_event) {
+			QEvent e(QEvent::WindowActivate);
+			QApplication::sendSpontaneousEvent(widget, &e);
+		    } else {
+			app->setActiveWindow(tlw);
+		    }
+		}
 		if(widget->focusWidget())
 		    widget->focusWidget()->setFocus();
 		else
