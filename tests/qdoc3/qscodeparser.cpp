@@ -192,6 +192,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	ClassNode *quickClass = new ClassNode( qsTre->root(), quickClassName );
 qDebug( "Quickifying '%s'", qtClassName.latin1() );
 	quickifyClass( quickClass, qtClass, wrapperClass );
+	setQtDoc( quickClass, qtClass->doc() );
 	setQuickDoc( quickClass, doc );
 	return 0;
     } else {
@@ -311,7 +312,7 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 	if ( func->doc().isEmpty() ) {
 	    if ( func->parent() != (InnerNode *) qtClass ) {
 		FunctionNode *qtFunc = qtClass->findFunctionNode( func );
-		if ( qtFunc != 0 && !qtFunc->doc().isEmpty() )
+		if ( qtFunc != 0 )
 		    setQtDoc( quickFunc, qtFunc->doc() );
 	    }
 	} else {
@@ -335,8 +336,7 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
     quickProperty->setStored( property->isStored() );
     quickProperty->setDesignable( property->isDesignable() );
 
-    if ( !property->doc().isEmpty() )
-	setQtDoc( quickProperty, property->doc() );
+    setQtDoc( quickProperty, property->doc() );
 
     blackList->insert( quickProperty->getter(), 0 );
     blackList->insert( quickProperty->setter(), 0 );
@@ -604,10 +604,12 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 
 void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 {
-    Doc quickDoc( doc.location(), quickifiedDoc(doc.source()),
-		  reunion(CppCodeParser::topicCommands(),
-			  CppCodeParser::otherMetaCommands()) );
-    quickNode->setDoc( quickDoc, TRUE );
+    if ( !doc.isEmpty() ) {
+	Doc quickDoc( doc.location(), quickifiedDoc(doc.source()),
+		      reunion(CppCodeParser::topicCommands(),
+			      CppCodeParser::otherMetaCommands()) );
+	quickNode->setDoc( quickDoc, TRUE );
+    }
 }
 
 void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
@@ -639,7 +641,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 		      (CppCodeParser::topicCommands() + topicCommands() +
 		       CppCodeParser::otherMetaCommands()) << COMMAND_REPLACE );
 	quickNode->setDoc( quickDoc, TRUE );
-    } else {
+    } else if ( !doc.isEmpty() ) {
 	quickNode->setDoc( doc, TRUE );
     }
 }

@@ -1656,7 +1656,7 @@ const QString& Doc::source() const
 
 bool Doc::isEmpty() const
 {
-    return body().isEmpty();
+    return body().firstAtom() == body().lastAtom();
 }
 
 const Text& Doc::body() const
