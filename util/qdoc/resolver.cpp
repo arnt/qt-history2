@@ -2,6 +2,7 @@
   resolver.cpp
 */
 
+#include "html.h"
 #include "resolver.h"
 
 QString Resolver::resolve( const QString& /* name */ ) const
@@ -50,8 +51,11 @@ QString Resolver::href( const QString& name, const QString& text ) const
     }
 
     link = resolve( name );
-    if ( link.isEmpty() )
+    if ( link.isEmpty() ) {
 	return left + right;
-    else
+    } else {
+	if ( left.startsWith(QString("operator")) )
+	    left = htmlProtect( left );
 	return aHrefEq + link + rAngle + left + slashA + right;
+    }
 }
