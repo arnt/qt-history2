@@ -15,11 +15,13 @@ extern const unsigned char * p_str(const char * c);
 class QFontInternal {
 public:
     static short currentFnum;
+    static int currentFsize;
     FontInfo info;;
     short fnum;
     int psize;
 };
 short QFontInternal::currentFnum = 0;
+int QFontInternal::currentFsize = 0;
 
 int QFontMetrics::lineSpacing() const
 {
@@ -56,20 +58,12 @@ int QFontMetrics::width(QChar c) const
 {
     // Grr. How do we force the Mac to speak Unicode?
     // This currently won't work outside of ASCII
-    if(!chars_init) {
-	for(int loopc=0;loopc<256;loopc++) {
-	    char_widths[loopc]=-1;
-	}
-	chars_init=true;
-    }
-    unsigned char f=c;
-    if(char_widths[f]!=-1) {
-	return char_widths[f];
-    }
     TextFont(FI->fnum);
-    char_widths[f]=CharWidth(f);
+    TextSize(FI->psize);
+    int char_width=CharWidth(c);
     TextFont(QFontInternal::currentFnum);
-    return char_widths[f];
+    TextSize(QFontInternal::currentFsize);
+    return char_width;
 }
 
 int QFontMetrics::width(const QString &s,int len) const
@@ -82,8 +76,10 @@ int QFontMetrics::width(const QString &s,int len) const
     strncpy(buf,s.ascii(),len);
     int ret;
     TextFont(FI->fnum);
+    TextSize(FI->psize);
     ret=TextWidth(buf,0,len);
     TextFont(QFontInternal::currentFnum);
+    TextSize(QFontInternal::currentFsize);
     delete[] buf;
     return ret;
 }
@@ -158,6 +154,7 @@ void QFont::macSetFont(QPaintDevice *v)
     GetFNum(p_str(family().ascii()),&fnum);
     TextFont(fnum);
     QFontInternal::currentFnum = fnum;
+    QFontInternal::currentFsize = pointSize();
 
     if(d && d->fin)
 	d->fin->fnum = fnum;
