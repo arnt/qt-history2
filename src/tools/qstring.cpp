@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#127 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#128 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -2066,6 +2066,20 @@ QDataStream &operator>>( QDataStream &s, QString &str )
     return s;
 }
 
+/*!
+  Compare \a s1 to \a s2 returning an integer less than, equal to, or
+  greater than zero if s1 is, respectively, lexically less than, equal to,
+  or greater than s2.
+
+  \fn int QString::compare (const QString & s1, const QString & s2) 
+*/
+
+/*!
+  Compares this string to \a s, returning an integer less than, equal to, or
+  greater than zero if it is, respectively, lexically less than, equal to,
+  or greater than \a s.
+
+*/
 int QString::compare( const QString& s ) const
 {
     return ucstrcmp(*this,s);

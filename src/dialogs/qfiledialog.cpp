@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#122 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#123 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1119,19 +1119,19 @@ void QFileDialog::rereadDir()
 
 
 /*!
-  \fn void QFileDialog::fileHighlighted( QString )
+  \fn void QFileDialog::fileHighlighted( const QString& )
 
   This signal is emitted when the user highlights a file.
 */
 
 /*!
-  \fn void QFileDialog::fileSelected( QString )
+  \fn void QFileDialog::fileSelected( const QString& )
 
   This signal is emitted when the user selects a file.
 */
 
 /*!
-  \fn void QFileDialog::dirEntered( QString )
+  \fn void QFileDialog::dirEntered( const QString& )
 
   This signal is emitted when the user has selected a new directory.
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#60 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -471,7 +471,7 @@ void QLCDNumber::display( double num )
 
 
 /*!
-  \overload void QLCDNumber::display( QString s )
+  \overload void QLCDNumber::display( const QString& s )
 
   This version of the function disregards mode() and smallDecimalPoint().
 

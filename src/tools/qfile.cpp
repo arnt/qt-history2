@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#67 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#68 $
 **
 ** Implementation of QFile class
 **
@@ -228,7 +228,7 @@ bool QFile::remove( const QString &fileName )
   <ul>
   <li>\c IO_Raw specified raw (non-buffered) file access.
   <li>\c IO_ReadOnly opens the file in read-only mode.
-  <li>\c IO_WriteOnly opens the file in write-only mode.
+  <li>\c IO_WriteOnly opens the file in write-only mode (and truncates).
   <li>\c IO_ReadWrite opens the file in read/write mode, equivalent to
   \c (IO_ReadOnly|IO_WriteOnly).
   <li>\c IO_Append opens the file in append mode. This mode is very useful

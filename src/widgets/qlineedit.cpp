@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#156 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -92,7 +92,7 @@ struct QLineEditPrivate {
 
 
 /*!
-  \fn void QLineEdit::textChanged( QString )
+  \fn void QLineEdit::textChanged( const QString& )
   This signal is emitted every time the text has changed.
   The argument is the new text.
 */

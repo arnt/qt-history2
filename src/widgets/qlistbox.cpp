@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#158 $
 **
 ** Implementation of QListBox widget class
 **
@@ -193,7 +193,7 @@ const QPixmap *QListBoxItem::pixmap() const
 
 
 /*!
-  \fn void QListBoxItem::setText( QString text )
+  \fn void QListBoxItem::setText( const QString &text )
 
   Sets the text of the widget, which is used for sorting.
   The text is not shown unless explicitly drawn in paint().
@@ -692,7 +692,7 @@ void QListBox::inSort( const QListBoxItem *lbi )
 
 
 /*!
-  \overload void QListBox::inSort( QString text )
+  \overload void QListBox::inSort( const QString &text )
 */
 
 void QListBox::inSort( const QString &text )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#46 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -447,7 +447,7 @@ void QSpinBox::stepDown()
 
 
 /*!
-  \fn void QSpinBox::valueChanged( QString valueText )
+  \fn void QSpinBox::valueChanged( const QString& valueText )
 
   This signal is emitted whenever the valueChanged( int ) signal is
   emitted, i.e. every time the value of the spin box changes (whatever
