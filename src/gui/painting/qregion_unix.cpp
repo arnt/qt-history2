@@ -2206,14 +2206,15 @@ QRegion::QRegion(const QRect &r, RegionType t)
 }
 
 /*!
-    Constructs a polygon region from the point array \a a.
+    Constructs a polygon region from the point array \a a with the fill rule
+    specified by \a fillRule.
 
-    If \a winding is true, the polygon region is filled using the
-    winding algorithm, otherwise the default even-odd fill algorithm
-    is used.
+    If \a fillRule is \l{Qt::WindingFill}, the polygon region is defined
+    using the winding algorithm; if it is \l{Qt::OddEvenFill}, the odd-even fill
+    algorithm is used.
 
-    This constructor may create complex regions that will slow down
-    painting when used.
+    \warning This constructor can be used to create complex regions that will
+    slow down painting when used.
 */
 
 QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)

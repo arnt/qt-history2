@@ -61,11 +61,15 @@ QRegion::QRegion(const QRect &r, RegionType t)
 }
 
 /*!
-    Creates a new region occupying the area of the polygon defined by
-    the points in the point array \a a. The shape of the polygon may
-    differ depending on the value of \a winding which if true causes
-    the shape to be filled using the Winding algorithm, and if false
-    casues it to be filled using the Odd-Even algorithm.
+    Constructs a polygon region from the point array \a a with the fill rule
+    specified by \a fillRule.
+
+    If \a fillRule is \l{Qt::WindingFill}, the polygon region is defined
+    using the winding algorithm; if it is \l{Qt::OddEvenFill}, the odd-even fill
+    algorithm is used.
+
+    \warning This constructor can be used to create complex regions that will
+    slow down painting when used.
 */
 QRegion::QRegion(const QPointArray &a, Qt::FillRule rule)
 {

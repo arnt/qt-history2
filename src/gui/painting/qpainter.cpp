@@ -527,21 +527,22 @@ void QPainterPrivate::updateInvMatrix()
     Specifies which method should be used to fill the paths and polygons.
 
     \value OddEvenFill Specifies that the region is filled using the
-    odd even fill rule. With this rule, one determines wheter a point
-    is inside the shape as follows: Draw a horizontal line from the
-    point to outside the shape and count the number of
-    intersections. If the number of intersections is an odd number the
-    point is inside the shape. This mode is the default.
+    odd even fill rule. With this rule, we determine whether a point
+    is inside the shape by using the following method.
+    Draw a horizontal line from the point to a location outside the shape,
+    and count the number of intersections. If the number of intersections
+    is an odd number, the point is inside the shape. This mode is the
+    default.
 
     \value WindingFill Specifies that the region is filled using the
-    non zero winding rule. With this rule, one determines wheter a
-    point is inside the shape as follows: Draw a horizontal line from
-    the shape to the outside of the shape. Determine the direction of
-    the shape in each intersection point, up or down. The winding
-    number is determined by summing the direction of each
-    intersection. If the number is non zero, the point is inside the
-    shape. This fill mode can also in most cases be considered as the
-    intersection of closed shapes.
+    non zero winding rule. With this rule, we determine whether a
+    point is inside the shape by using the following method.
+    Draw a horizontal line from the point to a location outside the shape.
+    Determine whether the direction of the line at each intersection point
+    is up or down. The winding number is determined by summing the
+    direction of each intersection. If the number is non zero, the point
+    is inside the shape. This fill mode can also in most cases be considered
+    as the intersection of closed shapes.
 */
 
 /*!
@@ -2572,12 +2573,13 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
     The first point is always connected to the last point.
 
-    The polygon is filled with the current brush(). If \a winding is
-    true, the polygon is filled using the winding fill algorithm. If
-    \a winding is false, the polygon is filled using the even-odd
-    (alternative) fill algorithm.
+    The polygon is filled with the current brush(). If \a fillRule is
+    \c Qt::WindingFill, the polygon is filled using the winding fill algorithm.
+    If \a fillRule is \c Qt::OddEvenFill, the polygon is filled using the
+    odd-even fill algorithm. See \l{Qt::FillRule} for a more detailed
+    description of these fill rules.
 
-    \sa drawLineSegments(), drawPolyline(), QPen
+    \sa drawLineSegments() drawPolyline() QPen
 */
 
 void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule, int index, int npoints)

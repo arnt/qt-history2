@@ -678,9 +678,9 @@ void QPainterPath::addPath(const QPainterPath &other)
 
 /*!
     Returns the fill rule of the painter path. The default fill rule
-    is Qt::OddEvenFill.
+    is \c Qt::OddEvenFill.
 
-    \sa FillMode setFillRule()
+    \sa Qt::FillRule setFillRule()
 */
 Qt::FillRule QPainterPath::fillRule() const
 {
@@ -692,7 +692,7 @@ Qt::FillRule QPainterPath::fillRule() const
 
     Sets the fill rule of the painter path to \a fillRule.
 
-    \sa Qt::FillRule, fillRule
+    \sa fillRule()
 */
 void QPainterPath::setFillRule(Qt::FillRule fillRule)
 {
