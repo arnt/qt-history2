@@ -167,7 +167,7 @@ QAutoDeleter<T>* qAutoDeleter( T* p )
     return new QAutoDeleter<T>( p );
 }
 
-class QMembuf
+class Q_EXPORT QMembuf
 {
 public:
     QMembuf();

@@ -23,6 +23,7 @@ HEADERS	+= finddialog.h \
 TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts
 
+DEFINES	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../bin
@@ -97,7 +98,6 @@ IMAGES	= images/accelerator.png \
 	images/whatsthis.xpm
 TEMPLATE	=app
 CONFIG	+= qt warn_on
-DEFINES	+= QT_INTERNAL_XML
 INCLUDEPATH	+= ../pics ../shared
 unix:LIBS	+= -L$$QT_BUILD_TREE/lib -lqassistantclient
 LANGUAGE	= C++
