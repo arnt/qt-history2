@@ -13,9 +13,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <qabstractitemmodel.h>
-#include <qobject.h>
-#include <qstringlist.h>
+#include <QAbstractListModel>
+#include <QObject>
+#include <QStringList>
 
 class StringListModel : public QAbstractListModel
 {
@@ -25,7 +25,6 @@ public:
         : QAbstractListModel(parent), stringList(strings) {}
 
     int rowCount() const;
-    QModelIndex index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const;
     QVariant data(const QModelIndex &index, int role) const;
 
     bool isEditable(const QModelIndex &index) const;

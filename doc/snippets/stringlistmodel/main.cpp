@@ -16,8 +16,9 @@
     contents of the model using a QListView widget.
 */
 
-#include <qapplication.h>
-#include <qlistview.h>
+#include <QAbstractItemModel>
+#include <QApplication>
+#include <QListView>
 
 #include "model.h"
 
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
     QStringList numbers;
     numbers << "One" << "Two" << "Three" << "Four" << "Five";
 
-    StringListModel *model = new StringListModel(numbers);
+    QAbstractItemModel *model = new StringListModel(numbers);
     QListView *view = new QListView();
     view->setWindowTitle("View onto a string list model");
     view->setModel(model);
