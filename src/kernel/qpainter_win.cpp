@@ -1463,7 +1463,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgCol
     r.top    = y;
     r.bottom = y + h;
 
-    if( qGray( bgCol.rgb() ) < 100 ) { // Use white pen, dark colors
+    if( qGray( bgCol.rgb() ) < 100 ) { // Use white pen for dark colors
 	int col = GetBkColor( hdc );
 	SetBkColor( hdc, col^0x00ffffff );
 	DrawFocusRect( hdc, &r );
@@ -1475,9 +1475,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h, const QColor &bgCol
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 {
-
     drawWinFocusRect( x, y, w, h, bg_col );
-    return;
 }
 
 
