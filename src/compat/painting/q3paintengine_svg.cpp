@@ -192,14 +192,7 @@ Q3SVGPaintEngine::~Q3SVGPaintEngine()
 
 bool Q3SVGPaintEngine::begin(QPaintDevice *pdev)
 {
-//     QDomImplementation domImpl;
-//     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
-//     d->doc = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", docType);
-//     d->doc.insertBefore(d->doc.createProcessingInstruction("xml", piData), d->doc.firstChild());
-//     d->current = d->doc.documentElement();
-//     d->images.clear();
-//     d->pixmaps.clear();
-    d->dirtyTransform = d->dirtyStyle = false; // ### <- what are the #'s for??
+    d->dirtyTransform = d->dirtyStyle = false;
     d->dev = pdev;
     setActive(true);
     return true;
@@ -329,83 +322,6 @@ void Q3SVGPaintEngine::drawEllipse(const QRect &r)
     d->appendChild(e, QPicturePrivate::PdcDrawEllipse);
 }
 
-void Q3SVGPaintEngine::drawArc(const QRect &r, int _a, int alen)
-{
-    double a = (double) _a / 16.0 * deg2rad;
-    double al = (double) alen / 16.0 * deg2rad;
-    double rx = r.width() / 2.0;
-    double ry = r.height() / 2.0;
-    double x0 = (double) r.x() + rx;
-    double y0 = (double) r.y() + ry;
-    double x1 = x0 + rx*cos(a);
-    double y1 = y0 - ry*sin(a);
-    double x2 = x0 + rx*cos(a + al);
-    double y2 = y0 - ry*sin(a + al);
-    int large = qAbs(al) > (180.0 * deg2rad) ? 1 : 0;
-    int sweep = al < 0.0 ? 1 : 0;
-    QDomElement e;
-    QString str;
-
-    str = QString("M %1 %2 ").arg(x1).arg(y1);
-    str += QString("A %1 %2 %3 %4 %5 %6 %7")
-           .arg(rx).arg(ry).arg(a / deg2rad). arg(large).arg(sweep)
-           .arg(x2).arg(y2);
-    e = d->doc.createElement("path");
-    e.setAttribute("d", str);
-    d->appendChild(e, QPicturePrivate::PdcDrawArc);
-}
-
-void Q3SVGPaintEngine::drawPie(const QRect &r, int _a, int alen)
-{
-    double a = (double) _a / 16.0 * deg2rad;
-    double al = (double) alen / 16.0 * deg2rad;
-    double rx = r.width() / 2.0;
-    double ry = r.height() / 2.0;
-    double x0 = (double) r.x() + rx;
-    double y0 = (double) r.y() + ry;
-    double x1 = x0 + rx*cos(a);
-    double y1 = y0 - ry*sin(a);
-    double x2 = x0 + rx*cos(a + al);
-    double y2 = y0 - ry*sin(a + al);
-    int large = qAbs(al) > (180.0 * deg2rad) ? 1 : 0;
-    int sweep = al < 0.0 ? 1 : 0;
-    QDomElement e;
-    QString str;
-
-    str = QString("M %1 %2 L %3 %4 ").arg(x0).arg(y0).arg(x1).arg(y1);
-    str += QString("A %1 %2 %3 %4 %5 %6 %7z")
-           .arg(rx).arg(ry).arg(a / deg2rad).arg(large).arg(sweep).arg(x2).arg(y2);
-    e = d->doc.createElement("path");
-    e.setAttribute("d", str);
-    d->appendChild(e, QPicturePrivate::PdcDrawPie);
-}
-
-void Q3SVGPaintEngine::drawChord(const QRect &r, int _a, int alen)
-{
-    double a = (double) _a / 16.0 * deg2rad;
-    double al = (double) alen / 16.0 * deg2rad;
-    double rx = r.width() / 2.0;
-    double ry = r.height() / 2.0;
-    double x0 = (double) r.x() + rx;
-    double y0 = (double) r.y() + ry;
-    double x1 = x0 + rx*cos(a);
-    double y1 = y0 - ry*sin(a);
-    double x2 = x0 + rx*cos(a + al);
-    double y2 = y0 - ry*sin(a + al);
-    int large = qAbs(al) > (180.0 * deg2rad) ? 1 : 0;
-    int sweep = al < 0.0 ? 1 : 0;
-    QDomElement e;
-    QString str;
-
-    str = QString("M %1 %2 ").arg(x1).arg(y1);
-    str += QString("A %1 %2 %3 %4 %5 %6 %7z")
-           .arg(rx).arg(ry).arg(a / deg2rad). arg(large).arg(sweep)
-           .arg(x2).arg(y2);
-    e = d->doc.createElement("path");
-    e.setAttribute("d", str);
-    d->appendChild(e, QPicturePrivate::PdcDrawChord);
-}
-
 void Q3SVGPaintEngine::drawLine(const QLineF &line)
 {
     drawLines(&line, 1);
@@ -490,19 +406,6 @@ void Q3SVGPaintEngine::drawPolygon(const QPoint *points, int pointCount, Polygon
     for (int i = 0; i < pointCount; ++i)
         poly << points[i];
     drawPolygon(poly.constData(), pointCount, mode);
-}
-
-void Q3SVGPaintEngine::drawCubicBezier(const QPolygon &a, int /* index */)
-{
-#ifndef QT_NO_BEZIER
-    QString str;
-    QDomElement e = d->doc.createElement("path");
-    str.sprintf("M %d %d C %d %d %d %d %d %d", a[0].x(), a[0].y(),
-                a[1].x(), a[1].y(), a[2].x(), a[2].y(),
-                a[3].x(), a[3].y());
-    e.setAttribute("d", str);
-    d->appendChild(e, QPicturePrivate::PdcDrawCubicBezier);
-#endif
 }
 
 void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */,

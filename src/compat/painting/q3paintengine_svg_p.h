@@ -40,11 +40,6 @@ public:
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawEllipse(const QRect &r);
-    void drawArc(const QRect &r, int a, int alen);
-    void drawPie(const QRect &r, int a, int alen);
-    void drawChord(const QRect &r, int a, int alen);
-    void drawCubicBezier(const QPolygon &, int index = 0);
-
     void drawLine(const QLineF &line);
     void drawLines(const QLineF *lines, int lineCount);
     void drawRect(const QRectF &r);
