@@ -910,7 +910,6 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     dirtyClippedRegion(TRUE);
 
     QCursor oldcurs;
-    QPoint oldposinwindow(posInWindow(this));
     bool setcurs=testWState(WState_OwnCursor);
     if(setcurs) {
 	oldcurs = cursor();
@@ -927,16 +926,10 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     reparentFocusWidgets(parent);		// fix focus chains
 
     setWinId(0);
-    if(parentObj) {				// remove from parent
-	QObject *oldp = parentObj;
+    if(parentObj) // remove from parent
 	parentObj->removeChild(this);
-	if(isVisible() && !isTopLevel() && oldp->isWidgetType())
-	    qt_dirty_wndw_rgn("reparent1",this, mac_rect(oldposinwindow, geometry().size()));
-    }
-
-    if(parent) {				// insert into new parent
+    if(parent) // insert into new parent
 	parent->insertChild(this);
-    }
     bool     dropable = acceptDrops();
     bool     enable = isEnabled();
     bool     owned = own_id;
