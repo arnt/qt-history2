@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#78 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#77 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#78 $")
 
 
 /*****************************************************************************
@@ -670,12 +670,6 @@ QImage QPixmap::convertToImage() const
 		p++;
 	    }
 	}
-
-	/*
-	  Todo!!! We can have a function in qcol_x11, qt_xcolortable,
-	  which returns carr and does not delete it in the same events
-	  batch.
-	 */
 
 	Colormap cmap	= DefaultColormap( dpy, scr );
 	int	 ncells = DisplayCells( dpy, scr );

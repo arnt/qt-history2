@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#33 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -404,8 +404,8 @@ void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
     int npts = a3*size()/(16*360);		// # points in arc array
     QPointArray a(npts);
     int i, j, inc;
-    i = a1*size()/(16*360);	// THIS IS NOT SUFFICIENT. SCAN FOR START AND
-    if ( a2 > 0 ) {		// STOP VALUES !!!
+    i = a1*size()/(16*360);
+    if ( a2 > 0 ) {
 	j = 0;
 	inc = 1;
     }

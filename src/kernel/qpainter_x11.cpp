@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#175 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#174 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#175 $")
 
 
 /*****************************************************************************
@@ -2731,7 +2731,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int cw;					// character width
     int k;					// index for p
     int tw;					// text width
-    short charwidth[255];			// TO BE REMOVED LATER!!!
+    short charwidth[255];			// character widths
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
