@@ -125,8 +125,6 @@ static void crashHandler( int )
 }
 #endif
 
-#include <qmessagebox.h>
-
 int main( int argc, char *argv[] )
 {
 #if defined(QT_NO_DEBUG)
