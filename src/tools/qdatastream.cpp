@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-// NOT REVISED
+// BEING REVISED: warwick
 /*!
   \class QDataStream qdatastream.h
 
