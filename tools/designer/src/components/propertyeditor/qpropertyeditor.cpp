@@ -75,12 +75,6 @@ void View::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    int rc = m_model->rowCount(rootIndex());
-    if (rc > 0) {
-        QModelIndex current = m_model->index(0, 0, rootIndex());
-        setCurrentIndex(current);
-    }
-
     header()->setResizeMode(QHeaderView::Stretch, 1);
     resizeColumnToContents(0);
 }
