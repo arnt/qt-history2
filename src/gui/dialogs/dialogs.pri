@@ -16,6 +16,7 @@ HEADERS += \
 !embedded:mac:SOURCES	+= dialogs/qcolordialog_mac.cpp \
                            dialogs/qfiledialog_mac.cpp
 win32:SOURCES += dialogs/qfiledialog_win.cpp
+win32:LIBS += shell32.lib 	# the filedialog needs this library
 
 unix:SOURCES += dialogs/qprintdialog.cpp
 unix:HEADERS += dialogs/qprintdialog.h 
