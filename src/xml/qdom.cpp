@@ -6127,7 +6127,7 @@ bool QDomDocument::setContent( QIODevice* dev, QString *errorMsg, int *errorLine
 
     This function doesn't change the features of the \a reader. If you want to
     use certain features for parsing you can use this function to set up the
-    reader appropriate.
+    reader appropriately.
 
     \sa QXmlSimpleReader
 */
