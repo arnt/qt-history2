@@ -844,7 +844,7 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		splitFileName( file, filepath, filename, fileext );
 		if ( filepath.Left( 2 ) == ".\\" )
 		    filepath = filepath.Right( filepath.GetLength() - 2 );
-		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED" || fileext == "ui";
+		ignore = filename.Left( 4 ) == "moc_" || fileext == "moc" || group == "GENERATED";
 
 		if ( !ignore ) {
 		    if ( fileext == "ui" )
