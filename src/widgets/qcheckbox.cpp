@@ -66,6 +66,9 @@
     each time the checkbox changes state. You can use isChecked() to
     query whether or not a checkbox is checked.
 
+    \warning The toggled() signal can not be trusted for tristate
+    checkboxes.
+
     In addition to the usual checked and unchecked states, QCheckBox
     optionally provides a third state to indicate "no change". This
     is useful whenever you need to give the user the option of neither

@@ -669,6 +669,7 @@ void QButton::setState( ToggleState s )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
+	// ### toggled for tristate makes no sense. Don't emit the signal in 4.0
 	if ( was != (stat != Off) )
 	    emit toggled( stat != Off );
 	emit stateChanged( s );
