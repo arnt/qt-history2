@@ -1507,6 +1507,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = (CGImageRef)pm.macCGHandle();
+#if 0
     if(d->pdev->devType() == QInternal::Pixmap) {
         qDebug("PM: %d %d %d %d", qRed(*(pm.data->pixels)), qGreen(*(pm.data->pixels)),
                qBlue(*(pm.data->pixels)), qAlpha(*(pm.data->pixels)));;
@@ -1514,12 +1515,15 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         qDebug("BEFORE: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
                qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
     }
+#endif
     HIViewDrawCGImage(d->hd, &rect, image); //top left
+#if 0
     if(d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *dp = static_cast<QPixmap*>(d->pdev);
         qDebug("AFTER: %d %d %d %d", qRed(*(dp->data->pixels)), qGreen(*(dp->data->pixels)),
                qBlue(*(dp->data->pixels)), qAlpha(*(dp->data->pixels)));
     }
+#endif
 
     //restore
     CGContextRestoreGState(d->hd);
