@@ -18,6 +18,7 @@ HEADERS += \
 	itemviews/qlistwidget.h \
 	itemviews/qtablewidget.h \
 	itemviews/qtreewidget.h \
+	itemviews/qwidgetitemdata_p.h \
 	itemviews/qproxymodel.h \
 	itemviews/qproxymodel_p.h \
 	itemviews/qitemeditorfactory.h \

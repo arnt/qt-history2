@@ -35,6 +35,7 @@ private:
 
 class QTableWidget;
 class QTableModel;
+class QWidgetItemData;
 
 class Q_GUI_EXPORT QTableWidgetItem
 {
@@ -113,18 +114,7 @@ public:
 #endif
 
 private:
-    struct Data {
-        Data() : role(-1) {}
-        Data(int r, QVariant v) : role(r), value(v) {}
-        int role;
-        QVariant value;
-    };
-#ifndef QT_NO_DATASTREAM
-    friend QDataStream &operator>>(QDataStream &in, QTableWidgetItem::Data &data);
-    friend QDataStream &operator<<(QDataStream &out, const QTableWidgetItem::Data &data);
-#endif
-
-    QVector<Data> values;
+    QVector<QWidgetItemData> values;
     QTableWidget *view;
     QTableModel *model;
     QAbstractItemModel::ItemFlags itemFlags;

@@ -18,6 +18,7 @@
 #include <qabstractitemmodel.h>
 #include <private/qabstractitemmodel_p.h>
 #include <private/qtableview_p.h>
+#include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QTableWidgetItem *left, const QTableWidgetItem *right);
@@ -812,7 +813,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
             break;
         }
     }
-    values.append(Data(role, value));
+    values.append(QWidgetItemData(role, value));
     if (model)
         model->itemChanged(this);
 }
@@ -839,20 +840,6 @@ bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
 }
 
 #ifndef QT_NO_DATASTREAM
-
-QDataStream &operator>>(QDataStream &in, QTableWidgetItem::Data &data)
-{
-    in >> data.role;
-    in >> data.value;
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const QTableWidgetItem::Data &data)
-{
-    out << data.role;
-    out << data.value;
-    return out;
-}
 
 /*!
     Reads the item from stream \a in.

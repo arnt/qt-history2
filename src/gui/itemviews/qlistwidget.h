@@ -20,6 +20,7 @@
 
 class QListWidget;
 class QListModel;
+class QWidgetItemData;
 
 class Q_GUI_EXPORT QListWidgetItem
 {
@@ -97,18 +98,7 @@ public:
 #endif
 
 private:
-    struct Data {
-        Data() : role(-1) {}
-        Data(int r, QVariant v) : role(r), value(v) {}
-        int role;
-        QVariant value;
-    };
-#ifndef QT_NO_DATASTREAM
-    friend QDataStream &operator>>(QDataStream &in, QListWidgetItem::Data &data);
-    friend QDataStream &operator<<(QDataStream &out, const QListWidgetItem::Data &data);
-#endif
-
-    QVector<Data> values;
+    QVector<QWidgetItemData> values;
     QListWidget *view;
     QListModel *model;
     QAbstractItemModel::ItemFlags itemFlags;

@@ -15,6 +15,7 @@
 #include <qitemdelegate.h>
 #include <qpainter.h>
 #include <private/qlistview_p.h>
+#include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QListWidgetItem *left, const QListWidgetItem *right);
@@ -377,7 +378,7 @@ void QListWidgetItem::setData(int role, const QVariant &value)
             break;
         }
     }
-    values.append(Data(role, value));
+    values.append(QWidgetItemData(role, value));
     if (model)
         model->itemChanged(this);
 }
@@ -406,20 +407,6 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
 }
 
 #ifndef QT_NO_DATASTREAM
-
-QDataStream &operator>>(QDataStream &in, QListWidgetItem::Data &data)
-{
-    in >> data.role;
-    in >> data.value;
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const QListWidgetItem::Data &data)
-{
-    out << data.role;
-    out << data.value;
-    return out;
-}
 
 /*!
     Reads the item from stream \a in.

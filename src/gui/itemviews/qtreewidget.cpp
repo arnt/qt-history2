@@ -18,6 +18,7 @@
 #include <qitemdelegate.h>
 #include <qvector.h>
 #include <private/qtreeview_p.h>
+#include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
@@ -1101,14 +1102,14 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
-    QVector<Data> column_values = values.at(column);
+    QVector<QWidgetItemData> column_values = values.at(column);
     for (int i = 0; i < column_values.count(); ++i) {
         if (column_values.at(i).role == role) {
             values[column][i].value = value;
             break;
         }
     }
-    values[column].append(Data(role, value));
+    values[column].append(QWidgetItemData(role, value));
     if (model)
         model->emitDataChanged(this, column);
 }
@@ -1125,7 +1126,7 @@ QVariant QTreeWidgetItem::data(int column, int role) const
     // return the item data
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column < values.size()) {
-        const QVector<Data> column_values = values.at(column);
+        const QVector<QWidgetItemData> column_values = values.at(column);
         for (int i = 0; i < column_values.count(); ++i)
             if (column_values.at(i).role == role)
                 return column_values.at(i).value;
@@ -1145,20 +1146,6 @@ bool QTreeWidgetItem::operator<(const QTreeWidgetItem &other) const
 }
 
 #ifndef QT_NO_DATASTREAM
-
-QDataStream &operator>>(QDataStream &in, QTreeWidgetItem::Data &data)
-{
-    in >> data.role;
-    in >> data.value;
-    return in;
-}
-
-QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem::Data &data)
-{
-    out << data.role;
-    out << data.value;
-    return out;
-}
 
 /*!
     Reads the item from stream \a in. This only reads data into a single item.

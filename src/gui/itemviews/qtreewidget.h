@@ -20,6 +20,7 @@
 
 class QTreeWidget;
 class QTreeModel;
+class QWidgetItemData;
 
 class Q_GUI_EXPORT QTreeWidgetItem
 {
@@ -114,19 +115,8 @@ private:
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
 
-    struct Data {
-        Data() : role(-1) {}
-        Data(int r, QVariant v) : role(r), value(v) {}
-        int role;
-        QVariant value;
-    };
-#ifndef QT_NO_DATASTREAM
-    friend QDataStream &operator>>(QDataStream &in, QTreeWidgetItem::Data &data);
-    friend QDataStream &operator<<(QDataStream &out, const QTreeWidgetItem::Data &data);
-#endif
-
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
-    QVector< QVector<Data> > values;
+    QVector< QVector<QWidgetItemData> > values;
     QTreeWidget *view;
     QTreeModel *model;
     QTreeWidgetItem *par;
