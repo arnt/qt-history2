@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#24 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,8 +16,18 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qchkbox.cpp#24 $";
 #endif
+
+
+/*!
+\class QCheckBox qchkbox.h
+\brief The QCheckBox widget provides a check box with a text label.
+
+QCheckBox and QRadioButton are both toggle buttons, but a check box
+represents an independent switch that can be on (checked) or off
+(unchecked).
+*/
 
 
 static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
@@ -36,6 +46,12 @@ static void getSizeOfBitmap( GUIStyle gs, int *w, int *h )
 }
 
 
+/*!
+Constructs a check box with no text.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
@@ -43,14 +59,34 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
     setToggleButton( TRUE );
 }
 
-QCheckBox::QCheckBox( const char *label, QWidget *parent, const char *name )
+/*!
+Constructs a check box with a text.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     initMetaObject();
-    setLabel( label );
+    setText( text );
     setToggleButton( TRUE );
 }
 
+
+/*!
+\fn bool QCheckBox::isChecked() const
+Returns TRUE if the check box is checked, or FALSE if it is not checked.
+
+\sa setChecked().
+*/
+
+/*!
+Checks the check box if \e checked is TRUE, or unchecks it if \e checked
+is FALSE.
+
+\sa isChecked().
+*/
 
 void QCheckBox::setChecked( bool checked )
 {
@@ -61,10 +97,19 @@ void QCheckBox::setChecked( bool checked )
 }
 
 
-void QCheckBox::resizeFitLabel()
+/*!
+Adjusts the size of the check box to fit the contents.
+
+This function is called automatically whenever the contents change and
+auto-resizing is enabled.
+
+\sa setAutoResizing()
+*/
+
+void QCheckBox::adjustSize()
 {
     QFontMetrics fm = fontMetrics();
-    int w = fm.width( label() );
+    int w = fm.width( text() );
     int h = fm.height();
     int wbm, hbm;
     getSizeOfBitmap( style(), &wbm, &hbm );
@@ -73,6 +118,10 @@ void QCheckBox::resizeFitLabel()
     resize( w+wbm+6, h );
 }
 
+
+/*!
+Draws the check box.
+*/
 
 void QCheckBox::drawButton( QPainter *paint )	// draw check box
 {
@@ -100,10 +149,10 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
     QPixmap *pm = QPixmapCache::find( pmkey );
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
-	if ( label() ) {			// draw text extra
+	if ( text() ) {				// draw text extra
 	    p->pen().setColor( g.text() );
 	    p->drawText( w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
-			 label() );
+			 text() );
 	}
 	return;
     }
@@ -207,9 +256,9 @@ void QCheckBox::drawButton( QPainter *paint )	// draw check box
 	QPixmapCache::insert( pmkey, pm );	// save for later use
     }
 #endif
-    if ( label() ) {				// draw check box text
+    if ( text() ) {				// draw check box text
 	p->pen().setColor( g.text() );
 	p->drawText( x+w+6+wmore, sz.height()/2+fm.height()/2-fm.descent(),
-		     label() );
+		     text() );
     }
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#17 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,21 +14,43 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#17 $";
 #endif
 
-/*! \class QLabel qlabel.h
 
-  \brief The QLabel class can display a string in a fixed location.
+/*!
+\class QLabel qlabel.h
+\brief The QLabel widget displays a static text.
 
-  It is intended for e.g. window or dialog box titles/headlines.
-  The label can be aligned in many different ways and its value
-  specified from either a text of any of several numeric types. */
+A label is a text field that can have an optional frame (since QLabel
+inherits QFrame).
 
-/*! This constructor creates a new label which is left-aligned,
-  vertically centered and without automatic resizing.  The \e parent
-  and \e name arguments are passed to the QWidget constructor. \sa
-  setAlignment(), setAutoResizing(), setLabel().*/
+The contents of a label can be specified as a normal text or as a
+numeric value (which is internally converted to a text).
+
+A label can be aligned in many different ways.  The alignment setting
+specifies where to position the contents relative to the frame
+rectangle. See setAlignment() for a description of the alignment flags.
+
+Enabling auto-resizing will make a label resize itself whenever
+the contents change.
+
+Example of use:
+\code
+  QLabel *label = new QLabel;
+  label->setFrame( QFrame::Panel | QFrame::Sunken );
+  label->setText( "first line\nsecond line" );
+  label->setAlignment( AlignBottom | AlignRight );
+\endcode
+*/
+
+/*!
+Constructs an empty label which is left-aligned, vertically centered and
+without automatic resizing.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
 QLabel::QLabel( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
@@ -37,93 +59,137 @@ QLabel::QLabel( QWidget *parent, const char *name )
     autoResize = FALSE;
 }
 
-/*! This constructor creates a new label which is left-aligned,
-  vertically centered and without resizing.  It will contain the text
-  \e label.  The \e parent and \e name arguments are passed to the
-  QWidget construcor.  \sa setSlignment(), setAutoResizing(),
-  setLabel(). */
-QLabel::QLabel( const char *label, QWidget *parent, const char *name )
-	: QFrame( parent, name ), str(label)
+/*!
+Constructs a label with a text. The label is left-aligned, vertically
+centered and without automatic resizing.
+
+The \e parent and \e name arguments are passed to the QWidget constructor.
+*/
+
+QLabel::QLabel( const char *text, QWidget *parent, const char *name )
+	: QFrame( parent, name ), str(text)
 {
     initMetaObject();
     align      = AlignLeft | AlignVCenter | ExpandTabs;
     autoResize = FALSE;
 }
 
-/*! \fn const char *QLabel::label() const
-  Returns a pointer to the contents of the label. */
+/*!
+\fn const char *QLabel::text() const
+Returns the label text.
+*/
 
-/*! The label sets it contents to \e s, adjusts its position and size
-  if it's supposed to, and repaints itself. \sa setAutoResize() */
+/*!
+Sets the label contents to \e text and redraws the contents.
 
-void QLabel::setLabel( const char *s )
+The label resizes itself if auto-resizing is enabled.
+
+\sa setAutoResize().
+*/
+
+void QLabel::setText( const char *text )
 {
-    if ( str == s )				// no change
+    if ( str == text )				// no change
 	return;
-    str = s;
+    str = text;
     if ( autoResize )
         adjustSize();
-    updateLabel();
+    else
+	updateLabel();
 }
 
-/*! The label sets it contents to \e l, adjusts its position and size
-  if it's supposed to, and repaints itself. \todo Add optional
-  arguments to specify conversion format. \sa setAutoResize(). */
+/*!
+Sets the label contents to \e num (converts it to text) and redraws the
+contents.
 
-void QLabel::setLabel( long l )
+The label resizes itself if auto-resizing is enabled.
+
+\sa setAutoResize().
+*/
+
+void QLabel::setNum( long num )
 {
     QString tmp;
-    tmp.sprintf( "%ld", l );
+    tmp.sprintf( "%ld", num );
     if ( tmp != str ) {
 	str = tmp;
         if ( autoResize )
             adjustSize();
-	updateLabel();
+	else
+	    updateLabel();
     }
 }
 
-/*! The label sets it contents to \e s, adjusts its position and size
-  if it's supposed to, and repaints itself. \todo Add optional
-  arguments to specify conversion format. \sa setAutoResize(). */
+/*!
+Sets the label contents to \e num (converts it to text) and redraws the
+contents.
 
-void QLabel::setLabel( double d )
+The label resizes itself if auto-resizing is enabled.
+
+\sa setAutoResize().
+*/
+
+void QLabel::setNum( double num )
 {
     QString tmp;
-    tmp.sprintf( "%g", d );
+    tmp.sprintf( "%g", num );
     if ( tmp != str ) {
 	str = tmp;
         if ( autoResize )
   	    adjustSize();
-	updateLabel();
+	else
+	    updateLabel();
     }
 }
 
-/*! \fn void QLabel::setLabel( int   i )
+/*!
+\fn void QLabel::setNum( int num )
+Sets the label contents to \e num (converts it to text) and redraws the
+contents.
 
-  The label sets it contents to \e o, adjusts its position and size
-  if it's supposed to, and repaints itself. \todo Add optional
-  arguments to specify conversion format. \sa setAutoResize(). */
+The label resizes itself if auto-resizing is enabled.
 
-/*! \fn void QLabel::setLabel( float i )
+\sa setAutoResize().
+*/
 
-  The label sets it contents to \e f, adjusts its position and size
-  if it's supposed to, and repaints itself. \todo Add optional
-  arguments to specify conversion format. \sa setAutoResize(). */
+/*!
+\fn void QLabel::setNum( float num )
+Sets the label contents to \e num (converts it to text) and redraws the
+contents.
 
-/*! \fn int QLabel::alignment() const
+The label resizes itself if auto-resizing is enabled.
 
-  Returns the label's alignment.  The default alignment is
-  <code>AlignLeft|AlignVCenter|ExpandTabs</code>. \sa
-  setAlignment(). */
+\sa setAutoResize().
+*/
 
-/*! The label's alignment is changed to \e alignment and its
-  on-screen appearance changed at once.
 
-  The \e alignment is the bitwise OR of <code>AlignLeft, AlignRight,
-  AlignCenter, AlignHCenter, AlignTop, AlignBottom, AlignVCenter,
-  SingleLine, DontClip, ExpandTabs, ShowPrefix, WordBreak,
-  GrayText</code> and <code>DontPrint.</code>  QPainter::drawText()
-  documents these in more detail, and qwindefs.h defines them. */
+/*!
+\fn int QLabel::alignment() const
+Returns the alignment setting.
+
+The default alignment is <code>AlignLeft | AlignVCenter | ExpandTabs</code>.
+
+\sa setAlignment().
+*/
+
+/*!
+Sets the alignment of the label contents and redraws itself.
+
+The \e alignment is the bitwise OR of the following flags:
+<ul>
+<li> \c AlignLeft aligns to the left border.
+<li> \c AlignRight aligns to the right border.
+<li> \c AlignHCenter aligns horizontally centered.
+<li> \c AlignTop aligns to the top border.
+<li> \c AlignBottom aligns to the bottom border.
+<li> \c AlignVCenter aligns vertically centered
+<li> \c AlignCenter (= \c AlignHCenter | AlignVCenter)
+<li> \c ExpandTabs expands tabulators.
+<li> \c WordBreak enables automatic word breaking.
+</ul>
+
+\sa alignment().
+*/
 
 void QLabel::setAlignment( int alignment )
 {
@@ -131,18 +197,27 @@ void QLabel::setAlignment( int alignment )
     updateLabel();
 }
 
-/*! \fn bool QLabel::autoResizing() const
 
-  Returns TRUE if the label will resize itself automatically when its
-  contens are changed.
+/*!
+\fn bool QLabel::autoResizing() const
+Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
+disabled.
 
-  It returns, I'm sure this will surprise you, FALSE if not.
+Auto-resizing is disabled by default.
 
-  \sa setAutoResizing(). */
+\sa setAutoResizing().
+*/
 
-/*! Enables or disables automatic size adjustment of the label.  If
-  size adjustment is enabled, the label will repaint itself very
-  prettily whenever its contents change. \sa setLabel(). */
+/*!
+Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
+FALSE.
+
+When auto-resizing is enabled, the label will resize itself whenever
+the contents change.
+
+\sa autoResizing() and adjustSize().
+*/
+
 void QLabel::setAutoResizing( bool enable )
 {
     if ( autoResize != enable ) {
@@ -152,24 +227,45 @@ void QLabel::setAutoResizing( bool enable )
     }
 }
 
-/*! Adjusts the size of the label.  If you've called
-  setAutoResizing(TRUE) you'll never need to think about this. \sa
-  setAutoResizing(). */
+
+/*!
+Adjusts the size of the label to fit the contents.
+
+This function is called automatically whenever the contents change and
+auto-resizing is enabled.
+
+\sa setAutoResizing()
+*/
+
 void QLabel::adjustSize()
 {
-    QFontMetrics fm( font() );
-    resize( fm.width( str ) + 4 + frameWidth() + midLineWidth(),
-	    fm.height()     + 4 + frameWidth() + midLineWidth() );
+    QPainter p;
+    p.begin( this );
+    QRect br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+    p.end();
+    resize( br.width()  + 4 + frameWidth() + midLineWidth(),
+	    br.height() + 4 + frameWidth() + midLineWidth() );
 }
 
 
+/*!
+Draws the label contents using the painter \e p.
+*/
+
 void QLabel::drawContents( QPainter *p )
 {
+    QRect r = frameRect();
+    r = contentsRect();
     p->setPen( colorGroup().text() );
     p->drawText( contentsRect(), align, str );
 }
 
-void QLabel::updateLabel()			// update label, not frame
+
+/*!
+Updates the label, not the frame.
+*/
+
+void QLabel::updateLabel()
 {
     QPainter paint;
     paint.begin( this );

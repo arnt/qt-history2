@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#4 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#5 $
 **
 ** Definition of QFrame widget class
 **
@@ -58,12 +58,6 @@ private:
     short   fwidth;				// frame width
     short   mwidth;				// mid line width
 };
-
-
-inline QRect QFrame::frameRect() const
-{
-    return frect.isNull() ? rect() : frect;
-}
 
 
 #endif // QFRAME_H

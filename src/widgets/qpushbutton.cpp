@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#26 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,8 +17,16 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#26 $";
 #endif
+
+
+/*!
+\class QPushButton qpushbt.h
+\brief The QPushButton widget provides a push button with a text label.
+
+\todo Describe default buttons etc.
+*/
 
 
 const int extraMacWidth = 6;			// extra size for def button
@@ -67,18 +75,30 @@ static void resizeDefButton( QPushButton *b )
 }
 
 
+/*!
+Constructs a push button with no text.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
 QPushButton::QPushButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
 {
     init();
 }
 
-QPushButton::QPushButton( const char *label, QWidget *parent,
+/*!
+Constructs a push button with a text.
+
+The \e parent and \e name arguments are sent to the QWidget constructor.
+*/
+
+QPushButton::QPushButton( const char *text, QWidget *parent,
 			  const char *name )
 	: QButton( parent, name )
 {
     init();
-    setLabel( label );
+    setText( text );
 }
 
 void QPushButton::init()
@@ -88,16 +108,48 @@ void QPushButton::init()
 }
 
 
-void QPushButton::setAutoDefault( bool autoDef )
+/*!
+\fn bool QPushButton::autoDefault() const
+Returns TRUE if the button is an auto-default button.
+
+\sa setAutoDefault().
+*/
+
+/*!
+Sets the push buttons to an auto-default button if \e enable is TRUE,
+or to a normal button if \e enable is FALSE.
+
+An auto default button becomes the default push button automatically
+when it gets the keyboard focus.
+
+\sa autoDefault() and setDefault().
+*/
+
+void QPushButton::setAutoDefault( bool enable )
 {
-    autoDefButton = autoDef;
+    autoDefButton = enable;
 }
 
-void QPushButton::setDefault( bool def )	// set default on/off
+
+/*!
+\fn bool QPushButton::isDefault() const
+Returns TRUE if the button is default.
+
+\sa setDefault().
+*/
+
+/*!
+Sets the button to be the default button if \e enable is TRUE, or
+to be a normal button if \e enable is FALSE.
+
+\sa default().
+*/
+
+void QPushButton::setDefault( bool enable )
 {
-    if ( (defButton && def) || !(defButton || def) )
+    if ( (defButton && enable) || !(defButton || enable) )
 	return;					// no change
-    defButton = def;
+    defButton = enable;
     if ( defButton )
 	emit becameDefault();
     int gs = style();
@@ -110,12 +162,22 @@ void QPushButton::setDefault( bool def )	// set default on/off
 }
 
 
-void QPushButton::resizeFitLabel()
+/*!
+Adjusts the size of the push button to fit the contents.
+
+This function is called automatically whenever the contents change and
+auto-resizing is enabled.
+
+\sa setAutoResizing()
+*/
+
+void QPushButton::adjustSize()
 {
     QFontMetrics fm = fontMetrics();
-    int w = fm.width( label() );
-    int h = fm.height();
-    resize( w+6, h+6 );
+    QRect br = fm.boundingRect( text() );
+    int w = br.width()  + 6;
+    int h = br.height() + 6;
+    resize( w + w/8 + 16, h + h/8 + 4 );
 }
 
 
@@ -155,6 +217,12 @@ void QPushButton::setGeometry( const QRect &r )
     setGeometry( r.x(), r.y(), r.width(), r.height() );
 }
 
+
+/*!
+Draws the button, but not the button face.
+
+\sa drawButtonFace().
+*/
 
 void QPushButton::drawButton( QPainter *paint )
 {
@@ -303,9 +371,16 @@ void QPushButton::drawButton( QPainter *paint )
     lastDef = defButton;
 }
 
+
+/*!
+Draws the button face.  The default implementation draws the button text.
+
+This virtual function can be reimplemented by subclasses.
+*/
+
 void QPushButton::drawButtonFace( QPainter *paint )
 {
-    if ( !label() )
+    if ( !text() )
 	return;
     register QPainter *p = paint;    
     GUIStyle    gs = style();
@@ -331,5 +406,5 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	y += dt;
     }
     p->drawText( x+2, y+2, w-4, h-4,
-		 AlignCenter|AlignVCenter|SingleLine|ShowPrefix, label() );
+		 AlignCenter|AlignVCenter|SingleLine|ShowPrefix, text() );
 }

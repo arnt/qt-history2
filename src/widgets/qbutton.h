@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#14 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#15 $
 **
 ** Definition of QButton widget class
 **
@@ -26,10 +26,12 @@ public:
     QButton( QWidget *parent=0, const char *name=0 );
    ~QButton();
 
-    const char *label()		const;		// get/set button text
-    void setLabel( const char *label, bool resize=FALSE );
+    const char *text()		const	{ return btext; }
+    void setText( const char *text );
 
-    virtual void resizeFitLabel();
+    void    setAutoResizing( bool );
+    bool    autoResizing()	const	{ return autoResize; }
+    virtual void adjustSize();
 
 signals:
     void    pressed();
@@ -62,6 +64,7 @@ private:
     uint    buttonDown	: 1;
     uint    buttonOn	: 1;
     uint    mlbDown	: 1;
+    uint    autoResize  : 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;

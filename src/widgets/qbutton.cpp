@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#21 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#21 $";
 #endif
 
 
@@ -40,6 +40,9 @@ standard button can either be pressed down or released. The QPushButton
 class is an example of a standard button. A toggle button has an additional
 flag that is toggled each time the button is clicked. The QRadioButton
 and QCheckBox classes are examples of toggle buttons.
+
+Enabling auto-resizing will make a label resize itself whenever
+the contents change.
 */
 
 
@@ -55,6 +58,7 @@ QButton::QButton( QWidget *parent, const char *name )
     buttonDown = FALSE;			// button is up
     buttonOn   = FALSE;			// button is off
     mlbDown    = FALSE;			// mouse left button up
+    autoResize = FALSE;
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
 	group->insert( this );			// insert into button group
@@ -75,35 +79,98 @@ QButton::~QButton()
 
 
 /*!
+\fn void QButton::pressed()
+This signal is emitted when the button is pressed down.
+*/
+
+/*!
+\fn void QButton::released()
+This signal is emitted when the button is released.
+*/
+
+/*!
+\fn void QButton::clicked()
+This signal is emitted when the button is activated (i.e. first pressed down
+and then released when the mouse cursor is inside the button).
+*/
+
+
+/*!
+\fn bool QButton::isDown() const
+Returns TRUE of the button is pressed down, the opposite of isUp().
+*/
+
+/*!
+\fn bool QButton::isUp() const
+Returns TRUE of the button is standing up, the opposite of isDown().
+*/
+
+/*!
+\fn const char *QButton::text() const
 Returns the button text.
 */
 
-const char *QButton::label() const		// get button label
-{
-    return btext;
-}
-
 /*!
-Sets the button text. If \e resize is TRUE, then the button will resize
-itself automatically to the size of the label.
+Sets the button text to \e text and redraws the contents.
+
+The button resizes itself if auto-resizing is enabled.
+
+\sa setAutoResize().
 */
 
-void QButton::setLabel( const char *label, bool resize )
+void QButton::setText( const char *text )
 {						// set button label
-    btext = label;
-    if ( resize )
-	resizeFitLabel();
-    update();
+    if ( btext == text )
+	return;
+    btext = text;
+    if ( autoResize )
+	adjustSize();
+    else
+	update();
 }
 
 
 /*!
-Resizes the button to fit the label.
+\fn bool QButton::autoResizing() const
+Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
+disabled.
 
-This virtual function is reimplemented by subclasses.
+Auto-resizing is disabled by default.
+
+\sa setAutoResizing().
 */
 
-void QButton::resizeFitLabel()			// do nothing
+
+/*!
+Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
+FALSE.
+
+When auto-resizing is enabled, the button will resize itself whenever
+the contents change.
+
+\sa autoResizing() and adjustSize().
+*/
+
+void QButton::setAutoResizing( bool enable )
+{
+    if ( autoResize != enable ) {
+	autoResize = enable;
+	if ( autoResize )
+	    adjustSize();			// calls resize which repaints
+    }
+}
+
+
+/*!
+Virtual function that adjusts the size of the button to fit the contents.
+
+This function is called automatically whenever the contents change and
+auto-resizing is enabled.
+
+\sa setAutoResizing()
+*/
+
+void QButton::adjustSize()
 {
 }
 
@@ -191,7 +258,7 @@ bool QButton::hitButton( const QPoint &pos ) const
 }
 
 /*!
-Draws the buttons.  The default implementation does nothing.
+Draws the button.  The default implementation does nothing.
 
 This virtual function is reimplemented by subclasses to draw real buttons.
 */
@@ -201,6 +268,10 @@ void QButton::drawButton( QPainter * )
     return;
 }
 
+
+/*!
+Internal handling of mouse press events.
+*/
 
 void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 {
@@ -214,6 +285,10 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
 	emit pressed();
     }
 }
+
+/*!
+Internal handling of mouse release events.
+*/
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
 {
@@ -234,6 +309,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
 	emit released();
     }
 }
+
+/*!
+Internal handling of mouse move events.
+*/
 
 void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
 {
@@ -256,6 +335,12 @@ void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
     }
 }
 
+/*!
+Paints the button.
+
+Opens the painter on the button and calls drawButton().
+*/
+
 void QButton::paintEvent( QPaintEvent * )
 {
     QPainter paint;
@@ -264,6 +349,10 @@ void QButton::paintEvent( QPaintEvent * )
     paint.end();
 }
 
+
+/*!
+Not handled yet.
+*/
 
 void QButton::focusChangeEvent( QFocusEvent * )
 {

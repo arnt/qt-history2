@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#10 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#11 $
 **
 ** Definition of QPushButton class
 **
@@ -21,38 +21,38 @@ class QPushButton : public QButton
     Q_OBJECT
 public:
     QPushButton( QWidget *parent=0, const char *name=0 );
-    QPushButton( const char *label, QWidget *parent=0, const char *name=0 );
+    QPushButton( const char *text, QWidget *parent=0, const char *name=0 );
 
-    void    setAutoDefault( bool autoDef );
-    bool    isAutoDefault() const { return autoDefButton; }
+    bool	autoDefault()	const	{ return autoDefButton; }
+    void	setAutoDefault( bool autoDef );
 
-    void    setDefault( bool def );
-    bool    isDefault() const { return defButton; }
+    bool	isDefault()	const	{ return defButton; }
+    void	setDefault( bool def );
 
-    void    resizeFitLabel();
+    void	adjustSize();
 
-  // Reimplemented move,resize etc. because of auto-sized default push buttons
-    void    move( int x, int y );		// move push button
-    void    move( const QPoint &p );
-    void    resize( int w, int h );		// resize push button
-    void    resize( const QSize & );
-    void    setGeometry( int x, int y, int w, int h );
-    void    setGeometry( const QRect & );	// move and resize
+  // Reimplemented move,resize and setGeometry
+    void	move( int x, int y );
+    void	move( const QPoint &p );
+    void	resize( int w, int h );
+    void	resize( const QSize & );
+    void	setGeometry( int x, int y, int w, int h );
+    void	setGeometry( const QRect & );
 
 signals:
-    void    becameDefault();
+    void	becameDefault();
 
 protected:
-    void    drawButton( QPainter * );
+    void	drawButton( QPainter * );
     virtual void drawButtonFace( QPainter * );
 
 private:
-    void    init();
+    void	init();
 
-    uint    autoDefButton : 1;
-    uint    defButton	  : 1;
-    uint    lastDown	  : 1;
-    uint    lastDef	  : 1;
+    uint	autoDefButton : 1;
+    uint	defButton	  : 1;
+    uint	lastDown	  : 1;
+    uint	lastDef	  : 1;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#2 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#3 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,19 +14,42 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 #include "qpainter.h"
+#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#3 $";
 #endif
 
 
 /*!
 \class QMessageBox qmsgbox.h
-\brief The QMessageBox widget class provides a modal message box.
+\brief The QMessageBox widget provides a modal message box.
 
 A message box is a modal view that displays a text and contains a push button.
 
 The default push button text is "Ok". This can be changed with setButtonText().
+
+Enabling auto-resizing will make a message box resize itself whenever
+the contents change.
+
+Example of use:
+\code
+  QMessageBox mb;
+  mb.setText( "This program may crash you hardware!!!\nLet's start..." );
+  mb.setButtonText( "Yes" );
+  mb.exec();
+\endcode
+*/
+
+
+/*!
+Constructs a message box with no text and a button with the text "Ok".
+
+If \e parent is 0, then the message box becomes an application-global
+modal dialog box.  If \e parent is a real widget, the message
+box becomes modal relative to \e parent.
+
+The \e parent and \e name arguments are passed to the QDialog constructor.
 */
 
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
@@ -35,9 +58,8 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignCenter );
-    button = new QPushButton( this, "button" );
+    button = new QPushButton( "Ok", this, "button" );
     CHECK_PTR( button );
-    button->setLabel( "Ok" );
     connect( button, SIGNAL(clicked()), SLOT(accept()) );
 }
 
@@ -49,30 +71,27 @@ Returns the message box text currently set, or null if no text has been set.
 
 const char *QMessageBox::text() const
 {
-    return label->label();
+    return label->text();
 }
 
 /*!
 Sets the message box text to be displayed.
-
 \sa text().
 */
 
 void QMessageBox::setText( const char *text )
 {
-    label->setLabel( text );
-    resize( size() );
+    label->setText( text );
 }
 
 /*!
 Returns the push button text currently set, or null if no text has been set.
-
 \sa setButtonText().
 */
 
 const char *QMessageBox::buttonText() const
 {
-    return button->label();
+    return button->text();
 }
 
 /*!
@@ -85,31 +104,68 @@ The default push button text is "Ok".
 
 void QMessageBox::setButtonText( const char *text )
 {
-    button->setLabel( text );
-    resize( size() );
+    button->setText( text ? text : "Ok" );
+}
+
+
+/*!
+Adjusts the size of the message box to fit the contents just before
+QDialog::exec() or QDialog::show() is called.
+
+This function will not be called if the message box has been explicitly
+resized before showing it.
+*/
+
+void QMessageBox::adjustSize()
+{
+    button->adjustSize();
+    label->adjustSize();
+    int w = QMAX(button->width(),label->width());
+    int h = button->height() + label->height();
+    resize( w + w/4, h + h/4 );
 }
 
 
 /*!
 Internal geometry management.
-
-\todo Fix boundingRect.
 */
 
 void QMessageBox::resizeEvent( QResizeEvent * )
 {
-    QRect br;
-    QPainter p;
-    p.begin( label );
-    br = p.boundingRect( 0,0, 1000,1000, label->alignment(), label->label() );
-    p.end();
-    QFontMetrics fm( button->font() );
-    QRect bbr = fm.boundingRect( button->label() );
-    button->resize( bbr.width()+20, bbr.height()+10 );
-    br.setSize( QSize(br.width()+10,br.height()+10) );
-    int h = (height() - br.height() - button->height())/3;
+    button->adjustSize();
+    label->adjustSize();
+    int h = (height() - button->height() - label->height())/3;
     button->move( width()/2 - button->width()/2,
 		  height() - h - button->height() );
-    label->setGeometry( width()/2 - br.width()/2, h,
-			br.width(), br.height() );
+    label->move( width()/2 - label->width()/2, h );
+}
+
+
+// --------------------------------------------------------------------------
+// Static QMessageBox functions
+//
+
+/*!
+Opens a message box directly using the specified parameters.
+
+Example of use:
+\code
+  QMessageBox::message( "Warning", "Did you feed the giraffe", "Sorry" );
+\endcode
+*/
+
+int QMessageBox::message( const char *caption,
+			  const char *text,
+			  const char *buttonText,
+			  QWidget    *parent,
+			  const char *name )
+{
+    QMessageBox *mb = new QMessageBox( parent, name );
+    CHECK_PTR( mb );
+    mb->setCaption( caption );
+    mb->setText( text );
+    mb->setButtonText( buttonText );
+    int retcode = mb->exec();
+    delete mb;
+    return retcode;
 }
