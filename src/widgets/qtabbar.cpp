@@ -881,8 +881,10 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 
 	    QStyle::CFlags flags = QStyle::CStyle_Default;
 	    flags |= QStyle::CStyle_Selected;
+	    void *data[1];
+	    data[0] = t;
 	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
-				 colorGroup(), flags );
+				 colorGroup(), flags, data );
 
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
