@@ -177,8 +177,7 @@ public:
     // compatibility
 #ifndef QT_NO_COMPAT
     explicit QByteArray(int size, char c = '\0');
-    inline bool isNull() const
-    { return d == &shared_null; }
+    bool isNull() const;
     inline int count() const
     { return d->size; }
     QByteArray& duplicate(const QByteArray& a)
@@ -201,8 +200,7 @@ public:
     inline int findRev(const char *c, int from = -1) const { return lastIndexOf(c, from); }
 #endif
 
-    inline bool ensure_constructed()
-    { if (!d) { d = &shared_null; ++d->ref; return false; } return true; }
+    bool ensure_constructed();
 
 private:
     struct Data {
@@ -228,8 +226,6 @@ public:
     QConstByteArray(const char *chars, int length);
 };
 
-inline QByteArray:: QByteArray():d(&shared_null)
-{ ++d->ref; }
 inline int QByteArray::size() const
 { return d->size; }
 inline char QByteArray::at(int i) const
@@ -258,8 +254,6 @@ inline bool QByteArray::isDetached() const
 { return d->ref == 1; }
 inline QByteArray::~QByteArray()
 { if (!--d->ref) qFree(d); }
-inline void QByteArray::clear()
-{ if (!--d->ref) qFree(d); d = &shared_null; ++d->ref; }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { ++d->ref; }
 inline int QByteArray::capacity() const
@@ -417,5 +411,5 @@ Q_KERNEL_EXPORT inline QByteArray qUncompress( const QByteArray& data )
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QByteArray);
-
+  
 #endif

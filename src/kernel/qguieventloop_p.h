@@ -54,7 +54,7 @@ struct MacSocketInfo {
 
 #endif
 
-class QGuiEventLoopPrivate : public QEventLoopPrivate
+class Q_GUI_EXPORT QGuiEventLoopPrivate : public QEventLoopPrivate
 {
     Q_DECL_PUBLIC(QGuiEventLoop);
 public:

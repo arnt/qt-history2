@@ -203,13 +203,18 @@ QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QMap<QString,Param>;
 QM_TEMPLATE_EXTERN_SQL template class QM_EXPORT_SQL QVector<Holder>;
 #endif
 
-
 // ### Begin attempt to make 4.0 compile on MSVC 6.0
 #if defined(Q_DEFINED_QLIST) && !defined(Q_EXPORTED_QLIST_TEMPLATES)
 #define Q_EXPORTED_QLIST_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<int>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QList<uint>;
+#endif
+
+// ### Begin attempt to make 4.0 compile on MSVC 6.0
+#if defined(Q_DEFINED_QSOCKNOT) && !defined(Q_EXPORTED_QLIST_QSOCKNOT)
+#define Q_EXPORTED_QLIST_QSOCKNOT
+Q_TEMPLATE_EXTERN template class Q_KERNEL_EXPORT QList<QSockNot*>;
 #endif
 
 // MOC_SKIP_END

@@ -93,6 +93,8 @@ struct QSockNot {
     QSocketNotifier *obj;
     int fd;
 };
+#define Q_DEFINED_QSOCKNOT
+#include <qwinexport.h>
 
 struct TimerInfo {				// internal timer info
     uint     ind;				// - Qt timer identifier - 1
@@ -133,7 +135,7 @@ public:
 };
 
 
-class QEventLoopPrivate : public QObjectPrivate
+class Q_KERNEL_EXPORT QEventLoopPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QEventLoop);
 public:

@@ -445,8 +445,13 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 
 
 static char null_char = '\0';
-QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
+Q_EXPORT QByteArray::Data QByteArray::shared_null = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
 QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, &null_char, {0} };
+
+QByteArray::QByteArray() : d(&shared_null) 
+{ 
+    ++d->ref; 
+}
 
 QByteArray::QByteArray(const char *s)
 {
@@ -1098,6 +1103,14 @@ QDataStream &operator<<( QDataStream &s, const QByteArray &a )
     return s.writeBytes( a, a.size() );
 }
 
+void QByteArray::clear() 
+{ 
+    if (!--d->ref) 
+        qFree(d); 
+    d = &shared_null; 
+    ++d->ref; 
+}
+
 /*!
     \relates QByteArray
 
@@ -1194,3 +1207,19 @@ QByteArray QByteArray::trimmed() const
     return QByteArray(s+start, l);
 }
 
+/*!
+  \internal
+*/
+bool QByteArray::ensure_constructed() 
+{ 
+    if (!d) { 
+       d = &shared_null; 
+       ++d->ref; 
+       return false; 
+    } 
+    return true; 
+}
+
+#ifndef QT_NO_COMPAT
+bool QByteArray::isNull() const { return d == &shared_null; }
+#endif
