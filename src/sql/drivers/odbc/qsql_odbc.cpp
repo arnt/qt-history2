@@ -366,7 +366,7 @@ static QCoreVariant qGetDoubleData(SQLHANDLE hStmt, int column)
 
 static QCoreVariant qGetBigIntData(SQLHANDLE hStmt, int column)
 {
-    SQLBIGINT lngbuf = qint64_C(0);
+    SQLBIGINT lngbuf = qint64(0);
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
