@@ -131,6 +131,27 @@ public:
     }
 };
 
+/* Pushes a 'separator' value onto the stack.
+*/
+
+class PushSeparator : public Op
+{
+public:
+    PushSeparator( const QVariant& P1,
+	  const QVariant& P2 = QVariant(),
+	  const QVariant& P3 = QVariant() )
+	: Op( P1, P2, P3 )
+    {
+    }
+    ~Push() {}
+    QString name() const { return "pushseparator"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	env->stack()->push( QVariant() );
+	return 1;
+    }
+};
+
 
 /* Pop the top two elements from the stack, add them together, and
    push the result (which is of type double) back onto the stack.
@@ -311,20 +332,22 @@ public:
     }
 };
 
-/* Pop the first 'num' values off the stack and push a list of them
- back on to the top of the stack.  The top of the stack becomes the
- last element of the list, and the 'num'-th element becomes the first
- element of the list.  For example, if the stack looks like this:
+/* Pop values off the stack until a 'separator' is found and push a
+ list of them back on to the top of the stack.  The top of the stack
+ becomes the last element of the list, and the 'num'-th element
+ becomes the first element of the list.  For example, if the stack
+ looks like this:
 
  5 (top of stack )
  dave
  trolltech
+ --separator-- (see PushSeparator)
  99
  blarg
 
  The following instruction:
 
- MakeList ( 3 )
+ MakeList
 
  will transform the stack into this:
 
@@ -337,16 +360,22 @@ public:
 class MakeList : public Op
 {
 public:
-    MakeList( const QVariant& num )
-	: Op( num ) {}
+    MakeList()
+	: Op() {}
     QString name() const { return "makelist"; }
     int exec( LocalSQLEnvironment* env )
     {
-	if ( !checkStack(env, p1.toInt()) )
+	if ( !checkStack( env, 1 ) )
 	    return 0;
 	List rec;
-	for ( int i = 0; i < p1.toInt(); ++i )
-	    rec.prepend( env->stack()->pop() );
+	for ( ; ; ) {
+	    if ( env->stack()->count() == 0 )
+		return 0;
+	    QVariant v = env->stack()->pop();
+	    if ( v.type() == QVariant::Invalid )
+		break;
+	    rec.prepend( v );
+	}
 	env->stack()->push( rec );
 	return 1;
     }
