@@ -85,6 +85,7 @@ else
   cvs -Q export -rHEAD tmake
   export TMAKEDIR=$DISTDIR/tmake
   export TMAKEPATH=$TMAKEDIR/lib/linux-g++
+  export PATH=${TMAKEDIR}/bin:${PATH}
 fi
 
 echo "Removing internal files..." >&2
