@@ -875,9 +875,10 @@ QSize QTableItem::sizeHint() const
 	return QSize( s.width() + table()->fontMetrics().width( text() ) + 10,
 		      QMAX( s.height(), table()->fontMetrics().height() ) ).expandedTo( strutSize );
 
-    QRect r = table()->fontMetrics().boundingRect( x + 2, 0, table()->columnWidth( col() ) - x  - 4, 0,
-						   wordwrap ? (alignment() | WordBreak) : alignment(), text() );
-    r.setWidth( QMAX( r.width(), table()->columnWidth( col() ) ) );
+    QRect r = table()->fontMetrics().boundingRect( x + 2, 0, table()->columnWidth( col() ) - x - 4, 0,
+						   wordwrap ? (alignment() | WordBreak) : alignment(),
+						   text() );
+    r.setWidth( QMAX( r.width() + 10, table()->columnWidth( col() ) ) );
     return QSize( r.width(), QMAX( s.height(), r.height() ) ).expandedTo( strutSize );
 }
 
