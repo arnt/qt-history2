@@ -366,6 +366,9 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
   myCursor.select();              // select all records again
   \endcode
 
+  Both select("*") and select() will select all records. However, the first
+  form allows you to add a sort, e.g. select("*", mysort).
+
 */
 
 bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
@@ -431,6 +434,13 @@ bool QSqlCursor::select( const QSqlIndex& sort )
   myCursor.select( pk, pk ); // generates "select ... from Employee where id=10 order by id;"
   ...
   \endcode
+
+  In this example the QSqlIndex, pk, is used for two different purposes.
+  When used as the filter argument, the field names it contains are used
+  for the WHERE clause, each set to the current cursor value, "WHERE
+  id=10" in this case. When used as the sort argument the field names it
+  contains are used for the ORDER BY clause, "ORDER BY id" in this
+  example.
 
 */
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
