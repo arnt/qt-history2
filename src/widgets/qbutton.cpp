@@ -882,10 +882,11 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
     \sa drawButton(), drawButtonLabel()
 */
-void QButton::paintEvent( QPaintEvent *)
+void QButton::paintEvent( QPaintEvent *e)
 {
     if( QSharedDoubleBuffer::isDisabled() ) {
 	QPainter p( this );
+	erase( e->rect() );
 	drawButton( &p );
     } else {
 	QSharedDoubleBuffer buffer( this );
