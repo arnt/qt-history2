@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#14 $
 **
 ** Implementation of QPicture class
 **
@@ -19,7 +19,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#14 $";
 #endif
 
 
@@ -215,8 +215,8 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
 		painter->drawText( p, str );
 		delete str;
 		break;
-	    case PDC_DRAWTEXTALIGN:
-	        debug( "QPicture: DRAWTEXTALIGN not implemented" );
+	    case PDC_DRAWTEXTFRMT:
+	        debug( "QPicture: DRAWTEXTFRMT not implemented" );
 	        break;
 	    case PDC_DRAWPIXMAP:
 	        debug( "QPicture: DRAWPIXMAP not implemented" );
@@ -373,8 +373,8 @@ bool QPicture::cmd( int c, QPDevCmdParam *p )
 	case PDC_DRAWTEXT:
 	    s << *p[0].point << p[1].str;
 	    break;
-	case PDC_DRAWTEXTALIGN:
-	    debug( "QPicture::cmd: DRAWTEXTALIGN not implemented" );
+	case PDC_DRAWTEXTFRMT:
+	    debug( "QPicture::cmd: DRAWTEXTFRMT not implemented" );
 	    break;
 	case PDC_DRAWPIXMAP:
 	    debug( "QPicture::cmd: DRAWPIXMAP not implemented" );
