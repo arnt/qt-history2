@@ -39,7 +39,6 @@
 #include <qtextformat.h>
 #include <qtextdocument.h>
 #include <qtexttable.h>
-#include "tableinsert.h"
 #include <private/qtextdocumentlayout_p.h>
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
@@ -47,7 +46,6 @@ TextEdit::TextEdit( QWidget *parent, const char *name )
 {
     setupFileActions();
     setupEditActions();
-    setupTableActions();
     setupTextActions();
 
     tabWidget = new QTabWidget( this );
@@ -214,48 +212,6 @@ void TextEdit::setupTextActions()
     tb->addAction(actionTextColor);
     menu->addAction(actionTextColor);
 }
-
-
-void TextEdit::setupTableActions()
-{
-    QToolBar *tb = new QToolBar( this );
-    tb->setLabel( "Table Actions" );
-    QPopupMenu *menu = new QPopupMenu( this );
-    menuBar()->addMenu( tr( "&Table" ), menu );
-
-    QAction *a;
-
-    a = new QAction( QPixmap::fromMimeSource( "table.png" ), tr( "&Insert Table" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( insertTable() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-
-    a = actionInsertTableRow = new QAction( QPixmap::fromMimeSource( "insert_table_row.png" ), tr( "&Insert Row" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( insertTableRow() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-
-    a = actionInsertTableColumn = new QAction( QPixmap::fromMimeSource( "insert_table_col.png" ), tr( "&Insert Column" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( insertTableCol() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-
-    a = actionDeleteTableRow = new QAction( QPixmap::fromMimeSource( "delete_table_row.png" ), tr( "&Delete Row" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( deleteTableRow() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-
-    a = actionDeleteTableColumn = new QAction( QPixmap::fromMimeSource( "delete_table_col.png" ), tr( "&Delete Column" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( deleteTableCol() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-
-    a = new QAction( QPixmap::fromMimeSource( "foo.png" ), tr( "&Insert Frame" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( insertFrame() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-}
-
 
 void TextEdit::load( const QString &f )
 {
@@ -443,96 +399,6 @@ void TextEdit::editPaste()
        return;
     edit->paste();
 }
-
-void TextEdit::insertTable()
-{
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
-	return;
-
-    TableInsert *ti = new TableInsert(this);
-    if (ti->exec() == QDialog::Accepted) {
-	QTextCursor c = edit->cursor();
-
-	QTextTableFormat fmt;
-	c.insertTable(ti->rowBox->value(), ti->colBox->value(), fmt);
-	edit->setCursor(c);
-    }
-}
-
-void TextEdit::insertFrame()
-{
-    QTextCursor c = currentEditor()->cursor();
-    QTextFrameFormat fmt;
-    fmt.setMargin(20);
-    fmt.setBorder(5);
-    fmt.setPadding(5);
-    fmt.setPosition(QTextFrameFormat::FloatLeft);
-    fmt.setWidth(200);
-    fmt.setHeight(200);
-    c.insertFrame(fmt);
-}
-
-void TextEdit::insertTableRow()
-{
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
-	return;
-
-    QTextCursor c = edit->cursor();
-    QTextTable *t = c.currentTable();
-    if (!t)
-	return;
-    QTextTableCell cell = t->cellAt(c);
-    Q_ASSERT(cell.isValid());
-    t->insertRows(cell.row(), 1);
-}
-
-void TextEdit::insertTableCol()
-{
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
-	return;
-
-    QTextCursor c = edit->cursor();
-    QTextTable *t = c.currentTable();
-    if (!t)
-	return;
-    QTextTableCell cell = t->cellAt(c);
-    Q_ASSERT(cell.isValid());
-    t->insertColumns(cell.column(), 1);
-}
-
-void TextEdit::deleteTableRow()
-{
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
-	return;
-
-    QTextCursor c = edit->cursor();
-    QTextTable *t = c.currentTable();
-    if (!t)
-	return;
-    QTextTableCell cell = t->cellAt(c);
-    Q_ASSERT(cell.isValid());
-    t->removeRows(cell.row(), 1);
-}
-
-void TextEdit::deleteTableCol()
-{
-    QTextEdit *edit = currentEditor();
-    if ( !edit )
-	return;
-
-    QTextCursor c = edit->cursor();
-    QTextTable *t = c.currentTable();
-    if (!t)
-	return;
-    QTextTableCell cell = t->cellAt(c);
-    Q_ASSERT(cell.isValid());
-    t->removeColumns(cell.column(), 1);
-}
-
 
 void TextEdit::textBold()
 {

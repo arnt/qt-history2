@@ -34,7 +34,6 @@ private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
-    void setupTableActions();
     void load( const QString &f );
     QTextEdit *currentEditor() const;
 
@@ -52,13 +51,6 @@ private slots:
     void editCut();
     void editCopy();
     void editPaste();
-
-    void insertTable();
-    void insertFrame();
-    void insertTableRow();
-    void insertTableCol();
-    void deleteTableRow();
-    void deleteTableCol();
 
     void textBold();
     void textUnderline();

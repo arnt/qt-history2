@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= textedit
 
-CONFIG		+= qt warn_on release
+CONFIG		+= qt warn_on release uic3
 QT = compat
 
 QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
