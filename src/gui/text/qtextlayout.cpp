@@ -838,11 +838,17 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
             const int x = position.x() + l.cursorToX(cursorPos);
 
             int itm = d->findItem(cursorPos-1);
-            const QScriptItem &si = d->items[itm];
+            Q26Dot6 ascent = sl.ascent;
+            Q26Dot6 descent = sl.descent;
+            if (itm >= 0) {
+                const QScriptItem &si = d->items.at(itm);
+                ascent = si.ascent;
+                descent = si.descent;
+            }
 
             p->setPen(Qt::black);
-            p->drawLine(x, position.y() + (sl.y + sl.ascent - si.ascent).toInt(), 
-                        x, position.y() + (sl.y + sl.ascent + si.descent).toInt());
+            p->drawLine(x, position.y() + (sl.y + sl.ascent - ascent).toInt(),
+                        x, position.y() + (sl.y + sl.ascent + descent).toInt());
         }
     }
 
