@@ -138,6 +138,11 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	actions.addCleanUp( a );
 	return a;
     } else if ( actionname == "Toggle Menu" ) {
+	QApplicationInterface* ifc = 0;
+	if ( ( ifc = theApp->requestApplicationInterface( "PlugMenuInterface" ) ) )
+	    ifc = ifc->requestInterface( "PlugMenuBarInterface" );
+	if ( !ifc )
+	    return 0;
 	QAction* a = new QAction( actionname, QIconSet(*unknown_icon), "&Toggle Menu", Qt::CTRL + Qt::Key_U, parent, actionname, TRUE );
 	connect( a, SIGNAL(activated()), this, SLOT(toggleMenu()) );
 	actions.addCleanUp( a );
