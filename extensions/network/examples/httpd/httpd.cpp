@@ -4,8 +4,14 @@
 #include <qapplication.h>
 #include <qmainwindow.h>
 #include <qtextstream.h>
+#include <qvbox.h>
+#include <qlabel.h>
+#include <qtextview.h>
+#include <qpushbutton.h>
 
-class HttpDaemon : public QServerSocket {
+
+class HttpDaemon : public QServerSocket
+{
     Q_OBJECT
 public:
     HttpDaemon( QObject* parent=0 ) :
@@ -19,13 +25,18 @@ public:
 
     void newConnection( int socket )
     {
-	qDebug("new connection");
 	QSocket* s = new QSocket(this);
 	connect(s,SIGNAL(readyRead()),this,SLOT(readClient()));
 	connect(s,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
 	s->setSocket(socket);
 	s->setMode(QSocket::Ascii);
+	emit newConnect();
     }
+
+signals:
+    void newConnect();
+    void endConnect();
+    void wroteToClient();
 
 private slots:
     void readClient()
@@ -37,6 +48,7 @@ private slots:
 		QTextStream os(socket);
 		os << "<h1>Nothing to see here</h1>\n";
 		socket->close();
+		emit wroteToClient();
 	    }
 	}
     }
@@ -44,13 +56,66 @@ private slots:
     {
 	QSocket* socket = (QSocket*)sender();
 	delete socket;
+	emit endConnect();
     }
 };
 
-main(int argc, char** argv)
+
+class HttpInfo : public QVBox
 {
-    QApplication app(argc,argv);
-    HttpDaemon httpd;
+    Q_OBJECT
+public:
+    HttpInfo()
+    {
+	HttpDaemon *httpd = new HttpDaemon( this );
+
+	QString itext = QString(
+		"This is a small httpd example.\n"
+		"You can connect with your\n"
+		"web browser to\n"
+		"http://%1:%2"
+	    ).arg( httpd->address().toString()
+	    ).arg( httpd->port() );
+	QLabel *lb = new QLabel( itext, this );
+	lb->setAlignment( AlignHCenter );
+	infoText = new QTextView( this );
+	QPushButton *quit = new QPushButton( "quit" , this );
+
+	connect( httpd, SIGNAL(newConnect()), SLOT(newConnect()) );
+	connect( httpd, SIGNAL(endConnect()), SLOT(endConnect()) );
+	connect( httpd, SIGNAL(wroteToClient()), SLOT(wroteToClient()) );
+	connect( quit, SIGNAL(pressed()), qApp, SLOT(quit()) );
+    }
+
+    ~HttpInfo()
+    {
+    }
+
+private slots:
+    void newConnect()
+    {
+	infoText->append( "New connection" );
+    }
+    void endConnect()
+    {
+	infoText->append( "Connection closed" );
+    }
+    void wroteToClient()
+    {
+	infoText->append( "Wrote to client" );
+    }
+
+private:
+    QTextView *infoText;
+};
+
+
+main( int argc, char** argv )
+{
+    QApplication app( argc, argv );
+    HttpInfo info;
+    app.setMainWidget( &info );
+    info.show();
     return app.exec();
 }
 
