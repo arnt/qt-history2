@@ -794,7 +794,7 @@ static void setDefaultPrinterA(const QString &printerName, HANDLE *hmode, HANDLE
 	}
 	hdevmode = GlobalAlloc(GHND,szDEVMODE);
 	Q_ASSERT(hdevmode != 0);
-	DEVMODE *pDevMode = (DEVMODE *)GlobalLock(hdevmode);
+	DEVMODEA *pDevMode = (DEVMODEA *)GlobalLock(hdevmode);
 	Q_ASSERT(pDevMode != 0);
 #ifndef QT_NO_DEBUG
 	if ( !pDevMode )
@@ -882,10 +882,6 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	    dm->dmOrientation = DMORIENT_PORTRAIT;
 	else
 	    dm->dmOrientation = DMORIENT_LANDSCAPE;
-	if ( color_mode == Color )
-	    dm->dmColor = DMCOLOR_COLOR;
-	else
-	    dm->dmColor = DMCOLOR_MONOCHROME;
 	dm->dmCopies = ncopies;
 	if ( usercolcopies )
 	    dm->dmCollate = DMCOLLATE_TRUE;
@@ -898,6 +894,7 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	    dm->dmColor = DMCOLOR_COLOR;
 	else
 	    dm->dmColor = DMCOLOR_MONOCHROME;
+	dm->dmFields |= DM_COPIES | DM_COLLATE;
     }
 #endif
 }
@@ -921,6 +918,7 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	    dm->dmColor = DMCOLOR_COLOR;
 	else
 	    dm->dmColor = DMCOLOR_MONOCHROME;
+	dm->dmFields |= DM_COPIES | DM_COLLATE;
     }
 }
 
