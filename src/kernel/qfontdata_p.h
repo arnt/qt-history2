@@ -65,7 +65,7 @@
 // font description
 struct QFontDef {
     QFontDef()
-	: pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
+	: pixelSize(0), pointSize(0), lbearing(SHRT_MIN), rbearing(SHRT_MIN),
 	  styleHint(QFont::AnyStyle), styleStrategy(QFont::PreferDefault),
 	  weight(0), italic(FALSE), underline(FALSE), strikeOut(FALSE),
 	  fixedPitch(FALSE), hintSetByUser(FALSE), rawMode(FALSE), dirty(TRUE)
@@ -73,6 +73,7 @@ struct QFontDef {
 
     QString family;
 
+    short pixelSize;
     short pointSize;
     short lbearing;
     short rbearing;
@@ -273,10 +274,10 @@ public:
 	CanadianAboriginal,
 	Mongolian,
 
-	// this one is only used on X11 to get some char displayed for all of 
+	// this one is only used on X11 to get some char displayed for all of
 	// the Han area.
 	HanHack,
-	
+
 	Unicode,
 
 	// End
@@ -301,26 +302,26 @@ public:
     QFontPrivate()
 	: exactMatch(FALSE), lineWidth(1)
     {
-	
+
 	charsetcompat = QFont::Unicode;
-	
+
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
-		fin = 0;
+	fin = 0;
 #endif // Q_WS_WIN
-		
+
     }
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
 	  exactMatch(fp.exactMatch), lineWidth(1)
     {
-	
+
 	charsetcompat = fp.charsetcompat;
-	
+
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS) || defined(Q_WS_MAC)
 	fin = 0;
 #endif // Q_WS_WIN || Q_WS_QWS
-	
+
     }
 
     // requested font
@@ -340,7 +341,7 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
     QRect boundingRect( const QChar &ch );
-    
+
 #ifdef Q_WS_X11
     Script scriptForChar(const QChar &c);
     Script hanHack( const QChar & c );
@@ -390,14 +391,15 @@ public:
     QCString bestFamilyMember(QFontPrivate::Script, const QString &, const QString &,
 			      int *) const;
     QCString bestMatch(const char *, int *, Script) const;
-    int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *, Script) const;
+    int fontMatchScore(const char *, QCString &, float *, int *, bool *,
+		       bool *, Script) const;
     void initFontInfo(QFontPrivate::Script);
     void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
     void computeLineWidth();
 
-    /* 
+    /*
        some replacement functions for Xlib calls. This is needed, because shaping and
-       non spacing marks can change the extents of a string to draw. At the same time 
+       non spacing marks can change the extents of a string to draw. At the same time
        drawing needs to take care to correctly position non spacing marks.
     */
     struct TextRun {
@@ -418,12 +420,12 @@ public:
 	int length;
 	TextRun *next;
     };
-    
+
     int textWidth( const QString &str, int pos, int len );
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
     void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
-    
+
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set
