@@ -13,11 +13,8 @@
 
 #include "connectionwidget.h"
 
-#include <qdebug.h>
-#include <qsqldatabase.h>
-#include <qtreewidget.h>
-#include <qheaderview.h>
-#include <qlayout.h>
+#include <QtGui>
+#include <QtSql>
 
 ConnectionWidget::ConnectionWidget(QWidget *parent)
     : QWidget(parent)
@@ -35,6 +32,12 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
 
 ConnectionWidget::~ConnectionWidget()
 {
+}
+
+void ConnectionWidget::on_tree_aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem * /*item*/,
+                                                      int /*column*/)
+{
+    menu->addAction(tr("Refresh"), this, SLOT(refresh()));
 }
 
 static QString qDBCaption(const QSqlDatabase &db)
@@ -56,7 +59,6 @@ void ConnectionWidget::refresh()
     for (int i = 0; i < connectionNames.count(); ++i) {
         QTreeWidgetItem *root = new QTreeWidgetItem(tree);
         QSqlDatabase db = QSqlDatabase::database(connectionNames.at(i), false);
-        qDebug() << db;
         root->setText(0, qDBCaption(db));
         if (connectionNames.at(i) == activeDb) {
             gotActiveDb = true;
