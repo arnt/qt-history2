@@ -79,11 +79,11 @@ static void resolveLibs()
     static bool triedResolve = FALSE;
     if ( !triedResolve ) {
 	// need to resolve the security info functions
-
+	
 #ifdef QT_THREAD_SUPPORT
 	// protect initialization
 	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &triedResolve ) : 0 );
+	    qt_global_mutexpool->get( &triedResolve ) : 0 );
 	// check triedResolve again, since another thread may have already
 	// done the initialization
 	if ( triedResolve ) {
@@ -92,12 +92,12 @@ static void resolveLibs()
 	    return;
 	}
 #endif
-
+	
 	triedResolve = TRUE;
 	if ( qWinVersion() & Qt::WV_NT_based ) {
 	    QLibrary lib("advapi32");
 	    lib.setAutoUnload( FALSE );
-
+	    
 	    ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve( "GetNamedSecurityInfoW" );
 	    ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve( "LookupAccountSidW" );
 	    ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve( "AllocateAndInitializeSid" );
@@ -106,14 +106,44 @@ static void resolveLibs()
 	    ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve( "GetEffectiveRightsFromAclW" );
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 	    if ( ptrBuildTrusteeWithNameW ) {
-		QLibrary userLib("secur32");
-		typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
-		PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve( "GetUserNameExW" );
-		if ( ptrGetUserNameExW ) {
-		    static TCHAR buffer[258];
-		    DWORD bufferSize = 257;
-		    ptrGetUserNameExW( NameSamCompatible, (ushort*)buffer, &bufferSize );
-		    ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
+		QLibrary versionLib("version");
+		typedef DWORD (WINAPI *PtrGetFileVersionInfoSizeW)(LPTSTR lptstrFilename,LPDWORD lpdwHandle);
+		PtrGetFileVersionInfoSizeW ptrGetFileVersionInfoSizeW = (PtrGetFileVersionInfoSizeW)versionLib.resolve("GetFileVersionInfoSizeW");
+		typedef BOOL (WINAPI *PtrGetFileVersionInfoW)(LPTSTR lptstrFilename,DWORD dwHandle,DWORD dwLen,LPVOID lpData);
+		PtrGetFileVersionInfoW ptrGetFileVersionInfoW = (PtrGetFileVersionInfoW)versionLib.resolve("GetFileVersionInfoW");
+		typedef BOOL (WINAPI *PtrVerQueryValueW)(const LPVOID pBlock,LPTSTR lpSubBlock,LPVOID *lplpBuffer,PUINT puLen);
+		PtrVerQueryValueW ptrVerQueryValueW = (PtrVerQueryValueW)versionLib.resolve("VerQueryValueW");
+		if ( ptrGetFileVersionInfoSizeW && ptrGetFileVersionInfoW && ptrVerQueryValueW ) {
+		    DWORD fakeHandle;
+		    DWORD versionSize = ptrGetFileVersionInfoSizeW( L"secur32.dll", &fakeHandle );
+		    if ( versionSize ) {
+			LPVOID versionData;
+			versionData = malloc(versionSize);
+			if ( ptrGetFileVersionInfoW( L"secur32.dll", 0, versionSize, versionData ) ) {
+			    UINT puLen;
+			    VS_FIXEDFILEINFO *pLocalInfo;
+			    if ( ptrVerQueryValueW( versionData, L"\\", (void**)&pLocalInfo, &puLen ) ) {
+				WORD wVer1, wVer2, wVer3, wVer4; 
+				wVer1 = HIWORD(pLocalInfo->dwFileVersionMS);
+				wVer2 = LOWORD(pLocalInfo->dwFileVersionMS);
+				wVer3 = HIWORD(pLocalInfo->dwFileVersionLS);
+				wVer4 = LOWORD(pLocalInfo->dwFileVersionLS);
+				// It will not work with secur32.dll version 5.0.2195.2862
+				if ( !(wVer1 == 5 && wVer2 == 0 && wVer3 == 2195 && wVer4 == 2862) ) {
+				    QLibrary userLib("secur32");
+				    typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
+				    PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve( "GetUserNameExW" );
+				    if ( ptrGetUserNameExW ) {
+					static TCHAR buffer[258];
+					DWORD bufferSize = 257;
+					ptrGetUserNameExW( NameSamCompatible, (ushort*)buffer, &bufferSize );
+					ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
+				    }
+				}
+			    }
+			}
+			free(versionData);
+		    }
 		}
 	    }
 	}
