@@ -1803,7 +1803,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     if ( depth1 ) {				// mono bitmap
-	QPixmap pm( w, h, dptr, TRUE );
+	QPixmap pm( w, h, dptr, QImage::systemBitOrder() != QImage::BigEndian );
 	pm.data->bitmap = data->bitmap;
 	free( dptr );
 	if ( data->mask ) {
