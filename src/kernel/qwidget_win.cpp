@@ -166,7 +166,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    }
 	} else {
 	    style = WS_OVERLAPPED;
-	    if ( testWFlags(WStyle_Dialog ) )
+	    if ( testWFlags(WType_Dialog ) )
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );

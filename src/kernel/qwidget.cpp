@@ -3363,7 +3363,7 @@ static bool noMoreToplevels()
 	if ( !widget->isHidden()
 	     && !widget->isDesktop()
 	     && !widget->isPopup()
-	     && !widget->testWFlags( Qt::WStyle_Dialog) )
+	     && !widget->testWFlags( Qt::WType_Dialog) )
 	    break;
 	widget = list->next();
     }
