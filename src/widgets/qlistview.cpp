@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#299 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#300 $
 **
 ** Implementation of QListView widget class
 **
@@ -944,7 +944,7 @@ void QListViewItem::enforceSortOrder() const
 
   Returns TRUE if this item is selected, or FALSE if it is not.
 
-  \sa setSelected() QListView::setSelected() QListView::selectionChanged() 
+  \sa setSelected() QListView::setSelected() QListView::selectionChanged()
 */
 
 
@@ -2464,7 +2464,7 @@ QListViewItem * QListViewItem::itemAbove()
   (ie. that this item is visible, or can be made visible by
   scrolling).
 
-  \sa itemAbove() QListView::itemRect() 
+  \sa itemAbove() QListView::itemRect()
 */
 
 QListViewItem * QListViewItem::itemBelow()
@@ -3746,8 +3746,11 @@ void QCheckListItem::activate()
 
     QRect r = listView()->itemRect( this );
     r.setWidth( BoxSize );
-    r.moveBy( listView()->itemMargin() + ( depth() + 1 ) * listView()->treeStepSize(), 0 );
-
+    if ( listView()->rootIsDecorated() )
+	r.moveBy( listView()->itemMargin() + ( depth() + 1 ) * listView()->treeStepSize(), 0 );
+    else
+	r.moveBy( listView()->itemMargin(), 0 );
+    
     if ( !r.contains( pos ) )
 	return;
 
@@ -4357,7 +4360,7 @@ bool QListView::setConfiguration( const QDomElement& element )
 	    }
 	}
     }
-    
+
     return QScrollView::setConfiguration( element );
 }
 #endif // QT_BUILDER
