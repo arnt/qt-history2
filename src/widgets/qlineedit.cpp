@@ -2475,7 +2475,7 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	delete [] maskData;
 	maskData = 0;
 	maxLength = 32767;
-	setText( QString::null );
+	q->setText( QString::null );
 	return;
     }
 
