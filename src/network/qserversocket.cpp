@@ -59,10 +59,10 @@ public:
   \module network
 
   This class is a convenience class for accepting incoming TCP
-  connections.  You can specify the port or have QSocketServer pick one,
+  connections.  You can specify the port or have QServerSocket pick one,
   and listen on just one address or on all the machine's addresses.
 
-    Using the API is very simple: subclass QSocketServer, call the
+    Using the API is very simple: subclass QServerSocket, call the
     constructor of your choice, and implement newConnection() to
     handle new incoming connections.  There is nothing more to do.
 
