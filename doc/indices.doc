@@ -37,11 +37,11 @@
 static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 #endif
 
-/*! \page index.html
+/*! 
 
-<title>Qt Reference Documentation</title>
-\style
-</head><body bgcolor="#ffffff">
+\page index.html
+
+\title Qt Reference Documentation
 
 \postheader
 
