@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#74 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#74 $");
 
 
 /*!
@@ -110,6 +110,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     isMenuBar = TRUE;
     autoaccel = 0;
     irects    = 0;
+    mseparator = 0;
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
 
@@ -573,6 +574,32 @@ int QMenuBar::itemAtPos( const QPoint &pos )
 }
 
 
+/*# QT_VERSION 200
+  Move the flag for separator usage down from QMenuData to QMenuBar.
+*/
+/*!
+  When a menubar is used above an unframed widget, it may look better
+  with a separating line when displayed with \link QWidget::style()
+  WindowsStyle\endlink.
+
+  This function sets the usage of such a separator to appear either
+  QMenuBar::Never, or QMenuBar::InWindowsStyle.
+
+  The default is QMenuBar::Never.
+*/
+void QMenuBar::setSeparatorUsage( int when )
+{
+    mseparator = when;
+}
+
+/*!
+  Returns the currently set \link setSeparatorUsage() separator usage\endlink.
+*/
+int QMenuBar::separatorUsage() const
+{
+    return mseparator;
+}
+
 /*****************************************************************************
   Event handlers
  *****************************************************************************/
@@ -620,6 +647,12 @@ void QMenuBar::drawContents( QPainter *p )
 	} else {
 	    // separator or whatever
 	}
+    }
+    if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
+	p->setPen( g.light() );
+	p->drawLine( 0, height()-1, width()-1, height()-1 );
+	p->setPen( g.dark() );
+	p->drawLine( 0, height()-2, width()-1, height()-2 );
     }
 }
 

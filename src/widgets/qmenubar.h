@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#19 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#20 $
 **
 ** Definition of QMenuBar class
 **
@@ -31,6 +31,10 @@ public:
     bool	eventFilter( QObject *, QEvent * );
 
     int		heightForWidth(int) const;
+
+    enum { Never=0, InWindowsStyle=1 };
+    int		separatorUsage() const;
+    void	setSeparatorUsage( int when );
 
 signals:
     void	activated( int itemId );
