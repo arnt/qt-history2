@@ -32,8 +32,9 @@ class QPolygonF;
 class Q_GUI_EXPORT QBezier
 {
 public:
+    QBezier();
     QBezier(qreal p1x, qreal p1y, qreal p2x, qreal p2y,
-                 qreal p3x, qreal p3y, qreal p4x, qreal p4y);
+            qreal p3x, qreal p3y, qreal p4x, qreal p4y);
     QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 
 #ifdef QT_USE_FIXED_POINT
