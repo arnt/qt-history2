@@ -73,7 +73,8 @@ the directories where you choose to install Qt.
     to get a list of configuration options. Read PLATFORMS for a
     list of supported platforms.
 
-    To create the library and compile all the demoes, type:
+    To create the library and compile all the demos, examples, tools
+    and tutorials type:
 
 	make
 

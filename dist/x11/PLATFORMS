@@ -5,8 +5,24 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  linux-g++
+  aix-g++
+  aix-xlc
+  aix-xlc-64
   freebsd-g++
+  freebsd-icc
+  hpux-acc
+  hpux-g++
+  irix-cc
+  irix-cc-64
+  irix-g++
+  linux-ecc-64
+  linux-g++
+  linux-icc
+  solaris-cc
+  solaris-cc-64
+  solaris-g++
+  solaris-g++-64
+  tru64-g++
 
 Compilation problems:
 

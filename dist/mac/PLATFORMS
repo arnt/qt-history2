@@ -5,7 +5,7 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  macx-g++ (Mac OS X 10.3, may also work on 10.2)
+  macx-g++ (Mac OS X 10.3, should also work on 10.2)
 
 Compilation problems:
 

@@ -6,6 +6,8 @@ are using.
 
 Supported platforms and compilers:
 
+  win32-g++
+  win32-icc
   win32-msvc
   win32-msvc.net
 
