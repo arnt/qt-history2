@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/frame.cpp#11 $
+** $Id: //depot/qt/main/examples/demo/frame.cpp#12 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -117,7 +117,7 @@ Frame::Frame( QWidget *parent, const char *name )
 
     QStringList list = QStyleFactory::styles();
     list.sort();
-    QDict<int> stylesDict;
+    QDict<int> stylesDict( 17, FALSE );
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	QString style = *it;
 	QString styleAccel = style;
