@@ -100,7 +100,8 @@
         Since the Qt library has been split into several smaller
         libraries, a \c{QT} entry needs to be added to the \c .pro
         file depending on witch classes are used. The
-        \c compat library is added if it's not already specified.
+        \l{qt3support.html}{qt3support} library is added if it's not
+        already specified.
 
     \o  \e{Porting of designer \c .ui files is incomplete and might require
 	some manual work.}

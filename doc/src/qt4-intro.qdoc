@@ -304,13 +304,13 @@
     To enable the Qt 3 support classes and functions, add the line
 
     \code
-        QT += compat
+        QT += qt3support
     \endcode
 
     to your \c .pro file.
 
-    On Visual C++ 7 and GCC 3.2+, using compatibility function results in
-    a compiler warning (e.g., "'find' is deprecated"). If you want to turn
+    On Visual C++ 7 and GCC 3.2+, using compatibility functions often results
+    in a compiler warning (e.g., "'find' is deprecated"). If you want to turn
     off that warning, add the line
 
     \code
