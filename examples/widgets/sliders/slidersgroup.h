@@ -23,7 +23,7 @@ public slots:
     void setMinimum(int value);
     void setMaximum(int value);
     void invertAppearance(bool invert);
-    void invertControls(bool invert);
+    void invertKeyBindings(bool invert);
 
 private:
     QDial *dial;

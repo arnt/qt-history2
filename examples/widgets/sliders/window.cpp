@@ -76,9 +76,9 @@ void Window::createControls(const QString &title)
     connect(invertedAppearance, SIGNAL(toggled(bool)),
             verticalSliders, SLOT(invertAppearance(bool)));
     connect(invertedKeyBindings, SIGNAL(toggled(bool)),
-            horizontalSliders, SLOT(invertControls(bool)));
+            horizontalSliders, SLOT(invertKeyBindings(bool)));
     connect(invertedKeyBindings, SIGNAL(toggled(bool)),
-            verticalSliders, SLOT(invertControls(bool)));
+            verticalSliders, SLOT(invertKeyBindings(bool)));
 
     QGridLayout *controlsLayout = new QGridLayout(controlsGroup);
     controlsLayout->addWidget(minimumLabel, 0, 0);

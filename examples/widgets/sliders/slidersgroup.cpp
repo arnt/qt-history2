@@ -61,7 +61,7 @@ void SlidersGroup::invertAppearance(bool invert)
     dial->setInvertedAppearance(invert);
 }
 
-void SlidersGroup::invertControls(bool invert)
+void SlidersGroup::invertKeyBindings(bool invert)
 {
     slider->setInvertedControls(invert);
     scrollBar->setInvertedControls(invert);
