@@ -535,8 +535,6 @@ bool QTextBrowser::focusNextPrevChild(bool next)
 {
     Q_D(QTextBrowser);
 
-    qDebug() << "QTextBrowser::focusNextPrevChild(" << next << ")";
-
     if (!d->readOnly)
         return false;
 
@@ -554,17 +552,18 @@ bool QTextBrowser::focusNextPrevChild(bool next)
     int anchorEnd = -1;
 
     if (next) {
-        int startPos = d->focusIndicator.selectionEnd();
+        const int startPos = d->focusIndicator.selectionEnd();
+
         QTextBlock block = d->doc->findBlock(startPos);
+        QTextBlock::Iterator it = block.begin();
+
+        while (!it.atEnd() && it.fragment().position() < startPos)
+            ++it;
 
         while (block.isValid()) {
             anchorStart = -1;
 
-            QTextBlock::Iterator it = block.begin();
-
-            while (!it.atEnd() && it.fragment().position() < startPos)
-                ++it;
-
+            // find next anchor
             for (; !it.atEnd(); ++it) {
                 const QTextFragment fragment = it.fragment();
                 const QTextCharFormat fmt = fragment.charFormat();
@@ -578,6 +577,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
             if (anchorStart != -1) {
                 anchorEnd = -1;
 
+                // find next non-anchor fragment
                 for (; !it.atEnd(); ++it) {
                     const QTextFragment fragment = it.fragment();
                     const QTextCharFormat fmt = fragment.charFormat();
@@ -591,11 +591,12 @@ bool QTextBrowser::focusNextPrevChild(bool next)
                 if (anchorEnd == -1)
                     anchorEnd = block.position() + block.length() - 1;
 
+                // make found selection
                 break;
             }
 
             block = block.next();
-            startPos = block.position();
+            it = block.begin();
         }
     } else {
         int startPos = d->focusIndicator.selectionStart();
@@ -603,15 +604,18 @@ bool QTextBrowser::focusNextPrevChild(bool next)
             --startPos;
 
         QTextBlock block = d->doc->findBlock(startPos);
+        QTextBlock::Iterator blockStart = block.begin();
+        QTextBlock::Iterator it = block.end();
+
+        do {
+            if (it == blockStart)
+                it = QTextBlock::Iterator();
+            else
+                --it;
+        } while (!it.atEnd() && it.fragment().position() + it.fragment().length() - 1 > startPos);
 
         while (block.isValid()) {
             anchorStart = -1;
-
-            const QTextBlock::Iterator blockStart = block.begin();
-            QTextBlock::Iterator it = blockStart;
-
-            while (!it.atEnd() && it.fragment().position() < startPos)
-                ++it;
 
             if (!it.atEnd()) {
                 do {
@@ -619,7 +623,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
                     const QTextCharFormat fmt = fragment.charFormat();
 
                     if (fmt.isAnchor() && fmt.hasProperty(QTextFormat::AnchorHref)) {
-                        anchorStart = fragment.position();
+                        anchorStart = fragment.position() + fragment.length();
                         break;
                     }
 
@@ -638,7 +642,7 @@ bool QTextBrowser::focusNextPrevChild(bool next)
                     const QTextCharFormat fmt = fragment.charFormat();
 
                     if (!fmt.isAnchor()) {
-                        anchorEnd = fragment.position();
+                        anchorEnd = fragment.position() + fragment.length();
                         break;
                     }
 
@@ -649,19 +653,19 @@ bool QTextBrowser::focusNextPrevChild(bool next)
                 } while (!it.atEnd());
 
                 if (anchorEnd == -1)
-                    anchorEnd = qMax(0, block.position() - 1);
+                    anchorEnd = qMax(0, block.position());
 
                 break;
             }
 
             block = block.previous();
-            startPos = block.position() + block.length() - 1;
+            it = block.end(); --it;
+            blockStart = block.begin();
         }
 
     }
 
     if (anchorStart != -1 && anchorEnd != -1) {
-        qDebug() << "anchorStart" << anchorStart << "anchorEnd" << anchorEnd;
         d->focusIndicator.setPosition(anchorStart);
         d->focusIndicator.setPosition(anchorEnd, QTextCursor::KeepAnchor);
     } else {
