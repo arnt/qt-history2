@@ -1527,7 +1527,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     p.setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = (d->cursorOn && d->viewport->hasFocus());
+    ctx.showCursor = (d->cursorOn && d->viewport->hasFocus() && isEnabled());
     ctx.cursor = d->cursor;
     ctx.palette = palette();
     ctx.rect = r;
