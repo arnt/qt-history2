@@ -1,10 +1,16 @@
 TEMPLATE = lib
-TARGET 	 = qmotif
+TARGET   = qmotif
+CONFIG  += qt x11
 
-CONFIG  -= dll
-CONFIG  += qt release x11 staticlib
+dll:contains(QT_PRODUCT, qt-internal) {
+	CONFIG -= staticlib
+ 	CONFIG += dll
+} else {
+	CONFIG -= dll
+	CONFIG += staticlib
+}
 DESTDIR  = ../../../lib
-VERSION  = 0.0.0
+VERSION  = 4.0.0
 LIBS    += -lXm -lXt
 
 DESTINCDIR = ../../../include
