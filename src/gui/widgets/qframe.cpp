@@ -415,7 +415,7 @@ QRect QFrame::frameRect() const
 
 void QFrame::setFrameRect(const QRect &r)
 {
-    QRect cr = r;
+    QRect cr = r.isValid() ? r : rect();
     cr.adjust(d->frameWidth, d->frameWidth, -d->frameWidth, -d->frameWidth);
     setContentsMargins(cr.left(), cr.top(), rect().right() - cr.right(), rect().bottom() - cr.bottom());
 }
