@@ -1347,6 +1347,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         levels[i] = eng->layoutData->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
+    QRectF outlineRect;
+
     QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
@@ -1374,10 +1376,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                         p->fillRect(itemRect, bg);
                     }
                     int outline = format.intProperty(QTextFormat::OutlineWidth);
-                    if (outline) {
-                        p->setPen(QPen(Qt::black, 1, Qt::DotLine));
-                        p->drawRect(itemRect);
-                    }
+                    if (outline)
+                        outlineRect = outlineRect.unite(itemRect);
                 }
                 p->restore();
             }
@@ -1444,10 +1444,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
             QRectF rect(x + soff, y - line.ascent, swidth, line.height());
             int outline = selection->format.intProperty(QTextFormat::OutlineWidth);
-            if (outline) {
-                p->setPen(QPen(Qt::black, 1, Qt::DotLine));
-                p->drawRect(rect);
-            }
+            if (outline)
+                outlineRect = outlineRect.unite(rect);
             p->save();
             p->setClipRect(rect);
         }
@@ -1492,6 +1490,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
         x += gf.width;
     }
+
+    if (outlineRect.isValid()) {
+        p->setPen(QPen(Qt::black, 1, Qt::DotLine));
+        p->drawRect(outlineRect);
+    }
+
     p->setPen(pen);
 }
 
