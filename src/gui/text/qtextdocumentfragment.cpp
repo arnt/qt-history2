@@ -269,6 +269,20 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         appendText(QConstString(originalText.constData() + position, size), formatIdx);
         pos += size;
 
+        if (size == remainingBlockLen && pos < endPos) {
+            ++currentBlock;
+            ++pos;
+
+            const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
+            const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
+
+            usedFormats << blockFormat << charFormat;
+
+            appendBlock(blockFormat, charFormat);
+
+            remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+        }
+
         ++currentFragment;
     }
 
