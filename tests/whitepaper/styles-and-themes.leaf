@@ -76,26 +76,19 @@ raw rectangles directly.
 
 \section1 Custom Styles
 
-  \index Ericsson
-  \index Webphone
-
 Custom styles are used to provide a distinct look to an application
-or family of applications. For example, Ericsson created their own
-style for their Qt/Embedded Webphone.
+or family of applications. Custom styles can be defined by
+subclassing \Class QStyle, \Class QCommonStyle or any other
+descendent of \Class QCommonStyle. It is easy to make small
+modifications to existing styles by reimplementing one or two virtual
+functions from the appropriate base class.
 
-  \img ericsson-style.png Ericsson's Webphone
-
-Custom styles can be defined by subclassing \Class QStyle, \Class
-QCommonStyle or any other descendent of \Class QCommonStyle. It is
-easy to make small modifications to existing styles by reimplementing
-one or two virtual functions from the appropriate base class.
-
-\Image qstyle-diag
-\caption The full \Class QStyle class hierarchy
+  \img qstyle-diag.png
+  \caption The full \Class QStyle class hierarchy
 
 An application's style can be set like this:
 \code
-    QApplication::setStyle( new MyCustomStyle() );
+    QApplication::setStyle( new MyCustomStyle );
 \endcode
 
   \index Designer

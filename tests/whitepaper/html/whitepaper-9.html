@@ -21,15 +21,13 @@
 <h3><a name="2"></a>Style-aware Widgets</h3>
 <p>Qt's built-in widgets are style aware. Custom widgets and dialogs are almost always combinations of built-in widgets and layouts, and are automatically style aware. On the rare occasions when it is necessary to write a custom widget from scratch, developers can use <font color=darkblue><b>QStyle</b></font> to draw primitive user-interface elements rather than drawing raw rectangles directly.</p>
 <h3><a name="3"></a>Custom Styles</h3>
-<!-- index Ericsson --><!-- index Webphone --><p>Custom styles are used to provide a distinct look to an application or family of applications. For example, Ericsson created their own style for their Qt/Embedded Webphone.</p>
-<p align="center"><img align="middle" src="ericsson-style.png" alt="Ericsson's Webphone">
+<p>Custom styles are used to provide a distinct look to an application or family of applications. Custom styles can be defined by subclassing <font color=darkblue><b>QStyle</b></font>, <font color=darkblue><b>QCommonStyle</b></font> or any other descendent of <font color=darkblue><b>QCommonStyle</b></font>. It is easy to make small modifications to existing styles by reimplementing one or two virtual functions from the appropriate base class.</p>
+<p align="center"><img align="middle" src="qstyle-diag.png">
 </p>
-<p>Custom styles can be defined by subclassing <font color=darkblue><b>QStyle</b></font>, <font color=darkblue><b>QCommonStyle</b></font> or any other descendent of <font color=darkblue><b>QCommonStyle</b></font>. It is easy to make small modifications to existing styles by reimplementing one or two virtual functions from the appropriate base class.</p>
-<p><center><img src= qstyle-diag.png ></center></p>
 <blockquote><p align="center"><em>The full <font color=darkblue><b>QStyle</b></font> class hierarchy</em></p></blockquote>
 <p>An application's style can be set like this:</p>
 <pre>
-    QApplication::setStyle( new MyCustomStyle() );
+    QApplication::setStyle( new MyCustomStyle );
 </pre>
 <!-- index Designer --><!-- index Qt Designer --><!-- index plugins --><p>A style can also be compiled as a plugin. Plugins make it possible to preview a form in a custom style in <a href="whitepaper-5.html">Qt Designer</a> without recompiling Qt or <a href="whitepaper-5.html">Qt Designer</a>. The style of an existing Qt application can be changed using a style plugin without recompiling the application.</p>
 <p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/customstyle.html>http://doc.trolltech.com/3.0/customstyle.html</a> </ul></p>

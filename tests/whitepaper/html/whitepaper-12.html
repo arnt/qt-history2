@@ -9,7 +9,7 @@
 <p align="right">[<a href="whitepaper-11.html">Prev: Events</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-13.html">Next: Collection Classes</a>]</p>
 <h2 align="center">Input/Output and Networking</h2>
 <blockquote>
-<p>###</p>
+<p>Qt can load and save data in plain text, XML and binary format. Qt handles local files using its own classes, and remote files using the FTP and HTTP protocols. Inter-process communication and socket-based TCP and UDP networking are also fully supported.</p>
 </blockquote>
 <h3><a name="1"></a>Input/Output</h3>
 <!-- index Unicode --><!-- index binary serialization --><!-- index input/output --><!-- index serialization --><p>Qt provides classes to perform advanced I/O on multiple platforms. The <font color=darkblue><b>QTextStream</b></font> class has a similar interface to the standard <tt>&lt;iostream&gt;</tt> classes, and supports the encodings provided by <font color=darkblue><b>QTextCodec</b></font>. The <font color=darkblue><b>QDataStream</b></font> class is used to serialize the basic C++ types and many Qt types in a platform-independent binary format. For example, the following code writes a Unicode string, a font and a color to the file <tt>splash.dat</tt>:</p>
