@@ -319,6 +319,16 @@ png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)
     image.setDotsPerMeterX(png_get_x_pixels_per_meter(png_ptr,info_ptr));
     image.setDotsPerMeterY(png_get_y_pixels_per_meter(png_ptr,info_ptr));
 
+#ifndef QT_NO_IMAGE_TEXT
+    png_textp text_ptr;
+    int num_text=0;
+    png_get_text(png_ptr,info_ptr,&text_ptr,&num_text);
+    while (num_text--) {
+	image.setText(text_ptr->key,0,text_ptr->text);
+	text_ptr++;
+    }
+#endif
+
     delete [] row_pointers;
 
     iio->setImage(image);
