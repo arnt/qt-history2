@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#83 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#83 $");
 
 
 /*!
@@ -310,8 +310,7 @@ void QMenuBar::accelActivated( int id )
 	return;
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabled() ) {
-	actItem = indexOf( id );
-	repaint( FALSE );
+	setActItem( indexOf( id ), FALSE );
 	QPopupMenu *popup = mi->popup();
 	if ( popup ) {
 	    emit highlighted( mi->id() );
@@ -327,8 +326,7 @@ void QMenuBar::accelActivated( int id )
 	    if ( focusWidget() )
 		focusWidget()->setFocus();
 	    windowsaltactive = 0;
-	    actItem = -1;
-	    repaint( FALSE );
+	    setActItem( -1, FALSE );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    emit activated( mi->id() );
@@ -378,9 +376,8 @@ void QMenuBar::goodbye()
     if ( focusWidget() )
 	focusWidget()->setFocus();
     windowsaltactive = 0;
-    actItem = -1;
+    setActItem( -1, FALSE );
     mouseBtDn = FALSE;
-    repaint( FALSE );
 }
 
 
@@ -667,9 +664,6 @@ void QMenuBar::drawContents( QPainter *p )
     GUIStyle gs = style();
     bool e;
 
-    p->setClipRect( frameWidth(), frameWidth(),
-		    width() - 2*frameWidth(), height() - 2*frameWidth() );
-
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	if ( mi->text() || mi->pixmap() ) {
@@ -729,14 +723,12 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	if ( focusWidget() )
 	    focusWidget()->setFocus();
 	windowsaltactive = 0;
-	actItem = -1;
-	repaint( FALSE );
+	setActItem( -1, FALSE );
 	return;
     }
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item highlighted
-	actItem = item;
-	repaint( FALSE );
+	setActItem( item, FALSE );
 	emit highlighted( mi->id() );
     }
 
@@ -770,15 +762,13 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	if ( focusWidget() )
 	    focusWidget()->setFocus();
 	windowsaltactive = 0;
-	actItem = -1;
+	setActItem( -1, TRUE );
 	hidePopups();
-	repaint();
 	return;
     }
     if ( actItem == -1 || item != actItem )	// ignore mouse release
 	return;
-    actItem = item;
-    repaint( FALSE );
+    setActItem( item, FALSE );
     if ( actItem >= 0 ) {			// selected a menu item
 	QMenuItem  *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
@@ -789,8 +779,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	    if ( focusWidget() )
 		focusWidget()->setFocus();
 	    windowsaltactive = 0;
-	    actItem = -1;
-	    repaint( FALSE );
+	    setActItem( -1, FALSE );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    emit activated( mi->id() );
@@ -815,8 +804,7 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	return;
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item activated
-	actItem = item;
-	repaint( FALSE );
+	setActItem( item, FALSE );
 	hidePopups();
 	emit highlighted( mi->id() );
 	if ( mi->popup() && mi->isEnabled() )
@@ -866,8 +854,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	if ( focusWidget() )
 	    focusWidget()->setFocus();
 	windowsaltactive = 0;
-	actItem = -1;
-	repaint( FALSE );
+	setActItem( -1, FALSE );
 	break;
     }
 
@@ -889,8 +876,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		break;
 	}
 	if ( i != actItem ) {
-	    actItem = i;
-	    repaint( FALSE );
+	    setActItem( i, FALSE );
 	    if ( !windowsaltactive ) {
 		hidePopups();
 		popup = mi->popup();
@@ -918,4 +904,35 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
   
     badSize = TRUE;
     calculateRects();
+}
+
+
+/*!  Set actItem to \a i and repaint( \a clear ).
+
+  Takes care to optimize the repainting.  Assumes that
+  calculateRects() has been called as appropriate.
+*/
+
+void QMenuBar::setActItem( int i, bool clear )
+{
+    if ( i == actItem )
+	return;
+
+    if ( i < 0 || actItem < 0 ) {
+	// just one item needs repainting
+	int n = QMAX( actItem, i );
+	actItem = i;
+	repaint( irects[n], clear );
+    } else if ( QABS(i-actItem) == 1 ) {
+	// two neighbouring items need repainting
+	int o = actItem;
+	actItem = i;
+	repaint( irects[i].unite( irects[o] ), clear );
+    } else {
+	// two non-neighbouring items need repainting
+	int o = actItem;
+	actItem = i;
+	repaint( irects[o], clear );
+	repaint( irects[i], clear );
+    }
 }
