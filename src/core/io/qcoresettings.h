@@ -33,10 +33,8 @@ public:
                     QObject *parent = 0);
     QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
                     QObject *parent = 0);
-#ifndef QT_BUILD_QMAKE
      // qmake doesn't link against QCoreApplication, which this constructor needs
      QCoreSettings(QObject *parent = 0);
-#endif
     ~QCoreSettings();
 
     void clear();

@@ -1821,8 +1821,6 @@ QCoreSettings::QCoreSettings(const QString &fileName, Qt::SettingsFormat format,
 {
 }
 
-#ifndef QT_BUILD_QMAKE
-// qmake doesn't link against QCoreApplication, which this constructor needs
 /*!
     Constructs a QCoreSettings object for accessing settings of the
     application and organization set previously with a call to
@@ -1855,7 +1853,6 @@ QCoreSettings::QCoreSettings(QObject *parent)
                 parent)
 {
 }
-#endif
 
 /*!
     Destroys the QCoreSettings object. Any unsaved changes will be
