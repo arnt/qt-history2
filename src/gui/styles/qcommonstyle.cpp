@@ -1087,6 +1087,12 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             } else {
                 QColor btext = toolbutton->palette.foreground().color();
 
+                // remove the space used for the menu button when
+                // positioning the text label and/or icon
+                if (toolbutton->features & QStyleOptionToolButton::Menu)
+                    rect.addCoords(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
+                                                      toolbutton, widget), 0);
+
                 if (toolbutton->icon.isNull() && !toolbutton->text.isEmpty()
                     || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
