@@ -110,7 +110,7 @@
   The private object.
  *****************************************************************************/
 
-static QAsciiDict<QtStaticMetaObjectFunction> *qt_metaobjects = 0;
+static QMap<QCString,QtStaticMetaObjectFunction> *qt_metaobjects = 0;
 
 class QMetaObjectPrivate
 {
@@ -769,9 +769,9 @@ QMetaObject *QMetaObject::metaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
 	return 0;
-    QtStaticMetaObjectFunction *func = qt_metaobjects->find( class_name );
+    QtStaticMetaObjectFunction func = (*qt_metaobjects)[ class_name ];
     if ( func )
-	return (*func)();
+	return func();
     return 0;
 }
 
@@ -780,7 +780,7 @@ bool QMetaObject::hasMetaObject( const char *class_name )
 {
     if ( !qt_metaobjects )
 	return FALSE;
-    return !!qt_metaobjects->find( class_name );
+    return qt_metaobjects->contains( class_name );
 }
 
 #ifndef QT_NO_PROPERTIES
@@ -1133,8 +1133,8 @@ QMetaObjectCleanUp::QMetaObjectCleanUp( const char *mo_name, QtStaticMetaObjectF
     : metaObject( 0 )
 {
     if ( !qt_metaobjects )
-	qt_metaobjects = new QAsciiDict<QtStaticMetaObjectFunction>( 257 );
-    qt_metaobjects->insert( mo_name, &func );
+	qt_metaobjects = new QMap<QCString,QtStaticMetaObjectFunction>;
+    (*qt_metaobjects)[ mo_name ] = func;
 }
 
 QMetaObjectCleanUp::QMetaObjectCleanUp()
