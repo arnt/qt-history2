@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#86 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#86 $");
 
 
 /*****************************************************************************
@@ -276,11 +276,13 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-static void msgHandler( QtMsgType, const char *str )
+static void msgHandler( QtMsgType t, const char *str )
 {
     QString s = str;
     s += "\n";
     OutputDebugString( s.data() );
+    if ( t == QtFatalMsg )
+	ExitProcess( 1 );
 }
 
 
