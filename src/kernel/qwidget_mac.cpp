@@ -281,7 +281,8 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		QPoint g(widget->x(), widget->y());
 		int offx = 0, offy = 0;
 		QRegion rpm = widget->extra->mask;
-		if(widget->testWFlags(Qt::WStyle_Customize) && widget->testWFlags(Qt::WStyle_NoBorder)) {
+		if(widget->testWFlags(Qt::WStyle_Customize) && 
+		   widget->testWFlags(Qt::WStyle_NoBorder)) {
 		    QPoint rpm_tl = rpm.boundingRect().topLeft();
 		    offx = rpm_tl.x();
 		    offy = rpm_tl.y();
@@ -308,7 +309,8 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    if(widget->extra && !widget->extra->mask.isNull()) {
 		QRegion cr = widget->extra->mask;
 		QPoint g(widget->x(), widget->y());
-		if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
+		if(!widget->testWFlags(Qt::WStyle_Customize) || 
+		   !widget->testWFlags(Qt::WStyle_NoBorder)) {
 		    Rect title_r;
 		    RgnHandle rgn = qt_mac_get_rgn();
 		    GetWindowRegion((WindowPtr)widget->handle(), kWindowTitleBarRgn, rgn);
@@ -414,7 +416,7 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	   some of the area (usually offscreen) isn't actually processed
 	   here even though it is dirty, so for now this is mac9 only */
 	QRegion reg;
-	CopyRgn(rgn, reg.handle(TRUE)); 
+	CopyRgn(rgn, reg.handle(TRUE));
 	{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
@@ -467,7 +469,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     } else {
 	if(QDesktopWidget *dsk = QApplication::desktop()) {
 	    int d = dsk->primaryScreen();
-	    if(parentWidget() && !parentWidget()->isDesktop()) 
+	    if(parentWidget() && !parentWidget()->isDesktop())
 		d = dsk->screenNumber(parentWidget());
 	    dskr = dsk->screenGeometry(d);
 	}
@@ -485,7 +487,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( dialog || popup || desktop ) {          // these are top-level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
-	if ( popup ) 
+	if ( popup )
 	    setWFlags(WStyle_Tool); // a popup is a tool window
     }
     if ( topLevel && parentWidget() ) {
@@ -544,7 +546,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kFloatingWindowClass;
-		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass ) 
+		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass )
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
@@ -558,9 +560,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		}
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
-		if( testWFlags( WStyle_Minimize ) ) 
+		if( testWFlags( WStyle_Minimize ) )
 		    wattr |= kWindowCollapseBoxAttribute;
-		if( testWFlags( WStyle_Title ) || testWFlags( WStyle_SysMenu ) ) 
+		if( testWFlags( WStyle_Title ) || testWFlags( WStyle_SysMenu ) )
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
@@ -571,7 +573,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	qDebug("%ld", macos_version);
 #endif
 	wattr |= kWindowLiveResizeAttribute;
-	if(popup || testWFlags(WStyle_Tool) || 
+	if(popup || testWFlags(WStyle_Tool) ||
 	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wattr |= kWindowNoActivatesAttribute;
 #ifdef QMAC_USE_WDEF
@@ -580,20 +582,20 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wds.defType = kWindowDefProcPtr;
 	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
 	    CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id);
-	} else 
+	} else
 #endif
 	{
 	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	    if(!desktop) { 	//setup an event callback handler on the window
-		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(), 
+		InstallWindowEventHandler((WindowRef)id, make_win_eventUPP(),
 					  GetEventTypeCount(window_events),
 					  window_events, (void *)qApp, &window_event);
 	    }
 	}
 
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
-	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute | 
+	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
 #ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
@@ -609,7 +611,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 #endif
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
-	if(testWFlags( WType_Popup ) || testWFlags( WStyle_Tool ) ) 
+	if(testWFlags( WType_Popup ) || testWFlags( WStyle_Tool ) )
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
 	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)
@@ -1015,7 +1017,7 @@ void QWidget::grabMouse( const QCursor & )
 void QWidget::releaseMouse()
 {
     if ( !qt_nograb() && mac_mouse_grabber == this )
-	mac_mouse_grabber = NULL;	
+	mac_mouse_grabber = NULL;
 }
 
 void QWidget::grabKeyboard()
@@ -1110,7 +1112,7 @@ void QWidget::showWindow()
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 #if defined( Q_WS_MACX ) && 0 //handle transition
-	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal)) 
+	if(qApp->style().inherits("QAquaStyle") && parentWidget() && testWFlags(WShowModal))
 	    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd,
 				      kWindowSheetTransitionEffect,
 				      kWindowShowTransitionAction, NULL);
@@ -1137,13 +1139,13 @@ void QWidget::hideWindow()
 	    if(parentWidget())
 		w = parentWidget()->topLevelWidget();
 	    if(!w || !w->isVisible()) {
-		for(WindowPtr wp = GetFrontWindowOfClass(kDocumentWindowClass, true); 
+		for(WindowPtr wp = GetFrontWindowOfClass(kDocumentWindowClass, true);
 		    wp; wp = GetNextWindowOfClass(wp, kDocumentWindowClass, true)) {
 		    if((w = QWidget::find( (WId)wp )))
 			break;
 		}
 	    }
-	    if(w && w->isVisible()) 
+	    if(w && w->isVisible())
 		w->setActiveWindow();
 	}
     } else if(isVisible()) {
@@ -1210,7 +1212,7 @@ void QWidget::showMaximized()
 	qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
 	QRect orect(geometry().x(), geometry().y(), width(), height());
-	crect.setRect( bounds.left, bounds.top, bounds.right - bounds.left, 
+	crect.setRect( bounds.left, bounds.top, bounds.right - bounds.left,
 		       bounds.bottom - bounds.top );
 
 	if(isVisible()) {
@@ -1368,7 +1370,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    SetRect(&r, x, y, x + w, y + h);
 	    SetWindowBounds((WindowPtr)hd, kWindowContentRgn, &r);
 	} else {
-	    if(isResize) 
+	    if(isResize)
 		SizeWindow((WindowPtr)hd, w, h, 1);
 	    if(isMove)
 		MoveWindow((WindowPtr)hd, x, y, 1);
@@ -1395,7 +1397,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    if(!EmptyRgn(r)) {
 			QRegion dirty; //the dirty region
 			CopyRgn(r, dirty.handle(TRUE));
-			dirty.translate(-topLevelWidget()->geometry().x(), 
+			dirty.translate(-topLevelWidget()->geometry().x(),
 					-topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
 			    dirty.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
@@ -1803,6 +1805,9 @@ void QWidget::propagateUpdates()
     }
 }
 
+/*!
+    \internal
+*/
 void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(dirty_myself) {
@@ -1874,6 +1879,9 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     }
 }
 
+/*!
+    \internal
+*/
 bool QWidget::isClippedRegionDirty()
 {
     if(!extra || extra->clip_dirty)
@@ -1884,6 +1892,9 @@ bool QWidget::isClippedRegionDirty()
 }
 
 #ifndef QMAC_NO_QUARTZ
+/*!
+    \internal
+*/
 CGContextRef QWidget::macCGContext(bool do_children) const
 {
     QWidget *that = (QWidget*)this;
@@ -1905,11 +1916,17 @@ CGContextRef QWidget::macCGContext(bool do_children) const
 }
 #endif
 
+/*!
+    \internal
+*/
 uint QWidget::clippedSerial(bool do_children)
 {
     return do_children ? extra->child_serial : extra->clip_serial;
 }
 
+/*!
+    \internal
+*/
 QRegion QWidget::clippedRegion(bool do_children)
 {
     //the desktop doesn't participate in our clipping games

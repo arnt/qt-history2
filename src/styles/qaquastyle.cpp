@@ -2040,6 +2040,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 //kThemeBrush[Primary|Secondary]HighlightColor in Appearance.h
 #define MAC_ACTIVE_HIGHLIGHT_COLOR -3
 #define MAC_INACTIVE_HIGHLIGHT_COLOR -4
+/*!
+    \internal
+*/
 void QAquaStyle::appearanceChanged()
 {
     bool changed = FALSE;

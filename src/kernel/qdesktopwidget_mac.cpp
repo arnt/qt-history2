@@ -3,7 +3,7 @@
 **
 ** Implementation of QDesktopWidget class.
 **
-** Created : 
+** Created :
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
