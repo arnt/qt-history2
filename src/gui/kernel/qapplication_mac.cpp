@@ -434,12 +434,9 @@ void qt_mac_update_os_settings()
             { "QTipLabel", kThemeSmallSystemFont },
             { "QMessageBoxLabel", kThemeEmphasizedSystemFont },
             { "QLabel", kThemeSystemFont },
-            { "QCheckBox", kThemeSystemFont },
-            { "QRadioButton", kThemeSystemFont },
             { "QToolButton", kThemeSmallSystemFont },
             { "QMenuItem", kThemeMenuItemCmdKeyFont },  // It doesn't exist, but its unique.
             { "QComboLineEdit", kThemeViewsFont },  // It doesn't exist, but its unique.
-            { "QGroupBox", kThemeSmallSystemFont },
             { 0, 0 } };
         Str255 f_name;
         SInt16 f_size;
