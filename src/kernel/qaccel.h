@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#12 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#13 $
 **
 ** Definition of QAccel class
 **
@@ -73,7 +73,7 @@ private:
 };
 
 
-bool QAccel::isEnabled() const
+inline bool QAccel::isEnabled() const
 {
     return enabled;
 }
