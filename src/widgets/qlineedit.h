@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#62 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#63 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -73,7 +73,10 @@ public:
     void	cut();
     void	copy() const;
     void	paste();
-
+    
+    void setAlignment(int flag);
+    int alignment() const;
+    
 public slots:
     virtual void	setText( const QString &);
     void	selectAll();
@@ -146,6 +149,8 @@ private:
     bool	cursorOn;
     bool	dragScrolling;
     bool	scrollingLeft;
+    int alignmentFlag;
+    int alignOffset;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

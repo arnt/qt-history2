@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#165 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#166 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -166,6 +166,8 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
+    alignmentFlag = Qt::AlignLeft;
+    alignOffset = 0;
     //setAcceptDrops( TRUE );
 }
 
@@ -206,6 +208,7 @@ void QLineEdit::setText( const QString &text )
     if ( validator() )
 	(void)validator()->validate( tbuf, cursorPos );
     d->pmDirty = TRUE;
+
     repaint( FALSE );
     if ( oldText != tbuf )
 	emit textChanged( tbuf );
@@ -512,6 +515,7 @@ void QLineEdit::leaveEvent( QEvent * )
 
 void QLineEdit::paintEvent( QPaintEvent *e )
 {
+
     if ( !d->pm || d->pmDirty ) {
 	if ( !d->pm )
 	    d->pm = new QPixmap( size() );
@@ -547,7 +551,27 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
 	int ypos = height() - margin - fm.descent() - 1 -
 		   (height() - 2*margin - fm.height())/2;
-
+	
+	
+	// alignment code comes here - a bit yucky but it works
+	int w = fm.width(tbuf);
+	if ( !(alignmentFlag & AlignLeft) && w < width()-margin-margin-2) {
+	    // no scrolling, alignment possible
+	    if (alignmentFlag == AlignRight)
+		alignOffset = width()-margin-margin-2-w;
+	    else if (alignmentFlag == AlignCenter)
+		    alignOffset = (width()-margin-margin-w-2)/2;
+	    if (offset) {
+		offset = 0;
+		p.end();
+		repaint( FALSE );
+		return;
+	    }
+	}
+	else
+	    alignOffset = 0;
+	
+	
 	if ( !displayText.isEmpty() ) {
 	    int charsVisible = lastCharVisible() - offset;
 	    if ( displayText[ charsVisible ] != '\0' )
@@ -573,10 +597,13 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 		mark2 = 0;
 	    }
 
+		
 	    // display code comes here - a bit yucky but it works
+	
+	
 	    if ( mark1 != mark2 ) {
 		QString marked( displayText.mid( mark1, mark2 - mark1 ) );
-		int xpos1 =  margin + 2 + fm.width( displayText, mark1 );
+		int xpos1 =  alignOffset + margin + 2 + fm.width( displayText, mark1 );
 		int xpos2 =  xpos1 + fm.width( marked ) - 1;
 		p.fillRect( xpos1, ypos - fm.ascent(),
 			    xpos2 - xpos1, fm.height(),
@@ -588,17 +615,17 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	    }
 	    p.setPen( g.text() );
 	    if ( mark1 != 0 )
-		p.drawText( margin + 2, ypos, displayText, mark1 );
+		p.drawText( alignOffset + margin + 2, ypos, displayText, mark1 );
 	    if ( mark2 != charsVisible ) {
 		QString rest( displayText.mid( mark2, charsVisible - mark2 ) );
-		p.drawText( margin + 2 + fm.width( displayText.left( mark2) ),
+		p.drawText( alignOffset + margin + 2 + fm.width( displayText.left( mark2) ),
 			    ypos, rest );
 	    }
 	}
 
 	p.setPen( g.foreground() );
 
-	int curXPos = margin + 2;
+	int curXPos = alignOffset + margin + 2;
 	if ( echoMode() != NoEcho )
 	    curXPos += offset > cursorPos ? -1 : // ?: for scrolling case
 			    fm.width( displayText, cursorPos - offset ) - 1;
@@ -678,7 +705,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     d->inDoubleClick = FALSE;
     int margin = frame() ? 4 : 2;
     cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
-					  e->pos().x() - margin,
+					  e->pos().x() - margin - alignOffset,
 					  width() - 2*margin );
     if ( e->button() == MidButton ) {
 #if defined(_WS_X11_)
@@ -745,7 +772,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	dragScrolling = FALSE;
 	int mousePos = offset + xPosToCursorPos( tbuf, offset,
 						 fontMetrics(),
-						 e->pos().x() - margin,
+						 e->pos().x() - margin - alignOffset,
 						 width() - margin - margin );
 	int m1 = markDrag;
 	newMark( mousePos, FALSE );
@@ -784,7 +811,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
     int mousePos = offset + xPosToCursorPos( tbuf, offset,
 					     fontMetrics(),
-					     e->pos().x() - margin,
+					     e->pos().x() - margin - alignOffset,
 					     width() - margin - margin );
     int m1 = markDrag;
     newMark( mousePos, FALSE );
@@ -1056,7 +1083,7 @@ void QLineEdit::copyText()
 
 
 /*! Copies the marked text to the clipboard, if there is any.
-  
+
   \sa cut() paste()
 */
 
@@ -1074,10 +1101,10 @@ void QLineEdit::copy() const
 
 /* Inserts the clipboard's text at the cursor position, deleting any
   previous marked text.
-   
+
   If the end result is not acceptable for the current validator,
   nothing happens.
-   
+
   \sa copy() cut()
 */
 
@@ -1089,10 +1116,10 @@ void QLineEdit::paste()
 /*!
   Copies the marked text to the clipboard and deletes it, if there is
   any.
-  
+
   If the current validator disallows deleting the marked text, cut()
   will copy it but not delete it.
-  
+
   \sa copy() paste()
 */
 
@@ -1105,6 +1132,29 @@ void QLineEdit::cut()
     }
 }
 
+/*!
+  Sets the alignment of the lineeditor. Possible Values are Qt::AlignLeft,
+  Qt::AlignRight and Qt::AlignCenter
+  '\sa alignment()
+*/
+void QLineEdit::setAlignment(int flag){
+    if (flag & Qt::AlignLeft && flag & Qt::AlignRight && flag & Qt::AlignHCenter)
+	flag = Qt::AlignLeft;
+    alignmentFlag = flag;
+    d->pmDirty = TRUE;
+    repaint( FALSE );
+}
+
+/*!
+  Returns the current alignment of the lineeditor. Possible Values are Qt::AlignLeft,
+  Qt::AlignRight and Qt::AlignCenter
+  '\sa setAlignment()
+*/
+
+int QLineEdit::alignment() const
+{
+    return alignmentFlag;
+}
 
 /*!
   This private slot is activated when this line edit owns the clipboard and
@@ -1395,8 +1445,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
 	minP = QMIN( minP, QMIN( cursorPos, minMark() ) );
 	maxP = QMAX( maxP, QMAX( cursorPos, maxMark() ) );
-	
-	if ( tbuf == t || tbuf == t.right( tbuf.length() ) ) {
+	if ( (alignmentFlag & AlignLeft) && (tbuf == t || tbuf == t.right( tbuf.length() ) ) ) {
 	    int i = 0;
 	    while( i < minP && t[i] == tbuf[i] )
 		i++;
@@ -1508,6 +1557,7 @@ void QLineEdit::repaintArea( int from, int to )
 
     int x1, x2;
     x1 = a > offset ? fm.width( tbuf.mid( offset, a-offset ) ) : 0;
+    x1 += alignOffset;
     x2 = x1 + (b > a ? fm.width( tbuf.mid( a, b-a ) ) : 0);
 
     x1 += margin - 3;
