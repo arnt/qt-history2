@@ -89,7 +89,7 @@ public:
     uint allowTabs : 1;
 };
 
-#ifdef QT_TEXTEDIT_OPTIMIZED
+#ifdef QT_TEXTEDIT_OPTIMIZATION
 class QTextEditOptimizedPrivate
 {
 public:
@@ -4614,7 +4614,7 @@ bool QTextEdit::allowTabs() const
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 /* Implementation of optimized ReadOnly, PlainText, NoWrap mode follows */
 
-bool QTextEdit::tryOptimizedMode()
+bool QTextEdit::checkOptimizedMode()
 {
     bool oldMode = optimizedMode;
     if ( isReadOnly() && textFormat() == PlainText && wordWrap() == NoWrap )
