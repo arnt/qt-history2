@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#52 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#53 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#53 $");
 
 
 /*!
@@ -165,6 +165,40 @@ bool QFile::exists( const char *fileName )
     ASSERT( fileName != 0 );
 #endif
     return ACCESS( fileName, F_OK ) == 0;
+}
+
+
+/*!
+  Removes the file specified by the file name currently set.
+  Returns TRUE if successful, otherwise FALSE.
+
+  The file is closed before it is removed.
+*/
+
+bool QFile::remove()
+{
+    close();
+    return remove( fn.data()  );
+}
+
+/*!
+  Removes the file \a fileName.
+  Returns TRUE if successful, otherwise FALSE.
+*/
+
+bool QFile::remove( const char *fileName )      // remove file
+{
+    if ( fileName == 0 || fileName[0] == '\0' ) {
+#if defined(CHECK_NULL)
+        warning( "QFile::remove: Empty or NULL file name" );
+#endif
+        return FALSE;
+    }
+#if defined(UNIX)
+    return unlink( fileName ) == 0;		// unlink more common in UNIX
+#else
+    return ::remove( fileName ) == 0;		// use standard ANSI remove
+#endif
 }
 
 

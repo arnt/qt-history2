@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#45 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#45 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -946,12 +946,8 @@ bool QDir::remove( const char *fileName, bool acceptAbsPath )
 #endif
 	return FALSE;
     }
-    QString tmp = filePath( fileName, acceptAbsPath );
-#if defined(UNIX)
-    return unlink( tmp ) == 0;			// unlink more common in UNIX
-#else
-    return ::remove( tmp ) == 0;		// use standard ANSI remove
-#endif
+    QString p = filePath( fileName, acceptAbsPath );
+    return QFile::remove( p );
 }
 
 /*!

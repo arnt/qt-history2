@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#20 $
+** $Id: //depot/qt/main/src/tools/qfile.h#21 $
 **
 ** Definition of QFile class
 **
@@ -31,6 +31,9 @@ public:
 
     bool	exists()   const;
     static bool exists( const char *fileName );
+
+    bool	remove();
+    static bool remove( const char *fileName );
 
     bool	open( int );
     bool	open( int, FILE * );
