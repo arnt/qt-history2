@@ -676,7 +676,12 @@ void QCommonStyle::drawControl( ControlElement element,
 		QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
 		int pixw = pixmap.width();
 		int pixh = pixmap.height();
-		p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
+		
+		//Center the icon if there is neither text nor pixmap
+		if ( button->text().isEmpty() && !button->pixmap() )
+		    p->drawPixmap( ir.x() + ir.width() / 2 - pixw / 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
+		else
+		    p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
 
 		ir.moveBy(pixw + 4, 0);
 		ir.setWidth(ir.width() - (pixw + 4));
