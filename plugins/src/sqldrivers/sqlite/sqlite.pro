@@ -35,7 +35,8 @@ win32 {
                ../../../../src/3rdparty/sqlite/parse.h \
                ../../../../src/3rdparty/sqlite/sqlite.h \
                ../../../../src/3rdparty/sqlite/sqliteInt.h \
-               ../../../../src/3rdparty/sqlite/vdbe.h
+               ../../../../src/3rdparty/sqlite/vdbe.h \
+	       ../../../../src/3rdparty/sqlite/vdbeInt.h
 
     SOURCES += ../../../../src/3rdparty/sqlite/attach.c \
                ../../../../src/3rdparty/sqlite/auth.c \
@@ -43,6 +44,7 @@ win32 {
                ../../../../src/3rdparty/sqlite/btree_rb.c \
                ../../../../src/3rdparty/sqlite/build.c \
                ../../../../src/3rdparty/sqlite/copy.c \
+	       ../../../../src/3rdparty/sqlite/date.c \
                ../../../../src/3rdparty/sqlite/delete.c \
                ../../../../src/3rdparty/sqlite/expr.c \
                ../../../../src/3rdparty/sqlite/func.c \
@@ -65,6 +67,7 @@ win32 {
                ../../../../src/3rdparty/sqlite/util.c \
                ../../../../src/3rdparty/sqlite/vacuum.c \
                ../../../../src/3rdparty/sqlite/vdbe.c \
+	       ../../../../src/3rdparty/sqlite/vdbeaux.c \
                ../../../../src/3rdparty/sqlite/where.c
 }
 

@@ -17,6 +17,7 @@
 #include <qdatetime.h>
 #include <qmap.h>
 #include <qregexp.h>
+#include <qfile.h>
 
 #if (QT_VERSION-0 < 0x030000)
 #  include <qvector.h>
@@ -322,7 +323,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
 	return FALSE;
 
     char* err = 0;
-    d->access = sqlite_open(db.latin1(), 0, &err);
+    d->access = sqlite_open(QFile::encodeName(db), 0, &err);
     if (err) {
         setLastError(QSqlError("Error to open database", err, QSqlError::Connection));
         sqlite_freemem(err);

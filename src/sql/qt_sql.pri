@@ -206,7 +206,8 @@ sql {
                 $$SQL_CPP/../3rdparty/sqlite/parse.h \
                 $$SQL_CPP/../3rdparty/sqlite/sqlite.h \
                 $$SQL_CPP/../3rdparty/sqlite/sqliteInt.h \
-                $$SQL_CPP/../3rdparty/sqlite/vdbe.h
+                $$SQL_CPP/../3rdparty/sqlite/vdbe.h \
+		$$SQL_CPP/../3rdparty/sqlite/vdbeInt.h
 
                 SOURCES += $$SQL_CPP/../3rdparty/sqlite/attach.c \
                 $$SQL_CPP/../3rdparty/sqlite/auth.c \
@@ -214,6 +215,7 @@ sql {
                 $$SQL_CPP/../3rdparty/sqlite/btree_rb.c \
                 $$SQL_CPP/../3rdparty/sqlite/build.c \
                 $$SQL_CPP/../3rdparty/sqlite/copy.c \
+		$$SQL_CPP/../3rdparty/sqlite/date.c \
                 $$SQL_CPP/../3rdparty/sqlite/delete.c \
                 $$SQL_CPP/../3rdparty/sqlite/expr.c \
                 $$SQL_CPP/../3rdparty/sqlite/func.c \
@@ -236,6 +238,7 @@ sql {
                 $$SQL_CPP/../3rdparty/sqlite/util.c \
                 $$SQL_CPP/../3rdparty/sqlite/vacuum.c \
                 $$SQL_CPP/../3rdparty/sqlite/vdbe.c \
+		$$SQL_CPP/../3rdparty/sqlite/vdbeaux.c \
                 $$SQL_CPP/../3rdparty/sqlite/where.c
 	    }
 
