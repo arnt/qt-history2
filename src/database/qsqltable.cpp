@@ -132,12 +132,8 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField& field )
 {
-    //    qDebug("adding col:" + field.name());
     if ( field.isVisible() && !field.isPrimaryIndex() ) {
-	//	qDebug("current num cols:" + QString::number(numCols()));
 	setNumCols( numCols() + 1 );
-	//	qDebug("new num cols:" + QString::number(numCols()));
-	//	qDebug("fieldnumber:" + QString::number(field.fieldNumber()));
 	d->colIndex.append( field.fieldNumber() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, field.displayLabel() );
@@ -725,6 +721,12 @@ void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
 	editorFactory = f;
 }
 
+/*!
+
+  \internal
+
+*/
+
 void QSqlTable::setCurrentSelection( int row, int )
 {
     QSql* sql = d->sql();
@@ -734,6 +736,23 @@ void QSqlTable::setCurrentSelection( int row, int )
 	QSqlFieldList fil = sql->fields();
 	emit currentChanged( &fil );
     }
+}
+
+/*!
+
+  Returns a list of the currently selected fields, or an empty list if there is no current selection.
+
+*/
+
+QSqlFieldList QSqlTable::currentFieldSelection() const
+{
+    QSqlFieldList fil;
+    QSql* sql = d->sql();
+    if ( !sql || currentRow() < 0 )
+	return fil;
+    if ( sql->seek( currentRow() ) )
+	fil = sql->fields();
+    return fil;
 }
 
 #endif

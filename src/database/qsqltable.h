@@ -43,11 +43,14 @@ public:
 			      bool wholeRows = FALSE );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
+    QSqlFieldList currentFieldSelection() const;
+
     void         installEditorFactory( QSqlEditorFactory * f );
+
 
 signals:
     void         currentChanged( const QSqlFieldList* fields );
-    
+
 public slots:
     void 	 findString( const QString & str, bool caseSensitive,
 			     bool backwards );
