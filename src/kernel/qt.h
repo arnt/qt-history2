@@ -138,7 +138,6 @@
 #include "qmetaobject.h"
 #include <qobjectlist.h>
 #include <qbitmap.h>
-#include <qalphapixmap.h>
 #include <qpaintdevicemetrics.h>
 #include "qpointarray.h"
 #include "qtranslator.h"

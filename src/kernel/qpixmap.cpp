@@ -154,11 +154,11 @@ QPixmap::Optimization QPixmap::defOptim = QPixmap::NormalOptim;
   Private constructor which takes the bitmap flag, the optimization.and a screen.
 */
 
-QPixmap::QPixmap( int w, int h, int depth, bool bitmap, bool alpha,
+QPixmap::QPixmap( int w, int h, int depth, bool bitmap,
 		  Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( w, h, depth, bitmap, alpha, optimization );
+    init( w, h, depth, bitmap, optimization );
 }
 
 
@@ -170,7 +170,7 @@ QPixmap::QPixmap( int w, int h, int depth, bool bitmap, bool alpha,
 QPixmap::QPixmap()
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
 }
 
 /*!
@@ -182,7 +182,7 @@ QPixmap::QPixmap()
 QPixmap::QPixmap( const QImage& image )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
     convertFromImage( image );
 }
 
@@ -204,7 +204,7 @@ QPixmap::QPixmap( const QImage& image )
 QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( w, h, depth, FALSE, FALSE, optimization );
+    init( w, h, depth, FALSE, optimization );
 }
 
 /*!
@@ -214,7 +214,7 @@ QPixmap::QPixmap( int w, int h, int depth, Optimization optimization )
 QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( size.width(), size.height(), depth, FALSE, FALSE, optimization );
+    init( size.width(), size.height(), depth, FALSE, optimization );
 }
 
 
@@ -234,7 +234,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 	int conversion_flags )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
     load( fileName, format, conversion_flags );
 }
 
@@ -253,7 +253,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format,
 QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
     load( fileName, format, mode );
 }
 
@@ -284,7 +284,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
 QPixmap::QPixmap( const char *xpm[] )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
     QImage image( xpm );
     if ( !image.isNull() )
 	convertFromImage( image );
@@ -300,7 +300,7 @@ QPixmap::QPixmap( const char *xpm[] )
 QPixmap::QPixmap( const QByteArray & img_data )
     : QPaintDevice( QInternal::Pixmap )
 {
-    init( 0, 0, 0, FALSE, FALSE, defOptim );
+    init( 0, 0, 0, FALSE, defOptim );
     loadFromData( img_data );
 }
 
@@ -354,8 +354,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen( x11Screen() );
 #endif
-    QPixmap pm( data->w, data->h, data->d, data->bitmap, data->alphachannel,
-		data->optim );
+    QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
 #if defined(Q_WS_X11)
     x11SetDefaultScreen( old );
 #endif
@@ -388,7 +387,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     deref();
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
-	      pixmap.data->bitmap, pixmap.data->alphachannel, pixmap.data->optim );
+	      pixmap.data->bitmap, pixmap.data->optim );
 	data->uninit = FALSE;
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
@@ -570,7 +569,7 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 void QPixmap::resize( int w, int h )
 {
     if ( w < 1 || h < 1 ) {			// becomes null
-	QPixmap pm( 0, 0, 0, data->bitmap, data->alphachannel, data->optim );
+	QPixmap pm( 0, 0, 0, data->bitmap, data->optim );
 	*this = pm;
 	return;
     }
@@ -580,7 +579,7 @@ void QPixmap::resize( int w, int h )
     else
 	d = isQBitmap() ? 1 : -1;
     // Create new pixmap
-    QPixmap pm( w, h, d, data->bitmap, data->alphachannel, data->optim );
+    QPixmap pm( w, h, d, data->bitmap, data->optim );
     if ( !data->uninit && !isNull() )		// has existing pixmap
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),

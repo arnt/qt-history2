@@ -97,9 +97,6 @@ public:
     bool	selfMask() const;
     QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
 
-    const QAlphaPixmap *alphaPixmap() const;
-    void setAlphaPixmap(const QAlphaPixmap &);
-
     static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
     static  QPixmap grabWidget( QWidget * widget,
 				int x=0, int y=0, int w=-1, int h=-1 );
@@ -164,7 +161,7 @@ public:
     static int x11SetDefaultScreen( int screen );
     void x11SetScreen( int screen );
 #endif
-
+    
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QPixmap& ) const { return FALSE; }
@@ -186,14 +183,12 @@ protected:
 	short	d;
 	uint	uninit	 : 1;
 	uint	bitmap	 : 1;
-	uint    alphachannel : 1;
 	uint	selfmask : 1;
 #if defined(Q_WS_WIN)
 	uint	mcp	 : 1;
 #endif
 	int	ser_no;
 	QBitmap *mask;
-	QAlphaPixmap *alphapm;
 #if defined(Q_WS_WIN)
 	void   *bits;
 	QPixmap *maskpm;
@@ -219,8 +214,8 @@ protected:
     } *data;
 
 private:
-    QPixmap( int w, int h, int depth, bool, bool, Optimization );
-    void	init( int, int, int, bool, bool, Optimization );
+    QPixmap( int w, int h, int depth, bool, Optimization );
+    void	init( int, int, int, bool, Optimization );
     void	deref();
     QPixmap	copy( bool ignoreMask = FALSE ) const;
     static Optimization defOptim;
@@ -231,7 +226,6 @@ private:
 				 const QImage* src,
 				 int, int, int, int, int conversion_flags );
     friend class QBitmap;
-    friend class QAlphaPixmap;
     friend class QPaintDevice;
     friend class QPainter;
 };
@@ -255,11 +249,6 @@ inline void QPixmap::resize( const QSize &s )
 inline const QBitmap *QPixmap::mask() const
 {
     return data->mask;
-}
-
-inline const QAlphaPixmap *QPixmap::alphaPixmap() const
-{
-    return data->alphapm;
 }
 
 inline bool QPixmap::selfMask() const

@@ -72,7 +72,6 @@ class QBrush;
 class QWMatrix;
 class QPixmap;
 class QBitmap;
-class QAlphaPixmap;
 class QMovie;
 class QImage;
 class QImageIO;
