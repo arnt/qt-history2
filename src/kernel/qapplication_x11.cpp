@@ -3981,9 +3981,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	if ( event->type == ButtonPress ) {	// mouse button pressed
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
 	    XEvent myEv;
-	    XPeekEvent( appDpy, &myEv );
-	    if ( myEv.type == xinput_button_press ) {
-		XNextEvent( appDpy, &myEv );
+	    if ( XCheckTypedEvent( appDpy, xinput_button_press, &myEv ) ) {
 		if ( translateXinputEvent( &myEv ) ) {
 		    //Spontaneous event sent.  Check if we need to continue.
 		    if ( chokeMouse ) {
@@ -4016,11 +4014,9 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	} else {				// mouse button released
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
 	    XEvent myEv;
-	    XPeekEvent( appDpy, &myEv );
-	    if ( myEv.type == xinput_button_release ) {
-		XNextEvent( appDpy, &myEv );
+	    if ( XCheckTypedEvent( appDpy, xinput_button_release, &myEv ) ) {
 		if ( translateXinputEvent( &myEv ) ) {
-		    //Spontaneous event sent.  I guess we just check if we should continue.
+		    //Spontaneous event sent.  Check if we need to continue.
 		    if ( chokeMouse ) {
 			chokeMouse = FALSE;
 			return FALSE;
@@ -4571,8 +4567,8 @@ static const unsigned short katakanaKeysymsToUnicode[] = {
     0x30CD, 0x30CE, 0x30CF, 0x30D2, 0x30D5, 0x30D8, 0x30DB, 0x30DE,
     0x30DF, 0x30E0, 0x30E1, 0x30E2, 0x30E4, 0x30E6, 0x30E8, 0x30E9,
     0x30EA, 0x30EB, 0x30EC, 0x30ED, 0x30EF, 0x30F3, 0x309B, 0x309C
-}; 
- 
+};
+
 static const unsigned short cyrillicKeysymsToUnicode[] = {
     0x0000, 0x0452, 0x0453, 0x0451, 0x0454, 0x0455, 0x0456, 0x0457,
     0x0458, 0x0459, 0x045a, 0x045b, 0x045c, 0x0000, 0x045e, 0x045f,
