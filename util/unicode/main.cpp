@@ -30,7 +30,8 @@ struct PropertyFlags {
                 && joining == o.joining
                 && age == o.age
                 && mirrorDiff == o.mirrorDiff
-                && caseDiff == o.caseDiff);
+                && caseDiff == o.caseDiff
+                && digitValue == o.digitValue);
     }
     // from UnicodeData.txt
     uchar combiningClass : 8;
@@ -43,7 +44,8 @@ struct PropertyFlags {
     QChar::Joining joining : 2;
     // from DerivedAge.txt
     QChar::UnicodeVersion age : 4;
-    uint unused : 6;
+    uint digitValue : 4;
+    uint unused : 2;
 
     int mirrorDiff : 16;
     int caseDiff : 16;
@@ -78,6 +80,7 @@ struct UnicodeData {
         p.unused = 0;
         p.mirrorDiff = 0;
         p.caseDiff = 0;
+        p.digitValue = 0xf;
         propertyIndex = -1;
     }
     PropertyFlags p;
@@ -306,6 +309,10 @@ static void readUnicodeData()
         if (QABS(codepoint - data.otherCase) >= 0x8000)
             qFatal("case diff not in range at codepoint %x: othercase=%x", codepoint, data.otherCase);
         data.p.caseDiff = data.otherCase - codepoint;
+
+        if (!properties[UD_DigitValue].isEmpty()) {
+            data.p.digitValue = properties[UD_DigitValue].toInt();
+        }
 
         // decompositition
         QByteArray decomposition = properties[UD_Decomposition];
@@ -547,6 +554,7 @@ static QByteArray createPropertyInfo()
     qDebug("    %d unique blocks.",blocks.size());
     qDebug("        block data uses: %d bytes", bmp_block_data);
     qDebug("        trie data uses : %d bytes", bmp_trie);
+    qDebug("        properties use : %d bytes", uniqueProperties.size()*8);
     qDebug("        memory usage: %d bytes", bmp_mem);
 
     Q_ASSERT(blockMap.size() == END/BLOCKSIZE);
@@ -583,10 +591,11 @@ static QByteArray createPropertyInfo()
            "struct UC_Properties {\n"
            "    uint category : 8 /* 5 needed */;\n"
            "    uint combiningClass :8;\n"
-           "    uint direction : 8 /* 5 needed */;\n"
-           "    uint unicode_version : 5 /* 4 needed */;\n"
+           "    uint direction : 5;\n"
            "    uint joining : 2;\n"
            "    uint titleCaseDiffersFromUpper : 1;\n"
+           "    uint unicode_version : 4;\n"
+           "    uint digit_value : 4;\n"
            "    \n"
            "    signed short mirrorDiff;\n"
            "    signed short caseDiff;\n"
@@ -603,11 +612,13 @@ static QByteArray createPropertyInfo()
         out += ", ";
         out += QByteArray::number( p.direction );
         out += ", ";
-        out += QByteArray::number( p.age );
-        out += ", ";
         out += QByteArray::number( p.joining );
         out += ", ";
         out += p.titleCaseDiffersFromUpper ? "1" : "0";
+        out += ", ";
+        out += QByteArray::number( p.age );
+        out += ", ";
+        out += QByteArray::number( p.digitValue );
         out += ", ";
         out += QByteArray::number( p.mirrorDiff );
         out += ", ";
@@ -633,14 +644,20 @@ static QByteArray createPropertyInfo()
            "    return (QChar::Direction) GET_PROP(ucs4)->direction;\n"
            "}\n\n"
 
+           "QChar::Joining QUnicodeTables::joining(uint ucs4)\n"
+           "{\n"
+           "    return (QChar::Joining) GET_PROP(ucs4)->joining;\n"
+           "}\n\n"
+
            "QChar::UnicodeVersion QUnicodeTables::unicodeVersion(uint ucs4)\n"
            "{\n"
            "    return (QChar::UnicodeVersion) GET_PROP(ucs4)->unicode_version;\n"
            "}\n\n"
 
-           "QChar::Joining QUnicodeTables::joining(uint ucs4)\n"
+           "int QUnicodeTables::digitValue(uint ucs4)\n"
            "{\n"
-           "    return (QChar::Joining) GET_PROP(ucs4)->joining;\n"
+           "    int val = GET_PROP(ucs4)->digit_value;\n"
+           "    return val == 0xf ? -1 : val;"
            "}\n\n"
 
            "bool QUnicodeTables::mirrored(uint ucs4)\n"
