@@ -411,9 +411,9 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
     See QIconView::dragObject() for more information.
 
-    For examples see qt/examples/fileiconview (especially
-    qfileiconview.h and qfileiconview.cpp) and
-    qt/examples/iconview/simple_dd.
+    For examples see \c qt/examples/fileiconview (especially
+    \c qfileiconview.h and \c qfileiconview.cpp) and
+    \c qt/examples/iconview/simple_dd.
 */
 
 /*!
@@ -521,7 +521,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     qt/examples/fileiconview/qfileiconview.cpp.
 */ 
 // ### consider using \dontinclude and friends there
-// ### better still produce a really simple example and present that since fileiconview is too complicated 
+// ### Not here in the module overview instead... 
 
 /*!
   \reimp
