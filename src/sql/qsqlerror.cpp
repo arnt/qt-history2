@@ -207,7 +207,7 @@ QString QSqlError::text() const
 /*!
     This is a convenience function that pops up a QMessageBox
     containing the message returned by text(). An additional string
-    can be passed in through the {\a msg} parameter, which will be
+    can be passed in through the \a msg parameter, which will be
     concatenated with the text() message.
     
     \sa text(), driverText(), databaseText()
