@@ -1615,28 +1615,14 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     drawText(x, y, str.mid(from), len);
 }
 
-//#define BLAHBLAH
-#ifdef BLAHBLAH
-#include <sys/time.h>
-#include <unistd.h>
-#define BLAH(x) { timeval fuck; gettimeofday(&fuck, NULL); qDebug(x " %d %d (%s:%d)", fuck.tv_sec, fuck.tv_usec, __FILE__, __LINE__); }
-#else
-#define BLAH(x)
-#endif
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection)
 {
-#ifdef BLAHBLAH
-    qDebug("drawing %s %d (%d %d)", str.latin1(), len, x, y);
-#endif
-    BLAH("start drawText");
     if ( !isActive() )
 	return;
     if ( len < 0 )
 	len = str.length();
-    if ( len == 0 ) {                            // empty string
-	BLAH("end drawText");
+    if ( len == 0 )                             // empty string
 	return;
-    }
 
     updateBrush();
 
@@ -1649,10 +1635,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	QString newstr = str.left(len);
 	param[0].point = &p;
 	param[1].str = &newstr;
-	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd ) {
-	    BLAH("end drawText");
+	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hd ) 
 	    return;
-	}
     }
 
     if ( testf(VxF|WxF) ) {
@@ -1676,10 +1660,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		ah = abbox.height();
 		tx = -abbox.x();
 		ty = -abbox.y();	// text position - off-by-one?
-		if ( aw == 0 || ah == 0 ) {
-		    BLAH("end drawText");
+		if ( aw == 0 || ah == 0 ) 
 		    return;
-		}
 		double rx = (double)bbox.width() * mat1.m11() / (double)aw;
 		double ry = (double)bbox.height() * mat1.m22() /(double)ah;
 		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
@@ -1707,7 +1689,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
 		    delete wx_bm;		// nothing to draw
-		    BLAH("end drawText");
 		    return;
 		}
 	    }
@@ -1728,11 +1709,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 		updateBrush();
 		setBrush( oldBrush );
 	    }
-	    if ( empty ) {
-		BLAH("end drawText");
+	    if ( empty ) 
 		return;
-	    }
-
 	    double fx=x, fy=y, nfx, nfy;
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    double tfx=tx, tfy=ty, dx, dy;
@@ -1747,7 +1725,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 #else
             delete wx_bm;
 #endif		
-	    BLAH("end drawText");
 	    return;
 	}
 	if ( txop == TxTranslate )
@@ -1757,7 +1734,6 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
     initPaintDevice();
     updatePen();
     cfont.d->drawText(x + offx, y + offy, str, len);
-    BLAH("end drawText");
 }
 
 QPoint QPainter::pos() const
