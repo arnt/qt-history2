@@ -85,7 +85,6 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	    }
 	}
 	break;
-    }
     default:
 	break;
     }
