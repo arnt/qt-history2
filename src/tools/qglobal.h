@@ -331,6 +331,11 @@
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
+/* Apply to all versions prior to Compaq C++ V6.4-000 - observed on
+   DEC C++ V6.3-012. */
+#  if __DECCXX_VER < 64060000
+#    define Q_NO_USING_KEYWORD
+#  endif
 /* avoid undefined symbol problems with out-of-line template members */
 #  define Q_INLINE_TEMPLATES inline
 
