@@ -928,6 +928,19 @@ void VcprojGenerator::initOld()
 
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    // Update -lname to name.lib, and -Ldir to
+    QStringList &libList = project->variables()["QMAKE_LIBS"];
+    for( it = libList.begin(); it != libList.end(); ) {
+	QString s = *it;
+	if( s.startsWith( "-l" ) ) {
+	    it = libList.remove( it );
+	    it = libList.insert( it, s.mid( 2 ) + ".lib" );
+	} else if( s.startsWith( "-L" ) ) {
+	    it = libList.remove( it );
+	} else {
+	    it++;
+	}
+    }
 
     // Run through all variables containing filepaths, and -----------
     // slash-slosh them correctly depending on current OS  -----------
