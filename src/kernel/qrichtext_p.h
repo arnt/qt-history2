@@ -609,17 +609,6 @@ public:
 
     };
 
-    struct Paren {
-	Paren() : type( Open ), chr( ' ' ), pos( -1 ) {}
-	Paren( int t, const QChar &c, int p ) : type( (Type)t ), chr( c ), pos( p ) {}
-	enum Type { Open, Closed };
-	Type type;
-	QChar chr;
-	int pos;
-    };
-
-    typedef QValueList<Paren> ParenList;
-
     enum Type {
 	Normal = 0,
 	BulletList,
@@ -695,7 +684,9 @@ public:
 
     void indent( int *oldIndent = 0, int *newIndent = 0 );
 
-    ParenList &parenList();
+    void setExtraData( void *data );
+    void *extraData() const;
+    
     QMap<int, LineStart*> &lineStartList();
 
     int lastLengthForCompletion() const;
@@ -769,7 +760,6 @@ private:
     QMap<int, Selection> selections;
     int state, id;
     bool needPreProcess;
-    ParenList parens;
     int lastLenForCompletion;
     QTextString *str;
     int align;
@@ -787,7 +777,8 @@ private:
     QTextFormatter *pFormatter;
     int *tabArray;
     int tabStopWidth;
-
+    void *eData;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1802,11 +1793,6 @@ inline void QTextParag::setFirstPreProcess( bool b )
     firstPProcess = b;
 }
 
-inline QTextParag::ParenList &QTextParag::parenList()
-{
-    return parens;
-}
-
 inline QMap<int, QTextParag::LineStart*> &QTextParag::lineStartList()
 {
     return lineStarts;
@@ -2171,6 +2157,16 @@ inline void QTextParag::setTabStops( int tw )
 	doc->setTabStops( tw );
     else
 	tabStopWidth = tw;
+}
+
+inline void QTextParag::setExtraData( void *data )
+{
+    eData = data;
+}
+
+inline void *QTextParag::extraData() const
+{
+    return eData;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

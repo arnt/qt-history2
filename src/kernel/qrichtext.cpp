@@ -904,13 +904,13 @@ QTextDocument::QTextDocument( QTextDocument *p )
     flow_->setWidth( cw );
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
-    selectionColors[ ParenMismatch ] = Qt::magenta;
-    selectionColors[ ParenMatch ] = Qt::green;
-    selectionColors[ Search ] = Qt::yellow;
+    selectionColors[ Selection1 ] = Qt::magenta;
+    selectionColors[ Selection2 ] = Qt::green;
+    selectionColors[ Selection3 ] = Qt::yellow;
     selectionText[ Standard ] = TRUE;
-    selectionText[ ParenMismatch ] = FALSE;
-    selectionText[ ParenMatch ] = FALSE;
-    selectionText[ Search ] = FALSE;
+    selectionText[ Selection1 ] = FALSE;
+    selectionText[ Selection2 ] = FALSE;
+    selectionText[ Selection3] = FALSE;
     commandHistory = new QTextCommandHistory( 100 ); // ### max undo/redo steps should be configurable
     tStopWidth = formatCollection()->defaultFormat()->width( 'x' ) * 8;
 }
@@ -2321,7 +2321,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     : invalid( -1 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), tc( 0 ),
       numCustomItems( 0 ), fCollection( 0 ), pFormatter( 0 ),
-      tabArray( 0 ), tabStopWidth( 0 )
+      tabArray( 0 ), tabStopWidth( 0 ), eData( 0 )
 {
     defFormat = formatCollection()->defaultFormat();
     if ( !doc )
@@ -2383,6 +2383,7 @@ QTextParag::~QTextParag()
     }
     if ( tabArray )
 	delete [] tabArray;
+    delete eData;
 }
 
 void QTextParag::setNext( QTextParag *s )
@@ -5662,12 +5663,12 @@ QTextBidiContext::~QTextBidiContext()
 
 void QTextBidiContext::ref() const
 {
-    count++;
+    ( (QTextBidiContext*)this )->count++;
 }
 
 void QTextBidiContext::deref() const
 {
-    count--;
+    ( (QTextBidiContext*)this )->count--;
     if ( count <= 0 )
 	delete this;
 }
