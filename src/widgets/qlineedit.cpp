@@ -461,8 +461,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	} else if ( v ) {
 	    QString old( tbuf );
 	    v->fixup( tbuf );
-	    if ( old != tbuf )
+	    if ( old != tbuf ) {
+		d->pmDirty = TRUE;
 		update();
+	    }
 	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		emit returnPressed();
 	    e->ignore();
