@@ -168,15 +168,24 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
     GetDragModifiers(dragRef, &modifiers, 0, 0);
     qt_mac_send_modifiers_changed(modifiers, qApp);
 
-    DragActions allowed = kDragActionNothing;
-    GetDragAllowableActions(dragRef, &allowed);
-    DragActions action = qt_mac_dnd_map_mac_default_action(allowed);
+    QDrag::DropAction qtAction = QDrag::IgnoreAction;
+    {
+        DragActions macAllowed = kDragActionNothing;
+        GetDragAllowableActions(dragRef, &macAllowed);
+        QDrag::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(macAllowed);
+        qtAction = QDragManager::self()->defaultAction(qtAllowed);
+#if 1
+        if(!(qtAllowed & qtAction))
+            qtAction = qt_mac_dnd_map_mac_default_action(macAllowed);
+#endif
+    }
+    DragActions macAction = qt_mac_dnd_map_qt_actions(qtAction);
 
-    DragActions currentAction;
-    GetDragDropAction(dragRef, &currentAction);
-    if(currentAction != action) {
-        SetDragDropAction(dragRef, action);
-        QDragManager::self()->emitActionChanged(qt_mac_dnd_map_mac_default_action(action));
+    DragActions currentActions;
+    GetDragDropAction(dragRef, &currentActions);
+    if(currentAction != macAction) {
+        SetDragDropAction(dragRef, macAction);
+        QDragManager::self()->emitActionChanged(qtAction);
     }
 }
 
@@ -406,7 +415,9 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     bool found_cursor = false;
     if(kind == kEventControlDragWithin || kind == kEventControlDragEnter) {
         found_cursor = true;
-        switch(QDragManager::self()->defaultAction(qtAllowed)) {
+        DragActions action = kDragActionNothing;
+        GetDragDropAction(dragRef, &action);
+        switch(qt_mac_dnd_map_mac_default_action(action)) {
         case QDrag::MoveAction:
             SetThemeCursor(kThemeArrowCursor);
             break;
