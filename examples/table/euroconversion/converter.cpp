@@ -5,8 +5,8 @@ $Id$
 #include "converter.h"
 #include <qstring.h>
 
-static const struct {
-    QString currency;
+static struct {
+    const char *currency;
     double rate;
 } rates[] = {
     { "ATS (A)",   13.7603 },
@@ -38,7 +38,7 @@ EuroConverter::EuroConverter()
     horizontalHeader()->setLabel( 4, "" );
 
     QStringList currencylist;
-    for ( int i = 0; i < numcurrencies; i++ ) 
+    for ( int i = 0; i < numcurrencies; i++ )
 	currencylist << rates[i].currency;
 
     currencies = new QComboTableItem( this, currencylist );
@@ -56,9 +56,9 @@ EuroConverter::EuroConverter()
     adjustColumn( 2 );
     adjustColumn( 3 );
     adjustColumn( 4 );
-    adjustSize();         
+    adjustSize();
 
-    connect( this, SIGNAL( valueChanged( int, int ) ), 
+    connect( this, SIGNAL( valueChanged( int, int ) ),
              this, SLOT( processValueChange( int, int ) ) );
 }
 
@@ -71,15 +71,15 @@ void EuroConverter::processValueChange( int, int col )
 	value = text( 0, col ).toDouble( &ok );
 	if ( ok ){
 	    double euro = calculate( value );
-	    setText( 0, 3, QString::number( euro ) ); 
+	    setText( 0, 3, QString::number( euro ) );
 	} else {
-	    setText( 0, 0, "" ); 
-	    setText( 0, 3, "" ); 
+	    setText( 0, 0, "" );
+	    setText( 0, 3, "" );
 	}
     } else if ( col == 1 ){
 	inputcurrency = currencies->currentItem();
 	emit valueChanged( 0, 0 );
-    } 
+    }
 }
 
 double EuroConverter::calculate( const double value )
