@@ -4,7 +4,6 @@ HEADERS		= qplugin.h \
 		  qpluginmanager.h \
 		  qplugininterface.h \
 		  qapplicationinterface.h \
-		  qdualinterface.h \
 		  qactionfactory.h \
 		  qactionplugin.h \
 		  qactioninterface.h \
