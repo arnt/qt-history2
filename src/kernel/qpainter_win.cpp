@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#61 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#61 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -1360,6 +1360,36 @@ void QPainter::drawRect( int x, int y, int w, int h )
     Rectangle( hdc, x, y, x+w, y+h );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
+}
+
+
+void QPainter::drawWinFocusRect( int x, int y, int w, int h )
+{
+    if ( !isActive() || txop == TxRotShear )
+	return;
+
+    if ( testf(ExtDev|VxF|WxF) ) {
+	if ( testf(ExtDev) ) {
+	    QPDevCmdParam param[1];
+	    QRect r( x, y, w, h );
+	    param[0].rect = &r;
+	    if ( !pdev->cmd(PDC_DRAWRECT,this,param) || !hdc )
+		return;
+	}
+	map( x, y, w, h, &x, &y, &w, &h );
+    }
+    if ( w <= 0 || h <= 0 ) {
+	if ( w == 0 || h == 0 )
+	    return;
+	fix_neg_rect( &x, &y, &w, &h );
+    }
+
+    RECT r;
+    r.left   = x;
+    r.right  = x + w;
+    r.top    = y;
+    r.bottom = y + h;
+    DrawFocusRect( hdc, &r );
 }
 
 
