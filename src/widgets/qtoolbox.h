@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Definition of QCategoryBar widget class
+** Definition of QToolBox widget class
 **
 ** Created : 961105
 **
@@ -35,17 +35,16 @@
 **
 **********************************************************************/
 
-#ifndef QCATEGORYBAR_H
-#define QCATEGORYBAR_H
+#ifndef QTOOLBOX_H
+#define QTOOLBOX_H
 
 #include <qwidget.h>
 #include <qiconset.h>
 
-class QCategoryButton;
-class QCategoryBarPrivate;
+class QToolBoxPrivate;
 class QWidgetList;
 
-class Q_EXPORT QCategoryBar : public QWidget
+class Q_EXPORT QToolBox : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( int currentPage READ currentIndex WRITE setCurrentPage )
@@ -53,23 +52,23 @@ class Q_EXPORT QCategoryBar : public QWidget
     Q_PROPERTY( bool scrollEffectEnabled READ isScrollEffectEnabled WRITE setScrollEffectEnabled )
 
 public:
-    QCategoryBar( QWidget *parent = 0, const char *name = 0 );
-    ~QCategoryBar();
+    QToolBox( QWidget *parent = 0, const char *name = 0 );
+    ~QToolBox();
 
-    virtual void addCategory( const QString &label, QWidget *page );
-    virtual void addCategory( const QString &label, const QIconSet &iconSet,
-			      QWidget *page );
-    virtual void insertCategory( const QString &label, QWidget *page, int index = -1 );
-    virtual void insertCategory( const QString &label, const QIconSet &iconSet,
-			 QWidget *page, int index = -1 );
+    virtual void addPage( const QString &label, QWidget *page );
+    virtual void addPage( const QString &label, const QIconSet &iconSet,
+			  QWidget *page );
+    virtual void insertPage( const QString &label, QWidget *page, int index = -1 );
+    virtual void insertPage( const QString &label, const QIconSet &iconSet,
+			     QWidget *page, int index = -1 );
 
-    bool isCategoryEnabled( QWidget *page ) const;
+    bool isPageEnabled( QWidget *page ) const;
 
-    QString categoryLabel( QWidget *page ) const;
+    QString pageLabel( QWidget *page ) const;
 
-    QIconSet categoryIconSet( QWidget *page ) const;
+    QIconSet pageIconSet( QWidget *page ) const;
 
-    QString categoryToolTip( QWidget *page ) const;
+    QString pageToolTip( QWidget *page ) const;
 
     QWidget *currentPage() const;
     int currentIndex() const;
@@ -83,11 +82,11 @@ public:
 public slots:
     virtual void setCurrentPage( int index );
     virtual void setCurrentPage( QWidget *page );
-    virtual void setCategoryEnabled( QWidget *page, bool enabled );
-    virtual void removeCategory( QWidget *page );
-    virtual void setCategoryLabel( QWidget *page, const QString &label );
-    virtual void setCategoryIconSet( QWidget *page, const QIconSet &iconSet );
-    virtual void setCategoryToolTip( QWidget *page, const QString &toolTip );
+    virtual void setPageEnabled( QWidget *page, bool enabled );
+    virtual void removePage( QWidget *page );
+    virtual void setPageLabel( QWidget *page, const QString &label );
+    virtual void setPageIconSet( QWidget *page, const QIconSet &iconSet );
+    virtual void setPageToolTip( QWidget *page, const QString &toolTip );
     virtual void setScrollEffectEnabled( bool enable );
 
 signals:
@@ -102,7 +101,7 @@ private:
     void activateClosestPage( QWidget *page );
 
 private:
-    QCategoryBarPrivate *d;
+    QToolBoxPrivate *d;
 
 };
 

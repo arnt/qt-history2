@@ -6,7 +6,6 @@ widgets {
 	HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qdialogbuttons_p.h \
-		  $$WIDGETS_H/qcategorybar.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_P/qwidgetresizehandler_p.h \
@@ -47,6 +46,7 @@ widgets {
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_P/qtitlebar_p.h \
 		  $$WIDGETS_H/qtoolbar.h \
+		  $$WIDGETS_H/qtoolbox.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
@@ -66,7 +66,6 @@ widgets {
 	SOURCES += $$WIDGETS_CPP/qbuttongroup.cpp \
 		  $$WIDGETS_CPP/qbutton.cpp \
 		  $$WIDGETS_CPP/qdialogbuttons.cpp \
-		  $$WIDGETS_CPP/qcategorybar.cpp \
 		  $$WIDGETS_CPP/qcheckbox.cpp \
 		  $$WIDGETS_CPP/qcombobox.cpp \
 		  $$WIDGETS_CPP/qwidgetresizehandler.cpp \
@@ -108,6 +107,7 @@ widgets {
 		  $$WIDGETS_CPP/qtabwidget.cpp \
 		  $$WIDGETS_CPP/qtitlebar.cpp \
 		  $$WIDGETS_CPP/qtoolbar.cpp \
+		  $$WIDGETS_CPP/qtoolbox.cpp \
 		  $$WIDGETS_CPP/qtoolbutton.cpp \
 		  $$WIDGETS_CPP/qtooltip.cpp \
 		  $$WIDGETS_CPP/qvalidator.cpp \

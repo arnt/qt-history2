@@ -792,7 +792,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	}
 #endif // QT_NO_TABBAR
 
-    case CE_CategoryBarTab:
+    case CE_ToolBoxTab:
 	{
 	    int d = 20 + r.height() - 3;
 	    QPointArray a( 7 );

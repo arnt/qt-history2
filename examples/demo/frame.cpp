@@ -14,7 +14,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qaccel.h>
-#include <qcategorybar.h>
+#include <qtoolbox.h>
 #include <qpainter.h>
 #include <qwidgetstack.h>
 #include <qstylefactory.h>
@@ -90,22 +90,22 @@ void Frame::setCategories( const QPtrList<CategoryInterface> &l )
     setDockEnabled( dw, DockBottom, FALSE );
     dw->setCloseMode( QDockWindow::Always );
 
-    categoryBar = new QCategoryBar( dw );
-    dw->setWidget( categoryBar );
+    toolBox = new QToolBox( dw );
+    dw->setWidget( toolBox );
 
     dw->setCaption( tr( "Demo Categories" ) );
 
     for ( int i = 0; i < categories.count(); ++i )
-	categoryBar->addCategory( categories.at(i)->name(),
-				  categories.at(i)->icon(),
-				  createCategoryPage( categories.at(i) ) );
+	toolBox->addPage( categories.at(i)->name(),
+			      categories.at(i)->icon(),
+			      createCategoryPage( categories.at(i) ) );
 
     categories.first()->setCurrentCategory( 0 );
 }
 
 QWidget *Frame::createCategoryPage( CategoryInterface *c )
 {
-    QButtonGroup *g = new QButtonGroup( 1, Horizontal, categoryBar );
+    QButtonGroup *g = new QButtonGroup( 1, Horizontal, toolBox );
     g->setFrameStyle( QFrame::NoFrame );
     for ( int i = 0; i < c->numCategories(); ++i ) {
 	QToolButton *b = new QToolButton( g );

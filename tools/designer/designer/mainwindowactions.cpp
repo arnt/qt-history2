@@ -65,7 +65,7 @@
 #include "dbconnectionimpl.h"
 #endif
 #include "widgetaction.h"
-#include <qcategorybar.h>
+#include <qtoolbox.h>
 #include "startdialogimpl.h"
 #include "designerappiface.h"
 #include "connectiondialog.h"
@@ -502,7 +502,7 @@ void MainWindow::setupToolActions()
 	QToolBar *tb2 = new QToolBar( grp, 0, toolBox, FALSE, grp.latin1() );
 	tb2->setFrameStyle( QFrame::NoFrame );
 	tb2->setOrientation( Qt::Vertical );
-	toolBox->addCategory( grp, tb2 );
+	toolBox->addPage( grp, tb2 );
 
 	if ( grp == "Custom" ) {
 	    if ( !customWidgetMenu )
@@ -577,7 +577,7 @@ void MainWindow::setupToolActions()
 				      toolBox, FALSE, "Custom Widgets" );
 	tb2->setOrientation( Qt::Vertical );
 	tb2->setFrameStyle( QFrame::NoFrame );
-	toolBox->addCategory( "Custom Widgets", tb2 );
+	toolBox->addPage( "Custom Widgets", tb2 );
 	customWidgetToolBar2 = tb2;
     }
 

@@ -46,7 +46,7 @@
 #include "pixmapcollection.h"
 #include "qcompletionedit.h"
 #include "sourcefile.h"
-#include <qcategorybar.h>
+#include <qtoolbox.h>
 #include "widgetaction.h"
 #include "propertyobject.h"
 #include "popupmenueditor.h"
@@ -431,7 +431,7 @@ void MainWindow::setupToolbox()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockLeft );
-    toolBox = new QCategoryBar( dw );
+    toolBox = new QToolBox( dw );
     dw->setWidget( toolBox );
     dw->setFixedExtentWidth( 160 );
     dw->setCaption( tr( "Toolbox" ) );
@@ -441,7 +441,7 @@ void MainWindow::setupToolbox()
     commonWidgetsToolBar = new QToolBar( "Common Widgets", 0, toolBox, FALSE, "Common Widgets" );
     commonWidgetsToolBar->setFrameStyle( QFrame::NoFrame );
     commonWidgetsToolBar->setOrientation( Qt::Vertical );
-    toolBox->addCategory( "Common Widgets", commonWidgetsToolBar );
+    toolBox->addPage( "Common Widgets", commonWidgetsToolBar );
 }
 
 void MainWindow::setupRMBMenus()

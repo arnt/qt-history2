@@ -12,7 +12,7 @@
 #include <qintdict.h>
 #include "categoryinterface.h"
 
-class QCategoryBar;
+class QToolBox;
 class QStyle;
 class QWidgetStack;
 
@@ -38,7 +38,7 @@ private:
     QWidget *createCategoryPage( CategoryInterface *c );
 
 private:
-    QCategoryBar *categoryBar;
+    QToolBox *toolBox;
     QWidgetStack *stack;
     QIntDict<QWidget> categoryPages;
     QPtrList<CategoryInterface> categories;

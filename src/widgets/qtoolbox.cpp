@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QCategoryBar widget class
+** Implementation of QToolBox widget class
 **
 ** Created : 961105
 **
@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-#include "qcategorybar.h"
+#include "qtoolbox.h"
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
 #include <qlayout.h>
@@ -52,10 +52,10 @@
 #include <qdatetime.h>
 #include <qcursor.h>
 
-class QCategoryButton : public QToolButton
+class QToolBoxButton : public QToolButton
 {
 public:
-    QCategoryButton( QWidget *parent, const char *name ) :
+    QToolBoxButton( QWidget *parent, const char *name ) :
 	QToolButton( parent, name ), selected( FALSE )
 	{ setBackgroundMode( PaletteLight ); }
 
@@ -74,10 +74,10 @@ private:
 
 };
 
-class QCategoryBarPrivate
+class QToolBoxPrivate
 {
 public:
-    struct Category
+    struct Page
     {
 	QToolButton *button;
 	QString label;
@@ -85,35 +85,35 @@ public:
 	QString toolTip;
     };
 
-    QCategoryBarPrivate()
+    QToolBoxPrivate()
 	{
 	    currentPage = 0;
 	    lastButton = 0;
-	    categories = new QPtrList<Category>;
+	    categories = new QPtrList<Page>;
 	    categories->setAutoDelete( TRUE );
 	    scrollEffect = TRUE;
 	}
 
-    ~QCategoryBarPrivate()
+    ~QToolBoxPrivate()
 	{
 	    delete categories;
 	}
 
-    QCategoryButton *button( QWidget *page )
+    QToolBoxButton *button( QWidget *page )
 	{
 	    QPtrDictIterator<QWidget> it( pages );
 	    while ( it.current() ) {
 		if ( it.current() == page )
-		    return (QCategoryButton*)it.currentKey();
+		    return (QToolBoxButton*)it.currentKey();
 		++it;
 	    }
 	    return 0;
 	}
 
-    Category *category( QWidget *page )
+    Page *page( QWidget *page )
 	{
-	    QCategoryButton *b = button( page );
-	    for ( QCategoryBarPrivate::Category *c = categories->first(); c;
+	    QToolBoxButton *b = button( page );
+	    for ( QToolBoxPrivate::Page *c = categories->first(); c;
 		  c = categories->next() ) {
 		if ( c->button == b )
 		    return c;
@@ -140,15 +140,15 @@ public:
 	}
 
     QPtrDict<QWidget> pages;
-    QPtrList<Category> *categories;
+    QPtrList<Page> *categories;
     QVBoxLayout *layout;
     QWidget *currentPage;
-    QCategoryButton *lastButton;
+    QToolBoxButton *lastButton;
     bool scrollEffect;
 };
 
 
-QSize QCategoryButton::sizeHint() const
+QSize QToolBoxButton::sizeHint() const
 {
     int ih = 0;
     if ( !ic.isNull() )
@@ -156,7 +156,7 @@ QSize QCategoryButton::sizeHint() const
     return QToolButton::sizeHint().expandedTo( QSize( 0, ih ) );
 }
 
-void QCategoryButton::drawButton( QPainter *p )
+void QToolBoxButton::drawButton( QPainter *p )
 {
     QStyle::SFlags flags = QStyle::Style_Default;
 
@@ -166,7 +166,7 @@ void QCategoryButton::drawButton( QPainter *p )
 	flags |= QStyle::Style_Selected;
     if ( hasFocus() )
 	flags |= QStyle::Style_HasFocus;
-    style().drawControl( QStyle::CE_CategoryBarTab, p, this, rect(),
+    style().drawControl( QStyle::CE_ToolBoxTab, p, this, rect(),
 			 colorGroup(), flags );
 
     int d = 20 + height() - 3;
@@ -214,14 +214,14 @@ void QCategoryButton::drawButton( QPainter *p )
 }
 
 
-QCategoryBar::QCategoryBar( QWidget *parent, const char *name )
+QToolBox::QToolBox( QWidget *parent, const char *name )
     :  QWidget( parent, name )
 {
-    d = new QCategoryBarPrivate;
+    d = new QToolBoxPrivate;
     d->layout = new QVBoxLayout( this );
 }
 
-QCategoryBar::~QCategoryBar()
+QToolBox::~QToolBox()
 {
     delete d;
 }
@@ -236,29 +236,29 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
     delete l;
 }
 
-void QCategoryBar::addCategory( const QString &label, QWidget *page )
+void QToolBox::addPage( const QString &label, QWidget *page )
 {
-    addCategory( label, QIconSet(), page );
+    addPage( label, QIconSet(), page );
 }
 
-void QCategoryBar::addCategory( const QString &label, const QIconSet &iconSet,
+void QToolBox::addPage( const QString &label, const QIconSet &iconSet,
 				QWidget *page )
 {
-    insertCategory( label, iconSet, page );
+    insertPage( label, iconSet, page );
 }
 
-void QCategoryBar::insertCategory( const QString &label, QWidget *page, int index )
+void QToolBox::insertPage( const QString &label, QWidget *page, int index )
 {
-    insertCategory( label, QIconSet(), page, index );
+    insertPage( label, QIconSet(), page, index );
 }
 
-void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet,
+void QToolBox::insertPage( const QString &label, const QIconSet &iconSet,
 				   QWidget *page, int index )
 {
     page->setBackgroundMode( PaletteBackground );
 
-    QCategoryButton *button = new QCategoryButton( this, label.latin1() );
-    QCategoryBarPrivate::Category *c = new QCategoryBarPrivate::Category;
+    QToolBoxButton *button = new QToolBoxButton( this, label.latin1() );
+    QToolBoxPrivate::Page *c = new QToolBoxPrivate::Page;
     c->button = button;
     c->label = label;
     c->iconSet = iconSet;
@@ -307,9 +307,9 @@ void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet
     updateTabs();
 }
 
-void QCategoryBar::buttonClicked()
+void QToolBox::buttonClicked()
 {
-    QCategoryButton *tb = (QCategoryButton*)sender();
+    QToolBoxButton *tb = (QToolBoxButton*)sender();
     QWidget *page = d->pages.find( tb );
 
     if ( page == d->currentPage )
@@ -323,7 +323,7 @@ void QCategoryBar::buttonClicked()
 	int direction = 0;
 
 	QWidgetList buttons;
-	for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
 	      c = d->categories->next() ) {
 	    if ( c->button == tb ) {
 		buttons.append( c->button );
@@ -364,10 +364,10 @@ void QCategoryBar::buttonClicked()
     setCurrentPage( page );
 }
 
-void QCategoryBar::updateTabs()
+void QToolBox::updateTabs()
 {
     bool after = FALSE;
-    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
 	  c = d->categories->next() ) {
 	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
 	c->button->update();
@@ -375,22 +375,22 @@ void QCategoryBar::updateTabs()
     }
 }
 
-int QCategoryBar::count() const
+int QToolBox::count() const
 {
     return d->categories->count();
 }
 
-void QCategoryBar::setCurrentPage( int index )
+void QToolBox::setCurrentPage( int index )
 {
     setCurrentPage( page( index ) );
 }
 
-void QCategoryBar::setCurrentPage( QWidget *page )
+void QToolBox::setCurrentPage( QWidget *page )
 {
     if ( !page || d->currentPage == page )
 	return;
 
-    QCategoryButton *tb = d->button( page );
+    QToolBoxButton *tb = d->button( page );
     if( !tb )
 	return;
 
@@ -409,11 +409,11 @@ void QCategoryBar::setCurrentPage( QWidget *page )
     emit currentChanged( page );
 }
 
-void QCategoryBar::relayout()
+void QToolBox::relayout()
 {
     delete d->layout;
     d->layout = new QVBoxLayout( this );
-    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
 	  c = d->categories->next() ) {
 	d->layout->addWidget( c->button );
 	d->layout->addWidget( d->pages.find( c->button ) );
@@ -423,12 +423,12 @@ void QCategoryBar::relayout()
     setCurrentPage( currPage );
 }
 
-void QCategoryBar::removeCategory( QWidget *page )
+void QToolBox::removePage( QWidget *page )
 {
     if ( !page )
 	return;
 
-    QCategoryButton *tb = d->button( page );
+    QToolBoxButton *tb = d->button( page );
     if ( !tb )
 	return;
 
@@ -440,26 +440,26 @@ void QCategoryBar::removeCategory( QWidget *page )
     d->layout->remove( tb );
 }
 
-QWidget *QCategoryBar::currentPage() const
+QWidget *QToolBox::currentPage() const
 {
     return d->currentPage;
 }
 
-int QCategoryBar::currentIndex() const
+int QToolBox::currentIndex() const
 {
     return pageIndex( d->currentPage );
 }
 
-QWidget *QCategoryBar::page( int index ) const
+QWidget *QToolBox::page( int index ) const
 {
     return d->pages.find( d->categories->at( index )->button );
 }
 
-int QCategoryBar::pageIndex( QWidget *page ) const
+int QToolBox::pageIndex( QWidget *page ) const
 {
-    QCategoryButton *tb = d->button( page );
+    QToolBoxButton *tb = d->button( page );
     int i = 0;
-    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+    for ( QToolBoxPrivate::Page *c = d->categories->first(); c;
 	  c = d->categories->next(), ++i ) {
 	if ( c->button == tb )
 	    return i;
@@ -467,9 +467,9 @@ int QCategoryBar::pageIndex( QWidget *page ) const
     return -1;
 }
 
-void QCategoryBar::setCategoryEnabled( QWidget *page, bool enabled )
+void QToolBox::setPageEnabled( QWidget *page, bool enabled )
 {
-    QCategoryButton *tb = d->button( page );
+    QToolBoxButton *tb = d->button( page );
     if ( !tb )
 	return;
 
@@ -479,7 +479,7 @@ void QCategoryBar::setCategoryEnabled( QWidget *page, bool enabled )
     tb->setEnabled( enabled );
 }
 
-void QCategoryBar::activateClosestPage( QWidget *page )
+void QToolBox::activateClosestPage( QWidget *page )
 {
     if ( page != d->currentPage )
 	return;
@@ -496,10 +496,10 @@ void QCategoryBar::activateClosestPage( QWidget *page )
     }
 }
 
-void QCategoryBar::setCategoryLabel( QWidget *page, const QString &label )
+void QToolBox::setPageLabel( QWidget *page, const QString &label )
 {
-    QCategoryButton *tb = d->button( page );
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxButton *tb = d->button( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
 	return;
 
@@ -507,21 +507,21 @@ void QCategoryBar::setCategoryLabel( QWidget *page, const QString &label )
     c->button->setText( label );
 }
 
-void QCategoryBar::setCategoryIconSet( QWidget *page, const QIconSet &iconSet )
+void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 {
-    QCategoryButton *tb = d->button( page );
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxButton *tb = d->button( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
 	return;
 
     c->iconSet = iconSet;
-    ( (QCategoryButton*)c->button )->setIcon( iconSet );
+    ( (QToolBoxButton*)c->button )->setIcon( iconSet );
 }
 
-void QCategoryBar::setCategoryToolTip( QWidget *page, const QString &toolTip )
+void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 {
-    QCategoryButton *tb = d->button( page );
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxButton *tb = d->button( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
 	return;
 
@@ -530,36 +530,36 @@ void QCategoryBar::setCategoryToolTip( QWidget *page, const QString &toolTip )
     QToolTip::add( tb, toolTip );
 }
 
-bool QCategoryBar::isCategoryEnabled( QWidget *page ) const
+bool QToolBox::isPageEnabled( QWidget *page ) const
 {
-    QCategoryButton *tb = d->button( page );
+    QToolBoxButton *tb = d->button( page );
     return tb && tb->isEnabled();
 }
 
-QString QCategoryBar::categoryLabel( QWidget *page ) const
+QString QToolBox::pageLabel( QWidget *page ) const
 {
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->label : QString::null;
 }
 
-QIconSet QCategoryBar::categoryIconSet( QWidget *page ) const
+QIconSet QToolBox::pageIconSet( QWidget *page ) const
 {
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->iconSet : QIconSet();
 }
 
-QString QCategoryBar::categoryToolTip( QWidget *page ) const
+QString QToolBox::pageToolTip( QWidget *page ) const
 {
-    QCategoryBarPrivate::Category *c = d->category( page );
+    QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
 }
 
-bool QCategoryBar::isScrollEffectEnabled() const
+bool QToolBox::isScrollEffectEnabled() const
 {
     return d->scrollEffect;
 }
 
-void QCategoryBar::setScrollEffectEnabled( bool enable )
+void QToolBox::setScrollEffectEnabled( bool enable )
 {
     d->scrollEffect = enable;
 }
