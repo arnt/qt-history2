@@ -556,13 +556,15 @@ void QHeaderView::resizeSection(int logicalIndex, int size)
 
 /*!
     Returns true if the section specified by \a logicalIndex is
-    hidden from the user; otherwise returns false.
+    explicitly hidden from the user; otherwise returns false.
 */
 
 bool QHeaderView::isSectionHidden(int logicalIndex) const
 {
     Q_D(const QHeaderView);
     int visual = visualIndex(logicalIndex);
+    if (visual == -1 || d->sections.count() == 0)
+        return false;
     return d->sections.at(visual).hidden;
 }
 
