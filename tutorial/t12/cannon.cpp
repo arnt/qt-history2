@@ -162,11 +162,11 @@ QRect CannonField::shotRect() const
     const double gravity = 4;
 
     double time      = timerCount / 4.0;
-    double forceFrac = shoot_f/0.7; 
+    double velocity  = shoot_f/0.7; 
     double radians   = shoot_ang*3.14159265/180;
     
-    double velx      = forceFrac*cos( radians );
-    double vely      = forceFrac*sin( radians );
+    double velx      = velocity*cos( radians );
+    double vely      = velocity*sin( radians );
     double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
     double y0        = ( barrel_rect.right()  + 5 )*sin(radians);
     int    x         = (int) (x0 + velx*time);
