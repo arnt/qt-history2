@@ -274,6 +274,8 @@ QPrinter\QPainter??
   Export the graphics to a WMF (Window Metafile) - I doubt we will do this, but I'll
   add it all the same.
 
+QToolButton
+  Option to have associated popup menu pop up instead of down.
 
 New functionality
 -----------------
