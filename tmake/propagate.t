@@ -144,7 +144,14 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 		$targ='$(SYSCONF_LINK_TARGET)';
 	    }
 	} else {
-	    $targ = '$(TARGET)';
+	    if ( Config('dll') ) {
+		if ($is_unix) {
+		    $targ = '$(TARGET)' . ".so";
+		} else {
+		    $targ = '$(TARGET)' . ".dll";
+		    $targ = "np" . $targ if Config('np');
+		}
+	    }
 	}
 
 	$text .= 'all: ';
@@ -162,7 +169,11 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 		$text .= '$(SYSCONF_LINK_LIB)';
 	    }
 	} else {
-	    $text .= '$(SYSCONF_LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
+	    $text .= '$(SYSCONF_LINK) $(LFLAGS) ';
+	    if ( Config('dll') ) {
+		$text .= $(SYSCONF_LFLAGS_SHLIB) ';
+	    }
+	    $text .= '-o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
 	}
 #$}
 

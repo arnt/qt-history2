@@ -44,13 +44,13 @@ SYSCONF_LINK_LIB_SHARED	= #${
 	$text .= ' $(SYSCONF_LINK_SHLIB) '
 		       . Project('TMAKE_LFLAGS_SHLIB') . ' '
 		       . ( Project('TMAKE_LFLAGS_SONAME')
-			     ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).sl'
+			     ? Project('TMAKE_LFLAGS_SONAME') . '$(SYSCONF_LINK_TARGET_SHARED)'
 			     : '' )
 		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED) $(OBJECTS) '
 		       . ' $(OBJMOC) $(LIBS);'
 		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);'
 		 . ' cd $(DESTDIR);'
-		 . ' rm -f lib$(TARGET).sl';
+		 . ' rm -f $(SYSCONF_LINK_TARGET_SHARED)';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
 	    $text .= ' $(SYSCONF_LINK_SHLIB)'
@@ -81,7 +81,7 @@ SYSCONF_LINK_LIB_SHARED	= #${
 #   - Place target in $(DESTDIR) - which has a trailing /
 #
 SYSCONF_AR		= #$ Expand('TMAKE_AR');
-SYSCONF_LINK_TARGET_STATIC = lib$(TARGET).sl
+SYSCONF_LINK_TARGET_STATIC = lib$(TARGET).a
 SYSCONF_LINK_LIB_STATIC	= #${
         if ( $project{"TMAKE_AR_CMD"} ) {
             $project{"TMAKE_AR_CMD"} =~ s/\$\(TARGETA\)/\$(DESTDIR)$targ/g;
