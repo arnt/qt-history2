@@ -290,10 +290,6 @@ void QApplicationPrivate::createEventLoop()
   \headerfile qglobal.h
 */
 
-/*! \enum Qt::HANDLE
-    \internal
-*/
-
 /*!
     \enum QApplication::Type
 

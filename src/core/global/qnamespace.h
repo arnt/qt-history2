@@ -26,7 +26,6 @@ class Q_CORE_EXPORT Qt {
     Q_FLAGS(AlignmentFlag)
 public:
 #endif
-    // documented in qnamespace.doc
     enum GlobalColor {
         color0,
         color1,
@@ -111,9 +110,7 @@ public:
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
 
-    // documented in qnamespace.doc
     enum TextFlags {
-
         TextSingleLine = 0x0080,                // misc. flags
         TextDontClip = 0x0100,
         TextExpandTabs = 0x0200,
@@ -312,36 +309,34 @@ public:
 
     // Image conversion flags.  The unusual ordering is caused by
     // compatibility and default requirements.
-    // Documented in qimage.cpp
 
     enum ImageConversionFlag {
-        ColorMode_Mask                = 0x00000003,
-        AutoColor                = 0x00000000,
-        ColorOnly                = 0x00000003,
+        ColorMode_Mask          = 0x00000003,
+        AutoColor               = 0x00000000,
+        ColorOnly               = 0x00000003,
         MonoOnly                = 0x00000002,
-        //          Reserved        = 0x00000001,
+        // Reserved             = 0x00000001,
 
         AlphaDither_Mask        = 0x0000000c,
-        ThresholdAlphaDither        = 0x00000000,
-        OrderedAlphaDither        = 0x00000004,
-        DiffuseAlphaDither        = 0x00000008,
-        NoAlpha                        = 0x0000000c, // Not supported
+        ThresholdAlphaDither    = 0x00000000,
+        OrderedAlphaDither      = 0x00000004,
+        DiffuseAlphaDither      = 0x00000008,
+        NoAlpha                 = 0x0000000c, // Not supported
 
-        Dither_Mask                = 0x00000030,
-        DiffuseDither                = 0x00000000,
-        OrderedDither                = 0x00000010,
-        ThresholdDither                = 0x00000020,
-        //          ReservedDither= 0x00000030,
+        Dither_Mask             = 0x00000030,
+        DiffuseDither           = 0x00000000,
+        OrderedDither           = 0x00000010,
+        ThresholdDither         = 0x00000020,
+        // ReservedDither       = 0x00000030,
 
-        DitherMode_Mask                = 0x000000c0,
-        AutoDither                = 0x00000000,
-        PreferDither                = 0x00000040,
-        AvoidDither                = 0x00000080
+        DitherMode_Mask         = 0x000000c0,
+        AutoDither              = 0x00000000,
+        PreferDither            = 0x00000040,
+        AvoidDither             = 0x00000080
     };
     Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag)
 
-    // documented in qnamespace.doc
-    enum BGMode        {                                // background mode
+    enum BGMode {                                   // background mode
         TransparentMode,
         OpaqueMode
     };
@@ -358,22 +353,14 @@ public:
     };
 #endif
 
-    // documented in qstyle.cpp
-#ifndef QT_COMPAT
+    // ### Qt 4: Kill this enum
     enum GUIStyle {
-        WindowsStyle = 1,     // ### Qt 4.0: either remove the obsolete enums or clean up no compat vs.
-        MotifStyle = 4        // ### QT_COMPAT by reordering or combination into one enum.
-    };
-#else
-    enum GUIStyle {
-        MacStyle, // OBSOLETE
+        MacStyle,
         WindowsStyle,
-        Win3Style, // OBSOLETE
-        PMStyle, // OBSOLETE
+        Win3Style,
+        PMStyle,
         MotifStyle
     };
-#endif
-
 
     // documented in qevent.cpp
     enum Modifier {                // shortcut modifiers
@@ -696,7 +683,6 @@ public:
         RightArrow
     };
 
-    // documented in qnamespace.doc
     enum PenStyle { // pen style
         NoPen,
         SolidLine,
@@ -707,7 +693,6 @@ public:
         MPenStyle = 0x0f
     };
 
-    // documented in qnamespace.doc
     enum PenCapStyle { // line endcap style
         FlatCap = 0x00,
         SquareCap = 0x10,
@@ -715,7 +700,6 @@ public:
         MPenCapStyle = 0x30
     };
 
-    // documented in qqnamespace.doc
     enum PenJoinStyle { // line join style
         MiterJoin = 0x00,
         BevelJoin = 0x40,
@@ -723,7 +707,6 @@ public:
         MPenJoinStyle = 0xc0
     };
 
-    // documented in qnamespace.doc
     enum BrushStyle { // brush style
         NoBrush,
         SolidPattern,
@@ -786,7 +769,6 @@ public:
     };
 #endif
 
-    // documented in qstyle.cpp
     enum UIEffect {
         UI_General,
         UI_AnimateMenu,
@@ -867,7 +849,6 @@ public:
         AnchorHref
     };
 
-    // Documented in qnamespace.doc
     enum DockWindowArea {
         DockWindowAreaLeft   = 0x1,
         DockWindowAreaRight  = 0x2,
@@ -882,7 +863,6 @@ public:
 
     Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea)
 
-    // Documented in qnamespace.doc
     enum ToolBarArea {
         ToolBarAreaLeft   = 0x1,
         ToolBarAreaRight  = 0x2,
@@ -952,7 +932,6 @@ public:
     };
 
 #ifdef QT_COMPAT
-    // Documented in qnamespace.doc
     enum BackgroundMode {
         FixedColor,
         FixedPixmap,
@@ -977,7 +956,6 @@ public:
     };
 #endif
 
-    // Documented in qnamespace.doc
     enum CaseSensitivity {
         CaseInsensitive,
         CaseSensitive
@@ -997,7 +975,6 @@ public:
 #endif
     };
 
-    // Documented in qnamespace.doc
     enum ConnectionType {
         AutoConnection,
         DirectConnection,
@@ -1019,7 +996,6 @@ public:
         CopyPixmapNoMask // compatibility
     };
 
-    // Documented in qpixmap.cpp
     enum TransformationMode {
         FastTransformation,
         SmoothTransformation
@@ -1034,7 +1010,6 @@ public:
 
     Q_DECLARE_FLAGS(RectangleEdges, RectangleEdge)
 
-    // Documented in qcoresettings.cpp
     enum SettingsFormat {
         NativeFormat,
         IniFormat
@@ -1045,8 +1020,6 @@ public:
         SystemScope
     };
 
-    // "handle" type for system objects. Documented as \internal in
-    // qapplication.cpp
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)
@@ -1076,7 +1049,7 @@ public:
         System = 0x05,
         DeviceTypeMask = 0x0f,
         ExternalDevice = 0x10,
-        // used to emulate some of the behaviour different between Qt2 and Qt3 (mainly for printing)
+        // used to emulate some of the behavior different between Qt2 and Qt3 (mainly for printing)
         CompatibilityMode = 0x20
     };
     enum RelayoutType {

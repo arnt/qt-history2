@@ -255,49 +255,6 @@ QImageData::~QImageData()
     \value LittleEndian  PC/Alpha byte order.
 */
 
-/*!
-    \enum Qt::ImageConversionFlags
-
-    The conversion flag is a bitwise-OR of the following values. The
-    options marked "(default)" are set if no other values from the
-    list are included (since the defaults are zero):
-
-    Color/Mono preference (ignored for QBitmap)
-    \value AutoColor (default) - If the image has \link
-           QImage::depth() depth\endlink 1 and contains only
-           black and white pixels, the pixmap becomes monochrome.
-    \value ColorOnly The pixmap is dithered/converted to the
-           \link QPixmap::defaultDepth() native display depth\endlink.
-    \value MonoOnly The pixmap becomes monochrome. If necessary,
-           it is dithered using the chosen dithering algorithm.
-
-    Dithering mode preference for RGB channels
-    \value DiffuseDither (default) - A high-quality dither.
-    \value OrderedDither A faster, more ordered dither.
-    \value ThresholdDither No dithering; closest color is used.
-
-    Dithering mode preference for alpha channel
-    \value ThresholdAlphaDither (default) - No dithering.
-    \value OrderedAlphaDither A faster, more ordered dither.
-    \value DiffuseAlphaDither A high-quality dither.
-    \omitvalue NoAlpha
-
-    Color matching versus dithering preference
-    \value PreferDither (default when converting to a pixmap) - Always dither
-           32-bit images when the image is converted to 8 bits.
-    \value AvoidDither (default when converting for the purpose of saving to
-           file) - Dither 32-bit images only if the image has more than 256
-           colors and it is being converted to 8 bits.
-    \omitvalue AutoDither
-
-    \omitvalue ColorMode_Mask
-    \omitvalue Dither_Mask
-    \omitvalue AlphaDither_Mask
-    \omitvalue DitherMode_Mask
-
-    Using 0 as the conversion flag sets all the default options.
-*/
-
 
 /*****************************************************************************
   QImage member functions
@@ -2435,7 +2392,7 @@ bool QImage::isGrayscale() const
 */
 
 /*!
-    \fn QT_NO_IMAGE_TRANSFORMATION QImage QImage::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
+    \fn QImage QImage::scale(const QSize &size, Qt::AspectRatioMode aspectMode, Qt::TransformationMode transformMode) const
 
     \overload
 

@@ -475,6 +475,6 @@ void QSocketDevice::setError(Error err)
 */
 
 /*!
-    \fn int QSocketDevice::ungetc(int ch)
+    \fn int QSocketDevice::ungetch(int ch)
     \internal
 */

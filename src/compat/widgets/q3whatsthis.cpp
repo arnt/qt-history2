@@ -21,7 +21,7 @@
 */
 
 /*!
-    Constructs a new What's This object for \a widget.
+    Constructs a new "What's This?" object for \a widget.
 */
 Q3WhatsThis::Q3WhatsThis(QWidget *widget)
     : QObject(widget)
@@ -31,7 +31,7 @@ Q3WhatsThis::Q3WhatsThis(QWidget *widget)
 }
 
 /*!
-    Destroys the What's This object.
+    Destroys the "What's This?" object.
 */
 Q3WhatsThis::~Q3WhatsThis()
 {
@@ -40,7 +40,7 @@ Q3WhatsThis::~Q3WhatsThis()
 /*!
     \internal
 
-    Handles What's This events.
+    Handles "What's This?" events.
 */
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 {
@@ -62,9 +62,13 @@ bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 }
 
 /*!
-    Returns the parent's What's This text or an empty string.
+    This virtual function returns the text for position \e pos in the
+    widget that this "What's This?" object documents. If there is no
+    "What's This?" text for the position, an empty string is returned.
+
+    The default implementation returns an empty string.
 */
-QString Q3WhatsThis::text(const QPoint &)
+QString Q3WhatsThis::text(const QPoint & /* pos */)
 {
     if (parent() && parent()->isWidgetType())
         return static_cast<QWidget*>(parent())->whatsThis();
@@ -72,10 +76,19 @@ QString Q3WhatsThis::text(const QPoint &)
 }
 
 /*!
-    Returns true.
+    This virtual function is called when the user clicks inside the
+    "What's this?" window. \a href is the link the user clicked on, or
+    an empty string if there was no link.
+
+    If the function returns true (the default), the "What's this?"
+    window is closed, otherwise it remains visible.
+
+    The default implementation ignores \a href and returns true.
 */
-bool Q3WhatsThis::clicked(const QString &)
-{ return true;}
+bool Q3WhatsThis::clicked(const QString & /* href */)
+{
+    return true;
+}
 
 /*!
     \fn void Q3WhatsThis::enterWhatsThisMode()

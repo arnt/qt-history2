@@ -352,3 +352,148 @@
     \value PaletteLinkVisited
     \value X11ParentRelative
 */
+
+/*!
+    \enum Qt::ImageConversionFlag
+
+    The options marked "(default)" are set if no other values from
+    the list are included (since the defaults are zero):
+
+    Color/Mono preference (ignored for QBitmap):
+
+    \value AutoColor (default) - If the image has \link
+           QImage::depth() depth\endlink 1 and contains only
+           black and white pixels, the pixmap becomes monochrome.
+    \value ColorOnly The pixmap is dithered/converted to the
+           \link QPixmap::defaultDepth() native display depth\endlink.
+    \value MonoOnly The pixmap becomes monochrome. If necessary,
+           it is dithered using the chosen dithering algorithm.
+
+    Dithering mode preference for RGB channels:
+
+    \value DiffuseDither (default) - A high-quality dither.
+    \value OrderedDither A faster, more ordered dither.
+    \value ThresholdDither No dithering; closest color is used.
+
+    Dithering mode preference for alpha channel:
+
+    \value ThresholdAlphaDither (default) - No dithering.
+    \value OrderedAlphaDither A faster, more ordered dither.
+    \value DiffuseAlphaDither A high-quality dither.
+    \omitvalue NoAlpha
+
+    Color matching versus dithering preference:
+
+    \value PreferDither (default when converting to a pixmap) - Always dither
+           32-bit images when the image is converted to 8 bits.
+    \value AvoidDither (default when converting for the purpose of saving to
+           file) - Dither 32-bit images only if the image has more than 256
+           colors and it is being converted to 8 bits.
+    \omitvalue AutoDither
+
+    \omitvalue ColorMode_Mask
+    \omitvalue Dither_Mask
+    \omitvalue AlphaDither_Mask
+    \omitvalue DitherMode_Mask
+*/
+
+/*! \enum Qt::GUIStyle
+
+    \compat
+*/
+
+/*!
+    \enum Qt::UIEffect
+
+    \value UI_General
+    \value UI_AnimateMenu
+    \value UI_FadeMenu
+    \value UI_AnimateCombo
+    \value UI_AnimateTooltip
+    \value UI_FadeTooltip
+    \value UI_AnimateToolBox Reserved
+
+    \sa QApplication::setEffectEnabled()
+*/
+
+/*! \enum Qt::AspectRatioMode
+
+    This enum type defines what happens to the aspect ratio when
+    scaling an rectangle.
+
+    \img qimage-scaling.png
+
+    \value IgnoreAspectRatio  The size is scaled freely. The aspect
+                              ratio is not preserved.
+    \value KeepAspectRatio  The size is scaled to a rectangle as
+                            large as possible inside a given
+                            rectangle, preserving the aspect ratio.
+    \value KeepAspectRatioByExpanding  The size is scaled to a
+                                       rectangle as small as possible
+                                       outside a given rectangle,
+                                       preserving the aspect ratio.
+
+    \sa QSize::scale(), QImage::scale()
+*/
+
+/*! \typedef Qt::ScaleMode
+    \compat
+
+    Use Qt::AspectRatioMode instead.
+*/
+
+/*! \enum Qt::TransformationMode
+
+    This enum type defines whether image transformations (e.g.,
+    scaling) should be smooth or not.
+
+    \value FastTransformation  The transformation is performed
+                               quickly, with no smoothing.
+    \value SmoothTransformation  The resulting image has smoothed
+                                 edges.
+
+    \sa QImage::scale()
+*/
+
+/*! \enum Qt::SettingsFormat
+
+    This enum type specifies the storage format used by QCoreSettings
+    and QSettings.
+
+    \value NativeFormat  Store the settings using the most
+                         appropriate storage format for the platform.
+                         On Windows, this means the system registry;
+                         on Mac OS X, this means the CFPreferences
+                         API; on Unix/X11, this means textual
+                         configuration files in INI format.
+    \value IniFormat  Store the settings in INI files.
+
+    On Unix/X11, \c NativeFormat and \c IniFormat mean the same
+    thing, except that the file extension is different (\c .conf for
+    \c NativeFormat, \c .ini for \c IniFormat).
+
+    The INI file format is a standard Windows file format that Qt
+    supports on all platforms.
+*/
+
+/*! \enum Qt::SettingsScope
+
+    This enum specifies whether settings are user-specific or shared
+    by all users of the same system.
+
+    \value UserScope  Store settings in a location specific to the
+                      current user (e.g., in the user's home
+                      directory).
+    \value SystemScope  Store settings in a global location, so that
+                        all users on the same machine access the same
+                        set of settings.
+*/
+
+/*! \typedef Qt::HANDLE
+
+    Platform-specific handle type for system objects. This is
+    equivalent to \c{void *} on Windows, Mac OS X, and Qt/Embedded,
+    and to \c{unsigned long} on X11.
+
+    \warning Using this type is not portable.
+*/

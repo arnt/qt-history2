@@ -78,7 +78,7 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
-    bool isOpen() const { return true; };
+    bool isOpen() const { return true; }
     virtual int ungetch(int) { return -1; }
     virtual void close();
     virtual Q_LONGLONG size() const;

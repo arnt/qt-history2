@@ -7,13 +7,9 @@
 \title Using the Motif Event Loop 
 
 
-<hr>
-
-Header
+Header:
 
 \include customwidget/mainwindow.h
-
-<hr>
 
 Implementation:
 
