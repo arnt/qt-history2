@@ -46,8 +46,6 @@
 extern "C" {
 #endif
 
-extern void qt_ignore_badwindow();
-extern bool qt_badwindow();
 extern void qt_enter_modal(QWidget *widget);
 extern void qt_leave_modal(QWidget *widget);
 
@@ -56,7 +54,6 @@ extern void qt_leave_modal(QWidget *widget);
 #endif
 
 extern Window qt_x11_findClientWindow(Window, Atom, bool);
-extern Time qt_x_time;
 
 // this stuff is copied from qclb_x11.cpp
 
@@ -258,11 +255,11 @@ static bool qt_xdnd_enable(QWidget* w, bool on)
                 XFree(proxy_id_ptr);
                 proxy_id_ptr = 0;
                 // Already exists. Real?
-                qt_ignore_badwindow();
+                X11->ignoreBadwindow();
                 XGetWindowProperty(w->x11Info()->display(), proxy_id,
                     ATOM(XdndProxy), 0, 1, False,
                     XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id_ptr);
-                if (qt_badwindow() || type != XA_WINDOW || !proxy_id_ptr || *proxy_id_ptr != proxy_id) {
+                if (X11->badwindow() || type != XA_WINDOW || !proxy_id_ptr || *proxy_id_ptr != proxy_id) {
                     // Bogus - we will overwrite.
                     proxy_id = 0;
                 }
@@ -1057,10 +1054,10 @@ void QDragManager::move(const QPoint & globalPos)
         int r, f;
         unsigned long n, a;
         WId *proxy_id;
-        qt_ignore_badwindow();
+        X11->ignoreBadwindow();
         r = XGetWindowProperty(qt_xdisplay(), target, ATOM(XdndProxy), 0,
                                 1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id);
-        if ((r != Success) || qt_badwindow()) {
+        if ((r != Success) || X11->badwindow()) {
             proxy_target = target = 0;
         } else if (type == XA_WINDOW && proxy_id) {
             proxy_target = *proxy_id;
@@ -1068,7 +1065,7 @@ void QDragManager::move(const QPoint & globalPos)
             proxy_id = 0;
             r = XGetWindowProperty(qt_xdisplay(), proxy_target, ATOM(XdndProxy), 0,
                                     1, False, XA_WINDOW, &type, &f,&n,&a,(uchar**)&proxy_id);
-            if ((r != Success) || qt_badwindow() || !type || !proxy_id || *proxy_id != proxy_target) {
+            if ((r != Success) || X11->badwindow() || !type || !proxy_id || *proxy_id != proxy_target) {
                 // Bogus
                 proxy_target = 0;
                 target = 0;
@@ -1078,7 +1075,7 @@ void QDragManager::move(const QPoint & globalPos)
         }
         if (proxy_target) {
             int *tv;
-            qt_ignore_badwindow();
+            X11->ignoreBadwindow();
             r = XGetWindowProperty(qt_xdisplay(), proxy_target, ATOM(XdndAware), 0,
                                     1, False, AnyPropertyType, &type, &f,&n,&a,(uchar**)&tv);
             if (r != Success) {
@@ -1087,7 +1084,7 @@ void QDragManager::move(const QPoint & globalPos)
                 target_version = qMin(qt_xdnd_version,tv ? *tv : 1);
                 if (tv)
                     XFree(tv);
-                if (!(!qt_badwindow() && type))
+                if (!(!X11->badwindow() && type))
                     target = 0;
             }
         }
@@ -1149,7 +1146,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.data.l[0] = object->source()->winId();
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
-        move.data.l[3] = qt_x_time;
+        move.data.l[3] = X11->time;
         move.data.l[4] = qtaction_to_xdndaction(global_requested_action);
 
         if (w)
@@ -1184,7 +1181,7 @@ void QDragManager::drop()
     drop.data.l[0] = object->source()->winId();
     drop.data.l[1] = 1 << 24; // flags
     drop.data.l[2] = 0; // ###
-    drop.data.l[3] = qt_x_time;
+    drop.data.l[3] = X11->time;
     drop.data.l[4] = 0;
 
     QWidget * w = QWidget::find(qt_xdnd_current_proxy_target);
@@ -1516,7 +1513,7 @@ bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
     dragSource = (QWidget *)(object->parent());
 
     qApp->installEventFilter(this);
-    qt_xdnd_source_current_time = qt_x_time;
+    qt_xdnd_source_current_time = X11->time;
     XSetSelectionOwner(QX11Info::appDisplay(), ATOM(XdndSelection),
                         dragSource->topLevelWidget()->winId(),
                         qt_xdnd_source_current_time);

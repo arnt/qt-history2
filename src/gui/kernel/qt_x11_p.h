@@ -235,6 +235,9 @@ extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 class QWidget;
 
+struct QX11Data;
+extern QX11Data *qt_x11Data;
+
 struct QX11Data
 {
     Display *display;
@@ -288,6 +291,24 @@ struct QX11Data
     Screen *screens;
     int screenCount;
     int defaultScreen;
+
+    Time time;
+    Time userTime;
+
+    // starts to ignore bad window errors from X
+    static inline void ignoreBadwindow() {
+        qt_x11Data->ignore_badwindow = true;
+        qt_x11Data->seen_badwindow = false;
+    }
+
+    // ends ignoring bad window errors and returns whether an error had happened.
+    static inline bool badwindow() {
+        qt_x11Data->ignore_badwindow = false;
+        return qt_x11Data->seen_badwindow;
+    }
+
+    bool ignore_badwindow;
+    bool seen_badwindow;
 
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {

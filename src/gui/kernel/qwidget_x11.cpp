@@ -64,9 +64,6 @@ extern bool qt_nograb();
 static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
-// defined in qapplication_x11.cpp
-extern Time qt_x_time;
-extern Time qt_x_user_time;
 
 int qt_x11_create_desktop_on_screen = -1;
 
@@ -1201,7 +1198,7 @@ void QWidget::grabMouse()
                                   PointerMotionMask | EnterWindowMask |
                                   LeaveWindowMask),
                           GrabModeAsync, GrabModeAsync,
-                          XNone, XNone, qt_x_time);
+                          XNone, XNone, X11->time);
 #ifndef QT_NO_DEBUG
         if (status) {
             const char *s =
@@ -1243,7 +1240,7 @@ void QWidget::grabMouse(const QCursor &cursor)
                       (uint)(ButtonPressMask | ButtonReleaseMask |
                              PointerMotionMask | EnterWindowMask | LeaveWindowMask),
                       GrabModeAsync, GrabModeAsync,
-                      XNone, cursor.handle(), qt_x_time);
+                      XNone, cursor.handle(), X11->time);
 #ifndef QT_NO_DEBUG
         if (status) {
             const char *s =
@@ -1268,7 +1265,7 @@ void QWidget::grabMouse(const QCursor &cursor)
 void QWidget::releaseMouse()
 {
     if (!qt_nograb() && mouseGrb == this) {
-        XUngrabPointer(d->xinfo->display(),  qt_x_time);
+        XUngrabPointer(d->xinfo->display(),  X11->time);
         XFlush(d->xinfo->display());
         mouseGrb = 0;
     }
@@ -1298,7 +1295,7 @@ void QWidget::grabKeyboard()
         if (keyboardGrb)
             keyboardGrb->releaseKeyboard();
         XGrabKeyboard(d->xinfo->display(), data->winid, False, GrabModeAsync, GrabModeAsync,
-                       qt_x_time);
+                       X11->time);
         keyboardGrb = this;
     }
 }
@@ -1312,7 +1309,7 @@ void QWidget::grabKeyboard()
 void QWidget::releaseKeyboard()
 {
     if (!qt_nograb() && keyboardGrb == this) {
-        XUngrabKeyboard(d->xinfo->display(), qt_x_time);
+        XUngrabKeyboard(d->xinfo->display(), X11->time);
         keyboardGrb = 0;
     }
 }
@@ -1373,7 +1370,7 @@ void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
-        XSetInputFocus(d->xinfo->display(), tlw->winId(), XRevertToNone, qt_x_time);
+        XSetInputFocus(d->xinfo->display(), tlw->winId(), XRevertToNone, X11->time);
     }
 }
 
@@ -1809,9 +1806,9 @@ void QWidget::show_sys()
         if (got_hints)
             XFree((char *)h);
 
-        if (qt_x_user_time != CurrentTime) {
+        if (X11->userTime != CurrentTime) {
             XChangeProperty(d->xinfo->display(), winId(), ATOM(_NET_WM_USER_TIME), XA_CARDINAL,
-                            32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
+                            32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
         }
 
         if (!d->topData()->embedded

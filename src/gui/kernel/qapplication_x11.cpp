@@ -378,8 +378,6 @@ static XIMStyle        xim_preferred_style = 0;
 static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
-Q_GUI_EXPORT Time        qt_x_time = CurrentTime;
-Q_GUI_EXPORT Time        qt_x_user_time = CurrentTime;
 extern bool     qt_check_clipboard_sentinel(); //def in qclipboard_x11.cpp
 extern bool        qt_check_selection_sentinel(); //def in qclipboard_x11.cpp
 
@@ -586,38 +584,18 @@ void QApplication::close_xim()
 extern "C" {
 #endif
 
-static bool x11_ignore_badwindow;
-static bool x11_badwindow;
-
-    // starts to ignore bad window errors from X
-void qt_ignore_badwindow()
-{
-    x11_ignore_badwindow = true;
-    x11_badwindow = false;
-}
-
-    // ends ignoring bad window errors and returns whether an error
-    // had happen.
-bool qt_badwindow()
-{
-    x11_ignore_badwindow = false;
-    return x11_badwindow;
-}
-
 static int (*original_x_errhandler)(Display *dpy, XErrorEvent *);
 static int (*original_xio_errhandler)(Display *dpy);
 
 static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
 {
     if (err->error_code == BadWindow) {
-        x11_badwindow = true;
-        if (err->request_code == 25 /* X_SendEvent */ &&
-             qt_xdnd_handle_badwindow())
+        X11->seen_badwindow = true;
+        if (err->request_code == 25 /* X_SendEvent */ && qt_xdnd_handle_badwindow())
             return 0;
-        if (x11_ignore_badwindow)
+        if (X11->ignore_badwindow)
             return 0;
-    } else if (err->error_code == BadMatch &&
-                err->request_code == 42 /* X_SetInputFocus */) {
+    } else if (err->error_code == BadMatch && err->request_code == 42 /* X_SetInputFocus */) {
         return 0;
     }
 
@@ -1304,7 +1282,7 @@ static void qt_get_net_virtual_roots()
 static void qt_net_update_user_time(QWidget *tlw)
 {
     XChangeProperty(QX11Info::appDisplay(), tlw->winId(), ATOM(_NET_WM_USER_TIME),
-                    XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &qt_x_user_time, 1);
+                    XA_CARDINAL, 32, PropModeReplace, (unsigned char *) &X11->userTime, 1);
 }
 
 static void qt_check_focus_model()
@@ -1395,6 +1373,10 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->wm_client_leader = 0;
     X11->screens = 0;
     X11->screenCount = 0;
+    X11->time = CurrentTime;
+    X11->userTime = CurrentTime;
+    X11->ignore_badwindow = false;
+    X11->seen_badwindow = false;
 
     if (display) {
         // Qt part of other application
@@ -2533,9 +2515,9 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
     w = QWidget::find((WId)target);
 
     if (!w) {
-        qt_ignore_badwindow();
+        X11->ignoreBadwindow();
         target = qt_x11_findClientWindow(target, ATOM(WM_STATE), true);
-        if (qt_badwindow())
+        if (X11->badwindow())
             return 0;
         w = QWidget::find((WId)target);
 #if 0
@@ -2661,8 +2643,8 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
             }
             else if (a == ATOM(WM_TAKE_FOCUS)) {
                 QWidget * amw = activeModalWidget();
-                if ((ulong) event->xclient.data.l[1] > qt_x_time)
-                    qt_x_time = event->xclient.data.l[1];
+                if ((ulong) event->xclient.data.l[1] > X11->time)
+                    X11->time = event->xclient.data.l[1];
                 if (amw && amw != widget) {
                     QWidget* groupLeader = widget;
                     while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
@@ -2727,29 +2709,29 @@ int QApplication::x11ProcessEvent(XEvent* event)
     switch (event->type) {
     case ButtonPress:
         pressed_window = event->xbutton.window;
-        qt_x_user_time = event->xbutton.time;
+        X11->userTime = event->xbutton.time;
         // fallthrough intended
     case ButtonRelease:
-        qt_x_time = event->xbutton.time;
+        X11->time = event->xbutton.time;
         break;
     case MotionNotify:
-        qt_x_time = event->xmotion.time;
+        X11->time = event->xmotion.time;
         break;
     case XKeyPress:
-        qt_x_user_time = event->xkey.time;
+        X11->userTime = event->xkey.time;
         // fallthrough intended
     case XKeyRelease:
-        qt_x_time = event->xkey.time;
+        X11->time = event->xkey.time;
         break;
     case PropertyNotify:
-        qt_x_time = event->xproperty.time;
+        X11->time = event->xproperty.time;
         break;
     case EnterNotify:
     case LeaveNotify:
-        qt_x_time = event->xcrossing.time;
+        X11->time = event->xcrossing.time;
         break;
     case SelectionClear:
-        qt_x_time = event->xselectionclear.time;
+        X11->time = event->xselectionclear.time;
         break;
     default:
         break;

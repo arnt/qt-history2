@@ -62,8 +62,6 @@
 typedef int (*QX11EventFilter) (XEvent*);
 extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
-extern Time qt_x_time;                // def. in qapplication_x11.cpp
-
 // from qdnd_x11.cpp
 extern Atom qt_xdnd_str_to_atom(const char *mimeType);
 extern const char* qt_xdnd_atom_to_str(Atom);
@@ -1289,7 +1287,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     XSelectInput(dpy, win, NoEventMask); // don't listen for any events
 
     XDeleteProperty(dpy, win, ATOM(_QT_SELECTION));
-    XConvertSelection(dpy, atom, fmtatom, ATOM(_QT_SELECTION), win, qt_x_time);
+    XConvertSelection(dpy, atom, fmtatom, ATOM(_QT_SELECTION), win, X11->time);
     XSync(dpy, false);
 
     VDEBUG("QClipboardWatcher::getDataInFormat: waiting for SelectionNotify event");
@@ -1394,7 +1392,7 @@ void QClipboard::setData(QMimeSource* src, Mode mode)
         newOwner = owner->winId();
 
         d->setSource(src);
-        d->timestamp = qt_x_time;
+        d->timestamp = X11->time;
     }
 
     Window prevOwner = XGetSelectionOwner(dpy, atom);
