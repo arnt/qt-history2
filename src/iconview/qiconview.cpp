@@ -59,6 +59,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qptrdict.h"
+#include "qcleanuphandler.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -116,26 +117,13 @@ static QPixmap *unknown_icon = 0;
 static QPixmap *qiv_buffer_pixmap = 0;
 static QPixmap *qiv_selection = 0;
 
-static void qt_cleanup_qiv1()
-{
-    delete unknown_icon;
-    unknown_icon = 0;
-    delete qiv_selection;
-    qiv_selection = 0;
-}
-
-static void qt_cleanup_qiv2()
-{
-    delete qiv_buffer_pixmap;
-    qiv_buffer_pixmap = 0;
-    delete qiv_selection;
-    qiv_selection = 0;
-}
+QCleanUpHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(_WS_X11_)
 static void createSelectionPixmap( const QColorGroup &cg )
 {
     qiv_selection = new QPixmap( 2, 2 );
+    qiv_cleanup_pixmap.addCleanUp( qiv_selection );
     qiv_selection->fill( Qt::color0 );
     QBitmap m( 2, 2 );
     m.fill( Qt::color1 );
@@ -154,13 +142,15 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 {
     if ( !qiv_buffer_pixmap ) {
 	qiv_buffer_pixmap = new QPixmap( s );
-	qAddPostRoutine( qt_cleanup_qiv2 );
+	qiv_cleanup_pixmap.addCleanUp( qiv_buffer_pixmap );
 	return qiv_buffer_pixmap;
     }
 
     qiv_buffer_pixmap->resize( s );
     return qiv_buffer_pixmap;
 }
+
+
 
 /*****************************************************************************
  *
@@ -2240,7 +2230,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 {
     if ( !unknown_icon ) {
 	unknown_icon = new QPixmap( (const char **)unknown_xpm );
-	qAddPostRoutine( qt_cleanup_qiv1 );
+	qiv_cleanup_pixmap.addCleanUp( unknown_icon );
     }
 
     d = new QIconViewPrivate;

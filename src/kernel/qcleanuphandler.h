@@ -40,6 +40,12 @@ private:
     QList<QGuardedPtr<Type> > cleanUpObjects;
 };
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QList<QPixmap>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QCleanUpHandler<QPixmap>
 {
 public:
