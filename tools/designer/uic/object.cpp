@@ -632,6 +632,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    listname = registerObject( listname );
 	    out << indent << "QStringList "  << listname << ";" << endl;
 	} else {
+	    listname = registerObject( listname );
 	    out << indent << "QStringList "  << listname << ";" << endl;
 	}
 	while ( !n3.isNull() ) {
