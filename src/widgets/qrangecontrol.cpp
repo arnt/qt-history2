@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#28 $
 **
 ** Implementation of QRangeControl class
 **
@@ -174,43 +174,60 @@ void QRangeControl::directSetValue(int value)
 }
 
 /*!
-  Equivalent to \code setValue( value()+pageStep() )\endcode
+  Equivalent to \code setValue( value()+pageStep() )\endcode plus a
+  test for numerical overflow.
+  
   \sa subtractPage()
 */
 
 void QRangeControl::addPage()
 {
-    setValue( value() + pageStep() );
+    if ( value() + pageStep() > value() )
+	setValue( value() + pageStep() );
+    else
+	setValue( maxValue() );
 }
 
 /*!
-  Equivalent to \code setValue( value()-pageStep() )\endcode
+  Equivalent to \code setValue( value()-pageStep() )\endcode  plus a
+  test for numerical underflow
   \sa addPage()
 */
 
 void QRangeControl::subtractPage()
 {
-    setValue( value() - pageStep() );
+    if ( value() - pageStep() < value() )
+	setValue( value() - pageStep() );
+    else
+	setValue( minValue() );
 }
 
 /*!
-  Equivalent to \code setValue( value()+lineStep() )\endcode
+  Equivalent to \code setValue( value()+lineStep() )\endcode  plus a
+  test for numerical overflow
   \sa subtractLine()
 */
 
 void QRangeControl::addLine()
 {
-    setValue( value() + lineStep() );
+    if ( value() + lineStep() > value() )
+	setValue( value() + lineStep() );
+    else
+	setValue( maxValue() );
 }
 
 /*!
-  Equivalent to \code setValue( value()-lineStep() )\endcode
+  Equivalent to \code setValue( value()-lineStep() )\endcode plus a
+  test for numerical underflow
   \sa addLine()
 */
 
 void QRangeControl::subtractLine()
 {
-    setValue( value() - lineStep() );
+    if ( value() - lineStep() < value() )
+	setValue( value() - lineStep() );
+    else
+	setValue( minValue() );
 }
 
 
