@@ -1,4 +1,4 @@
-/*! \quickclass QWidget
+/* IGNORE ! \quickclass QWidget
 
     \quickify
 */
@@ -45,4 +45,16 @@
     \value WheelFocus E
   
   And what else?
+*/
+
+/*! \quickproperty QWidget.sizeIncrement
+
+    \bold {Hello world!}
+
+    \quickify
+
+    \quickcode
+    width = baseSize.width + i * sizeIncrement.width;
+    height = baseSize.height + j * sizeIncrement.height;
+    \endquickcode
 */
