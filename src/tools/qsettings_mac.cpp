@@ -37,6 +37,7 @@
 #ifndef QT_NO_SETTINGS
 #include "qstring.h"
 #include "qptrlist.h"
+#include "qcleanuphandler.h"
 // ### remove this hack, tools shouldn't include kernel files
 #include "qwindowdefs.h"
 #include <CoreFoundation/CoreFoundation.h>
@@ -89,22 +90,15 @@ static void qt_mac_unfix_key(QString &k) {
 #define MACKEY_SEP '.'
 #endif
 
-static void cleanup_qsettings()
-{
-    delete qt_mac_settings_base;
-    qt_mac_settings_base = NULL;
-}
-
 /*****************************************************************************
   Developers are allowed to access this to influence the base (defaults to 'com.')
  *****************************************************************************/
+static QSingleCleanupHandler<QString> cleanup_base;
 void qt_setSettingsBasePath(const QString &s)
 {
-    if(qt_mac_settings_base) 
-	delete qt_mac_settings_base;
-    else
-	qAddPostRoutine(cleanup_qsettings);;	
+    delete qt_mac_settings_base;
     qt_mac_settings_base = new QString(s);
+    cleanup_base.set(&qt_mac_settings_base);
 }    
 
 /*****************************************************************************
@@ -173,7 +167,7 @@ QSettingsSysPrivate::QSettingsSysPrivate()
 {
     if(!qt_mac_settings_base) {
 	qt_mac_settings_base = new QString("com.");
-	qAddPostRoutine(cleanup_qsettings);	
+	cleanup_base.set(&qt_mac_settings_base);
     }
 }
 
