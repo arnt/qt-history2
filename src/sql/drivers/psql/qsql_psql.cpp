@@ -539,7 +539,7 @@ bool QPSQLDriver::open(const QString & db,
     // add any connect options - the server will handle error detection
     if (!connOpts.isEmpty()) {
         QString opt = connOpts;
-        opt.replace(QChar(';'), QChar(' '), QString::CaseInsensitive);
+        opt.replace(QChar(';'), QChar(' '), Qt::CaseInsensitive);
         connectString.append(' ').append(opt);
     }
 
