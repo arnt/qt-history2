@@ -40,11 +40,6 @@
 # undef open
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #ifndef QT_NO_MIME
 
 #include "qdragobject.h"

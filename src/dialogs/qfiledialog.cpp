@@ -47,11 +47,6 @@
 # undef truncate
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qfiledialog.h"
 
 #ifndef QT_NO_FILEDIALOG

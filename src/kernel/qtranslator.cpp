@@ -49,11 +49,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 # undef truncate
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qtranslator.h"
 
 #ifndef QT_NO_TRANSLATION

@@ -45,11 +45,6 @@
 # undef open
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qclipboard.h"
 
 #ifndef QT_NO_CLIPBOARD

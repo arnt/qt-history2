@@ -44,11 +44,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 # undef open
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qprinter.h"
 
 #ifndef QT_NO_PRINTER

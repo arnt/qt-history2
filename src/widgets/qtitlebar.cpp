@@ -37,11 +37,6 @@
 
 #include "qplatformdefs.h"
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qtitlebar_p.h"
 
 #ifndef QT_NO_TITLEBAR

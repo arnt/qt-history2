@@ -52,11 +52,6 @@
 # undef connect
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 // UnixWare 7 redefines socket -> _socket
 #if defined(socket)
 # undef socket

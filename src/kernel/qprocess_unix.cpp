@@ -42,11 +42,6 @@
 #undef connect
 #endif
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qprocess.h"
 
 #ifndef QT_NO_PROCESS

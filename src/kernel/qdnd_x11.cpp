@@ -37,11 +37,6 @@
 
 #include "qplatformdefs.h"
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP

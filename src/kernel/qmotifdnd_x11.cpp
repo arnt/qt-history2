@@ -65,11 +65,6 @@ in doc/dnd.doc, where the documentation system can see it. */
 
 #include "qplatformdefs.h"
 
-// SCO OpenServer redefines raise -> kill
-#if defined(raise)
-# undef raise
-#endif
-
 #include "qapplication.h"
 
 #ifndef QT_NO_DRAGANDDROP
