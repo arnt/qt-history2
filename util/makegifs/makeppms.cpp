@@ -562,6 +562,15 @@ public:
     }
 };
 
+class EgQSpinBox2 : public EgQSpinBox {
+public:
+    EgQSpinBox2() :
+	EgQSpinBox()
+    {
+	setButtonSymbols(PlusMinus);
+    }
+};
+
 
 class EgQHeader : public QHeader {
 public:
@@ -793,6 +802,7 @@ int main( int argc, char **argv )
 	DEPICTFRAMED( EgQMainWindow, "qmainwindow", "QMainWindow" );
 	DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
 	DEPICT( EgQSpinBox, "qspinbox", "QSpinBox" );
+	DEPICT( EgQSpinBox2, "qspinbox2", "QSpinBox" );
 	DEPICT( EgQHeader, "qheader", "QHeader" );
 	DEPICT( EgQSplitter, "qsplitter", "QSplitter" );
 	// These crash as top-level objects
