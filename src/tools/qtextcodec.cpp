@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#7 $
 **
 ** Implementation of QTextCodec class
 **
@@ -473,7 +473,7 @@ mem+=256;
 		char* cursor = line;
 		int byte,unicode=-1;
 		ushort* mb_unicode=0;
-		int maxmb=8; // more -> we'll need to improve datastructures
+		const int maxmb=8; // more -> we'll need to improve datastructures
 		char mb[maxmb];
 		int nmb=0;
 
