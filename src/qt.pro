@@ -132,6 +132,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
+		  $$KERNEL_H/qthread.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -181,7 +182,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qutfcodec.h \
 		  $$TOOLS_H/qvector.h \
 	          $$TOOLS_H/qvaluelist.h \
-		  $$TOOLS_H/qthread.h \
 		  $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
 		  $$WIDGETS_H/qcanvas.h \
@@ -240,7 +240,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
-win32:SOURCES	= tools/qthread_win.cpp \
+win32:SOURCES	= kernel/qthread_win.cpp \
 		  kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
@@ -258,7 +258,7 @@ win32:SOURCES	= tools/qthread_win.cpp \
 
 win32:SOURCES  += kernel/qole_win.c
 
-unix:SOURCES    = tools/qthread_unix.cpp \
+unix:SOURCES    = kernel/qthread_unix.cpp \
 		  kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \

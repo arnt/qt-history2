@@ -2,6 +2,8 @@
 #define QTHREAD_H
 
 #include <qglobal.h>
+#include <qobject.h>
+#include <qevent.h>
 
 #ifdef UNIX
 #include <pthread.h>
@@ -29,7 +31,14 @@ class QThread {
 public:
 
   static int currentThread();
+  static void postEvent(QObject *,QEvent *);
+  static void sendPostedEvents();
 
 };
 
 #endif
+
+
+
+
+
