@@ -29,7 +29,7 @@
 #include "qapplication.h"
 #include "qfontdatabase.h"
 #include "qstyle.h"
-#include <private/qfontdata_p.h>
+#include <private/qfont_p.h>
 #include <qvalidator.h>
 #include <qabstractitemmodel.h>
 #include <qlistview.h>

@@ -14,7 +14,7 @@
 #include "qmemorymanager_qws.h"
 #include "qscreen_qws.h"
 #include "qpaintdevice.h"
-#include <private/qfontdata_p.h>
+#include <private/qfont_p.h>
 #include "qfile.h"
 #include "qdir.h"
 

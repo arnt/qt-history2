@@ -17,7 +17,7 @@
 // and have generally better unicode support :)
 
 #include "qfont.h"
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qtextengine_p.h"
 #include "qfontmetrics.h"

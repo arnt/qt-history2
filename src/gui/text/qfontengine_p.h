@@ -28,7 +28,7 @@
 #include "qatomic.h"
 #include "qglobal.h"
 #include "qtextengine_p.h"
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 
 #ifdef Q_WS_WIN
 #include "qt_windows.h"

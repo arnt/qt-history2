@@ -19,7 +19,7 @@
 #include "qvarlengtharray.h"
 #include "qscriptengine_p.h"
 #include "qfont.h"
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qstring.h"
 #include <private/qunicodetables_p.h>

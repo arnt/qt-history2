@@ -30,7 +30,7 @@
 #include "qnamespace.h"
 #include "qtextlayout.h"
 #include "qtextformat_p.h"
-#include <private/qfontdata_p.h>
+#include "qfont_p.h"
 #include <qvector.h>
 #include <qpaintengine.h>
 #include "qtextobject.h"

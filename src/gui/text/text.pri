@@ -6,7 +6,7 @@ HEADERS += \
 	text/qfontengine_p.h \
 	text/qfontinfo.h \
 	text/qfontmetrics.h \
-	text/qfontdata_p.h \
+	text/qfont_p.h \
 	text/qscriptengine_p.h \
 	text/qtextengine_p.h \
 	text/qtextlayout.h \

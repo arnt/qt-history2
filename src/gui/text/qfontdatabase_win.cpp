@@ -13,7 +13,7 @@
 
 #include "qt_windows.h"
 #include <private/qapplication_p.h>
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qpaintdevice.h"
 

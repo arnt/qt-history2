@@ -24,7 +24,7 @@
 #include <qwidget.h>
 #include <qvarlengtharray.h>
 
-#include <private/qfontdata_p.h>
+#include <private/qfont_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>

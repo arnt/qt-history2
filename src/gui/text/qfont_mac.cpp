@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qfont.h"
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qfontinfo.h"
 #include "qfontmetrics.h"
@@ -170,11 +170,11 @@ void QFontPrivate::load(QFont::Script script)
         QHash<QString, ATSFontFamilyRef> mac_families;
         {
             ATSFontFamilyIterator iterator;
-            if(!ATSFontFamilyIteratorCreate(kATSFontContextGlobal, 0, 0, 
+            if(!ATSFontFamilyIteratorCreate(kATSFontContextGlobal, 0, 0,
                                             kATSOptionFlagsRestrictedScope, &iterator)) {
                 for(ATSFontFamilyRef family; ATSFontFamilyIteratorNext(iterator, &family) == noErr; ) {
                     QCFString actualName;
-                    if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr) 
+                    if(ATSFontFamilyGetName(family, kATSOptionFlagsDefault, &actualName) == noErr)
                         mac_families.insert(static_cast<QString>(actualName).toLower(), family);
                 }
                 ATSFontFamilyIteratorRelease(&iterator);
@@ -206,7 +206,7 @@ void QFontPrivate::load(QFont::Script script)
         {
             QCFString actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
-            if (ATSFontFamilyGetName(engine->familyref, kATSOptionFlagsDefault, &actualName) == noErr) 
+            if (ATSFontFamilyGetName(engine->familyref, kATSOptionFlagsDefault, &actualName) == noErr)
                 engine->fontDef.family = actualName;
         }
     }

@@ -26,7 +26,7 @@
 #include "qiodevice.h"
 
 #include <private/qunicodetables_p.h>
-#include "qfontdata_p.h"
+#include "qfont_p.h"
 #include "qfontengine_p.h"
 #include "qtextengine_p.h"
 

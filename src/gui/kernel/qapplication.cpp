@@ -43,7 +43,7 @@
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
-#include <private/qfontdata_p.h>
+#include <private/qfont_p.h>
 
 #include <stdlib.h>
 

@@ -23,7 +23,7 @@
 #include "qstringlist.h"
 
 #include <private/qunicodetables_p.h>
-#include <private/qfontdata_p.h>
+#include "qfont_p.h"
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
