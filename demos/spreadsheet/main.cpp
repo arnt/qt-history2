@@ -181,7 +181,6 @@ public slots:
     void updateColor(QTableWidgetItem *item);
     void updateLineEdit(QTableWidgetItem *item);
     void contextActions(QMenu *menu);
-    void keyPressed(QTableWidgetItem *item, Qt::Key key);
     void returnPressed();
     void selectColor();
     void selectFont();
@@ -207,6 +206,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     toolBar = new QToolBar(this);
 
     sumAction = toolBar->addAction(QPixmap(":/images/sum.xpm"), tr("Sum"));
+    sumAction->setShortcut(Qt::CTRL|Qt::Key_S);
     connect(sumAction, SIGNAL(triggered()), this, SLOT(sum()));
 
     lineEdit = new QLineEdit();
@@ -215,15 +215,18 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     toolBar->addSeparator();
 
     fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
+    fontAction->setShortcut(Qt::CTRL|Qt::Key_F);
     connect(fontAction, SIGNAL(triggered()), this, SLOT(selectFont()));
     
     colorAction = toolBar->addAction(QPixmap(16, 16), tr("&Color..."));
+    colorAction->setShortcut(Qt::CTRL|Qt::Key_C);
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
     updateColor(0);
 
     toolBar->addSeparator();
 
     clearAction = toolBar->addAction(QPixmap(":/images/clear.xpm"), tr("Clear"));
+    clearAction->setShortcut(Qt::Key_Delete);
     connect(clearAction, SIGNAL(triggered()), this, SLOT(clear()));
 
     table = new SpreadSheetTable(rows, cols, this);
@@ -246,8 +249,6 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
-    connect(table, SIGNAL(keyPressed(QTableWidgetItem*, Qt::Key, Qt::ButtonState)),
-            this, SLOT(keyPressed(QTableWidgetItem*, Qt::Key)));
     connect(table, SIGNAL(aboutToShowContextMenu(QMenu*, QTableWidgetItem*)),
             this, SLOT(contextActions(QMenu*)));
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
@@ -293,12 +294,6 @@ void SpreadSheet::contextActions(QMenu *menu)
         menu->addSeparator();
         menu->addAction(clearAction);
     }
-}
-
-void SpreadSheet::keyPressed(QTableWidgetItem *item, Qt::Key key)
-{
-    if (key == Qt::Key_Delete && item)
-        item->clear();
 }
 
 void SpreadSheet::returnPressed()
