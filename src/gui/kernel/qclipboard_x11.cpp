@@ -1396,7 +1396,8 @@ void QClipboard::setData(QMimeSource* src, Mode mode)
     }
 
     Window prevOwner = XGetSelectionOwner(dpy, atom);
-    XSetSelectionOwner(dpy, atom, newOwner, d->timestamp);
+    // use X11->time, since d->timestamp == CurrentTime when clearing
+    XSetSelectionOwner(dpy, atom, newOwner, X11->time);
 
     if (mode == Selection)
         emit selectionChanged();
