@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#3 $
 **
 ** Implementation of Windows + NT startup routines and event handling
 **
@@ -19,7 +19,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_win.cpp#3 $";
 #endif
 
 
@@ -183,8 +183,8 @@ int qWinAppCmdShow()				// get main window show command
 
 
 // --------------------------------------------------------------------------
-// Safe configuration (move,resize,changeGeometry) mechanism to avoids
-// recursion in processing messages.
+// Safe configuration (move,resize,changeGeometry) mechanism to avoid
+// recursion when processing messages.
 //
 
 #include "qqueue.h"
