@@ -196,7 +196,8 @@ void WriteInitialization::accept(DomWidget *node)
 
     } else if (uic->customWidgetsInfo()->extends(parentClass, "QMenuBar")
             || uic->customWidgetsInfo()->extends(parentClass, "QMenu") && uic->customWidgetsInfo()->extends(className, "QMenu")) {
-        output << option.indent << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
+        output << option.indent << varName << "Action = " << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
+        refreshOut << option.indent << varName << "Action->setText(" << trCall(title, className) << ");\n";
     }
 
     if (node->elementLayout().isEmpty())

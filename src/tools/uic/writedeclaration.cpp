@@ -16,6 +16,7 @@
 #include "ui4.h"
 #include "uic.h"
 #include "databaseinfo.h"
+#include "customwidgetsinfo.h"
 
 #include <qtextstream.h>
 
@@ -73,6 +74,9 @@ void WriteDeclaration::accept(DomWidget *node)
     QString className = QLatin1String("QWidget");
     if (node->hasAttributeClass())
         className = node->attributeClass();
+
+    if (uic->customWidgetsInfo()->extends(className, "QMenu"))
+        output << option.indent << "QAction *" << driver->findOrInsertWidget(node) << "Action" << ";\n";
 
     output << option.indent << className << " *" << driver->findOrInsertWidget(node) << ";\n";
 

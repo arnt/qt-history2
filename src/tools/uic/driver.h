@@ -50,10 +50,15 @@ public:
 
     // utils
     static QString headerFileName(const QString &fileName);
-    inline QString headerFileName() const { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
+    inline QString headerFileName() const
+    { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
+
     static QString qtify(const QString &name);
     QString unique(const QString &instanceName=QString::null,
                    const QString &className=QString::null);
+
+    inline bool hasName(const QString &name) const
+    { return m_nameRepository.contains(name); }
 
     // symbol table
     QString findOrInsertWidget(DomWidget *ui_widget);

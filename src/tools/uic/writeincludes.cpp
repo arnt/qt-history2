@@ -37,6 +37,7 @@ void WriteIncludes::accept(DomUI *node)
 
     m_includes.insert("qapplication.h", true);
     m_includes.insert("qvariant.h", true);
+    m_includes.insert("qaction.h", true);
 
     if (uic->hasExternalPixmap()
             && uic->pixmapFunction() == QLatin1String("qPixmapFromMimeSource"))

@@ -440,7 +440,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomProperty *ptext = new DomProperty();
             ptext = new DomProperty();
             ptext->setAttributeName("objectName");
-            ptext->setElementString(name);
+            ptext->setElementCstring(name);
             properties.append(ptext);
 
             DomProperty *atitle = new DomProperty();
