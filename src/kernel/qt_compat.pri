@@ -14,7 +14,7 @@ internal {
 	CONFIG	+= png zlib  # Done differently in external system
 	CONFIG  += x11sm
 #	CONFIG += nas
-	CONFIG -= opengl
+#	CONFIG -= opengl
 	# Install jpegsrc.v6b.tar.gz (find with http://ftpsearch.lycos.com)
 	unix:CONFIG += jpeg
 #	LIBS += -lpng -lz
