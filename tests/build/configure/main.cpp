@@ -15,6 +15,7 @@ int main( int argc, char** argv )
 	return 0;
     app.generateOutputVars();
     app.generateCachefile();
+    app.copyDefsFile();
     app.displayConfig();
     app.buildQmake();
 

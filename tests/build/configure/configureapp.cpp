@@ -487,7 +487,8 @@ void ConfigureApp::qmakeDone()
     if( makeListIterator == makeList.end() ) // Just in case we have an empty list
 	quit();
     else {
-	QString dirPath = QDir::convertSeparators( (*makeListIterator) + '/' );
+	QString dirPath = *makeListIterator + "/";
+	dirPath.replace( QRegExp( "/" ), "\\" );
 	++makeListIterator;
 	QString projectName = dirPath + (*makeListIterator);
 	++makeListIterator;
@@ -522,4 +523,23 @@ void ConfigureApp::showSummary()
 {
     cout << endl << endl << "Qt is now configured for building. Just run " << dictionary[ "MAKE" ] << "." << endl;
     cout << "To reconfigure, run " << dictionary[ "MAKE" ] << " clean and configure." << endl << endl;
+}
+
+void ConfigureApp::copyDefsFile()
+{
+    QFile src( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/mkspecs/" + dictionary[ "TRG_MKSPEC" ] + ".h" );
+    QFile trg( QString( QEnvironment::getEnv( "QTDIR" ) ) + "/include/qplatformdefs.h" );
+    
+    cout << "Copying platform definition file..." << endl;
+    if( src.open( IO_ReadOnly ) ) {
+	QByteArray buffer( src.size() );
+	if( trg.open( IO_WriteOnly ) ) {
+	    if( buffer.size() ) {
+		src.readBlock( buffer.data(), buffer.size() );
+		trg.writeBlock( buffer.data(), buffer.size() );
+	    }
+	    trg.close();
+	}
+	src.close();
+    }
 }
