@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#15 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#16 $
 **
 ** Definition of QObject class
 **
 ** Author  : Haavard Nord
 ** Created : 930418
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -31,6 +31,9 @@ public:
 
     virtual QMetaObject *metaObject() const { return metaObj; }
     virtual const char  *className()  const;	// get name of class
+
+    bool	isA( const char * )	 const;
+    bool	inherits( const char * ) const;
 
     const char *name()		  const { return (const char *)objname; }
     void	setName( const char *name );
@@ -85,7 +88,7 @@ protected:
 
 private:
     bool	 bind( const char *, const QObject *, const char * );
-    QMetaObject *queryMetaObject();
+    QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;		// meta object for class
     QString	 objname;			// object name
     QObject     *parentObj;			// parent object

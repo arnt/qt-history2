@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#17 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#17 $";
 #endif
 
 
@@ -119,6 +119,23 @@ QObject::~QObject()
 }
 
 
+bool QObject::isA( const char *clname ) const	// test if is-a class
+{
+    return strcmp(className(),clname) == 0;
+}
+
+bool QObject::inherits( const char *clname ) const
+{						// test if inherits class
+    QMetaObject *meta = queryMetaObject();
+    while ( meta ) {
+	if ( strcmp(clname,meta->className()) == 0 )
+	    return TRUE;
+	meta = meta->superClass();
+    }
+    return FALSE;
+}
+
+
 const char *QObject::className() const		// get name of class
 {
     return "QObject";
@@ -162,10 +179,11 @@ void QObject::blockSignals( bool b )
 }
 
 
+//
 // The timer flag hasTimer is set when startTimer is called.
-// It is not reset when killing the timer because there might
-// be multiple timers.
-
+// It is not reset when killing the timer because more than
+// one timer might be active.
+//
 int QObject::startTimer( long interval )	// start timer events
 {
     pendTimer = TRUE;				// set timer flag
@@ -507,17 +525,18 @@ bool QObject::disconnect( QObject *sender, const char *signal,
 }
 
 
-QMetaObject *QObject::queryMetaObject()		// get meta object
+QMetaObject *QObject::queryMetaObject() const	// get meta object
 {
-    QMetaObject *m = metaObject();
+    register QObject *x = (QObject *)this;	// fake const
+    QMetaObject *m = x->metaObject();
     if ( !m ) {					// not meta object
-	initMetaObject();			// then try to create it
-	m = metaObject();
+	x->initMetaObject();			//   then try to create it
+	m = x->metaObject();
     }
 #if defined(CHECK_NULL)
     if ( !m )					// still no meta object: error
 	warning( "QObject: Object %s::%s has no meta object",
-		 className(), name() );
+		 x->className(), x->name() );
 #endif
     return m;
 }
