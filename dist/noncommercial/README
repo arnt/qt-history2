@@ -76,23 +76,11 @@ reference documentation for further information.
 Database Drivers
 ----------------
 
-The installation program allows you to choose database drivers.
+The non-commercial edition only contains the SQLite database driver that
+allows you to use the SQLite in-process database.
 
-The client libraries for MySQL and PostgreSQL are included in the package.
-NOTE: For the non-commercial edition compiled with Borland, no PostgreSQL
-database driver is included due to the fact that the PostgreSQL client
-library header files are incompatible with the Borland compiler.
-
-
-The ODBC client library should be available on every Windows installation.
-
-The Oracle (OCI) driver requires that the Oracle client is properly
-installed and configured. The DB2 driver requires the same for the DB2
-client.
-
-The TDS driver is built with the DB-Library supplied by Microsoft. In the
-full version of Qt/Windows, it is also possible to build it against the
-Sybase Open Client.
+The commercial edition allows you to also choose between more database
+drivers, like ODBC, Oracle, MySQL, PostgreSQL and DB2.
 
 
 Troubleshooting
