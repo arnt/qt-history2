@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#72 $
 **
 ** Implementation of QFile class
 **
@@ -465,13 +465,15 @@ bool QFile::open( int m, int f )
     setState( IO_Open );
     fd = f;
     ext_f = TRUE;
-    if ( fd == 0 || fd == 1 || fd == 2 ) {
+    STATBUF st;
+    FSTAT( fd, &st );
+    index  = (int)LSEEK(fd, 0, SEEK_CUR);
+    if ( (st.st_mode & STAT_MASK) != STAT_REG ) {
+	// non-seekable
+	setType( IO_Sequential );
 	length = INT_MAX;
     } else {
-	STATBUF st;
-	FSTAT( fd, &st );
 	length = (int)st.st_size;
-	index  = (int)LSEEK(fd, 0, SEEK_CUR);
     }
     return TRUE;
 }
@@ -488,7 +490,7 @@ bool QFile::open( int m, int f )
   closing the file. These errors only indiciate that something may
   have gone wrong since the previous open(). In such a case status()
   reports IO_UnspecifiedError after close(), otherwise IO_Ok.
-  
+
   \sa open(), flush()
 */
 
