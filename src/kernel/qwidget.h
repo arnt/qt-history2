@@ -529,6 +529,7 @@ private:
     uint 	 own_font :1;
     uint 	 own_palette :1;
     uint 	 sizehint_forced :1;
+    uint 	 is_closing :1;
     QPoint	 fpos;
     QRect	 crect;
     QColor	 bg_col;

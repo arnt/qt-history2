@@ -682,6 +682,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     own_font = 0;
     own_palette = 0;
     sizehint_forced = 0;
+    is_closing = 0;
 #ifndef QT_NO_LAYOUT
     lay_out = 0;
 #endif
@@ -3451,9 +3452,9 @@ void QWidget::polish()
 
 bool QWidget::close( bool alsoDelete )
 {
-    if ( testWState(WState_Closing) )
+    if ( is_closing )
 	return TRUE;
-    setWState( WState_Closing );
+    is_closing = 1;
 
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
@@ -3478,7 +3479,7 @@ bool QWidget::close( bool alsoDelete )
 	if ( isMain )
 	    qApp->quit();
     }
-    clearWState( WState_Closing );
+    is_closing = 0;
     return accept;
 }
 
