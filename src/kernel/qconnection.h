@@ -55,7 +55,7 @@ public:
     bool     isConnected() const { return obj != 0; }
 
     QObject *object() const  { return obj; }	// get object/member pointer
-    QMember *member() const  { return (QMember*)&mbr; }
+    QMember  member() const  { return mbr; }
     const char *memberName() const { return mbr_name; }
     int	     numArgs() const { return nargs; }
 

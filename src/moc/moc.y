@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#214 $
+** $Id: //depot/qt/main/src/moc/moc.y#215 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2563,7 +2563,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#214 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#215 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2859,14 +2859,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\tswitch ( c->numArgs() ) {\n" );
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "\t    case %d:\n", i );
-		fprintf( out, "\t\tr%d = (RT%d)*(c->member());\n", i, i );
+		fprintf( out, "\t\tr%d = (RT%d)c->member();\n", i, i );
 		fprintf( out, "\t\t(object->*r%d)(%s);\n",
 			 i, (const char*)valvec[i] );
 		fprintf( out, "\t\tbreak;\n" );
 	    }
 	    fprintf( out, "\t}\n" );
 	} else {
-	    fprintf( out, "\tr = (RT)*(c->member());\n" );
+	    fprintf( out, "\tr = (RT)c->member();\n" );
 	    fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
 	}
 	fprintf( out, "    }\n}\n" );

@@ -87,7 +87,7 @@ QConnection::QConnection( const QObject *object, QMember member,
 */
 
 /*!
-  \fn QMember *QConnection::member() const
+  \fn QMember QConnection::member() const
   \internal
 */
 
