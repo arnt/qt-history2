@@ -28,7 +28,6 @@
 
 struct QMetaObject;
 class QVariant;
-class QPostEventList;
 struct QObjectPrivate;
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
@@ -164,11 +163,11 @@ private:
     uint pendTimer : 1;
     uint blockSig : 1;
     uint wasDeleted : 1;
-    uint unused : 27;
+    uint hasPostedEvents : 1;
+    uint unused : 26;
 
     const char *objname;
     QObject *parentObj;
-    QPostEventList *postedEvents;
     QObjectPrivate *d;
 
     static const QMetaObject staticQtMetaObject;

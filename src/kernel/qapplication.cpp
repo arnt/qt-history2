@@ -17,6 +17,7 @@
 #include "qeventloop.h"
 #include "qeventloop_p.h"
 #include "qwidget.h"
+#include "qobject_p.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
@@ -481,38 +482,17 @@ QWidgetList * qt_modal_stack=0;		// stack of modal widgets
 // Definitions for posted events
 struct QPostEvent {
     QPostEvent( QObject *r, QEvent *e ): receiver( r ), event( e ) {}
-   ~QPostEvent()			{ delete event; }
     QObject  *receiver;
     QEvent   *event;
 };
+typedef QList<QPostEvent> QPostEventList;
 
-class Q_EXPORT QPostEventList : public QPtrList<QPostEvent>
-{
-public:
-    QPostEventList() : QPtrList<QPostEvent>() {}
-    QPostEventList( const QPostEventList &list ) : QPtrList<QPostEvent>(list) {}
-   ~QPostEventList() { clear(); }
-    QPostEventList &operator=(const QPostEventList &list)
-	{ return (QPostEventList&)QPtrList<QPostEvent>::operator=(list); }
-};
-class Q_EXPORT QPostEventListIt : public QPtrListIterator<QPostEvent>
-{
-public:
-    QPostEventListIt( const QPostEventList &l ) : QPtrListIterator<QPostEvent>(l) {}
-    QPostEventListIt &operator=(const QPostEventListIt &i)
-{ return (QPostEventListIt&)QPtrListIterator<QPostEvent>::operator=(i); }
-};
-
-static QPostEventList *globalPostedEvents = 0;	// list of posted events
+static QPostEventList postedEvents;	// list of posted events
 
 uint qGlobalPostedEventsCount()
 {
-    if (!globalPostedEvents)
-	return 0;
-    return globalPostedEvents->count();
+    return postedEvents.size();
 }
-
-static QSingleCleanupHandler<QPostEventList> qapp_cleanup_events;
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
@@ -1047,8 +1027,7 @@ QApplication::~QApplication()
 #endif // QT_THREAD_SUPPORT
 
     if( qApp == this ) {
-	if ( postedEvents )
-	    removePostedEvents( this );
+	removePostedEvents( this );
 	qApp = 0;
     }
     is_app_running = FALSE;
@@ -2242,7 +2221,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	return FALSE;
     }
 
-    if ( e->type() == QEvent::ChildRemoved && receiver->postedEvents ) {
+    if ( e->type() == QEvent::ChildRemoved && receiver->hasPostedEvents ) {
 
 #ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( postevent_mutex );
@@ -2252,25 +2231,26 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	// QApplication::sendEvent() directly.  this can happen while the event
 	// loop is in the middle of posting events, and when we get here, we may
 	// not have any more posted events for this object.
-	if ( receiver->postedEvents ) {
+	if ( receiver->hasPostedEvents ) {
+	    bool postEventsRemaining = false;
 	    // if this is a child remove event and the child insert
 	    // hasn't been dispatched yet, kill that insert
-	    QPostEventList * l = receiver->postedEvents;
 	    QObject * c = ((QChildEvent*)e)->child();
-	    QPostEvent * pe;
-	    l->first();
-	    while( ( pe = l->current()) != 0 ) {
-		if ( pe->event && pe->receiver == receiver &&
-		     pe->event->type() == QEvent::ChildInserted &&
-		     ((QChildEvent*)pe->event)->child() == c ) {
-		    pe->event->posted = FALSE;
-		    delete pe->event;
-		    pe->event = 0;
-		    l->remove();
-		    continue;
+	    for (int i = 0; i < postedEvents.size(); ++i) {
+		const QPostEvent &pe = postedEvents.at(i);
+		if (pe.event && pe.receiver == receiver) {
+		    if (pe.event->type() == QEvent::ChildInserted
+			&& ((QChildEvent*)pe.event)->child() == c ) {
+			pe.event->posted = false;
+			delete pe.event;
+			const_cast<QPostEvent &>(pe).event = 0;
+			const_cast<QPostEvent &>(pe).receiver = 0;
+		    } else {
+			postEventsRemaining = true;
+		    }
 		}
-		l->next();
 	    }
+	    receiver->hasPostedEvents = postEventsRemaining;
 	}
     }
 
@@ -3039,67 +3019,44 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
-    if ( !globalPostedEvents ) {			// create list
-	globalPostedEvents = new QPostEventList;
-	Q_CHECK_PTR( globalPostedEvents );
-	globalPostedEvents->setAutoDelete( TRUE );
-	qapp_cleanup_events.set( &globalPostedEvents );
-    }
-
-    if ( !receiver->postedEvents )
-	receiver->postedEvents = new QPostEventList;
-    QPostEventList * l = receiver->postedEvents;
+    postedEvents.ensure_constructed();
 
     // if this is one of the compressible events, do compression
-    if ( event->type() == QEvent::Paint ||
-	 event->type() == QEvent::LayoutHint ||
-	 event->type() == QEvent::Resize ||
-	 event->type() == QEvent::Move ||
-	 event->type() == QEvent::LanguageChange ) {
-	l->first();
-	QPostEvent * cur = 0;
-	for ( ;; ) {
-	    while ( (cur=l->current()) != 0 &&
-		    ( cur->receiver != receiver ||
-		      cur->event == 0 ||
-		      cur->event->type() != event->type() ) )
-		l->next();
-	    if ( l->current() != 0 ) {
-		if ( cur->event->type() == QEvent::Paint ) {
-		    QPaintEvent * p = (QPaintEvent*)(cur->event);
-		    if ( p->erase != ((QPaintEvent*)event)->erase ) {
-			l->next();
-			continue;
-		    }
-		    p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
-		    p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
-		    delete event;
-		    return;
-		} else if ( cur->event->type() == QEvent::LayoutHint ) {
-		    delete event;
-		    return;
-		} else if ( cur->event->type() == QEvent::Resize ) {
-		    ((QResizeEvent *)(cur->event))->s = ((QResizeEvent *)event)->s;
-		    delete event;
-		    return;
-		} else if ( cur->event->type() == QEvent::Move ) {
-		    ((QMoveEvent *)(cur->event))->p = ((QMoveEvent *)event)->p;
-		    delete event;
-		    return;
-		} else if ( cur->event->type() == QEvent::LanguageChange ) {
-		    delete event;
-		    return;
-		}
+    if (receiver->hasPostedEvents
+	&& (event->type() == QEvent::Paint ||
+	    event->type() == QEvent::LayoutHint ||
+	    event->type() == QEvent::Resize ||
+	    event->type() == QEvent::Move ||
+	    event->type() == QEvent::LanguageChange) ) {
+	for (int i = 0; i < postedEvents.size(); ++i) {
+	    const QPostEvent &cur = postedEvents.at(i);
+	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
+		continue;
+	    if ( cur.event->type() == QEvent::Paint ) {
+		QPaintEvent * p = (QPaintEvent*)(cur.event);
+		if ( p->erase != ((QPaintEvent*)event)->erase )
+		    continue;
+		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
+		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+	    } else if ( cur.event->type() == QEvent::LayoutHint ) {
+		;
+	    } else if ( cur.event->type() == QEvent::Resize ) {
+		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
+	    } else if ( cur.event->type() == QEvent::Move ) {
+		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+	    } else if ( cur.event->type() == QEvent::LanguageChange ) {
+		;
+	    } else {
+		continue;
 	    }
-	    break;
+	    delete event;
+	    return;
 	};
     }
 
-    // if no compression could be done, just append something
     event->posted = TRUE;
-    QPostEvent * pe = new QPostEvent( receiver, event );
-    l->append( pe );
-    globalPostedEvents->append( pe );
+    receiver->hasPostedEvents = true;
+    postedEvents.append( QPostEvent( receiver, event ) );
 
     if (eventloop)
 	eventloop->wakeUp();
@@ -3136,7 +3093,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
 
-    if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
+    if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
 	return;
 
 #ifdef QT_THREAD_SUPPORT
@@ -3147,48 +3104,29 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     while ( sent ) {
 	sent = FALSE;
 
-	if ( !globalPostedEvents || ( receiver && !receiver->postedEvents ) )
+	if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
 	    return;
-
-	// if we have a receiver, use the local list. Otherwise, use the
-	// global list
-	QPostEventList * l = receiver ? receiver->postedEvents : globalPostedEvents;
 
 	// okay. here is the tricky loop. be careful about optimizing
 	// this, it looks the way it does for good reasons.
-	QPostEventListIt it( *l );
-	QPostEvent *pe;
-	while ( (pe=it.current()) != 0 ) {
-	    ++it;
-	    if ( pe->event // hasn't been sent yet
+	for (int i = 0; i < postedEvents.size(); ++i) {
+	    const QPostEvent &pe = postedEvents.at(i);
+	    if ( pe.event // hasn't been sent yet
 		 && ( receiver == 0 // we send to all receivers
-		      || receiver == pe->receiver ) // we send to THAT receiver
+		      || receiver == pe.receiver ) // we send to THAT receiver
 		 && ( event_type == 0 // we send all types
-		      || event_type == pe->event->type() ) ) { // we send THAT type
+		      || event_type == pe.event->type() ) ) { // we send THAT type
 		// first, we diddle the event so that we can deliver
 		// it, and that noone will try to touch it later.
-		pe->event->posted = FALSE;
-		QEvent * e = pe->event;
-		QObject * r = pe->receiver;
-		pe->event = 0;
+		pe.event->posted = FALSE;
+		QEvent * e = pe.event;
+		QObject * r = pe.receiver;
+		r->hasPostedEvents = false;
 
 		// next, update the data structure so that we're ready
 		// for the next event.
-
-		// look for the local list, and take whatever we're
-		// delivering out of it. r->postedEvents maybe *l
-		if ( r->postedEvents ) {
-		    r->postedEvents->removeRef( pe );
-		    // if possible, get rid of that list. this is not
-		    // ideal - we will create and delete a list for
-		    // each update() call. it would be better if we'd
-		    // leave the list empty here, and delete it
-		    // somewhere else if it isn't being used.
-		    if ( r->postedEvents->isEmpty() ) {
-			delete r->postedEvents;
-			r->postedEvents = 0;
-		    }
-		}
+		const_cast<QPostEvent &>(pe).event = 0;
+		const_cast<QPostEvent &>(pe).receiver = 0;
 
 #ifdef QT_THREAD_SUPPORT
 		if ( locker.mutex() ) locker.mutex()->unlock();
@@ -3216,14 +3154,22 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 	// clear the global list, i.e. remove everything that was
 	// delivered.
-	if ( l == globalPostedEvents ) {
-	    globalPostedEvents->first();
-	    while( (pe=globalPostedEvents->current()) != 0 ) {
-		if ( pe->event )
-		    globalPostedEvents->next();
-		else
-		    globalPostedEvents->remove();
+	if (!receiver && !event_type) {
+	    postedEvents.clear();
+	} else {
+	    int i = 0;
+	    int j = 0;
+	    while (i < postedEvents.size()) {
+		QPostEvent &pe = postedEvents[i];
+		if ( pe.event ) {
+		    postedEvents[j] = pe;
+		    ++j;
+		    pe.receiver->hasPostedEvents = true;
+		}
+		++i;
 	    }
+	    if (j != i)
+		postedEvents.erase(postedEvents.begin()+j, --postedEvents.end());
 	}
     }
 }
@@ -3252,25 +3198,22 @@ void QApplication::removePostedEvents( QObject *receiver )
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-    if ( !receiver->postedEvents )
+    if ( !receiver->hasPostedEvents )
 	return;
 
     // iterate over the object-specifc list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
-    QPostEventList * l = receiver->postedEvents;
-    receiver->postedEvents = 0;
-    l->first();
-    QPostEvent * pe;
-    while( (pe=l->current()) != 0 ) {
-	if ( pe->event ) {
-	    pe->event->posted = FALSE;
-	    delete pe->event;
-	    pe->event = 0;
+    receiver->hasPostedEvents = false;
+    for (int i = 0; i < postedEvents.size(); ++i) {
+	const QPostEvent &pe = postedEvents.at(i);
+	if ( pe.receiver == receiver ) {
+	    pe.event->posted = false;
+	    delete pe.event;
+	    const_cast<QPostEvent &>(pe).event = 0;
+	    const_cast<QPostEvent &>(pe).receiver = 0;
 	}
-	l->remove();
     }
-    delete l;
 }
 
 
@@ -3284,12 +3227,12 @@ void QApplication::removePostedEvents( QObject *receiver )
   \threadsafe
 */
 
-void QApplication::removePostedEvent( QEvent *  event )
+void QApplication::removePostedEvent( QEvent * event )
 {
     if ( !event || !event->posted )
 	return;
 
-    if ( !globalPostedEvents ) {
+    if ( !postedEvents ) {
 #if defined(QT_DEBUG)
 	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
 		(void*)event, event->type() );
@@ -3301,11 +3244,9 @@ void QApplication::removePostedEvent( QEvent *  event )
     QMutexLocker locker( postevent_mutex );
 #endif // QT_THREAD_SUPPORT
 
-    QPostEventListIt it( *globalPostedEvents );
-    QPostEvent * pe;
-    while( (pe = it.current()) != 0 ) {
-	++it;
-	if ( pe->event == event ) {
+    for (int i = 0; i < postedEvents.size(); ++i) {
+	const QPostEvent & pe = postedEvents.at(i);
+	if ( pe.event == event ) {
 #if defined(QT_DEBUG)
 	    const char *n;
 	    switch ( event->type() ) {
@@ -3374,13 +3315,14 @@ void QApplication::removePostedEvent( QEvent *  event )
 	    }
 	    qWarning("QEvent: Warning: %s event deleted while posted to %s %s",
 		     n,
-		     pe->receiver ? pe->receiver->className() : "null",
-		     pe->receiver ? pe->receiver->name() : "object" );
+		     pe.receiver ? pe.receiver->className() : "null",
+		     pe.receiver ? pe.receiver->name() : "object" );
 	    // note the beautiful uglehack if !pe->receiver :)
 #endif
-	    event->posted = FALSE;
-	    delete pe->event;
-	    pe->event = 0;
+	    pe.event->posted = false;
+	    delete pe.event;
+	    const_cast<QPostEvent &>(pe).event = 0;
+	    const_cast<QPostEvent &>(pe).receiver = 0;
 	    return;
 	}
     }
