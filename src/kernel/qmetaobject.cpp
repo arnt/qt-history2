@@ -876,22 +876,16 @@ bool QMetaProperty::stored( QObject* o ) const
 
 #endif // QT_NO_PROPERTIES
 
-/*!
-  \class QMetaObjectCleanUp
-  \brief The QMetaObjectCleanUp is an internal class.
-*/
-
-/*!
-  \internal
-*/
+/*
+ * QMetaObjectCleanUp is used as static global object in the moc-generated cpp
+ * files and deletes the QMetaObject provided with setMetaObject. It sets the
+ * QObject reference to the metaObj to NULL when it is destroyed.
+ */
 QMetaObjectCleanUp::QMetaObjectCleanUp()
 : metaObject( 0 )
 {
 }
 
-/*!
-  \internal
-*/
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {
     if ( metaObject ) {
@@ -901,9 +895,6 @@ QMetaObjectCleanUp::~QMetaObjectCleanUp()
     }
 }
 
-/*!
-  \internal
-*/
 void QMetaObjectCleanUp::setMetaObject( QMetaObject *&mo )
 {
 #if defined(QT_CHECK_RANGE)
