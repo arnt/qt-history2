@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#41 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#41 $";
 #endif
 
 
@@ -93,10 +93,6 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-    if ( (devFlags & PDF_FONTMET) != 0 )	// remove references to this
-	QFontMetrics::reset( this );
-    if ( (devFlags & PDF_FONTINF) != 0 )	// remove references to this
-	QFontInfo::reset( this );
 }
 
 
@@ -112,16 +108,6 @@ QPaintDevice::~QPaintDevice()
 
   External paint devices cannot be bitBlt()'ed from.
   QPicture and QPrinter are external paint devices.
-*/
-
-/*!
-  \fn QFontMetrics QPaintDevice::fontMetrics() const
-  Returns the font metrics for the paint device.
-*/
-
-/*!
-  \fn QFontInfo QPaintDevice::fontInfo() const
-  Returns the font info for the paint device.
 */
 
 /*!
