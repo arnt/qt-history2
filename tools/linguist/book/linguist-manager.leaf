@@ -1,0 +1,101 @@
+\chapter Release Manager
+
+Two tools are provided for the release manager, \l lupdate and \l
+lrelease. These tools depend on \e qmake project files. You don't
+have to use \e qmake, though. All you need to know is told here.
+
+\section1 Qt Project Files
+
+\l lupdate and \l lrelease depend on information in the application's
+\c .pro Qt project file. There must be an entry in the \c TRANSLATIONS
+section of the project file for each language that is additional to
+the native language. A typical entry looks like this:
+
+\quotefile tt2/tt2.pro
+\skipto TRANSLATIONS
+\printline tt2_fr
+\printline tt2_nl
+
+Using a locale within the translation file name is useful for
+determining which language to load at runtime. This is explained in
+\link Programmers Chapter 4: Programmers \endlink.
+
+An example of a complete \c .pro file with four translation source files:
+\code
+    HEADERS         = main-dlg.h \
+		      options-dlg.h
+    SOURCES         = main-dlg.cpp \
+		      options-dlg.cpp \
+		      main.cpp 
+    INTERFACES      = search-dlg.ui
+    TRANSLATIONS    = superapp_dk.ts \
+		      superapp_fi.ts \
+		      superapp_no.ts \
+		      superapp_se.ts
+\endcode
+
+If you use the \l QApplication::defaultCodec() mechanism in your
+application, you will also need to set the \c CODEC entry, like this:
+
+\code
+    CODEC           = ISO-8859-5
+\endcode
+
+Otherwise, source texts containing non-Latin characters will be
+displayed incorrectly in \e {Qt Linguist}.
+
+\section1 lupdate
+
+Usage: \c {lupdate myproject.pro}
+
+This is a simple command line tool. \l lupdate reads a Qt \c .pro
+project file and produces or updates the \c .ts translation source
+files listed in the project file. The translation files are given to
+the translator who uses \e {Qt Linguist} to read the files and insert
+the translations.
+
+Companies that have their own translators in-house may find it useful
+to run \l lupdate regularly, perhaps monthly, as the application
+develops. This will lead to a fairly low volume of translation work
+spread evenly over the life of the project and will allow the
+translators to support a number of projects simultaneously.
+
+Companies that hire in translators as required may prefer to run \l
+lupdate only a few times in the application's life cycle, the first
+time might be just before the first test phase. This will provide the
+translator with a substantial single block of work and any bugs that
+the translator detects may easily be included with those found during
+the initial test phase. The second and any subsequent \l lupdate runs
+would probably take place during the final beta phase.
+
+The \c .ts file format is a simple human-readable XML format that can
+be used with version control systems if required.
+
+\section1 lrelease
+
+Usage: \c {lrelease myproject.pro}
+
+This is another simple command line tool. It reads a Qt \c .pro
+project file and produces the \c .qm files used by the application,
+one for each \c .ts translation source file listed in the project
+file. The \c .qm file format is a compact binary format that provides
+extremely fast lookups for translations.
+
+This tool is run whenever a release of the application is to be made,
+from initial test version through to final release version. If the \c
+.qm files are not created, e.g. because an alpha release is required
+before any translation has been undertaken, the application will run
+perfectly well using the text the programmers placed in the source
+files. Once the \c .qm files are available the application will
+detect them and use them automatically.
+
+Note that \l lrelease will only incorporate translations that are
+marked as "done". If a translation is missing, or has failed
+validation, or is not marked as done, the original text will be used
+instead.
+
+\section1 Incomplete Translations
+
+Both \l lupdate and \l lrelease may be used with \c .ts translation
+source files which are incomplete. Missing translations will be replaced
+with the native language phrases at runtime.
