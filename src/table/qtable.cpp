@@ -2440,7 +2440,8 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    // Translate painter and draw the cell
 	    p->translate( colp, rowp );
 	    bool selected = isSelected( r, c );
-	    if ( selected && !currentInSelection && r == curRow && c == curCol  )
+	    if ( !( focusStl == FollowStyle && isRowSelection( selectionMode() ) ) &&
+		 selected && !currentInSelection && r == curRow && c == curCol  )
 		selected = FALSE;
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), selected );
 	    p->translate( -colp, -rowp );
@@ -2506,9 +2507,9 @@ void QTable::paintCell( QPainter* p, int row, int col,
 #if defined(Q_WS_WIN)
     const QColorGroup &cg = ( !drawActiveSelection && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ? palette().inactive() : colorGroup() );
 #else
-    const QColorGroup &cg = colorGroup(); 
+    const QColorGroup &cg = colorGroup();
 #endif
-    
+
     paintCell( p, row, col, cr, selected, cg );
 }
 
