@@ -115,6 +115,8 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qcombo.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrpbox.h \
+		  $$WIDGETS_H/qgrid.h \
+		  $$WIDGETS_H/qhbox.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlabelled.h \
@@ -139,6 +141,7 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qtablevw.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
+		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qwellarray.h
 
 SOURCES		= dialogs/qfiledlg.cpp \
@@ -214,6 +217,8 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qcombo.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrpbox.cpp \
+		  widgets/qgrid.cpp \
+		  widgets/qhbox.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlabelled.cpp \
@@ -238,6 +243,7 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qtablevw.cpp \
 		  widgets/qtooltip.cpp \
 		  widgets/qvalidator.cpp \
+		  widgets/qvbox.cpp \
 		  widgets/qwellarray.cpp
 
 win32:SOURCES  += kernel/qapp_win.cpp \
