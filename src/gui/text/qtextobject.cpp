@@ -392,7 +392,7 @@ QTextLayout *QTextBlock::layout() const
         b->layout->setDocumentLayout(p->layout());
     }
     if (b->textDirty) {
-        QString text = blockText();
+        QString text = this->text();
         b->layout->setText(text);
 
         if (!text.isEmpty()) {
@@ -441,7 +441,7 @@ QTextBlockFormat QTextBlock::blockFormat() const
 /*!
     Returns the paragraph of plain text the block holds.
  */
-QString QTextBlock::blockText() const
+QString QTextBlock::text() const
 {
     if (!p || !n)
         return QString::null;
@@ -449,8 +449,9 @@ QString QTextBlock::blockText() const
     const QString buffer = p->buffer();
     QString text;
 
-    QTextDocumentPrivate::FragmentIterator it = p->find(position());
-    QTextDocumentPrivate::FragmentIterator end = p->find(position() + length() - 1); // -1 to omit the block separator char
+    int pos = position();
+    QTextDocumentPrivate::FragmentIterator it = p->find(pos);
+    QTextDocumentPrivate::FragmentIterator end = p->find(pos + length() - 1); // -1 to omit the block separator char
     for (; it != end; ++it) {
         const QTextFragmentData * const frag = it.value();
         text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
@@ -463,4 +464,115 @@ QString QTextBlock::blockText() const
 const QTextDocument *QTextBlock::document() const
 {
     return p ? p->document() : 0;
+}
+
+
+QTextBlock::iterator QTextBlock::begin() const
+{
+    if (!p || !n)
+        return iterator();
+
+    int pos = position();
+    int len = length();
+    int b = p->fragmentMap().findNode(pos);
+    int e = p->fragmentMap().findNode(pos+len);
+    return iterator(p, b, e, b);
+}
+
+QTextBlock::iterator QTextBlock::end() const
+{
+    if (!p || !n)
+        return iterator();
+
+    int pos = position();
+    int len = length();
+    int b = p->fragmentMap().findNode(pos);
+    int e = p->fragmentMap().findNode(pos+len);
+    return iterator(p, b, e, e);
+}
+
+
+QTextFragment QTextBlock::iterator::fragment() const
+{
+    int ne = n;
+    int formatIndex = p->fragmentMap().fragment(n)->format;
+    do {
+        ne = p->fragmentMap().next(ne);
+    } while (ne != e && p->fragmentMap().fragment(ne)->format == formatIndex);
+    return QTextFragment(p, n, ne);
+}
+
+QTextBlock::iterator QTextBlock::iterator::operator++()
+{
+    int ne = n;
+    int formatIndex = p->fragmentMap().fragment(n)->format;
+    do {
+        ne = p->fragmentMap().next(ne);
+    } while (ne != e && p->fragmentMap().fragment(ne)->format == formatIndex);
+    n = ne;
+    return *this;
+}
+
+QTextBlock::iterator QTextBlock::iterator::operator--()
+{
+    int ne = p->fragmentMap().prev(n);
+    int formatIndex = p->fragmentMap().fragment(n)->format;
+    int prev = ne;
+    do {
+        ne = prev;
+        prev = p->fragmentMap().prev(ne);
+    } while (ne != b && p->fragmentMap().fragment(prev)->format == formatIndex);
+    n = ne;
+    return *this;
+}
+
+
+
+int QTextFragment::position() const
+{
+    if (!p || !n)
+        return 0;
+
+    return p->fragmentMap().position(n);
+}
+
+int QTextFragment::length() const
+{
+    if (!p || !n)
+        return 0;
+
+    int len = 0;
+    int f = n;
+    while (f != ne) {
+        len += p->fragmentMap().size(f);
+        f = p->fragmentMap().next(f);
+    }
+    return len;
+}
+
+bool QTextFragment::contains(int position) const
+{
+    int pos = this->position();
+    return position >= pos && position < pos + length();
+}
+
+QTextCharFormat QTextFragment::charFormat() const
+{
+    const QTextFragmentData *data = p->fragmentMap().fragment(n);
+    return p->formatCollection()->charFormat(data->format);
+}
+
+QString QTextFragment::text() const
+{
+    if (!p || !n)
+        return QString();
+
+    QString result;
+    QString buffer = p->buffer();
+    int f = n;
+    while (f != ne) {
+        result += QString::fromRawData(buffer.constData() + p->fragmentMap().position(f), p->fragmentMap().size(f));
+        f = p->fragmentMap().next(f);
+    }
+    return result;
 }

@@ -9,6 +9,7 @@ class QTextDocument;
 class QTextBlockIterator;
 class QTextCursor;
 class QTextBlock;
+class QTextFragment;
 
 class Q_GUI_EXPORT QTextObject : public QObject
 {
@@ -90,7 +91,6 @@ public:
         iterator(const QTextFrame *frame, int b);
     public:
         iterator();
-        iterator(const QTextFrame *frame);
         iterator(const iterator &o);
 
         const QTextFrame *parentFrame() const { return f; }
@@ -113,8 +113,6 @@ protected:
     QTextFrame(QTextFramePrivate &p, QTextDocument *doc);
 };
 
-
-
 class QTextBlock
 {
     const QTextDocumentPrivate *p;
@@ -134,12 +132,58 @@ public:
     QTextLayout *layout() const;
     QTextBlockFormat blockFormat() const;
 
-    QString blockText() const;
+    QString text() const;
 
     const QTextDocument *document() const;
+
+    class iterator {
+        const QTextDocumentPrivate *p;
+        int b;
+        int e;
+        int n;
+        friend class QTextBlock;
+        iterator(const QTextDocumentPrivate *priv, int begin, int end, int f) : p(priv), b(begin), e(end), n(f) {}
+    public:
+        iterator() : p(0), b(0), e(0), n(0) {}
+        iterator(const iterator &o) : p(o.p), b(o.b), e(o.e), n(o.n) {}
+
+        QTextFragment fragment() const;
+
+        inline bool operator==(const iterator &o) const { return p == o.p && n == o.n; }
+        inline bool operator!=(const iterator &o) const { return p != o.p || n != o.n; }
+        iterator operator++();
+        inline iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
+        iterator operator--();
+        inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
+    };
+
+    iterator begin() const;
+    iterator end() const;
 };
 
 Q_DECLARE_TYPEINFO(QTextBlock, Q_PRIMITIVE_TYPE);
 
+
+class QTextFragment
+{
+    const QTextDocumentPrivate *p;
+    int n;
+    int ne;
+
+public:
+    inline QTextFragment(const QTextDocumentPrivate *priv, int f, int fe) : p(priv), n(f), ne(fe) {}
+    inline QTextFragment() : p(0), n(0), ne(0) {}
+    inline QTextFragment(const QTextFragment &o) : p(o.p), n(o.n), ne(o.ne) {}
+    inline QTextFragment &operator=(const QTextFragment &o) { p = o.p; n = o.n; ne = o.ne; return *this; }
+
+    int position() const;
+    int length() const;
+    bool contains(int position) const;
+
+    QTextCharFormat charFormat() const;
+    QString text() const;
+};
+
+Q_DECLARE_TYPEINFO(QTextFragment, Q_PRIMITIVE_TYPE);
 
 #endif
