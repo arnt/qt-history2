@@ -21,7 +21,10 @@ QT_STATIC_CONST_IMPL QString Config::dot = ".";
 Config::Config( const QString& programName )
     : prog( programName )
 {
-    reset();
+    loc = Location::null;
+    lastLoc = Location::null;
+    locMap.clear();
+    valueMap.clear();
 }
 
 /*!
@@ -29,10 +32,13 @@ Config::Config( const QString& programName )
 */
 void Config::load( const QString& fileName )
 {
-    reset();
     load( Location::null, fileName );
-    loc = Location( fileName );
-    lastLoc = Location( fileName );
+    if ( loc.isEmpty() ) {
+	loc = Location( fileName );
+    } else {
+	loc.setEtc( TRUE );
+    }
+    lastLoc = Location::null;
 }
 
 /*!
@@ -166,14 +172,6 @@ QString Config::findFile( const QStringList& files, const QStringList& dirs,
 	++d;
     }
     return "";
-}
-
-void Config::reset()
-{
-    loc = Location::null;
-    lastLoc = Location::null;
-    locMap.clear();
-    valueMap.clear();
 }
 
 void Config::load( Location location, const QString& fileName )

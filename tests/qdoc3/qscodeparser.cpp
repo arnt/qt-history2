@@ -28,12 +28,14 @@ QString QsCodeParser::language()
 void QsCodeParser::parseHeaderFile( const Location& location,
 				    const QString& filePath, Tree *tree )
 {
+    qsTre = tree;
     CppCodeParser::parseHeaderFile( location, filePath, tree );
 }
 
 void QsCodeParser::parseSourceFile( const Location& location,
 				    const QString& filePath, Tree *tree )
 {
+    qsTre = tree;
     CppCodeParser::parseSourceFile( location, filePath, tree );
 }
 

@@ -70,7 +70,7 @@ private:
 			   FunctionNode **funcPtr );
 
     QMap<QString, Node::Type> nodeTypeMap;
-    Tree *tree;
+    Tree *tre;
     Tokenizer *tokenizer;
     int tok;
     Node::Access access;
