@@ -1299,11 +1299,10 @@ void QProcess::socketWrite(int fd)
 }
 
 /*!
-  \internal
-  Flushes standard input. This is useful if you want to use QProcess in a
-  synchronous manner.
+  Flushes the process's standard input.
 
-  This function should probably go into the public API.
+  This is useful if you want to use QProcess in a synchronous manner.
+
 */
 void QProcess::flushStdin()
 {
