@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#11 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#11 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -109,9 +109,9 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
 	QWidget *creator, const char *name, bool modal, WFlags f ) :
     QSemiModal( 0, name, modal, f),
     the_bar( 0 ),
-    d(new QProgressData(this, creator, label_text)),
     totalsteps( total_steps )
 {
+    d = new QProgressData(this, creator, label_text);
     d->cancel.hide();
     connect( &d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
