@@ -1221,7 +1221,7 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     bool wasSelected = FALSE;
     if ( i != -1 )
 	wasSelected = item( i )->isSelected();
-    QListBox::viewportMousePressEvent( e );
+    QListBox::mousePressEvent( e );
 
     QFileDialogPrivate::MCItem *i1 = (QFileDialogPrivate::MCItem*)item( currentItem() );
     if ( i1 )
