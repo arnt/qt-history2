@@ -43,8 +43,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     QString family = QT_WA_INLINE( QString::fromUcs2((ushort*)lf.lfFaceName),
 				   QString::fromLocal8Bit((char*)lf.lfFaceName) );
     QFont qf(family);
-    if (lf.lfItalic)
-	qf.setItalic( TRUE );
+    qf.setItalic(lf.lfItalic);
     if (lf.lfWeight != FW_DONTCARE) {
 	int weight;
 	if ( lf.lfWeight < 400 )
@@ -62,6 +61,9 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     int lfh = QABS( lf.lfHeight );
     Q_ASSERT(shared_dc);
     qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
+    qf.setUnderline(FALSE);
+    qf.setOverline(FALSE);
+    qf.setStrikeOut(FALSE);
     return qf;
 }
 
