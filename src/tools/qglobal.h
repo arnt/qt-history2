@@ -268,6 +268,7 @@
 #    define QT_NO_QWS_CURSOR
 #  endif
 
+/* this is defined also for mingw on windows */
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  define Q_C_CALLBACKS
@@ -680,7 +681,7 @@ typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
 typedef long			Q_LONG;		// word up to 64 bit signed
 typedef unsigned long		Q_ULONG;	// word up to 64 bit unsigned
 #endif
-#if defined(Q_OS_WIN)
+#if defined(Q_OS_WIN) && !defined(Q_CC_GNU)
 #  define Q_INT64_C(c) 		c ## i64	// signed 64 bit constant
 #  define Q_UINT64_C(c)		c ## ui64	// unsigned 64 bit constant
 typedef __int64			Q_INT64;	// 64 bit signed
