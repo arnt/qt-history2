@@ -559,6 +559,7 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 #endif
 ;
 
+Q_EXPORT void qSystemWarning( const char *, int code = -1 );
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 1.x

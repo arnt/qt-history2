@@ -37,13 +37,14 @@
 
 #include "qglobal.h"
 #include "qasciidict.h"
-#include "qstring.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
 #if defined(Q_OS_WIN32)
 #define vsnprintf _vsnprintf
+#else
+#include <errno.h>
 #endif
 
 // NOT REVISED
@@ -467,6 +468,40 @@ void fatal( const char *msg, ... )
     }
 }
 
+/*
+  Prints the message \a msg
+*/
+void qSystemWarning( const char* msg, int code )
+{
+#ifndef Q_NO_DEBUG
+#if defined(Q_OS_WIN32)
+    if ( code == -1 )
+	code = GetLastError();
+
+    if ( !code )
+	return;
+
+    char* string;
+
+    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			  NULL,
+			  code,
+			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			  (char*)&string,
+			  0,
+			  NULL );
+
+    qWarning( "%s\n\tError code %d - %s", msg, code, (const char*)string );
+
+    LocalFree( (HLOCAL)string );
+#else
+    if ( code != -1 )
+	qWarning( "%s\n\tError code %d - %s", msg, code, strerror( code ) );
+    else
+	qWarning( msg );
+#endif
+#endif
+}
 
 /*!
   \fn void Q_ASSERT( bool test )
