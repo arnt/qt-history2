@@ -562,8 +562,8 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     d->qd_info.saved = new QMacSavedPortInfo;
 
     const QWidget *copyMe = 0;
-    if ((pdev = const_cast<QPaintDevice*>(redirected(pd, &redirection_offset)))) {
-	if ( pd->devType() == QInternal::Widget )
+    if((pdev = const_cast<QPaintDevice*>(redirected(pd, &redirection_offset)))) {
+	if(pd->devType() == QInternal::Widget)
 	    copyMe = static_cast<const QWidget *>(pd); // copy widget settings
     } else {
 	pdev = const_cast<QPaintDevice*>(pd);
@@ -692,7 +692,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 
     if(ww == 0)
 	ww = wh = vw = vh = 1024;
-    if (copyMe)
+    if(copyMe)
 	copyFrom(copyMe);
     if(testf(ExtDev)) {                      // external device
 	setBackgroundColor(bg_brush);           // default background color
@@ -703,7 +703,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     updateXForm();
     updateBrush();
     updatePen();
-    if (!redirection_offset.isNull())
+    if(!redirection_offset.isNull())
 	translate(-redirection_offset.x(), -redirection_offset.y());
     return true;
 }
@@ -953,9 +953,9 @@ void QPainter::setClipRegion(const QRegion &rgn, CoordinateMode m)
 	return;
     }
 
-    if ( m == CoordDevice ) {
+    if(m == CoordDevice) {
 	crgn = rgn;
-	if (!redirection_offset.isNull())
+	if(!redirection_offset.isNull())
 	    crgn.translate(-redirection_offset);
     } else {
 	crgn = xmat * rgn;
@@ -969,6 +969,8 @@ void QPainter::drawPolyInternal(const QPointArray &a, bool close, bool inset)
 	return;
 
 #ifdef USE_CORE_GRAPHICS
+    Q_UNUSED(inset);
+
     float cg_x, cg_y;
     d->cg_mac_point(a[0].x(), a[0].y(), &cg_x, &cg_y);
     CGContextMoveToPoint((CGContextRef)hd, cg_x, cg_y);
@@ -1651,20 +1653,20 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawPie, this, param) || !hd)
 	    return;
     }
-    if(testf(VxF|WxF) ) {
+    if(testf(VxF|WxF)) {
         if(txop == TxRotShear) {             // rotate/shear
             QPointArray pa;
-            pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+            pa.makeArc(x, y, w, h, a, alen, xmat); // arc polyline
             int n = pa.size();
             int cx, cy;
             xmat.map(x+w/2, y+h/2, &cx, &cy);
-            pa.resize( n+2 );
-            pa.setPoint( n, cx, cy );   // add legs
-            pa.setPoint( n+1, pa.at(0) );
-            drawPolyInternal( pa );
+            pa.resize(n+2);
+            pa.setPoint(n, cx, cy);   // add legs
+            pa.setPoint(n+1, pa.at(0));
+            drawPolyInternal(pa);
             return;
         }
-        map( x, y, w, h, &x, &y, &w, &h );
+        map(x, y, w, h, &x, &y, &w, &h);
     }
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
@@ -1710,7 +1712,7 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawChord, this, param) || !hd)
 	    return;
     }
-    if(testf(VxF|WxF) ) {
+    if(testf(VxF|WxF)) {
         if(txop == TxRotShear) {             // rotate/shear
             QPointArray pa;
             pa.makeArc(x, y, w-1, h-1, a, alen, xmat); // arc polygon
@@ -1760,7 +1762,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
 	return;
     QPointArray pa = a;
     if(testf(ExtDev)) {
-	if (2*nlines != (int)pa.size()) {
+	if(2*nlines != (int)pa.size()) {
 	    pa = QPointArray(nlines*2);
 	    for(int i=0; i<nlines*2; i++)
 		pa.setPoint(i, a.point(index+i));
@@ -1952,9 +1954,9 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 	if(!pdev->cmd(QPaintDevice::PdcDrawCubicBezier, this, param) || !hd)
 	    return;
     }
-    if ( testf(VxF|WxF) ) {
-        if ( txop != TxNone ) {
-            pa = xForm( pa );
+    if(testf(VxF|WxF)) {
+        if(txop != TxNone) {
+            pa = xForm(pa);
 	    pa.translate(-redirection_offset);
 	}
     }
@@ -2114,7 +2116,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
 	sy = sh - -sy % sh;
     else
 	sy = sy % sh;
-#if defined( USE_CORE_GRAPHICS ) && 0
+#if defined(USE_CORE_GRAPHICS) && 0
     CGContextSaveGState((CGContextRef)hd);
 
     QMacPattern *qpattern = new QMacPattern;
@@ -2190,7 +2192,7 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
     engine->currentItem = start;
     layout.beginLine(0xfffffff);
     int end = start;
-    while (!layout.atEnd() && layout.currentItem().from() < pos + len) {
+    while(!layout.atEnd() && layout.currentItem().from() < pos + len) {
 	layout.addCurrentItem();
 	end++;
     }
