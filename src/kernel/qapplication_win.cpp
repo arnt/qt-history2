@@ -1972,6 +1972,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_DRAWCLIPBOARD:
 	case WM_RENDERFORMAT:
 	case WM_RENDERALLFORMATS:
+	case WM_DESTROYCLIPBOARD:
 	    if ( qt_clipboard ) {
 		QCustomEvent e( QEvent::Clipboard, &msg );
 		qt_sendSpontaneousEvent( qt_clipboard, &e );

@@ -309,6 +309,8 @@ static void renderFormat(int cf)
     }
 }
 
+static bool ignore_empty_clipboard = FALSE;
+
 static void renderAllFormats()
 {
 #if defined(QT_DEBUG_CB)
@@ -329,7 +331,9 @@ static void renderAllFormats()
 	return;
     }
 
+    ignore_empty_clipboard = TRUE;
     EmptyClipboard();
+    ignore_empty_clipboard = FALSE;
 
     const char* mime;
     QPtrList<QWindowsMime> all = QWindowsMime::all();
@@ -382,6 +386,11 @@ bool QClipboard::event( QEvent *e )
 	    emit dataChanged();
 	    break;
 
+	case WM_DESTROYCLIPBOARD:
+	    if ( !ignore_empty_clipboard )
+		cleanupClipboardData();
+	    break;
+
 	case WM_RENDERFORMAT:
 	    renderFormat(m->wParam);
 	    break;
@@ -408,7 +417,9 @@ void QClipboard::clear( Mode mode )
     if ( mode != Clipboard ) return;
 
     if ( OpenClipboard( clipboardOwner()->winId() ) ) {
+	ignore_empty_clipboard = TRUE;
 	EmptyClipboard();
+	ignore_empty_clipboard = FALSE;
 	CloseClipboard();
     }
 }
@@ -436,7 +447,9 @@ void QClipboard::setData( QMimeSource* src, Mode mode )
     QClipboardData *d = clipboardData();
     d->setSource( src );
 
+    ignore_empty_clipboard = TRUE;
     int res = EmptyClipboard();
+    ignore_empty_clipboard = FALSE;
 #ifndef QT_NO_DEBUG
     if ( !res )
 	qSystemWarning( "QClipboard: Failed to empty clipboard" );
