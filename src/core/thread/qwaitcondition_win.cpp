@@ -105,10 +105,12 @@ QWaitCondition::QWaitCondition()
 
 QWaitCondition::~QWaitCondition()
 {
-    Q_ASSERT_X(d->queue.isEmpty(), "QWaitCondition", "destroyed while threads are still waiting");
+    if (!d->queue.isEmpty()) {
+        qWarning("QWaitCondition: destroyed while threads are still waiting");
+        qDeleteAll(d->queue);
+    }
 
-    for(EventQueue::Iterator it = d->freeQueue.begin(); it != d->freeQueue.end(); ++it)
-        delete (*it);
+    qDeleteAll(d->freeQueue);
     delete d;
 }
 

@@ -130,9 +130,6 @@ QWaitCondition::~QWaitCondition()
     int ret = pthread_cond_destroy(&d->cond);
     if (ret != 0) {
         qWarning("QWaitCondition: destructor failure: %s", strerror(ret));
-
-        // seems we have threads waiting on us, lets wake them up
-        pthread_cond_broadcast(&d->cond);
     }
 
     delete d;
