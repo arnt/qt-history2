@@ -16,7 +16,8 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  $$ACTIVEQT_H/qaxfactory.h \
 		  ../shared/types.h
 
-    SOURCES     = qaxserverbase.cpp \
+    SOURCES     = qaxserver.cpp \
+		  qaxserverbase.cpp \
 		  qaxbindable.cpp \
 		  qaxfactory.cpp \
 		  qaxservermain.cpp \
