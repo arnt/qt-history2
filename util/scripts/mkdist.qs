@@ -638,12 +638,11 @@ function compile(platform, edition, platformName)
 	// replace tags and copy over the install script
 	var installScript = p4Copy(p4BranchPath + "/util/scripts","installscriptwin.nsi", p4Label);
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
-	var windowsPath = Process.stdout;
-	print("REPLACING WITH! : " + windowsPath);
+	var windowsPath = Process.stdout.split("\n")[0];
 	var extraTags = new Array();
 	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
 	var scriptFile = new File(installScript);
-	replaceTags(scriptFile.path, [scriptFile.name], platform, edition, platformName, extraTags);
+	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, edition, platformName, extraTags);
 	execute(["scp", installScript, login + ":."]);
 
 	// run the install script and create compiler
@@ -827,7 +826,9 @@ function replaceTags(packageDir, fileList, platform, edition, platName, addition
 	replace[licenseHeaders[platform+"-"+edition]] = /\*\* \$LICENSE\$\n/;
     else
 	replace[licenseHeaders[edition]] = /\*\* \$LICENSE\$\n/;
-    replace = replace.concat(additionalTags);
+    for (var i in additionalTags)
+	replace[i] = additionalTags[i];
+
 
     var fileName = new String();
     var absFileName = new String();
