@@ -15,7 +15,8 @@ CC	=	gcc
 
 #######	Files
 
-INTERNAL=	qfontdialog.h	qfontdialog.cpp	qprogdlg.h	qprogdlg.cpp
+X11ONLY =	qprndlg.h	qprndlg.cpp
+INTERNAL=	qfontdialog.h	qfontdialog.cpp
 HEADERS =	qfiledlg.h	qmsgbox.h	qprndlg.h	qtabdlg.h \
 		qfontdialog.h	qprogdlg.h
 SOURCES =	qfiledlg.cpp	qmsgbox.cpp	qprndlg.cpp	qtabdlg.cpp \

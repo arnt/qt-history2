@@ -15,6 +15,7 @@ CC	=	gcc
 
 ####### Files
 
+X11ONLY =	qpsprn.h	qpsprn.cpp	qnpsupport.cpp	qt_x11.cpp
 INTERNAL=	qpshdr.txt	qmutex.h 	qthread.h	qthread.cpp
 HEADERS =	qaccel.h	qapp.h		qgmanagr.h	qbitmap.h     \
 		qbrush.h	qclipbrd.h	qcolor.h	qconnect.h    \
