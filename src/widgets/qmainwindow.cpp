@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#71 $
 **
 ** Implementation of QMainWindow class
 **
@@ -450,7 +450,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
   statusBar() creates an empty status bar on the fly, and if necessary
   a tool tip group too.
 
-  \sa setMenuBar() statusBar() toolTipGroup()
+  \sa  menuBar() toolTipGroup()
 */
 
 QStatusBar * QMainWindow::statusBar() const
