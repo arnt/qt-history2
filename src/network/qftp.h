@@ -57,6 +57,7 @@ public:
     };
     enum Command {
         None,
+        SetTransferMode,
         ConnectToHost,
         Login,
         Close,
@@ -70,10 +71,15 @@ public:
         Rename,
         RawCommand
     };
+    enum TransferMode {
+        Active,
+        Passive
+    };
 
     int connectToHost(const QString &host, Q_UINT16 port=21);
     int login(const QString &user=QString::null, const QString &password=QString::null);
     int close();
+    int setTransferMode(TransferMode mode);
     int list(const QString &dir=QString::null);
     int cd(const QString &dir);
     int get(const QString &file, QIODevice *dev=0);
