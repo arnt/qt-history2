@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qthread_unix.cpp#46 - integrate change 34886 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qthread_unix.cpp#4 $
 **

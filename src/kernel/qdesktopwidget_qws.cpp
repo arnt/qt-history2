@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qdesktopwidget_qws.cpp#3 - edit change 33507 (text)
 #include "qdesktopwidget.h"
 
 class QDesktopWidgetPrivate

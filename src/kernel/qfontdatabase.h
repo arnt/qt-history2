@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qfontdatabase.h#27 - edit change 35110 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#11 $
 **

@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qdesktopwidget_x11.cpp#8 - edit change 33511 (text)
 #include "qdesktopwidget.h"
 #include "qt_x11.h"
 

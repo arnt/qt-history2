@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qdesktopwidget_win.cpp#10 - edit change 35330 (text)
 #include "qdesktopwidget.h"
 #include "qt_windows.h"
 #include "qapplication_p.h"

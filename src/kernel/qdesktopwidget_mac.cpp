@@ -1,4 +1,3 @@
-//depot/qt/main/src/kernel/qdesktopwidget_mac.cpp#6 - edit change 33511 (text)
 #include "qdesktopwidget.h"
 #include <qapplication.h>
 #include "qt_mac.h"
