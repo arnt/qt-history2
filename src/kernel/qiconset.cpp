@@ -119,19 +119,20 @@ public:
     a \link QIconSet::Size Size\endlink and
     a \link QIconSet::Mode Mode\endlink:
   \list
-  \i <i>Small Normal</i> - can only be calculated from Large Normal.
-  \i <i>Small Disabled</i> - calculated from Large Disabled or Small Normal.
-  \i <i>Small Active</i> - same as Small Normal unless you set it.
-  \i <i>Large Normal</i> - can only be calculated from Small Normal.
-  \i <i>Large Disabled</i> - calculated from Small Disabled or Large Normal.
-  \i <i>Large Active</i> - same as Large Normal unless you set it.
+  \i \e{Small Normal} - can only be calculated from Large Normal.
+  \i \e{Small Disabled} - calculated from Large Disabled or Small Normal.
+  \i \e{Small Active} - same as Small Normal unless you set it.
+  \i \e{Large Normal} - can only be calculated from Small Normal.
+  \i \e{Large Disabled} - calculated from Small Disabled or Large Normal.
+  \i \e{Large Active} - same as Large Normal unless you set it.
   \endlist
 
   An additional set of six icons can be provided for widgets that have
   an "On" or "Off" state, like checkable menu items or toggleable
   toolbuttons. If you provide pixmaps for the "On" state, but not for
   the "Off" state, the QIconSet will provide the "Off" pixmaps. You may
-  specify icons for both states in you wish.
+  specify icons for both states in you wish. For best results for
+  calculated pixmaps, you should supply a 22 x 22 pixel pixmap.
 
   You can set any of the icons using setPixmap().
 
@@ -164,7 +165,7 @@ public:
   an icon was set by the application programmer or computed by
   QIconSet itself.
 
-  <h3>Making Classes that use QIconSet</h3>
+  \section1 Making Classes that use QIconSet
 
   If you write your own widgets that have an option to set a small
   pixmap, consider allowing a QIconSet to be set for that pixmap.  The

@@ -73,7 +73,9 @@
 
   The colors \c color0 (zero pixel value) and \c color1 (non-zero
   pixel value) are special colors for drawing in \link QBitmap
-  bitmaps\endlink.
+  bitmaps\endlink. Painting with \c color0 sets the bitmap bits to 0
+  (white, i.e. background), and painting with \c color1 sets the bits
+  to 1 (black, i.e. foreground).
 
   The QColor class has an efficient, dynamic color allocation
   strategy.  A color is normally allocated the first time it is used

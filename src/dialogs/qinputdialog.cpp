@@ -87,6 +87,8 @@ public:
       ;// user entered nothing or pressed Cancel
   \endcode
 
+  \img inputdialogs.png Input Dialogs
+
 */
 
 /*!
@@ -431,7 +433,7 @@ double QInputDialog::getDouble( const QString &caption, const QString &label, do
 	while( editText[j].isDigit() || editText[j] == 'e' || editText[j] == '-' || editText[j] == '+' )
 	    j++;
         if ( !isExp && j - i > decimals ) // if number contains an 'e' e.g. is exponential we don't truncate at all
-            editText.truncate( i + decimals );	
+            editText.truncate( i + decimals );
     }
     result = editText.toDouble();
 
