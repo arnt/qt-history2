@@ -158,8 +158,8 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
         vscroll = d->leftHeader->offset() - offset;
         d->leftHeader->setOffset(offset);
     }
-    //d->viewport->scroll(hscroll, vscroll);
-    d->viewport->update();
+    d->viewport->scroll(hscroll, vscroll);
+    //d->viewport->update();
 }
 
 void QGenericTableView::drawGrid(QPainter *p, int x, int y, int w, int h) const
@@ -232,7 +232,7 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
     
     painter.end();
     painter.begin(d->viewport);
-    painter.drawPixmap(0, 0, d->backBuffer);
+    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
 bool QGenericTableView::event(QEvent *e)

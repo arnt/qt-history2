@@ -220,7 +220,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 
     painter.end();
     painter.begin(d->viewport);
-    painter.drawPixmap(0, 0, d->backBuffer);
+    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
 void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item)

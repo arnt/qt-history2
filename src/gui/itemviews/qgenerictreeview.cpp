@@ -299,7 +299,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 
     painter.end();
     painter.begin(d->viewport);
-    painter.drawPixmap(0, 0, d->backBuffer);
+    painter.drawPixmap(area.topLeft(), d->backBuffer, area);
 }
 
 void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const QModelIndex &index) const
@@ -553,8 +553,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
             d->header->setOffset(offset);
         }
     }
-    //d->viewport->scroll(dx, dy);
-    d->viewport->update();
+    d->viewport->scroll(dx, dy);
 }
 
 void QGenericTreeView::contentsChanged()

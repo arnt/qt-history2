@@ -391,11 +391,10 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
-    //QRect rect = d->draggedItemsRect;
-    //rect.moveBy(dx, dy);
-    //d->viewport->scroll(dx, dy);
-    //d->viewport->repaint(rect);
-    d->viewport->update();
+    QRect rect = d->draggedItemsRect;
+    rect.moveBy(dx, dy);
+    d->viewport->scroll(dx, dy);
+    d->viewport->repaint(rect);
 }
 
 void QGenericListView::resizeContents(int w, int h)
@@ -570,6 +569,8 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     
     QRect area = e->rect();
     painter.fillRect(area, options.palette.base());
+
+    QRect unmoved = area; // used for blitting
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
@@ -592,7 +593,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
 
     painter.end();
     painter.begin(d->viewport);
-    painter.drawPixmap(0, 0, d->backBuffer);
+    painter.drawPixmap(unmoved.topLeft(), d->backBuffer, unmoved);
     
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
         QPoint delta = (d->movement == Snap
