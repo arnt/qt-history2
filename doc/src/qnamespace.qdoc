@@ -349,10 +349,10 @@
 /*!
     \enum Qt::ToolBarArea
 
-    \value ToolBarAreaLeft
-    \value ToolBarAreaRight
-    \value ToolBarAreaTop
-    \value ToolBarAreaBottom
+    \value LeftToolBarArea
+    \value RightToolBarArea
+    \value TopToolBarArea
+    \value BottomToolBarArea
     \value AllToolBarAreas
 
     \omitvalue ToolBarAreaMask
@@ -362,10 +362,10 @@
 /*!
     \enum Qt::DockWindowArea
 
-    \value DockWindowAreaLeft
-    \value DockWindowAreaRight
-    \value DockWindowAreaTop
-    \value DockWindowAreaBottom
+    \value LeftDockWindowArea
+    \value RightDockWindowArea
+    \value TopDockWindowArea
+    \value BottomDockWindowArea
     \value AllDockWindowAreas
 
     \omitvalue DockWindowAreaMask

@@ -222,7 +222,7 @@ void TextEdit::setupTextActions()
 
     tb = new QToolBar(this);
     tb->setWindowTitle(tr("Format Actions"));
-    addToolBarBreak(Qt::ToolBarAreaTop);
+    addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(tb);
 
     comboStyle = new QComboBox(tb);

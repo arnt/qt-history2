@@ -150,16 +150,16 @@ void ColorSwatch::polishEvent(QEvent *)
         movableAction->setChecked(hasFeature(QDockWindow::DockWindowMovable));
     }
 
-    allowLeftAction->setChecked(isDockable(Qt::DockWindowAreaLeft));
-    allowRightAction->setChecked(isDockable(Qt::DockWindowAreaRight));
-    allowTopAction->setChecked(isDockable(Qt::DockWindowAreaTop));
-    allowBottomAction->setChecked(isDockable(Qt::DockWindowAreaBottom));
+    allowLeftAction->setChecked(isDockable(Qt::LeftDockWindowArea));
+    allowRightAction->setChecked(isDockable(Qt::RightDockWindowArea));
+    allowTopAction->setChecked(isDockable(Qt::TopDockWindowArea));
+    allowBottomAction->setChecked(isDockable(Qt::BottomDockWindowArea));
 
     if (allowedAreasActions->isEnabled()) {
-        allowLeftAction->setEnabled(area != Qt::DockWindowAreaLeft);
-        allowRightAction->setEnabled(area != Qt::DockWindowAreaRight);
-        allowTopAction->setEnabled(area != Qt::DockWindowAreaTop);
-        allowBottomAction->setEnabled(area != Qt::DockWindowAreaBottom);
+        allowLeftAction->setEnabled(area != Qt::LeftDockWindowArea);
+        allowRightAction->setEnabled(area != Qt::RightDockWindowArea);
+        allowTopAction->setEnabled(area != Qt::TopDockWindowArea);
+        allowBottomAction->setEnabled(area != Qt::BottomDockWindowArea);
     }
 
     leftAction->blockSignals(true);
@@ -167,10 +167,10 @@ void ColorSwatch::polishEvent(QEvent *)
     topAction->blockSignals(true);
     bottomAction->blockSignals(true);
 
-    leftAction->setChecked(area == Qt::DockWindowAreaLeft);
-    rightAction->setChecked(area == Qt::DockWindowAreaRight);
-    topAction->setChecked(area == Qt::DockWindowAreaTop);
-    bottomAction->setChecked(area == Qt::DockWindowAreaBottom);
+    leftAction->setChecked(area == Qt::LeftDockWindowArea);
+    rightAction->setChecked(area == Qt::RightDockWindowArea);
+    topAction->setChecked(area == Qt::TopDockWindowArea);
+    bottomAction->setChecked(area == Qt::BottomDockWindowArea);
 
     leftAction->blockSignals(false);
     rightAction->blockSignals(false);
@@ -178,10 +178,10 @@ void ColorSwatch::polishEvent(QEvent *)
     bottomAction->blockSignals(false);
 
     if (areaActions->isEnabled()) {
-        leftAction->setEnabled(areas & Qt::DockWindowAreaLeft);
-        rightAction->setEnabled(areas & Qt::DockWindowAreaRight);
-        topAction->setEnabled(areas & Qt::DockWindowAreaTop);
-        bottomAction->setEnabled(areas & Qt::DockWindowAreaBottom);
+        leftAction->setEnabled(areas & Qt::LeftDockWindowArea);
+        rightAction->setEnabled(areas & Qt::RightDockWindowArea);
+        topAction->setEnabled(areas & Qt::TopDockWindowArea);
+        bottomAction->setEnabled(areas & Qt::BottomDockWindowArea);
     }
 }
 
@@ -192,10 +192,10 @@ void ColorSwatch::allow(Qt::DockWindowArea area, bool a)
     setAllowedAreas(areas);
 
     if (areaActions->isEnabled()) {
-        leftAction->setEnabled(areas & Qt::DockWindowAreaLeft);
-        rightAction->setEnabled(areas & Qt::DockWindowAreaRight);
-        topAction->setEnabled(areas & Qt::DockWindowAreaTop);
-        bottomAction->setEnabled(areas & Qt::DockWindowAreaBottom);
+        leftAction->setEnabled(areas & Qt::LeftDockWindowArea);
+        rightAction->setEnabled(areas & Qt::RightDockWindowArea);
+        topAction->setEnabled(areas & Qt::TopDockWindowArea);
+        bottomAction->setEnabled(areas & Qt::BottomDockWindowArea);
     }
 }
 
@@ -206,10 +206,10 @@ void ColorSwatch::place(Qt::DockWindowArea area, bool p)
     mainWindow()->addDockWindow(area, this);
 
     if (allowedAreasActions->isEnabled()) {
-        allowLeftAction->setEnabled(area != Qt::DockWindowAreaLeft);
-        allowRightAction->setEnabled(area != Qt::DockWindowAreaRight);
-        allowTopAction->setEnabled(area != Qt::DockWindowAreaTop);
-        allowBottomAction->setEnabled(area != Qt::DockWindowAreaBottom);
+        allowLeftAction->setEnabled(area != Qt::LeftDockWindowArea);
+        allowRightAction->setEnabled(area != Qt::RightDockWindowArea);
+        allowTopAction->setEnabled(area != Qt::TopDockWindowArea);
+        allowBottomAction->setEnabled(area != Qt::BottomDockWindowArea);
     }
 }
 
@@ -228,25 +228,25 @@ void ColorSwatch::changeTopLevel(bool topLevel)
 }
 
 void ColorSwatch::allowLeft(bool a)
-{ allow(Qt::DockWindowAreaLeft, a); }
+{ allow(Qt::LeftDockWindowArea, a); }
 
 void ColorSwatch::allowRight(bool a)
-{ allow(Qt::DockWindowAreaRight, a); }
+{ allow(Qt::RightDockWindowArea, a); }
 
 void ColorSwatch::allowTop(bool a)
-{ allow(Qt::DockWindowAreaTop, a); }
+{ allow(Qt::TopDockWindowArea, a); }
 
 void ColorSwatch::allowBottom(bool a)
-{ allow(Qt::DockWindowAreaBottom, a); }
+{ allow(Qt::BottomDockWindowArea, a); }
 
 void ColorSwatch::placeLeft(bool p)
-{ place(Qt::DockWindowAreaLeft, p); }
+{ place(Qt::LeftDockWindowArea, p); }
 
 void ColorSwatch::placeRight(bool p)
-{ place(Qt::DockWindowAreaRight, p); }
+{ place(Qt::RightDockWindowArea, p); }
 
 void ColorSwatch::placeTop(bool p)
-{ place(Qt::DockWindowAreaTop, p); }
+{ place(Qt::TopDockWindowArea, p); }
 
 void ColorSwatch::placeBottom(bool p)
-{ place(Qt::DockWindowAreaBottom, p); }
+{ place(Qt::BottomDockWindowArea, p); }

@@ -168,10 +168,10 @@ TrWindow::TrWindow()
     pxObs = new QPixmap(":/images/s_check_obs.png");
     pxEmpty = new QPixmap(":/images/s_check_empty.png");
 
-    setCorner(Qt::TopLeftCorner, Qt::DockWindowAreaLeft);
-    setCorner(Qt::TopRightCorner, Qt::DockWindowAreaRight);
-    setCorner(Qt::BottomLeftCorner, Qt::DockWindowAreaLeft);
-    setCorner(Qt::BottomRightCorner, Qt::DockWindowAreaRight);
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWindowArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWindowArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWindowArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWindowArea);
 
     // Set up the Scope dock window
     dwScope = new QDockWindow(this);
@@ -189,7 +189,7 @@ TrWindow::TrWindow()
     tv->setSelectionMode(QAbstractItemView::SingleSelection);
     tv->setRootIsDecorated(false);
     dwScope->setWidget(tv);
-    addDockWindow(Qt::DockWindowAreaLeft, dwScope);
+    addDockWindow(Qt::LeftDockWindowArea, dwScope);
 
     QFontMetrics fm(font());
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);

@@ -186,28 +186,28 @@ void ToolBar::polishEvent(QEvent *)
 
     movableAction->setChecked(isMovable());
 
-    allowLeftAction->setChecked(isDockable(Qt::ToolBarAreaLeft));
-    allowRightAction->setChecked(isDockable(Qt::ToolBarAreaRight));
-    allowTopAction->setChecked(isDockable(Qt::ToolBarAreaTop));
-    allowBottomAction->setChecked(isDockable(Qt::ToolBarAreaBottom));
+    allowLeftAction->setChecked(isDockable(Qt::LeftToolBarArea));
+    allowRightAction->setChecked(isDockable(Qt::RightToolBarArea));
+    allowTopAction->setChecked(isDockable(Qt::TopToolBarArea));
+    allowBottomAction->setChecked(isDockable(Qt::BottomToolBarArea));
 
     if (allowedAreasActions->isEnabled()) {
-        allowLeftAction->setEnabled(area != Qt::ToolBarAreaLeft);
-        allowRightAction->setEnabled(area != Qt::ToolBarAreaRight);
-        allowTopAction->setEnabled(area != Qt::ToolBarAreaTop);
-        allowBottomAction->setEnabled(area != Qt::ToolBarAreaBottom);
+        allowLeftAction->setEnabled(area != Qt::LeftToolBarArea);
+        allowRightAction->setEnabled(area != Qt::RightToolBarArea);
+        allowTopAction->setEnabled(area != Qt::TopToolBarArea);
+        allowBottomAction->setEnabled(area != Qt::BottomToolBarArea);
     }
 
-    leftAction->setChecked(area == Qt::ToolBarAreaLeft);
-    rightAction->setChecked(area == Qt::ToolBarAreaRight);
-    topAction->setChecked(area == Qt::ToolBarAreaTop);
-    bottomAction->setChecked(area == Qt::ToolBarAreaBottom);
+    leftAction->setChecked(area == Qt::LeftToolBarArea);
+    rightAction->setChecked(area == Qt::RightToolBarArea);
+    topAction->setChecked(area == Qt::TopToolBarArea);
+    bottomAction->setChecked(area == Qt::BottomToolBarArea);
 
     if (areaActions->isEnabled()) {
-        leftAction->setEnabled(areas & Qt::ToolBarAreaLeft);
-        rightAction->setEnabled(areas & Qt::ToolBarAreaRight);
-        topAction->setEnabled(areas & Qt::ToolBarAreaTop);
-        bottomAction->setEnabled(areas & Qt::ToolBarAreaBottom);
+        leftAction->setEnabled(areas & Qt::LeftToolBarArea);
+        rightAction->setEnabled(areas & Qt::RightToolBarArea);
+        topAction->setEnabled(areas & Qt::TopToolBarArea);
+        bottomAction->setEnabled(areas & Qt::BottomToolBarArea);
     }
 }
 
@@ -274,10 +274,10 @@ void ToolBar::allow(Qt::ToolBarArea area, bool a)
     setAllowedAreas(areas);
 
     if (areaActions->isEnabled()) {
-        leftAction->setEnabled(areas & Qt::ToolBarAreaLeft);
-        rightAction->setEnabled(areas & Qt::ToolBarAreaRight);
-        topAction->setEnabled(areas & Qt::ToolBarAreaTop);
-        bottomAction->setEnabled(areas & Qt::ToolBarAreaBottom);
+        leftAction->setEnabled(areas & Qt::LeftToolBarArea);
+        rightAction->setEnabled(areas & Qt::RightToolBarArea);
+        topAction->setEnabled(areas & Qt::TopToolBarArea);
+        bottomAction->setEnabled(areas & Qt::BottomToolBarArea);
     }
 }
 
@@ -292,10 +292,10 @@ void ToolBar::place(Qt::ToolBarArea area, bool p)
     mainWindow->addToolBar(area, this);
 
     if (allowedAreasActions->isEnabled()) {
-        allowLeftAction->setEnabled(area != Qt::ToolBarAreaLeft);
-        allowRightAction->setEnabled(area != Qt::ToolBarAreaRight);
-        allowTopAction->setEnabled(area != Qt::ToolBarAreaTop);
-        allowBottomAction->setEnabled(area != Qt::ToolBarAreaBottom);
+        allowLeftAction->setEnabled(area != Qt::LeftToolBarArea);
+        allowRightAction->setEnabled(area != Qt::RightToolBarArea);
+        allowTopAction->setEnabled(area != Qt::TopToolBarArea);
+        allowBottomAction->setEnabled(area != Qt::BottomToolBarArea);
     }
 }
 
@@ -303,25 +303,25 @@ void ToolBar::changeMovable(bool movable)
 { setMovable(movable); }
 
 void ToolBar::allowLeft(bool a)
-{ allow(Qt::ToolBarAreaLeft, a); }
+{ allow(Qt::LeftToolBarArea, a); }
 
 void ToolBar::allowRight(bool a)
-{ allow(Qt::ToolBarAreaRight, a); }
+{ allow(Qt::RightToolBarArea, a); }
 
 void ToolBar::allowTop(bool a)
-{ allow(Qt::ToolBarAreaTop, a); }
+{ allow(Qt::TopToolBarArea, a); }
 
 void ToolBar::allowBottom(bool a)
-{ allow(Qt::ToolBarAreaBottom, a); }
+{ allow(Qt::BottomToolBarArea, a); }
 
 void ToolBar::placeLeft(bool p)
-{ place(Qt::ToolBarAreaLeft, p); }
+{ place(Qt::LeftToolBarArea, p); }
 
 void ToolBar::placeRight(bool p)
-{ place(Qt::ToolBarAreaRight, p); }
+{ place(Qt::RightToolBarArea, p); }
 
 void ToolBar::placeTop(bool p)
-{ place(Qt::ToolBarAreaTop, p); }
+{ place(Qt::TopToolBarArea, p); }
 
 void ToolBar::placeBottom(bool p)
-{ place(Qt::ToolBarAreaBottom, p); }
+{ place(Qt::BottomToolBarArea, p); }

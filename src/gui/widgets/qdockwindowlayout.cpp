@@ -879,15 +879,15 @@ QDockWindowLayout::Location QDockWindowLayout::locate(const QPoint &mouse) const
 
             ret.index = i;
             ret.area = ((dx > dy)
-                        ? ((p.x() < p2.x()) ? Qt::DockWindowAreaLeft : Qt::DockWindowAreaRight)
-                        : ((p.y() < p2.y()) ? Qt::DockWindowAreaTop : Qt::DockWindowAreaBottom));
+                        ? ((p.x() < p2.x()) ? Qt::LeftDockWindowArea : Qt::RightDockWindowArea)
+                        : ((p.y() < p2.y()) ? Qt::TopDockWindowArea : Qt::BottomDockWindowArea));
             DEBUG() << "  result: index" << ret.index << "area" << ret.area;
             return ret;
         }
     }
 
     ret.index = layout_info.count() - 1;
-    ret.area = (horizontal ? Qt::DockWindowAreaRight : Qt::DockWindowAreaBottom);
+    ret.area = (horizontal ? Qt::RightDockWindowArea : Qt::BottomDockWindowArea);
     DEBUG() << "  result: index" << ret.index << "area" << ret.area << "(off-end)";
     return ret;
 }
@@ -902,7 +902,7 @@ static QRect trySplit(Qt::Orientation orientation,
 
     switch (orientation) {
     case Qt::Horizontal:
-        if (area != Qt::DockWindowAreaTop && area != Qt::DockWindowAreaBottom) {
+        if (area != Qt::TopDockWindowArea && area != Qt::BottomDockWindowArea) {
             DEBUG() << "    wrong place" << area <<"to split";
             break;
         }
@@ -915,7 +915,7 @@ static QRect trySplit(Qt::Orientation orientation,
             break;
         }
 
-        if (area == Qt::DockWindowAreaTop)
+        if (area == Qt::TopDockWindowArea)
             ret.setRect(r.x(), r.y(), r.width(), r.height() / 2);
         else
             ret.setRect(r.x(), r.y() + r.height() / 2, r.width(), r.height() / 2);
@@ -923,7 +923,7 @@ static QRect trySplit(Qt::Orientation orientation,
         break;
 
     case Qt::Vertical:
-        if (area != Qt::DockWindowAreaLeft && area != Qt::DockWindowAreaRight)
+        if (area != Qt::LeftDockWindowArea && area != Qt::RightDockWindowArea)
             break;
 
         if (!r.contains(QRect(r.x(),
@@ -932,7 +932,7 @@ static QRect trySplit(Qt::Orientation orientation,
                               qMax(sz1.height(), sz2.height()))))
             break;
 
-        if (area == Qt::DockWindowAreaLeft)
+        if (area == Qt::LeftDockWindowArea)
             ret.setRect(r.x(), r.y(), r.width() / 2, r.height());
         else
             ret.setRect(r.x() + r.width() / 2, r.y(), r.width() / 2, r.height());
@@ -1002,12 +1002,12 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
                 const bool horizontal = orientation == Qt::Horizontal;
                 if (pos > (info.cur_pos + (info.cur_size / 2) - 1)) {
                     location.area = horizontal
-                                    ? Qt::DockWindowAreaRight
-                                    : Qt::DockWindowAreaBottom;
+                                    ? Qt::RightDockWindowArea
+                                    : Qt::BottomDockWindowArea;
                 } else {
                     location.area = horizontal
-                                    ? Qt::DockWindowAreaLeft
-                                    : Qt::DockWindowAreaTop;
+                                    ? Qt::LeftDockWindowArea
+                                    : Qt::TopDockWindowArea;
                 }
             }
         }
@@ -1038,7 +1038,7 @@ QRect QDockWindowLayout::place(QDockWindow *dockwindow, const QRect &r, const QP
 
     // add dummy layout item
     int index = location.index / 2; // :)
-    if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
+    if (location.area == Qt::RightDockWindowArea || location.area == Qt::BottomDockWindowArea)
         ++index;
     QDockWindowLayoutItem layoutitem(dockwindow, r);
     QDockWindowLayoutInfo &info = insert(index, &layoutitem, true);
@@ -1120,14 +1120,14 @@ void QDockWindowLayout::drop(QDockWindow *dockwindow, const QRect &r, const QPoi
             const int pos = pick(orientation, p);
             const bool horizontal = orientation == Qt::Horizontal;
             if (pos > (info.cur_pos + (info.cur_size / 2) - 1))
-                location.area = horizontal ? Qt::DockWindowAreaRight : Qt::DockWindowAreaBottom;
+                location.area = horizontal ? Qt::RightDockWindowArea : Qt::BottomDockWindowArea;
             else
-                location.area = horizontal ? Qt::DockWindowAreaLeft  : Qt::DockWindowAreaTop;
+                location.area = horizontal ? Qt::LeftDockWindowArea  : Qt::TopDockWindowArea;
         }
     }
 
     int index = location.index / 2; // :)
-    if (location.area == Qt::DockWindowAreaRight || location.area == Qt::DockWindowAreaBottom)
+    if (location.area == Qt::RightDockWindowArea || location.area == Qt::BottomDockWindowArea)
         ++index;
     QDockWindowLayoutInfo &info = insert(index, new QWidgetItem(dockwindow));
     info.is_dropped = true;
@@ -1205,14 +1205,14 @@ void QDockWindowLayout::split(QDockWindow *existing, QDockWindow *with, Qt::Dock
     invalidate();
 
     switch (area) {
-    case Qt::DockWindowAreaTop:
-    case Qt::DockWindowAreaLeft:
+    case Qt::LeftDockWindowArea:
+    case Qt::TopDockWindowArea:
         nestedLayout->addWidget(with);
         nestedLayout->addWidget(existing);
         break;
 
-    case Qt::DockWindowAreaBottom:
-    case Qt::DockWindowAreaRight:
+    case Qt::RightDockWindowArea:
+    case Qt::BottomDockWindowArea:
         nestedLayout->addWidget(existing);
         nestedLayout->addWidget(with);
         break;

@@ -142,8 +142,8 @@
         toolbar->addAction(undoAction);
         toolbar->addAction(redoAction);
         ...
-        toolbar->setAllowedAreas(Qt::ToolBarAreaTop | Qt::ToolBarAreaBottom);
-        toolbar->setArea(Qt::ToolBarAreaTop);
+        toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+        toolbar->setArea(Qt::TopToolBarArea);
     \endcode
 
     In this example, the tool bar is restricted to the top and bottom tool
@@ -162,8 +162,8 @@
 
         QWidget *widget = new QWidget(dockwindow);
         ...
-        dockwindow->setAllowedArea(Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight);
-        mainWindow->addDockWindow(Qt::DockWindowAreaLeft, dockWindow);
+        dockwindow->setAllowedArea(Qt::LeftDockWindowArea | Qt::RightDockWindowArea);
+        mainWindow->addDockWindow(Qt::LeftDockWindowArea, dockWindow);
     \endcode
 
     In this example, the dock window can only be placed in the left and
@@ -175,10 +175,10 @@
     QMainWindow::setCorner() function:
 
     \code
-        setCorner(Qt::TopLeftCorner, Qt::DockWindowAreaLeft);
-        setCorner(Qt::BottomLeftCorner, Qt::DockWindowAreaLeft);
-        setCorner(Qt::TopRightCorner, Qt::DockWindowAreaRight);
-        setCorner(Qt::BottomRightCorner, Qt::DockWindowAreaRight);
+        setCorner(Qt::TopLeftCorner, Qt::LeftDockWindowArea);
+        setCorner(Qt::BottomLeftCorner, Qt::LeftDockWindowArea);
+        setCorner(Qt::TopRightCorner, Qt::RightDockWindowArea);
+        setCorner(Qt::BottomRightCorner, Qt::RightDockWindowArea);
     \endcode
 
     The following diagram shows the configuration produced by the above code.
@@ -259,7 +259,7 @@
     In Qt 4:
     \code
         QDockWindow *dockWindow = new QDockWindow(mainWindow);
-        mainWindow->addDockWindow(Qt::DockWindowAreaLeft, dockWindow);
+        mainWindow->addDockWindow(Qt::LeftDockWindowArea, dockWindow);
     \endcode
 
     These changes provide more than a cosmetic improvement to Qt's API.
@@ -282,11 +282,6 @@
        dock windows is to take equal space from each to make room for the
        newly placed dock window.)
 
-    \o When unfloating a dock window, the main window could remember the
-       original location such that, if the user clicks the "unfloat" button,
-       the dockwindow would return to the original location.
-       (The current behavior is to re-insert the dock window at the end of
-       the layout.)
     \endlist
 
     \link qt4-intro.html [Back to the Beta page] \endlink

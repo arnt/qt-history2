@@ -74,7 +74,7 @@ void MainWindow::actionTriggered(QAction *action)
 void MainWindow::setupToolBar()
 {
     toolbar = new ToolBar(this);
-    toolbar->setAllowedAreas(Qt::ToolBarAreaTop | Qt::ToolBarAreaBottom);
+    toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
     addToolBar(toolbar);
 }
 
@@ -96,25 +96,25 @@ void MainWindow::setupDockWindows()
         uint allowedAreas;
         uint features;
     } sets [] = {
-        { "Black", Qt::WMacDrawer, Qt::DockWindowAreaLeft,
-          Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight,
+        { "Black", Qt::WMacDrawer, Qt::LeftDockWindowArea,
+          Qt::LeftDockWindowArea | Qt::RightDockWindowArea,
           QDockWindow::DockWindowClosable },
 
-        { "White", 0, Qt::DockWindowAreaRight,
-          Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight,
+        { "White", 0, Qt::RightDockWindowArea,
+          Qt::LeftDockWindowArea | Qt::RightDockWindowArea,
           QDockWindow::AllDockWindowFeatures },
 
-        { "Red", 0, Qt::DockWindowAreaTop,
+        { "Red", 0, Qt::TopDockWindowArea,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Green", 0, Qt::DockWindowAreaTop,
+        { "Green", 0, Qt::TopDockWindowArea,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
 
-        { "Blue", 0, Qt::DockWindowAreaBottom,
+        { "Blue", 0, Qt::BottomDockWindowArea,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Yellow", 0, Qt::DockWindowAreaBottom,
+        { "Yellow", 0, Qt::BottomDockWindowArea,
           Qt::AllDockWindowAreas,
           QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable }
     };

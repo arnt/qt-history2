@@ -1308,13 +1308,13 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     if (pborderwidths->left) {
         QDockWindow *left = new QDockWindow(mw);
         left->setFixedWidth(pborderwidths->left);
-        mw->addDockWindow(Qt::DockWindowAreaLeft, left);
+        mw->addDockWindow(Qt::LeftDockWindowArea, left);
         left->show();
     }
     if (pborderwidths->top) {
         QDockWindow *top = new QDockWindow(mw);
         top->setFixedHeight(pborderwidths->top);
-        mw->addDockWindow(Qt::DockWindowAreaTop, top);
+        mw->addDockWindow(Qt::TopDockWindowArea, top);
         top->show();
     }
 

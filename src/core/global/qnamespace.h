@@ -965,14 +965,13 @@ public:
     };
 
     enum DockWindowArea {
-        DockWindowAreaLeft   = 0x1,
-        DockWindowAreaRight  = 0x2,
-        DockWindowAreaTop    = 0x4,
-        DockWindowAreaBottom = 0x8,
+        LeftDockWindowArea   = 0x1,
+        RightDockWindowArea  = 0x2,
+        TopDockWindowArea    = 0x4,
+        BottomDockWindowArea = 0x8,
 
         DockWindowArea_Mask   = 0xf,
         AllDockWindowAreas   = DockWindowArea_Mask
-
     };
     enum {
         NDockWindowAreas     = 4
@@ -981,10 +980,10 @@ public:
     Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea)
 
     enum ToolBarArea {
-        ToolBarAreaLeft   = 0x1,
-        ToolBarAreaRight  = 0x2,
-        ToolBarAreaTop    = 0x4,
-        ToolBarAreaBottom = 0x8,
+        LeftToolBarArea   = 0x1,
+        RightToolBarArea  = 0x2,
+        TopToolBarArea    = 0x4,
+        BottomToolBarArea = 0x8,
 
         ToolBarArea_Mask   = 0xf,
         AllToolBarAreas   = ToolBarArea_Mask
@@ -996,7 +995,8 @@ public:
 
     Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea)
 
-    // Documented in qmainwindow.cpp
+#ifdef QT_COMPAT
+    // Documented in q3mainwindow.cpp
     enum Dock {
         DockUnmanaged,
         DockTornOff,
@@ -1005,7 +1005,6 @@ public:
         DockRight,
         DockLeft,
         DockMinimized
-#ifdef QT_COMPAT
         ,
         Unmanaged = DockUnmanaged,
         TornOff = DockTornOff,
@@ -1014,10 +1013,10 @@ public:
         Right = DockRight,
         Left = DockLeft,
         Minimized = DockMinimized
-#endif
     };
     // compatibility
     typedef Dock ToolBarDock;
+#endif
 
     // documented in qdatetime.cpp
     enum DateFormat {

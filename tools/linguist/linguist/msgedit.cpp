@@ -461,7 +461,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->header()->resizeSection(2, 300);
 
     topDockWnd->setWidget(srcTextView);
-    parent->addDockWindow(Qt::DockWindowAreaTop, topDockWnd);
+    parent->addDockWindow(Qt::TopDockWindowArea, topDockWnd);
 
     bottomDockWnd = new QDockWindow(parent);
     bottomDockWnd->setAllowedAreas(Qt::AllDockWindowAreas);
@@ -495,7 +495,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     }
 
     bottomDockWnd->setWidget(w);
-    parent->addDockWindow(Qt::DockWindowAreaBottom, bottomDockWnd);
+    parent->addDockWindow(Qt::BottomDockWindowArea, bottomDockWnd);
 
     setObjectName("widget view");
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

@@ -242,16 +242,16 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
     bool valid = false;
     switch (corner) {
     case Qt::TopLeftCorner:
-        valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaLeft);
+        valid = (area == Qt::TopDockWindowArea || area == Qt::LeftDockWindowArea);
         break;
     case Qt::TopRightCorner:
-        valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaRight);
+        valid = (area == Qt::TopDockWindowArea || area == Qt::RightDockWindowArea);
         break;
     case Qt::BottomLeftCorner:
-        valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaLeft);
+        valid = (area == Qt::BottomDockWindowArea || area == Qt::LeftDockWindowArea);
         break;
     case Qt::BottomRightCorner:
-        valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaRight);
+        valid = (area == Qt::BottomDockWindowArea || area == Qt::RightDockWindowArea);
         break;
     }
     Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
@@ -297,10 +297,10 @@ void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 }
 
 /*! \overload
-    Equivalent of calling addToolBar(Qt::ToolBarAreaTop, \a toolbar)
+    Equivalent of calling addToolBar(Qt::TopToolBarArea, \a toolbar)
 */
 void QMainWindow::addToolBar(QToolBar *toolbar)
-{ addToolBar(Qt::ToolBarAreaTop, toolbar); }
+{ addToolBar(Qt::TopToolBarArea, toolbar); }
 
 /*!
     Inserts the \a toolbar into the specified \a area in this main
@@ -351,8 +351,8 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
                "QMainWindow::addDockWindow", "specified 'area' is not an allowed area");
     Qt::Orientation orientation = Qt::Horizontal;
     switch (area) {
-    case Qt::DockWindowAreaLeft:
-    case Qt::DockWindowAreaRight:
+    case Qt::LeftDockWindowArea:
+    case Qt::RightDockWindowArea:
         orientation = Qt::Vertical;
         break;
     default:
@@ -484,13 +484,13 @@ bool QMainWindow::event(QEvent *event)
             QToolBar *toolbar = toolbars.at(i);
             Qt::ToolBarArea area = toolBarArea(toolbar);
             if(toolbar->isVisible()) {
-                if (area == Qt::ToolBarAreaLeft || area == Qt::ToolBarAreaRight)
+                if (area == Qt::LeftToolBarArea || area == Qt::RightToolBarArea)
                     deltaW -= toolbar->width();
                 else
                     deltaH -= toolbar->height();
                 toolbar->hide();
             } else {
-                if (area == Qt::ToolBarAreaLeft || area == Qt::ToolBarAreaRight)
+                if (area == Qt::LeftToolBarArea || area == Qt::RightToolBarArea)
                     deltaW += toolbar->width();
                 else
                     deltaH += toolbar->height();

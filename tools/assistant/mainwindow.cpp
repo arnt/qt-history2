@@ -68,7 +68,7 @@ MainWindow::MainWindow()
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
 
-    addDockWindow(Qt::DockWindowAreaLeft, dw);
+    addDockWindow(Qt::LeftDockWindowArea, dw);
 
     // read geometry configuration
     setupGoActions();
