@@ -365,7 +365,7 @@ public:
     struct SpecialData {
         int preeditPosition;
         QString preeditText;
-        QList<QTextLayout::FormatRange> overrides;
+        QList<QTextLayout::FormatRange> addFormats;
     };
     SpecialData *specialData;
 

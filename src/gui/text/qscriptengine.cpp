@@ -1177,8 +1177,19 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
         return;
     }
 
-    QVarLengthArray<ArabicProperties> properties(len);
-    getArabicProperties((const unsigned short *)(uc->unicode()+from), len, properties.data());
+    QVarLengthArray<ArabicProperties> props(len+2);
+    ArabicProperties *properties = props.data();
+    int f = from;
+    int l = len;
+    if (from > 0) {
+        --f;
+        ++l;
+        ++properties;
+    }
+    if (f + l < uc->length()) {
+        ++l;
+    }
+    getArabicProperties((const unsigned short *)(uc->unicode()+f), l, props.data());
 
     const QChar *ch = uc->unicode() + from;
     QChar *data = shapeBuffer;
@@ -1203,7 +1214,7 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
             uchar c = ch->cell();
             int pos = i + from;
             int shape = properties[i].shape;
-//             qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+//            qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
             // take care of lam-alef ligatures (lam right of alef)
             ushort map;
             switch (c) {
@@ -1275,8 +1286,19 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
     unsigned short *logClusters = item->log_clusters;
     const unsigned short *uc = (const unsigned short *)item->string->unicode() + item->from;
 
-    QVarLengthArray<ArabicProperties> properties(item->num_glyphs);
-    getArabicProperties(uc, item->length, properties.data());
+    QVarLengthArray<ArabicProperties> props(item->length+2);
+    ArabicProperties *properties = props.data();
+    int f = 0;
+    int l = item->length;
+    if (item->from > 0) {
+        --f;
+        ++l;
+        ++properties;
+    }
+    if (f + l < item->string->length()) {
+        ++l;
+    }
+    getArabicProperties((const unsigned short *)(uc+f), l, props.data());
 
     QVarLengthArray<bool> apply(item->num_glyphs);
 

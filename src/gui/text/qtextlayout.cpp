@@ -445,7 +445,7 @@ void QTextLayout::setPreeditArea(int position, const QString &text)
     if (text.isEmpty()) {
         if (!d->specialData)
             return;
-        if (d->specialData->overrides.isEmpty()) {
+        if (d->specialData->addFormats.isEmpty()) {
             delete d->specialData;
             d->specialData = 0;
         } else {
@@ -472,27 +472,27 @@ QString QTextLayout::preeditAreaText() const
 }
 
 
-void QTextLayout::setAdditionalFormats(const QList<FormatRange> &overrides)
+void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
 {
-    if (overrides.isEmpty()) {
+    if (formatList.isEmpty()) {
         if (!d->specialData)
             return;
         if (d->specialData->preeditText.isEmpty()) {
             delete d->specialData;
             d->specialData = 0;
         } else {
-            d->specialData->overrides = overrides;
+            d->specialData->addFormats = formatList;
         }
         return;
     }
     if (!d->specialData)
         d->specialData = new QTextEngine::SpecialData;
-    d->specialData->overrides = overrides;
+    d->specialData->addFormats = formatList;
 }
 
 QList<QTextLayout::FormatRange> QTextLayout::additionalFormats() const
 {
-    return d->specialData ? d->specialData->overrides : QList<FormatRange>();
+    return d->specialData ? d->specialData->addFormats : QList<FormatRange>();
 }
 
 void QTextLayout::clearAdditionalFormats()
@@ -1427,8 +1427,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             p->drawTextItem(QPointF(x, itemBaseLine), gf);
 
             if (eng->specialData) {
-                for (int i = 0; i < eng->specialData->overrides.size(); ++i) {
-                    const QTextLayout::FormatRange &o = eng->specialData->overrides.at(i);
+                for (int i = 0; i < eng->specialData->addFormats.size(); ++i) {
+                    const QTextLayout::FormatRange &o = eng->specialData->addFormats.at(i);
                     int from = qMax(start, o.from) - si.position;
                     int to = qMin(end, o.from + o.length) - si.position;
                     if (from >= to)
