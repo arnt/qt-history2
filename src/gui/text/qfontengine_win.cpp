@@ -388,7 +388,7 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
                 for (int i = 0; i < si.num_glyphs; ++i)
                     g[i] = glyphs[i].glyph;
                 // fast path
-                ExtTextOutW(hdc, x + glyphs->offset.x.toInt(), y + glyphs->offset.y.toInt(), options, 0, g, si.num_glyphs, 0);
+                ExtTextOutW(hdc, x + glyphs->offset.x.toInt(), y + glyphs->offset.y.toInt(), options, 0, g.data(), si.num_glyphs, 0);
                 x += w;
             }
         }
