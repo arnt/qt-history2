@@ -858,7 +858,8 @@ void QListViewItem::startRename(int col)
     QRect r = lv->itemRect(this);
     r = QRect(lv->viewportToContents(r.topLeft()), r.size());
     r.setLeft(lv->header()->sectionPos(col));
-    r.setWidth(qMin(lv->header()->sectionSize(col) - 1, lv->visibleWidth() - r.left()));
+    r.setWidth(qMin(lv->header()->sectionSize(col) - 1,
+                    lv->contentsX() + lv->visibleWidth() - r.left()));
     if (col == 0)
         r.setLeft(r.left() + lv->itemMargin() + (depth() + (lv->rootIsDecorated() ? 1 : 0)) * lv->treeStepSize() - 1);
     if (pixmap(col))
@@ -4687,7 +4688,7 @@ void QListView::keyPressEvent(QKeyEvent * e)
 {
     if (currentItem() && currentItem()->renameBox)
         return;
-    if (!e || !firstChild()) {
+    if (!firstChild()) {
         e->ignore();
         return; // subclass bug
     }
