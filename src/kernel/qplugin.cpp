@@ -230,14 +230,9 @@
 
   \sa setPolicy(), load()
 */
-QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol, const char* fn )
-    : pHnd( 0 ), libfile( filename ), libPol( pol )
+QPlugIn::QPlugIn( const QString& filename, QApplicationInterface* appIface, LibraryPolicy pol )
+    : pHnd( 0 ), libfile( filename ), appInterface( appIface ), libPol( pol ), ifc( 0 ), info( 0 )
 {
-    if ( fn )
-	function = fn;
-    else
-	function = "loadInterface";
-    ifc = 0;
     if ( pol == OptimizeSpeed )
 	load();
 }
@@ -278,7 +273,7 @@ bool QPlugIn::load()
     }
 
     if ( pHnd )
-	return ifc ? TRUE : loadInterface();
+	return ifc ? TRUE : loadPlugIn();
     return FALSE;
 }
 
@@ -302,11 +297,14 @@ bool QPlugIn::unload( bool force )
 {
     if ( pHnd ) {
 	if ( ifc ) {
-	    if ( !ifc->disconnectNotify( qApp ) && !force )
+	    if ( !ifc->disconnectNotify() && !force )
 		return FALSE;
 
 	    delete ifc;
 	    ifc = 0;
+
+	    delete info;
+	    info = 0;
 	}
 	if ( !qt_free_library( pHnd ) )
 	    return FALSE;
@@ -363,7 +361,7 @@ QString QPlugIn::library() const
 */
 bool QPlugIn::use()
 {
-    if ( !pHnd ) {
+    if ( !pHnd || !ifc ) {
 	if ( libPol != Manual )
 	    return load();
 #ifdef CHECK_RANGE
@@ -381,15 +379,16 @@ bool QPlugIn::use()
 
   \sa QApplicationInterface
 */
-bool QPlugIn::loadInterface()
+bool QPlugIn::loadPlugIn()
 {
     if ( !pHnd ) {
-	qWarning("QPlugIn::loadInterface(): Failed to load library - no handle!");
+	qWarning("QPlugIn::loadPlugIn(): Failed to load library - no handle!");
 	return FALSE;
     }
 
-    LoadInterfaceProc proc;
-    proc = (LoadInterfaceProc) qt_resolve_symbol( pHnd, function );
+    typedef QPlugInInterface* (*QtLoadInterfaceProc)();
+    QtLoadInterfaceProc proc;
+    proc = (QtLoadInterfaceProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
 
     if ( !proc )
 	return FALSE;
@@ -403,10 +402,23 @@ bool QPlugIn::loadInterface()
 	ifc = 0;
 	return FALSE;
     } 
-    if ( !ifc->connectNotify( qApp ) ) {
+    if ( !ifc->connectNotify( appInterface ) ) {
 	delete ifc;
 	ifc = 0;
 	return FALSE;
+    }
+
+    typedef QPlugInInfo* (*QtLoadInfoProc)();
+    QtLoadInfoProc infoProc;
+    infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_plugin_info" );
+
+    if ( infoProc ) {
+	if ( !infoProc )
+	    return FALSE;
+	info = infoProc();
+
+	if ( !info )
+	    return FALSE;
     }
 
     return TRUE;
@@ -421,6 +433,7 @@ QString QPlugIn::name()
 	return QString::null;
 
     return plugInterface()->name();
+    return info->name();
 }
 
 /*!
@@ -432,6 +445,7 @@ QString QPlugIn::description()
 	return QString::null;
 
     return plugInterface()->description();
+    return info->description();
 }
 
 /*!
@@ -443,6 +457,7 @@ QString QPlugIn::author()
 	return QString::null;
 
     return plugInterface()->author();
+    return info->author();
 }
 
 /*!

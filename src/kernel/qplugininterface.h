@@ -38,13 +38,13 @@
 #ifndef QPLUGININTERFACE_H
 #define QPLUGININTERFACE_H
 
-#ifndef QT_NO_PLUGIN
-
 #ifndef QT_H
 #include "qstringlist.h"
 #endif // QT_H
 
-class QApplication;
+#ifndef QT_NO_PLUGIN
+
+class QApplicationInterface;
 
 class Q_EXPORT QPlugInInterface
 {
@@ -52,8 +52,8 @@ public:
     QPlugInInterface() {}
     virtual ~QPlugInInterface() {}
 
-    virtual bool connectNotify( QApplication* ) { return TRUE; }
-    virtual bool disconnectNotify( QApplication* ) { return TRUE; }
+    virtual bool connectNotify( QApplicationInterface* ) { return TRUE; }
+    virtual bool disconnectNotify() { return TRUE; }
 
     virtual QString name() { return QString::null; }
     virtual QString description() { return QString::null; }
@@ -64,6 +64,16 @@ public:
     virtual QString queryInterface() const = 0;
 };
 
+class Q_EXPORT QPlugInInfo
+{
+public:
+    virtual QString name() { return QString::null; }
+    virtual QString description() { return QString::null; }
+    virtual QString author() { return QString::null; }
+
+    virtual QPlugInInterface* queryInterface( const QString& ) = 0;
+};
+
 #ifdef _WS_WIN_
 #undef QTPLUGINEXPORT
 #define QTPLUGINEXPORT __declspec(dllexport)
@@ -72,7 +82,10 @@ public:
 #endif
 
 #define Q_EXPORT_INTERFACE(INTERFACE, IMPLEMENTATION) \
-    extern "C" QTPLUGINEXPORT INTERFACE *loadInterface() { return new IMPLEMENTATION(); }
+    extern "C" QTPLUGINEXPORT INTERFACE *qt_load_interface() { return new IMPLEMENTATION(); }
+
+#define Q_EXPORT_PLUGIN( IMPLEMENTATION ) \
+    extern "C" QTPLUGINEXPORT QPlugInInfo *qt_load_plugin_info() { return new IMPLEMENTATION(); }
 
 #endif
 

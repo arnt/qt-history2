@@ -46,6 +46,8 @@
 
 #ifndef QT_NO_PLUGIN
 
+class QApplicationInterface;
+
 class Q_EXPORT QPlugIn : public QPlugInInterface
 {
 public:
@@ -56,7 +58,7 @@ public:
 	Manual
     };
 
-    QPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
+    QPlugIn( const QString& filename, QApplicationInterface* appIface = 0, LibraryPolicy = Default );
     ~QPlugIn();
 
     bool load();
@@ -79,10 +81,10 @@ protected:
     QPlugInInterface* plugInterface() { return ifc; }
 
 private:
-    bool loadInterface();
-    QPlugInInterface* ifc;
+    bool loadPlugIn();
 
-    typedef QPlugInInterface* (*LoadInterfaceProc)();
+    QPlugInInterface* ifc;
+    QPlugInInfo* info;
 
 #ifdef _WS_WIN_
     HINSTANCE pHnd;
@@ -91,7 +93,7 @@ private:
 #endif
     QString libfile;
     LibraryPolicy libPol;
-    QCString function;
+    QApplicationInterface* appInterface;
 };
 
 #endif

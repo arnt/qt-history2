@@ -11,8 +11,8 @@
 /*!
   Constructs a default plugin with file \a file and policy \a pol.
 */
-QSqlDriverPlugIn::QSqlDriverPlugIn( const QString& file, LibraryPolicy pol, const char* fn )
-    : QPlugIn( file, pol, fn )
+QSqlDriverPlugIn::QSqlDriverPlugIn( const QString& file, QApplicationInterface* appIface, LibraryPolicy pol )
+    : QPlugIn( file, appIface, pol )
 {
 }
 
@@ -40,8 +40,8 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
   \sa QPlugInManager
 */
 QSqlDriverPlugInManager::QSqlDriverPlugInManager( const QString& path, const QString& filter,
-	QPlugIn::LibraryPolicy pol, const char* fn )
-: QPlugInManager<QSqlDriverPlugIn>( path, filter, pol, fn )
+	QApplicationInterface* appIface, QPlugIn::LibraryPolicy pol )
+: QPlugInManager<QSqlDriverPlugIn>( path, filter, appIface, pol )
 {
 }
 
