@@ -121,12 +121,13 @@ public:
 		if ( it.data().value.isNull() ) {
 		    *indPtr = -1;
 		}
+		QCString pHolder = it.key().local8Bit();
 		switch ( it.data().value.type() ) {
 		    case QVariant::ByteArray:
 			// this is for RAW, LONG RAW and BLOB fields..
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) it.data().value.asByteArray().data(),
 					   it.data().value.asByteArray().size(),
 					   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -135,8 +136,8 @@ public:
 		    case QVariant::CString:
 			// ..while this is for CLOB and LONG fields that needs an SQLT_LNG binding
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) it.data().value.asCString().data(),
 					   it.data().value.asCString().length(),
 					   SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -150,8 +151,8 @@ public:
 			QByteArray * ba = new QByteArray( qMakeOraDate( it.data().value.toDateTime() ) );
 			tmpStorage.append( qAutoDeleter(ba) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) ba->data(),
 					   ba->size(),
 					   SQLT_DAT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -159,8 +160,8 @@ public:
 			break; }
 		    case QVariant::Int:
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) &it.data().value.asInt(),
 					   sizeof(int),
 					   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -168,8 +169,8 @@ public:
 			break;
 		    case QVariant::Double:
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) &it.data().value.asDouble(),
 					   sizeof(double),
 					   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -179,8 +180,8 @@ public:
 			QCString * str = new QCString( it.data().value.asString().utf8() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) str->data(),
 					   str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -192,8 +193,8 @@ public:
 			QCString* str = new QCString( it.data().value.toString().utf8() );
 			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
-					   (text *) it.key().local8Bit().data(),
-					   it.key().length(),
+					   (text *) pHolder.data(),
+					   pHolder.length(),
 					   (dvoid *) str->data(),
 					   str->length() + 1,
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
@@ -1805,14 +1806,12 @@ bool QOCI9Result::prepare( const QString& query )
 #endif
 	return FALSE;
     }
-    QString cleanQuery ( query );
-    int delim = cleanQuery.findRev( ";" );
-    int len = cleanQuery.length()-1;
-    if ( delim > -1 && delim == len )
-	cleanQuery.replace( cleanQuery.length()-1, 1, "" );
+    QCString cleanQuery ( query.local8Bit() );
+    if ( query.endsWith( ";" ) )
+	cleanQuery.truncate( cleanQuery.length() - 1 );
     r = OCIStmtPrepare( d->sql,
 			d->err,
-			(unsigned char*)cleanQuery.local8Bit().data(),
+			(unsigned char*)cleanQuery.data(),
 			cleanQuery.length(),
 			OCI_NTV_SYNTAX,
 			OCI_DEFAULT );
