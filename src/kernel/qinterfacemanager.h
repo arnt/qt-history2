@@ -91,14 +91,15 @@ public:
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
-#ifdef QT_CHECK_RANGE
 #ifdef QT_DEBUG_COMPONENT
 		qDebug("Adding feature %s", (*f).latin1() );
 #endif
-		if ( !plugDict[*f] )
+#ifdef QT_CHECK_RANGE
+		QLibrary *old = 0;
+		if ( !(old = plugDict[*f]) )
 		    plugDict.replace( *f, plugin );
 		else
-		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*f).latin1() );
+		    qWarning("%s: Feature %s already defined in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
 #else
 		plugDict.replace( *f, plugin );
 #endif
