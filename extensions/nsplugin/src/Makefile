@@ -11,7 +11,7 @@ CC	=	gcc
 CFLAGS	=	-Wall -W -O2 -fno-strength-reduce -fPIC
 INCPATH	=	-I$(QTDIR)/include
 LINK	=	gcc
-LFLAGS	=	-shared -Wl,-soname,libqnp.so
+LFLAGS	=	
 LIBS	=	-L$(QTDIR)/lib -lqt -L/usr/X11R6/lib -lX11
 MOC	=	moc
 AR	=	ar cq
@@ -28,9 +28,6 @@ SRCMOC	=	moc_qnp.cpp
 OBJMOC	=	moc_qnp.o
 TARGET	=	qnp
 TARGETA	=	libqnp.a
-TARGETD	=	libqnp.so.0.1
-TARGET0	=	libqnp.so
-TARGET1	=	libqnp.so.0
 
 ####### Implicit rules
 
@@ -47,23 +44,15 @@ TARGET1	=	libqnp.so.0
 
 ####### Build rules
 
-all: sharedlib 
+all: staticlib 
 
-install: sharedlib
-	cp -f -d $(TARGET0) $(TARGET1) $(TARGETD) $(QTDIR)/lib
+install: staticlib
+	cp -f -d $(TARGETA) $(QTDIR)/lib
 	SDIR=$$PWD; cd $(QTDIR)/include; \
 	for i in $(HEADERS); \
 	do \
 	    ln -f -s $$SDIR/$$i .; \
 	done
-
-sharedlib: $(TARGETD)
-
-$(TARGETD): $(OBJECTS) $(OBJMOC)
-	-rm -f $(TARGETD) $(TARGET0) $(TARGET1)
-	$(LINK) $(LFLAGS) -o $(TARGETD) $(OBJECTS) $(OBJMOC) $(LIBS)
-	-ln -s $(TARGETD) $(TARGET0)
-	-ln -s $(TARGETD) $(TARGET1)
 
 staticlib: $(TARGETA)
 
@@ -76,7 +65,7 @@ moc: $(SRCMOC)
 
 clean:
 	-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC)
-	-rm -f $(TARGETA) $(TARGETD) $(TARGET0) $(TARGET1)
+	-rm -f $(TARGETA) 
 	-rm -f *~ core
 
 ####### Compile

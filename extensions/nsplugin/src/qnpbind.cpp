@@ -64,6 +64,7 @@ extern "C" {
 #include <X11/StringDefs.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
+//#include <dlfcn.h>
 #endif
 #ifdef _WS_WIN_
 #include <windows.h>
@@ -104,12 +105,16 @@ struct _NPInstance
 static
 FILE* out()
 {
+return stderr;
     static FILE* f = 0;
     if (!f)
-	f = stderr; // fdopen(4,"w"); // 2>&4 needed on cmd line for this
+	//f = stderr;
+	f = fdopen(4,"w"); // 2>&4 needed on cmd line for this
     return f;
 }
 #endif
+
+//struct AA { AA() { fprintf(stderr,"AAAA\n"); } } aa;
 
 // The single global plugin
 static QNPlugin *qNP=0;
@@ -135,146 +140,119 @@ extern bool qt_win_use_simple_timers;
 #endif
 
 #ifdef _WS_X11_
-static XtEventDispatchProc qt_cascade_event_handler[LASTEvent];
 static XtAppContext appcon;
+
+typedef void (*SameAsXtTimerCallbackProc)(void*,void*);
+typedef void (*IntervalSetter)(int);
+typedef void (*ForeignEventProc)(XEvent*);
+
+extern XtEventDispatchProc
+ qt_np_cascade_event_handler[LASTEvent];      // defined in qnpsupport.cpp
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
 void            qt_activate_timers();         // defined in qapp_x11.cpp
 timeval        *qt_wait_timer();              // defined in qapp_x11.cpp
 void		qt_x11SendPostedEvents();     // defined in qapp_x11.cpp
-static Boolean  qt_event_handler( XEvent* event );
+Boolean  qt_event_handler( XEvent* event );   // defined in qnpsupport.cpp
+extern int      qt_np_count;                  // defined in qnpsupport.cpp
+void qt_np_timeout( void* p, void* id );      // defined in qnpsupport.cpp
+void qt_np_add_timeoutcb(
+	SameAsXtTimerCallbackProc cb );       // defined in qnpsupport.cpp
+void qt_np_remove_timeoutcb(
+	SameAsXtTimerCallbackProc cb );       // defined in qnpsupport.cpp
+void qt_np_add_timer_setter(
+	IntervalSetter is );                  // defined in qnpsupport.cpp
+void qt_np_remove_timer_setter(
+	IntervalSetter is );                  // defined in qnpsupport.cpp
+extern XtIntervalId qt_np_timerid;            // defined in qnpsupport.cpp
+extern bool qt_np_filters_installed[3];       // defined in qnpsupport.cpp
+extern void (*qt_np_leave_cb)
+              (XLeaveWindowEvent*);           // defined in qnpsupport.cpp
+void qt_np_add_event_proc(
+	    ForeignEventProc fep );           // defined in qnpsupport.cpp
+void qt_np_remove_event_proc(
+	    ForeignEventProc fep );           // defined in qnpsupport.cpp
+
+enum FilterType { Safe, Dangerous, Blocked };
+
+FilterType filterTypeFor(int event_type)
+{
+    switch (event_type) {
+      case KeymapNotify:
+      case Expose:
+      case GraphicsExpose:
+      case NoExpose:
+      case VisibilityNotify:
+      case PropertyNotify:
+      case SelectionClear:
+      case SelectionRequest:
+      case SelectionNotify:
+      case ColormapNotify:
+      case ClientMessage: // Hmm... is this safe?  I want the wm_deletes
+	return Safe;
+      default:
+	return Dangerous;
+    }
+}
+
+
+static
+void installXtEventFilters(FilterType t)
+{
+    if (qt_np_filters_installed[t]) return;
+    // Get Xt out of our face - install filter on every event type
+    for (int et=2; et < LASTEvent; et++) {
+	if ( filterTypeFor(et) == t )
+	    qt_np_cascade_event_handler[et] = XtSetEventDispatcher(
+		qt_xdisplay(), et, qt_event_handler );
+    }
+    qt_np_filters_installed[t] = TRUE;
+}
+
+static
+void removeXtEventFilters(FilterType t)
+{
+    if (!qt_np_filters_installed[t]) return;
+    // We aren't needed any more... slink back into the shadows.
+    for (int et=2; et < LASTEvent; et++) {
+	if ( filterTypeFor(et) == t )
+	    XtSetEventDispatcher(
+		qt_xdisplay(), et, qt_np_cascade_event_handler[et] );
+    }
+    qt_np_filters_installed[t] = FALSE;
+}
+
+// When we are in an event loop of QApplication rather than the browser's
+// event loop (eg. for a modal dialog), we still send repaint events to
+// the browser.
+static
+void np_event_proc( XEvent* e )
+{
+    Widget xtw = XtWindowToWidget( e->xany.display, e->xany.window );
+    if ( xtw && filterTypeFor( e->type ) == Safe ) {
+	// Graciously allow the browser to process the event
+	qt_np_cascade_event_handler[e->type]( e );
+    }
+}
+
+
 #endif
 
+#ifdef _WS_WIN_
 class PluginSDK_QApplication : public QApplication {
-#ifdef _WS_X11_
-public:
-    // Safe events are those that cannot result in this code being
-    // dynamically unlinked during their handling by the browser,
-    // and which we are interested in receiving while the mouse is
-    // outside our plugin widgets.
-    //
-    // Dangerous are those that can.
-    //
-    // Blocked are those which we prevent Netscape from receiving while
-    // our plugin is loaded (!).
-    //
-    enum FilterType { Safe, Dangerous, Blocked };
+#endif
 
-    PluginSDK_QApplication(Display* dpy) :
-	QApplication(dpy)
+#ifdef _WS_X11_
+class PluginSDK_QApplication /* Not a QApplication */ {
+public:
+    PluginSDK_QApplication()
     {
-	filters_installed[Safe]=FALSE;
-	filters_installed[Dangerous]=FALSE;
-	filters_installed[Blocked]=FALSE;
-	installXtEventFilters(Safe);
-	installXtEventFilters(Blocked);
 	piApp = this;
     }
 
     ~PluginSDK_QApplication()
     {
-	removeXtEventFilters(Safe);
-	removeXtEventFilters(Blocked);
-	removeXtEventFilters(Dangerous);
 	piApp = 0;
-    }
-
-    FilterType type(int event_type)
-    {
-	switch (event_type) {
-	  case KeymapNotify:
-	  case Expose:
-	  case GraphicsExpose:
-	  case NoExpose:
-	  case VisibilityNotify:
-	  //case ConfigureNotify:
-	  //case ConfigureRequest:
-	  //case GravityNotify:
-	  //case CirculateNotify:
-	  //case CirculateRequest:
-	  case PropertyNotify:
-	  case SelectionClear:
-	  case SelectionRequest:
-	  case SelectionNotify:
-	  case ColormapNotify:
-	  case ClientMessage: // Hmm... is this safe?  I want the wm_deletes
-	    return Safe;
-	  default:
-	    return Dangerous;
-	}
-    }
-
-    void installXtEventFilters(FilterType types)
-    {
-	if (filters_installed[types]) return;
-	// Get Xt out of our face - install filter on every event type
-	for (int et=2; et < LASTEvent; et++) {
-	    if (type(et) == types) {
-		qt_cascade_event_handler[et] = XtSetEventDispatcher(
-		    qt_xdisplay(), et, qt_event_handler );
-	    }
-	}
-	filters_installed[types] = TRUE;
-    }
-
-    void removeXtEventFilters(FilterType types)
-    {
-	if (!filters_installed[types]) return;
-	for (int et=2; et < LASTEvent; et++) {
-	    if (type(et) == types) {
-		XtSetEventDispatcher(
-		    qt_xdisplay(), et, qt_cascade_event_handler[et] );
-	    }
-	}
-	filters_installed[types] = FALSE;
-    }
-
-    void removeXtEventFiltersIfOutsideQNPWidget(XLeaveWindowEvent* e)
-    {
-	// If QApplication doesn't know about the widget at the
-	// event point, we must should remove our filters.
-	// ### is widgetAt efficient enough?
-	QWidget* w = QApplication::widgetAt(e->x_root, e->y_root);
-
-	if ( !w ) {
-	    if ( focussedWidget ) {
-		focussedWidget->leaveInstance();
-		focussedWidget = 0;
-	    }
-	    removeXtEventFilters( Dangerous );
-	} else if ( w->isTopLevel() ) {
-	    for ( QNPWidget* npw = npwidgets.first();
-		npw; npw = npwidgets.next())
-	    {
-		if ( npw == w ) {
-		    if ( focussedWidget != npw ) {
-			if ( focussedWidget ) {
-			    focussedWidget->leaveInstance();
-			}
-			focussedWidget = npw;
-			focussedWidget->enterInstance();
-		    }
-
-		    break;
-		}
-	    }
-	}
-    }
-
-    // When we are in an event loop of QApplication rather than the browser's
-    // event loop (eg. for a modal dialog), we still send repaint events to
-    // the browser.
-    bool x11EventFilter( XEvent* e )
-    {
-	if ( filters_installed[Safe] ) {
-	    QWidget* qw = QWidget::find( e->xany.window );
-	    if ( qw ) return FALSE;
-	    Widget xtw = XtWindowToWidget( e->xany.display, e->xany.window );
-	    if ( xtw && type( e->type ) == Safe ) {
-		// Let the browser process the event
-		return qt_cascade_event_handler[e->type]( e );
-	    }
-	}
-	return FALSE;
+if (npwidgets.count()) abort();
     }
 
 #endif
@@ -364,10 +342,42 @@ public:
 	npwidgets.remove(w);
     }
 
+    static void removeXtEventFiltersIfOutsideQNPWidget(XLeaveWindowEvent* e)
+    {
+	// If QApplication doesn't know about the widget at the
+	// event point, we must should remove our filters.
+	// ### is widgetAt efficient enough?
+	QWidget* w = QApplication::widgetAt(e->x_root, e->y_root);
+
+	if ( !w ) {
+	    if ( focussedWidget ) {
+		focussedWidget->leaveInstance();
+		focussedWidget = 0;
+	    }
+	    removeXtEventFilters( Dangerous );
+	} else if ( w->isTopLevel() ) {
+	    for ( QNPWidget* npw = npwidgets.first();
+		npw; npw = npwidgets.next())
+	    {
+		if ( npw == w ) {
+		    if ( focussedWidget != npw ) {
+			if ( focussedWidget ) {
+			    focussedWidget->leaveInstance();
+			}
+			focussedWidget = npw;
+			focussedWidget->enterInstance();
+		    }
+
+		    break;
+		}
+	    }
+	}
+    }
+
 private:
-    bool filters_installed[2];
-    QList<QNPWidget> npwidgets;
+    static QList<QNPWidget> npwidgets;
 };
+QList<QNPWidget> PluginSDK_QApplication::npwidgets;
 
 #ifdef _WS_WIN_
 int PluginSDK_QApplication::argc=0;
@@ -375,10 +385,20 @@ char **PluginSDK_QApplication::argv={ 0 };
 #endif
 
 #ifdef _WS_X11_
-static XtIntervalId timerid = 0;
-static void    qt_do_timers( XtPointer p, XtIntervalId* id )
+static void np_set_timer( int interval )
 {
-    if (!piApp) return;
+    // Ensure we only have one timeout in progress - QApplication is
+    // computing the one amount of time we need to wait.
+    if ( qt_np_timerid ) {
+	XtRemoveTimeOut( qt_np_timerid );
+    }
+    qt_np_timerid = XtAppAddTimeOut(appcon, interval,
+	(XtTimerCallbackProc)qt_np_timeout, 0);
+}
+
+static void np_do_timers( void*, void* )
+{
+    qt_np_timerid = 0; // It's us, and we just expired, that's why we are here.
 
     qt_activate_timers();
 
@@ -386,53 +406,9 @@ static void    qt_do_timers( XtPointer p, XtIntervalId* id )
 
     if (tm) {
 	int interval = QMIN(tm->tv_sec,INT_MAX/1000)*1000 + tm->tv_usec/1000;
-
-	// Ensure we only have one timeout in progress - QApplication is
-	// computing the one amount of time we need to wait.
-	if ( !id && timerid ) {
-	    XtRemoveTimeOut( timerid );
-	}
-	timerid = XtAppAddTimeOut(appcon, interval, qt_do_timers, p);
-    } else {
-	timerid = 0;
+	np_set_timer( interval );
     }
 }
-
-
-static int in_handler=0;
-static Boolean qt_event_handler( XEvent* event )
-{
-    in_handler++;
-    qt_x11SendPostedEvents();
-    if ( piApp->x11ProcessEvent( event ) == -1 ) {
-	// Problem.  This event could cause the unloading of this
-	// very code (it could be a mouse-release on the Close Window
-	// item for example).
-
-	// Qt did not recognize the event
-	Boolean b = True;
-	if ( piApp->type(event->type) != piApp->Blocked ) {
-	    b = qt_cascade_event_handler[event->type]( event );
-	}
-	in_handler--;
-	return b;
-    } else {
-	// Is the event a LeaveNotify on any of our QNPWidgets?
-	// If so, we must remove these event filters (see Problem above).
-	if (event->type == LeaveNotify) {
-	    XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
-	    piApp->removeXtEventFiltersIfOutsideQNPWidget(e);
-	}
-
-	// Qt recognized the event (it may not have actually used it
-	// in a widget, but that is irrelevant here).
-	qt_do_timers(0,0);
-	qt_reset_color_avail();
-	in_handler--;
-	return True;
-    }
-}
-
 #endif
 
 
@@ -517,34 +493,35 @@ NPP_GetJavaClass(void)
 extern "C" void
 NPP_Shutdown(void)
 {
+    if (piApp) {
+	qt_np_remove_timeoutcb(np_do_timers);
+	qt_np_remove_timer_setter(np_set_timer);
+	qt_np_remove_event_proc(np_event_proc);
+	qt_np_count--;
+#ifdef _WS_X11_
+	if (qt_np_leave_cb == PluginSDK_QApplication::removeXtEventFiltersIfOutsideQNPWidget)
+	    qt_np_leave_cb = 0;
+	if ( qt_np_count == 0) {
+	    // We are the last Qt-based plugin to leave
+	    removeXtEventFilters(Safe);
+	    removeXtEventFilters(Dangerous);
+	    if (qt_np_timerid) XtRemoveTimeOut( qt_np_timerid );
+	    qt_np_timerid = 0;
+	    qt_np_leave_cb = 0;
+	}
+	delete piApp;
+#endif
+	piApp = 0;
+	// delete qApp; ### Crashes.  Waste memory until we can fix this.
+    }
 }
 
-static void early_shutdown(QNPInstance* from)
+static void early_shutdown(QNPInstance* /*from*/)
 {
-#ifdef _WS_X11_
-    if (in_handler) {
-	warning("Due to over-eager unloading by your browser:\n"
-	    "   %s\n"
-	    "the plugin:\n"
-	    "   %s\n"
-	    "is being unloaded during processing of an event.  It will\n"
-	    "probably now crash.  Please contact the manufacturer of your\n"
-	    "browser if you are not happy with this situation.",
-		from->userAgent(),
-		qNP->getPluginNameString());
-    }
-#endif
-
     if (qNP) {
 	delete qNP;
 	qNP = 0;
     }
-
-#ifdef _WS_X11_
-    if (timerid) XtRemoveTimeOut( timerid );
-#endif
-
-    delete piApp;
 }
 
 
@@ -742,13 +719,26 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
 	if (!piApp) {
 #ifdef _WS_X11_
-	    piApp = new PluginSDK_QApplication(This->display);
-	    //XSynchronize(This->display,True);  // Helps debugging
+	    if (!qApp) {
+		// Thou Shalt No Unload Qt
+		// Increment the reference count...
+		// dlopen("libqt.so.1", RTLD_LAZY);
+		// ... and never close it.
+		// Nice try.  Can't get that to work.
+
+		// We are the first Qt-based plugin to arrive
+		new QApplication(This->display);
+		//XSynchronize(This->display,True);  // Helps debugging
+		ASSERT(qt_np_count == 0);
+	    }
+	    installXtEventFilters(Safe);
+	    qt_np_add_timeoutcb(np_do_timers);
+	    qt_np_add_timer_setter(np_set_timer);
+	    qt_np_add_event_proc(np_event_proc);
+	    qt_np_count++;
 	    appcon = XtDisplayToApplicationContext(This->display);
 #endif
-#ifdef _WS_WIN_
 	    piApp = new PluginSDK_QApplication();
-#endif
 	}
 
 	if (!This->widget) {
@@ -980,15 +970,17 @@ void enter_event_handler(Widget, XtPointer xtp, XEvent* event, Boolean* cont)
     _NPInstance* This = (_NPInstance*)xtp;
 
     if (piApp) {
-	piApp->installXtEventFilters(PluginSDK_QApplication::Dangerous);
+	installXtEventFilters(Dangerous);
 	if ( xtp ) {
 	    if ( focussedWidget )
 		focussedWidget->leaveInstance();
 
 	    focussedWidget = This->widget;
 
-	    if ( focussedWidget )
+	    if ( focussedWidget ) {
 		focussedWidget->enterInstance();
+		qt_np_leave_cb = PluginSDK_QApplication::removeXtEventFiltersIfOutsideQNPWidget;
+	    }
 	}
 	// Post the event
 	*cont = qt_event_handler(event);
@@ -1006,7 +998,7 @@ void leave_event_handler(Widget, XtPointer, XEvent*, Boolean* cont)
 	    focussedWidget->leaveInstance();
 	    focussedWidget = 0;
 	}
-	piApp->removeXtEventFilters(PluginSDK_QApplication::Dangerous);
+	removeXtEventFilters(Dangerous);
     }
     *cont = FALSE;
 }
