@@ -597,7 +597,7 @@ void QTextPieceTable::undoRedo(bool undo)
 	}
 	case UndoCommand::GroupFormatChange: {
             PMDEBUG("   group format change");
-            QTextFormatObject *object = c.object;
+            QTextObject *object = c.object;
             int oldFormat = formats.objectFormatIndex(object->objectIndex());
             changeObjectFormat(object, c.format);
             c.format = oldFormat;
@@ -812,7 +812,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
     return it.layout()->previousCursorPosition(position-start, mode) + start;
 }
 
-void QTextPieceTable::changeObjectFormat(QTextFormatObject *obj, int format)
+void QTextPieceTable::changeObjectFormat(QTextObject *obj, int format)
 {
     beginEditBlock();
     int objectIndex = obj->objectIndex();
@@ -1002,12 +1002,12 @@ void QTextPieceTable::removeFrame(QTextFrame *frame)
     endEditBlock();
 }
 
-QTextFormatObject *QTextPieceTable::objectForIndex(int objectIndex) const
+QTextObject *QTextPieceTable::objectForIndex(int objectIndex) const
 {
     if (objectIndex < 0)
         return 0;
 
-    QTextFormatObject *object = objects.value(objectIndex, 0);
+    QTextObject *object = objects.value(objectIndex, 0);
     if (!object) {
         QTextPieceTable *that = const_cast<QTextPieceTable *>(this);
         QTextFormat fmt = formats.objectFormat(objectIndex);
@@ -1016,20 +1016,20 @@ QTextFormatObject *QTextPieceTable::objectForIndex(int objectIndex) const
     return object;
 }
 
-QTextFormatObject *QTextPieceTable::objectForFormat(int formatIndex) const
+QTextObject *QTextPieceTable::objectForFormat(int formatIndex) const
 {
     int objectIndex = formats.format(formatIndex).objectIndex();
     return objectForIndex(objectIndex);
 }
 
-QTextFormatObject *QTextPieceTable::objectForFormat(const QTextFormat &f) const
+QTextObject *QTextPieceTable::objectForFormat(const QTextFormat &f) const
 {
     return objectForIndex(f.objectIndex());
 }
 
-QTextFormatObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex)
+QTextObject *QTextPieceTable::createObject(const QTextFormat &f, int objectIndex)
 {
-    QTextFormatObject *obj;
+    QTextObject *obj;
     if (f.isListFormat())
         obj = new QTextList(this);
     else if (f.isTableFormat())
@@ -1037,7 +1037,7 @@ QTextFormatObject *QTextPieceTable::createObject(const QTextFormat &f, int objec
     else if (f.isFrameFormat())
         obj = new QTextFrame(this);
     else
-        obj = new QTextFormatObject(this);
+        obj = new QTextObject(this);
 
     obj->d_func()->pieceTable = this;
     obj->d_func()->objectIndex = objectIndex == -1 ? formats.createObjectIndex(f) : objectIndex;

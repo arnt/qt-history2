@@ -75,8 +75,8 @@ public:
     QTextCursor rowStart(const QTextCursor &c) const;
     QTextCursor rowEnd(const QTextCursor &c) const;
 
-    void setFormat(const QTextTableFormat &format) { QTextFormatObject::setFormat(format); }
-    QTextTableFormat format() const { return QTextFormatObject::format().toTableFormat(); }
+    void setFormat(const QTextTableFormat &format) { QTextObject::setFormat(format); }
+    QTextTableFormat format() const { return QTextObject::format().toTableFormat(); }
 
 private:
     QTextTable(QObject *parent);

@@ -1579,33 +1579,33 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection)
 #define q q_func()
 
 
-QTextFormatObject::QTextFormatObject(QObject *parent)
-    : QObject(*new QTextFormatObjectPrivate, parent)
+QTextObject::QTextObject(QObject *parent)
+    : QObject(*new QTextObjectPrivate, parent)
 {
 }
 
-QTextFormatObject::QTextFormatObject(QTextFormatObjectPrivate &p, QObject *parent)
+QTextObject::QTextObject(QTextObjectPrivate &p, QObject *parent)
     :QObject(p, parent)
 {
 }
 
-QTextFormatObject::~QTextFormatObject()
+QTextObject::~QTextObject()
 {
 }
 
 
-QTextFormat QTextFormatObject::format() const
+QTextFormat QTextObject::format() const
 {
     return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
-void QTextFormatObject::setFormat(const QTextFormat &format)
+void QTextObject::setFormat(const QTextFormat &format)
 {
     int idx = d->pieceTable->formatCollection()->indexForFormat(format);
     d->pieceTable->changeObjectFormat(this, idx);
 }
 
-int QTextFormatObject::objectIndex() const
+int QTextObject::objectIndex() const
 {
     return d->objectIndex;
 }
@@ -1613,12 +1613,12 @@ int QTextFormatObject::objectIndex() const
 
 
 QTextBlockGroup::QTextBlockGroup(QObject *parent)
-    : QTextFormatObject(*new QTextBlockGroupPrivate, parent)
+    : QTextObject(*new QTextBlockGroupPrivate, parent)
 {
 }
 
 QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QObject *parent)
-    : QTextFormatObject(p, parent)
+    : QTextObject(p, parent)
 {
 }
 
@@ -1655,7 +1655,7 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 
 
 QTextFrame::QTextFrame(QObject *parent)
-    : QTextFormatObject(*new QTextFramePrivate, parent)
+    : QTextObject(*new QTextFramePrivate, parent)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;
@@ -1669,7 +1669,7 @@ QTextFrame::~QTextFrame()
 }
 
 QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
-    : QTextFormatObject(p, parent)
+    : QTextObject(p, parent)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;

@@ -114,15 +114,15 @@ public:
 QDataStream &operator<<(QDataStream &stream, const QTextFormatCollection &collection);
 QDataStream &operator>>(QDataStream &stream, QTextFormatCollection &collection);
 
-class QTextFormatObjectPrivate : public QObjectPrivate
+class QTextObjectPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTextFormatObject)
+    Q_DECLARE_PUBLIC(QTextObject)
 public:
     QTextPieceTable *pieceTable;
     int objectIndex;
 };
 
-class QTextBlockGroupPrivate : public QTextFormatObjectPrivate
+class QTextBlockGroupPrivate : public QTextObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTextBlockGroup)
 public:
@@ -133,7 +133,7 @@ public:
 
 class QTextFrameLayoutData;
 
-class QTextFramePrivate : public QTextFormatObjectPrivate
+class QTextFramePrivate : public QTextObjectPrivate
 {
     friend class QTextPieceTable;
     Q_DECLARE_PUBLIC(QTextFrame)

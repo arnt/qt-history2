@@ -254,7 +254,7 @@ int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl) const
     QTextBlockFormat blockFormat = bl.blockFormat();
     int indent = blockFormat.indent();
 
-    QTextFormatObject *object = q->objectForFormat(blockFormat);
+    QTextObject *object = q->objectForFormat(blockFormat);
     if (object)
         indent += object->format().toListFormat().indent();
 
@@ -339,7 +339,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         ++nSel;
     }
 
-    QTextFormatObject *object = q->objectForFormat(bl.blockFormat());
+    QTextObject *object = q->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, s);
 
@@ -370,7 +370,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextCharFormat charFormat = bl.charFormat();
     QFontMetrics fontMetrics(charFormat.font());
-    QTextFormatObject *object = q->objectForFormat(blockFormat);
+    QTextObject *object = q->objectForFormat(blockFormat);
     QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
     QString itemText;
@@ -744,7 +744,7 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
     return d->hitTest(f, point, accuracy);
 }
 
-void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
+void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -762,7 +762,7 @@ void QTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
     item.setAscent(inlineSize.height());
 }
 
-void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
+void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
 {
     if (item.width())
         return;
@@ -810,7 +810,7 @@ void QTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &form
 #endif
 }
 
-void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,
+void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInlineObject item,
                                      const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();

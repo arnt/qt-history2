@@ -28,8 +28,8 @@ public:
 
     void removeItem(int i);
 
-    void setFormat(const QTextListFormat &format) { QTextFormatObject::setFormat(format); }
-    QTextListFormat format() const { return QTextFormatObject::format().toListFormat(); }
+    void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
+    QTextListFormat format() const { return QTextObject::format().toListFormat(); }
 
 private:
     QTextList(QObject *parent);

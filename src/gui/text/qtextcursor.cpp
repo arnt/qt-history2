@@ -1051,7 +1051,7 @@ QTextList *QTextCursor::currentList() const
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    QTextFormatObject *o = d->pieceTable->objectForFormat(b);
+    QTextObject *o = d->pieceTable->objectForFormat(b);
     return qt_cast<QTextList *>(o);
 }
 

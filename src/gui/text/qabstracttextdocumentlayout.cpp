@@ -59,7 +59,7 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
     return handler.iface;
 }
 
-void QAbstractTextDocumentLayout::setSize(QTextObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -73,13 +73,13 @@ void QAbstractTextDocumentLayout::setSize(QTextObject item, const QTextFormat &f
     item.setDescent(0);
 }
 
-void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat &format)
 {
     Q_UNUSED(item);
     Q_UNUSED(format);
 }
 
-void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextObject item,
+void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInlineObject item,
                                              const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();
@@ -173,7 +173,7 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 }
 
 
-QTextFormatObject *QAbstractTextDocumentLayout::object(int objectIndex) const
+QTextObject *QAbstractTextDocumentLayout::object(int objectIndex) const
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
@@ -181,7 +181,7 @@ QTextFormatObject *QAbstractTextDocumentLayout::object(int objectIndex) const
     return pieceTable->objectForIndex(objectIndex);
 }
 
-QTextFormatObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
+QTextObject *QAbstractTextDocumentLayout::objectForFormat(const QTextFormat &f) const
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)

@@ -27,12 +27,11 @@ class QFont;
 class QRect;
 class QRegion;
 
-// ###### go away
-class Q_GUI_EXPORT QTextObject
+class Q_GUI_EXPORT QTextInlineObject
 {
 public:
-    QTextObject(int i, QTextEngine *e) : itm(i), eng(e) {}
-    inline QTextObject() : itm(0), eng(0) {}
+    QTextInlineObject(int i, QTextEngine *e) : itm(i), eng(e) {}
+    inline QTextInlineObject() : itm(0), eng(0) {}
     inline bool isValid() const { return (bool)eng; }
 
     QRect rect() const;
@@ -55,8 +54,6 @@ public:
 
 private:
     friend class QTextLayout;
-    friend class QPainter;
-    friend class QPSPrinter;
     int itm;
     QTextEngine *eng;
 };

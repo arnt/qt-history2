@@ -21,7 +21,7 @@ class QTextFrameFormat;
 class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
-class QTextFormatObject;
+class QTextObject;
 class QTextCursor;
 
 class Q_GUI_EXPORT QTextFormat
@@ -441,16 +441,16 @@ public:
 };
 
 
-class QTextFormatObjectPrivate;
+class QTextObjectPrivate;
 
-class Q_GUI_EXPORT QTextFormatObject : public QObject
+class Q_GUI_EXPORT QTextObject : public QObject
 {
-    Q_DECLARE_PRIVATE(QTextFormatObject)
+    Q_DECLARE_PRIVATE(QTextObject)
     Q_OBJECT
 protected:
-    QTextFormatObject(QObject *parent);
-    ~QTextFormatObject();
-    QTextFormatObject(QTextFormatObjectPrivate &p, QObject *parent);
+    QTextObject(QObject *parent);
+    ~QTextObject();
+    QTextObject(QTextObjectPrivate &p, QObject *parent);
 public:
     int formatType() const;
     QTextFormat format() const;
@@ -466,7 +466,7 @@ private:
 
 class QTextBlockGroupPrivate;
 
-class QTextBlockGroup : public QTextFormatObject
+class QTextBlockGroup : public QTextObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextBlockGroup)
@@ -490,7 +490,7 @@ public:
 
 class QTextFramePrivate;
 
-class QTextFrame : public QTextFormatObject
+class QTextFrame : public QTextObject
 {
     Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
@@ -504,8 +504,8 @@ protected:
     QTextFrame(QTextFramePrivate &p, QObject *parent);
 public:
 
-    void setFormat(const QTextFrameFormat &format) { QTextFormatObject::setFormat(format); }
-    QTextFrameFormat format() const { return QTextFormatObject::format().toFrameFormat(); }
+    void setFormat(const QTextFrameFormat &format) { QTextObject::setFormat(format); }
+    QTextFrameFormat format() const { return QTextObject::format().toFrameFormat(); }
 
     QTextCursor start();
     QTextCursor end();

@@ -88,7 +88,7 @@ public:
         int blockFormat;
         Q_UINT32 length;
         QAbstractUndoItem *custom;
-        QTextFormatObject *object;
+        QTextObject *object;
     };
 
     bool tryMerge(const UndoCommand &other);
@@ -164,7 +164,7 @@ public:
     int nextCursorPosition(int position, QTextLayout::CursorMode mode) const;
     int previousCursorPosition(int position, QTextLayout::CursorMode mode) const;
 
-    void changeObjectFormat(QTextFormatObject *group, int format);
+    void changeObjectFormat(QTextObject *group, int format);
 
 signals:
     void contentsChanged();
@@ -195,11 +195,11 @@ public:
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const { return frame; }
 
-    QTextFormatObject *objectForIndex(int objectIndex) const;
-    QTextFormatObject *objectForFormat(int formatIndex) const;
-    QTextFormatObject *objectForFormat(const QTextFormat &f) const;
+    QTextObject *objectForIndex(int objectIndex) const;
+    QTextObject *objectForFormat(int formatIndex) const;
+    QTextObject *objectForFormat(const QTextFormat &f) const;
 
-    QTextFormatObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
+    QTextObject *createObject(const QTextFormat &newFormat, int objectIndex = -1);
 
 private:
     QTextPieceTable(const QTextPieceTable& m);
@@ -226,7 +226,7 @@ private:
     BlockMap blocks;
 
     QList<QTextCursorPrivate*> cursors;
-    QMap<int, QTextFormatObject *> objects;
+    QMap<int, QTextObject *> objects;
 
     QTextDocumentConfig docConfig;
 };

@@ -21,9 +21,9 @@ public:
     void documentChange(int from, int oldLength, int length);
     int hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
-    void setSize(QTextObject item, const QTextFormat &format);
-    void layoutObject(QTextObject item, const QTextFormat &format);
-    void drawObject(QPainter *p, const QRect &rect, QTextObject item,
+    void setSize(QTextInlineObject item, const QTextFormat &format);
+    void layoutObject(QTextInlineObject item, const QTextFormat &format);
+    void drawObject(QPainter *p, const QRect &rect, QTextInlineObject item,
                     const QTextFormat &format, QTextLayout::SelectionType selType);
 
     int numPages() const;

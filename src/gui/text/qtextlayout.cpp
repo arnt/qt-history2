@@ -24,53 +24,53 @@
 
 #include "qfontengine_p.h"
 
-QRect QTextObject::rect() const
+QRect QTextInlineObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
     return QRect(0, -si.ascent.toInt(), si.width.toInt(), (si.ascent+si.descent).toInt());
 }
 
-int QTextObject::width() const
+int QTextInlineObject::width() const
 {
     return eng->items[itm].width.toInt();
 }
 
-int QTextObject::ascent() const
+int QTextInlineObject::ascent() const
 {
     return eng->items[itm].ascent.toInt();
 }
 
-int QTextObject::descent() const
+int QTextInlineObject::descent() const
 {
     return eng->items[itm].descent.toInt();
 }
 
-void QTextObject::setWidth(int w)
+void QTextInlineObject::setWidth(int w)
 {
     eng->items[itm].width = w;
 }
 
-void QTextObject::setAscent(int a)
+void QTextInlineObject::setAscent(int a)
 {
     eng->items[itm].ascent = a;
 }
 
-void QTextObject::setDescent(int d)
+void QTextInlineObject::setDescent(int d)
 {
     eng->items[itm].descent = d;
 }
 
-int QTextObject::at() const
+int QTextInlineObject::at() const
 {
     return eng->items[itm].position;
 }
 
-int QTextObject::format() const
+int QTextInlineObject::format() const
 {
     return eng->items[itm].format;
 }
 
-bool QTextObject::isRightToLeft() const
+bool QTextInlineObject::isRightToLeft() const
 {
     return (eng->items[itm].analysis.bidiLevel % 2);
 }
@@ -640,7 +640,7 @@ void QTextLine::layout(int width)
         if (current.isObject) {
             QTextFormat format = eng->formats->format(eng->items[item].format);
             if (eng->docLayout)
-                eng->docLayout->layoutObject(QTextObject(item, eng), format);
+                eng->docLayout->layoutObject(QTextInlineObject(item, eng), format);
             if (line.length && !(eng->textFlags & Qt::SingleLine)) {
                 if (line.textWidth + current.width > line.width)
                     goto found;
@@ -791,7 +791,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
             eng->docLayout->drawObject(p, QRect(x.toInt(), (y-si.ascent).toInt(), si.width.toInt(), (si.ascent+si.descent).toInt()),
-                                       QTextObject(item, eng), format, selType);
+                                       QTextInlineObject(item, eng), format, selType);
         }
 
         if (si.isTab || si.isObject) {

@@ -44,9 +44,9 @@ public:
     void registerHandler(int objectType, QObject *component);
     QTextObjectInterface *handlerForObject(int objectType) const;
 
-    virtual void setSize(QTextObject item, const QTextFormat &format);
-    virtual void layoutObject(QTextObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *painter, const QRect &rect, QTextObject object, const QTextFormat &format,
+    virtual void setSize(QTextInlineObject item, const QTextFormat &format);
+    virtual void layoutObject(QTextInlineObject item, const QTextFormat &format);
+    virtual void drawObject(QPainter *painter, const QRect &rect, QTextInlineObject object, const QTextFormat &format,
                             QTextLayout::SelectionType selection);
 
     virtual void setPageSize(const QSize &size) = 0;
@@ -65,8 +65,8 @@ protected:
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;
 
-    QTextFormatObject *object(int objectIndex) const;
-    QTextFormatObject *objectForFormat(const QTextFormat &) const;
+    QTextObject *object(int objectIndex) const;
+    QTextObject *objectForFormat(const QTextFormat &) const;
 
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
