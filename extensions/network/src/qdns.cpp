@@ -100,9 +100,10 @@ public:
     // cname / mx / srv / ptr
     QString target;
     // mx / srv
-    Q_UINT32 priority;
+    Q_UINT16 priority;
     // srv
-    Q_UINT32 weight;
+    Q_UINT16 weight;
+    Q_UINT16 port;
     // txt
     QString text; // could be overloaded into target...
 private:
@@ -189,7 +190,7 @@ QDnsRR::QDnsRR( const QString & label )
     : domain( 0 ), t( QDns::None ),
       nxdomain( FALSE ), current( FALSE ),
       expireTime( 0 ), deleteTime( 0 ),
-      priority( 0 ), weight( 0 )
+      priority( 0 ), weight( 0 ), port( 0 )
 {
     QDnsDomain::add( label, this );
 }
@@ -227,7 +228,7 @@ QDnsAnswer::~QDnsAnswer()
 	QDnsRR * rr;
 	while( (rr=it.current()) != 0 ) {
 	    ++it;
-	    rr->t = QDns::None; // will be deleted very quickly
+	    rr->t = QDns::None; // will be deleted soonish
 	}
     }
 }
@@ -309,27 +310,119 @@ void QDnsAnswer::parseAaaa()
 
 void QDnsAnswer::parseMx()
 {
+    if ( next < pp + 2 ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw %d bytes long IN MX for %s",
+		next - pp, label.ascii() );
+#endif
+	return;
+    }
 
+    rr = new QDnsRR( label );
+    rr->priority = (answer[pp] << 8) + answer[pp+1];
+    pp += 2;
+    rr->target = readString();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad string in MX for %s", label.ascii() );
+#endif
+	return;
+    }
+    rr->t = QDns::Mx;
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN MX %d %s (ttl %d)", label.ascii(),
+	    rr->priority, rr->target.ascii(), ttl );
+#endif
 }
 
 
 void QDnsAnswer::parseSrv()
 {
+    if ( next < pp + 6 ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw %d bytes long IN SRV for %s",
+		next - pp, label.ascii() );
+#endif
+	return;
+    }
+
+    rr = new QDnsRR( label );
+    rr->priority = (answer[pp] << 8) + answer[pp+1];
+    rr->weight = (answer[pp+2] << 8) + answer[pp+3];
+    rr->port = (answer[pp+4] << 8) + answer[pp+5];
+    pp += 6;
+    rr->target = readString();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad string in SRV for %s", label.ascii() );
+#endif
+	return;
+    }
+    rr->t = QDns::Srv;
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN SRV %d %d %d %s (ttl %d)", label.ascii(),
+	    rr->priority, rr->weight, rr->port, rr->target.ascii(), ttl );
+#endif
 }
 
 
 void QDnsAnswer::parseCname()
 {
+    QString target = readString();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
+#endif
+	return;
+    }
+
+    rr = new QDnsRR( label );
+    rr->t = QDns::Cname;
+    rr->target = target;
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN CNAME %s (ttl %d)", label.ascii(),
+	    rr->target.ascii(), ttl );
+#endif
 }
 
 
 void QDnsAnswer::parsePtr()
 {
+    QString target = readString();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad PTR for for %s", label.ascii() );
+#endif
+	return;
+    }
+
+    rr = new QDnsRR( label );
+    rr->t = QDns::Ptr;
+    rr->target = target;
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN PTR %s (ttl %d)", label.ascii(),
+	    rr->target.ascii(), ttl );
+#endif
 }
 
 
 void QDnsAnswer::parseTxt()
 {
+    QString text = readString();
+    if ( !ok ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw bad TXT for for %s", label.ascii() );
+#endif
+	return;
+    }
+
+    rr = new QDnsRR( label );
+    rr->t = QDns::Txt;
+    rr->text = text;
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN TXT \"%s\" (ttl %d)", label.ascii(),
+	    rr->text.ascii(), ttl );
+#endif
 }
 
 
@@ -678,16 +771,22 @@ void QDnsManager::answer()
 	return;
     }
 
-    QDnsAnswer answer( a, queries[i] );
+    QDnsQuery * q = queries[i];
+    queries.take( i );
+    QDnsAnswer answer( a, q );
     answer.parse();
     answer.notify();
+    delete q;
 };
 
 
 void QDnsManager::transmitQuery( QDnsQuery * query )
 {
-    int i = queries.size();
-    queries.resize( i+1 );
+    int i = 0;
+    while( i < queries.size() && queries[i] != 0 )
+	i++;
+    if ( i == queries.size() )
+	queries.resize( i+1 );
     queries.insert( i, query );
     transmitQuery( i );
 }
@@ -843,6 +942,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
     QValueListIterator<QString> end = n.end();
     QList<QDnsRR> * l = new QList<QDnsRR>;
     bool nxdomain = FALSE;
+    int cnamecount = 0;
     while( it != end ) {
 	QString s = *it;
 	it++;
@@ -852,9 +952,25 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 #endif
 	QDnsDomain * d = m->domain( s );
 	// d->sweep(); // ### sweep?
-	if ( d->rrs && d->rrs->first() ) {
-	    QDnsRR * rr;
-	    while( (rr=d->rrs->current()) != 0 ) {
+	if ( d->rrs )
+	    d->rrs->first();
+	QDnsRR * rr;
+	while( d->rrs && (rr=d->rrs->current()) != 0 ) {
+	    if ( rr->t == QDns::Cname && r->recordType() != QDns::Cname &&
+		 !rr->nxdomain && cnamecount < 16 ) {
+		// cname.  if the code is ugly, that may just
+		// possibly be because the concept is.
+		s = rr->target;
+		d = m->domain( s );
+		if ( d->rrs )
+		    d->rrs->first();
+		it = end;
+		// we've elegantly moved over to whatever the cname
+		// pointed to.  well, not elegantly.  let's remember
+		// that we've done something, anyway, so we can't be
+		// fooled into an infinte loop as well.
+		cnamecount++;
+	    } else {
 		if ( rr->t == r->recordType() ) {
 		    if ( rr->nxdomain )
 			nxdomain = TRUE;
@@ -864,8 +980,10 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	    }
 	}
 	// if we found a positive result, return quickly
-	if ( !nxdomain && l->count() )
+	if ( !nxdomain && l->count() ) {
+	    l->first();
 	    return l;
+	}
 
 	if ( !nxdomain ) {
 	    // if we didn't, and not a negative result either, perhaps
@@ -888,6 +1006,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	    }
 	}
     }
+    l->first();
     return l;
 }
 
@@ -1111,7 +1230,6 @@ bool QDns::isWorking() const
 
     QList<QDnsRR> * l = QDnsDomain::cached( this );
     int queries = n.count();
-    l->first();
     while( l->current() != 0 ) {
 	if ( l->current()->nxdomain )
 	    queries--;
@@ -1179,7 +1297,6 @@ QValueList<QHostAddress> QDns::addresses() const
 
     QList<QDnsRR> * cached = QDnsDomain::cached( this );
 
-    (void)cached->first();
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain )
@@ -1188,6 +1305,36 @@ QValueList<QHostAddress> QDns::addresses() const
     }
     delete cached;
     return result;
+}
+
+
+/*!  Returns the canonical name for this DNS node.  (This works
+regardless of what recordType() is set to.)
+
+If the canonical name isn't known, this function returns a null
+string.
+
+The canonical name of a DNS node is its full name, or the full name of
+the target of its CNAME.  For example, if l.troll.no is a CNAME to
+lupinella.troll.no, and the search path for QDns is "troll.no", then
+the canonical name for "lupinella", "l" and for "l.troll.no" is
+"lupinella.troll.no".
+*/
+
+QString QDns::canonicalName() const
+{
+    QList<QDnsRR> * cached = QDnsDomain::cached( this );
+
+    QDnsRR * rr;
+    while( (rr=cached->current()) != 0 ) {
+	if ( rr->current && !rr->nxdomain && rr->domain ) {
+	    delete cached;
+	    return rr->domain->name();
+	}
+	cached->next();
+    }
+    delete cached;
+    return QString::null;
 }
 
 
