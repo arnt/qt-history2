@@ -105,7 +105,7 @@ struct Rect
 struct Font
 {
     Common common;
-    const char *family;
+    char *family;
     int pointsize;
     bool bold;
     bool italic;
