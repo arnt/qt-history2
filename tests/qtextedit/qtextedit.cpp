@@ -173,8 +173,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     interval = 10;
 
     bool selChanged = FALSE;
-    selChanged = doc->removeSelection( QTextEditDocument::ParenMatch );
-    selChanged = doc->removeSelection( QTextEditDocument::ParenMismatch ) || selChanged;
+    for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	selChanged = doc->removeSelection( i ) || selChanged;
 
     if ( selChanged ) {
 	repaintChanged();
@@ -617,8 +617,8 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    }
 	}
 
-	redraw = doc->removeSelection( QTextEditDocument::ParenMatch ) || redraw;
-	redraw = doc->removeSelection( QTextEditDocument::ParenMismatch ) || redraw;
+	for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+	    redraw = doc->removeSelection( i ) || redraw;
 
 	if ( !redraw ) {
 	    drawCursor( TRUE );
