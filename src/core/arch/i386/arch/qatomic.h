@@ -28,8 +28,8 @@ extern "C" {
 	unsigned char ret;
 	asm volatile("lock cmpxchgl %2,%3\n"
 		     "sete %1\n"
-		     : "=a" (newval), "=r" (ret)
-		     : "q" (newval), "m" (*ptr), "0" (expected)
+		     : "=a" (newval), "=qm" (ret)
+		     : "r" (newval), "m" (*ptr), "0" (expected)
 		     : "memory");
 	return static_cast<int>(ret);
     }

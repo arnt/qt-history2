@@ -45,7 +45,7 @@ class QMutexPrivate {
 public:
     bool recursive;
 
-    unsigned long owner;
+    int owner;
     unsigned int count;
     QAtomic waiters;
 
