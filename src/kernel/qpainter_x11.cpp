@@ -2992,10 +2992,12 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
             QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
             QFont dfont( cfont );
-            QWMatrix mat2;
-	    double newSize = sqrt( QABS(m11()*m22() - m12()*m21()) ) * cfont.pointSizeFloat();
-	    newSize = QMAX( 6.0, QMIN( newSize, 72.0 ) ); // empirical values
-	    dfont.setPointSizeFloat( newSize );
+	    float pixSize = cfont.pixelSize();
+	    if ( pixSize == -1 ) 
+		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
+	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
+	    newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
+	    dfont.setPixelSize( newSize );
 	    QFontMetrics fm2( dfont );
 	    QRect abbox = fm2.boundingRect( str, len );
 	    aw = abbox.width();
@@ -3006,12 +3008,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 		return;
 	    double rx = (double)w / (double)aw;
 	    double ry = (double)h / (double)ah;
-	    mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1 , aw, ah );
-            bool empty = aw == 0 || ah == 0;
+            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
             QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
             QBitmap *wx_bm = get_text_bitmap( bm_key );
             bool create_new_bm = wx_bm == 0;
-            if ( create_new_bm && !empty ) {    // no such cached bitmap
+            if ( create_new_bm ) { 	        // no such cached bitmap
                 QBitmap bm( aw, ah, TRUE );     // create bitmap
                 QPainter paint;
                 paint.begin( &bm );             // draw text in bitmap
@@ -3045,8 +3046,6 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
                             CoordModeOrigin );
                 setBrush( oldBrush );
             }
-            if ( empty )
-                return;
             double fx=x, fy=y, nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
@@ -3059,7 +3058,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
             XSetTSOrigin( dpy, gc, 0, 0 );
             XSetFillStyle( dpy, gc, FillSolid );
-            if ( create_new_bm )
+	    if ( create_new_bm )
                 ins_text_bitmap( bm_key, wx_bm );
             return;
         }

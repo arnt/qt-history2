@@ -2269,7 +2269,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    QFont dfont( *font );
 	    QWMatrix mat2;
 	    if ( txop <= TxScale && pdev->devType() != QInternal::Printer ) {
-		int newSize = qRound( m22() * (double)font->pointSize() ) - 1;
+		double pixSize = font->pixelSize();
+		if ( pixSize == -1 )
+		    pixSize = font->pointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 72;
+		int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
 		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
 		dfont.setPointSize( newSize );
 		QFontMetrics fm2( dfont );
