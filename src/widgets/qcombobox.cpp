@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#38 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -74,26 +74,24 @@ static bool getMetrics( int width, int height,
 
 static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
-    if ( *index > count ) {
+    bool range_err = (*index > count);
 #if defined(CHECK_RANGE)
+    if ( range_err )
 	warning( "QComboBox::%s Index %d out of range", method, *index );
 #endif
-	return FALSE;
-    }
     if ( *index < 0 )				// append
 	*index = count;
-    return TRUE;
+    return range_err;
 }
 
 static inline bool checkIndex( const char *method, int count, int index )
 {
-    if ( index >= count ) {
+    bool range_err = (index >= count);
 #if defined(CHECK_RANGE)
+    if ( range_err )
 	warning( "QComboBox::%s Index %i out of range", method, index );
 #endif
-	return FALSE;
-    }
-    return TRUE;
+    return range_err;
 }
 
 

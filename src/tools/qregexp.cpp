@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#30 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#30 $")
 
 
 /*----------------------------------------------------------------------------
@@ -751,6 +751,7 @@ void QRegExp::compile()
 		break;
 
 	    default:
+		{
 		prev_d = d;
 		if ( *p == '\\' ) {
 		    if ( *(p+1) == 's' ) {	// white space
@@ -777,6 +778,7 @@ void QRegExp::compile()
 		if ( !cs )
 		    c = tolower( c );
 		GEN( CHR | c );
+		}
 	}
 	if ( d >= rxarray + maxlen ) {		// oops!
 	    error = PatOverflow;		// pattern too long

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#28 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -478,7 +478,6 @@ static double input_double( QTextStream *s )
 		d->ungetch( c );
 	    buf[i] = '\0';
 	    return buf.toDouble();
-	    break;
 	}
 
 	buf[i++] = c;

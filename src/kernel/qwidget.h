@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#88 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#89 $
 **
 ** Definition of QWidget class
 **
@@ -417,34 +417,34 @@ inline bool QWidget::isDisabled() const
 inline bool QWidget::minimumSize( int *w, int *h ) const
 {
     qObsolete( "QWidget", "minimumSize(int*,int*)", "minimumSize()" );
-    if ( extra && extra->minw >= 0 && w && h) {
+    bool ok = extra && extra->minw >= 0 && w && h;
+    if ( ok ) {
 	*w = extra->minw;
 	*h = extra->minh;
-	return TRUE;
     }
-    return FALSE;
+    return ok;
 }
 
 inline bool QWidget::maximumSize( int *w, int *h ) const
 {
     qObsolete( "QWidget", "maximumSize(int*,int*)", "maximumSize()" );
-    if ( extra && extra->maxw >= 0 && w && h ) {
+    bool ok = extra && extra->maxw >= 0 && w && h;
+    if ( ok ) {
 	*w = extra->maxw;
 	*h = extra->maxh;
-	return TRUE;
     }
-    return FALSE;
+    return ok;
 }
 
 inline bool QWidget::sizeIncrement( int *w, int *h ) const
 {
     qObsolete( "QWidget", "sizeIncrement(int*,int*)", "sizeIncrement()" );
-    if ( extra && extra->incw >= 0 && w && h ) {
+    bool ok = extra && extra->incw >= 0 && w && h;
+    if ( ok ) {
 	*w = extra->incw;
 	*h = extra->inch;
-	return TRUE;
     }
-    return FALSE;
+    return ok;
 }
 
 inline bool QWidget::enableUpdates( bool enable )

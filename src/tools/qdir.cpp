@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#25 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#25 $")
 
 
 #if defined(_OS_FATFS_)
@@ -987,8 +987,9 @@ char QDir::separator()
     return '\\';
 #elif defined (_OS_MAC_)
     return ':';
-#endif
+#else
     return '/';
+#endif
 }
 
 

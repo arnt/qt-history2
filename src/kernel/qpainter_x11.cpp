@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#187 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#186 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#187 $")
 
 
 /*****************************************************************************
@@ -1325,8 +1325,7 @@ QRect QPainter::xForm( const QRect &rv ) const
 	QPointArray a( rv );
 	a = xForm( a );
 	return a.boundingRect();
-    }
-    else {					// translation/scale
+    } else {					// translation/scale
 	int x, y, w, h;
 	rv.rect( &x, &y, &w, &h );
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1395,8 +1394,7 @@ QRect QPainter::xFormDev( const QRect &rd ) const
 	QPointArray a( rd );
 	a = xFormDev( a );
 	return a.boundingRect();
-    }
-    else {					// translation/scale
+    } else {					// translation/scale
 	int x, y, w, h;
 	rd.rect( &x, &y, &w, &h );
 	mapInv( x, y, w, h, &x, &y, &w, &h );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#48 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#47 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#48 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1289,16 +1289,19 @@ QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 }
 
 
-static inline const QFont &get_font_info( QWidget *w, QPainter *p )
+static QWidget *rescue_widget = 0;
+
+static inline QFont *get_font( QWidget *w, QPainter *p )
 {
     if ( w == 0 && p == 0 ) {
 #if defined(CHECK_STATE)
 	warning( "QFontInfo: Invalid font info" );
 #endif
-	static QFont f;
-	return f;
+	if ( !rescue_widget )
+	    rescue_widget = new QWidget( 0, "internal QFontInfo widget" );
+	w = rescue_widget;
     }
-    return w ? w->font() : p->font();
+    return w ? (QFont *)&(w->font()) : (QFont *)&(p->font());
 }
 
 
@@ -1309,9 +1312,9 @@ static inline const QFont &get_font_info( QWidget *w, QPainter *p )
 
 const char *QFontInfo::family() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.family;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.family;
 }
 
 /*----------------------------------------------------------------------------
@@ -1321,9 +1324,9 @@ const char *QFontInfo::family() const
 
 int QFontInfo::pointSize() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.pointSize / 10;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.pointSize / 10;
 }
 
 /*----------------------------------------------------------------------------
@@ -1333,9 +1336,9 @@ int QFontInfo::pointSize() const
 
 bool QFontInfo::italic() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.italic;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.italic;
 }
 
 /*----------------------------------------------------------------------------
@@ -1346,9 +1349,9 @@ bool QFontInfo::italic() const
 
 int QFontInfo::weight() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return (int)f.d->act.weight;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return (int)f->d->act.weight;
 }
 
 /*----------------------------------------------------------------------------
@@ -1370,9 +1373,9 @@ int QFontInfo::weight() const
 
 bool QFontInfo::underline() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.underline;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.underline;
 }
 
 /*----------------------------------------------------------------------------
@@ -1385,9 +1388,9 @@ bool QFontInfo::underline() const
 
 bool QFontInfo::strikeOut() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.strikeOut;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.strikeOut;
 }
 
 /*----------------------------------------------------------------------------
@@ -1397,9 +1400,9 @@ bool QFontInfo::strikeOut() const
 
 bool QFontInfo::fixedPitch() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.fixedPitch;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.fixedPitch;
 }
 
 /*----------------------------------------------------------------------------
@@ -1411,9 +1414,9 @@ bool QFontInfo::fixedPitch() const
 
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return (QFont::StyleHint)f.d->act.styleHint;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return (QFont::StyleHint)f->d->act.styleHint;
 }
 
 /*----------------------------------------------------------------------------
@@ -1423,9 +1426,9 @@ QFont::StyleHint QFontInfo::styleHint() const
 
 QFont::CharSet QFontInfo::charSet() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return (QFont::CharSet)f.d->act.charSet;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return (QFont::CharSet)f->d->act.charSet;
 }
 
 /*----------------------------------------------------------------------------
@@ -1441,9 +1444,9 @@ QFont::CharSet QFontInfo::charSet() const
 
 bool QFontInfo::rawMode() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->act.rawMode;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->act.rawMode;
 }
 
 /*----------------------------------------------------------------------------
@@ -1454,9 +1457,9 @@ bool QFontInfo::rawMode() const
 
 bool QFontInfo::exactMatch() const
 {
-    QFont f = get_font_info( w, p );
-    f.updateFontInfo();
-    return f.d->exactMatch;
+    QFont *f = get_font( w, p );
+    f->updateFontInfo();
+    return f->d->exactMatch;
 }
 
 

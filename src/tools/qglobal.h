@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#55 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#56 $
 **
 ** Global type declarations and definitions
 **
@@ -26,6 +26,9 @@
 //   HPUX   -	HP-UX
 //   ULTRIX -	DEC Ultrix
 //   LINUX  -	Linux
+//   FREEBSD-	FreeBSD
+//   IRIX   -	SGI Irix
+//   OSF    -	OSF Unix
 //   UNIX   -	Any UNIX bsd/sysv system
 //
 
@@ -70,13 +73,14 @@
 //
 // The compiler, must be one of: (_CC_x_)
 //
-//   MPW    -	MPW C++
 //   SYM    -	Symantec C++ for both PC and Macintosh
-//   MSC    -	Microsoft C/C++
+//   MPW    -	MPW C++
+//   MSVC    -	Microsoft Visual C/C++
 //   BOR    -	Borland/Turbo C++
-//   SUN    -	Sun C++ (If no other compiler for Sun)
-//   OC	    -	CenterLine ObjectCenter C++
 //   GNU    -	GNU C++
+//   OC	    -	CenterLine ObjectCenter C++
+//   SUN    -	Sun C++ (if not a compiler above)
+//   HP     -	HPUX C++ (if not a compiler above)
 //
 
 #if defined(__SC__)
@@ -93,6 +97,8 @@
 #define _CC_OC_
 #elif defined(__SUNPRO_CC)
 #define _CC_SUN_
+#elif defined(_OS_HPUX_)
+#define _CC_HP_
 #else
 #error "Qt does not recognize this compiler - talk to qt-bugs@troll.no"
 #endif

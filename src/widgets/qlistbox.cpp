@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#69 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#69 $")
 
 
 declare(QListM, QListBoxItem);
@@ -38,26 +38,24 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
 
 static inline bool checkInsertIndex( const char *method, int count, int *index)
 {
-    if ( *index > count ) {
+    bool range_err = (*index > count);
 #if defined(CHECK_RANGE)
+    if ( *index > count )
 	warning( "QListBox::%s: Index %i out of range", method, *index );
 #endif
-	return FALSE;
-    }
     if ( *index < 0 )				// append
 	*index = count;
-    return TRUE;
+    return range_err;
 }
 
 static inline bool checkIndex( const char *method, int count, int index )
 {
-    if ( index >= count ) {
+    bool range_err = (index >= count);
 #if defined(CHECK_RANGE)
+    if ( range_err )
 	warning( "QListBox::%s: Index %d out of range", method, index );
 #endif
-	return FALSE;
-    }
-    return TRUE;
+    return range_err;
 }
 
 
