@@ -893,6 +893,48 @@ void QAbstractButton::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
+
+/*!
+    \fn void QAbstractButton::pressed()
+
+    This signal is emitted when the button is pressed down.
+
+    \sa released(), clicked()
+*/
+
+/*!
+    \fn void QAbstractButton::released()
+
+    This signal is emitted when the button is released.
+
+    \sa pressed(), clicked(), toggled()
+*/
+
+/*!
+    \fn void QAbstractButton::clicked()
+
+    This signal is emitted when the button is activated (i.e. first
+    pressed down and then released when the mouse cursor is inside the
+    button), when the accelerator key is typed or when animateClick()
+    is called. This signal is \e not emitted if you call setDown().
+
+    \sa pressed(), released(), toggled()
+*/
+
+/*!
+    \fn void QAbstractButton::toggled(bool checked)
+
+    This signal is emitted whenever a toggle button changes status. \a
+    checked is true if the button is checked, or false if the button
+    is unchecked.
+
+    This may be the result of a user action, toggle() slot activation,
+    or because setChecked() was called.
+
+    \sa clicked()
+*/
+
+
 #ifdef QT_COMPAT
 QIconSet *QAbstractButton::iconSet() const
 {

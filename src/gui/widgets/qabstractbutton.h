@@ -77,7 +77,7 @@ signals:
     void pressed();
     void released();
     void clicked();
-    void toggled(bool);
+    void toggled(bool checked);
 
 protected:
     QAbstractButton(QAbstractButtonPrivate &, QWidget* parent);
