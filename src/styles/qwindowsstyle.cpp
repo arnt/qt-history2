@@ -1683,4 +1683,153 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
     return QCommonStyle::eventFilter( o, e );
 }
 
+
+static const char * const qt_close_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+"..##....##..",
+"...##..##...",
+"....####....",
+".....##.....",
+"....####....",
+"...##..##...",
+"..##....##..",
+"............",
+"............",
+"............"};
+
+static const char * const qt_maximize_xpm[]={
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+".##########.",
+".##########.",
+".#........#.",
+".#........#.",
+".#........#.",
+".#........#.",
+".#........#.",
+".#........#.",
+".##########.",
+"............"};
+
+
+static const char * const qt_minimize_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"...######...",
+"...######...",
+"............",
+"............",
+"............"};
+
+static const char * const qt_normalize_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"...#######..",
+"...#######..",
+"...#.....#..",
+".#######.#..",
+".#######.#..",
+".#.....#.#..",
+".#.....###..",
+".#.....#....",
+".#.....#....",
+".#######....",
+"............"};
+
+static const char * const qt_normalizeup_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"...#######..",
+"...#######..",
+"...#.....#..",
+".#######.#..",
+".#######.#..",
+".#.....#.#..",
+".#.....###..",
+".#.....#....",
+".#.....#....",
+".#######....",
+"............"};
+
+
+static const char * const qt_shade_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+"............",
+"............",
+"............",
+".....#......",
+"....###.....",
+"...#####....",
+"..#######...",
+"............",
+"............",
+"............"};
+
+static const char * const qt_unshade_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+"............",
+"............",
+"..#######...",
+"...#####....",
+"....###.....",
+".....#......",
+"............",
+"............",
+"............",
+"............"};
+
+
+/*!
+ \reimp
+ */
+QPixmap QWindowsStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
+{
+    switch(ctrl) {
+    case TitleLabel:
+    case TitleNone:
+    case TitleSysMenu:
+	break;
+    case TitleShadeButton:
+	return QPixmap((const char **)qt_shade_xpm);
+    case TitleUnshadeButton:
+	return QPixmap((const char **)qt_unshade_xpm);
+    case TitleNormalButton:
+	return QPixmap((const char **)qt_normalizeup_xpm);
+    case TitleMinButton:
+	return QPixmap((const char **)qt_minimize_xpm);
+    case TitleMaxButton:
+	return QPixmap((const char **)qt_maximize_xpm);
+    case TitleCloseButton:
+	return QPixmap((const char **)qt_close_xpm);
+    }
+    return QPixmap();
+}
+
 #endif

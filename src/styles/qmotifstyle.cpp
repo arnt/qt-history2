@@ -1316,4 +1316,157 @@ void QMotifStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h, co
     p->fillRect( x, y, w, h, g.highlight() );
 }
 
+#define TITLEBAR_SEPARATION 1
+#define BUTTON_WIDTH 16
+#define BUTTON_HEIGHT 14
+#define RANGE 16
+
+static const char * const qt_close_xpm[] = {
+"12 12 2 1",
+"       s None  c None",
+".      c black",
+"            ",
+"            ",
+"   .    .   ",
+"  ...  ...  ",
+"   ......   ",
+"    ....    ",
+"    ....    ",
+"   ......   ",
+"  ...  ...  ",
+"   .    .   ",
+"            ",
+"            "};
+
+static const char * const qt_maximize_xpm[] = {
+"12 12 2 1",
+"       s None  c None",
+".      c black",
+"            ",
+"            ",
+"            ",
+"     .      ",
+"    ...     ",
+"   .....    ",
+"  .......   ",
+" .........  ",
+"            ",
+"            ",
+"            ",
+"            "};
+
+static const char * const qt_minimize_xpm[] = {
+"12 12 2 1",
+"       s None  c None",
+".      c black",
+"            ",
+"            ",
+"            ",
+"            ",
+" .........  ",
+"  .......   ",
+"   .....    ",
+"    ...     ",
+"     .      ",
+"            ",
+"            ",
+"            "};
+
+static const char * const qt_normalize_xpm[] = {
+"12 12 2 1",
+"       s None  c None",
+".      c black",
+"            ",
+"            ",
+"  .         ",
+"  ..        ",
+"  ...       ",
+"  ....      ",
+"  .....     ",
+"  ......    ",
+"  .......   ",
+"            ",
+"            ",
+"            "};
+
+static const char * const qt_normalizeup_xpm[] = {
+"12 12 2 1",
+"       s None  c None",
+".      c black",
+"            ",
+"            ",
+"            ",
+"  .......   ",
+"   ......   ",
+"    .....   ",
+"     ....   ",
+"      ...   ",
+"       ..   ",
+"        .   ",
+"            ",
+"            "};
+
+static const char * const qt_shade_xpm[] = {
+"12 12 2 1", "# c #000000",
+". c None",
+"............",
+"............",
+".#########..",
+".#########..",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............",
+"............"};
+
+
+static const char * const qt_unshade_xpm[] = {
+"12 12 2 1",
+"# c #000000",
+". c None",
+"............",
+"............",
+".#########..",
+".#########..",
+".#.......#..",
+".#.......#..",
+".#.......#..",
+".#.......#..",
+".#.......#..",
+".#########..",
+"............",
+"............"};
+
+
+/*!
+ \reimp
+ */
+QPixmap QMotifStyle::titleBarPixmap( const QTitleBar *, TitleControl ctrl)
+{
+    switch(ctrl) {
+    case TitleLabel:
+    case TitleNone:
+    case TitleSysMenu:
+	break;
+    case TitleShadeButton:
+	return QPixmap((const char **)qt_shade_xpm);
+    case TitleUnshadeButton:
+	return QPixmap((const char **)qt_unshade_xpm);
+    case TitleNormalButton:
+	return QPixmap((const char **)qt_normalizeup_xpm);
+    case TitleMinButton:
+	return QPixmap((const char **)qt_minimize_xpm);
+    case TitleMaxButton:
+	return QPixmap((const char **)qt_maximize_xpm);
+    case TitleCloseButton:
+	return QPixmap((const char **)qt_close_xpm);
+    }
+    return QPixmap();
+}
+
+
+
 #endif

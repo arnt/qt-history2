@@ -55,6 +55,7 @@ class QTabWidget;
 class QSpinBox;
 class QGroupBox;
 class QRangeControlWidget;
+class QTitleBar;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -296,14 +297,17 @@ public:
 				       Orientation orientation );
     virtual QSize toolBarSeparatorSize( Qt::Orientation orientation ) const;
 
+
     // title bar
-    virtual void drawTitleBar( QPainter *p, int x, int y, int w, int h,
-			       const QColor &left, const QColor &right,
-			       bool active ) = 0;
-    virtual void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
-			       const QString &text, const QColor &tc, bool active ) = 0;
-    virtual void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;
-    virtual void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down ) = 0;
+    enum TitleControl { TitleNone = 0x00, 
+			TitleSysMenu = 0x1 , TitleMinButton  = 0x2 , TitleMaxButton = 0x4,
+			TitleCloseButton = 0x8 , TitleLabel = 0x10, TitleNormalButton = 0x20, 
+			TitleShadeButton=0x40, TitleUnshadeButton=0x80 };
+    virtual QPixmap titleBarPixmap( const QTitleBar *, TitleControl ) = 0;
+    virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const = 0;
+    virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
+					uint controls, uint activeControl ) = 0;
+    virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& ) = 0;
 
     // header
     virtual void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down ) = 0;

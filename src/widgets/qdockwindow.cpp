@@ -472,7 +472,7 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
     hadDblClick = TRUE;
 }
 
-class QDockWindowTitleBar : public QTitleBarLabel
+class QDockWindowTitleBar : public QTitleBar
 {
     Q_OBJECT
     friend class QDockWindow;
@@ -503,7 +503,7 @@ private:
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
-    : QTitleBarLabel( dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
+    : QTitleBar( NULL, dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
       closeButton( 0 ), opaque( FALSE )
 {
     setMouseTracking( TRUE );
@@ -550,7 +550,7 @@ void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 void QDockWindowTitleBar::resizeEvent( QResizeEvent *e )
 {
     updateGui();
-    QTitleBarLabel::resizeEvent( e );
+    QTitleBar::resizeEvent( e );
 }
 
 void QDockWindowTitleBar::updateGui()

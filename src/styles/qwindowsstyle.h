@@ -167,6 +167,9 @@ public:
     void drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
     void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
 
+    // title bar
+    QPixmap titleBarPixmap( const QTitleBar *, TitleControl );
+
 protected:
     void drawWinShades( QPainter *p,
                         int x, int y, int w, int h,

@@ -75,15 +75,6 @@ public:
 
     int menuBarFrameWidth() const { return 2; }
 
-    // titlebar
-    void drawTitleBar( QPainter *p, int x, int y, int w, int h, const QColor &left, const QColor &right,
-		       bool active );
-    void drawTitleBarLabel( QPainter *p, int x, int y, int w, int h, const QString &text,
-		       const QColor &tc, bool active );
-
-    void drawTitleBarButton( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
-    void drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h, const QPixmap *, int button, bool down );
-
     // header
     void drawHeaderSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool down );
 
@@ -102,6 +93,12 @@ public:
     // statusbar
     void drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool permanent );
     void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g );
+
+    // title bar
+    virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const;
+    virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
+					uint controls, uint activeControl );
+    virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

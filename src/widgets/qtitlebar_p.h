@@ -58,93 +58,16 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-#if !defined(QT_NO_MAINWINDOW) || !defined(QT_NO_WORKSPACE)
-
-class QTitleBar;
-
-class Q_EXPORT QTitleBarButton : public QButton
-{
-    Q_OBJECT
-public:
-    enum ButtonType
-    {
-	Icon = 0,
-	Min,
-	Max,
-	Close,
-	RestoreUp,
-	RestoreDown,
-	ContextHelp,
-	ShadeUp,
-	ShadeDown
-    };
-
-    QTitleBarButton( QWidget* parent, ButtonType type, const char *name = 0 );
-
-    QSize sizeHint() const;
-
-    void setPixmap( const QPixmap& );
-    void setType( ButtonType type );
-
-protected:
-    void drawButton( QPainter * );
-    void drawButtonLabel( QPainter * );
-
-private:
-    ButtonType type;
-};
-
-class Q_EXPORT QTitleBarLabel : public QFrame
-{
-    Q_OBJECT
-public:
-    QTitleBarLabel( QWidget *parent = 0, const char* name = 0 );
-
-    void setActive( bool act );
-    QColor leftColor() const { return leftc; }
-    QColor rightColor() const { return rightc; }
-
-    void setLeftMargin( int x );
-    void setRightMargin( int x );
-
-public slots:
-    void setText( const QString& );
-
-protected:
-    void paintEvent( QPaintEvent* );
-    void resizeEvent( QResizeEvent* );
-
-    bool event( QEvent* );
-
-    void drawLabel( QPainter* );
-    void frameChanged();
-
-private:
-    void cutText();
-    void getColors();
-
-    QColor leftc, aleftc, ileftc;
-    QColor rightc, arightc, irightc;
-    QColor textc, atextc, itextc;
-    int leftm;
-    int rightm;
-    QString titletext;
-    QString cuttext;
-    bool act;
-};
-
-#ifndef QT_NO_WORKSPACE
-
-class QWorkspace;
+#if !defined(QT_NO_TITLEBAR)
 
 class Q_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
 
-friend class QWorkspaceChild;
+    friend class QWorkspaceChild;
 
 public:
-    QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent, const char* name=0, bool iconMode = FALSE );
+    QTitleBar (QWidget* w, QWidget* parent, const char* name=0);
     ~QTitleBar();
 
     bool isActive() const;
@@ -169,43 +92,28 @@ signals:
     void popupOperationMenu( const QPoint& );
 
 protected:
-    void resizeEvent( QResizeEvent * );
+    bool event( QEvent *);
+    void resizeEvent( QResizeEvent *);
     void mousePressEvent( QMouseEvent * );
+    void mouseDoubleClickEvent( QMouseEvent * );
     void mouseReleaseEvent( QMouseEvent * );
     void mouseMoveEvent( QMouseEvent * );
     void enterEvent( QEvent *e );
-
-    bool eventFilter( QObject *, QEvent * );
+    void paintEvent( QPaintEvent *p );
 
 private:
-    QTitleBarButton* closeB;
-    QTitleBarButton* maxB;
-    QTitleBarButton* iconB;
-    QTitleBarButton* shadeB;
-    QTitleBarLabel* titleL;
-    QLabel* iconL;
-    int titleHeight;
-    bool buttonDown;
+    void cutText();
+    void getColors();
+    int buttonDown;
     QPoint moveOffset;
-    QWorkspace* workspace;
-    QWidget* window;
-    bool imode		    :1;
-    bool act		    :1;
 
-    QString text;
+public:
+    bool act		    :1;
+    QColor aleftc, ileftc, arightc, irightc, atextc, itextc;
+    QString text, cuttext;
+    QPixmap pixmap;
+    QWidget* window;
 };
 
 #endif
-
-extern const char * const qt_close_xpm[];
-extern const char * const qt_maximize_xpm[];
-extern const char * const qt_minimize_xpm[];
-extern const char * const qt_normalize_xpm[];
-extern const char * const qt_normalizeup_xpm[];
-extern const char * const qt_shade_xpm[];
-extern const char * const qt_unshade_xpm[];
-
-
-#endif //!QT_NO_MAINWINDOW || !QT_NO_WORKSPACE
-
 #endif //QTITLEBAR_P_H
