@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#33 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -387,12 +387,8 @@ void QGList::relinkNode( QLNode *n )
 
 QLNode *QGList::unlink()
 {
-    if ( curNode == 0 ) {			// null current node
-#if defined(CHECK_NULL)
-	warning( "QGList::unlink: Current node is null" );
-#endif
+    if ( curNode == 0 )				// null current node
 	return 0;
-    }
     register QLNode *n = curNode;		// unlink this node
     if ( n == firstNode ) {			// removing first node ?
 	if ( (firstNode = n->next) )
