@@ -371,6 +371,63 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 
 
+/*! \class QDockArea qdockarea.h
+
+  \brief The QDockArea class manages and layouts QDockWindows.
+
+  \ingroup application
+
+  A QDockArea is a container which manages a number of QDockWindows by
+  layouting them. In cooperation with QDockWindows, it is responsible
+  for docking and undocking of QDockWindows and moving them inside the
+  dock area. A QDockArea also does wrapping of toolbars to fill the
+  available space as good as possible.
+  
+  Normally you do not directly use a QDockArea, but rather use the
+  four built in QDockAreas of a QMainWindow to be able to dock and
+  undock QDockWindows (and QToolBars, which are QDockWindows) in a
+  QMainWindow.
+  
+  In some cases it makes sense to use a QDockArea somewhere else, to
+  allow docking of widgets there.
+*/
+
+/*! \fn Orientation orientation() const
+
+  Returns the orientation of this dock area.
+ */
+
+/*! \fn Gravity gravity() const
+
+  Returns the gravity of this dock area.
+ */
+
+/*! \fn void rightButtonPressed( const QPoint &globalPos )
+
+  This signal is emitted if the user pressed with the right mouse
+  button onto the area. This can be used for right mouse button
+  menus. \a globalPos is the global position of the mouse when the
+  event occured.
+ */
+
+/*!
+  \enum QDockArea::Gravity   
+  
+  This enum specifies wheather the dock windows in that area can be
+  resized normally (to the right/bottom) or revers (left/top). The
+  splitter-like handles for resizable dock windows are placed and controlled
+  according to that information.
+  
+  <ul>
+  <li>\c  Normal
+  <li>\c Reverse
+  </ul>
+*/
+
+/*! Creates a QDockArea with the orientation \a o, Gravity \a g as
+  child of \a parent.
+*/
+
 QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *name )
     : QWidget( parent, name ), orient( o ), layout( 0 ), grav( g )
 {
@@ -379,12 +436,21 @@ QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *nam
     installEventFilter( this );
 }
 
+/*!  Destructor.
+ */
+
 QDockArea::~QDockArea()
 {
     delete dockWidgets;
 }
 
-void QDockArea::addDockWindow( QDockWindow *w, int index )
+/*! Moves the QDockWindow \a w in the dock area. If \a w is not
+  already docked in this are, \a w gets docked first. If \a index is
+  -1 or larger then the number of docked widgets, \a w is appended at
+  the end, else inserted at the position \a index.
+*/
+
+void QDockArea::moveDockWindow( QDockWindow *w, int index )
 {
     QDockWindow *dockWidget = 0;
     int dockWidgetIndex = findDockWindow( w );
@@ -407,6 +473,12 @@ void QDockArea::addDockWindow( QDockWindow *w, int index )
     }
 }
 
+/*! Returns TRUE, of the QDockArea contains the dock window \a w. If
+  this is the case, and a non-null pointer is passed as \a index, the
+  value of \a index is set to the index at which \a w is placed at the
+  moment.
+*/
+
 bool QDockArea::hasDockWindow( QDockWindow *w, int *index )
 {
     int i = dockWidgets->findRef( w );
@@ -425,6 +497,15 @@ int QDockArea::lineOf( int index )
     }
     return i;
 }
+
+/*! Moves the QDockWindow \a w inside the dock are where \a p is the
+  new position (global screen coordinates), \a r is the suggested
+  rectangle of the dock window and \a swap tells if the orientation of
+  the dockwidget needs to be changed.
+  
+  This function is provided because QDockWindow needs to call it. You
+  never should need to call that yourself.
+*/
 
 void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
 {
@@ -600,6 +681,15 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
 }
 
+/*! Removes the dock window \a w from this dock area. If \a
+  makeFloating is TRUE, \a w gets floated, and if \a swap is TRUE, the
+  orientation of \a w gets swapped.
+  
+  Normally you never need to call that function yourself, as this
+  function is only used by QDockWindow. Better use QDockWindow::dock()
+  and QDockWindow::undock() instead.
+*/
+  
 void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap )
 {
     w->removeEventFilter( this );
@@ -633,6 +723,9 @@ void QDockArea::updateLayout()
     layout->activate();
 }
 
+/*! \reimp
+ */
+
 bool QDockArea::eventFilter( QObject *o, QEvent *e )
 {
     if ( o->inherits( "QDockWindow" ) ) {
@@ -647,6 +740,9 @@ bool QDockArea::eventFilter( QObject *o, QEvent *e )
     return FALSE;
 }
 
+/*!  Invalidates the offset of the next dock window in this dock area.
+ */
+
 void QDockArea::invalidNextOffset( QDockWindow *dw )
 {
     int i = dockWidgets->find( dw );
@@ -656,16 +752,35 @@ void QDockArea::invalidNextOffset( QDockWindow *dw )
 	dw->setOffset( 0 );
 }
 
+/*! Returns the number of dock windows in this dock.
+ */
+
+int QDockArea::count() const
+{
+    return dockWidgets->count();
+}
+
+/*! Returns whether this dock are contains dock windows or not.
+ */
+
 bool QDockArea::isEmpty() const
 {
     return dockWidgets->isEmpty();
 }
 
 
+/*! Returns the list of dock windows of this area.
+ */
+
 QList<QDockWindow> QDockArea::dockWidgetList() const
 {
     return *dockWidgets;
 }
+
+/*! Lines up the dock windows in this area to waste no space. If \a
+  keepNewLines is TRUE, only space inside lines is cleaned up, else
+  also the number of lines might be changed.
+*/
 
 void QDockArea::lineUp( bool keepNewLines )
 {
@@ -676,6 +791,9 @@ void QDockArea::lineUp( bool keepNewLines )
     }
     layout->activate();
 }
+
+/*! \reimp
+ */
 
 void QDockArea::mousePressEvent( QMouseEvent *e )
 {
@@ -754,6 +872,10 @@ void QDockArea::dockWidget( QDockWindow *dockWidget, DockWindowData *data )
 
 }
 
+/*! Returns wheather \a w can be accepted to be docked into this dock
+  area.
+*/
+
 bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 {
     if ( !dw )
@@ -771,6 +893,10 @@ bool QDockArea::isDockWindowAccepted( QDockWindow *dw )
 	return FALSE;
     return TRUE;
 }
+
+/*! Specifies wheather \a dw can be accepted to be docked into this
+  dock area.
+*/
 
 void QDockArea::setAcceptDockWindow( QDockWindow *dw, bool accept )
 {

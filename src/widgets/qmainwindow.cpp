@@ -895,19 +895,19 @@ void QMainWindow::moveDockWindow( QDockWindow * toolBar, Dock edge )
     switch ( edge ) {
     case Top:
 	toolBar->removeFromDock();
-	d->topDock->addDockWindow( toolBar );
+	d->topDock->moveDockWindow( toolBar );
 	break;
     case Bottom:
 	toolBar->removeFromDock();
-	d->bottomDock->addDockWindow( toolBar );
+	d->bottomDock->moveDockWindow( toolBar );
 	break;
     case Right:
 	toolBar->removeFromDock();
-	d->rightDock->addDockWindow( toolBar );
+	d->rightDock->moveDockWindow( toolBar );
 	break;
     case Left:
 	toolBar->removeFromDock();
-	d->leftDock->addDockWindow( toolBar );
+	d->leftDock->moveDockWindow( toolBar );
 	break;
     case TornOff:
 	toolBar->removeFromDock();
@@ -937,19 +937,19 @@ void QMainWindow::moveDockWindow( QDockWindow * toolBar, Dock edge, bool nl, int
     switch ( edge ) {
     case Top:
 	toolBar->removeFromDock();
-	d->topDock->addDockWindow( toolBar, index );
+	d->topDock->moveDockWindow( toolBar, index );
 	break;
     case Bottom:
 	toolBar->removeFromDock();
-	d->bottomDock->addDockWindow( toolBar, index );
+	d->bottomDock->moveDockWindow( toolBar, index );
 	break;
     case Right:
 	toolBar->removeFromDock();
-	d->rightDock->addDockWindow( toolBar, index );
+	d->rightDock->moveDockWindow( toolBar, index );
 	break;
     case Left:
 	toolBar->removeFromDock();
-	d->leftDock->addDockWindow( toolBar, index );
+	d->leftDock->moveDockWindow( toolBar, index );
 	break;
     case TornOff:
 	toolBar->removeFromDock();
@@ -1335,10 +1335,6 @@ void QMainWindow::triggerLayout( bool deleteLayout )
 	setUpLayout();
     }
     QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
-    d->topDock->updateLayout();
-    d->bottomDock->updateLayout();
-    d->rightDock->updateLayout();
-    d->leftDock->updateLayout();
 }
 
 /*!

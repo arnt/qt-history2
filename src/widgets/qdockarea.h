@@ -113,7 +113,7 @@ public:
 
     void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );
     void removeDockWindow( QDockWindow *w, bool makeFloating, bool swap );
-    void addDockWindow( QDockWindow *w, int index = -1 );
+    void moveDockWindow( QDockWindow *w, int index = -1 );
     bool hasDockWindow( QDockWindow *w, int *index = 0 );
 
     void invalidNextOffset( QDockWindow *dw );
@@ -123,7 +123,7 @@ public:
 
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
-    void updateLayout();
+    int count() const;
     QList<QDockWindow> dockWidgetList() const;
     void lineUp( bool keepNewLines );
 
@@ -149,6 +149,7 @@ private:
     int lineOf( int index );
     DockWindowData *dockWidgetData( QDockWindow *w );
     void dockWidget( QDockWindow *dockWidget, DockWindowData *data );
+    void updateLayout();
 
 private:
     Orientation orient;

@@ -582,6 +582,12 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   got invisible.
 */
 
+/*! \fn QDockArea *QDockWindow::area() const
+
+  Returns the QDockArea, into which this QDockWindow is docked at the
+  moment, or 0 if it is floating at the moment.
+*/
+
 
 /*! Constructs a QDockWindow. If \a p is \c OutsideDock, it is created
   as floating window, else (\c InDock) it is docked into a
@@ -634,7 +640,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
 	     this, SLOT( setOrientation( Orientation ) ) );
 
     if ( parent && parent->inherits( "QDockArea" ) && p == InDock ) {
-	( (QDockArea*)parent )->addDockWindow( this );
+	( (QDockArea*)parent )->moveDockWindow( this );
     } else if ( p == InDock ) {
 	p = OutsideDock;
 	setWFlags( WStyle_Customize | WStyle_NoBorderEx | WType_TopLevel | WStyle_Dialog );
