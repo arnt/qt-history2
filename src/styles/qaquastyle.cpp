@@ -1022,6 +1022,7 @@ void QAquaStyle::drawControl( ControlElement element,
 
     switch(element) {
     case CE_PopupMenuScroller: {
+	p->fillRect( r.x(), r.y(), r.width(), r.height(), cg.brush( QColorGroup::Button ));
 	const int w = 10, x = (r.width() / 2) - (w / 2), 
 		  h = 10, y = (r.height() / 2) - (h / 2);
 	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p, 
@@ -1082,8 +1083,12 @@ void QAquaStyle::drawControl( ControlElement element,
 	    break;
 	QPopupMenu *popupmenu = (QPopupMenu *)widget;
 	QMenuItem *mi = opt.menuItem();
-	if ( !mi )
+	int x, y, w, h;
+	r.rect(&x, &y, &w, &h);
+	if ( !mi ) {
+	    p->fillRect( x, y, w, h, cg.brush( QColorGroup::Button ));
 	    break;
+	}
 
 	const QColorGroup & g = cg;
 	QColorGroup itemg = g;
@@ -1093,8 +1098,6 @@ void QAquaStyle::drawControl( ControlElement element,
 	bool checked = mi->isChecked();
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
-	int x, y, w, h;
-	r.rect(&x, &y, &w, &h);
 
 	if ( checkable )
 	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
@@ -1115,7 +1118,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	if ( reverse )
 	    xpos += w - checkcol;
 
-	if ( mi->iconSet() ) {              // draw iconset
+	if ( mi && mi->iconSet() ) {              // draw iconset
 	    if ( checked ) {
 		QRect vrect = visualRect( QRect( xpos, y, checkcol, h ), r );
 		if ( act && !dis ) {
@@ -1200,7 +1203,7 @@ void QAquaStyle::drawControl( ControlElement element,
 	else
 	    xpos += xm;
 
-	if ( mi->custom() ) {
+	if ( mi && mi->custom() ) {
 	    int m = aquaItemVMargin;
 	    p->save();
 	    if ( dis && !act ) {
@@ -1238,7 +1241,7 @@ void QAquaStyle::drawControl( ControlElement element,
 		p->setPen( discol );
 	    }
 	    p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
-	} else if ( mi->pixmap() ) {                        // draw pixmap
+	} else if ( mi && mi->pixmap() ) {                        // draw pixmap
 	    QPixmap *pixmap = mi->pixmap();
 	    if ( pixmap->depth() == 1 )
 		p->setBackgroundMode( OpaqueMode );

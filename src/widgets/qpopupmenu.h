@@ -132,6 +132,7 @@ private slots:
     void        performDelayedChanges();
 
 private:
+    void        updateScrollerState();
     void	menuContentsChanged();
     void	menuStateChanged();
     void        performDelayedContentsChanged();
