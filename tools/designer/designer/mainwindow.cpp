@@ -905,8 +905,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		(o->parent() && o->parent()->inherits( "MenuBarEditor" ) ) ) ) {
 
 	if ( e->type() == QEvent::Accel &&
-	     o->inherits( "PopupMenuEditor" ) &&
-	     (( PopupMenuEditor * ) o)->isCreatingAccelerator() )
+	     o->inherits( "PopupMenuEditor" ) )
 	    return TRUE; // consume accel events
 
 	return QMainWindow::eventFilter( o, e );
@@ -948,21 +947,29 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::ContextMenu:
     case QEvent::MouseButtonPress:
-	if ( o && currentTool() == POINTER_TOOL && ( o->inherits( "MenuBarEditor" ) ||
-		 o->inherits( "QDesignerToolBar" ) ||
-		 ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) ||
-		   o->inherits( "QDesignerToolBarSeparator" ) ) &&
-		 o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
+	if ( o && currentTool() == POINTER_TOOL &&
+	     ( o->inherits( "MenuBarEditor" ) ||
+	       o->inherits( "PopupMenuEditor" ) ||
+	       o->inherits( "QDesignerToolBar" ) ||
+	       ( o->inherits( "QComboBox") ||
+		 o->inherits( "QToolButton" ) ||
+		 o->inherits( "QDesignerToolBarSeparator" ) ) &&
+	       o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
 	    QWidget *w = (QWidget*)o;
-	    if ( w->inherits( "QToolButton" ) || w->inherits( "QComboBox" ) || w->inherits( "QDesignerToolBarSeparator" ) )
+	    if ( w->inherits( "QToolButton" ) ||
+		 w->inherits( "QComboBox" ) ||
+		 w->inherits( "PopupMenuEditor" ) ||
+		 w->inherits( "QDesignerToolBarSeparator" ) )
 		w = w->parentWidget();
 	    QWidget *pw = w->parentWidget();
 	    while ( pw ) {
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
 		    if ( !o->inherits( "QDesignerToolBar" ) )
-			return !o->inherits( "QToolButton" ) && !o->inherits( "MenuBarEditor" ) &&
-			    !o->inherits( "QComboBox" ) && !o->inherits( "QDesignerToolBarSeparator" );
+			return ( !o->inherits( "QToolButton" ) &&
+				 !o->inherits( "MenuBarEditor" ) &&
+				 !o->inherits( "QComboBox" ) &&
+				 !o->inherits( "QDesignerToolBarSeparator" ) );
 		}
 		pw = pw->parentWidget();
 	    }
@@ -974,7 +981,9 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	if ( !w->hasFocus() )
 	    w->setFocus();
@@ -1001,11 +1010,14 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
-	    ( (FormWindow*)w )->handleMouseRelease( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
+	    ( (FormWindow*)w )->handleMouseRelease( (QMouseEvent*)e,
+						    ( (FormWindow*)w )->designerWidget( o ) );
 	if ( passiveInteractor ) {
 	    selectionChanged();
 	    QTimer::singleShot( 0, formWindow(), SLOT( visibilityChanged() ) );
@@ -1017,17 +1029,19 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	w = isAFormWindowChild( o );
 	if ( lastPressWidget != (QWidget*)o && w &&
 	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) &&
-	     !o->inherits( "QPopupMenu" ) && !o->inherits( "QMenuBar" ) &&
+	     !o->inherits( "PopupMenuEditor" ) && !o->inherits( "QMenuBar" ) &&
 	     !o->inherits( "QSizeGrip" ) )
 	    return TRUE;
 	if ( o && o->inherits( "QSizeGrip" ) )
 	    break;
 	if ( lastPressWidget != (QWidget*)o ||
-	     ( !w || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
+	     ( !w || o->inherits( "SizeHandle" ) ||
+	       o->inherits( "OrderIndicator" ) ) )
 	    break;
 	passiveInteractor = WidgetFactory::isPassiveInteractor( o );
 	if ( !passiveInteractor )
-	    ( (FormWindow*)w )->handleMouseMove( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
+	    ( (FormWindow*)w )->handleMouseMove( (QMouseEvent*)e,
+						 ( (FormWindow*)w )->designerWidget( o ) );
 	return !passiveInteractor;
     case QEvent::KeyPress:
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && currentTool() != POINTER_TOOL ) {
@@ -1035,52 +1049,67 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    return FALSE;
 	}
 	if ( ( (QKeyEvent*)e )->key() == Key_Escape && incrementalSearch->hasFocus() ) {
-	    if ( qWorkspace()->activeWindow() && qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
+	    if ( qWorkspace()->activeWindow() &&
+		 qWorkspace()->activeWindow()->inherits( "SourceEditor" ) ) {
 		qWorkspace()->activeWindow()->setFocus();
 		return TRUE;
 	    }
 	}
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	( (FormWindow*)w )->handleKeyPress( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
 	    return TRUE;
 	break;
     case QEvent::MouseButtonDblClick:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) {
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) ) {
 	    if ( o && o->inherits( "QToolButton" ) && ( ( QToolButton*)o )->isOn() &&
 		 o->parent() && o->parent()->inherits( "QToolBar" ) && formWindow() )
 		formWindow()->setToolFixed();
 	    break;
 	}
 	if ( currentTool() == ORDER_TOOL ) {
-	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
+	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e,
+						     ( (FormWindow*)w )->designerWidget( o ) );
 	    return TRUE;
 	}
 	if ( !WidgetFactory::isPassiveInteractor( o ) && ( (FormWindow*)w )->formFile() )
 	    return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
 	return TRUE;
     case QEvent::KeyRelease:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	( (FormWindow*)w )->handleKeyRelease( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	if ( ((QKeyEvent*)e)->isAccepted() )
 	    return TRUE;
 	break;
     case QEvent::Hide:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	if ( ( (FormWindow*)w )->isWidgetSelected( (QWidget*)o ) )
 	    ( (FormWindow*)w )->selectWidget( (QWidget*)o, FALSE );
 	break;
     case QEvent::Enter:
     case QEvent::Leave:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) || o->inherits( "MenuBarEditor" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) ||
+	     o->inherits( "MenuBarEditor" ) )
 	    break;
 	return TRUE;
     case QEvent::Resize:
     case QEvent::Move:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	if ( WidgetFactory::layoutType( (QWidget*)o->parent() ) != WidgetFactory::NoLayout ) {
 	    ( (FormWindow*)w )->updateSelection( (QWidget*)o );
@@ -1125,7 +1154,9 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	checkTempFiles();
 	return TRUE;
     case QEvent::Wheel:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
+	if ( !( w = isAFormWindowChild( o ) ) ||
+	     o->inherits( "SizeHandle" ) ||
+	     o->inherits( "OrderIndicator" ) )
 	    break;
 	return TRUE;
     case QEvent::FocusIn:
