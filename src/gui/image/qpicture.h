@@ -30,8 +30,8 @@ public:
 
     inline bool isNull() const;
 
-    inline uint size() const;
-    inline const char* data() const;
+    uint size() const;
+    const char* data() const;
     virtual void setData(const char* data, uint size);
 
     bool play(QPainter *p);
