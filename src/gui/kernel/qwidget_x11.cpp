@@ -299,7 +299,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     Qt::WindowFlags &flags = data.window_flags;
     QWidget *parentWidget = q->parentWidget();
 
-    if (type == Qt::Overlay)
+    if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
 
     // X11 doesn't have a "Drawer" window type
@@ -314,7 +314,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                    || type == Qt::Sheet
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
-    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::Overlay);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen
+                 || type == Qt::ToolTip);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -811,7 +812,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
                        || (w->windowFlags() & Qt::MSWindowsFixedSizeDialogHint)
                        || (w->windowType() == Qt::Dialog)
                        || (w->windowType() == Qt::SplashScreen)
-                       || (w->windowType() == Qt::Overlay)
+                       || (w->windowType() == Qt::ToolTip)
                        || (w->windowType() == Qt::Tool)) {
                 /*
                   when reparenting toplevel windows with toplevel-transient children,

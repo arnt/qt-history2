@@ -70,7 +70,7 @@ protected:
 QTipLabel *QTipLabel::instance = 0;
 
 QTipLabel::QTipLabel(const QString& text, QWidget* parent)
-    : QLabel(parent, Qt::Overlay)
+    : QLabel(parent, Qt::ToolTip)
 {
     delete instance;
     instance = this;

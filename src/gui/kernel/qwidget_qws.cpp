@@ -138,7 +138,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
                    || type == Qt::Sheet
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
-    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::Overlay);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen || type == Qt::ToolTip);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -799,7 +799,8 @@ void QWidgetPrivate::show_sys()
         }
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
-        if (q->windowType() != Qt::Tool && q->windowType() != Qt::Overlay) {
+        if (q->windowType() != Qt::Tool
+                && (q->windowType() != Qt::Tooltip)) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
