@@ -317,6 +317,8 @@ QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
     }
 
     if (parent) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
@@ -346,6 +348,8 @@ QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
+        QEvent e(QEvent::WindowUnblocked);
+        QApplication::sendEvent(parent, &e);
     }
 
     if (result.isEmpty()) {
@@ -397,6 +401,8 @@ QString Q3FileDialog::winGetSaveFileName(const QString &initialSelection,
     }
 
     if (parent) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
@@ -426,6 +432,8 @@ QString Q3FileDialog::winGetSaveFileName(const QString &initialSelection,
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
+        QEvent e(QEvent::WindowUnblocked);
+        QApplication::sendEvent(parent, &e);
     }
 
     if (result.isEmpty()) {
@@ -479,6 +487,8 @@ QStringList Q3FileDialog::winGetOpenFileNames(const QString &filter,
     }
 
     if (parent) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
@@ -546,6 +556,8 @@ QStringList Q3FileDialog::winGetOpenFileNames(const QString &filter,
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
+        QEvent e(QEvent::WindowUnblocked);
+        QApplication::sendEvent(parent, &e);
     }
 
     if (!result.isEmpty()) {
@@ -622,6 +634,8 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
         title = tr("Select a Directory");
 
     if (parent) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
@@ -685,6 +699,8 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
+        QEvent e(QEvent::WindowUnblocked);
+        QApplication::sendEvent(parent, &e);
     }
 
     // Due to a bug on Windows Me, we need to reset the current
