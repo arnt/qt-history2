@@ -3524,7 +3524,7 @@ int QTextFormat::width( const QChar &c ) const
 int QTextFormat::width( const QString &str, int pos ) const
 {
     int w = 0;
-    if ( str[ pos ].unicode() == 0xad )
+    if ( str.unicode()[ pos ].unicode() == 0xad )
 	return w;
     if ( !pntr || !pntr->isActive() ) {
 	if ( ha == AlignNormal ) {
@@ -3887,12 +3887,12 @@ int QTextString::width( int idx ) const
 	 } else {
 	     // complex text. We need some hacks to get the right metric here
 	     QString str;
-	     str.setLength( 17 );
 	     int pos = 0;
 	     if( idx > 8 )
 		 pos = idx - 8;
 	     int off = idx - pos;
 	     int end = QMIN( length(), idx + 8 );
+	     str.setLength( end-pos );
 	     QChar *uc = (QChar *)str.unicode();
 	     while ( pos < end ) {
 		 *(uc++) = at(pos).c;

@@ -1037,22 +1037,18 @@ static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
 static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
 static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
 
-static QString indic_reorder( int script, const QString &string, int start, int end, unsigned short *featuresToApply,
-				GlyphAttributes *attributes, bool invalid )
+static QChar *indic_reorder( int script, const QString &string, int start, int end, unsigned short *featuresToApply,
+				GlyphAttributes *attributes, bool invalid, QChar *reordered )
 {
     int len = end - start;
     unsigned char properties = scriptProperties[script-QFont::Devanagari];
 
-    QString reordered = string.mid( start, len );
     if ( invalid ) {
-	reordered = QChar( 0x25cc ) + reordered;
-	len++;
+	*reordered = QChar( 0x25cc );
     }
+    memcpy( reordered + (invalid ? 1 : 0), string.unicode() + start, len*sizeof( QChar ) );
 
-    // in case mid() returns the whole string!
-    reordered.setLength( reordered.length() );
-
-    QChar *uc = (QChar *)reordered.unicode();
+    QChar *uc = (QChar *)reordered;
 
     if ( properties & HasSplit ) {
 	// We can do this rule at the beginning, as it doesn't interact with later operations.
@@ -1111,8 +1107,9 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 		    split = (const QChar *)sinhala_au;
 	    }
 	    if ( split ) {
-		reordered.replace( i, 1, split, 2 );
-		uc = (QChar *)reordered.unicode();
+		memmove( reordered + i + 1, reordered + i, (len-i)*sizeof( QChar ) );
+		reordered[i] = split[0];
+		reordered[i+1] = split[1];
 		len++;
 		break;
 	    }
@@ -1126,8 +1123,9 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 
     // nothing to do in this case!
     if ( len == 1 ) {
-	attributes[0].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
+	attributes[0].mark = (category( *reordered ) == QChar::Mark_NonSpacing);
 	attributes[0].clusterStart = TRUE;
+	reordered++;
 	return reordered;
     }
 
@@ -1333,9 +1331,10 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 	state = newState;
     }
 
-    for ( i = 0; i < (int)reordered.length(); i++ ) {
-	attributes[i].mark = (category( reordered.unicode()[0] ) == QChar::Mark_NonSpacing);
+    for ( i = 0; i < len; i++ ) {
+	attributes[i].mark = (category( *reordered ) == QChar::Mark_NonSpacing);
 	attributes[i].clusterStart = FALSE;
+	reordered++;
     }
     attributes[0].clusterStart = TRUE;
 
@@ -1347,27 +1346,23 @@ static QString indic_reorder( int script, const QString &string, int start, int 
 }
 
 
-static QString analyzeSyllables( int script, const QString &string, int from, int length,
-				 unsigned short *featuresToApply, GlyphAttributes *attributes ) {
-    QString reordered;
+static QChar *analyzeSyllables( int script, const QString &string, int from, int length,
+				 unsigned short *featuresToApply, GlyphAttributes *attributes, QChar *reordered ) {
 
     int sstart = from;
     int end = sstart + length;
-    int fpos = 0;
+    QChar *current = reordered;
     while ( sstart < end ) {
 	bool invalid;
 	int send = indic_nextSyllableBoundary( script, string, sstart, end, &invalid );
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
 	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-	QString str = indic_reorder( script, string, sstart, send, featuresToApply+fpos,
-				    attributes+fpos, invalid );
-	reordered += str;
-	fpos += str.length();
-
+	current = indic_reorder( script, string, sstart, send, featuresToApply+(current-reordered),
+				    attributes+(current-reordered), invalid, current );
 	sstart = send;
     }
-    return reordered;
+    return current;
 }
 
 
@@ -1382,10 +1377,12 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	featuresToApply = new unsigned short[ 2*len ];
 
 
-    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, len * 3 * sizeof( GlyphAttributes ) + 1 );
+    shaped->glyphAttributes = (GlyphAttributes *)realloc( shaped->glyphAttributes, ( 3 * len + 1 ) * sizeof( GlyphAttributes )  );
 
-    QString reordered = analyzeSyllables( script, string, from, len, featuresToApply, shaped->glyphAttributes );
-    shaped->num_glyphs = reordered.length();
+    QChar *reordered = (QChar *)malloc( (3*len + 1) * sizeof( QChar ) );
+
+    QChar *end = analyzeSyllables( script, string, from, len, featuresToApply, shaped->glyphAttributes, reordered );
+    shaped->num_glyphs = end - reordered;
 
     shaped->logClusters = (unsigned short *) realloc( shaped->logClusters, shaped->num_glyphs * sizeof( unsigned short ) );
     int pos = 0;
@@ -1395,7 +1392,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	shaped->logClusters[i] = pos;
     }
 
-    convertToCMap( reordered.unicode(), shaped->num_glyphs, item );
+    convertToCMap( reordered, shaped->num_glyphs, item );
 
 #ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
