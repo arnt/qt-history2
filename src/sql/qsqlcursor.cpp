@@ -134,6 +134,11 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     then the field values returned are those of the last valid record
     it was positioned on.
 
+    Example:
+    \dontinclude sql/overview/retrieve1/main.cpp
+    \skipto QSqlCursor
+    \printuntil }
+
 */
 
 /*! \enum QSqlCursor::Mode

@@ -48,7 +48,7 @@
 #ifndef QT_NO_SQL
 
 /*!  
-  Constructs a editor factory
+  Constructs an editor factory with parent \a parent and name \a name.
 */
 
 QEditorFactory::QEditorFactory ( QObject * parent, const char * name )

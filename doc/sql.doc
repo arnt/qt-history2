@@ -675,7 +675,6 @@ with \l QSqlQuery is more efficient, e.g.
 \skipto QSqlCursor
 \printline QSqlCursor
 \printuntil del
-\printline
 <h5 align="center">From \l sql/overview/del/main.cpp
 </h5>
 
