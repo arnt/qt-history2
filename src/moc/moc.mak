@@ -89,7 +89,7 @@ MOCGEN  =	mocgen.cpp
 ####### Process lex/yacc files
 
 $(LEXOUT): $(LEXIN)
-	$(LEX) moc.l
+	$(LEX) $(LEXIN)
 
 $(MOCGEN): moc.y $(LEXOUT)
 	$(YACC) moc.y
@@ -133,108 +133,3 @@ qiodev.obj: ..\tools\qiodev.cpp
 
 qstring.obj: ..\tools\qstring.cpp
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $?
-
-
-####### Directories
-
-BASEDIR =	$(QTDIR)
-INCDIR	=	$(BASEDIR)\include
-LIBDIR	=	$(BASEDIR)\lib
-
-####### Compiler
-
-CFLAGS	=	-O2
-CC	=	cl -nologo
-
-####### Lex and yacc
-
-LEX	=	flex
-YACC	=	byacc -d
-
-####### Files
-
-SOURCES =	moc.l		moc.y
-LEXOUT	=	lex.yy.c
-YACCOUT =	y.tab.c
-YACCHDR =	y.tab.h
-TMPCPP	=	mocgen.cpp
-TOOLOBJ =	qbuffer.obj	\
-		qcollect.obj	\
-		qdatetm.obj	\
-		qdstream.obj	\
-		qgarray.obj	\
-		qgdict.obj	\
-		qglist.obj	\
-		qglobal.obj	\
-		qgvector.obj	\
-		qiodev.obj	\
-		qstring.obj
-OBJECTS =	mocgen.obj
-TARGET	=	moc.exe
-
-####### Implicit rules
-
-.SUFFIXES: .cpp
-
-.cpp.obj:
-	$(CC) -c $(CFLAGS) -I. -I$(INCDIR) $<
-
-####### Build rules
-
-all: $(TARGET)
-
-$(TARGET): $(OBJECTS) $(TOOLOBJ)
-	$(CC) $(OBJECTS) $(TOOLOBJ) -o $(TARGET)
-
-clean:
-	-del $(OBJECTS)
-	-del $(TOOLOBJ)
-	-del $(TARGET)
-
-####### Process lex/yacc files
-
-$(LEXOUT): moc.l
-	$(LEX) moc.l
-
-$(TMPCPP): moc.y $(LEXOUT)
-	$(YACC) moc.y
-	-del $(TMPCPP)
-	ren $(YACCOUT) $(TMPCPP)
-
-####### Compile the .cpp files
-
-mocgen.obj: mocgen.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qbuffer.obj: ..\tools\qbuffer.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qcollect.obj: ..\tools\qcollect.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qdatetm.obj: ..\tools\qdatetm.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qdstream.obj: ..\tools\qdstream.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qgarray.obj: ..\tools\qgarray.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qgdict.obj: ..\tools\qgdict.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qglist.obj: ..\tools\qglist.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qglobal.obj: ..\tools\qglobal.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qgvector.obj: ..\tools\qgvector.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qiodev.obj: ..\tools\qiodev.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
-
-qstring.obj: ..\tools\qstring.cpp
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
