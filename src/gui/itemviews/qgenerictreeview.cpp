@@ -567,6 +567,8 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (QABS(dx) > max_dx || QABS(dy) > max_dy) {
+        horizontalScrollBar()->repaint();
+        verticalScrollBar()->repaint();
         d->viewport->update();
         return;
     }

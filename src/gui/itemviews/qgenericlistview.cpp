@@ -393,6 +393,8 @@ void QGenericListView::scrollContentsBy(int dx, int dy)
 {
     QRect rect = d->draggedItemsRect;
     rect.moveBy(dx, dy);
+    verticalScrollBar()->repaint();
+    horizontalScrollBar()->repaint();
     d->viewport->scroll(dx, dy);
     d->viewport->repaint(rect);
 }
