@@ -251,7 +251,7 @@ public:
 
     };
 
-    Q_DECLARE_FLAGS(WindowFlags, WindowType);
+    Q_DECLARE_FLAGS(WindowFlags, WindowType)
 
     // documented in qwidget.cpp
     enum WFlag {
@@ -339,7 +339,7 @@ public:
         WindowActive     = 0x00000008
     };
 
-    Q_DECLARE_FLAGS(WindowStates, WindowState);
+    Q_DECLARE_FLAGS(WindowStates, WindowState)
 
     // documented in qwidget.cpp
     enum WidgetAttribute {
