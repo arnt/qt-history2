@@ -390,11 +390,11 @@ bool QProcess::start( QStringList *env )
     }
 
 #ifndef Q_OS_TEMP
-    if ( (comms & Stdin) != 0 )
+    if ( comms & Stdin )
 	CloseHandle( d->pipeStdin[0] );
-    if ( (comms & Stdout) != 0 )
+    if ( comms & Stdout )
         CloseHandle( d->pipeStdout[1] );
-    if ( (comms & Stderr) != 0 )
+    if ( (comms & Stderr) && !(comms & DupStderr) )
 	CloseHandle( d->pipeStderr[1] );
 #endif
 
