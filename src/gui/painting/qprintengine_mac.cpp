@@ -425,9 +425,7 @@ int QMacPrintEngine::metric(int m) const
         break;
     default:
         val = 0;
-#if defined(QT_CHECK_RANGE)
         qWarning("QPrinter::metric: Invalid metric command");
-#endif
     }
     return val;
 }

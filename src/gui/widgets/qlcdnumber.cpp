@@ -397,10 +397,8 @@ void QLCDNumber::setNumDigits(int numDigits)
         numDigits = 99;
     }
     if (numDigits < 0) {
-#if defined(QT_CHECK_RANGE)
         qWarning("QLCDNumber::setNumDigits: (%s) Min 0 digits allowed",
                  objectName().local8Bit());
-#endif
         numDigits = 0;
     }
     if (digitStr.isNull()) {                  // from constructor

@@ -847,12 +847,10 @@ int QDoubleSpinBox::precision() const
 void QDoubleSpinBox::setPrecision(int precision)
 {
     d->precision = qMin(qMax(0, precision), 14);
-#ifdef QT_CHECK_RANGE
     if (d->precision != precision)
 	qWarning("QDoubleSpinBox::setPrecision() %d is not a valid precision. 0-14 is allowed",
 		 precision);
     // more than fifteen seems to cause problems in QLocale::doubleToString
-#endif
     d->update();
 }
 
