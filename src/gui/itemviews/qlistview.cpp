@@ -613,10 +613,11 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
         QPoint topLeft(d->pressedPosition.x() - horizontalOffset(),
                        d->pressedPosition.y() - verticalOffset());
         QRect rect(mapToGlobal(topLeft), mapToGlobal(e->pos()));
-        d->rubberBand->setGeometry(rect.normalize());
-        if (!d->rubberBand->isVisible() && d->viewMode == IconMode) {
-            d->rubberBand->show();
-            d->rubberBand->raise();
+        if (d->viewMode == IconMode) {
+            QRubberBand *rb = d->elasticBand();
+            rb->setGeometry(rect.normalize());
+            rb->show();
+            rb->raise();
         }
     }
 }
@@ -627,7 +628,8 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
 void QListView::mouseReleaseEvent(QMouseEvent *e)
 {
     QAbstractItemView::mouseReleaseEvent(e);
-    d->rubberBand->hide();
+    if (d->viewMode == IconMode)
+        d->elasticBand()->hide();
 }
 
 /*!
@@ -1123,13 +1125,12 @@ QListViewPrivate::QListViewPrivate()
       batchSavedPosition(0),
       startLayoutTimer(0),
       batchLayoutTimer(0),
+      rubberBand(0),
       column(0)
 {}
 
 void QListViewPrivate::init()
 {
-    rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
-    rubberBand->hide();
     viewport->setAcceptDrops(true);
 }
 
