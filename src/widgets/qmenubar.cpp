@@ -1413,10 +1413,14 @@ void QMenuBar::setAltMode( bool enable )
 	setFocus();
 	updateItem( idAt( actItem ) );
     } else {
-	if ( QMenuData::d->aWidget )
-	    QMenuData::d->aWidget->setFocus();
-	else
-	    clearFocus();
+	// set the focus back to the previous widget if
+	// we still have the focus.
+	if ( qApp->focusWidget() == this ) {
+	    if ( QMenuData::d->aWidget )
+		QMenuData::d->aWidget->setFocus();
+	    else
+		clearFocus();
+	}
 	int actId = idAt( actItem );
 	actItem = -1;
 	updateItem( actId );
