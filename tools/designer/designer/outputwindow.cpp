@@ -93,3 +93,8 @@ void OutputWindow::clearDebug()
 {
     debugView->clear();
 }
+
+void OutputWindow::showDebugTab()
+{
+    showPage( debugView );
+}

@@ -473,9 +473,10 @@ QObjectList *MainWindow::runProject()
 	resetTool();
     if ( !currentProject )
 	return 0;
-    oWindow->parentWidget()->show();
+    //oWindow->parentWidget()->show();
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
+    oWindow->showDebugTab();
     QApplication::setOverrideCursor( WaitCursor );
 
     delete qwf_functions;
@@ -1051,11 +1052,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( !w->hasFocus() )
 	    w->setFocus();
 	if ( !passiveInteractor || currentTool() != ORDER_TOOL ) {
-	    if( e->type() == QEvent::ContextMenu ) 
-		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e, 
+	    if( e->type() == QEvent::ContextMenu )
+		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e,
 						       ( (FormWindow*)w )->designerWidget( o ) );
 	    else
-		( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e, 
+		( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e,
 						      ( (FormWindow*)w )->designerWidget( o ) );
 	}
 	lastPressWidget = (QWidget*)o;

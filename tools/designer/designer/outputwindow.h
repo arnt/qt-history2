@@ -21,6 +21,7 @@ public:
     void appendDebug( const QString& );
     void clearErrorMessages();
     void clearDebug();
+    void showDebugTab();
 
     DesignerOutputDock *iFace();
 
