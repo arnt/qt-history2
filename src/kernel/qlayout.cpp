@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#106 $
 **
 ** Implementation of layout classes
 **
@@ -461,9 +461,11 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
     int i;
     int w = 0;
     bool exp = FALSE;
+    bool stretch = FALSE;
     for ( i = start; i <= end; i++ ) {
 	w += chain[i].minimumSize;
 	exp = exp || chain[i].expansive;
+	stretch = stretch || chain[i].stretch == 0;
 	chain[i].empty = FALSE;
     }
     if ( w < minSize ) {
@@ -473,14 +475,14 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 	int diff = minSize - w;
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].maximumSize > chain[i].minimumSize
-		 && ( chain[i].expansive || !exp ) ) {
+		 && ( chain[i].stretch || chain[i].expansive || !exp ) ) {
 		stretch += chain[i].stretch;
 		n++;
 	    }
 	}
 	for ( i = start; i <= end; i++ ) {
 	    if ( chain[i].maximumSize > chain[i].minimumSize
-		 && ( chain[i].expansive || !exp ) ) {
+		 && ( chain[i].stretch || chain[i].expansive || !exp ) ) {
 		if ( stretch > 0 )
 		    chain[i].minimumSize += (diff*chain[i].stretch)/stretch;
 		else
@@ -678,10 +680,10 @@ void QLayoutArray::distribute( QRect r, int spacing )
 
 	    int x = colData[box->col].pos;
 	    int y = rData[box->row].pos;
-	    int x2 = colData[c2].pos + colData[c2].size;
-	    int y2 = rData[r2].pos + rData[r2].size;
-	    int w = x2 - x + 1;
-	    int h = y2 - y + 1;
+	    int x2p = colData[c2].pos + colData[c2].size; // x2+1
+	    int y2p = rData[r2].pos + rData[r2].size;    // y2+1 
+	    int w = x2p - x;
+	    int h = y2p - y;
 	    // this code is copied from above:
 	    if ( hReversed )
 		x = r.left() + r.right() - x - w;
@@ -1088,12 +1090,12 @@ static bool checkWidget( QLayout *l, QWidget *w )
   Alignment is specified by \a alignmnt which takes the same arguments
   as QLabel::setAlignment(). The default alignment is 0, which means
   that the widget fills the entire cell.
-  
+
   Note: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
-  
+
 */
 
 void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
@@ -1124,7 +1126,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
   A non-zero alignment indicates that the widget should not grow to
   fill the available space, but should be sized according to
   sizeHint().
-  
+
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
@@ -1602,12 +1604,12 @@ void QBoxLayout::addStrut( int size )
 
   The default alignment is 0, which means that the widget fills the
   entire cell.
-  
+
   Note: The alignment parameter is interpreted more aggressively
   than in previous versions of Qt.  A non-default alignment now
   indicates that the widget should not grow to fill the available
   space, but should be sized according to sizeHint().
-  
+
   \sa addLayout(), addSpacing()
 */
 
@@ -1657,7 +1659,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
-  in this direction. 
+  in this direction.
 
   The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom
   and \c BottomToTop. For the last two, the shorter aliases \c Down and
