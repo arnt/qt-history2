@@ -159,7 +159,7 @@
     unregisterClass() functions to set additional flags for an ActiveX
     control in the registry. To limit the number of methods or
     properties a widget class exposes from its parent classes
-    reimplement exposeParentClass().
+    reimplement exposeToSuperClass().
 */
 
 /*!
