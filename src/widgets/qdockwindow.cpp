@@ -348,7 +348,7 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
 
 void QDockWindowHandle::paintEvent( QPaintEvent *e )
 {
-    if ( !dockWindow->dockArea || mousePressed )
+    if ( (!dockWindow->dockArea || mousePressed) && !opaque )
 	return;
     erase();
     QPainter p( this );
