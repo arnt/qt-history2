@@ -1643,13 +1643,13 @@ void qt_init_internal( int *argcptr, char **argv,
 	    QPaintDevice::x_appcells = 256;
 
 	// allocate the arrays for the QPaintDevice data
-	QPaintDevice::x_appdepth_arr = new int[ screenCount ];
-	QPaintDevice::x_appcells_arr = new int[ screenCount ];
-	QPaintDevice::x_approotwindow_arr = new Qt::HANDLE[ screenCount ];
-	QPaintDevice::x_appcolormap_arr = new Qt::HANDLE[ screenCount ];
-	QPaintDevice::x_appdefcolormap_arr = new bool[ screenCount ];
-	QPaintDevice::x_appvisual_arr = new void*[ screenCount ];
-	QPaintDevice::x_appdefvisual_arr = new bool[ screenCount ];
+	QPaintDevice::x_appdepth_arr = new int[ appScreenCount ];
+	QPaintDevice::x_appcells_arr = new int[ appScreenCount ];
+	QPaintDevice::x_approotwindow_arr = new Qt::HANDLE[ appScreenCount ];
+	QPaintDevice::x_appcolormap_arr = new Qt::HANDLE[ appScreenCount ];
+	QPaintDevice::x_appdefcolormap_arr = new bool[ appScreenCount ];
+	QPaintDevice::x_appvisual_arr = new void*[ appScreenCount ];
+	QPaintDevice::x_appdefvisual_arr = new bool[ appScreenCount ];
 	Q_CHECK_PTR( QPaintDevice::x_appdepth_arr );
 	Q_CHECK_PTR( QPaintDevice::x_appcells_arr );
 	Q_CHECK_PTR( QPaintDevice::x_approotwindow_arr );
@@ -1659,7 +1659,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	Q_CHECK_PTR( QPaintDevice::x_appdefvisual_arr );
 
 	int screen;
-	for ( screen = 0; screen < screenCount; screen++ ) {
+	for ( screen = 0; screen < appScreenCount; screen++ ) {
 	    QPaintDevice::x_appdepth_arr[ screen ] = DefaultDepth(appDpy, screen);
 	    QPaintDevice::x_appcells_arr[ screen ] = DisplayCells(appDpy, screen);
 	    QPaintDevice::x_approotwindow_arr[ screen ] = RootWindow(appDpy, screen);
@@ -2190,7 +2190,7 @@ void qt_cleanup()
 	}
     }
 
-#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<screenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
+#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<appScreenCount;i++){if(g[i])XFreeGC(appDpy,g[i]);} delete [] g; g = 0; }
     QT_CLEANUP_GC(app_gc_ro);
     QT_CLEANUP_GC(app_gc_ro_m);
     QT_CLEANUP_GC(app_gc_tmp);
@@ -2469,21 +2469,21 @@ static GC create_gc( int scrn, bool monochrome )
 
 GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
 {
-    if ( scrn < 0 || scrn >= screenCount ) {
-	qDebug("invalid screen %d %d", scrn, screenCount );
+    if ( scrn < 0 || scrn >= appScreenCount ) {
+	qDebug("invalid screen %d %d", scrn, appScreenCount );
 	QWidget* bla = 0;
 	bla->setName("hello");
     }
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_ro_m )			// create GC for bitmap
-	    memset( (app_gc_ro_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	    memset( (app_gc_ro_m = new GC[appScreenCount]), 0, appScreenCount * sizeof( GC ) );
 	if ( !app_gc_ro_m[scrn] )
 	    app_gc_ro_m[scrn] = create_gc( scrn, TRUE );
 	gc = app_gc_ro_m[scrn];
     } else {					// create standard GC
 	if ( !app_gc_ro )
-	    memset( (app_gc_ro = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	    memset( (app_gc_ro = new GC[appScreenCount]), 0, appScreenCount * sizeof( GC ) );
 	if ( !app_gc_ro[scrn] )
 	    app_gc_ro[scrn] = create_gc( scrn, FALSE );
 	gc = app_gc_ro[scrn];
@@ -2493,21 +2493,21 @@ GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
 
 GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 {
-    if ( scrn < 0 || scrn >= screenCount ) {
-	qDebug("invalid screen (tmp) %d %d", scrn, screenCount );
+    if ( scrn < 0 || scrn >= appScreenCount ) {
+	qDebug("invalid screen (tmp) %d %d", scrn, appScreenCount );
 	QWidget* bla = 0;
 	bla->setName("hello");
     }
     GC gc;
     if ( monochrome ) {
 	if ( !app_gc_tmp_m )			// create GC for bitmap
-	    memset( (app_gc_tmp_m = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	    memset( (app_gc_tmp_m = new GC[appScreenCount]), 0, appScreenCount * sizeof( GC ) );
 	if ( !app_gc_tmp_m[scrn] )
 	    app_gc_tmp_m[scrn] = create_gc( scrn, TRUE );
 	gc = app_gc_tmp_m[scrn];
     } else {					// create standard GC
 	if ( !app_gc_tmp )
-	    memset( (app_gc_tmp = new GC[screenCount]), 0, screenCount * sizeof( GC ) );
+	    memset( (app_gc_tmp = new GC[appScreenCount]), 0, appScreenCount * sizeof( GC ) );
 	if ( !app_gc_tmp[scrn] )
 	    app_gc_tmp[scrn] = create_gc( scrn, FALSE );
 	gc = app_gc_tmp[scrn];
