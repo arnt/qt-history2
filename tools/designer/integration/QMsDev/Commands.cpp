@@ -881,11 +881,36 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 		    else
 			ignore = TRUE;
 		    if ( !ignore ) {
-			CString temp;
-			filelists.Lookup( group, temp );
+			bool addFile = TRUE;
 			filepath.Replace( "\\", "/" );
-			temp += " \\\n\t\t" + filepath + filename + "." + fileext;
-			filelists.SetAt( group, temp );
+			CString file;
+			if ( group == "SOURCES" || group == "HEADERS" ) {
+			    if ( filelists.Lookup( "FORMS", file ) )
+				addFile = !file.Find( " \\\n\t\t" + filepath + filename + ".ui" );
+			} else if ( group == "FORMS" ) {
+			    if ( filelists.Lookup( "SOURCES", file ) ) {
+				CString sourceFile = " \\\n\t\t" + filepath + filename + ".cpp";
+				int sourceFound = file.Find( sourceFile );
+				if ( sourceFound ) {
+				    file.Delete( sourceFound, sourceFile.GetLength() );
+				    filelists.SetAt( "SOURCES", file );
+				}
+			    }
+			    if ( filelists.Lookup( "HEADERS", file ) ) {
+				CString headerFile = " \\\n\t\t" + filepath + filename + ".h";
+				int headerFound = file.Find( headerFile );
+				if ( headerFound ) {
+				    file.Delete( headerFound, headerFile.GetLength() );
+				    filelists.SetAt( "HEADERS", file );
+				}
+			    }
+			}
+			if ( addFile ) {
+			    CString temp;
+			    filelists.Lookup( group, temp );
+			    temp += " \\\n\t\t" + filepath + filename + "." + fileext;
+			    filelists.SetAt( group, temp );
+			}
 		    }
 		}
 	    } else if ( !group.IsEmpty() && string.Find( "# End Group" ) == 0 ) {
@@ -1047,6 +1072,7 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	}
     }
 
+    dialog.m_name.Remove( ' ' );
     CString projectName = dialog.m_name;
     dialog.m_name.MakeLower();
     CString classheader;
