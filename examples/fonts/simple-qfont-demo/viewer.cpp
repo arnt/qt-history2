@@ -1,12 +1,11 @@
 /* $Id$ */
 
 #include "viewer.h"
-#include <qlayout.h>
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qtextview.h>
 #include <qpushbutton.h>
-#include <qfont.h>
+#include <qlayout.h>
  
 Viewer::Viewer()
        :QWidget()  
@@ -15,7 +14,7 @@ Viewer::Viewer()
 
     QString greeting_heb = QString::fromUtf8( "שלום" ); 
     QString greeting_ru = QString::fromUtf8( "Здравствуйте" ); 
-    QString greeting_en( "Hallo" );      
+    QString greeting_en( "Hello" );      
 
     textView = new QTextView( this, "textview" );
 
@@ -27,47 +26,25 @@ Viewer::Viewer()
 
     setDefault();
 
-    QPushButton * defaultButton = new QPushButton( "Default", this, 
+    defaultButton = new QPushButton( "Default", this, 
                                                    "pushbutton1" );
     defaultButton->setFont( QFont( "times" ) );
-    connect( defaultButton, SIGNAL( clicked() ), this, SLOT( setDefault() ) );
+    connect( defaultButton, SIGNAL( clicked() ), 
+             this, SLOT( setDefault() ) );
 
-    QPushButton * sansSerifButton = new QPushButton( "Sans Serif", this, 
+    sansSerifButton = new QPushButton( "Sans Serif", this, 
                                                      "pushbutton2" );
     sansSerifButton->setFont( QFont( "Helvetica", 12 ) );
-    connect( sansSerifButton, SIGNAL( clicked() ), this, SLOT( setSansSerif() ) );
+    connect( sansSerifButton, SIGNAL( clicked() ), 
+             this, SLOT( setSansSerif() ) );
 
-    QPushButton * italicsButton = new QPushButton( "Italics", this, 
+    italicsButton = new QPushButton( "Italics", this, 
                                                    "pushbutton3" );
     italicsButton->setFont( QFont( "lucida", 12, QFont::Bold, TRUE ) );
-    connect( italicsButton, SIGNAL( clicked() ), this, SLOT( setItalics() ) );
+    connect( italicsButton, SIGNAL( clicked() ), 
+             this, SLOT( setItalics() ) );
 
-    QHBoxLayout * textViewContainer = new QHBoxLayout(); 
-    textViewContainer->addWidget( textView );
-    textViewContainer->addWidget( fontInfo );
-
-    QHBoxLayout * buttonContainer = new QHBoxLayout(); 
-
-    buttonContainer->addWidget( defaultButton );
-    buttonContainer->addWidget( sansSerifButton );
-    buttonContainer->addWidget( italicsButton );
-
-    int maxButtonHeight = defaultButton->height();
-
-    if ( sansSerifButton->height() > maxButtonHeight )
-	maxButtonHeight = sansSerifButton->height();
-    if ( italicsButton->height() > maxButtonHeight )
-        maxButtonHeight = italicsButton->height();
-
-    defaultButton->setFixedHeight( maxButtonHeight );
-    sansSerifButton->setFixedHeight( maxButtonHeight );
-    italicsButton->setFixedHeight( maxButtonHeight );
-
-    QVBoxLayout * container = new QVBoxLayout( this );
-    container->addLayout( textViewContainer );
-    container->addLayout( buttonContainer );
-
-    resize( 400, 250 );
+    layout();    
 }                        
 
 void Viewer::setDefault()
@@ -95,7 +72,7 @@ void Viewer::setSansSerif()
 void Viewer::setItalics()
 {
     QFont font( "Tokyo" );
-    font.setPointSize( 36 );
+    font.setPointSize( 32 );
     font.setWeight( QFont::Bold );
     font.setItalic( TRUE );    
 
@@ -106,9 +83,9 @@ void Viewer::setItalics()
 
 void Viewer::showFontInfo( QFont & font )
 {
-    QString messageText;
-
     QFontInfo info( font );
+
+    QString messageText;
     messageText = "Font requested: \"" + 
                   font.family() + "\" " + 
                   QString::number( font.pointSize() ) + "pt<BR>" +             
@@ -147,3 +124,38 @@ void Viewer::setFontSubstitutions()
 
     QFont::insertSubstitution( "Tokyo", "Lucida" );
 }
+
+
+// For those who prefer to use Qt Designer for creating GUIs 
+// the following function might not be of particular interest:
+// all it does is creating the widget layout.
+    
+void Viewer::layout()
+{
+    QHBoxLayout * textViewContainer = new QHBoxLayout(); 
+    textViewContainer->addWidget( textView );
+    textViewContainer->addWidget( fontInfo );
+
+    QHBoxLayout * buttonContainer = new QHBoxLayout(); 
+
+    buttonContainer->addWidget( defaultButton );
+    buttonContainer->addWidget( sansSerifButton );
+    buttonContainer->addWidget( italicsButton );
+
+    int maxButtonHeight = defaultButton->height();
+
+    if ( sansSerifButton->height() > maxButtonHeight )
+	maxButtonHeight = sansSerifButton->height();
+    if ( italicsButton->height() > maxButtonHeight )
+        maxButtonHeight = italicsButton->height();
+
+    defaultButton->setFixedHeight( maxButtonHeight );
+    sansSerifButton->setFixedHeight( maxButtonHeight );
+    italicsButton->setFixedHeight( maxButtonHeight );
+
+    QVBoxLayout * container = new QVBoxLayout( this );
+    container->addLayout( textViewContainer );
+    container->addLayout( buttonContainer );
+
+    resize( 700, 250 );
+}    

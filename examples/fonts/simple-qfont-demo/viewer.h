@@ -5,8 +5,10 @@
 
 
 #include <qwidget.h>
+#include <qfont.h>
 
 class QTextView;
+class QPushButton;
 
 class Viewer : public QWidget
 {
@@ -22,10 +24,15 @@ private slots:
 
 private:
     void setFontSubstitutions();
+    void layout();
     void showFontInfo( QFont & );
 
     QTextView * textView; 
     QTextView * fontInfo;
+
+    QPushButton * defaultButton;
+    QPushButton * sansSerifButton;
+    QPushButton * italicsButton;
 };
 
 #endif
