@@ -131,7 +131,7 @@ public:
     static void initialize();
     static void cleanup();
 
-    enum { Dirt = 0x44495254, Invalid = 0x494E5641 };
+    enum { Dirt = 0x44495254, Invalid = 0x49000000 };
 
 private:
     void setSystemNamedColor( const QString& name );

@@ -273,6 +273,8 @@ void QColor::initGlobalColors()
   Constructs an invalid color with the RGB value (0,0,0). An invalid color
   is a color that is not properly set up for the underlying window system.
 
+  The alpha value of an invalid color is unspecified.
+
   \sa isValid()
 */
 
@@ -626,7 +628,10 @@ void QColor::setHsv( int h, int s, int v )
 
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
-  \sa setRgb(), hsv(), qRed(), qBlue(), qGreen()
+  For an invalid color, the alpha value of the returned valud is
+  unspecified.
+
+  \sa setRgb(), hsv(), qRed(), qBlue(), qGreen(), isValid()
 */
 
 /*!
