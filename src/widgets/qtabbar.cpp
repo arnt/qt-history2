@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#15 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#15 $");
 
 
 QTab::~QTab()
@@ -83,16 +83,15 @@ int QTabBar::addTab( QTab * newTab )
 {
     QFontMetrics fm = fontMetrics();
     QTab  *t = l->first();
-    QRect br( fm.boundingRect( newTab->label ) );
+    int lw = fm.width( newTab->label );
     if ( t ) {
 	QRect r( t->r );
 	while ( (t = l->next()) != 0 )
 	    r = r.unite( t->r );
-	newTab->r.setRect( r.right(), 0, br.width() + 24,
+	newTab->r.setRect( r.right()-3, 0, lw + 24,
 			   QMAX( r.height(), fm.height() + 10 ) );
     } else {
-	newTab->r.setRect( 0, 0,
-			   br.width() + 24, fm.height() + 10 );
+	newTab->r.setRect( 0, 0, lw + 24, fm.height() + 10 );
     }
 
     newTab->id = d->id++;
@@ -199,54 +198,40 @@ QSize QTabBar::sizeHint() const
 
 void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 {
-    p->setPen( white );
+
+    QRect r( t->r );
     if ( selected ) {
-	p->drawLine( t->r.left(), t->r.bottom() - 1, t->r.left(), 2 );
-	p->drawPoint( t->r.left()+1, 1 );
-	p->drawLine( t->r.left()+2, t->r.top(),
-		     t->r.right() - 5, t->r.top() );
-	p->setPen( colorGroup().dark() );
-	p->drawPoint( t->r.right() - 4, t->r.top()+1 );
-	p->drawLine( t->r.right() - 3, t->r.top() + 2,
-		     t->r.right() - 3, t->r.bottom() - 2);
-	p->setPen( black );
-	p->drawPoint( t->r.right() - 3, t->r.top()+1 );
-	p->drawLine( t->r.right() - 2, t->r.top() + 2,
-		     t->r.right() - 2, t->r.bottom() - 2);
+	p->setPen( colorGroup().background() );
+	p->drawLine( r.left()+1, r.bottom(), r.right()-2, r.bottom() );
+	p->drawLine( r.left()+1, r.bottom(), r.left()+1, r.top()+2 );
 	p->setPen( white );
-	p->drawLine( t->r.right()-3, t->r.bottom() - 1,
-		     t->r.right(), t->r.bottom() - 1 );
 	QFont bold( font() );
 	bold.setWeight( QFont::Bold );
 	p->setFont( bold );
     } else {
-	p->drawLine( t->r.left()+1, t->r.bottom() - 2, t->r.left()+1, 4 );
-	p->drawPoint( t->r.left()+2, 3 );
-	p->drawLine( t->r.left()+3, t->r.top() + 2,
-		     t->r.right() - 4, t->r.top() + 2 );
-	p->setPen( colorGroup().dark() );
-	p->drawPoint( t->r.right() - 3, t->r.top() + 3 );
-	p->drawLine( t->r.right() - 2, t->r.top() + 4,
-		     t->r.right() - 2, t->r.bottom() - 2);
-	p->setPen( black );
-	p->drawPoint( t->r.right() - 2, t->r.top() + 3 );
-	p->drawLine( t->r.right() - 1, t->r.top() + 4,
-		     t->r.right() - 1, t->r.bottom() - 2);
 	p->setPen( white );
-	p->drawLine( t->r.left(), t->r.bottom() - 1,
-		     t->r.right(), t->r.bottom() - 1 );
+	p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
+	r.setRect( r.left() + 2, r.top() + 2, r.width() - 4, r.height() - 2 );
 	p->setFont( font() );
     }
+    
+    p->drawLine( r.left(), r.bottom(), r.left(), r.top() + 2 );
+    p->drawPoint( r.left()+1, r.top() + 1 );
+    p->drawLine( r.left()+2, r.top(),
+		 r.right() - 2, r.top() );
+
+    p->setPen( colorGroup().dark() );
+    p->drawLine( r.right() - 1, r.top() + 2, r.right() - 1, r.bottom() - 1 ); 
+    p->setPen( black );
+    p->drawPoint( r.right() - 1, r.top() + 1 );
+    p->drawLine( r.right(), r.top() + 2, r.right(), r.bottom() - 1 ); 
 
     QRect br = p->fontMetrics().boundingRect( t->label );
     br.setHeight( p->fontMetrics().height() );
-    br.setRect( t->r.left() + (t->r.width()-br.width())/2 - 3,
-		t->r.top() + (t->r.height()-br.height())/2,
+    br.setRect( r.left() + (r.width()-br.width())/2 - 3,
+		r.top() + (r.height()-br.height())/2,
 		br.width() + 5,
 		br.height() + 2 );
-
-    if ( selected )
-	br.moveBy( -1, -2 );
 
     if ( t->enabled ) {
 	p->setPen( palette().normal().text() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#38 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#38 $");
 
 
 /*!
@@ -173,7 +173,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
     d->tabs = new QTabBar( this, "tab control" );
     connect( d->tabs, SIGNAL(selected(int)),
 	     this,    SLOT(showTab(int)) );
-    d->tabs->move( 6, 6 );
+    d->tabs->move( 7, 6 );
 
     d->ab = d->cb = d->db = 0;
 
@@ -581,6 +581,9 @@ void QTabDialog::setSizes()
 	    d->bh = s.height();
     }
 
+    if ( style() == WindowsStyle && bw < 75 )
+	bw = 75;
+
     // and set all the buttons to that size
     d->ok->resize( bw, d->bh );
     if ( d->ab )
@@ -610,6 +613,13 @@ void QTabDialog::setSizes()
 	    min.setWidth( d->children[i]->minimumSize().width() );
     }
     min.setHeight( min.height() + th );
+
+    // factor in the buttons.  six pixels between each button, seven
+    // (6+1) to the right and seven to the left.
+    bw = (bw + 6) * (1 + (d->ab ? 1 : 0) + (d->db ? 1 : 0) + (d->cb ? 1 : 0))
+	 + 1 + 7;
+    if ( min.width() < bw )
+	min.setWidth( bw );
 
     // max must be >= min
     if ( max.width() < min.width() )
@@ -643,25 +653,25 @@ void QTabDialog::resizeEvent( QResizeEvent * )
 {
     if ( d->tabs ) {
 	int x;
-	x = width();
+	x = width()-1;
 
 	if ( d->cb ) {
-	    d->cb->move( x - 5 - d->cb->width(), height() - 5 - d->bh );
+	    d->cb->move( x - 6 - d->cb->width(), height() - 8 - d->bh );
 	    x = d->cb->geometry().x();
 	}
 
 	if ( d->ab ) {
-	    d->ab->move( x - 5 - d->ab->width(), height() - 5 - d->bh );
+	    d->ab->move( x - 6 - d->ab->width(), height() - 8 - d->bh );
 	    x = d->ab->geometry().x();
 	}
 
 	if ( d->db ) {
-	    d->db->move( x - 5 - d->db->width(), height() - 5 - d->bh );
+	    d->db->move( x - 6 - d->db->width(), height() - 8 - d->bh );
 	    x = d->db->geometry().x();
 	}
 
 	if ( d->ok ) {
-	    d->ok->move( x - 5 - d->ok->width(), height() - 5 - d->bh );
+	    d->ok->move( x - 6 - d->ok->width(), height() - 8 - d->bh );
 	}
 
 	int i;
@@ -705,8 +715,9 @@ void QTabDialog::paintEvent( QPaintEvent * )
 
 QRect QTabDialog::childRect() const
 {
-    return QRect( 6, d->tabs->height() + 5, width() - 12,
-		  height() - d->bh - d->tabs->height() - 18 );
+    int y = d->tabs->height() + d->tabs->y();
+    return QRect( 8, y, width() - 7 - 7 - 1 - 2,
+		  height() - 8 - d->bh - 6 - 2 - y );
 }
 
 
@@ -744,3 +755,13 @@ const char * QTabDialog::tabLabel( QWidget * w )
     }
     return 0;
 }	    
+
+
+/*!  Reimplemented to hndle a change of GUI style while on-screen.
+*/
+
+void QTabDialog::styleChange( GUIStyle s )
+{
+    QDialog::styleChange( s );
+    setSizes();
+}

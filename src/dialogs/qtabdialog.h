@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#20 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#21 $
 **
 ** Definition of QTabDialog class
 **
@@ -50,6 +50,7 @@ public:
 protected:
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
+    void styleChange( GUIStyle );
 
 signals:
     void aboutToShow();
