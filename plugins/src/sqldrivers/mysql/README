@@ -2,42 +2,5 @@ You will need the MySQL development headers and libraries installed
 before compiling this plugin.
 
 See the Qt SQL documentation for more information on compiling Qt SQL
-driver plugins.
+driver plugins (sql-driver.html).
 
-
-
-Notes on Unix/Linux:
-
-You need the MySQL header files and as well as the shared library
-"libmysqlclient.so". Depending on your Linux distribution you need
-a package called "MySQL-devel" or "mysql-devel". Install it.
-
-Tell qmake where to find the MySQL header files and shared libraries
-(here it is assumed that MySQL is installed in /usr/local) and run make:
-
-cd $QTDIR/plugins/src/sqldrivers/mysql
-qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmysqlclient" mysql.pro
-make
-
-
-
-Notes on Windows:
-
-You need to get the MySQL installation files. Run SETUP.EXE and
-choose "Custom Install". Install the "Libs & Include Files" Module.
-Build the plugin as follows (here it is assumed that MySQL is
-installed in C:\MYSQL):
-
-cd %QTDIR%\plugins\src\sqldrivers\mysql
-qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
-nmake
-
-If you are using a Borland compiler, replace "nmake" with "make" in the
-statement above.
-
-Please note that the Makefile may not contain path names with special
-characters like space, so it is recommended that you use the 8.3 filename
-equivalent instead.
-
-Example: If MySQL is installed in "C:\program files\mysql", use the
-following path as an argument for qmake: "C:\progra~1\mysql"
