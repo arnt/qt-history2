@@ -73,11 +73,11 @@
   factories which have been installed, and the format of the input is
   determined as the input is decoded.
 
-  In Qt 1.30, the decoder factory interface is not available for adding
-  support for new formats. Only GIF support is installed.  The GIF decoder
-  supports interlaced images, transparency, looping, image-restore
-  disposal, local color maps, and background colors.  The Netscape looping
-  extension is obeyed.
+  The decoder factory interface is not yet available for adding support for
+  new formats. Only GIF support is installed.  The GIF decoder supports
+  interlaced images, transparency, looping, image-restore disposal, local
+  color maps, and background colors.  The Netscape looping extension is
+  obeyed.
 
   Archives of animated GIFs and tools for building them can be found
   at <a href="http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/">Yahoo</a>.
