@@ -107,6 +107,12 @@ static inline int scale( int value, QPainter *painter )
     return value;
 }
 
+
+inline bool isBreakable( QTextString *string, int pos )
+{
+    return (string->at(pos).whiteSpace || (pos < string->length()-1 && string->at(pos+1).softBreak));
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void QTextCommandHistory::addCommand( QTextCommand *cmd )
@@ -4562,7 +4568,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    flush |= nextchr->isCustom();
 	    // when painting justified, we flush on spaces
 	    if ((alignment() & Qt::AlignJustify) == Qt::AlignJustify )
-		flush |= (chr->whiteSpace || chr->wordStop);
+		flush |= chr->whiteSpace;
 	    // we flush when the string is getting too long
 	    flush |= ( i - paintStart >= 256 );
 	    // we flush when the selection state changes
@@ -5209,13 +5215,13 @@ QTextLineStart *QTextFormatter::formatLine( QTextParagraph *parag, QTextString *
 		start = j+1;
 		break;
 	    }
-	    if( ch.whiteSpace || ch.wordStop )
+	    if(ch.whiteSpace)
 		numSpaces++;
 	}
 	int toAdd = 0;
 	for ( int k = start + 1; k <= last; ++k ) {
 	    QTextStringChar &ch = string->at( k );
-	    if( numSpaces && (ch.whiteSpace || ch.wordStop) ) {
+	    if( numSpaces && ch.whiteSpace ) {
 		int s = space / numSpaces;
 		toAdd += s;
 		space -= s;
@@ -5303,7 +5309,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 		start = j+1;
 		break;
 	    }
-	    if( ch.whiteSpace || ch.wordStop )
+	    if(ch.whiteSpace)
 		numSpaces++;
 	}
     }
@@ -5312,7 +5318,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
     int xorig = x;
     for ( int i = 0; i < length; i++ ) {
 	QTextStringChar *ch = startChar + visual[i];
-	if( numSpaces && (ch->whiteSpace || ch->wordStop) ) {
+	if (numSpaces && ch->whiteSpace) {
 	    int s = space / numSpaces;
 	    toAdd += s;
 	    space -= s;
@@ -5659,7 +5665,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	    }
 	    c->x = x;
 	    curLeft = x;
-	    if ( i == 0 || !(string->at(i-1).whiteSpace || string->at(i-1).wordStop) ||
+	    if ( i == 0 || !isBreakable(string, i-1) ||
 		 string->at( i - 1 ).lineStart == 0 ) {
 		y += QMAX( h, QMAX( tmph, linespacing ) );
 		tmph = c->height();
@@ -5774,7 +5780,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		tminw = marg;
 		continue;
 	    }
-	} else if ( lineStart && (string->at(i).whiteSpace ||string->at(i).wordStop) ) {
+	} else if (lineStart && isBreakable(string, i)) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() );
