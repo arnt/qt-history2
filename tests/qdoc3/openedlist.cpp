@@ -35,7 +35,7 @@ OpenedList::OpenedList( const Location& location, const QString& hint )
 	suff = hintSyntax.cap( 3 );
     } else if ( !hint.isEmpty() ) {
 	Messages::warning( location,
-			   qdoc::tr("Unrecognized list style '%1'").arg(hint) );
+			   Qdoc::tr("Unrecognized list style '%1'").arg(hint) );
     }
     nex = ini - 1;
 }

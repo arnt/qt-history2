@@ -15,9 +15,9 @@ void Node::setDoc( const Doc& doc )
 {
     if ( !d.isEmpty() ) {
 	Messages::warning( doc.location(),
-			   qdoc::tr("Overrides a previous doc") );
+			   Qdoc::tr("Overrides a previous doc") );
 	Messages::warning( d.location(),
-			   qdoc::tr("(The previous doc is here)") );
+			   Qdoc::tr("(The previous doc is here)") );
     }
     d = doc;
 }

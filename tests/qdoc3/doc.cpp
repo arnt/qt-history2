@@ -114,9 +114,6 @@ static struct {
 
 static int endCommandOf( int command )
 {
-    static bool deja = FALSE;
-    int i;
-
     switch ( command ) {
     case COMMAND_ABSTRACT:
 	return COMMAND_ENDABSTRACT;
@@ -147,17 +144,19 @@ static int endCommandOf( int command )
     case COMMAND_TABLE:
 	return COMMAND_ENDTABLE;
     default:
+#if 0 // ###
 	if ( !deja ) {
 	    i = 0;
 	    while ( cmds[i].english != 0 ) {
 		if ( qstrncmp(cmds[i].english, "end", 3) == 0 &&
 		     qstrcmp(cmds[i].english + 3, cmds[command].english) == 0 )
-		    Messages::internalError( qdoc::tr("'\\%1' end of nothing")
+		    Messages::internalError( Qdoc::tr("'\\%1' end of nothing")
 					     .arg(cmds[i].english) );
 		i++;
 	    }
 	    deja = TRUE;
 	}
+#endif
 	return command;
     }
 }
@@ -305,13 +304,13 @@ public:
     DocPrivate( const Location& location = Location::null );
     ~DocPrivate();
 
-    void addAlso( const Molecule& also );
+    void addAlso( const Text& also );
     void constructExtra();
 
     Location loc;
-    Molecule text;
+    Text text;
     Set<QString> *params;
-    QValueList<Molecule> *alsoList;
+    QValueList<Text> *alsoList;
     Set<QString> *metaCommandSet;
     QMap<QString, QStringList> *metaCommandMap;
     DocPrivateExtra *extra;
@@ -332,10 +331,10 @@ DocPrivate::~DocPrivate()
     delete extra;
 }
 
-void DocPrivate::addAlso( const Molecule& also )
+void DocPrivate::addAlso( const Text& also )
 {
     if ( alsoList == 0 )
-	alsoList = new QValueList<Molecule>;
+	alsoList = new QValueList<Text>;
     alsoList->append( also );
 }
 
@@ -379,7 +378,7 @@ private:
     QString getArgument( bool code = FALSE );
     QString getOptionalArgument();
     QString getRestOfLine();
-    QString getUntilEnd( int command );
+    QString getUntilRight( int command );
     bool isBlankLine();
     bool isLeftBraceAhead();
     void skipSpacesOnLine();
@@ -427,7 +426,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
     openedCommands.push( COMMAND_OMIT );
     quoter.reset();
 
-    const CodeMarker *marker;
+    CodeMarker *marker;
     QString link;
     QString x;
     int begin;
@@ -468,9 +467,9 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_A:
 		    enterParagraph();
 		    x = getArgument();
-		    append( Atom::FormatBegin, "parameter" );
+		    append( Atom::FormatLeft, "parameter" );
 		    append( Atom::String, x );
-		    append( Atom::FormatEnd, "parameter" );
+		    append( Atom::FormatRight, "parameter" );
 		    if ( priv->params == 0 )
 			priv->params = new Set<QString>;
 		    priv->params->insert( x );
@@ -478,7 +477,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_ABSTRACT:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
-			append( Atom::AbstractBegin );
+			append( Atom::AbstractLeft );
 		    }
 		    break;
 		case COMMAND_ALSO:
@@ -492,7 +491,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    startFormat( ATOM_FORMAT_BOLD, command );
 		    break;
 		case COMMAND_BRIEF:
-		    startHeading( Atom::BriefBegin, Atom::BriefEnd );
+		    startHeading( Atom::BriefLeft, Atom::BriefRight );
 		    break;
 		case COMMAND_C:
 		    enterParagraph();
@@ -510,7 +509,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_CODE:
 		    leaveParagraph();
 		    begin = pos;
-		    x = getUntilEnd( command );
+		    x = getUntilRight( command );
 		    x = untabifyEtc( x );
 		    indent = indentLevel( x );
 		    if ( indent < minIndent )
@@ -522,7 +521,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_ENDABSTRACT:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
-			append( Atom::AbstractEnd );
+			append( Atom::AbstractRight );
 		    }
 		    break;
 		case COMMAND_ENDCHAPTER:
@@ -534,7 +533,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_ENDFOOTNOTE:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
-			append( Atom::FootnoteEnd );
+			append( Atom::FootnoteRight );
 			inPara = TRUE;
 		    }
 		    break;
@@ -542,9 +541,9 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
 			if ( openedLists.top().isStarted() ) {
-			    append( Atom::ListItemEnd,
+			    append( Atom::ListItemRight,
 				    openedLists.top().numberString() );
-			    append( Atom::ListEnd,
+			    append( Atom::ListRight,
 				    openedLists.top().styleString() );
 			}
 			openedLists.pop();
@@ -559,7 +558,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_ENDQUOTATION:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
-			append( Atom::QuotationEnd );
+			append( Atom::QuotationRight );
 		    }
 		    break;
 		case COMMAND_ENDSECTION1:
@@ -577,12 +576,12 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_ENDSIDEBAR:
 		    if ( closeCommand(command) ) {
 			leaveParagraph();
-			append( Atom::SidebarEnd );
+			append( Atom::SidebarRight );
 		    }
 		    break;
 		case COMMAND_ENDTABLE:
 		    if ( closeCommand(command) ) {
-			append( Atom::TableEnd );
+			append( Atom::TableRight );
 			/* ... */
 		    }
 		    break;
@@ -592,7 +591,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_FOOTNOTE:
 		    if ( openCommand(command) ) {
 			enterParagraph();
-			append( Atom::FootnoteBegin );
+			append( Atom::FootnoteLeft );
 			inPara = FALSE;
 		    }
 		    break;
@@ -616,7 +615,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    if ( inPara ) {
 			const Atom *last = priv->text.lastAtom();
 			if ( indexStartedPara &&
-			     (last->type() != Atom::FormatEnd ||
+			     (last->type() != Atom::FormatRight ||
 			      last->string() != ATOM_FORMAT_INDEX) )
 			    indexStartedPara = FALSE;
 		    } else {
@@ -637,16 +636,16 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 			if ( isLeftBraceAhead() ) {
 			    startFormat( ATOM_FORMAT_LINK, command );
 			} else {
-			    append( Atom::FormatBegin, ATOM_FORMAT_LINK );
+			    append( Atom::FormatLeft, ATOM_FORMAT_LINK );
 			    append( Atom::String, x );
-			    append( Atom::FormatEnd, ATOM_FORMAT_LINK );	
+			    append( Atom::FormatRight, ATOM_FORMAT_LINK );	
 			}
 		    } else {
 			x = getArgument();
 			append( Atom::Link, x );
-			append( Atom::FormatBegin, ATOM_FORMAT_LINK );
+			append( Atom::FormatLeft, ATOM_FORMAT_LINK );
 			append( Atom::String, x );
-			append( Atom::FormatEnd, ATOM_FORMAT_LINK );
+			append( Atom::FormatRight, ATOM_FORMAT_LINK );
 		    }
 		    break;
 		case COMMAND_LIST:
@@ -660,30 +659,30 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    leaveParagraph();
 		    if ( openedLists.isEmpty() ) {
 			Messages::warning( location(),
-					   qdoc::tr("Command '\\%1' outside"
+					   Qdoc::tr("Command '\\%1' outside"
 						    " '\\%2'")
 					   .arg(commandName(command))
 					   .arg(commandName(COMMAND_LIST)) );
 		    } else {
 			if ( openedLists.top().isStarted() ) {
 			    leaveParagraph();
-			    append( Atom::ListItemEnd,
+			    append( Atom::ListItemRight,
 				    openedLists.top().numberString() );
 			} else {
-			    append( Atom::ListBegin,
+			    append( Atom::ListLeft,
 				    openedLists.top().styleString() );
 			}
 			openedLists.top().next();
 			append( Atom::ListItemNumber,
 				QString::number(openedLists.top().number()) );
-			append( Atom::ListItemBegin,
+			append( Atom::ListItemLeft,
 				openedLists.top().numberString() );
 			enterParagraph();
 			skipSpacesOrOneEndl();
 		    }
 		    break;
 		case COMMAND_OMIT:
-		    getUntilEnd( command );
+		    getUntilRight( command );
 		    break;
 		case COMMAND_PART:
 		    startSection( Doc::Part, command );
@@ -691,7 +690,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_QUOTATION:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
-			append( Atom::QuotationBegin );
+			append( Atom::QuotationLeft );
 		    }
 		    break;
 		case COMMAND_QUOTEFILE:
@@ -732,7 +731,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_RAW:
 		    leaveParagraph();
 		    begin = pos;
-		    x = getUntilEnd( command );
+		    x = getUntilRight( command );
 		    x = untabifyEtc( in.mid(begin, end - begin) );
 		    append( Atom::RawFormat, "html" ); // ###
 		    append( Atom::RawString, x );
@@ -755,7 +754,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_SIDEBAR:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
-			append( Atom::SidebarBegin );
+			append( Atom::SidebarLeft );
 		    }
 		    break;
 		case COMMAND_SKIPLINE:
@@ -779,7 +778,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		case COMMAND_TABLE:
 		    if ( openCommand(command) ) {
 			leaveParagraph();
-			append( Atom::TableBegin );
+			append( Atom::TableLeft );
 		    }
 		    break;
 		case COMMAND_TABLEOFCONTENTS:
@@ -801,9 +800,9 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		    break;
 		case COMMAND_WARNING:
 		    startNewParagraph();
-		    append( Atom::FormatBegin, ATOM_FORMAT_BOLD );
+		    append( Atom::FormatLeft, ATOM_FORMAT_BOLD );
 		    append( Atom::String, "Warning: " );
-		    append( Atom::FormatEnd, ATOM_FORMAT_BOLD );
+		    append( Atom::FormatRight, ATOM_FORMAT_BOLD );
 		    break;
 		case UNKNOWN_COMMAND:
 		    if ( metaCommandSet.contains(commandStr) ) {
@@ -817,7 +816,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 				getRestOfLine() );
 		    } else {
 			Messages::warning( location(),
-					   qdoc::tr("Unknown command '\\%1'")
+					   Qdoc::tr("Unknown command '\\%1'")
 					   .arg(commandStr),
 					   detailsUnknownCommand(metaCommandSet,
 								 commandStr) );
@@ -840,7 +839,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 		enterParagraph();
 		appendChar( '}' );
 	    } else {
-		append( Atom::FormatEnd, *f );
+		append( Atom::FormatRight, *f );
 		if ( *f == ATOM_FORMAT_INDEX && indexStartedPara )
 		    skipAllSpaces();
 		pendingFormats.remove( f );
@@ -871,7 +870,7 @@ void DocParser::parse( const QString& input, DocPrivate *docPrivate,
 
     if ( openedCommands.top() != COMMAND_OMIT )
 	Messages::warning( location(),
-			   qdoc::tr("Missing '\\%1'")
+			   Qdoc::tr("Missing '\\%1'")
 			   .arg(endCommandName(openedCommands.top())) );
     if ( priv->extra != 0 &&
 	 priv->extra->granularity < priv->extra->sectioningUnit )
@@ -892,7 +891,7 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
     int i = 0;
     while ( cmds[i].english != 0 ) {
 	if ( cmds[i].english == str )
-	    return qdoc::tr( "The command '\\%1' was renamed '\\%2' by the"
+	    return Qdoc::tr( "The command '\\%1' was renamed '\\%2' by the"
 			     " configuration file. Use the new name." )
 		   .arg( str ).arg( cmds[i].translation );
 	commandSet.insert( cmds[i].translation );
@@ -916,9 +915,9 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 	++c;
     }
     if ( numBest == 1 && deltaBest <= 2 && str.length() >= 3 ) {
-	return qdoc::tr( "Maybe you meant '\\%1'?" ).arg( best );
+	return Qdoc::tr( "Maybe you meant '\\%1'?" ).arg( best );
     } else {
-	return qdoc::tr( "###" );
+	return Qdoc::tr( "###" );
     }
 }
 
@@ -940,23 +939,23 @@ void DocParser::checkExpiry( const QString& date )
 	    int days = expiryDate.daysTo( QDate::currentDate() );
 	    if ( days == 0 ) {
 		Messages::warning( location(),
-				   qdoc::tr("Documentation expires today") );
+				   Qdoc::tr("Documentation expires today") );
 	    } else if ( days == 1 ) {
 		Messages::warning( location(),
-				   qdoc::tr("Documentation expired"
+				   Qdoc::tr("Documentation expired"
 					    " yesterday") );
 	    } else if ( days >= 2 ) {
 		Messages::warning( location(),
-				   qdoc::tr("Documentation expired %1 days ago")
+				   Qdoc::tr("Documentation expired %1 days ago")
 				   .arg(days) );
 	    }
 	} else {
 	    Messages::warning( location(),
-			       qdoc::tr("Date '%1' invalid").arg(date) );
+			       Qdoc::tr("Date '%1' invalid").arg(date) );
 	}
     } else {
 	Messages::warning( location(),
-			   qdoc::tr("Date '%1' not in YYYY-MM-DD format")
+			   Qdoc::tr("Date '%1' not in YYYY-MM-DD format")
 			   .arg(date) );
     }
 }
@@ -968,18 +967,18 @@ void DocParser::insertBaseName( const QString& baseName )
 	priv->extra->baseName = baseName;
     } else {
 	Atom *atom = priv->text.firstAtom();
-	Atom *sectionBegin = 0;
+	Atom *sectionLeft = 0;
 
 	int delta = currentSectioningUnit - priv->extra->sectioningUnit;
 
 	while ( atom != 0 ) {
-	    if ( atom->type() == Atom::SectionBegin &&
+	    if ( atom->type() == Atom::SectionLeft &&
 		 atom->string().toInt() == delta )
-		sectionBegin = atom;
+		sectionLeft = atom;
 	    atom = atom->next();
 	}
-	if ( sectionBegin != 0 )
-	    (void) new Atom( sectionBegin, Atom::BaseName, baseName );
+	if ( sectionLeft != 0 )
+	    (void) new Atom( sectionLeft, Atom::BaseName, baseName );
     }
 }
 
@@ -987,9 +986,9 @@ void DocParser::insertTarget( const QString& target )
 {
     if ( targetMap.contains(target) ) {
 	Messages::warning( location(),
-			   qdoc::tr("Duplicate target name '%1'").arg(target) );
+			   Qdoc::tr("Duplicate target name '%1'").arg(target) );
 	Messages::warning( targetMap[target],
-			   qdoc::tr("(The previous occurrence is here)") );
+			   Qdoc::tr("(The previous occurrence is here)") );
     } else {
 	targetMap.insert( target, location() );
 	append( Atom::Target, target );
@@ -1002,7 +1001,7 @@ void DocParser::include( const QString& /* fileName */ )
     QFile inFile( "src/" + fileName );
     if ( !inFile.open(IO_ReadOnly) ) {
 	Messages::error( location(),
-			 qdoc::tr("Cannot open leaf file '%1'").arg(fileName) );
+			 Qdoc::tr("Cannot open leaf file '%1'").arg(fileName) );
     } else {
 	QString s = inFile.readAll();
 	s.prepend( "\\location {" + Location(fileName).toString() + "}" );
@@ -1022,14 +1021,14 @@ void DocParser::startFormat( const QString& format, int command )
     while ( f != pendingFormats.end() ) {
 	if ( *f == format ) {
 	    Messages::warning( location(),
-			       qdoc::tr("Cannot nest '\\%1' commands")
+			       Qdoc::tr("Cannot nest '\\%1' commands")
 			       .arg(commandName(command)) );
 	    return;
 	}
 	++f;
     }
 
-    append( Atom::FormatBegin, format );
+    append( Atom::FormatLeft, format );
 
     if ( isLeftBraceAhead() ) {
 	skipSpacesOrOneEndl();
@@ -1038,7 +1037,7 @@ void DocParser::startFormat( const QString& format, int command )
 	pos++;
     } else {
 	append( Atom::String, getArgument() );
-	append( Atom::FormatEnd, format );
+	append( Atom::FormatRight, format );
 	if ( format == ATOM_FORMAT_INDEX && indexStartedPara ) {
 	    skipAllSpaces();
 	    indexStartedPara = FALSE;
@@ -1089,7 +1088,7 @@ bool DocParser::openCommand( int command )
 	openedCommands.push( command );
     } else {
 	Messages::warning( location(),
-			   qdoc::tr("Cannot use '\\%1' within '\\%2'")
+			   Qdoc::tr("Cannot use '\\%1' within '\\%2'")
 			   .arg(commandName(command)).arg(commandName(top)) );
     }
     return ok;
@@ -1114,14 +1113,14 @@ bool DocParser::closeCommand( int endCommand )
 	if ( contains ) {
 	    while ( endCommandOf(openedCommands.top()) != endCommand ) {
 		Messages::warning( location(),
-				   qdoc::tr("Missing '\\%1' before '\\%2'")
+				   Qdoc::tr("Missing '\\%1' before '\\%2'")
 				   .arg(endCommandName(openedCommands.top()))
 				   .arg(commandName(endCommand)) );
 		openedCommands.pop();
 	    }
 	} else {
 	    Messages::warning( location(),
-			       qdoc::tr("Missing '\\%1'")
+			       Qdoc::tr("Missing '\\%1'")
 			       .arg(commandName(endCommand)) );
 	}
 	return FALSE;
@@ -1135,7 +1134,7 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
     if ( currentSectioningUnit == Doc::Book ) {
 	if ( unit > Doc::Section1 )
 	    Messages::warning( location(),
-			       qdoc::tr("Unexpected '\\%1' without '\\%2'")
+			       Qdoc::tr("Unexpected '\\%1' without '\\%2'")
 			       .arg(commandName(command))
 			       .arg(commandName(COMMAND_SECTION1)) );
 	currentSectioningUnit = (Doc::SectioningUnit) ( unit - 1 );
@@ -1145,19 +1144,19 @@ void DocParser::startSection( Doc::SectioningUnit unit, int command )
 
     if ( unit <= priv->extra->sectioningUnit ) {
 	Messages::warning( location(),
-			   qdoc::tr("Unexpected '\\%1' in this documentation")
+			   Qdoc::tr("Unexpected '\\%1' in this documentation")
 			   .arg(commandName(command)) );
     } else if ( unit - currentSectioningUnit > 1 ) {
 	Messages::warning( location(),
-			   qdoc::tr("Unexpected '\\%1' at this point")
+			   Qdoc::tr("Unexpected '\\%1' at this point")
 			   .arg(commandName(command)) );
     } else {
 	if ( currentSectioningUnit >= unit )
 	    endSection( unit, command );
 
 	int delta = unit - priv->extra->sectioningUnit;
-	append( Atom::SectionBegin, QString::number(delta) );
-	startHeading( Atom::SectionHeadingBegin, Atom::SectionHeadingEnd,
+	append( Atom::SectionLeft, QString::number(delta) );
+	startHeading( Atom::SectionHeadingLeft, Atom::SectionHeadingRight,
 		      QString::number(delta) );
 	currentSectioningUnit = unit;
     }
@@ -1169,16 +1168,16 @@ void DocParser::endSection( int unit, int endCommand )
 
     if ( unit < priv->extra->sectioningUnit ) {
 	Messages::warning( location(),
-			   qdoc::tr("Unexpected '\\%1' in this documentation")
+			   Qdoc::tr("Unexpected '\\%1' in this documentation")
 			   .arg(commandName(endCommand)) );
     } else if ( unit > currentSectioningUnit ) {
 	Messages::warning( location(),
-			   qdoc::tr("Unexpected '\\%1' at this point")
+			   Qdoc::tr("Unexpected '\\%1' at this point")
 			   .arg(commandName(endCommand)) );
     } else {
 	while ( currentSectioningUnit >= unit ) {
 	    int delta = currentSectioningUnit - priv->extra->sectioningUnit;
-	    append( Atom::SectionEnd, QString::number(delta) );
+	    append( Atom::SectionRight, QString::number(delta) );
 	    currentSectioningUnit =
 		    (Doc::SectioningUnit) ( currentSectioningUnit - 1 );
 	}
@@ -1206,10 +1205,10 @@ void DocParser::parseAlso()
 	    str = target;
 	}
 
-	Molecule also;
+	Text also;
 	also << Atom( Atom::Link, target )
-	     << Atom( Atom::FormatBegin, ATOM_FORMAT_LINK ) << str
-	     << Atom( Atom::FormatEnd, ATOM_FORMAT_LINK );
+	     << Atom( Atom::FormatLeft, ATOM_FORMAT_LINK ) << str
+	     << Atom( Atom::FormatRight, ATOM_FORMAT_LINK );
 	priv->addAlso( also );
 
 	skipSpacesOnLine();
@@ -1218,7 +1217,7 @@ void DocParser::parseAlso()
 	    skipSpacesOrOneEndl();
 	} else if ( in[pos] != '\n' ) {
 	    Messages::warning( location(),
-			       qdoc::tr("Missing comma in '\\%1'")
+			       Qdoc::tr("Missing comma in '\\%1'")
 			       .arg(commandName(COMMAND_ALSO)) );
 	}
     }
@@ -1260,7 +1259,7 @@ void DocParser::startNewParagraph()
 void DocParser::enterParagraph()
 {
     if ( !inPara ) {
-	append( Atom::ParagraphBegin );
+	append( Atom::ParagraphLeft );
 	inPara = TRUE;
 	indexStartedPara = FALSE;
     }
@@ -1273,14 +1272,14 @@ void DocParser::leaveParagraph()
 	    endHeading();
 	} else {
 	    if ( !pendingFormats.isEmpty() ) {
-		Messages::warning( location(), qdoc::tr("Missing '}'") );
+		Messages::warning( location(), Qdoc::tr("Missing '}'") );
 		pendingFormats.clear();
 	    }
 
 	    if ( priv->text.lastAtom()->type() == Atom::String &&
 		 priv->text.lastAtom()->string().endsWith(" ") )
 		priv->text.lastAtom()->chopString();
-	    append( Atom::ParagraphEnd );
+	    append( Atom::ParagraphRight );
 	    inPara = FALSE;
 	    indexStartedPara = FALSE;
 	}
@@ -1298,7 +1297,7 @@ void DocParser::quoteFromFile( int /* command */ )
     QFile inFile( filePath );
     if ( !inFile.open(IO_ReadOnly) ) {
 	Messages::warning( location(),
-			   qdoc::tr("Cannot open example file '%1'")
+			   Qdoc::tr("Cannot open example file '%1'")
 			   .arg(filePath) );
     } else {
 	QTextStream inStream( &inFile );
@@ -1307,7 +1306,7 @@ void DocParser::quoteFromFile( int /* command */ )
     }
 
     QString dirPath = QFileInfo( filePath ).dirPath();
-    const CodeMarker *marker = CodeMarker::markerForFileName( fileName );
+    CodeMarker *marker = CodeMarker::markerForFileName( fileName );
     quoter.quoteFromFile( filePath, code,
 			  marker->markedUpCode(code, 0, dirPath) );
 }
@@ -1330,7 +1329,7 @@ Doc::SectioningUnit DocParser::getSectioningUnit()
 	return Doc::Section4;
     } else {
 	Messages::warning( location(),
-			   qdoc::tr("Invalid sectioning unit '%1'")
+			   Qdoc::tr("Invalid sectioning unit '%1'")
 			   .arg(name) );
 	return Doc::Book;
     }
@@ -1395,7 +1394,7 @@ QString DocParser::getArgument( bool code )
 	    }
 	}
 	if ( delimDepth > 0 )
-	    Messages::warning( location(), qdoc::tr("Missing '}'") );
+	    Messages::warning( location(), Qdoc::tr("Missing '}'") );
     } else {
 	while ( pos < (int) in.length() &&
 		(delimDepth > 0 || (delimDepth == 0 && !in[pos].isSpace())) ) {
@@ -1478,7 +1477,7 @@ QString DocParser::getRestOfLine()
     return t;
 }
 
-QString DocParser::getUntilEnd( int endCommand )
+QString DocParser::getUntilRight( int endCommand )
 {
     QRegExp rx( "\\\\" + commandName(endCommand) + "\\b" );
     QString t;
@@ -1486,7 +1485,7 @@ QString DocParser::getUntilEnd( int endCommand )
 
     if ( end == -1 ) {
 	Messages::warning( location(),
-			   qdoc::tr("Missing '\\%1'")
+			   Qdoc::tr("Missing '\\%1'")
 			   .arg(commandName(endCommand)) );
 	pos = (int) in.length();
     } else {
@@ -1596,7 +1595,7 @@ bool Doc::isEmpty() const
     return body().isEmpty();
 }
 
-const Molecule& Doc::body() const
+const Text& Doc::body() const
 {
     return priv->text;
 }
@@ -1635,7 +1634,16 @@ const Set<QString> *Doc::metaCommandsUsed() const
     return priv->metaCommandSet;
 }
 
-const QValueList<Molecule> *Doc::alsoList() const
+QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
+{
+    if ( priv->metaCommandMap == 0 ) {
+	return QStringList();
+    } else {
+	return (*priv->metaCommandMap)[metaCommand];
+    }
+}
+
+const QValueList<Text> *Doc::alsoList() const
 {
     return priv->alsoList;
 }
@@ -1647,9 +1655,8 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
     Doc doc;
     doc.priv->loc = propertyDoc.location();
 
-    Molecule brief = propertyDoc.body().subMolecule( Atom::BriefBegin,
-						     Atom::BriefEnd );
-    doc.priv->text << Atom::ParagraphBegin;
+    Text brief = propertyDoc.body().subText( Atom::BriefLeft, Atom::BriefRight );
+    doc.priv->text << Atom::ParagraphLeft;
     if ( !brief.isEmpty() ) {
 	bool whether = ( brief.firstAtom()->type() == Atom::String &&
 			 brief.firstAtom()->string().lower()
@@ -1659,8 +1666,7 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 	    if ( whether ) {
 		doc.priv->text << "Returns TRUE if"
 			       << brief.firstAtom()->string().mid( 7 )
-			       << brief.subMolecule(
-					  brief.firstAtom()->next() )
+			       << brief.subText( brief.firstAtom()->next() )
 			       << "; otherwise returns FALSE.";
 	    } else {
 		doc.priv->text << "Returns " << brief << ".";
@@ -1670,16 +1676,16 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 		doc.priv->text << "Sets " << brief << ".";
 	    } else {
 		doc.priv->text << "Sets " << brief << " to "
-			       << Atom( Atom::FormatBegin, "parameter" )
+			       << Atom( Atom::FormatLeft, "parameter" )
 			       << param
-			       << Atom( Atom::FormatEnd, "parameter" )
+			       << Atom( Atom::FormatRight, "parameter" )
 			       << ".";
 	    }
 	} else if ( role == "resetter" ) {
 	    doc.priv->text << "Resets " << brief << ".";
 	}
     }
-    doc.priv->text << Atom::ParagraphEnd;
+    doc.priv->text << Atom::ParagraphRight;
     // set priv->params
     return doc;
 }
@@ -1700,7 +1706,7 @@ void Doc::initialize( const Config& config )
 	int *entry = commandDict->find( translation );
 	if ( entry != 0 )
 	    Messages::warning( config.location(),
-			       qdoc::tr("Command name '\\%1' cannot stand"
+			       Qdoc::tr("Command name '\\%1' cannot stand"
 					" for both '\\%2' and '\\%3'")
 			       .arg(translation)
 			       .arg(cmds[*entry].english)
@@ -1708,7 +1714,7 @@ void Doc::initialize( const Config& config )
 	commandDict->replace( translation, &cmds[i].no );
 
 	if ( cmds[i].no != i )
-	    Messages::internalError( qdoc::tr("command %1 missing").arg(i) );
+	    Messages::internalError( Qdoc::tr("command %1 missing").arg(i) );
 	i++;
     }
 
@@ -1739,11 +1745,11 @@ void Doc::initialize( const Config& config )
 		    macro->numParams = m;
 		} else if ( macro->numParams != m ) {
 		    if ( !silent ) {
-			QString other = qdoc::tr( "default" );
+			QString other = Qdoc::tr( "default" );
 			if ( macro->defaultDef.isEmpty() )
 			    other = macro->otherDefs.begin().key();
 			Messages::warning( config.location(),
-					   qdoc::tr("Macro '\\%1' takes"
+					   Qdoc::tr("Macro '\\%1' takes"
 						    " inconsistent number of"
 						    " arguments (%2 %3, %4 %5)")
 					   .arg(*n)

@@ -5,10 +5,11 @@
 #include <stdio.h>
 
 #include "codemarker.h"
+#include "config.h"
 #include "node.h"
 
-QString CodeMarker::dl = "C++";
-QValueList<const CodeMarker *> CodeMarker::markers;
+QString CodeMarker::defaultLang;
+QValueList<CodeMarker *> CodeMarker::markers;
 
 CodeMarker::CodeMarker()
     : amp( "&" ), lt( "<" ), gt( ">" ), quot( "\"" )
@@ -21,13 +22,40 @@ CodeMarker::~CodeMarker()
     markers.remove( this );
 }
 
-const CodeMarker *CodeMarker::markerForCode( const QString& code )
+void CodeMarker::initializeMarker( const Config& config )
 {
-    const CodeMarker *defaultMarker = markerForLanguage( defaultLanguage() );
+    defaultLang = config.getString( CONFIG_TARGETLANGUAGE );
+}
+
+void CodeMarker::terminateMarker()
+{
+}
+
+void CodeMarker::initialize( const Config& config )
+{
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    while ( m != markers.end() ) {
+	(*m)->initializeMarker( config );
+	++m;
+    }
+}
+
+void CodeMarker::terminate()
+{
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    while ( m != markers.end() ) {
+	(*m)->terminateMarker();
+	++m;
+    }
+}
+
+CodeMarker *CodeMarker::markerForCode( const QString& code )
+{
+    CodeMarker *defaultMarker = markerForLanguage( defaultLang );
     if ( defaultMarker != 0 && defaultMarker->recognizeCode(code) )
 	return defaultMarker;
 
-    QValueList<const CodeMarker *>::ConstIterator m = markers.begin();
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	if ( (*m)->recognizeCode(code) )
 	    return *m;
@@ -36,18 +64,18 @@ const CodeMarker *CodeMarker::markerForCode( const QString& code )
     return defaultMarker;
 }
 
-const CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
+CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 {
     QString ext;
     int k = fileName.findRev( '.' );
     if ( k != -1 )
 	ext = fileName.mid( k + 1 ).lower();
 
-    const CodeMarker *defaultMarker = markerForLanguage( defaultLanguage() );
+    CodeMarker *defaultMarker = markerForLanguage( defaultLang );
     if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
 	return defaultMarker;
 
-    QValueList<const CodeMarker *>::ConstIterator m = markers.begin();
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	if ( (*m)->recognizeExtension(ext) )
 	    return *m;
@@ -56,9 +84,9 @@ const CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
     return defaultMarker;
 }
 
-const CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
+CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 {
-    QValueList<const CodeMarker *>::ConstIterator m = markers.begin();
+    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	if ( (*m)->recognizeLanguage(lang.lower()) )
 	    return *m;
@@ -81,7 +109,7 @@ QString CodeMarker::stringForNode( const Node *node )
     return str;
 }
 
-QString CodeMarker::protect( const QString& string ) const
+QString CodeMarker::protect( const QString& string )
 {
     QString marked = string;
     marked.replace( amp, "&amp;" );
@@ -91,7 +119,7 @@ QString CodeMarker::protect( const QString& string ) const
     return marked;
 }
 
-QString CodeMarker::taggedNode( const Node *node ) const
+QString CodeMarker::taggedNode( const Node *node )
 {
     QString tag;
 
@@ -120,7 +148,7 @@ QString CodeMarker::taggedNode( const Node *node ) const
     return "<" + tag + ">" + protect( node->name() ) + "</" + tag + ">";
 }
 
-QString CodeMarker::linkTag( const Node *node, const QString& body ) const
+QString CodeMarker::linkTag( const Node *node, const QString& body )
 {
     return "<@link node=\"" + stringForNode( node ) + "\">" + body + "</@link>";
 }

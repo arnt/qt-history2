@@ -16,54 +16,54 @@
   \endquotation
   is represented by the following atoms:
   \quotation
-      (FormatBegin, "italic")
+      (FormatLeft, "italic")
       (RawString, 
-      (FormatEnd, "italic")
+      (FormatRight, "italic")
   \endquotation
 
-  \also Molecule
+  \also Text
 */
 
 /*! \enum Atom::Type
 
-  \value AbstractBegin
-  \value AbstractEnd
+  \value AbstractLeft
+  \value AbstractRight
   \value BaseName
-  \value BriefBegin
-  \value BriefEnd
+  \value BriefLeft
+  \value BriefRight
   \value C
-  \value CaptionBegin
-  \value CaptionEnd
+  \value CaptionLeft
+  \value CaptionRight
   \value Code
-  \value FootnoteBegin
-  \value FootnoteEnd
-  \value FormatBegin
-  \value FormatEnd
+  \value FootnoteLeft
+  \value FootnoteRight
+  \value FormatLeft
+  \value FormatRight
   \value GeneratedList
   \value Image
   \value Link
   \value LinkNode
-  \value ListBegin
+  \value ListLeft
   \value ListItemNumber
-  \value ListItemBegin
-  \value ListItemEnd
-  \value ListEnd
+  \value ListItemLeft
+  \value ListItemRight
+  \value ListRight
   \value Nop
-  \value ParagraphBegin
-  \value ParagraphEnd
-  \value QuotationBegin
-  \value QuotationEnd
+  \value ParagraphLeft
+  \value ParagraphRight
+  \value QuotationLeft
+  \value QuotationRight
   \value RawFormat
   \value RawString
-  \value SectionBegin
-  \value SectionEnd
-  \value SectionHeadingBegin
-  \value SectionHeadingEnd
-  \value SidebarBegin
-  \value SidebarEnd
+  \value SectionLeft
+  \value SectionRight
+  \value SectionHeadingLeft
+  \value SectionHeadingRight
+  \value SidebarLeft
+  \value SidebarRight
   \value String
-  \value TableBegin
-  \value TableEnd
+  \value TableLeft
+  \value TableRight
   \value TableOfContents
   \value Target
   \value UnknownCommand
@@ -73,44 +73,44 @@ static const struct {
     const char *english;
     int no;
 } atms[] = {
-    { "AbstractBegin", Atom::AbstractBegin },
-    { "AbstractEnd", Atom::AbstractEnd },
+    { "AbstractLeft", Atom::AbstractLeft },
+    { "AbstractRight", Atom::AbstractRight },
     { "BaseName", Atom::BaseName },
-    { "BriefBegin", Atom::BriefBegin },
-    { "BriefEnd", Atom::BriefEnd },
+    { "BriefLeft", Atom::BriefLeft },
+    { "BriefRight", Atom::BriefRight },
     { "C", Atom::C },
-    { "CaptionBegin", Atom::CaptionBegin },
-    { "CaptionEnd", Atom::CaptionEnd },
+    { "CaptionLeft", Atom::CaptionLeft },
+    { "CaptionRight", Atom::CaptionRight },
     { "Code", Atom::Code },
-    { "FootnoteBegin", Atom::FootnoteBegin },
-    { "FootnoteEnd", Atom::FootnoteEnd },
-    { "FormatBegin", Atom::FormatBegin },
-    { "FormatEnd", Atom::FormatEnd },
+    { "FootnoteLeft", Atom::FootnoteLeft },
+    { "FootnoteRight", Atom::FootnoteRight },
+    { "FormatLeft", Atom::FormatLeft },
+    { "FormatRight", Atom::FormatRight },
     { "GeneratedList", Atom::GeneratedList },
     { "Image", Atom::Image },
     { "Link", Atom::Link },
     { "LinkNode", Atom::LinkNode },
-    { "ListBegin", Atom::ListBegin },
+    { "ListLeft", Atom::ListLeft },
     { "ListItemNumber", Atom::ListItemNumber },
-    { "ListItemBegin", Atom::ListItemBegin },
-    { "ListItemEnd", Atom::ListItemEnd },
-    { "ListEnd", Atom::ListEnd },
+    { "ListItemLeft", Atom::ListItemLeft },
+    { "ListItemRight", Atom::ListItemRight },
+    { "ListRight", Atom::ListRight },
     { "Nop", Atom::Nop },
-    { "ParagraphBegin", Atom::ParagraphBegin },
-    { "ParagraphEnd", Atom::ParagraphEnd },
-    { "QuotationBegin", Atom::QuotationBegin },
-    { "QuotationEnd", Atom::QuotationEnd },
+    { "ParagraphLeft", Atom::ParagraphLeft },
+    { "ParagraphRight", Atom::ParagraphRight },
+    { "QuotationLeft", Atom::QuotationLeft },
+    { "QuotationRight", Atom::QuotationRight },
     { "RawFormat", Atom::RawFormat },
     { "RawString", Atom::RawString },
-    { "SectionBegin", Atom::SectionBegin },
-    { "SectionEnd", Atom::SectionEnd },
-    { "SectionHeadingBegin", Atom::SectionHeadingBegin },
-    { "SectionHeadingEnd", Atom::SectionHeadingEnd },
-    { "SidebarBegin", Atom::SidebarBegin },
-    { "SidebarEnd", Atom::SidebarEnd },
+    { "SectionLeft", Atom::SectionLeft },
+    { "SectionRight", Atom::SectionRight },
+    { "SectionHeadingLeft", Atom::SectionHeadingLeft },
+    { "SectionHeadingRight", Atom::SectionHeadingRight },
+    { "SidebarLeft", Atom::SidebarLeft },
+    { "SidebarRight", Atom::SidebarRight },
     { "String", Atom::String },
-    { "TableBegin", Atom::TableBegin },
-    { "TableEnd", Atom::TableEnd },
+    { "TableLeft", Atom::TableLeft },
+    { "TableRight", Atom::TableRight },
     { "TableOfContents", Atom::TableOfContents },
     { "Target", Atom::Target },
     { "UnknownCommand", Atom::UnknownCommand },
@@ -181,7 +181,7 @@ QString Atom::typeString() const
 	int i = 0;
 	while ( atms[i].english != 0 ) {
 	    if ( atms[i].no != i )
-		Messages::internalError( qdoc::tr("atom %1 missing").arg(i) );
+		Messages::internalError( Qdoc::tr("atom %1 missing").arg(i) );
 	    i++;
 	}
 	deja = TRUE;

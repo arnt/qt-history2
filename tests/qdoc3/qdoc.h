@@ -7,7 +7,7 @@
 
 #include <qobject.h>
 
-class qdoc : public QObject
+class Qdoc : public QObject
 {
     Q_OBJECT
 };

@@ -77,10 +77,21 @@ void Location::pop()
 
 /*! \fn const QString& Location::pathAndFileName() const
 
-  Returns the current file name.
+  Returns the current path and file name.
 
   \sa lineNo(), columnNo()
 */
+
+/*! \fn QString Location::fileName() const
+
+  ###
+*/
+
+QString Location::fileName() const
+{
+    QString fn = pathAndFileName();
+    return fn.mid( fn.findRev('/') + 1 );
+}
 
 /*! \fn int Location::lineNo() const
 

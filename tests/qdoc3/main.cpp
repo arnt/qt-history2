@@ -3,15 +3,43 @@
 */
 
 #include <qapplication.h>
+#include <qdict.h>
 
+#include "codemarker.h"
+#include "codeparser.h"
 #include "config.h"
+#include "cppcodemarker.h"
+#include "cppcodeparser.h"
 #include "doc.h"
+#include "htmlgenerator.h"
+#include "loutgenerator.h"
+#include "mangenerator.h"
 #include "messages.h"
+#include "plaincodemarker.h"
+#include "qscodemarker.h"
+#include "quickcodeparser.h"
+#include "sgmlgenerator.h"
+#include "tree.h"
+
+static QDict<Tree> trees;
+static QPtrList<CodeParser> parsers;
+static QPtrList<CodeMarker> markers;
+static QPtrList<Generator> generators;
+
+static Tree *treeForLanguage( const QString& lang )
+{
+    Tree *tree = trees[lang];
+    if ( tree == 0 ) {
+	tree = new Tree;
+	trees.insert( lang, tree );
+    }
+    return tree;
+}
 
 static void printHelp()
 {
     Messages::information(
-	    qdoc::tr("Usage: qdoc [options] file1.qdoc...\n"
+	    Qdoc::tr("Usage: qdoc [options] file1.qdoc...\n"
 		     "Options:\n"
 		     "    -help  Display this information and exit\n"
 		     "    -verbose\n"
@@ -22,7 +50,7 @@ static void printHelp()
 
 static void printVersion()
 {
-    Messages::information( qdoc::tr("qdoc version 3.0") );
+    Messages::information( Qdoc::tr("qdoc version 3.0") );
 }
 
 static void processQdocFile( const QString& fileName )
@@ -33,28 +61,98 @@ static void processQdocFile( const QString& fileName )
     Config config;
     config.load( fileName );
 
+    CodeMarker::initialize( config );
+    CodeParser::initialize( config );
     Doc::initialize( config );
     Location::initialize( config );
+
+    QString sourceLang = config.getString( CONFIG_SOURCELANGUAGE );
+    Tree *tree = treeForLanguage( sourceLang );
 
     QStringList fileNames = config.getStringList( CONFIG_TRANSLATORS );
     QStringList::Iterator fn = fileNames.begin();
     while ( fn != fileNames.end() ) {
 	QTranslator *translator = new QTranslator( 0 );
 	if ( !translator->load(*fn) )
-	    Messages::error( Location(fileName),
-			     qdoc::tr("Cannot load translator '%1'")
+	    Messages::error( config.location(),
+			     Qdoc::tr("Cannot load translator '%1'")
 			     .arg(*fn) );
 	qApp->installTranslator( translator );
 	translators.append( translator );
 	++fn;
     }
 
+    CodeParser *codeParser = CodeParser::parserForLanguage( sourceLang );
+    if ( codeParser == 0 )
+	Messages::fatal( config.location(),
+			 Qdoc::tr("Unknown source language '%1'")
+			 .arg(sourceLang) );
+
+    QStringList headers = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
+					      "*.h" );
+    QStringList::ConstIterator h = headers.begin();
+    while ( h != headers.end() ) {
+	codeParser->parseHeaderFile( config.location(), *h, tree );
+	++h;
+    }
+
+    QStringList sources = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
+					      "*.cpp" );
+    QStringList::ConstIterator s = sources.begin();
+    while ( s != sources.end() ) {
+	codeParser->parseSourceFile( config.location(), *s, tree );
+	++s;
+    }
+
+    QString targetLang = config.getString( CONFIG_TARGETLANGUAGE );
+    CodeMarker *marker = CodeMarker::markerForLanguage( targetLang );
+    if ( marker == 0 ) {
+	Messages::fatal( config.location(),
+			 Qdoc::tr("Unknown target language '%1'")
+			 .arg(targetLang) );
+    }
+
+    Set<QString> formats = config.getStringSet( CONFIG_FORMATS );
+    Set<QString>::ConstIterator f = formats.begin();
+    while ( f != formats.end() ) {
+	Generator *generator = Generator::generatorForFormat( *f );
+	if ( generator == 0 )
+	    Messages::fatal( config.location(),
+			     Qdoc::tr("Unknown documentation format '%1'")
+			     .arg(*f) );
+	generator->generateTree( config, tree, marker );
+	++f;
+    }
+    delete codeParser;
+
+    CodeMarker::terminate();
+    CodeParser::terminate();
     Doc::terminate();
+    Location::terminate();
 }
 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv, FALSE );
+
+    trees.setAutoDelete( TRUE );
+
+    parsers.setAutoDelete( TRUE );
+    CodeParser *cppParser = new CppCodeParser;
+    parsers.append( cppParser );
+    parsers.append(
+	    new QuickCodeParser(treeForLanguage(cppParser->language())) );
+
+    markers.setAutoDelete( TRUE );
+    markers.append( new PlainCodeMarker );
+    markers.append( new CppCodeMarker );
+    markers.append( new QsCodeMarker );
+
+    generators.setAutoDelete( TRUE );
+    generators.append( new HtmlGenerator );
+    generators.append( new LoutGenerator );
+    generators.append( new ManGenerator );
+    generators.append( new SgmlGenerator );
 
     QStringList qdocFiles;
     QString opt;

@@ -72,7 +72,7 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
 
     if ( pattern.isEmpty() ) {
 	Messages::warning( docLocation,
-			   qdoc::tr("Missing pattern after '\\%1'")
+			   Qdoc::tr("Missing pattern after '\\%1'")
 			   .arg(command) );
 	return "";
     }
@@ -82,9 +82,9 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
     } else {
 	if ( !silent ) {
 	    Messages::warning( docLocation,
-			       qdoc::tr("Command '\\%1' failed").arg(command) );
+			       Qdoc::tr("Command '\\%1' failed").arg(command) );
 	    Messages::warning( codeLocation,
-			       qdoc::tr("Pattern '%1' didn't match here")
+			       Qdoc::tr("Pattern '%1' didn't match here")
 			       .arg(pattern) );
 	    silent = TRUE;
 	}
@@ -145,13 +145,13 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 	QString t = pattern.mid( 1, pattern.length() - 2 );
 	if ( t.contains("(?:^|[^/])/") > 0 )
 	    Messages::warning( docLocation,
-			       qdoc::tr("Unescaped '/' in regular expression"
+			       Qdoc::tr("Unescaped '/' in regular expression"
 					" '%1'").arg(t) );
 	t.replace( QRegExp("\\\\/"), "/" );
 	QRegExp rx( t );
 	if ( !silent && !rx.isValid() ) {
 	    Messages::warning( docLocation,
-			       qdoc::tr("Invalid regular expression '%1'")
+			       Qdoc::tr("Invalid regular expression '%1'")
 			       .arg(t) );
 	    silent = TRUE;
 	}
@@ -166,10 +166,10 @@ void Quoter::failedAtEnd( const Location& docLocation, const QString& command )
     if ( !silent ) {
 	if ( codeLocation.pathAndFileName().isEmpty() ) {
 	    Messages::warning( docLocation,
-			       qdoc::tr("Unexpected '\\%1'").arg(command) );
+			       Qdoc::tr("Unexpected '\\%1'").arg(command) );
 	} else {
 	    Messages::warning( docLocation,
-			       qdoc::tr("Command '\\%1' failed at end of file"
+			       Qdoc::tr("Command '\\%1' failed at end of file"
 					    " '%2'")
 			      .arg(command)
 			      .arg(codeLocation.pathAndFileName()) );

@@ -35,6 +35,7 @@ public:
     const QString& baseName() const;
     SectioningUnit granularity() const;
     const Set<QString> *metaCommandsUsed() const;
+    QStringList metaCommandArgs( const QString& metaCommand ) const;
     const QValueList<Text> *alsoList() const;
 
     static void initialize( const Config& config );

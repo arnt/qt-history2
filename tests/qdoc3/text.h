@@ -27,7 +27,7 @@ public:
     QString toString() const;
     const Atom *firstAtom() const { return first; }
     const Atom *lastAtom() const { return last; }
-    Text subText( Atom::Type before, Atom::Type after ) const;
+    Text subText( Atom::Type left, Atom::Type right ) const;
     void dump() const;
 
     static Text subText( const Atom *begin, const Atom *end = 0 );

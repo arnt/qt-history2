@@ -75,18 +75,18 @@ QString Text::toString() const
     return str;
 }
 
-Text Text::subText( Atom::Type before, Atom::Type after ) const
+Text Text::subText( Atom::Type left, Atom::Type right ) const
 {
     const Atom *begin = firstAtom();
     const Atom *end;
 
-    while ( begin != 0 && begin->type() != before )
+    while ( begin != 0 && begin->type() != left )
 	begin = begin->next();
     if ( begin != 0 )
 	begin = begin->next();
 
     end = begin;
-    while ( end != 0 && end->type() != after )
+    while ( end != 0 && end->type() != right )
 	end = end->next();
     if ( end == 0 )
 	begin = 0;

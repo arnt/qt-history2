@@ -10,17 +10,15 @@
 class Atom
 {
 public:
-    enum Type { AbstractBegin, AbstractEnd, BaseName, BriefBegin, BriefEnd, C,
-		CaptionBegin, CaptionEnd, Code, FootnoteBegin, FootnoteEnd,
-		FormatBegin, FormatEnd, GeneratedList, Image, Link,
-		LinkNode, ListBegin, ListItemNumber, ListItemBegin,
-		ListItemEnd, ListEnd, Nop, ParagraphBegin,
-		ParagraphEnd, QuotationBegin, QuotationEnd,
-		RawFormat, RawString, SectionBegin, SectionEnd,
-		SectionHeadingBegin, SectionHeadingEnd, SidebarBegin,
-		SidebarEnd, String, TableBegin, TableEnd,
-		TableOfContents, Target, UnknownCommand, Last =
-		UnknownCommand };
+    enum Type { AbstractLeft, AbstractRight, BaseName, BriefLeft, BriefRight, C,
+		CaptionLeft, CaptionRight, Code, FootnoteLeft, FootnoteRight,
+		FormatLeft, FormatRight, GeneratedList, Image, Link, LinkNode,
+		ListLeft, ListItemNumber, ListItemLeft, ListItemRight,
+		ListRight, Nop, ParagraphLeft, ParagraphRight, QuotationLeft,
+		QuotationRight, RawFormat, RawString, SectionLeft, SectionRight,
+		SectionHeadingLeft, SectionHeadingRight, SidebarLeft,
+		SidebarRight, String, TableLeft, TableRight, TableOfContents,
+		Target, UnknownCommand, Last = UnknownCommand };
 
     Atom( Type type, const QString& string = "" )
 	: nex( 0 ), typ( type ), str( string ) { }

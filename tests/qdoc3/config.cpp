@@ -95,73 +95,59 @@ Set<QString> Config::subVars( const QString& var ) const
     return result;
 }
 
+QStringList Config::getAllFiles( const QString& filesVar,
+				 const QString& dirsVar,
+				 const QString& nameFilter )
+{
+    QStringList result = getStringList( filesVar );
+
+    QStringList dirs = getStringList( dirsVar );
+    QStringList::ConstIterator d = dirs.begin();
+    while ( d != dirs.end() ) {
+	result += findHere( *d, nameFilter );
+	++d;
+    }
+    return result;
+}
+
+QString Config::findFile( const QString& filesVar, const QString& dirsVar,
+			  const QString& fileName )
+{
+    QStringList files = getStringList( filesVar );
+    QStringList::ConstIterator f = files.begin();
+    while ( f != files.end() ) {
+	if ( (*f).mid((*f).findRev('/') + 1) == fileName )
+	    return *f;
+	++f;
+    }
+
+    QStringList dirs = getStringList( dirsVar );
+    QStringList::ConstIterator d = dirs.begin();
+    while ( d != dirs.end() ) {
+	QDir info( *d );
+	if ( info.exists(fileName) )
+	    return info.filePath( fileName );
+	++d;
+    }
+    return "";
+}
+
 QString Config::dot( const QString& var, const QString& subVar )
 {
     return var + "." + subVar;
 }
 
-QString Config::findFile( const QStringList& paths, const QString& fileName )
-{
-    QStringList::ConstIterator p;
-    QString filePath;
-
-    p = paths.begin();
-    while ( p != paths.end() ) {
-	QDir dir( *p );
-	if ( dir.exists(fileName) )
-	    return dir.filePath( fileName );
-	++p;
-    }
-    return "";
-}
-
-Set<QString> Config::findAll( const Set<QString>& paths,
-			      const QString& nameFilter )
-{
-    Set<QString> result;
-
-    Set<QString>::ConstIterator p = paths.begin();
-    while ( p != paths.end() ) {
-	QStringList fileNames;
-	QStringList::Iterator fn;
-	QDir dir( *p );
-
-	dir.setNameFilter( nameFilter );
-	dir.setSorting( QDir::Name );
-	dir.setFilter( QDir::Files );
-	fileNames = dir.entryList();
-	fn = fileNames.begin();
-	while ( fn != fileNames.end() ) {
-	    result.insert( dir.filePath(*fn) );
-	    ++fn;
-	}
-
-	dir.setNameFilter( "*" );
-	dir.setFilter( QDir::Dirs );
-	fileNames = dir.entryList();
-	fn = fileNames.begin();
-	while ( fn != fileNames.end() ) {
-	    if ( *fn != "." && *fn != ".." )
-		result = reunion( result,
-				  findAll(Set<QString>() << dir.filePath(*fn),
-					  nameFilter) );
-	    ++fn;
-	}
-	++p;
-    }
-    return result;
-}
-
-/*!
-
-*/
 void Config::reset()
 {
     static const struct {
 	const char *key;
 	const char *value;
     } defs[] = {
+	{ CONFIG_FORMATS, "HTML" },
+	{ CONFIG_FALSEHOODS, "0" },
+	{ CONFIG_SOURCELANGUAGE, "C++" },
 	{ CONFIG_TABSIZE, "8" },
+	{ CONFIG_TARGETLANGUAGE, "C++" },
 	{ 0, 0 }
     };
     int i = 0;
@@ -174,9 +160,6 @@ void Config::reset()
     }
 }
 
-/*!
-
-*/
 void Config::load( Location location, const QString& fileName )
 {
 #define ADVANCE() \
@@ -188,12 +171,12 @@ void Config::load( Location location, const QString& fileName )
     static int depth = 0;
 
     if ( depth++ > 16 )
-	Messages::fatal( location, qdoc::tr("Too many nested includes") );
+	Messages::fatal( location, Qdoc::tr("Too many nested includes") );
 
     QFile fin( fileName );
     if ( !fin.open(IO_ReadOnly) )
 	Messages::fatal( location,
-			 qdoc::tr("Cannot open file '%1'").arg(fileName) );
+			 Qdoc::tr("Cannot open file '%1'").arg(fileName) );
 
     QString text = fin.readAll();
     text += "\n\n";
@@ -219,10 +202,11 @@ void Config::load( Location location, const QString& fileName )
 	    do {
 		key += text[i];
 		ADVANCE();
-	    } while ( text[i].isLetterOrNumber() || text[i] == '.' );
+	    } while ( text[i].isLetterOrNumber() || text[i] == '_' ||
+		      text[i] == '.' );
 
 	    if ( !keySyntax.exactMatch(key) )
-		Messages::fatal( location, qdoc::tr("Bad key syntax") );
+		Messages::fatal( location, Qdoc::tr("Bad key syntax") );
 
 	    SKIP_SPACES();
 
@@ -230,7 +214,7 @@ void Config::load( Location location, const QString& fileName )
 		QString includeFile;
 
 		if ( text[i] != '(' )
-		    Messages::fatal( location, qdoc::tr("Bad include syntax") );
+		    Messages::fatal( location, Qdoc::tr("Bad include syntax") );
 		ADVANCE();
 		SKIP_SPACES();
 		while ( !text[i].isSpace() && text[i] != '#' ) {
@@ -239,11 +223,11 @@ void Config::load( Location location, const QString& fileName )
 		}
 		SKIP_SPACES();
 		if ( text[i] != ')' )
-		    Messages::fatal( location, qdoc::tr("Bad include syntax") );
+		    Messages::fatal( location, Qdoc::tr("Bad include syntax") );
 		ADVANCE();
 		SKIP_SPACES();
 		if ( text[i] != '#' && text[i] != '\n' )
-		    Messages::fatal( location, qdoc::tr("Trailing garbage") );
+		    Messages::fatal( location, Qdoc::tr("Trailing garbage") );
 		load( location, includeFile );
 	    } else {
 		if ( text[i] == '+' ) {
@@ -251,7 +235,7 @@ void Config::load( Location location, const QString& fileName )
 		    ADVANCE();
 		}
 		if ( text[i] != '=' )
-		    Messages::fatal( location, qdoc::tr("Expected '=' or '+='"
+		    Messages::fatal( location, Qdoc::tr("Expected '=' or '+='"
 							" after key") );
 		ADVANCE();
 		SKIP_SPACES();
@@ -278,17 +262,35 @@ void Config::load( Location location, const QString& fileName )
 			value.append( "" );
 			inQuote = !inQuote;
 			ADVANCE();
+		    } else if ( text[i] == '$' ) {
+			QString var;
+			ADVANCE();
+			while ( text[i].isLetterOrNumber() || text[i] == '_' ) {
+			    var += text[i];
+			    ADVANCE();
+			}
+			if ( !var.isEmpty() ) {
+			    char *val = getenv( var.latin1() );
+			    if ( val == 0 ) {
+				Messages::fatal( location,
+						 Qdoc::tr("Environment variable"
+							  " '%1' undefined")
+						 .arg(var) );
+			    } else {
+				value.last().append( QString(val) );
+			    }
+			}
 		    } else {
 			if ( !inQuote && text[i] == '=' )
 			    Messages::fatal( location,
-					     qdoc::tr("Unexpected '='") );
+					     Qdoc::tr("Unexpected '='") );
 			value.last().append( text[i] );
 			ADVANCE();
 		    }
 		}
 		if ( inQuote )
 		    Messages::fatal( location,
-				     qdoc::tr("Unterminated string") );
+				     Qdoc::tr("Unterminated string") );
 		value.remove( "" );
 
 		if ( plus ) {
@@ -298,8 +300,38 @@ void Config::load( Location location, const QString& fileName )
 		}
 	    }
 	} else {
-	    Messages::fatal( location, qdoc::tr("Bad key syntax") );
+	    Messages::fatal( location, Qdoc::tr("Bad key syntax") );
 	}
     }
     depth--;
+}
+
+QStringList Config::findHere( const QString& dir, const QString& nameFilter )
+{
+    QStringList result;
+
+    QDir info( dir );
+    QStringList fileNames;
+    QStringList::Iterator fn;
+
+    info.setNameFilter( nameFilter );
+    info.setSorting( QDir::Name );
+    info.setFilter( QDir::Files );
+    fileNames = info.entryList();
+    fn = fileNames.begin();
+    while ( fn != fileNames.end() ) {
+	result += info.filePath( *fn );
+	++fn;
+    }
+
+    info.setNameFilter( "*" );
+    info.setFilter( QDir::Dirs );
+    fileNames = info.entryList();
+    fn = fileNames.begin();
+    while ( fn != fileNames.end() ) {
+	if ( *fn != "." && *fn != ".." )
+	    result += findHere( info.filePath(*fn), nameFilter );
+	++fn;
+    }
+    return result;
 }
