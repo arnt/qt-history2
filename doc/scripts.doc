@@ -18,6 +18,7 @@ It has support for most writing systems that are used in todays world, as
 <li> Korean
 <li> Thai
 <li> Vietnamese
+</ul>
 
 Many of these writing systems exhibit special features as for example
 <ul>
@@ -34,12 +35,13 @@ marks and some characters can have a few marks at the same time to clarify prono
 combined glyph forming a so called ligature. Known examples are the ff and fi ligatures used in 
 typesetting of some european books.
 </ul>
-
+<p>
 Except for ligatures which are currently only supported for a special case in arabic, 
 Qt tries to take care of all the special features listed above. The programmer will usually never
 have to worry about these features as long as he uses Qt's input (QLineEdit and
 QTextView derived classes) and displaying controls (QLabel).
-
+</p>
+<p>
 Support for these writing systems is transparent to the programmer and completeley encapsulated
 in Qt's text engine. This implies, that a programmer using Qt does not need to have any knowledge
 about the writing system used in this language, except for a few small things listed below.
