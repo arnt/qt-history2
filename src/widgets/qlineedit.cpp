@@ -79,7 +79,7 @@ struct QLineEditPrivate {
 };
 
 
-// NOT REVISED
+// BEING REVISED: warwick
 /*!
   \class QLineEdit qlineedit.h
 
