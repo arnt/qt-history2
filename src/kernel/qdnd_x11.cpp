@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#76 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -413,6 +413,10 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	}
 	if ( c->acceptDrops() ) {
+	    qt_xdnd_current_widget = c;
+	    qt_xdnd_current_position = p;
+	    qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
+
 	    QDragEnterEvent de( p );
 	    QApplication::sendEvent( c, &de );
 	    if ( de.isAccepted() )
