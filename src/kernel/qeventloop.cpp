@@ -241,7 +241,10 @@ int QEventLoop::loopLevel() const
     operation and want to show its progress without allowing user
     input, i.e. by using the \c ExcludeUserInput flag.
 
-    NOTE: Specifying the \c WaitForMore flag makes no sense, and will
+    NOTE: This function will not process events continuously; it
+    returns after all available events are processed.
+
+    NOTE: Specifying the \c WaitForMore flag makes no sense and will
     be ignored.
 */
 void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
@@ -260,14 +263,35 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     \overload
 
     Processes pending events that match \a flags until there are no
-    more events to process.. If no events matching \a flags are
-    available, this function will wait for the next event if the \c
-    WaitForMore flag is set in \a flags, otherwise it returns
-    immediately.
+    more events to process.
 
-    Returns TRUE if an event was processed; otherwise returns FALSE.
+    This function is especially useful if you have a long running
+    operation and want to show its progress without allowing user
+    input, i.e. by using the \c ExcludeUserInput flag.
 
-    \sa ProcessEvents
+    If the \c WaitForMore flag is set in \a flags, the behavior of
+    this function is as follows:
+
+    \list
+
+    \i If events are available, this function returns after processing
+    them.
+
+    \i If no events are available, this function will wait until more
+    are available and return after processing newly available events.
+
+    \endlist
+
+    If the \c WaitForMore flag is \e not set in \a flags, and no
+    events are available, this function will return immediately.
+
+    NOTE: This function will not process events continuously; it
+    returns after all available events are processed.
+
+    This function returns TRUE if an event was processed; otherwise it
+    returns FALSE.
+
+    \sa ProcessEvents hasPendingEvents()
 */
 
 /*! \fn bool QEventLoop::hasPendingEvents() const
