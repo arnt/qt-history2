@@ -1,0 +1,178 @@
+<h1>Installing Qt/Embedded</h1>
+
+
+<p>
+This installation procedure is written for Linux/i386. It may need
+to be modified for other platforms.
+
+<h3>  Unpack the archive if you have not done so already:</h3>
+<pre>
+	cd &lt;anywhere&gt;
+	gunzip qt-embedded.tar.gz    # uncompress the archive
+	tar xf qt-embedded.tar       # unpack it
+</pre>
+
+  This document assumes that the archive is installed as <tt>~/qt-embedded</tt>.
+</p>
+
+<h3>  Install tmake</h3>
+
+You need the newest tmake. (including linux-qws-g++) 
+This should be available at the same place as the qt-embedded archive.
+
+<p>
+  This document assumes that tmake is installed as <tt>~/tmake</tt>.
+</p>
+
+<h3>  Set some environment variables </h3>
+
+<pre>
+	QTDIR			- wherever you installed Qt
+	PATH			- to locate moc, tmake and so on
+	LD_LIBRARY_PATH		- for the shared Qt library
+	TMAKEDIR
+	TMAKEPATH
+</pre>
+    for example...
+<pre>
+	export QTDIR=$HOME/qt-embedded
+	export TMAKEDIR=$HOME/tmake
+
+	export PATH=$QTDIR/bin:$PATH:$TMAKEDIR/bin
+	export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+	export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
+</pre>
+
+  
+<p>
+  Remember to re-source environment files, if necessary.
+</p>
+
+
+<h3> Compile the Qt/Embedded library and examples</h3>
+
+<pre>
+	cd ~/qt-embedded
+	make
+</pre>
+
+<h3> Enable framebuffer support</h3>
+
+<p>
+   You may need to recompile your kernel to enable the framebuffer.
+   This document does not describe how to do this; the file
+   HOWTO-Framebuffer contains a short description. (You should see
+   a penguin logo at boot time when the frame buffer is enabled.)
+
+<p>
+   For Matrox G100/G200/G400 use the matrox frame buffer driver.
+
+<p>
+   For Mach64 and most other cards, use the vesafb driver.
+
+
+<p>
+   Note that some cards are only supported in VGA16 mode, this will
+   not work with the current version of Qt/Embedded, since VGA/16 is
+   not yet supported. You may need to upgrade your kernel, or even
+   switch to an experimental kernel.
+
+<p>
+   The frame buffer must also be enabled with a boot parameter. See
+   <tt>/usr/src/linux/Documentation/fb</tt> for details.
+
+<p>
+   The fbset program, which should be included in Linux distributions,
+   may be used to switch video modes without rebooting the system. The
+   video mode active when the server is started will be used. (8-bit
+   modes are still experimental.) NOTE: fbset does not work with the vesafb
+   driver.
+</p>
+
+<h3> Change permissions</h3>
+
+<p>
+   To run Qt/Embedded, you need write access to the framebuffer device
+   <tt>/dev/fb0</tt>. 
+
+<p>
+   You also need read access to the mouse device. (Note that
+   <tt>/dev/mouse</tt> is normally a symbolic link; the actual mouse device
+   must be readable.)
+</p>
+
+
+
+<h3> How to run the demonstration program</h3>
+
+<p>
+   Log into a virtual console and do:
+
+<pre>
+	cd ~/qt-embedded/
+   	./start-demo
+</pre>
+  
+
+<h3> Miscellaneous troubleshooting and known bugs</h3>
+
+<p>
+  To kill gpm, run the following command as root:
+  
+<pre>
+	gpm -k
+</pre>
+
+<p>
+  In some cases, if the server does not work, it will work when run as root.
+
+<p>
+  Some example programs may not compile with gcc 2.95.
+
+
+<p>
+  Show processes using the framebuffer:
+
+<pre>
+    fuser -v /dev/fb0
+</pre>
+
+<p>
+  Kill such processes:
+<pre>
+    fuser -vk /dev/fb0
+</pre>
+  or harsher:
+<pre>
+    fuser -k -KILL /dev/fb0
+</pre>
+
+
+<p>
+  Show existing semaphores:
+
+<pre>
+    ipcs            
+</pre>
+ 
+<p>
+  Remove semaphores:
+
+<pre>
+    ipcrm
+</pre>
+
+<p>
+  The communication between client and server is done through the
+  named pipe <tt>/tmp/.QtEmbedded</tt>; sometimes it may need to be deleted
+  (eg. if you run Qt/Embedded as root then later as an unprivileged user).
+</p>
+
+
+<h3> Customization  </h3>
+
+<p>
+   The Qt/Embedded library can be further reduced in size by removing
+   unneeded features. The file <tt>qt-embedded/src/tools/qfeatures.h</tt>
+   defines macros of the form <tt>QT_FEATURE_XXXX</tt>. To remove a feature
+   from Qt/Embedded, set the macro to 0.
