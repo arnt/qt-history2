@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#189 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#190 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2064,7 +2064,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 			cw = 0;
 			nlines++;
 		    }
-		    if ( tw+cw > w ) {
+		    if ( tw+cw > w && word.length() > 1) {
 			breakwithinwords = TRUE;
 			breakwidth = 0;
 			p -= word.length();	
