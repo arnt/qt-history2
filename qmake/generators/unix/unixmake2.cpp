@@ -110,16 +110,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC       = " << var("QMAKE_CC") << endl;
-
     t << "CXX      = " << var("QMAKE_CXX") << endl;
     t << "LEX      = " << var("QMAKE_LEX") << endl;
     t << "YACC     = " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " "
+    t << "DEFINES  = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       << varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS = " << var("QMAKE_CXXFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CFLAGS   = " << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS = " << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS = " << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS= " << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH  = " << "-I" << specdir();
@@ -878,7 +876,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "echo '#include \"" << precomph << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h "
 	  << outdir << "allmoc.cpp" << "\n\t"
-	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
+	  << "$(MOC) $(DEFINES) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
 	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \""
 	  << precomph << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;

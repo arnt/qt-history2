@@ -600,12 +600,11 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "CXX		=	" << var("QMAKE_CXX") << endl;
     t << "LEX		= " << var("QMAKE_LEX") << endl;
     t << "YACC		= " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " "
+    t << "DEFINES       = "
       << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
       <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " "
-      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
-      << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " $(DEFINES)" << endl;
+    t << "CXXFLAGS	=	" << var("QMAKE_CXXFLAGS") << " $(DEFINES)" << endl;
     t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS	=" << var("QMAKE_YACCFLAGS") << endl;
     t << "INCPATH	=	";

@@ -102,9 +102,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		if(project->variables()["SOURCES"].isEmpty())
 		    continue;
 
-		QString mocpath = var("QMAKE_MOC");
-		mocpath = mocpath.replace(QRegExp("\\..*$"), "") + " ";
-
 		QStringList list = project->variables()["SOURCES"] + project->variables()["DEF_FILE"];
 		if(!project->isActiveConfig("flat"))
 		    list.sort();
@@ -183,7 +180,21 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if (project->isActiveConfig("moc") && !mocFile.isEmpty()) {
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-			buildCmds += "\t" + mocpath + (*it)  + " -o " + mocFile + " \\\n";
+
+			QString mocargs;
+			//defines
+			mocargs += varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") + varGlue("DEFINES"," -D"," -D","");
+			//includes
+			mocargs += " -I" + specdir();
+			if(!project->isActiveConfig("no_include_pwd")) {
+			    QString pwd = fileFixify(QDir::currentDirPath());
+			    if(pwd.isEmpty())
+				pwd = ".";
+			    mocargs += " -I" + pwd;
+			}
+			mocargs += varGlue("INCLUDEPATH"," -I", " -I", "");
+
+			buildCmds += "\t" + mocpath + (*it)  + mocargs + " -o " + mocFile + " \\\n";
 			createMOC  = "\"" + mocFile +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 			customDependencies += "\"$(QTDIR)\\bin\\moc.exe\"";
 		    }
