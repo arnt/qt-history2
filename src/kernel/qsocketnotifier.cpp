@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#44 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -130,7 +130,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
 */
 
 
-/*!  Constructs a socket notifier with a \e parent and a \e name that
+/*!  Constructs a socket notifier with the \a parent and the \a name that
   watches \a socket for \a type events, and enables it.
 
   It is generally advisable to explicitly enable or disable it,
@@ -175,7 +175,7 @@ QSocketNotifier::~QSocketNotifier()
   exception event).
   </ol>
 
-  The \e socket argument is the \link socket() socket\endlink identifier.
+  The \a socket argument is the \link socket() socket\endlink identifier.
 
   \sa type(), socket()
 */
@@ -203,7 +203,7 @@ QSocketNotifier::~QSocketNotifier()
 */
 
 /*!
-  Enables the notifier if \e enable is TRUE or disables it if \e enable is
+  Enables the notifier if \a enable is TRUE or disables it if \a enable is
   FALSE.
 
   The notifier is by default enabled.

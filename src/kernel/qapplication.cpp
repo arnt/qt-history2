@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#503 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#504 $
 **
 ** Implementation of QApplication class
 **
@@ -595,6 +595,9 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 }
 
 /*!
+  Constructs an application object with the command line arguments \a
+  argc and \a argv.
+  
   For Qt/Embedded, passing \c QApplication::GuiServer for \a type
   makes this application the server (equivalent to running with the
   -qws option).
@@ -1269,7 +1272,7 @@ void QApplication::removeLibraryPath(const QString &path)
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
 
-  If a widget is passed as argument, the default palette for the
+  If a widget is passed at \a w, the default palette for the
   widget's class is returned. This may or may not be the application
   palette. In most cases there isn't a special palette for certain
   types of widgets, but one notable exception is the popup menu under
@@ -1448,7 +1451,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 
 /*!
-    Initialization of the appearance of a widget \e before it is first
+    Initialization of the appearance of the widget \a w \e before it is first
     shown.
 
   Usually widgets call this automatically when they are polished. It
@@ -2113,6 +2116,8 @@ void QApplication::removeTranslator( QTranslator * mf )
 
 
 /*!
+  Sets the default codec of the application to \a codec.
+    
   If the literal quoted text in the program is not in the Latin1
   encoding, this function can be used to set the appropriate encoding.
   For example, software developed by Korean programmers might use
@@ -2222,7 +2227,8 @@ QString QApplication::translate( const char * context, const char * sourceText,
 //see also notify(), which does the removal of ChildInserted when ChildRemoved.
 
 /*!
-  Adds the event to an event queue and returns immediately.
+  Adds the event \a event with the object \a receiver as the reciever of the
+  event to an event queue and returns immediately.
 
   The event must be allocated on the heap since the post event queue
   will take ownership of the event and delete it once it has been posted.
@@ -2999,7 +3005,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 }
 #endif //QT_NO_SESSIONMANAGER
 /*!
-  Sets the time after which a drag should start.
+  Sets the time after which a drag should start to \a ms ms.
 
   \sa startDragTime()
 */
@@ -3028,7 +3034,7 @@ int QApplication::startDragTime()
 }
 
 /*!
-  Sets the distance after which a drag should start.
+  Sets the distance after which a drag should start to \a l ms.
 
   \sa startDragDistance()
 */
@@ -3380,7 +3386,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   \fn int QApplication::horizontalAlignment( int align )
 
   Strips out vertical alignment flags and transforms an
-  alignment \e align of AlignAuto into AlignLeft or
+  alignment \a align of AlignAuto into AlignLeft or
   AlignRight according to the language used. The other horizontal
   alignment flags are left untouched.
 */

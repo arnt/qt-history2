@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmanager_qws.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qfontmanager_qws.cpp#19 $
 **
 ** Definition of QFontFactory for Truetype class for Embedded Qt
 **
@@ -368,7 +368,7 @@ of the character specified.
 */
 
 /*!
-\fn bool QRenderedFont::inFont(QChar ch)
+\fn bool QRenderedFont::inFont(QChar ch) const
 Returns true if the unicode character ch is in the font.
 */
 

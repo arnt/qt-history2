@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qgfxraster_qws.cpp#64 $
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -369,8 +369,8 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 /*!
   \fn void QScreenCursor::move(int x, int y)
-  Move the mouse cursor to point x,y on the screen. This should be done
-  in such a way that the hotspot of the cursor is at x,y - e.g. if the
+  Move the mouse cursor to point (\a x, \a y) on the screen. This should be done
+  in such a way that the hotspot of the cursor is at (x,y) - e.g. if the
   hotspot is at 5,5 within the image then the top left of the image should
   be at x-5,y-5
 */
@@ -2056,8 +2056,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 
 
 /*!
- \class QGfxRaster<depth,type> qgfxraster_qws.h
- \brief This class is QGfxRasterBase specialised for a particular bit
+ \class QGfxRaster qgfxraster_qws.h
+ \brief The QGfxRaster class is QGfxRasterBase specialized for a particular bit
  depth, specified by the depth parameter of the template. The type field
  is currently not used. In future versions, it may be used to specify the
  pixel storage format. 
@@ -2081,7 +2081,8 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 */
 
 /*!
-  \fn QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
+  \fn QGfxRaster<depth,type>::QGfxRaster(unsigned char * b, int w, int h)
+    
   Constructs a QGfxRaster for a particular depth with a framebuffer pointed
   to by b, with a width and height of w and h (specified in pixels, not
   bytes)
@@ -2101,8 +2102,9 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
 }
 
 /*!
-  \fn QGfxRaster<depth,type>::~QGfxRaster()
-  Destroys a QGfxRaster
+\fn QGfxRaster<depth,type>::~QGfxRaster()
+
+Destroys a QGfxRaster
 */
 
 template <const int depth, const int type>
@@ -2319,7 +2321,8 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
 // source depth
 
 /*!
-\fn QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
+\fn void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
+
 This is an internal method used to optimise blt's from paletted to paletted
 data, where the palettes are different for each. A lookup table
 indexed by the source value providing the destination value is
@@ -2357,7 +2360,8 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 }
 
 /*!
-\fn QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+  \fn void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+
 This draws a point in the scanline pointed to by l, at the position x,
 without taking any notice of clipping. It's an internal method called
 by drawPoint()
@@ -2460,8 +2464,9 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
 }
 
 /*!
-\fn QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
-Draw npoints points from position index in the array of points pa.
+  \fn void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
+
+  Draw npoints points from position index in the array of points pa.
 */
 
 template <const int depth, const int type>
@@ -4316,7 +4321,8 @@ void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, i
 }
 
 /*!
-/fn void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+\fn void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+
 This is used internally by drawPolygon (via scan()) to draw the individual
 scanlines of a polygon by calling hline.
 */
@@ -4365,10 +4371,11 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 /*!
-/fn unsigned char * find_pointer(unsigned char * base,int x,int y,
+  \fn GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
 					   int w, int linestep, int &astat,
 					   unsigned char &ahold,
 					   bool is_bigendian, bool rev)
+
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
   endianness.
@@ -4881,7 +4888,7 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 
 /*!
   \fn QScreen::QScreen( int display_id )
-  Create a screen; the display_id is the number of the Qt/Embedded server
+  Create a screen; the \a display_id is the number of the Qt/Embedded server
   to connect to.
 */
 
@@ -4987,7 +4994,7 @@ int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 
 /*!
 \fn int QScreen::initCursor(void* end_of_location, bool init)
-This is used to initialise the software cursor - end_of_location
+This is used to initialise the software cursor - \a end_of_location
 points to the address after the area where the cursor image can be stored.
 init is true for the first application this method is called from
 (the Qt/Embedded server), false otherwise.
@@ -5138,7 +5145,7 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 
 /*!
 \fn bool QScreen::onCard(unsigned char * p) const
-Returns true if the buffer pointed to by p is within graphics card
+Returns true if the buffer pointed to by \a p is within graphics card
 memory, false if it's in main RAM.
 */
 
@@ -5155,9 +5162,10 @@ bool QScreen::onCard(unsigned char * p) const
 
 /*!
 \fn bool QScreen::onCard(unsigned char * p, ulong& offset) const
-This checks whether the buffer specified by p is on the card
+\overload
+This checks whether the buffer specified by \a p is on the card
 (as per the other version of onCard) and returns an offset in bytes
-from the start of graphics card memory in offset if it is.
+from the start of graphics card memory in \a offset if it is.
 */
 
 bool QScreen::onCard(unsigned char * p, ulong& offset) const

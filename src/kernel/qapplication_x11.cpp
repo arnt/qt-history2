@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#816 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#817 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2202,7 +2202,7 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
 */
 
 /*!
-  Sets the main widget of the application.
+  Sets the main widget of the application to \a mainWidget.
 
   The main widget is like any other, in most respects except that if
   it is deleted, the application exits.
@@ -2540,6 +2540,13 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 
 /*!
   \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
+
+  Returns a pointer to the widget at global screen position \a pos, or a
+  null pointer if there is no Qt widget there.
+
+  If \a child is FALSE and there is a child widget at position \a
+  pos, the top-level widget containing it is returned. If \a child
+  is TRUE the child widget at position \a pos is returned.
 */
 
 
@@ -3544,7 +3551,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 
 /*!
-  Processes pending events for \a maxtime milliseconds or until there
+  \overload  
+  
+    Processes pending events for \a maxtime milliseconds or until there
   are no more events to process, whichever is shorter.
 
   You can call this function occasionally when you program is busy doing a
@@ -5385,7 +5394,7 @@ int QApplication::doubleClickInterval()
 
 /*!
   Sets the number of lines to scroll when the mouse wheel is
-  rotated.
+  rotated to \a n.
 
   If this number exceeds the number of visible lines in a certain
   widget, the widget should interpret the scroll operation as a single

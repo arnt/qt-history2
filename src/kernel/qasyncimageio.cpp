@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#97 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -89,7 +89,7 @@ extern void qt_init_image_handlers();
 
 /*!
   \fn void QImageConsumer::frameDone( const QPoint& offset, const QRect& rect )
-
+  \overload
   One of the two frameDone() functions will be called
   when a frame of an animated image has ended and been revealed
   as changed().
@@ -307,7 +307,7 @@ void QImageDecoderPrivate::cleanup()
 
 /*!
   Constructs a QImageDecoder that will send change information to
-  a given QImageConsumer.
+  the QImageConsumer \a c.
 */
 QImageDecoder::QImageDecoder(QImageConsumer* c)
 {
@@ -438,7 +438,7 @@ QStrList QImageDecoder::inputFormats()
 }
 
 /*!
-  Registers a new QImageFormatType.  This is not needed in
+  Registers the new QImageFormatType \a f.  This is not needed in
   application code because factories call this themselves.
 */
 void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
@@ -449,7 +449,7 @@ void QImageDecoder::registerDecoderFactory(QImageFormatType* f)
 }
 
 /*!
-  Unregisters a new QImageFormatType.  This is not needed in
+  Unregisters the QImageFormatType \a f.  This is not needed in
   application code because factories call this themselves.
 */
 void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#307 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#308 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2957,7 +2957,7 @@ QBrush::QBrush()
 }
 
 /*!
-  Constructs a black brush with the specified style.
+  Constructs a black brush with the style \a style.
   \sa setStyle()
 */
 
@@ -2967,7 +2967,7 @@ QBrush::QBrush( BrushStyle style )
 }
 
 /*!
-  Constructs a brush with a specified color and style.
+  Constructs a brush with the color \a color and the style \a style.
   \sa setColor(), setStyle()
 */
 
@@ -2977,7 +2977,8 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 }
 
 /*!
-  Constructs a brush with a specified color and a custom pattern.
+  Constructs a brush with the color \a color and a custom pattern 
+  stored in \a pixmap.
 
   The color will only have an effect for monochrome pixmaps, i.e.,
   QPixmap::depth() == 1.
@@ -3137,7 +3138,7 @@ void QBrush::setColor( const QColor &c )
 */
 
 /*!
-  Sets the brush pixmap.  The style is set to \c CustomPattern.
+  Sets the brush pixmap to \a pixmap.  The style is set to \c CustomPattern.
 
   The current brush color will only have an effect for monochrome pixmaps,
   i.e.	QPixmap::depth() == 1.
@@ -3195,7 +3196,7 @@ bool QBrush::operator==( const QBrush &b ) const
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QBrush
-  Writes a brush to the stream and returns a reference to the stream.
+  Writes the brush \a b to the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -3210,7 +3211,7 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
 
 /*!
   \relates QBrush
-  Reads a brush from the stream and returns a reference to the stream.
+  Reads the brush \a b from the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#46 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -213,7 +213,7 @@ void QDataSource::rewind()
 */
 
 /*!
-  Constructs a QIODeviceSource from a pointer to an QIODevice.  The QIODevice
+  Constructs a QIODeviceSource from the QIODevice \a device.  The QIODevice
   \e must be dynamically allocated, becomes owned by the QIODeviceSource,
   and will be deleted when the QIODeviceSource is destroyed. \a buffer_size
   determines the size of buffering to use between asynchronous operations.
@@ -269,7 +269,9 @@ bool QIODeviceSource::rewindable() const
 }
 
 /*!
-  Enables rewinding.  No special action is taken.
+  If \a on is set to TRUE then rewinding is enabled.  
+  No special action is taken.  If \a on is set to 
+  FALSE then rewinding is disabled.
 */
 void QIODeviceSource::enableRewind(bool on)
 {

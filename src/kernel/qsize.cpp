@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#48 $
 **
 ** Implementation of QSize class
 **
@@ -67,7 +67,7 @@
 
 /*!
   \fn QSize::QSize( int w, int h )
-  Constructs a size with width \e w and height \e h.
+  Constructs a size with width \a w and height \a h.
 */
 
 /*!
@@ -101,13 +101,13 @@
 
 /*!
   \fn void QSize::setWidth( int w )
-  Sets the width to \e w.
+  Sets the width to \a w.
   \sa width(), setHeight()
 */
 
 /*!
   \fn void QSize::setHeight( int h )
-  Sets the height to \e h.
+  Sets the height to \a h.
   \sa height(), setWidth()
 */
 
@@ -155,7 +155,7 @@ void QSize::transpose()
 /*!
   \fn QSize &QSize::operator+=( const QSize &s )
 
-  Adds \e s to the size and returns a reference to this size.
+  Adds \a s to the size and returns a reference to this size.
 
   Example:
   \code
@@ -168,7 +168,7 @@ void QSize::transpose()
 /*!
   \fn QSize &QSize::operator-=( const QSize &s )
 
-  Subtracts \e s from the size and returns a reference to this size.
+  Subtracts \a s from the size and returns a reference to this size.
 
   Example:
   \code
@@ -180,14 +180,14 @@ void QSize::transpose()
 
 /*!
   \fn QSize &QSize::operator*=( int c )
-  Multiplies both the width and height with \e c and returns a reference to
+  Multiplies both the width and height with \a c and returns a reference to
   the size.
 */
 
 /*!
   \fn QSize &QSize::operator*=( double c )
 
-  Multiplies both the width and height with \e c and returns a reference to
+  Multiplies both the width and height with \a c and returns a reference to
   the size.
 
   Note that the result is truncated.
@@ -196,62 +196,62 @@ void QSize::transpose()
 /*!
   \fn bool operator==( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns TRUE if \e s1 and \e s2 are equal, or FALSE if they are different.
+  Returns TRUE if \a s1 and \a s2 are equal, or FALSE if they are different.
 */
 
 /*!
   \fn bool operator!=( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns TRUE if \e s1 and \e s2 are different, or FALSE if they are equal.
+  Returns TRUE if \a s1 and \a s2 are different, or FALSE if they are equal.
 */
 
 /*!
   \fn const QSize operator+( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns the sum of \e s1 and \e s2; each component is added separately.
+  Returns the sum of \a s1 and \a s2; each component is added separately.
 */
 
 /*!
   \fn const QSize operator-( const QSize &s1, const QSize &s2 )
   \relates QSize
-  Returns \e s2 subtracted from \e s1; each component is
+  Returns \a s2 subtracted from \a s1; each component is
   subtracted separately.
 */
 
 /*!
   \fn const QSize operator*( const QSize &s, int c )
   \relates QSize
-  Multiplies \e s by \e c and returns the result.
+  Multiplies \a s by \a c and returns the result.
 */
 
 /*!
   \fn const QSize operator*( int c, const QSize &s )
   \relates QSize
-  Multiplies \e s by \e c and returns the result.
+  Multiplies \a s by \a c and returns the result.
 */
 
 /*!
   \fn const QSize operator*( const QSize &s, double c )
   \relates QSize
-  Multiplies \e s by \e c and returns the result.
+  Multiplies \a s by \a c and returns the result.
 */
 
 /*!
   \fn const QSize operator*( double c, const QSize &s )
   \relates QSize
-  Multiplies \e s by \e c and returns the result.
+  Multiplies \a s by \a c and returns the result.
 */
 
 /*!
   \fn QSize &QSize::operator/=( int c )
-  Divides both the width and height by \e c and returns a reference to the
+  Divides both the width and height by \a c and returns a reference to the
   size.
 */
 
 /*!
   \fn QSize &QSize::operator/=( double c )
-
-  Divides both the width and height by \e c and returns a reference to the
+  \overload
+  Divides both the width and height by \a c and returns a reference to the
   size.
 
   Note that the result is truncated.
@@ -260,13 +260,14 @@ void QSize::transpose()
 /*!
   \fn const QSize operator/( const QSize &s, int c )
   \relates QSize
-  Divides \e s by \e c and returns the result.
+  Divides \a s by \a c and returns the result.
 */
 
 /*!
   \fn const QSize operator/( const QSize &s, double c )
   \relates QSize
-  Divides \e s by \e c and returns the result.
+  \overload
+  Divides \a s by \a c and returns the result.
 
   Note that the result is truncated.
 */

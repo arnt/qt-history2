@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#156 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -560,7 +560,7 @@ public:
     }
 };
 
-/*!  Sets the MIME subtype of the text being dragged. The default subtype
+/*!  Sets the MIME subtype of the text being dragged to \a st. The default subtype
   is "plain", so the default MIME type of the text is "text/plain".  You
   might use this to declare that the text is "text/html" by calling
   setSubtype("html").
@@ -620,7 +620,7 @@ QTextDrag::~QTextDrag()
 
 
 /*!
-  Sets the text to be dragged.  You will need to call this if you did
+  Sets the text to be dragged to \a text.  You will need to call this if you did
   not pass the text during construction.
 */
 void QTextDrag::setText( const QString &text )
@@ -706,6 +706,8 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 }
 
 /*!
+  \overload
+    
   Attempts to decode the dropped information in \a e
   into \a str, returning TRUE if successful.  If \a subtype is null,
   any text subtype is accepted; otherwise only that specified is
@@ -840,7 +842,7 @@ QImageDrag::~QImageDrag()
 
 
 /*!
-  Sets the image to be dragged.  You will need to call this if you did
+  Sets the image to be dragged to \a image.  You will need to call this if you did
   not pass the image during construction.
 */
 void QImageDrag::setImage( QImage image )
@@ -965,6 +967,8 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 }
 
 /*!
+  \overload
+  
   Attempts to decode the dropped information in \a e
   into \a pm, returning TRUE if successful.
 
@@ -1440,7 +1444,7 @@ QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name
 }
 
 /*!
-  Constructs a color drag object with a while color
+  Constructs a color drag object with a white color
 */
 
 QColorDrag::QColorDrag( QWidget *dragsource, const char *name )

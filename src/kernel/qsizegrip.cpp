@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#42 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -102,7 +102,8 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
 
 
 /*!
-  Constructs a resize corner as a child widget of \a parent.
+  Constructs a resize corner as a child widget of \a parent with the name
+  \a name.
 */
 QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     : QWidget( parent, name )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsound.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qsound.cpp#23 $
 **
 ** Implementation of QSound class and QAuServer internal class
 **
@@ -173,6 +173,8 @@ QSound::~QSound()
 }
 
 /*!
+  \overload
+
   Starts the sound playing.  The function returns immediately.
   Depending on the platform audio facilities, other sounds may
   stop or may be mixed with the new sound.
