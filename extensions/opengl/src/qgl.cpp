@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#43 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#44 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,26 +26,6 @@
 #include "qgl.h"
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
-#include <qapplication.h>
-
-#if defined(Q_GLX)
-#include <qintdict.h>
-#define INT8  dummy_INT8
-#define INT32 dummy_INT32
-#include <GL/glx.h>
-#undef  INT8
-#undef  INT32
-#define	 GC GC_QQQ
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xos.h>
-#include <X11/Xatom.h>
-#include <X11/Xmu/StdCmap.h>
-#endif
-
-#if defined(_CC_MSVC_)
-#pragma warning(disable:4355) // 'this' : used in base member initializer list
-#endif
 
 
 static QGLFormat* qgl_default_format = 0;
@@ -522,21 +502,18 @@ bool QGLFormat::testOption( FormatOption opt ) const
 
 
 /*!
+  \fn bool QGLFormat::hasOpenGL()
   Returns TRUE if the window system has any OpenGL support,
   otherwise FALSE.
 */
 
-bool QGLFormat::hasOpenGL()
-{
-#if defined(Q_WGL)
-    return TRUE;
-#else
-    return glXQueryExtension(qt_xdisplay(),0,0) != 0;
-#endif
-}
 
 
-
+/*!
+  \fn bool QGLFormat::hasOpenGLOverlays()
+  Returns TRUE if the window system supports OpenGL overlays,
+  otherwise FALSE.
+*/
 
 
 
@@ -691,131 +668,6 @@ bool operator!=( const QGLFormat& a, const QGLFormat& b )
     return !( a == b );
 }
 
-
-#if defined(Q_GLX)
-
-/*
-  The create_cmap function is internal and used by QGLWidget::setContext()
-  and GLX (not Windows).  If the application can't find any sharable
-  colormaps, it must at least create as few colormaps as possible.  The
-  dictionary solution below ensures only one colormap is created per visual.
-  Colormaps are also deleted when the application terminates.
-*/
-
-struct CMapEntry {
-    CMapEntry();
-   ~CMapEntry();
-    Colormap		cmap;
-    bool		alloc;
-    XStandardColormap	scmap;
-};
-
-CMapEntry::CMapEntry()
-{
-    cmap = 0;
-    alloc = FALSE;
-    scmap.colormap = 0;
-}
-
-CMapEntry::~CMapEntry()
-{
-    if ( alloc )
-	XFreeColormap( QPaintDevice::x11AppDisplay(), cmap );
-}
-
-static bool		    cmap_init = FALSE;
-static QIntDict<CMapEntry> *cmap_dict = 0;
-static bool		    mesa_gl   = FALSE;
-
-static void cleanup_cmaps()
-{
-    if ( !cmap_dict )
-	return;
-    cmap_dict->setAutoDelete( TRUE );
-    delete cmap_dict;
-    cmap_dict = 0;
-}
-
-static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
-{
-    if ( !cmap_init ) {
-	cmap_init = TRUE;
-	cmap_dict = new QIntDict<CMapEntry>;
-	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
-	mesa_gl = strstr(v,"Mesa") != 0;
-	qAddPostRoutine( cleanup_cmaps );
-    }
-
-    CMapEntry *x = cmap_dict->find( (long)vi->visualid );
-    if ( x )					// found colormap for visual
-	return x->cmap;
-
-    x = new CMapEntry();
-
-    XStandardColormap *c;
-    int n, i;
-
-    //debug( "Choosing cmap for vID %0x", vi->visualid );
-
-    if ( vi->visualid == 
-	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
-	//debug( "Using x11AppColormap" );
-	return QPaintDevice::x11AppColormap();
-    }
-
-    if ( mesa_gl ) {				// we're using MesaGL
-	Atom hp_cmaps = XInternAtom( dpy, "_HP_RGB_SMOOTH_MAP_LIST", TRUE );
-	if ( hp_cmaps && vi->visual->c_class == TrueColor && vi->depth == 8 ) {
-	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
-				  hp_cmaps) ) {
-		i = 0;
-		while ( i < n && x->cmap == 0 ) {
-		    if ( c[i].visualid == vi->visual->visualid ) {
-			x->cmap = c[i].colormap;
-			x->scmap = c[i];
-			//debug( "Using HP_RGB scmap" );
-
-		    }
-		    i++;
-		}
-		XFree( (char *)c );
-	    }
-	}
-    }
-#if !defined(_OS_SOLARIS_)
-    if ( !x->cmap ) {
-	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
-				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
-	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
-				  XA_RGB_DEFAULT_MAP) ) {
-		i = 0;
-		while ( i < n && x->cmap == 0 ) {
-		    if ( c[i].visualid == vi->visualid ) {
-			x->cmap = c[i].colormap;
-			x->scmap = c[i];
-			//debug( "Using RGB_DEFAULT scmap" );
-
-		    }
-		    i++;
-		}
-		XFree( (char *)c );
-	    }
-	}
-    }
-#endif
-    if ( !x->cmap ) {				// no shared cmap found
-	x->cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
-				   AllocNone );
-	x->alloc = TRUE;
-	//debug( "Allocating cmap" );
-
-    }
-
-    cmap_dict->insert( (long)vi->visualid, x ); // associate cmap with visualid
-    return x->cmap;
-}
-
-#endif // Q_GLX
 
 
 /*****************************************************************************
@@ -1100,776 +952,6 @@ bool QGLContext::create( const QGLContext* shareContext )
 */
 
 
-#if defined(Q_WGL)
-
-void qwglError( const char* method, const char* func )
-{
-#if defined(CHECK_NULL)
-    LPVOID lpMsgBuf;
-    FormatMessage(
-		  FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		  0, GetLastError(),
-		  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		  (LPTSTR) &lpMsgBuf, 0, 0 );
-    qWarning( "%s : %s failed: %s", method, func, (const char *)lpMsgBuf );
-    LocalFree( lpMsgBuf );
-#endif
-    const char* dummy = method; // Avoid compiler warning
-    dummy = func;
-}
-
-
-/*****************************************************************************
-  QGLContext Win32/WGL-specific code
- *****************************************************************************/
-
-
-bool QGLContext::chooseContext( const QGLContext* shareContext )
-{
-    bool success = TRUE;
-    if ( deviceIsPixmap() ) {
-	win = 0;
-	dc  = paintDevice->handle();
-    }
-    else { 
-	win = ((QWidget*)paintDevice)->winId();
-	dc  = GetDC( win );
-    }
-
-    if ( !dc ) {
-#if defined(CHECK_NULL)
-	qWarning( "QGLContext::chooseContext(): Paint device cannot be null" );
-#endif
-	return FALSE;
-    }
-
-    PIXELFORMATDESCRIPTOR pfd;
-    PIXELFORMATDESCRIPTOR realPfd;
-    int pixelFormatId = choosePixelFormat( &pfd, dc );
-    if ( pixelFormatId == 0 ) {
-	qwglError( "QGLContext::chooseContext()", "ChoosePixelFormat" );
-	success = FALSE;
-    }
-    else {
-	DescribePixelFormat( dc, pixelFormatId, sizeof(PIXELFORMATDESCRIPTOR),
-			     &realPfd );
-	glFormat.setDoubleBuffer( realPfd.dwFlags & PFD_DOUBLEBUFFER );
-	glFormat.setDepth( realPfd.cDepthBits );
-	glFormat.setRgba( realPfd.iPixelType == PFD_TYPE_RGBA );
-	glFormat.setAlpha( realPfd.cAlphaBits );
-	glFormat.setAccum( realPfd.cAccumBits );
-	glFormat.setStencil( realPfd.cStencilBits );
-	glFormat.setStereo( realPfd.dwFlags & PFD_STEREO );
-	glFormat.setDirectRendering( FALSE );
-
-	if ( deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP) ) {
-#if defined(CHECK_NULL)
-	    qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
-#endif
-	    return FALSE;
-	}
-	if ( deviceIsPixmap() && 
-            (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
-#if defined(CHECK_NULL)
-	    qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
-#endif
-	    return FALSE;
-	}
-
-    }
-
-    if ( success && !SetPixelFormat(dc, pixelFormatId, &realPfd) ) {
-	qwglError( "QGLContext::chooseContext()", "SetPixelFormat" );
-	success = FALSE;
-    }
-
-    if ( success && !(rc = wglCreateContext( dc ) ) ) {
-	qwglError( "QGLContext::chooseContext()", "wglCreateContext" );
-	success = FALSE;
-    }
-
-    if ( success && shareContext && shareContext->isValid() )
-	sharing = ( wglShareLists( shareContext->rc, rc ) != 0 );
-    
-    if ( !success ) {
-	rc = 0;
-	dc = 0;
-    }
-
-    return success;
-}
-
-
-/* 
-
-<strong>Win32 only</strong>: This virtual function chooses a pixel format
-that matches the OpenGL \link setFormat() format\endlink \a
-fmt. Reimplement this function in a subclass if you need a custom context.
-
-  \warning The \a pfd pointer is really a \c PIXELFORMATDESCRIPTOR*.
-  We use \c void to avoid using Windows-specific types in our header files.
-
-  \sa chooseContext() */
-
-int QGLContext::choosePixelFormat( void *pfd, HDC pdc )
-{
-    PIXELFORMATDESCRIPTOR *p = (PIXELFORMATDESCRIPTOR *)pfd;
-    memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
-    p->nSize = sizeof(PIXELFORMATDESCRIPTOR);
-    p->nVersion = 1;
-    p->dwFlags  = PFD_SUPPORT_OPENGL;
-    if ( deviceIsPixmap() )
-	p->dwFlags |= PFD_DRAW_TO_BITMAP;
-    else
-	p->dwFlags |= PFD_DRAW_TO_WINDOW;
-    if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
-	p->dwFlags |= PFD_DOUBLEBUFFER;
-    if ( glFormat.stereo() )
-	p->dwFlags |= PFD_STEREO;
-    if ( glFormat.depth() )
-	p->cDepthBits = 32;
-    if ( glFormat.rgba() ) {
-	p->iPixelType = PFD_TYPE_RGBA;
-	if ( deviceIsPixmap() )
-	    p->cColorBits = ((QPixmap*)paintDevice)->depth();
-	else
-	    p->cColorBits = 24;
-    } else {
-	p->iPixelType = PFD_TYPE_COLORINDEX;
-	p->cColorBits = 8;
-    }
-    if ( glFormat.alpha() )
-	p->cAlphaBits = 8;
-    if ( glFormat.accum() )
-	p->cAccumBits = p->cColorBits + p->cAlphaBits;
-    if ( glFormat.stencil() )
-	p->cStencilBits = 4;
-    p->iLayerType = PFD_MAIN_PLANE;
-    return ChoosePixelFormat( pdc, p );
-}
-
-
-
-void QGLContext::reset()
-{
-    if ( !valid )
-	return;
-    doneCurrent();
-    if ( win )
-	ReleaseDC( win, dc );
-    wglDeleteContext( rc );
-    rc  = 0;
-    dc  = 0;
-    win = 0;
-    sharing = FALSE;
-    valid = FALSE;
-    initDone = FALSE;
-}
-
-
-
-//
-// NOTE: In a multi-threaded environment, each thread has a current
-// context. If we want to make this code thread-safe, we probably
-// have to use TLS (thread local storage) for keeping current contexts.
-//
-
-void QGLContext::makeCurrent()
-{
-    if ( currentCtx ) {
-	if ( currentCtx == this )		// already current
-	    return;
-	currentCtx->doneCurrent();
-    }
-    if ( !valid || !dc )
-	return;
-    if ( QColor::hPal() ) {
-	SelectPalette( dc, QColor::hPal(), FALSE );
-	RealizePalette( dc );
-    }
-    if ( !wglMakeCurrent( dc, rc ) )
-	qwglError( "QGLContext::makeCurrent()", "wglMakeCurrent" );
-    currentCtx = this;
-}
-
-
-void QGLContext::doneCurrent()
-{
-    if ( currentCtx != this )
-	return;
-    currentCtx = 0;
-    wglMakeCurrent( dc, 0 );
-}
-
-
-void QGLContext::swapBuffers()
-{
-    if ( dc && glFormat.doubleBuffer() )
-	SwapBuffers( dc );
-}
-
-QColor QGLContext::overlayTransparentColor() const
-{
-    warning( "QGLContext::overlayTransparentColor() not implemented for Windows" );
-    return QColor();
-}
-
-
-uint QGLContext::colorIndex( const QColor& c ) const
-{
-    if ( isValid() ) {
-	return c.pixel();		// Assumes standard pallette
-    }
-    return 0;
-}
-
-
-#endif // Q_WGL
-
-
-
-#if defined(Q_GLX)
-
-/*****************************************************************************
-  QGLContext UNIX/GLX-specific code
- *****************************************************************************/
-
-bool QGLContext::chooseContext( const QGLContext* shareContext )
-{
-    Display* disp = paintDevice->x11Display();
-    bool ok = TRUE;
-    vi = chooseVisual();
-    if ( !vi )
-	return FALSE;
-
-    if ( deviceIsPixmap() && 
-	 ((XVisualInfo*)vi)->depth != paintDevice->x11Depth() ) {
-	XFree( vi );
-	XVisualInfo appVisInfo;
-	memset( &appVisInfo, 0, sizeof(XVisualInfo) );
-	appVisInfo.visualid = XVisualIDFromVisual( (Visual*)paintDevice->x11Visual() );
-	int nvis;
-	vi = XGetVisualInfo( disp, VisualIDMask, &appVisInfo, &nvis );
-	if ( !vi )
-	    return FALSE;
-	
-	int useGL;
-	glXGetConfig( disp, (XVisualInfo*)vi, GLX_USE_GL, &useGL );
-	if ( !useGL )
-	    return FALSE;	//# Chickening out already...
-    }
-    int res;
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_LEVEL, &res );
-    glFormat.setPlane( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_DOUBLEBUFFER, &res );
-    glFormat.setDoubleBuffer( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_DEPTH_SIZE, &res );
-    glFormat.setDepth( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_RGBA, &res );
-    glFormat.setRgba( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_ALPHA_SIZE, &res );
-    glFormat.setAlpha( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_ACCUM_RED_SIZE, &res );
-    glFormat.setAccum( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_STENCIL_SIZE, &res );
-    glFormat.setStencil( res );
-    glXGetConfig( disp, (XVisualInfo*)vi, GLX_STEREO, &res );
-    glFormat.setStereo( res );
-
-    Bool direct = format().directRendering() ? True : False;
-    
-    if ( shareContext && 
-	 ( !shareContext->isValid() || !shareContext->cx ) ) {
-#if defined(CHECK_NULL)
-	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
-#endif
-	    shareContext = 0;
-    }
-
-    // sharing between rgba and color-index will give wrong colors
-    if ( shareContext && ( format().rgba() != shareContext->format().rgba() ) )
-	shareContext = 0;
-
-    cx = 0;
-    if ( shareContext ) {
-	cx = glXCreateContext( disp, (XVisualInfo *)vi,
-			       (GLXContext)shareContext->cx, direct );
-	if ( cx )
-	    sharing = TRUE;
-    }
-    if ( !cx )
-	cx = glXCreateContext( disp, (XVisualInfo *)vi, None, direct );
-    if ( !cx )
-	return FALSE;
-    glFormat.setDirectRendering( glXIsDirect( disp, (GLXContext)cx ) );
-    if ( deviceIsPixmap() ) {
-#ifdef GLX_MESA_pixmap_colormap
-	gpm = glXCreateGLXPixmapMESA( disp, (XVisualInfo *)vi,
-				      paintDevice->handle(),
-				      choose_cmap( disp, (XVisualInfo *)vi ) );
-#else
-	gpm = (Q_UINT32)glXCreateGLXPixmap( disp, (XVisualInfo *)vi,
-					    paintDevice->handle() );
-#endif
-	if ( !gpm )
-	    return FALSE;
-    }
-    return TRUE;
-}
-
-
-/*
-  <strong>X11 only</strong>: This virtual function tries to find a
-  visual that matches the format, reducing the demands if the original
-  request cannot be met.
-
-  The algorithm for reducing the demands of the format is quite
-  simple-minded, so override this method in your subclass if your
-  application has spcific requirements on visual selection.
-
-  \sa chooseContext()
-*/
-
-void *QGLContext::chooseVisual()
-{
-    static int bufDepths[] = { 8, 4, 2, 1 };	// Try 16, 12 also? 
-    //todo: if pixmap, also make sure that vi->depth == pixmap->depth
-    void* vis = 0;
-    int i = 0;
-    bool fail = FALSE;
-    QGLFormat fmt = format();
-    bool tryDouble = !fmt.doubleBuffer();  // Some GL impl's only have double
-    bool triedDouble = FALSE;
-    while( !fail && !( vis = tryVisual( fmt, bufDepths[i] ) ) ) {
-	if ( !fmt.rgba() && bufDepths[i] > 1 ) {
-	    i++;
-	    continue;
-	}
-	if ( tryDouble ) {
-	    fmt.setDoubleBuffer( TRUE );
-	    tryDouble = FALSE;
-	    triedDouble = TRUE;
-	    continue;
-	}
-	else if ( triedDouble ) {
-	    fmt.setDoubleBuffer( FALSE );
-	    triedDouble = FALSE;
-	}
-	if ( fmt.stereo() ) {
-	    fmt.setStereo( FALSE );
-	    continue;
-	}
-	if ( fmt.accum() ) {
-	    fmt.setAccum( FALSE );
-	    continue;
-	}
-	if ( fmt.stencil() ) {
-	    fmt.setStencil( FALSE );
-	    continue;
-	}
-	if ( fmt.alpha() ) {
-	    fmt.setAlpha( FALSE );
-	    continue;
-	}
-	if ( fmt.depth() ) {
-	    fmt.setDepth( FALSE );
-	    continue;
-	}
-	if ( fmt.doubleBuffer() ) {
-	    fmt.setDoubleBuffer( FALSE );
-	    continue;
-	}
-	fail = TRUE;
-    }
-    glFormat = fmt;
-    return vis;
-}
-
-	  
-/*
-  <strong>X11 only</strong>: This virtual function chooses a visual
-  that matches the OpenGL \link setFormat() format\endlink. Reimplement this
-  function in a subclass if you need a custom visual.
-
-  \sa chooseContext()
-*/
-
-void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
-{
-    int spec[40];
-    int i = 0;
-    spec[i++] = GLX_LEVEL;
-    spec[i++] = f.plane();
-    if ( f.doubleBuffer() )
-	spec[i++] = GLX_DOUBLEBUFFER;
-    if ( f.depth() ) {
-	spec[i++] = GLX_DEPTH_SIZE;
-	spec[i++] = 1;
-    }
-    if ( f.stereo() ) {
-	spec[i++] = GLX_STEREO;
-    }
-    if ( f.stencil() ) {
-	spec[i++] = GLX_STENCIL_SIZE;
-	spec[i++] = 1;
-    }
-    if ( f.rgba() ) {
-	spec[i++] = GLX_RGBA;
-	spec[i++] = GLX_RED_SIZE;
-	spec[i++] = 1;
-	spec[i++] = GLX_GREEN_SIZE;
-	spec[i++] = 1;
-	spec[i++] = GLX_BLUE_SIZE;
-	spec[i++] = 1;
- 	if ( f.alpha() ) {
-	    spec[i++] = GLX_ALPHA_SIZE;
-	    spec[i++] = 1;
-	}
-	if ( f.accum() ) {
-	    spec[i++] = GLX_ACCUM_RED_SIZE;
-	    spec[i++] = 1;
-	    spec[i++] = GLX_ACCUM_GREEN_SIZE;
-	    spec[i++] = 1;
-	    spec[i++] = GLX_ACCUM_BLUE_SIZE;
-	    spec[i++] = 1;
-	    if ( f.alpha() ) {
-		spec[i++] = GLX_ACCUM_ALPHA_SIZE;
-		spec[i++] = 1;
-	    }
-        }
-    } else {
-	spec[i++] = GLX_BUFFER_SIZE;
-	spec[i++] = bufDepth;
-    }
-    spec[i] = None;
-    return glXChooseVisual( paintDevice->x11Display(),
-			    paintDevice->x11Screen(), spec );
-}
-
-
-void QGLContext::reset()
-{
-    if ( !valid )
-	return;
-    doneCurrent();
-    if ( gpm )
-	glXDestroyGLXPixmap( paintDevice->x11Display(), (GLXPixmap)gpm );
-    gpm = 0;
-    glXDestroyContext( paintDevice->x11Display(), (GLXContext)cx );
-    if ( vi )
-	XFree( vi );
-    vi = 0;
-    cx = 0;
-    crWin = FALSE;
-    sharing = FALSE;
-    valid = FALSE;
-    initDone = FALSE;
-}
-
-
-void QGLContext::makeCurrent()
-{
-    if ( !valid ) {
-#if defined(CHECK_STATE)
-	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
-#endif
-	return;
-    }
-    bool ok = TRUE;
-    if ( deviceIsPixmap() )
-	ok = glXMakeCurrent( paintDevice->x11Display(),
-			     (GLXPixmap)gpm, 
-			     (GLXContext)cx );
-	     
-    else
-	ok = glXMakeCurrent( paintDevice->x11Display(),
-			     ((QWidget *)paintDevice)->winId(),
-			     (GLXContext)cx );
-#if defined(CHECK_NULL)
-    //    debug("makeCurrent: %i, vi=%i, vi->vi=%i, vi->id=%i", (int)this, (int)vi, (int)((XVisualInfo*)vi)->visual, (int)((XVisualInfo*)vi)->visualid );
-    if ( !ok )
-	qWarning("QGLContext::makeCurrent(): Failed.");
-#endif
-    if ( ok )
-	currentCtx = this;
-}
-
-void QGLContext::doneCurrent()
-{
-    glXMakeCurrent( paintDevice->x11Display(), 0, 0 );
-    currentCtx = 0;
-}
-
-
-void QGLContext::swapBuffers()
-{
-    if ( !valid )
-	return;
-    if ( !deviceIsPixmap() )
-	glXSwapBuffers( paintDevice->x11Display(),
-			((QWidget *)paintDevice)->winId() );
-}
-
-
-struct TransColor
-{
-    VisualID	vis;
-    long	color;
-};
-
-static QArray<TransColor> trans_colors;
-static int trans_colors_init = FALSE;
-
-
-static void find_trans_colors()
-{
-    struct OverlayProp {
-	long  visual;
-	long  type;
-	long  value;
-	long  layer;
-    };
-
-    trans_colors_init = TRUE;
-
-    Display* appDisplay = QPaintDevice::x11AppDisplay();
-    QWidget* rootWin = QApplication::desktop();
-    if ( !rootWin )
-	return;					// Should not happen
-    Atom overlayVisualsAtom = XInternAtom( appDisplay,
-					   "SERVER_OVERLAY_VISUALS", True );
-    if ( overlayVisualsAtom == None )
-	return;					// Server has no overlays
-
-    Atom actualType;
-    int actualFormat;
-    ulong nItems;
-    ulong bytesAfter;
-    OverlayProp* overlayProps = 0;
-    int res = XGetWindowProperty( appDisplay, rootWin->winId(),
-				  overlayVisualsAtom, 0, 10000, False, 
-				  overlayVisualsAtom, &actualType, 
-				  &actualFormat, &nItems, &bytesAfter,
-				  (uchar**)&overlayProps );
-
-    if ( res != Success || actualType != overlayVisualsAtom
-	 || actualFormat != 32 || nItems < 4 || !overlayProps )
-	return;					// Error reading property
-	
-    int numProps = nItems / 4;
-    trans_colors.resize( numProps );
-    int j = 0;
-    for ( int i = 0; i < numProps; i++ ) {
-	if ( overlayProps[i].type == 1 ) {
-	    trans_colors[j].vis = (VisualID)overlayProps[i].visual;
-	    trans_colors[j].color = (int)overlayProps[i].value;
-	    j++;
-	}
-    }
-    XFree( overlayProps );
-    trans_colors.truncate( j );
-}
-
-QColor QGLContext::overlayTransparentColor() const
-{
-    if ( isValid() ) {
-	if ( !trans_colors_init )
-	    find_trans_colors();
-    
-	VisualID myVisualId = ((XVisualInfo*)vi)->visualid;
-	for ( int i = 0; i < trans_colors.size(); i++ ) {
-	    if ( trans_colors[i].vis == myVisualId )
-		return QColor( qRgb( 1, 2, 3 ), trans_colors[i].color );
-	}
-    }
-    return QColor();		// Invalid color
-}
-
-
-/*!
-  \internal
-
-  Finds a colormap index for the color c, in ColorIndex mode. Used by
-  qglColor() and qglClearColor().
-*/
-
-uint QGLContext::colorIndex( const QColor& c ) const
-{
-    if ( isValid() ) {
-	if ( format().plane()
-	     && c.pixel() == overlayTransparentColor().pixel() )
-	    return c.pixel();			// Special; don't look-up
-	if ( ((XVisualInfo*)vi)->visualid == 
-	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) )
-	    return c.pixel();		// We're using QColor's cmap
-
-	CMapEntry *x = cmap_dict->find( (long)((XVisualInfo*)vi)->visualid );
-	if ( x && !x->alloc) {		// It's a standard colormap
-	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
-	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
-	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);
-	    uint p = x->scmap.base_pixel 
-		     + ( rf * x->scmap.red_mult )
-		     + ( gf * x->scmap.green_mult )
-		     + ( bf * x->scmap.blue_mult );
-	    return p;
-	}
-	else
-	    return c.pixel(); // ### wrong; should really ask QColor to alloc
-    }
-    return 0;
-}
-
-
-#endif // Q_GLX
-
-
-
-/*!
-  Returns TRUE if the window system supports OpenGL overlays,
-  otherwise FALSE.
-*/
-
-bool QGLFormat::hasOpenGLOverlays()
-{
-#if defined(Q_GLX)
-    if ( !trans_colors_init )
-	find_trans_colors();
-    return trans_colors.size() > 0;
-#else
-    return FALSE;		// Not supported yet
-#endif
-}
-
-
-#if defined(Q_GLX)
-
-/*****************************************************************************
-  QGLOverlayWidget (Internal overlay class for X11)
- *****************************************************************************/
-
-class QGLOverlayWidget : public QGLWidget
-{
-    Q_OBJECT
-public:
-    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
-		      const char* name=0 );
-    
-protected:
-    void		initializeGL();
-    void		paintGL();
-    void		resizeGL( int w, int h );
-
-    void		mousePressEvent( QMouseEvent* e );
-    void		mouseMoveEvent( QMouseEvent* e );
-    void		mouseReleaseEvent( QMouseEvent* e );
-    void		mouseDoubleClickEvent( QMouseEvent* e );
-
-private:
-    QGLWidget*		realWidget;
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QGLOverlayWidget( const QGLOverlayWidget& );
-    QGLOverlayWidget&	operator=( const QGLOverlayWidget& );
-#endif
-};
-
-
-QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
-				    const char* name )
-    : QGLWidget( format, parent, name )
-{
-    realWidget = parent;
-}
-
-
-void QGLOverlayWidget::initializeGL()
-{
-    QColor transparentColor = context()->overlayTransparentColor();
-    if ( transparentColor.isValid() )
-	qglClearColor( transparentColor );
-    else
-	qWarning( "QGLOverlayWidget::initializeGL(): Could not get transparent color" );
-    realWidget->initializeOverlayGL();
-}
-
-
-void QGLOverlayWidget::resizeGL( int w, int h )
-{
-    glViewport( 0, 0, w, h );
-    realWidget->resizeOverlayGL( w, h );
-}
-
-
-void QGLOverlayWidget::paintGL()
-{
-    realWidget->paintOverlayGL();
-}
-
-
-void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
-{
-    QApplication::sendEvent( realWidget, e );
-}
-
-
-/************* QGLOverlayWidget moc code ********************/
-#define Q_MOC_QGLWidget
-#include <qmetaobject.h>
-
-const char *QGLOverlayWidget::className() const
-{
-    return "QGLOverlayWidget";
-}
-
-QMetaObject *QGLOverlayWidget::metaObj = 0;
-
-static QMetaObjectInit init_QGLOverlayWidget(&QGLOverlayWidget::staticMetaObject);
-
-void QGLOverlayWidget::initMetaObject()
-{
-    if ( metaObj )
-	return;
-    if ( strcmp(QGLWidget::className(), "QGLWidget") != 0 )
-	badSuperclassWarning("QGLOverlayWidget","QGLWidget");
-
-    staticMetaObject();
-}
-
-QString QGLOverlayWidget::tr(const char* s)
-{
-    return ((QNonBaseApplication*)qApp)->translate("QGLOverlayWidget",s);
-}
-
-void QGLOverlayWidget::staticMetaObject()
-{
-    if ( metaObj )
-	return;
-    QGLWidget::staticMetaObject();
-
-    metaObj = QMetaObject::new_metaobject(
-	"QGLOverlayWidget", "QGLWidget",
-	0, 0,
-	0, 0 );
-}
-
-#endif
 
 /*****************************************************************************
   QGLWidget implementation
@@ -2070,39 +1152,6 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 
 
 
-void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
-{
-    glcx = 0;
-    autoSwap = TRUE;
-    if ( shareWidget )
-	setContext( new QGLContext( format, this ), shareWidget->context() );
-    else
-	setContext( new QGLContext( format, this ) );
-    setBackgroundMode( NoBackground );
-    
-#if defined(Q_GLX)
-    if ( format.hasOverlay() ) {
-	QCString olwName( name() );
-	olwName += "-QGL_internal_overlay_widget";
-	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(), 
-				    this, olwName );
-	if ( olw->isValid() ) {
-	    olw->setAutoBufferSwap( FALSE );
-	    olw->setGeometry( rect() );
-	    olw->setFocusProxy( this );
-	}
-	else {
-	    delete olw;
-	    olw = 0;
-	    glcx->glFormat.setOverlay( FALSE );
-	}
-    }
-    else {
-	olw = 0;
-    }
-#endif
-}
-
 /*!
   Destroys the widget.
 */
@@ -2218,26 +1267,17 @@ void QGLWidget::swapBuffers()
 
 
 /*!
+  \fn const QGLContext* QGLWidget::overlayContext() const
   Returns the overlay context of this widget, or 0 if this widget has
   no overlay.
 
   \sa context()
 */
 
-const QGLContext* QGLWidget::overlayContext() const
-{
-#if defined(Q_GLX)
-    if ( olw )
-	return olw->context();
-    else
-	return 0;
-#else
-    return 0;
-#endif
-}
 
 
 /*!
+  \fn void QGLWidget::makeOverlayCurrent()
   Makes the overlay context of this widget current. Use this if you
   need to issue OpenGL commands to the overlay context outside of
   initializeOverlayGL(), resizeOverlayGL() and paintOverlayGL().
@@ -2247,13 +1287,6 @@ const QGLContext* QGLWidget::overlayContext() const
   \sa makeCurrent()
 */
 
-void QGLWidget::makeOverlayCurrent()
-{
-#if defined(Q_GLX)
-    if ( olw )
-	olw->makeCurrent();
-#endif
-}
 
 /*!
   Sets a new format for this widget.
@@ -2288,6 +1321,10 @@ void QGLWidget::setFormat( const QGLFormat &format )
 */
 
 /*!
+  \fn void QGLWidget::setContext( QGLContext *context,
+                                  const QGLContext* shareContext,
+                                  bool deleteOldContext )
+
   Sets a new context for this widget. The QGLContext \a context must
   be created using \e new. QGLWidget will delete \a context when
   another context is set or when the widget is destroyed.
@@ -2310,113 +1347,6 @@ void QGLWidget::setFormat( const QGLFormat &format )
   \sa context(), setFormat(), isSharing()
 */
 
-void QGLWidget::setContext( QGLContext *context,
-			    const QGLContext* shareContext,
-			    bool deleteOldContext )
-{
-    if ( context == 0 ) {
-#if defined(CHECK_NULL)
-	qWarning( "QGLWidget::setContext: Cannot set null context" );
-#endif
-	return;
-    }
-    if ( !context->deviceIsPixmap() && context->device() != this ) {
-#if defined(CHECK_STATE)
-	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
-#endif
-	return;
-    }
-
-    if ( glcx )
-	glcx->doneCurrent();
-    QGLContext* oldcx = glcx;
-    glcx = context;
-
-#if defined(Q_WGL)
-    if ( oldcx && oldcx->windowCreated() && !glcx->deviceIsPixmap() && 
-	 !glcx->windowCreated() ) {
-	// We already have a context and must therefore create a new
-	// window since Windows does not permit setting a new OpenGL
-	// context for a window that already has one set.
-	destroy( TRUE, TRUE );
-	create( 0, TRUE, TRUE );
-    }
-#endif
-
-    bool createFailed = FALSE;
-    if ( !glcx->isValid() ) {
-	if ( !glcx->create( shareContext ? shareContext : oldcx ) )
-	    createFailed = TRUE;
-    }
-    if ( createFailed ) {
-	if ( deleteOldContext )
-	    delete oldcx;
-	return;
-    }
-#if defined(Q_GLX)
-    if ( glcx->windowCreated() || glcx->deviceIsPixmap() )
-	return;
-
-    bool visible = isVisible();
-    if ( visible )
-	hide();
-
-    XVisualInfo *vi = (XVisualInfo*)glcx->vi;
-    XSetWindowAttributes a;
-
-    a.colormap = choose_cmap( x11Display(), vi );	// find best colormap
-    a.background_pixel = backgroundColor().pixel();
-    a.border_pixel = black.pixel();
-    Window p = RootWindow( x11Display(), DefaultScreen(x11Display()) ); //#
-    if ( parentWidget() )
-	p = parentWidget()->winId();
-    Window w = XCreateWindow( x11Display(), p,  x(), y(), width(), height(),
-			      0, vi->depth, InputOutput,  vi->visual,
-			      CWBackPixel|CWBorderPixel|CWColormap, &a );
-
-    Window *cmw;
-    Window *cmwret;
-    int count;
-    if ( XGetWMColormapWindows( x11Display(), topLevelWidget()->winId(),
-				&cmwret, &count ) ) {
-	cmw = new Window[count+1];
-        memcpy( (char *)cmw, (char *)cmwret, sizeof(Window)*count );
-	XFree( (char *)cmwret );
-	int i;
-	for ( i=0; i<count; i++ ) {
-	    if ( cmw[i] == winId() ) {		// replace old window
-		cmw[i] = w;
-		break;
-	    }
-	}
-	if ( i >= count )			// append new window
-	    cmw[count++] = w;
-    } else {
-	count = 1;
-	cmw = new Window[count];
-	cmw[0] = w;
-    }
-
-#if defined(GLX_MESA_release_buffers)
-    if ( oldcx && oldcx->windowCreated() )
-	glXReleaseBuffersMESA( x11Display(), winId() );
-#endif
-    if ( deleteOldContext )
-	delete oldcx;
-    oldcx = 0;
-
-    create( w );
-
-    XSetWMColormapWindows( x11Display(), topLevelWidget()->winId(), cmw, 
-			   count );
-    delete [] cmw;
-
-    if ( visible )
-	show();
-    XFlush( x11Display() );
-    glcx->setWindowCreated( TRUE );
-#endif // Q_GLX
-}
 
 
 /*!
@@ -2431,18 +1361,12 @@ void QGLWidget::updateGL()
 
 
 /*!
+  \fn void QGLWidget::updateOverlayGL()
   Updates the widget's overlay (if any). Will cause the virtual
   function paintOverlayGL() to be executed, initializing first as
   necessary.
 */
 
-void QGLWidget::updateOverlayGL()
-{
-#if defined(Q_GLX)
-    if ( olw )
-	olw->updateGL();
-#endif
-}
 
 /*!
   This virtual function is called one time before the first call to
@@ -2553,24 +1477,9 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 
 /*!
+  \fn void QGLWidget::resizeEvent( QResizeEvent * )
   Handles resize events. Calls the virtual function resizeGL().
 */
-
-void QGLWidget::resizeEvent( QResizeEvent * )
-{
-    makeCurrent();
-    if ( !glcx->initialized() )
-	glInit();
-#if defined(Q_GLX)
-    glXWaitX();
-#endif
-    resizeGL( width(), height() );
-#if defined(Q_GLX)
-    if ( olw )
-	olw->setGeometry( rect() );
-#endif
-}
-
 
 
 /*!
@@ -2607,40 +1516,9 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     glcx->doneCurrent();
     bool success = TRUE;
 
-#if defined(Q_GLX)
-    if ( useContext && isValid() && 
-	 ( ((XVisualInfo*)glcx->vi)->depth == pm.depth() ) ) {
-	GLXPixmap glPm;
-#ifdef GLX_MESA_pixmap_colormap
-	glPm = glXCreateGLXPixmapMESA( x11Display(),
-				       (XVisualInfo*)glcx->vi,
-				       (Pixmap)pm.handle(),
-				       choose_cmap( pm.x11Display(),
-						    (XVisualInfo*)glcx->vi ) );
-#else
-	glPm = (Q_UINT32)glXCreateGLXPixmap( x11Display(),
-					    (XVisualInfo*)glcx->vi,
-					    (Pixmap)pm.handle() );
-#endif
-	if ( !glXMakeCurrent( x11Display(), glPm, (GLXContext)glcx->cx ) ) {
-	    glXDestroyGLXPixmap( x11Display(), glPm );
-	    if ( !format().directRendering() )	// may be problem; try without
-		return nullPm;			// Something else is wrong
-	}
-	else {
-	    glDrawBuffer( GL_FRONT_LEFT );
-	    if ( !glcx->initialized() )
-		glInit();
-	    resizeGL( pm.width(), pm.height() );
-	    paintGL();
-	    glFlush();
-	    makeCurrent();
-	    glXDestroyGLXPixmap( x11Display(), glPm );
-	    resizeGL( width(), height() );
-	    return pm;
-	}
-    }
-#endif
+    if ( useContext && isValid() && renderCxPm( &pm ) )
+	return pm;
+
     QGLFormat fmt = format();
     //    fmt.setDirectRendering( FALSE );		// No direct rendering
     QGLContext* pcx = new QGLContext( fmt, &pm );

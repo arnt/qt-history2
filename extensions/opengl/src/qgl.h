@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#19 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#20 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -271,6 +271,7 @@ protected:
 private:
     void		init( const QGLFormat& format,
 			      const QGLWidget* shareWidget );
+    bool		renderCxPm( QPixmap* pm );
     QGLContext*		glcx;
     bool		autoSwap;
 #if defined(Q_GLX)
