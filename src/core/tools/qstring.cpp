@@ -4545,7 +4545,7 @@ QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale(QLocale::DefaultLanguage);
+	QLocale locale;
 	locale_arg = locale.d->longLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
@@ -4576,7 +4576,7 @@ QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale(QLocale::DefaultLanguage);
+	QLocale locale;
 	locale_arg = locale.d->unsLongLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
@@ -4692,7 +4692,7 @@ QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale(QLocale::DefaultLanguage);
+	QLocale locale;
 
 	QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
 	uint flags = 0;

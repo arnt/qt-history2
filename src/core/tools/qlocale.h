@@ -26,7 +26,6 @@ class Q_CORE_EXPORT QLocale
 
 public:
     enum Language {
-	DefaultLanguage = 0,
 	C = 1,
 	Abkhazian = 2,
 	Afan = 3,
@@ -171,7 +170,7 @@ public:
     };
 
     enum Country {
-	DefaultCountry = 0,
+	AnyCountry = 0,
 	Afghanistan = 1,
 	Albania = 2,
 	Algeria = 3,
@@ -415,12 +414,16 @@ public:
 	LastCountry = Zimbabwe
     };
 
-    QLocale(const QString &unixLocale);
-    QLocale(Language language = DefaultLanguage,
-	    Country country = DefaultCountry);
+    QLocale();
+    QLocale(const QString &name);
+    QLocale(Language language, Country country = AnyCountry);
+    QLocale(const QLocale &other);
+
+    QLocale &operator=(const QLocale &other);
+
     Language language() const;
     Country country() const;
-    QString unixLocaleName() const;
+    QString name() const;
 
     short toShort(const QString &s, bool *ok = 0) const;
     ushort toUShort(const QString &s, bool *ok = 0) const;
@@ -455,8 +458,10 @@ public:
 
     static QString languageToString(Language language);
     static QString countryToString(Country country);
-    static void setDefaultLocale(Language language = DefaultLanguage,
-				 Country country = DefaultCountry);
+    static void setDefault(const QLocale &locale);
+
+    static QLocale c() { return QLocale(C); }
+    static QLocale system();
 
 private:
     const QLocalePrivate *d;

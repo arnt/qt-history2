@@ -98,6 +98,8 @@ public:
     static const QString m_infinity;
     static const QString m_nan;
     static const QChar m_plus;
+
+    static const char *systemLocaleName();
 };
 
 #endif

@@ -41,6 +41,7 @@
 #endif // QT_NO_BIG_CODECS
 #include "qfile.h"
 #include "qstring.h"
+#include <private/qlocale_p.h>
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
@@ -1525,54 +1526,7 @@ QTextCodec* QTextCodec::loadCharmapFile(const QString& filename)
 
 const char* QTextCodec::locale()
 {
-    static QByteArray lang;
-    lang = getenv( "LANG" );
-
-#if !defined( QWS ) && defined( Q_OS_MAC )
-    if ( !lang.isEmpty() )
-	return lang;
-
-    char mac_ret[255];
-    if(!LocaleRefGetPartString(NULL, kLocaleLanguageMask | kLocaleRegionMask, 255, mac_ret))
-	lang = mac_ret;
-#endif
-
-#if defined(Q_WS_WIN)
-    if ( !lang.isEmpty() )
-	return lang;
-
-    QT_WA( {
-	TCHAR out[256];
-	QString language;
-	QString sublanguage;
-	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255 ) )
-	    language = QString::fromUcs2( (ushort*)out );
-	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
-	    sublanguage = QString::fromUcs2( (ushort*)out ).toLower();
-	lang = language.local8Bit();
-	if ( sublanguage != language && !sublanguage.isEmpty() ) {
-	    lang += '_';
-	    lang += sublanguage.local8Bit();
-	}
-    } , {
-	char out[256];
-	QString language;
-	QString sublanguage;
-	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255 ) )
-	    language = QString::fromLocal8Bit( out );
-	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
-	    sublanguage = QString::fromLocal8Bit( out ).toLower();
-	lang = language.local8Bit();
-	if ( sublanguage != language && !sublanguage.isEmpty() ) {
-	    lang += '_';
-	    lang += sublanguage.local8Bit();
-	}
-    } );
-#endif
-    if ( lang.isEmpty() )
-	lang = "C";
-
-    return lang;
+    return QLocalePrivate::systemLocaleName();
 }
 
 #ifndef QT_NO_CODECS

@@ -118,7 +118,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
 static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
 static const uint locale_index[] = {
-     0, // Default
+     0, // unused
      0, // C
      0, // Abkhazian
      0, // Afan
@@ -264,7 +264,7 @@ static const uint locale_index[] = {
 
 static const QLocalePrivate locale_data[] = {
 //      lang   terr    dec  group   list  prcnt   zero  minus    exp
-    {      1,     0,    46,    44,    59,    37,    48,    45,   101 }, // C/Default
+    {      1,     0,    46,    44,    59,    37,    48,    45,   101 }, // C/AnyCountry
     {      5,   195,    46,    44,    44,    37,    48,    45,   101 }, // Afrikaans/SouthAfrica
     {      6,     2,    44,    46,    59,    37,    48,    45,   101 }, // Albanian/Albania
     {      8,   186,    46,    44,    59,    37,  1632,    45,   101 }, // Arabic/SaudiArabia
@@ -536,7 +536,7 @@ static const char language_name_list[] =
 "Zulu\0";
 
 static const uint language_name_index[] = {
-     0, // Default
+     0, // Unused
      8, // C
     10, // Abkhazian
     20, // Afan
@@ -923,7 +923,7 @@ static const char country_name_list[] =
 "Zimbabwe\0";
 
 static const uint country_name_index[] = {
-     0, // Default
+     0, // AnyCountry
      8, // Afghanistan
     20, // Albania
     28, // Algeria
@@ -1167,7 +1167,7 @@ static const uint country_name_index[] = {
 };
 
 static const char language_code_list[] =
-"  " // Default
+"  " // Unused
 "  " // C
 "ab" // Abkhazian
 "om" // Afan
@@ -1311,7 +1311,7 @@ static const char language_code_list[] =
 ;
 
 static const char country_code_list[] =
-"  " // Default
+"  " // AnyLanguage
 "AF" // Afghanistan
 "AL" // Albania
 "DZ" // Algeria
@@ -1574,7 +1574,7 @@ static QLocale::Language codeToLanguage(const QString &code)
 static QLocale::Country codeToCountry(const QString &code)
 {
     if (code.length() != 2)
-    	return QLocale::DefaultCountry;
+    	return QLocale::AnyCountry;
 
     ushort uc1 = code.unicode()[0].unicode();
     ushort uc2 = code.unicode()[1].unicode();
@@ -1585,14 +1585,11 @@ static QLocale::Country codeToCountry(const QString &code)
 	    return (QLocale::Country) ((c - country_code_list)/2);
     }
 
-    return QLocale::DefaultCountry;
+    return QLocale::AnyCountry;
 }
 
 static QString languageToCode(QLocale::Language language)
 {
-    if (language == QLocale::DefaultLanguage)
-    	return QString::null;
-
     if (language == QLocale::C)
     	return QLatin1String("C");
 
@@ -1606,7 +1603,7 @@ static QString languageToCode(QLocale::Language language)
 
 static QString countryToCode(QLocale::Country country)
 {
-    if (country == QLocale::DefaultCountry)
+    if (country == QLocale::AnyCountry)
     	return QString::null;
 
     QString code;
@@ -1629,8 +1626,60 @@ QString QLocalePrivate::nan() const
     return QString::fromLatin1("nan");
 }
 
+const char* QLocalePrivate::systemLocaleName()
+{
+    static QByteArray lang;
+    lang = getenv( "LANG" );
+
+#if !defined( QWS ) && defined( Q_OS_MAC )
+    if ( !lang.isEmpty() )
+	return lang;
+
+    char mac_ret[255];
+    if(!LocaleRefGetPartString(NULL, kLocaleLanguageMask | kLocaleRegionMask, 255, mac_ret))
+	lang = mac_ret;
+#endif
+
+#if defined(Q_WS_WIN)
+    if ( !lang.isEmpty() )
+	return lang;
+
+    QT_WA( {
+	TCHAR out[256];
+	QString language;
+	QString sublanguage;
+	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME , out, 255 ) )
+	    language = QString::fromUcs2( (ushort*)out );
+	if ( GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
+	    sublanguage = QString::fromUcs2( (ushort*)out ).toLower();
+	lang = language.local8Bit();
+	if ( sublanguage != language && !sublanguage.isEmpty() ) {
+	    lang += '_';
+	    lang += sublanguage.local8Bit();
+	}
+    } , {
+	char out[256];
+	QString language;
+	QString sublanguage;
+	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, out, 255 ) )
+	    language = QString::fromLocal8Bit( out );
+	if ( GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, out, 255 ) )
+	    sublanguage = QString::fromLocal8Bit( out ).toLower();
+	lang = language.local8Bit();
+	if ( sublanguage != language && !sublanguage.isEmpty() ) {
+	    lang += '_';
+	    lang += sublanguage.local8Bit();
+	}
+    } );
+#endif
+    if ( lang.isEmpty() )
+	lang = "C";
+
+    return lang;
+}
+
 static const QLocalePrivate *findLocale(QLocale::Language language,
-    	    	    	    	    QLocale::Country country)
+    	    	    	    	        QLocale::Country country)
 {
     unsigned language_id = (unsigned)language;
     unsigned country_id = (unsigned)country;
@@ -1642,7 +1691,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     if (idx == 0) // default language has no associated country
     	return d;
 
-    if (country == QLocale::DefaultCountry)
+    if (country == QLocale::AnyCountry)
     	return d;
 
     Q_ASSERT(d->languageId() == language_id);
@@ -1680,29 +1729,28 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \endcode
 
     Additionally, QLocale supports the concept of a default locale,
-    which can be set with the static member setDefaultLocale(). This
-    allows a locale to be set globally for the entire application.
+    which can be set with the static member setDefault(). This
+    allows a locale to be set globally for the entire application. If
+    setDefault() is not called, the default locale is determined from
+    the system's locale settings.
 
     \code
-    QLocale::setDefaultLocale(QLocale::German, QLocale::Switzerland);
+    QLocale::setDefault(QLocale::Hebrew, QLocale::Israel);
 
-    QLocale swiss; // Constructor parameters default to DefaultLanguage/DefaultCountry
-    QString s1 = swiss.toString(15714.3, 'e');
+    QLocale hebrew; // Constructs a default QLocale
+    QString s1 = hebrew.toString(15714.3, 'e');
     \endcode
 
     When a language/country pair is specified in the constructor, one
-    of four things can happen:
+    of three things can happen:
 
     \list
     \i If the language/country pair is found in the database, it is used.
-    \i If \c{DefaultLanguage}/\c{DefaultCountry} are specified, QLocale uses
-       the values set using setDefaultLocale(). If no default values
-       have been set, QLocale defaults to "C".
     \i If the language is found but the country is not, or if the country
-       is \c DefaultCountry, the language is used with the most
-       appropriate available country,
+       is \c AnyCountry, the language is used with the most
+       appropriate available country (for example, Germany for German),
     \i If neither the language nor the country are found, QLocale
-       defaults to "C".
+       defaults to the default locale (see setDefault()).
     \endlist
 
     The "C" locale is identical to English/UnitedStates.
@@ -1711,17 +1759,17 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     country values used.
 
     An alternative method for constructing a QLocale object is by
-    specifying the Unix locale name.
+    specifying the locale name.
 
     \code
     QLocale korean("ko");
     QLocale swiss("de_CH");
     \endcode
 
-    This constructor converts the Unix locale name to a language/country
-    pair; it does not use the system locale database present on Unix.
+    This constructor converts the locale name to a language/country
+    pair; it does not use the system locale database.
 
-    All the methods in QLocale, with the exception of setDefaultLocale(),
+    All the methods in QLocale, with the exception of setDefault(),
     are reentrant.
 
     The double-to-string and string-to-double conversion functions are
@@ -1751,7 +1799,6 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This enumerated type is used to specify a language.
 
-    \value DefaultLanguage The language set by setDefaultLocale()
     \value C Identical to English/UnitedStates
     \value Abkhazian
     \value Afan
@@ -1899,7 +1946,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This enumerated type is used to specify a country.
 
-    \value DefaultCountry The country set by setDefaultLocale()
+    \value AnyCountry
     \value Afghanistan
     \value Albania
     \value Algeria
@@ -2143,8 +2190,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
-    Constructs a QLocale object with the specified \a unixLocale,
-    which has the Unix locale format:
+    Constructs a QLocale object with the specified \a name,
+    which has the format
     "language[_country][.codeset][@modifier]" or "C", where:
 
     \list
@@ -2153,7 +2200,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \i and codeset and modifier are ignored.
     \endlist
 
-    If the string violates the Unix locale format, or language is not
+    If the string violates the locale format, or language is not
     a valid ISO 369 code, the "C" locale is used instead. If country
     is not present, or is not a valid ISO 3166 code, the most
     appropriate country is chosen for the specified language.
@@ -2165,28 +2212,28 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This constructor is much slower than QLocale(Country, Language).
 
-    \sa unixLocaleName()
+    \sa name()
 */
 
-QLocale::QLocale(const QString &unixLocale)
+QLocale::QLocale(const QString &name)
 {
     Language lang = C;
-    Country cntry = DefaultCountry;
+    Country cntry = AnyCountry;
 
-    uint l = unixLocale.length();
+    uint l = name.length();
 
     do {
 	if (l < 2)
     	    break;
 
-	const QChar *uc = unixLocale.unicode();
+	const QChar *uc = name.unicode();
 	if (l > 2
 	    	&& uc[2] != '_'
 		&& uc[2] != '.'
 		&& uc[2] != '@')
 	    break;
 
-    	lang = codeToLanguage(unixLocale.mid(0, 2));
+    	lang = codeToLanguage(name.mid(0, 2));
 	if (lang == C)
 	    break;
 
@@ -2200,59 +2247,96 @@ QLocale::QLocale(const QString &unixLocale)
 	if (l > 5 && uc[5] != '.' && uc[5] != '@')
 	    break;
 
-	cntry = codeToCountry(unixLocale.mid(3, 2));
+	cntry = codeToCountry(name.mid(3, 2));
     } while (false);
 
     d = findLocale(lang, cntry);
 }
 
 /*!
-    Constructs a QLocale object with the specified \a language and \a
-    country. If \a language is \c DefaultLanguage and \a country is \c
-    DefaultCountry, the values set with setDefaultLocale() are used,
-    or if setDefaultLocale() has not been called the "C" locale is
-    used.
+    Constructs a QLocale object initialized with the default locale.
+    
+    \sa setDefault()
+*/
 
-    QLocale might use different language/country values than specified
-    in the constructor, depending on what's available in the database.
+QLocale::QLocale()
+{
+    if (default_d == 0)
+    	default_d = system().d;
+
+    d = default_d;
+}
+
+/*!
+    Constructs a QLocale object with the specified \a language and \a
+    country.
+
+    \list
+    \i If the language/country pair is found in the database, it is used.
+    \i If the language is found but the country is not, or if the country
+       is \c AnyCountry, the language is used with the most
+       appropriate available country (for example, Germany for German),
+    \i If neither the language nor the country are found, QLocale
+       defaults to the default locale (see setDefault()).
+    \endlist
+
     The language and country that are actually used can be queried
     using language() and country().
 
-    \sa setDefaultLocale() language() country()
+    \sa setDefault() language() country()
 */
 
 QLocale::QLocale(Language language, Country country)
 {
-    if (default_d == 0)
-    	default_d = locale_data;
-
-    if (language == DefaultLanguage) {
-    	d = default_d;
-	return;
-    }
-
     d = findLocale(language, country);
+    
+    // If not found, should default to system
+    if (d->languageId() == QLocale::C && language != QLocale::C) {
+	if (default_d == 0)
+    	    default_d = system().d;
+
+	d = default_d;
+    }
+}
+
+/*!
+    Constructs a QLocale object as a copy of \a other.
+*/
+
+QLocale::QLocale(const QLocale &other)
+{
+    d = other.d;
+}
+
+/*!
+    Assigns \a other to this QLocale object and returns a reference
+    to this QLocale object.
+*/
+
+QLocale &QLocale::operator=(const QLocale &other)
+{
+    d = other.d;
+    return *this;
 }
 
 /*!
     \nonreentrant
 
-    Sets the global default locale to \a language and \a country. These
+    Sets the global default locale to \a locale. These
     values are used when a QLocale object is constructed with
-    \c{DefaultLanguage} and \c{DefaultCountry}.
+    no arguments. If this function is not called, the system's
+    locale is used.
+    
+    \warning In a multithreaded application, the default locale
+    should be set at application startup, before any non-GUI threads
+    are created.
 
-    \warning This method is not reentrant. The default locale should be
-    set at application startup, before any new threads are created.
-
-    \sa QLocale() language() country()
+    \sa system() c()
 */
 
-void QLocale::setDefaultLocale(Language language, Country country)
+void QLocale::setDefault(const QLocale &locale)
 {
-    if (language == DefaultLanguage)
-	return;
-
-    default_d = findLocale(language, country);
+    default_d = locale.d;
 }
 
 /*!
@@ -2276,15 +2360,15 @@ QLocale::Country QLocale::country() const
 }
 
 /*!
-    Returns the language and country of this locale as a Unix
-    locale string of the form "language_country", where
+    Returns the language and country of this locale as a
+    string of the form "language_country", where
     language is a lowercase, two-letter ISO 639 language code,
     and country is an uppercase, two-letter ISO 3166 country code.
 
     \sa QLocale()
 */
 
-QString QLocale::unixLocaleName() const
+QString QLocale::name() const
 {
     Language l = language();
 
@@ -2294,7 +2378,7 @@ QString QLocale::unixLocaleName() const
     	return result;
 
     Country c = country();
-    if (c == DefaultCountry)
+    if (c == AnyCountry)
     	return result;
 
     result.append('_');
@@ -2581,6 +2665,25 @@ QString QLocale::toString(double i, char f, int prec) const
 
     flags |= QLocalePrivate::ThousandsGroup;
     return d->doubleToString(i, prec, form, -1, flags);
+}
+
+/*!
+    \fn QLocale QLocale::c()
+    
+    Returns a QLocale object initialized to the "C" locale.
+    
+    \sa system()
+*/
+
+/*!
+    Returns a QLocale object initialized to the system locale.
+    
+    \sa QTextCodec::locale() c()
+*/
+
+QLocale QLocale::system()
+{
+    return QLocale(QLocalePrivate::systemLocaleName());
 }
 
 /*!
@@ -2916,7 +3019,7 @@ QString QLocalePrivate::longLongToString(Q_LLONG l, int precision,
 
     uint cnt_thousand_sep = 0;
     if (flags & ThousandsGroup && base == 10) {
-    	for (int i = (int)num_str.length() - 3; i > 0; i -=3) {
+    	for (int i = (int)num_str.length() - 3; i > 0; i -= 3) {
 	    num_str.insert(i, group());
 	    ++cnt_thousand_sep;
 	}
