@@ -1,2 +1,2 @@
-CONFIG      = qt
+CONFIG      += qt
 SOURCES     = main.cpp
