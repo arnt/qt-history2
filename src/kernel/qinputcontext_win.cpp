@@ -381,7 +381,8 @@ bool QInputContext::endComposition( QWidget *fw )
 	notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
 	releaseContext( fw->winId(), imc );
     }
-    *imeComposition = QString::null;
+    if ( imeComposition )
+	*imeComposition = QString::null;
     imePosition = -1;
 
     return result;
