@@ -801,7 +801,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
 	QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
 	QString precomph_out_dir = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
-	t << "-$(DEL_FILE) " << precomph_out_dir << header_prefix + "c " 
+	t << "-$(DEL_FILE) " << precomph_out_dir << header_prefix + "c "
 	  << precomph_out_dir << header_prefix << "c++" << "\n\t";
     }
     if(!project->isEmpty("IMAGES"))
@@ -849,13 +849,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	    QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
 	    QString outdir = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep, outfile = outdir;
-	    if(comps[i] == "C")
+	    QString compiler;
+	    if(comps[i] == "C") {
 		outfile += header_prefix + "c";
-	    else
+		compiler = "$(CC) ";
+	    } else {
 		outfile += header_prefix + "c++";
+		compiler = "$(CXX) ";
+	    }
 	    t << outfile << ": " << precomph << " " << findDependencies(precomph).join(" \\\n\t\t")
-	      << "\n\t" << "test -d " << outdir << " || mkdir -p " << outdir 
-	      << "\n\t" << "$(CXX) " << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
+	      << "\n\t" << "test -d " << outdir << " || mkdir -p " << outdir
+	      << "\n\t" << compiler << flags << " $(INCPATH) " << precomph << " -o " << outfile << endl << endl;
 	}
     }
     if(!project->isEmpty("ALLMOC_HEADER")) {
@@ -1063,7 +1067,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	      << " && $(MAKE) -f " << (*it)->makefile << " qmake_all" << "; ) || true";
 	}
 	t << endl;
-	t << "clean uicables mocables uiclean mocclean lexclean yaccclean " 
+	t << "clean uicables mocables uiclean mocclean lexclean yaccclean "
 	  << var("SUBDIR_TARGETS") << ": qmake_all FORCE";
 	for(QList<SubDir*>::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
 	    t << "\n\t ( ";
@@ -1169,7 +1173,7 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["TARGET"] = project->variables()["TARGET_la"];
 	} else if( project->isActiveConfig("plugin") ) {
 	    project->variables()["TARGET_x.y.z"].append("lib" +
-							project->first("TARGET") + "." + 
+							project->first("TARGET") + "." +
 							project->first("QMAKE_EXTENSION_PLUGIN"));
 	    if(project->isActiveConfig("lib_version_first"))
 		project->variables()["TARGET_x"].append("lib" + project->first("TARGET") + "." +
