@@ -40,7 +40,10 @@
 #if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_AQUA )
 #include "qaquastyle_p.h"
 #include <qpushbutton.h>
+#include <qscrollbar.h>
+#include <qslider.h>
 #include <qt_mac.h>
+#include "private/qtitlebar_p.h"
 #include <Appearance.h>
 
 #include <qpainter.h>
@@ -183,6 +186,146 @@ void QMacStyle::drawControl( ControlElement element,
 	break; }
     default:
 	QAquaStyle::drawControl(element, p, widget, r, cg, how, opt);
+    }
+}
+
+void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
+					const QWidget *widget,
+					const QRect &r,
+					const QColorGroup &cg,
+					SFlags flags,
+					SCFlags sub,
+					SCFlags subActive,
+					const QStyleOption& opt ) const
+{
+    ThemeDrawState tds = 0;
+    if(!qAquaActive(cg))
+	tds |= kThemeStateInactive;
+    else
+	tds |= kThemeStateActive;
+
+    switch(ctrl) {
+#if 0
+    case CC_SpinWidget: {
+
+	if(subActive == SC_SpinWidgetDown)
+	    tds |= kThemeStatePressedUp;
+	else
+	    tds |= kThemeStatePressedDown;
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	((QMacPainter *)p)->noop();
+	DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemeIncDecButton, 
+			&info, NULL, NULL, NULL, 0);
+	break; }
+#endif
+#if 0
+    case CC_TitleBar: {
+	if(!widget)
+	    break;
+	QTitleBar *tbar = (QTitleBar *) widget;
+	ThemeWindowMetrics twm;
+	memset(&twm, '\0', sizeof(twm));
+	twm.metricSize = sizeof(twm);
+	twm.titleWidth = tbar->width();
+	twm.titleHeight = tbar->height();
+	ThemeWindowAttributes twa = kThemeWindowHasTitleText;
+	if(tbar->window()) 
+	    twa = kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
+	else if(tbar->testWFlags( WStyle_SysMenu)) 
+	    twa = kThemeWindowHasCloseBox;
+	const Rect *rect = qt_glb_mac_rect(r, p->device());
+	((QMacPainter *)p)->noop();
+#if 0
+	if(sub & SC_TitleBarCloseButton) 
+	    DrawThemeTitleBarWidget(kThemeUtilityWindow, rect, 
+				    tds | ((subActive & SC_TitleBarCloseButton) ? kThemeStatePressed : 0), 
+				    &twm, twa, kThemeWidgetCloseBox);
+	if(sub & SC_TitleBarMinButton) 
+	    DrawThemeTitleBarWidget(kThemeUtilityWindow, rect, 
+				    tds | ((subActive & SC_TitleBarMinButton) ? kThemeStatePressed : 0), 
+				    &twm, twa, kThemeWidgetCollapseBox);
+	if(sub & SC_TitleBarNormalButton) 
+	    DrawThemeTitleBarWidget(kThemeUtilityWindow, rect, 
+				    tds | ((subActive & SC_TitleBarNormalButton) ? kThemeStatePressed : 0), 
+				    &twm, twa | kThemeWindowIsCollapsed, kThemeWidgetCollapseBox);
+	if(sub & SC_TitleBarMaxButton) 
+	    DrawThemeTitleBarWidget(kThemeUtilityWindow, rect, 
+				    tds | ((subActive & SC_TitleBarMaxButton) ? kThemeStatePressed : 0), 
+				    &twm, twa, kThemeWidgetZoomBox);
+#else
+	DrawThemeWindowFrame(kThemeUtilityWindow, rect, tds, &twm, twa, NULL, 0);
+#endif
+	break; }
+#endif
+    case CC_ScrollBar: {
+	if(!widget)
+	    break;
+	QScrollBar *scrollbar = (QScrollBar *) widget;
+	ThemeTrackDrawInfo ttdi;
+	memset(&ttdi, '\0', sizeof(ttdi));
+	ttdi.kind = kThemeMediumScrollBar;
+	ttdi.bounds = *qt_glb_mac_rect(r, p->device());
+	ttdi.min = scrollbar->minValue();
+	ttdi.max = scrollbar->maxValue();
+	ttdi.value = scrollbar->value();
+	ttdi.attributes |= kThemeTrackShowThumb;
+	if(scrollbar->orientation() == Qt::Horizontal)
+	    ttdi.attributes |= kThemeTrackHorizontal;
+	if(qAquaActive(cg))
+	    ttdi.enableState |= kThemeTrackActive;
+	if(!scrollbar->isEnabled())
+	    ttdi.enableState |= kThemeTrackDisabled;
+	if(subActive == SC_ScrollBarSubLine)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed;
+	else if(subActive == SC_ScrollBarAddLine)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed;
+	else if(subActive == SC_ScrollBarAddPage)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
+	else if(subActive == SC_ScrollBarSubPage)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
+	else if(subActive == SC_ScrollBarSlider)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+	ttdi.trackInfo.scrollbar.viewsize = scrollbar->pageStep();
+	((QMacPainter *)p)->noop();
+	DrawThemeTrack(&ttdi, NULL, NULL, 0);
+	break; }
+    case CC_Slider: {
+	if(!widget)
+	    break;
+	QSlider *sldr = (QSlider *)widget;
+	ThemeTrackDrawInfo ttdi;
+	memset(&ttdi, '\0', sizeof(ttdi));
+	ttdi.kind = kThemeMediumSlider;
+	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p->device());
+	ttdi.min = sldr->minValue();
+	ttdi.max = sldr->maxValue();
+	ttdi.value = sldr->value();
+	ttdi.attributes |= kThemeTrackShowThumb;
+	if(sldr->orientation() == Qt::Horizontal)
+	    ttdi.attributes |= kThemeTrackHorizontal;
+	if(qAquaActive(cg))
+	    ttdi.enableState |= kThemeTrackActive;
+	if(!sldr->isEnabled())
+	    ttdi.enableState |= kThemeTrackDisabled;
+	if(sldr->tickmarks() == QSlider::Above)
+	    ttdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
+	else
+	    ttdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
+	if(subActive == SC_SliderGroove)
+	    ttdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
+	else if(subActive == SC_SliderHandle)
+	    ttdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+	((QMacPainter *)p)->noop();
+	DrawThemeTrack(&ttdi, NULL, NULL, 0);
+	break; }
+    case CC_ComboBox: {
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	((QMacPainter *)p)->noop();
+	DrawThemeButton(qt_glb_mac_rect(r, p->device()), kThemePopupButton, 
+			&info, NULL, NULL, NULL, 0);
+	break; }
+    default:
+	QAquaStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
     }
 }
 

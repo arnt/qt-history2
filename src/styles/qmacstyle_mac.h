@@ -76,6 +76,15 @@ public:
 		      SFlags how = Style_Default,
 		      const QStyleOption& = QStyleOption::Default ) const;
 
+    void drawComplexControl( ComplexControl control,
+			     QPainter* p,
+			     const QWidget* w,
+			     const QRect& r,
+			     const QColorGroup& cg,
+			     SFlags flags = Style_Default,
+			     SCFlags sub = SC_None,
+			     SCFlags subActive = SC_None,
+			     const QStyleOption& = QStyleOption::Default ) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
