@@ -23,8 +23,6 @@
 #include "qt_windows.h"
 #endif
 
-#include "qtextengine_p.h"
-
 class QPaintDevice;
 
 struct glyph_metrics_t;
@@ -32,9 +30,12 @@ class QChar;
 typedef unsigned short glyph_t;
 class QOpenType;
 struct TransformedFont;
+typedef int advance_t;
 
 class QTextEngine;
 struct QGlyphFragment;
+struct QGlyphLayout;
+struct GlyphAttributes;
 
 #if defined(Q_WS_X11) || defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QFontEngine : public QShared
