@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#128 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#129 $
 **
 ** Implementation of date and time classes
 **
@@ -134,7 +134,7 @@ extern const char * const qt_longDayNames[] = {
     QT_TRANSLATE_NOOP("QDate::longDay", "Saturday"),
     QT_TRANSLATE_NOOP("QDate::longDay", "Sunday")
 };
-#ifndef QT_NO_STRINGLIST
+#ifndef QT_NO_TEXTDATE
 static QStringList* qt_tr_shortMonthNames = 0;
 static QStringList* qt_tr_shortDayNames = 0;
 static QStringList* qt_tr_longMonthNames = 0;
@@ -340,7 +340,7 @@ int QDate::daysInYear() const
 
   Use shortMonthName() instead.
 */
-#ifndef QT_NO_STRINGLIST
+#ifndef QT_NO_TEXTDATE
 /*!
   Returns the name of the \a month.
 
@@ -517,7 +517,7 @@ void QDate::setLongDayNames( const QStringList& names )
 }
 #endif
 
-#ifndef QT_NO_SPRINTF
+#if !defined(QT_NO_SPRINTF)
 /*!  Returns the date as a string.  The \a f parameter determines the
   format of the string.
 
@@ -537,12 +537,16 @@ QString QDate::toString( Qt::DateFormat f ) const
     int y, m, d;
     julianToGregorian( jd, y, m, d );
     switch ( f ) {
+#ifdef QT_NO_TEXTDATE
+    default:
+#endif
     case Qt::ISODate:
 	{
 	    QString month( QString::number( m ).rightJustify( 2, '0' ) );
 	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
 	    return QString::number( y ) + "-" + month + "-" + day;
 	}
+#ifndef QT_NO_TEXTDATE
     default:
     case Qt::TextDate:
 	{
@@ -554,6 +558,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 	    buf += t;
 	    return buf;
 	}
+#endif
     }
 }
 #endif
@@ -742,7 +747,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	}
 	break;
     default:
-#ifndef QT_NO_STRINGLIST
+#ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
 	{
 	    QString monthName( s.mid( 4, 3 ) );
@@ -1519,7 +1524,9 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 {
     if ( f == Qt::ISODate ) {
 	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
-    } else if ( f == Qt::TextDate ) {
+    } 
+#ifndef QT_NO_TEXTDATE
+    else if ( f == Qt::TextDate ) {
 	QString buf = d.shortDayName(d.dayOfWeek());
 	buf += ' ';
 	buf += d.shortMonthName(d.month());
@@ -1531,6 +1538,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 	buf += QString().setNum(d.year());
 	return buf;
     }
+#endif    
     return QString::null;
 }
 #endif
@@ -1738,7 +1746,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
 			  QTime::fromString( s.mid(11,8), Qt::ISODate ) );
     } 
-#ifndef QT_NO_REGEXP
+#if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
     else if ( f == Qt::TextDate ) {
 	QString monthName( s.mid( 4, 3 ) );
 	int month = -1;

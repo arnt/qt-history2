@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#92 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#93 $
 **
 ** Global feature selection
 **
@@ -127,6 +127,14 @@
 //#define QT_NO_SPRINTF
 
 //#define QT_NO_QUUID_STRING
+
+
+#if defined(QT_NO_STRINGLIST)
+/*!
+  Textual representation of dates with month and day names.
+ */
+# define QT_NO_TEXTDATE
+#endif
 
 #if defined(QT_NO_IMAGE_SMOOTHSCALE)
 /*!

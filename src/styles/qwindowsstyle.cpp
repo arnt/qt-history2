@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#42 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#43 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1617,6 +1617,7 @@ bool QWindowsStyle::eventFilter( QObject *o, QEvent *e )
  */
 void QWindowsStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, const QColorGroup &cg, QListViewItem *item )
 {
+#ifndef QT_NO_LISTVIEW
     QListViewItem *child = item->firstChild();
     int linetop = 0, linebot = 0;
     // each branch needs at most two lines, ie. four end points
@@ -1736,6 +1737,7 @@ void QWindowsStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, co
 	    }
 	}
     }
+#endif //QT_NO_LISTVIEW
 }
 
 static const char * const qt_close_xpm[] = {

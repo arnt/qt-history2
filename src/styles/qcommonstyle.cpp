@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#31 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#32 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -436,6 +436,7 @@ void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const 
 void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
 				    int &titleW, int &titleH) const
 {
+#ifndef QT_NO_TITLEBAR
     titleH = 18;
     if(tb->window) {
 	titleW = tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3)-
@@ -446,6 +447,7 @@ void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
 	titleW = tb->width();
 	ctrlH = ctrlW = 0;
     }
+#endif //QT_NO_TITLEBAR
 }
 
 /*!
@@ -454,6 +456,7 @@ void QCommonStyle::titleBarMetrics( const QTitleBar*tb, int &ctrlW, int &ctrlH,
 void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 					uint controls, uint activeControl )
 {
+#ifndef QT_NO_TITLEBAR
     QColor left = tb->act || !tb->window ? tb->aleftc : tb->ileftc;
     QColor right = tb->act || !tb->window ? tb->arightc : tb->irightc;
     if ( left != right ) {
@@ -536,6 +539,7 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    p->drawPixmap( r.x(), r.y(), tb->pixmap, 0, 0, tb->pixmap.width(), tb->pixmap.height() );
  	}
     }
+#endif //QT_NO_TITLEBAR
 }
 
 /*!
@@ -543,6 +547,7 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
  */
 QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const QPoint&point )
 {
+#ifndef QT_NO_TITLEBAR
     if(tb->window) {
 	if(QRect(tb->width()-(TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION), 2,
 		 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT).contains(point))
@@ -557,6 +562,7 @@ QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const 
 	    return TitleSysMenu;
     }
     return TitleLabel;
+#endif //QT_NO_TITLEBAR
 }
 
 /*!
@@ -565,8 +571,10 @@ QStyle::TitleControl QCommonStyle::titleBarPointOver( const QTitleBar*tb, const 
 QStyle::ListViewItemControl
 QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
 {
+#ifndef QT_NO_LISTVIEW
     if(pos.x() >= 0 && pos.x() < i->listView()->treeStepSize())
        return ListViewExpand;
+#endif
     return ListViewNone;
 }
 
