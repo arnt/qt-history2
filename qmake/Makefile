@@ -2,6 +2,7 @@
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /Zi /nologo /GX /O2 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
+		/I$(QTDIR)\mkspecs\$(QMAKESPEC) \
 		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib
