@@ -386,17 +386,7 @@
         <receiver>changesTo</receiver>
         <slot>setDisabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-</functions>
 <tabstops>
     <tabstop>path</tabstop>
     <tabstop>changesFrom</tabstop>

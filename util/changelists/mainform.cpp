@@ -11,8 +11,31 @@
 #include <qfiledialog.h>
 #include <qapplication.h>
 #include <qregexp.h>
+#include <qsyntaxhighlighter.h>
 
 #include <stdlib.h>
+
+class DiffSyntaxHighlighter : public QSyntaxHighlighter
+{
+public:
+    DiffSyntaxHighlighter( QTextEdit *e ) : QSyntaxHighlighter( e ) {}
+
+    int highlightParagraph( const QString &text, int ) {
+	QFont bold = textEdit()->font();
+	bold.setBold( TRUE );
+
+	if ( text[0] == '+' )
+	    setFormat( 0, text.length(), textEdit()->font(), blue );
+	else if ( text[0] == '-' )
+	    setFormat( 0, text.length(), textEdit()->font(), red );
+	else if ( text.startsWith( "====" ) || text.startsWith( "@@" ) )
+	    setFormat( 0, text.length(), bold, textEdit()->colorGroup().text() );
+	else
+	    setFormat( 0, text.length(), textEdit()->font(), textEdit()->colorGroup().text() );
+	
+	return 0;
+    }
+};
 
 MainForm::MainForm() :
     changeListFrom(0), changeListTo(0), changeDateTo(0)
@@ -33,6 +56,8 @@ MainForm::MainForm() :
     QStringList args;
     args << "p4" << "labels";
     start( args );
+
+    (void)new DiffSyntaxHighlighter( diff );
 }
 
 MainForm::~MainForm()
@@ -285,33 +310,7 @@ void MainForm::parseDescribe( const QString& desc )
 
 void MainForm::setDescFilesDiff( const QString& de, const QString& f, const QString& di )
 {
-    int fstEndl = di.find( '\n' );
-    QString caption = di.mid( 4, fstEndl-9 );
-    caption = caption.replace( QRegExp("===="), "" );
-    QString diffHighlight = di;
-    QStringList lst = QStringList::split( '\n', diffHighlight );
-    diffHighlight = "";
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	QString s( *it );
-	s = s.replace( QRegExp( "<" ), "&lt;" );
-	s = s.replace( QRegExp( ">"), "&gt;" );
-	if ( s[ 0 ] == '-' )
-	    s = "<font color=\"red\"><pre>" + s + "</pre></font>";
-	else if ( s[ 0 ] == '+' )
-	    s = "<font color=\"blue\"><pre>" + s + "</pre></font>";
-	else if ( s.left( 4 ) == "====" )
-	    s = "<b>" + s + "</b>";
-	else if ( s.left( 2 ) == "@@" )
-	    s = "<b>" + s + "</b>";
-	else
-	    s = "<pre>" + s + "</pre>";
-	s += "<br>";
-	diffHighlight += s;
-    }
-    description->setCursorPosition( 0, 0 );
     description->setText( de );
-    affectedFiles->setCursorPosition( 0, 0 );
     affectedFiles->setText( f );
-    diff->setCursorPosition( 0, 0 );
-    diff->setText( diffHighlight );
+    diff->setText( di );
 }
