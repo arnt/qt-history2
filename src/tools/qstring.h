@@ -390,7 +390,7 @@ private:
 	ushort array[1];
 	enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
-    QString(Data *dd) : d(dd) {}
+    explicit QString(Data *dd) : d(dd) {}
     static Data shared_null;
     static Data shared_empty;
     Data *d;
