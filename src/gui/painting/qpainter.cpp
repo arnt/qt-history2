@@ -1070,7 +1070,7 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
 	}
     }
     // ##### probably wrong with world transform!
-    d->engine->drawPixmap(r, pixmap, pixmap.rect());
+    drawPixmap(r.topLeft(), pixmap, pixmap.rect());
 }
 
 void QPainter::drawImage(int x, int y, const QImage &,
