@@ -2,8 +2,6 @@
     \page geometry.html
     \title Window Geometry
 
-    \section1 Overview
-
     QWidget provides several functions that deal with a widget's
     geometry. Some of these functions operate on the pure client area
     (i.e. the window excluding the window frame), others include the
@@ -31,6 +29,10 @@
 
     This diagram shows most of the functions in use:
     \img geometry.png Geometry diagram
+
+    Topics:
+
+    \tableofcontents
 
     \section1 X Window System Peculiarities
 

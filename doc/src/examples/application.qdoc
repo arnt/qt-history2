@@ -8,9 +8,9 @@
 
     \image application.png Screenshot of the Application example
 
-    This example can only load one file at a time. The
-    \l{mainwindows/sdi}{SDI} and \l{mainwindows/mdi}{MDI} examples
-    show how to lift these restrictions.
+    This example can only load one file at a time. The \l
+    mainwindows/sdi and \l mainwindows/mdi examples show how to lift
+    these restrictions.
 
     Nearly all of the code for the Application example is in the \c
     MainWindow class, which inherits QMainWindow. QMainWindow
@@ -27,6 +27,8 @@
     description of the menu item or toolbar button under the cursor,
     as well as a \gui{MOD} indicator that is visible when the file
     has unsaved changes.
+
+    ### recentfiles
 
     \section1 MainWindow Class Definition
 
@@ -80,8 +82,13 @@
     the user modifies the text in the QTextEdit, we want to update
     the \gui{MOD} status indicator.
 
-    At the end, we set the window title to "Application", the
-    name of our program.
+    At the end, we set the window title to "Application", the name of
+    our program. The \l{QObject::tr()}{tr()} call around the literal
+    string marks the string for translation. It is a good habit to
+    call \l{QObject::tr()}{tr()} on all user-visible strings, in case
+    you later decide to translate your application to other
+    languages. The \l{i18n.html}{Internationalization} overview
+    convers \l{QObject::tr()}{tr()} in more detail.
 
     \printline ::closeEvent(
     \printuntil /^\}/
@@ -116,35 +123,158 @@
     \printline ::save(
     \printuntil /^\}/
 
+    The \c save() slot is invoked when the user clicks
+    \menu{File|Save}. If the user hasn't provided a name for the file
+    yet, we call \c saveAs(); otherwise, we call the private function
+    \c saveFile() to actually save the file.
+
     \printline ::saveAs(
     \printuntil /^\}/
+
+    In \c saveAs(), we start by popping up a QFileDialog asking the
+    user to provide a name. If the user clicks \gui{Cancel}, the
+    returned file name is empty, and we do nothing.
+
+    If the file already exists, we pop up a QMessageBox asking the
+    user whether the existing file should be overwritten or not. The
+    options are \l{QMessageBox::Yes}{Yes} and
+    \l{QMessageBox::No}{No}. The \l{QMessageBox::Yes}{Yes} button is
+    made the default button (the button that is invoked when the user
+    presses \key{Return}) using the QMessageBox::Default
+    flag; the \l{QMessageBox::No}{No} button is made the escape
+    button (the button that is invoked when the user presses
+    \key{Esc}) using the Escape flag. 
 
     \printline ::about(
     \printuntil /^\}/
 
+    The application's About box is done using one statement, using
+    the QMessageBox::about() static function and relying on its
+    support for an HTML subset.
+
     \printline ::documentWasModified(
     \printuntil /^\}/
 
+    The \c documentWasModified() slot is invoked each time the text
+    in the QTextEdit changes because of user edits. We make sure that
+    \c modLabel shows the text "MOD".
+
     \printline ::createActions(
-    \printuntil /^\}/
+    \printuntil SLOT(open())
+    \dots
+    \skipto aboutQtAct
+    \printuntil }
+
+    The \c createActions() private function, which is called from the
+    \c MainWindow constructor, creates \l{QAction}s. The code is very
+    repetitive, so we show only the actions corresponding to
+    \menu{File|New}, \menu{File|Open}, and \menu{Help|About Qt}.
+    
+    A QAction is an object that represents one user action, such as
+    saving a file or invoking a dialog. An action can be put in a
+    QMenu or a QToolBar, or both, or in any other widget that
+    reimplements QWidget::actionEvent().
+
+    An action has a text that is shown in the menu, an icon, a
+    shortcut key, a tooltip, a status tip (shown in the status bar),
+    a "What's This?" text, and more. It emits a
+    \l{QAction::triggered()}{triggered()} signal whenever the user
+    invokes the action (e.g., by clicking the associated menu item or
+    toolbar button). We connect this signal to a slot that performs
+    the actual action.
+
+    The code above contains one more idiom that must be explained.
+    For some of the actions, we specify an icon as a QPixmap to the
+    QAction constructor. The QPixmap constructor takes the file name
+    of an image that it tries to load. Here, the file name starts
+    with \c{:}. Such file names aren't ordinary file names, but
+    rather path in the executable's stored resources. We'll come back
+    to this when we review the \c application.qrc file that's part of
+    the project.
 
     \printline ::createMenus(
     \printuntil /^\}/
 
+    Creating actions isn't sufficient to make them available to the
+    user; we must also add them to the menu system. This is what \c
+    createMenus() does. We create a \menu{File}, an \menu{Edit}, and
+    a \menu{Help} menu. QMainWindow::menuBar() lets us access the
+    window's menu bar widget. We don't have to worry about creating
+    the menu bar ourselves; the first time we call this function, the
+    QMenuBar is created.
+
+    Just before we create the \menu{Help} menu, we call
+    QMenuBar::addSeparator(). This has no effect for most widget
+    styles (e.g., Windows and Mac OS X styles), but for Motif-based
+    styles this makes sure that \menu{Help} is pushed to the right
+    side of the menu bar. Try running the application with various
+    styles and see the result:
+
+    \code
+        application -style=windows
+        application -style=motif
+        application -style=cde
+    \endcode
+
     \printline ::createToolBars(
     \printuntil /^\}/
+
+    Creating toolbars is very similar to creating menus. The same
+    actions that we put in the menus can be reused in the toolbars.
 
     \printline ::createStatusBar(
     \printuntil /^\}/
 
+    The status bar consists of a single indicator, the \gui{MOD}
+    indicator. It is a plain QLabel on which we call
+    QStatusBar::addWidget(). The label is first initialized with the
+    text "MOD" with spaces on both sides, to give the widget some
+    extra space. Then we set its fixed size to be its size hint, to
+    ensure that it won't grow or shrink depending on whether it shows
+    some text ("MOD") or not. Finally we clear its text using
+    QLabel::clear().
+
+    QMainWindow::statusBar() returns a pointer to the main window's
+    QStatusBar widget. Like with \l{QMainWindow::menuBar()}, the
+    widget is automatically created the first time the function is
+    called.
+
     \printline ::readSettings(
     \printuntil /^\}/
+
+    The \c readSettings() function is called from the constructor to
+    load the user's preferences and other application settings. The
+    QSettings class provides a high-level interface for storing
+    settings permanently on disk. On Windows, it uses the (in)famous
+    Windows registry; on Mac OS X, it uses the native XML-based
+    CFPreferences API; on Unix/X11, it uses text files.
+
+    The QSettings constructor takes arguments that identify your
+    company and the name of the product. This ensures that the
+    settings for different applications are kept separately.
+
+    We use QSettings::value() to extract the value of the "pos" and
+    "size" settings. The second argument to QSettings::value() is
+    optional and specifies a default value for the setting if there
+    exists none. This value is used the first time the application is
+    run.
+
+    When restoring the position and size of a window, it's important
+    to call QWidget::resize() before QWidget::move(). The reason why
+    is given in the \l{geometry.html}{Window Geometry} overview.
 
     \printline ::writeSettings(
     \printuntil /^\}/
 
+    The \c writeSettings() function is called from \c closeEvent().
+    Writing settings is similar to reading them, except simpler. The
+    arguments to the QSettings constructor must be the same as in \c
+    readSettings().
+
     \printline ::maybeSave(
     \printuntil /^\}/
+
+    
 
     \printline ::loadFile(
     \printuntil /^\}/

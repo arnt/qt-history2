@@ -76,6 +76,12 @@
     \o \l{tools/regexp}{Regexp}
     \endlist
 
+    \section1 Thread Examples
+
+    \list
+    \o \l{thread/mandelbrot}{Mandelbrot}\raisedaster
+    \endlist
+
     \section1 Network Examples
 
     \list
