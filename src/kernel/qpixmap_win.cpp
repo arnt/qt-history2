@@ -105,6 +105,20 @@ static inline HDC alloc_mem_dc( HBITMAP hbm )
 }
 
 
+void QPixmap::initAlphaPixmap( uchar *bytes, int length, BITMAPINFO *bmi )
+{
+    HDC dc = handle();
+
+    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0 );
+    memcpy( data->realAlphaBits, bytes, length );
+
+    DeleteObject( DATA_HBM );
+    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
+
+    DeleteObject( hBitmap );
+}
+
+
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
@@ -646,13 +660,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
 
 	if ( hasRealAlpha ) {
-	    uchar *ppvBits;
-	    HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&ppvBits, NULL, 0 );
-	    memcpy( ppvBits, image.bits(), image.numBytes() );
+	    initAlphaPixmap( image.bits(), image.numBytes(), bmi );
 
 	    // Windows expects premultiplied alpha
 	    uchar *p = image.bits();
-	    uchar *b = ppvBits;
+	    uchar *b = data->realAlphaBits;
 	    uchar *end = p + image.numBytes();
 	    uchar alphaByte;
 	    while ( p < end ) {
@@ -674,12 +686,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    p++;
 		}
 	    }
-
-	    DeleteObject( DATA_HBM );
-	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
-	    data->realAlphaBits = ppvBits;
-
-	    DeleteObject( hBitmap );
 	}
     }
 #else
@@ -928,18 +934,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
 #ifndef Q_OS_TEMP
-    if ( data->realAlphaBits ) {
-	void *ppvBits;
-	HDC dc = pm.handle();
-	HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
-	memcpy( ppvBits, dptr, dbytes );
-
-	DeleteObject( pm.DATA_HBM );
-	pm.DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
-	pm.data->realAlphaBits = (uchar*)ppvBits;
-    } else {
+    if ( data->realAlphaBits )
+	pm.initAlphaPixmap( dptr, dbytes, bmi );
+    else
 	SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS );
-    }
 #else
     void *ppvBits;
     HDC hdcSrc = CreateCompatibleDC( pm.handle() );

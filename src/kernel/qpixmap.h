@@ -227,6 +227,9 @@ private:
     void	init( int, int, int, bool, Optimization );
     void	deref();
     QPixmap	copy( bool ignoreMask = FALSE ) const;
+#if defined(Q_WS_WIN)
+    void initAlphaPixmap( uchar *bytes, int length, struct tagBITMAPINFO *bmi );
+#endif
     static Optimization defOptim;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,
@@ -243,10 +246,10 @@ private:
 #elif defined(Q_WS_MAC)
     friend void qt_mac_copy_alpha_pixmap(QPixmap *dst, const QPixmap *src);
     friend void unclippedScaledBitBlt(QPaintDevice *, int, int, int, int,
-				      const QPaintDevice *, int, int, int, int, 
+				      const QPaintDevice *, int, int, int, int,
 				      Qt::RasterOp, bool, bool);
 #endif
-    
+
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;
