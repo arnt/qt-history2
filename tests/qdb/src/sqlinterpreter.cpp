@@ -431,7 +431,6 @@ static void reverse( qdb::ColumnKey& colkey, uint elements )
 
 bool ResultSet::sort( const qdb::List& index )
 {
-    qDebug("ResultSet::sort");
     if ( !env ) {
 	env->setLastError( "internal error:ResultSet::sort: no environment" );
 	return FALSE;
