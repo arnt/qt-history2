@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#45 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#44 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#45 $")
 
 
 /*!
@@ -1522,13 +1522,13 @@ bool QImageIO::write()
 // CompuServe Incorporated.
 //
 
-static void read_gif_image( QImageIO *image )	// read GIF image data
+static void read_gif_image( QImageIO * )	// read GIF image data
 {
     warning( "Qt: GIF not supported in this version" );
 }
 
 
-static void write_gif_image( QImageIO *image )	// write GIF image data
+static void write_gif_image( QImageIO * )	// write GIF image data
 {
     warning( "Qt: GIF not supported in this version" );
 }
@@ -2270,7 +2270,7 @@ static int read_xpm_char( QIODevice *d )
 }
 
 
-static void read_xpm_image( QImageIO *iio )	// read XPM image data
+static void read_xpm_image( QImageIO * /* iio */ )	// read XPM image data
 {
 #if 0
     const	buflen = 200;
@@ -2305,7 +2305,7 @@ static void read_xpm_image( QImageIO *iio )	// read XPM image data
 }
 
 
-static void write_xpm_image( QImageIO *image )	// write XPM image data
+static void write_xpm_image( QImageIO * /* image */ )	// write XPM image data
 {
 #if 0
     QIODevice *d = image->iodev;
