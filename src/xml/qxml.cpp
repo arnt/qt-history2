@@ -6816,13 +6816,6 @@ bool QXmlSimpleReader::parseName()
     const int Name             = 2; // parse name
     const int Done             = 3;
 
-    const int InpNameBe        = 0; // name beginning characters
-    const int InpNameCh        = 1; // NameChar without InpNameBe
-    const int InpUnknown       = 2;
-    Q_ASSERT(InpNameBe == (int)NameBeginning);
-    Q_ASSERT(InpNameCh == (int)NameNotBeginning);
-    Q_ASSERT(InpUnknown == (int)NotName);
-
     static const int table[3][3] = {
      /*  InpNameBe  InpNameCh  InpUnknown */
         { Name1,     -1,        -1    }, // Init
