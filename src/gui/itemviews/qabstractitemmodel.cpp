@@ -895,8 +895,9 @@ bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
 /*!
   Inserts \a count new columns in the model before position \a column. If \a
   column is 0 the columns are prepended to the model, if \a column is
-  columnCount() the columns are appended to the model. The column will
-  be a child of \a parent.   If \a parent has no children \a count columns with at least one row is inserted.
+  columnCount() the columns are appended to the model. The items in the column
+  will be children of the item represented by the \a parent index.
+  If \a parent has no children, a single row with \a count columns is inserted.
   Returns true if the columns were successfully inserted; otherwise
   returns false.
 
@@ -1060,7 +1061,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     The search starts from the \a start index, and continues until the
     number of matching data items equals \a hits, the search reaches
     the last row, or the search reaches \a start again, depending on
-    whether \c MatchWrap is specified in \a flags or not.
+    whether \c MatchWrap is specified in \a flags.
 
     \sa QAbstractItemModel::MatchFlag
 */

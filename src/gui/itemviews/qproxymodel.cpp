@@ -44,6 +44,7 @@ public:
 */
 
 /*!
+    Constructs a proxy model with the given \a parent.
 */QProxyModel::QProxyModel(QObject *parent)
     : QAbstractItemModel(*new QProxyModelPrivate, parent)
 {
@@ -52,6 +53,7 @@ public:
 }
 
 /*!
+    \internal
 */
 QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
     : QAbstractItemModel(dd, parent)
@@ -61,12 +63,14 @@ QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
 }
 
 /*!
+    Destroys the proxy model.
 */
 QProxyModel::~QProxyModel()
 {
 }
 
 /*!
+    Sets the given \a model to be processed by the proxy model.
 */
 void QProxyModel::setModel(QAbstractItemModel *model)
 {
@@ -107,6 +111,8 @@ void QProxyModel::setModel(QAbstractItemModel *model)
 }
 
 /*!
+    Returns the model that contains the data that is available through the
+    proxy model.
 */
 QAbstractItemModel *QProxyModel::model() const
 {
@@ -114,6 +120,9 @@ QAbstractItemModel *QProxyModel::model() const
 }
 
 /*!
+    Returns the model index with the given \a row, \a column, and \a parent.
+
+    \sa QAbstractItemModel::index()
 */
 QModelIndex QProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
@@ -121,6 +130,8 @@ QModelIndex QProxyModel::index(int row, int column, const QModelIndex &parent) c
 }
 
 /*!
+    Returns the model index that corresponds to the parent of the given \a child
+    index.
 */
 QModelIndex QProxyModel::parent(const QModelIndex &child) const
 {
@@ -128,6 +139,9 @@ QModelIndex QProxyModel::parent(const QModelIndex &child) const
 }
 
 /*!
+    Returns the number of rows for the given \a parent.
+
+    \sa QAbstractItemModel::rowCount()
 */
 int QProxyModel::rowCount(const QModelIndex &parent) const
 {
@@ -135,6 +149,9 @@ int QProxyModel::rowCount(const QModelIndex &parent) const
 }
 
 /*!
+    Returns the number of columns for the given \a parent.
+
+    \sa QAbstractItemModel::columnCount()
 */
 int QProxyModel::columnCount(const QModelIndex &parent) const
 {
@@ -142,6 +159,10 @@ int QProxyModel::columnCount(const QModelIndex &parent) const
 }
 
 /*!
+    Returns true if the item corresponding to the \a parent index has child
+    items; otherwise returns false.
+
+    \sa QAbstractItemModel::hasChildren()
 */
 bool QProxyModel::hasChildren(const QModelIndex &parent) const
 {
@@ -149,6 +170,10 @@ bool QProxyModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
+    \fn bool QProxyModel::canDecode(QMimeSource *source) const
+
+    Returns true if the model can decode the data provided by the \a source;
+    otherwise returns false.
 */
 bool QProxyModel::canDecode(QMimeSource *src) const
 {
@@ -156,6 +181,15 @@ bool QProxyModel::canDecode(QMimeSource *src) const
 }
 
 /*!
+    \fn bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
+
+    Decodes data contained in the \a event object, inserting it under the
+    \a parent index if possible.
+
+    Returns true if the data was successfully decoded and inserted;
+    otherwise returns false.
+
+    \sa QAbstractItemModel::decode()
 */
 bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
@@ -163,6 +197,10 @@ bool QProxyModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
+    Returns a pointer to a QDragObject object containing the data
+    associated with the \a indexes from the \a dragSource.
+
+    \sa QAbstractItemModel::dragObject()
 */
 QDragObject *QProxyModel::dragObject(const QModelIndexList &indexes, QWidget *dragSource)
 {
@@ -170,6 +208,8 @@ QDragObject *QProxyModel::dragObject(const QModelIndexList &indexes, QWidget *dr
 }
 
 /*!
+    Returns the data stored in the item with the given \a index under the
+    specified \a role.
 */
 QVariant QProxyModel::data(const QModelIndex &index, int role) const
 {
@@ -177,6 +217,13 @@ QVariant QProxyModel::data(const QModelIndex &index, int role) const
 }
 
 /*!
+    Sets the \a role data for the item at \a index to \a value.
+    Returns true if successful; otherwise returns false.
+
+    The base class implementation returns false. This function and
+    data() must be reimplemented for editable models.
+
+    \sa data() itemData() QAbstractItemModel::setData()
 */
 bool QProxyModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
@@ -184,6 +231,8 @@ bool QProxyModel::setData(const QModelIndex &index, int role, const QVariant &va
 }
 
 /*!
+    Returns the data stored in the \a section of the header with specified
+    \a orientation under the given \a role.
 */
 QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
@@ -191,6 +240,10 @@ QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int r
 }
 
 /*!
+    Sets the \a role data in the \a section of the header with the specified
+    \a orientation to the \a value given.
+
+    \sa QAbstractItemModel::setHeaderData()
 */
 bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value)
 {
@@ -198,13 +251,30 @@ bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation, int ro
 }
 
 /*!
-*/
+    Inserts \a count rows into the model, creating new items as children of
+    the given \a parent. The new rows are inserted before the \a row
+    specified. If the \a parent item has no children, a single column is
+    created to contain the required number of rows.
+
+    Returns true if the rows were successfully inserted; otherwise
+    returns false.
+
+    \sa QAbstractItemModel::insertRows()*/
 bool QProxyModel::insertRows(int row, const QModelIndex &parent, int count)
 {
     return d->model->insertRows(row, parent, count);
 }
 
 /*!
+    Inserts \a count columns into the model, creating new items as children of
+    the given \a parent. The new columns are inserted before the \a column
+    specified. If the \a parent item has no children, a single row is created
+    to contain the required number of columns.
+
+    Returns true if the columns were successfully inserted; otherwise
+    returns false.
+
+    \sa QAbstractItemModel::insertColumns()
 */
 bool QProxyModel::insertColumns(int column, const QModelIndex &parent, int count)
 {
@@ -212,6 +282,10 @@ bool QProxyModel::insertColumns(int column, const QModelIndex &parent, int count
 }
 
 /*!
+    Fetches more child items of the given \a parent. This function is used by views
+    to tell the model that they can display more data than the model has provided.
+
+    \sa QAbstractItemModel::fetchMore()
 */
 void QProxyModel::fetchMore(const QModelIndex &parent)
 {
@@ -219,6 +293,9 @@ void QProxyModel::fetchMore(const QModelIndex &parent)
 }
 
 /*!
+    Returns the item flags for the given \a index.
+
+    \sa QAbstractItemModel::flags()
 */
 QAbstractItemModel::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 {
@@ -226,6 +303,10 @@ QAbstractItemModel::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 }
 
 /*!
+        Returns true if the contents of the model can be sorted; otherwise returns
+        false.
+
+        \sa QAbstractItemModel::isSortable()
 */
 bool QProxyModel::isSortable() const
 {
@@ -233,6 +314,10 @@ bool QProxyModel::isSortable() const
 }
 
 /*!
+    Sorts the child items in the specified \a column of the given \a parent
+    according to the sort order defined by \a order.
+
+    \sa QAbstractItemModel::sort()
 */
 void QProxyModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
 {
@@ -240,6 +325,10 @@ void QProxyModel::sort(int column, const QModelIndex &parent, Qt::SortOrder orde
 }
 
 /*!
+        Returns true if the data referred to by indexes \a left and \a right is
+        equal; otherwise returns false.
+
+        \sa greaterThan() lessThan() QAbstractItemModel::equal()
 */
 bool QProxyModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
@@ -247,6 +336,13 @@ bool QProxyModel::equal(const QModelIndex &left, const QModelIndex &right) const
 }
 
 /*!
+    Returns true if the item represented by the \a left index is less than the
+    item represented by the \a right index; otherwise returns false.
+
+    The return value will depend on how the model compares the information it
+    holds.
+
+    \sa QAbstractItemModel::lessThan()
 */
 bool QProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
@@ -254,6 +350,14 @@ bool QProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) co
 }
 
 /*!
+    Returns a list of model indexes that each contain the given \a value for
+    the \a role specified. The search begins at the \a start index and is
+    performed according to the specified \a flags. The search continues until
+    the number of matching data items equals \a hits, the last row is reached,
+    or the search reaches \a start again, depending on whether \c MatchWrap is
+    specified in \a flags.
+
+    \sa QAbstractItemModel::match()
 */
 QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
                                    const QVariant &value,
@@ -263,6 +367,7 @@ QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
 }
 
 /*!
+    Returns the size of the item that corresponds to the specified \a index.
 */
 QSize QProxyModel::span(const QModelIndex &index) const
 {
