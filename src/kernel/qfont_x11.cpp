@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#43 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#43 $";
 #endif
 
 
@@ -151,6 +151,7 @@ QFontData &QFontData::operator=( const QFontData &d )
     exactMatch = d.exactMatch;
     lineW = d.lineW;
     xfd = d.xfd;				// safe to copy
+    return *this;
 }
 
 
@@ -232,7 +233,7 @@ QFont::QFont( bool )				// create default font
   Returns a window system handle to the font.
  ----------------------------------------------------------------------------*/
 
-HANDLE QFont::handle() const
+HANDLE QFont::handle( HANDLE ) const
 {
     static Font last = 0;
     if ( DIRTY_FONT )
@@ -410,7 +411,7 @@ void QFont::updateFontInfo() const
   Loads the requested font.
  ----------------------------------------------------------------------------*/
 
-void QFont::loadFont() const
+void QFont::loadFont( HANDLE ) const
 {
     QString instanceID;
     QXFontName	*fn;
