@@ -81,3 +81,13 @@ void OutputWindow::appendDebug( const QString &text )
 {
     debugView->append( text );
 }
+
+void OutputWindow::clearErrorMessages()
+{
+    errorView->clear();
+}
+
+void OutputWindow::clearDebug()
+{
+    debugView->clear();
+}

@@ -2182,6 +2182,8 @@ QObjectList *MainWindow::runProject()
     if ( !currentProject )
 	return 0;
     oWindow->parentWidget()->show();
+    oWindow->clearErrorMessages();
+    oWindow->clearDebug();
 #ifndef QT_NO_SQL
     bool ok = TRUE;
     QStringList conns = currentProject->databaseConnectionList();

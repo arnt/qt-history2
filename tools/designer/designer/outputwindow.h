@@ -19,6 +19,8 @@ public:
 
     void setErrorMessages( const QStringList &errors, const QValueList<int> &lines, bool clear = TRUE );
     void appendDebug( const QString& );
+    void clearErrorMessages();
+    void clearDebug();
 
     DesignerOutputDock *iFace();
 
