@@ -4853,6 +4853,13 @@ void QListView::setCurrentItem( QListViewItem * i )
     if ( !i || d->focusItem == i || !i->isEnabled() )
 	return;
 
+    if ( currentItem() && currentItem()->renameBox ) {
+	if ( d->defRenameAction == Reject )
+	    currentItem()->cancelRename( currentItem()->renameCol );
+	else
+	    currentItem()->okRename( currentItem()->renameCol );
+    }
+
     QListViewItem * prev = d->focusItem;
     d->focusItem = i;
 
