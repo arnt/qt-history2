@@ -45,13 +45,13 @@ class DatabaseApp : public QMainWindow
 public:
     DatabaseApp( QWidget * parent = 0, const char * name = 0 );
 
-protected:
-    void init();
-
-protected slots:
+public slots:
     void createDatabase();
     void dropDatabase();
     void customerReport();
+
+protected:
+    void init();
 };
 
 #endif // DATABASEAPP_H

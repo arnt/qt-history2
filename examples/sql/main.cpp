@@ -6,18 +6,17 @@
 #include <qpixmap.h>
 #include <qlabel.h>
 #include <qsqldatabase.h>
-#include "db.h"
 #include "databaseapp.h"
 
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
-    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL7" );
+    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
     db->setDatabaseName( "test" );
     db->setUserName( "db" );
     db->setPassword( "db" );
-    db->setHostName( "cocktail" );
+    db->setHostName( "silverfish" );
 
     if( !db->open() ){
 	qWarning( "Unable to open database: " + db->lastError().driverText());
@@ -25,11 +24,11 @@ int main( int argc, char ** argv )
 	return 0;
     }
 
+    DatabaseApp dbapp;
+    
     QStringList tables = db->tables();
     if ( !tables.contains("customer") && !tables.contains("CUSTOMER") )
-	create_db();
-
-    DatabaseApp dbapp;
+	dbapp.createDatabase();
 
     a.setMainWidget( &dbapp );
     dbapp.show();

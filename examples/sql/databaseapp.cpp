@@ -1,6 +1,5 @@
 #include "databaseapp.h"
 #include "dialogs.h"
-#include "db.h"
 
 #include <qlayout.h>
 #include <qfile.h>
@@ -326,14 +325,14 @@ void DatabaseApp::init()
 
     // Setup menus
     QPopupMenu * menu = new QPopupMenu( this );
-    menu->insertItem( "Customer &report..", this, SLOT( customerReport() ), 
-		   CTRL+Key_R );    
+    menu->insertItem( "Customer &report..", this, SLOT( customerReport() ),
+		   CTRL+Key_R );
     menu->insertSeparator();
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
-    
+
     menu = new QPopupMenu( this );
-    menu->insertItem( "&Create database", this, SLOT( createDatabase()), 
+    menu->insertItem( "&Create database", this, SLOT( createDatabase()),
 		   CTRL+Key_O );
     menu->insertItem( "&Drop database", this, SLOT( dropDatabase()),
 		      CTRL+Key_D );
@@ -345,24 +344,45 @@ void DatabaseApp::init()
 
 void DatabaseApp::createDatabase()
 {
-    create_db();
+    dropDatabase();
+
+    /* get the default app database */
+    QSqlDatabase* db = QSqlDatabase::database();
+
+    /* load sql script and execute each statement */
+    QFile sqlScript( "create_db.sql" );
+    if ( sqlScript.open( IO_ReadOnly ) ) {
+        QTextStream t( &sqlScript );    
+	QString stmt;
+        while ( !t.eof() ) {    
+            stmt += t.readLine();    
+	    if ( stmt[ stmt.length()-1 ] == ';' ) {
+		db->exec( stmt );
+		stmt = QString::null;
+	    }
+        }
+        sqlScript.close();	
+    }
 }
 
 void DatabaseApp::dropDatabase()
 {
-    drop_db();
+    QSqlDatabase* db = QSqlDatabase::database();
+    db->exec("drop table INVOICE;");
+    db->exec("drop table PRODUCT;");
+    db->exec("drop table CUSTOMER;");
 }
 
 void DatabaseApp::customerReport()
 {
-    QString fname = QFileDialog::getSaveFileName( "report.html", "*.html", 
+    QString fname = QFileDialog::getSaveFileName( "report.html", "*.html",
 						  this );
     /* report customers and invoices */
     if( !fname.isEmpty() ) {
 	QFile output( fname );
 	if ( !output.open( IO_WriteOnly ) )
 	    return;
-	
+
         QTextStream t( &output );
 	t << "<html>";
 	t << "<head>";
