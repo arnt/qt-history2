@@ -87,14 +87,14 @@ QSocketDevice::QSocketDevice( Type type, bool )
 	case WSAEPROTONOSUPPORT:
 	    e = Bug; // 0 is supposed to work for both types
 	    break;
-	case WSAENFILE:
+	case WSAEMFILE:
 	    e = NoFiles; // special case for this
 	    break;
 	case WSAEACCES:
 	    e = Inaccessible;
 	    break;
 	case WSAENOBUFS:
-	case WSAENOMEM:
+//	case WSAENOMEM:
 	    e = NoResources;
 	    break;
 	case WSAEINVAL:
@@ -170,11 +170,11 @@ int QSocketDevice::option( Option opt ) const
 	    return v;
 	if ( !e ) {
 	    switch( errno ) {
-	    case EBADF:
-	    case ENOTSOCK:
+	    case WSAEBADF:
+	    case WSAENOTSOCK:
 		e = Impossible;
 		break;
-	    case EFAULT:
+	    case WSAEFAULT:
 		e = Bug;
 		break;
 	    default:
@@ -212,11 +212,11 @@ void QSocketDevice::setOption( Option opt, int v )
     if ( ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
 	 e == NoError ) {
 	switch( errno ) {
-	case EBADF:
-	case ENOTSOCK:
+	case WSAEBADF:
+	case WSAENOTSOCK:
 	    e = Impossible;
 	    break;
-	case EFAULT:
+	case WSAEFAULT:
 	    e = Bug;
 	    break;
 	default:
@@ -273,7 +273,7 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
 	case WSAEACCES:
 	    e = Inaccessible;
 	    break;
-	case WSAENOMEM:
+//	case WSAENOMEM:
 	    e = NoResources;
 	    break;
 	case WSAEFAULT: // a was illegal
@@ -282,9 +282,9 @@ bool QSocketDevice::bind( const QHostAddress &address, uint port )
 	    break;
 	case WSAEBADF: // AF_UNIX only
 	case WSAENOTSOCK: // AF_UNIX only
-	case WSAEROFS: // AF_UNIX only
-	case WSAENOENT: // AF_UNIX only
-	case WSAENOTDIR: // AF_UNIX only
+//	case WSAEROFS: // AF_UNIX only
+//	case WSAENOENT: // AF_UNIX only
+//	case WSAENOTDIR: // AF_UNIX only
 	case WSAELOOP: // AF_UNIX only
 	    e = Impossible;
 	    break;
@@ -339,10 +339,10 @@ int QSocketDevice::accept()
 	    // in all these cases, an error happened during connection
 	    // setup.  we're not interested in what happened, so we
 	    // just treat it like the client-closed-quickly case.
-	case WSAEPERM:
+//	case WSAEPERM:
 	    // firewalling wouldn't let us accept.  we treat it like
 	    // the client-closed-quickly case.
-	case WSAEAGAIN:
+//	case WSAEAGAIN:
 	    // the client closed the connection before we got around
 	    // to accept()ing it.
 	    break;
@@ -353,7 +353,7 @@ int QSocketDevice::accept()
 	case WSAEFAULT:
 	    e = Bug;
 	    break;
-	case WSAENOMEM:
+//	case WSAENOMEM:
 	case WSAENOBUFS:
 	    e = NoResources;
 	    break;
@@ -428,8 +428,8 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 	    done = FALSE;
 	} else if ( e == NoError ) {
 	    switch( errno ) {
-	    case WSAEIO:
-	    case WSAEISDIR:
+//	    case WSAEIO:
+//	    case WSAEISDIR:
 	    case WSAEBADF:
 	    case WSAEINVAL:
 	    case WSAEFAULT:
@@ -485,15 +485,15 @@ int QSocketDevice::writeBlock( const char *data, uint len )
     while ( !done ) {
 	r = ::send( fd, data, len, 0 );
 	done = TRUE;
-	if ( r < 0 && e == NoError && errno != WSAEAGAIN ) {
+	if ( r < 0 && e == NoError ) {//&& errno != WSAEAGAIN ) {
 	    switch( errno ) {
 	    case WSAEINTR: // signal - call read() or whatever again
 		done = FALSE;
 		break;
-	    case WSAENOSPC:
-	    case WSAEPIPE:
-	    case WSAEIO:
-	    case WSAEISDIR:
+//	    case WSAENOSPC:
+//	    case WSAEPIPE:
+//	    case WSAEIO:
+//	    case WSAEISDIR:
 	    case WSAEBADF:
 	    case WSAEINVAL:
 	    case WSAEFAULT:
@@ -571,10 +571,10 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 	    case WSAEINTR: // signal - call read() or whatever again
 		done = FALSE;
 		break;
-	    case WSAENOSPC:
-	    case WSAEPIPE:
-	    case WSAEIO:
-	    case WSAEISDIR:
+//	    case WSAENOSPC:
+//	    case WSAEPIPE:
+//	    case WSAEIO:
+//	    case WSAEISDIR:
 	    case WSAEBADF:
 	    case WSAEINVAL:
 	    case WSAEFAULT:
