@@ -45,7 +45,6 @@
 #include "qbitmap.h"
 #include "qpopupmenu.h"
 #include "qguardedptr.h"
-#include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
 #include "qtoolbar.h"
 #include "qstyle.h"
