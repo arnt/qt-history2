@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#217 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#218 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -997,11 +997,11 @@ void QComboBox::paintEvent( QPaintEvent * )
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
-	QString str = d->popup()->text( d->current );
+	QString str = d->popup()->text( this->d->current ); // this->gccsucks
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
-	    QPixmap *pix = d->popup()->pixmap( d->current );
+	    QPixmap *pix = d->popup()->pixmap( this->d->current );
 	    if ( pix ) {
 		p.setClipRect( clip );
 		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
@@ -1207,7 +1207,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	 ( !d->ed && e->key() == Key_Space ) ) {
 	if ( count() ) {
 	    if ( !d->usingListBox() )
-		d->popup()->setActiveItem( d->current );
+		d->popup()->setActiveItem( this->d->current );
 	    popup();
 	}
 	return;
@@ -1305,7 +1305,7 @@ void QComboBox::popup()
 	d->listBox()->show();
     } else {
 	d->popup()->installEventFilter( this );
-	d->popup()->popup( mapToGlobal( QPoint(0,0) ), d->current );
+	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
     }
     d->poppedUp = TRUE;
 }
