@@ -1097,6 +1097,7 @@ void QLineEdit::backspace()
     }
     d->selectionStart = d->cursor->index();
     update();
+    emit textChanged( text() );
 }
 
 /*!
@@ -1121,6 +1122,7 @@ void QLineEdit::del()
     }
     d->selectionStart = d->cursor->index();
     update();
+    emit textChanged( text() );
 }
 
 /*!
