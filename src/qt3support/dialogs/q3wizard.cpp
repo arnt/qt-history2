@@ -183,7 +183,7 @@ Q3Wizard::~Q3Wizard()
 
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3Wizard::show()
@@ -272,10 +272,10 @@ void Q3Wizard::insertPage( QWidget * page, const QString & title, int index )
 }
 
 /*!
-    \fn void Q3Wizard::selected(const QString&)
+    \fn void Q3Wizard::selected(const QString &title)
 
     This signal is emitted when the current page changes. The
-    parameter contains the title of the selected page.
+    \a title parameter contains the title of the selected page.
 */
 
 

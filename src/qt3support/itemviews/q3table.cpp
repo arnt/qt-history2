@@ -1799,7 +1799,7 @@ QSize Q3CheckTableItem::sizeHint() const
     If you represent active cells with a dictionary of Q3TableItems and
     QWidgets, i.e. only store references to cells that are actually
     used, many of the functions can be implemented with a single line
-    of code. (See the \l table/bigtable/main.cpp example.)
+    of code.
 
     For more information on cells see the Q3TableItem documenation.
 
@@ -6332,7 +6332,9 @@ void Q3Table::windowActivationChange(bool oldActive)
 	updateContents();
 }
 
-/*! \reimp */
+/*!
+    \internal
+*/
 void Q3Table::setEnabled(bool b)
 {
     if (!b) {

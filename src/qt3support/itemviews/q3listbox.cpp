@@ -766,8 +766,6 @@ int Q3ListBoxPixmap::rtti() const
     Q3ListBoxItems. This may be unsuitable for custom Q3ListBoxItem
     classes, in which case \c Qt::WA_StaticContents and \c Qt::WA_NoBackground
     should be cleared on the viewport() after construction.
-
-    \sa QWidget::clearWFlags()
 */
 
 Q3ListBox::Q3ListBox(QWidget *parent, const char *name, Qt::WFlags f)
@@ -1589,7 +1587,9 @@ void Q3ListBox::setCurrentItem(int index)
     setCurrentItem(item(index));
 }
 
-
+/*!
+    \reimp
+*/
 QVariant Q3ListBox::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     if (query == Qt::ImMicroFocus)
@@ -2926,7 +2926,7 @@ void Q3ListBox::setRowMode(int rows)
     displayed columns. The row layout mode automatically becomes \c
     Variable, unless the column mode is \c Variable.
 
-    \sa setRowMode() columnMode() rowMode numColumns
+    \sa setRowMode() rowMode numColumns
 */
 
 
@@ -2949,7 +2949,7 @@ Q3ListBox::LayoutMode Q3ListBox::columnMode() const
     displayed rows. The column layout mode automatically becomes \c
     Variable, unless the row mode is \c Variable.
 
-    \sa columnMode rowMode
+    \sa columnMode
 */
 
 
@@ -4031,8 +4031,6 @@ void Q3ListBox::clearInputString()
     ComparisonFlags are specified in \a compare then these flags
     are used, otherwise the default is a case-insensitive, "begins
     with" search.
-
-    \sa Qt::StringComparisonFlags
 */
 
 Q3ListBoxItem *Q3ListBox::findItem(const QString &text, ComparisonFlags compare) const

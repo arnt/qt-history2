@@ -1384,7 +1384,7 @@ void Q3ListViewItem::sortChildItems(int column, bool ascending)
     For best results in Windows style we suggest using an even number
     of pixels.
 
-    \sa height() totalHeight() isOpen();
+    \sa height() totalHeight() isOpen()
 */
 
 void Q3ListViewItem::setHeight(int height)
@@ -2407,19 +2407,7 @@ void Q3ListViewItem::ignoreDoubleClick()
             by the first column; to switch this off call setSorting(-1).
     \endtable
 
-    To handle events such as mouse presses on the list view, derived
-    classes can reimplement the QScrollView functions:
-    \link QScrollView::contentsMousePressEvent() contentsMousePressEvent\endlink,
-    \link QScrollView::contentsMouseReleaseEvent() contentsMouseReleaseEvent\endlink,
-    \link QScrollView::contentsMouseDoubleClickEvent() contentsMouseDoubleClickEvent\endlink,
-    \link QScrollView::contentsMouseMoveEvent() contentsMouseMoveEvent\endlink,
-    \link QScrollView::contentsDragEnterEvent() contentsDragEnterEvent\endlink,
-    \link QScrollView::contentsDragMoveEvent() contentsDragMoveEvent\endlink,
-    \link QScrollView::contentsDragLeaveEvent() contentsDragLeaveEvent\endlink,
-    \link QScrollView::contentsDropEvent() contentsDropEvent\endlink, and
-    \link QScrollView::contentsWheelEvent() contentsWheelEvent\endlink.
-
-    There are also several functions for mapping between items and
+    There are several functions for mapping between items and
     coordinates. itemAt() returns the item at a position on-screen,
     itemRect() returns the rectangle an item occupies on the screen,
     and itemPos() returns the position of any item (whether it is
@@ -3448,8 +3436,8 @@ int Q3ListView::columnAlignment(int column) const
 
 
 /*!
-    \reimp
- */
+    \internal
+*/
 void Q3ListView::show()
 {
     // Reimplemented to setx the correct background mode and viewed
@@ -4672,6 +4660,9 @@ void Q3ListView::focusInEvent(QFocusEvent *e)
     }
 }
 
+/*!
+    \reimp
+*/
 QVariant Q3ListView::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     if (query == Qt::ImMicroFocus) {

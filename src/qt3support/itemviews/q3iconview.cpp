@@ -467,7 +467,7 @@ void Q3IconViewItemLineEdit::focusOutEvent(QFocusEvent *e)
 
 
 /*!
-    \class Q3IconDragItem qiconview.h
+    \class Q3IconDragItem
     \brief The Q3IconDragItem class encapsulates a drag item.
     \compat
 
@@ -480,9 +480,6 @@ void Q3IconViewItemLineEdit::focusOutEvent(QFocusEvent *e)
     object.
 
     See Q3IconView::dragObject() for more information.
-
-    See the \l fileiconview/qfileiconview.cpp and
-    \l iconview/simple_dd/main.cpp examples.
 */
 
 /*!
@@ -2348,11 +2345,6 @@ void Q3IconViewItem::checkRect()
     }
     \endcode
 
-    See \l iconview/simple_dd/main.h and \l
-    iconview/simple_dd/main.cpp for a simple drag and drop example
-    which demonstrates drag and drop between a Q3IconView and a
-    Q3ListBox.
-
     If you want to use extended drag-and-drop or have drag shapes drawn
     you must take a more sophisticated approach.
 
@@ -2379,7 +2371,7 @@ void Q3IconViewItem::checkRect()
     fileiconview example (qt/examples/fileiconview).
 
     \sa Q3IconViewItem::setDragEnabled(), Q3IconViewItem::setDropEnabled(),
-        Q3IconViewItem::acceptDrop(), Q3IconViewItem::dropped().
+        Q3IconViewItem::acceptDrop(), Q3IconViewItem::dropped()
 */
 
 /*! \enum Q3IconView::ResizeMode
@@ -2579,7 +2571,7 @@ void Q3IconViewItem::checkRect()
 */
 
 /*!
-    \fn void Q3IconView::mouseButtonPressed (int button, Q3IconViewItem * item, const QPoint & pos)
+    \fn void Q3IconView::mouseButtonPressed(int button, Q3IconViewItem *item, const QPoint &pos)
 
     This signal is emitted when the user presses mouse button \a
     button. If \a item is non-null, the cursor is on \a item. If \a
@@ -2588,7 +2580,7 @@ void Q3IconViewItem::checkRect()
     \a pos is the position of the mouse cursor in the global
     coordinate system (QMouseEvent::globalPos()).
 
-    \sa rightButtonClicked() mouseButtonPressed() pressed()
+    \sa rightButtonClicked() mouseButtonClicked() pressed()
 */
 
 /*!
@@ -3122,6 +3114,9 @@ Q3IconViewItem *Q3IconView::currentItem() const
     return d->currentItem;
 }
 
+/*!
+    \reimp
+*/
 QVariant Q3IconView::inputMethodQuery(Qt::InputMethodQuery query) const
 {
     if (query == Qt::ImMicroFocus) {
@@ -3612,8 +3607,7 @@ Q3IconViewItem *Q3IconView::findItem(const QPoint &pos) const
 
     Returns a pointer to the first item whose text begins with \a
     text, or 0 if no such item could be found. Use the \a compare flag
-    to control the comparison behavior. (See \l
-    {Qt::StringComparisonFlags}.)
+    to control the comparison behavior.
 */
 
 Q3IconViewItem *Q3IconView::findItem(const QString &text, ComparisonFlags compare) const
