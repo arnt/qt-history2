@@ -908,7 +908,9 @@ void SetupWizardImpl::doFinalIntegration()
     shell.createInternetShortcut( dirName, common, "Register for Support", "http://www.trolltech.com/products/qt/evaluate.html" );
 #endif
 
-    if( qWinVersion() & WV_DOS_based ) {
+    if ( ( ( !globalInformation.reconfig() && optionsPage->skipBuild->isChecked() )
+	 || ( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() ) )
+	|| qWinVersion() & WV_DOS_based ) {
 	QString description;
 #if defined(EVAL) || defined(EDU)
 	buildQtShortcutText = "Build Qt Examples and Tutorials";
