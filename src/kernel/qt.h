@@ -32,6 +32,7 @@
 #include "qiodevice.h"
 #include <qsize.h>
 #include <qrect.h>
+#include "qptrcollection.h"
 #include "qgdict.h"
 #include "qbrush.h"
 #include "qsizepolicy.h"
@@ -39,6 +40,7 @@
 #include "qglist.h"
 #include "qdatastream.h"
 #include "qlist.h"
+#include "qpair.h"
 #include "qmap.h"
 #include <qfont.h>
 #include <ucom.h>
