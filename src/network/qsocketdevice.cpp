@@ -45,7 +45,7 @@ public:
     This class provides a low level API for working with sockets.  Users of
     this class are assumed to have networking experience. For most users the
     QSocket class provides a much easier and high level alternative, but
-    certain thing (like UDP) can't be done with QSocket and if you need a
+    certain things (like UDP) can't be done with QSocket and if you need a
     platform-independent API for those, QSocketDevice is the right choice.
 
     The essential purpose of the class is to provide a QIODevice that
