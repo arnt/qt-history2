@@ -83,7 +83,7 @@ private:
     void  deleteItem( Item d );
 };
 
-#if 1 // all compilers ought to understand this, remove #if's before Qt 3.0
+#if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
 template<> inline void QIntDict<void>::deleteItem( QPtrCollection::Item )
 {
 }

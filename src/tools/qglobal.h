@@ -226,6 +226,7 @@
 #elif defined(__EDG) || defined(__EDG__) || defined(Q_CC_EDG)
 // __EDG documented by SGI, observed on MIPSpro 7.3.1.1 and KAI C++ 4.0b
 // __EDG__ documented in EDG online docs, observed on Compaq C++ V6.3-002
+#  define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #  if !defined(Q_CC_EDG)
 #    define Q_CC_EDG
 #  endif
@@ -683,7 +684,7 @@ Q_EXPORT void qObsolete( const char *message );
 
 // The next define will enable/disable strict naming.
 #if defined (QT_STRICT_NAMES)
-// create defines for name and parent without default values. 
+// create defines for name and parent without default values.
 // This will force the developer to specify values.
 #define Q_NAME name
 #define Q_PARENT parent
