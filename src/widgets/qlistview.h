@@ -303,6 +303,7 @@ public:
 
     virtual void clearSelection();
     virtual void setSelected( QListViewItem *, bool );
+    void setSelected( QListViewItem *, bool, bool ); // ### virtual in 4.0
     bool isSelected( const QListViewItem * ) const;
     QListViewItem * selectedItem() const;
     virtual void setOpen( QListViewItem *, bool );

@@ -5048,6 +5048,24 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	emit currentChanged( d->focusItem );
 }
 
+/*!
+  If \a selected is TRUE the \a item is selected; otherwise it is
+  unselected. If \a updateSelectionAnchor is TRUE \a item is used
+  as the selection anchor.
+
+  The selection anchor is the item that remains selected when
+  shift-selecting with either mouse or keyboard in \c Extended
+  selection.
+
+  Note: This function calls the virtual setSelected when setting the selection.
+*/
+
+void QListView::setSelected( QListViewItem *item, bool selected, bool updateSelectionAnchor )
+{
+    setSelected( item, selected ); // calls the virtual one
+    if ( updateSelectionAnchor && item && item->isSelectable() )
+	d->selectAnchor = item;
+}
 
 /*!
     Sets all items to be not selected, updates the list view as
