@@ -19,6 +19,9 @@
 \if defined(noncommercial)
 \title Qt Reference Documentation (Non-Commercial Edition)
 \endif
+\if defined(preview)
+\title Qt Reference Documentation (Qt 4 Technology Preview)
+\endif
 \if !defined(commercial) && !defined(noncommercial)
 \title Qt Reference Documentation (Free Edition)
 \endif
@@ -35,6 +38,11 @@ edition is for the development of non-commercial software in
 accordance with the license you agreed to when you installed the
 software from the CD; see also
 \l{commercialeditions.html}{Commercial Editions}.
+\endif
+\if defined(preview)
+\bold{Notice:} This \link tech-preview.html Technology Preview
+\endlink is not meant to be used in production code or even for
+application development.
 \endif
 
 \raw HTML
