@@ -172,15 +172,10 @@ private:
 
 #elif defined( Q_WS_MAC )
 
-#if defined( Q_WS_MACX )
-# define QMAC_FONT_ATSUI
-#endif
-class QMacFontInfo;
 #include "qt_mac.h"
-
 class QFontEngineMac : public QFontEngine
 {
-#if defined( QMAC_FONT_ATSUI ) && 0
+#if 0
     ATSFontMetrics *info;
 #else
     FontInfo *info;
@@ -188,8 +183,9 @@ class QFontEngineMac : public QFontEngine
     short fnum;
     int psize;
     QMacFontInfo *internal_fi;
-    friend class QFontPrivate; //SDM?
-    friend class QMacSetFontInfo; //SDM?
+    friend class QGLContext;
+    friend class QFontPrivate;
+    friend class QMacSetFontInfo;
 
 public:
     QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { cache_cost = 1; }
@@ -206,17 +202,27 @@ public:
     int ascent() const { return (int)info->ascent; }
     int descent() const { return (int)info->descent; }
     int leading() const { return (int)info->leading; }
-#if defined( QMAC_FONT_ATSUI ) && 0
+#if 0
     int maxCharWidth() const { return (int)info->maxAdvanceWidth; }
 #else
     int maxCharWidth() const { return info->widMax; }
 #endif
 
-    const char *name() const { return "null"; }
+    const char *name() const { return "ATSUI"; }
 
     bool canRender( const QChar *string,  int len );
 
     Type type() const { return QFontEngine::Mac; }
+
+    enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
+    int doTextTask(const QFontPrivate *d, const QChar *s, int pos,
+		   int use_len, int len, uchar task, int =-1, int y=-1,
+		   QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
+    int doTextTask(const QFontPrivate *d, QString s, int pos, int len, uchar task,
+		   int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL, 
+		   int dir = QPainter::Auto, const QFontMetrics *fm = NULL) const;
+    int doTextTask(const QFontPrivate *d, const QChar &c, uchar task,
+		   int x=-1, int y=-1, QPaintDevice *dev=NULL, const QRegion *rgn=NULL) const;
 };
 
 #elif defined( Q_WS_WIN )

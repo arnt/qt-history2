@@ -125,6 +125,73 @@ inline void QMacSavedFontInfo::init(CGrafPtr w)
     }
 }
 
+class QMacFontInfo
+{
+public:
+    inline QMacFontInfo() : fi_fnum(0), fi_face(0), fi_size(0), fi_enc(0), fi_astyle(0)
+	{ }
+    inline ~QMacFontInfo() 
+	{ if(fi_astyle && fi_astyle->deref()) {
+	    ATSUDisposeStyle(fi_astyle->style);
+	    delete fi_astyle;
+	} }
+    inline QMacFontInfo &operator=(QMacFontInfo &rhs) {
+	setEncoding(rhs.encoding());
+	setFont(rhs.font());
+	setStyle(rhs.style());
+	setSize(rhs.size());
+	if(rhs.atsuStyle()) {
+	    rhs.atsuStyle()->ref();
+	    setATSUStyle(rhs.atsuStyle());
+	} else {
+	    if(fi_astyle && fi_astyle->deref()) {
+		ATSUDisposeStyle(fi_astyle->style);
+		delete fi_astyle;
+	    }
+	    setStyle(NULL);
+	}
+	return *this;
+    }
+
+    inline TextEncoding encoding() const { return fi_enc; }
+    inline void setEncoding(TextEncoding f) { fi_enc = f; }
+
+    inline short font() const { return fi_fnum; }
+    inline void setFont(short f) { fi_fnum = f; }
+
+    inline short style() const { return fi_face; }
+    inline void setStyle(short f) { fi_face = f; }
+
+    inline int size() const { return fi_size; }
+    inline void setSize(int f) { fi_size = f; }
+
+    struct QATSUStyle : public QShared {
+	ATSUStyle style;
+	RGBColor rgb;
+    };
+    inline QATSUStyle *atsuStyle() { return fi_astyle; }
+    inline void setATSUStyle(QATSUStyle *s) { fi_astyle = s; }
+
+private:
+    short fi_fnum, fi_face;
+    int fi_size;
+    TextEncoding fi_enc;
+    QATSUStyle *fi_astyle;
+};
+
+class QFontPrivate;
+class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo 
+{
+public:
+    //create this for temporary font settting
+    inline QMacSetFontInfo(const QFontPrivate *d, QPaintDevice *pdev) : QMacSavedFontInfo(), 
+									QMacFontInfo() { setMacFont(d, this, pdev); }
+
+    //you can use this to cause font setting, without restoring old
+    static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL, QPaintDevice *pdev=NULL);
+};
+
+
 #include <qptrlist.h>
 #include <qpaintdevice.h>
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp

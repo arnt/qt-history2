@@ -42,6 +42,9 @@
 #include <qtextcodec.h>
 #include <qprinter.h>
 #include <private/qcomplextext_p.h>
+#include <private/qtextengine_p.h>
+#include <private/qfontengine_p.h>
+#include <qtextlayout.h>
 #ifndef QMAC_NO_QUARTZ
 # include <ApplicationServices/ApplicationServices.h>
 #endif
@@ -1776,13 +1779,13 @@ void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::Tex
     drawText(x, y, str, 0, len, dir);
 }
 
-void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
+void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPainter::TextDirection dir)
 {
     if(!isActive())
 	return;
-    if(len < 0 || from + len > (int)str.length())
-	len = str.length() - from;
-    if(len == 0 || from >= (int)str.length())   // empty string
+    if(len < 0 || pos + len > (int)str.length())
+	len = str.length() - pos;
+    if(len == 0 || pos >= (int)str.length())   // empty string
 	return;
 
     updateBrush();
@@ -1791,7 +1794,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
     if(testf(ExtDev)) {
 	QPDevCmdParam param[2];
 	QPoint p(x, y);
-	QString newstr = str.mid(from, len);
+	QString newstr = str.mid(pos, len);
 	param[0].point = &p;
 	param[1].str = &newstr;
 	if(!pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !pdev->handle())
@@ -1802,7 +1805,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 	if(txop >= TxScale) {
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo    fi = fontInfo();
-	    QRect bbox = fm.boundingRect(str.mid(from), len);
+	    QRect bbox = fm.boundingRect(str.mid(pos), len);
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
@@ -1814,7 +1817,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 		newSize = QMAX(6.0, QMIN(newSize, 72.0)); // empirical values
 		dfont.setPointSizeFloat(newSize);
 		QFontMetrics fm2(dfont);
-		QRect abbox = fm2.boundingRect(str.mid(from), len);
+		QRect abbox = fm2.boundingRect(str.mid(pos), len);
 		aw = abbox.width();
 		ah = abbox.height();
 		tx = -abbox.x();
@@ -1831,7 +1834,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 	    }
 	    bool empty = aw == 0 || ah == 0;
 #ifndef QMAC_NO_CACHE_TEXT_XFORM
-	    QString bm_key = gen_text_bitmap_key(mat2, dfont, str.mid(from), len);
+	    QString bm_key = gen_text_bitmap_key(mat2, dfont, str.mid(pos), len);
 	    QBitmap *wx_bm = get_text_bitmap(bm_key);
 #else
 	    QBitmap *wx_bm = 0;
@@ -1842,7 +1845,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 		QPainter paint(&bm);		// draw text in bitmap
 		paint.setPen(color1);
 		paint.setFont(dfont);
-		paint.drawText(tx, ty, str, from, len, dir);
+		paint.drawText(tx, ty, str, pos, len, dir);
 		paint.end();
 
 		wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
@@ -1894,7 +1897,7 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
     x += d->offx;
     y += d->offy;
     if(bg_mode == OpaqueMode) {
-	QRect br = fontMetrics().boundingRect(str.mid(from), len);
+	QRect br = fontMetrics().boundingRect(str.mid(pos), len);
 	Rect r;
 	r.left = x + br.x();
 	r.top = y + br.y();
@@ -1908,10 +1911,53 @@ void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPa
 	PaintRect(&r);
     }
     updatePen();
-    QFont *f = pfont;
-    if(!f)
-	f = &cfont;
-    f->d->drawText(x, y, str, from, len, pdev, &d->cache.paintreg, dir);
+
+    QTextLayout layout(str, this);
+    layout.beginLayout();
+    layout.setBoundary(pos);
+    layout.setBoundary(pos + len);
+
+    QTextEngine *engine = layout.d;
+    // small hack to force skipping of unneeded items
+    int start = 0;
+    while(engine->items[start].position < pos)
+	++start;
+    engine->currentItem = start;
+    layout.beginLine(0xfffffff);
+    int end = start;
+    while (!layout.atEnd() && layout.currentItem().from() < pos + len) {
+	layout.addCurrentItem();
+	end++;
+    }
+    int ascent;
+    layout.endLine(0, 0, Qt::AlignLeft, &ascent, 0);
+    // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
+    // for painting.
+    for(int i = start; i < end; i++) {
+	QScriptItem &si = engine->items[i];
+	QFontEngine *fe = si.fontEngine;
+	Q_ASSERT(fe);
+	Q_ASSERT(si.shaped);
+	fe->draw(this, x + si.x,  y + si.y - ascent, si.shaped->glyphs, si.shaped->advances,
+		 si.shaped->offsets, si.shaped->num_glyphs, si.analysis.bidiLevel % 2);
+    }
+}
+
+void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
+{
+    if(testf(DirtyFont))
+	updateFont();
+    if(testf(ExtDev|VxF|WxF)) {
+	drawText(x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
+		 (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR);
+	return;
+    }
+    QScriptItem &si = ti.engine->items[ti.item];
+    QShapedItem *shaped = ti.engine->shape( ti.item );
+    QFontEngine *fe = si.fontEngine;
+    Q_ASSERT(fe);
+    fe->draw(this, x + ti.x(),  y + ti.y(), shaped->glyphs, shaped->advances,
+	     shaped->offsets, shaped->num_glyphs, si.analysis.bidiLevel % 2);
 }
 
 QPoint QPainter::pos() const

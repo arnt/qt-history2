@@ -35,6 +35,7 @@
 #include <OpenGL/gl.h>
 
 #include <private/qfontdata_p.h>
+#include <private/qfontengine_p.h>
 #include <qt_mac.h>
 #include <qpixmap.h>
 #include <qtimer.h>
@@ -362,12 +363,12 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 	fstyle |= underline;
 
     int fnum = 0;
-#if 0 //SDM?
     if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
-	if(fp->fin)
-	    fnum = fp->fin->fnum;
+	if(fp->fin) {
+	    Q_ASSERT(fp->fin->type() == QFontEngine::Mac);
+	    fnum = ((QFontEngineMac*)fp->fin)->fnum;
+	}
     }
-#endif
     aglUseFont((AGLContext) cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 

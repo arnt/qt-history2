@@ -360,8 +360,6 @@ public:
 
 #if defined( Q_WS_MAC )
     QFontEngine *engineForScript(QFont::Script) const { return fin; }
-    void macSetFont(QPaintDevice *);
-    void drawText(int x, int y, const QString &s, int from, int len, QPaintDevice *dev, const QRegion *rgn, int dir);
     void computeLineWidth();
     void load();
     QFontStruct *fin;
