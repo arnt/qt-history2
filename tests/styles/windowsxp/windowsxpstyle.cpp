@@ -18,6 +18,8 @@
 #include <qcursor.h>
 #include <qscrollbar.h>
 #include <qslider.h>
+#include <qcheckbox.h>
+#include <qradiobutton.h>
 
 #include <qt_windows.h>
 #include <uxtheme.h>
@@ -129,8 +131,9 @@ static int activeScrollBarElement       = 0;
 #define TBP_SIZINGBARRIGHT	7
 #define TBP_SIZINGBARTOP	8
 
-#define TP_DROPDOWNBUTTON	1
-#define TP_BUTTON		2
+
+#define TP_BUTTON		1
+#define TP_DROPDOWNBUTTON	2
 #define TP_SPLITBUTTON		3
 #define TP_SPLITBUTTONDROPDOWN	4
 #define TP_SEPARATOR		5
@@ -141,16 +144,16 @@ static int activeScrollBarElement       = 0;
 #define TTP_STANDARD		3
 #define TTP_STANDARDTITLE	4
 
-#define TKP_THUMB		1
-#define TKP_THUMBBOTTOM		2
-#define TKP_THUMBLEFT		3
-#define TKP_THUMBRIGHT		4
-#define TKP_THUMBTOP		5
-#define TKP_THUMBVERT		6
-#define TKP_TICS		7
-#define TKP_TICSVERT		8
-#define TKP_TRACK		9
-#define TKP_TRACKVERT		10
+#define TKP_THUMB		3
+#define TKP_THUMBBOTTOM		4
+#define TKP_THUMBLEFT		5
+#define TKP_THUMBRIGHT		6
+#define TKP_THUMBTOP		7
+#define TKP_THUMBVERT		8
+#define TKP_TICS		9
+#define TKP_TICSVERT		10
+#define TKP_TRACK		1
+#define TKP_TRACKVERT		2
 
 #define TNP_ANIMBACKGROUND	1
 #define TNP_BACKGROUND		2
@@ -346,6 +349,15 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonBevel:
         name = L"BUTTON";
         partId = BP_PUSHBUTTON;
+        if ( !flags & PStyle_Enabled )
+            stateId = 4;
+        else if ( flags & PStyle_Down )
+	    stateId = 3;
+	else if ( flags & PStyle_MouseOver )
+	    stateId  =2;
+        else
+            stateId = 1;
+
         stateId = flags & PStyle_Sunken ? 2 : 1;
         break;
 
@@ -392,7 +404,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
 	        stateId = 7;
 	    else
 	        stateId = 3;
-        } else if ( !cg.brightText().isValid() ) {
+        } else if ( flags & PStyle_MouseOver ) {
 	    if ( flags & PStyle_On )
 	        stateId = 6;
 	    else
@@ -410,7 +422,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ExclusiveIndicator:
         name = L"BUTTON";
         partId = BP_RADIOBUTTON;
-        if ( !flags & PStyle_Enabled ) {
+        if ( !(flags & PStyle_Enabled) ) {
 	    if ( flags & PStyle_On )
 	        stateId = 8;
 	    else
@@ -420,7 +432,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveOperation op,
 	        stateId = 7;
 	    else
 	        stateId = 3;
-        } else if ( !cg.brightText().isValid() ) {
+        } else if ( flags & PStyle_MouseOver ) {
 	    if ( flags & PStyle_On )
 	        stateId = 6;
 	    else
@@ -478,12 +490,20 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     int partId = 0;
     int stateId = 0;
 
+    PFlags f = PStyle_Default;
+    if ( widget->isEnabled() )
+	f |= PStyle_Enabled;
+    if ( widget->hasFocus() )
+	f |= PStyle_HasFocus;
+    if ( widget == d->hotWidget )
+	f |= PStyle_MouseOver;
+
     switch ( element ) {
     case CE_PushButton:
 //    case CE_PushButtonLabel:
-        name = L"BUTTON";
-        partId = BP_PUSHBUTTON;
         {
+	    name = L"BUTTON";
+	    partId = BP_PUSHBUTTON;
             QPushButton *pb = (QPushButton*)widget;
             if ( !pb->isEnabled() )
                 stateId = 4;
@@ -500,17 +520,33 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
     case CE_CheckBox:
 //    case CE_CheckBoxLabel:
-        name = L"BUTTON";
-        partId = BP_CHECKBOX;
-        stateId = 1;
-        break;
+	{
+	    QCheckBox *cb = (QCheckBox*)widget;
+	    if ( cb->isOn() )
+		f |= PStyle_On;
+	    else
+		f |= PStyle_Off;
+	    if ( cb->isDown() )
+		f |= PStyle_Down;
+
+	    drawPrimitive( PO_Indicator, p, subRect( SR_CheckBoxIndicator, widget ), cg, f, data );
+	    return;
+	}
 
     case CE_RadioButton:
 //    case CE_RadioButtonLabel:
-        name = L"BUTTON";
-        partId = BP_RADIOBUTTON;
-        stateId = 1;
-        break;
+	{
+	    QRadioButton *rb = (QRadioButton*)widget;
+	    if ( rb->isOn() )
+		f |= PStyle_On;
+	    else
+		f |= PStyle_Off;
+	    if ( rb->isDown() )
+		f |= PStyle_Down;
+
+	    drawPrimitive( PO_ExclusiveIndicator, p, subRect( SR_RadioButtonIndicator, widget ), cg, f, data );
+	    return;
+	}
 
     case CE_TabBarTab:
 //    case CE_TabBarLabel:
@@ -547,6 +583,9 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 
     case CE_PopupMenuItem:
         break;
+
+    case CE_MenuBarItem:
+	break;
 
     default:
         break;
@@ -625,6 +664,9 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
                     stateId = 1;
                 DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
             }
+	    if ( sub & SC_ComboBoxEditField ) {
+		theme.rec = querySubControlMetrics( CC_ComboBox, w, SC_ComboBoxEditField, data );
+	    }
         }
         break;
 
@@ -668,13 +710,20 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
                 DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
             }
             if ( maxedOut ) {
+                theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, data );
+                partId = bar->orientation() == Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
+                stateId = 4;
+
+                DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
             } else {
                 if ( sub & SC_ScrollBarAddPage ) {
                     theme.rec = querySubControlMetrics( CC_ScrollBar, w, SC_ScrollBarAddPage, data );
                     partId = bar->orientation() == Horizontal ? SBP_LOWERTRACKHORZ : SBP_LOWERTRACKVERT;
                     if ( subActive == SC_ScrollBarAddPage )
                         stateId = 3;
-                    else
+                    else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
+			stateId = 2;
+		    else
                         stateId = 1;
 
                     DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
@@ -684,6 +733,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
                     partId = bar->orientation() == Horizontal ? SBP_UPPERTRACKHORZ : SBP_UPPERTRACKVERT;
                     if ( subActive == SC_ScrollBarSubPage )
                         stateId = 3;
+                    else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
+			stateId = 2;
                     else
                         stateId = 1;
                     
@@ -729,7 +780,107 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
             }
         }
         break;
+    case CC_Slider:
+	{
+	    XPThemeData theme;
+	    theme.name = L"TRACKBAR";
+	    QSlider *sl = (QSlider*)w;
 
+	    if ( sub & SC_SliderGroove ) {
+		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderGroove, data );
+		partId = sl->orientation() == Horizontal ? TKP_TRACK : TKP_TRACKVERT;
+		if ( !w->isEnabled() )
+		    stateId = 4;
+		else
+		    stateId = 1;
+
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_SliderHandle ) {
+		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, data );
+		partId = sl->orientation() == Horizontal ? TKP_THUMB : TKP_THUMBVERT;
+		if ( !w->isEnabled() )
+		    stateId = 4;
+		else
+		    stateId = 1;
+
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_SliderTickmarks ) {
+		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderTickmarks, data );
+		partId = sl->orientation() == Horizontal ? TKP_TICS : TKP_TICSVERT;
+		if ( !w->isEnabled() )
+		    stateId = 4;
+		else
+		    stateId = 1;
+
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	}
+	break;
+
+    case CC_ToolButton:
+	{
+	    XPThemeData theme;
+	    theme.name = L"TOOLBAR";
+	    QToolButton *tb = (QToolButton*)w;
+
+	    if ( sub & SC_ToolButton ) {
+		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, data );
+		partId = TP_BUTTON;
+		stateId = 1;
+
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_ToolButtonMenu ) {
+		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButtonMenu, data );
+		partId = TP_SPLITBUTTON;
+		stateId = 1;
+
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	}
+	break;
+
+    case CC_TitleBar:
+	{
+	    XPThemeData theme;
+	    theme.name = L"WINDOW";
+	    if ( sub & SC_TitleBarSysMenu ) {
+	    }
+	    if ( sub & SC_TitleBarMinButton ) {
+		partId = 13;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_TitleBarMaxButton ) {
+		partId = 14;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_TitleBarCloseButton ) {
+		partId = 16;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_TitleBarLabel ) {
+		partId = 6;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_TitleBarNormalButton ) {
+		partId = 19;
+		stateId = 1;
+		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+	    }
+	    if ( sub & SC_TitleBarShadeButton ) {
+	    }
+	    if ( sub & SC_TitleBarUnshadeButton ) {
+	    }
+	}
+	break;
+
+    case CC_ListView:
     default:
         QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, data );
         break;
