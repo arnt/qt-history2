@@ -410,22 +410,31 @@ void QCursor::update() const
 	    invm = mbits.numColors() > 1 &&
 		   qGray(mbits.color(0)) < qGray(mbits.color(1));
 	}
-	int i, n = bbits.numBytes();
-	uchar *bits = bbits.scanLine( 0 );
-	uchar *mask = mbits.scanLine( 0 );
-	for ( i=0; i<n; i++ ) {
-	    uchar b = bits[i];
-	    uchar m = mask[i];
-	    if ( invb )
-		b ^= 0xff;
-	    if ( invm )
-		m ^= 0xff;
-	    bits[i] = ~m;
-	    mask[i] = b ^ m;
+	int n = QMAX( 1, bbits.width() / 8 );
+	int h = bbits.height();
+	uchar* xBits = new uchar[h*n];
+	uchar* xMask = new uchar[h*n];
+	int x = 0;
+	for ( int i = 0; i < h; i++ ) {
+	    uchar *bits = bbits.scanLine( i );
+	    uchar *mask = mbits.scanLine( i );
+	    for ( int j = 0; j < n; j++ ) {
+		uchar b = bits[j];
+		uchar m = mask[j];
+		if ( invb )
+		    b ^= 0xff;
+		if ( invm )
+		    m ^= 0xff;
+		xBits[x] = ~m;
+		xMask[x] = b ^ m;
+		x++;
+	    }
 	}
 	data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
 				    bbits.width(), bbits.height(),
-				    bits, mask );
+				    xBits, xMask );
+	delete xBits;
+	delete xMask;
 	return;
     }
     default:
