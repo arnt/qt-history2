@@ -266,17 +266,17 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	SetRect(&r, crect.left(), crect.top(), crect.right(), crect.bottom());
 
 	WindowClass wclass = kSheetWindowClass;
-	if(testWFlags(WShowModal))
-	    wclass = kModalWindowClass;
-	else if(testWFlags(WType_Dialog) )
+	if(testWFlags(WShowModal)) 
+	    wclass = kMovableModalWindowClass;
+	else if(testWFlags(WType_Dialog) ) 
 	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WType_Popup ))
+	else if(testWFlags( WType_Popup )) 
 	    wclass = kAlertWindowClass;
-	else if(testWFlags( WStyle_Tool ) )
+	else if(testWFlags( WStyle_Tool ) ) 
 	    wclass = kSheetWindowClass;
-	else if(testWFlags(WType_TopLevel) )
+	else if(testWFlags(WType_TopLevel) ) 
 	    wclass = kDocumentWindowClass;
-	else if(testWFlags(WType_Desktop))
+	else if(testWFlags(WType_Desktop)) 
 	    wclass = kDesktopWindowClass;
 
 	WindowAttributes wattr = kWindowNoAttributes;
@@ -286,10 +286,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
+		if(wclass == kToolbarWindowClass)
+		    wclass = kDocumentWindowClass;
 		if(wclass == kDocumentWindowClass )
 		    wattr |= kWindowStandardDocumentAttributes;	
-		else if(wclass == kFloatingWindowClass )
-		    wattr |= kWindowStandardFloatingAttributes;
 	    } else {
 		//FIXME I shouldn't have to do this
 		if(wclass == kDocumentWindowClass )
@@ -758,7 +758,7 @@ void QWidget::showWindow()
 	if(parentWidget()) {
 	    WindowClass c;
 	    GetWindowClass((WindowPtr)hd, &c);
-	    if(c == kModalWindowClass) {
+	    if(c == kMovableModalWindowClass) {
 		if( ( qApp->style().inherits("QAquaStyle") ) )
 		    TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
 					      kWindowSheetTransitionEffect, 
