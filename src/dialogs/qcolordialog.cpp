@@ -1244,8 +1244,6 @@ void QColorShower::hsvEd()
 void QColorShower::setRgb( QRgb rgb )
 {
     rgbOriginal = TRUE;
-    if ( currentColor() == rgb )
-	return;
     curCol = rgb;
 
     rgb2hsv( currentColor(), hue, sat, val );
@@ -1264,8 +1262,6 @@ void QColorShower::setRgb( QRgb rgb )
 void QColorShower::setHsv( int h, int s, int v )
 {
     rgbOriginal = FALSE;
-    if ( h == hue && v == val && s == sat )
-	return;
     hue = h; val = v; sat = s; //Range check###
     curCol = QColor( hue, sat, val, QColor::Hsv ).rgb();
 

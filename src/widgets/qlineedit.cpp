@@ -1796,9 +1796,9 @@ void QLineEdit::setEdited( bool on )
 
 /*!  Returns the edited flag of the line edit.  If this returns FALSE,
 the line edit's contents have not been changed since the construction
-of the QLineEdit (or the last call to setEdited( FALSE ), if any).  If
-it returns true, the contents have been edited, or setEdited( TRUE )
-has been called.
+of the QLineEdit (or the last call to either setText() or setEdited( FALSE ), 
+if any).  If it returns true, the contents have been edited, or 
+setEdited( TRUE ) has been called.
 
 \sa setEdited()
 */
