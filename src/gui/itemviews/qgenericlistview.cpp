@@ -596,7 +596,6 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 /*!
   \internal
 */
-
 void QGenericListView::reset()
 {
     d->prepareItemsLayout();
@@ -611,11 +610,14 @@ void QGenericListView::reset()
 */
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
-    QRect rect = d->draggedItemsRect;
-    rect.moveBy(dx, dy);
     verticalScrollBar()->repaint();
     horizontalScrollBar()->repaint();
     d->viewport->scroll(dx, dy);
+
+    if (d->draggedItems.isEmpty())
+        return;
+    QRect rect = d->draggedItemsRect();
+    rect.moveBy(dx, dy);
     d->viewport->repaint(rect);
 }
 
@@ -719,8 +721,20 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
     QPoint pos = e->pos();
     if (d->shouldAutoScroll(pos))
         startAutoScroll();
+
+    // get old dragged items rect
+    QRect itemsRect = d->itemsRect(d->draggedItems);
+    QRect oldRect = itemsRect;
+    oldRect.moveBy(d->draggedItemsDelta());
+
+    // update position
     d->draggedItemsPos = pos;
-    d->viewport->repaint(d->draggedItemsRect);
+
+    // get new items rect
+    QRect newRect = itemsRect;
+    newRect.moveBy(d->draggedItemsDelta());
+
+    d->viewport->repaint(oldRect|newRect);
 
     QModelIndex item = itemAt(pos.x(), pos.y());
     if (item.isValid())
@@ -737,8 +751,8 @@ void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
 */
 void QGenericListView::dragLeaveEvent(QDragLeaveEvent *)
 {
+    d->viewport->update(d->draggedItemsRect()); // erase the area
     d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
-    d->viewport->update(d->draggedItemsRect); // erase the area
 }
 
 /*!
@@ -854,12 +868,9 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     area = e->rect();
 
     if (!d->draggedItems.isEmpty() && d->viewport->rect().contains(d->draggedItemsPos)) {
-        QPoint delta = (d->movement == Snap
-                        ? d->snapToGrid(d->draggedItemsPos) - d->snapToGrid(d->pressedPosition)
-                        : d->draggedItemsPos - d->pressedPosition);
-        painter.translate(delta.x(), delta.y()); // FIXME: this will make the drawpixmap slower
-        d->draggedItemsRect = d->drawItems(&painter, d->draggedItems);
-        d->draggedItemsRect.moveBy(delta.x(), delta.y());
+        QPoint delta = d->draggedItemsDelta();
+        painter.translate(delta.x(), delta.y());
+        d->drawItems(&painter, d->draggedItems);
     }
 }
 
@@ -1464,17 +1475,26 @@ void QGenericListViewPrivate::createItems(int to)
     }
 }
 
-QRect QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const
+void QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const
 {
     QStyleOptionViewItem option = q->viewOptions();
-    QVector<QModelIndex>::const_iterator it = indices.begin();
+    QVector<QModelIndex>::const_iterator it = indexes.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
-    QRect rect(item.x, item.y, item.w, item.h);
-    for (; it != indices.end(); ++it) {
+    for (; it != indexes.end(); ++it) {
         item = indexToListViewItem(*it);
         option.rect.setRect(item.x, item.y, item.w, item.h);
         delegate->paint(painter, option, model, *it);
-        rect |= option.rect;
+    }
+}
+
+QRect QGenericListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
+{
+    QVector<QModelIndex>::const_iterator it = indexes.begin();
+    QGenericListViewItem item = indexToListViewItem(*it);
+    QRect rect(item.x, item.y, item.w, item.h);
+    for (; it != indexes.end(); ++it) {
+        item = indexToListViewItem(*it);
+        rect |= QRect(item.x, item.y, item.w, item.h);
     }
     return rect;
 }
@@ -1678,4 +1698,18 @@ QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
         else
             result.setHeight(qMax(rect.height(), viewport->height()));
     return result;
+}
+
+QPoint QGenericListViewPrivate::draggedItemsDelta() const
+{
+    return (movement == QGenericListView::Snap
+            ? snapToGrid(draggedItemsPos) - snapToGrid(pressedPosition)
+            : draggedItemsPos - pressedPosition);
+}
+
+QRect QGenericListViewPrivate::draggedItemsRect() const
+{
+    QRect rect = itemsRect(draggedItems);
+    rect.moveBy(draggedItemsDelta());
+    return rect;
 }

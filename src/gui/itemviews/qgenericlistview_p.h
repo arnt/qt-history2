@@ -117,7 +117,8 @@ public:
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
     void createItems(int to);
-    QRect drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const;
+    void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
+    QRect itemsRect(const QVector<QModelIndex> &indexes) const;
 
     QGenericListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QGenericListViewItem item) const
@@ -137,6 +138,8 @@ public:
 
     QPoint snapToGrid(const QPoint &pos) const;
     QRect mapToViewport(const QRect &rect) const;
+    QPoint draggedItemsDelta() const;
+    QRect draggedItemsRect() const;
 
     QGenericListView::Flow flow;
     QGenericListView::Movement movement;
@@ -162,7 +165,6 @@ public:
     int layoutTimer;
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
-    mutable QRect draggedItemsRect;
     mutable QPoint draggedItemsPos;
     QRubberBand *rubberBand;
 };
