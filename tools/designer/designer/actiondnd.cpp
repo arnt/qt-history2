@@ -342,7 +342,7 @@ void QDesignerToolBar::buttonMouseReleaseEvent( QMouseEvent *e, QObject *w )
 {
     if ( widgetInserting )
 	doInsertWidget( mapFromGlobal( e->globalPos() ) );
-    else if ( w->isWidgetType() && formWindow->widgets()->find( w ) ) {
+    else if ( w->isWidgetType() && formWindow->widgets()->value( (QWidget*)w ) ) {
 	formWindow->clearSelection( FALSE );
 	formWindow->selectWidget( w );
     }
@@ -370,7 +370,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
 	if ( it == actionMap.end() )
 	    return;
 	QAction *a = *it;
-	int index = actionList.find( a );
+	int index = actionList.findIndex( a );
 	RemoveActionFromToolBarCommand *cmd = new RemoveActionFromToolBarCommand(
 	    tr( "Delete Action '%1' from Toolbar '%2'" ).
 	    arg( a->name() ).arg( caption() ),
@@ -380,7 +380,7 @@ void QDesignerToolBar::buttonContextMenuEvent( QContextMenuEvent *e, QObject *o 
     } else if ( res == ID_SEP ) {
 	calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	QAction *a = new QSeparatorAction( 0 );
-	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+	int index = actionList.findIndex( *actionMap.find( insertAnchor ) );
 	if ( index != -1 && afterAnchor )
 	    ++index;
 	if ( !insertAnchor )
@@ -425,7 +425,7 @@ void QDesignerToolBar::removeWidget( QWidget *w )
     if ( it == actionMap.end() )
 	return;
     QAction *a = *it;
-    int index = actionList.find( a );
+    int index = actionList.findIndex( a );
     RemoveActionFromToolBarCommand *cmd =
 	new RemoveActionFromToolBarCommand( tr( "Delete Action '%1' from Toolbar '%2'" ).
 					    arg( a->name() ).arg( caption() ),
@@ -448,7 +448,7 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     QAction *a = *it;
     if ( !a )
 	return;
-    int index = actionList.find( a );
+    int index = actionList.findIndex( a );
     RemoveActionFromToolBarCommand *cmd =
 	new RemoveActionFromToolBarCommand( tr( "Delete Action '%1' from Toolbar '%2'" ).
 					    arg( a->name() ).arg( caption() ),
@@ -527,7 +527,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 
     indicator->hide();
     QAction *a = 0;
-    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+    int index = actionList.findIndex( *actionMap.find( insertAnchor ) );
     if ( index != -1 && afterAnchor )
 	++index;
     if ( !insertAnchor )
@@ -542,7 +542,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 	a = (QDesignerActionGroup*)s.toLong();
     }
 
-    if ( actionList.findRef( a ) != -1 ) {
+    if ( actionList.findIndex( a ) != -1 ) {
 	QMessageBox::warning( MainWindow::self, tr( "Insert/Move Action" ),
 			      tr( "Action '%1' has already been added to this toolbar.\n"
 				  "An Action may only occur once in a given toolbar." ).
@@ -563,10 +563,10 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 
 void QDesignerToolBar::reInsert()
 {
-    QAction *a = 0;
     actionMap.clear();
     clear();
-    for ( a = actionList.first(); a; a = actionList.next() ) {
+    for(QList<QAction*>::Iterator it = actionList.begin(); it != actionList.end(); ++it) {
+	QAction *a = (*it);
 	a->addTo( this );
 	if ( qt_cast<QActionGroup*>(a) ) {
 	    actionMap.insert( ( (QDesignerActionGroup*)a )->widget(), a );
@@ -586,7 +586,7 @@ void QDesignerToolBar::reInsert()
 
 void QDesignerToolBar::actionRemoved()
 {
-    actionList.removeRef( (QAction*)sender() );
+    actionList.remove( (QAction*)sender() );
 }
 
 QPoint QDesignerToolBar::calcIndicatorPos( const QPoint &pos )
@@ -669,7 +669,7 @@ void QDesignerToolBar::doInsertWidget( const QPoint &p )
     installEventFilters( w );
     MainWindow::self->formWindow()->insertWidget( w, TRUE );
     QDesignerAction *a = new QDesignerAction( w, parent() );
-    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
+    int index = actionList.findIndex( *actionMap.find( insertAnchor ) );
     if ( index != -1 && afterAnchor )
 	++index;
     if ( !insertAnchor )
@@ -684,7 +684,8 @@ void QDesignerToolBar::doInsertWidget( const QPoint &p )
 
 void QDesignerToolBar::clear()
 {
-    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+    for(QList<QAction*>::Iterator it = actionList.begin(); it != actionList.end(); ++it) {
+	QAction *a = (*it);
 	if ( qt_cast<QDesignerAction*>(a) )
 	    ( (QDesignerAction*)a )->remove();
     }
