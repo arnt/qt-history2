@@ -2170,7 +2170,7 @@ void MainWindow::searchGotoLine()
     gotoLineDialog->spinLine->setMaxValue( ( (SourceEditor*)workSpace()->activeWindow() )->numLines() - 1 );
 }
 
-QObjectList *MainWindow::previewProject()
+QObjectList *MainWindow::runProject()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	e->save();
