@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#6 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -537,9 +537,9 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     QStringList::Iterator i;
     for ( i = fn.begin(); i!=fn.end(); ++i ) {
 	if ( qt_winver == Qt::WV_NT )
-	    size += i->length()+1;
+	    size += (*i).length()+1;
 	else
-	    size += i->local8Bit().length()+1;
+	    size += (*i).local8Bit().length()+1;
     }
 
     QByteArray result(size*sizeof(TCHAR));
@@ -554,8 +554,8 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	WCHAR* f = (WCHAR*)files;
 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	    int l = i->length();
-	    memcpy(f, (WCHAR*)i->unicode(), l*sizeof(WCHAR));
+	    int l = (*i).length();
+	    memcpy(f, (WCHAR*)(*i).unicode(), l*sizeof(WCHAR));
 	    for (int j = 0; j<l; j++)
 		if ( f[j] == '/' )
 		    f[j] = '\\';
@@ -568,7 +568,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	char* f = files;
 
 	for ( i = fn.begin(); i!=fn.end(); ++i ) {
-	    QCString c = i->local8Bit();
+	    QCString c = (*i).local8Bit();
 	    int l = c.length();
 	    memcpy(f, c.data(), l);
 	    for (int j = 0; j<l; j++)
