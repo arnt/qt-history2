@@ -47,8 +47,8 @@ public:
     QString(const QChar *unicode, int size);
     explicit QString(QChar c);
     QString(int size, QChar c);
-    QString(const QLatin1String &latin1);
-    QString(const QString &);
+    inline QString(const QLatin1String &latin1);
+    inline QString(const QString &);
     inline ~QString();
     QString &operator=(QChar c);
     QString &operator=(const QString &);
