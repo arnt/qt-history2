@@ -559,10 +559,17 @@ void QListView::ensureVisible(const QModelIndex &index)
 
     // horizontal
     int vx = horizontalScrollBar()->value();
-    if (rect.left() < area.left()) // left of
-        horizontalScrollBar()->setValue(vx + rect.left());
-    else if (rect.right() > area.right()) // right of
-        horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+    if (isRightToLeft()) {
+        if (rect.left() < area.left()) // left of
+            horizontalScrollBar()->setValue(vx - rect.left());
+        else if (rect.right() > area.right()) // right of
+            horizontalScrollBar()->setValue(vx - rect.right() + viewport()->width());
+    } else {
+        if (rect.left() < area.left()) // left of
+            horizontalScrollBar()->setValue(vx + rect.left());
+        else if (rect.right() > area.right()) // right of
+            horizontalScrollBar()->setValue(vx + rect.right() - viewport()->width());
+    }
 }
 
 /*!
@@ -582,7 +589,7 @@ void QListView::reset()
 */
 void QListView::scrollContentsBy(int dx, int dy)
 {
-    d->viewport->scroll(dx, dy);
+    d->viewport->scroll(isRightToLeft() ? -dx : dx, dy);
     // update the dragged items
     if (d->draggedItems.isEmpty())
         return;
@@ -818,7 +825,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
-    area.translate(horizontalScrollBar()->value(), verticalScrollBar()->value());
+    area.translate(horizontalOffset(), verticalOffset());
     d->intersectingSet(area);
 
     const QModelIndex current = currentIndex();
@@ -855,7 +862,7 @@ void QListView::paintEvent(QPaintEvent *e)
 */
 QModelIndex QListView::itemAt(int x, int y) const
 {
-    QRect rect(x + horizontalScrollBar()->value(), y + verticalScrollBar()->value(), 1, 1);
+    QRect rect(x + horizontalOffset(), y + verticalOffset(), 1, 1);
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
                         ? d->intersectVector.first() : QModelIndex();
@@ -869,7 +876,9 @@ QModelIndex QListView::itemAt(int x, int y) const
 */
 int QListView::horizontalOffset() const
 {
-    return horizontalScrollBar()->value();
+    return isRightToLeft()
+        ? -horizontalScrollBar()->value()
+        : horizontalScrollBar()->value();
 }
 
 /*!
@@ -903,6 +912,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.left() < 0)
                 rect.setLeft(0);
             d->intersectingSet(rect);
+//             // don't get current in this set
+//             int idx = d->intersectVector.indexOf(current);
+//             if (idx > -1)
+//                 d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveRight:
@@ -913,10 +926,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.right() > contents.width())
                 rect.setRight(contents.width());
             d->intersectingSet(rect);
-            // don't get current in this set
-            int idx = d->intersectVector.indexOf(current);
-            if (idx > -1)
-                d->intersectVector.remove(idx);
+//             // don't get current in this set
+//             int idx = d->intersectVector.indexOf(current);
+//             if (idx > -1)
+//                 d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageUp:
@@ -967,7 +980,7 @@ QRect QListView::itemRect(const QModelIndex &index) const
     if (!index.isValid() || index.parent() != root() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
-    return item.rect();
+    return d->viewItemRect(item); //item.rect();
 }
 
 /*!
@@ -975,8 +988,8 @@ QRect QListView::itemRect(const QModelIndex &index) const
 */
 void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    QRect crect(rect.left() + horizontalScrollBar()->value(),
-                rect.top() + verticalScrollBar()->value(),
+    QRect crect(rect.left() + horizontalOffset(),
+                rect.top() + verticalOffset(),
                 rect.width(), rect.height());
     d->intersectingSet(crect);
 
@@ -1635,7 +1648,7 @@ void QListViewPrivate::moveItem(int index, const QPoint &dest)
     // does not impact on the bintree itself or the contents rect
     QListViewItem *item = tree.itemPtr(index);
     QRect rect = item->rect();
-    d->tree.moveItem(dest, rect, index);
+//    d->tree.moveItem(dest, rect, index);    // FIXME: !!!!
 
     // resize the contents area
     rect = item->rect();
@@ -1655,8 +1668,8 @@ QPoint QListViewPrivate::snapToGrid(const QPoint &pos) const
 
 QRect QListViewPrivate::mapToViewport(const QRect &rect) const
 {
-    QRect result(rect.left() - q->horizontalScrollBar()->value(),
-                 rect.top() - q->verticalScrollBar()->value(),
+    QRect result(rect.left() - q->horizontalOffset(),
+                 rect.top() - q->verticalOffset(),
                  rect.width(), rect.height());
     // If the listview is in "listbox-mode", the items are as wide as the viewport
     if (!wrap && movement == QListView::Static)

@@ -225,6 +225,7 @@ int QBinTree<T>::firstChildIndex(int idx) const
 
 class QListViewItem
 {
+    friend class QListViewPrivate;
 public:
     inline QListViewItem()
         : x(-1), y(-1), w(0), h(0), indexHint(-1), visited(0xffff) {}
@@ -239,13 +240,16 @@ public:
                 indexHint == other.indexHint); }
     inline bool operator!=(const QListViewItem &other) const
         { return !(*this == other); }
-    inline QRect rect()
-        { return QRect(x, y, w, h); }
-    inline bool isValid()
+//     inline QRect rect() const
+//         { return QRect(x, y, w, h); }
+    inline bool isValid() const
         { return (x > -1) && (y > -1) && (w > 0) && (h > 0) && (indexHint > -1); }
     inline void invalidate()
         { x = -1; y = -1; w = 0; h = 0; }
 
+private:
+    inline QRect rect() const
+        { return QRect(x, y, w, h); }
     int x, y;
     short w, h;
     mutable int indexHint;
@@ -275,12 +279,24 @@ public:
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
     inline void intersectingSet(const QRect &area) const
-        { if (movement == QListView::Static) intersectingStaticSet(area);
-          else intersectingDynamicSet(area); }
+        {  QRect a = (q_func()->isRightToLeft() ? flipX(area) : area);
+           if (movement == QListView::Static) intersectingStaticSet(a);
+           else intersectingDynamicSet(a); }
 
     void createItems(int to);
     void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
     QRect itemsRect(const QVector<QModelIndex> &indexes) const;
+
+    inline int flipX(int x) const
+        { return qMax(viewport->width(), layoutBounds.width()) - x; }
+    inline QPoint flipX(const QPoint &p) const
+        { return QPoint(flipX(p.x()), p.y()); }
+    inline QRect flipX(const QRect &r) const
+        { return QRect(flipX(r.x()) - r.width(), r.y(), r.width(), r.height()); }
+
+    inline QRect viewItemRect(const QListViewItem &item) const
+        { if (q_func()->isRightToLeft()) return flipX(item.rect());
+          return item.rect(); }
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem &item) const
