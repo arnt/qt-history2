@@ -1,2 +1,3 @@
 TEMPLATE      = subdirs
-SUBDIRS       = dirview
+SUBDIRS       = dirview \
+                pixelator
