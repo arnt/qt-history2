@@ -1329,8 +1329,11 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
         } // not moving
     case QHeaderViewPrivate::NoState:
         if (d->clickableSections) {
-            updateSection(d->pressed);
-            emit sectionClicked(logicalIndexAt(pos));
+            int section = logicalIndexAt(pos);
+            if (section == d->pressed) {
+                updateSection(d->pressed);
+                emit sectionClicked(logicalIndexAt(pos));
+            }
         }
         break;
     case QHeaderViewPrivate::ResizeSection:
