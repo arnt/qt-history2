@@ -63,29 +63,29 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
 #include <errno.h>
 
 /*!
-  \class QSettings
-  \brief The QSettings class provides persistent platform-independent application settings.
+    \class QSettings
+    \brief The QSettings class provides persistent platform-independent application settings.
 
-  \ingroup io
-  \ingroup misc
-  \mainclass
+    \ingroup io
+    \ingroup misc
+    \mainclass
 
-  On Unix systems, QSettings uses text files to store settings. On Windows
-  systems, QSettings uses the system registry.  On Mac OS X, QSettings uses
-  the Carbon preferences API.
+    On Unix systems, QSettings uses text files to store settings. On Windows
+    systems, QSettings uses the system registry.  On Mac OS X, QSettings uses
+    the Carbon preferences API.
 
-  Each setting comprises an identifying key and the data associated with
-  the key. A key is a unicode string which consists of \e two or more
-  subkeys. A subkey is a slash, '/', followed by one or more unicode
-  characters (excluding slashes, newlines, carriage returns and equals,
-  '=', signs). The associated data, called the entry or value, may be a
-  boolean, an integer, a double, a string or a list of strings. Entry
-  strings may contain any unicode characters.
+    Each setting comprises an identifying key and the data associated with
+    the key. A key is a unicode string which consists of \e two or more
+    subkeys. A subkey is a slash, '/', followed by one or more unicode
+    characters (excluding slashes, newlines, carriage returns and equals,
+    '=', signs). The associated data, called the entry or value, may be a
+    boolean, an integer, a double, a string or a list of strings. Entry
+    strings may contain any unicode characters.
 
-  If you want to save and restore the entire desktop's settings, i.e.
-  which applications are running, use QSettings to save the settings
-  for each individual application and QSessionManager to save the
-  desktop's session.
+    If you want to save and restore the entire desktop's settings, i.e.
+    which applications are running, use QSettings to save the settings
+    for each individual application and QSessionManager to save the
+    desktop's session.
 
     Example settings:
     \code
@@ -101,26 +101,40 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \endcode
     Each line above is a complete key, made up of subkeys.
 
-    A typical usage pattern for application startup:
+    A typical usage pattern for reading application startup:
     \code
     QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-    // No search path needed for Unix; see notes further on.
-    // Use default values if the keys don't exist
-    QString bgColor = settings.readEntry( "/MyApplication/background color", "white" );
-    int width = settings.readNumEntry( "/MyApplication/geometry/width", 640 );
+    settings.setPath( "MyCompany.com", "MyApplication" );
+
+    QString bgColor = settings.readEntry( "/background color", "white" );
+    int width = settings.readNumEntry( "/geometry/width", 640 );
     // ...
     \endcode
 
     A typical usage pattern for application exit or 'save preferences':
     \code
     QSettings settings;
-    settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-    settings.insertSearchPath( QSettings::Mac, "/MyCompany" );
-    // No search path needed for Unix; see notes further on.
-    settings.writeEntry( "/MyApplication/background color", bgColor );
-    settings.writeEntry( "/MyApplication/geometry/width", width );
+    settings.setPath( "MyCompany.com", "MyApplication" );
+
+    settings.writeEntry( "/background color", bgColor );
+    settings.writeEntry( "/geometry/width", width );
     // ...
+    \endcode
+
+    QSettings can build a key prefix that is prepended to all keys. To
+    build the key prefix, use beginGroup() and endGroup().
+    \code
+    QSettings settings;
+
+    settings.beginGroup( "/MainWindow" );
+	settings.beginGroup( "/Geometry" );
+	    int x = settings.readEntry( "/x" );
+	    // ...
+	settings.endGroup();
+	settings.beginGroup( "/Toolbars" );
+	    // ...
+	settings.endGroup();
+    settings.endGroup();
     \endcode
 
     You can get a list of entry-holding keys by calling entryList(), and
@@ -140,10 +154,6 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     // subkeys is empty.
     \endcode
 
-    If you wish to use a different search path call insertSearchPath()
-    as often as necessary to add your preferred paths. Call
-    removeSearchPath() to remove any unwanted paths.
-
     Since settings for Windows are stored in the registry there are size
     limits as follows:
     \list
@@ -154,6 +164,10 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \endlist
 
     These limitations are not enforced on Unix or Mac OS X.
+
+    If you wish to use a different search path call insertSearchPath()
+    as often as necessary to add your preferred paths. Call
+    removeSearchPath() to remove any unwanted paths.
 
     \section1 Notes for Mac OS X Applications
 
@@ -1887,18 +1901,21 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
 }
 
 /*!
-  Insert platform-dependent paths from platform-independent information.
+    Insert platform-dependent paths from platform-independent information.
 
-  The \a domain should be an Internet domain name
-  controlled by the producer of the software, eg. Trolltech products
-  use "trolltech.com".
+    The \a domain should be an Internet domain name
+    controlled by the producer of the software, eg. Trolltech products
+    use "trolltech.com".
 
-  The \a product should be the official name of the product.
+    The \a product should be the official name of the product.
 
-  The \a scope should be
-  QSettings::User for user-specific settings, or
-  QSettings::Global for system-wide settings (generally
-  these will be read-only to many users).
+    The \a scope should be
+    QSettings::User for user-specific settings, or
+    QSettings::Global for system-wide settings (generally
+    these will be read-only to many users).
+
+    Not all information is relevant on all systems (e.g. scoping is
+    currently used only if QSettings accesses the Windows registry).
 */
 
 void QSettings::setPath( const QString &domain, const QString &product, Scope scope )
@@ -1941,6 +1958,13 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 
 /*!
     Appends \a group to the current key prefix.
+
+    \code
+    QSettings settings;
+    settings.beginGroup( "/MainWindow" );
+    // read values
+    settings.endGroup();
+    \endcode
 */
 void QSettings::beginGroup( const QString &group )
 {
@@ -1951,6 +1975,13 @@ void QSettings::beginGroup( const QString &group )
 /*!
     Undo previous calls to beginGroup(). Note that a single beginGroup("a/b/c") is undone
     by a single call to endGroup().
+
+    \code
+    QSettings settings;
+    settings.beginGroup( "/MainWindow/Geometry" );
+    // read values
+    settings.endGroup();
+    \endcode
 */
 void QSettings::endGroup()
 {
