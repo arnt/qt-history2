@@ -4,6 +4,7 @@
 #include <qobjectcleanuphandler.h>
 #include <qstylefactory.h>
 #include <qsignalmapper.h>
+#include <qsettings.h>
 
 #include <qcomponentfactory.h>
 
@@ -52,6 +53,7 @@ private slots:
 private:
     QObjectCleanupHandler actions;
     QActionGroup *styleGroup;
+    QString selected;
     QSignalMapper *styleMapper;
 
     unsigned long ref;
@@ -66,6 +68,10 @@ TestComponent::TestComponent()
 
 TestComponent::~TestComponent()
 {
+    if ( !!selected ) {
+	QSettings settings;
+	settings.writeEntry( "/Trolltech/Qt Designer/3.0/AddOns/StyleSwitch/Style", selected );
+    }
 }
 
 QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
@@ -115,6 +121,10 @@ QStringList TestComponent::featureList() const
 
 void TestComponent::connectTo( QUnknownInterface * )
 {
+    QSettings setting;
+    QString sel = setting.readEntry( "/Trolltech/Qt Designer/3.0/AddOns/StyleSwitch/Style" );
+    if ( !!sel )
+	setStyle( sel );
 }
 
 bool TestComponent::location( const QString &actionname, Location l ) const
@@ -173,6 +183,7 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 
 void TestComponent::setStyle( const QString& style )
 {
+    selected = style;
     QApplication::setStyle( style );
 }
 
