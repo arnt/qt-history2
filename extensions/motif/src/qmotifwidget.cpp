@@ -27,6 +27,8 @@
 #include <X11/ShellP.h>
 #include <X11/Xatom.h>
 
+#include <qx11info_x11.h>
+
 const int XFocusOut = FocusOut;
 const int XFocusIn = FocusIn;
 #undef FocusOut
@@ -332,14 +334,15 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	Cardinal nargs = argcount;
 	memcpy( realargs, args, sizeof( Arg ) * argcount );
 
-	if ( ! QX11GC::x11AppDefaultVisual() ) {
+	int screen = x11Info()->screen();
+	if (!QX11Info::appDefaultVisual(screen)) {
 	    // make Motif use the same visual/colormap/depth as Qt (if
 	    // Qt is not using the default)
-	    XtSetArg(realargs[nargs], XtNvisual, QX11GC::x11AppVisual());
+	    XtSetArg(realargs[nargs], XtNvisual, QX11Info::appVisual(screen));
 	    ++nargs;
-	    XtSetArg(realargs[nargs], XtNcolormap, QX11GC::x11AppColormap());
+	    XtSetArg(realargs[nargs], XtNcolormap, QX11Info::appColormap(screen));
 	    ++nargs;
-	    XtSetArg(realargs[nargs], XtNdepth, QX11GC::x11AppDepth());
+	    XtSetArg(realargs[nargs], XtNdepth, QX11Info::appDepth(screen));
 	    ++nargs;
 	}
 
@@ -393,7 +396,7 @@ QMotifWidget::~QMotifWidget()
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
-    XSync(x11Display(), FALSE);
+    XSync(x11Info()->display(), FALSE);
     destroy( FALSE );
 }
 
@@ -420,7 +423,7 @@ void QMotifWidget::show()
 	if ( ! XtIsRealized( d->shell ) )
 	    XtRealizeWidget( d->shell );
 
-	XSync(x11Display(), FALSE);
+	XSync(x11Info()->display(), FALSE);
 	XSync(QMotif::x11Display(), FALSE);
 
 	XtMapWidget(d->shell);
@@ -475,7 +478,7 @@ void QMotifWidget::realize( Widget w )
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
 	    if (!widget) continue;
 
-	    XReparentWindow(x11Display(), widget->winId(), newid,
+	    XReparentWindow(x11Info()->display(), widget->winId(), newid,
 			    widget->x(), widget->y());
 	}
 	QApplication::syncX();
@@ -490,13 +493,13 @@ void QMotifWidget::realize( Widget w )
 	    setWindowTitle(wtitle);
 
 	// restore geometry of the shell
-	XMoveResizeWindow( x11Display(), winId(),
+	XMoveResizeWindow( x11Info()->display(), winId(),
 			   save.x(), save.y(), save.width(), save.height() );
 
 	// if this QMotifWidget has a parent widget, we should
 	// reparent the shell into that parent
 	if ( parentWidget() ) {
-	    XReparentWindow( x11Display(), winId(),
+	    XReparentWindow( x11Info()->display(), winId(),
 			     parentWidget()->winId(), x(), y() );
 	}
     }

@@ -37,6 +37,8 @@
 
 #include "qmotif.h"
 
+#include <qx11info_x11.h>
+
 #include <stdlib.h>
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
@@ -120,7 +122,7 @@ void QMotifPrivate::hookMeUp()
     // and Xt into Qt (QMotifEventLoop)
 
     // ### TODO extensions?
-    DispatcherArray &qt_dispatchers = dispatchers[QX11GC::x11AppDisplay()];
+    DispatcherArray &qt_dispatchers = dispatchers[QX11Info::appDisplay()];
     DispatcherArray &qm_dispatchers = dispatchers[display];
 
     qt_dispatchers.resize( LASTEvent );
@@ -132,7 +134,7 @@ void QMotifPrivate::hookMeUp()
     int et;
     for ( et = 2; et < LASTEvent; et++ ) {
 	qt_dispatchers[et] =
-	    XtSetEventDispatcher(QX11GC::x11AppDisplay(), et, ::qmotif_event_dispatcher);
+	    XtSetEventDispatcher(QX11Info::appDisplay(), et, ::qmotif_event_dispatcher);
 	qm_dispatchers[et] =
 	    XtSetEventDispatcher(display, et, ::qmotif_event_dispatcher);
     }
@@ -144,11 +146,11 @@ void QMotifPrivate::unhook()
     // unhook Xt from Qt? (QMotifEventLoop)
 
     // ### TODO extensions?
-    DispatcherArray &qt_dispatchers = dispatchers[QX11GC::x11AppDisplay()];
+    DispatcherArray &qt_dispatchers = dispatchers[QX11Info::appDisplay()];
     DispatcherArray &qm_dispatchers = dispatchers[display];
 
     for (int et = 2; et < LASTEvent; ++et) {
-	(void) XtSetEventDispatcher(QX11GC::x11AppDisplay(), et, qt_dispatchers[et]);
+	(void) XtSetEventDispatcher(QX11Info::appDisplay(), et, qt_dispatchers[et]);
 	(void) XtSetEventDispatcher(display, et, qm_dispatchers[et]);
     }
 
@@ -219,7 +221,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     }
 
     bool delivered = FALSE;
-    if (widget || event->xany.display == QX11GC::x11AppDisplay()) {
+    if (widget || event->xany.display == QX11Info::appDisplay()) {
 	/*
 	  If the mouse has been grabbed for a window that we don't know
 	  about, we shouldn't deliver any pointer events, since this will
@@ -446,7 +448,7 @@ void QMotif::appStartingUp()
     Cardinal x, count;
     XtGetDisplays( d->appContext, &displays, &count );
     for ( x = 0; x < count && ! display_found; ++x ) {
-	if ( displays[x] == QX11GC::x11AppDisplay() )
+	if ( displays[x] == QX11Info::appDisplay() )
 	    display_found = TRUE;
     }
     if ( displays )
@@ -456,9 +458,9 @@ void QMotif::appStartingUp()
     if ( ! display_found ) {
 	argc = qApp->argc();
 	qDebug("XtDisplayInitialize: %p %p %s",
-	       d->appContext, QX11GC::x11AppDisplay(), qApp->objectName());
+	       d->appContext, QX11Info::appDisplay(), qApp->objectName());
 	XtDisplayInitialize( d->appContext,
-			     QX11GC::x11AppDisplay(),
+			     QX11Info::appDisplay(),
 			     qApp->objectName(),
 			     d->applicationClass,
 			     d->options,
@@ -470,10 +472,10 @@ void QMotif::appStartingUp()
     // open a second connection to the X server... QMotifWidget and
     // QMotifDialog will use this connection to create their wrapper
     // shells, which will allow for Motif<->Qt clipboard operations
-    d->display = XOpenDisplay(DisplayString(QX11GC::x11AppDisplay()));
+    d->display = XOpenDisplay(DisplayString(QX11Info::appDisplay()));
     if (!d->display) {
 	qWarning("%s: (QMotif) cannot create second connection to X server '%s'",
-		 qApp->argv()[0], DisplayString(QX11GC::x11AppDisplay()));
+		 qApp->argv()[0], DisplayString(QX11Info::appDisplay()));
 	::exit( 1 );
     }
 

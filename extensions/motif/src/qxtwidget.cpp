@@ -22,6 +22,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
 
+#include <qx11info_x11.h>
 
 typedef struct {
     int empty;
@@ -58,7 +59,7 @@ void reparentChildrenOf(QWidget* parent)
 	QWidget *widget = qt_cast<QWidget*>(children.at(i));
 	if (! widget) continue;
 
-	XReparentWindow(widget->x11Display(), widget->winId(), parent->winId(),
+	XReparentWindow(widget->x11Info()->display(), widget->winId(), parent->winId(),
 			widget->x(), widget->y());
     }
 }

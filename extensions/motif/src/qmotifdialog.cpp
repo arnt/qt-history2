@@ -30,6 +30,8 @@
 #include <Xm/FileSB.h>
 #include <Xm/Command.h>
 
+#include <qx11info_x11.h>
+
 
 XtGeometryResult qmotif_dialog_geometry_manger( Widget,
 						XtWidgetGeometry *,
@@ -401,14 +403,15 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 
     Arg *realargs = new Arg[ argcount + 3 ];
     memcpy( realargs, args, argcount * sizeof(Arg) );
-    if ( ! QX11GC::x11AppDefaultVisual() ) {
+    int screen = x11Info()->screen();
+    if ( !QX11Info::appDefaultVisual(screen)) {
 	// make Motif use the same visual/colormap/depth as Qt (if Qt
 	// is not using the default)
-	XtSetArg(realargs[argcount], XtNvisual, QX11GC::x11AppVisual());
+	XtSetArg(realargs[argcount], XtNvisual, QX11Info::appVisual(screen));
 	++argcount;
-	XtSetArg(realargs[argcount], XtNcolormap, QX11GC::x11AppColormap());
+	XtSetArg(realargs[argcount], XtNcolormap, QX11Info::appColormap(screen));
 	++argcount;
-	XtSetArg(realargs[argcount], XtNdepth, QX11GC::x11AppDepth());
+	XtSetArg(realargs[argcount], XtNdepth, QX11Info::appDepth(screen));
 	++argcount;
     }
 
@@ -440,7 +443,7 @@ QMotifDialog::~QMotifDialog()
 
     // make sure we don't have any pending requests for the window we
     // are about to destroy
-    XSync(x11Display(), FALSE);
+    XSync(x11Info()->display(), FALSE);
     destroy( FALSE );
 }
 
@@ -495,7 +498,7 @@ void QMotifDialog::show()
     if ( d->dialog ) {
 	XtManageChild( d->dialog );
 
-	XSync(x11Display(), FALSE);
+	XSync(x11Info()->display(), FALSE);
 	XSync(QMotif::x11Display(), FALSE);
     } else if ( !parentWidget() ) {
 	adjustSize();
@@ -578,7 +581,7 @@ void QMotifDialog::realize( Widget w )
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
 	    if (!widget) continue;
 
-	    XReparentWindow(widget->x11Display(), widget->winId(), newid,
+	    XReparentWindow(widget->x11Info()->display(), widget->winId(), newid,
 			    widget->x(), widget->y());
 	}
 	QApplication::syncX();
@@ -593,7 +596,7 @@ void QMotifDialog::realize( Widget w )
 	// for will be set to the root window, which is not acceptable.
 	// instead, set it to the window id of the shell's parent
 	if ( ! parent() && XtParent( d->shell ) )
-	    XSetTransientForHint(x11Display(), newid, XtWindow(XtParent(d->shell)));
+	    XSetTransientForHint(x11Info()->display(), newid, XtWindow(XtParent(d->shell)));
     }
     QMotif::registerWidget( this );
 }
@@ -726,11 +729,11 @@ void qmotif_dialog_change_managed( Widget w )
 	shell.core.popup_list = NULL;
         shell.core.num_popups = 0;
 	shell.core.name = fakename;
-	shell.core.screen = ScreenOfDisplay( qwidget->x11Display(),
-					     qwidget->x11Screen() );
-	shell.core.colormap = qwidget->x11Colormap();
+	shell.core.screen = ScreenOfDisplay( qwidget->x11Info()->display(),
+					     qwidget->x11Info()->screen() );
+	shell.core.colormap = qwidget->x11Info()->colormap();
 	shell.core.window = qwidget->winId();
-	shell.core.depth = qwidget->x11Depth();
+	shell.core.depth = qwidget->x11Info()->depth();
 	shell.core.background_pixel = 0;
 	shell.core.background_pixmap = None;
 	shell.core.visible = True;
