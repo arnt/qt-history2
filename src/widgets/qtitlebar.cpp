@@ -513,7 +513,7 @@ bool QTitleBar::eventFilter( QObject * o, QEvent * e)
 
 void QTitleBar::enterEvent( QEvent *e )
 {
-    QApplication::sendEvent( parentWidget(), &QEvent( QEvent::Leave ) );
+    QApplication::sendEvent( parentWidget(), new QEvent( QEvent::Leave ) );
 }
 
 void QTitleBar::resizeEvent( QResizeEvent * )
