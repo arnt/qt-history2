@@ -625,9 +625,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		else
 		    setKind( Doc::Fn, command );
 		break;
-	    case hash( 'f', 5 ):
-		consume( "fnord" );
-		break;
 	    case hash( 'h', 6 ):
 		consume( "header" );
 		x = getWord( yyIn, yyPos );
@@ -1811,8 +1808,6 @@ void Doc::printHtml( HtmlWriter& out ) const
 
 QString Doc::finalHtml() const
 {
-printf( "%s", html.latin1() ); // ###
-
     QMap<QString, int> offsetMap;
 
     QString yyOut;
