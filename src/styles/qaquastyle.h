@@ -11,7 +11,7 @@
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Macintosh may use this file in accordance with the Qt Commercial
-** License Agreement provided with the Software. This file and its contents may 
+** License Agreement provided with the Software. This file and its contents may
 ** not be distributed onto any other platform or included in any other licensed
 ** package unless explicit permission is granted.
 **
@@ -68,7 +68,7 @@ public:
 			QPainter *p,
 			const QRect &r,
 			const QColorGroup &cg,
-			PFlags flags = PStyle_Default,
+			SFlags flags = Style_Default,
 			void **data = 0 ) const;
 
     void drawControl( ControlElement element,
@@ -76,7 +76,7 @@ public:
 		      const QWidget *widget,
 		      const QRect &r,
 		      const QColorGroup &cg,
-		      CFlags how = CStyle_Default,
+		      SFlags how = Style_Default,
 		      void **data = 0 ) const;
 
     void drawComplexControl( ComplexControl control,
@@ -84,7 +84,7 @@ public:
 			     const QWidget* w,
 			     const QRect& r,
 			     const QColorGroup& cg,
-			     CFlags flags = CStyle_Default,
+			     SFlags flags = Style_Default,
 			     SCFlags sub = SC_None,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
