@@ -497,6 +497,9 @@ bool QXtWidget::x11Event( XEvent * e )
 }
 
 
+/*!
+  Implement a degree of focus handling for Xt widgets.
+*/
 void QXtWidget::setActiveWindow()
 {
     if  ( xtparent ) {
