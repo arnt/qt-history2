@@ -407,8 +407,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'a', 3 ):
 		consume( "arg" );
-		warning( 3, location(),
-			 "Command '\\arg' is obsolete, use '\\a'" );
+		warning( 1, location(),
+			 "Command '\\arg' is not supported, use '\\a'" );
 		break;
 	    case hash( 'b', 3 ):
 		consume( "bug" );
