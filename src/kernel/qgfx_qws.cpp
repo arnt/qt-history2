@@ -127,7 +127,7 @@ QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
   returns the point.
 */
 
-QPoint QScreen::mapFromDevice( const QPoint &, const QSize & ) const
+QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
 {
     return p;
 }
