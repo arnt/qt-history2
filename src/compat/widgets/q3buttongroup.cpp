@@ -20,7 +20,7 @@
 
 
 /*!
-    \class Q3ButtonGroup q3buttongroup.h
+    \class Q3ButtonGroup
     \brief The Q3ButtonGroup widget organizes QAbstractButton widgets in a group.
 
     \compat
@@ -377,7 +377,7 @@ int Q3ButtonGroup::selectedId() const
     Returns the id of \a button, or -1 if \a button is not a member of
     this group.
 
-    \sa selectedId();
+    \sa selectedId()
 */
 
 int Q3ButtonGroup::id(QAbstractButton *button) const
@@ -408,3 +408,68 @@ bool Q3ButtonGroup::event(QEvent * e)
     return Q3GroupBox::event(e);
 }
 
+/*!
+    \class Q3HButtonGroup
+    \brief The Q3HButtonGroup widget organizes button widgets in a
+    group with one horizontal row.
+
+    \compat
+
+    Q3HButtonGroup is a convenience class that offers a thin layer on
+    top of Q3ButtonGroup. From a layout point of view it is effectively
+    a Q3HBoxWidget that offers a frame with a title and is specifically
+    designed for buttons. From a functionality point of view it is a
+    Q3ButtonGroup.
+
+    \sa Q3VButtonGroup
+*/
+
+/*!
+    \fn Q3HButtonGroup::Q3HButtonGroup(QWidget *parent, const char *name)
+
+    Constructs a horizontal button group with no title.
+
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
+*/
+
+/*!
+    \fn Q3HButtonGroup::Q3HButtonGroup(const QString &title, QWidget *parent,
+                                       const char *name)
+
+    Constructs a horizontal button group with the title \a title.
+
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
+*/
+
+/*!
+    \class Q3VButtonGroup
+    \brief The Q3VButtonGroup widget organizes button widgets in a
+    vertical column.
+
+    Q3VButtonGroup is a convenience class that offers a thin layer on top
+    of Q3ButtonGroup. Think of it as a QVBoxWidget that offers a frame with a
+    title and is specifically designed for buttons.
+
+    \sa Q3HButtonGroup
+*/
+
+/*!
+    \fn Q3VButtonGroup::Q3VButtonGroup(QWidget *parent, const char *name)
+
+    Constructs a vertical button group with no title.
+
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
+*/
+
+/*!
+    \fn Q3VButtonGroup::Q3VButtonGroup(const QString &title, QWidget *parent,
+			               const char *name)
+
+    Constructs a vertical button group with the title \a title.
+
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
+*/
