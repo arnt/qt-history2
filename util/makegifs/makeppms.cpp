@@ -360,8 +360,8 @@ public:
 	QStatusBar(parent)
     {
 	QLabel *l = new QLabel("R/W",this);
-	message("Ready");
 	addWidget(l,1);
+	message("Ready");
 	//resize(sizeHint());
     }
 };
@@ -407,7 +407,7 @@ public:
     EgQToolBar(QMainWindow* mw=0) :
 	QToolBar("Toolbar", mw)
     {
-	new EgQToolButton(this);
+	(void) new EgQToolButton(this);
 	//resize(sizeHint());
     }
 };
@@ -548,10 +548,7 @@ public:
 	setFrameStyle(QFrame::Sunken|QFrame::Panel);
 	a.setAlignment(AlignCenter);
 	b.setAlignment(AlignCenter);
-	setFirstWidget(&a);
-	setSecondWidget(&b);
 	setOrientation(Vertical);
-	setRatio(0.33);
 	resize(100,100);
     }
 };
@@ -581,9 +578,9 @@ public:
     EgQMainWindow() :
 	QMainWindow()
     {
-	new EgQMenuBar(this);
-	new EgQStatusBar(this);
-	new EgQToolBar(this);
+	(void) new EgQMenuBar(this);
+	(void) new EgQStatusBar(this);
+	(void) new EgQToolBar(this);
 	QLabel *f = new QLabel("Central\nWidget",this);
 	f->setAlignment(AlignCenter);
 	f->setFrameStyle(QFrame::Sunken|QFrame::Panel);
