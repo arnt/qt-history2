@@ -433,13 +433,13 @@ inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 // Simple versions
 inline QString QApplication::translate( const char *, const char *key ) const
 {
-    return key;
+    return QString::fromLatin1( key );
 }
 
-inline QString	QApplication::translate( const char *, const char *key,
-			    const char * ) const
+inline QString QApplication::translate( const char *, const char *key,
+					const char * ) const
 {
-    return key;
+    return QString::fromLatin1( key );
 }
 #endif
 
