@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#121 $");
 
 
 /*!
@@ -187,7 +187,7 @@ static inline bool checkInsertIndex( const char *method, const char * name,
 #if defined(CHECK_RANGE)
     if ( range_err )
 	warning( "QComboBox::%s: (%s) Index %d out of range",
-		 method, name, *index );
+		 method, name ? name : "<no name>", *index );
 #endif
     if ( *index < 0 )				// append
 	*index = count;
@@ -202,7 +202,7 @@ static inline bool checkIndex( const char *method, const char * name,
 #if defined(CHECK_RANGE)
     if ( range_err )
 	warning( "QComboBox::%s: (%s) Index %i out of range",
-		 method, name, index );
+		 method, name ? name : "<no name>", index );
 #endif
     return !range_err;
 }
@@ -1175,11 +1175,15 @@ static int listHeight( QListBox *l, int sl )
 
 
 /*!
-  Popups the combo box popup list.
+  Popups the combo box popup list.  If the list is empty, inserts a
+  single, empty, string.
 */
 
 void QComboBox::popup()
 {
+    if ( !count() )
+	insertItem( "", 0 );
+
     if ( d->usingListBox ) {
 	                // Send all listbox events to eventFilter():
 	d->listBox->installEventFilter( this );
