@@ -1654,7 +1654,7 @@ bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 	    }
 	}
     }
-    return FALSE;
+    return QWidget::eventFilter(o, e);
 }
 
 void QWorkspaceChildTitleBar::stopDblCloseTimer()
