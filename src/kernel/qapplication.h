@@ -287,6 +287,9 @@ protected:
         void setArgs(int, char **);
 #endif
 
+private slots:
+    void	     eventLoopDestroyed();
+
 private:
     void	     construct( int &argc, char **argv, Type );
     bool	     processNextEvent( bool );

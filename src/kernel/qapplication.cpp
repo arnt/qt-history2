@@ -2302,6 +2302,17 @@ void QApplication::setEventLoop( QEventLoop *eventloop )
 {
     delete static_eventloop;
     static_eventloop = eventloop;
+    if ( static_eventloop ) {
+	connect( static_eventloop, SIGNAL(destroyed()), SLOT(eventLoopDestroyed()) );
+    }
+}
+
+/*! \internal
+    Prevents double deletion of the event loop object.
+*/
+void QApplication::eventLoopDestroyed()
+{
+    static_eventloop = 0;
 }
 
 /*!
