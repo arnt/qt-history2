@@ -42,8 +42,8 @@ class Q_EXPORT QGroupBox : public QFrame
     Q_OBJECT
     Q_PROPERTY( QString title READ title WRITE setTitle )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
-    Q_PROPERTY( int columns READ columns WRITE setColumns )
+    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
+    Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
 	
 public:
     QGroupBox( QWidget *parent=0, const char *name=0 );
@@ -64,13 +64,14 @@ public:
 
     int columns() const;
     void setColumns( int );
-    
+
     Orientation orientation() const { return dir; }
     void setOrientation( Orientation );
-    
+
     void addSpace( int );
-    
+
 protected:
+    bool event( QEvent * );
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );

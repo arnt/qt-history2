@@ -153,6 +153,19 @@ void QGroupBox::setTextSpacer()
 	QFontMetrics fm = fontMetrics();
 	h = fm.height();
 	w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	if ( vbox ) {
+	    int m = vbox->margin();
+	    // do we have a child layout?
+	    for ( QLayoutIterator it = vbox->iterator(); it.current(); ++it ) {
+		if ( it.current()->layout() ) {
+		    m += it.current()->layout()->margin();
+		    break;
+		}
+	    }
+	    if ( m > 4 )
+		h -= m - 4;
+	    h = QMAX( 0, h );
+	}
     }
     sp->changeSize( w, h, QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
@@ -396,7 +409,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
 	return;
 
-    vbox = new QVBoxLayout( this, 8, 0 );
+    vbox = new QVBoxLayout( this, 11, 0 );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
 					   QSizePolicy::Fixed );
@@ -441,6 +454,16 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 		insertWid( w );
 	}
     }
+}
+
+
+/*\reimp
+ */
+bool QGroupBox::event( QEvent * e )
+{
+    if ( e->type() == QEvent::LayoutHint )
+        setTextSpacer();
+    return QFrame::event( e );
 }
 
 /*!\reimp
