@@ -127,6 +127,9 @@ widgets {
 }
 
 wince-* {
+	SOURCES += $$WIDGETS_CPP/ce/qcemainwindow.cpp
+	HEADERS += $$WIDGETS_H/ce/qcemainwindow.h
+
 	SOURCES -= $$WIDGETS_CPP/qsyntaxhighlighter.cpp \
 		   $$WIDGETS_CPP/qsplashscreen.cpp
 		   
