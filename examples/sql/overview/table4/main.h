@@ -39,11 +39,11 @@ class CustomTable : public QDataTable
 {
     Q_OBJECT
 public:
-    CustomTable::CustomTable( 
+    CustomTable( 
 	    QSqlCursor *cursor, bool autoPopulate = FALSE, 
 	    QWidget * parent = 0, const char * name = 0 ) : 
 	QDataTable( cursor, autoPopulate, parent, name ) {}
-    void CustomTable::paintField(
+    void paintField(
 	    QPainter * p, const QSqlField* field, const QRect & cr, bool );
 
 };
