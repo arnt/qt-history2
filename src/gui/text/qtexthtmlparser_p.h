@@ -177,9 +177,11 @@ struct QTextHtmlParserNode {
     inline bool mayNotHaveChildren() const
     { return id == Html_img; }
 
-    void initializeProperties(const QTextHtmlParserNode *parent);
+    void initializeProperties(const QTextHtmlParserNode *parent, const QTextHtmlParser *parser);
 
 private:
+    bool isNestedList(const QTextHtmlParser *parser) const;
+
     int margin[5];
     friend class QTextHtmlParser;
 };

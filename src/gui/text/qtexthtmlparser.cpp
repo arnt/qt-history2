@@ -853,10 +853,24 @@ void QTextHtmlParser::resolveNode()
 {
     QTextHtmlParserNode *node = &nodes.last();
     const QTextHtmlParserNode *parent = &nodes.at(node->parent);
-    node->initializeProperties(parent);
+    node->initializeProperties(parent, this);
 }
 
-void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent)
+bool QTextHtmlParserNode::isNestedList(const QTextHtmlParser *parser) const
+{
+    if (!isListStart)
+        return false;
+
+    int p = parent;
+    while (p) {
+        if (parser->at(p).isListStart)
+            return true;
+        p = parser->at(p).parent;
+    }
+    return false;
+}
+
+void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent, const QTextHtmlParser *parser)
 {
     // inherit properties from parent element
     isAnchor = parent->isAnchor;
@@ -951,14 +965,20 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_ul:
             listStyle = QTextListFormat::ListDisc;
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
+            // nested lists don't have margins, except for the toplevel one
+            if (!isNestedList(parser)) {
+                margin[QTextHtmlParser::MarginTop] = 12;
+                margin[QTextHtmlParser::MarginBottom] = 12;
+            }
             // no left margin as we use indenting instead
             break;
         case Html_ol:
             listStyle = QTextListFormat::ListDecimal;
-            margin[QTextHtmlParser::MarginTop] = 12;
-            margin[QTextHtmlParser::MarginBottom] = 12;
+            // nested lists don't have margins, except for the toplevel one
+            if (!isNestedList(parser)) {
+                margin[QTextHtmlParser::MarginTop] = 12;
+                margin[QTextHtmlParser::MarginBottom] = 12;
+            }
             // no left margin as we use indenting instead
             break;
         case Html_code:
