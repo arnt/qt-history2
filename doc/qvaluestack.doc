@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: qvaluestack.doc,v 1.2 1999/09/25 14:45:46 ettrich Exp $
+** $Id: qvaluestack.doc,v 1.3 1999/09/25 14:54:23 ettrich Exp $
 **
-** QValueList and QValueListIterator class documentation
+** QValueStack class documentation
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -33,7 +33,7 @@
   \ingroup qtl
   \ingroup tools
 
-  Define a template instance QValueList\<X\> to create a stack of values which all
+  Define a template instance QValueStack\<X\> to create a stack of values which all
   have the class X. Please notice that QValueStack does not store pointers to the
   members of the stack. It holds a copy of every member. That is the reason why this
   kind of classes are called "value based" while QStack, QList and QDict are "reference based".
@@ -117,7 +117,7 @@
 
 
 /*!
-  \fn const T& QValueList::top() const
+  \fn const T& QValueStack::top() const
   Returns a reference to the top item of the stack or the item
   referenced by end() if no such item exists.
 
@@ -127,7 +127,7 @@
 */
 
 /*!
-  \fn T QValueList::pop()
+  \fn T QValueStack::pop()
 
   Removes the top item from the stack and returns it.
   \sa top()
