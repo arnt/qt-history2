@@ -1760,6 +1760,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
     case SH_MenuBar_AltKeyNavigation:
     case SH_MenuBar_MouseTracking:
     case SH_PopupMenu_MouseTracking:
+    case SH_ComboBox_ListMouseTracking:
 	ret = 1;
 	break;
 
