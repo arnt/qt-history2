@@ -187,7 +187,7 @@ void qt_mac_unicode_init(QWidget *w)
 void qt_mac_unicode_cleanup(QWidget *w) 
 {
     if(w && qt_mac_tsm_hash && w->isTopLevel())
-	qt_mac_tsm_hash->erase(w->handle());
+	qt_mac_tsm_hash->remove(w->handle());
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
@@ -2433,7 +2433,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(ekind == kEventWindowShown)
 		unhandled_dialogs.insert(wid, 1);
 	    else if(ekind == kEventWindowHidden)
-		unhandled_dialogs.erase(wid);
+		unhandled_dialogs.remove(wid);
 	    handled_event = FALSE;
 	    break;
 	} else if(widget->isDesktop()) {
