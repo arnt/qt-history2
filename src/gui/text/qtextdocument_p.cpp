@@ -1155,8 +1155,6 @@ void QTextDocumentPrivate::contentsChanged()
     if (editBlock)
         return;
 
-    qDebug() << "QTextDocumentPrivate::contentsChanged"
-             << lastUnmodifiedUndoStackPos << undoPosition;
     if (lastUnmodifiedUndoStackPos != -1
         && lastUnmodifiedUndoStackPos == undoPosition)
         setModified(false);
