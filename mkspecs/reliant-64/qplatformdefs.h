@@ -72,7 +72,12 @@
 // - socket functions use 'int'
 // - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'unsigned int'
 //   which seems to be wrong so let's always use 'int' instead!
-#define QT_SOCKLEN_T int
+#define QT_SOCKLEN_T		int
+
+#if !defined(_POSIX_SOURCE) && !defined(_XOPEN_SOURCE) || (_XOPEN_SOURCE-0 >= 500)
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
 
 
 #endif // QPLATFORMDEFS_H

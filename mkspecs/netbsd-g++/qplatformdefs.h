@@ -72,9 +72,12 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// NetBSD 1.0 - 1.3.3	int
-// NetBSD 1.4 - 1.5	socklen_t
-#define QT_SOCKLEN_T	socklen_t
+// NetBSD 1.0 - 1.3.3		int
+// NetBSD 1.4 - 1.5		socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 
 
 #endif // QPLATFORMDEFS_H

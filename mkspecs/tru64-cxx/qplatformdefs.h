@@ -75,12 +75,17 @@ extern "C" int usleep(useconds_t);
 #endif
 
 #if defined(_POSIX_PII_SOCKET)
-#  define QT_SOCKLEN_T socklen_t
+#define QT_SOCKLEN_T		socklen_t
 #elif defined(_XOPEN_SOURCE_EXTENDED)
-#  define QT_SOCKLEN_T size_t
+#define QT_SOCKLEN_T		size_t
 #else
-#  define QT_SOCKLEN_T int
+#define QT_SOCKLEN_T		int
 #endif
 
-#endif // QPLATFORMDEFS_H
+#if defined(_OSF_SOURCE) || defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
 
+
+#endif // QPLATFORMDEFS_H

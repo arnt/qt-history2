@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Global functions
 **
@@ -35,36 +35,12 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
-// vsnprintf() is not available on all platforms.
-#if defined(Q_OS_UNIX)
-// It is available on BSD, specified by SUSv2/XPG5, and possibly available
-// on SUS/XPG4 platforms as a platform-specific extension.
-#  if defined(BSD4_4)
-// All BSD systems have vsnprintf().  Seen on FreeBSD 1.0 through 2.4,
-// NetBSD 1.0 through 1.5, OpenBSD 2.1 through 2.8.
-#  else
-// Note that Irix 6.5 is an incomplete SUSv2 implementation.
-// _SGI_SOURCE must be defined prior to including <stdio.h>.
-#    include <unistd.h>
-#    if !defined(_XOPEN_VERSION) || (_XOPEN_VERSION<500)
-// vsnprintf() was first specified by SUSv2/XPG5.
-#      define QT_NO_VSNPRINTF
-#    endif
-#  endif
-#endif
+#include "qplatformdefs.h"
 
 #include "qasciidict.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-
-#if defined(Q_OS_WIN32)
-#  define vsnprintf _vsnprintf
-#else
-#  include <errno.h>
-#endif
 
 // NOT REVISED
 
@@ -347,13 +323,13 @@ QCString p2qstring(const unsigned char *c) {
 
 #include "qt_mac.h"
 
-extern bool	  qt_is_gui_used;
-static void mac_default_handler(const char *msg)
+extern bool qt_is_gui_used;
+static void mac_default_handler( const char *msg )
 {
-      if(qt_is_gui_used)
-        DebugStr(p_str(msg));
-      else
-         fprintf(stderr, msg);
+    if ( qt_is_gui_used )
+	DebugStr(p_str(msg));
+    else
+	fprintf( stderr, msg );
 }
 
 #endif
@@ -365,12 +341,16 @@ void qDebug( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-	vsprintf( buf, msg, ap );		// ### vsnprintf would be great here
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
+#else
+	vsprintf( buf, msg, ap );
+#endif
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+#if defined(Q_OS_MAC9)
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -388,16 +368,16 @@ void debug( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-#ifdef QT_NO_VSNPRINTF
-	vsprintf( buf, msg, ap );
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
 #else
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );
 #endif
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -414,16 +394,16 @@ void qWarning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-#ifdef QT_NO_VSNPRINTF
-	vsprintf( buf, msg, ap );
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
 #else
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );
 #endif
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -442,16 +422,16 @@ void warning( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-#ifdef QT_NO_VSNPRINTF
-	vsprintf( buf, msg, ap );
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
 #else
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );
 #endif
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -468,16 +448,16 @@ void qFatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-#ifdef QT_NO_VSNPRINTF
-	vsprintf( buf, msg, ap );
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
 #else
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );
 #endif
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else
@@ -500,16 +480,16 @@ void fatal( const char *msg, ... )
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
-#ifdef QT_NO_VSNPRINTF
-	vsprintf( buf, msg, ap );
+#if defined(QT_VSNPRINTF)
+	QT_VSNPRINTF( buf, 8196, msg, ap );
 #else
-	vsnprintf( buf, 512, msg, ap );
+	vsprintf( buf, msg, ap );
 #endif
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
 #ifdef Q_OS_MAC9
-	vsprintf( buf, msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
 #else

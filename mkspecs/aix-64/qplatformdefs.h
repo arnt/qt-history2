@@ -74,12 +74,18 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// Only AIX 4.3 supports 64-bit.
+// Only AIX 4.3 and better supports 64-bit.
 // The AIX 4.3 online documentation says 'size_t' but a user asked IBM
 // and they told him the documentation is wrong. Indeed 'size_t' is
 // obviously wrong for 64-bit programming. And anyway 'socklen_t'
 // reportedly works for all AIX 4.3 users.
-#define QT_SOCKLEN_T socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
+// Only AIX 4.3 and better supports 64-bit.
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
 
 
 #endif // QPLATFORMDEFS_H

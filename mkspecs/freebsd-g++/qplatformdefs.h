@@ -75,11 +75,15 @@
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #if __FreeBSD_version < 400000
-// FreeBSD 1.0 - 3.5.1	int
-#  define QT_SOCKLEN_T	int
+// FreeBSD 1.0 - 3.5.1
+#  define QT_SOCKLEN_T		int
 #else
-// FreeBSD 4.0 - 5.0	socklen_t
-#  define QT_SOCKLEN_T	socklen_t
+// FreeBSD 4.0 - 5.0
+#  define QT_SOCKLEN_T		socklen_t
 #endif
+
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+
 
 #endif // QPLATFORMDEFS_H

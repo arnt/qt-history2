@@ -58,7 +58,10 @@
 #define QT_SIGNAL_ARGS		
 #define QT_SIGNAL_IGNORE	(void (*)())1
 
-#define QT_SOCKLEN_T	int
+#define QT_SOCKLEN_T		int
+
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 
 
 #endif // QPLATFORMDEFS_H

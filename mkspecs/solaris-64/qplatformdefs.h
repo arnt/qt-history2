@@ -79,7 +79,11 @@
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 // On 64-bit platforms (Solaris 7 and better) sockets use socklen_t.
-#define QT_SOCKLEN_T socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+// Supported on 64-bit platforms (Solaris 7 and better).
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 
 
 #endif // QPLATFORMDEFS_H

@@ -72,9 +72,12 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// OpenBSD 2.2 - 2.4	int
-// OpenBSD 2.5 - 2.8	socklen_t
-#define QT_SOCKLEN_T	socklen_t
+// OpenBSD 2.2 - 2.4		int
+// OpenBSD 2.5 - 2.8		socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 
 
 #endif // QPLATFORMDEFS_H

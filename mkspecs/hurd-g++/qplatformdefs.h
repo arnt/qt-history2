@@ -89,7 +89,12 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T	socklen_t
+#define QT_SOCKLEN_T		socklen_t
+
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
 
 
 #endif // QPLATFORMDEFS_H

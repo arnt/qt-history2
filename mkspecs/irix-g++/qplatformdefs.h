@@ -78,6 +78,13 @@
 
 #define QT_SOCKLEN_T		int	
 
+#if 0
+// on Irix 6.5 and better only - but how to check for it?
+#if defined(_SGIAPI)
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
+#endif
 
 #endif // QPLATFORMDEFS_H
 

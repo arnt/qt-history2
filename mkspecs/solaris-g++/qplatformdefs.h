@@ -83,15 +83,24 @@ typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 #endif
 
-#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500)
 // on Solaris 7 and better with specific feature test macros
-#define QT_SOCKLEN_T socklen_t
+#define QT_SOCKLEN_T		socklen_t
 #elif defined(_XOPEN_SOURCE_EXTENDED)
 // on Solaris 2.6 and better with specific feature test macros
-#define QT_SOCKLEN_T size_t
+#define QT_SOCKLEN_T		size_t
 #else
 // always this case in practice
-#define QT_SOCKLEN_T int
+#define QT_SOCKLEN_T		int
+#endif
+
+#if defined(_XOPEN_UNIX)
+// Supported by Solaris 2.6 and better.  XPG4v2 and XPG4v2 is also supported
+// by Solaris 2.6 and better.  So we are trying to detect Solaris 2.6 using
+// macro _XOPEN_UNIX which is not defined by <unistd.h> when XPG4v2 is not
+// supported.
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 #endif
 
 

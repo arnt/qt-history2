@@ -79,14 +79,21 @@
 // The AIX 4.3 online documentation says 'size_t' but a user asked IBM
 // and they told him the documentation is wrong. And anyway 'socklen_t'
 // reportedly works for all AIX 4.3 users.
-#define QT_SOCKLEN_T socklen_t
+#define QT_SOCKLEN_T		socklen_t
 #elif _AIX42
 // AIX 4.2
-#define QT_SOCKLEN_T size_t
+#define QT_SOCKLEN_T		size_t
 #else
 // AIX 4.1
-#define QT_SOCKLEN_T size_t
-#define QT_SOCKOPTLEN_T int // override
+#define QT_SOCKLEN_T		size_t
+// override
+#define QT_SOCKOPTLEN_T		int
+#endif
+
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
+// AIX 4.3 and better only
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
 #endif
 
 
