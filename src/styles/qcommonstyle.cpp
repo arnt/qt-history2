@@ -517,6 +517,14 @@ void QCommonStyle::drawControl( ControlElement element,
     activePainter = p;
 
     switch (element) {
+    case CE_MenuBarBackground: {
+	QRegion reg;
+	if(p->hasClipping()) //ick
+	    reg = p->clipRegion();
+	else
+	    reg = r;
+	((QWidget *)widget)->erase( reg ); 
+	break; }
     case CE_PushButton:
 	{
 #ifndef QT_NO_PUSHBUTTON

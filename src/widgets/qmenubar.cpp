@@ -1035,7 +1035,10 @@ void QMenuBar::drawContents( QPainter *p )
 	}
     }
 
-    erase( reg );
+    p->save();
+    p->setClipRegion(reg);
+    style().drawControl(QStyle::CE_MenuBarBackground, p, this, contentsRect(), g);
+    p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     if ( !mac_eaten_menubar ) {

@@ -822,11 +822,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value CE_ToolButtonLabel a tool button's label.
 
+  \value CE_MenuBarBackground the background of a QMenuBar.
 
   \value CE_CustomBase  base value for custom ControlElements.  All values above
          this are reserved for custom use.  Therefore, custom values must be
 	 greater than this value.
-
 
   \sa drawControl()
 */
