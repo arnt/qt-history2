@@ -25,6 +25,8 @@
 #  include <sys/stat.h>
 #endif
 
+//#ifdef GENERATE_AGGREGRATE_SUBDIR
+
 // Note: this is fairly hacky, but it does the job...
 
 ProjectBuilderMakefileGenerator::ProjectBuilderMakefileGenerator(QMakeProject *p) : UnixMakefileGenerator(p)
@@ -126,14 +128,14 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                             } else {
                                 QString flat_file = fileFixify(name, oldpwd, Option::output_dir, FileFixifyRelative);
                                 if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
-                                    QString last_grp("QMAKE_PBX_HEIR_GROUP");
+                                    QString last_grp("QMAKE_SUBDIR_PBX_HEIR_GROUP");
                                     QStringList dirs = flat_file.split(Option::dir_sep);
                                     name = dirs.back();
                                     for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
                                         QString new_grp(last_grp + Option::dir_sep + (*dir_it)), new_grp_key(keyFor(new_grp));
                                         if(dir_it == dirs.begin()) {
                                             if(!groups.contains(new_grp))
-                                                project->variables()["QMAKE_PBX_GROUPS"].append(new_grp_key);
+                                                project->variables()["QMAKE_SUBDIR_PBX_GROUPS"].append(new_grp_key);
                                         } else {
                                             if(!groups[last_grp].contains(new_grp_key))
                                                 groups[last_grp] += new_grp_key;
@@ -145,7 +147,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                                 }
                             }
                             if(in_root)
-                                project->variables()["QMAKE_PBX_GROUPS"] += project_key;
+                                project->variables()["QMAKE_SUBDIR_PBX_GROUPS"] += project_key;
                             t << "\t\t" << project_key << " = {" << "\n"
                               << "\t\t\t" << "isa = PBXFileReference;" << "\n"
                               << "\t\t\t" << "lastKnownFileType = \"wrapper.pb-project\";" << "\n"
@@ -171,7 +173,8 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << "containerPortal = " << project_key << ";" << "\n"
                               << "\t\t\t" << "isa = PBXContainerItemProxy;" << "\n"
                               << "\t\t\t" << "proxyType = 2;" << "\n"
-                              << "\t\t\t" << "remoteGlobalIDString = " << keyFor(pbxproj + "QMAKE_PBX_REFERENCE") << ";" << "\n"
+//                              << "\t\t\t" << "remoteGlobalIDString = " << keyFor(pbxproj + "QMAKE_PBX_REFERENCE") << ";" << "\n"
+                              << "\t\t\t" << "remoteGlobalIDString = " << keyFor(pbxproj + "QMAKE_PBX_REFERENCE!!!") << ";" << "\n"
                               << "\t\t\t" << "remoteInfo = " << tmp_proj.first("TARGET") << ";" << "\n"
                               << "\t\t" << "};" << "\n";
                             //PRODUCTGROUP
@@ -185,6 +188,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << "sourceTree = \"<group>\";" << "\n"
                               << "\t\t" << "};" << "\n";
                         }
+#if GENERATE_AGGREGRATE_SUBDIR
                         //TARGET (for aggregate)
                         {
                             //container
@@ -204,6 +208,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
                               << "\t\t\t" << "targetProxy = " << container_proxy << ";" << "\n"
                               << "\t\t" << "};" << "\n";
                         }
+#endif
                     }
                 }
 nextfile:
@@ -231,10 +236,10 @@ nextfile:
         bool as_release = !project->isActiveConfig("debug");
 #endif
     {
-        QString key = keyFor("QMAKE_PBX_" + QString(as_release ? "RELEASE" : "DEBUG"));
+        QString key = keyFor("QMAKE_SUBDIR_PBX_" + QString(as_release ? "RELEASE" : "DEBUG"));
         if(project->isActiveConfig("debug") != as_release)
             active_buildstyle = key;
-        project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
+        project->variables()["QMAKE_SUBDIR_PBX_BUILDSTYLES"].append(key);
         t << "\t\t" << key << " = {" << "\n"
           << "\t\t\t" << "buildRules = (" << "\n"
           << "\t\t\t" << ");" << "\n"
@@ -248,8 +253,9 @@ nextfile:
           << "\t\t" << "};" << "\n";
     }
 
+#if GENERATE_AGGREGRATE_SUBDIR
     //target
-    t << "\t\t" << keyFor("QMAKE_PBX_AGGREGATE_TARGET") << " = {" << "\n"
+    t << "\t\t" << keyFor("QMAKE_SUBDIR_PBX_AGGREGATE_TARGET") << " = {" << "\n"
       << "\t\t\t" << "buidPhases = (" << "\n"
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
@@ -266,11 +272,12 @@ nextfile:
       << "\t\t\t" << "name = " << project->variables()["TARGET"].first() << ";" << "\n"
       << "\t\t\t" << "productName = " << project->variables()["TARGET"].first() << ";" << "\n"
       << "\t\t" << "};" << "\n";
+#endif
 
     //ROOT_GROUP
-    t << "\t\t" << keyFor("QMAKE_PBX_ROOT_GROUP") << " = {" << "\n"
+    t << "\t\t" << keyFor("QMAKE_SUBDIR_PBX_ROOT_GROUP") << " = {" << "\n"
       << "\t\t\t" << "children = (" << "\n"
-      << varGlue("QMAKE_PBX_GROUPS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+      << varGlue("QMAKE_SUBDIR_PBX_GROUPS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "isa = PBXGroup;" << "\n"
       << "\t\t\t" << "refType = 4;" << "\n"
@@ -278,14 +285,14 @@ nextfile:
       << "\t\t" << "};" << "\n";
 
     //ROOT
-    t << "\t\t" << keyFor("QMAKE_PBX_ROOT") << " = {" << "\n"
+    t << "\t\t" << keyFor("QMAKE_SUBDIR_PBX_ROOT") << " = {" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
       << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "buildStyles = (" << "\n"
-      << varGlue("QMAKE_PBX_BUILDSTYLES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+      << varGlue("QMAKE_SUBDIR_PBX_BUILDSTYLES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "isa = PBXProject;" << "\n"
-      << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_PBX_ROOT_GROUP") << ";" << "\n"
+      << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_SUBDIR_PBX_ROOT_GROUP") << ";" << "\n"
       << "\t\t\t" << "projectDirPath = \"\";" << "\n"
       << "\t\t\t" << "projectReferences = (" << "\n";
     {
@@ -300,15 +307,15 @@ nextfile:
     }
     t << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
-#if 1
-      << "\t\t\t\t" << keyFor("QMAKE_PBX_AGGREGATE_TARGET") << "\n"
+#if GENERATE_AGGREGRATE_SUBDIR
+      << "\t\t\t\t" << keyFor("QMAKE_SUBDIR_PBX_AGGREGATE_TARGET") << "\n"
 #endif
       << "\t\t\t" << ");" << "\n"
       << "\t\t" << "};" << "\n";
 
     //FOOTER
     t << "\t" << "};" << "\n"
-      << "\t" << "rootObject = " << keyFor("QMAKE_PBX_ROOT") << ";" << "\n"
+      << "\t" << "rootObject = " << keyFor("QMAKE_SUBDIR_PBX_ROOT") << ";" << "\n"
       << "}" << endl;
 
     return true;
