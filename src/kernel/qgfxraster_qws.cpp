@@ -57,7 +57,7 @@ typedef unsigned int __u32;
 #define QGfxRaster_VGA16   1
 
 #define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
-#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	gfx_screen->alloc(r,g,b)
+#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	qt_screen->alloc(r,g,b)
 
 #define MASK4BPP(x) (0xf0 >> (x))
 
