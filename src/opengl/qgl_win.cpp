@@ -667,9 +667,10 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     }
     if (d->glFormat.alpha())
         p->cAlphaBits = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
-    if (d->glFormat.accum())
-        p->cAccumBits = d->glFormat.accumBufferSize() == 1 ? p->cColorBits + p->cAlphaBits
-			                                   : d->glFormat.accumBufferSize()*4;
+    if (d->glFormat.accum()) {
+        p->cAccumRedBits = p->cAccumGreenBits = p->cAccumBlueBits = p->cAccumAlphaBits =
+			   d->glFormat.accumBufferSize() == 1 ? 16 : d->glFormat.accumBufferSize();
+    }
     if (d->glFormat.stencil())
         p->cStencilBits = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
     p->iLayerType = PFD_MAIN_PLANE;

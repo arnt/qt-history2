@@ -108,6 +108,19 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \i \link setPlane() The plane of an overlay format.\endlink
     \endlist
 
+    You can also specify preferred bit depths for the depth buffer,
+    alpha buffer, accumulation buffer and the stencil buffer with the
+    functions: setDepthBufferSize(), setAlphaBufferSize(),
+    setAccumBufferSize() and setStencilBufferSize().
+    
+    Note that even if you specify that you prefer a 32 bit depth
+    buffer (e.g. with setDepthBufferSize(32)), the format that is
+    chosen may not have a 32 bit depth buffer, even if there is a
+    format available with a 32 bit depth buffer. The main reason for
+    this is how the system dependant picking algorithms work on the
+    different platforms, and format options may have higher precedence
+    than others.
+    
     You create and tell a QGLFormat object what rendering options you
     want from an OpenGL
     \footnote
