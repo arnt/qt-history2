@@ -2379,7 +2379,7 @@ void QScrollView::changeFrameRect(const QRect& r)
     right and \a bottom. This is useful for applications such as
     spreadsheets with "locked" rows and columns. The marginal space is
     \e inside the frameRect() and is left blank; reimplement
-    drawContents() or put widgets in the unused area.
+    drawFrame() or put widgets in the unused area.
 
     By default all margins are zero.
 
