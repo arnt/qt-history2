@@ -2866,6 +2866,37 @@ if [ "$CFG_LARGEFILE" = "yes" ]; then
     fi
 fi
 
+
+## find excluded styles and add this to $QCONFIG_FLAGS
+
+VSTYLE=no
+VNO=no
+for QMVAR in $QMAKE_VARS; do
+
+STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
+
+if [ "$VSTYLE" = "yes" ]; then
+	if [ "$VNO" = "yes" ]; then
+		NOSTYLE=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
+		QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STYLE_$NOSTYLE"
+		echo "kill" >>$outpath/include/qconfig.h.new
+		VSTYLE=no
+		VNO=no
+    	else
+		if [ "$STRIPPED" = "-=" ]; then
+			VNO=yes
+		else 
+			VSTYLE=no
+		fi
+	fi
+else
+	if [ "$STRIPPED" = "styles" ]; then
+		VSTYLE=yes
+	fi
+fi
+done
+
+
 if [ -n "$QCONFIG_FLAGS" ]; then
     for cfg in $QCONFIG_FLAGS; do
 

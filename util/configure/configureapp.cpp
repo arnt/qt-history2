@@ -1007,6 +1007,52 @@ void Configure::generateConfigfiles()
 	outStream << "#define QT_PRODUCT_LICENSEE \"" << licenseInfo[ "LICENSEE" ] << "\"" << endl;
 	outStream << "#define QT_PRODUCT_LICENSE \"" << licenseInfo[ "PRODUCTS" ] << "\"" << endl;
 
+	outStream << "// Compile time features" << endl;
+	if( dictionary[ "STL" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STL" << endl;
+	    outStream << "#define QT_NO_STL" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_WINDOWS" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_WINDOWS" << endl;
+	    outStream << "#define QT_NO_STYLE_WINDOWS" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_WINDOWSXP" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_WINDOWSXP" << endl;
+	    outStream << "#define QT_NO_STYLE_WINDOWSXP" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_MOTIF" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_MOTIF" << endl;
+	    outStream << "#define QT_NO_STYLE_MOTIF" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_MOTIFPLUS" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_MOTIFPLUS" << endl;
+	    outStream << "#define QT_NO_STYLE_MOTIFPLUS" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_PLATINUM" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_PLATINUM" << endl;
+	    outStream << "#define QT_NO_STYLE_PLATINUM" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_SGI" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_SGI" << endl;
+	    outStream << "#define QT_NO_STYLE_SGI" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if ( dictionary[ "STYLE_CDE" ] == "no" ) {
+	    outStream << "#ifndef QT_NO_STYLE_CDE" << endl;
+	    outStream << "#define QT_NO_STYLE_CDE" << endl;
+	    outStream << "#endif" << endl;
+	}
+	if( dictionary[ "QWINEXPORT" ] == "yes" ) {
+	    outStream << "#ifndef QT_QWINEXPORT" << endl;
+	    outStream << "#define QT_QWINEXPORT" << endl;
+	    outStream << "#endif" << endl;
+	}
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qconfig.h", FALSE ) )
@@ -1029,17 +1075,6 @@ void Configure::generateConfigfiles()
 	    outStream << "#define QT_MODULE_" << (*it).upper() << endl;
 	}
 	outStream << endl;
-	outStream << "// Compile time features" << endl;
-	if( dictionary[ "STL" ] == "no" ) {
-	    outStream << "#ifndef QT_NO_STL" << endl;
-	    outStream << "#define QT_NO_STL" << endl;
-	    outStream << "#endif" << endl;
-	}
-	if( dictionary[ "QWINEXPORT" ] == "yes" ) {
-	    outStream << "#ifndef QT_QWINEXPORT" << endl;
-	    outStream << "#define QT_QWINEXPORT" << endl;
-	    outStream << "#endif" << endl;
-	}
 	outFile.close();
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qmodules.h", FALSE ) )
