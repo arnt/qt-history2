@@ -1748,16 +1748,37 @@ after a longjmp, so the user may want to be careful about doing anything after
 setjmp returns non-zero besides returning itself.  Consult your compiler
 documentation for more details.
 
-If you need to read or write custom chunks, you will need to get deeper
-into the libpng code, as a mechanism has not yet been supplied for user
-callbacks with custom chunks.  First, read the PNG specification, and have
-a first level of understanding of how it works.  Pay particular attention
-to the sections that describe chunk names, and look at how other chunks
-were designed, so you can do things similarly.  Second, check out the
-sections of libpng that read and write chunks.  Try to find a chunk that
-is similar to yours and copy off of it.  More details can be found in the
-comments inside the code.  A way of handling unknown chunks in a generic
-method, potentially via callback functions, would be best.
+If you need to read custom chunks, install a callback function by
+calling: 
+
+    void png_set_user_chunk_fn(png_structp png_ptr,
+	png_user_chunk_ptr user_chunk_fn));
+
+Your callback should have parameters as follows:
+
+    void user_chunk_fn(png_structp png_ptr, png_infop info_ptr,
+	png_bytep data, png_uint_32 length);
+
+This function will be called for any chunks which libpng does not
+recognize (excluding unrecognized critical chunks, which indicate an
+invalid PNG stream).  Before designing new chunks, read the PNG
+specification, and have a first level of understanding of how it works. 
+Pay particular attention to the sections that describe chunk names, and
+look at how other chunks were designed, so you can do things similarly.  
+
+To write custom chunks, assemble the data for the chunk, and call:
+
+    void png_write_chunk(png_structp png_ptr,
+	png_bytep chunk_name, png_bytep data, png_size_t length);
+
+For example, to write the "gIFg" chunk, use something like:
+
+    png_byte data[4];
+    data[0] = disposal_method;
+    data[1] = user_interaction;
+    data[2] = delay_time/0x100;
+    data[3] = delay_time%0x100;
+    png_write_chunk(png_ptr, (png_byte*)"gIFg", data, 4);
 
 If you wish to write your own transformation for the data, look through
 the part of the code that does the transformations, and check out some of

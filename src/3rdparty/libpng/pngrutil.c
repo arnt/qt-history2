@@ -1428,10 +1428,6 @@ png_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
 {
    png_debug(1, "in png_handle_unknown\n");
 
-   /* In the future we can have code here that calls user-supplied
-    * callback functions for unknown chunks before they are ignored or
-    * cause an error.
-    */
    png_check_chunk_name(png_ptr, png_ptr->chunk_name);
 
    if (!(png_ptr->chunk_name[0] & 0x20))
@@ -1446,8 +1442,22 @@ png_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
    if (png_ptr->mode & PNG_HAVE_IDAT)
       png_ptr->mode |= PNG_AFTER_IDAT;
 
-   png_crc_finish(png_ptr, length);
+#if defined(PNG_USER_CHUNK_SUPPORTED)
+   /* Call user-supplied callback function for unknown chunks.  Note that
+    * we have already ensured that the chunk does not invalidate the PNG
+    * stream - the chunk name is of the correct form, and not critical.
+    */
+   if ( png_ptr->user_chunk_fn != NULL ) {
+      png_bytep data = png_malloc(png_ptr, length);
+      png_size_t slength = (png_size_t)length;
+      png_crc_read(png_ptr, data, slength);
+      if ( png_crc_finish(png_ptr, 0) == 0 )
+         (*(png_ptr->user_chunk_fn))(png_ptr, info_ptr, data, length);
+      return;
+   }
+#endif
 
+   png_crc_finish(png_ptr, length);
 }
 
 /* This function is called to verify that a chunk name is valid.

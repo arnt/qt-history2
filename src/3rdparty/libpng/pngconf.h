@@ -408,6 +408,13 @@ __dont__ include it again
 #define PNG_EASY_ACCESS_SUPPORTED
 #endif
 
+/* This adds functions for the library user to set callback functions
+ * to be called if an unknown (but valid) chunk arrives.
+ */
+#ifndef PNG_NO_USER_CHUNK
+#define PNG_USER_CHUNK_SUPPORTED
+#endif
+
 /* These are currently experimental features, define them if you want */
 
 /* very little testing */

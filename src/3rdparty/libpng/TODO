@@ -6,7 +6,6 @@ Better C++ wrapper/full C++ implementation?
 Keep up with public chunks.
 sPLT chunk handling.
 cHRM transformation.
-Support for application-defined chunk handlers.
 Improve setjmp/longjmp usage or remove it in favor of returning error codes.
 High-level API for reading images.
 Add "grayscale->palette" transformation and "palette->grayscale" detection.

@@ -567,6 +567,10 @@ typedef void (*png_progressive_end_ptr) PNGARG((png_structp, png_infop));
 typedef void (*png_progressive_row_ptr) PNGARG((png_structp, png_bytep,
    png_uint_32, int));
 #endif /* PNG_PROGRESSIVE_READ_SUPPORTED */
+#if defined(PNG_USER_CHUNK_SUPPORTED)
+typedef void (*png_user_chunk_ptr) PNGARG((png_structp, png_infop,
+   png_bytep, png_uint_32));
+#endif
 
 #if defined(PNG_READ_USER_TRANSFORM_SUPPORTED) || \
     defined(PNG_WRITE_USER_TRANSFORM_SUPPORTED)
@@ -751,6 +755,9 @@ struct png_struct_def
    png_byte rgb_to_gray_green_coeff;
    png_byte rgb_to_gray_blue_coeff;
 #endif
+#if defined(PNG_USER_CHUNK_SUPPORTED)
+   png_user_chunk_ptr user_chunk_fn; /* called after header data fully read */
+#endif /* PNG_USER_CHUNK_SUPPORTED */
 };
 
 typedef png_struct FAR * FAR * png_structpp;
@@ -1215,6 +1222,13 @@ extern PNG_EXPORT(void,png_set_read_user_transform_fn) PNGARG((png_structp
 #ifdef PNG_WRITE_USER_TRANSFORM_SUPPORTED
 extern PNG_EXPORT(void,png_set_write_user_transform_fn) PNGARG((png_structp
    png_ptr, png_user_transform_ptr write_user_transform_fn));
+#endif
+
+#ifdef PNG_USER_CHUNK_SUPPORTED
+extern PNG_EXPORT(void,png_set_user_chunk_fn) PNGARG((png_structp png_ptr,
+   png_user_chunk_ptr user_chunk_fn));
+extern PNG_EXPORT(png_user_chunk_ptr,png_get_user_chunk_fn)
+   PNGARG((png_structp png_ptr));
 #endif
 
 #ifdef PNG_PROGRESSIVE_READ_SUPPORTED

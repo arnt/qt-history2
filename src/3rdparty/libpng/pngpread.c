@@ -62,6 +62,13 @@ png_process_some_data(png_structp png_ptr, png_infop info_ptr)
          break;
       }
 #endif
+#if defined(PNG_READ_UNKNOWN_SUPPORTED)
+      case PNG_READ_UNKNOWN_MODE:
+      {
+         png_push_read_unknown(png_ptr, info_ptr);
+         break;
+      }
+#endif
       case PNG_SKIP_MODE:
       {
          png_push_crc_finish(png_ptr);
@@ -340,7 +347,24 @@ png_push_read_chunk(png_structp png_ptr, png_infop info_ptr)
 #endif
    else
    {
+#if defined(PNG_USER_CHUNK_SUPPORTED)
+      if ( png_ptr->user_chunk_fn != NULL )
+      {
+         /* User may want it - collect it. */
+
+         if (png_ptr->push_length + 4 > png_ptr->buffer_size)
+         {
+            png_push_save_buffer(png_ptr);
+            return;
+         }
+
+         png_handle_unknown(png_ptr, info_ptr, png_ptr->push_length);
+      } else {
+         png_push_handle_unknown(png_ptr, info_ptr, png_ptr->push_length);
+      }
+#else
       png_push_handle_unknown(png_ptr, info_ptr, png_ptr->push_length);
+#endif
    }
 
    png_ptr->flags &= ~PNG_FLAG_HAVE_CHUNK_HEADER;
@@ -1067,12 +1091,9 @@ png_push_read_zTXt(png_structp png_ptr, png_infop info_ptr)
 }
 #endif
 
-/* This function is called when we haven't found a handler for this
- * chunk.  In the future we will have code here that can handle
- * user-defined callback functions for unknown chunks before they are
- * ignored or cause an error.  If there isn't a problem with the
- * chunk itself (ie a bad chunk name or a critical chunk), the chunk
- * is (currently) silently ignored.
+/* This function is called when we haven't found a handler for this chunk.
+ * If there isn't a problem with the chunk itself (ie a bad chunk name or
+ * a critical chunk), the chunk is (currently) silently ignored.
  */
 void
 png_push_handle_unknown(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
@@ -1139,3 +1160,17 @@ png_get_progressive_ptr(png_structp png_ptr)
 
 #endif /* PNG_PROGRESSIVE_READ_SUPPORTED */
 
+#ifdef PNG_USER_CHUNK_SUPPORTED
+void
+png_set_user_chunk_fn(png_structp png_ptr,
+   png_user_chunk_ptr user_chunk_fn)
+{
+   png_ptr->user_chunk_fn = user_chunk_fn;
+}
+
+png_user_chunk_ptr
+png_get_user_chunk_fn(png_structp png_ptr)
+{
+   return png_ptr->user_chunk_fn;
+}
+#endif /* PNG_USER_CHUNK_SUPPORTED */
