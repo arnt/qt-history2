@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.h#3 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.h#4 $
 **
 ** Definition of something or other
 **
@@ -28,7 +28,8 @@ public:
 
     virtual QString find( uint ) const;
 
-    void open( const QString & filename, const QString & directory = 0 );
+    void load( const QString & filename, const QString & directory = 0 );
+    void save( const QString & filename );
     void clear();
 
     void squeeze();
@@ -43,6 +44,8 @@ public:
 private:
     QMessageFilePrivate * d;
 
+    friend class QMessageFileIterator;
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMessageFile( const QMessageFile & );
@@ -51,7 +54,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#if 0
 class QMessageFileIterator
 {
 public:
@@ -59,12 +61,12 @@ public:
     ~QMessageFileIterator();
     uint count() const;
     bool isEmpty() const;
-    QString toFirst();
-    // ### how do I implement this? operator QString *()const;
-    QString current() const;
+    QString * toFirst();
+    operator QString *() const;
+    QString * current() const;
     uint currentKey() const;
-    QString operator++();
-    QString operator+=( uint jump );
+    QString * operator++();
+    QString * operator+=( uint jump );
 
 private:
     QIntDictIterator<QString> * it;
@@ -75,7 +77,6 @@ private:	// Disabled copy constructor and operator=
     QMessageFileIterator &operator=( const QMessageFileIterator & );
 #endif
 };
-#endif
 
 
 #endif

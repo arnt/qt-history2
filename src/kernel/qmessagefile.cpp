@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#7 $
 **
 ** Localization database support.
 **
@@ -37,6 +37,9 @@
 #include "qintdict.h"
 #include "qstring.h"
 #include "qapp.h"
+#include "qfile.h"
+#include "qdatastream.h"
+#include "qdict.h"
 
 /*
 $ mcookie
@@ -79,6 +82,9 @@ public:
 
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * byteArray;
+
+    // the headers dict
+    QDict<QString> headers;
 };
 
 
@@ -142,11 +148,11 @@ QMessageFile::~QMessageFile()
 }
 
 
-/*!  Opens and reads \a filename, which may be an absolute file name
-  or relative to \a directory, and makes this message file read-only.
+/*!  Loads \a filename, which may be an absolute file name or relative
+  to \a directory.
 */
 
-void QMessageFile::open( const QString & filename, const QString & directory )
+void QMessageFile::load( const QString & filename, const QString & directory )
 {
     clear();
     squeeze();
@@ -160,6 +166,8 @@ void QMessageFile::open( const QString & filename, const QString & directory )
 	}
     }
 
+    const char * t;
+    uint l;
 #if defined(UNIX)
     // unix (if mmap supported)
 
@@ -192,8 +200,8 @@ void QMessageFile::open( const QString & filename, const QString & directory )
 
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
-    d->t = ((const char *) tmp)+16; // 16 being the length of the magic number
-    d->l = d->unmapLength - 16;
+    t = ((const char *) tmp)+16; // 16 being the length of the magic number
+    l = d->unmapLength - 16;
 #else
     // windows
     fatal("Not written yet -- contact agulbra@troll.no");
@@ -203,11 +211,47 @@ void QMessageFile::open( const QString & filename, const QString & directory )
     // magic number, and forget all about it if it doesn't.
     if ( memcmp( (const void *)(d->unmapPointer), magic, 16 ) )
 	clear();
+
+    // then we go on to read in the headers... I'd prefer not, but...
 }
 
 
-/*!
+/*!  Saves this message file to \a filename, overwriting the previous
+  contents of \a filename.
 
+  \sa load()
+*/
+
+void QMessageFile::save( const QString & filename )
+{
+    QFile f( filename );
+    if ( f.open( IO_WriteOnly ) ) {
+	QDataStream s( &f );
+
+	// magic number
+	if ( f.writeBlock( (const char *)magic, 16 ) < 16 )
+	    return;
+
+	// header strings
+	s << d->headers.count();
+	QDictIterator<QString> it( d->headers );
+	QString * c;
+	const char * k;
+	while( (c=it.current()) != 0 ) {
+	    k = it.currentKey();
+	    ++it;
+	    s << *k << *c;
+	}
+
+	// the rest
+	squeeze();
+	f.writeBlock( d->t, d->l );
+    }
+}
+
+
+/*!  Returns the string matching hash code \a h, or QString::null in
+  case there is no string for \a h.
 */
 
 QString QMessageFile::find( uint h ) const
@@ -257,7 +301,7 @@ QString QMessageFile::find( uint h ) const
 /*!  Returns a hash og \a scope and \a name.  Neither of the two may
   be null (though hash() does not crash if they are).  The result of
   the hash function is never 0.
-  
+
   This function will not change; you may rely on its output to remain
   the same in future versions of Qt.
 */
@@ -402,6 +446,7 @@ void QMessageFile::squeeze()
     QByteArray b( size );
     b.fill( '\0' );
     uint fp = 3*headertablesize;
+    // this is where the header should be written
 
     i = d->messages->count()-1;
     while( i >= 0 ) {
@@ -441,8 +486,13 @@ void QMessageFile::squeeze()
 }
 
 
-/*!
+/*!  Converts this message file into an easily modifiable data
+  structure, less compact than the format used in the files.
 
+  You should never need to call this function; it is called by
+  insert() etc. as necessary.
+
+  \sa squeeze()
 */
 
 void QMessageFile::unsqueeze()
@@ -496,8 +546,6 @@ bool QMessageFile::contains( uint h ) const
 
 /*!  Inserts \a s with hash value \a h into this message file,
   replacing any current string for \a h.
-
-
 */
 
 void QMessageFile::insert( uint h, const QString & s )
@@ -507,7 +555,8 @@ void QMessageFile::insert( uint h, const QString & s )
 }
 
 
-/*!
+/*!  Removes the string for \a h from this message file.  If there is
+  no string for h, this function does nothing.
 
 */
 
@@ -515,4 +564,116 @@ void QMessageFile::remove( uint h )
 {
     unsqueeze();
     d->messages->remove( h );
+}
+
+
+/*! \class QMessageFileIterator qmessagefile.h
+
+  \brief The QMessageFileIterator class provides the ability to list QMessageFile contents etc.
+
+  Normally not needed, and still not documented.
+*/
+  
+/*!  Constructs a QMessageFileIterator that operates on \a m */
+
+QMessageFileIterator::QMessageFileIterator( QMessageFile & m )
+{
+    m.unsqueeze();
+    it = new QIntDictIterator<QString>( *(m.d->messages) );
+}
+
+
+/*! Destroys the iterator and frees any allocated resources. */
+
+QMessageFileIterator::~QMessageFileIterator()
+{
+    delete it;
+    it = 0;
+}
+
+
+/*! Returns the number of items in the message file this iterator
+  operates on.
+
+  \sa isEmpty()
+*/
+
+uint QMessageFileIterator::count() const
+{
+    return it->count();
+}
+
+
+/*!  Returns TRUE if the message file on which this iterator operates
+  is empty, and FALSE if it contains at least one message.
+
+*/
+
+bool QMessageFileIterator::isEmpty() const
+{
+    return it->isEmpty();
+}
+
+
+/*! Sets the current iterator item to point to the first item in the
+  message file and returns a pointer to the item.  If the message file
+  is empty it sets the current item to null and returns a null string.
+*/
+
+QString * QMessageFileIterator::toFirst()
+{
+    return it->toFirst();
+}
+
+
+/*! Returns a pointer to the current iterator item. */
+
+QString * QMessageFileIterator::current() const
+{
+    return it->current();
+}
+
+
+/* Returns the key for the current iterator item. */
+
+uint QMessageFileIterator::currentKey() const
+{
+    return it->currentKey();
+}
+
+
+/*! Cast operator. Returns a pointer to the current iterator item.
+  Same as current(). */
+
+QMessageFileIterator::operator QString *() const
+{
+    return it->current();
+}
+
+
+
+
+/*!  Prefix ++ makes the succeeding item current and returns the new current
+  item.
+
+  If the current iterator item was the last item in the dictionary or if it
+  was null, null is returned.
+*/
+
+QString * QMessageFileIterator::operator++()
+{
+    return ++*it;
+}
+
+
+/*!  Sets the current item to the item \e jump positions after the
+  current item, and returns a pointer to that item.
+
+  If that item is beyond the last item or if the dictionary is  empty,
+  it sets the current item to null and returns null.
+*/
+
+QString * QMessageFileIterator::operator+=( uint jump )
+{
+    return *it += jump;
 }
