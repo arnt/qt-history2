@@ -1507,21 +1507,23 @@ void AddActionToToolBarCommand::execute()
 	QObject::connect( action, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
     } else {
 	QObjectListIt it( *action->children() );
-	int i = 0;
-	while ( it.current() ) {
-	    QObject *o = it.current();
-	    ++it;
-	    if ( !o->inherits( "QAction" ) )
-		continue;
-	    // ### fix it for nested actiongroups
-	    if ( o->inherits( "QDesignerAction" ) ) {
-		QDesignerAction *ac = (QDesignerAction*)o;
-		toolBar->insertAction( ac->widget(), ac );
-		ac->widget()->installEventFilter( toolBar );
-		if ( index == -1 )
-		    toolBar->appendAction( ac );
-		else
-		    toolBar->insertAction( index + (i++), ac );
+	if ( action->children() ) {
+	    int i = 0;
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		// ### fix it for nested actiongroups
+		if ( o->inherits( "QDesignerAction" ) ) {
+		    QDesignerAction *ac = (QDesignerAction*)o;
+		    toolBar->insertAction( ac->widget(), ac );
+		    ac->widget()->installEventFilter( toolBar );
+		    if ( index == -1 )
+			toolBar->appendAction( ac );
+		    else
+			toolBar->insertAction( index + (i++), ac );
+		}
 	    }
 	}
 	toolBar->reInsert();
@@ -1537,15 +1539,17 @@ void AddActionToToolBarCommand::unexecute()
     if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
 	action->removeEventFilter( toolBar );
     } else {
-	QObjectListIt it( *action->children() );
-	while ( it.current() ) {
-	    QObject *o = it.current();
-	    ++it;
-	    if ( !o->inherits( "QAction" ) )
-		continue;
-	    if ( o->inherits( "QDesignerAction" ) ) {
-		o->removeEventFilter( toolBar );
-		toolBar->removeAction( (QAction*)o );
+	if ( action->children() ) {
+	    QObjectListIt it( *action->children() );
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		if ( o->inherits( "QDesignerAction" ) ) {
+		    o->removeEventFilter( toolBar );
+		    toolBar->removeAction( (QAction*)o );
+		}
 	    }
 	}
     }
@@ -1567,15 +1571,17 @@ void AddActionToPopupCommand::execute()
 	    popup->insertAction( index, action );
 	} else {
 	    action->addTo( popup );
-	    QObjectListIt it( *action->children() );
-	    int i = 0;
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		QDesignerAction *ac = (QDesignerAction*)o;
-		popup->insertAction( index + (i++), ac );
+	    if ( action->children() ) {
+		QObjectListIt it( *action->children() );
+		int i = 0;
+		while ( it.current() ) {
+		    QObject *o = it.current();
+		    ++it;
+		    if ( !o->inherits( "QAction" ) )
+			continue;
+		    QDesignerAction *ac = (QDesignerAction*)o;
+		    popup->insertAction( index + (i++), ac );
+		}
 	    }
 	}
 	popup->reInsert();
@@ -1598,15 +1604,17 @@ void AddActionToPopupCommand::unexecute()
     if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
 	action->removeEventFilter( popup );
     } else {
-	QObjectListIt it( *action->children() );
-	while ( it.current() ) {
-	    QObject *o = it.current();
-	    ++it;
-	    if ( !o->inherits( "QAction" ) )
-		continue;
-	    if ( o->inherits( "QDesignerAction" ) ) {
-		o->removeEventFilter( popup );
-		popup->removeAction( (QAction*)o );
+	if ( action->children() ) {
+	    QObjectListIt it( *action->children() );
+	    while ( it.current() ) {
+		QObject *o = it.current();
+		++it;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		if ( o->inherits( "QDesignerAction" ) ) {
+		    o->removeEventFilter( popup );
+		    popup->removeAction( (QAction*)o );
+		}
 	    }
 	}
     }
