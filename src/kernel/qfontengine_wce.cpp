@@ -450,6 +450,8 @@ QFontEngineBox::QFontEngineBox( int size )
     hdc = GetDC( 0 );
 #ifndef Q_OS_TEMP
     hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
+#else
+    hfont = (HFONT)GetStockObject( SYSTEM_FONT );
 #endif
     stockFont = TRUE;
     paintDevice = FALSE;
