@@ -748,6 +748,18 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    unknown = TRUE;
 	}
     }
+    if ( e->key() == Key_Direction_L && d->parag->direction() != QChar::DirL ) {
+	d->parag->setDirection( QChar::DirL );
+	d->parag->invalidate( 0 );
+	d->parag->format( -1, TRUE );
+	unknown = FALSE;
+    } else if ( e->key() == Key_Direction_R && d->parag->direction() != QChar::DirR ) {
+	d->parag->setDirection( QChar::DirR );
+	d->parag->invalidate( 0 );
+	d->parag->format( -1, TRUE );
+	unknown = FALSE;
+    }
+
     if ( unknown ) {				// unknown key
 	e->ignore();
 	return;
