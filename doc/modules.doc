@@ -50,17 +50,6 @@ with each Edition.
 
 */
 
-/*! \page database.html
-
-\title Qt Database Module
-
-The database module provides access to SQL databases.
-
-Please see the \link qsqldatabase.html class documentation \endlink for
-details.
-*/
-
-
 /*! \page iconview.html
 
 \title Qt IconView Module
