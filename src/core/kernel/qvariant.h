@@ -24,13 +24,16 @@ class QBitArray;
 class QDataStream;
 class QDate;
 class QDateTime;
+class QLineF;
 class QLocale;
 class QString;
 class QStringList;
 class QTime;
 class QPoint;
+class QPointF;
 class QSize;
 class QRect;
+class QRectF;
 class QTextFormat;
 class QTextLength;
 class QUrl;
@@ -79,7 +82,10 @@ class Q_CORE_EXPORT QVariant
         TextLength = 37,
         TextFormat = 38,
         Locale = 39,
-        UserType = 63,
+        LineF = 40,
+        RectF = 41,
+        PointF = 42,
+        UserType = 127,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT3_SUPPORT
         , ColorGroup = 12,
@@ -123,8 +129,11 @@ class Q_CORE_EXPORT QVariant
     QVariant(const QSize &size);
     QVariant(const QRect &rect);
     QVariant(const QPoint &pt);
+    QVariant(const QPointF &pt);
     QVariant(const QUrl &url);
     QVariant(const QLocale &locale);
+    QVariant(const QLineF &line);
+    QVariant(const QRectF &rect);
 
     QVariant& operator=(const QVariant &other);
 
@@ -167,10 +176,13 @@ class Q_CORE_EXPORT QVariant
 #endif
 
     QPoint toPoint() const;
+    QPointF toPointF() const;
     QRect toRect() const;
     QSize toSize() const;
     QUrl toUrl() const;
     QLocale toLocale() const;
+    QLineF toLineF() const;
+    QRectF toRectF() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT int &asInt();
@@ -324,6 +336,9 @@ inline int qt_variant_metatype_id(QIcon *) { return QVariant::Icon; }
 class QPoint;
 template<>
 inline int qt_variant_metatype_id(QPoint *) { return QVariant::Point; }
+class QPointF;
+template<>
+inline int qt_variant_metatype_id(QPointF *) { return QVariant::PointF; }
 class QImage;
 template<>
 inline int qt_variant_metatype_id(QImage*) { return QVariant::Image; }
@@ -370,6 +385,10 @@ template<>
 inline int qt_variant_metatype_id(QTextFormat *) { return QVariant::TextFormat; }
 template<>
 inline int qt_variant_metatype_id(QLocale *) { return QVariant::Locale; }
+template<>
+inline int qt_variant_metatype_id(QLineF *) { return QVariant::LineF; }
+template<>
+inline int qt_variant_metatype_id(QRectF *) { return QVariant::RectF; }
 #ifdef QT3_SUPPORT
 class QColorGroup;
 template<>

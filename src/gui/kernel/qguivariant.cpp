@@ -618,15 +618,6 @@ static void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::Brush:
         dbg.nospace() << qVariant_to<QBrush>(v);
         break;
-    case QVariant::Point:
-        dbg.nospace() << qVariant_to<QPoint>(v);
-        break;
-    case QVariant::Rect:
-        dbg.nospace() << qVariant_to<QRect>(v);
-        break;
-    case QVariant::Size:
-        dbg.nospace() << qVariant_to<QSize>(v);
-        break;
     case QVariant::Color:
         dbg.nospace() << qVariant_to<QColor>(v);
         break;

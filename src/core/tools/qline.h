@@ -193,4 +193,9 @@ inline bool QLineF::operator==(const QLineF &d) const
 Q_GUI_EXPORT QDebug operator<<(QDebug d, const QLineF &p);
 #endif
 
+#ifndef QT_NO_DATASTREAM
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QLineF &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QLineF &);
+#endif
+
 #endif // QLINE_H

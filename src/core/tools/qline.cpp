@@ -387,3 +387,40 @@ QDebug operator<<(QDebug d, const QLineF &p)
     return d;
 }
 #endif
+
+#ifndef QT_NO_DATASTREAM
+/*!
+    \relates QLineF
+
+    Writes the \a line to the \a stream and returns a reference to
+    the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator<<(QDataStream &stream, const QLineF &line)
+{
+    stream << line.start() << line.end();
+    return stream;
+}
+
+/*!
+    \relates QLineF
+
+    Reads a QLineF from the \a stream into the \a line and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator>>(QDataStream &stream, QLineF &line)
+{
+    QPointF start, end;
+    stream >> start;
+    stream >> end;
+    line = QLineF(start, end);
+
+    return stream;
+}
+
+#endif // QT_NO_DATASTREAM

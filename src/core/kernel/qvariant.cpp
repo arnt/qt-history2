@@ -27,6 +27,7 @@
 #include "qsize.h"
 #include "qurl.h"
 #include "qlocale.h"
+#include "qline.h"
 #include "private/qvariant_p.h"
 
 #include <float.h>
@@ -84,8 +85,17 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::Rect:
         v_construct<QRect>(x, copy);
         break;
+    case QVariant::LineF:
+        v_construct<QLineF>(x, copy);
+        break;
+    case QVariant::RectF:
+        v_construct<QRectF>(x, copy);
+        break;
     case QVariant::Point:
         v_construct<QPoint>(x, copy);
+        break;
+    case QVariant::PointF:
+        v_construct<QPointF>(x, copy);
         break;
     case QVariant::Int:
         x->data.i = copy ? *static_cast<const int *>(copy) : 0;
@@ -155,6 +165,9 @@ static void clear(QVariant::Private *d)
     case QVariant::Point:
         v_clear<QPoint>(d);
         break;
+    case QVariant::PointF:
+        v_clear<QPointF>(d);
+        break;
     case QVariant::Size:
         v_clear<QSize>(d);
         break;
@@ -166,6 +179,12 @@ static void clear(QVariant::Private *d)
         break;
     case QVariant::Rect:
         v_clear<QRect>(d);
+        break;
+    case QVariant::LineF:
+        v_clear<QLineF>(d);
+        break;
+    case QVariant::RectF:
+        v_clear<QRectF>(d);
         break;
     case QVariant::LongLong:
     case QVariant::ULongLong:
@@ -209,8 +228,14 @@ static bool isNull(const QVariant::Private *d)
         return v_cast<QSize>(d)->isNull();
     case QVariant::Rect:
         return v_cast<QRect>(d)->isNull();
+    case QVariant::LineF:
+        return v_cast<QLineF>(d)->isNull();
+    case QVariant::RectF:
+        return v_cast<QRectF>(d)->isNull();
     case QVariant::Point:
         return v_cast<QPoint>(d)->isNull();
+    case QVariant::PointF:
+        return v_cast<QPointF>(d)->isNull();
     case QVariant::Url:
     case QVariant::Locale:
     case QVariant::StringList:
@@ -272,8 +297,17 @@ static void load(QVariant::Private *d, QDataStream &s)
     case QVariant::Rect:
         s >> *v_cast<QRect>(d);
         break;
+    case QVariant::LineF:
+        s >> *v_cast<QLineF>(d);
+        break;
+    case QVariant::RectF:
+        s >> *v_cast<QRectF>(d);
+        break;
     case QVariant::Point:
         s >> *v_cast<QPoint>(d);
+        break;
+    case QVariant::PointF:
+        s >> *v_cast<QPointF>(d);
         break;
     case QVariant::Int:
         s >> d->data.i;
@@ -354,8 +388,17 @@ static void save(const QVariant::Private *d, QDataStream &s)
     case QVariant::Point:
         s << *v_cast<QPoint>(d);
         break;
+    case QVariant::PointF:
+        s << *v_cast<QPointF>(d);
+        break;
     case QVariant::Rect:
         s << *v_cast<QRect>(d);
+        break;
+    case QVariant::LineF:
+        s << *v_cast<QLineF>(d);
+        break;
+    case QVariant::RectF:
+        s << *v_cast<QRectF>(d);
         break;
     case QVariant::Int:
         s << d->data.i;
@@ -441,8 +484,14 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         return *v_cast<QLocale>(a) == *v_cast<QLocale>(b);
     case QVariant::Rect:
         return *v_cast<QRect>(a) == *v_cast<QRect>(b);
+    case QVariant::LineF:
+        return *v_cast<QLineF>(a) == *v_cast<QLineF>(b);
+    case QVariant::RectF:
+        return *v_cast<QRectF>(a) == *v_cast<QRectF>(b);
     case QVariant::Point:
         return *v_cast<QPoint>(a) == *v_cast<QPoint>(b);
+    case QVariant::PointF:
+        return *v_cast<QPointF>(a) == *v_cast<QPointF>(b);
     case QVariant::Int:
         return a->data.i == b->data.i;
     case QVariant::UInt:
@@ -832,7 +881,16 @@ static bool cast(const QVariant::Private *d, QVariant::Type t, void *result, boo
             return false;
         }
         break;
-
+    case QVariant::RectF:
+        if (d->type == QVariant::Rect)
+            *static_cast<QRectF *>(result) = *v_cast<QRect>(d);
+        else
+            return false;
+    case QVariant::PointF:
+        if (d->type == QVariant::Point)
+            *static_cast<QPointF *>(result) = *v_cast<QPoint>(d);
+        else
+            return false;
     default:
         return false;
     }
@@ -913,6 +971,10 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
         }
         return false;
 #endif
+    case QVariant::RectF:
+        return d->type == QVariant::Rect;
+    case QVariant::PointF:
+        return d->type == QVariant::Point;
     default:
         return false;
     }
@@ -971,6 +1033,24 @@ void streamDebug(QDebug dbg, const QVariant &v)
         break;
     case QVariant::Url:
         dbg.nospace() << v.toUrl();
+        break;
+    case QVariant::Point:
+        dbg.nospace() << v.toPoint();
+        break;
+    case QVariant::PointF:
+        dbg.nospace() << v.toPointF();
+        break;
+    case QVariant::Rect:
+        dbg.nospace() << v.toRect();
+        break;
+    case QVariant::Size:
+        dbg.nospace() << v.toSize();
+        break;
+    case QVariant::LineF:
+        dbg.nospace() << v.toLineF();
+        break;
+    case QVariant::RectF:
+        dbg.nospace() << v.toRectF();
         break;
     case QVariant::BitArray:
         //dbg.nospace() << v.toBitArray();
@@ -1099,6 +1179,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Image  a QImage
     \value Int  an int
     \value KeySequence  a QKeySequence
+    \value LineF  a QLineF
     \value List  a QVariantList
     \value LongLong a long long
     \value ULongLong an unsigned long long
@@ -1107,8 +1188,10 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Pen  a QPen
     \value Pixmap  a QPixmap
     \value Point  a QPoint
+    \value PointF  a QPointF
     \value Polygon a QPolygon
     \value Rect  a QRect
+    \value RectF  a QRectF
     \value Region  a QRegion
     \value Size  a QSize
     \value SizePolicy  a QSizePolicy
@@ -1293,6 +1376,24 @@ QVariant::QVariant(const char *val)
  */
 
 /*!
+  \fn QVariant::QVariant(const QPointF &val)
+
+  Constructs a new variant with a point value of \a val.
+ */
+
+/*!
+  \fn QVariant::QVariant(const QRectF &val)
+
+  Constructs a new variant with a rect value of \a val.
+ */
+
+/*!
+  \fn QVariant::QVariant(const QLineF &val)
+
+  Constructs a new variant with a line value of \a val.
+ */
+
+/*!
   \fn QVariant::QVariant(const QRect &val)
 
   Constructs a new variant with a rect value of \a val.
@@ -1400,6 +1501,9 @@ QVariant::QVariant(const QMap<QString,QVariant> &map)
 { create(Map, &map); }
 #endif
 QVariant::QVariant(const QPoint &pt) { create(Point, &pt); }
+QVariant::QVariant(const QPointF &pt) { create (PointF, &pt); }
+QVariant::QVariant(const QRectF &r) { create (RectF, &r); }
+QVariant::QVariant(const QLineF &l) { create (LineF, &l); }
 QVariant::QVariant(const QRect &r) { create(Rect, &r); }
 QVariant::QVariant(const QSize &s) { create(Size, &s); }
 QVariant::QVariant(const QUrl &u) { create(Url, &u); }
@@ -1509,7 +1613,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 40 };
+enum { ntypes = 43 };
 static const char* const type_map[ntypes] =
 {
     0,
@@ -1555,7 +1659,10 @@ static const char* const type_map[ntypes] =
     "QUrl",
     "QTextLength",
     "QTextFormat",
-    "QLocale"
+    "QLocale",
+    "QLineF",
+    "QRectF",
+    "QPointF"
 };
 
 
@@ -1720,6 +1827,9 @@ Q_VARIANT_TO(Size)
 Q_VARIANT_TO(Point)
 Q_VARIANT_TO(Url)
 Q_VARIANT_TO(Locale)
+Q_VARIANT_TO(PointF)
+Q_VARIANT_TO(LineF)
+Q_VARIANT_TO(RectF)
 
 /*!
   \fn QString QVariant::toString() const
@@ -1858,6 +1968,27 @@ QVariantMap QVariant::toMap() const
 
   Returns the variant as a QLocale if the variant has type()
   Locale; otherwise returns an invalid QLocale.
+ */
+
+/*!
+  \fn QRectF QVariant::toRectF() const
+
+  Returns the variant as a QRectF if the variant has type()
+  Rect or RectF; otherwise returns an invalid QRectF.
+ */
+
+/*!
+  \fn QLineF QVariant::toLineF() const
+
+  Returns the variant as a QLineF if the variant has type()
+  LineF; otherwise returns an invalid QLineF.
+ */
+
+/*!
+  \fn QPointF QVariant::toPointF() const
+
+  Returns the variant as a QPointF if the variant has type()
+  Point or PointF; otherwise returns an invalid QPointF.
  */
 
 /*!
@@ -2151,38 +2282,6 @@ const void *QVariant::constData() const
         return &d.data.ull;
     case Double:
         return &d.data.d;
-    case String:
-        return v_cast<QString>(&d);
-    case Char:
-        return v_cast<QChar>(&d);
-    case StringList:
-        return v_cast<QStringList>(&d);
-    case Rect:
-        return v_cast<QRect>(&d);
-    case Url:
-        return v_cast<QUrl>(&d);
-    case Locale:
-        return v_cast<QLocale>(&d);
-    case Point:
-        return v_cast<QPoint>(&d);
-    case Size:
-        return v_cast<QSize>(&d);
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map:
-        return v_cast<QVariantMap>(&d);
-    case List:
-        return v_cast<QVariantList>(&d);
-#endif
-    case Date:
-        return v_cast<QDate>(&d);
-    case Time:
-        return v_cast<QTime>(&d);
-    case QVariant::DateTime:
-        return v_cast<QDateTime>(&d);
-    case QVariant::ByteArray:
-        return v_cast<QByteArray>(&d);
-    case QVariant::BitArray:
-        return v_cast<QBitArray>(&d);
     default:
         return d.is_shared ? d.data.shared->ptr : reinterpret_cast<const void *>(&d.data.ptr);
     }
@@ -2198,7 +2297,7 @@ const void *QVariant::constData() const
 void* QVariant::data()
 {
     detach();
-    return const_cast<void*>(constData());
+    return const_cast<void *>(constData());
 }
 
 
