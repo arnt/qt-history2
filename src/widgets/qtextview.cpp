@@ -1253,6 +1253,10 @@ void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 
 void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
+    if ( !QTextDrag::canDecode( e ) ) {
+        e->ignore();
+        return;
+    }
     e->acceptAction();
     inDnD = TRUE;
 }
@@ -1261,6 +1265,10 @@ void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
+    if ( !QTextDrag::canDecode( e ) ) {
+        e->ignore();
+        return;
+    }
     drawCursor( FALSE );
     placeCursor( e->pos(),  cursor );
     drawCursor( TRUE );
