@@ -50,3 +50,7 @@ system-png {
 
 system-zlib:unix:LIBS += -lz
 system-zlib:mac:LIBS += -lz
+
+target.path=$$plugins.path
+isEmpty(target.path):target.path=$$QT_PREFIX/plugins/imageformats
+INSTALLS += target
