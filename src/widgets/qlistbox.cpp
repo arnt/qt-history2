@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#47 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#47 $")
 
 
 declare(QListM, QLBItem);
@@ -88,7 +88,7 @@ static inline bool checkIndex( const char *method, int count, int index )
   and inSort().
 
   By default, vertical and horizontal scroll bars are added and
-  removed as necessary.  setAutoScrollBar() can be used to force a
+  removed as necessary.	 setAutoScrollBar() can be used to force a
   specific policy.
 
   If you need a list box that contains other types, you must inherit
@@ -124,8 +124,8 @@ QListBox::QListBox( QWidget *parent, const char *name )
     QFontMetrics fm = fontMetrics();
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
-    setTableFlags( Tbl_smoothVScrolling );
-    clearTableFlags( Tbl_clipCellPainting );
+    setTableFlags( Tbl_autoVScrollBar|Tbl_autoHScrollBar|
+		   Tbl_smoothVScrolling );
     switch ( style() ) {
 	case WindowsStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
@@ -166,7 +166,7 @@ int QListBox::count() const
 /*----------------------------------------------------------------------------
   Inserts the string list \e list into the list at item \e index.
 
-  If \e index is negative, \e list is inserted at the end of the list.  If
+  If \e index is negative, \e list is inserted at the end of the list.	If
   \e index is too large, the operation is ignored.
 
   \sa insertItem(), inSort()
@@ -200,7 +200,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   list at item\e index.
 
   If \e index is negative, insertStrList() inserts \e strings at the end
-  of the list.  If \e index is too large, the operation is ignored.
+  of the list.	If \e index is too large, the operation is ignored.
 
   \sa insertItem(), inSort()
  ----------------------------------------------------------------------------*/
@@ -374,7 +374,7 @@ const QPixmap *QListBox::pixmap( int index ) const
   Replaces the item at position \e index with \e string.
 
   The operation is ignored if \e index is out of range.
-  
+
   \sa insertItem(), removeItem()
  ----------------------------------------------------------------------------*/
 
@@ -432,7 +432,7 @@ bool QListBox::stringCopy() const
 
   The default setting is TRUE.
 
-  \sa setStringCopy() 
+  \sa setStringCopy()
  ----------------------------------------------------------------------------*/
 
 void QListBox::setStringCopy( bool enable )
@@ -452,7 +452,7 @@ void QListBox::setStringCopy( bool enable )
   items are inserted or removed.
 
   The default setting is TRUE.
-  \sa setAutoUpdate() 
+  \sa setAutoUpdate()
  ----------------------------------------------------------------------------*/
 
 bool QListBox::autoUpdate() const
@@ -482,8 +482,8 @@ void QListBox::setAutoUpdate( bool enable )
 }
 
 /*----------------------------------------------------------------------------
-  Returns the number of visible items.  This may change at any time
-  since the user may resize the widget. 
+  Returns the number of visible items.	This may change at any time
+  since the user may resize the widget.
  ----------------------------------------------------------------------------*/
 
 int QListBox::numItemsVisible() const
@@ -556,7 +556,7 @@ int QListBox::topItem() const
 /*----------------------------------------------------------------------------
   Scrolls the list box so the item at position \e index in the list
   becomes the top row of the list box.
-  \sa topItem(), centerCurrentItem() 
+  \sa topItem(), centerCurrentItem()
  ----------------------------------------------------------------------------*/
 
 void QListBox::setTopItem( int index )
@@ -634,7 +634,7 @@ bool QListBox::autoScrollBar() const
 /*----------------------------------------------------------------------------
   Enables an automatic (vertical) scroll bar if \e enable is TRUE, or disables
   it if \e enable is FALSE.
-  
+
   If it is enabled, then the list box will get a (vertical) scroll bar if
   the list box items exceed the list box height.
 
@@ -664,10 +664,10 @@ bool QListBox::scrollBar() const
 /*----------------------------------------------------------------------------
   Enables a (vertical) scroll bar if \e enable is TRUE, or disables it if
   \e enable is FALSE.
-  
+
   The default setting is FALSE.
 
-  \sa scrollBar(), setAutoScrollBar(), setBottomScrollBar()  
+  \sa scrollBar(), setAutoScrollBar(), setBottomScrollBar()
  ----------------------------------------------------------------------------*/
 
 void QListBox::setScrollBar( bool enable )
@@ -691,7 +691,7 @@ bool QListBox::autoBottomScrollBar() const
 /*----------------------------------------------------------------------------
   Enables an automatic bottom scroll bar if \e enable is TRUE, or disables
   it if \e enable is FALSE.
-  
+
   If it is enabled, then the list box will get a bottom scroll bar if the
   maximum list box item width exceeds the list box width.
 
@@ -721,7 +721,7 @@ bool QListBox::bottomScrollBar() const
 /*----------------------------------------------------------------------------
   Enables a bottom scroll bar if \e enable is TRUE, or disables it if
   \e enable is FALSE.
-  
+
   The default setting is FALSE.
 
   \sa bottomScrollBar(), setAutoBottomScrollBar(), setScrollBar()
@@ -806,7 +806,7 @@ void QListBox::setUserItems( bool enable )
   This virtual function can be reimplemented in a subclass if the list box
   contains user-defined items, i.e. you have called setUserItems( TRUE ).
   You do not need to reimplement this function if you put the user-defined
-  items into a QLBItem.  You must reimplement this function if you make
+  items into a QLBItem.	 You must reimplement this function if you make
   your own class that inherits QLBItem.
 
   The default implementation:
@@ -829,7 +829,7 @@ QLBItem *QListBox::newItem()
   box is contains user-defined items, i.e. you have called
   setUserItems( TRUE ).
 
-  Notice that C++ does not allow calling virtual functions from the 
+  Notice that C++ does not allow calling virtual functions from the
   list box constructor or destructor.  If your list box contains user items,
   your class that inherits QListBox should have a destructor which calls
   clearList().
@@ -902,7 +902,7 @@ void QListBox::inSort( const QLBItem *lbi )
 
 
 /*----------------------------------------------------------------------------
-  Replaces the item at posistion \e index with \e lbi.  If \e
+  Replaces the item at posistion \e index with \e lbi.	If \e
   index is negative or too large, changeItem() does nothing.
 
   \sa insertItem(), removeItem()
@@ -1049,7 +1049,7 @@ void QListBox::paintCell( QPainter *p, int row, int column )
     }
 
     QFontMetrics fm = fontMetrics();
-    QColorGroup  g  = colorGroup();
+    QColorGroup	 g  = colorGroup();
     GUIStyle	 gs = style();
     QColor	 fc;				// fill color
     if ( gs == WindowsStyle )
@@ -1070,7 +1070,7 @@ void QListBox::paintCell( QPainter *p, int row, int column )
 
 /*----------------------------------------------------------------------------
   Handles mouse press events.  Makes the clicked item the current item.
-  \sa currentItem() 
+  \sa currentItem()
  ----------------------------------------------------------------------------*/
 
 void QListBox::mousePressEvent( QMouseEvent *e )
@@ -1189,7 +1189,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
 }
 
 /*----------------------------------------------------------------------------
-  Handles timer events.  Does auto-scrolling.
+  Handles timer events.	 Does auto-scrolling.
  ----------------------------------------------------------------------------*/
 
 void QListBox::timerEvent( QTimerEvent * )
@@ -1246,7 +1246,7 @@ void QListBox::updateItem( int index, bool erase )
 
 /*----------------------------------------------------------------------------
   Deletes all items in the list.  Protected function that does NOT
-  update the list box. 
+  update the list box.
  ----------------------------------------------------------------------------*/
 
 void QListBox::clearList()
