@@ -109,6 +109,36 @@ public:
 
 #endif // Q_WS_X11
 
+#ifdef Q_WS_WIN
+
+class QFontStruct : public QShared
+{
+public:
+	QFontStruct( const QString &key );
+	~QFontStruct() { reset(); }
+    bool	    dirty()      const;
+    HDC		    dc()	 const;
+    HFONT	    font()	 const;
+    TEXTMETRICA	   *textMetricA() const;
+    TEXTMETRICW	   *textMetricW() const;
+    const QFontDef *spec()	 const;
+	QString key() const;
+    void	    reset();
+
+    QString	k;
+    HDC		hdc;
+    HFONT	hfont;
+    bool	stockFont;
+    union {
+	TEXTMETRICW	w;
+	TEXTMETRICA	a;
+    } tm;
+    QFontDef	s;
+    int		lw;
+//    friend void QFont::initFontInfo() const;
+};
+
+#endif
 
 // QFontPrivate - holds all data on which a font operates
 class QFontPrivate : public QShared
@@ -285,7 +315,7 @@ public:
     QCString bestMatch(const char *, int *) const;
     int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *) const;
     void initFontInfo(QFontPrivate::Script);
-    void load(QFontPrivate::Script = QFontPrivate::defaultScript, bool = TRUE);
+    void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
     void computeLineWidth();
 
     class QFontX11Data {
@@ -320,29 +350,10 @@ public:
 #endif // Q_WS_X11
 
 #if defined(Q_WS_WIN)
-    QFontPrivate( const QString &key );
-    void load();
-
-    bool	    dirty()      const;
-    HDC		    dc()	 const;
-    HFONT	    font()	 const;
-    TEXTMETRICA	   *textMetricA() const;
-    TEXTMETRICW	   *textMetricW() const;
-    const QFontDef *spec()	 const;
-    void	    reset();
-private:
-    QFontInternal( const QString & );
-    QString	k;
-    HDC		hdc;
-    HFONT	hfont;
-    bool	stockFont;
-    union {
-	TEXTMETRICW	w;
-	TEXTMETRICA	a;
-    } tm;
-    QFontDef	s;
-    int		lw;
-    //    friend void QFont::initFontInfo() const;
+	void load();	
+	void initFontInfo();
+	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
+	QFontStruct *fin;
 #endif
 
 #ifndef QT_NO_COMPAT

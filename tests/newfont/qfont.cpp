@@ -908,7 +908,7 @@ void QFont::setRawMode( bool enable )
 */
 bool QFont::exactMatch() const
 {
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     return d->exactMatch;
 }
@@ -1560,7 +1560,7 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d = font.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -1598,7 +1598,7 @@ QFontMetrics::QFontMetrics( const QPainter *p )
     d = painter->cfont.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     /*
 
@@ -1907,7 +1907,7 @@ QFontInfo::QFontInfo( const QFont &font )
     d = font.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
@@ -1947,7 +1947,7 @@ QFontInfo::QFontInfo( const QPainter *p )
     d = painter->cfont.d;
     d->ref();
 
-    d->load(QFontPrivate::defaultScript);
+    d->load();
 
     /*
       for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
