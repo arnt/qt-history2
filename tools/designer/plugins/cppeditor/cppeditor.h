@@ -42,7 +42,7 @@ public:
 
     bool supportsBreakPoints() const { return FALSE; }
 #if defined(Q_USING)
-    using Editor::createPopupMenu;
+    using QTextEdit::createPopupMenu;
 #endif
     QPopupMenu *createPopupMenu( const QPoint &p );
 
