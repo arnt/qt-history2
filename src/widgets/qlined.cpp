@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#34 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#34 $";
 #endif
 
 
@@ -377,8 +377,8 @@ void QLineEdit::paint( bool frame )
 	p.begin( this );
 	if ( !frame )
 	    p.eraseRect( LEFT_MARGIN, TOP_MARGIN,
-			 width()  - LEFT_MARGIN - RIGHT_MARGIN,
-			 height() - TOP_MARGIN	- BOTTOM_MARGIN );
+			 width()  - LEFT_MARGIN - RIGHT_MARGIN  + 1,
+			 height() - TOP_MARGIN	- BOTTOM_MARGIN + 1 );
 	paintText( &p, size(), frame );
 	p.end();
     }
