@@ -10,7 +10,7 @@ win32:DEFINES  += QT_NODLL
 DESTDIR         = ../../bin
 
 
-INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . ../core/arch/$$ARCH
+INCLUDEPATH	= $$QT_SOURCE_TREE/include .
 DEPENDPATH	+= $$QT_SOURCE_TREE/include ../core/base ../core/tools ../core/io .
 LIBS		=
 OBJECTS_DIR	= .
