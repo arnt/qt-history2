@@ -162,6 +162,13 @@ int main( int argc, char *argv[] )
     extern void qInitImages_designercore();
     qInitImages_designercore();
 
+    QSettings config;
+    QString keybase = DesignerApplication::settingsKey();
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QStringList pluginPaths = config.readListEntry( keybase + "PluginPaths" );
+    if (pluginPaths.count())
+	QApplication::setLibraryPaths(pluginPaths);
+
     QSplashScreen *splash = a.showSplash();
 
     MainWindow *mw = new MainWindow( creatPid );
@@ -171,12 +178,9 @@ int main( int argc, char *argv[] )
 #else
     mw->setCaption( "Qt Designer by Trolltech" );
 #endif
-    QSettings config;
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
-
-    if ( config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
-	int x = config.readNumEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowX", 0 );
-	int y = config.readNumEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowY", 0 );
+    if ( config.readBoolEntry( keybase + "Geometries/MainwindowMaximized", FALSE ) ) {
+	int x = config.readNumEntry( keybase + "Geometries/MainwindowX", 0 );
+	int y = config.readNumEntry( keybase + "Geometries/MainwindowY", 0 );
 	mw->move( x, y );
 	mw->showMaximized();
     } else {
