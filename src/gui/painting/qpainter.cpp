@@ -930,6 +930,9 @@ void QPainter::restore()
     d->state = d->states.back();
     d->txinv = false;
 
+    // Propegate the changes since save to this one so that they can be dirtied and restored
+    d->state->changeFlags |= tmp->changeFlags;
+
     // trigger clip update if the clip path/region has changed since
     // last save
     if (!d->state->clipInfo.isEmpty()
