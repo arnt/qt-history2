@@ -1554,13 +1554,31 @@ QDragMoveEvent::~QDragMoveEvent()
     \brief The QDropEvent class provides an event which is sent when a
     drag and drop action is completed.
 
-    When a widget \link QWidget::setAcceptDrops() accepts drop
-    events \endlink, it will receive this event if it has accepted the
-    most recent QDragEnterEvent or QDragMoveEvent sent to it.
+    When a widget \l{QWidget::setAcceptDrops()}{accepts drop events}, it will
+    receive this event if it has accepted the most recent QDragEnterEvent or
+    QDragMoveEvent sent to it.
 
-    The widget should use data() to extract the data in an appropriate
-    format.
+    The drop event contains a proposed action, available from proposedAction(), for
+    the widget to either accept or ignore. If the action can be handled by the
+    widget, you should call the acceptProposedAction() function. Since the
+    proposed action can be a combination of \l QDrag::DropAction values, it may be
+    useful to either select one of these values as a default action or ask
+    the user to select their preferred action. If the required drop action is
+    different to the proposed action, you can call setDropAction() instead of
+    acceptProposedAction() to complete the drop operation.
 
+    The mimeData() function provides the data dropped on the widget in a QMimeData
+    object. This contains information about the MIME type of the data in addition to
+    the data itself.
+
+    \sa QMimeData QDrag \link dnd.html Drag and Drop\endlink
+*/
+
+/*!
+    \fn const QDropEvent::QMimeData *mimeData() const
+
+    Returns the data that was dropped on the widget and its associated MIME
+    type information.
 */
 
 /*!
@@ -1699,9 +1717,10 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
 
 /*!
     \enum QDropEvent::Action
+    \compat
 
     When a drag and drop action is completed, the target is expected
-    to perform an Action on the data provided by the source. This
+    to perform an action on the data provided by the source. This
     will be one of the following:
 
     \value Copy The default action. The source simply uses the data
@@ -1731,6 +1750,7 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
 
 /*!
     \fn Action QDropEvent::action() const
+    \compat
 
     Returns the Action that the target is expected to perform on the
     data. If your application understands the action and can
@@ -1770,6 +1790,7 @@ QT_COMPAT QDropEvent::Action QDropEvent::action() const
 
 /*!
     \fn void QDropEvent::setPoint (const QPoint &point)
+    \compat
 
     Sets the drop to happen at the given \a point. You do not normally
     need to use this as it will be set internally before your widget

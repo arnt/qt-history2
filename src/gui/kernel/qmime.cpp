@@ -91,10 +91,49 @@ QVariant QMimeDataPrivate::getData(const QString &format) const
 
 /*!
     \class QMimeData
-    \brief The QMimeData class provides a container that organizes data by
-    MIME type.
+    \brief The QMimeData class provides a container for data that records information
+    about its MIME type.
 
-    \compat
+    QMimeData is used to describe information that can be stored in the clipboard,
+    and transferred via the drag and drop mechanism. QMimeData objects associate the
+    data that they hold with the corresponding MIME types to ensure that information
+    can be safely transferred between applications, and copied around within the
+    same application.
+
+    QMimeData objects are usually created on the heap and supplied to QDrag
+    or QClipboard objects. This is to enable Qt to manage the memory that they
+    use.
+
+    The class provides a number of convenience functions to allow data in common
+    formats to be stored and retrieved, and QMimeData objects can be queried to
+    determine which kind of data they contain.
+
+    Textual data types are stored with setText() and setHtml(); they can be retrieved
+    with text() and html(). Visual data types are stored with setColor(), setImage(),
+    and setPixmap(); they can be retrieved with color(), image(), and pixmap().
+    The contents of the QMimeData object can be cleared with the clear() function.
+
+    Use the hasText() and hasHtml() functions to determine whether a given QMimeData
+    object contains textual information; use hasColor(), hasImage(), and hasPixmap()
+    to determine whether it contains standard visual types.
+
+    Custom data can be stored in a QMimeData object: Use the setData() function
+    with a standard MIME description of the data, and a QByteArray containing the
+    data itself. For example, although we could store an image or a pixmap using
+    setImage() or setPixmap(), we can take a Portable Network Graphics (PNG) image
+    from a QByteArray and explicitly store it in a QMimeData object using the
+    following code:
+
+    \code
+        QByteArray pngImage;
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("image/png", pngImage);
+    \endcode
+
+    Usually, it is easier to rely on QMimeData's support for QImage and QPixmap when
+    handling images.
+
+    \sa QClipboard QDrag \link Drag and Drop\endlink
 */
 
 /*!

@@ -22,6 +22,53 @@
     \class QDrag
     \brief The QDrag class provides support for MIME-based drag and drop data
     transfer.
+
+    Drag and drop is an intuitive way for users to copy or move data around in an
+    application, and is used in many desktop environments as a mechanism for copying
+    data between applications. Drag and drop support in Qt is centered around the
+    QDrag class that handles most of the details of a drag and drop operation.
+
+    The data to be transferred by the drag and drop operation is contained in a
+    QMimeData object. This is specified with the setMimeData() function in the
+    following way:
+
+    \quotefromfile snippets/dragging/mainwindow.cpp
+    \skipto mouseMoveEvent
+    \skipto QDrag
+    \printuntil setMimeData
+
+    Note that setMimeData() assigns ownership of the QMimeData object to the
+    QDrag object. The QDrag must be constructed on the heap and given a parent
+    QObject to ensure that Qt can perform the necessary memory management
+    operations on the objects the next time the event loop is entered.
+
+    A pixmap can be used to represent the data while the drag is in progress, and
+    will move with the cursor to the drop target. This pixmap typically shows an
+    icon that represents the MIME type of the data being transferred, but any
+    pixmap can be set with setPixmap(). Care must be taken to ensure that the
+    pixmap is not too large. The cursor's hot spot can be given a position relative
+    to the top-left corner of the pixmap with the setHotSpot() function. The
+    following code positions the pixmap so that the cursor's hot spot points to
+    the center of its bottom edge:
+
+    \quotefromfile snippets/separations/finalwidget.cpp
+    \skipto setHotSpot
+    \printuntil setHotSpot
+
+    The source and target widgets can be found with source() and target().
+    These functions are often used to determine whether drag and drop operations
+    started and finished at the same widget, so that special behavior can be
+    implemented.
+
+    QDrag only deals with the drag and drop operation itself. It is up to the
+    developer to decide when a drag operation begins, and how a QDrag object should
+    be constructed and used. For a given widget, it is often necessary to
+    reimplement \l{QWidget::mousePressEvent()}{mousePressEvent()} to determine
+    whether the user has pressed a mouse button, and reimplement
+    \l{QWidget::mouseMoveEvent()}{mouseMoveEvent()} to check whether a QDrag is
+    required.
+
+    \sa \link dnd.html Drag and Drop\endlink QClipboard QMimeData
 */
 
 /*!
@@ -99,7 +146,7 @@ QPixmap QDrag::pixmap() const
 
 /*!
     Sets the position of the hot spot relative to the top-left corner of the
-    cursor to the point specified by \a hotspot.
+    pixmap used to the point specified by \a hotspot.
 */
 void QDrag::setHotSpot(const QPoint& hotspot)
 {
