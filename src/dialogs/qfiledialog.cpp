@@ -3191,7 +3191,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	*workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if ( qApp->style() == WindowsStyle )
+    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
@@ -3306,7 +3306,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	*workingDirectory = QDir::currentDirPath();
 
 #if defined(Q_WS_WIN)
-    if ( qApp->style() == WindowsStyle )
+    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
 	return winGetSaveFileName( initialSelection, filter, workingDirectory,
 				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
@@ -4174,7 +4174,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    initialDir = dir;
     } else
 	initialDir = QString::null;
-    if ( qApp->style() == WindowsStyle )
+    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
         return winGetExistingDirectory( initialDir, parent, name );
 #endif
 
@@ -5220,7 +5220,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     }
 
 #if defined(Q_WS_WIN)
-    if ( qApp->style() == WindowsStyle )
+    if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
 	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )

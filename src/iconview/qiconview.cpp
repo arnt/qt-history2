@@ -3223,12 +3223,11 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->restore();
 
 	    QColorGroup cg;
-#if defined(Q_WS_WIN)
-	    bool drawActiveSelection = hasFocus() || style() != WindowsStyle || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-	    if ( !d->drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	    bool drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) || 
+		( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+	    if ( !d->drawActiveSelection )
 		cg = palette().inactive();
 	    else
-#endif
 		cg = colorGroup();
 
 	    QIconViewItem *item = c->items.first();
@@ -4885,15 +4884,13 @@ void QIconView::focusInEvent( QFocusEvent *e )
 	repaintItem( d->currentItem );
     }
 
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	QRect r = visibleRect();
 	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
 	    if ( item->isSelected() && item->rect().intersects( r ) )
 		repaintItem( item );
 	}
     }
-#endif
 
     if ( d->currentItem )
 	setMicroFocusHint( d->currentItem->x(), d->currentItem->y(), d->currentItem->width(), d->currentItem->height(), FALSE );
@@ -4908,15 +4905,13 @@ void QIconView::focusOutEvent( QFocusEvent * )
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle  && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	QRect r = visibleRect();
 	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
 	    if ( item->isSelected() && item->rect().intersects( r ) )
 		repaintItem( item );
 	}
     }
-#endif
 }
 
 /*!

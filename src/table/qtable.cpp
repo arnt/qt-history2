@@ -2220,12 +2220,10 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	return;
     }
 
-#if defined(Q_WS_WIN)
     drawActiveSelection = hasFocus() || viewport()->hasFocus() ||
 			  is_child_of( qApp->focusWidget(), viewport() ) ||
-	       style() != WindowsStyle ||
+			  !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
 			  ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-#endif
 
     if ( rowlast == -1 )
 	rowlast = numRows() - 1;
@@ -3323,11 +3321,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
-#if defined(Q_WS_WIN)
-	    if ( style() == WindowsStyle &&
-		 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
 		repaintSelections();
-#endif
 	    return TRUE;
 	}
 	if ( isEditing() && editorWidget && o == editorWidget && ( (QFocusEvent*)e )->reason() != QFocusEvent::Popup ) {
@@ -3341,11 +3336,8 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusIn:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
-#if defined(Q_WS_WIN)
-	    if ( style() == WindowsStyle &&
-		 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
 		repaintSelections();
-#endif
 	    if ( isEditing() && editorWidget )
 		editorWidget->setFocus();
 	    return TRUE;
@@ -3497,11 +3489,8 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
 void QTable::focusInEvent( QFocusEvent* )
 {
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle &&
-	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
 	repaintSelections();
-#endif
     QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
     QTableItem *itm = item( curRow, curCol );
     setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
@@ -3513,11 +3502,8 @@ void QTable::focusInEvent( QFocusEvent* )
 
 void QTable::focusOutEvent( QFocusEvent* )
 {
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle &&
-	 ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
 	repaintSelections();
-#endif
 }
 
 /*! \reimp

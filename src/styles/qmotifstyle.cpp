@@ -2063,6 +2063,10 @@ int QMotifStyle::styleHint(StyleHint hint,
 	ret = AlignAuto | AlignVCenter;
 	break;
 
+    case SH_ItemView_ChangeHighlightOnFocus:
+	ret = 0;
+	break;
+
     default:
 	ret = QCommonStyle::styleHint(hint, widget, returnData);
 	break;

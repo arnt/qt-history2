@@ -456,7 +456,10 @@ public:
 	SH_PopupMenu_MouseTracking,
 
 	// bool - mouse tracking in menubars
-	SH_MenuBar_MouseTracking
+	SH_MenuBar_MouseTracking,
+
+	// bool - gray out selected items when loosing focus
+	SH_ItemView_ChangeHighlightOnFocus
     };
 
     virtual int styleHint( StyleHint stylehint,

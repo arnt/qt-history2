@@ -2514,15 +2514,13 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    // draw to last interesting column
 
 	    QColorGroup cg;
-#if defined(Q_WS_WIN)
 	    bool drawActiveSelection = hasFocus() ||
-			    style() != WindowsStyle ||
+			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
 				       ( qApp->focusWidget() && qApp->focusWidget()->isPopup() ) ||
 				       currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus();
-	    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+	    if ( !drawActiveSelection )
 		cg = palette().inactive();
 	    else
-#endif
 		cg = colorGroup();
 
 	    while ( c < lc && d->drawables ) {
@@ -4243,14 +4241,12 @@ void QListView::focusInEvent( QFocusEvent *e )
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	bool db = d->useDoubleBuffer;
 	d->useDoubleBuffer = TRUE;
 	viewport()->repaint( FALSE );
 	d->useDoubleBuffer = db;
     }
-#endif
 
     QRect mfrect = itemRect( d->focusItem );
     if ( mfrect.isValid() ) {
@@ -4267,14 +4263,12 @@ void QListView::focusInEvent( QFocusEvent *e )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	bool db = d->useDoubleBuffer;
 	d->useDoubleBuffer = TRUE;
 	viewport()->repaint( FALSE );
 	d->useDoubleBuffer = db;
     }
-#endif
 
     if ( d->focusItem )
 	repaintItem( d->focusItem );

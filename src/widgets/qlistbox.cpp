@@ -2474,8 +2474,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	emit highlighted( tmp2 );
 	emit currentChanged( i );
     }
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	if ( d->numColumns == 1 ) {
 	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
 		QListBoxItem *it = item(i);
@@ -2494,7 +2493,6 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	    }
 	}
     }
-#endif
 
     if ( d->current ) {
 	updateItem( currentItem() );
@@ -2509,8 +2507,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 */
 void QListBox::focusOutEvent( QFocusEvent * )
 {
-#if defined(Q_WS_WIN)
-    if ( style() == WindowsStyle && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
 	if ( d->numColumns == 1 ) {
 	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
 		QListBoxItem *it = item(i);
@@ -2529,7 +2526,6 @@ void QListBox::focusOutEvent( QFocusEvent * )
 	    }
 	}
     }
-#endif
 
     if ( d->current )
 	updateItem( currentItem() );
@@ -3844,12 +3840,10 @@ void QListBox::adjustItems()
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
     QColorGroup g;
-#if defined(Q_WS_WIN)
-    bool drawActiveSelection = hasFocus() || style() != WindowsStyle || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-    if ( !drawActiveSelection && ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP ) )
+    bool drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+    if ( !drawActiveSelection )
 	g = palette().inactive();
     else
-#endif
 	g = colorGroup();
 
     int cw = d->columnPos[col+1] - d->columnPos[col];
