@@ -145,6 +145,8 @@ void QMainWindowPrivate::init()
 
     \endlist
 
+    ### QDockWidget Neighbor diagram goes here
+
     \section2 Dragging over other QDockWidgets
 
     When dragging nested QDockWidgets, or when dragging to a different
@@ -190,19 +192,17 @@ void QMainWindowPrivate::init()
     In either case, dragging the mouse over another QDockWidget causes
     QMainWindow to choose the other QDockWidget's Qt::DockWindowArea.
 
+    When dragging outside the QMainWindow, the QDockWidget::floatable
+    property again controls feedback during dragging. When the
+    QDockWidget::floatable property is \c false, dragging outside of
+    the QMainWindow will show the rubberband over the QDockWidget's
+    current location.  This indicates that the QDockWidget cannot be
+    moved outside of the QMainWindow. When the QDockWidget::floatable
+    property is \c true, dragging outside of the QMainWindow will show
+    the QRubberBand under the mouse pointer.  This indicates that the
+    QDockWidget will be floating when the mouse button is released.
+
     ### QMainWindow X diagram goes here
-
-    \section2 Dragging outside the QMainWindow
-
-    Again, the QDockWidget::floatable property controls feedback during
-    dragging. When the QDockWidget::floatable property is \c false,
-    dragging outside of the QMainWindow will show the rubberband over
-    the QDockWidget's current location.  This indicates that the
-    QDockWidget cannot be moved outside of the QMainWindow. When the
-    QDockWidget::floatable property is \c true, dragging outside of
-    the QMainWindow will show the QRubberBand under the mouse pointer.
-    This indicates that the QDockWidget will be floating when the
-    mouse button is released.
 
     \sa QMenuBar, QToolBar, QStatusBar, QDockWidget
 */
