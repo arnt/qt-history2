@@ -138,7 +138,7 @@ case "$VERSION" in
     SPECIAL=stable
 esac
 VERSION_SHORT=`echo ${VERSION} | sed -e 's/\.\(.\).*/.\1/'`
-VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//'`
+VERSIONWIN=`echo ${VERSION} | sed -e 's/\.//g'`
 
 echo "Auto-detected the Qt version number -- " $VERSION >&2
 
@@ -236,7 +236,7 @@ if [ "${platform}" = "win" ]; then
 
 # Convince tmake to use the right DLL library and set right DLL lib Makefile
   [ ! -d lib ] && mkdir lib
-  DLLVER=`tmake src/qt.pro -e "Expand('VERSION')" | sed -e 's/\.//'`
+  DLLVER=`tmake src/qt.pro -e "Expand('VERSION')" | sed -e 's/\.//g'`
   touch lib/qt${DLLVER}.lib
   mv src/Makefile.win32-dll src/Makefile
 
