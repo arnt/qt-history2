@@ -9,7 +9,7 @@ proportion of \QD's functionality and explanations and details are
 mostly left for the more detailed \c colortool tutorial presented in
 chapters two and three.
 
-\img qs-metric.png
+\img qsmetric.png
 \caption The Metric Conversion Dialog
 
 \section1 Starting and Exiting \QD
@@ -271,7 +271,7 @@ the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
 (\Key Ctrl+J) toolbar button.
 \endlist
 
-\img qslayvert.png
+\img qs-layvert.png
 
 Click \Menu File|Save to save the dialog.
 
@@ -288,7 +288,7 @@ circle will appear next to every widget that can accept focus.
 \i Press \Key Esc to leave tab order mode. 
 \endlist
 
-\img qstaborder.png
+\img qs-taborder.png
 
 See also \l{Changing the Tab Order}.
 
