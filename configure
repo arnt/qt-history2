@@ -1522,7 +1522,7 @@ test -d "$relpath/arch/$ARCH" || ARCH="generic"
 
 # symlink the arch/$ARCH/arch/ include directory to include/arch/
 rm -f "$outpath/include/arch"
-ln -s "$relpath/arch/$ARCH" "$outpath/include/arch"
+ln -s "$relpath/arch/$ARCH/arch" "$outpath/include/arch"
 
 # now look at the configs and figure out what platform we are config'd for
 [ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
