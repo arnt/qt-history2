@@ -153,10 +153,8 @@
     the middle that we can draw on. What we draw will show up in the
     largest possible square that will fit in the widget.
 
-    \printline painter.save()
-    \printline rotate
-    \printline hourHand
-    \printline restore
+    \skipto painter.save()
+    \printuntil restore
 
     We draw the clock's hour hand by rotating the coordinate system
     and calling QPainter::drawConvexPolygon(). Thank's to the
@@ -171,17 +169,15 @@
     the code guarantees that the code that follows won't be disturbed
     by the transformations we've used.
 
-    \printline painter.save()
-    \printline rotate
-    \printline minuteHand
-    \printline restore
+    \skipto painter.save()
+    \printuntil restore
 
     We do the same for the clock's minute hand, which is defined by
     the four points (1, 0), (0, 1), (-1, 0), and (0, -40). These
     coordinates specify a hand that is thinner and longer than the
     minute hand.
 
-    \printline for (int
+    \skipto for (int
     \printuntil }
 
     Finally, we draw the clock face, which consists of twelve short

@@ -98,7 +98,7 @@
     \code
     Outlook::NameSpace *session = new Outlook::NameSpace
 (outlook->Session()); 
-    \encode
+    \endcode
 
     You can of course use the IDispatch* returned directly, in which case you have to 
     call \c Release() when finished with the interface.

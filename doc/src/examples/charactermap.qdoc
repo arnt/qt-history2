@@ -170,19 +170,13 @@ line edit.
 
 \section1 MainWindow Class Implementation
 
-The constructor sets up a simple menu to allow the user to exit the
-application:
+In the constructor, we set up the window's central widget and fill it with
+some standard widgets (two comboboxes, a line edit, and a push button).
+We also construct a CharacterWidget custom widget, and add a QWidgetView
+so that we can view its contents:
 
 \quotefromfile widgets/charactermap/mainwindow.cpp
 \skipto MainWindow::MainWindow
-\printuntil menuBar()
-
-We construct the window's central widget and fill it with some standard
-widgets (two comboboxes, a line edit, and a push button), but we also
-construct a CharacterWidget custom widget, and add a QWidgetView
-so that we can view its contents.
-
-\skipto QWidget *centralWidget
 \printuntil view->setWidget
 
 QWidgetView provides a viewport onto the \c CharacterWidget when we set

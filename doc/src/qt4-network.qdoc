@@ -95,8 +95,8 @@
     \skipto tcpSocket =
     \printline tcpSocket =
     \skipto connect(tcpSocket
-    \printline SLOT(readFortune())
-    \printline SLOT(displayError(int))
+    \printline SLOT(readFortune(
+    \printline SLOT(displayError(
 
     When the user requests a new fortune, the client establishes a
     connection to the server:
