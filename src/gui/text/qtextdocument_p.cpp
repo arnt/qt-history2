@@ -396,11 +396,34 @@ int QTextDocumentPrivate::remove_block(int pos, int *blockFormat, int command, Q
     return w;
 }
 
+static bool isAncestorFrame(QTextFrame *possibleAncestor, QTextFrame *child)
+{
+    while (child) {
+        if (child == possibleAncestor)
+            return true;
+        child = child->parentFrame();
+    }
+    return false;
+}
+
 void QTextDocumentPrivate::remove(int pos, int length, QTextUndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0 && pos+length <= fragments.length());
     Q_ASSERT(blocks.length() == fragments.length());
-    Q_ASSERT(frameAt(pos) == frameAt(pos+length-1));
+
+#if !defined(QT_NO_DEBUG)
+    const bool startAndEndInSameFrame = (frameAt(pos) == frameAt(pos + length - 1));
+
+    const bool endIsEndOfChildFrame = (isAncestorFrame(frameAt(pos), frameAt(pos + length - 1))
+                                       && text.at(find(pos + length - 1)->stringPosition) == QTextEndOfFrame);
+
+    const bool startIsStartOfFrameAndEndIsEndOfFrameWithCommonParent
+               = (text.at(find(pos)->stringPosition) == QTextBeginningOfFrame
+                  && text.at(find(pos + length - 1)->stringPosition) == QTextEndOfFrame
+                  && frameAt(pos)->parentFrame() == frameAt(pos + length - 1)->parentFrame());
+
+    Q_ASSERT(startAndEndInSameFrame || endIsEndOfChildFrame || startIsStartOfFrameAndEndIsEndOfFrameWithCommonParent);
+#endif
 
     beginEditBlock();
 
