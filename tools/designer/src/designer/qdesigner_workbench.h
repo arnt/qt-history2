@@ -110,6 +110,7 @@ private slots:
     void activateWorkspaceChildWindow(QWidget *widget);
     void updateWorkbench(AbstractFormWindow *formWindow, const QString &name, const QVariant &value);
     void updateWindowMenu(AbstractFormWindow *fw);
+    void formWindowActionTriggered(QAction *a);
 
 private:
     QWidget *magicalParent() const;

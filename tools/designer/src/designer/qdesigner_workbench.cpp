@@ -111,6 +111,7 @@ void QDesignerWorkbench::initialize()
 
     m_windowActions = new QActionGroup(this);
     m_windowActions->setExclusive(true);
+    connect(m_windowActions, SIGNAL(triggered(QAction*)), this, SLOT(formWindowActionTriggered(QAction*)));
 
     m_actionManager = new QDesignerActions(this);
 
@@ -715,4 +716,14 @@ void QDesignerWorkbench::changeToolBarIconSize(bool big)
         m_formToolBar->setIconSize(QSize(16, 16));
         m_editToolBar->setIconSize(QSize(16, 16));
     }
+}
+
+void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
+{
+    QWidget *widget = a->parentWidget();
+    Q_ASSERT(widget != 0);
+
+    widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
+    widget->activateWindow();
+    widget->raise();
 }

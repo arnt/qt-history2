@@ -38,7 +38,6 @@ public:
 private slots:
     void updateWindowTitle(const QString &fileName);
     void updateChanged();
-    void activated(bool active);
 
 protected:
     virtual void changeEvent(QEvent *e);

@@ -55,7 +55,6 @@ QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWo
 
     setWindowIcon(QIcon(QPixmap(":/trolltech/designer/images/designer.png")));
 
-    connect(m_action, SIGNAL(checked(bool)), this, SLOT(activated(bool)));
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
     connect(m_editor, SIGNAL(fileNameChanged(const QString&)), this, SLOT(updateWindowTitle(const QString&)));
 }
@@ -66,15 +65,6 @@ QDesignerFormWindow::~QDesignerFormWindow()
         workbench()->removeFormWindow(this);
 }
 
-void QDesignerFormWindow::activated(bool active)
-{
-    if (active == true) {
-        setWindowState(windowState() & ~Qt::WindowMinimized);
-        raise();
-        activateWindow();
-    }
-}
-
 QAction *QDesignerFormWindow::action() const
 {
     return m_action;
@@ -83,6 +73,12 @@ QAction *QDesignerFormWindow::action() const
 void QDesignerFormWindow::changeEvent(QEvent *e)
 {
     switch (e->type()) {
+        case QEvent::ActivationChange: {
+            if (isActiveWindow()) {
+                m_action->setChecked(true);
+                // ### raise();
+            }
+        } break;
         case QEvent::WindowTitleChange:
             m_action->setText(windowTitle());
             break;
