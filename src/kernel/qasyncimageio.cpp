@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#44 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -446,7 +446,7 @@ QGIFFormat::QGIFFormat()
 */
 QGIFFormat::~QGIFFormat()
 {
-    delete[] globalcmap;
+    if (globalcmap) delete[] globalcmap;
 }
 
 
@@ -807,8 +807,10 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		} else {
 		    if (needfirst) {
 			firstcode=oldcode=code;
-			if (!out_of_bounds && !(preserve_trans && firstcode==trans))
-			    line[y][x] = firstcode;
+			if (!out_of_bounds) {
+			    if (!(preserve_trans && firstcode==trans))
+				line[y][x] = firstcode;
+			}
 			x++;
 			if (x>=swidth) out_of_bounds = TRUE;
 			needfirst=FALSE;
@@ -852,8 +854,10 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			oldcode=incode;
 			while (sp>stack) {
 			    --sp;
-			    if (!out_of_bounds && !(preserve_trans && *sp==trans))
-				line[y][x] = *sp;
+			    if (!out_of_bounds) {
+				if (!(preserve_trans && *sp==trans))
+				    line[y][x] = *sp;
+			    }
 			    x++;
 			    if (x>=swidth) out_of_bounds = TRUE;
 			    if (x>right) {
@@ -1016,32 +1020,36 @@ void QGIFFormat::nextY(QImage& img, QImageConsumer* consumer)
 	    int i;
 	    my = QMIN(7, bottom-y);
 	    for (i=1; i<=my; i++)
-	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
+		    right-left+1);
 	    if (consumer && !out_of_bounds)
 	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
-	    if (y>bottom) { interlace++; y=4; }
+	    if (y>bottom) { interlace++; y=top+4; }
 	} break;
       case 2:
 	{
 	    int i;
 	    my = QMIN(3, bottom-y);
 	    for (i=1; i<=my; i++)
-	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
+		    right-left+1);
     	    if (consumer && !out_of_bounds)
 	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=8;
-	    if (y>bottom) { interlace++; y=2; }
+	    if (y>bottom) { interlace++; y=top+2; }
 	} break;
       case 3:
 	{
+	    int i;
 	    my = QMIN(1, bottom-y);
-	    for (int i=1; i<=my; i++)
-	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+	    for (i=1; i<=my; i++)
+		memcpy(img.scanLine(y+i)+left, img.scanLine(y)+left,
+		    right-left+1);
 	    if (consumer && !out_of_bounds)
 	        consumer->changed(QRect(left, y, right-left+1, my+1));
 	    y+=4;
-	    if (y>bottom) { interlace++; y=1; }
+	    if (y>bottom) { interlace++; y=top+1; }
 	} break;
       case 4:
 	if (consumer && !out_of_bounds)
