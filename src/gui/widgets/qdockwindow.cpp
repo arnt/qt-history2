@@ -671,13 +671,14 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
 {
     bool visible = isVisible();
 
-    setParent(floated ? 0 : d->mainWindow);
+    QFrame::setParent(d->mainWindow, (floated
+                                      ? (getWFlags() | Qt::WType_TopLevel)
+                                      : (getWFlags() & ~Qt::WType_TopLevel)));
 
     if (floated) {
         if (!pos.isNull())
             move(pos);
-    } else if (!d->title->state) { // don't set the area if the user has moved the dock window
-        // setArea(d->area);
+        d->mainWindow->layout()->invalidate();
     }
 
     d->resizer->setActive(floated);
