@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#2 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -45,7 +45,8 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
     ::connect( sockfd, (struct sockaddr*)&sa,	// connect to host
     	       sizeof(sa) );			//   NOT QObject::connect()!
     QSocketNotifier sn( sockfd, QSocketNotifier::Read );
-    connect( &sn, SIGNAL(activated()), myObject, SLOT(dataReceived()) );
+    QObject::connect( &sn, SIGNAL(activated(int)),
+		      myObject, SLOT(dataReceived()) );
   \endcode
 
   Notice that it is not wise to connect the activated() signal to more
