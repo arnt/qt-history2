@@ -701,7 +701,6 @@ void QButton::setState( ToggleState s )
 */
 bool QButton::hitButton( const QPoint &pos ) const
 {
-  qDebug("QPushButton: I look like %d %d %dx%d\n", rect().x(), rect().y(), rect().width(), rect().height());
     return rect().contains( pos );
 }
 
