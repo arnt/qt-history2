@@ -311,6 +311,16 @@ QOpenType::QOpenType( FT_Face _face )
     hasGDef = hasGSub = hasGPos = TRUE;
 }
 
+QOpenType::~QOpenType()
+{
+    if ( hasGDef )
+	TT_Done_GDEF_Table( &gdef );
+    if ( hasGSub )
+	TT_Done_GSUB_Table( &gsub );
+    if ( hasGPos )
+	TT_Done_GPOS_Table( &gpos );
+}
+
 bool QOpenType::supportsScript( unsigned int script )
 {
     if ( current_script == supported_scripts[script].tag )

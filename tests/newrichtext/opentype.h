@@ -10,6 +10,7 @@ class QOpenType
 {
 public:
     QOpenType( FT_Face face );
+    ~QOpenType();
 
     bool supportsScript( unsigned int script );
 
