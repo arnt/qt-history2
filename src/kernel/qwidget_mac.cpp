@@ -555,7 +555,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     qt_mac_destroy_widget(this);
 }
 
-void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     dirtyClippedRegion(TRUE);
@@ -661,8 +661,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	qt_dirty_wndw_rgn("reparent2",this, mac_rect(posInWindow(this), geometry().size()));
 
     //send the reparent event
-    QEvent e( QEvent::Reparent );
-    QApplication::sendEvent( this, &e );
     if ( old_hd && owned ) { //don't need old window anymore
 	mac_window_count--;
 	DisposeWindow( old_hd );
@@ -761,7 +759,7 @@ void QWidget::setBackgroundEmpty()
     allow_null_pixmaps++;
     setErasePixmap(QPixmap());
     allow_null_pixmaps--;
-    if ( isTopLevel() ) 
+    if ( isTopLevel() )
 	ReshapeCustomWindow((WindowPtr)hd);
 }
 
@@ -823,7 +821,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	    }
 	    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
 	    CGDataProviderRef dp = CGDataProviderCreateWithData(NULL, i.bits(), i.numBytes(), NULL);
-	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(), 
+	    CGImageRef ir = CGImageCreate(i.width(), i.height(), 8, 32, i.bytesPerLine(),
 					  cs, kCGImageAlphaNoneSkipFirst, dp,
 					  0, 0, kCGRenderingIntentDefault);
 	    //cleanup
@@ -987,7 +985,7 @@ void QWidget::hideWindow()
 
 	if(isActiveWindow()) {
 	    QWidget *w = NULL;
-	    if(parentWidget()) 
+	    if(parentWidget())
 		w = parentWidget()->topLevelWidget();
 	    if(!w || !w->isVisible()) {
 		WindowPtr wp = FrontWindow();
@@ -995,9 +993,9 @@ void QWidget::hideWindow()
 		while(w && (w->isDesktop() || w->testWFlags( WStyle_Tool ))) {
 		    wp = GetNextWindow(wp);
 		    w = QWidget::find( (WId)wp );
-		} 
+		}
 	    }
-	    if(w && w->isVisible()) 
+	    if(w && w->isVisible())
 		w->setActiveWindow();
 	}
     } else if(isVisible()) {
@@ -1480,7 +1478,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
 
     if ( dx == 0 && dy == 0 )
 	return;
-    if ( w > 0 && h > 0 ) 
+    if ( w > 0 && h > 0 )
 	bitBlt(this,x2,y2,this,x1,y1,w,h);
 
     if ( !valid_rect && children() ) {	// scroll children
@@ -1647,7 +1645,7 @@ void QWidget::setMask( const QRegion &region )
 	clp ^= clippedRegion(FALSE);
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
-    if ( isTopLevel() ) 
+    if ( isTopLevel() )
 	ReshapeCustomWindow((WindowPtr)hd);
 }
 

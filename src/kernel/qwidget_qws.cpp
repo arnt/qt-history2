@@ -313,7 +313,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 }
 
 
-void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
 #ifndef QT_NO_CURSOR
@@ -409,8 +409,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
 #endif
     reparentFocusWidgets( parent );		// fix focus chains
-    QCustomEvent e( QEvent::Reparent, 0 );
-    QApplication::sendEvent( this, &e );
 }
 
 

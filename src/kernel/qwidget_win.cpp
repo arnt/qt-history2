@@ -429,7 +429,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 }
 
 
-void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 			bool showIt )
 {
     QWidget* oldtlw = topLevelWidget();
@@ -501,9 +501,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-
-    QEvent e( QEvent::Reparent );
-    QApplication::sendEvent( this, &e );
 
 }
 

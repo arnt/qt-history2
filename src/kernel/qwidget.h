@@ -563,6 +563,7 @@ private:
     void	 hideWindow();
     void	 sendShowEventsToChildren( bool spontaneous );
     void	 sendHideEventsToChildren( bool spontaneous );
+    void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 createTLExtra();
     void	 createExtra();
     void	 deleteExtra();

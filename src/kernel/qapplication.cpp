@@ -1479,7 +1479,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+	    if ( w->isTopLevel() || ( !all && w->inherits(className) ) ) // matching class
 		sendEvent( w, &e );
 	}
     }
@@ -1563,7 +1563,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
+	    if ( w->isTopLevel() || ( !all && w->inherits(className) ) ) // matching class
 		sendEvent( w, &e );
 	}
     }

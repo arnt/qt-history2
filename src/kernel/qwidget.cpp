@@ -4210,12 +4210,9 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // FALL THROUGH
 	case QEvent::ApplicationFontChange:
-	    if ( !own_font && !isDesktop() ) {
-		if ( !isTopLevel() && QApplication::font( this ).isCopyOf( QApplication::font() ) )
-		    setFont( parentWidget()->font() );
-		else
-		    setFont( QApplication::font( this ) );
-		own_font = FALSE;
+	    if ( !own_font ) {
+		own_font = TRUE;
+		unsetFont();
 	    }
 	    break;
 #ifndef QT_NO_PALETTE
@@ -4224,12 +4221,9 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // FALL THROUGH
 	case QEvent::ApplicationPaletteChange:
-	    if ( !own_palette && !isDesktop() ) {
-		if ( !isTopLevel() && parentWidget() && QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
-		    setPalette( parentWidget()->palette() );
-		else
-		    setPalette( QApplication::palette( this ) );
-		own_palette = FALSE;
+	    if ( !own_palette ) {
+		own_palette = TRUE;
+		unsetPalette();
 	    }
 	    break;
 #endif
@@ -5133,6 +5127,48 @@ void QWidget::updateGeometry()
     if ( !isTopLevel() && !isHidden() )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
+}
+
+
+/*!
+  Reparents the widget.  The widget gets a new \a parent, new widget
+  flags (\a f, but as usual, use 0) at a new position in its new
+  parent (\a p).
+
+  If \a showIt is TRUE, show() is called once the widget has been
+  reparented.
+
+  If the new parent widget is in a different top-level widget, the
+  reparented widget and its children are appended to the end of the
+  \link setFocusPolicy() TAB chain \endlink of the new parent widget,
+  in the same internal order as before.  If one of the moved widgets
+  had keyboard focus, reparent() calls clearFocus() for that widget.
+
+  If the new parent widget is in the same top-level widget as the old
+  parent, reparent doesn't change the TAB order or keyboard focus.
+
+  \warning Reparenting widgets should be a real exception. In normal
+  applications, you will almost never need it. Dynamic masks can be
+  achieved much easier and cleaner with classes like QWidgetStack or
+  on a higher abstraction level, QWizard.
+
+  \sa getWFlags()
+*/
+
+void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
+			bool showIt )
+{
+    reparentSys( parent, f, p, showIt );
+    QEvent e( QEvent::Reparent );
+    QApplication::sendEvent( this, &e );
+    if ( !own_font ) {
+	own_font = TRUE;
+	unsetFont();
+    }
+    if ( !own_palette ) {
+	own_palette = TRUE;
+	unsetPalette();
+    }
 }
 
 /*!\overload
