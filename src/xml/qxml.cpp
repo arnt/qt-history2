@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#46 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#47 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1820,7 +1820,7 @@ private:
     {
 	delete parseStack;
     }
-    
+
     void initIncrementalParsing()
     {
 	delete parseStack;
@@ -2463,7 +2463,7 @@ bool QXmlSimpleReader::parseProlog()
 
 	// read input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseProlog, state );
+	    unexpectedEof( &QXmlSimpleReader::parseProlog, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -2639,7 +2639,7 @@ bool QXmlSimpleReader::parseElement()
 
 	// read input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseElement, state );
+	    unexpectedEof( &QXmlSimpleReader::parseElement, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -3001,7 +3001,7 @@ bool QXmlSimpleReader::parseContent()
 	// get input (use lookup-table instead of nested ifs for performance
 	// reasons)
 	if ( atEnd() ) {
-	    unexpectedEof( &parseContent, state );
+	    unexpectedEof( &QXmlSimpleReader::parseContent, state );
 	    return FALSE;
 	}
 	if ( c.row() ) {
@@ -3241,7 +3241,7 @@ bool QXmlSimpleReader::parseMisc()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseMisc, state );
+	    unexpectedEof( &QXmlSimpleReader::parseMisc, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -3386,7 +3386,7 @@ bool QXmlSimpleReader::parsePI()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parsePI, state );
+	    unexpectedEof( &QXmlSimpleReader::parsePI, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -3611,7 +3611,7 @@ bool QXmlSimpleReader::parseDoctype()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseDoctype, state );
+	    unexpectedEof( &QXmlSimpleReader::parseDoctype, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -3807,7 +3807,7 @@ bool QXmlSimpleReader::parseExternalID()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseExternalID, state );
+	    unexpectedEof( &QXmlSimpleReader::parseExternalID, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -3957,7 +3957,7 @@ bool QXmlSimpleReader::parseMarkupdecl()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseMarkupdecl, state );
+	    unexpectedEof( &QXmlSimpleReader::parseMarkupdecl, state );
 	    return FALSE;
 	}
 	if        ( c == '<' ) {
@@ -4110,7 +4110,7 @@ bool QXmlSimpleReader::parsePEReference()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parsePEReference, state );
+	    unexpectedEof( &QXmlSimpleReader::parsePEReference, state );
 	    return FALSE;
 	}
 	if        ( c == ';' ) {
@@ -4244,7 +4244,7 @@ bool QXmlSimpleReader::parseAttlistDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseAttlistDecl, state );
+	    unexpectedEof( &QXmlSimpleReader::parseAttlistDecl, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -4465,7 +4465,7 @@ bool QXmlSimpleReader::parseAttType()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseAttType, state );
+	    unexpectedEof( &QXmlSimpleReader::parseAttType, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -4689,7 +4689,7 @@ bool QXmlSimpleReader::parseAttValue()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseAttValue, state );
+	    unexpectedEof( &QXmlSimpleReader::parseAttValue, state );
 	    return FALSE;
 	}
 	if        ( c == '"' ) {
@@ -4826,7 +4826,7 @@ bool QXmlSimpleReader::parseElementDecl()
 
 	// read input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseElementDecl, state );
+	    unexpectedEof( &QXmlSimpleReader::parseElementDecl, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -5023,7 +5023,7 @@ bool QXmlSimpleReader::parseNotationDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseNotationDecl, state );
+	    unexpectedEof( &QXmlSimpleReader::parseNotationDecl, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -5154,7 +5154,7 @@ bool QXmlSimpleReader::parseChoiceSeq()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseChoiceSeq, state );
+	    unexpectedEof( &QXmlSimpleReader::parseChoiceSeq, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -5299,7 +5299,7 @@ bool QXmlSimpleReader::parseEntityDecl()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseEntityDecl, state );
+	    unexpectedEof( &QXmlSimpleReader::parseEntityDecl, state );
 	    return FALSE;
 	}
 	if        ( is_S(c) ) {
@@ -5549,7 +5549,7 @@ bool QXmlSimpleReader::parseEntityValue()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseEntityValue, state );
+	    unexpectedEof( &QXmlSimpleReader::parseEntityValue, state );
 	    return FALSE;
 	}
 	if        ( c == '"' ) {
@@ -5666,7 +5666,7 @@ bool QXmlSimpleReader::parseComment()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseComment, state );
+	    unexpectedEof( &QXmlSimpleReader::parseComment, state );
 	    return FALSE;
 	}
 	if        ( c == '-' ) {
@@ -5770,7 +5770,7 @@ bool QXmlSimpleReader::parseAttribute()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseAttribute, state );
+	    unexpectedEof( &QXmlSimpleReader::parseAttribute, state );
 	    return FALSE;
 	}
 	if        ( is_NameBeginning(c) ) {
@@ -5862,7 +5862,7 @@ bool QXmlSimpleReader::parseName()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseName, state );
+	    unexpectedEof( &QXmlSimpleReader::parseName, state );
 	    return FALSE;
 	}
 	if        ( is_NameBeginning(c) ) {
@@ -5943,7 +5943,7 @@ bool QXmlSimpleReader::parseNmtoken()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseNmtoken, state );
+	    unexpectedEof( &QXmlSimpleReader::parseNmtoken, state );
 	    return FALSE;
 	}
 	if ( is_NameChar(c) ) {
@@ -6041,7 +6041,7 @@ bool QXmlSimpleReader::parseReference()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseReference, state );
+	    unexpectedEof( &QXmlSimpleReader::parseReference, state );
 	    return FALSE;
 	}
 	if        ( c.row() ) {
@@ -6320,7 +6320,7 @@ bool QXmlSimpleReader::parseString()
 
 	// get input
 	if ( atEnd() ) {
-	    unexpectedEof( &parseString, state );
+	    unexpectedEof( &QXmlSimpleReader::parseString, state );
 	    return FALSE;
 	}
 	if ( c == d->parseString_s[(int)state] ) {
