@@ -1,7 +1,5 @@
 #include "qplugin.h"
-#include <qdir.h>
-#include <qtimer.h>
-#include <qapplication.h>
+#include "qapplicationinterfaces.h"
 
 #ifdef _WS_WIN_
 #include <qt_windows.h>
@@ -24,7 +22,6 @@
   <ul>
   <li> \c DefaultPolicy - The library get's loaded on first need and never unloaded
   <li> \c OptimizeSpeed - The library is loaded as soon as possible at the cost of memory
-  <li> \c OptimizeMemory - The library gets unloaded as often as possible at the cost of speed
   <li> \c ManualPolicy - The library has to be loaded and unloaded manually
   </ul>
 */
@@ -37,7 +34,7 @@
   \sa setPolicy()
 */
 QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol )
-    : count( 0 ), pHnd( 0 ), libfile( filename ), libPol( pol )
+    : pHnd( 0 ), libfile( filename ), libPol( pol )
 {
     ifc = 0;
     if ( pol == OptimizeSpeed )
@@ -76,8 +73,6 @@ bool QPlugIn::load()
 #endif
 	if ( !pHnd )
 	    return FALSE;
-
-	emit loaded();
     }
 
     if ( pHnd )
@@ -86,9 +81,9 @@ bool QPlugIn::load()
 }
 
 /*!
-  Unloads the library if there are no more references. Calls the library's
-  onDisconnect routine and returns TRUE if the library was unloaded. Does
-  nothing and returns FALSE otherwise.
+  Unloads the library. 
+  Calls the library's onDisconnect routine and returns TRUE if the library 
+  was unloaded. Does nothing and returns FALSE otherwise.
 
   If \a force is set to TRUE, the library gets unloaded
   at any cost, which is in most cases a segmentation fault,
@@ -106,20 +101,13 @@ bool QPlugIn::unload( bool force )
     #elif defined(_WS_X11_)
 	    dc = (ConnectProc) dlsym( pHnd, "onDisconnect" );
     #endif
-	    if ( dc )
-		if ( !dc( qApp ) )
+	    if ( dc ) {
+		if ( !dc( qApp ) && !force)
 		    return FALSE;
+	    }
 
 	    delete ifc;
 	    ifc = 0;
-
-	    if ( count ) {
-#ifdef CHECK_RANGE
-		qWarning("Library is still used!");
-#endif
-		if ( !force )
-		    return FALSE;
-	    }
 
 #if defined(_WS_WIN_)
 	    FreeLibrary( pHnd );
@@ -127,43 +115,9 @@ bool QPlugIn::unload( bool force )
 	    dlclose( pHnd );
 #endif	
 	}
-	emit unloaded();
     }
     pHnd = 0;
     return TRUE;
-}
-
-/*! \internal
-*/
-bool QPlugIn::deref()
-{
-    bool r = !count--;
-
-    // We can do that because the object an all children are
-    // destroyed when the timer fires
-    if ( !r && libPol == OptimizeMemory )
-	QTimer::singleShot( 0, this, SLOT(unuse()));
-
-    return r;
-}
-
-/*! 
-  \fn void QPlugIn::ref()
-  
-  \internal
-*/
-
-/*! 
-  Call this function for each object you create through
-  the library.
-*/
-void QPlugIn::guard( QObject* o )
-{
-    if ( !o )
-	return;
-
-    ref();
-    connect( o, SIGNAL( destroyed() ), this, SLOT(deref()) );
 }
 
 /*!
@@ -213,8 +167,8 @@ bool QPlugIn::use()
 	else
 	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
 #endif
+	return FALSE;
     }
-
     return TRUE;
 }
 
@@ -222,7 +176,7 @@ bool QPlugIn::use()
   Tries to unloads the library if policy is ManualPolicy.
 
   \sa setPolicy
-*/
+*
 void QPlugIn::unuse()
 {
     if ( libPol == OptimizeMemory && !count )
@@ -230,7 +184,7 @@ void QPlugIn::unuse()
 }
 
 /*!
-  Loads the interface of the shared library and alls the onConnect routine.
+  Loads the interface of the shared library and calls the onConnect routine.
   Returns TRUE if successful, or FALSE if the interface could not be loaded.
 */
 bool QPlugIn::loadInterface()
@@ -253,7 +207,7 @@ bool QPlugIn::loadInterface()
     if ( !ifc )
 	return FALSE;
 
-    if ( ifc->queryInterface() != queryInterface() ) {
+    if ( ifc->queryPlugInInterface() != queryPlugInInterface() ) {
 	delete ifc;
 	ifc = 0;
 	return FALSE;
@@ -279,7 +233,6 @@ QString QPlugIn::name()
 	return QString::null;
 
     QString str = plugInterface()->name();
-    unuse();
 
     return str;
 }
@@ -293,7 +246,6 @@ QString QPlugIn::description()
 	return QString::null;
 
     QString str = plugInterface()->description();
-    unuse();
 
     return str;
 }
@@ -307,7 +259,6 @@ QString QPlugIn::author()
 	return QString::null;
 
     QString str = plugInterface()->author();
-    unuse();
 
     return str;
 }
@@ -321,9 +272,29 @@ QStringList QPlugIn::featureList()
 	return QStringList();
 
     QStringList list = plugInterface()->featureList();
-    unuse();
 
     return list;
+}
+
+/*!
+  Requests an implementation of application interface \a request
+  from the plugin and returns the result. Returns null when the
+  plugin does not provide the requested interface.
+*/
+QApplicationInterface* QPlugIn::requestApplicationInterface( const QCString& request )
+{
+    if ( !use() )
+	return 0;
+    QApplicationInterface* ai = plugInterface()->requestApplicationInterface( request );
+    QApplicationInterface* appai;
+    if ( ai && ( appai = qApp->requestInterface( request )) ) {
+	QObject::connect( ai, SIGNAL(setProperty(const QCString&, const QVariant&)), appai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
+
+	QObject::connect( ai, SIGNAL(getProperty(const QCString&)), appai, SLOT(requestProperty(const QCString&)) );
+	QObject::connect( appai, SIGNAL(setProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
+    }
+
+    return ai;
 }
 
 /*!

@@ -8,7 +8,7 @@
 typedef QDict<QPlugIn> QPlugInDict;
 
 template<class Type>
-class QPlugInManager : protected QObject
+class QPlugInManager : private QObject
 {
 public:
     QPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy pol = QPlugIn::Default )
@@ -41,13 +41,16 @@ public:
 	if ( !plugin )
 	    return FALSE;
 
-	QStringList al = plugin->featureList();
-	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
-	    plugDict.remove( *a );
+	{
+	    QStringList al = plugin->featureList();
+	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+		plugDict.remove( *a );
+	}
 
-	if ( !libDict.remove( file ) )
+	if ( !libDict.remove( file ) ) {
+	    delete plugin;
 	    return FALSE;
-
+	}
 
 	return TRUE;
     }

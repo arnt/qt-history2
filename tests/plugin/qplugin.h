@@ -3,23 +3,15 @@
 
 #include "qplugininterface.h"
 #include <qstringlist.h>
-#include <qobject.h>
+#include <qwindowdefs.h>
 
-class QPlugIn;
-
-class QPlugIn : public QObject, public QPlugInInterface
+class QPlugIn : public QPlugInInterface
 {
-    Q_OBJECT
-    Q_ENUMS( LibraryPolicy )
-    Q_PROPERTY( LibraryPolicy policy READ policy WRITE setPolicy )
-    Q_PROPERTY( QString library READ library )
-
 public:
     enum LibraryPolicy
     { 
 	Default,
 	OptimizeSpeed,
-	OptimizeMemory,
 	Manual
     };
 
@@ -27,7 +19,7 @@ public:
     ~QPlugIn();
 
     bool load();
-    bool unload( bool = FALSE );
+    bool unload( bool force = FALSE );
 
     void setPolicy( LibraryPolicy pol );
     LibraryPolicy policy() const;
@@ -39,28 +31,14 @@ public:
     QString author();
 
     QStringList featureList();
-
-signals:
-    void loaded();
-    void unloaded();
-
-protected slots:
-    void unuse();
-    bool use();
+    QApplicationInterface* requestApplicationInterface( const QCString& );
 
 protected:
     bool loadInterface();
+    bool use();
     QPlugInInterface* plugInterface() { return ifc; }
-    void guard( QObject* o );
-
-private slots:
-    bool deref();
-
 private:
     QPlugInInterface* ifc;
-
-    uint count;
-    void ref() { count++; }
 
     typedef QPlugInInterface* (*LoadInterfaceProc)();
     typedef bool (*ConnectProc)( QApplication* );
