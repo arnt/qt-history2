@@ -74,28 +74,28 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
     for ( int i = 0; elements[ i ] != QString::null; ++i ) {
 	bool ok = TRUE;
 	while ( 1 ) {
-	    family = settings.readEntry( path + elements[ i ] + "/family", &ok );
+	    family = settings.readEntry( path + elements[ i ] + "/family", QString::null, &ok );
 	    if ( !ok )
 		break;
-	    size = settings.readNumEntry( path + elements[ i ] + "/size", &ok );
+	    size = settings.readNumEntry( path + elements[ i ] + "/size", 10, &ok );
 	    if ( !ok )
 		break;	
-	    bold = settings.readBoolEntry( path + elements[ i ] + "/bold", &ok );
+	    bold = settings.readBoolEntry( path + elements[ i ] + "/bold", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    italic = settings.readBoolEntry( path + elements[ i ] + "/italic", &ok );
+	    italic = settings.readBoolEntry( path + elements[ i ] + "/italic", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    underline = settings.readBoolEntry( path + elements[ i ] + "/underline", &ok );
+	    underline = settings.readBoolEntry( path + elements[ i ] + "/underline", FALSE, &ok );
 	    if ( !ok )
 		break;
-	    red = settings.readNumEntry( path + elements[ i ] + "/red", &ok );
+	    red = settings.readNumEntry( path + elements[ i ] + "/red", 0, &ok );
 	    if ( !ok )
 		break;
-	    green = settings.readNumEntry( path + elements[ i ] + "/green", &ok );
+	    green = settings.readNumEntry( path + elements[ i ] + "/green", 0, &ok );
 	    if ( !ok )
 		break;
-	    blue = settings.readNumEntry( path + elements[ i ] + "/blue", &ok );
+	    blue = settings.readNumEntry( path + elements[ i ] + "/blue", 0, &ok );
 	    if ( !ok )
 		break;
 	    break;
@@ -148,31 +148,22 @@ void Config::saveStyles( const QMap<QString, ConfigStyle> &styles, const QString
 bool Config::completion( const QString &path )
 {
     QSettings settings;
-    bool ok = FALSE;
-    bool ret = settings.readBoolEntry( path + "completion", &ok );
-    if ( ok )
-	return ret;
-    return TRUE;
+    bool ret = settings.readBoolEntry( path + "completion", TRUE );
+    return ret;
 }
 
 bool Config::wordWrap( const QString &path )
 {
     QSettings settings;
-    bool ok = FALSE;
-    bool ret = settings.readBoolEntry( path + "wordWrap", &ok );
-    if ( ok )
-	return ret;
-    return TRUE;
+    bool ret = settings.readBoolEntry( path + "wordWrap", TRUE );
+    return ret;
 }
 
 bool Config::parenMatching( const QString &path )
 {
     QSettings settings;
-    bool ok = FALSE;
-    bool ret = settings.readBoolEntry( path + "parenMatching", &ok );
-    if ( ok )
-	return ret;
-    return TRUE;
+    bool ret = settings.readBoolEntry( path + "parenMatching", TRUE );
+    return ret;
 }
 
 void Config::setCompletion( bool b, const QString &path )
