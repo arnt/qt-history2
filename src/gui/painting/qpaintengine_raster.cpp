@@ -449,7 +449,7 @@ QRasterPaintEngine::QRasterPaintEngine()
                                                      | PatternTransform
                                                      | PixmapTransform
                                                      | PixmapScale
-                                                     ))
+                                                     | PatternBrush))
 {
     Q_D(QRasterPaintEngine);
 
