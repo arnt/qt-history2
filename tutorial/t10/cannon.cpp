@@ -1,9 +1,8 @@
-/****************************************************************************
-** Implementation of LCDRange class, Qt tutorial 10
+/****************************************************************
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Implementation Cannonfield class, Qt tutorial 10
 **
-*****************************************************************************/
+****************************************************************/
 
 #include "cannon.h"
 #include <qpainter.h>

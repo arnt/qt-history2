@@ -1,9 +1,8 @@
-/****************************************************************************
-** Implementation of LCDRange class, Qt tutorial 11
+/****************************************************************
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Qt tutorial 7
 **
-*****************************************************************************/
+****************************************************************/
 
 #include "lcdrange.h"
 
@@ -40,4 +39,3 @@ void LCDRange::resizeEvent( QResizeEvent *e )
     lcd->resize( width(), height() - 16 - 5 );
     sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );
 }
-
