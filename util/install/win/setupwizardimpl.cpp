@@ -1374,6 +1374,14 @@ void SetupWizardImpl::showPageFinish()
 #endif
 	}
     }
+#if defined(EVAL_CD)
+    finishMsg += "\n\n"
+		 "The Trolltech technical support service is available to "
+		 "Qt Professional and Enterprise Edition licensees. As an "
+		 "evaluation user, you can register for 30 days of evaluation "
+		 "support at\n"
+		 "http://www.trolltech.com/products/qt/evaluate.html";
+#endif
     finishPage->finishText->setText( finishMsg );
 }
 
