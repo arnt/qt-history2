@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.29 1996/09/19 15:57:17 hanord Exp $
+** $Id: misc.doc,v 1.30 1996/09/19 20:00:14 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.29 1996/09/19 15:57:17 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.30 1996/09/19 20:00:14 hanord Exp $";
 #endif
 
 
@@ -323,7 +323,7 @@ to the license.)
 
 /*! \page troll.html
 
-<html><head><title>Troll Tech Contact Information</title>
+<title>Troll Tech Contact Information</title>
 </head>
 <body bgcolor=white>
 
