@@ -148,6 +148,7 @@ public:
     void         addErrorMsg( QString& errMsg ) { errorMsgs.append( errMsg ); }
     QString      getErrorMsgs() { return errorMsgs.join("\n"); }
     void         clearErrorMsgs() { errorMsgs.clear(); }
+    QString             hostName;
 
 private:
     QStringList  errorMsgs;
@@ -416,18 +417,18 @@ int QTDSResult::numRowsAffected()
 ///////////////////////////////////////////////////////////////////
 
 QTDSDriver::QTDSDriver( QObject* parent, const char* name )
-    : QSqlDriver( parent,name ? name : "QTDS" ), inTransaction( FALSE )
+    : QSqlDriver( parent,name ? name : "QTDS" )
 {
     init();
 }
 
 QTDSDriver::QTDSDriver( LOGINREC* rec, DBPROCESS* proc, const QString& host, QObject* parent, const char* name )
-    : QSqlDriver( parent,name ? name : "QTDS" ), inTransaction( FALSE )
+    : QSqlDriver( parent,name ? name : "QTDS" )
 {
     init();    
     d->login = rec;
     d->dbproc = proc;
-    hostName = host;
+    d->hostName = host;
     if ( rec && proc ) {
 	setOpen( TRUE );
 	setOpenError( FALSE );
@@ -486,7 +487,8 @@ bool QTDSDriver::open( const QString & db,
 		       const QString & user,
 		       const QString & password,
 		       const QString & host,
-		       int /*port*/ )
+		       int /*port*/,
+		       const QString& /*connOpts*/ )
 {
     if ( isOpen() )
 	close();
@@ -527,7 +529,7 @@ bool QTDSDriver::open( const QString & db,
     }
     setOpen( TRUE );
     setOpenError( FALSE );
-    hostName = host;
+    d->hostName = host;
     return TRUE;
 }
 
@@ -553,7 +555,7 @@ QSqlQuery QTDSDriver::createQuery() const
     QTDSPrivate d2;
     d2.login = d->login;
 
-    QByteArray s( hostName.local8Bit() );
+    QByteArray s( d->hostName.local8Bit() );
     d2.dbproc = dbopen( d2.login, s.data() );
     if ( !d2.dbproc ) {
 	return QSqlQuery( (QSqlResult *) 0 );

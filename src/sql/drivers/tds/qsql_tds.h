@@ -66,7 +66,8 @@ public:
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
 			      const QString & host = QString::null,
-			      int port = -1 );
+			      int port = -1,
+			      const QString& connOpts = QString::null );
     void		close();
     QStringList         tables( const QString& user ) const;
     QSqlQuery		createQuery() const;
@@ -87,10 +88,7 @@ protected:
     bool		rollbackTransaction();
 private:
     void		init();
-    bool                inTransaction;
     QTDSPrivate*	d;
-    QString             dbName; // ### 4.0: remove - not used
-    QString             hostName; // ### 4.0: put into the private obj.
 };
 
 #endif
