@@ -586,18 +586,6 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     p->setPen(penColor?*penColor:pal.foreground().color());
     QPixmap pm(pixmap);
-    bool clip = (flags & Qt::TextDontClip) == 0;
-    if (clip) {
-        if (pm.width() < w && pm.height() < h) {
-            clip = false;
-        } else {
-            p->save();
-            QRegion cr = QRect(x, y, w, h);
-            if (p->hasClipping())
-                cr &= p->clipRegion();
-            p->setClipRegion(cr);
-        }
-    }
     if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
         y += h/2 - pm.height()/2;
     else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
@@ -611,9 +599,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     if (!enabled)
         pm = stylePixmap(PT_Disabled, pm, pal);
-    p->drawPixmap(x, y, pm);
-    if (clip)
-        p->restore();
+    p->drawPixmap(x, y, w, h, pm, 0, 0, w, h);
 }
 
 /*!
