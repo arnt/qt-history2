@@ -40,7 +40,6 @@ class QSqlResultPrivate;
 class QM_EXPORT_SQL QSqlResult
 {
 friend class QSqlQuery;
-friend class QSqlResultShared;
 friend class QSqlResultPrivate;
 public:
     virtual ~QSqlResult();
