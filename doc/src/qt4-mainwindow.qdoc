@@ -157,13 +157,13 @@
     of the dock window:
 
     \code
-        QDockWindow *dockwindow = new QDockWindow(this);
+        QDockWindow *dockWindow = new QDockWindow(mainWindow);
         dockwindow->setWindowTitle(tr("Tools"));
 
         QWidget *widget = new QWidget(dockwindow);
         ...
         dockwindow->setAllowedArea(Qt::DockWindowAreaLeft | Qt::DockWindowAreaRight);
-        dockwindow->setArea(Qt::DockWindowAreaLeft);
+        mainWindow->addDockWindow(Qt::DockWindowAreaLeft, dockWindow);
     \endcode
 
     In this example, the dock window can only be placed in the left and
@@ -258,8 +258,8 @@
     \endcode
     In Qt 4:
     \code
-        QDockWindow *dockWindow = new QDockWindow(this);
-        dockWindow->setArea(dockWindow, Qt::DockWindowAreaLeft);
+        QDockWindow *dockWindow = new QDockWindow(mainWindow);
+        mainWindow->addDockWindow(Qt::DockWindowAreaLeft, dockWindow);
     \endcode
 
     These changes provide more than a cosmetic improvement to Qt's API.
