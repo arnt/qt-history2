@@ -1652,7 +1652,7 @@ QSize Q3CheckTableItem::sizeHint() const
     1, although row and column numbers within Q3Table begin at 0.)
 
     If you want to use mouse tracking call setMouseTracking(true) on
-    the \e viewport; (see \link qscrollview.html#allviews
+    the \e viewport; (see \link q3scrollview.html#allviews
     Q3ScrollView\endlink).
 
     \img qtableitems.png Table Items
@@ -1717,7 +1717,7 @@ QSize Q3CheckTableItem::sizeHint() const
     property of individual rows and columns with setRowReadOnly() and
     setColumnReadOnly(). (Whether a cell is editable or read-only
     depends on these settings and the cell's \link
-    qtableitem.html#wheneditable Q3TableItem::EditType\endlink.)
+    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.)
 
     The row and column which have the focus are returned by
     currentRow() and currentColumn() respectively.
@@ -1762,7 +1762,7 @@ QSize Q3CheckTableItem::sizeHint() const
     In-place editing of the text in Q3TableItems, and the values in
     Q3ComboTableItems and Q3CheckTableItems works automatically. Cells
     may be editable or read-only, see \link
-    qtableitem.html#wheneditable Q3TableItem::EditType\endlink. If you
+    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink. If you
     want fine control over editing see beginEdit() and endEdit().
 
     The contents of a cell can be retrieved as a Q3TableItem using
@@ -2141,7 +2141,7 @@ void Q3Table::setReadOnly(bool b)
 
     Whether a cell in this row is editable or read-only depends on the
     cell's EditType, and this setting:
-    see \link qtableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    see \link q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
 
     \sa isRowReadOnly() setColumnReadOnly() setReadOnly()
 */
@@ -2170,7 +2170,7 @@ void Q3Table::setRowReadOnly(int row, bool ro)
 
     Whether a cell in this column is editable or read-only depends on
     the cell's EditType, and this setting:
-    see \link qtableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    see \link q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
 
     \sa isColumnReadOnly() setRowReadOnly() setReadOnly()
 
@@ -2200,7 +2200,7 @@ void Q3Table::setColumnReadOnly(int col, bool ro)
 
     Whether a cell in the table is editable or read-only depends on
     the cell's \link Q3TableItem::EditType EditType\endlink, and this setting:
-    see \link qtableitem.html#wheneditable
+    see \link q3tableitem.html#wheneditable
     Q3TableItem::EditType\endlink.
 
     \sa QWidget::enabled setColumnReadOnly() setRowReadOnly()
@@ -2216,7 +2216,7 @@ bool Q3Table::isReadOnly() const
 
     Whether a cell in this row is editable or read-only depends on the
     cell's \link Q3TableItem::EditType EditType\endlink, and this
-    setting: see \link qtableitem.html#wheneditable
+    setting: see \link q3tableitem.html#wheneditable
     Q3TableItem::EditType\endlink.
 
     \sa setRowReadOnly() isColumnReadOnly()
@@ -2233,7 +2233,7 @@ bool Q3Table::isRowReadOnly(int row) const
 
     Whether a cell in this column is editable or read-only depends on
     the cell's EditType, and this setting: see \link
-    qtableitem.html#wheneditable Q3TableItem::EditType\endlink.
+    q3tableitem.html#wheneditable Q3TableItem::EditType\endlink.
 
     \sa setColumnReadOnly() isRowReadOnly()
 */
