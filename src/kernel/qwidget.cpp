@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#313 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#314 $
 **
 ** Implementation of QWidget class
 **
@@ -626,6 +626,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     fontState = 0;
     propagateFont = 0;
     propagatePalette = 0;
+    keyCompression = 0;
     lay_out = 0;
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
@@ -2383,6 +2384,27 @@ QFocusData * QWidget::focusData( bool create )
   This function does yet nothing under Windows. Under X11, the window
   manager has to support the QT_SIZEGRIP protocol.
 */
+
+/*!
+  Enables key event compression. Per default, the compression is
+  turned off.  If you enable it, the widget recieves compressed key
+  press events whenever the user types too fast for your program. That
+  means you may recieve an entire word in the QKeyEvent::text() field
+  of they QKeyEvent, instead of one event for each character. This
+  makes sense for a word processor, for example, since it takes almost
+  as much time to insert a single character as it takes to insert a
+  full word, because the required recalculation of the layout of the
+  paragraph is roughly the same.
+
+  If a widgets supports multiple byte unicode input, it is always save
+  (and also recommended!) to turn the compression on.
+  
+  \sa QKeyEvent::text();
+ */
+void QWidget::setKeyCompression(bool compress)
+{
+    keyCompression = compress;
+}
 
 
 /*!

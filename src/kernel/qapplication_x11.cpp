@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#388 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#389 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3447,16 +3447,64 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   code = -1;
     int	   count = 0;
     int	   state;
-    bool   autor = FALSE;
     char       ascii = 0;
-    
+
+    bool   autor = FALSE;
+
     QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
-    
-    QString text; 
-    
+
+    QString text;
+
     (void) translateKeyEventInternal( event, count, text, state, ascii, code);
-    
-    
+    bool isAccel = FALSE;
+    if (!grab) { // test for accel if the keyboard is not grabbed
+	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE, 
+		     QMAX(count, int(text.length())) );
+	a.ignore();
+	QApplication::sendEvent( topLevelWidget(), &a );
+	isAccel = a.isAccepted();
+    }
+
+    if (!isAccel && !text.isEmpty() && keyCompression ) { //the widget wants key compression so it gets it
+	int	   codeIntern = -1;
+	int	   countIntern = 0;
+	int	   stateIntern;
+	char       asciiIntern = 0;
+	XEvent evRelease;
+	XEvent evPress;
+	while (1) {
+	    QString textIntern;
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyRelease,&evRelease))
+		break;
+	    if (!XCheckTypedWindowEvent(dpy,event->xkey.window,XKeyPress,&evPress)) {
+		XPutBackEvent(dpy, &evRelease);
+		break;
+	    }
+	    (void) translateKeyEventInternal( &evPress, countIntern, textIntern, stateIntern, asciiIntern, codeIntern);
+	    if ( stateIntern == state && !textIntern.isEmpty() ) {
+		if (!grab) { // test for accel if the keyboard is not grabbed
+		    QKeyEvent a( QEvent::AccelAvailable, codeIntern, asciiIntern, stateIntern, textIntern, FALSE, 
+				 QMAX(countIntern, int(textIntern.length())) );
+		    a.ignore();
+		    QApplication::sendEvent( topLevelWidget(), &a );
+		    if ( a.isAccepted() ) {
+			XPutBackEvent(dpy, &evRelease);
+			XPutBackEvent(dpy, &evPress);
+			break;
+		    }
+		}
+		text += textIntern;
+		count += countIntern;
+	    }
+	    else {
+		XPutBackEvent(dpy, &evRelease);
+		XPutBackEvent(dpy, &evPress);
+		break;
+	    }
+	}
+    }
+
+
     // was this the last auto-repeater?
     static uint curr_autorep = 0;
     if ( event->type == XKeyPress ) {
@@ -3476,8 +3524,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	curr_autorep = autor ? event->xkey.keycode : 0;
     }
 
-    // autorepeat compression
-    int autoRepeatCount = 1;
+    // autorepeat compression makes sense for all widgets (Windows does it automatically .... )
     if (event->type == XKeyPress && text.length() <= 1) {
 	XEvent evPress = *event;
 	XEvent evRelease;
@@ -3495,20 +3542,17 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 		XPutBackEvent(dpy, &evPress);
 		break;
 	    }
-	    autoRepeatCount++;
+	    count++;
+	    if (!text.isEmpty())
+		text += text[0];
 	}
     }
 
-    if (autoRepeatCount > 1 && text.length() == 1) {
-	for (int i = 1; i < autoRepeatCount; i++)
-	    text += text[0];
-    }
-
     // process accelerates before popups
-    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(autoRepeatCount, int(text.length())) );
+    QKeyEvent e( type, code, ascii, state, text, autor, QMAX(count, int(text.length())) );
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel event to tlw if the keyboard is not grabbed
-	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor, QMAX(autoRepeatCount, int(text.length())) );
+	QKeyEvent a( QEvent::Accel, code, ascii, state, text, autor, QMAX(count, int(text.length())) );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
 	if ( a.isAccepted() )

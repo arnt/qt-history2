@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#83 $
 **
 ** Implementation of event classes
 **
@@ -477,7 +477,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
   may be the result of a compose sequence or keyboard macro).
 
   \a text will be returned by text().
-  
+
   If \a autorep is TRUE then isAutoRepeat() will be TRUE.
 
   \a count is the number of single keys.
@@ -507,6 +507,8 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 /*!
   \fn QString QKeyEvent::text() const
   Returns the Unicode text which this key generated.
+  
+  \sa QWidget::setKeyCompression()
 */
 
 /*!
@@ -565,7 +567,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
 /*!
   \fn int QKeyEvent::count() const
-  
+
   Returns the number of single keys for this event. If text() is not
   empty, this is the length of the string. But Qt also compresses auto
   repeated key presses for non-visible keycodes, such as BackSpace or

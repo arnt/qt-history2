@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#188 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#189 $
 **
 ** Definition of QWidget class
 **
@@ -357,6 +357,7 @@ protected:
     void	repaintResizedBorder( QResizeEvent*, int bw );
 
     void	setSizeGrip(bool);
+    void	setKeyCompression(bool);
 
 private slots:
     void	 focusProxyDestroyed();
@@ -403,6 +404,7 @@ private:
     uint propagateFont: 2;
     uint propagatePalette: 2;
     uint dnd : 1; // drop enable
+    uint keyCompression : 1;
 
     static void	 createMapper();
     static void	 destroyMapper();
