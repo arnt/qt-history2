@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#384 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#385 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -353,7 +353,7 @@ struct QGCC                                     // cached GC
     uint pix;
     int count;
     int hits;
-    int clip_serial;
+    uint clip_serial;
     int scrn;
 };
 
@@ -361,7 +361,7 @@ const  int   gc_cache_size = 29;                // multiply by 4
 static QGCC *gc_cache_buf;
 static QGCC *gc_cache[4*gc_cache_size];
 static bool  gc_cache_init = FALSE;
-static int gc_cache_clip_serial = 0;
+static uint gc_cache_clip_serial = 0;
 
 
 static void init_gc_cache()
@@ -396,7 +396,7 @@ static void cleanup_gc_cache()
     qDebug( "Number of cache creates = %d", g_numcreates );
     qDebug( "Number of cache faults = %d", g_numfaults );
     for ( int i=0; i<gc_cache_size; i++ ) {
-        QString     str;
+        QCString    str;
         QBuffer     buf( str );
         buf.open(IO_ReadWrite);
         QTextStream s(&buf);
@@ -416,7 +416,8 @@ static void cleanup_gc_cache()
 }
 
 
-static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn, Qt::HANDLE hd )
+static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn,
+		       Qt::HANDLE hd, uint painter_clip_serial )
 {
     if ( !gc_cache_init )
         init_gc_cache();
@@ -425,7 +426,8 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn, Qt:
     QGCC *g = gc_cache[k];
     QGCC *prev = 0;
 
-#define NOMATCH (g->gc && (g->pix != pix || g->scrn != scrn ) )
+#define NOMATCH (g->gc && (g->pix != pix || g->scrn != scrn || \
+                 (g->clip_serial > 0 && g->clip_serial != painter_clip_serial)))
 
     if ( NOMATCH ) {
         prev = g;
@@ -441,7 +443,9 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, int scrn, Qt:
                         g->pix   = pix;
                         g->count = 1;
                         g->hits  = 1;
+			g->clip_serial = 0;
                         XSetForeground( dpy, g->gc, pix );
+			XSetClipMask(dpy, g->gc, None);
                         gc_cache[k]   = prev;
                         gc_cache[k-1] = g;
                         *ref = (void *)g;
@@ -579,6 +583,7 @@ void QPainter::init()
     dpy  = 0;
     txop = txinv = 0;
     penRef = brushRef = 0;
+    clip_serial = 0;
 }
 
 
@@ -649,7 +654,8 @@ void QPainter::updatePen()
             else
                 free_gc( dpy, gc );
         }
-        obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, scrn, hd);
+        obtained = obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, scrn,
+			     hd, clip_serial);
         if ( !obtained && !penRef )
             gc = alloc_gc( dpy, scrn, hd, FALSE );
     } else {
@@ -853,7 +859,8 @@ static uchar *pat_tbl[] = {
             else
                 free_gc( dpy, gc_brush );
         }
-        obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy, scrn, hd);
+        obtained = obtain_gc(&brushRef, &gc_brush, cbrush.color().pixel(), dpy,
+			     scrn, hd, clip_serial);
         if ( !obtained && !brushRef )
             gc_brush = alloc_gc( dpy, scrn, hd, FALSE );
     } else {
@@ -1124,7 +1131,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
         setBackgroundMode( TransparentMode );   // default background mode
         setRasterOp( CopyROP );                 // default raster operation
     }
-    gc_cache_clip_serial++;
+    clip_serial = gc_cache_clip_serial++;
     updateBrush();
     updatePen();
     return TRUE;

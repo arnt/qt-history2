@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#177 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#178 $
 **
 ** Definition of QPainter class
 **
@@ -372,6 +372,7 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
+    uint	clip_serial;			// clipping serial number
 #elif defined(Q_WS_MAC)
     QRegion clippedreg, paintreg;
     QMacSavedPortInfo *saved;
