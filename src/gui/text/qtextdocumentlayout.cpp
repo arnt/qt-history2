@@ -429,18 +429,11 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                         continue;
                 }
 
-                // ### FIXME: temporary until QRect is fixed
-                QRectF cellRect;
+                QRect cellRect;
                 cellRect.setLeft(td->columnPositions.at(c));
                 cellRect.setTop(td->rowPositions.at(r));
                 cellRect.setWidth(td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1) - cellRect.left());
                 cellRect.setHeight(td->rowPositions.at(r + rspan - 1) + td->heights.at(r + rspan - 1) - cellRect.top());
-
-                /*
-                QRect cellRect(QPoint(td->columnPositions.at(c), td->rowPositions.at(r)),
-                               QPoint(td->columnPositions.at(c+cspan-1) + td->widths.at(c+cspan-1),
-                                      td->rowPositions.at(r+rspan-1) + td->heights.at(r+rspan-1)));
-                                      */
 
                 cellRect.moveBy(off);
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
@@ -473,8 +466,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 {
                     QColor bgCol = cell.format().tableCellBackgroundColor();
                     if (bgCol.isValid())
-                        //painter->fillRect(cellRect, bgCol);
-                        painter->fillRect(cellRect.toRect(), bgCol);
+                        painter->fillRect(cellRect, bgCol);
                 }
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
