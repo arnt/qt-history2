@@ -1279,6 +1279,9 @@ static void init_display()
     QCursor::initialize();
 #endif
     QPainter::initialize();
+#if defined(QT_THREAD_SUPPORT)
+	QThread::initialize();
+#endif
     QFontManager::initialize();
 #ifndef QT_NO_QWS_MANAGER
     qws_decoration = QWSManager::newDefaultDecoration();
