@@ -76,13 +76,16 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
     QWidget *w = childOf( widget, (QWidget*)o );
     if ( !w )
 	return qApp->eventFilter( o, ee );
-    
+
     QMouseEvent *e = (QMouseEvent*)ee;
     switch ( e->type() ) {
     case QEvent::MouseButtonPress: {
 	if ( e->button() == LeftButton ) {
 	    emit activate();
+	    bool me = isMovingEnabled();
+	    setMovingEnabled( o == widget );
 	    mouseMoveEvent( e );
+	    setMovingEnabled( me );
 	    buttonDown = TRUE;
 	    moveOffset = e->pos();
 	    invertedMoveOffset = widget->rect().bottomRight() - e->pos();
@@ -97,7 +100,10 @@ bool QWidgetResizeHandler::eventFilter( QObject *o, QEvent *ee )
 	}
 	break;
     case QEvent::MouseMove: {
+	bool me = isMovingEnabled();
+	setMovingEnabled( o == widget );
 	mouseMoveEvent( e );
+	setMovingEnabled( me );
     } break;
     case QEvent::KeyPress:
 	keyPressEvent( (QKeyEvent*)e );
