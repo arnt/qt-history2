@@ -831,6 +831,7 @@ void SetupWizardImpl::doFinalIntegration()
 	    installDir.remove( "qmsdev.dll" );
 	}
 	installDir.remove( "QMsNetSetup.msi" );
+	installDir.remove( "Makefile.win32-g++" );
     } else if ( globalInformation.sysId() == GlobalInformation::MSVCNET ){
 	if ( optionsPage->installNETIntegration->isChecked() ) {
 	    QString filepath = installDir.filePath("QMsNetSetup.msi");
@@ -855,9 +856,12 @@ void SetupWizardImpl::doFinalIntegration()
 	    }
 	}
 	installDir.remove( "qmsdev.dll" );
+	installDir.remove( "Makefile.win32-g++" );
     } else {
 	installDir.remove( "qmsdev.dll" );
 	installDir.remove( "QMsNetSetup.msi" );
+	if ( globalInformation.sysId() != GlobalInformation::MinGW )
+	    installDir.remove( "Makefile.win32-g++" );
     }
 
     QString dirName, examplesName, tutorialsName;
