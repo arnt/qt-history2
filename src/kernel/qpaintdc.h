@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdc.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpaintdc.h#2 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -22,6 +22,7 @@
 #define PDC_RESERVED_STOP	99		//   for Troll Tech
 
 #define PDC_NOP			0		//  <void>
+#define PDC_DRAW_START		1
 #define PDC_DRAWPOINT		1		// point
 #define PDC_MOVETO		2		// point
 #define PDC_LINETO		3		// point
@@ -36,27 +37,28 @@
 #define PDC_DRAWPOLYLINE	12		// ptarr
 #define PDC_DRAWPOLYGON		13		// ptarr,ival
 #define PDC_DRAWTEXT		14		// point,str
-#define PDC_DRAWTEXTALIGN	15		// NI
+#define PDC_DRAWTEXTALIGN	15		// rect,str,ival
 #define PDC_DRAWPIXMAP		16		// point,pixmap
-#define PDC_BEGIN		20		//  <void>
-#define PDC_END			21		//  <void>
-#define PDC_SAVE		22		//  <void>
-#define PDC_RESTORE		23		//  <void>
-#define PDC_SETBKCOLOR		30		// color
-#define PDC_SETBKMODE		31		// ival
-#define PDC_SETROP		32		// ival
-#define PDC_SETBRUSHORIGIN	33		// point
-#define PDC_SETFONT		35		// font
-#define PDC_SETPEN		36		// pen
-#define PDC_SETBRUSH		37		// brush
-#define PDC_SETUNIT		40		// ival
-#define PDC_SETVXFORM		41		// ival
-#define PDC_SETSOURCEVIEW	42		// rect
-#define PDC_SETTARGETVIEW	43		// rect
-#define PDC_SETWXFORM		44		// ival
-#define PDC_SETWXFMATRIX	45		// matrix,ival
-#define PDC_SETCLIP		50		// ival
-#define PDC_SETCLIPRGN		51		// rgn
+#define PDC_DRAW_STOP		16
+#define PDC_BEGIN		30		//  <void>
+#define PDC_END			31		//  <void>
+#define PDC_SAVE		32		//  <void>
+#define PDC_RESTORE		33		//  <void>
+#define PDC_SETBKCOLOR		40		// color
+#define PDC_SETBKMODE		41		// ival
+#define PDC_SETROP		42		// ival
+#define PDC_SETBRUSHORIGIN	43		// point
+#define PDC_SETFONT		45		// font
+#define PDC_SETPEN		46		// pen
+#define PDC_SETBRUSH		47		// brush
+#define PDC_SETUNIT		50		// ival
+#define PDC_SETVXFORM		51		// ival
+#define PDC_SETSOURCEVIEW	52		// rect
+#define PDC_SETTARGETVIEW	53		// rect
+#define PDC_SETWXFORM		54		// ival
+#define PDC_SETWXFMATRIX	55		// matrix,ival
+#define PDC_SETCLIP		60		// ival
+#define PDC_SETCLIPRGN		61		// rgn
 
 union QPDevCmdParam {
     int		 ival;
