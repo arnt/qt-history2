@@ -185,11 +185,11 @@ kernel {
 		  $$KERNEL_CPP/qsound.cpp \
 		  $$KERNEL_CPP/qstyle.cpp \
 		  $$KERNEL_CPP/qstylesheet.cpp \
-		  $$KERNEL_CPP/qtextengine.cpp
+		  $$KERNEL_CPP/qtextengine.cpp \
 		  $$KERNEL_CPP/qtextlayout.cpp \
 		  $$KERNEL_CPP/qvariant_gui.cpp \
 		  $$KERNEL_CPP/qwidget.cpp \
-		  $$KERNEL_CPP/qwmatrix.cpp \
+		  $$KERNEL_CPP/qwmatrix.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
@@ -197,7 +197,6 @@ kernel {
 	embedded:SOURCES += $$KERNEL_CPP/qfontengine_qws.cpp
 
 	wince-* {
-
 	      HEADERS += $$KERNEL_H/qfunctions_wce.h
 	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp
 	}
