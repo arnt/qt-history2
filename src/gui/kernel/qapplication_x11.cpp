@@ -705,13 +705,16 @@ bool QApplication::x11_apply_settings()
         ds >> timestamp;
     }
 
-    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
     settingsstamp = QFileInfo(settings.fileName()).lastModified();
     if (!settingsstamp.isValid())
         return false;
 
     if (appliedstamp && appliedstamp == settingsstamp.toTime_t())
         return true;
+    
+    settings.beginGroup(QLatin1String("Qt"));
+    
     appliedstamp = settingsstamp.toTime_t();
 
     if (! timestamp.isValid() || settingsstamp > timestamp)
@@ -720,7 +723,7 @@ bool QApplication::x11_apply_settings()
     /*
       Qt settings. This is now they are written into the datastream.
 
-      Palette                    - QPalette
+      Palette / *                - QPalette
       font                       - QFont
       libraryPath                - QStringList
       style                      - QString
@@ -729,14 +732,35 @@ bool QApplication::x11_apply_settings()
       wheelScrollLines           - int
       colorSpec                  - QString
       defaultCodec               - QString
-      globalStrut                - QSize
+      globalStrut/width          - int
+      globalStrut/height         - int
       GUIEffects                 - QStringList
       Font Substitutions/ *      - QStringList
       Font Substitutions/...     - QStringList
     */
 
-    QPalette pal = settings.value(QLatin1String("Palette"),
-                                    QApplication::palette()).toPalette();
+    QStringList strlist;
+    int i;
+    QPalette pal(QApplication::palette());
+    strlist = settings.value(QLatin1String("Palette/active")).toStringList();
+    if (strlist.count() == QPalette::NColorRoles) {
+        for (i = 0; i < QPalette::NColorRoles; i++)
+            pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
+                         QColor(strlist[i]));
+    }
+    strlist = settings.value(QLatin1String("Palette/inactive")).toStringList();
+    if (strlist.count() == QPalette::NColorRoles) {
+        for (i = 0; i < QPalette::NColorRoles; i++)
+            pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i,
+                         QColor(strlist[i]));
+    }
+    strlist = settings.value(QLatin1String("Palette/disabled")).toStringList();
+    if (strlist.count() == QPalette::NColorRoles) {
+        for (i = 0; i < QPalette::NColorRoles; i++)
+            pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i,
+                         QColor(strlist[i]));
+    }
+
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
     if (pal.color(QPalette::Disabled, QPalette::ButtonText)
@@ -748,11 +772,15 @@ bool QApplication::x11_apply_settings()
         QApplication::setPalette(pal);
         *qt_std_pal = pal;
     }
-
+    
     if (!qt_app_has_font) {
-        QFont font = settings.value(QLatin1String("font"), QApplication::font()).toFont();
-        if (font != QApplication::font())
-            QApplication::setFont(font);
+        QFont font(QApplication::font());
+        QString str = settings.value(QLatin1String("font")).toString();
+        if (!str.isEmpty()) {
+            font.fromString(str);
+            if (font != QApplication::font())
+                QApplication::setFont(font);
+        }
     }
 
     // read library (ie. plugin) path list
@@ -810,7 +838,9 @@ bool QApplication::x11_apply_settings()
             qApp->setDefaultCodec(codec);
     }
 
-    QSize strut = settings.value(QLatin1String("globalStrut")).toSize();
+    int w = settings.value(QLatin1String("globalStrut/width")).toInt();
+    int h = settings.value(QLatin1String("globalStrut/height")).toInt();
+    QSize strut(w, h);
     if (strut.isValid())
         QApplication::setGlobalStrut(strut);
 
@@ -879,6 +909,8 @@ bool QApplication::x11_apply_settings()
                         PropModeReplace, (unsigned char *)stamp.data(), stamp.size());
     }
 
+    settings.endGroup(); // Qt
+    
     return true;
 }
 
@@ -1842,7 +1874,8 @@ void qt_init(QApplicationPrivate *priv, int,
             // read some non-GUI settings when not using the X server...
 
             if (QApplication::desktopSettingsAware()) {
-                QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
+                QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+                settings.beginGroup(QLatin1String("Qt"));
 
                 // read library (ie. plugin) path list
                 QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))
@@ -1866,6 +1899,8 @@ void qt_init(QApplicationPrivate *priv, int,
 
                 qt_resolve_symlinks =
                     settings.value(QLatin1String("resolveSymlinks"), true).toBool();
+            
+                settings.endGroup(); // Qt
             }
         }
     }

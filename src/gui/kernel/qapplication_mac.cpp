@@ -2757,11 +2757,12 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 */
 bool QApplicationPrivate::qt_mac_apply_settings()
 {
-    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"), QLatin1String("Qt"));
+    QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+    settings.beginGroup(QLatin1String("Qt"));
 
     /*
       Qt settings.  This is how they are written into the datastream.
-      Palette                - QPalette
+      Palette/*                - QPalette
       font                   - QFont
       libraryPath            - QStringList
       style                  - QString
@@ -2770,7 +2771,8 @@ bool QApplicationPrivate::qt_mac_apply_settings()
       wheelScrollLines       - int
       colorSpec              - QString
       defaultCodec           - QString
-      globalStrut            - QSize
+      globalStrut/width      - int
+      globalStrut/height     - int
       GUIEffects             - QStringList
       Font Substitutions/ *  - QStringList
       Font Substitutions/... - QStringList
@@ -2803,15 +2805,39 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         int num;
 
         // read new palette
-        QPalette pal = settings.value(QLatin1String("Palette"),
-                                        QApplication::palette()).toPalette();
+        QStringList strlist;
+        int i;
+        QPalette pal(QApplication::palette());
+        strlist = settings.value(QLatin1String("Palette/active")).toStringList();
+        if (strlist.count() == QPalette::NColorRoles) {
+            for (i = 0; i < QPalette::NColorRoles; i++)
+                pal.setColor(QPalette::Active, (QPalette::ColorRole) i,
+                            QColor(strlist[i]));
+        }
+        strlist = settings.value(QLatin1String("Palette/inactive")).toStringList();
+        if (strlist.count() == QPalette::NColorRoles) {
+            for (i = 0; i < QPalette::NColorRoles; i++)
+                pal.setColor(QPalette::Inactive, (QPalette::ColorRole) i,
+                            QColor(strlist[i]));
+        }
+        strlist = settings.value(QLatin1String("Palette/disabled")).toStringList();
+        if (strlist.count() == QPalette::NColorRoles) {
+            for (i = 0; i < QPalette::NColorRoles; i++)
+                pal.setColor(QPalette::Disabled, (QPalette::ColorRole) i,
+                            QColor(strlist[i]));
+        }
+
         if(pal != QApplication::palette())
             QApplication::setPalette(pal);
 
         // read new font
-        QFont font = settings.value(QLatin1String("font"), QApplication::font()).toFont();
-        if (font != QApplication::font())
-            QApplication::setFont(font);
+        QFont font(QApplication::font());
+        QString str = settings.value(QLatin1String("font")).toString();
+        if (!str.isEmpty()) {
+            font.fromString(str);
+            if (font != QApplication::font())
+                QApplication::setFont(font);
+        }
 
         // read new QStyle
         QString stylename = settings.value(QLatin1String("style")).toString();
@@ -2848,7 +2874,9 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         else if (colorspec != QLatin1String("default"))
             colorspec = QLatin1String("default");
 
-        QSize strut = settings.value(QLatin1String("globalStrut")).toSize();
+        int w = settings.value(QLatin1String("globalStrut/width")).toInt();
+        int h = settings.value(QLatin1String("globalStrut/height")).toInt();
+        QSize strut(w, h);
         if (strut.isValid())
             QApplication::setGlobalStrut(strut);
 
@@ -2886,6 +2914,8 @@ bool QApplicationPrivate::qt_mac_apply_settings()
         }
         settings.endGroup();
     }
+    
+    settings.endGroup();
     return true;
 }
 

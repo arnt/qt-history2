@@ -195,8 +195,10 @@ MainWindow::MainWindow()
     gstyles.sort();
     gstylecombo->insertStringList(gstyles);
 
-    QSettings settings;
-    QString currentstyle = settings.readEntry("/qt/style");
+    QSettings settings("trolltech.com");
+    settings.beginGroup("Qt");
+
+    QString currentstyle = settings.value("style").toString();
     if (currentstyle.isNull())
         currentstyle = QApplication::style().className();
     {
@@ -347,19 +349,21 @@ MainWindow::MainWindow()
     sublistbox->clear();
     sublistbox->insertStringList(subs);
 
-    rtlExtensions->setChecked( settings.readBoolEntry( "/qt/useRtlExtensions", FALSE ) );
+    rtlExtensions->setChecked(settings.value("useRtlExtensions", FALSE).toBool());
 
 #ifdef Q_WS_X11
-    inputStyle->setCurrentText( settings.readEntry( "/qt/XIMInputStyle", trUtf8( "On The Spot" ) ) );
+    inputStyle->setCurrentText(settings.value("XIMInputStyle", trUtf8("On The Spot")).toString());
 #else
     inputStyle->hide();
     inputStyleLabel->hide();
 #endif
 
-    fontembeddingcheckbox->setChecked( settings.readBoolEntry("/qt/embedFonts", TRUE) );
-    fontpaths = settings.readListEntry("/qt/fontPath", ':');
+    fontembeddingcheckbox->setChecked(settings.value("embedFonts", TRUE).toBool());
+    fontpaths = settings.value("fontPath").toStringList();
     fontpathlistbox->insertStringList(fontpaths);
 
+    settings.endGroup(); // Qt
+    
     setModified(FALSE);
 }
 
@@ -379,13 +383,14 @@ void MainWindow::fileSave()
     statusBar()->message("Saving changes...");
 
     {
-        QSettings settings;
+        QSettings settings("trolltech.com");
+        settings.beginGroup("Qt");
         QFontDatabase db;
         QFont font = db.font(familycombo->currentText(),
                              stylecombo->currentText(),
                              psizecombo->currentText().toInt());
+        
         QStringList actcg, inactcg, discg;
-
         int i;
         for (i = 0; i < QColorGroup::NColorRoles; i++)
             actcg << editPalette.color(QPalette::Active,
@@ -397,30 +402,29 @@ void MainWindow::fileSave()
             discg << editPalette.color(QPalette::Disabled,
                                        (QColorGroup::ColorRole) i).name();
 
-        settings.writeEntry("/qt/font", font.toString());
-        settings.writeEntry("/qt/Palette/active", actcg);
-        settings.writeEntry("/qt/Palette/inactive", inactcg);
-        settings.writeEntry("/qt/Palette/disabled", discg);
-
+        settings.setValue("font", font.toString());
+        settings.setValue("Palette/active", actcg);
+        settings.setValue("Palette/inactive", inactcg);
+        settings.setValue("Palette/disabled", discg);
+        
         QStringList libpath = QApplication::libraryPaths();
         QString libpathkey =
-            QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
-        settings.writeEntry(libpathkey, libpath, ':');
-        settings.writeEntry("/qt/fontPath", fontpaths, ':');
-        settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
-        settings.writeEntry("/qt/style", gstylecombo->currentText());
-        settings.writeEntry("/qt/doubleClickInterval",
-                                             dcispin->value());
-        settings.writeEntry("/qt/cursorFlashTime", cfispin->value() == 9 ? 0 : cfispin->value() );
-        settings.writeEntry("/qt/wheelScrollLines", wslspin->value());
-        settings.writeEntry("/qt/resolveSymlinks", resolvelinks->isChecked());
+            QString("%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
+        settings.setValue(libpathkey, libpath);
+        
+        settings.setValue("fontPath", fontpaths);
+        settings.setValue("embedFonts", fontembeddingcheckbox->isChecked());
+        settings.setValue("style", gstylecombo->currentText());
+        settings.setValue("doubleClickInterval", dcispin->value());
+        settings.setValue("cursorFlashTime", cfispin->value() == 9 ? 0 : cfispin->value() );
+        settings.setValue("wheelScrollLines", wslspin->value());
+        settings.setValue("resolveSymlinks", resolvelinks->isChecked());
 
-        QStringList strut;
-        strut << QString::number(strutwidth->value());
-        strut << QString::number(strutheight->value());
-        settings.writeEntry("/qt/globalStrut", strut);
+        QSize strut(strutwidth->value(), strutheight->value());
+        settings.setValue("globalStrut/width", strut.width());
+        settings.setValue("globalStrut/height", strut.height());
 
-        settings.writeEntry("/qt/useRtlExtensions", rtlExtensions->isChecked() );
+        settings.setValue("useRtlExtensions", rtlExtensions->isChecked());
 
 #ifdef Q_WS_X11
         QString style = inputStyle->currentText();
@@ -431,7 +435,7 @@ void MainWindow::fileSave()
             str = "Off The Spot";
         else if ( style == trUtf8( "Root" ) )
             str = "Root";
-        settings.writeEntry( "/qt/XIMInputStyle", inputStyle->currentText() );
+        settings.setValue( "XIMInputStyle", str );
 #endif
 
         QStringList effects;
@@ -457,15 +461,18 @@ void MainWindow::fileSave()
             }
         } else
             effects << "none";
-        settings.writeEntry("/qt/GUIEffects", effects);
+        settings.setValue("GUIEffects", effects);
 
         QStringList familysubs = QFont::substitutions();
         QStringList::Iterator fit = familysubs.begin();
+        settings.beginGroup("Font Substitutions");
         while (fit != familysubs.end()) {
             QStringList subs = QFont::substitutes(*fit);
-            settings.writeEntry("/qt/Font Substitutions/" + *fit, subs);
+            settings.setValue(*fit, subs);
             fit++;
         }
+        settings.endGroup(); // Font Substitutions
+        settings.endGroup(); // Qt
     }
 
 #if defined(Q_WS_X11)
