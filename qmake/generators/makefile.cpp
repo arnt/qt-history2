@@ -1939,7 +1939,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
             if(canon && QFile::exists(file) && file == Option::fixPathToTargetOS(file, true, canon)) {
                 QString real_file = QDir(file).canonicalPath();
                 if(!real_file.isEmpty())
-                    file = real_file;
+                    file = Option::fixPathToTargetOS(real_file, false, canon);
             }
             QString match_dir = Option::fixPathToTargetOS(out_dir, false, canon);
             if(file == match_dir) {
