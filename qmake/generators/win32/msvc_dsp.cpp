@@ -703,20 +703,29 @@ DspMakefileGenerator::init()
         }
     }
 
-    project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS"];
-    project->variables()["MSVCDSP_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
+    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
+
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
 	project->variables()["MSVCDSP_LFLAGS" ].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
+    
+    QStringList &libs = project->variables()["QMAKE_LIBS"];
+    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
+	QString lib = (*libit);
+	lib.replace(QRegExp("\""), "");
+	project->variables()["MSVCDSP_LIBS"].append(" \"" + lib + "\"");
+    }
+
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
 	inc.replace("\"", "");
 	project->variables()["MSVCDSP_INCPATH"].append("/I \"" + inc + "\"");
     }
+
     project->variables()["MSVCDSP_INCPATH"].append("/I \"" + specdir() + "\"");
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");

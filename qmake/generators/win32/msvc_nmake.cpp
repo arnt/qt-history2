@@ -106,7 +106,15 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 	if ( !project->variables()["QMAKE_LIBDIR"].isEmpty() )
 	  t << " " << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"");
 	t << endl;
-	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
+	t << "LIBS	=	";
+	QStringList &libs = project->variables()["QMAKE_LIBS"];
+	for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit) {
+	    QString lib = (*libit);
+	    lib.replace(QRegExp("\\\\$"), "\\\\");
+	    lib.replace(QRegExp("\""), "");
+	    t << " \"" << lib << "\"";
+	}
+	t << endl;
     }
     else {
 	t << "LIB	=	" << var("QMAKE_LIB") << endl;
