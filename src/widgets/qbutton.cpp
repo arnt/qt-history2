@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#91 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#91 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -466,7 +466,7 @@ void QButton::setAutoRepeat( bool enable )
 
 
 /*!
-  Draws an animated click: The button is pressed and a short while
+  Performs an animated click: The button is pressed and a short while
   later released.
 
   pressed(), released(), clicked() and toggled() signals are emitted as
