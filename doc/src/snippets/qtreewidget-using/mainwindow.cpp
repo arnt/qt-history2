@@ -135,10 +135,10 @@ void MainWindow::removeItem()
 
     if (parent) {
         index = parent->indexOfChild(treeWidget->currentItem());
-        parent->takeChild(index);
+        delete parent->takeChild(index);
     } else {
         index = treeWidget->indexOfTopLevelItem(treeWidget->currentItem());
-        treeWidget->takeTopLevelItem(index);
+        delete treeWidget->takeTopLevelItem(index);
     }
 }
 
