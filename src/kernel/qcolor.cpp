@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#52 $
 **
 ** Implementation of QColor class
 **
@@ -13,7 +13,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#52 $");
 
 
 /*!
@@ -23,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#51 $");
 
   A color is normally specified in terms of RGB (red,green and blue)
   components, but it is also possible to specify HSV (hue,saturation and
-  value) or set a color name (X-Windows color database, no support yet
+  value) or set a color name (X11 color database, no support yet
   on other window systems).
 
   In addition to the RGB value, a QColor also has a pixel value.  This

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#99 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#99 $");
 
 
 /*!
@@ -632,7 +632,7 @@ void QObject::blockSignals( bool block )
   There is practically no upper limit for the interval value (more than
   one year).  The accuracy depends on the underlying operating system.
   Windows 3.1 has 55 millisecond (18.2 times per second) accuracy; other
-  systems that we have tested (UNIX X-Windows, Windows NT and OS/2) can
+  systems that we have tested (UNIX X11, Windows NT and OS/2) can
   handle 1 millisecond intervals.
 
   The QTimer class provides a high-level programming interface with

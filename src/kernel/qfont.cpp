@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#52 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#52 $");
 
 
 /*!
@@ -68,7 +68,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#51 $");
 
   In general font handling and loading are costly operations that put
   a heavy load on the window system, this is especially true for
-  X-Windows. The QFont class has an internal sharing and reference
+  X11. The QFont class has an internal sharing and reference
   count mechanism in order to speed up copies so QFonts may be passed
   around as arguments, and it has a lazy loading mechanism and does
   not load a font until it \e really has to. It also caches previously

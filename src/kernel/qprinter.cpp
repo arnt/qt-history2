@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#24 $
 **
 ** Implementation of QPrinter class
 **
@@ -12,7 +12,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#24 $");
 
 
 /*!
@@ -22,8 +22,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $");
 
   \ingroup paintdevice
 
-  All window systems that Qt supports, except X-Windows, have built-in
-  printer drivers.  For X-Windows, Qt provides PostScript (tm)
+  All window systems that Qt supports, except X11, have built-in
+  printer drivers.  For X11, Qt provides PostScript (tm)
   printing.  Note that the PostScript support is incomplete and very
   much beta-quality at the present time.
 
@@ -94,7 +94,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $");
 
   The default printer will be used if no printer name is set.
 
-  Under X-Windows, the PRINTER environment variable defines the
+  Under X11, the PRINTER environment variable defines the
   default printer.  Under any other window system, the window
   system defines the default printer.
 
@@ -119,7 +119,7 @@ void QPrinter::setPrinterName( const char *name )
   output should be sent directly to the printer.
   The default setting is FALSE.
 
-  This function is currently only supported under X-Windows.
+  This function is currently only supported under X11.
 
   \sa setOutputToFile(), setOutputFileName()
 */
@@ -131,7 +131,7 @@ void QPrinter::setPrinterName( const char *name )
   Will output to a file if \e enable is TRUE, or will output directly
   to the printer if \e enable is FALSE.
 
-  This function is currently only supported under X-Windows.
+  This function is currently only supported under X11.
 
   \sa outputToFile(), setOutputFileName()
 */
@@ -162,7 +162,7 @@ void QPrinter::setOutputToFile( bool enable )
   Setting non-null name enables output to a file, i.e. calls
   setOutputToFile(TRUE).
 
-  This function is currently only supported under X-Windows.
+  This function is currently only supported under X11.
 
   \sa outputFileName(), setOutputToFile()
 */
@@ -184,7 +184,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   \fn const char *QPrinter::printProgram() const
   Returns the name of the program that sends the print output to the printer.
 
-  The default print program is "lpr" under X-Windows.  This function
+  The default print program is "lpr" under X11.  This function
   returns 0 for all other window systems.
 
   \sa setPrintProgram()
@@ -245,7 +245,7 @@ void QPrinter::setDocName( const char *name )
 /*!
   Sets the creator name.
 
-  Calling this function only has effect for the X-Windows version of Qt.
+  Calling this function only has effect for the X11 version of Qt.
   The creator name is the name of the application that created the document.
   If no creator name is specified, then the creator will be set to "Qt".
 

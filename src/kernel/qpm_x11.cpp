@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#86 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#86 $");
 
 
 /*****************************************************************************
@@ -1181,7 +1181,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	    &rp, 0, 0, -1, -1 );
   \endcode
 
-  This example outlines how Qt implements rotated text under X-Windows.
+  This example outlines how Qt implements rotated text under X11.
   The font calculation is the most tedious part. The rotation itself is
   only 3 lines of code.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#37 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#37 $");
 
 
 #define QT_VERSION "0.99"
@@ -139,8 +139,8 @@ static msg_handler handler = 0;			// pointer to debug handler
     debug( "my window handle = %x", myWidget->id() );
   \endcode
 
-  Under X-Windows, the text is printed to stderr.  Under Windows,
-  the text is sent to the debugger.
+  Under X11, the text is printed to stderr.  Under Windows, the text is
+  sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
@@ -183,8 +183,8 @@ void debug( const char *msg, ... )
     }
   \endcode
 
-  Under X-Windows, the text is printed to stderr.  Under Windows,
-  the text is sent to the debugger.
+  Under X11, the text is printed to stderr.  Under Windows, the text is
+  sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
@@ -228,8 +228,8 @@ void warning( const char *msg, ... )
     }
   \endcode
 
-  Under X-Windows, the text is printed to stderr.  Under Windows,
-  the text is sent to the debugger.
+  Under X11, the text is printed to stderr.  Under Windows, the text is
+  sent to the debugger.
 
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator.
@@ -405,8 +405,8 @@ void qObsolete(  const char *message )
   your own message handler, you get total control of these messages.
 
   The default message handler prints the message to the standard output
-  under X-Windows or to the debugger under Windows.  If it is a fatal
-  message, the application aborts immediately.
+  under X11 or to the debugger under Windows.  If it is a fatal message,
+  the application aborts immediately.
 
   Only one message handler can be defined, since this is usually done on
   an application-wide basis to control debug output.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#135 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#134 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#135 $");
 
 
 /*!
@@ -1590,7 +1590,7 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
 
   If you create new widgets in the mousePressEvent() the
   mouseReleaseEvent() may not end up where you expect, depending on the
-  underlying window system (or X-Windows window manager), the widgets'
+  underlying window system (or X11 window manager), the widgets'
   location and maybe more.
 
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
@@ -1885,7 +1885,7 @@ bool QWidget::pmEvent( QMSG * )
 
 /*!
   This special event handler can be reimplemented in a subclass to receive
-  raw X-Windows events.
+  raw X11 events.
 
   It must return FALSE to pass the event to Qt, or TRUE to stop the event.
 

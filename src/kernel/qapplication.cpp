@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#79 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#79 $");
 
 
 /*!
@@ -54,7 +54,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#78 $");
   Notice that the QApplication object must  be created before any widget can
   be defined!
 
-  Note also that for X-Windows, setMainWidget() may change the main widget
+  Note also that for X11, setMainWidget() may change the main widget
   according to the \e -geometry option.  To preserve this functionality,
   you must set your defaults before setMainWidget() and any overrides
   after.
@@ -132,13 +132,13 @@ static void destroy_palettes()
   Qt debugging options:
   <ul>
   <li> \c -nograb, tells Qt to never grab the mouse or the keyboard.
-  <li> \c -sync (only under X-Windows), switches to synchronous mode for
+  <li> \c -sync (only under X11), switches to synchronous mode for
 	debugging.
   </ul>
   See <a href=debug.html> Debugging Techniques</a> for
   a more detailed explanation.
 
-  X-Windows versions of Qt support a few more command line options:
+  The X11 version of Qt support a few more command line options:
   <ul>
   <li> \c -display \e display, sets the X display (default is $DISPLAY).
   <li> \c -geometry \e geometry, sets the client geometry of the
@@ -221,7 +221,7 @@ QApplication::~QApplication()
 
   A QApplication object is constructed by passing \e argc and \e argv from
   the \c main() function.  Some of the arguments may be recognized as Qt
-  options removed from the argument vector.  For example, the X-Windows
+  options removed from the argument vector.  For example, the X11
   version of Qt knows about \c -display, \c -font and a few more options.
 
   Example:
@@ -244,7 +244,7 @@ QApplication::~QApplication()
   \endcode
 
   If you run <tt>showargs -display unix:0 -font 9x15bold hello
-  world</tt> under X-Windows, the list box contains the three strings
+  world</tt> under X11, the list box contains the three strings
   "showargs", "hello" and "world".
 
   \sa argc(), QApplication::QApplication()

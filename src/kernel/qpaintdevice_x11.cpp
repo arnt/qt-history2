@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#65 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#65 $");
 
 
 /*!
@@ -132,7 +132,7 @@ QPaintDevice::~QPaintDevice()
 /*!
   \fn Display *QPaintDevice::x11Display() const
 
-  Returns a pointer to the X display (X-Windows only).
+  Returns a pointer to the X display (X11 only).
   <em>Using this function is not portable.</em>
 
   \sa handle()

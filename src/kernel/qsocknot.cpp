@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsocknot.cpp#9 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -78,7 +78,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   \link QObject::startTimer() timer events\endlink or the QTimer class.
 
   Socket action is detected in the \link QApplication::exec() main event
-  loop\endlink of Qt.  Under X-Windows, Qt has has a single UNIX select()
+  loop\endlink of Qt.  Under X11, Qt has has a single UNIX select()
   call which incorporates all socket notifiers and the X socket.
 */
 
