@@ -38,20 +38,25 @@ public:
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     : QFrame( parent, name )
 {
+    init();
+}
+
+/*!
+  
+  \internal Initialization.
+*/
+void QDateTimeEditBase::init()
+{
     if( style() == WindowsStyle )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
     
-    ed[0] = new NumEdit( this );
-    ed[1] = new NumEdit( this );
-    ed[2] = new NumEdit( this );
-
-    connect( ed[0], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
-    connect( ed[1], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
-    connect( ed[2], SIGNAL( returnPressed() ), SLOT( moveFocus() ) );
-
+    ed[0] = new NumEdit( this, "Ed_1" );
+    ed[1] = new NumEdit( this, "Ed_2" );
+    ed[2] = new NumEdit( this, "Ed_3" );
+    
     sep[0] = new QLabel( this );
     sep[1] = new QLabel( this );
 
@@ -64,25 +69,27 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     up->setAutoRepeat( TRUE );
     down->setAutoRepeat( TRUE );
 
+    up->setFocusPolicy( NoFocus );
+    down->setFocusPolicy( NoFocus );
+    
     connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
     connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
-    
+
     ed[0]->installEventFilter( this );
     ed[1]->installEventFilter( this );
     ed[2]->installEventFilter( this );
-
+        
     setFocusProxy( ed[0] );
 }
 
 /*!
   
-  Draw the arrow buttons.
+  Draws the arrow buttons.
  */
 void QDateTimeEditBase::updateArrows()
 {
-    QString key( QString::fromLatin1( "$qt$qspinbox$" ) );
-    bool pmSym = false;
-    key += QString::fromLatin1( pmSym ? "+-" : "^v" );
+    QString key( QString::fromLatin1( "$qt$qdatetimeedit$" ) );
+    key += QString::fromLatin1( "^v" );
     key += QString::number( down->height() );
     QString upKey = key + QString::fromLatin1( "$up" );
     QString dnKey = key + QString::fromLatin1( "$down" );
@@ -131,7 +138,7 @@ void QDateTimeEditBase::updateArrows()
 
 /*!
   
-  Increases the current value one step. This slot is called when the
+  Increase the current value one step. This slot is called when the
   up button is clicked.
  */
 void QDateTimeEditBase::stepUp()
@@ -156,7 +163,7 @@ void QDateTimeEditBase::stepUp()
 
 /*!
   
-  Decreases the current value one step. This slot is called when the
+  Decrease the current value one step. This slot is called when the
   down button is clicked.
  */
 void QDateTimeEditBase::stepDown()
@@ -179,18 +186,30 @@ void QDateTimeEditBase::stepDown()
     }
 }
 
-void QDateTimeEditBase::moveFocus()
-{
-    focusNextPrevChild( TRUE );
-}
-
 /*!
   
   \reimp
  */
-bool QDateTimeEditBase::eventFilter( QObject *, QEvent * ev )
+bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 {
-    if( ev->type() == QEvent::FocusOut ){
+    if( e->type() == QEvent::KeyPress ){
+	QKeyEvent * k = (QKeyEvent *) e;
+	// This hack is needed to handle TAB focusing properly
+	if( (k->key() == Key_Tab) ) {
+	    if( o == ed[2] ){
+		qApp->sendEvent( this, e );
+		return TRUE;
+	    }
+	}
+	if( k->key() == Key_BackTab ){
+	    if( o == ed[0] ){
+		qApp->sendEvent( this, e );
+		return TRUE;
+	    }
+	}
+    }
+    
+    if( e->type() == QEvent::FocusOut ){
 	for(int i = 0; i < 3; i++){
 	    QString s = ed[i]->text(); 
 	    int pos = 0;
@@ -204,7 +223,7 @@ bool QDateTimeEditBase::eventFilter( QObject *, QEvent * ev )
 	    }
 	}	
     }    
-    return FALSE;
+    return QFrame::eventFilter( o, e );;
 }
 
 /*!
@@ -292,8 +311,34 @@ void QDateTimeEditBase::layoutWidgets( int numDigits )
   12.
   
  */
+
+
+/*!
+ 
+  Constructs an empty QDateEdit widget.
+ */
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
+{
+    init();
+}
+
+/*!
+ 
+  Constructs a QDateEdit widget and initializes it with the QDate \a d.
+ */
+QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
+    : QDateTimeEditBase( parent, name )
+{
+    init();
+    setDate( d );
+}
+
+/*!
+  
+  \internal Initialization.
+ */
+void QDateEdit::init()
 {
     ed[0]->setRange( 1753, 3000 );
     ed[1]->setRange( 1, 12 );
@@ -301,6 +346,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
     sep[0]->setText( "-" );
     sep[1]->setText( "-" );
 }
+
 
 /*!
   
@@ -410,8 +456,34 @@ void QDateEdit::resizeEvent( QResizeEvent * )
   it was 12 before you stated editing, the value will be reverted to
   12.
   */
+
+/*!
+  
+  Constructs an empty QTimeEdit widget.
+*/
 QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
+{
+    init();
+}
+
+/*!
+  
+  Constructs a QTimeEdit widget, and initializes it with the QTime \a t.
+*/
+QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
+    : QDateTimeEditBase( parent, name )
+{
+    init();
+    setTime( t );
+}
+
+
+/*!
+  
+  \internal Initialization.
+ */
+void QTimeEdit::init()
 {
     ed[0]->setRange( 0, 23 );
     ed[1]->setRange( 0, 59 );
@@ -442,14 +514,6 @@ QTime QTimeEdit::time() const
 {
     return QTime( ed[0]->text().toInt(), ed[1]->text().toInt(),
 		  ed[2]->text().toInt() );
-}
-
-/*!
-  
-  Post-process the edited time.
- */
-void QTimeEdit::fixup()
-{
 }
 
 void QTimeEdit::resizeEvent( QResizeEvent * )
