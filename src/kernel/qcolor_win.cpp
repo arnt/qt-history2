@@ -287,7 +287,7 @@ uint QColor::alloc()
 	    }
 	    return d.d8.pix = pix;
 	} else {
-	    return d.d32.pix = qrgb2colorref( a.argb );
+	    return d.d32.pix = qrgb2colorref( d.argb );
 	}
     }
 }
