@@ -12,7 +12,6 @@ HEADERS += \
 	codecs/qtextcodec.h \
 	codecs/qtsciicodec_p.h \
 	codecs/qutfcodec_p.h \
-	codecs/qtextcodecinterface_p.h \
 	codecs/qtextcodecfactory.h \
 	codecs/qtextcodecplugin.h
 
