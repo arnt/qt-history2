@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#117 $
 **
 ** Implementation of QLabel widget class
 **
@@ -195,27 +195,34 @@ void QLabel::init()
 /*!
   \fn QString QLabel::text() const
 
-  Returns the label text. This may be either plain text or a QML
-  document.
+  Returns the label text. This may be either plain text or a small
+  rich text document.
 
-  \sa setText(), setQML()
+  \sa textFormat(), setText(), setTextFormat()
 */
 
 /*!
-  Sets the label contents to \e text, updates the optional
+  Sets the label contents to \a text, updates the optional
   accelerator and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.  Nothing
   happens if \e text is the same as the current label.
+  
+  \a text may be interpreted either as plain text or as rich text,
+  depending on the textFormat().
+  
+  Note that a label is only useful for rather small documents with one
+  or maximal two lines of text.  If you need to display larger
+  documents, a QTextView is the widget of choice. It will flicker less
+  on resize and can also provide a scrollbar if necessary.
 
-  \sa text(), setQML(), setPixmap(), setAutoResize()
+  \sa text(), setTextFormat(), setPixmap(), setAutoResize(), QTextView
 */
 
 void QLabel::setText( const QString &text )
 {
-    //########## todo take care of the text format
     unsetMovie();
-    if ( !doc && ltext == text )
+    if ( ltext == text )
 	return;
     ltext = text;
 
@@ -238,6 +245,11 @@ void QLabel::setText( const QString &text )
 			    this, SLOT(acceleratorSlot()) );
     }
 
+    if ( textformat == RichText )
+	doc = new QSimpleTextDocument( ltext, this );
+    
+    //###### TODO AutoText richt text detection
+    
     if ( autoresize ) {
 	QSize s = sizeHint();
 	if ( s.isValid() && s != size() )
@@ -274,7 +286,7 @@ void QLabel::clear()
   The label resizes itself if auto-resizing is enabled.	 Nothing
   happens if \e pixmap is the same as the current label.
 
-  \sa pixmap(), setText(), setQML(), setAutoResize()
+  \sa pixmap(), setText(), setTextFormat(), setAutoResize()
 */
 
 void QLabel::setPixmap( const QPixmap &pixmap )
@@ -519,7 +531,7 @@ QSize QLabel::sizeForWidth( int w ) const
 
 
 /*!
-  Reimplemented for QML labels and WordBreak
+  Reimplemented for rich text labels and WordBreak
 */
 int QLabel::heightForWidth(int w) const
 {
@@ -899,6 +911,7 @@ Qt::TextFormat QLabel::textFormat() const
 void QLabel::setTextFormat( Qt::TextFormat format )
 {
     textformat = format;
-    
-    //###### TODO create qml when required
+    QString tmp = ltext;
+    ltext = QString::null;
+    setText( tmp ); // trigger update
 }
