@@ -40,6 +40,86 @@
 #include <qapplication.h>
 #include <qpainter.h>
 
+/*****************************************************************************
+  QFont debug facilities
+ *****************************************************************************/
+//#define DEBUG_FONTMETRICS
+
+#ifdef DEBUG_FONTMETRICS
+#include <qregexp.h>
+//QT_METRICS_DEBUG="48x68,48x102,48x100,48x107"
+static bool debug_metrics_first = TRUE, debug_metrics_all = FALSE;
+static QValueList<QChar> debug_metrics_list;
+static bool qt_mac_debug_metrics(const QChar &c) {
+    if(debug_metrics_first) {
+	debug_metrics_first = FALSE;
+	if(char *en = getenv("QT_METRICS_DEBUG")) {
+	    QStringList l(QStringList::split(QString(en), ","));
+	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		(*it) = (*it).stripWhiteSpace().simplifyWhiteSpace();
+		if((*it) == "all") {
+		    debug_metrics_all = TRUE;
+		    break;
+		}
+		short k;
+		if((*it).contains('x')) {
+		    QRegExp re("^([0-9]*)x([0-9]*)$");
+		    if(re.exactMatch((*it))) {
+			QString row = re.cap(1), col = re.cap(2);
+			bool ok;
+			short l;
+			//row
+			l = row.toShort(&ok);
+			if(!ok || l > 0xFF) {
+			    qDebug("Invalid row %d: %s", l, (*it).latin1());
+			    continue;
+			}
+			k = l << 8;
+			//column
+			l = col.toShort(&ok);
+			if(!ok || l > 0xFF) {
+			    qDebug("Invalid colum %d: %s", l, (*it).latin1());
+			    continue;
+			}
+			k |= l;
+		    } else {
+			qDebug("Invalid metrics debug: %s", (*it).latin1());
+		    }
+		} else {
+		    bool ok = TRUE;
+		    k = (*it).toShort(&ok);
+		    if(!ok) {
+			qDebug("Invalid metrics debug: %s", (*it).latin1());
+			continue;
+		    }
+		}
+		debug_metrics_list.append(QChar(k));
+	    }
+	} else {
+	    qDebug("Must specify a QT_METRICS_DEBUG to use DEBUG_METRICS");
+	}
+    }
+    if(debug_metrics_all)
+	return TRUE;
+    for(QValueList<QChar>::Iterator it = debug_metrics_list.begin(); it != debug_metrics_list.end(); ++it) {
+	if((*it) == c)
+	    return TRUE;
+    }
+    return FALSE;
+}
+bool qt_mac_debug_metrics(const QString s, int len) {
+    if(len == -1)
+	len = s.length();
+    if(!len)
+	return FALSE;
+    for(int i = 0; i < len; i++) {
+	if(!qt_mac_debug_metrics(s.at(i)))
+	    return FALSE;
+    }
+    return TRUE;
+}
+#endif
+
 /* utility functions */
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 static inline void qstring_to_pstring( QString s, int len, Str255 str, TextEncoding encoding )
@@ -388,17 +468,42 @@ bool QFontMetrics::inFont(QChar ch) const
 
 int QFontMetrics::width(QChar c) const
 {
-    return do_text_task(FI, c, GIMME_WIDTH);
+    int width = do_text_task(FI, c, GIMME_WIDTH);
+#ifdef DEBUG_FONTMETRICS
+    if(qt_mac_debug_metrics(c)) {
+	qDebug("width(QChar) %d %d:%d==%d %d:%d %dx%d", width, d->request.pointSize, d->request.pixelSize,
+	       d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72,
+	       d->actual.pointSize, d->actual.pixelSize, c.row(), c.cell());
+    }
+#endif
+    return width;
 }
 
 int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
-    return do_text_task(FI, s, pos, 1, GIMME_WIDTH);
+    int width = do_text_task(FI, s, pos, 1, GIMME_WIDTH);
+#ifdef DEBUG_FONTMETRICS
+    QChar c = s.at(pos);
+    if(qt_mac_debug_metrics(c)) {
+	qDebug("width(string, char) %d %d:%d==%d %d:%d %dx%d", width, d->request.pointSize, d->request.pixelSize,
+	       d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72,
+	       d->actual.pointSize, d->actual.pixelSize, c.row(), c.cell());
+    }
+#endif
+    return width;
 }
 
 int QFontMetrics::width(const QString &s,int len) const
 {
-    return do_text_task(FI, s, 0, len < 1 ? s.length() : len, GIMME_WIDTH);
+    int width = do_text_task(FI, s, 0, len < 1 ? s.length() : len, GIMME_WIDTH);
+#ifdef DEBUG_FONTMETRICS
+    if(qt_mac_debug_metrics(s, len)) {
+	qDebug("width(string, %d) %d %d:%d==%d %d:%d", len, width, d->request.pointSize, d->request.pixelSize,
+	       d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72,
+	       d->actual.pointSize, d->actual.pixelSize);
+    }
+#endif
+   return width;
 }
 
 int QFontMetrics::maxWidth() const
@@ -510,13 +615,27 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
     uchar task = GIMME_DRAW;
     if(request.underline || request.strikeOut) 
 	task |= GIMME_WIDTH; //I need the width for these..
+#ifdef DEBUG_FONTMETRICS
+    bool do_debug = qt_mac_debug_metrics(s, len);
+    if(do_debug)
+	task |= GIMME_WIDTH;
+#endif
     int w = do_text_task(this, s, 0, len, task);
+#ifdef DEBUG_FONTMETRICS
+    if(do_debug) {
+	qDebug("drawText %d::%dx%d,%d %d:%d==%d %d:%d %d %d", w, len, x, y, request.pointSize, request.pixelSize,
+	       request.pointSize != -1 ? request.pointSize / 10 : request.pixelSize *80 /72,
+	       actual.pointSize, actual.pixelSize, request.underline, request.strikeOut);
+    }
+#endif
     if(task & GIMME_WIDTH) { 
 	computeLineWidth();
 	if(request.underline) {
 	    Rect r;
 	    SetRect(&r, x, (y + 2) - (lineWidth / 2), 
 		    x + w, (y + 2) + (lineWidth / 2));
+	    if(!(r.bottom - r.top))
+		r.bottom++;
 	    PaintRect( &r );
 	}
 	if(request.strikeOut) {
@@ -526,6 +645,8 @@ void QFontPrivate::drawText( int x, int y, QString s, int len )
 	    Rect r;
 	    SetRect(&r, x, (y - spos) - (lineWidth / 2), 
 		    x + w, (y - spos) + (lineWidth / 2));
+	    if(!(r.bottom - r.top))
+		r.bottom++;
 	    PaintRect( &r );
 	}
     } 
