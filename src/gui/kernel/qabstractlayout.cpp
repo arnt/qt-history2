@@ -1131,6 +1131,10 @@ void QLayout::addChildLayout(QLayout *l)
 /*!
     This function is called from addWidget() functions in subclasses
     to add \a w as a child widget.
+
+    If \a w is already in a layout, this function will give a warning
+    and remove \a w from the layout. This function must therefore be
+    called before adding \a w to the layout's data structure.
 */
 void QLayout::addChildWidget(QWidget *w)
 {
