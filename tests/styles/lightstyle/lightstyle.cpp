@@ -125,25 +125,11 @@ void LightStyle::unPolish(QApplication *app)
 
 
 static void drawLightBevel(QPainter *p, const QRect &r, const QColorGroup &cg,
-			   QStyle::SFlags flags, bool usebase = FALSE,
-			   const QBrush *fill = 0)
+			   QStyle::SFlags flags, const QBrush *fill = 0)
 {
     QRect br = r;
-    QBrush thefill;
     bool sunken =
 	(flags & (QStyle::Style_Down | QStyle::Style_On | QStyle::Style_Sunken));
-
-    if (fill) {
-	thefill = *fill;
-    } else if (flags & QStyle::Style_Enabled) {
-	if (usebase)
-	    thefill = cg.brush(QColorGroup::Base);
-	else if (sunken)
-	    thefill = cg.brush(QColorGroup::Midlight);
-	else
-	    thefill = cg.brush(QColorGroup::Button);
-    } else
-	thefill = cg.brush(QColorGroup::Background);
 
     p->setPen(cg.dark());
     p->drawRect(r);
@@ -176,7 +162,7 @@ static void drawLightBevel(QPainter *p, const QRect &r, const QColorGroup &cg,
 	br.addCoords(1, 1, -1, -1);
 
     // fill
-    p->fillRect(br, thefill);
+    if (fill) p->fillRect(br, *fill);
 }
 
 
@@ -189,15 +175,29 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 {
     switch (pe) {
     case PE_HeaderSection:
-	// make sure sunken headers (not down/pressed) are drawn raised
-	flags = ((flags | Style_Sunken) ^ Style_Sunken) | Style_Raised;
-	// fall through intended
+	p->fillRect(r, cg.brush(QColorGroup::Base));
+	p->setPen(cg.mid());
+	p->drawLine(r.right(), r.bottom() - 1, r.right(), (r.height() / 2) - 1);
+	p->drawLine(r.bottomLeft(), r.bottomRight());
+	break;
 
     case PE_ButtonCommand:
     case PE_ButtonBevel:
     case PE_ButtonTool:
-	drawLightBevel(p, r, cg, flags);
-	break;
+	{
+	    const QBrush *fill;
+	    if (flags & QStyle::Style_Enabled) {
+		if (flags & (QStyle::Style_Down |
+			     QStyle::Style_On |
+			     QStyle::Style_Sunken))
+		    fill = &cg.brush(QColorGroup::Midlight);
+		else
+		    fill = &cg.brush(QColorGroup::Button);
+	    } else
+		fill = &cg.brush(QColorGroup::Background);
+	    drawLightBevel(p, r, cg, flags, fill);
+	    break;
+	}
 
     case PE_ButtonDropDown:
 	{
@@ -253,11 +253,14 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 	break;
 
     case PE_Indicator:
-	if (flags & Style_Down)
-	    drawLightBevel(p, r, cg, flags | Style_Sunken, FALSE,
-			   &cg.brush(QColorGroup::Mid));
+	const QBrush *fill;
+	if (! (flags & Style_Enabled))
+	    fill = &cg.brush(QColorGroup::Background);
+	else if (flags & Style_Down)
+	    fill = &cg.brush(QColorGroup::Mid);
 	else
-	    drawLightBevel(p, r, cg, flags | Style_Sunken, TRUE);
+	    fill = &cg.brush(QColorGroup::Base);
+	drawLightBevel(p, r, cg, flags | Style_Sunken, fill);
 
 	p->setPen(cg.foreground());
 	if (flags & Style_NoChange) {
@@ -433,8 +436,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		     pixelMetric(PM_DefaultFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, FALSE,
-			       &cg.brush(QColorGroup::Background));
+		drawLightBevel(p, r, cg, flags);
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	    break;
@@ -446,7 +448,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		     pixelMetric(PM_DockWindowFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, FALSE,
+		drawLightBevel(p, r, cg, flags | Style_Raised,
 			       &cg.brush(QColorGroup::Button));
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
@@ -459,8 +461,7 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		     pixelMetric(PM_MenuBarFrameWidth) : data.lineWidth();
 
 	    if (lw == 2)
-		drawLightBevel(p, r, cg, flags, FALSE,
-			       &cg.brush(QColorGroup::Button));
+		drawLightBevel(p, r, cg, flags, &cg.brush(QColorGroup::Button));
 	    else
 		QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	    break;
@@ -557,9 +558,9 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 		fr.addCoords(2, 0, -1, 0);
 	    }
 
-	    drawLightBevel(p, fr, cg,
-			   ((flags | Style_Down) ^ Style_Down) |
-			   ((flags & Style_Enabled) ? Style_Raised : Style_Default));
+	    drawLightBevel(p, fr, cg, ((flags | Style_Down) ^ Style_Down) |
+			   ((flags & Style_Enabled) ? Style_Raised : Style_Default),
+			   &cg.brush(QColorGroup::Button));
 	    break;
 	}
 
@@ -718,7 +719,7 @@ void LightStyle::drawControl( ControlElement control,
 	    if ( !mi )
 		break;
 
-	    maxpmw = QMAX(maxpmw, 20);
+	    maxpmw = QMAX(maxpmw, 16);
 
 	    QRect cr, ir, tr, sr;
 	    // check column
@@ -849,8 +850,7 @@ void LightStyle::drawControl( ControlElement control,
 	}
 
     case CE_ProgressBarGroove:
-	drawLightBevel(p, r, cg, Style_Sunken, FALSE,
-		       &cg.brush(QColorGroup::Background));
+	drawLightBevel(p, r, cg, Style_Sunken, &cg.brush(QColorGroup::Background));
 	break;
 
     default:
@@ -907,7 +907,8 @@ void LightStyle::drawComplexControl( ComplexControl control,
 				   widget);
 
 	    if ((controls & SC_ComboBoxFrame) && frame.isValid())
-		drawLightBevel(p, frame, cg, flags | Style_Raised);
+		drawLightBevel(p, frame, cg, flags | Style_Raised,
+			       &cg.brush(QColorGroup::Button));
 
 	    if ((controls & SC_ComboBoxArrow) && arrow.isValid()) {
 		if (active == SC_ComboBoxArrow)
@@ -960,7 +961,8 @@ void LightStyle::drawComplexControl( ComplexControl control,
 					  SC_SpinWidgetDown, data);
 
 	    if ((controls & SC_SpinWidgetFrame) && frame.isValid())
-		drawLightBevel(p, frame, cg, flags | Style_Sunken, TRUE);
+		drawLightBevel(p, frame, cg, flags | Style_Sunken,
+			       &cg.brush(QColorGroup::Base));
 
 	    if ((controls & SC_SpinWidgetUp) && up.isValid()) {
 		PrimitiveElement pe = PE_SpinWidgetUp;
@@ -1134,15 +1136,15 @@ void LightStyle::drawComplexControl( ComplexControl control,
 		    groove.addCoords(dw, 0, -dw, 0);
 		}
 
-		drawLightBevel(p, groove, cg,
-			       ((flags | Style_Raised) ^ Style_Raised) |
-			       ((flags & Style_Enabled) ? Style_Sunken : Style_Default));
+		drawLightBevel(p, groove, cg, ((flags | Style_Raised) ^ Style_Raised) |
+			       ((flags & Style_Enabled) ? Style_Sunken : Style_Default),
+			       &cg.brush(QColorGroup::Midlight));
 	    }
 
 	    if ((controls & SC_SliderHandle) && handle.isValid()) {
-		drawLightBevel(p, handle, cg,
-			       ((flags | Style_Down) ^ Style_Down) |
-			       ((flags & Style_Enabled) ? Style_Raised : Style_Default));
+		drawLightBevel(p, handle, cg, ((flags | Style_Down) ^ Style_Down) |
+			       ((flags & Style_Enabled) ? Style_Raised : Style_Default),
+			       &cg.brush(QColorGroup::Button));
 
 	    }
 
@@ -1358,15 +1360,13 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 		w = 10;
 		h = 4;
 	    } else {
-		// most iconsets are 22x22 in menus
-		if (h < 22)
-		    h = 22;
-
+		// check is at least 16x16
+		if (h < 16)
+		    h = 16;
 		if (mi->pixmap())
 		    h = QMAX(h, mi->pixmap()->height());
 		else if (! mi->text().isNull())
-		    h = QMAX(h, popupmenu->fontMetrics().height());
-
+		    h = QMAX(h, popupmenu->fontMetrics().height() + 2);
 		if (mi->iconSet() != 0)
 		    h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
 						      QIconSet::Normal).height());
@@ -1374,7 +1374,9 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 	    }
 
 	    // check | 4 pixels | item | 8 pixels | accel | 4 pixels | check
-	    maxpmw = QMAX(maxpmw, 20);
+
+	    // check is at least 16x16
+	    maxpmw = QMAX(maxpmw, 16);
 	    w += (maxpmw * 2) + 8;
 
 	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
