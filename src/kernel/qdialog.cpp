@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#14 $
 **
 ** Implementation of QDialog class
 **
@@ -17,7 +17,7 @@
 #include "qobjcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#14 $";
 #endif
 
 
@@ -194,20 +194,6 @@ void QDialog::show()
 	      w->height()/2 - height()/2 );
     }
     QWidget::show();
-}
-
-
-/*!
-  Virtual function that adjusts the size of the dialog to fit the contents.
-
-  This function will not be called if the dialog has been explicitly
-  resized before showing it.
-
-  The default implementation does nothing.
-*/
-
-void QDialog::adjustSize()
-{
 }
 
 
