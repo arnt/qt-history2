@@ -29,8 +29,6 @@
 #include "qimageformatinterface_p.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#include "qmime.h"
-#include "qdragobject.h"
 #include <ctype.h>
 #include <stdlib.h>
 
