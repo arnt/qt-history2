@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#2 $
+# $Id: //depot/qt/main/Makefile.inc#3 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -35,11 +35,13 @@ dsp: $(PROJECT).dsp
 $(PROJECT).dsp: FORCE
 	tmake $(PROJECT).pro -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
-debug: Makefile.debug $(MORETARGETS)
+debug: Makefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
 	$(MAKE) -nologo -f Makefile.debug
+	$(POST_DBG)
 
-release: Makefile.release $(MORETARGETS)
+release: Makefile.release $(MORETARGETS) $(MORETARGETS_RELEASE)
 	$(MAKE) -nologo -f Makefile.release
+	$(POST_REL)
 
 Makefile.debug: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
