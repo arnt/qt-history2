@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#208 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -61,7 +61,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 #undef bzero
 extern "C" void bzero(void *, size_t len);
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#207 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#208 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1058,6 +1058,11 @@ static struct SN_Type {
     { &sn_write,  &sn_writefds,	 &app_writefds,  &sn_queued_write },
     { &sn_except, &sn_exceptfds, &app_exceptfds, &sn_queued_except } };
 
+typedef Q_DECLARE(QIntDictM,QSockNot)	     QSockNotRndDict;
+typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QSockNotRndDictIt;
+
+static QSockNotRndDict *sn_rnd_dict = 0;
+
 
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
@@ -1113,6 +1118,9 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    return FALSE;
 	list->remove();				// remove this notifier
 	FD_CLR( sockfd, fds );			// clear fd bit
+	if ( sn_rnd_dict )
+	    sn_rnd_dict->remove( (long)sn );	// remove from TBD dict
+	FD_CLR( sockfd, sn_vec[type].queue );
 	if ( list->isEmpty() ) {		// no more notifiers
 	    delete list;			// delete list
 	    *sn_vec[type].list = 0;
@@ -1129,11 +1137,6 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     return TRUE;
 }
 
-
-typedef Q_DECLARE(QIntDictM,QSockNot)	      QSockNotRndDict;
-typedef Q_DECLARE(QIntDictIteratorM,QSockNot) QSockNotRndDictIt;
-
-static QSockNotRndDict *sn_rnd_dict = 0;
 
 static void sn_cleanup()
 {
