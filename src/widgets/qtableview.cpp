@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#106 $
 **
 ** Implementation of QTableView class
 **
@@ -45,19 +45,19 @@ enum ScrollBarDirtyFlags {
 };
 
 
-class CornerSquare : public QWidget		// internal class
+class QCornerSquare : public QWidget		// internal class
 {
 public:
-    CornerSquare( QWidget *, const char* = 0 );
+    QCornerSquare( QWidget *, const char* = 0 );
     void paintEvent( QPaintEvent * );
 };
 
-CornerSquare::CornerSquare( QWidget *parent, const char *name )
+QCornerSquare::QCornerSquare( QWidget *parent, const char *name )
 	: QWidget( parent, name )
 {
 }
 
-void CornerSquare::paintEvent( QPaintEvent * )
+void QCornerSquare::paintEvent( QPaintEvent * )
 {
 }
 
@@ -1081,7 +1081,7 @@ void QTableView::coverCornerSquare( bool enable )
 {
     coveringCornerSquare = enable;
     if ( !cornerSquare && enable ) {
-	cornerSquare = new CornerSquare( this );
+	cornerSquare = new QCornerSquare( this );
 	CHECK_PTR( cornerSquare );
 	cornerSquare->setGeometry( maxViewX() + frameWidth() + 1,
 				   maxViewY() + frameWidth() + 1,

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#29 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#30 $
 **
 ** Definition of QTableView class
 **
@@ -31,7 +31,7 @@
 #endif // QT_H
 
 class QScrollBar;
-class CornerSquare;
+class QCornerSquare;
 
 
 class Q_EXPORT QTableView : public QFrame
@@ -175,7 +175,7 @@ private:
 
     QScrollBar *vScrollBar;
     QScrollBar *hScrollBar;
-    CornerSquare *cornerSquare;
+    QCornerSquare *cornerSquare;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
