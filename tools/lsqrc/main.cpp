@@ -16,8 +16,10 @@
 #include <qfileinfo.h>
 #include <qstack.h>
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_DARWIN
 # include <util.h>
+#endif
+#ifdef Q_OS_UNIX
 # include <sys/ioctl.h>
 # include <stdio.h>
 #endif
