@@ -178,7 +178,7 @@ QValueStack<QVariant>& Environment::stack()
 }
 
 
-/*! Rxeturns a reference to the program.
+/*! Returns a reference to the program.
 
 */
 

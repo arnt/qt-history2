@@ -173,12 +173,18 @@ bool FileDriver::open()
 
 bool FileDriver::close()
 {
+#ifdef DEBUG_XBASE
+    cout << "FileDriver::close..." << flush;
+#endif
     if ( !isOpen() )
 	return TRUE;
     if ( !commit() )
 	return FALSE;
     d->file.CloseDatabase();   /* Close database and associated indexes */
     setIsOpen( FALSE );
+#ifdef DEBUG_XBASE
+    cout << "success" << endl;
+#endif
     return TRUE;
 }
 
@@ -233,7 +239,7 @@ bool FileDriver::mark()
 {
     if ( !isOpen() )
 	return FALSE;
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "FileDriver::mark: marking record " << d->file.GetCurRecNo() << endl;
 #endif
     d->marked.append( d->file.GetCurRecNo() );
@@ -265,14 +271,14 @@ bool FileDriver::deleteMarked()
 
 bool FileDriver::commit()
 {
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "FileDriver::commit..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::commit: file not open" );
     }
     d->file.PackDatabase( F_SETLKW );
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "success" << endl;
 #endif
     return TRUE;
@@ -309,6 +315,41 @@ bool FileDriver::field( uint i, QVariant& v )
 	v = QString(buf).simplifyWhiteSpace();
 	break;
     }
+    return TRUE;
+}
+
+bool FileDriver::fieldDescription( const QString& name, QVariant& v )
+{
+    if ( !isOpen() )
+	return FALSE;
+    int i = d->file.GetFieldNo( name.latin1() );
+    if ( i == -1 ) {
+	ERROR_RETURN( "FileDriver::field: field does not exist" );
+    }
+    QValueList<QVariant> field;
+    QVariant nm = name;
+    QVariant val;
+    switch ( d->file.GetFieldType(i) ) {
+    case 'N': /* numeric */
+	val.cast( QVariant::Int );
+	break;
+    case 'F': /* float */
+	val.cast( QVariant::Double );
+	break;
+    case 'D': /* date */
+	val.cast( QVariant::Date );
+	break;
+    case 'L': /* logical */
+	val.cast( QVariant::Bool );
+	break;
+    case 'C': /* character */
+    default:
+	val.cast( QVariant::String );
+	break;
+    }
+    field.append( nm );
+    field.append( val );
+    v = field;
     return TRUE;
 }
 
@@ -361,7 +402,7 @@ bool FileDriver::rewindMarked()
 
 bool FileDriver::nextMarked()
 {
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "FileDriver::nextMarked..." << flush;
 #endif
     if ( !isOpen() ) {
@@ -373,7 +414,7 @@ bool FileDriver::nextMarked()
     if ( d->file.GetRecord( d->marked[next] ) != XB_NO_ERROR )
 	return FALSE;
     setMarkedAt( next );
-#ifdef DEBUG_XBASE
+#ifdef VERBOSE_DEBUG_XBASE
     cout << "success" << endl;
 #endif
     return TRUE;
@@ -604,7 +645,7 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
 bool FileDriver::drop()
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::dropp..." << flush;
+    cout << "FileDriver::drop..." << flush;
 #endif
     if ( !name() ) {
 	ERROR_RETURN( "FileDriver::drop: no file name" );

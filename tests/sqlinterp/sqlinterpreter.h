@@ -38,6 +38,7 @@ public:
     bool rangeScan( const QSqlRecord* index );
     bool createIndex( const QSqlRecord* index, bool unique );
     bool drop();
+    bool fieldDescription( const QString& name, QVariant& v );
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -819,7 +820,7 @@ public:
     }
 };
 
-/* Push the field number P2 from the file identified by 'id' on to the
+/* Push the value of field number P2 from the file identified by 'id' on to the
  top of the stack The file must be open and positioned on a valid
  record.
 */
@@ -842,6 +843,38 @@ public:
 	QVariant v;
 	if ( !drv.field( p2.toInt(), v ) ) {
 	    env->program().setLastError("PushFieldValue: unable to get field value!");
+	    return FALSE;
+	}
+	env->stack().push( v );
+	return TRUE;
+    }
+};
+
+
+/* Push field description information of the field identified by
+'name' in the file identified by 'id onto the top of the stack.  If
+the field does not exist, jump to P3.
+*/
+
+class PushFieldDesc : public Label
+{
+public:
+    PushFieldDesc( const QVariant& id,
+		   const QVariant& name,
+		   const QVariant& P3,
+		   const QString& label = QString::null )
+	: Label( id, name, P3, label ) {}
+    QString name() const { return "PushFieldDesc"; }
+    int exec( Interpreter::Environment* env )
+    {
+	Interpreter::FileDriver& drv = env->fileDriver( p1.toInt() );
+	if ( !drv.isOpen() ) {
+	    env->program().setLastError("PushFieldDesc: file not open!" );
+	    return 0;
+	}
+	QVariant v;
+	if ( !drv.fieldDescription( p2.toString(), v ) ) {
+	    env->program().setLastError("PushFieldDesc: unable to get field description!");
 	    return FALSE;
 	}
 	env->stack().push( v );
@@ -1023,6 +1056,27 @@ public:
 
    All records that match the 'range scan' will be 'marked'.  The file
    must be open.
+
+   The 'list' which is popped from the top of the stack must be of the form:
+
+   "dave" (beginning of list)
+   list: field description (see PushFieldDesc)
+   99
+   list: field description (see PushFieldDesc)
+
+   IOW, the list represents alternating 'values'/'field descriptions'.
+   The field descriptions are used to identify the fields in the file,
+   and the values are used to range scan the actual data.  For
+   example, the following code snippet does a range scan:
+
+   Open( 0, "myfile.dbf" )
+   PushFieldDesc( 0, "name", 15 )
+   Push( "trolltech" )
+   PushList( 2 )
+   RangeScan( 0 )
+
+   The above will range scan the "myfile.dbf" file by name="trolltech".
+
 */
 class RangeScan : public Label
 {
@@ -1036,19 +1090,24 @@ public:
 	QSqlRecord rec;
 	QValueList<QVariant> list = env->stack().pop().toList();
 	if ( !list.count() ) {
-	    env->program().setLastError("RangeScan: no fields defined!");
+	    env->program().setLastError("RangeScan: no range scan fields defined!");
 	    return 0;
 	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->program().setLastError("Create: bad field description!");
+	if ( (list.count() % 2) != 0 ) {
+	    env->program().setLastError("RangeScan: wrong multiple of list elements!");
+	    return 0;
+	}
+	for ( uint j = 0; j < list.count(); ++j ) {
+	    QValueList<QVariant> fieldDescList = list[j].toList();
+	    if ( fieldDescList.count() != 2 ) {
+		env->program().setLastError("RangeScan: bad field description!");
 		return 0;
 	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
+	    QString name = fieldDescList[0].toString();
+	    QVariant::Type type = fieldDescList[1].type();
 	    QSqlField field( name, type );
-	    field.setValue( fieldDescription[1] );
+	    QVariant value = list[++j];
+	    field.setValue( value );
 	    rec.append( field );
 	}
 	Interpreter::FileDriver& drv = env->fileDriver( p1.toInt() );
