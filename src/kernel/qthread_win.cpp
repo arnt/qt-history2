@@ -279,6 +279,7 @@ bool QThread::wait( unsigned long time )
     }
     if ( d->finished || !d->running )
 	return TRUE;
+    locker.mutex()->unlock();
     switch ( WaitForSingleObject( d->handle, time ) ) {
     case WAIT_TIMEOUT:
 	return FALSE;
@@ -291,6 +292,7 @@ bool QThread::wait( unsigned long time )
     default:
 	break;
     }
+    locker.mutex()->lock();
     return TRUE;
 }
 
