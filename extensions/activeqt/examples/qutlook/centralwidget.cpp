@@ -11,24 +11,6 @@
 **
 ****************************************************************************/
 
-/* NOTES WHILE WRITING THIS:
-
-  - QCache::find() should be QCache::value() as everywhere else
-  - QAbstractItemView misses a public interface to have data refreshed
-  - QAbstractItemModel needs a "refresh everything" signal
-  - DisplayRole - why not TextRole?
-
-  DOCU:
-  
-  - insertRow() and insertColumn() are gone in QAbstractItemModel
-  - paramters of rowsInserted() and rowsRemoved() are underdocumented
-  - parent item concept for non-hierarchical views is underdocumented
-  - implies that QAbstractListModel::columnCount() can be implemented, but it's not virtual
-  - A qHash() implementation for QModelIndex keys would be useful
-  - 
-*/
-
-
 #include "centralwidget.h"
 
 #include <qcache.h>
@@ -162,8 +144,7 @@ void AddressBookModel::update()
 {
     cache.clear();
 
-    emit dataChanged(QModelIndex(), QModelIndex());
-    emit rowsInserted(QModelIndex(), 0, rowCount());
+    emit reset();
 }
 
 
