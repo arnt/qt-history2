@@ -855,17 +855,17 @@ type_and_name:		  type_name fct_name
 						{ operatorError();    }
 			;
 
-property:		type_and_name fct_decl 
-			| type_and_name opt_bitfield ';' 
+property:		type_and_name fct_decl
+			| type_and_name opt_bitfield ';'
 				{ func_warn("Variable as property access"
 					    " function."); }
 			| type_and_name opt_bitfield ','member_declarator_list
-			  ';' 
+			  ';'
 				{ func_warn("Variable as property access"
 					    " function."); }
-                        | USING complete_class_name ';' 
+                        | USING complete_class_name ';'
                                 { func_warn("Using declaration as property."); }
-			| USING NAMESPACE complete_class_name ';' 
+			| USING NAMESPACE complete_class_name ';'
                                 { func_warn("Using declaration as property."); }
 			| NAMESPACE IDENTIFIER '{'
                                 { classPLevel++;
@@ -921,10 +921,10 @@ enum_specifier:		  ENUM enum_tail
 			;
 
 enum_tail:		  IDENTIFIER '{'   enum_list
-			  '}'   { BEGIN QT_DEF; 
+			  '}'   { BEGIN QT_DEF;
 				  if ( tmpAccessPerm == _PUBLIC) {
-				      tmpEnum->name = $1; 
-				      addEnum(); 
+				      tmpEnum->name = $1;
+				      addEnum();
 				  }
 				}
 			| '{'   { BEGIN IN_FCT; fctLevel=1; }
@@ -2062,7 +2062,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     finishProps();
 
-    fprintf( out, "    return metaObj;\n}\n" );
+    fprintf( out, "}\n" );
 
 //
 // End of function initMetaObject()
@@ -2246,12 +2246,12 @@ void addMember( char m )
 	if ( tmpFunc->name.left(3) == "set") { //  set-function candidate
 
 	    if ( tmpFunc->args->count() != 1 ) {
-		moc_warn( "Property set function %s(...) takes more than one argument.", 
+		moc_warn( "Property set function %s(...) takes more than one argument.",
 			  tmpFunc->name.data() );
 		goto Failed; // set functions have one parameter
 	    }
 	    if ( tmpFunc->type != "void" ) {
-		moc_warn( "Property set function %s(...) has non-void return type.", 
+		moc_warn( "Property set function %s(...) has non-void return type.",
 			  tmpFunc->name.data() );
 		goto Failed;  // set functions do not have a return type
 	    }
@@ -2285,12 +2285,12 @@ void addMember( char m )
 	} else { // get-function candidate
 	
 	    if ( tmpFunc->args->count() != 0 ) {
-		moc_warn( "Property get function %s(...) wants parameters.", 
+		moc_warn( "Property get function %s(...) wants parameters.",
 			  tmpFunc->name.data() );
 		goto Failed; // get functions have no parameter
 	    }
 	    if ( tmpFunc->qualifier != "const" ) {
-		moc_warn( "Property get function %s(...) not declared const.", 
+		moc_warn( "Property get function %s(...) not declared const.",
 			  tmpFunc->name.data() );
 		goto Failed; // get functions have no parameter
 	    }
