@@ -37,6 +37,8 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     createFakeProperty("cursor");
     createFakeProperty("toolTip");
     createFakeProperty("whatsThis");
+    createFakeProperty("acceptDrops");
+    createFakeProperty("dragEnabled");
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
