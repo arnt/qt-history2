@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#33 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#33 $");
 
 
 /*****************************************************************************
@@ -67,42 +67,6 @@ void QColor::initialize()
     int numCols = maxColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
 	return;
-
-#if 0
-    LOGPALETTE *logPal;
-    logPal = (LOGPALETTE*)new char[sizeof(LOGPALETTE)+
-				   sizeof(PALETTEENTRY)*256];
-    ASSERT( logPal );
-    logPal->palVersion = 0x300;			// Windows 3.0 compatible
-    logPal->palNumEntries = 256;
-    HDC hdcScreen = CreateCompatibleDC( 0 );
-    GetSystemPaletteEntries( hdcScreen, 0, 10, &logPal->palPalEntry[0] );
-    GetSystemPaletteEntries( hdcScreen, 246, 10, &logPal->palPalEntry[246] );
-    DeleteDC( hdcScreen );
-    int r, g, b;
-    PALETTEENTRY *pe = &logPal->palPalEntry[10];
-    for ( r=0; r<6; r++ ) {			// create color cube
-	for ( g=0; g<6; g++ ) {
-	    for ( b=0; b<6; b++ ) {
-		pe->peRed   = r * 255 / 6;
-		pe->peGreen = g * 255 / 6;
-		pe->peBlue  = b * 255 / 6;
-		pe->peFlags = PC_NOCOLLAPSE;
-		pe++;
-	    }
-	}
-    }
-    for ( r=0; r<20; r++ ) {			// grey scale palette
-	pe->peRed   = r * 255 / 20;
-	pe->peGreen = r * 255 / 20;
-	pe->peBlue  = r * 255 / 20;
-	pe->peFlags = PC_NOCOLLAPSE;
-	pe++;
-    }
-    hpal = CreatePalette( logPal );		// create logical palette
-    delete [] logPal;
-
-#else
 
     static struct {
 	WORD	     palVersion;
@@ -176,9 +140,7 @@ void QColor::initialize()
 	  0,255,255,  0,  63,255,255,  0, 104,255,255,  0, 139,255,255,  0,
 	171,255,255,  0, 200,255,255,  0, 229,255,255,  0, 255,255,255,  0 };
 
-    hpal = CreatePalette( rgb8palette );
-
-#endif
+    hpal = CreatePalette( (LOGPALETTE*)&rgb8palette );
 
     ((QColor*)(&black))->   alloc();
     ((QColor*)(&white))->   alloc();
