@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#68 $
 **
 ** Implementation of QScrollView class
 **
@@ -800,7 +800,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* )
 
   \sa QWidget::dragEnterEvent()
 */
-void viewportDragEnterEvent( QDragEnterEvent * )
+void QScrollView::viewportDragEnterEvent( QDragEnterEvent * )
 {
 }
 
@@ -811,7 +811,7 @@ void viewportDragEnterEvent( QDragEnterEvent * )
 
   \sa QWidget::dragMoveEvent()
 */
-void viewportDragMoveEvent( QDragMoveEvent * )
+void QScrollView::viewportDragMoveEvent( QDragMoveEvent * )
 {
 }
 
@@ -822,7 +822,7 @@ void viewportDragMoveEvent( QDragMoveEvent * )
 
   \sa QWidget::dragLeaveEvent()
 */
-void viewportDragLeaveEvent( QDragLeaveEvent * )
+void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent * )
 {
 }
 
@@ -833,7 +833,7 @@ void viewportDragLeaveEvent( QDragLeaveEvent * )
 
   \sa QWidget::dropEvent()
 */
-void viewportDropEvent( QDropEvent * )
+void QScrollView::viewportDropEvent( QDropEvent * )
 {
 }
 
@@ -844,7 +844,7 @@ void viewportDropEvent( QDropEvent * )
 
   \sa QWidget::wheelEvent()
 */
-void viewportWheelEvent( QWheelEvent * )
+void QScrollView::viewportWheelEvent( QWheelEvent * )
 {
 }
 
