@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI>
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>Config</class>
 <comment>*********************************************************************
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
@@ -19,14 +19,11 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>Config</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
@@ -34,41 +31,34 @@
             <height>645</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>Configure</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
     <grid>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="0"  column="1" >
-            <class>QButtonGroup</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QButtonGroup" row="0" column="1">
+            <property name="name">
                 <cstring>ButtonGroup2</cstring>
             </property>
-            <property stdset="1">
-                <name>title</name>
+            <property name="title">
                 <string>Depth</string>
             </property>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_1</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>19</y>
@@ -76,19 +66,15 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>1 bit monochrome</string>
                 </property>
             </widget>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_4gray</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>44</y>
@@ -96,19 +82,15 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>4 bit grayscale</string>
                 </property>
             </widget>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_8</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>69</y>
@@ -116,19 +98,15 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>8 bit</string>
                 </property>
             </widget>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_12</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>94</y>
@@ -136,19 +114,15 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>12 (16) bit</string>
                 </property>
             </widget>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_16</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>119</y>
@@ -156,19 +130,15 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>16 bit</string>
                 </property>
             </widget>
-            <widget>
-                <class>QRadioButton</class>
-                <property stdset="1">
-                    <name>name</name>
+            <widget class="QRadioButton">
+                <property name="name">
                     <cstring>depth_32</cstring>
                 </property>
-                <property stdset="1">
-                    <name>geometry</name>
+                <property name="geometry">
                     <rect>
                         <x>11</x>
                         <y>144</y>
@@ -176,122 +146,99 @@
                         <height>19</height>
                     </rect>
                 </property>
-                <property stdset="1">
-                    <name>text</name>
+                <property name="text">
                     <string>32 bit</string>
                 </property>
             </widget>
         </widget>
-        <widget row="3"  column="0"  rowspan="1"  colspan="2" >
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
+            <property name="name">
                 <cstring>Layout1</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonOk</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;OK</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property stdset="1">
-                        <name>default</name>
+                    <property name="default">
                         <bool>true</bool>
                     </property>
                 </widget>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>buttonCancel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Cancel</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <widget row="2"  column="0"  rowspan="1"  colspan="2" >
-            <class>QGroupBox</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="2">
+            <property name="name">
                 <cstring>GroupBox1</cstring>
             </property>
-            <property stdset="1">
-                <name>title</name>
+            <property name="title">
                 <string>Gamma</string>
             </property>
             <grid>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>11</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget row="6"  column="0" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="6" column="0">
+                    <property name="name">
                         <cstring>TextLabel3</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>Blue</string>
                     </property>
                 </widget>
-                <widget row="6"  column="1" >
-                    <class>QSlider</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QSlider" row="6" column="1">
+                    <property name="name">
                         <cstring>bslider</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>palette</name>
+                    <property name="palette">
                         <palette>
                             <active>
                                 <color>
@@ -363,6 +310,16 @@
                                     <red>255</red>
                                     <green>255</green>
                                     <blue>255</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
                                 </color>
                             </active>
                             <disabled>
@@ -436,6 +393,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </disabled>
                             <inactive>
                                 <color>
@@ -508,73 +475,67 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </inactive>
                         </palette>
                     </property>
-                    <property stdset="1">
-                        <name>maxValue</name>
+                    <property name="maxValue">
                         <number>400</number>
                     </property>
-                    <property stdset="1">
-                        <name>value</name>
+                    <property name="value">
                         <number>100</number>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <widget row="6"  column="2" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="6" column="2">
+                    <property name="name">
                         <cstring>blabel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>1.0</string>
                     </property>
                 </widget>
-                <spacer row="5"  column="1" >
-                    <property>
-                        <name>name</name>
+                <spacer row="5" column="1">
+                    <property name="name">
                         <cstring>Spacer3</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Vertical</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget row="4"  column="0" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="4" column="0">
+                    <property name="name">
                         <cstring>TextLabel2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>Green</string>
                     </property>
                 </widget>
-                <widget row="4"  column="1" >
-                    <class>QSlider</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QSlider" row="4" column="1">
+                    <property name="name">
                         <cstring>gslider</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>palette</name>
+                    <property name="palette">
                         <palette>
                             <active>
                                 <color>
@@ -647,6 +608,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </active>
                             <disabled>
                                 <color>
@@ -718,6 +689,16 @@
                                     <red>255</red>
                                     <green>255</green>
                                     <blue>255</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
                                 </color>
                             </disabled>
                             <inactive>
@@ -791,63 +772,58 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </inactive>
                         </palette>
                     </property>
-                    <property stdset="1">
-                        <name>maxValue</name>
+                    <property name="maxValue">
                         <number>400</number>
                     </property>
-                    <property stdset="1">
-                        <name>value</name>
+                    <property name="value">
                         <number>100</number>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <widget row="4"  column="2" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="4" column="2">
+                    <property name="name">
                         <cstring>glabel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>1.0</string>
                     </property>
                 </widget>
-                <widget row="0"  column="0" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
                         <cstring>TextLabel7</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>All</string>
                     </property>
                 </widget>
-                <widget row="0"  column="2" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="0" column="2">
+                    <property name="name">
                         <cstring>TextLabel8</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>1.0</string>
                     </property>
                 </widget>
-                <widget row="0"  column="1" >
-                    <class>QSlider</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QSlider" row="0" column="1">
+                    <property name="name">
                         <cstring>gammaslider</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>palette</name>
+                    <property name="palette">
                         <palette>
                             <active>
                                 <color>
@@ -920,6 +896,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </active>
                             <disabled>
                                 <color>
@@ -991,6 +977,16 @@
                                     <red>255</red>
                                     <green>255</green>
                                     <blue>255</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
                                 </color>
                             </disabled>
                             <inactive>
@@ -1064,52 +1060,50 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </inactive>
                         </palette>
                     </property>
-                    <property stdset="1">
-                        <name>maxValue</name>
+                    <property name="maxValue">
                         <number>400</number>
                     </property>
-                    <property stdset="1">
-                        <name>value</name>
+                    <property name="value">
                         <number>100</number>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <widget row="2"  column="0" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
                         <cstring>TextLabel1_2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>Red</string>
                     </property>
                 </widget>
-                <widget row="2"  column="2" >
-                    <class>QLabel</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLabel" row="2" column="2">
+                    <property name="name">
                         <cstring>rlabel</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>1.0</string>
                     </property>
                 </widget>
-                <widget row="2"  column="1" >
-                    <class>QSlider</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QSlider" row="2" column="1">
+                    <property name="name">
                         <cstring>rslider</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>palette</name>
+                    <property name="palette">
                         <palette>
                             <active>
                                 <color>
@@ -1182,6 +1176,16 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </active>
                             <disabled>
                                 <color>
@@ -1253,6 +1257,16 @@
                                     <red>255</red>
                                     <green>255</green>
                                     <blue>255</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
                                 </color>
                             </disabled>
                             <inactive>
@@ -1326,97 +1340,87 @@
                                     <green>255</green>
                                     <blue>255</blue>
                                 </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>0</blue>
+                                </color>
                             </inactive>
                         </palette>
                     </property>
-                    <property stdset="1">
-                        <name>maxValue</name>
+                    <property name="maxValue">
                         <number>400</number>
                     </property>
-                    <property stdset="1">
-                        <name>value</name>
+                    <property name="value">
                         <number>100</number>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <spacer row="3"  column="1" >
-                    <property>
-                        <name>name</name>
+                <spacer row="3" column="1">
+                    <property name="name">
                         <cstring>Spacer2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Vertical</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <spacer row="1"  column="1" >
-                    <property>
-                        <name>name</name>
+                <spacer row="1" column="1">
+                    <property name="name">
                         <cstring>Spacer4</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Vertical</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget row="8"  column="0"  rowspan="1"  colspan="3" >
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton" row="8" column="0" rowspan="1" colspan="3">
+                    <property name="name">
                         <cstring>PushButton3</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>Set all to 1.0</string>
                     </property>
                 </widget>
-                <widget row="0"  column="3"  rowspan="9"  colspan="1" >
-                    <class>GammaView</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="GammaView" row="0" column="3" rowspan="9" colspan="1">
+                    <property name="name">
                         <cstring>MyCustomWidget1</cstring>
                     </property>
                 </widget>
-                <spacer row="7"  column="1" >
-                    <property>
-                        <name>name</name>
+                <spacer row="7" column="1">
+                    <property name="name">
                         <cstring>Spacer5</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Vertical</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
@@ -1425,213 +1429,178 @@
                 </spacer>
             </grid>
         </widget>
-        <widget row="0"  column="0" >
-            <class>QButtonGroup</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QButtonGroup" row="0" column="0">
+            <property name="name">
                 <cstring>ButtonGroup1</cstring>
             </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
+            <property name="sizePolicy">
                 <sizepolicy>
                     <hsizetype>5</hsizetype>
                     <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
-            <property stdset="1">
-                <name>title</name>
+            <property name="title">
                 <string>Size</string>
             </property>
             <vbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>11</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QRadioButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QRadioButton">
+                    <property name="name">
                         <cstring>size_240_320</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>240x320 "PDA"</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QRadioButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QRadioButton">
+                    <property name="name">
                         <cstring>size_320_240</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>320x240 "TV"</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QRadioButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QRadioButton">
+                    <property name="name">
                         <cstring>size_640_480</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>640x480 "VGA"</string>
                     </property>
                 </widget>
-                <widget>
-                    <class>QLayoutWidget</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLayoutWidget">
+                    <property name="name">
                         <cstring>Layout1_2</cstring>
                     </property>
                     <hbox>
-                        <property stdset="1">
-                            <name>margin</name>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
                             <number>0</number>
                         </property>
-                        <property stdset="1">
-                            <name>spacing</name>
+                        <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget>
-                            <class>QRadioButton</class>
-                            <property stdset="1">
-                                <name>name</name>
+                        <widget class="QRadioButton">
+                            <property name="name">
                                 <cstring>size_custom</cstring>
                             </property>
-                            <property stdset="1">
-                                <name>text</name>
+                            <property name="text">
                                 <string>Custom</string>
                             </property>
                         </widget>
-                        <widget>
-                            <class>QSpinBox</class>
-                            <property stdset="1">
-                                <name>name</name>
+                        <widget class="QSpinBox">
+                            <property name="name">
                                 <cstring>size_width</cstring>
                             </property>
-                            <property stdset="1">
-                                <name>maxValue</name>
+                            <property name="maxValue">
                                 <number>1280</number>
                             </property>
-                            <property stdset="1">
-                                <name>minValue</name>
+                            <property name="minValue">
                                 <number>1</number>
                             </property>
-                            <property stdset="1">
-                                <name>lineStep</name>
+                            <property name="lineStep">
                                 <number>16</number>
                             </property>
-                            <property stdset="1">
-                                <name>value</name>
+                            <property name="value">
                                 <number>400</number>
                             </property>
                         </widget>
-                        <widget>
-                            <class>QSpinBox</class>
-                            <property stdset="1">
-                                <name>name</name>
+                        <widget class="QSpinBox">
+                            <property name="name">
                                 <cstring>size_height</cstring>
                             </property>
-                            <property stdset="1">
-                                <name>maxValue</name>
+                            <property name="maxValue">
                                 <number>1024</number>
                             </property>
-                            <property stdset="1">
-                                <name>minValue</name>
+                            <property name="minValue">
                                 <number>1</number>
                             </property>
-                            <property stdset="1">
-                                <name>lineStep</name>
+                            <property name="lineStep">
                                 <number>16</number>
                             </property>
-                            <property stdset="1">
-                                <name>value</name>
+                            <property name="value">
                                 <number>300</number>
                             </property>
                         </widget>
                     </hbox>
                 </widget>
-                <widget>
-                    <class>QLayoutWidget</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QLayoutWidget">
+                    <property name="name">
                         <cstring>Layout8</cstring>
                     </property>
                     <hbox>
-                        <property stdset="1">
-                            <name>margin</name>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
                             <number>0</number>
                         </property>
-                        <property stdset="1">
-                            <name>spacing</name>
+                        <property name="spacing">
                             <number>6</number>
                         </property>
-                        <widget>
-                            <class>QRadioButton</class>
-                            <property stdset="1">
-                                <name>name</name>
+                        <widget class="QRadioButton">
+                            <property name="name">
                                 <cstring>size_skin</cstring>
                             </property>
-                            <property stdset="1">
-                                <name>sizePolicy</name>
+                            <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>0</hsizetype>
                                     <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
-                            <property stdset="1">
-                                <name>text</name>
+                            <property name="text">
                                 <string>Skin</string>
                             </property>
                         </widget>
-                        <widget>
-                            <class>QComboBox</class>
+                        <widget class="QComboBox">
                             <item>
-                                <property>
-                                    <name>text</name>
+                                <property name="text">
                                     <string>pda.skin</string>
                                 </property>
                             </item>
                             <item>
-                                <property>
-                                    <name>text</name>
+                                <property name="text">
                                     <string>ipaq.skin</string>
                                 </property>
                             </item>
                             <item>
-                                <property>
-                                    <name>text</name>
+                                <property name="text">
                                     <string>qpe.skin</string>
                                 </property>
                             </item>
                             <item>
-                                <property>
-                                    <name>text</name>
+                                <property name="text">
                                     <string>cassiopeia.skin</string>
                                 </property>
                             </item>
                             <item>
-                                <property>
-                                    <name>text</name>
+                                <property name="text">
                                     <string>other.skin</string>
                                 </property>
                             </item>
-                            <property stdset="1">
-                                <name>name</name>
+                            <property name="name">
                                 <cstring>skin</cstring>
                             </property>
-                            <property stdset="1">
-                                <name>sizePolicy</name>
+                            <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>5</hsizetype>
                                     <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
                         </widget>
@@ -1639,14 +1608,11 @@
                 </widget>
             </vbox>
         </widget>
-        <widget row="1"  column="0"  rowspan="1"  colspan="2" >
-            <class>QLabel</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLabel" row="1" column="0" rowspan="1" colspan="2">
+            <property name="name">
                 <cstring>TextLabel1</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>&lt;p&gt;Note that any applications using the virtual framebuffer will be terminated if you change the Size or Depth &lt;i&gt;above&lt;/i&gt;. You may freely modify the Gamma &lt;i&gt;below&lt;/i&gt;.</string>
             </property>
         </widget>
@@ -1664,13 +1630,14 @@
         <sizepolicy>
             <hordata>3</hordata>
             <verdata>3</verdata>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
         </sizepolicy>
         <pixmap>image0</pixmap>
     </customwidget>
 </customwidgets>
 <images>
-    <image>
-        <name>image0</name>
+    <image name="image0">
         <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
     </image>
 </images>
@@ -1688,4 +1655,5 @@
         <slot>reject()</slot>
     </connection>
 </connections>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
