@@ -108,7 +108,7 @@ void QListModel::insert(int row, QListWidgetItem *item)
 
 QListWidgetItem *QListModel::take(int row)
 {
-    if (row >= 0 && row <= lst.count()) {
+    if (row >= 0 && row < lst.count()) {
         emit rowsRemoved(QModelIndex::Null, row, row);
         lst.at(row)->model = 0;
         return lst.takeAt(row);
