@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#15 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -14,7 +14,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#15 $")
 
 
 /*****************************************************************************
@@ -23,21 +23,19 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_win.cpp#14 $")
 
 HANDLE QColor::hpal = 0;			// application global palette
 
-#define TEST_WINDOWS_PALETTE
-
 
 int QColor::maxColors()
 {
-    static int maxcol = 0;
-    if ( maxcol == 0 ) {
+    static int maxcols = 0;
+    if ( maxcols == 0 ) {
 	HANDLE hdc = GetDC( 0 );
 	if ( GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE )
-	    maxcol = GetDeviceCaps( hdc, SIZEPALETTE );
+	    maxcols = GetDeviceCaps( hdc, SIZEPALETTE );
 	else
-	    maxcol = GetDeviceCaps( hdc, NUMCOLORS );
+	    maxcols = GetDeviceCaps( hdc, NUMCOLORS );
 	ReleaseDC( 0, hdc );
     }
-    return maxcol;
+    return maxcols;
 }
 
 int QColor::numBitPlanes()
@@ -52,12 +50,13 @@ int QColor::numBitPlanes()
 }
 
 
+#define TEST_WINDOWS_PALETTE
+
 void QColor::initialize()
 {
-    ginit = TRUE;
     return;
 #if defined(TEST_WINDOWS_PALETTE)
-    int numCols = 256;
+    int numCols = maxColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
 	return;
 
@@ -95,14 +94,14 @@ void QColor::initialize()
 
 void QColor::cleanup()
 {
-    if ( hpal )	{				// delete application global
+    if ( hpal ) {				// delete application global
 	DeleteObject( hpal );			//   palette
 	hpal = 0;
     }
 }
 
 
-uint QColor::realizePal( QWidget *widget )
+uint QColor::realizePal( QWidget *widget )	// realize palette
 {
     if ( !hpal )				// not using palette
 	return 0;
@@ -132,13 +131,14 @@ QColor::QColor( ulong rgb, ulong pixel )
 }
 
 
-void QColor::alloc()
+ulong QColor::alloc()
 {
     rgbVal &= RGB_MASK;
     if ( hpal )
 	pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
     else
 	pix = rgbVal;
+    return pix;
 }
 
 
