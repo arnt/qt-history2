@@ -1866,11 +1866,11 @@ void TrWindow::setupMenuBar()
     newPhraseBookAct->setWhatsThis( tr("Create a new phrase book.") );
     openPhraseBookAct->setWhatsThis( tr("Open a phrase book to assist"
 					" translation.") );
-    acceleratorsAct->setWhatsThis( tr("Enable or disable validity checks of"
+    acceleratorsAct->setWhatsThis( tr("Toggle validity checks of"
 				      " accelerators.") );
-    endingPunctuationAct->setWhatsThis( tr("Enable or disable validity checks"
+    endingPunctuationAct->setWhatsThis( tr("Toggle validity checks"
 					   " of ending punctuation.") );
-    phraseMatchesAct->setWhatsThis( tr("Enable or disable checking that phrase"
+    phraseMatchesAct->setWhatsThis( tr("Toggle checking that phrase"
 				       " suggestions are used.") );
 
     revertSortingAct->setWhatsThis( tr("Sort the items back in the same order"
