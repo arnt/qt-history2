@@ -256,9 +256,12 @@ void QWizard::addPage( QWidget * page, const QString & title )
 	return;
     }
     int i = d->pages.count();
+    
+    if( i > 0 ) 
+	d->pages.at( i - 1 )->nextEnabled = TRUE;
+
     QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
     p->backEnabled = ( i > 0 );
-
     d->ws->addWidget( page, i );
     d->pages.append( p );
 }
@@ -284,6 +287,9 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
 
     if ( index < 0  || index > (int)d->pages.count() )
 	index = d->pages.count();
+
+    if( index > 0 && ( index == d->pages.count() ) )
+	d->pages.at( index - 1 )->nextEnabled = TRUE;
 
     QWizardPrivate::Page * p = new QWizardPrivate::Page( page, title );
     p->backEnabled = ( index > 0 );
