@@ -1973,7 +1973,7 @@ QCustomEvent::QCustomEvent( int type )
     : QEvent( (QEvent::Type)type ), d( 0 )
 {
 #if defined(QT_CHECK_RANGE)
-    if ( type < (int)QEvent::User )
+    if ( type < (int)QEvent::User || type > (int)QEvent::MaxUser )
 	qWarning( "QCustomEvent: Illegal type id." );
 #endif
 }
