@@ -8,7 +8,7 @@ CFLAGS	    =	-c -o$@ -O \
 		-DUNICODE -DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	
-LIBS	    =	-lole32 -luuid
+LIBS	    =	-lgcc -lole32 -luuid 
 LINKQMAKE   =	g++ $(LFLAGS) -o qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	
 
