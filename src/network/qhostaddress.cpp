@@ -224,6 +224,7 @@ void QHostAddressPrivate::clear()
     \value LocalHostIPv6 The IPv6 localhost address. Equivalent to QHostAddress("::1").
     \value Broadcast The IPv4 broadcast address. Equivalent to QHostAddress("255.255.255.255").
     \value Any The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
+    \value Any The IPv6 any-address. Equivalent to QHostAddress("::").
 */
 
 /*!  Creates a host address object with the IP address 0.0.0.0.
@@ -276,6 +277,9 @@ QHostAddress::QHostAddress(SpecialAddress address)
         break;
     case Any:
         setAddress("0.0.0.0");
+        break;
+    case AnyIPv6:
+        setAddress("::");
         break;
     }
 }

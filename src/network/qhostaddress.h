@@ -37,7 +37,8 @@ public:
         Broadcast,
         LocalHost,
         LocalHostIPv6,
-        Any
+        Any,
+        AnyIPv6
     };
 
     QHostAddress();
