@@ -249,6 +249,7 @@ public:
 #endif
 
     int grabShortcut(const QObject *monitor, const QKeySequence &key, Qt::ShortcutContext context);
+    void setupAction(QAction *before, QAction *action);
     void actionChanged();  //private slot
     void actionDeleted();  //private slot
 

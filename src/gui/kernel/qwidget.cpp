@@ -1673,15 +1673,7 @@ QWidget::addAction(QAction *action)
     if(d->actions.contains(action))
         return;
     d->actions.append(action);
-    QObject::connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
-    QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
-    if (!action->shortcut().isEmpty()) {
-        setAttribute(Qt::WA_GrabbedShortcut);
-        Q_ASSERT(qApp);
-        qApp->d->shortcutMap.addShortcut(this,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
-    }
-    QActionEvent e(QEvent::ActionAdded, action);
-    QApplication::sendEvent(this, &e);
+    d->setupAction(0, action);
 }
 
 /*!
@@ -1713,17 +1705,9 @@ QWidget::insertAction(QAction *before, QAction *action)
         d->actions.removeAll(action);
     int before_int = d->actions.indexOf(before);
     if (before_int < 0)
-        before = d->actions.at(0);
+        before = (d->actions.count() ? d->actions.at(0) : 0);
     d->actions.insert(before_int, action);
-    QObject::connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
-    QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
-    if (!action->shortcut().isEmpty()) {
-        setAttribute(Qt::WA_GrabbedShortcut);
-        Q_ASSERT(qApp);
-        qApp->d->shortcutMap.addShortcut(this,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
-    }
-    QActionEvent e(QEvent::ActionAdded, action, before);
-    QApplication::sendEvent(this, &e);
+    d->setupAction(before, action);
 }
 
 /*!
@@ -1740,6 +1724,24 @@ QWidget::insertActions(QAction *before, QList<QAction*> actions)
         insertAction(before, actions[i]);
         before = act;
     }
+}
+
+/*!
+    \internal
+    Called when an action is added or inserted to connect signals
+    and setup the shortcuts properly.
+*/
+void QWidgetPrivate::setupAction(QAction *before, QAction *action)
+{
+    QObject::connect(action, SIGNAL(changed()), q, SLOT(actionChanged()));
+    QObject::connect(action, SIGNAL(deleted()), q, SLOT(actionDeleted()));
+    if (!action->shortcut().isEmpty()) {
+        q->setAttribute(Qt::WA_GrabbedShortcut);
+        Q_ASSERT(qApp);
+        qApp->d->shortcutMap.addShortcut(q,  action,  action->shortcut(),  Qt::ShortcutOnActiveWindow);
+    }
+    QActionEvent e(QEvent::ActionAdded, action, before);
+    QApplication::sendEvent(q, &e);
 }
 
 /*!
