@@ -325,6 +325,8 @@ bool Moc::parseEnum(EnumDef *def)
     if (!test(LBRACE))
         return false;
     do {
+        if (lookup() == RBRACE) // accept trailing comma
+            break;
         next(IDENTIFIER);
         def->values += lexem();
     } while (test(EQ) ? until(COMMA) : test(COMMA));
@@ -860,17 +862,19 @@ void Moc::parseClassInfo(ClassDef *def)
 void Moc::parseInterfaces(ClassDef *def)
 {
     next(LPAREN);
-    while (test(IDENTIFIER)) {
-        QList<QByteArray> iface;
-        iface += lexem();
-        while (test(COLON)) {
+    QList<QByteArray> ifaceHierarchy;
+    do {
+        next(IDENTIFIER);
+        QByteArray iface = lexem();
+        while (test(SCOPE)) {
+            iface += lexem();
             next(IDENTIFIER);
             iface += lexem();
         }
-        def->interfaceList += iface;
-    }
+        ifaceHierarchy += iface;
+    } while (test(COLON));
+    def->interfaceList += ifaceHierarchy;
     next(RPAREN);
-
 }
 
 void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
