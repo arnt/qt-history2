@@ -585,8 +585,10 @@ int QFontEngineWin::minRightBearing() const
 	    ml = abc[0].abcA;
 	    mr = abc[0].abcC;
     	    for ( int i = 1; i < n; i++ ) {
-		ml = QMIN(ml,abc[i].abcA);
-		mr = QMIN(mr,abc[i].abcC);
+		if ( abc[i].abcA + abc[i].abcB + abc[i].abcC != 0 ) {
+		    ml = QMIN(ml,abc[i].abcA);
+		    mr = QMIN(mr,abc[i].abcC);
+		}
 	    }
 	    delete [] abc;
 	} else {
@@ -605,8 +607,10 @@ int QFontEngineWin::minRightBearing() const
 		float fml = abc[0].abcfA;
 		float fmr = abc[0].abcfC;
 		for (int i=1; i<n; i++) {
-		    fml = QMIN(fml,abc[i].abcfA);
-		    fmr = QMIN(fmr,abc[i].abcfC);
+		    if ( abc[i].abcfA + abc[i].abcfB + abc[i].abcfC != 0 ) {
+			fml = QMIN(fml,abc[i].abcfA);
+			fmr = QMIN(fmr,abc[i].abcfC);
+		    }
 		}
 		ml = int(fml-0.9999);
 		mr = int(fmr-0.9999);
