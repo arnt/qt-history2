@@ -2,6 +2,7 @@
 #include <qurl.h>
 #include <qmessagebox.h>
 #include <qdragobject.h>
+#include <qdir.h>
 #include <qfile.h>
 
 HelpWindow::HelpWindow( QWidget *parent, const char *name )
@@ -36,7 +37,7 @@ void HelpWindow::setSource( const QString &name )
 	if ( j == -1 )
 	    j = txt.find( "<!-- eo" );
 	txt.insert( j, "</td></tr></table>" );
-	QString home = getenv( "HOME" );
+	QString home = QDir::homeDirPath();
 	QFile f( home + "/.designer/tmp_" +
 		 name.mid( name.find( '#' ) + 1 ) + "_" + name.mid( 2 ).left( name.mid( 2 ).find( '#' ) ) );
 	if ( !f.open( IO_WriteOnly ) )
