@@ -100,7 +100,7 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlField qMakeFieldInfo( const QODBCPrivate* p, int i  )
+QSqlField qMakeField( const QODBCPrivate* p, int i  )
 {
     SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
@@ -176,7 +176,7 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull  )
     return (int)intbuf;
 }
 
-QSqlField qMakeFieldInfo( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
+QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QString& fieldname )
 {
     QSqlField fi;
     SQLHANDLE hStmt;
@@ -488,7 +488,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 	SQLINTEGER lengthIndicator = 0;
 	bool isNull;
 	QString fieldVal = qGetStringData( hStmt, 3, buf, lengthIndicator, isNull ); // column name
-	QSqlField f = qMakeFieldInfo( d, tablename, fieldVal );
+	QSqlField f = qMakeField( d, tablename, fieldVal );
 	f.setFieldNumber( count );
 	index.append( f );
 	r = SQLFetchScroll( hStmt,
@@ -705,7 +705,7 @@ QVariant QODBCResult::data( int field )
     bool isNull = FALSE;
     int current = fieldCache.count();
     for ( ; current < (field + 1); current++ ) {
-	QSqlField info = qMakeFieldInfo( d, field );
+	QSqlField info = qMakeField( d, field );
 	switch ( info.type() ) {
 	case QVariant::Int:
 	    isNull = FALSE;
@@ -813,7 +813,7 @@ QSqlFieldList QODBCResult::fields() const
 #endif
     if ( count > 0 && r == SQL_SUCCESS ) {
 	for ( int i = 0; i < count; ++i ) {
-            fil.append( qMakeFieldInfo( d, i ) );
+            fil.append( qMakeField( d, i ) );
         }
     }
     return fil;

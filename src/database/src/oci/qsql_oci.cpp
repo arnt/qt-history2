@@ -19,7 +19,7 @@ public:
     OCIStmt          *sql;
 };
 
-QString OraWarn( const QOCIPrivate* d)
+QString qOraWarn( const QOCIPrivate* d)
 {
     unsigned char   errbuf[100];
     int             errcode;
@@ -33,9 +33,9 @@ QString OraWarn( const QOCIPrivate* d)
     return QString( (char*)errbuf );
 }
 
-QSqlError makeError( const QString& err, int type, const QOCIPrivate* p )
+QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 {
-    return QSqlError("QOCI: " + err, OraWarn(p), type );
+    return QSqlError("QOCI: " + err, qOraWarn(p), type );
 }
 
 QVariant::Type qDecodeOCIType( int ocitype )
@@ -85,7 +85,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     return type;
 }
 
-QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
+QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 {
     OCIParam	*param;
     text        *colName;
@@ -112,7 +112,7 @@ QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( OraWarn( p ) );
+	    qWarning( qOraWarn( p ) );
 #endif
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -122,7 +122,7 @@ QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( OraWarn( p ) );
+	    qWarning( qOraWarn( p ) );
 #endif
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -132,7 +132,7 @@ QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( OraWarn( p ) );
+	    qWarning( qOraWarn( p ) );
 #endif
 	r = OCIAttrGet((dvoid*) param,
 			OCI_DTYPE_PARAM,
@@ -142,7 +142,7 @@ QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( OraWarn( p ) );
+	    qWarning( qOraWarn( p ) );
 #endif
 	r = OCIAttrGet( (dvoid*)param,
 			OCI_DTYPE_PARAM,
@@ -152,7 +152,7 @@ QSqlField makeFieldInfo( const QOCIPrivate* p, ub4 i )
 			p->err);
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( OraWarn( p ) );
+	    qWarning( qOraWarn( p ) );
 #endif
 	type = qDecodeOCIType( colType );
 	if ( type == QVariant::DateTime )
@@ -185,7 +185,7 @@ void QOCIDriver::init()
 			    (void**)NULL);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to create environment - " + OraWarn( d ) );
+	qWarning( "Unable to create environment - " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->err,
@@ -194,7 +194,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to alloc error handle - " + OraWarn( d ) );
+	qWarning( "Unable to alloc error handle - " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->svc,
@@ -203,10 +203,10 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( "Unable to alloc service context - " + OraWarn( d ) );
+	qWarning( "Unable to alloc service context - " + qOraWarn( d ) );
 #endif
     if ( r != 0 )
-    	setLastError( makeError( "Unable to initialize", QSqlError::Connection, d ) );
+    	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
 }
 
 QOCIDriver::~QOCIDriver()
@@ -232,7 +232,7 @@ bool QOCIDriver::open( const QString & db,
 			(unsigned char*)db.local8Bit().data(),
 			db.length() );
     if ( r != 0 ) {
-	setLastError( makeError("Unable to logon", QSqlError::Connection, d ) );
+	setLastError( qMakeError("Unable to logon", QSqlError::Connection, d ) );
 	return FALSE;
     }
     setOpen( TRUE );
@@ -337,7 +337,7 @@ public:
 	OCIDefine 	*dfn;
 	int 		r;
 	for ( int i=1; i <= size; ++i ) {
-	    QSqlField f = makeFieldInfo( d, i );
+	    QSqlField f = qMakeField( d, i );
 	    //	    dataSize = f.length; // ### must fix this!
 	    dataSize = 255; // temporary hack
 	    if ( f.type() == QVariant::DateTime ) {
@@ -367,7 +367,7 @@ public:
 	    }
 #ifdef CHECK_RANGE
 	    if ( r != 0 )
-	    	qWarning( OraWarn( d ) );
+	    	qWarning( qOraWarn( d ) );
 #endif
 	}
     }
@@ -425,7 +425,7 @@ QOCIResult::~QOCIResult()
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "Unable to free statement handle - " + OraWarn( d ) );
+	    qWarning( "Unable to free statement handle - " + qOraWarn( d ) );
 #endif
     }
     delete d;
@@ -440,7 +440,7 @@ bool QOCIResult::reset ( const QString& query )
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "Unable to free statement handle - " + OraWarn( d ) );
+	    qWarning( "Unable to free statement handle - " + qOraWarn( d ) );
 #endif
     }
     if ( cols ) {
@@ -455,7 +455,7 @@ bool QOCIResult::reset ( const QString& query )
 			0);
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( "Unable to alloc statement - " + OraWarn( d ) );
+	qWarning( "Unable to alloc statement - " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -472,7 +472,7 @@ bool QOCIResult::reset ( const QString& query )
 			OCI_DEFAULT );
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( "Unable to prepare statement - " + OraWarn( d ) );
+	qWarning( "Unable to prepare statement - " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -495,9 +495,9 @@ bool QOCIResult::reset ( const QString& query )
 				OCI_DEFAULT );
 	if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	    qWarning( OraWarn( d ) );
+	    qWarning( qOraWarn( d ) );
 #endif
-	    setLastError( makeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
     	ub4 parmCount;
@@ -521,9 +521,9 @@ bool QOCIResult::reset ( const QString& query )
     }
     if ( r != 0 ) {
 #ifdef CHECK_RANGE
-	qWarning( OraWarn( d ) );
+	qWarning( qOraWarn( d ) );
 #endif
-	setLastError( makeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
     setActive( TRUE) ;
@@ -542,16 +542,16 @@ bool QOCIResult::fetchNext()
 			    OCI_FETCH_NEXT,
 			    OCI_DEFAULT );
 //    if( r==OCI_ERROR)
-//	qDebug("next error" + OraWarn(d));
+//	qDebug("next error" + qOraWarn(d));
 //    if ( r==OCI_SUCCESS_WITH_INFO)
-//	qDebug("next success with info" + OraWarn(d));
+//	qDebug("next success with info" + qOraWarn(d));
     if ( r != 0 ) {
 	setAt( BeforeFirst );
 	return FALSE;
     }
     setAt( at() + 1 );
     for ( int i = 0; i < cols->size(); ++i ) {
-	QSqlField f = makeFieldInfo( d, i+1 );
+	QSqlField f = qMakeField( d, i+1 );
 	if ( f.type() == QVariant::DateTime ) {
 	    int century = cols->at(i)[0];
 	    int year = (unsigned char)cols->at(i)[1];
@@ -639,10 +639,10 @@ QSqlFieldList QOCIResult::fields() const
 				d->err);
 #ifdef CHECK_RANGE
     if ( r != 0 )
-	qWarning( OraWarn( d ) );
+	qWarning( qOraWarn( d ) );
 #endif
     for ( ub4 i = 0; i < numCols; ++i )
-	fil.append( makeFieldInfo( d, i ) );
+	fil.append( qMakeField( d, i ) );
     return fil;
 }
 
