@@ -4,4 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-./mkdist.generic $* trial win /tmp/qtdist
+./mkdist.generic $* trial win /tmp/qtdist-`whoami`

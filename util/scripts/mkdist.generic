@@ -77,6 +77,10 @@ else
   cvs -Q export -Dnow qt
 fi
 
+echo "Removing internal files..." >&2
+cd ${DISTDIR}/qt/src
+for d in `make showdirs`; do cd $d ; rm -fv `make showinternal`; cd .. ; done
+
 VERSION=`grep "#define.*QT_VERSION" ${DISTDIR}/qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
 echo "Auto-detected the Qt version number -- " $VERSION >&2
@@ -174,15 +178,9 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
-  if [ "$disttype" = "beta" ]; then
-    mv qt qt-${VERSION}-beta
-    tar cf qt-${VERSION}-betaX.tar qt-${VERSION}-beta
-    gzip -9 qt-${VERSION}-betaX.tar
-  else
-    mv qt qt-${VERSION}
-    tar cf qt-${VERSION}.tar qt-${VERSION}
-    gzip -9 qt-${VERSION}.tar
-  fi
+  mv qt qt-${VERSION}
+  tar cf qt-${VERSION}.tar qt-${VERSION}
+  gzip -9 qt-${VERSION}.tar
 fi
 
 echo "Done" >&2
