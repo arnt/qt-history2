@@ -757,6 +757,7 @@ void MainWindow::setupFileActions()
 
     a = new QAction( this, 0 );
     actionFileExit = a;
+    a->setAccel(CTRL + Key_Q);
     if  ( !singleProjectMode() ) {
 	a->setText( tr( "Exit" ) );
 	a->setMenuText( tr( "E&xit" ) );
