@@ -24,7 +24,7 @@
 
 #include <QtCore/QFile>
 #include <QtGui/QFileDialog>
-#include <QtGui/QVariant>
+#include <QtCore/QVariant>
 #include <QtGui/QMessageBox>
 
 #include <qdebug.h>

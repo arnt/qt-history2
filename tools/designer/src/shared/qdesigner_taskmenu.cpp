@@ -28,7 +28,7 @@
 #include <QtGui/QInputDialog>
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWindow>
-#include <QtGui/QVariant>
+#include <QtCore/QVariant>
 
 #include <qdebug.h>
 

@@ -23,7 +23,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/QPair>
 
-#include <QtGui/QVariant>
+#include <QtCore/QVariant>
 
 class AbstractFormEditor;
 class AbstractFormWindowManager;

@@ -34,7 +34,7 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QActionGroup>
-#include <QtGui/QVariant>
+#include <QtCore/QVariant>
 
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
