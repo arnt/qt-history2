@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#36 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -27,7 +27,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#36 $";
 #endif
 
 
@@ -246,6 +246,10 @@ int main( int argc, char **argv )
 
 static void trapSignals( int signo )		// default signal handler
 {
+#if defined(DEBUG)
+    if ( appMemChk )
+	memchkSetReporting( FALSE );		// ignore error messages
+#endif
     warning( "%s: Signal %d received", appName, signo );
     exit( 0 );
 }
@@ -312,38 +316,42 @@ QWidget *QApplication::desktop()
 
 void QApplication::setCursor( const QCursor &c )// set application cursor
 {
+    if ( appCursor )
+	delete appCursor;
+    appCursor = new QCursor( c );
+    CHECK_PTR( appCursor );
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
-    appCursor = c;
-    appCursorDefined = TRUE;
-    while ( (w=it.current()) ) {
-	if ( w->testFlag(WCursorSet) )
-	    XDefineCursor( w->display(), w->id(), c.handle() );
+    while ( (w=it.current()) ) {		// for all widgets that have
+	if ( w->testFlag(WCursorSet) )		//   set a cursor
+	    XDefineCursor( w->display(), w->id(), appCursor->handle() );
 	++it;
     }
-    XFlush( appDpy );
+    XFlush( appDpy );				// make X execute it NOW
 }
 
 void QApplication::restoreCursor()		// restore application cursor
 {
-    if ( !appCursorDefined )
+    if ( !appCursor )				// there is no app cursor
 	return;
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
-    while ( (w=it.current()) ) {
+    while ( (w=it.current()) ) {		// set back to original cursors
 	if ( w->testFlag(WCursorSet) )
 	    XDefineCursor( w->display(), w->id(), w->cursor().handle() );
 	++it;
     }
     XFlush( appDpy );
-    appCursor = arrowCursor;
-    appCursorDefined = FALSE;
+    delete appCursor;				// reset appCursor
+    appCursor = 0;
 }
 
 
-void QApplication::setFont( const QFont &f )	// set application cursor
+void QApplication::setFont( const QFont &f )	// set application font
 {
-    appFont = f;
+    if ( appFont )
+	delete appFont;
+    appFont = new QFont( f );
     warning( "QApplication::setFont: NOT IMPLEMENTED" );
 }
 
