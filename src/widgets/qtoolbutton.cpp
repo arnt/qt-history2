@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#141 $
 **
 ** Implementation of QToolButton class
 **
@@ -392,10 +392,11 @@ void QToolButton::drawButton( QPainter * p )
 
     bool drawraised = (uses3D() || isOnAndNoOnPixmap());
     bool drawarrow = hasArrow;
+    Qt::ArrowType arrowtype = d->arrow;
     void *data[3];
     data[0] = (void *) &drawraised;
     data[1] = (void *) &drawarrow;
-    data[2] = (void *) &d->arrow;
+    data[2] = (void *) &arrowtype;
 
     if (isDown() || isOn())
 	active |= QStyle::SC_ToolButton;
@@ -454,13 +455,13 @@ void QToolButton::moveEvent( QMoveEvent * )
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
-    int dbw = style().menuButtonIndicatorWidth( height() );
+    int dbw = style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
     d->instantPopup = e->pos().x() > ( width() - dbw );
 
     if ( d->discardNextMouseEvent ) {
 	d->discardNextMouseEvent = FALSE;
 	d->instantPopup = FALSE;
-	d->popup->removeEventFilter( this );	
+	d->popup->removeEventFilter( this );
 	return;
     }
     if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup && !d->popup->isVisible() ) {
