@@ -692,7 +692,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap & pix, const QS
 
 void QListBoxPixmap::paint( QPainter *painter )
 {
-    painter->drawPixmap( 3, 0, pm );
+    painter->drawPixmap( 3, 0, *pixmap() );
     if ( !text().isEmpty() ) {
 	QFontMetrics fm = painter->fontMetrics();
 	int yPos;			// vertical text position

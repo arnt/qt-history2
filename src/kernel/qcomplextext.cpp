@@ -233,7 +233,7 @@ QComplexText::Shape QComplexText::glyphVariantLogical( const QString &str, int p
 // The unicode to unicode shaping codec.
 // does only presentation forms B at the moment, but that should be enough for
 // simple display
-static const ushort arabicUnicodeMapping[256][4] = {
+static const ushort arabicUnicodeMapping[256][2] = {
     // base of shaped forms, and number-1 of them ( 0 for non shaping,
     // 1 for right binding and 3 for dual binding
     { 0x0600, 0 }, // 0x600
@@ -251,7 +251,7 @@ static const ushort arabicUnicodeMapping[256][4] = {
     { 0x060c, 0 }, // 0x60c     Arabic comma
     { 0x060d, 0 }, // 0x60d
     { 0x060e, 0 }, // 0x60e
-    { 0x060f, 0xfffd, 0xfffd, 0xfffd }, // 0x60f
+    { 0x060f, 0 }, // 0x60f
 
     { 0x0610, 0 }, // 0x610
     { 0x0611, 0 }, // 0x611
@@ -525,7 +525,31 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc } // 0x627         R       Alef
 };
 
-QString QComplexText::shapedString(const QString& uc, int from, int len, QPainter::TextDirection dir )
+static inline int getShape( const QChar *base, uchar cell, int shape, const QFontMetrics *fm )
+{
+    uint ch = arabicUnicodeMapping[cell][0] + shape;
+    // we revert to the unshaped glyph in case the shaped version doesn't exist
+    if ( fm && !fm->inFont( ch ) ) {
+	switch( shape ) {
+	    case QComplexText::XIsolated:
+		break; // try base form
+	    case QComplexText::XFinal:
+		ch -= 1; // try isolated form
+		break;
+	    case QComplexText::XInitial:
+		ch += 1; // try medial form
+		break;
+	    case QComplexText::XMedial:
+		ch -= 1; // try initial form
+		break;
+	}
+	if ( !fm->inFont( ch ) )
+	    ch = *base;
+    }
+    return ch;
+}
+
+QString QComplexText::shapedString(const QString& uc, int from, int len, QPainter::TextDirection dir, const QFontMetrics *fm )
 {
     if( len < 0 )
 	len = uc.length() - from;
@@ -609,7 +633,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
 		default:
 		    break;
 	    }
-	    map = arabicUnicodeMapping[c][0] + shape;
+	    map = getShape( ch, c, shape, fm );
 	next:
 	    *data = map;
 	    data++;
@@ -661,7 +685,7 @@ QString QComplexText::shapedString(const QString& uc, int from, int len, QPainte
     return QConstString( shapeBuffer, lenOut ).string();
 }
 
-QChar QComplexText::shapedCharacter( const QString &str, int pos )
+QChar QComplexText::shapedCharacter( const QString &str, int pos, const QFontMetrics *fm )
 {
     const QChar *ch = str.unicode() + pos;
     if ( ch->row() != 0x06 )
@@ -696,7 +720,7 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos )
 	    default:
 		break;
 	}
-	return QChar(arabicUnicodeMapping[ch->cell()][0] + shape);
+	return QChar( getShape( ch, ch->cell(), shape, fm ) );
     }
 }
 

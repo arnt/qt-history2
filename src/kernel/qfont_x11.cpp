@@ -3337,7 +3337,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 	return 0;
 
     // this algorithm is similar to the one used for painting
-    QString shaped = QComplexText::shapedString( str, 0, len );
+    QString shaped = QComplexText::shapedString( str, 0, len, QPainter::Auto, this );
     len = shaped.length();
 
     return d->textWidth( shaped, 0, len );
@@ -3371,7 +3371,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	return QRect();
 
     // this algorithm is similar to width(const QString &, int)
-    QString shaped = QComplexText::shapedString( str, 0, len);
+    QString shaped = QComplexText::shapedString( str, 0, len, QPainter::Auto, this);
 
     QCharStruct overall;
 

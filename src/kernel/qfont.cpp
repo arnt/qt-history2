@@ -860,7 +860,8 @@ QFont::StyleHint QFont::styleHint() const
 
   \value PreferDefault the default style strategy. It does not prefer
 	 any type of font.
-  \value PreferBitmap prefers bitmap fonts (as opposed to outline fonts).
+  \value PreferBitmap prefers bitmap fonts (as opposed to outline fonts). On X11, this will cause
+  Qt to disregard fonts from the Xft font extension.
   \value PreferDevice prefers device fonts.
   \value PreferOutline prefers outline fonts (as opposed to bitmap fonts).
   \value ForceOutline forces the use of outline fonts.
@@ -887,7 +888,8 @@ QFont::StyleHint QFont::styleHint() const
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
-    if ((StyleHint) d->request.styleHint == hint) return;
+    if ((StyleHint) d->request.styleHint == hint && (StyleStrategy) d->request.styleStrategy == strategy ) 
+	return;
 
     detach();
     d->request.styleHint = hint;

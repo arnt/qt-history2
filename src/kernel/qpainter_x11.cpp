@@ -2941,7 +2941,8 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( pos + len > (int)str.length() )
         len = str.length() - pos;
 
-    QString shaped = QComplexText::shapedString( str,  pos, len, dir );
+    QFontMetrics fm( fontMetrics() );
+    QString shaped = QComplexText::shapedString( str,  pos, len, dir, &fm );
     len = shaped.length();
 
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
