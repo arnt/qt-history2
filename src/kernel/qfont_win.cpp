@@ -40,7 +40,6 @@
 #include <limits.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
-#include "qcleanuphandler.h"
 #include "qwinfunctions.h"
 
 
@@ -151,8 +150,6 @@ void QFontStruct::reset()
   QFont member functions
  *****************************************************************************/
 
-QCleanupHandler<QFontCache> cleanup_fontcache;
-
 void QFont::initialize()
 {
     if ( QFontPrivate::fontCache )
@@ -164,12 +161,11 @@ void QFont::initialize()
 #endif
     shared_dc_font = 0;
     QFontPrivate::fontCache = new QFontCache();
-    Q_CHECK_PTR( QFontPrivate::fontCache );
-    cleanup_fontcache.add( &QFontPrivate::fontCache );
 }
 
 void QFont::cleanup()
 {
+    delete QFontPrivate::fontCache;
     QFontPrivate::fontCache = 0;
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
