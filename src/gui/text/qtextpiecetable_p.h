@@ -128,7 +128,6 @@ public:
     inline void undo() { undoRedo(true); }
     inline void redo() { undoRedo(false); }
     void appendUndoItem(QAbstractUndoItem *);
-    void truncateUndoStack();
     inline void beginEditBlock() { editBlock++; }
     void endEditBlock();
     void enableUndoRedo(bool enable);
@@ -173,6 +172,7 @@ signals:
 private:
     bool split(int pos);
     bool unite(uint f);
+    void truncateUndoStack();
 
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);

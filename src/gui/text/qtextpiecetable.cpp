@@ -164,8 +164,6 @@ void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat, Undo
 
     Q_ASSERT(blocks.length() == fragments.length());
 
-    truncateUndoStack();
-
     UndoCommand c = { UndoCommand::BlockInserted, true,
                       op, charFormat, strPos, pos, { blockFormat } };
 
@@ -187,7 +185,6 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
 
     beginEditBlock();
 
-    truncateUndoStack();
     UndoCommand c = { UndoCommand::Inserted, true,
                       UndoCommand::MoveCursor, format, strPos, pos, { strLength } };
     appendUndoItem(c);
@@ -277,7 +274,6 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     Q_ASSERT(frameAt(pos) == frameAt(pos+length-1));
 
     beginEditBlock();
-    truncateUndoStack();
 
     split(pos);
     split(pos+length);
@@ -321,8 +317,6 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 
 void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode)
 {
-    truncateUndoStack();
-
     Q_ASSERT(newFormat.isValid());
 
     beginEditBlock();
@@ -389,8 +383,6 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
 void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
 				     const QTextBlockFormat &newFormat, FormatChangeMode mode)
 {
-    truncateUndoStack();
-
     beginEditBlock();
 
     Q_ASSERT(newFormat.isValid());
@@ -616,7 +608,8 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 {
     if (!undoEnabled)
         return;
-    Q_ASSERT(undoPosition == undoStack.size());
+    if (undoPosition < undoStack.size())
+        truncateUndoStack();
 
     if (!undoStack.isEmpty()) {
         UndoCommand &last = undoStack[undoPosition - 1];
@@ -628,7 +621,7 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 }
 
 void QTextPieceTable::truncateUndoStack() {
-    if (!undoEnabled || undoPosition >= undoStack.size())
+    if (undoPosition == undoStack.size())
         return;
 
     for (int i = undoPosition; i < undoStack.size(); ++i) {
