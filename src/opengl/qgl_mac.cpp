@@ -106,15 +106,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     cx = (void *)ctx;
     if(ctx) {
 	if(paintDevice->devType() == QInternal::Widget) {
-	    QWidget *w = (QWidget *)paintDevice;
-	    GLint offs[4];
-	    QPoint mp(posInWindow(w));
-	    offs[0] = mp.x();
-	    offs[1] = mp.y();
-	    offs[2] = w->width();
-	    offs[3] = w->height();
-	    aglSetInteger(ctx, AGL_SWAP_RECT, offs);
-
+	    aglEnable((AGLContext)cx, AGL_BUFFER_RECT);
 	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)paintDevice->handle()));
 	} else {
 	    aglSetDrawable(ctx, (CGrafPtr)paintDevice->handle());
@@ -200,11 +192,19 @@ void QGLContext::makeCurrent()
     }
 
     QMacSavedPortInfo::setPaintDevice(paintDevice);
-    if(0 && !deviceIsPixmap()) {
-	QWidget *w = (QWidget *)paintDevice;
-	SetClip((RgnHandle)w->clippedRegion().handle());
-    }
     aglSetCurrentContext((AGLContext)cx);
+    if(paintDevice->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget *)paintDevice;
+	SetClip((RgnHandle)w->clippedRegion().handle());	
+
+	QWidget *tlw = w->topLevelWidget();
+	QPoint mp(posInWindow(w));
+	GLint offs[4] = { 
+	    mp.x(),  tlw->height() - (mp.y() + w->height()),
+	    w->width(), w->height() };
+	aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+    }
+    aglUpdateContext((AGLContext)cx);
     currentCtx = this;
 }
 
@@ -231,12 +231,12 @@ QColor QGLContext::overlayTransparentColor() const
 }
 
 static QColor cmap[256];
-static bool init = FALSE;
+static bool cmap_init = FALSE;
 uint QGLContext::colorIndex( const QColor&c) const
 {
     int ret = -1;
-    if(!init) {
-	init = TRUE;
+    if(!cmap_init) {
+	cmap_init = TRUE;
 	for(int i = 0; i < 256; i++)
 	    cmap[i] = QColor();
     } else {
@@ -255,7 +255,6 @@ uint QGLContext::colorIndex( const QColor&c) const
 	    ret = -1;
 	    qDebug("whoa, that's no good..");
 	} else {
-	    qDebug("creating color %d %d %d :: at %d", c.red(), c.green(), c.blue(), ret);
 	    cmap[ret] = c;
 
 	    GLint vals[4];
@@ -264,7 +263,6 @@ uint QGLContext::colorIndex( const QColor&c) const
 	    vals[2] = c.green();
 	    vals[3] = c.blue();
 	    aglSetInteger((AGLContext)cx, AGL_COLORMAP_ENTRY, vals);
-	    qDebug("done.. %d", __LINE__);
 	}
     }
     return (uint)(ret == -1 ? 0 : ret);
@@ -304,8 +302,15 @@ void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
 {
     QWidget::reparent( parent, f, p, showIt);
+    fixReparented();
+    if ( showIt )
+	show();
 }
 
+void QGLWidget::fixReparented()
+{
+    setContext( new QGLContext( glcx->requestedFormat(), this ) );
+}
 
 void QGLWidget::setMouseTracking( bool enable )
 {
@@ -317,10 +322,10 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 {
     if ( !isValid() )
 	return;
-//    aglUpdateContext((AGLContext)context()->cx);
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
+    aglUpdateContext((AGLContext)glcx->cx);
     resizeGL( width(), height() );
     if ( olcx ) {
 	makeOverlayCurrent();
@@ -328,7 +333,15 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     }
 }
 
-
+void QGLWidget::moveEvent( QMoveEvent * ) 
+{
+    if ( !isValid() )
+	return;
+    makeCurrent();
+    if ( !glcx->initialized() )
+	glInit();
+    aglUpdateContext((AGLContext)glcx->cx);
+}
 
 const QGLContext* QGLWidget::overlayContext() const
 {
@@ -385,23 +398,10 @@ void QGLWidget::setContext( QGLContext *context,
     QGLContext* oldcx = glcx;
     glcx = context;
 
-#if 0
-    bool doShow = FALSE;
-    if ( oldcx && !glcx->deviceIsPixmap() ) {
-	doShow = isVisible();
-	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
-    }
-#endif
-
     if ( !glcx->isValid() )
 	glcx->create( shareContext ? shareContext : oldcx );
     if ( deleteOldContext )
 	delete oldcx;
-
-#if 0
-    if ( doShow )
-	show();
-#endif
 }
 
 

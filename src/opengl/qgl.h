@@ -296,6 +296,7 @@ protected:
 
     void		paintEvent( QPaintEvent* );
     void		resizeEvent( QResizeEvent* );
+    void                moveEvent( QMoveEvent *);
 
     virtual void	glInit();
     virtual void	glDraw();
@@ -314,6 +315,9 @@ private:
     friend class QGLOverlayWidget;
 #elif defined(Q_WS_MAC)
     QGLContext*		olcx;
+
+    friend class QWidget;
+    void fixReparented();
 #endif
 
 private:	// Disabled copy constructor and operator=

@@ -55,6 +55,9 @@
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include <qmenubar.h>
 #endif
+#ifdef QT_MODULE_OPENGL
+#  include <qgl.h>
+#endif
 
 /*****************************************************************************
   QWidget debug facilities
@@ -529,6 +532,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 		QWidget *w = (QWidget *)obj;
 		if(((WindowPtr)w->hd) == old_hd)
 		    w->hd = hd; //all my children hd's are now mine!
+#ifdef QT_MODULE_OPENGL
+		if(w->inherits("QGLWidget")) 
+		    ((QGLWidget *)w)->fixReparented();
+#endif
 	    }
 	}
 	delete chldn;
