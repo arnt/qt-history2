@@ -199,11 +199,19 @@ From \File {qt/tools/designer/examples/book/book1/main.cpp}
 	Qt SQL Module documentation \endlink.
 
 	\index QSqlDatabase::database()
-	Note that you do not need to keep a reference to database
+	You do not need to keep a reference to database
 	connections. If you use a single database connection, this
 	becomes the default connection and database functions will use
 	this connection automatically. We can always get a pointer to
 	any of our connections by calling \Func QSqlDatabase::database().
+
+	If you create a \File main.cpp file using \QD, this file will
+	\e not include \Func createConnections(). We do not include
+	this function because it needs the username and password for
+	the database connection, and you may prefer to handle these
+	differently from our simple example function. As a result,
+	applications that preview correctly in \QD will not run unless
+	you implement your own database connections function.
 
 \section1 Using \Class {QDataTable}
 

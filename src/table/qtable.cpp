@@ -2336,8 +2336,8 @@ QRect QTable::cellRect( int row, int col ) const
 
 /*! \overload
 
-  You should rather use the other paintCell() function, this one is
-  there for backwards compatibilty
+  Use the other paintCell() function. This function is only included
+  for backwards compatibilty.
 */
 
 void QTable::paintCell( QPainter* p, int row, int col,

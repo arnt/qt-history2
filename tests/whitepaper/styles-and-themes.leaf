@@ -84,7 +84,12 @@ QCommonStyle or any other descendent of \Class QCommonStyle. It is
 easy to make small modifications to existing styles by reimplementing
 one or two virtual functions from the appropriate base class.
 
+\img qstyle-diag.eps
+\caption The full \Class QStyle class hierarchy
+
+\omit
 The full \Class QStyle class hierarchy follows:
+
 \list
 \i QStyle
 	\list
@@ -104,7 +109,7 @@ The full \Class QStyle class hierarchy follows:
 		\endlist
 	\endlist
 \endlist
-
+\endomit
 An application's style can be set like this:
 \code
     QApplication::setStyle( new MyCustomStyle() );

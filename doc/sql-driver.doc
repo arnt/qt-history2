@@ -64,8 +64,8 @@ The currently available drivers shipped with Qt are:
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
-Note that some of the plugins are not shipped with the Qt Free Edition due to
-problems with the GPL. 
+Note that not all of the plugins are shipped with the Qt Free Edition
+due to licence incompatibilities with the GPL. 
 
 \section1 Building the drivers using configure
 

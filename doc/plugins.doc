@@ -43,9 +43,17 @@ to make available as a plugin. The required code is straightforward:
     Q_EXPORT_PLUGIN( MyStylePlugin )
 \endcode
 
-To load the new style, use code like this:
+Qt applications automatically know which plugins are available,
+because plugins are stored in particular directories in relation to
+\c QTDIR. Because of this applications don't require any code to deal
+with plugins, since Qt handles them automatically.
+
+Styles are an exception, since you might want to apply a style
+explicitly in code. To apply a style, use code like this:
 \code
-    ### Help!
+    QApplication::setStyle( QStyleFactory::create( "MyStyle" ) );
 \endcode
+Note that you don't have to "load" the style; Qt knows about the
+plugins and takes care of that automatically.
 
 */

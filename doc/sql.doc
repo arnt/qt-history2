@@ -244,6 +244,11 @@ parameter it will return the default connection. If called with the
 identifier we've used for a connection, e.g. "ORACLE", in the above
 example, it will return a pointer to the specified connection.
 
+If you create a \c main.cpp using \e{Qt Designer}, it will \e not
+include our example createConnections() function. This means that
+applications that preview correctly in \e{Qt Designer} will not run
+unless you implement your own database connections function.
+
 Note that in the code above the ODBC connection was not named and is
 therefore used as the default connection.  \l QSqlDatabase maintains
 ownership of the pointers returned by the addDatabase() static
