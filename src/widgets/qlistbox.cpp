@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#232 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#233 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2391,6 +2391,7 @@ void QListBox::viewportPaintEvent( QPaintEvent * e )
     }
     if ( r.isEmpty() )
 	return;
+    p.setClipRegion( r );
     p.fillRect( 0, 0, w, h, g.brush( QColorGroup::Base ) );
 }
 
