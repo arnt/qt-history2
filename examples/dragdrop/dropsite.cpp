@@ -55,11 +55,12 @@ void DropSite::dragEnterEvent( QDragEnterEvent *e )
 
     // Give the user some feedback...
     QString t;
-    for( int i=0; e->format( i ); i++ ) {
-	if ( *(e->format( i )) ) {
+    const char *f;
+    for( int i=0; (f=e->format( i )); i++ ) {
+	if ( *(f) ) {
 	    if ( !t.isEmpty() )
 		t += "\n";
-	    t += e->format( i );
+	    t += f;
 	}
     }
     emit message( t );
