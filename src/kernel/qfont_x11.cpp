@@ -1226,9 +1226,10 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 				     xftfs->ascent + xftfs->descent);
 	    }
 
-	    XftRenderString16(dpy, pm->x11RenderHandle(), xftfs, rendhd, 0, 0,
-			      x + cache->xoff, y + cache->yoff,
-			      (unsigned short *)cache->string, cache->length);
+	    XRenderCompositeString16(dpy, PictOpOver, pm->x11RenderHandle(), rendhd,
+				     xftfs->format, xftfs->glyphset,
+				     0, 0, x + cache->xoff, y + cache->yoff,
+				     (unsigned short *)cache->string, cache->length);
 	} else
 #endif // QT_NO_XFTFREETYPE
 	    if (xfs) {
