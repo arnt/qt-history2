@@ -57,6 +57,7 @@ public:
     bool drag();
     bool dragMove();
     void dragCopy();
+    void dragLink();
 
     virtual void setPixmap(QPixmap);
     virtual void setPixmap(QPixmap, const QPoint& hotspot);
@@ -70,7 +71,7 @@ public:
     static void setTarget(QWidget*);
 
 #ifndef QT_NO_DRAGANDDROP
-    enum DragMode { DragDefault, DragCopy, DragMove, DragCopyOrMove };
+    enum DragMode { DragDefault, DragCopy, DragMove, DragLink, DragCopyOrMove };
 
 protected:
     virtual bool drag(DragMode);

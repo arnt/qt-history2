@@ -402,6 +402,18 @@ void QDragObject::dragCopy()
 }
 
 
+/*!
+  Starts a drag operation using the contents of this object,
+  using DragLink mode.
+
+  see drag(DragMove) for important further information.
+*/
+void QDragObject::dragLink()
+{
+    (void)drag( DragLink );
+}
+
+
 /*! \enum QDragObject::DragMode
 
   This enum type decides which of several types of drag each
@@ -409,6 +421,7 @@ void QDragObject::dragCopy()
    \value DragDefault  the mode is determined heuristically.
    \value DragCopy  the data is copied, never moved.
    \value DragMove  the data is moved, if dragged at all.
+   \value DragLink  the data is linked, if dragged at all.
    \value DragCopyOrMove  the user chooses the mode
 	    by using control key to switch from the default.
 */
@@ -926,7 +939,7 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 	QCString format = fileFormats.current();
 	QCString type = "image/" + format.lower();
 	payload = e->encodedData( type.data() );
-	if ( !payload.isEmpty() ) 
+	if ( !payload.isEmpty() )
 	    break;
 	fileFormats.next();
     }

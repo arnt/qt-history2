@@ -950,6 +950,8 @@ void QDragManager::updateMode( ButtonState newstate )
 	    global_requested_action = QDropEvent::Move;
 	else if ( drag_mode == QDragObject::DragCopy )
 	    global_requested_action = QDropEvent::Copy;
+	else if ( drag_mode == QDragObject::DragLink )
+	    global_requested_action = QDropEvent::Link;
 	else {
 	    if ( drag_mode == QDragObject::DragDefault && local )
 		global_requested_action = QDropEvent::Move;
