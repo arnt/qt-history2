@@ -467,42 +467,39 @@ void QFtp::closed()
 
 void QFtp::readyRead()
 {
-    QCString s;
-    int bytesAvailable = commandSocket->bytesAvailable();
-    s.resize( bytesAvailable + 1 );
-    commandSocket->readBlock( s.data(), bytesAvailable );
-    s[ bytesAvailable ] = '\0';
+    while ( commandSocket->canReadLine() ) {
+	QCString s = commandSocket->readLine().utf8();
 
-    if ( !url() )
-	return;
+	if ( !url() )
+	    return;
 
-    bool ok = FALSE;
-    int code = s.left( 3 ).toInt( &ok );
-    if ( !ok )
-	return;
+	bool ok = FALSE;
+	int code = s.left( 3 ).toInt( &ok );
+	if ( !ok )
+	    return;
 
 #if defined(QFTP_DEBUG)
-    if ( s.size() < 400 )
-	qDebug( "QFtp: readyRead; %s", s.data() );
+	if ( s.size() < 400 )
+	    qDebug( "QFtp: readyRead; %s", s.data() );
 #endif
 #if defined(QFTP_COMMANDSOCKET_DEBUG)
-    if ( s.size() < 400 )
-	qDebug( "QFtp R: %s", s.data() );
-    else
-	qDebug( "QFtp R: More than 400 bytes received. Not printing." );
+	if ( s.size() < 400 )
+	    qDebug( "QFtp R: %s", s.data() );
+	else
+	    qDebug( "QFtp R: More than 400 bytes received. Not printing." );
 #endif
 
-    if ( s.left( 1 ) == "1" )
-	okButTryLater( code, s );
-    else if ( s.left( 1 ) == "2" )
-	okGoOn( code, s );
-    else if ( s.left( 1 ) == "3" )
-	okButNeedMoreInfo( code, s );
-    else if ( s.left( 1 ) == "4" )
-	errorForNow( code, s );
-    else if ( s.left( 1 ) == "5" )
-	errorForgetIt( code, s );
-    // else strange things happen...
+	if ( s.left( 1 ) == "1" )
+	    okButTryLater( code, s );
+	else if ( s.left( 1 ) == "2" )
+	    okGoOn( code, s );
+	else if ( s.left( 1 ) == "3" )
+	    okButNeedMoreInfo( code, s );
+	else if ( s.left( 1 ) == "4" )
+	    errorForNow( code, s );
+	else if ( s.left( 1 ) == "5" )
+	    errorForgetIt( code, s );
+    }
 }
 
 /*
