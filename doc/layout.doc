@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.11 1999/05/21 09:38:57 warwick Exp $
+** $Id: layout.doc,v 2.12 1999/05/21 09:46:03 warwick Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -215,15 +215,16 @@ Qt toolkit - Custom Layouts
 
 Here we go through an example in detail. The class \c
 CardLayout is inspired by the Java layout manager of the same name. It
-lays out the widgets on top of each other, each widget is offset by
+lays out the items (widgets or nested layouts)
+on top of each other, each item offset by
 \link QLayout::spacing() spacing()\endlink.
-
 
 To write your own layout class, you must define the following:
   <ul>
   <li>A data structure to store the items
-       (widgets or nested layouts) handle by the layout.
-	We will simply use a QList in this example.
+       handle by the layout.
+	Each item is a \link QLayoutItem QLayoutItem\endlink.
+	We will just use a QList in this example.
   <li>\link QLayout::addItem() addItem() \endlink, how to add items 
 	to the layout.
   <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the 
