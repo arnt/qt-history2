@@ -91,7 +91,7 @@ ScopedTokenReplacement::ScopedTokenReplacement(QByteArray oldToken,
 bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacements &textReplacements)
 {
     QByteArray tokenText=tokenStream->currentTokenText();
-    //qDebug("Scoped token: Matching (%s -> %s) against %s", oldToken.constData(),newToken.constData(), tokenText.constData());
+//     qDebug("Scoped token: Matching (%s -> %s) against %s", oldToken.constData(),newToken.constData(), tokenText.constData());
     QByteArray oldTokenName;
     QByteArray oldTokenScope;
     if (oldToken.contains("::")) {
@@ -109,6 +109,7 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
             if(scopeTokenIndex  != -1) {
                 //token in tokenStream is qualified
                 QByteArray scopeText = tokenStream->tokenText(scopeTokenIndex);
+//                 qDebug("scopeText=%s oldTokenScope=%s", scopeText.data(), oldTokenScope.data());
                 if(scopeText != oldTokenScope) {
                     // special case! if oldTokenScope is Qt, meaning the Qt class,
                     // we check if scopeText is one of the Qt3 classes that inherits Qt.
@@ -138,6 +139,10 @@ bool ScopedTokenReplacement::doReplace(TokenStream *tokenStream, TextReplacement
                         textReplacements.insert(newTokenName, token.position, tokenText.size());
                         return true;
                     }
+                } else {
+                    makeLogEntry("ScopedReplace", scopeText + "::" + tokenText + " -> " + newToken, tokenStream);
+                    Token scopeToken = tokenStream->tokenAt(scopeTokenIndex);
+                    textReplacements.insert(newToken, scopeToken.position, token.position + tokenText.size() - scopeToken.position);
                 }
             } else {
                 QByteArray newTokenScope = newToken.mid(0, newToken.indexOf(':'));
