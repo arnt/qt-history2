@@ -659,7 +659,7 @@ modified.
 This variable indicates the header file for creating a precompiled
 header file, to increase the compilation speed of a project.
 Precompiled headers are currently only supported on some platforms
-(Windows - all project types, Mac OS X - Xcode, Makefile).
+(Windows - all MSVC project types, Mac OS X - Xcode, Makefile).
 
 On other platforms, this variable has different meaning, as noted
 below.
@@ -677,8 +677,7 @@ modified.
 This variable contains the name of the source file used to generate
 the precompiled header file. The value of this variable is typically
 handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
-modified.  
-
+modified.  It is only used with if QMAKESPEC is set to win32-msvc.
 
 \target QMAKE
 \section3 QMAKE
