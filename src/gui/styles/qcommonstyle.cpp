@@ -2647,8 +2647,10 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
             if(act->isSeparator()) {
                 w = 10;
                 h = 2;
-            } else if(act->icon().isNull()) {
-                h = qMax(h, act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
+            } else {
+                h = qMax(h, menu->fontMetrics().height() + 8);
+                if(act->icon().isNull()) 
+                    h = qMax(h, act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 4);
             }
 
             if (!act->text().isNull()) {

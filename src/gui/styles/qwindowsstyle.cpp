@@ -1393,44 +1393,37 @@ QSize QWindowsStyle::sizeFromContents(ContentsType contents,
     case CT_MenuItem:
         {
 #ifndef QT_NO_MENU
-            if (! widget || opt.isDefault())
+            if (opt.isDefault())
                 break;
 
-            const QMenu *menu = (const QMenu *)widget;
+            const QMenu *menu = (const QMenu *) widget;
             bool checkable = menu->isCheckable();
             QAction *act = opt.action();
             int maxpmw = opt.maxIconWidth();
-
             int w = sz.width(), h = sz.height();
-            if(act->isSeparator()) {
-                w = 10; // arbitrary
-                h = windowsSepHeight;
-            } else if(!act->icon().isNull()) {
-                h = qMax(h,act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 2*windowsItemFrame);
-            }
 
-            if (!act->text().isNull() && act->text().indexOf('\t') >= 0) {
-                if (use2000style)
-                    w += 20;
-                else
-                    w += windowsTabSpacing;
-            } else if (act->menu()) {
-                w += 2*windowsArrowHMargin;
-            }
-
-            if (use2000style) {
-                if (checkable && maxpmw < 20)
-                    w += 20 - maxpmw;
+            if (act->isSeparator()) {
+                w = 10;
+                h = 2;
             } else {
-                if (checkable && maxpmw < windowsCheckMarkWidth)
-                    w += windowsCheckMarkWidth - maxpmw;
+                h = qMax(h, menu->fontMetrics().height() + 8);
+                if(!act->icon().isNull()) 
+                    h = qMax(h,act->icon().pixmap(QIconSet::Small, QIconSet::Normal).height() + 2*windowsItemFrame);
             }
+
+            if (!act->text().isNull()) {
+                if (act->text().contains('\t'))
+                    w += 12;
+            }
+
+            if (maxpmw)
+                w += maxpmw + 6;
+            if (checkable && maxpmw < 20)
+                w += 20 - maxpmw;
             if (checkable || maxpmw > 0)
-                w += windowsCheckMarkHMargin;
-            if (use2000style)
-                w += 20;
-            else
-                w += windowsRightBorder;
+                w += 2;
+            w += 12;
+
             sz = QSize(w, h);
 #endif
             break;
