@@ -84,7 +84,7 @@ QStack<paintevent_item> paintevents;
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
     QRegion r = region;
-    if(dev->devType() == QInternal::Widget) {
+    if(dev && dev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)dev;
 	QPoint mp(posInWindow(w));
 	r.translate(mp.x(), mp.y());
