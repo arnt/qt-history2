@@ -21,6 +21,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmotifplusstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmotifstyle
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -45,34 +51,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "actiongroup"=.\examples\action\actiongroup\actiongroup.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    actiongroup
-    .\examples\action\actiongroup
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmain
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qwindowsxpstyle
     End Project Dependency
 }}}
 
@@ -124,6 +102,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qwindowsxpstyle
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsgistyle
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -145,6 +126,72 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name uic
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bigtable"=.\examples\table\bigtable\bigtable.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    bigtable
+    .\examples\table\bigtable
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "box"=.\examples\opengl\box\box.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    box
+    .\examples\opengl\box
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bugs"=.\tools\designer\bugs\bugs.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    bugs
+    .\tools\designer\bugs
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
@@ -200,24 +247,18 @@ Package=<4>
 
 ###############################################################################
 
-Project: "changelists"=.\util\changelists\changelists.dsp - Package Owner=<4>
+Project: "chart"=.\examples\chart\chart.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
     begin source code control
-    changelists
-    .\util\changelists
+    chart
+    .\examples\chart
     end source code control
 }}}
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qtmain
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmt
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -365,6 +406,69 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qwindowsxpstyle
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsgistyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsqlmysql
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsqloci
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsqlodbc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qsqlpsql
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lightstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qaquastyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qarcodecs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qcdestyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qcncodecs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qcompactstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qjpcodecs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qjpeg
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qkrcodecs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmotifplusstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qmotifstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qplatinumstyle
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qpng
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtwcodecs
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtwidgets
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -381,9 +485,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
@@ -496,7 +597,7 @@ Package=<4>
     Project_Dep_Name ieplugin
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name qactivexlib
+    Project_Dep_Name qactivex
     End Project Dependency
 }}}
 
@@ -662,9 +763,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name uic
     End Project Dependency
     Begin Project Dependency
@@ -747,11 +845,24 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "glpixmap"=.\examples\opengl\glpixmap\glpixmap.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    glpixmap
+    .\examples\opengl\glpixmap
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -941,9 +1052,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
 }}}
@@ -988,9 +1096,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
@@ -1015,9 +1120,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
@@ -1069,9 +1171,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
@@ -1119,14 +1218,27 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "mostlywin32"=.\tests\mfc_win32\mostlywin32\mostlywin32.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    mostlywin32
+    .\tests\mfc_win32\mostlywin32
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -1165,13 +1277,13 @@ Package=<4>
 
 ###############################################################################
 
-Project: "multihead"=.\tests\multihead\multihead.dsp - Package Owner=<4>
+Project: "networkprotocol"=.\examples\network\networkprotocol\networkprotocol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
     begin source code control
-    multihead
-    .\tests\multihead
+    networkprotocol
+    .\examples\network\networkprotocol
     end source code control
 }}}
 
@@ -1181,27 +1293,18 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ntservice"=.\tests\ntservice\ntservice.dsp - Package Owner=<4>
+Project: "overlay"=.\examples\opengl\overlay\overlay.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
     begin source code control
-    ntservice
-    .\tests\ntservice
+    overlay
+    .\examples\opengl\overlay
     end source code control
 }}}
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmain
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name qtmt
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1218,9 +1321,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name uic
     End Project Dependency
@@ -1268,9 +1368,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
@@ -1378,22 +1475,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "qactivexlib"=.\tests\qactivex\qactivexlib.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    qactivexlib
-    .\tests\qactivex
-    end source code control
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "qaquastyle"=.\plugins\src\styles\aqua\qaquastyle.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1406,9 +1487,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
@@ -1448,9 +1526,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
 }}}
@@ -1489,9 +1564,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
 }}}
@@ -1510,9 +1582,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
@@ -1536,9 +1605,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
@@ -1560,9 +1626,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
@@ -1665,9 +1728,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
 }}}
@@ -1686,9 +1746,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
@@ -1766,9 +1823,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
 }}}
@@ -1781,6 +1835,25 @@ Package=<5>
 {{{
     begin source code control
     mysql
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "qsqloci"=.\plugins\src\sqldrivers\oci\qsqloci.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    qsqloci
     .
     end source code control
 }}}
@@ -1813,6 +1886,25 @@ Package=<4>
 
 ###############################################################################
 
+Project: "qsqlpsql"=.\plugins\src\sqldrivers\psql\qsqlpsql.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    qsqlpsql
+    .
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "qsqltds"=.\plugins\src\sqldrivers\tds\qsqltds.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1825,6 +1917,28 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "qtconfig"=.\tools\qtconfig\qtconfig.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    qtconfig
+    .\tools\qtconfig
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
@@ -1996,6 +2110,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2037,9 +2154,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
@@ -2172,13 +2286,13 @@ Package=<4>
 
 ###############################################################################
 
-Project: "settings"=.\tests\qsettings\qsettings_win\settings.dsp - Package Owner=<4>
+Project: "sharedbox"=.\examples\opengl\sharedbox\sharedbox.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
     begin source code control
-    settings
-    .\tests\qsettings\qsettings_win
+    sharedbox
+    .\examples\opengl\sharedbox
     end source code control
 }}}
 
@@ -2207,9 +2321,6 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
@@ -2233,6 +2344,31 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name qt
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "smalltable"=".\examples\table\small-table-demo\smalltable.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    smalltable
+    .\examples\table\small-table-demo
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qsgistyle
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmain
@@ -2319,6 +2455,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "statistics"=.\examples\table\statistics\statistics.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    statistics
+    .\examples\table\statistics
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name qtmain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qtmt
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "styleswitch"=.\tests\plugin\styleswitch\styleswitch.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2332,11 +2490,24 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "supporter"=..\..\support\stable\src\supporter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    supporter
+    ..\..\support\stable\src
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -2354,299 +2525,10 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t10"=.\tutorial\t10\t10.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t10
-    .\tutorial\t10
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t9
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t11"=.\tutorial\t11\t11.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t11
-    .\tutorial\t11
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t10
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t12"=.\tutorial\t12\t12.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t12
-    .\tutorial\t12
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t11
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t13"=.\tutorial\t13\t13.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t13
-    .\tutorial\t13
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t12
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t14"=.\tutorial\t14\t14.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t14
-    .\tutorial\t14
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t13
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t2"=.\tutorial\t2\t2.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t2
-    .\tutorial\t2
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t1
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t3"=.\tutorial\t3\t3.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t3
-    .\tutorial\t3
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t2
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t4"=.\tutorial\t4\t4.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t4
-    .\tutorial\t4
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t3
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t5"=.\tutorial\t5\t5.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t5
-    .\tutorial\t5
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t4
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t6"=.\tutorial\t6\t6.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t6
-    .\tutorial\t6
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t5
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t7"=.\tutorial\t7\t7.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t7
-    .\tutorial\t7
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t6
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t8"=.\tutorial\t8\t8.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t8
-    .\tutorial\t8
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t7
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "t9"=.\tutorial\t9\t9.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-    begin source code control
-    t9
-    .\tutorial\t9
-    end source code control
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name t8
     End Project Dependency
 }}}
 
@@ -2702,6 +2584,28 @@ Package=<4>
 
 ###############################################################################
 
+Project: "testcon"=.\tests\qactivex\examples\testcon\testcon.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    testcon
+    .\tests\qactivex\examples\testcon
+    end source code control
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name openglax
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tetrixax
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "tetrix"=.\examples\tetrix\tetrix.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2740,14 +2644,27 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name qtmain
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "texture"=.\examples\opengl\texture\texture.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    texture
+    .\examples\opengl\texture
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -2773,6 +2690,22 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "thumbnail"=.\tests\thumbnail\thumbnail.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    thumbnail
+    .\tests\thumbnail
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -2939,6 +2872,25 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name qtmt
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name qpng
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "webbrowser"=.\tests\qactivex\examples\webbrowser\webbrowser.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+    begin source code control
+    webbrowser
+    .\tests\qactivex\examples\webbrowser
+    end source code control
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
@@ -3032,9 +2984,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name qt
-    End Project Dependency
     Begin Project Dependency
     Project_Dep_Name uic
     End Project Dependency
