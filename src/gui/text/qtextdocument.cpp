@@ -350,6 +350,13 @@ bool QTextDocument::isUndoRedoEnabled() const
 */
 
 /*!
+    \fn QTextDocument::cursorPositionChanged(const QTextCursor &cursor);
+
+    This signal is emitted whenever the position of a cursor changed
+    due to an edition operation.
+*/
+
+/*!
     \enum QTextDocument::FindDirection
 
     This enum is used to specify the search direction when searching

@@ -214,8 +214,11 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
         return false;
     }
 
-    cursor.movePosition(op, mode);
+    const bool moved = cursor.movePosition(op, mode);
     q->ensureCursorVisible();
+
+    if (moved)
+        emit q->cursorPositionChanged();
 
     selectionChanged();
 
@@ -492,6 +495,10 @@ bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
         q->ensureCursorVisible();
         moved = cursor.movePosition(QTextCursor::Up, moveMode);
     } while (moved && vbar->value() > targetY);
+
+    if (moved)
+        emit q->cursorPositionChanged();
+
     return moved;
 }
 
@@ -503,6 +510,10 @@ bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
         q->ensureCursorVisible();
         moved = cursor.movePosition(QTextCursor::Down, moveMode);
     } while (moved && vbar->value() < targetY);
+
+    if (moved)
+        emit q->cursorPositionChanged();
+
     return moved;
 }
 
@@ -2196,6 +2207,12 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options, QText
     \sa copyAvailable()
 */
 
+/*!
+    \fn void QTextEdit::cursorPositionChanged()
+
+    This signal is emitted whenever the position of the
+    cursor changed.
+*/
 
 #ifdef QT_COMPAT
 /*!
