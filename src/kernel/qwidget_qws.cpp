@@ -1511,3 +1511,16 @@ bool QWidget::isMaximized() const
 {
     return testWState(WState_Maximized);
 }
+
+void QWidget::updateFrameStrut() const
+{
+    QWidget *that = (QWidget *) this;
+
+    if( !isVisible() || isDesktop() ) {
+	that->fstrut_dirty = isVisible();
+	return;
+    }
+
+    //FIXME: need to fill in frame strut info
+}
+
