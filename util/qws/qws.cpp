@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#16 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#17 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -301,7 +301,7 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 {
     qDebug( "QWSServer::invokeRemoveProperty %d %d", cmd->simpleData.windowid,
 	    cmd->simpleData.property );
-    if ( properties()->removeProperty( cmd->simpleData.windowid, 
+    if ( properties()->removeProperty( cmd->simpleData.windowid,
 				       cmd->simpleData.property ) ) {
  	qDebug( "remove property successful" );
 	sendPropertyNotifyEvent( cmd->simpleData.property,
