@@ -184,7 +184,8 @@ void GLTexobj::animate()
     impY -= impY * 0.05;
     impZ -= impZ * 0.05;
 
-    updateGL();
+    if ( impX > 0.1 || impY > 0.1 || impZ > 0.1 )
+	updateGL();
 }
 
 void GLTexobj::setRotationImpulse( double x, double y, double z )
