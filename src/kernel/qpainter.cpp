@@ -2849,6 +2849,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    }
 	    painter->translate( xoff, yoff );
 	    parag->paint( *painter, cg );
+	    painter->translate( -xoff, -yoff );
 	}
 	if ( encode ) {
 	    *internal = parag;
