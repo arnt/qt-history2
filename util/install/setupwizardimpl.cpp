@@ -591,8 +591,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	threadModel = new QCheckListItem ( configList, "Threading" );
 	threadModel->setOpen( TRUE );
 	item = new QCheckListItem( threadModel, "Threaded", QCheckListItem::RadioButton );
-	item = new QCheckListItem( threadModel, "Non-threaded", QCheckListItem::RadioButton );
 	item->setOn( TRUE );
+	item = new QCheckListItem( threadModel, "Non-threaded", QCheckListItem::RadioButton );
 
 	buildType = new QCheckListItem ( configList, "Build" );
 	buildType->setOpen( TRUE );

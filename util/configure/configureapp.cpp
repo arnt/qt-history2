@@ -33,7 +33,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "THREAD" ] = "yes";
     dictionary[ "ZLIB" ] = "yes";
     dictionary[ "LIBPNG" ] = "yes";
-    dictionary[ "JPEG" ] = "no";
+    dictionary[ "JPEG" ] = "yes";
     dictionary[ "MNG" ] = "no";
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
