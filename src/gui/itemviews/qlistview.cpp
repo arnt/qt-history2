@@ -820,12 +820,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
     area.translate(horizontalScrollBar()->value(), verticalScrollBar()->value());
-
-    // fill the intersectVector
-    if (d->movement == Static)
-        d->intersectingStaticSet(area);
-    else
-        d->intersectingDynamicSet(area);
+    d->intersectingSet(area);
 
     QModelIndex current = currentIndex();
     QAbstractItemDelegate *delegate = itemDelegate();
@@ -864,10 +859,7 @@ void QListView::paintEvent(QPaintEvent *e)
 QModelIndex QListView::itemAt(int x, int y) const
 {
     QRect rect(x + horizontalScrollBar()->value(), y + verticalScrollBar()->value(), 1, 1);
-    if (d->movement == Static)
-        d->intersectingStaticSet(rect);
-    else
-        d->intersectingDynamicSet(rect);
+    d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
                         ? d->intersectVector.first() : QModelIndex();
     if (index.isValid() && itemViewportRect(index).contains(QPoint(x, y)))
@@ -913,10 +905,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                 return current;
             if (rect.left() < 0)
                 rect.setLeft(0); // FIXME changes the size of the rect
-            if (d->movement == Static)
-                d->intersectingStaticSet(rect);
-            else
-                d->intersectingDynamicSet(rect);
+            d->intersectingSet(rect);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveRight:
@@ -926,10 +915,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                 return current;
             if (rect.right() > contents.width())
                 rect.setRight(contents.width()); // FIXME changes the size of the rect
-            if (d->movement == Static)
-                d->intersectingStaticSet(rect);
-            else
-                d->intersectingDynamicSet(rect);
+            d->intersectingSet(rect);
             // FIXME: don't get current in this set
             int idx = d->intersectVector.indexOf(current);
             if (idx > -1)
@@ -948,10 +934,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                 return current;
             if (rect.top() < 0)
                 rect.setTop(0); // FIXME changes the size of the rect
-            if (d->movement == Static)
-                d->intersectingStaticSet(rect);
-            else
-                d->intersectingDynamicSet(rect);
+            d->intersectingSet(rect);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageDown:
@@ -966,10 +949,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                 return current;
             if (rect.bottom() > contents.height())
                 rect.setBottom(contents.height()); // FIXME changes the size of the rect
-            if (d->movement == Static)
-                d->intersectingStaticSet(rect);
-            else
-                d->intersectingDynamicSet(rect);
+            d->intersectingSet(rect);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveHome:
@@ -1001,10 +981,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     QRect crect(rect.left() + horizontalScrollBar()->value(),
                 rect.top() + verticalScrollBar()->value(),
                 rect.width(), rect.height());
-    if (d->movement == Static)
-        d->intersectingStaticSet(crect);
-    else
-        d->intersectingDynamicSet(crect);
+    d->intersectingSet(crect);
 
     QItemSelection selection;
     QModelIndex tl;
