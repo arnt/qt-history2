@@ -18,7 +18,7 @@ void addData(PimModel *model)
     jdoe.middleName = "Schmo";
     jdoe.company = "Big Gray Corp.";
     jdoe.department = "Central Archive";
-    jdoe.jobTitle = "Beurocrat";
+    jdoe.jobTitle = "Bureaucrat";
     model->appendEntry(jdoe);
 
     PimEntry mmonsen;
