@@ -395,6 +395,9 @@ DspMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBS"] += "oleacc.lib delayimp.lib";
 	    project->variables()["QMAKE_LFLAGS"] += "/DELAYLOAD:oleacc.dll";
 	}
+	if ( project->variables()["DEFINES"].contains("QT_MAKEDLL") ) {
+	    project->variables()["MSVCDSP_DELAYLOAD"] += ("/DELAYLOAD:oleacc.dll");
+	}
     }
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {

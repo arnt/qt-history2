@@ -65,7 +65,10 @@ win32 {
 	MOC_DIR	= tmp
 	OBJECTS_DIR = tmp
 	dll:DEFINES+=QT_MAKEDLL
-        accessibility:LIBS+=oleacc.lib
+        accessibility {
+		win32:LIBS += oleacc.lib delayimp.lib
+		QMAKE_LFLAGS += /DELAYLOAD:oleacc.dll
+	}
         tablet {
 		DEFINES += QT_WINTAB_SUPPORT
 		LIBS += wintab32.lib
