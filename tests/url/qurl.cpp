@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#29 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#30 $
 **
 ** Implementation of QFileDialog class
 **
@@ -859,7 +859,6 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 {
     clearEntries();
     if ( isLocalFile() ) {
-	emit start();
 	d->dir = QDir( d->path );
 	d->dir.setNameFilter( nameFilter );
 	d->dir.setMatchAllDirs( TRUE );
@@ -871,6 +870,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    return;
 	}
 	
+	emit start();
 	QFileInfoListIterator it( *filist );
 	QFileInfo *fi;
 	while ( ( fi = it.current()) != 0 ) {

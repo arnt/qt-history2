@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#10 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#11 $
 **
 ** Definition of QFileDialog class
 **
@@ -319,7 +319,7 @@ private:
     void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );
 
-    QDir cwd;
+    QDir reserved; // was cwd
     QString fileName;
 
     QFileDialogPrivate *d;

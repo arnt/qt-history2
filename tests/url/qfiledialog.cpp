@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#27 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#28 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2906,9 +2906,15 @@ void QFileDialog::deleteFile( const QString &filename )
 
 }
 
-void QFileDialog::error( int, const QString &msg )
+void QFileDialog::error( int ecode, const QString &msg )
 {
     QMessageBox::critical( this, tr( "ERROR" ), msg );
+    
+    if ( ecode == QUrl::ReadDir ) {
+	// #### todo
+	d->url = "/";
+	rereadDir();
+    }
 }
 
 void QFileDialog::fileSelected( int  )
@@ -3509,7 +3515,8 @@ void QFileDialog::clearView()
 {
     files->clear();
     d->moreFiles->clear();
-
+    files->setSorting( -1 );
+    
     QString cp( d->url );//.dirPath() );
     int i = d->paths->count() - 1;
     while( i >= 0 && d->paths->text( i ) <= cp )
@@ -3549,7 +3556,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     if ( d->url.isLocalFile() ) {
 	QFileDialogPrivate::File * i = 0;
 	QFileDialogPrivate::MCItem *i2 = 0;
-	i = new QFileDialogPrivate::File(d, &inf, files );
+	i = new QFileDialogPrivate::File( d, &inf, files );
 	i2 = new QFileDialogPrivate::MCItem( d->moreFiles, i );
 	
 	i->i = i2;
