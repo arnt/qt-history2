@@ -105,7 +105,7 @@ public:
     int mkdir( const QString &dir );
     int rmdir( const QString &dir );
 
-    int ftpCommand( const QString &command );
+    int rawCommand( const QString &command );
 
     int currentId() const;
     Command currentCommand() const;
@@ -120,7 +120,7 @@ signals:
     void newData( const QByteArray& );
     void dataSize( int );
     void dataProgress( int );
-    void ftpCommandReply( int, const QString& );
+    void rawCommandReply( int, const QString& );
 
     void start( int );
     void finishedSuccess( int );

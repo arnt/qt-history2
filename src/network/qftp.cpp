@@ -1126,12 +1126,12 @@ void QFtp::init()
 /*!  \fn void QFtp::dataProgress( int size )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::ftpCommandReply( int replyCode, const QString &detail );
-    This signal is emitted in reply to the ftpCommand() function. \a replyCode
+/*!  \fn void QFtp::rawCommandReply( int replyCode, const QString &detail );
+    This signal is emitted in reply to the rawCommand() function. \a replyCode
     is the 3 digit reply code and \a detail is the textthat follows the reply
     code.
 
-    \sa ftpCommand()
+    \sa rawCommand()
 */
 
 /*!
@@ -1387,9 +1387,9 @@ int QFtp::rmdir( const QString &dir )
     finished, either the finishedSuccess() or finishedError() signal is
     emitted.
 
-    \sa ftpCommandReply() start() finishedSuccess() finishedError()
+    \sa rawCommandReply() start() finishedSuccess() finishedError()
 */
-int QFtp::ftpCommand( const QString &command )
+int QFtp::rawCommand( const QString &command )
 {
     QString cmd = command.stripWhiteSpace() + "\r\n";
     return addCommand( new QFtpCommand( FtpCommand, QStringList(cmd) ) );
@@ -1617,7 +1617,7 @@ void QFtp::piConnectState( int state )
 void QFtp::piFtpReply( int code, const QString &text )
 {
     if ( currentCommand() == FtpCommand )
-	emit ftpCommandReply( code, text );
+	emit rawCommandReply( code, text );
 }
 
 //

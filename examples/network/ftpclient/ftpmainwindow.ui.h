@@ -44,8 +44,8 @@ void FtpMainWindow::init()
 	    SLOT(ftp_stateChanged(int)) );
     connect( ftp, SIGNAL(listInfo(const QUrlInfo &)),
 	    SLOT(ftp_listInfo(const QUrlInfo &)) );
-    connect( ftp, SIGNAL(ftpCommandReply(int, const QString &)),
-	    SLOT(ftp_ftpCommandReply(int, const QString &)) );
+    connect( ftp, SIGNAL(rawCommandReply(int, const QString &)),
+	    SLOT(ftp_rawCommandReply(int, const QString &)) );
 }
 
 void FtpMainWindow::destroy()
@@ -162,7 +162,7 @@ void FtpMainWindow::changePath( const QString &newPath )
 {
 //    currentFtpDir = newPath;
     ftp->cd( newPath );
-    ftp->ftpCommand( "PWD" );
+    ftp->rawCommand( "PWD" );
     ftp->list();
 }
 
@@ -238,7 +238,7 @@ void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 	    i.name(), QString::number(i.size()), i.lastModified().toString() );
 }
 
-void FtpMainWindow::ftp_ftpCommandReply( int code, const QString &text )
+void FtpMainWindow::ftp_rawCommandReply( int code, const QString &text )
 {
     if ( code == 257 ) {
 	currentFtpDir = text.section( '"', 1, 1 );

@@ -271,7 +271,7 @@
     <function type="slot" access="private">ftp_doneError( const QString &amp; msg )</function>
     <function type="slot" access="private">ftp_stateChanged( int state )</function>
     <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; i )</function>
-    <function type="slot" access="private">ftp_ftpCommandReply( int code, const QString &amp; text )</function>
+    <function type="slot" access="private">ftp_rawCommandReply( int code, const QString &amp; text )</function>
     <function type="slot" access="private">changePathOrDownload(  QListViewItem * )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
