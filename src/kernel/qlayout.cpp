@@ -703,16 +703,6 @@ void QLayoutArray::distribute( QRect r, int spacing )
     }
 }
 
-/*!
-  Returns the geometry of the cell with row \a row, and column
-  \a col in the grid. Returns an invalid rectangle if \a row or
-  \a col is outsiude the grid.
-  
-  \warning in the current version of Qt, this function does not return
-  valid results until setGeometry() has been called, ie. after the
-  mainWidget() is visible.
-  
-*/
 QRect QLayoutArray::cellGeometry( int row, int col ) const
 {
     if ( row < 0 || row >= rr || col < 0 || col >= cc )
@@ -1036,6 +1026,16 @@ void QGridLayout::setGeometry( const QRect &s )
 }
 
 
+/*!
+  Returns the geometry of the cell with row \a row, and column
+  \a col in the grid. Returns an invalid rectangle if \a row or
+  \a col is outsiude the grid.
+  
+  \warning in the current version of Qt, this function does not return
+  valid results until setGeometry() has been called, ie. after the
+  mainWidget() is visible.
+  
+*/
 QRect QGridLayout::cellGeometry( int row, int col ) const
 {
     return array->cellGeometry( row, col );
