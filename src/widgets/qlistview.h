@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#45 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#46 $
 **
 ** Definition of QListView widget class
 **
@@ -262,7 +262,7 @@ public:
 
 protected:
     void paintBranches( QPainter * p, const QColorGroup & cg,
-			int w, int y, int h, GUIStyle s ) const;
+			int w, int y, int h, GUIStyle s );
 
     void activate();
     void turnOffChild();

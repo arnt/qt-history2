@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#93 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#93 $");
 
 
 const int Unsorted = 16383;
@@ -3062,7 +3062,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
   Fills the rectangle. No decoration is drawn.
  */
 void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
-			    int w, int, int h, GUIStyle) const
+			    int w, int, int h, GUIStyle)
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
