@@ -1,4 +1,6 @@
+#define Q_INITGUID
 #include "../tools/designer/plugins/designerinterface.h"
+#undef Q_INITGUID
 
 #include <qaction.h>
 #include <qapplication.h>
@@ -19,12 +21,12 @@
 #include <qsignalmapper.h>
 #include <qstylefactory.h>
 
-class TestInterface;
+class TestComponent;
 
 class TestThread : public QThread
 {
 public:
-    TestThread( TestInterface* );
+    TestThread( TestComponent* );
     void stop();
 
 protected:
@@ -33,16 +35,20 @@ protected:
 private:
     QMutex mtx;
     bool stopped;
-    TestInterface* iface;
+    TestComponent* iface;
 };
 
-class TestInterface : public QObject, public ActionInterface
+class TestComponent : public QObject, public ActionInterface
 {
     Q_OBJECT
 
 public:
-    TestInterface( QUnknownInterface *parent );
-    ~TestInterface();
+    TestComponent();
+    ~TestComponent();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QStringList featureList() const;
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -64,17 +70,19 @@ private:
     QSignalMapper *styleMapper;
 
     TestThread* thread;
-    QDialog* dialog;
+    QGuardedPtr<QDialog> dialog;
     QLCDNumber* lcd;
     QUnknownInterface *appInterface;
+
+    unsigned long ref;
 };
 
-TestInterface::TestInterface( QUnknownInterface *parent )
-: ActionInterface( parent ), styleMapper( 0 ), thread( 0 ), dialog( 0 ), appInterface( 0 )
+TestComponent::TestComponent()
+: styleMapper( 0 ), thread( 0 ), dialog( 0 ), appInterface( 0 ), ref( 0 )
 {
 }
 
-TestInterface::~TestInterface()
+TestComponent::~TestComponent()
 {
     if ( thread ) {
 	thread->stop();
@@ -84,7 +92,33 @@ TestInterface::~TestInterface()
     delete dialog;
 }
 
-QStringList TestInterface::featureList() const
+QUnknownInterface *TestComponent::queryInterface( const QGuid &guid )
+{
+    QUnknownInterface *iface = 0;
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_ActionInterface )
+	iface = (ActionInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+    return iface;
+}
+
+unsigned long TestComponent::addRef()
+{
+    return ref++;
+}
+
+unsigned long TestComponent::release()
+{
+    if ( !--ref )
+	delete this;
+
+    return ref;
+}
+
+QStringList TestComponent::featureList() const
 {
     QStringList list;
     list << "Start Thread";
@@ -93,9 +127,12 @@ QStringList TestInterface::featureList() const
     return list;
 }
 
-void TestInterface::connectTo( QUnknownInterface *ai )
+void TestComponent::connectTo( QUnknownInterface *ai )
 {
-    appInterface = ai;
+    if ( !appInterface && ai ) {
+	appInterface = ai;
+	appInterface->addRef();
+    }
 }
 
 /* XPM */
@@ -113,7 +150,7 @@ static const char * const editmark_xpm[] ={
 "....c.......",
 };
 
-QAction* TestInterface::create( const QString& actionname, QObject* parent )
+QAction* TestComponent::create( const QString& actionname, QObject* parent )
 {
     if ( actionname == "Start Thread" ) {
 	QAction* a = new QAction( actionname, QIconSet(), "St&art...", 0, parent, actionname );
@@ -157,22 +194,22 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
     return 0;
 }
 
-void TestInterface::setStyle( const QString& style )
+void TestComponent::setStyle( const QString& style )
 {
     QApplication::setStyle( style );
 }
 
-QString TestInterface::group( const QString & ) const
+QString TestComponent::group( const QString & ) const
 {
     return "Test";
 }
 
-void TestInterface::countWidgets()
+void TestComponent::countWidgets()
 {
     if ( !appInterface )
 	return;
 
-    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)appInterface->queryInterface( "DesignerWidgetListInterface" );
+    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)appInterface->queryInterface( IID_DesignerWidgetListInterface );
     if ( !wlIface )
 	return;
 
@@ -181,12 +218,12 @@ void TestInterface::countWidgets()
     int c = wlIface->count();
     wlIface->release();
 
-    DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( "DesignerStatusBarInterface" );
+    DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( IID_DesignerStatusBarInterface );
     sbIface->setMessage( tr("There are %1 widgets in this form").arg( c ) );
     sbIface->release();
 }
 
-void TestInterface::startThread()
+void TestComponent::startThread()
 {
     if ( !thread )
 	thread = new TestThread( this );
@@ -195,7 +232,7 @@ void TestInterface::startThread()
 	thread->start();
 }
 
-bool TestInterface::event( QEvent* e )
+bool TestComponent::event( QEvent* e )
 {
     if ( e->type() == QEvent::User ) {
 	if ( !dialog ) {
@@ -221,7 +258,7 @@ bool TestInterface::event( QEvent* e )
     return QObject::event( e );
 }
 
-bool TestInterface::eventFilter( QObject *o, QEvent *e )
+bool TestComponent::eventFilter( QObject *o, QEvent *e )
 {
     if ( o == dialog && e->type() == QEvent::Close ) {
 	thread->stop();
@@ -229,7 +266,7 @@ bool TestInterface::eventFilter( QObject *o, QEvent *e )
     return QObject::eventFilter( o, e );
 }
 
-TestThread::TestThread( TestInterface *f )
+TestThread::TestThread( TestComponent *f )
 : QThread()
 {
     iface = f;
@@ -266,21 +303,4 @@ void TestThread::run()
 
 #include "main.moc"
 
-class TestPlugIn : public QUnknownInterface
-{
-public:
-    TestPlugIn();
-/*
-    QString name() const { return "Test plugin"; }
-    QString description() const { return "PlugIn to show what kind of stupid things you can do here"; }
-    QString author() const { return "Trolltech"; }
-*/
-};
-
-TestPlugIn::TestPlugIn()
-: QUnknownInterface()
-{
-    new TestInterface( this );
-}
-
-Q_EXPORT_INTERFACE(TestPlugIn)
+Q_EXPORT_INTERFACE(TestComponent)

@@ -1,4 +1,6 @@
+#define Q_INITGUID
 #include "../designerinterface.h"
+#undef Q_INITGUID
 
 #include <qcleanuphandler.h>
 
@@ -7,8 +9,11 @@
 class OpenGLWidgetInterface : public WidgetInterface
 {
 public:
-    OpenGLWidgetInterface( QUnknownInterface *parent );
-    ~OpenGLWidgetInterface();
+    OpenGLWidgetInterface();
+
+    QUnknownInterface *queryInterface( const QGuid& );
+    unsigned long addRef();
+    unsigned long release();
 
     QStringList featureList() const;
 
@@ -23,14 +28,12 @@ public:
 
 private:
     QGuardedCleanupHandler<QObject> objects;
+
+    unsigned long ref;
 };
 
-OpenGLWidgetInterface::OpenGLWidgetInterface( QUnknownInterface *parent )
-: WidgetInterface( parent )
-{
-}
-
-OpenGLWidgetInterface::~OpenGLWidgetInterface()
+OpenGLWidgetInterface::OpenGLWidgetInterface()
+: ref( 0 )
 {
 }
 
@@ -99,26 +102,32 @@ bool OpenGLWidgetInterface::isContainer( const QString& ) const
     return FALSE;
 }
 
-class OpenGLPlugIn : public QUnknownInterface
+QUnknownInterface *OpenGLWidgetInterface::queryInterface( const QGuid& guid )
 {
-public:
-    OpenGLPlugIn();
-    ~OpenGLPlugIn();
-/*
-    QString name() const { return "QGLWidget"; }
-    QString description() const { return "Qt Designer plugin for the OpenGL widget"; }
-    QString author() const { return "Trolltech"; }
-*/
-};
+    QUnknownInterface *iface = 0;
 
-OpenGLPlugIn::OpenGLPlugIn()
-: QUnknownInterface()
-{
-    new OpenGLWidgetInterface( this );
+    if ( guid == IID_QUnknownInterface )
+	iface = (QUnknownInterface*)this;
+    else if ( guid == IID_WidgetInterface )
+	iface = (WidgetInterface*)this;
+
+    if ( iface )
+	iface->addRef();
+
+    return iface;
 }
 
-OpenGLPlugIn::~OpenGLPlugIn()
+unsigned long OpenGLWidgetInterface::addRef()
 {
+    return ref++;
 }
 
-Q_EXPORT_INTERFACE( OpenGLPlugIn )
+unsigned long OpenGLWidgetInterface::release()
+{
+    if ( !--ref )
+	delete this;
+
+    return ref;
+}
+
+Q_EXPORT_INTERFACE( OpenGLWidgetInterface )
