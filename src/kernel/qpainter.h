@@ -405,6 +405,7 @@ protected:
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;
+    friend class QTextLayout;
     friend void qt_format_text( const QFont &, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,

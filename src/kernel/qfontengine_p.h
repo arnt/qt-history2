@@ -76,7 +76,7 @@ public:
     virtual bool canRender( const QChar *string,  int len ) = 0;
 
     virtual void setScale( double ) {}
-    virtual int scale() const { return 1; }
+    virtual double scale() const { return 1.; }
 
     virtual Type type() const = 0;
 
@@ -242,6 +242,9 @@ public:
     int cmap() const;
     const char *name() const;
 
+    void setScale( double scale );
+    double scale() const { return _scale; }
+
     bool canRender( const QChar *string,  int len );
 
     Type type() const;
@@ -256,6 +259,7 @@ private:
     int _cmap;
     short lbearing;
     short rbearing;
+    float _scale;
 };
 #endif
 
@@ -287,6 +291,7 @@ public:
     bool canRender( const QChar *string,  int len );
 
     void setScale( double scale );
+    double scale() const { return _scale; }
     Type type() const;
 
     Qt::HANDLE handle() const { return (Qt::HANDLE) _fs->fid; }

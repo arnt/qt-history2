@@ -1257,7 +1257,7 @@ void QFontDatabase::createDatabase()
 // --------------------------------------------------------------------------------------
 // font loader
 // --------------------------------------------------------------------------------------
-
+#define MAXFONTSIZE 128
 
 static inline
 QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
@@ -1335,17 +1335,14 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	  ... if we request pixel sizes.  so, work around this limitiation and
 	  convert the pixel size to a point size and request that.
 	*/
-	double size_value = double( request.pixelSize ) * 72.0 /
-			    QPaintDevice::x11AppDpiY( screen );
-#  if 0
-	// ### FIX ME Lars :)
+	double size_value = request.pixelSize;
+	double scale = 1.;
 	if ( size_value > MAXFONTSIZE ) {
-	    *scale = (double)size_value/(double)MAXFONTSIZE;
+	    scale = (double)size_value/(double)MAXFONTSIZE;
 	    size_value = MAXFONTSIZE;
-	} else {
-	    *scale = 1.;
 	}
-#  endif // 0
+	size_value *= 72.0 / QPaintDevice::x11AppDpiY( screen );
+
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
 #  ifdef XFT_MATRIX
@@ -1385,7 +1382,9 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	if ( ! xftfs ) // Xft couldn't find a font?
 	    return 0;
 
-	return new QFontEngineXft( xftfs, result, 0 );
+	QFontEngine *fe = new QFontEngineXft( xftfs, result, 0 );
+	fe->setScale( scale );
+	return fe;
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -1413,6 +1412,12 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 	px = request.pixelSize;
     else if ( style->bitmapScalable && ( request.styleStrategy & QFont::PreferMatch ) )
 	px = request.pixelSize;
+    double scale = 1.;
+    if ( px > MAXFONTSIZE ) {
+	scale = (double)px/(double)MAXFONTSIZE;
+	px = MAXFONTSIZE;
+    }
+
     xlfd += QString::number( px ).latin1();
 
     xlfd += "-*-*-*-";
@@ -1443,7 +1448,9 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
     default: break;
     }
 
-    return new QFontEngineXLFD( xfs, xlfd.data(), xlfd_for_id( encoding->encoding ), 0 );
+    QFontEngine *fe = new QFontEngineXLFD( xfs, xlfd.data(), xlfd_for_id( encoding->encoding ), 0 );
+    fe->setScale( scale );
+    return fe;
 }
 
 static

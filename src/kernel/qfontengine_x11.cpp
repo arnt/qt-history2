@@ -271,7 +271,11 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, gl
     if ( advances ) {
 	for ( int i = 0; i < len; i++ ) {
 	    XCharStruct *xcs = charStruct( _fs, glyphs[i] );
-	    advances[i] = (int)((xcs ? xcs->width : _fs->ascent)*_scale);
+	    advances[i] = (xcs ? xcs->width : _fs->ascent);
+	}
+	if ( _scale != 1. ) {
+	    for ( int i = 0; i < len; i++ )
+		advances[i] = (int)(advances[i]*_scale);
 	}
     }
     return NoError;
@@ -394,24 +398,37 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( const glyph_t *glyphs, const advan
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
 
-    overall.x = (int)(overall.x * _scale);
-    overall.y = (int)(overall.y * _scale);
-    overall.height = (int)(overall.height * _scale);
-    overall.width = (int)(overall.width * _scale);
-    overall.xoff = (int)(overall.xoff * _scale);
-    overall.yoff = (int)(overall.yoff * _scale);
+    if ( _scale != 1. ) {
+	overall.x = (int)(overall.x * _scale);
+	overall.y = (int)(overall.y * _scale);
+	overall.height = (int)(overall.height * _scale);
+	overall.width = (int)(overall.width * _scale);
+	overall.xoff = (int)(overall.xoff * _scale);
+	overall.yoff = (int)(overall.yoff * _scale);
+    }
     return overall;
 }
 
 glyph_metrics_t QFontEngineXLFD::boundingBox( glyph_t glyph )
 {
+    glyph_metrics_t gm;
     // ### scale missing!
     XCharStruct *xcs = charStruct( _fs, glyph );
     if (xcs) {
-	return glyph_metrics_t( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+	gm = glyph_metrics_t( xcs->lbearing, -xcs->ascent, xcs->rbearing- xcs->lbearing, xcs->ascent + xcs->descent, xcs->width, 0 );
+    } else {
+	int size = ascent();
+	gm = glyph_metrics_t( 0, size, size, size, size, 0 );
     }
-    int size = ascent();
-    return glyph_metrics_t( 0, size, size, size, size, 0 );
+    if ( _scale != 1. ) {
+	gm.x = (int)(gm.x * _scale);
+	gm.y = (int)(gm.y * _scale);
+	gm.height = (int)(gm.height * _scale);
+	gm.width = (int)(gm.width * _scale);
+	gm.xoff = (int)(gm.xoff * _scale);
+	gm.yoff = (int)(gm.yoff * _scale);
+    }
+    return gm;
 }
 
 
@@ -656,6 +673,10 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	    XftGlyphExtents( QPaintDevice::x11AppDisplay(), _font, &glyph, 1, &gi );
 	    *(advances + i) = gi.xOff;
 	}
+	if ( _scale != 1. ) {
+	    for ( int i = 0; i < len; i++ )
+		advances[i] = (int)(advance[i]*_scale);
+	}
     }
 #else
     if ( !_face ) {
@@ -671,7 +692,11 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 	    XGlyphInfo gi;
 	    XftTextExtents16(QPaintDevice::x11AppDisplay(), _font,
 			     (XftChar16 *) glyphs+i, 1, &gi);
-	    *(advances++) = gi.xOff;
+	    *(advances + i) = gi.xOff;
+	}
+	if ( _scale != 1. ) {
+	    for ( int i = 0; i < len; i++ )
+		advances[i] = (int)(advances[i]*_scale);
 	}
     }
 #endif // QT_XFT2
@@ -798,6 +823,14 @@ glyph_metrics_t QFontEngineXft::boundingBox( const glyph_t *glyphs, const advanc
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;
 
+    if ( _scale != 1. ) {
+	overall.x = (int)(overall.x * _scale);
+	overall.y = (int)(overall.y * _scale);
+	overall.height = (int)(overall.height * _scale);
+	overall.width = (int)(overall.width * _scale);
+	overall.xoff = (int)(overall.xoff * _scale);
+	overall.yoff = (int)(overall.yoff * _scale);
+    }
     return overall;
 }
 
@@ -805,30 +838,39 @@ glyph_metrics_t QFontEngineXft::boundingBox( glyph_t glyph )
 {
     XGlyphInfo xgi;
     getGlyphInfo( &xgi, _font, glyph );
-    return glyph_metrics_t( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+    glyph_metrics_t gm = glyph_metrics_t( -xgi.x, -xgi.y, xgi.width, xgi.height, xgi.xOff, -xgi.yOff );
+    if ( _scale != 1. ) {
+	gm.x = (int)(gm.x * _scale);
+	gm.y = (int)(gm.y * _scale);
+	gm.height = (int)(gm.height * _scale);
+	gm.width = (int)(gm.width * _scale);
+	gm.xoff = (int)(gm.xoff * _scale);
+	gm.yoff = (int)(gm.yoff * _scale);
+    }
+    return gm;
 }
 
 
 
 int QFontEngineXft::ascent() const
 {
-    return _font->ascent;
+    return (int)(_font->ascent*_scale);
 }
 
 int QFontEngineXft::descent() const
 {
-    return _font->descent;
+    return (int)(_font->descent*_scale);
 }
 
 int QFontEngineXft::leading() const
 {
-    int l = qRound( (ascent() + descent() ) * 0.15 );
+    int l = qRound( (_font->ascent + _font->descent) * 0.15 * _scale );
     return (l > 0) ? l : 1;
 }
 
 int QFontEngineXft::maxCharWidth() const
 {
-    return _font->max_advance_width;
+    return (int)(_font->max_advance_width*_scale);
 }
 
 int QFontEngineXft::minLeftBearing() const
@@ -851,6 +893,11 @@ int QFontEngineXft::cmap() const
 const char *QFontEngineXft::name() const
 {
     return "xft";
+}
+
+void QFontEngineXft::setScale( double scale )
+{
+    _scale = scale;
 }
 
 bool QFontEngineXft::canRender( const QChar *string,  int len )
@@ -1366,6 +1413,7 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 	advance_t *advances = shaped->advances;
 	offset_t *offsets = shaped->offsets;
 
+	float scale = item->fontEngine->scale();
 	//     qDebug("positioned glyphs:" );
 	for ( int i = 0; i < shaped->num_glyphs; i++) {
 // 	     	qDebug("    %d:\tadv=(%d/%d)\tpos=(%d/%d)\tback=%d\tnew_advance=%d", i,
@@ -1374,14 +1422,14 @@ void QOpenType::apply( unsigned int script, unsigned short *featuresToApply, QSc
 // 	     	       positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		advances[i] = positions[i].x_advance >> 6;
+		advances[i] = (int)((positions[i].x_advance >> 6)*scale);
 		//advances[i].y = -positions[i].y_advance >> 6;
 	    } else {
-		advances[i] += positions[i].x_advance >> 6;
+		advances[i] += (int)((positions[i].x_advance >> 6)*scale);
 		//advances[i].y -= positions[i].y_advance >> 6;
 	    }
-	    offsets[i].x = positions[i].x_pos >> 6;
-	    offsets[i].y = -(positions[i].y_pos >> 6);
+	    offsets[i].x = (int)((positions[i].x_pos >> 6)*scale);
+	    offsets[i].y = -(int)((positions[i].y_pos >> 6)*scale);
 	    int back = positions[i].back;
 	    while ( back ) {
 		offsets[i].x -= advances[i-back];

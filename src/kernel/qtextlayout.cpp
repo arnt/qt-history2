@@ -179,7 +179,7 @@ bool QTextItem::isObject() const
 
 QTextLayout::QTextLayout( const QString &string, QPainter *p )
 {
-    QFontPrivate *f = p ? p->font().d : QApplication::font().d;
+    QFontPrivate *f = p ? ( p->pfont ? p->pfont->d : p->cfont.d ) : QApplication::font().d;
     d = new QTextEngine( string, f );
 }
 
