@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#400 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#401 $
 **
 ** Implementation of QWidget class
 **
@@ -2764,6 +2764,25 @@ void QWidget::show()
 {
     if ( testWState(WState_Visible) )
 	return;
+    if ( isTopLevel() && !testWState( WState_Resized ) )  {
+	QSize s = sizeHint();
+	QSizePolicy::ExpandData exp;
+	if ( layout() ) {
+	    if ( layout()->hasHeightForWidth() )
+		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
+	    exp =  layout()->expanding();
+	} else {
+	    if ( sizePolicy().hasHeightForWidth() )
+		s.setHeight( heightForWidth( s.width() ) );
+	    exp = sizePolicy().expanding();
+	}
+	if ( exp & QSizePolicy::Horizontal )
+	    s.setWidth( QMAX( s.width(), 200 ) );
+	if ( exp & QSizePolicy::Vertical )
+	    s.setHeight( QMAX( s.height(), 150 ) );
+	if ( !s.isEmpty() )
+	    resize( s );
+    }
     if ( extra ) {
 	int w = crect.width();
 	int h = crect.height();
@@ -2792,25 +2811,6 @@ void QWidget::show()
 		    widget->show();
 	    }
 	}
-    }
-    if ( isTopLevel() && !testWState( WState_Resized ) )  {
-	QSize s = sizeHint();
-	QSizePolicy::ExpandData exp;
-	if ( layout() ) {
-	    if ( layout()->hasHeightForWidth() )
-		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
-	    exp =  layout()->expanding();
-	} else {
-	    if ( sizePolicy().hasHeightForWidth() )
-		s.setHeight( heightForWidth( s.width() ) );
-	    exp = sizePolicy().expanding();
-	}
-	if ( exp & QSizePolicy::Horizontal )
-	    s.setWidth( QMAX( s.width(), 200 ) );
-	if ( exp & QSizePolicy::Vertical )
-	    s.setHeight( QMAX( s.height(), 150 ) );
-	if ( !s.isEmpty() )
-	    resize( s );
     }
     if ( testWFlags(WStyle_Tool) ) {
 	raise();
