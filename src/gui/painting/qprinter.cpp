@@ -426,8 +426,6 @@ QString QPrinter::outputFileName() const
   i.e. calls setOutputToFile(false). Setting a non-empty name
   enables output to a file, i.e. calls setOutputToFile(true).
 
-  \warning This function is currently only supported under X11.
-
   \sa outputFileName(), setOutputToFile()
 */
 
