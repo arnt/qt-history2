@@ -45,8 +45,7 @@ public:
     enum WindowOrder { CreationOrder, StackingOrder };
 
     QWidget* activeWindow() const;
-    QWidgetList windowList() const; // ### merge with below in 4.0
-    QWidgetList windowList( WindowOrder order ) const;
+    QWidgetList windowList( WindowOrder order = CreationOrder ) const;
 
     QSize sizeHint() const;
 
@@ -91,18 +90,18 @@ private slots:
 
 private:
     void init();
-    void insertIcon( QWidget* w);
-    void removeIcon( QWidget* w);
+    void insertIcon( QWidget* w );
+    void removeIcon( QWidget* w );
     void place( QWidget* );
 
-    QWorkspaceChild* findChild( QWidget* w);
+    QWorkspaceChild* findChild( QWidget* w );
     void showMaximizeControls();
     void hideMaximizeControls();
     void activateWindow( QWidget* w, bool change_focus = TRUE );
-    void showWindow( QWidget* w);
-    void maximizeWindow( QWidget* w);
-    void minimizeWindow( QWidget* w);
-    void normalizeWindow( QWidget* w);
+    void showWindow( QWidget* w );
+    void maximizeWindow( QWidget* w );
+    void minimizeWindow( QWidget* w );
+    void normalizeWindow( QWidget* w );
 
     QRect updateWorkspace();
 

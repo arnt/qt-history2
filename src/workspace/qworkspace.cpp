@@ -876,7 +876,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
     }
 }
 
-void QWorkspace::showWindow( QWidget* w)
+void QWorkspace::showWindow( QWidget* w )
 {
     if ( d->maxWindow && w->testWFlags( WStyle_Maximize ) && !w->testWFlags( WStyle_Tool) )
 	maximizeWindow( w );
@@ -890,7 +890,7 @@ void QWorkspace::showWindow( QWidget* w)
 }
 
 
-QWorkspaceChild* QWorkspace::findChild( QWidget* w)
+QWorkspaceChild* QWorkspace::findChild( QWidget* w )
 {
     QPtrListIterator<QWorkspaceChild> it( d->windows );
     while ( it.current () ) {
@@ -900,15 +900,6 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 	    return c;
     }
     return 0;
-}
-
-/*!
-  \obsolete
-  \overload
- */
-QWidgetList QWorkspace::windowList() const
-{
-    return windowList( CreationOrder );
 }
 
 /*!
@@ -941,7 +932,7 @@ QWidgetList QWorkspace::windowList( WindowOrder order ) const
 }
 
 /*!\reimp*/
-bool QWorkspace::eventFilter( QObject *o, QEvent * e)
+bool QWorkspace::eventFilter( QObject *o, QEvent * e )
 {
     static QTime* t = 0;
     static QWorkspace* tc = 0;
@@ -1962,7 +1953,7 @@ bool QWorkspaceChild::focusNextPrevChild( bool next )
     return true;
 }
 
-void QWorkspaceChild::childEvent( QChildEvent*  e)
+void QWorkspaceChild::childEvent( QChildEvent* e )
 {
     if ( e->type() == QEvent::ChildRemoved && e->child() == childWidget ) {
 	childWidget = 0;
