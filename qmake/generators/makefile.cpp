@@ -1974,8 +1974,12 @@ MakefileGenerator::openOutput(QFile &file) const
 	    if(fi.isDir())
 		outdir = file.name() + QDir::separator();
 	}
-	if(!outdir.isEmpty() || file.name().isEmpty())
-	    file.setName(outdir + "Makefile");
+	if(!outdir.isEmpty() || file.name().isEmpty()) {
+	    QString fname = "Makefile";
+	    if(!project->isEmpty("MAKEFILE"))
+	       fname = project->first("MAKEFILE");
+	    file.setName(outdir + fname);
+	}
     }
     if(QDir::isRelativePath(file.name()))
 	file.setName(Option::output_dir + file.name()); //pwd when qmake was run
