@@ -1,8 +1,26 @@
-/*
-  yyindent2.cpp
+/**********************************************************************
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
-  Interactive indenter for C++, JavaScript and similar programming
-  languages.
+/*
+  This file is a self-contained interactive indenter for C++,
+  JavaScript and similar programming languages.
 */
 
 #include <qregexp.h>
@@ -18,18 +36,36 @@
 static const int SmallRoof = 40;
 static const int BigRoof = 400;
 
-// pretty-printer parameters
-static int ppTabSize = 8;
+/*
+  The indenter supports a few parameters:
+
+    * ppHardwareTabSize is the size of a '\t' in your favorite editor.
+    * ppIndentSize is the size of an indentation, the "software tab
+      size".
+    * ppContinuationIndentSize is the extra indent for a continuation
+      line, when there is nothing to align against on the previous
+      line.
+    * ppCommentOffset is the indentation within a C-style comment,
+      when it cannot be picked up.
+*/
+static int ppHardwareTabSize = 8;
 static int ppIndentSize = 4;
 static int ppContinuationIndentSize = 8;
 static int ppCommentOffset = 2;
 
+/*
+  'do', 'for', etc., are the keywords that can appear in the following
+  construct:
+
+      keyword ( x )
+	  y;
+*/
+static QRegExp ctlStmtKeyword( QString("\\b(?:do|for|if|while)\\b") );
+
 static QRegExp braceElse( QString("^\\s*\\}\\s*else\\b") );
-static QRegExp ctlStmtKeyword( QString("\\b(?:do|for|if|while|function)\\b") );
 static QRegExp forKeyword( QString("\\bfor\\b") );
 static QRegExp label( QString("^\\s*((?:case\\b[^:]+|[a-zA-Z_0-9]+):(?!:))") );
 
-static QString braces( "{}" );
 static QString comparators( "!=<>" );
 static QString parens( "()" );
 static QString separators( "{};" );
@@ -75,7 +111,7 @@ static int columnForIndex( const QString& t, int index )
 
     for ( int i = 0; i < index; i++ ) {
 	if ( t[i] == QChar('\t') ) {
-	    col = ( (col / ppTabSize) + 1 ) * ppTabSize;
+	    col = ( (col / ppHardwareTabSize) + 1 ) * ppHardwareTabSize;
 	} else {
 	    col++;
 	}
@@ -202,10 +238,9 @@ static inline bool okay( QChar typedIn, QChar okayCh )
 struct LinizerState
 {
     QStringList::ConstIterator iter;
-    bool inCComment;
-
     QString line;
     int braceDepth;
+    bool inCComment;
     bool pendingRightBrace;
 };
 
@@ -215,7 +250,8 @@ static const QString& yyLine = yyLinizerState.line;
 static const int& yyBraceDepth = yyLinizerState.braceDepth;
 
 /*
-  Saves and restores the state of the global linizer.
+  Saves and restores the state of the global linizer. This allows us
+  to backtrack gracefully.
 */
 #define YY_SAVE() \
 	LinizerState savedState = yyLinizerState
@@ -243,13 +279,13 @@ static bool readLine()
 	yyLinizerState.line = trimmedCodeLine( yyLinizerState.line );
 
 	/*
-	  Remove C-style comments that span multiple lines. If the bottom
-	  line starts in a C-style comment, we are not aware of that and
-	  eventually yyLine will contain a slash-aster.
+	  Remove C-style comments that span multiple lines. If the
+	  bottom line starts in a C-style comment, we are not aware
+	  of that and eventually yyLine will contain a slash-aster.
 
 	  Notice that both if's can be executed, since
-	  yyLinizerState.inCComment is potentially set to FALSE in the first
-	  if. The order of the if's is also important.
+	  yyLinizerState.inCComment is potentially set to FALSE in
+	  the first if. The order of the if's is also important.
 	*/
 
 	if ( yyLinizerState.inCComment ) {
@@ -297,8 +333,9 @@ static bool readLine()
 	  '}' increment the brace depth and '{' decrements it and not
 	  the other way around, as we are parsing backwards.
 	*/
-	yyLinizerState.braceDepth += yyLinizerState.line.contains( QChar('}') ) -
-				     yyLinizerState.line.contains( QChar('{') );
+	yyLinizerState.braceDepth +=
+		yyLinizerState.line.contains( QChar('}') ) -
+		yyLinizerState.line.contains( QChar('{') );
 
 	/*
 	  We use a dirty trick for
@@ -323,16 +360,18 @@ static bool readLine()
 }
 
 /*
-  Feeds the linizer with a program and initializes yyLine to the
+  Resets the linizer to its initial state, with yyLine containing the
   line above the bottom line of the program.
+
+  The algorithm we use is multi-pass, so it's handy to be able to
+  be able to restart the linizer at any time.
 */
-static void startLinizerState()
+static void restartLinizer()
 {
     yyLinizerState.iter = yyProgram.end();
     --yyLinizerState.iter;
+    yyLinizerState.braceDepth = 0;
     yyLinizerState.inCComment = FALSE;
-
-    yyLinizerState.braceDepth = 0; // arbitrary start level
     yyLinizerState.pendingRightBrace = FALSE;
     readLine();
 }
@@ -378,7 +417,7 @@ static int indentWhenBottomLineStartsInCComment()
 {
     static QString slashAster( "/*" );
 
-    startLinizerState();
+    restartLinizer();
     for ( int i = 0; i < SmallRoof; i++ ) {
 	int k = yyLine.findRev( slashAster );
 	if ( k == -1 ) {
@@ -410,9 +449,9 @@ static int indentWhenBottomLineStartsInCComment()
 }
 
 /*
-  A function called match*() modifies the linizer state. If it returns
-  TRUE, yyLine is the top line of the matched construct; otherwise, the
-  linizer is left in an unknown state.
+  A function called match*() modifies the linizer state. If it
+  returns TRUE, yyLine is the top line of the matched construct;
+  otherwise, the linizer is left in an unknown state.
 
   A function called is*() keeps linizer state intact.
 */
@@ -571,7 +610,7 @@ static int indentForContinuationLine()
     int braceDepth = 0;
     int delimDepth = 0;
 
-    startLinizerState();
+    restartLinizer();
     if ( yyLine.isEmpty() )
 	return NotAContinuationLine;
 
@@ -676,7 +715,7 @@ static int indentForContinuationLine()
 		if ( j == 0 || comparators.find(yyLine[j - 1]) == -1 ) {
 		    if ( braceDepth == 0 && delimDepth == 0 &&
 			 j < (int) yyLine.length() - 1 &&
-			 !yyLine.endsWith(QChar(',')) &&
+			 yyLine.contains(QChar(',')) == 0 &&
 			 (yyLine.contains(QChar('(')) ==
 			  yyLine.contains(QChar(')'))) )
 			hook = j;
@@ -712,8 +751,9 @@ static int indentForContinuationLine()
 	    break;
 
 	/*
-	  The line looks like it's already a continuation line. It's
-	  delimiters are balanced. Let's look at it more closely.
+	  The line's delimiters are balanced. It looks like a
+	  continuation line or something. We could be wrong, of
+	  course.
 	*/
 	if ( delimDepth == 0 ) {
 	    if ( yyLine.find(ctlStmtKeyword) != -1 ) {
@@ -722,9 +762,35 @@ static int indentForContinuationLine()
 		  code line is clearly not a continuation line.
 		*/
 		return NotAContinuationLine;
-	    } else {
-		// ### that can be improved for some obvious cases
+	    } else if ( isContinuationLine() ) {
+		/*
+		  We have
+
+		      x = 1 +
+			  2 +
+			  3;
+
+		  The "3;" should fall right under the "2;".
+		*/
 		return indentOfLine( yyLine );
+	    } else {
+		/*
+		  We have
+
+		      stream << 1 +
+			      2;
+
+		  We could, but we don't, try to analyze which
+		  operator has precedence over which and so on, in
+		  which case we could give the excellent result
+
+		      stream << 1 +
+				2;
+
+		  (We do have a special trick above for the
+		  assignment operator above, though.)
+		*/
+		return indentOfLine( yyLine ) + ppContinuationIndentSize;
 	    }
 	}
 
@@ -742,7 +808,7 @@ static int indentForStandaloneLine()
 {
     bool followedByLeftBrace = FALSE;
 
-    startLinizerState();
+    restartLinizer();
     for ( int i = 0; i < SmallRoof; i++ ) {
 	if ( !followedByLeftBrace ) {
 	    YY_SAVE();
@@ -873,7 +939,24 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
     } else {
 	indent = indentWhenBottomLineStartsInCode();
 
-	if ( okay(typedIn, firstCh) && braces.find(firstCh) != -1 ) {
+	if ( okay(typedIn, QChar('{')) && firstCh == QChar('{') ) {
+	    /*
+	      Let's be careful. It's
+
+		  if ( x )
+		      y;
+
+	      but
+
+		  if ( x )
+		  {
+
+	      Otherwise, left braces behave like anything else.
+	    */
+	    restartLinizer();
+	    if ( matchBracelessControlStatement() )
+		indent -= ppIndentSize;
+	} else if ( okay(typedIn, QChar('}')) && firstCh == QChar('}') ) {
 	    /*
 	      A closing brace is one level more to the left than the
 	      code it follows.
@@ -898,7 +981,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
     return QMAX( 0, indent );
 }
 
-#if 0
+#ifdef Q_TEST_YYINDENT
 /*
   Test driver.
 */
