@@ -2232,17 +2232,6 @@ void QFtp::npDone( bool err )
     }
     if ( d->npWaitForLoginDone ) {
 	d->npWaitForLoginDone = FALSE;
-    } else {
-	disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
-		this, SLOT(npListInfo(const QUrlInfo &)) );
-	disconnect( this, SIGNAL(done(bool)),
-		this, SLOT(npDone(bool)) );
-	disconnect( this, SIGNAL(stateChanged(int)),
-		this, SLOT(npStateChanged(int)) );
-	disconnect( this, SIGNAL(dataTransferProgress(int,int)),
-		this, SLOT(npDataTransferProgress(int,int)) );
-	disconnect( this, SIGNAL(readyRead()),
-		this, SLOT(npReadyRead()) );
     }
 }
 
@@ -2263,6 +2252,20 @@ void QFtp::npStateChanged( int state )
 	else if ( state == Unconnected )
 	    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     }
+    
+    if ( state == Unconnected ) {
+	disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
+		this, SLOT(npListInfo(const QUrlInfo &)) );
+	disconnect( this, SIGNAL(done(bool)),
+		this, SLOT(npDone(bool)) );
+	disconnect( this, SIGNAL(stateChanged(int)),
+		this, SLOT(npStateChanged(int)) );
+	disconnect( this, SIGNAL(dataTransferProgress(int,int)),
+		this, SLOT(npDataTransferProgress(int,int)) );
+	disconnect( this, SIGNAL(readyRead()),
+		this, SLOT(npReadyRead()) );
+    }
+	
 }
 
 void QFtp::npDataTransferProgress( int bDone, int bTotal )
