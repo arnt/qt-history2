@@ -125,3 +125,11 @@ widgets {
 		  $$WIDGETS_CPP/qwidgetplugin.cpp
    !embedded:mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp
 }
+
+wince-* {
+	SOURCES -= $$WIDGETS_CPP/qsyntaxhighlighter.cpp \
+		   $$WIDGETS_CPP/qsplashscreen.cpp
+		   
+	HEADERS -= $$WIDGETS_H/qsyntaxhighlighter.h \
+		   $$WIDGETS_H/qsplashscreen.h
+}
