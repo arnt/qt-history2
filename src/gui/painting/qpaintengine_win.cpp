@@ -1841,7 +1841,7 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPathPrivate *pd)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
-        QPoint firstPoint = sub.firstPoint();
+        QPoint firstPoint = sub.firstPoint().toPoint();
         MoveToEx(hdc, firstPoint.x(), firstPoint.y(), 0);
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
