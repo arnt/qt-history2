@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#52 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#53 $
 **
 ** Definition of QTextStream class
 **
@@ -143,12 +143,13 @@ private:
     bool	 owndev;
     QTextCodec 	*mapper;
     QTextDecoder *decoder;		//???
-    QChar ungetcBuf;
+    QChar	ungetcBuf;
     bool	latin1;
     bool 	internalOrder;
     bool	doUnicodeHeader;
+    void	*reserved_ptr;
 
-    QChar		eat_ws();
+    QChar	eat_ws();
     void	ts_ungetc( QChar );
     QChar	ts_getc();
     void	ts_putc(int);
@@ -275,20 +276,20 @@ Q_EXPORT QTextStream &reset( QTextStream &s );	// set default flags
 
 Q_EXPORT inline QTSManip setw( int w )
 {
-	QTSMFI func = &QTextStream::width;
-	return QTSManip(func,w);
+    QTSMFI func = &QTextStream::width;
+    return QTSManip(func,w);
 }
 
 Q_EXPORT inline QTSManip setfill( int f )
 {
-	QTSMFI func = &QTextStream::fill;
-	return QTSManip(func,f);
+    QTSMFI func = &QTextStream::fill;
+    return QTSManip(func,f);
 }
 
 Q_EXPORT inline QTSManip setprecision( int p )
 {
-	QTSMFI func = &QTextStream::precision;
-	return QTSManip(func,p);
+    QTSMFI func = &QTextStream::precision;
+    return QTSManip(func,p);
 }
 
 
