@@ -152,7 +152,7 @@ Option::parseCommandLine(int argc, char **argv)
     return TRUE;
 }
 
-static void fixEnvVariables(QString &x)
+void fixEnvVariables(QString &x)
 {
     int rep, rep_len;
     QRegExp reg_var("\\$\\(.*\\)");

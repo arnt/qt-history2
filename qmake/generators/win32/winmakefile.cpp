@@ -101,7 +101,10 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
-    QDir dir(d, stem + "*.lib");
+    QString bd = d;
+    fixEnvVariables(bd);
+
+    QDir dir(bd, stem + "*.lib");
     QStringList entries = dir.entryList();
     int nbeg, nend, biggest=-1;
     for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {

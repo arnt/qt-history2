@@ -71,4 +71,6 @@ struct Option
     static QString fixPathToTargetOS(QString in);
 };
 
+void fixEnvVariables(QString &x);
+
 #endif /* __OPTION_H__ */
