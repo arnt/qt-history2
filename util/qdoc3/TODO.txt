@@ -1,5 +1,3 @@
-  * implement \compat and \obsolete
-
   * make \macro work (?)
   * implement \target and \keyword
   * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description

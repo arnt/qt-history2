@@ -148,7 +148,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         break;
     case Atom::CodeOld:
         out() << "<p>For example, if you have code like</p>\n"
-              << "<pre><font color=\"darkgray\""
+              << "<pre><font color=\"#404040\">"
 	      << trimmedTrailing(protect(plainCode(indent(4, atom->string()))))
               << "</font></pre>\n";
         break;

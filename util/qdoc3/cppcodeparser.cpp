@@ -520,17 +520,18 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
     if (match(Tok_friend))
 	return false;
-    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
         compat = true;
     bool sta = false;
     if (match(Tok_static)) {
-        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+        sta = true;
+        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
             compat = true;
     }
     FunctionNode::Virtualness vir = FunctionNode::NonVirtual;
     if (match(Tok_virtual)) {
 	vir = FunctionNode::ImpureVirtual;
-        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
             compat = true;
     }
 
@@ -540,7 +541,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     if (returnType.toString() == "QBool")
 	returnType = CodeChunk("bool");
 
-    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR))
+    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
         compat = true;
 
     if (tok == Tok_operator &&
