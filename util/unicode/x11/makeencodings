@@ -7,8 +7,12 @@ open IN, "encodings.in"
 open out, ">encodings.c"
   or die "Can't open out\n";
 
-my @qscripts = (
-    "Common",
+my @qwritingSystems = (
+    "Any",
+    "Latin",
+    "Greek",
+    "Cyrillic",
+    "Armenian",
     "Hebrew",
     "Arabic",
     "Syriac",
@@ -27,16 +31,30 @@ my @qscripts = (
     "Lao",
     "Tibetan",
     "Myanmar",
-    "Hangul",
-    "Khmer"
+    "Georgian",
+    "Khmer",
+    "SimplifiedChinese",
+    "TraditionalChinese",
+    "Japanese",
+    "Korean",
+    "Vietnamese",
+    "Yi",
+    "Tagalog",
+    "Hanunoo",
+    "Buhid",
+    "Tagbanwa",
+    "Limbu",
+    "TaiLe",
+    "Braille",
+    "Other"
 );
 
-my $num_scripts = @qscripts;
+my $writingSystemsCount = @qwritingSystems;
 
 my $num = 0;
 my @xlfd = ();
 my @mib = ();
-my @scripts = ();
+my @writingSystems = ();
 
 my $i;
 
@@ -48,7 +66,7 @@ while (<IN>) {
     my @line = split( / /, $_ );
     $xlfd[$num] = $line[0];
     $mib[$num] = $line[1];
-    $scripts[$num] = $line[2];
+    $writingSystems[$num] = $line[2];
 
     $num = $num + 1;
   }
@@ -81,22 +99,22 @@ while( $i < $num ) {
 }
 print out "    { 0, 0, 0, 0, 0 }\n};\n\n";
 
-print out "static const char scripts_for_xlfd_encoding[".$num."][".$num_scripts.
+print out "static const char writingSystems_for_xlfd_encoding[".$num."][".$writingSystemsCount.
 "] = {    \n";
 $i = 0;
 while( $i < $num ) {
   my $j = 0;
-  my @s = split( /,/, $scripts[$i] );
+  my @s = split( /,/, $writingSystems[$i] );
   print out "    // ".$xlfd[$i]."\n";
   print out "    { ";
-  while( $j < $num_scripts ) {
-    if( grep( /^$qscripts[$j]$/, @s ) ) {
+  while( $j < $writingSystemsCount ) {
+    if( grep( /^$qwritingSystems[$j]$/, @s ) ) {
       print out "1";
     } else {
       print out "0";
     }
     $j = $j + 1;
-    if ( $j < $num_scripts ) {
+    if ( $j < $writingSystemsCount ) {
       print out ", ";
       if ( !(($j) % 10) ) {
         print out "\n      ";
