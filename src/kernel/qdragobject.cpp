@@ -849,6 +849,9 @@ bool QImageDrag::decode( const QMimeSource* e, QImage& img )
 {
     QByteArray payload;
     QStrList fileFormats = QImageIO::inputFormats();
+    // PNG is best of all
+    if ( fileFormats.remove("PNG") ) // move to front
+	fileFormats.insert(0,"PNG");
     fileFormats.first();
     while ( fileFormats.current() ) {
 	QCString format = fileFormats.current();
