@@ -70,7 +70,9 @@ QString qWhereClause( const QString& prefix, QSqlField* field, const QSqlDriver*
 {
     QString f;
     if ( field && driver ) {
-        f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
+        if (!prefix.isEmpty())
+	    f += prefix + QString(".");
+        f += field->name();
         if ( field->isNull() ) {
             f += " IS NULL";
         } else {
