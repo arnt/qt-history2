@@ -213,9 +213,9 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	if ( !mat ) {
 		mat = new MAT2;
 		mat->eM11.value = mat->eM22.value = 1;
-		mat->eM11.fract = mat->eM22.fract = 0.;
+		mat->eM11.fract = mat->eM22.fract = 0;
 		mat->eM21.value = mat->eM12.value = 0;
-		mat->eM21.fract = mat->eM12.fract = 0.;
+		mat->eM21.fract = mat->eM12.fract = 0;
 	}
 #ifdef UNICODE
 	uint chr = ch.unicode();

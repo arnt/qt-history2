@@ -653,7 +653,7 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
     // This method is called by the drag-drop target to obtain the data
     // that is being dragged.
 
-    pmedium->tymed = NULL;
+    pmedium->tymed = 0;
     pmedium->pUnkForRelease = NULL;
     pmedium->hGlobal = NULL;
 
