@@ -95,6 +95,7 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
     virtual QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
+    virtual void fixup(QString &input) const;
     virtual QCoreVariant mapTextToValue(QString *text, QValidator::State *state) const;
     virtual QString mapValueToText(const QCoreVariant &n) const;
 
@@ -129,7 +130,8 @@ class QSpinBoxValidator : public QValidator
 {
 public:
     QSpinBoxValidator(QAbstractSpinBoxPrivate *p, QObject *parent);
-    QValidator::State validate(QString & input, int &) const;
+    QValidator::State validate(QString &input, int &) const;
+    void fixup(QString &) const;
 private:
     QAbstractSpinBoxPrivate *dptr;
 };

@@ -326,7 +326,7 @@ void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 }
 
 /*!
-    Selects all the text in the spinbox
+    Selects all the text in the spinbox except the prefix and suffix
 */
 
 void QAbstractSpinBox::selectAll()
@@ -340,6 +340,18 @@ void QAbstractSpinBox::selectAll()
     } else {
         d->edit->selectAll();
     }
+}
+/*!
+    Clears the lineedit of all text but prefix and suffix
+*/
+
+void QAbstractSpinBox::clear()
+{
+    if (d->dirty)
+        d->updateEdit();
+
+    d->edit->setText(d->prefix + d->suffix);
+    d->edit->setCursorPosition(d->prefix.size());
 }
 
 /*!
@@ -394,7 +406,7 @@ void QAbstractSpinBox::stepBy(int steps)
     QString tmp = d->edit->displayText();
     if (d->pendingemit) {
         switch (d->validate(&tmp, 0, &v)) {
-        case QValidator::Intermediate: d->setValue(d->minimum, EmitIfChanged);
+        case QValidator::Intermediate: d->setValue(v, EmitIfChanged); break;
         case QValidator::Invalid: return;
         case QValidator::Acceptable: break;
         }
@@ -647,10 +659,38 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         selectAll();
         break;
 
+    case Qt::Key_U:
+        if (e->modifiers() & Qt::ControlModifier) {
+            clear();
+            e->accept();
+            return;
+        }
+
+    case Qt::Key_End:
+    case Qt::Key_Home:
+        if (e->modifiers() & Qt::ShiftModifier) {
+            int currentPos = d->edit->cursorPosition();
+            const QString text = d->edit->displayText();
+            if (e->key() == Qt::Key_End) {
+                if ((currentPos == 0 && !d->prefix.isEmpty()) || text.size() - d->suffix.size() <= currentPos) {
+                    break; // let lineedit handle this
+                } else {
+                    d->edit->setSelection(currentPos, text.size() - d->suffix.size() - currentPos);
+                }
+            } else {
+                if ((currentPos == text.size() && !d->suffix.isEmpty()) || currentPos <= d->prefix.size()) {
+                    break; // let lineedit handle this
+                } else {
+                    d->edit->setSelection(currentPos, d->prefix.size() - currentPos);
+                }
+            }
+            e->accept();
+            return;
+        }
+
     case Qt::Key_Z:
     case Qt::Key_Y:
         if (e->modifiers() & Qt::ControlModifier) {
-            // don't allow undo/redo I guess I maybe should do somwthing in acceloverride
             e->ignore();
             return;
         }
@@ -770,6 +810,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
                     SLOT(paste()))->setEnabled(QApplication::clipboard()->text().size());
 #endif
     menu->addAction(tr("Select &All"), this, SLOT(selectAll()));
+    menu->addAction(tr("C&lear"), this, SLOT(clear()));
     menu->addSeparator();
 
     const uint se = stepEnabled();
@@ -1382,6 +1423,17 @@ QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
 /*!
     \internal
 
+    Virtual method called from QSpinBoxValidator::fixup. This method
+    can be reimeplemented in the various subclasses.
+*/
+
+void QAbstractSpinBoxPrivate::fixup(QString &) const
+{
+}
+
+/*!
+    \internal
+
     Virtual method called from QSpinBoxValidator::validate. This
     method is reimeplemented in the various subclasses.
 */
@@ -1425,8 +1477,12 @@ void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
     QCoreVariant v = getZeroVariant();
     QString tmp = d->edit->displayText();
     int pos = d->edit->cursorPosition();
-    if (validate(&tmp, &pos, &v) != QValidator::Acceptable)
-        v = value;
+    if (validate(&tmp, &pos, &v) != QValidator::Acceptable) {
+        const QString copy = tmp;
+        fixup(tmp);
+        if (copy == tmp || validate(&tmp, &pos, &v) != QValidator::Acceptable)
+            v = value;
+    }
 
     setValue(v, ep);
 }
@@ -1452,10 +1508,17 @@ QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBoxPrivate *p, QObject *parent
 
 QValidator::State QSpinBoxValidator::validate(QString &input, int &pos) const
 {
-    State s = dptr->validate(&input, &pos, 0);
-    return s;
+    return  dptr->validate(&input, &pos, 0);
 }
+/*!
+    \internal
+    Calls the virtual QAbstractSpinBoxPrivate::fixup function.
+*/
 
+void QSpinBoxValidator::fixup(QString &input) const
+{
+    dptr->fixup(input);
+}
 // --- global ---
 
 

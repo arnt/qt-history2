@@ -40,6 +40,10 @@ public:
     QString mapValueToText(const QCoreVariant &n) const;
 
     QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
+    void fixup(QString &input) const;
+
+    int findDelimiter(const QString &str, int index = 0) const;
+
 
     // variables
     int precision;
@@ -939,7 +943,7 @@ double QDoubleSpinBox::mapTextToValue(QString *txt, QValidator::State *state) co
         *state = QValidator::Invalid;
         return b;
     } else if (len > 1) {
-        const int dec = copy.indexOf(d->delimiter);
+        const int dec = d->findDelimiter(copy);
         if (dec != -1) {
             for (int i=dec + 1; i<copy.size(); ++i) {
                 if (copy.at(i).isSpace() || copy.at(i) == d->thousand) {
@@ -963,25 +967,45 @@ double QDoubleSpinBox::mapTextToValue(QString *txt, QValidator::State *state) co
     bool ok = false;
     QLocale loc;
     double num = loc.toDouble(copy, &ok);
+    bool notAcceptable = false;
+
+//    qDebug() << "num" << num << "copy" << copy << "ok" << ok;
+
     if (!ok) {
+        bool tryAgain = false;
+        if (d->thousand != dot && d->delimiter != dot && copy.count(dot) == 1) {
+            copy.replace(dot, d->delimiter);
+            tryAgain = true;
+        }
+
         if (d->thousand.isPrint()) {
             const int len = copy.size();
-            copy.remove(d->thousand);
+            for (int i=0; i<len- 1; ++i) {
+                if (copy.at(i) == d->thousand && copy.at(i + 1) == d->thousand) {
+                    *state = QValidator::Invalid;
+                    return b;
+                }
+            }
 
-            if (len != copy.size()) {
-                loc.toDouble(copy, &ok);
-                *state = ok ? QValidator::Intermediate : QValidator::Invalid;
+            copy.remove(d->thousand);
+            tryAgain = tryAgain || len != copy.size();
+        }
+
+        if (tryAgain) {
+            num = loc.toDouble(copy, &ok);
+            if (!ok) {
+                *state = QValidator::Invalid;
                 return b;
             }
+            notAcceptable = true;
         }
-        if (!ok && d->thousand != dot && loc.language() != QLocale::C && copy.count(dot) == 1)
-            num = QLocale::c().toDouble(copy, &ok);
     }
 
     if (!ok || (num < 0 && b >= 0)) {
         *state = QValidator::Invalid;
     } else if (num >= b && num <= t) {
-        *state = QValidator::Acceptable;
+        *state = notAcceptable ? QValidator::Intermediate : QValidator::Acceptable;
+
     } else {
         if (num >= 0) {
             if (num > b) {
@@ -1040,8 +1064,7 @@ void QSpinBoxPrivate::emitSignals()
 
 QCoreVariant QSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
 {
-    QCoreVariant ret(q->mapTextToValue(text, state));
-    return ret;
+    return q->mapTextToValue(text, state);
 }
 
 /*!
@@ -1076,7 +1099,7 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     } else if (str.size() == 7) {
         thousand = str.at(1);
         if (thousand.isSpace())
-            thousand = QLatin1Char(' '); // to void problems with 0xA0
+            thousand = QLatin1Char(' '); // to avoid problems with 0xA0
         delimiter = str.at(5);
     }
     Q_ASSERT(!delimiter.isNull());
@@ -1125,6 +1148,22 @@ bool QDoubleSpinBoxPrivate::checkIntermediate(const QString &str) const
     return false;
 }
 
+void QDoubleSpinBoxPrivate::fixup(QString &input) const
+{
+    if (d->thousand != dot && d->delimiter != dot && input.count(dot) == 1)
+        input.replace(dot, d->delimiter);
+
+    input.remove(d->thousand);
+}
+
+int QDoubleSpinBoxPrivate::findDelimiter(const QString &str, int index) const
+{
+    int dotindex = str.indexOf(delimiter, index);
+    if (dotindex == -1 && thousand != dot && delimiter != dot)
+        dotindex = str.indexOf(dot, index);
+    return dotindex;
+}
+
 /*!
     \internal
     \reimp
@@ -1136,18 +1175,16 @@ QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QCor
     QString copy = *input;
     d->strip(&copy);
 
-    if (ret == QValidator::Acceptable) {
-        int dotindex = copy.indexOf(delimiter);
-        if (dotindex == -1 && thousand != dot && delimiter != dot)
-            dotindex = copy.indexOf(dot);
+    if (ret != QValidator::Invalid) {
+        int dotindex = findDelimiter(copy);
 	if (dotindex != -1) {
 	    if (precision == 0) {
-		return QValidator::Invalid;
+                return QValidator::Invalid;
             }
+            int digits = 0;
 	    for (int i=dotindex+1; i<(int)copy.length(); ++i) {
-		if ((!input->at(i).isDigit()) || i - (dotindex+1) >= precision) {
-		    return QValidator::Invalid;
-                }
+		if (copy.at(i).isDigit() && ++digits > precision)
+                    return QValidator::Invalid;
 	    }
 	}
     }
@@ -1165,8 +1202,7 @@ QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QCor
 
 QCoreVariant QDoubleSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
 {
-    QCoreVariant ret(q->mapTextToValue(text, state));
-    return ret;
+    return q->mapTextToValue(text, state);
 }
 
 /*!

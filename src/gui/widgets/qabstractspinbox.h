@@ -71,6 +71,7 @@ public:
     bool eventFilter(QObject *object, QEvent *event);
 public slots:
     void selectAll();
+    virtual void clear();
 
 protected:
     void resizeEvent(QResizeEvent *e);

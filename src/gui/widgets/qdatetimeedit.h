@@ -88,6 +88,7 @@ public:
     QString format() const;
     bool setFormat(const QString &format);
 
+    void clear();
 signals:
     void dateTimeChanged(const QDateTime &date);
     void timeChanged(const QTime &date);

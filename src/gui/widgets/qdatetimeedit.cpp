@@ -657,6 +657,16 @@ bool QDateTimeEdit::setFormat(const QString &format)
 }
 
 /*!
+    \reimp
+*/
+
+void QDateTimeEdit::clear()
+{
+    d->clearSection(d->currentsection);
+}
+
+
+/*!
     This virtual function is used by the date time edit whenever it
     needs to display the \a date.
 
@@ -694,8 +704,9 @@ QDateTime QDateTimeEdit::mapTextToDateTime(QString *txt, QValidator::State *stat
 
 void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 {
-//    const QDateTimeEditPrivate::Section s = d->currentsection;
+    const QDateTimeEditPrivate::Section oldCurrent = d->currentsection;
     bool select = true;
+
     if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlModifier))
         && !d->edit->hasSelectedText()) {
         const int pos = d->edit->cursorPosition();
@@ -739,10 +750,13 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         e->accept();
         return; }
     default:
+        select = !e->text().isEmpty() && e->text().at(0).isPrint();
         break;
     }
 
     QAbstractSpinBox::keyPressEvent(e);
+    if (select && d->currentsection != oldCurrent)
+        d->setSelected(d->currentsection);
 }
 
 /*!
@@ -917,13 +931,14 @@ void QDateTimeEditPrivate::emitSignals()
     if (slider)
         updateSlider();
 
-    if (value.toDate().isValid()) {
+    const bool validdate = value.toDate().isValid();
+    const bool validtime = value.toTime().isValid();
+    if (validdate && validtime)
 	emit q->dateTimeChanged(value.toDateTime());
-	if ((display & DateSectionMask) != 0)
-	    emit q->dateChanged(value.toDate());
-	if ((display & TimeSectionMask) != 0)
-	    emit q->timeChanged(value.toTime());
-    }
+    if (validdate && ((display & DateSectionMask) != 0))
+        emit q->dateChanged(value.toDate());
+    if (validtime && ((display & TimeSectionMask) != 0))
+        emit q->timeChanged(value.toTime());
 }
 
 /*!
@@ -2070,9 +2085,9 @@ void QDateTimeEditPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
 		dateTimeEmitted = true;
 	    }
 	    if (ep == EmitIfChanged && ((display & TimeSectionMask) != 0 && old.toTime() != value.toTime())) {
-		emit q->timeChanged(value.toTime());
 		if (!dateTimeEmitted)
 		    emit q->dateTimeChanged(value.toDateTime());
+		emit q->timeChanged(value.toTime());
 	    }
 	}
     }
