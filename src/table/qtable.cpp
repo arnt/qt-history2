@@ -3101,8 +3101,7 @@ void QTable::contentsMouseMoveEvent( QMouseEvent *e )
 
 void QTable::doValueChanged()
 {
-    emit valueChanged( ( (QTableItem*)sender() )->row(),
-		       ( (QTableItem*)sender() )->col() );
+    emit valueChanged( editRow, editCol );
 }
 
 /*! \internal
