@@ -2411,6 +2411,7 @@ esac
 #     enterprise
 #     thread
 #     GNUmake
+#     largefile
 #     nis
 #     nas
 #     bigcodecs
