@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#25 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -546,13 +546,21 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		int width=LM(hold[5], hold[6]);
 		int height=LM(hold[7], hold[8]);
 
-/*
 		// Sanity check frame size - must fit on "screen".
 		if (left >= swidth) left=swidth-1;
 		if (top >= sheight) top=sheight-1;
-		if (left+width >= swidth) width=swidth-left;
-		if (top+height >= sheight) height=sheight-top;
-*/
+		if (left+width >= swidth) {
+		    if ( width <= swidth )
+			left=swidth-width;
+		    else
+			width=swidth-left;
+		}
+		if (top+height >= sheight) {
+		    if ( height <= sheight )
+			top=sheight-height;
+		    else
+			height=sheight-top;
+		}
 
 		right=left+width-1;
 		bottom=top+height-1;
@@ -629,7 +637,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		bitcount = 0;
 		sp = stack;
 		needfirst = FALSE;
-		out_of_bounds = left>=swidth || y>=sheight;
+		out_of_bounds = FALSE;
 	    }
 	    break;
 	  case TableImageLZWSize: {
