@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.h#2 $
+** $Id: //depot/qt/main/src/kernel/qresource.h#3 $
 **
 ** Definition of QResource classes
 *
@@ -144,6 +144,9 @@ public:
 
   void removeAttrib( const QString& _name ) { attribs.remove( _name ); }
   void insertAttrib( const QString& _name, const QString& _value ) { attribs.insert( _name, _value ); }
+  void insertAttrib( const QString& _name, const char* value ) { attribs.insert( _name, value ); }
+  void insertAttrib( const QString& _name, int i ) { QString tmp; attribs.insert( _name, tmp.setNum( i ) ); }
+  void insertAttrib( const QString& _name, bool b ) { QString tmp; attribs.insert( _name, ( b ? "true" : "false" ) ); }
 
   void insert( const QResourceItem* pos, QResourceItem* item );
   void prepend( QResourceItem* _item );
@@ -209,7 +212,7 @@ public:
   QResourceItem* tree() { return d; }
   const QResourceItem* tree() const { return d; }
 
-  bool isEmpty() const { return ( d != 0 ); }
+  bool isEmpty() const { return ( d == 0 ); }
 
   static QWidget* createWidget( QWidget* _parent, const QResourceItem* );
   static QLayout* createLayout( QWidget* _parent, const QResourceItem* );

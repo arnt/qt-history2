@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#4 $
 **
 ** Implementation of QResource classes
 **
@@ -153,6 +153,7 @@ QResourceItem* QResourceItem::extractAndReplace( const QResourceItem* pos, QReso
 
   if ( pos == firstChildItem )
   {
+    printf("Extraxt first\n");
     QResourceItem* t = firstChildItem;
     firstChildItem = neu;
     neu->parentItem = this;
@@ -864,12 +865,16 @@ bool QResourceXMLConsumer::finished()
  *
  *********************************************/
 
-QTextStream& operator<< ( QTextStream& text, const QResourceItem& item )
+static void qWriteResourceItem( QTextStream& text, const QResourceItem& item, int indent )
 {
+  // Write indentation
+  for( int i = 0; i < indent; ++i )
+    text << " ";
+
   if ( item.isText() )
   {
-    text << item.text();
-    return text;
+    text << item.text() << endl;
+    return;
   }
 
   text << "<" << item.type();
@@ -882,19 +887,28 @@ QTextStream& operator<< ( QTextStream& text, const QResourceItem& item )
   // Does it have children ?
   if ( item.firstChild() )
   {
-    text << ">";
+    text << ">" << endl;
 
     const QResourceItem* it = item.firstChild();
     while( it )
     {
-      text << *it;
+      qWriteResourceItem( text, *it, indent + 1 );
       it = it->nextSibling();
     }
 
-    text << "</" << item.type() << ">";
+    // Write indentation
+    for( int i = 0; i < indent; ++i )
+      text << " ";
+
+    text << "</" << item.type() << ">" << endl;
   }
   else
-    text << "/>";
+    text << "/>" << endl;
+}
+
+QTextStream& operator<< ( QTextStream& text, const QResourceItem& item )
+{
+  qWriteResourceItem( text, item, 0 );
 
   return text;
 }
