@@ -17,8 +17,13 @@ QString MetaResolver::resolve( const QString& name ) const
     QString className = name.left( k );
     QString member = name.mid( k + 2 );
 
-    if ( mfunctions[className].contains(member) ) {
-	return mfunctions[className][member];
+    QMap<QString, QMap<QString, QString> >::ConstIterator f =
+	    mfunctions.find( className );
+    QMap<QString, QString>::ConstIterator g;
+
+    if ( f != mfunctions.end() &&
+	 (g = (*f).find(member)) != (*f).end() ) {
+	return *g;
     } else if ( cinherits.contains(className) ) {
 	QStringList::ConstIterator s = cinherits[className].begin();
 	while ( s != cinherits[className].end() ) {

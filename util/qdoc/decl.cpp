@@ -198,8 +198,8 @@ static void printHtmlLongMembers( HtmlWriter& out,
 			role[0] = role[0].upper();
 
 		    out.puts( role.latin1() );
-		    out.puts( f == funcs.begin() ? " this property" : " it" );
-		    out.printfMeta( " with <a href=\"#%s\">%s</a>()",
+		    out.printfMeta( " this property's value with"
+				    " <a href=\"#%s\">%s</a>()",
 				    Decl::ref(*f).latin1(), (*f).latin1() );
 		    out.puts( seps.pop() );
 		    ++r;
