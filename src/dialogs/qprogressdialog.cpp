@@ -236,7 +236,7 @@ QProgressBar *QProgressDialog::bar() const
   </ul>
 
   \a parent, \a name, \a modal, and \a f are sent to the
-  QSemiModal::QSemiModal() constructor. Note that if \a modal is FALSE
+  QDialog::QDialog() constructor. Note that if \a modal is FALSE
   (the default), you will need to have an event loop proceeding for
   any redrawing of the dialog to occur.  If it is TRUE, the dialog
   ensures events are processed when needed.
@@ -247,7 +247,7 @@ QProgressBar *QProgressDialog::bar() const
 
 QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
 				  bool modal, WFlags f )
-    : QSemiModal( creator?creator->topLevelWidget():0, name, modal, f)
+    : QDialog( creator?creator->topLevelWidget():0, name, modal, f)
 {
     init( creator, QString::fromLatin1(""), tr("Cancel"), 100 );
 }
@@ -267,7 +267,7 @@ QProgressDialog::QProgressDialog( QWidget *creator, const char *name,
     call setProgress(50).
 
    \a name, \a modal, and \a f are sent to the
-    QSemiModal::QSemiModal() constructor. Note that if \a modal is FALSE (the
+    QDialog::QDialog() constructor. Note that if \a modal is FALSE (the
     default), you will need to have an event loop proceeding for any
     redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
     events are processed when needed.
@@ -281,7 +281,7 @@ QProgressDialog::QProgressDialog( const QString &labelText,
 				  int totalSteps,
 				  QWidget *creator, const char *name,
 				  bool modal, WFlags f )
-    : QSemiModal( creator?creator->topLevelWidget():0, name, modal, f)
+    : QDialog( creator?creator->topLevelWidget():0, name, modal, f)
 {
     init( creator, labelText, cancelButtonText, totalSteps );
 }
@@ -652,7 +652,7 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 */
 void QProgressDialog::styleChange(QStyle& s)
 {
-    QSemiModal::styleChange(s);
+    QDialog::styleChange(s);
     layout();
 }
 
@@ -735,7 +735,7 @@ int QProgressDialog::minimumDuration() const
 void QProgressDialog::closeEvent( QCloseEvent *e )
 {
     emit cancelled();
-    QSemiModal::closeEvent( e );
+    QDialog::closeEvent( e );
 }
 
 /*!
@@ -792,7 +792,7 @@ bool QProgressDialog::autoClose() const
 
 void QProgressDialog::showEvent( QShowEvent *e )
 {
-    QSemiModal::showEvent( e );
+    QDialog::showEvent( e );
     int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
     int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
     resize( w, h );

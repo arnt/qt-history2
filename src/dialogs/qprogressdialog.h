@@ -50,7 +50,7 @@ struct QProgressData;
 class QPushButton;
 class QTimer;
 
-class Q_EXPORT QProgressDialog : public QSemiModal
+class Q_EXPORT QProgressDialog : public QDialog
 {
     Q_OBJECT
     Q_PROPERTY( bool wasCancelled READ wasCancelled )
@@ -109,7 +109,7 @@ protected:
 
 protected slots:
     void	forceShow();
-    
+
 private:
     void	   init( QWidget *creator, const QString& lbl, const QString &canc,
 		         int totstps);
