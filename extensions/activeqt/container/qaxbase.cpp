@@ -66,6 +66,8 @@ struct QAxMetaObject : public QMetaObject
 
     int numParameter(const QString &prototype);
     QString paramType(const QString &signature, int index, bool *out = 0);
+
+    QMap<QString, QString> realPrototype;
 };
 
 static QHash<QString, QAxMetaObject*> *mo_cache = 0;
@@ -444,7 +446,8 @@ QString QAxMetaObject::paramType(const QString &prototype, int index, bool *out)
     if (out)
 	*out = false;
 
-    QString parameters = prototype.mid(prototype.indexOf('(') + 1);
+    QString realProto = realPrototype.value(prototype, prototype);
+    QString parameters = realProto.mid(realProto.indexOf('(') + 1);
     parameters.truncate(parameters.length() - 1);
 
     QStringList plist = parameters.split(',');
@@ -1212,6 +1215,38 @@ private:
 	Bindable		= 0x00200000
     };
 
+    QStringList paramList(const QString &prototype)
+    {
+        QString parameters = prototype.mid(prototype.indexOf('(') + 1);
+        parameters.truncate(parameters.length() - 1);
+
+        QStringList plist = parameters.split(',');
+        return plist;
+    }
+
+    QString replacePrototype(const QString &prototype)
+    {
+        QString proto(prototype);
+
+        QStringList plist = paramList(prototype);
+        for (int p = 0; p < plist.count(); ++p) {
+            QString param(plist.at(p));
+            if (param != replaceType(param)) {
+                int type = 0;
+                while (type_conversion[type][0]) {
+                    int paren = proto.indexOf('(');
+                    while ((paren = proto.indexOf(type_conversion[type][0])) != -1) {
+                        proto.replace(paren, qstrlen(type_conversion[type][0]), type_conversion[type][1]);
+                    }
+                    ++type;
+                }
+                break;
+            }
+        }
+
+        return proto;
+    }
+
     QMap<QString, QString> classinfo_list;
     inline void addClassInfo(const QString &key, const QString &value)
     {
@@ -1227,16 +1262,19 @@ private:
 	QString type;
 	QString parameters;
 	int flags;
+        QString realPrototype;
     };
     QMap<QString, Method> signal_list;
     inline void addSignal(const QString &type, const QString &prototype, const QString &parameters)
     {
-        QString orgproto = prototype;
+        QString proto = replacePrototype(prototype);
 
-	Method &signal = signal_list[prototype];
+	Method &signal = signal_list[proto];
 	signal.type = type;
 	signal.parameters = parameters;
 	signal.flags = QMetaMember::Public;
+        if (proto != prototype)
+            signal.realPrototype = prototype;
     }
 
     void addChangedSignal(const QString &function, const QString &type, int memid);
@@ -1249,10 +1287,14 @@ private:
     QMap<QString, Method> slot_list;
     inline void addSlot(const QString &type, const QString &prototype, const QString &parameters)
     {
-	Method &slot = slot_list[prototype];
+        QString proto = replacePrototype(prototype);
+
+	Method &slot = slot_list[proto];
 	slot.type = type;
 	slot.parameters = parameters;
 	slot.flags = QMetaMember::Public;
+        if (proto != prototype)
+            slot.realPrototype = prototype;
     }
 
     void addSetterSlot(const QString &property);
@@ -2178,66 +2220,8 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     if (!debugInfo.isEmpty() && d->useClassInfo)
 	addClassInfo("debugInfo", debugInfo);
 #endif
-/*
-    // setup slot data
-    UINT index = 0;
-    QMetaData *const slot_data = slotlist.count() ? new QMetaData[slotlist.count()] : 0;
-    QDictIterator<QUMethod> slot_it(slotlist);
-    while (slot_it.current()) {
-	QUMethod *slot = slot_it.current();
-	QString slotname = slot_it.currentKey();
-	int pi = slotname.find('(');
-	int i = pi;
-	while ((i = slotname.find("short", i)) != -1)
-	    slotname.replace(i, 5, "int");
-	i = pi;
-	while ((i = slotname.find("char", i)) != -1)
-	    slotname.replace(i, 4, "int");
-	i = pi;
-	while ((i = slotname.find("float", i)) != -1)
-	    slotname.replace(i, 4, "double");
 
-	slot_data[index].name = new char[slotname.length()+1];
-	slot_data[index].name = qstrcpy((char*)slot_data[index].name, slotname);
-	slot_data[index].method = slot;
-	slot_data[index].access = QMetaData::Public;
-
-	++index;
-	++slot_it;
-    }
-
-    // setup signal data
-    index = 0;
-    QMetaData *const signal_data = new QMetaData[signallist.count()+PredefSignals];
-    while (index < PredefSignals) {
-	signal_data[index] = signal_tbl[index];
-	++index;
-    }
-
-    QDictIterator<QUMethod> signal_it(signallist);
-    while (signal_it.current()) {
-	QUMethod *signal = signal_it.current();
-	QString signalname = signal_it.currentKey();
-	int pi = signalname.find('(');
-	int i = pi;
-	while ((i = signalname.find("short", i)) != -1)
-	    signalname.replace(i, 5, "int");
-	i = pi;
-	while ((i = signalname.find("char", i)) != -1)
-	    signalname.replace(i, 4, "int");
-	i = pi;
-	while ((i = signalname.find("float", i)) != -1)
-	    signalname.replace(i, 4, "double");
-
-	signal_data[index].name = new char[signalname.length()+1];
-	signal_data[index].name = qstrcpy((char*)signal_data[index].name, signalname);
-	signal_data[index].method = signal;
-	signal_data[index].access = QMetaData::Public;
-
-	++index;
-	++signal_it;
-    }
-*/
+    d->metaobj = new QAxMetaObject;
 
     // revision + classname + table + zero terminator
     int int_data_size = 1+1+2+2+2+2+2+1;
@@ -2291,6 +2275,8 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
 	QString prototype(it.key());
 	QString type(it.value().type);
 	QString parameters(it.value().parameters);
+        if (!it.value().realPrototype.isEmpty())
+            d->metaobj->realPrototype[prototype] = it.value().realPrototype;
 	QString tag;
 	int flags = it.value().flags;
 
@@ -2311,6 +2297,8 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
 	QString prototype(it.key());
 	QString type(it.value().type);
 	QString parameters(it.value().parameters);
+        if (!it.value().realPrototype.isEmpty())
+            d->metaobj->realPrototype[prototype] = it.value().realPrototype;
 	QString tag;
 	int flags = it.value().flags;
 
@@ -2373,7 +2361,6 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject)
     memcpy(string_data, stringdata.latin1(), stringdata.length());
 
     // put the metaobject together
-    d->metaobj = new QAxMetaObject;
     d->metaobj->d.data = int_data;
     d->metaobj->d.stringdata = string_data;
     d->metaobj->d.superdata = parentObject;
