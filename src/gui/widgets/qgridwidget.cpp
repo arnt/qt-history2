@@ -44,15 +44,15 @@
 
 /*!
     Constructs a grid widget with parent \a parent.
-    If \a orient is \c Qt::Horizontal, \a n specifies the number of
-    columns. If \a orient is \c Qt::Vertical, \a n specifies the number of
+    If \a orientation is \c Qt::Horizontal, \a n specifies the number of
+    columns. If \a orientation is \c Qt::Vertical, \a n specifies the number of
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
-QGridWidget::QGridWidget(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
     int nCols, nRows;
-    if (orient == Qt::Horizontal) {
+    if (orientation == Qt::Horizontal) {
         nCols = n;
         nRows = -1;
     } else {
@@ -60,7 +60,7 @@ QGridWidget::QGridWidget(int n, Qt::Orientation orient, QWidget *parent, Qt::WFl
         nRows = n;
     }
     lay = new QGridLayout(this);
-    lay->setDefaultPositioning(n, orient);
+    lay->setDefaultPositioning(n, orientation);
 }
 
 
@@ -83,13 +83,13 @@ QGridWidget::QGridWidget(int n, QWidget *parent, Qt::WFlags f)
     Use one of the constructors that doesn't take the \a name
     argument and then use setObjectName() instead.
 */
-QGridWidget::QGridWidget(int n, Qt::Orientation orient, QWidget *parent, const char *name, Qt::WFlags f)
+QGridWidget::QGridWidget(int n, Qt::Orientation orientation, QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(parent, f)
 {
     setObjectName(name);
     lay = new QGridLayout(this);
     lay->setObjectName(name);
-    lay->setDefaultPositioning(n, orient);
+    lay->setDefaultPositioning(n, orientation);
 }
 
 /*!

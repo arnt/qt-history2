@@ -27,13 +27,13 @@ class Q_GUI_EXPORT QGridWidget : public QFrame
     Q_OBJECT
 public:
     QGridWidget(int n, QWidget* parent=0, Qt::WFlags f = 0);
-    QGridWidget(int n, Qt::Orientation orient, QWidget* parent=0, Qt::WFlags f = 0);
+    QGridWidget(int n, Qt::Orientation orientation, QWidget* parent=0, Qt::WFlags f = 0);
 
     void setSpacing(int);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QGridWidget(int n, QWidget* parent, const char* name, Qt::WFlags f);
-    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, Qt::Orientation orient, QWidget* parent, const char* name, Qt::WFlags f);
+    QT_COMPAT_CONSTRUCTOR QGridWidget(int n, Qt::Orientation orientation, QWidget* parent, const char* name, Qt::WFlags f);
     typedef Qt::Orientation Direction;
 #endif
 

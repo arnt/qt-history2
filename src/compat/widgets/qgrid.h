@@ -22,8 +22,8 @@ class Q_COMPAT_EXPORT QGrid : public QGridWidget
 public:
     QGrid(int n, QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
         : QGridWidget(n,parent,name,f) {}
-    QGrid(int n, Qt::Orientation orient, QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
-        : QGridWidget(n,parent,name,f) {}
+    QGrid(int n, Qt::Orientation orientation, QWidget* parent=0, const char* name=0, Qt::WFlags f=0)
+        : QGridWidget(n,orientation, parent,name,f) {}
 };
 
 #endif
