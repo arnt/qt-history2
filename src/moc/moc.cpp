@@ -295,8 +295,14 @@ QByteArray Moc::parseType()
             prev();
             ;
         }
-        if (test(LANGLE))
-            s += lexemUntil(RANGLE);
+        if (test(LANGLE)) {
+            QByteArray templ = lexemUntil(RANGLE);
+            for (int i = 0; i < templ.size(); ++i) {
+                s += templ.at(i);
+                if (templ.at(i) == '>' && i < templ.size()-1 && templ.at(i+1) == '>')
+                    s += ' ';
+            }
+        }
         if (test(SCOPE))
             s += lexem();
         else
