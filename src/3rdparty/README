@@ -6,10 +6,11 @@ have been removed:
     libjpeg - some source files, images, Makefiles, manual pages
     libpng/contrib - a collection of examples and test-suite
     zlib/contrib - a collection of non-zlib code
-    zlib/msdos - Zlib for a platform never supported by Qt ;-)
-    zlib/old - Zlib for other platforms not supported by Qt ;-)
-    libmng/contrib - ?
-    libmng/special - ?
+    zlib/amiga - zlib for a platform not supported by Qt
+    zlib/as400 - zlib for a platform not supported by Qt
+    zlib/msdos - zlib for a platform not supported by Qt
+    zlib/old - zlib for a platform not supported by Qt
+    zlib/qnx - zlib packaging
     sqlite/* - a few source files may have been removed
 
 Some patches are applied from time to time.
