@@ -29,7 +29,6 @@
 **
 **********************************************************************/
 
-#include <stdlib.h>
 #include "private/qaquastyle_p.h"
 #include <qapplication.h>
 #include <qobjectlist.h>
@@ -46,6 +45,7 @@
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #endif
+#include <stdlib.h>
 
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN

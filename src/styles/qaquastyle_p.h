@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of Aqua-style guidelines functions
 **
@@ -29,6 +29,9 @@
 **
 **********************************************************************/
 
+#ifndef QAQUASTYLE_P_H
+#define QAQUASTYLE_P_H
+
 //
 //  W A R N I N G
 //  -------------
@@ -40,9 +43,6 @@
 // We mean it.
 //
 //
-
-#ifndef __QAQUASTYLE_P_H__
-#define __QAQUASTYLE_P_H__
 
 #ifndef QT_H
 # include <qstyle.h>
@@ -143,5 +143,4 @@ bool qt_mac_update_palette(QPalette &pal, bool do_init);
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
 void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size=QAquaSizeLarge);
 
-#endif /* __QAQUASTYLE_P_H__ */
-
+#endif /* QAQUASTYLE_P_H */
