@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qgenericitemmodel.h>
-#include <qsharedpointer.h>
+#include <qshareddatapointer.h>
 #include <qlist.h>
 #endif
 
@@ -92,7 +92,7 @@ public:
     QList<QItemSelectionRange> ranges;
 };
 
-typedef QExplicitSharedPointer<QItemSelection> QItemSelectionPointer;
+typedef QExplicitlySharedDataPointer<QItemSelection> QItemSelectionPointer;
 class QItemSelectionModelPrivate;
 
 class Q_GUI_EXPORT QItemSelectionModel : public QObject, public QSharedObject
@@ -159,6 +159,6 @@ private:
     QItemSelectionModelPrivate *d;
 };
 
-typedef QExplicitSharedPointer<QItemSelectionModel> QItemSelectionModelPointer;
+typedef QExplicitlySharedDataPointer<QItemSelectionModel> QItemSelectionModelPointer;
 
 #endif

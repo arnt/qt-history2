@@ -10,7 +10,7 @@
 #include "qfragmentmap_p.h"
 #include <private/qtextlayout_p.h>
 #include <private/qtextformat_p.h>
-#include <qsharedpointer.h>
+#include <qshareddatapointer.h>
 
 #include "qtextglobal_p.h"
 #endif // QT_H

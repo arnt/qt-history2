@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qsharedpointer.h>
+#include <qshareddatapointer.h>
 #include <private/qtextpiecetable_p.h>
 #endif // QT_H
 
@@ -15,7 +15,7 @@ class QSize;
 class QRect;
 class QPainter;
 
-typedef QExplicitSharedPointer<QTextPieceTable> QTextPieceTablePointer;
+typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
 
 class QAbstractUndoItem
 {

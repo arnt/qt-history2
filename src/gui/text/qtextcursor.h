@@ -4,7 +4,7 @@
 #include <qstring.h>
 
 #include <private/qtextlayout_p.h>
-#include <qsharedpointer.h>
+#include <qshareddatapointer.h>
 #include "qtextlist.h"
 
 class QTextDocument;
@@ -120,7 +120,7 @@ public:
     bool operator>(const QTextCursor &rhs) const;
 
 private:
-    QSharedPointer<QTextCursorPrivate> d;
+    QSharedDataPointer<QTextCursorPrivate> d;
 };
 
 #endif // QTEXTCURSOR_H

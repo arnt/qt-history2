@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qcolor.h>
-#include <qsharedpointer.h>
+#include <qshareddatapointer.h>
 #endif // QT_H
 
 class QString;
@@ -150,7 +150,7 @@ public:
     bool operator==(const QTextFormat &rhs) const;
 
 private:
-    QSharedPointer<QTextFormatPrivate> d;
+    QSharedDataPointer<QTextFormatPrivate> d;
     int _type;
     int _inheritedType;
 };
