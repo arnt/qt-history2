@@ -27,8 +27,11 @@ EditorBrowser::EditorBrowser( Editor *e )
     : curEditor( e ), oldHighlightedParag( 0 )
 {
     curEditor = e;
-    curEditor->viewport()->installEventFilter( this );
-    curEditor->installEventFilter( this );
+
+    // ### disabled for now
+//     curEditor->viewport()->installEventFilter( this );
+//     curEditor->installEventFilter( this );
+
     QFont fn( curEditor->font() );
     fn.setUnderline( TRUE );
     highlightedFormat = new QTextFormat( fn, blue );
