@@ -468,12 +468,7 @@ int QTextParagraph::selectionEnd( int id ) const
 
 bool QTextParagraph::hasSelection( int id ) const
 {
-    if ( !mSelections )
-	return FALSE;
-    QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->find( id );
-    if ( it == mSelections->end() )
-	return FALSE;
-    return ( *it ).start != ( *it ).end || length() == 1;
+    return mSelections ? mSelections->contains( id ) : FALSE;
 }
 
 bool QTextParagraph::fullSelected( int id ) const

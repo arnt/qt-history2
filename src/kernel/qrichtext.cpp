@@ -4365,7 +4365,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	if ( drawSelections ) {
 	    for ( QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->begin();
 		  it != mSelections->end(); ++it )
-		if ( (*it).start <= i && i < (*it).end
+		if ( (*it).start <= i && i < (*it).end + ( (*it).end == length()-1 && n && n->hasSelection(it.key()) ) ? 1:0
 		     // exclude the standard selection from printing
 		     && (it.key() != QTextDocument::Standard || !is_printer( &painter) ) ) {
 		    selection = it.key();
