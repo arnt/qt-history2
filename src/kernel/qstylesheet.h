@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#6 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#7 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -103,7 +103,7 @@ public:
 
     bool selfNesting() const;
     void setSelfNesting( bool );
-
+    
 private:
     void init();
     QStyleSheetItemData* d;
@@ -139,12 +139,14 @@ public:
     virtual QTextNode* tag( const QString& name,
 			    const QMap<QString, QString> &attr,
 			    const QString& context,
-			    const QMimeSourceFactory& factory, 
+			    const QMimeSourceFactory& factory,
 			    bool emptyTag = FALSE) const;
 
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );
 
+    virtual void error( const QString& ) const;
+    
 private:
     void init();
     QDict<QStyleSheetItem> styles;

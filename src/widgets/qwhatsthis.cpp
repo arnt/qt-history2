@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#53 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -61,8 +61,8 @@
   then click on some other widget to get help for that other widget,
   or press Shift-F1 to get help for the widget that has keyboard
   focus. But you can also connect a "what's this" entry of a help menu
-  (with Shift-F1 as accelerator) to the whatsThis() slot, then the
-  focus widget does not have a special meaning.
+  (with Shift-F1 as accelerator) to the whatsThis() slot of a
+  QMainWindow, then the focus widget does not have a special meaning.
 
   QWhatsThis provides functions to add() and remove() What's This help
   for a widget, and it provides a function to create a What's This

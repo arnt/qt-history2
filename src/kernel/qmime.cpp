@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#11 $
 **
 ** Implementation of MIME support
 **
@@ -173,8 +173,9 @@ QMimeSourceFactory::QMimeSourceFactory() :
     d(new QMimeSourceFactoryData)
 {
     // add some reasonable defaults
-    setExtensionType("html", "text/utf8");
+    setExtensionType("html", "text/plain");
     setExtensionType("txt", "text/plain");
+    setExtensionType("xml", "text/utf8");
 }
 
 /*!
@@ -228,8 +229,9 @@ static QMimeSource* data_internal(const QString& abs_name,
   QImageIO. Any other mime types are determined by the filename
   extension. The default settings are
   \code
-  setExtensionType("html", "text/utf8");
+  setExtensionType("html", "text/plain");
   setExtensionType("txt", "text/plain");
+  setExtensionType("xml", "text/utf8");
   \endcode
   You can easily add further extensions or change existing ones with
   subsequent calls to setExtensionType(). If the extension mechanism

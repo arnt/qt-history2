@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#13 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -659,8 +659,8 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c color
 	- the text color, for example \c color="red" or \c color="#FF0000".
 	<li> \c size
-	- the pointsize of the font. The value may either be absolute, for example 
-	\c size=24, or relative. In the latter case, the pointsizes are simply added. As 
+	- the pointsize of the font. The value may either be absolute, for example
+	\c size=24, or relative. In the latter case, the pointsizes are simply added. As
 	an example, \c size=+2 will generate a two point larger font.
 	</ul>
 	
@@ -926,6 +926,8 @@ void QStyleSheet::insert( QStyleSheetItem* style )
  */
 QStyleSheetItem* QStyleSheet::item( const QString& name)
 {
+    if ( name.isNull() )
+	return 0;
     return styles[name];
 }
 
@@ -934,6 +936,8 @@ QStyleSheetItem* QStyleSheet::item( const QString& name)
  */
 const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 {
+    if ( name.isNull() )
+	return 0;
     return styles[name];
 }
 
@@ -951,9 +955,11 @@ QTextNode* QStyleSheet::tag( const QString& name,
 			     const QMimeSourceFactory& factory,
 			     bool emptyTag ) const
 {
-    QStyleSheetItem* style = styles[name];
+    QStyleSheetItem* style = name.isNull()?0:styles[name];
     if ( !style ) {
-	qWarning( "QStyleSheet Warning: unknown tag '%s'", name.ascii() );
+	QString msg;
+	msg.sprintf("QStyleSheet Warning: unknown tag '%s'", name.ascii() );
+	error( msg );
 	style = nullstyle;
     }
 
@@ -1065,4 +1071,23 @@ bool QStyleSheet::mightBeRichText( const QString& text)
 	}
     }
     return FALSE;
+}
+
+
+/*! \fn void QStyleSheet::error( const QString& msg) const
+  
+  This virtual function is called when an error occurs when
+  processsing rich text. Reimplement if if you need to catch
+  error messages.
+  
+  Errors might occur if some rich text strings contain tags that are
+  not understood by the stylesheet, if some tags are nested wrongly or
+  if tags are not closed properly.
+  
+  \a msg is the error message.
+  
+  The default implementation does nothing.
+ */
+void QStyleSheet::error( const QString& ) const
+{
 }

@@ -550,7 +550,7 @@ private:
     void init( const QString& doc, const QFont& fnt, int margin = 8 );
 
     bool parse (QTextContainer* current, QTextNode* lastChild, const QString& doc, int& pos);
-    bool eatSpace(const QString& doc, int& pos);
+    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);
     QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);

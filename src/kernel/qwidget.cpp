@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#436 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#437 $
 **
 ** Implementation of QWidget class
 **
@@ -3051,8 +3051,6 @@ bool QWidget::close( bool alsoDelete )
 	accept = TRUE;
     }
     else {
-	if ( alsoDelete || testWFlags(WDestructiveClose) )
-	    accept = TRUE;
 	if ( accept ) {
 	    hide();
 	    if ( alsoDelete || testWFlags(WDestructiveClose) )
@@ -3084,7 +3082,7 @@ bool QWidget::close( bool alsoDelete )
 
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is closed.
-
+  
   \sa close(bool)
 */
 
@@ -3575,7 +3573,7 @@ void QWidget::mousePressEvent( QMouseEvent *e )
 	while ( (w = qApp->activePopupWidget() ) && w != this ){
 	    w->close();
 	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
-		w->close(TRUE); // no chance
+		w->hide(); // hide at least
 	}
 	if (!rect().contains(e->pos()) ){	
 	    close();

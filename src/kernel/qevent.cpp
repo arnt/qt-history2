@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#100 $
 **
 ** Implementation of event classes
 **
@@ -737,29 +737,35 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 	e->ignore();				// does not hide the widget
     }
   \endcode
+  
+  A typical reimplementation of a close event handler is shown in the
+  qwerty/qwerty.cpp example: If the document wasn't changed, the close
+  event is accepted with \a e->except(). If there are unsaved changes,
+  it asks the user whether she wants to save the data. This is done
+  with QMessageBox::warning(). The close event is only accepted if the
+  data was either saved successfully or if the user explicitely stated
+  that the modifications shall be discarded.
 
-  If you want your widget to be deleted when it is closed, simply delete
-  it in the close event. In this case, calling QCloseEvent::accept() or
-  QCloseEvent::ignore() makes no difference.
+  If you want your widget also to be deleted when it is closed, simply
+  create it with the \c WDestructiveClose widget flag.  This is very
+  useful for the independent toplevel windows of a multi window
+  application. The qwerty/qwerty.cpp example also makes use of this.
 
-  \warning Be careful.  The code below assumes that the widget was created
+  \warning Be careful.  destructive close implies that the widget was created
   on the heap using the \c new operator. Even when the widget has been
   created by new doing this is a tricky operation. Be sure that you cannot
   have any other pointers to the widget hanging around.
 
-  \code
-    void MyWidget::closeEvent( QCloseEvent * )
-    {
-	delete this;
-    }
-  \endcode
-
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
   when it is deleted.  This is a useful signal if a widget needs to know
   when another widget is deleted.
+  
+  If the last toplevel window is closed, the
+  QApplication::lastWindowClosed() signal is emitted.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
-  QApplication::setMainWidget(), QApplication::quit()
+  QApplication::setMainWidget(), QApplication::lastWindowClosed(), 
+   QApplication::quit()
 */
 
 /*!
@@ -783,7 +789,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   The accept flag is not set by default.
 
   If you choose to accept in QWidget::closeEvent(), the widget will be
-  hidden.
+  hidden. If the widget was created with the WDestructiveClose widget
+  flag, it is also destroyed.
 
   \sa ignore(), QWidget::hide()
 */
@@ -793,7 +800,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   Clears the accept flag of the close event object.
 
   Clearing the accept flag indicates that the receiver of this event does not
-  want the widget to be hidden.
+  want the widget to be closed. 
 
   The accept flag is not set by default.
 

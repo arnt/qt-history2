@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#9 $
 **
 ** Implementation of Windows-like style class
 **
@@ -724,7 +724,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 }
 
 /*!\reimp
- */
+ */ 
 int QWindowsStyle::sliderLength() const
 {
     return 9;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#24 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -2022,8 +2022,10 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
  	    }
 
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
-		qWarning( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
+		QString msg;
+		msg.sprintf( "QText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
+		sheet_->error( msg );
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -2148,10 +2150,10 @@ bool QRichText::parse (QTextContainer* current, QTextNode* lastChild, const QStr
     return TRUE;
 }
 
-bool QRichText::eatSpace(const QString& doc, int& pos)
+bool QRichText::eatSpace(const QString& doc, int& pos, bool includeNbsp )
 {
     int old_pos = pos;
-    while (pos < int(doc.length()) && doc[pos].isSpace())
+    while (pos < int(doc.length()) && doc[pos].isSpace() && ( includeNbsp || doc[pos] != QChar(0x00a0U) ) )
 	pos++;
     return old_pos < pos;
 }
@@ -2271,7 +2273,7 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
     QString s;
     while( pos < int(doc.length()) &&
 	   doc[pos] != '<' ) {
-	if (doc[pos].isSpace()){
+	if (doc[pos].isSpace() && doc[pos] != QChar(0x00a0U) ){
 	    if ( justOneWord && !s.isEmpty() ) {
 		return s;
 	    }
@@ -2284,10 +2286,7 @@ QString QRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool j
 			doc[pos+1].isSpace()  && doc[pos+1] != QChar(0x00a0U) )
 		    pos++;
 		
-		if (doc[pos] != QChar(0x00a0U) )
-		    s += ' ';
-		else
-		    s += doc[pos];
+		s += ' ';
 	    }
 	    pos++;
 	    if ( justOneWord )
@@ -2327,7 +2326,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
     emptyTag = FALSE;
     pos++;
     QString tag = parseWord(doc, pos, TRUE, TRUE);
-    eatSpace(doc, pos);
+    eatSpace(doc, pos, TRUE);
 
     if (tag[0] == '!') {
 	if (tag.left(3) == QString::fromLatin1("!--")) {
@@ -2338,7 +2337,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 		pos++;
 	    if ( valid && hasPrefix(doc, pos, pref ) ) {
 		pos += 4;
-		eatSpace(doc, pos);
+		eatSpace(doc, pos, TRUE);
 	    }
 	    else
 		valid = FALSE;
@@ -2350,7 +2349,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 		pos++;
 	    if ( valid && hasPrefix(doc, pos, QChar('>')) ) {
 		pos++;
-		eatSpace(doc, pos);
+		eatSpace(doc, pos, TRUE);
 	    }
 	    else
 		valid = FALSE;
@@ -2365,7 +2364,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 	    && ! (emptyTag = hasPrefix(doc, pos, term) ))
     {
 	QString key = parseWord(doc, pos, TRUE, TRUE);
-	eatSpace(doc, pos);
+	eatSpace(doc, pos, TRUE);
 	if ( key.isEmpty()) {
 	    // error recovery
 	    while ( pos < int(doc.length()) && !lookAhead(doc, pos, '>'))
@@ -2381,7 +2380,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 	else
 	    value = s_true;
 	attr.insert(key, value );
-	eatSpace(doc, pos);
+	eatSpace(doc, pos, TRUE);
     }
 
     if (emptyTag) {
@@ -2399,16 +2398,20 @@ bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
     pos++;
     pos++;
     QString tag = parseWord(doc, pos, TRUE, TRUE);
-    eatSpace(doc, pos);
+    eatSpace(doc, pos, TRUE);
     eat(doc, pos, '>');
     if (!valid) {
-	qWarning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+	QString msg;
+	msg.sprintf( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+	sheet_->error( msg );
 	valid = TRUE;
     }
     valid = valid && tag == open;
     if (!valid) {
-	qWarning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
-		 open.ascii(), tag.ascii(), pos);
+	QString msg;
+	msg.sprintf( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
+		     open.ascii(), tag.ascii(), pos);
+	sheet_->error( msg );
     }
     return valid;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#518 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#519 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4252,8 +4252,8 @@ static void sm_setProperty( const QString& name, const QStringList& value)
     SmPropValue *prop = new SmPropValue[ value.count() ];
     int count = 0;
     for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
-      prop[ count ].length = it->length();
-      prop[ count ].value = (char*)it->latin1();
+      prop[ count ].length = (*it).length();
+      prop[ count ].value = (char*)(*it).latin1();
       ++count;
     }
     sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );
@@ -4600,7 +4600,7 @@ void QSessionManager::setProperty( const QString& name, const QString& value)
 {
     SmPropValue prop;
     prop.length = value.length();
-    prop.value = (SmPointer) value.utf8();
+    prop.value = (SmPointer) value.utf8().data();
     sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
 }
 
@@ -4609,8 +4609,8 @@ void QSessionManager::setProperty( const QString& name, const QStringList& value
     SmPropValue *prop = new SmPropValue[ value.count() ];
     int count = 0;
     for ( QStringList::ConstIterator it = value.begin(); it != value.end(); ++it ) {
-      prop[ count ].length = it->length();
-      prop[ count ].value = (char*)it->utf8();
+      prop[ count ].length = (*it).length();
+      prop[ count ].value = (char*)(*it).utf8().data();
       ++count;
     }
     sm_setProperty( name.latin1(), SmLISTofARRAY8, count, prop );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#261 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#262 $
 **
 ** Implementation of QApplication class
 **
@@ -2092,7 +2092,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
 \code
 void MyApplication::commitData( QSessionManager& sm ) {
     if ( sm.allowsInteraction() ) {
-        switch ( QMessageBox::critical( yourMainWindow, "Application Name",
+        switch ( QMessageBox::warning( yourMainWindow, "Application Name",
 					"Save changes to Document Foo?",
 					tr("&Yes"),
 					tr("&No"),
@@ -2100,7 +2100,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 					0, 2) ) {
 	case 0: // yes
 	    sm.release();
-	    // save document here
+	    // save document here. If saving fails, call sm.cancel()
 	    break;
 	case 1: // no
 	    break;
