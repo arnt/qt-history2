@@ -2,10 +2,11 @@ DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt
 
-mac:TARGETDEPS += ../../../../lib/libQtDesigner.dylib
+mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
-unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
-    ../../lib/libformeditor.a \
+unix:!mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.so
+
+unix:TARGETDEPS +=    ../../lib/libformeditor.a \
     ../../lib/libobjectinspector.a \
     ../../lib/libwidgetbox.a \
     ../../lib/libimagecollection.a \

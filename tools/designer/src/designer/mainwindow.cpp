@@ -819,7 +819,10 @@ void MainWindow::openRecentForm()
 {
     QAction *action = qt_cast<QAction *>(sender());
     if (action)
-        readInForm(action->iconText());
+        if (!readInForm(action->iconText())) {
+            // This file doesn't seem to exist, just update the settings so it isn't listed anymore.
+            updateRecentFileActions();
+        }
 }
 
 void MainWindow::clearRecentFiles()
@@ -833,9 +836,19 @@ void MainWindow::updateRecentFileActions()
 {
     QSettings settings;
     QStringList files = settings.value("recentFilesList").toStringList();
+    int originalSize = files.size();
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
 
     for (int i = 0; i < numRecentFiles; ++i) {
+        QFileInfo fi(files[i]);
+        // If the file doesn't exist anymore, just remove it from the list so
+        // people can't get confused.
+        if (!fi.exists()) {
+            files.removeAt(i);
+            --i;
+            numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+            continue;
+        }
         QString text = QFileInfo(files[i]).fileName();
         recentFilesActs[i]->setText(text);
         recentFilesActs[i]->setIconText(files[i]);
@@ -843,6 +856,10 @@ void MainWindow::updateRecentFileActions()
     }
     for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
         recentFilesActs[j]->setVisible(false);
+
+    // Since we could have modified the list write it back.
+    if (originalSize != files.size())
+        settings.setValue("recentFilesList", files);
 
 }
 
