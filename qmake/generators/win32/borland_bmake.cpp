@@ -375,7 +375,7 @@ BorlandMakefileGenerator::init()
 	    }
 	    if ( project->isActiveConfig( "activeqt" ) ) {
 		project->variables().remove("QMAKE_LIBS_QT_ENTRY");
-		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "$(QTDIR)\\lib\\qaxserver.lib";
+		project->variables()["QMAKE_LIBS_QT_ENTRY"] = "qaxserver.lib";
 		if ( project->isActiveConfig( "dll" ) )
 		    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	    }
