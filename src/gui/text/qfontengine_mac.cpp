@@ -151,7 +151,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     bool textAA = p->renderHints() & QPainter::TextAntialiasing;
     bool lineAA = p->renderHints() & QPainter::LineAntialiasing;
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_handle(p->painter()->device())), textAA);
+        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_quartz_handle(p->painter()->device())), textAA);
 
     int w = 0;
     uchar task = DRAW;
@@ -180,8 +180,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
             p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
     if(p->type() == QPaintEngine::CoreGraphics && textAA != lineAA)
-        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_quartz_handle(p->painter()->device())),
-                                    !textAA);
+        CGContextSetShouldAntialias(static_cast<CGContext*>(qt_mac_quartz_handle(p->painter()->device())), !textAA);
 }
 
 glyph_metrics_t
