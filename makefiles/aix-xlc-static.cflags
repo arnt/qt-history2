@@ -1,6 +1,7 @@
 CC="xlC"
 CFLAGS="-+ -O3 -qstrict -D_BSD"
-LFLAGS="-lqt -lX11"
+LFLAGS=""
+LIBS="-lqt -lX11""
 SHELL="/bin/sh"
 LIBCFLAGS=""
 YACCCFLAGS=""

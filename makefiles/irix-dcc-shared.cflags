@@ -1,6 +1,7 @@
 CC="DCC"
 CFLAGS="-O2 -fullwarn"
-LFLAGS="-lqt"
+LFLAGS=""
+LIBS="-lqt""
 SHELL="/bin/sh"
 LIBCFLAGS=""
 YACCCFLAGS="-woff 3262,3203"

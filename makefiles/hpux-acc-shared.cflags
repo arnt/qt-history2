@@ -2,6 +2,7 @@ CC="aCC"
 CFLAGS="-O -w -D__STRICT_ANSI__"
 LIBCFLAGS="+Z"
 YACCCFLAGS=""
-LFLAGS="-lqt"
+LFLAGS=""
+LIBS="-lqt""
 SHELL="/bin/sh"
 

@@ -1,6 +1,7 @@
 CC="gcc"
 CFLAGS="-O2 -fno-strength-reduce -Wall -W -I/usr/X11R6/include"
-LFLAGS="-lqt"
+LFLAGS=""
+LIBS="-lqt""
 SHELL="/bin/sh"
 LIBCFLAGS="-fPIC"
 YACCCFLAGS="-Wno-unused -Wno-parentheses"

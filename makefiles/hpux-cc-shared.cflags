@@ -1,6 +1,7 @@
 CC="CC"
 CFLAGS="-O -w"
-LFLAGS="-lqt"
+LFLAGS=""
+LIBS="-lqt""
 SHELL="/bin/sh"
 LIBCFLAGS="+Z"
 YACCCFLAGS=""

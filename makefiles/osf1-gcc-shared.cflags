@@ -1,6 +1,7 @@
 CC="gcc"
 CFLAGS="-O2 -fno-strength-reduce -Wall -W -D_POSIX_SOURCE -D_OSF_SOURCE -D_AES_SOURCE"
-LFLAGS="-lqt"
+LFLAGS=""
+LIBS="-lqt""
 SHELL="/bin/sh"
 LIBCFLAGS="-fPIC"
 YACCCFLAGS="-Wno-unused -Wno-parentheses"
