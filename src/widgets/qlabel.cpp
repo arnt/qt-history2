@@ -267,6 +267,9 @@ void QLabel::setText( const QString &text )
     if ( ltext == text )
 	return;
     QSize osh = sizeHint();
+#ifndef QT_NO_RICHTEXT
+    bool hadRichtext = doc != 0;
+#endif
     clearContents();
     ltext = text;
 #ifndef QT_NO_ACCEL
@@ -285,6 +288,10 @@ void QLabel::setText( const QString &text )
 	doc->setDefaultFont( font() );
 	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
+	if ( !hadRichtext )
+	    align |= WordBreak;
+	if ( (align & WordBreak ) == 0 )
+	    doc->setWidth( INT_MAX );
     }
 #endif
 
@@ -387,16 +394,17 @@ void QLabel::setNum( double num )
   \brief the alignment of the label's contents
 
   The alignment is a bitwise OR of Qt::AlignmentFlags values. The \c
-  WordBreak, \c ExpandTabs, \c SingleLine and \c ShowPrefix flags apply
-  only if the label contains plain text; otherwise they are ignored. The
-  \c DontClip flag is always ignored.
+  ExpandTabs, \c SingleLine and \c ShowPrefix flags apply only if the
+  label contains plain text; otherwise they are ignored. The \c
+  DontClip flag is always ignored. \c WordBreak applies to both rich
+  text and plain text labels.
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
-
+  
   The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs}
-  if the label doesn't have a buddy and
-  \c{AlignAuto | AlignVCenter | ExpandTabs | ShowPrefix} if
-  the label has a buddy.
+  if the label doesn't have a buddy and \c{AlignAuto | AlignVCenter |
+  ExpandTabs | ShowPrefix} if the label has a buddy. If the label
+  contains rich text, additionally \c WordBreak is turned on.
 
   \sa Qt::AlignmentFlags, alignment, setBuddy(), text
 */
@@ -535,12 +543,17 @@ QSize QLabel::sizeForWidth( int w ) const
 #ifndef QT_NO_RICHTEXT
     else if ( doc ) {
 	int oldW = doc->width();
-	if ( w < 0 )
-	    doc->adjustSize();
-	else {
-	    w -= 2*fw + hm;
-	    doc->setWidth( w );
+	if ( align & WordBreak ) {
+	    if ( w < 0 ) {
+		qDebug("call doc adjust size");
+		doc->adjustSize();
+	    }
+	    else {
+		w -= 2*fw + hm;
+		doc->setWidth( w );
+	    }
 	}
+	qDebug("got new size hint %d %d", doc->widthUsed(), doc->height() );
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
 	doc->setWidth( oldW );
     }
@@ -577,7 +590,7 @@ QSize QLabel::sizeForWidth( int w ) const
 int QLabel::heightForWidth( int w ) const
 {
 #ifndef QT_NO_RICHTEXT
-    if ( doc || align & WordBreak )
+    if ( doc || (align & WordBreak) )
 	return sizeForWidth( w ).height();
 #endif
     return QWidget::heightForWidth( w );
@@ -589,19 +602,7 @@ int QLabel::heightForWidth( int w ) const
 */
 QSize QLabel::sizeHint() const
 {
-    //     Does not work well with the WordBreak flag; use
-    //    heightForWidth() in stead.
-#ifndef QT_NO_RICHTEXT
-    int oldW = 0;
-    if ( doc )
-	oldW = doc->width();
-#endif
-    QSize sh = sizeForWidth( -1 );
-#ifndef QT_NO_RICHTEXT
-    if ( doc )
-	doc->setWidth( oldW );
-#endif
-    return sh;
+    return sizeForWidth( -1 );
 }
 
 /*!
@@ -722,7 +723,8 @@ void QLabel::drawContents( QPainter *p )
 #endif
 #ifndef QT_NO_RICHTEXT
     if ( doc ) {
-	doc->setWidth(p, cr.width() );
+	if ( align & WordBreak  )
+	    doc->setWidth(p, cr.width() );
 	int rw = doc->widthUsed();
 	int rh = doc->height();
 	int xo = 0;
@@ -799,21 +801,14 @@ void QLabel::drawContents( QPainter *p )
 void QLabel::updateLabel( QSize oldSizeHint )
 {
     QSizePolicy policy = sizePolicy();
-    if (
+    bool wordBreak = align & WordBreak;
+    policy.setHeightForWidth( wordBreak );
 #ifndef QT_NO_RICHTEXT
-	doc ||
+    if ( doc && !wordBreak ) 
+	doc->setWidth( INT_MAX );
 #endif
-	(align & WordBreak) ) {
-	if ( policy == QSizePolicy( QSizePolicy::Minimum,
-				    QSizePolicy::Minimum ) )
-	    policy = QSizePolicy( QSizePolicy::Preferred,
-				  QSizePolicy::Preferred, TRUE );
-	else
-	    policy.setHeightForWidth( TRUE );
-    } else {
-	policy.setHeightForWidth( FALSE );
-    }
-    setSizePolicy( policy );
+    if ( policy != sizePolicy() )
+	setSizePolicy( policy );
     if ( sizeHint() != oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
@@ -1060,9 +1055,12 @@ Qt::TextFormat QLabel::textFormat() const
 void QLabel::setTextFormat( Qt::TextFormat format )
 {
     if ( format != textformat ) {
-    textformat = format;
-    if ( !ltext.isEmpty() )
-	updateLabel( QSize( -1, -1 ) );
+	textformat = format;
+	QString t = ltext;
+	if ( !t.isNull() ) {
+	    ltext = QString::null;
+	    setText( t );
+	}
     }
 }
 
