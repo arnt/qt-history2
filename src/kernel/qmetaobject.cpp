@@ -479,8 +479,6 @@ const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {
 	if ( d->propData[i].isValid() && qstrcmp( d->propData[i].name(), name ) == 0 ) {
-	    if ( d->propData[i].enumData )
-		qDebug("enum data = %s", d->propData[i].enumData->name );
 	    return &(d->propData[i]);
 	}
     }
