@@ -3087,7 +3087,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	    } else if ( a == qt_net_wm_ping ) {
 		event->xclient.window = QPaintDevice::x11AppRootWindow( w->x11Screen() );
 		XSendEvent( event->xclient.display, event->xclient.window,
-			    False, NoEventMask, event );
+			    False, SubstructureNotifyMask|SubstructureRedirectMask, event );
 	    }
 	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
 	    widget->translateScrollDoneEvent(event);
