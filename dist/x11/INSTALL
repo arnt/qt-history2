@@ -1,4 +1,4 @@
-			  INSTALLING Qt FOR X11
+			  INSTALLING Qt Version %VERSION% FOR X11
 
 
 You may need to be logged in as root, depending on the permissions of
@@ -8,15 +8,15 @@ the directories where you choose to install Qt.
 1.  Unpack the archive if you have not done so already:
 
 	cd /usr/local
-	gunzip qt-x11-%VERSION%.tar.gz	# uncompress the archive
-	tar xf qt-x11-%VERSION%.tar	# unpack it
+	gunzip %DISTNAME%.tar.gz	# uncompress the archive
+	tar xf %DISTNAME%.tar	# unpack it
 
-    This creates the directory /usr/local/qt-%VERSION% containing the
+    This creates the directory /usr/local/%DISTNAME% containing the
     files from the main archive.
 
-    Rename qt-%VERSION% to qt (or make a symlink):
+    Rename %DISTNAME% to qt (or make a symlink):
 
-	mv qt-%VERSION% qt
+	mv %DISTNAME% qt
 
     The rest of this file assumes that Qt is installed in /usr/local/qt.
 

@@ -8,10 +8,10 @@ the directories where you choose to install Qt.
 1.  Unpack the archive if you have not done so already:
 
 	cd /usr/local
-	gunzip qt-mac-%VERSION%.tar.gz	# uncompress the archive
-	tar xf qt-mac-%VERSION%.tar	# unpack it
+	gunzip %DISTNAME%.tar.gz	# uncompress the archive
+	tar xf %DISTNAME%.tar	# unpack it
 
-    This creates the directory /usr/local/qt-%VERSION% containing the
+    This creates the directory /usr/local/%DISTNAME% containing the
     files from the main archive.
 
     Rename %DISTNAME% to qt (or make a symlink):
