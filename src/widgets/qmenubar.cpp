@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#56 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#55 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#56 $")
 
 
 /*----------------------------------------------------------------------------
@@ -115,6 +115,12 @@ void QMenuBar::updateItem( int )
 }
 
 
+/*!  Recomputes the menu bar's display data according to the new
+  contents.
+
+  You should never need to call this, it is called automatically by
+  QMenuData whenever it needs to be called.  */
+
 void QMenuBar::menuContentsChanged()
 {
     badSize = TRUE;				// might change the size
@@ -124,10 +130,12 @@ void QMenuBar::menuContentsChanged()
     }
 }
 
-/*!
-  \internal
-  Needs documentation.
- */
+/*!  Recomputes the menu bar's display data according to the new
+  state.
+
+  You should never need to call this, it is called automatically by
+  QMenuData whenever it needs to be called.  */
+
 void QMenuBar::menuStateChanged()
 {
  //   repaint(); !!!hanord: avoid this until we get a better solution
@@ -159,7 +167,9 @@ void QMenuBar::frameChanged()
 
 /*----------------------------------------------------------------------------
   This function is used to adjust the menu bar's geometry to the
-  parent widget's.
+  parent widget's.  Note that this is \e not part of the public
+  interface - the function is \c public only because
+  QObject::eventFilter() is.
 
   \internal
   Resizes the menu bar to fit in the parent widget when the parent receives

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#15 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#16 $
 **
 ** Definition of QMenuBar class
 **
@@ -29,6 +29,8 @@ public:
     void	show();				// reimplemented show
     void	hide();				// reimplemented hide
 
+    bool	eventFilter( QObject *, QEvent * );
+
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -41,6 +43,8 @@ protected:
     void	mouseMoveEvent( QMouseEvent * );
     void	keyPressEvent( QKeyEvent * );
     void	resizeEvent( QResizeEvent * );
+    void	menuContentsChanged();
+    void	menuStateChanged();
 
 private slots:
     void	subActivated( int itemId );
@@ -49,13 +53,9 @@ private slots:
     void	accelDestroyed();
 
 private:
-    void	menuContentsChanged();
-    void	menuStateChanged();
     void	menuInsPopup( QPopupMenu * );
     void	menuDelPopup( QPopupMenu * );
     void	frameChanged();
-
-    bool	eventFilter( QObject *, QEvent * );
 
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
     void	tryKeyEvent( QPopupMenu *, QKeyEvent * );
