@@ -349,16 +349,17 @@ Different widgets have different value editors.
     To select an individual widget, either click it or click its Name in
     the Object Hierarchy window. To select a group either click a tiny
     bit outside its red outline or click its Name in the Object
-    Hierarchy window. To select multiple widgets or groups Ctrl+Click
+    Hierarchy window. To select multiple widgets or groups, click the
+    form to deselecte any selected widgets, then Ctrl+Click
     one widget or group then drag the rubber band so that
     it touches the other widgets or groups that you want to select. This
     technique is particularly useful for selecting widgets that are
     <emphasis>inside</emphasis> another widget. For example to select
     the radio buttons in a button group but not the button group itself
-    you would Ctrl+Click one of the radio buttons and drag the rubber
-    band to touch the other radio buttons.
+    you would click the form then Ctrl+Click one of the radio buttons
+    and drag the rubber band to touch the other radio buttons.
     </para>
-    </para>
+    <para>
     If we want to insert a widget into a gap between widgets
     which are in a layout we can click the toolbar button for the new
     widget and then click in the gap. \qd will ask us if we want to
@@ -407,7 +408,7 @@ Different widgets have different value editors.
     <listitem>
     <para>
     We want the remaining widgets to be grouped together vertically. We
-    could Shift+Click each one but instead Ctrl+Click 
+    could Shift+Click each one but instead click the form then Ctrl+Click 
     the Length label and drag until the Length label, the
     LCD Number, the check box and all the buttons are all touching the
     rubber band (a black outline rectangle) that appears when you drag.
@@ -426,11 +427,12 @@ Different widgets have different value editors.
     <listitem>
     <para>
     Shift+Clicking is used to select individual widgets. To select a
-    group we must Ctrl+Click the group and drag so that the rubber band
-    touches the groups we want to lay out and then release. Ctrl+Click
-    the list box drag the rubber band over the one of the buttons, then
-    release. Both groups should now be selected. Click <guibutton>Lay
-    Out Horizontally (in Splitter)</guibutton>. 
+    group we must click the form to deselect any selected widgets, then
+    Ctrl+Click the group and drag so that the rubber band touches the
+    groups we want to lay out and then release. Ctrl+Click the list box
+    drag the rubber band over the one of the buttons, then release. Both
+    groups should now be selected. Click <guibutton>Lay Out Horizontally
+    (in Splitter)</guibutton>. 
     </para>
     </listitem>
     <listitem>

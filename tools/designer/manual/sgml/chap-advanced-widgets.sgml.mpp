@@ -1,6 +1,12 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 <chapter>
-<title>Using Qt's Advanced Widgets</title>
+<title>Using Qt Designer's Value Editors</title>
+<para>
+\qd provides value editors which allow you to set up and create default
+values for some of the widgets. In this chapter we'll explain how to use
+the value editors, but first we'll briefly describe the Choose a Pixmap
+dialog since this is used by many of the value editors. 
+</para>
 
 <sect1 id="sharedpixmaps">
 <title>Shared Pixmaps </title>
@@ -37,19 +43,35 @@ Inline', then click \ok.
 
 
 <sect1 id="listbox">
-<title>ListBox </title>
+<title>ListBox and ComboBox</title>
 <para>
-
+<figure>
+<title>Edit List Box Dialog</title>
+\img[listbox]
+</figure>
+This value editor allows us to hard-code list items. We can always
+change them in code at runtime. A list item consists of some text or a
+pixmap or both. Item's are added by clicking the <guibutton>New
+Item</guibutton> button and deleted by clicking <guibutton>Delete
+Item</guibutton>. The order of items can be changed by clicking an item
+in the list to select it and clicking the up or down blue arrows to move
+the selected item. If you want a pixmap click the ellipsis
+(<guibutton>...</guibutton>) button which will pop up the Choose a
+Pixmap dialog. You can either choose one of the pixmaps shown or click
+<guibutton>Add</guibutton> to add one from somewhere in your filesystem.
+To remove a pixmap click the item, then click the scissors button. 
+</para>
+<para>
+You can see how the list will look on the form by clicking
+<guibutton>Apply</guibutton>. If you want to revert all your changes
+after you've applied them click \ok (or <guibutton>Cancel</guibutton>)
+then press <keycap>Ctrl+Z</keycap> (undo).
+</para>
+<para>
+The same value editor is used for list boxes and combo boxes.
 </para>
 </sect1>
 
-
-<sect1 id="combobox">
-<title>ComboBox </title>
-<para>
-
-</para>
-</sect1>
 
 <sect1 id="listviewtreeview">
 <title>ListView (Tree View) </title>
@@ -63,7 +85,7 @@ Inline', then click \ok.
 <title>TextEdit </title>
 <para>
 This widget is a multi-line editor (replacing <classname>QMultiLineEdit</classname>),
-which can also display rich text.
+which can also display rich text
 </para>
 </sect1>
 

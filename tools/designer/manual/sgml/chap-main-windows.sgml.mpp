@@ -1,16 +1,16 @@
 <!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
 
 <chapter id="main-windows">
-<title>Creating Main Windows with Actions, Toolbars &amp; Menus</>
+<title>Creating Main Windows with Actions, Toolbars and Menus</>
 
 \p
 In this chapter we will explain how to create an application's main
-window and how to add \i[actions], menus and toolbars. We will also
-demonstrate how some common actions, like cut and paste in a
-\class[QTextEdit], can be performed automatically simply by making the
+window and how to add actions (explained shortly), menus and toolbars.
+We will also demonstrate how some common actions, like cut and paste in
+a \class[QTextEdit], can be performed automatically simply by making the
 appropriate signals to slots connections. We will build the \i[richedit]
-application to illustrate the necessary techniques.
-<figure><title>The richedit Application</title>
+application to illustrate the necessary techniques. 
+<figure><title>The Richedit Application</title>
 \img[richedit-main]
 </figure>
 \P
@@ -107,7 +107,7 @@ buttons.
 	items, toolbar buttons and the relevant connections created. But
 	for the Edit Actions we don't want any connections created since
 	we'll be connecting the actions directly to the
-	\class[QTextEdit] we create later, so uncheck the Edit Action's
+	\class[QTextEdit] we'll create later, so uncheck the Edit Action's
 	Create Slots and Connections checkbox. We won't have any Help
 	Actions on the toolbar so uncheck the Help Action's Toolbar
 	checkbox. Click \button[Next] to move on to the next wizard
@@ -145,7 +145,7 @@ buttons.
 	menus will be available and you'll be able to drag the toolbar
 	either into an independent window of its own, or to dock it to
 	the left, right, bottom or top of the window. The menus and
-	toolbars are not functional but we will rectify this as we
+	toolbars are not functional yet but we will rectify this as we
 	progress.
 	\P
 	
@@ -181,7 +181,7 @@ buttons.
 	    \P\Item
 	    
 	    \item\p
-	    Because bold can only be on or off change the
+	    Since bold can only be on or off change the
 	    toggleAction property to True. 
 	    \P\Item
 
@@ -237,7 +237,7 @@ buttons.
 	    ensure its toggleAction property is True. The iconSet is in
 	    the textedit directory and is called \f[textitalic.xpm]; add
 	    its pixmap in the same way that we added the bold pixmap.
-	    (For example, click the ellipsis \button[...], click
+	    (For example, click the ellipsis (<keycap>...</keycap>), click
 	    \button[Add], navigate to the textedit directory and click
 	    the \f[textitalic.xpm] pixmap. Then click the textitalic
 	    pixmap in the pixmap collection and click \ok). Change the
@@ -344,8 +344,9 @@ buttons.
 	create a new toolbar and add some of our actions to it. Right
 	click on the right hand side of the toolbar area, or on the
 	form, then left click Add Toolbar. The new toolbar is empty and
-	is visible only by its \i[toolbar handle] (a grey area
-	containing two thick vertical lines). 
+	is visible only by its \i[toolbar handle]. (Toolbar handle's are
+	usually represented as a gray area containing either two thick
+	vertical lines or with many small pits). 
 	\P
 	
 	\p
@@ -366,13 +367,14 @@ buttons.
 	\P
 
 	\p
-	Toolbar buttons and separators (indented vertical grey lines),
-	can be dragged and dropped into new positions in the toolbar at
-	any time. Separators can be inserted by right clicking a toolbar
-	button and clicking Insert Separator. Toolbar buttons and
-	separators can be deleted by right clicking them and clicking
-	Delete Item. Toolbars can be deleted by right clicking their
-	toolbar handle and clicking Delete Toolbar.
+	Toolbar buttons and separators (usually represented as indented
+	vertical gray lines), can be dragged and dropped into new
+	positions in the toolbar at any time. Separators can be inserted
+	by right clicking a toolbar button and clicking Insert
+	Separator. Toolbar buttons and separators can be deleted by
+	right clicking them and clicking Delete Item. Toolbars can be
+	deleted by right clicking their toolbar handle and clicking
+	Delete Toolbar.
 	\P
 
 	\p
@@ -426,9 +428,9 @@ buttons.
 	Right click our application's menu bar and click Add Menu Item.
 	A new menu item called 'Menu' will appear. Right click this menu
 	item and click Rename Item. Change its name to 'F&amp;ormat'.
-	Click the menu item and a grey bar will appear beneath it --
+	Click the menu item and a gray bar will appear beneath it --
 	this is the empty menu. Drag the alignActionGroup to the Format
-	menu item and drop the action group on the menu. (The menu's grey
+	menu item and drop the action group on the menu. (The menu's gray
 	bar will appear and a thick red line will be drawn where the new
 	menu items will appear -- drop when the red line is in the
 	position you require.) Now if you click the Format menu item
@@ -495,7 +497,7 @@ buttons.
 	\P
 	    
 		
-	    <sect3><title>Connecting for Font Attributes</title>
+	    <sect3><title>Connecting Actions to Change Font Attributes</title>
 	    \p
 	    Click the underlineAction in the Action Editor, then click the
 	    Connect button. The Edit Connections dialog will appear. Click
@@ -517,7 +519,7 @@ buttons.
 
 	    </sect3>
 
-	    <sect3><title>Connecting for Cut, Copy and Paste, &amp; Undo and Redo</title>
+	    <sect3><title>Connecting Actions to Implement Cut, Copy and Paste, &amp; Undo and Redo</title>
 	    \p
 	    The cut, copy, paste, undo and redo actions are connected in
 	    the same way as the font attributes. For example, click the
@@ -528,8 +530,8 @@ buttons.
 	    actions in the same way. (For example, click the
 	    editCopyAction action, click Connect, click the
 	    \fn[activated()] signal, change the Slots combobox item to
-	    textEdit, click the \fn[copy()] slot then click \ok.) The
-	    cut, copy, paste, undo and redo actions will all work in
+	    textEdit, click the \fn[copy()] slot then click \ok.) Then
+	    the cut, copy, paste, undo and redo actions will all work in
 	    preview mode.
 	    \P
 	    </sect3>
@@ -594,7 +596,7 @@ buttons.
 	    The richedit application is nearly complete. We will have to
 	    write code to handle text alignment, font and font size, and
 	    also file loading and saving. We will also write the code
-	    for application exit to deal correctly with unsaved changes.
+	    for application exit to deal correctly with any unsaved changes.
 	    \P
 
 	    </sect3>
@@ -603,7 +605,7 @@ buttons.
 
     </sect1>
 
-    <sect1><title>Turning the Design into an Application</title>
+    <sect1><title>Converting the Design into an Executable Application</title>
     \p
     We've built the user interface through \qd and connected those slots
     that provided sufficient default functionality. The last steps are to
@@ -622,7 +624,7 @@ buttons.
 </programlisting>
 	\P
 
-	    <sect3><title>New Files &amp; Loading and Saving Existing 
+	    <sect3><title>New Files and Loading and Saving Existing 
 	    Files</title>
 	    \p
 	    The code for these tasks is straightforward. When the user
@@ -647,7 +649,7 @@ buttons.
 </programlisting>
 	    The \fn[fileOpen()] function asks the user to choose a file
 	    and loads the file. We declare the fileName variable and
-	    initialise it with the result of a call to
+	    initialize it with the result of a call to
 	    \fn[QFileDialog::getOpenFileName()]. 
 	    \P
 
@@ -683,11 +685,7 @@ buttons.
 \scan eg/richedit/richedit.cpp /::saveAndContinue/ /^}/ 
 </programlisting>
 	    The \fn[saveAndContinue] function is included for
-	    completeness. The reason we pass a reference to
-	    continueAction rather than return an int which could
-	    immeditately be used in an \c[if] statement is that \qd
-	    supports coding slots rather than arbitrary functions and
-	    slots always have a void return type.
+	    completeness. 	    
 	    \P
 
 	    </sect3>
@@ -731,7 +729,7 @@ buttons.
 	Hierarchy window and click on the Includes (in Declaration)
 	item. We need to include those files that our source code
 	depends on. Right click the Includes item and click New. Type in
-	\c[&lt;application.h&gt;] for \fn[fileExit()]'s \fn[exit()] call.
+	\c[&lt;qapplication.h&gt;] for \fn[fileExit()]'s \fn[exit()] call.
 	In the same way add \c[&lt;qmessagebox.h&gt;] for
 	\fn[saveAndContinue()]'s message box, \c[&lt;qfiledialog.h&gt;]
 	for the \fn[fileOpen()] and \fn[fileSaveAs()] functions, and

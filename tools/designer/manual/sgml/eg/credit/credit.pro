@@ -1,0 +1,11 @@
+TEMPLATE	= app
+CONFIG	= qt warn_on release
+TARGET	= credit
+INTERFACES	= creditformbase.ui 
+IMAGEFILE	= images.cpp
+PROJECTNAME	= credit
+LANGUAGE	= C++
+{SOURCES+=images.cpp}
+SOURCES += main.cpp
+HEADERS += creditform.h
+SOURCES += creditform.cpp

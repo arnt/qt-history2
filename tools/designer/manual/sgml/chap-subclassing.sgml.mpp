@@ -86,34 +86,34 @@ convention for the form to help us see which files are generated from
 <para>
 For example, suppose we have an application with a dialog that we want
 to subclass. If we were writing the code directly in \qd we might call
-the dialog form 'SettingsDialog' and the <filename>.ui</filename>
-file, <filename>settingsdialog.ui</filename>. If we intend
-subclassing we suggest that you call the form 'SettingsDialogBase'
+the dialog form 'SettingsForm' and the <filename>.ui</filename>
+file, <filename>settingsform.ui</filename>. If we intend
+subclassing we suggest that you call the form 'SettingsFormBase'
 and its <filename>.ui</filename> file,
-<filename>settingsdialogbase.ui</filename>. You would then call your
-subclass files <filename>settingsdialog.h</filename> and
-<filename>settingsdialog.cpp</filename>. The class name of the form
-would be 'SettingsDialogBase', and you would derive from this class
-calling your subclass 'SettingsDialog'. 
+<filename>settingsformbase.ui</filename>. You would then call your
+subclass files <filename>settingsform.h</filename> and
+<filename>settingsform.cpp</filename>. The class name of the form
+would be 'SettingsFormBase', and you would derive from this class
+calling your subclass 'SettingsForm'. 
 </para>
 <para>
 Any subclass of a form should include the <literal>Q_OBJECT</literal>
 macro. Once you've created your subclass be sure to add the
 <filename>.h</filename> and the <filename>.cpp</filename> files to the
 <filename>.pro</filename> project file. For example we would add the
-following lines for our subclassed 'SettingsDialog' at the end of the
+following lines for our subclassed 'SettingsForm' at the end of the
 <filename>.pro</filename> file:
 <programlisting>
-HEADERS += settingsdialog.h
-SOURCES += settingsdialog.cpp
+HEADERS += settingsform.h
+SOURCES += settingsform.cpp
 </programlisting>
 \qd will have added
 <programlisting>
-INTERFACES = settingsdialogbase.ui
+INTERFACES = settingsformbase.ui
 </programlisting>
-to the project file. The <filename>settingsdialog.h</filename> and
-<filename>settingsdialog.cpp</filename> files will be generated from the
-<filename>.ui</filename> file.
+to the project file. The <filename>settingsformbase.h</filename> and
+<filename>settingsformbase.cpp</filename> files will be generated from
+the <filename>.ui</filename> file.
 </para>
 </sect2>
 
@@ -122,94 +122,247 @@ to the project file. The <filename>settingsdialog.h</filename> and
 <title>A Subclassing Example </title>
 <para>
 We will write a small example dialog to show the use of subclassing in
-practice. Our dialog will ask the user to enter either a Customer ID or
-a Customer Name but not both. We'll implement this functionality in a
-subclass. We'll start by creating the base form and
-connecting up its signals and slots, then we'll create the subclass and
-a simple <filename>main.cpp</filename> so that we can test it.
+practice. The dialog will present a choice of customer credit ratings
+with an option of choosing a 'special' rating for which a specific
+amount must be given. We'll implement the functionality in a subclass.
+We'll start by creating the base form and connecting up its signals and
+slots, then we'll create the subclass and a simple
+<filename>main.cpp</filename> so that we can test it.
 </para>
+
+<sect3 id="designingtheform">
+<title>Designing the Form </title>
+
+<para>
+We'll begin by creating a new project.
+Click <guimenuitem>File|New Project</guimenuitem> and type in a project
+name of 'credit' and a project file name of 'credit.pro' then click
+\ok. Now we'll add a form to the project.
+Click <guimenuitem>File|New</guimenuitem> to invoke the New Form
+dialog. The default form is Dialog which is what we want; click \ok.
+Resize the form to make it smaller; it should be about 2 inches (5 cm)
+square. Change the form's name to 'CustomerFormBase' and the caption to
+'Credit Rating'. Save the form as 'customerformbase.ui'.
+</para>
+<para>
+We'll now add the widgets we need.
 <orderedlist numeration="arabic">
 <listitem>
 <para>
-Click <guimenuitem>File|New Project</guimenuitem> and type in a project
-name of 'customer' and a project file name of 'customer.pro' then click
-\ok. 
+Click the <guibutton>Button Group</guibutton> toolbar button, then click
+the form near the top left. Resize the button group to take up
+approximately half the form. Change the button group's title property to
+'Credit Rating'.
 </para>
 </listitem>
 <listitem>
 <para>
-Click <guimenuitem>File|New</guimenuitem> to invoke the New Form
-dialog. The default form is Dialog which is what we want; click \ok.
+We'll now add some radio buttons. <emphasis>Double</emphasis> click the
+<guibutton>Radio Button</guibutton> toolbar button. Click towards the
+top of the Credit Rating button group and a radio button will appear.
+Click below this button, to create a second radio button, then click
+below the second button to create a third. Click the
+<guibutton>Pointer</guibutton> (arrow) toolbar button to stop clicking
+the form from adding any more radio buttons. 
+Change the first radio button's name to
+'stdRadioButton' and its text to '&amp;Standard'. Change its checked
+property to True. Change the second
+button's name to 'noneRadioButton' and its text to '&amp;None'. Change
+the third radio button's properties to 'specialRadioButton' and
+'Sp&amp;ecial' respectively.
 </para>
 </listitem>
 <listitem>
 <para>
-Resize the form to make it smaller; it should be about 3 inches (5 cm)
-wide by about 1.5 inches (3 cm) high. Change the form's name to
-'CustomerDialogBase' and the caption to 'Customer ID'. Save the form as
-'customerdialogbase.ui'
-</para>
-</listitem>
-<listitem>
-<para>
-Click the <guibutton>Text Label</guibutton> toolbar button, then click
-on the form towards the top left. Change the label's text to
-'Customer ID'. Click the <guibutton>Line Edit</guibutton> toolbar
-button, then click the form to the right of the Customer ID label.
-Change the Line Edit's name to 'idLineEdit'.
-</para>
-</listitem>
-<listitem>
-<para>
-We'll copy the label and line edit. Ctrl+Click the label drag to the
-line edit, press <keycap>Ctrl+C</keycap>, then press
-<keycap>Ctrl+V</keycap>. Drag the new label and line edit below the
-first pair. Don't worry about the layout since we'll use \qd's layout
-tools to size and position the widgets. Change the new label's text to
-'Customer Name'. Change the new line edit's name to 'nameLineEdit'.
-(Click each widget in turn and change the values in the Property
-Editor.)
+If the user chooses the special credit rating they must give an amount.
+Click the <guibutton>SpinBox</guibutton> toolbar button and click the
+form just below the button group. Change the spin box's name to
+'amountSpinBox'. Change its prefix to '$ ' (note the space), its
+maxValue to '100000' and its lineStep to '10000'. Change its enabled
+property to False.
 </para>
 </listitem>
 <listitem>
 <para>
 Click the <guibutton>Push Button</guibutton> toolbar button and click
-on the form below the Customer Name label. Change this button's name to
-'okPushButton' and its text to 'OK'. Change the button's 'default'
-property to True: this will ensure that when the user presses
-<keycap>Return</keycap> the OK button will be pressed. Add a second
-button and set its name property to 'cancelPushButton' and its text
-property to 'Cancel'.
-</para>
-</listitem>
-<listitem>
-<para>
-We'll now lay out the form. Click one of the line edits then Ctrl+Click
-a line edit and drag the rubber band so that it touches both labels
-and both line edits, then release. Press <keycap>Ctrl+G</keycap> to lay
-out the labels and line edits in a grid.
-</para>
-</listitem>
-<listitem>
-<para>
-Click one of the buttons then Shift+Click the other button. Press
-<keycap>Ctrl+H</keycap> to lay out the buttons horizontally.
-</para>
-</listitem>
-<listitem>
-<para>
-Click the form and press <keycap>Ctrl+L</keycap> to lay out the groups
-on the form vertically. (The line edits and labels are one layout group
-and the buttons are another layout group.)
-</para>
-</listitem>
-<listitem>
-<para>
-We'll now make the signals and slots connections then we can leave \qd
-and write our subclass.
+the form below the spin box. Change the button's name to
+'okPushButton', its text to 'OK' and its default property to 'True'. Add
+a second button to the right of the first. Change the second button's
+name to 'cancelPushButton' and its text to 'Cancel'.
 </para>
 </listitem>
 </orderedlist>
+</para>
+
+<para>
+We'll lay out the widgets and connect up the slots we need.
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+Click the form so that no widgets are selected. Ctrl+Click the Standard
+radio button and drag the rubber band so that it touches the other two
+radio buttons, then release. Press <keycap>Ctrl+L</keycap> (lay out
+vertically). Click the Credit Rating button group, then press
+<keycap>Ctrl+H</keycap> (lay out horizontally).
+</para>
+</listitem>
+<listitem>
+<para>
+Click the form so that the button group is no longer selected.
+Ctrl+Click the OK button and drag the rubber band to touch the Cancel
+button, then release. Press <keycap>Ctrl+H</keycap> (lay out
+horizontally).
+</para>
+</listitem>
+<listitem>
+<para>
+Click the form, then press <keycap>Ctrl+L</keycap> (lay out vertically).
+</para>
+<para>
+The buttons expand to take up the full width of the form. It might look
+more attractive to use spacers with them. Click the OK button, then
+press <keycap>Ctrl+B</keycap> (break layout). Resize both buttons to
+make them narrower leaving space on either side of them. Click the
+<guibutton>Spacer</guibutton> toolbar button then click to the left of
+the OK button; click Horizontal from the pop up spacer menu. Copy this
+spacer and place the copy between the two buttons. Copy the spacer again
+and place the copy to the right of the Cancel button. (Click on the
+spacer, press <keycap>Ctrl+C</keycap> then <keycap>Ctrl+V</keycap>. Drag
+the new spacer to the desired position.) Ctrl+Click the left most spacer and
+drag the rubber band so that it touches the buttons and the spacers, then
+release. Press <keycap>Ctrl+H</keycap> (lay out horizontally). Click the
+form then press <keycap>Ctrl+L</keycap> (lay out vertically).
+</para>
+</listitem>
+</orderedlist>
+</para>
+
+<para>
+We'll now connect up the signals and slots. Press <keycap>F3</keycap>
+(connect signals/slots), then click the OK button. Drag to the form and
+release. In the Edit
+Connections dialog that pops up
+connect the <function>clicked()</function> signal to the
+<function>accept()</function> slot. (Click the
+<function>clicked()</function> signal, click the
+<function>accept()</function> slot, then click \ok.) Connect the Cancel
+button to the <function>reject()</function> slot using the same
+technique. 
+</para>
+<para>
+We will need to know when the special radio button changes
+state. Press <keycap>F3</keycap> (connect signals/slots), then click the
+special radio button. Drag to the form and release. In the Edit
+Connections dialog that pops up click the <function>toggled()</function>
+signal. We want to connect this signal to our own custom slot, but we
+haven't created one yet. Click the <guibutton>Edit Slots</guibutton>
+button and the Edit Slots dialog will pop up. Click
+<guibutton>New Slot</guibutton> and change the Slot's name to
+'<function>special(bool)</function>'. Click \ok. This new slot is now
+available in the list of slots. Click the <function>special()</function>
+slot then click \ok.
+</para>
+
+<para>
+We'll subclass the form to enable/disable the spin box when the special
+radio button is checked/unchecked. Save the form (press
+<keycap>Ctrl+S</keycap>). 
+</para>
+</sect3>
+
+
+<sect3 id="creatingthetestharness">
+<title>Creating the Test Harness </title>
+<para>
+Although we intend our dialog to be used within an application it is
+useful to create a test harness so that we can develop and test it
+stand-alone. We'll create a standard <filename>main.cpp</filename> as
+follows:
+<programlisting>
+#include &lt;qapplication.h&gt;
+#include "creditformbase.h"
+int main( int argc, char *argv[] ) 
+{
+    QApplication app( argc, argv );
+
+    CreditFormBase creditForm;
+    app.setMainWidget( &creditForm );
+    creditForm.show();
+
+    return app.exec();
+}
+</programlisting>
+Note that we're including <filename>creditformbase.h</filename> and
+instantiating a CreditFormBase object; once
+we've written our subclass we'll replace the header with our subclass,
+<filename>creditform.h</filename>, and instantiate a CreditForm.
+</para>
+<para>
+Add <filename>main.cpp</filename> to the <filename>credit.pro</filename>
+project file by adding the following line at the end:
+<programlisting>
+SOURCES += main.cpp
+</programlisting>
+We can now generate the application with \cmd[qmake], e.g.
+<literal>qmake -o Makefile credit.pro</literal>, make it and run it.
+The form should run fine, but doesn't yet have the behaviour we require.
+</para>
+</sect3>
+
+
+<sect3 id="creatingthesubclass">
+<title>Creating the Subclass </title>
+<para>
+We need to create a header and an implementation file for our subclass.
+The code for our subclass is minimal. The header file is
+<filename>qt/tools/designer/eg/credit/creditform.h</filename>:
+<programlisting>
+\scan eg/credit/creditform.h
+</programlisting>
+Even though we don't need them for this simple example, we've declared a
+constructor and destructor, because you'll often need to do so in
+practice. We've also declared the slot, <function>special()</function>,
+that we created in \qd. The <literal>Q_OBJECT</literal> macro is
+included because it is essential for classes that use signals and slots.
+</para>
+<para>
+The implementation in 
+<filename>qt/tools/designer/eg/credit/creditform.cpp</filename> is
+simple:
+<programlisting>
+\scan eg/credit/creditform.cpp
+</programlisting>
+We could have created empty implementations of the constructor and
+destructor in the header file but we've included them in the
+implementation because they're likely to be needed in practice.
+If the special radio button is checked we enable the amount spin box and
+vice versa.
+</para>
+
+<para>
+To be able to test our subclass we change <filename>main.cpp</filename>
+to include <filename>creditform.h</filename> rather than
+<filename>creditformbase.h</filename> and change the instantiation of
+the creditForm object:
+<programlisting>
+\scan eg/credit/main.cpp /#include/ 1
+\scan eg/credit/main.cpp /int main/ /^}/ 
+</programlisting>
+We must also update the project file by adding two new lines at the end:
+<programlisting>
+HEADERS += creditform.h
+SOURCES += creditform.cpp
+</programlisting>
+To test the form rerun \cmd[qmake] to regenerate the Makefile, make
+and run.
+</para>
+
+<para>
+The subclassing example we've used is simple, but this reflects
+subclassing forms in Qt: it is easy to do. 
+</para>
+
+</sect3>
 
 </sect2>
 
@@ -218,8 +371,148 @@ and write our subclass.
 <sect1 id="creatingdynamicdialogsfromuifiles">
 <title>Creating Dynamic Dialogs from .ui Files </title>
 <para>
-
+Qt programs are capable of
+loading \qd <filename>.ui</filename> files and instantiating the forms
+represented by the <filename>.ui</filename> files. Since the
+<filename>.ui</filename> file is not compiled it
+cannot include any C++ code, (e.g. slot implementations). In this
+section we will explain how to load a dynamic dialog and how to create a
+class that can be used to implement the dynamic dialog's custom slots.
 </para>
+<para>
+We will use the credit form that we created in the subclassing section
+as our example form. We will start by simply instantiating and running
+the form and then we'll cover how to implement custom slots. 
+</para>
+
+<para>
+We'll create a <filename>main.cpp</filename> file to use as a test
+harness, and manually create a project file. The project file
+<filename>qt/tools/designer/eg/dynamic/dynamic.pro</filename> looks like
+this:
+<programlisting>
+\scan eg/dynamic/dynamic.pro
+</programlisting>
+We do <emphasis>not</emphasis> include the
+<filename>creditformbase.ui</filename> file since this file will be read
+at runtime. We must include the <filename>qresource</filename>
+library since the functionality we require is not part of the standard
+Qt library.
+</para>
+<para>
+The <filename>main.cpp</filename> is quite standard. It will invoke the
+form we're going to create in \qd as its main form. This form will then
+load and execute the dynamic dialog. 
+<programlisting>
+\scan eg/dynamic/main.cpp /#include/ 1
+\scan eg/dynamic/main.cpp /int main/ /^}/ 
+</programlisting>
+We create a new instance of our MainForm class, set it to be the main
+widget, show it and enter the event loop in the
+<function>app.exec()</function> call.
+</para>
+<para>
+<orderedlist numeration="arabic">
+<listitem>
+Open the project file in \qd. We'll create a dialog as our main window
+which we'll use to launch the dynamic dialog. Press
+<keycap>Ctrl+N</keycap> to launch the New Form dialog and click \ok to
+get the default which is a dialog. Change the dialog's name to
+'MainForm' and its caption to 'Main Form'. Add two buttons, one
+called 'creditPushButton' with the text '&amp;Credit Dialog', and the
+other called 'quitPushButton' with the text '&amp;Quit'. (For each
+button click the <guibutton>Push Button</guibutton> toolbar button, then
+click the form. Change the properties in the property window to those
+we've just described.)
+</para>
+</listitem>
+<listitem>
+<para>
+We will also add a couple of labels so that we can show the settings the
+user chose in the dynamic dialog. Click the <guibutton>Text
+Label</guibutton> toolbar button, then click the form below the Credit
+Dialog button. Change the label's text to 'Credit Rating'. Add another
+text label below the Quit button. Change its name to 'ratingTextLabel'
+and its text to 'Unrated'. 
+</para>
+</listitem>
+<listitem>
+<para>
+We'll now lay out the widgets. Click the form then press
+<keycap>Ctrl+G</keycap> (lay out in a grid).
+</para>
+</listitem>
+<listitem>
+<para>
+We'll now handle the signals and slots connections. Press
+<keycap>F3</keycap> (connect signals/slots). click the Credit Dialog
+button, drag to the form and release. Click the
+<function>clicked()</function> signal. We'll need to implement a custom
+slot. Click <guibutton>Edit Slots</guibutton> to invoke the Edit Slots
+dialog. Click <guibutton>new Slot</guibutton> and type in the Slot name
+'<function>creditDialog()</function>'. Click \ok. The new slot is now in
+the list of slots; click the <function>creditDialog()</function> slot to
+make the connection then click \ok. Connect the Quit button's
+<function>clicked()</function> signal to the
+dialog's <function>accept()</function> function. (Press
+<keycap>F4</keycap>. Click the Quit button and drag to the form;
+release. Click the <function>clicked()</function> signal and the
+<function>accept()</function> slot, then click \ok.)
+</para>
+</listitem>
+<listitem>
+</orderedlist>
+<para>
+Save the form and call it <filename>mainform.ui</filename>. (Press
+<keycap>Ctrl+S</keycap> and enter the filename.) We'll write the code
+for loading and launching the dynamic dialog in \qd.
+</para>
+<para>
+We'll now add the code to invoke the credit dialog. Before we can do
+this we need to add the widget factory's header file to the form. Click
+the Source tab in the Object Hierarchy. Right click Included (in
+Implementation), then click New. Type in
+'<literal>&lt;qwidgetfactory.h&gt;</literal>', then press
+<keycap>Return</keycap>.
+</para>
+
+<!-- ADD THE CODE for accessing a subwidget, i.e. pick out which radio
+button was selected and if 'Special' then pick out the amount & display
+-->
+
+<sidebar id="complingvsdynamicallyloadingdialogs">
+<title>Compling vs Dynamically Loading Dialogs</title>
+<para>
+The differences between using a compiled in <filename>.ui</filename>
+file and a dynamically loaded <filename>.ui</filename> file are these:
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+The <filename>.ui</filename> file cannot contain any C++ code; custom
+slots must be implemented via a <classname>QObject</classname> subclass.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>.ui</filename> file will load slower than using compiled
+code -- although it may be so fast the user doesn't realise this.
+</para>
+</listitem>
+<listitem>
+<para>
+The <filename>.ui</filename> file can be changed independently of the
+code and so long as none of the changes impact the code. For example
+changing the appearance of the form is perfectly safe providing none of
+the widgets that the code depends on is renamed or deleted. Widgets can
+be replaced, for example a list box could be replaced by a combobox,
+providing the replacement had the same name and the code only used
+functions common to the original and the replacement widget.
+</para>
+</listitem>
+</orderedlist>
+</para>
+</sidebar>
+
 </sect1>
 </chapter>
 
