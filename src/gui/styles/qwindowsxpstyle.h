@@ -28,7 +28,6 @@ class QWindowsXPStylePrivate;
 class Q_GUI_EXPORT_STYLE_WINDOWSXP QWindowsXPStyle : public QWindowsStyle
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWindowsXPStyle)
 public:
     QWindowsXPStyle();
     ~QWindowsXPStyle();
@@ -55,8 +54,6 @@ public:
                   QStyleHintReturn *returnData = 0) const;
 
 protected:
-    QWindowsXPStyle(QWindowsXPStylePrivate &d);
-
     bool eventFilter(QObject *o, QEvent *e);
     void updateRegion(QWidget *widget);
 
@@ -68,6 +65,7 @@ private:
 
     friend class QStyleFactory;
     friend class QWindowsXPStylePrivate;
+    QWindowsXPStylePrivate *dd;
 };
 
 #endif // QT_NO_STYLE_WINDOWSXP

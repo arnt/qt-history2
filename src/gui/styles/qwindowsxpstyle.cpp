@@ -124,7 +124,6 @@ public:
     QWindowsXPStylePrivate()
         : QObjectPrivate(), tabPaneBorderColor(0)
     {
-        qDebug("Created QWindowsXPStylePrivate");
         init();
     }
     ~QWindowsXPStylePrivate()
@@ -470,16 +469,16 @@ bool QWindowsXPStylePrivate::resolveSymbols()
         tried = true;
         themeLib.setFileName("uxtheme");
         themeLib.load();
-        pIsAppThemed = (PtrIsAppThemed)d->themeLib.resolve("IsAppThemed");
+        pIsAppThemed = (PtrIsAppThemed)themeLib.resolve("IsAppThemed");
         if (pIsAppThemed) {
-            pIsThemeActive = (PtrIsThemeActive)d->themeLib.resolve("IsThemeActive");
-            pGetThemePartSize = (PtrGetThemePartSize)d->themeLib.resolve("GetThemePartSize");
-            pOpenThemeData = (PtrOpenThemeData)d->themeLib.resolve("OpenThemeData");
-            pCloseThemeData = (PtrCloseThemeData)d->themeLib.resolve("CloseThemeData");
-            pDrawThemeBackground = (PtrDrawThemeBackground)d->themeLib.resolve("DrawThemeBackground");
-            pGetThemeColor = (PtrGetThemeColor)d->themeLib.resolve("GetThemeColor");
-            pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)d->themeLib.resolve("GetThemeBackgroundRegion");
-            pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)d->themeLib.resolve("IsThemeBackgroundPartiallyTransparent");
+            pIsThemeActive = (PtrIsThemeActive)themeLib.resolve("IsThemeActive");
+            pGetThemePartSize = (PtrGetThemePartSize)themeLib.resolve("GetThemePartSize");
+            pOpenThemeData = (PtrOpenThemeData)themeLib.resolve("OpenThemeData");
+            pCloseThemeData = (PtrCloseThemeData)themeLib.resolve("CloseThemeData");
+            pDrawThemeBackground = (PtrDrawThemeBackground)themeLib.resolve("DrawThemeBackground");
+            pGetThemeColor = (PtrGetThemeColor)themeLib.resolve("GetThemeColor");
+            pGetThemeBackgroundRegion = (PtrGetThemeBackgroundRegion)themeLib.resolve("GetThemeBackgroundRegion");
+            pIsThemeBackgroundPartiallyTransparent = (PtrIsThemeBackgroundPartiallyTransparent)themeLib.resolve("IsThemeBackgroundPartiallyTransparent");
         }
     }
 
@@ -516,19 +515,8 @@ static const int windowsRightBorder      = 12; // right border on windows
 QWindowsXPStyle::QWindowsXPStyle()
     : QWindowsStyle()
 {
-    qDebug("Created QWindowsXPStyle");
-    d_ptr = new QWindowsXPStylePrivate; //### Hack for now! memleak!
-    d_func()->q_ptr = this;
-}
-
-/*!
-  Construct a QWindowsStyle using a shared QWindowsXPStylePrivate \a dd
-*/
-QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd)
-    : QWindowsStyle()
-{
-    d_ptr = &dd; //### Hack for now! memleak!
-    d_func()->q_ptr = this;
+    dd = new QWindowsXPStylePrivate;
+    dd->q_ptr = this;
 }
 
 /*!
@@ -536,7 +524,7 @@ QWindowsXPStyle::QWindowsXPStyle(QWindowsXPStylePrivate &dd)
 */
 QWindowsXPStyle::~QWindowsXPStyle()
 {
-//    delete d;
+    delete dd;
 }
 
 /*! \reimp */
@@ -557,12 +545,12 @@ void QWindowsXPStyle::polish(QApplication *app)
     COLORREF cref;
     XPThemeData theme(0, 0, "BUTTON", 0, 0);
     pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, &cref);
-    d->groupBoxTextColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
+    dd->groupBoxTextColor = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
     pGetThemeColor(theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref);
-    d->groupBoxTextColorDisabled = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
+    dd->groupBoxTextColorDisabled = qRgb(GetRValue(cref), GetGValue(cref), GetBValue(cref));
     // Where does this color come from?
     //pGetThemeColor(theme.handle(), TKP_TICS, TSS_NORMAL, TMT_COLOR, &cref);
-    d->sliderTickColor = qRgb(165, 162, 148);
+    dd->sliderTickColor = qRgb(165, 162, 148);
 }
 
 /*! \reimp */
@@ -602,11 +590,11 @@ void QWindowsXPStyle::unpolish(QWidget *widget)
     // Unpolish of widgets is the first thing that
     // happens when a theme changes, or the theme
     // engine is turned off. So we detect it here.
-    bool newState = d->resolveSymbols() && pIsThemeActive() && pIsAppThemed();
+    bool newState = dd->resolveSymbols() && pIsThemeActive() && pIsAppThemed();
     if (use_xp != newState) {
         if (use_xp = newState) {
-            d->cleanup(true);
-            d->init(true);
+            dd->cleanup(true);
+            dd->init(true);
         }
     } else if (handleMap) {
         // this is called a couple of times for
@@ -962,7 +950,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
 void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *p,
                                   const QWidget *widget) const
 {
-    d->currentWidget = widget;
+    dd->currentWidget = widget;
 
     if (!use_xp) {
         QWindowsStyle::drawControl(element, option, p, widget);
@@ -1322,7 +1310,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
     }
 
-    XPThemeData theme(widget, p, name, partId, stateId, rect, d->tabPaneBorderColor);
+    XPThemeData theme(widget, p, name, partId, stateId, rect, dd->tabPaneBorderColor);
     if (!theme.isValid()) {
         QWindowsStyle::drawControl(element, option, p, widget);
         return;
@@ -1333,7 +1321,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
     theme.setVMirrored(vMirrored);
     theme.drawBackground();
 
-    d->currentWidget = 0;
+    dd->currentWidget = 0;
 }
 
 
@@ -1343,7 +1331,7 @@ void QWindowsXPStyle::drawControl(ControlElement element, const QStyleOption *op
 void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *option,
                                          QPainter *p, const QWidget *widget) const
 {
-    d->currentWidget = widget; // ######### or from the option
+    dd->currentWidget = widget; // ######### or from the option
 
     if (!use_xp) {
         QWindowsStyle::drawComplexControl(cc, option, p, widget);
@@ -1620,7 +1608,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 int fudge = len / 2;
                 int pos;
                 int bothOffset = (ticks & QSlider::TicksAbove && ticks & QSlider::TicksBelow) ? 1 : 0;
-                p->setPen(d->sliderTickColor);
+                p->setPen(dd->sliderTickColor);
                 int v = slider->minimum;
                 while (v <= slider->maximum + 1) {
                     int tickLength = (v == slider->minimum || v >= slider->maximum) ? 4 : 3;
@@ -1937,7 +1925,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
         break;
     }
 
-    d->currentWidget = 0;
+    dd->currentWidget = 0;
 }
 
 /*! \reimp */
@@ -2252,9 +2240,9 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
 
     case SH_GroupBox_TextLabelColor:
         if (widget->isEnabled())
-            return d->groupBoxTextColor;
+            return dd->groupBoxTextColor;
         else
-            return d->groupBoxTextColorDisabled;
+            return dd->groupBoxTextColorDisabled;
 
     case SH_Table_GridLineColor:
         return 0xC0C0C0;
