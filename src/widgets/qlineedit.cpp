@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#43 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -19,7 +19,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#43 $")
 
 
 /*!
@@ -140,6 +140,20 @@ void QLineEdit::setText( const char *text )
     offset    = 0;
     paint();
     emit textChanged( tbuf.data() );
+}
+
+
+/*!
+  Selects all text (i.e. marks it) and does an "end" operation. Useful
+  when a default value has been inserted. If the user types before
+  clicking on the widget the selected text will be erased.
+*/
+void QLineEdit::selectAll()
+{
+    markAnchor = 0;
+    markDrag   = 0;
+    cursorPos  = 0;
+    end( TRUE );
 }
 
 /*!
@@ -424,9 +438,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	scrollingLeft =  ( e->pos().x() < LEFT_MARGIN );
 	if ( !dragScrolling ) {
 	    if ( scrollingLeft )
-		cursorPos = offset;
+		newMark( offset );
 	    else
-		cursorPos = lastCharVisible();
+		newMark( lastCharVisible() );
 	    killTimers();
 	    dragScrolling = TRUE;
 	    cursorOn      = TRUE;
