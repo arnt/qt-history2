@@ -134,46 +134,8 @@ class Q_EXPORT QMapIterator
     const T& data() const { return node->data; }
 
 private:
-    int inc() {
-	QMapNodeBase* tmp = node;
-	if ( tmp->right ) {
-	    tmp = tmp->right;
-	    while ( tmp->left )
-		tmp = tmp->left;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->right) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    if (tmp->right != y)
-		tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
-
-    int dec() {
-	QMapNodeBase* tmp = node;
-	if (tmp->color == QMapNodeBase::Red &&
-	    tmp->parent->parent == tmp ) {
-	    tmp = tmp->right;
-	} else if (tmp->left != 0) {
-	    QMapNodeBase* y = tmp->left;
-	    while ( y->right )
-		y = y->right;
-	    tmp = y;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->left) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
+    int inc();
+    int dec();
 
 public:
     QMapIterator<K,T>& operator++() {
@@ -198,6 +160,52 @@ public:
 	return tmp;
     }
 };
+
+template<class K, class T>
+Q_TEMPLATE_INLINE
+int QMapIterator<K, T>::inc() {
+    QMapNodeBase* tmp = node;
+    if ( tmp->right ) {
+	tmp = tmp->right;
+	while ( tmp->left )
+	    tmp = tmp->left;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->right) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	if (tmp->right != y)
+	    tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
+
+template<class K, class T>
+Q_TEMPLATE_INLINE
+int QMapIterator<K, T>::dec() {
+    QMapNodeBase* tmp = node;
+    if (tmp->color == QMapNodeBase::Red &&
+	tmp->parent->parent == tmp ) {
+	tmp = tmp->right;
+    } else if (tmp->left != 0) {
+	QMapNodeBase* y = tmp->left;
+	while ( y->right )
+	    y = y->right;
+	tmp = y;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->left) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
+
 
 template<class K, class T>
 class Q_EXPORT QMapConstIterator
@@ -243,46 +251,8 @@ class Q_EXPORT QMapConstIterator
     const T& data() const { return node->data; }
 
 private:
-    int inc() {
-	QMapNodeBase* tmp = node;
-	if ( tmp->right ) {
-	    tmp = tmp->right;
-	    while ( tmp->left )
-		tmp = tmp->left;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->right) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    if (tmp->right != y)
-		tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
-
-    int dec() {
-	QMapNodeBase* tmp = node;
-	if (tmp->color == QMapNodeBase::Red &&
-	    tmp->parent->parent == tmp ) {
-	    tmp = tmp->right;
-	} else if (tmp->left != 0) {
-	    QMapNodeBase* y = tmp->left;
-	    while ( y->right )
-		y = y->right;
-	    tmp = y;
-	} else {
-	    QMapNodeBase* y = tmp->parent;
-	    while (tmp == y->left) {
-		tmp = y;
-		y = y->parent;
-	    }
-	    tmp = y;
-	}
-	node = (NodePtr)tmp;
-	return 0;
-    }
+    int inc();
+    int dec();
 
 public:
     QMapConstIterator<K,T>& operator++() {
@@ -307,6 +277,52 @@ public:
 	return tmp;
     }
 };
+
+
+template<class K, class T>
+Q_TEMPLATE_INLINE
+int QMapConstIterator<K, T>::inc() {
+    QMapNodeBase* tmp = node;
+    if ( tmp->right ) {
+	tmp = tmp->right;
+	while ( tmp->left )
+	    tmp = tmp->left;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->right) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	if (tmp->right != y)
+	    tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
+
+template<class K, class T>
+Q_TEMPLATE_INLINE
+int QMapConstIterator<K, T>::dec() {
+    QMapNodeBase* tmp = node;
+    if (tmp->color == QMapNodeBase::Red &&
+	tmp->parent->parent == tmp ) {
+	tmp = tmp->right;
+    } else if (tmp->left != 0) {
+	QMapNodeBase* y = tmp->left;
+	while ( y->right )
+	    y = y->right;
+	tmp = y;
+    } else {
+	QMapNodeBase* y = tmp->parent;
+	while (tmp == y->left) {
+	    tmp = y;
+	    y = y->parent;
+	}
+	tmp = y;
+    }
+    node = (NodePtr)tmp;
+    return 0;
+}
 
 
 class Q_EXPORT QMapPrivateBase : public QShared
@@ -465,33 +481,7 @@ public:
     }
 #endif
 
-    Iterator insertSingle( const Key& k ) {
-	// Search correct position in the tree
-	QMapNodeBase* y = header;
-	QMapNodeBase* x = header->parent;
-	bool result = TRUE;
-	while ( x != 0 ) {
-	    result = ( k < key(x) );
-	    y = x;
-	    x = result ? x->left : x->right;
-	}
-	// Get iterator on the last not empty one
-	Iterator j( (NodePtr)y );
-	if ( result ) {
-	    // Smaller then the leftmost one ?
-	    if ( j == begin() ) {
-		return insert(x, y, k );
-	    } else {
-		// Perhaps daddy is the right one ?
-		--j;
-	    }
-	}
-	// Really bigger ?
-	if ( (j.node->key) < k )
-	    return insert(x, y, k );
-	// We are going to replace a node
-	return j;
-    }
+    Iterator insertSingle( const Key& k );
 
     Iterator insert( QMapNodeBase* x, QMapNodeBase* y, const Key& k ) {
 	NodePtr z = new Node( k );
@@ -526,6 +516,37 @@ protected:
      */
     NodePtr header;
 };
+
+template <class Key, class T>
+Q_TEMPLATE_INLINE
+QMapPrivate<Key,T>::Iterator QMapPrivate<Key,T>::insertSingle( const Key& k )
+{
+    // Search correct position in the tree
+    QMapNodeBase* y = header;
+    QMapNodeBase* x = header->parent;
+    bool result = TRUE;
+    while ( x != 0 ) {
+	result = ( k < key(x) );
+	y = x;
+	x = result ? x->left : x->right;
+    }
+    // Get iterator on the last not empty one
+    Iterator j( (NodePtr)y );
+    if ( result ) {
+	// Smaller then the leftmost one ?
+	if ( j == begin() ) {
+	    return insert(x, y, k );
+	} else {
+	    // Perhaps daddy is the right one ?
+	    --j;
+	}
+    }
+    // Really bigger ?
+    if ( (j.node->key) < k )
+	return insert(x, y, k );
+    // We are going to replace a node
+    return j;
+}
 
 #ifdef QT_CHECK_RANGE
 # if !defined( QT_NO_DEBUG ) && defined( QT_CHECK_MAP_RANGE )
@@ -768,7 +789,8 @@ protected:
 
 #ifndef QT_NO_DATASTREAM
 template<class Key, class T>
-inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
+Q_TEMPLATE_INLINE
+QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
     m.clear();
     Q_UINT32 c;
     s >> c;
@@ -782,7 +804,8 @@ inline QDataStream& operator>>( QDataStream& s, QMap<Key,T>& m ) {
 
 
 template<class Key, class T>
-inline QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
+Q_TEMPLATE_INLINE
+QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m ) {
     s << (Q_UINT32)m.size();
     QMapConstIterator<Key,T> it = m.begin();
     for( ; it != m.end(); ++it )
