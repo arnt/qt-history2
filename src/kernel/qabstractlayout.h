@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#11 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#12 $
 **
 ** Definition of the abstract layout base class
 **
@@ -174,7 +174,7 @@ public:
     QSizePolicy::ExpandData expanding() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
-    void setGeometry( const QRect& );
+    void setGeometry( const QRect& )=0;
     QLayoutIterator iterator()=0;
     bool isEmpty() const;
 

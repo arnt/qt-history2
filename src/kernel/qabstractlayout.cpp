@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#28 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -498,8 +498,9 @@ bool QWidgetItem::isEmpty() const
   and  freeze(), which allows you to freeze the widget's size and
   layout.
 
-  To make your own layout manager, implement the functions
-  minSize(), setGeometry() and iterator().
+  To make your own layout manager, make a subclass of QGLayoutIterator
+  and implement the functions addItem(), sizeHint(), setGeometry() and
+  iterator().
 
   Geometry management stops when the layout manager is deleted.
 */
@@ -516,9 +517,8 @@ bool QWidgetItem::isEmpty() const
 
   \a name is the internal object name
 
-  Having several top-level layouts for the same widget will cause
-  considerable confusion.
-
+  There can only be one top-level layout for a widget. It is returned
+  by QWidget::layout()
 */
 
 QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
@@ -549,6 +549,13 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 /*! \fn void QLayout::addItem (QLayoutItem *item )
     Implemented in subclasses to add \a item. How it is
     added is specific to each subclass.
+*/
+
+/*! \fn QLayoutIterator iterator();
+  Implemented in subclasses to return an iterator that iterates over
+  the children of this layout. 
+  
+  Layout implementors must subclass QGLayoutIterator.
 */
 
 /*!
@@ -677,6 +684,7 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
   perform layout.
 
   The default implementation maintains the geometry() information.
+  Reimplementors must call this function.
  */
 void QLayout::setGeometry( const QRect &r )
 {
@@ -1044,48 +1052,48 @@ Sets the hasHeightForWidth() flag to \a b.
 */
 
 
-/*! 
+/*!
   \class QGLayoutIterator qabstractlayout.h
   \brief The abstract base class of internal layout iterators.
-  
+
   To be subclassed by custom layout implementors.
-  
+
   The QGLayoutIterator implements the functionality of
   QLayoutIterator. Each subclass of QLayout needs a
   QGLayoutIterator subclass.
 */
 
 
-/*! \fn uint QGLayoutIterator::count() const 
+/*! \fn uint QGLayoutIterator::count() const
   Implemented in subclasses to return the number of items in the layout.
  */
 
-/*! \fn void QGLayoutIterator::toFirst() 
+/*! \fn void QGLayoutIterator::toFirst()
   Implemented in subclasses to move the iterator to the first item
   in the layout.
 */
 
-/*! \fn void QGLayoutIterator::next() 
+/*! \fn void QGLayoutIterator::next()
   Implemented in subclasses to move the iterator to the next item.
  */
 
-/*! \fn QLayoutItem *QGLayoutIterator::current() 
+/*! \fn QLayoutItem *QGLayoutIterator::current()
   Implemented in subclasses to return the current item, or 0 if there
   is no next element.
  */
 
-/*! \fn void QGLayoutIterator::removeCurrent() 
+/*! \fn void QGLayoutIterator::removeCurrent()
   Implemented in subclasses to remove the current item and move
   the iterator to the next item.
  */
 
 
-/*! 
+/*!
   \class QLayoutIterator qabstractlayout.h
   \brief The QLayoutIterator class provides iterators over QLayoutItem
 
   Use QLayoutItem::iterator() to create an iterator over a layout.
-  
+
   QLayoutIterator uses explicit sharing with a reference count. If
   an iterator is copied, and one of the copies is modified,
   both iterators will be modified.
@@ -1095,10 +1103,10 @@ Sets the hasHeightForWidth() flag to \a b.
   It is not posible to test for validity. It is safe to delete an
   invalid layout. Any other access may lead to an illegal memory
   reference, and the abnormal termination of the program.
-  
+
   Calling removeCurrent() leaves the iterator in a valid state, but
   may invalidate any other iterators that access the same layout.
-  
+
 
   The following code will draw a rectangle for each layout item
   in the layout structure of the widget.
@@ -1117,10 +1125,10 @@ Sets the hasHeightForWidth() flag to \a b.
   {
       QPainter p( this );
       if ( layout() )
-          paintLayout( &p, layout() ); 
+          paintLayout( &p, layout() );
   }
   \endcode
-  
+
   All the functionality of QLayoutIterator is implemented by
   subclasses of QGLayoutIterator. Note that there is not much
   point in subclassing QLayoutIterator, since ~QLayoutIterator() is not
@@ -1132,18 +1140,18 @@ Sets the hasHeightForWidth() flag to \a b.
 
 /*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *i )
   Constructs an iterator based on \a i.
-  
+
   This constructor is provided for layout implementors. Application
   programmers should use QLayoutItem::iterator() to create an iterator
   over a layout.
 */
-  
+
 /*! \fn QLayoutIterator::QLayoutIterator( const QLayoutIterator &i )
   Creates a shallow copy of \a i; if the copy is modified, then the
   original will also be modified.
 */
 
-/*! \fn ~QLayoutIterator() 
+/*! \fn ~QLayoutIterator()
   Destroys the iterator.
 */
 
@@ -1164,7 +1172,7 @@ Sets the hasHeightForWidth() flag to \a b.
    Moves the iterator to the first child item.
 */
 
-/*! \fn void next() 
+/*! \fn void next()
   Moves the iterator to the next child item.
 */
 
