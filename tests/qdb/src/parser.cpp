@@ -755,6 +755,7 @@ int Parser::activateTable( const QString& tableName )
 void Parser::deactivateTables()
 {
     yyActiveTableMap.clear();
+    yyActiveTableIds.clear();
     yyLookedUpColumnMap.clear();
 }
 
@@ -996,7 +997,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
     QValueList<QVariant> between;
     QVariant left;
     QVariant right;
-    bool leftMayBeColumnRef = ( yyTok == Tok_Name ); // ### leftIs?
+    bool leftIsColumnRef = ( yyTok == Tok_Name );
 
     left = matchScalarExpr();
 
@@ -1007,7 +1008,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	right = matchScalarExpr();
 	pred.append( left );
 	pred.append( right );
-	if ( constants != 0 && leftMayBeColumnRef &&
+	if ( constants != 0 && leftIsColumnRef &&
 	     right.type() != QVariant::List ) {
 	    constants->append( pred );
 	    return QVariant();
@@ -1044,9 +1045,9 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	matchOrInsert( Tok_and, "'and'" );
 
 	pred.clear();
-	pred.append( (int) Tok_LessEq );
-	pred.append( left );
+	pred.append( (int) Tok_GreaterEq );
 	pred.append( matchScalarExpr() );
+	pred.append( left );
 	between.append( pred );
 	pred = between;
 	break;
@@ -1057,7 +1058,7 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_is:
-	if ( !leftMayBeColumnRef )
+	if ( !leftIsColumnRef )
 	    error( "Expected column reference before 'is'" );
 
 	yyTok = getToken();
