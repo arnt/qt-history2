@@ -1174,8 +1174,8 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 int QFtp::login( const QString &user, const QString &password )
 {
     QStringList cmds;
-    cmds << "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n";
-    cmds << "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n";
+    cmds << ( "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n" );
+    cmds << ( "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n" );
     return addCommand( new QFtpCommand( Login, cmds ) );
 }
 
@@ -1217,7 +1217,7 @@ int QFtp::list( const QString &dir )
     if ( dir.isEmpty() )
 	cmds << "LIST\r\n";
     else
-	cmds << "LIST " + dir + "\r\n";
+	cmds << ( "LIST " + dir + "\r\n" );
     return addCommand( new QFtpCommand( List, cmds ) );
 }
 
@@ -1266,10 +1266,10 @@ int QFtp::cd( const QString &dir )
 int QFtp::get( const QString &file )
 {
     QStringList cmds;
-    cmds << "SIZE " + file + "\r\n";
+    cmds << ( "SIZE " + file + "\r\n" );
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
-    cmds << "RETR " + file + "\r\n";
+    cmds << ( "RETR " + file + "\r\n" );
     return addCommand( new QFtpCommand( Get, cmds ) );
 }
 
@@ -1284,10 +1284,10 @@ int QFtp::get( const QString &file )
 int QFtp::get( const QString &file, QIODevice *dev )
 {
     QStringList cmds;
-    cmds << "SIZE " + file + "\r\n";
+    cmds << ( "SIZE " + file + "\r\n" );
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
-    cmds << "RETR " + file + "\r\n";
+    cmds << ( "RETR " + file + "\r\n" );
     return addCommand( new QFtpCommand( Get, cmds, dev ) );
 }
 
@@ -1309,8 +1309,8 @@ int QFtp::put( const QByteArray &data, const QString &file )
     QStringList cmds;
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
-    cmds << "ALLO " + QString::number(data.size()) + "\r\n";
-    cmds << "STOR " + file + "\r\n";
+    cmds << ( "ALLO " + QString::number(data.size()) + "\r\n" );
+    cmds << ( "STOR " + file + "\r\n" );
     return addCommand( new QFtpCommand( Put, cmds, data ) );
 }
 
@@ -1329,8 +1329,8 @@ int QFtp::put( QIODevice *dev, const QString &file )
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
     if ( !dev->isSequentialAccess() )
-	cmds << "ALLO " + QString::number(dev->size()) + "\r\n";
-    cmds << "STOR " + file + "\r\n";
+	cmds << ( "ALLO " + QString::number(dev->size()) + "\r\n" );
+    cmds << ( "STOR " + file + "\r\n" );
     return addCommand( new QFtpCommand( Put, cmds, dev ) );
 }
 
@@ -1400,8 +1400,8 @@ int QFtp::rmdir( const QString &dir )
 int QFtp::rename( const QString &oldname, const QString &newname )
 {
     QStringList cmds;
-    cmds << "RNFR " + oldname + "\r\n";
-    cmds << "RNTO " + newname + "\r\n";
+    cmds << ( "RNFR " + oldname + "\r\n" );
+    cmds << ( "RNTO " + newname + "\r\n" );
     return addCommand( new QFtpCommand( Rename, cmds ) );
 }
 
@@ -1776,7 +1776,7 @@ void QFtp::operationListChildren( QNetworkOperation *op )
 {
     op->setState( StInProgress );
 
-    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
     list();
     emit start( op );
 }
@@ -1796,7 +1796,7 @@ void QFtp::operationRemove( QNetworkOperation *op )
 {
     op->setState( StInProgress );
 
-    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
     remove( QUrl( op->arg( 0 ) ).path() );
 }
 
@@ -1806,7 +1806,7 @@ void QFtp::operationRename( QNetworkOperation *op )
 {
     op->setState( StInProgress );
 
-    cd( url()->path().isEmpty() ? QString( "/" ) : url()->path() );
+    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
     rename( op->arg( 0 ), op->arg( 1 ));
 }
 
