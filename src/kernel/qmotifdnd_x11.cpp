@@ -288,7 +288,7 @@ s = bit16.t;\
 
 /** Private extern functions */
 
-static unsigned char DndByteOrder (void);
+static unsigned char DndByteOrder ();
 
 
 /***** Targets/Index stuff */
@@ -330,7 +330,7 @@ void qt_x11_motifdnd_init()
     qt_x11_intern_atom( my_dnd_selection_name, &Dnd_selection );
 }
 
-static unsigned char DndByteOrder (void)
+static unsigned char DndByteOrder ()
 {
     static unsigned char byte_order = 0;
 
