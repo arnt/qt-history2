@@ -1,0 +1,14 @@
+1) SetBackgroundColor, setPalette, setFont bør kunne ha
+   kaskade-setting.
+
+2) QPoint, QSize, QRect double-funksjoner, avrund, ikke trunker.
+
+3) QFont.  Skal sette Helvetica hvis en raw-font endres.
+
+4) Operatorer rett etter {c|d}-tor.
+
+5) QComboBox og QListBox må gjøre riktig bruk av musknapper.
+
+6) QFile::open()-feil -> resett open-flagg.
+
+7) QListBox::insertItem(), inSort() + evt. QComboBox skal returnere int.
