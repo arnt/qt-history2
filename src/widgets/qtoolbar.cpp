@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#45 $
 **
 ** Implementation of QToolBar class
 **
@@ -352,15 +352,15 @@ bool QToolBar::event( QEvent * e )
 
 /*! \reimp */
 
-bool QToolBar::eventFilter( QObject * o, QEvent * e )
+bool QToolBar::eventFilter( QObject * obj, QEvent * e )
 {
-    if ( o && e && o->isWidgetType() &&
-	 ((QWidget *)o)->parentWidget() == this &&
+    if ( obj && e && obj->isWidgetType() &&
+	 ((QWidget *)obj)->parentWidget() == this &&
 	 ( e->type() == QEvent::Show ||
 	   e->type() == QEvent::Hide ) ) {
 	QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
     }
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter( obj, e );
 }
 
 
