@@ -3247,7 +3247,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
                             CoordModeOrigin );
                 setBrush( oldBrush );
             }
-            double fx=x, fy=y, nfx, nfy;
+            double fx=x + ti.x(), fy=y + ti.y() - ti.ascent(), nfx, nfy;
             mat1.map( fx,fy, &nfx,&nfy );
             double tfx=tx, tfy=ty, dx, dy;
             mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
