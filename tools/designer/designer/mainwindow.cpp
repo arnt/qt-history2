@@ -3072,6 +3072,7 @@ void MainWindow::formNameChanged( FormWindow *fw )
 	if ( e->project() == fw->project() )
 	    e->resetContext();
     }
+    formList->formNameChanged( fw );
 }
 
 void MainWindow::breakPointsChanged()

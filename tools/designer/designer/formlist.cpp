@@ -510,3 +510,18 @@ void FormList::rmbClicked( QListViewItem *i )
 	}
     }
 }
+
+void FormList::formNameChanged( FormWindow *fw )
+{
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	if ( it.current()->rtti() == FormListItem::Form ) {
+	    FormListItem *i = (FormListItem*)it.current();
+	    if ( i->formWindow() == fw ) {
+		i->setText( 0, fw->name() );
+		break;
+	    }
+	}
+	++it;
+    }
+}

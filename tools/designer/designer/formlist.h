@@ -87,6 +87,7 @@ public:
     }
 
     void removeForm( FormWindow *fw );
+    void formNameChanged( FormWindow *fw );
 
 public slots:
     void modificationChanged( bool m, FormWindow *fw );
