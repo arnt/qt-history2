@@ -1582,6 +1582,8 @@ struct Q_EXPORT QTextDocumentTag {
 #define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
 		    if ( curpar->isBr ) curpar->isBr = FALSE; \
 		    hasNewPar = TRUE; \
+		    curpar->setAlignment( curtag.alignment ); \
+		    curpar->setDirection( (QChar::Direction)curtag.direction ); \
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
 		    int i = 0; \
@@ -1719,8 +1721,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			// new line. Fake this by pushing a paragraph
 			// onto the stack
 			tags.push( curtag );
-			curtag.name = "p";
-			curtag.style = sheet_->item( curtag.name );
+ 			curtag.name = tagname;
+ 			curtag.style = nstyle;
 		    }
 		    NEWPAR;
 		    curpar->isBr = TRUE;
@@ -1805,7 +1807,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
  			anchorName = QString::null;
  		    }
 		    registerCustomItem( custom, curpar );
-		    curpar->setAlignment( curtag.alignment );
 		    hasNewPar = FALSE;
 		} else
 #endif
@@ -1987,6 +1988,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    }
 	}
     }
+
+    if ( hasNewPar && curpar != fParag ) {
+	// cleanup unused last paragraphs
+	curpar = curpar->p;
+	delete curpar->n;
+    }
+
     if ( !anchorName.isEmpty()  ) {
 	curpar->at(curpar->length() - 1)->setAnchor( anchorName, curpar->at( curpar->length() - 1 )->anchorHref() );
 	anchorName = QString::null;
@@ -2064,53 +2072,56 @@ static QString direction_to_string( const QString &tag, int d )
 
 QString QTextDocument::richText( QTextParag *p ) const
 {
-    QString s;
+    QString s,n;
     if ( !p ) {
 	p = fParag;
 	QPtrVector<QStyleSheetItem> lastItems, items;
 	while ( p ) {
 	    items = p->styleSheetItems();
+	    qDebug("another paragraph with %d items ", items.size() );
 	    if ( items.size() ) {
 		QStyleSheetItem *item = items[ items.size() - 1 ];
 		items.resize( items.size() - 1 );
 		if ( items.size() > lastItems.size() ) {
 		    for ( int i = lastItems.size(); i < (int)items.size(); ++i ) {
-			if ( items[ i ]->name().isEmpty() )
+			n = items[i]->name();
+			if ( n.isEmpty() || n == "li" )
 			    continue;
-			if ( items[ i ]->name() == "li" && p->listValue() != -1 )
-			    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
-			else
-			    s += "<" + items[ i ]->name() + align_to_string( items[ i ]->name(), p->alignment() ) + ">";
+			s += "<" + n + align_to_string( n, p->alignment() ) + ">";
 		    }
 		} else {
 		    QString end;
 		    for ( int i = items.size(); i < (int)lastItems.size(); ++i ) {
-			if ( lastItems[ i ]->name().isEmpty() )
+			n = lastItems[i]->name();
+			if ( n.isEmpty() || n == "li" || n == "br" )
 			    continue;
 			end.prepend( "</" + lastItems[ i ]->name() + ">" );
 		    }
 		    s += end;
 		}
 		lastItems = items;
-		if ( item->name() == "li" && p->listValue() != -1 ) {
+		n = item->name();
+		if ( n == "li" && p->listValue() != -1 ) {
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
 		} else {
 		    QString ps = p->richText();
-		    if ( ps.isEmpty() && (!item->name().isEmpty() || p->next()) )
-			s += "<br>"; // empty paragraph, except the last one
-		    else if ( !item->name().isEmpty() )
-			s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
-			     + direction_to_string( item->name(), p->direction() )  + ">" +
-			     ps + "</" + item->name() + ">";
-		    else
+		    if ( ps.isEmpty() )
+			s += "<br>"; // empty paragraph
+		    else if ( !n.isEmpty() ) {
+			s += "<" + n + align_to_string( n, p->alignment() )
+			     + direction_to_string( n, p->direction() )  + ">" + ps;
+			if ( n != "li" && n != "br")
+			    s += "</" + n + ">";
+		    } else
 			s += ps;
 		}
 	    } else {
 		QString end;
 		for ( int i = 0; i < (int)lastItems.size(); ++i ) {
-		    if ( lastItems[ i ]->name().isEmpty() )
+		    QString n = lastItems[i]->name();
+		    if ( n.isEmpty() || n == "li" || n == "br" )
 			continue;
-		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
+		    end.prepend( "</" + n + ">" );
 		}
 		s += end;
 		QString ps = p->richText();
@@ -3967,6 +3978,10 @@ void QTextParag::join( QTextParag *s )
 	    str->at( i + start ).setCustomItem( item );
 	    s->str->at( i ).loseCustomItem();
 	}
+	if ( s->str->at( i ).isAnchor() ) {
+	    str->at( i + start ).setAnchor( s->str->at( i ).anchorName(),
+			    s->str->at( i ).anchorHref() );
+	}
 #endif
     }
 
@@ -4400,8 +4415,11 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// check for cursor mark
 	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
 	    curx = cursor->x();
-	    curh = h;
-	    cury = cy;
+	    QTextStringChar *c = chr;
+	    if ( i > 0 )
+		--c;
+	    curh = c->format()->height();
+	    cury = lastY + baseLine - c->format()->ascent();
 	}
 
 	// first time - start again...
@@ -4952,6 +4970,7 @@ QString QTextParag::richText() const
     QTextStringChar *formatChar = 0;
     QString spaces;
     bool lastCharWasSpace = FALSE;
+    int firstcol = 0;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
@@ -4995,6 +5014,10 @@ QString QTextParag::richText() const
 	    else
 		s += spaces;
 	    spaces = QString::null;
+	    if ( s.length() - firstcol > 60 ) {
+		s += '\n';
+		firstcol = s.length();
+	    }
 	}
 
 	lastCharWasSpace = FALSE;
@@ -5083,7 +5106,7 @@ int QTextParag::bottomMargin() const
     if ( bm != -1 )
 	return bm;
     QStyleSheetItem *item = style();
-    if ( !item ) {
+    if ( !item || !next() ) {
 	( (QTextParag*)this )->bm = 0;
 	return 0;
     }
@@ -5230,7 +5253,7 @@ void QTextParag::hide()
 
 void QTextParag::setDirection( QChar::Direction d )
 {
-    if ( str ) {
+    if ( str && str->direction() != d ) {
 	str->setDirection( d );
 	invalidate( 0 );
     }
