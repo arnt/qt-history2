@@ -4,35 +4,35 @@
 
 \raw html
 <SCRIPT LANGUAGE=VBScript>
-Sub QPushButton_clicked()
+Sub PushButton_clicked()
     MsgBox( "Thank you!" )
 End Sub
 
-Sub QCheckBox_toggled( state )
+Sub CheckBox_toggled( state )
     if state = 0 then
-        QCheckBox.text = "Check me!"
+        CheckBox.text = "Check me!"
     else
-        QCheckBox.text = "Uncheck me!"
+        CheckBox.text = "Uncheck me!"
     end if
 End Sub
 </SCRIPT>
 <p>
 A QPushButton:<br>
-<object ID="QPushButton" CLASSID="CLSID:2B262458-A4B6-468B-B7D4-CF5FEE0A7092">
+<object ID="PushButton" CLASSID="CLSID:2B262458-A4B6-468B-B7D4-CF5FEE0A7092">
     <PARAM NAME="text" VALUE="Click me!">
 [Object not available! Did you forget to build and register the server?]
 </object><br>
 
 <p>
 A QCheckBox:<br>
-<object ID="QCheckBox" CLASSID="CLSID:6E795de9-872d-43cf-a831-496ef9d86c68">
+<object ID="CheckBox" CLASSID="CLSID:6E795de9-872d-43cf-a831-496ef9d86c68">
     <PARAM NAME="text" VALUE="Check me!">
 [Object not available! Did you forget to build and register the server?]
 </object><br>
 
 <p>
 A QRadioButton:<br>
-<object ID="QRadioButton" CLASSID="CLSID:afcf78c8-446c-409a-93b3-ba2959039189">
+<object ID="RadioButton" CLASSID="CLSID:afcf78c8-446c-409a-93b3-ba2959039189">
     <PARAM NAME="text" VALUE="Tune me!">
 [Object not available! Did you forget to build and register the server?]
 </object><br>
