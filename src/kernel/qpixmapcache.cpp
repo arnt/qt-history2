@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#19 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -59,6 +59,7 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
 /*!
   Returns the pixmap associated with \e key in the cache, or null if there
   is no such pixmap.
+
   <strong>
     NOTE: if valid, you should copy the pixmap immediately (this is quick
     since QPixmaps are \link shclass.html implicitly shared\endlink), because
