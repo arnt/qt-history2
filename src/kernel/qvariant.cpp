@@ -44,7 +44,7 @@
 
   C++ forbids unions from including classes that
   have constructors and destructors since the compiler and the runtime
-  library cannot not determine which constructor or destructor to call
+  library cannot determine which constructor or destructor to call
   when an object goes in and out of scope.
 
   To overcome this, a QVariant can be used to store the most common Qt
