@@ -34,19 +34,19 @@ public:
     QMemArray(const QMemArray<type> &a) : QGArray(a) {}
     ~QMemArray() {}
     QMemArray<type> &operator=(const QMemArray<type> &a)
-                                { return static_cast<QMemArray<type> &>(QGArray::assign(a)); }
-    type *data()    const        { return static_cast<type *>(QGArray::data()); }
-    uint  nrefs()   const        { return QGArray::nrefs(); }
-    uint  size()    const        { return QGArray::size()/sizeof(type); }
-    uint  count()   const        { return size(); }
-    bool  isEmpty() const        { return QGArray::size() == 0; }
-    bool  isNull()  const        { return QGArray::data() == 0; }
-    bool  resize(uint size)        { return QGArray::resize(size*sizeof(type)); }
+        { return static_cast<QMemArray<type> &>(QGArray::assign(a)); }
+    type *data() const { return reinterpret_cast<type *>(QGArray::data()); }
+    uint  nrefs() const { return QGArray::nrefs(); }
+    uint  size() const { return QGArray::size()/sizeof(type); }
+    uint  count() const { return size(); }
+    bool  isEmpty() const { return QGArray::size() == 0; }
+    bool  isNull()  const { return QGArray::data() == 0; }
+    bool  resize(uint size) { return QGArray::resize(size*sizeof(type)); }
     bool  resize(uint size, Optimization optim) { return QGArray::resize(size*sizeof(type), optim); }
-    bool  truncate(uint pos)        { return QGArray::resize(pos*sizeof(type)); }
+    bool  truncate(uint pos) { return QGArray::resize(pos*sizeof(type)); }
     bool  fill(const type &d, int size = -1)
         { return QGArray::fill(reinterpret_cast<char*>(&d),size,sizeof(type)); }
-    void  detach()                { QGArray::detach(); }
+    void  detach() { QGArray::detach(); }
     QMemArray<type>   copy() const
         { QMemArray<type> tmp; return tmp.duplicate(*this); }
     QMemArray<type>& assign(const QMemArray<type>& a)
@@ -56,23 +56,23 @@ public:
     QMemArray<type>& duplicate(const QMemArray<type>& a)
         { return static_cast<QMemArray<type> &>(QGArray::duplicate(a)); }
     QMemArray<type>& duplicate(const type *a, uint n)
-        { return static_cast<QMemArray<type> &>(QGArray::duplicate(reinterpret_cast<char*>(a),n*sizeof(type))); }
+        { return static_cast<QMemArray<type> &>(QGArray::duplicate(reinterpret_cast<char*>(const_cast<type *>(a)),n*sizeof(type))); }
     QMemArray<type>& setRawData(const type *a, uint n)
         { return static_cast<QMemArray<type> &>(QGArray::setRawData(reinterpret_cast<char*>(a), n*sizeof(type))); }
     void resetRawData(const type *a, uint n)
         { QGArray::resetRawData(reinterpret_cast<char*>(a),n*sizeof(type)); }
-    int         find(const type &d, uint i=0) const
+    int find(const type &d, uint i=0) const
         { return QGArray::find(reinterpret_cast<char*>(&d),i,sizeof(type)); }
-    int         contains(const type &d) const
+    int contains(const type &d) const
         { return QGArray::contains(reinterpret_cast<char*>(&d),sizeof(type)); }
     void sort() { QGArray::sort(sizeof(type)); }
     int  bsearch(const type &d) const
         { return QGArray::bsearch(reinterpret_cast<const char*>(&d),sizeof(type)); }
     type& operator[](int i) const
-        { return *static_cast<type *>(QGArray::at(i*sizeof(type))); }
+        { return *reinterpret_cast<type *>(QGArray::at(i*sizeof(type))); }
     type& at(uint i) const
-        { return *static_cast<type *>(QGArray::at(i*sizeof(type))); }
-    operator const type*() const { return static_cast<const type *>(QGArray::data()); }
+        { return *reinterpret_cast<type *>(QGArray::at(i*sizeof(type))); }
+    operator const type*() const { return reinterpret_cast<const type *>(QGArray::data()); }
     bool operator==(const QMemArray<type> &a) const { return isEqual(a); }
     bool operator!=(const QMemArray<type> &a) const { return !isEqual(a); }
     Iterator begin() { return data(); }
