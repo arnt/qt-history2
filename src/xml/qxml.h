@@ -495,19 +495,25 @@ private:
 
 inline bool QXmlSimpleReader::is_S(const QChar& ch)
 {
-    return ch==' ' || ch=='\t' || ch=='\n' || ch=='\r';
+    return ch == QLatin1Char(' ') 
+        || ch == QLatin1Char('\t') 
+        || ch == QLatin1Char('\n') 
+        || ch == QLatin1Char('\r');
 }
 inline bool QXmlSimpleReader::is_NameBeginning(const QChar& ch)
 {
-    return ch=='_' || ch==':' ||
+    return ch == QLatin1Char('_') || ch == QLatin1Char(':') ||
         ch.isLetter() || // ### Category Lm is not allowed
         ch.category()==QChar::Number_Letter;
 }
 inline bool QXmlSimpleReader::is_NameChar(const QChar& ch)
 {
-    return ch=='.' || ch=='-' || ch=='_' || ch==':' ||
-    ch.isLetterOrNumber() || // ### Category No is not allowed
-    ch.isMark();
+    return ch == QLatin1Char('.') 
+        || ch == QLatin1Char('-') 
+        || ch == QLatin1Char('_') 
+        || ch == QLatin1Char(':')
+        || ch.isLetterOrNumber() // ### Category No is not allowed
+        || ch.isMark();
 }
 
 inline bool QXmlSimpleReader::atEnd()
