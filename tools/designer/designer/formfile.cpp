@@ -397,10 +397,10 @@ SourceEditor *FormFile::showEditor()
     return e;
 }
 
-static int counter = 0;
+static int ui_counter = 0;
 QString FormFile::createUnnamedFileName()
 {
-    return QString( "unnamed" ) + QString::number( ++counter ) + QString( ".ui" );
+    return QString( "unnamed" ) + QString::number( ++ui_counter ) + QString( ".ui" );
 }
 
 QString FormFile::codeExtension() const
