@@ -394,7 +394,9 @@ QPixmap QPixmap::fromMimeSource( const QString &abs_name )
 	if ( QFile::exists( abs_name ) )
 	    return QPixmap( abs_name );
 #if defined(QT_CHECK_STATE)
-	qWarning("QPixmap::fromMimeSource: Cannot find pixmap \"%s\" in the mime source factory", abs_name.latin1() );
+	if ( !abs_name.isEmpty() )
+	    qWarning( "QPixmap::fromMimeSource: Cannot find pixmap \"%s\" in the mime source factory",
+		      abs_name.latin1() );
 #endif
 	return QPixmap();
     }
