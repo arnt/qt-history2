@@ -318,7 +318,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 		    x++;
 
 		    int inc_len;
-		    for(inc_len = 0; *(big_buffer + x + inc_len) != term; inc_len++);
+		    for(inc_len = 0; *(big_buffer + x + inc_len) != term && 
+				     *(big_buffer + x + inc_len) != '\n'; inc_len++);
 		    *(big_buffer + x + inc_len) = '\0';
 		    inc = big_buffer + x;
 		} else if(total_size_read >= x + 14 && !strncmp(big_buffer + x,  "qmake_warning ", 14)) {
@@ -334,7 +335,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			x++;
 
 		    int msg_len;
-		    for(msg_len = 0; *(big_buffer + x + msg_len) != term; msg_len++);
+		    for(msg_len = 0; *(big_buffer + x + msg_len) != term &&
+				     *(big_buffer + x + msg_len) != '\n'; msg_len++);
 		    *(big_buffer + x + msg_len) = '\0';
 		    QString msg = big_buffer + x;
 		    debug_msg(0, "%s:%d qmake_warning -- %s", fix_env_fn.latin1(),
