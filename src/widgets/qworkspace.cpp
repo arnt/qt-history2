@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#15 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -148,26 +148,27 @@ void QWorkspace::childEvent( QChildEvent * e)
 	  activateClient( w );
 	}
     } else if (e->removed() ) {
-	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) )
+	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.remove( (QWorkspaceChild*)e->child() );
-	if ( d->windows.isEmpty() )
-	    hideMaxHandles();
-	if ( d->icons.contains( (QWidget*)e->child() ) ){
-	    d->icons.remove( (QWidget*)e->child() );
-	    layoutIcons();
-	}
-	if( e->child() == d->active )
-	    d->active = 0;
-	
-	if (  !d->windows.isEmpty() ) {
-	    if ( e->child() == d->maxClient  ) {
-		d->maxClient = 0;
-		maximizeClient( d->windows.first()->clientWidget() );
-	    } else {
-		activateClient( d->windows.first()->clientWidget() );
+	    if ( d->windows.isEmpty() )
+		hideMaxHandles();
+	    if ( d->icons.contains( (QWidget*)e->child() ) ){
+		d->icons.remove( (QWidget*)e->child() );
+		layoutIcons();
 	    }
-	} else if ( e->child() == d->maxClient )
-	    d->maxClient = 0;
+	    if( e->child() == d->active )
+		d->active = 0;
+	    
+	    if (  !d->windows.isEmpty() ) {
+		if ( e->child() == d->maxClient  ) {
+		    d->maxClient = 0;
+		    maximizeClient( d->windows.first()->clientWidget() );
+		} else {
+		    activateClient( d->windows.first()->clientWidget() );
+		}
+	    } else if ( e->child() == d->maxClient )
+		d->maxClient = 0;
+	}
     }
 }
 

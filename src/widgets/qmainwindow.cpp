@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#76 $
 **
 ** Implementation of QMainWindow class
 **
@@ -900,13 +900,21 @@ void QMainWindow::setUpLayout()
 
 
 /*!  \reimp */
-
 void QMainWindow::show()
 {
     setUpLayout();
     QWidget::show();
 }
 
+
+/*!  \reimp */
+QSize QMainWindow::sizeHint() const
+{
+    QMainWindow* that = (QMainWindow*) this;
+    that->setUpLayout();
+    qDebug("qmainwindow size hint %d", d->tll->totalSizeHint().height() );
+    return d->tll->totalSizeHint();
+}
 
 /*!  Sets the central widget for this window to \a w.  The central
   widget is the one around which the toolbars etc. are arranged.
@@ -1329,7 +1337,7 @@ void QMainWindow::styleChange( QStyle& old )
 
 #ifdef QT_BUILDER
 bool QMainWindow::setConfiguration( const QDomElement& element )
-{  
+{
   QDomElement r = element.firstChild().toElement();
   for( ; !r.isNull(); r = r.nextSibling().toElement() )
   {
@@ -1368,7 +1376,7 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
   // or direct child widget except for bars and the central widget
   if ( !QObject::setConfiguration( element ) )
     return FALSE;
-  
+
   return TRUE;
 }
 #endif
