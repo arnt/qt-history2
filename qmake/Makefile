@@ -107,7 +107,64 @@ qmake.exe: $(OBJS) $(QTOBJS)
 	-copy qmake.exe ..\bin\qmake.exe
 
 clean::
-	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
+	-del qbitarray.obj
+	-del qbuffer.obj
+	-del qbytearray.obj
+        -del qvsnprintf.obj
+	-del qbytearraymatcher.obj
+	-del qchar.obj
+	-del qdatastream.obj
+	-del qdatetime.obj
+	-del qdir.obj
+	-del qfile.obj
+	-del qtemporaryfile.obj
+	-del qfileengine.obj
+	-del qfileengine_win.obj
+	-del qfileinfo.obj
+	-del qglobal.obj
+	-del qhash.obj
+	-del qiodevice.obj
+	-del qinternal.obj
+	-del qlibraryinfo.obj
+	-del qlist.obj
+	-del qlocale.obj
+	-del qmap.obj
+	-del qregexp.obj
+	-del qstring.obj
+	-del qstringlist.obj
+	-del qstringmatcher.obj
+	-del qtextstream.obj
+	-del qunicodetables.obj
+	-del quuid.obj
+	-del qvector.obj
+	-del qsettings.obj
+	-del qcorevariant.obj
+        -del qurl.obj
+	-del qsettings_win.obj
+	-del qrect.obj
+	-del qpoint.obj
+	-del qsize.obj
+        -del qmetatype.obj
+	-del project.obj 
+	-del main.obj 
+	-del makefile.obj 
+	-del unixmake.obj 
+	-del unixmake2.obj 
+	-del mingw_make.obj
+	-del option.obj 
+	-del winmakefile.obj 
+	-del projectgenerator.obj 
+	-del property.obj 
+	-del meta.obj 
+	-del qtmd5.obj
+        -del makefiledeps.obj 
+	-del metamakefile.obj 
+	-del xmloutput.obj 
+	-del vc60.pdb 
+	-del vc70.pdb 
+	-del qmake.pdb 
+	-del qmake.ilk
+	-del qmake.tds
 
 distclean:: clean
 	-del qmake
