@@ -737,41 +737,53 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRgn( polyRegion );
 	} else {
-	    //save the clip
-	    bool clipon = testf(ClipOn);
-	    QRegion clip = crgn;
+	    QPixmap *pm = NULL;
+	    if(cbrush.style() == QBrush::CustomPattern) 
+		pm = cbrush.data->pixmap;
+	    else {
+		pm = brush_style_pix;
+		if(bg_mode == OpaqueMode) {
+		    ::RGBColor f;
+		    f.red = bg_col.red()*256;
+		    f.green = bg_col.green()*256;
+		    f.blue = bg_col.blue()*256;
+		    RGBForeColor( &f );
+		    PaintRgn( polyRegion );
+		}
+	    }
 
-	    //create the region
-	    QPointArray offa = a;
-	    offa.translate(offx, offy);
-	    QRegion newclip(offa);
-	    if(clipon && !clip.isNull())
-		newclip &= clip;
-	    newclip.translate(-offx, -offy);
-	    setClipRegion(newclip);
+	    if(pm && !pm->isNull()) {
+		//save the clip
+		bool clipon = testf(ClipOn);
+		QRegion clip = crgn;
 
-	    //draw the brush
-	    QRect r(offa.boundingRect());
-	    //turn off translation flags
-	    uint save_flags = flags;
-	    flags = IsActive | ClipOn;
+		//create the region
+		QPointArray offa = a;
+		offa.translate(offx, offy);
+		QRegion newclip(offa);
+		if(clipon && !clip.isNull())
+		    newclip &= clip;
+		newclip.translate(-offx, -offy);
+		setClipRegion(newclip);
 
-	    //draw the brush
-	    QPixmap *pm = cbrush.data->pixmap;
-	    if(pm && !pm->isNull()) 
+		//turn off translation flags
+		uint save_flags = flags;
+		flags = IsActive | ClipOn;
+
+		//draw the brush
+		QRect r(offa.boundingRect());
 		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *pm, 
 				r.x() - bro.x(), r.y() - bro.y());
-	    if(brush_style_pix) 
-		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *brush_style_pix, 0, 0 );
 
-	    //restore translation flags
-	    flags = save_flags;
+		//restore translation flags
+		flags = save_flags;
 
-	    //restore the clip
-	    if(clipon) 
-		setClipRegion(clip);
-	    else
-		setClipping(FALSE);
+		//restore the clip
+		if(clipon) 
+		    setClipRegion(clip);
+		else
+		    setClipping(FALSE);
+	    }
 	}
     }
 
@@ -958,37 +970,50 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRect( &rect );
 	} else {
-	    //save the clip
-	    bool clipon = testf(ClipOn);
-	    QRegion clip = crgn;
+	    QPixmap *pm = NULL;
+	    if(cbrush.style() == QBrush::CustomPattern) 
+		pm = cbrush.data->pixmap;
+	    else {
+		pm = brush_style_pix;
+		if(bg_mode == OpaqueMode) {
+		    ::RGBColor f;
+		    f.red = bg_col.red()*256;
+		    f.green = bg_col.green()*256;
+		    f.blue = bg_col.blue()*256;
+		    RGBForeColor( &f );
+		    PaintRect( &rect );
+		}
+	    }
 
-	    //create the region
-	    QRect qr(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
-	    QRegion newclip(qr);
-	    if(clipon && !clip.isNull())
-		newclip &= clip;
-	    newclip.translate(-offx, -offy);
-	    setClipRegion(newclip);
+	    if(pm && !pm->isNull()) {
+		//save the clip
+		bool clipon = testf(ClipOn);
+		QRegion clip = crgn;
 
-	    //turn off translation flags
-	    uint save_flags = flags;
-	    flags = IsActive | ClipOn;
+		//create the region
+		QRect qr(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+		QRegion newclip(qr);
+		if(clipon && !clip.isNull())
+		    newclip &= clip;
+		newclip.translate(-offx, -offy);
+		setClipRegion(newclip);
 
-	    //draw the brush
-	    QPixmap *pm = cbrush.data->pixmap;
-	    if(pm && !pm->isNull()) 
+		//turn off translation flags
+		uint save_flags = flags;
+		flags = IsActive | ClipOn;
+
+		//draw the brush
 		drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
-	    if(brush_style_pix) 
-		drawTiledPixmap(x, y, w, h, *brush_style_pix, 0, 0 );
 
-	    //restore translation flags
-	    flags = save_flags;
+		//restore translation flags
+		flags = save_flags;
 
-	    //restore the clip
-	    if(clipon) 
-		setClipRegion(clip);
-	    else
-		setClipping(FALSE);
+		//restore the clip
+		if(clipon) 
+		    setClipRegion(clip);
+		else
+		    setClipping(FALSE);
+	    }
 	}
     }
 
@@ -1181,37 +1206,50 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    PaintOval( &r );
 	} else {
 
-	    //save the clip
-	    bool clipon = testf(ClipOn);
-	    QRegion clip = crgn;
+	    QPixmap *pm = NULL;
+	    if(cbrush.style() == QBrush::CustomPattern) 
+		pm = cbrush.data->pixmap;
+	    else {
+		pm = brush_style_pix;
+		if(bg_mode == OpaqueMode) {
+		    ::RGBColor f;
+		    f.red = bg_col.red()*256;
+		    f.green = bg_col.green()*256;
+		    f.blue = bg_col.blue()*256;
+		    RGBForeColor( &f );
+		    PaintOval( &r );
+		}
+	    }
 
-	    //create the region
-	    QRect qr(r.left, r.top, r.right-r.left, r.bottom-r.top);
-	    QRegion newclip(qr, QRegion::Ellipse);
-	    if(clipon && !clip.isNull())
-		newclip &= clip;
-	    newclip.translate(-offx, -offy);
-	    setClipRegion(newclip);
+	    if(pm && !pm->isNull()) {
+		//save the clip
+		bool clipon = testf(ClipOn);
+		QRegion clip = crgn;
 
-	    //turn off translation flags
-	    uint save_flags = flags;
-	    flags = IsActive | ClipOn;
+		//create the region
+		QRect qr(r.left, r.top, r.right-r.left, r.bottom-r.top);
+		QRegion newclip(qr, QRegion::Ellipse);
+		if(clipon && !clip.isNull())
+		    newclip &= clip;
+		newclip.translate(-offx, -offy);
+		setClipRegion(newclip);
 
-	    //draw the brush
-	    QPixmap *pm = cbrush.data->pixmap;
-	    if(pm && !pm->isNull()) 
+		//turn off translation flags
+		uint save_flags = flags;
+		flags = IsActive | ClipOn;
+
+		//draw the brush
 		drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
-	    if(brush_style_pix) 
-		drawTiledPixmap(x, y, w, h, *brush_style_pix, 0, 0 );
 
-	    //restore translation flags
-	    flags = save_flags;
+		//restore translation flags
+		flags = save_flags;
 
-	    //restore the clip
-	    if(clipon) 
-		setClipRegion(clip);
-	    else
-		setClipping(FALSE);
+		//restore the clip
+		if(clipon) 
+		    setClipRegion(clip);
+		else
+		    setClipping(FALSE);
+	    }
 	}
     }
 
