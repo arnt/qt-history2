@@ -91,8 +91,12 @@ void FormWindowCommand::checkObjectName(QWidget *widget)
 
 void FormWindowCommand::checkSelection(QWidget *widget)
 {
-    if (formWindow()->isWidgetSelected(widget))
-        formWindow()->updateSelection(widget);
+    AbstractFormEditor *core = formWindow()->core();
+
+    formWindow()->updateSelection(widget);
+
+    if (LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout)
+        formWindow()->updateChildSelections(widget);
 }
 
 void FormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
@@ -211,6 +215,16 @@ void InsertWidgetCommand::init(QWidget *widget)
     m_widget = widget;
 
     setDescription(tr("Insert '%1'").arg(widget->objectName()));
+
+    QWidget *parentWidget = m_widget->parentWidget();
+    AbstractFormEditor *core = formWindow()->core();
+    ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+
+    if (!deco && hasLayout(parentWidget))
+        deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+
+    m_insertMode = deco ? deco->currentInsertMode() : ILayoutDecoration::InsertWidgetMode;
+    m_cell = deco ? deco->currentCell() : qMakePair(0,0);
 }
 
 void InsertWidgetCommand::redo()
@@ -221,11 +235,28 @@ void InsertWidgetCommand::redo()
 
     AbstractFormEditor *core = formWindow()->core();
     ILayoutDecoration *deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
+
     if (!deco && hasLayout(parentWidget))
         deco = qt_extension<ILayoutDecoration*>(core->extensionManager(), parentWidget);
 
-    if (deco)
-        deco->insertWidget(m_widget);
+    if (deco) {
+        if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
+            switch (m_insertMode) {
+                case ILayoutDecoration::InsertRowMode:
+                    deco->insertRow(m_cell.first);
+                    break;
+
+                case ILayoutDecoration::InsertColumnMode:
+                    deco->insertColumn(m_cell.second);
+                    break;
+
+                default:
+                    break;
+            } // end switch
+        }
+
+        deco->insertWidget(m_widget, m_cell);
+    }
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
@@ -242,6 +273,7 @@ void InsertWidgetCommand::undo()
 
     if (deco) {
         deco->removeWidget(m_widget);
+        deco->simplify();
     }
 
     formWindow()->unmanageWidget(m_widget);

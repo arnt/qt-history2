@@ -42,14 +42,29 @@ QDesignerLayoutDecoration::InsertMode QDesignerLayoutDecoration::currentInsertMo
     return m_layoutSupport->currentInsertMode();
 }
 
-void QDesignerLayoutDecoration::insertWidget(QWidget *widget)
+void QDesignerLayoutDecoration::insertWidget(QWidget *widget, const QPair<int, int> &cell)
 {
-    m_layoutSupport->insertWidget(widget);
+    m_layoutSupport->insertWidget(widget, cell);
 }
 
 void QDesignerLayoutDecoration::removeWidget(QWidget *widget)
 {
     m_layoutSupport->removeWidget(widget);
+}
+
+void QDesignerLayoutDecoration::insertRow(int row)
+{
+    m_layoutSupport->insertRow(row);
+}
+
+void QDesignerLayoutDecoration::insertColumn(int column)
+{
+    m_layoutSupport->insertColumn(column);
+}
+
+void QDesignerLayoutDecoration::simplify()
+{
+    m_layoutSupport->simplifyLayout();
 }
 
 int QDesignerLayoutDecoration::currentIndex() const

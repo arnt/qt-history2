@@ -16,7 +16,9 @@
 
 #include "formeditor_global.h"
 #include "layoutdecoration.h"
+
 #include <default_extensionfactory.h>
+#include <qpair.h>
 
 class QLayoutWidget;
 class QLayoutSupport;
@@ -34,8 +36,12 @@ public:
     virtual InsertMode currentInsertMode() const;
     virtual int currentIndex() const;
     virtual QPair<int, int> currentCell() const;
-    virtual void insertWidget(QWidget *widget);
+    virtual void insertWidget(QWidget *widget, const QPair<int, int> &cell);
     virtual void removeWidget(QWidget *widget);
+
+    virtual void insertRow(int row);
+    virtual void insertColumn(int column);
+    virtual void simplify();
 
     virtual int findItemAt(const QPoint &pos) const;
     virtual void adjustIndicator(const QPoint &pos, int index);

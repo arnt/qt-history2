@@ -17,18 +17,21 @@
 #include <qtundo.h>
 #include <ui4.h>
 #include <layoutinfo.h>
+#include <layoutdecoration.h>
 
 #include <QPointer>
 #include <QVariant>
+#include <qpair.h>
 
 class FormEditor;
 class FormWindowManager;
 class FormWindow;
-struct IPropertySheet;
 class Layout;
 class QToolBox;
 class QTabWidget;
 class QStackedWidget;
+
+struct IPropertySheet;
 struct AbstractMetaDataBaseItem;
 
 class FormEditorCommand: public QtCommand
@@ -129,6 +132,8 @@ public:
 
 private:
     QPointer<QWidget> m_widget;
+    ILayoutDecoration::InsertMode m_insertMode;
+    QPair<int, int> m_cell;
 };
 
 class RaiseWidgetCommand: public FormWindowCommand

@@ -69,6 +69,9 @@ public:
     inline QLayout *layout() const
     { return widget()->layout(); }
 
+    inline QGridLayout *gridLayout() const
+    { return qt_cast<QGridLayout*>(layout()); }
+
     inline FormWindow *formWindow() const
     { return m_formWindow; }
 
@@ -86,16 +89,24 @@ public:
     int findItemAt(const QPoint &pos) const;
     QRect itemInfo(int index) const;
     int indexOf(QWidget *widget) const;
+    int indexOf(QLayoutItem *item) const;
 
     void adjustIndicator(const QPoint &pos, int index);
 
-    void insertWidget(QWidget *widget);
+    void insertWidget(QWidget *widget, const QPair<int, int> &cell);
     void removeWidget(QWidget *widget);
 
     QList<QWidget*> widgets(QLayout *layout);
 
+    void simplifyLayout();
+
     void insertRow(int row);
     void insertColumn(int column);
+
+    void removeRow(int row);
+    void removeColumn(int column);
+
+    QRect extendedGeometry(int index) const;
 
 //
 // QGridLayout helpers
@@ -106,8 +117,15 @@ public:
     static void createEmptyCells(QGridLayout *&gridLayout);
 
     void computeGridLayout(QHash<QLayoutItem*, QRect> *layout);
-    void rebuildGridLayout(const QHash<QLayoutItem*, QRect> &layout);
+    void rebuildGridLayout(QHash<QLayoutItem*, QRect> *layout);
     void insertWidget(int index, QWidget *widget);
+
+    inline bool isEmptyItem(QLayoutItem *item) const
+    { return item->spacerItem() != 0; }
+
+protected:
+    void tryRemoveRow(int row);
+    void tryRemoveColumn(int column);
 
 private:
     FormWindow *m_formWindow;
@@ -150,8 +168,8 @@ public:
     inline void adjustIndicator(const QPoint &pos, int index)
     { m_support.adjustIndicator(pos, index); }
 
-    inline void insertWidget(QWidget *widget)
-    { m_support.insertWidget(widget); }
+    inline void insertWidget(QWidget *widget, const QPair<int, int> &cell)
+    { m_support.insertWidget(widget, cell); }
 
     inline void removeWidget(QWidget *widget)
     { m_support.removeWidget(widget); }
@@ -174,7 +192,7 @@ protected:
     inline void computeGridLayout(QHash<QLayoutItem*, QRect> *layout)
     { m_support.computeGridLayout(layout); }
 
-    inline void rebuildGridLayout(const QHash<QLayoutItem*, QRect> &layout)
+    inline void rebuildGridLayout(QHash<QLayoutItem*, QRect> *layout)
     { m_support.rebuildGridLayout(layout); }
 
 private:

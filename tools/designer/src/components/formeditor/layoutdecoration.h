@@ -34,8 +34,12 @@ struct ILayoutDecoration
     virtual InsertMode currentInsertMode() const = 0;
     virtual int currentIndex() const = 0;
     virtual QPair<int, int> currentCell() const = 0;
-    virtual void insertWidget(QWidget *widget) = 0;
+    virtual void insertWidget(QWidget *widget, const QPair<int, int> &cell) = 0;
     virtual void removeWidget(QWidget *widget) = 0;
+
+    virtual void insertRow(int row) = 0;
+    virtual void insertColumn(int column) = 0;
+    virtual void simplify() = 0;
 
     virtual int findItemAt(const QPoint &pos) const = 0;
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;

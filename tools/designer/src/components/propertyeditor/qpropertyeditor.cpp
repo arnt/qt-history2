@@ -33,11 +33,11 @@ View::View(QWidget *parent)
     m_itemDelegate = new Delegate(this);
     setItemDelegate(m_itemDelegate);
     setInitialInput(0);
-    
+
     setAlternatingRowColors(true);
     setOddRowColor(QColor(250, 248, 235));
     setEvenRowColor(QColor(255, 255, 255));
-    
+
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     connect(this, SIGNAL(doubleClicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
@@ -119,6 +119,6 @@ void View::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex 
 
 void View::keyPressEvent(QKeyEvent *ev)
 {
-    QApplication::syncX();
+/*    QApplication::syncX();*/
     QTreeView::keyPressEvent(ev);
 }
