@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#121 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#120 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#121 $")
 
 
 /*----------------------------------------------------------------------------
@@ -130,7 +130,7 @@ inline bool QWidgetMapper::remove( WId id )
 
   The \e name is sent to the QObject constructor.
 
-  The widget flags are strictly internal.  You are strongly advised to use 0.
+  The widget flags are strictly internal. You are strongly advised to use 0.
  ----------------------------------------------------------------------------*/
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
@@ -144,9 +144,13 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     extra = 0;					// no extra widget info
     focusChild = 0;				// no child has focus
     create();					// platform-dependent init
+#if 0
+ // Setting the WDestructiveClose flag deletes the widget instead of
+ // hiding it. We don't want to do that any longer.
     if ( (flags & (WType_TopLevel | WType_Modal)) == WType_TopLevel ) {
 	flags |= WDestructiveClose;
     }
+#endif
 }
 
 /*----------------------------------------------------------------------------
@@ -1077,25 +1081,41 @@ void QWidget::setUpdatesEnabled( bool enable )
 
 
 /*----------------------------------------------------------------------------
-  Closes this widget.
+  Closes this widget. Returns TRUE if the widget was closed, otherwise
+  FALSE.
 
-  First it sends the widget a QCloseEvent, then, if the widget did accept
-  that, or \e forceKill is TRUE, it deletes the widget and all its children.
+  First it sends the widget a QCloseEvent. The widget is \link hide()
+  hidden\endlink if it \link QCloseEvent::accept() accepts\endlink the
+  close event. The default implementation of QWidget::closeEvent()
+  accepts the close event.
 
-  The application is terminated if the main widget is closed.
+  If \e forceKill is TRUE, the widget is deleted whether it accepts the
+  close event or not.
 
-  \sa closeEvent(), QApplication::setMainWidget(), QApplication::quit()
+  The application is \link QApplication::quit() terminated\endlink when
+  the \link QApplication::setMainWidget() main widget\endlink is closed.
+
+  \sa closeEvent(), QCloseEvent, hide(), QApplication::quit(),
+  QApplication::setMainWidget()
  ----------------------------------------------------------------------------*/
 
 bool QWidget::close( bool forceKill )
 {
-    QCloseEvent event;
-    bool accept = QApplication::sendEvent( this, &event );
-    if ( accept || forceKill ) {
-	hide();
-	if ( qApp->mainWidget() == this )
+    WId  id	= winId();
+    bool isMain = qApp->mainWidget() == this;
+    QCloseEvent e;
+    bool accept = QApplication::sendEvent( this, &e );    
+    if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( isMain )
 	    qApp->quit();
-	else if ( testWFlags(WDestructiveClose) )
+	return TRUE;
+    }
+    if ( accept || forceKill ) {
+	accept = TRUE;
+	hide();
+	if ( isMain )
+	    qApp->quit();
+	else if ( forceKill || testWFlags(WDestructiveClose) )
 	    delete this;
     }
     return accept;
@@ -1558,13 +1578,15 @@ void QWidget::resizeEvent( QResizeEvent * )
   This event handler can be reimplemented in a subclass to receive
   widget close events.
 
-  The default implementation does nothing.
+  The default implementation calls e->accept(), which hides this widget.
+  See the QCloseEvent documentation for more details.
 
-  \sa event(), close(), destroyed(), QCloseEvent
+  \sa event(), hide(), close(), QCloseEvent
  ----------------------------------------------------------------------------*/
 
-void QWidget::closeEvent( QCloseEvent * )
+void QWidget::closeEvent( QCloseEvent *e )
 {
+    e->accept();
 }
 
 

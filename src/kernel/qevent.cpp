@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#34 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#34 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -457,35 +457,63 @@ void QEvent::peErrMsg()				// posted event error message
 
   \ingroup event
 
-  Close events are sent to widgets the user wants to close, for instance
-  by choosing "close" from a window menu.
+  Close events are sent to widgets that the user wants to close, usually
+  by choosing "Close" from the window menu. They are also sent when you
+  call QWidget::close() to close a widget from inside the program.
 
-  Close events contain a special accept flag which tells whether the receiver
-  wants the widget to be closed.  When a widget is closed, it is normally
-  deleted.  This is true for all widgets except the
-  \link QApplication::setMainWidget() main widget\endlink.
+  Close events contain a special accept flag which tells whether the
+  receiver wants the widget to be closed.  When a widget accepts the close
+  event, it is \link QWidget::hide() hidden\endlink. If it refuses to
+  accept the close event, nothing happens.
+
+  The \link QApplication::setMainWidget() main widget\endlink of the
+  application is a special case. When it accepts the close event, the
+  application is immediately \link QApplication::quit()
+  terminated\endlink.
 
   The event handler QWidget::closeEvent() receives close events.
 
   The default implementation of this event handler accepts the close event.
-  If you do not want your widget to be closed and deleted, you should
-  reimplement this event handler.
+  This makes Qt \link QWidget::hide() hide\endlink the widget.
 
-  Alternatively, you can hide you widget but not delete it:
   \code
-    void MyWidget::closeEvent( QCloseEvent *e )
+    void QWidget::closeEvent( QCloseEvent *e )
     {
-	e->ignore();				// do NOT delete this widget
-	hide();					// hide it instead
+	e->accept();				// hides the widget
     }
   \endcode
 
-  \sa QWidget::close()
+  If you do not want your widget to be hidden, you should reimplement the
+  event handler.
+
+  \code
+    void MyWidget::closeEvent( QCloseEvent *e )
+    {
+	e->ignore();				// does not hide the widget
+    }
+  \endcode
+
+  If you want your widget to be deleted when it is closed, simply delete
+  it in the close event. In this case, calling QCloseEvent::accept() or
+  QCloseEvent::ignore() makes no difference.
+
+  \code
+    void MyWidget::closeEvent( QCloseEvent * )
+    {
+	delete this;
+    }
+  \endcode
+
+  QObject emits the \link QObject::destroyed()\endlink signal when it is
+  deleted.
+
+  \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
+  QApplication::setMainWidget(), QApplication::quit()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QCloseEvent::QCloseEvent()
-  Constructs a close event object with the accept parameter flag set to TRUE.
+  Constructs a close event object with the accept parameter flag set to FALSE.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -501,12 +529,12 @@ void QEvent::peErrMsg()				// posted event error message
   Setting the accept flag indicates that the receiver of this event agrees
   to close the widget.
 
-  The accept flag is set by default.
+  The accept flag is not set by default.
 
-  \warning If you choose to accept in QWidget::closeEvent(),
-  the widget will be deleted.
+  If you choose to accept in QWidget::closeEvent(), the widget will be
+  hidden.
 
-  \sa ignore()
+  \sa ignore(), QWidget::hide()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -514,9 +542,9 @@ void QEvent::peErrMsg()				// posted event error message
   Clears the accept flag of the close event object.
 
   Clearing the accept flag indicates that the receiver of this event does not
-  want the widget to close.
+  want the widget to be hidden.
 
-  The accept flag is set by default.
+  The accept flag is not set by default.
 
   \sa accept()
  ----------------------------------------------------------------------------*/

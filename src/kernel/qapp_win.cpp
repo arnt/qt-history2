@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#46 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#46 $")
 
 
 /*****************************************************************************
@@ -1521,13 +1521,21 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 
 bool QETWidget::translateCloseEvent( const MSG & )
 {
+    WId  id	= winId();
+    bool isMain = qApp->mainWidget() == this;
     QCloseEvent e;
-    if ( QApplication::sendEvent(this,&e) ) {	// accepts close
-	hide();
-	if ( qApp->mainWidget() == this )
+    bool accept = QApplication::sendEvent( this, &e );    
+    if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( isMain )
 	    qApp->quit();
-	else					// delete if flag set
-	    return testWFlags(WDestructiveClose);
+	return FALSE;
+    }
+    if ( accept ) {
+	hide();
+	if ( isMain )
+	    qApp->quit();
+	else if ( testWFlags(WDestructiveClose) )
+	    return TRUE;
     }
     return FALSE;
 }

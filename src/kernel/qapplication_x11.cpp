@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#158 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#157 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#158 $")
 
 
 /*****************************************************************************
@@ -2238,13 +2238,21 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
+    WId  id	= winId();
+    bool isMain = qApp->mainWidget() == this;
     QCloseEvent e;
-    if ( QApplication::sendEvent(this,&e) ) {	// accepts close
-	hide();
-	if ( qApp->mainWidget() == this )
+    bool accept = QApplication::sendEvent( this, &e );    
+    if ( !QWidget::find(id) ) {			// widget was deleted
+	if ( isMain )
 	    qApp->quit();
-	else					// delete if flag set
-	    return testWFlags(WDestructiveClose);
+	return FALSE;
+    }
+    if ( accept ) {
+	hide();
+	if ( isMain )
+	    qApp->quit();
+	else if ( testWFlags(WDestructiveClose) )
+	    return TRUE;
     }
     return FALSE;
 }

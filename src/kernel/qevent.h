@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#30 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#31 $
 **
 ** Definition of event classes
 **
@@ -174,7 +174,7 @@ class QCloseEvent : public QEvent		// widget close event
 {
 public:
     QCloseEvent()
-	: QEvent(Event_Close), accpt(TRUE) {}
+	: QEvent(Event_Close), accpt(FALSE) {}
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
     void   ignore()		{ accpt = FALSE; }
