@@ -156,8 +156,8 @@ int QOCIPrivate::bindValues( QVector<QVariant>& values, QList<QVirtualDestructor
 	    case QVariant::ByteArray:
 		r = OCIBindByPos( sql, &hbnd, err,
 				  i + 1,
-				  (dvoid *) val.asByteArray().data(),
-				  val.asByteArray().size(),
+				  (dvoid *) val.toByteArray().data(),
+				  val.toByteArray().size(),
 				  SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 	    break;
@@ -176,7 +176,7 @@ int QOCIPrivate::bindValues( QVector<QVariant>& values, QList<QVirtualDestructor
 	    case QVariant::Int:
 		r = OCIBindByPos( sql, &hbnd, err,
 				  i + 1,
-				  (dvoid *) &values[ i ].asInt(), // avoid deep cpy
+				  (dvoid *) values[ i ].data(), // avoid deep cpy
 				  sizeof(int),
 				  SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -184,7 +184,7 @@ int QOCIPrivate::bindValues( QVector<QVariant>& values, QList<QVirtualDestructor
 	    case QVariant::Double:
 		r = OCIBindByPos( sql, &hbnd, err,
 				  i + 1,
-				  (dvoid *) &values[ i ].asDouble(), // avoid deep cpy
+				  (dvoid *) values[ i ].data(), // avoid deep cpy
 				  sizeof(double),
 				  SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 				  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
@@ -887,7 +887,7 @@ int QOCIResultPrivate::readPiecewise( QSqlRecord& res )
 	    //		memcpy( tmp + ba->size(), col, chunkSize );
 	    //		*ba = ba->assign( tmp, chunkSize + ba->size() );
 	    
-	    res.value( fieldNum ).asByteArray().append( QByteArray( (char*)col, chunkSize ) );
+	    res.value( fieldNum ) = res.value(fieldNum).toByteArray().append( QByteArray( (char*)col, chunkSize ) );
 	    
 	    //		if ( res.value( fieldNum ).type() == QVariant::CString ) {
 	    //		    res.setValue( fieldNum, *((QCString *) ba) );

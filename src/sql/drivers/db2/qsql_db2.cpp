@@ -664,23 +664,23 @@ bool QDB2Result::exec()
 		break; }
 	    case QVariant::ByteArray: {
 		if ( *ind != SQL_NULL_DATA ) {
-		    *ind = val.asByteArray().size();
+		    *ind = val.toByteArray().size();
 		}
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
 				      qParamType[ (QFlag)(bindValueType(i)) & 3 ],
 				      SQL_C_BINARY,
 				      SQL_LONGVARBINARY,
-				      val.asByteArray().size(),
+				      val.toByteArray().size(),
 				      0,
-				      (void *) val.asByteArray().data(),
-				      val.asByteArray().size(),
+				      (void *) val.toByteArray().data(),
+				      val.toByteArray().size(),
 				      ind );
 		break; }
 	    case QVariant::String:
 #ifdef UNICODE
 	    {
-		QString * str = new QString( val.asString() );
+		QString * str = new QString( val.toString() );
 		//str->ucs2();
 		int len = str->length()*2;
 		tmpStorage.append( qAutoDeleter(str) );
@@ -1083,13 +1083,13 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	else
 	    qWarning( "QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1() );
     }
-    if ( connMap.count() ) {
+    if ( connMap.size() ) {
 	QMap<QString, QString>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
 	    opt = it.key().toUpper();
-	    val = it.data().toUpper();
+	    val = it.value().toUpper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {

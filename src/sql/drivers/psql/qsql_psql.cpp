@@ -925,7 +925,7 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
 		r = "FALSE";
 	    break;
 	case QVariant::ByteArray: {
-	    QByteArray ba = field->value().asByteArray();
+	    QByteArray ba(field->value().toByteArray());
 	    QString res;
 	    r = "'";
 	    unsigned char uc;

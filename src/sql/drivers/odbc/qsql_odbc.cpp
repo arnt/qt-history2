@@ -451,13 +451,13 @@ bool QODBCDriverPrivate::setConnectionOptions( const QString& connOpts )
 	else
 	    qWarning( "QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1() );
     }
-    if ( connMap.count() ) {
+    if ( connMap.size() ) {
 	QMap<QString, QString>::ConstIterator it;
 	QString opt, val;
 	SQLUINTEGER v = 0;
 	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
 	    opt = it.key().toUpper();
-	    val = it.data().toUpper();
+	    val = it.value().toUpper();
 	    r = SQL_SUCCESS;
 	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
 		if ( val == "SQL_MODE_READ_ONLY" ) {
@@ -1082,23 +1082,23 @@ bool QODBCResult::exec()
 		break; }
 	    case QVariant::ByteArray: {
 		if ( *ind != SQL_NULL_DATA ) {
-		    *ind = val.asByteArray().size();
+		    *ind = val.toByteArray().size();
 		}
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
 				      qParamType[ (QFlag)(bindValueType(i)) & QSql::InOut ],
 				      SQL_C_BINARY,
 				      SQL_LONGVARBINARY,
-				      val.asByteArray().size(),
+				      val.toByteArray().size(),
 				      0,
-				      (void *) val.asByteArray().data(),
-				      val.asByteArray().size(),
+				      (void *) val.toByteArray().data(),
+				      val.toByteArray().size(),
 				      ind );
 		break; }
 #ifndef Q_ODBC_VERSION_2
 	    case QVariant::String:
 		if ( d->unicode ) {
-		    QString * str = new QString( val.asString() );
+		    QString * str = new QString( val.toString() );
 		    str->ucs2();
 		    int len = str->length()*2;
 		    tmpStorage.append( qAutoDeleter(str) );
@@ -1117,7 +1117,7 @@ bool QODBCResult::exec()
 #endif
 	    // fall through
 	    default: {
-		QByteArray * str = new QByteArray( val.asString().local8Bit() );
+		QByteArray * str = new QByteArray( val.toString().local8Bit() );
 		tmpStorage.append( qAutoDeleter(str) );
 		r = SQLBindParameter( d->hStmt,
 				      i + 1,
