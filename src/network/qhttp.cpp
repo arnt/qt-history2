@@ -117,6 +117,9 @@ public:
     virtual bool hasRequestHeader();
     virtual QHttpRequestHeader requestHeader();
 
+    virtual QIODevice* sourceDevice() = 0;
+    virtual QIODevice* destinationDevice() = 0;
+
     int id;
 
 private:
@@ -167,6 +170,9 @@ public:
     void start( QHttp * );
     bool hasRequestHeader();
     QHttpRequestHeader requestHeader();
+
+    QIODevice* sourceDevice();
+    QIODevice* destinationDevice();
 
 protected:
     QHttpRequestHeader header;
@@ -220,6 +226,18 @@ QHttpRequestHeader QHttpNormalRequest::requestHeader()
     return header;
 }
 
+QIODevice* QHttpNormalRequest::sourceDevice()
+{
+    if ( data_ba )
+	return 0;
+    return data.dev;
+}
+
+QIODevice* QHttpNormalRequest::destinationDevice()
+{
+    return to;
+}
+
 /****************************************************
  *
  * QHttpPGHRequest
@@ -268,6 +286,11 @@ public:
 
     void start( QHttp * );
 
+    QIODevice* sourceDevice()
+    { return 0; }
+    QIODevice* destinationDevice()
+    { return 0; }
+
 private:
     QString hostname;
     Q_UINT16 port;
@@ -292,6 +315,11 @@ public:
     QHttpCloseRequest()
     { }
     void start( QHttp * );
+
+    QIODevice* sourceDevice()
+    { return 0; }
+    QIODevice* destinationDevice()
+    { return 0; }
 };
 
 void QHttpCloseRequest::start( QHttp *http )
@@ -1483,6 +1511,42 @@ QHttpRequestHeader QHttp::currentRequest() const
 }
 
 /*!
+    Returns the QIODevice pointer that is used as the data source of the HTTP
+    request being executed. If there is no current request or if the request
+    does not use an IO device as the data source, this function returns 0.
+
+    This function can be used to delete the QIODevice in the slot connected to
+    the requestFinished() signal.
+
+    \sa currentDestinationDevice() post() request()
+*/
+QIODevice* QHttp::currentSourceDevice()
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( !r )
+	return 0;
+    return r->sourceDevice();
+}
+
+/*!
+    Returns the QIODevice pointer that is used as to store the data of the HTTP
+    request being executed. If there is no current request or if the request
+    does not store the data to an IO device, this function returns 0.
+
+    This function can be used to delete the QIODevice in the slot connected to
+    the requestFinished() signal.
+
+    \sa currentDestinationDevice() get() post() request()
+*/
+QIODevice* QHttp::currentDestinationDevice()
+{
+    QHttpRequest *r = d->pending.getFirst();
+    if ( !r )
+	return 0;
+    return r->destinationDevice();
+}
+
+/*!
     Returns TRUE if there are any requests scheduled that have not yet
     been executed; otherwise returns FALSE.
 
@@ -1761,7 +1825,7 @@ void QHttp::finishedWithSuccess()
 
     emit requestFinished( r->id, FALSE );
     d->pending.removeFirst();
-    if ( d->pending.isEmpty() ) {	
+    if ( d->pending.isEmpty() ) {
 	if ( bytesAvailable() )
 	    readAll(); // clear the data
 	emit done( FALSE );

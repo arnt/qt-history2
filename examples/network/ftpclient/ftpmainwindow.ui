@@ -258,8 +258,6 @@
     <variable access="private">QFtp *ftp</variable>
     <variable access="private">QLabel *stateFtp</variable>
     <variable access="private">QString currentFtpDir</variable>
-    <variable access="private">QIODevice *getDev</variable>
-    <variable access="private">QIODevice *putDev</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>

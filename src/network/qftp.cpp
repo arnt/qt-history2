@@ -1805,6 +1805,27 @@ QFtp::Command QFtp::currentCommand() const
 }
 
 /*!
+    Returns the QIODevice pointer that is used by the FTP command to read data
+    from or store data to. If there is no current FTP command being executed or
+    if the command does not use an IO device, this function returns 0.
+
+    This function can be used to delete the QIODevice in the slot connected to
+    the commandFinished() signal.
+
+    \sa get() put()
+*/
+QIODevice* QFtp::currentDevice()
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+    if ( !c )
+	return 0;
+    if ( c->data_ba )
+	return 0;
+    return c->data.dev;
+}
+
+/*!
     Returns TRUE if there are any commands scheduled that have not yet
     been executed; otherwise returns FALSE.
 

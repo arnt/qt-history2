@@ -119,6 +119,7 @@ public:
     QByteArray readAll();
 
     int currentId() const;
+    QIODevice* currentDevice();
     Command currentCommand() const;
     bool hasPendingCommands() const;
     void clearPendingCommands();

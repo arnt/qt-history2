@@ -206,6 +206,8 @@ public:
     QByteArray readAll();
 
     int currentId() const;
+    QIODevice* currentSourceDevice();
+    QIODevice* currentDestinationDevice();
     QHttpRequestHeader currentRequest() const;
     bool hasPendingRequests() const;
     void clearPendingRequests();

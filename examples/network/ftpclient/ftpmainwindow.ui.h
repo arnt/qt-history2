@@ -36,9 +36,6 @@ void FtpMainWindow::init()
     stateFtp = new QLabel( tr("Unconnected"), statusBar() );
     statusBar()->addWidget( stateFtp, 0, TRUE );
 
-    getDev = 0;
-    putDev = 0;
-
     ftp = new QFtp( this );
     connect( ftp, SIGNAL(commandStarted(int)),
 	    SLOT(ftp_commandStarted()) );
@@ -71,12 +68,11 @@ void FtpMainWindow::uploadFile()
     if ( fileName.isNull() )
 	return;
 
-    putDev = new QFile( fileName );
-    if ( !putDev->open( IO_ReadOnly ) ) {
+    QFile *file = new QFile( fileName );
+    if ( !file->open( IO_ReadOnly ) ) {
 	QMessageBox::critical( this, tr("Upload error"),
 		tr("Can't open file '%1' for reading.").arg(fileName) );
-	delete putDev;
-	putDev = 0;
+	delete file;
 	return;
     }
 
@@ -95,7 +91,7 @@ void FtpMainWindow::uploadFile()
 	    ftp, SLOT(abort()) );
 
     QFileInfo fi( fileName );
-    ftp->put( putDev, fi.fileName() );
+    ftp->put( file, fi.fileName() );
     progress.exec(); // ### takes a lot of time!!!
 
     ftp->list();
@@ -118,12 +114,11 @@ void FtpMainWindow::downloadFile()
 
     // create file on the heap because it has to be valid throughout the whole
     // asynchronous download operation
-    getDev = new QFile( fileName );
-    if ( !getDev->open( IO_WriteOnly ) ) {
+    QFile *file = new QFile( fileName );
+    if ( !file->open( IO_WriteOnly ) ) {
 	QMessageBox::critical( this, tr("Download error"),
 		tr("Can't open file '%1' for writing.").arg(fileName) );
-	delete getDev;
-	getDev = 0;
+	delete file;
 	return;
     }
 
@@ -141,7 +136,7 @@ void FtpMainWindow::downloadFile()
     connect( &progress, SIGNAL(cancelled()),
 	    ftp, SLOT(abort()) );
 
-    ftp->get( item->text(0), getDev );
+    ftp->get( item->text(0), file );
     progress.exec(); // ### takes a lot of time!!!
 }
 
@@ -211,16 +206,7 @@ void FtpMainWindow::ftp_commandStarted()
 void FtpMainWindow::ftp_commandFinished()
 {
     QApplication::restoreOverrideCursor();
-
-    if ( ftp->currentCommand() == QFtp::Get ) {
-	// cleanup when the get is finished
-	delete getDev;
-	getDev = 0;
-    } else if ( ftp->currentCommand() == QFtp::Get ) {
-	// cleanup when the get is finished
-	delete putDev;
-	putDev = 0;
-    }
+    delete ftp->currentDevice();
 }
 
 void FtpMainWindow::ftp_done( bool error )
