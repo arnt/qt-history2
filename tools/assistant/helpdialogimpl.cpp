@@ -1029,7 +1029,7 @@ void HelpDialog::startSearch()
 
 void HelpDialog::showSearchHelp()
 {
-    emit showLink( documentationPath + "/assistant-5.html" );
+    emit showLink( Config::configuration()->assistantDocPath() + "/assistant-5.html" );
 }
 
 void HelpDialog::showResultPage( int button, QListBoxItem *i, const QPoint & )
@@ -1110,12 +1110,9 @@ void HelpDialog::showItemMenu( QListViewItem *item, const QPoint &pos )
 	    showBookmarkTopic();
     } else if ( id > 0 ) {
 	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
-	QString absPath = "";
-	if ( QFileInfo( i->link() ).isRelative() )
-	    absPath = documentationPath + "/";
 	if ( id == 1 )
-	    help->browsers()->currentBrowser()->openLinkInNewWindow( absPath + i->link() );
+	    help->browsers()->currentBrowser()->openLinkInNewWindow( i->link() );
 	else
-	    help->browsers()->currentBrowser()->openLinkInNewPage( absPath + i->link() );
+	    help->browsers()->currentBrowser()->openLinkInNewPage( i->link() );
     }
 }

@@ -107,6 +107,9 @@ public:
     QString mainWindowLayout() const { return mainWinLayout; }
     void setMainWindowLayout( const QString &layout ) { mainWinLayout = layout; }
 
+    QString assistantDocPath() const { return assDocPath; }
+    void setAssistantDocPath( const QString & adp ) { assDocPath = adp; }
+
     void saveProfile( Profile *profile, bool changed = FALSE );
     Profile* loadProfile( const QString &name );
     void removeProfile( const QString &name );
@@ -134,6 +137,7 @@ private:
     QString linkCol;
     QString src;
     QString mainWinLayout;
+    QString assDocPath;
     QRect geom;
     int sideBar;
     int fontSiz;

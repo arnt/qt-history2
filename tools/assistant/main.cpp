@@ -153,7 +153,7 @@ int main( int argc, char ** argv )
     QString resourceDir;
     AssistantServer *as = 0;
     QStringList catlist;
-    QString file, profileName;
+    QString file, profileName, aDocPath;
     bool server = FALSE;
     bool hideSidebar = FALSE;
     bool startClean = FALSE;
@@ -167,6 +167,9 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing file argument!" );
 		i++;
 		file = argv[i];
+	    } else if ( QString( argv[i] ).lower() == "-assistanthelppath" ) {
+		INDEX_CHECK( "Missing path of assisntant help files!" );
+		aDocPath = argv[++i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
 	    //} else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
@@ -194,25 +197,27 @@ int main( int argc, char ** argv )
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		QString helpText( "Usage: assistant [option]\n"
 				  "Options:\n"
-				  " -file Filename          assistant opens the specified file\n"
-				  //" -disableFirstRun        assistant will not try to register defaults.\n"
-				  " -server                 reads commands from a socket after\n"
-				  "                         assistant has started\n"
-				  " -profile Name           starts assistant and displays the\n"
-				  "                         profile Name.\n"
-				  " -addProfile File [Path] adds the profile defined in File.\n"
-				  "                         Specify the location of the content\n"
-				  "                         files via Path. Otherwise, the base\n"
-				  "                         path of the profile is taken.\n"
-				  "                         For further informations have a look\n"
-				  "                         at the assistant online help.\n"
-				  " -installQtDoc           installs the Qt profile. This option is\n"
-				  "                         only necessary if assistants first installed\n"
-				  "                         profile was another than the Qt one.\n"
-				  "                         If assistant is run the first time without\n"
-				  "                         any argument this is called by default.\n"
-				  " -hideSidebar            assistant will hide the sidebar.\n"
-				  " -help                   shows this help.");
+				  " -file Filename             assistant opens the specified file\n"
+				  //" -disableFirstRun         assistant will not try to register defaults.\n"
+				  " -server                    reads commands from a socket after\n"
+				  "                            assistant has started\n"
+				  " -profile Name              starts assistant and displays the\n"
+				  "                            profile Name.\n"
+				  " -addProfile File [Path]    adds the profile defined in File.\n"
+				  "                            Specify the location of the content\n"
+				  "                            files via Path. Otherwise, the base\n"
+				  "                            path of the profile is taken.\n"
+				  "                            For further informations have a look\n"
+				  "                            at the assistant online help.\n"
+				  " -installQtDoc              installs the Qt profile. This option is\n"
+				  "                            only necessary if assistants first installed\n"
+				  "                            profile was another than the Qt one.\n"
+				  "                            If assistant is run the first time without\n"
+				  "                            any argument this is called by default.\n"
+				  " - assistantHelpPath [Path] location of the help files for how to use\n"
+				  "                            Qt Assistant.\n"
+				  " -hideSidebar               assistant will hide the sidebar.\n"
+				  " -help                      shows this help.");
 #ifdef Q_WS_WIN
 		QMessageBox::information( 0, "Qt Assistant", "<pre>" + helpText + "</pre>" );
 #else
@@ -250,6 +255,10 @@ int main( int argc, char ** argv )
     bool max = conf->isMaximized();
     QString link = conf->source();
     conf->hideSideBar( hideSidebar );
+
+    if( !aDocPath.isNull() ) {
+	conf->setAssistantDocPath( aDocPath );
+    }
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant" );
 

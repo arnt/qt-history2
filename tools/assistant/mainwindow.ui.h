@@ -594,7 +594,7 @@ void MainWindow::showGoActionLink()
 
 void MainWindow::showAssistantHelp()
 {
-    showLink( QString( qInstallPathDocs() ) + "/html/assistant.html" );
+    showLink( Config::configuration()->assistantDocPath() + "/assistant.html" );
 }
 
 HelpDialog* MainWindow::helpDialog()

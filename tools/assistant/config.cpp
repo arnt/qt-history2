@@ -165,6 +165,7 @@ void Config::load( const QString &name )
 		  settings.readNumEntry( key + "GeometryHeight", -1 ) );
     maximized = settings.readBoolEntry( key + "GeometryMaximized", FALSE );
     mainWinLayout = settings.readEntry( key + "MainwindowLayout" );
+    assDocPath = settings.readEntry( key + "assistantDocPath", qInstallPathDocs() + QString( "/html" ) );
 
     profileNames = settings.entryList( key + "Profile" );
 }
@@ -208,6 +209,7 @@ void Config::saveSettings()
     if ( !hideSidebar )
 	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
     settings.writeEntry( key + "LastProfile", profil->props["name"] );
+    settings.writeEntry( key + "assistantDocPath", assDocPath );
 }
 
 Profile* Config::loadProfile( const QString &name )
