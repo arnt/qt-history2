@@ -65,7 +65,7 @@ protected:
     void        store(const char *d, uint len);
 
     array_data *sharedBlock()        const                { return shd; }
-    void        setSharedBlock(array_data *p) { shd=(array_data*)p; }
+    void        setSharedBlock(array_data *p) { shd = p; }
 
     QGArray    &setRawData(const char *d, uint len);
     void        resetRawData(const char *d, uint len);

@@ -50,7 +50,7 @@ Q_CORE_EXPORT int qstrnicmp(const char *, const char *, uint len);
 inline QT_COMPAT void *qmemmove(void *dst, const void *src, uint len)
 { return memmove(dst, src, len); }
 inline QT_COMPAT uint cstrlen(const char *str)
-{ return (uint)strlen(str); }
+{ return uint(strlen(str)); }
 inline QT_COMPAT char *cstrcpy(char *dst, const char *src)
 { return strcpy(dst,src); }
 inline QT_COMPAT int cstrcmp(const char *str1, const char *str2)
@@ -145,9 +145,9 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QByteArray leftJustify(uint width, char fill = ' ', bool truncate = false) const
-    { return leftJustified((int)width, fill, truncate); }
+    { return leftJustified(int(width), fill, truncate); }
     inline QT_COMPAT QByteArray rightJustify(uint width, char fill = ' ', bool truncate = false) const
-    { return rightJustified((int)width, fill, truncate); }
+    { return rightJustified(int(width), fill, truncate); }
 #endif
 
     QByteArray &prepend(char c);

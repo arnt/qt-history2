@@ -32,32 +32,32 @@ public:
     QPtrVector(const QPtrVector<type> &v) : QGVector(v) { }
     ~QPtrVector()                                { clear(); }
     QPtrVector<type> &operator=(const QPtrVector<type> &v)
-                        { return (QPtrVector<type>&)QGVector::operator=(v); }
+                        { return static_cast<QPtrVector<type> &>(QGVector::operator=(v)); }
     bool operator==(const QPtrVector<type> &v) const { return QGVector::operator==(v); }
-    type **data()   const                { return (type **)QGVector::data(); }
+    type **data()   const                { return static_cast<type **>(QGVector::data()); }
     uint  size()    const                { return QGVector::size(); }
     uint  count()   const                { return QGVector::count(); }
     bool  isEmpty() const                { return QGVector::count() == 0; }
     bool  isNull()  const                { return QGVector::size() == 0; }
     bool  resize(uint size)                { return QGVector::resize(size); }
-    bool  insert(uint i, const type *d){ return QGVector::insert(i,(Item)d); }
+    bool  insert(uint i, const type *d){ return QGVector::insert(i,Item(d)); }
     bool  remove(uint i)                { return QGVector::remove(i); }
-    type *take(uint i)                { return (type *)QGVector::take(i); }
+    type *take(uint i)                { return static_cast<type *>(QGVector::take(i)); }
     void  clear()                        { QGVector::clear(); }
     bool  fill(const type *d, int size=-1)
-                                        { return QGVector::fill((Item)d,size);}
+                                        { return QGVector::fill(Item(d),size);}
     void  sort()                        { QGVector::sort(); }
-    int          bsearch(const type *d) const{ return QGVector::bsearch((Item)d); }
+    int          bsearch(const type *d) const{ return QGVector::bsearch(Item(d)); }
     int          findRef(const type *d, uint i=0) const
-                                        { return QGVector::findRef((Item)d,i);}
+                                        { return QGVector::findRef(Item(d),i);}
     int          find(const type *d, uint i= 0) const
-                                        { return QGVector::find((Item)d,i); }
+                                        { return QGVector::find(Item(d),i); }
     uint  containsRef(const type *d) const
-                                { return QGVector::containsRef((Item)d); }
+                                { return QGVector::containsRef(Item(d)); }
     uint  contains(const type *d) const
-                                        { return QGVector::contains((Item)d); }
-    type *operator[](int i) const        { return (type *)QGVector::at(i); }
-    type *at(uint i) const                { return (type *)QGVector::at(i); }
+                                        { return QGVector::contains(Item(d)); }
+    type *operator[](int i) const        { return static_cast<type *>(QGVector::at(i)); }
+    type *at(uint i) const                { return static_cast<type *>(QGVector::at(i)); }
     void  toList(QGList *list) const        { QGVector::toList(list); }
 
 #ifdef qdoc
@@ -79,7 +79,7 @@ template<> inline void QPtrVector<void>::deleteItem(QPtrCollection::Item)
 
 template<class type> inline void QPtrVector<type>::deleteItem(QPtrCollection::Item d)
 {
-    if (del_item) delete (type *)d;
+    if (del_item) delete static_cast<type *>(d);
 }
 
 #endif // QVECTOR_H

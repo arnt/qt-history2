@@ -83,7 +83,7 @@ class QKeyEvent;
 #ifdef QT_COMPAT
 inline QString QAccel::keyToString(const QKeySequence &k)
 {
-    return (QString) k;
+    return QString(k);
 }
 
 inline QKeySequence QAccel::stringToKey(const QString & s)

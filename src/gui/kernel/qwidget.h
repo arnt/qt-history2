@@ -894,9 +894,9 @@ inline bool QWidget::isVisibleToTLW() const // obsolete
 { return isVisible(); }
 inline QWidget *QWidget::parentWidget(bool sameWindow) const
 {
-    if (sameWindow)
-        return isTopLevel() ? 0 : (QWidget *)QObject::parent();
-    return (QWidget *)QObject::parent();
+    if (sameWindow && isTopLevel())
+        return 0;
+    return static_cast<QWidget *>(QObject::parent());
 }
 #ifndef QT_NO_PALETTE
 inline QColorGroup QWidget::colorGroup() const //obsolete

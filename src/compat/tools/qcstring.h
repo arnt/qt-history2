@@ -115,19 +115,19 @@ inline Q_COMPAT_EXPORT QDataStream &operator>>(QDataStream &d, QCString &s) {
  *****************************************************************************/
 
 inline QCString &QCString::setNum(short n)
-{ return setNum((long)n); }
+{ return setNum(long(n)); }
 
 inline QCString &QCString::setNum(ushort n)
-{ return setNum((ulong)n); }
+{ return setNum(ulong(n)); }
 
 inline QCString &QCString::setNum(int n)
-{ return setNum((long)n); }
+{ return setNum(long(n)); }
 
 inline QCString &QCString::setNum(uint n)
-{ return setNum((ulong)n); }
+{ return setNum(ulong(n)); }
 
 inline QCString &QCString::setNum(float n, char f, int prec)
-{ return setNum((double)n,f,prec); }
+{ return setNum(double(n),f,prec); }
 
 /*****************************************************************************
   QCString non-member operators

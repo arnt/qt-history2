@@ -747,7 +747,11 @@ inline const QString operator+(const std::string &s1, const QString &s2)
 
 #ifdef QT_COMPAT
 inline QChar &QString::ref(uint i)
-{ if ((int)i > d->size || d->ref != 1) resize(qMax((int)i, d->size)); return (QChar&)d->data[i]; }
+{
+    if (int(i) > d->size || d->ref != 1)
+        resize(qMax(int(i), d->size));
+    return reinterpret_cast<QChar&>(d->data[i]);
+}
 #endif
 
 #ifndef QT_NO_DATASTREAM

@@ -176,22 +176,22 @@ inline QPtrCollection::Item QGDictIterator::get() const
 
 inline QString QGDictIterator::getKeyString() const
 {
-    return curNode ? ((QStringBucket*)curNode)->getKey() : QString();
+    return curNode ? static_cast<QStringBucket*>(curNode)->getKey() : QString();
 }
 
 inline const char *QGDictIterator::getKeyAscii() const
 {
-    return curNode ? ((QAsciiBucket*)curNode)->getKey() : 0;
+    return curNode ? static_cast<QAsciiBucket*>(curNode)->getKey() : 0;
 }
 
 inline long QGDictIterator::getKeyInt() const
 {
-    return curNode ? ((QIntBucket*)curNode)->getKey() : 0;
+    return curNode ? static_cast<QIntBucket*>(curNode)->getKey() : 0;
 }
 
 inline void *QGDictIterator::getKeyPtr() const
 {
-    return curNode ? ((QPtrBucket*)curNode)->getKey() : 0;
+    return curNode ? static_cast<QPtrBucket*>(curNode)->getKey() : 0;
 }
 
 

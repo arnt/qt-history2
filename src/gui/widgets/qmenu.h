@@ -277,7 +277,7 @@ public:
         return false;
     }
     inline QT_COMPAT QMenuItem *findItem(int id) const {
-        return (QMenuItem*)findActionForId(id);
+        return reinterpret_cast<QMenuItem*>(findActionForId(id));
     }
 
     QT_COMPAT QMenuItem *findPopup( QMenu *popup, int *index );
@@ -304,7 +304,7 @@ protected:
         return actionGeometry(actions().value(index)).height();
     }
     inline QT_COMPAT int itemHeight(QMenuItem *mi) {
-        return actionGeometry((QAction*)mi).height();
+        return actionGeometry(reinterpret_cast<QAction *>(mi)).height();
     }
 
 signals:

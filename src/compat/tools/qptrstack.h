@@ -26,18 +26,18 @@ public:
     QPtrStack(const QPtrStack<type> &s) : QGList(s) { }
     ~QPtrStack()                        { clear(); }
     QPtrStack<type> &operator=(const QPtrStack<type> &s)
-                        { return (QPtrStack<type>&)QGList::operator=(s); }
+                        { return static_cast<QPtrStack<type> &>(QGList::operator=(s)); }
     bool  autoDelete() const                { return QPtrCollection::autoDelete(); }
     void  setAutoDelete(bool del)        { QPtrCollection::setAutoDelete(del); }
     uint  count()   const                { return QGList::count(); }
     bool  isEmpty() const                { return QGList::count() == 0; }
     void  push(const type *d)                { QGList::insertAt(0,Item(d)); }
-    type *pop()                                { return (type *)QGList::takeFirst(); }
+    type *pop()                                { return static_cast<type *>(QGList::takeFirst()); }
     bool  remove()                        { return QGList::removeFirst(); }
     void  clear()                        { QGList::clear(); }
-    type *top()            const                { return (type *)QGList::cfirst(); }
-          operator type *() const        { return (type *)QGList::cfirst(); }
-    type *current() const                { return (type *)QGList::cfirst(); }
+    type *top()            const                { return static_cast<type *>(QGList::cfirst()); }
+          operator type *() const        { return static_cast<type *>(QGList::cfirst()); }
+    type *current() const                { return static_cast<type *>(QGList::cfirst()); }
 
 #ifdef qdoc
 protected:
@@ -57,7 +57,7 @@ template<> inline void QPtrStack<void>::deleteItem(QPtrCollection::Item)
 
 template<class type> inline void QPtrStack<type>::deleteItem(QPtrCollection::Item d)
 {
-    if (del_item) delete (type *)d;
+    if (del_item) delete static_cast<type *>(d);
 }
 
 #endif // QPTRSTACK_H

@@ -26,18 +26,18 @@ public:
     QPtrQueue(const QPtrQueue<type> &q) : QGList(q) {}
     ~QPtrQueue()                        { clear(); }
     QPtrQueue<type>& operator=(const QPtrQueue<type> &q)
-                        { return (QPtrQueue<type>&)QGList::operator=(q); }
+        { return static_cast<QPtrQueue<type> &>(QGList::operator=(q)); }
     bool  autoDelete() const                { return QPtrCollection::autoDelete(); }
     void  setAutoDelete(bool del)        { QPtrCollection::setAutoDelete(del); }
     uint  count()   const                { return QGList::count(); }
     bool  isEmpty() const                { return QGList::count() == 0; }
     void  enqueue(const type *d)        { QGList::append(Item(d)); }
-    type *dequeue()                        { return (type *)QGList::takeFirst();}
+    type *dequeue()                        { return static_cast<type *>(QGList::takeFirst());}
     bool  remove()                        { return QGList::removeFirst(); }
     void  clear()                        { QGList::clear(); }
-    type *head()    const                { return (type *)QGList::cfirst(); }
-          operator type *() const        { return (type *)QGList::cfirst(); }
-    type *current() const                { return (type *)QGList::cfirst(); }
+    type *head()    const                { return static_cast<type *>(QGList::cfirst()); }
+          operator type *() const        { return static_cast<type *>(QGList::cfirst()); }
+    type *current() const                { return static_cast<type *>(QGList::cfirst()); }
 
 #ifdef qdoc
 protected:
@@ -57,7 +57,7 @@ template<> inline void QPtrQueue<void>::deleteItem(QPtrCollection::Item)
 
 template<class type> inline void QPtrQueue<type>::deleteItem(QPtrCollection::Item d)
 {
-    if (del_item) delete (type *)d;
+    if (del_item) delete static_cast<type *>(d);
 }
 
 #endif // QPTRQUEUE_H

@@ -217,7 +217,7 @@ void QLinkedList<T>::detach_helper() {
 template <typename T>
 void QLinkedList<T>::free(QLinkedListData *x)
 {
-    Node *y = (Node*)x;
+    Node *y = reinterpret_cast<Node*>(x);
     Node *i = y->n;
     if (x->ref == 0) {
         while(i != y) {

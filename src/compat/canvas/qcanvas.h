@@ -84,25 +84,25 @@ public:
 
     virtual void setVisible(bool yes);
     bool isVisible() const
-        { return (bool)vis; }
+        { return vis; }
     virtual void setSelected(bool yes);
     bool isSelected() const
-        { return (bool)sel; }
+        { return sel; }
     virtual void setEnabled(bool yes);
     bool isEnabled() const
-        { return (bool)ena; }
+        { return ena; }
     virtual void setActive(bool yes);
     bool isActive() const
-        { return (bool)act; }
+        { return act; }
 #ifdef QT_COMPAT
     inline QT_COMPAT bool visible() const
-        { return (bool)vis; }
+        { return vis; }
     inline QT_COMPAT bool selected() const
-        { return (bool)sel; }
+        { return sel; }
     inline QT_COMPAT bool enabled() const
-        { return (bool)ena; }
+        { return ena; }
     inline QT_COMPAT bool active() const
-        { return (bool)act; }
+        { return act; }
 #endif
 
     enum RttiValues {
@@ -411,7 +411,7 @@ public:
         { return img ? img[i] : 0; }
     void setImage(int i, QCanvasPixmap* p);
     uint count() const
-        { return (uint)framecount; }
+        { return uint(framecount); }
 
 private:
 #if defined(Q_DISABLE_COPY)
@@ -538,7 +538,7 @@ protected:
 
     void invalidate();
     bool isValid() const
-        { return (bool)val; }
+        { return val; }
 
 private:
     void scanPolygon(const QPointArray& pa, int winding,

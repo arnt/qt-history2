@@ -33,7 +33,7 @@ public:
         : QAsciiDict<QMetaObject>(dict) {}
    ~QObjectDictionary() { clear(); }
     QObjectDictionary &operator=(const QObjectDictionary &dict)
-        { return (QObjectDictionary&)QAsciiDict<QMetaObject>::operator=(dict);}
+        { return static_cast<QObjectDictionary&>(QAsciiDict<QMetaObject>::operator=(dict));}
 };
 
 #endif // QOBJECTDICT_H

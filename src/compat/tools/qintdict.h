@@ -31,20 +31,20 @@ public:
     QIntDict(const QIntDict<type> &d) : QGDict(d) {}
    ~QIntDict()                                { clear(); }
     QIntDict<type> &operator=(const QIntDict<type> &d)
-                        { return (QIntDict<type>&)QGDict::operator=(d); }
+                        { return static_cast<QIntDict<type>&>(QGDict::operator=(d)); }
     uint  count()   const                { return QGDict::count(); }
     uint  size()    const                { return QGDict::size(); }
     bool  isEmpty() const                { return QGDict::count() == 0; }
     void  insert(long k, const type *d)
-                                        { QGDict::look_int(k,(Item)d,1); }
+                                        { QGDict::look_int(k,Item(d),1); }
     void  replace(long k, const type *d)
-                                        { QGDict::look_int(k,(Item)d,2); }
+                                        { QGDict::look_int(k,Item(d),2); }
     bool  remove(long k)                { return QGDict::remove_int(k); }
-    type *take(long k)                { return (type*)QGDict::take_int(k); }
+    type *take(long k)                { return static_cast<type*>(QGDict::take_int(k)); }
     type *find(long k) const
-                { return (type *)((QGDict*)this)->QGDict::look_int(k,0,0); }
+                { return static_cast<type *>(QGDict::look_int(k,0,0)); }
     type *operator[](long k) const
-                { return (type *)((QGDict*)this)->QGDict::look_int(k,0,0); }
+                { return static_cast<type *>(QGDict::look_int(k,0,0)); }
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }
     void  statistics() const                { QGDict::statistics(); }
@@ -67,24 +67,24 @@ template<> inline void QIntDict<void>::deleteItem(QPtrCollection::Item)
 
 template<class type> inline void QIntDict<type>::deleteItem(QPtrCollection::Item d)
 {
-    if (del_item) delete (type*)d;
+    if (del_item) delete static_cast<type*>(d);
 }
 
 template<class type>
 class QIntDictIterator : public QGDictIterator
 {
 public:
-    QIntDictIterator(const QIntDict<type> &d) :QGDictIterator((QGDict &)d) {}
+    QIntDictIterator(const QIntDict<type> &d) :QGDictIterator(d) {}
    ~QIntDictIterator()              {}
     uint  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
-    type *toFirst()              { return (type *)QGDictIterator::toFirst(); }
-    operator type *()  const  { return (type *)QGDictIterator::get(); }
-    type *current()    const  { return (type *)QGDictIterator::get(); }
+    type *toFirst()              { return static_cast<type *>(QGDictIterator::toFirst()); }
+    operator type *()  const  { return static_cast<type *>(QGDictIterator::get()); }
+    type *current()    const  { return static_cast<type *>(QGDictIterator::get()); }
     long  currentKey() const  { return QGDictIterator::getKeyInt(); }
-    type *operator()()              { return (type *)QGDictIterator::operator()(); }
-    type *operator++()              { return (type *)QGDictIterator::operator++(); }
-    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
+    type *operator()()              { return static_cast<type *>(QGDictIterator::operator()()); }
+    type *operator++()              { return static_cast<type *>(QGDictIterator::operator++()); }
+    type *operator+=(uint j)  { return static_cast<type *>(QGDictIterator::operator+=(j));}
 };
 
 #endif // QINTDICT_H

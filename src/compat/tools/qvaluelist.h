@@ -178,13 +178,13 @@ Q_OUTOFLINE_TEMPLATE void QValueList<T>::insert(typename QValueList<T>::Iterator
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QDataStream& operator>>(QDataStream& s, QValueList<T>& l)
 {
-    return operator>>(s, (QLinkedList<T>&)l);
+    return operator>>(s, static_cast<QLinkedList<T> &>(l));
 }
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE QDataStream& operator<<(QDataStream& s, const QValueList<T>& l)
 {
-    return operator<<(s, (QLinkedList<T>&)l);
+    return operator<<(s, static_cast<QLinkedList<T> &>(l));
 }
 #endif // QT_NO_DATASTREAM
 #endif // QT_COMPAT

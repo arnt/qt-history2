@@ -27,31 +27,31 @@
 class QByteArray;
 class QString;
 
-inline uint qHash(char key) { return (uint)key; }
-inline uint qHash(uchar key) { return (uint)key; }
-inline uint qHash(signed char key) { return (uint)key; }
-inline uint qHash(ushort key) { return (uint)key; }
-inline uint qHash(short key) { return (uint)key; }
-inline uint qHash(uint key) { return (uint)key; }
-inline uint qHash(int key) { return (uint)key; }
+inline uint qHash(char key) { return uint(key); }
+inline uint qHash(uchar key) { return uint(key); }
+inline uint qHash(signed char key) { return uint(key); }
+inline uint qHash(ushort key) { return uint(key); }
+inline uint qHash(short key) { return uint(key); }
+inline uint qHash(uint key) { return uint(key); }
+inline uint qHash(int key) { return uint(key); }
 inline uint qHash(ulong key)
 {
     if (sizeof(ulong) > sizeof(uint)) {
-        return (uint)((key >> (8 * sizeof(uint) - 1)) ^ key);
+        return uint((key >> (8 * sizeof(uint) - 1)) ^ key);
     } else {
-        return (uint)key;
+        return uint(key);
     }
 }
-inline uint qHash(long key) { return qHash((ulong)key); }
+inline uint qHash(long key) { return qHash(ulong(key)); }
 inline uint qHash(Q_ULLONG key)
 {
     if (sizeof(Q_ULLONG) > sizeof(uint)) {
-        return (uint)((key >> (8 * sizeof(uint) - 1)) ^ key);
+        return uint((key >> (8 * sizeof(uint) - 1)) ^ key);
     } else {
-        return (uint)key;
+        return uint(key);
     }
 }
-inline uint qHash(Q_LLONG key) { return qHash((Q_ULLONG)key); }
+inline uint qHash(Q_LLONG key) { return qHash(Q_ULLONG(key)); }
 inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);

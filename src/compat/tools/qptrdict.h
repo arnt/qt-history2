@@ -31,20 +31,20 @@ public:
     QPtrDict(const QPtrDict<type> &d) : QGDict(d) {}
    ~QPtrDict()                                { clear(); }
     QPtrDict<type> &operator=(const QPtrDict<type> &d)
-                        { return (QPtrDict<type>&)QGDict::operator=(d); }
+                        { return static_cast<QPtrDict<type> &>(QGDict::operator=(d)); }
     uint  count()   const                { return QGDict::count(); }
     uint  size()    const                { return QGDict::size(); }
     bool  isEmpty() const                { return QGDict::count() == 0; }
     void  insert(void *k, const type *d)
-                                        { QGDict::look_ptr(k,(Item)d,1); }
+                                        { QGDict::look_ptr(k,Item(d),1); }
     void  replace(void *k, const type *d)
-                                        { QGDict::look_ptr(k,(Item)d,2); }
+                                        { QGDict::look_ptr(k,Item(d),2); }
     bool  remove(void *k)                { return QGDict::remove_ptr(k); }
-    type *take(void *k)                { return (type*)QGDict::take_ptr(k); }
+    type *take(void *k)                { return static_cast<type*>(QGDict::take_ptr(k)); }
     type *find(void *k) const
-                { return (type *)((QGDict*)this)->QGDict::look_ptr(k,0,0); }
+                { return static_cast<type *>(QGDict::look_ptr(k,0,0)); }
     type *operator[](void *k) const
-                { return (type *)((QGDict*)this)->QGDict::look_ptr(k,0,0); }
+                { return static_cast<type *>(QGDict::look_ptr(k,0,0)); }
     void  clear()                        { QGDict::clear(); }
     void  resize(uint n)                { QGDict::resize(n); }
     void  statistics() const                { QGDict::statistics(); }
@@ -68,24 +68,24 @@ template<> inline void QPtrDict<void>::deleteItem(QPtrCollection::Item)
 template<class type>
 inline void QPtrDict<type>::deleteItem(QPtrCollection::Item d)
 {
-    if (del_item) delete (type *)d;
+    if (del_item) delete static_cast<type *>(d);
 }
 
 template<class type>
 class QPtrDictIterator : public QGDictIterator
 {
 public:
-    QPtrDictIterator(const QPtrDict<type> &d) :QGDictIterator((QGDict &)d) {}
+    QPtrDictIterator(const QPtrDict<type> &d) :QGDictIterator(d) {}
    ~QPtrDictIterator()              {}
     uint  count()   const     { return dict->count(); }
     bool  isEmpty() const     { return dict->count() == 0; }
-    type *toFirst()              { return (type *)QGDictIterator::toFirst(); }
-    operator type *()  const  { return (type *)QGDictIterator::get(); }
-    type *current()    const  { return (type *)QGDictIterator::get(); }
+    type *toFirst()              { return static_cast<type *>(QGDictIterator::toFirst()); }
+    operator type *()  const  { return static_cast<type *>(QGDictIterator::get()); }
+    type *current()    const  { return static_cast<type *>(QGDictIterator::get()); }
     void *currentKey() const  { return QGDictIterator::getKeyPtr(); }
-    type *operator()()              { return (type *)QGDictIterator::operator()(); }
-    type *operator++()              { return (type *)QGDictIterator::operator++(); }
-    type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j);}
+    type *operator()()              { return static_cast<type *>(QGDictIterator::operator()()); }
+    type *operator++()              { return static_cast<type *>(QGDictIterator::operator++()); }
+    type *operator+=(uint j)  { return static_cast<type *>(QGDictIterator::operator+=(j));}
 };
 
 #endif // QPTRDICT_H
