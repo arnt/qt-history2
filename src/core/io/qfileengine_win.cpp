@@ -632,8 +632,10 @@ QFSFileEnginePrivate::doStat() const
 
         // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
         QString statName = file;
-        if((file.length() == 2 && file.at(1) == ':') || file.at(file.length()-1) == '\\')
+        if(statName.length() == 2 && statName.at(1) == ':')
             statName += '\\';
+	else if(statName.at(statName.length()-1) == '\\')
+	    statName = statName.left(statName.length()-2);
         if(d->fd != -1) {
             could_stat = !QT_FSTAT(d->fd, &st);
         } else {
