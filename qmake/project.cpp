@@ -809,7 +809,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                                 return false;
                             }
                             if(args.count() != 1) {
-                                fprintf(stderr, "%s:%d: %s(function_name) requires one arguments.\n",
+                                fprintf(stderr, "%s:%d: %s(function_name) requires one argument.\n",
                                         parser.file.toLatin1().constData(), parser.line_no, func.toLatin1().constData());
                                 return false;
                             }
@@ -1643,7 +1643,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break; }
     case E_CAT: {
         if(args.count() < 1 || args.count() > 2) {
-            fprintf(stderr, "%s:%d: cat(file) requires one arguments.\n",
+            fprintf(stderr, "%s:%d: cat(file) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
             QString file = args[0];
@@ -1764,7 +1764,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             }
         } else {
             if(args.count() != 1) {
-                fprintf(stderr, "%s:%d %s(var) requires one argument\n",
+                fprintf(stderr, "%s:%d %s(var) requires one argument.\n",
                         parser.file.toLatin1().constData(), parser.line_no, func.toLatin1().constData());
             } else {
                 var = args[0];
@@ -1803,7 +1803,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break;  }
     case E_SYSTEM: {
         if(args.count() < 1 || args.count() > 2) {
-            fprintf(stderr, "%s:%d system(execut) requires one argument\n",
+            fprintf(stderr, "%s:%d system(execut) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
 #ifdef Q_OS_UNIX
@@ -1841,7 +1841,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break; }
     case E_UNIQUE: {
         if(args.count() != 1) {
-            fprintf(stderr, "%s:%d unique(var) requires one argument\n",
+            fprintf(stderr, "%s:%d unique(var) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
             QStringList uniq;
@@ -1872,7 +1872,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break; }
     case E_FILES: {
         if(args.count() != 1 && args.count() != 2) {
-            fprintf(stderr, "%s:%d files(pattern) requires one argument\n",
+            fprintf(stderr, "%s:%d files(pattern) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else {
             bool recursive = false;
@@ -1913,7 +1913,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
         break; }
     case E_PROMPT: {
         if(args.count() != 1) {
-            fprintf(stderr, "%s:%d prompt(question) requires one argument\n",
+            fprintf(stderr, "%s:%d prompt(question) requires one argument.\n",
                     parser.file.toLatin1().constData(), parser.line_no);
         } else if(projectFile() == "-") {
             fprintf(stderr, "%s:%d prompt(question) cannot be used when '-o -' is used.\n",
