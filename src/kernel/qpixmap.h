@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#51 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#52 $
 **
 ** Definition of QPixmap class
 **
@@ -55,15 +55,17 @@ public:
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 
+    enum ColorMode { Auto, Color, Mono };
+
     QImage	convertToImage() const;
-    bool	convertFromImage( const QImage &, int depth=-1 );
+    bool	convertFromImage( const QImage &, ColorMode mode=Auto );
 
     static const char *imageFormat( const char *fileName );
     bool	load( const char *fileName, const char *format=0,
-		      int depth=-1);
+		      ColorMode mode=Auto );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0,
-			      int depth=-1 );
+			      ColorMode mode=Auto );
     bool	save( const char *fileName, const char *format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
