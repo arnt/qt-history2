@@ -176,7 +176,7 @@ public:
 			break;
 		    case QVariant::String: {
 			QCString * str = new QCString( it.data().value.asString().utf8() );
-			tmpStorage.append( qAutoDeleter(str) );
+			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
@@ -187,17 +187,19 @@ public:
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break; }
-		    default:
+		    default: {
+			QCString* str = new QCString( it.data().value.toString().utf8() );
+			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByName( sql, &hbnd, err,
 					   (text *) it.key().local8Bit().data(),
 					   it.key().length(),
-					   (ub1 *) it.data().value.asString().local8Bit().data(),
-					   it.data().value.asString().length()+1,
+					   (ub1 *) str->data(),
+					   str->length() + 1,
 					   SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					   (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
 			    setCharset( hbnd );
-			break;
+			break; }
 		}
 		if ( r != OCI_SUCCESS ) {
 		    return r;
@@ -264,26 +266,28 @@ public:
 			break;
 		    case QVariant::String: {
 			QCString * str = new QCString( val.asString().utf8() );
-			tmpStorage.append( qAutoDeleter(str) );
+			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
- 					  (ub1 *) str->data(),
+					  (ub1 *) str->data(),
 					  str->length() + 1, // number of UTF-8 bytes + 0 term. scan limit
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
 			    setCharset( hbnd );
 			break; }
-		    default:
+		    default: {
+			QCString* str = new QCString( val.toString().utf8() );
+			tmpStorage.append( qAutoDeleter( str ) );
 			r = OCIBindByPos( sql, &hbnd, err,
 					  it.key() + 1,
-					  (ub1 *) val.asCString().data(),
-					  val.asCString().length() + 1, // oracle uses this as a limit to find the terminating 0..
+					  (ub1 *) str->data(),
+					  str->length() + 1, // oracle uses this as a limit to find the terminating 0..
 					  SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
 					  (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 			if ( r == 0 )
 			    setCharset( hbnd );
-			break;
+			break; }
 		}
 		if ( r != OCI_SUCCESS ) {
 		    return r;
@@ -1757,10 +1761,10 @@ bool QOCI9Result::exec()
 	}
 	setSelect( TRUE );
     } else { /* non-SELECT */
-	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
+	r = OCIStmtExecute( d->svc, d->sql, d->err, 1, 0,
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
-				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
+				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
 	    qWarning( "QOCI9Result::reset: unable to execute statement: " + qOraWarn( d ) );
