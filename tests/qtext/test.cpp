@@ -47,15 +47,23 @@ MyView::MyView()
 
     QRichTextFormatCollection fc;
     QRichTextFormat *f = fc.defaultFormat();
+    QFont fnt("tahoma");
+    fnt.setCharSet(QFont::Unicode);
+    f->setFont(fnt);
     
     QString aStr = testStr1;
     aStr += aStr;
     QRichTextString string(aStr, f);
     printf("string has length %d\n", string.length());
-    area->appendParagraph( string ); 
+    area->appendParagraph( string );
 
     aStr = QString::fromUtf8(testStr);
 
+    f = new QRichTextFormat(*f);
+    f->setFont(fnt);
+    f->setPointSize(20);
+    f->setColor(Qt::red);
+    
     area->appendParagraph( QRichTextString(aStr, f) );
     //   area->appendParagraph(aStr);
 }
@@ -64,7 +72,7 @@ MyView::MyView()
 void MyView::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    area->paint(&p, 0, 50);
+    area->paint(p, 0, 50);
 }
 
 
@@ -73,9 +81,6 @@ int main(int argc, char **argv)
     QApplication a(argc, argv);
 
     QWidget *w = new MyView();
-    QFont f("tahoma");
-    f.setCharSet(QFont::Unicode);
-    w->setFont(f);
 
     a.setMainWidget(w);
 

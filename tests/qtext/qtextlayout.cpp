@@ -162,15 +162,115 @@ QTextRow::~QTextRow()
     endEmbed->deref();
 }
 
-void QTextRow::paint(QPainter *p, int _x, int _y)
+void QTextRow::paint(QPainter &painter, int _x, int _y)
 {
     printf("QTextRow::paint\n");
     // no rich text formatting....
     // ### no alignment
-    // ### should be reordered text
-    p->drawText(xPos + _x, yPos + _y, reorderedText.toString() );
+#if 0
+    painter.drawText(xPos + _x, yPos + _y, reorderedText.toString() );
+#else
+    QString buffer;
+    QRichTextFormat *lastFormat = 0;
+    QRichTextString::Char *chr;
+    int cw;
+    int i = 0;
+    int bw = 0;
+    int startX = 0;
+    int y = yPos + _y;
+    for ( ; i < reorderedText.length(); i++ ) {
+	chr = &reorderedText.at( i );
+	cw = chr->format->width( chr->c );
+
+#if 0
+	// check for cursor mark
+	if ( cursor && this == cursor->parag() && i == cursor->index() ) {
+	    curx = chr->x;
+	    curh = h;
+	    cury = cy;
+	}
+#endif	
+
+	// first time - start again...
+	if ( !lastFormat ) {
+	    lastFormat = chr->format;
+	    startX = chr->x;
+	    buffer += chr->c;
+	    bw = cw;
+	    continue;
+	}
+	
+#if 0
+	// check if selection state changed
+	bool selectionChange = FALSE;
+	if ( drawSelections ) {
+	    for ( int j = 0; j < doc->numSelections; ++j ) {
+		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
+		if ( selectionChange )
+		    break;
+	    }
+	}
+#endif	
+	QColorGroup cg;
+	// if something (format, etc.) changed, draw what we have so far
+	if ( chr->format != lastFormat || buffer == "\t" || chr->c == '\t' ) { // ### || selectionChange ) {
+	    drawBuffer( painter, buffer, startX, y, bw, h, false, //drawSelections,
+			     lastFormat, i, 0, 0, cg );
+			     //			     lastFormat, i, selectionStarts, selectionEnds, cg );
+	    buffer = chr->c;
+	    lastFormat = chr->format;
+	    startX = chr->x;
+	    bw = cw;
+	} else {
+	    buffer += chr->c;
+	    bw += cw;
+	}
+    }
+
+    if ( !buffer.isEmpty() ) {
+#if 0
+	bool selectionChange = FALSE;
+	if ( drawSelections ) {
+	    for ( int j = 0; j < doc->numSelections; ++j ) {
+		selectionChange = selectionStarts[ j ] == i || selectionEnds[ j ] == i;
+		if ( selectionChange )
+		    break;
+	    }
+	}
+#endif
+	//	drawParagBuffer( painter, buffer, startX, y, bw, h, drawSelections,
+	//		 lastFormat, i, selectionStarts, selectionEnds, cg );
+	drawBuffer( painter, buffer, startX, y, bw, h, false, 
+			 lastFormat, i, 0, 0, QColorGroup() );
+    }
+
+#endif
 }
 
+void QTextRow::drawBuffer( QPainter &painter, const QString &buffer, int startX, int y,
+			   int bw, int h, bool drawSelections,
+			   QRichTextFormat *lastFormat, int i, int *selectionStarts,
+			   int *selectionEnds, const QColorGroup &cg )
+{	
+    painter.setPen( QPen( lastFormat->color() ) );
+    painter.setFont( lastFormat->font() );
+#if 0
+    if ( drawSelections ) {
+	for ( int j = 0; j < doc->numSelections; ++j ) {
+	    if ( i > selectionStarts[ j ] && i <= selectionEnds[ j ] ) {
+		if ( doc->invertSelectionText( j ) )
+		    painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
+		painter.fillRect( startX, y, bw, h, doc->selectionColor( j ) );
+	    }
+	}
+    }
+#endif
+    printf("painting %s to %d/%d\n", buffer.latin1(), startX, y);
+    if ( buffer != "\t" )
+	painter.drawText( startX, y /*+ baseLine*/, buffer );
+}
+
+	
 void QTextRow::setPosition(int _x, int _y)
 {
     xPos = _x;
@@ -735,18 +835,25 @@ void QTextRow::bidiReorderLine()
 
     reorderedText.clear();
     r = runs.first();
+    int x = 0;
     while ( r ) {
 	if(r->level %2) {
 	    // odd level, need to reverse the string
 	    int pos = r->stop;
 	    while(pos >= r->start) {
-		reorderedText.append( text.at(pos) );
+		QRichTextString::Char c = text.at(pos);
+		c.x = x;
+		x += c.format->width(c.c);
+		reorderedText.append( c );
 		pos--;
 	    }
 	} else {
 	    int pos = r->start;
 	    while(pos <= r->stop) {
-		reorderedText.append( text.at(pos) );
+		QRichTextString::Char c = text.at(pos);
+		c.x = x;
+		x += c.format->width(c.c);
+		reorderedText.append( c );
 		pos++;
 	    }
 	}
@@ -808,18 +915,12 @@ QParagraph *QTextArea::createParagraph(const QRichTextString &text, QParagraph *
     return new QParagraph(text, this, before);
 }
 
-
-int QTextArea::lineWidth(int, int, int) const
-{
-    return width;
-}
-
 QRect QTextArea::lineRect(int x, int y, int h) const
 {
-    return QRect(x, y, width, h);
+    return QRect(x, y, width, 10000);
 }
 
-void QTextArea::paint(QPainter *p, int x, int y)
+void QTextArea::paint(QPainter &p, int x, int y)
 {
     printf("QTextarea::paint\n");
     QListIterator<QParagraph> it(paragraphs);
@@ -896,7 +997,8 @@ int QParagraph::findLineBreak(int pos)
 	y += last->y() + last->height();
     }
     printf("new line at %d/%d\n", x, y);
-    int width = area->lineWidth(x, y);
+    QRect lineRect = area->lineRect(x, y);
+    int width = lineRect.width();
     int pos2 = pos;
 
     while(1) {
@@ -946,7 +1048,7 @@ void QParagraph::addLine(int start, int length)
     last = line;
 }
 
-void QParagraph::paint(QPainter *p, int x, int y)
+void QParagraph::paint(QPainter &p, int x, int y)
 {
     printf("QParagraph::paint\n");
     // #### add a check if we need to paint at all!!!
@@ -1316,12 +1418,12 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
     int lastSpace = -1;
     int tmpBaseLine = 0, tmph = 0;
 
-    int x = parag->x();
-    int y = parag->y();
-    int w = area->lineWidth(x, y);
-    printf("new line at %d/%d\n", x, y);
+    QRect lineRect = area->lineRect(parag->x() ,parag->y());
+    int w = lineRect.width();
+    printf("new line at %d/%d\n", parag->x(), parag->y());
     int h = 0;
-    
+    int x = 0;
+
     for ( ; i < parag->string()->length(); ++i ) {
 
 	
@@ -1347,15 +1449,17 @@ int QRichTextFormatterBreakWords::format( QParagraph *parag, int start )
 	    // ### add baseline
 	    addLine(parag, start, i, h);
 	    start = i;
-	    x = parag->x();
-	    y = parag->y();
+	    int xPos = parag->x();
+	    int yPos = parag->y();
 	    if ( parag->lastRow() ) {
-		x += parag->lastRow()->x();
-		y += parag->lastRow()->y() + parag->lastRow()->height();	
-	    }	
-	    int w = area->lineWidth(x, y);
-	    printf("new line at %d/%d\n", x, y);
+		xPos += parag->lastRow()->x();
+		yPos += parag->lastRow()->y() + parag->lastRow()->height();	
+	    }
+	    lineRect = area->lineRect(xPos, yPos);
+	    int w = lineRect.width();
+	    printf("new line at %d/%d\n", xPos, yPos);
 	    int h = 0;
+	    x  = 0;
 	    lastSpace = -1;
 	    continue;
 	} else if ( c->c == ' ' ) {

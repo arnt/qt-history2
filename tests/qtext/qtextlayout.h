@@ -8,10 +8,14 @@
 #include <qapplication.h>
 #include <qtextstream.h>
 #include <qdict.h>
+#include <qpalette.h>
 
 class QPainter;
 class QRichTextFormat;
 class QParagraph;
+class QTextArea;
+class QTextEditFormat;
+
 
 class QBidiContext {
 public:
@@ -104,7 +108,7 @@ public:
     int from() { return start; }
     int length() { return len; }
 
-    virtual void paint(QPainter *p, int x, int y);
+    virtual void paint(QPainter &p, int x, int y);
 
     void setPosition(int _x, int _y);
     int width() const { return w; }
@@ -118,6 +122,10 @@ public:
 private:
     bool hasComplexText();
     void bidiReorderLine();
+    void drawBuffer( QPainter &painter, const QString &buffer, int startX, int y,
+		     int bw, int h, bool drawSelections,
+		     QRichTextFormat *lastFormat, int i, int *selectionStarts,
+		     int *selectionEnds, const QColorGroup &cg );
 
     bool complexText : 1;
 
@@ -137,7 +145,7 @@ private:
     QTextRow *next;
 };
 
-class QTextArea;
+// =================================================================
 
 class QParagraph {
 public:
@@ -147,7 +155,7 @@ public:
     QRect boundingRect() const { return bRect; }
     QPoint nextLine() const;
 
-    void paint(QPainter *p, int x, int y);
+    void paint(QPainter &p, int x, int y);
     QRichTextString *string() { return &text; }
 
     QTextRow *firstRow() const { return first; }
@@ -156,7 +164,7 @@ public:
     void setLastRow(QTextRow *r) { last = r; }
     int x() const { return xPos; }
     int y() const { return yPos; }
-    
+
 protected:
     virtual void layout();
 
@@ -175,6 +183,7 @@ private:
     QRect bRect;
 };
 
+// =================================================================
 
 class QTextArea {
 public:
@@ -182,8 +191,7 @@ public:
     QTextArea(int width);
     virtual ~QTextArea();
 
-    virtual int lineWidth(int x, int y, int h = 0) const;
-    virtual QRect lineRect(int x, int y, int h) const;
+    virtual QRect lineRect(int x, int y, int h = -1) const;
 
     void appendParagraph(const QRichTextString &);
     void insertParagraph(const QRichTextString &, int pos);
@@ -191,7 +199,7 @@ public:
 
     virtual QParagraph *createParagraph(const QRichTextString &text, QParagraph *before);
 
-    void paint(QPainter *p, int x, int y);
+    void paint(QPainter &p, int x, int y);
 
 private:
     int width;
