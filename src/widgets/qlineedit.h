@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#65 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#66 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -77,6 +77,13 @@ public:
     void setAlignment( int flag );
     int alignment() const;
 
+    void	cursorLeft( bool mark, int steps = 1 );
+    void	cursorRight( bool mark, int steps = 1 );
+    void	backspace();
+    void	del();
+    void	home( bool mark );
+    void	end( bool mark );
+
 public slots:
     virtual void setText( const QString &);
     void	selectAll();
@@ -124,13 +131,6 @@ private:
     void	pixmapPaint( const QRect& clip );
     // kept
     void	paintText( QPainter *, const QSize &, bool frame = FALSE );
-    // to be replaced by publics
-    void	cursorLeft( bool mark, int steps = 1 );
-    void	cursorRight( bool mark, int steps = 1 );
-    void	backspace();
-    void	del();
-    void	home( bool mark );
-    void	end( bool mark );
     // kept
     void	newMark( int pos, bool copy=TRUE );
     void	markWord( int pos );
