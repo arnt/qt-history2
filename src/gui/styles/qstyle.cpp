@@ -90,7 +90,7 @@
             option.init(this);
             option.backgroundColor = palette().color(QPalette::Background);
 
-            style()->drawPrimitive(QStyle::PE_FocusRect, &option, &painter, this);
+            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
         }
     \endcode
 
@@ -103,7 +103,7 @@
 
     QStyleOption has various subclasses for the various types of
     graphical elements that can be drawn. For example, \c
-    PE_FocusRect expects a QStyleOptionFocusRect argument. This is
+    PE_FrameFocusRect expects a QStyleOptionFocusRect argument. This is
     documented for each enum value.
 
     To ensure that drawing operations are as fast as possible,
@@ -129,7 +129,7 @@
     \skipto class CustomStyle
     \printuntil };
 
-    The \c PE_SpinBoxUp and \c PE_SpinBoxDown primitive elements are
+    The \c PE_IndicatorSpinUp and \c PE_IndicatorSpinDown primitive elements are
     used by QSpinBox to draw its up and down arrows. Here's how to
     reimplement drawPrimitive() to draw them differently:
 
@@ -158,7 +158,7 @@
 
     When implementing a custom style, you cannot assume that the
     widget is a QSpinBox just because the enum value is called \c
-    PE_SpinBoxUp or \c PE_SpinBoxUp.
+    PE_IndicatorSpinUp or \c PE_IndicatorSpinUp.
 
     \section1 Using a Custom Style
 
@@ -472,91 +472,64 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     PrimitiveElement is a common GUI element, such as a checkbox
     indicator or button bevel.
 
-    \value PE_ButtonCommand  Button used to initiate an action, for
+    \value PE_PanelButtonCommand  Button used to initiate an action, for
         example, a QPushButton.
-    \value PE_ButtonDefault  This button is the default button, e.g.
-        in a dialog.
-    \value PE_ButtonBevel  Generic button bevel.
-    \value PE_ButtonTool  Tool button, for example, a QToolButton.
-    \value PE_ButtonDropDown  Drop down button, for example, a tool
-        button that displays a popup menu, for example, QMenu.
+    \value PE_FrameDefaultDefault  This frame around a default button, e.g. in a dialog.
+    \value PE_PanelButtonBevel  Generic panel with a button bevel.
+    \value PE_PanelButtonTool  Panel for a Tool button, used with QToolButton
+    \value PE_IndicatorButtonDropDown  indicator for a drop down button, for example, a tool
+                                       button that displays a menu.
 
-    \value PE_FocusRect  Generic focus indicator.
+    \value PE_FrameFocusRect  Generic focus indicator.
 
-    \value PE_ArrowUp  Up arrow.
-    \value PE_ArrowDown  Down arrow.
-    \value PE_ArrowRight  Right arrow.
-    \value PE_ArrowLeft  Left arrow.
+    \value PE_IndicatorArrowUp  Generic Up arrow.
+    \value PE_IndicatorArrowDown  Generic Down arrow.
+    \value PE_IndicatorArrowRight  Generic Right arrow.
+    \value PE_IndicatorArrowLeft  Generic Left arrow.
 
-    \value PE_SpinBoxUp  Up symbol for a spin widget, for example a
-        QSpinBox.
-    \value PE_SpinBoxDown  Down symbol for a spin widget.
-    \value PE_SpinBoxPlus  Increase symbol for a spin widget.
-    \value PE_SpinBoxMinus  Decrease symbol for a spin widget.
+    \value PE_IndicatorSpinUp  Up symbol for a spin widget, for example a QSpinBox.
+    \value PE_IndicatorSpinDown  Down symbol for a spin widget.
+    \value PE_IndicatorSpinPlus  Increase symbol for a spin widget.
+    \value PE_IndicatorSpinMinus  Decrease symbol for a spin widget.
 
-    \value PE_Indicator  On/off indicator, for example, a QCheckBox.
-    \value PE_IndicatorMask  Bitmap mask for an indicator.
-    \value PE_ExclusiveIndicator  Exclusive on/off indicator, for
-        example, a QRadioButton.
-    \value PE_ExclusiveIndicatorMask  Bitmap mask for an exclusive indicator.
+    \value PE_IndicatorCheckBox  On/off indicator, for example, a QCheckBox.
+    \value PE_IndicatorCheckBoxMask  Bitmap mask for an indicator.
+    \value PE_IndicatorRadioButton  Exclusive on/off indicator, for example, a QRadioButton.
+    \value PE_IndicatorRadioButtonMask  Bitmap mask for an exclusive indicator.
 
-    \value PE_DockWindowHandle  Tear off handle for dock windows and
-        toolbars (e.g., \l{QDockWindow} and \l{QToolBar})
-    \value PE_DockWindowSeparator  Item separator for dock window and
-        toolbar contents.
-    \value PE_DockWindowResizeHandle  Resize handle for dock windows.
-    \value PE_DockWindowTitle  Dock window title.
+    \value PE_Q3DockWindowHandle  Tear off handle for Qt 3 compatible dock windows and
+        toolbars (e.g., \l{Q3DockWindow} and \l{Q3ToolBar})
+    \value PE_Q3DockWindowSeparator  Item separator for Qt 3 compatible dock window
+                                     and toolbar contents.
+    \value PE_IndicatorDockWindowResizeHandle  Resize handle for dock windows.
 
-    \value PE_Splitter  Splitter handle; see also QSplitter.
+    \value PE_Frame  Generic frame; see also QFrame.
+    \value PE_FrameMenu  Frame for popup windows/menus; see also QMenu.
+    \value PE_PanelMenuBar  Panel for menu bars.
+    \value PE_FrameDockWindow  Panel frame for dock windows and toolbars.
+    \value PE_FrameTabWidget  Frame for tab widgets.
+    \value PE_FrameLineEdit  Panel frame for line edits.
+    \value PE_FrameGroupBox  Panel frame around group boxes.
 
-    \value PE_Panel  Generic panel frame; see also QFrame.
-    \value PE_PanelMenu  Panel frame for popup windows/menus; see also QMenu.
-    \value PE_PanelMenuBar  Frame for menu bars.
-    \value PE_PanelDockWindow  Panel frame for dock windows and toolbars.
-    \value PE_PanelTabWidget  Panel frame for tab widgets.
-    \value PE_PanelLineEdit  Panel frame for line edits.
-    \value PE_PanelGroupBox  Panel frame around group boxes.
-
-    \value PE_TabBarBase  Area below tabs in a tab widget, for example,
-        QTab.
-
-    \value PE_HeaderSection  Section of a list or table header; see also
-        QHeader.
-    \value PE_HeaderArrow  Arrow used to indicate sorting on a list or table
+    \value PE_PanelHeader Panel Section of a list or table header; see also
+                                QHeader.
+    \value PE_IndicatorHeaderArrow  Arrow used to indicate sorting on a list or table
         header
-    \value PE_StatusBarSection  Section of a status bar; see also
-        QStatusBar.
+    \value PE_FrameStatusBar Frame for a section of a status bar; see also QStatusBar.
 
-    \value PE_WindowFrame  Frame around a MDI window or a docking window.
+    \value PE_FrameWindow  Frame around a MDI window or a docking window.
 
-    \value PE_Separator  Generic separator.
+    \value PE_Q3Separator  Qt 3 compatible generic separator.
 
-    \value PE_SizeGrip  Window resize handle; see also QSizeGrip.
+    \value PE_IndicatorCheckMark  Generic check mark.
 
-    \value PE_CheckMark  Generic check mark; see also QCheckBox.
+    \value PE_IndicatorProgressBarChunk  Section of a progress bar indicator; see also QProgressBar.
 
-    \value PE_ScrollBarAddLine  Scroll bar line increase indicator.
-        (i.e., scroll down); see also QScrollBar.
-    \value PE_ScrollBarSubLine  Scroll bar line decrease indicator (i.e., scroll up).
-    \value PE_ScrollBarAddPage  Scolllbar page increase indicator (i.e., page down).
-    \value PE_ScrollBarSubPage  Scroll bar page decrease indicator (i.e., page up).
-    \value PE_ScrollBarSlider  Scroll bar slider.
-    \value PE_ScrollBarFirst  Scroll bar first line indicator (i.e., home).
-    \value PE_ScrollBarLast  Scroll bar last line indicator (i.e., end).
+    \value PE_Q3CheckListController  Qt 3 compatible Controller part of a list view item.
+    \value PE_Q3CheckListIndicator  Qt 3 compatible Checkbox part of a list view item.
+    \value PE_Q3CheckListExclusiveIndicator  Qt 3 compatible Radio button part of a list view item.
 
-    \value PE_ProgressBarChunk  Section of a progress bar indicator; see
-        also QProgressBar.
-
-    \value PE_CheckListController  Controller part of a list view item.
-    \value PE_CheckListIndicator  Checkbox part of a list view item.
-    \value PE_CheckListExclusiveIndicator  Radio button part of a
-    list view item.
-    \value PE_RubberBand  Rubber band used in such things as iconview.
-    \omitvalue PE_RubberBandMask
-
-    \value PE_TreeBranch  Lines used to represent the branch of a tree
-    in a tree view.
-    \value PE_SpinBoxSlider The optional slider part of a spin box.
+    \value PE_IndicatorBranch  Lines used to represent the branch of a tree in a tree view.
 
     \value PE_CustomBase  Base value for custom PrimitiveElements.
         All values above this are reserved for custom use. Custom
@@ -630,16 +603,16 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     The QStyleOption is the the following for the following types of PrimitiveElements.
     \table
     \header \i PrimitiveElement \i Option Cast \i Style Flag \i Remark
-    \row \i \l PE_FocusRect \i \l QStyleOptionFocusRect
+    \row \i \l PE_FrameFocusRect \i \l QStyleOptionFocusRect
          \i \l Style_FocusAtBorder
          \i Whether the focus is is at the border or inside the widget.
-    \row \i{1,2} \l PE_Indicator \i{1,2} \l QStyleOptionButton
+    \row \i{1,2} \l PE_IndicatorCheckBox \i{1,2} \l QStyleOptionButton
           \i \l Sytle_NoChange \i Indicates a "tri-state" checkbox.
     \row \i \l Style_On \i Indicates the indicator is checked.
 
-    \row \i \l PE_ExclusiveIndicator \i \l QStyleOptionButton
+    \row \i \l PE_IndicatorRadioButton \i \l QStyleOptionButton
           \i \l Style_On \i Indicates that a radio button is selected.
-    \row \i{1,3} \l PE_CheckListExclusiveIndicator, \l PE_CheckListIndicator
+    \row \i{1,3} \l PE_Q3CheckListExclusiveIndicator, \l PE_CheckListIndicator
          \i{1,3} \l QStyleOptionListView \i \l Style_On
          \i Indicates whether or not the controller is selected.
     \row \i \l Style_NoChange \i Indicates a "tri-state" controller.
@@ -647,10 +620,10 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \row \i{1,2} \l PE_TreeBranch \i{1,2} \l QStyleOption
          \i \l Style_Down \i Indicates that the Tree Branch is pressed
     \row \i \l Style_Open \i Indicates that the tree branch is expanded.
-    \row \i \l PE_HeaderArrow \i \l QStyleOptionHeader
+    \row \i \l PE_IndicatorHeaderArrow \i \l QStyleOptionHeader
          \i \l Style_Up \i Indicates that the arrow should be drawn up;
          otherwise it should be down.
-    \row \i{1,3} \l PE_HeaderSection \i{1,3} \l QStyleOptionHeader
+    \row \i{1,3} \l PE_PanelHeaderSection \i{1,3} \l QStyleOptionHeader
          \i \l Style_Sunken \i Indicates that the section is pressed.
     \row \i \l Style_Up \i Indicates that the sort indicator should be pointing up.
     \row \i \l Style_Off \i Indicates that the the section is not selected.
@@ -658,14 +631,14 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
             \l PE_PanelPopup, \l PE_PanelDockWindow
          \i \l QStyleOptionFrame \i \l Style_Sunken
          \i Indicates that the Frame should be sunken.
-    \row \i \l PE_DockWindowHandle \i \l QStyleOptionDockWindow
+    \row \i \l PE_Q3DockWindowHandle \i \l QStyleOptionDockWindow
          \i \l Style_Horizontal \i Indicates that the window handle is horizontal
          instead of vertical.
-    \row \i \l PE_DockWindowSeparator \i \l QStyleOption
+    \row \i \l PE_Q3DockWindowSeparator \i \l QStyleOption
          \i \l Style_Horizontal \i Indicates that the separator is horizontal
          instead of vertical.
-    \row \i \l PE_SpinBoxPlus, \l PE_SpinBoxMinus, \l PE_SpinBoxUp,
-            \l PE_SpinBoxDown, \l PE_SpinBoxSlider
+    \row \i \l PE_IndicatorSpinPlus, \l PE_IndicatorSpinMinus, \l PE_IndicatorSpinUp,
+            \l PE_IndicatorSpinDown,
          \i \l QStyleOptionSpinBox
          \i \l Style_Sunken \i Indicates that the button is pressed.
     \endtable
@@ -680,14 +653,18 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     a widget that performs some action or displays information to the
     user.
 
-    \value CE_PushButton  A QPushButton, draws CE_PushButtonBevel, CE_PushButtonLabel and PE_FocusRect
+    \value CE_PushButton  A QPushButton, draws CE_PushButtonBevel, CE_PushButtonLabel and PE_FrameFocusRect
     \value CE_PushButtonBevel  The bevel and default indicator of a QPushButton.
     \value CE_PushButtonLabel  The label (icon with text or pixmap) of a QPushButton
 
-    \value CE_CheckBox  A QCheckBox, draws a PE_Indicator, a CE_CheckBoxLabel and a PE_FocusRect
+    \value CE_DockWindowTitle  Dock window title.
+    \value CE_Splitter  Splitter handle; see also QSplitter.
+
+
+    \value CE_CheckBox  A QCheckBox, draws a PE_IndicatorCheckBox, a CE_CheckBoxLabel and a PE_FrameFocusRect
     \value CE_CheckBoxLabel  The label (text or pixmap) of a QCheckBox
 
-    \value CE_RadioButton  A QRadioButton, draws a PE_ExclusiveIndicator, a CE_RadioButtonLabel and a PE_FocusRect
+    \value CE_RadioButton  A QRadioButton, draws a PE_ExclusiveRadioButton, a CE_RadioButtonLabel and a PE_FrameFocusRect
     \value CE_RadioButtonLabel  The label (text or pixmap) of a QRadioButton
 
     \value CE_TabBarTab  The tab within a QTabBar (a QTab)
@@ -717,6 +694,19 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value CE_ToolBoxTab  The toolbox's tab area
     \value CE_HeaderLabel  The header's label
+    \value CE_SizeGrip  Window resize handle; see also QSizeGrip.
+
+    \value CE_ScrollBarAddLine  Scroll bar line increase indicator.
+                                (i.e., scroll down); see also QScrollBar.
+    \value CE_ScrollBarSubLine  Scroll bar line decrease indicator (i.e., scroll up).
+    \value CE_ScrollBarAddPage  Scolllbar page increase indicator (i.e., page down).
+    \value CE_ScrollBarSubPage  Scroll bar page decrease indicator (i.e., page up).
+    \value CE_ScrollBarSlider   Scroll bar slider.
+    \value CE_ScrollBarFirst    Scroll bar first line indicator (i.e., home).
+    \value CE_ScrollBarLast     Scroll bar last line indicator (i.e., end).
+    \value CE_RubberBand        Rubber band used in such things as iconview.
+    \value CE_SpinBoxSlider     The optional slider part of a spin box.
+
 
     \value CE_CustomBase  Base value for custom ControlElements;
     custom values must be greater than this value
