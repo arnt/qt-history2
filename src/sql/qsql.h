@@ -55,7 +55,7 @@ public:
 	InOut = 0x00000003, // In | Out
 	Binary = 0x00000004
     };
-    typedef QFlags<ParameterType> ParamType;
+    Q_DECLARE_FLAGS(ParamType, ParameterType);
     
     enum TableType { 
 	Tables = 0x01,
@@ -71,6 +71,8 @@ private:	// Disabled copy constructor and operator=
 #endif
 
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(ParamType)
 
 #endif
 #endif
