@@ -3467,16 +3467,10 @@ esac
 if [ "$SUPPORTED" = "no" ]; then
     echo
     echo "WARNING:"
-    echo "The following compilers will not be supported in future"
-    echo "versions of Qt (3.3->):"
+    echo "Qt 3.2 was the last version to support the following compilers:"
     echo
     echo "- Sun Workshop 5.0"
     echo "- SGI MIPSpro CC in o32 mode"
-    echo
-    echo "Although Qt 3.2 will work with these compilers if you use"
-    echo "the script found in (location), we strongly suggest you"
-    echo "upgrade if you intend to use future Qt versions using any"
-    echo "of them."
     echo
 fi
 
