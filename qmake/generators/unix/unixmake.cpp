@@ -243,7 +243,7 @@ UnixMakefileGenerator::init()
 	bool ok;
 	int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt(&ok);
 	QStringList ar_sublibs, objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"];
-	if(ok && max_files > 5 && max_files < objs.count()) {
+	if(ok && max_files > 5 && max_files < (int)objs.count()) {
 	    int obj_cnt = 0, lib_cnt = 0;
 	    QString destdir = project->first("DESTDIR"), lib;
 	    for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
@@ -443,7 +443,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		QString dst_link = targetdir + link;
 		fileFixify(dst_link);
 		fileFixify(dst_targ);
-		ret += "\n\t-ln -sf \"$(TARGET)\" \"" + dst_link + "\"";
+		ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
 		uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");

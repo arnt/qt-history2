@@ -133,6 +133,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "COPY_FILE= " << var("QMAKE_COPY_FILE") << endl;
     t << "COPY_DIR = " << var("QMAKE_COPY_DIR") << endl;
     t << "DEL_FILE = " << var("QMAKE_DEL_FILE") << endl;
+    t << "SYMLINK  = " << var("QMAKE_SYMBOLIC_LINK") << endl;
     t << "DEL_DIR  = " << var("QMAKE_DEL_DIR") << endl;
     t << "MOVE     = " << var("QMAKE_MOVE") << endl;
     t << endl;
@@ -472,41 +473,41 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
-	      << "-rm -f $(TARGET)" << "\n\t"
+	      << "-$(DEL_FILE) $(TARGET)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD");
 	    if(!destdir.isEmpty())
 		t << "\n\t"
-		  << "-mv $(TARGET) " << var("DESTDIR");
+		  << "-$(MOVE) $(TARGET) " << var("DESTDIR");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK") << "\n\t";
 	    t << endl << endl;
 	} else if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
 	    t << "\n\t"
-	      << "-rm -f $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)" << "\n\t"
+	      << "-$(DEL_FILE) $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
 	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)")  << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET1)") << "\n\t"
 	      << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET2)");
 	    if(!destdir.isEmpty())
 		t << "\n\t"
-		  << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
-		  << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
-		  << "-rm -f " << var("DESTDIR") << "$(TARGET1)\n\t"
-		  << "-rm -f " << var("DESTDIR") << "$(TARGET2)\n\t"
-		  << "-mv $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR");
+		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)\n\t"
+		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET0)\n\t"
+		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET1)\n\t"
+		  << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET2)\n\t"
+		  << "-$(MOVE) $(TARGET) $(TARGET0) $(TARGET1) $(TARGET2) " << var("DESTDIR");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
 	} else {
 	    t << "\n\t"
-	      << "-rm -f $(TARGET) $(TARGET0)" << "\n\t"
+	      << "-$(DEL_FILE) $(TARGET) $(TARGET0)" << "\n\t"
 	      << var("QMAKE_LINK_SHLIB_CMD") << "\n\t";
 	    t << varGlue("QMAKE_LN_SHLIB",""," "," $(TARGET) $(TARGET0)");
 	    if(!destdir.isEmpty())
 		t  << "\n\t"
-		   << "-rm -f " << var("DESTDIR") << "$(TARGET)\n\t"
-		   << "-rm -f " << var("DESTDIR") << "$(TARGET0)\n\t"
-		   << "-mv $(TARGET) $(TARGET0) " << var("DESTDIR");
+		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)\n\t"
+		   << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET0)\n\t"
+		   << "-$(MOVE) $(TARGET) $(TARGET0) " << var("DESTDIR");
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\n\t" << var("QMAKE_POST_LINK");
 	    t << endl << endl;
@@ -519,7 +520,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(do_incremental)
 		t << " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
 	    t << var("TARGETDEPS") << "\n\t"
-	      << "-rm -f $(TARGETA) " << "\n\t"
+	      << "-$(DEL_FILE) $(TARGETA) " << "\n\t"
 	      << var("QMAKE_AR_CMD");
 	    if(do_incremental)
 		t << " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
@@ -537,7 +538,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		QString destdir = project->first("DESTDIR");
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    }
-	    t << "-rm -f $(TARGET)" << "\n\t"
+	    t << "-$(DEL_FILE) $(TARGET)" << "\n\t"
 	      << var("QMAKE_AR_CMD") << "\n";
 	    if(!project->isEmpty("QMAKE_POST_LINK"))
 		t << "\t" << var("QMAKE_POST_LINK") << "\n";
@@ -568,7 +569,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    QString destdir = project->first("DESTDIR");
 		    t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 		}
-		t << "-rm -f " << (*libit) << "\n\t"
+		t << "-$(DEL_FILE) " << (*libit) << "\n\t"
 		  << ar << "\n";
 		if(!project->isEmpty("QMAKE_POST_LINK"))
 		    t << "\t" << var("QMAKE_POST_LINK") << "\n";
@@ -601,7 +602,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << pkginfo << ": " << "\n\t";
 	if(!destdir.isEmpty())
 	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-	t << "@rm -f " << pkginfo << "\n\t"
+	t << "@$(DEL_FILE) " << pkginfo << "\n\t"
 	  << "@echo \"APPL????\" >" << pkginfo << endl;
     }
     if(!project->first("QMAKE_INFO_PLIST").isEmpty()) {
@@ -611,7 +612,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << info_plist_out << ": " << "\n\t";
 	if(!destdir.isEmpty())
 	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
-	t << "@rm -f " << info_plist_out << "\n\t"
+	t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
 	  << "@cp \"" << info_plist << "\" \"" << info_plist_out << "\"" << endl;
 	if(!project->first("RC_FILE").isEmpty()) {
 	    QString dir = destdir + "../Resources/";
@@ -645,8 +646,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "( cd `dirname " << ddir_c << "` && "
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
       << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar ) && "
-      << "mv `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
-      << "rm -rf " << ddir_c
+      << "$(MOVE) `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
+      << "$(DEL_DIR) " << ddir_c
       << endl << endl;
 
     QString clean_targets;
@@ -654,18 +655,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "mocclean:" << "\n";
 	if(!objMoc.isEmpty() || !srcMoc.isEmpty() || moc_incremental) {
 	    if(!objMoc.isEmpty())
-		t << "\t-rm -f $(OBJMOC)" << '\n';
+		t << "\t-$(DEL_FILE) $(OBJMOC)" << '\n';
 	    if(!srcMoc.isEmpty())
-		t << "\t-rm -f $(SRCMOC)" << '\n';
+		t << "\t-$(DEL_FILE) $(SRCMOC)" << '\n';
 	    if(moc_incremental)
-		t << "\t-rm -f $(INCREMENTAL_OBJMOC)" << '\n';
+		t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJMOC)" << '\n';
 	    clean_targets += " mocclean";
 	}
 	t << endl;
     }
     t << "uiclean:" << "\n";
     if (!var("UICIMPLS").isEmpty() || !var("UICDECLS").isEmpty()) {
-	t << "\t-rm -f $(UICIMPLS) $(UICDECLS)" << "\n";
+	t << "\t-$(DEL_FILE) $(UICIMPLS) $(UICDECLS)" << "\n";
 	clean_targets += " uiclean";
     }
     t << endl;
@@ -673,21 +674,21 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(do_incremental) {
 	t << "incrclean:" << "\n";
 	if(src_incremental)
-	    t << "\t-rm -f $(INCREMENTAL_OBJECTS)" << "\n";
+	    t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJECTS)" << "\n";
 	if(moc_incremental)
-	    t << "\t-rm -f $(INCREMENTAL_OBJMOC)" << '\n';
+	    t << "\t-$(DEL_FILE) $(INCREMENTAL_OBJMOC)" << '\n';
 	t << endl;
     }
 
     t << "clean:" << clean_targets << "\n\t"
-      << "-rm -f $(OBJECTS) " << "\n\t";
+      << "-$(DEL_FILE) $(OBJECTS) " << "\n\t";
     if(!project->isEmpty("IMAGES"))
-	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-rm -f ", " ", "") << "\n\t";
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-$(DEL_FILE) ", " ", "") << "\n\t";
     if(src_incremental)
-	t << "-rm -f $(INCREMENTAL_OBJECTS)" << "\n\t";
-    t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
-      << "-rm -f *~ core *.core" << "\n"
-      << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
+	t << "-$(DEL_FILE) $(INCREMENTAL_OBJECTS)" << "\n\t";
+    t << varGlue("QMAKE_CLEAN","-$(DEL_FILE) "," ","\n\t")
+      << "-$(DEL_FILE) *~ core *.core" << "\n"
+      << varGlue("CLEAN_FILES","\t-$(DEL_FILE) "," ","") << endl << endl;
     t << "####### Sub-libraries" << endl << endl;
     if ( !project->variables()["SUBLIBS"].isEmpty() ) {
 	QString libdir = "tmp/";
@@ -703,10 +704,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     t << "distclean: " << "clean\n\t"
-      << "-rm -f " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
+      << "-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
-	t << "\t-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
+	t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
 	  << destdir << "$(TARGET2) $(TARGETA)" << "\n";
     t << endl << endl;
 
@@ -723,7 +724,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
 	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \""
 	     << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
-	  << "rm " << outdir << "allmoc.h" << endl << endl;
+	  << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
     }
 
     // blasted user defined targets
@@ -812,7 +813,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	  << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
 	t << "clean: qmake_all FORCE" << "\n\t"
-	  << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
+	  << varGlue("QMAKE_CLEAN","-$(DEL_FILE) "," ","\n\t")
 	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
 	    "-f $(MAKEFILE) clean; fi; ) ; done" << endl;
 	t <<"uninstall install uiclean mocclean: qmake_all FORCE" << "\n\t"
@@ -820,7 +821,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	    "-f $(MAKEFILE) $@; fi; ) ; done" << endl;
 	t <<"distclean: qmake_all" << " FORCE\n\t"
 	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
-	    "-f $(MAKEFILE) $@ ; rm -f $(MAKEFILE) ; fi; ) ; done"
+	    "-f $(MAKEFILE) $@ ; $(DEL_FILE) $(MAKEFILE) ; fi; ) ; done"
 	  << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
@@ -958,6 +959,8 @@ void UnixMakefileGenerator::init2()
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
     }
+    if(project->isEmpty("QMAKE_SYMBOLIC_LINK"))
+	project->variables()["QMAKE_SYMBOLIC_LINK"].append("ln -sf");
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SHAPP"];
     } else if ( project->isActiveConfig("dll") ) {
