@@ -4683,7 +4683,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    drawSelections ) {
             // on mac selections have to extend to the right
 	    for ( int j = 0; j < nSels; ++j ) {
-		if ( selectionStarts[ j ] <= i && n && n->hasSelection( j ) ) {
+		if ( selectionStarts[ j ] <= i && ((n && n->hasSelection( j )) || (selectionEnds[ j ] > paintEnd )) ) {
 		    if ( !hasdoc || document()->invertSelectionText( j ) )
 			painter.setPen( QPen( cg.color( QColorGroup::HighlightedText ) ) );
 		    if ( j == QTextDocument::Standard )
