@@ -421,6 +421,10 @@ public:
     bool macDropEnabled;
 #endif
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *accessibleInterface();
+#endif
+
 protected:
     // Event handlers
     bool	 event( QEvent * );
@@ -479,7 +483,6 @@ protected:
     const QPixmap *	backgroundPixmapForMode( BackgroundMode ) const;
     void		setBackgroundPixmapForMode( BackgroundMode, const QPixmap & );
 
-protected:
 #ifndef QT_NO_STYLE
     virtual void styleChange( QStyle& );
 #endif
@@ -515,9 +518,6 @@ protected:
 
     virtual void setKeyCompression(bool);
     virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE, QFont *f = 0);
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessibleInterface *createAccessibilityInterface();
-#endif
 
 #if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);

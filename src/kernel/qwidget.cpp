@@ -4155,11 +4155,6 @@ bool QWidget::event( QEvent *e )
 		}
 	    }
 	    break;
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-	case QEvent::Accessibility:
-	    accessibilityEvent( e );
-	    break;
-#endif
 	default:
 	    if ( e->type() >= QEvent::User ) {
 		customEvent( (QCustomEvent*) e );
@@ -5134,7 +5129,7 @@ void QWidget::showFullScreen()
   \reimp
 */
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-QAccessibleInterface *QWidget::createAccessibilityInterface()
+QAccessibleInterface *QWidget::accessibleInterface()
 {
     return new QAccessibleWidget( this );
 }
