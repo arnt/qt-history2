@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.9 1996/04/07 15:41:59 agulbra Exp $
+** $Id: indices.doc,v 1.10 1996/06/10 15:23:48 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.9 1996/04/07 15:41:59 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.10 1996/06/10 15:23:48 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -34,6 +34,8 @@ Here are the main index pages:
 Here is a tutorial and other documentation:
 <ul>
 <li><a href=tutorial.html>Tutorial</a>
+<li><a href=metaobjects.html>Signals and slots</a>
+<li><a href=debug.html>Debugging aids</a>
 <li><a href=headers.html>Header files</a>
 <li><a href=topicals.html>Other index pages</a>
 </ul>
