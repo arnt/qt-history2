@@ -313,9 +313,6 @@ public:
 
     QTextFormatCollection *formatCollection() const;
 
-    int listIndent( int depth ) const;
-    Bullet bullet( int depth ) const;
-
     bool find( const QString &expr, bool cs, bool wo, bool forward, int *parag, int *index, QTextCursor *cursor );
 
     void setTextFormat( Qt::TextFormat f );
@@ -1292,26 +1289,6 @@ inline bool QTextDocument::isCompletionEnabled() const
 inline QTextFormatCollection *QTextDocument::formatCollection() const
 {
     return fCollection;
-}
-
-inline int QTextDocument::listIndent( int depth ) const
-{
-    // #######
-    return ( depth + 1 ) * 15;
-}
-
-inline QTextDocument::Bullet QTextDocument::bullet( int depth ) const
-{
-    if ( depth == 0 )
-	return FilledCircle;
-    else if ( depth == 1 )
-	return FilledSquare;
-    else if ( depth == 2 )
-	return OutlinedCircle;
-    else if ( depth == 3 )
-	return OutlinedSquare;
-    else
-	return FilledCircle;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
