@@ -1624,7 +1624,7 @@ void qt_init(QApplicationPrivate *priv, int type)
         init_display();
 #ifndef QT_NO_QWS_MANAGER
         qws_decoration = QApplication::qwsSetDecoration(
-            decoration.isEmpty()?QLatin1String("default"):decoration);
+            decoration.isEmpty()?QString::fromLatin1("default"):decoration);
 #endif
     }
 
