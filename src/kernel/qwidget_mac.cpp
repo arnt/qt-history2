@@ -388,7 +388,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( parentObj ) {				// remove from parent
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
-	if(oldp->isWidgetType())
+	if(!isTopLevel() && oldp->isWidgetType())
 	    paint_children( ((QWidget *)oldp),geometry() );
     }
 
@@ -449,7 +449,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
 
     if(isVisible()) //finally paint my new area
-	paint_children( parentWidget(), geometry());
+	paint_children( isTopLevel() ? this : parentWidget(), geometry());
 
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
@@ -892,7 +892,7 @@ void QWidget::lower()
     if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( 0, p->childObjects->take() );
     if ( isTopLevel() )
-	; //how do I lower a window?? FIXME
+	SendBehind((WindowPtr)handle(), NULL);
     else if(p) {
 	dirtyClippedRegion(TRUE);
 	paint_children( parentWidget(), geometry());
@@ -1019,7 +1019,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    //finally issue "expose" events if necesary
 	    QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
 	    upd.translate(-px, -py); //translate them from window to the parent
-	    paint_children( parentWidget() ? parentWidget() : this, upd, TRUE, !isResize && isMove );
+	    paint_children( parentWidget() && !isTopLevel() ? parentWidget() : this, 
+			    upd, TRUE, !isResize && isMove );
 	} else {
 	    if ( isMove )
 		QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
