@@ -617,9 +617,13 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	{
 	    QRect er = r;
 	    er.addCoords( 1, 1, -1, -1 );
-	    drawPrimitive( PE_ButtonBevel, p, er, cg, flags, opt );
-	    if ( !(flags & QStyle::Style_Off) )
-		drawPrimitive( PE_CheckMark, p, r, cg, flags, opt );
+	    int iflags = flags & ~Style_On;
+	    drawPrimitive( PE_ButtonBevel, p, er, cg, iflags, opt );
+	    if ( !(flags & QStyle::Style_Off) ) {
+		er = r;
+		er.addCoords( 1, 2, 1, 1 );
+		drawPrimitive( PE_CheckMark, p, er, cg, flags, opt );
+	    }
 	}
 	break;
 
@@ -634,9 +638,10 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    QRect er = r;
 	    er.addCoords( 1, 1, -1, -1 );
 	    p->fillRect(er, QBrush(Qt::color1));
-	    // p->fillRect( x+2, y+3, w-7, h-7, QBrush( Qt::color1 ) );
 
 	    if ( !(flags & QStyle::Style_Off) ) {
+		er = r;
+		er.addCoords( 1, 2, 1, 1 );
 		static QCOORD check_mark[] = {
 			14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
 			7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
@@ -644,9 +649,9 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
 		QPointArray amark;
 		amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2), check_mark );
-		amark.translate( x+w-18, y+h-14 );
+		amark.translate( er.x()+1, er.y()+1 );
 		p->drawLineSegments( amark );
-		amark.translate( +1, +1 );
+		amark.translate( -1, -1 );
 		p->drawLineSegments( amark );
 	    }
 
@@ -994,7 +999,7 @@ void QSGIStyle::drawControl( ControlElement element,
 			cflags |= Style_On;
 
 		    if ( mi->isChecked() )
-			drawPrimitive( PE_CheckMark, p, QRect( x+sgiItemFrame+1,y+sgiItemFrame+3, mw,mh-3 ), cg, cflags );
+			drawPrimitive( PE_CheckMark, p, QRect( x+sgiItemFrame+1,y+sgiItemFrame+3, mw,mh-3 ), cg, cflags | Style_On );
 		}
 	    }
 
