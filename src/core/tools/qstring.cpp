@@ -30,6 +30,21 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifndef QT_NO_STL
+#if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+#  pragma warning (push)
+#  pragma warning (disable : 4189)
+#  include <string>
+#  pragma warning (pop)
+#else
+#  include <string>
+#endif // avoid warning in xlocale on Windows .NET 1310
+#endif // QT_NO_STL
+
+#ifdef truncate
+#undef truncate
+#endif
+
 #ifndef LLONG_MAX
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
@@ -6262,6 +6277,61 @@ QDataStream &operator>>(QDataStream &in, QString &str)
     return in;
 }
 #endif // QT_NO_DATASTREAM
+
+#ifndef QT_NO_STL
+# ifndef QT_NO_CAST_TO_ASCII
+QString::operator const std::string() const
+{ return ascii(); }
+# endif
+# ifndef QT_NO_CAST_FROM_ASCII
+QString::QString(const std::string &s)
+    : d(&shared_null)
+{
+    ++d->ref;
+    *this = fromAscii(s.c_str());
+}
+
+QString &QString::operator=(const std::string &s)
+{
+    return operator=(s.c_str());
+}
+
+void QString::push_back(const std::string &s)
+{
+    append(QString(s.c_str()));
+}
+
+void QString::push_front(const std::string &s)
+{
+    prepend(QString(s.c_str()));
+}
+
+QString &QString::prepend(const std::string &s)
+{
+    return prepend(QString(s.c_str()));
+}
+
+QString &QString::append(const std::string &s)
+{
+    return append(QString(s.c_str()));
+}
+
+QString &QString::operator+=(const std::string &s)
+{
+    return append(QString(s.c_str()));
+}
+
+const QString operator+(const QString &s1, const std::string &s2)
+{
+    return s1 + QString(s2.c_str());
+}
+
+const QString operator+(const std::string &s1, const QString &s2)
+{
+    return QString(s2).prepend(s1.c_str());
+}
+# endif
+#endif
 
 /*!
     \fn void QString::setLength(int nl)

@@ -19,19 +19,25 @@
 #include "qatomic.h"
 #include "qnamespace.h"
 
-#ifndef QT_NO_STL
-#if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
-#  pragma warning (push)
-#  pragma warning (disable : 4189)
-#  include <string>
-#  pragma warning (pop)
-#else
-#  include <string>
-#endif // avoid warning in xlocale on Windows .NET 1310
-#endif // QT_NO_STL
 
 #ifdef QT_INCLUDE_COMPAT
 #include <qcstring.h>
+#endif
+
+#ifndef QT_NO_STL
+namespace std
+{
+    template<typename _Alloc>
+    class allocator;
+
+    template<class _CharT>
+    struct char_traits;
+
+    template<typename _CharT, typename _Traits, typename _Alloc>
+    class basic_string;
+
+    typedef basic_string<char, char_traits<char>, allocator<char> > string;
+}
 #endif
 
 // POSIX defines truncate to truncate64
@@ -334,24 +340,16 @@ public:
     inline void push_front(const QString &s) { prepend(s); }
 #ifndef QT_NO_STL
 #ifndef QT_NO_CAST_TO_ASCII
-    inline operator const std::string() const
-    { return ascii(); }
+    operator const std::string() const;
 #endif
 #ifndef QT_NO_CAST_FROM_ASCII
-    inline QString(const std::string &s): d(&shared_null)
-    { ++d->ref; *this = fromAscii(s.c_str()); }
-    inline QString &operator=(const std::string &s)
-    { return operator=(s.c_str()); }
-    inline void push_back(const std::string &s)
-    { append(QString(s.c_str())); }
-    inline void push_front(const std::string &s)
-    { prepend(QString(s.c_str())); }
-    inline QString &prepend(const std::string &s)
-    { return prepend(QString(s.c_str())); }
-    inline QString &append(const std::string &s)
-    { return append(QString(s.c_str())); }
-    inline QString &operator+=(const std::string &s)
-    { return append(QString(s.c_str())); }
+    QString(const std::string &s);
+    QString &operator=(const std::string &s);
+    void push_back(const std::string &s);
+    void push_front(const std::string &s);
+    QString &prepend(const std::string &s);
+    QString &append(const std::string &s);
+    QString &operator+=(const std::string &s);
 #endif
 #endif
 
@@ -740,10 +738,8 @@ inline const QString operator+(const QByteArray &ba, const QString &s)
 inline const QString operator+(const QString &s, const QByteArray &ba)
 { QString t(s); t += ba; return t; }
 #ifndef QT_NO_STL
-inline const QString operator+(const QString &s1, const std::string &s2)
-{ return s1 + QString(s2.c_str()); }
-inline const QString operator+(const std::string &s1, const QString &s2)
-{ return QString(s2).prepend(s1.c_str()); }
+const QString operator+(const QString &s1, const std::string &s2);
+const QString operator+(const std::string &s1, const QString &s2);
 #endif
 #endif
 

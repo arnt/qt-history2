@@ -85,6 +85,8 @@
     \value StripTrailingSlash  The trailing slash is removed if one is present.
 */
 
+#include "qplatformdefs.h"
+
 #include <private/qunicodetables_p.h>
 #include <qatomic.h>
 #include <qbytearray.h>
@@ -97,6 +99,10 @@
 #include <qstringlist.h>
 #include <qvarlengtharray.h>
 #include "qurl.h"
+
+#if defined QT_COMPAT
+#include <qfileinfo.h>
+#endif
 
 //#define QURL_DEBUG
 
@@ -2674,6 +2680,29 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
 
     Use QFileInfo(path()).absolutePath() or QFileInfo(path()) instead.
 */
+
+#ifdef QT_COMPAT
+void QUrl::setFileName(const QString &txt)
+{
+    QFileInfo fileInfo(path());
+    fileInfo.setFile(txt);
+    setPath(fileInfo.filePath());
+}
+
+QString QUrl::fileName() const
+{
+    QFileInfo fileInfo(path());
+    return fileInfo.fileName();
+}
+
+QString QUrl::dirPath() const
+{
+    QFileInfo fileInfo(path());
+    if (fileInfo.isAbsolute())
+        return fileInfo.absolutePath();
+    return fileInfo.path();
+}
+#endif
 
 
 #ifndef QT_NO_DATASTREAM

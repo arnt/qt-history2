@@ -18,10 +18,6 @@
 #include <qmap.h>
 #include <qstring.h>
 
-#if defined QT_COMPAT
-#include <qfileinfo.h>
-#endif
-
 class QByteArray;
 class QUrlPrivate;
 class QDataStream;
@@ -144,24 +140,9 @@ public:
     inline QT_COMPAT void setRef(const QString &txt) { setFragment(txt); }
     inline QT_COMPAT bool hasRef() const { return !fragment().isEmpty(); }
     inline QT_COMPAT void addPath(const QString &p) { setPath(path() + QLatin1String("/") + p); }
-    inline QT_COMPAT void setFileName(const QString &txt)
-    {
-        QFileInfo fileInfo(path());
-        fileInfo.setFile(txt);
-        setPath(fileInfo.filePath());
-    }
-    inline QT_COMPAT QString fileName() const
-    {
-        QFileInfo fileInfo(path());
-        return fileInfo.fileName();
-    }
-    inline QT_COMPAT QString dirPath() const
-    {
-        QFileInfo fileInfo(path());
-        if (fileInfo.isAbsolute())
-            return fileInfo.absolutePath();
-        return fileInfo.path();
-    }
+    QT_COMPAT void setFileName(const QString &txt);
+    QT_COMPAT QString fileName() const;
+    QT_COMPAT QString dirPath() const;
     static inline QT_COMPAT void decode(QString &url)
     {
         url = QUrl::fromPercentEncoding(url.toLatin1());
