@@ -215,6 +215,12 @@
   widget; the widget will continue to receive mouse events until the
   last mouse button is released.
 
+  A mouse event contains a special accept flag that tells whether the
+  receiver wants the event.  You should call QMouseEvent::ignore() if the
+  mouse event is not handled by your widget. A mouse event is propagated up
+  the parent widget chain until a widget accepts it with QMousEvent::accept()
+  or an event filter consumes it.
+
   The functions pos(), x() and y() give the cursor position relative
   to the widget that receives the mouse event. If you move the widget
   as a result of the mouse event, use the global position returned by
@@ -586,7 +592,9 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 
   A key event contains a special accept flag that tells whether the
   receiver wants the key.  You should call QKeyEvent::ignore() if the
-  key press or release event is not handled by your widget.
+  key press or release event is not handled by your widget. A key event is
+  propagated up the parent widget chain until a widget accepts it with
+  QKeyEvent::accept() or an event filter consumes it.
 
   The QWidget::setEnable() function can be used to enable or disable mouse
   and keyboard events for a widget.
