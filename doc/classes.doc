@@ -19,6 +19,8 @@
 
     For a shorter list that only includes the most frequently used
     classes, see \link mainclasses.html Qt's Main Classes \endlink.
+    For a list of Qt 3 compatibility classes, see
+    \link compatclasses.html The Qt 3 Compatibility Classes \endlink.
 
     \generatelist classes
 */
@@ -32,4 +34,16 @@
     list see \link classes.html Qt's Classes \endlink.
 
     \generatelist mainclasses
+*/
+
+/*!
+    \page compatclasses.html
+
+    \title The Qt 3 Compatibility Classes
+
+    These classes are part of the Qt 3 compatibility library. To use
+    any of these, you must add the line \c{QT += compat} to your
+    \c .pro file.
+
+    \generatelist compatclasses
 */
