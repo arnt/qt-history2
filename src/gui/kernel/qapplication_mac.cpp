@@ -99,7 +99,7 @@ static QTabletEvent::TabletDevice currTabletDevice = QTabletEvent::NoDevice;
 static qint64 tabletUniqueID = 0;
 
 static int tablet_button_state = 0;
-
+static bool qt_mac_eat_unicode_key = false;
 static bool app_do_modal = false;       // modal mode
 extern QWidgetList *qt_modal_stack;     // stack of modal widgets
 extern bool qt_mac_in_drag;             // from qdnd_mac.cpp
@@ -1212,7 +1212,7 @@ void qt_mac_send_modifiers_changed(quint32 modifiers, QObject *object)
         qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - 0x%08x",
                etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                object ? object->metaObject()->className() : "none",
-               object ? object->objectName().local8Bit() : "",
+               object ? object->objectName().toLatin1().constData() : "",
                key, (int)modifiers);
 #endif
         QKeyEvent ke(etype, key, get_modifiers(modifiers ^ (1 << i)), "", false);
@@ -2193,6 +2193,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     handled_event = true;
                     doc->setInputWidget(widget);
                 }
+                qt_mac_eat_unicode_key = handled_event;
             }
         } else if(ekind == kEventTextInputUnicodeForKeyEvent) {
             EventRef key_ev = 0;
@@ -2260,8 +2261,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                                              rightShiftKey|alphaLock)) | keycode,
                                            &tmp_unused_state);
         if(!translatedChar) {
-            if(CallNextEventHandler(er, event) == noErr)
-                handled_event = true;
+            qt_mac_eat_unicode_key = false;
+            CallNextEventHandler(er, event);
+            handled_event = qt_mac_eat_unicode_key;
             break;
         }
 
@@ -2337,7 +2339,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #ifdef DEBUG_KEY_MAPS
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
                            widget ? widget->metaObject()->className() : "none",
-                           widget ? widget->objectName().local8Bit() : "",
+                           widget ? widget->objectName().toLatin1().constData() : "",
                            asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     key_event = false;
@@ -2346,7 +2348,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #ifdef DEBUG_KEY_MAPS
                         qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
                                widget ? widget->metaObject()->className() : "none",
-                               widget ? widget->objectName().local8Bit() : "",
+                               widget ? widget->objectName().toLatin1().constData() : "",
                                asChar, translatedChar, asString.toLatin1().constData(), ekind == kEventRawKeyRepeat);
 #endif
                     }
@@ -2357,7 +2359,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 //Find out if someone else wants the event, namely
                 //is it of use to text services? If so we won't bother
                 //with a QKeyEvent.
-                if(CallNextEventHandler(er, event) == noErr) {
+                qt_mac_eat_unicode_key = false;
+                CallNextEventHandler(er, event);
+                if(qt_mac_eat_unicode_key) {
                     handled_event = true;
                     break;
                 }
@@ -2365,7 +2369,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 qDebug("KeyEvent: Sending %s to %s::%s: %04x '%c' (%s) 0x%08x%s",
                        etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
                        widget ? widget->metaObject()->className() : "none",
-                       widget ? widget->objectName().local8Bit() : "",
+                       widget ? widget->objectName().toLatin1().constData() : "",
                        asChar, translatedChar, asString.toLatin1().constData(), int(modifiers),
                        ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif

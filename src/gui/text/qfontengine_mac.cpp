@@ -278,7 +278,7 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     return ret;
 }
 
-static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, const QFontEngine *) //the engine is passed for debugging only
+static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, const QFontEngine *)
 {
     ATSUTextMeasurement ret=0;
     OSStatus result = ATSUGetAttribute(style, tag, sizeof(ret), &ret, 0);
@@ -439,8 +439,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
-                                   | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
-                                   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+                                   | kATSLineFractDisable;
+    //layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
         layopts |= kATSLineNoAntiAliasing;
     valueSizes[arr] = sizeof(layopts);
@@ -677,8 +677,8 @@ void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
-                                   | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
-                                   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+                                   | kATSLineFractDisable;
+    //layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
         layopts |= kATSLineNoAntiAliasing;
     valueSizes[arr] = sizeof(layopts);
