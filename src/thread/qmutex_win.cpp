@@ -28,7 +28,7 @@ inline bool compare_and_set(unsigned long * volatile pointer, long expected, lon
     __asm {
 	mov EBX,pointer
 	mov EAX,expected
-	mov EDX,newval
+	mov ECX,newval
 	lock cmpxchg dword ptr[EBX],ECX
 	sete result
     }
