@@ -67,6 +67,7 @@
 
 #if defined(QT_CUPS_SUPPORT)
 #include <cups/cups.h>
+#include <qlibrary.h>
 #endif
 
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
@@ -755,17 +756,22 @@ static char * parseCupsOutput( QListView * printers )
 #if defined(QT_CUPS_SUPPORT)
     int nd;
     cups_dest_t * d;
-    nd = cupsGetDests( &d );
-    if ( nd < 1 )
-	return 0;
+    QLibrary lib( "cups" );
+    typedef int (*CupsGetDests)(cups_dest_t **dests); 
+    CupsGetDests _cupsGetDests = (CupsGetDests)lib.resolve( "cupsGetDests" ); 
+    if ( _cupsGetDests ) {
+	nd = _cupsGetDests( &d );
+	if ( nd < 1 )
+	    return 0;
 
-    int n = 0;
-    while ( n < nd ) {
-	perhapsAddPrinter( printers, d[n].name,
-			   QPrintDialog::tr("Unknown Location"), 0 );
-	if ( d[n].is_default && !defaultPrinter )
-	    defaultPrinter = qstrdup( d[n].instance );
-	n++;
+	int n = 0;
+	while ( n < nd ) {
+	    perhapsAddPrinter( printers, d[n].name,
+			       QPrintDialog::tr("Unknown Location"), 0 );
+	    if ( d[n].is_default && !defaultPrinter )
+		defaultPrinter = qstrdup( d[n].instance );
+	    n++;
+	}
     }
 #else
     Q_UNUSED( printers );

@@ -249,6 +249,7 @@ CFG_SQL_AUTODETECTED=
 CFG_GFX_AVAILABLE=
 CFG_TABLET=auto
 CFG_XKB=auto
+CFG_CUPS=auto
 CFG_NIS=auto
 CFG_LARGEFILE=no
 CFG_STL=auto
@@ -650,6 +651,13 @@ while [ -n "$1" ]; do
     xkb)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_XKB="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    cups)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_CUPS="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -1333,6 +1341,11 @@ if [ "$CFG_NIS" != "no" ]; then
 else
     CFG_NIS=no
 fi
+# auto-detect CUPS support
+if [ "$CFG_CUPS" != "no" ]; then
+    CFG_CUPS=yes
+    $unixtests/cups.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS && CFG_CUPS=no
+fi
 # auto-detect large file support
 # * MUST BE EXPLICITLY ENABLED FOR NOW - BREAKS BINARY COMPATIBILITY *
  
@@ -1424,6 +1437,13 @@ if [ "$OPT_HELP" = "yes" ]; then
 	NSY="*"
 	NSN=" "
     fi
+    if [ "$CFG_CUPS" = "no" ]; then
+	CUY=" "
+	CUN="*"
+    else
+	CUY="*"
+	CUN=" "
+    fi
     if [ "$CFG_LARGEFILE" = "no" ]; then
 	LFSY=" "
 	LFSN="*"
@@ -1432,7 +1452,7 @@ if [ "$OPT_HELP" = "yes" ]; then
 	LFSN=" "
     fi
     if [ "$CFG_STL" = "auto" ]; then
-	SHY="+"
+	SHY="*"
 	SHN=" "
     else
 	SHY=" "
@@ -1442,9 +1462,10 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir]
 	[-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
-	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-stl]
+	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm]
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng]
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-no-nis] [-nis]
+	[-no-cups] [-cups] [-stl] [-no-stl]
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
 	[-with-<module setting>] [-without-<module setting>] [-fast] [-nofast]
 
@@ -1540,6 +1561,9 @@ Configure options:
 
  $NSN  -no-nis ............ Do not compile NIS support.
  $NSY  -nis ............... Compile NIS support.
+
+ $CUN  -no-cups............ Do not compile CUPS support.
+ $CUY  -cups .............. Compile CUPS support.
 
  $SHN  -no-stl ............ Do not compile STL support.
  $SHY  -stl ............... Compile STL support.
@@ -2162,6 +2186,7 @@ elif [ "$CFG_ZLIB" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
+[ "$CFG_CUPS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG cups"
 [ "$CFG_NAS" = "system" ] && QMAKE_CONFIG="$QMAKE_CONFIG nas"
 [ "$CFG_BIG_CODECS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG bigcodecs"
 
@@ -2362,6 +2387,7 @@ echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
 echo "Thread support ...... $CFG_THREAD"
 echo "NIS support ......... $CFG_NIS"
+echo "CUPS support ........ $CFG_CUPS"
 echo "Large File support .. $CFG_LARGEFILE"
 echo "GIF support ......... $CFG_GIF"
 if [ "$CFG_MNG" = "no" ]; then

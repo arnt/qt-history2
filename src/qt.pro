@@ -121,7 +121,6 @@ thread {
 
 cups {
 	DEFINES += QT_CUPS_SUPPORT
-	LIBS += -lcups
 }
 
 nis {
