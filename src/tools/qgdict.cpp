@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#15 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#15 $";
 #endif
 
 
@@ -33,7 +33,7 @@ int QGDict::hashKey( const char *key )		// make hash value
     register const char *k = key;
 #if defined(CHECK_NULL)
     if ( key == 0 )
-	warning( "QGDict::hash: Invalid NULL key" );
+	warning( "QGDict::hash: Invalid null key" );
 #endif
     if ( cases ) {				// case sensitive
 #if 0
@@ -195,7 +195,10 @@ GCI QGDict::look( const char *key, GCI d, int op )
 	return 0;
     node->setKey( (char *)(copyk ? strdup(key) : key) );
     node->setData( newItem(d) );
-    CHECK_PTR( node->getData() );
+#if defined(CHECK_NULL)
+    if ( node->getData() == 0 )
+	warning( "QGList::look: Attempt to insert null item" );
+#endif
     node->setNext( vec[index] );		// link node into table
     vec[index] = node;
     numItems++;
