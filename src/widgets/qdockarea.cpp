@@ -284,7 +284,7 @@ QSize QDockAreaLayout::minimumSize() const
 	s = QMAX( s, dock_strut( dw, orientation() ) );
     }
 
-    return orientation() == Horizontal ? QSize( 0, s+2 ) :  QSize( s, 0 );
+    return orientation() == Horizontal ? QSize( 0, s ? s+2 : 0 ) :  QSize( s, 0 );
 }
 
 
