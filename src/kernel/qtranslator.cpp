@@ -1021,7 +1021,9 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 bool QTranslator::isEmpty() const
 {
     return !( d->unmapPointer || d->unmapLength || d->messageArray ||
-	      d->offsetArray || d->contextArray );
+	      d->offsetArray || d->contextArray || 
+	      (d->messages && d->messages->count())
+	    );
 }
 
 
