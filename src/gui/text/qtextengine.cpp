@@ -789,7 +789,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
     const QChar *uc = str.unicode();
     int cls = lineBreakClass(*uc);
-    if (cls == QUnicodeTables::LineBreak_CM)
+    if (cls >= QUnicodeTables::LineBreak_CM)
         cls = QUnicodeTables::LineBreak_ID;
 
     charAttributes[0].softBreak = false;
