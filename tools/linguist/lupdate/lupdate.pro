@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		+= qt warn_on
+CONFIG		+= qt warn_on console
 HEADERS		= ../shared/metatranslator.h
 SOURCES		= fetchtr.cpp \
 		  main.cpp \
