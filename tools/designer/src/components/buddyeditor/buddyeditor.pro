@@ -15,8 +15,13 @@ INCLUDEPATH += ../../lib/sdk \
     ../buddyeditor
 
 
-HEADERS += buddyeditor.h buddyeditor_global.h
+HEADERS += \
+    buddyeditor.h \
+    buddyeditor_plugin.h \
+    buddyeditor_global.h
 
-SOURCES += buddyeditor.cpp
+SOURCES += \
+    buddyeditor.cpp \
+    buddyeditor_plugin.cpp
 
 include(../../sharedcomponents.pri)
