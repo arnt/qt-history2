@@ -2711,7 +2711,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
             } else {
                 info.adornment |= kThemeAdornmentArrowLeftArrow;
                 static_cast<QMacStyleQDPainter *>(p)->setport();
-                DrawThemeButton(qt_glb_mac_ract(cmb->rect, p, true, QRect(1, 0, 0, 0)),
+                DrawThemeButton(qt_glb_mac_rect(cmb->rect, p, true, QRect(1, 0, 0, 0)),
                                 kThemePopupButton, &info, 0, 0, 0, 0);
             }
         }
