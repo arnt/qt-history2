@@ -1674,7 +1674,7 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
 QMakeLocalFileName
 MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {
-    QString ret = createMocFileName(file.real());
+    QString ret = createMocFileName(file.local());
     if(ret.endsWith(Option::cpp_moc_ext)) { //.moc
 	project->variables()["_SRCMOC"].append(ret);
     } else {
