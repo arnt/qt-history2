@@ -1,20 +1,139 @@
 #!/usr/bin/perl -w
+# vi:wrap:
+
+$projectid='example-Qt-message-extraction';
+$datetime='1999-02-23 15:38+0200';
+$charset='iso-8859-1';
+$translator='';
+
+$real_mark = "tr";
+$noop_mark = "tr_noop";
+$scoped_mark = "tr_scoped";
+
+$header='msgid ""
+msgstr ""
+"Project-Id-Version: '.$projectid.'\n"
+"POT-Creation-Date: '.$datetime.'\n"
+"PO-Revision-Date: '.$datetime.'\n"
+"Last-Translator: '.$translator.'\n"
+"Content-Type: text/plain; charset='.$charset.'\n"
+
+';
+
+
+
 
 $scope = "";
+
+if ( $#ARGV < 0 ) {
+    print STDERR "Usage:  findtr sourcefile ...  >project.po\n";
+    exit 1;
+}
+
+
+sub outmsg {
+    my ($file, $line, $scope, $msgid) = @_;
+    # unesc
+    $msgid =~ s/$esc:$esc:$esc/::/gs;
+
+    # Remove blank lines
+    $msgid =~ s/\n\n+/\n/gs;
+    $msgid = "\"\"\n$msgid" if $msgid =~ /\n/s;
+    print "#: $file:$line\n";
+    print "#. SCOPE ${scope}\n";
+    print "msgid $msgid\n";
+    print "msgstr \"\"\n";
+    print "\n";
+}
+
+print $header;
 
 foreach $file ( @ARGV ) {
     next unless open( I, "< $file" );
 
     $source = join( "", <I> );
-    $source =~ s/\"\s*\n\s*\"//gs;
-    while( $source =~ /(?:(?:\n(?:[a-zA-Z][a-zA-Z: ]*[\&\*]?\s*)?\b([A-Z][a-zA-Z]+)::(?:[A-Za-z0-9]+)\((?:(?:[^\n])|(?:\n[^\{]))*\)\s*\n\{)|(?:\btr\s*\(\s*\"([^\"]+)\"\s*\)))/gs ) {
+
+    # Find esc
+    $esc = 1;
+    while ( $source =~ /$esc:$esc:$esc/ ) {
+	$esc++;
+    }
+
+    # Hide quoted :: in practically all strings
+    $source =~ s/\"([^"\n]*)::([^"\n]*)\"/\"$1$esc:$esc:$esc$2\"/g;
+
+    while( $source =~ /
+	    (?:
+		# Some doublequotes are "escaped" to help vim syntax highlight
+
+		# $1 = scope; $2 = parameters etc.
+		(?:
+		    # Scoped function name ($1 is scope).
+		    (\w+)::(?:\w+)
+		    \s*
+		    # Parameters etc up to open-curly - no semicolons
+		    \(([^;]*)\)
+		    \s*
+		    \{
+		)
+	      |
+		# $3 - one-argument msgid
+		(?:\b
+		    # One of the marks
+		    (?:$real_mark|$noop_mark)
+		    \s*
+		    # The parameter
+		    \(\s*((?:"(?:[^"]|[^\\]\\")+"\s*)+)\)
+		)
+	      |
+		# $4,$5 - two-argument msgid
+		(?:\b
+		    # One of the scoped marks
+		    (?:$scoped_mark)
+		    \s*
+		    # The parameters
+		    \(
+			# The scope parameter
+			\s*("[^\"]*")
+			\s*,\s*
+			# The msgid parameter
+			\s*((?:\"(?:[^"]|[^\\]\\")+"\s*)+)
+		    \)
+		)
+	      |
+		# $6,$7 - scoped one-argument msgid
+		(?:\b
+		    # The scope
+		    (\w+::)
+		    # One of the marks
+		    (?:$real_mark)
+		    \s*
+		    # The parameter
+		    \(\s*((?:"(?:[^"]|[^\\]\\")+"\s*)+)\)
+		)
+	    )/gsx )
+    {
+	@lines = split /^/m, "$`";
+	$line = @lines;
 	if ( defined( $1 ) ) {
 	    if ( $scope ne $1 ) {
-		$scope = $1;
-		print "scope changed to $scope\n";
+		$sc=$1;
+		$etc=$2;
+		# remove strings
+		$etc =~ s/"(?:[^"]|[^\\]\\")"//g;
+		# count ( and )
+		@open = split /\(/m, $etc;
+		@close = split /\)/m, $etc;
+		if ( $#open == $#close ) {
+		    $scope = $sc;
+		}
 	    }
-	} elsif ( defined( $2 ) ) {
-	    print "saw string $2 in $scope\n";
+	} elsif ( defined( $3 ) ) {
+	    outmsg($file,$line,$scope,$3);
+	} elsif ( defined( $4 ) ) {
+	    outmsg($file,$line,$4,$5);
+	} elsif ( defined( $6 ) ) {
+	    outmsg($file,$line,$6,$7);
 	}
     }
 }
