@@ -769,7 +769,6 @@ public:
 
     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
-        qDebug("TreeNode: Adding filepath (%s)", filepath.latin1());
         QString newNodeName(filepath);
 
         int index = pathIndex(filepath);
@@ -822,7 +821,6 @@ public:
 
     using Node::addElement;
     void addElement(const QString &filepath, const VCFilterFile &allInfo){
-        qDebug("FlatNode: Adding filepath (%s)", filepath.latin1());
         QString newKey(filepath);
 
         int index = pathIndex(filepath);
