@@ -62,7 +62,7 @@ QFileDialog
   set filter to initial file-extension
 
 QSizeGrip (Win32) (Volker)
-  Outlined resize as set in the system properties 
+  Outlined resize as set in the system properties
 
 QButtonGroup
   Should work not only for QRadioButtons
@@ -92,8 +92,9 @@ Docking widgets (Reggie)
 
 Plugin System (Volker)
     System for dynamically loading plugins. First used by designer
-    but offered as Qt class. Find a solution to fix qAddPostRoutine as
-    this doesn't allow unloading libraries without crashing.
+    but offered as Qt class. Find a solution to fix qAddPostRoutine
+    and static meta object problems with unloading libs (maybe have a
+    look at the hacks done in KDE to see all problems)
 
 BiDi (Lars)
     BiDi algorithm for all text displaying. ASA the QTextView,
