@@ -555,8 +555,12 @@ static void setBody( CppFunction *func, const QString& somewhatBody )
 
 static void matchTranslationUnit( QValueList<CppFunction> *flist )
 {
+    int endBody = -1;
+    int startBody;
+
     while ( TRUE ) {
-	int endBody = yyPos;
+	if ( endBody == -1 )
+	    endBody = yyPos;
 
 	while ( yyTok != Tok_Boi && yyTok != Tok_LeftBrace )
 	    yyTok = getToken();
@@ -569,6 +573,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
 	if ( !func.scopedName().isEmpty() ) {
 	    setBody( &func, yyIn.mid(startBody, endBody - startBody) );
 	    flist->prepend( func );
+	    endBody = -1;
 	}
     }
 }
