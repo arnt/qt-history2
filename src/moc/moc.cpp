@@ -571,8 +571,14 @@ void Moc::parse()
                     if (parseMaybeFunction(&funcDef)) {
                         if (access == FunctionDef::Public)
                             def.publicList += funcDef;
-                        if (funcDef.isInvokable)
+                        if (funcDef.isInvokable) {
                             def.methodList += funcDef;
+                            while (funcDef.arguments.size() > 0 && funcDef.arguments.last().isDefault) {
+                                funcDef.wasCloned = true;
+                                funcDef.arguments.removeLast();
+                                def.methodList += funcDef;
+                            }
+                        }
                     } else {
                         index = rewind;
                     }

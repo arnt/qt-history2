@@ -216,12 +216,7 @@ void Generator::generateCode()
     generateClassInfos();
 
 //
-// Build method array
-//
-    generateFunctions(cdef->methodList, "method", MemberMethod);
-
-//
-// Build signals array
+// Build signals array first, otherwise the signal indices would be wrong
 //
     generateFunctions(cdef->signalList, "signal", MemberSignal);
 
@@ -229,6 +224,12 @@ void Generator::generateCode()
 // Build slots array
 //
     generateFunctions(cdef->slotList, "slot", MemberSlot);
+
+//
+// Build method array
+//
+    generateFunctions(cdef->methodList, "method", MemberMethod);
+
 
 //
 // Build property array

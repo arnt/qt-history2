@@ -19,6 +19,7 @@
 #endif // QT_H
 
 class QCoreVariant;
+template <typename T> class QList;
 
 class Q_CORE_EXPORT QMetaMember
 {
@@ -26,8 +27,9 @@ public:
     inline QMetaMember():mobj(0),handle(0){}
 
     const char *signature() const;
-    const char *parameters() const;
     const char *typeName() const;
+    QList<QByteArray> parameterTypes() const;
+    QList<QByteArray> parameterNames() const;
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;

@@ -806,8 +806,8 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
     \ingroup objectmodel
 
     A QMetaMember has a memberType(), a signature(), a list of
-    parameters(), a return typeName(), a tag(), and an access()
-    specifier.
+    parameterTypes() and parameterNames(), a return typeName(), a
+    tag(), and an access() specifier.
 */
 
 /*!
@@ -833,14 +833,59 @@ const char *QMetaMember::signature() const
 }
 
 /*!
-    Returns a comma-separated list of parameter names.
+    Returns a list of parameter types.
 */
-const char *QMetaMember::parameters() const
+QList<QByteArray> QMetaMember::parameterTypes() const
 {
+    QList<QByteArray> list;
     if (!mobj)
-        return 0;
-    return mobj->d.stringdata + mobj->d.data[handle + 1];
+        return list;
+    const char *signature = mobj->d.stringdata + mobj->d.data[handle];
+    while (*signature && *signature != '(')
+        ++signature;
+    while (*signature && *signature != ')' && *++signature != ')') {
+        const char *begin = signature;
+        int level = 0;
+        while (*signature && (level > 0 || *signature != ',') && *signature != ')') {
+            if (*signature == '<')
+                ++level;
+            else if (*signature == '>')
+                --level;
+            ++signature;
+        }
+        list += QByteArray(begin, signature - begin);
+    }
+    return list;
 }
+
+/*!
+    Returns a list of parameter names.
+*/
+QList<QByteArray> QMetaMember::parameterNames() const
+{
+    QList<QByteArray> list;
+    if (!mobj)
+        return list;
+    const char *names =  mobj->d.stringdata + mobj->d.data[handle + 1];
+    if (*names == 0) {
+        // do we have one or zero arguments?
+        const char *signature = mobj->d.stringdata + mobj->d.data[handle];
+        while (*signature && *signature != '(')
+            ++signature;
+        if (*++signature != ')')
+            list += QByteArray();
+    } else {
+        --names;
+        do {
+            const char *begin = ++names;
+            while (*names && *names != ',')
+                ++names;
+            list += QByteArray(begin, names - begin);
+        } while (*names);
+    }
+    return list;
+}
+
 
 /*!
     Returns the return type of this member, or an empty string if the
