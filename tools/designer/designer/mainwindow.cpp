@@ -785,6 +785,7 @@ void MainWindow::helpAbout()
 	LanguageInterface *iface = MetaDataBase::languageInterface( eProject->language() );
 	dlg.aboutLicense->setText( iface->aboutText() );
     }
+    dlg.resize( dlg.width(), dlg.layout()->heightForWidth(dlg.width()) );
     dlg.exec();
 }
 
