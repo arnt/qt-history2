@@ -1228,7 +1228,7 @@ void EnumItem::printHtml( HtmlWriter& out ) const
 {
     out.putsMeta( ident().latin1() );
     if ( !value().isEmpty() ) {
-	out.printfMeta( "\xa0=\xa0%s" );
+	out.puts( "\xa0=\xa0" );
 	value().printHtml( out );
     }
 }
