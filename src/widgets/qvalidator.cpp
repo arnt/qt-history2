@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#14 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#14 $");
 
 
 /*!
@@ -25,9 +25,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#13 $");
   The class itself is abstract; two subclasses provide rudimentary
   numeric range checking.
 
-  The class includes two virtual functions, isValid() and fixup().
+  The class includes two virtual functions, validate() and fixup().
 
-  isValid() is pure virtual, so it must be implemented by every
+  validate() is pure virtual, so it must be implemented by every
   subclass.  It returns Invalid, Valid or Acceptable depending on
   whether its argument is valid (for the class' definition of valid).
 
