@@ -545,11 +545,16 @@ void QPainter::flush()
 {
     if(!isActive())
 	return;
-
+    
+    CGrafPtr toFlush = NULL;
+    RgnHandle area = NULL;
+    if(!paintreg.data->is_rect)
+	area = paintreg.data->rgn;
     if ( pdev->devType() == QInternal::Widget )
-	QDFlushPortBuffer(GetWindowPort((WindowPtr)pdev->handle()), (RgnHandle)paintreg.handle());
+	toFlush = GetWindowPort((WindowPtr)pdev->handle());
     else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer)
-	QDFlushPortBuffer((GWorldPtr)pdev->handle(), (RgnHandle)paintreg.handle());
+	toFlush = (GWorldPtr)pdev->handle();
+    QDFlushPortBuffer(toFlush, area);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -924,6 +929,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
     initPaintDevice();
     if(paintreg.isEmpty())
 	return;
+
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
     if( this->brush().style() != NoBrush) {
@@ -1805,5 +1811,15 @@ inline void QPainter::updateClipRegion()
 	    paintreg = clippedreg;
 	}
     }
-    SetClip((RgnHandle)paintreg.handle());
+    if(paintreg.data->is_rect || paintreg.isNull()) {
+	Rect r;
+	if(paintreg.data->is_rect)
+	    SetRect(&r, paintreg.data->rect.x(), paintreg.data->rect.y(), 
+		    paintreg.data->rect.right()+1, paintreg.data->rect.bottom()+1);
+	else
+	    SetRect(&r, 0, 0, 0, 0);
+	ClipRect(&r);
+    } else {
+	SetClip((RgnHandle)paintreg.handle()); //probably shouldn't do this?
+    }
 }

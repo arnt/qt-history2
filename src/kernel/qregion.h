@@ -91,11 +91,11 @@ public:
 			{ return !(operator==(r)); }
 
 #if defined(Q_WS_WIN)
-    HRGN    handle() const { return data->rgn; }
+    HRGN    handle() const { return data->is_rect ? &data->data->rgn; }
 #elif defined(Q_WS_X11)
     Region  handle() const { return data->rgn; }
 #elif defined(Q_WS_MAC)
-    void *  handle() const { return data->rgn; }
+    void *  handle(bool require_rgn=FALSE) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
     void * handle() const { return data->rgn; }
@@ -113,9 +113,15 @@ private:
     QRegion winCombine( const QRegion &, int ) const;
 #endif
 #if defined(Q_WS_MAC)
+    friend void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
+			      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+			      Qt::RasterOp rop, bool imask);
+    friend void dirty_wndw_rgn_internal(const QWidget *, const QRegion &);
+    friend class QPainter;
     friend class QWidget;
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
     QRegion(const RgnHandle);
+    void rectifyRegion();
 #endif
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
@@ -124,6 +130,8 @@ private:
 #elif defined(Q_WS_X11)
 	Region rgn;
 #elif defined(Q_WS_MAC)
+	uint is_rect:1;
+	QRect rect;
 	RgnHandle rgn;
 #elif defined(Q_WS_QWS)
 	void * rgn;

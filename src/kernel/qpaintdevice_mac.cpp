@@ -293,11 +293,23 @@ void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
   QMacSavedPortInfo saveportstate(dst); 
     
   if(dst && dst->devType() == QInternal::Widget) {
-       SetClip((RgnHandle)((QWidget *)dst)->clippedRegion().handle()); //probably shouldn't do this?
+      QRegion rgn = ((QWidget *)dst)->clippedRegion();
+      if(rgn.data->is_rect || rgn.data->is_null) {
+	  Rect r;
+	  if(rgn.data->is_rect)
+	      SetRect(&r, rgn.data->rect.x(), rgn.data->rect.y(), 
+		      rgn.data->rect.right()+1, rgn.data->rect.bottom()+1);
+	  else
+	      SetRect(&r, 0, 0, 0, 0);
+	  ClipRect(&r);
+      } else {
+	  SetClip((RgnHandle)rgn.handle()); //probably shouldn't do this?
+      }
   } else if(dst && dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
-      QRegion rgn(0,0,pm->width(),pm->height()); //I'm paranoid..
-      SetClip((RgnHandle)rgn.handle());
+      Rect r;
+      SetRect(&r, 0,0,pm->width()+1,pm->height()+1); //I'm paranoid..
+      ClipRect(&r);
   }
   unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask);
 }

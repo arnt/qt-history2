@@ -108,18 +108,10 @@ static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &
     for(int i = 0; i < (int)rs.size(); i++) 
 	qDebug("%d %d %d %d", rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 }
-static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint=FALSE) {
+tatic inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint=FALSE) {
     debug_wndw_rgn(where, w, QRegion(r->left, r->top, r->right - r->left, r->bottom - r->top), paint);
 }
-static inline void dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
-{
-    if(!w->testWFlags( Qt::WType_Desktop )) {
-	debug_wndw_rgn(where, w, r, FALSE);
-	InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
-	qt_event_request_updates();
-    }
-}
-static inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
+inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
 {
     if(!w->testWFlags( Qt::WType_Desktop )) {
 	debug_wndw_rgn(where, w, r, FALSE);
@@ -127,19 +119,34 @@ static inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
 	qt_event_request_updates();
     }
 }
-#define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
-#else
-static inline void dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r) 
-{ 
-    if(!p->testWFlags( Qt::WType_Desktop )) {
-	InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
+static inline void dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
+{
+    if(r.data->is_rect)
+	dirty_wndw_rgn_internal(p, &r.data->rect);
+
+    if(!w->testWFlags( Qt::WType_Desktop )) {
+	debug_wndw_rgn(where, w, r, FALSE);
+	InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
 	qt_event_request_updates();
     }
 }
+
+#define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
+#else
 static inline void dirty_wndw_rgn_internal(const QWidget *p, const Rect *r) 
 { 
     if(!p->testWFlags( Qt::WType_Desktop )) {
 	InvalWindowRect((WindowPtr)p->handle(), r); 
+	qt_event_request_updates();
+    }
+}
+inline void dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r) 
+{ 
+    if(r.data->is_rect)
+	dirty_wndw_rgn_internal(p, &r.data->rect);
+
+    if(!p->testWFlags( Qt::WType_Desktop )) {
+	InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle()); 
 	qt_event_request_updates();
     }
 }
@@ -837,16 +844,6 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
-
-#ifdef Q_WS_MACX //When repaint is called the user probably expects a screen update?
-	if(!qt_mac_noflush && QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
-	    QPoint p(posInWindow(this));
-            QRegion clean(reg);
-	    clean.translate(p.x(), p.y());
-	    clean &= clippedRegion();
-	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
-	}
-#endif
     }
 }
 
@@ -1167,7 +1164,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-		    SetClip((RgnHandle)bltregion.handle());
+		    SetClip((RgnHandle)bltregion.handle(TRUE));
 		    //actually copy some pixels now
 		    GrafPtr wport = GetWindowPort((WindowPtr)handle());
 		    LockPortBits(wport);
@@ -1372,7 +1369,7 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
 	QRegion clean(copied);
 	clean.translate(p.x(), p.y());
-	QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle());
+	QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)clean.handle(TRUE));
     }
 #endif
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
@@ -1546,7 +1543,7 @@ void QWidget::propagateUpdates()
 #ifdef Q_WS_MACX //now we do a flush of the whole region
 	qt_mac_noflush = FALSE;
 	if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
-	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)rgn.handle());
+	    QDFlushPortBuffer(GetWindowPort((WindowPtr)hd), (RgnHandle)rgn.handle(TRUE));
 #endif
 
     }
