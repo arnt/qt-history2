@@ -275,6 +275,7 @@ CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
 CFG_MOUSE_ON="pc"   #default, see QMAKE_VARS above
 CFG_MOUSE_OFF=
 CFG_STYLE_AVAILABLE=
+CFG_USE_GNUMAKE=no
 CFG_IM=yes
 CFG_IM_EXT=no
 CFG_DECORATION_AVAILABLE=
@@ -380,7 +381,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -516,6 +517,9 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
+    gnumake)
+	CFG_USE_GNUMAKE="$VAL"
+        ;;
     prefix)
 	QT_INSTALL_PREFIX="$VAL"
 	;;
@@ -1805,6 +1809,10 @@ if [ "$CFG_CUPS" != "no" ]; then
 	CFG_CUPS=yes
     fi
 fi
+#auto-detect GNU make support
+if [ "$CFG_USE_GNUMAKE" = "auto" ] && $MAKE -v | grep "GNU Make" >/dev/null 2>&1; then
+   CFG_USE_GNUMAKE=yes
+fi
 
 #mac
 if [ "$PLATFORM_MAC" = "yes" ]; then
@@ -1905,7 +1913,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     rm -f $outpath/config.tests/x11/xft.lib
     # add Xft specific config options
     if [ "$CFG_XFT" = "yes" ] && [ -f $outpath/config.tests/x11/xft.cfg ]; then
-	QT_LIBXFT=`cat $outpath/config.tests/x11/xft.cfg` ####SDM
+	QT_LIBXFT=`cat $outpath/config.tests/x11/xft.cfg`
     fi
     rm -f $outpath/config.tests/x11/xft.cfg
     # auto-detect Session Management support
@@ -3038,6 +3046,9 @@ if [ "$CFG_STL" = "no" ]; then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
+fi
+if [ "$CFG_USE_GNUMAKE" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG GNUmake"
 fi
 [ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
 if [ "$CFG_IPV6" = "yes" ]; then
