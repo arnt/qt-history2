@@ -62,23 +62,12 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #include <X11/Xatom.h>
 /* Motif include files */
 #include <Xm/Xm.h>
-// #include <Xm/CascadeBG.h>
 #include <Xm/Label.h>
-// #include <Xm/MainW.h>
 #include <Xm/Notebook.h>
-// #include <Xm/PushBG.h>
-// #include <Xm/RowColumn.h>
-// #include <Xm/ScrolledW.h>
-// #include <Xm/Separator.h>
 #include <Xm/Text.h>
 
-// Wrap non-standard includes with extern "C"
 /* Demo include files */
 extern "C" {
-// #include <Xmd/Help.h>
-// #include <Xmd/Menus.h>
-#include <Xmd/Print.h>
-
 #include "page.h"
 } // extern "C"
 
@@ -92,7 +81,6 @@ char * fallback_resources[] = {
 "*text.rows: 24",
 "*text.columns: 80",
 "*print_manager.printerList: lp,./todo.txt",
-// "*help_manager.helpFile: todo",
 "*notebook.frameShadowThickness: 2",
 "*notebook.bindingType:	XmSPIRAL",
 NULL
@@ -114,18 +102,13 @@ XrmOptionDescRec optionDesc[] = {
   {"-todoFile", "*todoFile", XrmoptionSepArg, NULL}
 };
 
-// static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
 static void TextChanged(Widget, XtPointer, XtPointer);
 
 // Wrap extern/callback functions and global variables with extern "C"
 extern "C" {
 
-    // void manageCB(Widget, Widget, XtPointer);
-    // void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
     void New(Widget, char*, XmPushButtonCallbackStruct *);
-    // void Open(Widget, char*, XmFileSelectionBoxCallbackStruct *);
     void Open(Widget, XtPointer, XmPushButtonCallbackStruct *);
-    // void Save(Widget, char*, XmFileSelectionBoxCallbackStruct *);
     void Save(Widget, XtPointer, XmPushButtonCallbackStruct *);
     void Print(Widget, char*, XmdPrintCallbackStruct *);
     void ShowPrintDialog(Widget, XtPointer, XmPushButtonCallbackStruct *);
@@ -135,17 +118,13 @@ extern "C" {
     void DeletePage(Widget, XtPointer, XmPushButtonCallbackStruct *);
     void EditPage(Widget, XtPointer, XmPushButtonCallbackStruct *);
     void SetPage(int);
-    // void help_cb(Widget, XtPointer, XmAnyCallbackStruct *);
 
     extern void ReadDB(char*);
     extern void SaveDB(char*);
 
     extern Page pages[];
 
-    // Widget shell;
     Widget notebook, textw, labelw;
-    // Widget help_widget;
-    // Widget file_dialog;
     int currentPage = 1;
     int modified;
     extern int maxpages;
@@ -219,34 +198,11 @@ int main( int argc, char **argv )
   return app.exec();
 }
 
-// Unneeded QuitAppl callback
-// static void
-// QuitAppl(Widget w, char *i, XmPushButtonCallbackStruct *e)
-// {
-//   exit(0);
-// }
-
 static void
 TextChanged(Widget, XtPointer, XtPointer)
 {
   modified = 1;
 }
-
-// Unneeded manageCB callback
-// void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
-// {
-//   if (w_to_manage != (Widget) NULL)
-//     XtManageChild(w_to_manage);
-// }
-
-// Callback to show the XmFileSelectionBox dialog
-// void
-// PresentFDialog(Widget w, XtPointer cb, XmPushButtonCallbackStruct *cs)
-// {
-//   XtRemoveAllCallbacks(file_dialog, XmNokCallback);
-//   XtAddCallback(file_dialog, XmNokCallback, (XtCallbackProc) cb, NULL);
-//   XtManageChild(file_dialog);
-// }
 
 void
 New( Widget, char *, XmPushButtonCallbackStruct * )
@@ -309,14 +265,6 @@ Open(Widget, XtPointer client_data,
     //               XA_STRING, NULL, NULL);
   }
 }
-
-// Callback to show the Help widget
-// void
-// help_cb(Widget w, XtPointer item, XmAnyCallbackStruct *cb)
-// {
-//   XtManageChild(help_widget);
-//   XmdGotoHelpItem(w, (int) item, help_widget);
-// }
 
 // Print using QMotifDialog
 void ShowPrintDialog(Widget, XtPointer client_data,

@@ -3,7 +3,8 @@
 ######################################################################
 
 TEMPLATE = app
-TARGET = walkthrough
+DESTDIR = ..
+TARGET = walkthrough-nomotif
 
 # Input
 FORMS    = pageeditdialog.ui \

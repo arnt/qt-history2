@@ -261,46 +261,10 @@ project file and regenerate our \c Makefile.
 The code to create the \e Help menu and \e Help dialog is in \c
 todo.cpp.  We remove the \c Xmd/Help.h include, the \c *help_manager
 resource string, the \c help_cb() function forward declaration and the
-\c help_widget global variable.
-
-\quotefile walkthrough/dialogs/todo.cpp
-
-\skipto Demo include files
-\printuntil Xmd/Help.h
-
-\code
-    ...
-\endcode
-
-\skipto void SetPage(int);
-\printuntil void help_cb(Widget, XtPointer, XmAnyCallbackStruct *);
-
-\code
-    ...
-\endcode
-
-\skipto Widget shell, notebook, textw, labelw;
-\printuntil  Widget help_widget;
-
-We also need to remove the code that creates the \e Help dialog.  We
-will also remove the code to create the \e Help menu, since this menu
-is now empty.
-
-\skipto XmdCreateMenu(HELP_MENU, menubar, &help_menu, &size);
-\printuntil XtManageChild(help_menu[HELP_OVERVIEW]);
-
-\code
-    ...
-\endcode
-
-\skipto help_widget = XmdCreateHelpDialog(shell, "help_manager", NULL, 0);
-\printuntil (XtCallbackProc) help_cb, (XtPointer) 1);
-
-Next, we remove the \c help_cb() function implementation.
-
-\skipuntil Callback to show the Help widget
-\printuntil XmdGotoHelpItem(w, (int) item, help_widget);
-\printline
+\c help_widget global variable.  We also need to remove the code that
+creates the \e Help dialog.  We will also remove the code to create
+the \e Help menu, since this menu is now empty.  Finally, we remove
+the \c help_cb() function implementation.
 
 The \e Help dialog is now removed from our project.  We cannot add
 QToolTip and QWhatsThis help at the moment, since we are still using
@@ -358,35 +322,7 @@ file_dialog variable, and the code to create the dialog. We also
 remove the \c PresentFDialog() callback function. None of this code
 is needed to use QFileDialog.
 
-\quotefile walkthrough/dialogs/todo.cpp
-
-\skipto Motif include files
-\printuntil Xm/FileSB.h
-\printline
-
-\code
-    ...
-\endcode
-
-\skipto void manageCB(Widget, Widget, XtPointer);
-\printuntil void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
-
-\code
-    ...
-\endcode
-
-\skipto Widget shell, notebook, textw, labelw;
-\printuntil Widget file_dialog;
-
-\code
-    ...
-\endcode
-
-\skipuntil Callback to show the XmFileSelectionBox dialog
-\printuntil XtManageChild(file_dialog);
-\printline
-
-Since we removed the \c PresentFDialog() callback function, we need to
+After removing the \c PresentFDialog() callback function, we need to
 make \e Open and \e {Save As} popup-menu callbacks call the \c Open()
 and \c Save() functions.
 
@@ -400,10 +336,17 @@ First we must change the declaration of these two functions.
 
 We also change the arguments to the callbacks. We pass the top-level
 QMotifWidget as the \c client_data to these functions, since we will
-be using this as the parent for the QFileDialog.
+be using it as the parent for the QFileDialog.
 
-\skipto XmdCreateMenu(FILE_MENU
-\printuntil (XtCallbackProc) SaveIt
+\skipto // XtAddCallback(file_menu[FILE_OPEN], XmNactivateCallback,
+\printuntil (XtCallbackProc) Open, (XtPointer) &toplevel);
+
+\code
+    ...
+\endcode
+
+\skipto // XtAddCallback(file_menu[FILE_SAVE_AS], XmNactivateCallback,
+\printuntil (XtCallbackProc) Save, (XtPointer) &toplevel);
 
 Next, we modify the \c Save() function to use
 QFileDialog::getSaveFileName().
@@ -447,12 +390,8 @@ We need to fix a single invalid pointer cast.
 \printline
 \printline
 
-And we need to change the variable name \e new in the \c Trim()
-function.
-
-\skipuntil Change variable name 'new'
-\printuntil return(newstr);
-\printline
+And we need to change the variable named \e new to \e newstr in the \c
+Trim() function.
 
 We can now change the \c DeletePage() function to use
 QMessageBox::information().
@@ -463,9 +402,7 @@ QMessageBox.
 \quotefile walkthrough/dialogs/actions.cpp
 
 \skipto Qt includes
-\printline
-\printline
-\printline
+\printuntil #include <qmessagebox.h>
 
 The code for \c DeletePage() looks like this:
 
@@ -482,7 +419,7 @@ Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
 
 \quotefile walkthrough/dialogs/todo.cpp
 
-\skipto XtManageChild(selected_menu[SELECTED_DELETE]);
+\skipto // XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
 \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
 
 The \e {IO Error} dialog is created and used in \c {io.c}. We need to
@@ -530,11 +467,17 @@ The code for \c ReadDB() looks like this:
 
 \skipto input = fopen(filename, "r")
 \printuntil Destroy current pages on reread
+\code
+    ...
+\endcode
 
 The code for \c SaveDB() looks like this:
 
 \skipto (access(filename, F_OK) == 0
 \printuntil Append a ~ to make the old filename
+\code
+    ...
+\endcode
 
 After we build the project, the application runs and operates as
 expected. The difference is that the \e {Page Delete} and \e {IO
@@ -568,7 +511,7 @@ done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 
 \quotefile walkthrough/dialogs/todo.cpp
 
-\skipto XtManageChild(selected_menu[SELECTED_PROPERTIES]);
+\skipto // XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
 \printuntil (XtCallbackProc) EditPage, (XtPointer) &toplevel );
 
 The \c EditPage() function is implemented in \c actions.cpp.  We start
@@ -586,15 +529,18 @@ the initial values of the three QLineEdit widgets with values from the
 current page and execute the dialog.
 
 \skipuntil // EditPage using custom QDialog
+\printuntil if ( result != QDialog::Accepted )
 \printuntil return
-\printuntil return
+\code
+    ...
+\endcode
 
 At this point in the code, the page properties should be modified. The
 code to do this is in the \c DoEditPage() function. We move the
 contents of \c DoEditPage() to this point and remove the \c
 DoEditPage() function completely.
 
-The \c Page struct defined in \c page.h stores strings in \c {char *}
+The \c Page struct defined in \c page.h stores strings in \c {char*}
 arrays.  Since the PageEditDialog and the data it contains will be
 destroyed when we return from this function, we need to convert the
 unicode QString data into a QCString in the locale encoding and
@@ -690,7 +636,7 @@ We change the \e Print menu item callback to call the new \c
 ShowPrintDialog() function.  We pass the top-level QMotifWidget, which
 we will use as the parent for the dialog.
 
-\skipto XmdCreatePrintDialog(shell, "print_manager", NULL, 0);
+\skipto XtAddCallback(file_menu[FILE_PRINT], XmNactivateCallback,
 \printuntil (XtCallbackProc) ShowPrintDialog, (XtPointer) &toplevel);
 
 The \c ShowPrintDialog() function creates the \e Print dialog and
@@ -704,6 +650,10 @@ Print() function as before.
 \skipto ShowPrintDialog(Widget, XtPointer client_data,
 \printuntil dialog.exec();
 \printline
+
+After we build the project, the application runs and operates as
+expected.  There is no visual or behavioral difference, even though
+the \e Print dialog is using QMotifDialog.
 
 \section1 Using Qt Main Window Classes
 
@@ -802,51 +752,12 @@ We can cleanup the Motif includes, since many of them are no longer
 needed.
 
 \skipto Motif include files
-\printuntil Xm/Text.h
-
-\skipto Demo include files
-\printuntil Xmd/Print.h
+\printuntil } // extern "C"
 
 The \c QuitAppl() and \c manageCB() callbacks are not needed anymore,
-so we remove them.
-
-\skipto static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
-\printline
-
-\code
-    ...
-\endcode
-
-\skipto void manageCB(Widget, Widget, XtPointer);
-\printline
-
-\code
-    ...
-\endcode
-
-\skipuntil Unneeded QuitAppl callback
-\printuntil // }
-
-\code
-    ...
-\endcode
-
-\skipuntil Unneeded manageCB callback
-\printuntil // }
-
-We do not need the toplevel shell either.
-
-\quotefile walkthrough/mainwindow/todo.cpp
-
-\skipto Widget shell;
-\printuntil Widget file_dialog;
-
-Next, we remove all references to the shell variable in the \c New(),
-\c Save() and \c Open() callbacks:
-
-\skipuntil New( Widget, char *, XmPushButtonCallbackStruct * )
-\skipto options.todoFile = str;
-\printuntil //               XA_STRING, NULL, NULL);
+so we remove them.  We do not need the global \c shell variable
+either.  We remove it and all references to it in the \c New(), \c
+Save() and \c Open() callbacks.
 
 In \c main(), we make the large changes.  First, we use our new \c
 MainWindow instead of QMotifWidget with \c XmMainWindow.
@@ -854,7 +765,7 @@ MainWindow instead of QMotifWidget with \c XmMainWindow.
 \quotefile walkthrough/mainwindow/todo.cpp
 
 \skipto QMotif integrator
-\printuntil   app.setMainWidget( &mainwindow );
+\printuntil app.setMainWidget( &mainwindow );
 
 We will now use QMotifWidget to create the \c XmNotebook widget.
 
@@ -866,6 +777,10 @@ remaining code in \c main() is self-explanatory.
 
 \printuntil return app.exec();
 \printline
+
+Our application is now using QMainWindow instead of \c XmMainWindow.
+After we build the project, the application runs and operates as
+expected.
 
 \section1 Refactoring Existing Code
 
@@ -1013,9 +928,9 @@ instead of using \e new.
 The \c SaveDB() function in \c io.cpp also needs these changes.  We
 change one occurance of \c XtFree() to \e delete.
 
-\skipto void SaveDB(char* filename)
+\skipto SaveDB(char* filename)
 \skipto Make sure to grab current page
-\printuntil delete pages[currentPage] -> page;
+\printuntil delete [] pages[currentPage] -> page;
 
 Finally, We need to replace 2 occurances of \c XtNewString() in the \c
 main() function in \c todo.cpp.
@@ -1183,7 +1098,7 @@ need to be removed.  These members correspond to the tabs displayed in
 the existing version.  The new version will not have any tabs, so we
 remove them.
 
-\quotefile walkthrough/page.h
+\quotefile walkthrough/view/page.h
 \skipto struct Page {
 \printuntil int lastcursorpos;
 \printline
@@ -1212,7 +1127,7 @@ and \c actions.cpp, respectively.  In order to make \c
 MainWindow::setPage() work correctly, we need to modify the code to
 use the new widgets in our \e {Main Window} widget.
 
-\quotefile walkthrough/mainwindow.ui.h
+\quotefile walkthrough/view/mainwindow.ui.h
 \skipto void MainWindow::setPage( int pageNumber )
 \printto if ( pageNumber <= maxpages )
 
@@ -1285,7 +1200,7 @@ work properly.
 First, We add \c #include statements for the \c MainWindow, QSpinBox
 and QTextEdit classes.
 
-\quotefile walkthrough/io.cpp
+\quotefile walkthrough/view/io.cpp
 \skipto // Local includes
 \printuntil #include <qtextedit.h>
 
@@ -1305,12 +1220,11 @@ After reading the file in the \c MainWindow::readDB() function, we set
 the current and maximum values of the \c spinbox to the appropriate
 values.
 
-\quotefile walkthrough/io.cpp
+\quotefile walkthrough/view/io.cpp
 
 \skipto void MainWindow::readDB( char *filename )
 \skipto maxpages = number;
-\printuntil spinbox->setValue( 1 );
-\printuntil }
+\printuntil if (input) fclose(input);
 
 In the \c MainWindow::saveDB() function, we need to store the text
 currently displayed, so we use QTextEdit::text() instead of \c
@@ -1322,7 +1236,7 @@ returned by QString::local8Bit() is deallocated when the QCString is
 destroyed.
 
 \skipto void MainWindow::saveDB( char *filename )
-\skipto Make sure to grab the current page
+\skipto Make sure to grab current page
 \printuntil pages[currentPage] -> page = qstrdup( textedit->text().local8Bit() );
 \printline
 
@@ -1351,7 +1265,7 @@ the old Motif based view widget from \c todo.cpp.
 Since we will not be using any Motif widgets, we remove all Motif \c
 #include statements, including \c qmotifwidget.h. 
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/view/todo.cpp
 
 \skipto // Local includes
 \printuntil #include <stdlib.h>
@@ -1400,7 +1314,7 @@ contain information on the use of QPrinter.
 
 For completeness, the code to initialize a QPrinter object is included below.
 
-\quotefile walkthrough/mainwindow.ui.h
+\quotefile walkthrough/print/mainwindow.ui.h
 \skipto void MainWindow::filePrint()
 \printto qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 
@@ -1440,7 +1354,7 @@ finish removing the dependencies on Xt and Motif.
 
 First, we cleanup the \c #include statements in \c mainwindow.ui.h.
 
-\quotefile walkthrough/mainwindow.ui.h
+\quotefile walkthrough/print/mainwindow.ui.h
 
 \skipto // Local includes
 \printuntil #include <unistd.h>
@@ -1473,7 +1387,7 @@ projects.
 \section2 Using Unicode
 
 Support for \link i18n.html internationalization\endlink is very easy
-with Qt.  Using QString instead of \c {char *} for storing text gives
+with Qt.  Using QString instead of \c {char*} for storing text gives
 us support for most of the written languages around the world.  Our \c
 Page and \c Options structs look much simpler now.
 
