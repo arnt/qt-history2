@@ -1088,9 +1088,6 @@ void QListWidget::setup()
             this, SIGNAL(selectionChanged()));
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
-
-    d->viewport->setAcceptDrops(true);
-    setDraggableItems(true);
 }
 
 #include "moc_qlistwidget.cpp"

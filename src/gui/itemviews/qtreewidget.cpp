@@ -1482,9 +1482,6 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             this, SLOT(emitItemChanged(QModelIndex,QModelIndex)));
     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
             this, SLOT(sortItems(int)));
-
-    d->viewport->setAcceptDrops(true);
-    setDraggableItems(true);
 }
 
 /*!
