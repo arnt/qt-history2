@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#100 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#99 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#100 $";
 #endif
 
 
@@ -1118,8 +1118,9 @@ static uchar *pat_tbl[] = {
 	if ( bro.x() != 0 || bro.y() != 0 )
 	    XSetTSOrigin( dpy, gc_brush, bro.x(), bro.y() );
     }
-    if ( cbrush.data->pixmap ) {		// delete old pixmap
-	XFreePixmap( cbrush.data->dpy, cbrush.data->pixmap );
+    if ( cbrush.data->pixmap ) {			// delete old pixmap
+        if ( cbrush.data->style != CustomPattern )
+	    XFreePixmap( cbrush.data->dpy, cbrush.data->pixmap );
 	cbrush.data->pixmap = 0;
     }
     cbrush.data->dpy = dpy;			// make sure display is set
@@ -2340,20 +2341,25 @@ void QPainter::drawPie( int x, int y, int w, int h, int a1, int a2 )
     if ( cbrush.style() != NoBrush )		// draw filled pie
 	XFillArc( dpy, hd, gc_brush, x, y, w, h, a1*4, a2*4 );
     if ( cpen.style() != NoPen ) {		// draw pie outline
-	int w2 = w/2;				// with, height in ellipsis
-	int h2 = h/2;
-	int xc = x+w2;
-	int yc = y+h2;
-	int xa1, ya1, xa2, ya2;
+	double w2 = 0.5*w;			// with, height in ellipsis
+	double h2 = 0.5*h;
+	double xc = (double)x+w2;
+	double yc = (double)y+h2;
 	double ra1, ra2;
 	ra1 = Q_PI/2880.0*a1;			// convert a1,a2 to radians
 	ra2 = ra1 + Q_PI/2880.0*a2;
-	xa1 = xc + (int)(qcos(ra1)*w2);
-	ya1 = yc - (int)(qsin(ra1)*h2);
-	xa2 = xc + (int)(qcos(ra2)*w2);
-	ya2 = yc - (int)(qsin(ra2)*h2);
-	XDrawLine( dpy, hd, gc, xc, yc, xa1, ya1 );
-	XDrawLine( dpy, hd, gc, xc, yc, xa2, ya2 );
+//	xa1 = xc + d2i_round(qcos(ra1)*w2);
+//	ya1 = yc - d2i_round(qsin(ra1)*h2);
+//	xa2 = xc + d2i_round(qcos(ra2)*w2);
+//	ya2 = yc - d2i_round(qsin(ra2)*h2);
+	int xa1 = d2i_round(xc + qcos(ra1)*w2);
+	int ya1 = d2i_round(yc - qsin(ra1)*h2);
+	int xa2 = d2i_round(xc + qcos(ra2)*w2);
+	int ya2 = d2i_round(yc - qsin(ra2)*h2);
+	int xic = d2i_round(xc);
+	int yic = d2i_round(yc);
+	XDrawLine( dpy, hd, gc, xic, yic, xa1, ya1 );
+	XDrawLine( dpy, hd, gc, xic, yic, xa2, ya2 );
 	XDrawArc( dpy, hd, gc, x, y, w, h, a1*4, a2*4 );
     }
 }
@@ -2422,10 +2428,10 @@ void QPainter::drawChord( int x, int y, int w, int h, int a1, int a2 )
 	double ra1, ra2;
 	ra1 = Q_PI/2880.0*a1;			// convert a1,a2 to radians
 	ra2 = ra1 + Q_PI/2880.0*a2;
-	xa1 = xc + (int)(qcos(ra1)*w2);
-	ya1 = yc - (int)(qsin(ra1)*h2);
-	xa2 = xc + (int)(qcos(ra2)*w2);
-	ya2 = yc - (int)(qsin(ra2)*h2);
+	xa1 = xc + d2i_round(qcos(ra1)*w2);
+	ya1 = yc - d2i_round(qsin(ra1)*h2);
+	xa2 = xc + d2i_round(qcos(ra2)*w2);
+	ya2 = yc - d2i_round(qsin(ra2)*h2);
 	XDrawLine( dpy, hd, gc, xa1, ya1, xa2, ya2 );
 	XDrawArc( dpy, hd, gc, x, y, w, h, a1*4, a2*4 );
     }
