@@ -116,9 +116,9 @@ public:
     // more Qt
     inline int count() const { return d->size; }
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
-    inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
+    inline const T &first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
-    inline const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
+    inline const T &last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
     QVector<T> mid(int pos, int length = -1) const;
 
     T value(int i) const;
@@ -207,7 +207,7 @@ inline T &QVector<T>::operator[](int i)
 template <typename T>
 inline void QVector<T>::insert(int i, const T &t)
 { Q_ASSERT_X(i >= 0 && i <= d->size, "QVector<T>::insert", "index out of range");
-  insert(begin()+i, 1, t); }
+  insert(begin() + i, 1, t); }
 template <typename T>
 inline void QVector<T>::insert(int i, int n, const T &t)
 { Q_ASSERT_X(i >= 0 && i <= d->size, "QVector<T>::insert", "index out of range");
@@ -223,10 +223,15 @@ inline void QVector<T>::remove(int i)
 template <typename T>
 inline void QVector<T>::prepend(const T &t)
 { insert(begin(), 1, t); }
+
 template <typename T>
 inline void QVector<T>::replace(int i, const T &t)
-{ Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::replace", "index out of range");
-  data()[i] = t; }
+{
+    Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::replace", "index out of range");
+    const T copy(t);
+    data()[i] = copy;
+}
+
 template <typename T>
 QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 {
@@ -383,51 +388,50 @@ Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i, const T &defaultValue) const
 template <typename T>
 void QVector<T>::append(const T &t)
 {
-    Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
-               "QVector<T>::append", "append with reference to own member");
+    const T copy(t);
     if (d->ref != 1 || d->size + 1 > d->alloc)
         realloc(d->size, QVectorData::grow(sizeof(Data), d->size + 1, sizeof(T),
                                            QTypeInfo<T>::isStatic));
     if (QTypeInfo<T>::isComplex)
-        new (d->array + d->size++) T(t);
+        new (d->array + d->size) T(copy);
     else
-        d->array[d->size++] = t;
+        d->array[d->size] = copy;
+    ++d->size;
 }
 
 
 template <typename T>
-Q_TYPENAME QVector<T>::iterator QVector<T>::insert(iterator before, size_type n, const T& t)
+Q_TYPENAME QVector<T>::iterator QVector<T>::insert(iterator before, size_type n, const T &t)
 {
-    Q_ASSERT_X((void *)&t < d->array || (void *)&t >= d->array + d->alloc,
-               "QVector<T>::insert", "insert with reference to own member");
     int p = before - d->array;
     if (n != 0) {
+        const T copy(t);
         if (d->ref != 1 || d->size + n > d->alloc)
             realloc(d->size, QVectorData::grow(sizeof(Data), d->size + n, sizeof(T),
                                                QTypeInfo<T>::isStatic));
         if (QTypeInfo<T>::isStatic) {
-            T *b = d->array+d->size;
-            T *i = d->array+d->size+n;
+            T *b = d->array + d->size;
+            T *i = d->array + d->size + n;
             while (i != b)
                 new (--i) T;
-            i = d->array+d->size;
-            T *j = i+n;
+            i = d->array + d->size;
+            T *j = i + n;
             b = d->array+p;
             while (i != b)
                 *--j = *--i;
             i = b+n;
             while (i != b)
-                *--i = t;
+                *--i = copy;
         } else {
-            T *b = d->array+p;
-            T *i = b+n;
-            memmove(i, b, (d->size-p)*sizeof(T));
+            T *b = d->array + p;
+            T *i = b + n;
+            memmove(i, b, (d->size - p) * sizeof(T));
             while (i != b)
-                new (--i) T(t);
+                new (--i) T(copy);
         }
+        d->size += n;
     }
-    d->size += n;
-    return d->array+p;
+    return d->array + p;
 }
 
 template <typename T>
@@ -471,14 +475,13 @@ bool QVector<T>::operator==(const QVector<T> &v) const
 template <typename T>
 QVector<T> &QVector<T>::fill(const T &t, int size)
 {
-    Q_ASSERT_X((void *)&t < d->array || (void *)&t > d->array + d->alloc,
-               "QVector<T>::fill", "fill with reference to own member");
+    const T copy(t);
     resize(size < 0 ? d->size : size);
     if (d->size) {
-        T* i = d->array + d->size;
-        T* b = d->array;
+        T *i = d->array + d->size;
+        T *b = d->array;
         while (i != b)
-            *--i = t;
+            *--i = copy;
     }
     return *this;
 }
