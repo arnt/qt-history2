@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#114 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#114 $");
 
 
 /*****************************************************************************
@@ -1505,7 +1505,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #undef IWX
 #define IWX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
 		    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
-			 (1 << 7-((trigx>>16)&7)) )			      \
+			 (1 << (7-((trigx>>16)&7))) )			      \
 			*p |= b;					      \
 		}							      \
 		trigx += m11;						      \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#128 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#127 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#128 $");
 
 
 /*!
@@ -3471,7 +3471,6 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     image.setAlphaBuffer( TRUE );
 
     int currentColor;
-    int transparentColor = -1;
 
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
@@ -3519,7 +3518,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	    image.setColor( currentColor, 0xff000000 | qRgb( r, g, b ) );
 	    colorMap.insert( index, (int*)(currentColor+1) );
 	} else if ( buf == "c none" ) {
-	    transparentColor = currentColor;
+	    int transparentColor = currentColor;
 	    image.setColor( transparentColor, RGB_MASK & qRgb( 200,200,200 ) );
 	    colorMap.insert( index, (int*)(transparentColor+1) );
 	} else {

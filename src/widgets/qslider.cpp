@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#42 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#42 $");
 
 
 static const int motifBorder = 2;
@@ -416,52 +416,52 @@ static void drawWinPointedSlider( QPainter *p,
 	p->drawLine( x1+1, y2-1, x2-1, y2-1 );
     }
 
-    int d = 0;
+    int d;
     switch ( dir ) {
-    case SlUp:
-	p->setPen( c4 );
-	d =  (r.width() + 1) / 2 - 1;
-	p->drawLine( x1, y1, x1+d, y1-d);
-	p->setPen( c0 );
-	d = r.width() - d - 1;
-	p->drawLine( x2, y1, x2-d, y1-d);
-	p->setPen( c1 );
-	d--;
-	p->drawLine( x2-1, y1, x2-1-d, y1-d);
-	break;
-    case SlDown:
-	p->setPen( c4 );
-	d =  (r.width() + 1) / 2 - 1;
-	p->drawLine( x1, y2, x1+d, y2+d);
-	p->setPen( c0 );
-	d = r.width() - d - 1;
-	p->drawLine( x2, y2, x2-d, y2+d);
-	p->setPen( c1 );
-	d--;
-	p->drawLine( x2-1, y2, x2-1-d, y2+d);
-	break;
-    case SlLeft:
-	p->setPen( c4 );
-	d =  (r.height() + 1) / 2 - 1;
-	p->drawLine( x1, y1, x1-d, y1+d);
-	p->setPen( c0 );
-	d = r.height() - d - 1;
-	p->drawLine( x1, y2, x1-d, y2-d);
-	p->setPen( c1 );
-	d--;
-	p->drawLine( x1, y2-1, x1-d, y2-1-d);
-	break;
-    case SlRight:
-	p->setPen( c4 );
-	d =  (r.height() + 1) / 2 - 1;
-	p->drawLine( x2, y1, x2+d, y1+d);
-	p->setPen( c0 );
-	d = r.height() - d - 1;
-	p->drawLine( x2, y2, x2+d, y2-d);
-	p->setPen( c1 );
-	d--;
-	p->drawLine( x2, y2-1, x2+d, y2-1-d);
-	break;
+	case SlUp:
+	    p->setPen( c4 );
+	    d =  (r.width() + 1) / 2 - 1;
+	    p->drawLine( x1, y1, x1+d, y1-d);
+	    p->setPen( c0 );
+	    d = r.width() - d - 1;
+	    p->drawLine( x2, y1, x2-d, y1-d);
+	    p->setPen( c1 );
+	    d--;
+	    p->drawLine( x2-1, y1, x2-1-d, y1-d);
+	    break;
+	case SlDown:
+	    p->setPen( c4 );
+	    d =  (r.width() + 1) / 2 - 1;
+	    p->drawLine( x1, y2, x1+d, y2+d);
+	    p->setPen( c0 );
+	    d = r.width() - d - 1;
+	    p->drawLine( x2, y2, x2-d, y2+d);
+	    p->setPen( c1 );
+	    d--;
+	    p->drawLine( x2-1, y2, x2-1-d, y2+d);
+	    break;
+	case SlLeft:
+	    p->setPen( c4 );
+	    d =  (r.height() + 1) / 2 - 1;
+	    p->drawLine( x1, y1, x1-d, y1+d);
+	    p->setPen( c0 );
+	    d = r.height() - d - 1;
+	    p->drawLine( x1, y2, x1-d, y2-d);
+	    p->setPen( c1 );
+	    d--;
+	    p->drawLine( x1, y2-1, x1-d, y2-1-d);
+	    break;
+	case SlRight:
+	    p->setPen( c4 );
+	    d =  (r.height() + 1) / 2 - 1;
+	    p->drawLine( x2, y1, x2+d, y1+d);
+	    p->setPen( c0 );
+	    d = r.height() - d - 1;
+	    p->drawLine( x2, y2, x2+d, y2-d);
+	    p->setPen( c1 );
+	    d--;
+	    p->drawLine( x2, y2-1, x2+d, y2-1-d);
+	    break;
     }
 
 }

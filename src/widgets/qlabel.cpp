@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#62 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#62 $");
 
 
 #if QT_VERSION == 200
@@ -182,10 +182,12 @@ QLabel::~QLabel()
 {
     unsetMovie();
     delete lpixmap;
-    QLabel_Private * d = 0;
-    if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
-	qlabel_extraStuff->take( (long)this );
-	delete d;
+    if ( qlabel_extraStuff ) {
+	QLabel_Private *d = qlabel_extraStuff->find( (long)this );
+        if ( d ) {
+	    qlabel_extraStuff->take( (long)this );
+	    delete d;
+	}
     }
 }
 

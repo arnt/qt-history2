@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#58 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#58 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -794,7 +794,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 #undef IWX
 #define IWX(b,t) if ( trigx < maxws && trigy < maxhs ) {		      \
 		    if ( (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &	      \
-			 (1 << 7-((trigx>>16)&7))) == 0 )		      \
+			 (1 << (7-((trigx>>16)&7)))) == 0 )		      \
 			*p &= ~t;					      \
 		}							      \
 		trigx += m11;						      \

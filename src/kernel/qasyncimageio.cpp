@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#20 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -436,7 +436,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
     //    CompuServe Incorporated. GIF(sm) is a Service Mark property of
     //    CompuServe Incorporated."
 
-    #define LM(l, m) ((m)<<8|l)
+    #define LM(l, m) (((m)<<8)|l)
     digress = FALSE;
     int initial = length;
     uchar** line = img.jumpTable();
@@ -774,7 +774,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	    count++;
 	    if (count==hold[0]+1) {
 		disposePrevious( img, consumer );
-		disposal=Disposal(hold[1]>>2&0x7);
+		disposal=Disposal((hold[1]>>2)&0x7);
 		//UNUSED: waitforuser=!!((hold[1]>>1)&0x1);
 		int delay=count>3 ? LM(hold[2], hold[3]) : 0;
 		bool havetrans=hold[1]&0x1;
