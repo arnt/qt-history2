@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#7 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#7 $";
 #endif
 
 
@@ -204,6 +204,14 @@ void QRect::setCenter( const QPoint &p )
     y1 = p.y() - h/2;
     x2 = x1 + w;
     y2 = y1 + h;
+}
+
+void QRect::move( int dx, int dy )
+{
+    x1 += dx;
+    y1 += dy;
+    x2 += dx;
+    y2 += dy;
 }
 
 void QRect::setRect( int x, int y, int w, int h )
