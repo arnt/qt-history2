@@ -2,18 +2,33 @@
   local:
   extern "C++"
   {
+	QClipboardWatcher::*;
 	QFDProgress*;
+	QFileDialogQFileListView::*;
 	QFtpDTP::*;
 	QFtpPI*;
+	QHttpNormalRequest::*;
+	QHttpRequest::*;
+	QHttpResponseHeader::*;
+	QMainWindowLayout::*;
 	Q*Private::*;
 	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*;
 	*QSvgDeviceState*;
+	ImgElement::*;
+	PixElement::*;
 	QRenameEdit::*;
 	QRollEffect::*;
+	QSharedDoubleBufferCleaner::*;
+	QSmSocketReceiver::*;
+	QSpinBoxValidator::*;
+	QSplitterHandle::*;
+	QSqlRecordShared::*;
 	QSVChildRec::*;
 	QUnicodeTables::*;
+	QViewportWidget::*;
+	QWorkspaceChild::*;
 	QFontDef::*;
 	QFontStruct::*;
 	QFont*Codec::*;
