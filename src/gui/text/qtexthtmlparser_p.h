@@ -10,7 +10,7 @@
 #include "qtextdocument.h"
 #include "qtextcursor.h"
 
-struct QTextHtmlParser;
+class QTextHtmlParser;
 struct QTextHtmlParserAttribute {
     enum {
 	Add,
@@ -84,7 +84,7 @@ private:
 Q_DECLARE_TYPEINFO(QTextHtmlParserNode, Q_MOVABLE_TYPE);
 
 
-struct QTextHtmlParser
+class QTextHtmlParser
 {
 public:
     inline const QTextHtmlParserNode &at(int i) const { return nodes.at(i); }
