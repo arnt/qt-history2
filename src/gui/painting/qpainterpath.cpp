@@ -50,7 +50,7 @@
 #define KAPPA 0.5522847498
 
 //#define QPP_DEBUG
-//#define QPP_STROKE_DEBUG
+// #define QPP_STROKE_DEBUG
 //#define QPP_FILLPOLYGONS_DEBUG
 
 #define d d_func()
@@ -966,20 +966,40 @@ void QPainterPath::addPath(const QPainterPath &other)
     if (other.isEmpty())
         return;
 
+    // Remove last moveto so we don't get multiple moveto's
+    if (elements.last().type == MoveToElement)
+        elements.remove(elements.size()-1);
+
     // Locate where our own current subpath will start after the other path is added.
     int cStart = elements.size() + other.d->cStart;
-
-    if (d->isClosed()) {
-        // Remove last moveto so we don't get multiple moveto's
-        if (elements.last().type == MoveToElement)
-            elements.remove(elements.size()-1);
-        Q_ASSERT(other.elements.first().type == MoveToElement);
-        elements += other.elements;
-    } else {
-        elements += other.elements;
-    }
-
+    elements += other.elements;
     d->cStart = cStart;
+}
+
+
+/*!
+    Adds the path \a other to this path by connecting the last
+    element of this to the first element of \a other.
+
+    \sa addPath()
+*/
+void QPainterPath::connectPath(const QPainterPath &other)
+{
+    if (other.isEmpty())
+        return;
+
+    // Remove last moveto so we don't get multiple moveto's
+    if (elements.last().type == MoveToElement)
+        elements.remove(elements.size()-1);
+
+    // Locate where our own current subpath will start after the other path is added.
+    int cStart = elements.size() + other.d->cStart;
+    int first = elements.size();
+    elements += other.elements;
+
+    elements[first].type = LineToElement;
+    if (cStart != first)
+        d->cStart = cStart;
 }
 
 /*!
@@ -1617,8 +1637,8 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
             // ### Cap styles...
             usegs.lineTo(QPointF(dsegs.elements.first().x, dsegs.elements.first().y));
             dsegs.lineTo(QPointF(usegs.elements.first().x, usegs.elements.first().y));
-            stroke += usegs;
-            stroke += dsegs;
+            stroke.addPath(usegs);
+            stroke.connectPath(dsegs);
         } else {
             QPointF ufirst(usegs.elements.first().x, usegs.elements.first().y);
             QPointF dfirst(dsegs.elements.first().x, dsegs.elements.first().y);
@@ -1629,10 +1649,10 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
                 dsegs.lineTo(dfirst);
             }
 
-            stroke += usegs;
+            stroke.addPath(usegs);
             stroke.closeSubpath();
 
-            stroke += dsegs;
+            stroke.addPath(dsegs);
             stroke.closeSubpath();
         }
 

@@ -83,6 +83,8 @@ public:
     void addPath(const QPainterPath &path);
     void addRegion(const QRegion &region);
 
+    void connectPath(const QPainterPath &path);
+
     bool contains(const QPointF &pt) const;
     bool contains(const QRectF &rect) const;
 
@@ -101,8 +103,6 @@ public:
 
     int elementCount() const { return elements.size(); }
     const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }
-
-    inline QPainterPath &operator +=(const QPainterPath &other) { addPath(other); return *this; }
 
     bool operator==(const QPainterPath &other) const;
     bool operator!=(const QPainterPath &other) const;
