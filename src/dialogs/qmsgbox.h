@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#9 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.h#10 $
 **
 ** Definition of QMessageBox class
 **
@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #ifndef QMSGBOX_H
+#define QMSGBOX_H
 
 #include "qdialog.h"
 
