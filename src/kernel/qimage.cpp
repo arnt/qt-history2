@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#54 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#53 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#54 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1643,15 +1643,8 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 
     d->at( startpos + bf.bfOffBits );		// start of image data
 
-    int bpl = image.bytesPerLine();
-    uchar **line;
-    if ( !native ) {
-	line = (uchar **)malloc( h*sizeof(uchar*) );
-	for ( int i=0; i<h; i++ )
-	    line[i] = image.scanLine(h-i-1);
-    }
-    else
-	line = image.jumpTable();
+    int      bpl = image.bytesPerLine();
+    uchar **line = image.jumpTable();
 
     if ( nbits == 1 ) {				// 1 bit BMP image
 	while ( --h >= 0 ) {
@@ -1794,9 +1787,6 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	    }
 	}
     }
-
-    if ( !native )
-	free( line );
 
     iio->setImage( image );
     iio->setStatus( 0 );			// image ok
