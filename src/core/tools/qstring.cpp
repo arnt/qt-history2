@@ -4610,6 +4610,17 @@ quint64 QString::toULongLong(bool *ok, int base) const
     \sa number(), toULong(), toInt()
 */
 
+long QString::toLong(bool *ok, int base) const
+{
+    qint64 v = toLongLong(ok, base);
+    if (v < LONG_MIN || v > LONG_MAX) {
+        if (ok)
+            *ok = false;
+        v = 0;
+    }
+    return (long)v;
+}
+
 /*!
   \fn ulong QString::toULong(bool *ok, int base) const
 
@@ -4640,6 +4651,18 @@ quint64 QString::toULongLong(bool *ok, int base) const
 
     \sa number()
 */
+
+ulong QString::toULong(bool *ok, int base) const
+{
+    quint64 v = toULongLong(ok, base);
+    if (v > ULONG_MAX) {
+        if (ok)
+            *ok = false;
+        v = 0;
+    }
+    return (ulong)v;
+}
+
 
 /*!
     Returns the string converted to an \c int using base \a
@@ -5054,11 +5077,24 @@ QString &QString::setNum(double n, char f, int prec)
     \sa setNum()
 */
 
+QString QString::number(long n, int base)
+{
+    QString s;
+    s.setNum(n, base);
+    return s;
+}
+
 /*!
   \fn QString QString::number(ulong n, int base)
 
     \overload
 */
+QString QString::number(ulong n, int base)
+{
+    QString s;
+    s.setNum(n, base);
+    return s;
+}
 
 /*!
     \overload
