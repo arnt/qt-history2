@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#116 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#115 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#116 $")
 
 
 /*----------------------------------------------------------------------------
@@ -348,7 +348,7 @@ QWidget *QWidget::find( WId id )
 
 
 /*----------------------------------------------------------------------------
-  \fn WId QWidget::id() const
+  \fn WId QWidget::winId() const
   Returns the window system identifier of the widget.
 
   Portable in principle, but if you use it you are probably about to do
