@@ -54,6 +54,8 @@ public:
     SourceEditor *editor() const;
     QString fileName() const;
     QString absFileName() const;
+    
+    bool supportsCodeFile() const { return !codeExtension().isEmpty(); }
     QString codeFile() const;
     QString code();
     bool isCodeEdited() const;

@@ -123,7 +123,8 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     if ( type ==  FormFileType ) {
 	setPixmap( 0, *formPixmap );
 	QObject::connect( ff, SIGNAL( somethingChanged(FormFile*) ), listView(), SLOT( update(FormFile*) ) );
-	(void) new WorkspaceItem( this, formFile, FormSourceType );
+	if ( formFile->supportsCodeFile() )
+	    (void) new WorkspaceItem( this, formFile, FormSourceType );
     } else if ( type == FormSourceType ) {
 	setPixmap( 0, *filePixmap );
     }
@@ -344,16 +345,9 @@ void Workspace::setCurrentProject( Project *pro )
     clear();
 
     if ( bufferEdit )
-	bufferEdit->clear()
-;
-    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    QString extension = "xx";
-    if ( iface )
-	extension = iface->formCodeExtension();
+	bufferEdit->clear();
 
     projectItem = new WorkspaceItem( this, project );
-
-
 
     projectItem->setOpen( TRUE );
 
