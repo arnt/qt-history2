@@ -2518,7 +2518,7 @@ void QScrollView::enableClipper(bool y)
     if ( !d->clipped_viewport == !y )
 	return;
     if ( d->children.count() )
-	qFatal("May only call QScrollView::enableClipper() before adding widgets");
+	qWarning("May only call QScrollView::enableClipper() before adding widgets");
     if ( y ) {
 	d->clipped_viewport = new QClipperWidget(clipper(), "qt_clipped_viewport", d->flags);
 	d->clipped_viewport->setGeometry(-coord_limit/2,-coord_limit/2,
