@@ -507,7 +507,7 @@ QFSFileEngine::currentPath(const QString &fileName)
 {
     QString ret;
     //if filename is a drive: then get the pwd of that drive
-    if(fileName.length() >=2 &&
+    if(fileName.length() >= 2 &&
         fileName.at(0).isLetter() && fileName.at(1) == ':') {
         int drv = fileName.toUpper().at(0).latin1() - 'A' + 1;
         if(_getdrive() != drv) {
@@ -520,21 +520,24 @@ QFSFileEngine::currentPath(const QString &fileName)
                 ::_getdcwd(drv, buf, PATH_MAX);
                 ret = buf;
             });
-            return QFSFileEnginePrivate::fixToQtSlashes(ret);
         }
+    } 
+    if(ret.isEmpty()) {
+	//just the pwd
+	QT_WA({
+	    TCHAR currentName[PATH_MAX];
+	    if(::_wgetcwd(currentName,PATH_MAX) != 0) {
+		ret = QString::fromUtf16((ushort*)currentName);
+	    }
+	} , {
+	    char currentName[PATH_MAX];
+	    if(QT_GETCWD(currentName,PATH_MAX) != 0) {
+		ret = QString::fromLocal8Bit(currentName);
+	    }
+	});
     }
-    //just the pwd
-    QT_WA({
-        TCHAR currentName[PATH_MAX];
-        if(::_wgetcwd(currentName,PATH_MAX) != 0) {
-            ret = QString::fromUtf16((ushort*)currentName);
-        }
-    } , {
-        char currentName[PATH_MAX];
-        if(QT_GETCWD(currentName,PATH_MAX) != 0) {
-            ret = QString::fromLocal8Bit(currentName);
-        }
-    });
+    if(ret.length() >= 2 && ret[1] == ':')
+	ret[0] = ret.at(0).toUpper(); // Force uppercase drive letters.
     return QFSFileEnginePrivate::fixToQtSlashes(ret);
 }
 
