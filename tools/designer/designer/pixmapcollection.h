@@ -45,7 +45,7 @@ public:
     PixmapCollection( Project *pro );
     ~PixmapCollection();
 
-    void addPixmap( const Pixmap &pix, bool force = TRUE );
+    bool addPixmap( const Pixmap &pix, bool force = TRUE );
     void removePixmap( const QString &name );
     QPixmap pixmap( const QString &name );
 
@@ -57,11 +57,11 @@ public:
     void load( const QString& filename );
 
     DesignerPixmapCollection *iFace();
-    
+
 private:
     QString unifyName( const QString &n );
     void savePixmap( Pixmap &pix );
-    
+
     QString imageDir() const;
     void mkdir();
 

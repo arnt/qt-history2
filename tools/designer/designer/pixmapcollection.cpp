@@ -40,20 +40,22 @@ PixmapCollection::~PixmapCollection()
     delete iface;
 }
 
-void PixmapCollection::addPixmap( const Pixmap &pix, bool force )
+bool PixmapCollection::addPixmap( const Pixmap &pix, bool force )
 {
+    Pixmap pixmap = pix;
+    savePixmap( pixmap );
+
     if ( !force ) {
 	for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
-	    if ( (*it).name == pix.name )
-		return;
+	    if ( (*it).name == pixmap.name )
+		return FALSE;
 	}
     }
 
-    Pixmap pixmap = pix;
-    savePixmap( pixmap );
     pixList.append( pixmap );
     mimeSourceFactory->setPixmap( pixmap.name, pixmap.pix );
     project->setModified( TRUE );
+    return TRUE;
 }
 
 void PixmapCollection::removePixmap( const QString &name )
@@ -158,7 +160,7 @@ void PixmapCollection::load( const QString& filename )
     pix.name = QFileInfo( absfile ).fileName();
     pix.absname = absfile;
     pix.pix = pm;
-    addPixmap( pix );
+    addPixmap( pix, TRUE );
 }
 
 DesignerPixmapCollection *PixmapCollection::iFace()

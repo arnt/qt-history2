@@ -28,7 +28,8 @@ void PixmapCollectionEditor::addPixmap()
 	QFileInfo fi ( *it );
 	pixmap.name = fi.fileName();
 	pixmap.absname = fi.filePath();
-	project->pixmapCollection()->addPixmap( pixmap );
+	if ( !project->pixmapCollection()->addPixmap( pixmap, FALSE ) )
+	    continue;
 	lastName = pixmap.name;
     }
 
