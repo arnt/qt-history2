@@ -849,7 +849,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-	if ( widget && widget->testWFlags( WStyle_Tool ) ) {
+	if ( widget && ( widget->testWFlags( WStyle_Tool ) || widget->inherits( "QDockWindow" ) ) ) {
 #if defined(Q_OS_TEMP)
 	    ret = GetSystemMetrics( SM_CYCAPTION );
 #else

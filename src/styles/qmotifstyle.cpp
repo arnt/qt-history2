@@ -1293,7 +1293,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_ListView ) {
 		QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags, sub, subActive, opt );
 	    }
-	    if ( sub & SC_ListViewBranch | SC_ListViewExpand ) {
+	    if ( sub & ( SC_ListViewBranch | SC_ListViewExpand ) ) {
 		if (opt.isDefault())
 		    break;
 

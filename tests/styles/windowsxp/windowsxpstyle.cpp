@@ -321,7 +321,10 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
 	    XPThemeData theme2( widget->parentWidget(), 0, L"WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	    theme2.setTransparency();
 	} else {
-	    XPThemeData theme( widget, 0, L"WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
+	    int partId = WP_CAPTION;
+	    if ( widget->inherits( "QDockWindowTitleBar" ) )
+		partId = WP_SMALLCAPTION;
+	    XPThemeData theme( widget, 0, L"WINDOW", partId, CS_ACTIVE, widget->rect() );
 	    theme.setTransparency();
 	}
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
@@ -547,6 +550,14 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	rect = QRect( r.x(), r.y() + 3, r.width(), r.height() - 5 );
 	break;
 
+    case PE_DockWindowHandle:
+	name = L"REBAR";
+	if ( flags & Style_Horizontal )
+	    partId = RP_GRIPPER;
+	else
+	    partId = RP_GRIPPERVERT;
+	break;
+
     case PE_DockWindowSeparator:
 	name = L"TOOLBAR";
 	if ( flags & Style_Horizontal )
@@ -664,10 +675,10 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		stateId = TIS_HOT;
 	    else 
 		stateId = TIS_NORMAL;
-	    if ( !(flags & Style_Selected) || (flags & Style_HasFocus) )
-		rect.addCoords( 0, 2, 0, 0 );
+	    if ( (flags & Style_Selected) || (flags & Style_HasFocus) )
+		rect.addCoords( 0, 1, 0, 1 );
 	    else
-		rect.addCoords( 0, 1, 0, 0 );
+		rect.addCoords( 0, 2, 0, 0 );
 	}
 	break;
 
@@ -1224,10 +1235,10 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    XPThemeData theme( w, p, L"WINDOW" );
 	    if ( sub & SC_TitleBarLabel ) {
 		theme.rec = titlebar->rect();
-		if ( titlebar->inherits( "QDockWindowTitleBar" ) )
-		    theme.rec.addCoords( -10, -10, 10, 0 );
 		partId = titlebar->testWFlags( WStyle_Tool ) ? WP_SMALLCAPTION : 
 			( titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION );
+		if ( titlebar->inherits( "QDockWindowTitleBar" ) )
+		    partId = WP_SMALLCAPTION;
 		if ( !titlebar->isEnabled() )
 		    stateId = CS_DISABLED;
 		else if ( !titlebar->isActive() )
@@ -1570,14 +1581,20 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	}
 	break;
 
+    case PM_SpinBoxFrameWidth:
+	return 1;
+
     case PM_TabBarTabOverlap:
     	return -1;
 
     case PM_TabBarBaseOverlap:
-	return -2;
+	return -1;
 
     case PM_TabBarBaseHeight:
-	return -1;
+	return 0;
+
+    case PM_TitleBarHeight:
+	return QWindowsStyle::pixelMetric( metric, widget ) + 4;
 
     default:
 	break;	
@@ -1594,20 +1611,67 @@ QRect QWindowsXPStyle::querySubControlMetrics( ComplexControl control,
     if ( !use_xp )
 	return QWindowsStyle::querySubControlMetrics( control, widget, sc, option );
 
+    QRect rect;
     switch ( control ) {
     case CC_TitleBar:
 	{
-	    QRect r = QWindowsStyle::querySubControlMetrics( control, widget, sc, option );
-	    if ( sc == SC_TitleBarLabel )
-		r.addCoords( 2, 0, -4, 0 );
-	    else if ( sc == SC_TitleBarSysMenu )
-		r.addCoords( 2, 0, 2, 0 );
-	    else if ( sc > SC_TitleBarSysMenu )
-		r.addCoords( -4, 0, -4, 0 );
+	    const QTitleBar *titlebar = (const QTitleBar *) widget;
+	    const int controlTop = widget->testWFlags( WStyle_Tool ) ? 4 : 6;
+	    const int controlHeight = widget->height() - controlTop - 3;
 
-	    return r;
+	    switch (sc) {
+	    case SC_TitleBarLabel:
+		{
+		    const QTitleBar *titlebar = (QTitleBar*)widget;
+		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
+		    if ( titlebar->testWFlags( WStyle_Tool ) ) {
+			if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			    ir.addCoords( 0, 0, -controlHeight-3, 0 );
+			if ( titlebar->testWFlags( WStyle_MinMax ) )
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
+		    } else {
+			if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			    ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
+			if ( titlebar->testWFlags( WStyle_Minimize ) )
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
+			if ( titlebar->testWFlags( WStyle_Maximize ) )
+			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
+		    }
+		    rect = ir;
+		}
+		break;
+
+	    case SC_TitleBarCloseButton:
+		rect.setRect(titlebar->width()-( controlHeight + 1 )-controlTop, controlTop, controlHeight, controlHeight);
+		break;
+
+	    case SC_TitleBarMaxButton:
+	    case SC_TitleBarShadeButton:
+	    case SC_TitleBarUnshadeButton:
+		rect.setRect(titlebar->width()-((controlHeight + 1 ) * 2)-controlTop, controlTop, controlHeight, controlHeight);
+		break;
+
+	    case SC_TitleBarMinButton:
+	    case SC_TitleBarNormalButton:
+		{
+		    int offset = controlHeight + 1;
+		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
+			offset *= 2;
+		    else
+			offset *= 3;
+		    rect.setRect(titlebar->width() - offset-controlTop, controlTop, controlHeight, controlHeight);
+		}
+		break;
+
+	    case SC_TitleBarSysMenu:
+		rect.setRect( 3, controlTop, controlHeight, controlHeight);
+		break;
+
+	    default:
+		break;
+	    }
 	}
-	break;
+	return rect;
 
     default:
 	break;
