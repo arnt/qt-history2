@@ -784,7 +784,7 @@ QString QDate::toString( Qt::DateFormat f ) const
     \row \i ddd MMMM d yy \i11 Sun July 20 69
     \endtable
 
-    \sa QDate::toString() QTime::toString()
+    \sa QDateTime::toString() QTime::toString()
 
 */
 QString QDate::toString( const QString& format ) const
@@ -1425,7 +1425,7 @@ QString QTime::toString( Qt::DateFormat f ) const
     \row \i h:m:s ap	    \i11 2:13:9 pm
     \endtable
 
-    \sa QDate::toString() QTime::toString()
+    \sa QDate::toString() QDateTime::toString()
 */
 QString QTime::toString( const QString& format ) const
 {
