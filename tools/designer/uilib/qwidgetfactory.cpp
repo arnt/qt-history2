@@ -27,7 +27,6 @@
 #include <qapplication.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
-#include <qobjectlist.h>
 #include <private/qpluginmanager_p.h>
 #include <qmime.h>
 #include <qdragobject.h>
@@ -2042,12 +2041,9 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		    } else {
 			if ( name == "this" )
 			    name = toplevel->name();
-			QObjectList *l = toplevel->queryList( 0, name, FALSE );
-			if ( l ) {
-			    if ( l->first() )
-				conn.sender = l->first();
-			    delete l;
-			}
+			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			if ( !l.isEmpty() )
+			    conn.sender = l.at(0);
 		    }
 		    if ( !conn.sender )
 			conn.sender = findAction( name );
@@ -2058,12 +2054,9 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
 			conn.receiver = toplevel;
 		    } else {
-			QObjectList *l = toplevel->queryList( 0, name, FALSE );
-			if ( l ) {
-			    if ( l->first() )
-				conn.receiver = l->first();
-			    delete l;
-			}
+			QObjectList l = toplevel->queryList( 0, name, FALSE );
+			if ( !l.isEmpty() )
+			    conn.receiver = l.at(0);
 		    }
 		} else if ( n2.tagName() == "slot" ) {
 		    conn.slot = n2.firstChild().toText().data();
@@ -2080,17 +2073,15 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    }
 
 	    QObject *sender = 0, *receiver = 0;
-	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
 	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
 		sender = toplevel;
 	    } else {
-		if ( !l || !l->first() ) {
-		    delete l;
+		QObjectList l = toplevel->queryList( 0, conn.sender->name(), FALSE );
+		if ( l.isEmpty() ) {
 		    n = n.nextSibling().toElement();
 		    continue;
 		}
-		sender = l->first();
-		delete l;
+		sender = l.at(0);
 	    }
 	    if ( !sender )
 		sender = findAction( conn.sender->name() );
@@ -2098,14 +2089,12 @@ void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
 		receiver = toplevel;
 	    } else {
-		l = toplevel->queryList( 0, conn.receiver->name(), FALSE );
-		if ( !l || !l->first() ) {
-		    delete l;
+		QObjectList l = toplevel->queryList( 0, conn.receiver->name(), FALSE );
+		if ( l.isEmpty() ) {
 		    n = n.nextSibling().toElement();
 		    continue;
 		}
-		receiver = l->first();
-		delete l;
+		receiver = l.at(0);
 	    }
 
 	    QString s = "2""%1";
@@ -2139,15 +2128,12 @@ void QWidgetFactory::loadTabOrder( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "tabstop" ) {
 	    QString name = n.firstChild().toText().data();
-	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
-	    if ( l ) {
-		if ( l->first() ) {
-		    QWidget *w = (QWidget*)l->first();
-		    if ( last )
-			toplevel->setTabOrder( last, w );
-		    last = w;
-		}
-		delete l;
+	    QObjectList l = toplevel->queryList( 0, name, FALSE );
+	    if ( !l.isEmpty() ) {
+		QWidget *w = (QWidget*)l.at(0);
+		if ( last )
+		    toplevel->setTabOrder( last, w );
+		last = w;
 	    }
 	}
 	n = n.nextSibling().toElement();
