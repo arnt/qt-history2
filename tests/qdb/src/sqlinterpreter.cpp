@@ -298,6 +298,7 @@ static QString asListing( QVariant& v )
 
 bool Environment::saveListing( QTextStream& stream )
 {
+    stream << "Program Listing" << endl;
     pgm.resetCounter();
     int i = 0;
     Interpreter::Op* op = 0;
@@ -306,7 +307,7 @@ bool Environment::saveListing( QTextStream& stream )
 	stream << asListing( op->P(0) ).rightJustify(15);
 	stream << asListing( op->P(1) ).rightJustify(15);
 	stream << asListing( op->P(2) ).rightJustify(15);
-	stream << "\n";
+	stream << endl;
 	++i;
     }
     pgm.resetCounter();
