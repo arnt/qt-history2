@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#125 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#126 $
 #
 # this is a massive hack, written very quickly
 #
@@ -60,6 +60,9 @@
 # "\ingroup groupname" makes this class a member of that class group, and
 # "\makegroup groupname caption" creates a group index page.
 
+use File::Find;
+use Cwd;
+
 sub html {
     local($_) = @_;
 
@@ -69,7 +72,6 @@ sub html {
 
     $_;
 }
-
 
 #
 # HTMLize and add links to code, returns the result
@@ -645,7 +647,7 @@ sub writepages {
 
 	open(O, "> $outputdir/$file") ||
 	    die "can't open $outputdir/$file";
-	print O $doctype, "<html><head>", $doc, "\n";
+	print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">", $doc, "\n";
 	if (defined($classes{$file})) {
 	    $p = "<p>Classes:<ul plain>\n";
 	    $e = "";
@@ -742,7 +744,8 @@ sub manglefn {
 
     unless (defined($urls{$url})) {
 	$home = &mangleclass($class) unless ($home =~ /\S/);
-	$urls{ $url } = join("", $home, "#", ++$uniq);
+	$uniqkeys{$home} ||= "a0";
+	$urls{ $url } = join("", $home, "#", $uniqkeys{$home}++);
     }
 
     $url = $urls{$url}; #cool!
@@ -833,11 +836,8 @@ sub readfiles {
 
     undef $/;
     foreach $filename ( keys %headerfiles ) {
-	if (defined($hdir)) {
-	    $_ = $hdir . "/" . $filename;
-	} else {
-	    $_ = $filename;
-	}
+	$_ = ( $filename =~ m-^/- ) ? $filename : "$includedir/$filename";
+	next unless -f $_;
 	open(F, "expand < $_ |") || die "can't open $_ for reading";
 	$_ = $filename;
 	s/\./-/;
@@ -866,12 +866,12 @@ sub readfiles {
 	    }
 	@egsx;
 	print H $doctype, "
-<html><head><title>
-Qt Toolkit - ", $filename, " include file
+<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
+", $module_long, " - ", $filename, " include file
 </title></head><body bgcolor=\"#ffffff\">
 <p>This is the verbatim text of the ", $filename," include file.  It is is
 provided only for illustration; the <a href=\"license.html\">copyright</a>
-remains with Troll Tech.
+remains with ", $company, "
 <hr>
 <pre>
 ", $h, "\n</pre>\n", $address;
@@ -922,8 +922,8 @@ remains with Troll Tech.
 	@egsx;
 
 	print H $doctype, "
-<html><head><title>
-Qt Toolkit - ", $filename, " example file
+<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>
+", $module_long, " - ", $filename, " example file
 </title></head><body bgcolor=\"#ffffff\">
 
 The example program on this page may be used, distributed and modified
@@ -943,15 +943,8 @@ sub readh {
 
     local( $h );
 
-    if (defined($hdir)) {
-	if ( $filename =~ /\.h$/ ) {
-	    $h = getfile($hdir . "/" . $filename);
-	} else {
-	    $h = getfile( $filename );
-	}
-    } else {
-	$h = getfile($filename);
-    }
+    $h = getfile( ( -e $filename || $filename =~ m-^/- ) 
+		  ? $filename : "$includedir/$filename" );
     print "header file: ", $filename, "\n" if ($debug);
 
     $h =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
@@ -1089,14 +1082,26 @@ sub templates {
 }
 
 
+sub readcpp {
+    &readc if ( /\.cpp$/ || /\.cc$/ );
+}
+
+
+sub readdoc {
+    &readc if ( /\.doc$/ );
+}
+    
+
 sub readc {
-    local ($filename) = @_;
-    local ($overload);
+    my ($filename) = $_;
+    my ($overload, $c);
 
     $c = getfile($filename);
     print "code file: ", $filename, "\n" if ($debug);
 
-    $c =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
+#    $c =~ s-(?:(?:(/\*.*?\*/))|(?://[^\n]*))-$1-gs;
+    $c =~ s-(?:(?:(/\*[\-!].*?\*/))|(?:/\*.*?\*/)|(?://[^\n]*))-$1-gs;
+
 
     while ($c =~ m@
 	   (?:/\*[-\!][-\s]*
@@ -1110,6 +1115,7 @@ sub readc {
 	$def = $2;
 	$def =~ s/\):/\) :/gs; # add a space so next s/// works
 	$def =~ s/\s:\s*\b.*//s; # strip away constructor inheritance
+	$def =~ s/\s+/ /gs;
 
 	if ($doc =~ m@^\\class\s+(\w+)\s+([\.\w]+)\s+(.*?)\s*$@s) {
 	    # it's a \class
@@ -1142,7 +1148,7 @@ sub readc {
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = 
-		"<title>Qt toolkit - group index</title></head><body bgcolor=\"#ffffff\">\n"
+		"<title>", $module_long, " - group index</title></head><body bgcolor=\"#ffffff\">\n"
 		    . $2;
 	    $classes{$1} = "";
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
@@ -1162,11 +1168,9 @@ sub readc {
 	    }
 
 	    ($name, $args) = split(/\s*\((?=[^\(]+\s*$ )/x, $def);
-#	    ((?:\w+::)?\s*
-#	    if ($name =~ /^\s*(.*?[ \*\&])\s*((?:\w+::)?)(\w+[^\(\s\w]{0,3})$/s) {
 	    if ($name =~ /^\s*(.*?[ \*\&])
 		\s*((?:\w+::)?)
-		((?:(?:operator(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
+		((?:(?:operator\s*(?:(?:\(\s*\))|(?:[^\s\(]{1,3})))
 		  |(?:(?:\~?\w+))))$/sx) {
 		$type = $1;
 		$class = $2;
@@ -1183,7 +1187,7 @@ sub readc {
 		$class = $1;
 		$name = "_cast";
 	    } else {
-		print "skipped: ", $filename, ": ", $def, "\n", $doc, "\n";
+		print "skipped: ", cwd, "/", $filename, ": ", $def, "\n", $doc, "\n";
 		$skip = 1;
 	    }
 	    $args =~ s/([^:]):[^:].*/$1/s;
@@ -1485,7 +1489,7 @@ sub printclass {
     $documented{$url}++;
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
-    $tail = "<hr><p>\nThis file is part of the <a href=\"qt.html\">Qt toolkit</a>,\n<a href=\"license.html\">copyright &copy;</a> 1995-96\n<a href=\"troll.html\">Troll Tech</a>, all rights reserved.";
+    $tail = $footer;
     if (defined ($cfiles{$includefile{$url}})) {
 	my(%files);
 	$files{$includefile{$url}}++;
@@ -1512,7 +1516,7 @@ sub printclass {
     }
     $tail .= $address;
 
-    print O $doctype, "<html><head>\n<title>Qt Toolkit - ", 
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">\n<title>", $module_long, " - ", 
     $class, 
     " Class</title>\n</head><body bgcolor=\"#ffffff\">\n",
     "<h1 align=center>", $name{$url}, " Class Reference</h1>\n<hr>\n";
@@ -1804,19 +1808,19 @@ sub classindex {
 	|| die "can't open $outputdir/classes.html for writing";
     print O $doctype, "
 <html>
-<head><title>Qt Toolkit - Class List</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title></head>
 <body bgcolor=\"#ffffff\">
-<h1 align=center>Qt Class Index</h1>
+<h1 align=center>", $module, " Class Index</h1>
 <ul compact>
 ";
     open(P, "> $outputdir/annotated.html")
 	|| die "can't open $outputdir/annotated.html for writing";
     print P $doctype, "
 <html>
-<head><title>Qt Toolkit - Class List</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class List</title></head>
 <body bgcolor=\"#ffffff\">
-<h1 align=center>Annotated Qt Class Index</h1>
-<p>Here are the classes in Qt, with brief descriptions:
+<h1 align=center>Annotated ", $module, " Class Index</h1>
+<p>Here are the classes in ", $module, ", with brief descriptions:
 <ul compact>
 ";
     foreach $url ( sort keys %type ) {
@@ -1837,7 +1841,7 @@ sub classindex {
 sub enumindex {
     open(O, "> $outputdir/enums.html")
 	|| die "can't open $outputdir/enums.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit, enum type indexe</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>Qt enum type index</h1>\n<p>Here are the enums defined in the Qt toolkit:\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, ", enum type indexe</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " enum type index</h1>\n<p>Here are the enums defined in ", $module, ":\n<ul compact>";
     foreach $url ( sort keys %type ) {
 	print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n"
 	    if ($type{$url} eq "enum");
@@ -1852,7 +1856,7 @@ sub headerindex {
     local($filename);
     open(O, "> $outputdir/headers.html")
 	|| die "can't open $outputdir/headers.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - header file index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>Qt header file index</h1>\n<p>Here are the header files that make up the Qt API:\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - header file index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " header file index</h1>\n<p>Here are the header files that make up the ", $module, " API:\n<ul compact>";
     foreach $filename ( sort keys %headerfiles ) {
 	$_ = $filename;
 	s/\./-/;
@@ -1870,7 +1874,7 @@ sub exampleindex {
     local($filename);
     open(O, "> $outputdir/examples.html")
 	|| die "can't open $outputdir/examples.html for writing";
-    print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
+    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Example Index</title></head><body bgcolor=\"#ffffff\">\n<h1 align=center>", $module, " Example Index</h1>\n<p>Here are some of the examples that are included with ", $module, ":\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
 	$htmlfilename = $filename;
@@ -1881,7 +1885,7 @@ sub exampleindex {
     print O 
 "</ul>
 <p>
-These paths are relative to the examples subdirectory in the Qt
+These paths are relative to the examples subdirectory in the ", $module, "
 distribution. You will find Makefiles, header files and so on there.
 Only the most relevant code is here.
 ", $address;
@@ -1899,9 +1903,9 @@ sub inheritanceindex {
 	|| die "can't open $outputdir/hierarchy.html for writing";
     print O $doctype, "
 <html>
-<head><title>Qt Toolkit - Class Hierarchy</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Class Hierarchy</title></head>
 <body bgcolor=\"#ffffff\">
-<h1 align=center>Qt Class Hierarchy</h1>
+<h1 align=center>", $module, " Class Hierarchy</h1>
 
 <p>This inheritance list is sorted roughly, but not completely,
 alphabetically.
@@ -1971,8 +1975,7 @@ sub memberlists {
 		|| die "can't open $outputdir/$file for writing";
 	    $tail = "</ul>\n" . $address;
 	    print O $doctype, "
-<html><head><title>
-Qt toolkit - ", $_, " member list
+<html><head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - ", $_, " member list
 </title></head><body bgcolor=\"#ffffff\">
 <h1 align=center>Complete Member List for ", $_, "</h1>
 <p>This is the complete list of member functions and enum types for 
@@ -2019,11 +2022,11 @@ sub functionlist {
     open(O, "> $outputdir/functions.html") || die "can't open functions.html";
     print O $doctype, "
 <html>
-<head><title>Qt Toolkit - Member Function Index</title></head>
+<head><meta name=\"robots\" content=\"noindex,noarchive\"><title>", $module_long, " - Member Function Index</title></head>
 <body bgcolor=\"#ffffff\">
-<h1 align=center>Qt Member Function Index</h1>
+<h1 align=center>", $module, " Member Function Index</h1>
 
-Here is a list of all of the documented member functions in the Qt
+Here is a list of all of the documented member functions in the ", $module, "
 API with links to the class documentation for each function.
 
 <p>
@@ -2060,147 +2063,52 @@ API with links to the class documentation for each function.
 
 
 
-sub linuxjournal {
-    local( %i, $i, $o, @i );
+($j, $min, $hour, $mday, $mon, $year) = localtime(time);
 
-    if ( -d $ENV{"HOME"} . "/tmp/lj" ) {
-
-	chdir($ENV{"HOME"} . "/tmp/lj");
-	open( FILES, "echo */* |" );
-	foreach $i ( split( /\s+/s, <FILES> ) ) {
-	    next if ( $i =~ /\.bmp$/ );
-	    $o = $i;
-	    $o =~ s@[/.]@-@g;
-	    $o =~ tr/A-Z/a-z/;
-	    $i{$i} = $o . ".html";
-	}
-	close( FILES );
-
-	@i = (sort keys %i);
-
-	foreach $i ( keys %i ) {
-	    open( O, "> /local/lib/apache/home/" . $i{$i} ) ||
-		die "> /local/lib/apache/home/" . $i{$i};
-	    print O $doctype,"
-<html><head><title>
-Linux Journal: ", $i, "
-</title></head><body bgcolor=\"#ffffff\">
-<h1 align=center>Qt Article Example Code</h1>
-
-<p>
-
-This page contains <code>", $i, "</code> from the article about
-<a href=\"http://www.troll.no/intro.html\">Qt</a> in the
-<a href=\"http://www.ssc.com/lj/issue31/\">November 1995</a> issue of
-<a href=\"http://www.ssc.com/lj/\">Linux Journal.</a>  The
-article text is not available on the web, but here are the other
-example files:
-
-<p>
-
-<code>
-<table>
-";
-
- 	    @i = ( sort keys %i );
-	    print O "<tr><td align=left><ul>\n";
-	    foreach ( 0..4 ) {
- 		if ( $i[$_] ne $i ) {
- 		    print O "<li><a href=\"",$i{$i[$_]},"\">",$i[$_],"</a>\n";
- 		} else {
- 		    print O "<li>",$i[$_],"\n";
- 		}
-	    }
-	    print O "</ul><td align=left><ul>\n";
-	    foreach ( 5..9 ) {
- 		if ( $i[$_] ne $i ) {
- 		    print O "<li><a href=\"",$i{$i[$_]},"\">",$i[$_],"</a>\n";
- 		} else {
- 		    print O "<li>",$i[$_],"\n";
- 		}
-	    }
-
-	    print O "</ul>\n</table>\n</code>\n<hr>\n<h1 align=center>",
-		$i, "</h1>\n";
-
-#	    print "reading ", $i, "\n";
-	    open(I, "expand < " . $i . " |") || die "opening " . $i;
-	    undef $/;
-	    $o = <I>;
-	    close I;
-	    $o = &processcode($o, "" . $ENV{"HOME"} . "/tmp/lj/" . $i );
-	    $o =~ s/<linebreak>//gs;
-
-#	    $o =~ s-<a href=\"([^:/]+)\">-<a href=\"http://www.troll.no/qt/$1\">-gs;
-	    $o =~ s-<a href=\"([^:/]+)\">-<a href=\"/qt/$1\">-gs;
-
-	    print O $o, $address;
-	    close O;
-	}
-    }
+if ( $#ARGV == -1 ) {
+    $d = ".";
+} elsif ( $#ARGV == 0 ) {
+    $d = $ARGV[0];
+} else {
+    die "too many arguments, stopped";
 }
 
+open( CONF, "< $d/doc.conf" ) || die "$d/doc.conf does not exist, stopped";
+$slash = $/;
+undef $/;
+$_ = <CONF>;
+$/ = $slash;
+close CONF;
+eval; die "$@(in $d/doc.conf)\nstopped" if $@;
 
+print "using $d/doc.conf" if ( $debug );
+
+die "sourcedir not defined, stopped" unless defined( $sourcedir );
+die "$sourcedir is not a directory, stopped" unless ( -d $sourcedir );
+die "includedir not defined, stopped" unless defined( $includedir );
+# die "$includedir is not a directory, stopped" unless ( -d $includedir );
+die "outputdir not defined, stopped" unless defined( $outputdir );
+mkdir ($outputdir, oct 777) unless ( -e $outputdir );
+die "$outputdir is not a directory, stopped" unless ( -d $outputdir );
+
+die "module not defined, stopped" unless defined( $module );
+$module_long ||= $module;
+die "footer not defined, stopped" unless defined( $footer );
+die "address not defined, stopped" unless defined( $address );
+die "company not defined, stopped" unless defined( $company );
+
+@exampledirs ||= ();
 
 umask 0111;
 $cfile = "VOLD";
 $maxerr = 5;
-#$debug = 1;
-if ($0 =~ /gendoc/) {
-    $internal = 1;
-    print "generating internal docs\n";
-    $outputdir = "/tmp/qdoc";
-} else {
-    $internal = 0;
-    $outputdir = "" . $ENV{"QTDIR"} . "/doc/html";
-}
 
-mkdir $outputdir, oct 777 unless ( -d $outputdir );
+$doctype ||= "<!doctype HTML public \"-//W3C//DTD HTML 3.2//EN\">\n";
 
-if ( open( I, "< " . $ENV{"QTDIR"} . "/src/tools/qglobal.cpp" ) ) {
-    @_ = grep( /^\x23define QT_VERSION/, <I> );
-    close(I);
-    if ( $#_ == 0 && $_[0] =~ /QT_VERSION *\"(.*?)\"/ ) {
-	$version = $1;
-    } else {
-	die "Cannot determine Qt version\n";
-    }
-} else {
-    die "Cannot open tools/qglobal.cpp\n";
-}
+finddepth( \&readcpp, $sourcedir );
+finddepth( \&readdoc, $docdir ) if ( defined( $docdir ) && -d $docdir );
 
-
-
-($j, $min, $hour, $mday, $mon, $year) = localtime(time);
-$address = sprintf("<hr><address>\nGenerated at %02d:%02d, %4d/%02d/%02d for Qt version %s by the <a href=\"mailto:www\@troll.no\">webmaster</a> at <a href=\"http://www.troll.no/\">Troll Tech</a>\n</address>\n</body></html>\n", $hour, $min, 1900+$year, 1+$mon, $mday, $version );
-$doctype = "<!doctype HTML public \"-//W3C//DTD HTML 3.2//EN\">\n";
-
-# <!doctype HTML public \"-//IETF//DTD HTML 2.0 Level 2//EN\">\n";
-
-if ($#ARGV > -1) {
-    $hdir = ".";
-    foreach $arg ( @ARGV ) {
-	die if ( $arg eq "" );
-	&readc($arg);
-    }
-} else {
-    my($sources, $dirs);
-    chdir($ENV{"QTDIR"} . "/src") || die "can't cd to QTDIR/src";
-    $hdir = $ENV{"QTDIR"} . "/include";
-    foreach $dirs ( "tools", "kernel", "widgets", "dialogs", "../doc" ) {
-	chdir( $dirs ) || die "can't cd to $dirs";
-	open(F, "make -s showsources |") || die "can't make showsources";
-	$sources = <F>;
-	close F;
-	foreach $d ( split(/\s+/, $sources) ) {
-	    $_ = $d;
-	    die if ( $_ eq "" );
-	    next unless ( -f $d );
-	    &readc( $_ );
- 	}
-	chdir( $ENV{"QTDIR"} . "/src" ) || die "can't cd back to QTDIR";
-    }
-}
+chdir( $sourcedir );
 
 &templates();
 &preprocessdocs();
@@ -2249,8 +2157,7 @@ print "Documented ", $countdoc, " member functions, left out ",
     $errmsg, " undocumented member functions and ", 
     $countall-$countdoc-$errmsg, " private or non-function members\n";
 
-&linuxjournal();
-
+&post();
 
 #foreach ( sort keys %urls ) {
 #    print $urls{$_}, ": ", $_, ":\n   ", $def{$urls{$_}}, "\n";
