@@ -2361,8 +2361,24 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     QString k(key() + script_table[script].list[script_table[script].index]);
     if ( paintdevice )
 	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
-    QXFontName *qxfn = fontNameDict->find(k);
 
+    // Look in fontCache for font
+    qfs = fontCache->find(k);
+    if (qfs) {
+	// Found font in either cache or dict...
+	x11data.fontstruct[script] = qfs;
+
+	if (qfs != (QFontStruct *) -1) {
+	    qfs->ref();
+	    initFontInfo(script);
+	}
+
+	request.dirty = FALSE;
+
+	return;
+    }
+
+    QXFontName *qxfn = fontNameDict->find(k);
     if (! qxfn) {
 	// if we don't find the name in the dict, we need to find a font name
 
@@ -2428,24 +2444,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
     exactMatch = qxfn->exactMatch;
-
     fontname = qxfn->name;
-
-    // Look in fontCache for font
-    qfs = fontCache->find(fontname.data());
-    if (qfs) {
-	// Found font in either cache or dict...
-	x11data.fontstruct[script] = qfs;
-
-	if (qfs != (QFontStruct *) -1) {
-	    qfs->ref();
-	    initFontInfo(script);
-	}
-
-	request.dirty = FALSE;
-
-	return;
-    }
 
 #ifndef QT_NO_XFTFREETYPE
     // with XftFreeType support - we always load a font using Unicode, so we never
@@ -2507,7 +2506,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 #endif
 
 		x11data.fontstruct[script] = (QFontStruct *) -1;
-		fontCache->insert(fontname.data(), x11data.fontstruct[script], 1);
+		fontCache->insert(k, x11data.fontstruct[script], 1);
 		return;
 	    }
 	}
@@ -2538,7 +2537,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 		// Didn't get unicode font, set to sentinel and return
 		//qDebug("no unicode font, doing negative caching");
 		x11data.fontstruct[script] = (QFontStruct *) -1;
-		fontCache->insert(fontname.data(), x11data.fontstruct[script], 1);
+		fontCache->insert(k, x11data.fontstruct[script], 1);
 
 		return;
 	    }
@@ -2549,11 +2548,11 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     int cost = 1;
     if (xfs) {
 	cost = maxIndex(xfs);
-	if ( cost > 5000 ) {
+	if ( cost > 3000 ) {
 	    // If the user is using large fonts, we assume they have
 	    // turned on the Xserver option deferGlyphs, and that they
 	    // have more memory available to the server.
-	    cost = 5000;
+	    cost = 3000;
 	}
 	cost = ((xfs->max_bounds.ascent + xfs->max_bounds.descent) *
 		(xfs->max_bounds.width * cost / 8));
@@ -2563,8 +2562,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	cost = (xftfs->max_char - xftfs->min_char);
 	if (cost <= 0)
 	    cost = 256;
-	else if (cost > 5000)
-	    cost = 5000;
+	else if (cost > 3000)
+	    cost = 3000;
 	cost = ((xftfs->ascent + xftfs->descent) *
 		(xftfs->max_advance_width * cost / 8));
     }
@@ -2584,7 +2583,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     // Insert font into the font cache and font dict
     bool inserted;
-    inserted = fontCache->insert(qfs->name, qfs, qfs->cache_cost);
+    inserted = fontCache->insert(k, qfs, qfs->cache_cost);
 
 #ifdef QT_CHECK_STATE
     if (! inserted)
