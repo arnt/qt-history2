@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#16 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#17 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
-$quiet=1;
-#$skipdoc=1;
+$verbose=0;
+$skipdoc=0;
 
 use File::Find;
 
@@ -41,15 +41,15 @@ sub copy {
 	    #
 	    # Outdate all branches
 	    #
-	    $f =~ s/;\s*\nlocks.*$/\n/s;
-	    $f =~ s/^.*\bsymbols\b\s*//s;
-	    $f =~ s/\s+/  /gs;
-	    while ( $f =~ / ([a-zA-Z][-a-zA-Z0-9]*):((?:\d+\.)*)0\.2 /g ) {
-		if ( $quiet ) {
-		    print SH "rcs -q -o${2}2.1: $dir$_\n";
+	    ($revs) = $f =~ /.*?;\s*\nlocks(.*?)\nlog.*$/s;
+	    while ( $revs =~ /\nbranches\s*((?:\d+\.)+\d\.\d)[;\n]/g ) {
+		$branch=$1;
+		print "Stripping branch ${branch} from $dir$_\n" if $verbose == 1;
+		if ( $verbose <= 1 ) {
+		    print SH "rcs -q -o${branch}: $dir$_\n";
 		} else {
-		    print SH "echo rcs -o${2}2.1: $dir$_\n";
-		    print SH "rcs -o${2}2.1: $dir$_\n";
+		    print SH "echo rcs -o${branch}: $dir$_\n";
+		    print SH "rcs -o${branch}: $dir$_\n";
 		}
 	    }
 
@@ -64,11 +64,12 @@ sub copy {
 		if ( $f =~ /^(\S+)\s+(\d+)$/ && $2 < $date
 		     && $1 ne $head )
 		{
-		    if ( $quiet ) {
-			print SH "rcs -q -o1.1:$1 $dir$_\n";
+		    print "Stripping revision $1 from $dir$_\n" if $verbose == 1;
+		    if ( $verbose <= 1 ) {
+			print SH "rcs -q -o:$1 $dir$_\n";
 		    } else {
-			print SH "echo rcs -o1.1:$1 $dir$_\n";
-			print SH "rcs -o1.1:$1 $dir$_\n";
+			print SH "echo rcs -o:$1 $dir$_\n";
+			print SH "rcs -o:$1 $dir$_\n";
 		    }
 		    last;
 		}
@@ -89,6 +90,7 @@ $date = sprintf( "%4d%02d%02d", $y, 1+$m, $d ); ##### Y2K - what does CVS do?
 mkdir( $base, 0755 );
 mkdir( "$base/cvs", 0755 );
 mkdir( "$base/cvs/qt", 0755 );
+mkdir( "$base/cvs/qt/html", 0755 );
 mkdir( "$base/cvs/CVSROOT", 0755 );
 
 open( SH, "| sh" );
@@ -108,7 +110,6 @@ rm Makefile.inc,v
 rm make.help,v
 
 # Check-out current public CVS
-cd ..
 mkdir $base/head
 cd $base/head
 cvs -Q -d $base/cvs co qt
@@ -125,7 +126,6 @@ if ( !$skipdoc ) {
     print SH "
     perl util/qdoc/qdoc
     cd doc/html
-    mkdir $base/cvs/qt/html
     cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
     for B in *.html
     do
