@@ -56,7 +56,6 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidge
     init( display_id, w, h, d, skinName );
     createActions();
     createMenuBar();
-    adjustSize();
 }
 
 QVFb::~QVFb()
@@ -81,7 +80,6 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         skin->setView( view );
         view->setFixedSize( w, h );
         setCentralWidget( skin );
-        adjustSize();
         view->show();
         if ( vis ) show();
     } else {
@@ -97,9 +95,12 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         scroller->setWidget(view);
         setCentralWidget(scroller);
         scroller->show();
-        // Resize QVFb to the new size
-        resize(view->sizeHint() + (frameSize() - size()));
     }
+    // Resize QVFb to the new size
+    QSize newSize = view->sizeHint() + (frameSize() - size());
+    if (frameSize() == size()) // First time (no window border yet)
+        newSize += QSize(10, 30);
+    resize(newSize);
 
     currentSkin = skin_name;
 }
