@@ -99,6 +99,7 @@ public:
     QString defines( const QString &platform ) const;
     QString includePath( const QString &platform ) const;
     QString templte() const;
+    bool isGenericObject( QObject *o ) const;
 
 private:
     Project *project;

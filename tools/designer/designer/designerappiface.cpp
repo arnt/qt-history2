@@ -369,6 +369,12 @@ QString DesignerProjectImpl::templte() const
     return project->templte();
 }
 
+bool DesignerProjectImpl::isGenericObject( QObject *o ) const
+{
+    return !!project->fakeFormFor( o );
+}
+
+
 
 
 

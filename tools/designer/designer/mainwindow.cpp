@@ -515,7 +515,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
 	
 	if ( w ) {
-	    w->hide();
+	    if ( !(*it)->isFake() )
+		w->hide();
 	    if ( programPluginManager ) {
 		QString lang = currentProject->language();
 		ProgramInterface *piface = 0;
@@ -648,7 +649,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 		    l->append( w );
 		else
 		    l->append( qwf_form_object );
-		w->hide();
+		if ( !(*it2)->isFake() )
+		    w->hide();
 	    } else {
 		l->append( qwf_form_object );
 	    }

@@ -124,6 +124,7 @@ struct DesignerProject
     virtual QString defines( const QString &platform ) const = 0;
     virtual QString includePath( const QString &platform ) const = 0;
     virtual QString templte() const = 0;
+    virtual bool isGenericObject( QObject *o ) const = 0;
 
 };
 
