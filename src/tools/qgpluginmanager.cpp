@@ -351,7 +351,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 {
     if ( feature.isEmpty() )
 	return 0;
-    
+
     // We already have a QLibrary object for this feature
     QLibrary *library = 0;
     if ( ( library = plugDict[feature] ) )
@@ -392,13 +392,13 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 		sameBasename << (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
 		++git;
 	    }
-	    
+	
 	    if ( sameBasename.isEmpty() ) {
 		that->addLibrary( new QComLibrary(lib ) );
 	    } else {
 		QPtrList<QComLibrary> same;
 		same.setAutoDelete( TRUE );
-		for ( QStringList::ConstIterator bit = sameBasename.begin(); 
+		for ( QStringList::ConstIterator bit = sameBasename.begin();
 		      bit != sameBasename.end(); ++bit )
 		    same.append( new QComLibrary( *bit ) );
 		QComLibrary* bestMatch = 0;
@@ -502,8 +502,10 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 		if ( !takeFirst ) {
 		    useful = TRUE;
 		    plugDict.replace( *f, plugin );
+		    qWarning("%s: Discarding feature %s in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
+		} else {
+		    qWarning("%s: Feature %s already defined in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
 		}
-		qWarning("%s: Feature %s already defined in %s. Pick %s", plugin->library().latin1(), (*f).latin1(), old->library().latin1(), takeFirst?"old":"new" );
 	    }
 	}
 	if ( fliFace )
