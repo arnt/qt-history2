@@ -394,6 +394,8 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qwindowsstyle.cpp \
+		  widgets/qworkspace.cpp \
+		  widgets/qworkspacechild.cpp \
 	          widgets/qiconview.cpp \
         	  widgets/qdial.cpp \
 		  dialogs/qcolordialog.cpp \
@@ -402,8 +404,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
-		  dialogs/qworkspace.cpp \
-		  dialogs/qworkspacechild.cpp \
 		  dialogs/qwizard.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
