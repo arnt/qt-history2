@@ -58,9 +58,9 @@ public:
     Q_EXPLICIT QImage(const char * const xpm[]);
     QImage(const QByteArray &data);
 #endif
-    QImage(uchar* data, int w, int h, int depth, QRgb* colortable, int numColors, Endian bitOrder);
+    QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder);
 #ifdef Q_WS_QWS
-    QImage(uchar* data, int w, int h, int depth, int pbl, QRgb* colortable, int numColors, Endian bitOrder);
+    QImage(uchar* data, int w, int h, int depth, int pbl, const QRgb* colortable, int numColors, Endian bitOrder);
 #endif
     QImage(const QImage &);
    ~QImage();
@@ -92,10 +92,15 @@ public:
     bool allGray() const;
     bool isGrayscale() const;
 
-    uchar *bits() const;
-    uchar *scanLine(int) const;
-    uchar **jumpTable() const;
-    QRgb *colorTable() const;
+    uchar *bits();
+    const uchar *bits() const;
+    uchar *scanLine(int);
+    const uchar *scanLine(int) const;
+    uchar **jumpTable();
+    const uchar * const *jumpTable() const;
+    QRgb *colorTable();
+    const QRgb *colorTable() const;
+
     int numBytes() const;
     int bytesPerLine() const;
 
@@ -197,7 +202,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QImage &);
 #  if defined(Q_WS_WIN)
 #    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
 #  endif
-Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int);
+Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, int, int, const uchar*, int, int, int);
 #endif
 
 Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,

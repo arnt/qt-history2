@@ -46,10 +46,8 @@ public:
     QPixmap(int w, int h, int depth = -1, Optimization = DefaultOptim);
     QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
-    QPixmap(const QString& fileName, const char *format=0,
-            ColorMode mode=Auto);
-    QPixmap(const QString& fileName, const char *format,
-            int conversion_flags);
+    QPixmap(const QString& fileName, const char *format=0, ColorMode mode=Auto);
+    QPixmap(const QString& fileName, const char *format, int conversion_flags);
     explicit QPixmap(const char * const xpm[]);
 #endif
     QPixmap(const QPixmap &);
@@ -154,7 +152,7 @@ public:
 
     Q_DUMMY_COMPARISON_OPERATOR(QPixmap)
 
-        protected:
+protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);
     int metric(int) const;
 

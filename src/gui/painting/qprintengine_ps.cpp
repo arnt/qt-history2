@@ -4739,7 +4739,7 @@ static QByteArray compress(const QImage & image, bool gray) {
         QImage::Endian bitOrder = image.bitOrder();
         memset(pixel, 0xff, size);
         for(int y=0; y < height; y++) {
-            uchar * s = image.scanLine(y);
+            const uchar * s = image.scanLine(y);
             for(int x=0; x < width; x++) {
                 // need to copy bit for bit...
                 bool b = (bitOrder == QImage::LittleEndian) ?
@@ -4754,7 +4754,7 @@ static QByteArray compress(const QImage & image, bool gray) {
         }
     } else if (depth == 8) {
         for(int y=0; y < height; y++) {
-            uchar * s = image.scanLine(y);
+            const uchar * s = image.scanLine(y);
             for(int x=0; x < width; x++) {
                 QRgb rgb = image.color(s[x]);
                 if (gray) {

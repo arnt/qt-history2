@@ -2335,7 +2335,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
         if (s1image->bitOrder() == QImage::LittleEndian) {
             for (int j=0; j<h; j++) {
                 uchar* ml = s1image->scanLine(y1+j);
-                uchar* yl = s2image->scanLine(y2+j);
+                const uchar* yl = s2image->scanLine(y2+j);
                 for (int i=0; i<w; i++) {
                     if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7))
                     && *(ml + ((x1+i) >> 3)) & (1 << ((x1+i) & 7)))
@@ -2347,7 +2347,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
         } else {
             for (int j=0; j<h; j++) {
                 uchar* ml = s1image->scanLine(y1+j);
-                uchar* yl = s2image->scanLine(y2+j);
+                const uchar* yl = s2image->scanLine(y2+j);
                 for (int i=0; i<w; i++) {
                     if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7)))
                     && *(ml + ((x1+i) >> 3)) & (1 << (7-((x1+i) & 7))))
@@ -2360,7 +2360,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
     } else {
         if (s2image->bitOrder() == QImage::LittleEndian) {
             for (int j=0; j<h; j++) {
-                uchar* yl = s2image->scanLine(y2+j);
+                const uchar* yl = s2image->scanLine(y2+j);
                 for (int i=0; i<w; i++) {
                     if (*(yl + ((x2+i) >> 3)) & (1 << ((x2+i) & 7)))
                     {
@@ -2370,7 +2370,7 @@ bool qt_testCollision(const QCanvasSprite* s1, const QCanvasSprite* s2)
             }
         } else {
             for (int j=0; j<h; j++) {
-                uchar* yl = s2image->scanLine(y2+j);
+                const uchar* yl = s2image->scanLine(y2+j);
                 for (int i=0; i<w; i++) {
                     if (*(yl + ((x2+i) >> 3)) & (1 << (7-((x2+i) & 7))))
                     {
