@@ -52,6 +52,7 @@ class Q_CORE_EXPORT QThreadData
 {
 public:
     QThreadData();
+    ~QThreadData();
 
     static QThreadData *current();
     static void setCurrent(QThreadData *data);

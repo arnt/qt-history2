@@ -140,8 +140,8 @@ QTextCodecCleanup::~QTextCodecCleanup()
 
     destroying_is_ok = true;
 
-    for (int i = 0; i < all->size(); ++i)
-        delete all->at(i);
+    while (all->size())
+        delete all->takeFirst();
     delete all;
     all = 0;
 
@@ -436,27 +436,27 @@ static void setup()
         qWarning("QTextCodec: Creating new codec during codec cleanup");
     all = new QList<QTextCodec*>;
 
-    (void)new QLatin1Codec;
-    (void)new QLatin15Codec;
-    (void)new QUtf8Codec;
-    (void)new QUtf16Codec;
-
-#ifndef QT_NO_CODECS
-    for (int i = 0; i < QSimpleTextCodec::numSimpleCodecs; ++i)
-        (void)new QSimpleTextCodec(i);
-
-    (void)new QTsciiCodec;
-
-    for (int i = 0; i < 9; ++i)
-        (void)new QIsciiCodec(i);
-#endif // QT_NO_CODECS
 #ifdef Q_WS_X11
     (void)new QFontLaoCodec;
 #endif
+#ifndef QT_NO_CODECS
+     (void)new QTsciiCodec;
+
+    for (int i = 0; i < 9; ++i)
+        (void)new QIsciiCodec(i);
+
+    for (int i = 0; i < QSimpleTextCodec::numSimpleCodecs; ++i)
+        (void)new QSimpleTextCodec(i);
+#endif // QT_NO_CODECS
 
 #ifdef Q_OS_WIN32
     (void) new QWindowsLocalCodec;
 #endif // Q_OS_WIN32
+
+    (void)new QUtf16Codec;
+    (void)new QLatin15Codec;
+    (void)new QLatin1Codec;
+    (void)new QUtf8Codec;
 
     if (!localeMapper)
         setupLocaleMapper();
@@ -646,7 +646,7 @@ static void setup()
 QTextCodec::QTextCodec()
 {
     setup();
-    all->insert(all->begin(), this);
+    all->prepend(this);
 }
 
 

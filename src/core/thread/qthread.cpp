@@ -30,6 +30,15 @@ QThreadData::QThreadData()
     : eventDispatcher(0), tls(0)
 { }
 
+QThreadData::~QThreadData()
+{
+    for (int i = 0; i < postEventList.size(); ++i) {
+        const QPostEvent &pe = postEventList.at(i);
+        pe.event->posted = false;
+        delete pe.event;
+    }
+}
+
 QThreadData *QThreadData::get(QThread *thread)
 { return thread ? &thread->d_func()->data : 0; }
 
