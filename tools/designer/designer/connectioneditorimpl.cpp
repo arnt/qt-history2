@@ -115,12 +115,6 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
     QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     QStringList lst;
     bool includeMainContainer = TRUE;
-    if ( formWindow->project() ) {
-	LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
-	if ( iface && !iface->supports( LanguageInterface::ConnectionsToCustomSlots ) )
-	    includeMainContainer = FALSE;
-    }
-
     while ( it.current() ) {
 	if ( lst.find( it.current()->name() ) != lst.end() ) {
 	    ++it;

@@ -237,7 +237,8 @@ void MainWindow::setupEditActions()
     actionEditRaise->addTo( menu );
 #endif
     menu->insertSeparator();
-    actionEditSlots->addTo( menu );
+    if ( !singleProjectMode() )
+	actionEditSlots->addTo( menu );
     actionEditConnections->addTo( menu );
     actionEditFormSettings->addTo( menu );
     menu->insertSeparator();
