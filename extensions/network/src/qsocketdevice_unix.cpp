@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#12 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#13 $
 **
 ** Implementation of Network Extension Library
 **
@@ -567,7 +567,7 @@ int QSocketDevice::bytesAvailable() const
 
 
 /*!
-  Wait upto \a msecs milliseconds for more data to be available.
+  Wait up to \a msecs milliseconds for more data to be available.
   If \a msecs is -1 the call will block indefinitely.
   This is a blocking call and should be avoided in event driven
   applications.

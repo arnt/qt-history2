@@ -128,7 +128,7 @@ QHostAddress::~QHostAddress()
 
 /*!
   Assigns another socket address object \a address to this object and
-  returns a referense to this object.
+  returns a reference to this object.
 */
 QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 {

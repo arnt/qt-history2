@@ -762,7 +762,7 @@ int QSocket::bytesAvailable() const
 
 
 /*!
-  Wait upto \a msecs milliseconds for more data to be available.
+  Wait up to \a msecs milliseconds for more data to be available.
   If \a msecs is -1 the call will block indefinitely.
   This is a blocking call and should be avoided in event driven
   applications.
@@ -1182,7 +1182,7 @@ QString QSocket::peerName() const
 
 /*!
   Low level function to set the socket device. There will only be rare
-  situationions where you will find this useful.
+  situations where you will find this useful.
 
   The socket device \a sd must already try to connect. If the connect was
   already successful set \a sdConnected to TRUE. If the socket device stills
