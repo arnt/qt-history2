@@ -1,7 +1,7 @@
 \book Graphics with Qt
 
-\page canvas.html
 \page coordsys.html
+\page canvas.html
 \class QBitmap
 \class QBrush
 \class QBuffer
@@ -10,20 +10,24 @@
 \class QCanvasItem
 \class QCanvasItemList
 \class QCanvasLine
+\class QCanvasPixmap
 \class QCanvasPixmapArray
-\class QCanvasPixmapQPrinterQPaintDeviceMetrics
 \class QCanvasPolygon
 \class QCanvasPolygonalItem
-\class QCanvasSplineQCanvasRectangleQCanvasSprite
-\class QCanvasTextQCursor
+\class QCanvasRectangle
+\class QCanvasSpline
+\class QCanvasSprite
+\class QCanvasText
 \class QCanvasView
 \class QColor
 \class QColorGroup
+\class QCursor
 \class QGL
 \class QGLColormap
 \class QGLContext
 \class QGLFormat
 \class QGLWidget
+\class QIconSet
 \class QImage
 \class QImageConsumer
 \class QImageDecoder
@@ -31,15 +35,17 @@
 \class QImageFormatType
 \class QImageIO
 \class QMovie
+\class QPNGImagePacker
 \class QPaintDevice
+\class QPaintDeviceMetrics
 \class QPainter
 \class QPalette
 \class QPen
 \class QPicture
 \class QPixmap
 \class QPixmapCache
-\class QPNGImagePacker
 \class QPoint
+\class QPrinter
 \class QRect
 \class QRegion
 \class QWMatrix

@@ -37,8 +37,8 @@
 
 \title The Qt DOM classes
 
-
-<h2><a name="introDOM">Introduction to DOM</a></h2>
+\target introDOM
+\section1 Introduction to DOM
 
 DOM provides an interface to access and change the content and structure of
 an XML file. It makes a hierarchical view of the document (tree) 
@@ -50,58 +50,64 @@ In the Qt implementation of the DOM all
 nodes in the document tree are subclasses of \l QDomNode.
 The document itself is represented as a \l QDomDocument object.
 
-The following table lists the available node classes and 
-their potential children classes.
-<table>
-<tr>
-    <th align="left">Node type</th>
-    <th align="left">Possible children</th>
-</tr>
-<tr>
-    <td>\l QDomDocument </td>
-    <td>\l QDomElement (maximum one), \l QDomProcessingInstruction,
-	\l QDomComment, \l QDomDocumentType </td>
-</tr>
-<tr>
-    <td>\l QDomDocumentFragment </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomDocumentType </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomEntityReference </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomElement </td>
-    <td>\l QDomElement, \l QDomText, \l QDomComment,
-	\l QDomProcessingInstruction, \l QDomCDATASection,
-	\l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomAttr </td>
-    <td>\l QDomText, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomProcessingInstruction </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomComment </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomText </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomCDATASection </td>
-    <td>no children </td>
-</tr>
-<tr><td>\l QDomEntity </td>
-    <td>\l QDomElement, \l QDomProcessingInstruction, \l QDomComment,
-	\l QDomText, \l QDomCDATASection, \l QDomEntityReference </td>
-</tr>
-<tr><td>\l QDomNotation </td>
-    <td>no children </td>
-</tr>
-</table>
+Here are the available node classes and their potential children classes:
+
+\list
+\i \l QDomDocument: Possible children are
+	\list
+	\i \l QDomElement (at most one)
+	\i \l QDomProcessingInstruction
+	\i \l QDomComment
+	\i \l QDomDocumentType
+	\endlist
+\i \l QDomDocumentFragment: Possible children are
+	\list
+	\i \l QDomElement
+	\i \l QDomProcessingInstruction
+	\i \l QDomComment
+	\i \l QDomText
+	\i \l QDomCDATASection
+	\i \l QDomEntityReference
+	\endlist
+\i \l QDomDocumentType: No children
+\i \l QDomEntityReference: Possible children are
+	\list
+	\i \l QDomElement
+	\i \l QDomProcessingInstruction
+	\i \l QDomComment
+	\i \l QDomText
+	\i \l QDomCDATASection
+	\i \l QDomEntityReference
+	\endlist
+\i \l QDomElement: Possible children are
+	\list
+	\i \l QDomElement
+	\i \l QDomText
+	\i \l QDomComment
+	\i \l QDomProcessingInstruction
+	\i \l QDomCDATASection
+	\i \l QDomEntityReference
+	\endlist
+\i \l QDomAttr: Possible children are
+	\list
+	\i \l QDomText
+	\i \l QDomEntityReference
+	\endlist
+\i \l QDomProcessingInstruction: No children
+\i \l QDomComment: No children
+\i \l QDomText: No children
+\i \l QDomCDATASection: No children
+\i \l QDomEntity: Possible children are
+	\list
+	\i \l QDomElement
+	\i \l QDomProcessingInstruction
+	\i \l QDomComment
+	\i \l QDomText
+	\i \l QDomCDATASection
+	\i \l QDomEntityReference
+	\endlist
+\i \l QDomNotation: No children
+\endlist
 
 With \l QDomNodeList and \l QDomNamedNodeMap two collection classes 
 are provided: \l QDomNodeList is a list of nodes
@@ -111,12 +117,12 @@ whereas \l QDomNamedNodeMap is used to handle unordered sets of nodes
 The \l QDomImplementation class allows the user to query features of the
 DOM implementation.
 
-
-<h2>Further reading</h2>
+\section1 Further reading
 
 To get started please refer to the \l QDomDocument documentation that
 describes basic usage.
 
-More information about Qt and XML 
-can be found in the \link xml.html introduction to the Qt XML module. \endlink   
+More information about Qt and XML  can be found in the \link xml.html
+Introduction to the Qt XML module. \endlink   
+
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#55 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#56 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -546,9 +546,14 @@ int QSocketDevice::bytesAvailable() const
   Returns the number of bytes available for reading, or -1 if an
   error occurred.
 
+  If \a timeout is non-null and no error occurred (i.e. it does not return -1),
+  then this function sets \a timeout out to TRUE, if the reason for returning
+  was that the timeout was reached, otherwise it sets \a timeout to FALSE. This
+  is useful to find out if the peer closed the connection.
+
   \sa bytesAvailable()
 */
-int QSocketDevice::waitForMore( int msecs ) const
+int QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -566,6 +571,13 @@ int QSocketDevice::waitForMore( int msecs ) const
 
     if ( rv < 0 )
 	return -1;
+
+    if ( timeout ) {
+	if ( rv == 0 )
+	    *timeout = TRUE;
+	else
+	    *timeout = FALSE;
+    }
 
     return bytesAvailable();
 }

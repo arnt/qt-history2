@@ -1,0 +1,23 @@
+\book Dialogs and Windows with Qt
+
+\class QColorDialog
+\class QCustomMenuItem
+\class QDesktopWidget
+\class QDialog
+\class QDockArea
+\class QDockWindow
+\class QFileDialog
+\class QFileIconProvider
+\class QMainWindow
+\class QMenuBar
+\class QMessageBox
+\class QPopupMenu
+\class QPrintDialog
+\class QProgressDialog
+\class QTabDialog
+\class QToolBar
+\class QToolButton
+\class QToolTip
+\class QToolTipGroup
+\class QWizard
+\class QWorkspace

@@ -37,16 +37,17 @@
 
 \title Qt Canvas Module
 
-This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+This module is part of the \link editions.html Qt Enterprise Edition
+\endlink.
 
-The canvas module provides a highly optimized 2D graphic area called \l
-QCanvas. The canvas can contain an arbitrary number of \link QCanvasItem
-QCanvasItems \endlink. Canvas items can have an arbitrary shape, size and
-content, can be freely moved around in the canvas, and can be checked
-for collisions. Canvas items can be set to move across the canvas
-automatically and animated canvas items are supported with QCanvasSprite.
-(If you require 3D graphics see Qt's <a
-href="opengl.html">OpenGL module</a>.)
+The canvas module provides a highly optimized 2D graphic area called
+\l QCanvas. The canvas can contain an arbitrary number of \link
+QCanvasItem QCanvasItems \endlink. Canvas items can have an arbitrary
+shape, size and content, can be freely moved around in the canvas,
+and can be checked for collisions. Canvas items can be set to move
+across the canvas automatically and animated canvas items are
+supported with QCanvasSprite. (If you require 3D graphics see Qt's
+\link opengl.html OpenGL module \endlink.)
 
 The canvas module uses a document/view model. The \l QCanvasView class
 is used to show a particular view of a canvas. Multiple views can operate
@@ -58,49 +59,24 @@ features such as zooming.
 <img src="qcanvas.png" alt="Screenshot of a canvas"></a></center>
 
 Qt provides a number of predefined \l QCanvas items as listed below.
-<table>
-<tr>
-<td valign="top">\l QCanvasItem </td>
-<td valign="top">An abstract base class for all canvas items.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasEllipse </td>
-<td valign="top">An ellipse or "pie segment".</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasLine </td>
-<td valign="top">A line segment.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasPolygon </td>
-<td valign="top">A polygon.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasPolygonalItem </td>
-<td valign="top">A base class for items that have a non-rectangular
-shape. Most canvas items derive from this class.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasRectangle </td>
-<td valign="top">A rectangle. The rectangle cannot be tilted or rotated.
-Rotated rectangles can be drawn using QCanvasPolygon.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasSpline </td>
-<td valign="top">A multi-bezier spline.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasSprite </td>
-<td valign="top">An animated pixmap.</td>
-</tr>
-<tr>
-<td valign="top">\l QCanvasText </td>
-<td valign="top">A text string.</td>
-</tr>
-</table>
 
-The two classes, \l QCanvasPixmap and \l QCanvasPixmapArray are used by
-\l QCanvasSprite to show animated and moving pixmaps on the canvas.
+\list
+\i QCanvasItem -- An abstract base class for all canvas items.
+\i QCanvasEllipse -- An ellipse or "pie segment".
+\i QCanvasLine -- A line segment.
+\i QCanvasPolygon -- A polygon.
+\i QCanvasPolygonalItem -- A base class for items that have a
+non-rectangular shape. Most canvas items derive from this class.
+\i QCanvasRectangle -- A rectangle. The rectangle cannot be tilted or
+rotated. Rotated rectangles can be drawn using QCanvasPolygon.
+\i QCanvasSpline -- A multi-bezier spline.
+\i QCanvasSprite -- An animated pixmap.
+\i QCanvasText -- A text string.
+\endlist
+
+The two classes \l QCanvasPixmap and \l QCanvasPixmapArray are used
+by \l QCanvasSprite to show animated and moving pixmaps on the
+canvas.
 
 More specialized items can be created by inheriting from one of the
 canvas item classes. It is easiest to inherit from one of

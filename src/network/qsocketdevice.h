@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#12 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#13 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -96,7 +96,7 @@ public:
     virtual int	 accept();
 
     int		 bytesAvailable() const;
-    int		 waitForMore( int msecs ) const;
+    int		 waitForMore( int msecs, bool *timeout=0 ) const;
     Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
     Q_LONG	 writeBlock( const char *data, Q_ULONG len );
     virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,

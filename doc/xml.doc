@@ -37,13 +37,14 @@
 
 \title Qt XML Module
 
-This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 
 The XML module provides a well-formed XML parser using the SAX2 (Simple API for
 XML) interface plus an implementation of the DOM Level 2 (Document Object
 Model).
 
-<h2><a name="overview">Overview of the XML architecture in Qt</a></h2>
+\target overview
+\section1 Overview of the XML architecture in Qt
 
 The Qt XML Module provides two interfaces for XML: SAX2 and DOM Level 2.
 
@@ -53,12 +54,12 @@ Its naming scheme was adapted to fit the Qt naming conventions.
 Details on SAX2 can be found at
 \link http://www.megginson.com/SAX/ http://www.megginson.com/SAX/ \endlink.
 
-Support for SAX2 filters and the reader factory are under development.
-Furthermore the Qt implementation does not include the SAX1 compatibility classes 
-present in the Java interface. 
+Support for SAX2 filters and the reader factory are under
+development. Furthermore the Qt implementation does not include the
+SAX1 compatibility classes present in the Java interface.
 
 For an introduction to Qt's SAX2 classes see
-"\link xml-sax.html The Qt SAX2 implementation \endlink". 
+"\link xml-sax.html The Qt SAX2 implementation \endlink".
 A code example is discussed in the "\link xml-sax-walkthrough.html tagreader
 walkthrough \endlink".
 
@@ -69,54 +70,54 @@ specification of DOM Level 2 can be found at
 More information about the DOM classes in Qt is provided in the
 \link xml-dom.html Qt XML DOM overview \endlink.
 
- 
+
 Qt provides the following XML related classes:
-<table>
-<tr bgcolor=#f0f0f0><td><b><a href="qdomattr.html">QDomAttr</a></b><td>Represents one attribute of a QDomElement
-<tr bgcolor=#f0f0f0><td><b><a href="qdomcdatasection.html">QDomCDATASection</a></b><td>Represents an XML CDATA section
-<tr bgcolor=#f0f0f0><td><b><a href="qdomcharacterdata.html">QDomCharacterData</a></b><td>Represents a generic string in the DOM
-<tr bgcolor=#f0f0f0><td><b><a href="qdomcomment.html">QDomComment</a></b><td>Represents an XML comment
-<tr bgcolor=#f0f0f0><td><b><a href="qdomdocument.html">QDomDocument</a></b><td>The representation of an XML document
-<tr bgcolor=#f0f0f0><td><b><a href="qdomdocumentfragment.html">QDomDocumentFragment</a></b><td>Tree of QDomNodes which is usually not a complete QDomDocument
-<tr bgcolor=#f0f0f0><td><b><a href="qdomdocumenttype.html">QDomDocumentType</a></b><td>The representation of the DTD in the document tree
-<tr bgcolor=#f0f0f0><td><b><a href="qdomelement.html">QDomElement</a></b><td>Represents one element in the DOM tree
-<tr bgcolor=#f0f0f0><td><b><a href="qdomentity.html">QDomEntity</a></b><td>Represents an XML entity
-<tr bgcolor=#f0f0f0><td><b><a href="qdomentityreference.html">QDomEntityReference</a></b><td>Represents an XML entity reference
-<tr bgcolor=#f0f0f0><td><b><a href="qdomimplementation.html">QDomImplementation</a></b><td>Information about the features of the DOM implementation
-<tr bgcolor=#f0f0f0><td><b><a href="qdomnamednodemap.html">QDomNamedNodeMap</a></b><td>Collection of nodes that can be accessed by name
-<tr bgcolor=#f0f0f0><td><b><a href="qdomnode.html">QDomNode</a></b><td>The base class for all nodes of the DOM tree
-<tr bgcolor=#f0f0f0><td><b><a href="qdomnodelist.html">QDomNodeList</a></b><td>List of QDomNode objects
-<tr bgcolor=#f0f0f0><td><b><a href="qdomnotation.html">QDomNotation</a></b><td>Represents an XML notation
-<tr bgcolor=#f0f0f0><td><b><a href="qdomprocessinginstruction.html">QDomProcessingInstruction</a></b><td>Represents an XML processing instruction
-<tr bgcolor=#f0f0f0><td><b><a href="qdomtext.html">QDomText</a></b><td>Represents textual data in the parsed XML document
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlattributes.html">QXmlAttributes</a></b><td>XML attributes
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlcontenthandler.html">QXmlContentHandler</a></b><td>Interface to report logical content of XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmldeclhandler.html">QXmlDeclHandler</a></b><td>Interface to report declaration content of XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmldefaulthandler.html">QXmlDefaultHandler</a></b><td>Default implementation of all XML handler classes
-<tr bgcolor=#f0f0f0><td><b><a href="qxmldtdhandler.html">QXmlDTDHandler</a></b><td>Interface to report DTD content of XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlentityresolver.html">QXmlEntityResolver</a></b><td>Interface to resolve extern entities contained in XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlerrorhandler.html">QXmlErrorHandler</a></b><td>Interface to report errors in XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlinputsource.html">QXmlInputSource</a></b><td>The input data for the QXmlReader subclasses
-<tr bgcolor=#f0f0f0><td><b><a href="qxmllexicalhandler.html">QXmlLexicalHandler</a></b><td>Interface to report lexical content of XML data
-<tr bgcolor=#f0f0f0><td><b><a href="qxmllocator.html">QXmlLocator</a></b><td>The XML handler classes with information about the actual parsing position
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlnamespacesupport.html">QXmlNamespaceSupport</a></b><td>Helper class for XML readers which want to include namespace support
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlparseexception.html">QXmlParseException</a></b><td>Used to report errors with the QXmlErrorHandler interface
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlreader.html">QXmlReader</a></b><td>Interface for XML readers (i.e. for SAX2 parsers)
-<tr bgcolor=#f0f0f0><td><b><a href="qxmlsimplereader.html">QXmlSimpleReader</a></b><td>Implementation of a simple XML reader (a SAX2 parser)
-</table>
 
+\list
+\i \l QDomAttr -- Represents one attribute of a QDomElement
+\i \l QDomCDATASection -- Represents an XML CDATA section
+\i \l QDomCharacterData -- Represents a generic string in the DOM
+\i \l QDomComment -- Represents an XML comment
+\i \l QDomDocument -- The representation of an XML document
+\i \l QDomDocumentFragment -- Tree of QDomNodes which is usually not a complete QDomDocument
+\i \l QDomDocumentType -- The representation of the DTD in the document tree
+\i \l QDomElement -- Represents one element in the DOM tree
+\i \l QDomEntity -- Represents an XML entity
+\i \l QDomEntityReference -- Represents an XML entity reference
+\i \l QDomImplementation -- Information about the features of the DOM implementation
+\i \l QDomNamedNodeMap -- Collection of nodes that can be accessed by name
+\i \l QDomNode -- The base class for all nodes of the DOM tree
+\i \l QDomNodeList -- List of QDomNode objects
+\i \l QDomNotation -- Represents an XML notation
+\i \l QDomProcessingInstruction -- Represents an XML processing instruction
+\i \l QDomText -- Represents textual data in the parsed XML document
+\i \l QXmlAttributes -- XML attributes
+\i \l QXmlContentHandler -- Interface to report logical content of XML data
+\i \l QXmlDeclHandler -- Interface to report declaration content of XML data
+\i \l QXmlDefaultHandler -- Default implementation of all XML handler classes
+\i \l QXmlDTDHandler -- Interface to report DTD content of XML data
+\i \l QXmlEntityResolver -- Interface to resolve extern entities contained in XML data
+\i \l QXmlErrorHandler -- Interface to report errors in XML data
+\i \l QXmlInputSource -- The input data for the QXmlReader subclasses
+\i \l QXmlLexicalHandler -- Interface to report lexical content of XML data
+\i \l QXmlLocator -- The XML handler classes with information about the actual parsing position
+\i \l QXmlNamespaceSupport -- Helper class for XML readers which want to include namespace support
+\i \l QXmlParseException -- Used to report errors with the QXmlErrorHandler interface
+\i \l QXmlReader -- Interface for XML readers (i.e. for SAX2 parsers)
+\i \l QXmlSimpleReader -- Implementation of a simple XML reader (a SAX2 parser)
+\endlist
 
+\target namespaces
+\section1 An introduction to namespaces
 
-<h2><a name="namespaces">An introduction to namespaces</a></h2>
- 
 Parts of the Qt XML module documentation assume that you are
 familiar with XML namespaces. Here we present a brief introduction;
 skip to \link #conventions "Qt XML
 documentation conventions" \endlink if you know this material.
- 
+
 Namespaces are a concept introduced into XML to allow a more modular design.
 With their help data processing software can easily
-resolve naming conflicts in XML documents. 
+resolve naming conflicts in XML documents.
 
 Consider the following example:
 
@@ -126,8 +127,8 @@ Consider the following example:
   <title>Practical XML</title>
   <author title="Ms" name="Eris Kallisti"/>
   <chapter>
-    <title>A Namespace Called fnord</title>  
-  </chapter> 
+    <title>A Namespace Called fnord</title>
+  </chapter>
 </book>
 </document>
 \endcode
@@ -137,9 +138,9 @@ to process this document you will encounter problems
 because each of the \e titles should be displayed in a different manner --
 even though they have the same name.
 
-The solution would be to have some means of identifying the 
-first occurrence of \e title as the title of a book, i.e. 
-to use the \e title element of a 
+The solution would be to have some means of identifying the
+first occurrence of \e title as the title of a book, i.e.
+to use the \e title element of a
 book namespace to distinguish it from for example the chapter title, e.g.:
 \code
 <book:title>Practical XML</book:title>
@@ -155,8 +156,8 @@ Namespaces are URIs like \e http://trolltech.com/fnord/book/.
 This does not mean that data must be available at this
 address; the URI is simply used to provide a unique name.
 
-We declare namespaces in the same way as 
-attributes; strictly speaking they \e are attributes. 
+We declare namespaces in the same way as
+attributes; strictly speaking they \e are attributes.
 To make for example \e http://trolltech.com/fnord/ the document's
 default XML namespace \e xmlns we write
 
@@ -177,7 +178,7 @@ prefix and a ":" delimiter. We have already seen this with
 the \e book:title element.
 
 Element names without a prefix belong to the default namespace.
-This rule does not apply to attributes: an attribute 
+This rule does not apply to attributes: an attribute
 without a prefix does not belong to any of the declared
 XML namespaces at all.
 Attributes always belong to the "traditional" namespace
@@ -186,11 +187,11 @@ is not an XML namespace, it simply means that all attribute names
 belonging to one element must be different. Later we will see how
 to assign an XML namespace to an attribute.
 
-Due to the fact that attributes without prefixes are not in any 
-XML namespace there is 
-no collision between the attribute \e title (that belongs to the 
+Due to the fact that attributes without prefixes are not in any
+XML namespace there is
+no collision between the attribute \e title (that belongs to the
 \e author element) and for example the \e title element within a \e chapter.
- 
+
 Lets clarify matters with an example:
 \code
 <document xmlns:book = 'http://trolltech.com/fnord/book/'
@@ -198,8 +199,8 @@ Lets clarify matters with an example:
 <book>
   <book:title>Practical XML</book:title>
   <book:author xmlns:fnord = 'http://trolltech.com/fnord/'
-               title="Ms" 
-               fnord:title="Goddess" 
+               title="Ms"
+               fnord:title="Goddess"
                name="Eris Kallisti"/>
   <chapter>
     <title>A Namespace Called fnord</title>
@@ -209,68 +210,67 @@ Lets clarify matters with an example:
 \endcode
 
 Within the \e document element we have two namespaces declared.
-The default namespace \e http://trolltech.com/fnord/ 
+The default namespace \e http://trolltech.com/fnord/
 applies to the \e book element, the \e chapter element,
 the appropriate \e title element and of course to \e document itself.
 
-The \e book:author and \e book:title elements 
+The \e book:author and \e book:title elements
 belong to the namespace with the
 URI \e http://trolltech.com/fnord/book/.
 
 The two \e book:author attributes \e title and \e name have no XML namespace
-assigned. 
+assigned.
 They are only members of the "traditional" namespace of the element
-\e book:author, meaning that for example two \e title attributes 
+\e book:author, meaning that for example two \e title attributes
 in \e book:author are forbidden.
 
 In the above example we circumvent the last rule by adding a \e title
-attribute from the \e http://trolltech.com/fnord/ namespace to \e book:author: 
+attribute from the \e http://trolltech.com/fnord/ namespace to \e book:author:
 the \e fnord:title comes from the namespace with the prefix \e fnord
-that is declared in the \e book:author element. 
+that is declared in the \e book:author element.
 
 Clearly the \e fnord namespace has the same namespace URI as the
-default namespace. So why didn't we simply use the 
+default namespace. So why didn't we simply use the
 default namespace we'd already declared? The answer is quite complex:
-<UL>
-<LI>attributes without a prefix don't belong to any XML namespace at all,
+\list
+\i attributes without a prefix don't belong to any XML namespace at all,
 even not to the default namespace;
-<LI>additionally omitting the prefix would lead to a \e title-title clash;
-<LI>writing it as \e xmlns:title would declare a new namespace with
-the prefix \e title instead of applying the default \e xmlns namespace. 
-</UL>
+\i additionally omitting the prefix would lead to a \e title-title clash;
+\i writing it as \e xmlns:title would declare a new namespace with
+the prefix \e title instead of applying the default \e xmlns namespace.
+\endlist
 
-With the Qt XML classes elements and attributes can be accessed in two ways: either 
+With the Qt XML classes elements and attributes can be accessed in two ways: either
 by refering to their qualified names consisting of the namespace prefix
-and the "real" name (or \e local name) or 
+and the "real" name (or \e local name) or
 by the combination of local name and namespace URI.
 
-
 More information on XML namespaces can be found at
-\link http://www.w3.org/TR/REC-xml-names/ http://www.w3.org/TR/REC-xml-names/ \endlink.
+\l http://www.w3.org/TR/REC-xml-names/.
 
-
-<h2><a name="conventions">Conventions used in Qt XML documentation</a></h2>
+\target conventions
+\section1 Conventions used in Qt XML documentation
 
 The following terms are used to distinguish the parts of names within the context of
 namespaces:
-<ul>
-<li>The <i>qualified name</i>
+\list
+\i  The \e {qualified name}
     is the name as it appears in the document. (In the above example \e
     book:title is a qualified name.)
-<li>A <i>namespace prefix</i> in a qualified name
-    is the part to the left of the ":".  (\e book is the namespace prefix in 
+\i  A \e {namespace prefix} in a qualified name
+    is the part to the left of the ":".  (\e book is the namespace prefix in
     \e book:title.)
-<li>The <i>local part</i> of a name (also refered to as the <i>local name</i>) appears 
+\i  The \e {local part} of a name (also refered to as the \e {local name}) appears
     to the right of the ":".
     (Thus \e title is the local part of \e book:title.)
-<li>The <I>namespace URI</I> ("Uniform Resource Identifier") is a unique
+\i  The \e {namespace URI} ("Uniform Resource Identifier") is a unique
     identifier for a namespace. It looks like a URL
-    (e.g. \e http://trolltech.com/fnord/ ) but does not require 
+    (e.g. \e http://trolltech.com/fnord/ ) but does not require
     data to be accessible by the given protocol at the named address.
-</ul>
+\endlist
 
-Elements without a ":" (like \e chapter in the example) do not have a namespace
-prefix. In this case the local part and the qualified name 
+Elements without a ":" (like \e chapter in the example) do not have a
+namespace prefix. In this case the local part and the qualified name
 are identical (i.e. \e chapter).
 
 */

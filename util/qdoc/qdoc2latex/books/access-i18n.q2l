@@ -4,7 +4,7 @@
 \page i18n.html
 \page unicode.html
 \class QAccessible
-\class QAccessibleInterfaceQAsciiCache
+\class QAccessibleInterface
 \class QAccessibleObject
 \class QIMEvent
 \class QTextCodec
@@ -12,3 +12,9 @@
 \class QTextEncoder
 \class QTranslator
 \class QTranslatorMessage
+\class QEucJpCodec
+\class QEucKrCodec
+\class QGbkCodec
+\class QJisCodec
+\class QSjisCodec
+\class QTsciiCodec

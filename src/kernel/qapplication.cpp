@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#505 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#506 $
 **
 ** Implementation of QApplication class
 **
@@ -597,7 +597,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 /*!
   Constructs an application object with the command line arguments \a
   argc and \a argv.
-  
+
   For Qt/Embedded, passing \c QApplication::GuiServer for \a type
   makes this application the server (equivalent to running with the
   -qws option).
@@ -1905,6 +1905,37 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	}
 	break;
 #endif
+    case QEvent::Tablet:
+	{
+	    QWidget *w = (QWidget*)receiver;
+	    QTabletEvent* tablet = (QTabletEvent*)e;
+	    QTabletEvent* t, *ev = tablet;
+	    while ( w ) {
+		ev->accept();
+		res = internalNotify( w, e );
+		if ( res || w->isTopLevel() )
+		    break;
+		t = ev;
+		ev = new QTabletEvent( t->pos() + w->pos(), t->globalPos(),
+				       t->device(), t->pressure(), t->xTilt(),
+				       t->yTilt() );
+		if ( t != tablet )
+		    delete t;
+		w = w->parentWidget();
+		if ( w && w->testWFlags( WNoMousePropagation ) ) {
+		    tablet->accept();
+		    break;
+		}
+		if( e != tablet ) {
+		    if ( res )
+			tablet->accept();
+		    else
+			tablet->ignore();
+		    delete ev;
+		}
+	    }
+	}
+	break;
     case QEvent::ContextMenu:
 	{
 	    QWidget* w = (QWidget*)receiver;
@@ -1952,7 +1983,7 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 
     // throw away mouse events to disabled widgets
     if ( ( e->type() <= QEvent::MouseMove &&
-	 e->type() >= QEvent::MouseButtonPress || 
+	 e->type() >= QEvent::MouseButtonPress ||
 	 e->type() == QEvent::Wheel ) &&
 	 ( receiver->isWidgetType() && !((QWidget *)receiver)->isEnabled() ) ) {
 	( (QMouseEvent*) e)->ignore();
@@ -2127,7 +2158,7 @@ void QApplication::removeTranslator( QTranslator * mf )
 
 /*!
   Sets the default codec of the application to \a codec.
-    
+
   If the literal quoted text in the program is not in the Latin1
   encoding, this function can be used to set the appropriate encoding.
   For example, software developed by Korean programmers might use

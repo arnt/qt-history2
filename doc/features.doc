@@ -37,27 +37,21 @@
 
 \title The Feature Definition File
 
-The file
-<tt>src/tools/qfeatures.h</tt>
-includes the file
-<tt>src/tools/qconfig.h</tt>. By modifying <tt>qconfig.h</tt>, you
-can define a subset of the full Qt functionality that you wish to
-have available on your installation.
+The file \c src/tools/qfeatures.h includes the file \c
+src/tools/qconfig.h. By modifying \c qconfig.h, you can define a
+subset of the full Qt functionality that you wish to have available
+on your installation.
 
-<p>
 Note that such modification is only supported on Qt/Embedded
 platforms, where reducing the size of Qt is
 important and the application-set is often fixed.
 
-<p>
-The <tt>config.h</tt> definition file simply defines macros to disable
+The \c config.h definition file simply defines macros to disable
 features.  Some features are dependent on other features and these
-dependencies are expressed in <tt>qfeatures.h</tt>.
+dependencies are expressed in \c qfeatures.h.
 
-<p>
 The available options are:
 
-<p>
 <table>
 <tr><th><big>Macro</big><th><big>Disables</big><th><big>Set automatically by</big>
 <tr><th colspan=3>Images - \l QImageIO

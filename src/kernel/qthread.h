@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#43 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#44 $
 **
 ** Definition of QThread class
 **

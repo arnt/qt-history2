@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#154 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#155 $
 **
 ** Implementation of QRegExp class
 **
@@ -93,7 +93,7 @@
   1565922573.
 
   Experienced regexp users may prefer to skip the introduction and
-  go directly to the relevant information:
+  go directly to the relevant information.
 
   \tableofcontents
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** Introduction to the Qt Designer
+** Introduction to Qt Designer
 **
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
@@ -35,10 +35,10 @@
 
 \title Qt GUI Designer
 
-The Qt Designer is a visual design tool that makes designing and
+Qt Designer is a visual design tool that makes designing and
 implementing user interfaces a lot easier.
 
-<center><a href="tools/designer/manual/book1.html"><img src="designer.png" alt="Screenshot of the Qt Designer"></a></center>
+<center><a href="tools/designer/manual/book1.html"><img src="designer.png" alt="Screenshot of <i>Qt Designer</i>"></a></center>
 
 Here's a brief overview of its key features. For further information,
 please browse the \link tools/designer/manual/book1.html online manual \endlink or

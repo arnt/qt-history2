@@ -1,9 +1,10 @@
 \book Components with Qt
 
-
 \page component.html
 \class QComponentFactory
 \class QComponentFactoryInterface
 \class QComponentInterface
 \class QComponentServerInterface
-\class QCopChannel
+\class QFeatureListInterface
+\class QLibrary
+\class QLibraryInterface

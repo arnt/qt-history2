@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qguardedptr.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qguardedptr.cpp#18 $
 **
 ** Implementation of QGuardedPtr class
 **
@@ -107,45 +107,45 @@
 /*!
   \fn QGuardedPtr::QGuardedPtr( T* p )
 
-  Constructs a guarded pointer that points to same object as is
-  pointed to by \a p.
+  Constructs a guarded pointer that points to same object as \a p
+  points to.
 */
 
 /*!
   \fn QGuardedPtr::QGuardedPtr(const QGuardedPtr<T> &p)
 
   Copy one guarded pointer from another. The constructed guarded pointer
-  points to the same object that \a p pointed to (possibly null).
+  points to the same object that \a p points to (which may be null).
 */
 
 /*!
   \fn QGuardedPtr::~QGuardedPtr()
 
   Destroys the guarded pointer.
-  Note that the object \e pointed \e to by the pointer
-  is \e not destructed, just as is the case with a normal unguarded pointer.
+  Just like a normal pointer, destroying a guarded pointer does \e not
+  destroy the object being pointed to. 
 */
 
 /*!
   \fn QGuardedPtr<T>& QGuardedPtr::operator=(const QGuardedPtr<T> &p)
 
   Assignment operator. This guarded pointer then points to the same
-  object as does \a p.
+  object as \a p points to.
 */
 
 /*!
   \fn QGuardedPtr<T> & QGuardedPtr::operator=(T* p)
   \overload
-  Assignment operator.  This guarded pointer then points to same object as is
-  pointed to by \a p.
+  Assignment operator.  This guarded pointer then points to same object as 
+  \a p points to.
 */
 
 /*!
   \fn bool QGuardedPtr::operator==( const QGuardedPtr<T> &p ) const
 
   Equality operator; implements traditional pointer semantics. Returns
-  TRUE if both \a p and this are null, or if both \a p and this point
-  to the same object.
+  TRUE if both \a p and this guarded pointer are null, or if both \a p
+  and this point to the same object; otherwise returns FALSE.
 
   \sa operator!=()
 */
@@ -154,8 +154,8 @@
   \fn bool QGuardedPtr::operator!= ( const QGuardedPtr<T>& p ) const
 
   Inequality operator; implements pointer semantics, the negation
-  of operator==.  Returns TRUE if \a p and this are not pointing to the
-  same object.  Otherwise returns FALSE.
+  of operator==.  Returns TRUE if \a p and this guarded pointer are
+  not pointing to the same object; otherwise returns FALSE.
 */
 
 /*!

@@ -42,6 +42,10 @@ static const char laTeXPrologue[] =
     "\\documentclass%3{%4}\n"
     "\\usepackage[T1]{fontenc}\n"
     "\\usepackage{graphics}\n"
+    "\\usepackage{makeidx}\n"
+    "\\usepackage{multicol}\n"
+    "\n"
+    "\\makeindex\n"
     "\n"
     "\\renewcommand{\\familydefault}{bch}\n"
     "\n"
@@ -72,15 +76,34 @@ static const char laTeXPrologue[] =
     "\\setlength{\\parindent}{0pt}\n"
     "\n"
     "\\pagestyle{myheadings}\n"
+    "\\setcounter{secnumdepth}{-1}\n"
     "\n"
     "\\def\\bull{\\vrule height0.9ex width0.8ex depth-0.1ex}\n"
     "\n"
-    "{\\catcode`\\@=11\\global\\let\\dottedtocline=\\@dottedtocline}\n"
+    "\\catcode`\\@=11 % access LaTeX2e internal commands (with care)\n"
+    "\n"
+    "% cf. The LaTeX Companion, p. 364\n"
+    "\\renewenvironment{theindex}{\\newpage\n"
+    "  \\label{index}%\n"
+    "  \\markboth{\\uppercase{\\indexname}}{\\uppercase{\\indexname}}%\n"
+    "  \\thispagestyle{plain}\n"
+    "  \\begin{multicols}{3}[\\@makechapterhead{\\indexname}]%\n"
+    "  \\parindent=0pt \\parskip=0pt\n"
+    "  \\raggedright\n"
+    "  \\small\n"
+    "  \\par\\bigskip\n"
+    "  \\let\\item\\@idxitem}%\n"
+    " {\\end{multicols}}\n"
+    "\n"
+    "\\let\\dottedtocline=\\@dottedtocline\n"
+    "\n"
+    "\\catcode`\\@=12\n"
     "\n"
     "\\begin{document}\n"
     "\\begin{sloppy}\n";
 
 static const char laTeXEpilogue[] =
+    "\\printindex\n"
     "\\end{sloppy}\n"
     "\\end{document}\n";
 
@@ -253,6 +276,59 @@ static QString compressedLabel( const QString& lab )
     return QString::number( *labels.insert(lab, labels.count(), FALSE), 36 );
 }
 
+static void indexify( QString& html )
+{
+    QRegExp h3( QString("<h3 class=fn>.*<a name=\"[^\"]*\"></a>(.*)</h3>") );
+    h3.setMinimal( TRUE );
+
+    QRegExp function( QString("([A-Za-z0-9_]+)::([^(]*)&nbsp;\\(.*") );
+    QRegExp xtor( QString("([A-Za-z0-9_]+)::~?\\1&nbsp;.*") );
+    QRegExp type( QString("([A-Za-z0-9_]+)::([A-Za-z0-9_]+)") );
+    QRegExp property( QString("([A-Za-z0-9_]+)") );
+
+    QRegExp enumValue( QString(
+	"<li><a name=\"([^\"]*)\"></a><tt>([A-Za-z0-9_]*)"
+	"::\\1</tt>") );
+
+    QString cl;
+
+    int k = 0;
+    while ( (k = html.find(h3, k)) != -1 ) {
+	QString index;
+	QString member = h3.cap( 1 );
+
+	if ( function.exactMatch(member) ) {
+	    if ( !xtor.exactMatch(member) ) {
+		cl = function.cap( 1 );
+		QString fn = function.cap( 2 );
+		index = QString( "%1()!%2" ).arg( fn ).arg( cl );
+	    }
+	} else if ( type.exactMatch(member) ) {
+	    cl = type.cap( 1 );
+	    QString en = type.cap( 2 );
+	    index = QString( "%1!%2" ).arg( en ).arg( cl );
+	} else if ( property.exactMatch(member) ) {
+	    // cl is almost certainly set correctly
+	    QString pr = property.cap( 1 );
+	    index = QString( "%1!%2" ).arg( pr ).arg( cl );
+	}
+
+	if ( !index.isEmpty() )
+	    html.insert( k + h3.matchedLength(),
+			 QString("\\index{%1}\n").arg(index) );
+	k++;
+    }
+
+    k = 0;
+    while ( (k = html.find(enumValue, k)) != -1 ) {
+	QString ev = enumValue.cap( 1 );
+	cl = enumValue.cap( 2 );
+	html.insert( k + enumValue.matchedLength(),
+		     QString("\\index{%1!%2}\n").arg(ev).arg(cl) );
+	k++;
+    }
+}
+
 static void laTeXifyAHref( QString& html, int pos, const QString& chapterLabel )
 {
     QRegExp ahref( QString(
@@ -296,7 +372,8 @@ static bool laTeXifyHeadings( QString& html, const QString& chapterLabel )
     QRegExp hx( QString("<\\s*([hH]([1-6]))[^>]*>(.*)<\\s*/\\s*\\1\\s*>") );
     hx.setMinimal( TRUE );
 
-    QRegExp br( QString("<br><small>\\[.*>([^ ]*) module</a>\\]</small>") );
+    QRegExp obsolete( QString("<br><small>\\[obsolete\\]</small>") );
+    QRegExp module( QString("<br><small>\\[.*>([^ ]*) module</a>\\]</small>") );
     QString tt( QString("\\\\texttt") );
 
     int numH1 = 0;
@@ -311,22 +388,31 @@ static bool laTeXifyHeadings( QString& html, const QString& chapterLabel )
 	title.replace( tt, QString("\\hbox") );
 
 	if ( level == 1 ) {
-	    int ell = title.find( br );
+	    int ell;
+
+	    ell = title.find( module );
 	    if ( ell != -1 )
 		title.truncate( ell );
+	    ell = title.find( obsolete );
+	    if ( ell != -1 ) {
+		title.truncate( ell );
+		title.append( QString(" (obsolete)") );
+	    }
+
 	    s = QString( "chapter" );
-	    extra = QString( "\n\\markboth{%1}{%2}\n\\label{%3}" )
+	    extra = QString( "\n\\markboth{\\uppercase{%1}}{\\uppercase{%2}}\n"
+			     "\\label{%3}" )
 		    .arg( title )
 		    .arg( title )
 		    .arg( compressedLabel(chapterLabel) );
-	    if ( !br.cap(1).isEmpty() ) {
+	    if ( !module.cap(1).isEmpty() ) {
 		ell = html.find( QString("include"), k );
 		if ( ell != -1 ) {
 		    ell = html.findRev( QString("\n\n"), ell );
 		    if ( ell != -1 )
 			html.insert( ell, QString("\n\nThis class is part of"
 						  " the \\textbf{%1} module.")
-					  .arg(br.cap(1)) );
+					  .arg(module.cap(1)) );
 		}
 	    }
 	    (*yyCurrentBook).chapterTitles.push_back( title );
@@ -358,12 +444,14 @@ static bool laTeXifyHeadings( QString& html, const QString& chapterLabel )
 
 static void laTeXifyLists( QString& html )
 {
+    QRegExp empty( QString("<\\s*[oOuU][lL][^>]*>\\s*<\\s*/\\s*\\1\\s*>") );
     QRegExp ol( QString("<\\s*[oO][lL][^>]*>") );
     QRegExp ul( QString("<\\s*[uU][lL][^>]*>") );
     QRegExp slashOl( QString("<\\s*/\\s*[oO][lL][^>]*>") );
     QRegExp slashUl( QString("<\\s*/\\s*[uU][lL][^>]*>") );
     QRegExp li( QString("<\\s*[lL][iI][^>]*>") );
 
+    html.replace( empty, QString::null );
     html.replace( ol, QString(
 	"\\begin{enumerate}\n"
 	"\\setlength{\\itemsep}{0pt}\n") );
@@ -385,12 +473,13 @@ static void laTeXifyLists( QString& html )
 
 	    html.replace( QRegExp(QString("(?:&nbsp;|~)- ")),
 			  QString(" --- ") );
-	    int end = html.find( slashUl );
+	    int end = html.find( slashUl, k );
 	    int ell = k;
-	    while ( (ell = html.find(slashUl, ell)) != -1 ) {
+	    while ( (ell = html.find(li, ell)) != -1 ) {
 		if ( ell > end )
 		    break;
-		html.replace( li, QString("\\item[$\\bull$] ") );
+		html.replace( ell, li.matchedLength(),
+			      QString("\\item[$\\bull$] ") );
 		ell++;
 	    }
 	}
@@ -568,14 +657,13 @@ static bool laTeXifyImages( QString& html )
 	    src = src.left( src.length() - 4 );
 	    if ( system(QString("convert %1.png %2.eps")
 			.arg(qdocOutputDir + src)
-			.arg(qdocOutputDir + src)
-			.latin1()) != 0 ) {
+			.arg(qdocOutputDir + src).latin1()) == 0 ) {
+		html.replace( k, img.matchedLength(),
+			      QString("\\includegraphics{%1.eps}")
+			      .arg(qdocOutputDir + src) );
+	    } else {
 		qWarning( "Problem with generation of '%s.eps'", src.latin1() );
-		return FALSE;
 	    }
-	    html.replace( k, img.matchedLength(),
-			  QString("\\includegraphics{%1.eps}")
-			  .arg(qdocOutputDir + src) );
 	} else {
 	    qWarning( "Cannot handle non-PNG image '%s'", src.latin1() );
 	    return FALSE;
@@ -588,14 +676,14 @@ static bool laTeXifyImages( QString& html )
 static void sloppify( QString& html )
 {
     QRegExp sloppifiable( QString(
-	"\n\n((?:See also|Examples|Inherited by:).*)\n\n") );
+	"\n\n((?:See also|Examples|Inherited by).*)(?=\n\n)") );
     sloppifiable.setMinimal( TRUE );
 
     extendedReplace( html, sloppifiable, QString(
 	"\n\n"
 	"{\\raggedright\\hyphenpenalty=10000\n"
 	"%1\n\n"
-	"}\n") );
+	"}") );
 }
 
 static bool laTeXify( QString& html,
@@ -634,6 +722,12 @@ static bool laTeXify( QString& html,
 	"<\\s*([cC][eE][nN][tT][eE][rR])\\s*>(.*)<\\s*/\\s*\\1\\s*>") );
     center.setMinimal( TRUE );
 
+    QRegExp index( QString("<!-- index (.*) -->") );
+    index.setMinimal( TRUE );
+
+    QRegExp toc( QString("<!-- toc -->.*<!-- endtoc -->") );
+    toc.setMinimal( TRUE );
+
     QRegExp preMarker( QString("<premarker>") );
 
     QRegExp parasiteSpacesAtEnd( QString("[ \t]+\n") );
@@ -660,8 +754,6 @@ static bool laTeXify( QString& html,
     if ( k != -1 )
 	html.truncate( k );
 
-    html.replace( comment, QString::null );
-
     k = 0;
     while ( (k = html.find(pre, k)) != -1 ) {
 	QString t = pre.cap( 1 );
@@ -678,9 +770,15 @@ static bool laTeXify( QString& html,
     html.replace( parag, QString("\n\n") );
     html.replace( backslash, QString("&backslash;") );
     extendedReplace( html, backslashable, QString("\\%0") );
+
+    extendedReplace( html, index, QString("\\index{%1}") );
+    html.replace( toc, QString::null );
+    html.replace( comment, QString::null );
     html.replace( dash, QString("-%\n-%\n-") );
     html.replace( minusMinus, QString("{-}{-}") );
     html.replace( QRegExp(QString("-%\n-%\n-")), QString(" --- ") );
+
+    indexify( html );
 
     extendedReplace( html, bigRed, QString(
 	"\\begin{center}\n"
@@ -744,8 +842,9 @@ static void emitTableOfContents( int pos )
 {
     QString toc;
 
-    toc += QString( "\\chapter*{Table of Contents}\n"
-		    "\\markboth{Table of Contents}{Table of Contents}\n\n" );
+    toc += QString( "\\chapter*{\\contentsname}\n"
+		    "\\markboth{\\uppercase{\\contentsname}}"
+		    "{\\uppercase{\\contentsname}}\n\n" );
     /*
       \dottedtocline is a synonym for \@dottedtocline, thanks to our
       prologue. \@dottedtocline is an internal LaTeX2e command. We
@@ -760,6 +859,8 @@ static void emitTableOfContents( int pos )
 	    .arg( *(*yyCurrentBook).chapterTitles.at(i) )
 	    .arg( compressedLabel(fn.mid(slash + 1)) );
     }
+    toc += QString( "\\dottedtocline{0}{0em}{1.5em}{\\bf \\indexname}"
+		    "{\\bf \\pageref{index}}\n" );
     toc += QString( "\\newpage\n\n" );
 
     yyOut.insert( pos, toc );
@@ -771,6 +872,7 @@ static bool emitChapter( const QString& html, const QString& label )
     QString t = html;
     if ( !laTeXify(t, label) )
 	return FALSE;
+    yyOut += QString( "\n% Generated from '%1'\n\n" ).arg( label );
     yyOut += t;
     return TRUE;
 }
@@ -855,13 +957,14 @@ static void checkUnusedQdocFiles()
     const int MaxUnused = 200;
 
     while ( f != fileNameList.end() ) {
-	if ( !yyUsedQdocFiles.contains(*f) &&
-	     !(*f).endsWith(QString("-members.html")) &&
-	     !((*f).endsWith(QString("-h.html")) &&
-	       !fileNameList.contains((*f).left((*f).length() - 7) +
-				      QString(".html"))) )
+	if ( !(yyUsedQdocFiles.contains(*f) ||
+	       (*f).endsWith(QString("-members.html")) ||
+	       ((*f).endsWith(QString("-h.html")) &&
+		fileNameList.contains((*f).left((*f).length() - 7) +
+				      QString(".html")) > 0)) ) {
 	    if ( numUnused++ < MaxUnused )
 		qWarning( "File '%s' unused", (*f).latin1() );
+	}
 	++f;
     }
     if ( numUnused > MaxUnused )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qserversocket.cpp#9 $
+** $Id: //depot/qt/main/src/network/qserversocket.cpp#10 $
 **
 ** Implementation of QServerSocket class.
 **
@@ -144,6 +144,7 @@ bool QServerSocket::ok() const
 void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
 {
     d->s = new QSocketDevice;
+    d->s->setAddressReusable( TRUE );
     if ( d->s->bind( address, port )
       && d->s->listen( backlog ) )
     {

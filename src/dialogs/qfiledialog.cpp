@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#610 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#611 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2696,9 +2696,10 @@ QFileDialog::~QFileDialog()
 QString QFileDialog::selectedFile() const
 {
     QString res;
-    QUrl u( d->currentFileName );
+    QUrl u( QFileDialogPrivate::encodeFileName( d->currentFileName ) );
     if ( u.isLocalFile() ) {
 	QString s = u.toString();
+	QUrl::decode( s );
 	if ( s.left( 5 ) == "file:" )
 	    s.remove( 0, 5 );
 	return s;
@@ -2780,6 +2781,7 @@ QStringList QFileDialog::selectedFiles() const
 	    QUrl u = QUrl( d->url, QFileDialogPrivate::encodeFileName( (*it).mid(1) ) );
 	    if ( u.isLocalFile() ) {
 		QString s = u.toString();
+		QUrl::decode( s );
 		if ( s.left( 5 ) == "file:" )
 		    s.remove( 0, 5 );
 		lst << s;
@@ -2973,13 +2975,13 @@ void QFileDialog::setDir( const QDir &dir )
 void QFileDialog::setUrl( const QUrlOperator &url )
 {
     QString nf = d->url.nameFilter();
-    d->url = QUrl( d->url, url.toString( FALSE, FALSE ) );
+    d->url = QUrl( d->url, QFileDialogPrivate::encodeFileName( QFileDialogPrivate::encodeFileName( url.toString( FALSE, FALSE ) ) ) );
     d->url.setNameFilter( nf );
 
     d->checkForFilter = TRUE;
     if ( !d->url.isDir() ) {
 	QUrlOperator u = d->url;
-	d->url.setPath( d->url.dirPath() );
+	d->url.setPath( QFileDialogPrivate::encodeFileName( d->url.dirPath() ) );
 	trySetSelection( FALSE, u, FALSE );
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
@@ -3716,7 +3718,7 @@ void QFileDialog::fileNameEditDone()
 {
     QUrlInfo f( d->url, nameEdit->text() );
     if ( mode() != ExistingFiles ) {
-	QUrlOperator u( d->url, nameEdit->text() );
+	QUrlOperator u( d->url, QFileDialogPrivate::encodeFileName( nameEdit->text() ) );
 	trySetSelection( f.isDir(), u, FALSE );
 	if ( d->preview && d->preview->isVisible() ) {
 	    if ( d->infoPreviewer )
@@ -3761,7 +3763,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
     } else if ( newItem->isSelectable() &&
-		trySetSelection( i->info.isDir(), QUrlOperator( d->url, i->info.name() ), TRUE ) ) {
+		trySetSelection( i->info.isDir(), QUrlOperator( d->url, QFileDialogPrivate::encodeFileName( i->info.name() ) ), TRUE ) ) {
 	if ( !isDirectoryMode( mode() ) ) {
 	    emit fileSelected( selectedFile() );
 	    accept();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#19 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_win.cpp#20 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -465,7 +465,7 @@ int QSocketDevice::bytesAvailable() const
 }
 
 
-int QSocketDevice::waitForMore( int msecs ) const
+int QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
     if ( !isValid() )
 	return -1;
@@ -483,6 +483,13 @@ int QSocketDevice::waitForMore( int msecs ) const
 
     if ( rv < 0 )
 	return -1;
+
+    if ( timeout ) {
+	if ( rv == 0 )
+	    *timeout = TRUE;
+	else
+	    *timeout = FALSE;
+    }
 
     return bytesAvailable();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#16 $
 **
 ** Implementation of QLibrary class
 **
@@ -238,17 +238,15 @@ bool QLibraryPrivate::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
-    shl_t handle = new shl_t;
     QString filename = library->library();
     if ( filename.find( ".so" ) == -1 )
 	filename = QString( "lib%1.so" ).arg( filename );
 
-    *handle = shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !handle )
+    if ( !pHnd )
 	qDebug( "Failed to load library %s!", filename.latin1() );
 #endif
-    pHnd = (void*)handle;
     return pHnd != 0;
 }
 
@@ -257,9 +255,7 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
-    shl_t handle = *((shl_t*)pHnd);
-    if ( !shl_unload( pHnd ) {
-	delete handle;
+    if ( !shl_unload( (shl_t)pHnd ) ) {
 	pHnd = 0;
 	return TRUE;
     }
@@ -272,7 +268,7 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 	return 0;
 
     void* address = 0;
-    if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
+    if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
 	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
 #endif

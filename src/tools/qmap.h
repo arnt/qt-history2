@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#56 $
+** $Id: //depot/qt/main/src/tools/qmap.h#57 $
 **
 ** Definition of QMap class
 **
@@ -672,7 +672,7 @@ public:
     {
 	iterator it( sh->find( k ).node );
 	if ( it != end() ) {
-	    size_type c = 1;
+	    size_type c = 0;
 	    while ( it != end() ) {
 		++it;
 		++c;

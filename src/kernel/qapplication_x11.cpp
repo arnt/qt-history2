@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#823 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#824 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -4685,8 +4685,9 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 		}
 	    } else
 		deviceType = QTabletEvent::NONE;
-	    xTilt = vs->valuators[WAC_XTILT_I];
-	    yTilt = vs->valuators[WAC_YTILT_I];
+	    // apparently Wacom needs a cast for the +/- values to make sense
+	    xTilt = short(vs->valuators[WAC_XTILT_I]);
+	    yTilt = short(vs->valuators[WAC_YTILT_I]);
 	    pressure = vs->valuators[WAC_PRESSURE_I] / 4;
 	    // why not use the high res values for global?
 	    global = QPoint( vs->valuators[WAC_XCOORD_I],

@@ -22,7 +22,7 @@
 class QMouseEvent;
 class QResizeEvent;
 class QPaintEvent;
-class QToolButton;
+class QPushButton;
 class QSpinBox;
 
 class Canvas : public QWidget
@@ -79,7 +79,7 @@ protected:
     Canvas* canvas;
 
     QSpinBox *bPWidth;
-    QToolButton *bPColor, *bSave, *bClear;
+    QPushButton *bPColor, *bSave, *bClear;
 
 protected slots:
     void slotSave();

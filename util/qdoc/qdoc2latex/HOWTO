@@ -29,7 +29,8 @@ is useful mainly for prefaces, as they have no on-line equivalent.
 
 First, make sure you have the PNG images in the documentation
 directory by typing
-cp $QTDIR/gif/*.png $QTDIR/doc/html
+
+    cp $QTDIR/gif/*.png $QTDIR/doc/html
 
 If you get
 
@@ -48,10 +49,16 @@ Run
 
     pslatex basic-controls.tex
 
-to obtain a DVI file. (Pslatex is a special version of LaTeX that
-works well with PostScript fonts.) Run it twice to make sure that the
-back-references are properly generated.
+to obtain a raw index file (.idx file). Pslatex is a special version
+of LaTeX that works well with PostScript fonts. Now run 
 
+    makeindex basic-controls.idx
+
+to generate the alphabetical index file (.ind) from the .idx file.
+
+Run pslatex two more times to obtain a reliable .dvi file:
+
+    pslatex basic-controls.tex
     pslatex basic-controls.tex
 
 Now type
@@ -91,7 +98,10 @@ any new classes. You might want to keep a list of HTML files not needed
 in the books (e.g., index.html and qlist.html in Qt 3.0) and compare it
 with what qdoc2latex reports to spot new classes.
 
-Quick Summary
+If you need help, ask Jasmin Blanchette (jasmin@trolltech.com) or
+Mark Summerfield (mark@trolltech.com).
+
+Quick Summary:
 
     # Make sure images are in the html directory, e.g.
     cp $QTDIR/gif/*.png $QTDIR/doc/html
@@ -99,13 +109,12 @@ Quick Summary
     # Now generate the book(s)
     qdoc2latex $QTDIR/doc/html basic-controls.q2l
     pslatex basic-controls.tex
-    # Twice to resolve cross-references
+    makeindex basic-controls.tex
+    # Three times to resolve cross-references
+    pslatex basic-controls.tex
     pslatex basic-controls.tex
     dvips basic-controls.dvi -o basic-controls.ps
 
     ps2pdf basic-controls.ps basic-controls.pdf
     # or
     pdflatex basic-controls.tex
-
-If you need help, ask Jasmin Blanchette (jasmin@trolltech.com) or
-Mark Summerfield (mark@trolltech.com).

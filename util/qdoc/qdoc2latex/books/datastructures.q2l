@@ -13,7 +13,7 @@
 \class QChar
 \class QCharRef
 \class QConstString
-\class QCStringQPointArrayQMenuData
+\class QCString
 \class QDict
 \class QDictIterator
 \class QIntCache
@@ -33,7 +33,6 @@
 \class QPtrQueue
 \class QPtrStack
 \class QPtrVector
-\class QRegExp
 \class QStrIList
 \class QString
 \class QStringList

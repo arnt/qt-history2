@@ -98,7 +98,7 @@ int main( int argc, char** argv )
     QApplication app( argc, argv );
 
     const char* qm[]=
-	{ "de", "el", "en", "eo", "fr", "it", "jp", "ko", "no", "ru", 0 };
+	{ "cs", "de", "el", "en", "eo", "fr", "it", "jp", "ko", "no", "ru", "zh", 0 };
 
 #if defined(Q_OS_UNIX)
     srand(getpid()<<2);

@@ -37,132 +37,123 @@
 
 \title Installation
 
-<p>
 The installation procedure is different for the different Qt platforms:
 
-<ul>
- <li><a href=install-x11.html>Qt/X11</a>
- <li><a href=install-win.html>Qt/Windows</a>
- <li><a href=install-qws.html>Qt/Embedded</a>
-</ul>
+\list
+ \i \link install-x11.html Qt/X11 \endlink
+ \i \link install-win.html Qt/Windows \endlink
+ \i \link install-qws.html Qt/Embedded \endlink
+\endlist
+
 */
 
 /*! \page install-x11.html
 
 \title Installing Qt/X11
 
-<p>
 You may need to be root, depending on the permissions of the directories
 where you choose to install Qt.
 
-<ul>
-<li>Unpack the archive if you have not done so already:
+\list 1
+\i  Unpack the archive if you have not done so already:
 
-<pre>
-	cd /usr/local
-	gunzip qt-x11-<i>version</i>.tar.gz	# uncompress the archive
-	tar xf qt-x11-<i>version</i>.tar	# unpack it
-</pre>
+\code
+    cd /usr/local
+    gunzip qt-x11-version.tar.gz    # uncompress the archive
+    tar xf qt-x11-version.tar       # unpack it
+\endcode
 
-<p>
-    This creates the directory /usr/local/qt-<i>version</i> containing the
+    This creates the directory /usr/local/qt-\e version containing the
     files from the main archive.
-<p>
-    Rename qt-<i>version</i> to qt (or make a symlink):
-<pre>
-	mv qt-<i>version</i> qt
-</pre>
+
+    Rename qt-\e version to qt (or make a symlink):
+
+\code
+    mv qt-version qt
+\endcode
+
     The rest of this file assumes that Qt is installed in /usr/local/qt.
-</p>
-<li>Set some environment variables in the file .profile (or .login,
-    depending on your shell) in your home directory. (Create the
-    file if it is not there already.)
 
-<table>
-	<tr><td>QTDIR		   <td> wherever you installed Qt
-	<tr><td>PATH		   <td> to locate the moc program and other Qt tools
-	<tr><td>MANPATH 	   <td> to access the Qt man pages
-	<tr><td>LD_LIBRARY_PATH	   <td> for the shared Qt library
-</table>
+\i  Set some environment variables in the file .profile (or .login,
+    depending on your shell) in your home directory. Create the
+    file if it is not there already.
 
-<p>
+    \list
+    \i QTDIR -- wherever you installed Qt
+    \i PATH -- to locate the moc program and other Qt tools
+    \i MANPATH -- to access the Qt man pages
+    \i LD_LIBRARY_PATH -- for the shared Qt library
+    \endlist
+
     This is done like this:
 
-<p>
     In .profile (if your shell is bash, ksh, zsh or sh), add the
     following lines:
-<pre>
-	QTDIR=/usr/local/qt
-	PATH=$QTDIR/bin:$PATH
-	MANPATH=$QTDIR/man:$MANPATH
-	LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 
-	export QTDIR PATH MANPATH LD_LIBRARY_PATH
-</pre>
+\code
+    QTDIR=/usr/local/qt
+    PATH=$QTDIR/bin:$PATH
+    MANPATH=$QTDIR/man:$MANPATH
+    LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
+
+    export QTDIR PATH MANPATH LD_LIBRARY_PATH
+\endcode
 
     In .login (in case your shell is csh or tcsh), add the following lines:
 
-<pre>
-	setenv QTDIR /usr/local/qt
-	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH $QTDIR/man:$MANPATH
-	setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
-</pre>
+\code
+    setenv QTDIR /usr/local/qt
+    setenv PATH $QTDIR/bin:$PATH
+    setenv MANPATH $QTDIR/man:$MANPATH
+    setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
+\endcode
 
-<p>
     After you have done this, you will need to login again, or
     re-source the profile before continuing, so that at least $QTDIR
     is set.  The installation will give an error message and not
     proceed otherwise.
-</p>
 
-<li> Install your license file.  For the free edition, you do not need
+\i  Install your license file.  For the free edition, you do not need
     a license file.  For Professional and Enterprise editions, install
     your license file as described in your distribution.
-</p>
 
-<li> Building.
-<p>
-    This step compiles the Qt library, and builds the example programs,
-    the tutorial, and the tools (eg. the Designer).
-<p>
+\i  Compile the Qt library, and build the example programs,
+    the tutorial and the tools (eg. the Designer) as follows.
+
     Type:
-<pre>
-	./configure
-</pre>
-<p>
+\code
+    ./configure
+\endcode
+
     This will configure the Qt library for your machine. Note that
     GIF support is turned off by default. Run ./configure -help
     to get a list of configuration options. Read PLATFORMS for a
     list of supported platforms.
-<p>
-    To create the library and compile all examples and the tutorial:
-<pre>
-	make
-</pre>
-    If your platform or compiler is not supported, read PORTING.  If it is
-    supported but you have problems, see <a href=http://www.trolltech.com/platforms/>http://www.trolltech.com/platforms/</a>
-</p>
 
-<li> In very few cases you may need to run /sbin/ldconfig or something
+    To create the library and compile all examples and the tutorial:
+\code
+    make
+\endcode
+    If your platform or compiler is not supported, read PORTING.  If it is
+    supported but you have problems, see
+    \l http://www.trolltech.com/platforms/.
+
+\i  In very few cases you may need to run /sbin/ldconfig or something
     similar at this point if you are using shared libraries.
-<p>
+
     If you have problems running the example programs, e.g. messages like
-<pre>
-	 can't load library 'libqt.so.2'
-</pre>
+\code
+    can't load library 'libqt.so.2'
+\endcode
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
     And don't forget to set LD_LIBRARY_PATH as explained in 2) above.
-</p>
 
-<li> The online HTML documentation is installed in /usr/local/qt/doc/html/
+\i  The online HTML documentation is installed in /usr/local/qt/doc/html/
     The main page is /usr/local/qt/doc/html/index.html
     The man pages are installed in /usr/local/qt/doc/man/
-</p>
-</ul>
+\endlist
 
-<p>
 You're done.  Qt is now installed.
 
 */
@@ -173,8 +164,9 @@ You're done.  Qt is now installed.
 
 The Qt/Windows distribution is distributed as a self-extracting archive
 with a built-in installer. Just follow the installation wizard.
-<p>
+
 Once installed, you may want to unpack alternative makefile sets which
-are packaged in the <tt>mkfiles</tt> directory - unpack them directly
+are packaged in the \c mkfiles directory -- unpack them directly
 into you Qt directory, overwriting previous makefiles.
+
 */

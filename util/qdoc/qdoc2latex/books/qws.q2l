@@ -1,3 +1,11 @@
 \book Embedded Applications with Qt
 
+\page qembed.html
+\page charinput-qws.html
+\page casestudy-qws.html
+\class QCopChannel
+\class QScreen
 \class QWSServer
+\class QWSDecoration
+\class QWSKeyboardHandler
+\class QWSMouseHandler

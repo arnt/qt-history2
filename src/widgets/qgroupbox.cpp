@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#123 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -50,7 +50,6 @@
 #include "qaccessible.h"
 #endif
 
-// REVISED: arnt
 /*!
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
@@ -69,10 +68,14 @@
 
   However, it is also possible to change the orientation() and number
   of columns() after construction, or to ignore all the automatic
-  layout support and manage all that yourself.
+  layout support and manage all that yourself. You can add 'empty'
+  spaces to the group box with addSpace().
 
   QGroupBox also lets you set the title() (normally set in the
   constructor) and the title's alignment().
+
+  You can change the spacing used by the group box with
+  setInsideMargin() and setInsideSpacing(). 
 
   <img src=qgrpbox-w.png>
 
@@ -226,14 +229,15 @@ void QGroupBox::setTitle( const QString &title )
   \property QGroupBox::title
   \brief the group box title text.
 
-  The group box title text will have a focus-change accelerator if
-  the title contains \&, followed by an appropriate letter.  This
-  produces "User information" with the U underscored; Alt-U moves
-  the keyboard focus into the group:
+  The group box title text will have a focus-change keyboard
+  accelerator if the title contains \&, followed by a letter.
 
   \code
       g->setTitle( "&User information" );
   \endcode
+  This produces "User information" with the U underlined;
+  Alt-U moves the keyboard focus to the group box.
+
 */
 
 /*!
@@ -244,12 +248,12 @@ void QGroupBox::setTitle( const QString &title )
   the horizontal alignment can be specified by the \e alignment parameter.
 
   The \e alignment is one of the following flags:
-  <ul>
-  <li> \c AlignAuto aligns the title accroding to the language, usually left.
-  <li> \c AlignLeft aligns the title text to the left.
-  <li> \c AlignRight aligns the title text to the right.
-  <li> \c AlignHCenter aligns the title text centered.
-  </ul>
+  \list
+  \value \c AlignAuto aligns the title accroding to the language, usually left.
+  \value \c AlignLeft aligns the title text to the left.
+  \value \c AlignRight aligns the title text to the right.
+  \value \c AlignHCenter aligns the title text centered.
+  \endlist
 
   The default alignment is \c AlignAuto.
 
@@ -365,7 +369,7 @@ void QGroupBox::setColumns( int c )
   Returns the width of the blank spacing between the items in the group
   and the frame of the group.
 
-  Only applies if the groupbox has an defined orientation.
+  Only applies if the groupbox has a defined orientation.
 
   The default is about 11.
 
@@ -380,7 +384,7 @@ int QGroupBox::insideMargin() const
   Returns the width of the blank spacing between each of the items in the
   group.
 
-  Only applies if the groupbox has an defined orientation.
+  Only applies if the groupbox has a defined orientation.
 
   The default is about 5.
 
@@ -430,7 +434,7 @@ void QGroupBox::setOrientation( Qt::Orientation o )
   Changes the layout of the group box. This function is useful only in
   combination with the default constructor that does not take any
   layout information. This function will put all existing children in
-  the new layout. Nevertheless it is not good programming style to
+  the new layout. It is not good Qt programming style to
   call this function after children have been inserted.
 
   \sa orientation columns
@@ -541,8 +545,8 @@ void QGroupBox::skip()
 }
 
 
-/*!  This private slot finds a nice widget in this group box that can
-accept focus, and gives it focus.
+/*!  This private slot finds a widget in this group box that can
+accept focus, and gives the focus to that widget.
 */
 
 void QGroupBox::fixFocus()

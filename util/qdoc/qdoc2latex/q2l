@@ -5,9 +5,11 @@
 use strict;
 
 if ( not @ARGV ) {
-    print "usage: q2l [-d] [-y] file1.q2l file2.q2l ...\n",
+    print "usage: q2l [-d] [-y] [-c] file1.q2l file2.q2l ...\n",
 	  "-d is debug, i.e. show don't do\n",
 	  "-y is do it don't ask\n",
+	  "-c is clear intermediate files and quit\n",
+	  "-C is clear intermediate, log and postscript files and quit\n",
 	  "the options are order dependent\n";
     exit;
 }
@@ -22,37 +24,64 @@ if ( $ARGV[0] eq '-y' ) {
     $YES = 1;
     shift;
 }
+if ( $ARGV[0] =~ /^-c/i ) {
+    cleanup();
+    if ( $ARGV[0] eq '-C' ) {
+	perform("rm *.ilg");
+	perform("rm *.log");
+	perform("rm *.ps");
+    }
+    exit;
+}
 
 my $QTDIR = $ENV{'QTDIR'};
 my @tex;
+my @idx;
 my @dvi;
 my @ps;
 my @pdf;
-@tex = @dvi = @ps = @pdf = @ARGV;
-for ( my $i = 0; $i < scalar @ARGV; $i++ ) {
+my @file;
+for my $file ( @ARGV ) {
+    $file =~ s/(\.)$/.q2l/;
+    $file .= '.q2l' unless $file =~ /\.q2l$/;
+    push @file, $file;
+}
+@tex = @idx = @dvi = @ps = @pdf = @file;
+for ( my $i = 0; $i < scalar @file; $i++ ) {
     $tex[$i] =~ s/\.q2l/.tex/;
+    $idx[$i] =~ s/\.q2l/.idx/;
     $dvi[$i] =~ s/\.q2l/.dvi/;
     $ps[$i]  =~ s/\.q2l/.ps/;
     $pdf[$i] =~ s/\.q2l/.pdf/;
 }
 
-perform("qdoc2latex $QTDIR/doc/html " . join(" ", @ARGV)) if ask("qdoc2latex");
-if ( ask("pslatex") ) {
+perform("qdoc2latex $QTDIR/doc/html " . join(" ", @file)) if ask("qdoc2latex");
+if ( ask("pslatex (1)") ) {
     for my $tex ( @tex ) {
-	perform("pslatex $tex");
-	perform("pslatex $tex");
+	perform("pslatex --interaction batchmode $tex >& /dev/null");
+    }
+}
+if ( ask("makeindex") ) {
+    for my $idx ( @idx ) {
+	perform("makeindex -q $idx");
+    }
+}
+if ( ask("pslatex (2, 3)") ) {
+    for my $tex ( @tex ) {
+	perform("pslatex --interaction batchmode $tex >& /dev/null");
+	perform("pslatex --interaction batchmode $tex >& /dev/null");
     }
 }
 if ( ask("dvips") ) {
     for my $dvi ( @dvi ) {
 	my $ps = shift @ps;
 	push @ps, $ps;
-	perform("dvips $dvi -o $ps");
+	perform("dvips -q $dvi -o $ps");
     }
 }
 if ( ask("pdflatex") ) {
     for my $tex ( @tex ) {
-	perform("pdflatex $tex");
+	perform("pdflatex --interaction batchmode $tex");
     }
 }
 else {
@@ -63,6 +92,7 @@ else {
 	}
     }
 }
+cleanup() if ask("cleanup");
 
 
 sub perform {
@@ -80,8 +110,18 @@ sub ask {
     my $prog = shift;
     print "\n[Enter] run $prog    [n] no don't run it    [q] quit? ";
     my $ans = <STDIN>;
-    exit if $ans =~ /^q/i;
+    cleanup() and exit if $ans =~ /^q/i;
     $ans =~ /^n/i ? 0 : 1;
 }
 
 
+sub cleanup {
+    perform("rm *.tex");
+    perform("rm *.dvi");
+    perform("rm *.ind");
+    perform("rm *.idx");
+    perform("rm *.aux");
+    perform("rm *.pdf");
+
+    1;
+}

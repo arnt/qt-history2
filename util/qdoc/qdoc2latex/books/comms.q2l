@@ -1,9 +1,6 @@
-\book Communication, I/O and Networking with Qt
+\book Input/Output and Networking with Qt
 
 \page datastreamformat.html
-\page session.html
-\page charinput-qws.html
-\page casestudy-qws.html
 \class QAsyncIO
 \class QClipboard
 \class QDataStream
@@ -22,11 +19,8 @@
 \class QNetworkOperation
 \class QNetworkProtocol
 \class QProcess
-\class QSemaphore
 \class QServerSocket
 \class QSessionManager
-\class QSignal
-\class QSignalMapper
 \class QSocket
 \class QSocketDevice
 \class QSocketNotifier
@@ -36,3 +30,4 @@
 \class QUrl
 \class QUrlInfo
 \class QUrlOperator
+\class QWindowsMime

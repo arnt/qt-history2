@@ -13,8 +13,9 @@
 #include <qapplication.h>
 #include <qevent.h>
 #include <qpainter.h>
+#include <qpushbutton.h>
 #include <qtoolbar.h>
-#include <qtoolbutton.h>
+//#include <qtoolbutton.h>
 #include <qspinbox.h>
 #include <qtooltip.h>
 #include <qrect.h>
@@ -40,7 +41,7 @@ Canvas::Canvas( QWidget *parent, const char *name )
 #ifndef QT_NO_CURSOR
     setCursor( Qt::crossCursor );
 #endif
-    pen.setCapStyle( Qt::SquareCap );
+    //    pen.setCapStyle( Qt::SquareCap );
 }
 
 void Canvas::save( const QString &filename, const QString &format )
@@ -94,21 +95,39 @@ void Canvas::tabletEvent( QTabletEvent *e )
 {
     // change the width based on range of pressure
     if ( e->device() == QTabletEvent::STYLUS )	{
-	pen.setWidth(3);
-	if ( e->pressure() >= 0 && e->pressure() <= 50 )
-	    pen.setColor( saveColor.light() );
-	else if ( e->pressure() > 50  && e->pressure() <= 100 )
+	if ( e->pressure() >= 0 && e->pressure() <= 32 )
+	    pen.setColor( saveColor.light(175) );
+	else if ( e->pressure() > 32 && e->pressure() <= 64 )
+	    pen.setColor( saveColor.light(150) );
+	else if ( e->pressure() > 64  && e->pressure() <= 96 )
+	    pen.setColor( saveColor.light(125) );
+	else if ( e->pressure() > 96 && e->pressure() <= 128 )
 	    pen.setColor( saveColor );
-	else if ( e->pressure() > 100 && e->pressure() <= 150 )
-	    pen.setColor( saveColor.dark() );
-	else if ( e->pressure() > 150 )
-	    pen.setColor( saveColor.dark().dark() );
+	else if ( e->pressure() > 128 && e->pressure() <= 160 )
+	    pen.setColor( saveColor.dark(150) );
+	else if ( e->pressure() > 160 && e->pressure() <= 192 )
+	    pen.setColor( saveColor.dark(200) );
+	else if ( e->pressure() > 192 && e->pressure() <= 224 )
+	    pen.setColor( saveColor.dark(250) );
+	else // pressure > 224
+	    pen.setColor( saveColor.dark(300) );
     } else if ( e->device() == QTabletEvent::ERASER
 		&& pen.color() != backgroundColor() ) {
-	pen.setWidth( 50 );
 	pen.setColor( backgroundColor() );
     }
 
+    int xt = e->xTilt();
+    int yt = e->yTilt();
+    if ( ( xt > -15 && xt < 15 ) && ( yt > -15 && yt < 15 ) )
+	pen.setWidth( 3 );
+    else if ( ((xt < -15 && xt > -30) || (xt > 15 && xt < 30)) &&
+	      ((yt < -15 && yt > -30) || (yt > 15 && yt < 30 )) )
+	pen.setWidth( 6 );
+    else if ( ((xt < -30 && xt > -45) || (xt > 30 && xt < 45)) &&
+	      ((yt < -30 && yt > -45) || (yt > 30 && yt < 45)) )
+	pen.setWidth( 9 );
+    else if (  (xt < -45 || xt > 45 ) && ( yt < -45 || yt > 45 ) )
+	pen.setWidth( 12 );
 }
 
 void Canvas::resizeEvent( QResizeEvent *e )
@@ -147,13 +166,12 @@ Scribble::Scribble( QWidget *parent, const char *name )
 
     QToolBar *tools = new QToolBar( this );
 
-    bSave = new QToolButton( QPixmap(), "Save", "Save as PNG image", this, SLOT( slotSave() ), tools );
-    bSave->setText( "Save as..." );
+    bSave = new QPushButton( "Save as...", tools );
 
     tools->addSeparator();
 
-    bPColor = new QToolButton( QPixmap(), "Choose Pen Color", "Choose Pen Color", this, SLOT( slotColor() ), tools );
-    bPColor->setText( "Choose Pen Color..." );
+    bPColor = new QPushButton( "Choose Pen Color...", tools );
+    //    bPColor->setText( "Choose Pen Color..." );
 
     tools->addSeparator();
 
@@ -164,8 +182,11 @@ Scribble::Scribble( QWidget *parent, const char *name )
 
     tools->addSeparator();
 
-    bClear = new QToolButton( QPixmap(), "Clear Screen", "Clear Screen", this, SLOT( slotClear() ), tools );
-    bClear->setText( "Clear Screen" );
+    bClear = new QPushButton( "Clear Screen", tools );
+    QObject::connect( bSave, SIGNAL( clicked() ), this, SLOT( slotSave() ) );
+    QObject::connect( bPColor, SIGNAL( clicked() ), this, SLOT( slotColor() ) );
+    QObject::connect( bClear, SIGNAL( clicked() ), this, SLOT( slotClear() ) );
+		
 }
 
 void Scribble::slotSave()
