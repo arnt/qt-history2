@@ -1988,7 +1988,8 @@ void MetaObjectGenerator::readClassInfo()
         classinfo = 0;
 
         if (d->tryCache && !coClassID.isEmpty())
-            cacheKey = QString::fromLatin1("%1$%2$%3").arg(coClassID).arg((int)d->useEventSink).arg((int)d->useClassInfo);
+            cacheKey = QString::fromLatin1("%1$%2$%3$%4").arg(coClassID)
+                .arg((int)d->useEventSink).arg((int)d->useClassInfo).arg((int)qax_dispatchEqualsIDispatch);
     }
 
     UINT index = 0;
@@ -2047,7 +2048,8 @@ void MetaObjectGenerator::readClassInfo()
         typeinfo->ReleaseTypeAttr(typeattr);
         // ### event interfaces!!
         if (!interfaceID.isEmpty())
-            cacheKey = QString("%1$%2$%3").arg(interfaceID).arg((int)d->useEventSink).arg((int)d->useClassInfo);
+            cacheKey = QString("%1$%2$%3$%4").arg(interfaceID)
+                .arg((int)d->useEventSink).arg((int)d->useClassInfo).arg((int)qax_dispatchEqualsIDispatch);
     }
 }
 
@@ -4102,6 +4104,16 @@ QVariant QAxBase::asVariant() const
         qVariantSet(qvar, d->ptr, "IUnknown*");
 
     return qvar;
+}
+
+// internal function that creates a QAxObject from an iface
+// used by type-conversion code (types.cpp)
+void *qax_createObjectWrapper(IUnknown *iface, QObject *parent)
+{
+    void *result = new QAxObject(iface, parent);
+    iface->Release();
+
+    return result;
 }
 
 /*!
