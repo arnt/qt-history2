@@ -44,6 +44,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "STL" ] = "no";
     dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
+    dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -72,7 +73,7 @@ void ConfigureApp::buildModulesList()
     
     readLicense();
     
-    if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
+    if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
     while( ( fi = listIter.current() ) ) {
@@ -240,7 +241,6 @@ void ConfigureApp::validateArgs()
     }
     else
 	qmakeConfig += configs;
-
 }
 
 bool ConfigureApp::displayHelp()
@@ -452,7 +452,7 @@ void ConfigureApp::generateConfigfiles()
 	outFile.close();
 //	::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
     }
-    outName = qtDir + "/src/tools/qmodules.h";
+    outName = qtDir + "/include/qmodules.h";
 
 //    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
 //    QFile::remove( outName );
@@ -505,6 +505,10 @@ void ConfigureApp::displayConfig()
 	for( QStringList::Iterator libs = qmakeLibs.begin(); libs != qmakeLibs.end(); ++libs )
 	    cout << (*libs) << " ";
 	cout << endl << endl;
+    }
+    if( dictionary[ "FORCE_PROFESSIONAL" ] == "yes" ) {
+	cout << "Licensing forced to professional edition.  If this is not what you want, unset" << endl;
+	cout << "the FORCE_PROFESSIONAL environment variable." << endl <<endl;
     }
 }
 
