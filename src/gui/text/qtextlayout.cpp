@@ -837,11 +837,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
             const int x = position.x() + l.cursorToX(cursorPos);
 
-            int itm = d->findItem(cursorPos);
-            if (cursorPos == sl.from + (int)sl.length) {
-                // end of line ensure we have the last item on the line
-                itm = d->findItem(cursorPos-1);
-            }
+            int itm = d->findItem(cursorPos-1);
             const QScriptItem &si = d->items[itm];
 
             p->setPen(Qt::black);
