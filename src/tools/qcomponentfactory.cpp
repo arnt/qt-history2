@@ -256,7 +256,6 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
 
     QString cidStr = cid.toString().upper();
-    QString old = settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
     if ( ok ) // don't overwrite existing component
 	return FALSE;
 
