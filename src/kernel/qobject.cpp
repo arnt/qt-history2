@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#57 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#56 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#57 $";
 #endif
 
 
@@ -117,7 +117,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#56 $";
  ----------------------------------------------------------------------------*/
 
 
-/* Remove white space from SIGNAL and SLOT names */
+//
+// Remove white space from SIGNAL and SLOT names.
+// Internal for QObject::connect() and QObject::disconnect()
+//
 
 static QString rmWS( const char *src )
 {
@@ -131,12 +134,42 @@ static QString rmWS( const char *src )
 	    *d++ = *s++;
 	while( *s && isspace(*s) )
 	    s++;
-	if ( *s && ( isalpha(*s) || *s == '_' ) )
+	if ( *s && (isalpha(*s) || *s == '_') )
 	    *d++ = ' ';
     }
     tmp.truncate( d - tmp.data() );
     return tmp;
 }
+
+//
+// Checks whether two functions have compatible arguments.
+// Returns TRUE if the arguments are compatible, otherwise FALSE.
+// Internal for QObject::connect()
+//
+// TRUE:	"signal(<anything>)",	"member()"
+// TRUE:	"signal(a,b,c)",	"member(a,b,c)"
+// TRUE:	"signal(a,b,c)",	"member(a,b)", "member(a)" etc.
+// FALSE:	"signal(const a)",	"member(a)"
+// FALSE:	"signal(a)",		"member(const a)"
+// FALSE:	"signal(a)",		"member(b)"
+// FALSE:	"signal(a)",		"member(a,b)"
+//
+
+static bool checkCompatArgs( const char *signal, const char *member )
+{
+    const char *s1 = signal;
+    const char *s2 = member;
+    while ( *s1++ != '(' ) ;			// scan to first '('
+    while ( *s2++ != '(' ) ;
+    if ( *s2 == ')' || strcmp(s1,s2) == 0 )	// member has no args or
+	return TRUE;				//   exact match
+    int s1len = strlen(s1);
+    int s2len = strlen(s2);
+    if ( s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',' )
+	return TRUE;				// member has less args
+    return FALSE;
+}
+
 
 // Event functions, implemented in qapp_xxx.cpp
 
@@ -866,19 +899,11 @@ bool QObject::connect( QObject *sender,		const char *signal,
 	return FALSE;
     }
 #if defined(CHECK_RANGE)
-    const char *s1 = signal;			// check if compatible args
-    const char *s2 = member;
-    while ( *s1++ != '(' ) ;
-    while ( *s2++ != '(' ) ;
-    if ( !(*s2 == ')' || strcmp(s1,s2) == 0) ) {
-	int s1len = strlen(s1);
-	int s2len = strlen(s2);
-	if ( !(s2len < s1len && !strncmp(s1,s2,s2len-1) && s1[s2len-1]==',') )
-	    warning( "QObject::connect: Incompatible sender/receiver arguments"
-		     "\n\t%s::%s --> %s::%s",
-		     sender->className(), signal,
-		     r->className(), member );
-    }
+    if ( !checkCompatArgs(signal,member) )
+	warning( "QObject::connect: Incompatible sender/receiver arguments"
+		 "\n\t%s::%s --> %s::%s",
+		 sender->className(), signal,
+		 r->className(), member );
 #endif
     if ( !sender->connections ) {		// create connections dict
 	sender->connections = new QSignalDict( 7, TRUE, FALSE );
