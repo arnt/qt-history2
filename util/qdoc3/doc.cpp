@@ -17,9 +17,12 @@
 #include <ctype.h>
 #include <limits.h>
 
+typedef QMap<QString, QString> QMap_QString_QString;
+
 Q_GLOBAL_STATIC(QSet<QString>, null_Set_QString)
 Q_GLOBAL_STATIC(QStringList, null_QStringList)
 Q_GLOBAL_STATIC(QList<Text>, null_QList_Text)
+Q_GLOBAL_STATIC(QMap_QString_QString, null_QMap_QString_QString)
 
 struct Macro
 {
@@ -36,7 +39,7 @@ enum {
     CMD_ENDQUOTATION, CMD_ENDRAW, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
     CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE, CMD_GENERATELIST,
     CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE, CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX,
-    CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LINK, CMD_LIST, CMD_NEWCODE, CMD_O, CMD_OLDCODE,
+    CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LINK, CMD_LIST, CMD_META, CMD_NEWCODE, CMD_O, CMD_OLDCODE,
     CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION,
     CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
     CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL,
@@ -95,6 +98,7 @@ static struct {
     { "legalese", CMD_LEGALESE, 0 },
     { "link", CMD_LINK, 0 },
     { "list", CMD_LIST, 0 },
+    { "meta", CMD_META, 0 },
     { "newcode", CMD_NEWCODE, 0 },
     { "o", CMD_O, 0 },
     { "oldcode", CMD_OLDCODE, 0 },
@@ -147,6 +151,7 @@ public:
     QList<Atom *> tableOfContents;
     QList<Atom *> keywords;
     QList<Atom *> targets;
+    QMap<QString, QString> metaMap;
 
     DocPrivateExtra()
 	: granularity( Doc::Part ) { }
@@ -660,6 +665,11 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 						         getOptionalArgument()) );
 		        }
 		        break;
+                    case CMD_META:
+                        priv->constructExtra();
+                        x = getArgument();
+                        priv->extra->metaMap.insert(x, getRestOfLine());
+                        break;
                     case CMD_NEWCODE:
                         location().warning(tr("Unexpected '\\%1'").arg(commandName(CMD_NEWCODE)));
                         break;
@@ -2218,6 +2228,11 @@ const QList<Atom *> &Doc::targets() const
 {
     priv->constructExtra();
     return priv->extra->targets;
+}
+
+const QMap<QString, QString> &Doc::metaTagMap() const
+{
+    return priv && priv->extra ? priv->extra->metaMap : *null_QMap_QString_QString();
 }
 
 void Doc::initialize( const Config& config )

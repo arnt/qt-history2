@@ -1,3 +1,4 @@
+  * Fix encoding bug (see Important email from Simon Hausmann)
   * Make links to QFoo::bar().baz() work
   * Fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * Provide a "List of all properties" page.

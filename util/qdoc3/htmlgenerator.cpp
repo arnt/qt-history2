@@ -875,7 +875,17 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
     if (!style.isEmpty())
 	out() << "    <style>" << style << "</style>\n";
 
-    navigationLinks = "";
+    const QMap<QString, QString> &metaMap = node->doc().metaTagMap();
+    if (!metaMap.isEmpty()) {
+        QMapIterator<QString, QString> i(metaMap);
+        while (i.hasNext()) {
+            i.next();
+            out() << "    <meta name=\"" << protect(i.key()) << "\" contents=\""
+                  << protect(i.value()) << "\" />\n";
+        }
+    }
+
+    navigationLinks.clear();
 
     if (node && !node->links().empty()) {
         QPair<QString,QString> linkPair;
@@ -1836,7 +1846,7 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
     return link;
 }
 
-QString HtmlGenerator::refForAtom(Atom *atom, const Node *node)
+QString HtmlGenerator::refForAtom(Atom *atom, const Node * /* node */)
 {
     if (atom->type() == Atom::SectionLeft) {
         return Doc::canonicalTitle(Text::sectionHeading(atom).toString());

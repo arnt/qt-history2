@@ -51,6 +51,7 @@ public:
     const QList<Atom *> &tableOfContents() const;
     const QList<Atom *> &keywords() const;
     const QList<Atom *> &targets() const;
+    const QMap<QString, QString> &metaTagMap() const;
 
     static void initialize( const Config &config );
     static void terminate();
