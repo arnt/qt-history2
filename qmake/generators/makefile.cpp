@@ -598,8 +598,14 @@ MakefileGenerator::init()
 	QStringList &l = v["INTERFACES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl =  fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
-	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
+	    QString impl, decl;
+            if ( fi.dirPath() == "." ) {
+	    	impl = fi.baseName() + Option::cpp_ext;
+                decl = fi.baseName() + Option::h_ext;
+	    } else {
+	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
+                decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
+	    } 
 	    decls.append(decl);
 	    impls.append(impl);
 	    depends[impl].append(decl);
