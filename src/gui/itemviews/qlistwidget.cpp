@@ -130,7 +130,7 @@ void QListModel::append(const QListWidgetItem &item)
     \fn QListWidgetItem::QListWidgetItem()
 
     Creates a new list widget item that isEditable() and
-    isSelectable(), but which has no text() or iconSet().
+    isSelectable(), but which has no text() or icon().
 */
 
 /*!
@@ -148,11 +148,11 @@ void QListModel::append(const QListWidgetItem &item)
 */
 
 /*!
-    \fn QIconSet QListWidgetItem::iconSet() const
+    \fn QIconSet QListWidgetItem::icon() const
 
     Returns this list widget item's iconset.
 
-    \sa setIconSet()
+    \sa setIcon()
 */
 
 /*!
@@ -182,11 +182,11 @@ void QListModel::append(const QListWidgetItem &item)
 */
 
 /*!
-    \fn void QListWidgetItem::setIconSet(const QIconSet &iconSet)
+    \fn void QListWidgetItem::setIconSet(const QIconSet &icon)
 
-    Sets this list widget item's \a iconSet.
+    Sets this list widget item's \a icon.
 
-    \sa iconSet()
+    \sa icon()
 */
 
 /*!
@@ -330,20 +330,20 @@ void QListWidget::setText(int row, const QString &text)
 }
 
 /*!
-    Sets the \a{row}-th item's \a iconSet.
+    Sets the \a{row}-th item's \a icon.
 
     \sa iconSet() setItem()
 */
 
-void QListWidget::setIconSet(int row, const QIconSet &iconSet)
+void QListWidget::setIconSet(int row, const QIconSet &icon)
 {
-    model()->setData(model()->index(row,0), QAbstractItemModel::DecorationRole, iconSet);
+    model()->setData(model()->index(row,0), QAbstractItemModel::DecorationRole, icon);
 }
 
 /*!
     Returns the text for the \a{row}-th item.
 
-    \sa item() iconSet() setItem()
+    \sa item() icon() setItem()
 */
 
 QString QListWidget::text(int row) const
@@ -352,20 +352,20 @@ QString QListWidget::text(int row) const
 }
 
 /*!
-    Returns the iconset for the \a{row}-th item.
+    Returns the icon for the \a{row}-th item.
 
     \sa item() text() setItem()
 */
 
 QIconSet QListWidget::iconSet(int row) const
 {
-    return model()->data(model()->index(row,0), QAbstractItemModel::DecorationRole).toIconSet();
+    return model()->data(model()->index(row,0), QAbstractItemModel::DecorationRole).toIcon();
 }
 
 /*!
     Returns the \a{row}-th item.
 
-    \sa text() iconSet() setItem()
+    \sa text() icon() setItem()
 */
 
 QListWidgetItem QListWidget::item(int row) const

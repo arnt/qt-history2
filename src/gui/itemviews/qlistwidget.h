@@ -30,13 +30,13 @@ public:
     ~QListWidgetItem() {}
 
     inline QString text() const { return data(QAbstractItemModel::DisplayRole).toString(); }
-    inline QIconSet iconSet() const { return data(QAbstractItemModel::DecorationRole).toIconSet(); }
+    inline QIconSet icon() const { return data(QAbstractItemModel::DecorationRole).toIcon(); }
 
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
     inline void setText(const QString &text) { setData(QAbstractItemModel::DisplayRole, text); }
-    inline void setIconSet(const QIconSet &iconSet) { setData(QAbstractItemModel::DisplayRole, iconSet); }
+    inline void setIcon(const QIconSet &icon) { setData(QAbstractItemModel::DisplayRole, icon); }
 
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }

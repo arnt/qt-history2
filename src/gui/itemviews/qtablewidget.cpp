@@ -35,17 +35,17 @@ public:
                                int count = 1);
 
     virtual void setText(int row, int column, const QString &text);
-    virtual void setIconSet(int row, int column, const QIconSet &iconSet);
+    virtual void setIcon(int row, int column, const QIconSet &icon);
     QString text(int row, int column) const;
-    QIconSet iconSet(int row, int column) const;
+    QIconSet icon(int row, int column) const;
 
     virtual void setRowText(int row, const QString &text);
-    virtual void setRowIconSet(int row, const QIconSet &iconSet);
+    virtual void setRowIconSet(int row, const QIconSet &icon);
     QString rowText(int row) const;
     QIconSet rowIconSet(int row) const;
 
     virtual void setColumnText(int column, const QString &text);
-    virtual void setColumnIconSet(int column, const QIconSet &iconSet);
+    virtual void setColumnIconSet(int column, const QIconSet &icon);
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 
@@ -163,10 +163,10 @@ void QTableModel::setText(int row, int column, const QString &text)
     setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
 }
 
-void QTableModel::setIconSet(int row, int column, const QIconSet &iconSet)
+void QTableModel::setIcon(int row, int column, const QIconSet &icon)
 {
     QModelIndex index = createIndex(row, column);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
 }
 
 QString QTableModel::text(int row, int column) const
@@ -175,7 +175,7 @@ QString QTableModel::text(int row, int column) const
     return data(index, QAbstractItemModel::DisplayRole).toString();
 }
 
-QIconSet QTableModel::iconSet(int row, int column) const
+QIconSet QTableModel::icon(int row, int column) const
 {
     QModelIndex index = createIndex(row, column);
     return data(index, QAbstractItemModel::DecorationRole).toIconSet();
@@ -187,10 +187,10 @@ void QTableModel::setRowText(int row, const QString &text)
     setData(index, QAbstractItemModel::DecorationRole, QVariant(text));
 }
 
-void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
+void QTableModel::setRowIconSet(int row, const QIconSet &icon)
 {
     QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
 }
 
 QString QTableModel::rowText(int row) const
@@ -211,10 +211,10 @@ void QTableModel::setColumnText(int column, const QString &text)
     setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
 }
 
-void QTableModel::setColumnIconSet(int column, const QIconSet &iconSet)
+void QTableModel::setColumnIconSet(int column, const QIconSet &icon)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(icon));
 }
 
 QString QTableModel::columnText(int column) const
@@ -358,7 +358,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     If you want a table that uses your own data model you should
     subclass QTableView rather than this class.
 
-    Items are set with setItem(), or with setText() or setIconSet();
+    Items are set with setItem(), or with setText() or setIcon();
     these last two are convenience functions that create a QTableItem
     for you. The label and icon for a given row is set with
     setRowText() and setRowIconSet(), and for a given column with
@@ -424,7 +424,7 @@ void QTableWidget::setColumnCount(int columns)
 /*!
     Returns the item for the given \a row and \a column.
 
-    \sa setItem() text() iconSet()
+    \sa setItem() text() icon()
 */
 QTableWidgetItem QTableWidget::item(int row, int column) const
 {
@@ -434,7 +434,7 @@ QTableWidgetItem QTableWidget::item(int row, int column) const
 /*!
     Sets the item for the given \a row and \a column to \a item.
 
-    \sa item() setText() setIconSet()
+    \sa item() setText() setIcon()
 */
 void QTableWidget::setItem(int row, int column, const QTableWidgetItem &item)
 {
@@ -444,7 +444,7 @@ void QTableWidget::setItem(int row, int column, const QTableWidgetItem &item)
 /*!
     Sets the text for the given \a row and \a column to \a text.
 
-    \sa text() setIconSet() setItem()
+    \sa text() setIcon() setItem()
 */
 void QTableWidget::setText(int row, int column, const QString &text)
 {
@@ -452,19 +452,19 @@ void QTableWidget::setText(int row, int column, const QString &text)
 }
 
 /*!
-    Sets the icon for the given \a row and \a column to \a iconSet.
+    Sets the icon for the given \a row and \a column to \a icon.
 
-    \sa iconSet() setText() setItem()
+    \sa icon() setText() setItem()
 */
-void QTableWidget::setIconSet(int row, int column, const QIconSet &iconSet)
+void QTableWidget::setIcon(int row, int column, const QIconSet &icon)
 {
-    d->model()->setIconSet(row, column, iconSet);
+    d->model()->setIcon(row, column, icon);
 }
 
 /*!
     Returns the text for the given \a row and \a column.
 
-    \sa setText() iconSet()
+    \sa setText() icon()
 */
 QString QTableWidget::text(int row, int column) const
 {
@@ -474,11 +474,11 @@ QString QTableWidget::text(int row, int column) const
 /*!
     Returns the icon for the given \a row and \a column.
 
-    \sa setIconSet() text()
+    \sa setIcon() text()
 */
-QIconSet QTableWidget::iconSet(int row, int column) const
+QIconSet QTableWidget::icon(int row, int column) const
 {
-    return d->model()->iconSet(row, column);
+    return d->model()->icon(row, column);
 }
 
 /*!
@@ -492,13 +492,13 @@ void QTableWidget::setRowText(int row, const QString &text)
 }
 
 /*!
-    Sets the icon for the given \a row to \a iconSet.
+    Sets the icon for the given \a row to \a icon.
 
     \sa rowIconSet() setRowText()
 */
-void QTableWidget::setRowIconSet(int row, const QIconSet &iconSet)
+void QTableWidget::setRowIconSet(int row, const QIconSet &icon)
 {
-    d->model()->setRowIconSet(row, iconSet);
+    d->model()->setRowIconSet(row, icon);
 }
 
 /*!
@@ -532,13 +532,13 @@ void QTableWidget::setColumnText(int column, const QString &text)
 }
 
 /*!
-    Sets the icon for the given \a column to \a iconSet.
+    Sets the icon for the given \a column to \a icon.
 
     \sa columnIconSet() setColumnText()
 */
-void QTableWidget::setColumnIconSet(int column, const QIconSet &iconSet)
+void QTableWidget::setColumnIconSet(int column, const QIconSet &icon)
 {
-    d->model()->setColumnIconSet(column, iconSet);
+    d->model()->setColumnIconSet(column, icon);
 }
 
 /*!

@@ -26,9 +26,9 @@ public:
     int columnCount() const;
 
     virtual void setColumnText(int column, const QString &text);
-    virtual void setColumnIconSet(int column, const QIconSet &iconSet);
+    virtual void setColumnIcon(int column, const QIconSet &icon);
     QString columnText(int column) const;
-    QIconSet columnIconSet(int column) const;
+    QIconSet columnIcon(int column) const;
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
 
@@ -140,12 +140,12 @@ void QTreeModel::setColumnText(int column, const QString &text)
   \internal
 
   Sets the icon set for the \a column to the icon set specified by
-  \a iconSet.*/
+  \a icon.*/
 
-void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
+void QTreeModel::setColumnIcon(int column, const QIconSet &icon)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::DecorationRole, iconSet);
+    setData(index, QAbstractItemModel::DecorationRole, icon);
 }
 
 /*!
@@ -164,10 +164,10 @@ QString QTreeModel::columnText(int column) const
 
   Returns the icon set for the given \a column.*/
 
-QIconSet QTreeModel::columnIconSet(int column) const
+QIconSet QTreeModel::columnIcon(int column) const
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
+    return data(index, QAbstractItemModel::DecorationRole).toIcon();
 }
 
 /*!
@@ -458,7 +458,7 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
     Returns the number of columns that this item occupies.
 
-    \sa text() iconSet()
+    \sa text() icon()
 */
 
 
@@ -467,16 +467,16 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
     Returns the text from the given \a column.
 
-    \sa setText() iconSet() columnCount()
+    \sa setText() icon() columnCount()
 */
 
 
 /*!
-    \fn QIconSet QTreeWidgetItem::iconSet(int column) const
+    \fn QIconSet QTreeWidgetItem::icon(int column) const
 
     Returns the iconset from the given \a column.
 
-    \sa setIconSet() text() columnCount()
+    \sa setIcon() text() columnCount()
 */
 
 
@@ -505,16 +505,16 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
     Sets the given \a column to hold the given \a text.
 
-    \sa text() setIconSet()
+    \sa text() setIcon()
 */
 
 
 /*!
-    \fn void QTreeWidgetItem::setIconSet(int column, const QIconSet &iconSet)
+    \fn void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 
-    Sets the given \a column to hold the given \a iconSet.
+    Sets the given \a column to hold the given \a icon.
 
-    \sa iconSet() setText()
+    \sa icon() setText()
 */
 
 
@@ -725,11 +725,11 @@ void QTreeWidget::setColumnText(int column, const QString &text)
 }
 
 /*!
-  Sets the icon set for the \a column to that specified by \a iconSet.*/
+  Sets the icon set for the \a column to that specified by \a icon.*/
 
-void QTreeWidget::setColumnIconSet(int column, const QIconSet &iconSet)
+void QTreeWidget::setColumnIcon(int column, const QIconSet &icon)
 {
-    d->model()->setColumnIconSet(column, iconSet);
+    d->model()->setColumnIcon(column, icon);
 }
 
 /*!
@@ -743,9 +743,9 @@ QString QTreeWidget::columnText(int column) const
 /*!
   Returns the icon set for the given \a column in the tree view.*/
 
-QIconSet QTreeWidget::columnIconSet(int column) const
+QIconSet QTreeWidget::columnIcon(int column) const
 {
-    return d->model()->columnIconSet(column);
+    return d->model()->columnIcon(column);
 }
 
 /*!

@@ -41,8 +41,8 @@ public:
     inline int columnCount() const { return columns; }
     inline QString text(int column) const
         { return data(column, QAbstractItemModel::DisplayRole).toString(); }
-    inline QIconSet iconSet(int column) const
-        { return data(column, QAbstractItemModel::DecorationRole).toIconSet(); }
+    inline QIconSet icon(int column) const
+        { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
 
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
@@ -50,8 +50,8 @@ public:
     void setColumnCount(int count);
     inline void setText(int column, const QString &text)
         { setData(column, QAbstractItemModel::DisplayRole, text); }
-    inline void setIconSet(int column, const QIconSet &iconSet)
-        { setData(column, QAbstractItemModel::DecorationRole, iconSet); }
+    inline void setIcon(int column, const QIconSet &icon)
+        { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
@@ -99,9 +99,9 @@ public:
 
     void setColumnCount(int columns);
     void setColumnText(int column, const QString &text);
-    void setColumnIconSet(int column, const QIconSet &iconSet);
+    void setColumnIcon(int column, const QIconSet &icon);
     QString columnText(int column) const;
-    QIconSet columnIconSet(int column) const;
+    QIconSet columnIcon(int column) const;
 
 protected:
     void append(QTreeWidgetItem *item);

@@ -30,12 +30,12 @@ public:
     ~QTableWidgetItem() {}
 
     inline QString text() const { return data(QAbstractItemModel::DisplayRole).toString(); }
-    inline QIconSet iconSet() const { return data(QAbstractItemModel::DecorationRole).toIconSet(); }
+    inline QIconSet icon() const { return data(QAbstractItemModel::DecorationRole).toIcon(); }
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
     inline void setText(const QString &text) { setData(QAbstractItemModel::DisplayRole, text); }
-    inline void setIconSet(const QIconSet &iconSet) { setData(QAbstractItemModel::DisplayRole, iconSet); }
+    inline void setIcon(const QIconSet &icon) { setData(QAbstractItemModel::DisplayRole, icon); }
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
@@ -79,17 +79,17 @@ public:
     void setItem(int row, int column, const QTableWidgetItem &item);
 
     void setText(int row, int column, const QString &text);
-    void setIconSet(int row, int column, const QIconSet &iconSet);
+    void setIcon(int row, int column, const QIconSet &icon);
     QString text(int row, int column) const;
-    QIconSet iconSet(int row, int column) const;
+    QIconSet icon(int row, int column) const;
 
     void setRowText(int row, const QString &text);
-    void setRowIconSet(int row, const QIconSet &iconSet);
+    void setRowIconSet(int row, const QIconSet &icon);
     QString rowText(int row) const;
     QIconSet rowIconSet(int row) const;
 
     void setColumnText(int column, const QString &text);
-    void setColumnIconSet(int column, const QIconSet &iconSet);
+    void setColumnIconSet(int column, const QIconSet &icon);
     QString columnText(int column) const;
     QIconSet columnIconSet(int column) const;
 };
