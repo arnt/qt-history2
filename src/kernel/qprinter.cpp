@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#43 $
 **
 ** Implementation of QPrinter class
 **
@@ -41,12 +41,15 @@
   must think about dividing the document into pages and handling abort
   commands.
 
-  The default coordinate system of a printer is a 72 dpi (dots per
-  inch) system with (0,0) at the upper left corner, with increasing
-  values to the right and downwards.  This causes printer output to be
-  roughly the same size as screen output on most screens.  You can
-  easily change the coordinate system using QPainter::setViewport().
-  QPainter::setWindow() and/or QPainter::setWorldMatrix().
+  The default coordinate system of a printer has (0,0) at the upper
+  left corner, with increasing values to the right and downwards.  The
+  size of the coordinate system depends on the selected paper size and
+  the resolution (dots per inch) of the printer (on X11, the builtin
+  postscript driver always operates at 72 dpi.) You can obtain
+  detailed information about the device using the QPaintDeviceMetrics
+  class. You can easily change the coordinate system using
+  QPainter::setViewport(), QPainter::setWindow() and/or
+  QPainter::setWorldMatrix().
 
   The newPage() function should be called to finish the current page and
   start printing a new page.
