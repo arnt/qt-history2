@@ -35,9 +35,13 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"			// needed to define Q_WS_WIN
-#ifdef Q_WS_WIN
-#include "qt_windows.h"			// needed for bsearch on some platforms
+#include "qglobal.h"
+#if defined(Q_CC_BOR)
+    // needed for qsort() because of a std namespace problem on Borland
+#   include "qplatformdefs.h"
+#elif defined(Q_WS_WIN)
+    // needed for bsearch on some platforms
+#   include "qt_windows.h"
 #endif
 
 #define	 QGARRAY_CPP

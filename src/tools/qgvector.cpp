@@ -35,6 +35,12 @@
 **
 **********************************************************************/
 
+#include "qglobal.h"
+#if defined(Q_CC_BOR)
+// needed for qsort() because of a std namespace problem on Borland
+#include "qplatformdefs.h"
+#endif
+
 #define	 QGVECTOR_CPP
 #include "qgvector.h"
 #include "qglist.h"

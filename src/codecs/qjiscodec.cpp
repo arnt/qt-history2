@@ -151,7 +151,7 @@ enum Iso2022State{ Ascii, MinState = Ascii,
 		   JISX0201_Latin, JISX0201_Kana,
 		   JISX0208_1978, JISX0208_1983,
 		   JISX0212, MaxState = JISX0212,
-		   Unknown };
+		   UnknownState };
 
 static const char Esc_CHARS[] = "()*+-./";
 
@@ -232,11 +232,11 @@ QCString QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	    state = JISX0212;
 	} else {
 	    // Invalid
-	    state = Unknown;
+	    state = UnknownState;
 	    j = '?';
 	}
 	if (state != prev) {
-	    if (state == Unknown) {
+	    if (state == UnknownState) {
 		result += Esc_Ascii;
 	    } else {
 		result += Esc_SEQ[state - MinState];
@@ -266,7 +266,7 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
 	uchar ch = chars[i];
 	if ( ch == Esc ) {
 	    // Escape sequence
-	    state = Unknown;
+	    state = UnknownState;
 	    if ( i < len-1 ) {
 		uchar c2 = chars[++i];
 		if (c2 == '$') {
@@ -430,7 +430,7 @@ int QJisCodec::heuristicContentMatch(const char* chars, int len) const
 	    return -1;
 	if ( ch == Esc ) {
 	    // Escape sequence
-	    state = Unknown;
+	    state = UnknownState;
 	    if ( i < len-1 ) {
 		uchar c2 = chars[++i];
 		if (c2 == '$') {
@@ -488,7 +488,7 @@ int QJisCodec::heuristicContentMatch(const char* chars, int len) const
 		    }
 		}
 	    }
-	    if ( state == Unknown ) {
+	    if ( state == UnknownState ) {
 		return -1;
 	    }
 	    score++;
@@ -566,7 +566,7 @@ public:
 	    uchar ch = chars[i];
 	    if (esc) {
 		// Escape sequence
-		state = Unknown;
+		state = UnknownState;
 		switch (nbuf) {
 		  case 0:
 		    if (ch == '$' || strchr(Esc_CHARS, ch)) {
