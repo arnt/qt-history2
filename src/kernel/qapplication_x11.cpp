@@ -279,8 +279,9 @@ Atom		qt_selection_property	= 0;
 Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
+static Atom     qt_settings_cache       = 0;    // Qt >3 settings cache
+static Atom     qt_settings_cache_stamp = 0;    // Qt >3 settings cache timestamp
 static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
-static Atom     qt_desktop_prop_stamp   = 0;    // Qt desktop properties timestamp
 static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
 Atom		qt_sizegrip		= 0;	// sizegrip
@@ -684,11 +685,12 @@ static void qt_x11_process_intern_atoms()
     }
 }
 
+
 static bool seems_like_KDE_is_running = FALSE;
 
 
-// read the _QT_DESKTOP_PROPERTIES property and apply the settings to the application
-static bool qt_set_desktop_properties()
+// read the _QT_SETTINGS_CACHE_3 property and apply the settings to the application
+static bool qt_apply_settings()
 {
     if (! qt_std_pal)
 	qt_create_std_palette();
@@ -701,7 +703,7 @@ static bool qt_set_desktop_properties()
 
     bool read_settings = FALSE, success = FALSE, prop_exists = FALSE;
 
-    int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp, 0, 0,
+    int e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp, 0, 0,
 			       FALSE, AnyPropertyType, &type, &format, &nitems,
 			       &after, &data);
     if (data)
@@ -712,7 +714,7 @@ static bool qt_set_desktop_properties()
 	ts.open(IO_WriteOnly);
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp,
+	    XGetWindowProperty(appDpy, appRootWin, qt_settings_cache_stamp,
 			       offset, 1024, FALSE, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
 	    if (format == 8) {
@@ -737,7 +739,7 @@ static bool qt_set_desktop_properties()
     } else
 	read_settings = TRUE;
 
-    e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties, 0, 1,
+    e = XGetWindowProperty(appDpy, appRootWin, qt_settings_cache, 0, 1,
 			   FALSE, AnyPropertyType, &type, &format, &nitems,
 			   &after, &data);
     if (data)
@@ -1067,7 +1069,7 @@ static bool qt_set_desktop_properties()
 	while (it != fontsubs.end())
 	    d << QFont::substitutes(*it++);
 
-	XChangeProperty(appDpy, appRootWin, qt_desktop_properties,
+	XChangeProperty(appDpy, appRootWin, qt_settings_cache,
 			qt_desktop_properties, 8, PropModeReplace,
 			(unsigned char *) prop.buffer().data(),
 			prop.buffer().size());
@@ -1076,8 +1078,8 @@ static bool qt_set_desktop_properties()
 	QDataStream s(stamp.buffer(), IO_WriteOnly);
 	s << QApplication::settings()->lastModficationTime("/qt/font");
 
-	XChangeProperty(appDpy, appRootWin, qt_desktop_prop_stamp,
-			qt_desktop_prop_stamp, 8, PropModeReplace,
+	XChangeProperty(appDpy, appRootWin, qt_settings_cache_stamp,
+			qt_settings_cache_stamp, 8, PropModeReplace,
 			(unsigned char *) stamp.buffer().data(),
 			stamp.buffer().size());
     }
@@ -1088,7 +1090,7 @@ static bool qt_set_desktop_properties()
 	offset = 0;
 
 	while (after > 0) {
-	    XGetWindowProperty(appDpy, appRootWin, qt_desktop_properties,
+	    XGetWindowProperty(appDpy, appRootWin, qt_settings_cache,
 			       offset, 1024, FALSE, AnyPropertyType,
 			       &type, &format, &nitems, &after, &data);
 	    if (format == 8) {
@@ -1241,6 +1243,82 @@ static bool qt_set_desktop_properties()
 }
 
 
+
+// read the _QT_DESKTOP_PROPERTIES property and apply the settings to the application
+static bool qt_set_desktop_properties()
+{
+    if ( !qt_std_pal )
+	qt_create_std_palette();
+
+    Atom type;
+    int format;
+    ulong  nitems, after = 1;
+    long offset = 0;
+    const char *data;
+
+    int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
+				FALSE, AnyPropertyType, &type, &format, &nitems,
+				&after,  (unsigned char**)&data );
+    if ( data )
+	XFree(  (unsigned char*)data );
+    if ( e != Success || !nitems )
+	return FALSE;
+
+    QBuffer  properties;
+    properties.open( IO_WriteOnly );
+    while (after > 0) {
+	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
+			    offset, 1024, FALSE, AnyPropertyType,
+			    &type, &format, &nitems, &after, (unsigned char**) &data );
+	if (format == 8) {
+	    properties.writeBlock(data, nitems);
+	    offset += nitems / 4;
+	}
+
+	XFree( (unsigned char *) data );
+    }
+
+    QDataStream d( properties.buffer(), IO_ReadOnly );
+    d.setVersion(3); // data stream version 3 is from Qt 2.1.0 to Qt 2.3.x
+
+    QPalette pal;
+    QFont font;
+    d >> pal >> font;
+
+    // check the palette to see if the disabled foreground and background color
+    // are the same, if they are, we are going to do a hack and set the disabled
+    // foreground color to something sensible - this works around a bug in KDE that
+    // sets the disabled foreground color to the active foregroundcolor
+    QColor actfg(pal.color(QPalette::Active, QColorGroup::Foreground)),
+	disfg(pal.color(QPalette::Disabled, QColorGroup::Foreground));
+    if (actfg == disfg) {
+	int h, s, v;
+	disfg.hsv( &h, &s, &v );
+	if (v > 128)
+	    // dark bg, light fg - need a darker disabled fg
+	    disfg = disfg.dark();
+	else if (disfg != Qt::black)
+	    // light bg, dark fg - need a lighter disabled fg - but only if !black
+	    disfg = disfg.light();
+	else
+	    // black fg - use darkgrey disabled fg
+	    disfg = Qt::darkGray;
+
+	pal.setColor(QPalette::Disabled, QColorGroup::Foreground, disfg);
+    }
+
+    if ( pal != *qt_std_pal && pal != QApplication::palette() )
+	QApplication::setPalette( pal, TRUE );
+    *qt_std_pal = pal;
+    if ( font != QApplication::font() )
+	QApplication::setFont( font, TRUE );
+
+    seems_like_KDE_is_running = TRUE;
+
+    return TRUE;
+}
+
+
 // read the _QT_INPUT_ENCODING property and apply the settings to
 // the application
 static void qt_set_input_encoding()
@@ -1288,7 +1366,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
     QCString resFont, resFG, resBG, resEF;
 
-    if ( QApplication::desktopSettingsAware() && !qt_set_desktop_properties() ) {
+    if ( QApplication::desktopSettingsAware() &&
+	 (! qt_apply_settings() && ! qt_set_desktop_properties() ) ) {
 	int format;
 	ulong  nitems, after = 1;
 	QCString res;
@@ -1902,7 +1981,6 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
 	qt_x11_intern_atom( "_QT_DESKTOP_PROPERTIES", &qt_desktop_properties );
-	qt_x11_intern_atom( "_QT_DESKTOP_PROP_STAMP", &qt_desktop_prop_stamp );
 	qt_x11_intern_atom( "_QT_INPUT_ENCODING", &qt_input_encoding );
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
@@ -1910,6 +1988,12 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
+
+	QCString qt_settings_cache_name;
+	qt_settings_cache_name.sprintf("_QT_SETTINGS_CACHE_%d", QT_VERSION / 100);
+	qt_x11_intern_atom( qt_settings_cache_name, &qt_settings_cache );
+	qt_settings_cache_name += "_STAMP";
+	qt_x11_intern_atom( qt_settings_cache_name, &qt_settings_cache_stamp );
 
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
 	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
