@@ -14,6 +14,7 @@ class QInterfaceList;
 
 class Q_EXPORT QUnknownInterface
 {
+    friend class QPlugIn;
 public:
     QUnknownInterface( QUnknownInterface *parent = 0 );
     virtual ~QUnknownInterface();
@@ -29,7 +30,6 @@ public:
     bool release();
 
     QApplicationInterface *applicationInterface() const;
-    void setApplicationInterface( QApplicationInterface * );
 
     QUnknownInterface *parent() const;
 
@@ -52,26 +52,22 @@ public:
 
     QString interfaceID() const;
 
-    bool initialize( QApplicationInterface * = 0 );
-    bool cleanUp( QApplicationInterface* = 0 );
-
     virtual QString name() const;
     virtual QString description() const;
     virtual QString author() const;
+    virtual QString version() const;
 };
 
-class Q_EXPORT QApplicationInterface : public QUnknownInterface
+class Q_EXPORT QApplicationInterface : public QPlugInInterface
 {
 public:
     QApplicationInterface();
     QString interfaceID() const;
 
-    virtual QString name() const;
-    virtual QString description() const;
-    virtual QString author() const;
-    virtual QString workDirectory() const;
-    virtual QString version() const;
-    virtual QString command() const;
+    QString name() const;
+
+    QString workDirectory() const;
+    QString command() const;
 };
 
 #if defined(Q_TEMPLATEDLL)
