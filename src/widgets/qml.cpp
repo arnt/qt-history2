@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#24 $
 **
 ** Implementation of QML classes
 **
@@ -2054,7 +2054,7 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 	}
 	height = QMAX( height, colheight );
     }
-    
+
     // collapse the bottom margin
     if ( isLastSibling && parent && parent->isBox){
 	// ignore bottom margin
@@ -3157,6 +3157,17 @@ QChar QMLDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
 	return '&';
     if ( s == "nbsp")
 	return ' ';
+    if ( s == "aring")
+	return 'å';
+    if ( s == "oslash")
+	return 'ø';
+    if ( s == "ouml")
+	return 'ö';
+    if ( s == "auml")
+	return 'ä';
+    if ( s == "uuml")
+	return 'ü';
+ 
     pos = recoverpos;
     return '&';
 }
@@ -3299,7 +3310,7 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     eat(doc, pos, '>');
     if (!valid) {
       // HACK Torben warning( "QML Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
-      
+
 	valid = TRUE;
     }
     valid &= tag == open;
