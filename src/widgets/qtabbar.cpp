@@ -564,11 +564,15 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
     int iw = 0;
     int ih = 0;
     if ( t->iconset != 0 ) {
-	iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
     }
-    int w = iw + p->fontMetrics().width( t->label ) + 4;
-    int h = QMAX(p->fontMetrics().height() + 4, ih );
+    QFontMetrics fm = p->fontMetrics();
+    int fw = fm.width( t->label );
+    fw -= t->label.contains('&') * fm.width('&');
+    fw += t->label.contains("&&") * fm.width('&');
+    int w = iw + fw + 4;
+    int h = QMAX(fm.height() + 4, ih );
     paintLabel( p, QRect( r.left() + (r.width()-w)/2 - 3,
 			  r.top() + (r.height()-h)/2,
 			  w, h ), t, t->id == keyboardFocusTab() );
@@ -593,7 +597,8 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	QPixmap pixmap = t->iconset->pixmap( QIconSet::Small, mode );
 	int pixw = pixmap.width();
 	int pixh = pixmap.height();
-	r.setLeft( r.left() + pixw + 2 );
+	r.setLeft( r.left() + pixw + 4 );
+	r.setRight( r.right() + 2 );
 	// ### the pixmap shift should probably not be hardcoded..
 	p->drawPixmap( br.left() + 2 + ((selected == TRUE) ? 0 : 2),
 		       br.center().y()-pixh/2 + ((selected == TRUE) ? 0 : 2),
@@ -1000,10 +1005,12 @@ void QTabBar::layoutTabs()
 	t = lstatic->first();
     while ( t ) {
 	int lw = fm.width( t->label );
+	lw -= t->label.contains('&') * fm.width('&');
+	lw += t->label.contains("&&") * fm.width('&');
 	int iw = 0;
 	int ih = 0;
 	if ( t->iconset != 0 ) {
-	    iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+	    iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	    ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	}
 	int h = QMAX( fm.height(), ih );
@@ -1049,11 +1056,15 @@ void QTabBar::focusInEvent( QFocusEvent * )
 	    int iw = 0;
 	    int ih = 0;
 	    if ( t->iconset != 0 ) {
-		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	    }
-	    int w = iw + p.fontMetrics().width( t->label ) + 4;
-	    int h = QMAX(p.fontMetrics().height() + 4, ih );
+	    QFontMetrics fm = p.fontMetrics();
+	    int fw = fm.width( t->label );
+	    fw -= t->label.contains('&') * fm.width('&');
+	    fw += t->label.contains("&&") * fm.width('&');
+	    int w = iw + fw + 4;
+	    int h = QMAX(fm.height() + 4, ih );
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, TRUE );
@@ -1079,14 +1090,18 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    int iw = 0;
 	    int ih = 0;
 	    if ( t->iconset != 0 ) {
-		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
+		iw = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 		ih = t->iconset->pixmap( QIconSet::Small, QIconSet::Normal ).height();
 	    }
-	    int w = iw + p.fontMetrics().width( t->label ) + 4;
-	    int h = QMAX(p.fontMetrics().height() + 4, ih );
+	    QFontMetrics fm = p.fontMetrics();
+	    int fw = fm.width( t->label );
+	    fw -= t->label.contains('&') * fm.width('&');
+	    fw += t->label.contains("&&") * fm.width('&');
+	    int w = iw + fw + 4;
+	    int h = QMAX(fm.height() + 4, ih );
 	    p.fillRect( QRect( r.left() + ( r.width() -w ) / 2 - 4,
 				   r.top() + ( r.height()-h ) / 2 - 1,
-			       w + 2, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
+			       w + 4, h + 2 ), colorGroup().brush(QColorGroup::Background ) );
 
 	    QStyle::SFlags flags = QStyle::Style_Default;
 	    flags |= QStyle::Style_Selected;
