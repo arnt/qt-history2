@@ -795,7 +795,7 @@ void QPopupMenu::hideAllPopups()
 
 void QPopupMenu::hidePopups()
 {
-    if ( preventAnimation )
+    if ( !preventAnimation )
 	QTimer::singleShot( 10, this, SLOT(allowAnimation()) );
     preventAnimation = TRUE;
 
