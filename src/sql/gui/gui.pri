@@ -1,11 +1,11 @@
 QT += gui
 
-HEADERS +=      gui/qsqlmodel.h \
-                gui/qsqlmodel_p.h \
+HEADERS +=      gui/qsqlquerymodel.h \
+                gui/qsqlquerymodel_p.h \
                 gui/qsqltablemodel.h \
                 gui/qsqlrelationaltablemodel.h
 
-SOURCES +=      gui/qsqlmodel.cpp \
+SOURCES +=      gui/qsqlquerymodel.cpp \
                 gui/qsqltablemodel.cpp \
                 gui/qsqlrelationaltablemodel.cpp
 
