@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#4 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#4 $";
 #endif
 
 
@@ -83,7 +83,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     combo = new QComboBox( this, "printTo" );
     combo->insertItem( "Printer" );
     combo->insertItem( "File" );
-    combo->setAutoResizing( TRUE );
+    combo->setAutoResize( TRUE );
     combo->adjustSize();
     combo->move( 140,25 );
     combo->setCurrentItem( printer->outputToFile() ? 1 : 0 );
@@ -132,7 +132,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     combo = new QComboBox( this, "orientation" );
     combo->insertItem( "Portrait" );
     combo->insertItem( "Landscape" );
-    combo->setAutoResizing( TRUE );
+    combo->setAutoResize( TRUE );
     combo->adjustSize();
     combo->move( 140,215 );
     combo->setCurrentItem( (int)printer->orientation() );
@@ -148,7 +148,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     combo->insertItem( "Letter" );
     combo->insertItem( "Legal" );
     combo->insertItem( "Executive" );
-    combo->setAutoResizing( TRUE );
+    combo->setAutoResize( TRUE );
     combo->adjustSize();
     combo->move( 140,255 );
     combo->setCurrentItem( (int)printer->pageSize() );
@@ -209,16 +209,9 @@ void QPrintDialog::printerOrFileSelected( int index )
 
 void QPrintDialog::browseClicked()
 {
-#if 0
-    QString fname = QFileDialog::getLoadFile();
-    if ( !fname.isNull() ) {
-	WIDGET(this,QLineEdit,"printFile")->setText( fname );
-    }
-#endif
-    QFileDialog filedlg( 0, "*", 0, 0, TRUE );
-    if ( fsel.exec() == QDialog::Accepted ) {
-	WIDGET(this,QLineEdit,"printFile")->setText( filedlg.selectedFile() );
-    }
+    QString fileName = QFileDialog::getOpenFileName( 0, 0, this, 0 );
+    if ( !fileName.isNull() )
+	WIDGET(this,QLineEdit,"printFile")->setText( fileName );
 }
 
 void QPrintDialog::okClicked()
