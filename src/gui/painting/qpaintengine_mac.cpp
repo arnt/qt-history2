@@ -72,10 +72,7 @@ QMacCGContext::QMacCGContext(QPainter *p)
 
 inline static QPaintEngine::PaintEngineFeatures qt_mac_qd_features()
 {
-    return QPaintEngine::PaintEngineFeatures(
-        QPaintEngine::UsesFontEngine|QPaintEngine::PixmapScale
-        |QPaintEngine::AlphaPixmap|QPaintEngine::PenWidthTransform
-        );
+    return QPaintEngine::PaintEngineFeatures(QPaintEngine::UsesFontEngine)
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine()
@@ -987,17 +984,13 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
 
 inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
 {
-    return QPaintEngine::PaintEngineFeatures(
-        QPaintEngine::CoordTransform|QPaintEngine::PixmapTransform|
-        QPaintEngine::PatternTransform|QPaintEngine::PenWidthTransform|
-        QPaintEngine::PainterPaths|QPaintEngine::PixmapScale|
-        QPaintEngine::UsesFontEngine|
-#ifdef QMAC_NATIVE_GRADIENTS
-        QPaintEngine::RadialGradientFill|QPaintEngine::LinearGradientFill|
+    // Supports all except gradients...
+    return QPaintEngine::PaintEngineFeatures(AllFeatures
+                                             & (~ConicalGradientFill)
+#ifndef QMAC_NATIVE_GRADIENTS
+                                             & (~(LinearGradientFill|RadialGradientFill))
 #endif
-        QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke|
-        QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap|
-        QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing);
+                                             );
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()

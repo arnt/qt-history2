@@ -514,40 +514,32 @@ void QX11PaintEnginePrivate::resetAdaptedOrigin()
         XSetTSOrigin(dpy, gc_brush, 0, 0);
 }
 
+
+static QPaintEngine::PaintEngineFeatures qt_decide_features()
+{
+    return UsesFontEngine
+        | PrimitiveTransform
+        | AlphaBlend
+        | PainterPaths
+#if !defined (QT_NO_XRENDER)
+        // ### this should be a runtime check
+        | Antialiasing
+#endif
+        ;
+}
+
 /*
  * QX11PaintEngine members
  */
 
 QX11PaintEngine::QX11PaintEngine()
-    : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine
-                   | CoordTransform
-                   | PainterPaths
-                   | AlphaFillPolygon
-                   | AlphaFill
-#if !defined(QT_NO_XRENDER)
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | FillAntialiasing
-                   | LineAntialiasing
-#endif
-        )
+    : QPaintEngine(*(new QX11PaintEnginePrivate), qt_decide_features())
 {
     d->init();
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, UsesFontEngine
-                   | CoordTransform
-                   | PainterPaths
-                   | AlphaFillPolygon
-                   | AlphaFill
-#if !defined(QT_NO_XRENDER)
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | FillAntialiasing
-                   | LineAntialiasing
-#endif
-        )
+    : QPaintEngine(dptr, qt_decide_features())
 {
     d->init();
 }

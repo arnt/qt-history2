@@ -42,45 +42,13 @@ public:
 #define pic_d d->pic_d
 
 QPicturePaintEngine::QPicturePaintEngine()
-    : QPaintEngine(*(new QPicturePaintEnginePrivate),
-                   CoordTransform
-                   | PenWidthTransform
-                   | PatternBrush
-                   | PixmapTransform
-                   | LinearGradientFill
-                   | LinearGradientFillPolygon
-                   | PixmapScale
-                   | AlphaFill
-                   | AlphaFillPolygon
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | PainterPaths
-                   | ClipTransform
-                   | LineAntialiasing
-                   | FillAntialiasing
-                   | PaintOutsidePaintEvent)
+    : QPaintEngine(*(new QPicturePaintEnginePrivate), AllFeatures)
 {
     d->pt = 0;
 }
 
 QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr,
-                   CoordTransform
-                   | PenWidthTransform
-                   | PatternBrush
-                   | PixmapTransform
-                   | LinearGradientFill
-                   | LinearGradientFillPolygon
-                   | PixmapScale
-                   | AlphaFill
-                   | AlphaFillPolygon
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | PainterPaths
-                   | ClipTransform
-                   | LineAntialiasing
-                   | FillAntialiasing
-                   | PaintOutsidePaintEvent)
+    : QPaintEngine(dptr, AllFeatures)
 {
     d->pt = 0;
 }

@@ -2037,8 +2037,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             p->save();
 
             // avoid dithering
-            bool hasAA = (p->renderHints() & QPainter::Antialiasing);
-            if (p->device()->paintEngine()->hasFeature(QPaintEngine::LineAntialiasing))
+            if (p->device()->paintEngine()->hasFeature(QPaintEngine::Antialiasing))
                 p->setRenderHint(QPainter::Antialiasing);
 
             int width = dial->rect.width();
@@ -2120,7 +2119,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 fropt.rect = br.adjusted(-2, -2, 2, 2);
                 drawPrimitive(QStyle::PE_FrameFocusRect, &fropt, p, widget);
             }
-            p->setRenderHint(QPainter::Antialiasing, hasAA);
             p->restore();
         }
         break;

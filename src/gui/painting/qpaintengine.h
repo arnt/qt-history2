@@ -57,28 +57,22 @@ class Q_GUI_EXPORT QPaintEngine
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:
     enum PaintEngineFeature {
-        CoordTransform            = 0x000001,               // Points are transformed
-        PenWidthTransform         = 0x000002,               // Pen width is transformed
-        PatternTransform          = 0x000004,               // Brush patterns
-        PatternBrush              = 0x000008,               // Native support for pixmap and pattern brushes
-        PixmapTransform           = 0x000010,               // Pixmap transforms
-        LinearGradientFill        = 0x000020,               // Can fill gradient areas.
-        LinearGradientFillPolygon = 0x000040,               // Can fill polygons with linear gradients.
-        PixmapScale               = 0x000080,               // Can scale (w/o XForm) in drawPixmap
-	AlphaFill                 = 0x000100,               // Can fill with alpha.
-        AlphaFillPolygon          = 0x000200,               // Can fill polygons with alpha.
-        AlphaStroke               = 0x000400,               // Can outline with alpha.
-        AlphaPixmap               = 0x000800,               // Can draw pixmaps with alpha channels
-        PainterPaths              = 0x001000,               // Can fill, outline and clip paths
-        ClipTransform             = 0x002000,               // Can transform clip regions.
-        LineAntialiasing          = 0x004000,               // Can antialias lines
-        FillAntialiasing          = 0x008000,               // Can antialias fills
-        BrushStroke               = 0x010000,              // Can render brush based pens.
-        RadialGradientFill        = 0x020000,              // Can render radial gradients.
-        ConicalGradientFill       = 0x040000,              // Can render conical gradients
-        UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
-        PaintOutsidePaintEvent    = 0x20000000,            // Engine is capable of painting outside paint events
-        QwsPaintEngine    = 0x40000000            // QWS hack ##### remove before RC1
+        PrimitiveTransform        = 0x00000001, // Can transform primitives brushes
+        PatternTransform          = 0x00000002, // Can transform pattern brushes
+        PixmapTransform           = 0x00000004, // Can transform pixmaps
+        PatternBrush              = 0x00000008, // Can fill with pixmaps and standard patterns
+        LinearGradientFill   	  = 0x00000010, // Can fill gradient areas
+        RadialGradientFill        = 0x00000020, // Can render radial gradients
+        ConicalGradientFill       = 0x00000040, // Can render conical gradients
+	AlphaBlend                = 0x00000080, // Can do source over alpha blend
+	PorterDuff                = 0x00000100, // Can do general porter duff compositions
+        PainterPaths              = 0x00000200, // Can fill, outline and clip paths
+        Antialiasing              = 0x00000400, // Can antialias lines
+        BrushStroke               = 0x00000800, // Can render brush based pens
+        UsesFontEngine            = 0x10000000, // Internal use, QWidget and QPixmap
+        PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
+        QwsPaintEngine            = 0x40000000, // QWS hack ##### remove before RC1
+        AllFeatures               = 0xffffffff  // For convenience
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature)
 

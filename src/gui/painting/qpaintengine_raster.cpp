@@ -434,26 +434,11 @@ QHash<int, QImage> qt_raster_image_cache;
 
 QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
-                   QPaintEngine::PaintEngineFeatures(
-                                                     LineAntialiasing
-                                                     | FillAntialiasing
+                   QPaintEngine::PaintEngineFeatures(AllFeatures
 #ifdef Q_WS_QWS
-                                                     | UsesFontEngine // QWS hack
+                                                     & (~UsesFontEngine) // QWS hack
 #endif
-                                                     | PainterPaths
-                                                     | AlphaFill
-                                                     | AlphaStroke
-                                                     | BrushStroke
-                                                     | LinearGradientFill
-                                                     | RadialGradientFill
-                                                     | ConicalGradientFill
-                                                     | ClipTransform
-                                                     | CoordTransform
-                                                     | PenWidthTransform
-                                                     | PatternTransform
-                                                     | PixmapTransform
-                                                     | PixmapScale
-                                                     | PatternBrush))
+                                                     ))
 {
     Q_D(QRasterPaintEngine);
 

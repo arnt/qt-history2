@@ -39,23 +39,8 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 {
     QPaintEngine::PaintEngineFeatures commonFeatures =
         QPaintEngine::UsesFontEngine
-#ifndef QT_NO_NATIVE_XFORM
-        | QPaintEngine::CoordTransform
-        | QPaintEngine::PenWidthTransform
-        | QPaintEngine::PixmapTransform
-        | QPaintEngine::PixmapScale
-        | QPaintEngine::ClipTransform
-#endif
-#ifndef QT_NO_NATIVE_PATH
-        | QPaintEngine::PainterPaths
-#endif
-#ifndef QT_NO_NATIVE_GRADIENT
-        | QPaintEngine::LinearGradientFill
-#endif
 #ifndef QT_NO_NATIVE_ALPHA
-        | QPaintEngine::AlphaPixmap
-        | QPaintEngine::AlphaFill
-        | QPaintEngine::AlphaStroke
+        | QPaintEngine::AlphaBlend
 #endif
         | QPaintEngine::QwsPaintEngine
         ;

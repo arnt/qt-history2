@@ -74,17 +74,8 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
-                   PaintEngineFeatures(CoordTransform
-				       | PenWidthTransform
-				       | PixmapTransform
-				       | PixmapScale
-		                       | AlphaFill
-		                       | AlphaPixmap
-                                       | PainterPaths
- 				       | LinearGradientFill
- 				       | FillAntialiasing
- 				       | LineAntialiasing
-		                       | PaintOutsidePaintEvent))
+                   PaintEngineFeatures(AllFeatures
+                                       & (~UsesFontEngine)))
 {
 }
 

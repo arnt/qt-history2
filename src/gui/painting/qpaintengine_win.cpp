@@ -1285,7 +1285,6 @@ void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
             d->advancedMode = false;
         }
     }, {
-        // ### How about 9x??
     } );
 }
 
@@ -1294,28 +1293,14 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 {
     QPaintEngine::PaintEngineFeatures commonFeatures =
         QPaintEngine::UsesFontEngine
-        | QPaintEngine::AlphaPixmap
-        | QPaintEngine::PixmapScale
-#ifndef QT_NO_NATIVE_XFORM
-        | QPaintEngine::CoordTransform
-        | QPaintEngine::PenWidthTransform
-        | QPaintEngine::PixmapTransform
-        | QPaintEngine::ClipTransform
-#endif
-
 #ifndef QT_NO_NATIVE_PATH
         | QPaintEngine::PainterPaths
 #endif
         ;
 
-#ifndef QT_NO_NATIVE_GRADIENT
-    if (qGradientFill)
-        commonFeatures |= QPaintEngine::LinearGradientFill;
-#endif
-
 #ifndef QT_NO_NATIVE_ALPHA
     if (qAlphaBlend)
-        commonFeatures |= QPaintEngine::AlphaFill;
+        commonFeatures |= QPaintEngine::AlphaBlend;
 #endif
 
     return commonFeatures;

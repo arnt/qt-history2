@@ -140,6 +140,7 @@ public:
                          StrokeAndFillDraw = 0x3
     };
 
+    void updateEmulationSpecifier(QPainterState *s);
     void updateState(QPainterState *state);
 
     void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);

@@ -183,9 +183,8 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(PixmapTransform
-                                                                             | PixmapScale
                                                                              | UsesFontEngine
-                                                                             | AlphaFill
+                                                                             | AlphaBlend
                                                                              | PainterPaths))
 {
     d->docName = "document1";

@@ -129,23 +129,7 @@ public:
 #define q q_func()
 
 Q3SVGPaintEngine::Q3SVGPaintEngine()
-    : QPaintEngine(*(new Q3SVGPaintEnginePrivate),
-                   CoordTransform
-                   | PenWidthTransform
-                   | PatternBrush
-                   | PixmapTransform
-                   | LinearGradientFill
-                   | LinearGradientFillPolygon
-                   | PixmapScale
-                   | AlphaFill
-                   | AlphaFillPolygon
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | PainterPaths
-                   | ClipTransform
-                   | LineAntialiasing
-                   | FillAntialiasing
-                   | PaintOutsidePaintEvent)
+    : QPaintEngine(*(new Q3SVGPaintEnginePrivate), AllFeatures)
 {
     QDomImplementation domImpl;
     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);
@@ -157,23 +141,7 @@ Q3SVGPaintEngine::Q3SVGPaintEngine()
 }
 
 Q3SVGPaintEngine::Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr,
-                   CoordTransform
-                   | PenWidthTransform
-                   | PatternBrush
-                   | PixmapTransform
-                   | LinearGradientFill
-                   | LinearGradientFillPolygon
-                   | PixmapScale
-                   | AlphaFill
-                   | AlphaFillPolygon
-                   | AlphaStroke
-                   | AlphaPixmap
-                   | PainterPaths
-                   | ClipTransform
-                   | LineAntialiasing
-                   | FillAntialiasing
-                   | PaintOutsidePaintEvent)
+    : QPaintEngine(dptr, AllFeatures)
 {
     QDomImplementation domImpl;
     QDomDocumentType docType = domImpl.createDocumentType("svg", publicId, systemId);

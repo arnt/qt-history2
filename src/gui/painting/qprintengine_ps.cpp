@@ -3403,10 +3403,7 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 
 // ### Implementation LinearGradients
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
-    : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
-                   CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform
-                   | LinearGradientFill | AlphaFill | AlphaStroke | PixmapScale
-                   | ClipTransform | UsesFontEngine | PainterPaths )
+    : QPaintEngine(*(new QPSPrintEnginePrivate(m)), AllFeatures)
 {
 }
 
