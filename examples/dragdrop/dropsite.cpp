@@ -16,6 +16,7 @@
 #include <qpixmap.h>
 #include <qdragobject.h>
 #include <qimage.h>
+#include <qdir.h>
 
 
 DropSite::DropSite( QWidget * parent, const char * name )
@@ -87,7 +88,7 @@ void DropSite::dropEvent( QDropEvent * e )
 	if ( QUriDrag::decodeLocalFiles( e, files ) ) {
 	    m += "Files:\n";
 	    for (QStringList::Iterator i=files.begin(); i!=files.end(); ++i)
-		m = m + "   " + *i + '\n';
+		m = m + "   " + QDir::convertSeparators(*i) + '\n';
 	}
 	setText( m );
 	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
