@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#4 $
 **
 ** Implementation of QWidget and QView classes for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#4 $";
 #endif
 
 
@@ -231,7 +231,7 @@ bool QWidget::lower()				// lower widget
 
 
 //
-// The internal qWinRequestConfig, defined in qapp_win.C, stores move,
+// The internal qWinRequestConfig, defined in qapp_win.cpp, stores move,
 // resize and changeGeometry requests for a widget that is already
 // processing a config event. The purpose is to avoid recursion.
 //
