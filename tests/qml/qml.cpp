@@ -504,7 +504,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
  		    p->fillRect(tx+obx-ox, y+oby-oy, tw, height, cg.highlight());
 		p->setPen( cg.highlightedText() );
  	    }
- 	    else if (onlyDirty) {
+ 	    else if (onlyDirty || onlySelection) {
   		if (t==end){
 		    if (backgroundPixmap)
 			p->drawTiledPixmap(tx+obx-ox, y+oby-oy, width-(tx-x), height, *backgroundPixmap, tx+obx, y+oby);
@@ -939,10 +939,6 @@ QMLCursor::QMLCursor(QMLDocument* doc)
     document = doc;
     node = doc;
     nodeParent = 0;
-    selStart = 0;
-    selStartParent = 0;
-    selEnd = 0;
-    selEndParent = 0;
     hasSelection = FALSE;
     selectionDirty = FALSE;
 
@@ -973,16 +969,17 @@ void QMLCursor::clearSelection()
     if (!hasSelection)
 	return;
 
-    if (selStart->isSelected) {
-	selStart->isSelected = 0;
-	selStart->isSelectionDirty = 1;
-    }
-    while (selStart != selEnd ) {
-	if (selStart->isSelected) {
-	    selStart->isSelected = 0;
-	    selStart->isSelectionDirty = 1;
+    QMLNode* i = document;
+    QMLContainer* ip = 0;
+    while (i && i->isContainer)
+	i = document->depthFirstSearch( i, ip);
+
+    while ( i ) {
+	if (i->isSelected) {
+	    i->isSelected = 0;
+	    i->isSelectionDirty = 1;
 	}
-	selStart = document->nextLeaf( selStart, selStartParent );
+	i = document->nextLeaf( i, ip );
     }
     
     selectionDirty = TRUE;
@@ -993,14 +990,8 @@ void QMLCursor::goTo(QMLNode* n, QMLContainer* par, bool select)
 {
     if (select){
 	selectionDirty = TRUE;
-	
-	if (!hasSelection) {
-	    hasSelection = TRUE;
-	    selStart = node;
-	    selStartParent = nodeParent;
-	    selEnd = selStart;
-	    selEndParent = selEndParent;
-	}
+	hasSelection = TRUE;
+
 	QMLNode* other = n;
 	QMLContainer* otherParent = par;
 
@@ -1027,15 +1018,9 @@ void QMLCursor::goTo(QMLNode* n, QMLContainer* par, bool select)
 	    end = node;
 	}
 
-	if (!start->isSelected) {
-	    start->isSelected = 1;
-	    start->isSelectionDirty = 1;
-	}
 	while (start != end ) {
-	    if (!start->isSelected) {
-		start->isSelected = 1;
-		start->isSelectionDirty = 1;
-	    }
+	    start->isSelected = start->isSelected?0:1;
+	    start->isSelectionDirty = 1;
 	    start = document->nextLeaf( start, startParent );
 	}
     }
@@ -1455,8 +1440,8 @@ QMLView::QMLView()
                  text += text;
               text += text;
              text += text;
-             text += text;
-            text += text;
+//              text += text;
+//             text += text;
 //            text += text;
 //           text += text;
 //           text += text;
@@ -1471,6 +1456,7 @@ QMLView::QMLView()
 void QMLView::keyPressEvent( QKeyEvent * e)
 {
 
+    hideCursor();
     bool select = e->state() & Qt::ShiftButton;
 
     if (e->key() == Key_Right
@@ -1484,7 +1470,6 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	) {
 	// cursor movement
 
-	hideCursor();
 	int oldCursorY = doc->cursor->y + doc->cursor->height/2;
 	{
 	    QPainter p( viewport() );
@@ -1562,51 +1547,58 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	updateSelection(oldCursorY, doc->cursor->y + doc->cursor->height/2);
 	showCursor();
     }
-    else if (e->key() == Key_Return || e->key() == Key_Enter ) {
-	{
-	    QPainter p( viewport() );
-	    debug("enter");
-	    doc->cursor->enter( &p );
-	    QRegion r(0, 0, viewport()->width(), viewport()->height());
-	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
-		      contentsX(), contentsY(),
-		      viewport()->width(), viewport()->height(),
-		      r, colorGroup(), backgroundPixmap, TRUE);
-	    p.setClipRegion(r);
-	    if (backgroundPixmap)
-		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				  *backgroundPixmap, contentsX(), contentsY());
-	    else
-		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+    else { 
+	
+	if (!select) {
+	    doc->cursor->clearSelection();
+	    updateSelection();
 	}
-	showCursor();
-	resizeContents(doc->width, doc->height);
-	ensureVisible(doc->cursor->x, doc->cursor->y);
-    }
-    else if (!e->text().isEmpty() ){
-	// other keys
-	{
-	    QPainter p( viewport() );
-	    for (unsigned int i = 0; i < e->text().length(); i++)
-		doc->cursor->insert( &p, e->text()[(int)i] );
-	    //TODO this is the wrong way. use repaint to schedule events more clever
-	    QRegion r(0, 0, viewport()->width(), viewport()->height());
-	    doc->draw(&p, 0, 0, contentsX(), contentsY(),
-		      contentsX(), contentsY(),
-		      viewport()->width(), viewport()->height(),
-		      r, colorGroup(), backgroundPixmap, TRUE);
-	    p.setClipRegion(r);
-	    if (backgroundPixmap)
-		p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
-				  *backgroundPixmap, contentsX(), contentsY());
-	    else
-		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
-	}
-	showCursor();
-	resizeContents(doc->width, doc->height);
-	ensureVisible(doc->cursor->x, doc->cursor->y);
-    }
 
+	if (e->key() == Key_Return || e->key() == Key_Enter ) {
+	    {
+		QPainter p( viewport() );
+		debug("enter");
+		doc->cursor->enter( &p );
+		QRegion r(0, 0, viewport()->width(), viewport()->height());
+		doc->draw(&p, 0, 0, contentsX(), contentsY(),
+			  contentsX(), contentsY(),
+			  viewport()->width(), viewport()->height(),
+			  r, colorGroup(), backgroundPixmap, TRUE);
+		p.setClipRegion(r);
+		if (backgroundPixmap)
+		    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+				      *backgroundPixmap, contentsX(), contentsY());
+		else
+		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+	    }
+	    showCursor();
+	    resizeContents(doc->width, doc->height);
+	    ensureVisible(doc->cursor->x, doc->cursor->y);
+	}
+	else if (!e->text().isEmpty() ){
+	    // other keys
+	    {
+		QPainter p( viewport() );
+		for (unsigned int i = 0; i < e->text().length(); i++)
+		    doc->cursor->insert( &p, e->text()[(int)i] );
+		//TODO this is the wrong way. use repaint to schedule events more clever
+		QRegion r(0, 0, viewport()->width(), viewport()->height());
+		doc->draw(&p, 0, 0, contentsX(), contentsY(),
+			  contentsX(), contentsY(),
+			  viewport()->width(), viewport()->height(),
+			  r, colorGroup(), backgroundPixmap, TRUE);
+		p.setClipRegion(r);
+		if (backgroundPixmap)
+		    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+				      *backgroundPixmap, contentsX(), contentsY());
+		else
+		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+	    }
+	    showCursor();
+	    resizeContents(doc->width, doc->height);
+	    ensureVisible(doc->cursor->x, doc->cursor->y);
+	}
+    }
 }
 
 void QMLView::updateSelection(int oldY, int newY)
@@ -1615,8 +1607,8 @@ void QMLView::updateSelection(int oldY, int newY)
 	return;
     
     QPainter p(viewport());
-    int minY = QMAX(QMIN(oldY, newY), contentsY());
-    int maxY = QMIN(QMAX(oldY, newY), contentsY()+viewport()->height());
+    int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
+    int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
     QRegion r;
     doc->draw(&p, 0, 0, contentsX(), contentsY(),
 	      contentsX(), minY,
@@ -1626,9 +1618,9 @@ void QMLView::updateSelection(int oldY, int newY)
 
 void QMLView::viewportMousePressEvent( QMouseEvent * e)
 {
+    hideCursor();
     doc->cursor->clearSelection();
     updateSelection();
-    hideCursor();
     {
 	QPainter p( viewport() );
 	doc->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
@@ -1636,6 +1628,25 @@ void QMLView::viewportMousePressEvent( QMouseEvent * e)
     showCursor();
 }
 
+void QMLView::viewportMouseMoveEvent( QMouseEvent * e)
+{
+    if (e->state() & LeftButton) {
+	hideCursor();
+	{
+	    QPainter p(viewport());
+	    doc->cursor->goTo( &p, e->pos().x() + contentsX(), 
+			       e->pos().y() + contentsY(), TRUE);
+	}
+	updateSelection();
+	if (doc->cursor->y + doc->cursor->height > contentsY() + viewport()->height()) {
+	    debug("yes %d", contentsY()+viewport()->height()-doc->cursor->y-doc->cursor->height);
+	    scrollBy(0, doc->cursor->y + doc->cursor->height-contentsY()-viewport()->height());
+	}
+	else if (doc->cursor->y < contentsY())
+	    scrollBy(0, doc->cursor->y - contentsY() );
+	showCursor();
+    }
+}
 
 void QMLView::drawContentsOffset(QPainter*p, int ox, int oy,
 				    int cx, int cy, int cw, int ch)
