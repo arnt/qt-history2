@@ -1,4 +1,3 @@
-
 TEMPLATE = app
 QT = xml core
 CONFIG += warn_on console no_batch
