@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#17 $
 **
 ** Implementation of QSocket class
 **
@@ -140,7 +140,7 @@ QSocket::QSocket( QObject *parent, const char *name )
   Creates a QSocket object for an existing connection using \a socket.
 
   The socket is set to \link QSocketDevice::setNonblocking()
-  nonblocking\endlink and the \link QSocket::Device::setOption()
+  nonblocking\endlink and the \link QSocketDevice::setOption()
   socket option\endlink \c QSocketDevice::ReuseAddress is enabled.
 */
 
