@@ -104,6 +104,7 @@ QImageData::QImageData()
     nbytes = 0;
     ctbl = 0;
     bits = 0;
+    ncols = 0;
     bitordr = QImage::IgnoreEndian;
     alpha = false;
 
@@ -116,6 +117,9 @@ QImageData::~QImageData()
 {
     if (bits)
         free(bits);
+    if (ctbl_mine)
+        free(ctbl);
+    ctbl = 0;
     bits = 0;
 }
 
