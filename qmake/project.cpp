@@ -292,17 +292,17 @@ QMakeProject::read(QString file, QMap<QString, QStringList> &place)
 	    line_count++;
 	    line = t.readLine().stripWhiteSpace();
 	    line.replace(QRegExp("#.*$"), ""); /* bye comments */
-	    if(line.isEmpty())
-		continue;
-
-	    if(line.right(1) == "\\") {
+	    if(!line.isEmpty() && line.right(1) == "\\") {
 		line.truncate(line.length() - 1);
 		s += line + " ";
 	    } else {
-		s += line;
-		if(!(ret = parse(file, s, place)))
-		    break;
-		s = "";
+		if(!line.isEmpty())
+		    s += line;
+		if(!s.isEmpty()) {
+		    if(!(ret = parse(file, s, place)))
+			break;
+		    s = "";
+		}
 	    }
 	}
 	if(!using_stdin)

@@ -76,7 +76,7 @@ build lines for \e moc and \e uic are included in the makefile.
 
 The finished project file should look like this:
 \code
-    CONFIG = qt
+    CONFIG += qt
     HEADERS += hello.h
     SOURCES += hello.cpp
     SOURCES += main.cpp 
@@ -101,7 +101,7 @@ CONFIG variable in the project file.
 
 For example:
 \code
-    CONFIG = qt debug
+    CONFIG += qt debug
     HEADERS += hello.h
     SOURCES += hello.cpp
     SOURCES += main.cpp 
@@ -139,7 +139,7 @@ When you have done that, your project file should now look
 something like this:
 
 \code
-    CONFIG = qt debug
+    CONFIG += qt debug
     HEADERS += hello.h
     SOURCES += hello.cpp
     SOURCES += main.cpp 
@@ -172,7 +172,7 @@ true if the file exists and \c{!exists( main.cpp )} is true if the
 file doesn't exist.
 
 \code
-    CONFIG = qt debug
+    CONFIG += qt debug
     HEADERS += hello.h
     SOURCES += hello.cpp
     SOURCES += main.cpp 
@@ -216,7 +216,7 @@ Nested scopes can be joined together using colons, so the final
 project file looks like this:
 
 \code
-    CONFIG = qt debug
+    CONFIG += qt debug
     HEADERS += hello.h
     SOURCES += hello.cpp
     SOURCES += main.cpp 
