@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#36 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#36 $");
 
 
 /*!
@@ -23,10 +23,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#35 $");
 
   \ingroup realwidgets
 
-  A button group widget makes it easier to deal with groups of buttons.
-  A button in a button group is associated with a unique identifer. The
-  button group emits a clicked() signal with this identifier when the
-  button is clicked.
+  A button group widget makes it easier to deal with groups of
+  buttons.  A button in a button group is associated with a unique
+  identifer. The button group emits a clicked() signal with this
+  identifier when the button is clicked. Thus, a button group is an
+  ideal solution when you have several similar buttons and want to
+  connect all their clicked() signals, for example, to one slot.
 
   An \link setExclusive() exclusive\endlink button group switches off all
   toggle buttons except the one that was clicked. A button group is by
@@ -183,6 +185,7 @@ int QButtonGroup::insert( QButton *button, int id )
     connect( button, SIGNAL(pressed()) , SLOT(buttonPressed()) );
     connect( button, SIGNAL(released()), SLOT(buttonReleased()) );
     connect( button, SIGNAL(clicked()) , SLOT(buttonClicked()) );
+    connect( button, SIGNAL(toggled(bool)) , SLOT(buttonToggled(bool)) );
     if ( button->inherits("QRadioButton") )
 	setExclusive( TRUE );
     return bi->id;
@@ -297,14 +300,35 @@ void QButtonGroup::buttonClicked()
 #if defined(CHECK_NULL)
     ASSERT( bt->inherits("QButton") );
 #endif
-    bool doToggle = excl_grp && bt->isToggleButton();
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
-	if ( bt == i->button )			// button was clicked
+	if ( bt == i->button ) {			// button was clicked
 	    id = i->id;
-	else if ( doToggle && i->button->isToggleButton() )
-	    i->button->setOn( FALSE );		// turn other radio buttons off
+	    break;
+	}
     }
     if ( id != -1 )
 	emit clicked( id );
+}
+
+
+/*!
+  \internal
+  This slot is activated when one of the buttons in the group emits the
+  QButton::toggled() signal.
+*/
+
+void QButtonGroup::buttonToggled( bool on )
+{
+    if ( !on || !excl_grp )
+	return;
+    QButton *bt = (QButton *)sender();		// object that sent the signal
+#if defined(CHECK_NULL)
+    ASSERT( bt->inherits("QButton") );
+    ASSERT( bt->isToggleButton() );
+#endif
+    for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
+	if ( !(bt == i->button) && i->button->isToggleButton() )
+	    i->button->setOn( FALSE );		// turn other radio buttons off
+    }
 }
 

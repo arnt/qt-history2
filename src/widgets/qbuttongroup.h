@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#17 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#18 $
 **
 ** Definition of QButtonGroup class
 **
@@ -43,6 +43,7 @@ protected slots:
     void	buttonPressed();
     void	buttonReleased();
     void	buttonClicked();
+    void	buttonToggled( bool on );
 
 private:
     void	init();
