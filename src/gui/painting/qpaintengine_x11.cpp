@@ -52,32 +52,6 @@
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
-// paintevent magic to provide Windows semantics on X11
-static QRegion* paintEventClipRegion = 0;
-static QPaintDevice* paintEventDevice = 0;
-
-void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
-{
-    if (!paintEventClipRegion)
-        paintEventClipRegion = new QRegion(region);
-    else
-        *paintEventClipRegion = region;
-    paintEventDevice = dev;
-}
-
-void qt_intersect_paintevent_clipping(QPaintDevice *dev, QRegion &region)
-{
-    if (dev == paintEventDevice && paintEventClipRegion)
-        region &= *paintEventClipRegion;
-}
-
-void qt_clear_paintevent_clipping()
-{
-    delete paintEventClipRegion;
-    paintEventClipRegion = 0;
-    paintEventDevice = 0;
-}
-
 // hack, so we don't have to make QRegion::clipRectangles() public or include
 // X11 headers in qregion.h
 inline void *qt_getClipRects(const QRegion &r, int &num)
@@ -602,8 +576,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     // polyline may be clipped into several non-connected polylines.
     const int BUFFERZONE = 100;
     QRect devClipRect;
-    if (paintEventClipRegion) {
-        devClipRect = paintEventClipRegion->boundingRect();
+    QRegion sysClip = systemClip();
+    if (!sysClip.isEmpty()) {
+        devClipRect = sysClip.boundingRect();
         devClipRect.addCoords(-BUFFERZONE, -BUFFERZONE, 2*BUFFERZONE, 2*BUFFERZONE);
     } else {
         devClipRect.setRect(-BUFFERZONE, -BUFFERZONE,
@@ -896,8 +871,9 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
 
     if (!hasClipping()) { // if clipping is set the paintevent clip region is merged with the clip region
-        if (d->pdev == paintEventDevice && paintEventClipRegion)
-            x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty())
+            x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, sysClip);
         else
             x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
     }
@@ -947,8 +923,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     vals.fill_style = s;
     XChangeGC(d->dpy, d->gc_brush, mask, &vals);
     if (!hasClipping()) {
-        if (d->pdev == paintEventDevice && paintEventClipRegion)
-            x11SetClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd, *paintEventClipRegion);
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty())
+            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, sysClip);
         else
             x11ClearClipRegion(d->dpy, d->gc_brush, 0, d->xft_hd);
     }
@@ -1411,7 +1388,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         return;
     }
 
-    if (mask && !hasClipping() && d->pdev != paintEventDevice) {
+    if (mask && !hasClipping() && systemClip.isEmpty()) {
         if (mono) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if (selfmask) {
@@ -1428,8 +1405,9 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
             XSetTSOrigin(d->dpy, d->gc, 0, 0);
             XSetFillStyle(d->dpy, d->gc, FillSolid);
             if (!selfmask) {
-                if (d->pdev == paintEventDevice && paintEventClipRegion) {
-                    x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, *paintEventClipRegion);
+                QRegion sysClip = systemClip();
+                if (!sysClip.isEmpty()) {
+                    x11SetClipRegion(d->dpy, d->gc, 0, d->xft_hd, sysClip);
                 } else {
                     x11ClearClipRegion(d->dpy, d->gc, 0, d->xft_hd);
                 }
@@ -1450,11 +1428,12 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         // Create a new mask that combines the mask with the clip region
 
 	QRegion rgn = d->crgn;
-        if (d->pdev == paintEventDevice && paintEventClipRegion) {
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
             if (hasClipping())
-                rgn = rgn.intersect(*paintEventClipRegion);
+                rgn = rgn.intersect(sysClip);
             else
-                rgn = *paintEventClipRegion;
+                rgn = sysClip;
         }
 
         QBitmap *comb = new QBitmap(sw, sh);
@@ -1545,8 +1524,9 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
     if (op == Qt::NoClip) {
         clearf(ClipOn);
         d->crgn = QRegion();
-        if (d->pdev == paintEventDevice && paintEventClipRegion) {
-            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, *paintEventClipRegion);
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty()) {
+            x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, sysClip);
         } else {
             x11ClearClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd);
         }
@@ -1555,8 +1535,9 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
 
     switch (op) {
     case Qt::ReplaceClip:
-        if (d->pdev == paintEventDevice && paintEventClipRegion)
-            d->crgn = clipRegion.intersect(*paintEventClipRegion);
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty())
+            d->crgn = clipRegion.intersect(sysClip);
         else
             d->crgn = clipRegion;
         break;

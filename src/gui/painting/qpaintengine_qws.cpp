@@ -28,13 +28,6 @@
 
 #include <qmemorymanager_qws.h>
 
-/* paintevent magic to provide Windows semantics on Qt/E
- */
-static QRegion* paintEventClipRegion = 0;
-//static QRegion* paintEventSaveRegion = 0;
-static QPaintDevice* paintEventDevice = 0;
-
-
 #define QT_NO_NATIVE_XFORM
 #define QT_NO_NATIVE_PATH
 #define QT_NO_NATIVE_GRADIENT
@@ -66,37 +59,6 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
 #endif
         ;
     return commonFeatures;
-}
-
-void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
-{
-    if (!paintEventClipRegion)
-        paintEventClipRegion = new QRegion(region);
-    else
-        *paintEventClipRegion = region;
-    paintEventDevice = dev;
-
-#ifdef QWS_EXTRA_DEBUG
-    qDebug("qt_set_paintevent_clipping");
-    QMemArray<QRect> ar = region.rects();
-    for (int i=0; i<int(ar.size()); i++) {
-        QRect r = ar[i];
-        qDebug("   r[%d]:  %d,%d %dx%d", i,
-                r.x(), r.y(), r.width(), r.height());
-    }
-#endif
-}
-
-void qt_clear_paintevent_clipping()
-{
-    delete paintEventClipRegion;
-//    delete paintEventSaveRegion;
-    paintEventClipRegion = 0;
-//    paintEventSaveRegion = 0;
-    paintEventDevice = 0;
-#ifdef QWS_EXTRA_DEBUG
-    qDebug("qt_clear_paintevent_clipping");
-#endif
 }
 
 void qwsUpdateActivePainters()
@@ -335,7 +297,8 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
 {
     bool clipEnabled = op != Qt::NoClip;
     Q_ASSERT(isActive());
-    bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
+    QRegion sysClip = systemClip();
+    bool eventClip = !sysClip.isEmpty();
 
 /*
   if (enable == testf(ClipOn)
@@ -348,9 +311,9 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperati
         if (clipEnabled) {
             crgn = clipRegion;
             if (eventClip)
-                crgn = crgn.intersect(*paintEventClipRegion);
+                crgn = crgn.intersect(sysClip);
         } else {
-            crgn = *paintEventClipRegion;
+            crgn = sysClip;
             op = Qt::ReplaceClip;
         }
         //note that gfx is already translated by redirection_offset

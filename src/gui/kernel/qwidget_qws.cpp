@@ -37,11 +37,6 @@
 #define d d_func()
 #define q q_func()
 
-
-// Paint event clipping magic
-extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
-
 extern int *qt_last_x;
 extern int *qt_last_y;
 extern WId qt_last_cursor;
@@ -732,11 +727,11 @@ void QWidget::repaint(const QRegion& rgn)
     // Set clipping
     if (do_clipping) {
         if (redirectionOffset.isNull()) {
-            qt_set_paintevent_clipping(this, rgn);
+            paintEngine()->setSystemClip(rgn);
         } else {
             QRegion redirectionRegion(rgn);
             redirectionRegion.translate(-redirectionOffset);
-            qt_set_paintevent_clipping(this, redirectionRegion);
+            paintEngine()->setSystemClip(redirectionRegion);
         }
     }
 
@@ -749,7 +744,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     // Clear the clipping again
     if (do_clipping)
-        qt_clear_paintevent_clipping();
+        paintEngine()->setSystemClip(QRegion());
 
     // Flush double buffer, if used
     if (double_buffer) {
@@ -774,6 +769,13 @@ void QWidget::repaint(const QRegion& rgn)
             qt_double_buffer_timer = qApp->startTimer(500);
         }
     }
+
+    // Clean out the temporary engine if used...
+    if (d->extraPaintEngine) {
+        delete d->extraPaintEngine;
+        d->extraPaintEngine = 0;
+    }
+
     setAttribute(Qt::WA_WState_InPaintEvent, false);
 
     if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
@@ -1701,9 +1703,10 @@ QPaintEngine *QWidget::paintEngine() const
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
     if (qt_widget_paintengine->isActive()) {
-        QPaintEngine *engine = new QWSPaintEngine();
-        engine->setAutoDestruct(true);
-        return engine;
+        if (d->extraPaintEngine)
+            return d->extraPaintEngine;
+        d->extraPaintEngine = new QWSPaintEngine();
+        return d->extraPaintEngine;
     }
     return qt_widget_paintengine;
 }

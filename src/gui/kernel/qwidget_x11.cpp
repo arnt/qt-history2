@@ -1478,11 +1478,11 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (do_clipping) {
         if (redirectionOffset.isNull()) {
-            qt_set_paintevent_clipping(this, rgn);
+            paintEngine()->setSystemClip(rgn);
         } else {
             QRegion redirectedRegion(rgn);
             redirectedRegion.translate(-redirectionOffset);
-            qt_set_paintevent_clipping(this, redirectedRegion);
+            paintEngine()->setSystemClip(redirectedRegion);
         }
     }
 
@@ -1493,7 +1493,7 @@ void QWidget::repaint(const QRegion& rgn)
     QApplication::sendSpontaneousEvent(this, &e);
 
     if (do_clipping)
-        qt_clear_paintevent_clipping();
+        engine->setSystemClip(QRegion());
 
     if (!redirectionOffset.isNull())
         QPainter::restoreRedirected(this);
@@ -1522,6 +1522,12 @@ void QWidget::repaint(const QRegion& rgn)
                 qApp->killTimer(qt_double_buffer_timer);
             qt_double_buffer_timer = qApp->startTimer(500);
         }
+    }
+
+    // Clean out the temporary engine if used...
+    if (d->extraPaintEngine) {
+        delete d->extraPaintEngine;
+        d->extraPaintEngine = 0;
     }
 
     setAttribute(Qt::WA_WState_InPaintEvent, false);
@@ -2650,9 +2656,10 @@ Q_GLOBAL_STATIC(QX11PaintEngine, qt_widget_paintengine)
 QPaintEngine *QWidget::paintEngine() const
 {
     if (qt_widget_paintengine()->isActive()) {
-        QPaintEngine *engine = new QX11PaintEngine();
-        engine->setAutoDestruct(true);
-        return engine;
+        if (d->extraPaintEngine)
+            return d->extraPaintEngine;
+        d->extraPaintEngine = new QX11PaintEngine();
+        return d->extraPaintEngine;
     }
     return qt_widget_paintengine();
 }
