@@ -349,7 +349,7 @@ QTimer *QButton::timer()
 
 /*!
     \property QButton::toggleState
-    \brief whether the button is toggled
+    \brief the state of the toggle button
 
     If this is property is changed then it does not cause the button
     to be repainted.
