@@ -570,19 +570,16 @@ static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
 	   && l1.p2.x == l2.p2.x && l1.p2.y == l2.p2.y;
 }
 
+
+// assumes that the point array is closed
 static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps,
-				 const QPointArray &points, bool winding)
+				 const QPointArray &pa, bool winding)
 {
     QList<XTrapezoid> tps;  // final trapezoid list
     QList<XTrapezoid> atps; // trapezoids on current scanline
     QList<QEdge> et; 	    // edge table
     QList<QEdge> aet; 	    // edges that intersects the current scanline
     QList<const QEdge*> peo; // order of the edges at the intersections on the previous scanline
-
-    // make sure the point array is closed
-    QPointArray pa(points);
-    if (pa.at(0) != pa.at(pa.size()-1))
-	pa.append(pa.at(0));
 
     // generate edge table
     for (int x = 0; x < pa.size()-1; ++x) {
