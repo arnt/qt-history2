@@ -1762,6 +1762,7 @@ QSqlRecord* QDataTable::currentRecord() const
 {
     if ( !sqlCursor() || currentRow() < 0 )
 	return 0;
+    sqlCursor()->seek( currentRow() );
     return sqlCursor();
 }
 

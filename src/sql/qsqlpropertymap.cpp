@@ -141,9 +141,10 @@ QSqlPropertyMap::QSqlPropertyMap()
 {
     d = new QSqlPropertyMapPrivate();
     d->propertyMap["QLineEdit"]    = "text";
+    d->propertyMap["QTextView"]    = "text";
     d->propertyMap["QSpinBox"]     = "value";
     d->propertyMap["QDial"]        = "value";
-    d->propertyMap["QCheckButton"] = "checked";
+    d->propertyMap["QCheckBox"] = "checked";
     d->propertyMap["QSlider"]      = "value";
     d->propertyMap["QComboBox"]    = "currentItem";
     d->propertyMap["QDateEdit"]    = "date";
