@@ -63,13 +63,12 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_MAC)
-#if !defined( QMAC_OPENGL_DOUBLEBUFFER )
+#if 0 && !defined( QMAC_OPENGL_DOUBLEBUFFER )
 /* This macro is different now. If the macro is not defined QGLWidget will
- * try to determine when you need double buffering (which is not
- * complete). If set to 0 it will never double buffer and *can* be
- * acclerated. If set to 1 (the default) it will always double
- * buffer. Unlike before the value of this macro does not upset binary
- * compatability either. */
+ * try to determine when you need double buffering.  If set to 0 it will
+ * never double buffer and *can* be acclerated. If set to 1 (the default)
+ * it will always double buffer. Unlike before the value of this macro does
+ * not upset binary compatability either. */
 #define QMAC_OPENGL_DOUBLEBUFFER 1
 #endif
 # include <OpenGL/gl.h>
@@ -356,15 +355,16 @@ private:	// Disabled copy constructor and operator=
 
 #ifdef Q_WS_MAC
 private:
-    uint dblbuf : 1, clp_serial : 15;
+    uint pending_fix : 1, dblbuf : 1, clp_serial : 15;
     QPixmap *gl_pix;
     QGLFormat req_format;
 
-    friend class QWidget;
-    void fixReparented();
-    void fixBufferRect();
-    void macInternalRecreateContext(const QGLFormat&, const QGLContext * =NULL);
+    void macInternalRecreateContext(const QGLFormat&, const QGLContext * =NULL, bool update=TRUE);
     bool macInternalDoubleBuffer(bool fix=TRUE);
+    virtual void setRegionDirty(bool);
+    virtual void macWidgetChangedWindow();
+private slots:
+    void macInternalFixBufferRect();
 #endif
 };
 
@@ -507,12 +507,5 @@ inline bool QGLWidget::autoBufferSwap() const
 {
     return autoSwap;
 }
-
-#ifdef Q_WS_MAC
-inline void QGLWidget::fixBufferRect()
-{
-    glcx->fixBufferRect();
-}
-#endif
 
 #endif

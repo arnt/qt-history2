@@ -612,4 +612,13 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
     }
 }
 
+void QMenuBar::macWidgetChangedWindow()
+{
+    int was_eaten = mac_eaten_menubar;
+    macRemoveNativeMenubar();
+    macCreateNativeMenubar();
+    if(was_eaten)
+	menuContentsChanged();
+}
+
 #endif //WS_MAC

@@ -48,13 +48,6 @@
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-#  include <qmenubar.h>
-#endif
-#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
-#  include <qgl.h>
-#endif
-
 
 /*****************************************************************************
   QWidget debug facilities
@@ -257,8 +250,10 @@ bool qt_recreate_root_win() {
     qt_root_win = NULL;
     qt_create_root_win();
     for(QPtrListIterator<QWidget> it(qt_root_win_widgets); it.current(); ++it) {
-	if((*it)->hd == old_root_win)
+	if((*it)->hd == old_root_win) {
+	    (*it)->macWidgetChangedWindow();
 	    (*it)->hd = qt_root_win;
+	}
     }
     //cleanup old window
     DisposeWindow(old_root_win);
@@ -514,12 +509,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	own_id = 0; //it has become mine!
 	id = window;
 	hd = (void *)id;
+	macWidgetChangedWindow();
 	setWinId(id);
     } else if ( desktop ) {			// desktop widget
 	if(!qt_root_win)
 	    qt_create_root_win();
 	qt_root_win_widgets.append(this);
 	hd = (void *)qt_root_win;
+	macWidgetChangedWindow();
 	id = (WId)hd;
 	own_id = 0;
 	setWinId( id );
@@ -617,6 +614,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
 	hd = (void *)id;
+	macWidgetChangedWindow();
 	setWinId(id);
 	ReshapeCustomWindow((WindowPtr)hd);
     } else {
@@ -624,6 +622,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	setWinId(serial_id);
 	id = serial_id;
 	hd = topLevelWidget()->hd;
+	macWidgetChangedWindow();
 	fstrut_dirty = FALSE; // non-toplevel widgets don't have a frame, so no need to update the strut
 	setWinId(id);
     }
@@ -775,36 +774,14 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 		((QAccel*)obj)->repairEventFilter();
 	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget *)obj;
-		if(((WindowPtr)w->hd) == old_hd)
+		if(((WindowPtr)w->hd) == old_hd) {
 		    w->hd = hd; //all my children hd's are now mine!
-#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
-		if(w->inherits("QGLWidget"))
-		    ((QGLWidget *)w)->fixReparented();
-#endif
+		    w->macWidgetChangedWindow();
+		}
 	    }
 	}
 	delete chldn;
     }
-#if !defined( QT_NO_OPENGL ) && (!defined(QMAC_OPENGL_DOUBLEBUFFER) || !QMAC_OPENGL_DOUBLEBUFFER)
-    if(inherits("QGLWidget"))
-	((QGLWidget *)this)->fixReparented();
-#endif
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
-    if(QObjectList *menus = queryList("QMenuBar")) {
-	if(inherits("QMenuBar"))
-	    menus->prepend(this);
-	QObjectListIt menuit( *menus );
-	for ( QMenuBar *mb; (mb=(QMenuBar *)menuit.current()); ++menuit ) {
-	    int was_eaten = mb->mac_eaten_menubar;
-	    mb->macRemoveNativeMenubar();
-	    mb->macCreateNativeMenubar();
-	    if(was_eaten)
-		mb->menuContentsChanged();
-	}
-	delete menus;
-    }
-#endif
-
     reparentFocusWidgets( oldtlw );
 
     //repaint the new area, on the window parent
@@ -1811,14 +1788,29 @@ void QWidget::propagateUpdates()
 /*!
     \internal
 */
+void QWidget::setRegionDirty(bool child)
+{
+    if(!extra)
+	return;
+    if(child) {
+	extra->clip_serial++;
+	extra->clip_dirty = TRUE;
+    } else {
+	extra->child_serial++;
+	extra->child_dirty = TRUE;
+    }
+}
+
+/*!
+    \internal
+*/
 void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(dirty_myself) {
 	//dirty myself
 	if(extra) {
-	    extra->child_serial++;
-	    extra->clip_serial++;
-	    extra->child_dirty = extra->clip_dirty = TRUE;
+	    setRegionDirty(FALSE);
+	    setRegionDirty(TRUE);
 	}
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
@@ -1827,10 +1819,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		if(obj->isWidgetType()) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(w->topLevelWidget() == topLevelWidget() &&
-		       !w->isTopLevel() && w->isVisible() && w->extra) {
-			w->extra->clip_serial++;
-			w->extra->clip_dirty = TRUE;
-		    }
+		       !w->isTopLevel() && w->isVisible()) 
+			w->setRegionDirty(TRUE);
 		}
 	    }
 	    delete chldn;
@@ -1844,10 +1834,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     for(QWidget *widg = parentWidget(); widg; last = widg, widg = widg->parentWidget()) {
 	QPoint widgp(posInWindow(widg));
 	myr = myr.intersect(QRect(widgp.x(), widgp.y(), widg->width(), widg->height()));
-	if(widg->extra) {
-	    widg->extra->child_serial++;
-	    widg->extra->child_dirty = TRUE;
-	}
+	widg->setRegionDirty(FALSE);
 
 	if(const QObjectList *chldn = widg->children()) {
 	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
@@ -1856,20 +1843,15 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 		    if(w->topLevelWidget() == topLevelWidget() && !w->isTopLevel() && w->isVisible()) {
 			QPoint wp(posInWindow(w));
 			if(myr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height()))) {
-			    if(w->extra) {
-				w->extra->clip_serial++;
-				w->extra->clip_dirty = TRUE;
-			    }
+			    w->setRegionDirty(TRUE);
 			    if(QObjectList *chldn2 = w->queryList()) {
 				QObjectListIt it2(*chldn2);
 				for(QObject *obj; (obj = it2.current()); ++it2 ) {
 				    if(obj->isWidgetType()) {
 					QWidget *w = (QWidget *)(*it2);
 					if(w->topLevelWidget() == topLevelWidget() &&
-					   !w->isTopLevel() && w->isVisible() && w->extra) {
-					    w->extra->clip_serial++;
-					    w->extra->clip_dirty = TRUE;
-					}
+					   !w->isTopLevel() && w->isVisible()) 
+					    w->setRegionDirty(TRUE);
 				    }
 				}
 				delete chldn2;
@@ -1924,6 +1906,7 @@ CGContextRef QWidget::macCGContext(bool do_children) const
 */
 uint QWidget::clippedSerial(bool do_children)
 {
+    createExtra();
     return do_children ? extra->clip_serial : extra->child_serial;
 }
 
