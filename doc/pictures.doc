@@ -25,16 +25,14 @@
 
 /*! \page pictures.html
 
-\title Pictures of Most Widgets
+\title Pictures of Most Qt Widgets
 
 <p>Most of these widgets are pictured in either Motif or Windows
 style.  All widgets are supported in both styles (plus other
 \link QStyle styles\endlink), but for clarity we've chosen to cut
 down on the number of repeated images.
 
-<h1 align=center>Pictures of Most Widgets in Qt</h1><br clear="all">
-
-Here you see three views seperated by <a href="qsplitter.html">QSplitters</a>. On
+<p>Here you see three views seperated by <a href="qsplitter.html">QSplitters</a>. On
 the lef/top you see a <a href="qlistbox.html">QListBox</a>, at the right/top
 you see a <a href="qlistview.html">QListView</a> with a
 <a href="qheader.html">QHeader</a> and two <a href="qscrollbar.html">QScrollBars</a>.

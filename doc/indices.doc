@@ -91,7 +91,7 @@ Overviews
 </td>
 <td valign=top>
 <ul>
-<li> <a href="object.html">  Introduction to the Qt Object Model</a>
+<li> <a href="object.html">  Qt Object Model</a>
 <li> <a href="moc.html">  Using the Meta Object Compiler (moc)</a>
 <li> <a href="layout.html">  Geometry Management </a>
 <li> <a href="dnd.html">  Drag and Drop (D'n'D)</a>
