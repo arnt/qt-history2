@@ -39,7 +39,7 @@
 #define QGLOBAL_H
 
 #define QT_VERSION       300
-#define QT_VERSION_STR   "3.0.0-beta6"
+#define QT_VERSION_STR   "3.0.0"
 
 
 /*
