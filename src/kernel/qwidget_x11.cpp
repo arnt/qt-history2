@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#56 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#55 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#56 $";
 #endif
 
 
@@ -54,7 +54,7 @@ const ulong stdWidgetEventMask =		// X event mask
 
 bool QWidget::create()				// create widget
 {
-    if ( testFlag( WState_Created ) )		// already created
+    if ( testFlag(WState_Created) )		// already created
 	return FALSE;
     setFlag( WState_Created );			// set created flag
 
@@ -294,6 +294,13 @@ void QWidget::setBackgroundColor( const QColor &c )
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
+
+void QWidget::setBackgroundPixmap( const QPixmap &pm )
+{
+    if ( !pm.isNull() )
+	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
+}
+
 
 /*! Returns the font the widget is currently using (wanting to use,
   rather, QFontInfo will tell you what's actually on the screen).
