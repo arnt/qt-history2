@@ -1,11 +1,10 @@
 \chapter Input/Output and Networking
 
 \quote
-Qt can load and save data in text and platform-independent XML and
-binary formats. Qt handles local files using its own classes and \c
-<iostream>, and remote files using the FTP and HTTP protocols.
-Inter-process communication and socket-based TCP and UDP networking
-are also fully supported.
+Qt can load and save data in plain text, XML and binary format. Qt
+handles local files using its own classes, and remote files using the
+FTP and HTTP protocols. Inter-process communication and socket-based
+TCP and UDP networking are also fully supported.
 \endquote
 
 \section1 Input/Output
