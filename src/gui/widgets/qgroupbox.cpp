@@ -248,8 +248,8 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             r.moveBy(0, fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
         if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
-            va |= Qt::NoAccel;
-        style().drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
+            va |= Qt::TextHideMnemonic;
+        style().drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
                           isEnabled(), d->str, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
@@ -297,7 +297,11 @@ bool QGroupBox::event(QEvent *e)
 /*!\reimp */
 void QGroupBox::childEvent(QChildEvent *c)
 {
-    if (c->type() != QEvent::ChildInserted || !c->child()->isWidgetType())
+    if (c->type() !=
+#ifdef QT_COMPAT
+            QEvent::ChildInserted ||
+#endif
+            !c->child()->isWidgetType())
         return;
     QWidget *w = (QWidget*)c->child();
     if (d->checkbox) {
@@ -462,7 +466,8 @@ void QGroupBox::setCheckable(bool b)
 
     if (b) {
         if (!d->checkbox) {
-            d->checkbox = new QCheckBox(title(), this, "qt_groupbox_checkbox");
+            d->checkbox = new QCheckBox(title(), this);
+            d->checkbox->setObjectName("qt_groupbox_checkbox");
             setChecked(true);
             d->setChildrenEnabled(true);
             connect(d->checkbox, SIGNAL(toggled(bool)),

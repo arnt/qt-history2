@@ -1337,9 +1337,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QString s = menuitem->text;
             if (!s.isEmpty()) {                     // draw text
                 int t = s.indexOf('\t');
-                int text_flags = Qt::AlignVCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+                int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
                 if (!styleHint(SH_UnderlineShortcut, widget))
-                    text_flags |= Qt::NoAccel;
+                    text_flags |= Qt::TextHideMnemonic;
                 text_flags |= (QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft);
                 if (t >= 0) {
                     int xp = x + w - tab - windowsItemHMargin - windowsItemFrame + 1;
@@ -1422,7 +1422,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
 
                 if (selected) {
                     p->fillRect(QRect(r2.left() + 1, r2.bottom() - 1, r2.width() - 3, 2),
-                            tab->palette.brush(QColorGroup::Background));
+                            tab->palette.brush(QPalette::Background));
                     p->setPen(tab->palette.background());
                     p->drawLine(r2.left() + 1, r2.bottom(), r2.left() + 1, r2.top() + 2);
                     p->setPen(tab->palette.light());
@@ -1464,7 +1464,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                 //        bool firstTab = tb->indexOf(t->identifier())== 0;
                 if (selected){
                     p->fillRect(QRect(r2.left() + 1, r2.top(), r2.width() - 3, 1),
-                            tab->palette.brush(QColorGroup::Background));
+                            tab->palette.brush(QPalette::Background));
                     p->setPen(tab->palette.background());
                     p->drawLine(r2.left() + 1, r2.top(), r2.left() + 1, r2.bottom() - 2);
                     p->setPen(tab->palette.dark());

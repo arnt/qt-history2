@@ -51,16 +51,16 @@ extern Drawable qt_x11Handle(const QPaintDevice *pd);
 static void drawLines(QPaintEngine *p, QFontEngine *fe, int baseline, int x1, int w, int textFlags)
 {
     int lw = fe->lineThickness().toInt();
-    if (textFlags & Qt::Underline) {
+    if (textFlags & Qt::TextUnderline) {
         int pos = fe->underlinePosition().toInt();
         qt_draw_transformed_rect(p, x1, baseline+pos, w, lw, true);
     }
-    if (textFlags & Qt::Overline) {
+    if (textFlags & Qt::TextOverline) {
         int pos = fe->ascent().toInt()+1;
         if (!pos) pos = 1;
         qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);
     }
-    if (textFlags & Qt::StrikeOut) {
+    if (textFlags & Qt::TextStrikeOut) {
         int pos = fe->ascent().toInt()/3;
         if (!pos) pos = 1;
         qt_draw_transformed_rect(p, x1, baseline-pos, w, lw, true);

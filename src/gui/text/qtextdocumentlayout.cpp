@@ -912,7 +912,7 @@ void QTextDocumentLayoutPrivate::findY(LayoutStruct *layoutStruct, int requiredW
 QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
     : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate, doc)
 {
-    d->blockTextFlags = Qt::IncludeTrailingSpaces|Qt::WordBreak;
+    d->blockTextFlags = Qt::TextIncludeTrailingSpaces|Qt::TextWordBreak;
 
     registerHandler(QTextFormat::ImageObject, new QTextImageHandler(this));
 }

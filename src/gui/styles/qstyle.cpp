@@ -597,7 +597,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     p->setPen(penColor?*penColor:pal.foreground().color());
     QPixmap pm(pixmap);
-    bool clip = (flags & Qt::DontClip) == 0;
+    bool clip = (flags & Qt::TextDontClip) == 0;
     if (clip) {
         if (pm.width() < w && pm.height() < h) {
             clip = false;

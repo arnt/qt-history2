@@ -1114,7 +1114,7 @@ static inline const QChar prevChar(const QString *str, int pos)
         pos--;
         ch--;
     }
-    return QChar::replacement;
+    return QChar::ReplacementCharacter;
 }
 
 static inline const QChar nextChar(const QString *str, int pos)
@@ -1130,7 +1130,7 @@ static inline const QChar nextChar(const QString *str, int pos)
         pos++;
         ch++;
     }
-    return QChar::replacement;
+    return QChar::ReplacementCharacter;
 }
 
 

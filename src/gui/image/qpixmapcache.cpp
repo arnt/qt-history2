@@ -65,7 +65,6 @@
 */
 
 
-static const int cache_size = 149;                // size of internal hash array
 static int cache_limit = 1024;                        // 1024 KB cache limit
 
 class QPMCache : public QObject, public QCache<QString, QPixmap>
@@ -73,7 +72,7 @@ class QPMCache : public QObject, public QCache<QString, QPixmap>
 public:
     QPMCache()
         : QObject(0, "global pixmap cache"),
-          QCache<QString, QPixmap>(cache_limit * 1024, cache_size),
+          QCache<QString, QPixmap>(cache_limit * 1024),
           id(0), ps(0), t(false) { }
     ~QPMCache() { }
 

@@ -673,7 +673,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_PushButtonLabel:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QRect ir = btn->rect;
-            uint tf = Qt::AlignVCenter | Qt::ShowPrefix | Qt::NoAccel;
+            uint tf = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextHideMnemonic;
             if (!btn->icon.isNull()) {
                 QIconSet::Mode mode = btn->state & Style_Enabled ? QIconSet::Normal
                                                                  : QIconSet::Disabled;
@@ -713,11 +713,11 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
             if (styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
-                alignment |= Qt::NoAccel;
+                alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
             if (btn->icon.isNull())
                 pix = btn->icon.pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::ShowPrefix, btn->palette,
+            drawItem(p, btn->rect, alignment | Qt::AlignVCenter | Qt::TextShowMnemonic, btn->palette,
                      btn->state & Style_Enabled, pix, btn->text);
             if (btn->state & Style_HasFocus) {
                 QStyleOptionFocusRect fropt(0);
@@ -745,9 +745,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break;
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            uint alignment = Qt::AlignCenter | Qt::ShowPrefix | Qt::DontClip | Qt::SingleLine;
+            uint alignment = Qt::AlignCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
             if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption(), 0))
-                alignment |= Qt::NoAccel;
+                alignment |= Qt::TextHideMnemonic;
             QPixmap pix = mbi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
                      pix, mbi->text, -1, &mbi->palette.buttonText().color());
@@ -769,7 +769,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 && !(pb->features & QStyleOptionProgressBar::IndicatorFollowsStyle)
                 && pb->progress * 2 >= pb->totalSteps)
                 pColor = &penColor;
-            drawItem(p, pb->rect, Qt::AlignCenter | Qt::SingleLine, opt->palette,
+            drawItem(p, pb->rect, Qt::AlignCenter | Qt::TextSingleLine, opt->palette,
                      opt->state & Style_Enabled, pb->progressString, -1, pColor);
         }
         break;
@@ -902,9 +902,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
                 if (tb->icon.isNull() && !tb->text.isEmpty()
                         && !(tb->features & QStyleOptionToolButton::TextLabel)) {
-                    int alignment = Qt::AlignCenter | Qt::ShowPrefix;
+                    int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
                     if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
-                        alignment |= Qt::NoAccel;
+                        alignment |= Qt::TextHideMnemonic;
                     rect.moveBy(shiftX, shiftY);
                     drawItem(p, rect, alignment, tb->palette,
                              opt->state & Style_Enabled, tb->text, -1, &btext);
@@ -929,9 +929,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         p->setFont(tb->font);
                         QRect pr = rect,
                         tr = rect;
-                        int alignment = Qt::ShowPrefix;
+                        int alignment = Qt::TextShowMnemonic;
                         if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
-                            alignment |= Qt::NoAccel;
+                            alignment |= Qt::TextHideMnemonic;
 
                         if (tb->textPosition == QToolButton::Under) {
                             int fh = p->fontMetrics().height();
@@ -1039,9 +1039,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             if (tab->state & Style_Selected)
                 tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, widget));
 
-            int alignment = Qt::AlignCenter | Qt::ShowPrefix;
-            if (!styleHint(SH_UnderlineAccelerator, widget))
-                alignment |= Qt::NoAccel;
+            int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
+            if (!styleHint(SH_UnderlineShortcut, widget))
+                alignment |= Qt::TextHideMnemonic;
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
 
             if (tab->state & Style_HasFocus && !tab->text.isEmpty()) {
@@ -1141,11 +1141,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             QRect cr = subRect(SR_CheckBoxContents, opt, w);
 
             if (!btn->icon.isNull()) {
-                r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
                 QFontMetrics fm = w->fontMetrics();
-                r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
@@ -1179,11 +1179,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
             QRect cr = subRect(SR_RadioButtonContents, opt, w);
 
             if(!btn->icon.isNull()) {
-                r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                r = itemRect(cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->icon.pixmap(QIconSet::Small, QIconSet::Normal));
             } else {
                 QFontMetrics fm = w->fontMetrics();
-                r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::ShowPrefix,
+                r = itemRect(fm, cr, Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                              btn->state & Style_Enabled, btn->text);
             }
             r.addCoords(-3, -2, 3, 2);
@@ -1575,7 +1575,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
                 p->setPen(tb->palette.highlightedText());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
-                            Qt::AlignAuto | Qt::AlignVCenter | Qt::SingleLine, tb->text);
+                            Qt::AlignAuto | Qt::AlignVCenter | Qt::TextSingleLine, tb->text);
             }
 
             bool down = false;

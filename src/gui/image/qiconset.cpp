@@ -22,6 +22,7 @@
 #include "qcleanuphandler.h"
 #include "qimage.h"
 #include "qpainter.h"
+#include "qpalette.h"
 
 enum { NumSizes = 2, NumModes = 3, NumStates = 2 };
 

@@ -972,7 +972,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
     Q_ASSERT(line.from < eng->string.length());
 
-    bool breakany = eng->textFlags & Qt::BreakAnywhere;
+    bool breakany = eng->textFlags & Qt::TextBreakAnywhere;
 
     // #### binary search!
     int item;
@@ -997,7 +997,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
             QTextFormat format = eng->formats->format(eng->items[item].format);
             if (eng->docLayout)
                 eng->docLayout->layoutObject(QTextInlineObject(item, eng), format);
-            if (line.length && !(eng->textFlags & Qt::SingleLine)) {
+            if (line.length && !(eng->textFlags & Qt::TextSingleLine)) {
                 if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
             }
@@ -1067,7 +1067,7 @@ void QTextLine::layout(int width, LineWidthUnit unit)
 
             if (line.length && tmpw.value()
                 && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
-                && !(eng->textFlags & Qt::SingleLine))
+                && !(eng->textFlags & Qt::TextSingleLine))
                 goto found;
 
             line.textWidth += tmpw;
@@ -1225,9 +1225,9 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
         gf.chars = eng->string.unicode() + si.position;
         gf.num_chars = eng->length(item);
         int textFlags = 0;
-        if (f.d->underline) textFlags |= Qt::Underline;
-        if (f.d->overline) textFlags |= Qt::Overline;
-        if (f.d->strikeOut) textFlags |= Qt::StrikeOut;
+        if (f.d->underline) textFlags |= Qt::TextUnderline;
+        if (f.d->overline) textFlags |= Qt::TextOverline;
+        if (f.d->strikeOut) textFlags |= Qt::TextStrikeOut;
 
         int *ul = eng->underlinePositions;
         if (ul)
@@ -1259,7 +1259,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                     ++gs;
                 }
                 gf.width = w.toInt();
-                p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, (textFlags ^ Qt::Underline));
+                p->drawTextItem(QPoint(x.toInt(), y.toInt()), gf, (textFlags ^ Qt::TextUnderline));
                 x += w;
                 ++ul;
             }

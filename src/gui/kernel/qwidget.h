@@ -142,7 +142,9 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(bool focus READ hasFocus)
     Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
     Q_PROPERTY(bool visible READ isVisible)
-    Q_PROPERTY(QRect visibleRect READ visibleRect) // obsolete
+#ifdef QT_COMPAT
+    Q_PROPERTY(QRect visibleRect READ visibleRect)
+#endif
     Q_PROPERTY(bool hidden READ isHidden WRITE setHidden DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(bool shown READ isShown WRITE setShown DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(bool minimized READ isMinimized)

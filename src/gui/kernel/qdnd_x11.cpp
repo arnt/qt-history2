@@ -832,9 +832,11 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
       case QEvent::KeyPress:
       case QEvent::KeyRelease:
       case QEvent::Wheel:
+#ifdef QT_COMPAT
       case QEvent::Accel:
       case QEvent::AccelAvailable:
       case QEvent::AccelOverride:
+#endif
         return true;
       default:
         return false;

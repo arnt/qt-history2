@@ -1167,10 +1167,10 @@ void QPSPrintEngineFontPrivate::drawText(QTextStream &stream, QPSPrintEnginePriv
 
     stream << ti.width << " " << x;
 
-    if (textflags & Qt::Underline)
+    if (textflags & Qt::TextUnderline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (textflags & Qt::StrikeOut)
+    if (textflags & Qt::TextStrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " AT\n";
@@ -1887,10 +1887,10 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     stream << "[" << xyarray << "0 0]";
     stream << ti.width << " " << x;
 
-    if (textflags & Qt::Underline)
+    if (textflags & Qt::TextUnderline)
         stream << ' ' << y + d->fm.underlinePos() + d->fm.lineWidth()
                << " " << d->fm.lineWidth() << " Tl";
-    if (textflags & Qt::StrikeOut)
+    if (textflags & Qt::TextStrikeOut)
         stream << ' ' << y + d->fm.strikeOutPos()
                << " " << d->fm.lineWidth() << " Tl";
     stream << " XYT\n";

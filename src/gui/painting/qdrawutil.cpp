@@ -18,6 +18,7 @@
 #include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qpalette.h"
 
 /*!
     \relates QPainter
@@ -65,7 +66,7 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
     int tlw = lineWidth*2 + midLineWidth;        // total line width
     QPen oldPen = p->pen();                        // save pen
     if (sunken)
-        p->setPen(pal.dark());
+        p->setPen(pal.color(QPalette::Dark));
     else
         p->setPen(pal.light());
     QPointArray a;
@@ -568,7 +569,7 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
     p->setPen(penColor?*penColor:pal.foreground().color());
     if (pixmap) {
         QPixmap  pm(*pixmap);
-        bool clip = (flags & Qt::DontClip) == 0;
+        bool clip = (flags & Qt::TextDontClip) == 0;
         if (clip) {
             if (pm.width() < w && pm.height() < h)
                 clip = false;

@@ -5119,7 +5119,6 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     setWState(Qt::WState_Exposed);
     QRect  paintRect(event->xexpose.x,           event->xexpose.y,
                       event->xexpose.width, event->xexpose.height);
-    bool   merging_okay = !testWFlags(Qt::WPaintClever);
     XEvent xevent;
     PaintEventInfo info;
     info.window = winId();
@@ -5130,6 +5129,8 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
     paintRegion |= paintRect;
     d->invalidated_region = QRegion();
 
+#if 0
+    bool   merging_okay = !testWFlags(Qt::WPaintClever);
     if (merging_okay) {
         // WARNING: this is O(number_of_events * number_of_matching_events)
         while (XCheckIfEvent(x11Info()->display(),&xevent,isPaintOrScrollDoneEvent,
@@ -5151,6 +5152,7 @@ bool QETWidget::translatePaintEvent(const XEvent *event)
             }
         }
     }
+#endif
 
     if (should_clip) {
         paintRegion = paintRegion.intersect(rect());

@@ -198,7 +198,7 @@ QSize QCheckBox::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     QStyleOptionButton opt = d->getStyleOption();
-    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::ShowPrefix, false, text()).size();
+    QSize sz = style().itemRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false, text()).size();
     return (style().sizeFromContents(QStyle::CT_CheckBox, &opt, sz, fm, this)
                    .expandedTo(QApplication::globalStrut()));
 }

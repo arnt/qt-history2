@@ -2519,9 +2519,9 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     const QScriptLine &sl = engine->lines[0];
 
     int textFlags = 0;
-    if (d->state->font.underline()) textFlags |= Qt::Underline;
-    if (d->state->font.overline()) textFlags |= Qt::Overline;
-    if (d->state->font.strikeOut()) textFlags |= Qt::StrikeOut;
+    if (d->state->font.underline()) textFlags |= Qt::TextUnderline;
+    if (d->state->font.overline()) textFlags |= Qt::TextOverline;
+    if (d->state->font.strikeOut()) textFlags |= Qt::TextStrikeOut;
 
 #if defined(Q_WS_X11)
     extern void qt_draw_background(QPaintEngine *pe, int x, int y, int w,  int h);
@@ -2649,7 +2649,7 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     if (str.isEmpty())
         brect.setRect(x,y, 0,0);
     else
-        drawText(QRect(x, y, w, h), flags | Qt::DontPrint, str, len, &brect);
+        drawText(QRect(x, y, w, h), flags | Qt::TextDontPrint, str, len, &brect);
     return brect;
 }
 
@@ -3325,12 +3325,12 @@ void qt_format_text(const QFont& font, const QRect &_r,
     if ((tf & Qt::AlignHorizontal_Mask) == Qt::AlignAuto)
         tf |= isRightToLeft ? Qt::AlignRight : Qt::AlignLeft;
 
-    bool expandtabs = ((tf & Qt::ExpandTabs) &&
+    bool expandtabs = ((tf & Qt::TextExpandTabs) &&
                         (((tf & Qt::AlignLeft) && !isRightToLeft) ||
                           ((tf & Qt::AlignRight) && isRightToLeft)));
 
     if (!painter)
-        tf |= Qt::DontPrint;
+        tf |= Qt::TextDontPrint;
 
     int maxUnderlines = 0;
     int numUnderlines = 0;
@@ -3398,7 +3398,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
     }
 
     // no need to do extra work for underlines if we don't paint
-    if (tf & Qt::DontPrint)
+    if (tf & Qt::TextDontPrint)
         numUnderlines = 0;
 
     underlinePositions[numUnderlines] = -1;
@@ -3411,12 +3411,12 @@ void qt_format_text(const QFont& font, const QRect &_r,
     if (text.isEmpty()) {
         height = fm.height();
         width = 0;
-        tf |= Qt::DontPrint;
+        tf |= Qt::TextDontPrint;
     } else {
         int lineWidth = wordbreak ? qMax(0, r.width()) : 0x01000000;
         if(!wordbreak)
-            tf |= Qt::IncludeTrailingSpaces;
-        textLayout.beginLayout((tf & Qt::DontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine);
+            tf |= Qt::TextIncludeTrailingSpaces;
+        textLayout.beginLayout((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::SingleLine);
 
         int leading = fm.leading();
         height = -leading;
@@ -3448,7 +3448,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
     if (brect)
         *brect = QRect(r.x() + xoff, r.y() + yoff, width, height);
 
-    if (!(tf & Qt::DontPrint)) {
+    if (!(tf & Qt::TextDontPrint)) {
         bool restoreClipping = false;
         bool painterHasClip = false;
         QRegion painterClipRegion;
@@ -3474,9 +3474,9 @@ void qt_format_text(const QFont& font, const QRect &_r,
         }
 
         int _tf = 0;
-        if (fnt.underline()) _tf |= Qt::Underline;
-        if (fnt.overline()) _tf |= Qt::Overline;
-        if (fnt.strikeOut()) _tf |= Qt::StrikeOut;
+        if (fnt.underline()) _tf |= Qt::TextUnderline;
+        if (fnt.overline()) _tf |= Qt::TextOverline;
+        if (fnt.strikeOut()) _tf |= Qt::TextStrikeOut;
 
         for (int i = 0; i < textLayout.numLines(); i++) {
             QTextLine line = textLayout.lineAt(i);

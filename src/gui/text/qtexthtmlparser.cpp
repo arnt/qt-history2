@@ -290,7 +290,7 @@ static QChar resolveEntity(const QString &entity)
     const QTextHtmlEntity *end = &entities[MAX_ENTITY];
     const QTextHtmlEntity *e = qBinaryFind(start, end, entity);
     if (!e->name)
-        return QChar::null;
+        return QChar();
     return e->code;
 }
 
@@ -657,7 +657,7 @@ void QTextHtmlParser::parse() {
                         c = QChar::LineSeparator;
                 } else { // non-pre mode: collapse whitespace except nbsp
                     while (pos < len && txt.at(pos).isSpace()
-                           && txt.at(pos) != QChar::nbsp)
+                           && txt.at(pos) != QChar::Nbsp)
                         pos++;
                     c = QLatin1Char(' ');
                 }
