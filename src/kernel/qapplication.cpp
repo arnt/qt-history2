@@ -2783,7 +2783,7 @@ void QApplication::setActiveWindow( QWidget* act )
     if ( active_window == window )
 	return;
 
-    // first the activation / deactivation events
+    // first the activation/deactivation events
     if ( active_window ) {
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE

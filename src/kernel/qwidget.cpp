@@ -2815,10 +2815,10 @@ bool QWidget::hasFocus() const
   proxy).
 
   First, a focus out event is sent to the focus widget (if any) to
-  tell it that it is about to lose the focus. Then a focus in event is
-  sent to this widget to tell it that it just received the focus.
-  (If the focus in and focus out widgets are the same nothing
-  happens.)
+  tell it that it is about to lose the focus. Then a focus in event
+  is sent to this widget to tell it that it just received the focus.
+  (Nothing happens if the focus in and focus out widgets are the
+  same.)
 
   setFocus() gives focus to a widget regardless of its focus policy,
   but does not clear any keyboard grab (see grabKeyboard()).
@@ -2842,7 +2842,7 @@ void QWidget::setFocus()
 	return;
     }
 
-    QFocusData * f = focusData(TRUE);
+    QFocusData * f = focusData( TRUE );
     if ( f->it.current() == this && qApp->focusWidget() == this )
 	return;
 
@@ -3004,12 +3004,12 @@ QWidget *QWidget::focusWidget() const
 */
 QFocusData * QWidget::focusData()
 {
-    return focusData(TRUE);
+    return focusData( TRUE );
 }
 
 /*!
   Internal function which lets us ask for the focus data, creating it
-  (or not if \a create is FALSE), if it doesn't exist.
+  if it doesn't exist and \a create is TRUE.
 */
 QFocusData * QWidget::focusData( bool create )
 {
@@ -4842,19 +4842,13 @@ void QWidget::dropEvent( QDropEvent * )
   subclass to receive widget show events.
 
   Non-spontaneous show events are sent to widgets immediately before
-  they are shown. Spontaneous show events of top level widgets are
+  they are shown. Spontaneous show events of top-level widgets are
   delivered afterwards.
 
   \sa event(), QShowEvent
   */
 void QWidget::showEvent( QShowEvent * )
 {
-    if ( focusWidget() )
-	return;
-    else if ( focusPolicy() )
-	setFocus();
-    else
-	focusNextPrevChild( TRUE );
 }
 
 /*!

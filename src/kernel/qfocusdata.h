@@ -47,7 +47,6 @@ class Q_EXPORT QFocusData {
 public:
     QWidget* focusWidget() const { return it.current(); }
 
-    // List-iteration
     QWidget* home();
     QWidget* next();
     QWidget* prev();
@@ -55,6 +54,7 @@ public:
 
 private:
     friend class QWidget;
+
     QFocusData()
 	: it(focusWidgets) {}
     QWidgetList	  focusWidgets;

@@ -533,23 +533,6 @@ void QDialog::show()
 {
     if ( testWState(WState_Visible) )
 	return;
-#ifndef QT_NO_PUSHBUTTON
-    if ( !d->mainDef ) {
-	QObjectList *pbs = queryList( "QPushButton" );
-	if ( pbs && !pbs->isEmpty() ) {
-	    QObjectListIt it( *pbs );
-	    QPushButton *button;
-	    while ( ( button = (QPushButton*)it.current() ) ) {
-		++it;
-		if ( button->topLevelWidget() == this && button->autoDefault() ) {
-		    button->setDefault( TRUE );
-		    break;
-		}
-	    }
-	}
-	delete pbs;
-    }
-#endif
     if ( !did_resize )
 	adjustSize();
     if ( has_relpos ) {
@@ -559,6 +542,40 @@ void QDialog::show()
 	adjustPositionInternal( parentWidget() );
     }
     QWidget::show();
+#ifndef QT_NO_PUSHBUTTON
+    if ( !d->mainDef ) {
+	QWidget *fw = focusWidget();
+	if ( !fw ) {
+	    focusNextPrevChild( TRUE );
+	    fw = focusWidget();
+	}
+
+	QObjectList *pbs = queryList( "QPushButton" );
+	if ( pbs && !pbs->isEmpty() ) {
+	    QObjectListIt it( *pbs );
+	    QPushButton *champion = 0;
+	    QPushButton *challenger;
+	    while ( (challenger = (QPushButton *) it.current()) ) {
+		++it;
+		if ( challenger->topLevelWidget() == this &&
+		     challenger->autoDefault() ) {
+		    if ( (QWidget *) challenger == fw ) {
+			champion = challenger;
+			break;
+		    }
+		    if ( champion == 0 ) {
+			champion = challenger;
+			if ( fw == 0 )
+			    break;
+		    }
+		}
+	    }
+	    if ( champion )
+		champion->setDefault( TRUE );
+	}
+	delete pbs;
+    }
+#endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
 #endif

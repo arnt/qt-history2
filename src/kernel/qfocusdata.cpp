@@ -43,7 +43,7 @@
   \brief The QFocusData class maintains the list of widgets in the focus
   chain.
 
-  This read-only list always contains at least one widget (i.e. the
+  This read-only list always contains at least one widget (the
   top-level widget).  It provides a simple cursor which can be reset to
   the current focus widget using home(), or moved to its neighboring
   widgets using next() and prev(). You can also retrieve the count() of
