@@ -771,7 +771,7 @@ void QPrinter::setCollateCopies(bool on)
 }
 
 /*!
-    Sets the number of pages to be printed to \a numCopies.
+    Sets the number of copies to be printed to \a numCopies.
 
     The printer driver reads this setting and prints the specified
     number of copies.
