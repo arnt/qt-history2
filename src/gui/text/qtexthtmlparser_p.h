@@ -155,6 +155,7 @@ struct QTextHtmlParserNode {
     QColor color;
     QColor bgColor;
     Qt::Alignment alignment;
+    QTextCharFormat::VerticalAlignment verticalAlignment;
     QTextListFormat::Style listStyle;
     QString anchorHref;
     QString anchorName;

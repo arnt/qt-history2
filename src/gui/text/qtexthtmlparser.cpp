@@ -442,9 +442,10 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
       hasCssBlockIndent(false), hasCssListIndent(false), fontPointSize(DefaultFontSize),
-      fontWeight(QFont::Normal), alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-      imageWidth(-1), imageHeight(-1), tableBorder(0), tableCellRowSpan(1), tableCellColSpan(1),
-      tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), cssListIndent(0), wsm(WhiteSpaceModeUndefined)
+      fontWeight(QFont::Normal), alignment(Qt::AlignAuto), verticalAlignment(QTextCharFormat::AlignNormal),
+      listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0), 
+      tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0), 
+      cssListIndent(0), wsm(WhiteSpaceModeUndefined)
 {
     margin[QTextHtmlParser::MarginLeft] = 0;
     margin[QTextHtmlParser::MarginRight] = 0;
@@ -469,6 +470,8 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
     format.setFontWeight(fontWeight);
     if (color.isValid())
         format.setTextColor(color);
+    if (verticalAlignment != QTextCharFormat::AlignNormal)
+        format.setVerticalAlignment(verticalAlignment);
     if (isAnchor) {
         format.setAnchor(true);
         format.setAnchorHref(anchorHref);
@@ -1047,6 +1050,12 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             fontWeight = QFont::Bold;
             alignment = Qt::AlignCenter;
             break;
+        case Html_sub:
+            verticalAlignment = QTextCharFormat::AlignSubScript;
+            break;
+        case Html_sup:
+            verticalAlignment = QTextCharFormat::AlignSuperScript;
+            break;
         default: break;
     }
 
@@ -1262,6 +1271,14 @@ void QTextHtmlParser::parseAttributes()
                 } else if (style.startsWith(QLatin1String("margin-right:")) && style.endsWith("px")) {
                     const QString s = style.mid(13, style.length() - 15).trimmed();
                     setIntAttribute(&node->margin[MarginRight], s);
+                } else if (style.startsWith(QLatin1String("vertical-align:"))) {
+                    const QString s = style.mid(15, style.length() - 15).trimmed();
+                    if (s == "sub")
+                        node->verticalAlignment = QTextCharFormat::AlignSubScript;
+                    else if (s == "super")
+                        node->verticalAlignment = QTextCharFormat::AlignSuperScript;
+                    else
+                        node->verticalAlignment = QTextCharFormat::AlignNormal;
                 }
             }
         } else if (key == QLatin1String("align")) {
