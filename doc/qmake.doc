@@ -61,8 +61,8 @@ typical Qt application.  It takes extra work to add makefile rules for
 the moc and the uic and we wanted to automate this task.
 
 <ul>
-<li> <a href="qmake-guide.html"<h3><em>qmake</em> User's Guide</h3></a>
-<li> <a href="qmake-commandreference.html"<h3><em>qmake</em> Command Reference</h3></a>
+<li> <a href="qmake-guide.html"><em>qmake</em> User's Guide</a>
+<li> <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>
 </ul>
 
 */

@@ -34,7 +34,7 @@
 
 /*! \page qmake-commandreference.html
 
-\title <em>qmake</em> Command Reference
+\title qmake Command Reference
 
 <ul>
 <li><a href="#About">About This Reference</a></li>
@@ -71,21 +71,21 @@ qmake [options] project-files
 The following options can be specified on the command line to <em>qmake</em>:
 
 <ul>
-<li>\c -nocache       <p>
+<li>\c -nocache <br>
 	<em>qmake</em> will ignore the .qmake.cache file.
-<li>\c -nodepend      <p>
+<li>\c -nodepend <br>
 	<em>qmake</em> will not genereate any dependancy information.
-<li>\c -o file <p>
+<li>\c -o file <br>
 	<em>qmake</em> output will be directed to \a file.
-<li>\c -unix  <p>
+<li>\c -unix <br>
 	<em>qmake</em> will run in unix mode.  In this mode ###
-<li>\c -win32    <p>    
+<li>\c -win32 <br>    
 	<em>qmake</em> will run in win32 mode.  In this mode ###
-<li>\c -cache file <p>
+<li>\c -cache file <br>
 	<em>qmake</em> will use \a file as the cache file, ignoring any other .qmake.cache file found
-<li>\c -path dir <p>
+<li>\c -path dir <br>
 	<em>qmake</em> will use \a dir as a path to platform-conpiler information and QMAKEPATH will be ignored.
-<li>\c -d <p>
+<li>\c -d <br>
 	<em>qmake</em> will output useful debugging information.
 </ul>
 

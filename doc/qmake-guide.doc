@@ -34,7 +34,7 @@
 
 /*! \page qmake-guide.html
 
-\title <em>qmake</em> User's Guide
+\title qmake User's Guide
 
 <ul>
 <li><a href="#About">About This Manual</a></li>
@@ -47,7 +47,7 @@
 
 See also the <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>.
 
-<h1><a name="About">About This Manual</a></li>
+<h1><a name="About">About This Manual</a></h1>
 
 This manual describes <em>qmake</em>, a cross-platform utility for
 generating makefiles.  <em>qmake</em> was written by Trolltech to
@@ -56,8 +56,8 @@ builds across many platforms, including:
 
 <ul>
 <li>MS/Windows - 95, 98, NT, and 2000</li>
-<li>Unix/X11 - Linux, Sun Solaris, HP-UX, Digital Unix, IBM AIX, SGI IRIX and a wide range of others</li>
-<li>Embedded - Linux platforms <li>
+<li>Unix/X11 - Linux, Sun Solaris, HP-UX, Tru64, IBM AIX, SGI IRIX and a wide range of others</li>
+<li>Embedded - Linux platforms</li>
 </ul>
 
 <h1><a name="Installation">Installing <em>qmake</em></a></h1>
@@ -136,7 +136,7 @@ project, type:
 This builds the 'hello' program. Remember to set the <a href="#QMAKEPATH">QMAKEPATH</a> environment 
 variable properly before you run qmake.
 
-<h1><a name="Introduction">Introducting qmake</a></li>
+<h1><a name="Introduction">Introducing qmake</a></h1>
 
 \e qmake is a simple tool from Trolltech to create and maintain
 makefiles for software projects across multiple platforms.
@@ -151,8 +151,8 @@ makefiles.
 
 <em>qmake</em> can be used for any software project of any size,
 however <em>qmake</em> contains special features to support developing
-applications with <a href="http://www.trolltech.com">Trolltech's</a>
-<a href="http://www.trolltech.com/qt"> Qt</a> library.
+applications with <a href="http://www.trolltech.com/">Trolltech's</a>
+<a href="http://www.trolltech.com/qt/"> Qt</a> library.
 
 <em>qmake</em> is a part of the Qt library and is licensed under several
 licenses, including the QPL, GPL and a commercial license.  See the <a
@@ -160,7 +160,7 @@ href="http://doc.trolltech.com/licenses.html">Qt</a> LICENSE file for
 details.
 
 
-<h1><a name="Concepts"><em>qmake</em> Concepts</a></li> 
+<h1><a name="Concepts"><em>qmake</em> Concepts</a></h1> 
 
 <h3>Running <em>qmake</em></h3>
 
@@ -170,10 +170,10 @@ your destination platform. <em>qmake</em> currently generates output
 for:
 
 <ul>
-<li>borland make makefiles</li>
-<li>unix-style makefiles, i.e. suitable for gmake, etc.</li>
-<li>msdev nmake makefiles</li>
-<li>msdev dsp project files</li>
+<li>borland make makefiles
+<li>unix-style makefiles, i.e. suitable for gmake, etc.
+<li>msdev nmake makefiles
+<li>msdev dsp project files
 </ul>
 
 <h3><a name="QMAKEPATH">QMAKEPATH</a></h3>
@@ -362,7 +362,7 @@ described here.  See the <em>qmake</em> <a
 href="qmakecommandreference.html#CONFIG">reference manual</a> for
 details.
 
-<h1><a name="Details"><em>qmake</em> Details</a></li> 
+<h1><a name="Details"><em>qmake</em> Details</a></h1> 
 
 <em>qmake</em> project files (typically having a .pro extension) are
 parsed from top to bottom and consist of a series of user defined
@@ -572,7 +572,3 @@ href="qmake-commandreference.html#cache"<em>qmake</em> command
 reference</a> for more info.
 
 */
-
-
-
-
