@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#5 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#4 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#5 $")
 
 
 /*****************************************************************************
@@ -180,6 +180,7 @@ static QClipboardData *clipboardData()
 
 void QClipboard::clear()
 {
+    setData( "TEXT", 0 );
 }
 
 
@@ -187,7 +188,7 @@ void QClipboard::clear()
   Returns a pointer to the clipboard data, where \e format is the clipboard
   format.
 
-  It is generally recommended to use text() or pixmap() instead.
+  We recommend that you use text() or pixmap() instead.
  ----------------------------------------------------------------------------*/
 
 void *QClipboard::data( const char *format ) const
@@ -222,12 +223,10 @@ void *QClipboard::data( const char *format ) const
 	return 0;
 
     Atom prop = XInternAtom( dpy, "QT_SELECTION", FALSE );
-    //    debug( "prop = %x", (int)prop );
     XConvertSelection( dpy, XA_PRIMARY, XA_STRING, prop, win, CurrentTime );
 
     XFlush( dpy );
 
-    // Now wait for the SelectionNotify event
     XEvent xevent;
 
     QTime started = QTime::currentTime();
@@ -238,20 +237,18 @@ void *QClipboard::data( const char *format ) const
 	if ( started > now )			// crossed midnight
 	    started = now;
 	if ( started.msecsTo(started) > 5000 ) {
-	    //	    debug( "selection timeout" );
 	    return 0;
 	}
     }
-
-    //    debug( "processing SelectionNotify" );
 
     prop = xevent.xselection.property;
     win  = xevent.xselection.requestor;
 
     static QByteArray buf( 256 );
     Atom	actual_type;
-    ulong	nitems, bytes_after, nread=0;
+    ulong	nitems, bytes_after;
     int		actual_format;
+    int		nread = 0;
     uchar      *back;
 
     do {
@@ -260,12 +257,8 @@ void *QClipboard::data( const char *format ) const
 				    AnyPropertyType, &actual_type,
 				    &actual_format, &nitems,
 				    &bytes_after, &back );
-	if ( r != Success )
-	    //	    debug( "XGetWindowProperty: no success" );
-	if ( actual_type != XA_STRING ) {
-	    //	    debug( "XGetWindowProperty: actual type not XA_STRING" );
+	if ( r != Success  || actual_type != XA_STRING ) {
 	    char *n = XGetAtomName( dpy, actual_type );
-	    //	    debug( "  the type is %s", n );
 	    XFree( n );
 	}
 	if ( r != Success || actual_type != XA_STRING )
@@ -279,8 +272,6 @@ void *QClipboard::data( const char *format ) const
 
     buf[nread] = 0;
 
-    //    debug( "clipboard read %d bytes", (int)nread );
-
     return buf.data();
 }
 
@@ -289,7 +280,7 @@ void *QClipboard::data( const char *format ) const
   Copies text into the clipboard, where \e format is the clipboard format
   string and \e data is the data to be copied.
 
-  It is generally recommended to use setText() or setPixmap() instead.
+  We recommend that you use setText() or setPixmap() instead.
  ----------------------------------------------------------------------------*/
 
 void QClipboard::setData( const char *format, void *data )
@@ -316,7 +307,9 @@ void QClipboard::setData( const char *format, void *data )
     Display *dpy   = owner->x11Display();
 
     if ( d->format() != CFNothing ) {		// we own the clipboard
+#if defined(DEBUG)
 	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
+#endif
 	d->setData( format, data );
 	return;
     }
@@ -331,6 +324,17 @@ void QClipboard::setData( const char *format, void *data )
 #endif
 	return;
     }
+}
+
+
+/*----------------------------------------------------------------------------
+  \fn void QClipboard::connectNotify( const char *signal )
+  \internal
+  Internal optimization for Windows.
+ ----------------------------------------------------------------------------*/
+
+void QClipboard::connectNotify( const char * )
+{
 }
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.h#1 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.h#2 $
 **
 ** Definition of QClipboard class
 **
 ** Author  : Haavard Nord
 ** Created : 960430
 **
-** Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -24,10 +24,7 @@ private:
    ~QClipboard();
 
 public:
-    bool	isEmpty() const;
     void	clear();
-
-    bool	available( const char *format ) const;
 
     void       *data( const char *format ) const;
     void	setData( const char *format, void * );
@@ -40,7 +37,11 @@ public:
 signals:
     void	dataChanged();
 
+private slots:
+    void	ownerDestroyed();
+
 protected:
+    void	connectNotify( const char * );
     bool	event( QEvent * );
 
     friend class QApplication;

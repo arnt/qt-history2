@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.cpp#2 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,7 +13,7 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#2 $")
 
 
 /*----------------------------------------------------------------------------
@@ -41,19 +41,20 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard.cpp#1 $")
   Example:
   \code
     QClipboard *cb = QApplication::clipboard();
-   
+    const char *text;
+    
     // Copy text from the clipboard (paste)
-    if ( cb->available("TEXT") )
-        debug( "The clipboard contains: %s", cb->text() );
+    text = cb->text();
+    if ( text )
+        debug( "The clipboard contains: %s", text );
 
     // Copy text into the clipboard
     cb->setText( "This text can be pasted by other programs" );
   \endcode
 
   \warning
-  Do not copy and paste data behind the back of the user (for instance to
-  implement inter-application communication). All clipboard operations
-  should be initiated by the user.
+  It is an important GUI principle that all clipboard operations should be
+  initiated by the user.
  ----------------------------------------------------------------------------*/
 
 
@@ -86,7 +87,7 @@ QClipboard::~QClipboard()
 /*----------------------------------------------------------------------------
   Returns the clipboard text, or null if the clipboard does not contains
   any text.
-  \sa setText(), available()
+  \sa setText()
  ----------------------------------------------------------------------------*/
 
 const char *QClipboard::text() const
@@ -108,7 +109,7 @@ void QClipboard::setText( const char *text )
 /*----------------------------------------------------------------------------
   Returns the clipboard pixmap, or null if the clipboard does not contains
   any pixmap.
-  \sa setText(), available()
+  \sa setText()
  ----------------------------------------------------------------------------*/
 
 QPixmap *QClipboard::pixmap() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#2 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#2 $")
 
 
 /*****************************************************************************
@@ -215,6 +215,7 @@ void QClipboard::connectNotify( const char *signal )
 	connect( owner, SIGNAL(destroyed()), SLOT(ownerDestroyed()) );
     }
 }
+
 
 bool QClipboard::event( QEvent *e )
 {
