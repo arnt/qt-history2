@@ -5905,7 +5905,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     }
 #endif // QT_NO_XIM
-
+    e.ignore();
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 

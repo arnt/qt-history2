@@ -470,7 +470,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	    argv[argc++] = start;
 	}
     }
-
+    argv[argc] = 0;
   // Get Windows parameters
 
     appInst = instance;
