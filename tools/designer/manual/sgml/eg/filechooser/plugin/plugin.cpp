@@ -98,11 +98,11 @@ bool CustomWidgetInterface::isContainer( const QString& ) const
 
 QRESULT CustomWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterface **iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_WidgetInterface )
+    else if ( uuid == IID_Widget )
 	*iface = (WidgetInterface*)this;
 
     if ( *iface )
