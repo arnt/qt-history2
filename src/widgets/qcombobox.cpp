@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#196 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#197 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1264,10 +1264,12 @@ void QComboBox::focusInEvent( QFocusEvent * )
    Calculates the listbox height needed to contain all items, or as
    many as the list box is supposed to contain.
 */
-static int listHeight( QListBox *l, int /*sl*/ )
+static int listHeight( QListBox *l, int sl )
 {
-    //l->setFixedVisibleLines(QMIN(l->count(), (uint)sl));
-    return l->sizeHint().height();
+    if ( l->count() > 0 )
+        return QMIN( l->count(), (uint)sl) * l->item( 0 )->height( l );
+    else
+        return l->sizeHint().height();
 }
 
 
