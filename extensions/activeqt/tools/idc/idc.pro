@@ -18,6 +18,7 @@ SOURCES		+= ../../../../src/core/global/qglobal.cpp \
                ../../../../src/core/tools/qbytearraymatcher.cpp \
                ../../../../src/core/tools/qchar.cpp \
                ../../../../src/core/tools/qdatetime.cpp \
+               ../../../../src/core/tools/qhash.cpp \
                ../../../../src/core/tools/qlist.cpp \
                ../../../../src/core/tools/qlocale.cpp \
                ../../../../src/core/tools/qstring.cpp \
