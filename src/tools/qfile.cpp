@@ -25,9 +25,12 @@
 #endif
 
 #include "qfile.h"
+#include "qfile_p.h"
+#include "qdatastream.h"
 #ifndef NO_ERRNO_H
 #include <errno.h>
 #endif
+#include <limits.h>
 
 
 // Duplicated from qobject.h, but we cannot include qobject.h here since
@@ -706,3 +709,32 @@ void QFile::setErrorStringErrno( int errnum )
 	    break;
     }
 }
+
+/*****************************************************************************
+  QOffset stream functions
+ *****************************************************************************/
+#ifndef QT_NO_DATASTREAM
+
+QDataStream &operator<<( QDataStream &s, const QOffset &o )
+{
+    s << (Q_UINT64)o.offset;
+    return s;
+}
+
+QDataStream &operator>>( QDataStream &s, QOffset &o )
+{
+    Q_UINT64 value;
+    s >> value;
+#if defined(QT_LARGEFILE_SUPPORT)
+    o = value;
+#else
+    if ( value > Q_UINT64_C(UINT_MAX) ) {
+	qWarning("Large files are not supported on this platform");
+	o = UINT_MAX;
+    } else
+	o = (Q_UINT32)value;
+#endif
+    return s;
+}
+
+#endif // QT_NO_DATASTREAM

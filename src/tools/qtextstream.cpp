@@ -430,7 +430,7 @@ bool QStringBuffer::at( Offset pos )
 	return FALSE;
     }
 #endif
-    if ( (int)pos >= s->length()*2 ) {
+    if ( pos >= QIODevice::Offset(s->length()*2) ) {
 #if defined(QT_CHECK_RANGE)
 #if defined(QT_LARGEFILE_SUPPORT) && defined(QT_ABI_64BITOFFSET)
 	qWarning( "QStringBuffer::at: Index %llu out of range", pos );
@@ -460,7 +460,7 @@ Q_LONG QStringBuffer::readBlock( char *p, Q_ULONG len )
 #endif
     if ( ioIndex + len > s->length()*sizeof(QChar) ) {
 	// overflow
-	if ( (uint)ioIndex >= s->length()*sizeof(QChar) ) {
+	if ( ioIndex >= QIODevice::Offset(s->length()*sizeof(QChar)) ) {
 	    setStatus( IO_ReadError );
 	    return -1;
 	} else {
@@ -513,11 +513,13 @@ int QStringBuffer::getch()
 	return -1;
     }
 #endif
-    if ( (int)ioIndex >= s->length()*2 ) {           // overflow
+    if ( ioIndex >= QIODevice::Offset(s->length()*2) ) {           // overflow
 	setStatus( IO_ReadError );
 	return -1;
     }
-    return (int)((const uchar *)s->unicode())[ioIndex++];
+//########################################
+//    return (int)((const uchar *)s->unicode())[ioIndex++];
+//########################################
 }
 
 int QStringBuffer::putch( int ch )
@@ -542,10 +544,12 @@ int QStringBuffer::ungetch( int ch )
     }
 #endif
     if ( ch != -1 ) { // something to do with eof
-	if ( ioIndex )
-	    ioIndex--;
-	else
-	    ch = -1;
+//########################################
+//	if ( ioIndex )
+//	    ioIndex--;
+//	else
+//	    ch = -1;
+//########################################
     }
     return ch;
 }
