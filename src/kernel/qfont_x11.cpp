@@ -1821,7 +1821,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
     if (script == NoScript) script = defaultScript;
 
     if (script > Unicode) {
-	qFatal("QFontPrivate::load: script %d is out of range");
+	qFatal("QFontPrivate::load: script %d is out of range", script);
     }
 
     if (x11data.fontstruct[script] && ! request.dirty) {
