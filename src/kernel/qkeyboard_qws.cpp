@@ -677,6 +677,10 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
     if(n<0) {
 	qDebug("Keyboard read error %s",strerror(errno));
     } else {
+	// ### This doesn't work anymore!!!
+	return;
+
+
 	int keycode;
 	unsigned int x=buf[1];
 	if(buf[0]==7) {

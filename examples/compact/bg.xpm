@@ -1,5 +1,5 @@
 /* XPM */
-static char *noname[] = {
+static char *bg_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "32 32 85 1",
 /* colors */

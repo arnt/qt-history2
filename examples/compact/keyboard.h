@@ -5,6 +5,7 @@ public:
     void mousePressEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
     void paintEvent(QPaintEvent* e);
+    void drawKeyboard( QPainter &p, int key = -1 );
 
     QSize sizeHint() const;
     
@@ -16,4 +17,5 @@ private:
     uint ctrl:1;
     uint alt:1;
     
+    int pressedKey;
 };

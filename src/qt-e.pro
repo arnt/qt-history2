@@ -555,6 +555,7 @@ ALLHEADERS        += $$KERNEL_H/qfontmanager_qws.h \
 		  $$KERNEL_H/qgfxvnc_qws.h \
 		  $$KERNEL_H/qwindowsystem_qws.h \
 		  $$KERNEL_H/qwscursor_qws.h \
+		  $$KERNEL_H/qwsmouse_qws.h \
 		  $$KERNEL_H/qlock_qws.h \
 		  $$KERNEL_H/qwsregionmanager_qws.h \
 		  $$KERNEL_H/qwsdisplay_qws.h \

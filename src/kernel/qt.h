@@ -243,6 +243,7 @@
 #include "qwsutils_qws.h"
 #include "qwscommand_qws.h"
 #include <qwscursor_qws.h>
+#include <qwsmouse_qws.h>
 #include "qwsproperty_qws.h"
 #include <qwsmanager_qws.h>
 #include "qwsevent_qws.h"

@@ -24,6 +24,7 @@
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qwsmouse_qws.h"
 
 #include <qapplication.h>
 #include <qpointarray.h> //cursor test code
@@ -902,6 +903,11 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 #endif
 	qwsServer->mouseGrabber = 0;
     }
+}
+
+QMouseHandler *QWSServer::mouseHandler()
+{
+    return qwsServer->mousehandlers.first();
 }
 
 

@@ -11,7 +11,8 @@
 
 
 Keyboard::Keyboard(QWidget* parent, const char* name, int f) :
-    QWidget(parent, name, f),  shift(FALSE), lock(FALSE), ctrl(FALSE), alt(FALSE)
+    QWidget(parent, name, f),  shift(FALSE), lock(FALSE), ctrl(FALSE),
+    alt(FALSE), pressedKey(-1)
 {
     setPalette(QPalette(QColor(240,240,230))); // Beige!
     //    setFont( QFont( "Helvetica", 8 ) );
@@ -144,16 +145,21 @@ int Keyboard::getKey( int &w, int j ) {
 }
     
 
-
-
 void Keyboard::paintEvent(QPaintEvent* e)
 {
+    QPainter painter(this);
+    painter.setClipRect(e->rect());
+    drawKeyboard( painter );
+}
+
+/*
+  Draw the keyboard.
+
+  If key >= 0, only the specified key is drawn.
+*/
+void Keyboard::drawKeyboard( QPainter &p, int key )
+{
     QFontMetrics fm=fontMetrics();
-
-    QPainter p(this);
-    p.setClipRect(e->rect());
-
-    
     int d = fm.lineSpacing() - 1;
     
     //    int h = d*5;
@@ -174,57 +180,61 @@ void Keyboard::paintEvent(QPaintEvent* e)
 	int k= getKey( kw, j );
 	while ( k ) {
 	    int ww = kw*d/2;
-	    QString s;
-	    bool pressed = FALSE;
-	    if ( k >= 0x80 ) {
-		s = specialM[k - 0x80].label;
-		    
-		if ( k == ShiftCode ) {
-		    pressed = shift;
-		} else if ( k == CapsCode ) {
-		    pressed = lock;
-		} else if ( k == CtrlCode ) {
-		    pressed = ctrl;
-		} else if ( k == AltCode ) {
-		    pressed = alt;
-		} 
-	    } else {
-		s = QChar( shift^lock ? QWSServer::keyMap()[k].shift_unicode : 
-			   QWSServer::keyMap()[k].unicode);
+	    if ( key < 0 || k == key ) {
+		QString s;
+		bool pressed = (k == pressedKey);
+		if ( k >= 0x80 ) {
+		    s = specialM[k - 0x80].label;
+			
+		    if ( k == ShiftCode ) {
+			pressed = shift;
+		    } else if ( k == CapsCode ) {
+			pressed = lock;
+		    } else if ( k == CtrlCode ) {
+			pressed = ctrl;
+		    } else if ( k == AltCode ) {
+			pressed = alt;
+		    } 
+		} else {
+		    s = QChar( shift^lock ? QWSServer::keyMap()[k].shift_unicode : 
+			       QWSServer::keyMap()[k].unicode);
+		}
+		if ( pressed )
+		    p.fillRect( x+1, y+1, ww-1, d-2, keycolor_pressed );
+		else
+		    p.fillRect( x+1, y+1, ww-1, d-2, keycolor );
+
+		if ( threeD ) {
+		    p.setPen(pressed ? keycolor_lo : keycolor_hi);
+		    p.drawLine( x, y+1, x, y+d-2 );
+		    p.drawLine( x+1, y+1, x+1, y+d-3 );
+		    p.drawLine( x+1, y+1, x+1+ww-2, y+1 );
+		}
+
+		p.setPen(pressed ? keycolor_hi : keycolor_lo);
+		p.drawLine( x+ww-1, y+1, x+ww-1, y+d-2 );
+
+		if ( threeD ) {
+		    p.setPen(keycolor_lo.light());
+		    p.drawLine( x+ww-2, y+d-2, x+ww-2, y+1 );
+		    p.drawLine( x+ww-2, y+d-2, x+1, y+d-2 );
+		}
+
+		p.setPen(textcolor);
+		p.drawText( x, y, ww, d-2, AlignCenter, s ); 
 	    }
-	    if ( pressed )
-		p.fillRect( x+1, y+1, ww-1, d-1, keycolor_pressed );
-	    else
-		p.fillRect( x+1, y+1, ww-1, d-1, keycolor );
-
-	    if ( threeD ) {
-		p.setPen(pressed ? keycolor_lo : keycolor_hi);
-		p.drawLine( x, y, x, y+d-1 );
-		p.drawLine( x+1, y+1, x+1, y+d-3 );
-		p.drawLine( x+1, y+1, x+1+ww-2, y+1 );
-	    }
-
-	    p.setPen(pressed ? keycolor_hi : keycolor_lo);
-	    p.drawLine( x+ww-1, y, x+ww-1, y+d-1 );
-
-	    if ( threeD ) {
-		p.setPen(keycolor_lo.light());
-		p.drawLine( x+ww-2, y+d-2, x+ww-2, y+1 );
-		p.drawLine( x+ww-2, y+d-2, x+1, y+d-2 );
-	    }
-
-	    p.setPen(textcolor);
-	    p.drawText( x, y, ww, d-2, AlignCenter, s ); 
 
 	    x += ww;
 	    k = getKey( kw );
 	}
-	if ( threeD ) {
-	    p.setPen(keycolor_hi);
-	    p.drawLine( 0, y, x-1, y );
+	if ( key < 0 ) {
+	    if ( threeD ) {
+		p.setPen(keycolor_hi);
+		p.drawLine( 0, y, x-1, y );
+	    }
+	    p.setPen(keycolor_lo);
+	    p.drawLine( 0, y+d-1, x-1, y+d-1 );
 	}
-	p.setPen(keycolor_lo);
-	p.drawLine( 0, y+d-1, x-1, y+d-1 );
     }
 }
 
@@ -249,13 +259,13 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
 	    need_repaint = TRUE;
 	} else if ( k == AltCode ){
 	    alt = !alt;
-	    need_repaint = TRUE;
+//	    need_repaint = TRUE;
 	} else if ( k == CapsCode ) {
 	    lock = !lock;
 	    need_repaint = TRUE;
 	} else if ( k == CtrlCode ) {
 	    ctrl = !ctrl;
-	    need_repaint = TRUE;
+//	    need_repaint = TRUE;
 	} else {
 	    qk = specialM[ k - 0x80 ].qcode;
 	    u = specialM[ k - 0x80 ].unicode;
@@ -280,12 +290,23 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
 	shift = alt = ctrl = FALSE;
 	qDebug( "pressed %d -> %04x ('%c')", k, u, u&0xffff < 256 ? u&0xff : 0 );
     }
+    pressedKey = k;
     if ( need_repaint )
 	repaint( FALSE );
+    else {
+	QPainter p(this);
+	drawKeyboard( p, pressedKey );
+    }
 }
 
 void Keyboard::mouseReleaseEvent(QMouseEvent*)
 {
+    if ( pressedKey >= 0 ) {
+	int tmp = pressedKey;
+	pressedKey = -1;
+	QPainter p(this);
+	drawKeyboard( p, tmp );
+    }
 }
 
 

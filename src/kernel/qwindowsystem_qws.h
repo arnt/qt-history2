@@ -82,15 +82,6 @@ private:
     int last_focus_time;
 };
 
-class QMouseHandler : public QObject {
-    Q_OBJECT
-public:
-    QMouseHandler();
-    virtual ~QMouseHandler();
-signals:
-    void mouseChanged(const QPoint& pos, int bstate);
-};
-
 class QWSKeyboardHandler : public QObject {
     Q_OBJECT
 public:
@@ -113,12 +104,14 @@ private:
     QWSSoundServerData* d;
 };
 #endif
+
 /*********************************************************************
  *
  * Class: QWSServer
  *
  *********************************************************************/
 
+class QMouseHandler;
 struct QWSCommandStruct;
 class QWSServer : private QWSServerSocket
 {
@@ -161,6 +154,7 @@ public:
     static void setKeyboardFilter( KeyboardFilter *f );
     
     static void sendMouseEvent(const QPoint& pos, int state);
+    static QMouseHandler *mouseHandler();
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
     QWSPropertyManager *manager() {

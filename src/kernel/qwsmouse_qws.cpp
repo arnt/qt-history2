@@ -22,6 +22,7 @@
 #include "qwsevent_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsutils_qws.h"
+#include "qwsmouse_qws.h"
 
 #include <qapplication.h>
 #include <qtimer.h>
@@ -331,20 +332,59 @@ QMouseHandlerPrivate::~QMouseHandlerPrivate()
 }
 
 /*
+ *
+ */
+
+QCalibratedMouseHandler::QCalibratedMouseHandler()
+{
+    clearCalibration();
+}
+
+void QCalibratedMouseHandler::clearCalibration()
+{
+    a = 1;
+    b = 0;
+    c = 0;
+    d = 0;
+    e = 1;
+    f = 0;
+    s = 1;
+}
+
+void QCalibratedMouseHandler::calibrate( QWSPointerCalibrationData *cd )
+{
+    QPoint dev_tl = cd->devPoints[ QWSPointerCalibrationData::TopLeft ];
+    QPoint dev_br = cd->devPoints[ QWSPointerCalibrationData::BottomRight ];
+    QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
+    QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
+
+    s = 1 << 16;
+
+    a = s * (screen_tl.x() - screen_br.x() ) / (dev_tl.x() - dev_br.x());
+    b = 0;
+    c = s * screen_tl.x() - a * dev_tl.x();
+
+    d = 0;
+    e = s * (screen_tl.y() - screen_br.y() ) / (dev_tl.y() - dev_br.y());
+    f = s * screen_tl.y() - e * dev_tl.y();
+}
+
+QPoint QCalibratedMouseHandler::transform( const QPoint &p )
+{
+    QPoint tp;
+
+    tp.setX( (a * p.x() + b * p.y() + c) / s );
+    tp.setY( (d * p.x() + e * p.y() + f) / s );
+
+    return tp;
+}
+
+
+/*
  * Handler for /dev/tpanel Linux kernel driver
  */
 
-
-#ifdef QWS_TOUCHPANEL
-static int tlx=-400;
-static int tly=-400;
-static int brx=400;
-static int bry=400;
-static int addx=400;
-static int addy=400;
-#endif
-
-class QVrTPanelHandlerPrivate : public QMouseHandler {
+class QVrTPanelHandlerPrivate : public QCalibratedMouseHandler {
     Q_OBJECT
 public:
     QVrTPanelHandlerPrivate(MouseProtocol, QString dev);
@@ -360,7 +400,8 @@ private:
     QTimer *rtimer;
 };
 
-QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString)
+QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString ) :
+    QCalibratedMouseHandler()
 {
 #ifdef QWS_TOUCHPANEL
     if ( dev.isEmpty() )
@@ -386,6 +427,8 @@ QVrTPanelHandlerPrivate::QVrTPanelHandlerPrivate( MouseProtocol, QString)
 
     rtimer = new QTimer( this );
     connect( rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
+
+    printf("\033[?25l"); fflush(stdout); // VT100 cursor off
 #endif
 }
 
@@ -415,8 +458,7 @@ void QVrTPanelHandlerPrivate::readMouseData()
 //    static bool reverse = FALSE;  // = TRUE; Osprey axis reversed
 
     #define EMIT_MOUSE \
-	QPoint q = QPoint((prev.x()+addx)*qt_screen->width()/(brx-tlx), \
-			  (prev.y()+addy)*qt_screen->height()/(bry-tly)); \
+	QPoint q = transform( prev ); \
 	if ( reverse ) { \
 	    q.setX( qt_screen->width()-q.x() ); \
 	    q.setY( qt_screen->height()-q.y() ); \
@@ -424,9 +466,9 @@ void QVrTPanelHandlerPrivate::readMouseData()
 	if ( q != mousePos ) { \
 	    mousePos = q; \
 	    emit mouseChanged(mousePos, Qt::LeftButton); \
-	    pressed = TRUE; \
-	    rtimer->stop(); \
-	}
+	} \
+	pressed = TRUE; \
+	rtimer->stop();
 
     do {
 	ret=read(mouseFD,data,sizeof(data));
@@ -437,16 +479,6 @@ void QVrTPanelHandlerPrivate::readMouseData()
 		if ( data[5] > 800 ) {
 		    if ( prev_pressure - data[5] < 40 ) {
 			QPoint t(data[3]-data[4],data[2]-data[1]);
-			if(t.x()<tlx)
-			    tlx=t.x();
-			if(t.y()<tly)
-			    tly=t.y();
-			if(t.x()>brx)
-			    brx=t.x();
-			if(t.y()>bry)
-			    bry=t.y();
-			addx=-tlx;
-			addy=-tly;
 			if ( prev_valid ) {
 			    QPoint d = t-prev;
 			    if ( d.manhattanLength() > 450 ) // scan error
@@ -468,12 +500,12 @@ void QVrTPanelHandlerPrivate::readMouseData()
 		}
 		if ( pressed ) {
 		    rtimer->start( 40, TRUE );
-		    //emit mouseChanged(mousePos, 0);
 		    pressed = FALSE;
 		}
 	    }
 	}
     } while ( ret > 0 );
+
     if ( prev_valid > 1 ) {
 	prev_valid = 0;
 	EMIT_MOUSE
