@@ -450,10 +450,13 @@ QString QTableItem::text() const
 /*! Makes \a p the pixmap of \e this item.
 
   If text() has been defined for the item the pixmap is by
-  default presented on its left hand side.
+  default presented on its left hand side. 
 
   Note that setPixmap() does not update the cell the item belongs to.
   Use QTable::updateCell() to repaint cell contents immediately.
+
+  For \l{QComboTableItem}s and \l{QCheckTableItem}s this function
+  has no visible effect.
 
   \sa QTable::setPixmap() pixmap() setText()
 */
@@ -569,7 +572,7 @@ QWidget *QTableItem::createEditor() const
   (Code taken from \link wineorder2-example.html
   table/wineorder2/spinboxitem.cpp \endlink )     
 
-  \sa QTable::setContentFromEditor()
+  \sa QTable::setCellContentFromEditor()
 */
 
 void QTableItem::setContentFromEditor( QWidget *w )
@@ -844,38 +847,90 @@ bool QTableItem::isEnabled() const
     return (bool)enabled;
 }
 
-/*!
-  \class QComboTableItem qtable.h
+/*! \class QComboTableItem qtable.h
 
   \brief The QComboTableItem class implements a convenient class to
-  put combobox items in a QTable.
+  use combo boxes in a QTable.
 
   \module table
 
-  This class implements a combobox item for QTable. It has set the
-  edit type WhenCurrent. This means, when this item is not the current
-  one, it paints itself like a combobox, but without using a real
+  QComboTableItems fill table cells with combo boxes of the
+  edit type WhenCurrent (c.f. \l{EditType}). As long as the cell does not
+  have the focus it paints itself like a combo box, but without using a real
   QComboBox widget. When the item becomes the current one, it shows a
-  real combobox, so that the user can edit the value.
+  real combo box, so that the user can edit the value.
 
-  This has the advantage, that this item is always visible as a
-  combobox without the need of always showing a real QComboBox widget,
-  which would waste resources.
+  This implementation saves resources: although the user always sees
+  a combo box there is no need for expensive QComboBox widgets 
+  to be visible all the time.
+
+  The menu entries of the combo box are taken from a
+  QStringList with the first list item serving as the top most
+  combo box entry. After creation the original menu list may
+  be exchanged using setStringList(). 
+
+  Pixmaps can neither be used in menu entries
+  nor can a QComboTableItem be accompanied by icons.
+
+  The current entry in a combo table item might be selected by the user or via
+  setCurrentItem(). Whilst currentText() allows to query the
+  menu text of the currently active entry, text() returns
+  the menu text of any desired combo box entry.
+
+  Whether the user is allowed to edit menu entries is determined
+  at construction time of a QComboTableItem object but can be
+  changed later using setEditable().
+
+  To fill a table cell with a QComboTableItems use QTable::setItem():
+
+  \walkthrough table/euroconversion/converter.cpp
+  \skipto QStringList
+  \printline QStringList
+  \skipto currencies = 
+  \printuntil setItem
+
+  (Code taken from \link euroconvert-example.html 
+  table/euroconversion/converter.cpp \endlink )
+
+  A combo box item is deleted like ordinary \l{QTableItem}s
+  using QTable::clearCell().
 */
 
-/*! Creates a combo box table item for the \a table spreadsheet.
+/*! Creates a combo box item for the \a table spreadsheet.
 
-  The \a list arguments specifies the initial value of the item, \a
-  editable specifies if the combobox should be editable or not, e.g.
+  The \a list argument determines the texts of the combo box entries.
+  The resulting QComboTableItem has as many menu entries as
+  \a list has members whilst the first \a list entry appears
+  as the top most combo box entry. The menu texts might be changed later using
+  setStringList().
+
+  \a editable specifies whether the combo box entries can be edited by the user 
+  or not. QComboTableItems as an entity are of the edit type QTableItem::WhenCurrent. 
+
+  To use a combo box item as content for a QTable cell use
+  QTable::setItem(), e.g.:
 
   \walkthrough table/small-table-demo/main.cpp
   \skipto QTable
   \printline QTable
+  \skipto QStringList
+  \printline QStringList
   \skipto i < numRows
   \printuntil TRUE
+  \skipto setItem
+  \printuntil }
 
   (Code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink).
+
+  Like regular \l{QTableItem}s combo table items might serve
+  as content for a QTable which is not its parent. It can
+  however not be used in more than one QTables at one time.
+
+  By default QComboTableItems cannot be replaced by other items as
+  they return FALSE for isReplaceable().
+
+  \sa QTable::clearCell() EditType
 */
 
 QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool editable )
@@ -885,8 +940,9 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 }
 
 /*! Sets the entries of this QComboTableItem to the strings
-  of the string list \a l.
+   in the string list \a l.
 
+  The first list entry appears as the top most combo box entry.
 */
 
 void QComboTableItem::setStringList( const QStringList &l )
@@ -941,7 +997,17 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
 }
 
-/*! Sets the item \a i of the list of entries to the current one */
+/*! Makes the combo box menu entry no. \a i the current one:
+
+  \walkthrough table/small-table-demo/main.cpp
+  \skipto QComboTableItem
+  \printuntil setCurrentItem
+
+  (Code taken from \link small-table-demo-example.html
+  table/small-table-demo/main.cpp \endlink )
+
+  \sa currentItem()
+*/
 
 void QComboTableItem::setCurrentItem( int i )
 {
@@ -951,8 +1017,10 @@ void QComboTableItem::setCurrentItem( int i )
 }
 
 /*! \overload
-  Sets the string \a s to be the current one, of the list of entries
-  contains this.
+
+  Makes the combo box entry reading \a s the current one.
+
+  \sa currentItem()
 */
 
 void QComboTableItem::setCurrentItem( const QString &s )
@@ -962,7 +1030,9 @@ void QComboTableItem::setCurrentItem( const QString &s )
 	setCurrentItem( i );
 }
 
-/*! Returns the current item.
+/*! Returns the number of the current item.
+
+  \sa setCurrentItem()
 */
 
 int QComboTableItem::currentItem() const
@@ -970,35 +1040,51 @@ int QComboTableItem::currentItem() const
     return current;
 }
 
-/*! Returns the currently selected text. */
+/*! Returns the text of the currently selected combo box entry. 
+
+  \sa currentItem() text()
+*/
 
 QString QComboTableItem::currentText() const
 {
     return *entries.at( current );
 }
 
-/*! Returns the number of items in the list of entries. */
+/*! Returns the number of combo box entries. 
+*/
 
 int QComboTableItem::count() const
 {
     return entries.count();
 }
 
-/*! Returns the text of the item \a i in the lits of entries. */
+/*! Returns the text of combo box entry no. \a i. 
+
+  \sa currentText()
+*/
 
 QString QComboTableItem::text( int i ) const
 {
     return *entries.at( i );
 }
 
-/*! Sets the combobox of this item to be editable if \a b is TRUE. */
+/*! Determines whether the entries of this combo table item
+  can be changed by the user (\a b is TRUE) or not (\a b
+  is FALSE). 
+
+  \sa isEditable()
+*/
 
 void QComboTableItem::setEditable( bool b )
 {
     edit = b;
 }
 
-/*! Returns whether the combobox of this item is editable. */
+/*! Returns whether combo box entries of \e this item can
+  be changed by the user or not. 
+
+  \sa setEditable()
+*/
 
 bool QComboTableItem::isEditable() const
 {
@@ -1006,7 +1092,6 @@ bool QComboTableItem::isEditable() const
 }
 
 /*! \fn int QComboTableItem::rtti() const
-  \reimp
 
   For QComboTableItems this function returns a Run Time Identification 
   number of 1.
@@ -1014,8 +1099,7 @@ bool QComboTableItem::isEditable() const
   \sa QTableItem::rtti()
 */
 
-/*!
-  \class QCheckTableItem qtable.h
+/*! \class QCheckTableItem qtable.h
 
   \brief The QCheckTableItem class implements a convenient class to
   put checkbox items in a QTable.
@@ -1113,7 +1197,6 @@ bool QCheckTableItem::isChecked() const
 }
 
 /*! \fn int QCheckTableItem::rtti() const
-  \reimp
 
   Returns the Run Time Identification number of \e this object
   which is 2 for QCheckTableItems.
@@ -2231,6 +2314,9 @@ void QTable::setText( int row, int col, const QString &text )
 
   (Code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink)
+
+  Note that \l{QComboTableItem}s and \l{QCheckTableItem}s
+  don't show pixmaps.
 
   \sa pixmap() setText() setItem() QTableItem::setPixmap()
 */
@@ -4379,7 +4465,7 @@ void QTable::insertColumns( int col, int count )
 
 /*! Removes the row \a row.
 
-  \sa hideRow() insertRows() removeColumn(), removeRows()
+  \sa hideRow() insertRows() removeColumn() removeRows()
 */
 
 void QTable::removeRow( int row )
@@ -4393,9 +4479,9 @@ void QTable::removeRow( int row )
     setNumRows( numRows() - 1 );
 }
 
-/* Removes the rows which are listed in the array \a rows.
+/*! Removes the rows listed in the array \a rows.
 
-   \sa removeRow()
+   \sa removeRow() insertRows() removeColumns()
 */
 
 void QTable::removeRows( const QArray<int> &rows )
@@ -4417,7 +4503,7 @@ void QTable::removeRows( const QArray<int> &rows )
 
 /*! Removes the column \a col.
 
-  \sa hideColumn() insertColumns() removeRow()
+  \sa removeColumns() hideColumn() insertColumns() removeRow()
 */
 
 void QTable::removeColumn( int col )
@@ -4431,9 +4517,9 @@ void QTable::removeColumn( int col )
     setNumCols( numCols() - 1 );
 }
 
-/* Removes the columns which are listed in the array \a cols.
+/*! Removes the columns listed in the array \a cols.
 
-   \sa removeColumn()
+   \sa removeColumn() insertColumns() removeRows()
 */
 
 void QTable::removeColumns( const QArray<int> &cols )
@@ -4453,9 +4539,7 @@ void QTable::removeColumns( const QArray<int> &cols )
     setNumCols( numCols() - cols.count() );
 }
 
-/*! \reimp
-
-  This event handler is called whenever a QTable object receives a
+/*! This event handler is called whenever a QTable object receives a
   \l QDragEnterEvent \a e, i.e. when the user pressed the mouse
   button to drag something.
 
@@ -4474,9 +4558,7 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     e->accept();
 }
 
-/*! \reimp
-
-  This event handler is called whenever a QTable object receives a
+/*! This event handler is called whenever a QTable object receives a
   \l QDragMoveEvent \a e, i.e. when the user actually drags the mouse.
 
   The focus is moved to the cell where the QDragMoveEvent occured.
@@ -4492,9 +4574,7 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     e->accept();
 }
 
-/*! \reimp
-
-  This event handler is called when a drag activity leaves \e this
+/*! This event handler is called when a drag activity leaves \e this
   QTable object.
 */
 
@@ -4503,9 +4583,7 @@ void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
     setCurrentCell( oldCurrentRow, oldCurrentCol );
 }
 
-/*! \reimp
-
-  This event handler is called when the user ends a drag-and-drop
+/*! This event handler is called when the user ends a drag-and-drop
   activity by dropping something onto \e this QTable.
 */
 

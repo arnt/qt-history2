@@ -37,9 +37,12 @@ int main( int argc, char **argv )
     QStringList comboEntries;
     comboEntries << "one" << "two" << "three" << "four";
 
-    for ( int i = 0; i < numRows; ++i )
-	table.setItem( i, 5, new QComboTableItem( &table, comboEntries, 
-	               TRUE ) );
+    for ( int i = 0; i < numRows; ++i ){
+	QComboTableItem * item = new QComboTableItem( &table, comboEntries,
+	                       TRUE );
+	item->setCurrentItem( i % 4 );
+	table.setItem( i, 5, item );
+    }	               
     for ( int j = 0; j < numRows; ++j )
 	table.setItem( j, 1, new QCheckTableItem( &table, "Check me" ) );
 

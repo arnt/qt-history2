@@ -132,16 +132,36 @@ with the last row (i.e. no. \e{numRows-1}) ...
 
 \printuntil TRUE
 
-... we populate the sixth column with identical combo boxes 
-showing the entries \e one, \e two, \e three and \e four. With
-the last parameter set to TRUE the user has the possibility to
-change the text of the combo box entries. \l QComboTableItem
-is a special class to fill table cells with combo boxes.
+... we wish to populate the sixth column with identical combo boxes 
+showing the entries \e one, \e two, \e three and \e four. 
+Fortunately there is a special class to fill table cells with combo boxes
+named QComboTableItem.
+
+Thus we create a QComboTableItem object for every column.
+As we set the last parameter to TRUE the user has the possibility to
+change the text of the combo box entries. 
+
+\printline setCurrentItem
+
+Although all of the combo table items are the same we want them
+to show different initial values: Instead of having an entire column
+boringly showing a \e one as current value of each cell, we prefer
+\e one, \e two, \e three, \e four, \e one, \e two etc. top-down.
+
+To achieve this we define that the first and every fourth combo box
+initially show the first menu entry (the row number modulo 4 equals 
+0 and therefore uses the \e one entry), the second and every fourth
+combo table item show \e two, and so forth.
+
+\printline setItem
+\printline }
+
+Finally we fill the 5th column with the prepared combo box items. 
 
 \printline for
 \printline QCheckTableItem
 
-The same way the entire second column is filled with unchecked
+Similarly the entire second column is filled with unchecked
 check boxes of the title \e{Check me}. 
 
 \printline app
