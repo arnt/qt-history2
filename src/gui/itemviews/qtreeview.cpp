@@ -683,10 +683,13 @@ void QTreeView::mousePressEvent(QMouseEvent *e)
     if (i == -1) {
         QAbstractItemView::mousePressEvent(e);
     } else {
-        if (d->viewItems.at(i).open)
+        if (d->viewItems.at(i).open) {
+            setState(QAbstractItemView::OpeningState);
             d->close(i);
-        else
+        } else {
+            setState(QAbstractItemView::ClosingState);
             d->open(i);
+        }
         updateGeometries();
         viewport()->update();
     }

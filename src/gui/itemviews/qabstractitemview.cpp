@@ -944,6 +944,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     QPoint topLeft;
     QPoint bottomRight = e->pos();
 
+    if (state() == OpeningState || state() == ClosingState)
+        return;
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
