@@ -259,6 +259,9 @@ QToolBar::~QToolBar()
 {
 }
 
+QMainWindow *QToolBar::mainWindow() const
+{ return qt_cast<QMainWindow *>(parentWidget()); }
+
 QAction *QToolBar::addAction(const QString &text)
 {
     QAction *action = new QAction(text, this);

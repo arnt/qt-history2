@@ -20,6 +20,8 @@ public:
     QToolBar(QMainWindow *parent);
     ~QToolBar();
 
+    QMainWindow *mainWindow() const;
+
     inline void addAction(QAction *action)
     { QWidget::addAction(action); }
     inline void insertAction(QAction *before, QAction *action)
