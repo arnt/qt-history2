@@ -501,6 +501,34 @@ void QObject::setObjectName(const QString &name)
 
 
 #ifdef QT_COMPAT
+/*! \internal
+    QObject::child is compat but needs to call itself recursively,
+    that's why we need this helper.
+*/
+static QObject *qChildHelper(const char *objName, const char *inheritsClass,
+                             bool recursiveSearch, const QObjectList &children)
+{
+    if (children.isEmpty())
+        return 0;
+
+    bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
+    const QLatin1String oName(objName);
+    for (int i = 0; i < children.size(); ++i) {
+        QObject *obj = children.at(i);
+        if (onlyWidgets) {
+            if (obj->isWidgetType() && (!objName || obj->objectName() == oName))
+                return obj;
+        } else if ((!inheritsClass || obj->inherits(inheritsClass))
+                   && (!objName || obj->objectName() == oName))
+            return obj;
+        if (recursiveSearch && (obj = qChildHelper(objName, inheritsClass,
+                                                   recursiveSearch, obj->children())))
+            return obj;
+    }
+    return 0;
+}
+
+
 /*!
     Searches the children and optionally grandchildren of this object,
     and returns a child that is called \a objName that inherits \a
@@ -517,23 +545,7 @@ void QObject::setObjectName(const QString &name)
 QObject* QObject::child(const char *objName, const char *inheritsClass,
                          bool recursiveSearch) const
 {
-    if (d->children.isEmpty())
-        return 0;
-
-    bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
-    const QLatin1String oName(objName);
-    for (int i = 0; i < d->children.size(); ++i) {
-        QObject *obj = d->children.at(i);
-        if (onlyWidgets) {
-            if (obj->isWidgetType() && (!objName || obj->objectName() == oName))
-                return obj;
-        } else if ((!inheritsClass || obj->inherits(inheritsClass))
-                   && (!objName || obj->objectName() == oName))
-            return obj;
-        if (recursiveSearch && (obj = obj->child(objName, inheritsClass, recursiveSearch)))
-            return obj;
-    }
-    return 0;
+    return qChildHelper(objName, inheritsClass, recursiveSearch, d->children);
 }
 #endif
 
