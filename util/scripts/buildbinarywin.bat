@@ -8,11 +8,9 @@ rem ***********************************************
 set QMAKESPEC=%1
 if not %errorlevel%==0 goto error
 if %1==win32-msvc (
-	echo win32-msvc
 	call "C:\Program Files\Microsoft Visual Studio\VC98\Bin\vcvars32.bat"
 	if not %errorlevel%==0 goto error
 ) else if %1==win32-msvc.net (
-	echo win32-msvc.net
 	call "C:\Program Files\Microsoft Visual Studio .NET 2003\Vc7\bin\vcvars32.bat"
 	if not %errorlevel%==0 goto error
 ) else (
