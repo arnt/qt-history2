@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#9 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#10 $
 **
 ** Definition of QPointArray class
 **
@@ -31,7 +31,7 @@ struct QPointData {				// platform dependent point
     QPointData() {}
     QPointData( int xp, int yp )  { x=(Qpnta_t)xp; y=(Qpnta_t)yp; }
     QPointData( const QPoint &p ) { x=(Qpnta_t)p.x(); y=(Qpnta_t)p.y(); }
-#if defined(_OS_MAC_)
+#if defined(_WS_MAC_)
     Qpnta_t y;
     Qpnta_t x;
 #else
@@ -78,7 +78,6 @@ public:
     QPointArray	 &operator=( const QPointArray &a )
 	{ return (QPointArray&)assign( a ); }
 
-    bool    fill( int x, int y, int size = -1 );
     bool    fill( const QPoint &p, int size = -1 );
 
     QPointArray copy() const			// make deep copy
@@ -118,11 +117,6 @@ QDataStream &operator>>( QDataStream &, QPointArray & );
 // --------------------------------------------------------------------------
 // Misc. QPointArray functions
 //
-
-inline bool QPointArray::fill( const QPoint &p, int size )
-{
-    return fill( p.x(), p.y(), size );
-}
 
 inline void QPointArray::setPoint( uint i, const QPoint &p )
 {
