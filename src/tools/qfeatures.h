@@ -857,11 +857,6 @@
 #define QT_NO_WIDGETPLUGIN
 #endif
 
-// Tool box
-#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_TOOLBUTTON))
-#define QT_NO_TOOLBOX
-#endif
-
 // QIconView
 #if !defined(QT_NO_ICONVIEW) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_IMAGEIO_XPM) || defined(QT_NO_IMAGE_HEURISTIC_MASK))
 #define QT_NO_ICONVIEW
@@ -885,6 +880,11 @@
 // QMessageBox
 #if !defined(QT_NO_MESSAGEBOX) && (defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LABEL))
 #define QT_NO_MESSAGEBOX
+#endif
+
+// Tool box
+#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP))
+#define QT_NO_TOOLBOX
 #endif
 
 // QProgressDialog

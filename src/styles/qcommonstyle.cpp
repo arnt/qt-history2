@@ -793,7 +793,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TABBAR
-
+#ifndef QT_NO_TOOLBOX
     case CE_ToolBoxTab:
 	{
 	    int d = 20 + r.height() - 3;
@@ -822,7 +822,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    p->setBrush( NoBrush );
 	    break;
 	}
-
+#endif // QT_NO_TOOLBOX
     case CE_ProgressBarGroove:
 	qDrawShadePanel(p, r, cg, TRUE, 1, &cg.brush(QColorGroup::Background));
 	break;
@@ -1004,6 +1004,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    break;
 	}
 #endif // QT_NO_TOOLBUTTON
+#ifndef QT_NO_HEADER	
         case CE_HeaderLabel:
 	{
 	    QRect rect = r;
@@ -1029,6 +1030,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem ( p, rect, AlignVCenter, cg, flags & Style_Enabled,
 		       0, header->label( section ), -1, &(cg.buttonText()) );
 	}
+#endif // QT_NO_HEADER
     default:
 	break;
     }

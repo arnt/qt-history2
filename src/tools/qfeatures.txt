@@ -30,7 +30,7 @@ SeeAlso: ???
 
 Feature: TOOLBOX
 Section: Widgets
-Requires: ICONSET TOOLBUTTON
+Requires: ICONSET SCROLLVIEW TOOLTIP
 Name: Tool box
 SeeAlso: ???
 
