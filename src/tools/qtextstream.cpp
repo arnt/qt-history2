@@ -182,6 +182,7 @@ const int QTextStream::floatfield  = ( QTextStream::scientific |
 class QTextStreamPrivate {
 public:
     QTextStreamPrivate(): decoder( 0 ) {}
+    ~QTextStreamPrivate() { delete decoder; }
 
     QTextDecoder *decoder;		//???
     QString ungetcBuf;
