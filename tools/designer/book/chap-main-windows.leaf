@@ -494,8 +494,8 @@ views we will be offering, and allow the user to add colors and set
 their preferred options. We'll prepare the way by creating a new menu
 for the view options and by adding a separator to the toolbar. 
 
-Click "new menu" on the menu bar and type "&View" over
-the text. The & (ampersand) makes the following letter a key
+Click "new menu" on the menu bar and type "\&View" over
+the text. The \& (ampersand) makes the following letter a key
 accelerator (i.e., in this case Alt+V will pop up the View menu).
 
 \img mw-newmenuitem.png
@@ -637,7 +637,7 @@ after the "Find" item.
 \sidebar Alternative Approach to Adding the Options Action
 
 Click Edit on the menu bar and then click "new item", located after
-the Find menu item. Type "&Options" over "new item" to rename it and
+the Find menu item. Type "\&Options" over "new item" to rename it and
 press \Key Enter. Move the arrow key to the space to the left of the
 Options menu item (the pixmap field) and press \Key Enter. The
 \Widget{Choose a Pixmap...} dialog pops up. Navigate to
@@ -676,7 +676,7 @@ line is above the "Cut" menu item.)
 \sidebar Alternative Approach to Adding the Add Action
 
 Click Edit on the menu bar and then click "new item", located after
-the Find menu item. Type "&Add" over "new item" to rename it and press
+the Find menu item. Type "\&Add" over "new item" to rename it and press
 \Key Enter. Move the arrow key to the space to the left of the Add
 item and press \Key Enter. The \Widget{Choose a Pixmap...} dialog pops up.
 Navigate to \c{/tools/designer/examples/colortool/images}; click the
@@ -707,11 +707,11 @@ Action Editor, and change its \Property{menuText} property to "\&Copy".
 \sidebar Alternate Approach to Renaming Actions
 
 To change the name of the Cut action to "Delete", click Edit on the
-menu bar and then click "Cut". Type "&Delete" over "Cut" and press
+menu bar and then click "Cut". Type "\&Delete" over "Cut" and press
 enter. 
 
-To change name of the Copy action to "&Copy", click Edit on the menu bar and
-then click "Copy". Type "&Copy" over "Copy" and press enter.
+To change name of the Copy action to "\&Copy", click Edit on the menu bar and
+then click "Copy". Type "\&Copy" over "Copy" and press enter.
 
 \endsidebar
 
