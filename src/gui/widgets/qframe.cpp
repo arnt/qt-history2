@@ -466,6 +466,9 @@ void QFrame::drawFrame(QPainter *p)
     case QFrame::Box:
     case QFrame::HLine:
     case QFrame::VLine:
+        lw = d->lineWidth;
+        mlw = d->midLineWidth;
+        break;
     default:
         // most frame styles do not handle customized line and midline widths
         // (see updateFrameWidth()).
