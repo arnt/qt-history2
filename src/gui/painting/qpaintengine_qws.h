@@ -17,10 +17,10 @@
 #include "qatomic.h"
 #include "qpaintengine.h"
 
-struct QWSPaintEngineData;
 class QWSPaintEnginePrivate;
 class QPainterState;
 class QApplicationPrivate;
+class QScreen;
 
 class QWSPaintEngine : public QPaintEngine
 {
@@ -32,6 +32,7 @@ public:
 
     bool begin(QPaintDevice *pdev);
     bool begin(QImage *img);
+    bool begin(QScreen *screen);
     bool end();
 
     void updatePen(const QPen &pen);
@@ -62,15 +63,19 @@ public:
 #if 1
     void setGlobalRegionIndex(int idx);
     void setWidgetDeviceRegion(const QRegion &);
+    void setClipDeviceRegion(const QRegion &);
+
 
     void scroll(int rx,int ry,int w,int h,int sx, int sy);
 
-    void fillRect(int rx,int ry,int w,int h, const QBrush &b);
+    void fillRect(int rx,int ry,int w,int h);
 
-     void blt(const QPaintDevice &src, int rx,int ry,int w,int h, int sx, int sy);
-     void blt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
-     void stretchBlt(const QPaintDevice &src, int rx,int ry,int w,int h, int sw,int sh);
+    void blt(const QPaintDevice &src, int rx,int ry,int w,int h, int sx, int sy);
+    void blt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
+    void stretchBlt(const QPaintDevice &src, int rx,int ry,int w,int h, int sw,int sh);
     void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h, int sx, int sy);
+    void tiledBlt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
+
 #endif
 
 protected:
@@ -80,8 +85,6 @@ protected:
 
     void copyQWSData(const QWSPaintEngine *);
     void cloneQWSData(const QWSPaintEngine *);
-    //virtual void setQWSData(const QWSPaintEngineData *);
-    QWSPaintEngineData* getQWSData(bool def = false) const;
 
     friend void qt_init(QApplicationPrivate *, int);
     friend void qt_cleanup();
@@ -94,30 +97,14 @@ protected:
     friend class QFontEngineXLFD;
 
 private:
-//    friend class QWidget;
+    friend class QWSServer;
 //    friend class QPixmap;
     friend class QFontEngine;
-
-   //QWSPaintEngineData *qwsData;
-
 private:
 #if defined(Q_DISABLE_COPY)
     QWSPaintEngine(const QWSPaintEngine &);
     QWSPaintEngine &operator=(const QWSPaintEngine &);
 #endif
-};
-
-/* I don't know where you use this, but I removed the QShared and gave you a QAtomic --tws */
-struct QWSPaintEngineData {
-    QAtomic ref;
-    /*Display*/ void *x_display;
-    int x_screen;
-    int x_depth;
-    int x_cells;
-    Qt::HANDLE x_colormap;
-    bool x_defcolormap;
-    void *x_visual;
-    bool x_defvisual;
 };
 
 #endif

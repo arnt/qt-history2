@@ -184,20 +184,19 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
         p->updatePen(p->painterState()->pen);
     }
 
-#if 0 // old code
-    if (textFlags) {
-        int lw = qRound(lineThickness());
-        GFX(p)->setBrush(p->painterState()->pen.color());
-        if (textFlags & Qt::TextUnderline)
-            GFX(p)->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
-        if (textFlags & Qt::TextStrikeOut)
-            GFX(p)->fillRect(x, y-qRound(ascent()/3), si.width, lw);
-        if (textFlags & Qt::TextOverline)
-            GFX(p)->fillRect(x, y-qRound(ascent())-1, si.width, lw);
-        GFX(p)->setBrush(p->painterState()->brush);
-    }
+// old code
+//     if (textFlags) {
+//         int lw = qRound(lineThickness());
+//         GFX(p)->setBrush(p->painterState()->pen.color());
+//         if (textFlags & Qt::TextUnderline)
+//             GFX(p)->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
+//         if (textFlags & Qt::TextStrikeOut)
+//             GFX(p)->fillRect(x, y-qRound(ascent()/3), si.width, lw);
+//         if (textFlags & Qt::TextOverline)
+//             GFX(p)->fillRect(x, y-qRound(ascent())-1, si.width, lw);
+//         GFX(p)->setBrush(p->painterState()->brush);
+//    }
 
-#endif
     QGlyphLayout *glyphs = si.glyphs;
 
 #ifdef DEBUG_LOCKS

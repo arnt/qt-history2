@@ -96,8 +96,9 @@ class QWSPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWSPaintEngine)
 public:
-    QWSPaintEnginePrivate() :gfx(0) {}
+    QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
     QGfx *gfx;
+    bool clipChildren;
 };
 
 #define d d_func()
@@ -135,14 +136,10 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 
     d->pdev = pdev;
 
-#ifdef QT_OLD_GFX
-    d->gfx = pdev->graphicsContext();
-#else
-//////////////////////////////////
     if (d->pdev->devType() == QInternal::Widget) {
         QWidget *w =  static_cast<QWidget *>(d->pdev) ;
 
-        d->gfx=QPaintDevice::qwsDisplay()->screenGfx();
+        d->gfx=qt_screen->screenGfx();
 
         QPoint offset=w->mapToGlobal(QPoint(0,0));
         QRegion r; // empty if not visible
@@ -207,8 +204,6 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
     } else {
         qFatal("QWSPaintEngine can only do widgets and pixmaps");
     }
-//////////////////////////////////
-#endif // QT_OLD_GFX
 
 //    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
@@ -239,8 +234,8 @@ bool QWSPaintEngine::begin(QImage *img)
         return 0;
     }
 
-    QSize s = qt_screen->mapToDevice(QSize(img->width(),img->height()));
-    d->gfx = QGfx::createGfx(img->depth(), img->bits(), s.width(), s.height() ,img->bytesPerLine());
+    //###??? QSize s = qt_screen->mapToDevice(QSize(img->width(),img->height()));
+    d->gfx = QGfx::createGfx(img->depth(), img->bits(), img->width(), img->height(), img->bytesPerLine());
     if(img->depth()<=8) {
         QRgb * tmp=img->colorTable();
         int nc=img->numColors();
@@ -265,6 +260,27 @@ bool QWSPaintEngine::begin(QImage *img)
 
 
 }
+
+
+
+
+bool QWSPaintEngine::begin(QScreen *screen)
+{
+    if (isActive()) {                         // already active painting
+        qWarning("QWSPaintEngine::begin: Painter is already active."
+                 "\n\tYou must end() the painter before a second begin()");
+        return true;
+    }
+
+    Q_ASSERT(d->gfx == 0);
+    d->pdev = 0;
+    d->gfx = screen->screenGfx();
+
+    setActive(true);
+
+    return true;
+}
+
 
 
 
@@ -530,15 +546,20 @@ void QWSPaintEngine::setWidgetDeviceRegion(const QRegion &r)
     d->gfx->setWidgetDeviceRegion(r);
 }
 
+void QWSPaintEngine::setClipDeviceRegion(const QRegion &r)
+{
+    d->gfx->setClipDeviceRegion(r);
+}
+
+
 void QWSPaintEngine::scroll(int rx,int ry,int w,int h,int sx, int sy)
 {
     d->gfx->scroll(rx, ry, w, h,sx, sy);
 }
 
-void QWSPaintEngine::fillRect(int rx,int ry,int w,int h, const QBrush &b)
+void QWSPaintEngine::fillRect(int rx,int ry,int w,int h)
 {
-    //implement me...
-//    d->gfx->setBrush(b); //#### restore //#### brush patterns
+    d->gfx->fillRect(rx, ry, w, h);
 }
 
 
@@ -573,3 +594,17 @@ void QWSPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int
     d->gfx->setAlphaType(QGfx::IgnoreAlpha); //### outside the loop ?
 }
 
+void QWSPaintEngine::tiledBlt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy)
+{
+    d->gfx->setSource(&src);
+    d->gfx->setBrushOffset(sx, sy);
+    d->gfx->tiledBlt(rx, ry, w, h);
+}
+
+//########### This doesn't really belong here; we need qscreen_qws.cpp
+
+
+QWSPaintEngine *QScreen::createPaintEngine()
+{
+    return new QWSPaintEngine;
+}

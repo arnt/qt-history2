@@ -25,7 +25,7 @@
 #include "qpointarray.h" //cursor test code
 #include "qimage.h"
 #include "qcursor.h"
-#include "qgfx_qws.h"
+#include "qpaintengine_qws.h"
 #include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
@@ -1505,12 +1505,14 @@ void QWSServer::beginDisplayReconfigure()
 */
 void QWSServer::endDisplayReconfigure()
 {
-    delete qwsServer->gfx;
+    qwsServer->paintEngine->end();
+    delete qwsServer->paintEngine;
     qt_screen->connect(QString::null);
     qwsServer->swidth = qt_screen->deviceWidth();
     qwsServer->sheight = qt_screen->deviceHeight();
     qwsServer->screenRegion = QRegion(0, 0, qwsServer->swidth, qwsServer->sheight);
-    qwsServer->gfx = qt_screen->screenGfx();
+    qwsServer->paintEngine = qt_screen->createPaintEngine();
+    qwsServer->paintEngine->begin(qt_screen);
     QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
@@ -1524,15 +1526,16 @@ void QWSServer::endDisplayReconfigure()
     qDebug("Desktop size: %dx%d", qApp->desktop()->width(), qApp->desktop()->height());
 }
 
-void QWSServer::resetGfx()
+void QWSServer::resetEngine()
 {
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->hide();
     qt_screencursor->show();
 #endif
-    delete qwsServer->gfx;
-    qwsServer->gfx = qt_screen->screenGfx();
+    paintEngine->end();
+    paintEngine->begin(qt_screen);
 }
+
 
 #ifndef QT_NO_QWS_CURSOR
 /*!
@@ -2315,10 +2318,10 @@ void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 
     QRect br(cr.boundingRect());
     br = qt_screen->mapFromDevice(br, s);
-    gfx->setClipDeviceRegion(cr);
-    gfx->scroll(br.x(), br.y(), br.width(), br.height(),
+    paintEngine->setClipDeviceRegion(cr);
+    paintEngine->scroll(br.x(), br.y(), br.width(), br.height(),
                  br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()));
-    gfx->setClipDeviceRegion(screenRegion);
+    paintEngine->setClipDeviceRegion(screenRegion);
 #ifndef QT_NO_PALETTE
     clearRegion(exposed, qApp->palette().color(QPalette::Active, QPalette::Background));
 #endif
@@ -2657,13 +2660,15 @@ void QWSServer::openDisplay()
     rgnMan = qt_fbdpy->regionManager();
     swidth = qt_screen->deviceWidth();
     sheight = qt_screen->deviceHeight();
-    gfx = qt_screen->screenGfx();
+    paintEngine = qt_screen->createPaintEngine();
+    qwsServer->paintEngine->begin(qt_screen);
 }
 
 
 void QWSServer::closeDisplay()
 {
-    delete gfx;
+    paintEngine->end();
+    delete paintEngine;
     qt_screen->shutdownDevice();
 }
 
@@ -2676,23 +2681,18 @@ void QWSServer::paintBackground(const QRegion &rr)
 {
     if (bgImage && bgImage->isNull())
         return;
-    QRegion r = rr;
-    if (!r.isEmpty()) {
+    if (!rr.isEmpty()) {
         Q_ASSERT (qt_fbdpy);
 
-        r = qt_screen->mapFromDevice(r, QSize(swidth, sheight));
-
-        gfx->setClipRegion(r);
-        QRect br(r.boundingRect());
+        paintEngine->setClipDeviceRegion(rr);
+        QRect br(rr.boundingRect());
         if (!bgImage) {
-            gfx->setBrush(QBrush(*bgColor));
-            gfx->fillRect(br.x(), br.y(), br.width(), br.height());
+            paintEngine->updateBrush(QBrush(*bgColor), QPoint());
+            paintEngine->fillRect(br.x(), br.y(), br.width(), br.height());
         } else {
-            gfx->setSource(bgImage);
-            gfx->setBrushOffset(br.x(), br.y());
-            gfx->tiledBlt(br.x(), br.y(), br.width(), br.height());
+            paintEngine->tiledBlt(*bgImage, br.x(), br.y(), br.width(), br.height(), br.x(), br.y());
         }
-        gfx->setClipDeviceRegion(screenRegion);
+        paintEngine->setClipDeviceRegion(screenRegion);
     }
 }
 
@@ -2700,12 +2700,12 @@ void QWSServer::clearRegion(const QRegion &r, const QColor &c)
 {
     if (!r.isEmpty()) {
         Q_ASSERT (qt_fbdpy);
-        gfx->setBrush(QBrush(c));
+        paintEngine->updateBrush(QBrush(c), QPoint());
         QSize s(swidth, sheight);
         QVector<QRect> a = r.rects();
         for (int i = 0; i < (int)a.count(); i++) {
             QRect r = qt_screen->mapFromDevice(a[i], s);
-            gfx->fillRect(r.x(), r.y(), r.width(), r.height());
+            paintEngine->fillRect(r.x(), r.y(), r.width(), r.height());
         }
     }
 }

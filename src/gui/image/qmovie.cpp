@@ -322,13 +322,13 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
     if (!(frameperiod < 0 && loop == -1)) {
         // its an animation, lets see if we converted
         // this frame already.
-         QString key("qt_movie012301"); // reserve 8+4 bytes for the key
-         void *p = this;
-         memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 8)),
-                static_cast<void *>(&p), sizeof(void *));
-         memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 12)), &framenumber,
-                sizeof(framenumber));
-         if (!QPixmapCache::find(key, lines)) {
+        QString key("qt_movie012301"); // reserve 8+4 bytes for the key
+        void *p = this;
+        memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 8)),
+               static_cast<void *>(&p), sizeof(void *));
+        memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 12)), &framenumber,
+               sizeof(framenumber));
+        if (!QPixmapCache::find(key, lines)) {
             lines.fromImage(img, Qt::ColorOnly);
             QPixmapCache::insert(key, lines);
         }
@@ -355,29 +355,28 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
         p.drawPixmap(area.left(), area.top(), lines, off.x(), off.y(), area.width(), area.height());
     }
 
-#if 0 //def Q_WS_QWS
+#if 0//def Q_WS_QWS
 
 //########################
-// part of QT_OLD_GFX, but do we need it at all ???
+// do we need this at all ???
     if(display_widget) {
-        QGfx *mygfx = display_widget->graphicsContext();
-        if(mygfx) {
-            double xscale,yscale;
-            xscale=display_widget->width();
-            yscale=display_widget->height();
-            xscale=xscale / ((double)mypixmap.width());
-            yscale=yscale / ((double)mypixmap.height());
-            double xh,yh;
-            xh = xscale * ((double)area.left());
-            yh = yscale * ((double)area.top());
-            mygfx->setSource(&mypixmap);
-            mygfx->setAlphaType(QGfx::IgnoreAlpha);
-            mygfx->stretchBlt(0, 0, display_widget->width(),
-                              display_widget->height(), mypixmap.width(),
-                              mypixmap.height());
-            delete mygfx;
-        }
+        QWSPaintEngine *pe = static_cast<QWSPaintEngine*>(display_widget->paintEngine());
+        pe->begin(display_widget);
+        double xscale,yscale;
+        xscale=display_widget->width();
+        yscale=display_widget->height();
+        xscale=xscale / ((double)mypixmap.width());
+        yscale=yscale / ((double)mypixmap.height());
+        double xh,yh;
+        xh = xscale * ((double)area.left());
+        yh = yscale * ((double)area.top());
+
+        pe->stretchBlt(mypixmap,0, 0, display_widget->width(),
+                          display_widget->height(), mypixmap.width(),
+                          mypixmap.height());
+        pe->end();
     }
+}
 #endif
 }
 

@@ -952,24 +952,6 @@ void QWidget::stackUnder(QWidget* w)
     }
 }
 
-/* debug
-void qt_clearRegion(QWidget *w, const QRegion &r, const QColor &c, bool dev)
-{
-    if (!r.isEmpty()) {
-        QGfx *gfx=w->graphicsContext(false);
-        gfx->setBrush(QBrush(c));
-        QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-        QArray<QRect> a = r.rects();
-        for (int i = 0; i < (int)a.count(); i++) {
-            QRect r = a[i];
-            if (dev)
-                r = qt_screen->mapFromDevice(r, s);
-            gfx->fillRect(r.x(), r.y(), r.width(), r.height());
-        }
-        delete gfx;
-    }
-}
-*/
 
 void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
@@ -1097,10 +1079,7 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     QRegion upd((QRegion(r) | oldr) & p->rect());
                     dirtyChildren |= upd;
                     QRegion paintRegion = dirtyChildren;
-#ifdef QT_OLD_GFX
-                    //###################
 #define FAST_WIDGET_MOVE
-#endif
 #ifdef FAST_WIDGET_MOVE
                     if (isMove && (w==olds.width() && h==olds.height())) {
                         QSize s(qt_screen->width(), qt_screen->height());
@@ -1114,10 +1093,17 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
                         QRegion scrollRegion(alloc & oldAlloc);
                         if (!scrollRegion.isEmpty()) {
-                            QGfx * gfx = p->graphicsContext(false);
-                            gfx->setClipDeviceRegion(scrollRegion);
-                            gfx->scroll(x,y,w,h,oldp.x(),oldp.y());
-                            delete gfx;
+                            bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
+                            setAttribute(Qt::WA_PaintUnclipped);
+
+                            QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(paintEngine());
+                            engine->begin(this);
+
+                            engine->setClipDeviceRegion(scrollRegion);
+                            engine->scroll(x,y,w,h,oldp.x(),oldp.y());
+                            engine->end();
+                            if (!was_unclipped)
+                                setAttribute(Qt::WA_PaintUnclipped,false);
 
                             QSize ds(qt_screen->deviceWidth(), qt_screen->deviceHeight());
                             scrollRegion = qt_screen->mapFromDevice(scrollRegion, ds);
@@ -1285,19 +1271,21 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     QPoint td2 = qt_screen->mapToDevice(QPoint(dx,dy), s);
     dAlloc.translate(td2.x()-td1.x(), td2.y()-td1.y());
 
-#ifdef QT_OLD_GFX
     QRegion scrollRegion(alloc & dAlloc);
 
     if (w > 0 && h > 0) {
-        QGfx * mygfx=graphicsContext(false);
-        mygfx->setClipDeviceRegion(scrollRegion);
-        mygfx->scroll(x2,y2,w,h,x1,y1);
-        delete mygfx;
+        bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
+        setAttribute(Qt::WA_PaintUnclipped);
+
+        QWSPaintEngine * engine=static_cast<QWSPaintEngine*>(paintEngine());
+        engine->begin(this);
+
+        engine->setClipDeviceRegion(scrollRegion);
+        engine->scroll(x2,y2,w,h,x1,y1);
+        engine->end();
+        if (!was_unclipped)
+            setAttribute(Qt::WA_PaintUnclipped,false);
     }
-#else
-     //######################
-    QRegion scrollRegion;
-#endif
     data->paintable_region_dirty = true;
 
     QPoint gpos = mapToGlobal(QPoint());

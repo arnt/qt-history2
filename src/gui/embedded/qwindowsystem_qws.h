@@ -33,7 +33,7 @@ struct SWCursorData;
 class QWSCursor;
 class QWSClient;
 class QWSRegionManager;
-class QGfx;
+class QWSPaintEngine;
 class QWSServerData;
 
 class QWSInternalWindowInfo
@@ -391,7 +391,7 @@ private:
     void paintBackground(const QRegion &);
     void clearRegion(const QRegion &r, const QColor &c);
     void refreshBackground();
-    void resetGfx();
+    void resetEngine();
 
 private slots:
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -417,7 +417,7 @@ private:
     uchar* sharedram;
     int ramlen;
 
-    QGfx *gfx;
+    QWSPaintEngine *paintEngine;
 
     ClientMap client;
 #ifndef QT_NO_QWS_PROPERTIES

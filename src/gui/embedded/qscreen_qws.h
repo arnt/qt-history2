@@ -22,6 +22,8 @@
 
 class QScreenCursor;
 class QGfx;
+class QWSPaintEngine;
+
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
 # ifndef QT_QWS_DEPTH16_RGB
 #  define QT_QWS_DEPTH16_RGB 565
@@ -177,8 +179,9 @@ public:
     virtual void shutdownDevice();
     virtual void setMode(int,int,int) = 0;
     virtual bool supportsDepth(int) const;
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual QGfx * screenGfx();
+    virtual __attribute__ ((__deprecated__)) QGfx * createGfx(unsigned char *,int,int,int,int);
+    virtual __attribute__ ((__deprecated__)) QGfx * screenGfx();
+    virtual QWSPaintEngine *createPaintEngine();
     virtual void save();
     virtual void restore();
     virtual void blank(bool on);

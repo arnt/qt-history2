@@ -846,11 +846,6 @@ QWSDisplay::~QWSDisplay()
     delete lock;
 }
 
-QGfx * QWSDisplay::screenGfx()
-{
-    return qt_screen->screenGfx();
-}
-
 QWSRegionManager *QWSDisplay::regionManager() const
 {
     return dd->rgnMan;
@@ -1324,7 +1319,7 @@ void QWSDisplay::setTransformation(int t)
     qws_mapPixmaps(false);
 
     if (qt_fbdpy->d->directServerConnection()) {
-        qwsServer->resetGfx();
+        qwsServer->resetEngine();
         qwsServer->refresh();
     }
 
@@ -1334,27 +1329,24 @@ void QWSDisplay::setTransformation(int t)
     qApp->postEvent(qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds));
     emit QApplication::desktop()->resized(0);
 
-    QWidgetList  *list = QApplication::topLevelWidgets();
-    if (list) {
-        QWidgetListIt it(*list);
-        QWidget * w;
-        while ((w=it.current()) != 0) {
-            ++it;
-            if (w->testWFlags(Qt::WType_Desktop)) {
-                //nothing
-            } else if (w->testWState(Qt::WState_FullScreen)) {
-                w->resize(qt_screen->width(), qt_screen->height());
-            } else {
-                QETWidget *etw = (QETWidget*)w;
-                etw->updateRegion();
-                if (etw->isVisible()) {
-                    etw->repaintHierarchy(etw->geometry(), true);
-                    etw->repaintDecoration(qApp->desktop()->rect(), true);
-                }
+    QWidgetList  list = QApplication::topLevelWidgets();
+    for (int i = list.size()-1; i >= 0; --i) {
+        QWidget *w = (QWidget*)list[i];
+
+        if (w->testWFlags(Qt::WType_Desktop)) {
+            //nothing
+        } else if (w->testWState(Qt::WState_FullScreen)) {
+            w->resize(qt_screen->width(), qt_screen->height());
+        } else {
+            QETWidget *etw = static_cast<QETWidget*>(w);
+            etw->updateRegion();
+            if (etw->isVisible()) {
+                etw->repaintHierarchy(etw->geometry(), true);
+                etw->repaintDecoration(qApp->desktop()->rect(), true);
             }
         }
-        delete list;
     }
+
 
     // only update the mwr if it is full screen.
     if (isFullScreen)
