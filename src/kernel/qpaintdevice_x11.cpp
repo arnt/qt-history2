@@ -841,7 +841,6 @@ int QPaintDevice::resolution() const
 }
 
 #ifdef QT_COMPAT
-#include "qx11info_x11.h"
 
 Display *QPaintDevice::x11Display() const
 {

@@ -33,120 +33,12 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#include <X11/Xmu/StdCmap.h>
 
 // POSIX Large File Support redefines truncate -> truncate64
 #if defined(truncate)
 # undef truncate
 #endif
-
-#ifndef QT_DLOPEN_OPENGL
-extern "C" {
-    Status XmuLookupStandardColormap( Display *dpy, int screen, VisualID visualid,
-				      unsigned int depth, Atom property,
-				      Bool replace, Bool retain );
-}
-#endif
-
-#include "qgl_x11_p.h"
-#ifdef QT_DLOPEN_OPENGL
-#include "qlibrary.h"
-
-extern "C" {
-_glCallLists qt_glCallLists;
-_glClearColor qt_glClearColor;
-_glClearIndex qt_glClearIndex;
-_glColor3ub qt_glColor3ub;
-_glDeleteLists qt_glDeleteLists;
-_glDrawBuffer qt_glDrawBuffer;
-_glFlush qt_glFlush;
-_glIndexi qt_glIndexi;
-_glListBase qt_glListBase;
-_glLoadIdentity qt_glLoadIdentity;
-_glMatrixMode qt_glMatrixMode;
-_glOrtho qt_glOrtho;
-_glPopAttrib qt_glPopAttrib;
-_glPopMatrix qt_glPopMatrix;
-_glPushAttrib qt_glPushAttrib;
-_glPushMatrix qt_glPushMatrix;
-_glRasterPos2i qt_glRasterPos2i;
-_glRasterPos3d qt_glRasterPos3d;
-_glReadPixels qt_glReadPixels;
-_glViewport qt_glViewport;
-
-_glXChooseVisual qt_glXChooseVisual;
-_glXCreateContext qt_glXCreateContext;
-_glXCreateGLXPixmap qt_glXCreateGLXPixmap;
-_glXDestroyContext qt_glXDestroyContext;
-_glXDestroyGLXPixmap qt_glXDestroyGLXPixmap;
-_glXGetClientString qt_glXGetClientString;
-_glXGetConfig qt_glXGetConfig;
-_glXIsDirect qt_glXIsDirect;
-_glXMakeCurrent qt_glXMakeCurrent;
-_glXQueryExtension qt_glXQueryExtension;
-_glXQueryExtensionsString qt_glXQueryExtensionsString;
-_glXQueryServerString qt_glXQueryServerString;
-_glXSwapBuffers qt_glXSwapBuffers;
-_glXUseXFont qt_glXUseXFont;
-_glXWaitX qt_glXWaitX;
-};
-
-bool qt_resolve_gl_symbols(bool fatal)
-{
-    static bool gl_syms_resolved = FALSE;
-    if (gl_syms_resolved)
-	return TRUE;
-
-    QLibrary gl("GL");
-    gl.setAutoUnload(FALSE);
-
-    qt_glCallLists = (_glCallLists) gl.resolve("glCallLists");
-
-    if (!qt_glCallLists) { // if this fails the rest will surely fail
-	if (fatal)
-	    qFatal("Unable to resolve GL/GLX symbols - please check your GL library installation.");
-	return FALSE;
-    }
-
-    qt_glClearColor = (_glClearColor) gl.resolve("glClearColor");
-    qt_glClearIndex = (_glClearIndex) gl.resolve("glClearIndex");
-    qt_glColor3ub = (_glColor3ub) gl.resolve("glColor3ub");
-    qt_glDeleteLists = (_glDeleteLists) gl.resolve("glDeleteLists");
-    qt_glDrawBuffer = (_glDrawBuffer) gl.resolve("glDrawBuffer");
-    qt_glFlush = (_glFlush) gl.resolve("glFlush");
-    qt_glIndexi = (_glIndexi) gl.resolve("glIndexi");
-    qt_glListBase = (_glListBase) gl.resolve("glListBase");
-    qt_glLoadIdentity = (_glLoadIdentity) gl.resolve("glLoadIdentity");
-    qt_glMatrixMode = (_glMatrixMode) gl.resolve("glMatrixMode");
-    qt_glOrtho = (_glOrtho) gl.resolve("glOrtho");
-    qt_glPopAttrib = (_glPopAttrib) gl.resolve("glPopAttrib");
-    qt_glPopMatrix = (_glPopMatrix) gl.resolve("glPopMatrix");
-    qt_glPushAttrib = (_glPushAttrib) gl.resolve("glPushAttrib");
-    qt_glPushMatrix = (_glPushMatrix) gl.resolve("glPushMatrix");
-    qt_glRasterPos2i = (_glRasterPos2i) gl.resolve("glRasterPos2i");
-    qt_glRasterPos3d = (_glRasterPos3d) gl.resolve("glRasterPos3d");
-    qt_glReadPixels = (_glReadPixels) gl.resolve("glReadPixels");
-    qt_glViewport = (_glViewport) gl.resolve("glViewport");
-
-    qt_glXChooseVisual = (_glXChooseVisual) gl.resolve("glXChooseVisual");
-    qt_glXCreateContext = (_glXCreateContext) gl.resolve("glXCreateContext");
-    qt_glXCreateGLXPixmap = (_glXCreateGLXPixmap) gl.resolve("glXCreateGLXPixmap");
-    qt_glXDestroyContext = (_glXDestroyContext) gl.resolve("glXDestroyContext");
-    qt_glXDestroyGLXPixmap = (_glXDestroyGLXPixmap) gl.resolve("glXDestroyGLXPixmap");
-    qt_glXGetClientString = (_glXGetClientString) gl.resolve("glXGetClientString");
-    qt_glXGetConfig = (_glXGetConfig) gl.resolve("glXGetConfig");
-    qt_glXIsDirect = (_glXIsDirect) gl.resolve("glXIsDirect");
-    qt_glXMakeCurrent = (_glXMakeCurrent) gl.resolve("glXMakeCurrent");
-    qt_glXQueryExtension = (_glXQueryExtension) gl.resolve("glXQueryExtension");
-    qt_glXQueryExtensionsString = (_glXQueryExtensionsString) gl.resolve("glXQueryExtensionsString");
-    qt_glXQueryServerString = (_glXQueryServerString) gl.resolve("glXQueryServerString");
-    qt_glXSwapBuffers = (_glXSwapBuffers) gl.resolve("glXSwapBuffers");
-    qt_glXUseXFont = (_glXUseXFont) gl.resolve("glXUseXFont");
-    qt_glXWaitX = (_glXWaitX) gl.resolve("glXWaitX");
-    gl_syms_resolved = TRUE;
-    return TRUE;
-}
-#endif // QT_DLOPEN_OPENGL
-
 
 /*
   The choose_cmap function is internal and used by QGLWidget::setContext()
@@ -243,19 +135,8 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     }
 #if !defined(Q_OS_SOLARIS)
     if ( !x->cmap ) {
-#ifdef QT_DLOPEN_OPENGL
-	typedef Status (*_XmuLookupStandardColormap)( Display *dpy, int screen, VisualID visualid, unsigned int depth,
-						      Atom property, Bool replace, Bool retain );
-	_XmuLookupStandardColormap qt_XmuLookupStandardColormap;
-	qt_XmuLookupStandardColormap = (_XmuLookupStandardColormap) QLibrary::resolve("Xmu", "XmuLookupStandardColormap");
-	if (!qt_XmuLookupStandardColormap)
-	    qFatal("Unable to resolve Xmu symbols - please check your Xmu library installation.");
-#define XmuLookupStandardColormap qt_XmuLookupStandardColormap
-
-#endif
-
 	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
-					  XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
+				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
 	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
 				  XA_RGB_DEFAULT_MAP) ) {
 		i = 0;
@@ -358,15 +239,12 @@ static void find_trans_colors()
 
 bool QGLFormat::hasOpenGL()
 {
-    if (!qt_resolve_gl_symbols(FALSE))
-	return FALSE;
     return glXQueryExtension(qt_xdisplay(),0,0) != 0;
 }
 
 
 bool QGLFormat::hasOpenGLOverlays()
 {
-    qt_resolve_gl_symbols();
     if ( !trans_colors_init )
 	find_trans_colors();
     return trans_colors.size() > 0;
@@ -877,8 +755,6 @@ void QGLOverlayWidget::paintGL()
  *****************************************************************************/
 void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
 {
-    qt_resolve_gl_symbols();
-
     d->glcx = 0;
     d->olw = 0;
     d->autoSwap = true;

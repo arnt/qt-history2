@@ -27,7 +27,7 @@ static QGLFormat* qgl_default_overlay_format = 0;
 #define INT32 dummy_INT32
 #include <GL/glx.h>
 #undef INT32
-#include "qgl_x11_p.h"
+#include "qx11info_x11.h"
 static void *gl_pixmap_visual = 0;
 #endif
 
@@ -857,11 +857,10 @@ void QGLContext::init( QPaintDevice *dev )
 {
     d = new Private;
     d->valid = FALSE;
+    setDevice( dev );
 #if defined(Q_WS_X11)
-    qt_resolve_gl_symbols();
     gpm = 0;
 #endif
-    setDevice( dev );
 #if defined(Q_WS_WIN)
     dc = 0;
     win = 0;
@@ -1782,9 +1781,9 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
     if (!gl_pixmap_visual) {
 	int nvis;
-	Visual *vis = (Visual *) QPaintDevice::x11AppVisual();
-	int screen = QPaintDevice::x11AppScreen();
-	Display *appDpy = QPaintDevice::x11AppDisplay();
+	Visual *vis = (Visual *) QX11Info::appVisual();
+	int screen = QX11Info::appScreen();
+	Display *appDpy = QX11Info::appDisplay();
 	XVisualInfo * vi;
 	XVisualInfo visInfo;
 	memset( &visInfo, 0, sizeof(XVisualInfo) );
@@ -1822,19 +1821,19 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 	gl_pixmap_visual = vis;
     }
 
-    if (gl_pixmap_visual != QPaintDevice::x11AppVisual()) {
+    if (gl_pixmap_visual != QX11Info::appVisual()) {
 	int nvis = 0;
 	XVisualInfo visInfo;
 	memset( &visInfo, 0, sizeof(XVisualInfo) );
 	visInfo.visualid = XVisualIDFromVisual( (Visual *) gl_pixmap_visual );
-	visInfo.screen = QPaintDevice::x11AppScreen();
-	XVisualInfo *vi = XGetVisualInfo( QPaintDevice::x11AppDisplay(), VisualIDMask | VisualScreenMask,
+	visInfo.screen = QX11Info::appScreen();
+	XVisualInfo *vi = XGetVisualInfo( QX11Info::appDisplay(), VisualIDMask | VisualScreenMask,
 					  &visInfo, &nvis );
 	if (vi) {
-	    QPaintDeviceX11Data* xd = pm.getX11Data( TRUE );
+	    QX11InfoData* xd = pm.x11Info()->getX11Data( TRUE );
 	    xd->x_depth = vi->depth;
 	    xd->x_visual = (Visual *) gl_pixmap_visual;
-	    pm.setX11Data( xd );
+	    pm.x11Info()->setX11Data( xd );
 	    XFree(vi);
 	}
     }
@@ -1871,7 +1870,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
     if ( success ) {
 #if defined(Q_WS_X11)
-	if (gl_pixmap_visual != QPaintDevice::x11AppVisual()) {
+	if (gl_pixmap_visual != QX11Info::appVisual()) {
 	    QImage image = pm.convertToImage();
 	    QPixmap p;
 	    p = image;
