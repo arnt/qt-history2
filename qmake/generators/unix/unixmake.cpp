@@ -305,7 +305,6 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
     for(int i = 0; i < 2; i++) {
 	const QStringList *lst = i ? &list2 : &list1;
 	for(QStringList::ConstIterator it = lst->begin(); it != lst->end(); ++it) {
-	    bool append = TRUE;
 	    if((*it).startsWith("-")) {
 		if((*it).startsWith("-L")) {
 		    if(ret.findIndex((*it)) == -1)
