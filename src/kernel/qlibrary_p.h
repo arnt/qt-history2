@@ -44,7 +44,7 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of qplugin.cpp.  This header file may change from version to version
+// of qlibrary.cpp.  This header file may change from version to version
 // without notice, or even be removed.
 //
 // We mean it.
@@ -175,6 +175,7 @@ void* qt_resolve_symbol( void* handle, const char* f )
 #endif
     return address;
 }
+
 #endif
 
 #endif //QLIBRARY_P_H
