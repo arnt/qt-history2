@@ -56,6 +56,7 @@ private:
     bool m_bValid;
 };
 
+
 class Q_EXPORT QHttpReplyHeader : public QHttpHeader
 {
 public:
@@ -81,6 +82,7 @@ private:
     int m_version;
 };
 
+
 class Q_EXPORT QHttpRequestHeader : public QHttpHeader
 {
 public:
@@ -105,9 +107,14 @@ private:
     int m_version;
 };
 
+
 class Q_EXPORT QHttpClient : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY( State state READ state )
+    Q_ENUMS( State )
+    //Q_PROPERTY( QIODevice* device READ device WRITE setDevice )
+
 public:
     enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
 
@@ -124,7 +131,7 @@ public:
 
     State state() const;
     void setDevice( QIODevice* );
-    QIODevice* device();
+    QIODevice* device() const;
 
 signals:
     void reply( const QHttpReplyHeader& repl, const QByteArray& data );
@@ -160,16 +167,22 @@ private:
     QIODevice* m_postDevice;
 };
 
+
 class Q_EXPORT QHttpServer : public QServerSocket
 {
     Q_OBJECT
+
 public:
     QHttpServer( int port = 0, QObject* parent = 0, const char* name = 0 );
 };
 
+
 class Q_EXPORT QHttpConnection : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY( State state READ state )
+    Q_ENUMS( State )
+
 public:
     enum State { Created, Reading, Waiting, Writing, Alive, Closed };
 

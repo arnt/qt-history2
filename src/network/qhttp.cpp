@@ -1106,7 +1106,7 @@ void QHttpClient::setDevice( QIODevice* d )
 /*!
   Returns the device of the HTTP client.
 */
-QIODevice* QHttpClient::device()
+QIODevice* QHttpClient::device() const
 {
     return m_device;
 }
