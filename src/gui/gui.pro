@@ -1,4 +1,5 @@
 TARGET		= QtGUI
+QPRO_PWD        = $$PWD
 DEFINES += QT_BUILD_GUI_LIB
 
 include(../qbase.pri)

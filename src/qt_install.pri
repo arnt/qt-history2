@@ -3,10 +3,23 @@ target.path=$$libs.path
 INSTALLS += target
 
 #headers
-headers.files  = $$QT_BUILD_TREE/include/*.h
-headers.files += $$QT_BUILD_TREE/include/qconfig.h \
-                 $$QT_BUILD_TREE/include/qmodules.h 
-INSTALLS += headers
+!isEmpty(QPRO_PWD) { #all .h files without a _
+    HEADERS = 
+    exists($(QTDIR)/include/$TARGET/$TARGET):HEADER += $(QTDIR)/include/$TARGET/$TARGET
+    for(file, $$list($$files($$QPRO_PWD/*.h, true))) {
+        file_base = $$basename(file)
+        isEmpty($$list($$find(file_base, _))):HEADERS += $$file
+    }
+    !isEmpty(HEADERS) {
+       flat_headers.files = $$HEADERS
+       flat_headers.path = $$headers.path/Qt
+       INSTALLS += flat_headers
+
+       targ_headers.files = $$HEADERS
+       targ_headers.path = $$headers.path/$$TARGET
+       INSTALLS += targ_headers
+    }
+}
 
 macx { #mac framework
     QtFramework = /System/Library/Frameworks/$${TARGET}.framework

@@ -1,4 +1,5 @@
 TARGET		= QtCore
+QPRO_PWD        = $$PWD
 QT         =
 
 DEFINES += QT_BUILD_CORE_LIB
