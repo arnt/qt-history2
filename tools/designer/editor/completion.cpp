@@ -171,7 +171,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	    } else if ( ke->key() == Key_Period ||
 			ke->key() == Key_Greater &&
 			curEditor->textCursor()->index() > 0 &&
-			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c == '_' ) {
+			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c == '-' ) {
 		doObjectCompletion();
 	    } else {
 		if ( !doArgumentHint( ke->text() == "(" ) )
@@ -262,6 +262,9 @@ bool EditorCompletion::doObjectCompletion()
 	object.prepend( p->at( i )->c );
 	i--;
     }
+
+    if ( object[ (int)object.length() - 1 ] == '-' )
+	object.remove( object.length() - 1, 1 );
 
     if ( object.isEmpty() )
 	return FALSE;
