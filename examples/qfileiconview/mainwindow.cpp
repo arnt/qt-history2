@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#12 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#13 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -86,7 +86,7 @@ void FileMainWindow::setup()
     splitter->setResizeMode( dirlist, QSplitter::KeepSize );
 
     fileview = new QtFileIconView( "/", FALSE, splitter );
-    fileview->setSelectionMode( QIconView::StrictMulti );
+    fileview->setSelectionMode( QIconView::Extended );
     fileview->setViewMode( QIconSet::Large );
 
     setCentralWidget( splitter );

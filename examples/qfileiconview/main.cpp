@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#9 $
+** $Id: //depot/qt/main/examples/qfileiconview/main.cpp#10 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -24,7 +24,7 @@ int main( int argc, char **argv )
 	fiv.setFrameStyle( QFrame::NoFrame );
 	fiv.setCaption( "desktop" );
 	fiv.showMaximized();
-	fiv.setSelectionMode( QIconView::StrictMulti );
+	fiv.setSelectionMode( QIconView::Extended );
 	fiv.setViewMode( QIconSet::Large );
 	fiv.setDirectory( "/" );
 	return a.exec();
