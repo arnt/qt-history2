@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#59 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#60 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -184,9 +184,11 @@ const ulong WStyle_Resize	= 0x00008000;
 const ulong WStyle_Minimize	= 0x00010000;
 const ulong WStyle_Maximize	= 0x00020000;
 const ulong WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
-const ulong WStyle_All		= 0x000ff000;
+const ulong WStyle_All		= 0x0003f000;
 
-const ulong WMouseTracking	= 0x00100000;	// misc widget flags
+const ulong WFont_Metrics	= 0x00040000;	// misc widget flags
+const ulong WFont_Info		= 0x00080000;
+const ulong WMouseTracking	= 0x00100000;
 const ulong WHasAccel		= 0x00200000;
 const ulong WConfigPending	= 0x00400000;
 const ulong WResizeNoErase	= 0x00800000;
@@ -199,7 +201,7 @@ const ulong WNoUpdates		= 0x20000000;
 const ulong WRecreated		= 0x40000000;
 
 
-// Extra Widget data
+// Extra QWidget data
 
 struct QWExtra {
     GUIStyle guistyle;				// GUI Style
