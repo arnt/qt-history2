@@ -2412,7 +2412,7 @@ void QIconViewItem::checkRect()
     access their data by calling QIconDragItem::data() on each one.
 
     For an example implementation of complex drag-and-drop look at the
-    qfileiconview example (qt/examples/qfileiconview).
+    fileiconview example (qt/examples/fileiconview).
 
     \sa QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
 	QIconViewItem::acceptDrop(), QIconViewItem::dropped().
