@@ -91,6 +91,7 @@ public:
     QString label( int ) const;
     int currentPageIndex() const;
     void setCurrentPage( int );
+    int indexOf( QWidget* ) const;
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;

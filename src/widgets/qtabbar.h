@@ -114,6 +114,7 @@ public:
 
     QTab * tab( int );
     QTab * tabAt( int );
+    int indexOf( int ) const;
     int count() const;
 
     virtual void layoutTabs();

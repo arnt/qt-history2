@@ -743,16 +743,34 @@ QTab * QTabBar::tab( int id )
 }
 
 
-/*! Returns a pointer to the tab at the position \a pos.
+/*! Returns a pointer to the tab at the position \a index.
+  
+  \sa indexOf
 */
 
-QTab * QTabBar::tabAt( int pos )
+QTab * QTabBar::tabAt( int index )
 {
     QTab * t;
-    t = lstatic->at( pos );
-    if ( t )
-        return t;
-    return 0;
+    t = lstatic->at( index );
+    return t;
+}
+
+
+/*! 
+  Returns the position index of the tab with id \a id.
+  
+  \sa indexOf, tabAt
+ */
+int QTabBar::indexOf( int id ) const
+{
+    QTab * t;
+    int idx = 0;
+    for( t = lstatic->first(); t; t = lstatic->next() ) {
+	if ( t && t->id == id )
+	    return idx;
+	idx++;
+    }
+    return -1;
 }
 
 

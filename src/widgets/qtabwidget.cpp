@@ -509,19 +509,27 @@ QWidget * QTabWidget::currentPage() const
 
 int QTabWidget::currentPageIndex() const
 {
-    return d->tabs->currentTab();
+    return d->tabs->indexOf( d->tabs->currentTab() );
 }
 
-/*! Sets the page with index \a id as current page.
-
-    Note that \e id is not the index that is specified when you insert a tab
+/*! Sets the page with index \a index as current page.
 */
-
-void QTabWidget::setCurrentPage( int id )
+void QTabWidget::setCurrentPage( int index )
 {
-    d->tabs->setCurrentTab( id );
-    showTab( id );
+    d->tabs->setCurrentTab( d->tabs->tabAt( index ) );
+    showTab( d->tabs->currentTab() );
 }
+
+
+/*!  
+  Returns the index of page \w, or -1 if the widget cannot be
+  found.
+ */
+int QTabWidget::indexOf( QWidget* w ) const
+{
+    return d->tabs->indexOf( d->stack->id( w ) );
+}
+
 
 /*!
   \reimp
@@ -784,18 +792,18 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
-/* Returns the tab page at the index \a num */
+/* Returns the tab page at the index \a index */
 
-QWidget *QTabWidget::page( int num ) const
+QWidget *QTabWidget::page( int index ) const
 {
-    return d->stack->widget( num );
+    return d->stack->widget( index );
 }
 
-/* Returns the label of the tab page at index \a num */
+/* Returns the label of the tab page at index \a index */
 
-QString QTabWidget::label( int num ) const
+QString QTabWidget::label( int index ) const
 {
-    return d->tabs->tabAt( num )->label;
+    return d->tabs->tabAt( index )->label;
 }
 
 #endif
