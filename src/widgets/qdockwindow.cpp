@@ -440,7 +440,7 @@ void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
     hadDblClick = FALSE;
     mousePressed = TRUE;
     offset = e->pos();
-    dockWindow->startRectDraw( e->pos(), !opaque );
+    dockWindow->startRectDraw( mapToGlobal( e->pos() ), !opaque );
     if ( !opaque )
 	qApp->installEventFilter( dockWindow );
 }
@@ -591,7 +591,7 @@ void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
     mousePressed = TRUE;
     hadDblClick = FALSE;
     offset = e->pos();
-    dockWindow->startRectDraw( e->pos(), !opaque );
+    dockWindow->startRectDraw( mapToGlobal( e->pos() ), !opaque );
     if ( !opaque )
 	qApp->installEventFilter( dockWindow );
 }
@@ -970,7 +970,7 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
     delete bl;
     bool reverse = QApplication::reverseLayout();
     if ( o == Qt::Horizontal )
-	r.moveBy( reverse ? r.height() + r.width() : -r.width()/2, 0 );
+	r.moveBy( -r.width()/2, 0 );
     else
 	r.moveBy( reverse ? - r.width() : 0, -r.height() / 2  );
     r.moveBy( offset.x(), offset.y() );
@@ -1248,7 +1248,7 @@ void QDockWindow::startRectDraw( const QPoint &so, bool drawRect )
 	unclippedPainter->drawRect( dr );
     }
     startOrientation = orientation();
-    startOffset = so;
+    startOffset = mapFromGlobal( so );
 }
 
 void QDockWindow::endRectDraw( bool drawRect )
