@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#78 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -3091,8 +3091,20 @@ void QMultiLineEdit::rebreakAll()
 }
 
 /*!
-  Sets the word wrap mode. Possible values are \c NoWrap, \c
-  DynamicWrap, \c FixedWidthWrap and \c FixedColumnWrap.
+  Sets the word wrap mode. Possible values are 
+  
+    <ul>
+    <li> \c NoWrap - no word wrap at all.
+    <li> \c DynamicWrap - word wrap depending on the current 
+     width of the editor widget
+    <li> \c FixedWidthWrap - wrap according to a fix amount
+     of pixels ( see wrapColumnOrWidth() )
+    <li> \c FixedColumnWrap - wrap according to a fix character
+     column. This is useful whenever you need formatted text that 
+     can also be displayed gracefully on devices with monospaced 
+     fonts, for example a standard VT100 terminal. In that case 
+     wrapColumnOrWidth() should typically be set to 80.
+  </ul>
 
   Per default, wrapping keeps words intact. To allow breaking
   within words, the \c BreakWithinWords can be or'ed to one of the
