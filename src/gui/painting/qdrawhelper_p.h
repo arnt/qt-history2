@@ -7,7 +7,11 @@
 
 /*******************************************************************************
  * ARGB
+ *
+ * This does not cover the runtime byte order checks, but for QImage it should
+ * work perfectly since QImage client side anyway.
  */
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 struct ARGB
 {
     ARGB(uchar alpha, uchar red, uchar green, uchar blue) : b(blue), g(green), r(red), a(alpha) { }
@@ -18,9 +22,22 @@ struct ARGB
     uchar g;
     uchar r;
     uchar a;
-
     QRgb toRgba() { return qRgba(r, g, b, a); }
 };
+#else
+struct ARGB
+{
+    ARGB(uchar alpha, uchar red, uchar green, uchar blue) : a(alpha), r(red), g(green), b(blue) { }
+    ARGB(uint rgba) { *((uint*)this) = rgba; }
+    ARGB(const QColor &c) : a(c.alpha()), r(c.red()), g(c.green()), b(c.blue()) { }
+    ARGB() : a(0), r(0), g(0), b(0) { }
+    uchar a;
+    uchar r;
+    uchar g;
+    uchar b;
+    QRgb toRgba() { return qRgba(r, g, b, a); }
+};
+#endif
 
 
 /*******************************************************************************
