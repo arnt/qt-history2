@@ -826,7 +826,7 @@ void QRepeaterGfx::scroll (int x, int y, int w, int h, int sx, int sy)
     QRegion srcregion(r2);
 
     QRegion toupdate;
-    
+
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
 	QScreen * tmp=qt_screen;
 	qt_screen=walker->screen;
@@ -842,16 +842,16 @@ void QRepeaterGfx::scroll (int x, int y, int w, int h, int sx, int sy)
 	QRegion tmp2=srcregion;
 	QRegion tmp3=destregion.unite(srcregion);
 	tmp3=tmp3.intersect(screen);
-	       
+
 	QRegion tmp4=srcregion.intersect(screen);
 	tmp4.translate(x-sx,y-sy);
 	tmp4=srcregion.intersect(tmp4);
-	       
+
 	tmp3=tmp3.subtract(tmp4);
 
 	toupdate=toupdate.unite(tmp3);
     }
-    
+
     if(!toupdate.isEmpty()) {
 	qt_fbdpy->repaintRegion(toupdate);
     }
