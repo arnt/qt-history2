@@ -3941,6 +3941,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 					 this, QPoint(x1, e->pos().y()),
 					 QStyleOption(i) );
 	    if( ctrl == QStyle::SC_ListViewExpand) {
+		d->buttonDown = FALSE;
 		if ( e->button() == LeftButton ) {
 		    bool close = i->isOpen();
 		    setOpen( i, !i->isOpen() );
@@ -3965,7 +3966,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 			}
 		    }
 		}
-		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
 		return;
