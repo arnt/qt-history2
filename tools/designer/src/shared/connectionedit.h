@@ -28,7 +28,7 @@ class QtUndoStack;
 class Connection;
 class ConnectionEdit;
 
-struct CETypes
+struct QT_SHARED_EXPORT CETypes
 {
     typedef QList<Connection*> ConnectionList;
     typedef QMap<Connection*, Connection*> ConnectionSet;
@@ -45,7 +45,7 @@ struct CETypes
     enum LineDir { UpDir = 0, DownDir, RightDir, LeftDir };
 };
 
-class Connection : public CETypes
+class QT_SHARED_EXPORT Connection : public CETypes
 {
 public:
     Connection(ConnectionEdit *edit);
