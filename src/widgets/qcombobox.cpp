@@ -95,7 +95,9 @@
   happily grow larger than the desktop if you put enough data into it.
 
   The two constructors create identical-looking comboboxes in Windows
-  style.
+  style. Please note that the Motif 1.x style does not have a 
+  read-write combobox. If you need a read-write combobox in Motif
+  style, always use a Motif 2.0 style combobox.
 
   Comboboxes can contain pixmaps as well as strings; the
   insertItem() and changeItem() functions are suitably overloaded.  For
@@ -273,7 +275,8 @@
 /*! \property QComboBox::editable
     \brief whether the combobox is editable
 
-    This property's default is FALSE.
+    This property's default is FALSE. Note that Motif 1.x style comboboxes 
+    can't be set as editable. Use a Motif 2.0 style combobox instead.
 */
 
 /*! \property QComboBox::insertionPolicy
@@ -1986,7 +1989,7 @@ bool QComboBox::editable() const
 
 void QComboBox::setEditable( bool y )
 {
-    if ( y == editable() )
+    if ( y == editable() || d->popup() ) // refuse to make a Motif 1.x box editable
 	return;
     if ( y ) {
 	if ( !d->usingListBox() )
