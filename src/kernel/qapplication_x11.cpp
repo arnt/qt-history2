@@ -3535,7 +3535,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
-	if (inPopupMode()) {
+	if (event->xfocus.mode == NotifyWhileGrabbed && inPopupMode()) {
 	    QWidget* popup = QApplication::activePopupWidget();
 	    if ( popup ) {
 		// Danger - make sure we don't lock the server
