@@ -1544,6 +1544,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
     QGLFormat fmt = format();
     fmt.setDirectRendering( FALSE );		// No direct rendering
+    fmt.setDoubleBuffer( FALSE );		// We don't need dbl buf
     QGLContext* pcx = new QGLContext( fmt, &pm );
     QGLContext* ocx = (QGLContext*)context();
     setContext( pcx, 0, FALSE );
