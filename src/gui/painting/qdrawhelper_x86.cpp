@@ -291,7 +291,6 @@ void qInitAsm(DrawHelper *dh)
 
 #if defined (Q_CC_GNU) && defined (__i386__)
     features = detectCPUFeatures();
-    qDebug("features = %x", features);
 
     if (features & SSE2) {
         dh->blendColor = blend_color_sse;
