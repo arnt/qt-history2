@@ -30,6 +30,7 @@
 #include "qsessionmanager.h"
 #include "qmime.h"
 #include "qguardedptr.h"
+#include "qwhatsthis.h" // ######## dependency
 #include <ctype.h>
 #include "qt_windows.h"
 
@@ -481,8 +482,8 @@ void qt_init( int *argcptr, char **argv )
     qt_winunicode = qt_winver == Qt::WV_NT;
 
     // Initialize OLE/COM
-    //   S_OK means success and S_FALSE means that it has already
-    //   been initialized
+    //	 S_OK means success and S_FALSE means that it has already
+    //	 been initialized
     HRESULT r;
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
@@ -1350,7 +1351,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	goto do_default;
 
     if ( app_do_modal )	{			// modal event handling
-	int ret = 0;	
+	int ret = 0;
 	if ( !qt_try_modal(widget, &msg, ret ) )
 	    return ret;
     }
@@ -1361,212 +1362,244 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
 	int type = -1;
 	switch ( WSAGETSELECTEVENT(lParam) ) {
-	    case FD_READ:
-	    case FD_CLOSE:
-	    case FD_ACCEPT:
-		type = 0;
-		break;
-	    case FD_WRITE:
-	    case FD_CONNECT:
-		type = 1;
-		break;
-	    case FD_OOB:
-		type = 2;
-		break;
+	case FD_READ:
+	case FD_CLOSE:
+	case FD_ACCEPT:
+	    type = 0;
+	    break;
+	case FD_WRITE:
+	case FD_CONNECT:
+	    type = 1;
+	    break;
+	case FD_OOB:
+	    type = 2;
+	    break;
 	}
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else
-    if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	if ( qApp->activePopupWidget() != 0) { // in popup mode
-	    POINT curPos;
-	    GetCursorPos( &curPos );
-	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
-	    if (w && w->testWFlags(Qt::WType_Popup))
-		widget = (QETWidget*)w;
-	}
-	if ( widget->isEnabled() &&
-	     (message == WM_LBUTTONDOWN ||
-	      message == WM_MBUTTONDOWN ||
-	      message == WM_RBUTTONDOWN) ) {
-	    QWidget* w = widget;
-	    while ( w->focusProxy() )
-		w = w->focusProxy();
-	    if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		QFocusEvent::setReason( QFocusEvent::Mouse);
-		w->setFocus();
-		QFocusEvent::resetReason();
+	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+	    if ( qApp->activePopupWidget() != 0) { // in popup mode
+		POINT curPos;
+		GetCursorPos( &curPos );
+		QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
+		if (w && w->testWFlags(Qt::WType_Popup))
+		    widget = (QETWidget*)w;
 	    }
-	}
-	widget->translateMouseEvent( msg );	// mouse event
-    } else
-    switch ( message ) {
+	    if ( widget->isEnabled() &&
+		 (message == WM_LBUTTONDOWN ||
+		  message == WM_MBUTTONDOWN ||
+		  message == WM_RBUTTONDOWN) ) {
+		QWidget* w = widget;
+		while ( w->focusProxy() )
+		    w = w->focusProxy();
+		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    w->setFocus();
+		    QFocusEvent::resetReason();
+		}
+	    }
+	    widget->translateMouseEvent( msg );	// mouse event
+	} else
+	    switch ( message ) {
 
-	case WM_KEYDOWN:			// keyboard event
-	case WM_KEYUP:
-	case WM_SYSKEYDOWN:
-	case WM_SYSKEYUP:
-	case WM_IME_CHAR:
-	case WM_IME_KEYDOWN:
-	case WM_CHAR: {
-	    QWidget *g = QWidget::keyboardGrabber();
-	    if ( g )
-		widget = (QETWidget*)g;
-	    else if ( qApp->focusWidget() )
-		widget = (QETWidget*)qApp->focusWidget();
-	    else
-		widget = (QETWidget*)widget->topLevelWidget();
-	    if ( widget->isEnabled() )
-		result = widget->translateKeyEvent( msg, g != 0 );
-	    break;
-	  }
-	case WM_SYSCHAR:
-	    result = TRUE;                      // consume event
-	    break;
+	    case WM_KEYDOWN:			// keyboard event
+	    case WM_KEYUP:
+	    case WM_SYSKEYDOWN:
+	    case WM_SYSKEYUP:
+	    case WM_IME_CHAR:
+	    case WM_IME_KEYDOWN:
+	    case WM_CHAR: {
+		QWidget *g = QWidget::keyboardGrabber();
+		if ( g )
+		    widget = (QETWidget*)g;
+		else if ( qApp->focusWidget() )
+		    widget = (QETWidget*)qApp->focusWidget();
+		else
+		    widget = (QETWidget*)widget->topLevelWidget();
+		if ( widget->isEnabled() )
+		    result = widget->translateKeyEvent( msg, g != 0 );
+		break;
+	    }
+	    case WM_SYSCHAR:
+		result = TRUE;			// consume event
+		break;
 
-	case WM_MOUSEWHEEL:
-	    result = widget->translateWheelEvent( msg );
-	    break;
+	    case WM_MOUSEWHEEL:
+		result = widget->translateWheelEvent( msg );
+		break;
 
-	case WM_PAINT:				// paint event
-	    result = widget->translatePaintEvent( msg );
-	    break;
+	    case WM_NCMOUSEMOVE:
+		{
+		    // span the application wide cursor over the
+		    // non-client area.
+		    QCursor *c = qt_grab_cursor();
+		    if ( !c )
+			c = QApplication::overrideCursor();
+		    if ( c )	// application cursor defined
+			SetCursor( c->handle() );
+		    else
+			result = FALSE;
+		    // generate leave event also when the caret enters
+		    // the non-client area.
+		    QWidget *curWidget = QWidget::find(curWin);
+		    if ( curWidget ) {
+			QEvent leave( QEvent::Leave );
+			QApplication::sendEvent( curWidget, &leave );
+		    }
+		    curWin = 0;
+		}
+	        break;
+		
+	    case WM_SYSCOMMAND:
+		if ( wParam == SC_CONTEXTHELP ) {
+		    // What's This? Windows wants to do something for
+		    // us....naaa
+		    QWhatsThis::enterWhatsThisMode();
+		    DefWindowProc( hwnd, WM_NCPAINT, 1, 0);
+		} else
+		    result = FALSE;
+		break;
+		
+	    case WM_PAINT:				// paint event
+		result = widget->translatePaintEvent( msg );
+		break;
 
-	case WM_ERASEBKGND:			// erase window background
-	    {
-		RECT r;
-		GetClientRect( hwnd, &r );
+	    case WM_ERASEBKGND:			// erase window background
+		{
+		    RECT r;
+		    GetClientRect( hwnd, &r );
 #if defined(QT_ERASE_BACKGROUND)
-		qt_erase_background
+		    qt_erase_background
 #else
-		qt_erase_bg
+			qt_erase_bg
 #endif
-		    ( (HDC)wParam, r.left, r.top,
-		      r.right-r.left, r.bottom-r.top,
-		      widget->backgroundColor(),
-		      widget->backgroundPixmap(), 0, 0 );
-		return 0;
-	    }
-	    break;
-
-	case WM_MOVE:				// move window
-	case WM_SIZE:				// resize window
-	    result = widget->translateConfigEvent( msg );
-	    break;
-
-	case WM_ACTIVATE:
-	    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
-		 QWidget::find((HWND)lParam) == 0 ) {
-		// Another application was activated while our popups are open,
-		// then close all popups.  In case some popup refuses to close,
-		// we give up after 1024 attempts (to avoid an infinite loop).
-		int maxiter = 1024;
-		QWidget *popup;
-		while ( (popup=QApplication::activePopupWidget()) &&
-			maxiter-- )
-		    popup->hide();
-	    }
-	    qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
-	    break;
-
-	case WM_PALETTECHANGED:			// our window changed palette
-	    if ( QColor::hPal() && (WId)wParam == widget->winId() )
-		return 0;			// otherwise: FALL THROUGH!
-	    // FALL THROUGH
-	case WM_QUERYNEWPALETTE:		// realize own palette
-	    if ( QColor::hPal() ) {
-		HDC hdc = GetDC( widget->winId() );
-		HPALETTE hpalOld = SelectPalette( hdc, QColor::hPal(), FALSE );
-		uint n = RealizePalette( hdc );
-		if ( n )
-		    InvalidateRect( widget->winId(), 0, TRUE );
-		SelectPalette( hdc, hpalOld, TRUE );
-		RealizePalette( hdc );
-		ReleaseDC( widget->winId(), hdc );
-		return n;
-	    }
-	    break;
-
-	case WM_SETTINGCHANGE:
-	    if ( QApplication::desktopSettingsAware() )
-		qt_set_windows_resources();
-	    break;
-
-	case WM_CLOSE:				// close window
-	    widget->translateCloseEvent( msg );
-	    return 0;				// always handled
-
-	case WM_DESTROY:			// destroy window
-	    if ( hwnd == curWin ) {
-		QEvent leave( QEvent::Leave );
-		QApplication::sendEvent( widget, &leave );
-		curWin = 0;
-	    }
-	    result = FALSE;
-	    break;
-
-	case WM_QUERYENDSESSION:
-	    {
-		if ( sm_smActive ) // bogus message from windows
-		    return TRUE;
-
-		sm_smActive = TRUE;
-		sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
-		sm_cancel = FALSE;
-		qApp->commitData( *win_session_manager );
-		if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
-		    //### should call something like fsync() for all
-		    //file descriptors being closed?
+			( (HDC)wParam, r.left, r.top,
+			  r.right-r.left, r.bottom-r.top,
+			  widget->backgroundColor(),
+			  widget->backgroundPixmap(), 0, 0 );
+		    return 0;
 		}
-		return !sm_cancel;
-	    }
+		break;
 
-	case WM_ENDSESSION:
-	    {
-		sm_smActive = FALSE;
-		sm_blockUserInput = FALSE;
-		bool endsession = (bool) wParam;
+	    case WM_MOVE:				// move window
+	    case WM_SIZE:				// resize window
+		result = widget->translateConfigEvent( msg );
+		break;
 
-		if ( endsession ) {
-		    qApp->quit();
+	    case WM_ACTIVATE:
+		if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
+		     QWidget::find((HWND)lParam) == 0 ) {
+		    // Another application was activated while our popups are open,
+		    // then close all popups.  In case some popup refuses to close,
+		    // we give up after 1024 attempts (to avoid an infinite loop).
+		    int maxiter = 1024;
+		    QWidget *popup;
+		    while ( (popup=QApplication::activePopupWidget()) &&
+			    maxiter-- )
+			popup->hide();
+		}
+		qApp->winFocus( widget, LOWORD(wParam) == WA_INACTIVE ? 0 : 1 );
+		break;
+
+	    case WM_PALETTECHANGED:			// our window changed palette
+		if ( QColor::hPal() && (WId)wParam == widget->winId() )
+		    return 0;			// otherwise: FALL THROUGH!
+		// FALL THROUGH
+	    case WM_QUERYNEWPALETTE:		// realize own palette
+		if ( QColor::hPal() ) {
+		    HDC hdc = GetDC( widget->winId() );
+		    HPALETTE hpalOld = SelectPalette( hdc, QColor::hPal(), FALSE );
+		    uint n = RealizePalette( hdc );
+		    if ( n )
+			InvalidateRect( widget->winId(), 0, TRUE );
+		    SelectPalette( hdc, hpalOld, TRUE );
+		    RealizePalette( hdc );
+		    ReleaseDC( widget->winId(), hdc );
+		    return n;
+		}
+		break;
+
+	    case WM_SETTINGCHANGE:
+		if ( QApplication::desktopSettingsAware() )
+		    qt_set_windows_resources();
+		break;
+
+	    case WM_CLOSE:				// close window
+		widget->translateCloseEvent( msg );
+		return 0;				// always handled
+
+	    case WM_DESTROY:			// destroy window
+		if ( hwnd == curWin ) {
+		    QEvent leave( QEvent::Leave );
+		    QApplication::sendEvent( widget, &leave );
+		    curWin = 0;
+		}
+		result = FALSE;
+		break;
+
+	    case WM_QUERYENDSESSION:
+		{
+		    if ( sm_smActive ) // bogus message from windows
+			return TRUE;
+
+		    sm_smActive = TRUE;
+		    sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
+		    sm_cancel = FALSE;
+		    qApp->commitData( *win_session_manager );
+		    if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
+			//### should call something like fsync() for all
+			//file descriptors being closed?
+		    }
+		    return !sm_cancel;
 		}
 
-		return 0;
-	    }
+	    case WM_ENDSESSION:
+		{
+		    sm_smActive = FALSE;
+		    sm_blockUserInput = FALSE;
+		    bool endsession = (bool) wParam;
 
-	case WM_GETMINMAXINFO:
-	    if ( widget->xtra() ) {
-		MINMAXINFO *mmi = (MINMAXINFO *)lParam;
-		QWExtra	   *x = widget->xtra();
-		QRect	   f  = widget->frameGeometry();
-		QSize	   s  = widget->size();
-		if ( x->minw > 0 )
-		    mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
-		if ( x->minh > 0 )
-		    mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
-		if ( x->maxw < QWIDGETSIZE_MAX )
-		    mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
-		if ( x->maxh < QWIDGETSIZE_MAX )
-		    mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
-		return 0;
-	    }
-	    break;
+		    if ( endsession ) {
+			qApp->quit();
+		    }
 
-	case WM_CHANGECBCHAIN:
-	case WM_DRAWCLIPBOARD:
-	case WM_RENDERFORMAT:
-	case WM_RENDERALLFORMATS:
-	    if ( qt_clipboard ) {
-		QCustomEvent e( QEvent::Clipboard, &msg );
-		QApplication::sendEvent( qt_clipboard, &e );
-		return 0;
-	    }
-	    // NOTE: fall-through!
-	default:
-	    result = FALSE;			// event was not processed
-	    break;
+		    return 0;
+		}
 
-    }
+	    case WM_GETMINMAXINFO:
+		if ( widget->xtra() ) {
+		    MINMAXINFO *mmi = (MINMAXINFO *)lParam;
+		    QWExtra	   *x = widget->xtra();
+		    QRect	   f  = widget->frameGeometry();
+		    QSize	   s  = widget->size();
+		    if ( x->minw > 0 )
+			mmi->ptMinTrackSize.x = x->minw + f.width()	 - s.width();
+		    if ( x->minh > 0 )
+			mmi->ptMinTrackSize.y = x->minh + f.height() - s.height();
+		    if ( x->maxw < QWIDGETSIZE_MAX )
+			mmi->ptMaxTrackSize.x = x->maxw + f.width()	 - s.width();
+		    if ( x->maxh < QWIDGETSIZE_MAX )
+			mmi->ptMaxTrackSize.y = x->maxh + f.height() - s.height();
+		    return 0;
+		}
+		break;
+
+	    case WM_CHANGECBCHAIN:
+	    case WM_DRAWCLIPBOARD:
+	    case WM_RENDERFORMAT:
+	    case WM_RENDERALLFORMATS:
+		if ( qt_clipboard ) {
+		    QCustomEvent e( QEvent::Clipboard, &msg );
+		    QApplication::sendEvent( qt_clipboard, &e );
+		    return 0;
+		}
+		// NOTE: fall-through!
+	    default:
+		result = FALSE;			// event was not processed
+		break;
+
+	    }
 
     if ( evt_type != QEvent::None ) {		// simple event
 	QEvent e( evt_type );
@@ -1646,7 +1679,7 @@ static bool qt_blocked_modal( QWidget *widget )
 {
     if ( !app_do_modal )
 	return FALSE;
-     if ( qApp->activePopupWidget() )
+    if ( qApp->activePopupWidget() )
 	return FALSE;
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return FALSE;
@@ -1703,15 +1736,8 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	// QApplication::beep();
     } else if ( (type >= WM_MOUSEFIRST && type <= WM_MOUSELAST) ||
 	 (type >= WM_KEYFIRST	&& type <= WM_KEYLAST) || type == WM_NCMOUSEMOVE ) {
-      if ( type == WM_MOUSEMOVE || type == WM_NCMOUSEMOVE ) {
-	QCursor *c = qt_grab_cursor();
-	if ( !c )
-	    c = QApplication::overrideCursor();
-	if ( c )				// application cursor defined
-	    SetCursor( c->handle() );
-	else					// use widget cursor
+      if ( type == WM_MOUSEMOVE || type == WM_NCMOUSEMOVE )
 	  SetCursor( Qt::arrowCursor.handle() );
-      }
       block_event = TRUE;
     } else if ( type == WM_MOUSEACTIVATE ){
       if ( !top->isActiveWindow() )
@@ -2293,7 +2319,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    widget = w;
 	    pos = w->mapFromGlobal(  QPoint(gpos.x, gpos.y) );
 	}
-	
+
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
