@@ -267,9 +267,8 @@ static void qt_xclb_incr_timeout(void)
 {
     qWarning("QClipboard: timed out while sending data");
 
-    TransactionMap::Iterator it = transactions->begin(),
-                            end = transactions->end();
-    for (; it != end; ++it) delete *it;
+    while (transactions)
+        delete *transactions->begin();
 }
 
 QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, int f,
