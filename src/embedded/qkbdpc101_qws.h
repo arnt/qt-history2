@@ -60,7 +60,10 @@ protected:
     bool alt;
     bool ctrl;
     bool caps;
-    int extended;
+#if defined(QT_QWS_IPAQ)
+    uint ipaq_return_pressed:1;
+#endif
+    uint extended:2;
     int modifiers;
     int prevuni;
     int prevkey;

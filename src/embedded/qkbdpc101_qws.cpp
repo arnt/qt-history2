@@ -167,6 +167,10 @@ QWSPC101KeyboardHandler::QWSPC101KeyboardHandler()
     prevuni = 0;
     prevkey = 0;
     caps = FALSE;
+#if defined(QT_QWS_IPAQ) 
+    // iPAQ Action Key has ScanCode 0x60: 0x60|0x80 = 0xe0 == extended mode 1 !
+    ipaq_return_pressed = FALSE;
+#endif
 }
 
 QWSPC101KeyboardHandler::~QWSPC101KeyboardHandler()
@@ -191,7 +195,11 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     bool softwareRepeat = FALSE;
 
     // extended?
-    if (code == 224) {
+    if (code == 224
+#if defined(QT_QWS_IPAQ) 
+	&& !ipaq_return_pressed
+#endif
+    ) {
 	extended = 1;
 	return;
     } else if (code == 225) {
@@ -296,6 +304,9 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 		break;
 	    case 0x60:
 		keyCode = Key_Return;
+# ifdef QT_QWS_IPAQ
+		ipaq_return_pressed = !release;
+# endif
 		break;
 	    case 0x67:
 		keyCode = Key_Right;
