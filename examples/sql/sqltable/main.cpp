@@ -13,7 +13,7 @@
 #include <qsqlcursor.h>
 
 /* Modify the following to match your environment */
-#define DRIVER       "QPSQL6"  /* see the Qt SQL documentation for a list of available drivers */
+#define DRIVER       "QPSQL7"  /* see the Qt SQL documentation for a list of available drivers */
 #define DATABASE     "simpledb" /* the name of your database */
 #define USER         "trond"   /* user name with appropriate rights */
 #define PASSWORD     "trond"   /* password for USER */

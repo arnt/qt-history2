@@ -376,9 +376,8 @@ int QPSQLResult::numRowsAffected()
 
 ///////////////////////////////////////////////////////////////////
 
-QPSQLDriver::QPSQLDriver( Protocol protocol, QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QPSQL"),
-      pro( protocol )
+QPSQLDriver::QPSQLDriver( QObject * parent, const char * name )
+    : QSqlDriver(parent,name ? name : "QPSQL"), pro( QPSQLDriver::Version6 )
 {
     init();
 }
@@ -415,6 +414,47 @@ bool QPSQLDriver::canEditBinaryFields() const
     return FALSE;
 }
 
+static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
+{
+    PGresult* result = PQexec( connection, "select version()" );
+    int status =  PQresultStatus( result );
+    if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
+	QString val( PQgetvalue( result, 0, 0 ) );
+	PQclear( result );	
+	QRegExp rx( "(\\d*)\\.(\\d*)\\.(\\d*)" );
+	rx.setMinimal ( TRUE ); // enforce non-greedy RegExp
+        if ( rx.search( val ) != -1 ) {
+	    int vMaj = rx.cap( 1 ).toInt();
+	    int vMin = rx.cap( 2 ).toInt();
+	    if ( vMaj < 6 ) {
+#ifdef QT_CHECK_RANGE
+		qWarning( "This version of PostgreSQL is not supported and may not work." );
+#endif
+		return QPSQLDriver::Version6;
+	    }
+	    if ( vMaj == 6 ) {
+		return QPSQLDriver::Version6;
+	    }
+	    if ( vMaj == 7 ) {
+		if ( vMin < 1 ) {
+		    return QPSQLDriver::Version7;
+		} else {
+		    return QPSQLDriver::Version71;
+		}
+	    }
+	    if ( vMaj > 7 ) {
+		return QPSQLDriver::Version71;
+	    }
+	}
+    } else {
+#ifdef QT_CHECK_RANGE
+	qWarning( "This version of PostgreSQL is not supported and may not work." );
+#endif
+    }
+
+    return QPSQLDriver::Version6;
+}
+
 bool QPSQLDriver::open( const QString & db,
 			const QString & user,
 			const QString & password,
@@ -440,12 +480,16 @@ bool QPSQLDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
+
+    pro = getPSQLVersion( d->connection );
+
     PGresult* dateResult;
     switch( pro ) {
     case QPSQLDriver::Version6:
 	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );
 	break;
     case QPSQLDriver::Version7:
+    case QPSQLDriver::Version71:
 	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
 	break;
     }
@@ -455,6 +499,7 @@ bool QPSQLDriver::open( const QString & db,
 	qWarning( PQerrorMessage( d->connection ) );
 #endif
     setOpen( TRUE );
+
     return TRUE;
 }
 
@@ -552,13 +597,20 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	stmt = "select a.attname, int(a.atttypid), c2.relname
-		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i
+	stmt = "select a.attname, int(a.atttypid), c2.relname "
+		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i "
 		"where c2.relname = '%1_pkey' "
 		"and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		"and a.attrelid = c2.oid ";
 	break;
     case QPSQLDriver::Version7:
+	stmt = "select a.attname, a.atttypid::int, c2.relname "
+		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i "
+		"where c2.relname = '%1_pkey' "
+		"and c1.oid = i.indrelid and i.indexrelid = c2.oid "
+		"and a.attrelid = c2.oid ";
+	break;
+    case QPSQLDriver::Version71:
 	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_class2.relname "
 		"from pg_class, pg_attribute, pg_index, pg_class pg_class2 "
 		"where pg_class.oid = pg_attribute.attrelid "
@@ -593,6 +645,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 			"and pg_attribute.attrelid = pg_class.oid ";
 	break;
     case QPSQLDriver::Version7:
+    case QPSQLDriver::Version71:
 	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
 			"from pg_class, pg_attribute "
 			"where pg_class.relname = '%1' "

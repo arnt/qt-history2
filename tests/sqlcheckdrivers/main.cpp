@@ -31,7 +31,6 @@ int main( int /*argc*/, char */*argv[]*/ )
     */
     tests.push_back( DriverTester( "QODBC3","post","db","","cocktail" ) );
     tests.push_back( DriverTester( "QOCI8","TROL","scott","tiger","anarki" ) );
-    tests.push_back( DriverTester( "QPSQL6","test","db","db","cocktail" ) );
     tests.push_back( DriverTester( "QPSQL7","test","db","db","cocktail" ) );
     tests.push_back( DriverTester( "QMYSQL3","trolldump","db","","l" ) );
     /*

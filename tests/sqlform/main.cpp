@@ -10,7 +10,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
-    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL6" );
+    QSqlDatabase * db = QSqlDatabase::addDatabase( "QPSQL7" );
     db->setDatabaseName( "simpledb" );
     db->setUserName( "trond" );
     db->setPassword( "trond" );

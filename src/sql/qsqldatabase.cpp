@@ -341,7 +341,7 @@ QStringList QSqlDatabase::drivers()
     QStringList l;
 
 #ifdef QT_SQL_POSTGRES
-    l << "QPSQL6" << "QPSQL7";
+    l << "QPSQL7";
 #endif
 #ifdef QT_SQL_MYSQL
     l << "QMYSQL3";
@@ -409,8 +409,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
      <ul>
      <li>QODBC3 - ODBC (Open Database Connectivity) Driver
      <li>QOCI8 - Oracle Call Interface Driver
-     <li>QPSQL6 - PostgreSQL v6.x Driver
-     <li>QPSQL7 - PostgreSQL v7.x Driver
+     <li>QPSQL7 - PostgreSQL v6.x and v7.x Driver
+     <li>QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
      <li>QMYSQL3 - MySQL Driver
      </ul>
 
@@ -439,10 +439,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
     if ( !d->driver ) {
 
 #ifdef QT_SQL_POSTGRES
-	if ( type == "QPSQL6" )
-	    d->driver = new QPSQLDriver( QPSQLDriver::Version6 );
 	if ( type == "QPSQL7" )
-	    d->driver = new QPSQLDriver( QPSQLDriver::Version7 );
+	    d->driver = new QPSQLDriver();
 #endif
 
 #ifdef QT_SQL_MYSQL

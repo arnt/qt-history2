@@ -92,17 +92,14 @@ unsigned long QPSQLDriverPlugin::release()
 
 QSqlDriver* QPSQLDriverPlugin::create( const QString &name )
 {
-    if ( name == "QPSQL6" )
-	return new QPSQLDriver( QPSQLDriver::Version6 );
     if ( name == "QPSQL7" )
-	return new QPSQLDriver( QPSQLDriver::Version7 );
+	return new QPSQLDriver();
     return 0;
 }
 
 QStringList QPSQLDriverPlugin::featureList() const
 {
     QStringList l;
-    l.append("QPSQL6");
     l.append("QPSQL7");
     return l;
 }

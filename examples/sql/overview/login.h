@@ -8,13 +8,13 @@
 **
 *****************************************************************************/
 
-#define DB_SALES_DRIVER	    "QPSQL6"
+#define DB_SALES_DRIVER	    "QPSQL7"
 #define DB_SALES_DBNAME	    "testdb"
 #define DB_SALES_USER	    "db"
 #define DB_SALES_PASSWD	    "db"
 #define DB_SALES_HOST	    "silverfish"
 
-#define DB_ORDERS_DRIVER    "QPSQL6"
+#define DB_ORDERS_DRIVER    "QPSQL7"
 #define DB_ORDERS_DBNAME    "pingpong"
 #define DB_ORDERS_USER	    "db"
 #define DB_ORDERS_PASSWD    "db"
