@@ -1556,7 +1556,9 @@ QDir::cleanDirPath(const QString &in)
 {
     if (in.isEmpty())
         return in;
-    QString name = convertSeparators(in);
+    QString name = in;
+    if(QDir::separator() != '/')
+	name.replace(QDir::separator(), '/');
 
     int used = 0, levels = 0;
     const int len = name.length();
