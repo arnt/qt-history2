@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#194 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#195 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -225,10 +225,8 @@ void QLineEdit::setText( const QString &text )
 {
     QString oldText( tbuf );
     tbuf = text;
-    if ( (int)tbuf.length() > maxLen ) {
+    if ( (int)tbuf.length() > maxLen )
 	tbuf.truncate( maxLen );
-	tbuf[maxLen] = '\0';
-    }
     offset    = 0;
     cursorPos = 0;
     markAnchor = 0;
@@ -593,7 +591,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	
 	if ( !displayText.isEmpty() ) {
 	    int charsVisible = lastCharVisible() - offset;
-	    if ( displayText[ charsVisible ] != '\0' )
+	    if ( displayText[ charsVisible ] != '\0' ) // ##### NUL????
 		charsVisible++;
 
 	    int mark1,mark2;
@@ -1439,15 +1437,15 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	    while( i < minP && t[i] == tbuf[i] )
 		i++;
 	    minP = i;
-	    i = t.length();
-	    if ( i > (int) tbuf.length() ) {
+	    i = t.length()-1;
+	    if ( i > (int) tbuf.length()-1 ) {
 		tbuf = t;
 		ed = TRUE;
 	    } else {
 		while( i > maxP && t[i] == tbuf[i] )
 		    i--;
 	    }
-	    maxP = i;
+	    maxP = i+1;
 	    repaintArea( minP, maxP );
 	} else {
 	    tbuf = t;
