@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#10 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#10 $");
 
 
 #if defined(_CC_MSVC_)
@@ -38,9 +38,9 @@ RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $");
   QGLFormat implementation
  *****************************************************************************/
 
- 
- /*!
-  \class QGLFormat qgl.h 
+
+/*!
+  \class QGLFormat qgl.h
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
 
@@ -75,7 +75,7 @@ RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $");
   \endcode
 
   You can also set a format for a specific widget (subclassed from
-  QGLWidget): 
+  QGLWidget):
   \code
     MyGLWidget *w;
       ...
@@ -605,7 +605,7 @@ bool QGLContext::create()
 
 /*!
   \fn void QGLContext::doneCurrent()
-  
+
   Currently a no-op. Reserved for future development.
 */
 
@@ -646,7 +646,7 @@ bool QGLContext::chooseContext()
 	} else {
 #if 0
 	    LPVOID lpMsgBuf;
-	    FormatMessage( 
+	    FormatMessage(
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		0, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -904,7 +904,6 @@ void QGLContext::swapBuffers()
 
 
 
-
 /*****************************************************************************
   QGLWidget implementation
  *****************************************************************************/
@@ -1032,11 +1031,11 @@ QGLWidget::~QGLWidget()
 
 /*!
   \fn bool QGLWidget::isValid() const
-  Returns TRUE if the widget was able to satisfy the specified constraints 
+  Returns TRUE if the widget was able to satisfy the specified constraints
 */
 
 /*!
-  \fn void QGLWidget::makeCurrent() 
+  \fn void QGLWidget::makeCurrent()
   Makes this widget the current widget for OpenGL
   operations. I.e. makes this widget's rendering context the current
   OpenGL rendering context.
@@ -1072,13 +1071,15 @@ void QGLWidget::setFormat( const QGLFormat &format )
   Colormaps are also deleted when the application terminates.
 */
 
-struct CMap {
-    CMap( Colormap m ) : cmap(m) {}
-   ~CMap() { XFreeColormap(QPaintDevice::x__Display(),cmap); }
+struct CMapEntry {
+    CMapEntry( Colormap m ) : cmap(m) {}
+   ~CMapEntry() { XFreeColormap(QPaintDevice::x__Display(),cmap); }
     Colormap cmap;
 };
 
-static QIntDict<CMap> *cmap_dict = 0;
+static bool		    cmap_init = FALSE;
+static QIntDict<CMapEntry> *cmap_dict = 0;
+static bool		    mesa_gl   = FALSE;
 
 static void cleanup_cmaps()
 {
@@ -1089,20 +1090,64 @@ static void cleanup_cmaps()
     cmap_dict = 0;
 }
 
-static Colormap create_cmap( Display *dpy, XVisualInfo *vi )
+static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 {
-    if ( !cmap_dict ) {
-	cmap_dict = new QIntDict<CMap>;
+    if ( !cmap_init ) {
+	cmap_init = TRUE;
+	cmap_dict = new QIntDict<CMapEntry>;
+	const char *v = glXQueryServerString( dpy, vi->screen, GLX_VERSION );
+	mesa_gl = strstr(v,"Mesa") != 0;
 	qAddPostRoutine( cleanup_cmaps );
     }
-    CMap *x = cmap_dict->find( (long)vi->visualid+1 );
-    if ( !x ) {
-	x = new CMap( XCreateColormap(dpy, RootWindow(dpy,vi->screen),
-				      vi->visual, AllocNone) );
-	cmap_dict->insert( (long)vi->visualid+1, x );
+
+    CMapEntry *x = cmap_dict->find( (long)vi->visualid+1 );
+    if ( x )					// found colormap for visual
+	return x->cmap;
+
+    Colormap cmap = 0;
+    XStandardColormap *c;
+    int n, i;
+
+    if ( vi->visual==DefaultVisual(dpy,vi->screen) )
+	return DefaultColormap( dpy, vi->screen );
+    if ( mesa_gl ) {				// we're using MesaGL
+	Atom hp_cmaps = XInternAtom( dpy, "_HP_RGB_SMOOTH_MAP_LIST", TRUE );
+	if ( hp_cmaps && vi->visual->c_class == TrueColor && vi->depth == 8 ) {
+	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
+				  hp_cmaps) ) {
+		i = 0;
+		while ( i < n && cmap == 0 ) {
+		    if ( c[i].visualid == vi->visual->visualid )
+			cmap = c[i].colormap;
+		    i++;
+		}
+		XFree( (char *)c );
+	    }
+	}
     }
-    return x->cmap;
+    if ( !cmap ) {
+	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
+				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
+	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
+				  XA_RGB_DEFAULT_MAP) ) {
+		i = 0;
+		while ( i < n && cmap == 0 ) {
+		    if ( c[i].visualid == vi->visualid )
+			cmap = c[i].colormap;
+		    i++;
+		}
+		XFree( (char *)c );
+	    }
+	}
+    }
+    if ( !cmap )				// no shared cmap found
+	cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
+				AllocNone );
+    x = new CMapEntry( cmap );			// associate cmap with visualid
+    cmap_dict->insert( (long)vi->visualid+1, x );
+    return cmap;
 }
+
 #endif // Q_GLX
 
 
@@ -1164,30 +1209,7 @@ void QGLWidget::setContext( QGLContext *context )
     if ( visible )
 	hide();
     XVisualInfo *vi = (XVisualInfo*)glcx->vi;
-    if ( XVisualIDFromVisual(vi->visual) ==
-	 XVisualIDFromVisual((Visual*)QPaintDevice::x11Visual()) )
-	return;
-
-    // Try to find a shared colormap
-    Colormap cmap = 0;
-    if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
-				   XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
-	XStandardColormap *c;
-	int n;
-	if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
-			      XA_RGB_DEFAULT_MAP) ) {
-	    int i = 0;
-	    while ( i < n && cmap == 0 ) {
-		if ( c[i].visualid == vi->visualid )
-		    cmap = c[i].colormap;
-		i++;
-	    }
-	    XFree( (char *)c );
-	}
-    }    
-    if ( cmap == 0 )
-	cmap = create_cmap( dpy, vi );
-
+    Colormap cmap = choose_cmap( dpy, vi );	// find shared colormap
     XSetWindowAttributes a;
     a.colormap = cmap;
     a.background_pixel = backgroundColor().pixel();
@@ -1202,10 +1224,10 @@ void QGLWidget::setContext( QGLContext *context )
     glXReleaseBuffersMESA( dpy, winId() );
 #endif
     create( w );
-    clearWFlags( WState_Visible );	// workaround for Qt 1.30 bug
+    clearWFlags( WState_Visible );		// workaround for Qt 1.30 bug
     if ( visible )
 	show();
-#endif
+#endif // Q_GLX
 }
 
 
