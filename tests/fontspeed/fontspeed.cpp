@@ -7,7 +7,7 @@
 
 //#define TEST_COLORS
 
-const int MAX_ITER  = 100000;
+const int MAX_ITER  = 10000;
 const int MAX_FONTS = 10;
 typedef QFont *pQFont;
 QFont **fontArray;
@@ -49,10 +49,10 @@ void createFontArray()
 	fontArray[i] = new QFont( name, pointSize, boldness );
     }
 }
- 
+
 void deleteFontArray()
 {
-    for ( int i=0; i<MAX_FONTS; i++ )	
+    for ( int i=0; i<MAX_FONTS; i++ )
 	delete fontArray[i];
     delete [] fontArray;
 }
@@ -65,7 +65,7 @@ void drawFonts( QPainter *p )
 	int x = rand()%vp.width();
 	int y = rand()%vp.height();
 	//	p->setFont( *fontArray[rand()%MAX_FONTS] );
-	p->drawText( x, y, 100, 40, AlignRight, "text to draw" );
+	p->drawText( x, y, 100, 40, Qt::AlignRight, "text to draw" );
     }
 }
 
@@ -75,7 +75,7 @@ int main( int argc, char **argv )
     QApplication a(argc,argv);
     createFontArray();
     QPixmap pm(256,256);
-    pm.fill( white );
+    pm.fill( Qt::white );
     QPainter p;
     p.begin( &pm );
     QTime t; t.start();
