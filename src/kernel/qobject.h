@@ -254,5 +254,6 @@ inline QString QObject::trUtf8( const char *sourceText, const char * ) {
 #endif //QT_NO_TRANSLATION
 
 
-
+#define Q_DEFINED_QOBJECT
+#include "qwinexport.h"
 #endif // QOBJECT_H

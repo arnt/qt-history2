@@ -101,10 +101,6 @@ Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
   QByteArray class
  *****************************************************************************/
 
-#if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<char>;
-#endif
-
 #if defined(Q_QDOC)
 /*
   We want qdoc to document QByteArray as a real class that inherits
@@ -389,5 +385,5 @@ Q_EXPORT inline const QCString operator+( char c1, const QCString &s2 )
     tmp += s2;
     return tmp;
 }
-
+#include <qwinexport.h>
 #endif // QCSTRING_H

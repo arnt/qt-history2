@@ -44,13 +44,6 @@
 #include "qptrvector.h"
 #endif // QT_H
 
-
-#if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QConnection>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrListIterator<QConnection>;
-#endif
-
-
 class Q_EXPORT QConnectionList : public QPtrList<QConnection>
 {
 public:
@@ -68,13 +61,6 @@ public:
     QConnectionListIt &operator=(const QConnectionListIt &i)
 	{ return (QConnectionListIt&)QPtrListIterator<QConnection>::operator=(i); }
 };
-
-
-#if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDict<QConnectionList>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
-#endif
-
 
 class Q_EXPORT QSignalVec : public QPtrVector<QConnectionList>
 {
@@ -96,6 +82,6 @@ public:
     }
 };
 
-
-
+#define Q_DEFINED_QCONNECTION_LIST
+#include "qwinexport.h"
 #endif // QSIGNALSLOTIMP_H

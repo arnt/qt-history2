@@ -43,13 +43,6 @@
 #include "qptrlist.h"
 #endif // QT_H
 
-
-#if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QWidget>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrListIterator<QWidget>;
-#endif
-
-
 class Q_EXPORT QWidgetList : public QPtrList<QWidget>
 {
 public:
@@ -67,6 +60,5 @@ public:
     QWidgetListIt &operator=(const QWidgetListIt &i)
 	{ return (QWidgetListIt&)QPtrListIterator<QWidget>::operator=(i); }
 };
-
 
 #endif // QWIDGETLIST_H

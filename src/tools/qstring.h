@@ -1038,4 +1038,6 @@ extern Q_EXPORT QCString qt_winQString2MB( const QString& s, int len=-1 );
 extern Q_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
 #endif
 
+#define Q_DEFINED_QSTRING
+#include "qwinexport.h"
 #endif // QSTRING_H

@@ -103,6 +103,8 @@ private:
     int aRow, aCol;
 };
 
+#define Q_DEFINED_QTABLE_SELECTION
+#include "qwinexport.h"
 
 class QM_EXPORT_TABLE QTableItem : public Qt
 {
@@ -168,6 +170,9 @@ private:
 
 };
 
+#define Q_DEFINED_QTABLE_ITEM
+#include "qwinexport.h"
+
 class QM_EXPORT_TABLE QComboTableItem : public QTableItem
 {
 public:
@@ -225,16 +230,6 @@ private:
     bool checked;
 
 };
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QTableItem>;
-QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrVector<QWidget>;
-QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QPtrList<QTableSelection>;
-QM_TEMPLATE_EXTERN_TABLE template class QM_EXPORT_TABLE QIntDict<int>;
-// MOC_SKIP_END
-#endif
-
 
 class QM_EXPORT_TABLE QTable : public QScrollView
 {
@@ -548,5 +543,7 @@ private:
 #endif
 };
 
+#define Q_DEFINED_QTABLE
+#include "qwinexport.h"
 #endif // QT_NO_TABLE
 #endif // TABLE_H

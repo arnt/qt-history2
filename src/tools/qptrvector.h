@@ -110,4 +110,6 @@ template<class type> inline void QPtrVector<type>::deleteItem( QPtrCollection::I
 #define QVector QPtrVector
 #endif
 
+#define Q_DEFINED_QPTRVECTOR
+#include "qwinexport.h"
 #endif // QVECTOR_H

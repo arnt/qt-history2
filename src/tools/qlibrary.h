@@ -76,5 +76,8 @@ private:	// Disabled copy constructor and operator=
     QLibrary &operator=( const QLibrary & );
 #endif
 };
+
+#define Q_DEFINED_QLIBRARY
+#include "qwinexport.h"
 #endif //QT_NO_LIBRARY
 #endif //QLIBRARY_H

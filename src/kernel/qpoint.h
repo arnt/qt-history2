@@ -211,5 +211,6 @@ inline const QPoint operator/( const QPoint &p, double c )
     return QPoint((QCOORD)(p.xp/c), (QCOORD)(p.yp/c));
 }
 
-
+#define Q_DEFINED_QPOINT
+#include "qwinexport.h"
 #endif // QPOINT_H

@@ -135,5 +135,6 @@ inline QObject* QGuardedPtrPrivate::object() const
     return obj;
 }
 
-
+#define Q_DEFINED_QGUARDEDPTR
+#include "qwinexport.h"
 #endif

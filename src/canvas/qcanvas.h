@@ -73,15 +73,6 @@ class QCanvasView;
 class QCanvasPixmap;
 
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasItem >;
-QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QPtrList< QCanvasView >;
-QM_TEMPLATE_EXTERN_CANVAS template class QM_EXPORT_CANVAS QValueList< QCanvasItem* >;
-// MOC_SKIP_END
-#endif
-
-
 class QM_EXPORT_CANVAS QCanvasItemList : public QValueList<QCanvasItem*> {
 public:
     void sort();
@@ -808,7 +799,8 @@ private:
 			 const QCanvasText* ) const;
 };
 
-
+#define Q_DEFINED_QCANVAS
+#include "qwinexport.h"
 #endif // QT_NO_CANVAS
 
 #endif // QCANVAS_H

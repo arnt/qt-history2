@@ -265,5 +265,6 @@ inline bool QRect::contains( int x, int y ) const
     return x >= x1 && x <= x2 &&
 	   y >= y1 && y <= y2;
 }
-
+#define Q_DEFINED_QRECT
+#include "qwinexport.h"
 #endif // QRECT_H

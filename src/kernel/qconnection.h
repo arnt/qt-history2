@@ -70,5 +70,6 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
+#define Q_DEFINED_QCONNECTION
+#include "qwinexport.h"
 #endif // QCONNECTION_H

@@ -57,13 +57,6 @@ class QMouseEvent;
 class QDockWindowResizeHandle;
 class QDockAreaPrivate;
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QRect>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QDockWindow>;
-// MOC_SKIP_END
-#endif
-
 class Q_EXPORT QDockAreaLayout : public QLayout
 {
     Q_OBJECT
@@ -188,6 +181,8 @@ Q_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
 Q_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
 #endif
 
+#define Q_DEFINED_QDOCKAREA
+#include "qwinexport.h"
 #endif
 
 #endif //QT_NO_MAINWINDOW

@@ -109,15 +109,10 @@ public:
     ConstIterator end() const { return data() + size(); }
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<int>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<bool>;
-// MOC_SKIP_END
-#endif
-
 #ifndef QT_NO_COMPAT
 #define QArray QMemArray
 #endif
 
+#define Q_DEFINED_QMEMARRAY
+#include <qwinexport.h>
 #endif // QARRAY_H

@@ -880,4 +880,6 @@ Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QMap<Key,T>& m
 }
 #endif
 
+#define Q_DEFINED_QMAP
+#include "qwinexport.h"
 #endif // QMAP_H

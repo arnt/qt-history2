@@ -1003,5 +1003,6 @@ struct Q_EXPORT QWExtra {
     QSizePolicy size_policy;
 };
 
-
+#define Q_DEFINED_QWIDGET
+#include "qwinexport.h"
 #endif // QWIDGET_H

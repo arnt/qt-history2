@@ -44,12 +44,6 @@
 #include "qdatastream.h"
 #endif // QT_H
 
-
-#if defined(Q_TEMPLATEDLL)
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<char>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrListIterator<char>;
-#endif
-
 #if defined(Q_QDOC)
 class QStrListIterator : public QPtrListIterator<char>
 {

@@ -219,6 +219,8 @@ inline QDockArea *QDockWindow::area() const
     return dockArea;
 }
 
+#define Q_DEFINED_QDOCKWINDOW
+#include "qwinexport.h"
 #endif
 
 #endif // QDOCKWINDOW_H

@@ -192,4 +192,7 @@ public:
 	{ return (QPtrListAutoDelete<type>&)QGList::operator=(l); }
 };
 
+#define Q_DEFINED_QPTRLIST
+#include "qwinexport.h"
+
 #endif // QPTRLIST_H

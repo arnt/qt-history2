@@ -663,4 +663,8 @@ Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QValueList<T>&
     return s;
 }
 #endif // QT_NO_DATASTREAM
+
+#define Q_DEFINED_QVALUELIST
+#define Q_DEFINED_QVALUELIST
+#include "qwinexport.h"
 #endif // QVALUELIST_H

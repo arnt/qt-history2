@@ -54,12 +54,6 @@
 
 #ifndef QT_NO_SQL
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-QM_TEMPLATE_EXTERN_SQL template class Q_EXPORT QValueList<bool>;
-// MOC_SKIP_END
-#endif
-
 class QSqlCursor;
 
 class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
@@ -95,5 +89,7 @@ private:
     QValueList<bool> sorts;
 };
 
+#define Q_DEFINED_QSQLINDEX
+#include "qwinexport.h"
 #endif	// QT_NO_SQL
 #endif

@@ -258,12 +258,6 @@ struct Q_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFeatur
     virtual QRESULT createAccessibleInterface( const QString &, QObject *, QAccessibleInterface** ) = 0;
 };
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QGuardedPtr<QObject>;
-// MOC_SKIP_END
-#endif
-
 class Q_EXPORT QAccessibleObject : public QObject, public QAccessibleInterface
 {
 public:
@@ -282,6 +276,8 @@ private:
     QGuardedPtr<QObject> object_;
 };
 
+#define Q_DEFINED_QACCESSIBLE_OBJECT
+#include "qwinexport.h"
 #endif //QT_ACCESSIBILITY_SUPPORT
 
 #endif //QACCESSIBLE_H
