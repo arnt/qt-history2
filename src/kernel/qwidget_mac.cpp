@@ -546,11 +546,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
 		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass) 
-#ifdef Q_WS_MACX
-		    wclass = kSheetWindowClass;
-#else
 		    wclass = kToolbarWindowClass;
-#endif
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
 		if( testWFlags( WStyle_Minimize ) ) 
@@ -566,7 +562,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	qDebug("%ld", macos_version);
 #endif
 	//wattr |= kWindowLiveResizeAttribute;
-	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
+	if(popup || testWFlags(WStyle_Tool) || 
+	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wattr |= kWindowNoActivatesAttribute;
 #ifdef QMAC_USE_WDEF
 	if( (wclass == kPlainWindowClass && wattr == kWindowNoAttributes) || testWFlags(WStyle_Tool) ) {
