@@ -667,8 +667,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	// data->hasAlpha(), so we need another if for it)
 #ifndef Q_OS_TEMP
 	if ( dc )
-	    SetDIBitsToDevice( dc, 0, sy, w, h, 0, 0, 0, h,
-			       image.bits(), bmi, DIB_RGB_COLORS );
+	    StretchDIBits( dc, 0, sy, w, h, 0, 0, w, h,
+			   image.bits(), bmi, DIB_RGB_COLORS, SRCCOPY );
 #else
 	void *ppvBits;
 	HDC hdcSrc = CreateCompatibleDC( dc );
