@@ -404,24 +404,24 @@ DspMakefileGenerator::init()
 	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
-	project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");
-	if ( project->isActiveConfig("console") ) {
-	    project->variables()["MSVCDSP_CONSOLE"].append("Console");
-	    project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
-	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0103");
-	    project->variables()["MSVCDSP_SUBSYSTEM"].append("console");
-	} else {
-	    project->variables()["MSVCDSP_CONSOLE"].clear();
-	    project->variables()["MSVCDSP_WINCONDEF"].append("_WINDOWS");
-	    project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
-	    project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
-	}
-    } else {
 	if ( project->isActiveConfig("dll") ) {
 	    project->variables()["MSVCDSP_TEMPLATE"].append("win32dll.dsp");
 	} else {
-	    project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
+	    project->variables()["MSVCDSP_TEMPLATE"].append("win32app.dsp");
+	    if ( project->isActiveConfig("console") ) {
+		project->variables()["MSVCDSP_CONSOLE"].append("Console");
+		project->variables()["MSVCDSP_WINCONDEF"].append("_CONSOLE");
+		project->variables()["MSVCDSP_DSPTYPE"].append("0x0103");
+		project->variables()["MSVCDSP_SUBSYSTEM"].append("console");
+	    } else {
+		project->variables()["MSVCDSP_CONSOLE"].clear();
+		project->variables()["MSVCDSP_WINCONDEF"].append("_WINDOWS");
+		project->variables()["MSVCDSP_DSPTYPE"].append("0x0101");
+		project->variables()["MSVCDSP_SUBSYSTEM"].append("windows");
+	    }
 	}
+    } else {
+	project->variables()["MSVCDSP_TEMPLATE"].append("win32lib.dsp");
     }
     project->variables()["MSVCDSP_LIBS"] = project->variables()["QMAKE_LIBS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
