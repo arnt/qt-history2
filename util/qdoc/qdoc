@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#166 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#167 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1258,6 +1258,9 @@ sub readc {
 		$doc = $2;
 	    }
 
+	    print $def, "\n" if ( $def =~ /newTypeEntry/ );
+	    $def =~ s/\s+throw\b.*$//;
+	    print $def, "\n" if ( $def =~ /newTypeEntry/ );
 	    ($name, $args) = split(/\s*\((?=[^\(]+\s*$ )/x, $def);
 	    if ($name =~ /^\s*(\w+)\s*::operator\s*([\s\w\*\&]+)$/s) {
 		$type = $2;
@@ -1743,7 +1746,7 @@ sub printclass {
 	    s/\s+$//;
 	    s/\s+/ /g;
 	    s/\)\s*:\s*[A-Q].*/\)/;
-	    s/\)\s*throw\s+.*/\)/;
+	    s/\s+throw\b.*$//;
 
 	    if (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
 		my($u, $r, $c);
@@ -2341,6 +2344,8 @@ sub readimports {
 		    $mode = "urls";
 		} elsif ( $line eq "-anchors" ) {
 		    $mode = "anchors";
+		} elsif ( $line eq "-inheritance" ) {
+		    $mode = "anchors";
 		} else {
 		    if ( $mode eq "keys" ) {
 			# nah-thang.  yet.
@@ -2354,6 +2359,12 @@ sub readimports {
 		    } elsif ( $mode eq "anchors" ) {
 			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
 			    $anchor{$1} = $imports{$_} . $2;
+			} else {
+			    die "unable to read $_ line $.\n$line\nstopped";
+			}
+		    } elsif ( $mode eq "inheritance" ) {
+			if ( $line =~ /^(\S+?):\s(\S+)$/ ) {
+			    $inheritance{$1} = $2;
 			} else {
 			    die "unable to read $_ line $.\n$line\nstopped";
 			}
@@ -2504,6 +2515,12 @@ if ( defined( $keyfile ) && open( O, "> $keyfile" ) ) {
     print O "-anchors\n";
     foreach ( sort keys %export ) {
 	print O $_, ": ", $anchor{$_}, "\n" if ( defined( $anchor{$_} ) );
+    }
+
+    print O "-inheritance\n";
+    foreach ( sort keys %inheritance ) {
+	print O $_, ": ", $inheritance{$_}, "\n"
+	    if ( defined( $inheritance{$_} ) );
     }
 
     close O;
