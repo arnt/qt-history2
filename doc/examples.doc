@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.2 1995/08/13 23:25:03 agulbra Exp $
+** $Id: examples.doc,v 1.3 1995/08/31 12:29:48 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,30 +8,68 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.2 1995/08/13 23:25:03 agulbra Exp $";
+static char ident[] = "$Id: examples.doc,v 1.3 1995/08/31 12:29:48 hanord Exp $";
 #endif
 
-/*! \example wheel/wheel.cpp
+/*! \example drawdemo/drawdemo.cpp
 
-  <h1>Color Wheel</h1>
+  <h1>Draw Demo</h1>
 
-  This example draws a color wheel.  It shows how to use color, world
-  transformation and QPainter. */
+  This example demontrates several drawing functions and printer output.
+  You can easily add you own drawing functions.  See "ourDrawFunctions".
+*/
+
+/*! \example widgets/widgets.cpp
+
+  <h1>Widgets Demo</h1>
+
+  This example creates a window with many Qt widgets and two custom
+  example widgets; aclock and dclock.
+
+  It also shows how to connect widget signals to internal slots.
+*/
 
 /*! \example connect/connect.cpp
 
-  <h1>A graphical hello world</h1>
+  <h1>A Graphical Hello World</h1>
 
   This example shows very simple mouse-based user interaction and
   painting without any world transform matrix or other advanced
   features.  Run the program, click the button, move the mouse,
   release the button, and watch the lines get drawn. */
 
+/*! \example forever/forever.cpp
+
+  <h1>A Rectangle Draw "Benchmark"</h1>
+
+  This example continuously draws rectangles in a window and
+  has another widget that counts the number of rectangles that
+  are drawn per second.
+*/
+
 /*! \example cursor/cursor.cpp
 
   <h1>Cursors</h1>
 
-  This example shows how to do tricks with the mouse cursor.
+  This example shows how to set a mouse cursor for a widget.
+*/
+
+/*! \example hello/hello.cpp
+  <h1>Hello, World</h1>
+
+  This example brings up a message box with a text and a button.
+*/
+
+/*! \example picture/makepic.cpp
+  <h1>Make Picture</h1>
+
+  This example draws a car in a picture and writes it to a file.
+*/
+
+/*! \example picture/showpic.cpp
+  <h1>Show Picture</h1>
+
+  This example loads a picture file and displays it in a window.
 */
 
 /*! \example qmag/qmag.cpp
@@ -47,5 +85,4 @@ Run it, click in the magnifier window, then click where you want to
 magnify.  Two combo boxes let you select amplification and refresh
 frequency, and a text label tells you the color of the pixel the
 cursor is on.
-
 */
