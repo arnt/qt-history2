@@ -1,0 +1,107 @@
+/*!
+    \example dialogs/tabdialog
+    \title Tab Dialog Example
+
+    The Tab Dialog example shows how to construct a tab dialog using the
+    QTabWidget class.
+
+    Dialogs provide an efficient way for the application to communicate
+    with the user, but complex dialogs suffer from the problem that they
+    often take up too much screen area. By using a number of tabs in a
+    dialog, information can be split into different categories, while
+    remaining accessible.
+    
+    \image tabdialog-example.png
+
+    The Tab Dialog example consists of a single \c TabDialog class that
+    provides three tabs, each containing information about a particular
+    file, and two standard push buttons that are used to accept or reject
+    the contents of the dialog.
+
+    \section1 TabDialog Class Definition
+
+    The \c TabDialog class is a subclass of QDialog that displays a
+    QTabWidget and two standard dialog buttons. The class definition
+    only contain the class constructor and a private data member for
+    the QTabWidget:
+
+    \quotefromfile dialogs/tabdialog/tabdialog.h
+    \skipto class TabDialog :
+    \printuntil /^\}/
+
+    In the example, the widget will be used as a top-level window, but
+    we define the constructor so that it can take a parent widget. This
+    allows the dialog to be centered on top of an application's main
+    window.
+
+    \section1 TabDialog Class Implementation
+
+    The constructor calls the QDialog constructor and creates a QFileInfo
+    object for the specified filename.
+
+    \quotefromfile dialogs/tabdialog/tabdialog.cpp
+    \skipto TabDialog::TabDialog
+    \printuntil ApplicationsTab
+    
+    The tab widget is populated with three custom widgets that each
+    contain information about the file. We construct each of these
+    without a parent widget because the tab widget will reparent
+    them as they are added to it.
+
+    We create two standard push buttons, and connect each of them to
+    the appropriate slots in the dialog:
+
+    \skipto okButton
+    \printuntil reject()
+
+    We arrange the buttons in a horizontal layout with extra space at
+    the left hand side of the widget then arrange the tab widget above
+    the buttons in the dialog:
+
+    \skipto QHBoxLayout
+    \printuntil addLayout
+
+    Finally, we set the dialog's title:
+
+    \skipto setWindowTitle
+    \printuntil /^\}/
+
+    Each of the tabs are subclassed from QWidget, and only provide
+    constructors.
+    
+    \section1 GeneralTab Class Definition
+
+    \quotefromfile dialogs/tabdialog/tabdialog.h
+    \skipto class GeneralTab :
+    \printuntil /^\}/
+
+    \section1 GeneralTab Class Implementation
+
+    \quotefromfile dialogs/tabdialog/tabdialog.cpp
+    \skipto GeneralTab::GeneralTab
+    \printuntil /^\}/
+
+    \section1 PermissionsTab Class Definition
+
+    \quotefromfile dialogs/tabdialog/tabdialog.h
+    \skipto class PermissionsTab :
+    \printuntil /^\}/
+
+    \section1 PermissionsTab Class Implementation
+
+    \quotefromfile dialogs/tabdialog/tabdialog.cpp
+    \skipto PermissionsTab::PermissionsTab
+    \printuntil /^\}/
+
+    \section1 ApplicationsTab Class Definition
+
+    \quotefromfile dialogs/tabdialog/tabdialog.h
+    \skipto class ApplicationsTab :
+    \printuntil /^\}/
+
+    \section1 ApplicationsTab Class Implementation
+
+    \quotefromfile dialogs/tabdialog/tabdialog.cpp
+    \skipto ApplicationsTab::ApplicationsTab
+    \printuntil /^\}/
+*/
