@@ -5748,7 +5748,7 @@ void QWidget::showFullScreen()
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 	      // preserve some widget flags
 	      (getWFlags() & 0xffff0000),
-	      QPoint(0,0) );
+	      mapToGlobal( QPoint( 0, 0) ));
     topData()->fullscreen = 1;
     const QRect screen = qApp->desktop()->screenGeometry( qApp->desktop()->screenNumber( this ) );
     move( screen.topLeft() );
