@@ -4,8 +4,7 @@ INCLUDEPATH += $$PWD
 FORMS += $$PWD/paletteeditor.ui \
     $$PWD/previewwidget.ui
 
-HEADERS += $$PWD/QPropertyEditor \
-    $$PWD/qpropertyeditor.h \
+HEADERS += $$PWD/qpropertyeditor.h \
     $$PWD/qpropertyeditor_items_p.h \
     $$PWD/qpropertyeditor_model_p.h \
     $$PWD/qpropertyeditor_delegate_p.h \
