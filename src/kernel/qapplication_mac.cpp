@@ -128,6 +128,8 @@ QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac fi
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
+static EventLoopTimerRef mac_context_timer = NULL;
+static EventLoopTimerUPP mac_context_timerUPP = NULL;
 static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
@@ -866,6 +868,10 @@ static void sn_cleanup()
 	DisposeEventLoopTimerUPP(mac_select_timerUPP);
 	mac_select_timerUPP = NULL;
     }
+    if(mac_context_timerUPP) {
+	DisposeEventLoopTimerUPP(mac_context_timerUPP);
+	mac_context_timerUPP = NULL;
+    }
 }
 
 
@@ -1504,15 +1510,14 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 }
 
 //context menu hack
-static EventLoopTimerRef mac_trap_context = NULL;
 static bool request_context_pending = FALSE;
 QMAC_PASCAL void
-QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
+QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 {
     QWidget *w = (QWidget *)d;
-    EventLoopTimerRef otc = mac_trap_context;
-    RemoveEventLoopTimer(mac_trap_context);
-    mac_trap_context = NULL;
+    EventLoopTimerRef otc = mac_context_timer;
+    RemoveEventLoopTimer(mac_context_timer);
+    mac_context_timer = NULL;
     if(r != otc || w != qt_button_down || request_context_pending || qt_mac_in_drag)
 	return;
     request_context_pending = TRUE;
@@ -1841,11 +1846,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 	case kEventMouseDown:
-	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
+	    if(button == QMouseEvent::LeftButton && !mac_context_timer) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
-				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
-				      &mac_trap_context);
+		if(!mac_context_timerUPP)
+		    mac_context_timerUPP = NewEventLoopTimerUPP(qt_context_timer_callbk);
+		InstallEventLoopTimer(GetMainEventLoop(), 2, 0, mac_context_timerUPP, 
+				      widget, &mac_context_timer);
 	    }
 	    qt_button_down = widget;
 	    break;
@@ -2187,9 +2193,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
     // ok we clear all QtRequestContext events from the queue
     if(remove_context_timer) {
-	if(mac_trap_context) {
-	    RemoveEventLoopTimer(mac_trap_context);
-	    mac_trap_context = NULL;
+	if(mac_context_timer) {
+	    RemoveEventLoopTimer(mac_context_timer);
+	    mac_context_timer = NULL;
 	}
 	if(request_context_pending) {
 	    request_context_pending = FALSE;

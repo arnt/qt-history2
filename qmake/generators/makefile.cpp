@@ -149,7 +149,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		int ext_len = fn_target.length() - ext_pos;
 		int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
 		QString mocFile;
-		if(!project->variables()["MOC_DIR"].isEmpty())
+		if(!project->isEmpty("MOC_DIR"))
 		    mocFile = project->first("MOC_DIR");
 		else if(dir_pos != -1)
 		    mocFile = fn_target.left(dir_pos+1);
@@ -470,7 +470,7 @@ MakefileGenerator::init()
 
     //UI files
     {
-	if(!project->variables()["UI_DIR"].isEmpty())
+	if(!project->isEmpty("UI_DIR"))
 	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR"));
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
 	QStringList &l = v["FORMS"];
@@ -604,7 +604,7 @@ MakefileGenerator::init()
 
     //moc files
     if ( mocAware() ) {
-	if(!project->variables()["MOC_DIR"].isEmpty())
+	if(!project->isEmpty("MOC_DIR"))
 	    project->variables()["INCLUDEPATH"].append(project->first("MOC_DIR"));
 	v["OBJMOC"] = createObjectList("_HDRMOC") + createObjectList("_UIMOC");
 
@@ -731,7 +731,8 @@ MakefileGenerator::write()
     init();
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) && 
-       project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib") { 
+       project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" &&
+       !project->isActiveConfig("plugin")) { 
 	QString prl = var("TARGET");
 	int slsh = prl.findRev(Option::dir_sep);
 	if(slsh != -1)
@@ -756,13 +757,11 @@ MakefileGenerator::write()
 	    t << "QMAKE_PRL_BUILD_DIR = " << Option::output_dir << endl;
 	    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 		t << "QMAKE_PRL_SOURCE_DIR = " << project->first("QMAKE_ABSOLUTE_SOURCE_PATH") << endl;
-
 	    t << "QMAKE_PRL_TARGET = " << target << endl;
 	    if(!project->isEmpty("PRL_EXPORT_DEFINES")) 
 		t << "QMAKE_PRL_DEFINES = " 
 		  << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
-	    if((project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin"))
-	       || project->isActiveConfig("explicitlib")) {
+	    if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
 		QStringList libs; 
 		if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 		    libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
@@ -829,7 +828,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	    comp = "QMAKE_RUN_CC";
 	    cimp = "QMAKE_RUN_CC_IMP";
 	}
-	if ( !project->variables()["OBJECTS_DIR"].isEmpty() || project->variables()[cimp].isEmpty()) {
+	if ( !project->isEmpty("OBJECTS_DIR") || project->variables()[cimp].isEmpty()) {
 	    QString p = var(comp);
 	    p.replace(regexpSrc, (*sit));
 	    p.replace(regexpObj, (*oit));
@@ -880,7 +879,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
     QRegExp regexpObj("\\$obj");
 
     QString mocdir;
-    if(!project->variables()["MOC_DIR"].isEmpty())
+    if(!project->isEmpty("MOC_DIR"))
 	mocdir = project->first("MOC_DIR");
 
     for( ;oit != objl.end(); oit++) {
@@ -895,9 +894,8 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	QString hdr = findMocSource(src);
 	t << (*oit) << ": " << src << " "
 	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
-	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
-	     !project->variables()["MOC_DIR"].isEmpty() ||
-	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
+	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("MOC_DIR") ||
+	     project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( regexpSrc, src);
 	    p.replace( regexpObj, (*oit));
@@ -978,9 +976,8 @@ MakefileGenerator::writeImageObj(QTextStream &t, const QString &obj)
     for(QStringList::Iterator oit = objl.begin(); oit != objl.end(); oit++) {
         QString src(project->first("QMAKE_IMAGE_COLLECTION"));
 	t << (*oit) << ": " << src;
-	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
-	     !project->variables()["UI_DIR"].isEmpty() ||
-	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
+	if ( !project->isEmpty("OBJECTS_DIR") || !project->isEmpty("UI_DIR") ||
+	     project->isEmpty("QMAKE_RUN_CXX_IMP")) {
 	    QString p = var("QMAKE_RUN_CXX");
 	    p.replace( regexpSrc, src);
 	    p.replace( regexpObj, (*oit));
@@ -1152,7 +1149,7 @@ QString MakefileGenerator::buildArgs()
     static QString ret;
     if(ret.isEmpty()) {
 	//special variables
-	if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+	if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
 	    ret += " QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
 
 	//warnings
@@ -1303,7 +1300,7 @@ MakefileGenerator::fileFixify(QString &file, QString dir) const
     }
 
     QString orig_file = file;
-    if(project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) { //relative
+    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //relative
 	file = Option::fixPathToTargetOS(file, FALSE);
 	if(QDir::isRelativePath(file))
 	    return FALSE;
