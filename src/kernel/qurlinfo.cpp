@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -45,7 +45,10 @@ struct QUrlInfoPrivate
 
 /*!
   \class QUrlInfo qurlinfo.h
-  #### todo
+
+  This class is just a container for holding informations about a
+  URL. That's why all informations have to be passed in the
+  constructor.
 */
 
 /*!
@@ -133,7 +136,7 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 }
 
 /*!
-  #### todo
+  Sets the filename.
 */
 
 void QUrlInfo::setName( const QString &name )

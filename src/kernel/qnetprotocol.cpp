@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.cpp#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -48,7 +48,39 @@ QNetworkProtocol *qGetNetworkProtocol( const QString &protocol )
 
 /*!
   \class QNetworkProtocol qnetprotocol.h
-  #### todo
+
+  This is a baseclass which should be used for implementations
+  of network protocols which can then be used in Qt (e.g.
+  in the filedialog).
+  
+  Most of the methodes below should be reimplemented. To be able
+  to make Qt using a new network protocol derived from this class
+  following two functions have to be reimplemented
+  
+    virtual QNetworkProtocol *copy() const;
+    virtual QString toString() const;
+    
+  All other methodes should be implemented if it makes sense for
+  the protocol. But e.g. openConnection(), close(), isOpen() and 
+  some others should be always reimplemented.
+
+  See also the QFtp implementation in the network extension library
+  for more information.
+  
+  To dynamically register a new protocol in Qt, just do following
+  (let's assume the new protocol class is called QtHttp and implements
+  an HTTP protocol)
+  
+    qRegisterNetworkProtocol( "http", new QtHttp );
+    
+  If you later need an instance of the network protocol implementation
+  do:
+  
+    QtHttp *http = qGetNetworkProtocol( "http" );
+    
+  If an implementation for this protocol could be found, it returns an
+  instance and transferes the ownership of the instace to you (this means,
+  you have to delete it later yourself). Else it returns 0.
 */
 
 /*!
@@ -70,7 +102,7 @@ QNetworkProtocol::~QNetworkProtocol()
 }
 
 /*!
-  #### todo
+  Open connection.
 */
 
 void QNetworkProtocol::openConnection( QUrl *u )
@@ -148,7 +180,7 @@ void QNetworkProtocol::copy( const QStringList &, const QString &, bool )
   #### todo
 */
 
-void QNetworkProtocol::get()
+void QNetworkProtocol::get( const QString & )
 {
 }
 

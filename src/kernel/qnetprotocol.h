@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#2 $
+** $Id: //depot/qt/main/src/kernel/qnetprotocol.h#3 $
 **
 ** Implementation of QFileDialog class
 **
@@ -61,7 +61,7 @@ public:
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual void get();
+    virtual void get( const QString &info );
     virtual void put( const QString &data );
     virtual void isDir();
     virtual void isFile();

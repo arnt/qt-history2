@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -56,6 +56,15 @@ struct QUrlPrivate
 /*!
   \class QUrl qurl.h
 
+  The QUrl class is provided for a easy working with URLs.
+  It does all parsing, decoding, encoding and so on. Also
+  methodes like listing directories, copying URLs, removing
+  URLs, renaming URLs and some more are implemented. These
+  funcktions work by default only for the local filesystem,
+  for other network protocols, an implementation of the
+  required protocol has to be registered. For more information
+  about this, see the QNetworkProtocol documentation.
+  
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
   and encoded query. For example in
@@ -66,6 +75,8 @@ struct QUrlPrivate
   and in the encoded query "cmd=Hello%20you".
   Since path is internally always encoded you may NOT use
   "%00" in the path while this is ok for the query.
+
+  \sa QNetworkProtocol::QNetworkProtocol()
 */
 
 /*!
@@ -247,12 +258,7 @@ struct QUrlPrivate
 
 
 /*!
-  \a url is considered to be encoded. You can pass strings like
-  "/home/weis", in this case the protocol "file" is assumed.
-  This is dangerous since even this simple path is assumed to be
-  encoded. For example "/home/Torben%20Weis" will be decoded to
-  "/home/Torben Weis". This means: If you have a usual UNIX like
-  path, you have to use @ref encode first before you pass it to URL.
+  Constructs an empty, malformed URL.
 */
 
 QUrl::QUrl()
@@ -264,7 +270,14 @@ QUrl::QUrl()
 }
 
 /*!
-  #### todo
+  Constructs and URL using \a url and parses this string.
+
+  \a url is considered to be encoded. You can pass strings like
+  "/home/weis", in this case the protocol "file" is assumed.
+  This is dangerous since even this simple path is assumed to be
+  encoded. For example "/home/Torben%20Weis" will be decoded to
+  "/home/Torben Weis". This means: If you have a usual UNIX like
+  path, you have to use @ref encode first before you pass it to URL.
 */
 
 QUrl::QUrl( const QString& url )
@@ -280,7 +293,7 @@ QUrl::QUrl( const QString& url )
 }
 
 /*!
-  #### todo
+  Copy constructor.
 */
 
 QUrl::QUrl( const QUrl& url )
@@ -292,7 +305,8 @@ QUrl::QUrl( const QUrl& url )
 }
 
 /*!
-  #### todo
+  Constructs and URL for the file \a relUrl_ in the directory
+  \a url.
 */
 
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
@@ -345,7 +359,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 }
 
 /*!
-  #### todo
+  Destructor.
 */
 
 QUrl::~QUrl()
@@ -356,7 +370,7 @@ QUrl::~QUrl()
 }
 
 /*!
-  #### todo
+  Returns the protocol of the URL.
 */
 
 QString QUrl::protocol() const
@@ -365,7 +379,8 @@ QString QUrl::protocol() const
 }
 
 /*!
-  #### todo
+  Sets the protocol of the URL. This could be e.g.
+  "file", "ftp" or something similar.
 */
 
 void QUrl::setProtocol( const QString& protocol )
@@ -374,7 +389,7 @@ void QUrl::setProtocol( const QString& protocol )
 }
 
 /*!
-  #### todo
+  Returns the username of the URL.
 */
 
 QString QUrl::user() const
@@ -383,7 +398,7 @@ QString QUrl::user() const
 }
 
 /*!
-  #### todo
+  Sets the username of the URL.
 */
 
 void QUrl::setUser( const QString& user )
@@ -392,7 +407,8 @@ void QUrl::setUser( const QString& user )
 }
 
 /*!
-  #### todo
+  Returns TRUE, of the URL contains an username,
+  else FALSE;
 */
 
 bool QUrl::hasUser() const
@@ -401,7 +417,7 @@ bool QUrl::hasUser() const
 }
 
 /*!
-  #### todo
+  Returns the password of the URL.
 */
 
 QString QUrl::pass() const
@@ -410,7 +426,7 @@ QString QUrl::pass() const
 }
 
 /*!
-  #### todo
+  Sets the password of the URL.
 */
 
 void QUrl::setPass( const QString& pass )
@@ -419,7 +435,8 @@ void QUrl::setPass( const QString& pass )
 }
 
 /*!
-  #### todo
+  Returns TRUE, of the URL contains an password,
+  else FALSE;
 */
 
 bool QUrl::hasPass() const
@@ -428,7 +445,7 @@ bool QUrl::hasPass() const
 }
 
 /*!
-  #### todo
+  Returns the hostname of the URL.
 */
 
 QString QUrl::host() const
@@ -437,7 +454,7 @@ QString QUrl::host() const
 }
 
 /*!
-  #### todo
+  Sets the hostname of the URL.
 */
 
 void QUrl::setHost( const QString& host )
@@ -446,7 +463,8 @@ void QUrl::setHost( const QString& host )
 }
 
 /*!
-  #### todo
+  Returns TRUE, of the URL contains an hostname,
+  else FALSE;
 */
 
 bool QUrl::hasHost() const
@@ -455,7 +473,7 @@ bool QUrl::hasHost() const
 }
 
 /*!
-  #### todo
+  Returns the port of the URL.
 */
 
 int QUrl::port() const
@@ -464,7 +482,7 @@ int QUrl::port() const
 }
 
 /*!
-  #### todo
+  Sets the port of the URL.
 */
 
 void QUrl::setPort( int port )
@@ -473,7 +491,7 @@ void QUrl::setPort( int port )
 }
 
 /*!
-  #### todo
+  Sets the path or the URL.
 */
 
 void QUrl::setPath( const QString& path )
@@ -484,7 +502,8 @@ void QUrl::setPath( const QString& path )
 }
 
 /*!
-  #### todo
+  Returns TRUE, of the URL contains a path,
+  else FALSE.
 */
 
 bool QUrl::hasPath() const
@@ -766,6 +785,13 @@ NodeErr:
 
 /*!
   #### todo
+
+  \a url is considered to be encoded. You can pass strings like
+  "/home/weis", in this case the protocol "file" is assumed.
+  This is dangerous since even this simple path is assumed to be
+  encoded. For example "/home/Torben%20Weis" will be decoded to
+  "/home/Torben Weis". This means: If you have a usual UNIX like
+  path, you have to use @ref encode first before you pass it to URL.
 */
 
 QUrl& QUrl::operator=( const QString& url )
@@ -1288,6 +1314,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	emit finished();
     } else if ( d->networkProtocol ) {
 	emit start();
+	setNameFilter( nameFilter );
 	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
     } else
 	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
@@ -1469,10 +1496,10 @@ bool QUrl::isFile()
   #### todo
 */
 
-void QUrl::get()
+void QUrl::get( const QString &info )
 {
     if ( d->networkProtocol )
-	d->networkProtocol->get();
+	d->networkProtocol->get( info );
 }
 
 /*!
