@@ -1,5 +1,10 @@
-TEMPLATE    =	app
-CONFIG      =	qt nsplugin release
-HEADERS	    =   qpngio.h
-SOURCES     =	qtimage.cpp qpngio.cpp
-TARGET      =	qtimage.so
+TEMPLATE	=	app
+CONFIG		=	qt dll release
+HEADERS		=   
+SOURCES		=	qtimage.cpp
+unix:TMAKE_LIBS =	-L$(QTDIR)/lib -lqnp -lqimgio -ljpeg -lpng -lz -lXt -lm
+win32:LIBS	=	$(QTDIR)/lib/qnp.lib
+DEF_FILE	=	qtimage.def
+RC_FILE		=	qtimage.rc
+TARGET		=	qtimage
+win32:TARGET	=	npqtimage
