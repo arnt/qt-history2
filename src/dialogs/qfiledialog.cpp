@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#33 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#34 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#34 $");
 
 
 /*!
@@ -347,7 +347,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = dir ? dir : dirName;
     ofn.lpstrTitle	= "Open";
-    ofn.Flags		= OFN_CREATEPROMPT;
+    ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
     if ( GetOpenFileName(&ofn) )
@@ -420,7 +420,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     ofn.nMaxFile	= maxstrlen;
     ofn.lpstrInitialDir = dir ? dir : dirName;
     ofn.lpstrTitle	= "Save";
-    ofn.Flags		= OFN_CREATEPROMPT;
+    ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
 
     QString result;
     if ( GetSaveFileName(&ofn) )
