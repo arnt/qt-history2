@@ -1164,9 +1164,11 @@ QList<QDockWidget> QMainWindow::dockWidgets( Dock dock ) const
     case Right:
 	return d->rightDock->dockWidgetList();
     case TornOff:
-	for ( QDockWidget *w = d->dockWidgets.first(); w; w = d->dockWidgets.last() ) {
-	    if ( !w->area() && w->place() == QDockWidget::OutsideDock )
-		lst.append( w );
+	{
+	    for ( QDockWidget *w = d->dockWidgets.first(); w; w = d->dockWidgets.last() ) {
+		if ( !w->area() && w->place() == QDockWidget::OutsideDock )
+		    lst.append( w );
+	    }
 	}
 	return lst;
     case Minimized:

@@ -1,19 +1,28 @@
 #ifndef QDOCKAREA_H
 #define QDOCKAREA_H
 
-#include <qwidget.h>
-#include <qlist.h>
+#ifndef QT_H
+#include "qwidget.h"
+#include "qlist.h"
 #include "qdockwidget.h"
-#include <qlayout.h>
-#include <qvaluelist.h>
-#include <qlist.h>
+#include "qlayout.h"
+#include "qvaluelist.h"
+#include "qlist.h"
+#endif // QT_H
 
 class QSplitter;
 class QBoxLayout;
 class QDockAreaLayout;
 class QMouseEvent;
 
-class QDockAreaLayout : public QLayout
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueList<QRect>;
+template class Q_EXPORT QList<QDockWidget>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QDockAreaLayout : public QLayout
 {
     Q_OBJECT
     friend class QDockArea;
@@ -52,7 +61,7 @@ private:
 
 };
 
-class QDockArea : public QWidget
+class Q_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
 

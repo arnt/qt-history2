@@ -320,7 +320,7 @@ QDockArea::~QDockArea()
     delete dockWidgets;
 }
 
-void QDockArea::addDockWidget( QDockWidget *w, int index = -1 )
+void QDockArea::addDockWidget( QDockWidget *w, int index )
 {
     QDockWidget *dockWidget = 0;
     int dockWidgetIndex = findDockWidget( w );
@@ -343,7 +343,7 @@ void QDockArea::addDockWidget( QDockWidget *w, int index = -1 )
     }
 }
 
-bool QDockArea::hasDockWidget( QDockWidget *w, int *index = 0 )
+bool QDockArea::hasDockWidget( QDockWidget *w, int *index )
 {
     int i = dockWidgets->findRef( w );
     if ( index )
@@ -554,5 +554,3 @@ void QDockArea::mousePressEvent( QMouseEvent *e )
     if ( e->button() == RightButton )
 	emit rightButtonPressed( e->globalPos() );
 }
-
-#include "qdockarea.moc"

@@ -1,7 +1,9 @@
 #ifndef QDOCKWIDGET_H
 #define QDOCKWIDGET_H
 
-#include <qframe.h>
+#ifndef QT_H
+#include "qframe.h"
+#endif // QT_H
 
 class QDockWidgetHandle;
 class QDockWidgetTitleBar;
@@ -12,7 +14,7 @@ class QBoxLayout;
 class QHBoxLayout;
 class QVBoxLayout;
 
-class QDockWidget : public QFrame
+class Q_EXPORT QDockWidget : public QFrame
 {
     friend class QDockWidgetHandle;
     friend class QDockWidgetTitleBar;
