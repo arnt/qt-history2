@@ -287,6 +287,17 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
     int idx = startIndex;
     int fIndex = 0;
     while ( TRUE ) {
+	if ( oldFormats.at( fIndex ).c == '\n' ) {
+	    if ( idx > 0 ) {
+		if ( idx < sp->length() && fIndex > 0 )
+		    sp->setFormat( idx, 1, oldFormats.at( fIndex - 1 ).format() );
+		if ( sp == ep )
+		    break;
+		sp = sp->next();
+		idx = 0;
+	    }
+	    fIndex++;
+	}
 	if ( oldFormats.at( fIndex ).format() )
 	    sp->setFormat( idx, 1, oldFormats.at( fIndex ).format() );
 	idx++;
@@ -301,6 +312,10 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
 	}
     }
 
+    QTextCursor end( doc );
+    end.setParag( ep );
+    end.setIndex( endIndex );
+    *c = end;
     return c;
 }
 
