@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#238 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#239 $
 **
 ** Implementation of QListView widget class
 **
@@ -2776,18 +2776,18 @@ void QListView::focusOutEvent( QFocusEvent * )
 void QListView::keyPressEvent( QKeyEvent * e )
 {
     if ( !e )
-	return; // subclass bug
+        return; // subclass bug
 
     QListViewItem* oldCurrent = currentItem();
     if ( !oldCurrent )
-	return;
+        return;
 
     QListViewItem * i = currentItem();
 
     if ( isMultiSelection() && i->isSelectable() && e->ascii() == ' ' ) {
-	setSelected( i, !i->isSelected() );
-	d->currentPrefix.truncate( 0 );
-	return;
+        setSelected( i, !i->isSelected() );
+        d->currentPrefix.truncate( 0 );
+        return;
     }
 
     QRect r( itemRect( i ) );
@@ -2796,150 +2796,162 @@ void QListView::keyPressEvent( QKeyEvent * e )
     switch( e->key() ) {
     case Key_Enter:
     case Key_Return:
-	d->currentPrefix.truncate( 0 );
-	if ( i && !i->isSelectable() &&
-	     ( i->childCount() || i->isExpandable() ) ) {
-	    i->setOpen( !i->isOpen() );
-	    return;
-	}
- 	e->ignore();
-	emit returnPressed( currentItem() );
-	// do NOT accept.  QDialog.
-	return;
+        d->currentPrefix.truncate( 0 );
+        if ( i && !i->isSelectable() &&
+             ( i->childCount() || i->isExpandable() ) ) {
+            i->setOpen( !i->isOpen() );
+            return;
+        }
+        e->ignore();
+        emit returnPressed( currentItem() );
+        // do NOT accept.  QDialog.
+        return;
     case Key_Down:
-	i = i->itemBelow();
-	d->currentPrefix.truncate( 0 );
-	break;
+        i = i->itemBelow();
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Up:
-	i = i->itemAbove();
-	d->currentPrefix.truncate( 0 );
-	break;
+        i = i->itemAbove();
+        d->currentPrefix.truncate( 0 );
+        break;
+    case Key_Home:
+        i = firstChild();
+        d->currentPrefix.truncate( 0 );
+        break;
+    case Key_End:
+        i = firstChild();
+        while ( i->nextSibling() )
+            i = i->nextSibling();
+        while ( i->itemBelow() )
+            i = i->itemBelow();
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Next:
-	i2 = itemAt( QPoint( 0, visibleHeight()-1 ) );
-	if ( i2 == i || !r.isValid() ||
-	     visibleHeight() <= itemRect( i ).bottom() ) {
-	    if ( i2 )
-		i = i2;
-	    int left = visibleHeight();
-	    while( (i2 = i->itemBelow()) != 0 && left > i2->height() ) {
-		left -= i2->height();
-		i = i2;
-	    }
-	} else {
-	    i = i2;
-	}
-	d->currentPrefix.truncate( 0 );
-	break;
+        i2 = itemAt( QPoint( 0, visibleHeight()-1 ) );
+        if ( i2 == i || !r.isValid() ||
+             visibleHeight() <= itemRect( i ).bottom() ) {
+            if ( i2 )
+                i = i2;
+            int left = visibleHeight();
+            while( (i2 = i->itemBelow()) != 0 && left > i2->height() ) {
+                left -= i2->height();
+                i = i2;
+            }
+        } else {
+            i = i2;
+        }
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Prior:
-	i2 = itemAt( QPoint( 0, 0 ) );
-	if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
-	    if ( i2 )
-		i = i2;
-	    int left = visibleHeight();
-	    while( (i2 = i->itemAbove()) != 0 && left > i2->height() ) {
-		left -= i2->height();
-		i = i2;
-	    }
-	} else {
-	    i = i2;
-	}
-	d->currentPrefix.truncate( 0 );
-	break;
+        i2 = itemAt( QPoint( 0, 0 ) );
+        if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
+            if ( i2 )
+                i = i2;
+            int left = visibleHeight();
+            while( (i2 = i->itemAbove()) != 0 && left > i2->height() ) {
+                left -= i2->height();
+                i = i2;
+            }
+        } else {
+            i = i2;
+        }
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Plus:
-	if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
-	    setOpen( i, TRUE );
-	d->currentPrefix.truncate( 0 );
-	break;
+        if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
+            setOpen( i, TRUE );
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Right:
-	if ( i->isOpen() && i->childItem )
-	    i = i->childItem;
-	else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
-	    setOpen( i, TRUE );
-	else if ( contentsX() + visibleWidth() < contentsWidth() )
-	    horizontalScrollBar()->addLine();
-	d->currentPrefix.truncate( 0 );
-	break;
+        if ( i->isOpen() && i->childItem )
+            i = i->childItem;
+        else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
+            setOpen( i, TRUE );
+        else if ( contentsX() + visibleWidth() < contentsWidth() )
+            horizontalScrollBar()->addLine();
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Minus:
-	if ( i->isOpen() )
-	    setOpen( i, FALSE );
-	d->currentPrefix.truncate( 0 );
-	break;
+        if ( i->isOpen() )
+            setOpen( i, FALSE );
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Left:
-	if ( i->isOpen() )
-	    setOpen( i, FALSE );
-	else if ( i->parentItem && i->parentItem != d->r )
-	    i = i->parentItem;
-	else if ( contentsX() )
-	    horizontalScrollBar()->subtractLine();
-	d->currentPrefix.truncate( 0 );
-	break;
+        if ( i->isOpen() )
+            setOpen( i, FALSE );
+        else if ( i->parentItem && i->parentItem != d->r )
+            i = i->parentItem;
+        else if ( contentsX() )
+            horizontalScrollBar()->subtractLine();
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Space:
-	i->activate();
-	d->currentPrefix.truncate( 0 );
-	break;
+        i->activate();
+        d->currentPrefix.truncate( 0 );
+        break;
     case Key_Escape:
-	e->ignore(); // For QDialog
-	break;
+        e->ignore(); // For QDialog
+        break;
     default:
-	if ( e->ascii() && isalnum( e->ascii() ) ) {
-	    QString input( d->currentPrefix );
-	    QListViewItem * keyItem = i;
-	    QTime now( QTime::currentTime() );
-	    while( keyItem ) {
-		// try twice, first with the previous string and this char
-		input += (char)tolower( e->ascii() );
-		QString keyItemKey;
-		QString prefix;
-		while( keyItem ) {
-		    // Look for text in column 0, then left-to-right
-		    keyItemKey = keyItem->text(0);
-		    for (int col=0; col < d->h->count() && !keyItemKey; col++ )
-			keyItemKey = keyItem->text( d->h->mapToLogical(col) );
-		    if ( !keyItemKey.isEmpty() ) {
-			prefix = keyItemKey;
-			prefix.truncate( input.length() );
-			prefix = prefix.lower();
-			if ( prefix == input ) {
-			    d->currentPrefix = input;
-			    d->currentPrefixTime = now;
-			    i = keyItem;
-			     // nonoptimal double-break...
-			    keyItem = 0;
-			    input.truncate( 0 );
-			}
-		    }
-		    if ( keyItem )
-			keyItem = keyItem->itemBelow();
-		}
-		// then, if appropriate, with just this character
-		if ( input.length() > 1 &&
-		     d->currentPrefixTime.msecsTo( now ) > 1500 ) {
-		    input.truncate( 0 );
-		    keyItem = d->r;
-		}
-	    }
-	} else {
-	    e->ignore();
-	    return;
-	}
+        if ( e->ascii() && isalnum( e->ascii() ) ) {
+            QString input( d->currentPrefix );
+            QListViewItem * keyItem = i;
+            QTime now( QTime::currentTime() );
+            while( keyItem ) {
+                // try twice, first with the previous string and this char
+                input += (char)tolower( e->ascii() );
+                QString keyItemKey;
+                QString prefix;
+                while( keyItem ) {
+                    // Look for text in column 0, then left-to-right
+                    keyItemKey = keyItem->text(0);
+                    for (int col=0; col < d->h->count() && !keyItemKey; col++ )
+                        keyItemKey = keyItem->text( d->h->mapToLogical(col) );
+                    if ( !keyItemKey.isEmpty() ) {
+                        prefix = keyItemKey;
+                        prefix.truncate( input.length() );
+                        prefix = prefix.lower();
+                        if ( prefix == input ) {
+                            d->currentPrefix = input;
+                            d->currentPrefixTime = now;
+                            i = keyItem;
+                            // nonoptimal double-break...
+                            keyItem = 0;
+                            input.truncate( 0 );
+                        }
+                    }
+                    if ( keyItem )
+                        keyItem = keyItem->itemBelow();
+                }
+                // then, if appropriate, with just this character
+                if ( input.length() > 1 &&
+                     d->currentPrefixTime.msecsTo( now ) > 1500 ) {
+                    input.truncate( 0 );
+                    keyItem = d->r;
+                }
+            }
+        } else {
+            e->ignore();
+            return;
+        }
     }
 
     if ( !i )
-	return;
+        return;
 
     if ( i->isSelectable() &&
-	 ((e->state() & ShiftButton) || !isMultiSelection()) )
-	setSelected( i, d->currentSelected
-		     ? d->currentSelected->isSelected()
-		     : TRUE );
+         ((e->state() & ShiftButton) || !isMultiSelection()) )
+        setSelected( i, d->currentSelected
+                     ? d->currentSelected->isSelected()
+                     : TRUE );
 
     setCurrentItem( i );
     ensureItemVisible( i );
 
     if ( oldCurrent ) {
-	QRect r = itemRect( oldCurrent );
-	r = r.unite( itemRect( currentItem() ) );
- 	viewport()->repaint( r.x(), r.y(), r.width(), r.height() );
+        QRect r = itemRect( oldCurrent );
+        r = r.unite( itemRect( currentItem() ) );
+        viewport()->repaint( r.x(), r.y(), r.width(), r.height() );
     }
 }
 
