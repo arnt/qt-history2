@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#103 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#103 $");
 
 
 /*!
@@ -1002,6 +1002,33 @@ QImage QImage::convertDepth( int depth ) const
     return image;
 }
 
+#ifdef 0
+const QRgb QImage::pixel( int x, int y ) const
+{
+    if ( x < 0 || y < 0 || x > width() || y > height() )
+	return 0;
+    QRgb r = 0;
+    uchar * s = scanLine( y );
+    switch( depth() ) {
+    case 1:
+	if ( bitOrder() == QImage::LittleEndian ) {
+	    r = color( (*(s + (x >> 3)) >> (x & 7)) & 1 );
+	} else {
+	    r = color( (*(s + (x >> 3)) >> (7- (x & 7))) & 1 );
+	}
+    case 8:
+	r = color( (int)*(s+x) );
+    case 32:
+	if ( bitOrder() == QImage::LittleEndian ) {
+	} else {
+	}
+    default:
+    return r;
+    }
+}
+#endif
+
+
 
 /*!
   Converts the bit order of the image to \e bitOrder and returns the converted
@@ -1255,7 +1282,7 @@ QImage QImage::createAlphaMask( bool dither ) const
   The returned image has little-endian bit order, which you can
   convert to big-endianness using convertBitOrder().
 
-  This function disregards the \link hasAlphaBuffer() alpha buffer\endlink.
+  This function disregards the \link hasAlphaBuffer() alpha buffer. \endlink
 */
 
 QImage QImage::createHeuristicMask( bool clipTight ) const
@@ -1480,14 +1507,8 @@ static void write_pbm_image( QImageIO * );
 static void read_xbm_image( QImageIO * );
 static void write_xbm_image( QImageIO * );
 
-static void read_xpm_image( QImageIO * ) NOT_USED_FN;
-static void write_xpm_image( QImageIO * ) NOT_USED_FN;
-
-#if 0
-static void read_gif_image( QImageIO * ) NOT_USED_FN;
-static void write_gif_image( QImageIO * ) NOT_USED_FN;
-#endif
-
+static void read_xpm_image( QImageIO * );
+static void write_xpm_image( QImageIO * );
 
 /*****************************************************************************
   Misc. utility functions
@@ -1654,8 +1675,6 @@ static void init_image_handlers()		// initialize image handlers
 	CHECK_PTR( imageHandlers );
 	imageHandlers->setAutoDelete( TRUE );
 	qAddPostRoutine( cleanup_image_handlers );
-	//	QImageIO::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
-	//				   read_gif_image, write_gif_image );
 	QImageIO::defineIOHandler( "BMP", "^BM", 0,
 				   read_bmp_image, write_bmp_image );
 	QImageIO::defineIOHandler( "PBM", "^P1", "T",
@@ -1669,8 +1688,6 @@ static void init_image_handlers()		// initialize image handlers
 	QImageIO::defineIOHandler( "PPM", "^P3", "T",
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "PPMRAW", "^P6", 0,
-				   read_pbm_image, write_pbm_image );
-	QImageIO::defineIOHandler( "PNM", "^P1", 0,
 				   read_pbm_image, write_pbm_image );
 	QImageIO::defineIOHandler( "XBM", "^#define", "T",
 				   read_xbm_image, write_xbm_image );
@@ -2059,28 +2076,6 @@ bool QImageIO::write()
     }
     return iostat == 0;				// image successfully written?
 }
-
-
-/*****************************************************************************
-  GIF image read/write functions
-
-  The Graphical Interchange Format (c) is the Copyright property of
-  CompuServe Incorporated.  GIF (sm) is a Service Mark propery of
-  CompuServe Incorporated.
- *****************************************************************************/
-
-#if 0
-static void read_gif_image( QImageIO * )	// read GIF image data
-{
-    warning( "Qt: GIF not supported in this version" );
-}
-
-
-static void write_gif_image( QImageIO * )	// write GIF image data
-{
-    warning( "Qt: GIF not supported in this version" );
-}
-#endif
 
 
 /*****************************************************************************
@@ -2857,21 +2852,18 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     QIODevice *d = 0;
     buf.resize( 200 );
 
+    int i, cpp, ncols, w, h, index = 0;
+
     if ( iio ) {
 	iio->setStatus( 1 );
 	d = iio ? iio->ioDevice() : 0;
 	d->readLine( buf.data(), buf.size() );	// "/* XPM */"
-    } else if ( source ) {
-	buf = source[0];
-    } else {
+	QRegExp r ("/\\*.XPM.\\*/" );
+	if ( r.match(buf) < 0 )
+	    return;					// bad magic
+    } else if ( !source ) {
 	return;
     }
-
-    int i, cpp, ncols, w, h, index = 1;
-
-    QRegExp r ("/\\*.XPM.\\*/" );
-    if ( r.match(buf) < 0 )
-	return;					// bad magic
 
     if ( !read_xpm_string( buf, d, source, index ) )
 	return;
@@ -2891,7 +2883,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     int currentColor;
     int transparentColor = -1;
 
-    for( currentColor=ncols-1; currentColor >= 0; --currentColor ) {
+    for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) )
 	    return;
 	QString index, color;
