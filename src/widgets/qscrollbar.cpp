@@ -576,6 +576,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	      gr = style().querySubControlMetrics(QStyle::CC_ScrollBar, this,
 						  QStyle::SC_ScrollBarGroove );
 	int sliderMin, sliderMax, sliderLength;
+	sliderMin = sliderMax = sliderLength = 0;
 	if (HORIZONTAL) {
 	    sliderMin = gr.x();
 	    sliderMax = sliderMin + gr.width();
