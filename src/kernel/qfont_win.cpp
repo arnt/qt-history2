@@ -224,7 +224,7 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 #endif
 	if ( GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat ) == GDI_ERROR )
 		qDebug( "glyph metrics call failed" );
-    return QRect(gm.gmptGlyphOrigin.x, gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
+    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 }
 
 QString QFontPrivate::defaultFamily() const
