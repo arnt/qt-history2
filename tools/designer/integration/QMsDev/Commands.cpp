@@ -288,12 +288,24 @@ int CCommands::getConfigurations(CComQIPtr<IBuildProject, &IID_IBuildProject> pr
 
 void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 {
+    CFileFind qtLib;
+    BOOL bWorking = qtLib.FindFile( _T(getenv("QTDIR") + CString("\\lib\\qt*.lib" ) ) );
+    CString qtFile = "";
+    while ( bWorking ) {
+	bWorking = qtLib.FindNextFile();
+	if ( !bWorking ) 
+	    break;
+	if ( !(qtLib.GetFileName().Compare( "qtmain.lib" ) == 0) && qtLib.GetFileName().Compare( qtFile ) > 0 ) {
+	    qtFile = (LPCTSTR)qtLib.GetFileName();
+	}
+    }
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
     const CComBSTR dllDefine("/D QT_DLL");
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt300.lib $(QTDIR)\\lib\\qtmain.lib");
+    LPCTSTR sharedLibText = CString("$(QTDIR)\\lib\\") + qtFile + CString(" $(QTDIR)\\lib\\qtmain.lib");
+    const CComBSTR sharedLib(sharedLibText);
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
 
@@ -308,12 +320,24 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
 
 void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
 {
+    CFileFind qtLib;
+    BOOL bWorking = qtLib.FindFile( _T(getenv("QTDIR") + CString("\\lib\\qt*.lib" ) ) );
+    CString qtFile = "";
+    while ( bWorking ) {
+	bWorking = qtLib.FindNextFile();
+	if ( !bWorking ) 
+	    break;
+	if ( !(qtLib.GetFileName().Compare( "qtmain.lib" ) == 0) && qtLib.GetFileName().Compare( qtFile ) > 0 ) {
+	    qtFile = (LPCTSTR)qtLib.GetFileName();
+	}
+    }
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
     const CComBSTR dllDefine("/D QT_DLL");
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt300.lib $(QTDIR)\\lib\\qtmain.lib");
+    LPCTSTR sharedLibText = qtFile + CString(" $(QTDIR)\\lib\\qtmain.lib");
+    const CComBSTR sharedLib(sharedLibText);
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
 
@@ -383,7 +407,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 					  CComVariant(VARIANT_FALSE)));
 	m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded MOC preprocessor") );
     }
-    // CANTDO: add dependency to .moc-file
+
     if ( specialFile ) {
 //	    VERIFY_OK(pConfig->AddFileDependency( CComBSTR(mocfile), CComBSTR(filepath+file)));
     }
