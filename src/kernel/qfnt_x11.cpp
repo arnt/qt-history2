@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#96 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#96 $");
 
 
 static const int fontFields = 14;
@@ -1000,7 +1000,7 @@ bool QFontMetrics::inFont(char ch) const
   The left bearing of the font is the distance of the left-most pixel
   of the character from the 0 position.  This is often a negative value.
 
-  \sa rightBearing(char), maxLeftBearing()
+  \sa rightBearing(char), minLeftBearing()
 */
 int QFontMetrics::leftBearing(char ch) const
 {
@@ -1032,7 +1032,7 @@ int QFontMetrics::rightBearing(char ch) const
 
   \sa maxRightBearing(), leftBearing(char)
 */
-int QFontMetrics::maxLeftBearing() const
+int QFontMetrics::minLeftBearing() const
 {
     // Don't need def->lbearing, the FS stores it.
     return printerAdjusted(FS->min_bounds.lbearing);
@@ -1044,7 +1044,7 @@ int QFontMetrics::maxLeftBearing() const
   The right bearing of the font is the smallest rightBearing(char)
   of all characters in the font.
 
-  \sa maxLeftBearing(), rightBearing(char)
+  \sa minLeftBearing(), rightBearing(char)
 */
 int QFontMetrics::maxRightBearing() const
 {

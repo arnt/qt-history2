@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#79 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#79 $");
 
 
 /*!
@@ -1762,8 +1762,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   The bounding rectangle given by this function is somewhat larger than
   that calculated by the simpler boundingRect() function.  This function
   uses the
-  \link maxLeftBearing() maximum left\endlink and
-  \link right\endlink font bearings as is necessary for
+  \link minLeftBearing() maximum left\endlink and
+  \link maxRightBearing() right\endlink font bearings as is necessary for
   multi-line text to align correctly.  Also, font height() and lineSpacing()
   are used to calculate the height, rather than individual
   character heights.

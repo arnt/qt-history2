@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#109 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#109 $");
 
 
 /*!
@@ -1863,7 +1863,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	yp = h - nlines*fheight;
     else					// top aligned
 	yp = 0;
-    maxwidth += (-fm.maxLeftBearing()+fm.maxRightBearing());
+    maxwidth += (-fm.minLeftBearing()+fm.maxRightBearing());
     if ( (tf & AlignRight) == AlignRight ) {
 	xp = w - maxwidth;			// right aligned
     } else if ( (tf & AlignHCenter) == AlignHCenter ) {
@@ -1983,11 +1983,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    xc = xp - fm.maxRightBearing(); 
 	} else if ( (tf & AlignHCenter) == AlignHCenter ) {
 	    xp = w/2 - tw/2;			// centered text
-	    xc = w/2 - (tw+(-fm.maxLeftBearing()+fm.maxRightBearing()))/2
-		     - fm.maxLeftBearing();
+	    xc = w/2 - (tw+(-fm.minLeftBearing()+fm.maxRightBearing()))/2
+		     - fm.minLeftBearing();
 	} else {
 	    xp = 0;				// left aligned
-	    xc = -fm.maxLeftBearing(); 
+	    xc = -fm.minLeftBearing(); 
 	}
 
 	if ( pp )				// erase pixmap if gray text
