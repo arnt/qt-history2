@@ -3884,16 +3884,16 @@ bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
 	    if ( c.cell() < 0x80 ) {
 #ifdef HAVE_THAI_BREAKS
 		// check for thai
-		if( s != cached ) {
+		if( string != cachedString ) {
 		    // build up string of thai chars
 		    QTextCodec *thaiCodec = QTextCodec::codecForMib(2259);
-		    if ( !cachedString )
-			cachedString = new QCString;
+		    if ( !thaiCache )
+		        thaiCache = new QCString;
 		    if ( !thaiIt )
 			thaiIt = ThBreakIterator::createWordInstance();
-		    *cachedString = thaiCodec->fromUnicode( QConstString( s, len ).string() );
+		    *thaiCache = thaiCodec->fromUnicode( s->string() );
 		}
-		thaiIt->setText(buf);
+		thaiIt->setText(thaiCache->data());
 		for(int i = thaiIt->first(); i != thaiIt->DONE; i = thaiIt->next() ) {
 		    if( i == pos )
 			return TRUE;
