@@ -1,5 +1,19 @@
 #!/usr/bin/perl
-
+#
+# Creates a property index, for example:
+#
+#                "QSlider/orientation" qslider.html#a8339f
+#
+# This reads: class QSlider, property "orientation", documentation is
+# in file qslider.html, link #a8339f
+#
+#
+# qdoc should generate this table itself, including mkindex and
+# mktitleindex. Unfortunately, qdoc is an unmaintainable perl hack, so
+# we had to add more unmaintainable perl hacks.
+#
+# Bug: depends on qdoc's HTML output.  Fixme by rewriting qdoc in C++.
+#
 
 %functions;
 
@@ -26,13 +40,17 @@ while ( <ARGV> ) {
     if ( /^<\/table>$/ ) {
       $inproperties = 0;
     } else {
-      if ( /^<tr><td>.*<td>(.*)<td>.*<td>(.*)<td>.*/ ) {
+      if ( /^<tr><td>.*<td>(.*)<td>(.*)<td>(.*)<td>.*/ ) {
+	$func = $2; # get function
+	if ( $3 ) {
+	  $func = $3; # set function, if available
+	}
 	push( @lines, "\"$classname/$1\" $ARGV$functions{$2}\n" );
       }
     }
   }
 }
-  
+
 @lines = sort( @lines );
 open( INDEX, "> $output" );
 print INDEX @lines;
