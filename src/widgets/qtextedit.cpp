@@ -3029,7 +3029,7 @@ void QTextEdit::setModified( bool m )
 
 bool QTextEdit::isModified() const
 {
-    return modified && isUndoAvailable();
+    return modified;
 }
 
 void QTextEdit::setModified()
