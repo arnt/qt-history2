@@ -13,28 +13,30 @@
 
 #include "qaccessible.h"
 #include "qapplication.h"
-#include "qdesktopwidget.h"
-#include "qguieventloop.h"
-#include "qfile.h"
-#include <private/qeventloop_p.h>
-#include "qwidget.h"
-#include "qevent.h"
-#include "qhash.h"
 #include "qcleanuphandler.h"
-#include "qlayout.h"
-
-#include "qtranslator.h"
-#include "qtextcodec.h"
-#include "qsessionmanager.h"
-#include "qdragobject.h"
 #include "qclipboard.h"
 #include "qcursor.h"
+#include "qdesktopwidget.h"
+#include "qdir.h"
+#include "qdragobject.h"
+#include "qevent.h"
+#include "qfile.h"
+#include "qfileinfo.h"
+#include "qguieventloop.h"
+#include "qhash.h"
+#include "qhash.h"
+#include "qlayout.h"
+#include "qmessagebox.h"
+#include "qsessionmanager.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
-#include "qmessagebox.h"
-#include "qdir.h"
-#include "qfileinfo.h"
-#include "qhash.h"
+#include "qtextcodec.h"
+#include "qtranslator.h"
+#include "qvariant.h"
+#include "qwidget.h"
+
+#include <private/qeventloop_p.h>
+
 
 #include <qthread.h>
 #include <private/qthread_p.h>
@@ -845,7 +847,7 @@ QApplication::Type QApplication::type() const
 
 QWidget *QApplication::activePopupWidget()
 {
-    return QApplicationPrivate::popupWidgets && !QApplicationPrivate::popupWidgets->isEmpty() ? 
+    return QApplicationPrivate::popupWidgets && !QApplicationPrivate::popupWidgets->isEmpty() ?
         QApplicationPrivate::popupWidgets->last() : 0;
 }
 
@@ -936,7 +938,7 @@ QApplication::~QApplication()
 
     qt_cleanup();
 
-    if (QApplicationPrivate::widgetCount) 
+    if (QApplicationPrivate::widgetCount)
         qDebug("Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances);
 #ifndef QT_NO_SESSIONMANAGER
     delete d->session_manager;
@@ -1062,7 +1064,7 @@ QStyle& QApplication::style()
 #ifndef QT_NO_STYLE
     if (QApplicationPrivate::app_style)
         return *QApplicationPrivate::app_style;
-    if (!qt_is_gui_used) 
+    if (!qt_is_gui_used)
         qFatal("No style available in non-gui applications!");
 
 #if defined(Q_WS_X11)
@@ -1107,7 +1109,7 @@ QStyle& QApplication::style()
             !(QApplicationPrivate::app_style = QStyleFactory::create("Mac")) &&
             !(QApplicationPrivate::app_style = QStyleFactory::create("SGI")) &&
             !(QApplicationPrivate::app_style = QStyleFactory::create("Compact"))
-            && (QStyleFactory::keys().isEmpty() || 
+            && (QStyleFactory::keys().isEmpty() ||
                 !(QApplicationPrivate::app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
        )
             qFatal("No %s style available!", style.latin1());
@@ -1472,7 +1474,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
     if (!className) {
         if (!QApplicationPrivate::app_pal)
             QApplicationPrivate::app_pal = new QPalette(pal);
-        else 
+        else
             *QApplicationPrivate::app_pal = pal;
         if (hash && hash->size()) {
             all = true;
@@ -1699,7 +1701,7 @@ QWidget *QApplication::focusWidget() const
     return QApplicationPrivate::focus_widget;
 }
 
-void QApplication::setFocusWidget(QWidget *focus) 
+void QApplication::setFocusWidget(QWidget *focus)
 {
     QApplicationPrivate::focus_widget = focus;
 }
@@ -2262,7 +2264,7 @@ Qt::KeyboardModifiers QApplication::keyboardModifiers()
     return QApplicationPrivate::modifier_buttons;
 }
 
-/*!  
+/*!
   Returns the current state of the buttons on the mouse. The current
   state is updated syncronously as the event queue is emptied of
   events that will spontaneously change the mouse state
@@ -2642,7 +2644,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 else
                     QApplicationPrivate::modifier_buttons &= ~modif;
             }
-        } else if(e->type() == QEvent::MouseButtonPress 
+        } else if(e->type() == QEvent::MouseButtonPress
                   || e->type() == QEvent::MouseButtonRelease) {
             QMouseEvent *me = static_cast<QMouseEvent*>(e);
             if(me->type() == QEvent::MouseButtonPress)
@@ -2652,7 +2654,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
     }
 
-    // User input and window activation makes tooltips sleep 
+    // User input and window activation makes tooltips sleep
     switch (e->type()) {
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate:
@@ -2763,7 +2765,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         }
 
         while (w) {
-            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(), 
+            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->buttons(),
                            mouse->modifiers());
             me.spont = mouse->spontaneous();
             // throw away any mouse-tracking-only mouse events
