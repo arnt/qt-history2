@@ -4466,7 +4466,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 
     int align = parag->alignment();
     if ( align == Qt::AlignAuto && doc && doc->alignment() != Qt::AlignAuto )
-	align = doc->alignment();
+ 	align = doc->alignment();
 
     int col = 0;
     int ww = 0;
@@ -6351,6 +6351,7 @@ void QTextTableCell::setGeometry( const QRect& r )
  	richtext->doLayout( painter(), r.width() );
     cached_width = r.width();
     richtext->setWidth( r.width() );
+    richtext->flow()->height = r.height();
     geom = r;
 }
 
