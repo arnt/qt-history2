@@ -294,6 +294,12 @@ bool QPicture::save( const QString &fileName, const char *format )
     return TRUE;
 }
 
+QRect QPicture::boundingRect() const
+{
+    if ( !d->formatOk )
+        d->checkFormat();
+    return d->brect;
+}
 
 /*!
   Replays the picture using \a painter, and returns TRUE if successful or

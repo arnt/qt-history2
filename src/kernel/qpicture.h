@@ -109,11 +109,6 @@ inline const char* QPicture::data() const
     return d->pictb.buffer().data();
 }
 
-inline QRect QPicture::boundingRect() const
-{
-    return d->brect;
-}
-
 /*****************************************************************************
   QPicture stream functions
  *****************************************************************************/
