@@ -36,7 +36,7 @@ Q_DECLARE_INTERFACE(QImageFormatInterface, "http://trolltech.com/Qt/QImageFormat
 class Q_GUI_EXPORT QImageFormatPlugin : public QObject, public QImageFormatInterface
 {
     Q_OBJECT
-    qintERFACES(QImageFormatInterface:QFactoryInterface)
+    Q_INTERFACES(QImageFormatInterface:QFactoryInterface)
 public:
     explicit QImageFormatPlugin(QObject *parent = 0);
     ~QImageFormatPlugin();

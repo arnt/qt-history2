@@ -29,7 +29,7 @@ Q_DECLARE_INTERFACE(QDecorationFactoryInterface,  "http://trolltech.com/Qt/QDeco
 class QDecorationPlugin : public QObject,  public QDecorationFactoryInterface
 {
     Q_OBJECT
-    qintERFACES(QDecorationFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QDecorationFactoryInterface:QFactoryInterface)
         public:
     explicit QDecorationPlugin(QObject *parent = 0);
     ~QDecorationPlugin();

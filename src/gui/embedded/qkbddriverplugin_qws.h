@@ -31,7 +31,7 @@ Q_DECLARE_INTERFACE(QWSKeyboardHandlerFactoryInterface, "http://trolltech.com/Qt
 class Q_GUI_EXPORT QKbdDriverPlugin : public QObject, public QWSKeyboardHandlerFactoryInterface
 {
     Q_OBJECT
-    qintERFACES(QWSKeyboardHandlerFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QWSKeyboardHandlerFactoryInterface:QFactoryInterface)
 public:
     explicit QKbdDriverPlugin(QObject *parent = 0);
     ~QKbdDriverPlugin();

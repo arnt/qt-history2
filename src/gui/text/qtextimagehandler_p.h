@@ -36,7 +36,7 @@ class Q_GUI_EXPORT QTextImageHandler : public QObject,
                           public QTextObjectInterface
 {
     Q_OBJECT
-    qintERFACES(QTextObjectInterface)
+    Q_INTERFACES(QTextObjectInterface)
 public:
     explicit QTextImageHandler(QObject *parent = 0);
 

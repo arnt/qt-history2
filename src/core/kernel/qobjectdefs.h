@@ -35,7 +35,7 @@ class QByteArray;
 # define emit
 #endif
 #define Q_CLASSINFO(name, value)
-#define qintERFACES(x)
+#define Q_INTERFACES(x)
 #define Q_PROPERTY(text)
 #define Q_OVERRIDE(text)
 #define Q_ENUMS(x)

@@ -29,7 +29,7 @@ Q_DECLARE_INTERFACE(QSqlDriverFactoryInterface, "http://trolltech.com/Qt/QSqlDri
 class Q_SQL_EXPORT QSqlDriverPlugin : public QObject, public QSqlDriverFactoryInterface
 {
     Q_OBJECT
-    qintERFACES(QSqlDriverFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QSqlDriverFactoryInterface:QFactoryInterface)
 public:
     explicit QSqlDriverPlugin(QObject *parent = 0);
     ~QSqlDriverPlugin();

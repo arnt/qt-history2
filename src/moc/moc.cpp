@@ -555,7 +555,7 @@ void Moc::parse()
                 case Q_CLASSINFO_TOKEN:
                     parseClassInfo(&def);
                     break;
-                case qintERFACES_TOKEN:
+                case Q_INTERFACES_TOKEN:
                     parseInterfaces(&def);
                     break;
                 case Q_PRIVATE_SLOT_TOKEN:

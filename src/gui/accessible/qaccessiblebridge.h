@@ -38,7 +38,7 @@ Q_DECLARE_INTERFACE(QAccessibleBridgeFactoryInterface, "http://trolltech.com/Qt/
 class Q_GUI_EXPORT QAccessibleBridgePlugin : public QObject, public QAccessibleBridgeFactoryInterface
 {
     Q_OBJECT
-    qintERFACES(QAccessibleBridgeFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QAccessibleBridgeFactoryInterface:QFactoryInterface)
 public:
     explicit QAccessibleBridgePlugin(QObject *parent = 0);
     ~QAccessibleBridgePlugin();
