@@ -896,20 +896,22 @@ void QWidget::showMinimized()
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
-	    reparent( 0, topData()->savedFlags, topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
-	} else if ( topData()->normalGeometry.width() < 0 ) {
-	    topData()->normalGeometry = geometry();
+	QTLWExtra *topData = d->topData();
+	if ( d->topData()->fullscreen ) {
+	    reparent( 0, topData->savedFlags, topData->normalGeometry.topLeft() );
+	    topData->fullscreen = 0;
+	} else if ( topData->normalGeometry.width() < 0 ) {
+	    topData->normalGeometry = geometry();
 	}
 	if ( isVisible() ) {
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	} else {
-	    topData()->showMode = 2;
+	    topData->showMode = 2;
 	    show();
 	}
-    }  else
+    }  else {
 	show();
+    }
     QEvent e( QEvent::ShowMaximized );
     QApplication::sendEvent( this, &e );
     clearWState( WState_Minimized );
@@ -919,16 +921,16 @@ void QWidget::showMaximized()
 
 void QWidget::showNormal()
 {
-    topData()->showMode = 0;
     if ( isTopLevel() ) {
-	if ( topData()->fullscreen ) {
+	QTLWExtra *topData = d->topData();
+	if ( topData->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, topData()->savedFlags, topData()->normalGeometry.topLeft() );
-	    topData()->fullscreen = 0;
-	    QRect r = topData()->normalGeometry;
+	    reparent( 0, topData->savedFlags, topData->normalGeometry.topLeft() );
+	    topData->fullscreen = 0;
+	    QRect r = topData->normalGeometry;
 	    if ( r.width() >= 0 ) {
 		// the widget has been maximized
-		topData()->normalGeometry = QRect(0,0,-1,-1);
+		topData->normalGeometry = QRect(0,0,-1,-1);
 		resize( r.size() );
 		move( r.topLeft() );
 	    }
@@ -938,8 +940,10 @@ void QWidget::showNormal()
     } else {
 	show();
     }
-    if ( extra && extra->topextra )
-	extra->topextra->fullscreen = 0;
+    if ( d->extra && d->extra->topextra ) {
+	d->topData()->showMode = 0;
+	d->topData()->fullscreen = 0;
+    }
     QEvent e( QEvent::ShowNormal );
     QApplication::sendEvent( this, &e );
     clearWState( WState_Maximized | WState_Minimized );
