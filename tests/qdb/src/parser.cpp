@@ -556,7 +556,7 @@ void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 	    break;
 	case Tok_or:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, nextCond, yyNextLabel );
+	    emitExpr( *++v, trueLab, nextCond );
 	    yyProg->appendLabel( nextCond );
 	    emitExpr( *++v, trueLab, falseLab );
 	    break;
