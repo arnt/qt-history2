@@ -4212,7 +4212,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     bottom = QMAX( oldSelection ? oldSelection->bottomRow() : newSelection->bottomRow(), newSelection->bottomRow() );
     right = QMAX( oldSelection ? oldSelection->rightCol() : newSelection->rightCol(), newSelection->rightCol() );
 
-    if ( updateHorizontal && numCols() > 0 && left >= 0 ) {
+    if ( updateHorizontal && numCols() > 0 && left >= 0 && !isRowSelection( selectionMode() ) ) {
 	register int *s = &topHeader->states.data()[left];
 	for ( i = left; i <= right; ++i ) {
 	    if ( !isColumnSelected( i ) )
@@ -4288,8 +4288,10 @@ void QTable::clearSelection( bool repaint )
 
     leftHeader->setSectionStateToAll( QTableHeader::Normal );
     leftHeader->repaint( FALSE );
-    topHeader->setSectionStateToAll( QTableHeader::Normal );
-    topHeader->repaint( FALSE );
+    if ( !isRowSelection( selectionMode() ) ) {
+	topHeader->setSectionStateToAll( QTableHeader::Normal );
+	topHeader->repaint( FALSE );
+    }
     topHeader->setSectionState( curCol, QTableHeader::Bold );
     leftHeader->setSectionState( curRow, QTableHeader::Bold );
     emit selectionChanged();
@@ -5166,8 +5168,7 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 	return;
     if ( states.data()[ s ] == astate )
 	return;
-    if ( isRowSelection( table->selectionMode() ) &&
-	 orientation() == Horizontal  && astate != Bold )
+    if ( isRowSelection( table->selectionMode() ) && orientation() == Horizontal )
 	return;
 
     states.data()[ s ] = astate;
@@ -5181,8 +5182,7 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 
 void QTableHeader::setSectionStateToAll( SectionState state )
 {
-    if ( isRowSelection( table->selectionMode() ) &&
-	 orientation() == Horizontal  && state != Bold )
+    if ( isRowSelection( table->selectionMode() ) && orientation() == Horizontal )
 	return;
 
     register int *d = (int *) states.data();
