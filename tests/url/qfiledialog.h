@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#3 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#4 $
 **
 ** Definition of QFileDialog class
 **
@@ -315,7 +315,9 @@ private slots:
     void modeButtonsDestroyed();
     void clearView();
     void insertEntry( const QUrlInfo &fi );
+    void removeEntry( const QString &fi );
     void createdDirectory( const QUrlInfo &info );
+    void couldNotDelete( const QString &filename );
     
 private:
     enum PopupAction {

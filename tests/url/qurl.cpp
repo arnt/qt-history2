@@ -849,6 +849,15 @@ void QUrl::mkdir( const QString &dirname )
     }
 }
 
+void QUrl::remove( const QString &filename )
+{
+    QDir dir( d->path );
+    if ( dir.remove( filename ) )
+	emit removed( filename );
+    else
+	emit couldNotDelete( filename );
+}
+
 void QUrl::setNameFilter( const QString &nameFilter )
 {
     d->nameFilter = nameFilter;
@@ -885,3 +894,4 @@ bool QUrl::cdUp()
     addPath( ".." );
     return TRUE;
 }
+

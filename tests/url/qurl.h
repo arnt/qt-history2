@@ -81,6 +81,7 @@ public:
     void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
 		      int sortSpec   = QDir::DefaultSort );
     void mkdir( const QString &dirname );
+    void remove( const QString &filename );
     
     void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
@@ -96,7 +97,9 @@ signals:
     void finished();
     void start();
     void createdDirectory( const QUrlInfo & );
-
+    void removed( const QString & );
+    void couldNotDelete( const QString & );
+    
 protected:
     void reset();
     void parse( const QString& url );

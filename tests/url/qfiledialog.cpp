@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#5 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1793,8 +1793,12 @@ void QFileDialog::init()
              this, SLOT( clearView() ) );
     connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
              this, SLOT( insertEntry( const QUrlInfo & ) ) );
+    connect( &d->url, SIGNAL( removed( const QString & ) ),
+             this, SLOT( removeEntry( const QString & ) ) );
     connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo & ) ),
              this, SLOT( createdDirectory( const QUrlInfo & ) ) );
+    connect( &d->url, SIGNAL( couldNotDelete( const QString & ) ),
+             this, SLOT( couldNotDelete( const QString & ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -3102,34 +3106,41 @@ void QFileDialog::popupContextMenu( const QString &filename, bool,
 
 void QFileDialog::deleteFile( const QString &filename )
 {
-// #### todo
-//     if ( filename.isEmpty() )
-// 	return;
+    if ( filename.isEmpty() )
+	return;
 
-//     QFileInfo fi( d->url, filename );
-//     QString t = "file";
-//     if ( fi.isDir() )
-// 	t = "directory";
-//     if ( fi.isSymLink() )
-// 	t = "symlink";
+    QUrlInfo fi( d->url, filename );
+    QString t = "file";
+    if ( fi.isDir() )
+	t = "directory";
+    if ( fi.isSymLink() )
+	t = "symlink";
 
 
-//     if ( QMessageBox::warning( d->moreFiles,
-// 			       tr( "Delete %1" ).arg( t ),
-// 			       tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
-// 			       .arg( t ).arg(filename),
-// 			       tr( "&Yes" ), tr( "&No" ), QString::null, 1 ) == 0 )
-//     {
-// 	if ( !d->url.remove( filename ) ) {
-// 	    QMessageBox::critical( d->moreFiles,
-// 				   tr( "ERROR: Delete %1" ).arg( t ),
-// 				   QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
-// 					    .arg( t )
-// 					    .arg(filename) )
-// 		);
-// 	}
-// 	rereadDir();
-//     }
+    if ( QMessageBox::warning( this,
+			       tr( "Delete %1" ).arg( t ),
+			       tr( "<qt>Do you really want to delete the %1 \"%2\"?</qt>" )
+			       .arg( t ).arg(filename),
+			       tr( "&Yes" ), tr( "&No" ), QString::null, 1 ) == 0 )
+	d->url.remove( filename );
+
+}
+
+void QFileDialog::couldNotDelete( const QString &filename )
+{
+    QUrlInfo fi( d->url, filename );
+    QString t = "file";
+    if ( fi.isDir() )
+	t = "directory";
+    if ( fi.isSymLink() )
+	t = "symlink";
+
+    QMessageBox::critical( this,
+			   tr( "ERROR: Delete %1" ).arg( t ),
+			   QString( tr( "<qt>Could not delete the %1 \"%2\".</qt>" )
+					    .arg( t )
+					    .arg(filename) )
+	);
 }
 
 void QFileDialog::fileSelected( int  )
@@ -3753,6 +3764,18 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     QFileDialogPrivate::File * i = new QFileDialogPrivate::File(d, &inf ,files );
     QFileDialogPrivate::MCItem *i2 = new QFileDialogPrivate::MCItem( d->moreFiles , i );
     i->i = i2;
+}									
+
+void QFileDialog::removeEntry( const QString &filename )
+{
+    QListViewItemIterator it( files );
+    for ( ; it.current(); ++it ) {
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == filename ) {
+	    delete ( (QFileDialogPrivate::File*)it.current() )->i;
+	    delete it.current();
+	    break;
+	}
+    }
 }									
 
 #include "qfiledialog.moc"
