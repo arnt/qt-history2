@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#42 $
 **
 ** Implementation of QTextCodec class
 **
@@ -830,11 +830,7 @@ public:
 	int lout = 0;
 	for (int i=0; i<l; i++) {
 	    QChar ch = uc[i];
-#if defined(_OS_LINUX_)
-#warning "Warwick, can you check the next line, didn't compile with MSVC++"
-#endif
-    //	    if ( ch == (ushort)0x0000 ) {
-	    if ( ch.unicode() == (ushort)0x0000 ) {
+    	    if ( ch == QChar::null ) {
 		// special
 		*cursor++ = 0;
 	    } else if ( from_unicode_page[ch.row] &&
