@@ -16,7 +16,7 @@
 #include <qwidget.h>
 #include <qdatetime.h>
 
-
+class QTimer;
 class AnalogClock : public QWidget		// analog clock widget
 {
     Q_OBJECT
@@ -29,14 +29,18 @@ protected:
     void paintEvent( QPaintEvent *);
     void mousePressEvent( QMouseEvent *);
     void mouseMoveEvent( QMouseEvent *);
+    void drawClock( QPainter* );
     
 private slots:
-    void drawClock( QPainter* );
     void timeout();
+
+public slots:
+    void setTime( const QTime & t );
 
 private:
     QPoint clickPos;
     QTime time;
+    QTimer *internalTimer;
 };
 
 
