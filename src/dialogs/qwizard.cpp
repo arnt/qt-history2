@@ -547,16 +547,14 @@ void QWizard::setTitle( QWidget *page, const QString &t )
 }
 
 /*!
-  Returns the font used for page titles.
+  \property QWidget::titleFont
+  \brief the font used for page titles
 */
 QFont QWizard::titleFont() const
 {
     return d->title->font();
 }
 
-/*!
-  Sets the font used for page titles to \a font.
-*/
 void QWizard::setTitleFont( const QFont & font )
 {
     d->title->setFont( font );

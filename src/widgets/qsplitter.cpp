@@ -277,10 +277,12 @@ void QSplitter::init()
 */
 
 
-/*!  Sets the orientation to \a o.  By default the orientation is
-  horizontal (the widgets are side by side).
+/*!  
+  \property QSplitter::orientation
+  \brief the orientation of the splitter
 
-  \sa orientation()
+  By default the orientation is horizontal (the widgets are side by side).
+
 */
 
 void QSplitter::setOrientation( Orientation o )

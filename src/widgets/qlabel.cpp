@@ -226,28 +226,19 @@ void QLabel::init()
 
 
 /*!
-  \fn QString QLabel::text() const
+  \property QLabel::text
+  \brief the label text
 
-  Returns the label text. If the content is a plain or a rich text,
-  this is the string that was passed to setText(). Otherwise, it is an
-  empty/null string.
+  If no text has been set this will return an empty string. Setting the
+  text clears any previous content, unless they are the same.
 
-  \sa setText(), setNum(), clear()
-*/
+  The text will be interpreted either as a plain text or as a rich text,
+  depending on the text format setting; see setTextFormat(). The default
+  setting is \c AutoText, i.e., QLabel will try to auto-detect the format
+  of \a text.
 
-
-/*!
-  Sets the label contents to \a text, or does nothing if \a text is
-  equal to the current contents of the label. Any previous content is
-  cleared.
-
-  \a text will be interpreted either as a plain text or as a rich
-  text, depending on the text format setting; see setTextFormat(). The
-  default setting is \c AutoText, i.e., QLabel will try to auto-detect
-  the format of \a text.
-
-  If \a text is interpreted as a plain text and a buddy has been set,
-  the buddy accelerator key is updated from the new text.
+  If the text is interpreted as a plain text and a buddy has been set, the
+  buddy accelerator key is updated from the new text.
 
   The label resizes itself if auto-resizing is enabled.
 
@@ -255,7 +246,7 @@ void QLabel::init()
   only. For large documents, use QTextView instead. It will flicker
   less on resize and can also provide a scrollbar, when necessary.
 
-  \sa text(), setTextFormat(), setBuddy(), setAlignment()
+  \sa text, setTextFormat(), setBuddy(), alignment
 */
 
 void QLabel::setText( const QString &text )
@@ -299,17 +290,16 @@ void QLabel::clear()
 
 
 /*!
-  \fn QPixmap *QLabel::pixmap() const
-
-  If the label contains a pixmap, returns a pointer to it. Otherwise,
-  returns 0.
-
-  \sa setPixmap()
+  \property QLabel::pixmap
+  \brief the label contents pixmap
+ 
+  If no pixmap has been set this will return an invalid pixmap. Setting the
+  pixmap clears any previous content.
 */
 
 
 /*!
-  Sets the label contents to \a pixmap. Any previous content is cleared.
+  Sets 
 
   The buddy accelerator, if any, is disabled.
 
@@ -388,20 +378,13 @@ void QLabel::setNum( double num )
 }
 
 /*!
-  \fn int QLabel::alignment() const
+  \property QLabel::alignment
+  \brief the alignment of the label contents
 
-  Returns the alignment setting.
-
-  \sa setAlignment()
-*/
-
-/*!
-  Sets the alignment of the label contents.
-
-  The \a alignment must be a bitwise OR of Qt::AlignmentFlags
-  values. The \c WordBreak, \c ExpandTabs, \c SingleLine and \c
-  ShowPrefix flags apply only if the label contains a plain text;
-  otherwise they are ignored. The \c DontClip flag is always ignored.
+  The alignment is a bitwise OR of Qt::AlignmentFlags values. The \c
+  WordBreak, \c ExpandTabs, \c SingleLine and \c ShowPrefix flags apply
+  only if the label contains a plain text; otherwise they are ignored. The
+  \c DontClip flag is always ignored.
 
   If the label has a buddy, the \c ShowPrefix flag is forced to TRUE.
 
@@ -410,7 +393,7 @@ void QLabel::setNum( double num )
   <code>AlignAuto | AlignVCenter | ExpandTabs | ShowPrefix </code> if
   the label has a buddy.
 
-  \sa Qt::AlignmentFlags, alignment(), setBuddy(), setText()
+  \sa Qt::AlignmentFlags, alignment, setBuddy(), text
 */
 
 void QLabel::setAlignment( int alignment )
@@ -430,31 +413,21 @@ void QLabel::setAlignment( int alignment )
 
 
 /*!
-  \fn int QLabel::indent() const
-
-  Returns the indent of the label.
-
-  \sa setIndent()
-*/
-
-/*!
-  Sets the indent of the label to \a indent pixels.
+  \property QLabel::indent
+  \brief the indent of the label in pixels.
 
   The indent applies to the left edge if alignment() is \c AlignLeft,
   to the right edge if alignment() is \c AlignRight, to the top edge
   if alignment() is \c AlignTop, and to to the bottom edge if
   alignment() is \c AlignBottom.
 
-  If \a indent is negative, or if no indent has been set, the label
+  If the indent is negative, or if no indent has been set, the label
   computes the effective indent as follows: If frameWidth() is 0, the
   effective indent becomes 0. If frameWidth() is greater than 0, the
   effective indent becomes half the width of the "x" character of the
   widget's current font().
 
-  If \a indent is non-negative, the effective indent is \a indent
-  pixels.
-
-  \sa indent(), setAlignment(), frameWidth(), font()
+  \sa alignment, frameWidth(), font()
 */
 
 void QLabel::setIndent( int indent )
@@ -1176,24 +1149,20 @@ QMovie* QLabel::movie() const
 #endif  // QT_NO_MOVIE
 
 /*!
-  Returns the current text format.
+  \property QLabel::textFormat
+  \brief the current text format
 
-  \sa setTextFormat()
+  See the Qt::TextFormat enum for an explanation of the possible options.
+
+  The default format is \c AutoText.
+
+  \sa text
 */
 
 Qt::TextFormat QLabel::textFormat() const
 {
     return textformat;
 }
-
-/*!
-  Sets the text format to \a format. See the Qt::TextFormat enum for
-  an explanation of the possible options.
-
-  The default format is \c AutoText.
-
-  \sa textFormat(), setText()
-*/
 
 void QLabel::setTextFormat( Qt::TextFormat format )
 {
@@ -1223,8 +1192,11 @@ void QLabel::fontChange( const QFont & )
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
-  Returns whether the label will scale its contents to fill all
-  available space.
+  /property QLabel::scaledContents
+  /brief whether the label will scale its contents to fill all available space.
+
+  When enabled and the label shows a pixmap, it will scale the pixmap to
+  fill available space.
 
   \sa setScaledContents()
  */
@@ -1233,12 +1205,6 @@ bool QLabel::hasScaledContents() const
     return scaledcontents;
 }
 
-/*!
-  When called with \a enable == TRUE, and the label shows a pixmap,
-  it will scale the pixmap to fill available space.
-
-  \sa hasScaledContents()
- */
 void QLabel::setScaledContents( bool enable )
 {
     if ( (bool)scaledcontents == enable )

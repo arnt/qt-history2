@@ -236,12 +236,11 @@ void QStatusBar::removeWidget( QWidget* widget )
 }
 
 /*!
-  \fn bool QStatusBar::isSizeGripEnabled() const
+  \property QStatusBar::sizeGripEnabled
+  \brief whether the QSizeGrip in the bottom right of the status bar is enabled
 
-  Returns whether the QSizeGrip in the bottom right of the status bar
-  is enabled.
-
-  \sa setSizeGripEnabled()
+  Enables or disables the QSizeGrip in the bottom right of the status bar.
+  By default, the size grip is enabled.
 */
 
 bool QStatusBar::isSizeGripEnabled() const
@@ -253,12 +252,6 @@ bool QStatusBar::isSizeGripEnabled() const
 #endif
 }
 
-/*!
-  Enables or disables the QSizeGrip in the bottom right of the status bar.
-  By default, the size grip is enabled.
-
-  \sa isSizeGripEnabled()
-*/
 void QStatusBar::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP

@@ -174,32 +174,24 @@ QDial::~QDial()
 }
 
 
-/*!
-  If \a enable is TRUE, tracking is enabled. This means that
-  the arrow can be moved using the mouse. Else this is not
-  possible.
-*/
-
 void QDial::setTracking( bool enable )
 {
     d->tracking = enable;
 }
 
 
-/*!  Returns TRUE if tracking is enabled, or FALSE if tracking is disabled.
+/*!  
+  \property QDial::tracking
+  \brief wether tracking is enabled
 
-Tracking is initially enabled.
-
-\sa setTracking().
+  If TRUE, tracking is enabled. This means that the arrow can be moved
+  using the mouse. Otherwise this is not possible, the default is TRUE.
 */
 
 bool QDial::tracking() const
 {
     return d ? d->tracking : TRUE;
 }
-
-/*!  Makes QRangeControl::setValue() available as a slot.
-*/
 
 void QDial::setValue( int newValue )
 { // ### set doNotEmit?	 Matthias?
@@ -586,12 +578,6 @@ double QDial::angle( const QPoint &p1, const QPoint &p2 ) const
     return _angle;
 }
 
-/*!
-  If \a enable is TRUE, wrapping is enabled. This means
-  that the arrow can be turned around 360°. Else there is
-  some space at the bottom which is skipped by the arrow.
-*/
-
 void QDial::setWrapping( bool enable )
 {
     if ( d->wrapping == enable )
@@ -604,9 +590,12 @@ void QDial::setWrapping( bool enable )
 
 
 /*!
-  Returns TRUE if wrapping is enabled, else FALSE.
+  \property QDial::wrapping
+  \brief whether wrapping is enabled
 
-  \sa QDial::setWrapping()
+  If TRUE, wrapping is enabled. This means that the arrow can be turned
+  around 360°. Otherwise there is some space at the bottom which is skipped by
+  the arrow.
 */
 
 bool QDial::wrapping() const
@@ -615,11 +604,15 @@ bool QDial::wrapping() const
 }
 
 
-/*!  Returns the current notch size.  This is in range control units,
-not pixels, and if possible it is a multiple of lineStep() that
-results in an on-screen notch size near notchTarget().
+/*!  
+  \property QDial::notchSize
+  \brief the current notch size
 
-\sa notchTarget() lineStep()
+  The notch size is in range control units, not pixels, and if possible it
+  is a multiple of lineStep() that results in an on-screen notch size near
+  notchTarget().
+
+  \sa notchTarget() lineStep()
 */
 
 int QDial::notchSize() const
@@ -643,14 +636,6 @@ int QDial::notchSize() const
     return lineStep() * l;
 }
 
-
-/*!  Sets the dial to use a notch size as close to \a target pixels as
-  possible.  QDial will find a suitable number close to this, based on
-  the dial's on-screen size, range and lineStep().
-
-  \sa notchTarget() notchSize()
-*/
-
 void QDial::setNotchTarget( double target )
 {
     d->lines.resize( 0 );
@@ -662,8 +647,12 @@ void QDial::setNotchTarget( double target )
 }
 
 
-/*!  Returns the target size of the notch; this is the number of
-  pixels QDial attempts to put between each little line.
+/*!  
+  \property QDial::notchTarget
+  \brief the target size of the notch
+
+  The notch target is the number of pixels QDial attempts to put between
+  each little line.
 
   The actual size differs a bit from the target.
 */
@@ -724,11 +713,6 @@ void QDial::subtractPage()
   \sa dialPressed()
 */
 
-/*!
-  Enables or disables showing of notches. If \a b is TRUE, the notches
-  are shown, else not.
-*/
-
 void QDial::setNotchesVisible( bool b )
 {
     d->showNotches = b;
@@ -739,11 +723,12 @@ void QDial::setNotchesVisible( bool b )
 }
 
 /*!
-  Returns TRUE if notches are shown, else FALSE.
+  \property QDial::notchesVisible
+  \brief whether the notches are shown
 
-  \sa setNotchesVisible()
+  Enables or disables showing of notches. If TRUE, the notches are shown,
+  else not.
 */
-
 bool QDial::notchesVisible() const
 {
     return d->showNotches;
@@ -871,7 +856,9 @@ void QDial::calcLines()
 }
 
 /*!
-  \reimp
+  \property QDialog::minValue
+  \brief the current minimum value
+  \sa setRange()
 */
 int QDial::minValue() const
 {
@@ -879,80 +866,73 @@ int QDial::minValue() const
 }
 
 /*!
-  \reimp
+  \property QDialog::maxValue
+  \brief the current maximum value
+  \sa setRange()
 */
 int QDial::maxValue() const
 {
     return QRangeControl::maxValue();
 }
 
-/*!
-  A convenience function which just calls
-  setRange( i, maxValue() )
-
-  \sa setRange()
-*/
 void QDial::setMinValue( int i )
 {
     setRange( i, maxValue() );
 }
 
-/*!
-  A convenience function which just calls
-  setRange( minValue(), i )
-
-  \sa setRange()
-*/
 void QDial::setMaxValue( int i )
 {
     setRange( minValue(), i );
 }
 
 /*!
-  \reimp
+  \property QDial::lineStep
+  \brief the current line step
+
+  setLineStep() calls the virtual stepChange() function if the new line
+  step is different from the previous setting.
+
+  \sa QRangeControl::setSteps() pageStep setRange()
 */
+
 int QDial::lineStep() const
 {
     return QRangeControl::lineStep();
 }
 
 /*!
-  \reimp
+  \property QDial::pageStep
+  \brief the current page step
+
+  setPageStep() calls the virtual stepChange() function if the new page
+  step is different from the previous setting.
+
+  \sa stepChange()
 */
 int QDial::pageStep() const
 {
     return QRangeControl::pageStep();
 }
 
-/*!
-  Sets the line step to \e i.
-
-  Calls the virtual stepChange() function if the new line step is
-  different from the previous setting.
-
-  \sa lineStep() QRangeControl::setSteps() setPageStep() setRange()
-*/
 void QDial::setLineStep( int i )
 {
     setSteps( i, pageStep() );
 }
 
-/*!
-  Sets the page step to \e i.
-
-  Calls the virtual stepChange() function if the new page step is
-  different from the previous setting.
-
-  \sa pageStep() QRangeControl::setSteps() setLineStep() setRange()
-*/
 void QDial::setPageStep( int i )
 {
     setSteps( lineStep(), i );
 }
 
 /*!
-  \reimp
+  \property QDial::value
+  \brief current dial value
+
+  This is guaranteed to be within the range [ minValue ... maxValue ].
+
+  /sa minValue maxValue
 */
+
 int QDial::value() const
 {
     return QRangeControl::value();

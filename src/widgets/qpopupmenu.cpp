@@ -281,14 +281,6 @@ void QPopupMenu::updateItem( int id )		// update popup menu item
 }
 
 
-/*!
-  Enables or disables the display of check marks by the menu items.
-
-  Notice that checking is always enabled when in windows-style.
-
-  \sa isCheckable(), QMenuData::setItemChecked()
-*/
-
 void QPopupMenu::setCheckable( bool enable )
 {
     if ( isCheckable() != enable ) {
@@ -300,9 +292,13 @@ void QPopupMenu::setCheckable( bool enable )
 }
 
 /*!
-  Returns whether the display of check marks by the menu items is enabled.
+  \property QPopupMenu::checkable
+  \brief whether the display of check marks by the menu items is enabled
 
-  \sa setCheckable(), QMenuData::setItemChecked()
+  When TRUE the display of check marks on menu items is allowed, otherwise not.
+  Notice that checking is always enabled when in windows-style.
+
+  \sa QMenuData::setItemChecked()
 */
 
 bool QPopupMenu::isCheckable() const
