@@ -104,9 +104,11 @@ public:
     QTranslator( QObject * parent, const char * name = 0 );
     ~QTranslator();
 
+#ifndef QT_NO_COMPAT
     QString find( const char *context, const char *sourceText, const char * comment = 0 ) const {
 	return findMessage( context, sourceText, comment ).translation();
     }
+#endif
     virtual QTranslatorMessage findMessage( const char *, const char *,
 				    const char * ) const;
 
