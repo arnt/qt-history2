@@ -11,10 +11,14 @@ static const char* TorbensHack[] = {
   "+", "QWidget", "A simple Widget", "", "",
   "void", "setCaption", "", "const QString&", ")",
   "QString", "caption", "const", ")",
+  "void", "setGeometry", "", "const QRect&", ")",
+  "const QRect&", "geometry", "const", ")",
 
   "+", "QButton", "An abstract Button", "", "",
     "void", "setText", "", "const QString&", ")",
     "QString", "text", "const", ")",
+    "void", "setPixmap", "", "const QPixmap&", ")",
+    "const QPixmap*", "pixmap", "const", ")",
 
   "+", "QLabel", "", "", "",
     "void", "setText", "", "const QString&", ")",
