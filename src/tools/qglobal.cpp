@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#25 $
 **
 ** Global functions
 **
@@ -15,7 +15,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -323,6 +323,12 @@ bool chk_pointer( bool c, const char *n, int l )
     if ( c )
 	fatal( "In file %s, line %d: Out of memory", n, l );
     return TRUE;
+}
+
+
+void qObsolete(  const char *obj, const char *oldfunc, const char *newfunc )
+{
+    debug( "%s::%s: This function is obsolete, use %s instead" );
 }
 
 
