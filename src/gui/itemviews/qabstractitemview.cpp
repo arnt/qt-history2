@@ -666,12 +666,12 @@ QAbstractItemView::BeginEditActions QAbstractItemView::beginEditActions() const
     the viewport accepts drops. Autoscroll is switched off by setting
     this property to false.
 */
-void QAbstractItemView::setAutoScroll(bool b)
+void QAbstractItemView::setAutoScroll(bool enable)
 {
-    d->autoScroll = b;
+    d->autoScroll = enable;
 }
 
-bool QAbstractItemView::autoScroll() const
+bool QAbstractItemView::hasAutoScroll() const
 {
     return d->autoScroll;
 }
@@ -759,7 +759,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         return;
 
     QPoint offset(horizontalOffset(), verticalOffset());
-    d->pressedItem = index;
+    d->pressedItem = QPersistentModelIndex(index, model());
     d->pressedState = e->state();
     QItemSelectionModel::SelectionFlags command =
         selectionCommand(e->state(), index, e->type());
@@ -804,9 +804,12 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     if (state() == Editing && d->editors.contains(persistent))
         return;
 
-    if (index != currentIndex()) {
+    if (d->enteredItem != index) {
         if (index.isValid())
-           emit onItem(index, e->state());
+            emit itemEntered(index, e->state());
+        else
+            emit viewportEntered(e->state());
+        d->enteredItem = persistent;
     } else if (state() == Selecting) {
         return; // we haven't moved over another item yet
     }

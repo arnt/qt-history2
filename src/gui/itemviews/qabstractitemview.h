@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractItemView)
-    Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
+    Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
     Q_PROPERTY(BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
@@ -85,8 +85,8 @@ public:
     void setBeginEditActions(BeginEditActions actions);
     BeginEditActions beginEditActions() const;
 
-    void setAutoScroll(bool b);
-    bool autoScroll() const;
+    void setAutoScroll(bool enable);
+    bool hasAutoScroll() const;
 
     void setKeyTracking(bool enable);
     bool hasKeyTracking() const;
@@ -139,7 +139,8 @@ signals:
     void doubleClicked(const QModelIndex &index, int button);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void onItem(const QModelIndex &index, int button);
+    void itemEntered(const QModelIndex &index, Qt::ButtonState state);
+    void viewportEntered(Qt::ButtonState state);
 
 protected:
     QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);

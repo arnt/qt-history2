@@ -44,7 +44,8 @@ public:
     QMap<QPersistentModelIndex, QWidget*> editors;
     QList<QWidget*> persistent;
 
-    QModelIndex pressedItem;
+    QPersistentModelIndex enteredItem;
+    QPersistentModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QPoint pressedPosition;
 
