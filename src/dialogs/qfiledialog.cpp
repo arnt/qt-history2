@@ -1225,7 +1225,8 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
 
     QFileDialogPrivate::MCItem *i1 = (QFileDialogPrivate::MCItem*)item( currentItem() );
     if ( i1 )
-	mousePressed = !( (QFileDialogPrivate::File*)i1->i )->info.isDir();
+	mousePressed =  ( !( (QFileDialogPrivate::File*)i1->i )->info.isDir() )
+			|| ( filedialog->mode() == QFileDialog::Directory ) || ( filedialog->mode() == QFileDialog::DirectoryOnly );
 
     if ( itemAt( e->pos() ) != item( i ) ) {
 	firstMousePressEvent = FALSE;
@@ -1267,7 +1268,9 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    drag->setUnicodeUris( filedialog->selectedFiles() );
+	    QStringList files = ( filedialog->mode() == QFileDialog::ExistingFiles ) ?
+		filedialog->selectedFiles() : filedialog->selectedFile();
+	    drag->setUnicodeUris( files );
 
 	    if ( lined->parentWidget()->isVisible() )
 		cancelRename();
@@ -1637,7 +1640,8 @@ void QFileDialogQFileListView::viewportMousePressEvent( QMouseEvent *e )
 
     QFileDialogPrivate::File *i1 = (QFileDialogPrivate::File*)currentItem();
     if ( i1 )
-	mousePressed = !i1->info.isDir();
+	mousePressed = !i1->info.isDir() || ( filedialog->mode() == QFileDialog::Directory ) || ( filedialog->mode() == QFileDialog::DirectoryOnly );
+
 
     if ( itemAt( e->pos() ) != i ||
 	 e->x() + contentsX() > columnWidth( 0 ) ) {
@@ -1678,7 +1682,9 @@ void QFileDialogQFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 	dragItem = 0;
 	if ( item ) {
 	    QUriDrag* drag = new QUriDrag( viewport() );
-	    drag->setUnicodeUris( filedialog->selectedFiles() );
+	    QStringList files = ( filedialog->mode() == QFileDialog::ExistingFiles ) ?
+		filedialog->selectedFiles() : filedialog->selectedFile();
+	    drag->setUnicodeUris( files );
 
 	    if ( lined->isVisible() )
 		cancelRename();
