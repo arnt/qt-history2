@@ -1873,8 +1873,6 @@ void QApplication::restoreOverrideCursor()
     if (!w && qt_last_x)
 	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
     if ( !w )
-	w = widgetAt(*qt_last_x, *qt_last_y, FALSE);
-    if ( !w )
 	w = desktop();
     if ( !app_cursor ) {
 	delete cursorStack;
