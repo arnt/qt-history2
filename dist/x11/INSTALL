@@ -30,11 +30,6 @@ the directories where you choose to install Qt.
 	MANPATH 	   - to access the Qt man pages
 	LD_LIBRARY_PATH	   - for the shared Qt library
 
-    Note that under IRIX the additional LD_LIBRARYN32_PATH and
-    LD_LIBRARY64_PATH variables are used for specifying library
-    search paths. Set the variable that matches your configuration, or
-    see the rld(5) man page for more information.
-
     This is done like this:
 
     In .profile (if your shell is bash, ksh, zsh or sh), add the
@@ -59,21 +54,15 @@ the directories where you choose to install Qt.
     and $PATH are set. Without these the installation will halt with an error
     message.
 
-
-    On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
-
-    Note that the SGI MIPSpro o32 and Sun WorkShop 5.0 targets are no
-    longer supported as of Qt 3.3.
-
 3.  Install your license file as $HOME/.qt-license.
-    For the free edition and evaluation version, you do not need a license
-    file.
+    For the preview edition, free edition and evaluation version, you
+    do not need a license file.
 
 
 4.  Building.
 
-    This step compiles the Qt library, and builds the example programs,
-    the tutorial, and the tools (e.g. Qt Designer).
+    This step compiles the Qt library, and builds the demo programs,
+    and the tools (e.g. Qt Assistant).
 
     Type:
 
@@ -84,8 +73,7 @@ the directories where you choose to install Qt.
     to get a list of configuration options. Read PLATFORMS for a
     list of supported platforms.
 
-    To create the library and compile all the examples and the
-    tutorial, type:
+    To create the library and compile all the demoes, type:
 
 	make
 
@@ -117,9 +105,9 @@ the directories where you choose to install Qt.
 5.  In very few cases you may need to run /sbin/ldconfig or something
     similar at this point if you are using shared libraries.
 
-    If you have problems running the example programs, e.g. messages like
+    If you have problems running the demoe programs, e.g. messages like
 
-	 can't load library 'libqt.so.3'
+	 can't load library 'libqt.so.4'
 
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
