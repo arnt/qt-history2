@@ -55,7 +55,7 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 {
     qDebug("foo.. %d", msg);
     switch(msg) {
-    case kMenuDrawMsg:
+    case kMenuInvalMsg:
     case kMenuSizeMsg:
     case kMenuPopUpMsg:
     case kMenuCalcItemMsg:
@@ -338,6 +338,7 @@ void QMenuBar::macUpdateMenuBar()
 		mb->mac_d->mac_menubar = GetMenuBar();
 	    } else {
 		SetMenuBar(mb->mac_d->mac_menubar);
+		InvalMenuBar();
 	    }
 	} else if (!first) {
 	    first = TRUE;
