@@ -2684,6 +2684,10 @@ void QRegion::translate( int dx, int dy )
 	return;
     detach();
     OffsetRegion( data->region, dx, dy );
+    if ( data->xrectangles ) {
+	free( data->xrectangles );
+	data->xrectangles = 0;
+    }
 }
 
 
