@@ -124,8 +124,9 @@ public:
 	    pm = QPixmap::grabWindow( QApplication::desktop()->winId(),
 		    r.x(), r.y(), r.width(), r.height() );
 	} else {
-	    pm = QPixmap::grabWindow( widget->winId() );
+	    pm = QPixmap::grabWidget( widget );
 	}
+
 	if (includeframe) {
 	    pm.save( filename, "PPM" );
 	} else {
