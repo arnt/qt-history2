@@ -171,8 +171,9 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
     paragraph (the text of which is passed to the highlightParagraph()
     function).
 
-    The specified \a font and \a color are applied to the character at
-    position \a start and to the \a count following characters.
+    The specified \a font and \a color are applied to the text from
+    position \a start for \a count characters. (If \a count is 0,
+    nothing is done.)
 */
 
 void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, const QColor &color )

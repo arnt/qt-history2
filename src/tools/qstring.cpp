@@ -17463,7 +17463,7 @@ bool QString::endsWith( const QString& s ) const
   The lifetime of the return value is until the next call to this function,
   or until the last copy of str is deleted, whatever comes first.
 
-  Please use QString::ucs2() instead.
+  Use ucs2() instead.
 */
 const void* qt_winTchar(const QString& str, bool)
 {
