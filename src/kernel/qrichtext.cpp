@@ -1573,6 +1573,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		// some well-known empty tags
 		if ( tagname == "br" ) {
 		    emptyTag = TRUE;
+		    hasNewPar = FALSE;
 		    NEWPAR;
 		}  else if ( tagname == "hr" ) {
 		    emptyTag = TRUE;
