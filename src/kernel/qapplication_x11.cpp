@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#579 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#580 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2445,7 +2445,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XFocusOut:				// lost focus
 	if ( widget == desktop() )
 	    return TRUE; // not interesting
-	if ( focus_widget && !inPopupMode() ) {
+	if ( focus_widget && !inPopupMode() && widget->topLevelWidget() == active_window ) {
 	    active_window = 0;
 	    QFocusEvent out( QEvent::FocusOut );
 	    QWidget *widget = focus_widget;
@@ -2468,7 +2468,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:			// window hidden
 	if ( widget->isVisible() && widget->isTopLevel() ) {
-	    if ( widget->extra && widget->extra->topextra 
+	    if ( widget->extra && widget->extra->topextra
 		 && ( widget->extra->topextra->wmstate || widget->extra->topextra->embedded ) ) {
 		widget->clearWState( WState_Visible );
 		widget->clearWState( WState_Withdrawn );
@@ -2483,7 +2483,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( !widget->isVisible() )  {
 	    if ( widget->testWState( WState_Withdrawn ) ) {
 		// this cannot happen in normal applications but might happen with embedding
-		if ( widget->isTopLevel() && 
+		if ( widget->isTopLevel() &&
 		     widget->extra->topextra &&
 		     widget->extra->topextra->embedded)
 		    widget->show();
