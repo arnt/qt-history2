@@ -3365,6 +3365,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", TRUE );
 
+    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if ( parent && parent->icon() && !parent->icon()->isNull() )
 	dlg->setIcon( *parent->icon() );
@@ -4388,19 +4389,26 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 				   parent, name, caption, FALSE, TRUE).first();
 #endif
 
-    QFileDialog *dialog = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
+    QFileDialog *dlg = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
+
+    Q_CHECK_PTR( dlg );
 #ifndef QT_NO_WIDGET_TOPEXTRA
+    if ( parent && parent->icon() && !parent->icon()->isNull() )
+	dlg->setIcon( *parent->icon() );
+    else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
+	dlg->setIcon( *qApp->mainWidget()->icon() );
+
     if ( !caption.isNull() )
-	dialog->setCaption( caption );
+	dlg->setCaption( caption );
     else
-	dialog->setCaption( QFileDialog::tr("Find Directory") );
+	dlg->setCaption( QFileDialog::tr("Find Directory") );
 #endif
 
-    dialog->setMode( dirOnly ? DirectoryOnly : Directory );
+    dlg->setMode( dirOnly ? DirectoryOnly : Directory );
 
-    dialog->d->types->clear();
-    dialog->d->types->insertItem( QFileDialog::tr("Directories") );
-    dialog->d->types->setEnabled( FALSE );
+    dlg->d->types->clear();
+    dlg->d->types->insertItem( QFileDialog::tr("Directories") );
+    dlg->d->types->setEnabled( FALSE );
 
     QString dir_( dir );
     dir_ = dir_.simplifyWhiteSpace();
@@ -4412,14 +4420,14 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	    QFileInfo f( u.path() );
 	if ( f.exists() )
 	if ( f.isDir() ) {
-		dialog->setDir( dir_ );
+		dlg->setDir( dir_ );
 		wd = dir_;
 	    }
 	} else if ( !wd.isEmpty() ) {
 	    QUrl tempUrl( wd );
 	    QFileInfo f( tempUrl.path() );
 	    if ( f.isDir() ) {
-		dialog->setDir( wd );
+		dlg->setDir( wd );
 	    }
 	} else {
 	    QString theDir = dir_;
@@ -4430,22 +4438,22 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 		QFileInfo f( tempUrl.path() );
 		if ( f.isDir() ) {
 		    wd = theDir;
-		    dialog->setDir( theDir );
+		    dlg->setDir( theDir );
 		}
 	    }
 	}
     } else {
-	dialog->setUrl( dir_ );
+	dlg->setUrl( dir_ );
     }
 
     QString result;
-    dialog->setSelection( dialog->d->url.toString() );
+    dlg->setSelection( dlg->d->url.toString() );
 
-    if ( dialog->exec() == QDialog::Accepted ) {
-	result = dialog->selectedFile();
+    if ( dlg->exec() == QDialog::Accepted ) {
+	result = dlg->selectedFile();
 	wd = result;
     }
-    delete dialog;
+    delete dlg;
 
     if ( !result.isEmpty() && result.right( 1 ) != "/" )
 	result += "/";
@@ -5492,17 +5500,16 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	dlg->setIcon( *parent->icon() );
     else if ( qApp->mainWidget() && qApp->mainWidget()->icon() && !qApp->mainWidget()->icon()->isNull() )
 	dlg->setIcon( *qApp->mainWidget()->icon() );
-#endif
 
-    dlg->setFilters( filters );
-    if ( selectedFilter )
-	dlg->setFilter( *selectedFilter );
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if ( !caption.isNull() )
 	dlg->setCaption( caption );
     else
 	dlg->setCaption( QFileDialog::tr("Open") );
 #endif
+
+    dlg->setFilters( filters );
+    if ( selectedFilter )
+	dlg->setFilter( *selectedFilter );
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
     QStringList lst;
