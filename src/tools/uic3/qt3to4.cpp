@@ -14,8 +14,6 @@
 
 #include "qt3to4.h"
 
-#include <iostream>
-
 #include <qconfig.h>
 #include <QApplication>
 #include <QDir>
@@ -130,7 +128,7 @@ void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses)
         filePath = QDir::cleanPath(QApplication::instance()->applicationDirPath() + "/../tools/porting/src/" + fileName);
 
     if (!QFile::exists(filePath)) {
-        std::cout << "Error: Could not find rules file: " << fileName.latin1() << std::endl;
+        fprintf(stderr, "Error: Could not find rules file: %s\n", fileName.toLatin1().constData());
         Q_ASSERT(0);
     }
 
