@@ -530,6 +530,7 @@ void QApplication::create_xim()
 		    break;
 		}
 	    }
+
 	    // qDebug("QApplication: using im style %lx", qt_xim_style);
 	    XFree( styles );
 	}
@@ -5137,17 +5138,15 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     if (qt_xim_style & XIMPreeditCallbacks) {
 	// when in OnTheSpot mode - we need to deliver the events properly
 	QWidget *tlw = topLevelWidget();
-	QTLWExtra *topdata = tlw->topData();
+	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
 
-	qWarning("TODO: queue key events for input method");
+	if (qic && qic->composing) {
+	    // QKeyEvent *ke = new QKeyEvent(type, code, ascii, state, text, autor,
+	    // QMAX(count, int(text.length())));
+	    qDebug("### what to do with %04x?", e.text()[0].unicode());
 
-	// QInputContext *qic = (QInputContext *) topdata->xic;
-	// if (qic) {
-	// QKeyEvent *ke = new QKeyEvent(type, code, ascii, state, text, autor,
-	// QMAX(count, int(text.length())));
-	// if (xic->keyPressEvent(ke))
-	// return TRUE;
-	// }
+	    return TRUE;
+	}
     }
 #endif // NO_XIM
 

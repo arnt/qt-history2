@@ -734,7 +734,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
   \sa microFocusHint()
 */
-void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont *f )
+void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont * )
 {
 #ifndef NO_XIM
     if ( text ) {
@@ -753,6 +753,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	}
     }
 #endif
+
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	extraData()->micro_focus_hint.setRect( x, y, width, height );
 }
