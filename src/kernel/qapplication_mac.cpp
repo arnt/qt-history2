@@ -478,13 +478,13 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
     do {
 	if(bar->inherits("QWidget")) {
 	    frobnitz=(QWidget *)bar;
+	    int wx,wy,wx2,wy2;
 	    wx=frobnitz->x()+bigx;
 	    wy=frobnitz->y()+bigy;
 	    wx2=wx+frobnitz->width();
 	    wy2=wy+frobnitz->height();
-	    int wx,wy,wx2,wy2;
 	    qDebug("recursive_match %d %d  %d %d  %d %d",frobnitz->x(),
-		    frobnitz->y(),wx wy,wx2,wy2);
+		    frobnitz->y(),wx,wy,wx2,wy2);
 	    qDebug("%d %d",bigx,bigy);
 	    bigx=wx;
 	    bigy=wy;
@@ -518,10 +518,7 @@ QWidget * QApplication::widgetAt(int x,int y,bool child)
     if(!child) {
 	return widget;
     } else {
-	SetPort(wp);
-	SetOrigin(0,0);
-	GlobalToLocal(&p);
-	wodget=recursive_match(widget,p.h,p.v);
+	wodget=recursive_match(widget,x,y);
 	return wodget;
     }
 }
