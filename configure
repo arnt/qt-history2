@@ -3545,7 +3545,7 @@ CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
-QMAKE_MOC_SRC    = \$\$QT_SOURCE_TREE/src/moc
+QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
 #local paths that cannot be queried from the QT_INSTALL_* properties while building QTDIR
 QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
