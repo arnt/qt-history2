@@ -17,7 +17,7 @@ void OptionButton::paintEvent(QPaintEvent *event)
     QFont font = painter.font();
 
     if (!(thisIcon = icon()).isNull())
-        painter.drawPixmap(4, 4, width - 8, height - 8, thisIcon.pixmap());
+        painter.drawPixmap(4, 4, thisIcon.pixmap(width - 8, height - 8));
 
     if (!(thisText = text()).isEmpty()) {
 
