@@ -59,14 +59,18 @@ DatabaseSupport::DatabaseSupport()
     form = 0;
     parent = 0;
 }
-    
-void DatabaseSupport::initPreview( const QString &table, QObject *o, const QMap<QString, QString> &databaseControls )
+
+void DatabaseSupport::initPreview( const QString &connection, const QString &table, QObject *o, 
+				   const QMap<QString, QString> &databaseControls )
 {
     tbl = table;
     dbControls = databaseControls;
     parent = o;
-    
-    defaultConnection = QSqlDatabase::database();
+
+    if ( connection != "(default)" )
+	defaultConnection = QSqlDatabase::database( connection );
+    else
+	defaultConnection = QSqlDatabase::database();
     cursor = 0;
     form = new QSqlForm( o, table );
     autoDeleteCursors.resize( 1 );

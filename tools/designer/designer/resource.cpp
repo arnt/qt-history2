@@ -225,12 +225,11 @@ bool Resource::load( QIODevice* dev, QValueList<Image> *imgs, const QString& fil
     if ( previewMode ) {
 	MetaDataBase::doConnections( toplevel );
 	if ( toplevel ) {
+	    QStringList lst = MetaDataBase::fakeProperty( toplevel, "database" ).toStringList();
 	    if ( toplevel->inherits( "QDesignerSqlWidget" ) )
-		( (QDesignerSqlWidget*)toplevel )->initPreview( MetaDataBase::fakeProperty( toplevel, "database" ).toStringList()[ 1 ],
-								  toplevel, dbControls );
+		( (QDesignerSqlWidget*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
 	    else if ( toplevel->inherits( "QDesignerSqlDialog" ) )
-		( (QDesignerSqlDialog*)toplevel )->initPreview( MetaDataBase::fakeProperty( toplevel, "database" ).toStringList()[ 1 ],
-								  toplevel, dbControls );
+		( (QDesignerSqlDialog*)toplevel )->initPreview( lst[ 0 ], lst[ 1 ], toplevel, dbControls );
 	}
     }
 

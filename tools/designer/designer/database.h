@@ -34,8 +34,9 @@ class DatabaseSupport
 {
 public:
     DatabaseSupport();
-    
-    void initPreview( const QString &table, QObject *o, const QMap<QString, QString> &databaseControls );
+
+    void initPreview( const QString &connection, const QString &table, QObject *o, 
+		      const QMap<QString, QString> &databaseControls );
 
     QSqlCursor* defCursor();
     QSqlForm* defForm();
@@ -48,7 +49,7 @@ protected:
     QString tbl;
     QMap<QString, QString> dbControls;
     QObject *parent;
-    
+
 };
 
 class QDesignerSqlWidget : public QSqlWidget, public DatabaseSupport
