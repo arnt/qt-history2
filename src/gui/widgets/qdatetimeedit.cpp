@@ -1128,7 +1128,7 @@ QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
     Returns the absolute maximum for a section
 */
 
-inline int QDateTimeEditPrivate::absoluteMax(Section s) const
+int QDateTimeEditPrivate::absoluteMax(Section s) const
 {
     switch(s) {
     case HoursSection: return 23;
@@ -1155,7 +1155,7 @@ inline int QDateTimeEditPrivate::absoluteMax(Section s) const
     Returns the absolute minimum for a section
 */
 
-inline int QDateTimeEditPrivate::absoluteMin(Section s) const
+int QDateTimeEditPrivate::absoluteMin(Section s) const
 {
     switch(s) {
     case HoursSection:
@@ -1532,7 +1532,7 @@ void QDateTimeEditPrivate::clearSection(Section s)
     Returns the length of section \a s.
 */
 
-inline int QDateTimeEditPrivate::sectionLength(Section s) const
+int QDateTimeEditPrivate::sectionLength(Section s) const
 {
     switch(s) {
     case FirstSection:
@@ -1684,7 +1684,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
     stateptr != 0.
 */
 
-inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::State *stateptr) const
+int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::State *stateptr) const
 {
     QValidator::State state = QValidator::Invalid;
     int num = 0;
