@@ -2892,7 +2892,7 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
     rm -f src/.moc/$QMAKE_OUTDIR/allmoc.cpp # needs remaking if config changes
 fi
-QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$relpath/include\""
+QMAKE_VARS="$QMAKE_VARS \"QMAKE_INCDIR_QT=$outpath/include\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 QMAKE_VARS="$QMAKE_VARS \"QMAKE_RTLDIR_QT=$QT_INSTALL_LIBS\""
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
