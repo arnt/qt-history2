@@ -101,7 +101,48 @@ ApplicationWindow::ApplicationWindow()
 
     addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
 
-    setDockEnabled( Left, TRUE );
+    // Tool bar 3:
+
+    fileTools2 = new QToolBar( this, "file3 operations" );
+
+    openIcon2 = QPixmap( fileopen2 );
+    (void)new QToolButton( openIcon2, "Open File2", QString::null,
+			   this, SLOT(load2()), fileTools2, "open file2" );
+
+    saveIcon2 = QPixmap( filesave2 );
+    (void)new QToolButton( saveIcon2, "Save File2", QString::null,
+			   this, SLOT(save2()), fileTools2, "save file2" );
+
+    printIcon2 = QPixmap( fileprint2 );
+    (void)new QToolButton( printIcon2, "Print File", QString::null,
+			   this, SLOT(print2()), fileTools2, "print file2" );
+    (void)new QToolButton( printIcon2, "Print File", QString::null,
+			   this, SLOT(print2()), fileTools2, "print file2" );
+    (void)new QToolButton( printIcon2, "Print File", QString::null,
+			   this, SLOT(print2()), fileTools2, "print file2" );
+
+    addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+
+    // Tool bar 4:
+
+    fileTools2 = new QToolBar( this, "file4 operations" );
+
+    openIcon2 = QPixmap( fileopen2 );
+    (void)new QToolButton( openIcon, "Open File2", QString::null,
+			   this, SLOT(load2()), fileTools2, "open file2" );
+
+    saveIcon2 = QPixmap( filesave );
+    (void)new QToolButton( saveIcon, "Save File2", QString::null,
+			   this, SLOT(save2()), fileTools2, "save file2" );
+    (void)new QToolButton( saveIcon, "Save File2", QString::null,
+			   this, SLOT(save2()), fileTools2, "save file2" );
+
+    printIcon2 = QPixmap( fileprint );
+    (void)new QToolButton( printIcon2, "Print File", QString::null,
+			   this, SLOT(print2()), fileTools2, "print file2" );
+
+    addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+
     // Menus:
 
     QPopupMenu * file = new QPopupMenu( this );
@@ -129,7 +170,7 @@ ApplicationWindow::ApplicationWindow()
 
     appMenu = new QPopupMenu( this );
     menuBar()->insertItem( "&App", appMenu );
-    
+
     appMenu->setCheckable( TRUE );
 
     justId = appMenu->insertItem( "&RightJustify", this,

@@ -38,6 +38,7 @@
 #include "qmenubar.h"
 #include "qtoolbar.h"
 #include "qstatusbar.h"
+#include "qscrollview.h"
 
 #include "qtooltip.h"
 #include "qwhatsthis.h"
@@ -121,7 +122,8 @@ public:
     };
 	
     typedef QList<ToolBar> ToolBarDock;
-
+    enum InsertPos { Before, After, TotalAfter };
+    
     QMainWindowPrivate()
 	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ),
@@ -130,8 +132,9 @@ public:
 	// nothing
     }
 
-    ToolBar *findToolbar( QToolBar *t );
-
+    ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
+    ToolBar *takeToolBarFromDock( QToolBar * t );
+    
     ~QMainWindowPrivate()
     {
 	if ( top ) {
@@ -614,7 +617,8 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 
 void QMainWindow::setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable )
 {
-    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb );
+    QMainWindowPrivate::ToolBarDock *dummy;
+    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb, dummy );
     if ( !t )
 	return;
 
@@ -635,7 +639,8 @@ void QMainWindow::setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable )
 
 bool QMainWindow::isDockEnabled( QToolBar *tb, ToolBarDock dock ) const
 {
-    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb );
+    QMainWindowPrivate::ToolBarDock *dummy;
+    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb, dummy );
     if ( !t )
 	return FALSE;
 
@@ -713,60 +718,61 @@ void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 }
 
 
-static QMainWindowPrivate::ToolBar * takeToolBarFromDock( QToolBar * t,
-							  QMainWindowPrivate::ToolBarDock *l )
-{
-    if ( !l || !l->count() )
-	return 0;
-    QMainWindowPrivate::ToolBar * ct = l->first();
-    do {
-	if ( ct->t == t ) {
-	    l->take();
-	    return ct;
-	}
-    } while( (ct=l->next()) != 0 );
-    return 0;
-}
 
-QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t )
+QMainWindowPrivate::ToolBar * QMainWindowPrivate::findToolbar( QToolBar * t, 
+							       QMainWindowPrivate::ToolBarDock *&dock )
 {
     QMainWindowPrivate::ToolBarDock* docks[] = {
-	left, right, top, bottom
+	left, right, top, bottom, unmanaged, tornOff
     };
 
 
     QMainWindowPrivate::ToolBarDock *l = 0;
 
-    for ( unsigned int i = 0; i < 4; ++i ) {
+    for ( unsigned int i = 0; i < 6; ++i ) {
 	l = docks[ i ];
 	if ( !l )
 	    continue;
 	QMainWindowPrivate::ToolBar * ct = l->first();
 	do {
 	    if ( ct && ct->t == t ) {
+		dock = l;
 		return ct;
 	    }
 	} while( ( ct = l->next() ) != 0 );
     }
 
+    dock = 0;
     return 0;
 }
 
+QMainWindowPrivate::ToolBar * QMainWindowPrivate::takeToolBarFromDock( QToolBar * t )
+{
+    QMainWindowPrivate::ToolBarDock *l;
+    QMainWindowPrivate::ToolBar *tb = findToolbar( t, l );
+    if ( tb && l )
+	return l->take( l->findRef( tb ) );
+    return 0;
+}
 
-/*!  Moves \a toolBar to this the end of \a edge.
+/*!  
+  Moves \a toolBar before the tollbar \a relative if \a after is FALSE, or after
+  \a relative if \a after is TRUE.
 
-If \a toolBar is already managed by some main window, it is moved from
-that window to this and set to \e not start a new line.
+  If \a toolBar is already managed by some main window, it is moved from
+  that window to this and set to \e not start a new line.
 */
 
-void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
+void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *relative, bool after  )
 {
     if ( !toolBar )
 	return;
+    
     bool nl = FALSE;
     QValueList<int> dd;
-    if ( toolBar->mw ) {
-	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar );
+    if ( toolBar->mw && toolBar->mw != this ) {
+	QMainWindowPrivate::ToolBarDock *dummy;
+	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar, dummy );
 	if ( tb ) {
 	    nl = tb->nl;
 	    dd = tb->disabledDocks;
@@ -775,17 +781,8 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
     }
 
     QMainWindowPrivate::ToolBar * ct;
-    ct = takeToolBarFromDock( toolBar, d->top );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->left );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->right );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->bottom );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->tornOff );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->unmanaged );
+    ct = d->takeToolBarFromDock( toolBar );
+
     if ( ct ) {
 	setDockEnabled( edge, TRUE );
 	setDockEnabled( toolBar, edge, TRUE );
@@ -818,15 +815,40 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 	    return;
 	}
 
-	dl->append( ct );
+	if ( !relative )
+	    dl->append( ct );
+	else {
+	    QMainWindowPrivate::ToolBar *t = dl->first();
+	    int i = 0;
+	    for ( ; t; t = dl->next(), ++i ) {
+		if ( t->t == relative )
+		    break;
+	    }
+	    if ( after ) 
+		++i;
+	    dl->insert( i, ct );
+	}
     } else {
 	addToolBar( toolBar, edge, nl );
-	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar );
+	QMainWindowPrivate::ToolBarDock *dummy;
+	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar, dummy );
 	if ( tb )
 	    tb->disabledDocks = dd;
     }
 
     triggerLayout();
+}
+
+/*!  
+  Moves \a toolBar to this the end of \a edge.
+
+  If \a toolBar is already managed by some main window, it is moved from
+  that window to this and set to \e not start a new line.
+*/
+
+void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
+{
+    moveToolBar( toolBar, edge, 0, TRUE );
 }
 
 
@@ -839,17 +861,7 @@ void QMainWindow::removeToolBar( QToolBar * toolBar )
     if ( !toolBar )
 	return;
     QMainWindowPrivate::ToolBar * ct;
-    ct = takeToolBarFromDock( toolBar, d->top );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->left );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->right );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->bottom );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->tornOff );
-    if ( !ct )
-	ct = takeToolBarFromDock( toolBar, d->unmanaged );
+    ct = d->takeToolBarFromDock( toolBar );
     if ( ct ) {
 	toolBar->mw = 0;
 	delete ct;
@@ -879,6 +891,70 @@ QSize QToolBoxLayout::minimumSize() const
     return s;
 }
 
+static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::ToolBarDock *dock,
+							const QPoint &pos, 
+							 QMainWindowPrivate::InsertPos &ipos )
+{
+    if ( !dock )
+	return 0;
+    QMainWindowPrivate::ToolBar * t = dock->first(), *tmp = 0;
+    if ( !t )
+	return 0;
+    
+    if ( t->t->orientation() == Qt::Horizontal ) {
+	while ( t ) {
+	    if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
+		if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
+		    if ( pos.x() < t->t->x() + t->t->width() / 2 )
+			ipos = QMainWindowPrivate::Before;
+		    else {
+			tmp = dock->next();
+			if ( !tmp || tmp->nl )
+			    ipos = QMainWindowPrivate::TotalAfter;
+			else
+			    ipos = QMainWindowPrivate::After;
+		    }
+		    return t;
+		}
+		tmp = t;
+		t = dock->next();
+		if ( !t || t->nl ) {
+		    ipos = QMainWindowPrivate::TotalAfter;
+		    return tmp;
+		}
+	    } else {
+		t = dock->next();
+	    }
+	}
+    } else {
+	while ( t ) {
+	    if ( pos.x() >= t->t->x() && pos.x() <= t->t->x() + t->t->width() ) {
+		if ( pos.y() >= t->t->y() && pos.y() <= t->t->y() + t->t->height() ) {
+		    if ( pos.y() < t->t->y() + t->t->height() / 2 )
+			ipos = QMainWindowPrivate::Before;
+		    else {
+			tmp = dock->next();
+			if ( !tmp || tmp->nl )
+			    ipos = QMainWindowPrivate::TotalAfter;
+			else
+			    ipos = QMainWindowPrivate::After;
+		    }
+		    return t;
+		}
+		tmp = t;
+		t = dock->next();
+		if ( !t || t->nl ) {
+		    ipos = QMainWindowPrivate::TotalAfter;
+		    return tmp;
+		}
+	    } else {
+		t = dock->next();
+	    }
+	}
+    }
+    
+    return 0;
+}
 
 
 static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
@@ -1214,6 +1290,99 @@ void QMainWindow::triggerLayout()
     d->timer->start( 0, TRUE );
 }
 
+static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarDock dock, const QPoint &pos, 
+				    const QRect &areaRect, QToolBar *tb, int &ipos, QToolBar *&covering  )
+{
+    QMainWindowPrivate::ToolBarDock *tdock = 0;
+    switch ( dock ) {
+    case QMainWindow::Left:
+	tdock = d->left;
+	break;
+    case QMainWindow::Right:
+	tdock = d->right;
+	break;
+    case QMainWindow::Top:
+	tdock = d->top;
+	break;
+    case QMainWindow::Bottom:
+	tdock = d->bottom;
+	break;
+    case QMainWindow::Unmanaged:
+	tdock = d->unmanaged;
+	break;
+    case QMainWindow::TornOff:
+	tdock = d->tornOff;
+	break;
+    }
+    
+    QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos, 
+							  (QMainWindowPrivate::InsertPos&)ipos );
+    covering = 0;
+    
+    Qt::Orientation o;
+    if ( dock == QMainWindow::Top || dock == QMainWindow::Bottom )
+	o = Qt::Horizontal;
+    else
+	o = Qt::Vertical;
+
+    int w = o == tb->orientation() ? tb->width() : tb->height();
+    int h = o != tb->orientation() ? tb->width() : tb->height();
+
+    if ( t ) {
+	covering = t->t;
+	QRect r;
+	bool hasRect = FALSE;
+	if ( t->t == tb ) {
+	    hasRect = TRUE;
+	    r = QRect( tb->pos(), tb->size() );
+	}
+	
+	if ( !hasRect ) {
+	    switch( ipos ) {
+	    case QMainWindowPrivate::Before: {
+		hasRect = TRUE;
+		if ( o == Qt::Horizontal )
+		    r = QRect( t->t->x() - w / 2, t->t->y(), w, h );
+		else
+		    r = QRect( t->t->x(), t->t->y() - h / 2, w, h );
+	    } break;
+	    case QMainWindowPrivate::After: {
+		hasRect = TRUE;
+		if ( o == Qt::Horizontal )
+		    r = QRect( t->t->x() + t->t->width() - w / 2, t->t->y(), w, h );
+		else
+		    r = QRect( t->t->x(), t->t->y() + t->t->height() - h / 2, w, h );
+	    } break;
+	    case QMainWindowPrivate::TotalAfter: {
+		hasRect = TRUE;
+		if ( o == Qt::Horizontal )
+		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, h );
+		else
+		    r = QRect( t->t->x(), t->t->y() + t->t->height(), w, h );
+	    } break;
+	    }
+	}
+	
+	if ( hasRect ) 
+	    return r;
+    }
+    
+    switch ( dock ) {
+    case QMainWindow::Top:
+	return QRect( areaRect.x(), areaRect.y(), w, h );
+    case QMainWindow::Left:
+	return QRect( areaRect.x(), areaRect.y(), w, h );
+    case QMainWindow::Right:
+	return QRect( areaRect.x() + areaRect.width() - w, areaRect.y(), w, h );
+    case QMainWindow::Bottom:
+	return QRect( areaRect.x(), areaRect.y() + areaRect.height() - h, w, h );
+    case QMainWindow::Unmanaged: case QMainWindow::TornOff:
+	return areaRect;
+    }
+    
+    return areaRect;
+}
+
 
 /*!
   \internal
@@ -1225,7 +1394,8 @@ void QMainWindow::triggerLayout()
   If the mouse is not in any docking area, Unmanaged is returned as docking area.
 */
 
-QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb )
+QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb,
+						    int &ipos, QToolBar *&covering )
 {
     // calculate some values for docking areas
     int left, right, top, bottom;
@@ -1297,52 +1467,52 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     // find the one with higher priority (that's depending on the original position)
     if ( leftTop.contains( pos ) ) {
 	if ( tb->orientation() == Vertical ) {
-	    rect = leftArea;
+	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
-	rect = topArea;
+	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( leftBottom.contains( pos ) ) {
 	if ( tb->orientation() == Vertical ) {
-	    rect = leftArea;
+	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
-	rect = bottomArea;
+	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
     if ( rightTop.contains( pos ) ) {
 	if ( tb->orientation() == Vertical ) {
-	    rect = rightArea;
+	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
-	rect = topArea;
+	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( rightBottom.contains( pos ) ) {
 	if ( tb->orientation() == Vertical ) {
-	    rect = rightArea;
+	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
-	rect = bottomArea;
+	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
 
     // if the mouse is not in an intersection, it's easy....
     if ( leftArea.contains( pos ) ) {
-	rect = leftArea;
+	rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
 	return Left;
     }
     if ( topArea.contains( pos ) ) {
-	rect = topArea;
+	rect = findRectInDockingArea( d, Top, pos, topArea, tb, ipos, covering );
 	return Top;
     }
     if ( rightArea.contains( pos ) ) {
-	rect = rightArea;
+	rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
 	return Right;
     }
     if ( bottomArea.contains( pos ) ) {
-	rect = bottomArea;
+	rect = findRectInDockingArea( d, Bottom, pos, bottomArea, tb, ipos, covering );
 	return Bottom;
     }
 
@@ -1350,13 +1520,21 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     return Unmanaged;
 }
 
-/*!  Handles mouse event \e e on behalf of tool bar \a t and does all
+/*!  
+  Handles mouse event \e e on behalf of tool bar \a t and does all
   the funky docking.
 */
 
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
+	if ( d->mc ) {
+	    if ( d->mc->inherits( "QScrollView" ) )
+		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( FALSE );
+	    else
+		d->mc->setUpdatesEnabled( FALSE );
+	}
+	
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
 	uint flags = getWFlags();
 	setWFlags( WPaintUnclipped );
@@ -1368,7 +1546,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
-	d->origDock = findDockArea( pos, r, t );
+	int ipos;
+	QToolBar *covering;
+	d->origDock = findDockArea( pos, r, t, ipos, covering );
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
@@ -1386,12 +1566,21 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	delete d->rectPainter;
 	d->rectPainter = 0;
 	
+	if ( d->mc ) {
+	    if ( d->mc->inherits( "QScrollView" ) )
+		( (QScrollView*)d->mc )->viewport()->setUpdatesEnabled( TRUE );
+	    else
+		d->mc->setUpdatesEnabled( TRUE );
+	}
+
 	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
-	ToolBarDock dock = findDockArea( pos, r, t );
-	if ( dock != Unmanaged && dock != d->origDock && isDockEnabled( dock ) &&
+	int ipos;
+	QToolBar *covering;
+	ToolBarDock dock = findDockArea( pos, r, t, ipos, covering );
+	if ( dock != Unmanaged /*&& dock != d->origDock*/ && isDockEnabled( dock ) &&
 	     isDockEnabled( t, dock ) )
-	    moveToolBar( t, dock );
+	    moveToolBar( t, dock, covering, ipos != QMainWindowPrivate::Before );
 	return;
     }
 
@@ -1403,8 +1592,10 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
     d->pos = pos;
     QRect r;
-    ToolBarDock dock = findDockArea( pos, r, t );
-
+    int ipos;
+    QToolBar *covering;
+    ToolBarDock dock = findDockArea( pos, r, t, ipos, covering );
+    
     if ( dock == Unmanaged || !isDockEnabled( dock ) ||
 	 !isDockEnabled( t, dock ) )
 	r = d->origPosRect;
@@ -1418,195 +1609,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
-
-#if 0
-    if ( e->type() == QEvent::MouseButtonPress ) {
-	//debug( "saw press" );
-	d->moving = 0;
-	d->offset = e->pos();
-	d->pos = e->globalPos();
-	return;
-    } else if ( e->type() == QEvent::MouseButtonRelease ) {
-	//debug( "saw release" );
-	if ( d->moving ) {
-	    qApp->removeEventFilter( this );
-	    d->moving = 0;
-	}
-	return;
-    }
-
-    //debug( "saw move" );
-
-    // with that out of the way, let's concentrate on the moves...
-
-    // first, the threshold
-
-    QPoint p( e->globalPos() );
-    if ( !d->moving &&
-	 QABS( p.x() - d->pos.x() ) < 3 &&
-	 QABS( p.y() - d->pos.y() ) < 3 )
-	return;
-
-    // okay.  it's a real move.
-
-    //    debug( "move event to %d, %d", p.x(), p.y() );
-
-    if ( !d->moving ) {
-	d->moving = t;
-	qApp->installEventFilter( this );
-    }
-
-    QPoint lp( mapFromGlobal( p ) );
-    QMainWindowPrivate::ToolBarDock * dock = 0;
-    // five possible cases: in each of the docs, and outside.
-    if ( centralWidget()->geometry().contains( lp ) ||
-	 !rect().contains( lp ) ) {
-	// not a dock
-	if ( t->parentWidget() ) {
-	    t->reparent( 0, 0,
-			 QPoint( p.x() - d->offset.x(),
-				 p.y() - d->offset.y() ),
-			 TRUE );
-	    QApplication::syncX();
-	    dock = d->tornOff;
-	} else {
-	    t->move( p.x() - d->offset.x(),
-		     p.y() - d->offset.y() );
-	}
-    } else if ( lp.y() < centralWidget()->y() ) {
-	//top dock
-	dock = d->top;
-    } else if ( lp.y() >= centralWidget()->y() + centralWidget()->height() ) {
-	// bottom dock
-	dock = d->bottom;
-    } else if ( lp.x() < centralWidget()->x() ) {
-	// bottom dock
-	dock = d->left;
-    } else if ( lp.x() >= centralWidget()->x() + centralWidget()->width() ) {
-	// right dock
-	dock = d->right;
-    } else {
-	qFatal( "never to happen" );
-    }
-
-    if ( !dock )
-	return;
-
-    qDebug( "1" );
-    // at this point dock points to the new dock
-    QMainWindowPrivate::ToolBar * ct;
-    ct = takeToolBarFromDock( t, d->top );
-    if ( !ct )
-	ct = takeToolBarFromDock( t, d->left );
-    if ( !ct )
-	ct = takeToolBarFromDock( t, d->right );
-    if ( !ct )
-	ct = takeToolBarFromDock( t, d->bottom );
-    if ( dock != d->tornOff && !ct )
-	ct = takeToolBarFromDock( t, d->tornOff );
-    if ( dock == d->tornOff || ct == 0 )
-	return;
-
-    qDebug( "2" );
-    QMainWindowPrivate::ToolBar * c = dock->first();
-    QRect inLine;
-    QRect betweenLines;
-    int linestart = 0;
-    while( c && ct ) {
-	qDebug( "3 %p %p", c, ct );
-	if ( c->nl ) {
-	    if ( dock == d->top ) {
-		betweenLines.setRect( 0, 0, width(),
-				      c->t->y() + c->t->height()/4 );
-	    } else if ( dock == d->bottom ) {
-		betweenLines.setRect( 0, c->t->y() + c->t->height()/4,
-				      width(), c->t->height()/2 );
-	    } else if ( dock == d->left ) {
-		betweenLines.setRect( 0, 0, c->t->x() + c->t->width()/4,
-				      height() );
-	    } else {
-		betweenLines.setRect( c->t->x() + 3*c->t->width()/4, 0,
-				      c->t->width()/2, height() );
-	    }
-	    linestart = dock->at();
-	}
-	if ( dock == d->top || dock == d->bottom ) {
-	    inLine.setRect( c->t->x()-c->t->height()/4, c->t->y(),
-			    c->t->height()/2, c->t->height() );
-	} else {
-	    inLine.setRect( c->t->x(), c->t->y() - c->t->width()/4,
-			    c->t->width(), c->t->width()/2 );
-	}
-	if ( inLine.contains( lp ) ) {
-	    // ct goes in just before c, and takes over nl
-	    dock->insert( dock->at(), ct );
-	    if ( t->parentWidget() != this )
-		t->reparent( this, 0, QPoint( 0, -t->height() ), TRUE );
-	    t->setOrientation( (dock == d->top || dock == d->bottom )
-			       ? QToolBar::Horizontal : QToolBar::Vertical );
-	    ct->nl = c->nl;
-	    c->nl = FALSE;
-	    ct = 0;
-	    triggerLayout();
-	} else {
-	    QMainWindowPrivate::ToolBar * c2 = dock->next();
-	    if ( c2 == 0 || c2->nl ) {
-		// about to do the next line, so check whether c
-		// should go in above this line
-		if ( betweenLines.contains( lp ) ) {
-		    dock->insert( linestart, ct );
-		    if ( t->parentWidget() != this )
-			t->reparent( this, 0, QPoint( 0, -t->height() ),
-				     TRUE );
-		    t->setOrientation( (dock == d->top || dock == d->bottom )
-				       ? QToolBar::Horizontal
-				       : QToolBar::Vertical );
-		    ct->nl = TRUE;
-		    ct = 0;
-			triggerLayout();
-		} else {
-		    // perhaps at the end of this line?  let's see
-		    if ( dock == d->top || dock == d->bottom )
-			inLine.setRect( c->t->x() + c->t->width(),
-					c->t->y(),
-					width() - c->t->x() - c->t->width(),
-					c->t->height() );
-		    else
-			inLine.setRect( c->t->x(),
-					c->t->y() + c->t->height(),
-					c->t->width(),
-					height() - c->t->y() - c->t->height());
-		    if ( inLine.contains( lp ) ) {
-			dock->insert( dock->at(), ct );
-			if ( t->parentWidget() != this )
-			    t->reparent( this, 0, QPoint( 0, -t->height() ),
-					 TRUE );
-			t->setOrientation( (dock == d->top ||
-					    dock == d->bottom )
-					   ? QToolBar::Horizontal
-					   : QToolBar::Vertical );
-			ct->nl = FALSE;
-			ct = 0;
-			triggerLayout();
-		    }
-		}
-	    }
-	    c = c2;
-	}
-    }
-    qDebug( "4" );
-    // okay, is it at the very end?
-    if ( ct ) {
-	qDebug( "4a" );
-	dock->append( ct );
-	if ( t->parentWidget() != this )
-	    t->reparent( this, 0, QPoint( 0, -t->height() ), TRUE );
-	t->setOrientation( (dock == d->top || dock == d->bottom )
-			   ? QToolBar::Horizontal : QToolBar::Vertical );
-	ct->nl = TRUE;
-	triggerLayout();
-    }
-#endif
 }
 
 /*!

@@ -63,6 +63,7 @@ public:
     void addToolBar( QToolBar *, const QString &label,
 		     ToolBarDock = Top, bool newLine = FALSE );
     void moveToolBar( QToolBar *, ToolBarDock = Top );
+    void moveToolBar( QToolBar *, ToolBarDock, QToolBar *relative, bool after  );
 
     void removeToolBar( QToolBar * );
 
@@ -94,7 +95,8 @@ protected:
     void childEvent( QChildEvent * );
     bool event( QEvent * );
     void styleChange( QStyle& );
-    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb );
+    ToolBarDock findDockArea( const QPoint &pos, QRect &rect, QToolBar *tb,
+			      int &ipos, QToolBar *&covering );
 
 private:
     QMainWindowPrivate * d;
