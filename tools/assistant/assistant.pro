@@ -14,6 +14,7 @@ HEADERS	+= helpwindow.h \
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
+DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
@@ -30,7 +31,6 @@ TRANSLATIONS	= assistant_de.ts \
 		  assistant_fr.ts
 
 unix:!zlib:LIBS	+= -lz
-DEFINES	+= QT_INTERNAL_NETWORK
 FORMS	= mainwindow.ui \
 	topicchooser.ui \
 	finddialog.ui \
