@@ -1238,21 +1238,6 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
                                       elm.curveData.ex, elm.curveData.ey);
                 break;
             }
-            case QPainterPathElement::Arc: {
-                CGMutablePathRef subpath = CGPathCreateMutable();
-                CGAffineTransform transform = CGAffineTransformMake((elm.arcData.w)/elm.arcData.h,
-                                                                    0, 0, -1, 1, (elm.arcData.y*2)+elm.arcData.h);
-                float begin_radians = (elm.arcData.start) * (M_PI/180),
-                        end_radians = (((elm.arcData.start+elm.arcData.length))) * (M_PI/180);
-                CGPathAddArc(subpath, &transform,
-                             (elm.arcData.x+(elm.arcData.w/2))/(elm.arcData.w/elm.arcData.h),
-                             elm.arcData.y + (elm.arcData.h/2),
-                             elm.arcData.h/2, begin_radians, end_radians,
-                             elm.arcData.start < 0 || elm.arcData.length < 0);
-                CGPathAddPath(path, 0, subpath);
-                CGPathRelease(subpath);
-                break;
-            }
             default:
                 qFatal("QCoreGraphicsPaintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }

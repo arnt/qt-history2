@@ -5827,13 +5827,6 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
                               << " curveto\n";
                 break;
             }
-            case QPainterPathElement::Arc: {
-                d->pageStream << RECT(QRectF(elm.arcData.x, elm.arcData.y, elm.arcData.w, elm.arcData.h))
-                              << elm.arcData.start << ' '
-                              << elm.arcData.length
-                              << " ARC\n";
-                break;
-            }
             default:
                 qFatal("QPSPrintEngine::drawPath(), unhandled subpath type: %d", elm.type);
             }

@@ -154,16 +154,6 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
             p += pa.cubicBezier();
             break;
         }
-        case QPainterPathElement::Arc: {
-            QPointArray ar;
-            ar.makeArc(qRound(elm.arcData.x), qRound(elm.arcData.y),
-                       qRound(elm.arcData.w), qRound(elm.arcData.h),
-                       qRound(elm.arcData.start * 16),
-                       qRound(elm.arcData.length * 16),
-                       matrix);
-            p += ar;
-            break;
-        }
         default:
             qFatal("QPainterSubpath::toPolygon() unhandled case...: %d", elements.at(i).type);
         }
@@ -745,9 +735,6 @@ void QPainterPath::transform(const QMatrix &matrix)
                 QPointF np = QPointF(elm.lineData.x, elm.lineData.y) * matrix;
                 elm.lineData.x = np.x();
                 elm.lineData.y = np.y();
-            }
-            case QPainterPathElement::Arc: {
-                qWarning("QPainterPath::transform() arc elements not supported...");
             }
             case QPainterPathElement::Curve: {
                 QPointF p = QPointF(elm.curveData.c1x. elm.curveData.c1y) * matrix;

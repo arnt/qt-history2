@@ -22,14 +22,13 @@
  */
 struct QPainterPathElement
 {
-    enum ElementType { Line, Curve, Arc };
+    enum ElementType { Line, Curve };
 
     ElementType type;
 
     union {
 	struct { float x, y; } lineData;
         struct { float c1x, c1y, c2x, c2y, ex, ey; } curveData;
-        struct { float x, y, w, h, start, length; } arcData;
     };
 
     inline QPointF end() const;
@@ -38,8 +37,6 @@ struct QPainterPathElement
     static inline QPainterPathElement line(float x, float y);
     static inline QPainterPathElement curve(float c1x, float c1y, float c2x, float c2y,
                                             float ex, float ey);
-    static inline QPainterPathElement arc(float x, float y, float w, float h,
-                                          float start, float length);
 };
 
 /*!
@@ -146,20 +143,6 @@ inline QPainterPathElement QPainterPathElement::curve(float c1x, float c1y,
     e.curveData.c2y = c2y;
     e.curveData.ex = ex;
     e.curveData.ey = ey;
-    return e;
-}
-
-inline QPainterPathElement QPainterPathElement::arc(float x, float y, float w, float h,
-                                                    float start, float length)
-{
-    QPainterPathElement e;
-    e.type = QPainterPathElement::Arc;
-    e.arcData.x = x;
-    e.arcData.y = y;
-    e.arcData.w = w;
-    e.arcData.h = h;
-    e.arcData.start = start;
-    e.arcData.length = length;
     return e;
 }
 
