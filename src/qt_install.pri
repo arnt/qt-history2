@@ -9,6 +9,6 @@ headers.files = ../include/*.h ../include/private
 INSTALLS += headers
 
 #docs
-isEmpty(docs.path):docs.path=$$QT_PREFIX/docs
+isEmpty(docs.path):docs.path=$$QT_PREFIX/doc
 docs.files = ../doc/*
 INSTALLS += docs
