@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#95 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -402,6 +402,9 @@ int QHeader::findLine( int c )
 	return i;
 }
 
+/*!
+  Moves the section at \a fromIdx to the division line at \a toIdx
+ */
 void QHeader::moveCell( int fromIdx, int toIdx )
 {
     if ( fromIdx == toIdx ||
@@ -440,6 +443,9 @@ void QHeader::moveCell( int fromIdx, int toIdx )
     }
 }
 
+/*!
+  \reimp
+*/
 void QHeader::mousePressEvent( QMouseEvent *m )
 {
     if ( m->button() != LeftButton )
@@ -471,6 +477,9 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     }
 }
 
+/*!
+  \reimp
+*/
 void QHeader::mouseReleaseEvent( QMouseEvent *m )
 {
     if ( m->button() != LeftButton )
@@ -510,6 +519,9 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
     }
 }
 
+/*!
+  \reimp
+*/
 void QHeader::mouseMoveEvent( QMouseEvent *m )
 {
     int i, p;
