@@ -369,7 +369,9 @@ DspMakefileGenerator::init()
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["DEFINES"].append("UNICODE");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	project->variables()["QMAKE_LIBS"] += QStringList::split(' ', "imm32.lib wsock32.lib winmm.lib winspool.lib");
+	if( project->variables()[ "QMAKESPEC" ].first() == "win32-msvc" )
+	    project->variables()["QMAKE_LIBS"] += QStringList::split(' ', "imm32.lib wsock32.lib winmm.lib winspool.lib");
+
 	if ( project->isActiveConfig("opengl") ) {
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
 	}
