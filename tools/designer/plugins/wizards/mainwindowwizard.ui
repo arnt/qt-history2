@@ -86,20 +86,6 @@
                     <pixmap>qtwizards_menu_1</pixmap>
                 </property>
             </widget>
-            <widget class="QLabel" row="0" column="1">
-                <property name="name">
-                    <cstring>TextLabel1</cstring>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>Choose the available menus and toolbars</string>
-                </property>
-            </widget>
             <widget class="QGroupBox" row="1" column="1">
                 <property name="name">
                     <cstring>GroupBox1</cstring>
@@ -499,20 +485,6 @@
                 </property>
                 <property name="pixmap">
                     <pixmap>right</pixmap>
-                </property>
-            </widget>
-            <widget class="QLabel" row="0" column="1" rowspan="1" colspan="3">
-                <property name="name">
-                    <cstring>TextLabel1_2_2</cstring>
-                </property>
-                <property name="font">
-                    <font>
-                        <pointsize>10</pointsize>
-                        <bold>1</bold>
-                    </font>
-                </property>
-                <property name="text">
-                    <string>Setup Toolbar</string>
                 </property>
             </widget>
             <spacer row="3" column="2">
