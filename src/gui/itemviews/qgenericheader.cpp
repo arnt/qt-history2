@@ -650,7 +650,6 @@ bool QGenericHeader::isSectionHidden(int section) const
 
 void QGenericHeader::resizeEvent(QResizeEvent *e)
 {
-    qDebug("resizeEvent %d, %d", visibleWidth);
     QScrollView::resizeEvent(e);
     resizeContents(visibleWidth(), visibleHeight());
     resizeSections();
