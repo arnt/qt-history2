@@ -153,11 +153,15 @@
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
 #endif
 
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#  define Q_OS_WIN
+#endif
+
 #if defined(Q_OS_MAC9) || defined(Q_OS_MACX)
 #  define Q_OS_MAC
 #endif
 
-#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#if defined(Q_OS_MAC9) || defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
 #  undef Q_OS_UNIX
 #elif !defined(Q_OS_UNIX)
 #  define Q_OS_UNIX
@@ -671,13 +675,15 @@ typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
 typedef long			Q_LONG;		// word up to 64 bit signed
 typedef unsigned long		Q_ULONG;	// word up to 64 bit unsigned
 #endif
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#if defined(Q_OS_WIN)
 typedef __int64			Q_INT64;	// 64 bit signed
 typedef unsigned __int64	Q_UINT64;	// 64 bit unsigned
 #else
 typedef long long		Q_INT64;	// 64 bit signed
 typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 #endif
+typedef Q_INT64			Q_LONGLONG;	// signed long long
+typedef Q_UINT64		Q_ULONGLONG;	// unsigned long long
 
 #if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
 #  define QT_LARGEFILE_SUPPORT 64
@@ -789,7 +795,7 @@ class QDataStream;
 // or QT_SHARED is defined (Kylix only)
 //
 
-#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+#if defined(Q_OS_WIN)
 #  if defined(QT_NODLL)
 #    undef QT_MAKEDLL
 #    undef QT_DLL
