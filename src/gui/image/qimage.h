@@ -121,13 +121,12 @@ public:
     QImage convertDepth(int, Qt::ImageConversionFlags flags) const;
     QImage convertBitOrder(Endian) const;
 
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-    inline QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
-    QImage smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
-#endif
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-    inline QImage scale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
-    QImage scale(const QSize &s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const;
+    inline QImage scale(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                        Qt::TransformationMode mode = Qt::FastTransformation) const
+        { return scale(QSize(w, h), aspectMode, mode); }
+    QImage scale(const QSize &s, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
+                 Qt::TransformationMode mode = Qt::FastTransformation) const;
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
     QImage transform(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
@@ -182,6 +181,10 @@ public:
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QImage(const char * const xpm[]);
     inline QT_COMPAT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
+    inline QT_COMPAT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+        { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }
+    QImage QT_COMPAT smoothScale(const QSize& s, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
+        { return scale(s, mode, Qt::SmoothTransformation); }
 #endif
 
 private:
@@ -222,21 +225,6 @@ inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags 
 {
     return copy(QRect(x, y, w, h), flags);
 }
-
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-inline QImage QImage::smoothScale(int w, int h, Qt::AspectRatioMode mode) const
-{
-    return smoothScale(QSize(w, h), mode);
-}
-#endif
-
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-inline QImage QImage::scale(int w, int h, Qt::AspectRatioMode mode) const
-{
-    return scale(QSize(w, h), mode);
-}
-#endif
-
 
 inline QImage::Endian QImage::systemBitOrder()
 {

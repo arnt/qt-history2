@@ -2373,275 +2373,7 @@ bool QImage::isGrayscale() const
     return false;
 }
 
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
-static
-void pnmscale(const QImage& src, QImage& dst)
-{
-    QRgb* xelrow = 0;
-    QRgb* tempxelrow = 0;
-    register QRgb* xP;
-    register QRgb* nxP;
-    int rows, cols, rowsread, newrows, newcols;
-    register int row, col, needtoreadrow;
-    const uchar maxval = 255;
-    double xscale, yscale;
-    long sxscale, syscale;
-    register long fracrowtofill, fracrowleft;
-    long* as;
-    long* rs;
-    long* gs;
-    long* bs;
-    int rowswritten = 0;
 
-    cols = src.width();
-    rows = src.height();
-    newcols = dst.width();
-    newrows = dst.height();
-
-    long SCALE;
-    long HALFSCALE;
-
-    if (cols > 4096)
-    {
-        SCALE = 4096;
-        HALFSCALE = 2048;
-    }
-    else
-    {
-        int fac = 4096;
-
-        while (cols * fac > 4096)
-        {
-            fac /= 2;
-        }
-
-        SCALE = fac * cols;
-        HALFSCALE = fac * cols / 2;
-    }
-
-    xscale = (double) newcols / (double) cols;
-    yscale = (double) newrows / (double) rows;
-
-    sxscale = (long)(xscale * SCALE);
-    syscale = (long)(yscale * SCALE);
-
-    if (newrows != rows)        /* shortcut Y scaling if possible */
-        tempxelrow = new QRgb[cols];
-
-    if (src.hasAlphaBuffer()) {
-        dst.setAlphaBuffer(true);
-        as = new long[cols];
-        for (col = 0; col < cols; ++col)
-            as[col] = HALFSCALE;
-    } else {
-        as = 0;
-    }
-    rs = new long[cols];
-    gs = new long[cols];
-    bs = new long[cols];
-    rowsread = 0;
-    fracrowleft = syscale;
-    needtoreadrow = 1;
-    for (col = 0; col < cols; ++col)
-        rs[col] = gs[col] = bs[col] = HALFSCALE;
-    fracrowtofill = SCALE;
-
-    for (row = 0; row < newrows; ++row) {
-        /* First scale Y from xelrow into tempxelrow. */
-        if (newrows == rows) {
-            /* shortcut Y scaling if possible */
-            tempxelrow = xelrow = (QRgb*)src.scanLine(rowsread++);
-        } else {
-            while (fracrowleft < fracrowtofill) {
-                if (needtoreadrow && rowsread < rows)
-                    xelrow = (QRgb*)src.scanLine(rowsread++);
-                for (col = 0, xP = xelrow; col < cols; ++col, ++xP) {
-                    if (as) {
-                        as[col] += fracrowleft * qAlpha(*xP);
-                        rs[col] += fracrowleft * qRed(*xP) * qAlpha(*xP) / 255;
-                        gs[col] += fracrowleft * qGreen(*xP) * qAlpha(*xP) / 255;
-                        bs[col] += fracrowleft * qBlue(*xP) * qAlpha(*xP) / 255;
-                    } else {
-                        rs[col] += fracrowleft * qRed(*xP);
-                        gs[col] += fracrowleft * qGreen(*xP);
-                        bs[col] += fracrowleft * qBlue(*xP);
-                    }
-                }
-                fracrowtofill -= fracrowleft;
-                fracrowleft = syscale;
-                needtoreadrow = 1;
-            }
-            /* Now fracrowleft is >= fracrowtofill, so we can produce a row. */
-            if (needtoreadrow && rowsread < rows) {
-                xelrow = (QRgb*)src.scanLine(rowsread++);
-                needtoreadrow = 0;
-            }
-            register long a=0;
-            for (col = 0, xP = xelrow, nxP = tempxelrow;
-                  col < cols; ++col, ++xP, ++nxP)
-            {
-                register long r, g, b;
-
-                if (as) {
-                    r = rs[col] + fracrowtofill * qRed(*xP) * qAlpha(*xP) / 255;
-                    g = gs[col] + fracrowtofill * qGreen(*xP) * qAlpha(*xP) / 255;
-                    b = bs[col] + fracrowtofill * qBlue(*xP) * qAlpha(*xP) / 255;
-                    a = as[col] + fracrowtofill * qAlpha(*xP);
-                    if (a) {
-                        r = r * 255 / a * SCALE;
-                        g = g * 255 / a * SCALE;
-                        b = b * 255 / a * SCALE;
-                    }
-                } else {
-                    r = rs[col] + fracrowtofill * qRed(*xP);
-                    g = gs[col] + fracrowtofill * qGreen(*xP);
-                    b = bs[col] + fracrowtofill * qBlue(*xP);
-                }
-                r /= SCALE;
-                if (r > maxval) r = maxval;
-                g /= SCALE;
-                if (g > maxval) g = maxval;
-                b /= SCALE;
-                if (b > maxval) b = maxval;
-                if (as) {
-                    a /= SCALE;
-                    if (a > maxval) a = maxval;
-                    *nxP = qRgba((int)r, (int)g, (int)b, (int)a);
-                    as[col] = HALFSCALE;
-                } else {
-                    *nxP = qRgb((int)r, (int)g, (int)b);
-                }
-                rs[col] = gs[col] = bs[col] = HALFSCALE;
-            }
-            fracrowleft -= fracrowtofill;
-            if (fracrowleft == 0) {
-                fracrowleft = syscale;
-                needtoreadrow = 1;
-            }
-            fracrowtofill = SCALE;
-        }
-
-        /* Now scale X from tempxelrow into dst and write it out. */
-        if (newcols == cols) {
-            /* shortcut X scaling if possible */
-            memcpy(dst.scanLine(rowswritten++), tempxelrow, newcols*4);
-        } else {
-            register long a, r, g, b;
-            register long fraccoltofill, fraccolleft = 0;
-            register int needcol;
-
-            nxP = (QRgb*)dst.scanLine(rowswritten++);
-            fraccoltofill = SCALE;
-            a = r = g = b = HALFSCALE;
-            needcol = 0;
-            for (col = 0, xP = tempxelrow; col < cols; ++col, ++xP) {
-                fraccolleft = sxscale;
-                while (fraccolleft >= fraccoltofill) {
-                    if (needcol) {
-                        ++nxP;
-                        a = r = g = b = HALFSCALE;
-                    }
-                    if (as) {
-                        r += fraccoltofill * qRed(*xP) * qAlpha(*xP) / 255;
-                        g += fraccoltofill * qGreen(*xP) * qAlpha(*xP) / 255;
-                        b += fraccoltofill * qBlue(*xP) * qAlpha(*xP) / 255;
-                        a += fraccoltofill * qAlpha(*xP);
-                        if (a) {
-                            r = r * 255 / a * SCALE;
-                            g = g * 255 / a * SCALE;
-                            b = b * 255 / a * SCALE;
-                        }
-                    } else {
-                        r += fraccoltofill * qRed(*xP);
-                        g += fraccoltofill * qGreen(*xP);
-                        b += fraccoltofill * qBlue(*xP);
-                    }
-                    r /= SCALE;
-                    if (r > maxval) r = maxval;
-                    g /= SCALE;
-                    if (g > maxval) g = maxval;
-                    b /= SCALE;
-                    if (b > maxval) b = maxval;
-                    if (as) {
-                        a /= SCALE;
-                        if (a > maxval) a = maxval;
-                        *nxP = qRgba((int)r, (int)g, (int)b, (int)a);
-                    } else {
-                        *nxP = qRgb((int)r, (int)g, (int)b);
-                    }
-                    fraccolleft -= fraccoltofill;
-                    fraccoltofill = SCALE;
-                    needcol = 1;
-                }
-                if (fraccolleft > 0) {
-                    if (needcol) {
-                        ++nxP;
-                        a = r = g = b = HALFSCALE;
-                        needcol = 0;
-                    }
-                    if (as) {
-                        a += fraccolleft * qAlpha(*xP);
-                        r += fraccolleft * qRed(*xP) * qAlpha(*xP) / 255;
-                        g += fraccolleft * qGreen(*xP) * qAlpha(*xP) / 255;
-                        b += fraccolleft * qBlue(*xP) * qAlpha(*xP) / 255;
-                    } else {
-                        r += fraccolleft * qRed(*xP);
-                        g += fraccolleft * qGreen(*xP);
-                        b += fraccolleft * qBlue(*xP);
-                    }
-                    fraccoltofill -= fraccolleft;
-                }
-            }
-            if (fraccoltofill > 0) {
-                --xP;
-                if (as) {
-                    a += fraccolleft * qAlpha(*xP);
-                    r += fraccoltofill * qRed(*xP) * qAlpha(*xP) / 255;
-                    g += fraccoltofill * qGreen(*xP) * qAlpha(*xP) / 255;
-                    b += fraccoltofill * qBlue(*xP) * qAlpha(*xP) / 255;
-                    if (a) {
-                        r = r * 255 / a * SCALE;
-                        g = g * 255 / a * SCALE;
-                        b = b * 255 / a * SCALE;
-                    }
-                } else {
-                    r += fraccoltofill * qRed(*xP);
-                    g += fraccoltofill * qGreen(*xP);
-                    b += fraccoltofill * qBlue(*xP);
-                }
-            }
-            if (! needcol) {
-                r /= SCALE;
-                if (r > maxval) r = maxval;
-                g /= SCALE;
-                if (g > maxval) g = maxval;
-                b /= SCALE;
-                if (b > maxval) b = maxval;
-                if (as) {
-                    a /= SCALE;
-                    if (a > maxval) a = maxval;
-                    *nxP = qRgba((int)r, (int)g, (int)b, (int)a);
-                } else {
-                    *nxP = qRgb((int)r, (int)g, (int)b);
-                }
-            }
-        }
-    }
-
-    if (newrows != rows && tempxelrow)// Robust, tempxelrow might be 0 1 day
-        delete [] tempxelrow;
-    if (as)                                // Avoid purify complaint
-        delete [] as;
-    if (rs)                                // Robust, rs might be 0 one day
-        delete [] rs;
-    if (gs)                                // Robust, gs might be 0 one day
-        delete [] gs;
-    if (bs)                                // Robust, bs might be 0 one day
-        delete [] bs;
-}
-#endif
-
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
   \fn QImage QImage::smoothScale(int w, int h, Qt::AspectRatioMode mode) const
 
@@ -2663,55 +2395,16 @@ void pnmscale(const QImage& src, QImage& dst)
     isGrayscale() grayscale \endlink images with the palette spanning
     256 grays from black to white.
 
-    This function uses code based on pnmscale.c by Jef Poskanzer.
-
-    pnmscale.c - read a portable anymap and scale it
-
-    \legalese
-
-    Copyright (C) 1989, 1991 by Jef Poskanzer.
-
-    Permission to use, copy, modify, and distribute this software and
-    its documentation for any purpose and without fee is hereby
-    granted, provided that the above copyright notice appear in all
-    copies and that both that copyright notice and this permission
-    notice appear in supporting documentation. This software is
-    provided "as is" without express or implied warranty.
-
     \sa scale() mirror()
 */
 
 /*!
+  \fn QImage QImage::xsmoothScale(const QSize& s, Qt::AspectRatioMode mode) const
+
     \overload
 
     The requested size of the image is \a s.
 */
-QImage QImage::smoothScale(const QSize& s, Qt::AspectRatioMode mode) const
-{
-    if (isNull()) {
-        qWarning("QImage::smoothScale: Image is a null image");
-        return copy();
-    }
-
-    QSize newSize = size();
-    newSize.scale(s, mode);
-    if (newSize == size())
-        return copy();
-
-    if (depth() == 32) {
-        QImage img(newSize, 32);
-        // 32-bpp to 32-bpp
-        pnmscale(*this, img);
-        return img;
-    } else if (depth() != 16 && allGray() && !hasAlphaBuffer()) {
-        // Inefficient
-        return convertDepth(32).smoothScale(newSize, mode).convertDepth(8);
-    } else {
-        // Inefficient
-        return convertDepth(32).smoothScale(newSize, mode);
-    }
-}
-#endif
 
 /*!
   \fn QImage QImage::scale(int w, int h, Qt::AspectRatioMode mode) const
@@ -2745,7 +2438,7 @@ QImage QImage::smoothScale(const QSize& s, Qt::AspectRatioMode mode) const
     The requested size of the image is \a s.
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(const QSize& s, Qt::AspectRatioMode mode) const
+QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
 {
     if (isNull()) {
         qWarning("QImage::scale: Image is a null image");
@@ -2755,14 +2448,14 @@ QImage QImage::scale(const QSize& s, Qt::AspectRatioMode mode) const
         return QImage();
 
     QSize newSize = size();
-    newSize.scale(s, mode);
+    newSize.scale(s, aspectMode);
     if (newSize == size())
         return copy();
 
     QImage img;
     QMatrix wm;
     wm.scale((double)newSize.width() / width(), (double)newSize.height() / height());
-    img = transform(wm);
+    img = transform(wm, mode);
     return img;
 }
 #endif
@@ -4218,64 +3911,65 @@ static void scaleY(QImage *image, int width, int iheight, int oheight)
     Q_ASSERT(width <= image->width());
 
     QRgb **bits = reinterpret_cast<QRgb **>(image->jumpTable());
+    Qargb *argb = (Qargb *) malloc(width * sizeof(Qargb));
+    memset(argb, 0, width*sizeof(Qargb));
+    int p = oheight;
+    int q = iheight;
     if (oheight > iheight) {
-        for (int x = 0; x < width; ++x) {
-            int p = oheight;
-            int q = iheight;
-            Qargb argb;
-            int iy = iheight - 1;
-            int oy = oheight - 1;
-            while (oy >= 0) {
-                if (p > q) {
-                    if (q)
-                        argb += Qargb(bits[iy][x], q);
-                    bits[oy][x] = argb.toPixel(iheight);
-                    argb = Qargb();
-                    --oy;
-                    p -= q;
-                    q = iheight;
-                } else {
-                    argb += Qargb(bits[iy][x], p);
-                    q -= p;
-                    p = oheight;
-                    --iy;
-                }
+        int iy = iheight - 1;
+        int oy = oheight - 1;
+        while (oy >= 0) {
+            if (p > q) {
+                if (q)
+                    for (int x = 0; x < width; ++x)
+                        argb[x] += Qargb(bits[iy][x], q);
+                for (int x = 0; x < width; ++x)
+                    bits[oy][x] = argb[x].toPixel(iheight);
+                memset(argb, 0, width*sizeof(Qargb));
+                --oy;
+                p -= q;
+                q = iheight;
+            } else {
+                for (int x = 0; x < width; ++x)
+                    argb[x] += Qargb(bits[iy][x], p);
+                q -= p;
+                p = oheight;
+                --iy;
             }
         }
     } else {
-        for (int x = 0; x < width; ++x) {
-            int p = oheight;
-            int q = iheight;
-            Qargb argb;
-            int iy = 0;
-            int oy = 0;
-            while (oy < oheight) {
-                if (p > q) {
-                    if (q)
-                        argb += Qargb(bits[iy][x], q);
-                    bits[oy][x] = argb.toPixel(iheight);
-                    argb = Qargb();
-                    ++oy;
-                    p -= q;
-                    q = iheight;
-                } else {
-                    argb += Qargb(bits[iy][x], p);
-                    q -= p;
-                    p = oheight;
-                    ++iy;
-                }
+        int iy = 0;
+        int oy = 0;
+        while (oy < oheight) {
+            if (p > q) {
+                if (q)
+                    for (int x = 0; x < width; ++x)
+                        argb[x] += Qargb(bits[iy][x], q);
+                for (int x = 0; x < width; ++x)
+                    bits[oy][x] = argb[x].toPixel(iheight);
+                memset(argb, 0, width*sizeof(Qargb));
+                ++oy;
+                p -= q;
+                q = iheight;
+            } else {
+                for (int x = 0; x < width; ++x)
+                    argb[x] += Qargb(bits[iy][x], p);
+                q -= p;
+                p = oheight;
+                ++iy;
             }
-            for (; oy < oheight; ++oy)
-                bits[oy][x] = 0;
         }
+        for (; oy < oheight; ++oy)
+            memset(bits[oy], 0, width*sizeof(QRgb));
     }
+    free(argb);
 }
 
 
 static void shearX(QImage *image, int height, int iwidth, double shear)
 {
     qDebug("shearX: height=%d, iwidth=%d, shear=%f", height, iwidth, shear);
-    if (shear == 0)
+    if (QABS(shear*height) < 0.3)
         return;
 
     Q_ASSERT(image->width() >= iwidth + qRound(QABS(shear*(height-1))));
@@ -4315,7 +4009,7 @@ static void shearX(QImage *image, int height, int iwidth, double shear)
 static void shearY(QImage *image, int width, int iheight, double shear)
 {
     qDebug("shearX: width=%d, iheight=%d, shear=%f", width, iheight, shear);
-    if (shear == 0)
+    if (QABS(shear*width) < 0.3)
         return;
 
     Q_ASSERT(image->height() >= iheight + qRound(QABS(shear*(width-1))));
