@@ -68,6 +68,12 @@ QStandardItemModel::~QStandardItemModel()
     for (int i=0; i<d->topLevelRows.count(); ++i)
         delete d->topLevelRows.at(i);
     d->topLevelRows.clear();
+    for (int i=0; i<d->horizontalHeader.count(); ++i)
+        delete d->horizontalHeader.at(i);
+    d->horizontalHeader.clear();
+    for (int i=0; i<d->verticalHeader.count(); ++i)
+        delete d->verticalHeader.at(i);
+    d->verticalHeader.clear();
 }
 
 /*!
@@ -189,6 +195,11 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
 */
 QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if (section < 0
+        || (orientation == Qt::Horizontal && section >= columnCount())
+        || (orientation == Qt::Vertical && section >= rowCount()))
+        return QVariant();
+
     const QStdModelItem *headerItem = 0;
     const QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
                                              ? d->horizontalHeader : d->verticalHeader);
@@ -208,6 +219,11 @@ QVariant QStandardItemModel::headerData(int section, Qt::Orientation orientation
 bool QStandardItemModel::setHeaderData(int section, Qt::Orientation orientation,
                                        const QVariant &value, int role)
 {
+    if (section < 0
+        || (orientation == Qt::Horizontal && section >= columnCount())
+        || (orientation == Qt::Vertical && section >= rowCount()))
+        return false;
+
     QStdModelItem *headerItem = 0;
     QVector<QStdModelItem*> &header = (orientation == Qt::Horizontal
                                        ? d->horizontalHeader : d->verticalHeader);
@@ -244,6 +260,10 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
                                : d->topLevelRows;
+
+    if (!parent.isValid() && d->verticalHeader.size() > row)
+        d->verticalHeader.insert(row, count, 0);
+
     rows.insert(row, count, 0);
     emit rowsInserted(parent, row, row + count - 1);
     return true;
@@ -276,6 +296,8 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
         rows = &modelRow->childrenRows;
     } else {
         d->topLevelColumns += count;
+        if (d->horizontalHeader.size() > column)
+            d->horizontalHeader.insert(column, count, 0);
     }
 
     // update any item vectors if needed
@@ -308,6 +330,14 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, false)->childrenRows
                                : d->topLevelRows;
+
+    if (!parent.isValid()) {
+        int headerCount = qMin(d->verticalHeader.size(), row + count) - row;
+        for (int i=row; i < (row+headerCount); ++i)
+            delete d->verticalHeader.at(i);
+        d->verticalHeader.remove(row, headerCount);
+    }
+
     // delete QStdModelRows
     for (int i=row; i<(row+count); ++i)
         delete rows.at(i);
@@ -340,6 +370,10 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
         rows = &modelRow->childrenRows;
     } else {
         d->topLevelColumns -= count;
+        int headerCount = qMin(d->horizontalHeader.size(), column + count) - column;
+        for (int i=column; i < (column+headerCount); ++i)
+            delete d->horizontalHeader.at(i);
+        d->horizontalHeader.remove(column, headerCount);
     }
 
     // iterate over all child rows and remove if needed

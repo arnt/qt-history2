@@ -25,25 +25,24 @@ public:
     QStandardItemModel(int rows, int columns, QObject *parent = 0);
     ~QStandardItemModel();
 
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &child) const;
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
-    bool hasChildren(const QModelIndex &parent) const;
-
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = EditRole);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
                        int role = EditRole);
 
-    bool insertRows(int row, int count, const QModelIndex &parent);
-    bool insertColumns(int column, int count, const QModelIndex &parent);
-    bool removeRows(int row, int count, const QModelIndex &parent);
-    bool removeColumns(int column, int count, const QModelIndex &parent);
+    bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool insertColumns(int column, int count, const QModelIndex &parent = QModelIndex());
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
+    bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex());
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
