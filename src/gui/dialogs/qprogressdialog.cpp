@@ -153,14 +153,14 @@ void QProgressDialogPrivate::layout()
   steps), and only shows itself if that estimate is beyond minimumDuration()
   (4 seconds by default).
 
-  Use setTotalSteps() (or the constructor) to set the number of
-  "steps" in the operation and call setProgress() as the operation
-  progresses. The step value can be chosen arbitrarily. It can be the
+  Use setMinimum()and setMaximum() or the constructor to set the number of
+  "steps" in the operation and call setValue() as the operation
+  progresses. The number of steps can be chosen arbitrarily. It can be the
   number of files copied, the number of bytes received, the number of
   iterations through the main loop of your algorithm, or some other
-  suitable unit.  Progress starts at 0, and the progress dialog shows
-  that the operation has finished when you call setProgress() with
-  totalSteps() as its argument.
+  suitable unit. Progress starts at the value set by setMinimum(), 
+  and the progress dialog shows that the operation has finished when 
+  you call setValue() with the value set by setMaximum() as its argument.
 
   The dialog automatically resets and hides itself at the end of the
   operation. Use setAutoReset() and setAutoClose() to change this
@@ -175,10 +175,9 @@ void QProgressDialogPrivate::layout()
   operation in a loop, call \l setProgress() at intervals, and check
   for cancellation with wasCanceled(). For example:
 \code
-QProgressDialog progress("Copying files...", "Abort Copy", numFiles,
-                          this, "progress", true);
+QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
 for (int i = 0; i < numFiles; i++) {
-    progress.setProgress(i);
+    progress.setValue(i);
     qApp->processEvents();
 
     if (progress.wasCanceled())
@@ -202,7 +201,7 @@ progress.setProgress(numFiles);
 Operation::Operation(QObject *parent = 0)
     : QObject(parent), steps(0)
 {
-    pd = new QProgressDialog("Operation in progress.", "Cancel", 100);
+    pd = new QProgressDialog("Operation in progress.", "Cancel", 0, 100);
     connect(pd, SIGNAL(canceled()), this, SLOT(cancel()));
     t = new QTimer(this);
     connect(t, SIGNAL(timeout()), this, SLOT(perform()));
@@ -211,10 +210,10 @@ Operation::Operation(QObject *parent = 0)
 
 void Operation::perform()
 {
-    pd->setProgress(steps);
+    pd->setValue(steps);
     //... perform one percent of the operation
     steps++;
-    if (steps > pd->totalSteps())
+    if (steps > pd->maximum())
         t->stop();
 }
 
@@ -227,8 +226,8 @@ void Operation::cancel()
 
 
   In both modes the progress dialog may be customized by
-  replacing the child widgets with custom widgets by using setd->label,
-  setd->bar, and setCancelButton().
+  replacing the child widgets with custom widgets by using setLabel(),
+  setBar(), and setCancelButton().
   The functions setLabelText() and setCancelButtonText()
   set the texts shown.
 
@@ -247,11 +246,11 @@ void Operation::cancel()
   \list
   \i The label text is empty.
   \i The cancel button text is (translated) "Cancel".
-  \i The total number of steps is 100.
+  \i minimum is 0;
+  \i maximum is 100
   \endlist
 
-  The \a creator argument is the widget to use as the dialog's parent.
-  The \a name, \a modal, and the widget flags, \a f, are
+  The \a parent argument is dialog's parent widget. The widget flags, \a f, are
   passed to the QDialog::QDialog() constructor. If \a modal is false (the
   default), you must have an event loop proceeding for any redrawing
   of the dialog to occur. If \a modal is true, the dialog ensures that
