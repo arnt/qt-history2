@@ -82,15 +82,26 @@ void QDesignerToolBarSeparator::styleChange( QStyle& )
 
 QSize QDesignerToolBarSeparator::sizeHint() const
 {
-    return style().toolBarSeparatorSize( orient );
+    int extent = style().pixelMetric( QStyle::PM_DockWindowSeparatorExtent,
+				      this );
+    if ( orient == Horizontal )
+	return QSize( extent, 0 );
+    else
+	return QSize( 0, extent );
 }
 
 void QDesignerToolBarSeparator::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
+    QStyle::PFlags flags = QStyle::PStyle_Default;
 
-    style().drawToolBarSeparator( &p, x(), y(), width(), height(),
-                                  colorGroup(), orient );
+    if ( orientation() == Horizontal )
+	flags |= QStyle::PStyle_Horizontal;
+    else
+	flags |= QStyle::PStyle_Vertical;
+
+    style().drawPrimitive( QStyle::PO_DockWindowSeparator, &p, rect(),
+			   colorGroup(), flags );
 }
 
 
