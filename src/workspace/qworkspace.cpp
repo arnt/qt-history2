@@ -1966,8 +1966,13 @@ void QWorkspaceChild::setStatusBar( QStatusBar *sb )
     }
 }
 
-void QWorkspaceChild::moveEvent( QMoveEvent * )
+void QWorkspaceChild::moveEvent( QMoveEvent *e )
 {
+    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && !e->spontaneous()) {
+	QPoint p = parentWidget()->topLevelWidget()->pos();
+	if(x() < p.x() || y() < p.y()) 
+	    move(QMAX(x(), p.x()), QMAX(y(), p.y()));
+    }
     ((QWorkspace*) parentWidget() )->updateWorkspace();
 }
 
