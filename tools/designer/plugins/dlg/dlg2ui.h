@@ -13,6 +13,7 @@
 #include <qlcdnumber.h>
 #include <qlineedit.h>
 #include <qlistbox.h>
+#include <qmessagebox.h>
 #include <qregexp.h>
 #include <qscrollview.h>
 #include <qslider.h>
@@ -110,6 +111,7 @@ private:
     int yyGridRow;
     int yyGridColumn;
 
+    int numErrors;
     int uniqueLayout;
     int uniqueSpacer;
     int uniqueWidget;
