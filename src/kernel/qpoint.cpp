@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#39 $
 **
 ** Implementation of QPoint class
 **
@@ -327,7 +327,8 @@ QDataStream &operator>>( QDataStream &s, QPoint &p )
 
 /*!
   Returns the sum of the absolute values of x() and y(), traditionally
-  known as the "Manhattan length" of the vector, since such distances apply
+  known as the "Manhattan length" of the vector from the origin to the
+  point. The tradition arises since such distances apply
   to travelers who can only travel on a rectangular grid, like the streets
   of Manhattan.
 
