@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#133 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -689,10 +689,10 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WState_PaintEvent) ) {
+	if ( w->testWFlags(Qt::WState_InPaintEvent) ) {
 	    hdc = w->hdc;			// during paint event
 	} else {
-	    if ( w->testWFlags(WPaintUnclipped) ) {
+	    if ( w->testWFlags(Qt::WPaintUnclipped) ) {
 		hdc = GetWindowDC( w->winId() );
 		if ( w->isTopLevel() ) {
 		    int dx = w->geometry().x() - w->frameGeometry().x();
@@ -822,7 +822,7 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
-	if ( !((QWidget*)pdev)->testWFlags(WState_PaintEvent) ) {
+	if ( !((QWidget*)pdev)->testWFlags(Qt::WState_InPaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
 	    ReleaseDC( w->winId(), hdc );
 	    w->hdc = 0;
@@ -2063,7 +2063,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    } else {				// to screen/pixmap
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 		COLORREF tc, bc;
-		b = SelectObject( hdc, b );
+		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(black) );
 		bc = SetBkColor( hdc, COLOR_VALUE(white) );
 		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern

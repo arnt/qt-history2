@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#89 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -432,6 +432,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	lf.lfHeight = -int((float)d->req.pointSize*
 			   GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
 */
+    }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;

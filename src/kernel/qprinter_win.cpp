@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#41 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -281,10 +281,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			       bits, bmi, DIB_RGB_COLORS, SRCCOPY );
 	    } else if ( (rc & RC_STRETCHBLT) != 0 ) {
 		// StretchBlt supported
-		HANDLE hdcPrn = CreateCompatibleDC( hdc );
-		HANDLE hbm = CreateDIBitmap( hdc, bmh, CBM_INIT,
-					     bits, bmi, DIB_RGB_COLORS );
-		HANDLE oldHbm = SelectObject( hdcPrn, hbm );
+		HDC     hdcPrn = CreateCompatibleDC( hdc );
+		HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
+						 bits, bmi, DIB_RGB_COLORS );
+		HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
 		StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
 			    hdcPrn, 0, 0, w, h, SRCCOPY );
 		SelectObject( hdcPrn, oldHbm );

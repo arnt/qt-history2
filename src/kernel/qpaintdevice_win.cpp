@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#58 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -259,7 +259,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( !dst_dc ) {
 	switch ( td ) {
 	    case QInternal::Widget:
-		if ( ((QWidget*)dst)->testWFlags(WPaintUnclipped) )
+		if ( ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped) )
 		    dst_dc = GetWindowDC( ((QWidget*)dst)->winId() );
 		else
 		    dst_dc = GetDC( ((QWidget*)dst)->winId() );

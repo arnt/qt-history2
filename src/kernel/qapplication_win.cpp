@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#246 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#247 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -548,7 +548,7 @@ const char* qt_reg_winclass( int flags )	// register window class
     uint style;
     bool icon;
     const char *cname;
-    if ( (flags & (WType_Popup|WStyle_Tool)) == 0 ) {
+    if ( (flags & (Qt::WType_Popup|Qt::WStyle_Tool)) == 0 ) {
 	cname = "QWidget";
 	style = CS_DBLCLKS;
 	icon  = TRUE;
@@ -774,8 +774,8 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testWState(WState_ConfigPending) ) // biting our tail
-		return;
+	    if ( w->testWState(Qt::WState_ConfigPending) )
+		return;				// biting our tail
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
 	    else if ( r->req == 1 )
@@ -1197,7 +1197,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    POINT curPos;
 	    GetCursorPos( &curPos );
 	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
-	    if (w && w->testWFlags(WType_Popup))
+	    if (w && w->testWFlags(Qt::WType_Popup))
 		widget = (QETWidget*)w;
 	}
 	if ( widget->isEnabled() &&
@@ -1403,13 +1403,13 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-    if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
+    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();
 
     widget = widget->topLevelWidget();
-    if ( widget->testWFlags(WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
     if ( modal == top )				// don't block event
 	return TRUE;
