@@ -251,7 +251,7 @@ int main( int argc, char ** argv )
     QString link = conf->source();
     conf->hideSideBar( hideSidebar );
 
-    QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
+    QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant" );
 
     if ( server ) {
 	as = new AssistantServer();
@@ -266,11 +266,6 @@ int main( int argc, char ** argv )
     else
 	mw->show();
 
-    qApp->processEvents();
-
-    if ( !mw )
-	exit( 0 );
-
     if ( !server ) {
 	if ( !file.isEmpty() )
 	    mw->showLink( file );
@@ -279,7 +274,10 @@ int main( int argc, char ** argv )
     }
 
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
-    return a.exec();
+
+    int appExec = a.exec();
+    delete mw;
+    return appExec;
 }
 
 #include "main.moc"

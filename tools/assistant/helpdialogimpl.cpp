@@ -310,6 +310,8 @@ void HelpDialog::loadIndexFile()
     if ( !indexFile.open( IO_ReadOnly ) ) {
 	buildKeywordDB();
 	qApp->processEvents();
+	if( lwClosed )
+	    return;
 	indexFile.open( IO_ReadOnly );
     }
 
@@ -408,12 +410,20 @@ void HelpDialog::buildKeywordDB()
 	QPtrList<IndexItem> indLst = handler.getIndexItems();
 	QPtrListIterator<IndexItem> it( indLst );
 	IndexItem *indItem;
+	int counter = 0;
 	while ( ( indItem = it.current() ) != 0 ) {
 	    QFileInfo fi( dir + indItem->reference );
 	    lst.append( IndexKeyword( indItem->keyword, fi.absFilePath() ) );
 	    if ( progressPrepare )
 		progressPrepare->setProgress( progressPrepare->progress() +
 					      int(fi.absFilePath().length() * 1.6) );
+
+	    if( ++counter%100 == 0 ) {
+		qApp->processEvents();
+		if( lwClosed ) {
+		    return;
+		}
+	    }
 	    ++it;
 	}
     }

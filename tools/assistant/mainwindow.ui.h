@@ -50,7 +50,6 @@ void MainWindow::init()
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
     windows->append( this );
-    setWFlags( WDestructiveClose );
     tabs = new TabbedBrowser( this, "qt_assistant_tabbedbrowser" );
     setCentralWidget( tabs );
     settingsDia = 0;
