@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Mon Apr  9 15:21:24 EST 2001
+** Generated : Thu Apr 12 14:41:53 EST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -40,7 +40,7 @@
 #include "qpen.h"
 #include "qptrlist.h"
 #include "qfont.h"
-#include <ucom.h>
+#include <quuid.h>
 #include <stdio.h>
 #include "qfontinfo.h"
 #include "qtextstream.h"
@@ -114,7 +114,7 @@
 #include "qlabel.h"
 #include "qabstractlayout.h"
 #include <qlcdnumber.h>
-#include <quuid.h>
+#include "qcom.h"
 #include "qtimer.h"
 #include "qscrollbar.h"
 #include "qscrollview.h"
@@ -148,7 +148,7 @@
 #include "qsqlfield.h"
 #include <qpixmapcache.h>
 #include <qplatinumstyle.h>
-#include "qcom.h"
+#include "qlibrary.h"
 #include <qpngio.h>
 #include <qcursor.h>
 #include <qcombobox.h>
@@ -246,7 +246,7 @@
 #include <qutfcodec.h>
 #include <qcomponentfactory.h>
 #include <qvalidator.h>
-#include "qlibrary.h"
+#include <qpluginmanager.h>
 #include <qvaluestack.h>
 #include <qvaluevector.h>
 #include <qdatatable.h>
@@ -267,7 +267,6 @@
 #include <qworkspace.h>
 #include <qxml.h>
 #include <qlocalfs.h>
-#include <qpluginmanager.h>
 
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <limits.h>
