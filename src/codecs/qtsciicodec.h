@@ -1,13 +1,18 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QTSCIICodec class
+** Definition of QTsciiCodec class
 **
-*****************************************************************************/
-
-// Contributed by Hans Petter Bieker <bieker@kde.org>
-// See the documentation for their license statement for the code as
-// it was at the time of contribution.
+** Copyright (C) 2000 Hans Petter Bieker <bieker@kde.org>.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+**
+** Contributed by Hans Petter Bieker <bieker@kde.org>
+** See the documentation for their license statement for the code as
+** it was at the time of contribution.
+**
+**********************************************************************/
 
 #ifndef QTSCIICODEC_H
 #define QTSCIICODEC_H

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QUtf{8,16}Codec class
 **
 ** Created : 981015
 **
-** Copyright (C)1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
