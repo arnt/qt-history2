@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#32 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -73,6 +73,8 @@ public:
 	lookup = new QTimer( proc );
 	qApp->connect( lookup, SIGNAL(timeout()),
 		proc, SLOT(timeout()) );
+
+	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
     ~QProcessPrivate()
@@ -104,6 +106,8 @@ public:
 	pipeStderr[0] = 0;
 	pipeStderr[1] = 0;
 	exitValuesCalculated = FALSE;
+
+	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
     QQueue<QByteArray> stdinBuf;
