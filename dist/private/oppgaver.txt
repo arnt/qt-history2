@@ -7,6 +7,7 @@ Dokumentasjon:
     dokumenter de siste noen-og-70-funksjonene
     dokumenter eksakt hva som tegnes av f.eks. drawLine (begge endepunkter)
     dok hvilke events som garanteres nå og da (f.eks. ved show()).
+    dok at at() oppslag i QString corer ved nullstreng
 
 PR:
 ---
@@ -35,6 +36,17 @@ Bugs
 
 
    Får ikke alltid resize event før show.
+
+   Skalering av 100x100 dpi fonter som ikke er jevnt skalerbare.
+
+Annet
+-----
+
+   Optimalisering av fontlasting under X (kjør quantify)?
+
+   Brush opp fontdialogen i xforms.
+
+   Hvorfor vokste datasegmentet i qt-biblioteket i sommer?
 
 Funksjonalitet:
 ---------------
