@@ -553,13 +553,18 @@ const char* findWMstr(uint msg)
 };
 
 // Convenience function for converting flags and values into readable strings
-struct FLAG_STRING
+struct FLAG_STRING_STRUCT
 {
-    FLAG_STRING() { value=0; str=0; }
-    FLAG_STRING(uint v, const char *s) { value=v; str=s; }
     uint value;
     const char* str;
 };
+
+FLAG_STRING_STRUCT FLAG_STRING(int value = 0, const char *c = 0)
+{
+    FLAG_STRING_STRUCT s = {value, c};
+    return s;
+}
+
 #define FLGSTR(x) FLAG_STRING(x, #x)
 
 // Returns an ORed (" | ") together string for the flags active in the actual
@@ -572,8 +577,8 @@ QString flagCheck(uint actual, ...)
 
     QString result;
     int count = 0;
-    FLAG_STRING v;
-    while((v=va_arg(ap,FLAG_STRING)).str) {
+    FLAG_STRING_STRUCT v;
+    while((v=va_arg(ap,FLAG_STRING_STRUCT)).str) {
         if ((actual & v.value) == v.value) {
             if (count++)
                 result += " | ";
@@ -593,8 +598,8 @@ QString valueCheck(uint actual, ...)
     va_start(ap, actual);
 
     QString result;
-    FLAG_STRING v;
-    while((v=va_arg(ap,FLAG_STRING)).str && (actual != v.value))
+    FLAG_STRING_STRUCT v;
+    while((v=va_arg(ap,FLAG_STRING_STRUCT)).str && (actual != v.value))
         ;
     result = v.str;
 
@@ -742,13 +747,13 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                         className = QString::number(LOWORD(lpcs->lpszClass), 16);
                     else                              // String
                         className = QString((QChar*)lpcs->lpszClass,
-                                            wcslen((unsigned short*)lpcs->lpszClass));
+                                            wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszClass)));
                 }
 
                 QString windowName;
                 if (lpcs->lpszName != 0)
                     windowName = QString((QChar*)lpcs->lpszName,
-                                         wcslen((unsigned short*)lpcs->lpszName));
+                                         wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszName)));
 
                 parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) className(%s) windowName(%s) parent(0x%08x) style(%s) exStyle(%s)",
                                     lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(),
@@ -938,7 +943,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 #endif
 #ifdef WM_SETTEXT
         case WM_SETTEXT:
-            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, wcslen((unsigned short*)lParam)).latin1()); //Unicode string
+            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, wcslen(reinterpret_cast<const wchar_t *>(lParam))).latin1()); //Unicode string
             break;
 #endif
 #ifdef WM_SIZE
