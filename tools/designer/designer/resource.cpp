@@ -2110,10 +2110,23 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	    indent++;
 	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
-		if ( a->inherits( "QSeparatorAction" ) )
+		if ( a->inherits( "QSeparatorAction" ) ) {
 		    ts << makeIndent( indent ) << "<separator/>" << endl;
-		else
-		    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+		} else {
+		    if ( a->inherits( "QDesignerAction" ) && !( (QDesignerAction*)a )->supportsMenu() ) {
+			QWidget *w = ( (QDesignerAction*)a )->widget();
+			ts <<  makeIndent( indent ) << "<widget class=\""
+			   << WidgetFactory::classNameOf( w ) << "\">" << endl;
+			indent++;
+			saveObjectProperties( w, ts, indent );
+			if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) )
+			    saveItems( w, ts, indent );
+			indent--;
+			ts << makeIndent( indent ) << "</widget>" << endl;
+		    } else {
+			ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+		    }
+		}
 	    }
 	    indent--;
 	    ts << makeIndent( indent ) << "</toolbar>" << endl;
@@ -2172,6 +2185,11 @@ void Resource::loadToolBars( const QDomElement &e )
 		    }
 		} else if ( n2.tagName() == "separator" ) {
 		    QAction *a = new QSeparatorAction( 0 );
+		    a->addTo( tb );
+		    tb->addAction( a );
+		} else if ( n2.tagName() == "widget" ) {
+		    QWidget *w = (QWidget*)createObject( n2, tb, 0, n2.attribute( "class", "QWidget" ) );
+		    QDesignerAction *a = new QDesignerAction( w, tb );
 		    a->addTo( tb );
 		    tb->addAction( a );
 		}
