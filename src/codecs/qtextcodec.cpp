@@ -459,7 +459,7 @@ static QString lettersAndNumbers( const char * input )
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
     // if they're the same, return a perfect score.
-    if ( name && hint && qstrcmp( name, hint ) == 0 )
+    if ( name && hint && strcmp( name, hint ) == 0 )
 	return qstrlen( hint );
 
     // if the letters and numbers are the same, we have an "almost"
@@ -648,7 +648,7 @@ static const char * const tis_620locales[] = {
 static bool try_locale_list( const char * const locale[], const char * lang )
 {
     int i;
-    for( i=0; locale[i] && qstrcmp(locale[i], lang); i++ )
+    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
     { }
     return locale[i] != 0;
 }
@@ -742,11 +742,11 @@ QTextCodec* QTextCodec::codecForLocale()
 	// Get the first nonempty value from $LC_ALL, $LC_CTYPE, and $LANG
 	// environment variables.
 	char * lang = qstrdup( getenv("LC_ALL") );
-	if ( !lang || lang[0] == 0 || qstrcmp( lang, "C" ) != 0 ) {
+	if ( !lang || lang[0] == 0 || strcmp( lang, "C" ) == 0 ) {
 	    if ( lang ) delete [] lang;
 	    lang = qstrdup( getenv("LC_CTYPE") );
 	}
-	if ( !lang || lang[0] == 0 || qstrcmp( lang, "C" ) != 0 ) {
+	if ( !lang || lang[0] == 0 || strcmp( lang, "C" ) == 0 ) {
 	    if ( lang ) delete [] lang;
 	    lang = qstrdup( getenv("LANG") );
 	}
@@ -771,7 +771,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( codeset + 1 );
 
 	// 3. ctype (maybe the locale is named "ISO-8859-1" or something)
-	if ( !localeMapper && ctype && *ctype != 0 )
+	if ( !localeMapper && ctype && *ctype != 0 && strcmp (ctype, "C") != 0 )
 	    localeMapper = codecForName( ctype );
 
 	// 4. locale (ditto)
@@ -785,7 +785,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	// 6. guess locale from ctype unless ctype is "C"
 	// 7. guess locale from lang
 	char * try_by_name = ctype;
-	if ( ctype && *ctype != 0 && qstrcmp (ctype, "C") != 0 )
+	if ( ctype && *ctype != 0 && strcmp (ctype, "C") != 0 )
 	    try_by_name = lang;
 
 	// Now do the quessing.
