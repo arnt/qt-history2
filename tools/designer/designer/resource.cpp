@@ -267,7 +267,7 @@ bool Resource::save( QIODevice* dev, bool saveImages, QValueList<Image> *imgs )
     QTextStream ts( dev );
     ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
-    ts << "<!DOCTYPE UI><UI>" << endl;
+    ts << "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">" << endl;
     saveMetaInfo( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
@@ -333,8 +333,6 @@ void Resource::paste( const QString &cb, QWidget *parent )
     buf.open( IO_ReadOnly );
     QDomDocument doc;
     doc.setContent( &buf );
-
-    DomTool::fixDocument( doc );
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
@@ -411,11 +409,11 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	QString attributes;
 	if ( grid ) {
 	    QDesignerGridLayout::Item item = grid->items[ (QWidget*)obj ];
-	    attributes += QString(" row=\"") + QString::number(item.row) + "\" ";
-	    attributes += QString(" column=\"") + QString::number(item.column) + "\" ";
+	    attributes += QString(" row=\"") + QString::number(item.row) + "\"";
+	    attributes += QString(" column=\"") + QString::number(item.column) + "\"";
 	    if ( item.rowspan * item.colspan != 1 ) {
-		attributes += QString(" rowspan=\"") + QString::number(item.rowspan) + "\" ";
-		attributes += QString(" colspan=\"") + QString::number(item.colspan) + "\" ";
+		attributes += QString(" rowspan=\"") + QString::number(item.rowspan) + "\"";
+		attributes += QString(" colspan=\"") + QString::number(item.colspan) + "\"";
 	    }
 	}
 
@@ -425,9 +423,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    ++indent;
 	} else {
 	    closeTag = makeIndent( indent ) + "</widget>\n";
-	    ts << makeIndent( indent ) << "<widget" << attributes << ">" << endl;
+	    ts << makeIndent( indent ) << "<widget class=\"" << className << "\"" << attributes << ">" << endl;
 	    ++indent;
-	    ts << makeIndent( indent ) << "<class>" << className << "</class>" << endl;
 	}
 	if ( WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( obj ) ) ) )
 	    saveItems( obj, ts, indent );
@@ -448,20 +445,16 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		continue;
 	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) == -1 )
 		continue; // we don't know this widget
-	    ts << makeIndent( indent ) << "<widget>" << endl;
+	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
-	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
-
-	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
 	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
 
-	    ts << makeIndent( indent ) << "<attribute>" << endl;
+	    ts << makeIndent( indent ) << "<attribute name=\"title\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;
 	    ts << makeIndent( indent ) << "<string>" << entitize( tw->tabLabel( (QWidget*)it.current() ) ) << "</string>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</attribute>" << endl;;
@@ -481,20 +474,16 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 		continue;
 	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) == -1 )
 		continue; // we don't know this widget
-	    ts << makeIndent( indent ) << "<widget>" << endl;
+	    ts << makeIndent( indent ) << "<widget class=\"QWidget\">" << endl;
 	    ++indent;
-	    ts << makeIndent( indent ) << "<class>" << "QWidget" << "</class>" << endl;
-
-	    ts << makeIndent( indent ) << "<property stdset=\"1\">" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"name\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>name</name>" << endl;
 	    ts << makeIndent( indent ) << "<cstring>" << entitize( it.current()->name() ) << "</cstring>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
 
-	    ts << makeIndent( indent ) << "<attribute>" << endl;
+	    ts << makeIndent( indent ) << "<attribute name=\"title\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>" << "title" << "</name>" << endl;
 	    ts << makeIndent( indent ) << "<string>" << entitize( wiz->title( (QWidget*)it.current() ) ) << "</string>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</attribute>" << endl;;
@@ -562,15 +551,13 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    if ( lv->header()->iconSet( i ) )
 		pix.append( new QPixmap( lv->header()->iconSet( i )->pixmap() ) );
 	    saveItem( l, pix, ts, indent );
-	    ts << makeIndent( indent ) << "<property>" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"clickable\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>clickable</name>" << endl;
 	    ts << makeIndent( indent ) << "<bool>" << mkBool( lv->header()->isClickEnabled( i ) )<< "</bool>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
-	    ts << makeIndent( indent ) << "<property>" << endl;
+	    ts << makeIndent( indent ) << "<property name=\"resizeable\">" << endl;
 	    indent++;
-	    ts << makeIndent( indent ) << "<name>resizeable</name>" << endl;
 	    ts << makeIndent( indent ) << "<bool>" << mkBool( lv->header()->isResizeEnabled( i ) ) << "</bool>" << endl;
 	    indent--;
 	    ts << makeIndent( indent ) << "</property>" << endl;
@@ -638,9 +625,8 @@ void Resource::saveItem( const QStringList &text, const QList<QPixmap> &pixmaps,
 {
     QStringList::ConstIterator it = text.begin();
     for ( ; it != text.end(); ++it ) {
-	ts << makeIndent( indent ) << "<property>" << endl;
+	ts << makeIndent( indent ) << "<property name=\"text\">" << endl;
 	indent++;
-	ts << makeIndent( indent ) << "<name>text</name>" << endl;
 	ts << makeIndent( indent ) << "<string>" << entitize( *it ) << "</string>" << endl;
 	indent--;
 	ts << makeIndent( indent ) << "</property>" << endl;
@@ -648,9 +634,8 @@ void Resource::saveItem( const QStringList &text, const QList<QPixmap> &pixmaps,
 
     for ( int i = 0; i < (int)pixmaps.count(); ++i ) {
 	QPixmap *p = ( (QList<QPixmap>)pixmaps ).at( i );
-	ts << makeIndent( indent ) << "<property>" << endl;
+	ts << makeIndent( indent ) << "<property name=\"pixmap\">" << endl;
 	indent++;
-	ts << makeIndent( indent ) << "<name>pixmap</name>" << endl;
 	if ( p )
 	    savePixmap( *p, ts, indent );
 	else
@@ -744,12 +729,11 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	if ( qstrcmp( p->name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
 	ts << makeIndent( indent ) << "<property";
-	if ( p->testFlags( QMetaProperty::StdSet ) )
-	    ts << " stdset=\"1\"";
+	ts << " name=\"" << *it << "\"";
+	if ( !p->testFlags( QMetaProperty::StdSet ) )
+	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
-	ts << makeIndent( indent ) << "<name>" << *it << "</name>" << endl;
-
 	if ( p->isSetType() ) {
 	    saveSetProperty( w, *it, QVariant::nameToType( p->type() ), ts, indent );
 	} else if ( p->isEnumType() ) {
@@ -772,9 +756,8 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 			continue;
 		}
 
-		ts << makeIndent( indent ) << "<property>" << endl;
+		ts << makeIndent( indent ) << "<property name=\"" << fake.key() << "\">" << endl;
 		indent++;
-		ts << makeIndent( indent ) << "<name>" << fake.key() << "</name>" << endl;
 		saveProperty( w, fake.key(), *fake, (*fake).type(), ts, indent );
 		indent--;
 		ts << makeIndent( indent ) << "</property>" << endl;
@@ -1522,9 +1505,8 @@ void Resource::saveImageCollection( QTextStream &ts, int indent )
 
     QValueList<Image>::Iterator it = images.begin();
     for ( ; it != images.end(); ++it ) {
-	ts << makeIndent( indent ) << "<image>" << endl;
+	ts << makeIndent( indent ) << "<image name=\"" << (*it).name << "\">" << endl;
 	indent++;
-	ts << makeIndent( indent ) << "<name>" << ( *it ).name << "</name>" << endl;
 	saveImageData( (*it).img, ts, indent );
 	indent--;
 	ts << makeIndent( indent ) << "</image>" << endl;
