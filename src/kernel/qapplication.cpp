@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#71 $
 **
 ** Implementation of QApplication class
 **
@@ -16,7 +16,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#70 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#71 $")
 
 
 /*----------------------------------------------------------------------------
@@ -27,11 +27,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#70 $")
   the underlying window system and sends them to the destination widgets.
   An application object must be created before any widgets can be created!
 
-  Only one single QApplication object should be created, in fact Qt
-  will complain if you create more than one, and this is normally done
-  in the main() function.  When a QApplication object has been
+  Only one single QApplication object should be created.  In fact Qt
+  complains if you create more than one, and this is normally done
+  in the main() function.  Once a QApplication object has been
   created, \c qApp (defined as <code>extern QApplication *qApp</code>)
-  will refer to this object.
+  refers to this object.
 
   Example (a complete Qt application):
   \code
@@ -115,16 +115,16 @@ static void destroy_palettes()
   Constructs an application object with the command line arguments \e argc
   and \e argv.
 
-  The global \c qApp pointer will refer to this application object. Only
+  The global \c qApp pointer refers to this application object. Only
   one application object should be created.
 
   This application object must be constructed before any \link
   QPaintDevice paint devices\endlink (includes widgets, pixmaps, bitmaps
   etc.)
 
-  Notice that \e argc and \e argv might be changed.  Qt will remove
-  command line arguments that it recognizes.  \e argc and \e argv are can
-  be accessed later by \c qApp->argc() and \c qApp->argv().  The
+  Notice that \e argc and \e argv might be changed.  Qt removes
+  command line arguments that it recognizes.  \e argc and \e argv are
+  can be accessed later by \c qApp->argc() and \c qApp->argv().  The
   documentation for argv() contains a detailed description of how to
   process command line arguments.
 
@@ -134,12 +134,10 @@ static void destroy_palettes()
   <li> \c -sync (only under X-Windows), switches to synchronous mode for
 	debugging.
   </ul>
-  See <a href=#debuggingtechniques> Debugging Techniques</a> for
+  See <a href=debug.html> Debugging Techniques</a> for
   a more detailed explanation.
 
-  X-Windows version of Qt support additional command line options.
-
-  Qt X-Windows options:
+  X-Windows versions of Qt support a few more command line options:
   <ul>
   <li> \c -display \e display, sets the X display (default is $DISPLAY).
   <li> \c -geometry \e geometry, sets the client geometry of the
@@ -244,9 +242,9 @@ QApplication::~QApplication()
     }
   \endcode
 
-  If you run <tt>showargs -display unix:0 -font 9x15bold hello world</tt>
-  under X-Windows, the list box will contains the three strings "showargs",
-  "hello" and "world".
+  If you run <tt>showargs -display unix:0 -font 9x15bold hello
+  world</tt> under X-Windows, the list box containss the three strings
+  "showargs", "hello" and "world".
 
   \sa argc(), QApplication::QApplication()
  ----------------------------------------------------------------------------*/
@@ -280,26 +278,25 @@ void QApplication::setStyle( GUIStyle style )
 }
 
 
-/*----------------------------------------------------------------------------
-  Returns a pointer to the default application palette.	 There will always
-  be an application palette, i.e. the returned pointer will never be 0.
- ----------------------------------------------------------------------------*/
+/*!  Returns a pointer to the default application palette.  There is
+  always an application palette, i.e. the returned pointer is
+  guaranteed to be non-null. \sa setPalette() QWidget::palette */
 
 QPalette *QApplication::palette()
 {
     return app_pal;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Changes the default application palette to \e palette.
 
-  If \e updateAllWidgets is TRUE, then this palette will be set for
-  all existing widgets.
-  If \e updateAllWidgets is FALSE (default), then only widgets that
-  are created after this call will have the palette.
+  If \e updateAllWidgets is TRUE, then the palette of all existing
+  widgets is set to \e palette.
 
-  \sa QWidget::setPalette()
- ----------------------------------------------------------------------------*/
+  Widgets created after this call get \e palette as their \link
+  QWidget::palette() palette. \endlink
+
+  \sa QWidget::setPalette() palette() QPalette */
 
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 {
@@ -320,18 +317,19 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 
 /*----------------------------------------------------------------------------
   \fn QFont *QApplication::font()
-  Returns the default application font.	 There will always be an application
-  font, i.e. the returned pointer will never be 0.
-  \sa setFont(), fontMetrics()
+  Returns the default application font.	 There is always an application
+  font, i.e. the returned pointer is guaranteed to be non-null.
+  \sa setFont(), fontMetrics() QWidget::font()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Changes the default application font to \e font.
 
-  If \e updateAllWidgets is TRUE, then this font will be set for
-  all existing widgets.
-  If \e updateAllWidgets is FALSE (default), then only widgets
-  created after this call will have this font.
+  If \e updateAllWidgets is TRUE, then the font of all existing
+  widgets is set to \e font.
+
+  Widgets created after this call get \e font as their \link
+  QWidget::font() font. \endlink
 
   \sa font() fontMetrics() QWidget::setFont()
  ----------------------------------------------------------------------------*/
@@ -355,10 +353,10 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 }
 
 
-/*----------------------------------------------------------------------------
-  Returns display (screen) font metrics for the application font.
-  \sa font(), setFont()
- ----------------------------------------------------------------------------*/
+/*!  Returns display (screen) font metrics for the application font.
+  These metrics may or may not apply to e.g. QPrinter devices.
+
+  \sa font(), setFont() */
 
 QFontMetrics QApplication::fontMetrics()
 {
