@@ -918,7 +918,7 @@ bool QMetaProperty::writable() const
 	return testFlags( Writable );
     const QMetaObject* mo = (*meta);
     const QMetaProperty* parent = mo->resolveProperty( this );
-    return parent->writable();
+    return parent ? parent->writable() : FALSE;
 }
 
 /*!\internal
@@ -929,7 +929,7 @@ bool QMetaProperty::stdSet() const
 	return testFlags( StdSet );
     const QMetaObject* mo = (*meta);
     const QMetaProperty* parent = mo->resolveProperty( this );
-    return parent->stdSet();
+    return parent ? parent->stdSet() : FALSE;
 }
 
 /*!\internal
@@ -956,7 +956,7 @@ bool QMetaProperty::isValid() const
 	return testFlags( Readable );
     const QMetaObject* mo = (*meta);
     const QMetaProperty* parent = mo->resolveProperty( this );
-    return parent->isValid();
+    return parent ? parent->isValid() : FALSE;
 }
 
 bool QMetaProperty::isSetType() const
