@@ -91,7 +91,7 @@
 #include <sys/sem.h>
 #include <sys/socket.h>
 #else
-#include "qsharedmemory.h"
+#include "qsharedmemory_p.h"
 #endif
 #endif
 
