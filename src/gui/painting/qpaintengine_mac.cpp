@@ -602,6 +602,16 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const 
             srcmask = pixmap.data->alphapm;
         else
             srcmask = pixmap.mask();
+    } else if(mode == Qt::CopyPixmap && pixmap.mask() && !pixmap.isQBitmap()) {
+        if(d->pdev->devType() == QInternal::Pixmap) {
+            QPixmap *dst = static_cast<QPixmap*>(d->pdev);
+            QBitmap bm(dst->size(), true);
+            QPainter p(&bm);
+            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, *pixmap.mask(), sr, Qt::CopyPixmap);
+            dst->setMask(bm);
+        }
     }
 
     //get pdev bits
@@ -1478,6 +1488,17 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     qt_mac_clip_cg(d->hd, rgn, 0, 0);
 
     //draw
+    if(mode == Qt::CopyPixmap && pm.mask() && !pm.isQBitmap()) {
+        if(d->pdev->devType() == QInternal::Pixmap) {
+            QPixmap *dst = static_cast<QPixmap*>(d->pdev);
+            QBitmap bm(dst->size(), true);
+            QPainter p(&bm);
+            if(dst->mask() && r != QRectF(0, 0, dst->width(), dst->height()))
+                p.drawPixmap(0, 0, *dst->mask(), Qt::CopyPixmap);
+            p.drawPixmap(r, *pm.mask(), sr, Qt::CopyPixmap);
+            dst->setMask(bm);
+        }
+    }
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = qt_mac_create_cgimage(pm, mode, asMask);
