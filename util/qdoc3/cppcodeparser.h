@@ -54,6 +54,7 @@ private:
     QString previousLexeme();
     QString lexeme();
     bool match( int target );
+    bool matchCompat();
     bool matchTemplateAngles( CodeChunk *type = 0 );
     bool matchTemplateHeader();
     bool matchDataType( CodeChunk *type, QString *var = 0 );

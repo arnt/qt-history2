@@ -579,7 +579,7 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
     case Node::Compat:
         if (node->isInnerNode()) {
 	    text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
-	         << typeString( node ) << " is part of the Qt 3 compatibility library."
+	         << typeString( node ) << " is part of the Qt 3 support library."
 	         << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	         << " It is provided to keep old source code working. We strongly advise against "
                  << "using it in new code. See the "

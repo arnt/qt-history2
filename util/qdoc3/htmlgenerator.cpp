@@ -589,7 +589,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     QString compatLink = generateLowStatusMemberFile(inner, marker, CodeMarker::Compat);
     if (!compatLink.isEmpty())
         out() << "<li><a href=\"" << compatLink << "\">"
-              << "Compatibility members</a></li>\n";
+              << "Qt 3 support members</a></li>\n";
 
     out() << "</ul>\n";
 
@@ -669,7 +669,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     }
     if (!compatLink.isEmpty()) {
         DcfSection compatSection;
-        compatSection.title = "Qt 3 compatibility members";
+        compatSection.title = "Qt 3 support members";
         compatSection.ref = compatLink;
         appendDcfSubSection(&classSection, compatSection);
     }
@@ -1002,11 +1002,11 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
     QString fileName;
 
     if (status == CodeMarker::Compat) {
-        title = "Compatibility Members for " + inner->name();
-        fileName = fileBase(inner) + ".compat." + fileExtension();
+        title = "Qt 3 Support Members for " + inner->name();
+        fileName = fileBase(inner) + "-qt3." + fileExtension();
     } else {
         title = "Obsolete Members for " + inner->name();
-        fileName = fileBase(inner) + ".obsolete." + fileExtension();
+        fileName = fileBase(inner) + "-obsolete." + fileExtension();
     }
 
     beginSubPage(inner->location(), fileName);
@@ -1014,8 +1014,8 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
     generateTitle(title);
 
     if (status == CodeMarker::Compat) {
-        out() << "<p><b>The following class members are part of the Qt 3 compatibility layer.</b> "
-                 "They are provided to help you port old code to Qt 4. We strongly advise against "
+        out() << "<p><b>The following class members are part of the Qt 3 support layer.</b> "
+                 "They are provided to help you port old code to Qt 4. We advise against "
                  "using them in new code.</p>\n";
     } else {
         out() << "<p><b>The following class members are obsolete.</b> They are provided to keep "
@@ -1555,10 +1555,10 @@ QString HtmlGenerator::fileBase(const Node *node)
     if (!node->isInnerNode()) {
         switch (node->status()) {
         case Node::Compat:
-            result += ".compat";
+            result += "-qt3";
             break;
         case Node::Obsolete:
-            result += ".obsolete";
+            result += "-obsolete";
             break;
         default:
             ;

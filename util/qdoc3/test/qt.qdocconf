@@ -27,6 +27,7 @@ versionsym		= QT_VERSION_STR
 defines			= Q_QDOC \
 			  QT_.*_SUPPORT \
 			  QT_COMPAT \
+			  QT3_SUPPORT \
 			  Q_WS_.* \
 			  Q_OS_.* \
 			  beta

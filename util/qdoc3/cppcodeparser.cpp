@@ -421,6 +421,22 @@ bool CppCodeParser::match( int target )
     }
 }
 
+bool CppCodeParser::matchCompat()
+{
+    switch (tok) {
+    case Tok_QT_COMPAT:
+    case Tok_QT_COMPAT_CONSTRUCTOR:
+    case Tok_QT_MOC_COMPAT:
+    case Tok_QT3_SUPPORT:
+    case Tok_QT3_SUPPORT_CONSTRUCTOR:
+    case Tok_QT3_MOC_SUPPORT:
+        readToken();
+        return true;
+    default:
+        return false;
+    }
+}
+
 bool CppCodeParser::matchTemplateAngles( CodeChunk *dataType )
 {
     bool matches = ( tok == Tok_LeftAngle );
@@ -602,18 +618,19 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
     if (match(Tok_friend))
 	return false;
-    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
+    match(Tok_explicit);
+    if (matchCompat())
         compat = true;
     bool sta = false;
     if (match(Tok_static)) {
         sta = true;
-        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
+        if (matchCompat())
             compat = true;
     }
     FunctionNode::Virtualness vir = FunctionNode::NonVirtual;
     if (match(Tok_virtual)) {
 	vir = FunctionNode::ImpureVirtual;
-        if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
+        if (matchCompat())
             compat = true;
     }
 
@@ -623,7 +640,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     if (returnType.toString() == "QBool")
 	returnType = CodeChunk("bool");
 
-    if (match(Tok_QT_COMPAT) || match(Tok_QT_COMPAT_CONSTRUCTOR) || match(Tok_QT_MOC_COMPAT))
+    if (matchCompat())
         compat = true;
 
     if (tok == Tok_operator &&
@@ -773,7 +790,7 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     bool isClass = ( tok == Tok_class );
     readToken();
 
-    bool compat = match(Tok_QT_COMPAT);
+    bool compat = matchCompat();
 
     if ( tok != Tok_Ident )
 	return false;
