@@ -1559,7 +1559,7 @@ public:
 };
 
 #define Q_DECLARE_FLAGS(Flags, Enum)\
-typedef QFlags<Enum> Flags
+typedef QFlags<Enum> Flags;
 #define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags) \
 inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, Flags::enum_type f2) \
 { return QFlags<Flags::enum_type>(f1) | f2; } \
