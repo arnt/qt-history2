@@ -1058,9 +1058,9 @@ void QTabBar::updateArrowButtons()
     }
 }
 
-/*! Removes the tab tool tip for the tab at index \a index.
+/*! Removes the tool tip for the tab at index \a index.
  */
-void QTabBar::removeTabTip( int index )
+void QTabBar::removeToolTip( int index )
 {
     QTab * tab = tabAt( index ); 
     if ( !tab || !d->toolTips )
@@ -1068,9 +1068,9 @@ void QTabBar::removeTabTip( int index )
     d->toolTips->remove( tab );
 }
 
-/*! Sets the tab tool tip for the tab at index \a index to \a tip.
+/*! Sets the tool tip for the tab at index \a index to \a tip.
  */
-void QTabBar::setTabTip( int index, const QString & tip )
+void QTabBar::setToolTip( int index, const QString & tip )
 {
     QTab * tab = tabAt( index ); 
     if ( !tab )
@@ -1080,9 +1080,9 @@ void QTabBar::setTabTip( int index, const QString & tip )
     d->toolTips->add( tab, tip );
 }
 
-/*! Returns the tab tool tip for the tab at index \a index.
+/*! Returns the tool tip for the tab at index \a index.
  */
-QString QTabBar::tabTip( int index ) const
+QString QTabBar::toolTip( int index ) const
 {
     if ( d->toolTips )
 	return d->toolTips->tipForTab( tabAt( index ) );

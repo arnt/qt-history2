@@ -126,9 +126,9 @@ public:
     virtual void layoutTabs();
     virtual QTab * selectTab( const QPoint & p ) const;
     
-    void 	removeTabTip( int id );
-    void     	setTabTip( int id, const QString & tip );
-    QString 	tabTip( int id ) const;
+    void 	removeToolTip( int index );
+    void     	setToolTip( int index, const QString & tip );
+    QString 	toolTip( int index ) const;
     
 public slots:
     virtual void setCurrentTab( int );

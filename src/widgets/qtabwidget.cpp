@@ -893,38 +893,38 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
 
 /*! 
   Sets the tab tool tip for page \a w to \a tip.
-  \sa removeTabTip(), tabTip()
+  \sa removeTabToolTip(), tabToolTip()
  */
-void QTabWidget::setTabTip( QWidget * w, const QString & tip )
+void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
 {
     int id = d->stack->id( w );
     if ( id < 0 )
         return;
-    d->tabs->setTabTip( id, tip );
+    d->tabs->setToolTip( id, tip );
 }
 
 /*! 
   Returns the tab tool tip for page \a w.
-  \sa setTabTip(), removeTabTip()
+  \sa setTabToolTip(), removeTabToolTip()
  */
-QString QTabWidget::tabTip( QWidget * w ) const
+QString QTabWidget::tabToolTip( QWidget * w ) const
 {
     int id = d->stack->id( w );
     if ( id < 0 )
         return QString();
-    return d->tabs->tabTip( id );
+    return d->tabs->toolTip( id );
 }
 
 /*! Removes the tab tool tip for page \a w. If the page does not have
   a tip, nothing happens.
-  \sa setTabTip(), tabTip()
+  \sa setTabToolTip(), tabToolTip()
  */
-void QTabWidget::removeTabTip( QWidget * w )
+void QTabWidget::removeTabToolTip( QWidget * w )
 {
     int id = d->stack->id( w );
     if ( id < 0 )
         return;
-    d->tabs->removeTabTip( id );
+    d->tabs->removeToolTip( id );
 }
 
 #endif

@@ -90,9 +90,9 @@ public:
     QIconSet tabIconSet( QWidget * w ) const;
     void setTabIconSet( QWidget * w, const QIconSet & iconset );
     
-    void removeTabTip( QWidget * w );
-    void setTabTip( QWidget * w, const QString & tip );
-    QString tabTip( QWidget * w ) const;
+    void removeTabToolTip( QWidget * w );
+    void setTabToolTip( QWidget * w, const QString & tip );
+    QString tabToolTip( QWidget * w ) const;
 
     QWidget * currentPage() const;
     QWidget *page( int ) const;
