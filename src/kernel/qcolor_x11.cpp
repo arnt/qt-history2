@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#34 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#34 $")
 
 
 /*****************************************************************************
@@ -101,6 +101,7 @@ int QColor::numBitPlanes()
 /*----------------------------------------------------------------------------
   Internal initialization required for QColor.
   This function is called from the QApplication constructor.
+  \sa cleanup()
  ----------------------------------------------------------------------------*/
 
 void QColor::initialize()
@@ -164,6 +165,7 @@ void QColor::initialize()
 /*----------------------------------------------------------------------------
   Internal clean up required for QColor.
   This function is called from the QApplication destructor.
+  \sa initialize()
  ----------------------------------------------------------------------------*/
 
 void QColor::cleanup()
