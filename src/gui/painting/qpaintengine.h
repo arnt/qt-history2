@@ -208,7 +208,7 @@ private:
     friend class QFontEngineWin;
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
-    friend class QPSPrinter;
+    friend class QPSPrintEngine;
     friend class QPainter;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;

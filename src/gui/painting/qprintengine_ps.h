@@ -1,17 +1,3 @@
-#if 0
-/****************************************************************************
-**
-** Definition of internal QPSPrinter class.
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the kernel module of the Qt GUI Toolkit.
-** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
 
 #ifndef QPSPRINTER_P_H
 #define QPSPRINTER_P_H
@@ -33,19 +19,21 @@
 
 #ifndef QT_H
 #include "qpaintengine.h"
+#include "qprintengine.h"
 #endif // QT_H
 
 #ifndef QT_NO_PRINTER
 
 class QPrinter;
-class QPSPrinterPrivate;
+class QPSPrintEnginePrivate;
 
-class Q_GUI_EXPORT QPSPrinter : public QPaintEngine
+class Q_GUI_EXPORT QPSPrintEngine : public QPaintEngine, public QPrintEngine
 {
-private:
+    Q_DECLARE_PRIVATE(QPSPrintEngine)
+public:
     // QPrinter uses these
-    QPSPrinter(QPrinter *, int);
-   ~QPSPrinter();
+    QPSPrintEngine(QPrinter *, int);
+    ~QPSPrintEngine();
 
     virtual bool begin(QPaintDevice *pdev);
     virtual bool end();
@@ -78,26 +66,79 @@ private:
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
-    virtual Qt::HANDLE handle() const { return 0; }
     virtual QPaintEngine::Type type() const { return QPaintEngine::PostScript; }
 
+    // Printer stuff...
+    virtual void setPrinterName(const QString &);
+    virtual QString printerName() const;
 
-    void newPage();
-    void abort();
+    virtual void setOutputToFile(bool);
+    virtual bool outputToFile() const;
+
+    virtual void setOutputFileName(const QString &);
+    virtual QString outputFileName()const;
+
+    virtual void setPrintProgram(const QString &);
+    virtual QString printProgram() const;
+
+    virtual void setDocName(const QString &);
+    virtual QString docName() const;
+
+    virtual void setCreator(const QString &);
+    virtual QString creator() const;
+
+    virtual void setOrientation(QPrinter::Orientation);
+    virtual QPrinter::Orientation orientation()   const;
+
+    virtual void setPageSize(QPrinter::PageSize);
+    virtual QPrinter::PageSize pageSize() const;
+
+    virtual void setPageOrder(QPrinter::PageOrder);
+    virtual QPrinter::PageOrder pageOrder() const;
+
+    virtual void setResolution(int);
+    virtual int resolution() const;
+
+    virtual void setColorMode(QPrinter::ColorMode);
+    virtual QPrinter::ColorMode colorMode() const;
+
+    virtual void setFullPage(bool);
+    virtual bool fullPage() const;
+
+    virtual void setCollateCopies(bool);
+    virtual bool collateCopies() const;
+
+    virtual void setPaperSource(QPrinter::PaperSource);
+    virtual QPrinter::PaperSource paperSource()   const;
+
+    virtual QList<int> supportedResolutions() const;
+
+#ifdef Q_WS_WIN
+    virtual void setWinPageSize(short winPageSize);
+    virtual short winPageSize() const;
+#endif
+
+    virtual QRect paperRect() const;
+    virtual QRect pageRect() const;
+
+    virtual bool newPage();
+    virtual bool abort();
+
+    virtual void setNumCopies(int numCopies);
+    virtual int numCopies() const;
+
+    virtual int metric(int metricType) const;
+
+    virtual QPrinter::PrinterState printerState() const;
 
     virtual bool updateState();
 
-    friend class QPrinter;
 private:
-    // not used by QPrinter
-    QPSPrinterPrivate *d;
-
     // Disabled copy constructor and operator=
-    QPSPrinter(const QPSPrinter &);
-    QPSPrinter &operator=(const QPSPrinter &);
+    QPSPrintEngine(const QPSPrintEngine &);
+    QPSPrintEngine &operator=(const QPSPrintEngine &);
 };
 
 #endif // QT_NO_PRINTER
 
 #endif // QPSPRINTER_P_H
-#endif // 0

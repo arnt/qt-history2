@@ -17,6 +17,8 @@ HEADERS += \
 	painting/qpoint.h \
 	painting/qpointarray.h \
 	painting/qpolygonscanner.h \
+	painting/qprinter.h \
+	painting/qprinter_p.h \
 	painting/qrect.h \
 	painting/qregion.h \
 	painting/qsize.h \
@@ -36,6 +38,7 @@ SOURCES += \
 	painting/qpoint.cpp \
 	painting/qpointarray.cpp \
 	painting/qpolygonscanner.cpp \
+	painting/qprinter.cpp \
 	painting/qrect.cpp \
 	painting/qregion.cpp \
 	painting/qsize.cpp \
@@ -44,12 +47,16 @@ SOURCES += \
 win32 {
 	HEADERS += \
 		painting/qpaintengine_win.h \
-		painting/qpaintengine_win_p.h
+		painting/qpaintengine_win_p.h \
+		painting/qprintengine_win.h \
+		painting/qprintengine_win_p.h
+		
 
  	SOURCES += \
 		painting/qcolor_win.cpp \
 		painting/qpaintdevice_win.cpp \
 		painting/qpaintengine_win.cpp \
+		painting/qprintengine_win.cpp \
 		painting/qregion_win.cpp
 	LIBS += -lmsimg32
 }
@@ -74,18 +81,21 @@ unix:x11 {
 !embedded:!x11:mac {
 	HEADERS += \
 		painting/qpaintengine_mac.h \
-		painting/qpaintengine_mac_p.h
+		painting/qpaintengine_mac_p.h \
+		painting/qprintengine_mac.h \
+		painting/qprintengine_mac_p.h
 
 	SOURCES += \
 		painting/qcolor_mac.cpp \
 		painting/qpaintdevice_mac.cpp \
 		painting/qpaintengine_mac.cpp \
+		painting/qprintengine_mac.cpp
 } else:unix {
 	HEADERS	+= \
-		painting/qpsprinter_p.h
+		painting/qprintengine_ps.h
 
 	SOURCES += \
-		painting/qpsprinter.cpp
+		painting/qprintengine_ps.cpp
 }
 
 unix:SOURCES += painting/qregion_unix.cpp
