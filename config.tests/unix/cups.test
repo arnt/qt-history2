@@ -28,6 +28,7 @@ if [ "$VERBOSE" = "yes" ]; then
     echo "CUPS auto-detection... ($*)"
 fi
 
+# check for the CUPS library
 LIBS=cups
 LIBDIRS="$IN_LIBDIRS /usr/shlib /usr/lib /lib"
 if [ -z "$LIBS" ]; then
@@ -52,7 +53,7 @@ else
     done
 fi
 
-# check for rpcsvc/ypclnt.h and rpcsvc/yp_prot.h
+# check for cups/cups.h
 if [ "$CUPS" = "yes" ]
 then
     INCS="cups/cups.h"
