@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#14 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#15 $
 **
 ** Definition of QWidget class
 **
@@ -74,7 +74,7 @@ public:
     virtual void setForegroundColor( const QColor & );
 
     QFont   font() const;			// get/set font
-    void    setFont( const QFont & );
+    virtual void setFont( const QFont & );
 
     QCursor cursor() const;			// get/set cursor
     void    setCursor( const QCursor & );
