@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#193 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#194 $
 **
 ** Implementation of QMultiLineEdit widget class
 **
@@ -64,11 +64,11 @@
   The QMultiLineEdit was a simple editor widget in former Qt versions.  Qt
   3.0 includes a new richtext engine which obsoletes QMultiLineEdit. It is
   still included for compatibility reasons. It is now a subclass of
-  QTextEdit, and provides enough of the old QMultiLineEdit API to keep old
+  \l QTextEdit, and provides enough of the old QMultiLineEdit API to keep old
   applications working.
 
   If you implement something new with QMultiLineEdit, we suggest using
-  QTextEdit instead.
+  \l QTextEdit instead.
 
   Although most of the old QMultiLineEdit API is still available, there is
   a few difference. The old QMultiLineEdit operated on lines, not on
@@ -80,9 +80,11 @@
 
   Applications which made normal and reasonable use of QMultiLineEdit
   should still work without problems. Some odd usage will require some
-  porting. In these cases, it may be better to use QTextEdit now.
+  porting. In these cases, it may be better to use \l QTextEdit now.
 
   <img src=qmlined-m.png> <img src=qmlined-w.png>
+
+  \sa QTextEdit
 */
 
 class QMultiLineEditData
