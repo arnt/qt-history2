@@ -791,3 +791,13 @@ is presented and manipulated by the user (in the view). See also
 \link model-view-programming.html Model/View Programming\endlink.
 
 */
+
+/*! \defgroup activeqt-tools
+
+\title ActiveQt Tools
+
+These tools provide support for integrating Qt with Active X components.
+
+\link activeqt.html ActiveQt\endlink.
+
+*/
