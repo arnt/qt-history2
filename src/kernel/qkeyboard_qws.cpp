@@ -844,7 +844,8 @@ static const QWSServer::KeyMap keyM[] = {
     {	Qt::Key_F11,		0xffff  , 0xffff  , 0xffff  },
     {	Qt::Key_F12,		0xffff  , 0xffff  , 0xffff  },
     {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }	// 90
+    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },	// 90
+    {	0,			0xffff  , 0xffff  , 0xffff  }
 };
 
 

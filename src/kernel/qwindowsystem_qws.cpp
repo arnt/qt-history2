@@ -1017,13 +1017,24 @@ QWSWindow *QWSServer::windowAt( const QPoint& pos )
     return 0;
 }
 
+static int keyUnicode(int keycode)
+{
+    const QWSServer::KeyMap *km = QWSServer::keyMap();
+    while (km->key_code) {
+	if ( km->key_code == keycode ) {
+	    return km->unicode;
+	}
+	++km;
+    }
+    return 0xffff;
+}
 
 void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
     QWSKeyEvent event;
     event.simpleData.window = qwsServer->focusw ? qwsServer->focusw->winId() : 0;
-    event.simpleData.unicode = unicode;
+    event.simpleData.unicode = unicode < 0 ? keyUnicode(keycode) : unicode;
     event.simpleData.keycode = keycode;
     event.simpleData.modifiers = modifiers;
     event.simpleData.is_press = isPress;
