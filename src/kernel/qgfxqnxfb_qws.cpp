@@ -9,9 +9,9 @@
 //				In the meantime, Qt/X11 is reported to work with X11/QNX.
 
 
-#ifdef _OS_QNX_
-
 #include "qgfxqnxfb_qws.h"
+
+#ifdef _OS_QNX_
 
 // Qnx system includes
 #include <unistd.h>

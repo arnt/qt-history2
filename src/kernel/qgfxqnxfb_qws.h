@@ -12,13 +12,18 @@
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
 
-#include <display.h>
-#include <disputil.h>
+#ifndef QT_H
 #include <qgfxraster_qws.h>
 #include <qgfx_qws.h>
 #include <qpolygonscanner.h>
 #include <qpen.h>
 #include <qstring.h>
+#endif // QT_H
+
+#ifdef _OS_QNX_
+
+#include <display.h>
+#include <disputil.h>
 
 // Pixmap Gfx class
 class QQnxPixmapGfx : public QGfxRaster <32,0> {
@@ -129,5 +134,7 @@ private:
 	// Must be preserved for initDevice()
 	int (*coreFuncListFill) (disp_adapter_t *, unsigned int, disp_draw_corefuncs_t *, int);
 };
+
+#endif
 
 #endif

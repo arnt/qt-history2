@@ -52,6 +52,8 @@
 //
 //
 
+#ifndef QT_H
+#endif // QT_H
 
 extern QStringList qt_makeFilterList( const QString & );
 

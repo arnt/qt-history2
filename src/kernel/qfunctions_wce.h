@@ -2,6 +2,9 @@
 #define __QFUNCTIONS_WCE_H__
 
 
+#ifndef QT_H
+#endif // QT_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>

@@ -32,6 +32,9 @@
 #ifndef __QAQUASTYLE_P_H__
 #define __QAQUASTYLE_P_H__
 
+#ifndef QT_H
+#endif // QT_H
+
 #ifndef QT_NO_STYLE_AQUA
 
 enum AquaMode {

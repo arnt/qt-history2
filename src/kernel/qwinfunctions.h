@@ -7,3 +7,5 @@
 
 */
 
+#ifndef QT_H
+#endif // QT_H

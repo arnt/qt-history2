@@ -65,6 +65,7 @@ if ( defined($ARGV[0]) && $ARGV[0] eq "--fix" ) {
 
 @QT_HEADERS = ();
 @QWS_HEADERS = ();
+@WCE_HEADERS = ();
 @MAC_HEADERS = ();
 
 opendir SRC, "$QTDIR/src"
@@ -81,6 +82,8 @@ map {
 	    $p="$dir/$_";
 	    if ( /_qws\./ ) {
 		push @QWS_HEADERS, "$p";
+	    } elsif ( /_wce\./ ) {
+		push @WCE_HEADERS, "$p";
 	    } elsif ( /_mac\./ || /qaquastyle/ ) {
 		push @MAC_HEADERS, "$p";
 	    } elsif ( /_p\./ ) {
@@ -231,6 +234,8 @@ sub do_headers
 
 map { $IGNORE_HEADERS{$_}=1; } @QWS_HEADERS;
 
+map { $IGNORE_HEADERS{$_}=1; } @WCE_HEADERS;
+
 $printpath=0;
 do_headers @QT_HEADERS;
 %IGNORE_HEADERS=();
@@ -249,5 +254,9 @@ print QT_H "#endif // Q_WS_MAC\n\n";
 print QT_H "\n#ifdef Q_WS_QWS\n";
 do_headers @QWS_HEADERS;
 print QT_H "#endif // Q_WS_QWS\n\n";
+
+print QT_H "\n#ifdef Q_WS_WCE\n";
+do_headers @WCE_HEADERS;
+print QT_H "#endif // Q_WS_WCE\n\n";
 
 print QT_H "$TAIL\n";

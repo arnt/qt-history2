@@ -41,6 +41,9 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qiconset.h" // conversion QPixmap->QIconset
+#include "qstring.h"
+#include "qsignal.h"
+#include "qfont.h"
 #endif // QT_H
 
 #ifndef QT_NO_MENUDATA
@@ -48,10 +51,6 @@
 class QPopupMenu;
 class QMenuDataData;
 class QObject;
-
-#include "qstring.h"
-#include "qsignal.h"
-#include "qfont.h"
 
 class QCustomMenuItem;
 class QMenuItemData;
