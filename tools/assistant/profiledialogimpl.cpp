@@ -26,11 +26,26 @@
 #include <qmessagebox.h>
 #include <qtoolbutton.h>
 #include <qpushbutton.h>
+#include <qlabel.h>
 
 #include "docuparser.h"
 #include "profiledialogimpl.h"
 #include "config.h"
 
+class IconPreview : public QLabel, public QFilePreview
+{
+public:
+    IconPreview( QWidget *parent=0 ) : QLabel( parent ) {}
+    void previewUrl( const QUrl &u )
+    {
+	QString path = u.path();
+	QPixmap pix( path );
+	if ( !pix.isNull() )
+	    setPixmap( pix );
+	else
+	    setText( "" );
+    }
+};
 
 ProfileDialog::ProfileDialog( QWidget *parent, QString pN )
     : ProfileDialogBase( parent ), profName( pN )
@@ -83,7 +98,10 @@ void ProfileDialog::insertProfileData()
 
 void ProfileDialog::setIcon()
 {
-    iconButton->setIconSet( QIconSet( QPixmap( iconName ) ) );
+    if ( profile->props["name"] == "default" )
+	iconButton->setIconSet( QIconSet( QPixmap::fromMimeSource( iconName ) ) );
+    else
+	iconButton->setIconSet( QIconSet( QPixmap( iconName ) ) );
 }
 
 void ProfileDialog::okClicked()
@@ -127,9 +145,23 @@ void ProfileDialog::cancelClicked()
 
 void ProfileDialog::setProfileIcon()
 {
-    iconName = QFileDialog::getOpenFileName( QDir::homeDirPath(), "Images (*.png *.xpm *.jpg)",
-	       this, "profileIcon", tr( "Qt Assistant - Choose Profile Icon" ) );
-    setIcon();
+    IconPreview* ip = new IconPreview;
+
+    QFileDialog fd( this );
+    fd.setCaption( tr( "Choose an Application Icon" ) );
+    fd.setFilter( "Images (*.png *.xpm *.jpg)" );
+    fd.setDir( QDir::homeDirPath() );
+    fd.setContentsPreviewEnabled( TRUE );
+    fd.setContentsPreview( ip, ip );
+    fd.setPreviewMode( QFileDialog::Contents );
+    if ( fd.exec()== QDialog::Accepted ) {
+	QString sf = fd.selectedFile();
+	if ( !sf.isEmpty() ) {
+	    iconName = sf;
+	    setIcon();
+	}
+    }
+    delete ip;
 }
 
 void ProfileDialog::addDocFile()
