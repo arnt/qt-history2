@@ -8,6 +8,9 @@
 #include "some.h"
 
 
+
+QFile Some::logFile( "outputLog" );
+
 /*
  * Some
 */
@@ -211,6 +214,8 @@ void Some::readyReadStdout()
     proc->readStdout( s );
     out->setText( s.mid( 0, 1000 ) );
 
+    logMessage( s );
+
     protocol.setText( protocol.text() +
 	    QString( "read on stdout: %1 bytes\n" ).arg( s.length() ) );
     protocolReadStdout += s.length();
@@ -237,6 +242,8 @@ void Some::readyReadStderr()
     proc->readStderr( s );
     err->setText( s.mid( 0, 1000 ) );
 
+    logMessage( s );
+
     protocol.setText( protocol.text() +
 	    QString( "read on stderr: %1 bytes\n" ).arg( s.length() ) );
     protocolReadStderr += s.length();
@@ -254,6 +261,19 @@ void Some::connectExit( bool enable )
 	QObject::disconnect( proc, SIGNAL(processExited()),
 		this, SLOT(procExited()) );
 	exitConnected = FALSE;
+    }
+}
+
+
+void Some::logMessage( const QString& buf )
+{
+    if ( !logFile.isOpen() ) {
+	if ( logFile.open( IO_ReadWrite | IO_Append ) ) {
+	    logFile.writeBlock( buf.latin1(), buf.length() );
+	    logFile.close();
+	} else {
+	    qWarning( "error open file" );
+	}
     }
 }
 

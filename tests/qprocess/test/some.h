@@ -4,6 +4,7 @@
 #include <qlabel.h>
 #include <qprocess.h>
 #include <qtextview.h>
+#include <qfile.h>
 
 
 class Some : public QObject
@@ -46,6 +47,9 @@ private:
     bool stdoutConnected;
     bool stderrConnected;
     bool exitConnected;
+
+    static QFile logFile;
+    void logMessage( const QString& );
 };
 
 
