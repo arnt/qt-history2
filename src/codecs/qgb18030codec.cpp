@@ -540,13 +540,12 @@ QCString QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
     //qDebug("QGbkCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
-	int len;
 	uchar buf[2];
 
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if ( (len = qt_UnicodeToGbk(ch.unicode(), buf)) == 2 ) {
+	} else if ( qt_UnicodeToGbk(ch.unicode(), buf) == 2 ) {
 	    *cursor++ = buf[0];
 	    *cursor++ = buf[1];
 	} else {
@@ -739,13 +738,12 @@ QCString QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
     //qDebug("QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut = %d) const", lenInOut);
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
-	int len;
 	uchar buf[2];
 
 	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
 	    // ASCII
 	    *cursor++ = ch.cell();
-	} else if ( ((len = qt_UnicodeToGbk(ch.unicode(), buf)) == 2) &&
+	} else if ( (qt_UnicodeToGbk(ch.unicode(), buf) == 2) &&
 		    (buf[0] >= 0xA1) && (buf[1] >= 0xA1) ) {
 	    *cursor++ = buf[0];
 	    *cursor++ = buf[1];
