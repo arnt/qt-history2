@@ -340,6 +340,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    files = fileFixify(files);
 	    for(QStringList::Iterator file_it = files.begin(); file_it != files.end(); ++file_it) {
 		QString file = (*file_it);
+		if(file.length() >= 2 && (file[0] == '"' || file[0] == '\'') && file[file.length()-1] == file[0])
+		    file = file.mid(1, file.length()-2);
 		if(file.endsWith(Option::cpp_moc_ext) || file.endsWith(Option::prl_ext)) 
 		    continue;
 		bool in_root = TRUE;
@@ -548,6 +550,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 		bool remove = FALSE;
 		QString library, name, opt = (*it).trimmed();
+		if(opt.length() >= 2 && (opt[0] == '"' || opt[0] == '\'') && opt[opt.length()-1] == opt[0])
+		    opt = opt.mid(1, opt.length()-2);
 		if(opt.startsWith("-L")) {
 		    QString r = opt.right(opt.length() - 2);
 		    fixEnvVariables(r);
