@@ -39,7 +39,7 @@ macx {
 } 
 
 #font fu
-unix:!macfu:!embedded {
+unix:!macx:!embedded {
 	contains(hacks,oldx11font):SOURCES += kernel/qfont_x11.cpp
 	contains(hacks,newx11font):SOURCES += ../tests/newfont/qfont_newx11.cpp
 }
