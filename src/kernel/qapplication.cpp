@@ -358,7 +358,7 @@ extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 bool chokeMouse = FALSE;
 #endif
 
-static int deactivate_timer = 0;
+int qt_double_buffer_timer = 0;
 
 void qt_setMaxWindowRect(const QRect& r)
 {
@@ -2439,15 +2439,16 @@ bool QApplication::event( QEvent *e )
     } else if (e->type() == QEvent::Timer) {
 	QTimerEvent *te = static_cast<QTimerEvent*>(e);
 	Q_ASSERT(te != 0);
-	if (te->timerId() == deactivate_timer) {
+	if (te->timerId() == qt_double_buffer_timer) {
 	    if (! active_window) {
 #if defined(Q_WS_X11)
 		extern void qt_x11_discard_double_buffer();
 		qt_x11_discard_double_buffer();
 #endif
 	    }
-	    killTimer(deactivate_timer);
-	    deactivate_timer = 0;
+
+	    killTimer(qt_double_buffer_timer);
+	    qt_double_buffer_timer = 0;
 	}
 	return TRUE;
     }
@@ -3355,7 +3356,6 @@ void QApplication::setActiveWindow( QWidget* act )
 	return;
 
     // first the activation/deactivation events
-    bool deactivated = false;
     if ( active_window ) {
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE
@@ -3375,8 +3375,6 @@ void QApplication::setActiveWindow( QWidget* act )
 	    QWidget *w = deacts.at(i);
 	    QApplication::sendSpontaneousEvent( w, &e );
 	}
-
-	deactivated = true;
     }
 
     active_window = window;
@@ -3398,8 +3396,6 @@ void QApplication::setActiveWindow( QWidget* act )
 	    QWidget *w = acts.at(i);
 	    QApplication::sendSpontaneousEvent( w, &e );
 	}
-
-	deactivated = false;
     }
 
     // then focus events
@@ -3421,11 +3417,12 @@ void QApplication::setActiveWindow( QWidget* act )
     }
     QFocusEvent::resetReason();
 
-    if (deactivated) {
+    if (!active_window) {
 	// (re)start the timer to discard the global double buffer
 	// while the application doesn't have any active windows
-	if (deactivate_timer) killTimer(deactivate_timer);
-	deactivate_timer = startTimer(500);
+	if (qt_double_buffer_timer)
+	    killTimer(qt_double_buffer_timer);
+	qt_double_buffer_timer = startTimer(500);
     }
 }
 

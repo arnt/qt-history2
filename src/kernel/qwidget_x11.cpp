@@ -1257,6 +1257,11 @@ void QWidget::update(int x, int y, int w, int h)
 
 struct QX11DoubleBuffer
 {
+    enum {
+	MaxWidth  = SHRT_MAX,
+	MaxHeight = SHRT_MAX
+    };
+
     Qt::HANDLE hd, rendhd;
     int screen, depth;
     int width, height;
@@ -1275,6 +1280,8 @@ void qt_x11_discard_double_buffer()
 
     delete global_double_buffer;
     global_double_buffer = 0;
+
+    qDebug("destroyed double buffer");
 }
 
 static
@@ -1282,8 +1289,8 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
 			      int screen, int depth, int width, int height)
 {
     // the db should consist of 128x128 chunks
-    width  = (( width / 128) + 1) * 128;
-    height = ((height / 128) + 1) * 128;
+    width  = QMIN((( width / 128) + 1) * 128, QX11DoubleBuffer::MaxWidth);
+    height = QMIN(((height / 128) + 1) * 128, QX11DoubleBuffer::MaxHeight);
 
     if (global_double_buffer) {
 	if (global_double_buffer->screen == screen
@@ -1318,15 +1325,22 @@ void qt_x11_get_double_buffer(Qt::HANDLE &hd, Qt::HANDLE &rendhd,
     global_double_buffer->depth = depth;
     global_double_buffer->width = width;
     global_double_buffer->height = height;
+
+    hd = global_double_buffer->hd;
+    rendhd = global_double_buffer->rendhd;
+
+    qDebug("created double buffer (%dx%d)", width, height);
 }
 
-void QWidget::repaint(const QRegion& rgn)
+void QWidget::repaint(const QRegion& r)
 {
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
 
     if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
+
+    QRegion rgn(r.intersect(d->clipRect()));
     if (rgn.isEmpty())
 	return;
 
@@ -1335,7 +1349,9 @@ void QWidget::repaint(const QRegion& rgn)
     QRect br = rgn.boundingRect();
 
     QPoint dboff;
-    bool double_buffer = !testAttribute(WA_PaintOnScreen) && isActiveWindow();
+    bool double_buffer = (!testAttribute(WA_PaintOnScreen)
+			  && br.width()  <= QX11DoubleBuffer::MaxWidth
+			  && br.height() <= QX11DoubleBuffer::MaxHeight);
 
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
@@ -1425,6 +1441,13 @@ void QWidget::repaint(const QRegion& rgn)
 
 	hd = old_hd;
 	rendhd = old_rendhd;
+
+	if (!qApp->active_window) {
+	    extern int qt_double_buffer_timer;
+	    if (qt_double_buffer_timer)
+		qApp->killTimer(qt_double_buffer_timer);
+	    qt_double_buffer_timer = qApp->startTimer(500);
+	}
     }
 
     clearWState(WState_InPaintEvent);
