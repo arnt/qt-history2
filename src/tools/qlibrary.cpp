@@ -29,7 +29,8 @@
 # endif
 #endif
 
-#if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
+#if (defined(Q_WS_WIN) && !defined(QT_MAKEDLL)) \
+    || (defined(Q_OS_FREEBSD) && defined(Q_CC_INTEL))
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
@@ -307,7 +308,7 @@ QString QLibrary::library() const
     if ( filename.find(filter) == -1 ) {
 	if(QFile::exists(filename + filter)) {
 	    filename += filter;
-	} else { 
+	} else {
 	    const int x = filename.findRev( "/" );
 	    if ( x != -1 ) {
 		QString path = filename.left( x + 1 );
