@@ -28,7 +28,7 @@ public:
     virtual ~QSplashScreen();
 
     void setPixmap(const QPixmap &pixmap);
-    QPixmap* pixmap() const;
+    QPixmap pixmap() const;
     void finish(QWidget *w);
     void repaint();
 
@@ -46,9 +46,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QSplashScreen)
-    void drawContents();
-
-    QSplashScreenPrivate *d;
+    Q_DECLARE_PRIVATE(QSplashScreen)
 };
 #endif //QT_NO_SPLASHSCREEN
 #endif

@@ -19,15 +19,21 @@
 #include "qdesktopwidget.h"
 #include "qpainter.h"
 #include "qpixmap.h"
+#include <private/qwidget_p.h>
 
-class QSplashScreenPrivate
+class QSplashScreenPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QSplashScreen)
 public:
     QPixmap pixmap;
     QString currStatus;
     QColor currColor;
     int currAlign;
+    void drawContents();
 };
+
+#define d d_func()
+#define q q_func()
 
 /*!
    \class QSplashScreen qsplashscreen.h
@@ -105,9 +111,8 @@ public:
     perhaps \c Qt::WStyle_StaysOnTop.
 */
 QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
-    : QWidget(0, Qt::WStyle_Customize | Qt::WStyle_Splash | f)
+    : QWidget(*(new QSplashScreenPrivate()), 0, Qt::WStyle_Customize | Qt::WStyle_Splash | f)
 {
-    d = new QSplashScreenPrivate();
     d->pixmap = pixmap;
     setPixmap(d->pixmap);  // Does an implicit repaint
 }
@@ -117,7 +122,6 @@ QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
 */
 QSplashScreen::~QSplashScreen()
 {
-    delete d;
 }
 
 /*!
@@ -136,7 +140,7 @@ void QSplashScreen::mousePressEvent(QMouseEvent *)
 */
 void QSplashScreen::repaint()
 {
-    drawContents();
+    d->drawContents();
     QWidget::repaint();
     QApplication::flush();
 }
@@ -213,22 +217,22 @@ void QSplashScreen::setPixmap(const QPixmap &pixmap)
     Returns the pixmap that is used in the splash screen. The image
     does not have any of the text drawn by message() calls.
 */
-QPixmap* QSplashScreen::pixmap() const
+QPixmap QSplashScreen::pixmap() const
 {
-    return &(d->pixmap);
+    return d->pixmap;
 }
 
 /*!
   \internal
 */
-void QSplashScreen::drawContents()
+void QSplashScreenPrivate::drawContents()
 {
     QPixmap textPix = d->pixmap;
     QPainter painter(&textPix);
-    drawContents(&painter);
-    QPalette p = palette();
-    p.setBrush(backgroundRole(), QBrush(textPix));
-    setPalette(p);
+    q->drawContents(&painter);
+    QPalette p = q->palette();
+    p.setBrush(q->backgroundRole(), QBrush(textPix));
+    q->setPalette(p);
 }
 
 /*!
