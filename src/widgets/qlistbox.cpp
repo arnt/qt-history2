@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#131 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#131 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1336,6 +1336,8 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 	    }
 	    if ( multiSelect ) {
 		int i = QMIN( itemClicked, currentItem() );
+		if ( i < 0 )
+		    i = 0;
 		while( i <= itemClicked || i <= currentItem() ) {
 		    setSelected( i, isSelected( currentItem() ) );
 		    i++;
