@@ -194,13 +194,13 @@ void ConnectionDialog::okClicked()
     QPtrList<Command> oldConnectionCmds;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() ) {
 	MetaDataBase::Connection conn;
-	conn.sender = MainWindow::self->formWindow()->child( c->senderItem()->currentText() );	
+	conn.sender = MainWindow::self->formWindow()->child( c->senderItem()->currentText() );
 	if ( !conn.sender )
-	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );	
+	    conn.sender = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
 	conn.receiver = MainWindow::self->formWindow()->child( c->receiverItem()->currentText() );
 	if ( !conn.receiver )
 	    conn.receiver = MainWindow::self->formWindow()->findAction( c->senderItem()->currentText() );
-	
+
 	conn.signal = c->signalItem()->currentText();
 	conn.slot = c->slotItem()->currentText();
 	AddConnectionCommand *cmd = new AddConnectionCommand( tr( "Add Signal/Slot "
@@ -221,7 +221,7 @@ void ConnectionDialog::okClicked()
 								    formWindow(), *it );
 	oldConnectionCmds.append( cmd );
     }
-	
+
     MacroCommand *cmd1 = new MacroCommand( tr( "Add Signal/Slot Connections" ),
 					   MainWindow::self->formWindow(),
 					   newConnectionCmds );
@@ -250,9 +250,8 @@ void ConnectionDialog::cancelClicked()
 void ConnectionDialog::deleteClicked()
 {
     int cr = connectionsTable->currentRow();
-    connectionsTable->removeRow( cr );
     connections.remove( cr );
-
+    connectionsTable->removeRow( cr );
     int i = 0;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() )
 	c->setRow( i++ );
