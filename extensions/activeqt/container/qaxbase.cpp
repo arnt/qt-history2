@@ -592,8 +592,7 @@ public:
     \endcode
 
     QAxBase transparently converts between COM data types and the
-    equivalent Qt data types. Some COM types, for example the VARIANT
-    type VT_CY, have no equivalent Qt data structure.
+    equivalent Qt data types. Some COM types have no equivalent Qt data structure.
 
     Supported COM datatypes are listed in the first column of following table.
     The second column is the Qt type that can be used with the QObject property
@@ -669,12 +668,12 @@ public:
     \row
     \i IDispatch*
     \i QAxObject* (read-only)
-    \i \e unsupported
+    \i \c QAxBase::asVariant()
     \i QAxObject* (return value)
     \row
     \i IUnknown*
     \i QAxObject* (read-only)
-    \i \e unsupported
+    \i \c QAxBase::asVariant()
     \i QAxObject* (return value)
     \row
     \i SCODE, DECIMAL
@@ -710,15 +709,15 @@ public:
     connect( this, SIGNAL(clicked(int)), &object, SLOT(showColumn(int)) );
     bool ok = object.dynamicCall( "addColumn(const QString&)", "Column 1" ).toBool();
 
-    QVariantList<QVariant> varlist;
-    QVariantList<QVariant> parameters;
+    QValueList<QVariant> varlist;
+    QValueList<QVariant> parameters;
     parameters << QVariant( varlist );
     int n = object.dynamicCall( "fillList(QValueList<QVariant>&)", parameters ).toInt();
 
     QAxObject *item = object.querySubItem( "item(int)", 5 );
     \endcode
 
-    Note that the QVariantList the object should fill has to be provided as an
+    Note that the QValueList the object should fill has to be provided as an
     element in the parameter list of QVariants.
 
     If you need to access properties or pass parameters of unsupported
@@ -3518,7 +3517,8 @@ bool QAxBase::isNull() const
 }
 
 /*!
-    \internal
+    Returns a QVariant that wraps the COM object. The variant can
+    then be used as a parameter in e.g. dynamicCall().
 */
 QVariant QAxBase::asVariant() const
 {

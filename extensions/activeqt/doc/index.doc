@@ -48,6 +48,10 @@
 
     \title The QAxServer Module
 
+    \tableofcontents
+
+    \section1 Introduction
+
     The QAxServer module provides a static library implementing the
     functions required to turn a standard Qt binary into an ActiveX
     control server. 
@@ -195,6 +199,8 @@
     properties and methods, and signals as ActiveX events, and convert between
     the Qt data types and the equivalent COM data types.
 
+    \section2 Data Types
+
     The Qt data types that are supported for properties are:
 
     \table
@@ -325,6 +331,9 @@
     \row
     \i QValueList\<QVariant\>&
     \i [in, out] SAFEARRAY(VARIANT)*
+    \row
+    \i QObject*
+    \i [in] IDispatch*
     \endtable
 
     Also supported are exported enums and sets (see Q_ENUMS and Q_SETS).
@@ -332,6 +341,20 @@
 
     Properties and signals/slots that have parameters using any other
     data types are ignored by the QActiveX framework.
+
+    \section2 Sub-Objects
+
+    COM objects can have multiple sub-objects that can represent a sub element
+    of the COM object. A COM object representing a multi-document spread sheet 
+    application can for example provide one sub-object for each spread sheet.
+
+    Any QObject subclass can be used as the type for a sub object in ActiveX. The
+    QAxFactory implementation (see below) needs to return the classname of the
+    sub type as one key in the featureList() implementation, as well as the IDs for 
+    the COM class, the interface and event interface of that type. Then the type can 
+    be used as e.g. the return value or paramter of a slot.
+
+    \section2 Property Notification
 
     To make the properties bindable for the ActiveX client, use multiple
     inheritance from the QAxBindable class:
