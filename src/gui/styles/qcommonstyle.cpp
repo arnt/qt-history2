@@ -1183,7 +1183,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
                 dbw2 = dbw1 * 2;
             }
 
-            int dfw1 = pixelMetric(PM_DefaultFrameWidth, btn, widget) * 2,
+            int dfw1 = pixelMetric(PM_DefaultFrameWidth, btn, widget) + 1,
                 dfw2 = dfw1 * 2;
 
             r.setRect(btn->rect.x() + dfw1 + dbw1, btn->rect.y() + dfw1 + dbw1,
