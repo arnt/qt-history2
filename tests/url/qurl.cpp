@@ -106,109 +106,114 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
     }
 }
 
-QString QUrl::protocol() const
-{ 
-    return d->protocol; 
+QUrl::~QUrl()
+{
+    delete d;
 }
 
-void QUrl::setProtocol( const QString& protocol ) 
-{ 
-    d->protocol = protocol; 
+QString QUrl::protocol() const
+{
+    return d->protocol;
+}
+
+void QUrl::setProtocol( const QString& protocol )
+{
+    d->protocol = protocol;
 }
 
 QString QUrl::user() const
 {
-    return  d->user; 
+    return  d->user;
 }
 
-void QUrl::setUser( const QString& user ) 
+void QUrl::setUser( const QString& user )
 {
-    d->user = user; 
+    d->user = user;
 }
 
 bool QUrl::hasUser() const
-{ 
-    return !d->user.isEmpty(); 
+{
+    return !d->user.isEmpty();
 }
 
 QString QUrl::pass() const
-{ 
-    return d->pass; 
+{
+    return d->pass;
 }
 
-void QUrl::setPass( const QString& pass ) 
+void QUrl::setPass( const QString& pass )
 {
-    d->pass = pass; 
+    d->pass = pass;
 }
 
 bool QUrl::hasPass() const
-{ 
-    return !d->pass.isEmpty(); 
+{
+    return !d->pass.isEmpty();
 }
 
 QString QUrl::host() const
-{ 
-    return d->host; 
+{
+    return d->host;
 }
 
-void QUrl::setHost( const QString& host ) 
+void QUrl::setHost( const QString& host )
 {
-    d->host = host; 
+    d->host = host;
 }
 
 bool QUrl::hasHost() const
-{ 
-    return !d->host.isEmpty(); 
+{
+    return !d->host.isEmpty();
 }
 
 int QUrl::port() const
-{ 
-    return d->port; 
+{
+    return d->port;
 }
 
-void QUrl::setPort( int port ) 
-{ 
-    d->port = port; 
+void QUrl::setPort( int port )
+{
+    d->port = port;
 }
 
-void QUrl::setPath( const QString& path ) 
-{ 
-    d->path = path; 
+void QUrl::setPath( const QString& path )
+{
+    d->path = path;
 }
 
 bool QUrl::hasPath() const
-{ 
-    return !d->path.isEmpty(); 
+{
+    return !d->path.isEmpty();
 }
 
-void QUrl::setQuery( const QString& txt ) 
-{ 
-    d->queryEncoded = txt; 
+void QUrl::setQuery( const QString& txt )
+{
+    d->queryEncoded = txt;
 }
 
 QString QUrl::query() const
 { 	
-    return d->queryEncoded; 
+    return d->queryEncoded;
 }
 
 QString QUrl::ref() const
-{ 
-    return d->refEncoded; 
-}
- 
-void QUrl::setRef( const QString& txt ) 
-{ 
-    d->refEncoded = txt; 
-}
-
-bool QUrl::hasRef() const 
 {
-    return !d->refEncoded.isEmpty(); 
+    return d->refEncoded;
 }
 
-bool QUrl::isMalformed() const  
-{ 
-    return d->isMalformed; 
+void QUrl::setRef( const QString& txt )
+{
+    d->refEncoded = txt;
+}
+
+bool QUrl::hasRef() const
+{
+    return !d->refEncoded.isEmpty();
+}
+
+bool QUrl::isMalformed() const
+{
+    return d->isMalformed;
 }
 
 void QUrl::reset()
@@ -438,7 +443,7 @@ void QUrl::setFileName( const QString& name )
 {
     // Remove '/' in the front
     int start = 0;
-    while( name[start] == '/' ) 
+    while( name[start] == '/' )
 	start++;
 
     // Empty path ?
@@ -543,7 +548,7 @@ QString QUrl::path( int trailing ) const
 	return result;
     } else
 	assert( 0 );
-    
+
     return QString::null;
 }
 
@@ -578,7 +583,7 @@ QString QUrl::url( int trailing, bool stripRef )
 	}
     } else
 	u += ":";
-    
+
     QString tmp;
     if ( trailing == 0 )
 	tmp = d->path;
@@ -615,7 +620,7 @@ QString QUrl::filename( bool stripTrailingSlash )
 	// Path is a directory => empty filename
 	return fname;
     }
-    
+
     // Does the path only consist of '/' characters ?
     if ( len == 1 && d->path[ 1 ] == '/' )
 	return fname;
@@ -743,7 +748,7 @@ void QUrl::decode( QString& url )
     // make a copy of the old one
     //char *new_url = new char[ old_length + 1];
     QString new_url;
-    
+
     int i = 0;
     while( i < old_length ) {
 	char character = url[ i++ ].unicode();
@@ -755,4 +760,14 @@ void QUrl::decode( QString& url )
     }
     //new_url [ new_length ] = 0;
     url = new_url;
+}
+
+void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
+			int sortSpec   = QDir::DefaultSort )
+{
+}
+ 
+void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
+			int sortSpec   = QDir::DefaultSort )
+{
 }
