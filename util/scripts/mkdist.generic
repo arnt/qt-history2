@@ -51,9 +51,9 @@ cd ${DISTDIR}
 echo "Exporting the entire Qt archive..." >&2
 cvs -Q export -Dnow qt
 
-QTVER=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
-QTVERMAJOR=`echo $QTVER | sed -e 's/\..*$//'`
-echo "Auto-detected the Qt version number -- " $QTVER >&2
+VERSION=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
+VERSIONMAJOR=`echo $VERSION | sed -e 's/\..*$//'`
+echo "Auto-detected the Qt version number -- " $VERSION >&2
 
 echo "Removing beta code..." >&2
 cd ${DISTDIR}/qt/src
@@ -154,9 +154,9 @@ fi
 
 if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}
-  mv qt qt-${QTVER}
-  tar cf qt-${QTVER}.tar qt-${QTVER}
-  gzip -9 qt-${QTVER}.tar
+  mv qt qt-${VERSION}
+  tar cf qt-${VERSION}.tar qt-${VERSION}
+  gzip -9 qt-${VERSION}.tar
 fi
 
 echo "Done" >&2
