@@ -16,6 +16,7 @@ CComModule _Module;
 #include <qvariant.h>
 #include <qdatetime.h>
 #include <private/qcom_p.h>
+#include <qapplication.h>
 
 /*! 
     Helper classes
@@ -757,6 +758,93 @@ private:
 static HHOOK hhook = 0;
 static int hhookref = 0;
 
+static ushort mouseTbl[] = {
+    WM_MOUSEMOVE,	QEvent::MouseMove,		0,
+    WM_LBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::LeftButton,
+    WM_LBUTTONUP,	QEvent::MouseButtonRelease,	Qt::LeftButton,
+    WM_LBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::LeftButton,
+    WM_RBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::RightButton,
+    WM_RBUTTONUP,	QEvent::MouseButtonRelease,	Qt::RightButton,
+    WM_RBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::RightButton,
+    WM_MBUTTONDOWN,	QEvent::MouseButtonPress,	Qt::MidButton,
+    WM_MBUTTONUP,	QEvent::MouseButtonRelease,	Qt::MidButton,
+    WM_MBUTTONDBLCLK,	QEvent::MouseButtonDblClick,	Qt::MidButton,
+    0,			0,				0
+};
+
+static int translateButtonState( int s, int type, int button )
+{
+    int bst = 0;
+    if ( s & MK_LBUTTON )
+	bst |= Qt::LeftButton;
+    if ( s & MK_MBUTTON )
+	bst |= Qt::MidButton;
+    if ( s & MK_RBUTTON )
+	bst |= Qt::RightButton;
+    if ( s & MK_SHIFT )
+	bst |= Qt::ShiftButton;
+    if ( s & MK_CONTROL )
+	bst |= Qt::ControlButton;
+    if ( GetKeyState(VK_MENU) < 0 )
+	bst |= Qt::AltButton;
+
+    // Translate from Windows-style "state after event"
+    // to X-style "state before event"
+    if ( type == QEvent::MouseButtonPress ||
+	 type == QEvent::MouseButtonDblClick )
+	bst &= ~button;
+    else if ( type == QEvent::MouseButtonRelease )
+	bst |= button;
+
+    return bst;
+}
+
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    static bool reentrant = FALSE;
+    static QPoint pos;
+    static POINT gpos={-1,-1};
+    QEvent::Type type;				// event parameters
+    int	   button;
+    int	   state;
+    int	   i;
+
+    if ( !reentrant && lParam ) {
+	reentrant = TRUE;
+	MSG *msg = (MSG*)lParam;
+	if ( msg->message >= WM_MOUSEFIRST && msg->message <= WM_MOUSELAST ) {
+	    HWND hwnd = msg->hwnd;
+	    QWidget *widget = QWidget::find( hwnd );
+	    while ( !widget && hwnd ) {
+		hwnd = ::GetParent( hwnd );
+		widget = QWidget::find( hwnd );
+	    }
+	    if ( widget && widget->inherits( "QActiveX" ) ) {
+		//::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
+		for ( i=0; (UINT)mouseTbl[i] != msg->message || !mouseTbl[i]; i += 3 )
+		    ;
+		if ( !mouseTbl[i] )
+		    return FALSE;
+		type   = (QEvent::Type)mouseTbl[++i];	// event type
+		button = mouseTbl[++i];			// which button
+		state  = translateButtonState( msg->wParam, type, button ); // button state
+		DWORD ol_pos = GetMessagePos();
+		gpos.x = LOWORD(ol_pos);
+		gpos.y = HIWORD(ol_pos);
+		pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
+
+		QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+		QApplication::sendEvent( widget, &e );
+		// this would eat the event, but it doesn't work with designer...
+/*		if ( e.isAccepted() ) 
+		    msg->message = WM_NULL;*/
+	    }
+	}
+	reentrant = FALSE;
+    }
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
+}
+
 /*!
     Creates an empty QActiveXBase widget. 
     Use setControl() and initialize() to instantiate an ActiveX control.
@@ -828,27 +916,6 @@ void QActiveXBase::clear()
 	    }
 	}
     }
-}
-
-LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
-{
-    static bool reentrant = FALSE;
-    if ( !reentrant && lParam ) {
-	reentrant = TRUE;
-	MSG msg = *(MSG*)lParam;
-	if ( msg.message != WM_PAINT ) {
-	    HWND hwnd = msg.hwnd;
-	    QWidget *widget = QWidget::find( hwnd );
-	    while ( !widget && hwnd ) {
-		hwnd = ::GetParent( hwnd );
-		widget = QWidget::find( hwnd );
-	    }
-	    if ( widget && widget->inherits( "QActiveX" ) )
-		::SendMessage( widget->winId(), msg.message, msg.wParam, msg.lParam );
-	}
-	reentrant = FALSE;
-    }
-    return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
 /*!
