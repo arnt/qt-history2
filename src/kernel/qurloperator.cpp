@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#37 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -486,7 +486,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!
   Copies the file \a from to \a to. If \a move is TRUE,
-  the file is moved (copied and removed). \a from has to point to a file and 
+  the file is moved (copied and removed). \a from has to point to a file and
   \a to must point to a directory.
   The copying is done using get() and put() operations. If you want to get notified
   about the progress of the operation, connect to the dataTransferProgress()
@@ -662,7 +662,7 @@ bool QUrlOperator::isDir()
   QUrlOperator op( "ftp://ftp.whatever.org/pub" );
   // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
   op.get( "a_file.txt" );
-  \code
+  \endcode
 
   This will get the data of ftp://ftp.whatever.org/pub/a_file.txt.
 
@@ -743,7 +743,7 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
   QUrlOperator op( "ftp://ftp.whatever.com/home/me" );
   // do some other stuff like op.listChildren() or op.mkdir( "new Dir" )
   op.put( data, "filename" );
-  \code
+  \endcode
 
   This will upload the data to ftp://ftp.whatever.com/home/me/filename.
 
