@@ -1,0 +1,86 @@
+\chapter Windows
+
+\section1 Introduction
+
+When you start up \QD, by default you will see three windows on the
+left hand side. They are the File Overview window, the Object Explorer
+window, and the Property Editor/Signal Handlers window. This chapter
+explains each window in detail.
+
+\section1 File Overview Window
+
+The 'File Overview' window lists all files associated with the
+project, including forms, source files, and images. To open any forms
+or files single click it in the Files list. For rapid switching
+between forms and files, type the name of the file in the line edit
+above the files list.
+
+\section1 Object Explorer Window
+
+The Object Explorer window lists the current form's widgets and slots.
+The window comprises of two tabs, the Widgets tab and the Source tab. 
+
+Click the Widgets tab to view all the widgets for the current form.
+The widgets are listed by name and class. When you click a widget in
+list, the widget is automatically highlighted in the corresponding
+form.
+
+Click the Source tab to view the current form's declared slots,
+variables, includes, etc.
+
+\section1 Property Editor/Signal Handlers Window
+
+Click the Property Editor/Signal Handlers window to view and change
+the properties of forms and widgets. This window has a 'Properties'
+tab and a 'Signal Handlers' tab. 
+
+\section2 The Properties Tab
+
+Click the 'Properties' tab to change the appearance and behaviour of
+the selected widget. The Property Editor has two columns, the Property
+column which lists property names and the Value column which lists the
+values. Click the column headers to sort the properties or values.
+Some property names have a plus sign '+' in a square to their left;
+this signifies that the property name is the collective name for a set
+of related properties.
+
+Some properties have simple values, for example, the name property has
+a text value, the width property (within minimumSize for example) has
+a numeric value. To change a text value click the existing text and
+type in your new text. To change a numeric value click the value and
+either type in a new number, or use the spin buttons to increase or
+decrease the existing number until it reaches the value you want. Some
+properties have a fixed list of values, for example the mouseTracking
+property is boolean and can take the values True or False. The cursor
+property also has a fixed list of values. If you click the cursor
+property or the mouseTracking property the value will be shown in a
+drop down combobox; click the down arrow to see what values are
+available.
+
+Some properties have complex sets of values; for example the font
+property. If you click the font property an ellipsis button (...) will
+appear; click this button and a Select Font dialog will pop up which
+you can use to change any of the font settings. Other properties have
+ellipsis buttons which lead to different dialogs depending on what
+settings the property can have. For example, if you have a lot of text
+to enter for a text property you could click the ellipsis button to
+invoke the multi-line text editor dialog. The names of properties
+which have changed are shown in bold. If you've changed a property but
+want to revert it to its default value click the property's value and
+then click the red 'X' button to the right of the value. Some
+properties have an initial value, e.g. 'TextEdit1', but no default
+value; if you revert a property that has an initial value but no
+default value (by clicking the red 'X') the value will become empty
+unless the property, e.g. name, is not allowed to be empty.
+
+The property editor fully supports Undo and Redo (Ctrl+Z and Ctrl+Y,
+also available from the Edit menu). 
+
+\section2 The Signal Handlers Tab
+
+Click the 'Signal Handlers' tab to view or create the connections
+between signals of widgets and slots of the form.  
+
+
+
+
