@@ -239,12 +239,12 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(!checkDest()) {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
@@ -321,10 +321,10 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(checkDest()) {
 
 	(*gfx_optype)=1;
@@ -421,10 +421,10 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(checkSourceDest()) {
 
 	(*gfx_optype)=1;

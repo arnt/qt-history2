@@ -249,11 +249,11 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
     if(!checkDest() || true) {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
@@ -348,7 +348,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 	}
     }
     GFX_END
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
 }
@@ -374,10 +374,10 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(checkSourceDest()) {
 
 	(*gfx_optype)=1;
@@ -485,13 +485,13 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	do_scissors(r);
 
 	GFX_END
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
-	
+
 	return;
     } else {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	// software fallback
@@ -529,10 +529,10 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(checkSourceDest()) {
 
 	(*gfx_optype)=1;
@@ -566,12 +566,12 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	voodoo_regw(CLIP0MAX,(height << 16) | width);
 
 	GFX_END
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	return;
     } else {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
@@ -588,10 +588,10 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(checkDest()) {
 
 	(*gfx_optype)=1;
@@ -641,12 +641,12 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	voodoo_regw(CLIP0MAX,(height << 16) | width);
 
 	GFX_END
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	return;
     } else {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);

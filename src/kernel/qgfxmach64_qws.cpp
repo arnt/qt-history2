@@ -408,7 +408,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
@@ -521,7 +521,7 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     // Release display again - not doing so will cause Qt/Embedded applications
     // to deadlock
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
 
@@ -546,10 +546,10 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     setDest();
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_RECT) {
@@ -638,10 +638,10 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     GFX_END
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
-    
+
 }
 
 template<const int depth,const int type>
@@ -702,17 +702,17 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     bool check_result=checkSourceDest();
 
     if( (alphatype==InlineAlpha || alphatype==SolidAlpha)
 	&& check_result ) {
 	int x2=(rx+w)-1;
 	int y2=(ry+h)-1;
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	// This is special handling for using the 3d engine for
@@ -827,12 +827,12 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 
 	GFX_END
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	return;
     } else {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	// software fallback
@@ -853,12 +853,12 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     if(ncliprect<1)
 	return;
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if ( srctype!=SourceImage || !checkSourceDest() ) {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
@@ -977,7 +977,7 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	reset_engine();
     }
     GFX_END
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
 }
@@ -1024,12 +1024,12 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 	return;
     }
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if ( srctype==SourceImage && !checkSourceDest() ) {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
@@ -1147,7 +1147,7 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     GFX_END
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
 
@@ -1189,12 +1189,12 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
     if(no3d)
 	return;
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::grab( TRUE );
 #endif
-    
+
     if(!checkSourceDest()) {
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
 	QWSDisplay::ungrab();
 #endif
 	return;
@@ -1435,7 +1435,7 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
     GFX_END
 
-#ifndef QT_NO_QWS_MULTIPROCESS
+#ifdef QT_NO_QWS_MULTIPROCESS
     QWSDisplay::ungrab();
 #endif
 
