@@ -705,7 +705,7 @@ MacTimerInfo *qt_event_get_timer(EventRef event)
 {
     if(GetEventClass(event) != kEventClassQt || GetEventKind(event) != kEventQtRequestTimer)
         return 0; //short circuit our tests..
-    MacTimerInfo *t;
+    MacTimerInfo *t = 0;
     GetEventParameter(event, kEventParamMacTimer, typeMacTimerInfo, 0, sizeof(t), 0, &t);
     return t;
 }
@@ -1770,7 +1770,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         } else if(ekind == kEventQtRequestTimer) {
-            MacTimerInfo *t;
+            MacTimerInfo *t = 0;
             GetEventParameter(event, kEventParamMacTimer, typeMacTimerInfo, 0, sizeof(t), 0, &t);
             if(t && t->pending) {
                 t->pending = false;
@@ -1836,21 +1836,21 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         QEvent::Type etype = QEvent::None;
         Qt::KeyboardModifiers modifiers;
         {
-            UInt32 mac_modifiers;
+            UInt32 mac_modifiers = 0;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(mac_modifiers), 0, &mac_modifiers);
             modifiers = get_modifiers(mac_modifiers, true);
         }
         Qt::MouseButtons buttons;
         {
-            UInt32 mac_buttons;
+            UInt32 mac_buttons = 0;
             GetEventParameter(event, kEventParamMouseChord, typeUInt32, 0,
                               sizeof(mac_buttons), 0, &mac_buttons);
             buttons = get_buttons(mac_buttons);
         }
         int wheel_delta=0;
         if(ekind == kEventMouseWheelMoved) {
-            long int mdelt;
+            long int mdelt = 0;
             GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, 0,
                               sizeof(mdelt), 0, &mdelt);
             wheel_delta = mdelt * 120;
@@ -1858,7 +1858,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         Qt::MouseButton button = Qt::NoButton;
         if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
-            EventMouseButton mac_button;
+            EventMouseButton mac_button = 0;
             GetEventParameter(event, kEventParamMouseButton, typeMouseButton, 0,
                               sizeof(mac_button), 0, &mac_button);
             button = get_button(mac_button);
@@ -1875,7 +1875,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                        now - qt_mac_dblclick.last_time <= ((double)QApplicationPrivate::mouse_double_click_time)/1000)
                         etype = QEvent::MouseButtonDblClick;
                 } else {
-                    UInt32 count;
+                    UInt32 count = 0;
                     GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
                                       sizeof(count), 0, &count);
                     if(!(count % 2) && qt_mac_dblclick.last_modifiers == modifiers &&
@@ -1925,7 +1925,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(ekind == kEventMouseUp) {
                     short part = qt_mac_window_at(where.h, where.v);
                     if(part == inDrag) {
-                        UInt32 count;
+                        UInt32 count = 0;
                         GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL,
                                           sizeof(count), NULL, &count);
                         if(count == 2 && qt_mac_collapse_on_dblclick) {
@@ -1970,7 +1970,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             break;
         }
 
-        UInt32 tabletEventType;
+        UInt32 tabletEventType = 0;
         GetEventParameter(event, kEventParamTabletEventType, typeUInt32, 0,
                           sizeof(tabletEventType), 0, &tabletEventType);
         if (tabletEventType == kEventTabletPoint) {
@@ -2132,11 +2132,11 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 break;
             }
 
-            long refcon;
+            long refcon = 0;
             GetEventParameter(event, kEventParamTextInputSendRefCon, typeLongInteger, 0,
                               sizeof(refcon), 0, &refcon);
             if(QTSMDocumentWrapper *doc = (QTSMDocumentWrapper*)refcon) {
-                UInt32 unilen;
+                UInt32 unilen = 0;
                 GetEventParameter(event, kEventParamTextInputSendText, typeUnicodeText,
                                   0, 0, &unilen, 0);
                 UniChar *unicode = (UniChar*)NewPtr(unilen);
@@ -2145,7 +2145,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QString text((QChar*)unicode, unilen / sizeof(UniChar));
                 DisposePtr((char*)unicode);
                 if(doc->inputWidget()) {
-                    long fixed_length;
+                    long fixed_length = 0;
                     GetEventParameter(event, kEventParamTextInputSendFixLen, typeLongInteger, 0,
                                       sizeof(fixed_length), 0, &fixed_length);
                     if(fixed_length == -1 || fixed_length == (long)unilen) {
@@ -2187,18 +2187,18 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 }
             }
         } else if(ekind == kEventTextInputUnicodeForKeyEvent) {
-            EventRef key_ev;
+            EventRef key_ev = 0;
             GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, 0,
                               sizeof(key_ev), 0, &key_ev);
             QString text;
-            UInt32 unilen;
+            UInt32 unilen = 0;
             if(GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0) == noErr) {
                 UniChar *unicode = (UniChar*)NewPtr(unilen);
                 GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, unicode);
                 text = QString((QChar*)unicode, unilen / sizeof(UniChar));
                 DisposePtr((char*)unicode);
             }
-            unsigned char chr;
+            unsigned char chr = 0;
             GetEventParameter(key_ev, kEventParamKeyMacCharCodes, typeChar, 0, sizeof(chr), 0, &chr);
             if(!chr || chr >= 128 || (text.length() > 0 && (text.length() > 1 || text.at(0) != QChar(chr)))) {
                 QInputMethodEvent imstart(QEvent::InputMethodStart, QString::null, -1);
@@ -2218,7 +2218,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         // code path
         if(ekind == kEventRawKeyModifiersChanged) {
             //figure out changed modifiers, wish Apple would just send a delta
-            UInt32 modifiers;
+            UInt32 modifiers = 0;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(modifiers), 0, &modifiers);
             //find which widget to send to
@@ -2235,7 +2235,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //get modifiers
         Qt::KeyboardModifiers modifiers;
         {
-            UInt32 mac_modifiers;
+            UInt32 mac_modifiers = 0;
             GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, 0,
                               sizeof(mac_modifiers), 0, &mac_modifiers);
 #ifdef DEBUG_KEY_MAPS
@@ -2248,7 +2248,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         }
 
         //get keycode
-        UInt32 keycode;
+        UInt32 keycode = 0;
         GetEventParameter(event, kEventParamKeyCode, typeUInt32, 0, sizeof(keycode), 0, &keycode);
 
         //get mac mapping
@@ -2292,7 +2292,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
            is this a bug on X11? --Sam */
         QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
         if(etype == QEvent::KeyPress) {
-            UInt32 unilen;
+            UInt32 unilen = 0;
             if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, 0, 0, &unilen, 0) == noErr && unilen == 2) {
                 UniChar *unicode = (UniChar*)NewPtr(unilen);
                 GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, 0, unilen, 0, unicode);
@@ -2386,7 +2386,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
     case kEventClassWindow: {
         remove_context_timer = false;
 
-        WindowRef wid;
+        WindowRef wid = 0;
         GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
                           sizeof(WindowRef), 0, &wid);
         widget = qt_mac_find_window(wid);
@@ -2410,7 +2410,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QApplication::sendSpontaneousEvent(widget, &qse);
         } else if(ekind == kEventWindowBoundsChanged) {
             handled_event = false;
-            UInt32 flags;
+            UInt32 flags = 0;
             GetEventParameter(event, kEventParamAttributes, typeUInt32, 0,
                               sizeof(flags), 0, &flags);
             Rect nr;
