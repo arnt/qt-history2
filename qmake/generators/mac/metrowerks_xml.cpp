@@ -100,7 +100,9 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	    t << line.left(rep); //output the left side
 	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
-	    if(variable == "CODEWARRIOR_HEADERS" || variable == "CODEWARRIOR_SOURCES") {
+	    if(variable == "CODEWARRIOR_HEADERS" || 
+	       variable == "CODEWARRIOR_SOURCES" || 
+	       variable == "CODEWARRIOR_LIBRARIES") {
 		QString arg=variable.right(variable.length() - variable.findRev('_') - 1);
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
@@ -114,8 +116,10 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			  << "\t\t\t\t</FILE>" << endl;
 		    }
 		}
-	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || variable == "CODEWARRIOR_HEADERS_LINKORDER") {
-		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_')-3);
+	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || 
+		      variable == "CODEWARRIOR_HEADERS_LINKORDER" ||
+		      variable == "CODEWARRIOR_LIBRARIES_LINKORDER" ) {
+		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -126,8 +130,10 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
 		}
-	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || variable == "CODEWARRIOR_SOURCES_GROUP") {
-		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_')+1);
+	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || 
+		      variable == "CODEWARRIOR_SOURCES_GROUP" ||
+		      variable == "CODEWARRIOR_LIBRARIES_GROUP") {
+		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
@@ -140,7 +146,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
-		QString arg=variable.mid(variable.find('_')+1, variable.length()-variable.findRev('_'));
+		QString arg=variable.right(variable.length()-variable.find('_')-1);
 		QStringList list = project->variables()[arg];
 		if(arg == "INCLUDEPATH") {
 		    list << Option::mkfile::qmakespec;
@@ -164,14 +170,15 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			QString p = (*it);
+			fixEnvVariables(p);
 			if(p.right(1) != "/")
 			    p += "/";
 			if(QDir::isRelativePath(p))
 			    p.prepend(Option::output_dir + '/');
 			p = QDir::cleanDirPath(p) + ":";
-			p.replace(QRegExp("/"), ":");
 			if(!volume.isEmpty())
-			    p.prepend(volume); //FIXME
+			    p.prepend(volume); 
+			p.replace(QRegExp("/"), ":");
 
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
@@ -230,17 +237,17 @@ MetrowerksMakefileGenerator::init()
     if(project->first("TEMPLATE") == "app" ) {
 	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerksapp.xml");
     } else if(project->first("TEMPLATE") == "lib") {
-	qDebug("Lib not supported yet");
-	exit(666);
+	project->variables()["MWERKS_XML_TEMPLATE"].append("mwerkslib.xml");
     }
     
     QStringList &configs = project->variables()["CONFIG"];
-    if(project->isActiveConfig("qt"))
+    if(project->isActiveConfig("qt")) {
 	if(configs.findIndex("moc")) configs.append("moc");
-    if ( project->isActiveConfig("moc") ) {
-	setMocAware(TRUE);
+	project->variables()["LIBS"].append("$(QTDIR)/lib/libqt.lib");
     }
 
+    if ( project->isActiveConfig("moc") ) 
+	setMocAware(TRUE);
     MakefileGenerator::init();
 
     //let metrowerks find the files
@@ -256,6 +263,45 @@ MetrowerksMakefileGenerator::init()
 		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		    project->variables()["INCLUDEPATH"].append(dir);
 	    }
+	}
+    }
+    //..grrr.. libs!
+    QStringList &l = project->variables()["LIBS"];
+    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	if((*val_it).left(2) == "-L") {
+	    QString dir((*val_it).right((*val_it).length()) - 2);
+	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		project->variables()["INCLUDEPATH"].append(dir);
+	} else if((*val_it).left(2) == "-l") {
+	    QString lib("lib" + (*val_it).right((*val_it).length() - 2)  + ".lib");
+	    if(project->variables()["LIBRARIES"].findIndex(lib) == -1)
+		project->variables()["LIBRARIES"].append(lib);
+	} else if((*val_it) == "-framework") {
+	    ++val_it;
+	    if(val_it == l.end())
+		break;
+	    QString dir = "/System/Library/Frameworks/" + (*val_it) + ".framework/";
+	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		project->variables()["DEPENDPATH"].append(dir);
+	    QString headers = dir + "Headers/";
+	    if(project->variables()["DEPENDPATH"].findIndex(headers) == -1 &&
+	       project->variables()["INCLUDEPATH"].findIndex(headers) == -1)
+		project->variables()["DEPENDPATH"].append(headers);
+	    if(project->variables()["LIBRARIES"].findIndex((*val_it)) == -1)
+		project->variables()["LIBRARIES"].append((*val_it));
+	} else if((*val_it).left(1) != "-") {
+	    QString lib=(*val_it);
+	    int s = lib.findRev('/');
+	    if(s != -1) {
+		QString dir = lib.left(s);
+		lib = lib.right(lib.length() - s - 1);
+		if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
+		   project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
+		    project->variables()["INCLUDEPATH"].append(dir);
+	    }
+	    project->variables()["LIBRARIES"].append(lib);
 	}
     }
 }
