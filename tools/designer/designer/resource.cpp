@@ -3091,8 +3091,7 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
 	PopupMenuEditor *s =  i->subMenu();
 	if ( s && s->count() ) {
-	    QString n = a->name();
-	    formwindow->unify( i, n, TRUE );
+	    QString n = s->name();
 	    ts << makeIndent( indent ) << "<item text=\"" << entitize( a->menuText() )
 	       << "\" name=\"" << entitize( n )
 	       << "\" accel=\"" << entitize( a->accel() )

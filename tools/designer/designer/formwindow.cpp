@@ -2345,7 +2345,21 @@ bool FormWindow::unify( QObject *w, QString &s, bool changeIt )
 		}
 	    }
 	}
-	if ( qt_cast<QMainWindow*>(mainContainer()) ) {
+	if ( ::qt_cast<QMainWindow*>(mainContainer()) && !found ) {
+	    QObjectList *l = mainContainer()->queryList( "PopupMenuEditor" );
+	    for ( QObject *o = l->first(); o; o = l->next() ) {
+		if ( o != w &&
+		     qstrcmp ( o->name(), s.latin1() ) == 0 ) {
+		    found = TRUE;
+		    if ( !changeIt )
+			break;
+		    s = orig + "_" + QString::number( ++num );
+		    o = l->first();
+		}
+	    }
+	    delete l;
+	}
+	if ( ::qt_cast<QMainWindow*>(mainContainer()) ) {
 	    if ( !found ) {
 		QObjectList l = mainContainer()->queryList( "QDockWindow", 0, TRUE );
 		for (int i = 0; i < l.size(); ++i) {
