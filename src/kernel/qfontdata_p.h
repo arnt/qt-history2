@@ -425,7 +425,8 @@ public:
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
     void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
-
+    bool inFont( const QChar &ch );
+    
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set

@@ -945,6 +945,39 @@ void QFontPrivate::drawText( Display *dpy, WId hd, GC gc, int x, int y,
     }
 }
 
+bool QFontPrivate::inFont( const QChar &chr )
+{
+    Script script = scriptForChar( chr );
+
+    if (script == UnknownScript)
+	return FALSE;
+
+    load(script);
+
+    QFontStruct *qfs = x11data.fontstruct[script];
+    if (! qfs || qfs == (QFontStruct *) -1) {
+	return FALSE;
+    }
+    QChar ch;
+    if ( qfs->codec )
+	ch = qfs->codec->characterFromUnicode( QString( chr ), 0 );
+    else
+	ch = chr;
+    
+    XFontStruct *f = (XFontStruct *) qfs->handle;
+
+    XCharStruct *xcs = 0;
+    if (f->max_byte1) {
+	xcs = getCharStruct2d( f, 0, ch.row(), ch.cell() );
+    } else if (ch.row()) {
+	uint ch16 = ch.unicode();
+	if ( ch16 >= f->min_char_or_byte2 && ch16 <= f->max_char_or_byte2 )
+	    xcs = &f->per_char[ch16-f->min_char_or_byte2];
+    }
+    if ( !xcs && xcs->width == 0 && xcs->ascent + xcs->descent == 0)
+	return FALSE;
+    return TRUE;
+}
 
 // **********************************************************************
 // QFontPrivate member methods
@@ -2033,7 +2066,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 		    ch.row()  = row;
 
 		    if (row + cell != 0) {
-			xcs = f->per_char + ch.unicode();
+			xcs = getCharStruct2d( f, 0, ch.row(), ch.cell() );
 
 			hasChar = (xcs && (xcs->width != 0 ||
 					   xcs->ascent + xcs->descent != 0));
@@ -2547,36 +2580,7 @@ int QFontMetrics::descent() const
 */
 bool QFontMetrics::inFont(QChar ch) const
 {
-    QFontPrivate::Script script = d->scriptForChar( ch );
-
-    if (script == QFontPrivate::UnknownScript)
-	return FALSE;
-
-    d->load(script);
-
-    QFontStruct *qfs = d->x11data.fontstruct[script];
-    if (! qfs || qfs == (QFontStruct *) -1) {
-	return FALSE;
-    }
-    if ( qfs->codec )
-	ch = qfs->codec->characterFromUnicode( QString( ch ), 0 );
-
-    XFontStruct *f = (XFontStruct *) qfs->handle;
-
-    if (f->max_byte1) {
-	return (ch.cell() >= f->min_char_or_byte2 &&
-		ch.cell() <= f->max_char_or_byte2 &&
-		ch.row() >= f->min_byte1 &&
-		ch.row() <= f->max_byte1);
-    } else if (ch.row()) {
-	uint ch16 = ch.unicode();
-
-	return (ch16 >= f->min_char_or_byte2 &&
-		ch16 <= f->max_char_or_byte2);
-    }
-
-    return (ch.cell() >= f->min_char_or_byte2 &&
-	    ch.cell() <= f->max_char_or_byte2);
+    return d->inFont( ch );
 }
 
 
