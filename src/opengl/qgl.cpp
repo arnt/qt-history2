@@ -924,7 +924,7 @@ GLuint QGLContext::bindTexture(const QString &fname) const
  	return texture->id;
 
     QFile f(fname);
-    f.open(QIODevice::IO_ReadOnly | QIODevice::IO_Raw);
+    f.open(QIODevice::ReadOnly | QIODevice::Raw);
 
     char tag[4];
     f.read(&tag[0], 4);
