@@ -23,7 +23,7 @@
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "private/qsqlnulldriver_p.h"
+#include "qsqlnulldriver_p.h"
 #include "qvector.h"
 #include "qmap.h"
 
