@@ -66,7 +66,8 @@ static void qmake_error_msg(const char *msg)
 static QString varMap(const QString &x)
 {
     QString ret(x);
-    ret.replace(QRegExp("^TMAKE"), "QMAKE");
+    if(ret.startsWith("TMAKE")) //tmake no more!
+	ret = "QMAKE" + ret.mid(5);
     if(ret == "INTERFACES")
 	ret = "FORMS";
     if(ret == "QMAKE_POST_BUILD")
@@ -129,7 +130,9 @@ bool
 QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 {
     QString s = t.simplifyWhiteSpace();
-    s.replace(QRegExp("#.*$"), ""); /* bye comments */
+    int hash_mark = s.findRev('#'); 
+    if(hash_mark != -1) //good bye comments
+	s = s.left(hash_mark);
     if(s.isEmpty()) /* blank_line */
 	return TRUE;
 
@@ -392,7 +395,11 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	    parser.line_no++;
 	    line = t.readLine().stripWhiteSpace();
 	    int prelen = line.length();
-	    line.replace(QRegExp(" *#.*$"), ""); // bye comments
+	    {
+		int hash_mark = line.findRev('#');
+		if(hash_mark != -1) //bye comments
+		    line = line.left(hash_mark);
+	    }
 	    if(!line.isEmpty() && line.right(1) == "\\") {
 		line.truncate(line.length() - 1);
 		s += line + " ";
@@ -549,12 +556,13 @@ QMakeProject::read(const QString &project, const QString &, bool just_project)
 	vars["TEMPLATE"].append(Option::user_template);
     }
 
-    if(vars["TEMPLATE"].isEmpty())
-	vars["TEMPLATE"].append(QString("app"));
-    else
-	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
+    QStringList &templ = vars["TEMPLATE"];
+    if(templ.isEmpty()) 
+	templ.append(QString("app"));
+    else if(vars["TEMPLATE"].first().endsWith(".t"))
+	templ = QStringList(templ.first().left(templ.first().length() - 2));
     if(!Option::user_template_prefix.isEmpty())
-	vars["TEMPLATE"].first().prepend(Option::user_template_prefix);
+	templ.prepend(Option::user_template_prefix);
 
     if(vars["TARGET"].isEmpty()) {
 	// ### why not simply use:
@@ -590,8 +598,8 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
 
     QRegExp re(x, FALSE, TRUE);
-    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE || Option::target_mode == Option::TARG_UNIX_MODE) &&
-       x == "unix")
+    if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE || 
+	Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
 	return TRUE;
     else if(Option::target_mode == Option::TARG_MACX_MODE && x == "macx")
 	return TRUE;
@@ -890,6 +898,8 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
+    if(str.find("$$") == -1)
+	return str;
     for(int x = 0, rep; x < 5; x++) {
 	int jump_to = 0;
 	QRegExp reg_var;
