@@ -7,6 +7,7 @@
 //
 //
 //              In the meantime, Qt/X11 is reported to work with X11/QNX.
+#if defined(Q_OS_QNX6)
 
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
@@ -94,4 +95,5 @@ private:
 	int (*coreFuncListFill) (disp_adapter_t *, unsigned int, disp_draw_corefuncs_t *, int);
 };
 
+#endif
 #endif
