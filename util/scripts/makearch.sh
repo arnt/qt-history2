@@ -221,7 +221,7 @@ depend:
 dep: depend
 
 clean:
-	-rm -f *.o *.bak *~ *% \$(SRCMETA)
+	-rm -f *.o *.bak *~ *% \$(METASRC)
 
 # For maximum compatibility with old versions of make, we generate
 # a separate rule for each meta object source file.
