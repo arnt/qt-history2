@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#11 $
+# $Id: //depot/qt/main/Makefile.inc#12 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -79,10 +79,10 @@ NMakefile.release: $(PROJECT).pro Makefile
 	-@mkdir .obj\release
 !IF "$(PROJECT)" == "qt"
 	tmake $(PROJECT).pro -o NMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/release"
+	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ELSE
 	tmake $(PROJECT).pro -o NMakefile.release \
-	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release"
+	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release" "TMAKE_LFLAGS_RELEASE=/INCREMENTAL:YES"
 !ENDIF
 
 NMakefile.static-debug: $(PROJECT).pro Makefile
