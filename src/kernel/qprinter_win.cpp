@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#52 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -90,15 +90,6 @@ bool QPrinter::aborted() const
 }
 
 
-static
-bool windowPrintDlg(PRINTDLG* pd)
-{
-    return
-	(qt_winver == Qt::WV_NT
-		? PrintDlg( pd )
-		: PrintDlgA( (PRINTDLGA*)pd ) ) != 0;
-}
-
 typedef struct
 {
     int winSizeName;
@@ -188,7 +179,6 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 
 bool QPrinter::setup( QWidget *parent )
 {
-
     if ( parent )
 	parent = parent->topLevelWidget();
     else
@@ -199,67 +189,128 @@ bool QPrinter::setup( QWidget *parent )
 	hdc = 0;
     }
 
-    PRINTDLG pd; memset( &pd, 0, sizeof(PRINTDLG) );
-    pd.lStructSize = sizeof(PRINTDLG);
-    pd.Flags	 = PD_RETURNDEFAULT;
-    bool result = windowPrintDlg(&pd);
+    bool result = FALSE;
 
-    /* WARNING: PRINTDLG may be a PRINTDLGA or PRINTDLGW, so do not
-     * use the TCHAR fields unless you modify the code, or check
-     * qt_winver.  Either way, be sure to then test on Win95 and WinNT.
-     */
+    // Must handle the -A and -W versions separately; they're incompatible
+    if ( qt_winver == Qt::WV_NT ) {
+	PRINTDLG pd;
+	memset( &pd, 0, sizeof(PRINTDLG) );
+	pd.lStructSize = sizeof(PRINTDLG);
+	pd.Flags = PD_RETURNDEFAULT;
+	result = PrintDlg( &pd ) != 0;
 
-    if ( result ) {
-	pd.Flags	 = PD_RETURNDC;
-	if ( outputToFile() )
-	    pd.Flags |= PD_PRINTTOFILE;
-	pd.hwndOwner = parent ? parent->winId() : 0;
-	pd.nFromPage = QMAX(from_pg,min_pg);
-	pd.nToPage	 = QMIN(to_pg,max_pg);
-	if ( pd.nFromPage > pd.nToPage )
-	    pd.nFromPage = pd.nToPage = 0;
-	pd.nMinPage	 = min_pg;
-	pd.nMaxPage	 = max_pg;
-	pd.nCopies	 = ncopies;
+	if ( result ) {
+	    pd.Flags = PD_RETURNDC;
+	    if ( outputToFile() )
+		pd.Flags |= PD_PRINTTOFILE;
+	    pd.hwndOwner = parent ? parent->winId() : 0;
+	    pd.nFromPage = QMAX(from_pg,min_pg);
+	    pd.nToPage	 = QMIN(to_pg,max_pg);
+	    if ( pd.nFromPage > pd.nToPage )
+		pd.nFromPage = pd.nToPage = 0;
+	    pd.nMinPage	 = min_pg;
+	    pd.nMaxPage	 = max_pg;
+	    pd.nCopies	 = ncopies;
 
-	if ( pd.hDevMode ) {
-	    DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
-	    if ( dm ) {
-		if ( orient == Portrait )
-		    dm->dmOrientation = DMORIENT_PORTRAIT;
-		else
-		    dm->dmOrientation = DMORIENT_LANDSCAPE;
-		GlobalUnlock( pd.hDevMode );
-	    }
-	}
-	result = windowPrintDlg(&pd);
-	if ( result && pd.hDC == 0 )
-	    result = FALSE;
-	if ( result ) {				// get values from dlg
-	    output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
-	    from_pg = pd.nFromPage;
-	    to_pg	= pd.nToPage;
-	    ncopies = pd.nCopies;
-	    hdc	= pd.hDC;
 	    if ( pd.hDevMode ) {
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
 		if ( dm ) {
-		    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-			setOrientation( Portrait );
+		    if ( orient == Portrait )
+			dm->dmOrientation = DMORIENT_PORTRAIT;
 		    else
-			setOrientation( Landscape );
-		    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+			dm->dmOrientation = DMORIENT_LANDSCAPE;
 		    GlobalUnlock( pd.hDevMode );
 		}
 	    }
+	    result = PrintDlg( &pd );
+	    if ( result && pd.hDC == 0 )
+		result = FALSE;
+	    if ( result ) {				// get values from dlg
+		output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
+		from_pg = pd.nFromPage;
+		to_pg	= pd.nToPage;
+		ncopies = pd.nCopies;
+		hdc	= pd.hDC;
+		if ( pd.hDevMode ) {
+		    DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
+		    if ( dm ) {
+			if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+			    setOrientation( Portrait );
+			else
+			    setOrientation( Landscape );
+			setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+			GlobalUnlock( pd.hDevMode );
+		    }
+		}
+	    }
 	}
+	if ( pd.hDevMode )
+	    GlobalFree( pd.hDevMode );
+	if ( pd.hDevNames )
+	    GlobalFree( pd.hDevNames );
     }
-    if ( pd.hDevMode )
-	GlobalFree( pd.hDevMode );
-    if ( pd.hDevNames )
-	GlobalFree( pd.hDevNames );
+    else {
+	// Win95/98 A version; identical to the above!
+	PRINTDLGA pd;
+	memset( &pd, 0, sizeof(PRINTDLGA) );
+	pd.lStructSize = sizeof(PRINTDLGA);
+	pd.Flags	 = PD_RETURNDEFAULT;
+	bool result = PrintDlgA( &pd ) != 0;
+
+	if ( result ) {
+	    pd.Flags = PD_RETURNDC;
+	    if ( outputToFile() )
+		pd.Flags |= PD_PRINTTOFILE;
+	    pd.hwndOwner = parent ? parent->winId() : 0;
+	    pd.nFromPage = QMAX(from_pg,min_pg);
+	    pd.nToPage	 = QMIN(to_pg,max_pg);
+	    if ( pd.nFromPage > pd.nToPage )
+		pd.nFromPage = pd.nToPage = 0;
+	    pd.nMinPage	 = min_pg;
+	    pd.nMaxPage	 = max_pg;
+	    pd.nCopies	 = ncopies;
+
+	    if ( pd.hDevMode ) {
+		DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
+		if ( dm ) {
+		    if ( orient == Portrait )
+			dm->dmOrientation = DMORIENT_PORTRAIT;
+		    else
+			dm->dmOrientation = DMORIENT_LANDSCAPE;
+		    GlobalUnlock( pd.hDevMode );
+		}
+	    }
+	    result = PrintDlgA( &pd );
+	    if ( result && pd.hDC == 0 )
+		result = FALSE;
+	    if ( result ) {				// get values from dlg
+		output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
+		from_pg = pd.nFromPage;
+		to_pg	= pd.nToPage;
+		ncopies = pd.nCopies;
+		hdc	= pd.hDC;
+		if ( pd.hDevMode ) {
+		    DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
+		    if ( dm ) {
+			if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+			    setOrientation( Portrait );
+			else
+			    setOrientation( Landscape );
+			setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+			GlobalUnlock( pd.hDevMode );
+		    }
+		}
+	    }
+	}
+	if ( pd.hDevMode )
+	    GlobalFree( pd.hDevMode );
+	if ( pd.hDevNames )
+	    GlobalFree( pd.hDevNames );	
+    }
     return result;
 }
+
+
 
 
 static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
