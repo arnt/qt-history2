@@ -22,7 +22,9 @@
 
 #include "pixmapchooser.h"
 #include "formwindow.h"
+#if defined(DESIGNER)
 #include "pixmapfunction.h"
+#endif
 #include "metadatabase.h"
 #include "mainwindow.h"
 
@@ -33,6 +35,7 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 
+#if defined(DESIGNER)
 #include "../pics/images.h"
 
 static const char *logo_xpm[] = {
@@ -270,6 +273,7 @@ static const char *logo_xpm[] = {
 
 static ImageIconProvider *imageIconProvider = 0;
 static PixmapChooser *pixmapChooser = 0;
+#endif
 
 PixmapView::PixmapView( QWidget *parent )
     : QScrollView( parent )
@@ -304,6 +308,7 @@ void PixmapView::previewUrl( const QUrl &u )
 
 QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old )
 {
+#if defined(DESIGNER)
     if ( !fw || fw->savePixmapInline() ) {
 	if ( !imageIconProvider && !QFileDialog::iconProvider() )
 	    QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
@@ -343,6 +348,11 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old )
 	    return pix;
 	}
     }
+#else
+    Q_UNUSED( parent );
+    Q_UNUSED( fw );
+    Q_UNUSED( old );
+#endif
     return QPixmap();
 }
 
@@ -388,6 +398,7 @@ QString PixmapChooser::pixmapPath( Size size ) const
 
 QPixmap PixmapChooser::loadPixmap( const QString &name, Size size )
 {
+#if defined(DESIGNER)
     if ( !pixmapChooser )
 	pixmapChooser = new PixmapChooser;
 
@@ -431,4 +442,9 @@ QPixmap PixmapChooser::loadPixmap( const QString &name, Size size )
 
     // fallback
     return QPixmap( pixmapChooser->pixmapPath( size ) + name );
+#else
+    Q_UNUSED( name );
+    Q_UNUSED( size );
+    return QPixmap();
+#endif
 }

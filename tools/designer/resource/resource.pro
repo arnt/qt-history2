@@ -7,13 +7,16 @@ SOURCES		= qwidgetfactory.cpp \
 		  ../shared/domtool.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
 		  ../designer/config.cpp \
-		  ../designer/database.cpp
+		  ../designer/database.cpp \
+		  ../designer/pixmapchooser.cpp
 HEADERS		= qwidgetfactory.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
 		  ../designer/config.h \
-		  ../designer/database.h
+		  ../designer/database.h \
+		  ../designer/pixmapchooser.h
+
 TARGET		= qresource
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
 DESTDIR		= $(QTDIR)/lib
