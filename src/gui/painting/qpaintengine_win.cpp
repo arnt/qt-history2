@@ -1336,13 +1336,10 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
         return;
     }
 
-    if (path.isEmpty()) {
-        updateClipRegion(QRegion(), Qt::ReplaceClip);
-        return;
-    }
-
-    if (op == Qt::ReplaceClip && path.isEmpty()) {
+    if (op == Qt::NoClip) {
         SelectClipRgn(d->hdc, 0);
+    } else if (path.isEmpty()) {
+        updateClipRegion(QRegion(), op);
     } else {
         d->composeGdiPath(path);
         SelectClipPath(d->hdc, qt_clip_operations[op]);
