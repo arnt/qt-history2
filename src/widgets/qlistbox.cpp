@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#274 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#275 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2497,13 +2497,7 @@ void QListBox::refreshSlot()
 
 void QListBox::viewportPaintEvent( QPaintEvent * e )
 {
-    if ( d->layoutDirty ) {
-	// in this case, we know we'll do the wrong thing now, and the
-	// right thing as soon as refreshSlot() is called.  so skip this
-	// event.
-	return;
-    }
-
+    doLayout();
     QWidget* vp = viewport();
     QPainter p( vp );
     QRegion r = e->region();
@@ -2694,8 +2688,9 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	 rowMode() == FitToHeight || columnMode() == FitToWidth ||
 	 columnMode() == FixedNumber) {
 	d->layoutDirty = TRUE;
-	d->updateTimer->stop();
     }
+    d->updateTimer->stop();
+    doLayout();
     QScrollView::resizeEvent( e );
     ensureCurrentVisible();
 }
