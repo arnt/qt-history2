@@ -612,6 +612,10 @@ bool QPainter::begin(QPaintDevice *pd)
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
 
+    // Slip a painter state into the engine before we do any other operations
+    d->engine->state = d->state;
+    d->engine->setDirty(QPaintEngine::AllDirty);
+
     if (!d->engine->begin(pd)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;

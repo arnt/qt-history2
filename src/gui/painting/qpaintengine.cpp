@@ -390,6 +390,7 @@ QPainter *QPaintEngine::painter() const
 
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
+    Q_ASSERT(state);
     if (!s || !updateGC) {
         state = s;
         return;
@@ -397,7 +398,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
     // assign state after we start checking so the if works, but before update
     // calls since we need it in some cases..
-    if (!state || s->painter != state->painter) {
+    if (s->painter != state->painter) {
         setDirty(AllDirty);
     } else if (s != state) {
         dirtyFlag = state->changeFlags;
