@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: accel.doc,v 1.68 1999/09/24 16:25:16 jo Exp $
+** $Id$
 **
 ** Help with writing Qt/Embedded accelerated drivers
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page emb-accel.html
+/*!
+\page emb-accel.html
 
 \title Adding an accelerated graphics driver to Qt/Embedded
 
@@ -134,8 +135,3 @@ qgfxvoodoo_qws.cpp may provide a smaller and easier-to-understand
 driver.
 
 */
-
-
-
-
-

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Documentation for class overview
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page classes.html
+/*!
+  \page classes.html
 
   \title Qt's Classes
 
@@ -45,7 +46,8 @@
   \extensionlist
 */
 
-/*! \page mainclasses.html
+/*!
+  \page mainclasses.html
 
   \title Qt's Main Classes
 

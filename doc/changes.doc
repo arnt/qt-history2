@@ -3,7 +3,7 @@
 **
 ** Change documentation
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,8 +33,9 @@
 **
 **********************************************************************/
 
+/*!
+\page keyfeatures30.html
 
-/*! \page keyfeatures30.html
 \title Key Features in Qt 3.0
 
 Qt 3.0 adds a lot of new features and improvements over the Qt 2.x

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Application example documentation
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page simple-application.html
+/*!
+\page simple-application.html
 
 \ingroup step-by-step-examples
 

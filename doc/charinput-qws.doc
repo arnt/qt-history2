@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Documentation of
+** Documentation of character input
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -33,7 +33,8 @@
 **
 **********************************************************************/
 
-/*! \page emb-charinput.html
+/*!
+\page emb-charinput.html
 
 \title Character input in Qt/Embedded
 
@@ -123,6 +124,5 @@ the QWidget constructor.
 The \link http://www.trolltech.com/products/qtopia/ Qtopia\endlink
 environment contains various input widgets such as
 Handwriting Recognition and Virtual Keyboard.
-
 
 */

@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Qt Application Icon Usage Documentation
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -119,6 +119,5 @@ Info.plist file (again, using the PropertyListEditor).
 \i Copy both the icns and your Info.plist into your application bundle
 Resource directory.
 \endlist
-
 
 */
