@@ -100,7 +100,7 @@ double fBm( Vector point, double H, double lacunarity, double octaves,
 } /* fBm() */
 
 
-float noise3(float vec[3])
+static float noise3(float vec[3])
 {
     int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11;
     float rx0, rx1, ry0, ry1, rz0, rz1, *q, sy, sz, a, b, c, d, t, u, v;
@@ -203,5 +203,3 @@ static void init(void)
 	    g3[B + i][j] = g3[i][j];
     }
 }
-
-

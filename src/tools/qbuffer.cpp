@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QBuffer class
 **
 ** Created : 930812
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -146,7 +146,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 {
     if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
-        qWarning( "QBuffer::setBuffer: Buffer is open");
+        qWarning( "QBuffer::setBuffer: Buffer is open" );
 #endif
         return FALSE;
     }
@@ -258,7 +258,11 @@ bool QBuffer::at( Offset pos )
 #endif
     if ( pos > a_len ) {
 #if defined(QT_CHECK_RANGE)
-        qWarning( "QBuffer::at: Index %ld out of range", pos );
+#if defined(QT_LARGE_FILE_SUPPORT)
+        qWarning( "QBuffer::at: Index %llu out of range", pos );
+#else
+        qWarning( "QBuffer::at: Index %lu out of range", pos );
+#endif
 #endif
         return FALSE;
     }

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTextStream class
 **
 ** Created : 940922
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -375,7 +375,11 @@ bool QStringBuffer::at( Offset pos )
 #endif
     if ( pos >= s->length()*2 ) {
 #if defined(QT_CHECK_RANGE)
+#if defined(QT_LARGE_FILE_SUPPORT)
+	qWarning( "QStringBuffer::at: Index %llu out of range", pos );
+#else
 	qWarning( "QStringBuffer::at: Index %lu out of range", pos );
+#endif
 #endif
 	return FALSE;
     }
