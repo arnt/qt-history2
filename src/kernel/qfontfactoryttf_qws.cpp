@@ -24,12 +24,20 @@
 #define CEIL(x)   (((x)+63) & -64)
 #define TRUNC(x)  ((x) >> 6)
 
-
+#if 0 //new freetype version
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_BBOX_H
+#else
+extern "C" {
+#include <freetype/freetype.h>
+#include <freetype/ftglyph.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftbbox.h>
+}
+#endif
 
 class QDiskFontFT : public QDiskFontPrivate {
 public:
