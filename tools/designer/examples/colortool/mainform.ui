@@ -23,6 +23,12 @@
             <property name="name">
                 <cstring>colorWidgetStack</cstring>
             </property>
+            <property name="frameShape">
+                <enum>NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Plain</enum>
+            </property>
             <widget class="QWidget">
                 <property name="name">
                     <cstring>tablePage</cstring>
@@ -341,6 +347,9 @@
         <property name="text">
             <string>View</string>
         </property>
+        <property name="exclusive">
+            <bool>true</bool>
+        </property>
         <property name="usesDropDown">
             <bool>false</bool>
         </property>
@@ -349,6 +358,9 @@
                 <cstring>viewTableAction</cstring>
             </property>
             <property name="toggleAction">
+                <bool>true</bool>
+            </property>
+            <property name="on">
                 <bool>true</bool>
             </property>
             <property name="iconSet">
@@ -576,7 +588,7 @@
     <function access="private">init()</function>
     <function>clearData( bool fillWithDefaults )</function>
     <function>populate()</function>
-    <function returnType="QPixmap">colorSwatch( QColor color )</function>
+    <function returnType="QPixmap">colorSwatch( const QColor color )</function>
     <function>load( const QString &amp; filename )</function>
     <function returnType="bool">okToClear()</function>
     <function>changedColor( const QString &amp; name )</function>
@@ -586,4 +598,7 @@
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>qwidgetstack.h</includehint>
+</includehints>
 </UI>
