@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#20 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#20 $";
 #endif
 
 
@@ -34,15 +34,15 @@ QPaintDevice::QPaintDevice()
 	return;
     }    
     devFlags = PDT_UNDEF;
-    dpy = qt_xdisplay();
-    hd = 0;
+    dpy      = qt_xdisplay();
+    hd       = 0;
 }
 
 QPaintDevice::~QPaintDevice()
 {
 #if defined(CHECK_STATE)
-    if ( !qt_xdisplay() )			// this is a static object
-	warning( "QPaintDevice: Static paint device objects don't release "
+    if ( !qt_xdisplay() )			// this is a global object
+	warning( "QPaintDevice: Global paint device objects do not release "
 		 "window system resources" );
 #endif
 }
@@ -136,7 +136,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 	mono = copy_plane && single_plane;
 	copy_plane ^= single_plane;
-	((QPixMap*)dst)->setImageDataDirty();
+	((QPixMap*)dst)->detach();   // we will change (possibly) shared pixmap
     }
     GC        gc = qt_xget_temp_gc( mono );
     XGCValues gcvals;
