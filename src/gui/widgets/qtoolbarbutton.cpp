@@ -38,9 +38,9 @@ QStyleOptionButton QToolBarButtonPrivate::getStyleOption() const
         opt.text = text;
     opt.icon = icon;
 
-    if (q->isDown()) {
+    if (d->down) {
         opt.state |= QStyle::Style_Down;
-    } else if (q->isChecked()) {
+    } else if (d->checked) {
         opt.state |= QStyle::Style_On;
     } else if (q->isEnabled()) {
         if (q->underMouse())
@@ -162,7 +162,7 @@ void QToolBarButton::actionEvent(QActionEvent *event)
     switch (event->type()) {
     case QEvent::ActionAdded:
         Q_ASSERT(actions().size() == 1);
-        action->connect(q, SIGNAL(clicked()), SIGNAL(triggered()));
+        action->connect(q, SIGNAL(clicked()), SLOT(trigger()));
         // fall through intended
 
     case QEvent::ActionChanged:

@@ -1671,7 +1671,7 @@ QWidget::addAction(QAction *action)
     if(d->actions.contains(action))
         return;
     d->actions.append(action);
-    QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+    QObject::connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
     QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     if (!action->shortcut().isEmpty()) {
         setAttribute(Qt::WA_GrabbedShortcut);
@@ -1711,7 +1711,7 @@ QWidget::insertAction(QAction *before, QAction *action)
         d->actions.removeAll(action);
     int before_int = d->actions.indexOf(before);
     d->actions.insert(before_int, action);
-    QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+    QObject::connect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
     QObject::connect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     if (!action->shortcut().isEmpty()) {
         setAttribute(Qt::WA_GrabbedShortcut);
@@ -1745,7 +1745,7 @@ void
 QWidget::removeAction(QAction *action)
 {
     if (d->actions.removeAll(action)) {
-        QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::disconnect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
         QObject::disconnect(action, SIGNAL(deleted()), this, SLOT(actionDeleted()));
         Q_ASSERT(qApp);
         qApp->d->shortcutMap.removeShortcut(0, this,  action);

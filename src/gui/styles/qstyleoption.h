@@ -259,8 +259,6 @@ struct QStyleOptionToolButton : public QStyleOptionComplex
     QString text;
     Qt::ArrowType arrowType;
     QPalette::ColorRole bgRole;
-    QPalette::ColorRole parentBGRole;
-    QPalette parentPalette;
     QPoint pos;
     QFont font;
     QToolButton::TextPosition textPosition;
@@ -272,8 +270,6 @@ struct QStyleOptionToolButton : public QStyleOptionComplex
     QDOC_PROPERTY(QString text);
     QDOC_PROPERTY(Qt::ArrowType arrowType);
     QDOC_PROPERTY(QPalette::ColorRole bgRole);
-    QDOC_PROPERTY(QPalette::ColorRole parentBGRole);
-    QDOC_PROPERTY(QPalette parentPalette);
     QDOC_PROPERTY(QPoint pos);
     QDOC_PROPERTY(QFont font);
     QDOC_PROPERTY(QToolButton::TextPosition textPosition);

@@ -132,6 +132,8 @@ protected:
 
 public slots:
     inline void toggle() { setChecked(!isChecked()); }
+    void trigger() { activate(Trigger); }
+    void hover() { activate(Hover); }
     void setChecked(bool);
     void setEnabled(bool);
     inline void setDisabled(bool b) { setEnabled(!b); }
@@ -139,7 +141,7 @@ public slots:
 
 signals:
     void deleted();
-    void dataChanged();
+    void changed();
     void triggered();
     void hovered();
     void checked(bool);

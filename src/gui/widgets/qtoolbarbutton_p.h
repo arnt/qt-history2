@@ -33,6 +33,8 @@ protected:
     void leaveEvent(QEvent *);
     void paintEvent(QPaintEvent *);
     void actionEvent(QActionEvent *event);
+
+    void nextCheckState(){} // we do not want the button to change state on its own, only through the action
 };
 
 #endif // QTOOLBARBUTTON_P_H

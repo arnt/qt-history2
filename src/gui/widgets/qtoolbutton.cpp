@@ -302,13 +302,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     if (usesBigPixmap)
         opt.features |= QStyleOptionToolButton::BigPixmap;
     opt.bgRole = q->backgroundRole();
-    const QWidget *w = q->parentWidget();
-    if (w) {
-        opt.parentBGRole = w->backgroundRole();
-        opt.parentPalette = w->palette();
-    } else {
-        opt.parentBGRole = opt.bgRole;
-    }
     opt.textPosition = textPos;
     opt.pos = q->pos();
     opt.font = q->font();

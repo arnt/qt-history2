@@ -43,7 +43,7 @@ QActionPrivate::~QActionPrivate()
 
 void QActionPrivate::sendDataChanged()
 {
-    emit q->dataChanged();
+    emit q->changed();
     QActionEvent e(QEvent::ActionChanged, q);
     QApplication::sendEvent(q, &e);
 }
@@ -575,7 +575,7 @@ void QAction::setChecked(bool b)
 {
     d->checked = b;
     d->sendDataChanged();
-    if(isCheckable()) {
+    if(d->checkable) {
         emit checked(b);
 #ifdef QT_COMPAT
         emit toggled(b);
@@ -691,8 +691,11 @@ QAction::showStatusText(QWidget *widget)
 void QAction::activate(ActionEvent event)
 {
     if(event == Trigger) {
-        if(isCheckable())
-            setChecked(!isChecked());
+        if(d->checkable)
+            // the checked action of an exclusive group cannot be  unchecked
+            if (d->checked && d->group && d->group->isExclusive() && d->group->checkedAction() == this)
+                return;
+            setChecked(!d->checked);
         emit triggered();
 #ifdef QT_COMPAT
         emit activated();
@@ -709,7 +712,7 @@ void QAction::activate(ActionEvent event)
     for example, when the user clicks a menu option, toolbar button,
     or presses an action's shortcut key combination.
 
-    Connect to this signal for command actions. 
+    Connect to this signal for command actions.
 
     \sa QAction::activate(), QAction::checked()
 */
@@ -737,7 +740,7 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    \fn void QAction::dataChanged()
+    \fn void QAction::changed()
 
     This signal is emitted when an action has changed. If you
     are only interested in actions in a given widget, you can
@@ -824,7 +827,7 @@ void QActionGroupPrivate::actionDeleted()
 
     Here we create a new action group. Since the action group is exclusive
     by default, only one of the actions in the group is ever active at any
-    one time. We then connect the group's selected() signal to our
+    one time. We then connect the group's triggered() signal to our
     textAlign() slot.
 
     \printuntil actionAlignLeft->setCheckable
@@ -837,9 +840,11 @@ void QActionGroupPrivate::actionDeleted()
     is activated. Each action in an action group emits its
     triggered() signal as usual.
 
-    The setExclusive() function is used to ensure that only one action
-    is active at any one time; it should be used with \c checkable
-    actions.
+    As stated above, an action group is \l exclusive by default; it
+    ensures that only one \c checkable action is active at any one
+    time. If you want to group checkable actions without making them
+    exclusive, you can turn of exclusiveness by calling
+    setExclusive(false).
 
     Actions can be added to an action group using addAction(), but it
     is usually more convenient to specify a group when creating
@@ -881,12 +886,10 @@ QAction *QActionGroup::addAction(QAction* a)
     if(!d->actions.contains(a)) {
         d->actions.append(a);
         QObject::connect(a, SIGNAL(triggered()), this, SLOT(actionTriggered()));
-        QObject::connect(a, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::connect(a, SIGNAL(changed()), this, SLOT(actionChanged()));
         QObject::connect(a, SIGNAL(hovered()), this, SLOT(actionHovered()));
         QObject::connect(a, SIGNAL(deleted()), this, SLOT(actionDeleted()));
     }
-    if(d->exclusive)
-        a->setCheckable(true);
     if(!a->d->forceDisabled) {
         a->setEnabled(d->enabled);
         a->d->forceDisabled = false;
@@ -938,7 +941,7 @@ void QActionGroup::removeAction(QAction *action)
 {
     if (d->actions.removeAll(action)) {
         QObject::disconnect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
-        QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QObject::disconnect(action, SIGNAL(changed()), this, SLOT(actionChanged()));
         QObject::disconnect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
         QObject::disconnect(action, SIGNAL(deleted(QObject*)), this, SLOT(actionDeleted()));
         action->d->group = 0;
@@ -967,8 +970,6 @@ QList<QAction*> QActionGroup::actions() const
 void QActionGroup::setExclusive(bool b)
 {
     d->exclusive = b;
-    for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-        (*it)->setCheckable(b);
 }
 
 bool QActionGroup::isExclusive() const

@@ -23,11 +23,11 @@
     \ingroup appearance
     \mainclass
 
-    An \l exclusive button group switches off all toggle buttons
-    except the one that was clicked. By default, a button group is
-    exclusive. The buttons in a button group are usually toggle
-    QPushButton's, \l{QCheckBox}es (normally for non-exclusive button
-    groups), or \l{QRadioButton}s.
+    An \l exclusive button group switches off all checkable (toggle)
+    buttons except the one that was clicked. By default, a button
+    group is exclusive. The buttons in a button group are usually
+    checkable QPushButton's, \l{QCheckBox}es (normally for
+    non-exclusive button groups), or \l{QRadioButton}s.
 
     A button is added to the group with addButton(). It can be removed
     from the group with removeButton(). If the group is exclusive, the
@@ -60,8 +60,8 @@
     \brief whether the button group is exclusive
 
     If this property is true, then the buttons in the group are
-    toggled, and to untoggle a button you must click on another button
-    in the group. The default value is true.
+    checked (toggled), and to untoggle a button you must click on
+    another button in the group. The default value is true.
 */
 
 /*!

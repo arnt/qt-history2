@@ -1070,10 +1070,12 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
             const QPixmap pixmap = button->icon.pixmap(QIconSet::Automatic, iconMode, iconState);
 
-            if (button->state & Style_Down) {
-                qDrawShadePanel(p, cr, button->palette, true);
-            } else if (button->state & (Style_MouseOver | Style_Open)) {
-                qDrawShadePanel(p, cr, button->palette, false);
+            QStyleOption tool(0);
+            tool.palette = button->palette;
+            if (button->state & (Style_Down | Style_On | Style_Raised)) {
+                tool.rect = button->rect;
+                tool.state = button->state;
+                drawPrimitive(PE_ButtonTool, &tool, p, widget);
             }
 
             const QRect ir(cr.topLeft() + QPoint(3, 3), QSize(pixmap.width(), cr.height() - 6));
@@ -1554,9 +1556,6 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
     case CC_ToolButton:
         if (const QStyleOptionToolButton *toolbutton
                 = qt_cast<const QStyleOptionToolButton *>(opt)) {
-            QPalette pal2 = toolbutton->palette;
-            if (toolbutton->bgRole != QPalette::Button)
-                pal2.setBrush(QPalette::Button, toolbutton->palette.brush(toolbutton->bgRole));
             QRect button, menuarea;
             button = visualRect(querySubControlMetrics(cc, toolbutton, SC_ToolButton, widget),
                                 widget);
@@ -1572,17 +1571,12 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 mflags |= Style_Down;
 
             QStyleOption tool(0);
-            tool.palette = pal2;
+            tool.palette = toolbutton->palette;
             if (toolbutton->parts & SC_ToolButton) {
                 if (bflags & (Style_Down | Style_On | Style_Raised)) {
                     tool.rect = button;
                     tool.state = bflags;
                     drawPrimitive(PE_ButtonTool, &tool, p, widget);
-                } else if (toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()
-                           && !toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap()->isNull()) {
-                    p->drawTiledPixmap(toolbutton->rect,
-                           *toolbutton->parentPalette.brush(toolbutton->parentBGRole).pixmap(),
-                           toolbutton->pos);
                 }
             }
 
@@ -1598,7 +1592,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QStyleOptionFocusRect fr(0);
                 fr.rect = toolbutton->rect;
                 fr.rect.addCoords(3, 3, -3, -3);
-                fr.palette = pal2;
+                fr.palette = toolbutton->palette;
                 fr.state = Style_Default;
                 drawPrimitive(PE_FocusRect, &fr, p, widget);
             }
