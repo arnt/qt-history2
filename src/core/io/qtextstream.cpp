@@ -125,7 +125,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \row    \o left              \o Same as calling setFieldAlignment(AlignLeft).
     \row    \o right             \o Same as calling setFieldAlignment(AlignRight).
     \row    \o center            \o Same as calling setFieldAlignment(AlignCenter).
-    \row    \o endl              \o Same as calling operator<<('\n').
+    \row    \o endl              \o Same as calling operator<<('\n') and flush().
     \row    \o flush             \o Same as calling flush().
     \row    \o reset             \o Same as calling reset().
     \endtable
@@ -2302,11 +2302,11 @@ QTextStream &center(QTextStream &stream)
     \fn QTextStream &endl(QTextStream &stream)
     \relates QTextStream
 
-    Calls stream << '\n' and returns \a stream.
+    Calls stream << '\n' << flush and returns \a stream.
 */
 QTextStream &endl(QTextStream &stream)
 {
-    return stream << QLatin1Char('\n');
+    return stream << QLatin1Char('\n') << flush;
 }
 
 /*!
