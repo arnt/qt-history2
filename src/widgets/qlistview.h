@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#109 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#110 $
 **
 ** Definition of QListView widget class
 **
@@ -44,8 +44,10 @@ class QListViewItemIterator;
 class Q_EXPORT QListViewItem: public Qt
 {
     friend class QListViewItemIterator;
+#if defined(_CC_MSVC_)
     friend class QListViewItem;
-
+#endif
+    
 public:
     QListViewItem( QListView * parent );
     QListViewItem( QListViewItem * parent );
