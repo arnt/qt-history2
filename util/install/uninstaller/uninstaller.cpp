@@ -3,6 +3,7 @@
 #include <qdir.h>
 #include <qmultilineedit.h>
 #include <qpushbutton.h>
+#include <qmessagebox.h>
 #include "uninstall.h"
 #include "../environment.h"
 
@@ -40,20 +41,26 @@ int main( int argc, char** argv )
     if( argc != 4 )
 	qFatal( "Incorrect parameters" );
 
-    progress->setCaption( QString( "Uninstalling Qt " ) + argv[ 3 ] );
-    progress->show();
+    if( !QMessageBox::information( 0, QString( "Uninstalling Qt " ) + argv[ 3 ], "Are you sure you want to uninstall Qt?\nThis will remove the directory this version\nof Qt was installed to, along with ALL its contents.", "Yes", "No" ) )
+    {
+	progress->setCaption( QString( "Uninstalling Qt " ) + argv[ 3 ] );
+	progress->show();
     
-    app->setMainWidget( progress );
+	app->setMainWidget( progress );
 
-    rmDirRecursive( argv[ 1 ] );
-    rmDirRecursive( argv[ 2 ] );
+	// Delete the two directories we have written files to during the installation.
+	// The OK button is disabled at this point.
+	// Messages will be processed during the delete process.
+	rmDirRecursive( argv[ 1 ] );
+	rmDirRecursive( argv[ 2 ] );
     
-    QEnvironment::removeUninstall( QString( "Qt " ) + argv[ 3 ] );
-    progress->okButton->setEnabled( true );
-    /*
-    ** Just hang around until someone clicks the "OK" button
-    */
-    app->exec();
+	progress->okButton->setEnabled( true );
+	/*
+	** Just hang around until someone clicks the "OK" button
+	*/
+	app->exec();
+	QEnvironment::removeUninstall( QString( "Qt " ) + argv[ 3 ] );
+    }
 
     return 0;
 }
