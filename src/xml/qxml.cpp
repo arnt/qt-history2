@@ -7025,11 +7025,21 @@ void QXmlSimpleReader::next()
 	    return;
 	}
     }
-    if ( c=='\n' || c=='\r' ) {
+    // the following could be written nicer, but since it is a time-critical
+    // function, rather optimize for speed
+    if ( c == '\n' ) {
+	c = inputSource->next();
 	lineNr++;
 	columnNr = -1;
+    } else if ( c == '\r' ) {
+	c = inputSource->next();
+	if ( c != '\n' ) {
+	    lineNr++;
+	    columnNr = -1;
+	}
+    } else {
+	c = inputSource->next();
     }
-    c = inputSource->next();
     columnNr++;
 }
 
