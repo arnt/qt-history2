@@ -83,8 +83,7 @@ void ProfileDialog::initDialog()
 void ProfileDialog::insertProfileData()
 {
     leName->setText( profile->props["name"] );
-    iconName = profile->props["applicationicon"];
-    setIcon();
+    leIcon->setText( profile->props["applicationicon"] );
     leAboutMenuText->setText( profile->props["aboutmenutext"] );
     leAboutUrl->setText( profile->props["abouturl"] );
     leTitle->setText( profile->props["title"] );
@@ -101,14 +100,6 @@ void ProfileDialog::insertProfileData()
     }
 }
 
-void ProfileDialog::setIcon()
-{
-    if ( profile->props["name"] == "default" )
-	iconButton->setIconSet( QIconSet( QPixmap::fromMimeSource( iconName ) ) );
-    else
-	iconButton->setIconSet( QIconSet( QPixmap( iconName ) ) );
-}
-
 void ProfileDialog::okClicked()
 {
     if ( leName->text().isEmpty() ) {
@@ -117,7 +108,7 @@ void ProfileDialog::okClicked()
 	return;
     }
     profile->props["name"] = leName->text();
-    profile->props["applicationicon"] = iconName;
+    profile->props["applicationicon"] = leIcon->text();
     profile->props["aboutmenutext"] = leAboutMenuText->text();
     profile->props["abouturl"] = leAboutUrl->text();
     profile->props["basepath"] = lePath->text();
@@ -148,7 +139,7 @@ void ProfileDialog::cancelClicked()
     done( Rejected );
 }
 
-void ProfileDialog::setProfileIcon()
+void ProfileDialog::chooseProfileIcon()
 {
     IconPreview* ip = new IconPreview;
 
@@ -161,10 +152,8 @@ void ProfileDialog::setProfileIcon()
     fd.setPreviewMode( QFileDialog::Contents );
     if ( fd.exec()== QDialog::Accepted ) {
 	QString sf = fd.selectedFile();
-	if ( !sf.isEmpty() ) {
-	    iconName = sf;
-	    setIcon();
-	}
+	if ( !sf.isEmpty() )
+	    leIcon->setText( sf );
     }
     delete ip;
 }
@@ -257,7 +246,7 @@ void ProfileDialog::saveProfileInFile()
 	profile->props["name"] = leName->text();
 	profile->props["aboutmenutext"] = leAboutMenuText->text();
 	profile->props["title"] = leTitle->text();
-	profile->props["applicationicon"] = iconName;
+	profile->props["applicationicon"] = leIcon->text();
 	profile->props["abouturl"] = leAboutUrl->text();
 	profile->props["basepath"] = lePath->text();
 	profile->props["startpage"] = leHome->text();

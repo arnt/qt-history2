@@ -37,7 +37,7 @@ public:
 private slots:
     void okClicked();
     void cancelClicked();
-    void setProfileIcon();
+    void chooseProfileIcon();
     void addDocFile();
     void removeDocFile();
     void saveProfileInFile();
@@ -47,7 +47,6 @@ private slots:
 
 private:
     void initDialog();
-    void setIcon();
     void checkForChanges();
     QString iconAbsFilePath( const QString &docFileName,
 			     const QString &iconName );
@@ -57,7 +56,6 @@ private:
     Profile *oldProfile, *profile;
     bool changed;
     Mode mode;
-    QString iconName;
 };
 
 #endif

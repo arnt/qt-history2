@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>385</width>
-            <height>370</height>
+            <width>326</width>
+            <height>415</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,305 +19,274 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QFrame">
+        <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>frame3</cstring>
+                <cstring>layout4</cstring>
             </property>
-            <property name="frameShape">
-                <enum>StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-                <enum>Raised</enum>
-            </property>
-            <vbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
+                <widget class="QPushButton" row="6" column="2">
+                    <property name="name">
+                        <cstring>urlButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>30</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>...</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="6" column="0">
+                    <property name="name">
+                        <cstring>textLabel5</cstring>
+                    </property>
+                    <property name="text">
+                        <string>About &amp;URL:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leAboutUrl</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="5" column="0">
+                    <property name="name">
+                        <cstring>textLabel4</cstring>
+                    </property>
+                    <property name="text">
+                        <string>About &amp;menu text:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leAboutMenuText</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Name:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leName</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="4" column="0">
+                    <property name="name">
+                        <cstring>textLabel7</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Homepage:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leHome</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="3" column="0">
+                    <property name="name">
+                        <cstring>textLabel6</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Base &amp;Path:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>lePath</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>leAboutMenuText</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="4" column="2">
+                    <property name="name">
+                        <cstring>homeButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>30</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>...</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>leTitle</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="6" column="1">
+                    <property name="name">
+                        <cstring>leAboutUrl</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="2">
+                    <property name="name">
+                        <cstring>iconButton</cstring>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>30</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>...</string>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="3" column="1">
+                    <property name="name">
+                        <cstring>lePath</cstring>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="2">
+                    <property name="name">
+                        <cstring>pathButton</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>1</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="maximumSize">
+                        <size>
+                            <width>30</width>
+                            <height>32767</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>...</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Icon:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leIcon</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>textLabel2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Title:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>leTitle</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="4" column="1">
+                    <property name="name">
+                        <cstring>leHome</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="2" column="1">
+                    <property name="name">
+                        <cstring>leIcon</cstring>
+                    </property>
+                </widget>
+                <widget class="QLineEdit" row="0" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>leName</cstring>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>Documentation</string>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QListBox">
+                    <property name="name">
+                        <cstring>docListView</cstring>
+                    </property>
+                </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout7</cstring>
+                        <cstring>layout1</cstring>
                     </property>
-                    <hbox>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <widget class="QPushButton">
                             <property name="name">
-                                <cstring>layout12</cstring>
+                                <cstring>addButton</cstring>
                             </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel1</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>&amp;Name:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>leName</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>&amp;Title:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>leTitle</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel6</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Base &amp;Path:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>lePath</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel7</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>&amp;Homepage:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>leHome</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel4</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>About &amp;menu text:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>leAboutMenuText</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel5</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>About &amp;URL:</string>
-                                    </property>
-                                    <property name="buddy" stdset="0">
-                                        <cstring>leAboutUrl</cstring>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            <property name="text">
+                                <string>&amp;Add</string>
+                            </property>
+                            <property name="accel">
+                                <string>Alt+R</string>
+                            </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <spacer>
                             <property name="name">
-                                <cstring>layout6</cstring>
+                                <cstring>spacer1</cstring>
                             </property>
-                            <grid>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLineEdit" row="4" column="0" rowspan="1" colspan="3">
-                                    <property name="name">
-                                        <cstring>leAboutMenuText</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QPushButton" row="3" column="1" rowspan="1" colspan="2">
-                                    <property name="name">
-                                        <cstring>homeButton</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>1</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>30</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string>...</string>
-                                    </property>
-                                </widget>
-                                <widget class="QPushButton" row="5" column="1" rowspan="1" colspan="2">
-                                    <property name="name">
-                                        <cstring>urlButton</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>1</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>30</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string>...</string>
-                                    </property>
-                                </widget>
-                                <widget class="QPushButton" row="2" column="1" rowspan="1" colspan="2">
-                                    <property name="name">
-                                        <cstring>pathButton</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>1</hsizetype>
-                                            <vsizetype>0</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="maximumSize">
-                                        <size>
-                                            <width>30</width>
-                                            <height>32767</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string>...</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="0" column="0" rowspan="1" colspan="2">
-                                    <property name="name">
-                                        <cstring>leName</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="1" column="0" rowspan="1" colspan="3">
-                                    <property name="name">
-                                        <cstring>leTitle</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="2" column="0">
-                                    <property name="name">
-                                        <cstring>lePath</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="3" column="0">
-                                    <property name="name">
-                                        <cstring>leHome</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QLineEdit" row="5" column="0">
-                                    <property name="name">
-                                        <cstring>leAboutUrl</cstring>
-                                    </property>
-                                </widget>
-                                <widget class="QToolButton" row="0" column="2">
-                                    <property name="name">
-                                        <cstring>iconButton</cstring>
-                                    </property>
-                                    <property name="sizePolicy">
-                                        <sizepolicy>
-                                            <hsizetype>1</hsizetype>
-                                            <vsizetype>1</vsizetype>
-                                            <horstretch>0</horstretch>
-                                            <verstretch>0</verstretch>
-                                        </sizepolicy>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>22</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string></string>
-                                    </property>
-                                    <property name="pixmap">
-                                        <pixmap>image0</pixmap>
-                                    </property>
-                                </widget>
-                            </grid>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>21</width>
+                                    <height>26</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>removeButton</cstring>
+                            </property>
+                            <property name="text">
+                                <string>&amp;Remove</string>
+                            </property>
+                            <property name="accel">
+                                <string>Alt+R</string>
+                            </property>
                         </widget>
-                    </hbox>
+                    </vbox>
                 </widget>
-                <widget class="QGroupBox">
-                    <property name="name">
-                        <cstring>groupBox1</cstring>
-                    </property>
-                    <property name="title">
-                        <string>Documentation</string>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QListBox">
-                            <property name="name">
-                                <cstring>docListView</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout1</cstring>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QPushButton">
-                                    <property name="name">
-                                        <cstring>addButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>&amp;Add</string>
-                                    </property>
-                                    <property name="accel">
-                                        <string>Alt+R</string>
-                                    </property>
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer1</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Vertical</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>21</width>
-                                            <height>51</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                                <widget class="QPushButton">
-                                    <property name="name">
-                                        <cstring>removeButton</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>&amp;Remove</string>
-                                    </property>
-                                    <property name="accel">
-                                        <string>Alt+R</string>
-                                    </property>
-                                </widget>
-                            </vbox>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
+            </hbox>
         </widget>
         <spacer>
             <property name="name">
@@ -346,13 +315,13 @@
                 </property>
                 <widget class="QPushButton">
                     <property name="name">
-                        <cstring>saveAsButton</cstring>
+                        <cstring>exportButton</cstring>
                     </property>
                     <property name="text">
-                        <string>&amp;Save As</string>
+                        <string>&amp;Export...</string>
                     </property>
                     <property name="accel">
-                        <string>Alt+S</string>
+                        <string></string>
                     </property>
                 </widget>
                 <spacer>
@@ -401,11 +370,6 @@
         </widget>
     </vbox>
 </widget>
-<images>
-    <image name="image0">
-        <data format="XPM.GZ" length="3998">789cadd6596fdb461007f0777f0a21f316141391122912451f74f8906cd9960fc94ed18711a9cbb725f92cfaddbbdaf9cf264d9a220f8d82003f707676767697cca78f958be37ee5e3a7add55ad68ba252cc6559f9583edddebefdfec76f7f6e7d88e38afb1b655125fef0cbd687c1ba52540eefef261bc8c081aa59b5a85637a6c9c65135aac35170e6dd85337dce9f83fd73b9f0cec2f3198cfc5c0df6f13c3447fabca38eab88cfcd91ce5f6e1c5763d4c797668c1f056bfc0a463d64cf6dbde7ea9acde7eb8ff338d37c740a5bbda40ef17db3cec773d8fa7716acf53460ebcfc1c6b5a8568dd55970eee3dfe1ba3e9737d8d6d383b11e9906eb7c70ddea8d82b55ebffe9aab47e7638dcf2d5e8630d6236730e6972e6cf31faa139bcfbb1ed5b11fbc6fae453ede6ce7e3511dc66f07ebf93a814bccd753a711fac1de522f343f2fd54982fd8ccdda4f1a046bbff7e01cf38b59c78be5b3f917c15adf4c6df5480b4ee03e8cfc74bd711227d5bad63b81918f0a751aa1fe358c7c9cc0c827e7c13a3e85adde5d75c3fa75e3edeaafe9fe1fa9d35cf74b8e618ce7b63a8c4f8235fe01467df41cacfb7f0a5bbd7bb0d5e7d79fc6164f4318eb91266cf18feaccead9876d7e7f9f52373fce7709e76a69c325fa7b12acf32fd519d6c70f66c41fc036df1cb6f5bd076bbe3e6cf5cf83757d2b756eebf1efcb46ad91d4c5cfdf33a7fe654e87708efd1bc3d84fba5067119e17663d6f84f80cf78163d8fa7d60c6fbb506db793809d6fe0ccce8cf4c1dd6f314acf9b7cd885fc0765f2e61ebe7116cfd3b558be5f7e7b531cea2c4f78b084e74fd22708ef7430b46bd3236a31f75b5d5cbc766dc8f8e19ef8f1dd8ceefb619f9edb9ade72558f3dd99d18f5dd8d63b52db7ad9f72b73fdc67e76d46e3ecdf76cc67a9ac1da8fb559fb4112ace7e51e46bfe416b6fbd136e3fbf4aab6faa43463fdc827e88ff8f3988dc3f81bb5583feb30d6438fb0a03f3533d6e3cf575e173bdfcd607f1e84cc89bf3f720d27887f8005df87fb60ed87bfcf7921827c57663d6ffc064f70fe5aea718cf7bbff7ecae68352f77e85278d9a8fbf558f63ad8fefccb8efe614f5faf9c4cd9f8d7d7c433d8ef3c2fb054e339f5ffcf7715c1f8bcec7fefb3d2e8b587c3d94c329f2ddc2c84ffeff7b45524c50ff55b0cee7cf5b5196b17893bfbf6552ca58f35f05973ededf8772524ef439dfa82731e28fcc45e2fd02a76af6fb3749cdf40a4ba1f9fd7998b83fa5c6fbefcd349dba11de292c13ffff61f6efdfe934780d4fa71abf1b3cdd78b0fef9dfff11cfc4c2632eb8e4094f79f65ff13ce7055ff1b5fbddf02ddff13d3ff0e38fe279e96257bce6277ee6177ee5377ee726b7b8cd9defe3799b777897f7b8cb3ddee703eef3211ff1310ff8844fbf8d77955cf9e8333ee7218ff8822ff9335739e2986b5ce7e49bf805a72ebac119e7c4442434a6824a9ad0946634a705cfbfc4bb9eb8cae98aae794837744b77744f0ff4484b5a7195d6f4e4c63c7f152ff442aff4c6237aa726b5a84d1ddaa61ddaa53dea528ff6e980fa5fe2e9908e78878e5df6818bbea7133aa53357d6199d73875634e4535ad028c45fd0257da62a4514538dea947027fc662e3ee536f5a911e233cac51525226377934b99f04ca6ae86a5cb9b70c26d99c99ce7162f0bbe932bb9961bb9953bb9970797b5e7aa5f505f1ee5c1452f65f5d57aa7b296276eca336dcb8bbc5242137973b1efd274b95bb4c7c93fd6db95b674f858363d59c88eebf75a76692e7b2e77cbe5eebab1bdaff74bf67920077ce2fabce3e287d473514d17dd77b51c722247df9e1f39e698e66eef6baeeaa90c5c1f5317bd944339915339fbeebc755c2f9e5c25ee27e73492e1a66ee9badc2399fddb79960bb7f3be236e64eaea9e49dfe952ba3fbe5fd4a067b7339b517359b97f5b3f737f69448dcd79fceefefef5ebd6dfeea49890</data>
-    </image>
-</images>
 <connections>
     <connection>
         <sender>okButton</sender>
@@ -420,12 +384,6 @@
         <slot>cancelClicked()</slot>
     </connection>
     <connection>
-        <sender>iconButton</sender>
-        <signal>clicked()</signal>
-        <receiver>ProfileDialogBase</receiver>
-        <slot>setProfileIcon()</slot>
-    </connection>
-    <connection>
         <sender>addButton</sender>
         <signal>clicked()</signal>
         <receiver>ProfileDialogBase</receiver>
@@ -438,7 +396,7 @@
         <slot>removeDocFile()</slot>
     </connection>
     <connection>
-        <sender>saveAsButton</sender>
+        <sender>exportButton</sender>
         <signal>clicked()</signal>
         <receiver>ProfileDialogBase</receiver>
         <slot>saveProfileInFile()</slot>
@@ -461,11 +419,18 @@
         <receiver>ProfileDialogBase</receiver>
         <slot>setHome()</slot>
     </connection>
+    <connection>
+        <sender>iconButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ProfileDialogBase</receiver>
+        <slot>chooseProfileIcon()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>leName</tabstop>
-    <tabstop>iconButton</tabstop>
     <tabstop>leTitle</tabstop>
+    <tabstop>leIcon</tabstop>
+    <tabstop>iconButton</tabstop>
     <tabstop>lePath</tabstop>
     <tabstop>pathButton</tabstop>
     <tabstop>leHome</tabstop>
@@ -478,12 +443,12 @@
     <tabstop>removeButton</tabstop>
     <tabstop>okButton</tabstop>
     <tabstop>cancelButton</tabstop>
-    <tabstop>saveAsButton</tabstop>
+    <tabstop>exportButton</tabstop>
 </tabstops>
 <slots>
     <slot>okClicked()</slot>
     <slot>cancelClicked()</slot>
-    <slot>setProfileIcon()</slot>
+    <slot>chooseProfileIcon()</slot>
     <slot>addDocFile()</slot>
     <slot>removeDocFile()</slot>
     <slot>saveProfileInFile()</slot>
