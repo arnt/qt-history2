@@ -162,6 +162,7 @@ public:
     QCanvas(int w, int h);
     QCanvas( QPixmap p, int h, int v, int tilewidth, int tileheight );
 
+    void setTiles( QPixmap tiles, int h, int v, int tilewidth, int tileheight );
     void setBackgroundPixmap( const QPixmap& p );
     QPixmap backgroundPixmap() const;
     void setBackgroundColor( const QColor& c );
@@ -252,7 +253,6 @@ private:
     QCanvasData* d;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
-    void setTiles( QPixmap tiles, int h, int v, int tilewidth, int tileheight );
     ushort *grid;
     ushort htiles;
     ushort vtiles;
