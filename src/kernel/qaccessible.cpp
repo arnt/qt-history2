@@ -3,6 +3,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 
 #include "qwidget.h"
+#include "qapplication.h"
 
 /*!
   \class QAccessibleInterface qaccessible.h
@@ -30,8 +31,32 @@
 /*!
   \fn QRect QAccessibleInterface::location() const
 
-  Returns the object's current location in screen coordinates. All visual object
-  provide this information.
+  Returns the object's current location in screen coordinates. 
+  
+  All visual objects provide this information.
+*/
+
+/*!
+  \fn QAccessibleInterface* QAccessibleInterface::hitTest( int x, int y, int *who ) const
+
+  Returns whether the screen coordinates \a x, \a y are within the boundaries of this object.
+  If the tested point is on a child of this object which implements an QAccessibilityInterface
+  itself, that interface is returned. Otherwise, this interface is returned and the value of \a who
+  is set to the identifier of any child element. \a who is set to 0 if the tested point is on
+  the the object itself.
+
+  This function returns NULL if the tested point is outside the boundaries of this object.
+
+  All visual objects provide this information.
+*/
+
+/*!
+  \fn QAccessibleInterface* QAccessibleInterface::parent() const
+
+  Returns the QAccessibleInterface implementation of the parent object, or NULL if there
+  is no such object.
+
+  All objects provide this information.
 */
 
 /*!
@@ -139,14 +164,28 @@
   \brief The QAccessibleObject class implements the QAccessibleInterface.
 */
 
+/*!
+  Constructs a QAccessibleObject.
+*/
 QAccessibleObject::QAccessibleObject()
+: ref( 0 )
 {
 }
 
+/*!
+  Destroys the QAccessibleObject. 
+  
+  This will only happen if a call to release() decrements the internal 
+  reference counter to zero.
+*/
 QAccessibleObject::~QAccessibleObject()
 {
 }
 
+/*!
+  Implements the QUnknownInterface function to return provide an interface for
+  IID_QAccessible and IID_QUnknown.
+*/
 void QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
     *iface = NULL;
@@ -160,11 +199,17 @@ void QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **i
     return;
 }
 
+/*!
+  \reimp
+*/
 ulong QAccessibleObject::addRef()
 {
     return ++ref;
 }
 
+/*!
+  \reimp
+*/
 ulong QAccessibleObject::release()
 {
     if ( !--ref ) {
@@ -184,11 +229,35 @@ QAccessibleWidget::QAccessibleWidget( QWidget *w )
 {
 }
 
+QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
+{
+    QPoint gp = widget->mapToGlobal( QPoint( 0, 0 ) );
+    if ( !QRect( gp.x(), gp.y(), widget->width(), widget->height() ).contains( x, y ) )
+	return NULL;
+
+    QPoint rp = widget->mapFromGlobal( QPoint( x, y ) );
+    QWidget *w = widget->childAt( rp, TRUE );
+
+    QAccessibleInterface *cacc = w->accessibilityInterface();
+    if ( cacc )
+	return cacc;
+    return widget->accessibilityInterface();
+}
+
 QRect	QAccessibleWidget::location( int who ) const
 {
     QPoint wpos = widget->mapToGlobal( QPoint( 0, 0 ) );
 
     return QRect( wpos.x(), wpos.y(), widget->width(), widget->height() );
+}
+
+QAccessibleInterface *QAccessibleWidget::parent() const
+{
+    QWidget *p = widget->parentWidget();
+
+    if ( !p )
+	p = QApplication::desktop();
+    return p->accessibilityInterface();
 }
 
 bool	QAccessibleWidget::doDefaultAction( int who )
@@ -218,7 +287,7 @@ QString	QAccessibleWidget::accelerator( int who ) const
 
 QString	QAccessibleWidget::name( int who ) const
 {
-    return "UNNAMED";
+    return widget->className();
 }
 
 QString	QAccessibleWidget::value( int who ) const
@@ -233,7 +302,43 @@ QAccessible::Role	QAccessibleWidget::role( int who ) const
 
 QAccessible::State	QAccessibleWidget::state( int who ) const
 {
-    return QAccessible::Invisible;
+    int state = QAccessible::Normal;
+
+    if ( widget->isHidden() )
+	state |= QAccessible::Invisible;
+    if ( widget->focusPolicy() != QWidget::NoFocus )
+	state |= QAccessible::Focusable;
+    if ( widget->hasFocus() )
+	state |= QAccessible::Focused;
+    if ( !widget->isEnabled() )
+	state |= QAccessible::Unavailable;
+
+    return (State)state;
+}
+
+QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
+{
+    if ( !widget->isActiveWindow() )
+	return 0;
+
+    if ( widget->hasFocus() ) {
+	*who = 0;
+	return widget->accessibilityInterface();
+    }
+
+    QWidget *w = qApp->focusWidget();
+
+    // find out if we are the parent of the focusWidget
+    QWidget *p = w;
+    while ( p = p->parentWidget() ) {
+	if ( p == widget )
+	    break;
+    }
+    if ( p )
+	return w->accessibilityInterface();
+
+    // we don't know the focusWidget
+    return 0;
 }
 
 #endif

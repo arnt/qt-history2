@@ -104,13 +104,14 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     };
 #endif
     // navigation and hierarchy
-//    virtual int		hitTest( int x, int y ) const = 0;
+    virtual QAccessibleInterface* hitTest( int x, int y, int *who ) const = 0;
     virtual QRect	location( int who ) const = 0;
 /*    virtual bool	navigate( int dir, int start ) const = 0;
     virtual QAccessibleInterface* child( int who ) const = 0;
     virtual int		childCount() const = 0;
-    virtual QAccessibleInterface* parent() const = 0;
 */
+    virtual QAccessibleInterface* parent() const = 0;
+
     // descriptive properties and methods
     virtual bool	doDefaultAction( int who ) = 0;
     virtual QString	defaultAction( int who ) const = 0;
@@ -124,9 +125,9 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 /*
     // selection and focus
     virtual void	select( int how, int who ) = 0;
-    virtual bool	hasFocus() const = 0;
     virtual int		selection() const = 0;
 */
+    virtual QAccessibleInterface *hasFocus( int *who ) const = 0;
 };
 
 class Q_EXPORT QAccessibleObject : public QAccessibleInterface
@@ -148,8 +149,10 @@ class Q_EXPORT QAccessibleWidget : public QAccessibleObject
 public:
     QAccessibleWidget( QWidget *w );
 
+    QAccessibleInterface* hitTest( int x, int y, int *who ) const;
     QRect	location( int who ) const;
-    
+    QAccessibleInterface *parent() const;
+
     bool	doDefaultAction( int who );
     QString	defaultAction( int who ) const;
     QString	description( int who ) const;
@@ -160,6 +163,7 @@ public:
     Role	role( int who ) const;
     State	state( int who ) const;
 
+    QAccessibleInterface *hasFocus( int *who ) const;
 private:
     QWidget *widget;
 };

@@ -46,6 +46,12 @@ public:
     QWindowsAccessible( QAccessibleInterface *a )
 	: ref( 0 ), accessible( a )
     {
+	accessible->addRef();
+    }
+
+    ~QWindowsAccessible()
+    {
+	accessible->release();
     }
 
     HRESULT STDMETHODCALLTYPE QueryInterface( REFIID, LPVOID * );
@@ -161,39 +167,32 @@ HRESULT QWindowsAccessible::Invoke( long, const _GUID &, unsigned long, unsigned
 */
 HRESULT QWindowsAccessible::accHitTest( long xLeft, long yTop, VARIANT *pvarID )
 { 
-#if 0
-    QWidget *w = QApplication::widgetAt( xLeft, yTop, TRUE );
-    if ( !w ) {
+    int who;
+    QAccessibleInterface *acc = accessible->hitTest( xLeft, yTop, &who );
+
+    if ( !acc ) {
 	(*pvarID).vt = VT_EMPTY;
 	return S_FALSE;
     }
-    if ( w == widget ) {
+    if ( acc == accessible ) {
 	(*pvarID).vt = VT_I4;
-	(*pvarID).lVal = CHILDID_SELF;
+	(*pvarID).lVal = who;
 	return S_OK;
-    } 
+    }
 
-    QWidget *p = w;
-    while ( ( p = p->parentWidget() ) ) {
-	if ( p == widget )
-	    break;
+    QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    IDispatch *iface;
+    wacc->QueryInterface( IID_IDispatch, (void**)&iface );
+    if ( iface ) {
+	(*pvarID).vt = VT_DISPATCH;
+	(*pvarID).pdispVal = iface;
+	return S_OK;
+    } else {
+	delete wacc;
     }
-    if ( p == widget && w->accessibilityInterface() ) {
-	QWindowsAccessible* acc = new QWindowsAccessible( w->accessibilityInterface() );
-	IDispatch *iface;
-	acc->QueryInterface( IID_IDispatch, (void**)&iface );
-	if ( iface ) {
-	    (*pvarID).vt = VT_DISPATCH;
-	    (*pvarID).pdispVal = iface;
-	    return S_OK;
-	} else {
-	    delete acc;
-	}
-    }
-    
+
     (*pvarID).vt = VT_EMPTY;
-#endif
-    return S_FALSE;
+    return DISP_E_MEMBERNOTFOUND;
 }
 
 HRESULT QWindowsAccessible::accLocation( long *pxLeft, long *pyTop, long *pcxWidth, long *pcyHeight, VARIANT varID )
@@ -220,7 +219,7 @@ HRESULT QWindowsAccessible::accNavigate( long navDir, VARIANT varStart, VARIANT 
 
 HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdispChild )
 { 
-#if 0
+/*
     *ppdispChild = NULL;
     if ( varChildID.vt == VT_EMPTY )
 	return E_INVALIDARG;
@@ -247,7 +246,7 @@ HRESULT QWindowsAccessible::get_accChild( VARIANT varChildID, IDispatch** ppdisp
 	return S_OK;
 
     delete acc;
-#endif
+*/
     return S_FALSE;
 }
 
@@ -268,17 +267,16 @@ HRESULT QWindowsAccessible::get_accChildCount( long* pcountChildren )
 
 HRESULT QWindowsAccessible::get_accParent( IDispatch** ppdispParent )
 { 
+    QAccessibleInterface *acc = accessible->parent();
+    if ( acc ) {
+	QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+	wacc->QueryInterface( IID_IDispatch, (void**)ppdispParent );
+
+	if ( *ppdispParent )
+	    return S_OK;
+    }
+
     *ppdispParent = NULL;
-#if 0
-    if ( !widget->parentWidget() )
-	return S_FALSE;
-
-    QWindowsAccessible* acc = new QWindowsAccessible( widget->parentWidget() );
-    acc->QueryInterface( IID_IDispatch, (void**)ppdispParent );
-
-    if ( *ppdispParent )
-	return S_OK;
-#endif
     return S_FALSE;
 }
 
@@ -367,7 +365,7 @@ HRESULT QWindowsAccessible::get_accRole( VARIANT varID, VARIANT *pvarRole )
 { 
     int role = accessible->role( varID.lVal );
     if ( role != QAccessible::NoRole ) {
-	(*pvarRole).lVal = 
+	(*pvarRole).lVal = role;
 	(*pvarRole).vt = VT_I4;
     } else {
 	(*pvarRole).vt = VT_EMPTY;
@@ -422,14 +420,31 @@ HRESULT QWindowsAccessible::accSelect( long flagsSelect, VARIANT varID )
 
 HRESULT QWindowsAccessible::get_accFocus( VARIANT *pvarID )
 { 
-/*
-    if ( accessible->hasFocus() ) {
-	(*pvarID).vt = VT_I4;
-	(*pvarID).lVal = CHILDID_SELF;
-    } else {
+    int who;
+    QAccessibleInterface *acc = accessible->hasFocus( &who );
+
+    if ( !acc ) {
 	(*pvarID).vt = VT_EMPTY;
-    }	
-*/
+	return S_FALSE;
+    }
+    if ( acc == accessible ) {
+	(*pvarID).vt = VT_I4;
+	(*pvarID).lVal = who;
+	return S_OK;
+    }
+
+    QWindowsAccessible* wacc = new QWindowsAccessible( acc );
+    IDispatch *iface;
+    wacc->QueryInterface( IID_IDispatch, (void**)&iface );
+    if ( iface ) {
+	(*pvarID).vt = VT_DISPATCH;
+	(*pvarID).pdispVal = iface;
+	return S_OK;
+    } else {
+	delete wacc;
+    }
+
+    (*pvarID).vt = VT_EMPTY;
     return DISP_E_MEMBERNOTFOUND;
 }
 
