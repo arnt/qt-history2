@@ -301,7 +301,7 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
-    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const; 
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);
 
@@ -444,19 +444,6 @@ class QT_PROPERTYEDITOR_EXPORT KeySequenceProperty: public AbstractProperty<QKey
 {
 public:
     KeySequenceProperty(const QKeySequence &value, const QString &name);
-
-    void setValue(const QVariant &value);
-    QString toString() const;
-
-    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
-    void updateEditorContents(QWidget *editor);
-    void updateValue(QWidget *editor);
-};
-
-class QT_PROPERTYEDITOR_EXPORT PaletteProperty: public AbstractProperty<QPalette>
-{
-public:
-    PaletteProperty(const QPalette &value, const QString &name);
 
     void setValue(const QVariant &value);
     QString toString() const;

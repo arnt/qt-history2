@@ -14,7 +14,6 @@
 #include "qpropertyeditor_items_p.h"
 #include "flagbox_p.h"
 #include "keysequenceeditor.h"
-#include "paletteeditorbutton.h"
 #include "defs.h"
 
 #include <QLineEdit>
@@ -1050,46 +1049,5 @@ void KeySequenceProperty::updateValue(QWidget *editor)
     }
 }
 
-// -------------------------------------------------------------------------
-PaletteProperty::PaletteProperty(const QPalette &value, const QString &name)
-    : AbstractProperty<QPalette>(value, name)
-{
-}
-
-void PaletteProperty::setValue(const QVariant &value)
-{
-    m_value = value.toPalette();
-}
-
-QString PaletteProperty::toString() const
-{
-    return QString::null; // ### implement me
-}
-
-QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
-{
-    PaletteEditorButton *btn = new PaletteEditorButton(m_value, parent);
-    QObject::connect(btn, SIGNAL(changed()), target, receiver);
-    return btn;
-}
-
-void PaletteProperty::updateEditorContents(QWidget *editor)
-{
-    if (PaletteEditorButton *btn = qt_cast<PaletteEditorButton*>(editor)) {
-        btn->setPalette(m_value);
-    }
-}
-
-void PaletteProperty::updateValue(QWidget *editor)
-{
-    if (PaletteEditorButton *btn = qt_cast<PaletteEditorButton*>(editor)) {
-        QPalette newValue = btn->palette();
-
-        if (newValue != m_value) {
-            m_value = newValue;
-            setChanged(true);
-        }
-    }
-}
 
 

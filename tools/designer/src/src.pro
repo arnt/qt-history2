@@ -7,6 +7,5 @@ SUBDIRS = \
     shared \
     components \
     designer \
-    shell \
     plugins
 
