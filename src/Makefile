@@ -69,6 +69,9 @@ tools kernel widgets dialogs: dodepend FORCE
 	rm -f $(OBJDIR)/$@/*.o
 	mv -f $@/*.o $(OBJDIR)/$@
 
+comeau:
+	$(MAKE) lib CC=como CFLAGS="--strict_warnings -a" OBJDIR=obj/comeau
+
 static:
 	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
 	/bin/rm -f $(STATICTARGET)
