@@ -43,7 +43,7 @@ extern bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPt
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
 
-static EventLoopTimerUPP timerUPP = 0;       //UPP
+static EventLoopTimerUPP timerUPP = 0;
 static EventLoopTimerUPP mac_select_timerUPP = 0;
 
 /*****************************************************************************
@@ -51,7 +51,7 @@ static EventLoopTimerUPP mac_select_timerUPP = 0;
  *****************************************************************************/
 
 /* timer call back */
-static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
+static void qt_mac_activate_timer(EventLoopTimerRef, void *data)
 {
     MacTimerInfo *tmr = (MacTimerInfo *)data;
     if(QMacBlockingFunction::blocking()) { //just send it immediately
@@ -83,7 +83,7 @@ int QEventDispatcherMac::registerTimer(int interval, QObject *obj)
     t.id = serial_id++;
     if (interval) {
         if (!timerUPP)
-            timerUPP = NewEventLoopTimerUPP(qt_activate_mac_timer);
+            timerUPP = NewEventLoopTimerUPP(qt_mac_activate_timer);
         EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
         d->macTimerList->append(t); //carbon timers go at the end..
         if (InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
@@ -350,7 +350,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         return false;
     }
 #endif
-    int           nevents = 0;
+    int nevents = 0;
 
     if(!qt_mac_safe_pdev) { //create an empty widget and this can be used for a port anytime
         QWidget *tlw = new QWidget;
@@ -375,26 +375,19 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QApplication::sendPostedEvents();
     } while(GetNumEventsInQueue(GetMainEventQueue()));
 
-#if 0
-    if(d->quitnow || d->exitloop)
-        return false;
-#endif
-
     QApplication::sendPostedEvents();
 
     QThreadData *data = QThreadData::current();
     const bool canWait = (data->postEventList.size() == 0
-#if 0
-                          && !d->exitloop
-                          && !d->quitnow
-#endif
                           && (flags & QEventLoop::WaitForMoreEvents));
 
-    if(canWait && !d->zero_timer_count) {
-        emit aboutToBlock();
-        while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
-
-        // we are awake, broadcast it
+    if (d->interrupt) {
+        d->interrupt = false;
+    } else {
+        if(canWait && !d->zero_timer_count) {
+            emit aboutToBlock();
+            while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
+        }
         emit awake();
     }
     return nevents > 0;
