@@ -1,7 +1,7 @@
 /*!
     \page qt4-arthur.html
 
-    \title Qt 4: The Arthur Paint Subsystem
+    \title Qt 4: The Arthur Paint System
 
     This document describes Qt 4's approach to painting, and contrasts
     it with the Qt 3 approach.
@@ -10,7 +10,7 @@
 
     \section1 Architecture
 
-    The Qt 4 Paint Subsystem is primarily based on the classes
+    The Qt 4 Paint System is primarily based on the classes
     QPainter, QPaintDevice and QPaintEngine. QPainter is the
     class used to perform drawing operations, for example,
     drawLine() and drawRect(). QPaintDevice is an object that
@@ -70,34 +70,30 @@
     and providing default implementations for unsupported ones has
     become much simpler.
 
-    \section2 What's Changed Since Qt 4 Technology Preview 1?
+    \section2 What's Changed Since Qt 4 Technology Preview 2?
 
     As a result of user feedback and internal discussion, we have
-    made some improvements to the Qt 4 Paint Subsystem:
+    made some improvements to the Qt 4 Paint System:
 
     \list
-    \o The paint engine (\c QPaintEngine) and painter path (\c QPainterPath)
-       now provide floating point accuracy for coordinates.
-       As a result, many painting operations are now more accurate than
-       before, allowing certain types of rendering to be achieved that were
-       not previously possible.
-    \o The integer-based API has been maintained for compatibility with
-       existing classes.
-    \o On X11: Various improvements to rendering quality and performance
-       have been achieved with the XRender extension.
-    \endlist
 
-    A number of classes have been introduced to provide support for floating
-    point coordinates:
+    \o We now support alpha channels in gradient fills on all platforms.
 
-    \list
-    \o \c QPointF, \c QRectF, and \c QSizeF are floating point equivalents
-       of \c QPoint, \c QRect, and \c QSize.
-    \o \c QPolygon provides a point array class that is similar to
-       \c QPointArray, but which uses \c QPointF to store the coordinates
-       of each point. Additionally, the contents of a \c QPainterPath object
-       can be flattened to produce a \c QPolygon.
-    \o \c QLineF provides a description of a vector in two-dimensional space.
+    \o We now provide a floating-point API in addition to the
+       integer-based API in QPainter.
+
+    \o It is possible to fill a pixmap with transparent pixels using QPixmap::fill().
+       (In Qt 3, you had to first create a QImage, fill it with alpha
+       pixels, and convert it to a QPixmap, which was both slow and
+       counter-intuitive.)
+
+    \o In Qt 4, rectangles are drawn as polygons instead of being handled specially.
+       This makes transformations work correctly on rectangles for the first time
+       in Qt history, but has the inconvenient that it introduces off-by-one issues
+       in existing Qt applications. The Q3Painter class provides the old semantics
+       as a help to porting to Qt 4. (The Q3Painter documentation fully explains
+       why we made this change.)
+
     \endlist
 
     \section2 Enabling Use of GDI+ on Windows
@@ -107,7 +103,7 @@
     Qt to take advantage of the features in GDI+ the gdiplus.dll
     library must be in the PATH.
 
-    \section1 New Features in the Qt 4 Paint Subsystem
+    \section1 New Features in the Qt 4 Paint System
 
     \section2 Linear Gradient Brushes
 
@@ -129,9 +125,6 @@
     The code shown above produces a pattern as show in the following pixmap:
 
     \img diagonalGradient.png
-
-    \sa QBrush
-
 
     \section2 Alpha-Blended Drawing
 
@@ -189,7 +182,7 @@
 
     \section2 Extensive Use of Native Graphics Operations
 
-    In the Qt 4 Paint Subsystem we make more use of native graphics
+    In the Qt 4 Paint System we make more use of native graphics
     operations. The benefit we gain from this is that these operations
     can potentially be performed in hardware which gives significant
     speed improvements.
@@ -282,7 +275,7 @@
 
     \section1 More to Come
 
-    The Qt 4 Paint Subsystem is mostly completed, but there is still
+    The Qt 4 Paint System is mostly completed, but there is still
     work being done.
 
     Part of the work in progress is the finalization of the rendering
@@ -291,11 +284,15 @@
     features are these:
 
     \list
-    \o Gradients cannot have alpha color on X11.
-    \o Support for querying for supported features (such as if
-       antialiasing is available).
-    \o Support for a floating point API in \c QPainter while maintaining
-       compatibility with the existing integer-based functions.
+
+    \o Clipping to device coordinate system. (For example, if the
+       device has 16-bit coordinates we can clip the polygon to fit inside so
+       that the visual result is correct. Currently the results are
+       undefined.)
+
+    \o Use fixed-point instead of floating-point arithmetic on Qt/Embedded
+       and possibly other platforms to improve performance.
+
     \endlist
 
     \link qt4-intro.html [Back to the Beta page] \endlink
