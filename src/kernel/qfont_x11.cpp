@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#170 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#171 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -483,11 +483,14 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 #if 1
     //qWarning( "Resolution = %s", tokens[ResolutionY] );
 
+    // ##### WWA:   Eirik, is this the right time for this?  token might be "*".
     if ( strcmp(tokens[ResolutionY], "75") != 0 ) { // if not 75 dpi
-	//int fett = fd->pointSize;
-	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + 75)
-			   / (75 * 2);		// adjust actual pointsize
-	//qWarning( "Adjusted from %i to %i", fett, fd->pointSize  );
+	int r = atoi(tokens[ResolutionY]);
+	if ( r ) { // not "0" or "*"
+	    fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + 75)
+			       / (75 * 2);		// adjust actual pointsize
+	    //qWarning( "Adjusted from %i to %i", fett, fd->pointSize  );
+	}
     }
 #endif
 
