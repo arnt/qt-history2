@@ -1,3 +1,11 @@
+Here is a list of changes in Qt from 0.91 to 0.92.
+Also look out for a couple of new classes; QPrinter and QFileDialog.
+
+
+QApplication:
+-------------
+  Use setMainWidget( x ), not exec( x ).
+
 QString:
 --------
   upper(), lower(), stripWhiteSpace() and simplifyWhiteSpace() etc.
@@ -18,7 +26,9 @@ QPainter:
 	...
         p.pen().setColor( red );
 	p.brush().setStyle( NoBrush );
-  Instead, set a new pen or brush.
+  Instead, set a new pen or brush:
+	p.setPen( red );
+	p.setBrush( NoBrush );
 
 QFile, QFileInfo (new):
 -----------------------
@@ -59,6 +69,7 @@ QRangeControl:
     Using int values, not long.
 
 QScrollBar:
+-----------
     Using int values, not long.
 
 QListBox:
@@ -72,5 +83,9 @@ QColor:
     setHSV => setHsv
     getHSV => hsv
 
-
-HAAVARD: fontMetrics() m.m. endringene!
+QFontMetrics and QFontInfo:
+---------------------------
+    Get font metrics from QWidget::fontMetrics() and QPainter::fontMetrics().
+    Get font info    from QWidget::fontInfo()    and QPainter::fontInfo().
+    The QFontMetrics(QFont) constructor no longer works.
+    We had to do these changes to support printing and Windows.
