@@ -3169,7 +3169,7 @@ QImage QImage::swapRGB() const
 
 const char* QImage::imageFormat( const QString &fileName )
 {
-    return QImageIO::imageFormat(fileName);
+    return QImageIO::imageFormat( fileName );
 }
 
 /*!
@@ -3868,8 +3868,14 @@ const char* QImageIO::imageFormat( const QString &fileName )
 
 /*! \overload
 
-  Returns a string that specifies the image format of the image read from
-  \a d, or null if the file cannot be read or if the format is not recognized.
+  Returns a string that specifies the image format of the image read
+  from \a d, or a null pointer if the file cannot be read or if the
+  format is not recognized.
+
+  Make sure that \a d is at the right position in the device (for
+  example, at the beginning of the file).
+
+  \sa QIODevice::at()
 */
 
 const char *QImageIO::imageFormat( QIODevice *d )
@@ -3877,7 +3883,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     const int buflen = 14;
     char buf[buflen];
     qt_init_image_handlers();
-    int pos   = d->at();			// save position
+    int pos = d->at();			// save position
     int rdlen = d->readBlock( buf, buflen );	// read a few bytes
 
     if ( rdlen != buflen )
@@ -3887,14 +3893,14 @@ const char *QImageIO::imageFormat( QIODevice *d )
 #ifndef QT_NO_ASYNC_IMAGE_IO
     // Try asynchronous loaders first (before we 0->1 the header),
     // but overwrite if found in IOHandlers.
-    format = QImageDecoder::formatName((uchar*)buf, rdlen);
+    format = QImageDecoder::formatName( (uchar*)buf, rdlen );
 #endif
 
-    for ( int n = 0; n<rdlen; n++ )
+    for ( int n = 0; n < rdlen; n++ )
 	if ( buf[n] == '\0' )
 	    buf[n] = '\001';
     if ( d->status() == IO_Ok && rdlen > 0 ) {
-	buf[rdlen-1] = '\0';
+	buf[rdlen - 1] = '\0';
 	QImageHandler *p = imageHandlers->first();
 	while ( p ) {
 	    if ( p->header.search(QString::fromLatin1(buf)) != -1 )
