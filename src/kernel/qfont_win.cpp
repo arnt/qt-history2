@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#33 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_win.cpp#33 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -385,7 +385,26 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     lf.lfItalic		= d->req.italic;
     lf.lfUnderline	= d->req.underline;
     lf.lfStrikeOut	= d->req.strikeOut;
-    lf.lfCharSet	= ANSI_CHARSET;
+    int cs;
+    switch ( charSet() ) {
+	case AnyCharSet:
+	case Latin1:
+	    cs = ANSI_CHARSET;
+	    break;
+	case Latin2:
+	    cs = EASTEUROPE_CHARSET;
+	    break;
+	case Latin5:
+	    cs = TURKISH_CHARSET;
+	    break;
+	case Latin7:
+	    cs = GREEK_CHARSET;
+	    break;
+	default:
+	    cs = ANSI_CHARSET;
+	    break;
+    }
+    lf.lfCharSet	= cs;
     lf.lfOutPrecision   = OUT_DEFAULT_PRECIS;
     lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS; 
     lf.lfQuality	= DEFAULT_QUALITY;
