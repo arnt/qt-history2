@@ -27,9 +27,7 @@
 
 QDockSeparator::QDockSeparator(QDockWindowLayout *d, QWidget *parent)
     : QWidget(parent), state(0)
-{
-    setDock(d);
-}
+{ setDock(d); }
 
 void QDockSeparator::setDock(QDockWindowLayout *d)
 {
@@ -41,7 +39,8 @@ void QDockSeparator::setDock(QDockWindowLayout *d)
 
 void QDockSeparator::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) return;
+    if (event->button() != Qt::LeftButton)
+        return;
 
     Q_ASSERT(!state);
     state = new DragState;
@@ -52,7 +51,8 @@ void QDockSeparator::mousePressEvent(QMouseEvent *event)
 
     // clear focus... it will be restored when the mouse button is released
     state->prevFocus = qApp->focusWidget();
-    if (state->prevFocus) state->prevFocus->clearFocus();
+    if (state->prevFocus)
+        state->prevFocus->clearFocus();
 
     qt_cast<QMainWindowLayout*>(parentWidget()->layout())->saveLayoutInfo();
 }
@@ -74,15 +74,19 @@ void QDockSeparator::mouseMoveEvent(QMouseEvent *event)
 
 void QDockSeparator::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton) return;
+    if (event->button() != Qt::LeftButton)
+        return;
 
     QMainWindowLayout *l = qt_cast<QMainWindowLayout*>(parentWidget()->layout());
     Q_ASSERT(l != 0);
     l->relayout();
     l->discardLayoutInfo();
 
+    Q_ASSERT(state != 0);
+
     // restore focus
-    if (state->prevFocus) state->prevFocus->setFocus();
+    if (state->prevFocus)
+        state->prevFocus->setFocus();
 
     delete state;
     state = 0;
@@ -99,6 +103,5 @@ void QDockSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::State_Horizontal;
     opt.rect = rect();
     opt.palette = palette();
-
     style()->drawPrimitive(QStyle::PE_IndicatorDockWindowResizeHandle, &opt, &p, this);
 }
