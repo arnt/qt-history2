@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.6 1995/12/21 19:21:19 hanord Exp $
+** $Id: tutorial.doc,v 1.7 1995/12/21 21:32:46 hanord Exp $
 **
 ** Tutorial
 **
@@ -512,21 +512,21 @@ but Qt does not include a nice designer yet.  Stay tuned.
 \line QScrollBar
 \until scrollbar
 
-QScrollBar is a classical window system scrollbar.  This is one of
+QScrollBar is a classical window system scroll bar.  This is one of
 several possible constructors, there are other constructors that take
 fewer arguments but then we'd have to set up the same state using
 several function calls.
 
-We don't set up the scrollbar's geometry, the resize event will handle
+We don't set up the scroll bar's geometry, the resize event will handle
 it.
 
 \line connect
 
 Here we use the \link metaobjects.html signal/slot mechanism \endlink
-to connect the scrollbar's valueChanged() signal to the LCD number's
+to connect the scroll bar's valueChanged() signal to the LCD number's
 display() slot.
 
-Whenever the scrollbar's value changes, it broadcasts the new value by
+Whenever the scroll bar's value changes, it broadcasts the new value by
 emitting the valueChanged() signal.  Since that signal is connected to
 the LCD number's display() slot, the slot is called when the signal is
 broadcast.  Neither of the objects know about the other.  This is
@@ -539,7 +539,7 @@ C++ access rules.
 \skip resizeEvent
 \until }
 
-The scrollbar's geometry is set so there is a 10-pixel border to the
+The scroll bar's geometry is set so there is a 10-pixel border to the
 left, right and below it, and its height is fixed at 16 pixels, which
 is recommended by most style guides.
 
@@ -547,14 +547,14 @@ Remember that the order of arguments to setGeometry() is left, top,
 width, height.
 
 The LCD number is resized in the same way.  Its position was set in
-the constructor.  We use the same width as for the scrollbar, and
-leave five pixels between it and the scrollbar.
+the constructor.  We use the same width as for the scroll bar, and
+leave five pixels between it and the scroll bar.
 
 <!-- geometry management -->
 
 <h2>Behavior</h2>
 
-The LCD number reflects everything you do to the scrollbar, and the
+The LCD number reflects everything you do to the scroll bar, and the
 widget handles resizing well.
 
 <h2>Excercises</h2>
@@ -563,7 +563,7 @@ Try changing the LCD number to add more digits or \link
 QLCDNumber::setMode() change mode. \endlink You can even add four push
 buttons to set mode.
 
-You can also change the scrollbar's range.
+You can also change the scroll bar's range.
 
 Try to make the application quit when the number overflows.
 
@@ -658,7 +658,7 @@ previous chapter.  Again, the difference lies in the implementation.
 
 Change MyWidget so each LCDRange is guaranteed to be square.
 
-Initialize each scrollbar with a different/random value on startup.
+Initialize each scroll bar with a different/random value on startup.
 
 You may now go on to \link t7.html chapter seven. \endlink
 
@@ -766,8 +766,8 @@ always connect to signals or slots in \c this object.
 Yes, that's right.  Signals can be connected to other signals.  When
 the first is emitted, the second signal is also emitted.
 
-Let's look at what happens when the user operates the scrollbar: The
-scrollbar sees that its value has changed, and emits the valueChanged()
+Let's look at what happens when the user operates the scroll bar: The
+scroll bar sees that its value has changed, and emits the valueChanged()
 signal.  That signal is connected both to the display() slot of the
 QLCDNumber and to the valueChanged() signal of the LCDRange.
 
@@ -781,14 +781,14 @@ Note that you're not guaranteed any particular order of execution.
 \until }
 
 The implementation of value() is straightforward, it simply returns
-the scrollbar's value.
+the scroll bar's value.
 
 \line setValue
 \until }
 
 The implementation of setValue() is equally straightforward.  Note that
-since the scrollbar and LCD number is connected, setting the
-scrollbar's value automatically updates the LCD number as well.
+since the scroll bar and LCD number is connected, setting the
+scroll bar's value automatically updates the LCD number as well.
 In addition the scroll bar will automatically adjust the value if it is
 outside the scroll bar's legal range.
 
