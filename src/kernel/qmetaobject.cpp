@@ -133,6 +133,7 @@ enum Flags  {
 };
 
 static QAsciiDict<void> *qt_metaobjects = 0;
+static int qt_metaobjects_count = 0;
 
 class QMetaObjectPrivate
 {
@@ -1207,6 +1208,8 @@ QMetaObjectCleanUp::QMetaObjectCleanUp( const char *mo_name, QtStaticMetaObjectF
     if ( !qt_metaobjects )
 	qt_metaobjects = new QAsciiDict<void>( 257 );
     qt_metaobjects->insert( mo_name, (void*)func );
+
+    qt_metaobjects_count++;
 }
 
 QMetaObjectCleanUp::QMetaObjectCleanUp()
@@ -1220,6 +1223,14 @@ QMetaObjectCleanUp::QMetaObjectCleanUp()
 
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {
+#ifdef QT_THREAD_SUPPORT
+    QMutexLocker( qt_global_mutexpool ?
+		  qt_global_mutexpool->get( &qt_metaobjects ) : 0 );
+#endif // QT_THREAD_SUPPORT
+    if ( !--qt_metaobjects_count ) {
+	delete qt_metaobjects;
+	qt_metaobjects = 0;
+    }
     if ( metaObject ) {
 	delete *metaObject;
 	*metaObject = 0;
