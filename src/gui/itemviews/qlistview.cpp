@@ -1089,7 +1089,7 @@ void QListView::updateGeometries()
         verticalScrollBar()->setSingleStep(size.height() + d->spacing);
         verticalScrollBar()->setPageStep(d->viewport->height());
         verticalScrollBar()->setRange(0, d->contentsSize.height() - d->viewport->height() - 1);
-    }        
+    }
     QAbstractItemView::updateGeometries();
 }
 
@@ -1156,8 +1156,8 @@ void QListViewPrivate::prepareItemsLayout()
     layoutBounds.setWidth(viewport->width() - sbx);
     layoutBounds.setHeight(viewport->height() - sbx);
 
-    int rowCount = !model ? 0 : model->rowCount(root);
-    int colCount = !model ? 0 : model->columnCount(root);
+    int rowCount = model ? model->rowCount(root) : 0;
+    int colCount = model ? model->columnCount(root) : 0;
     if (colCount <= 0)
         rowCount = 0; // no contents
     if (movement == QListView::Static) {

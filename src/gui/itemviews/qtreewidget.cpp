@@ -523,8 +523,8 @@ QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
         for (; it != children.end(); ++it) {
             if (rx.exactMatch((*it)->text(column)))
                 result << (*it);
-            if ((*it)->children.count()) // depth first: push_bach
-                parents.push_back(*it);  // breath first: push_front
+            if ((*it)->children.count())
+                parents.push_back(*it);// depth first
         }
         if (parents.count()) {
             children = parents.back()->children;
