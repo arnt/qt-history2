@@ -691,28 +691,37 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 
     switch( pro ) {
     case QPSQLDriver::Version6:
-	stmt = "select pg_att1.attname, int(pg_att1.atttypid), pg_att2.attnum, pg_cl.relname "
+	stmt = "select pg_att1.attname, int(pg_att1.atttypid), pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where lower(pg_cl.relname) = '%1_pkey' ";
+		"where lower(pg_cl.relname) = '%1_pkey' "
+		"and pg_cl.oid = pg_ind.indexrelid "
+		"and pg_att2.attrelid = pg_ind.indexrelid "
+		"and pg_att1.attrelid = pg_ind.indrelid "
+		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
+		"order by pg_att2.attnum";
 	break;
     case QPSQLDriver::Version7:
     case QPSQLDriver::Version71:
 	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where lower(pg_cl.relname) = '%1_pkey' ";
+		"where lower(pg_cl.relname) = '%1_pkey' "
+		"and pg_cl.oid = pg_ind.indexrelid "
+		"and pg_att2.attrelid = pg_ind.indexrelid "
+		"and pg_att1.attrelid = pg_ind.indrelid "
+		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
+		"order by pg_att2.attnum";
 	break;
     case QPSQLDriver::Version73:
-	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
-		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where lower(pg_cl.relname) = '%1_pkey' "
-		"and pg_att1.attisdropped = false ";
+	stmt = "SELECT pg_attribute.attname, pg_attribute.atttypid::int, pg_class.relname "
+		"FROM pg_attribute, pg_class "
+		"WHERE pg_class.oid = "
+		"(SELECT indexrelid FROM pg_index WHERE indisprimary = true AND indrelid = "
+		" (SELECT oid FROM pg_class WHERE lower(relname) = '%1') ) "
+		"AND pg_attribute.attrelid = pg_class.oid "
+		"AND pg_attribute.attisdropped = false "
+		"ORDER BY pg_attribute.attnum";
 	break;
     }
-    stmt += "and pg_cl.oid = pg_ind.indexrelid "
-	    "and pg_att2.attrelid = pg_ind.indexrelid "
-	    "and pg_att1.attrelid = pg_ind.indrelid "
-	    "and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
-	    "order by pg_att2.attnum";
 
     i.exec( stmt.arg( tablename.lower() ) );
     while ( i.isActive() && i.next() ) {
