@@ -546,7 +546,7 @@ QString QMacMimeImage::mimeFor(int flav)
 bool QMacMimeImage::canConvert(const QString &mime, int flav)
 {
     if(flav == kScrapFlavorTypePicture && mime.startsWith(QLatin1String("image/"))) {
-        QList<QByteArray> ofmts = QImageWriter:supportedImageFormats();
+        QList<QByteArray> ofmts = QImageWriter::supportedImageFormats();
         for (int i = 0; i < ofmts.count(); ++i) {
             if (!qstricmp(ofmts.at(i), mime.mid(6).toLatin1()))
                 return true;
