@@ -45,10 +45,6 @@
 #include "qapplication.h"
 #include <stdlib.h>
 
-#if defined(Q_OS_WIN32)
-#include <io.h>
-#include <fcntl.h>
-#else
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -56,11 +52,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
-#endif
-
-#if defined(Q_WS_X11)
-#include <X11/Xlib.h>
-#endif
 
 #if defined(Q_OS_OS2EMX)
 #define INCL_DOSFILEMGR
@@ -189,18 +180,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
 		int fd = 0;
-#if defined(Q_OS_WIN32)
-		if ( qt_winver & Qt::WV_NT_based )
-		    fd = _topen( qt_winTchar(output_filename,TRUE),
-				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
-		else
-		    fd = _open( output_filename.ascii(),
-				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
-#else
 		fd = ::open( output_filename.local8Bit(),
 			     O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 			     0666 );
-#endif
 		if ( fd >= 0 ) {
 		    pdrv = new QPSPrinter( this, fd );
 		    state = PST_ACTIVE;
@@ -209,10 +191,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		QString pr;
 		if ( printer_name )
 		    pr = printer_name;
-#if defined(Q_OS_WIN32)
-		// Not implemented
-		// lpr needs -Sserver argument
-#else
 		QApplication::flushX();
 		int fds[2];
 		if ( pipe( fds ) != 0 ) {
@@ -220,6 +198,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ERROR;
 		    return FALSE;
 		}
+		
+// ### shouldn't we use QProcess here????   
 #if 0 && defined(Q_OS_OS2EMX)
 		// this code is still not used, and maybe it's not
 		// usable either, any more.  if you want to use it,
@@ -274,7 +254,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    i = (int)OPEN_MAX;
 #else
 		    i = QMAX( 256, fds[0] );
-#endif // ways-to-set i
+#endif // Q_OS_OS2EMX 		// ways-to-set i
 		    while( --i > 0 )
 			::close( i );
 #endif // Q_WS_X11
@@ -320,7 +300,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    state = PST_ACTIVE;
 		}
 #endif // else part of Q_OS_OS2EMX
-#endif // else part for #if Q_OS_WIN32
 	    }
 	    if ( state == PST_ACTIVE && pdrv )
 		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
