@@ -139,40 +139,6 @@ QVariant::Type qFieldType( QPSQLPrivate* p, int i )
     return type;
 }
 
-QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
-{
-    QString stmt;
-    switch( protocol ) {
-    case QPSQLDriver::Version6:
-	stmt = "select int(a.atttypid) "
-		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
-		   "where c.relname = '%1' "
-		   "and a.attname = '%2' "
-		   "and int4out(u.usesysid) = int4out(c.relowner) "
-		   "and c.oid= a.attrelid "
-		   "and a.atttypid = t.oid "
-		   "and (a.attnum > 0);";
-	break;
-    case QPSQLDriver::Version7:
-	stmt = "select a.atttypid::int "
-		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
-		   "where c.relname = '%1' "
-		   "and a.attname = '%2' "
-		   "and int4out(u.usesysid) = int4out(c.relowner) "
-		   "and c.oid= a.attrelid "
-		   "and a.atttypid = t.oid "
-		   "and (a.attnum > 0);";
-	break;
-    }
-    QSqlQuery fi = driver->createQuery();
-    fi.exec( stmt.arg( tablename ).arg( fieldname ) );
-    if ( fi.next() ) {
-	QSqlField f( fieldname, qDecodePSQLType( fi.value(0).toInt()) );
-	return f;
-    }
-    return QSqlField();
-}
-
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 : QSqlResult( db ),
   currentSize( 0 )
@@ -586,18 +552,28 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
+	stmt = "select a.attname, int(a.atttypid), c2.relname
+		"from pg_attribute a, pg_class c1, pg_class c2, pg_index i
+		"where c2.relname = '%1_pkey' "
+		"and c1.oid = i.indrelid and i.indexrelid = c2.oid "
+		"and a.attrelid = c2.oid ";
+	break;
     case QPSQLDriver::Version7:
-	stmt = "select a.attname, c2.relname from pg_attribute a, pg_class c1,"
-		  "pg_class c2, pg_index i where c2.relname = '%1_pkey' "
-		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
-		  "and a.attrelid = c2.oid;";
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_class2.relname "
+		"from pg_class, pg_attribute, pg_index, pg_class pg_class2 "
+		"where pg_class.oid = pg_attribute.attrelid "
+		"and pg_class.oid = pg_index.indrelid "
+		"and pg_index.indkey[0] = pg_attribute.attnum "
+		"and pg_index.indisprimary = 't' "
+		"and pg_class2.relfilenode = pg_index.indexrelid "
+		"and pg_class.relname = '%1' ";
 	break;
     }
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
-	QSqlField f = qMakeField( pro, this, tablename,  i.value(0).toString() );
+	QSqlField f( i.value(0).toString(), qDecodePSQLType( i.value(1).toInt() ) );
 	idx.append( f );
-	idx.setName( i.value(1).toString() );
+	idx.setName( i.value(2).toString() );
     }
     return idx;
 }
@@ -610,20 +586,25 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
+	stmt = "select pg_attribute.attname, int(pg_attribute.atttypid) "
+			"from pg_class, pg_attribute "
+			"where pg_class.relname = '%1' "
+			"and pg_attribute.attnum > 0 "
+			"and pg_attribute.attrelid = pg_class.oid ";
+	break;
     case QPSQLDriver::Version7:
-	stmt = "select a.attname "
-	       "from pg_user u, pg_class c, pg_attribute a, pg_type t "
-	       "where c.relname = '%1' "
-	       "and int4out(u.usesysid) = int4out(c.relowner) "
-	       "and c.oid= a.attrelid "
-	       "and a.atttypid = t.oid "
-	       "and (a.attnum > 0);";
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
+			"from pg_class, pg_attribute "
+			"where pg_class.relname = '%1' "
+			"and pg_attribute.attnum > 0 "
+			"and pg_attribute.attrelid = pg_class.oid ";
 	break;
     }
+
     QSqlQuery fi = createQuery();
     fi.exec( stmt.arg( tablename ) );
     while ( fi.next() ) {
-	QSqlField f = qMakeField( pro, this, tablename, fi.value(0).toString() );
+	QSqlField f( fi.value(0).toString(), qDecodePSQLType( fi.value(1).toInt() ) );
 	fil.append( f );
     }
     return fil;
