@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#35 $
 **
 ** Implementation of QRegExp class
 **
@@ -14,7 +14,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#35 $");
 
 
 /*!
@@ -878,7 +878,7 @@ QString &QString::replace( const QRegExp &rx, const char *str )
     int index = 0;
     int slen  = strlen( str );
     int len;
-    while ( index < size()-1 ) {
+    while ( index < (int)size()-1 ) {
 	if ( (index = rx.match(data(), index, &len)) >= 0 ) {
 	    remove( index, len );
 	    insert( index, str );
