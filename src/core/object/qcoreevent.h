@@ -78,6 +78,7 @@ public:
 #ifdef Q_WS_QWS
 	QWSUpdate = 78,
 #endif
+	EmbeddingControl = 79,			// ActiveX embedding
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
 	ContextMenu = 82,			// context popup menu
