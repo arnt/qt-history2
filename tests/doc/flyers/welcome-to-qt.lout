@@ -5,12 +5,11 @@
     y { foot + 1c }
 { darkgrey @Colour 9p @Font WEL300505NO-03"/"03 }
 @CD @Heading { Welcome to Qt! }
-@PP
 Congratulations! If you're new to Qt then you are going to be amazed by how
 much easy-to-use power it gives you. And if you're an experienced Qt user,
 this version of Qt gives you what you'd expect: more ease-of-use, more power,
 more functionality and more programming pleasure than ever before.
-@PP 
+@LP 
 The Qt Application Development Toolkit is an internationally renowned C++
 class library and toolset. Qt helps you design cross-platform graphical user
 interfaces quickly and easily. Qt includes @I{Qt Designer}, our visual
@@ -22,21 +21,21 @@ the C++ library itself, which provides consistency, ease-of-use, power
 and extensive functionality, to help you build your own world-class
 applications. We're so proud of Qt's quality that we include our
 source code so that you can see it for yourself.
-@DP
+@LP
 We've included a flyer that explains how to install Qt for each edition
 supplied on the CD. Pick the installation flyer for your operating system and
 follow the instructions to get Qt installed on your machine.
-@DP
-Please note that the CD you have received might not contain the most 
-recent Qt version. You will however find the latest verion of Qt 
-in your download area on our server. A separate email with login information
-has been sent you.
-@DP
+@LP
+Qt is constantly being improved, so you may find that the version of
+Qt in your download area on our server is more up-to-date than the CD
+version. A separate email with login information to allow downloading
+has been sent to you.
+@LP
 If you're new to Qt we have some suggestions for where to begin, since Qt
 introduces some innovations to C++ programming, especially its signals and
 slots mechanism, which provides a type-safe alternative to the crude callbacks
 used in older toolkits.
-@PP
+@LP
 Qt is extensively documented and comes with numerous examples. Run the @I{Qt
 Assistant} application to launch Qt's on-line help system. @I{Qt Assistant}
 presents the Qt Reference Documentation on start up. 
@@ -44,7 +43,7 @@ presents the Qt Reference Documentation on start up.
 The easiest way to get started with Qt programming is to work through the
 first three chapters of the @I{Qt Designer} tutorial (included in the
 @I{Qt's Graphical Development Tools} book, and also in the on-line help). 
-@PP
+@LP
 Once you're familiar with @I{Qt Designer} you might like to try
 working through the on-line tutorials (in the Getting Started section)
 to get more of a feel for Qt programming in pure C++. We also
@@ -56,7 +55,8 @@ of examples in the @F examples folder, which you can use for ideas and
 inspiration. Qt has a supportive on-line user community, which uses
 the @F{qt-interest} mailing list. And as a registered Qt licensee you can
 use Trolltech's professional support service. 
-@DP
+@LP
 We hope that you have fun creating great applications with Qt!
-@CD { --- The Trolltech Team }
+@LP
+@Centre { --- The Trolltech Team }
 @End @Text
