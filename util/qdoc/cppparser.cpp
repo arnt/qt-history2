@@ -262,8 +262,6 @@ static bool matchFunctionDecl( Decl *context )
     CodeChunk returnType;
     QString name;
 
-    match( Tok_Q_EXPORT );
-    match( Tok_inline );
     bool stat = match( Tok_static );
     bool vir = match( Tok_virtual );
 
@@ -397,9 +395,9 @@ static bool matchClassDecl( Decl *context )
 {
     bool isClass = ( yyTok == Tok_class );
     yyTok = getToken();
-    if ( yyTok != Tok_Ident && yyTok != Tok_Q_EXPORT )
+    if ( yyTok != Tok_Ident )
 	return FALSE;
-    while ( yyTok == Tok_Ident || yyTok == Tok_Q_EXPORT )
+    while ( yyTok == Tok_Ident )
 	yyTok = getToken();
     if ( yyTok != Tok_Colon && yyTok != Tok_LeftBrace )
 	return FALSE;

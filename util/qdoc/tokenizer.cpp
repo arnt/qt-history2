@@ -18,11 +18,10 @@
   Keep in sync with tokenizer.h.
 */
 static const char kwords[][16] = {
-    "char", "class", "const", "double", "enum", "inline", "int", "long",
-    "operator", "private", "protected", "public", "short", "signals", "signed",
-    "slots", "static", "struct", "template", "typedef", "union", "unsigned",
-    "virtual", "void", "volatile", "Q_ENUMS", "Q_EXPORT", "Q_OBJECT",
-    "Q_OVERRIDE", "Q_PROPERTY"
+    "char", "class", "const", "double", "enum", "int", "long", "operator",
+    "private", "protected", "public", "short", "signals", "signed", "slots",
+    "static", "struct", "template", "typedef", "union", "unsigned", "virtual",
+    "void", "volatile", "Q_ENUMS", "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY"
 };
 
 static const int KwordHashTableSize = 512;
@@ -69,15 +68,13 @@ int Tokenizer::getToken()
 	    while ( TRUE ) {
 		int i = kwordHashTable[k];
 		if ( i == 0 ) {
-		    if ( yyLex[0] == 't' && yyLexLen == 8 &&
-			 strcmp(yyLex, "typename") == 0 ) {
+		    if ( strcmp(yyLex, "inline") == 0 ||
+			 strcmp(yyLex, "typename") == 0 ||
+			 strcmp(yyLex, "Q_EXPORT") == 0 ||
+			 strcmp(yyLex, "Q_TEMPLATE_INLINE") == 0 ||
+			 strcmp(yyLex, "Q_TYPENAME") == 0 )
 			break;
-		    } else if ( yyLex[0] == 'Q' && yyLexLen == 10 &&
-				strcmp(yyLex, "Q_TYPENAME") == 0 ) {
-			break;
-		    } else {
-			return Tok_Ident;
-		    }
+		    return Tok_Ident;
 		} else if ( strcmp(yyLex, kwords[i - 1]) == 0 ) {
 		    return (int) Tok_FirstKeyword + i - 1;
 		}
