@@ -207,11 +207,13 @@ void QPixmap::resize_helper(const QSize &size)
 
     QImage image;
 
-    // Initialize new image
-    if (data->image.depth() == 32) {
-        image = QImage(size, QImage::Format_RGB32);
-    } else {
+    QImage::Format format = data->image.format();
+    if (format == QImage::Format_MonoLSB) {
         image = data->createBitmapImage(size.width(), size.height());
+    } else {
+        if (format == QImage::Format_Invalid)
+            format = QImage::Format_RGB32;
+        image = QImage(size, format);
     }
 
     // Copy the data over
