@@ -135,17 +135,6 @@ public:
 */
 
 /*!
-  \obsolete
-
-  Constructs a QStyle. \a s is unused.
-  * /
-  QStyle::QStyle(GUIStyle s)
-  {
-  d = new QStylePrivate;
-  }
-*/
-
-/*!
   Constructs a QStyle.
 */
 QStyle::QStyle()
