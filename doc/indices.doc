@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.34 1999/06/14 12:31:19 warwick Exp $
+** $Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $
 **
 ** Miscellaneous index pages
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.34 1999/06/14 12:31:19 warwick Exp $";
+static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 #endif
 
 /*! \page index.html
@@ -200,7 +200,7 @@ independently of the GUI classes.
 and so can be used in non-GUI programs.  
 
 <p>See also the <a href="collection.html">introduction to Qt collection
-classes</a>.
+classes</a> and <a href="qtl.html">The Qt Template Libarary</a>.
 
 */
 

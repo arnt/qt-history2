@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluelist.doc,v 1.2 1999/06/08 17:22:48 weis Exp $
+** $Id: qvaluelist.doc,v 1.3 1999/06/15 12:58:15 weis Exp $
 **
 ** QValueList and QValueListIterator class documentation
 **
@@ -166,8 +166,8 @@
 */
 
 /*!
-  \fn QValueList::QValueList( const QValueList<type> &list )
-  Constructs a copy of \e list.
+  \fn QValueList::QValueList( const QValueList& l )
+  Constructs a copy of \e l.
 
   This operation costs O(1) time since QValueList is implicit shared.
   The first instance applying modifications to a shared list will create
@@ -185,69 +185,69 @@
 */
 
 /*!
-  \fn QValueList<type> &QValueList::operator=(const QValueList<type> &list)
-  Assigns \e list to this list and returns a reference to this list.
+  \fn QValueList<T>& QValueList::operator= ( const QValueList<T>& l )
+  Assigns \e l to this list and returns a reference to this list.
 
   All iterators of the current list become invalidated by this operation.
   The cost of such an assignment is O(1) since QValueList is implict shared.
 */
 
 /*!
-  \fn QValueList<type> QValueList::operator+(const QValueList<type> &list)
+  \fn QValueList<T> QValueList::operator+ ( const QValueList<T>& l ) const
   Creates a new list and fills it with the elements of this list. Then the
-  elements of \e list are appended.
+  elements of \e l are appended.
 
   Returns the new list.
 */
 
 /*!
-  \fn QValueList<type> &QValueList::operator+=(const QValueList<type> &list)
+  \fn QValueList<T>& QValueList::operator+= ( const QValueList<T>& l )
   Adds \e list to this list.
 
   Returns a reference to this list.
 */
 
 /*!
-  \fn bool QValueList::operator==(const QValueList<type> &list) const
+  \fn bool QValueList::operator== ( const QValueList<T>& l ) const
   Compares both lists.
 
   Returns TRUE if both list are equal.
 */
 
 /*!
-  \fn bool QValueList::operator!=(const QValueList<type> &list) const
+  \fn bool QValueList::operator!= ( const QValueList<T>& l ) const
   Compares both lists.
 
   Returns TRUE if both list are unequal.
 */
 
 /*!
-  \fn QValueList<type> &QValueList::operator+=(const type &item)
-  Adds \e item to the end of the list.
+  \fn QValueList<T>& QValueList::operator+= ( const T& x )
+  Adds the value \e x to the end of the list.
 
   Returns a reference to the list.
 */
 
 /*!
-  \fn QValueList<type> &QValueList::operator<<(const type &item)
-  Adds \e item to the end of the list.
+  \fn QValueList<T>& QValueList::operator<< ( const T& x )
+  Adds the value \e x to the end of the list.
 
   Returns a reference to the list.
 */
 
 /*!
-  \fn const type &QValueList::operator[]( uint _index ) const
-  Returns a const reference to the item with index \e _index in the list.
+  \fn const T& QValueList::operator[] ( uint i ) const
+  Returns a const reference to the item with index \e i in the list.
   It is up to you to check wether this item really exists. You can do that easily
-  with the count() function. However this operator does not check wether \e _index
+  with the count() function. However this operator does not check wether \e i
   is in range and will deliver undefined results if it does not exist.
 */
 
 /*!
-  \fn type &QValueList::operator[]( uint _index )
-  Returns a reference to the item with index \e _index in the list.
+  \fn T& QValueList::operator[] ( uint i )
+  Returns a reference to the item with index \e i in the list.
   It is up to you to check wether this item really exists. You can do that easily
-  with the count() function. However this operator does not check wether \e _index
+  with the count() function. However this operator does not check wether \e i
   is in range and will deliver undefined results if it does not exist.
   In contrast to the const operator[] you may manipulate the value returned by this
   operator.
@@ -267,8 +267,8 @@
 */
 
 /*!
-  \fn Iterator QValueList::insert( Iterator pos, const type& item )
-  Inserts the \e item in front of the iterator \e pos.
+  \fn Iterator QValueList::insert( Iterator it, const T& x )
+  Inserts the value \e x in front of the iterator \e it.
 
   Returns an iterator pointing at the inserted item.
 
@@ -276,8 +276,8 @@
 */
 
 /*!
-  \fn Iterator QValueList::append( const type& item )
-  Inserts the \e item at the end of the list.
+  \fn Iterator QValueList::append( const T& x )
+  Inserts the value \e x at the end of the list.
 
   Returns an iterator pointing at the inserted item.
 
@@ -285,8 +285,8 @@
 */
 
 /*!
-  \fn Iterator QValueList::prepend( const type& item )
-  Inserts the \e item at the end of the list.
+  \fn Iterator QValueList::prepend( const T& x )
+  Inserts the value \e x at the end of the list.
 
   Returns an iterator pointing at the inserted item.
 
@@ -304,8 +304,8 @@
 */
 
 /*!
-  \fn void QValueList::remove( const type& item)
-  Removes all items which have the value \e item.
+  \fn void QValueList::remove( const T& x )
+  Removes all items which have the value \e x.
 
   \sa clear()
 */
@@ -318,60 +318,60 @@
 */
 
 /*!
-  \fn Iterator QValueList::find( const type& item )
-  Finds the first occurrence of \e item in the list.
+  \fn Iterator QValueList::find( const T& x )
+  Finds the first occurrence of \e x in the list.
 
   Returns end() if no item did match.
 */
 
 /*!
-  \fn ConstIterator QValueList::find( const type& item ) const
-  Finds the first occurrence of \e item in the list.
+  \fn ConstIterator QValueList::find( const T& x ) const
+  Finds the first occurrence of \e x in the list.
 
   Returns end() if no item did match.
 */
 
 /*!
-  \fn Iterator QValueList::find( Iterator it, const type& item )
-  Finds the first occurrence of \e item in the list starting at
+  \fn Iterator QValueList::find( Iterator it, const T& x )
+  Finds the first occurrence of \e x in the list starting at
   the position given by \e it.
 
   Returns end() if no item did match.
 */
 
 /*!
-  \fn ConstIterator QValueList::find( Iterator it, const type& item ) const
-  Finds the first occurrence of \e item in the list starting at
+  \fn ConstIterator QValueList::find( ConstIterator it, const T& x ) const
+  Finds the first occurrence of \e x in the list starting at
   the position given by \e it.
 
   Returns end() if no item did match.
 */
 
 /*!
-  \fn uint QValueList::contains( const type& item ) const
-  Counts and returns the number of occurrences of \e item in the list.
+  \fn uint QValueList::contains( const T& x ) const
+  Counts and returns the number of occurrences of the value \e x in the list.
 */
 
 /*!
-  \fn uint QValueList::findIndex( const type& item ) const
-  Returns the first index of \item in the list or -1 if no such item
+  \fn int QValueList::findIndex( const T& x ) const
+  Returns the first index of the value \e x in the list or -1 if no such value
   can be found in the list.
 */
 
 /*!
-  \fn Iterator QValueList::at( uint index )
-  Returns an iterator pointing to the item at position \e index in the list, or
+  \fn Iterator QValueList::at( uint i )
+  Returns an iterator pointing to the item at position \e i in the list, or
   end() if the index is out of range.
 */
 
 /*!
-  \fn Iterator QValueList::at( uint index ) const
-  Returns an iterator pointing to the item at position \e index in the list, or
+  \fn ConstIterator QValueList::at( uint i ) const
+  Returns an iterator pointing to the item at position \e i in the list, or
   end() if the index is out of range.
 */
 
 /*!
-  \fn type &QValueList::first()
+  \fn T& QValueList::first()
   Returns a reference to the first item in the list or the item
   referenced by end()
   if no such items exists. Please note that you may not change
@@ -381,7 +381,7 @@
 */
 
 /*!
-  \fn const type &QValueList::first() const
+  \fn const T& QValueList::first() const
   Returns a reference to the first item in the list or the item
   referenced by end() if
   no such items exists.
@@ -406,7 +406,7 @@
 */
 
 /*!
-  \fn type &QValueList::last()
+  \fn T& QValueList::last()
   Returns a reference to the last item in the list or the item
   referenced by end() if no
   such item exists. Please note that you may not change
@@ -416,7 +416,7 @@
 */
 
 /*!
-  \fn const type &QValueList::last() const
+  \fn const T& QValueList::last() const
   Returns a reference to the last item in the list or the item
   referenced by end() if no such item exists.
 
@@ -451,6 +451,28 @@
   iterator equals begin() if the list is empty.
 
   \sa last(), begin()
+*/
+
+/*!
+  \fn void QValueList::detach()
+  If the list does not share its data with another QValueList instance, then nothing
+  happens, otherwise the function creates a new copy of this data and detaches
+  from the shared one. This function is called whenever the list is modified.
+  The implicit sharing mechanism is implemented this way.
+*/
+
+/*!
+  \fn QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
+  \relates QValueList
+  Reads a list from the stream. The type \e T stored in the list must implement
+  the streaming operator, too.
+*/
+
+/*!
+  \fn QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+  \relates QValueList
+  Writes a list to the stream. The type \e T stored in the list must implement
+  the streaming operator, too.
 */
 
 /*****************************************************************************
@@ -533,11 +555,22 @@
   but it returns only const references to the item it points to.
 
   \sa QValueList
+  \sa QValueListConstIterator
 */
 
 /*!
-  \fn QValueListIterator::QValueListIterator( const QValueListIterator<type> &list )
-  Constructs a copy of the iterator.
+  \fn QValueListIterator::QValueListIterator()
+  Creates un unitilaized iterator.
+*/
+
+/*!
+  \fn QValueListIterator::QValueListIterator( NodePtr p )
+  Internal function.
+*/
+
+/*!
+  \fn QValueListIterator::QValueListIterator( const QValueListIterator<T>& it )
+  Constructs a copy of the iterator \e it.
 */
 
 /*!
@@ -546,7 +579,7 @@
 */
 
 /* Unfortunately not with MSVC
-  \fn type *QValueListIterator::operator->()
+  \fn T *QValueListIterator::operator->()
   Pointer operator. Returns a pointer to the current iterator item.
   The great advantage of this operator is that you can treat the
   iterator like a pointer.
@@ -560,12 +593,17 @@
 */
 
 /*!
-  \fn type &QValueListIterator::operator*()
+  \fn T& QValueListIterator::operator*()
   Asterix operator. Returns a reference to the current iterator item.
 */
 
 /*!
-  \fn QValueListIterator<type>& QValueListIterator::operator++()
+  \fn const T& QValueListIterator::operator*() const
+  Asterix operator. Returns a reference to the current iterator item.
+*/
+
+/*!
+  \fn QValueListIterator<T>& QValueListIterator::operator++()
   Prefix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator can not check wether it reached the end of the list. Incrementing
@@ -573,7 +611,7 @@
 */
 
 /*!
-  \fn QValueListIterator<type< QValueListIterator::operator++(int)
+  \fn QValueListIterator<T> QValueListIterator::operator++(int)
   Postfix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator can not check wether it reached the end of the list. Incrementing
@@ -581,27 +619,134 @@
 */
 
 /*!
-  \fn QValueListIterator<type>& QValueListIterator::operator--()
+  \fn QValueListIterator<T>& QValueListIterator::operator--()
   Prefix -- makes the previous item current and returns
   an iterator pointing to the new current item.
-  The iterator can not check wether it reached the end of the list. Incrementing
-  the iterator as returned by end() causes undefined results.
+  The iterator can not check wether it reached the beginning of the list. Decrementing
+  the iterator as returned by begin() causes undefined results.
 */
 
 /*!
-  \fn QValueListIterator<type< QValueListIterator::operator++(int)
-  Postfix -- makes the succeeding item current and returns
+  \fn QValueListIterator<T> QValueListIterator::operator--(int)
+  Postfix -- makes the previous item current and returns
   an iterator pointing to the new current item.
-  The iterator can not check wether it reached the end of the list. Incrementing
-  the iterator as returned by end() causes undefined results.
+  The iterator can not check wether it reached the beginning of the list. Decrementing
+  the iterator as returned by begin() causes undefined results.
 */
 
 /*!
-  \fn bool QValueListIterator::operator==( const QValueListIterator<type>& it )
+  \fn bool QValueListIterator::operator==( const QValueListIterator<T>& it ) const
   Compares both iterators and returns TRUE if they point to the same item.
 */
 
 /*!
-  \fn bool QValueListIterator::operator!=( const QValueListIterator<type>& it )
+  \fn bool QValueListIterator::operator!=( const QValueListIterator<T>& it ) const
+  Compares both iterators and returns TRUE if they point to different items.
+*/
+
+/*****************************************************************************
+  QValueListConstIterator documentation
+ *****************************************************************************/
+
+/*!
+  \class QValueListConstIterator qvaluelist.h
+  \brief The QValueListConstIterator class provides an iterator for QValueList.
+
+  \ingroup qtl
+  \ingroup tools
+
+  In contrast to QValueListIterator this class is used to iterate over a const
+  list. It does not allow to modify the values of the list since this would
+  break the const semantics.
+
+  For more informations on QValueList iterators see QValueListIterator.
+
+  \sa QValueListIterator
+  \sa QValueList
+*/
+
+/*!
+  \fn QValueListConstIterator::QValueListConstIterator()
+  Creates un unitilaized iterator.
+*/
+
+/*!
+  \fn QValueListConstIterator::QValueListConstIterator( NodePtr p )
+  Internal function.
+*/
+
+/*!
+  \fn QValueListConstIterator::QValueListConstIterator( const QValueListConstIterator<T>& it )
+  Constructs a copy of the iterator \e it.
+*/
+
+/*!
+  \fn QValueListConstIterator::QValueListConstIterator( const QValueListIterator<T>& it )
+  Constructs a copy of the iterator \e it.
+*/
+
+/*!
+  \fn QValueListConstIterator::~QValueListConstIterator()
+  Destroys the iterator.
+*/
+
+/* Unfortunately not with MSVC
+  \fn const T *QValueListConstIterator::operator->()
+  Pointer operator. Returns a pointer to the current iterator item.
+  The great advantage of this operator is that you can treat the
+  iterator like a pointer.
+
+  Example:
+  \code
+	QValueList<int>::Iterator it = list.begin();
+	for( ; it != end(); ++it )
+		it->show();
+  \endcode
+*/
+
+/*!
+  \fn const T& QValueListConstIterator::operator*() const
+  Asterix operator. Returns a reference to the current iterator item.
+*/
+
+/*!
+  \fn QValueListConstIterator<T>& QValueListConstIterator::operator++()
+  Prefix ++ makes the succeeding item current and returns
+  an iterator pointing to the new current item.
+  The iterator can not check wether it reached the end of the list. Incrementing
+  the iterator as returned by end() causes undefined results.
+*/
+
+/*!
+  \fn QValueListConstIterator<T> QValueListConstIterator::operator++(int)
+  Postfix ++ makes the succeeding item current and returns
+  an iterator pointing to the new current item.
+  The iterator can not check wether it reached the end of the list. Incrementing
+  the iterator as returned by end() causes undefined results.
+*/
+
+/*!
+  \fn QValueListConstIterator<T>& QValueListConstIterator::operator--()
+  Prefix -- makes the previous item current and returns
+  an iterator pointing to the new current item.
+  The iterator can not check wether it reached the beginning of the list. Decrementing
+  the iterator as returned by begin() causes undefined results.
+*/
+
+/*!
+  \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int)
+  Postfix -- makes the previous item current and returns
+  an iterator pointing to the new current item.
+  The iterator can not check wether it reached the beginning of the list. Decrementing
+  the iterator as returned by begin() causes undefined results.
+*/
+
+/*!
+  \fn bool QValueListConstIterator::operator==( const QValueListConstIterator<T>& it ) const
+  Compares both iterators and returns TRUE if they point to the same item.
+*/
+
+/*!
+  \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const
   Compares both iterators and returns TRUE if they point to different items.
 */

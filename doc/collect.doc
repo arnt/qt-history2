@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: collect.doc,v 2.11 1999/04/28 09:53:44 aavit Exp $
+** $Id: collect.doc,v 2.12 1999/06/15 12:58:12 weis Exp $
 **
 ** Qt collection classes documentation
 **
@@ -40,11 +40,14 @@ Qt has many collection classes:
 <li> \link QCache QCache\endlink and \link QIntCache QIntCache\endlink;
 	LRU (least recently used) cache structures.
 <li> \link QDict QDict\endlink, \link QIntDict QIntDict\endlink, and
-	    \link QPtrDict QPtrDict\endlink; dictionary structures.
-<li> \link QList QList\endlink; a doubly linked list structure.
+	    \link QPtrDict QPtrDict\endlink; reference based dictionary structures.
+<li> \link QList QList\endlink; a reference based doubly linked list structure.
 <li> \link QQueue QQueue\endlink; a FIFO (first in, first out) queue structure.
 <li> \link QStack QStack\endlink; a LIFO (last in, first out) stack structure.
 <li> \link QVector QVector\endlink; a vector structure.
+<li> \link QValueList QValueList\endlink; a value based list
+<li> \link QMap QMap\endlink; a value based dictionary structure
+<li> \link QArray QArray\endlink;
 </ul>
 
 Some of these classes have corresponding iterators.  An iterator
@@ -56,29 +59,33 @@ is a class for safely traversing the items in a collection:
 	\link QIntDictIterator QIntDictIterator\endlink, and
 	\link QPtrDictIterator QPtrDictIterator\endlink 
 <li> \link QListIterator QListIterator\endlink 
+<li> \link QValueListIterator QValueListIterator\endlink, and
+	\link QValueListConstIterator QValueListConstIterator\endlink
+<li> \link QMapIterator QMapIterator\endlink, and
+	\link QMapConstIterator QMapConstIterator\endlink
 </ul>
 
-The collection classes work with pointers to items.  Qt has an array
-template class, \link QArray QArray\endlink, which stores the items
-directly in the array.  QArray only works for classes that do not have a
-constructor, a destructor or any virtual functions.
+The refrence based collection classes work with pointers to items
+while the value based one store copies instead of pointers.
 
 <h2>Architecture</h2>
 
 There are three internal base
-classes; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
+classes for the reference based containers; \link QGCache QGCache\endlink, \link QGDict QGDict\endlink and
 \link QGList QGList\endlink that operate on \c void* pointers.  A thin
 template layer implements the actual collections by casting item pointers
 to and from \c void*.
 
 This strategy allows Qt's templates to be very economical on space
 (instantiating one of these templates adds only inline-able calls to
-the base classes), while it does not hurt performance too much.  Qt's
-templates do not afford as much scope for optimization as the STL
-templates do, so for applications where speed is critical and code
-size is less important, the STL is preferable.
+the base classes), while it does not hurt performance too much. 
+The Qt Template Library in contrast is more like the STL. It does not store
+pointers, instead it stores real copies. This is faster for small
+values like integers or QRect for example. But the value based containers
+can not be used with everything derived from QObject since it is impossible
+to make a copy of a QObject
 
-<h2>A List Example</h2>
+<h2>A QList Example</h2>
 
 This example shows how to store Employee items in a list and prints
 them out in the reverse order:
@@ -123,10 +130,65 @@ Program output:
 	Bill earns 50000
 \endcode
 
+<h2>A QValueList Example</h2>
+
+This example shows something compareable to the above QList example.
+It especially shows the value based semantics.
+
+\code
+    #include <qvaluelist.h>
+    #include <qstring.h>
+    #include <stdio.h>
+
+    class Employee
+    {
+    public:
+        Employee( const QString& name, int salary ) { n=name; s=salary; }
+        Employee( const Employee& _e ) { n = _e.name; s = _e.s; }
+
+        QString     name()   const		 { return n; }
+        int	    salary() const		 { return s; }
+	void	    setSalary( int _s ) const	 { s = _s; }
+    private:
+        QString     n;
+        int         s;
+    };
+
+    void main()
+    {
+	typedef QValueList<Employee> EmployeeList;
+	EmployeeList list;		// list of Employee
+
+	list.append( Employee("Bill", 50000) );
+	list.append( Employee("Steve",80000) );
+	list.append( Employee("Ron",  60000) );
+
+	Employee joe( "Joe", 50000 );
+	list.append( joe );
+	joe.setSalary( 4000 );
+	
+	EmployeeList::Iterator it;
+	for( it = list.begin(); it != list.end(); ++it )
+	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
+    }
+  \endcode
+
+  Program output:
+  \code
+	Bill earns 50000
+	Steve earns 80000
+	Ron earns 60000
+	Joe earns 50000
+  \endcode
+
+As you can see, the latest changes to Joes salary did not affect the value
+in the list because the list created a copy of Joes entry.
+
+For more informations about value based containers see <a href="qtl.html">The Qt Template Library</a>.
 
 <h2>Managing Collection Items</h2>
 
-All collections inherit the \link QCollection QCollection\endlink base
+All reference based collections inherit the \link QCollection QCollection\endlink base
 class.  This class knows only the number of items in the collection and
 the delete strategy.
 
@@ -153,12 +215,12 @@ if auto-deletion is enabled.
 
 <h2>Usage</h2>
 
-A collection class, for instance QList\<type\>, defines a
+A reference based collection class, for instance QList\<type\>, defines a
 collection of \e pointers to \e type objects.  The pointer (*) is
 implicit.
 
 We discuss \link QList QList\endlink here, but the same applies for all
-collection classes and all collection class iterators.
+reference based collection classes and all collection class iterators.
 
 Template instantiation:
 \code
@@ -197,19 +259,27 @@ have no traversal functions. To traverse these collections, you must
 use \link QDictIterator QDictIterator\endlink or \link QCacheIterator
 QCacheIterator\endlink.
 
+The value based containers do not have internal iterators. The reason is
+that these iterators are only 32 or 64 bit large depending in your CPU
+architecture. This means that the CPU can hold such an iterator in one of
+its registers and that in turn makes these iterators very quick.
 
 <h2>Predefined Collections</h2>
 
 Qt has the following predefined collection classes:
 <ul>
 <li> String lists; \link QStrList QStrList\endlink and
-	\link QStrIList QStrIList\endlink (\link qstrlist.h qstrlist.h\endlink)
+	\link QStrIList QStrIList\endlink (\link qstrlist.h qstrlist.h\endlink) and
+	\link QStringList QStringList\endlink (\link qstringlist.h qstringlist.h\endlink)
 <li> String vectors; \link QStrVec QStrVec\endlink and
 	\link QStrIVec QStrIVec\endlink (\link qstrvec.h qstrvec.h\endlink)
 </ul>
 
-Note that the "String" referred to above is just a regular C char*, not
-a QString or QCString.
+In almost all cases you should use QStringList. It is a value based container
+which as QString instances as elements. That implies that QStringList
+can deal with unicode very efficient. QStrList and QStrIList only store
+pointers to usual strings. That means that they can not store unicode
+data directly.
 
 <h2>Comparison with the STL</h2>
 
@@ -217,11 +287,11 @@ We often get questions about why Qt does not use the STL, and why Qt's
 container templates are provided at all.  Here are the major factors
 why we use and provide these templates: <ul>
 
-<li>Qt's container templates add less space when instantiated than the
+<li>Qt's reference based container templates add less space when instantiated than the
 STL ones do.  Size is important for a library, and Qt contains many
 instantiations of QDict, QList etc.
 
-<li>Qt's containers are often not as fast as the STL's, for several
+<li>Qt's reference based containers are often not as fast as the STL's, for several
 reasons.  This is however not very important for Qt, as they are used
 in code that doesn't need to be very fast.  (The speed-critical data
 structures in Qt are mostly caches - either QCache instantiations or
@@ -237,6 +307,18 @@ widest possible variety of compilers.
 the containers and their documentation are provided as parts of Qt's
 external API because we saw no reason to hide them.
 
+<li>The STL provides only value based containers. You can for example
+not store a QObject directly in a STL list. You have to store a pointer
+instead. But if you like to delete the QObject when it is removed from
+the list, then you have to use smart pointers or something like that.
+In addition you should notice that putting pointers in a value based container
+breaks the value semantics of such a container. However, in many cases
+value based containers are more efficient. This is the case when a single
+value is small and a copy can be made very quickly. Since the STL is still
+not portable across all of Qts supported plattforms we added value based
+containers, too. These containers have a well documented interface
+and the names of the functions and classes match the naming rules
+of Qt. That is not the case for STL.
 <ul>
 
 There are also other differences, but the ones above are the important
