@@ -174,19 +174,15 @@ void MainWindow::createMenus()
 
 void MainWindow::createToolBars()
 {
-    fileToolBar = new QToolBar(this);
-    fileToolBar->setWindowTitle(tr("File"));
+    fileToolBar = addToolBar(tr("File"));
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
-    addToolBar(fileToolBar);
 
-    editToolBar = new QToolBar(this);
-    editToolBar->setWindowTitle(tr("Edit"));
+    editToolBar = addToolBar(tr("Edit"));
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
-    addToolBar(editToolBar);
 }
 
 void MainWindow::createStatusBar()
