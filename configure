@@ -825,9 +825,6 @@ else
     fi
 fi
 
-# remove existing configuration cache
-[ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
-
 fi ### help
 
 
