@@ -177,12 +177,12 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     This enum specifies where the tickmarks are to be drawn relative
     to the slider's groove and the handle the user moves.
 
-    \value NoMarks do not draw any tickmarks.
-    \value Both draw tickmarks on both sides of the groove.
-    \value Above draw tickmarks above the (horizontal) slider
-    \value Below draw tickmarks below the (horizontal) slider
-    \value Left draw tickmarks to the left of the (vertical) slider
-    \value Right draw tickmarks to the right of the (vertical) slider
+    \value NoTickMarks do not draw any tickmarks.
+    \value TickMarksBoth draw tickmarks on both sides of the groove.
+    \value TickMarksAbove draw tickmarks above the (horizontal) slider
+    \value TickMarksBelow draw tickmarks below the (horizontal) slider
+    \value TickMarksLeft draw tickmarks to the left of the (vertical) slider
+    \value TickMarksRight draw tickmarks to the right of the (vertical) slider
 */
 
 

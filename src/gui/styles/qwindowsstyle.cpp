@@ -233,15 +233,15 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
                         : sl->width();
             int ticks = sl->tickmarks();
             int n = 0;
-            if (ticks & QSlider::Above) n++;
-            if (ticks & QSlider::Below) n++;
+            if (ticks & QSlider::TickMarksAbove) n++;
+            if (ticks & QSlider::TickMarksBelow) n++;
             if (!n) {
                 ret = space;
                 break;
             }
 
             int thick = 6;        // Magic constant to get 5 + 16 + 5
-            if (ticks != QSlider::Both && ticks != QSlider::NoMarks)
+            if (ticks != QSlider::TickMarksBoth && ticks != QSlider::NoTickMarks)
                 thick += pixelMetric(PM_SliderLength, sl) / 4;
 
             space -= thick;
@@ -1653,9 +1653,9 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             if ((slider->parts & SC_SliderGroove) && groove.isValid()) {
                 int mid = thickness / 2;
 
-                if (ticks & QSlider::Above)
+                if (ticks & QSlider::TickMarksAbove)
                     mid += len / 8;
-                if (ticks & QSlider::Below)
+                if (ticks & QSlider::TickMarksBelow)
                     mid -= len / 8;
 
                 p->setPen(slider->palette.shadow());
@@ -1703,8 +1703,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                 int y2 = y+he-1;
 
                 Qt::Orientation orient = slider->orientation;
-                bool tickAbove = slider->tickmarks == QSlider::Above;
-                bool tickBelow = slider->tickmarks == QSlider::Below;
+                bool tickAbove = slider->tickmarks == QSlider::TickMarksAbove;
+                bool tickBelow = slider->tickmarks == QSlider::TickMarksBelow;
 
                 if (slider->state & Style_HasFocus) {
                     QStyleOptionFocusRect fropt(0);

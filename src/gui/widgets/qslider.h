@@ -32,7 +32,23 @@ class Q_GUI_EXPORT QSlider : public QAbstractSlider
     Q_PROPERTY(int tickInterval READ tickInterval WRITE setTickInterval)
 
 public:
-    enum TickSetting { NoMarks = 0, Above = 1, Left = Above, Below = 2, Right = Below, Both = 3 };
+    enum TickSetting {
+        NoTickMarks = 0,
+        TickMarksAbove = 1,
+        TickMarksLeft = TickMarksAbove,
+        TickMarksBelow = 2,
+        TickMarksRight = TickMarksBelow,
+        TickMarksBoth = 3
+
+#ifdef QT_COMPAT
+        ,NoMarks = NoTickMarks,
+        Above = TickMarksAbove,
+        Left = TickMarksAbove,
+        Below = TickMarksBelow,
+        Right = TickMarksRight,
+        Both = TickMarksBoth
+#endif
+    };
 
     QSlider(QWidget *parent = 0);
     QSlider(Qt::Orientation orientation, QWidget *parent = 0);

@@ -164,7 +164,7 @@ struct QStyleOptionSlider : public QStyleOptionComplex {
     int pageStep;
     QStyleOptionSlider(int version)
         : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
-          tickmarks(QSlider::NoMarks), tickInterval(0), useRightToLeft(false), sliderPosition(0),
+          tickmarks(QSlider::NoTickMarks), tickInterval(0), useRightToLeft(false), sliderPosition(0),
           sliderValue(0), singleStep(0), pageStep(0) {}
     QDOC_PROPERTY(Qt::Orientation orientation);
     QDOC_PROPERTY(int maximum);
