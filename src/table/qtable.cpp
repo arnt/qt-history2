@@ -4868,8 +4868,27 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 
 void QTableHeader::setSectionStateToAll( SectionState state )
 {
-    for ( int i = 0; i < count(); ++i )
-	states[ i ] = state;
+    register int *d = (int *) states.data();
+    int n = count();
+
+    while (n >= 4) {
+	d[0] = state;
+	d[1] = state;
+	d[2] = state;
+	d[3] = state;
+	d += 4;
+	n -= 4;
+    }
+
+    if (n > 0) {
+	d[0] = state;
+	if (n > 1) {
+	    d[1] = state;
+	    if (n > 2) {
+		d[2] = state;
+	    }
+	}
+    }
 }
 
 /*! Returns the SectionState of section \a s.
