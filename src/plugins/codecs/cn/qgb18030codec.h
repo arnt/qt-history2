@@ -13,21 +13,12 @@
 
 // Contributed by James Su <suzhe@gnuchina.org>
 
-#ifndef QGB18030CODEC_P_H
-#define QGB18030CODEC_P_H
+#ifndef QGB18030CODEC_H
+#define QGB18030CODEC_H
 
 #include "qtextcodec.h"
 
-
-#ifndef QT_NO_BIG_CODECS
-
-#if defined(QT_PLUGIN)
-#define Q_EXPORT_CODECS_CN
-#else
-#define Q_EXPORT_CODECS_CN Q_CORE_EXPORT
-#endif
-
-class Q_EXPORT_CODECS_CN QGb18030Codec : public QTextCodec {
+class QGb18030Codec : public QTextCodec {
 public:
     QGb18030Codec();
 
@@ -38,7 +29,7 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
-class Q_EXPORT_CODECS_CN QGbkCodec : public QGb18030Codec {
+class QGbkCodec : public QGb18030Codec {
 public:
     QGbkCodec();
 
@@ -49,7 +40,7 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
-class Q_EXPORT_CODECS_CN QGb2312Codec : public QGb18030Codec {
+class QGb2312Codec : public QGb18030Codec {
 public:
     QGb2312Codec();
 
@@ -60,5 +51,45 @@ public:
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 };
 
-#endif
+#ifdef Q_WS_X11
+
+class QFontGb2312Codec : public QTextCodec
+{
+public:
+    QFontGb2312Codec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
+
+class QFontGbkCodec : public QTextCodec
+{
+public:
+    QFontGbkCodec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
+class QFontGb18030_0Codec : public QTextCodec
+{
+public:
+    QFontGb18030_0Codec();
+
+    const char* name() const ;
+    int mibEnum() const ;
+
+    QString convertToUnicode(const char *, int, ConverterState *) const;
+    QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
+};
+
+#endif // Q_WS_X11
+
 #endif

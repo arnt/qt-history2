@@ -4,14 +4,11 @@ include(../../qpluginbase.pri)
 CONFIG	+= warn_on
 DESTDIR	 = $$QT_BUILD_TREE/plugins/codecs
 
-QTDIR_build:REQUIRES = "!contains(QT_CONFIG, bigcodecs)"
 REQUIRES   = shared
 
-HEADERS		= ../../../../include/QtCore/private/qgb18030codec_p.h \
-		  ../../../../include/QtCore/private/qfontcodecs_p.h
+HEADERS		= qgb18030codec.h
 
-SOURCES		= ../../../core/codecs/qgb18030codec.cpp \
-		  ../../../core/codecs/qfontcncodec.cpp \
+SOURCES		= qgb18030codec.cpp \
 		  main.cpp
 
 target.path += $$plugins.path/codecs
