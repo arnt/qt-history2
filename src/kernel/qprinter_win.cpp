@@ -224,13 +224,13 @@ bool QPrinter::newPage()
 	    setPrinterMapping( hdc, res );
             painter->restore();
 	}
-        if ( (qWinVersion()& Qt::WV_DOS_based) ) {
-            if ( fullPage() ) {
-                QSize margs = margins();
-                OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
-            }
-            SetTextAlign( hdc, TA_BASELINE );
+        if ( fullPage() ) {
+	    POINT p;
+	    GetViewportOrgEx( hdc, &p );
+	    QSize margs = margins();
+	    OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
         }
+        SetTextAlign( hdc, TA_BASELINE );
     }
     return success;
 }
@@ -987,8 +987,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		setPrinterMapping( hdc, res );
             }
 	    QSize margs = margins();
-
-            OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
+	    POINT p;
+	    GetViewportOrgEx( hdc, &p );
+            OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
 
         }
