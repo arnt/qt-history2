@@ -1,5 +1,6 @@
 #include "generator.h"
 #include "outputrevision.h"
+#include "utils.h"
 #include <stdio.h>
 
 
@@ -222,6 +223,8 @@ void Generator::generateCode()
             fprintf(out, "\"\n    \"");
             col = 0;
         }
+        if (!is_ident_start(s[0]))
+            fprintf(out, "\"\"");
         fprintf(out, "%s\\0", s.constData());
         col += strlen(s)+2;
     }
