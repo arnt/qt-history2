@@ -112,12 +112,7 @@ struct QWExtra {
     WId xDndProxy;				// XDND forwarding to embedded windows
 #endif
 #if defined(Q_WS_MAC)
-    QRegion clip_saved, clip_sibs, clip_children;
     QMacDndExtra *macDndExtra;
-    QRegion dirty_area;
-    uint clip_dirty : 1, clip_serial : 15;
-    uint child_dirty : 1, child_serial : 15;
-    uint has_dirty_area:1;
 #endif // Q_WS_MAC
 #if defined(Q_WS_X11)
     uint children_use_dnd : 1;
@@ -135,7 +130,7 @@ struct QWExtra {
 
 class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC( QWidget );
+    Q_DECLARE_PUBLIC(QWidget);
 
 public:
     QWidgetPrivate() :
@@ -242,28 +237,23 @@ public:
         PC_NoPaint = 0x04,
         PC_Later = 0x10
     };
-    static QList<WId> request_updates_pending_list;
-    void dirtyClippedRegion(bool);
-    bool isClippedRegionDirty();
-    virtual void setRegionDirty(bool);
-    uint    own_id : 1, macDropEnabled : 1;
+    uint    macDropEnabled : 1;
     EventHandlerRef window_event;
     //mac event functions
-    friend QPoint posInWindow(QWidget *);
-    friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
-    void propagateUpdates(bool update_rgn=true);
     friend class QGuiEventLoop;
     static bool qt_create_root_win();
     static void qt_clean_root_win();
     static bool qt_recreate_root_win();
-    static void qt_mac_destroy_cg_hd(QWidget *, bool);
     static bool qt_mac_update_sizer(QWidget *, int);
-    static bool qt_paint_children(QWidget *,QRegion &, uchar ops = PC_None);
-    static void qt_event_request_flush_updates();
     static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
-    static bool qt_window_rgn(WId, short, RgnHandle, bool);
-    QRegion clippedRegion(bool do_children = false);
-    uint clippedSerial(bool do_children = true);
+    static QMAC_PASCAL OSStatus qt_widget_event(EventHandlerCallRef er, EventRef event, void *);
+    static bool qt_widget_rgn(QWidget *, short, RgnHandle, bool);
+
+    //these are here just for code compat (HIViews), I'll remove before the release of 4.0 --Sam
+    QRegion clp;
+    uint clp_serial : 8;
+    inline QRegion clippedRegion(bool = true) { return clp; }
+    inline uint clippedSerial(bool =true) { return clp_serial; }
 #endif
 };
 

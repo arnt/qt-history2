@@ -82,10 +82,7 @@ public:
 	hd = 0;
 	pdev = 0;
 	unclipped = 0;
-	brush_style_pix = 0;
 	offx = offy = 0;
-	fill_pattern = 0;
-	fill_colorspace = 0;
     }
 
     struct {
@@ -99,32 +96,8 @@ public:
     } current;
 
     CGContextRef hd;
-    int offx, offy;
     uint unclipped : 1;
     QPaintDevice *pdev;
-    QPixmap *brush_style_pix;
-    CGPatternRef fill_pattern;
-    CGColorSpaceRef fill_colorspace;
-
-    inline void mac_point(const int &inx, const int &iny, float *outx, float *outy, bool global=false) {
-	if(outx)
-	    *outx = inx;
-	if(outy)
-	    *outy = iny;
-	if(!global) {
-	    if(outx)
-		*outx += offx;
-	    if(outy)
-		*outy += offy;
-	}
-    }
-    inline void mac_point(const int &inx, const int &iny, CGPoint *p, bool global=false) {
-	mac_point(inx, iny, &p->x, &p->y, global);
-    }
-    inline void mac_rect(const int &inx, const int &iny, const int &inw, const int &inh, CGRect *rct, bool global=false) {
-	*rct = CGRectMake(0, 0, inw, inh);
-	mac_point(inx, iny, &rct->origin, global);
-    }
 };
 
 #endif /* __QPAINTENGINE_MAC_P_H__ */

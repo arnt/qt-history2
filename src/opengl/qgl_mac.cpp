@@ -456,7 +456,8 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 void QGLWidgetPrivate::setRegionDirty(bool b) //Internally we must put this off until "later"
 {
-    QWidgetPrivate::setRegionDirty(b);
+#warning "I need to do something about this!!! --SAM"
+//    QWidgetPrivate::setRegionDirty(b);
     QTimer::singleShot(1, q, SLOT(macInternalFixBufferRect()));
 }
 

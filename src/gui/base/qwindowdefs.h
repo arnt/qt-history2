@@ -72,6 +72,8 @@ typedef struct OpaqueMenuHandle *MenuRef;
 typedef struct __EventLoopTimer*        EventLoopTimerRef;
 typedef struct OpaqueMenuRef*        MenuRef;
 #endif
+typedef struct OpaqueControlRef* ControlRef;
+typedef ControlRef HIViewRef;
 typedef struct CGContext *CGContextRef;
 typedef struct OpaqueWindowGroupRef *WindowGroupRef;
 typedef struct OpaqueGrafPtr *CGrafPtr;

@@ -25,15 +25,10 @@ static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice 
 					    bool off=true, const QRect &rect=QRect())
 {
     static HIRect r;
-    QPoint tl(qr.topLeft());
-    if (pd && pd->devType() == QInternal::Widget) {
-	QWidget *w = (QWidget*)pd;
-	tl = w->mapTo(w->topLevelWidget(), tl);
-    }
     int offset = 0;
     if (off)
 	offset = 1;
-    r = CGRectMake(tl.x()+rect.x(), tl.y()+rect.y(),
+    r = CGRectMake(qr.x()+rect.x(), qr.y()+rect.y(),
 		   qr.width() - offset - rect.width(), qr.height() - offset - rect.height());
     return &r;
 }

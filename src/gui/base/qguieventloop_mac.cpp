@@ -408,14 +408,11 @@ void QGuiEventLoop::flush()
 {
 //    sendPostedEvents();
     if(qApp) {
-        QWidgetPrivate::qt_event_request_flush_updates();
 	QWidgetList tlws = QApplication::topLevelWidgets();
 	for(int i = 0; i < tlws.size(); i++) {
 	    QWidget *tlw = tlws.at(i);
-	    if(tlw->isVisible()) {
-		tlw->d->propagateUpdates();
+	    if(tlw->isVisible()) 
 		QMacSavedPortInfo::flush(tlw);
-	    }
 	}
     }
 }

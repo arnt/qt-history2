@@ -30,9 +30,9 @@ QString cfstring2qstring(CFStringRef); //qglobal.cpp
   Internal variables and functions
  *****************************************************************************/
 static EventHandlerRef access_proc_handler = NULL;
-static HIObjectClassRef widget_create_class = NULL;
+static HIObjectClassRef accessibility_class = NULL;
 static EventHandlerUPP access_proc_handlerUPP = NULL;
-static CFStringRef qt_mac_static_class_str = NULL;
+static CFStringRef kObjectQtAccessibility = CFSTR("com.trolltech.qt.accessibility");
 static EventTypeSpec events[] = {
     { kEventClassHIObject,  kEventHIObjectConstruct },
     { kEventClassHIObject,  kEventHIObjectInitialize },
@@ -50,12 +50,6 @@ static EventTypeSpec events[] = {
     { kEventClassAccessibility,  kEventAccessibleGetNamedActionDescription }
 };
 
-static CFStringRef qt_mac_class_str()
-{
-    if(!qt_mac_static_class_str) 
-	qt_mac_static_class_str = qstring2cfstring(QString("com.trolltech.object"));
-    return qt_mac_static_class_str;
-}
 struct QAccessibleObjectWrapper
 {
     QPointer<QObject> object;
@@ -68,7 +62,7 @@ enum {
 };
 static QObject *qt_mac_find_access_object(HIObjectRef objref) 
 {
-    if(QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)HIObjectDynamicCast(objref, qt_mac_class_str())) 
+    if(QAccessibleObjectWrapper *wrap = (QAccessibleObjectWrapper*)HIObjectDynamicCast(objref, kObjectQtAccessibility))
 	return wrap->object;
     return NULL;
 }
@@ -81,25 +75,25 @@ AXUIElementRef qt_mac_find_uielement(QObject *o)
     qt_mac_object_map.ensure_constructed();
     QAccessibleObjectWrapper *obj_wrap = qt_mac_object_map.value(o);
     if(!obj_wrap) {
-	if(!widget_create_class) {
-	    OSStatus err = HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 
+	if(!accessibility_class) {
+	    OSStatus err = HIObjectRegisterSubclass(kObjectQtAccessibility, NULL, 
 						    0, access_proc_handlerUPP, GetEventTypeCount(events), 
-						    events, NULL, &widget_create_class);
+						    events, NULL, &accessibility_class);
 	    if(err != noErr) 
 		return 0;
 	}
-	EventRef event;
-        CreateEvent(NULL, kEventClassHIObject, kEventHIObjectInitialize, GetCurrentEventTime(),
-		    kEventAttributeUserEvent, &event);
-	SetEventParameter(event, kEventParamQObject, typeQObject, sizeof(o), &o);
 	HIObjectRef hiobj;
-	if(HIObjectCreate(qt_mac_class_str(), event, &hiobj) == noErr) {
+	EventRef init_event;
+        CreateEvent(NULL, kEventClassHIObject, kEventHIObjectInitialize, GetCurrentEventTime(),
+		    kEventAttributeUserEvent, &init_event);
+	SetEventParameter(init_event, kEventParamQObject, typeQObject, sizeof(o), &o);
+	if(HIObjectCreate(kObjectQtAccessibility, init_event, &hiobj) == noErr) {
 	    HIObjectSetAccessibilityIgnored(hiobj, false);
 	    AXUIElementRef ref = AXUIElementCreateWithHIObjectAndIdentifier(hiobj, (UInt32)o);
 	    obj_wrap = qt_mac_object_map.value(o);
 	    obj_wrap->access = ref;
 	}
-	ReleaseEvent(event);
+	ReleaseEvent(init_event);
     }
     return obj_wrap ? obj_wrap->access : 0;
 }
@@ -135,10 +129,6 @@ void QAccessible::cleanup()
     if(access_proc_handlerUPP) {
 	DisposeEventHandlerUPP(access_proc_handlerUPP);
 	access_proc_handlerUPP = NULL;
-    }
-    if(qt_mac_static_class_str) {
-	CFRelease(qt_mac_static_class_str);
-	qt_mac_static_class_str = 0;
     }
 }
 

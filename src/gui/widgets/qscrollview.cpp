@@ -835,6 +835,7 @@ void QScrollView::updateScrollBars()
             showv = needv;
 
 #ifdef Q_WS_MAC
+	extern QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 	bool mac_need_scroll = FALSE;
 	if(!parentWidget()) {
 	    mac_need_scroll = TRUE;

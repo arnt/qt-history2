@@ -33,7 +33,6 @@
  *****************************************************************************/
 //#define DEBUG_DRAG_EVENTS
 
-
 struct QMacDndExtra {
     QWidget *widget;
     bool acceptfmt;

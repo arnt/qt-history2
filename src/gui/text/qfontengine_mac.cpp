@@ -26,6 +26,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 //Externals
+QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
 QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
@@ -285,7 +286,7 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     return ret;
 }
 
-static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, const QFontEngine *engine)
+static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, const QFontEngine *) //the engine is passed for debugging only
 {
     ATSUTextMeasurement ret=0;
     OSStatus result = ATSUGetAttribute(style, tag, sizeof(ret), &ret, 0);
@@ -350,12 +351,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     int ret = 0;
     if(task & DRAW) {
         Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
-	if(widget) { //offset correctly..
-	    QPoint pos = posInWindow(widget);
-	    x += pos.x();
-	    y += pos.y();
-	}
-
 	QColor rgb = pState->painter->pen().color();
 	if(rgb != st->rgb) {
 	    st->rgb = rgb;
@@ -485,6 +480,12 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     RgnHandle rgnh = NULL;
     if(p && p->type() == QPaintEngine::QuickDraw) {
+	if(widget && !widget->isTopLevel()) { //offset correctly..
+	    QPoint pos = posInWindow(widget);
+	    x += pos.x();
+	    y += pos.y();
+	}
+
 	QRegion rgn;
 	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
 	mgc->setupQDPort(false, 0, &rgn);

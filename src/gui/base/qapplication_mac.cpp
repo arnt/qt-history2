@@ -146,6 +146,7 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =false); //qwidget_mac.cpp
@@ -173,25 +174,25 @@ public:
     void setInputWidget(QWidget *w) { act = w; }
     QWidget *inputWidget() const { return act; }
 };
-static QHash<Qt::HANDLE, QTSMDocumentWrapper *> qt_mac_tsm_hash;
+static QHash<WId, QTSMDocumentWrapper *> qt_mac_tsm_hash;
 void qt_mac_unicode_init(QWidget *w)
 {
     qt_mac_tsm_hash.ensure_constructed();
-    if(!qt_mac_tsm_hash.contains(w->handle()))
-	qt_mac_tsm_hash.insert(w->handle(), new QTSMDocumentWrapper());
+    if(!qt_mac_tsm_hash.contains(w->winId()))
+	qt_mac_tsm_hash.insert(w->winId(), new QTSMDocumentWrapper());
 }
 void qt_mac_unicode_cleanup(QWidget *w)
 {
     if(w && w->isTopLevel()) {
 	qt_mac_tsm_hash.ensure_constructed();
-	delete qt_mac_tsm_hash.take(w->handle());
+	delete qt_mac_tsm_hash.take(w->winId());
     }
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
     if(!w)
 	return 0;
-    return qt_mac_tsm_hash.value(w->handle());
+    return qt_mac_tsm_hash.value(w->winId());
 }
 void qt_mac_unicode_reset_input(QWidget *w)
 {
@@ -237,8 +238,8 @@ static void qt_mac_debug_palette(const QPalette &pal, const QPalette &pal2, cons
 #define qt_mac_debug_palette(x, y, z)
 #endif
 
-/* lookup widget helper function */
-static short qt_mac_find_window(int x, int y, QWidget **w=0)
+//find widget (and part) at a given point
+static short qt_mac_window_at(int x, int y, QWidget **w=0)
 {
     Point p;
     p.h = x;
@@ -253,10 +254,10 @@ static short qt_mac_find_window(int x, int y, QWidget **w=0)
     }
 #if !defined(QMAC_NO_FAKECURSOR) && QT_MACOSX_VERSION < 0x1020
     if(wp && !unhandled_dialogs.contains(wp)) {
-	QWidget *tmp_w = QWidget::find((WId)wp);
+	QWidget *tmp_w = qt_mac_find_window(wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
 	    tmp_w->hide();
-	    wpc = qt_mac_find_window(x, y, w);
+	    wpc = qt_mac_window_at(x, y, w);
 	    tmp_w->show();
 	    return wpc;
 	}
@@ -264,10 +265,10 @@ static short qt_mac_find_window(int x, int y, QWidget **w=0)
 #endif
     if(w) {
 	if(wp && !unhandled_dialogs.contains(wp)) {
-	    *w = QWidget::find((WId)wp);
+	    *w = qt_mac_find_window(wp);
 #if 0
 	    if(!*w)
-		qWarning("Qt: qt_mac_find_window: Couldn't find %d",(int)wp);
+		qWarning("Qt: qt_mac_window_at: Couldn't find %d",(int)wp);
 #endif
 	} else {
 	    *w = 0;
@@ -499,8 +500,6 @@ enum {
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     kEventParamQGuiEventLoop = 'qlop', /* typeQGuiEventLoop */
     //events
-    kEventQtRequestPropagateWindowUpdates = 10,
-    kEventQtRequestPropagateWidgetUpdates = 11,
     kEventQtRequestSelect = 12,
     kEventQtRequestContext = 13,
 #ifndef QMAC_QMENUBAR_NO_NATIVE
@@ -542,54 +541,6 @@ static bool qt_event_remove(EventRef &event)
     }
     return false;
 }
-
-/* updates */
-static EventRef request_updates_pending = 0;
-void qt_event_request_updates()
-{
-    if(request_updates_pending) {
-	if(IsEventInQueue(GetMainEventQueue(), request_updates_pending))
-	    return;
-#ifdef DEBUG_DROPPED_EVENTS
-	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
-#endif
-    }
-
-    CreateEvent(0, kEventClassQt, kEventQtRequestPropagateWindowUpdates,
-		GetCurrentEventTime(), kEventAttributeUserEvent, &request_updates_pending);
-    PostEventToQueue(GetMainEventQueue(), request_updates_pending, kEventPriorityHigh);
-    ReleaseEvent(request_updates_pending);
-}
-
-void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
-{
-    QWExtra *extra = ((QETWidget*)w)->extraData();
-    if(subtract) {
-	if(extra->has_dirty_area) {
-	    extra->dirty_area -= r;
-	    if(extra->dirty_area.isEmpty()) {
-                QWidgetPrivate::request_updates_pending_list.remove(w->winId());
-		extra->has_dirty_area = false;
-	    }
-	}
-	return;
-    } else if(extra->has_dirty_area) {
-	extra->dirty_area |= r;
-	return;
-    }
-    extra->has_dirty_area = true;
-    extra->dirty_area = r;
-    //now maintain the list of widgets to be updated
-    if(QWidgetPrivate::request_updates_pending_list.isEmpty()) {
-	EventRef upd = 0;
-	CreateEvent(0, kEventClassQt, kEventQtRequestPropagateWidgetUpdates,
-		    GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
-	PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityStandard);
-	ReleaseEvent(upd);
-    }
-    QWidgetPrivate::request_updates_pending_list.append(w->winId());
-}
-
 
 /* socket notifiers */
 static EventRef request_select_pending = 0;
@@ -798,14 +749,10 @@ static EventTypeSpec events[] = {
 #ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
 #endif
-    { kEventClassQt, kEventQtRequestPropagateWindowUpdates },
-    { kEventClassQt, kEventQtRequestPropagateWidgetUpdates },
     { kEventClassQt, kEventQtRequestSocketAct },
 
     { kEventClassWindow, kEventWindowInit },
     { kEventClassWindow, kEventWindowDispose },
-    { kEventClassWindow, kEventWindowUpdate },
-    { kEventClassWindow, kEventWindowDrawContent },
     { kEventClassWindow, kEventWindowActivated },
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
@@ -822,6 +769,8 @@ static EventTypeSpec events[] = {
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
 
+    { kEventClassControl, kEventControlDraw },
+
     { kEventClassMenu, kEventMenuOpening },
     { kEventClassMenu, kEventMenuClosed },
     { kEventClassMenu, kEventMenuTargetItem },
@@ -835,7 +784,9 @@ static EventTypeSpec events[] = {
     { kEventClassKeyboard, kEventRawKeyDown },
 
     { kEventClassCommand, kEventCommandProcess },
+
     { kEventClassAppleEvent, kEventAppleEvent },
+
     { kAppearanceEventClass, kAEAppearanceChanged }
 };
 
@@ -1025,11 +976,8 @@ void qt_cleanup()
 	}
     }
 
-    QHash<Qt::HANDLE, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash.constBegin();
-    while (it != qt_mac_tsm_hash.end()) {
+    for(QHash<WId, QTSMDocumentWrapper *>::ConstIterator it = qt_mac_tsm_hash.constBegin(); it != qt_mac_tsm_hash.end(); ++it)
 	delete it.value();
-	++it;
-    }
     qt_mac_tsm_hash.clear();
 }
 
@@ -1099,46 +1047,21 @@ void QApplication::restoreOverrideCursor()
 	qt_mac_set_cursor(qApp->d->cursor_list.isEmpty() ? &def : &qApp->d->cursor_list.first(), &mouse_pos);
     }
 }
-
 #endif
 
-
-QWidget *qt_recursive_match(QWidget *widg, int x, int y)
+QWidget *qt_recursive_match(QWidget *widget, int x, int y)
 {
-    // Keep looking until we find ourselves in a widget with no kiddies
-    // where the x,y is
-    if(!widg)
-	return 0;
-
-    QObjectList chldrn=widg->children();
-    for(int i = chldrn.size() - 1; i >= 0; --i) {
-	QObject *obj = chldrn.at(i);
-	if(obj->isWidgetType()) {
-	    QWidget *curwidg=(QWidget *)obj;
-	    if(curwidg->isVisible() && !curwidg->isTopLevel()) {
-		int wx=curwidg->x(), wy=curwidg->y();
-		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
-		    if(!curwidg->testWFlags(Qt::WMouseNoMask)) {
-			QWExtra *extra = ((QETWidget*)curwidg)->extraData();
-			if(extra && !extra->mask.isEmpty() && !extra->mask.contains(QPoint(x-wx, y-wy)))
-			    continue;
-		    }
-		    return qt_recursive_match(curwidg,x-wx,y-wy);
-		}
-	    }
-	}
-    }
-    // If we get here, it's within a widget that has children, but isn't in any
-    // of the children
-    return widg;
+    HIViewRef child;
+    const HIPoint pt = CGPointMake(x, y);
+    HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child);
+    return child ? QWidget::find((WId)child) : widget;
 }
 
 QWidget *QApplication::widgetAt(int x, int y)
 {
     //find the tld
     QWidget *widget;
-    qt_mac_find_window(x, y, &widget);
+    qt_mac_window_at(x, y, &widget);
     if(!widget)
 	return 0;
 
@@ -1349,7 +1272,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
     int popup_close_count = 0;
-    short windowPart = qt_mac_find_window(pt->h, pt->v, &widget);
+    short windowPart = qt_mac_window_at(pt->h, pt->v, &widget);
     if(inPopupMode() && widget != activePopupWidget()) {
 	while(inPopupMode()) {
 	    activePopupWidget()->close();
@@ -1385,10 +1308,11 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 		widget->setActiveWindow();
 	}
     }
+    WindowPtr window = HIViewGetWindow((HIViewRef)widget->winId());
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
 	QMacBlockingFunction block;
-	if(!TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
+	if(!TrackBox(window, *pt, windowPart))
 	    return false;
     }
 
@@ -1443,7 +1367,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inDrag: {
 	{
 	    QMacBlockingFunction block;
-	    DragWindow((WindowPtr)widget->handle(), *pt, 0);
+	    DragWindow(window, *pt, 0);
 	}
 	QPoint np, op(widget->data->crect.x(), widget->data->crect.y());
 	{
@@ -1467,8 +1391,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	int growWindowSize;
 	{
 	    QMacBlockingFunction block;
-	    growWindowSize = GrowWindow((WindowPtr)widget->handle(),
-					 *pt, limits.left == -2 ? 0 : &limits);
+	    growWindowSize = GrowWindow(window, *pt, limits.left == -2 ? 0 : &limits);
 	}
 	if(growWindowSize) {
 	    // nw/nh might not match the actual size if setSizeIncrement is used
@@ -1557,9 +1480,9 @@ void qt_leave_modal(QWidget *widget)
 }
 
 QWidget *qt_tryModalHelperMac( QWidget * top ) {
-    if(top && qt_mac_is_macsheet(top) && !MacIsWindowVisible((WindowPtr)top->handle())) {
+    if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(HIViewGetWindow((HIViewRef)top->winId()))) {
 	if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
-	    if(QWidget *sheet = QWidget::find((WId)wp))
+	    if(QWidget *sheet = qt_mac_find_window(wp))
 		top = sheet;
 	}
     }
@@ -1662,38 +1585,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     {
     case kEventClassQt:
 	remove_context_timer = false;
-	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
-	    QList<WId> update_list = QWidgetPrivate::request_updates_pending_list;
-            QWidgetPrivate::request_updates_pending_list.clear(); //clear now and use the saved list (above)..
-	    for(QList<WId>::Iterator it = update_list.begin(); it != update_list.end(); ++it) {
-		QWidget *widget = QWidget::find((*it));
-		if(!widget)
-		    continue;
-		QWExtra *extra = ((QETWidget*)widget)->extraData();
-		if(extra && extra->has_dirty_area) {
-		    extra->has_dirty_area = false;
-		    QRegion r = extra->dirty_area;
-		    extra->dirty_area = QRegion();
-		    QRegion cr = widget->d->clippedRegion();
-		    if(!widget->isTopLevel()) {
-			QPoint point(posInWindow(widget));
-			cr.translate(-point.x(), -point.y());
-		    }
-		    r &= cr;
-		    if(!r.isEmpty())
-			widget->repaint(r);
-		}
-	    }
-	} else if(ekind == kEventQtRequestPropagateWindowUpdates) {
-	    request_updates_pending = 0;
-	    QApplication::sendPostedEvents();
-	    QWidgetList tlws = qApp->topLevelWidgets();
-	    for(int i = 0; i < tlws.size(); i++) {
-		QWidget *tlw = tlws.at(i);
-		if(!tlw->isHidden())
-		    tlw->d->propagateUpdates();
-	    }
-	} else if(ekind == kEventQtRequestShowSheet) {
+	if(ekind == kEventQtRequestShowSheet) {
 	    request_showsheet_pending = 0;
 	    QWidget *widget = 0;
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, 0,
@@ -1873,7 +1765,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	//figure out which widget to send it to
 	if(app->inPopupMode()) {
 	    QWidget *clt;
-	    qt_mac_find_window(where.h, where.v, &clt);
+	    qt_mac_window_at(where.h, where.v, &clt);
 	    if(clt && clt->isPopup())
 		widget = clt;
 	    if(!widget)
@@ -2442,7 +2334,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, 0,
 			  sizeof(WindowRef), 0, &wid);
-	widget = QWidget::find((WId)wid);
+	widget = qt_mac_find_window(wid);
 	if(!widget) {
 	    if(ekind == kEventWindowShown)
 		unhandled_dialogs.insert(wid, 1);
@@ -2455,10 +2347,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 
-	if(ekind == kEventWindowUpdate || ekind == kEventWindowDrawContent) {
-	    remove_context_timer = false;
-	    widget->d->propagateUpdates(ekind == kEventWindowUpdate);
-	} else if(ekind == kEventWindowDispose) {
+	if(ekind == kEventWindowDispose) {
 	    qt_mac_unicode_cleanup(widget);
 	} else if(ekind == kEventWindowExpanded) {
 	    widget->setWindowState((widget->windowState() & ~WindowMinimized) | WindowActive);
@@ -2483,11 +2372,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    if((flags & kWindowBoundsChangeSizeChanged)) {
 		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
-		if(widget->width() != nw || widget->height() != nh) {
+		if(widget->width() != nw || widget->height() != nh) 
 		    widget->resize(nw, nh);
-		    if(widget->isVisible() && (flags & kWindowBoundsChangeUserResize))
-			widget->d->propagateUpdates();
-		}
 	    }
 	} else if(ekind == kEventWindowHidden) {
 	} else if(ekind == kEventWindowShown) {
@@ -2543,6 +2429,32 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    handled_event = false;
 	}
 	break; }
+    case kEventClassControl:
+	if(ekind == kEventControlDraw) {
+	    HIViewRef hiview;
+	    GetEventParameter(event, kEventParamDirectObject, typeControlRef, 0,
+			      sizeof(hiview), 0, &hiview);
+	    widget = QWidget::find((WId)hiview);
+	    qDebug("asked for a repaint of %s", widget ? widget->className() : "*none!*");
+	    if(widget) {
+		//get the data, this is of course just a hack for now..
+		widget->d->clp_serial++;
+		RgnHandle rgn;
+		GetEventParameter(event, kEventParamRgnHandle, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
+		widget->d->clp = qt_mac_convert_mac_region(rgn);
+		CGContextRef cgref;
+		GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, NULL, sizeof(cgref), NULL, &cgref);
+		widget->hd = cgref;
+
+		//remove the old pointers
+		widget->d->clp_serial++;
+		widget->d->clp = QRegion();
+		widget->hd = 0;
+	    }
+	} else {
+	    handled_event = false;
+	}
+	break; 
     case kEventClassApplication:
 	if(ekind == kEventAppActivated) {
 	    if(QApplication::desktopSettingsAware())
@@ -2555,7 +2467,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(!app->activeWindow()) {
 		WindowPtr wp = ActiveNonFloatingWindow();
 		if(wp && !unhandled_dialogs.contains(wp)) {
-		    if(QWidget *tmp_w = QWidget::find((WId)wp))
+		    if(QWidget *tmp_w = qt_mac_find_window(wp))
 			app->setActiveWindow(tmp_w);
 		}
 	    }
