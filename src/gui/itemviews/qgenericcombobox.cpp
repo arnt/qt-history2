@@ -165,13 +165,27 @@ void QGenericComboBoxPrivate::init()
                           q, SLOT(itemSelected(const QModelIndex &)));
 }
 
+Q4StyleOptionComboBox QGenericComboBoxPrivate::getStyleOption() const
+{
+    Q4StyleOptionComboBox opt(0);
+    opt.init(q);
+    opt.parts = QStyle::SC_All;
+//     if (arrowDown)
+    opt.activeParts = QStyle::SC_ComboBoxArrow;
+//     else
+//         opt.activeParts = QStyle::SC_None;
+    opt.editable = q->isEditable();
+    return opt;
+}
+
 void QGenericComboBoxPrivate::updateLineEditGeometry()
 {
     if (!lineEdit || !q->isVisible())
         return;
 
-    QRect editorRect = q->style().querySubControlMetrics(QStyle::CC_ComboBox, q,
-                                                         QStyle::SC_ComboBoxEditField);
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QRect editorRect = q->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                         QStyle::SC_ComboBoxEditField, q);
     lineEdit->setGeometry(editorRect);
 }
 
@@ -549,7 +563,9 @@ QSize QGenericComboBox::sizeHint() const
         if (itemSize.height() > d->sizeHint.height())
             d->sizeHint.setHeight(itemSize.height());
     }
-    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, this, d->sizeHint)
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, &opt,
+                                            d->sizeHint, fm, this)
                    .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
 }
@@ -624,14 +640,10 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     painter.setPen(palette().color(QPalette::Text));
 
     // paint the combobox except content
-    QStyle::SFlags flags = QStyle::Style_Default;
-    flags |= (isEnabled() ?  QStyle::Style_Enabled : 0);
-    flags |= (hasFocus() ? QStyle::Style_HasFocus : 0);
-    style().drawComplexControl(QStyle::CC_ComboBox, &painter, this, comboRect, palette(),
-                               flags, (uint)QStyle::SC_All, QStyle::SC_ComboBoxArrow);
-
-    QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                      QStyle::SC_ComboBoxEditField);
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    style().drawComplexControl(QStyle::CC_ComboBox, &opt, &painter, this);
+    QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                        QStyle::SC_ComboBoxEditField, this);
     // delegate paints content
     QItemOptions options;
 
@@ -648,8 +660,10 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
 
 void QGenericComboBox::mousePressEvent(QMouseEvent *e)
 {
-    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
-                                                     QStyle::SC_ComboBoxArrow);
+    Q4StyleOptionComboBox opt = d->getStyleOption();
+    QRect arrowRect = style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+                                                     QStyle::SC_ComboBoxArrow, this);
+
     if (arrowRect.contains(e->pos()) && (!listView() || !listView()->isVisible()))
         popup();
     else

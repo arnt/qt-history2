@@ -159,6 +159,7 @@ public:
           skipCompletion(false) {}
     ~QGenericComboBoxPrivate() {}
     void init();
+    Q4StyleOptionComboBox getStyleOption() const;
     void updateLineEditGeometry();
     void returnPressed();
     void complete();
