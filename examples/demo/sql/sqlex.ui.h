@@ -26,16 +26,19 @@ static void showError( const QSqlError& err, QWidget* parent = 0 )
 	errStr += err.driverText();
     QMessageBox::warning( parent, "Error", errStr );
 }
+
+ConnectDialog* conDiag = 0;
+
 void SqlEx::init()
 {
     hsplit->setResizeMode( lv, QSplitter::KeepSize );
     vsplit->setResizeMode( gb, QSplitter::KeepSize );
     submitBtn->setEnabled( FALSE );
+    conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );    
 }
 
 void SqlEx::dbConnect()
 { 
-    ConnectDialog* conDiag = new ConnectDialog( this, "Connection Dialog", TRUE );
     if ( conDiag->exec() != QDialog::Accepted )
 	return;
     if ( dt->sqlCursor() ) {
@@ -91,7 +94,7 @@ void SqlEx::execQuery()
     if ( cursor->isSelect() ) {
 	dt->setSqlCursor( cursor, TRUE, TRUE );
 	dt->setSort( QStringList() );
-	dt->refresh();
+	dt->refresh( QDataTable::RefreshAll );
 	QString txt( "Query OK" );
 	if ( cursor->size() >= 0 )
 	    txt += ", returned rows: " + QString::number( cursor->size() );
@@ -121,4 +124,3 @@ void SqlEx::showTable( QListViewItem * item )
     dt->refresh( QDataTable::RefreshAll );
     lbl->setText( "Displaying table " + i->text( 0 ) );
 }
-
