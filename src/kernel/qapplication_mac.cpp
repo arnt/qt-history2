@@ -1845,7 +1845,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			    if(imend.isAccepted()) {
 				handled_event = TRUE;
 				QIMEvent imstart(QEvent::IMStart, text.mid(fixed_length), 
-						 (fix_length - text.length()) / sizeof(UniChar));
+						 (fixed_length - text.length()) / sizeof(UniChar));
 				QApplication::sendSpontaneousEvent(widget, &imstart);
 				if(imstart.isAccepted())
 				    handled_event = TRUE;
