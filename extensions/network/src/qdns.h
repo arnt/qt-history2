@@ -41,9 +41,8 @@ public:
     virtual void setRecordType( RecordType rr = A );
     RecordType recordType() const { return t; }
 
-    // to do the query
-    enum Status { Passive, Active, Done };
-    Status queryStatus() const;
+    // whether something is happening behind the curtains
+    bool isWorking() const;
 
     // to query for replies
     QValueList<QHostAddress> addresses() const;
@@ -77,19 +76,16 @@ public:
 
     QString canonicalName() const; // ### real-world but uncommon: QStringList
 
-    QStringList names() const;
-
-    QStringList qualifiedNames() const;
+    QValueList<QString> qualifiedNames() const { return n; }
 
 signals:
-    void statusChanged();
+    void resultsReady();
 
 private:
     QString l;
+    QValueList<QString> n;
     RecordType t;
     QDnsPrivate * d;
-
-    void sendQuery( const QString & ) const;
 };
 
 

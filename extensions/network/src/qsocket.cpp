@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#11 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#12 $
 **
 ** Implementation of Network Extension Library
 **
@@ -309,6 +309,7 @@ void QSocket::connectToHost( const QString &host, int port )
     d->host = host;
     d->port = port;
     d->dns = new QDns( host, QDns::A );
+    connect( d->dns, SIGNAL(resultsReady()), this, SLOT(tryConnecting()) );
     // Initialize the IO device flags
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
@@ -326,18 +327,16 @@ connectToHost() leaves off.
 void QSocket::tryConnecting()
 {
     QValueList<QHostAddress> l = d->dns->addresses();
-    debug( "l.count %d (for %s)", l.count(), d->dns->label().ascii() );
+#if defined(QSOCKET_DEBUG)
+    qDebug( "QSocket::tryConnecting: host %s, port %d, %d addresses",
+	    host.ascii(), port, l.count() );
+#endif
     if ( l.isEmpty() ) {
-	if ( d->dns->queryStatus() == QDns::Active ) {
-	    connect( d->dns, SIGNAL(statusChanged()),
-		     this, SLOT(tryConnecting()) );
-	    return;
-	}
-	d->state = Idle;
+	if ( !d->dns->isWorking() )
+	    d->state = Idle;
 	return;
     }
 
-    debug( "l.count %d", l.count() );
     // ### hack: just use the first address
     d->state = Connecting;
     d->socket = new QSocketDevice;
@@ -345,7 +344,7 @@ void QSocket::tryConnecting()
 	// uhnm?
     }
 #if defined(QSOCKET_DEBUG)
-    qDebug( "QSocket::connectToHost: Connect to IP address %s",
+    qDebug( "QSocket::tryConnecting: Connect to IP address %s",
 	    l[0].ip4AddrString().ascii() );
 #endif
 
