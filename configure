@@ -779,6 +779,17 @@ then
     mkdir -p $outpath/tools/designer
     rm -f $outpath/tools/designer/templates
     ln -s $relpath/tools/designer/templates $outpath/tools/designer/templates
+    # symlink the designer/interfaces directory (for the validator)
+    rm -f $outpath/tools/designer/interfaces
+    ln -s $relpath/tools/designer/interfaces $outpath/tools/designer/interfaces
+    # symlink designer/editor/editor.h, dlldefs.h, viewmanager.h (for the validator)
+    mkdir -p $outpath/tools/designer/editor
+    rm -f $outpath/tools/designer/editor/editor.h
+    ln -s $relpath/tools/designer/editor/editor.h $outpath/tools/designer/editor/editor.h
+    rm -f $outpath/tools/designer/editor/dlldefs.h
+    ln -s $relpath/tools/designer/editor/dlldefs.h $outpath/tools/designer/editor/dlldefs.h
+    rm -f $outpath/tools/designer/editor/viewmanager.h
+    ln -s $relpath/tools/designer/editor/viewmanager.h $outpath/tools/designer/editor/viewmanager.h
 
     # symlink the doc directory
     rm -f $outpath/doc
