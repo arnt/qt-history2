@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#2 $
+** $Id: //depot/qt/main/util/qws/qws.h#3 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -25,6 +25,8 @@
 #include <qmap.h>
 #include <qdatetime.h>
 
+#include "qwsproperty.h"
+
 const int SWIDTH=640;
 const int SHEIGHT=480;
 const int QTFB_PORT=0x4642; // FB
@@ -49,9 +51,13 @@ public:
     uchar* frameBuffer() { return framebuffer; }
 
     void sendMouseEvent(const QPoint& pos, int state);
-
+    QWSPropertyManager *properties() {
+	return &propertyManager;
+    }
+    
 private slots:
     void doClient();
+    
 private:
     typedef QMapIterator<int,QWSClient*> ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
@@ -59,6 +65,8 @@ private:
     int shmid;
     uchar* framebuffer;
     ClientMap client;
+    QWSPropertyManager propertyManager;
+    
 };
 
 /*********************************************************************

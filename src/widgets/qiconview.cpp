@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#160 $
 **
 ** Definition of QIconView widget class
 **
@@ -2004,7 +2004,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->cachedContentsX = d->cachedContentsY = -1;
     d->clearing = FALSE;
     d->fullRedrawTimer = new QTimer( this );
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2133,7 +2133,7 @@ void QIconView::slotUpdate()
 {
     d->updateTimer->stop();
     d->fullRedrawTimer->stop();
-    
+
     // #### remove that ASA insertInGrid uses cached values and is efficient
     if ( d->resortItemsWhenInsert )
 	sort( d->sortDirection );

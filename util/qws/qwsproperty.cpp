@@ -29,6 +29,79 @@
 
 /*********************************************************************
  *
+ * Class: QWSPropertyManager
+ *
+ *********************************************************************/
+
+QWSPropertyManager::QWSPropertyManager()
+{
+}
+    
+int QWSPropertyManager::atom( const QString &name )
+{
+    if ( atoms.contains( name ) )
+	return atoms[ name ];
+    return -1;
+}
+
+bool QWSPropertyManager::setProperty( int winId, int property, int mode, const QByteArray &data )
+{
+    PropertyKey k( winId, property );
+    if ( !properties.contains( k ) )
+	return FALSE;
+    
+    Mode m = (Mode)mode;
+    switch ( m ) {
+    case PropReplace:
+	properties[ k ] = data.copy();
+	break;
+    case PropPrepend: {
+	QByteArray oldData = properties[ k ];
+	QByteArray newData = data.copy();
+	oldData.resize( oldData.size() + newData.size() );
+	memcpy( oldData.data() + oldData.size(), newData.data(), newData.size() );
+	properties[ k ] = oldData;
+    } break;
+    case PropAppend: {
+	QByteArray oldData = properties[ k ];
+	QByteArray newData = data.copy();
+	newData.resize( oldData.size() + newData.size() );
+	memcpy( newData.data() + newData.size(), oldData.data(), oldData.size() );
+	properties[ k ] = newData;
+    } break;
+    }
+    
+    return TRUE;
+}
+
+bool QWSPropertyManager::hasProperty( int winId, int property )
+{
+    PropertyKey k( winId, property );
+    return (bool)properties.contains( k );
+}
+
+bool QWSPropertyManager::removeProperty( int winId, int property )
+{
+    PropertyKey k( winId, property );
+    if ( !properties.contains( k ) )
+	return FALSE;
+
+    properties.remove( k );
+    return TRUE;
+}
+
+bool QWSPropertyManager::addProperty( int winId, int property )
+{
+    PropertyKey k( winId, property );
+    if ( properties.contains( k ) )
+	return FALSE;
+    
+    properties[ k ] = QByteArray();
+    return TRUE;
+}
+
+/*********************************************************************
+ *
  * Class: QWSSetPropertyCommand
  *
  *********************************************************************/
@@ -90,5 +163,5 @@ void QWSSetPropertyCommand::readData()
 void QWSSetPropertyCommand::execute()
 {
     qDebug( "QWSSetPropertyCommand::execute: set data:" );
-    qDebug( "%s", data.data() );
+    server->properties()->setProperty( winId, property, mode, data );
 }
