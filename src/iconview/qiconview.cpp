@@ -35,7 +35,7 @@
 **
 **********************************************************************/
 
-// needed for qsort (Borland)
+// needed for qsort (Borland), because of a std namespace problem
 #include "qplatformdefs.h"
 
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
