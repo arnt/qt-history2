@@ -566,9 +566,10 @@ void QPixmap::setMask(const QBitmap &newmask)
 
 #ifndef QT_NO_XFT
     if (X11->use_xrender) {
+        ::Picture src_pic = XftDrawPicture((XftDraw *) data->xft_hd);
         XRenderComposite(X11->display, PictOpSrc,
-                         xftPictureHandle(), newmask.xftPictureHandle(),
-                         xftPictureHandle(), 0, 0, 0, 0, 0, 0, data->w, data->h);
+                         src_pic, newmask.xftPictureHandle(),
+                         src_pic, 0, 0, 0, 0, 0, 0, data->w, data->h);
     } else
 #endif
     {
