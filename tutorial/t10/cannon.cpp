@@ -13,7 +13,8 @@ CannonField::CannonField( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
     ang = 45;
-    f   = 0;
+    f = 0;
+    setPalette( QPalette( QColor( 250, 250, 200) ) );
 }
 
 
@@ -44,29 +45,24 @@ void CannonField::setForce( int newton )
 
 void CannonField::paintEvent( QPaintEvent *e )
 {
-    if ( e->rect().intersects( cannonRect() ) ) {
-	QPainter p( this );
-	paintCannon( &p );
-    }
-}
+    if ( !e->rect().intersects( cannonRect() ) )
+	return;
 
-
-void CannonField::paintCannon( QPainter *p )
-{
     QRect cr = cannonRect();
     QPixmap pix( cr.size() );
     pix.fill( this, cr.topLeft() );
 
-    QPainter tmp( &pix );
-    tmp.setBrush( blue );
-    tmp.setPen( NoPen );
-    tmp.translate( 0, pix.height() - 1 );
-    tmp.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
-    tmp.rotate( -ang );
-    tmp.drawRect( QRect(33, -4, 15, 8) );
-    tmp.end();
+    QPainter p( &pix );
+    p.setBrush( blue );
+    p.setPen( NoPen );
+    p.translate( 0, pix.height() - 1 );
+    p.drawPie( QRect( -35,-35, 70, 70 ), 0, 90*16 );
+    p.rotate( -ang );
+    p.drawRect( QRect(33, -4, 15, 8) );
+    p.end();
 
-    p->drawPixmap( cr.topLeft(), pix );
+    p.begin( this );
+    p.drawPixmap( cr.topLeft(), pix );
 }
 
 

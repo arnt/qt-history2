@@ -13,15 +13,15 @@ LCDRange::LCDRange( QWidget *parent, const char *name )
         : QVBox( parent, name )
 {
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    slider = new QSlider( 0, 99,       // range
-			  10,          // page steps
-			  0,	       // inital value
-			  Horizontal,  // orientation
-			  this, "slider" );
+    slider = new QSlider( Horizontal, this, "slider" );
+    slider->setRange( 0, 99 );
+    slider->setValue( 0 );
+    connect( slider, SIGNAL(valueChanged(int)),
+	     lcd, SLOT(display(int)) );
+    connect( slider, SIGNAL(valueChanged(int)),
+	     SIGNAL(valueChanged(int)) );
 
-    connect( slider, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-    connect( slider, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
-
+    setFocusProxy( slider );
 }
 
 int LCDRange::value() const

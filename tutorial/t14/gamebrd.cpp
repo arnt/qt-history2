@@ -21,7 +21,7 @@
 GameBoard::GameBoard( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
+    QPushButton *quit = new QPushButton( "&Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
@@ -36,38 +36,46 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     box->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
     cannonField = new CannonField( box, "cannonField" );
-    cannonField->setBackgroundColor( QColor( 250, 250, 200) );
 
-    connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
-    connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
+    connect( angle, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setAngle(int)) );
+    connect( cannonField, SIGNAL(angleChanged(int)),
+	     angle, SLOT(setValue(int)) );
 
-    connect( force,SIGNAL(valueChanged(int)), cannonField,SLOT(setForce(int)));
-    connect( cannonField,SIGNAL(forceChanged(int)), force,SLOT(setValue(int)));
+    connect( force, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setForce(int)) );
+    connect( cannonField, SIGNAL(forceChanged(int)),
+	     force, SLOT(setValue(int)) );
 
-    connect( cannonField, SIGNAL(hit()),SLOT(hit()) );
-    connect( cannonField, SIGNAL(missed()),SLOT(missed()) );
+    connect( cannonField, SIGNAL(hit()),
+	     this, SLOT(hit()) );
+    connect( cannonField, SIGNAL(missed()),
+	     this, SLOT(missed()) );
 
-    angle->setValue( 60 );
-    force->setValue( 25 );
-
-    QPushButton *shoot = new QPushButton( "Shoot", this, "shoot" );
+    QPushButton *shoot = new QPushButton( "&Shoot", this, "shoot" );
     shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( shoot, SIGNAL(clicked()), SLOT(fire()) );
 
-    QPushButton *restart = new QPushButton( "New Game", this, "newgame" );
+    QPushButton *restart
+	= new QPushButton( "&New Game", this, "newgame" );
     restart->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( restart, SIGNAL(clicked()), SLOT(newGame()) );
+    connect( restart, SIGNAL(clicked()), this, SLOT(newGame()) );
 
-    hits  	       = new QLCDNumber( 2, this, "hits" );
-    shotsLeft 	       = new QLCDNumber( 2, this, "shotsleft" );
-    QLabel *hitsL      = new QLabel( "HITS", this, "hitsLabel" );
-    QLabel *shotsLeftL = new QLabel( "SHOTS LEFT", this, "shotsleftLabel" );
+    hits = new QLCDNumber( 2, this, "hits" );
+    shotsLeft = new QLCDNumber( 2, this, "shotsleft" );
+    QLabel *hitsL = new QLabel( "HITS", this, "hitsLabel" );
+    QLabel *shotsLeftL
+	= new QLabel( "SHOTS LEFT", this, "shotsleftLabel" );
 
     QAccel *accel = new QAccel( this );
-    accel->connectItem( accel->insertItem( Key_Space), this, SLOT(fire()) );
-    accel->connectItem( accel->insertItem( Key_Q), qApp, SLOT(quit()) );
+    accel->connectItem( accel->insertItem( Key_Enter ),
+			this, SLOT(fire()) );
+    accel->connectItem( accel->insertItem( Key_Return ),
+			this, SLOT(fire()) );
+    accel->connectItem( accel->insertItem( CTRL+Key_Q ),
+			qApp, SLOT(quit()) );
 
     QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
     grid->addWidget( quit, 0, 0 );
@@ -89,8 +97,13 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     topBox->addStretch( 1 );
     topBox->addWidget( restart );
 
+    angle->setValue( 60 );
+    force->setValue( 25 );
+    angle->setFocus();
+
     newGame();
 }
+
 
 void GameBoard::fire()
 {
@@ -99,6 +112,7 @@ void GameBoard::fire()
     shotsLeft->display( shotsLeft->intValue() - 1 );
     cannonField->shoot();
 }
+
 
 void GameBoard::hit()
 {
@@ -109,11 +123,13 @@ void GameBoard::hit()
 	cannonField->newTarget();
 }
 
+
 void GameBoard::missed()
 {
     if ( shotsLeft->intValue() == 0 )
 	cannonField->setGameOver();
 }
+
 
 void GameBoard::newGame()
 {

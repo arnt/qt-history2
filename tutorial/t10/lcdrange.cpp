@@ -1,51 +1,47 @@
 /****************************************************************
 **
-** Implementation of LCDRange class, Qt tutorial 10
+** Implementation of LCDRange class, Qt tutorial 8
 **
 ****************************************************************/
 
 #include "lcdrange.h"
 
-#include <qscrollbar.h>
+#include <qslider.h>
 #include <qlcdnumber.h>
-#include <qlayout.h>
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+        : QVBox( parent, name )
 {
     QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
-    sBar = new QScrollBar( 0, 99, 	// range
-			   1, 10,	// line/page steps
-			   0,	// inital value
-			   QScrollBar::Horizontal, 	// orientation
-			   this, "scrollbar" );
-    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
-    vbox->addWidget( lcd );
-    vbox->addWidget( sBar );
+    slider = new QSlider( Horizontal, this, "slider" );
+    slider->setRange( 0, 99 );
+    slider->setValue( 0 );
+    connect( slider, SIGNAL(valueChanged(int)),
+	     lcd, SLOT(display(int)) );
+    connect( slider, SIGNAL(valueChanged(int)),
+	     SIGNAL(valueChanged(int)) );
 
-    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-    connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
-
+    setFocusProxy( slider );
 }
 
 int LCDRange::value() const
 {
-    return sBar->value();
+    return slider->value();
 }
 
 void LCDRange::setValue( int value )
 {
-    sBar->setValue( value );
+    slider->setValue( value );
 }
 
 void LCDRange::setRange( int minVal, int maxVal )
 {
     if ( minVal < 0 || maxVal > 99 || minVal > maxVal ) {
-	qWarning( "LCDRange::setRange(%d,%d)\n"
-		 "\tRange must be 0..99\n"
-		 "\tand minVal must not be greater than maxVal",
-		 minVal, maxVal );
-	return; 
+      qWarning( "LCDRange::setRange(%d,%d)\n"
+	       "\tRange must be 0..99\n"
+	       "\tand minVal must not be greater than maxVal",
+	       minVal, maxVal );
+      return;
     }
-    sBar->setRange( minVal, maxVal );    
+    slider->setRange( minVal, maxVal );
 }

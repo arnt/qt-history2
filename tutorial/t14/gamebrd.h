@@ -12,7 +12,6 @@
 class QPushButton;
 class LCDRange;
 class QLCDNumber;
-class QFrame;
 class CannonField;
 
 #include "lcdrange.h"

@@ -32,7 +32,6 @@ protected:
     void  paintEvent( QPaintEvent * );
 
 private:
-    void  paintCannon( QPainter * );
     QRect cannonRect() const;
 
     int ang;

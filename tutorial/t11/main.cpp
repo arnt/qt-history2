@@ -6,7 +6,6 @@
 
 #include <qapplication.h>
 #include <qpushbutton.h>
-#include <qscrollbar.h>
 #include <qlcdnumber.h>
 #include <qfont.h>
 #include <qlayout.h>
@@ -15,7 +14,7 @@
 #include "cannon.h"
 
 
-class MyWidget : public QWidget
+class MyWidget: public QWidget
 {
 public:
     MyWidget( QWidget *parent=0, const char *name=0 );
@@ -25,30 +24,31 @@ public:
 MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    setMinimumSize( 500, 355 );
-
-    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
+    QPushButton *quit = new QPushButton( "&Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
-    LCDRange *angle  = new LCDRange( this, "angle" );
+    LCDRange *angle = new LCDRange( this, "angle" );
     angle->setRange( 5, 70 );
 
     LCDRange *force  = new LCDRange( this, "force" );
     force->setRange( 10, 50 );
 
-    QPushButton *shoot = new QPushButton( "Shoot", this, "shoot" );
-    shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
-
     CannonField *cannonField = new CannonField( this, "cannonField" );
-    cannonField->setBackgroundColor( QColor( 250, 250, 200) );
 
-    connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
-    connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
+    connect( angle, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setAngle(int)) );
+    connect( cannonField, SIGNAL(angleChanged(int)),
+	     angle, SLOT(setValue(int)) );
 
-    connect( force,SIGNAL(valueChanged(int)), cannonField,SLOT(setForce(int)));
-    connect( cannonField,SIGNAL(forceChanged(int)), force,SLOT(setValue(int)));
+    connect( force, SIGNAL(valueChanged(int)),
+	     cannonField, SLOT(setForce(int)) );
+    connect( cannonField, SIGNAL(forceChanged(int)),
+	     force, SLOT(setValue(int)) );
+
+    QPushButton *shoot = new QPushButton( "&Shoot", this, "shoot" );
+    shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()) );
 
@@ -56,7 +56,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     grid->addWidget( quit, 0, 0 );
     grid->addWidget( cannonField, 1, 1 );
     grid->setColStretch( 1, 10 );
-    
+
     QVBoxLayout *leftBox = new QVBoxLayout;
     grid->addLayout( leftBox, 1, 0 );
     leftBox->addWidget( angle );
@@ -69,6 +69,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 
     angle->setValue( 60 );
     force->setValue( 25 );
+    angle->setFocus();
 }
 
 int main( int argc, char **argv )
@@ -82,10 +83,3 @@ int main( int argc, char **argv )
     w.show();
     return a.exec();
 }
-
-
-
-
-
-
-

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#200 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#201 $
 #
 # this is a massive hack, written very quickly
 #
@@ -327,7 +327,7 @@ sub handlecodeincludes {
 	die "unable to find $arg, stopped" if ( !defined( $basefile ) );
 	open(IF, "expand < $basefile |") ||
 	    die "cannot read $basefile";
-	print "including code from $basefile\n";
+	#print "including code from $basefile\n";
 	$slash = $/;
 	undef $/;
 	$arg = <IF>;
@@ -648,7 +648,7 @@ sub processdocs {
 sub writepages {
     local($doc, $p, $e, $f, $file);
 
-    foreach $file ( keys %pages ) {
+    foreach $file ( sort keys %pages ) {
 	$doc = $pages{$file};
 	open(O, "> $outputdir/$file") ||
 	    die "can't open $outputdir/$file";
@@ -700,7 +700,6 @@ sub writepages {
 	
 	    $doc =~ s@\\version\b@$version@gs;
 
-#aavit was here:
 	    $doc =~ s@\\postheader\b@$postheader@gs;
 	
 	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
@@ -710,7 +709,9 @@ sub writepages {
 	    $doc =~ s/<linebreak>//gs;
 	    $doc =~ s/<p>\s*<p>/<p>/gs;
 	
-	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
+	    print O $doctype, "<html><head>", $doc, "\n";
+
+	    $types = undef;
 	} else {
 	    print O $doc;
 	}
