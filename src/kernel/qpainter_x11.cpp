@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#239 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#238 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#239 $");
 
 
 /*****************************************************************************
@@ -2339,17 +2339,16 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 	 !(mask && hasClipping()) && pixmap.depth() > 1 ) {
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
-	if ( mask ) {
+	if ( mask )
 	    XSetClipMask( dpy, gc, mask->handle() );
-	}
 	XSetFillStyle( dpy, gc, FillTiled );
 	XSetTSOrigin( dpy, gc, -sx, -sy );
 	XFillRectangle( dpy, hd, gc, x, y, w, h );
 	XSetTSOrigin( dpy, gc, 0, 0 );	    
 	XSetFillStyle( dpy, gc, FillSolid );
-	if ( mask ) {
+	if ( mask )
 	    XSetClipMask( dpy, gc, 0 );
-	}
+	return;
     }
     if ( sw*sh < 8192 ) {
 	int tw = sw, th = sh;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#124 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#124 $");
 
 
 /*!
@@ -1662,6 +1662,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 /*!
   \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+*/
+
+/*!
+  \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm )
 */
 
 /*!
