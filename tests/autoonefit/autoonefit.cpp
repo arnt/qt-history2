@@ -19,7 +19,7 @@ public:
 
 Fit::Fit( QWidget* parent, const char* name ) : QFrame( parent, name ) {
 	QBoxLayout *layout = new QVBoxLayout( this );
-	for ( int i = 0; i < 100; ++i ) {
+	for ( int i = 0; i < 10; ++i ) {
 		QString contents;
 		contents.setNum( i+1 );
 		QLineEdit *lineedit = new QLineEdit( contents, this );
