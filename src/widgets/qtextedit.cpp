@@ -1420,7 +1420,9 @@ void QTextEdit::ensureCursorVisible()
 */
 void QTextEdit::drawCursor( bool visible )
 {
-    if ( !cursor->parag() ||
+    if ( !isUpdatesEnabled() ||
+	 !viewport()->isUpdatesEnabled() ||
+	 !cursor->parag() ||
 	 !cursor->parag()->isValid() ||
 	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
 	 isReadOnly() )
@@ -2212,6 +2214,8 @@ void QTextEdit::checkUndoRedoInfo( UndoRedoInfo::Type t )
 
 void QTextEdit::repaintChanged()
 {
+    if ( !isUpdatesEnabled() || !viewport()->isUpdatesEnabled() )
+	return;
     QPainter p( viewport() );
     p.translate( -contentsX(), -contentsY() );
     paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
