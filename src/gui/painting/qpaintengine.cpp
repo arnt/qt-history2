@@ -734,7 +734,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         else
             emulationSpecifier &= ~ConicalGradientFill;
 
-        if (!s->brush.isOpaque())
+        if (!s->brush.isOpaque() && !hasFeature(AlphaFill))
             emulationSpecifier |= AlphaFill;
         else
             emulationSpecifier &= ~AlphaFill;
