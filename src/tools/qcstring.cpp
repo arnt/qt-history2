@@ -360,8 +360,11 @@ QByteArray qCompress( const uchar* data, int nbytes )
   the uncompressed byte array.
 
   The uncompression algorithm has to estimate the size of the
-  uncompressed buffer. If you know the size you can specify in in \a
-  expectedSize, otherwise pass -1, which is the default.
+  uncompressed buffer. If you know the size you can specify it in \a
+  expectedSize, otherwise pass -1, which is the default. If -1 is
+  passed, uncompressing may take a bit longer, because the size of the
+  uncompressed buffer has to be estimated and uncompress might have to
+  be called a couple of times until the result is correct.
 
   \sa qCompress()
 */
@@ -371,12 +374,12 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 {
     ulong len = expectedSize;
     if ( expectedSize == -1 )
-	expectedSize = nbytes * 2;
+	len = nbytes * 5;
     QByteArray baunzip;
     for (;;) {
 	baunzip.resize( len );
-	int res = uncompress( (uchar*)baunzip.data(), &len,
-			      (uchar*)data, nbytes );
+	int res = ::uncompress( (uchar*)baunzip.data(), &len,
+				(uchar*)data, nbytes );
 
 	switch ( res ) {
 	case Z_OK:
@@ -389,6 +392,7 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 #endif
 	    break;
 	case Z_BUF_ERROR:
+	    len *= 2;
 	    // try again with the correct length
 	    continue;
 	case Z_DATA_ERROR:
