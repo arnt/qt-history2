@@ -104,13 +104,13 @@ class QTextCodec;
 class QFontStruct : public QShared
 {
 public:
-    QFontStruct(Qt::HANDLE h, QCString n, QTextCodec *c, int a) :
-	QShared(), handle(h), name(n), codec(c), cache_cost(a)
+    QFontStruct(Qt::HANDLE h, Qt::HANDLE xfth, QCString n, QTextCodec *c, int a) :
+	QShared(), handle(h), xfthandle(xfth), name(n), codec(c), cache_cost(a)
     { ; }
 
     ~QFontStruct();
 
-    Qt::HANDLE handle;
+    Qt::HANDLE handle, xfthandle;
     QCString name;
     QTextCodec *codec;
     int cache_cost;

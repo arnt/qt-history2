@@ -35,9 +35,7 @@
 **
 **********************************************************************/
 
-
 // REVISED: brad
-
 
 #include "qfont.h"
 #include "qfontdata_p.h"
@@ -51,6 +49,7 @@
 #include <qregexp.h>
 #include <qdict.h>
 #include <qtextcodec.h>
+#include <qcleanuphandler.h>
 
 #include <ctype.h>
 #include <locale.h>
@@ -1924,7 +1923,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     }
 #endif // QFONTLOADER_DEBUG
 
-    qfs = new QFontStruct((Qt::HANDLE) f, n, codec,
+    qfs = new QFontStruct((Qt::HANDLE) f, 0, n, codec,
 			  (f->max_bounds.ascent + f->max_bounds.descent) *
 			  f->max_bounds.width * chars / 8);
 
@@ -1956,6 +1955,8 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 // **********************************************************************
 
 QFont::Script QFontPrivate::defaultScript = QFont::AnyScript;
+QCleanupHandler<QFontCache> cleanup_fontcache;
+QCleanupHandler<QFontNameDict> cleanup_fontnamedict;
 
 /*!
   Internal function that initializes the font system.
@@ -2007,13 +2008,17 @@ void QFont::initialize()
     setlocale(LC_TIME, (const char *) oldlctime);
 
     // create font cache and name dict
-    if (! QFontPrivate::fontCache) {
-	QFontPrivate::fontCache = new QFontCache();
+    if (QFontPrivate::fontCache)
+	return;
 
-	fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
-	Q_CHECK_PTR(fontNameDict);
-	fontNameDict->setAutoDelete(TRUE);
-    }
+    QFontPrivate::fontCache = new QFontCache();
+    Q_CHECK_PTR(QFontPrivate::fontCache);
+    cleanup_fontcache.add(QFontPrivate::fontCache);
+
+    fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
+    Q_CHECK_PTR(fontNameDict);
+    fontNameDict->setAutoDelete(TRUE);
+    cleanup_fontnamedict.add(fontNameDict);
 }
 
 
@@ -2022,14 +2027,10 @@ void QFont::initialize()
 */
 void QFont::cleanup()
 {
-    // delete cache and namedict
-    if ( QFontPrivate::fontCache ) {
-	QFontPrivate::fontCache->setAutoDelete(TRUE);
-	delete QFontPrivate::fontCache;
-	QFontPrivate::fontCache = 0;
-    }
-
-    delete fontNameDict;
+    // we don't delete the fontcache/namedict here because that is taken
+    // care of by our cleanup handlers
+    QFontPrivate::fontCache->setAutoDelete(TRUE);
+    QFontPrivate::fontCache = 0;
     fontNameDict = 0;
 }
 
@@ -2047,29 +2048,6 @@ void QFont::cleanup()
 */
 Qt::HANDLE QFont::handle() const
 {
-
-#if defined(Q_CC_GNU)
-#warning "TODO: handle based on charset compatibility?"
-#endif
-    // qDebug("QFont::handle: checking charset for !QT_NO_COMPAT");
-    // qDebug("QFont::handle: d->charset is %d '%s'", d->charset,
-    // qt_x11encodings[d->charset]);
-
-    // if the charset has been set, then we return the handle for that font
-    // if (d->charset != QFont::AnyScript) {
-    // qDebug("font charset is %d '%s'", d->charset, qt_x11encodings[d->charset]);
-
-    // if (d->x11data.fontstruct[d->charset]) {
-    // qDebug("QFont::handle: charset has been set, returning that font id");
-    // return ((XFontStruct *) d->x11data.fontstruct[d->charset]->handle)->fid;
-    // } else {
-    // qDebug("QFont::handle: charset has been set, but font isn't loaded");
-    // return 0;
-    // }
-    // } else {
-    // qDebug("QFont::handle: charset not set");
-    // }
-
     d->load(QFontPrivate::defaultScript);
 
     // find the first font id and return that
