@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#49 $
 **
 ** Implementation of QDialog class
 **
@@ -166,10 +166,10 @@ int QDialog::exec()
   This function is very useful for modal dialogs. It leaves the local
   event loop and returns from the exec() or show() function.
 
-  \warning Although done() will return to the caller, the local event
-  loop is then marked for termination. Hence, a program should not try
-  to do anything that depends on event handling before the
-  corresponding exec() or show() has returned.
+  \warning Although done() will return to the caller if this dialog is
+  modal, the local event loop is then marked for termination. Hence, a
+  program should not try to do anything that depends on event handling
+  before the corresponding exec() or show() has returned.
 
   \sa accept(), reject()
 */
