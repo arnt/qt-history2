@@ -443,3 +443,7 @@ QListViewComboItem:
 QToolTip:
     Be able to specify where the tooltip is shown, so that QListView can show the tooltip 
     over the item rather than below.  (See support/arc-15/31217 for more).
+
+Text Double-Buffering:
+    Double buffer the text, I don't know if we want to do this or anything, but a user asked
+    for it, so here it is.
