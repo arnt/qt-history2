@@ -22,6 +22,7 @@ public:
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
     QString iconSet( const QString& );
+    QIconSet iconset( const QString& );
     QString includeFile( const QString& );
     QString toolTip( const QString& );
     QString whatsThis( const QString& );
@@ -38,12 +39,12 @@ ExtraWidgetsInterface::~ExtraWidgetsInterface()
 {
 }
 
-bool ExtraWidgetsInterface::connectNotify( QApplication* theApp )
+bool ExtraWidgetsInterface::connectNotify( QApplication* )
 {
     return TRUE;
 }
 
-bool ExtraWidgetsInterface::disconnectNotify( QApplication* theApp )
+bool ExtraWidgetsInterface::disconnectNotify( QApplication* )
 {
     if ( !objects.isClean() )
 	return FALSE;
@@ -80,27 +81,32 @@ QString ExtraWidgetsInterface::group( const QString& description )
     return QString::null;
 }
 
-QString ExtraWidgetsInterface::iconSet( const QString& description )
+QString ExtraWidgetsInterface::iconSet( const QString& )
 {
     return "pushbutton.xpm";
 }
 
-QString ExtraWidgetsInterface::includeFile( const QString& description )
+QIconSet ExtraWidgetsInterface::iconset( const QString& )
+{
+    return QIconSet();
+}
+
+QString ExtraWidgetsInterface::includeFile( const QString& )
 {
     return "qcanvas.h";
 }
 
-QString ExtraWidgetsInterface::toolTip( const QString& description )
+QString ExtraWidgetsInterface::toolTip( const QString& )
 {
     return QString::null;
 }
 
-QString ExtraWidgetsInterface::whatsThis( const QString& description )
+QString ExtraWidgetsInterface::whatsThis( const QString& )
 {
     return QString::null;
 }
 
-bool ExtraWidgetsInterface::isContainer( const QString& description )
+bool ExtraWidgetsInterface::isContainer( const QString& )
 { 
     return FALSE;
 }
