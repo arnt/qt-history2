@@ -631,7 +631,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( !(flags & QStyle::Style_Off) ) {
 		er = r;
 		er.addCoords( 1, 2, 1, 1 );
-		static QCOORD check_mark[] = {
+		static const QCOORD check_mark[] = {
 			14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
 			7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
 			5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };
@@ -651,7 +651,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_CheckMark:
 	{
-	    static QCOORD check_mark[] = {
+	    static const QCOORD check_mark[] = {
 		14,0,  10,0,  11,1,  8,1,  9,2,	 7,2,  8,3,  6,3,
 		7,4,  1,4,  6,5,  1,5,	6,6,  3,6,  5,7,  4,7,
 		5,8,  5,8,  4,3,  2,3,	3,2,  3,2 };

@@ -807,7 +807,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
     }
 
-    static short ropCodes[] = {			// ROP translation table
+    static const short ropCodes[] = {			// ROP translation table
 	GXcopy, GXor, GXxor, GXandInverted,
 	GXcopyInverted, GXorInverted, GXequiv, GXand,
 	GXinvert, GXclear, GXset, GXnoop,

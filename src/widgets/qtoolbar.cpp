@@ -54,7 +54,7 @@
 #include "qwidgetlist.h"
 #include "qstyle.h"
 
-static const char * arrow_v_xpm[] = {
+static const char * const arrow_v_xpm[] = {
     "7 9 3 1",
     "	    c None",
     ".	    c #000000",
@@ -69,7 +69,7 @@ static const char * arrow_v_xpm[] = {
     "++...++",
     "+++.+++"};
 
-static const char * arrow_h_xpm[] = {
+static const char * const arrow_h_xpm[] = {
     "9 7 3 1",
     "	    c None",
     ".	    c #000000",
@@ -151,9 +151,9 @@ void QToolBarExtensionWidget::setOrientation( Orientation o )
 {
     orient = o;
     if ( orient == Horizontal )
-	tb->setPixmap( QPixmap( arrow_h_xpm ) );
+	tb->setPixmap( QPixmap( (const char **)arrow_h_xpm ) );
     else
-	tb->setPixmap( QPixmap( arrow_v_xpm ) );
+	tb->setPixmap( QPixmap( (const char **)arrow_v_xpm ) );
     layOut();
 }
 

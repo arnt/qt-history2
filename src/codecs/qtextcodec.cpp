@@ -1716,7 +1716,7 @@ static const struct {
     const char * cs;
     int mib;
     Q_UINT16 values[128];
-} unicodevalues[] = {
+} const unicodevalues[] = {
     // from RFC 1489, ftp://ftp.isi.edu/in-notes/rfc1489.txt
     { "KOI8-R", "KOI8-R", 2084,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,

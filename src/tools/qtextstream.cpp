@@ -1344,7 +1344,7 @@ double QTextStream::input_double()
     const int InputDot	 = 3;
     const int InputExp	 = 4;
 
-    static uchar table[8][5] = {
+    static const uchar table[8][5] = {
      /* None	 InputSign   InputDigit InputDot InputExp */
 	{ 0,	    Sign,     Mantissa,	 Dot,	   0,	   }, // Init
 	{ 0,	    0,	      Mantissa,	 Dot,	   0,	   }, // Sign
@@ -1796,13 +1796,13 @@ QTextStream &QTextStream::operator<<( char c )
 
 QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 {
-    static char hexdigits_lower[] = "0123456789abcdef";
-    static char hexdigits_upper[] = "0123456789ABCDEF";
+    static const char hexdigits_lower[] = "0123456789abcdef";
+    static const char hexdigits_upper[] = "0123456789ABCDEF";
     CHECK_STREAM_PRECOND
     char buf[76];
     register char *p;
     int	  len;
-    char *hexdigits;
+    const char *hexdigits;
 
     switch ( flags() & I_BASE_MASK ) {
 

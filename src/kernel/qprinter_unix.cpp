@@ -411,7 +411,7 @@ struct PaperSize {
     int width, height;
 };
 
-static PaperSize paperSizes[QPrinter::NPageSize] =
+static const PaperSize paperSizes[QPrinter::NPageSize] =
 {
     {  MM(210), MM(297) },      // A4
     {  MM(176), MM(250) },      // B5

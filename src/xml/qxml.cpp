@@ -2806,7 +2806,7 @@ bool QXmlSimpleReader::parseProlog()
     const signed char InpDash          = 5; // -
     const signed char InpUnknown       = 6;
 
-    static signed char table[7][7] = {
+    static const signed char table[7][7] = {
      /*  InpWs   InpLt  InpQm  InpEm  InpD      InpDash  InpUnknown */
 	{ EatWS,  Lt,    -1,    -1,    -1,       -1,       -1      }, // Init
 	{ -1,     Lt,    -1,    -1,    -1,       -1,       -1      }, // EatWS
@@ -2987,7 +2987,7 @@ bool QXmlSimpleReader::parseElement()
     const signed char InpSlash         = 3; // /
     const signed char InpUnknown       = 4;
 
-    static signed char table[11][5] = {
+    static const signed char table[11][5] = {
      /*  InpWs      InpNameBe    InpGt        InpSlash     InpUnknown */
 	{ -1,        ReadName,    -1,          -1,          -1        }, // Init
 	{ Ws1,       Attribute,   STagEnd,     EmptyTag,    -1        }, // ReadName
@@ -3321,7 +3321,7 @@ bool QXmlSimpleReader::parseContent()
     const signed char InpCloseB        = 8; // ]
     const signed char InpUnknown       = 9;
 
-    static signed char mapCLT2FSMChar[] = {
+    static const signed char mapCLT2FSMChar[] = {
 	InpUnknown, // white space
 	InpUnknown, // %
 	InpAmp,     // &
@@ -3339,7 +3339,7 @@ bool QXmlSimpleReader::parseContent()
 	InpUnknown  // unknown
     };
 
-    static signed char const table[14][10] = {
+    static const signed char table[14][10] = {
      /*  InpLt  InpGt  InpSlash  InpQMark  InpEMark  InpAmp  InpDash  InpOpenB  InpCloseB  InpUnknown */
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD1,      ChD  }, // Init
 	{ Lt,    ChD,   ChD,      ChD,      ChD,      Ref,    ChD,     ChD,      ChD1,      ChD  }, // ChD
@@ -3648,7 +3648,7 @@ bool QXmlSimpleReader::parseMisc()
     const signed char InpEm            = 3; // !
     const signed char InpUnknown       = 4;
 
-    static signed char table[3][5] = {
+    static const signed char table[3][5] = {
      /*  InpWs   InpLt  InpQm  InpEm     InpUnknown */
 	{ eatWS,  Lt,    -1,    -1,       -1        }, // Init
 	{ -1,     -1,    PI,    Comment,  -1        }, // Lt
@@ -3790,7 +3790,7 @@ bool QXmlSimpleReader::parsePI()
     const signed char InpQm            = 3; // ?
     const signed char InpUnknown       = 4;
 
-    static signed char table[16][5] = {
+    static const signed char table[16][5] = {
      /*  InpWs,  InpNameBe  InpGt  InpQm   InpUnknown  */
 	{ -1,     -1,        -1,    QmI,    -1     }, // Init
 	{ -1,     Name,      -1,    -1,     -1     }, // QmI
@@ -4023,7 +4023,7 @@ bool QXmlSimpleReader::parseDoctype()
     const signed char InpGt            = 6; // >
     const signed char InpUnknown       = 7;
 
-    static signed char table[12][8] = {
+    static const signed char table[12][8] = {
      /*  InpWs,  InpD       InpS       InpOB  InpCB  InpPer InpGt  InpUnknown */
 	{ -1,     Doctype,   -1,        -1,    -1,    -1,    -1,    -1        }, // Init
 	{ Ws1,    -1,        -1,        -1,    -1,    -1,    -1,    -1        }, // Doctype
@@ -4222,7 +4222,7 @@ bool QXmlSimpleReader::parseExternalID()
     const signed char InpWs            = 4; // white space
     const signed char InpUnknown       = 5;
 
-    static signed char table[15][6] = {
+    static const signed char table[15][6] = {
      /*  InpSQ    InpDQ    InpS     InpP     InpWs     InpUnknown */
 	{ -1,      -1,      Sys,     Pub,     -1,       -1      }, // Init
 	{ -1,      -1,      -1,      -1,      SysWS,    -1      }, // Sys
@@ -4397,7 +4397,7 @@ bool QXmlSimpleReader::parseMarkupdecl()
     const signed char InpN             = 7; // N
     const signed char InpUnknown       = 8;
 
-    static signed char table[4][9] = {
+    static const signed char table[4][9] = {
      /*  InpLt  InpQm  InpEm  InpDash  InpA   InpE   InpL   InpN   InpUnknown */
 	{ Lt,    -1,    -1,    -1,      -1,    -1,    -1,    -1,    -1     }, // Init
 	{ -1,    Qm,    Em,    -1,      -1,    -1,    -1,    -1,    -1     }, // Lt
@@ -4554,7 +4554,7 @@ bool QXmlSimpleReader::parsePEReference()
     const signed char InpPer           = 1; // %
     const signed char InpUnknown       = 2;
 
-    static signed char table[3][3] = {
+    static const signed char table[3][3] = {
      /*  InpSemi  InpPer  InpUnknown */
 	{ -1,      Next,   -1    }, // Init
 	{ -1,      -1,     Name  }, // Next
@@ -4711,7 +4711,7 @@ bool QXmlSimpleReader::parseAttlistDecl()
     const signed char InpR             = 6; // R
     const signed char InpUnknown       = 7;
 
-    static signed char table[15][8] = {
+    static const signed char table[15][8] = {
      /*  InpWs    InpGt    InpHash  InpA      InpI     InpF     InpR     InpUnknown */
 	{ -1,      -1,      -1,      Attlist,  -1,      -1,      -1,      -1      }, // Init
 	{ Ws,      -1,      -1,      -1,       -1,      -1,      -1,      -1      }, // Attlist
@@ -4923,7 +4923,7 @@ bool QXmlSimpleReader::parseAttType()
     const signed char InpY             = 12; // Y
     const signed char InpUnknown       = 13;
 
-    static signed char table[19][14] = {
+    static const signed char table[19][14] = {
      /*  InpWs    InpOp    InpCp    InpPipe  InpC     InpE     InpI     InpM     InpN     InpO     InpR     InpS     InpY     InpUnknown */
 	{ -1,      EN,      -1,      -1,      ST,      TTE,     TTI,     -1,      N,       -1,      -1,      -1,      -1,      -1     }, // Init
 	{ Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done,    Done   }, // ST
@@ -5156,7 +5156,7 @@ bool QXmlSimpleReader::parseAttValue()
     const signed char InpLt            = 3; // <
     const signed char InpUnknown       = 4;
 
-    static signed char table[7][5] = {
+    static const signed char table[7][5] = {
      /*  InpDq  InpSq  InpAmp  InpLt InpUnknown */
 	{ Dq,    Sq,    -1,     -1,   -1    }, // Init
 	{ Done,  DqC,   DqRef,  -1,   DqC   }, // Dq
@@ -5287,7 +5287,7 @@ bool QXmlSimpleReader::parseElementDecl()
     const signed char InpL             = 11; // L
     const signed char InpUnknown       = 12;
 
-    static signed char table[18][13] = {
+    static const signed char table[18][13] = {
      /*  InpWs   InpGt  InpPipe  InpOp  InpCp   InpHash  InpQm  InpAst  InpPlus  InpA    InpE    InpL    InpUnknown */
 	{ -1,     -1,    -1,      -1,    -1,     -1,      -1,    -1,     -1,      -1,     -1,     Elem,   -1     }, // Init
 	{ Ws1,    -1,    -1,      -1,    -1,     -1,      -1,    -1,     -1,      -1,     -1,     -1,     -1     }, // Elem
@@ -5505,7 +5505,7 @@ bool QXmlSimpleReader::parseNotationDecl()
     const signed char InpN             = 2; // N
     const signed char InpUnknown       = 3;
 
-    static signed char table[7][4] = {
+    static const signed char table[7][4] = {
      /*  InpWs   InpGt  InpN    InpUnknown */
 	{ -1,     -1,    Not,    -1     }, // Init
 	{ Ws1,    -1,    -1,     -1     }, // Not
@@ -5648,7 +5648,7 @@ bool QXmlSimpleReader::parseChoiceSeq()
     const signed char InpComm          = 7; // ,
     const signed char InpUnknown       = 8;
 
-    static signed char table[6][9] = {
+    static const signed char table[6][9] = {
      /*  InpWs   InpOp  InpCp  InpQm  InpAst  InpPlus  InpPipe  InpComm  InpUnknown */
 	{ -1,     Ws1,   -1,    -1,    -1,     -1,      -1,      -1,      Name  }, // Init
 	{ -1,     CS,    -1,    -1,    -1,     -1,      -1,      -1,      CS    }, // Ws1
@@ -5793,7 +5793,7 @@ bool QXmlSimpleReader::parseEntityDecl()
     const signed char InpN             = 4; // N
     const signed char InpUnknown       = 5;
 
-    static signed char table[18][6] = {
+    static const signed char table[18][6] = {
      /*  InpWs  InpPer  InpQuot  InpGt  InpN    InpUnknown */
 	{ -1,    -1,     -1,      -1,    Ent,    -1      }, // Init
 	{ Ws1,   -1,     -1,      -1,    -1,     -1      }, // Ent
@@ -6063,7 +6063,7 @@ bool QXmlSimpleReader::parseEntityValue()
     const signed char InpPer           = 3; // %
     const signed char InpUnknown       = 4;
 
-    static signed char table[9][5] = {
+    static const signed char table[9][5] = {
      /*  InpDq  InpSq  InpAmp  InpPer  InpUnknown */
 	{ Dq,    Sq,    -1,     -1,     -1    }, // Init
 	{ Done,  DqC,   DqRef,  DqPER,  DqC   }, // Dq
@@ -6185,7 +6185,7 @@ bool QXmlSimpleReader::parseComment()
     const signed char InpGt            = 1; // >
     const signed char InpUnknown       = 2;
 
-    static signed char table[6][3] = {
+    static const signed char table[6][3] = {
      /*  InpDash  InpGt  InpUnknown */
 	{ Dash1,   -1,    -1  }, // Init
 	{ Dash2,   -1,    -1  }, // Dash1
@@ -6301,7 +6301,7 @@ bool QXmlSimpleReader::parseAttribute()
     const signed char InpSq            = 3; // '
     const signed char InpUnknown       = 4;
 
-    static signed char table[4][5] = {
+    static const signed char table[4][5] = {
      /*  InpNameBe  InpEq  InpDq    InpSq    InpUnknown */
 	{ PName,     -1,    -1,      -1,      -1    }, // Init
 	{ -1,        Eq,    -1,      -1,      Ws    }, // PName
@@ -6406,7 +6406,7 @@ bool QXmlSimpleReader::parseName()
     const signed char InpNameCh        = 1; // NameChar without InpNameBe
     const signed char InpUnknown       = 2;
 
-    static signed char table[3][3] = {
+    static const signed char table[3][3] = {
      /*  InpNameBe  InpNameCh  InpUnknown */
 	{ Name1,     -1,        -1    }, // Init
 	{ Name,      Name,      Done  }, // Name1
@@ -6497,7 +6497,7 @@ bool QXmlSimpleReader::parseNmtoken()
     const signed char InpNameCh        = 0; // NameChar without InpNameBe
     const signed char InpUnknown       = 1;
 
-    static signed char table[3][2] = {
+    static const signed char table[3][2] = {
      /*  InpNameCh  InpUnknown */
 	{ NameF,     -1    }, // Init
 	{ Name,      Done  }, // NameF
@@ -6601,7 +6601,7 @@ bool QXmlSimpleReader::parseReference()
     const signed char InpHex           = 5; // a-f A-F
     const signed char InpUnknown       = 6;
 
-    static signed char table[8][7] = {
+    static const signed char table[8][7] = {
      /*  InpAmp  InpSemi  InpHash  InpX     InpNum  InpHex  InpUnknown */
 	{ SRef,   -1,      -1,      -1,      -1,     -1,     -1    }, // Init
 	{ -1,     -1,      ChRef,   Name,    Name,   Name,   Name  }, // SRef
