@@ -1302,19 +1302,16 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inGoAway:
         widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         break;
-    case inToolbarButton: { //hide toolbars thing
-        QObjectList chldrn = widget->children();
+    case inToolbarButton: {
+        QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(widget);
 #ifndef QT_NO_MAINWINDOW
-        for (int i = 0; i < chldrn.size(); i++) {
-            QObject *obj = chldrn.at(i);
-            QToolBar *toolbar = ::qt_cast<QToolBar *>(obj);
-            if (toolbar && toolbar->area() == Qt::ToolBarAreaTop) {
-                if(toolbar->isVisible())
-                    toolbar->hide();
-                else
-                    toolbar->show();
-                sendPostedEvents();
-            }
+        for (int i = 0; i < toolbars.size(); ++i) {
+            QToolBar *toolbar = toolbars.at(i);
+            if(toolbar->isVisible())
+                toolbar->hide();
+            else
+                toolbar->show();
+            sendPostedEvents();
         }
 #endif
         break; }

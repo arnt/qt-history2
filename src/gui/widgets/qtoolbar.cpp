@@ -24,6 +24,9 @@
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
+#ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
+#endif
 
 #include <private/qmainwindowlayout_p.h>
 
@@ -35,9 +38,6 @@
 
 #define d d_func()
 #define q q_func()
-
-
-
 
 /*
     QToolBarPrivate
@@ -58,6 +58,12 @@ void QToolBarPrivate::init()
     extension->hide();
 
     q->setArea(Qt::ToolBarAreaTop);
+#ifdef Q_WS_MAC
+    // Make sure that the window has the "toolbar" button.
+    extern WindowPtr qt_mac_window_for(const QWidget *); // qwidget_mac.cpp
+    ChangeWindowAttributes(qt_mac_window_for(q->parentWidget()), kWindowToolbarButtonAttribute,
+                           kWindowNoAttributes);
+#endif
 }
 
 void QToolBarPrivate::actionTriggered()
