@@ -53,7 +53,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#ifdef NEW_FONT
 #include <freetype/freetype.h>
+#endif
 
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
