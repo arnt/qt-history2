@@ -715,8 +715,6 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     setPrinter( prn, TRUE );
     d->printers->setFocus();
-
-    d->ok->setEnabled( TRUE );
 }
 
 
@@ -1163,6 +1161,7 @@ void QPrintDialog::printerOrFileSelected( int id )
 {
     d->outputToFile = id ? TRUE : FALSE;
     if ( d->outputToFile ) {
+	d->ok->setEnabled( TRUE );
         fileNameEditChanged( d->fileName->text() );
         if ( !d->fileName->edited() && d->fileName->text().isEmpty() ) {
             QString home = QString::fromLatin1( ::getenv( "HOME" ) );
@@ -1182,7 +1181,10 @@ void QPrintDialog::printerOrFileSelected( int id )
         d->fileName->setFocus();
         d->printers->setEnabled( FALSE );
     } else {
-        d->ok->setEnabled( TRUE );
+	if ( d->printers->childCount() != 0 )
+	    d->ok->setEnabled( TRUE );
+	else
+	    d->ok->setEnabled( FALSE );
         d->printers->setEnabled( TRUE );
         if ( d->fileName->hasFocus() || d->browse->hasFocus() )
             d->printers->setFocus();
@@ -1303,8 +1305,12 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
             QListViewItem * i = d->printers->firstChild();
             while( i && i->text( 0 ) != p->printerName() )
                 i = i->nextSibling();
-            if ( i )
+            if ( i ) {
                 d->printers->setSelected( i, TRUE );
+		d->ok->setEnabled( TRUE );
+	    } else if ( d->fileName->text().isEmpty() ) {
+		d->ok->setEnabled( FALSE );
+	    }
         }
 
         // print command does not exist any more
