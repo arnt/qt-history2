@@ -28,7 +28,6 @@ class QTextBlockFormat;
 class QTextObjectManager;
 class QTextCursorPrivate;
 class QTextDocumentLayout;
-inline void qDelete(QTextCursorPrivate *) {}
 
 class QTextFragment : public QFragment
 {
