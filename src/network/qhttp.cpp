@@ -158,6 +158,15 @@ class QHttpClient : public QObject
 
 public:
     enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
+    enum Error {
+	ErrUnknown,
+	ErrConnectionRefused,
+	ErrHostNotFound,
+	ErrSocketRead,
+	ErrUnexpectedClose,
+	ErrInvalidReplyHeader,
+	ErrWrongContentLength
+    };
 
     QHttpClient( QObject* parent = 0, const char* name = 0 );
     ~QHttpClient();
@@ -179,7 +188,7 @@ signals:
     void reply( const QHttpReplyHeader& repl, const QIODevice* device );
     void replyChunk( const QHttpReplyHeader& repl, const QByteArray& data );
     void replyHeader( const QHttpReplyHeader& repl );
-    void requestFailed();
+    void requestFailed( int error );
     void finished();
 
     // informational
@@ -1030,9 +1039,10 @@ QTextStream& operator<<( QTextStream& stream, const QHttpRequestHeader& header )
   \sa setDevice() reply() replyChunk()
 */
 /*
-  \fn void QHttpClient::requestFailed()
+  \fn void QHttpClient::requestFailed( int error )
 
-  This signal is emitted if a request failed.
+  This signal is emitted if a request failed. \a error is a Error enum that
+  contains the reason for the failure.
 
   \sa request()
 */
@@ -1231,11 +1241,11 @@ void QHttpClient::slotClosed()
 	} else {
 	    // We got Content-Length, so did we get all bytes ?
 	    if ( m_bytesRead != m_reply.contentLength() ) {
-		emit requestFailed();
+		emit requestFailed( ErrWrongContentLength );
 	    }
 	}
     } else if ( m_state == Connecting || m_state == Sending ) {
-	emit requestFailed();
+	emit requestFailed( ErrUnexpectedClose );
     }
     emit closed();
 
@@ -1260,12 +1270,25 @@ void QHttpClient::slotConnected()
     m_buffer = QByteArray();
 }
 
-void QHttpClient::slotError( int )
+void QHttpClient::slotError( int err )
 {
     m_postDevice = 0;
 
     if ( m_state == Connecting || m_state == Reading || m_state == Sending ) {
-	emit requestFailed();
+	switch ( err ) {
+	    case QSocket::ErrConnectionRefused:
+		emit requestFailed( ErrConnectionRefused );
+		break;
+	    case QSocket::ErrHostNotFound:
+		emit requestFailed( ErrHostNotFound );
+		break;
+	    case QSocket::ErrSocketRead:
+		emit requestFailed( ErrSocketRead );
+		break;
+	    default:
+		emit requestFailed( ErrUnknown );
+		break;
+	}
     }
 
     close();
@@ -1328,7 +1351,7 @@ void QHttpClient::slotReadyRead()
 
 	    // Check header
 	    if ( !m_reply.isValid() ) {
-		emit requestFailed();
+		emit requestFailed( ErrInvalidReplyHeader );
 		close();
 		return;
 	    }
@@ -1564,8 +1587,8 @@ QHttp::QHttp()
 	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
     connect( client, SIGNAL(finished()),
 	    this, SLOT(requestFinished()) );
-    connect( client, SIGNAL(requestFailed()),
-	    this, SLOT(requestFailed()) );
+    connect( client, SIGNAL(requestFailed( int )),
+	    this, SLOT(requestFailed( int )) );
     connect( client, SIGNAL(connected()),
 	    SLOT(connected()) );
     connect( client, SIGNAL(closed()),
@@ -1612,8 +1635,7 @@ void QHttp::operationPut( QNetworkOperation *op )
     op->setState( StInProgress );
     QHttpRequestHeader header( "POST", url()->encodedPathAndQuery() );
     //header.setContentType( "text/plain" );
-    client->request( url()->host(), url()->port() != -1 ? url()->port() : 80,
-	    header, op->rawArg(1) );
+    client->request( url()->host(), url()->port() != -1 ? url()->port() : 80, header, op->rawArg(1) );
 }
 
 void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
@@ -1665,18 +1687,41 @@ void QHttp::requestFinished()
     }
 }
 
-void QHttp::requestFailed()
+void QHttp::requestFailed( int err )
 {
     // ### we need some means to differentiate better between the different
     // kind of errors that can happen
     QNetworkOperation *op = operationInProgress();
     if ( op ) {
 	op->setState( QNetworkProtocol::StFailed );
-	if ( op->operation() == OpGet )
-	    op->setErrorCode( ErrGet );
-	else
-	    op->setErrorCode( ErrPut );
-	op->setProtocolDetail( tr( "HTTP request failed" ) );
+	switch ( err ) {
+	    case QHttpClient::ErrConnectionRefused:
+		op->setErrorCode( ErrHostNotFound );
+		op->setProtocolDetail( tr( "Connection refused" ) );
+		break;
+	    case QHttpClient::ErrHostNotFound:
+		op->setErrorCode( ErrHostNotFound );
+		op->setProtocolDetail( tr( "Host %1 not found" ).arg( url()->host() ) );
+		break;
+	    case QHttpClient::ErrUnexpectedClose:
+		op->setProtocolDetail( tr( "Connection closed by %1" ).arg( url()->host() ) );
+		break;
+	    case QHttpClient::ErrInvalidReplyHeader:
+		op->setProtocolDetail( tr( "Invalid HTTP reply header" ) );
+		break;
+	    case QHttpClient::ErrWrongContentLength:
+		op->setProtocolDetail( tr( "Wrong content length" ) );
+		break;
+	    default:
+		op->setProtocolDetail( tr( "HTTP request failed" ) );
+		break;
+	}
+	if ( op->errorCode() == NoError ) {
+	    if ( op->operation() == OpGet )
+		op->setErrorCode( ErrGet );
+	    else
+		op->setErrorCode( ErrPut );
+	}
 	emit finished( op );
     }
 }
