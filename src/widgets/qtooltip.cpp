@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#17 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#17 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -224,7 +224,7 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
 		else
 		    wakeUp.start( 1000, TRUE );
 		widget = w;
-		pos = w->mapToGlobal( m->pos() ) + QPoint( 2, 16 );
+		pos = m->pos();
 		return TRUE;
 	    } else {
 		hideTip();
@@ -247,6 +247,12 @@ bool QTipManager::eventFilter( QObject * o, QEvent * e )
 
 void QTipManager::showTip()
 {
+    if ( widget == 0 ||
+	 QApplication::widgetAt(widget->mapToGlobal(pos),TRUE) != widget ) {
+	widget = 0;
+	return;
+    }
+
     QTipManager::Tip * t = (*tips)[ (long)widget ];
 
     while ( t && !t->rect.contains( pos ) )
@@ -275,11 +281,12 @@ void QTipManager::showTip()
 	label->setAlignment( AlignLeft | AlignTop );
 	label->setAutoResize( TRUE );
     }
-    if ( pos.x() + label->width() > QApplication::desktop()->width() )
-	pos.setX( QApplication::desktop()->width() - label->width() );
-    if ( pos.y() + label->height() > QApplication::desktop()->height() )
-	pos.setY( pos.y() - 20 - label->height() );
-    label->move( pos );
+    QPoint p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
+    if ( p.x() + label->width() > QApplication::desktop()->width() )
+	p.setX( QApplication::desktop()->width() - label->width() );
+    if ( p.y() + label->height() > QApplication::desktop()->height() )
+	p.setY( pos.y() - 20 - label->height() );
+    label->move( p );
     label->show();
     label->raise();
 
@@ -306,6 +313,7 @@ void QTipManager::hideTip()
     }
 
     currentTip = 0;
+    widget = 0;
 }
 
 
