@@ -319,6 +319,7 @@ void QScrollBar::setPalette( const QPalette &p )
 
 QSize QScrollBar::sizeHint() const
 {
+    constPolish();
     QSize sbextent = style().scrollBarExtent();
 
     if ( orient == Horizontal ) {

@@ -422,10 +422,7 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
 
 QSize QWidgetStack::sizeHint() const
 {
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-    }
+    constPolish();
 
     QSize size(0,0);
     if ( children() ) {
@@ -453,10 +450,7 @@ QSize QWidgetStack::sizeHint() const
 */
 QSize QWidgetStack::minimumSizeHint() const
 {
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-    }
+    constPolish();
 
     QSize size(0,0);
     if ( children() ) {

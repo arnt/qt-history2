@@ -2147,6 +2147,7 @@ QSizePolicy QScrollView::sizePolicy() const
 */
 QSize	QScrollView::sizeHint() const
 {
+    constPolish();
     QSize result = QSize(frameWidth()*2, frameWidth()*2);
     if ( d->policy == QScrollView::AutoOne ) {
 	QSVChildRec* r = d->children.first();

@@ -881,6 +881,7 @@ void QSplitter::recalcId()
 
 QSize QSplitter::sizeHint() const
 {
+    constPolish();
     int l = 0;
     int t = 0;
     if ( children() ) {
@@ -910,6 +911,7 @@ QSize QSplitter::sizeHint() const
 
 QSize QSplitter::minimumSizeHint() const
 {
+    constPolish();
     int l = 0;
     int t = 0;
     if ( children() ) {

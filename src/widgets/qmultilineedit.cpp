@@ -2766,6 +2766,7 @@ QSizePolicy QMultiLineEdit::sizePolicy() const
 */
 QSize QMultiLineEdit::sizeHint() const
 {
+    constPolish();
     int expected_lines;
     if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
 	expected_lines = d->maxlines;
@@ -2790,6 +2791,7 @@ QSize QMultiLineEdit::sizeHint() const
 
 QSize QMultiLineEdit::minimumSizeHint() const
 {
+    constPolish();
     QFontMetrics fm( font() );
     int h = fm.lineSpacing() + frameWidth()*2;
     int w = fm.maxWidth();

@@ -148,7 +148,7 @@ QSize QRadioButton::sizeHint() const
 {
     // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
-
+    constPolish();
     QSize sz;
     if (pixmap())
 	sz = pixmap()->size();

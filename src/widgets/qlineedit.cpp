@@ -1287,6 +1287,7 @@ bool QLineEdit::isReadOnly() const
 
 QSize QLineEdit::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm( font() );
     int h = fm.height();
     int w = fm.width( 'x' ) * 17; // "some"
@@ -1310,6 +1311,7 @@ QSize QLineEdit::sizeHint() const
 
 QSize QLineEdit::minimumSizeHint() const
 {
+    constPolish();
     QFontMetrics fm( font() );
     int h = fm.height();
     int w = fm.maxWidth();

@@ -180,6 +180,7 @@ void QProgressBar::setProgress( int progress )
 
 QSize QProgressBar::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm = fontMetrics();
     return QSize( fm.height()*4, fm.height()+8);
 }

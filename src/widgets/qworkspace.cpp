@@ -1267,6 +1267,7 @@ bool QWorkspaceChildTitleBar::isActive() const
 
 QSize QWorkspaceChildTitleBar::sizeHint() const
 {
+    constPolish();
     return QSize( 196, QMAX( TITLEBAR_HEIGHT, fontMetrics().lineSpacing() ) );
 }
 

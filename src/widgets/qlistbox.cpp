@@ -2656,6 +2656,7 @@ void QListBox::doLayout() const
 {
     if ( !d->layoutDirty || d->resizeTimer->isActive() )
 	return;
+    constPolish();
     int c = count();
     switch( rowMode() ) {
     case FixedNumber:

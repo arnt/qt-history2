@@ -714,7 +714,7 @@ void QObject::timerEvent( QTimerEvent * )
   child's construction is completed before this function is called.
 
   If you change state based on \c ChildInserted events, call
-  QWidget::polish(), or do
+  QWidget::constPolish(), or do
   <code>QApplication::sendPostedEvents( this, QEvent::ChildInserted );</code>
   in functions that depend on the state. One notable example is
   QWidget::sizeHint().

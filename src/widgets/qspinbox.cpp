@@ -405,6 +405,7 @@ bool QSpinBox::wrapping() const
 
 QSize QSpinBox::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm = fontMetrics();
     int h = fm.height();
     if ( h < 12 ) 	// ensure enough space for the button pixmaps

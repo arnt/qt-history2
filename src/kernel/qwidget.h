@@ -251,6 +251,7 @@ public slots:
     void		showFullScreen(); // virtual 3.0
     virtual void	showNormal();
     virtual void	polish();
+    void 		constPolish() const;
     bool		close();
 
     void		raise();
@@ -625,6 +626,13 @@ inline void QWidget::setWFlags( WFlags f )
 inline void QWidget::clearWFlags( WFlags f )
 { widget_flags &= ~f; }
 
+inline void QWidget::constPolish() const
+{
+    if ( !testWState(WState_Polished) ) {
+	QWidget* that = (QWidget*) this;
+	that->polish();
+    }
+}
 
 // Extra QWidget data
 //  - to minimize memory usage for members that are seldom used.

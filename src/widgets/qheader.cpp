@@ -784,6 +784,7 @@ int QHeader::addLabel( const QString &s, int size )
 */
 QSize QHeader::sizeHint() const
 {
+    constPolish();
     QFontMetrics fm = fontMetrics();
     if ( orient == Horizontal ) {
 	int height = fm.lineSpacing() + 6;

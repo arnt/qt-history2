@@ -4509,6 +4509,7 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 
 QSize QListView::sizeHint() const
 {
+    constPolish();
     if ( !isVisible() &&
 	 (!d->drawables || d->drawables->isEmpty()) )
 	// force the column widths to sanity, if possible

@@ -859,6 +859,7 @@ int QSlider::goodPart( const QPoint &p ) const
 
 QSize QSlider::sizeHint() const
 {
+    constPolish();
     const int length = 84;
     int thick = style() == MotifStyle ? 24 : 16;
     const int tickSpace = 5;

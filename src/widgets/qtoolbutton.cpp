@@ -253,6 +253,8 @@ void QToolButton::setToggleButton( bool enable )
 
 QSize QToolButton::sizeHint() const
 {
+    constPolish();
+    
     int w = 0;
     int h = 0;
 

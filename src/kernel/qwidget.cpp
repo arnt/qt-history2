@@ -3246,7 +3246,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   Delayed initialization of a widget.
 
   This function will be called \e after a widget has been fully created
-  just \e before it is shown the very first time.
+  and \e before it is shown the very first time.
 
   Polishing is useful for final initialization depending on an
   instantiated widget. This is something a constructor cannot
@@ -3256,7 +3256,7 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   The default implementation sets the \c WState_Polished widget state
   and calls QApplication::polish().
 
-  \sa QApplication::polish()
+  \sa constPolish(), QApplication::polish()
 */
 
 void QWidget::polish()
@@ -3267,6 +3267,21 @@ void QWidget::polish()
 	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
     }
 }
+
+
+/*!
+  \fn void QWidget::constPolish() const
+  
+  Ensures that the widget is properly initialized by calling polish().
+  
+  Call constPolish() from functions like sizeHint() that depends on
+  the widget being initialized, and that may be called before show().
+
+  \warning Do not call constPolish() on a widget from inside that
+  widget's constructor.
+  
+  \sa polish()
+ */
 
 
 /*!
@@ -3473,10 +3488,7 @@ QSize QWidget::sizeHint() const
 {
     if ( layout() )
 	return layout()->totalSizeHint();
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-    }
+    constPolish();
     return QSize( -1, -1 );
 }
 
@@ -3497,10 +3509,7 @@ QSize QWidget::minimumSizeHint() const
 {
     if ( layout() )
 	return layout()->totalMinimumSize();
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-    }
+    constPolish();
     return QSize( -1, -1 );
 }
 

@@ -4777,6 +4777,7 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
+    constPolish();
     if ( d->dirty && d->firstSizeHint ) {
 	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
 					      QMAX( 400, contentsHeight() ) );

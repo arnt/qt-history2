@@ -974,6 +974,7 @@ void QComboBox::setAutoResize( bool enable )
 */
 QSize QComboBox::sizeHint() const
 {
+    constPolish();
     int i, w, h;
     QString tmp;
     QFontMetrics fm = fontMetrics();

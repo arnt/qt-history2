@@ -86,6 +86,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 
 QSize QWellArray::sizeHint() const
 {
+    constPolish();
     int f = frameWidth() * 2;
     int w = nCols * cellWidth() + f;
     int h = nRows * cellHeight() + f;

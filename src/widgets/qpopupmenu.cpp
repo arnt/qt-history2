@@ -1704,11 +1704,7 @@ void QPopupMenu::setActiveItem( int i )
  */
 QSize QPopupMenu::sizeHint() const
 {
-    if ( !testWState(WState_Polished) ) {
-	QPopupMenu* that = (QPopupMenu*) this;
-	that->polish();
-    }
-
+    constPolish();
     if ( badSize ) {
 	QPopupMenu* that = (QPopupMenu*) this;
 	that->updateSize();

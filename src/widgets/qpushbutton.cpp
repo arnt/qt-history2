@@ -364,6 +364,7 @@ void QPushButton::setDefault( bool enable )
 
 QSize QPushButton::sizeHint() const
 {
+    constPolish();
     int w = 0;
     int h = 0;
 
