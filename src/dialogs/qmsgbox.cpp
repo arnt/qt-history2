@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#60 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#61 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#61 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -162,7 +162,7 @@ static const unsigned char critical_gif_data[] = {
                                   "Could not connect to the <mumble> server.\n"
 				  "This program can't function correctly "
 				  "without the server.\n\n",
-				  "Try again", "Quit",
+				  "Try again", "Quit", 0,
 				  0, 1 );
     case 0: // Try again or Enter
         // try again
