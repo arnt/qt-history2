@@ -338,14 +338,14 @@ QLineEdit::QLineEdit( QWidget* parent, const char* name )
     \sa text(), setMaxLength()
 */
 
-QLineEdit::QLineEdit( const QString& text, QWidget* parent, const char* name )
+QLineEdit::QLineEdit( const QString& contents, QWidget* parent, const char* name )
     : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
 {
-    d->init( text );
+    d->init( contents );
 }
 
 /*!
-  Constructs a  line edit with an input \a mask and the text \a contents.
+  Constructs a  line edit with an input \a inputMask and the text \a contents.
 
   The cursor position is set to the end of the line and the maximum
   text length is set to the length of the mask (the number of mask
@@ -356,16 +356,16 @@ QLineEdit::QLineEdit( const QString& text, QWidget* parent, const char* name )
 
   \sa setMask() text()
 */
-QLineEdit::QLineEdit( const QString& text, const QString &inputMask, QWidget* parent, const char* name )
+QLineEdit::QLineEdit( const QString& contents, const QString &inputMask, QWidget* parent, const char* name )
     : QFrame( parent, name, WNoAutoErase ), d(new QLineEditPrivate( this ))
 {
     d->parseInputMask( inputMask );
     if ( d->maskData ) {
-	QString ms = d->maskString( 0, text );
+	QString ms = d->maskString( 0, contents );
 	d->init( ms + d->clearString( ms.length(), d->maxLength - ms.length() ) );
 	d->cursor = d->nextMaskBlank( ms.length() );
     } else {
-	d->init( text );
+	d->init( contents );
     }
 }
 
@@ -841,11 +841,19 @@ bool QLineEdit::isModified() const
     return d->modified;
 }
 
-/*!  \property QLineEdit::edited  \obsolete use modified instead. */
+/*!
+  \obsolete
+  \property QLineEdit::edited
+  \brief whether the line edit has been edited. Use modified instead.
+*/
 bool QLineEdit::edited() const { return d->modified; }
 void QLineEdit::setEdited( bool on ) { d->modified = on; }
 
-/*! \property QLineEdit::hasMarkedText \obsolete use hasSelectedText instead. */
+/*!
+    \obsolete
+    \property QLineEdit::hasMarkedText
+    \brief whether part of the text has been selected by the user. Use hasSelectedText instead.
+*/
 
 /*!
     \property QLineEdit::hasSelectedText
@@ -864,7 +872,11 @@ bool QLineEdit::hasSelectedText() const
     return d->hasSelectedText();
 }
 
-/*! \property QLineEdit::markedText \obsolete use selectedText instead. */
+/*!
+  \obsolete
+  \property QLineEdit::markedText
+  \brief the text selected by the user. Use selectedText instead.
+*/
 
 /*!
     \property QLineEdit::selectedText
@@ -1089,12 +1101,12 @@ void QLineEdit::clearValidator()
     result. If it is valid, it sets it as the new contents of the line
     edit.
 */
-void QLineEdit::insert( const QString & text )
+void QLineEdit::insert( const QString &newText )
 {
 //     q->resetInputContext(); //#### FIX ME IN QT
     int priorState = d->undoState;
     d->removeSelectedText();
-    d->insert( text.left( d->maxLength - (d->maskData ? d->cursor : d->text.length()) ) );
+    d->insert( newText.left( d->maxLength - (d->maskData ? d->cursor : d->text.length()) ) );
     d->finishChange( priorState );
 }
 
@@ -1399,6 +1411,15 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent* e )
 	d->tripleClick = e->pos();
     }
 }
+
+/*!
+    \fn void  QLineEdit::returnPressed()
+
+    This signal is emitted when the Return or Enter key is pressed.
+    Note that if there is a validator or inputMask set on the line edit, the
+    returnPressed() signal will only be emitted if the input follows
+    the inputMask and/or the validator returns Acceptable.
+*/
 
 /*!
     Converts key press event \a e into a line edit action.
@@ -2022,6 +2043,13 @@ void QLineEdit::setPalette( const QPalette & p )
     QWidget::setPalette( p );
     update();
 }
+
+/*!
+  \obsolete
+  \fn void QLineEdit::repaintArea( int from, int to )
+  Repaints all characters from \a from to \a to. If cursorPos is
+  between from and to, ensures that cursorPos is visible.
+*/
 
 /*! \reimp
  */
