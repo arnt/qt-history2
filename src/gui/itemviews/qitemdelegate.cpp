@@ -206,7 +206,7 @@ QWidget *QItemDelegate::editor(QWidget *parent,
 void QItemDelegate::releaseEditor(QWidget *editor)
 {
     editor->removeEventFilter(this);
-    delete editor; // FIXME: editor->deleteLater();
+    editor->deleteLater();
 }
 
 /*!
