@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qcdestyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class CDEStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 CDEStyle::CDEStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList CDEStyle::featureList() const
 
 QStyle* CDEStyle::create( const QString& s )
 {
-    if ( s.lower() == "cde" )
-        return style = new QCDEStyle();
+    if ( s.lower() == "cde" ) {
+	QStyle *style = new QCDEStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool CDEStyle::init()
 
 void CDEStyle::cleanup() 
 {
-    delete style;
+    styles.clear();;
 }
 
 bool CDEStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE()
