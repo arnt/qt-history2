@@ -66,7 +66,7 @@ public:
     WId winid;
     uint widget_attributes;
     uint window_flags;
-    Qt::WindowType window_type;
+    Qt::WindowFlags window_type;
     uint window_state : 4;
     uint focus_policy : 4;
     uint sizehint_forced :1;
@@ -454,9 +454,10 @@ public:
 
     QWidget *parentWidget() const;
 
+    void setWindowFlags(Qt::WindowFlags type);
+    Qt::WindowFlags windowFlags() const;
+
     Qt::WindowType windowType() const;
-    void setWindowType(Qt::WindowType type);
-    Qt::WindowType windowHints() const;
 
     Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
@@ -727,9 +728,9 @@ template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
 #endif
 
 inline Qt::WindowType QWidget::windowType() const
-{ return data->window_type & Qt::WindowType_Mask; }
-inline Qt::WindowType QWidget::windowHints() const
-{ return data->window_type & ~Qt::WindowType_Mask; }
+{ return static_cast<Qt::WindowType>(int(data->window_type & Qt::WindowType_Mask)); }
+inline Qt::WindowFlags QWidget::windowFlags() const
+{ return data->window_type; }
 
 inline Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
 { return QFlag(data->window_flags & f); }

@@ -5882,14 +5882,28 @@ void QWidget::updateGeometry()
 #endif
 }
 
-/*!
-  \sa setParent()
+/*! \property QWidget::windowFlags
+
+    Window flags are a combination of a window type (e.g. Qt::Widget,
+    or Qt::Window) and zero or more hints to the window system
+    (e.g. Qt::FramelessWindowHint).
+
+    \sa windowType()
  */
-void QWidget::setWindowType(Qt::WindowType type)
+
+
+void QWidget::setWindowFlags(Qt::WindowFlags f)
 {
     setParent(parentWidget(), 0 /*#### FIXME type */);
 }
 
+/*! \fn Qt::WindowType windowType() const
+
+    Returns the window type of this widget. This is identical to
+    windowFlags() & Qt::WindowType_Mask.
+
+    \sa windowFlags
+*/
 
 /*!
 

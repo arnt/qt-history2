@@ -176,7 +176,7 @@ public:
     typedef TextFlag TextFlags;
 #endif
 
-    enum WindowTypeFlag {
+    enum WindowType {
         Widget = 0x00000000,
         Window = 0x00000001,
         Dialog = 0x00000003,
@@ -212,7 +212,7 @@ public:
         WType_Dialog = Dialog
         WType_Popup = Popup,
         WType_Desktop = Desktop,
-        WType_Mask = WIndowType_Mask,
+        WType_Mask = WindowType_Mask,
 
         WStyle_Customize = 0,
         WStyle_NormalBorder = 0,
@@ -251,7 +251,7 @@ public:
 
     };
 
-    Q_DECLARE_FLAGS(WindowType, WindowTypeFlag);
+    Q_DECLARE_FLAGS(WindowFlags, WindowType);
 
     // documented in qwidget.cpp
     enum WFlag {
@@ -1266,7 +1266,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowType)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas)

@@ -1225,3 +1225,32 @@
 
     \sa QCheckBox, QAbstractItemModel::ItemFlag, QAbstractItemModel::Role
 */
+
+
+/*!
+    \enum Qt::WindowType
+
+    \value Widget 
+    \value Window 
+    \value Dialog 
+    \value Sheet 
+    \value Drawer 
+    \value Popup 
+    \value Tool 
+    \value ToolTip 
+    \value SplashScreen 
+    \value Desktop 
+
+    \value WindowType_Mask 
+    \value MSWindowsFixedSizeDialogHint 
+    \value X11BypassWindowManagerHint 
+    \value FramelessWindowHint 
+    \value WindowTitleHint 
+    \value WindowSystemMenuHint 
+    \value WindowMinimizeButtonHint 
+    \value WindowMaximizeButtonHint 
+    \value WindowMinMaxButtonsHint 
+    \value WindowContextHelpButtonHint 
+    \value WindowStaysOnTopHint
+
+*/
