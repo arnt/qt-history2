@@ -100,7 +100,7 @@
 #include <qkeycode.h>
 #include <qkoi8codec.h>
 #include "qlabel.h"
-#include <qerrormessage.h>
+//#include <qerrormessage.h>
 #include <qlcdnumber.h>
 #include <qscrollview.h>
 #include "qpointarray.h"
