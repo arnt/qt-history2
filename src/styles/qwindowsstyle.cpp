@@ -1305,7 +1305,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break;
 
     case CC_ComboBox:
-	if ( sub == SC_All || sub & SC_ComboBoxArrow ) {
+	if ( sub & SC_ComboBoxArrow ) {
 	    PFlags flags = PStyle_Default;
 
 	    qDrawWinPanel( p, r, cg, TRUE, w->isEnabled() ?
@@ -1332,7 +1332,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    drawPrimitive( PO_ArrowDown, p, ar, cg, flags );
 	}
 
-	if ( sub == SC_All || sub & SC_ComboBoxEditField ) {
+	if ( sub & SC_ComboBoxEditField ) {
 	    QComboBox * cb = (QComboBox *) w;
 	    QRect re = QStyle::visualRect( querySubControlMetrics( CC_ComboBox, w,
 								   SC_ComboBoxEditField ), w );
