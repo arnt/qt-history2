@@ -121,7 +121,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff )
     formFile = ff;
     t = FormFileType;
     setPixmap( 0, *formPixmap );
-    QObject::connect( ff, SIGNAL( modificationChange() ), listView(), SLOT( update() ) );
+    QObject::connect( ff, SIGNAL( modificationChanged() ), listView(), SLOT( update() ) );
 }
 
 
