@@ -502,6 +502,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     QStringList files;
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
+    invalidatePersistentIndices(parent);
     emit contentsRemoved(topLeft(parent), bottomRight(parent));
     bool success = true;
     QString to = path(parent) + QDir::separator();
@@ -553,6 +554,7 @@ QFileIconProvider *QDirModel::iconProvider() const
 void QDirModel::setNameFilters(const QStringList &filters)
 {
     // FIXME: this will rebuild the entire structure of the qdirmodel
+    invalidatePersistentIndices();
     emit contentsRemoved(topLeft(), bottomRight());
     d->root.setNameFilters(filters);
     d->tree = d->children(0);
@@ -597,6 +599,7 @@ bool QDirModel::matchAllDirs() const
 
 void QDirModel::refresh(const QModelIndex &parent)
 {
+    invalidatePersistentIndices();
     emit contentsRemoved(topLeft(parent), bottomRight(parent));
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
     emit contentsInserted(topLeft(), bottomRight());
@@ -676,6 +679,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
         d->tree = d->children(0);
         r = d->root.entryList(d->root.nameFilters(), d->root.filter(), d->root.sorting()).indexOf(name);
     }
+    invalidatePersistentIndices();
     QModelIndex i = index(r, 0, parent);
     if (i.isValid())
         emit contentsInserted(i, i);
@@ -684,6 +688,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
 bool QDirModel::rmdir(const QModelIndex &index)
 {
+    QModelIndex par = parent(index);
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!n) {
         qWarning("rmdir: the node does not exist");
@@ -696,6 +701,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     if (!n->info.dir().rmdir(n->info.absFilePath()))
         return false;
 
+    invalidatePersistentIndices(par);
     emit contentsRemoved(index, index);
 
     QDirModelPrivate::QDirNode *p = d->parent(n);
@@ -709,6 +715,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
 
 bool QDirModel::remove(const QModelIndex &index)
 {
+    QModelIndex par = parent(index);
     QDirModelPrivate::QDirNode *n = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!n) {
         qWarning("remove: the node does not exist");
@@ -719,6 +726,7 @@ bool QDirModel::remove(const QModelIndex &index)
         return false;
     }
 
+    invalidatePersistentIndices(par);
     emit contentsRemoved(index, index);
         
     QDirModelPrivate::QDirNode *p = d->parent(n);

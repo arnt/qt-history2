@@ -50,7 +50,7 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QModelIndex &);
 #endif
 
 class QAbstractItemModel;
-class QPersistentModelIndexPrivate;
+class QPersistentModelIndexData;
 
 class Q_GUI_EXPORT QPersistentModelIndex
 {
@@ -68,7 +68,7 @@ public:
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
 private:
-    QPersistentModelIndexPrivate *d;
+    QPersistentModelIndexData *d;
 };
 
 typedef QList<QModelIndex> QModelIndexList;
@@ -155,6 +155,7 @@ signals:
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
+    void invalidatePersistentIndices(const QModelIndex &parent = 0);
     friend class QPersistentModelIndex;
 };
 

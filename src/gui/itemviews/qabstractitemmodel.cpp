@@ -117,20 +117,10 @@ const char *QAbstractItemModelDrag::format()
     return "application/x-qabstractitemmodeldatalist";
 }
 
-class QPersistentModelIndexPrivate
-{
-public:
-    QPersistentModelIndexPrivate() : model(0) {}
-    QAbstractItemModel *model;
-    QModelIndex index;
-    QAtomic ref;
-    static QPersistentModelIndexPrivate shared_null;
-};
-
-QPersistentModelIndexPrivate QPersistentModelIndexPrivate::shared_null;
+QPersistentModelIndexData QPersistentModelIndexData::shared_null;
 
 QPersistentModelIndex::QPersistentModelIndex()
-    : d(&QPersistentModelIndexPrivate::shared_null)
+    : d(&QPersistentModelIndexData::shared_null)
 {
     ++d->ref;
 }
@@ -144,7 +134,7 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index, QAbstractItemModel *model)
 {
     // FIXME: should we make sure that we have no persistent index for index before we create a new one ?
-    d = new QPersistentModelIndexPrivate;
+    d = new QPersistentModelIndexData;
     d->model = model;
     d->index = index;
     ++d->ref;
@@ -155,7 +145,7 @@ QPersistentModelIndex::~QPersistentModelIndex()
 {
     if (!--d->ref) {
         d->model->d_func()->persistentIndices.removeAll(d);
-        if (d != &QPersistentModelIndexPrivate::shared_null)
+        if (d != &QPersistentModelIndexData::shared_null)
             delete d;
     }
 }
@@ -783,6 +773,14 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
         }
     }
     return result;
+}
+
+void QAbstractItemModel::invalidatePersistentIndices(const QModelIndex &parent)
+{
+    bool all = !parent.isValid();
+    for (int i = 0; i < d->persistentIndices.count(); ++i)
+        if (all || this->parent(d->persistentIndices.at(i)->index) == parent)
+            d->persistentIndices[i]->index = QModelIndex();
 }
 
 #ifndef QT_NO_DEBUG
