@@ -17,8 +17,6 @@
 
 #ifndef QT_H
 #include "qstring.h"
-#include "qstringlist.h"
-#include "qsqlfield.h"
 #include "qsqlrecord.h"
 #include "qlist.h"
 #endif // QT_H

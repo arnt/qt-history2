@@ -14,6 +14,10 @@
 
 #include "qsqlindex.h"
 
+#include "qsqlfield.h"
+#include "qstringlist.h"
+
+
 #ifndef QT_NO_SQL
 
 /*!

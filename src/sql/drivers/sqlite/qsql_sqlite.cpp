@@ -14,9 +14,14 @@
 
 #include "qsql_sqlite.h"
 
+#include <qcorevariant.h>
 #include <qdatetime.h>
-#include <qregexp.h>
 #include <qfile.h>
+#include <qregexp.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
+#include <qstringlist.h>
 
 #if !defined Q_WS_WIN32
 # include <unistd.h>

@@ -15,6 +15,7 @@
 #include "qsqlmodel.h"
 
 #include <qsqldriver.h>
+#include <qsqlfield.h>
 
 #include "qsqlmodel_p.h"
 

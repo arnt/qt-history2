@@ -23,10 +23,14 @@
 
 #include "qsql_tds.h"
 
-#include <qhash.h>
-#include <qstringlist.h>
+#include <qcorevariant.h>
 #include <qdatetime.h>
+#include <qhash.h>
 #include <qregexp.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
+#include <qstringlist.h>
 
 #ifdef DBNTWIN32
 #define QMSGHANDLE DBMSGHANDLE_PROC
@@ -691,19 +695,19 @@ QStringList QTDSDriver::tables(QSql::TableType type) const
     return list;
 }
 
-QString QTDSDriver::formatValue(const QSqlField* field,
-                                  bool) const
+QString QTDSDriver::formatValue(const QSqlField &field,
+                                  bool trim) const
 {
     QString r;
-    if (field->isNull())
-        r = nullText();
-    else if (field->type() == QCoreVariant::DateTime) {
-        if (field->value().toDateTime().isValid()){
-            r = field->value().toDateTime().toString("'yyyyMMdd hh:mm:ss'");
+    if (field.isNull())
+        r = QLatin1String("NULL");
+    else if (field.type() == QCoreVariant::DateTime) {
+        if (field.value().toDateTime().isValid()){
+            r = field.value().toDateTime().toString("'yyyyMMdd hh:mm:ss'");
         } else
-            r = nullText();
-    } else if (field->type() == QCoreVariant::ByteArray) {
-        QByteArray ba = field->value().toByteArray();
+            r = QLatin1String("NULL");
+    } else if (field.type() == QCoreVariant::ByteArray) {
+        QByteArray ba = field.value().toByteArray();
         QString res;
         static const char hexchars[] = "0123456789abcdef";
         for (int i = 0; i < ba.size(); ++i) {
@@ -713,7 +717,7 @@ QString QTDSDriver::formatValue(const QSqlField* field,
         }
         r = "0x" + res;
     } else {
-        r = QSqlDriver::formatValue(field);
+        r = QSqlDriver::formatValue(field, trim);
     }
     return r;
 }

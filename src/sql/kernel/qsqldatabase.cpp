@@ -51,6 +51,7 @@
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverplugin.h"
+#include "qsqlindex.h"
 #include "private/qfactoryloader_p.h"
 #include "private/qsqlnulldriver_p.h"
 #include "qmutex.h"

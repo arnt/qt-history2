@@ -45,21 +45,21 @@ public:
     QSqlError& operator=(const QSqlError& other);
     virtual ~QSqlError();
 
-    QString        driverText() const;
+    QString driverText() const;
     virtual void setDriverText(const QString& driverText);
-    QString        databaseText() const;
+    QString databaseText() const;
     virtual void setDatabaseText(const QString& databaseText);
-    int                type() const;
+    int type() const;
     virtual void setType(int type);
-    int                number() const;
+    int number() const;
     virtual void setNumber(int number);
-    QString         text() const;
+    QString text() const;
 
 private:
-    QString        driverError;
-    QString        databaseError;
-    int                errorType;
-    int        errorNumber;
+    QString driverError;
+    QString databaseError;
+    int errorType;
+    int errorNumber;
 };
 
 #ifndef QT_NO_DEBUG

@@ -47,10 +47,10 @@
 //
 //
 
-#include <qglobal.h>
-#include <qcorevariant.h>
-#include <qvector.h>
 #include <qsqlresult.h>
+
+class QCoreVariant;
+template <typename T> class QVector;
 
 #ifndef QT_NO_SQL
 

@@ -98,7 +98,7 @@ public:
     QSqlRecord record(const QString& tablename) const;
     QSqlIndex primaryIndex(const QString &table) const;
 
-    QString formatValue(const QSqlField* field, bool trimStrings) const;
+    QString formatValue(const QSqlField &field, bool trimStrings) const;
 
 private:
     QIBaseDriverPrivate* d;

@@ -29,8 +29,10 @@
 //
 //
 
-#include <qsqldriver.h>
-#include <qsqlresult.h>
+#include "qcorevariant.h"
+#include "qsqldriver.h"
+#include "qsqlerror.h"
+#include "qsqlresult.h"
 
 class QSqlNullResult : public QSqlResult
 {

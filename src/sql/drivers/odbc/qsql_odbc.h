@@ -65,21 +65,21 @@ public:
     QODBCResult(const QODBCDriver * db, QODBCDriverPrivate* p);
     virtual ~QODBCResult();
 
-    SQLHANDLE   statement();
-    bool        prepare(const QString& query);
-    bool        exec();
+    SQLHANDLE statement();
+    bool prepare(const QString& query);
+    bool exec();
 
 protected:
-    bool        fetchNext();
-    bool        fetchFirst();
-    bool        fetchLast();
-    bool        fetchPrior();
-    bool        fetch(int i);
-    bool        reset (const QString& query);
-    QCoreVariant        data(int field);
-    bool        isNull(int field);
-    int         size();
-    int         numRowsAffected();
+    bool fetchNext();
+    bool fetchFirst();
+    bool fetchLast();
+    bool fetchPrior();
+    bool fetch(int i);
+    bool reset (const QString& query);
+    QCoreVariant data(int field);
+    bool isNull(int field);
+    int size();
+    int numRowsAffected();
     QSqlRecord record() const;
 
 private:
@@ -92,28 +92,28 @@ public:
     QODBCDriver(QObject *parent=0);
     QODBCDriver(SQLHANDLE env, SQLHANDLE con, QObject * parent=0);
     virtual ~QODBCDriver();
-    bool                hasFeature(DriverFeature f) const;
-    void                close();
-    QSqlQuery                createQuery() const;
-    QStringList                tables(QSql::TableType) const;
-    QSqlRecord                record(const QString& tablename) const;
-    QSqlIndex                primaryIndex(const QString& tablename) const;
-    SQLHANDLE                environment();
-    SQLHANDLE                connection();
+    bool hasFeature(DriverFeature f) const;
+    void close();
+    QSqlQuery createQuery() const;
+    QStringList tables(QSql::TableType) const;
+    QSqlRecord record(const QString& tablename) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
+    SQLHANDLE environment();
+    SQLHANDLE connection();
 
-    QString                formatValue(const QSqlField* field,
-                                     bool trimStrings) const;
+    QString formatValue(const QSqlField &field,
+                        bool trimStrings) const;
     bool open(const QString& db,
-               const QString& user,
-               const QString& password,
-               const QString& host,
-               int port,
-               const QString& connOpts);
+              const QString& user,
+              const QString& password,
+              const QString& host,
+              int port,
+              const QString& connOpts);
 
 protected:
-    bool                beginTransaction();
-    bool                commitTransaction();
-    bool                rollbackTransaction();
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
 private:
     void init();
     bool endTrans();

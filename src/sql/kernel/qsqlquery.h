@@ -17,17 +17,18 @@
 
 #ifndef QT_H
 #include "qsql.h"
-#include "qsqlerror.h"
 #include "qsqldatabase.h"
 #include "qstring.h"
-#include "qcorevariant.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
+class QCoreVariant;
 class QSqlDriver;
+class QSqlError;
 class QSqlResult;
 class QSqlRecord;
+template <class Key, class T> class QMap;
 
 class QSqlQueryPrivate;
 

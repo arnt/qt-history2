@@ -12,8 +12,11 @@
 **
 ****************************************************************************/
 
+#include "qcorevariant.h"
 #include "qmap.h"
 #include "qregexp.h"
+#include "qsqlerror.h"
+#include "qsqlfield.h"
 #include "qsqlresult.h"
 #include "qvector.h"
 #include "qsqldriver.h"

@@ -18,11 +18,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
-#include "qsqlerror.h"
 #include "qsqlquery.h"
-#include "qsqlfield.h"
-#include "qsqlindex.h"
-#include "qstringlist.h"
 #endif // QT_H
 
 #if  defined(QT_LICENSE_PROFESSIONAL)
@@ -33,8 +29,13 @@
 
 #ifndef QT_NO_SQL
 
+class QStringList;
 class QSqlDatabase;
 class QSqlDriverPrivate;
+class QSqlError;
+class QSqlField;
+class QSqlIndex;
+class QSqlQuery;
 
 class QM_EXPORT_SQL QSqlDriver : public QObject
 {

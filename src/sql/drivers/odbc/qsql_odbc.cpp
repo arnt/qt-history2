@@ -19,10 +19,14 @@
 #include <qt_windows.h>
 #include <qapplication.h>
 #endif
+#include <qcorevariant.h>
 #include <qdatetime.h>
+#include <qsqlerror.h>
 #include <qsqlfield.h>
-#include <qvector.h>
+#include <qsqlindex.h>
+#include <qstringlist.h>
 #include <qvarlengtharray.h>
+#include <qvector.h>
 
 // undefine this to prevent initial check of the ODBC driver
 #define ODBC_CHECK_DRIVER
@@ -1823,17 +1827,17 @@ SQLHANDLE QODBCDriver::connection()
     return d->hDbc;
 }
 
-QString QODBCDriver::formatValue(const QSqlField* field,
-                                  bool trimStrings) const
+QString QODBCDriver::formatValue(const QSqlField &field,
+                                 bool trimStrings) const
 {
     QString r;
-    if (field->isNull()) {
-        r = nullText();
-    } else if (field->type() == QCoreVariant::DateTime) {
+    if (field.isNull()) {
+        r = QLatin1String("NULL");
+    } else if (field.type() == QCoreVariant::DateTime) {
         // Use an escape sequence for the datetime fields
-        if (field->value().toDateTime().isValid()){
-            QDate dt = field->value().toDateTime().date();
-            QTime tm = field->value().toDateTime().time();
+        if (field.value().toDateTime().isValid()){
+            QDate dt = field.value().toDateTime().date();
+            QTime tm = field.value().toDateTime().time();
             // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
             r = "{ ts '" +
                 QString::number(dt.year()) + "-" +
@@ -1842,9 +1846,9 @@ QString QODBCDriver::formatValue(const QSqlField* field,
                 tm.toString() +
                 "' }";
         } else
-            r = nullText();
-    } else if (field->type() == QCoreVariant::ByteArray) {
-        QByteArray ba = field->value().toByteArray();
+            r = QLatin1String("NULL");
+    } else if (field.type() == QCoreVariant::ByteArray) {
+        QByteArray ba = field.value().toByteArray();
         QString res;
         static const char hexchars[] = "0123456789abcdef";
         for (int i = 0; i < ba.size(); ++i) {

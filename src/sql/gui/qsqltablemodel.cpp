@@ -15,6 +15,8 @@
 #include "qsqltablemodel.h"
 
 #include "qhash.h"
+#include "qsqlerror.h"
+#include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"

@@ -17,6 +17,10 @@
 #ifndef QT_NO_SQL
 
 #include "qdatetime.h"
+#include "qsqlerror.h"
+#include "qsqlfield.h"
+#include "qsqlindex.h"
+#include "qstringlist.h"
 #include "private/qobject_p.h"
 
 #define d d_func()

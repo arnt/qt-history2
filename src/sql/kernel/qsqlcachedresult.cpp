@@ -34,7 +34,10 @@
 **********************************************************************/
 
 #include "qsqlcachedresult.h"
+
+#include <qcorevariant.h>
 #include <qdatetime.h>
+#include <qvector.h>
 
 #ifndef QT_NO_SQL
 static const uint initial_cache_size = 128;

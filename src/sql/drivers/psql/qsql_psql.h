@@ -36,20 +36,20 @@ public:
     ~QPSQLResult();
     PGresult* result();
 protected:
-    void                cleanup();
-    bool                fetch(int i);
-    bool                fetchFirst();
-    bool                fetchLast();
-    QCoreVariant                data(int i);
-    bool                isNull(int field);
-    bool                reset (const QString& query);
-    int                        size();
-    int                        numRowsAffected();
+    void cleanup();
+    bool fetch(int i);
+    bool fetchFirst();
+    bool fetchLast();
+    QCoreVariant data(int i);
+    bool isNull(int field);
+    bool reset (const QString& query);
+    int size();
+    int numRowsAffected();
     QSqlRecord record() const;
 
 private:
-    int                        currentSize;
-    QPSQLPrivate*        d;
+    int currentSize;
+    QPSQLPrivate *d;
 };
 
 class Q_EXPORT_SQLDRIVER_PSQL QPSQLDriver : public QSqlDriver
@@ -65,33 +65,33 @@ public:
     QPSQLDriver(QObject *parent=0);
     QPSQLDriver(PGconn *conn, QObject *parent=0);
     ~QPSQLDriver();
-    bool                hasFeature(DriverFeature f) const;
-    bool                open(const QString & db,
-                                const QString & user,
-                                const QString & password,
-                                const QString & host,
-                                int port,
-                                const QString& connOpts);
-    bool                isOpen() const;
-    void                close();
-    QSqlQuery                createQuery() const;
-    QStringList                tables(QSql::TableType) const;
-    QSqlIndex                primaryIndex(const QString& tablename) const;
-    QSqlRecord                record(const QString& tablename) const;
+    bool hasFeature(DriverFeature f) const;
+    bool open(const QString & db,
+              const QString & user,
+              const QString & password,
+              const QString & host,
+              int port,
+              const QString& connOpts);
+    bool isOpen() const;
+    void close();
+    QSqlQuery createQuery() const;
+    QStringList tables(QSql::TableType) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
+    QSqlRecord record(const QString& tablename) const;
 
-    Protocol            protocol() const { return pro; }
-    PGconn*             connection();
-    QString                formatValue(const QSqlField* field,
+    Protocol protocol() const { return pro; }
+    PGconn *connection();
+    QString formatValue(const QSqlField &field,
                                      bool trimStrings) const;
 
 protected:
-    bool                beginTransaction();
-    bool                commitTransaction();
-    bool                rollbackTransaction();
+    bool beginTransaction();
+    bool commitTransaction();
+    bool rollbackTransaction();
 private:
-    void                init();
-    Protocol            pro;
-    QPSQLPrivate*        d;
+    void init();
+    Protocol pro;
+    QPSQLPrivate *d;
 };
 
 #endif

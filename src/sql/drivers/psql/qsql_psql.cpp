@@ -16,9 +16,15 @@
 
 #include <math.h>
 
-#include <qsqlrecord.h>
-#include <qregexp.h>
+#include <qcorevariant.h>
 #include <qdatetime.h>
+#include <qregexp.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
+#include <qsqlrecord.h>
+#include <qstringlist.h>
+
 // PostgreSQL header <utils/elog.h> included by <postgres.h> redefines DEBUG.
 #if defined(DEBUG)
 # undef DEBUG
@@ -814,18 +820,18 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
     return info;
 }
 
-QString QPSQLDriver::formatValue(const QSqlField* field,
+QString QPSQLDriver::formatValue(const QSqlField &field,
                                   bool) const
 {
     QString r;
-    if (field->isNull()) {
-        r = nullText();
+    if (field.isNull()) {
+        r = QLatin1String("NULL");
     } else {
-        switch (field->type()) {
+        switch (field.type()) {
         case QCoreVariant::DateTime:
-            if (field->value().toDateTime().isValid()) {
-                QDate dt = field->value().toDateTime().date();
-                QTime tm = field->value().toDateTime().time();
+            if (field.value().toDateTime().isValid()) {
+                QDate dt = field.value().toDateTime().date();
+                QTime tm = field.value().toDateTime().time();
                 // msecs need to be right aligned otherwise psql
                 // interpretes them wrong
                 r = "'" + QString::number(dt.year()) + "-" +
@@ -834,14 +840,14 @@ QString QPSQLDriver::formatValue(const QSqlField* field,
                           tm.toString() + "." +
                           QString::number(tm.msec()).rightJustified(3, '0') + "'";
             } else {
-                r = nullText();
+                r = QLatin1String("NULL");
             }
             break;
         case QCoreVariant::Time:
-            if (field->value().toTime().isValid()) {
-                r = field->value().toTime().toString(Qt::ISODate);
+            if (field.value().toTime().isValid()) {
+                r = field.value().toTime().toString(Qt::ISODate);
             } else {
-                r = nullText();
+                r = QLatin1String("NULL");
             }
         case QCoreVariant::String:
         {
@@ -851,13 +857,13 @@ QString QPSQLDriver::formatValue(const QSqlField* field,
             break;
         }
         case QCoreVariant::Bool:
-            if (field->value().toBool())
+            if (field.value().toBool())
                 r = "TRUE";
             else
                 r = "FALSE";
             break;
         case QCoreVariant::ByteArray: {
-            QByteArray ba(field->value().toByteArray());
+            QByteArray ba(field.value().toByteArray());
             QString res;
             r = "'";
             unsigned char uc;

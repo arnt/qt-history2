@@ -68,7 +68,7 @@ public:
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
-    QString formatValue(const QSqlField* field, bool trimStrings) const;
+    QString formatValue(const QSqlField &field, bool trimStrings) const;
     Qt::HANDLE environment();
     Qt::HANDLE connection();
     bool open(const QString& db,

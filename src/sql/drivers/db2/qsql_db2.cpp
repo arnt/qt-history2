@@ -13,10 +13,14 @@
 ****************************************************************************/
 
 #include "qsql_db2.h"
-#include <qsqlrecord.h>
 #include <qdatetime.h>
-#include <qvector.h>
+#include <qsqlfield.h>
+#include <qsqlerror.h>
+#include <qsqlindex.h>
+#include <qsqlrecord.h>
+#include <qstringlist.h>
 #include <qvarlengtharray.h>
+#include <qvector.h>
 
 #ifndef UNICODE
 #define UNICODE
@@ -1407,17 +1411,17 @@ bool QDB2Driver::setAutoCommit(bool autoCommit)
     return true;
 }
 
-QString QDB2Driver::formatValue(const QSqlField* field, bool trimStrings) const
+QString QDB2Driver::formatValue(const QSqlField &field, bool trimStrings) const
 {
-    if (field->isNull())
-        return nullText();
+    if (field.isNull())
+        return QLatin1String("NULL");
 
-    switch (field->type()) {
+    switch (field.type()) {
         case QCoreVariant::DateTime: {
             // Use an escape sequence for the datetime fields
-            if (field->value().toDateTime().isValid()) {
-                QDate dt = field->value().toDateTime().date();
-                QTime tm = field->value().toDateTime().time();
+            if (field.value().toDateTime().isValid()) {
+                QDate dt = field.value().toDateTime().date();
+                QTime tm = field.value().toDateTime().time();
                 // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
                 return "'" + QString::number(dt.year()) + "-" +
                        QString::number(dt.month()) + "-" +
@@ -1427,11 +1431,11 @@ QString QDB2Driver::formatValue(const QSqlField* field, bool trimStrings) const
                        QString::number(tm.second()).rightJustified(2, '0', true) + "." +
                        QString::number(tm.msec() * 1000).rightJustified(6, '0', true) + "'";
                 } else {
-                    return nullText();
+                    return QLatin1String("NULL");
                 }
         }
         case QCoreVariant::ByteArray: {
-            QByteArray ba = field->value().toByteArray();
+            QByteArray ba = field.value().toByteArray();
             QString res("BLOB(X'");
             static const char hexchars[] = "0123456789abcdef";
             for (int i = 0; i < ba.size(); ++i) {

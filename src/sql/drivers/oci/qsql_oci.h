@@ -109,7 +109,7 @@ public:
     QStringList         tables(QSql::TableType) const;
     QSqlRecord          record(const QString& tablename) const;
     QSqlIndex           primaryIndex(const QString& tablename) const;
-    QString             formatValue(const QSqlField* field,
+    QString             formatValue(const QSqlField &field,
                                      bool trimStrings) const;
     OCIEnv*             environment();
     OCISvcCtx*          serviceContext();

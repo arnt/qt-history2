@@ -14,10 +14,15 @@
 
 #include "qsql_mysql.h"
 
+#include <qcorevariant.h>
 #include <qdatetime.h>
-#include <qvector.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
 #include <qsqlrecord.h>
+#include <qstringlist.h>
 #include <qtextcodec.h>
+#include <qvector.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
@@ -626,16 +631,16 @@ bool QMYSQLDriver::rollbackTransaction()
     return true;
 }
 
-QString QMYSQLDriver::formatValue(const QSqlField* field, bool trimStrings) const
+QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
     QString r;
-    if (field->isNull()) {
-        r = nullText();
+    if (field.isNull()) {
+        r = QLatin1String("NULL");
     } else {
-        switch(field->type()) {
+        switch(field.type()) {
         case QCoreVariant::ByteArray: {
 
-            const QByteArray ba = field->value().toByteArray();
+            const QByteArray ba = field.value().toByteArray();
             // buffer has to be at least length*2+1 bytes
             char* buffer = new char[ba.size() * 2 + 1];
             int escapedSize = (int)mysql_escape_string(buffer, ba.data(), ba.size());
@@ -646,7 +651,7 @@ QString QMYSQLDriver::formatValue(const QSqlField* field, bool trimStrings) cons
         break;
         case QCoreVariant::String:
             // Escape '\' characters
-            r = QSqlDriver::formatValue(field);
+            r = QSqlDriver::formatValue(field, trimStrings);
             r.replace("\\", "\\\\");
             break;
         default:

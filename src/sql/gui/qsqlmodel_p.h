@@ -29,6 +29,7 @@
 
 #include "private/qabstractitemmodel_p.h"
 #include "qlist.h"
+#include "qsqlerror.h"
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
 #include "qvarlengtharray.h"

@@ -15,6 +15,11 @@
 #include "qsql_ibase.h"
 
 #include <qdatetime.h>
+#include <qcorevariant.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
+#include <qstringlist.h>
 
 #include <qdebug.h>
 
@@ -1108,11 +1113,11 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
     return index;
 }
 
-QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) const
+QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
-    switch (field->type()) {
+    switch (field.type()) {
     case QCoreVariant::DateTime: {
-        QDateTime datetime = field->value().toDateTime();
+        QDateTime datetime = field.value().toDateTime();
         if (datetime.isValid())
             return "'" + QString::number(datetime.date().year()) + "-" +
                 QString::number(datetime.date().month()) + "-" +
@@ -1125,7 +1130,7 @@ QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) cons
             return "NULL";
     }
     case QCoreVariant::Time: {
-        QTime time = field->value().toTime();
+        QTime time = field.value().toTime();
         if (time.isValid())
             return "'" + QString::number(time.hour()) + ":" +
                 QString::number(time.minute()) + ":" +
@@ -1135,7 +1140,7 @@ QString QIBaseDriver::formatValue(const QSqlField* field, bool trimStrings) cons
             return "NULL";
     }
     case QCoreVariant::Date: {
-        QDate date = field->value().toDate();
+        QDate date = field.value().toDate();
         if (date.isValid())
             return "'" + QString::number(date.year()) + "-" +
                 QString::number(date.month()) + "-" +

@@ -14,12 +14,16 @@
 
 #include "qsql_oci.h"
 
-#include <qdatetime.h>
-#include <qvector.h>
-#include <qstringlist.h>
-#include <qregexp.h>
 #include <qcorevariant.h>
+#include <qdatetime.h>
+#include <qregexp.h>
+#include <qsqlerror.h>
+#include <qsqlfield.h>
+#include <qsqlindex.h>
+#include <qstringlist.h>
 #include <qvarlengtharray.h>
+#include <qvector.h>
+
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
@@ -1943,13 +1947,13 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
     return QSqlIndex();
 }
 
-QString QOCIDriver::formatValue(const QSqlField* field, bool) const
+QString QOCIDriver::formatValue(const QSqlField &field, bool) const
 {
-    switch (field->type()) {
+    switch (field.type()) {
     case QCoreVariant::String: {
         if (d->serverVersion >= 9) {
             QString encStr = "UNISTR('";
-            const QString srcStr = field->value().toString();
+            const QString srcStr = field.value().toString();
             for (int i = 0; i < srcStr.length(); ++i) {
                 encStr += '\\' + QString::number(srcStr.at(i).unicode(), 16).rightJustified(4, '0');
             }
@@ -1961,7 +1965,7 @@ QString QOCIDriver::formatValue(const QSqlField* field, bool) const
         break;
     }
     case QCoreVariant::DateTime: {
-        QDateTime datetime = field->value().toDateTime();
+        QDateTime datetime = field.value().toDateTime();
         QString datestring;
         if (datetime.isValid()) {
             datestring = "TO_DATE('" + QString::number(datetime.date().year()) + "-" + \
@@ -1978,7 +1982,7 @@ QString QOCIDriver::formatValue(const QSqlField* field, bool) const
         break;
     }
     case QCoreVariant::Date: {
-        QDate date = field->value().toDate();
+        QDate date = field.value().toDate();
         QString datestring;
         if (date.isValid()) {
             datestring = "TO_DATE('" + QString::number(date.year()) + "-" + \
