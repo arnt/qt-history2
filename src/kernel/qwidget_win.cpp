@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#61 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#61 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -530,9 +530,9 @@ void QWidget::show()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     else
 	ShowWindow( winId(), SW_SHOW );
-    UpdateWindow( winId() );
     setWFlags( WState_Visible );
     clearWFlags( WState_DoHide );
+    UpdateWindow( winId() );
     if ( testWFlags(WType_Modal) )
 	qt_enter_modal( this );
     else if ( testWFlags(WType_Popup) )
