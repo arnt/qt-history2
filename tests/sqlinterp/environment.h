@@ -88,6 +88,7 @@ namespace Interpreter {
 
     struct Environment
     {
+	virtual bool parse( const QString& commands ) = 0;
 	virtual int execute() = 0;
 	virtual void reset() = 0;
 	virtual QValueStack<QVariant>& stack() = 0;

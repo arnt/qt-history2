@@ -1,6 +1,6 @@
 /* The qdb command line processor */
 
-//#include "sqlinterpreter.h"
+#include "sqlinterpreter.h"
 #include <qapplication.h>
 #include <qdir.h>
 #include <qfileinfo.h>
@@ -113,6 +113,9 @@ int main( int argc, char** argv )
     //## todo
     //## use outfile
     //## use echo
+    Environment env;
+    if ( env.parse( commands ) )
+	return env.execute();
 
     return 0;
 }

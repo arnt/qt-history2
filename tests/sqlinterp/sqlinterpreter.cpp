@@ -189,6 +189,12 @@ Program& Environment::program()
 }
 
 
+bool Environment::parse( const QString& /*commands*/ )
+{
+    //## todo
+    return FALSE;
+}
+
 /*!
 
 */

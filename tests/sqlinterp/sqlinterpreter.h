@@ -89,6 +89,10 @@ private:
     int j;
 };
 
+class Parser : public Interpreter::Parser
+{
+};
+
 class Program : public Interpreter::Program
 {
 public:
@@ -123,6 +127,7 @@ public:
     Environment();
     virtual ~Environment();
 
+    bool parse( const QString& commands );
     int execute();
     void reset();
     void addDriver( int id, const QString& fileName );
@@ -141,6 +146,7 @@ private:
     QMap<int,ResultSet> results;
     QValueStack<QVariant> stck;
     Program pgm;
+    Parser prs;
 
 };
 
