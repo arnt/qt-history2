@@ -136,19 +136,17 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 
     if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
-
 }
 
 
 int
 Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem)
 {
-    if(!project->variables()["QMAKE_" + stem + "_VERSION_OVERRIDE"].isEmpty()) 
-	return project->variables()["QMAKE_" + stem + "_VERSION_OVERRIDE"].first().toInt();
+    if(!project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].isEmpty()) 
+	return project->variables()["QMAKE_" + stem.upper() + "_VERSION_OVERRIDE"].first().toInt();
 
     QString bd = d;
     fixEnvVariables(bd);
-
     QDir dir(bd, stem + "*.lib");
     QStringList entries = dir.entryList();
     int nbeg, nend, biggest=-1;
