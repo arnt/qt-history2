@@ -65,7 +65,7 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             QRect rect(option.rect.x() + 3, option.rect.y() + 3,
                        option.rect.width() - 6, option.rect.height() - 6);
             double download = model->data(index, DownloadDelegate::ProgressRole).toDouble();
-            int width = static_cast<int>(rect.width() * download);
+            int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
             painter->fillRect(rect.x(), rect.y(), width, rect.height(), Qt::blue);
             painter->fillRect(rect.x() + width, rect.y(), rect.width() - width, rect.height(),
                               option.palette.base());
