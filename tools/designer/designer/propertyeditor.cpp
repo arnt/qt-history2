@@ -2889,6 +2889,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	}
     } else if ( o == header() ) {
 	if ( e->type() == QEvent::ContextMenu ) {
+	    ((QContextMenuEvent *)e)->accept();
 	    QPopupMenu menu( 0 );
 	    menu.setCheckable( TRUE );
 	    const int cat_id = 1;

@@ -162,6 +162,7 @@ protected:
     void dragLeaveEvent( QDragLeaveEvent * );
     void dropEvent( QDropEvent * );
 #endif
+    void contextMenuEvent( QContextMenuEvent *e );
     void mousePressEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
 
@@ -171,6 +172,7 @@ private slots:
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
+    void buttonContextMenuEvent( QContextMenuEvent *e, QObject *o );
     void buttonMousePressEvent( QMouseEvent *e, QObject *o );
     void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
     void buttonMouseReleaseEvent( QMouseEvent *e, QObject *o );
@@ -213,6 +215,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+    void contextMenuEvent( QContextMenuEvent *e );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );
     void dragMoveEvent( QDragMoveEvent * );
@@ -253,6 +256,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
+    void contextMenuEvent( QContextMenuEvent *e );
     void paintEvent( QPaintEvent * );
 #ifndef QT_NO_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent * );

@@ -1017,6 +1017,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	break;
+    case QEvent::ContextMenu:
     case QEvent::MouseButtonPress:
 	if ( o->inherits( "QDesignerPopupMenu" ) )
 	    break;
@@ -1039,7 +1040,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	if ( o && ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDockWindowHandle" ) )
-	     && ( (QMouseEvent*)e )->button() == RightButton )
+	     && e->type() == QEvent::ContextMenu )
 	    break;
 	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL )
 	    break;
@@ -1049,19 +1050,20 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( !w->hasFocus() )
 	    w->setFocus();
-	if ( !passiveInteractor || currentTool() != ORDER_TOOL )
-	    ( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
+	if ( !passiveInteractor || currentTool() != ORDER_TOOL ) {
+	    if( e->type() == QEvent::ContextMenu ) 
+		( (FormWindow*)w )->handleContextMenu( (QContextMenuEvent*)e, 
+						       ( (FormWindow*)w )->designerWidget( o ) );
+	    else
+		( (FormWindow*)w )->handleMousePress( (QMouseEvent*)e, 
+						      ( (FormWindow*)w )->designerWidget( o ) );
+	}
 	lastPressWidget = (QWidget*)o;
 	if ( passiveInteractor )
 	    QTimer::singleShot( 0, formWindow(), SLOT( visibilityChanged() ) );
 	if ( currentTool() == CONNECT_TOOL )
 	    return TRUE;
 	return !passiveInteractor;
-    case QEvent::ContextMenu:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
-	    break;
-	( (QContextMenuEvent*)e )->ignore(); // ### Reggie: have to implement that properly, for now just keep using mousePress
-	return TRUE;
     case QEvent::MouseButtonRelease:
 	lastPressWidget = 0;
 	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
