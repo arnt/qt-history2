@@ -38,7 +38,7 @@
 #include "qfiledialog.h"
 
 #ifndef QT_NO_FILEDIALOG
-
+ 
 #include "qlineedit.h"
 #include "qcombobox.h"
 #include "qlistview.h"
@@ -3996,7 +3996,7 @@ void QFileDialog::setMode( Mode newMode )
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, TRUE );
     }
-
+    
     QString okt;
     if ( mode() == AnyFile )
         okt = tr("Save");
