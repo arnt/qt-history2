@@ -31,8 +31,10 @@ public:
     void setPattern( const QString& pattern );
     bool caseSensitive() const;
     void setCaseSensitive( bool sensitive );
+#ifndef QT_NO_REGEXP_WILDCARD
     bool wildcard() const;
     void setWildcard( bool wildcard );
+#endif
     bool minimal() const;
     void setMinimal( bool minimal );
 
@@ -52,8 +54,10 @@ public:
 #endif
     bool partialMatch( const QString& str ) const;
     int matchedLength() const;
+#ifndef QT_NO_REGEXP_CAPTURE
     QString capturedText( int subexpression = 0 ) const;
     QStringList capturedTexts() const;
+#endif
 
 private:
     void compile( bool caseSensitive );
