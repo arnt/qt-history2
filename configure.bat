@@ -38,6 +38,7 @@ set MNG=no
 set QMAKE_VARS=
 set QMAKE_CONFIG=
 set QMAKE_OUTDIR=
+set QMAKE_SQL=
 if x%MKSPEC%==xwin32-borland (
 	set MAKE=make
 ) else (
@@ -46,7 +47,7 @@ if x%MKSPEC%==xwin32-borland (
 set XMKSPEC=
 set MODULES=tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles
 set MODULES_UPPER=TOOLS KERNEL WIDGETS DIALOGS ICONVIEW WORKSPACE NETWORK CANVAS TABLE XML OPENGL SQL STYLES
-
+set SQLDRIVERS=mysql oci odbc psql
 rem **************************************
 rem   Parse command line arguments
 rem **************************************
@@ -83,12 +84,19 @@ for %%m in ( %MODULES% ) do (
 	set DISABLEMODULE=x-disable-%%m%
 	if x%1==x-enable-%%m% (
 		set QMAKE_CONFIG=!QMAKE_CONFIG! %%m%
-		)
+	)
 	if x%1==x-disable-%%m% (
 		set DISABLED_%%m%=yes
-		)
+	)
 )
-cd ..
+cd sql\src
+for %%s in ( %SQLDRIVERS% ) do (
+	set SQLDRV=x-sql-%%s%
+	if x%1==x-sql-%%s% (
+		set QMAKE_SQL=!QMAKE_SQL! %%s%
+	)
+)
+cd ..\..\..
 
 rem *** The following is a workaround
 if x%1==x-internal set QMAKE_INTERNAL=yes
@@ -151,6 +159,8 @@ if x%HELP%==xyes (
 	@echo -enable-*              Enable the specified module
 	@echo -disable-*             Disable the specified module
 	@echo .
+	@echo -sql-*                 Compile the specified SQL driver
+	@echo .
 	goto end )
 
 rem **************************************
@@ -193,6 +203,7 @@ if x%SHARED%==xno (
 
 set QMAKE_VARS=%QMAKE_VARS% "QMAKE_LIBDIR_QT=%QTDIR%\lib"
 set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=tmp\obj\%QMAKE_OUTDIR%" "MOC_DIR=tmp\moc\%QMAKE_OUTDIR%"
+set QMAKE_VARS=%QMAKE_VARS% "sql-drivers+=%QMAKE_SQL%"
 
 if x%JPEG%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% jpeg
 if x%MNG%==xyes set QMAKE_CONFIG=%QMAKE_CONFIG% mng
