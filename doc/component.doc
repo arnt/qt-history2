@@ -46,13 +46,13 @@ extends the aspects of encapsulation and reusability. As the combination of
 C++ and the Qt Object Model helps to break an application source code into 
 reusable and specialized classes, the Component Model helps to break a monolithic
 binary into components that can be dynamically loaded and used by different 
-applications. While a single application with a fixed functionality needs 
+applications. While a single application with fixed functionality needs 
 recompiling and linking for every extension, using components makes it trivial
 to replace or extend only parts of the application, or to add new functionality
 at runtime.
 
-Most exisiting component models, e.g. COM, us a similar architecture. This
-document is intended for an audience that has some knowledge with component
+Most exisiting component models, e.g. COM, use a similar architecture.
+This document assumes that you have a basic knowledge of component
 development. Recommended reading:
 <ul>
 <li><a href="http://www.amazon.com/exec/obidos/ASIN/1572313498/trolltech/t/107-3518660-0427733">
@@ -62,43 +62,46 @@ Inside COM</a>
 <table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#E5E5E5>
 <tr>
 <th bgcolor=#A2C511 width=100%>
-Component Keywords
+Component Concepts
 </th>
 </tr>
 <tr>
 <td>
-<h3>Interfaces</h3>
+<h3>Interface</h3>
 An interfaces is a group of well-defined functions that provide access to a component. 
 A client can query a component for an interface, and can use the interface to call functions 
 implemented in the component. In the Qt Component Model, 
 <ul>
 <li>all interfaces inherit QUnknownInterface
-<li>interfaces are pure abstract classes
+<li>all interfaces are pure abstract classes
 </ul>
-Every interface definition includes a unique identifier that makes makes it
-easy to evaluate a request for an interface. In Qt, UUIDs (Universally Unique Identifier)
-are used to assign a 128bit value to an interface. Most platforms provide a tool that generates
-UUIDs (or GUIDs) using an algorithm that guarantees that the resulting ID is unique.
+Every interface definition includes a unique identifier that makes makes
+it easy to identify a particular interface. In Qt, UUIDs (Universally
+Unique Identifier) are used to assign a 128 bit value to an interface.
+Most platforms provide a tool that generates UUIDs (or GUIDs) using an
+algorithm that guarantees that the resulting ID is unique.
 
 Interfaces can't change. Changing an interface would break any application and component relying 
 on the binary compatibility of the interface.
 <h3>Components</h3>
-A component is executable code that provides a specified set of publicly available
-services. A component can implement any number of interfaces. The client using the component
-does not have to know anything about the implementation details. If the client can get an 
-interface from a component then it has to be safe for the client to use the interface without
-any further preconditions.
-Components can have an ID like interfaces and use this ID to be registered in a system global
-database (e.g. the Windows Registry). This makes it fairly efficient for applications to load 
-a specific component.
+A component is executable code that provides a specified set of publicly
+available services. A component can implement any number of interfaces.
+The client using the component does not have to know anything about the
+implementation details. If the client can get an interface from a
+component then it has to be safe for the client to use the interface
+without any preconditions. Components can have an ID like interfaces and
+can use this ID to be registered in a system global database (e.g. the
+Windows Registry). This makes it fairly efficient for applications to
+load a specific component.
 <h3>Component Server</h3>
 Components are distributed by the means of component servers. In most cases this is a
 shared library, e.g. a DLL. A component server can provide any number of components.
 <h3>Plug-Ins and Add-Ins</h3>
-Plugins are components that implement an application dependent interface. The application can
-make use of any available implementation of its interfaces to extend or modify existing 
-functionality. The application can provide the plugin with interfaces implemented in the
-application itself so that the plugin is able to access and modify application data.
+Plugins are components that implement an application specific interface.
+The application can make use of any available implementation of its
+interfaces to extend or modify existing functionality. The application
+can provide the plugin with interfaces implemented in the application
+itself so that the plugin is able to access and modify application data.
 </td>
 </tr>
 </table>
@@ -120,10 +123,9 @@ struct IntegerInterface : public QUnknownInterface
 };
 \endcode
 
-Most platforms provide a tool to generate a UUID that is associated with this
-interface. The Qt distribution includes \e quuidgen that provides a graphical
-frontend and makes it easy to copy the generated ID directly into the source
-code:
+Most platforms provide a tool to generate a UUID that is associated with
+this interface. The Qt distribution includes \e quuidgen a GUI tool that
+makes it easy to copy the generated ID directly into the source code:
 
 \code
 // {2FFC826E-AA74-4528-8FC9-2FDE08F77CD4} 
@@ -136,10 +138,10 @@ It is common to use the name of the interface together with the prefix \e IID_
 as the descriptor for an interface ID.
 
 <h2>Implementing an Interface</h2>
-A component implementing an interface simply inherits from this interface and
-implements all of the functions this interface declares. Since all interfaces 
-inherit from QUnknownInterface, all QUnknownInterface functions have to 
-be implemented, too.
+A component implementing an interface simply inherits from the interface and
+implements all the functions the interface declares. Since all
+interfaces inherit from QUnknownInterface, whose functions are all
+pure virtual, every QUnknownInterface function must be implemented.
 
 \code
 class NumberComponent : public IntegerInterface
@@ -163,7 +165,7 @@ private:
 };
 \endcode
 
-The implementation of the IntegerInterface of course is trivial.
+The implementation of IntegerInterface is trivial.
 
 <h3>Implementing QUnknownInterface</h3>
 
@@ -172,10 +174,11 @@ the component provides and controls the lifetime of the component using
 reference counting.
 
 The implementation of \e queryInterface has to follow several rules to make the 
-use of the component relyable.
+use of the component reliable.
 
 <ul>
-<li>A query for \e QUnknownInterface must always return the same pointer
+<li>A query for \e QUnknownInterface must always return a
+QUnknownInterface pointer
 <li>The set of interfaces accessible must be static
 <li>It must be symmetric, reflexive and transitive
 </ul>
@@ -197,13 +200,13 @@ QUnknownInterface *NumberComponent::queryInterface( const QUuid &uuid )
 }
 \endcode
 
-Since a single component can be used by multiple clients at a time the client
-itself cannot simply delete the interface pointer when it is no longer used - 
-it would invalidate all references a different client has to this interface. The
-only one knowing when it is safe to delete the interface is the interface itself,
-but the client has to tell the interface when it is no longer used. This is done
-using a reference count. Whenever a pointer to an interface is copied, the reference
-count is increased using addRef:
+Since a single component can be used by multiple clients at a time the
+client itself cannot simply delete the interface pointer when it is no
+longer used - it would invalidate all references a different client has
+to the same interface. Only the interface itself knows when it is safe to delete itself, but the client has to tell the
+interface when it is no longer used. This is done using a reference
+count. Whenever a pointer to an interface is copied, the reference count
+is increased using addRef:
 
 \code
 ulong NumberComponent::addRef()
@@ -212,11 +215,11 @@ ulong NumberComponent::addRef()
 }
 \endcode
 
-\e addRef should also be called by any function that returns an interface, like e.g.
-in \e queryInterface.
-Whenever a pointer to an interface is no longer used, the counter is decreased using 
-release. As soon as the count reaches zero the interface knows that there are no more 
-references and can delete itself:
+\e addRef should also be called by any function that returns an
+interface, e.g. in \e queryInterface. Whenever a pointer to an interface
+is no longer used, the counter is decreased using release. As soon as
+the count reaches zero the interface knows that there are no more
+references and it can delete itself:
 
 \code
 ulong NumberComponent::release()
@@ -230,11 +233,12 @@ ulong NumberComponent::release()
 \endcode
 
 <h3>Implementing multiple interfaces</h3>
-Since interfaces are nothing else but a set of pure virtual functions, multiple 
-inheritance makes it easy to implement multiple interfaces within a single class, 
-without having to implement QUnknownInterface many times in a single component. 
-But it makes some casting necessary, sinceall interfaces inherit from QUnknownInterface. 
-If the NumberComponent would implement a second interface
+Since interfaces consist entirely of pure virtual functions,
+multiple inheritance makes it easy to implement multiple interfaces
+within a single class, without having to implement QUnknownInterface
+many times in a single component. But it makes some casting necessary,
+since all interfaces inherit from QUnknownInterface. If the
+NumberComponent implemented a second interface
 
 \code
 struct DoubleInterface : public QUnknownInterface
@@ -246,7 +250,7 @@ struct DoubleInterface : public QUnknownInterface
 };
 \endcode
 
-the relevant part of the queryInterface implementation would have to be like this:
+the relevant part of the queryInterface implementation would become:
 
 \code
     ...
@@ -265,14 +269,14 @@ consistent throughout the component.
 
 <h2>Writing a Component Server</h2>
 
-In order to be able to distribute the just created component in a binary form
-it must be wrapped in a component server. The most common kind of server is a
-shared library that gets dynamically loaded by the application. In order for the
-application to be able to access the component there has to be a function 
-exported by this shared library. This function will return a pointer to a 
-QUnknownInterface implementation that can be used as an entry point to query for
-the interfaces needed.
-Qt provides a macro 
+In order to be able to distribute a component in binary
+form it must be wrapped in a component server. The most common kind of
+server is a shared library that gets dynamically loaded by the
+application. In order for the application to be able to access the
+component there must be a function exported by this shared library.
+This function will return a pointer to a QUnknownInterface
+implementation that can be used as an entry point to query for the
+interfaces needed. Qt provides a macro 
 
 \code Q_EXPORT_INTERFACE \endcode 
 
@@ -280,8 +284,9 @@ that declares an exported function
 
 \code QUnknownInterface *ucom_instantiate() \endcode
 
-The address to this function can be resolved using the standard procedures for 
-dynamically loaded libraries. An implementation of this function may look like this:
+The address to this function can be resolved using the standard
+procedures for dynamically loaded libraries. An implementation of this
+function might look like this:
 
 \code
 Q_EXPORT_INTERFACE
@@ -292,19 +297,19 @@ Q_EXPORT_INTERFACE
 }
 \endcode
 
-Note the explicit casting of the created component object using the same 
-inheritance path as in the queryInterface implementation.
-The \code ucom_instantiate \endcode function has to be declared and implemented 
+Note the explicit casting of the created component object using the same
+inheritance path as the queryInterface implementation. The 
+<tt>ucom_instantiate</tt> function must be declared and implemented
 exactly once for each component server.
 
 <h3>Multiple Components in one Component Server</h3>
 
-The function exported by the component server returns a pointer to the QUnknownInterface
-implemented by the component created. The client can then use \e queryInterface on that
-interface to navigate the component, but all interfaces returned will always be implemented 
-by the same component.
-The solution is to use another component that has the sole purpose to create other 
-components.
+The function exported by the component server returns a pointer to the
+QUnknownInterface implemented by the requested component. The client can
+then use \e queryInterface on that interface to iterate the component's
+interfaces. All interfaces returned will always be implemented by the
+same component. The solution is to use another component that has the
+sole purpose of creating other components.
 
 \code
 struct QComponentFactoryInterface : public QUnknownInterface
@@ -313,18 +318,20 @@ struct QComponentFactoryInterface : public QUnknownInterface
 };
 \endcode
 
-The \e iid parameter is the same as for \e queryInterface, but since multiple components 
-can implement the specified interface it is necessary to pass a second ID that identifies 
-the component itself. If this parameter is not provided or a null UUID, \e createInstance 
-will return the first component that implements the interface specified by \e iid.
+The \e iid parameter is the same as for \e queryInterface, but since
+multiple components can implement the specified interface it is
+necessary to pass a second ID that identifies the component itself. If
+this parameter is not provided or is null, \e createInstance will
+return the first component that implements the interface specified by \e
+iid.
 
 
 <h2>Using Components</h2>
-The client application can now use this component by loading the shared library,
-resolving and calling the \code ucm_instantiate \endcode function, and using the
-interfaces returned by the queryInterface implementation.
+The client application can now use this component by loading the shared
+library, resolving and calling the <tt>ucm_instantiate</tt> function,
+and using the interfaces returned by the queryInterface implementation.
 
-<h3>Loading the Component Server</h2>
+<h2>Loading the Component Server</h2>
 Many applications already know exactly which component they want to use, and
 which component server provides this component. Loading the component server is 
 done using the QLibrary class like this:
@@ -340,22 +347,24 @@ if ( iface ) {
 }
 \endcode
 
-The loading and unloading of the shared library is controlled by the lifetime of the 
-QLibray object and explained in the \link qlibrary.html API reference \endlink.
+The loading and unloading of the shared library is controlled by the
+lifetime of the QLibray object and explained in the \link qlibrary.html
+API reference \endlink.
 
 <h3>Using a specific Component</h3>
-If the application only knows which component it wants, but nothing about the name
-or location of the component server, it is not possible to use QLibrary like this.
-The application will have to look up the filename of the component server in some
-kind of central database, and the component will have to register itself in this
-central database. It also makes it necessary to identify any component uniquely. 
-The identification of components is again done using UUIDs, and using this UUID a 
-component - or the installation process for this component - can add an entry to the 
-central database. The application can then look up the wanted UUID in the database and 
-use the filename to create a QLibrary object.
-Registering the components in a server is done by implementing the 
-QComponentServerInterface using the \link qsettings.html QSettings \endlink class like 
-this:
+If the application only knows which component it wants, but nothing
+about the name or location of the component server, it is not possible
+to use QLibrary as we've just described. The application will have to
+look up the filename of the component server in some kind of central
+database, and the component will have to register itself in this central
+database. Furthermore each component must be uniquely identified.
+The identification of components is again done using UUIDs, and using
+this UUID a component - or the installation process for the component -
+can add an entry to the central database. The application can then look
+up the UUID it requires in the database and use the filename to create a
+QLibrary object. Registering the components in a server is done by
+implementing the QComponentServerInterface using the \link
+qsettings.html QSettings \endlink class like this:
 
 \code
 bool NumberComponent::registerComponents( const QString &filepath ) const
@@ -383,10 +392,11 @@ bool NumberComponent::unregisterComponents() const
 }
 \endcode
 
-On Windows, this will use the system registry and register the component along with all
-other COM components. On UNIX, this will create a settings file .CLSID that lists all 
-installed components. To register all components in a server, it is then enough to load 
-the library, to query for the QComponentServerInterface and call the registerComponent 
+On Windows, this will use the system registry and register the component
+along with all other COM components. On UNIX, this will create a
+settings file .CLSID that lists all installed components. To register
+all components in a server, it is sufficient to load the library, 
+query for the QComponentServerInterface and call the registerComponent
 function during the installation process of the component.
 
 Any client application that wants to use this specific component can then use the 
@@ -406,19 +416,23 @@ if ( library && ( iface = library->queryInterface( IID_IntegerInterface ) ) ) {
 \endcode
 
 <h3>Using Components as Plugins</h3>
-Both solutions explained make it necessary for the application to know details of the component 
-it wants to use. But many applications only know that they want to use any components that 
-implement a certain interface, e.g. to provide plugin support. The application would then have 
-to load multiple component servers, query for the interface wanted and add the returned component 
-to an internal list which it can use to look-up and use the component when necessary.
+Both the approaches described above make it necessary for the
+application to know details of the component it wants to use. But many
+applications only know that they want to use any components that
+implement a certain interface, e.g. to provide plugin support. The
+application would then have to load multiple component servers, query
+for the required interface and add the returned component to an internal
+list which it can look-up to use the component when necessary.
 
-This makes it obviously necessary to provide the component with a way to identify itself, 
-otherwise the application would have a list of components which it knows nothing about but 
-the interface implemented and could not select any of those components.
+This makes it necessary to provide the component means of
+identifying itself, otherwise the application would have a list of
+components but would only know the interface implemented and could not
+select any of those components.
 
-A component implements the interface providing a certain set of "features", and it has to inform
-the client application about the list of provided features. The component simply has to implement
-the QFeatureListInterface
+A component implements the interface providing a certain set of
+"features", and it must inform the client application about the list
+of features it provides. To achieve this the component must implement the
+QFeatureListInterface
 
 \code
 struct QFeatureListInterface : public QUnknownInterface
@@ -427,9 +441,9 @@ struct QFeatureListInterface : public QUnknownInterface
 };
 \endcode
 
-A plugin for an image processing application can e.g. implement the ImageColorInterface providing 
-the feature "Sepia", or multiple features like "Contrast" and "Brightness". The ImageColorInterface 
-could then be
+For example, a plugin for an image processing application might implement the
+ImageColorInterface providing the feature "Sepia", or multiple features
+like "Contrast" and "Brightness". The ImageColorInterface might be
 
 \code
 struct ImageColorInterface : public QFeatureListInterface
@@ -438,8 +452,8 @@ struct ImageColorInterface : public QFeatureListInterface
 };
 \endcode
 
-All functions of this interface have to get the wanted feature as a parameter, and implement all
-functions like this:
+All functions of this interface must be passed the name of the requested
+feature, and are implemented like this:
 
 \code
 QImage ImageColorComponent::changeColor( const QString &feature, const QImage &image )
@@ -472,9 +486,10 @@ struct QComponentInterface : public QUnknownInterface
 };
 \endcode
 
-Any component that implements the ImageColorInterface and either the QFeatureListInterface or the
-QComponentInterface are now of interest for the image processing application and can be used as
-plugins. The QInterfaceManager template class provides a generic solution for this task.
+Any component that implements the ImageColorInterface and either the
+QFeatureListInterface or the QComponentInterface can now be used as
+a plugin for an image processing (or any other) application. The
+QInterfaceManager template class provides a generic solution for this.
 
 \code
 QImage image( "picture.png" );
@@ -488,21 +503,25 @@ if ( iface ) {
 \endcode
 
 <h3>Using a Component Trader</h3>
-While the plugin concept allows it to dynamically extend and modify an application it has one big
-drawback: the application has to load a large number of libraries to figure out which ones provide
-suitable components. This might not be a problem for a small number of highly specialized plugins,
-but as soon as plugins are supposed to be shared between different applications the number of
-libraries being loaded and unloaded unnecessarily makes application startup very inefficient.
+While the plugin concept allows you to dynamically extend and modify an
+application it has one major drawback: the application has to load a large
+number of libraries to determine which ones provide suitable
+components. This might not be a problem for a small number of highly
+specialized plugins, but when plugins are shared
+between different applications the number of libraries being loaded and
+unloaded unnecessarily makes application startup very inefficient.
 
-A Component Trader tells an application which components implement a certain set of interfaces, 
-and the application can then select and use one of those components. If multiple components are 
-suitable the user should be enabled to prioritize a single component. This makes it again necessary 
-for components to register their set of implemented interfaces in the central database, so that the 
-component trader can look up the components matching the request and pick the preferred one for the
+A Component Trader tells an application which components implement a
+certain set of interfaces, and the application can then select and use
+one of those components. If multiple components are suitable the user
+should be able to prioritize a single component. This makes it 
+necessary for components to register their set of implemented interfaces
+in the central database, so that the component trader can look up the
+components matching the request and pick the preferred one for the
 application to use.
 
-Registering (and unregistering) the component is again done in the implementation of the 
-QComponentServerInterface:
+Registering (and unregistering) the component once again uses the
+implementation of the QComponentServerInterface:
 
 \code
 bool NumberComponent::registerComponents( const QString &filepath ) const
