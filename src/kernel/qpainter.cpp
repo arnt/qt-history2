@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#188 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1870,7 +1870,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   <li> \c DontClip never clips the text to the rectangle.
   <li> \c ExpandTabs expands tabulators.
   <li> \c ShowPrefix displays "&x" as "x" underlined.
-  <li> \c WordBreak breaks the text to fit the rectangle. 
+  <li> \c WordBreak breaks the text to fit the rectangle.
   </ul>
 
   Horizontal alignment defaults to AlignLeft and vertical alignment
@@ -2053,16 +2053,19 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	} else {				// not printable (except ' ')
 	    cw = fm.width(word);
 	    if ( !fakeBreak && wordbreak ) {
-		if ( breakindex > 0 && tw+cw > w ) {
-		    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
-		    maxwidth = QMAX(maxwidth,tw);
-		    begline = breakindex;
-		    tw = cw;
-		    breakindex = tabindex = 0;
-		    cw = 0;
-		    breakwidth = 0;
-		    if ( !breakwithinwords && tw > w ) {
+		if ( tw+cw > w ) {
+		    if ( breakindex > 0 ) {
+			breakwithinwords = FALSE;
+			codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
+			maxwidth = QMAX(maxwidth,tw);
+			begline = breakindex;
+			tw = cw;
+			breakindex = tabindex = 0;
+			cw = 0;
+		    }
+		    if ( tw+cw > w ) {
 			breakwithinwords = TRUE;
+			breakwidth = 0;
 			p -= word.length();	
 			k -= word.length();
 			index = begline+1;
@@ -2081,7 +2084,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
   		--k;
   		--p;
  	    }
- 	    else 
+ 	    else
 	    if ( k == len ) {
 		// end (*p not valid)
 		cc = 0;
@@ -2129,6 +2132,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	tw += cw;				// increment text width
 
 	if ( cc == BEGLINE ) {
+	    breakwithinwords = FALSE;
 	    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
 	    maxwidth = QMAX(maxwidth,tw);
 	    begline = index;
