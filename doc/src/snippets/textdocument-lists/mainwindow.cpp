@@ -125,12 +125,17 @@ void MainWindow::selectFrame()
 void MainWindow::insertList()
 {
     QTextCursor cursor = editor->textCursor();
-
     cursor.beginEditBlock();
+
+    QTextList *list = cursor.currentList();
     QTextListFormat listFormat;
+    if (list)
+        listFormat = list->format();
+
     listFormat.setStyle(QTextListFormat::ListDisc);
-    listFormat.setIndent(cursor.blockFormat().indent() + 1);
+    listFormat.setIndent(listFormat.indent() + 1);
     cursor.insertList(listFormat);
+
     cursor.endEditBlock();
 }
 

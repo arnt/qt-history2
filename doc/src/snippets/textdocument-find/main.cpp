@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
         if (!newCursor.isNull()) {
             newCursor.movePosition(QTextCursor::WordRight,
-                                      QTextCursor::KeepAnchor);
+                                   QTextCursor::KeepAnchor);
 
             QString text = newCursor.selectedText();
             newCursor.removeSelectedText();
