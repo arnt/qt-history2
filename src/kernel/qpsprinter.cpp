@@ -2355,6 +2355,9 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFontEngine *f, QByteArray& d)
 
   }
   psname.replace(' ', '-');
+  psname.replace("/", "");
+  if (psname.isEmpty())
+      psname = makePSFontName(f);
 
   //read_cmap(font);
 
