@@ -4559,6 +4559,9 @@ void QCheckListItem::turnOffChild()
  */
 void QCheckListItem::activate()
 {
+    if ( listView() && !listView()->isEnabled() || !isEnabled() )
+	return;
+
     QPoint pos;
     if ( activatedPos( pos ) ) {
 	//ignore clicks outside the box
@@ -4598,9 +4601,6 @@ bool QCheckListItem::isEnabled() const
  */
 void QCheckListItem::setOn( bool b  )
 {
-    if ( listView() && !listView()->isEnabled() || !isEnabled() )
-	return;
-
     if ( b == on )
 	return;
     if ( myType == CheckBox ) {
