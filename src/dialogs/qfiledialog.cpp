@@ -3654,6 +3654,9 @@ void QFileDialog::okClicked()
 	    accept();
 	    return;
 	}
+	// Since it's not a directory and we clicked ok, we
+	// don't really want to do anything else
+	return;
     }
 
     // if we're in multi-selection mode and something is selected,
