@@ -696,10 +696,13 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
     }
+    QWindowsStyle::polish( widget );
 }
 
 void QWindowsXPStyle::unPolish( QWidget *widget )
 {
+    widget->removeEventFilter( this );
+    QWindowsStyle::unPolish( widget );
 }
 
 // shapes
