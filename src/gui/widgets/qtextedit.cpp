@@ -924,10 +924,10 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     if (e->state() & Qt::ControlButton) {
         switch( e->key() ) {
         case Qt::Key_Z:
-            document()->undo();
+            d->doc->undo();
             break;
         case Qt::Key_Y:
-            document()->redo();
+            d->doc->redo();
             break;
         case Qt::Key_X:
         case Qt::Key_F20:  // Cut key on Sun keyboards
