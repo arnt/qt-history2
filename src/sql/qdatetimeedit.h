@@ -12,7 +12,7 @@
 #ifndef QT_NO_SQL
 
 
-class NumEdit : public QLineEdit
+class Q_EXPORT NumEdit : public QLineEdit
 {
     Q_OBJECT
 public:
@@ -34,7 +34,7 @@ public:
 class QLabel;
 class QToolButton;
 
-class QDateTimeEditBase : public QWidget
+class Q_EXPORT QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
 public:
@@ -54,7 +54,7 @@ protected slots:
 };
 
 
-class QDateEdit : public QDateTimeEditBase
+class Q_EXPORT QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QDate dateValue READ date WRITE setDate )
@@ -67,7 +67,7 @@ protected:
     void resizeEvent( QResizeEvent * );
 };
 
-class QTimeEdit : public QDateTimeEditBase
+class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QTime timeValue READ time WRITE setTime )
