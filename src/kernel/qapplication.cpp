@@ -51,9 +51,6 @@
 #include "qstylefactory.h"
 #include <stdlib.h>
 #include "qcomponentfactory.h"
-#ifndef QT_NO_REMOTE
-#include <private/qremotecontrol_p.h>
-#endif
 
 #ifndef QT_NO_REMOTE
 #include "qremotecontrol_p.h"
@@ -822,7 +819,7 @@ void QApplication::initialize( int argc, char **argv )
 	S = argv[i];
 	int pos = S.find(TestStr);
 	if (pos >= 0) {
-			
+
 	    QString hostIp, hostPort;
 	    S = S.mid(pos + TestStr.length());
 	    int pos = S.find(":");
@@ -834,11 +831,11 @@ void QApplication::initialize( int argc, char **argv )
 		if (port > 0) {
 
 		    // This is a hack, but since this number will never change...
-		    // {C71CE12C-AB3C-459B-87D6-C539FF45975D} 
+		    // {C71CE12C-AB3C-459B-87D6-C539FF45975D}
 		    QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
 		    if (QComponentFactory::createInstance(cid,IID_QRemoteControl,(QUnknownInterface**)&remoteControl) == QS_OK) {
 
-			remoteControl->open(hostIp,port); 
+			remoteControl->open(hostIp,port);
 			qDebug("Remote Control is enabled.");
 		    } else {
 
@@ -916,7 +913,7 @@ QWidget *QApplication::activeModalWidget()
 QApplication::~QApplication()
 {
 #ifndef QT_NO_REMOTE
-    if (remoteControl != 0) 
+    if (remoteControl != 0)
     	remoteControl->release();
     remoteControl = 0;
 #endif // QT_NO_REMOTE
