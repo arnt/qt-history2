@@ -850,14 +850,6 @@ fi
 cat >> $outpath/include/qconfig.h <<EOF
 /* All features enabled while building qmake */
 
-/* Install paths from configure */
-const char *qInstallPath();
-const char *qInstallPathDocs();
-const char *qInstallPathHeaders();
-const char *qInstallPathLibs();
-const char *qInstallPathBins();
-const char *qInstallPathPlugins();
-const char *qInstallPathData();
 EOF
 
 # create temporary qmodules.h for compiling qmake
@@ -2051,16 +2043,6 @@ full)
     ;;
 esac
 cat >> $outpath/include/qconfig.h.new <<EOF
-
-/* Install paths from configure */
-const char *qInstallPath();
-const char *qInstallPathDocs();
-const char *qInstallPathHeaders();
-const char *qInstallPathLibs();
-const char *qInstallPathBins();
-const char *qInstallPathPlugins();
-const char *qInstallPathData();
-
 /* License information */
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE  "$Products"
