@@ -58,8 +58,12 @@ protected:
     {
         QString directory, profile, target, makefile;
     };
-    void writeSubTargets(QTextStream &t, QList<SubTarget*> subtargets, bool installs);
-
+    enum SubTargetFlags {
+        SubTargetsNoFlags=0x00,
+        SubTargetInstalls=0x01,
+        SubTargetOrdered=0x02
+    };
+    void writeSubTargets(QTextStream &t, QList<SubTarget*> subtargets, int flags);
 
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);

@@ -735,7 +735,7 @@ MakefileGenerator::writeProjectMakefile()
           << "install: " << targets.first()->target << "-install" << endl
           << "uninstall: " << targets.first()->target << "-uinstall" << endl;
     }
-    writeSubTargets(t, targets, false);
+    writeSubTargets(t, targets, SubTargetsNoFlags);
     return true;
 }
 
@@ -1620,12 +1620,12 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
     QList<SubTarget*> targets;
     {
         QStringList subdirs = project->variables()["SUBDIRS"];
-        for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
-            QString file = (*it);
+        for(int subdir = 0; subdir < subdirs.size(); ++subdir) {
+            QString file = subdirs[subdir];
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)";
-            if((*it).endsWith(Option::pro_ext)) {
+            if(file.endsWith(Option::pro_ext)) {
                 int slsh = file.lastIndexOf(Option::dir_sep);
                 if(slsh != -1) {
                     st->directory = file.left(slsh+1);
@@ -1648,7 +1648,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
                 if(st->profile != basename + Option::pro_ext)
                     st->makefile += "." + st->profile.left(st->profile.length() - Option::pro_ext.length()); //no need for the .pro
             }
-            st->target = "sub-" + (*it);
+            st->target = "sub-" + file;
             st->target.replace('/', '-');
             st->target.replace('.', '_');
 
@@ -1660,26 +1660,14 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         t << "first: all" << endl;
     else
         t << "first: make_first" << endl;
-    writeSubTargets(t, targets, true);
-
-    if (project->isActiveConfig("ordered")) {         // generate dependencies
-        QStringList targs;
-        targs << "" << "-make_first" << "-all" << "-install_subtargets" << "-uninstall_subtargets";
-
-        for(QList<SubTarget*>::ConstIterator it = targets.constBegin(); it != targets.constEnd();) {
-            QString tar = (*it)->target;
-            ++it;
-            for (QStringList::ConstIterator tit = targs.constBegin(); tit != targs.constEnd(); ++tit) {
-                if (it != targets.end())
-                    t << (*it)->target << *tit << ": " << tar << *tit << endl;
-            }
-        }
-        t << endl;
-    }
+    int flags = SubTargetInstalls;
+    if(project->isActiveConfig("ordered"))
+        flags |= SubTargetOrdered;
+    writeSubTargets(t, targets, flags);
 }
 
 void
-MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubTarget*> targets, bool installs)
+MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubTarget*> targets, int flags)
 {
     // blasted includes
     QStringList &qeui = project->variables()["QMAKE_EXTRA_INCLUDES"];
@@ -1707,27 +1695,28 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
     writeExtraVariables(t);
     t << "SUBTARGETS    = ";     // subtargets are sub-directory
-    for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
-        t << " \\\n\t\t" << (*it)->target;
+    for(int target = 0; target < targets.size(); ++target) 
+        t << " \\\n\t\t" << targets.at(target)->target;
     t << endl << endl;
 
-    QStringList targs;
-    targs << "make_first" << "all" << "clean" << "distclean" << "mocables"
-          << QString(installs ? "install_subtargets" : "install")
-          << QString(installs ? "uninstall_subtargets" : "uninstall")
-          << "mocclean";
+    QStringList targetSuffixes;
+    targetSuffixes << "make_first" << "all" << "clean" << "distclean" << "mocables"
+                   << QString((flags & SubTargetInstalls) ? "install_subtargets" : "install")
+                   << QString((flags & SubTargetInstalls) ? "uninstall_subtargets" : "uninstall")
+                   << "mocclean";
 
     // generate target rules
-    for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) {
-        bool have_dir = !(*it)->directory.isEmpty();
-        QString mkfile = (*it)->makefile, cdin, cdout;
+    for(int target = 0; target < targets.size(); ++target) {
+        SubTarget *subtarget = targets.at(target);
+        bool have_dir = !subtarget->directory.isEmpty();
+        QString mkfile = subtarget->makefile, cdin, cdout;
         if(have_dir) {
-            mkfile.prepend((*it)->directory + Option::dir_sep);
+            mkfile.prepend(targets.at(target)->directory + Option::dir_sep);
             if(project->isActiveConfig("cd_change_global")) {
-                cdin = "\n\tcd " + (*it)->directory + "\n\t";
+                cdin = "\n\tcd " + subtarget->directory + "\n\t";
 
 		QDir pwd(Option::output_dir);
-		QStringList in = (*it)->directory.split(Option::dir_sep), out;
+		QStringList in = subtarget->directory.split(Option::dir_sep), out;
 		for(int i = 0; i < in.size(); i++) {
 		    if(in.at(i) == "..")
 			out.prepend(QFileInfo(pwd.path()).fileName());
@@ -1737,47 +1726,47 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 		}
                 cdout = "\n\t@cd " + out.join(Option::dir_sep);
             } else {
-                cdin = "\n\tcd " + (*it)->directory + " && ";
+                cdin = "\n\tcd " + subtarget->directory + " && ";
             }
         } else {
             cdin = "\n\t";
         }
 
         //qmake it
-        if(!(*it)->profile.isEmpty()) {
-            QString out, in = fileFixify((*it)->directory + Option::dir_sep + (*it)->profile);
-            if((*it)->makefile != "$(MAKEFILE)")
-                out = " -o " + (*it)->makefile;
-            if(in.startsWith((*it)->directory + Option::dir_sep))
-                in = in.mid((*it)->directory.length() + 1);
+        if(!subtarget->profile.isEmpty()) {
+            QString out, in = fileFixify(subtarget->directory + Option::dir_sep + subtarget->profile);
+            if(subtarget->makefile != "$(MAKEFILE)")
+                out = " -o " + subtarget->makefile;
+            if(in.startsWith(subtarget->directory + Option::dir_sep))
+                in = in.mid(subtarget->directory.length() + 1);
             t << mkfile << ": " << "\n\t"
-              << mkdir_p_asstring((*it)->directory)
+              << mkdir_p_asstring(subtarget->directory)
               << cdin
               << "$(QMAKE) " << in << buildArgs() << out
               << cdout << endl;
-            t << (*it)->target << "-qmake_all: " << "\n\t"
-              << mkdir_p_asstring((*it)->directory)
+            t << subtarget->target << "-qmake_all: " << "\n\t"
+              << mkdir_p_asstring(subtarget->directory)
               << cdin
               << "$(QMAKE) " << in << buildArgs() << out
               << cdout << endl;
         }
 
         //actually compile
-        t << (*it)->target << ": " << mkfile << "\n\t";
+        t << subtarget->target << ": " << mkfile << "\n\t";
         if(have_dir)
-            t << "cd " << (*it)->directory << " && ";
-        t << "$(MAKE) -f " << (*it)->makefile << endl;
-        for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-            QString targ = (*targ_it);
-            if(targ == "install_subtargets")
-                targ = "install";
-            else if(targ == "uninstall_subtargets")
-                targ = "uninstall";
-            else if(targ == "make_first")
-                targ = "first";
-            t << (*it)->target << "-" << (*targ_it) << ": " << mkfile
+            t << "cd " << subtarget->directory << " && ";
+        t << "$(MAKE) -f " << subtarget->makefile << endl;
+        for(int suffix = 0; suffix < targetSuffixes.size(); ++suffix) {
+            QString s = targetSuffixes.at(suffix);
+            if(s == "install_subtargets")
+                s = "install";
+            else if(s == "uninstall_subtargets")
+                s = "uninstall";
+            else if(s == "make_first")
+                s = "first";
+            t << subtarget->target << "-" << targetSuffixes.at(suffix) << ": " << mkfile
               << cdin
-              << "$(MAKE) -f " << (*it)->makefile << " " << targ
+              << "$(MAKE) -f " << subtarget->makefile << " " << s
               << cdout << endl;
         }
     }
@@ -1799,18 +1788,30 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     }
     t << endl << endl;
 
-    for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
-        if(!installs && (*targ_it).endsWith("install"))
+    for(int s = 0; s < targetSuffixes.size(); ++s) {
+        QString suffix = targetSuffixes.at(s);
+        if(!(flags & SubTargetInstalls) && suffix.endsWith("install"))
             continue;
 
-        t << (*targ_it) << ":";
-        QString targ = (*targ_it);
-        for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
-            t << " " << (*it)->target << "-" << (*targ_it);
+        if(flags & SubTargetOrdered) {
+            for(int target = 0; target < targets.size()-1; ++target) {
+                t << targets.at(target+1)->target << "-" << suffix << "-ordered: "
+                  << targets.at(target  )->target << "-" << suffix << "-ordered"
+                  << "\n";
+            }
+        }
+
+        t << suffix << ":";
+        for(int target = 0; target < targets.size(); ++target) {
+            QString targetRule = targets.at(target)->target + "-" + suffix;
+            if(flags & SubTargetOrdered)
+                targetRule += "-ordered";
+            t << " " << targetRule;
+        }
         t << endl;
-        if(targ == "clean") {
+        if(suffix == "clean") {
             t << varGlue("QMAKE_CLEAN","\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "\n");
-        } else if(targ == "distclean") {
+        } else if(suffix == "distclean") {
             QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
             if(!ofile.isEmpty())
                 t << "\t-$(DEL_FILE) " << ofile << endl;
@@ -1840,7 +1841,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
           << cmd << endl;
     }
 
-    if(installs) {
+    if(flags & SubTargetInstalls) {
         project->variables()["INSTALLDEPS"]   += "install_subtargets";
         project->variables()["UNINSTALLDEPS"] += "uninstall_subtargets";
         writeInstalls(t, "INSTALLS");
@@ -1876,8 +1877,8 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
             const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
             t << included.join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
-            for(QStringList::ConstIterator it = included.begin(); it != included.end(); ++it)
-                t << (*it) << ":" << endl;
+            for(int include = 0; include < included.size(); ++include)
+                t << included.at(include) << ":" << endl;
         }
         if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
             t << "qmake: " <<
