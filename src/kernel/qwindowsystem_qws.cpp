@@ -193,34 +193,9 @@ static int current_IM_winId=-1;
 */
 
 /*!
-    \fn const QString &QWSWindow::windowCaption() const
-
-    Returns the window's caption.
-*/
-
-/*!
     \fn QWSClient* QWSWindow::client() const
 
     Returns the QWSClient that owns this window.
-*/
-
-/*!
-    \fn QRegion QWSWindow::requested() const
-
-    Returns the region that the window has requested to draw onto,
-    including any window decorations.
-
-    \sa allocation()
-*/
-
-/*!
-    \fn QRegion QWSWindow::allocation() const
-
-    Returns the region that the window is allowed to draw onto,
-    including any window decorations but excluding regions covered by
-    other windows.
-
-    \sa requested()
 */
 
 /*!

@@ -2548,6 +2548,9 @@ double QWidget::windowOpacity() const
     return 1.0;
 }
 
+/*!
+    \internal
+*/
 QX11Info *QWidget::x11Info() const
 {
     return d->xinfo;

@@ -791,18 +791,10 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
-  \fn QVariant::QVariant(QSizePolicy val)
-
-    Constructs a new variant with a size policy value, \a val.
-*/
-
-/*!
   \fn QFont QVariant::toFont() const
 
     Returns the variant as a QFont if the variant has type() Font;
     otherwise returns the application's default font.
-
-  \sa asFont()
 */
 
 /*!
@@ -810,8 +802,6 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     Returns the variant as a QPixmap if the variant has type() Pixmap;
     otherwise returns a null pixmap.
-
-    \sa asPixmap()
 */
 
 /*!
@@ -819,49 +809,13 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     Returns the variant as a QImage if the variant has type() Image;
     otherwise returns a null image.
-
-    \sa asImage()
 */
+
 /*!
     \fn QBrush QVariant::toBrush() const
 
     Returns the variant as a QBrush if the variant has type() Brush;
     otherwise returns a default brush (with all black colors).
-
-    \sa asBrush()
-*/
-
-/*!
-    \fn QPoint& QVariant::asPoint()
-
-    Tries to convert the variant to hold a point value. If that is not
-    possible the variant is set to a (0, 0) point.
-
-    Returns a reference to the stored point.
-
-    \sa toPoint()
-*/
-
-/*!
-    \fn QRect& QVariant::asRect()
-
-    Tries to convert the variant to hold a rectangle value. If that is
-    not possible the variant is set to an empty rectangle.
-
-    Returns a reference to the stored rectangle.
-
-    \sa toRect()
-*/
-
-/*!
-    \fn QSize& QVariant::asSize()
-
-    Tries to convert the variant to hold a QSize value. If that is not
-    possible the variant is set to an invalid size.
-
-    Returns a reference to the stored size.
-
-    \sa toSize() QSize::isValid()
 */
 
 /*!
@@ -869,69 +823,6 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     Returns the variant as a QColor if the variant has type() Color;
     otherwise returns an invalid color.
-
-    \sa asColor()
-*/
-
-/*!
-    \fn QPalette &QVariant::asPalette()
-
-    Returns the variant as a QPalette if the variant has type()
-    Palette; otherwise returns a completely black palette.
-
-    \sa asPalette()
-*/
-
-/*!
-    \fn QColorGroup &QVariant::asColorGroup()
-
-    Returns the variant as a QColorGroup if the variant has type()
-    ColorGroup; otherwise returns an empty color group.
-*/
-
-/*!
-    \fn QIconSet &QVariant::asIconSet()
-
-    Returns the variant as a QIconSet if the variant has type()
-    IconSet; otherwise returns an icon set of null pixmaps.
-
-    \sa asIconSet()
-*/
-
-/*!
-    \fn QPointArray &QVariant::asPointArray()
-
-    Returns the variant as a QPointArray if the variant has type()
-    PointArray; otherwise returns an empty QPointArray.
-
-    \sa asPointArray()
-*/
-
-/*!
-    \fn QBitmap &QVariant::asBitmap()
-
-    Returns the variant as a QBitmap if the variant has type() Bitmap;
-    otherwise returns a null QBitmap.
-
-    \sa asBitmap()
-*/
-
-/*!
-    \fn QRegion &QVariant::asRegion()
-
-    Returns the variant as a QRegion if the variant has type() Region;
-    otherwise returns an empty QRegion.
-
-    \sa asRegion()
-*/
-
-/*!
-    \fn QCursor &QVariant::asCursor()
-
-    Returns the variant as a QCursor if the variant has type() Cursor;
-    otherwise returns the default arrow cursor.
-
-    \sa asCursor()
 */
 
 #ifndef QT_NO_ACCEL
@@ -945,21 +836,9 @@ const QVariant::Handler qt_gui_variant_handler = {
 
     Note that not all Ints and Strings are valid key sequences and in
     such cases an empty key sequence will be returned.
-
-    \sa asKeySequence()
 */
 
 #endif // QT_NO_ACCEL
-
-/*!
-    \fn QPen &QVariant::asPen()
-
-    Returns the variant as a QPen if the variant has type()
-    Pen; otherwise returns an empty QPen.
-
-    \sa asPen()
-*/
-
 
 QVariant::QVariant(const QPixmap &val)
 {

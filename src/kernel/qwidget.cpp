@@ -478,11 +478,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \endlist
 */
 
-/*! \enum Qt::WFlags
-    \internal */
-/*! \enum Qt::WState
-    \internal */
-
 /*!
     \enum Qt::WindowFlags
 
@@ -545,9 +540,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     borderless window that is not managed at all (i.e. no keyboard
     input unless you call setActiveWindow() manually).
 
-    \value WStyle_NoBorderEx  this value is obsolete. It has the same
-    effect as using \c WStyle_NoBorder.
-
     \value WStyle_Title  gives the window a title bar.
 
     \value WStyle_SysMenu  adds a window system menu.
@@ -579,13 +571,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     window managers on X11 you also have to pass \c WX11BypassWM for
     this flag to work correctly.
 
-    \value WStyle_Dialog  indicates that the window is a logical
-    subwindow of its parent (i.e. a dialog). The window will not get
-    its own taskbar entry and will be kept on top of its parent by the
-    window system. Usually it will also be minimized when the parent
-    is minimized. If not customized, the window is decorated with a
-    slightly simpler title bar. This is the flag QDialog uses.
-
     \value WStyle_Splash  indicates that the window is a splash screen.
     On X11, we try to follow NETWM standard for a splash screen window if the
     window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
@@ -604,11 +589,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WPaintUnclipped  makes all painters operating on this
     widget unclipped. Children of this widget or other widgets in
     front of it do not clip the area the painter can paint on.
-
-    \value WPaintClever  indicates that Qt should \e not try to
-    optimize repainting for the widget, but instead pass on window
-    system repaint events directly. (This tends to produce more events
-    and smaller repaint regions.)
 
     \value WMouseNoMask  indicates that even if the widget has a mask,
     it wants mouse events for its entire rectangle.
@@ -629,10 +609,8 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     Internal flags.
 
     \value WNoMousePropagation
-    \value WStaticContents
     \value WStyle_Reserved
     \value WSubWindow
-    \value WType_Modal
     \value WWinOwnDC
     \value WX11BypassWM
     \value WMacNoSheet
@@ -648,24 +626,30 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 
     Internal flags.
 
-    \value WState_Created
-    \value WState_Visible
-    \value WState_Hidden
-    \value WState_MouseTracking
-    \value WState_CompressKeys
-    \value WState_BlockUpdates
-    \value WState_InPaintEvent
-    \value WState_Reparented
-    \value WState_ConfigPending
     \value WState_AutoMask
+    \value WState_BlockUpdates
+    \value WState_CompressKeys
+    \value WState_ConfigPending
+    \value WState_Created
     \value WState_DND
-    \value WState_Reserved0 \e internal
-    \value WState_CreatedHidden
+    \value WState_ExplicitShowHide
+    \value WState_Exposed
+    \value WState_FullScreen
+    \value WState_Hidden
+    \value WState_InPaintEvent
     \value WState_Maximized
     \value WState_Minimized
-    \value WState_Exposed
     \value WState_OwnSizePolicy
-    \value WState_FullScreen
+    \value WState_Polished
+    \value WState_Reparented
+    \value WState_Reserved0 \e internal
+    \value WState_Reserved2 \e internal
+    \value WState_Reserved3 \e internal
+    \value WState_Reserved4 \e internal
+    \value WState_Reserve5 \e internal
+    \value WState_Reserve6 \e internal
+    \value WState_Reserved7 \e internal
+    \value WState_Visible
 */
 
 
@@ -688,8 +672,8 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 */
 
 /*!
-    Constructs a widget which is a child of \a parent, with the name
-    \a name and widget flags set to \a f.
+    Constructs a widget which is a child of \a parent, with  widget
+    flags set to \a f.
 
     If \a parent is 0, the new widget becomes a top-level window. If
     \a parent is another widget, this widget becomes a child window
@@ -709,12 +693,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     X11, Qt can only ask the window manager, and the window manager
     can override the application's settings. On Windows, Qt can set
     whatever flags you want.
-
-    Example:
-    \code
-    QLabel *splashScreen = new QLabel( 0, "mySplashScreen",
-				WStyle_Customize | WStyle_Splash );
-    \endcode
 */
 
 QWidget::QWidget(QWidget *parent, WFlags f)
@@ -2525,13 +2503,6 @@ void QWidgetPrivate::setPalette_helper( const QPalette &palette )
     propagatePaletteChange();
 }
 
-/*!
-  \fn void QWidget::setPalette( const QPalette&, bool )
-  \obsolete
-
-  Use setPalette( const QPalette& p ) instead.
-*/
-
 #endif // QT_NO_PALETTE
 
 /*!
@@ -2600,13 +2571,6 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
 }
 
 /*!
-  \fn void QWidget::setFont( const QFont&, bool )
-  \obsolete
-
-  Use setFont(const QFont& font) instead.
-*/
-
-/*!
     \fn QFontMetrics QWidget::fontMetrics() const
 
     Returns the font metrics for the widget's current font.
@@ -2664,7 +2628,7 @@ QCursor QWidget::cursor() const
     This property only makes sense for top-level widgets. If no
     caption has been set, the title is QString::null.
 
-    \sa icon iconText
+    \sa windowIcon windowIconText
 */
 QString QWidget::windowTitle() const
 {
@@ -2691,7 +2655,7 @@ QPixmap QWidget::windowIcon() const
 }
 
 /*!
-    \property QWidget::iconText
+    \property QWidget::windowIconText
     \brief the widget's icon text
 
     This property only makes sense for top-level widgets. If no icon
@@ -2707,11 +2671,7 @@ QString QWidget::windowIconText() const
 }
 
 /*!
-    \property QWidget::windowRole
-    \brief the widget's window role
-
-    This property only makes sense for top-level widgets. If no role
-    has been set, this functions returns QString::null.
+    Returns the window's role, or QString::null.
 
     \sa windowIcon, windowTitle
 */
@@ -2721,6 +2681,10 @@ QString QWidget::windowRole() const
     return ( d->extra && d->extra->topextra ) ? d->extra->topextra->role : QString();
 }
 
+/*!
+    Sets the window's role to \a role. This only makes sense for
+    top-level widgets on X11.
+*/
 void QWidget::setWindowRole(const QString &role)
 {
 #if defined(Q_WS_X11)
@@ -3056,37 +3020,6 @@ void QWidget::setInputMethodEnabled( bool b )
     QInputContext::enable( this, im_enabled && isEnabled() );
 #endif
 }
-
-
-/*!
-    Enables key event compression, if \a compress is TRUE, and
-    disables it if \a compress is FALSE.
-
-    Key compression is off by default (except for QLineEdit), so
-    widgets receive one key press event for each key press (or more,
-    since autorepeat is usually on). If you turn it on and your
-    program doesn't keep up with key input, Qt may try to compress key
-    events so that more than one character can be processed in each
-    event.
-
-    For example, a word processor widget might receive 2, 3 or more
-    characters in each QKeyEvent::text(), if the layout recalculation
-    takes too long for the CPU.
-
-    If a widget supports multiple character unicode input, it is
-    always safe to turn the compression on.
-
-    Qt performs key event compression only for printable characters.
-    Modifier keys, cursor movement keys, function keys and
-    miscellaneous action keys (e.g. Escape, Enter, Backspace,
-    PrintScreen) will stop key event compression, even if there are
-    more compressible key events available.
-
-    Not all platforms support this compression, in which case turning
-    it on will have no effect.
-
-    \sa QKeyEvent::text();
-*/
 
 /*!
     \property QWidget::isActiveWindow
@@ -3633,10 +3566,6 @@ void QWidget::show_helper()
     in_show = false;  // reset qws optimization
 }
 
-/*! \fn void QWidget::iconify()
-    \obsolete
-*/
-
 /*!
     Hides the widget.
 
@@ -4017,13 +3946,6 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
 
 
 /*!
-  \fn bool QWidget::isVisibleToTLW() const
-  \obsolete
-
-  This function is deprecated. It is equivalent to isVisible()
-*/
-
-/*!
     \property QWidget::hidden
     \brief whether the widget is explicitly hidden
 
@@ -4204,20 +4126,6 @@ QSize QWidget::minimumSizeHint() const
   \internal
 
   Returns the current widget state.
-*/
-/*!
-  \fn void QWidget::clearWState( uint n )
-
-  \internal
-
-  Clears the widgets states \a n.
-*/
-/*!
-  \fn void QWidget::setWState( uint n )
-
-  \internal
-
-  Sets the widgets states \a n.
 */
 
 
