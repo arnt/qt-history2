@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#113 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#112 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#113 $");
 
 
 /*!
@@ -894,7 +894,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 
 	    // perform quantization
 	    if ( ( conversion_flags & Dither_Mask ) == ThresholdDither ) {
-#define DITHER(p,m) ((uchar) ((((256 * (m) + 1)) * (p)) / 65536 ))
+#define DITHER(p,m) ((uchar) ((p * (m) + 127) / 255))
 		while ( p < end ) {
 		    rc = qRed( *p );
 		    gc = qGreen( *p );
@@ -932,7 +932,6 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		}
 #undef DITHER
 	    } else { // Diffuse
-#define DITHER(p,d,m) ((uchar) ((((256 * (m) + 1)) * (p) + (d)) / 65536 ))
 		int endian = (QImage::systemByteOrder() == QImage::BigEndian);
 		uchar* q = src->scanLine(y);
 		uchar* q2 = src->scanLine(y+1 < src->height() ? y + 1 : 0);
@@ -990,7 +989,6 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			*b++ = INDEXOF(pv[0][x],pv[1][x],pv[2][x]);
 		    }
 		}
-#undef DITHER
 	    }
 	}
 
@@ -1311,7 +1309,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 	}
       } break;
       default: { // Threshold:
-	dst->fill( 1 );
+	dst->fill( 0 );
 	uchar** mline = dst->jumpTable();
 	if ( d == 32 ) {
 	    uint** line = (uint**)src->jumpTable();
@@ -1323,7 +1321,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		if ( fromalpha ) {
 		    while ( p < end ) {
 			if ( (*p++ >> 24) >= 128 )
-			    *m ^= 1 << bit;
+			    *m |= 1 << bit;
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -1333,8 +1331,8 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		    }
 		} else {
 		    while ( p < end ) {
-			if ( qGray(*p++) >= 128 )
-			    *m ^= 1 << bit;
+			if ( qGray(*p++) < 128 )
+			    *m |= 1 << bit;
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -1353,7 +1351,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		int bit = 7;
 		while ( p < end ) {
 		    if ( gray[*p++] >= 128 )
-			*m ^= 1 << bit;
+			*m |= 1 << bit;
 		    if ( bit == 0 ) {
 			m++;
 			bit = 7;
