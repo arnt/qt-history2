@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#264 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2062,9 +2062,16 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt(gpos.x, gpos.y);
 	    if (w) {
+		if ( w->isEnabled() ) {
+		    QWidget* tw = w;
+		    while ( tw->focusProxy() )
+			tw = tw->focusProxy();
+		    if ( tw->focusPolicy() & QWidget::ClickFocus )
+			tw->setFocus();
+		}
 		QMouseEvent* e = new QMouseEvent( type, w->mapFromGlobal(QPoint(gpos.x, gpos.y)),
 			   QPoint(gpos.x,gpos.y), button, state );
-		QApplication::postEvent( w, e );
+		QApplication::sendEvent( w, e );
 	    }
 	}
     } else {					// not popup mode
