@@ -445,10 +445,19 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 {
     QColor old = bg_col;
     bg_col = color;
+
     if ( extra && extra->bg_pix ) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
     }
+
+    SetPortWindowPort((WindowPtr)hd);
+    RGBColor f;
+    f.red = bg_col.red() * 256;
+    f.green = bg_col.green() * 256;;
+    f.blue = bg_col.blue() * 256;
+    RGBBackColor(&f);
+
     backgroundColorChange( old );
 }
 
@@ -835,7 +844,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
 
     bool isResize = (olds != size());
-    if ( isTopLevel() && winid && own_id )
+    if ( isTopLevel() && winid && own_id ) 
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
     if ( isVisible() ) {

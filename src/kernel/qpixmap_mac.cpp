@@ -25,6 +25,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
   RGBColor tmpc;
   tmpc.red = tmpc.green = tmpc.blue = 0;
   RGBForeColor(&tmpc);
+  tmpc.red = tmpc.green = tmpc.blue = ~0;
+  RGBBackColor( &tmpc );
 
   // Slow and icky
   RGBColor r;
@@ -126,6 +128,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     RGBColor tmpc;
     tmpc.red = tmpc.green = tmpc.blue = 0;
     RGBForeColor(&tmpc);
+    tmpc.red = tmpc.green = tmpc.blue = ~0;
+    RGBBackColor( &tmpc );
 
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;
@@ -219,6 +223,8 @@ QImage QPixmap::convertToImage() const
     RGBColor tmpc;
     tmpc.red = tmpc.green = tmpc.blue = 0;
     RGBForeColor(&tmpc);
+    tmpc.red = tmpc.green = tmpc.blue = ~0;
+    RGBBackColor( &tmpc );
 
     //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
     RGBColor r;

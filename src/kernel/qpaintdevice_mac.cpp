@@ -179,6 +179,8 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
     ::RGBColor f;
     f.red = f.green = f.blue = 0;
     RGBForeColor( &f );
+    f.red = f.green = f.blue = ~0;
+    RGBBackColor( &f );
 
     short copymode;
     switch(rop) {
