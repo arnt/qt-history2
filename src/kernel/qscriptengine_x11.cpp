@@ -1207,6 +1207,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 		for (int i = base; i < len; ++i) {
 		    position[i] = form(uc[i]);
 		    if (position[i] == Consonant) {
+			lastConsonant = i;
 			vattu = (!vattu && uc[i] == ra);
 			if (vattu) {
 			    IDEBUG("excluding vattu glyph at %d from base candidates", i);
@@ -1219,7 +1220,9 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	    } else {
 		for (int i = base; i < len; ++i) {
 		    position[i] = form(uc[i]);
-		    if (position[i] == Matra)
+		    if (position[i] == Consonant)
+			lastConsonant = i;
+		    else if (position[i] == Matra)
 			matra = i;
 		}
 	    }
@@ -1227,8 +1230,6 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 		if (position[i] != Consonant)
 		    continue;
 
-		if (!lastConsonant)
-		    lastConsonant = i;
 		Position charPosition = indic_position(uc[i]);
 		if (pos == Post && charPosition == Post) {
 		    pos = Below;
@@ -1321,6 +1322,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 		while (matra--)
 		    uc[matra+1] = uc[matra];
 		uc[0] = m;
+		base++;
 	    }
 	}
 
@@ -1349,16 +1351,20 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	if ( fixed < len && uc[fixed] == nukta )
 	    fixed++;
 
+#ifdef INDIC_DEBUG
+	for (int i = fixed; i < len; ++i)
+	    IDEBUG("position[%d] = %d, form=%d", i, position[i],  form(uc[i]));
+#endif
 	// we continuosly position the matras and vowel marks and increase the fixed
 	// until we reached the end.
 	const IndicOrdering *finalOrder = indic_order[script-QFont::Devanagari];
 
 	IDEBUG("    reordering pass:");
-	IDEBUG("        base=%d fixed=%d", base, fixed );
+	//IDEBUG("        base=%d fixed=%d", base, fixed );
 	int toMove = 0;
-	while ( fixed < len-1 ) {
-	    IDEBUG("        fixed = %d", fixed );
-	    for ( int i = fixed + 1; i < len; i++ ) {
+	while ( finalOrder[toMove].form && fixed < len-1 ) {
+	    //IDEBUG("        fixed = %d, moving form %d with pos %d", fixed, finalOrder[toMove].form, finalOrder[toMove].position );
+	    for ( int i = fixed; i < len; i++ ) {
 		if ( form( uc[i] ) == finalOrder[toMove].form &&
 		     position[i] == finalOrder[toMove].position ) {
 		    // need to move this glyph
@@ -1392,8 +1398,6 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 		}
 	    }
 	    toMove++;
-	    if ( finalOrder[toMove].form == 0 )
-		break;
 	}
 
     }
