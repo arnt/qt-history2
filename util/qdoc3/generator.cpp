@@ -19,8 +19,6 @@ QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
 QMap<QString, QStringList> Generator::imgFileExts;
-QStringList Generator::exampleFiles;
-QStringList Generator::exampleDirs;
 QStringList Generator::imageFiles;
 QStringList Generator::imageDirs;
 QString Generator::outDir;
@@ -67,8 +65,6 @@ void Generator::initialize(const Config &config)
 	}
     }
 
-    exampleFiles = config.getStringList(CONFIG_EXAMPLES);
-    exampleDirs = config.getStringList(CONFIG_EXAMPLEDIRS);
     imageFiles = config.getStringList(CONFIG_IMAGES);
     imageDirs = config.getStringList(CONFIG_IMAGEDIRS);
 
@@ -199,6 +195,8 @@ void Generator::generateText( const Text& text, const Node *relative,
 
 void Generator::generateBody( const Node *node, CodeMarker *marker )
 {
+    bool quiet = false;
+
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
 	if ( func->isOverload() && func->metaness() != FunctionNode::Ctor )
@@ -207,10 +205,14 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
         const FakeNode *fake = static_cast<const FakeNode *>(node);
         if (fake->subType() == FakeNode::Example)
             generateExampleFiles(fake, marker);
+        else if (fake->subType() == FakeNode::File)
+            quiet = true;
     }
 
     if (node->doc().isEmpty()) {
-	node->location().warning(tr("No documentation for '%1'").arg(marker->plainFullName(node)));
+        if (!quiet) // ### might be unnecessary
+	    node->location().warning(tr("No documentation for '%1'")
+                            .arg(marker->plainFullName(node)));
     } else {
         generateText(node->doc().body(), node, marker);
 
@@ -251,8 +253,8 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	    QList<Parameter>::ConstIterator p = func->parameters().begin();
 	    while (p != func->parameters().end()) {
 	        if ((*p).name().isEmpty() && (*p).leftType() != QLatin1String("...")
-			&& func->name() != QLatin1String("operator++")
-			&& func->name() != QLatin1String("operator--")) {
+		        && func->name() != QLatin1String("operator++")
+		        && func->name() != QLatin1String("operator--")) {
 		    node->doc().location().warning(tr("Missing parameter name"));
 	        } else {
 		    definedParams.insert( (*p).name() );
@@ -275,22 +277,22 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		        node->doc().location().warning(tr("No such parameter '%1'").arg(*a),
 						       details);
 		    } else if ( !(*a).isEmpty() && !documentedParams.contains(*a) ) {
-			bool needWarning = (func->status() > Node::Obsolete);
-			if (func->overloadNumber() > 1) {
+		        bool needWarning = (func->status() > Node::Obsolete);
+		        if (func->overloadNumber() > 1) {
 			    FunctionNode *primaryFunc =
 				    func->parent()->findFunctionNode(func->name());
 			    if (primaryFunc) {
-				foreach (Parameter param, primaryFunc->parameters()) {
+			        foreach (Parameter param, primaryFunc->parameters()) {
 				    if (param.name() == *a) {
                                         needWarning = false;
-					break;
+				        break;
 				    }
-				}
+			        }
 			    }
                         }
                         if (needWarning)
 			    node->doc().location().warning(tr("Undocumented parameter '%1'")
-							   .arg(*a));
+						           .arg(*a));
 		    }
 		    ++a;
 	        }
@@ -298,15 +300,18 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 	    if ( func->reimplementedFrom() != 0 )
 	        generateReimplementedFrom( func, marker );
-        } else if (node->type() == Node::Fake) {
-            const FakeNode *fake = static_cast<const FakeNode *>(node);
-            if (fake->subType() == FakeNode::File) {
-                Text text;
-                Quoter quoter;
-                Doc::quoteFromFile(fake->doc().location(), quoter, fake->name());
-                text << Atom(Atom::Code, quoter.quoteTo(fake->location(), "", ""));
-                generateText(text, fake, marker);
-            }
+        }
+    }
+
+    if (node->type() == Node::Fake) {
+        const FakeNode *fake = static_cast<const FakeNode *>(node);
+        if (fake->subType() == FakeNode::File) {
+            Text text;
+            Quoter quoter;
+            Doc::quoteFromFile(fake->doc().location(), quoter, fake->name());
+            QString code = quoter.quoteTo(fake->location(), "", "");
+            text << Atom(Atom::Code, code);
+            generateText(text, fake, marker);
         }
     }
 }
@@ -385,61 +390,27 @@ void Generator::generateInheritedBy( const ClassNode *classe,
 
 void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
 {
-    QString examplePath = fake->name();
-
-    // we can assume that this file always exists
-    QString proFileName = examplePath + "/" + examplePath.split("/").last() + ".pro";
-
-    QString userFriendlyFilePath;
-    QString fullPath = Config::findFile(fake->doc().location(), exampleFiles, exampleDirs,
-                                        proFileName, userFriendlyFilePath);
-    if (fullPath.isEmpty()) {
-        fake->doc().location().warning(tr("Cannot find file '%1'").arg(proFileName));
+    if (fake->childNodes().isEmpty())
         return;
+
+    OpenedList openedList(OpenedList::Bullet);
+
+    Text text;
+    text << Atom::ParaLeft << "Files:" << Atom::ParaRight
+         << Atom(Atom::ListLeft, openedList.styleString());
+    foreach (Node *child, fake->childNodes()) {
+        QString exampleFile = child->name();
+        openedList.next();
+        text << Atom(Atom::ListItemNumber, openedList.numberString())
+             << Atom(Atom::ListItemLeft, openedList.styleString()) << Atom::ParaLeft
+             << Atom(Atom::Link, exampleFile)
+             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+             << exampleFile
+             << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+             << Atom::ParaRight << Atom(Atom::ListItemRight, openedList.styleString());
     }
-
-    int sizeOfBoringPartOfPath = fullPath.size() - proFileName.size();
-    fullPath.truncate(fullPath.lastIndexOf('/'));
-
-    // should not hardcode the file extensions
-    QStringList exampleFiles = Config::getFilesHere(fullPath, "*.cpp *.h");
-    if (!exampleFiles.isEmpty()) {
-        // move main.cpp and to the end, if it exists
-        QString mainCpp;
-        QStringListMutableIterator i(exampleFiles);
-        i.toBack();
-        while (i.hasPrevious()) {
-            QString fileName = i.previous();
-            if (fileName.endsWith("/main.cpp")) {
-                mainCpp = fileName;
-                i.remove();
-            }
-        }
-        if (!mainCpp.isEmpty())
-            exampleFiles.append(mainCpp);
-
-        // add any qmake Qt resource files
-        exampleFiles += Config::getFilesHere(fullPath, "*.qrc");
-    }
-
-    if (!exampleFiles.isEmpty()) {
-        OpenedList openedList(OpenedList::Bullet);
-
-        Text text;
-        text << Atom::ParaLeft << "Files:" << Atom::ParaRight
-             << Atom(Atom::ListLeft, openedList.styleString());
-        foreach (QString exampleFile, exampleFiles) {
-            openedList.next();
-            text << Atom(Atom::ListItemNumber, openedList.numberString())
-                 << Atom(Atom::ListItemLeft, openedList.styleString()) << Atom::ParaLeft
-                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_TELETYPE)
-                 << exampleFile.mid(sizeOfBoringPartOfPath)
-                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_TELETYPE)
-                 << Atom::ParaRight << Atom(Atom::ListItemRight, openedList.styleString());
-        }
-        text << Atom(Atom::ListRight, openedList.styleString());
-        generateText(text, fake, marker);
-    }
+    text << Atom(Atom::ListRight, openedList.styleString());
+    generateText(text, fake, marker);
 }
 
 QString Generator::indent( int level, const QString& markedCode )

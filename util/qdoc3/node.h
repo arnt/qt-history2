@@ -184,6 +184,7 @@ public:
     SubType subType() const { return sub; }
     QString title() const { return tle; }
     QString fullTitle() const;
+    QString subTitle() const;
     const NodeList &groupMembers() const { return gr; }
 
 private:

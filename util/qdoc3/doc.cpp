@@ -2349,7 +2349,6 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 	} else {
 	    QTextStream inStream(&inFile);
 	    code = DocParser::untabifyEtc(inStream.read());
-	    inFile.close();
 	}
     }
 

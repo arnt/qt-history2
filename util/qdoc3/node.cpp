@@ -379,7 +379,12 @@ FakeNode::FakeNode( InnerNode *parent, const QString& name, SubType subType )
 
 QString FakeNode::fullTitle() const
 {
-    if (sub == HeaderFile) {
+    if (sub == File) {
+        if (title().isEmpty())
+            return name().mid(name().lastIndexOf('/') + 1) + " Example File";
+        else
+            return title();
+    } else if (sub == HeaderFile) {
 	if (title().isEmpty())
 	    return name();
 	else
@@ -387,6 +392,15 @@ QString FakeNode::fullTitle() const
     } else {
 	return title();
     }
+}
+
+QString FakeNode::subTitle() const
+{
+    if (sub == File) {
+	if (title().isEmpty() && name().contains("/"))
+            return name();
+    }
+    return QString();
 }
 
 EnumNode::EnumNode( InnerNode *parent, const QString& name )

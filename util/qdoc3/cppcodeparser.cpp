@@ -7,6 +7,7 @@
 #include <stdio.h>
 
 #include "codechunk.h"
+#include "config.h"
 #include "cppcodeparser.h"
 #include "tokenizer.h"
 #include "tree.h"
@@ -35,6 +36,9 @@
 #define COMMAND_STARTLINK               Doc::alias("startpage")
 #define COMMAND_TYPEDEF                 Doc::alias("typedef")
 
+QStringList CppCodeParser::exampleFiles;
+QStringList CppCodeParser::exampleDirs;
+
 CppCodeParser::CppCodeParser()
     : varComment("/\\*\\s*([a-zA-Z_0-9]+)\\s*\\*/"), sep("(?:<[^>]+>)?::")
 {
@@ -55,6 +59,9 @@ void CppCodeParser::initializeParser(const Config &config)
     nodeTypeMap.insert(COMMAND_TYPEDEF, Node::Typedef);
     nodeTypeMap.insert(COMMAND_FN, Node::Function);
     nodeTypeMap.insert(COMMAND_PROPERTY, Node::Property);
+
+    exampleFiles = config.getStringList(CONFIG_EXAMPLES);
+    exampleDirs = config.getStringList(CONFIG_EXAMPLEDIRS);
 }
 
 void CppCodeParser::terminateParser()
@@ -222,7 +229,9 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	}
 	return node;
     } else if ( command == COMMAND_EXAMPLE ) {
-	return new FakeNode( tre->root(), arg, FakeNode::Example );
+	FakeNode *fake = new FakeNode( tre->root(), arg, FakeNode::Example );
+        createExampleFileNodes(fake);
+        return fake;
     } else if ( command == COMMAND_FILE ) {
 	return new FakeNode( tre->root(), arg, FakeNode::File );
     } else if ( command == COMMAND_GROUP ) {
@@ -1167,4 +1176,48 @@ void CppCodeParser::instantiateIteratorMacro(const QString &container, const QSt
     tokenizer = &stringTokenizer;
     readToken();
     matchDeclList(tre->root());
+}
+
+void CppCodeParser::createExampleFileNodes(FakeNode *fake)
+{
+    QString examplePath = fake->name();
+
+    // we can assume that this file always exists
+    QString proFileName = examplePath + "/" + examplePath.split("/").last() + ".pro";
+
+    QString userFriendlyFilePath;
+    QString fullPath = Config::findFile(fake->doc().location(), exampleFiles, exampleDirs,
+                                        proFileName, userFriendlyFilePath);
+    if (fullPath.isEmpty()) {
+        fake->doc().location().warning(tr("Cannot find file '%1'").arg(proFileName));
+        return;
+    }
+
+    int sizeOfBoringPartOfName = fullPath.size() - proFileName.size();
+    fullPath.truncate(fullPath.lastIndexOf('/'));
+
+    // should not hardcode the file extensions
+    QStringList exampleFiles = Config::getFilesHere(fullPath, "*.cpp *.h");
+    if (!exampleFiles.isEmpty()) {
+        // move main.cpp and to the end, if it exists
+        QString mainCpp;
+        QStringListMutableIterator i(exampleFiles);
+        i.toBack();
+        while (i.hasPrevious()) {
+            QString fileName = i.previous();
+            if (fileName.endsWith("/main.cpp")) {
+                mainCpp = fileName;
+                i.remove();
+            }
+        }
+        if (!mainCpp.isEmpty())
+            exampleFiles.append(mainCpp);
+
+        // add any qmake Qt resource files
+        exampleFiles += Config::getFilesHere(fullPath, "*.qrc");
+    }
+
+    foreach (QString exampleFile, exampleFiles)
+        FakeNode *fileNode = new FakeNode(fake, exampleFile.mid(sizeOfBoringPartOfName),
+                                          FakeNode::File);
 }

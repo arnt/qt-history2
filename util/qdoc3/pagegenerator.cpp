@@ -33,13 +33,7 @@ QString PageGenerator::fileBase(const Node *node)
     QString base = node->doc().baseName();
     if (base.isEmpty()) {
 	const Node *p = node;
-	forever {
-	    base.prepend(p->name());
-	    if (!p->parent() || p->parent()->name().isEmpty())
-	        break;
-	    base.prepend("-");
-            p = p->parent();
-	}
+        base = p->name();
 
         if (node->type() == Node::Fake) {
 #ifdef QDOC2_COMPAT

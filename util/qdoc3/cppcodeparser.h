@@ -75,6 +75,7 @@ private:
     void parseQiteratorDotH(const Location &location, const QString &filePath);
     void instantiateIteratorMacro(const QString &container, const QString &includeFile,
 				  const QString &macroDef, Tree *tree);
+    void createExampleFileNodes(FakeNode *fake);
 
     QMap<QString, Node::Type> nodeTypeMap;
     Tree *tre;
@@ -89,6 +90,9 @@ private:
     QString associativeIteratorDefinition;
     QMap<QString, QString> linearIteratorClasses;
     QMap<QString, QString> associativeIteratorClasses;
+
+    static QStringList exampleFiles;
+    static QStringList exampleDirs;
 };
 
 #endif

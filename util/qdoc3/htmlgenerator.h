@@ -46,7 +46,7 @@ protected:
 
 private:
     void generateHeader( const QString& title, const Node *node = 0 );
-    void generateTitle( const QString& title );
+    void generateTitle( const QString& title, const QString &subTitle = QString());
     void generateFooter( const Node *node = 0 );
     void generateBrief(const Node *node, CodeMarker *marker);
     void generateIncludes(const InnerNode *inner, CodeMarker *marker);

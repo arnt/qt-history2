@@ -677,8 +677,12 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     QList<Section> sections;
     QList<Section>::const_iterator s;
 
-    generateHeader(fake->fullTitle(), fake);
-    generateTitle(fake->fullTitle());
+    QString htmlTitle = fake->fullTitle();
+    if (!fake->subTitle().isEmpty())
+        htmlTitle += " (" + fake->subTitle() + ")";
+
+    generateHeader(htmlTitle, fake);
+    generateTitle(fake->fullTitle(), fake->subTitle());
 
     generateBrief(fake, marker);
     generateStatus(fake, marker);
@@ -699,9 +703,9 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     if (!fake->doc().isEmpty()) {
 	if (!brief.isEmpty())
 	    out() << "<hr />\n" << "<h2>" << "Detailed Description" << "</h2>\n";
-	generateBody(fake, marker);
-	generateAlsoList(fake, marker);
     }
+    generateBody(fake, marker);
+    generateAlsoList(fake, marker);
 
     if (!fake->groupMembers().isEmpty()) {
         QMap<QString, const Node *> groupMembersMap;
@@ -743,8 +747,14 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node)
     if (node && !node->doc().location().isEmpty())
         out() << "<!-- " << node->doc().location().filePath() << " -->\n";
 
+    QString shortVersion = tre->version();
+    if (shortVersion.count(QChar('.')) == 2)
+        shortVersion.truncate(shortVersion.lastIndexOf(QChar('.')));
+    if (!shortVersion.isEmpty())
+        shortVersion = "Qt " + shortVersion + ": ";
+
     out() << "<head>\n"
-	     "    <title>" << protect( title ) << "</title>\n";
+	     "    <title>" << shortVersion << protect( title ) << "</title>\n";
     if (!style.isEmpty())
 	out() << "    <style>" << style << "</style>\n";
 
@@ -793,9 +803,12 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node)
         out() << "<p>\n" << navigationLinks << "</p>\n";
 }
 
-void HtmlGenerator::generateTitle( const QString& title )
+void HtmlGenerator::generateTitle(const QString& title, const QString &subTitle)
 {
-    out() << "<h1 align=\"center\">" << protect( title ) << "</h1>\n";
+    out() << "<h1 align=\"center\">" << protect( title );
+    if (!subTitle.isEmpty())
+        out() << "<br /><small><small>" << protect(subTitle) << "</small></small>";
+    out() << "</h1>\n";
 }
 
 void HtmlGenerator::generateFooter( const Node *node )
