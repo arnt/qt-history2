@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#77 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -443,16 +443,16 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     int cs;
     switch ( charSet() ) {
 	case AnyCharSet:
-	case Latin1:
+	case ISO_8859_1:
 	    cs = ANSI_CHARSET;
 	    break;
-	case Latin2:
+	case ISO_8859_2:
 	    cs = EASTEUROPE_CHARSET;
 	    break;
-	case Latin5:
+	case ISO_8859_9:
 	    cs = TURKISH_CHARSET;
 	    break;
-	case Latin7:
+	case ISO_8859_7:
 	    cs = GREEK_CHARSET;
 	    break;
 	default:

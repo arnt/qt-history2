@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#376 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#377 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -412,26 +412,26 @@ static void qt_x11_process_intern_atoms()
  *****************************************************************************/
 
 /* locale names mostly copied from XFree86 */
-static const char * latin2locales[] = {
+static const char * iso8859_2locales[] = {
     "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
     "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
     "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
     "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
 
-static const char * latin5locales[] = {
+static const char * iso8859_5locales[] = {
     "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
     "russian", "sp", "sp_YU", 0 };
 
-static const char * latin6locales[] = {
+static const char * iso8859_6locales[] = {
     "ar_AA", "ar_SA", "arabic", 0 };
 
-static const char * latin7locales[] = {
+static const char * iso8859_7locales[] = {
     "el", "el_GR", "greek", 0 };
 
-static const char * latin8locales[] = {
+static const char * iso8859_8locales[] = {
     "hebrew", "iw", "iw_IL", 0 };
 
-static const char * latin9locales[] = {
+static const char * iso8859_9locales[] = {
     "tr", "tr_TR", "turkish", 0 };
 
 static bool try_locale( const char * locale[], const char * lang,
@@ -453,11 +453,11 @@ static struct {
     const char * name;
     QFont::CharSet cs;
 } encoding_names[] = {
-    { "ISO8859-1", QFont::Latin1 },
-    { "ISO8859-2", QFont::Latin2 },
-    { "ISO8859-3", QFont::Latin3 },
-    { "ISO8859-4", QFont::Latin4 },
-    { "ISO8859-5", QFont::Latin5 },
+    { "ISO8859-1", QFont::ISO_8859_1 },
+    { "ISO8859-2", QFont::ISO_8859_2 },
+    { "ISO8859-3", QFont::ISO_8859_3 },
+    { "ISO8859-4", QFont::ISO_8859_4 },
+    { "ISO8859-5", QFont::ISO_8859_5 },
     { "ISO8859-6", QFont::ISO_8859_6 },
     { "ISO8859-7", QFont::ISO_8859_7 },
     { "ISO8859-8", QFont::ISO_8859_8 },
@@ -468,7 +468,7 @@ static struct {
     { "TACTIS", QFont::Set_Th_TH },
     { "eucCN", QFont::Set_Zh },
     { "eucTW", QFont::Set_Zh_TW },
-    { 0, /* anything */ QFont::Latin1 }
+    { 0, /* anything */ QFont::ISO_8859_1 }
 };
 
 
@@ -496,12 +496,12 @@ static void set_local_font()
     }
 
     if ( lang &&
-	 !try_locale( latin2locales, lang, QFont::Latin2 ) &&
-	 !try_locale( latin5locales, lang, QFont::Latin5 ) &&
-	 !try_locale( latin6locales, lang, QFont::Latin5 ) &&
-	 !try_locale( latin7locales, lang, QFont::ISO_8859_7 ) &&
-	 !try_locale( latin8locales, lang, QFont::ISO_8859_8 ) &&
-	 !try_locale( latin9locales, lang, QFont::ISO_8859_9 ) )
+	 !try_locale( iso8859_2locales, lang, QFont::ISO_8859_2 ) &&
+	 !try_locale( iso8859_5locales, lang, QFont::ISO_8859_5 ) &&
+	 !try_locale( iso8859_6locales, lang, QFont::ISO_8859_6 ) &&
+	 !try_locale( iso8859_7locales, lang, QFont::ISO_8859_7 ) &&
+	 !try_locale( iso8859_8locales, lang, QFont::ISO_8859_8 ) &&
+	 !try_locale( iso8859_9locales, lang, QFont::ISO_8859_9 ) )
 	QFont::setDefaultFont( QFont( "Helvetica", 12,
 				      QFont::Normal, FALSE, QFont::Latin1 ) );
     if ( lang )				// Avoid purify complaint

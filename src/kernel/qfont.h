@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#55 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#56 $
 **
 ** Definition of QFont class
 **
@@ -46,11 +46,11 @@ public:
 		     Decorative = OldEnglish};
     enum Weight	   { Light = 25, Normal = 50, DemiBold = 63,
 		     Bold  = 75, Black	= 87 };
-    enum CharSet   { Latin1, ISO_8859_1 = Latin1, AnyCharSet,
-		     Latin2, ISO_8859_2 = Latin2,
-		     Latin3, ISO_8859_3 = Latin3,
-		     Latin4, ISO_8859_4 = Latin4,
-		     Latin5, ISO_8859_5 = Latin5,
+    enum CharSet   { ISO_8859_1, Latin1 = ISO_8859_1, AnyCharSet,
+		     ISO_8859_2, Latin2 = ISO_8859_2,
+		     ISO_8859_3, Latin3 = ISO_8859_3,
+		     ISO_8859_4, Latin4 = ISO_8859_4,
+		     ISO_8859_5,
 		     ISO_8859_6,
 		     ISO_8859_7,
 		     ISO_8859_8,

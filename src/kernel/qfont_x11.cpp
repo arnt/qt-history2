@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#128 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -516,15 +516,15 @@ void QFont::initFontInfo() const
 
     if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
-	    f->s.charSet = QFont::Latin1;
+	    f->s.charSet = QFont::ISO_8859_1;
 	else if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
-	    f->s.charSet = QFont::Latin2;
+	    f->s.charSet = QFont::ISO_8859_2;
 	else if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
-	    f->s.charSet = QFont::Latin3;
+	    f->s.charSet = QFont::ISO_8859_3;
 	else if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
-	    f->s.charSet = QFont::Latin4;
+	    f->s.charSet = QFont::ISO_8859_4;
 	else if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
-	    f->s.charSet = QFont::Latin5;
+	    f->s.charSet = QFont::ISO_8859_5;
 	else if ( strcmp( tokens[CharsetEncoding], "6" ) == 0 )
 	    f->s.charSet = QFont::ISO_8859_6;
 	else if ( strcmp( tokens[CharsetEncoding], "7" ) == 0 )
@@ -724,31 +724,31 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
     } else if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
 	// need to mask away non-8859 charsets here
 	switch( charSet() ) {
-	case Latin1:
+	case ISO_8859_1:
 	    if ( strcmp( tokens[CharsetEncoding], "1" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin2:
+	case ISO_8859_2:
 	    if ( strcmp( tokens[CharsetEncoding], "2" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin3:
+	case ISO_8859_3:
 	    if ( strcmp( tokens[CharsetEncoding], "3" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin4:
+	case ISO_8859_4:
 	    if ( strcmp( tokens[CharsetEncoding], "4" ) == 0 )
 		score |= CharSetScore;
 	    else
 		exactMatch = FALSE;
 	    break;
-	case Latin5:
+	case ISO_8859_5:
 	    if ( strcmp( tokens[CharsetEncoding], "5" ) == 0 )
 		score |= CharSetScore;
 	    else
@@ -1424,7 +1424,7 @@ int QFontMetrics::lineSpacing() const
 }
 
 /*! \overload int QFontMetrics::width( char c ) const
-  
+
   Provided to aid porting from Qt 1.x.
 */
 

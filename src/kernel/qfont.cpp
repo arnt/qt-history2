@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#109 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -681,15 +681,15 @@ QFont::CharSet QFont::charSet() const
   \endcode
 
   In Qt 1.40, the following character set encodings are available: <ul>
-  <li> \c QFont::Latin1 - ISO 8859-1, common in much of Europe
-  <li> \c QFont::Latin2 - ISO 8859-2, less common European character set
-  <li> \c QFont::Latin3 - ISO 8859-3, less common European character set
-  <li> \c QFont::Latin4 - ISO 8859-4, less common European character set
-  <li> \c QFont::Latin5 - ISO 8859-5, Cyrillic
-  <li> \c QFont::Latin6 - ISO 8859-6, Arabic
-  <li> \c QFont::Latin7 - ISO 8859-7, Greek
-  <li> \c QFont::Latin8 - ISO 8859-8, Hebrew
-  <li> \c QFont::Latin9 - ISO 8859-9, less common European character set
+  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
+  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
+  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
+  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
+  <li> \c QFont::ISO_8859_5, Cyrillic
+  <li> \c QFont::ISO_8859_6, Arabic
+  <li> \c QFont::ISO_8859_7, Greek
+  <li> \c QFont::ISO_8859_8, Hebrew
+  <li> \c QFont::ISO_8859_9, Turkish
   <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
        <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
   <li> \c QFont::AnyCharSet - whatever is handiest.
