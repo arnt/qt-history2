@@ -120,7 +120,8 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 
 QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 : QSqlResult( db ),
-  currentSize( 0 )
+  currentSize( 0 ),
+  binary(FALSE)
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
@@ -141,6 +142,7 @@ void QPSQLResult::cleanup()
         setAt( -1 );
     }
     currentSize = 0;
+    binary = FALSE;
     setActive( FALSE );
 }
 
@@ -199,7 +201,7 @@ QTime qTimeFromDouble( double tm )
 QVariant QPSQLResult::data( int i )
 {
     QSqlField info = qMakeField( d, i );
-    if ( PQbinaryTuples( d->result ) ) {
+    if ( binary ) {
 	char* rawdata = PQgetvalue( d->result, at(), i );
 	int rawsize = PQfsize( d->result, i );
 	switch ( info.type() ) {
@@ -346,6 +348,7 @@ bool QPSQLResult::reset ( const QString& query )
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	currentSize = PQntuples( d->result );
+	binary = PQbinaryTuples( d->result );	
 	setActive( TRUE );
 	return TRUE;
     }
@@ -373,7 +376,7 @@ int QPSQLResult::size() const
 
 int QPSQLResult::affectedRows() const
 {
-    return -1; // ###
+    return QString( PQcmdTuples( d->result ) ).toInt();
 }
 
 ///////////////////////////////////////////////////////////////////

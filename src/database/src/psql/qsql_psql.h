@@ -27,6 +27,7 @@ protected:
 private:
     int			currentSize;
     QPSQLPrivate* 	d;
+    bool                binary;
 };
 
 class QPSQLDriver : public QSqlDriver
