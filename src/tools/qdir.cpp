@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#85 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#86 $
 **
 ** Implementation of QDir class
 **
@@ -963,7 +963,7 @@ bool QDir::isRoot() const
 {
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
     return dPath == "/" || dPath == "//" ||
-	(isalpha(dPath[0]) && dPath.mid(1,dPath.length()) == ":/");
+	(dPath[0].isLetter() && dPath.mid(1,dPath.length()) == ":/");
 #else
     return dPath == QString::fromLatin1("/");
 #endif
@@ -1288,7 +1288,7 @@ QString QDir::homeDirPath()
 QString QDir::rootDirPath()
 {
 #if defined(_OS_FATFS_)
-    QString d( "c:/" );
+    QString d = QString::fromLatin1( "c:/" );
 #elif defined(_OS_OS2EMX_)
     char dir[4];
     _abspath( dir, "/", _MAX_PATH );
@@ -1395,7 +1395,7 @@ bool QDir::isRelativePath( const QString &path )
 	return TRUE;
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
     int i = 0;
-    if ( isalpha(path[0]) && path[1] == ':' )		// drive, e.g. a:
+    if ( path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
 	i = 2;
     return path[i] != '/' && path[i] != '\\';
 #elif defined(UNIX)
@@ -1414,7 +1414,7 @@ static int cmp_si( const void *n1, const void *n2 )
 {
     if ( !n1 || !n2 )
         return 0;
- 
+
     QDirSortItem* f1 = (QDirSortItem*)n1;
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
@@ -1528,7 +1528,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
     if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
 	p += '/';
-    p += "*.*";
+    p += QString::fromLatin1("*.*");
 
     if ( qt_winunicode ) {
 	ff = FindFirstFile((TCHAR*)qt_winTchar(p,TRUE),&finfo);
@@ -1717,7 +1717,8 @@ const QFileInfoList * QDir::drives()
 	qstrcpy( driveName, "a:/" );
 	while( driveBits ) {
 	    if ( driveBits & 1 )
-		knownMemoryLeak->append( new QFileInfo( driveName ) );
+		knownMemoryLeak->append( 
+		      new QFileInfo( QString::fromLatin1(driveName) ) );
 	    driveName[0]++;
 	    driveBits = driveBits >> 1;
 	}

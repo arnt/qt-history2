@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#70 $
 **
 ** Global functions
 **
@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qglobal.h"
-#include "qdict.h"
+#include "qasciidict.h"
 #include "qstring.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -410,9 +410,9 @@ bool qt_check_pointer( bool c, const char *n, int l )
 
 static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
 {
-    static QDict<int> *obsoleteDict = 0;
+    static QAsciiDict<int> *obsoleteDict = 0;
     if ( !obsoleteDict ) {			// first time func is called
-	obsoleteDict = new QDict<int>;
+	obsoleteDict = new QAsciiDict<int>;
 #if defined(DEBUG)
 	qDebug(
       "You are using obsolete functions in the Qt library. Call the function\n"
