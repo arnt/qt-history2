@@ -1439,6 +1439,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_TabBarTabVSpace:
+	ret = 4; 
+	break;
     case PM_CheckListButtonSize: {
 	ThemeMetric tm = kThemeMetricCheckBoxWidth;
 	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
