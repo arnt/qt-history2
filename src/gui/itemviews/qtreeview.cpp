@@ -581,6 +581,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
     const QVector<QTreeViewItem> viewItems = d->viewItems;
 
     int i = d->itemAt(v); // first item
+    if (i < 0) // couldn't find the first item
+        return;
     int y = d->topItemDelta(v, d->height(i));
 
     while (y < b && i < c) {
@@ -1206,6 +1208,7 @@ int QTreeView::sizeHintForColumn(int column) const
     QSize size;
 
     while (y < h && i < c) {
+        Q_ASSERT(i != -1);
         index = viewItems.at(i).index;
         index = model()->sibling(index.row(), column, index);
         size = delegate->sizeHint(option, index);
@@ -1383,6 +1386,7 @@ int QTreeViewPrivate::coordinate(int item) const
     Q_Q(const QTreeView);
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue); // first item (may start above the page)
+    Q_ASSERT(viewItemIndex != -1);
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
     int y = topItemDelta(scrollbarValue, viewItemHeight); // the part of the item above the page
@@ -1394,7 +1398,9 @@ int QTreeViewPrivate::coordinate(int item) const
             ++viewItemIndex;
         }
         // item is below the viewport - estimated y
-        return y + (itemHeight * (item - itemAt(scrollbarValue)));
+        int i = itemAt(scrollbarValue);
+        Q_ASSERT(i != -1);
+        return y + (itemHeight * (item - i));
     }
     // item is above the viewport - estimated y
     return y - (itemHeight * (viewItemIndex - item));
@@ -1405,7 +1411,7 @@ int QTreeViewPrivate::item(int coordinate) const
     Q_Q(const QTreeView);
     int scrollbarValue = q->verticalScrollBar()->value();
     int viewItemIndex = itemAt(scrollbarValue);
-    if (viewItemIndex >= viewItems.count())
+    if (viewItemIndex < 0) // couldn't find first visible item
         return -1;
     int viewItemHeight = height(viewItemIndex);
     int viewportHeight = viewport->height();
@@ -1447,14 +1453,14 @@ int QTreeViewPrivate::viewIndex(const QModelIndex &index) const
 
 QModelIndex QTreeViewPrivate::modelIndex(int i) const
 {
-    if (i < 0 || i >= viewItems.count())
-        return (QModelIndex)root;
-    return viewItems.at(i).index;
+    return ((i < 0 || i >= viewItems.count())
+            ? (QModelIndex)root : viewItems.at(i).index);
 }
 
 int QTreeViewPrivate::itemAt(int value) const
 {
-    return value / verticalStepsPerItem;
+    int i = value / verticalStepsPerItem;
+    return (i < 0 || i >= viewItems.count()) ? -1 : i;
 }
 
 int QTreeViewPrivate::topItemDelta(int value, int iheight) const
@@ -1517,11 +1523,12 @@ void QTreeViewPrivate::updateVerticalScrollbar()
 
     // set page step size
     int verticalScrollBarValue = q->verticalScrollBar()->value();
-    int topItemInViewport = itemAt(verticalScrollBarValue);
     int itemsInViewport = 0;
     if (uniformRowHeights) {
         itemsInViewport = viewHeight / itemHeight;
     } else {
+        int topItemInViewport = itemAt(verticalScrollBarValue);
+        //Q_ASSERT(topItemInViewport =! -1); FIXME: asserts when itemCount == 1
         int h = height(topItemInViewport);
         int y = topItemDelta(verticalScrollBarValue, h);
         int i = topItemInViewport;
