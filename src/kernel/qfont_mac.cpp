@@ -71,6 +71,9 @@ public:
 
 inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi)
 {
+    if(d->request.dirty)
+	((QFontPrivate *)d)->load();
+
     QMacFontInfo *fi = d->fin->internal_fi;
     if(!fi) {
 	d->fin->internal_fi = fi = new QMacFontInfo();

@@ -1627,13 +1627,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup() &&
-		   (tlw->isModal() || !tlw->isDialog())) 
+		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog())) 
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
 		else
 		    widget->setFocus();
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+		QMenuBar::macUpdateMenuBar();
+#endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
 	    if(active_window && widget == active_window)
