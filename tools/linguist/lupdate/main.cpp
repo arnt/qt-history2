@@ -87,13 +87,15 @@ int main( int argc, char **argv )
     int numFiles = 0;
     bool standardSyntax = TRUE;
     bool metTsFlag = FALSE;
+    
+    int i;
 
-    for ( int i = 1; i < argc; i++ ) {
+    for ( i = 1; i < argc; i++ ) {
 	if ( qstrcmp(argv[i], "-ts") == 0 )
 	    standardSyntax = FALSE;
     }
 
-    for ( int i = 1; i < argc; i++ ) {
+    for ( i = 1; i < argc; i++ ) {
 	if ( qstrcmp(argv[i], "-help") == 0 ) {
 	    printUsage();
 	    return 0;
