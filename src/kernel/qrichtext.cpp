@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#359 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#360 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -2829,8 +2829,16 @@ void QTextString::clear()
 
 void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 {
-    if ( useCollection && data[ index ].format() )
-	data[ index ].format()->removeRef();
+    if ( useCollection ) {
+	QTextFormat* cur = data[ index ].format();
+	if ( cur ) {
+	    if ( cur == f )
+		return;
+	    if ( cur->key() == f->key() )
+		return;
+	    data[ index ].format()->removeRef();
+	}
+    }
     data[ index ].setFormat( f );
 }
 
