@@ -80,6 +80,12 @@ public:
 #ifndef QT_NO_REGEXP
     QStringList grep( const QRegExp &expr ) const;
 #endif
+
+    QStringList& gres( const QString &before, const QString &after,
+		       bool cs = TRUE );
+#ifndef QT_NO_REGEXP
+    QStringList& gres( const QRegExp &expr, const QString &after );
+#endif
 };
 
 #ifndef QT_NO_DATASTREAM

@@ -298,6 +298,15 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 
     If \a cs is TRUE, the grep is done case-sensitively; otherwise
     case is ignored.
+
+    \code
+    QStringList list;
+    list << "Bill Gates" << "Joe Blow" << "Bill Clinton";
+    list = list.grep( "Bill" );
+    // list == ["Bill Gates", "Bill Clinton"]
+    \endcode
+
+    \sa QString::find()
 */
 
 QStringList QStringList::grep( const QString &str, bool cs ) const
@@ -315,18 +324,91 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
     \overload
 
     Returns a list of all the strings that match the regular
-    expression \a expr.
+    expression \a rx.
+
+    \sa QString::find()
 */
 
-QStringList QStringList::grep( const QRegExp &expr ) const
+QStringList QStringList::grep( const QRegExp &rx ) const
 {
     QStringList res;
     for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).contains(expr) )
+	if ( (*it).find(rx) != -1 )
 	    res << *it;
 
     return res;
 }
+#endif
+
+/*!
+    Replaces every occurrences of the string \a before in the strings
+    that constitute the string-list with the string \a after. Returns
+    a reference to the string-list.
+
+    If \a cs is TRUE, the search is case sensitive; otherwise the
+    search is case insensitive.
+
+    Example:
+    \code
+    QStringList list;
+    list << "alpha" << "beta" << "gamma" << "epsilon";
+    list.gres( "a", "o" );
+    // list == ["olpho", "beto", "gommo", "epsilon"]
+    \endcode
+
+    \sa QString::replace()
+*/
+QStringList& QStringList::gres( const QString &before, const QString &after,
+				bool cs )
+{
+    QStringList::Iterator it = begin();
+    while ( it != end() ) {
+	(*it).replace( before, after, cs );
+	++it;
+    }
+    return *this;
+}
+
+#ifndef QT_NO_REGEXP
+/*!
+    \overload
+
+    Replaces every occurrence of the regexp \a rx in the string
+    with \a after. Returns a reference to the string-list.
+
+    Example:
+    \code
+    QStringList list;
+    list << "alpha" << "beta" << "gamma" << "epsilon";
+    list.gres( QRegExp("^a"), "o" );
+    // list == ["olpha", "beta", "gamma", "epsilon"]
+    \endcode
+
+    For regexps containing \link qregexp.html#capturing-text
+    capturing parentheses \endlink, occurrences of <b>\\1</b>,
+    <b>\\2</b>, ..., in \a after are replaced with \a{rx}.cap(1),
+    cap(2), ...
+
+    Example:
+    \code
+    QStringList list;
+    list << "Bill Clinton" << "Gates, Bill";
+    list.gres( QRegExp("^(.*), (.*)$"), "\\2 \\1" );
+    // list == ["Bill Clinton", "Bill Gates"]
+    \endcode
+
+    \sa QString::replace()
+*/
+QStringList& QStringList::gres( const QRegExp &rx, const QString &after )
+{
+    QStringList::Iterator it = begin();
+    while ( it != end() ) {
+	(*it).replace( rx, after );
+	++it;
+    }
+    return *this;
+}
+
 #endif
 
 /*!
