@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#15 $
 **
 ** Implementation of QPushButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940221
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#15 $";
 #endif
 
 

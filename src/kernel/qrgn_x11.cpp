@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#7 $
 **
 ** Implementation of QRegion class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940729
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#7 $";
 #endif
 
 

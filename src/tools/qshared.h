@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qshared.h#1 $
+** $Id: //depot/qt/main/src/tools/qshared.h#2 $
 **
 ** Definition of QShared struct
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech as. All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS. All rights reserved.
 **
 *****************************************************************************/
 

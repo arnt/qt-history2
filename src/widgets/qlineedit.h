@@ -1,12 +1,12 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#6 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#7 $
 **
 ** Definition of QLineEdit widget class
 **
 ** Author  : Eirik Eng
 ** Created : 941011
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ***********************************************************************/
 

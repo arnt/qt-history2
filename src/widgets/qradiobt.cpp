@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#10 $
 **
 ** Implementation of QRadioButton class
 **
 ** Author  : Haavard Nord
 ** Created : 940222
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobt.cpp#10 $";
 #endif
 
 

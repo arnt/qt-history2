@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#4 $
 **
 ** Implementation of QSignal class
 **
 ** Author  : Haavard Nord
 ** Created : 941201
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsignal.cpp#4 $";
 #endif
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#7 $
 **
 ** Implementation of QTextStream class
 **
 ** Author  : Haavard Nord
 ** Created : 940922
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#7 $";
 #endif
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.h#2 $
+** $Id: //depot/qt/main/src/tools/qcollection.h#3 $
 **
 ** Definition of base class for all collection classes
 **
 ** Author  : Haavard Nord
 ** Created : 920629
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

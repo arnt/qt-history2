@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#8 $
 **
 ** Implementation of date and time classes
 **
 ** Author  : Haavard Nord
 ** Created : 940124
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#8 $";
 #endif
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#7 $
 **
 ** Implementation of QBitArray class
 **
 ** Author  : Haavard Nord
 ** Created : 940118
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The size of a bit array is stored in the beginning of the actual array,
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#7 $";
 #endif
 
 

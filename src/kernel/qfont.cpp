@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#10 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
 ** Author  : Eirik Eng
 ** Created : 941207
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#10 $";
 #endif
 
 

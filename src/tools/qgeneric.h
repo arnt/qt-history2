@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#2 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#3 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

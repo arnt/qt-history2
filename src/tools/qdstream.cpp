@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#7 $
 **
 ** Implementation of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#7 $";
 #endif
 
 

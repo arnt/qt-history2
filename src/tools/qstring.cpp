@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#12 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -7,7 +7,7 @@
 ** Author  : Haavard Nord
 ** Created : 920722
 **
-** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#12 $";
 #endif
 
 

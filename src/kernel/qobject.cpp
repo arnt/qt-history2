@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#18 $
 **
 ** Implementation of QObject class
 **
 ** Author  : Haavard Nord
 ** Created : 930418
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#18 $";
 #endif
 
 

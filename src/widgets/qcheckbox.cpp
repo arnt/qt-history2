@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#11 $
 **
 ** Implementation of QCheckBox class
 **
 ** Author  : Haavard Nord
 ** Created : 940222
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#11 $";
 #endif
 
 

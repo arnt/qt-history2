@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#12 $
 **
 ** Implementation of QPaintDevice class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940721
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#12 $";
 #endif
 
 

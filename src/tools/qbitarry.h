@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#4 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#5 $
 **
 ** Definition of QBitArray class
 **
 ** Author  : Haavard Nord
 ** Created : 940118
 **
-** Copyright (C) 1994 by Troll Tech as.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 

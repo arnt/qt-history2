@@ -1,19 +1,19 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#2 $
 **
 ** Implementation of base class for all collection classes
 **
 ** Author  : Haavard Nord
 ** Created : 920820
 **
-** Copyright (C) 1992,1993 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "qcollect.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qcollection.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qcollection.cpp#2 $";
 #endif
 
 

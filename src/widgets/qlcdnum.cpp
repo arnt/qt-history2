@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#10 $
 **
 ** Implementation of QLCDNumber class
 **
 ** Author  : Eirik Eng
 ** Created : 940518
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#10 $";
 #endif
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#6 $
 **
 ** Implementation of QPicture class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940729
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture_x11.cpp#6 $";
 #endif
 
 

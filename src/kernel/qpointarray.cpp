@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#9 $
 **
 ** Implementation of QPointArray class
 **
 ** Author  : Haavard Nord
 ** Created : 940213
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpointarray.cpp#9 $";
 #endif
 
 

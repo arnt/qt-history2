@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#4 $
 **
 ** Implementation of QTimer class
 **
 ** Author  : Haavard Nord
 ** Created : 931111
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#4 $";
 #endif
 
 

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#6 $
 **
 ** Implementation of QRect class
 **
 ** Author  : Haavard Nord
 ** Created : 931028
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#6 $";
 #endif
 
 
