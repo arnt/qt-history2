@@ -178,10 +178,9 @@ devices, processes, files etc. as well as manipulating files and directories.
 
 \title Basic Widgets
 
-These basic controls (widgets) are designed for direct use.  There are
-also some \l{abstract widget classes,}
-designed for subclassing, and some \link advanced.html more complex
-widgets. \endlink
+These basic widgets (controls) are designed for direct use. 
+There are also some \l{Abstract Widget Classes} that are designed for
+subclassing, and some more complex \l{Advanced Widgets}.
 
 */
 
@@ -189,7 +188,7 @@ widgets. \endlink
 
 \title Advanced Widgets
 
-These classes provide more complex user interface controls (widgets).
+These classes provide more complex user interface widgets (controls).
 
 */
 
