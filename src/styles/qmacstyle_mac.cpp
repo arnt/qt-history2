@@ -2252,7 +2252,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    if(mi->pixmap())
 		h = QMAX(h, mi->pixmap()->height() + 4);
 	    else
-		h = QMAX(h, popup->fontMetrics().height() + 8);
+		h = QMAX(h, popup->fontMetrics().height() + 2);
 
 	    if(mi->iconSet() != 0)
 		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
