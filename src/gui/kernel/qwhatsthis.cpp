@@ -488,7 +488,7 @@ class QWhatsThisButton : public QToolButton
 {
     Q_OBJECT
 public:
-    QWhatsThisButton(QWidget *p) : QToolButton(p, "automatic what's this? button") {
+    QWhatsThisButton(QWidget *p) : QToolButton(p) {
         setCheckable(true);
         QPixmap pix( const_cast<const char**>(button_image) );
         setIcon( pix );
