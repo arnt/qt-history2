@@ -8,11 +8,13 @@ MANIFEST	This file
 Directories:
 ------------
 bin		Place for Qt executables (moc)
-examples	Qt example programs 
+configs		Platform/compiler configuration files.
+doc		Class documentation outside the source code.
+examples	Qt example programs
+extensions	Qt extensions (OpenGL, Browser Plugin etc.)
 html		Qt documentation in HTML format
 include		Qt include files
 lib		Place for the Qt library
-makefiles	Qt makefile templates
 man		Qt documentation in manpage format
 src		Qt source code
 tutorial	Source code for the Qt tutorial
