@@ -114,7 +114,10 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
 
     QSize sh = q->sizeHint().expandedTo(QSize(400, 10));
     q->setType(type);
-    q->resize(sh.width(), vbox->heightForWidth(sh.width()));
+    int hfw = vbox->totalHeightForWidth(sh.width());
+    if (hfw < 0)
+        hfw = sh.height();
+    q->resize(sh.width(), hfw);
 }
 
 
