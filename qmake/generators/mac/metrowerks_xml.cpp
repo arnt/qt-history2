@@ -43,9 +43,7 @@
 #include <stdlib.h>
 #include <time.h>
 #ifdef Q_OS_MAC
-#include "Files.h"
-#include "Resources.h"
-#include "Script.h"
+#include <Carbon/Carbon.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
@@ -298,7 +296,6 @@ MetrowerksMakefileGenerator::init()
 {
     if(init_flag)
 	return;
-    QStringList::Iterator it;
     init_flag = TRUE;
 
     if ( project->isEmpty("QMAKE_XML_TEMPLATE") ) 

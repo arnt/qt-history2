@@ -204,7 +204,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     // blasted incldues
     QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
-    for(QStringList::Iterator it = qeui.begin(); it != qeui.end(); ++it)
+    QStringList::Iterator it;
+    for( it = qeui.begin(); it != qeui.end(); ++it) 
 	t << "include " << (*it) << endl;
 
     /* rules */
@@ -282,7 +283,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(project->isActiveConfig("depend_prl") && !project->isEmpty("QMAKE_PRL_INTERNAL_FILES")) {
 	QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	QStringList::Iterator it;
+	for(it = l.begin(); it != l.end(); ++it) {
 	    QMakeProject proj;
 	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_BUILD_DIR")) {
 		QString dir;
@@ -599,7 +601,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(!project->isEmpty("SUBLIBS_DIR"))
 	    libdir = project->first("SUBLIBS_DIR");
 	QStringList &l = project->variables()["SUBLIBS"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
+	for(it = l.begin(); it != l.end(); ++it)
 	    t << libdir << "lib" << (*it) << ".a" << ":\n\t"
 	      << var(QString("MAKELIB") + (*it)) << endl << endl;
     }
@@ -633,9 +635,9 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     // blasted user defined targets
     QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
-    for(QStringList::Iterator it2 = qut.begin(); it2 != qut.end(); ++it2) {
-	QString targ = var((*it2) + ".target"),
-		 cmd = var((*it2) + ".commands"), deps;
+    for(it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"), 
+		 cmd = var((*it) + ".commands"), deps;
 	if(targ.isEmpty())
 	    targ = (*it2);
 	QStringList &depends = project->variables()[(*it2) + ".depends"];

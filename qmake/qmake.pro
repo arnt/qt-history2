@@ -41,11 +41,7 @@ win32 {
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp 
    *-msvc:LIBS += ole32.lib
 }
-macx-* {
-     INCLUDEPATH += /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/
-     LIBS += -framework Carbon
-}
-
+macx-*: LIBS += -framework Carbon
 
 #installation
 target.path=$$QT_INSTALL_BINPATH
