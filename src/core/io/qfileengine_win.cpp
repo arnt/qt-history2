@@ -57,11 +57,9 @@ static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
 typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
 static PtrFreeSid ptrFreeSid = 0;
 static TRUSTEE_W currentUserTrusteeW;
-#endif
 
 static void resolveLibs()
 {
-#if !defined(QT_NO_COMPONENT)
     static bool triedResolve = false;
     if(!triedResolve) {
         // need to resolve the security info functions
@@ -132,23 +130,8 @@ static void resolveLibs()
             }
         }
     }
+}
 #endif // QT_NO_COMPONENT
-}
-
-static QString currentDirOfDrive(char ch)
-{
-    QString ret;
-    QT_WA({
-        TCHAR currentName[PATH_MAX];
-        if(_wgetdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0)
-            ret = QString::fromUtf16((ushort*)currentName);
-    } , {
-        char currentName[PATH_MAX];
-        if(_getdcwd(toupper((uchar) ch) - 'A' + 1, currentName, PATH_MAX) >= 0)
-            ret = QString::fromLocal8Bit(currentName);
-    });
-    return QFSFileEnginePrivate::fixToQtSlashes(ret);
-}
 
 QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
 {
@@ -232,8 +215,8 @@ QFSFileEngine::rename(const QString &newName)
     QT_WA({
         return ::MoveFileW((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) != 0;
     } , {
-        return ::MoveFileA(QFSFileEnginePrivate::win95Name(d->file),
-			QFSFileEnginePrivate::win95Name(newName)) != 0;
+        return ::MoveFileA(QFSFileEnginePrivate::win95Name(d->file), 
+                           QFSFileEnginePrivate::win95Name(newName)) != 0;
     });
 }
 
