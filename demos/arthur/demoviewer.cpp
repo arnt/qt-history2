@@ -33,7 +33,7 @@ public:
     }
 };
 
-class ItemModel : public QAbstractItemModel
+class ItemModel : public QAbstractListModel
 {
 public:
     QVariant data(const QModelIndex &index, int role) const {
@@ -47,24 +47,16 @@ public:
         return QVariant::Invalid;
     }
 
-    int columnCount() const {
-        return 1;
-    }
-
     int rowCount() const {
-        return list.size();
+        return list.count();
     }
 
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
         if (role == DisplayRole) {
-	    list[index.row()] = value.toString();
+            list[index.row()] = value.toString();
             emit dataChanged(index, index);
             return true;
         }
-        return false;
-    }
-
-    bool isEditable(const QModelIndex &) const {
         return false;
     }
 
@@ -180,9 +172,9 @@ DemoViewer::DemoViewer(QWidget *parent)
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget)
 {
     QAbstractItemModel *model = listView->model();
-    model->insertRows(model->rowCount(), QModelIndex(), 1);
-
-    model->setData(model->index(model->rowCount()-1, 0), QAbstractItemModel::DisplayRole, name);
+    model->insertRows(model->rowCount(QModelIndex()), QModelIndex(), 1);
+    model->setData(model->index(model->rowCount(QModelIndex()) - 1, 0),
+                   QAbstractItemModel::DisplayRole, name);
 
     widget->setParent(widgets);
     widget->setAttributes(attributes);
