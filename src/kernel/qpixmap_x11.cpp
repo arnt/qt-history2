@@ -1636,7 +1636,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     return pm;
 }
 
-
 /*!
   Returns a copy of the pixmap that is transformed using \a matrix. The
   original pixmap is not changed.
@@ -1667,22 +1666,26 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
-
-    if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
-	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
+    QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
+    
+    if ( matrix.m12() == 0.0F && matrix.m21() == 0.0F ) {
+	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
 	    return *this;			// identity matrix
-	h = qRound( mat.m22()*hs );
-	w = qRound( mat.m11()*ws );
+	h = qRound( matrix.m22()*hs );
+	w = qRound( matrix.m11()*ws );
 	h = QABS( h );
 	w = QABS( w );
     } else {					// rotation or shearing
-	QPointArray a( QRect(0,0,ws,hs) );
+	QPointArray a( QRect(0,0,ws+1,hs+1) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
-	w = r.width();
-	h = r.height();
+	w = r.width()-1;
+	h = r.height()-1;
     }
+
+    mat = trueMatrix( mat, ws, hs ); // true matrix
+
+    
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
 

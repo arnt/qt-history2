@@ -1098,15 +1098,17 @@ QPixmap QPixmap::grabWidget( QWidget * widget, int x, int y, int w, int h )
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {
-    const double dt = (double)0.0001;
+    const double dt = (double)0.;
     double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    double xx = (double)w - 1;
-    double yy = (double)h - 1;
+    double xx = (double)w;
+    double yy = (double)h;
 
-    matrix.map( dt, dt, &x1, &y1 );
-    matrix.map( xx, dt, &x2, &y2 );
-    matrix.map( xx, yy, &x3, &y3 );
-    matrix.map( dt, yy, &x4, &y4 );
+    QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
+    
+    mat.map( dt, dt, &x1, &y1 );
+    mat.map( xx, dt, &x2, &y2 );
+    mat.map( xx, yy, &x3, &y3 );
+    mat.map( dt, yy, &x4, &y4 );
 
     double ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
@@ -1116,9 +1118,20 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
+    
+    double ymax = y1;				// lowest y value
+    if ( y2 > ymax ) ymax = y2;
+    if ( y3 > ymax ) ymax = y3;
+    if ( y4 > ymax ) ymax = y4;
+    double xmax = x1;				// lowest x value
+    if ( x2 > xmax ) xmax = x2;
+    if ( x3 > xmax ) xmax = x3;
+    if ( x4 > xmax ) xmax = x4;
+    
+    xmin -= xmin/(xmax-xmin);
+    ymin -= ymin/(ymax-ymin);
 
-    QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
-    mat = matrix * mat;
+    mat.setMatrix( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin );
     return mat;
 }
 #endif // QT_NO_WMATRIX
@@ -1229,12 +1242,12 @@ bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
 	uchar *sptr, int sbpl, int sWidth, int sHeight
 	)
 {
-    int m11 = qRound((double)trueMat.m11()*65536.0);
-    int m12 = qRound((double)trueMat.m12()*65536.0);
-    int m21 = qRound((double)trueMat.m21()*65536.0);
-    int m22 = qRound((double)trueMat.m22()*65536.0);
-    int dx  = qRound((double)trueMat.dx() *65536.0);
-    int dy  = qRound((double)trueMat.dy() *65536.0);
+    int m11 = (int)(trueMat.m11()*65536.0);
+    int m12 = (int)(trueMat.m12()*65536.0);
+    int m21 = (int)(trueMat.m21()*65536.0);
+    int m22 = (int)(trueMat.m22()*65536.0);
+    int dx  = (int)(trueMat.dx() *65536.0);
+    int dy  = (int)(trueMat.dy() *65536.0);
 
     int m21ydx = dx + (xoffset<<16);
     int m22ydy = dy;
