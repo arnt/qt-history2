@@ -216,11 +216,13 @@ bool Q3SVGPaintEngine::end()
 void Q3SVGPaintEngine::updatePen(const QPen &pen)
 {
     d->cpen = pen;
+    d->dirtyStyle = true;
 }
 
 void Q3SVGPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     d->cbrush = brush;
+    d->dirtyStyle = true;
 }
 
 void Q3SVGPaintEngine::updateFont(const QFont &font)
@@ -1390,19 +1392,19 @@ void Q3SVGPaintEnginePrivate::setStyleProperty(const QString &prop, const QStrin
 
 void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
 {
-    double x0 = 0, y0 = 0;                // starting point
+    double x0 = 0, y0 = 0;              // starting point
     double x = 0, y = 0;                // current point
-    double controlX = 0, controlY = 0;        // last control point for curves
+    double controlX = 0, controlY = 0;  // last control point for curves
     QPolygonF path(500);                // resulting path
     QList<int> subIndex;                // start indices for subpaths
-    QPolygonF quad(4), bezier;        // for curve calculations
-    int pcount = 0;                        // current point array index
+    QPolygonF quad(4), bezier;          // for curve calculations
+    int pcount = 0;                     // current point array index
     int idx = 0;                        // current data position
-    int mode = 0, lastMode = 0;                // parser state
-    bool relative = false;                // e.g. 'h' vs. 'H'
-    QString commands("MZLHVCSQTA");        // recognized commands
-    int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };        // no of arguments
-    QRegExp reg(QString::fromLatin1("\\s*,?\\s*([+-]?\\d*\\.?\\d*)"));        // floating point
+    int mode = 0, lastMode = 0;         // parser state
+    bool relative = false;              // e.g. 'h' vs. 'H'
+    QString commands("MZLHVCSQTA");     // recognized commands
+    int cmdArgs[] = { 2, 0, 2, 1, 1, 6, 4, 4, 2, 7 };                   // no of arguments
+    QRegExp reg(QString::fromLatin1("\\s*,?\\s*([+-]?\\d*\\.?\\d*)"));  // floating point
 
     subIndex.append(0);
     // detect next command
@@ -1476,12 +1478,12 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
         case 5:                                        // 'C' cubic bezier curveto
         case 6:                                        // 'S' smooth shorthand
         case 7:                                        // 'Q' quadratic bezier curves
-        case 8: {                                // 'T' smooth shorthand
+        case 8: {                                      // 'T' smooth shorthand
             quad[0] = QPointF(x, y);
             // if possible, reflect last control point if smooth shorthand
-            if (mode == 6 || mode == 8) {         // smooth 'S' and 'T'
+            if (mode == 6 || mode == 8) {              // smooth 'S' and 'T'
                 bool cont = mode == lastMode ||
-                            mode == 6 && lastMode == 5 ||         // 'S' and 'C'
+                            mode == 6 && lastMode == 5 ||      // 'S' and 'C'
                             mode == 8 && lastMode == 7;        // 'T' and 'Q'
                 x = cont ? 2*x-controlX : x;
                 y = cont ? 2*y-controlY : y;
@@ -1511,7 +1513,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             if (bezier.size() > path.size() - pcount)
                 path.resize(path.size() - pcount + bezier.size());
             // copy
-            for (int k = 0; k < (int)bezier.size(); k ++)
+            for (int k = 0; k < (int)bezier.size(); k++)
                 path[pcount++] = bezier[k];
             break;
         }
@@ -1536,7 +1538,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             path[pcount++] = QPointF(x0, y0);
         QPen pen = pt->pen();
         pt->setPen(Qt::NoPen);
-        pt->drawPolygon(path, false, 0, pcount);
+        pt->drawPolygon(path.constData(), pcount, Qt::OddEvenFill);
         pt->setPen(pen);
     }
 
@@ -1549,7 +1551,7 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             // ### always joins ends if first and last point coincide.
             // ### 'Z' can't have the desired effect
             if (next-start > 0)
-                pt->drawPolyline(path.data()+start, next-start);
+                pt->drawPolyline(path.constData()+start, next-start);
             start = next;
         }
     }
