@@ -59,7 +59,7 @@ public:
         KeepHeader = 0x1,
         WriteHeader = 0x2
     };
-    Q_DECLARE_FLAGS(ConversionFlags, ConversionFlag);
+    Q_DECLARE_FLAGS(ConversionFlags, ConversionFlag)
 
     struct ConverterState {
         ConverterState(ConversionFlags f = DefaultConversion)
