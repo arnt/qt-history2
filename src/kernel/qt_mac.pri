@@ -8,6 +8,7 @@ mac {
           /System/Library/Frameworks/ApplicationServices.framework/Frameworks/CoreGraphics.framework/Headers/
     LIBS += -framework Carbon -framework QuickTime
   }
+  macx-g++: QMAKE_LFLAGS_SHLIB += -prebind -seg1addr 0x90000000
   *-mwerks:INCLUDEPATH += compat
   mac9 {
      LIBS       += "MSL C++.PPC.Lib" "MSL SIOUX.Carbon.Lib" "CarbonLib" \
