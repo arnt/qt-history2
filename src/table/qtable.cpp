@@ -4854,10 +4854,10 @@ void QTableHeader::setSectionState( int s, SectionState astate )
 {
     if ( s < 0 || s >= (int)states.count() )
 	return;
-    if ( states[ s ] == astate )
+    if ( states.data()[ s ] == astate )
 	return;
 
-    states[ s ] = astate;
+    states.data()[ s ] = astate;
     if ( isUpdatesEnabled() ) {
 	if ( orientation() == Horizontal )
 	    repaint( sectionPos( s ) - offset(), 0, sectionSize( s ), height(), FALSE );
