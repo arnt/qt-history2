@@ -774,6 +774,7 @@ void QTextHtmlExporter::emitTextLength(const char *attribute, const QTextLength 
     if (length.type() == QTextLength::VariableLength) // default
         return;
 
+    html += QLatin1Char(' ');
     html += attribute;
     html += QLatin1String("=\"");
     html += QString::number(length.rawValue());
@@ -850,6 +851,7 @@ void QTextHtmlExporter::exportBlock(const QTextBlock &block)
 {
     if (block.begin().atEnd())
         return;
+
     const bool pre = block.blockFormat().nonBreakableLines();
     if (pre)
         html += QLatin1String("<pre");
