@@ -708,7 +708,10 @@ void QDockWindow::setTopLevel(bool topLevel, const QPoint &pos)
 void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 {
     Q_D(QDockWindow);
-    d->allowedAreas = (areas & Qt::DockWindowArea_Mask);
+    areas &= Qt::DockWindowArea_Mask;
+    if (areas == d->allowedAreas)
+        return;
+    d->allowedAreas = areas;
     emit allowedAreasChanged(d->allowedAreas);
 }
 
