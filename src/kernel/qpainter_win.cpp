@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#131 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#132 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -379,7 +379,7 @@ void QPainter::updateFont()
     bool   killFont;
     if ( ownFont ) {
 	bool stockFont;
-	hfont = cfont.create( &stockFont, testf(VxF|WxF) ? 0 : hdc );
+	hfont = cfont.create( &stockFont, hdc, testf(VxF) );
 	killFont = !stockFont;
     } else {
 	hfont = cfont.handle();
@@ -626,12 +626,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	pdev = (QPaintDevice *)pd;
     }
 
-    if ( pdev->isExtDev() && pdev->paintingActive() ) {
-	// somebody else is already painting
+    if ( pdev->paintingActive() ) {		// somebody else is already painting
 #if defined(CHECK_STATE)
 	warning( "QPainter::begin: Another QPainter is already painting "
-		 "this device;\n\tAn extended paint device can only be painted "
-	         "by one QPainter at a time." );
+		 "this device;\n\tA paint device can only be painted by "
+		 "one QPainter at a time" );
 #endif
 	return FALSE;
     }
@@ -640,8 +639,8 @@ bool QPainter::begin( const QPaintDevice *pd )
     flags = IsActive;				// init flags
     int dt = pdev->devType();			// get the device type
 
-    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )	// this is an extended device
-	setf(ExtDev);
+    if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
+	setf(ExtDev);				// this is an extended device
     else if ( dt == QInternal::Pixmap )		// device is a pixmap
 	((QPixmap*)pdev)->detach();		// will modify it
 
@@ -690,11 +689,21 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WPaintUnclipped) )
-	    hdc = GetWindowDC( w->winId() );
-	else
-	    hdc = GetDC( w->winId() );
-	w->hdc = hdc;
+	if ( w->testWFlags(WState_PaintEvent) ) {
+	    hdc = w->hdc;			// during paint event
+	} else {
+	    if ( w->testWFlags(WPaintUnclipped) ) {
+		hdc = GetWindowDC( w->winId() );
+		if ( w->isTopLevel() ) {
+		    int dx = w->geometry().x() - w->frameGeometry().x();
+		    int dy = w->geometry().y() - w->frameGeometry().y();
+		    SetWindowOrgEx( hdc, -dx, -dy, 0 );
+		}
+	    } else {
+		hdc = GetDC( w->winId() );
+	    }
+	    w->hdc = hdc;
+	}
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
@@ -813,9 +822,11 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
-	QWidget *w = (QWidget*)pdev;
-	ReleaseDC( w->winId(), hdc );
-	w->hdc = hdc;
+	if ( !((QWidget*)pdev)->testWFlags(WState_PaintEvent) ) {
+	    QWidget *w = (QWidget*)pdev;
+	    ReleaseDC( w->winId(), hdc );
+	    w->hdc = 0;
+	}
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();
@@ -935,8 +946,8 @@ void QPainter::setBrushOrigin( int x, int y )
 
 void QPainter::nativeXForm( bool enable )
 {
+    XFORM m;
     if ( enable ) {
-	XFORM m;
 	QWMatrix mtx;
 	if ( testf(VxF) ) {
 	    mtx.translate( vx, vy );
@@ -955,8 +966,10 @@ void QPainter::nativeXForm( bool enable )
 	SetGraphicsMode( hdc, GM_ADVANCED );
 	SetWorldTransform( hdc, &m );
     } else {
+	m.eM11 = m.eM22 = (float)1.0;
+	m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
 	SetGraphicsMode( hdc, GM_ADVANCED );
-	ModifyWorldTransform( hdc, 0, MWT_IDENTITY );
+	ModifyWorldTransform( hdc, &m, MWT_IDENTITY );
 	SetGraphicsMode( hdc, GM_COMPATIBLE );
     }
 }
@@ -1759,8 +1772,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		return;
 	    }
 	    if ( testf(ExtDev) ) {
-		if ( testf( VxF|WxF ) )
-		    map( x, y, &x, &y );
 		QPDevCmdParam param[2];
 		QPoint p(x,y);
 		param[0].point  = &p;
@@ -2044,17 +2055,24 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
-	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-	    COLORREF tc, bc;
-	    b = (HBRUSH)SelectObject( hdc, b );
-	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
-	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
-	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
-	    BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
-		    wx_bm->handle(), 0, 0, 0x00b8074a );
-	    SetBkColor( hdc, bc );
-	    SetTextColor( hdc, tc );
-	    DeleteObject( SelectObject(hdc, b) );
+	    if ( testf(ExtDev) ) {		// to printer
+		ushort oldf = flags;
+		flags &= ~(VxF|WxF);
+		drawPixmap( x, y, *wx_bm );
+		flags = oldf;
+	    } else {				// to screen/pixmap
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
+		COLORREF tc, bc;
+		b = SelectObject( hdc, b );
+		tc = SetTextColor( hdc, COLOR_VALUE(black) );
+		bc = SetBkColor( hdc, COLOR_VALUE(white) );
+		// PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
+		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
+			wx_bm->handle(), 0, 0, 0x00b8074a );
+		SetBkColor( hdc, bc );
+		SetTextColor( hdc, tc );
+		DeleteObject( SelectObject(hdc, b) );
+	    }
 	    if ( create_new_bm )
 		ins_text_bitmap( mat, cfont, str, len, wx_bm );
 	    return;
