@@ -54,11 +54,11 @@ public:
 
     void init(const QWidget *w);
 
-    QDOC_PROPERTY(int version);
-    QDOC_PROPERTY(int type);
-    QDOC_PROPERTY(QStyle::SFlags state);
-    QDOC_PROPERTY(QRect rect);
-    QDOC_PROPERTY(QPalette palette);
+    QDOC_PROPERTY(int version)
+    QDOC_PROPERTY(int type)
+    QDOC_PROPERTY(QStyle::SFlags state)
+    QDOC_PROPERTY(QRect rect)
+    QDOC_PROPERTY(QPalette palette)
 };
 
 class Q_GUI_EXPORT QStyleOptionFocusRect  : public QStyleOption
@@ -71,7 +71,7 @@ public:
 
     QStyleOptionFocusRect();
 
-    QDOC_PROPERTY(QColor backgroundColor);
+    QDOC_PROPERTY(QColor backgroundColor)
 
 protected:
     QStyleOptionFocusRect(int version);
@@ -88,8 +88,8 @@ public:
 
     QStyleOptionFrame();
 
-    QDOC_PROPERTY(int lineWidth);
-    QDOC_PROPERTY(int midLineWidth);
+    QDOC_PROPERTY(int lineWidth)
+    QDOC_PROPERTY(int midLineWidth)
 
 protected:
     QStyleOptionFrame(int version);
@@ -109,10 +109,10 @@ public:
 
     QStyleOptionHeader();
 
-    QDOC_PROPERTY(int section);
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(int alignment);
-    QDOC_PROPERTY(QIcon icon);
+    QDOC_PROPERTY(int section)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(int alignment)
+    QDOC_PROPERTY(QIcon icon)
 
 protected:
     QStyleOptionHeader(int version);
@@ -133,9 +133,9 @@ public:
 
     QStyleOptionButton();
 
-    QDOC_PROPERTY(ButtonFeatures features);
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIcon icon);
+    QDOC_PROPERTY(ButtonFeatures features)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(QIcon icon)
 
 protected:
     QStyleOptionButton(int version);
@@ -159,11 +159,11 @@ public:
 
     QStyleOptionTab();
 
-    QDOC_PROPERTY(QTabBar::Shape shape);
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIcon icon);
-    QDOC_PROPERTY(int row);
-    QDOC_PROPERTY(TabPosition position);
+    QDOC_PROPERTY(QTabBar::Shape shape)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(QIcon icon)
+    QDOC_PROPERTY(int row)
+    QDOC_PROPERTY(TabPosition position)
 
 protected:
     QStyleOptionTab(int version);
@@ -186,10 +186,10 @@ public:
 
     QStyleOptionProgressBar();
 
-    QDOC_PROPERTY(ProgressBarFeatures features);
-    QDOC_PROPERTY(QString progressString);
-    QDOC_PROPERTY(int totalSteps);
-    QDOC_PROPERTY(int progress);
+    QDOC_PROPERTY(ProgressBarFeatures features)
+    QDOC_PROPERTY(QString progressString)
+    QDOC_PROPERTY(int totalSteps)
+    QDOC_PROPERTY(int progress)
 
 protected:
     QStyleOptionProgressBar(int version);
@@ -219,15 +219,15 @@ public:
 
     QStyleOptionMenuItem();
 
-    QDOC_PROPERTY(MenuItemType menuItemType);
-    QDOC_PROPERTY(CheckType checkType);
-    QDOC_PROPERTY(bool checked);
-    QDOC_PROPERTY(QRect menuRect);
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIcon icon);
-    QDOC_PROPERTY(int maxIconWidth);
-    QDOC_PROPERTY(int tabWidth);
-    QDOC_PROPERTY(QFont font);
+    QDOC_PROPERTY(MenuItemType menuItemType)
+    QDOC_PROPERTY(CheckType checkType)
+    QDOC_PROPERTY(bool checked)
+    QDOC_PROPERTY(QRect menuRect)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(QIcon icon)
+    QDOC_PROPERTY(int maxIconWidth)
+    QDOC_PROPERTY(int tabWidth)
+    QDOC_PROPERTY(QFont font)
 
 protected:
     QStyleOptionMenuItem(int version);
@@ -251,11 +251,11 @@ public:
 
     QStyleOptionListViewItem();
 
-    QDOC_PROPERTY(ListViewItemFeatures features);
-    QDOC_PROPERTY(int height);
-    QDOC_PROPERTY(int totalHeight);
-    QDOC_PROPERTY(int itemY);
-    QDOC_PROPERTY(int childCount);
+    QDOC_PROPERTY(ListViewItemFeatures features)
+    QDOC_PROPERTY(int height)
+    QDOC_PROPERTY(int totalHeight)
+    QDOC_PROPERTY(int itemY)
+    QDOC_PROPERTY(int childCount)
 
 protected:
     QStyleOptionListViewItem(int version);
@@ -274,8 +274,8 @@ public:
 
     QStyleOptionDockWindow();
 
-    QDOC_PROPERTY(bool docked);
-    QDOC_PROPERTY(bool closeEnabled);
+    QDOC_PROPERTY(bool docked)
+    QDOC_PROPERTY(bool closeEnabled)
 
 protected:
     QStyleOptionDockWindow(int version);
@@ -298,10 +298,10 @@ public:
 
     QStyleOptionViewItem();
 
-    QDOC_PROPERTY(int displayAlignment);
-    QDOC_PROPERTY(int decorationAlignment);
-    QDOC_PROPERTY(Position decorationPosition);
-    QDOC_PROPERTY(Size decorationSize);
+    QDOC_PROPERTY(int displayAlignment)
+    QDOC_PROPERTY(int decorationAlignment)
+    QDOC_PROPERTY(Position decorationPosition)
+    QDOC_PROPERTY(Size decorationSize)
 
 protected:
     QStyleOptionViewItem(int version);
@@ -318,8 +318,8 @@ public:
 
     QStyleOptionToolBox();
 
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QIcon icon);
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(QIcon icon)
 
 protected:
     QStyleOptionToolBox(int version);
@@ -337,8 +337,8 @@ public:
 
     QStyleOptionComplex(int version = QStyleOptionComplex::Version, int type = SO_Complex);
 
-    QDOC_PROPERTY(QStyle::SubControls subControls);
-    QDOC_PROPERTY(QStyle::SubControls activeSubControls);
+    QDOC_PROPERTY(QStyle::SubControls subControls)
+    QDOC_PROPERTY(QStyle::SubControls activeSubControls)
 
 protected:
     QStyleOptionComplex(int version);
@@ -363,16 +363,16 @@ public:
 
     QStyleOptionSlider();
 
-    QDOC_PROPERTY(Qt::Orientation orientation);
-    QDOC_PROPERTY(int maximum);
-    QDOC_PROPERTY(int minimum);
-    QDOC_PROPERTY(QSlider::TickSetting tickmarks);
-    QDOC_PROPERTY(int tickInterval);
-    QDOC_PROPERTY(bool useRightToLeft);
-    QDOC_PROPERTY(int sliderPosition);
-    QDOC_PROPERTY(int sliderValue);
-    QDOC_PROPERTY(int singleStep);
-    QDOC_PROPERTY(int pageStep);
+    QDOC_PROPERTY(Qt::Orientation orientation)
+    QDOC_PROPERTY(int maximum)
+    QDOC_PROPERTY(int minimum)
+    QDOC_PROPERTY(QSlider::TickSetting tickmarks)
+    QDOC_PROPERTY(int tickInterval)
+    QDOC_PROPERTY(bool useRightToLeft)
+    QDOC_PROPERTY(int sliderPosition)
+    QDOC_PROPERTY(int sliderValue)
+    QDOC_PROPERTY(int singleStep)
+    QDOC_PROPERTY(int pageStep)
 
 protected:
     QStyleOptionSlider(int version);
@@ -392,11 +392,11 @@ public:
 
     QStyleOptionSpinBox();
 
-    QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols);
-    QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled);
-    QDOC_PROPERTY(double percentage);
-    QDOC_PROPERTY(bool showSliderIndicator);
-    QDOC_PROPERTY(bool showFrame);
+    QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
+    QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
+    QDOC_PROPERTY(double percentage)
+    QDOC_PROPERTY(bool showSliderIndicator)
+    QDOC_PROPERTY(bool showFrame)
 
 protected:
     QStyleOptionSpinBox(int version);
@@ -418,13 +418,13 @@ public:
 
     QStyleOptionListView();
 
-    QDOC_PROPERTY(QList<QStyleOptionListViewItem> items);
-    QDOC_PROPERTY(QPalette viewportPalette);
-    QDOC_PROPERTY(QPalette::ColorRole viewportBGRole);
-    QDOC_PROPERTY(int sortColumn);
-    QDOC_PROPERTY(int itemMargin);
-    QDOC_PROPERTY(int treeStepSize);
-    QDOC_PROPERTY(bool rootIsDecorated);
+    QDOC_PROPERTY(QList<QStyleOptionListViewItem> items)
+    QDOC_PROPERTY(QPalette viewportPalette)
+    QDOC_PROPERTY(QPalette::ColorRole viewportBGRole)
+    QDOC_PROPERTY(int sortColumn)
+    QDOC_PROPERTY(int itemMargin)
+    QDOC_PROPERTY(int treeStepSize)
+    QDOC_PROPERTY(bool rootIsDecorated)
 
 protected:
     QStyleOptionListView(int version);
@@ -450,13 +450,13 @@ public:
 
     QStyleOptionToolButton();
 
-    QDOC_PROPERTY(ToolButtonFeatures features);
-    QDOC_PROPERTY(QIcon icon);
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(Qt::ArrowType arrowType);
-    QDOC_PROPERTY(QPoint pos);
-    QDOC_PROPERTY(QFont font);
-    QDOC_PROPERTY(QToolButton::TextPosition textPosition);
+    QDOC_PROPERTY(ToolButtonFeatures features)
+    QDOC_PROPERTY(QIcon icon)
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(Qt::ArrowType arrowType)
+    QDOC_PROPERTY(QPoint pos)
+    QDOC_PROPERTY(QFont font)
+    QDOC_PROPERTY(QToolButton::TextPosition textPosition)
 
 protected:
     QStyleOptionToolButton(int version);
@@ -475,8 +475,8 @@ public:
 
     QStyleOptionComboBox();
 
-    QDOC_PROPERTY(bool editable);
-    QDOC_PROPERTY(QRect popupRect);
+    QDOC_PROPERTY(bool editable)
+    QDOC_PROPERTY(QRect popupRect)
 
 protected:
     QStyleOptionComboBox(int version);
@@ -495,10 +495,10 @@ public:
 
     QStyleOptionTitleBar();
 
-    QDOC_PROPERTY(QString text);
-    QDOC_PROPERTY(QPixmap icon);
-    QDOC_PROPERTY(int titleBarState);
-    QDOC_PROPERTY(Qt::WFlags titleBarFlags);
+    QDOC_PROPERTY(QString text)
+    QDOC_PROPERTY(QPixmap icon)
+    QDOC_PROPERTY(int titleBarState)
+    QDOC_PROPERTY(Qt::WFlags titleBarFlags)
 
 protected:
     QStyleOptionTitleBar(int version);
