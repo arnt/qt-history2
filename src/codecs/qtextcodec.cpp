@@ -99,6 +99,8 @@ void QTextCodec::deleteAllCodecs()
 #ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( qt_global_mutexpool ?
 			 qt_global_mutexpool->get( &all ) : 0 );
+    if ( !all )
+	return;
 #endif // QT_THREAD_SUPPORT
 
     destroying_is_ok = TRUE;
