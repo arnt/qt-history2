@@ -516,6 +516,9 @@ void QPrinter::setPageSize( PageSize newPageSize )
 void QPrinter::setPageOrder( PageOrder newPageOrder )
 {
     page_order = newPageOrder;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 
@@ -539,6 +542,9 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 void QPrinter::setColorMode( ColorMode newColorMode )
 {
     color_mode = newColorMode;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 
@@ -730,6 +736,9 @@ void QPrinter::setCollateCopies(bool on)
 void QPrinter::setNumCopies( int numCopies )
 {
     ncopies = numCopies;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 
@@ -841,6 +850,9 @@ int QPrinter::resolution() const
 void QPrinter::setPaperSource( PaperSource source )
 {
     paper_source = source;
+#if defined(Q_WS_WIN)
+    reinit();
+#endif
 }
 
 /*! Returns the currently set paper source of the printer.
