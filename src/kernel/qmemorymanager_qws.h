@@ -37,9 +37,9 @@
 #include "qfontmanager_qws.h"
 #include "qstring.h"
 #include "qmap.h"
+#include <private/qtextengine_p.h>
 #endif // QT_H
 
-#include <private/qtextengine_p.h>
 
 class QFontDef;
 class QMemoryManagerPixmap {

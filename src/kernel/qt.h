@@ -314,6 +314,7 @@
 #include <private/qaquastyle_p.h>
 #endif // Q_WS_MAC
 
+#include <private/qtextengine_p.h>
 
 #ifdef Q_WS_QWS
 #include "qfontmanager_qws.h"

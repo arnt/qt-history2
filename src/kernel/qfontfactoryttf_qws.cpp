@@ -97,17 +97,17 @@ public:
 	}
     }
 
-    bool inFont(QChar ch) const
+    bool inFont(glyph_t g) const
     {
-	int index = ch.unicode();
+	int index = g;
 	return unicode(index);
     }
 
-    QGlyph render(QChar ch)
+    QGlyph render(glyph_t g)
     {
 	selectThisSize();
 
-	int index = ch.unicode();
+	int index = g;
 	if ( !unicode(index) )
 	    index = 0;
 	QGlyph result;
@@ -222,7 +222,7 @@ QFontFactoryFT::~QFontFactoryFT()
     err=FT_Done_FreeType(library);
     if(err) {
 	qFatal("Couldn't uninitialise Freetype library");
-    }   
+    }
 }
 
 QString QFontFactoryFT::name()

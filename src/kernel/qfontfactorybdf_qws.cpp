@@ -42,6 +42,7 @@
 #include "qstringlist.h"
 #include <string.h>
 #include <stdio.h>
+#include <private/qtextengine_p.h>
 
 QString QFontFactoryBDF::name()
 {
@@ -65,7 +66,7 @@ class QRenderedFontBDF : public QRenderedFont {
     QDiskFont* df;
     int ptsize;
     QGlyph *glyph;
-    QChar default_qchar;
+    glyph_t default_glyph;
 
 public:
 
@@ -93,7 +94,7 @@ public:
 	QTextCodec* mapper=0;
 #endif
 	int default_char = -1;
-	default_qchar = 0;
+	default_glyph = 0;
 
 	do {
 	    QString line = s.readLine();
@@ -140,7 +141,7 @@ public:
 		    for (int i=0; i<(int)line.length(); i+=2)
 			if ( datasize ) {
 			    --datasize;
-			    *data++ = line.mid(i,2).toInt(0,16); 
+			    *data++ = line.mid(i,2).toInt(0,16);
 			}
 		}
 	    } else {
@@ -184,7 +185,7 @@ public:
 			    glyph_index = encoding;
 			}
 			if ( encoding == default_char || default_char == -1 )
-			    default_qchar = QChar((ushort)glyph_index);
+			    default_glyph = glyph_index;
 		    }
 		} else if ( tag == "DWIDTH" ) {
 		    advance = token[1].toInt();
@@ -240,17 +241,17 @@ public:
 	}
     }
 
-    bool inFont(QChar ch) const
+    bool inFont(glyph_t g) const
     {
-	return glyph[ch.unicode()].data ? TRUE : FALSE;
+	return glyph[g].data ? TRUE : FALSE;
     }
 
-    QGlyph render(QChar ch)
+    QGlyph render(glyph_t gl)
     {
 	// Return a copy
-	QGlyph* g = &glyph[ch.unicode()];
+	QGlyph* g = &glyph[gl];
 	if ( !g->data )
-	    g = &glyph[default_qchar.unicode()];
+	    g = &glyph[default_glyph];
 	QGlyph ng;
 	ng.metrics = new QGlyphMetrics;
 	memcpy(ng.metrics,g->metrics,sizeof(*g->metrics));

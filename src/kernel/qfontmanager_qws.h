@@ -36,6 +36,7 @@
 #ifndef QT_H
 #include "qfont.h"
 #include "qptrlist.h"
+#include <private/qtextengine_p.h>
 #endif // QT_H
 
 // These are stored in the shared memory segment in front of their
@@ -135,8 +136,8 @@ public:
     int minRightBearing();
     int maxWidth();
 
-    virtual bool inFont(QChar ch) const=0;
-    virtual QGlyph render(QChar)=0;
+    virtual bool inFont(glyph_t g) const=0;
+    virtual QGlyph render(glyph_t g)=0;
 
 private:
 
