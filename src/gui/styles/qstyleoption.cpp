@@ -1533,6 +1533,16 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 {
 }
 
+QStyleOptionTabBarBase::QStyleOptionTabBarBase()
+    : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
+{
+}
+
+/*! \internal */
+QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
+    : QStyleOption(version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
+{
+}
 
 /*!
     \class QStyleHintReturn

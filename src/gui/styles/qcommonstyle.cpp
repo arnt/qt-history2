@@ -350,6 +350,42 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             p->setPen(oldPen);
         }
         break;
+    case PE_FrameTabBarBase:
+        if (const QStyleOptionTabBarBase *tbb
+                = qstyleoption_cast<const QStyleOptionTabBarBase *>(opt)) {
+            QRegion region(tbb->rect);
+            region -= tbb->selectedTabRect;
+            p->save();
+            p->setClipRegion(region);
+            switch (tbb->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                p->setPen(tbb->palette.light().color());
+                p->drawLine(tbb->rect.topLeft(), tbb->rect.topRight());
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+                p->setPen(tbb->palette.light().color());
+                p->drawLine(tbb->rect.topLeft(), tbb->rect.bottomLeft());
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                p->setPen(tbb->palette.shadow().color());
+                p->drawLine(tbb->rect.left(), tbb->rect.bottom(),
+                            tbb->rect.right(), tbb->rect.bottom());
+                p->setPen(tbb->palette.dark().color());
+                p->drawLine(tbb->rect.left(), tbb->rect.bottom() - 1,
+                            tbb->rect.right() - 1, tbb->rect.bottom() - 1);
+                break;
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                p->setPen(tbb->palette.dark().color());
+                p->drawLine(tbb->rect.topRight(), tbb->rect.bottomRight());
+                break;
+            }
+            p->restore();
+        }
+        break;
     case PE_FrameTabWidget:
         qDrawWinPanel(p, opt->rect, opt->palette, false, 0);
         break;

@@ -176,7 +176,9 @@ void QTabWidgetPrivate::init()
     stack = new QStackedWidget(q);
     stack->setLineWidth(0);
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
-    q->setTabBar(new QTabBar(q));
+    QTabBar *tabBar = new QTabBar(q);
+    tabBar->setDrawBase(false);
+    q->setTabBar(tabBar);
 
 #ifdef Q_OS_TEMP
     pos = QTabWidget::South;

@@ -27,6 +27,7 @@ public:
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
                       SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
                       SO_DockWidget, SO_Q3ListViewItem, SO_ViewItem, SO_TabWidgetFrame,
+                      SO_TabBarBase,
 
                       SO_Complex = 0xf0000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
                       SO_Q3ListView, SO_TitleBar,
@@ -118,6 +119,23 @@ public:
 
 protected:
     QStyleOptionTabWidgetFrame(int version);
+};
+
+class Q_GUI_EXPORT QStyleOptionTabBarBase : public QStyleOption
+{
+public:
+    enum { Type = SO_TabBarBase };
+    enum { Version = 1 };
+
+    QTabBar::Shape shape;
+    QRect tabBarRect;
+    QRect selectedTabRect;
+
+    QStyleOptionTabBarBase();
+    QStyleOptionTabBarBase(const QStyleOptionTabWidgetFrame &other) : QStyleOption(Version, Type) { *this = other; }
+
+protected:
+    QStyleOptionTabBarBase(int version);
 };
 
 class Q_GUI_EXPORT QStyleOptionHeader : public QStyleOption

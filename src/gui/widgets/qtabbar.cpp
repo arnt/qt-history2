@@ -41,12 +41,13 @@ public:
     QTabBarPrivate()
         :currentIndex(-1), pressedIndex(-1),
          shape(QTabBar::RoundedNorth),
-         layoutDirty(false), scrollOffset(0){}
+         layoutDirty(false), drawBase(true), scrollOffset(0){}
 
     int currentIndex;
     int pressedIndex;
     QTabBar::Shape shape;
     bool layoutDirty;
+    bool drawBase;
     int scrollOffset;
 
     struct Tab {
@@ -475,6 +476,28 @@ void QTabBar::setShape(Shape shape)
     d->refresh();
 }
 
+
+/*!
+    \property QTabBar::drawBase
+    \brief defines whether or not tabbar should draw it's base.
+
+    If true then QTabBar draws a base in relation to the styles overlab.
+    Otherwise only the tabs are drawn.
+
+    \sa QStyle::pixelMetric() QStyle::PM_TabBarBaseOverlap
+*/
+
+void QTabBar::setDrawBase(bool drawBase)
+{
+    d->drawBase = drawBase;
+}
+
+bool QTabBar::drawBase() const
+{
+    return d->drawBase;
+}
+
+
 /*!
     Adds a new tab with text \a text. Returns the new
     tab's index.
@@ -824,6 +847,9 @@ void QTabBar::paintEvent(QPaintEvent *)
     tabOverlap.shape = d->shape;
     int overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, &tabOverlap, this);
     QWidget *theParent = parentWidget();
+    QStyleOptionTabBarBase optTabBase;
+    optTabBase.init(this);
+    optTabBase.shape = d->shape;
     if (theParent && overlap > 0) {
         QPainter::setRedirected(theParent, this, pos());
         QRect rect;
@@ -845,6 +871,7 @@ void QTabBar::paintEvent(QPaintEvent *)
             rect.setRect(width()-overlap, 0, overlap, height());
             break;
         }
+        optTabBase.rect = rect;
         QPaintEvent e(rect);
         QApplication::sendEvent(theParent, &e);
         QPainter::restoreRedirected(theParent);
@@ -854,9 +881,12 @@ void QTabBar::paintEvent(QPaintEvent *)
     for (int i = 0; i < d->tabList.count(); ++i) {
         if (i == d->currentIndex) {
             selected = i;
+            optTabBase.selectedTabRect = tabRect(i);
+            optTabBase.tabBarRect |= optTabBase.selectedTabRect;
             continue;
         }
         QStyleOptionTab tab = d->getStyleOption(i);
+        optTabBase.tabBarRect |= tab.rect;
         p.drawControl(QStyle::CE_TabBarTab, tab);
     }
 
@@ -865,7 +895,8 @@ void QTabBar::paintEvent(QPaintEvent *)
         QStyleOptionTab tab = d->getStyleOption(selected);
         p.drawControl(QStyle::CE_TabBarTab, tab);
     }
-
+    if (d->drawBase)
+        p.drawPrimitive(QStyle::PE_FrameTabBarBase, optTabBase);
 }
 
 /*!\reimp
