@@ -37,6 +37,16 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
+QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model,
+                                   QWidget *parent)
+    : QAbstractItemView(dd, model, parent)
+{
+    setHeader(new QGenericHeader(model, Horizontal, this));
+    d->header->setMovable(true);
+    d->rootDecoration = true;
+    setSelectionBehavior(QAbstractItemView::SelectRows);
+}
+
 QGenericTreeView::~QGenericTreeView()
 {
 }
@@ -586,7 +596,7 @@ void QGenericTreeView::updateGeometries()
     // update sliders
     QItemOptions options;
     getViewOptions(&options);
-    
+
     // vertical
     int h = viewport()->height();
     int item = d->items.count();
@@ -758,7 +768,7 @@ void QGenericTreeViewPrivate::close(int i)
     QModelIndex index = items.at(i).index;
     opened.remove(opened.indexOf(index));
     items[i].open = false;
-    
+
     int idx = i;
     QModelIndex tmp = index;
     while (tmp.isValid()) {
@@ -769,7 +779,7 @@ void QGenericTreeViewPrivate::close(int i)
     qCollapse<QGenericTreeViewItem>(items, i, total);
     q->updateGeometries();
     viewport->update();
-    
+
     emit q->collapsed(index);
 }
 

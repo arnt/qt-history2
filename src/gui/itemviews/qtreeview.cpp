@@ -328,7 +328,7 @@ public:
 
 
 QTreeView::QTreeView(QWidget *parent)
-    : QGenericTreeView(new QTreeModel, parent)
+    : QGenericTreeView(*new QGenericTreeViewPrivate(), new QTreeModel(), parent)
 {
     model()->setParent(this); // make sure the model gets deleted
 }
