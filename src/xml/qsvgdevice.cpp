@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#44 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#45 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -73,6 +73,7 @@ class QSvgDevicePrivate {
 public:
     ImageList images;
     PixmapList pixmaps;
+    int talign;				// text alignment
 };
 
 enum ElementType {
@@ -207,6 +208,7 @@ bool QSvgDevice::play( QPainter *painter )
 
     // 'play' all elements recursively starting with 'svg' as root
     pt = painter;
+    d->talign = Qt::AlignLeft;
     return play( svg );
 }
 
@@ -659,7 +661,12 @@ bool QSvgDevice::play( const QDomNode &node )
 	    }
 	    break;
 	case GroupElement:
-	    play( child );
+	    {
+		// ### have a real stack for save and restore
+		int talign = d->talign;
+		play( child );
+		d->talign = talign;
+	    }
 	    break;
 	case PathElement:
 	    drawPath( attr.namedItem( "d" ).nodeValue() );
@@ -679,8 +686,12 @@ bool QSvgDevice::play( const QDomNode &node )
 			pn.setColor( bcolor );
 			pt->setPen( pn );
 			QString text = c.toText().nodeValue();
-			w = pt->fontMetrics().width( text );
 			text = text.simplifyWhiteSpace(); // ### 'preserve'
+			w = pt->fontMetrics().width( text );
+			if ( d->talign == Qt::AlignHCenter )
+			    x1 -= w / 2;
+			else if ( d->talign == Qt::AlignRight )
+			    x1 -= w;
 			pt->drawText( x1, y1, text );
 			// restore pen
 			pn.setColor( pcolor );
@@ -818,10 +829,8 @@ double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 	    d *= pt->font().pointSizeFloat(); // ### pixel size
 	else if ( u == "ex" )
 	    d *= 0.5 * pt->font().pointSizeFloat(); // ### not precise
-	else if ( u == "%" ) {
-	    qDebug( "BRW: %d", boundingRect().width() );
+	else if ( u == "%" )
 	    d *= boundingRect().width() / 100.0;
-	}
 	else if ( u == "cm" )
 	    d *= m.logicalDpiX() / 2.54;
 	else if ( u == "mm" )
@@ -834,7 +843,6 @@ double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 	    d *= m.logicalDpiX() / 6.0;
 	else
 	    qWarning( "QSvgDevice::parseLen: Unknown unit " + u );
-	qDebug( "parseLen returning %f", d );
     }
     if ( ok )
 	*ok = TRUE;
@@ -908,6 +916,13 @@ void QSvgDevice::setStyle( const QString &s )
 		font.setPointSizeFloat( float(parseLen( val )) );
 	    } else if ( prop == "font-family" ) {
 		font.setFamily( val );
+	    } else if ( prop == "text-anchor" ) {
+		if ( val == "middle" )
+		    d->talign = Qt::AlignHCenter;
+		else if ( val == "end" )
+		    d->talign = Qt::AlignRight;
+		else
+		    d->talign = Qt::AlignLeft;
 	    }
 	}
     }
