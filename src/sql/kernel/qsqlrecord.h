@@ -66,7 +66,7 @@ public:
     QT_COMPAT const QSqlField* fieldPtr(const QString& name) const;
     inline QT_COMPAT int position(const QString& name) const { return indexOf(name); }
     QT_COMPAT QString toString(const QString& prefix = QString(),
-                               const QString& sep = ",") const;
+                               const QString& sep = QLatin1String(",")) const;
     QT_COMPAT QStringList toStringList(const QString& prefix = QString()) const;
 #endif
 

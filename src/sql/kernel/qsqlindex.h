@@ -50,7 +50,7 @@ public:
     void             setDescending(int i, bool desc);
 
     QString          toString(const QString& prefix = QString(),
-                               const QString& sep = ",",
+                               const QString& sep = QLatin1String(","),
                                bool verbose = true) const;
     QStringList      toStringList(const QString& prefix = QString(),
                                    bool verbose = true) const;
