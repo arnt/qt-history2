@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#138 $
 **
 ** Implementation of QListBox widget class
 **
@@ -14,10 +14,11 @@
 #include "qpainter.h"
 #include "qstrlist.h"
 #include "qkeycode.h"
+#include "qscrbar.h"
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#138 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -501,7 +502,8 @@ QListBox::~QListBox()
 */
 
 /*!
-  Reimplements QWidget::setFont() to update the list box line height.
+  Reimplements QWidget::setFont() to update the list box line height
+  and maxItemWidth().
 */
 
 void QListBox::setFont( const QFont &font )
@@ -509,6 +511,9 @@ void QListBox::setFont( const QFont &font )
     QWidget::setFont( font );
     if ( stringsOnly )
 	setCellHeight( fontMetrics().lineSpacing() + 1 );
+    // else ...?
+
+    updateCellWidth();
 }
 
 
@@ -885,6 +890,8 @@ void QListBox::setAutoUpdate( bool enable )
 /*!
   Returns the number of visible items.	This may change at any time
   since the user may resize the widget.
+
+  \sa setFixedVisibleLines()
 */
 
 int QListBox::numItemsVisible() const
@@ -1682,11 +1689,20 @@ void QListBox::updateNumRows( bool updateWidth )
   Returns the width in pixels of the longest item.
 */
 
-long QListBox::maxItemWidth()
+long QListBox::maxItemWidth() const
 {
     if ( !qlb_maxLenDict )
 	return 0;
     return (long) qlb_maxLenDict->find( (long)this );
+}
+
+long QListBox::maxItemWidth()
+{
+    // This is only here for binary compatibility
+    if ( !qlb_maxLenDict )
+	return 0;
+    return (long) qlb_maxLenDict->find( (long)this );
+    // This is only here for binary compatibility
 }
 
 
@@ -1874,4 +1890,30 @@ void QListBox::ensureCurrentVisible( int newCurrent )
     }
     if ( newCurrent != currentItem() )
 	setCurrentItem( newCurrent );
+}
+
+void QListBox::setFixedVisibleLines( int lines )
+{
+    int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
+    // #### What about auto-scrollbars?
+    int sb = testTableFlags(Tbl_hScrollBar)
+		? horizontalScrollBar()->height() : 0;
+    setFixedHeight( frameWidth()*2 + ls*lines + sb );
+    return;
+}
+
+QSize QListBox::sizeHint() const
+{
+    QSize sz = QTableView::sizeHint();
+
+    int w = maxItemWidth() + 2*frameWidth();
+    if ( testTableFlags(Tbl_vScrollBar) )
+	w += verticalScrollBar()->width();
+    sz.setWidth(w);
+
+    // For when setFixedVisibleLines is used
+    int h = maximumSize().height();
+    if ( h ) sz.setHeight(h);
+
+    return sz;
 }

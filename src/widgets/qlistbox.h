@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#55 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#56 $
 **
 ** Definition of QListBox widget class
 **
@@ -124,6 +124,7 @@ public:
     void	setAutoUpdate( bool );
 
     int		numItemsVisible() const;
+    void	setFixedVisibleLines( int lines );
 
     int		currentItem()	const;
     void	setCurrentItem( int index );
@@ -149,13 +150,16 @@ public:
     int		itemHeight()		const;
     int		itemHeight( int index ) const;
 
-    long	maxItemWidth();
+    long	maxItemWidth() const;
+    long	maxItemWidth(); // only for bin. compat
 
     bool	isMultiSelection() const;
     void	setMultiSelection( bool );
 
     void	setSelected( int, bool );
     bool	isSelected( int ) const;
+
+    QSize	sizeHint() const;
 
 public slots:
     void	clearSelection();
