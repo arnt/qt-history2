@@ -4,29 +4,18 @@
 
 QVectorData QVectorData::shared_null = { Q_ATOMIC_INIT(1), 0, 0 };
 
-QVectorData* QVectorData::malloc(int size, int sizeofT)
+QVectorData* QVectorData::malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init)
 {
-    return (QVectorData *)qMalloc(sizeof(QVectorData) + size * sizeofT);
-}
-
-QVectorData* QVectorData::malloc(int size, int sizeofT, QVectorData* init)
-{
-    QVectorData* p = (QVectorData *)qMalloc(sizeof(QVectorData) + size * sizeofT);
-    ::memcpy(p, init, sizeof(QVectorData)+qMin(size, init->alloc)*sizeofT);
+    QVectorData* p = (QVectorData *)qMalloc(sizeofTypedData + (size - 1) * sizeofT);
+    ::memcpy(p, init, sizeofTypedData + (qMin(size, init->alloc) - 1) * sizeofT);
     return p;
 }
 
-QVectorData* QVectorData::realloc(int size, int sizeofT)
-{
-    return (QVectorData*)qRealloc(this, sizeof(QVectorData) + size * sizeofT);
-}
-
-int QVectorData::grow(int size, int sizeofT, bool excessive)
+int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive)
 {
     if (excessive)
-        return size + size/2;
-    return qAllocMore(size * sizeofT,
-                       sizeof(QVectorData)) / sizeofT;
+        return size + size / 2;
+    return qAllocMore(size * sizeofT, sizeofTypedData - sizeofT) / sizeofT;
 }
 
 /*! \class QVector

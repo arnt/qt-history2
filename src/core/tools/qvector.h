@@ -12,10 +12,8 @@ struct Q_CORE_EXPORT QVectorData
     QAtomic ref;
     int alloc, size;
     static QVectorData shared_null;
-    static QVectorData* malloc(int size, int sizeofT);
-    static QVectorData* malloc(int size, int sizeofT, QVectorData* init);
-    QVectorData* realloc(int size, int sizeofT);
-    static int grow(int size, int sizeofT, bool excessive);
+    static QVectorData* malloc(int sizeofTypedData, int size, int sizeofT, QVectorData* init);
+    static int grow(int sizeofTypedData, int size, int sizeofT, bool excessive);
 };
 
 template <typename T>
@@ -144,6 +142,7 @@ public:
 
 private:
     void detach_helper();
+    QVectorData *malloc(int alloc);
     void realloc(int size, int alloc);
     void free(Data *d);
 };
@@ -157,7 +156,7 @@ void QVector<T>::reserve(int size)
 template <typename T>
 void QVector<T>::resize(int size)
 { realloc(size, (size>d->alloc||(size<d->size && size < (d->alloc >> 1))) ?
-           QVectorData::grow(size, sizeof(T), QTypeInfo<T>::isStatic)
+           QVectorData::grow(sizeof(Data), size, sizeof(T), QTypeInfo<T>::isStatic)
            : d->alloc); }
 template <typename T>
 inline void QVector<T>::clear()
@@ -205,9 +204,15 @@ QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 }
 
 template <typename T>
+inline QVectorData *QVector<T>::malloc(int alloc)
+{
+    return static_cast<QVectorData *>(qMalloc(sizeof(Data) + (alloc - 1) * sizeof(T)));
+}
+
+template <typename T>
 QVector<T>::QVector(int size)
 {
-    p = QVectorData::malloc(size, sizeof(T));
+    p = malloc(size);
     d->ref = 1;
     d->alloc = d->size = size;
     if (QTypeInfo<T>::isComplex) {
@@ -223,7 +228,7 @@ QVector<T>::QVector(int size)
 template <typename T>
 QVector<T>::QVector(int size, const T &t)
 {
-    p = QVectorData::malloc(size, sizeof(T));
+    p = malloc(size);
     d->ref = 1;
     d->alloc = d->size = size;
     T* i = d->array + d->size;
@@ -252,9 +257,9 @@ void QVector<T>::realloc(int size, int alloc)
     if (alloc != d->alloc || d->ref != 1) {
         // (re)allocate memory
         if (QTypeInfo<T>::isStatic) {
-            x.p = QVectorData::malloc(alloc, sizeof(T));
+            x.p = malloc(alloc);
         } else if (d->ref != 1) {
-            x.p = QVectorData::malloc(alloc, sizeof(T), p);
+            x.p = QVectorData::malloc(sizeof(Data), alloc, sizeof(T), p);
         } else {
             if (QTypeInfo<T>::isComplex) {
                 // call the destructor on all objects that need to be
@@ -267,7 +272,8 @@ void QVector<T>::realloc(int size, int alloc)
                     i = d->array + size;
                 }
             }
-            x.p = p = p->realloc(alloc, sizeof(T));
+            x.p = p =
+                  static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (alloc - 1) * sizeof(T)));
         }
         x.d->ref = 1;
     }
@@ -322,7 +328,7 @@ template <typename T>
 void QVector<T>::append(const T &t)
 {
     if (d->ref != 1 || d->size +1 > d->alloc)
-        realloc(d->size, QVectorData::grow(d->size+1, sizeof(T),
+        realloc(d->size, QVectorData::grow(sizeof(Data), d->size + 1, sizeof(T),
                                            QTypeInfo<T>::isStatic));
     if (QTypeInfo<T>::isComplex)
         new (d->array + d->size++) T(t);
@@ -337,7 +343,7 @@ typename QVector<T>::iterator QVector<T>::insert(iterator before, size_type n, c
     int p = before - d->array;
     if (n != 0) {
         if (d->ref != 1 || d->size + n > d->alloc)
-            realloc(d->size, QVectorData::grow(d->size+n, sizeof(T),
+            realloc(d->size, QVectorData::grow(sizeof(Data), d->size + n, sizeof(T),
                                                QTypeInfo<T>::isStatic));
         if (QTypeInfo<T>::isStatic) {
             T *b = d->array+d->size;
@@ -414,7 +420,7 @@ QVector<T> &QVector<T>::fill(const T &t, int size)
 }
 
 template <typename T>
-QVector<T>  &QVector<T>::operator+=(const QVector &l)
+QVector<T> &QVector<T>::operator+=(const QVector &l)
 {
     realloc(d->size, d->size + l.d->size);
     d->size += l.d->size;
