@@ -4666,10 +4666,10 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
     QPoint global,
 	curr;
     int j,
-	pressure,
-	xTilt,
-	yTilt,
-	deviceType;
+	pressure = 0,
+	xTilt = 0,
+	yTilt = 0,
+	deviceType = QTabletEvent::NoDevice;
     const int PRESSURE_LEVELS = 255;
     // we got the maximum pressure at start time, since various tablets have
     // varying levels of distinguishing pressure changes, let's standardize and
@@ -4708,7 +4708,7 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 		    break;
 		}
 	    } else
-		deviceType = QTabletEvent::None;
+		deviceType = QTabletEvent::NoDevice;
 	    // apparently Wacom needs a cast for the +/- values to make sense
 	    xTilt = short(vs->valuators[WAC_XTILT_I]);
 	    yTilt = short(vs->valuators[WAC_YTILT_I]);
