@@ -208,11 +208,11 @@ public:
     int xToCursor(int x, CursorPosition = BetweenCharacters) const;
 
     enum BreakMode {
-        BreakPixels,
-        BreakGlyphs
+        BreakAtPixels,
+        BreakAtGlyphs
     };
 
-    void layout(int width, BreakMode mode = BreakPixels);
+    void layout(int width, BreakMode mode = BreakAtPixels);
     void setPosition(const QPoint &pos);
 
     int from() const;

@@ -949,7 +949,7 @@ int QTextLine::textWidth() const
 void QTextLine::layout(int width, BreakMode mode)
 {
     int maxGlyphs = INT_MAX;
-    if (mode == BreakGlyphs) {
+    if (mode == BreakAtGlyphs) {
         maxGlyphs = width;
         width = INT_MAX >> 6;
     }
