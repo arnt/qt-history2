@@ -19,7 +19,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#ifndef Q_OS_TEMP
 #include <locale.h>
+#else
+#include "qt_windows.h"
+#endif
 
 /*!
     \class QDataStream qdatastream.h
@@ -1012,9 +1016,18 @@ QDataStream &QDataStream::operator<<( float f )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
+#ifdef Q_OS_TEMP
+	const int buffer_size = 10;
+	wchar_t buffer[buffer_size];
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
+	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
+	sprintf( buf, "%g\n", (double)f );
+	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
+#else
 	char *old_locale = setlocale(LC_NUMERIC, "C");
 	sprintf( buf, "%g\n", (double)f );
 	setlocale(LC_NUMERIC, old_locale);
+#endif
 	dev->writeBlock( buf, strlen(buf) );
     } else {
 	float g = f;				// fixes float-on-stack problem
@@ -1046,9 +1059,18 @@ QDataStream &QDataStream::operator<<( double f )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	char buf[32];
+#ifdef Q_OS_TEMP
+	const int buffer_size = 10;
+	wchar_t buffer[buffer_size];
+	GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
+	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
+	sprintf( buf, "%g\n", f );
+	SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
+#else
 	char *old_locale = setlocale(LC_NUMERIC, "C");
 	sprintf( buf, "%g\n", f );
 	setlocale(LC_NUMERIC, old_locale);
+#endif
 	dev->writeBlock( buf, strlen(buf) );
     } else if ( noswap ) {			// no conversion needed
 	dev->writeBlock( (char *)&f, sizeof(double) );

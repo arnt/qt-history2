@@ -37,11 +37,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <locale.h>
-#include <new>
-
+#ifndef Q_OS_TEMP
+# include <locale.h>
+#endif
 #ifdef Q_OS_WIN
-#include <qt_windows.h>
+# include <qt_windows.h>
 #endif
 
 #ifndef LLONG_MAX
@@ -1400,7 +1400,6 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
     }
     return *this;
 }
-
 
 #endif
 

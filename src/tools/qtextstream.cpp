@@ -22,13 +22,15 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#ifndef Q_OS_TEMP
 #include <locale.h>
+#endif
 
 #include <qdatetime.h>
 #include <qchar.h>
 
 #if defined(Q_OS_WIN32)
-#include <windows.h>
+#include "qt_windows.h"
 #endif
 
 /*!
@@ -1975,9 +1977,18 @@ QTextStream &QTextStream::operator<<( double f )
     *fs++ = 'l';
     *fs++ = f_char;
     *fs = '\0';
+#ifdef Q_OS_TEMP
+    const int buffer_size = 10;
+    wchar_t buffer[buffer_size];
+    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer, buffer_size );
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, L"." );
+    sprintf( buf, format, f );			// convert to text
+    SetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buffer );
+#else
     char *old_locale = setlocale(LC_NUMERIC, "C");
     sprintf( buf, format, f );			// convert to text
     setlocale(LC_NUMERIC, old_locale);
+#endif
     if ( fwidth )				// padding
 	*this << (const char*)buf;
     else					// just write it
