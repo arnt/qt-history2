@@ -96,12 +96,14 @@ cd ${DISTDIR}/qt/src
 rm 	  dialogs/qdeveloper.h \
 	  dialogs/qtranslatordialog.h \
 	  kernel/qproperty.h \
+	  kernel/qresource.h \
 	  kernel/qsocket.h \
 	  kernel/qsocketdevice.h \
 	  widgets/qdial.h \
 	  widgets/qworkspace.h \
 	  widgets/qworkspacechild.h \
 	  kernel/qproperty.cpp \
+	  kernel/qresource.cpp \
 	  kernel/qsocket.cpp \
 	  kernel/qsocketdevice.cpp \
 	  widgets/qdial.cpp \
