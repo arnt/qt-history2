@@ -86,16 +86,28 @@ QStringList Option::mkfile::project_files;
 
 bool usage(const char *a0)
 {
-    fprintf(stderr, "Usage: %s [options] [project-files]\n"
-	   "Options:\n"
-	   "\t-nocache       Don't use a cache file\n"
-	   "\t-nodepend      Don't generate dependency information\n"
-	   "\t-o file        Write output to file\n"
-	   "\t-unix          Run in unix mode\n"
-	   "\t-win32         Run in win32 mode\n"
-	   "\t-cache file  Use file as cache\n"
-	   "\t-path dir Use dir as qmakepath\n"
-	   "\t-d             Increase debug level\n", a0);
+    fprintf(stderr, "Usage: %s [mode] [options] [project-files]\n"
+	    "\n"
+	    "   QMake has two modes, one mode for generating project files based on\n"
+	    "some heuristics, and the other for generating makefiles. Normally you\n"
+	    "shouldn't need to specify a mode, as makefile generation is the default\n"
+	    "mode for qmake, but you may use this to test qmake on an existing project\n"
+	    "\n"
+	    "Mode:\n"
+	    "\t-project       Put qmake into project file generation mode\n"
+	    "\t-makefile      Put qmake into makefile generation mode (assumed)\n"
+	    "\n"
+	    "Options:\n"
+	    "\t-o file        Write output to file\n"
+	    "\t-unix          Run in unix mode\n"
+	    "\t-win32         Run in win32 mode\n"
+	    "\t-d             Increase debug level\n"
+	    "\t-help          This help\n"
+	    "\t-cache file    Use file as cache           [makefile mode only]\n"
+	    "\t-path dir      Use dir as QMAKEPATH        [makefile mode only]\n"
+	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
+	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
+	    ,a0);
     return FALSE;
 }
 
