@@ -428,9 +428,16 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 			QString uip = inc_file.left(extn) + Option::ui_ext;
 			QStringList uil = project->variables()["FORMS"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
-			    QString s = (*it).section(Option::dir_sep, -1);
-			    if(s == uip) {
-				fqn = s.left(s.length()-3) + inc_file.right(inc_file.length()-extn);
+			    if((*it).section(Option::dir_sep, -1) == uip) {
+				if(!project->isEmpty("UI_DIR"))
+				    fqn = project->first("UI_DIR");
+				else if(!project->isEmpty("UI_HEADERS_DIR"))
+				    fqn = project->first("UI_HEADERS_DIR");
+				else
+				    fqn = (*it).section(Option::dir_sep, 0, -2);
+				if(!fqn.isEmpty() && !fqn.endsWith(Option::dir_sep))
+				    fqn += Option::dir_sep;
+				fqn += inc_file;
 				break;
 			    }
 			}
