@@ -373,10 +373,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
         RealizePalette(d->hdc);
     }
 
-    // ### Workaround for the ellipse problem below...
-//     updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
-//     updateMatrix(QMatrix());
-
     SetBkMode(d->hdc, TRANSPARENT);
     SetTextAlign(d->hdc, TA_BASELINE);
     SetTextColor(d->hdc, RGB(0, 0, 0));
@@ -545,14 +541,9 @@ void QWin32PaintEngine::drawRect(const QRectF &r)
     }
     int w = r.width(), h = r.height();
 
-    // Due to inclusive rectangles when using GM_ADVANCED
-    if (d->advancedMode) {
-        --w;
-        --h;
-    }
-    if (d->penStyle == Qt::NoPen) {
-        w++;
-        h++;
+    if (!d->advancedMode) {
+        ++w;
+        ++h;
     }
 
     bool outlineOnly = false;
@@ -632,15 +623,15 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
     // been in Advanced mode, so the assumption below does not make sence...
     // It is highly likely that a transformation has been used on the double
     // at some point in time though, so always subtract...
-    --w;
-    --h;
-//     if (d->advancedModeUsed) {
-//         --w;
-//         --h;
-//     } else if (d->penStyle == Qt::NoPen) {
-//         ++w;
-//         ++h;
-//     }
+    if (!d->advancedModeUsed) {
+        updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+        updateMatrix(QMatrix(1, 0, 0, 1, 0, 0));
+    }
+
+    if (d->penStyle == Qt::NoPen) {
+        --w;
+        --h;
+    }
 
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
