@@ -387,6 +387,8 @@ QLineEdit::~QLineEdit()
 }
 
 /*!
+    \internal
+
     Sets the password character to \a c.
 
     \sa passwordChar()
@@ -398,6 +400,8 @@ void QLineEdit::setPasswordChar( QChar c )
 }
 
 /*!
+    \internal
+
     Returns the password character.
 
     \sa setPasswordChar()
