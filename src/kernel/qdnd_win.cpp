@@ -865,7 +865,9 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     current_dropobj = pDataObj;
     QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
 
+    acceptfmt = TRUE; // set this true to get the correct initial action
     QueryDrop(grfKeyState, pdwEffect);
+
     if ( *pdwEffect & DROPEFFECT_MOVE )
 	de.setAction( QDropEvent::Move );
     else if ( *pdwEffect & DROPEFFECT_LINK )
@@ -878,13 +880,26 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
+    if (!acceptfmt)
+	*pdwEffect = DROPEFFECT_NONE;
+    else if ( de.action() == QDropEvent::Move )
+	*pdwEffect = DROPEFFECT_MOVE;
+    else if ( de.action() == QDropEvent::Copy )
+	*pdwEffect = DROPEFFECT_COPY;
+    else if ( de.action() == QDropEvent::Link )
+	*pdwEffect = DROPEFFECT_LINK;
+
+    
     return NOERROR;
 }
 
 STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
+    bool old_acceptfmt = acceptfmt; // set this to get the correct action.
+    acceptfmt = TRUE;
     QueryDrop(grfKeyState, pdwEffect);
+    acceptfmt = old_acceptfmt;
 
     if ( pt.x == last_pt.x && pt.y == last_pt.y &&
 	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
@@ -909,13 +924,9 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    if (!acceptfmt&&!acceptact)
+    if (!acceptfmt)
 	*pdwEffect = DROPEFFECT_NONE;
-#ifdef QT_DND_RESPECT_ACCEPTACTION
-    else if (!acceptact)
-	*pdwEffect = DROPEFFECT_COPY;
-#endif
-	else if ( de.action() == QDropEvent::Move )
+    else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
 	*pdwEffect = DROPEFFECT_COPY;
@@ -941,7 +952,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
     if (QueryDrop(grfKeyState, pdwEffect))
     {
 	current_dropobj = pDataObj;
-
+	
 	if ( global_src )
 	    global_src->setTarget(widget);
 	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
@@ -949,32 +960,31 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	    de.setAction( QDropEvent::Move );
 	else if ( *pdwEffect & DROPEFFECT_LINK )
 	    de.setAction( QDropEvent::Link );
-
+	
 	de.acceptAction(acceptact);
 	de.accept(acceptfmt);
 
 	QApplication::sendEvent( widget, &de );
-
+	
 	acceptfmt = de.isAccepted();
-    acceptact = de.isActionAccepted();
-
-	if (!acceptact&&!acceptfmt)
-	*pdwEffect = DROPEFFECT_NONE;
-#ifdef QT_DND_RESPECT_ACCEPTACTION
-    else if (!acceptact)
-	*pdwEffect = DROPEFFECT_COPY;
-#endif
-    else if ( de.action() == QDropEvent::Move )
-	*pdwEffect = DROPEFFECT_MOVE;
-    else if ( de.action() == QDropEvent::Copy )
-	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Link )
-	*pdwEffect = DROPEFFECT_LINK;
-
-
+	acceptact = de.isActionAccepted();
+	
+	if (!acceptfmt)
+	    *pdwEffect = DROPEFFECT_NONE;
+	else if (acceptact)
+	    *pdwEffect = DROPEFFECT_NONE; /* NONE because the source should do nothing .. 
+					  the tagret is responsible to perform the correct action*/
+	else if ( de.action() == QDropEvent::Move )
+	    *pdwEffect = DROPEFFECT_MOVE;
+	else if ( de.action() == QDropEvent::Copy )
+	    *pdwEffect = DROPEFFECT_COPY;
+	else if ( de.action() == QDropEvent::Link )
+	    *pdwEffect = DROPEFFECT_LINK;
+	
+	
 	// We won't get any mouserelease-event, so manually adjust qApp state:
 	QApplication::winMouseButtonUp();
-
+	
 	acceptfmt = FALSE;
         current_dropobj = 0;
 	return NOERROR;
