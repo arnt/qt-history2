@@ -1067,8 +1067,8 @@ void QImage::fill(uint pixel)
 void QImage::invertPixels(InvertMode mode)
 {
     detach();
-    Q_UINT32 n = numBytes();
-    if (n % 4) {
+    int n = numBytes();
+    if (depth() != 32) {
         Q_UINT8 *p = (Q_UINT8*)bits();
         Q_UINT8 *end = p + n;
         while (p < end)
