@@ -53,6 +53,10 @@ public:
     ~DspMakefileGenerator();
 
     QString defaultMakefile() const;
+
+protected:
+    virtual void processPrlVariable(const QString &, const QStringList &);
+
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()

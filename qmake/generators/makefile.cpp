@@ -671,17 +671,9 @@ MakefileGenerator::processPrlFile(QString &file)
 	    fprintf(stderr, "Error processing prl file: %s\n", real_prl_file.latin1());
 	} else {
 	    ret = TRUE;
-	    if(!proj.isEmpty("QMAKE_PRL_LIBS")) 
-		processPrlLibraries(proj.variables()["QMAKE_PRL_LIBS"]);
-	    if(!proj.isEmpty("QMAKE_PRL_DEFINES")) {
-		const QStringList &in = project->variables()["QMAKE_PRL_DEFINES"];
-		QStringList &out = project->variables()["DEFINES"];
-		for(QStringList::ConstIterator it = in.begin(); it != in.end(); ++it) {
-		    if(out.findIndex((*it)) == -1 && 
-		       project->variables()["PRL_EXPORT_DEFINES"].findIndex((*it)) == -1)
-			out.append((*it));
-		}
-	    }
+	    QMap<QString, QStringList> &vars = proj.variables();
+	    for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) 
+		processPrlVariable(it.key(), it.data());
 	    if(try_replace_file && !proj.isEmpty("QMAKE_PRL_TARGET")) {
 		QString dir;
 		int slsh = real_prl_file.findRev(Option::dir_sep);
@@ -697,12 +689,21 @@ MakefileGenerator::processPrlFile(QString &file)
 }
 
 void
-MakefileGenerator::processPrlLibraries(const QStringList &l)
+MakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    QStringList &out = project->variables()["QMAKE_LIBS"];
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
-	    out.append((*it));
+    if(var == "QMAKE_PRL_LIBS") {
+	QStringList &out = project->variables()["QMAKE_LIBS"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
+		out.append((*it));
+	}
+    } else if(var == "QMAKE_PRL_DEFINES") {
+	QStringList &out = project->variables()["DEFINES"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(out.findIndex((*it)) == -1 && 
+	       project->variables()["PRL_EXPORT_DEFINES"].findIndex((*it)) == -1)
+		out.append((*it));
+	}
     }
 }
 

@@ -235,31 +235,35 @@ UnixMakefileGenerator::init()
 }
 
 void
-UnixMakefileGenerator::processPrlLibraries(const QStringList &l)
+UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    QStringList &out = project->variables()["QMAKE_LIBS"];
-    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-	bool append = TRUE;
-	if((*it).left(1) == "-") {
-	    if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
-		append = out.findIndex((*it)) == -1;
-	    } else if(project->isActiveConfig("macx") && (*it).left(2) == "-framework") {
-		++it;
-		for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++it) {
-		    if((*outit) == "-framework") {
-			++outit;
-			if((*outit) == (*it)) {
-			    append = FALSE;
-			    break;
+    if(var == "QMAKE_PRL_LIBS") {
+	QStringList &out = project->variables()["QMAKE_LIBS"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    bool append = TRUE;
+	    if((*it).left(1) == "-") {
+		if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+		    append = out.findIndex((*it)) == -1;
+		} else if(project->isActiveConfig("macx") && (*it).left(2) == "-framework") {
+		    ++it;
+		    for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++it) {
+			if((*outit) == "-framework") {
+			    ++outit;
+			    if((*outit) == (*it)) {
+				append = FALSE;
+				break;
+			    }
 			}
 		    }
 		}
+	    } else if(QFile::exists((*it))) {
+		append = out.findIndex((*it));
 	    }
-	} else if(QFile::exists((*it))) {
-	    append = out.findIndex((*it));
+	    if(append)
+		out.append((*it));
 	}
-	if(append)
-	    out.append((*it));
+    } else {
+	MakefileGenerator::processPrlVariable(var, l);
     }
 }
 

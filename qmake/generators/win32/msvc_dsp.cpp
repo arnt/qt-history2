@@ -694,3 +694,24 @@ DspMakefileGenerator::findTemplate(QString file)
 	return "";
     return ret;
 }
+
+
+void
+DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l) 
+{
+    if(var == "QMAKE_PRL_LIBS") {
+	QStringList &out = project->variables()["MSVCDSP_LIBS"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
+		out.append((*it));
+	}
+    } else if(var == "QMAKE_PRL_DEFINES") {
+	QStringList &out = project->variables()["MSVCDSP_DEFINES"];
+	for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	    if(out.findIndex((*it)) == -1)
+		out.append((*it));
+	}
+    } else {
+	MakefileGenerator::processPrlVariable(var, l);
+    }
+}

@@ -55,7 +55,7 @@ public:
 protected:
     virtual bool doDepends() const { return !include_deps && MakefileGenerator::doDepends(); }
     virtual QString defaultInstall(const QString &);
-    virtual void processPrlLibraries(const QStringList &);
+    virtual void processPrlVariable(const QString &, const QStringList &);
     virtual void processPrlFiles();
 
     virtual void init();
