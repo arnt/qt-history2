@@ -14,6 +14,7 @@ public:
     QStringList featureList() const;
     QStyle *create( const QString& );
 
+    bool init();
     bool canUnload() const;
 
 private:
@@ -69,6 +70,11 @@ QStyle* WindowsStyle::create( const QString& s )
     if ( s.lower() == "windows" )
 	return style = new QWindowsStyle();
     return 0;
+}
+
+bool WindowsStyle::init()
+{
+    return TRUE;
 }
 
 bool WindowsStyle::canUnload() const
