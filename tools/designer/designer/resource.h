@@ -41,7 +41,7 @@ class QDomElement;
 class QDesignerGridLayout;
 class QListViewItem;
 class QMainWindow;
-class LanguageInterface;
+struct LanguageInterface;
 
 class Resource
 {
