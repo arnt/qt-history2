@@ -145,7 +145,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	resizeContents( contentsWidth(), doc->height() );
 
     if ( contentsHeight() < visibleHeight() && drawAll )
-	p->fillRect( 0, contentsHeight(), visibleWidth(), 
+	p->fillRect( 0, contentsHeight(), visibleWidth(),
 		     visibleHeight() - contentsHeight(), g.brush( QColorGroup::Base ) );
 }
 
@@ -1089,6 +1089,10 @@ void QTextEdit::setFormat( QTextFormat *f, int flags )
 	}
 	emit currentFontChanged( currentFormat->font() );
 	emit currentColorChanged( currentFormat->color() );
+	if ( cursor->index() == cursor->parag()->length() < 1 ) {
+	    currentFormat->addRef();
+	    cursor->parag()->string()->setFormat( cursor->index(), currentFormat, TRUE );
+	}
     }
 }
 
