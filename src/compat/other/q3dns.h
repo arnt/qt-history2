@@ -93,7 +93,7 @@ public:
 
     QStringList texts() const;
 
-    QString canonicalName() const; // ### real-world but uncommon: QStringList
+    QString canonicalName() const;
 
     QStringList qualifiedNames() const { return n; }
 

@@ -446,7 +446,7 @@ void QNetworkProtocol::setUrl(QUrlOperator *u)
     }
 
 
-    // ### if autoDelete is true, we should delete the QUrlOperator (something
+    // if autoDelete is true, we should delete the QUrlOperator (something
     // like below; but that is not possible since it would delete this, too).
     //if (d->autoDelete && (d->url!=u)) {
     //    delete d->url; // destructor deletes the network protocol
@@ -1341,7 +1341,7 @@ void QHttpProtocol::clientReply(const QHttpResponseHeader &rep)
                     break;
             }
         }
-        // ### In cases of an error, should we still emit the data() signals?
+        // In cases of an error, should we still emit the data() signals?
         if (op->operation() == OpGet && http.bytesAvailable() > 0) {
             QByteArray ba = http.readAll();
             emit data(ba, op);

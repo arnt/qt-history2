@@ -143,7 +143,6 @@ public:
     QPointer<QWidget> watch;
     bool ignorewhatsthis;
     bool enabled;
-    // ### should not be needed anymore
     QAccel* parent;
 
     void activate(QAccelItem* item);

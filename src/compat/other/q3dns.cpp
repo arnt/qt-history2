@@ -56,7 +56,7 @@
 
 //#define QDNS_DEBUG
 
-static Q_UINT16 id; // ### seeded started by now()
+static Q_UINT16 id; // seeded started by now()
 
 static QDateTime * originOfTime = 0;
 
@@ -78,6 +78,7 @@ static QList<QHostAddress *> *ns = 0;
 static QList<QByteArray> *domains = 0;
 static bool ipv6support = false;
 
+#if !defined(Q_MODERN_RES_API)
 static int qdns_res_init()
 {
 #ifdef Q_OS_MAC
@@ -95,7 +96,7 @@ static int qdns_res_init()
     return 0; // not called at all on Windows.
 #endif
 }
-
+#endif
 
 class Q3DnsPrivate {
 public:
@@ -1294,7 +1295,7 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
                 rrTmp->current = true;
                 l->append(rrTmp);
             } else {
-                rrTmp->nxdomain = TRUE;                
+                rrTmp->nxdomain = TRUE;
             }
             return l;
         }
@@ -1308,7 +1309,7 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
                 rrTmp->address = tmp;
                 rrTmp->current = true;
             } else {
-                rrTmp->nxdomain = TRUE;                
+                rrTmp->nxdomain = TRUE;
             }
             l->append(rrTmp);
             return l;
@@ -1435,12 +1436,12 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
 
             return l;
         }
-        
+
 #if defined(QDNS_DEBUG)
             if (nxdomain)
                 qDebug("found NXDomain %s", s.ascii());
 #endif
-            
+
         if (!nxdomain) {
             // if we didn't, and not a negative result either, perhaps
             // we need to transmit a query. check the Q3DnsManager's
@@ -2204,7 +2205,6 @@ void Q3Dns::connectNotify(const char *signal)
 #if defined(Q_DNS_SYNCHRONOUS)
 void Q3Dns::doSynchronousLookup()
 {
-    // ### not implemented yet
 }
 #endif
 
@@ -2236,7 +2236,7 @@ typedef struct {
 #endif
 typedef DWORD (WINAPI *GNP)(PFIXED_INFO, PULONG);
 
-// ### FIXME: this code is duplicated in qfiledialog.cpp
+// this code is duplicated in qfiledialog.cpp
 static QString getWindowsRegString(HKEY key, const QString &subKey)
 {
     QString s;
@@ -2578,7 +2578,7 @@ void Q3Dns::doResInit()
                 while(n < line.length() && !line[(int)n].isSpace())
                     n++;
                 QString hostname = line.left(n);
-                // ### in case of bad syntax, hostname is invalid. do we care?
+                // in case of bad syntax, hostname is invalid.
                 if (n) {
                     Q3DnsRR * rr = new Q3DnsRR(hostname);
                     if (a.isIPv4Address())
