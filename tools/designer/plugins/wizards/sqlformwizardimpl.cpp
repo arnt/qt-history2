@@ -71,7 +71,6 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	mode = View;
     }
 
-    connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
     setupPage1();
 }
 
