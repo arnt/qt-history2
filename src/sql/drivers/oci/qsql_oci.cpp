@@ -865,7 +865,7 @@ QOCIDriver::~QOCIDriver()
     delete d;
 }
 
-bool QOCIDriver::feature( DriverFeature f ) const
+bool QOCIDriver::hasFeature( DriverFeature f ) const
 {
     switch ( f ) {
     case Transactions:
