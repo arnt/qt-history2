@@ -1371,6 +1371,11 @@ void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperati
         return;
     }
 
+    if (path.isEmpty()) {
+        updateClipRegion(QRegion(), Qt::ReplaceClip);
+        return;
+    }
+
     if (op == Qt::ReplaceClip && path.isEmpty()) {
         SelectClipRgn(d->hdc, 0);
     } else {
@@ -2257,11 +2262,14 @@ void QGdiplusPaintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipO
     } else {
         if (op == Qt::ReplaceClip)
             GdipResetClip(d->graphics);
+        if (clipPath.isEmpty()) {
+            updateClipRegion(QRegion(), op);
+            return;
+        }
         QtGpPath *path = d->composeGdiplusPath(clipPath);
-        GdipSetClipPath(d->graphics
-                          , path,
-                          op-1  // Same enum values in GDI+, but +1 due to Qt::NoClip
-                          );
+        GdipSetClipPath(d->graphics, path,
+                        op-1  // Same enum values in GDI+, but +1 due to Qt::NoClip
+                        );
         GdipDeletePath(path);
     }
 }
