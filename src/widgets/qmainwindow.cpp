@@ -46,7 +46,7 @@
 #include "qwhatsthis.h"
 
 //#define QMAINWINDOW_DEBUG
-//#define TOOLBAR_MENU
+#define TOOLBAR_MENU
 
 //***********************************************************************************
 // -------------------------- static convenience functions -------------------
@@ -2972,7 +2972,7 @@ bool QMainWindow::isDockMenuEnabled() const
 }
 
 /*!
-  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock
+  When passing TRUE for \a b here, rightclicking on an empty space on a toolbar dock 
   or rightclicking on a toolbar handle opens a popup menu which allows lining up toolbars
   and hiding/showing toolbars.
 

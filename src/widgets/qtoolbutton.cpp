@@ -707,6 +707,8 @@ QIconSet QToolButton::iconSet( bool on ) const
  */
 void QToolButton::setPopup( QPopupMenu* popup )
 {
+    if ( popup )
+	setAutoRepeat( FALSE ); // #### else it crashes in the destructor
     if ( popup && !d->popupTimer ) {
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 	d->popupTimer = new QTimer( this );
@@ -729,7 +731,7 @@ QPopupMenu* QToolButton::popup() const
 
 void QToolButton::popupPressed()
 {
-    if ( d->popupTimer && isDown() )
+    if ( d->popupTimer )
 	d->popupTimer->start( d->delay, TRUE );
 }
 

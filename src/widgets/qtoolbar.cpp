@@ -39,7 +39,7 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 
-//#define TOOLBAR_MENU
+#define TOOLBAR_MENU
 
 class QArrowWidget : public QWidget
 {
@@ -617,7 +617,6 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 
 void QToolBar::updateArrowStuff()
 {
-    qDebug( "here" );
     if ( orientation() == Horizontal ) {
 	int shw = sizeHint().width();
 	if ( d->arrow && d->back && d->arrow->isVisible() && d->back->isVisible() )
@@ -652,10 +651,16 @@ void QToolBar::updateArrowStuff()
 	    setUpdatesEnabled( FALSE );
 	} else {
 	    if ( d->arrow || d->back ) {
-		if ( d->back )
+		if ( d->back && d->back->isVisible() ) {
 		    d->back->hide();
-		if ( d->arrow )
+		    if ( layout() )
+			layout()->activate();
+		}
+		if ( d->arrow && d->arrow->isVisible() ) {
 		    d->arrow->hide();
+		    if ( layout() )
+			layout()->activate();
+		}
 	    }
 	    setUpdatesEnabled( TRUE );
 	}
@@ -693,10 +698,16 @@ void QToolBar::updateArrowStuff()
 	    setUpdatesEnabled( FALSE );
 	} else {
 	    if ( d->arrow || d->back ) {
-		if ( d->back )
+		if ( d->back && d->back->isVisible() ) {
 		    d->back->hide();
-		if ( d->arrow )
+		    if ( layout() )
+			layout()->activate();
+		}
+		if ( d->arrow && d->arrow->isVisible() ) {
 		    d->arrow->hide();
+		    if ( layout() )
+			layout()->activate();
+		}
 	    }
 	    setUpdatesEnabled( TRUE );
 	}
