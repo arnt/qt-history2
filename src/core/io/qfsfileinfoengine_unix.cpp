@@ -29,10 +29,11 @@ bool
 QFSFileInfoEnginePrivate::doStat() const
 {
     if(!tried_stat) {
-	tried_stat = true;
-	could_stat = true;
+        QFSFileInfoEnginePrivate *that = const_cast<QFSFileInfoEnginePrivate*>(this);
+	that->tried_stat = true;
+	that->could_stat = true;
 	if (::stat(QFile::encodeName(file), &st) != 0)
-	    could_stat = false;
+	    that->could_stat = false;
     }
     return could_stat;
 }
