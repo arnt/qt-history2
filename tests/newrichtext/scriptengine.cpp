@@ -2619,6 +2619,7 @@ static QString analyzeSyllables( int script, const QString &string, int from, in
 	int send = nextSyllableBoundary( script, string, sstart, end, &invalid );
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
+	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
 	QString str = (reorderFunctions[script-QFont::Devanagari])( string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
 	reordered += str;
 	fpos += str.length();

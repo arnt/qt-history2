@@ -142,6 +142,7 @@ const QCharAttributes *QTextEngine::attributes()
 	QScriptItem &si = items[i];
 	int from = si.position;
 	int len = length( i );
+	assert( si.analysis.script <= QFont::Unicode );
 	scriptEngines[si.analysis.script].charAttributes( string, from, len, charAttributes+from );
     }
     return charAttributes;
@@ -165,6 +166,7 @@ QShapedItem *QTextEngine::shape( int item ) const
     si.fontEngine->ref();
 
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
+	assert( script <= QFont::Unicode );
 	scriptEngines[script].shape( script, string, from, len, &si );
     }
     return si.shaped;
