@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#143 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#144 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -668,6 +668,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     if ( e->button() == MidButton ) {
 	insert( QApplication::clipboard()->text() );
 	return;
+#if 0 // it works, but it's wait until we have an API
     } else if ( hasMarkedText() &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
@@ -677,6 +678,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	tdo->dragCopy();
 	delete tdo;
 	return;
+#endif
     }
 
     int m1 = minMark();
@@ -1205,6 +1207,7 @@ void QLineEdit::clearValidator()
 
 bool QLineEdit::event( QEvent * e )
 {
+#if 0 // it works, but we'll wait with enabling it.
     if ( !e )
 	return QWidget::event( e );
 
@@ -1233,6 +1236,7 @@ bool QLineEdit::event( QEvent * e )
 	}
 	return TRUE;
     }
+#endif
     return QWidget::event( e );
 }
 
