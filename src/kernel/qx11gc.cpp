@@ -441,7 +441,7 @@ void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool 
 {
     QPaintDevice *pd = pp->device();
     QX11GC *p = static_cast<QX11GC *>(pd->gc());
-    
+
     XPoint points[5];
     int xp = x,  yp = y;
     pp->map( xp, yp, &xp, &yp );
@@ -525,7 +525,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 //                   "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
-    
+
     setActive(true);
 
     QPixmap::x11SetDefaultScreen(x11Screen());
@@ -545,7 +545,7 @@ bool QX11GC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 
 //     if ( (pdev->devFlags & QInternal::ExternalDevice) != 0 )
 //         setf(ExtDev);
-//     else 
+//     else
     if (d->pdev->devType() == QInternal::Pixmap)         // device is a pixmap
 	static_cast<QPixmap *>(d->pdev)->detach();             // will modify it
 
@@ -1461,7 +1461,7 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
     }
 
     QRegion rgn = d->crgn; // ### remove this
-    
+
 //     rgn.translate(-redirection_offset);
 
     if ( mask ) {                               // pixmap has clip mask
@@ -1475,7 +1475,7 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
                 rgn = *paintEventClipRegion;
         }
 	QRect rg = rgn.boundingRect();
-	
+
         QBitmap *comb = new QBitmap( sw, sh );
         comb->detach();
         GC cgc = qt_xget_temp_gc( pixmap.x11Screen(), TRUE );   // get temporary mono GC
@@ -1560,7 +1560,7 @@ void QX11GC::updateXForm(QPainterState *)
 void QX11GC::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-    
+
     clearf(ClipOn);
     // ### Extremely expensive matr. mult. for every set call - what to do with that?
     // if (m == CoordDevice)
@@ -1568,11 +1568,13 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     // else
     //     crgn = xmat * rgn;
     if (ps->VxF || ps->WxF)
-	ps->clipRegion = ps->worldMatrix * ps->clipRegion;
+	d->crgn = ps->worldMatrix * ps->clipRegion;
+    else
+	d->crgn = ps->clipRegion;
     if (ps->clipEnabled) {
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
- 	    ps->clipRegion = ps->clipRegion.intersect(*paintEventClipRegion);
-	x11SetClipRegion(d->dpy, d->gc, d->rendhd, ps->clipRegion, d->gc_brush);
+ 	    d->crgn = d->crgn.intersect(*paintEventClipRegion);
+	x11SetClipRegion(d->dpy, d->gc, d->rendhd, d->crgn, d->gc_brush);
 	setf(ClipOn);
     } else {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
@@ -1590,7 +1592,6 @@ void QX11GC::updateClipRegion(QPainterState *ps)
 #endif // QT_NO_XRENDER
 	}
     }
-    d->crgn = ps->clipRegion;
 }
 
 void QX11GC::updateFont(QPainterState *ps)
@@ -1598,7 +1599,7 @@ void QX11GC::updateFont(QPainterState *ps)
     clearf(DirtyFont);
     setf(NoCache);
     if (d->penRef)
-        updatePen(ps);                            // force a non-cached GC    
+        updatePen(ps);                            // force a non-cached GC
 }
 
 void QX11GC::drawTextItem(int x, int y, const QTextItem &ti, int textflags)
@@ -1656,7 +1657,7 @@ void QX11GC::x11SetAppDpiX(int screen, int xdpi)
 	screen = QX11GC::x11AppScreen();
     if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
 	return;
-    dpisX[ screen ] = xdpi;    
+    dpisX[ screen ] = xdpi;
 }
 
 int QX11GC::x11AppDpiY(int screen )
@@ -1668,7 +1669,7 @@ int QX11GC::x11AppDpiY(int screen )
 	screen = QX11GC::x11AppScreen();
     if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
 	return 0;
-    return dpisY[ screen ];    
+    return dpisY[ screen ];
 }
 
 void QX11GC::x11SetAppDpiY(int screen, int ydpi)
@@ -1680,6 +1681,6 @@ void QX11GC::x11SetAppDpiY(int screen, int ydpi)
 	screen = QX11GC::x11AppScreen();
     if ( screen > ScreenCount( QX11GC::x11AppDisplay() ) )
 	return;
-    dpisY[ screen ] = ydpi;    
+    dpisY[ screen ] = ydpi;
 }
 
