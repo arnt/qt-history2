@@ -14,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>556</width>
-            <height>458</height>
+            <width>552</width>
+            <height>456</height>
         </rect>
     </property>
     <property name="caption">
@@ -738,12 +738,12 @@
                 </grid>
             </widget>
         </widget>
-        <widget class="QTextView">
+        <widget class="QTextEdit">
             <property name="name">
                 <cstring>logWindow</cstring>
             </property>
-            <property name="wordWrap">
-                <enum>NoWrap</enum>
+            <property name="readOnly">
+                <bool>true</bool>
             </property>
         </widget>
         <widget class="QLayoutWidget">
@@ -853,7 +853,6 @@
         <slot>stop()</slot>
     </connection>
     <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="public" language="C++" returnType="void">logMessage(const QString &amp; prefix, const QString &amp; msg, QNetworkOperation * no)</slot>
     <slot access="public" language="C++" returnType="void">quit()</slot>
     <slot access="public" language="C++" returnType="void">start_copy()</slot>
     <slot access="public" language="C++" returnType="void">start_get()</slot>
@@ -863,15 +862,16 @@
     <slot access="public" language="C++" returnType="void">start_remove()</slot>
     <slot access="public" language="C++" returnType="void">start_rename()</slot>
     <slot access="public" language="C++" returnType="void">stop()</slot>
-    <slot access="public" language="C++" returnType="void">url_connectionStateChanged(int i, const QString &amp; s)</slot>
-    <slot access="public" language="C++" returnType="void">url_createdDirectory(const QUrlInfo &amp;, QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_data(const QByteArray &amp;, QNetworkOperation * no)</slot>
-    <slot access="protected" language="C++" returnType="void">url_dataTransferProgress(int i, int j, QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_finished(QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_itemChanged(QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_newChildren(const QValueList&lt;QUrlInfo&gt;&amp;, QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_removed(QNetworkOperation * no)</slot>
-    <slot access="public" language="C++" returnType="void">url_start(QNetworkOperation * no)</slot>
-    <slot access="protected" language="C++" returnType="void">url_startedNextCopy(const QPtrList&lt;QNetworkOperation&gt;&amp;)</slot>
+    <slot access="public" language="C++" returnType="void">url_createdDirectory( const QUrlInfo &amp;, QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_data( const QByteArray &amp; ba, QNetworkOperation * no )</slot>
+    <slot access="protected" language="C++" returnType="void">url_dataTransferProgress( int i, int j, QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_finished( QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_itemChanged( QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_newChildren( const QValueList&lt;QUrlInfo&gt; &amp;, QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_removed( QNetworkOperation * no )</slot>
+    <slot access="public" language="C++" returnType="void">url_start( QNetworkOperation * no )</slot>
+    <slot access="protected" language="C++" returnType="void">url_startedNextCopy( const QPtrList&lt;QNetworkOperation&gt; &amp; )</slot>
+    <slot access="public" language="C++" returnType="void">url_connectionStateChanged( int i, const QString &amp; s )</slot>
+    <slot access="public" language="C++" returnType="void">logMessage( const QString &amp; prefix, const QString &amp; msg, QNetworkOperation * no )</slot>
 </connections>
 </UI>
