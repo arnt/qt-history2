@@ -16,9 +16,9 @@
 
 #include <private/qabstractitemmodel_p.h>
 
-class  ModelItem {
+class  QStdModelItem {
 public:
-    ModelItem() {};
+    QStdModelItem() {};
     QVariant value(int role)
         {
             for (int i=0; i<roles.count(); ++i)
@@ -40,10 +40,10 @@ public:
     QVector<QPair<int, QVariant> > roles;
 };
 
-class ModelRow {
+class QStdModelRow {
 public:
-    ModelRow(ModelRow *parent) : p(parent), childrenColumns(0) {}
-    ~ModelRow()
+    QStdModelRow(QStdModelRow *parent) : p(parent), childrenColumns(0) {}
+    ~QStdModelRow()
         {
             for (int i=0; i<items.count(); ++i)
                 delete items.at(i);
@@ -53,10 +53,10 @@ public:
             childrenRows.clear();
         }
 
-    ModelRow *p;
-    QVector<ModelItem*> items;
+    QStdModelRow *p;
+    QVector<QStdModelItem*> items;
     int childrenColumns;
-    QVector<ModelRow*> childrenRows;
+    QVector<QStdModelRow*> childrenRows;
 };
 
 class QStandardItemModelPrivate : public QAbstractItemModelPrivate
@@ -68,9 +68,9 @@ public:
     QStandardItemModelPrivate(int rows, int columns) : topLevelRows(rows), topLevelColumns(columns) {}
     virtual ~QStandardItemModelPrivate() {}
 
-    ModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
+    QStdModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
 
-    QVector<ModelRow*> topLevelRows;
+    QVector<QStdModelRow*> topLevelRows;
     int topLevelColumns;
 };
 
