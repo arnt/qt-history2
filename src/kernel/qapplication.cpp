@@ -3129,16 +3129,17 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  Returns an interface implementation that matches the \a request.
+  Returns an interface implementation that matches the \a request, or null
+  if this application doesn't provide the requested interface.
 
-  The plugin-loader will try to connect all QClientInterfaces that
-  correspond to interfaces the application returns for matching requests.
-  Reimplement this function to provide interfaces plugins can use to
-  access the application's components.
+  Plugins can use this function to get access to application components using
+  the methods QApplicationInterface provides. This is usually done in the
+  connectNotify method of a subclass of QPlugInInterface where the plugin can
+  check if required interfaces can be provided by the application object.
 
   The default implementation returns null for all requests.
 
-  \sa QPlugIn, QClientInterface
+  \sa QPlugInInterface
 */
 QApplicationInterface* QApplication::requestApplicationInterface( const QCString& /*request*/ )
 {
@@ -3146,102 +3147,58 @@ QApplicationInterface* QApplication::requestApplicationInterface( const QCString
 }
 
 /*!
-  Returns a list of provided interfaces for this application.
-
-  Reimplement this function to enable plugins to connect to the application's
-  components.
-
-  The default implementation returns an empty list.
-
-  \sa QPlugIn, QApplicationInterface, QClientInterface
-*/
-QStrList QApplication::queryInterfaceList() const
-{
-    return QStrList();
-}
-
-/*!
   \class QApplicationInterface qapplicationinterface.h
 
   \brief This class provides an interface to give runtime access to application components.
 
-  \sa QClientInterface, QPlugIn
+  \sa QPlugInInterface
 */
 
 /*!
   \fn QApplicationInterface::QApplicationInterface( QObject* object )
 
   Creates an QApplicationInterface that will provide an interface to the application component
-  \a object.
-
-  Subclass this function to grant plugins the access to your application.
+  \a object. As the interface depends on the passed object it gets deleted when the object gets
+  destroyed. 
+  It's not valid to pass null for the same reason.
 */
 
 /*!
-  \fn QObject* QApplicationInterface::object()
+  \fn QObject* QApplicationInterface::parent()
+  \reimp
 
-  Returns the object this interface belongs to. Use this function to process
-  incoming requests in your subclass.
+  This function is made protected to uncontrolled access to the handled object.
 */
 
 /*!
-  \fn void QApplicationInterface::requestProperty( const QCString& property, QVariant& value )
+  \fn QVariant QApplicationInterface::requestProperty( const QCString& p )
 
-  A handler to process request the plugin sends in order to get the value of \a property.
-  This function will be called each time a connected QClientInterface emits the
-  \link QDualInterface::readProperty readProperty signal. You have to reimplement this function
-  for each compoent of your application you want to enable plugins to access, and handle the incoming
-  request by providing the requested property in the passed QVariant object \a value.
+  This function is supposed to return the value of the property \a p of the object.
+  Reimplement this function for advanced processing.
 
-  The default implementation sets \a value to the corresponding property of the handled object.
+  The default implementation returns the \a value of the property of the handled object.
 */
 
 /*!
-  \fn void QApplicationInterface::requestSetProperty( const QCString& property, const QVariant& value )
+  \fn void QApplicationInterface::requestSetProperty( const QCString& p, const QVariant& value )
 
-  A handler to process requests the plugin sends in order to change the \a property of the
-  object to \a value.
-  This function will be called each time a connected QClientInterface emits the
-  \link QDualInterface::writeProperty readProperty signal. You have to reimplement this function
-  for each component your application wants to grant the plugin access to, and handle the incoming
-  requests.
+  This function is supposed to change the value of the property \a p of the object to \a value.
+  Reimplement this function for advanced processing.
 
-  The default implementation sets the \a property of the handled object to \a value.
+  The default implementation sets the property \a p of the handled object to \a value.
 */
 
 /*!
-  \fn void QApplicationInterface::requestSignal( const char* signal, QObject* target, const char* slot )
+  \fn void QApplicationInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 
-  A handler to process requests the plugin sends in order to connect to the object this interface
-  belongs to. 
+  This function can be used to connect the \a signal of the handled object to the \a slot of the \a target.
+  Reimplement this function for advanced processing.
 
   The default implementation connects the \a signal of the handled object to the \a slot of \a target.
 */
 
 /*!
-  \class QClientInterface qapplicationinterface.h
+  \fn void QApplicationInterface::requestInterface( const QCString& )
 
-  \brief This class enables plugins to send requests to the corresponding application interface.
-*/
-
-/*!
-  \fn void QClientInterface::requestProperty( const QCString& property, QVariant& value )
-
-  Call this function to send a readProperty request for \a property to the
-  QApplicationInterface corresponding with this QClientInterface. The application will
-  write the result in \a value.
-*/
-
-/*!
-  \fn void QClientInterface::requestSetProperty( const QCString& property, QVariant& value )
-
-  Call this function in your plugin to send a writeProperty request for \a property to the
-  QApplicationInterface corresponding with this QClientInterace.
-  The application will set the \a property of the object it represents to \a value.
-*/
-
-/*!
-  \fn void QClientInterface::requestSignal( const char* signal, QObject* target, const char* slot )
-
-  Call this function in your plugin to send a makeConnection request to the application interface.
+  This function can be used to provide interfaces to sub-compontents of the application.
 */

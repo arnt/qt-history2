@@ -238,7 +238,6 @@ public:
 #endif
 
     virtual QApplicationInterface* requestApplicationInterface( const QCString& request );
-    virtual QStrList queryInterfaceList() const;
 
 signals:
     void	     lastWindowClosed();
