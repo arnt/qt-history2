@@ -1391,12 +1391,10 @@ void MainWindow::fileNew()
 	}
     }
 
-#if 0
-    if ( formWindow()->project() != emptyProject() ) {
+    if ( formWindow() && formWindow()->project() != emptyProject() ) {
 	formWindow()->setSavePixmapInProject( TRUE );
 	formWindow()->setSavePixmapInline( FALSE );
     }
-#endif
 
     statusBar()->clear();
 }
@@ -4216,12 +4214,14 @@ void MainWindow::createNewTemplate()
 
 void MainWindow::projectSelected( QAction *a )
 {
+    if ( currentProject )
+	currentProject->setActive( FALSE );
     currentProject = *projects.find( a );
     if ( formList )
 	formList->setProject( currentProject );
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
-    currentProject->setActive();
+    currentProject->setActive( TRUE );
 }
 
 void MainWindow::openProject( const QString &fn )

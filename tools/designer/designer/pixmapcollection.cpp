@@ -78,10 +78,12 @@ QString PixmapCollection::unifyName( const QString &n )
     return name;
 }
 
-void PixmapCollection::setActive()
+void PixmapCollection::setActive( bool b )
 {
-    QMimeSourceFactory::takeDefaultFactory();
-    QMimeSourceFactory::setDefaultFactory( mimeSourceFactory );
+    if ( b )
+	QMimeSourceFactory::defaultFactory()->addFactory( mimeSourceFactory );
+    else
+	QMimeSourceFactory::defaultFactory()->removeFactory( mimeSourceFactory );
 }
 
 QPixmap PixmapCollection::pixmap( const QString &name )
@@ -204,6 +206,7 @@ void PixmapCollection::createCppFile()
     out << "#include <qdragobject.h>" << endl;
     out << "#include <qpixmap.h>" << endl << endl;
 
+
     QList<EmbedImage> list_image;
     for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	QImage img = (*it).pix.convertToImage();
@@ -270,7 +273,7 @@ void PixmapCollection::createCppFile()
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
 
 	out << "\n"
-	    "static QImage& uic_findImage( const char *name )\n"
+	    "static QImage& uic_findImage_" + project->fixedProjectName() + "( const char *name )\n"
 	    "{\n"
 	    "    static QDict<QImage> dict;\n"
 	    "    QImage* img = dict.find(name);\n"
@@ -298,21 +301,47 @@ void PixmapCollection::createCppFile()
 	    "    return *img;\n"
 	    "}\n\n";
 	
-	out << "QPixmap uic_findPixmap( const char *name )" << endl;
+	out << "class DesignerMimeSourceFactoty : public QMimeSourceFactory" << endl;
 	out << "{" << endl;
-	out << "    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( name );" << endl;
-	out << "    if ( m ) {" << endl;
-	out << "        QPixmap pix;" << endl;
-	out << "        QImageDrag::decode( m, pix );" << endl;
-	out << "        if ( !pix.isNull() )" << endl;
-	out << "            return pix;" << endl;
-	out << "    }" << endl;
-	out << "    QImage img = uic_findImage( name );" << endl;
-	out << "    QPixmap pix;" << endl;
-	out << "    pix.convertFromImage( img );" << endl;
-	out << "    QMimeSourceFactory::defaultFactory()->setPixmap( name, pix );" << endl;
-	out << "    return pix;" << endl;
-	out << "}" << endl << endl;
+	out << "public:" << endl;
+	out << "    DesignerMimeSourceFactoty() {}" << endl;
+
+	out << "    const QMimeSource* data( const QString& abs_name ) const {" << endl;
+	out << "	QImage img = uic_findImage_" << project->fixedProjectName() << "( abs_name );" << endl;
+	out << "	QPixmap pix;" << endl;
+	out << "	pix.convertFromImage( img );" << endl;
+	out << "	QMimeSourceFactory::defaultFactory()->setPixmap( abs_name, pix );" << endl;
+	out << "	return QMimeSourceFactory::defaultFactory()->data( abs_name );" << endl;
+	out << "    };" << endl;
+	out << "};" << endl;
+
+	out << "static DesignerMimeSourceFactoty *designerMimeSourceFactory = 0;" << endl;
+
+	out << "static void qInitImages()" << endl;
+	out << "{" << endl;
+	out << "    if ( designerMimeSourceFactory )" << endl;
+	out << "	return;" << endl;
+	out << "    designerMimeSourceFactory = new DesignerMimeSourceFactoty;" << endl;
+	out << "    QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );" << endl;
+	out << "}" << endl;
+
+	out << "static void qCleanupImages()" << endl;
+	out << "{" << endl;
+	out << "    if ( !designerMimeSourceFactory )" << endl;
+	out << "	return;" << endl;
+	out << "    QMimeSourceFactory::defaultFactory()->removeFactory( designerMimeSourceFactory );" << endl;
+	out << "    delete designerMimeSourceFactory;" << endl;
+	out << "    designerMimeSourceFactory = 0;" << endl;
+	out << "}" << endl;
+
+	out << "class StaticInitImages" << endl;
+	out << "{" << endl;
+	out << "public:" << endl;
+	out << "    StaticInitImages() { qInitImages(); }" << endl;
+	out << "    ~StaticInitImages() { qCleanupImages(); }" << endl;
+	out << "};" << endl;
+
+	out << "static StaticInitImages staticImages;" << endl;
     }
 
     out << "#endif" << endl;

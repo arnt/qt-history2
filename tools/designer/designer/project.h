@@ -104,6 +104,7 @@ public:
     QString fileName() const;
     void setProjectName( const QString &n );
     QString projectName() const;
+    QString fixedProjectName() const;
 
     void setDatabaseDescription( const QString &db );
     QString databaseDescription() const;
@@ -162,7 +163,7 @@ public:
 
     PixmapCollection *pixmapCollection() const { return pixCollection; }
 
-    void setActive();
+    void setActive( bool b );
 
 private:
     void parse();

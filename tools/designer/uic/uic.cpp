@@ -744,6 +744,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << "#include \"" << *it << "\"" << endl;
     }
 
+    if ( externPixmaps ) {
+	out << "#include <qmime.h>" << endl;
+	out << "#include <qdragobject.h>" << endl;
+    }
     out << "#include <qlayout.h>" << endl;
     out << "#include <qtooltip.h>" << endl;
     out << "#include <qwhatsthis.h>" << endl;
@@ -770,6 +774,9 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "#include <qimage.h>" << endl;
 	out << "#include <qpixmap.h>" << endl << endl;
     }
+
+    // register the object and unify its name
+    objName = registerObject( objName );
 
     QStringList images;
     QStringList xpmImages;
@@ -818,12 +825,17 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
 	out << endl;
     } else if ( externPixmaps ) {
-	out << "extern QPixmap uic_findPixmap( const char *name );" << endl << endl;
-	pixmapLoaderFunction = "uic_findPixmap";
+	out << "static QPixmap uic_load_pixmap_" << objName << "( const QString &name )" << endl;
+	out << "{" << endl;
+	out << "    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( name );" << endl;
+	out << "    if ( !m )" << endl;
+	out << "\treturn QPixmap();" << endl;
+	out << "    QPixmap pix;" << endl;
+	out << "    QImageDrag::decode( m, pix );" << endl;
+	out << "    return pix;" << endl;
+	out << "}" << endl;
+	pixmapLoaderFunction = "uic_load_pixmap_" + objName;
     }
-
-    // register the object and unify its name
-    objName = registerObject( objName );
 
 
     // constructor(s)

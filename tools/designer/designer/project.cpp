@@ -192,6 +192,21 @@ QString Project::projectName() const
     return proName;
 }
 
+QString Project::fixedProjectName() const
+{
+    QString s = proName;
+    for ( int i = 0; i < (int)s.length(); ++i ) {
+	uchar r = s[i].row();
+	uchar c = s[i].cell();
+	if ( r == 0 && ( ( c >= '0' && c <= '9' ) ||
+			 ( c >= 'a' && c <= 'z' ) ||
+			 ( c >= 'A' && c <= 'Z' ) ) )
+	    continue;
+	s[i] = '_';
+    }
+    return s;
+}
+
 static QString parse_part( const QString &part )
 {
     QString res;
@@ -418,7 +433,7 @@ void Project::save()
 	contents = ts.read();
 	f.close();
     } else {
-	contents += "TEMPLATE\t= app\nCONFIG\t= qt warn_on release\nTARGET\t= " + proName.lower() + "\n";
+	contents += "TEMPLATE\t= app\nCONFIG\t= qt warn_on release\nTARGET\t= " + fixedProjectName() + "\n";
     }
 
     int i = contents.find( "INTERFACES" );
@@ -842,7 +857,7 @@ void Project::loadImages()
     pixCollection->load();
 }
 
-void Project::setActive()
+void Project::setActive( bool b )
 {
-    pixCollection->setActive();
+    pixCollection->setActive( b );
 }

@@ -45,7 +45,7 @@ public:
 
     QValueList<Pixmap> pixmaps() const;
 
-    void setActive();
+    void setActive( bool b);
 
     void load();
     void createCppFile();
