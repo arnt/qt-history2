@@ -644,13 +644,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(!project->first("QMAKE_INFO_PLIST").isEmpty()) {
 	QString info_plist = project->first("QMAKE_INFO_PLIST"),
-	       info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
+	    info_plist_out = project->first("QMAKE_INFO_PLIST_OUT");
 	QString destdir = project->first("DESTDIR");
 	t << info_plist_out << ": " << "\n\t";
 	if(!destdir.isEmpty())
 	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	t << "@$(DEL_FILE) " << info_plist_out << "\n\t"
-	  << "@cp \"" << info_plist << "\" \"" << info_plist_out << "\"" << endl;
+	  << "@sed -e \"s,@ICON@,application.icns,g\" -e \"s,@EXECUTABLE@," << var("QMAKE_ORIG_TARGET") 
+	  << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
 	if(!project->first("RC_FILE").isEmpty()) {
 	    QString dir = destdir + "../Resources/";
 	    t << dir << "application.icns:" << "\n\t"
