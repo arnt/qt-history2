@@ -77,7 +77,6 @@ Q_CORE_EXPORT bool winGetMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 
 void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 {
-    qDebug("::qt_simple_timer_func(), idEvent: %d", idEvent);
     qt_dispatch_timer(idEvent, 0);
 }
 
@@ -87,9 +86,7 @@ void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 bool qt_dispatch_timer(uint timerId, MSG *msg)
 {
     long res = 0;
-    qDebug("::qt_dispatch_timer() 1");
     QEventLoop *eventLoop = QEventLoop::instance();
-    qDebug(" - threadId is %p", eventLoop->thread());
     if (!msg || !QCoreApplication::instance() || !eventLoop->winEventFilter(msg, &res))
         return eventLoop->d->activateTimer(timerId);
     return true;
@@ -164,7 +161,6 @@ int QEventLoop::registerTimer(int interval, QObject *obj)
     }
     d->timerVec.append(t);                        // store in timer vector
     d->timerDict.insert(t->id, t);                // store in dict
-    qDebug("QEventLoop::registerTimer:: id: %d, ind: %d", t->id, t->ind);
     return t->ind;                              // return index in vector
 }
 
@@ -173,7 +169,6 @@ bool QEventLoop::unregisterTimer(int ind)
     if (d->timerVec.isEmpty() || ind <= 0)
         return false;
 
-    qDebug("QEventLoop::unregisterTimer:: ind: %d", ind);
     TimerInfo *t = 0;
     for (int i=0; i<d->timerVec.size(); ++i) {
         if (d->timerVec.at(i)->ind == ind) {
