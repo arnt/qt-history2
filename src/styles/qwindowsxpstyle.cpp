@@ -756,19 +756,36 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	break;
 
     case PE_HeaderArrow:
-	// Reenable XP style headerarrows when the
-	// styles actually have usable pixmaps!
-	/*
-	name = "HEADER";
-	partId = HP_HEADERSORTARROW;
-	if ( flags & Style_Down )
-	    stateId = HSAS_SORTEDDOWN;
-	else
-	    stateId = HSAS_SORTEDUP;
+	{
+#if 0 // XP theme engine doesn't know about this :(
+	    name = "HEADER";
+	    partId = HP_HEADERSORTARROW;
+	    if ( flags & Style_Down )
+		stateId = HSAS_SORTEDDOWN;
+	    else
+		stateId = HSAS_SORTEDUP;
+#else
+	    p->save();
+	    p->setPen(cg.dark());
+	    p->translate(0, r.height()/2 - 4);
+	    if ( flags & Style_Up ) { // invert logic to follow Windows style guide
+		p->drawLine(r.x(), r.y(), r.x()+8, r.y());
+		p->drawLine(r.x()+1, r.y()+1, r.x()+7, r.y()+1);
+		p->drawLine(r.x()+2, r.y()+2, r.x()+6, r.y()+2);
+		p->drawLine(r.x()+3, r.y()+3, r.x()+5, r.y()+3);
+		p->drawPoint(r.x()+4, r.y()+4);
+	    } else {
+		p->drawLine(r.x(), r.y()+4, r.x()+8, r.y()+4);
+		p->drawLine(r.x()+1, r.y()+3, r.x()+7, r.y()+3);
+		p->drawLine(r.x()+2, r.y()+2, r.x()+6, r.y()+2);
+		p->drawLine(r.x()+3, r.y()+1, r.x()+5, r.y()+1);
+		p->drawPoint(r.x()+4, r.y());
+	    }
+	    p->restore();
+	    return;
+#endif
+	}
 	break;
-	*/
-	QWindowsStyle::drawPrimitive( op, p, r, pal, flags, opt );
-	return;
 
     case PE_StatusBarSection:
 	name = "STATUS";
