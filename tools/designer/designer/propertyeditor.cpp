@@ -369,7 +369,7 @@ void PropertyItem::setChanged( bool b, bool updateDb )
     if ( propertyParent() )
 	return;
     if ( changed == b )
-    	return;
+	return;
     changed = b;
     repaint();
     if ( updateDb ) {
@@ -2785,7 +2785,7 @@ void PropertyList::setupProperties()
 	     || MetaDataBase::spacing( editor->widget() ) != -1 )
 	    layoutInitValue( item, TRUE );
 	else
-	    layoutInitValue( item );	
+	    layoutInitValue( item );
 	item = new PropertyLayoutItem( this, item, 0, "layoutMargin" );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "layoutMargin" )
@@ -2855,7 +2855,6 @@ void PropertyList::setupProperties()
     }
 
     updateEditorSize();
-    updateEditorSize();
 }
 
 bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, QVariant::Type t )
@@ -2867,7 +2866,7 @@ bool PropertyList::addPropertyItem( PropertyItem *&item, const QCString &name, Q
 	QStringList l;
 	l << "";
 	while ( it.current() ) {
-	    if ( it.current()->focusPolicy() != QWidget::NoFocus ) {
+	    if ( editor->formWindow()->canBeBuddy( it.current() ) ) {
 		if ( l.find( it.current()->name() ) == l.end() )
 		    l << it.current()->name();
 	    }
@@ -3005,8 +3004,8 @@ void PropertyList::layoutInitValue( PropertyItem *i, bool changed )
 						      i->name(), WidgetFactory::property( editor->widget(), i->name() ),
 						      i->value(), i->currentItem(), i->currentItemFromObject() );
     cmd->execute();
-    if ( i->value().toString() != "-1" ) 
-	changed = TRUE; 
+    if ( i->value().toString() != "-1" )
+	changed = TRUE;
     i->setChanged( changed );
 }
 
@@ -3157,8 +3156,8 @@ void PropertyList::refetchData()
 	if ( i->hasSubItems() )
 	    i->initChildren();
 	bool changed = MetaDataBase::isPropertyChanged( editor->widget(), i->name() );
-	if ( ( i->name() == "layoutSpacing" || i->name() == "layoutMargin" ) ) { 
-	    if ( i->value().toString() != "-1" ) 
+	if ( ( i->name() == "layoutSpacing" || i->name() == "layoutMargin" ) ) {
+	    if ( i->value().toString() != "-1" )
 		i->setChanged( TRUE, FALSE );
 	    else
 		i->setChanged( FALSE, FALSE );

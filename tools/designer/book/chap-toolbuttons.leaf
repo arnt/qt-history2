@@ -121,6 +121,10 @@ numbers you want. If you make a mistake, double click the first widget
 and start again. Press \Key Esc to leave tab order mode. If you want
 to revert your changes, leave tab order mode, then undo.
 
+\i \Toolbutton {Set Buddy}\BR Click this toolbar button (or press \Key F5) to
+set a buddy to a label. Then click on a label and drag the line to the widget
+that you want to be the buddy. Release the mouse button and the buddy is set.
+
 \endlist
 
 \img qd-buttonstoolbuttons3.png

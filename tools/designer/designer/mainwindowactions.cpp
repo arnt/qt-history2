@@ -416,6 +416,11 @@ void MainWindow::setupToolActions()
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
+    actionBuddyTool = new QAction( tr( "Set Buddy" ), createIconSet( "pointer.xpm" ), tr( "Set &Buddy" ), Key_F5,
+				   actionGroupTools, QString::number( BUDDY_TOOL ).latin1(), TRUE );
+    actionBuddyTool->setStatusTip( tr( "Sets a buddy to a label" ) );
+    actionBuddyTool->setWhatsThis( whatsThisFrom( "Tools|Set Buddy" ) );
+
     QToolBar *tb = new QToolBar( this, "Tools" );
     tb->setCloseMode( QDockWindow::Undocked );
     toolsToolBar = tb;
@@ -426,6 +431,7 @@ void MainWindow::setupToolActions()
     if ( !singleProjectMode() )
 	actionConnectTool->addTo( tb );
     actionOrderTool->addTo( tb );
+    actionBuddyTool->addTo( tb );
 
     QPopupMenu *mmenu = new QPopupMenu( this, "Tools" );
     toolsMenu = mmenu;
@@ -436,6 +442,7 @@ void MainWindow::setupToolActions()
     if ( !singleProjectMode() )
 	actionConnectTool->addTo( mmenu );
     actionOrderTool->addTo( mmenu );
+    actionBuddyTool->addTo( mmenu );
     mmenu->insertSeparator();
 
     customWidgetToolBar = 0;

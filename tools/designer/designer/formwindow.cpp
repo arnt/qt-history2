@@ -143,14 +143,14 @@ void FormWindow::init()
 {
     fake = qstrcmp( name(), "qt_fakewindow" ) == 0;
     MetaDataBase::addEntry( this );
-    ff->setFormWindow( this ); // mhhh, too early! First we should set up the MetaDataBase!!!
+    ff->setFormWindow( this );
     iface = 0;
     proj = 0;
     propertyWidget = 0;
     toolFixed = FALSE;
     checkedSelectionsForMove = FALSE;
     mContainer = 0;
-    connectSender = connectReceiver = 0;
+    startWidget = endWidget = 0;
     currTool = POINTER_TOOL;
     unclippedPainter = 0;
     widgetPressed = FALSE;
@@ -626,16 +626,25 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	}
 	break;
     case CONNECT_TOOL:
+    case BUDDY_TOOL:
 	if ( e->button() != LeftButton )
 	    break;
+	if ( currTool == BUDDY_TOOL ) {
+	    if ( !w->inherits( "QLabel" ) ) {
+		validForBuddy = FALSE;
+		break;
+	    }
+	    validForBuddy = TRUE;
+	    mainWindow()->statusBar()->message( tr( "Set buddy for '%1' to..." ).arg( w->name() ) );
+	} else
+	    mainWindow()->statusBar()->message( tr( "Connect '%1' with..." ).arg( w->name() ) );
 	saveBackground();
-	mainWindow()->statusBar()->message( tr( "Connect '%1' with..." ).arg( w->name() ) );
-	connectStartPos = mapFromGlobal( e->globalPos() );
-	currentConnectPos = mapFromGlobal( e->globalPos() );
-	connectSender = designerWidget( w );
-	connectReceiver = connectableObject( designerWidget( w ), connectReceiver );
+	startPos = mapFromGlobal( e->globalPos() );
+	currentPos = startPos;
+	startWidget = designerWidget( w );
+	endWidget = startWidget;
 	beginUnclippedPainter( FALSE );
-	drawConnectLine();
+	drawConnectionLine();
 	break;
     case ORDER_TOOL:
 	if ( !isMainContainer( w ) ) { // press on a child widget
@@ -714,7 +723,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
     if ( ( e->state() & LeftButton ) != LeftButton )
 	return;
 
-    QWidget *newReceiver = (QWidget*)connectReceiver, *oldReceiver = (QWidget*)connectReceiver, *wid;
+    QWidget *newendWidget = endWidget, *oldendWidget = endWidget, *wid;
     bool drawRecRect;
     switch ( currTool ) {
     case POINTER_TOOL:
@@ -829,22 +838,53 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 	if ( wid )
 	    wid = designerWidget( wid );
 	if ( wid && ( isMainContainer( wid ) || insertedWidgets.find( wid ) ) && wid->isVisibleTo( this ) )
-	    newReceiver = wid;
-	if ( newReceiver &&
-	     ( newReceiver->inherits( "QLayoutWidget" ) || newReceiver->inherits( "Spacer" ) ) )
-	    newReceiver = (QWidget*)connectReceiver;
-	drawRecRect = newReceiver != connectReceiver;
-	currentConnectPos = mapFromGlobal( e->globalPos() );
-	if ( newReceiver &&
-	     ( isMainContainer( newReceiver ) || insertedWidgets.find( newReceiver ) ) && !isCentralWidget( newReceiver ) )
-	    connectReceiver = connectableObject( newReceiver, connectReceiver );
-	mainWindow()->statusBar()->message( tr( "Connect '%1' to '%2'" ).arg( connectSender->name() ).
-					    arg( connectReceiver->name() ) );
+	    newendWidget = wid;
+	if ( newendWidget &&
+	     ( newendWidget->inherits( "QLayoutWidget" ) || newendWidget->inherits( "Spacer" ) ) )
+	    newendWidget = (QWidget*)endWidget;
+	drawRecRect = newendWidget != endWidget;
+	if ( newendWidget &&
+	     ( isMainContainer( newendWidget ) || insertedWidgets.find( newendWidget ) ) && !isCentralWidget( newendWidget ) )
+	    endWidget = newendWidget;
+	mainWindow()->statusBar()->message( tr( "Connect '%1' to '%2'" ).arg( startWidget->name() ).
+					    arg( endWidget->name() ) );
+	currentPos = mapFromGlobal( e->globalPos() );
 	qApp->processEvents();
 	if ( drawRecRect )
-	    restoreRect( QRect( mapToForm(  ( (QWidget*)oldReceiver )->parentWidget(), ( (QWidget*)oldReceiver )->pos() ),
-				( (QWidget*)oldReceiver )->size() ) );
-	drawConnectLine();
+	    restoreRect( QRect( mapToForm( ( (QWidget*)oldendWidget )->parentWidget(), ( (QWidget*)oldendWidget )->pos() ),
+			 ( (QWidget*)oldendWidget )->size() ) );
+	drawConnectionLine();
+	break;
+    case BUDDY_TOOL:
+	if ( currTool == BUDDY_TOOL && !validForBuddy )
+	    break;
+	restoreConnectionLine();
+	wid = qApp->widgetAt( e->globalPos(), TRUE );
+	if ( wid )
+	    wid = designerWidget( wid );
+	if ( wid && canBeBuddy( wid ) && wid->isVisibleTo( this ) )
+	    newendWidget = wid;
+	else
+	    newendWidget = 0;
+	if ( newendWidget &&
+	     ( newendWidget->inherits( "QLayoutWidget" ) || newendWidget->inherits( "Spacer" ) ) )
+	    newendWidget = (QWidget*)endWidget;
+	drawRecRect = newendWidget != endWidget;
+	if ( !newendWidget )
+	    endWidget = newendWidget;
+	else if ( insertedWidgets.find( newendWidget ) && !isCentralWidget( newendWidget ) )
+	    endWidget = newendWidget;
+	if ( endWidget )
+	    mainWindow()->statusBar()->message( tr( "Set buddy '%1' to '%2'" ).arg( startWidget->name() ).
+						arg( endWidget->name() ) );
+	else
+	    mainWindow()->statusBar()->message( tr( "Set buddy '%1' to ..." ).arg( startWidget->name() ) );
+	currentPos = mapFromGlobal( e->globalPos() );
+	qApp->processEvents();
+	if ( drawRecRect && oldendWidget )
+	    restoreRect( QRect( mapToForm( ( (QWidget*)oldendWidget )->parentWidget(), ( (QWidget*)oldendWidget )->pos() ),
+			 ( (QWidget*)oldendWidget )->size() ) );
+	drawConnectionLine();
 	break;
     case ORDER_TOOL:
 	break;
@@ -961,19 +1001,40 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 	}
 	break;
     case CONNECT_TOOL:
+    case BUDDY_TOOL:
 	restoreConnectionLine();
-	if ( connectSender )
-	    restoreRect( QRect( mapToForm(  ( (QWidget*)connectSender )->parentWidget(),
-					    ( (QWidget*)connectSender )->pos() ),
-				( (QWidget*)connectSender )->size() ) );
-	if ( connectReceiver )
-	    restoreRect( QRect( mapToForm( ( (QWidget*)connectReceiver )->parentWidget(),
-					   ( (QWidget*)connectReceiver )->pos() ),
-				( (QWidget*)connectReceiver )->size() ) );
+	if ( startWidget )
+	    restoreRect( QRect( mapToForm( ( (QWidget*)startWidget )->parentWidget(),
+					   ( (QWidget*)startWidget )->pos() ),
+				((QWidget*)startWidget )->size() ) );
+	if ( endWidget )
+	    restoreRect( QRect( mapToForm( ( (QWidget*)endWidget )->parentWidget(),
+					   ( (QWidget*)endWidget )->pos() ),
+				( (QWidget*)endWidget )->size() ) );
 	endUnclippedPainter();
 	qApp->processEvents();
-	if ( connectSender && connectReceiver )
-	    editConnections();
+
+	if ( startWidget && endWidget ) {
+	    if ( currTool == CONNECT_TOOL )
+		editConnections();
+	    else if ( currTool == BUDDY_TOOL && validForBuddy && startWidget != endWidget ) {
+		QString oldBuddy = startWidget->property( "buddy" ).toString();
+		if ( oldBuddy.isNull() )
+		    oldBuddy = "";
+		SetPropertyCommand *cmd = new SetPropertyCommand( tr( "Set buddy for " + QString( startWidget->name() ) ),
+								  this, startWidget, mainWindow()->propertyeditor(),
+								  "buddy", startWidget->property( "buddy" ),
+								  endWidget->name(), endWidget->name(),
+								  oldBuddy );
+		commandHistory()->addCommand( cmd, TRUE );
+		cmd->execute();
+		emitUpdateProperties( startWidget );
+	    }
+	}
+	if ( !toolFixed )
+	    mainwindow->resetTool();
+	startWidget = endWidget = 0;
+	mainWindow()->statusBar()->clear();
 	break;
     case ORDER_TOOL:
 	break;
@@ -1611,15 +1672,16 @@ void FormWindow::currentToolChanged()
 	hideOrderIndicators();
 	break;
     case CONNECT_TOOL:
+    case BUDDY_TOOL:
 	restoreConnectionLine();
-	if ( connectSender )
-	    restoreRect( QRect( mapToForm(  ( (QWidget*)connectSender )->parentWidget(),
-					    ( (QWidget*)connectSender )->pos() ),
-				( (QWidget*)connectSender )->size() ) );
-	if ( connectReceiver )
-	    restoreRect( QRect( mapToForm( ( (QWidget*)connectReceiver )->parentWidget(),
-					   ( (QWidget*)connectReceiver )->pos() ),
-				( (QWidget*)connectReceiver )->size() ) );
+	if ( startWidget )
+	    restoreRect( QRect( mapToForm( ( (QWidget*)startWidget )->parentWidget(),
+					   ( (QWidget*)startWidget )->pos() ),
+				( (QWidget*)startWidget )->size() ) );
+	if ( endWidget )
+	    restoreRect( QRect( mapToForm( ( (QWidget*)endWidget )->parentWidget(),
+					   ( (QWidget*)endWidget )->pos() ),
+				( (QWidget*)endWidget )->size() ) );
 	endUnclippedPainter();
 	break;
     case POINTER_TOOL:
@@ -1630,7 +1692,7 @@ void FormWindow::currentToolChanged()
 	break;
     }
 
-    connectSender = connectReceiver = 0;
+    startWidget = endWidget = 0;
     widgetPressed = FALSE;
     drawRubber = FALSE;
     insertParent = 0;
@@ -1662,7 +1724,11 @@ void FormWindow::currentToolChanged()
 	}
 	break;
     case CONNECT_TOOL:
-	mainWindow()->statusBar()->message( tr( "Drag a line to create a connection...") );
+    case BUDDY_TOOL:
+	if ( currTool == CONNECT_TOOL )
+	    mainWindow()->statusBar()->message( tr( "Drag a line to create a connection...") );
+	else
+	    mainWindow()->statusBar()->message( tr( "Drag a line to set a buddy...") );
 	setCursorToAll( CrossCursor, this );
 	if ( mainWindow()->formWindow() == this )
 	    emitShowProperties( mainContainer() );
@@ -2123,19 +2189,13 @@ void FormWindow::editConnections()
 {
     CHECK_MAINWINDOW;
     buffer = 0;
-    if ( !connectSender || !connectReceiver )
+    if ( !startWidget || !endWidget )
 	return;
-    mainWindow()->statusBar()->clear();
 
     ConnectionDialog dlg( mainwindow );
     mainWindow()->statusBar()->message( tr( "Edit connections...") );
-    dlg.addConnection( connectSender, connectReceiver, QString::null, QString::null );
+    dlg.addConnection( startWidget, endWidget, QString::null, QString::null );
     dlg.exec();
-
-    mainWindow()->statusBar()->clear();
-    if ( !toolFixed )
-	mainwindow->resetTool();
-    connectSender = connectReceiver = 0;
 }
 
 void FormWindow::saveBackground()
@@ -2151,9 +2211,9 @@ void FormWindow::restoreConnectionLine()
     if (!unclippedPainter)
 	return;
 
-    int a =QABS( connectStartPos.x() - currentConnectPos.x() );
-    int b = QABS( connectStartPos.y() - currentConnectPos.y() );
-    QRect r( connectStartPos, currentConnectPos );
+    int a =QABS( startPos.x() - currentPos.x() );
+    int b = QABS( startPos.y() - currentPos.y() );
+    QRect r( startPos, currentPos );
 
     if ( a < 32 || b < 32 ) { // special case: vertical or horizontal line
 	r = r.normalize();
@@ -2177,7 +2237,7 @@ void FormWindow::restoreConnectionLine()
 
     int dx = 2 * w / 3;
     int dy = 2 * h / 3;
-    QPoint p( connectStartPos );
+    QPoint p( startPos );
 
     if ( r.x() > r.right() ) {
 	dx = dx * -1;
@@ -2199,8 +2259,8 @@ void FormWindow::restoreConnectionLine()
 	p.setY( p.y() + dy );
     }
 
-    unclippedPainter->drawPixmap( connectStartPos.x() - 10, connectStartPos.y() - 10, *buffer,
-				  connectStartPos.x() - 10, connectStartPos.y() - 10, 20, 20 );
+    unclippedPainter->drawPixmap( startPos.x() - 10, startPos.y() - 10, *buffer,
+				  startPos.x() - 10, startPos.y() - 10, 20, 20 );
 }
 
 void FormWindow::restoreRect( const QRect &rect )
@@ -2219,26 +2279,26 @@ void FormWindow::restoreRect( const QRect &rect )
     unclippedPainter->drawPixmap( r.x() + r.width() - 2, r.y(), *buffer, r.x() + r.width() - 2, r.y(), 4, r.height() + 4 );
 }
 
-void FormWindow::drawConnectLine()
+void FormWindow::drawConnectionLine()
 {
     if ( !unclippedPainter )
 	return;
 
     unclippedPainter->setPen( QPen( white, 2 ) );
-    unclippedPainter->drawLine( connectStartPos, currentConnectPos );
+    unclippedPainter->drawLine( startPos, currentPos );
     unclippedPainter->setPen( QPen( darkCyan, 1 ) );
-    unclippedPainter->drawLine( connectStartPos, currentConnectPos );
+    unclippedPainter->drawLine( startPos, currentPos );
 
     unclippedPainter->setPen( QPen( magenta, 1 ) );
-    if ( connectSender ) {
-	QWidget *w = (QWidget*)connectSender;
-	QPoint p = mapToForm( w, QPoint(0,0) );
-	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), w->size() - QSize( 4, 4 ) ) );
+    if ( startWidget ) {
+	QWidget *s = (QWidget*)startWidget;
+	QPoint p = mapToForm( s, QPoint(0,0) );
+	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), s->size() - QSize( 4, 4 ) ) );
      }
-    if ( connectReceiver ) {
-	QWidget *w = (QWidget*)connectReceiver;
-	QPoint p = mapToForm( w, QPoint(0,0) );
-	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), w->size() - QSize( 4, 4 ) ) );
+    if ( endWidget ) {
+	QWidget *e = (QWidget*)endWidget;
+	QPoint p = mapToForm( e, QPoint(0,0) );
+	unclippedPainter->drawRect( QRect( p + QPoint( 2, 2 ), e->size() - QSize( 4, 4 ) ) );
      }
 }
 
@@ -2602,16 +2662,6 @@ bool FormWindow::isCentralWidget( QObject *w ) const
     return w == ( (QMainWindow*)mainContainer() )->centralWidget();
 }
 
-QObject *FormWindow::connectableObject( QObject *w, QObject * )
-{
-    if ( !project() )
-	return w;
-    LanguageInterface *iface = MetaDataBase::languageInterface( project()->language() );
-    if ( !iface )
-	return w;
-    return w;
-}
-
 int FormWindow::layoutDefaultSpacing() const
 {
     return defSpacing;
@@ -2672,4 +2722,9 @@ void FormWindow::setFormFile( FormFile *f )
     ff = f;
     if ( ff )
 	connect( this, SIGNAL( modificationChanged(bool, const QString&) ), ff, SLOT( formWindowChangedSomehow() ) );
+}
+
+bool FormWindow::canBeBuddy( const QWidget *w ) const
+{
+    return w->focusPolicy() != QWidget::NoFocus;
 }

@@ -391,7 +391,7 @@ private:
     *actionEditSelectAll, *actionEditBreakLayout, *actionEditFunctions, *actionEditConnections,
     *actionEditLower, *actionEditRaise;
     QActionGroup *actionGroupTools, *actionGroupProjects;
-    QAction* actionPointerTool, *actionConnectTool, *actionOrderTool;
+    QAction* actionPointerTool, *actionConnectTool, *actionOrderTool, *actionBuddyTool;
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
     QAction *actionHelpManual;

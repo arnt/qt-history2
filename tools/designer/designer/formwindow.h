@@ -201,6 +201,7 @@ public:
     void setFormFile( FormFile *f );
 
     bool isFake() const { return fake; }
+    bool canBeBuddy( const QWidget* ) const;
 
 public slots:
     virtual void widgetChanged( QObject *w );
@@ -228,46 +229,45 @@ protected:
 private:
     enum RectType { Insert, Rubber };
 
-    virtual void beginUnclippedPainter( bool doNot );
-    virtual void endUnclippedPainter();
-    virtual void drawConnectLine();
-    virtual void drawSizePreview( const QPoint &pos, const QString& text );
+    void beginUnclippedPainter( bool doNot );
+    void endUnclippedPainter();
+    void drawConnectionLine();
+    void drawSizePreview( const QPoint &pos, const QString& text );
 
-    virtual void insertWidget();
-    virtual void moveSelectedWidgets( int dx, int dy );
+    void insertWidget();
+    void moveSelectedWidgets( int dx, int dy );
 
-    virtual void startRectDraw( const QPoint &p, const QPoint &global, QWidget *w, RectType t );
-    virtual void continueRectDraw( const QPoint &p, const QPoint &global, QWidget *w, RectType t );
-    virtual void endRectDraw();
+    void startRectDraw( const QPoint &p, const QPoint &global, QWidget *w, RectType t );
+    void continueRectDraw( const QPoint &p, const QPoint &global, QWidget *w, RectType t );
+    void endRectDraw();
 
-    virtual void checkSelectionsForMove( QWidget *w );
-    virtual BreakLayoutCommand *breakLayoutCommand( QWidget *w );
+    void checkSelectionsForMove( QWidget *w );
+    BreakLayoutCommand *breakLayoutCommand( QWidget *w );
 
-    virtual bool allowMove( QWidget *w );
+    bool allowMove( QWidget *w );
 
-    virtual void saveBackground();
-    virtual void restoreConnectionLine();
-    virtual void restoreRect( const QRect &rect ) ;
+    void saveBackground();
+    void restoreConnectionLine();
+    void restoreRect( const QRect &rect ) ;
 
-    virtual void showOrderIndicators();
-    virtual void updateOrderIndicators();
-    virtual void repositionOrderIndicators();
-    virtual void hideOrderIndicators();
+    void showOrderIndicators();
+    void updateOrderIndicators();
+    void repositionOrderIndicators();
+    void hideOrderIndicators();
 
-    virtual QWidget *containerAt( const QPoint &pos, QWidget *notParentOf );
-
-    QObject *connectableObject( QObject *w, QObject *fallback );
+    QWidget *containerAt( const QPoint &pos, QWidget *notParentOf );
 
 private slots:
-    virtual void invalidCheckedSelections();
-    virtual void updatePropertiesTimerDone();
-    virtual void showPropertiesTimerDone();
-    virtual void selectionChangedTimerDone();
-    virtual void windowsRepaintWorkaroundTimerTimeout();
+    void invalidCheckedSelections();
+    void updatePropertiesTimerDone();
+    void showPropertiesTimerDone();
+    void selectionChangedTimerDone();
+    void windowsRepaintWorkaroundTimerTimeout();
 
 private:
     int currTool;
     bool oldRectValid, widgetPressed, drawRubber, checkedSelectionsForMove;
+    bool validForBuddy;
     QRect currRect;
     QPoint rectAnchor;
     QPainter *unclippedPainter;
@@ -288,8 +288,8 @@ private:
     bool propShowBlocked;
     QTimer* updatePropertiesTimer, *showPropertiesTimer, *selectionChangedTimer,
     *windowsRepaintWorkaroundTimer;
-    QPoint connectStartPos, currentConnectPos;
-    QObject *connectSender, *connectReceiver;
+    QPoint startPos, currentPos;
+    QWidget *startWidget, *endWidget;
     QPixmap *buffer;
     QPtrList<OrderIndicator> orderIndicators;
     QWidgetList orderedWidgets;

@@ -254,6 +254,12 @@ tab order numbers you want. If you make a mistake, double click the
 first widget and start again. Press \Key Esc to leave tab order mode.
 If you want to revert your changes, leave tab order mode, then undo.
 
+    \index Set Buddy
+\i \Menu{Tools|Set Buddy}\BR Click this toolbar button (or press \Key F5) 
+to set a buddy to a label. Then click on a label and drag the line to 
+the widget that you want to be the buddy. Release the mouse button and 
+the buddy is set. 
+
     \index Tools!Buttons!PushButton
 \i \Menu {Tools|Buttons|PushButton}\BR Click this menu option and then
 click the form to place a PushButton on the form. 

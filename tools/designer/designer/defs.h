@@ -27,6 +27,7 @@
 #define POINTER_TOOL 32000
 #define CONNECT_TOOL 32001
 #define ORDER_TOOL 32002
+#define BUDDY_TOOL 32004
 
 int size_type_to_int( QSizePolicy::SizeType t );
 QString size_type_to_string( QSizePolicy::SizeType t );
