@@ -36,6 +36,12 @@ int main(int argc, char *argv[])
     model->insertRows(3, QModelIndex(), 5);
     model->removeRows(10, QModelIndex(), 2);
 
+    for (int row = 3; row <= 7; ++row) {
+        QModelIndex index = model->index(row, 0, QModelIndex());
+        model->setData(index, QAbstractItemModel::EditRole,
+            QString::number(row+1));
+    }
+
     view->show();
     app.setMainWidget(view);
 
