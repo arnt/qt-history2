@@ -1879,15 +1879,9 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		 this, SLOT( titleBarDoubleClicked() ) );
     }
 
-    if ( window && window->testWFlags( WStyle_Tool ) ) {
-	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	setLineWidth( 2 );
-	setMinimumSize( 128, 0 );
-    } else {
-	setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-	setLineWidth( 2 );
-	setMinimumSize( 128, 0 );
-    }
+    setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
+    setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
+    setMinimumSize( 128, 0 );
 
     childWidget = window;
     if (!childWidget)
