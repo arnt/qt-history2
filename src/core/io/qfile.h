@@ -112,6 +112,11 @@ public:
 
     virtual int ungetch(int character);
 
+#if !define(Q_NO_USING_KEYWORD)
+    using QIODevice::readLine;
+#else
+    inline QByteArray readLine();
+#endif
     virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
     Q_LLONG readLine(QString &string, Q_LLONG maxlen);
 

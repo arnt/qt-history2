@@ -83,7 +83,7 @@ public:
 
     char *alloc(uint buflen);
     char *take(uint maxsize, uint *realsize=0);
-    void free(uint buflen);
+    inline void free(uint buflen);
     void push(char c);
     inline void truncate(uint len) { curr_used -= len; }
 
