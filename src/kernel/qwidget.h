@@ -91,9 +91,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( BackgroundMode backgroundMode READ backgroundMode WRITE setBackgroundMode DESIGNABLE false )
     Q_PROPERTY( QColor backgroundColor READ backgroundColor WRITE setBackgroundColor )
     Q_PROPERTY( QColor foregroundColor READ foregroundColor WRITE setForegroundColor )
-    Q_PROPERTY( QColor eraseColor READ eraseColor WRITE setEraseColor DESIGNABLE false )
     Q_PROPERTY( QPixmap backgroundPixmap READ backgroundPixmap WRITE setBackgroundPixmap )
-    Q_PROPERTY( QPixmap erasePixmap READ erasePixmap WRITE setErasePixmap DESIGNABLE false )
     Q_PROPERTY( QColorGroup colorGroup READ colorGroup )
     Q_PROPERTY( QPalette palette READ palette WRITE setPalette RESET unsetPalette )
     Q_PROPERTY( bool ownPalette READ ownPalette )
@@ -320,8 +318,8 @@ public slots:
     void		repaint();
     void		repaint( bool erase );
     void		repaint( int x, int y, int w, int h, bool erase=TRUE );
-    void		repaint( const QRect &, bool erase=TRUE );
-    void		repaint( const QRegion &, bool erase=TRUE );
+    void		repaint( const QRect &, bool erase = TRUE );
+    void		repaint( const QRegion &, bool erase = TRUE );
 
     // Widget management functions
 
