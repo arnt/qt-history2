@@ -780,7 +780,7 @@ QStringList DesignerFormWindowImpl::declarationIncludes() const
 
 void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 {
-    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );;
+    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
     QValueList<MetaDataBase::Include> includes;
     for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;
@@ -822,7 +822,7 @@ void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 
 void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
 {
-    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );;
+    QValueList<MetaDataBase::Include> oldIncludes = MetaDataBase::includes( formWindow );
     QValueList<MetaDataBase::Include> includes;
     for ( QValueList<MetaDataBase::Include>::Iterator it = oldIncludes.begin(); it != oldIncludes.end(); ++it ) {
 	MetaDataBase::Include inc = *it;

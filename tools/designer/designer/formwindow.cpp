@@ -1774,7 +1774,7 @@ static void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, Q
 	wl.append( w );
 	accels.insert( c, wl );
     } else {
-	QWidgetList *wl = &*it;;
+	QWidgetList *wl = &*it;
 	wl->append( w );
     }
 }

@@ -621,7 +621,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    indent++;
 	    ts << makeIndent( indent ) << "<string>" << entitize( t->text() ) << "</string>" << endl;
 	    indent--;
-	    ts << makeIndent( indent ) << "</attribute>" << endl;;
+	    ts << makeIndent( indent ) << "</attribute>" << endl;
 	    saveChildrenOf( w, ts, indent );
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;
@@ -646,7 +646,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    indent++;
 	    ts << makeIndent( indent ) << "<string>" << entitize( wiz->title( w ) ) << "</string>" << endl;
 	    indent--;
-	    ts << makeIndent( indent ) << "</attribute>" << endl;;
+	    ts << makeIndent( indent ) << "</attribute>" << endl;
 	    saveChildrenOf( w, ts, indent );
 	    --indent;
 	    ts << makeIndent( indent ) << "</widget>" << endl;

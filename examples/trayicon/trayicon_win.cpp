@@ -198,7 +198,7 @@ static HICON createIcon( const QPixmap &pm )
     bitBlt( &maskpm, 0, 0, &pm);
     ICONINFO iconInfo;
     iconInfo.fIcon    = TRUE;
-    iconInfo.hbmMask  = createIconMask(mask);;
+    iconInfo.hbmMask  = createIconMask(mask);
     iconInfo.hbmColor = pm.hbm();
 
     return CreateIconIndirect( &iconInfo );

@@ -478,7 +478,7 @@ static unsigned int qt_TSCIIToUnicode(uint code, uint *s)
 {
     int len = 0;
     for (int i = 0; i < 3; i++) {
-	uint u = TsToUn[code & 0x7f][i];;
+	uint u = TsToUn[code & 0x7f][i];
 	s[i] = u;
 	if (s[i]) len = i + 1;
     }

@@ -316,7 +316,7 @@ QStringList qChoosePixmaps( QWidget *parent )
 	QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
 
     QString filter;
-    QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );;
+    QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
     for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
 	filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
 		  arg( QImageIO::outputFormats().at( i ) ).
@@ -347,7 +347,7 @@ QPixmap qChoosePixmap( QWidget *parent, FormWindow *fw, const QPixmap &old, QStr
 	    QFileDialog::setIconProvider( ( imageIconProvider = new ImageIconProvider ) );
 
 	QString filter;
-	QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );;
+	QString all = qApp->translate( "qChoosePixmap", "All Pixmaps (" );
 	for ( uint i = 0; i < QImageIO::outputFormats().count(); i++ ) {
 	    filter += qApp->translate( "qChoosePixmap", "%1-Pixmaps (%2)\n" ).
 		     arg( QImageIO::outputFormats().at( i ) ).

@@ -508,7 +508,7 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
     case PE_SpinWidgetDown:
 	{
 	    p->save();
-	    int fw = pixelMetric( PM_DefaultFrameWidth );;
+	    int fw = pixelMetric( PM_DefaultFrameWidth );
 	    QRect br;
 	    br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
 			r.height() - fw*2 );

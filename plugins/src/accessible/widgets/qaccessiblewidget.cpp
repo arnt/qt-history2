@@ -740,7 +740,7 @@ QString QAccessibleSpinWidget::text( Text t, int control ) const
     default:
 	break;
     }
-    return QAccessibleRangeControl::text( t, control );;
+    return QAccessibleRangeControl::text( t, control );
 }
 
 /*! \reimp */

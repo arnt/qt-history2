@@ -87,7 +87,7 @@ bool CDEStyle::init()
 
 void CDEStyle::cleanup() 
 {
-    styles.clear();;
+    styles.clear();
 }
 
 bool CDEStyle::canUnload() const

@@ -87,7 +87,7 @@ bool AquaStyle::init()
 
 void AquaStyle::cleanup()
 {
-    styles.clear();;
+    styles.clear();
 }
 
 bool AquaStyle::canUnload() const

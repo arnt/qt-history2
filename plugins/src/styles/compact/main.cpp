@@ -87,7 +87,7 @@ bool CompactStyle::init()
 
 void CompactStyle::cleanup() 
 {
-    styles.clear();;
+    styles.clear();
 }
 
 bool CompactStyle::canUnload() const

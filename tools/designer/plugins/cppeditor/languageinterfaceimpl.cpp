@@ -229,7 +229,7 @@ void LanguageInterfaceImpl::saveFormCode( const QString &form, const QString &fi
 		ts << "void ";
 	    else
 		ts << (*it).returnType << " ";
-	    ts << form << "::" << (*it).name << endl;;
+	    ts << form << "::" << (*it).name << endl;
 	    ts <<  (*it).body;
 	    ts << endl << endl;
 	}

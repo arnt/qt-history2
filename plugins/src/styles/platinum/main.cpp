@@ -87,7 +87,7 @@ bool PlatinumStyle::init()
 
 void PlatinumStyle::cleanup() 
 {
-    styles.clear();;
+    styles.clear();
 }
 
 bool PlatinumStyle::canUnload() const
