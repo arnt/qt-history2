@@ -11,6 +11,25 @@
 **
 ****************************************************************************/
 
+/*************************************************************************
+ *
+ * Original copyright notice:
+ *
+ * stacktrace.c 1.2 1998/12/21
+ *
+ * Copyright (c) 1998 by Bjorn Reese <breese@imada.ou.dk>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+ * MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE AUTHORS AND
+ * CONTRIBUTORS ACCEPT NO RESPONSIBILITY IN ANY CONCEIVABLE MANNER.
+ *
+ ************************************************************************/
+
 #include "qplatformdefs.h"
 #include "private/qcrashhandler_p.h"
 #include <stdio.h>
