@@ -404,7 +404,7 @@ void QMacStyle::polish(QWidget* w)
 	popup->setMargin(0);
 	popup->setLineWidth(0);
 #ifdef Q_WS_MAC
-	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
+	QMacSavedPortInfo::setAlphaTransparency(w, 0.9);
 #endif
     } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
@@ -422,7 +422,7 @@ void QMacStyle::unPolish(QWidget* w)
     }
 #ifdef Q_WS_MAC
     else if(w->inherits("QPopupMenu")) {
-	QMacSavedPortInfo::setAlphaTransparancy(w, 1);
+	QMacSavedPortInfo::setAlphaTransparency(w, 1);
     }
 #endif
 
