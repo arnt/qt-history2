@@ -2,6 +2,8 @@
 #include <qprinter.h>
 #include <qapplication.h>
 #include <qpixmap.h>
+#include <qimage.h>
+#include <qpaintdevicemetrics.h>
 
 
 void drawPoint( QPainter & p, const QRect &r )
@@ -156,45 +158,56 @@ void drawQuadBezier( QPainter & p, const QRect &r )
 }
 
 
+const char *fileopen_xpm[] = {
+    "    16    13        5            1",
+    ". c #040404",
+    "# c #808304",
+    "a c None",
+    "b c #f3f704",
+    "c c #f3f7f3",
+    "aaaaaaaaa...aaaa",
+    "aaaaaaaa.aaa.a.a",
+    "aaaaaaaaaaaaa..a",
+    "a...aaaaaaaa...a",
+    ".bcb.......aaaaa",
+    ".cbcbcbcbc.aaaaa",
+    ".bcbcbcbcb.aaaaa",
+    ".cbcb...........",
+    ".bcb.#########.a",
+    ".cb.#########.aa",
+    ".b.#########.aaa",
+    "..#########.aaaa",
+    "...........aaaaa"
+};
+
+
 void drawPixmap( QPainter & p, const QRect &r )
 {
-    const char *fileopen[] = {
-	"    16    13        5            1",
-	". c #040404",
-	"# c #808304",
-	"a c None",
-	"b c #f3f704",
-	"c c #f3f7f3",
-	"aaaaaaaaa...aaaa",
-	"aaaaaaaa.aaa.a.a",
-	"aaaaaaaaaaaaa..a",
-	"a...aaaaaaaa...a",
-	".bcb.......aaaaa",
-	".cbcbcbcbc.aaaaa",
-	".bcbcbcbcb.aaaaa",
-	".cbcb...........",
-	".bcb.#########.a",
-	".cb.#########.aa",
-	".b.#########.aaa",
-	"..#########.aaaa",
-	"...........aaaaa"
-    };
     double s;
     s = 1.0 * r.width() / 16;
     if ( s < r.height() / 13 )
 	s = r.height() / 13;
+    p.translate( r.left(), r.top() );
     p.scale( s, s );
-    p.drawPixmap( 0,0, QPixmap( fileopen ) );
+    p.drawPixmap( 0, 0, QPixmap( fileopen_xpm ) );
 }
 
 
 void drawImage( QPainter & p, const QRect &r )
 {
+    double s;
+    s = 1.0 * r.width() / 16;
+    if ( s < r.height() / 13 )
+	s = r.height() / 13;
+    p.translate( r.left(), r.top() );
+    p.scale( s, s );
+    p.drawImage( 0, 0, QImage( fileopen_xpm ) );
 }
 
 
 void drawTiledPixmap( QPainter & p, const QRect &r )
 {
+    p.drawTiledPixmap( r, QPixmap( fileopen_xpm ) );
 }
 
 
@@ -211,7 +224,7 @@ void drawText( QPainter & p, const QRect &r )
 typedef void (*TestFunction)(QPainter &, const QRect &);
 
 
-TestFunction f[18] = {
+TestFunction f[17] = {
     drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
     drawPolygon, drawQuadBezier, drawPixmap, drawImage,
@@ -219,7 +232,7 @@ TestFunction f[18] = {
 };
 
 
-const char * n[16] = {
+const char * n[17] = {
     "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
     "drawPolygon", "drawQuadBezier", "drawPixmap", "drawImage",
@@ -242,9 +255,8 @@ void test( const char * output,
     printer.setOrientation( o );
     printer.setColorMode( cm );
     printer.setNumCopies( copies );
-    if ( creator ) {
+    if ( creator )
 	printer.setCreator( creator );
-    }
 
     QPainter p( &printer );
     p.setFont( QFont( "Helvetica", 8 ) );
@@ -253,19 +265,20 @@ void test( const char * output,
     int i;
     QRect cr( 28, 28, 127, 127 );
     QRect pr( 14, 14, cr.width()-28, cr.width()-28 );
-    for( i=0; i<16; i++ ) {
+    int paperWidth = QPaintDeviceMetrics( &printer ).width();
+    for( i=0; i<17; i++ ) {
 	p.setPen( Qt::lightGray );
 	p.drawRect( cr );
 	p.setPen( Qt::darkGray );
 	p.drawText( cr.left()+5, cr.top()+12, n[i] );
 	p.save();
-	//p.setClipRect( cr );
+	p.setClipRect( cr );
 	p.translate( cr.left(), cr.top() );
 	f[i]( p, pr );
 	p.restore();
 	
-	// A4, two 28-point margins
-	if ( cr.left() + 2*cr.width() >= 539 )
+	// two 28-point margins
+	if ( cr.left() + 2*cr.width() >= paperWidth-2*28 )
 	    cr.setRect( 28, cr.bottom()+1, cr.width(), cr.height() );
 	else
 	    cr.setRect( cr.right()+1, cr.top(), cr.width(), cr.height() );
