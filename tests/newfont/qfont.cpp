@@ -1123,7 +1123,7 @@ static void initFontSubst()
 {
     // default substitutions
     static const char *initTbl[] = {
-	
+
 #if defined(Q_WS_X11)
         "arial",        "helvetica",
         "helv",         "helvetica",
@@ -1133,16 +1133,16 @@ static void initFontSubst()
         "courier",      "Courier New",
         "helvetica",    "Arial",
 #endif
-	    
+
         0,              0
     };
 
     if (fontSubst) return;
-    
+
     fontSubst = new QFontSubst();
     Q_CHECK_PTR( fontSubst );
     qfont_cleanup_fontsubst.add(fontSubst);
-    
+
     for ( int i=0; initTbl[i] != 0; i += 2 )
 	QFont::insertSubstitution(QString::fromLatin1(initTbl[i]),
 				  QString::fromLatin1(initTbl[i+1]));
@@ -1174,13 +1174,13 @@ static void initFontSubst()
 QString QFont::substitute( const QString &familyName )
 {
     initFontSubst();
-   
+
     QStringList *list = fontSubst->find(familyName);
     if (list && list->count() > 0) {
         qDebug("QFont::substitute: returning substitute for %s", familyName.latin1());
         return *(list->at(0));
     }
-   
+
     return familyName;
 }
 
@@ -1188,14 +1188,14 @@ QString QFont::substitute( const QString &familyName )
 /*!
   Returns a list of fonts to be used whenever \e familyName is
   specified.  The lookup is case insensitive.
- 
+
   If there is no substitution for \e familyName, then an empty
   list is returned.
  */
 QStringList QFont::substitutes(const QString &familyName)
 {
     initFontSubst();
-   
+
     QStringList ret, *list = fontSubst->find(familyName);
     if (list) ret += *list;
     return ret;
@@ -1215,7 +1215,7 @@ void QFont::insertSubstitution(const QString &familyName,
                                 const QString &substituteName)
 {
     initFontSubst();
-    
+
     QStringList *list = fontSubst->find(familyName);
     if (list) {
 	qDebug("QFont::insertSubstitution: found list %p", list);
@@ -1225,7 +1225,7 @@ void QFont::insertSubstitution(const QString &familyName,
 	fontSubst->insert(familyName, list);
 	qDebug("QFont::insertSubstitution: new list %p", list);
     }
-   
+
     list->prepend(substituteName);
 }
 
@@ -1239,7 +1239,7 @@ void QFont::insertSubstitution(const QString &familyName,
 void QFont::removeSubstitution( const QString &familyName )
 {
     initFontSubst();
-    
+
     fontSubst->remove(familyName);
 }
 
@@ -2140,24 +2140,13 @@ bool QFontInfo::exactMatch() const
 QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
 {
     uchar row = c.row();
-    if ( ! row ) return QFontPrivate::BASICLATIN;
+    
+    // Thankfully BASICLATIN is more or less == ISO 8859-1
+    if (! row) return QFontPrivate::BASICLATIN;
 
-    // Korean Hangul and Jamo characters from KSC5601
-    if (// Hangul Compatibility Jamo
-	(row == 0x31 && (c.cell() >= 0x30 && c.cell() <= 0x8f)) ||
-	// Hangul Syllables
-	(row >= 0xac && (row <  0xd7 || (row == 0xd7 && c.cell() <= 0xa3)))
-	) {
-	return QFontPrivate::HANGUL;
-    }
-    
-    // Unified Han
-    if (row >= 0x4e && row <= 0x9f) {
-	return QFontPrivate::HAN;
-    }
-    
     switch ( row ) {
     case 0x01:
+	// There are no typos here... really...
 	switch (c.cell()) {
 	case 0x00: return QFontPrivate::EXTLATINA4;
 	case 0x01: return QFontPrivate::EXTLATINA4;
@@ -2276,13 +2265,13 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
 	case 0x7D: return QFontPrivate::EXTLATINA2;
 	case 0x7E: return QFontPrivate::EXTLATINA2;
 	}
-	
+
 	break;
-    
+
 	// TODO: support for Latin Extended-B
 	// case 0x02:
 	// if (c.cell() <= 0x4f) return QFontPrivate::EXTLATINB???;
-	
+
     case 0x03:
 	if ( c.cell() >= 0x70 ) return QFontPrivate::GREEK;
 	break;
@@ -2307,20 +2296,48 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
     case 0x0e:
 	// if (c.cell() >= 0x80) return QFontPrivate::LAO; // no support for Lao
 	return QFontPrivate::THAI;
-
+	
+	// case 0x10:
+	// GEORGIAN
+	// break;
+	
     case 0x11:
 	return QFontPrivate::HANGUL;
-	
+
     case 0x30:
 	if (c.cell() >= 0xa0) return QFontPrivate::KATAKANA;
 	if (c.cell() >= 0x40) return QFontPrivate::HIRAGANA;
-	break;
+	
+	// Unified Han Symbols and Punctuation
+	return QFontPrivate::HAN;
 
     case 0x31:
 	if (c.cell() <= 0x2f) return QFontPrivate::BOPOMOFO;
+	
+	// Hangul Compatibility Jamo
+	if (c.cell() <= 0x8f) return QFontPrivate::HANGUL;
+	break;
+	
+    case 0xff:
+	// Hiragana half/full width forms block
+	if (c.cell() <= 0xef) return QFontPrivate::HIRAGANA;
 	break;
     }
+    
+    // Hangul Syllables
+    if (row >= 0xac && (row <  0xd7 || (row == 0xd7 && c.cell() <= 0xa3))) {
+	return QFontPrivate::HANGUL;
+    }
+    
+    if (// Unified Han + Extension-A
+	(row >= 0x34 && row <= 0x9f) ||
+	// Unified Han Compatibility
+	(row >= 0xf9 && row <= 0xfa)
+	) {
+	return QFontPrivate::HAN;
+    }
 
+    // qDebug("QFP::scriptForChar: unknown character U+%04x", c.unicode());
     return QFontPrivate::UnknownScript;
 }
 
