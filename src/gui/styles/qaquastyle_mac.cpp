@@ -23,7 +23,6 @@
 #include <qlineedit.h>
 #include <qlist.h>
 #include <qlistbox.h>
-#include <qlistview.h>
 #include <qmenubar.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
@@ -171,11 +170,6 @@ bool QAquaAnimate::addWidget(QWidget *w)
         pb->installEventFilter(this);
         startAnimate(AquaProgressBar, pb);
         return true;
-    } else if(::qt_cast<QListView *>(w)) {
-#if 0
-        QObject::connect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
-        QObject::connect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
-#endif
     }
     return false;
 }
@@ -188,11 +182,9 @@ void QAquaAnimate::removeWidget(QWidget *w)
         stopAnimate(AquaPushButton, btn);
     } else if(::qt_cast<QProgressBar *>(w)) {
         stopAnimate(AquaProgressBar, static_cast<QProgressBar *>(w));
-    } else if(::qt_cast<QListView*>(w)) {
-        QObject::disconnect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
-        QObject::disconnect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
     }
 }
+
 void QAquaAnimate::lvi(QListViewItem *l)
 {
     if(d->lvis.indexOf(l) == -1)
@@ -283,12 +275,14 @@ void QAquaAnimate::timerEvent(QTimerEvent *)
         animated += i;
     }
     if(!d->lvis.isEmpty()) {
+#if 0
         if(doAnimate(AquaListViewItemOpen)) {
             for (int i = 0; i < d->lvis.count(); ++i) {
                 ++animated;
                 d->lvis.at(i)->repaint();
             }
         }
+#endif
     }
 
     if(!animated) {
@@ -420,8 +414,7 @@ bool QAquaAnimate::focusable(const QWidget *w) const
         return false;
     return (w && !w->isTopLevel() && w->parentWidget() &&
             (::qt_cast<QSpinWidget *>(w) /*|| ::qt_cast<QDateTimeEdit *>(w)*/
-             || ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || ::qt_cast<QListView *>(w)
-             || (::qt_cast<QLineEdit *>(w) && ::qt_cast<QSpinWidget *>(w->parentWidget()))
+            || ::qt_cast<QComboBox *>(w)|| ::qt_cast<QListBox *>(w) || w->inherits("QListView")             || (::qt_cast<QLineEdit *>(w) && ::qt_cast<QSpinWidget *>(w->parentWidget()))
 //           || (w->inherits("QTextEdit") && wstatic_cast<const QTextEdit *>(w)->isReadOnly())
              || (::qt_cast<QFrame *>(w) && ::qt_cast<QLineEdit *>(w)
                  && (static_cast<const QFrame *>(w)->frameStyle() != QFrame::NoFrame
