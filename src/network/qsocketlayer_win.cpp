@@ -830,28 +830,34 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
 {
     Q_LONGLONG ret = -1;
     //### this only sends a small amount at a time ... is this the best idea (see the loop back example with out this)
-    // this only lest us write about 8k when in fact can write upto 15MB without a problem, so now this is slow.
-    // maybe keep sending untill get a would block??
+    // this only lest us write about 8k when in fact can write upto 15MB without a problem, so now this is slow
     Q_LONGLONG bytesToSend = qMin(option(SendBufferSocketOption), len);
-    WSABUF buf;
-    buf.buf = (char*)data;
-    buf.len = bytesToSend;
-    DWORD flags = 0;
     DWORD bytesWritten = 0;
-    if (::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0) ==  SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
-        case WSAECONNRESET:
-        case WSAECONNABORTED:
-            ret = -1;
-            setError(Qt::NetworkError, "Unable to write");
-            q->close();
-            break;
-        default:
-            break;
+    for (;;) {
+        WSABUF buf;
+        buf.buf = (char*)data + bytesWritten;
+        buf.len = bytesToSend;
+        DWORD flags = 0;
+        
+        if (::WSASend(socketDescriptor, &buf, 1, &bytesWritten, flags, 0,0) ==  SOCKET_ERROR) {
+            if (WSAGetLastError() == WSAEWOULDBLOCK) {
+                ret = Q_LONGLONG(bytesWritten);
+                break;
+            }
+            WS_ERROR_DEBUG
+            switch (WSAGetLastError()) {
+            case WSAECONNRESET:
+            case WSAECONNABORTED:
+                ret = -1;
+                setError(Qt::NetworkError, "Unable to write");
+                q->close();
+                break;
+            default:
+                break;
+            }
+        } else {
+            ret = Q_LONGLONG(bytesWritten);
         }
-    } else {
-        ret = Q_LONGLONG(bytesWritten);
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
