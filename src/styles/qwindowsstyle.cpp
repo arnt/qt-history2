@@ -1705,20 +1705,25 @@ QWindowsStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QCol
     if(ctrls & ListViewBranches) {
 	p->setPen( cg.text() );
 	p->setPen( DotLine );
-	QListView *lv = child->listView();
+
 	//parents
-	for( int line = bx - lv->treeStepSize(), count=child->depth(); count; count--, line-=lv->treeStepSize() ) 
-	    p->drawLine( line, y, line, child->height());
+	QListView *lv = child->listView();
+	QListViewItem *below = child->itemBelow();
+	for( int line = bx - lv->treeStepSize(), count=child->depth()-1; count; count--, line-=lv->treeStepSize() ) {
+	    if(below && count <= below->depth())
+		p->drawLine( line, y, line, child->height());
+	}
 	
 	//myself
 	int end;
-	if(child->itemBelow() && child->itemBelow()->depth() >= child->depth())
+	QListViewItem *sib = child->nextSibling();
+	if(sib)
 	    end = child->height();
 	else
 	    end = child->height() / 2;
 	if(child->childCount() || child->isExpandable()) {
 	    p->drawLine(bx, y, bx, linebot-4);
-	    if(child->itemBelow() && child->itemBelow()->depth() >= child->depth())
+	    if(sib)
 		p->drawLine(bx, y+linebot+4, bx, y + end);
 	    p->drawLine(bx+4, linebot, bx + w, linebot);
 	} else {
