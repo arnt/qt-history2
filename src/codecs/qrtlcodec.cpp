@@ -1,23 +1,42 @@
-/*
- * Copyright (c) 1999 Lars Knoll <knoll@mpi-hd.mpg.de>, All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted under the terms of the QPL, Version 1.0
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/****************************************************************************
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#85 $
+**
+** Implementation of QTextCodec class
+**
+** Created : 981015
+**
+** Copyright (C)1998-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses may use this file in accordance with the Qt Commercial License
+** Agreement provided with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qrtlcodec.h"
+#include "../kernel/qcomplextext_p.h"
 
 #ifndef QT_NO_CODECS
 
@@ -142,7 +161,6 @@ QString QHebrewCodec::toUnicode(const char* chars, int len) const
 
 static void reverse(QString &input, unsigned int a, unsigned int b)
 {
-    // evil cast... I know...
     QChar *chars = (QChar *)input.unicode();
 
     QChar temp;
@@ -214,7 +232,7 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
   at the beginning of the text telling the function which basic text
   direction to use. If the basic text direction is left-to-right, the
   control char is (uchar) 0xfe, for right-to-left it is 0xff. Both chars
-  are undefined in the iso 8859-6/8 charsets.
+  are undefined in the iso 8859-8 charset.
 
   Example: A visually ordered string "english WERBEH english2" would
   be recognizes as having a basic left to right direction. so the logically
@@ -279,7 +297,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
     } else {
 	QString tmp = uc;
 	tmp.truncate(l);
-	QString vis = tmp; // ########   .visual();
+	QString vis = QComplexText::bidiReorderString(tmp);
 
 	for (int i=0; i<l; i++) {
 	    const QChar ch = vis[i];
