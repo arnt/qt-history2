@@ -54,7 +54,7 @@ public:
     QPopupMenu( QWidget* parent=0, const char* name=0 );
     ~QPopupMenu();
 
-    void	popup( const QPoint & pos, int indexAtPoint = 0 ); // open
+    void	popup( const QPoint & pos, int indexAtPoint = -1 ); // open
     void	updateItem( int id );
 
     virtual void	setCheckable( bool );
