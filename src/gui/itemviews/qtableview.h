@@ -70,6 +70,7 @@ public slots:
     void showColumn(int column);
     void resizeRowToContents(int row);
     void resizeColumnToContents(int column);
+    void sortByColumn(int column);
 
 protected slots:
     void rowMoved(int row, int oldIndex, int newIndex);

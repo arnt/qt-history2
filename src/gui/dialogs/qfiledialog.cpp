@@ -113,7 +113,6 @@ public:
     void useFilter(const QString &filter);
     void setCurrentDir(const QString &path);
     void populateContextMenu(QMenu *menu, const QModelIndex &index);
-    void headerPressed(int section);
     void renameCurrent();
     void deleteCurrent();
     void reload();
@@ -1227,52 +1226,6 @@ void QFileDialogPrivate::populateContextMenu(QMenu *menu, const QModelIndex &ind
 }
 
 /*!
-    \internal
-
-    The \a{section}-th column header in the files list was clicked.
-*/
-
-void QFileDialogPrivate::headerPressed(int section)
-{
-    QDir::SortFlags sort = QDir::NoSort;
-    switch (section) {
-    case 0:
-        sort = QDir::Name;
-        break;
-    case 1:
-        sort = QDir::Size;
-        break;
-    case 2:
-        // FIXME: add a special internals sort mode that will sort by type
-        sort = QDir::Unsorted;
-        break;
-    case 3:
-        sort = QDir::Time;
-        break;
-    default:
-        return;
-    }
-    QHeaderView *header = treeView->header();
-    Qt::SortOrder order = (header->sortIndicatorSection() == section
-                       && header->sortIndicatorOrder() == Qt::DescendingOrder)
-                      ? Qt::AscendingOrder : Qt::DescendingOrder;
-    bool sortByName = (sort & QDir::SortByMask) == QDir::Name;
-    bool reverse = (order == Qt::AscendingOrder ? sortByName : !sortByName);
-    if (reverse) {
-        sort |= QDir::Reversed;
-        sort |= QDir::DirsLast;
-        sort &= ~QDir::DirsFirst;
-    } else {
-        sort &= ~QDir::Reversed;
-        sort &= ~QDir::DirsLast;
-        sort |= QDir::DirsFirst;
-    }
-
-    setDirSorting(sort);
-    header->setSortIndicator(section, order);
-}
-
-/*!
     Tells the dialog to rename the currently selected item using input from
     the user.
 */
@@ -1545,8 +1498,9 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->viewport()->setAcceptDrops(true);
     treeView->setRootIsDecorated(false);
     treeView->header()->setResizeMode(QHeaderView::Stretch, treeView->header()->count() - 1);
-    treeView->header()->setSortIndicator(0, Qt::DescendingOrder);
+    treeView->header()->setSortIndicator(0, Qt::AscendingOrder);
     treeView->header()->setSortIndicatorShown(true);
+    treeView->header()->setClickable(true);
     treeView->hide();
     treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
     treeView->resizeColumnToContents(0);
@@ -1560,9 +1514,6 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
                      q, SLOT(enterSubdir(QModelIndex)));
     QObject::connect(treeView, SIGNAL(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)),
                      q, SLOT(keyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
-    QObject::connect(treeView->header(),
-                     SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-                     q, SLOT(headerPressed(int)));
 }
 
 void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayout *grid)

@@ -180,9 +180,11 @@ void QTreeView::setHeader(QHeaderView *header)
         disconnect(d->header, SIGNAL(sectionMoved(int,int,int)),
                    this, SLOT(columnMoved()));
         disconnect(d->header, SIGNAL(sectionCountChanged(int,int)),
-                            this, SLOT(columnCountChanged(int,int)));
+                   this, SLOT(columnCountChanged(int,int)));
         disconnect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
                    this, SLOT(resizeColumnToContents(int)));
+        disconnect(d->header, SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                   this, SLOT(sortByColumn(int)));
         d->header->setFocusProxy(0);
     }
 
@@ -196,6 +198,8 @@ void QTreeView::setHeader(QHeaderView *header)
             this, SLOT(columnCountChanged(int,int)),Qt::QueuedConnection);
     connect(d->header, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
+    connect(d->header, SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            this, SLOT(sortByColumn(int)));
     d->header->setFocusProxy(this);
 }
 
@@ -1033,6 +1037,20 @@ void QTreeView::resizeColumnToContents(int column)
     int contents = columnSizeHint(column);
     int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
+}
+
+/*!
+  Sorts the model by the values in the given \a column.
+ */
+void QTreeView::sortByColumn(int column)
+{
+    if (!d->model)
+        return;
+    bool ascending = (header()->sortIndicatorSection() == column
+                      && header()->sortIndicatorOrder() == Qt::DescendingOrder);
+    Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
+    header()->setSortIndicator(column, order);
+    d->model->sort(column, order);
 }
 
 /*!

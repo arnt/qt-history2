@@ -246,6 +246,9 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
                    this, SLOT(selectColumn(int)));
         disconnect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
                    this, SLOT(resizeColumnToContents(int)));
+        disconnect(d->horizontalHeader,
+                   SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+                   this, SLOT(sortByColumn(int))); // only for horizontal
         d->horizontalHeader->setFocusProxy(0);
     }
 
@@ -257,11 +260,12 @@ void QTableView::setHorizontalHeader(QHeaderView *header)
             this, SLOT(columnMoved(int,int,int)), Qt::QueuedConnection);
     connect(d->horizontalHeader, SIGNAL(sectionCountChanged(int,int)),
             this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
-    connect(d->horizontalHeader,
-            SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(d->horizontalHeader, SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
             this, SLOT(selectColumn(int)));
     connect(d->horizontalHeader, SIGNAL(sectionHandleDoubleClicked(int)),
             this, SLOT(resizeColumnToContents(int)));
+    connect(d->horizontalHeader, SIGNAL(sectionClicked(int,Qt::MouseButton,Qt::KeyboardModifiers)),
+            this, SLOT(sortByColumn(int))); // only for horizontal
     d->horizontalHeader->setFocusProxy(this);
 }
 
@@ -1113,6 +1117,20 @@ void QTableView::resizeColumnToContents(int column)
     int content = columnSizeHint(column);
     int header = d->horizontalHeader->isHidden() ? 0 : d->horizontalHeader->sectionSizeHint(column);
     d->horizontalHeader->resizeSection(column, qMax(content, header));
+}
+
+/*!
+  Sorts the model by the values in the given \a column.
+ */
+void QTableView::sortByColumn(int column)
+{
+    if (!d->model)
+        return;
+    bool ascending = (horizontalHeader()->sortIndicatorSection() == column
+                      && horizontalHeader()->sortIndicatorOrder() == Qt::DescendingOrder);
+    Qt::SortOrder order = ascending ? Qt::AscendingOrder : Qt::DescendingOrder;
+    horizontalHeader()->setSortIndicator(column, order);
+    d->model->sort(column, order);
 }
 
 /*!
