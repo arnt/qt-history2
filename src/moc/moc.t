@@ -1,8 +1,13 @@
 #!
 #! This is a custom template for creating a Makefile for the moc.
 #!
-#$ IncludeTemplate("propagate.t") if $is_unix;
-#$ IncludeTemplate("app.t") unless $is_unix;
+#${
+    if ( $ENV{"UNIX_MKDIST_QT"} ) {
+	IncludeTemplate("propagate.t");
+    } else {
+	IncludeTemplate("app.t");
+    }
+#$}
 
 ####### Lex/yacc programs and options
 
