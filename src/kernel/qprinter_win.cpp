@@ -443,8 +443,15 @@ void QPrinter::readPdlg( void* pdv )
 
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
-    from_pg = pd->nFromPage;
-    to_pg = pd->nToPage;
+
+    if( pd->Flags & PD_PAGENUMS ) {
+	from_pg = pd->nFromPage;
+	to_pg = pd->nToPage;
+    } else {
+	from_pg = 0;
+	to_pg = 0;
+    }
+
     ncopies = pd->nCopies;
     if ( pd->Flags & PD_COLLATE )
         usercolcopies = TRUE;
@@ -538,8 +545,15 @@ void QPrinter::readPdlgA( void* pdv )
 
     PRINTDLGA* pd = (PRINTDLGA*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
-    from_pg = pd->nFromPage;
-    to_pg = pd->nToPage;
+
+    if( pd->Flags & PD_PAGENUMS ) {
+	from_pg = pd->nFromPage;
+	to_pg = pd->nToPage;
+    } else {
+	from_pg = 0;
+	to_pg = 0;
+    }
+
     ncopies = pd->nCopies;
     if ( pd->Flags & PD_COLLATE )
         usercolcopies = TRUE;
