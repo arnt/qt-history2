@@ -25,7 +25,7 @@ public:
     ~Items();
 
     void resetState();
-    void startAnimation() {}
+    void startAnimation() { resetState(); }
     void stopAnimation() {}
     void drawItems(const QRect &rect);
 

@@ -64,7 +64,7 @@ void TextOutline::paintEvent(QPaintEvent *)
 
 void TextOutline::startAnimation()
 {
-
+    resetState();
 }
 
 void TextOutline::stopAnimation()

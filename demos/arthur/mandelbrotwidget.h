@@ -17,7 +17,7 @@ public:
     enum Zoom { ZoomIn, ZoomOut };
     void zoom(Zoom z);
 
-    void startAnimation() {}
+    void startAnimation() { resetState(); }
     void stopAnimation() {}
 
 public slots:
