@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#49 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#50 $
 **
 ** Implementation of QIODevice class
 **
@@ -32,34 +32,99 @@
 
   \ingroup io
 
-  An I/O device represents a medium that one can read bytes from and write
-  bytes to.  The QIODevice class itself is not capable of reading or
-  writing any data; it has virtual functions for doing so. These functions
-  are implemented by the subclasses QFile and QBuffer.
+  An I/O device represents a medium that one can read bytes from
+  and/or write bytes to.  The QIODevice class is the abstract
+  superclass of all such devices; classes like QFile, QBuffer and
+  QSocket inherit QIODevice and implement virtual functions like
+  write() appropriately.
 
-  There are two types of I/O devices;
-  \link isDirectAccess() <em>direct access</em>\endlink and
-  \link isSequentialAccess() <em>sequential access </em>\endlink devices.
-  Files can normally be accessed
-  directly, except \c stdin etc., which must be processed sequentially.
-  Buffers are always direct access devices.
+  While applications sometimes use QIODevice directly, mostly it is
+  better to go through QTextStream and QDataStream, which provide
+  stream operations on any QIODevice subclass.  QTextStream provides
+  text-oriented stream functionality (for human-readable ASCII files,
+  for example), while QDataStream deals with binary data in a totally
+  platform-independent manner.
 
-  The access mode of an I/O device can be either \e raw or \e buffered.
-  QFile objects can be created using one of these.  Raw access mode is more
-  low level, while buffered access use smart buffering techniques.
-  The raw access mode is best when I/O is block-operated using 4kB block size
-  or greater.  Buffered access works better when reading small portions of
-  data at a time.
+  The public member functions in QIODevice roughly fall into two
+  groups: The action functions and the state access functions.  The
+  most important action functions are: <ul>
 
-  An I/O device operation can be executed in either \e synchronous or
-  \e asynchronous mode.	 The I/O devices currently supported by Qt only
-  execute synchronously.
+  <li> open() opens a device for reading and/or writing, depending on
+  the argument to open().
 
-  The QDataStream and QTextStream provide binary and text operations
-  on QIODevice objects.
+  <li> close() closes the device and tidies up.
 
-  QIODevice provides numerous pure virtual functions you need to implement
-  when subclassing it. Here is a skeleton subclass:
+  <li> readBlock() reads a block of data from the device.
+
+  <li> writeBlock() writes a block of data to the device.
+
+  <li> readLine() reads a line (of text, usually) from the device.
+
+  <li> flush() ensures that all buffered data are written to the real device.
+
+  </ul>There are also some other, less used, action functions: <ul>
+  
+  <li> getch() reads a single character.
+
+  <li> ungetch() forgets the last call to getch(), if possible.
+
+  <li> putch() writes a single character.
+
+  <li> size() returns the size of the device, if there is one.
+
+  <li> at() returns the current read/write pointer, if there is one
+  for this device, or it moves the pointer.
+
+  <li> atEnd() says whether there is more to read, if that is a
+  meaningful question for this device.
+
+  <li> reset() moves the read/write pointer to the start of the
+  device, if that is possible for this device.
+
+  </ul>The state access are all "get" functions.  The QIODevice subclass 
+  calls setState() to update the state, and simple access functions
+  tell the user of the device what the device's state is.  Here are
+  the settings, and their associated access functions: <ul>
+
+  <li> Access type.  Some devices are direct access (it is possible to
+  read/write anywhere) while others are sequential.  QIODevice
+  provides the access functions isDirectAccess(), isSequentialAccess()
+  and isCombinedAccess() to tell users what a given I/O device
+  supports.
+
+  <li> Buffering.  Some devices are accessed in raw mode while others
+  are buffered.  Buffering usually provides greater efficiency,
+  particularly for small read/write operations.  isBuffered() tells
+  the user whether a given device is buffered.  (This can often be set
+  by the application in the call to open().)
+
+  <li> Synchronicity.  Synchronous devices work there and then, for
+  example files.  When you read from a file, the file delivers its
+  data right away.  Others, such as a socket connected to a HTTP
+  server, may not deliver the data until seconds after you ask to read
+  it.  isSynchronous() and isAsynchronous() tells the user how this
+  device operates.
+
+  <li> CR/LF translation.  For simplicity, applications often like to
+  see jus a single CR/LF style, and QIODevice subclasses can provide
+  that.  isTranslated() returns TRUE if this object translates CR/LF
+  to just LF.  (This can often be set by the application in the call
+  to open().)
+
+  <li> Accessibility.  Some files cannot be written, for example.
+  isReadable(), isWritable and isReadWrite() tells the application
+  whether it can read from and write to a given device.  (This can
+  often be set by the application in the call to open().)
+
+  <li> Finally, isOpen() returns TRUE if the device is open.  This can
+  quite obviously be set using open() :)
+
+  </ul>
+
+  QIODevice provides numerous pure virtual functions you need to
+  implement when subclassing it.  Here is a skeleton subclass with all
+  the members you are certain to need, and some it's likely that you
+  will need:
 
   \code
     class YourDevice : public QIODevice
@@ -88,7 +153,7 @@
   \endcode
 
   The three non-pure virtual functions can be ignored if your device
-  is sequential (e.g. a tape device).
+  is sequential (e.g. an RS-232 port).
 
   \sa QDataStream, QTextStream
 */
@@ -447,7 +512,7 @@ bool QIODevice::atEnd() const
 
 /*!
   This convenience function returns all of the remaining data in
-  the device.  Note that this only works for 
+  the device.  Note that this only works for
   \link isDirectAccess() <em>direct access</em>\endlink devices,
   such as QFile.
 */
