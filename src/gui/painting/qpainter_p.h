@@ -139,7 +139,7 @@ public:
     void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);
 
     // Refactored draw_helper functionallity
-    void draw_helper_fill_lineargradient(const QPainterPath &path);
+    void draw_helper_fill_gradient(const QPainterPath &path);
     void draw_helper_fill_alpha(const QPainterPath &path);
     void draw_helper_fill_pattern(const QPainterPath &path);
     void draw_helper_stroke_normal(const QPainterPath &path, uint emulate);

@@ -432,6 +432,8 @@ QRasterPaintEngine::QRasterPaintEngine()
                                                      | AlphaStroke
                                                      | BrushStroke
                                                      | LinearGradients
+                                                     | RadialGradientFill
+                                                     | ConicalGradientFill
                                                      | ClipTransform
                                                      | CoordTransform
                                                      | PenWidthTransform

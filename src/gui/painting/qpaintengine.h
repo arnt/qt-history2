@@ -73,6 +73,8 @@ public:
         LineAntialiasing          = 0x4000,               // Can antialias lines
         FillAntialiasing          = 0x8000,               // Can antialias fills
         BrushStroke               = 0x10000,              // Can render brush based pens.
+        RadialGradientFill        = 0x20000,              // Can render radial gradients.
+        ConicalGradientFill       = 0x40000,              // Can render conical gradients
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };

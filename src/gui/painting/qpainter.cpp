@@ -53,10 +53,6 @@ void qt_format_text(const QFont &font,
                     int tabstops, int* tabarray, int tabarraylen,
                     QPainter *painter);
 
-QPixmap qt_image_linear_gradient(const QRect &r,
-                                 const QPointF &p1, const QColor &color1,
-                                 const QPointF &p2, const QColor &color2);
-
 template <class From, class To> QVector<To> qt_convert_points(const From *points, int pointCount, const To & /*dummy*/)
 {
     QVector<To> v;
@@ -71,31 +67,70 @@ template <class From, class To> QVector<To> qt_convert_points(const From *points
   Fallback implementation of fill linear gradient. Sets a clipregion matching the shape to
   fill and calls qt_fill_linear_gradient (lots of drawlines) for the region in question
 */
-void QPainterPrivate::draw_helper_fill_lineargradient(const QPainterPath &path)
+void QPainterPrivate::draw_helper_fill_gradient(const QPainterPath &path)
 {
     Q_Q(QPainter);
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf(" -> fill_lineargradient()\n");
 #endif
+    Q_ASSERT(state->brush.style() == Qt::LinearGradientPattern
+             || state->brush.style() == Qt::RadialGradientPattern
+             || state->brush.style() == Qt::ConicalGradientPattern);
+
     q->save();
     q->setClipPath(path, Qt::IntersectClip);
-    QRect bounds = (QPolygonF(path.boundingRect()) * state->matrix).boundingRect().toRect();
-    q->resetMatrix();
 
-    Q_ASSERT(state->brush.style() == Qt::LinearGradientPattern);
-    const QLinearGradient *linGrad = static_cast<const QLinearGradient *>(state->brush.gradient());
+    bool xform = state->txop > TxTranslate;
 
-    QPointF p1 = linGrad->start() - bounds.topLeft();
-    QPointF p2 = linGrad->finalStop() - bounds.topLeft();
+    QRectF pathBounds = path.boundingRect();
+    QRect bounds;
 
-    QPixmap image = qt_image_linear_gradient(bounds,
-                                             p1, linGrad->stops().first().second,
-                                             p2, linGrad->stops().last().second);
-    engine->drawPixmap(QRectF(bounds.topLeft(), image.size()),
+    // ### We need to cache this as a pixmap later on.
+    QImage image;
+
+    // Abort in case of image engine that don't support it.
+    QPaintEngine *imageEngine = image.paintEngine();
+    if (!imageEngine
+        || (state->brush.style() == Qt::LinearGradientPattern
+            && !imageEngine->hasFeature(QPaintEngine::LinearGradients))
+        || (state->brush.style() == Qt::RadialGradientPattern
+            && !imageEngine->hasFeature(QPaintEngine::RadialGradientFill))
+        || (state->brush.style() == Qt::ConicalGradientPattern
+            && !imageEngine->hasFeature(QPaintEngine::ConicalGradientFill)))
+        return;
+
+    if (xform) {
+        // The xformed case. We draw the gradient into the image non transformed
+        // and transform the pixmap instead. This is the only way we can get
+        // close xforms.
+        image = QImage(pathBounds.size().toSize(), 32);
+        bounds = pathBounds.toRect();
+        if (!state->brush.isOpaque()) {
+            image.fill(0x00000000);
+            image.setAlphaBuffer(true);
+        }
+        QPainter p(&image);
+        p.translate(-pathBounds.x(), -pathBounds.y());
+        p.fillRect(pathBounds, state->brush);
+    } else {
+        // Non xform or translate case. We allocate a pixmap the size
+        // of the bounds and that.
+        q->resetMatrix();
+        bounds = state->matrix.mapRect(pathBounds).toRect();
+        image = QImage(bounds.size(), 32);
+        if (!state->brush.isOpaque()) {
+            image.fill(0x00000000);
+            image.setAlphaBuffer(true);
+        }
+        QPainter p(&image);
+        p.translate(-bounds.x(), -bounds.y());
+        p.fillRect(bounds, state->brush);
+    }
+
+    q->drawImage(QRectF(bounds.topLeft(), image.size()),
                        image,
-                       QRectF(0, 0, image.width(), image.height()),
-                       Qt::ComposePixmap);
+                       QRectF(0, 0, image.width(), image.height()));
     q->restore();
 }
 
@@ -332,6 +367,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
 
         // Custom fill, gradients, alpha and patterns
         if ((emulationSpecifier & QPaintEngine::LinearGradients)
+            || (emulationSpecifier & QPaintEngine::RadialGradientFill)
+            || (emulationSpecifier & QPaintEngine::ConicalGradientFill)
             || (emulationSpecifier & QPaintEngine::AlphaFill)
             || (emulationSpecifier & QPaintEngine::PatternTransform)
             || (emulationSpecifier & QPaintEngine::PatternBrush))
@@ -342,8 +379,10 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
                     && engine->hasFeature(QPaintEngine::AlphaFillPolygon))) {
                 q->drawPath(path);
             } else {
-                if (emulationSpecifier & QPaintEngine::LinearGradients)
-                    draw_helper_fill_lineargradient(path);
+                if ((emulationSpecifier & QPaintEngine::LinearGradients)
+                    || (emulationSpecifier & QPaintEngine::RadialGradientFill)
+                    || (emulationSpecifier & QPaintEngine::ConicalGradientFill))
+                    draw_helper_fill_gradient(path);
                 else if (emulationSpecifier & QPaintEngine::AlphaFill)
                     draw_helper_fill_alpha(path);
                 else if (emulationSpecifier & QPaintEngine::PatternTransform
@@ -3605,7 +3644,7 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawTextItem(), pos=[%.f,%.f], str='%s'\n",
-           p.x(), p.y(), QString(ti.chars, ti.num_chars).toLatin1().constData());
+               p.x(), p.y(), ti.text().latin1());
 #endif
     if (!isActive())
         return;
@@ -4766,93 +4805,6 @@ void qt_format_text(const QFont &font, const QRectF &_r,
 
     if (underlinePositions != underlinePositionStack)
         delete [] underlinePositions;
-}
-
-QPixmap qt_image_linear_gradient(const QRect &rect,
-                                 const QPointF &pt1, const QColor &color1,
-                                 const QPointF &pt2, const QColor &color2)
-{
-#ifdef QT_DEBUG_DRAW
-    printf(" -> image_gradient(), [%d, %d, %d, %d]\n"
-           "   from: (%.2f, %.2f) col=%x\n"
-           "   to  : (%.2f, %.2f) col=%x\n",
-           rect.x(), rect.y(), rect.width(), rect.height(),
-           pt1.x(), pt1.y(), color1.rgba(), pt2.x(), pt2.y(), color2.rgba());
-#endif
-
-    qreal x1 = pt1.x();
-    qreal y1 = pt1.y();
-    qreal x2 = pt2.x();
-    qreal y2 = pt2.y();
-
-    QString key = QString("qt_gradient %1 %2 %3 %4")
-                  .arg(rect.x())
-                  .arg(rect.y())
-                  .arg(rect.width())
-                  .arg(rect.height())
-                  + QString("%1 %2 %3 %4 %5 %6")
-#ifdef QT_USE_FIXED_POINT
-                  .arg(x1.value())
-                  .arg(y1.value())
-                  .arg(color1.rgba())
-                  .arg(x2.value())
-                  .arg(y2.value())
-                  .arg(color2.rgba())
-#else
-                  .arg(x1)
-                  .arg(y1)
-                  .arg(color1.rgba())
-                  .arg(x2)
-                  .arg(y2)
-                  .arg(color2.rgba())
-#endif
-                  ;
-    if (QPixmap *pixmap = QPixmapCache::find(key)) {
-        return *pixmap;
-    }
-
-    QImage image(rect.width(), rect.height(), 32);
-
-    qreal gdx = x2 - x1;
-    qreal gdy = y2 - y1;
-    qreal glen = sqrt(gdx * gdx + gdy * gdy);
-
-    int a1 = color1.alpha(), r1 = color1.red(), g1 = color1.green(), b1 = color1.blue();
-    int a2 = color2.alpha(), r2 = color2.red(), g2 = color2.green(), b2 = color2.blue();
-
-    bool useAlpha = a1 != 255 || a2 != 255;
-
-    if (glen == 0) {
-        image.fill(a1);
-        image.setAlphaBuffer(useAlpha);
-        return image;
-    }
-
-    image.setAlphaBuffer(useAlpha);
-    qreal t;
-
-    for (int y=0; y<image.height(); ++y) {
-        QRgb *scanLine = (QRgb*)image.scanLine(y);
-        int oset = 0;
-        for (int x=0; x<image.width(); ++x) {
-            t = (gdx * (x-x1) + gdy * (y-y1)) / glen;
-            if (t < 0) {
-                scanLine[oset++] = qRgba(r1, g1, b1, a1);
-            } else if (t > glen) {
-                scanLine[oset++] = qRgba(r2, g2, b2, a2);
-            } else {
-                t = t / glen;
-                scanLine[oset++] = qRgba(qRound(r1 * (1-t) + r2 * t), qRound(g1 * (1-t) + g2 * t),
-                                         qRound(b1 * (1-t) + b2 * t), qRound(a1 * (1-t) + a2 * t));
-            }
-        }
-    }
-
-    QPixmap pixmap;
-    pixmap.fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
-    QPixmapCache::insert(key, pixmap);
-
-    return pixmap;
 }
 
 void QPainter::setLayoutDirection(Qt::LayoutDirection direction)

@@ -724,8 +724,17 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         else
             emulationSpecifier &= ~LinearGradients;
 
-        if (s->brush.style() != Qt::LinearGradientPattern
-            && s->brush.color().alpha() != 255 && !hasFeature(AlphaFill))
+        if (s->brush.style() == Qt::RadialGradientPattern && !hasFeature(RadialGradientFill))
+            emulationSpecifier |= RadialGradientFill;
+        else
+            emulationSpecifier &= ~RadialGradientFill;
+
+        if (s->brush.style() == Qt::ConicalGradientPattern && !hasFeature(ConicalGradientFill))
+            emulationSpecifier |= ConicalGradientFill;
+        else
+            emulationSpecifier &= ~ConicalGradientFill;
+
+        if (!s->brush.isOpaque())
             emulationSpecifier |= AlphaFill;
         else
             emulationSpecifier &= ~AlphaFill;
