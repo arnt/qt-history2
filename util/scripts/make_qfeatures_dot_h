@@ -2,14 +2,14 @@
 #
 # Usage:  make_qfeatures_dot_h
 #
-# Generates tools/qfeatures.h from tools/qfeatures.txt.
+# Generates core/base/qfeatures.h from core/base/qfeatures.txt.
 #
 # The tools/qfeatures.txt file can contain redundancies, and this program
 # will show them.
 #
 
-open FL, "$ENV{QTDIR}/src/tools/qfeatures.txt"
-    or die "Cannot open $ENV{QTDIR}/src/tools/qfeatures.txt";
+open FL, "$ENV{QTDIR}/src/core/base/qfeatures.txt"
+    or die "Cannot open $ENV{QTDIR}/src/core/base/qfeatures.txt";
 
 while (<FL>) {
     if ( /^Feature: (\S*)/ ) {
@@ -79,13 +79,13 @@ for $macro ( @macros ) {
     }
 }
 
-open OUT, ">$ENV{QTDIR}/src/tools/qfeatures.h"
-    or die "Cannot open $ENV{QTDIR}/src/tools/qfeatures.h for writing";
+open OUT, ">$ENV{QTDIR}/src/core/base/qfeatures.h"
+    or die "Cannot open $ENV{QTDIR}/src/core/base/qfeatures.h for writing";
 
 print OUT
 "// All feature and their dependencies
 //
-// This list is generated from \$QTDIR/src/tools/qfeatures.txt
+// This list is generated from \$QTDIR/src/core/base/qfeatures.txt
 //
 ";
 
