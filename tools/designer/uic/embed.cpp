@@ -32,11 +32,11 @@
 // the ready-only data directly into memory we are both faster and
 // more memory efficient
 #ifdef Q_WS_QWS
-#define QT_NO_IMAGE_COMPRESSION
+#define QT_NO_IMAGE_COLLECTION_COMPRESSION
 #endif
 
 
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 #include <zlib.h>
 #endif
 
@@ -49,7 +49,7 @@ struct EmbedImage
     QString name;
     QString cname;
     bool alpha;
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
     ulong compressed, uncompressed;
 #endif
 };
@@ -70,7 +70,7 @@ static QString convertToCIdentifier( const char *s )
 
 static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 {
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
     ulong len = nbytes * 2;
     QByteArray bazip( len );
     ::compress(  (uchar*) bazip.data(), &len, (uchar*) input, nbytes );
@@ -86,7 +86,7 @@ static ulong embedData( QTextStream& out, const uchar* input, int nbytes )
 	    s.truncate( 0 );
 	}
 	uint v = (uchar)
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 		 bazip
 #else		
 		 input
@@ -141,8 +141,9 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#include <qdict.h>" << endl;
     out << "#include <qmime.h>" << endl;
     out << "#include <qdragobject.h>" << endl;
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
     out << "#include <zlib.h>" << endl;
-
+#endif
 
     QPtrList<EmbedImage> list_image;
     int image_count = 0;
@@ -170,7 +171,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    img = img.convertBitOrder(QImage::BigEndian);
 	out << s.sprintf( "static const unsigned char %s_data[] = {",
 			  (const char *)e->cname );
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	e->uncompressed = img.numBytes();
 	e->compressed =
 #endif	
@@ -188,7 +189,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "static struct EmbedImage {\n"
 	    "    int width, height, depth;\n"
 	    "    const unsigned char *data;\n"
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	    "    ulong compressed, uncompressed;\n"
 #endif	
 	    "    int numColors;\n"
@@ -203,7 +204,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 		<< e->height << ", "
 		<< e->depth << ", "
 		<< "(const unsigned char*)" << e->cname << "_data, "
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 		<< e->compressed << ", "
 		<< e->uncompressed << ", "
 #endif		
@@ -219,7 +220,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    out << "\"" << e->name << "\" },\n";
 	    e = list_image.next();
 	}
-#ifndef QT_NO_IMAGE_COMPRESSION
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
 #else	
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
@@ -230,8 +231,8 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "{\n"
 	    "    for (int i=0; embed_image_vec[i].data; i++) {\n"
 	    "	if ( QString::fromUtf8(embed_image_vec[i].name) == name ) {\n"
-#ifndef QT_NO_IMAGE_COMPRESSION
-	    "	    ulong len = 5 * embed_image_vec[i].uncompressed;\n"
+#ifndef QT_NO_IMAGE_COLLECTION_COMPRESSION
+	    "	    ulong len = embed_image_vec[i].uncompressed;\n"
 	    "	    QByteArray baunzip( len );\n"
 	    "	    ::uncompress( (uchar*) baunzip.data(), &len, \n"
 	    "		(uchar*)embed_image_vec[i].data, \n"
