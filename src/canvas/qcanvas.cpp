@@ -4026,8 +4026,9 @@ void QCanvasPolygonalItem::draw(QPainter & p)
 void QCanvasPolygonalItem::setPen(QPen p)
 {
     if ( pn != p ) {
+	removeFromChunks();
 	pn = p;
-	changeChunks();
+	addToChunks();
     }
 }
 
@@ -4333,11 +4334,7 @@ QCanvasLine::~QCanvasLine()
 */
 void QCanvasLine::setPen(QPen p)
 {
-    if ( pen() != p ) {
-	removeFromChunks();
-	QCanvasPolygonalItem::setPen(p);
-	addToChunks();
-    }
+    QCanvasPolygonalItem::setPen(p);
 }
 
 /*!
