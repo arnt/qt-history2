@@ -544,16 +544,14 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 
   \brief The QTime class provides clock time functions.
 
-  \capt Time functions
-
   \ingroup time
-  
+
   A QTime object contains a clock time, i.e. a number of hours,
   minutes, seconds and milliseconds since midnight. It can read the
   current time from the system clock, and measure a span of elapsed
   time. It provides functions for comparing times and for manipulating
   a time by adding a number of (milli)seconds.
-  
+
   QTime operates with 24-hour clock format; it has no concept of
   AM/PM. It operates with local time; it does not know anything about
   time zones or daylight savings time.
@@ -581,7 +579,7 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 
   QTime can be used to measure a span of elapsed time using the
   start(), restart(), and elapsed() functions.
- 
+
   \sa QDate, QDateTime
 */
 
@@ -597,7 +595,7 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 /*!
   Constructs a time with hour \a h, minute \a m, seconds \a s and
   milliseconds \a ms.
-  
+
   \a h must be in the range 0-23, \a m and \a s must be in the range
   0-59, and \a ms must be in the range 0-999.
 
@@ -708,7 +706,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 
 /*!
   Returns a QTime object containg a time \a nsecs seconds later than
-  the time of this object (or earlier if \a ms is negative). 
+  the time of this object (or earlier if \a ms is negative).
 
   Note that the time will wrap if it passes midnight.
 
@@ -1028,7 +1026,7 @@ int QTime::elapsed()
   datetime can be found using the addDays() and addSecs()
   functions. Correspondingly, the number of days or seconds between
   two times can be found using the daysTo() or secsTo() functions.
-  
+
   A datetime can also be set using the setTime_t() function, which
   takes a POSIX-standard "number of seconds since 00:00:00 on January
   1, 1970" value.
@@ -1186,7 +1184,7 @@ QDateTime QDateTime::addDays( int ndays ) const
 /*!
   Returns a QDateTime object containing a datetime \a nsecs seconds
   later than the datetime of this object (or earlier if \a nsecs is
-  negative). 
+  negative).
 
   \sa secsTo(), addDays()
 */
