@@ -2359,7 +2359,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
     }
 
     if ( verticalBreak() && parag->lastInFrame && parag->document()->flow() )
-	parag->document()->flow()->eraseAfter( parag, p );
+	parag->document()->flow()->eraseAfter( parag, p, cg );
 
     parag->document()->nextDoubleBuffered = FALSE;
 }
@@ -3123,7 +3123,7 @@ void QTextParag::move( int &dy )
     if ( doc && doc->verticalBreak() ) {
 	const int oy = r.y();
 	int y = oy;
-	doc->flow()->adjustFlow( y, r.width(), r.height(), TRUE );
+	doc->flow()->adjustFlow( y, r.width(), r.height(), this, TRUE );
 	if ( oy != y ) {
 	    int oh = r.height();
 	    r.setY( y );
@@ -3191,7 +3191,7 @@ void QTextParag::format( int start, bool doMove )
     if ( doc && doc->verticalBreak() ) {
 	const int oy = r.y();
 	int y = oy;
-	doc->flow()->adjustFlow( y, r.width(), r.height(), TRUE );
+	doc->flow()->adjustFlow( y, r.width(), r.height(), this, TRUE );
 	if ( oy != y ) {
 	    if ( p ) {
 		p->lastInFrame = TRUE;
@@ -5838,7 +5838,7 @@ int QTextFlow::adjustRMargin( int yp, int, int margin, int space )
     return margin;
 }
 
-void QTextFlow::adjustFlow( int &yp, int , int h, bool pages )
+void QTextFlow::adjustFlow( int &yp, int , int h, QTextParag *, bool pages )
 {
     if ( pages && pagesize > 0 ) { // check pages
 	int ty = yp;
@@ -6022,7 +6022,7 @@ void QTextTable::verticalBreak( int  yt, QTextFlow* flow )
 	if ( cell->column() == 0 ) {
 	    int y = yt + outerborder + cell->geometry().y();
 	    int oldy = y;
-	    flow->adjustFlow( y, width, cell->geometry().height() + 2*cellspacing );
+	    flow->adjustFlow( y, width, cell->geometry().height() + 2*cellspacing, 0 );
 	    shift += y - oldy;
 	    r = cell->geometry();
 	    r.moveBy(0, y - oldy );

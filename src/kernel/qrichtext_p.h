@@ -493,13 +493,13 @@ public:
     virtual void registerFloatingItem( QTextCustomItem* item, bool right = FALSE );
     virtual void unregisterFloatingItem( QTextCustomItem* item );
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch, const QColorGroup& cg );
-    virtual void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
+    virtual void adjustFlow( int  &yp, int w, int h, QTextParag *parag, bool pages = TRUE );
 
     virtual bool isEmpty();
     virtual void updateHeight( QTextCustomItem *i );
 
     virtual void draw( QPainter *, int , int , int , int );
-    virtual void eraseAfter( QTextParag *, QPainter * );
+    virtual void eraseAfter( QTextParag *, QPainter *, const QColorGroup & );
 
     void clear();
 
@@ -1064,6 +1064,7 @@ public:
     QTextDocument *document() const;
 
     QRect rect() const;
+    void setHeight( int h ) { r.setHeight( h ); }
 
     QTextParag *prev() const;
     QTextParag *next() const;
