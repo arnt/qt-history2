@@ -130,7 +130,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    if(!project->variables()["MOC_DIR"].isEmpty())
 		mocFile = project->first("MOC_DIR");
 	    else
-		mocFile = "./"; //fn_target.left(dir_pos+1);
+		mocFile = "." + Option::dir_sep; //fn_target.left(dir_pos+1);
 
 	    if(fn_target.right(ext_len) == Option::cpp_ext) {
 		mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
