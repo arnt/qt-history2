@@ -872,7 +872,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
 
         line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
         layoutStruct->y += line.ascent() + line.descent() + 1;
-        layoutStruct->maxWidthUsed = qMax(layoutStruct->maxWidthUsed, left + line.textWidth());
+        layoutStruct->maxWidthUsed = qMax(layoutStruct->maxWidthUsed, left - layoutStruct->x_left + line.textWidth());
     }
     layoutStruct->y += blockFormat.bottomMargin();
 }
