@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#161 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#162 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1220,12 +1220,18 @@ sub readc {
             # it's a \page
 	    $pages{$1} = $2 . "\n";
 	    $anchor{$1} = $1;
-	} elsif ($doc =~ m@^\\uudecode\s+([\w\.-]+)\s+(.*?)\s*$@s) {
-            # it's a \uudecode
-	    my $warwick;
-	    $warwick = pack( "c", 32 + 0.75 * length $2 );
-	    $pages{$1} = unpack( "u", $warwick . $2 );
-	    $anchor{$1} = $1;
+	} elsif ($doc =~ m@^\\base64\s+([\w\.-]+)\s+(.*?)\s*$@s) {
+            # it's a \base64
+	    my ( $warwick, $sharon );
+	    $warwick = $1;
+	    $sharon = $2;
+	    $#_ = -1;
+	    foreach ( split( /\n/, $sharon ) ) {
+		tr|A-Za-z0-9+/| -_|;
+		push @_, pack( "c", 32 + 0.75 * length $_ ) . $_;
+	    }
+	    $pages{$warwick} = unpack( "u", join( "\n", @_, "" ) );
+	    $anchor{$warwick} = $warwick;
 	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = "<title>" . $module_long .
