@@ -1180,7 +1180,7 @@ QSize PopupMenuEditor::contentsSize()
 		iconWidth = QMAX( iconWidth, w );
 		w = fontMetrics().boundingRect( a->menuText() ).width();
 		textWidth = QMAX( textWidth, w );
-		w = fontMetrics().boundingRect( a->accel() ).width();
+		w = fontMetrics().boundingRect( a->accel() ).width() + 2; // added padding?
 		accelWidth = QMAX( accelWidth, w );
 	    }
 	    h += itemHeight( i );
