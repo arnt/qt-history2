@@ -82,7 +82,7 @@ private:
 	    formatter = new QTextFormatterBreakWords;
 	    formatter->setWrapEnabled( FALSE );
 	    parag = new QTextParag( 0 );
-	    parag->setFormatter( formatter );
+	    parag->pseudoDocument()->pFormatter = formatter;
 	    parag->insert( 0, " " + type + ( type.isEmpty() ? " " : "\t" ) + prefix +
 			   QListBoxItem::text() + postfix + postfix2 );
 	    bool selCol = isSelected() && listBox()->colorGroup().highlightedText() != listBox()->colorGroup().text();
