@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#13 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#13 $";
 #endif
 
 
@@ -344,7 +344,7 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 			 mi->string() );
 	if ( mi->isDisabled() ) {		// overwrite with gray brush
 	    p->setPen( NoPen );
-	    p->setBrush( QBrush(backgroundColor(),Pix1Pattern) );
+	    p->setBrush( QBrush(backgroundColor(),Dense4Pattern) );
 	    p->drawRect( r );
 	    paint_pixmap->end();
 	    delete paint_pixmap;

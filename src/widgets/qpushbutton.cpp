@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#17 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#17 $";
 #endif
 
 
@@ -211,7 +211,7 @@ void QPushButton::drawButton( QPainter *paint )
 	    pen.setWidth( 0 );
 	}
 	if ( updated ) {			// fill
-	    brush.setStyle( SolidBrush );
+	    brush.setStyle( SolidPattern );
 	    if ( isDown() )
 		brush.setColor( black );
 	}
@@ -239,7 +239,7 @@ void QPushButton::drawButton( QPainter *paint )
     else if ( gs == PMStyle ) {			// PM push button
 	pen.setColor( darkGray );
 	if ( updated )				// fill
-	    brush.setStyle( SolidBrush );
+	    brush.setStyle( SolidPattern );
 	p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	if ( !defButton ) {
 	    pen.setColor( backgroundColor() );
