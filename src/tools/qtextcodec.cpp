@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#63 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#64 $
 **
 ** Implementation of QTextCodec class
 **
@@ -201,6 +201,25 @@ int QTextCodec::heuristicNameMatch(const char* hint) const
 }
 
 
+// returns a string cotnaining the letters and numbers from input,
+// with a space separating run of a character class.  e.g. "iso8859-1"
+// becomes "iso 8859 1"
+static QString lettersAndNumbers( const char * input )
+{
+    QString result;
+    QChar c;
+
+    while( input && *input ) {
+	c = *input;
+	if ( c.isLetter() || c.isNumber() )
+	    result += c;
+	if ( input[1] && c.category() != QChar( input[1] ).category() )
+	    result += ' ';
+	input++;
+    }
+    return result.simplifyWhiteSpace();
+}
+
 /*!
   A simple utility function for heuristicNameMatch() - it
   does some very minor character-skipping
@@ -208,53 +227,18 @@ int QTextCodec::heuristicNameMatch(const char* hint) const
 */
 int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
-    // ######## Too complicated.
+    // if they're the same, return a perfect score.
+    if ( name && hint && strcmp( name, hint ) == 0 )
+	return strlen( hint );
 
-    int bestr = -10;
-    while ( name[1] && !isalnum(*name) )
-	name++;
-    while ( hint[1] && !isalnum(*hint) )
-	hint++;
-    while ( *hint ) {
-	int r = -10;
-	int toggle = 0;
-	const char* approx = hint;
-	const char* actual = name;
-	while ( *approx && *actual ) {
-	    // Skip punctuation
-	    while ( approx[1] && !isalnum(*approx) )
-		approx++;
-	    while ( actual[1] && !isalnum(*actual) )
-		actual++;
+    // if the letters and numbers are the same, we have an "almost"
+    // perfect match.
+    if ( lettersAndNumbers( name ) == lettersAndNumbers( hint ) )
+	return strlen( hint )-1;
 
-	    if ( tolower(*approx) == tolower(*actual) ) {
-		approx++;
-		actual++;
-		r+=3;
-	    } else if ( tolower(approx[1]) == tolower(*actual) ) {
-		approx++;
-		r+=1;
-	    } else if ( tolower(*approx) == tolower(actual[1]) ) {
-		actual++;
-		r+=1;
-	    } else {
-		if ( toggle ) {
-		    actual++;
-		    r--;
-		} else {
-		    approx++;
-		    r--;
-		}
-		toggle = !toggle;
-	    }
-	}
-	if ( r > bestr )
-	    bestr = r;
-	hint++;
-	while (*hint && toupper(*hint) != toupper(*name)) // find next plausible
-	    hint++;
-    }
-    return bestr;
+    // could do some more here, but I don't think it's worth it
+
+    return 0;
 }
 
 
