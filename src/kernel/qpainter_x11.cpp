@@ -72,6 +72,15 @@ void qt_clear_paintevent_clipping()
     paintEventDevice = 0;
 }
 
+class QWFlagWidget : public QWidget
+{
+public:
+    void setWState( WFlags f )		{ QWidget::setWState(f); }
+    void clearWState( WFlags f )	{ QWidget::clearWState(f); }
+    void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
+    void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
+};
+
 void qt_erase_region( QWidget* w, const QRegion& region)
 {
     QRegion reg = region;
@@ -85,11 +94,16 @@ void qt_erase_region( QWidget* w, const QRegion& region)
 	    ox = p.x();
 	    oy = p.y();
 	}
+	bool unclipped = w->testWFlags( Qt::WPaintUnclipped );
+	if ( unclipped )
+	    ((QWFlagWidget*)w)->clearWFlags( Qt::WPaintUnclipped );
 	QPainter p( w );
 	p.setClipRegion( region ); // automatically includes paintEventDevice if required
 	p.drawTiledPixmap( 0, 0, w->width(), w->height(),
 			   *w->backgroundPixmap(),
 			   ox, oy );
+	if ( unclipped )
+	    ((QWFlagWidget*)w)->setWFlags( Qt::WPaintUnclipped );
 	return;
     }
 
