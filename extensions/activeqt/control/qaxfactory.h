@@ -28,7 +28,7 @@ struct IDispatch;
 class QAxFactory
 {
 public:
-    QAxFactory(const QUuid &, const QUuid &);
+    QAxFactory(const QUuid &libId, const QUuid &appId);
     virtual ~QAxFactory();
     
     virtual QStringList featureList() const = 0;
@@ -146,8 +146,8 @@ template<class T>
 class QAxClass : public QAxFactory
 {
 public:
-    QAxClass(const QString &appId, const QString &libId)
-    : QAxFactory(appId, libId)
+    QAxClass(const QString &libId, const QString &appId)
+    : QAxFactory(libId, appId)
     {}
     
     const QMetaObject *metaObject(const QString &key) const { return &T::staticMetaObject; }
@@ -171,14 +171,14 @@ public:
         QHash<QString, bool> creatable; \
     public: \
         QAxFactoryList() \
-        : QAxFactory(IDApp, IDTypeLib) \
+        : QAxFactory(IDTypeLib, IDApp) \
         { \
             QAxFactory *factory = 0; \
             QStringList keys; \
             QStringList::Iterator it; \
 
 #define QAXCLASS(Class) \
-            factory = new QAxClass<Class>(appID(), typeLibID()); \
+            factory = new QAxClass<Class>(typeLibID(), appID()); \
             keys = factory->featureList(); \
             for (it = keys.begin(); it != keys.end(); ++it) { \
                 factoryKeys += *it; \
@@ -187,7 +187,7 @@ public:
             }\
 
 #define QAXTYPE(Class) \
-            factory = new QAxClass<Class>(appID(), typeLibID()); \
+            factory = new QAxClass<Class>(typeLibID(), appID()); \
             keys = factory->featureList(); \
             for (it = keys.begin(); it != keys.end(); ++it) { \
                 factoryKeys += *it; \
