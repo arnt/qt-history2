@@ -6870,6 +6870,9 @@ QListViewItem *QListView::findItem( const QString& text, int column,
     QListViewItemIterator it( d->focusItem );
     QListViewItem *sentinel = 0;
     QListViewItem *item;
+    QListViewItem *beginsWithItem = 0;
+    QListViewItem *endsWithItem = 0;
+    QListViewItem *containsItem = 0;
 
     for ( int pass = 0; pass < 2; pass++ ) {
 	while ( (item = it.current()) != sentinel ) {
@@ -6877,19 +6880,14 @@ QListViewItem *QListView::findItem( const QString& text, int column,
 	    if ( !(compare & CaseSensitive) )
 		itmtxt = itmtxt.lower();
 
-	    if ( compare & BeginsWith ) {
-		if ( itmtxt.startsWith( comtxt ) )
-		    return item;
-	    } else if ( compare & EndsWith ) {
-		if ( itmtxt.endsWith( comtxt ) )
-		    return item;
-	    } else if ( compare & Contains ) {
-		if ( itmtxt.contains( comtxt ) )
-		    return item;
-	    } else { /* ExactMatch */
-		if ( itmtxt == comtxt )
-		    return item;
-	    }
+	    if ( compare & ExactMatch && itmtxt == comtxt )
+		return item;
+	    if ( compare & BeginsWith && !beginsWithItem && itmtxt.startsWith( comtxt ) )
+		beginsWithItem = containsItem = item;
+	    if ( compare & EndsWith && !endsWithItem && itmtxt.endsWith( comtxt ) )
+		endsWithItem = containsItem = item;
+	    if ( compare & Contains && !containsItem && itmtxt.contains( comtxt ) )
+		containsItem = item;
 	    ++it;
 	}
 
@@ -6898,6 +6896,14 @@ QListViewItem *QListView::findItem( const QString& text, int column,
 	it = QListViewItemIterator( firstChild() );
 	sentinel = d->focusItem;
     }
+
+    // Obey the priorities
+    if ( beginsWithItem )
+	return beginsWithItem;
+    else if ( endsWithItem )
+	return endsWithItem;
+    else if ( containsItem )
+	return containsItem;
     return 0;
 }
 

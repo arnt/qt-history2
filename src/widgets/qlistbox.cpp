@@ -4221,6 +4221,10 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
     else
 	item = d->head;
 
+    QListBoxItem *beginsWithItem = 0;
+    QListBoxItem *endsWithItem = 0;
+    QListBoxItem *containsItem = 0;
+
     if ( item ) {
 	for ( ; item; item = item->n ) {
 	    if ( ! (compare & CaseSensitive) )
@@ -4228,25 +4232,14 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 	    else
 		itmtxt = item->text();
 
-	    if ( compare & ExactMatch ) {
-		if ( itmtxt == comtxt )
-		    return item;
-	    }
-
-	    if ( compare & BeginsWith ) {
-		if ( itmtxt.startsWith( comtxt ) )
-		    return item;
-	    }
-
-	    if ( compare & EndsWith ) {
-		if ( itmtxt.endsWith( comtxt ) )
-		    return item;
-	    }
-
-	    if ( compare & Contains ) {
-		if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-		    return item;
-	    }
+	    if ( compare & ExactMatch && itmtxt == comtxt )
+		return item;
+	    if ( compare & BeginsWith && !beginsWithItem && itmtxt.startsWith( comtxt ) )
+		beginsWithItem = containsItem = item;
+	    if ( compare & EndsWith && !endsWithItem && itmtxt.endsWith( comtxt ) )
+		endsWithItem = containsItem = item;
+	    if ( compare & Contains && !containsItem && itmtxt.contains( comtxt ) )
+		containsItem = item;
 	}
 
 	if ( d->current && d->head ) {
@@ -4257,28 +4250,25 @@ QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare )
 		else
 		    itmtxt = item->text();
 
-		if ( compare & ExactMatch ) {
-		    if ( itmtxt == comtxt )
-			return item;
-		}
-
-		if ( compare & BeginsWith ) {
-		    if ( itmtxt.startsWith( comtxt ) )
-			return item;
-		}
-
-		if ( compare & EndsWith ) {
-		    if ( itmtxt.endsWith( comtxt ) )
-			return item;
-		}
-
-		if ( compare & Contains ) {
-		    if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
-			return item;
-		}
+		if ( compare & ExactMatch && itmtxt == comtxt )
+		    return item;
+		if ( compare & BeginsWith && !beginsWithItem && itmtxt.startsWith( comtxt ) )
+		    beginsWithItem = containsItem = item;
+		if ( compare & EndsWith && !endsWithItem && itmtxt.endsWith( comtxt ) )
+		    endsWithItem = containsItem = item;
+		if ( compare & Contains && !containsItem && itmtxt.contains( comtxt ) )
+		    containsItem = item;
 	    }
 	}
     }
+
+    // Obey the priorities
+    if ( beginsWithItem )
+	return beginsWithItem;
+    else if ( endsWithItem )
+	return endsWithItem;
+    else if ( containsItem )
+	return containsItem;
     return 0;
 }
 
