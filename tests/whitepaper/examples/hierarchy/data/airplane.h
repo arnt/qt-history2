@@ -1,3 +1,0 @@
-class Airplane : public Aircraft
-{
-};

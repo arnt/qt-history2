@@ -1,1 +1,0 @@
-cat *.leaf | grep '\\index' | sort -f | uniq -c
