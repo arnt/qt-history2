@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#68 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#67 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#68 $";
 #endif
 
 /*!
@@ -113,15 +113,15 @@ inline bool QWidgetMapper::remove( WId id )
 //
 
 /*!
-Constructs a widget which is a child of \e parent, with the name \e name and
-widget flags set to \e f.
+  Constructs a widget which is a child of \e parent, with the name \e name and
+  widget flags set to \e f.
 
-If \e parent is 0, the new widget will be a top level window. If \e parent
-is another widget, the new widget will be a child window inside \e parent.
+  If \e parent is 0, the new widget will be a top level window. If \e parent
+  is another widget, the new widget will be a child window inside \e parent.
 
-The \e name is sent to the QObject constructor.
+  The \e name is sent to the QObject constructor.
 
-The widget flags are strictly internal.	 You are strongly advised to use 0.
+  The widget flags are strictly internal.  You are strongly advised to use 0.
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
@@ -138,10 +138,10 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 }
 
 /*!
-Destroys the widget.
+  Destroys the widget.
 
-All children of this widget are deleted first.
-The application exits if this widget is (was) the main widget.
+  All children of this widget are deleted first.
+  The application exits if this widget is (was) the main widget.
 */
 
 QWidget::~QWidget()
@@ -254,9 +254,11 @@ QWidget *QWidget::find( WId id )		// find widget with id
   Returns the widget flags for this this widget.
 
   Widget flags are internal, not meant for public use.
-  \sa testWFlags(), setWFlags(), clearWFlags() */
+  \sa testWFlags(), setWFlags(), clearWFlags()
+*/
 
-/*! \fn void QWidget::setWFlags( WFlags f )
+/*!
+  \fn void QWidget::setWFlags( WFlags f )
   \internal
   Sets the widget flags \e f.
 
@@ -274,11 +276,12 @@ QWidget *QWidget::find( WId id )		// find widget with id
 */
 
 
-/*! \fn void QWidget::destroyed()
-This signal is emitted immediately before the widget is destroyed.
+/*!
+  \fn void QWidget::destroyed()
+  This signal is emitted immediately before the widget is destroyed.
 
-All the widget's children will be destroyed before the signal is
-emitted.
+  All the widget's children will be destroyed before the signal is
+  emitted.
 */
 
 
@@ -295,7 +298,7 @@ emitted.
 /*!
   Returns the GUI style for this widget.
 
-  \sa setStyle(), QApplication::style().
+  \sa setStyle(), QApplication::style()
 */
 
 GUIStyle QWidget::style() const			// get widget GUI style
@@ -417,7 +420,20 @@ void QWidget::disable()				// disable events
 
 QRect QWidget::childrenRect() const
 {
-    QRect r( 32767, 32767, 0, 0 );
+    QRect r( 0, 0, 0, 0 );
+    if ( !children() )
+	return r;
+    QObjectListIt it( *children() );		// iterate over all children
+    QObject *obj;
+    while ( (obj=it.current()) ) {
+	++it;
+	if ( obj->isWidgetType() ) {
+	    if ( r.isNull() )
+		r = ((QWidget*)obj)->geometry();
+	    else
+		r = r.unite( ((QWidget*)obj)->geometry() );
+	}
+    }
     return r;
 }
 
@@ -481,7 +497,7 @@ const QColorGroup &QWidget::colorGroup() const	// get current colors
 
 /*!
   Returns the widget palette.
-  \sa setPalette(), colorGroup().
+  \sa setPalette(), colorGroup()
 */
 
 const QPalette &QWidget::palette() const	// get widget palette
@@ -492,7 +508,7 @@ const QPalette &QWidget::palette() const	// get widget palette
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
-  \sa palette(), colorGroup().
+  \sa palette(), colorGroup()
 */
 
 void QWidget::setPalette( const QPalette &p )	// set widget palette
@@ -504,11 +520,11 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
 
 
 /*!
-Returns the font currently set for the widget.
+  Returns the font currently set for the widget.
 
-QFontInfo will tell you what font is actually being used.
+  QFontInfo will tell you what font is actually being used.
 
-\sa setFont(), fontInfo(), fontMetrics()
+  \sa setFont(), fontInfo(), fontMetrics()
 */
 
 const QFont &QWidget::font()
@@ -517,18 +533,18 @@ const QFont &QWidget::font()
 }
 
 /*!
-Sets the font for the widget.
+  Sets the font for the widget.
 
-The fontInfo() function reports the actual font that is being used by the
-widget.
+  The fontInfo() function reports the actual font that is being used by the
+  widget.
 
-This code fragment sets a 12 point helvetica bold font:
-\code
-  QFont f("Helvetica", 12, QFont::Bold);
-  setFont( f );
-\endcode
+  This code fragment sets a 12 point helvetica bold font:
+  \code
+    QFont f("Helvetica", 12, QFont::Bold);
+    setFont( f );
+  \endcode
 
-\sa font(), fontInfo(), fontMetrics()
+  \sa font(), fontInfo(), fontMetrics()
 */
 
 void QWidget::setFont( const QFont &font )
@@ -540,8 +556,8 @@ void QWidget::setFont( const QFont &font )
 
 
 /*!
-Returns the widget cursor shape.
-\sa setCursor()
+  Returns the widget cursor shape.
+  \sa setCursor()
 */
 
 const QCursor &QWidget::cursor() const
@@ -550,16 +566,17 @@ const QCursor &QWidget::cursor() const
 }
 
 
-/*! \fn bool QWidget::setMouseTracking( bool enable )
-Enables or disables mouse tracking and returns the previous setting.
+/*!
+  \fn bool QWidget::setMouseTracking( bool enable )
+  Enables or disables mouse tracking and returns the previous setting.
 
-If mouse tracking is enabled, the widget will always receive mouse
-move events, even when no mouse button is pressed down.
+  If mouse tracking is enabled, the widget will always receive mouse
+  move events, even if no mouse button is pressed down.
 
-If mouse tracking is disabled (default), the widget will only receive
-mouse move events when a mouse button is pressed down.
+  If mouse tracking is disabled (default), the widget will only receive
+  mouse move events if at least one mouse button is pressed down.
 
-\sa mouseMoveEvent().
+  \sa mouseMoveEvent()
 */
 
 #if !defined(_WS_X11_)
@@ -576,8 +593,8 @@ bool QWidget::setMouseTracking( bool enable )
 
 
 /*!
-Returns TRUE if the widget (not one of its children) has the
-keyboard focus.
+  Returns TRUE if the widget (not one of its children) has the
+  keyboard focus.
 */
 
 bool QWidget::hasFocus() const
@@ -587,14 +604,14 @@ bool QWidget::hasFocus() const
 
 
 /*!
-\internal
-Sets the frame rectangle and recomputes the client rectangle.
+  \internal
+  Sets the frame rectangle and recomputes the client rectangle.
 
-The frame rectangle is the geometry of this widget including any
-decorative borders, in its parent's coordinate system.
+  The frame rectangle is the geometry of this widget including any
+  decorative borders, in its parent's coordinate system.
 
-The client rectangle is the geometry of just this widget in its
-parent's coordinate system.
+  The client rectangle is the geometry of just this widget in its
+  parent's coordinate system.
 */
 
 void QWidget::setFRect( const QRect &r )	// set frect, update crect
@@ -607,14 +624,14 @@ void QWidget::setFRect( const QRect &r )	// set frect, update crect
 }
 
 /*!
-\internal
-Sets the client rectangle and recomputes the frame rectangle.
+  \internal
+  Sets the client rectangle and recomputes the frame rectangle.
 
-The client rectangle is the geometry of just this widget in its
-parent's coordinate system.
+  The client rectangle is the geometry of just this widget in its
+  parent's coordinate system.
 
-The frame rectangle is the geometry of this widget including any
-decorative borders, in its parent's coordinate system.
+  The frame rectangle is the geometry of this widget including any
+  decorative borders, in its parent's coordinate system.
 */
 
 void QWidget::setCRect( const QRect &r )	// set crect, update frect
@@ -627,9 +644,9 @@ void QWidget::setCRect( const QRect &r )	// set crect, update frect
 }
 
 /*!
-Enables or disables the keyboard input focus events for the widget.
+  Enables or disables the keyboard input focus events for the widget.
 
-Focus events are initially disabled.
+  Focus events are initially disabled.
 */
 
 void QWidget::setAcceptFocus( bool enable )
@@ -642,8 +659,8 @@ void QWidget::setAcceptFocus( bool enable )
 
 
 /*!
-Translates the widget coordinate \e pos to global screen coordinates.
-\sa mapFromGlobal().
+  Translates the widget coordinate \e pos to global screen coordinates.
+  \sa mapFromGlobal()
 */
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
@@ -658,8 +675,8 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 }
 
 /*!
-Translates the global screen coordinate \e pos to widget coordinates.
-\sa mapToGlobal().
+  Translates the global screen coordinate \e pos to widget coordinates.
+  \sa mapToGlobal()
 */
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
@@ -674,10 +691,10 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 /*!
-Translates the widget coordinate \e pos to a coordinate in the parent widget.
+  Translates the widget coordinate \e pos to a coordinate in the parent widget.
 
-Same as mapToGlobal() if the widget has no parent.
-\sa mapFromParent().
+  Same as mapToGlobal() if the widget has no parent.
+  \sa mapFromParent()
 */
 
 QPoint QWidget::mapToParent( const QPoint &p ) const
@@ -686,10 +703,10 @@ QPoint QWidget::mapToParent( const QPoint &p ) const
 }
 
 /*!
-Translates the parent widget coordinate \e pos to widget coordinates.
+  Translates the parent widget coordinate \e pos to widget coordinates.
 
-Same as mapFromGlobal() if the widget has no parent.
-\sa mapToParent().
+  Same as mapFromGlobal() if the widget has no parent.
+  \sa mapToParent()
 */
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
@@ -698,9 +715,9 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 }
 
 /*!
-Closes this widget.  First it sends the widget a QCloseEvent, then,
-if the widget did accept that, it does an explicit delete of the
-widget and all its children.
+  Closes this widget.  First it sends the widget a QCloseEvent, then,
+  if the widget did accept that, it does an explicit delete of the
+  widget and all its children.
 */
 
 bool QWidget::close( bool forceKill )		// close widget
@@ -713,23 +730,31 @@ bool QWidget::close( bool forceKill )		// close widget
 }
 
 /*!
-\fn bool QWidget::isVisible() const
-Returns TRUE if the widget is visible, or FALSE if the widget is invisible.
+  \fn bool QWidget::isVisible() const
+  Returns TRUE if the widget is visible, or FALSE if the widget is invisible.
 
-Calling show() makes the widget visible. Calling hide() makes the widget
-invisible.
+  Calling show() makes the widget visible. Calling hide() makes the widget
+  invisible.
 
-A widget is considered visible even if it is obscured by other windows on the
-screen.
+  A widget is considered visible even if it is obscured by other windows on the
+  screen.
 */
 
 
 /*!
-  Adjusts the widget size.
+  Virtual function that adjusts the size of the widget to fit the contents.
+
+  The default implementation adjusts the size to the children rectangle.
+
+  \sa childrenRect()
 */
 
 void QWidget::adjustSize()
 {
+    QRect r = childrenRect();			// get children rectangle
+    if ( r.isNull() )				// probably no widgets
+	return;
+    resize( r.width()+2*r.x(), r.height()+2*r.y() );
 }
 
 
@@ -740,47 +765,47 @@ void QWidget::adjustSize()
 */
 
 /*!
-\fn bool QWidget::testWFlags( WFlags n ) const
+  \fn bool QWidget::testWFlags( WFlags n ) const
 
-Returns non-zero if any of the widget flags in \e n are set. The
-widget flags are listed in qwindefs.h, and are strictly for
-internal use.
+  Returns non-zero if any of the widget flags in \e n are set. The
+  widget flags are listed in qwindefs.h, and are strictly for
+  internal use.
 
-\internal
+  \internal
 
-Here are the flags and what they mean:<dl compact>
-<dt>WState_Created <dd> Means that the widget has a valid id().
-<dt>WState_Disabled <dd> Mouse and keyboard events disabled.
-<dt>WState_Visible <dd> Visible (may be hidden by other windows).
-<dt>WState_Active <dd> NOT USED!
-<dt>WState_Paint <dd> Being painted.
-<dt>WState_MGrab <dd> Currently grabbing the mouse pointer.
-<dt>WState_KGrab <dd> Currently grabbing the keyboard input.
-<dt>WState_Focus <dd> NOT USED!
-<dt>WType_Overlap <dd> Overlapping/top level
-<dt>WType_Modal <dd> Modal widget.
-<dt>WType_Popup <dd> Popup widget.
-<dt>WType_Desktop <dd> Desktop widget (root window).
-<dt>WStyle_Title <dd> NOT USED!
-<dt>WStyle_Border <dd> NOT USED!
-<dt>WStyle_Close <dd> NOT USED!
-<dt>WStyle_Resize <dd> NOT USED!
-<dt>WStyle_Minimize <dd> NOT USED!
-<dt>WStyle_Maximize <dd> NOT USED!
-<dt>WStyle_MinMax <dd> NOT USED!
-<dt>WStyle_All <dd> All style flags set.
-<dt>WMouseTracking <dd> The widget receives mouse move events (not only drag).
-<dt>WHasAccel <dd> The widget has an associated QAccel.
-<dt>WConfigPending <dd> Config event pending.
-<dt>WResizeNoErase <dd> Widget resizing should not erase the widget.
-<dt>WExplicitHide <dd> Flags that hide() has been called before first show().
-<dt>WCursorSet <dd> Flags that a cursor has been set.
-<dt>WPaintDesktop <dd> Widget wants desktop paint events.
-<dt>WPaintUnclipped <dd> Paint without clipping child widgets.
-<dt>WPaintClever <dd> Widget wants every update rectangle.
-<dt>WNoUpdates <dd> Do not update the widget.
-<dt>WRecreated <dd> The widet has been recreated.
-</dl>
+  Here are the flags and what they mean:<dl compact>
+  <dt>WState_Created <dd> Means that the widget has a valid id().
+  <dt>WState_Disabled <dd> Mouse and keyboard events disabled.
+  <dt>WState_Visible <dd> Visible (may be hidden by other windows).
+  <dt>WState_Active <dd> NOT USED!
+  <dt>WState_Paint <dd> Being painted.
+  <dt>WState_MGrab <dd> Currently grabbing the mouse pointer.
+  <dt>WState_KGrab <dd> Currently grabbing the keyboard input.
+  <dt>WState_Focus <dd> NOT USED!
+  <dt>WType_Overlap <dd> Overlapping/top level
+  <dt>WType_Modal <dd> Modal widget.
+  <dt>WType_Popup <dd> Popup widget.
+  <dt>WType_Desktop <dd> Desktop widget (root window).
+  <dt>WStyle_Title <dd> NOT USED!
+  <dt>WStyle_Border <dd> NOT USED!
+  <dt>WStyle_Close <dd> NOT USED!
+  <dt>WStyle_Resize <dd> NOT USED!
+  <dt>WStyle_Minimize <dd> NOT USED!
+  <dt>WStyle_Maximize <dd> NOT USED!
+  <dt>WStyle_MinMax <dd> NOT USED!
+  <dt>WStyle_All <dd> All style flags set.
+  <dt>WMouseTracking <dd> The widget receives mouse move events.
+  <dt>WHasAccel <dd> The widget has an associated QAccel.
+  <dt>WConfigPending <dd> Config event pending.
+  <dt>WResizeNoErase <dd> Widget resizing should not erase the widget.
+  <dt>WExplicitHide <dd> Flags that hide() has been called before first show().
+  <dt>WCursorSet <dd> Flags that a cursor has been set.
+  <dt>WPaintDesktop <dd> Widget wants desktop paint events.
+  <dt>WPaintUnclipped <dd> Paint without clipping child widgets.
+  <dt>WPaintClever <dd> Widget wants every update rectangle.
+  <dt>WNoUpdates <dd> Do not update the widget.
+  <dt>WRecreated <dd> The widet has been recreated.
+  </dl>
 */
 
 // --------------------------------------------------------------------------
