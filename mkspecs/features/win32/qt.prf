@@ -50,4 +50,3 @@ for(QCONF, QCONFIG) {
         }
     }
 }
-accessibility:DEFINES+=QT_ACCESSIBILITY_SUPPORT
