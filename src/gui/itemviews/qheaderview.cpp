@@ -481,9 +481,7 @@ int QHeaderView::sectionSize(int section) const
     if (section < 0 || section >= d->sections.count() - 1 || isSectionHidden(section))
         return 0;
     int idx = index(section);
-//    if (idx + 1 < d->sections.count())
     return d->sections.at(idx + 1).position - d->sections.at(idx).position;
-//    return 0;
 }
 
 /*!
@@ -785,11 +783,7 @@ void QHeaderView::mouseMoveEvent(QMouseEvent *e)
             int idx = indexAt(pos + offset());
             if (idx < 0)
                 return;
-            int loc = pos + offset() - d->sections.at(idx).position;
-            int sec = d->sections.at(idx).section;
-            if (loc > sectionSize(sec) / 2)
-                sec = d->sections.at(qMin(idx + 1, d->sections.count() - 1)).section;
-            d->target = sec;
+            d->target = d->sections.at(idx).section;
             d->updateSectionIndicator(d->section, pos);
             return;
         }
@@ -1393,7 +1387,7 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
     }
 
     int x, y, w, h;
-    int p = q->sectionPosition(section);
+    int p = q->sectionPosition(section) - offset;
     if (orientation == Qt::Horizontal) {
         x = p;
         y = 0;
@@ -1408,7 +1402,7 @@ void QHeaderViewPrivate::setupSectionIndicator(int section, int position)
     sectionIndicator->resize(w, h);
     QPixmap pix = QPixmap::grabWidget(viewport, x, y, w, h);
     sectionIndicator->setPixmap(pix);
-    d->sectionIndicatorOffset = position - qMax(p - offset, 0);
+    d->sectionIndicatorOffset = position - qMax(p, 0);
 
 }
 
