@@ -726,8 +726,10 @@ void QAction::setEnabled(bool b)
     Q_D(QAction);
     if (b == d->enabled && b != d->forceDisabled)
         return;
-    d->enabled = b;
     d->forceDisabled = !b;
+    if (b && d->group && !d->group->isEnabled())
+        return;
+    d->enabled = b;
     d->setShortcutEnabled(b, qApp->d_func()->shortcutMap);
     d->sendDataChanged();
 }
