@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#158 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#159 $
 **
 ** Implementation of QObject class
 **
@@ -1263,7 +1263,7 @@ void QObject::badSuperclassWarning( const char *className,
 	MyWidget();
     ...
     signals:
-	void aSignal(int);
+	void aSignal();
     ...
     private:
     ...

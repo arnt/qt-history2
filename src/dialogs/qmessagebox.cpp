@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#70 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#71 $
 **
 ** Implementation of QMessageBox class
 **
@@ -714,13 +714,6 @@ void QMessageBox::setButtonText( const char *text )
   Returns the text of the message box button \a button, or null if the
   message box does not contain the button.
 
-  Example:
-  \code
-    QMessageBox mb( QMessageBox::Ok, QMessageBox::Cancel, 0 );
-    mb.buttonText( QMessageBox::Cancel );  // returns "Cancel"
-    mb.buttonText( QMessageBox::Ignore );  // returns 0
-  \endcode
-
   \sa setButtonText()
 */
 
@@ -735,13 +728,6 @@ const char *QMessageBox::buttonText( int button ) const
   Sets the text of the message box button \a button to \a text.
   Setting the text of a button that is not in the message box is quietly
   ignored.
-
-  Example:
-  \code
-    QMessageBox mb( QMessageBox::Ok, QMessageBox::Cancel, 0 );
-    mb.setButtonText( QMessageBox::Ok, "All Right" );
-    mb.setButtonText( QMessageBox::Yes, "Yo" );	  // ignored
-  \endcode
 
   \sa buttonText()
 */
