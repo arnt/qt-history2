@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#295 $
 **
 ** Implementation of QApplication class
 **
@@ -303,7 +303,6 @@ void qt_create_std_palette()
 
 static void qt_fix_tooltips()
 {
-    qDebug("qt_fix_tooltips");
     // No resources for this yet (unlike on Windows).
     QColorGroup cg( Qt::black, QColor(255,255,220),
 		    QColor(96,96,96), Qt::black, Qt::black,
@@ -523,7 +522,7 @@ void QApplication::initialize( int argc, char **argv )
     QWidget::createMapper(); // create widget mapper
     (void) palette();  // trigger creation of application palette
     is_app_running = TRUE; // no longer starting up
-    
+
 
     if (!app_style) {
 #if defined(_WS_WIN_)
