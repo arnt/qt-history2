@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#9 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#10 $
 #
 # this is a massive hack, written very quickly
 #
@@ -47,7 +47,6 @@ sub processcode {
     local ($_) = @_;
 
     $_ = &html($_);
-    s/\n/\n\t/gs;
     s/^\s*\n//s;
     s/\s+$/\n/s;
     s/\n\s*\n/\n<br>\n/gs;
@@ -63,9 +62,9 @@ sub processcode {
 sub findlink {
     local ($_, $class, $url, $ismethod) = @_;
 
-    if (defined($anchor{$_}) && $anchor{$_} ne $url) {
+    if (defined($anchor{$_}) && $anchor{$_} ne $url && $_ ne $class) {
 	sprintf("<a href=%s>%s</a>", $anchor{$_}, $_);
-    } elsif (($ismethod eq "(") && 
+    } elsif (($ismethod ne "") && 
 	     defined($anchor{$class . $_}) && $anchor{$class . $_} ne $url) {
 	sprintf("<a href=%s>%s</a>", $anchor{$class . $_}, $_);
     } else {
@@ -100,13 +99,6 @@ sub processdocs {
 	    if ($doc =~ s/\s*\\returns?\s+(.*?)
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
 
-#	$_ = "<p><strong>Arguments:</strong>\n<ul>\n";
-#	$_ .= "<li>" . $1 . "\n" 
-#	    while ($doc =~ s/\s*\\arg\s+(.*?)
-#		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
-#	$_ .= "</ul>\n";
-#	$doc .= $_ if (/<li>/s);
-
 	if ($doc =~ /\n\\arg\s+/s) {
 	    $doc =~ s-\n\\arg\s+-
 		<p><strong>Arguments:</strong>\n<ul>\n\\arg -sx;
@@ -135,13 +127,13 @@ sub processdocs {
 	s/:://;
 	$word{$_}++;
 
-	$doc =~ s-(?:(?:(\s+)((?:(?:operator\S{1,3})|(?:\w+)))(\(?))|(<.*?>))-
+	$doc =~ s-(?:(?:(\s+)((?:(?:operator\S{1,3})|(?:\w+)))(\s*\()?)|(<.*?>))-
 	    if ($4 eq "") {
 		if (!defined($word{$2})) {
 		    $word{$2}++;
 		    sprintf("%s%s%s", $1, &findlink($2, $class, $url, $3), $3);
 		} else {
-		    sprintf("%s%s", $1, $2, $3);
+		    sprintf("%s%s%s", $1, $2, $3);
 		}
 	    } else {
 		sprintf("%s", $4);
@@ -228,6 +220,7 @@ sub storeclass {
     $inheritance{$url} = $inh if (defined($inh) && $inh ne "");
 
     $def =~ s/\s+/ /g;
+    $def =~ s/Q_OBJECT//;
 
     $members{$url} = $def;
 }
@@ -343,7 +336,7 @@ sub readc {
 	     (?:\s+delete))))\s*
 	   \(\s*([^\)]*?)\s*\) (?# arg list
 			       )
-           \s*(const)?\s*\x7b-gsx) { # const, opening brace
+           \s*(const)?\s*(?::[\s\w,\(\)]+)?\s*\x7b-gsx) {
         my ($doc, $type, $class, $name, $args, $const);
 	$doc = $1;
 	$type = $2;
