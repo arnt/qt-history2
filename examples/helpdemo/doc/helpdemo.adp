@@ -14,12 +14,13 @@
 
 <DCF ref="index.html" icon="handbook.png" title="Help example">
     <section ref="./manual.html" title="How to use this Example">
-	<keyword ref="./manual.html#installdocs">Install Docs</keyword>
 	<keyword ref="./manual.html#onlydoc">Example Profile</keyword>
+	<keyword ref="./manual.html#lineedit">Filename</keyword>
 	<keyword ref="./manual.html#hide">Hide Sidebar</keyword>
-	<keyword ref="./manual.html#openqabutton">Open</keyword>
-	<keyword ref="./manual.html#closeqabutton">Close</keyword>
-	<keyword ref="./manual.html#display">Display</keyword>
+	<keyword ref="./manual.html#openqabutton">Open Assistant</keyword>
+	<keyword ref="./manual.html#closeqabutton">Close Assistant</keyword>
+	<keyword ref="./manual.html#displaybutton">Display</keyword>
+        <keyword ref="./manual.html#closebutton">Close</keyword>
     </section>
 </DCF>
 
