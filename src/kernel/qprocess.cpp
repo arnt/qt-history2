@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#17 $
 **
 ** Implementation of QProcess class
 **
@@ -61,8 +61,9 @@
   on stdout and stderr. You get notified when the program exits.
 
   There are two different ways to run a process: If you use start(), you have
-  full control over the process; you can write to the stdin via the writeToStdin()
-  slots whenever you want, and you can close stdin via the closeStdin() slot.
+  full control over the process; you can write to the stdin via the
+  writeToStdin() slots whenever you want, and you can close stdin via the
+  closeStdin() slot.
 
   If you know the data that should be written to the stdin of the process
   already when you want to run the process, you can use the launch() functions
@@ -209,11 +210,13 @@ QByteArray QProcess::readStderr()
   processes started with launch(). If you need these slots, use start()
   instead.
 
-  The string is handled as a text. So what is written to stdin is the
-  QString::latin1(). The process may or may not read this data. If the data was
-  read, the signal wroteStdin() is emitted.
+  The data \a buf is written to stdin with writeToStdin(); so the data that is
+  actually written is the QString::local8Bit() representation.
 
-  \sa start()
+  The process may or may not read this data. If the data was read, the signal
+  wroteStdin() is emitted.
+
+  \sa start() writeToStdin()
 */
 bool QProcess::launch( const QString& buf )
 {
@@ -227,7 +230,7 @@ bool QProcess::launch( const QString& buf )
     }
 }
 
-/*! \overwrite
+/*! \overload
 */
 bool QProcess::launch( const QByteArray& buf )
 {
@@ -282,15 +285,16 @@ void QProcess::closeStdinLaunch()
 
 
 /*!
-  Writes data to the stdin of the process. The string is handled as a text. So
-  what is written to stdin is the QString::latin1(). The process may or may not
-  read this data. If the data was read, the signal wroteStdin() is emitted.
+  \overload
+
+  The string \a buf is handled as a text. So what is written to stdin is the
+  QString::local8Bit() representation.
+
+  \sa wroteStdin()
 */
 void QProcess::writeToStdin( const QString& buf )
 {
-    QByteArray bbuf;
-    bbuf.duplicate( buf.latin1(), buf.length() );
-    writeToStdin( bbuf );
+    writeToStdin( buf.local8Bit() );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#17 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#18 $
 **
 ** Implementation of QProcess class
 **
@@ -65,8 +65,8 @@ public:
 
     // control the execution
     bool start();
-    bool launch( const QByteArray& buf );
     bool launch( const QString& buf );
+    bool launch( const QByteArray& buf );
     bool hangUp();
     bool kill();
 
