@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#106 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#105 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#106 $");
 
 
 /*****************************************************************************
@@ -41,6 +41,10 @@ static int	numZeroTimers	= 0;		// number of full-speed timers
 static HWND	curWin		= 0;		// current window
 static HANDLE	displayDC	= 0;		// display device context
 static QWidget *desktopWidget	= 0;		// desktop window widget
+#define USE_HEARTBEAT
+#if defined(USE_HEARTBEAT)
+static int	heartBeat	= 0;		// heatbeat timer
+#endif
 
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -242,6 +246,9 @@ void qt_init( int *argcptr, char **argv )
     QCursor::initialize();
     QPainter::initialize();
     qApp->setName( appName );
+#if defined(USE_HEARTBEAT)
+    heartBeat = SetTimer( 0, 0, 200, 0 );
+#endif
 }
 
 
@@ -261,6 +268,9 @@ void qt_cleanup()
 	}
 	delete postRList;
     }
+#if defined(USE_HEARTBEAT)
+    KillTimer( 0, heartBeat );
+#endif
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
@@ -827,12 +837,31 @@ bool QApplication::processNextEvent( bool canWait )
 	}
     }
 
+#if defined(USE_HEARTBEAT)
     if ( msg.message == WM_TIMER ) {		// timer message received
-	if ( winEventFilter(&msg) )
-	    return TRUE;			// the event was eaten up
-	activateTimer( msg.wParam );
+	if ( msg.wParam != (WPARAM)heartBeat ) {
+	    if ( !winEventFilter(&msg) )
+		activateTimer( msg.wParam );
+	} else if ( curWin && qApp ) {		// process heartbeat
+	    POINT p;
+	    GetCursorPos( &p );
+	    HANDLE newWin = WindowFromPoint(p);
+	    if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
+		QWidget *curWidget = QWidget::find(curWin);
+		QEvent leave( Event_Leave );
+		QApplication::sendEvent( curWidget, &leave );
+		curWin = 0;
+	    }
+	}
 	return TRUE;
     }
+#else
+     if ( msg.message == WM_TIMER ) {		// timer message received
+	if ( !winEventFilter(&msg) )
+	    activateTimer( msg.wParam );
+	return TRUE;
+    }
+#endif
 
     if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
 	if ( translateKeyCode(msg.wParam) == 0 ) {
