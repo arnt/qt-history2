@@ -17,8 +17,10 @@
 
 \title Canvas Module
 
+\if defined(commercial_edition)
 This module is part of the \link commercialeditions.html Qt Enterprise Edition
 \endlink.
+\endif
 
 The canvas module provides a highly optimized 2D graphic area called
 \l QCanvas. The canvas can contain an arbitrary number of \link

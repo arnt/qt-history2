@@ -16,7 +16,9 @@
 
 \title XML Module
 
+\if defined(commercial_edition)
 This module is part of the \link commercialeditions.html Qt Enterprise Edition\endlink.
+\endif
 
 \tableofcontents
 

@@ -16,17 +16,19 @@
 
 <table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
 <tr bgcolor=white><td colspan=3 align=center>
-<h1>Qt Reference Documentation</h1><br></td>
-\omit
-<tr bgcolor=white><td colspan=3 align=center>
-<h1>Qt Reference Documentation\EDITION</h1><br></td>
-if(EDITION==FREE) {
-<tr><td colspan=3 align=center>Notice: This edition is for the development of
-\link freeeditions.html Free and Open Source\endlink software only;
-see \link commercialeditions.html Commercial
-Editions\endlink.</td></tr>
-}
-\endomit
+\if defined(commercial_edition) && defined(enterprise_edition)
+<h1>Qt Reference Documentation (Enterprise Edition)</h1><br></td></tr>
+\endif
+\if defined(commercial_edition) && defined(professional_edition)
+<h1>Qt Reference Documentation (Professional Edition)</h1><br></td></tr>
+\endif
+\if !defined(commercial_edition) || defined(free_edition)
+<h1>Qt Reference Documentation (Free Edition)</h1></td>
+<tr bgcolor=white><td colspan=3 align=center><br><b>Notice</b>: This edition is
+for the development of \link freeeditions.html Free and Open
+Source\endlink software only; see \link commercialeditions.html
+Commercial Editions\endlink.<br><br></td></tr>
+\endif
 <tr>
 <th bgcolor=#a2c511 width=33%>
 Qt Community

@@ -15,8 +15,10 @@
 
 \title Table Module
 
+\if defined(commercial_edition)
 This module is part of the \link commercialeditions.html Qt Enterprise
 Edition\endlink.
+\endif
 
 The table module provides a flexible and editable table widget, \l
 QTable. For many applications QTables can be used directly and simply,
