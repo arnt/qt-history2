@@ -57,7 +57,7 @@ internal:DEFINES += $$DEFINESI
 win32:DEFINES += QT_NO_IMAGEIO_JPEG
 
 win32:LIBS += $$WINLIBS
-unix:LIBS += $$X11LIBS
+unix:LIBS += $$X11LIBS -ldl
 embedded:LIBS -= $$X11LIBS
 
 # next few lines add cups support
