@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#152 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#153 $
 **
 ** Implementation of QListView widget class
 **
@@ -1462,28 +1462,25 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	buildDrawableList();
 
     if ( d->dirtyItems ) {
-	// make a new clip region, including the dirty items
 	QRect br( cx - ox, cy - oy, cw, ch );
-	QRegion r( br );
 	QPtrDictIterator<void> it( *(d->dirtyItems) );
 	QListViewItem * i;
 	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
 	    ++it;
 	    QRect ir( itemRect( i ) );
-	    if ( !ir.isEmpty() ) {
-		br = br.unite( ir );
-		r = r.unite( QRegion( ir ) );
-	    }
+	    if ( ir.isEmpty() || br.contains( ir ) )
+		// we're painting this one, or it needs no painting: forget it
+		d->dirtyItems->remove( (void *)i );
 	}
-	p->setClipRegion( r );
-	// and change the "arguments".  naughty.
-	cx = br.left() + ox;
-	cy = br.top() + oy;
-	cw = br.width();
-	ch = br.height();
-	delete d->dirtyItems;
-	d->dirtyItems = 0;
-	d->dirtyItemTimer->stop();
+	if ( d->dirtyItems->count() ) {
+	    // there are still items left that need repainting
+	    d->dirtyItemTimer->start( 0, TRUE );
+	} else {
+	    // we're painting all items that need to be painted
+	    delete d->dirtyItems;
+	    d->dirtyItems = 0;
+	    d->dirtyItemTimer->stop();
+	}
     }
 
     p->setFont( font() );
@@ -1992,21 +1989,23 @@ void QListView::handleSizeChange( int section, int, int )
 
 void QListView::updateDirtyItems()
 {
-    if ( d->timer->isActive() )
-	return;
-    if ( d->dirtyItems ) {
-	QPtrDictIterator<void> it( *(d->dirtyItems) );
-	QListViewItem * i;
-	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
-	    ++it;
-	    QRect ir( itemRect( i ) );
-	    if ( !ir.isEmpty() ) {
-		// we now have a rectangle to give to repaint() - so do it
-		viewport()->update( ir );
-		return;
-	    }
-	}
+    if ( d->timer->isActive() || !d->dirtyItems)
+        return;
+    QRect ir;
+#if defined(LVDEBUG)
+    debug( "updateDirtyItems" );
+#endif
+    QPtrDictIterator<void> it( *(d->dirtyItems) );
+    QListViewItem * i;
+    while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
+        ++it;
+#if defined(LVDEBUG)
+        debug( " item %s (selected=%d)", i->text(0), i->isSelected() );
+#endif
+        ir = ir.unite( itemRect(i) );
     }
+    if ( !ir.isEmpty() )                    // rectangle to be repainted
+        viewport()->repaint( ir );
 }
 
 
