@@ -27,12 +27,6 @@
 #include <qmessagebox.h>
 #include <qfont.h>
 
-#include <qwindowsstyle.h>
-#include <qplatinumstyle.h>
-#include <qmotifstyle.h>
-#include <qmotifplusstyle.h>
-#include <qcdestyle.h>
-
 Themes::Themes( QWidget *parent, const char *name, WFlags f )
     : QMainWindow( parent, name, f )
 {
@@ -92,7 +86,7 @@ void Themes::styleMetal()
 
 void Themes::stylePlatinum()
 {
-    qApp->setStyle( new QPlatinumStyle );
+    qApp->setStyle( "Platinum" );
     QPalette p( QColor( 239, 239, 239 ) );
     qApp->setPalette( p, TRUE );
     qApp->setFont( appFont, TRUE );
@@ -101,14 +95,14 @@ void Themes::stylePlatinum()
 
 void Themes::styleWindows()
 {
-    qApp->setStyle( new QWindowsStyle );
+    qApp->setStyle( "Windows" );
     qApp->setFont( appFont, TRUE );
     selectStyleMenu( sWindows );
 }
 
 void Themes::styleCDE()
 {
-    qApp->setStyle( new QCDEStyle( TRUE ) );
+    qApp->setStyle( "CDE" );
     selectStyleMenu( sCDE );
 
     QPalette p( QColor( 75, 123, 130 ) );
@@ -136,7 +130,7 @@ void Themes::styleCDE()
 
 void Themes::styleMotif()
 {
-    qApp->setStyle( new QMotifStyle );
+    qApp->setStyle( "Motif" );
     QPalette p( QColor( 192, 192, 192 ) );
     qApp->setPalette( p, TRUE );
     qApp->setFont( appFont, TRUE );
@@ -145,7 +139,7 @@ void Themes::styleMotif()
 
 void Themes::styleMotifPlus()
 {
-    qApp->setStyle( new QMotifPlusStyle );
+    qApp->setStyle( "MotifPlus" );
     QPalette p( QColor( 192, 192, 192 ) );
     qApp->setPalette( p, TRUE );
     qApp->setFont( appFont, TRUE );

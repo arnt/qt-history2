@@ -175,7 +175,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,
-				SFlags flags = Style_Default ) const
+				SFlags flags ) const
 {
     QWindowsStyle::drawPrimitive( pe, p, r, cg, flags );
 }
@@ -185,8 +185,8 @@ void MetalStyle::drawControl( ControlElement element,
 			      const QWidget *widget,
 			      const QRect &r,
 			      const QColorGroup &cg,
-			      SFlags how = Style_Default,
-			      void **data = 0 ) const
+			      SFlags how,
+			      void **data ) const
 {
     QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
 }

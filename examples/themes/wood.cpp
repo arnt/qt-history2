@@ -1091,7 +1091,7 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl control,
 					     SFlags how,
 					     SCFlags sub,
 					     SCFlags subActive,
-					     void **data = 0 ) const
+					     void **data ) const
 {
     QWindowsStyle::drawComplexControl( control, p, widget, r, cg, how,
 				       sub, subActive, data );
@@ -1266,7 +1266,7 @@ void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
 					       int dir, bool sunken,
 					       const QColorGroup &g )
 {
-    int b = scrollBarExtent().height() > 20 ? 3 : 2;
+    int b = pixelMetric( PM_ScrollBarExtent ) > 20 ? 3 : 2;
 
     QRegion extrn(  r.x(),   r.y(),   r.width(),     r.height(),     QRegion::Ellipse );
     QRegion intern( r.x()+b, r.y()+b, r.width()-2*b, r.height()-2*b, QRegion::Ellipse );
