@@ -719,7 +719,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
         hfont = (HFONT)GetStockObject(f);
         if (!hfont) {
 #ifndef QT_NO_DEBUG
-            qSystemWarning("GetStockObject failed");
+            qCritical("QFontEngine::loadEngine: GetStockObject failed (%s)",
+                      qt_error_string().local8Bit());
 #endif
             hfont = systemFont();
         }
@@ -835,7 +836,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
         });
 #ifndef QT_NO_DEBUG
         if (!hfont)
-            qSystemWarning("CreateFontIndirect failed");
+            qCritical("QFontEngine::loadEngine: CreateFontIndirect failed (%s)",
+                      qt_error_string().local8Bit());
 #endif
 
         stockFont = (hfont == 0);
@@ -855,7 +857,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             });
 #ifndef QT_NO_DEBUG
             if (!res)
-                qSystemWarning("QFontPrivate: GetTextMetrics failed");
+                qCritical("QFontEngine::loadEngine: GetTextMetrics failed (%s)",
+                          qt_error_string().local8Bit());
 #endif
 
             SelectObject(hdc, oldObj);
@@ -869,7 +872,8 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
             });
 #ifndef QT_NO_DEBUG
             if (!hfont)
-                qSystemWarning("CreateFontIndirect with stretch failed");
+                qCritical("QFontEngine::loadEngine: CreateFontIndirect with stretch failed (%s)",
+                          qt_error_string().local8Bit());
 #endif
         }
 

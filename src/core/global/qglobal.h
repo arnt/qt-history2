@@ -1139,6 +1139,23 @@ Q_CORE_EXPORT void qWarning(const char *, ...) // print warning message
 #endif
 ;
 
+class QString;
+Q_CORE_EXPORT QString qt_error_string(int errorCode = -1);
+Q_CORE_EXPORT void qCritical(const char *, ...) // print critical message
+#if defined(Q_CC_GNU) && !defined(__INSURE__)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
+#if defined(Q_CC_GNU) && !defined(__INSURE__)
+    __attribute__ ((format (printf, 1, 2)))
+#endif
+;
+
+#ifdef QT_COMPAT
+Q_CORE_EXPORT QT_COMPAT void qSystemWarning(const char *msg, int code = -1);
+#endif // QT_COMPAT
+
 class QDebug;
 class QNoDebug;
 
@@ -1146,18 +1163,6 @@ class QNoDebug;
 #  define qDebug if(1); else qDebug
 #  define qWarning if(1); else qWarning
 #endif
-
-Q_CORE_EXPORT void qSystemWarning(const char *, ...) // print system message
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
-Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
-#if defined(Q_CC_GNU)
-    __attribute__ ((format (printf, 1, 2)))
-#endif
-;
 
 inline void qt_noop() {}
 
@@ -1189,7 +1194,7 @@ Q_CORE_EXPORT void qt_check_pointer(const char *, int);
 #  define Q_CHECK_PTR(p)
 #endif
 
-enum QtMsgType { QtDebugMsg, QtSystemMsg, QtWarningMsg, QtFatalMsg };
+enum QtMsgType { QtDebugMsg, QtWarningMsg, QtCriticalMsg, QtFatalMsg, QtSystemMsg = QtCriticalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_CORE_EXPORT QtMsgHandler qInstallMsgHandler(QtMsgHandler);

@@ -112,7 +112,7 @@ void QFont::initialize()
         return;
     shared_dc = CreateCompatibleDC(qt_display_dc());
     if (!shared_dc)
-        qSystemWarning("QFont::initialize() (qfont_win.cpp, 163): couldn't create device context");
+        qCritical("QFont::initialize: Couldn't create DC (%s)", qt_error_string().local8Bit());
     new QFontCache();
 
     // #########

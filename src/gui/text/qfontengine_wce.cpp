@@ -115,7 +115,7 @@ QFontEngineWin::QFontEngineWin(const char * name, HDC _hdc, HFONT _hfont, bool s
     BOOL res = GetTextMetricsW(dc(), &tm.w);
 #ifndef QT_NO_DEBUG
     if (!res)
-        qSystemWarning("QFontPrivate: GetTextMetrics failed");
+        qCritical("QFontEngineWin: GetTextMetrics failed (%s)", qt_error_string().local8Bit());
 #endif
     cache_cost = tm.w.tmHeight * tm.w.tmAveCharWidth * 2000;
     memset(widthCache, 0, sizeof(widthCache));

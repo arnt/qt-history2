@@ -130,7 +130,8 @@ void QColor::initialize()
 
     hpal = CreatePalette(pal);
     if (!hpal)
-        qSystemWarning("QColor: Failed to create logical palette");
+        qCritical("QColor::initialize: Failed to create logical palette (%s)",
+                  qt_error_string().local8Bit());
     free (pal);
 
     SelectPalette(dc, hpal, false);

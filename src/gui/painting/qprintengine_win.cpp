@@ -249,7 +249,8 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	if (d->printToFile && !d->fileName.isEmpty())
 	    di.lpszOutput = d->fileName.utf16();
 	if (ok && StartDoc(d->hdc, &di) == SP_ERROR) {
-	    qSystemWarning("startdoc failed...");
+	    qCritical("QWin32PrintEngine::begin: StartDoc failed (%s)",
+	              qt_error_string().local8Bit());
 	    ok = FALSE;
 	}
 //     } , {
@@ -313,19 +314,22 @@ bool QWin32PrintEngine::newPage()
     Q_ASSERT(d->hdc);
 
     if (!EndPage(d->hdc)) {
-        qSystemWarning("QWin32PrintEngine::newPage() end page failed");
+        qCritical("QWin32PrintEngine::newPage: End page failed (%s)",
+                  qt_error_string().local8Bit());
         return false;
     }
 
     if (d->reinit) {
         if (!(d->hdc = ResetDC(d->hdc, d->devMode))) {
-            qSystemWarning("QWin32PrintEngine::newPage() failed to reset dc");
+            qCritical("QWin32PrintEngine::newPage: Failed to reset DC (%s)",
+                      qt_error_string().local8Bit());
             return false;
         }
     }
 
     if (!StartPage(d->hdc)) {
-        qSystemWarning("Win32PrintEngine::newPage() failed to start new page");
+        qCritical("Win32PrintEngine::newPage: Failed to start new page (%s)",
+                  qt_error_string().local8Bit());
         return false;
     }
 
@@ -721,7 +725,8 @@ void QWin32PrintEnginePrivate::initialize()
     Q_ASSERT(!pInfo);
 
     if(!OpenPrinterW((LPWSTR)name.utf16(), (LPHANDLE)&hPrinter, 0)) {
-	qSystemWarning("Failed to open handle to printer");
+	qCritical("QWin32PrintEngine::init: Failed to open handle to printer (%s)",
+	          qt_error_string().local8Bit());
 	return;
     }
 
@@ -731,7 +736,8 @@ void QWin32PrintEnginePrivate::initialize()
     GetPrinter(d->hPrinter, 2, NULL, 0, &infoSize);
     pInfo = (PRINTER_INFO_2 *)malloc(infoSize);
     if (!GetPrinter(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
-	qSystemWarning("Failed to get printer info");
+	qCritical("QWin32PrintEngine::init: Failed to get printer info (%s)",
+	          qt_error_string().local8Bit());
 	return;
     }
 
@@ -782,7 +788,8 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
 	if (!DeviceCapabilities(name.utf16(),
 				port.utf16(),
 				DC_ENUMRESOLUTIONS, (LPWSTR)enumRes, 0)) {
-	    qSystemWarning("Failed to enumerate printer resolutions");
+	    qCritical("QWin32PrintEngine::queryResolutions: Failed to enumerate printer resolutions (%s)",
+	              qt_error_string().local8Bit());
 	    return QList<int>();
 	}
     }, {
@@ -793,7 +800,8 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
 	if (!DeviceCapabilitiesA(name.local8Bit(),
 				 port.local8Bit(),
 				 DC_ENUMRESOLUTIONS, (LPSTR)enumRes, 0)) {
-	    qSystemWarning("Failed to enumerate printer resolutions");
+	    qCritical("QWin32PrintEngine::queryResolutions: Failed to enumerate printer resolutions (%s)",
+	              qt_error_string().local8Bit());
 	    return QList<int>();
 	}
     });

@@ -80,8 +80,7 @@ void
 QFilePrivate::setError(QFile::Error err, int errNum)
 {
     error = err;
-    extern QString qt_errorstr(int errorCode); //qglobal.cpp
-    errorString = qt_errorstr(errNum);
+    errorString = qt_error_string(errNum);
 }
 
 //************* QFile

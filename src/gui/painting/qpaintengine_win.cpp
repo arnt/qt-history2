@@ -849,11 +849,12 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
     if (GetGraphicsMode(pm_dc) != GM_COMPATIBLE) {
         XFORM xform;
         if (!GetWorldTransform(pm_dc, &xform)) {
-            qSystemWarning("QWin32PaintEngine::drawPixmap, getting source xform failed");
+            qCritical("QWin32PaintEngine::drawPixmap: Getting source xform failed (%s)",
+                      qt_error_string().local8Bit());
             return;
         }
         if (xform.eM12 != 0 || xform.eM21 != 0) {
-            qWarning("QWin32PaintEngine::drawPixmap, cannot draw pixmap with matrix");
+            qWarning("QWin32PaintEngine::drawPixmap: Cannot draw pixmap with matrix");
             return;
         }
     }
@@ -866,7 +867,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
         };
         if (!AlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
                         pm_dc, sr.x(), sr.y(), sr.width(), sr.height(), bf)) {
-            qSystemWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed...");
+            qCritical("QWin32PaintEngine::drawPixmap, AlphaBlend failed (%s)",
+                      qt_error_string().local8Bit());
         }
     } else if (mask && mode == Qt::ComposePixmap) {
         if (stretch) {
@@ -899,7 +901,8 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
             if (!MaskBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                          pm_dc, sr.x(), sr.y(), mask->hbm(), sr.x(), sr.y(),
                          MAKEROP4(0x00aa0000, SRCCOPY)))
-                qSystemWarning("QWin32PaintEngine::drawPixmap, MaskBlt failed");
+                qCritical("QWin32PaintEngine::drawPixmap: MaskBlt failed (%s)",
+                          qt_error_string().local8Bit());
         }
     } else {
         if (stretch) {
@@ -907,14 +910,16 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
             if (!StretchBlt(d->hdc, r.x(), r.y(), r.width(), r.height(),
                             pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
                             SRCCOPY)) {
-                qSystemWarning("QWin32PaintEngine::drawPixmap, StretchBlt failed");
+                qCritical("QWin32PaintEngine::drawPixmap: StretchBlt failed (%s)",
+                          qt_error_string().local8Bit());
             }
         } else {
             Q_ASSERT((GetDeviceCaps(d->hdc, RASTERCAPS) & RC_BITBLT) != 0);
             if (!BitBlt(d->hdc, r.x(), r.y(), sr.width(), sr.height(),
                         pm_dc, sr.x(), sr.y(),
                         SRCCOPY)) {
-                qSystemWarning("QWin32PaintEngine::drawPixmap, BitBlt failed");
+                qCritical("QWin32PaintEngine::drawPixmap: BitBlt failed (%s)",
+                          qt_error_string().local8Bit());
             }
         }
     }
@@ -1278,7 +1283,8 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         m.eDy  = mtx.dy();
         SetGraphicsMode(d->hdc, GM_ADVANCED);
         if (!SetWorldTransform(d->hdc, &m)) {
-            qSystemWarning("QWin32PaintEngine::updateMatrix(), SetWorldTransformation() failed..");
+            qCritical("QWin32PaintEngine::updateMatrix: SetWorldTransformation() failed (%s)",
+                      qt_error_string().local8Bit());
         }
         d->advancedMode = true;
         d->advancedModeUsed = true;
@@ -1598,7 +1604,8 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 
     BLENDFUNCTION bf = { AC_SRC_OVER, 0, color.alpha(), 0 };
     if (!AlphaBlend(hdc, r.x(), r.y(), r.width(), r.height(), memdc, 0, 0, r.width(), r.height(), bf))
-        qSystemWarning("Alphablending failed...");
+        qCritical("QWin32PaintEngine::fillAlpha: Alphablending failed (%s)",
+                  qt_error_string().local8Bit());
 
     DeleteObject(SelectObject(memdc, stock_nullBrush));
     DeleteObject(bitmap);
@@ -1611,7 +1618,8 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
     Q_ASSERT(!"QWin32PaintEnginePrivate::composeGdiPath()\n");
 #endif
     if (!BeginPath(hdc))
-        qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
+        qCritical("QWin32PaintEngine::drawPath: BeginPath failed (%s)",
+                  qt_error_string().local8Bit());
 
     // Drawing the subpaths
     int start = -1;
@@ -1640,7 +1648,7 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
             break;
         }
         default:
-            qFatal("QWin32PaintEngine::drawPath(), unhandled type: %d", elm.type);
+            qFatal("QWin32PaintEngine::drawPath: Unhandled type: %d", elm.type);
         }
     }
 
@@ -1650,7 +1658,8 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
         CloseFigure(hdc);
 
     if (!EndPath(hdc))
-        qSystemWarning("QWin32PaintEngine::drawPath(), end path failed");
+        qCritical("QWin32PaintEngine::drawPath: EndPath failed (%s)",
+                  qt_error_string().local8Bit());
 }
 
 

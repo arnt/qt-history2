@@ -1702,12 +1702,12 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                             QString bg = *it;
                             const QMimeSource* m = factory_->data(bg, contxt);
                             if (!m) {
-                                qSystemWarning("QRichText: no mimesource for %s",
-                                               QFile::encodeName(bg).data());
+                                qCritical("QRichText: no mimesource for %s",
+                                          QFile::encodeName(bg).data());
                             } else {
                                 if (!QImageDrag::decode(m, img)) {
-                                    qSystemWarning("QTextImage: cannot decode %s",
-                                                   QFile::encodeName(bg).data());
+                                    qCritical("QTextImage: cannot decode %s",
+                                              QFile::encodeName(bg).data());
                                 }
                             }
                             if (!img.isNull()) {
@@ -6577,11 +6577,11 @@ QTextImage::QTextImage(Q3TextDocument *p, const QMap<QString, QString> &attr, co
             const QMimeSource* m =
                 factory.data(imageName, context);
             if (!m) {
-                qSystemWarning("QTextImage: no mimesource for %s", imageName.latin1());
+                qCritical("QTextImage: no mimesource for %s", imageName.latin1());
             }
             else {
                 if (!QImageDrag::decode(m, img)) {
-                    qSystemWarning("QTextImage: cannot decode %s", imageName.latin1());
+                    qCritical("QTextImage: cannot decode %s", imageName.latin1());
                 }
             }
 

@@ -170,7 +170,7 @@ void QThread::start(Priority priority)
                                             this, CREATE_SUSPENDED, &(d->id));
 
     if (!d->handle) {
-        qSystemWarning("Failed to create thread");
+        qCritical("QThread::start: Failed to create thread (%s)", qt_error_string().local8Bit());
         d->running = false;
         d->finished = true;
         return;
@@ -213,11 +213,13 @@ void QThread::start(Priority priority)
     }
 
     if (! SetThreadPriority(d->handle, prio)) {
-        qSystemWarning("Failed to set thread priority");
+        qCritical("QThread::start: Failed to set thread priority (%s)",
+                  qt_error_string().local8Bit());
     }
 
     if (ResumeThread(d->handle) == 0xffffffff) {
-        qSystemWarning("Failed to resume newly created thread");
+        qCritical("QThread::start: Failed to resume newly created thread (%s)",
+                  qt_error_string().local8Bit());
     }
 }
 
@@ -258,7 +260,7 @@ bool QThread::wait(unsigned long time)
         break;
     case WAIT_ABANDONED:
     case WAIT_FAILED:
-        qSystemWarning("Thread wait failure");
+        qCritical("QThread::wait: Thread wait failure (%s)", qt_error_string().local8Bit());
     case WAIT_TIMEOUT:
     default:
         break;

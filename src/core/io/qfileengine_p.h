@@ -17,8 +17,6 @@
 #include <qplatformdefs.h>
 #include <qiodevice.h>
 
-extern QString qt_errorstr(int errorCode); //qglobal.cpp
-
 class QFileEngine;
 class QFileEnginePrivate
 {
@@ -50,7 +48,7 @@ public:
     }
     inline void setError(QFile::Error err, int errorCode) {
         error = err;
-        errorString = qt_errorstr(errorCode);
+        errorString = qt_error_string(errorCode);
     }
     inline void setError(QFile::Error err, QString errStr = QString()) {
         error = err;

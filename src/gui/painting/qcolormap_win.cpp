@@ -75,7 +75,8 @@ void QColormap::initialize()
 
     screenMap->hpal = CreatePalette(pal);
     if (!screenMap->hpal)
-        qSystemWarning("QColor: Failed to create logical palette");
+        qCritical("QColor::initialize: Failed to create logical palette (%s)",
+                  qt_error_string().local8Bit());
     free (pal);
 
     SelectPalette(dc, screenMap->hpal, false);

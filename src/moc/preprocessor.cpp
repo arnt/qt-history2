@@ -286,10 +286,23 @@ exit:
 static Symbols tokenize(const Symbol &symbol)
 { return tokenize(symbol.lexem(), symbol.lineNum, TokenizeLine); }
 
+bool funct()
+{
+        QString macros;
+        return macros.contains(',');
+}
 static Symbols substitute(const Macros &macros, const Symbols& symbols, int &i,
                           bool discardWhitespace = false, QList<QByteArray> safeset = QList<QByteArray>())
 {
     QByteArray lexem = symbols.at(i-1).lexem();
+
+    {
+        QString macros;
+        bool b = macros.contains(',');
+        bool c = funct();
+    }
+
+
     if (!macros.contains(lexem) || safeset.contains(lexem))
         return Symbols(1, symbols.at(i-1));
 

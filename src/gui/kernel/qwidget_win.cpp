@@ -176,7 +176,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         style = GetWindowLongA(window, GWL_STYLE);
 #ifndef QT_NO_DEBUG
         if (!style)
-            qSystemWarning("QWidget: GetWindowLong failed");
+            qCritical("QWidget::create: GetWindowLong failed (%s)", qt_error_string().local8Bit());
 #endif
         topLevel = false; // #### needed for some IE plugins??
     } else if (popup) {
@@ -262,7 +262,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         LONG res = SetWindowLongA(window, GWL_STYLE, style);
 #ifndef QT_NO_DEBUG
         if (!res)
-            qSystemWarning("QWidget: Failed to set window style");
+            qCritical("QWidget::create: Failed to set window style (%s)",
+                      qt_error_string().local8Bit());
 #endif
 #ifdef _WIN64
         res = SetWindowLongPtrA( window, GWLP_WNDPROC, (LONG_PTR)QtWndProc );
@@ -271,7 +272,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
 #ifndef QT_NO_DEBUG
         if (!res)
-            qSystemWarning("QWidget: Failed to set window procedure");
+            qCritical("QWidget::create: Failed to set window procedure (%s)",
+                      qt_error_string().local8Bit());
 #endif
     } else if (desktop) {                        // desktop widget
 #ifndef Q_OS_TEMP
@@ -313,7 +315,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
 #ifndef QT_NO_DEBUG
         if (id == NULL)
-            qSystemWarning("QWidget: Failed to create window");
+            qCritical("QWidget::create: Failed to create window (%s)",
+                      qt_error_string().local8Bit());
 #endif
         setWinId(id);
         if (testWFlags(Qt::WStyle_StaysOnTop))
@@ -329,7 +332,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         });
 #ifndef QT_NO_DEBUG
         if (id == NULL)
-            qSystemWarning("QWidget: Failed to create window");
+            qCritical("QWidget::create: Failed to create window (%s)",
+                      qt_error_string().local8Bit());
 #endif
         SetWindowPos(id, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         setWinId(id);

@@ -198,216 +198,6 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 #endif
 
-static QtMsgHandler handler = 0;                // pointer to debug handler
-static const int QT_BUFFER_LENGTH = 8192;       // internal buffer length
-
-#ifdef Q_CC_MWERKS
-
-#include <CoreServices/CoreServices.h>
-
-extern bool qt_is_gui_used;
-static void mac_default_handler(const char *msg)
-{
-    if (qt_is_gui_used) {
-        Str255 pmsg;
-        qt_mac_to_pascal_string(msg, pmsg);
-        DebugStr(pmsg);
-    } else {
-        fprintf(stderr, msg);
-    }
-}
-
-#endif
-
-
-/*!
-    \relates QApplication
-
-    Prints a fatal error message \a msg and exits, or calls the
-    message handler (if it has been installed).
-
-    This function takes a format string and a list of arguments,
-    similar to the C printf() function.
-
-    Example:
-    \code
-        int divide(int a, int b)
-        {
-            if (b == 0)                                // program error
-                qFatal("divide: cannot divide by zero");
-            return a / b;
-        }
-    \endcode
-
-    Under X11, the text is printed to stderr. Under Windows, the text
-    is sent to the debugger.
-
-    \warning The internal buffer is limited to 8192 bytes, including
-    the '\0'-terminator.
-
-    \warning Passing (const char *)0 as argument to qFatal might lead
-    to crashes on certain platforms due to the platforms printf implementation.
-
-    \sa qDebug(), qWarning(), qInstallMsgHandler(),
-    \link debug.html Debugging\endlink
-*/
-void qFatal(const char *msg, ...)
-{
-    char buf[QT_BUFFER_LENGTH];
-    va_list ap;
-    va_start(ap, msg);                        // use variable arg list
-#if defined(QT_VSNPRINTF)
-    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
-#else
-    vsprintf(buf, msg, ap);
-#endif
-    va_end(ap);
-    if (handler) {
-        (*handler)(QtFatalMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#else
-        fprintf(stderr, "%s\n", buf);                // add newline
-#endif
-    }
-
-#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-    abort();                                // trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(QT_DEBUG)
-    QString fstr;
-    fstr.sprintf("%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf);
-    OutputDebugString(fstr.ucs2());
-#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-    _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
-#else
-    exit(1);                                // goodbye cruel world
-#endif
-}
-
-
-Q_CORE_EXPORT QString qt_errorstr(int errorCode)
-{
-    const char *s = 0;
-    QString ret;
-    switch (errorCode) {
-    case 0:
-        break;
-    case EACCES:
-        s = QT_TRANSLATE_NOOP("QIODevice", "Permission denied");
-        break;
-    case EMFILE:
-        s = QT_TRANSLATE_NOOP("QIODevice", "Too many open files");
-        break;
-    case ENOENT:
-        s = QT_TRANSLATE_NOOP("QIODevice", "No such file or directory");
-        break;
-    case ENOSPC:
-        s = QT_TRANSLATE_NOOP("QIODevice", "No space left on device");
-        break;
-    default: {
-#ifdef Q_OS_WIN
-        QT_WA({
-            unsigned short *string = 0;
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                          NULL,
-                          errorCode,
-                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                          (LPTSTR)&string,
-                          0,
-                          NULL);
-            ret = QString::fromUtf16(string);
-            LocalFree((HLOCAL)string);
-        }, {
-            char *string = 0;
-            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-                           NULL,
-                           errorCode,
-                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                           (LPSTR)&string,
-                           0,
-                           NULL);
-            ret = QString::fromLocal8Bit(string);
-            LocalFree((HLOCAL)string);
-        });
-#else
-        ret = QString::fromLocal8Bit(strerror(errorCode));
-#endif
-	break; }
-    }
-    if (s)
-        // ######## this breaks moc build currently
-//         ret = QCoreApplication::translate("QIODevice", s);
-        ret = QString::fromLatin1(s);
-    return ret;
-}
-
-/*!
-    \relates QApplication
-
-    Prints the message \a msg together with the system's last error
-    message (if available), or calls the message handler (if it has been
-    installed). Use this method to notify the user of failures that are
-    outside the control of the application.
-
-    This function takes a format string and a list of arguments, similar
-    to the C printf() function.
-
-    Under X11, the text is printed to stderr. Under Windows, the text is
-    sent to the debugger.
-
-    \warning The internal buffer is limited to 8192 bytes, including
-    the '\0'-terminator.
-
-    \warning Passing (const char *)0 as argument to qSystemWarning might
-    lead to crashes on certain platforms due to the platforms printf
-    implementation.
-
-    \sa qDebug(), qFatal(), qWarning(), qInstallMsgHandler(), \link
-    debug.html Debugging\endlink
-*/
-void qSystemWarning(const char *msg, ...)
-{
-    QByteArray sys;
-
-#if defined(Q_OS_WIN32)
-    int errorCode = GetLastError();
-#else
-    int errorCode = errno;
-#endif
-    sys = qt_errorstr(errorCode).local8Bit();
-
-    QByteArray buf;
-    buf.reserve(QT_BUFFER_LENGTH);
-    va_list ap;
-    va_start(ap, msg);                        // use variable arg list
-#if defined(QT_VSNPRINTF)
-    int n = QT_VSNPRINTF(buf.data(), buf.capacity(), msg, ap);
-#else
-    int n = vsprintf(buf.data(), msg, ap);
-#endif
-    va_end(ap);
-    if (handler) {
-        buf.resize(n);
-        if (sys.size()) {
-            buf += ": ";
-            buf += sys;
-        }
-        (*handler)(QtSystemMsg, buf);
-    } else {
-#if defined(Q_CC_MWERKS)
-        mac_default_handler(buf);
-#elif defined(Q_OS_TEMP)
-        QString fstr(buf);
-        OutputDebugString((fstr + "\n").utf16());
-#else
-        fprintf(stderr, "%s", buf.data());                // add newline
-        if (sys.size())
-            fprintf(stderr, ": %s", sys.data());
-        fprintf(stderr, "\n");                // add newline
-#endif
-    }
-}
 
 /*!
     \macro void Q_ASSERT(bool test)
@@ -538,72 +328,6 @@ void qt_assert_x(const char *where, const char *what, const char *file, int line
 }
 
 
-/*!
-    \relates QApplication
-
-    Installs a Qt message handler \a h. Returns a pointer to the
-    message handler previously defined.
-
-    The message handler is a function that prints out debug messages,
-    warnings and fatal error messages. The Qt library (debug version)
-    contains hundreds of warning messages that are printed when
-    internal errors (usually invalid function arguments) occur. If you
-    implement your own message handler, you get total control of these
-    messages.
-
-    The default message handler prints the message to the standard
-    output under X11 or to the debugger under Windows. If it is a
-    fatal message, the application aborts immediately.
-
-    Only one message handler can be defined, since this is usually
-    done on an application-wide basis to control debug output.
-
-    To restore the message handler, call \c qInstallMsgHandler(0).
-
-    Example:
-    \code
-        #include <qapplication.h>
-        #include <stdio.h>
-        #include <stdlib.h>
-
-        void myMessageOutput(QtMsgType type, const char *msg)
-        {
-            switch (type) {
-                case QtDebugMsg:
-                    fprintf(stderr, "Debug: %s\n", msg);
-                    break;
-                case QtSystemMsg:
-                    fprintf(stderr, "Warning: %s\n", msg);
-                    break;
-                case QtWarningMsg:
-                    fprintf(stderr, "Warning: %s\n", msg);
-                    break;
-                case QtFatalMsg:
-                    fprintf(stderr, "Fatal: %s\n", msg);
-                    abort();                        // deliberately core dump
-            }
-        }
-
-        int main(int argc, char **argv)
-        {
-            qInstallMsgHandler(myMessageOutput);
-            QApplication a(argc, argv);
-            ...
-            return a.exec();
-        }
-    \endcode
-
-    \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
-*/
-
-QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
-{
-    QtMsgHandler old = handler;
-    handler = h;
-    return old;
-}
-
-
 /*
     Dijkstra's bisection algorithm to find the square root of an integer.
     Deliberately not exported as part of the Qt API, but used in both
@@ -645,6 +369,153 @@ void *qRealloc(void *ptr, size_t size) { return ::realloc(ptr, size); }
 void *qMemCopy(void *dest, const void *src, size_t n) { return memcpy(dest, src, n); }
 void *qMemSet(void *dest, int c, size_t n) { return memset(dest, c, n); }
 
+
+static QtMsgHandler handler = 0;                // pointer to debug handler
+static const int QT_BUFFER_LENGTH = 8192;       // internal buffer length
+
+#ifdef Q_CC_MWERKS
+#include <CoreServices/CoreServices.h>
+extern bool qt_is_gui_used;
+static void mac_default_handler(const char *msg)
+{
+    if (qt_is_gui_used) {
+        Str255 pmsg;
+        qt_mac_to_pascal_string(msg, pmsg);
+        DebugStr(pmsg);
+    } else {
+        fprintf(stderr, msg);
+    }
+}
+#endif // Q_CC_MWERKS
+
+
+QString qt_error_string(int errorCode)
+{
+    const char *s = 0;
+    QString ret;
+    if (errorCode == -1) {
+#if defined(Q_OS_WIN32)
+        errorCode = GetLastError();
+#else
+        errorCode = errno;
+#endif
+    }
+    switch (errorCode) {
+    case 0:
+        break;
+    case EACCES:
+        s = QT_TRANSLATE_NOOP("QIODevice", "Permission denied");
+        break;
+    case EMFILE:
+        s = QT_TRANSLATE_NOOP("QIODevice", "Too many open files");
+        break;
+    case ENOENT:
+        s = QT_TRANSLATE_NOOP("QIODevice", "No such file or directory");
+        break;
+    case ENOSPC:
+        s = QT_TRANSLATE_NOOP("QIODevice", "No space left on device");
+        break;
+    default: {
+#ifdef Q_OS_WIN
+        QT_WA({
+            unsigned short *string = 0;
+            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                          NULL,
+                          errorCode,
+                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                          (LPTSTR)&string,
+                          0,
+                          NULL);
+            ret = QString::fromUtf16(string);
+            LocalFree((HLOCAL)string);
+        }, {
+            char *string = 0;
+            FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+                           NULL,
+                           errorCode,
+                           MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                           (LPSTR)&string,
+                           0,
+                           NULL);
+            ret = QString::fromLocal8Bit(string);
+            LocalFree((HLOCAL)string);
+        });
+#else
+        ret = QString::fromLocal8Bit(strerror(errorCode));
+#endif
+	break; }
+    }
+    if (s)
+        // ######## this breaks moc build currently
+//         ret = QCoreApplication::translate("QIODevice", s);
+        ret = QString::fromLatin1(s);
+    return ret;
+}
+
+/*!
+    \relates QApplication
+
+    Installs a Qt message handler \a h. Returns a pointer to the
+    message handler previously defined.
+
+    The message handler is a function that prints out debug messages,
+    warnings and fatal error messages. The Qt library (debug version)
+    contains hundreds of warning messages that are printed when
+    internal errors (usually invalid function arguments) occur. If you
+    implement your own message handler, you get total control of these
+    messages.
+
+    The default message handler prints the message to the standard
+    output under X11 or to the debugger under Windows. If it is a
+    fatal message, the application aborts immediately.
+
+    Only one message handler can be defined, since this is usually
+    done on an application-wide basis to control debug output.
+
+    To restore the message handler, call \c qInstallMsgHandler(0).
+
+    Example:
+    \code
+        #include <qapplication.h>
+        #include <stdio.h>
+        #include <stdlib.h>
+
+        void myMessageOutput(QtMsgType type, const char *msg)
+        {
+            switch (type) {
+                case QtDebugMsg:
+                    fprintf(stderr, "Debug: %s\n", msg);
+                    break;
+                case QtWarningMsg:
+                    fprintf(stderr, "Warning: %s\n", msg);
+                    break;
+                case QtCriticalMsg:
+                    fprintf(stderr, "Critical: %s\n", msg);
+                    break;
+                case QtFatalMsg:
+                    fprintf(stderr, "Fatal: %s\n", msg);
+                    abort(); // deliberately core dump
+            }
+        }
+
+        int main(int argc, char **argv)
+        {
+            qInstallMsgHandler(myMessageOutput);
+            QApplication a(argc, argv);
+            ...
+            return a.exec();
+        }
+    \endcode
+
+    \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
+*/
+QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
+{
+    QtMsgHandler old = handler;
+    handler = h;
+    return old;
+}
+
 #undef qDebug
 /*!
     \relates QApplication
@@ -655,14 +526,6 @@ void *qMemSet(void *dest, int c, size_t n) { return memset(dest, c, n); }
     function does nothing if \c QT_NO_DEBUG was defined during
     compilation.
 
-    A more convenient syntax is also available:
-    \code
-        qDebug() << "Brush:" << myQBrush << "Other value:" << i;
-    \endcode
-    This syntax automatically puts a single space between each item,
-    and outputs a newline at the end. It supports many C++ and Qt
-    types.
-
     If you pass the function a format string and a list of arguments,
     it works in similar way to the C printf() function.
 
@@ -671,13 +534,21 @@ void *qMemSet(void *dest, int c, size_t n) { return memset(dest, c, n); }
         qDebug("my window handle = %x", myWidget->id());
     \endcode
 
+    A more convenient syntax is also available:
+    \code
+        qDebug() << "Brush:" << myQBrush << "Other value:" << i;
+    \endcode
+    This syntax automatically puts a single space between each item,
+    and outputs a newline at the end. It supports many C++ and Qt
+    types.
+
     \warning The internal buffer is limited to 8192 bytes, including
     the '\0'-terminator.
 
     \warning Passing (const char *)0 as argument to qDebug might lead
     to crashes on certain platforms due to the platform's printf() implementation.
 
-    \sa qWarning(), qFatal(), qInstallMsgHandler(),
+    \sa qWarning(), qCritical(), qFatal(), qInstallMsgHandler(),
         \link debug.html Debugging\endlink
 */
 void qDebug(const char *msg, ...)
@@ -706,7 +577,6 @@ void qDebug(const char *msg, ...)
 }
 
 #undef qWarning
-
 /*!
     \relates QApplication
 
@@ -735,15 +605,14 @@ void qDebug(const char *msg, ...)
     \warning Passing (const char *)0 as argument to qWarning might lead
     to crashes on certain platforms due to the platforms printf implementation.
 
-    \sa qDebug(), qFatal(), qSystemWarning(), qInstallMsgHandler(),
-    \link debug.html Debugging\endlink
+    \sa qDebug(), qCritical(), qFatal(), qInstallMsgHandler(),
+        \link debug.html Debugging\endlink
 */
-
 void qWarning(const char *msg, ...)
 {
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
-    va_start(ap, msg);                        // use variable arg list
+    va_start(ap, msg); // use variable arg list
     bool fatalWarnings = (getenv("QT_FATAL_WARNINGS") != 0);
 #if defined(QT_VSNPRINTF)
     QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
@@ -757,7 +626,7 @@ void qWarning(const char *msg, ...)
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #else
-        fprintf(stderr, "%s\n", buf);                // add newline
+        fprintf(stderr, "%s\n", buf);
 #endif
 #if defined(Q_OS_TEMP) && defined(QT_DEBUG)
         QString fstr;
@@ -773,9 +642,139 @@ void qWarning(const char *msg, ...)
         return;
 
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
-    abort();                                // trap; generates core dump
+    abort(); // trap; generates core dump
 #else
-    exit(1);                                // goodbye cruel world
+    exit(1); // goodbye cruel world
+#endif
+}
+
+/*!
+    \relates QApplication
+
+    Calls the message handler with the critical message \a msg. If no
+    message handler has been installed, the message is printed to
+    stderr. Under Windows, the message is sent to the debugger. 
+
+    This function takes a format string and a list of arguments, similar
+    to the C printf() function.
+
+    Example:
+    \code
+        void load(const QString &filename)
+        {
+            QFile file(filename);
+            if (!file.exists())
+                qCritical("file '%s' does not exist!", filename.local8bit());
+        }
+    \endcode
+
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
+
+    \warning Passing (const char *)0 as argument to qCritical might
+    lead to crashes on certain platforms due to the platforms printf
+    implementation.
+
+    \sa qDebug(), qWarning(), qFatal(), qInstallMsgHandler(), 
+        \link debug.html Debugging\endlink
+*/
+void qCritical(const char *msg, ...)
+{
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start(ap, msg); // use variable arg list
+#if defined(QT_VSNPRINTF)
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+#else
+    vsprintf(buf, msg, ap);
+#endif
+    va_end(ap);
+
+    if (handler) {
+        (*handler)(QtCriticalMsg, buf);
+    } else {
+#if defined(Q_CC_MWERKS)
+        mac_default_handler(buf);
+#elif defined(Q_OS_TEMP)
+        QString fstr(buf);
+        OutputDebugString((fstr + "\n").utf16());
+#else
+        fprintf(stderr, "%s\n", buf);
+#endif
+    }
+}
+#ifdef QT_COMPAT
+void qSystemWarning(const char *msg, int code)
+{ qCritical("%s (%s)", msg, qt_error_string(code)); }
+#endif // QT_COMPAT
+
+
+/*!
+    \relates QApplication
+
+    Calls the message handler with the fatal message \a msg. If no
+    message handler has been installed, the message is printed to
+    stderr. Under Windows, the message is sent to the debugger. 
+
+    For a release library this function will exit the application
+    with return value 1. For the debug version this function will
+    abort on Unix systems to create a core dump, and report a
+    _CRT_ERROR on Windows allowing to connect a debugger to the
+    application.
+
+    This function takes a format string and a list of arguments,
+    similar to the C printf() function.
+
+    Example:
+    \code
+        int divide(int a, int b)
+        {
+            if (b == 0)                                // program error
+                qFatal("divide: cannot divide by zero");
+            return a / b;
+        }
+    \endcode
+
+    \warning The internal buffer is limited to 8192 bytes, including
+    the '\0'-terminator.
+
+    \warning Passing (const char *)0 as argument to qFatal might lead
+    to crashes on certain platforms due to the platforms printf implementation.
+
+    \sa qDebug(), qCritical(), qWarning(), qInstallMsgHandler(),
+        \link debug.html Debugging\endlink
+*/
+void qFatal(const char *msg, ...)
+{
+    char buf[QT_BUFFER_LENGTH];
+    va_list ap;
+    va_start(ap, msg); // use variable arg list
+#if defined(QT_VSNPRINTF)
+    QT_VSNPRINTF(buf, QT_BUFFER_LENGTH, msg, ap);
+#else
+    vsprintf(buf, msg, ap);
+#endif
+    va_end(ap);
+    if (handler) {
+        (*handler)(QtFatalMsg, buf);
+    } else {
+#if defined(Q_CC_MWERKS)
+        mac_default_handler(buf);
+#else
+        fprintf(stderr, "%s\n", buf);
+#endif
+    }
+
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
+    abort(); // trap; generates core dump
+#elif defined(Q_OS_TEMP) && defined(QT_DEBUG)
+    QString fstr;
+    fstr.sprintf("%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf);
+    OutputDebugString(fstr.ucs2());
+#elif defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
+    _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
+#else
+    exit(1); // goodbye cruel world
 #endif
 }
 

@@ -148,7 +148,8 @@ int QEventLoop::registerTimer(int interval, QObject *obj)
         }
     }
     if (t->id == 0) {
-        qSystemWarning("registerTimer: Failed to create a timer");
+        qCritical("QEventLoop::registerTimer: Failed to create a timer (%s)",
+                  qt_error_string().local8Bit());
         delete t;                               // could not set timer
         return 0;
     }

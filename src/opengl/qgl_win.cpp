@@ -666,7 +666,8 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     int chosenPfi = ChoosePixelFormat(pdc, p);
 #ifndef QT_NO_DEBUG
     if (!chosenPfi)
-        qSystemWarning("QGLContext: Call of ChoosePixelFormat failed");
+        qCritical("QGLContext: Call of ChoosePixelFormat failed (%s)",
+                  qt_error_string().local8Bit());
 #endif
 
     // Since the GDI function ChoosePixelFormat() does not handle
