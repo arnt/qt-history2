@@ -3121,11 +3121,10 @@ BYTE* QPSPrinterFontTTF::getTable(const char* name)
   x=0;
   while (x != numTables) {
     if( strncmp((const char *)ptr,name,4) == 0 ) {
-      ULONG offset,length;
+      ULONG offset;
       BYTE *table;
 
       offset = getULONG( ptr + 8 );
-      length = getULONG( ptr + 12 );
 
       table = offset_table + offset;
       return table;
@@ -4383,7 +4382,7 @@ QPSPrinterFontPFB::QPSPrinterFontPFB(const QFont &f, QByteArray& d)
   pos++;
   typ = p[ pos ]; // 1=ascii 2=binary 3=done
   pos++;
-  len = p[ pos ];	    pos++;
+  len = p[ pos ];	   pos++;
   len |= (p[ pos ] << 8) ; pos++;
   len |= (p[ pos ] << 16); pos++;
   len |= (p[ pos ] << 24); pos++;
