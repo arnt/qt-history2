@@ -287,34 +287,13 @@ single main window.)
 
 \section1 Integrating Qt Designer with Visual Studio
 
-\QD can be integrated into Visual Studio 6.0 using the
-\index qmsdev.dll
-\File qmsdev.dll file that is supplied with Qt.
-Visual Studio.Net does not support this integration.
+By default, \QD is integrated into Visual Studio 6.0 when Qt is
+installed. Visual Studio.Net does not support this integration.
 
 \index Visual Studio
-Start up Visual Studio and click \Menu {File|Open
-Workspace}. Open
-\File %QTDIR%\\tools\\designer\\integration\\qmsdev\\qmsdev.dsp.
-Click \Menu {Build|Set Active Configuration} and in
-the list click 'QMsDev - Win32 Release', then click \OK. Now click
-\Menu {Build|Build qmsdev.dll}. You should now make sure Visual Studio
-is closed and copy
-the file
-\File %QTDIR%\\tools\\designer\\integration\\qmsdev\\Release\\qmsdev.dll
-into
-\File {Microsoft Visual Studio\Common\MSDev98\AddIns}.
-Now click \Menu Tools|Customize. Click the Add-in Macro Files
-tab, then click the \Button Browse button. Change the
-file type to 'Add-ins (.dll)' and navigate to
-\File {Microsoft Visual Studio\Common\MSDev98\AddIns}.
-Click the
-\index qmsdev.dll
-\File qmsdev.dll file, click
-\Button Open, then click \Button Close.
 
-A new toolbar will appear in Visual Studio with the following toolbar
-buttons:
+If installed successfully, a toolbar should be provided in Visual Studio
+with the following buttons:
 \list
 \i
 
