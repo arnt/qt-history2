@@ -922,8 +922,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	setWinId(id);
     }
 
-    setWState(WState_MouseTracking);
-    setMouseTracking(FALSE);                  // also sets event mask
     if(desktop) { //immediately "show" a "desktop"
 	setWState(WState_Visible);
     } else {
@@ -1743,9 +1741,9 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(isMove || isResize) {
 	if(!visible) {
 	    if (isMove && pos() != oldp)
-		d->setAttribute(WA_PendingMoveEvent, true);
+		setAttribute(WA_PendingMoveEvent, true);
 	    if (isResize)
-		d->setAttribute(WA_PendingResizeEvent, true);
+		setAttribute(WA_PendingResizeEvent, true);
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
 	    const bool oldreg_empty=oldregion.isEmpty(), newreg_empty = clpreg.isEmpty();
