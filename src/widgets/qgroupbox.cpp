@@ -67,8 +67,8 @@
   the frame.
 
   The simplest way to use it is to create a group box with the desired
-  number of columns and orientation, and then just create widgets with
-  the group box as parent.
+  number of columns (or rows) and orientation, and then just create 
+  widgets with the group box as parent.
 
   However, it is also possible to change the orientation() and number
   of columns() after construction, or to ignore all the automatic
@@ -356,7 +356,7 @@ void QGroupBox::addSpace( int size )
 
 /*!
   \property QGroupBox::columns
-  \brief the number of columns in the group box
+  \brief the number of columns or rows (depending on \l orientation) in the group box
 
   Usually it is not a good idea to set this property because it is slow
   (it does a complete layout).  It is better to set the number of columns
@@ -430,6 +430,10 @@ void QGroupBox::setInsideSpacing( int s )
   \property QGroupBox::orientation
   \brief the current orientation of the group box.
 
+  A horizontal groupbox arranges it's children in columns, while a
+  vertical groupbox arranges them in rows. Thus, a horizontal groupbox
+  with only one column will arrange the children vertically in that column.
+
   Usually it is not a good idea to set this property because it is slow
   (it does a complete layout). It is better to set the orientation directly
   in the constructor.
@@ -445,19 +449,18 @@ void QGroupBox::setOrientation( Qt::Orientation o )
   layout information. This function will put all existing children in
   the new layout. It is not good Qt programming style to
   call this function after children have been inserted.
-  Sets the number of columns to be \a columns and the orientation to
-  be \a direction.
+  Sets the number of columns or rows to be \a strips, depending on \a direction.
 
   \sa orientation columns
  */
-void QGroupBox::setColumnLayout(int columns, Orientation direction)
+void QGroupBox::setColumnLayout(int strips, Orientation direction)
 {
     if ( layout() )
       delete layout();
     vbox = 0;
     grid = 0;
 
-    if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
+    if ( strips < 0 ) // if 0, we create the vbox but not the grid. See below.
 	return;
 
     vbox = new QVBoxLayout( this, marg, 0 );
@@ -479,16 +482,16 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     // if 0 or smaller , create a vbox-layout but no grid. This allows
     // the designer to handle its own grid layout in a group box.
-    if ( columns <= 0 )
+    if ( strips <= 0 )
 	return;
 
     dir = direction;
     if ( dir == Horizontal ) {
-	nCols = columns;
+	nCols = strips;
 	nRows = 1;
     } else {
 	nCols = 1;
-	nRows = columns;
+	nRows = strips;
     }
     grid = new QGridLayout( nRows, nCols, spac );
     row = col = 0;
