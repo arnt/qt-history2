@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#61 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -442,37 +442,59 @@ void QButtonGroup::moveFocus( int key )
 	    case Key_Up:
 		if ( p.y() < goal.y() &&
 		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
-		     ( score < bestScore || !candidate ) )
+		     ( score < bestScore || !candidate ) ) {
 		    candidate = i->button;
+		    bestScore = score;
+		}
 		break;
 	    case Key_Down:
 		if ( p.y() > goal.y() &&
 		     QABS( p.x() - goal.x() ) < QABS( p.y() - goal.y() ) &&
-		     ( score < bestScore || !candidate ) )
+		     ( score < bestScore || !candidate ) ) {
 		    candidate = i->button;
+		    bestScore = score;
+		}
 		break;
 	    case Key_Left:
 		if ( p.x() < goal.x() &&
 		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
-		     ( score < bestScore || !candidate ) )
+		     ( score < bestScore || !candidate ) ) {
 		    candidate = i->button;
+		    bestScore = score;
+		}
 		break;
 	    case Key_Right:
 		if ( p.x() > goal.x() &&
 		     QABS( p.y() - goal.y() ) < QABS( p.x() - goal.x() ) &&
-		     ( score < bestScore || !candidate ) )
+		     ( score < bestScore || !candidate ) ) {
 		    candidate = i->button;
+		    bestScore = score;
+		}
 		break;
 	    }
 	}
 	i = buttons->next();
     }
 
-    if ( candidate )
-	candidate->setFocus();
-
     if ( candidate && f && f->inherits( "QRadioButton" ) &&
 	 ((QRadioButton*)f)->isChecked() &&
 	 candidate->inherits( "QRadioButton" ) )
 	((QRadioButton*)candidate)->setChecked( TRUE );
+
+    if ( candidate )
+	candidate->setFocus();
+}
+
+
+/*!  Returns a pointer to the selected radio button in this group, if
+  one exists, or 0 if there is no selected radio button in this group.
+*/
+
+QButton * QButtonGroup::selected()
+{
+    QButtonItem *i = buttons->first();
+    while ( i && !( i->button && i->button->inherits("QRadioButton") &&
+		    i->button->isToggleButton() && i->button->isOn() ) )
+	i = buttons->next();
+    return i ? i->button : 0;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#34 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#35 $
 **
 ** Definition of QButtonGroup class
 **
@@ -56,6 +56,8 @@ public:
     virtual void setButton( int id );
 
     virtual void moveFocus( int );
+
+    QButton    *selected();
 
 signals:
     void	pressed( int id );
