@@ -1413,8 +1413,10 @@ void Q3TextEdit::keyPressEvent(QKeyEvent *e)
                         drawCursor(true);
                         break;
                 }
-                if (overWrite && !cursor->atParagEnd())
-                    cursor->remove();
+		if (overWrite && !cursor->atParagEnd() && !doc->hasSelection(Q3TextDocument::Standard)) {
+                    doKeyboardAction(ActionDelete);
+                    clearUndoRedoInfo = FALSE;
+                }
                 QString t = e->text();
                 insert(t, true, false);
                 break;
