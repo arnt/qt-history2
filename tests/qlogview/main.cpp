@@ -22,7 +22,7 @@ int main( int argc, char ** argv )
     timeval st, et;
     gettimeofday( &st, 0 );
     for ( int i = 0; i < 100; i++ ) {
-	str.sprintf("%06d: 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
+	str.sprintf("%06d: 1234567890 1234567890 ygpqfh 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890\n", i);
 	log->append( str );
 	log2->append( str );
 // 	if ( (i % 2000) == 0 )
