@@ -1144,6 +1144,7 @@ void QStyleSheet::init()
     style->setFontFamily( QString::fromLatin1("courier") );
 
     new QStyleSheetItem(this, QString::fromLatin1("img"));
+    new QStyleSheetItem(this, QString::fromLatin1("br"));
     new QStyleSheetItem(this, QString::fromLatin1("hr"));
 
     style = new QStyleSheetItem(this, QString::fromLatin1("sub"));
@@ -1297,16 +1298,13 @@ QTextCustomItem* QStyleSheet::tag(  const QString& name,
 				   const QMimeSourceFactory& factory,
 				   bool /*emptyTag */, QTextDocument *doc ) const
 {
-    static QString s_img = QString::fromLatin1("img");
-    static QString s_hr = QString::fromLatin1("hr");
-
     const QStyleSheetItem* style = item( name );
     // first some known  tags
     if ( !style )
 	return 0;
-    if ( style->name() == s_img )
+    if ( style->name() == "img" )
 	return new QTextImage( doc, attr, context, (QMimeSourceFactory&)factory );
-    if ( style->name() == s_hr )
+    if ( style->name() == "hr" )
 	return new QTextHorizontalLine( doc, attr, context, (QMimeSourceFactory&)factory  );
    return 0;
 }
