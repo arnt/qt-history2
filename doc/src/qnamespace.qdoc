@@ -267,9 +267,10 @@
 /*! 
     \enum Qt::ScaleMode
 
-    This enum type defines the different ways of scaling a size.
+    This enum type defines the different ways of scaling an image or a
+    size object.
 
-    \img scaling.png
+    \img qimage-scaling.png
 
     \value IgnoreAspectRatio  The size is scaled freely. The ratio is not
                               preserved.

@@ -216,7 +216,7 @@ QImageData::~QImageData()
     QImage also supports a number of functions for creating a new
     image that is a transformed version of the original. For example,
     copy(), convertBitOrder(), convertDepth(), createAlphaMask(),
-    createHeuristicMask(), mirror(), scale(), smoothScale(), swapRGB()
+    createHeuristicMask(), mirror(), scale(), swapRGB()
     and xForm(). There are also functions for changing attributes of
     an image in-place, for example, setAlphaBuffer(), setColor(),
     setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
@@ -2426,10 +2426,7 @@ bool QImage::isGrayscale() const
     If either the width \a w or the height \a h is 0 or negative, this
     function returns a \link isNull() null\endlink image.
 
-    This function uses a simple, fast algorithm. If you need better
-    quality, use smoothScale() instead.
-
-    \sa scaleWidth() scaleHeight() smoothScale() xForm()
+    \sa scaleWidth() scaleHeight() xForm()
 */
 
 /*!
@@ -2468,7 +2465,7 @@ QImage QImage::scale(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transfo
     If \a w is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleHeight() smoothScale() xForm()
+    \sa scale() scaleHeight() xForm()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleWidth(int w) const
@@ -2495,7 +2492,7 @@ QImage QImage::scaleWidth(int w) const
     If \a h is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleWidth() smoothScale() xForm()
+    \sa scale() scaleWidth() xForm()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaleHeight(int h) const
@@ -2838,7 +2835,7 @@ QImage QImage::createHeuristicMask(bool clipTight) const
     vertical are set to true or false. The original image is not
     changed.
 
-    \sa smoothScale()
+    \sa scale()
 */
 QImage QImage::mirror(bool horizontal, bool vertical) const
 {
