@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#212 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#213 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -102,9 +102,16 @@ struct QLineEditPrivate {
 static const int scrollTime = 100;		// mark text scroll time
 
 
-static int xPosToCursorPos( const QString &s, int offset, const QFontMetrics &fm,
-			    int xPos, int width )
+static int xPosToCursorPos( const QString &t, int offset, 
+			    const QFontMetrics &fm,
+			    int xPos, int width, 
+			    QLineEdit::EchoMode emode )
 {
+    if ( emode == QLineEdit::NoEcho )
+	return 0;
+    QString s = t;
+    if ( emode == QLineEdit::Password )
+	s.fill( '*', t.length() );
     uint  i = offset;
     int	  dist;
 
@@ -722,7 +729,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     int margin = frame() ? 4 : 2;
     cursorPos = offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
 					  e->pos().x() - margin - alignOffset,
-					  width() - 2*margin );
+					  width() - 2*margin, echoMode() );
     if ( hasMarkedText() && echoMode() == Normal &&
 		e->button() == LeftButton &&
 		( (markAnchor > cursorPos && markDrag < cursorPos) ||
@@ -779,10 +786,11 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	}
     } else {
 	dragScrolling = FALSE;
-	int mousePos = offset + xPosToCursorPos( tbuf, offset,
-						 fontMetrics(),
-						 e->pos().x() - margin - alignOffset,
-						 width() - margin - margin );
+	int mousePos = offset + 
+		       xPosToCursorPos( tbuf, offset,
+					fontMetrics(),
+					e->pos().x() - margin - alignOffset,
+					width() - margin - margin, echoMode());
 	int m1 = markDrag;
 	newMark( mousePos, FALSE );
 	repaintArea( m1, mousePos );
@@ -829,10 +837,11 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 		 height() - 2*margin ).contains( e->pos() ) )
 	return;
 
-    int mousePos = offset + xPosToCursorPos( tbuf, offset,
-					     fontMetrics(),
-					     e->pos().x() - margin - alignOffset,
-					     width() - margin - margin );
+    int mousePos = offset + 
+		   xPosToCursorPos( tbuf, offset,
+				    fontMetrics(),
+				    e->pos().x() - margin - alignOffset,
+				    width() - margin - margin, echoMode() );
     int m1 = markDrag;
     newMark( mousePos, FALSE );
     repaintArea( m1, mousePos );
@@ -1085,7 +1094,7 @@ void QLineEdit::copyText()
 void QLineEdit::copy() const
 {
     QString t = markedText();
-    if ( !t.isEmpty() ) {
+    if ( !t.isEmpty() && echoMode() == Normal ) {
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
 	QApplication::clipboard()->setText( t );
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
@@ -1172,7 +1181,7 @@ int QLineEdit::lastCharVisible() const
 {
     int tDispWidth = width() - (frame() ? 8 : 4);
     return offset + xPosToCursorPos( tbuf, offset, fontMetrics(),
-			       tDispWidth, tDispWidth );
+			       tDispWidth, tDispWidth, echoMode() );
 }
 
 int QLineEdit::minMark() const
@@ -1370,7 +1379,7 @@ void QLineEdit::dropEvent( QDropEvent *e )
 	    setCursorPosition(
 		xPosToCursorPos( tbuf, offset, fontMetrics(),
 				 e->pos().x() - margin - alignOffset,
-				 width() - 2*margin ) );
+				 width() - 2*margin, echoMode() ) );
 	 }
 	insert( str );
 	e->accept();
