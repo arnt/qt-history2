@@ -5,7 +5,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj borland_bmake.obj msvc_nmake
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qcollection.obj qfile.obj qfile_win.obj qtextcodec.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qtextcodexfactory.obj
 
 CFLAGS=/W3 /Zi /nologo /I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 	/DQT_NO_CODECS /DQT_NODLL /DUSE_GROSS_BIG_BUFFER_THING
@@ -69,6 +69,9 @@ qfile_win.obj: $(QTDIR)\src\tools\qfile_win.cpp
 
 qtextcodec.obj: $(QTDIR)\src\codecs\qtextcodec.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\codecs\qtextcodec.cpp
+
+qtextcodecfactory.obj: $(QTDIR)\src\codecs\qtextcodecfactory.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\codecs\qtextcodecfactory.cpp
 
 qregexp.obj: $(QTDIR)\src\tools\qregexp.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qregexp.cpp
