@@ -809,8 +809,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "buildStyles = (" << "\n"
       << varGlue("QMAKE_PBX_BUILDSTYLES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
+      << "\t\t\t" << "hasScannedForEncodings = 1;" << "\n"
       << "\t\t\t" << "isa = PBXProject;" << "\n"
       << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_PBX_ROOT_GROUP") << ";" << "\n"
+      << "\t\t\t" << "projectDirPath = \"\";" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
       << "\t\t\t\t" << keyFor("QMAKE_PBX_TARGET") << "\n"
       << "\t\t\t" << ");" << "\n"
