@@ -8837,19 +8837,25 @@ static const char * const aqua_progress_xpm[] = {
 class QAquaStyle::Private
 {
 public:
+    //blinking buttons
     struct buttonState {
     public:
         buttonState() : frame(0), dir(1) {}
         int frame;
         int dir;
     };
-
     QPushButton * defaultButton;
     buttonState   buttonState;
     int buttonTimerId;
-
+    //animated progress bars
     QList<QProgressBar> progressBars;
     int progressTimerId;
+    int progressOff;
+    //big focus rects
+    QWidget *focusWidget;
+    QFrame::Shape oldFrameShape;
+    QFrame::Shadow oldFrameShadow;
+    int oldFrameWidth;
 };
 
 // NOT REVISED
@@ -9255,7 +9261,6 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         QString sizestr = QString::number( size );
 	QBitmap mask( aqua_sldr_pty_mask_width, aqua_sldr_pty_mask_height,
 		      (const uchar *) aqua_sldr_pty_mask_bits, TRUE );
-	mask.convertFromImage(mask.convertToImage().smoothScale(im.width(), size));
 
         QPixmap act_down( (const char **) aqua_sldr_act_pty_xpm );
 	act_down.setMask(mask);
@@ -9556,7 +9561,9 @@ QAquaStyle::QAquaStyle()
 {
     d = new Private;
     d->defaultButton = 0;
+    d->focusWidget = 0;
     d->progressTimerId = d->buttonTimerId = -1;
+    d->progressOff = 0;
 }
 
 /*!\reimp
@@ -9650,6 +9657,9 @@ void QAquaStyle::polish( QWidget * w )
             (w->backgroundMode() == QWidget::PaletteBackground) )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
+
+    if( w->inherits("QFrame") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
+	w->installEventFilter( this );
 }
 
 /*! \reimp
@@ -9686,6 +9696,16 @@ void QAquaStyle::unPolish( QWidget * w )
             (w->backgroundMode() == QWidget::PaletteBackground) )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
+    
+    if(w == d->focusWidget) {
+	if(w->inherits("QFrame")) {
+	    QFrame *frm = (QFrame *)w;
+	    frm->setFrameShape(d->oldFrameShape);
+	    frm->setFrameShadow(d->oldFrameShadow);
+	    frm->setLineWidth(d->oldFrameWidth);
+	}
+	d->focusWidget = NULL;
+    }
 }
 
 /*! \reimp
@@ -9700,6 +9720,7 @@ void QAquaStyle::timerEvent( QTimerEvent * te )
 	    d->defaultButton->repaint( FALSE );
     } else if( te->timerId() == d->progressTimerId ) {
 	if( !d->progressBars.isEmpty() ) {
+	    d->progressOff+=5;
 	    for( QListIterator<QProgressBar> it(d->progressBars); it.current(); ++it)
 		(*it)->repaint( FALSE );
 	}
@@ -9741,6 +9762,33 @@ bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
         } else if( e->type() == QEvent::Hide ) {
 	    if( d->defaultButton == btn ) 
 		d->defaultButton = 0;
+	}
+    } else if( o->inherits("QFrame") ) {
+	QFrame *frm = (QFrame *)o;
+	if( (e->type() == QEvent::FocusOut && d->focusWidget == frm) ||
+	    (e->type() == QEvent::FocusIn && d->focusWidget) )  {
+	    if(d->focusWidget->inherits("QFrame")) {
+		//restore it
+		QFrame *out = (QFrame *)d->focusWidget;
+		out->setFrameShape(d->oldFrameShape);
+		out->setFrameShadow(d->oldFrameShadow);
+		out->setLineWidth(d->oldFrameWidth);
+	    }
+	    d->focusWidget = NULL;
+	} 
+	if( e->type() == QEvent::FocusIn ) {
+	    //save it
+	    d->focusWidget = frm;
+	    d->oldFrameShape = frm->frameShape();
+	    d->oldFrameShadow = frm->frameShadow();
+	    d->oldFrameWidth = frm->lineWidth();
+	    //set it
+	    frm->setFrameShape(QFrame::Panel);
+	    frm->setFrameShadow(QFrame::Plain);
+	    if(o->inherits("QScrollView"))
+		frm->setLineWidth(4);
+	    else
+		frm->setLineWidth(2);
 	}
     }
     return FALSE;
@@ -11152,12 +11200,9 @@ int QAquaStyle::progressChunkWidth() const
 void QAquaStyle::drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 				    const QColorGroup & )
 {
-    static int off = 0;
     QPixmap px;
     qAquaPixmap( "progress_" + QString::number(h), px );
-    
-    p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) + off, 0 ); 
-    off++;
+    p->drawTiledPixmap( x, y, w, h, px, (x % px.width()) - d->progressOff, 0 ); 
 }
 
 void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
