@@ -38,6 +38,7 @@
 #include "qcleanuphandler.h"
 #include "qdockwindow.h"
 #include "qmenubar.h"
+#include "qevent.h"
 
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
@@ -109,26 +110,22 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    widget = widget->topLevelWidget();
 
 	    // Alt has been pressed - find all widgets that care
-	    QObjectList *l = widget->queryList("QWidget");
-	    QObjectListIt it( *l );
-	    QWidget *w;
-	    while ( (w = (QWidget*)it.current()) != 0 ) {
-		++it;
+	    QObjectList l = widget->queryList("QWidget");
+	    for (int pos=0; pos<l.size(); ++pos) {
+		QWidget *w = static_cast<QWidget*>(l.at(pos));
 		if (w->isTopLevel() || !w->isVisible() ||
 		    w->style().styleHint(SH_UnderlineAccelerator, w))
-		    l->removeRef(w);
+		    l.removeAt(pos);
 	    }
 	    // Update states before repainting
 	    seenAlt.append(widget);
 	    alt_down = TRUE;
 
 	    // Repaint all relevant widgets
-	    it.toFirst();
-	    while ( (w = (QWidget*)it.current()) != 0 ) {
-		++it;
+	    for (int pos=0; pos<l.size(); ++pos) {
+		QWidget *w = static_cast<QWidget*>(l.at(pos));
 		w->repaint(FALSE);
 	    }
-	    delete l;
 	}
 	break;
     case QEvent::KeyRelease:
@@ -138,11 +135,9 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    // Update state
 	    alt_down = FALSE;
 	    // Repaint only menubars
-	    QObjectList *l = widget->queryList("QMenuBar");
-	    QObjectListIt it( *l );
-	    QMenuBar *menuBar;
-	    while ( (menuBar = (QMenuBar*)it.current()) != 0) {
-		++it;
+	    QObjectList l = widget->queryList("QMenuBar");
+	    for (int pos=0; pos<l.size(); ++pos) {
+		QMenuBar *menuBar  = static_cast<QMenuBar*>(l.at(pos));
 		menuBar->repaint(FALSE);
 	    }
 	}
@@ -204,7 +199,7 @@ void QWindowsStyle::polish(QApplication *app)
 }
 
 /*! \reimp */
-void QWindowsStyle::unPolish(QApplication *app)
+void QWindowsStyle::unPolish(QApplication *)
 {
     delete d;
     d = 0;
@@ -2046,7 +2041,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 			ret = 1;
 		    } else if (qApp->focusWidget() && qApp->focusWidget()->isPopup()) {
 			popupMenu = ::qt_cast<QPopupMenu*>(qApp->focusWidget());
-			QMenuData *pm = popupMenu ? (QMenuData*)popupMenu->qt_cast("QMenuData") : 0;
+			QMenuData *pm = popupMenu ? static_cast<QMenuData*>(popupMenu) : 0;
 			if (pm && ((FriendlyMenuData*)pm)->parentMenu == menuBar) {
 			    if (d->hasSeenAlt(menuBar))
 				ret = 1;
@@ -2054,7 +2049,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 		    }
 		// If we paint a popup menu draw underlines if the respective menubar does
 		} else if (popupMenu) {
-		    QMenuData *pm = (QMenuData*)popupMenu->qt_cast("QMenuData");
+		    QMenuData *pm = static_cast<QMenuData*>(popupMenu);
 		    while (pm) {
 			if (((FriendlyMenuData*)pm)->isMenuBar) {
 			    menuBar = (QMenuBar*)pm;
@@ -2069,7 +2064,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 		    ret = 1;
 		}
 	    }
-	    
+
 	}
 	break;
 #endif
