@@ -1912,7 +1912,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             QSize bs;
 
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
-            bs.setWidth(qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)); // 1.6 -approximate golden mean
+            bs.setWidth(qMax(14, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4))); // 1.6 -approximate golden mean
             bs = bs.expandedTo(QApplication::globalStrut());
             int y = fw;
             int x, lx, rx;

@@ -831,6 +831,7 @@ void QAbstractSpinBoxPrivate::init()
         QObject::connect(edit, SIGNAL(cursorPositionChanged(int, int)), q,
                          SLOT(editorCursorPositionChanged(int, int)));
     }
+    q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 }
 
 /*!
@@ -842,8 +843,10 @@ void QAbstractSpinBoxPrivate::init()
 
 QLineEdit *QAbstractSpinBoxPrivate::lineEdit()
 {
-    if (!edit)
-	edit = new QLineEdit(q);
+    if (!edit) {
+        edit = new QLineEdit(q);
+        edit->setFrame(false);
+    }
     return edit;
 }
 
@@ -909,31 +912,35 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
     if (sizehintdirty && edit) {
         const QFontMetrics fm(q->fontMetrics());
         int h = edit->sizeHint().height();
-        int w = 35;
-        int wx = fm.width(' ');
+        int w = 0;
         QString s;
-        s = prefix + mapValueToText(minimum) + suffix;
+        s = prefix + mapValueToText(minimum) + suffix + QLatin1Char(' ');
         s.truncate(18);
-        w = qMax(w, fm.width(s) + wx);
-        s = prefix + mapValueToText(maximum) + suffix;
+        w = qMax(w, fm.width(s));
+        s = prefix + mapValueToText(maximum) + suffix + QLatin1Char(' ');
         s.truncate(18);
-        w = qMax(w, fm.width(s) + wx);
+        w = qMax(w, fm.width(s));
         if (specialvaluetext.size()) {
             s = specialvaluetext;
-            w = qMax(w, fm.width(s) + wx);
+            w = qMax(w, fm.width(s));
         }
-        w += 30;
+        w += 2; // cursor blinking space
 
         QStyleOptionSpinBox sb = styleOption();
-        cachedsizehint = QSize(w + q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
-                                                                QStyle::SC_SpinBoxButtonField, q).
-                               width(), h + q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
-                         expandedTo(QApplication::globalStrut());
-        h = edit->minimumSizeHint().height() + (q->style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2);
+        QSize hint(w, h);
+        QSize extra(35,6);
+        sb.rect.setSize(hint + extra);
+        extra += hint - q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
+        // get closer to final result by repeating the calculation
+        sb.rect.setSize(hint + extra);
+        extra += hint - q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
+        hint += extra;
+
         if (slider)
-            h += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
-        cachedminimumsizehint = QSize(w, h).expandedTo(QApplication::globalStrut());
-        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
+            hint.rheight() += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
+        cachedsizehint = hint.expandedTo(QApplication::globalStrut());
+        cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
+        sizehintdirty = false;
     }
 }
 
@@ -1202,7 +1209,6 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
     QValidator::State state;
     if (val) {
         *val = mapTextToValue(input, &state);
-	qDebug("After map: %s", val->toString().latin1());
     } else {
         mapTextToValue(input, &state);
     }

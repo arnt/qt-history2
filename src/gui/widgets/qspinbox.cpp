@@ -1,7 +1,5 @@
 #include "qabstractspinbox_p.h"
 #include "qspinbox.h"
-#include <limits.h>
-#include <float.h>
 #include <qlineedit.h>
 #include <qvalidator.h>
 
@@ -146,38 +144,18 @@ QString QDoubleSpinBoxPrivate::delimiter = "."; // ### this should probably come
 QSpinBox::QSpinBox(QWidget *parent)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
-    d->minimum = QCoreVariant(INT_MIN);
-    d->maximum = QCoreVariant(INT_MAX);
+    d->minimum = QCoreVariant(0);
+    d->maximum = QCoreVariant(99);
     d->singlestep = QCoreVariant(1);
     d->value = d->getZeroVariant();
-}
-
-/*!
-    Constructs a spin box with \a min as minimum() value, \a max as
-    maximum() value, \a step as lineStep(). The value is initially set
-    to \a min.
-
-    It is parented to \a parent.
-
-    \sa minimum(), setMinimum(), maximum(), setMaximum(), lineStep(),
-    setLineStep()
-*/
-
-QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent)
-    : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
-{
-    d->minimum = QCoreVariant(qMin(min, max));
-    d->maximum = QCoreVariant(qMax(min, max));
-    d->singlestep = QCoreVariant(step);
-    d->value = d->minimum;
 }
 
 #ifdef QT_COMPAT
 QSpinBox::QSpinBox(QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
-    d->minimum = QCoreVariant(INT_MIN);
-    d->maximum = QCoreVariant(INT_MAX);
+    d->minimum = QCoreVariant(0);
+    d->maximum = QCoreVariant(99);
     d->singlestep = QCoreVariant(1);
     d->value = d->getZeroVariant();
     setObjectName(name);
@@ -333,11 +311,10 @@ void QSpinBox::setSpecialValueText(const QString &s)
 
     When the user uses the arrows to change the spin box's value the
     value will be incremented/decremented by the amount of the
-    singleStep. The default value is 1. You can return to the default
-    by calling clearSingleStep(). Setting a singleStep value of less
-    than 0 does nothing.
+    singleStep. The default value is 1. Setting a singleStep value of
+    less than 0 does nothing.
 
-    \sa setSingleStep(), clearSingleStep()
+    \sa setSingleStep()
 */
 
 int QSpinBox::singleStep() const
@@ -353,25 +330,17 @@ void QSpinBox::setSingleStep(int val)
     }
 }
 
-void QSpinBox::clearSingleStep()
-{
-    d->singlestep = 1; // ### duplicated
-    d->update();
-}
-
 /*!
     \property QSpinBox::minimum
 
     \brief the minimum value of the spin box
 
-    When setting this property the \l QSpinBox::maximum is adjusted
+    When setting this property the \l maximum is adjusted
     if necessary to ensure that the range remains valid.
 
-    The default minimum value (INT_MIN) can be restored with
-    clearMinimum()
+    The default minimum value is 0.
 
-    \sa setMinimum(), maximum(), setMaximum(), setSpecialValueText(),
-    specialValueText(), clearMinimum()
+    \sa setRange()  specialValueText
 */
 
 int QSpinBox::minimum() const
@@ -384,23 +353,18 @@ void QSpinBox::setMinimum(int min)
     d->setBoundary(Minimum, QCoreVariant(min));
 }
 
-void QSpinBox::clearMinimum()
-{
-    d->setBoundary(Minimum, QCoreVariant(INT_MIN));
-}
-
 /*!
     \property QSpinBox::maximum
 
     \brief the maximum value of the spin box
 
-    When setting this property the \l QSpinBox::minimum is adjusted
+    When setting this property the \l minimum is adjusted
     if necessary, to ensure that the range remains valid.
 
-    The default maximum value (INT_MAX) can be restored with
-    clearMinimum()
+    The default maximum value is 99.
 
-    \sa minimum(), setMinimum(), setSpecialValueText(), specialValueText()
+    \sa setRange() specialValueText
+
 */
 
 int QSpinBox::maximum() const
@@ -411,11 +375,6 @@ int QSpinBox::maximum() const
 void QSpinBox::setMaximum(int max)
 {
     d->setBoundary(Maximum, QCoreVariant(max));
-}
-
-void QSpinBox::clearMaximum()
-{
-    d->setBoundary(Maximum, QCoreVariant(INT_MAX));
 }
 
 /*!
@@ -429,8 +388,7 @@ void QSpinBox::clearMaximum()
     setMinimum(min);
     setMaximum(max);
 
-    \sa setMinimum(), maximum(), setMaximum(), clearMinimum(),
-    setMinimum(), maximum(), setMaximum(), clearMinimum()
+    \sa minimum maximum
 */
 
 void QSpinBox::setRange(int min, int max)
@@ -573,32 +531,11 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
 QDoubleSpinBox::QDoubleSpinBox(QWidget *parent)
     : QAbstractSpinBox(*new QDoubleSpinBoxPrivate, parent)
 {
-    d->minimum = QCoreVariant(-DBL_MAX);
-    d->maximum = QCoreVariant(DBL_MAX);
+    d->minimum = QCoreVariant(0.0);
+    d->maximum = QCoreVariant(99.99);
     d->singlestep = QCoreVariant(1.0);
     d->precision = 2;
     d->value = d->getZeroVariant();
-}
-
-/*!
-    Constructs a spin box with \a min as minimum() value, \a max as
-    maximum() value, \a step as lineStep() and \a prec as precision().
-    The value is initially set to \a min.
-
-    It is parented to \a parent.
-
-    \sa minimum(), setMinimum(), maximum(), setMaximum(), lineStep(),
-    precision(), setPrecision(), setLineStep()
-*/
-
-QDoubleSpinBox::QDoubleSpinBox(double min, double max, double step, int prec, QWidget *parent)
-    : QAbstractSpinBox(*new QDoubleSpinBoxPrivate, parent)
-{
-    d->minimum = QCoreVariant(qMin(min, max));
-    d->maximum = QCoreVariant(qMax(min, max));
-    d->singlestep = QCoreVariant(step);
-    d->precision = prec;
-    d->value = d->minimum;
 }
 
 /*!
@@ -738,11 +675,10 @@ void QDoubleSpinBox::setSpecialValueText(const QString &s)
 
     When the user uses the arrows to change the spin box's value the
     value will be incremented/decremented by the amount of the
-    singleStep. The default value is 1.0. You can return to the
-    default by calling clearSingleStep(). Setting a singleStep value
+    singleStep. The default value is 1.0. Setting a singleStep value
     of less than 0 does nothing.
 
-    \sa setSingleStep(), clearSingleStep()
+    \sa setSingleStep()
 */
 
 
@@ -759,25 +695,17 @@ void QDoubleSpinBox::setSingleStep(double val)
     }
 }
 
-void QDoubleSpinBox::clearSingleStep()
-{
-    d->singlestep = QCoreVariant(1.0);
-    d->update();
-}
-
 /*!
     \property QDoubleSpinBox::minimum
 
     \brief the minimum value of the spin box
 
-    When setting this property the \l QDoubleSpinBox::maximum is adjusted
+    When setting this property the \l maximum is adjusted
     if necessary to ensure that the range remains valid.
 
-    The default minimum value (-DBL_MAX) can be restored with
-    clearMinimum()
+    The default minimum value is 0.0.
 
-    \sa setMinimum(), maximum(), setMaximum(), setSpecialValueText(),
-    specialValueText(), clearMinimum()
+    \sa setRange() specialValueText
 */
 
 double QDoubleSpinBox::minimum() const
@@ -790,23 +718,17 @@ void QDoubleSpinBox::setMinimum(double min)
     d->setBoundary(Minimum, QCoreVariant(min));
 }
 
-void QDoubleSpinBox::clearMinimum()
-{
-    d->setBoundary(Minimum, QCoreVariant(-DBL_MAX));
-}
-
 /*!
     \property QDoubleSpinBox::maximum
 
     \brief the maximum value of the spin box
 
-    When setting this property the \l QSpinBox::minimum is adjusted
+    When setting this property the \l minimum is adjusted
     if necessary, to ensure that the range remains valid.
 
-    The default maximum value (DBL_MAX) can be restored with
-    clearMinimum()
+    The default maximum value is 99.99.
 
-    \sa minimum(), setMinimum(), setSpecialValueText(), specialValueText()
+    \sa setRange()
 */
 
 double QDoubleSpinBox::maximum() const
@@ -820,11 +742,6 @@ void QDoubleSpinBox::setMaximum(double max)
     d->update();
 }
 
-void QDoubleSpinBox::clearMaximum()
-{
-    d->setBoundary(Maximum, QCoreVariant(DBL_MAX));
-}
-
 /*!
     Convenience function to set minimum and maximum values with one
     function call.
@@ -836,8 +753,7 @@ void QDoubleSpinBox::clearMaximum()
     setMinimum(min);
     setMaximum(max);
 
-    \sa setMinimum(), maximum(), setMaximum(), clearMinimum(),
-    setMinimum(), maximum(), setMaximum(), clearMinimum()
+    \sa minimum maximum
 */
 
 void QDoubleSpinBox::setRange(double min, double max)
@@ -854,10 +770,7 @@ void QDoubleSpinBox::setRange(double min, double max)
      The precision sets how many decimals you want to display when
      displaying double values. Valid ranges for decimals is 0-14.
 
-     Set this value using setPrecision() and return it to the default
-     value of 2 using clearPrecision()
 
-     \sa setPrecision(), clearPrecision()
 */
 
 int QDoubleSpinBox::precision() const
@@ -874,12 +787,6 @@ void QDoubleSpinBox::setPrecision(int precision)
 		 precision);
     // more than fifteen seems to cause problems in QLocale::doubleToString
 #endif
-    d->update();
-}
-
-void QDoubleSpinBox::clearPrecision()
-{
-    d->precision = 2;
     d->update();
 }
 

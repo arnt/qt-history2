@@ -1148,7 +1148,8 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     horiz->addSpacing(19);
     horiz->addWidget(d->firstPageLabel);
 
-    d->firstPage = new QSpinBox(1, 9999, 1, g);
+    d->firstPage = new QSpinBox(g);
+    d->firstPage->setRange(1, 9999);
     d->firstPage->setValue(1);
     horiz->addWidget(d->firstPage, 1);
     connect(d->firstPage, SIGNAL(valueChanged(int)),
@@ -1161,7 +1162,8 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     horiz->addSpacing(19);
     horiz->addWidget(d->lastPageLabel);
 
-    d->lastPage = new QSpinBox(1, 9999, 1, g);
+    d->lastPage = new QSpinBox(g);
+    d->lastPage->setRange(1, 9999);
     d->lastPage->setValue(9999);
     horiz->addWidget(d->lastPage, 1);
     connect(d->lastPage, SIGNAL(valueChanged(int)),
@@ -1190,7 +1192,8 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     QLabel *l = new QLabel(tr("Number of copies:"), g);
     horiz->addWidget(l);
 
-    d->copies = new QSpinBox(1, 99, 1, g);
+    d->copies = new QSpinBox(g);
+    d->copies->setRange(1,99);
     d->copies->setValue(1);
     horiz->addWidget(d->copies, 1);
     connect(d->copies, SIGNAL(valueChanged(int)),

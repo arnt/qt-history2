@@ -9,9 +9,9 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
     Q_DECLARE_PRIVATE(QSpinBox);
 
     Q_PROPERTY(int value READ value WRITE setValue)
-    Q_PROPERTY(int maximum READ maximum WRITE setMaximum RESET clearMinimum)
-    Q_PROPERTY(int minimum READ minimum WRITE setMinimum RESET clearMaximum)
-    Q_PROPERTY(int singleStep READ singleStep WRITE setSingleStep RESET clearSingleStep)
+    Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
+    Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
+    Q_PROPERTY(int singleStep READ singleStep WRITE setSingleStep)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
@@ -19,7 +19,6 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 
 public:
     QSpinBox(QWidget *parent = 0);
-    QSpinBox(int min, int max, int step = 1, QWidget *parent = 0);
 #ifdef QT_COMPAT
     QSpinBox(QWidget *parent, const char *name);
     QSpinBox(int min, int max, int step, QWidget *parent, const char *name);
@@ -38,15 +37,12 @@ public:
 
     int singleStep() const;
     void setSingleStep(int val);
-    void clearSingleStep();
 
     int minimum() const;
     void setMinimum(int min);
-    void clearMinimum();
 
     int maximum() const;
     void setMaximum(int max);
-    void clearMaximum();
 
     void setRange(int min, int max);
 
@@ -77,10 +73,10 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_DECLARE_PRIVATE(QDoubleSpinBox);
 
     Q_PROPERTY(double value READ value WRITE setValue)
-    Q_PROPERTY(double maximum READ maximum WRITE setMaximum RESET clearMinimum)
-    Q_PROPERTY(double minimum READ minimum WRITE setMinimum RESET clearMaximum)
-    Q_PROPERTY(double singleStep READ singleStep WRITE setSingleStep RESET clearSingleStep)
-    Q_PROPERTY(int precision READ precision WRITE setPrecision RESET clearPrecision)
+    Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
+    Q_PROPERTY(double minimum READ minimum WRITE setMinimum)
+    Q_PROPERTY(double singleStep READ singleStep WRITE setSingleStep)
+    Q_PROPERTY(int precision READ precision WRITE setPrecision)
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
@@ -88,7 +84,6 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
 
 public:
     QDoubleSpinBox(QWidget *parent = 0);
-    QDoubleSpinBox(double min, double max, double step = 1, int prec = 0, QWidget *parent = 0);
 
     double value() const;
 
@@ -103,21 +98,17 @@ public:
 
     double singleStep() const;
     void setSingleStep(double val);
-    void clearSingleStep();
 
     double minimum() const;
     void setMinimum(double min);
-    void clearMinimum();
 
     double maximum() const;
     void setMaximum(double max);
-    void clearMaximum();
 
     void setRange(double min, double max);
 
     int precision() const;
     void setPrecision(int prec);
-    void clearPrecision();
 
     virtual QString mapValueToText(double v) const;
     virtual double mapTextToValue(QString *text, QValidator::State *state) const;
