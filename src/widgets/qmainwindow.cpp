@@ -295,7 +295,7 @@ public:
     QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
 	hide();
 	setFixedHeight( style().pixelMetric( QStyle::PM_DockWindowHandleExtent,
-					     this ) );
+					     this ) + 3 );
 	pressedHandle = -1;
 	pressed = FALSE;
 	setMouseTracking( TRUE );

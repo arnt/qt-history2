@@ -517,9 +517,10 @@ void QDockWindowHandle::updateGui()
 
 QSize QDockWindowHandle::minimumSizeHint() const
 {
+    int wh = dockWindow->isCloseEnabled() ? 17 : style().pixelMetric( QStyle::PM_DockWindowHandleExtent, this );
     if ( dockWindow->orientation() == Horizontal )
-	return QSize( dockWindow->isCloseEnabled() ? 17 : 12, 0 );
-    return QSize( 0, dockWindow->isCloseEnabled() ? 17 : 12 );
+	return QSize( wh, 0 );
+    return QSize( 0, wh );
 }
 
 QSizePolicy QDockWindowHandle::sizePolicy() const

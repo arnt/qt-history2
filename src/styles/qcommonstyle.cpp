@@ -292,17 +292,19 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	p->save();
 	p->translate( r.x(), r.y() );
 	if ( flags & Style_Horizontal ) {
+	    int x = r.width() / 3;
 	    if ( r.height() > 4 ) {
-		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+		qDrawShadePanel( p, x, 2, 3, r.height() - 4,
 				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+		qDrawShadePanel( p, x+3, 2, 3, r.height() - 4,
 				 cg, highlight, 1, 0 );
 	    }
 	} else {
 	    if ( r.width() > 4 ) {
-		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+		int y = r.height() / 3;
+		qDrawShadePanel( p, 2, y, r.width() - 4, 3,
 				 cg, highlight, 1, 0 );
-		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+		qDrawShadePanel( p, 2, y+3, r.width() - 4, 3,
 				 cg, highlight, 1, 0 );
 	    }
 	}
@@ -2020,7 +2022,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	break;
 
     case PM_DockWindowHandleExtent:
-	ret = 11;
+	ret = 8;
 	break;
 
     case PM_DockWindowFrameWidth:
