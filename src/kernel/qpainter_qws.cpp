@@ -485,10 +485,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	    setf( NoCache );
 	    updatePen();
 	    updateBrush();
-	    //gfx->setWidgetRegion( w->rect() );
-	    if( !testf(ExtDev) )
-		gfx->setWidgetRegion( QRect( 0, 0, qt_screen->width(), 
-					     qt_screen->height() ) );
+	    if ( !testf(ExtDev) )
+		gfx->setWidgetRegion( QRect(w->mapToGlobal(QPoint(0,0)), w->size()) );
 	}
 	w->setActivePainter( this );
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap

@@ -1177,6 +1177,8 @@ void QWidget::erase( const QRegion& reg )
     if ( backgroundMode() == NoBackground || testWFlags(WPaintUnclipped) )
 	return;
 
+    bool unclipped = testWFlags( WPaintUnclipped );
+    clearWFlags( WPaintUnclipped );
     QPainter p(this);
     p.setClipRegion( reg );
     if ( extra && extra->bg_pix ) {
@@ -1192,6 +1194,8 @@ void QWidget::erase( const QRegion& reg )
     } else {
 	p.fillRect(rect(),bg_col);
     }
+    if ( unclipped )
+	setWFlags( WPaintUnclipped );
 }
 
 void QWidget::scroll( int dx, int dy )

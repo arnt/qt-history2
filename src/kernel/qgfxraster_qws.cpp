@@ -3204,18 +3204,20 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	    while ( frontadd-- )
 		*(myptr++)=pixel;
 	    // Duffs device.
-	    unsigned short *end = myptr + count*2;
+	    PackType *myptr2 = (PackType*)myptr;
+	    myptr += count * 2;
+	    PackType *end2 = (PackType*)myptr;
 	    switch(count%8){
 		case 0:
-		    while ( myptr != end ) {
-			*((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 7: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 6: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 5: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 4: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 3: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 2: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		case 1: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+		    while ( myptr2 != end2 ) {
+			*myptr2++ = put;
+		case 7: *myptr2++ = put;
+		case 6: *myptr2++ = put;
+		case 5: *myptr2++ = put;
+		case 4: *myptr2++ = put;
+		case 3: *myptr2++ = put;
+		case 2: *myptr2++ = put;
+		case 1: *myptr2++ = put;
 		    }
 	    }
 	    while ( backadd-- )
@@ -3479,6 +3481,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			*(myptr)^=get_value_16(srcdepth,&srcdata);
 		    myptr++;
 		}
+		PackType *myptr2 = (PackType*)myptr;
+		myptr += count * 2;
 		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		    if(is_screen_gfx) {
@@ -3490,8 +3494,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			dput = get_value_16(srcdepth,&srcdata);
 			dput |= (get_value_16(srcdepth,&srcdata) << 16);
 		    }
-		    *((PackType*)myptr) ^= dput;
-		    ((PackType*)myptr)++;
+		    *myptr2++ ^= dput;
 		}
 		while ( backadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -3514,6 +3517,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			*(myptr)=~get_value_16(srcdepth,&srcdata);
 		    myptr++;
 		}
+		PackType *myptr2 = (PackType*)myptr;
+		myptr += count * 2;
 		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		    if(is_screen_gfx) {
@@ -3525,8 +3530,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			dput = get_value_16(srcdepth,&srcdata);
 			dput |= (get_value_16(srcdepth,&srcdata) << 16);
 		    }
-		    *((PackType*)myptr) = ~*((PackType*)myptr);
-		    ((PackType*)myptr)++;
+		    *myptr2 = ~*myptr2;
+		    myptr2++;
 		}
 		while ( backadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -3549,6 +3554,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			*(myptr)=get_value_16(srcdepth,&srcdata);
 			myptr++;
 		}
+		PackType *myptr2 = (PackType*)myptr;
+		myptr += count * 2;
 		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
 		    if(is_screen_gfx) {
@@ -3560,8 +3567,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			dput = get_value_16(srcdepth,&srcdata);
 			dput |= (get_value_16(srcdepth,&srcdata) << 16);
 		    }
-		    *((PackType*)myptr) = dput;
-		    ((PackType*)myptr)++;
+		    *myptr2++ = dput;
 		}
 		while ( backadd-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
@@ -3999,7 +4005,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    cp=(unsigned char *)&temp2;
 	    *(alphaptr++)=get_value_32(16,&cp);
 	    *(alphaptr++)=get_value_32(16,&cp);
-	    ((PackType *)temppos)++;
+	    temppos += 2;
 	}
 
 	for( loopc2=0;loopc2<backadd;loopc2++ )
@@ -4090,20 +4096,23 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	PackType put;
 	if ( myrop==XorROP ) {
+	    PackType *myptr2 = (PackType*)myptr;
+	    myptr += count * 2;
 	    for ( loopc2=0;loopc2<count;loopc2++ ) {
 		put = *(alphaptr++);
 		put |= (*(alphaptr++) << 16);
-		*((PackType*)myptr) ^= put;
-		((PackType*)myptr)++;
+		*myptr2++ ^= put;
 	    }
 	} else {
 	    // Duffs device.
 	    #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
-	                       *((PackType *)myptr)=put; ((PackType *)myptr)++;
-	    unsigned short *end = myptr + count*2;
+	                       *myptr2++ = put;
+	    PackType *myptr2 = (PackType*)myptr;
+	    myptr += count * 2;
+	    PackType *end2 = (PackType*)myptr;
 	    switch(count%8){
 		case 0:
-		    while ( myptr != end ) {
+		    while ( myptr2 != end2 ) {
 			DUFF_WRITE_WORD
 		case 7: DUFF_WRITE_WORD
 		case 6: DUFF_WRITE_WORD
@@ -4411,18 +4420,20 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		  *(myptr++)=pixel;
 		// Duffs device.
-		unsigned short *end = myptr + count*2;
+		PackType *myptr2 = (PackType*)myptr;
+		myptr += count * 2;
+		PackType *end2 = (PackType*)myptr;
 		switch(count%8){
 		    case 0:
-			while ( myptr != end ) {
-			    *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 7: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 6: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 5: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 4: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 3: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 2: *((PackType *)myptr) = put; ((PackType *)myptr)++;
-		    case 1: *((PackType *)myptr) = put; ((PackType *)myptr)++;
+			while ( myptr2 != end2 ) {
+			    *myptr2++ = put;
+		    case 7: *myptr2++ = put;
+		    case 6: *myptr2++ = put;
+		    case 5: *myptr2++ = put;
+		    case 4: *myptr2++ = put;
+		    case 3: *myptr2++ = put;
+		    case 2: *myptr2++ = put;
+		    case 1: *myptr2++ = put;
 			}
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++)
