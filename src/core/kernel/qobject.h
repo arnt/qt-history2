@@ -251,17 +251,29 @@ Q_CORE_EXPORT QObject *qt_qFindChild_helper(const QObject *parent, const QString
 template <class T> inline T *qt_cast_helper(QObject *object, T *)
 {
     extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T *);
-    qt_cast_to_class_without_Q_OBJECT((T *)0);
-    return static_cast<T *>(((T *)0)->staticMetaObject.cast(object));
+    qt_cast_to_class_without_Q_OBJECT(reinterpret_cast<T *>(0));
+    return static_cast<T *>(T::staticMetaObject.cast(object));
 }
 
-
-template <class T> inline const T *qt_cast_helper(const QObject *object, const T *)
+template <class T> inline const T *qt_cast_helper(QObject *object, const T *)
 {
     extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T *);
-    qt_cast_to_class_without_Q_OBJECT((T *)0);
-    return static_cast<const T *>(const_cast<const QObject *>(
-                ((T *)0)->staticMetaObject.cast(const_cast<QObject *>(object))));
+    qt_cast_to_class_without_Q_OBJECT(reinterpret_cast<T *>(0));
+    return static_cast<const T *>(const_cast<const QObject *>(T::staticMetaObject.cast(object)));
+}
+
+template <class T> inline T *qt_cast_helper(const QObject *object, T *)
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T *);
+    qt_cast_to_class_without_Q_OBJECT(reinterpret_cast<T *>(0));
+    return static_cast<T *>(const_cast<const QObject *>( (T::staticMetaObject.cast(const_cast<QObject *>(object)))));
+}
+
+        template <class T> inline const T *qt_cast_helper(const QObject *object, const T *)
+{
+    extern Q_DECL_IMPORT void qt_cast_to_class_without_Q_OBJECT(T *);
+    qt_cast_to_class_without_Q_OBJECT(reinterpret_cast<T *>(0));
+    return static_cast<const T *>(const_cast<const QObject *>( (T::staticMetaObject.cast(const_cast<QObject *>(object)))));
 }
 
 template <class T>
