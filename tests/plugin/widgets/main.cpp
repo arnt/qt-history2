@@ -8,7 +8,7 @@
 class ExtraWidgetsInterface : public WidgetInterface
 {
 public:
-    ExtraWidgetsInterface( QUnknownInterface *parent );
+    ExtraWidgetsInterface();
     ~ExtraWidgetsInterface();
 
     bool disconnectNotify();
@@ -26,8 +26,7 @@ public:
     QGuardedCleanUpHandler<QObject> objects;
 };
 
-ExtraWidgetsInterface::ExtraWidgetsInterface( QUnknownInterface *parent )
-: WidgetInterface( parent )
+ExtraWidgetsInterface::ExtraWidgetsInterface()
 {
 }
 
@@ -105,13 +104,28 @@ bool ExtraWidgetsInterface::isContainer( const QString& )
 class ExtraWidgetsPlugIn : public QPlugInInterface
 {
 public:
+    ExtraWidgetsPlugIn();
+    ~ExtraWidgetsPlugIn();
     QString name() const { return "Extra-Widgets plugin"; }
     QString description() const { return "QCanvas support for the Qt Designer"; }
     QString author() const { return "Trolltech"; }
 
     QUnknownInterface* queryInterface( const QString& );
     QStringList interfaceList() const;
+
+private:
+    ExtraWidgetsInterface* w;
 };
+
+ExtraWidgetsPlugIn::ExtraWidgetsPlugIn()
+: w( 0 )
+{
+}
+
+ExtraWidgetsPlugIn::~ExtraWidgetsPlugIn()
+{
+    delete w;
+}
 
 QStringList ExtraWidgetsPlugIn::interfaceList() const
 {
@@ -125,7 +139,7 @@ QStringList ExtraWidgetsPlugIn::interfaceList() const
 QUnknownInterface* ExtraWidgetsPlugIn::queryInterface( const QString &request )
 {
     if ( request == "ExtraWidgetsInterface" )
-	return new ExtraWidgetsInterface( this );
+	return w ? w : ( w = new ExtraWidgetsInterface );
     return 0;
 }
 
