@@ -94,21 +94,10 @@ embedded {
 #
 # Decorations
 #
-    contains( decorations, beos ) {
-    	HEADERS += embedded/qdecorationbeos_qws.h
-    	SOURCES += embedded/qdecorationbeos_qws.cpp
-    }
-
     contains( decorations, default ) {
     	HEADERS += embedded/qdecorationdefault_qws.h
     	SOURCES += embedded/qdecorationdefault_qws.cpp
     }
-
-    contains( decorations, hydro ) {
-    	HEADERS += embedded/qdecorationhydro_qws.h
-    	SOURCES += embedded/qdecorationhydro_qws.cpp
-    }
-
     contains( decorations, styled ) {
     	HEADERS += embedded/qdecorationstyled_qws.h
     	SOURCES += embedded/qdecorationstyled_qws.cpp

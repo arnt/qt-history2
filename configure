@@ -214,7 +214,7 @@ else
 fi
 
 QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus platinum pocketpc sgi windows windowsxp\""
-QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled beos hydro\""
+QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
 QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental
 QMAKE_VARS="$QMAKE_VARS \"styles -= windowsxp\"" # only on Windows
