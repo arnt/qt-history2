@@ -1583,10 +1583,8 @@ public:
 
     inline QFlags operator|(QFlags f) const { QFlags g; g.i = i | f.i; return g; }
     inline QFlags operator|(Enum f) const { QFlags g; g.i = i | f; return g; }
-    inline int operator|(int f) const { return i | f; }
     inline QFlags operator^(QFlags f) const { QFlags g; g.i = i ^ f.i; return g; }
     inline QFlags operator^(Enum f) const { QFlags g; g.i = i ^ f; return g; }
-    inline int operator^(int f) const { return i ^ f; }
     inline QFlags operator&(int mask) const { QFlags g; g.i = i & mask; return g; }
     inline QFlags operator&(uint mask) const { QFlags g; g.i = i & mask; return g; }
     inline QFlags operator&(Enum f) const { QFlags g; g.i = i & f; return g; }
@@ -1601,8 +1599,6 @@ typedef QFlags<Enum> Flags;
 inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, Flags::enum_type f2) \
 { return QFlags<Flags::enum_type>(f1) | f2; } \
 inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, QFlags<Flags::enum_type> f2) \
-{ return f2 | f1; } \
-inline int operator|(int f1, QFlags<Flags::enum_type> f2) \
 { return f2 | f1; }
 
 #else // Q_NO_TYPESAFE_FLAGS
