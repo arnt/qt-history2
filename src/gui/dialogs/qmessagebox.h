@@ -22,7 +22,6 @@
 #ifndef QT_NO_MESSAGEBOX
 
 class  QLabel;
-class  QButton;
 struct QMessageBoxData;
 
 class Q_GUI_EXPORT QMessageBox : public QDialog
