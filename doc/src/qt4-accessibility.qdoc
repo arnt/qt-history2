@@ -2,39 +2,55 @@
     \page qt4-accessibility.html
     \title Qt 4: Cross-Platform Accessibility Support
 
-    \section1 General Overview
-
     Qt 4 allows developers to write cross-platform applications that
     are usable by visually impaired users as well as by users with
-    other disabilities. Screen readers and other assistive tools will
-    work seamlessly with Qt applications. Qt accessibility will make
-    applications accessible to more users and opens the governmental
-    market, where accessibility is often a requirement. The Qt
-    accessibility API simplifies making applications accessible
-    without exposing any details of the low-level operating system
-    APIs.
+    other disabilities. Qt accessibility will make applications
+    accessible to more users and opens the governmental market, where
+    accessibility is often a requirement.
 
-        * now support AT-SPI on Unix systems, in addition to
-          MSAA and Mac OS X Accessibility.
-        * Qt 4 has been generally extended from Qt 3 (new methods,
-          new enum values)
-        * more Qt-ish API (less COM-ish)
-        * Accessible help texts can be set in Qt Designer
+    \section1 General Overview
 
-    * One generic interface for all objects: QAccessibleInterface
-        * can be used for all widgets and objects, e.g. QPushButton, QApplication, etc.
-    * provides all the metadata necessary for the assistive technologies.
-    * not slowing you down if not used; plugins
+    Qt 3 already supports Microsoft Active Accessibility (MSAA) and
+    Mac OS X Accessibility. Qt 4 closes the gap in Trolltech's
+    accessibility offering by introducing support for AT-SPI on
+    Unix/X11 systems.
 
-    * QAccessibleObject and QAccessibleWidget are public; can use it for convenience;
-      they provide the lowest common denominator (?) of metadata (widget geometry, window
-      title, basic help text); can use them as base classes when "wrapping" your
-      custom widgets
+    The accessibility classes themselves have been extended in
+    various ways since Qt 3. We added new functions and new enum
+    values, and revised the API to make it more consistent with the
+    rest of Qt. We also added two properties to QWidget,
+    \l{QWidget::accessibleName}{accessibleName} and
+    \l{QWidget::accessibleDescription}{accessibleDescription}, that
+    can be set in \i{Qt Designer} to provide basic help texts without
+    having to write any code.
 
-    * QAccessiblePlugins for creating plugins
+    Qt's accessibility architecture is as follows. Qt offers one
+    generic interface, \l QAccessibleInterface, that can be used to
+    wrap all widgets and objects (e.g., QPushButton). This single
+    interface provides all the metadata necessary for the assistive
+    technologies. Qt provides implementations of this interface for
+    its built-in widgets as plugins.
 
-    * Can support other backends
+    When you develop custom widgets, you can create custom subclasses
+    of \l QAccessibleInterface and distribute them as plugins (using
+    \l QAccessibePlugin) or compile them into the application. The
+    main advantage of using plugins is that the accessibility classes
+    are only loaded into memory if they are actually used; they don't
+    slow down the common case where no assistive technology is being
+    used.
 
+    In addition to QAccessibleInterface, Qt includes two convenience
+    classes, \l QAccessibleObject and \l QAccessibleWidget, that
+    provide the lowest common denominator of metadata (e.g., widget
+    geometry, window title, basic help text). You can use them as
+    base classes when wrapping your custom QObject or QWidget
+    subclasses.
+
+    Another new feature in Qt 4 is that Qt can now support other
+    backends in addition to the predefined ones. This is done by
+    subclassing \l QAccessibleBridge.
+
+    \omit
     \section1 Software Layering
 
         Qt Application
@@ -62,6 +78,7 @@
     Mac:
 
         ?
+    \endomit
 
     \section1 The Current State of the Accessibility Support
 
