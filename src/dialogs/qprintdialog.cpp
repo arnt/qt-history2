@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#5 $
 **
 ** Implementation of QPrintDialog class for X-Windows
 **
@@ -20,7 +20,7 @@
 #include "qprinter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#5 $";
 #endif
 
 
@@ -224,8 +224,8 @@ void QPrintDialog::okClicked()
     QComboBox	*pageSize	= WIDGET(this,QComboBox,"pageSize");
     printer->setPrinterName( printerName->text() );
     printer->setPrintProgram( printCommand->text() );
-    printer->setOutputToFile( !printFile->isDisabled() );
     printer->setOutputFileName( printFile->text() );
+    printer->setOutputToFile( !printFile->isDisabled() );
     printer->setOrientation((QPrinter::Orientation)orientation->currentItem());
     printer->setPageSize( (QPrinter::PageSize)pageSize->currentItem() );
     accept();
