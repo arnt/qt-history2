@@ -622,20 +622,6 @@ typedef const char     *pcchar;
 
 
 //
-// Utility macros and inline functions
-//
-
-#define QMAX(a, b)	((b) < (a) ? (a) : (b))
-#define QMIN(a, b)	((a) < (b) ? (a) : (b))
-#define QABS(a)	((a) >= 0  ? (a) : -(a))
-
-inline int qRound( double d )
-{
-    return d >= 0.0 ? int(d + 0.5) : int( d - ((int)d-1) + 0.5 ) + ((int)d-1);
-}
-
-
-//
 // Size-dependent types (architechture-dependent byte order)
 //
 
@@ -665,6 +651,108 @@ typedef unsigned long long	Q_UINT64;	// 64 bit unsigned
 #endif
 typedef Q_INT64			Q_LLONG;	// signed long long
 typedef Q_UINT64		Q_ULLONG;	// unsigned long long
+
+
+//
+// Utility macros and inline functions
+//
+
+#define QABS(a)	((a) >= 0  ? (a) : -(a))
+
+inline int qRound(double d)
+{ return d >= 0.0 ? int(d + 0.5) : int(d - int(d-1) + 0.5) + int(d-1); }
+
+template <typename T>
+inline T qMin(T a, T b) { return (a < b) ? a : b; }
+template <typename T>
+inline T qMax(T a, T b) { return (b < a) ? a : b; }
+
+#ifndef QT_NO_COMPAT
+#  define QMAX(a, b) qMax((a), (b))
+#  define QMIN(a, b) qMin((a), (b))
+#endif
+
+inline Q_LLONG qMin(Q_LLONG a, long b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(long a, Q_LLONG b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(Q_LLONG a, int b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(int a, Q_LLONG b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(Q_LLONG a, short b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(short a, Q_LLONG b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(Q_LLONG a, char b) { return (a < b) ? a : b; }
+inline Q_LLONG qMin(char a, Q_LLONG b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(Q_ULLONG a, ulong b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(ulong a, Q_ULLONG b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(Q_ULLONG a, uint b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(uint a, Q_ULLONG b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(Q_ULLONG a, ushort b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(ushort a, Q_ULLONG b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(Q_ULLONG a, uchar b) { return (a < b) ? a : b; }
+inline Q_ULLONG qMin(uchar a, Q_ULLONG b) { return (a < b) ? a : b; }
+inline long qMin(long a, int b) { return (a < b) ? a : b; }
+inline long qMin(int a, long b) { return (a < b) ? a : b; }
+inline long qMin(long a, short b) { return (a < b) ? a : b; }
+inline long qMin(short a, long b) { return (a < b) ? a : b; }
+inline long qMin(long a, char b) { return (a < b) ? a : b; }
+inline long qMin(char a, long b) { return (a < b) ? a : b; }
+inline ulong qMin(ulong a, uint b) { return (a < b) ? a : b; }
+inline ulong qMin(uint a, ulong b) { return (a < b) ? a : b; }
+inline ulong qMin(ulong a, ushort b) { return (a < b) ? a : b; }
+inline ulong qMin(ushort a, ulong b) { return (a < b) ? a : b; }
+inline ulong qMin(ulong a, uchar b) { return (a < b) ? a : b; }
+inline ulong qMin(uchar a, ulong b) { return (a < b) ? a : b; }
+inline int qMin(int a, short b) { return (a < b) ? a : b; }
+inline int qMin(short a, int b) { return (a < b) ? a : b; }
+inline int qMin(int a, char b) { return (a < b) ? a : b; }
+inline int qMin(char a, int b) { return (a < b) ? a : b; }
+inline uint qMin(uint a, ushort b) { return (a < b) ? a : b; }
+inline uint qMin(ushort a, uint b) { return (a < b) ? a : b; }
+inline uint qMin(uint a, uchar b) { return (a < b) ? a : b; }
+inline uint qMin(uchar a, uint b) { return (a < b) ? a : b; }
+inline short qMin(short a, char b) { return (a < b) ? a : b; }
+inline short qMin(char a, short b) { return (a < b) ? a : b; }
+inline ushort qMin(ushort a, uchar b) { return (a < b) ? a : b; }
+inline ushort qMin(uchar a, ushort b) { return (a < b) ? a : b; }
+
+inline Q_LLONG qMax(Q_LLONG a, long b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(long a, Q_LLONG b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(Q_LLONG a, int b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(int a, Q_LLONG b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(Q_LLONG a, short b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(short a, Q_LLONG b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(Q_LLONG a, char b) { return (b < a) ? a : b; }
+inline Q_LLONG qMax(char a, Q_LLONG b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(Q_ULLONG a, ulong b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(ulong a, Q_ULLONG b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(Q_ULLONG a, uint b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(uint a, Q_ULLONG b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(Q_ULLONG a, ushort b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(ushort a, Q_ULLONG b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(Q_ULLONG a, uchar b) { return (b < a) ? a : b; }
+inline Q_ULLONG qMax(uchar a, Q_ULLONG b) { return (b < a) ? a : b; }
+inline long qMax(long a, int b) { return (b < a) ? a : b; }
+inline long qMax(int a, long b) { return (b < a) ? a : b; }
+inline long qMax(long a, short b) { return (b < a) ? a : b; }
+inline long qMax(short a, long b) { return (b < a) ? a : b; }
+inline long qMax(long a, char b) { return (b < a) ? a : b; }
+inline long qMax(char a, long b) { return (b < a) ? a : b; }
+inline ulong qMax(ulong a, uint b) { return (b < a) ? a : b; }
+inline ulong qMax(uint a, ulong b) { return (b < a) ? a : b; }
+inline ulong qMax(ulong a, ushort b) { return (b < a) ? a : b; }
+inline ulong qMax(ushort a, ulong b) { return (b < a) ? a : b; }
+inline ulong qMax(ulong a, uchar b) { return (b < a) ? a : b; }
+inline ulong qMax(uchar a, ulong b) { return (b < a) ? a : b; }
+inline int qMax(int a, short b) { return (b < a) ? a : b; }
+inline int qMax(short a, int b) { return (b < a) ? a : b; }
+inline int qMax(int a, char b) { return (b < a) ? a : b; }
+inline int qMax(char a, int b) { return (b < a) ? a : b; }
+inline uint qMax(uint a, ushort b) { return (b < a) ? a : b; }
+inline uint qMax(ushort a, uint b) { return (b < a) ? a : b; }
+inline uint qMax(uint a, uchar b) { return (b < a) ? a : b; }
+inline uint qMax(uchar a, uint b) { return (b < a) ? a : b; }
+inline short qMax(short a, char b) { return (b < a) ? a : b; }
+inline short qMax(char a, short b) { return (b < a) ? a : b; }
+inline ushort qMax(ushort a, uchar b) { return (b < a) ? a : b; }
+inline ushort qMax(uchar a, ushort b) { return (b < a) ? a : b; }
 
 
 //
@@ -937,8 +1025,7 @@ Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = true );
 
-Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
-		   const char *newfunc );
+Q_EXPORT void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
@@ -962,8 +1049,8 @@ class QBool
 {
     bool b;
 public:
-    inline explicit QBool(bool B):b(B){};
-    inline operator bool() const {return b;}
+    inline explicit QBool(bool B) :b(B) { }
+    inline operator bool() const { return b; }
 };
 
 // compilers which follow outdated template instantiation rules
@@ -1188,27 +1275,33 @@ template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 
 class QFlagInternal
 {
-public:
-    QFlagInternal(uint i) : i(i) {}
-    operator uint() const { return i; }
-private:
     uint i;
+public:
+    inline QFlagInternal(uint i) : i(i) {}
+    inline operator uint() const { return i; }
 };
 
 template<typename Enum>
 class QFlags
 {
-    class Zero;
+    typedef void *Zero;
+    uint u;
 public:
     inline QFlags(const QFlags &f) : u(f.u) {}
     inline QFlags(Enum f) : u(f) {}
     inline QFlags(Zero * = 0) : u(0u) {}
     inline QFlags(QFlagInternal i) : u(i) {}
 
-    inline operator QFlagInternal() const { return u; }
     inline QFlags &operator=(const QFlags &f) { u = f.u; return *this; }
+    inline QFlags &operator&=(uint mask) {  u &= mask; return *this; }
+    inline QFlags &operator&=(QFlags f) {  u &= f.u; return *this; }
+    inline QFlags &operator&=(Enum f) {  u &= f; return *this; }
+    inline QFlags &operator|=(QFlags f) {  u |= f.u; return *this; }
+    inline QFlags &operator|=(Enum f) {  u |= f; return *this; }
+
+    inline operator QFlagInternal() const { return u; }
     inline operator Zero*() const { return reinterpret_cast<Zero*>(u ? 0x1:0x0); }
-    inline bool operator!() const { return !u; }
+
     inline QFlags operator|(QFlags f) const { QFlags wf; wf.u = u|f.u; return wf; }
     inline QFlags operator|(Enum f) const { QFlags wf; wf.u = u|f; return wf; }
     inline QFlags operator&(uint mask) const { QFlags wf; wf.u = u&mask; return wf; }
@@ -1216,14 +1309,13 @@ public:
     inline QFlags operator&(Enum f) const { QFlags wf; wf.u = u&f; return wf; }
     inline QFlags operator~() const { QFlags wf; wf.u = ~u; return wf; }
 
-    inline QFlags &operator&=(uint mask) {  u &= mask; return *this; }
-    inline QFlags &operator&=(QFlags f) {  u &= f.u; return *this; }
-    inline QFlags &operator&=(Enum f) {  u &= f; return *this; }
-    inline QFlags &operator|=(QFlags f) {  u |= f.u; return *this; }
-    inline QFlags &operator|=(Enum f) {  u |= f; return *this; }
-
-private:
-    uint u;
+    inline bool operator!() const { return !u; }
+    inline bool operator==(QFlags f) const { return u == f.u; }
+    inline bool operator!=(QFlags f) const { return u != f.u; }
+    inline bool operator==(Enum f) const { return u == f; }
+    inline bool operator!=(Enum f) const { return u != f; }
+    inline bool operator==(Zero *) const { return u == 0; }
+    inline bool operator!=(Zero *) const { return u != 0; }
 };
 
 #define Q_DECLARE_OPERATORS_FOR_FLAGS(Enum) \
