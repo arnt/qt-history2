@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#13 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#13 $");
 
 
 /*****************************************************************************
@@ -297,6 +297,20 @@ QPalette QPalette::copy() const
 }
 
 
+/*!  Detaches this palette from any other QPalette objects with which
+  it might implicitly share \link QColorGroup QColorGroups. \endlink
+
+  Calling this should generally not be necessary; QPalette calls this
+  itself when necessary.
+*/
+
+void QPalette::detach()
+{
+    if ( data->count != 1 )
+	*this = copy();
+}
+
+
 /*!
   \fn const QColorGroup & QPalette::normal() const
   Returns the normal color group of this palette.
@@ -310,6 +324,7 @@ QPalette QPalette::copy() const
 
 void QPalette::setNormal( const QColorGroup &g )
 {
+    detach();
     data->ser_no = palette_count++;
     data->normal = g;
 }
@@ -327,6 +342,7 @@ void QPalette::setNormal( const QColorGroup &g )
 
 void QPalette::setDisabled( const QColorGroup &g )
 {
+    detach();
     data->ser_no = palette_count++;
     data->disabled = g;
 }
@@ -344,6 +360,7 @@ void QPalette::setDisabled( const QColorGroup &g )
 
 void QPalette::setActive( const QColorGroup &g )
 {
+    detach();
     data->ser_no = palette_count++;
     data->active = g;
 }
