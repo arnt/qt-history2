@@ -1086,8 +1086,9 @@ void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 
 void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-    if (ignorecursorpositionchanged || d->edit->hasSelectedText())
+    if (ignorecursorpositionchanged)
         return;
+    const bool allowChange = !d->edit->hasSelectedText();
     ignorecursorpositionchanged = true;
     Section s = sectionAt(newpos);
     int c = newpos;
@@ -1099,17 +1100,19 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
     if (s == NoSection) {
         if (l > 0 && selstart == sectionPos(selSection) && d->edit->selectedText().size() == l) {
             s = selSection;
-            setSelected(selSection, true);
+            if (allowChange)
+                setSelected(selSection, true);
             c = -1;
         } else {
             const SectionNode &sn = sectionNode(closestSection(newpos, oldpos < newpos));
             c = sn.pos + (oldpos < newpos ? 0 : qMax<int>(0, sectionSize(sn.section) - 1));
-            edit->setCursorPosition(c);
+            if (allowChange)
+                edit->setCursorPosition(c);
             s = sn.section;
         }
     }
 
-    if (currentsection != s) {
+    if (allowChange && currentsection != s) {
         QString tmp = edit->displayText();
         int pos = d->edit->cursorPosition();
         if (q->validate(tmp, pos) != QValidator::Acceptable) {
