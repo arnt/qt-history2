@@ -316,7 +316,7 @@ public:
     QTextEngine(const QString &str, QFontPrivate *f )
 	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0), num_glyphs(0),
     	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
-	{ setText(str); fnt->ref(); }
+	{ setText(str); if (fnt) fnt->ref(); }
     ~QTextEngine();
 
     void setText(const QString &str);
