@@ -3,6 +3,7 @@
 #include "setupwizardimpl.h"
 #include "resource.h"
 #include "globalinformation.h"
+#include "environment.h"
 
 GlobalInformation globalInformation;
 
@@ -86,6 +87,17 @@ int main( int argc, char** argv )
     for( int i = 0; i < app.argc(); i++ ) {
 	if( QString( app.argv()[i] ) == "-reconfig" ) {
 	    globalInformation.setReconfig( TRUE );
+
+	    QString qmakespec = QEnvironment::getEnv( "QMAKESPEC" );
+	    if ( qmakespec == "win32-msvc" ) {
+		globalInformation.setSysId( GlobalInformation::MSVC );
+	    } else if ( qmakespec == "win32-borland" ) {
+		globalInformation.setSysId( GlobalInformation::Borland );
+	    }
+
+	    if ( ++i < app.argc() ) {
+		globalInformation.setQtVersionStr( app.argv()[i] );
+	    }
 	    break;
 #if defined(Q_OS_WIN32)
 	} else if ( QString( app.argv()[i] ) == "-add-archive" ) {

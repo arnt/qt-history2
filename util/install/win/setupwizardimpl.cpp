@@ -331,7 +331,6 @@ static bool createDir( const QString& fullPath )
 
 SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags flag ) :
     QWizard( pParent, pName, modal, flag ),
-    sysID( 0 ),
     tmpPath( QEnvironment::getTempPath() ),
     filesCopied( false ),
     filesToCompile( 0 ),
@@ -359,9 +358,6 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     f.setBold( TRUE );
     setTitleFont( f );
 
-#ifdef Q_OS_MACX
-    sysID = MACX;
-#endif
     totalFiles = 0;
     triedToIntegrate = false;
 
@@ -404,9 +400,10 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
     initPages();
     initConnections();
-    if ( optionsPage )
+    if ( optionsPage ) {
 	optionsPage->sysGroup->setButton( sysGroupButton );
-    clickedSystem( sysGroupButton );
+	clickedSystem( sysGroupButton );
+    }
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
 
@@ -575,7 +572,16 @@ void SetupWizardImpl::clickedDevSysPath()
 void SetupWizardImpl::clickedSystem( int sys )
 {
 #ifndef Q_OS_MACX
-    sysID = sys;
+    switch ( sys ) {
+	case 0:
+	    globalInformation.setSysId( GlobalInformation::MSVC );
+	    break;
+	case 1:
+	    globalInformation.setSysId( GlobalInformation::Borland );
+	    break;
+	default:
+	    break;
+    }
 #endif
 }
 
@@ -727,8 +733,8 @@ void SetupWizardImpl::doFinalIntegration()
     bool common( foldersPage->folderGroups->currentItem() == 0 );
     QString qtDir = QEnvironment::getEnv( "QTDIR" );
 
-    switch( sysID ) {
-    case MSVC:
+    switch( globalInformation.sysId() ) {
+	case GlobalInformation::MSVC:
 	{
 	    QFile autoexp( foldersPage->devSysPath->text() + "\\Common\\MsDev98\\bin\\autoexp.dat" );
 	    if ( !autoexp.exists() ) {
@@ -793,7 +799,11 @@ void SetupWizardImpl::doFinalIntegration()
     dirName = shell.createFolder( foldersPage->folderPath->text(), common );
     shell.createShortcut( dirName, common, "Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
 #if !defined(EVAL)
-    shell.createShortcut( dirName, common, "Reconfigure Qt", qtDir + "\\bin\\install.exe", "Reconfigure the Qt library", "-reconfig", qtDir );
+    shell.createShortcut( dirName, common, "Reconfigure Qt",
+	    qtDir + "\\bin\\install.exe",
+	    "Reconfigure the Qt library",
+	    QString("-reconfig \"%1\"").arg(globalInformation.qtVersionStr()),
+	    qtDir );
 #endif
     shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + qtDir + "\\LICENSE\"" );
     shell.createShortcut( dirName, common, "Readme", "notepad.exe", "Important information", QString( "\"" ) + qtDir + "\\README\"" );
@@ -859,18 +869,11 @@ void SetupWizardImpl::integratorDone()
 	logOutput( "The integration process failed.\n", true );
 	emit wizardPageFailed( indexOf(currentPage()) );
     } else {
+	// We still have some more items to do in order to finish all the
+	// integration stuff.
+	if ( !globalInformation.reconfig() )
+	    doFinalIntegration();
 	setNextEnabled( buildPage, true );
-
-	/*
-	** We still have some more items to do in order to finish all the
-	** integration stuff.
-	*/
-	doFinalIntegration();
-	setNextEnabled( buildPage, true );
-
-// The automatic continue feature has been disabled
-//	timeCounter = 30;
-//	autoContTimer.start( 1000 );
 	logOutput( "The build was successful", true );
     }
 }
@@ -879,18 +882,15 @@ void SetupWizardImpl::makeDone()
 {
     QStringList args;
 
-    if( globalInformation.reconfig() )
-	showPage( finishPage );
-
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
 	logOutput( "The build process failed!\n" );
+	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, "Error", "The build process failed!" );
 	setAppropriate( progressPage, false );
-	emit wizardPageFailed( indexOf(currentPage()) );
     } else {
 	buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 
-	if( ( sysID != MSVC ) ||
+	if( ( globalInformation.sysId() != GlobalInformation::MSVC ) ||
 	    ( !findFileInPaths( "atlbase.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) &&
 	      !findFileInPaths( "afxwin.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) ) )
 	    integratorDone();
@@ -931,15 +931,15 @@ void SetupWizardImpl::configDone()
 	connect( &make, SIGNAL( readyReadStdout() ), this, SLOT( readMakeOutput() ) );
 	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
-	args << makeCmds[ sysID ];
+	args << makeCmds[ globalInformation.sysId() ];
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
 
 	if( !make.start() ) {
 	    logOutput( "Could not start make process" );
-	    backButton()->setEnabled( TRUE );
 	    emit wizardPageFailed( indexOf(currentPage()) );
+	    backButton()->setEnabled( TRUE );
 	}
     }
 }
@@ -1057,11 +1057,11 @@ void SetupWizardImpl::showPageLicense()
 #elif defined(Q_OS_UNIX)
     QStringList paths = QStringList::split( QRegExp("[:]"), QEnvironment::getEnv( "PATH" ) );
 #endif
-    if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
+    if( !findFileInPaths( makeCmds[ globalInformation.sysId() ], paths ) ) {
 	setNextEnabled( licensePage, false );
 	QMessageBox::critical( this, "Environment problems",
 				     "The installation program can't find the make command '"
-				     + makeCmds[ sysID ] +
+				     + makeCmds[ globalInformation.sysId() ] +
 				     "'.\nMake sure the path to it "
 				     "is present in the PATH environment variable.\n"
 				     "The installation can't continue." );
@@ -1074,11 +1074,11 @@ void SetupWizardImpl::showPageFolders()
 {
     QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
-    foldersPage->devSysLabel->setText( devSys[ sysID ] );
-    foldersPage->devSysPath->setEnabled( sysID == 0 );
-    foldersPage->devSysPathButton->setEnabled( sysID == 0 );
+    foldersPage->devSysLabel->setText( devSys[ globalInformation.sysId() ] );
+    foldersPage->devSysPath->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
+    foldersPage->devSysPathButton->setEnabled( globalInformation.sysId() == GlobalInformation::MSVC );
 #if defined(Q_OS_WIN32)
-    if( sysID == 0 )
+    if( globalInformation.sysId() == GlobalInformation::MSVC )
 	foldersPage->devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
 #endif
 }
@@ -1108,9 +1108,9 @@ void SetupWizardImpl::showPageProgress()
 	    if ( rcLoader->isValid() ) {
 		licenseFile.writeBlock( rcLoader->data() );
 	    } else {
+		emit wizardPageFailed( indexOf(currentPage()) );
 		QMessageBox::critical( this, tr("Package corrupted"),
 			tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
-		emit wizardPageFailed( indexOf(currentPage()) );
 	    }
 	    delete rcLoader;
 	    licenseFile.close();
@@ -1225,7 +1225,7 @@ void SetupWizardImpl::showPageProgress()
 #if defined(EVAL)
 	    // patch qt-mt.lib (or qtmt.lib under Borland)
 	    QString qtLib;
-	    if ( sysID == MSVC ) {
+	    if ( globalInformation.sysId() == GlobalInformation::MSVC ) {
 		qtLib = "\\lib\\qt-mt.lib";
 	    } else {
 		qtLib = "\\lib\\qtmt.lib";
@@ -1885,10 +1885,10 @@ void SetupWizardImpl::readLicenseAgreement()
 	licenseAgreementPage->introText->setText( rcLoader->data() );
 	licenseAgreementPage->acceptLicense->setEnabled( TRUE );
     } else {
+	emit wizardPageFailed( indexOf(currentPage()) );
 	QMessageBox::critical( this, tr("Package corrupted"),
 		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
 	licenseAgreementPage->acceptLicense->setEnabled( FALSE );
-	emit wizardPageFailed( indexOf(currentPage()) );
     }
     delete rcLoader;
 }

@@ -26,8 +26,6 @@ signals:
     void editionString( const QString& );
 
 private:
-    int sysID;
-
     int totalFiles;
     QProcess configure;
     QProcess make;
@@ -107,12 +105,6 @@ private:
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
 #endif
     void doFinalIntegration();
-    enum {
-	MSVC = 0,
-	Borland = 1,
-	GCC = 2,
-	MACX = 3
-    };
     void logFiles( const QString& entry, bool close = false );
     void logOutput( const QString& entry, bool close = false );
 

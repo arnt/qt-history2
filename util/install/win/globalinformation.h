@@ -9,13 +9,23 @@ public:
     ~GlobalInformation();
 
     void setReconfig( bool );
-    bool reconfig();
+    bool reconfig() const;
     void setQtVersionStr( const QString& );
-    QString qtVersionStr();
+    QString qtVersionStr() const;
+
+    enum SysId {
+	MSVC	= 0,
+	Borland	= 1,
+	GCC	= 2,
+	MACX	= 3
+    };
+    void setSysId( SysId );
+    SysId sysId() const;
 
 private:
     bool _reconfig;
     QString _qtVersionStr;
+    SysId _sysId;
 };
 
 extern GlobalInformation globalInformation;

@@ -37,16 +37,16 @@ static char *arrow_data[] = {
 "a c #8a8a8a",
 "b c #0d0d0d",
 /* pixels */
-"....##.....",
-"....ab#....",
-"....abb#...",
-"....abbb#..",
-"....abbbb#.",
-"....abbbba.",
-"....abbba..",
-"....abba...",
-"....aba....",
-"....aa.....",
+"...##......",
+"...ab#.....",
+"...abb#....",
+"...abbb#...",
+"...abbbb#..",
+"...abbbba..",
+"...abbba...",
+"...abba....",
+"...aba.....",
+"...aa......",
 "..........."
 };
 
@@ -85,7 +85,11 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
 	((QBoxLayout*)layout())->setMargin( 0 );
     }
     setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Expanding) );
-    versionLabel->setText( versionLabel->text() + globalInformation.qtVersionStr() );
+    if ( globalInformation.reconfig() ) {
+	versionLabel->setText( "Reconfigure Qt " + globalInformation.qtVersionStr() );
+    } else {
+	versionLabel->setText( versionLabel->text() + " " + globalInformation.qtVersionStr() );
+    }
 #if defined(EVAL)
     editionLabel->setText( "Evaluation Version" );
 #else

@@ -44,7 +44,7 @@ void SetupWizardImpl::cleanDone()
 	    outStream << "cd %QTDIR%" << endl;
 	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
-		outStream << makeCmds[ sysID ].latin1() << endl;
+		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
 	    }
 	    outFile.close();
 	}
@@ -296,7 +296,7 @@ void SetupWizardImpl::cleanDone()
 	    outStream << args.join( " " ) << endl;
 	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
-		outStream << makeCmds[ sysID ].latin1() << endl;
+		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;
 	    }
 	    outFile.close();
 	}
@@ -383,10 +383,10 @@ void SetupWizardImpl::prepareEnvironment()
 #endif
 
     QEnvironment::putEnv( "QTDIR", qtDir, envSpec );
-    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], envSpec );
+    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ globalInformation.sysId() ], envSpec );
 
 #if defined(Q_OS_WIN32)
-    if( sysID == 0 ) {
+    if( globalInformation.sysId() == GlobalInformation::MSVC ) {
 	QString devdir = QEnvironment::getEnv( "MSDevDir" );
 	if( !devdir.length() ) {
 	    QString vsCommonDir, msDevDir, msVCDir, osDir;
@@ -794,7 +794,7 @@ void SetupWizardImpl::showPageBuild()
     if( globalInformation.reconfig() ) {
 	buildPage->compileProgress->hide();
 
-    	args << makeCmds[ sysID ] << "clean";
+    	args << makeCmds[ globalInformation.sysId() ] << "clean";
 	logOutput( "Starting cleaning process" );
 	connect( &cleaner, SIGNAL( processExited() ), this, SLOT( cleanDone() ) );
 	connect( &cleaner, SIGNAL( readyReadStdout() ), this, SLOT( readCleanerOutput() ) );

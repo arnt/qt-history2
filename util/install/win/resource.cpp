@@ -98,7 +98,7 @@ bool ResourceSaver::setData( char *resourceName, const QByteArray &data, QString
 	    *errorMessage = QString("Could not load the executable %1.").arg(applicationName);
 	return FALSE;
     }
-    if ( !UpdateResourceA(hExe,RT_RCDATA,resourceName,0,data.data(),data.count()) ) {
+    if ( !UpdateResourceA(hExe,(char*)RT_RCDATA,resourceName,0,data.data(),data.count()) ) {
 	EndUpdateResource( hExe, TRUE );
 	if ( errorMessage )
 	    *errorMessage = QString("Could not update the executable %1.").arg(applicationName);
