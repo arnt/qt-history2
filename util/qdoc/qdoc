@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#155 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#156 $
 #
 # this is a massive hack, written very quickly
 #
@@ -686,7 +686,11 @@ sub writepages {
 
 	open(O, "> $outputdir/$file") ||
 	    die "can't open $outputdir/$file";
-	print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
+	if ( $file =~ /\.html$/ ) {
+	    print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex\">", $doc, "\n";
+	} else {
+	    print O $doc, "\n";
+	}
 	if (defined($classes{$file})) {
 	    $p = "<p>Classes:<ul plain>\n";
 	    $e = "";
