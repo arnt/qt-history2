@@ -102,9 +102,7 @@
 #endif
 #include <ctype.h>
 #include <stdlib.h>
-#if defined(QT_LARGEFILE_SUPPORT)
 #include <limits.h>
-#endif
 
 #ifdef Q_WS_MAC
 #include "qt_mac.h"
@@ -3151,8 +3149,15 @@ void QFileDialog::setDir( const QString & pathstr )
 	    i++;
 	QCString user;
 	if ( i == 1 ) {
+#if defined(QT_THREAD_SUPPORT) && defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+	    char name[_POSIX_LOGIN_NAME_MAX];
+	    if ( ::getlogin_r( name, _POSIX_LOGIN_NAME_MAX ) == 0 )
+		user = name;
+	    else
+#else
 	    user = ::getlogin();
 	    if ( !user )
+#endif
 		user = getenv( "LOGNAME" );
 	} else
 	    user = dr.mid( 1, i-1 ).local8Bit();
