@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#65 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -47,6 +47,9 @@ struct QDragData {
   After the drag completes, this function will return the QWidget
   which received the drop, or 0 if the data was dropped on some other
   program.
+
+  This can be useful for detecting the case where drag-and-drop is to
+  and from the same widget.
 */
 QWidget * QDragObject::target()
 {
@@ -333,7 +336,8 @@ QPoint QDragObject::pixmapHotSpot() const
   Starts a drag operation using the contents of this object,
   using DragDefault mode.
 
-  See drag(DragMove) for important further information.
+  The function returns TRUE if thje caller should delete the
+  original copy of the dragged data (but also note target()).
 */
 bool QDragObject::drag()
 {
@@ -347,8 +351,6 @@ bool QDragObject::drag()
 /*!
   Starts a drag operation using the contents of this object,
   using DragMove mode.
-
-  See drag(DragMove) for important further information.
 */
 bool QDragObject::dragMove()
 {
