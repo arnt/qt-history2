@@ -205,7 +205,6 @@ public:
     // Setting up source data - can be solid colour or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
-    virtual void setSource(unsigned char *,int,int)=0;
     // This one is pen
     virtual void setSourcePen()=0;
     virtual void setSourceOffset(int,int)=0;

@@ -1650,22 +1650,6 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
     src_little_endian=true;
 }
 
-// Data source can never have palette?
-template <const int depth, const int type>
-void QGfxRaster<depth,type>::setSource(unsigned char * data,int w,int h)
-{
-    srcbits=data;
-    width=w;
-    height=h;
-    srctype=SourceImage;
-    srcwidgetx=0;
-    srcwidgety=0;
-    buildSourceClut(0,0);
-    src_normal_palette=true;
-    src_little_endian=true;
-    patternedbrush=false;
-}
-
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QImage * i)
 {

@@ -238,7 +238,6 @@ public:
 
     virtual void setSource(const QImage *);
     virtual void setSource(const QPaintDevice *);
-    virtual void setSource(unsigned char *,int,int);
 
 protected:
 
