@@ -2797,12 +2797,6 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixCol( tmpCol, e->pos().x() );
     startDragCol = -1;
     startDragRow = -1;
-    if ( e->button() != LeftButton ) {
-	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
-	if ( context_menu )
-	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
-	return;
-    }
 
     if ( isSelected( tmpRow, tmpCol ) ) {
 	startDragCol = tmpCol;
@@ -2811,8 +2805,14 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     }
 
     QTableItem *itm = item( pressedRow, pressedCol );
-    if ( itm && !itm->isEnabled() )
+    if ( itm && !itm->isEnabled() ) {
+	if ( e->button() != LeftButton ) {
+	    emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	    if ( context_menu )
+		emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
+	}
 	return;
+    }
 
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	if ( selMode != NoSelection ) {
@@ -2850,6 +2850,12 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
 		emit selectionChanged();
 	    }
 	}
+    }
+
+    if ( e->button() != LeftButton ) {
+	emit pressed( tmpRow, tmpCol, e->button(), e->pos() );
+	if ( context_menu )
+	    emit contextMenuRequested( tmpRow, tmpCol, mapToGlobal( contentsToViewport( e->pos() ) ) );
     }
 
     emit pressed( tmpRow, tmpCol, e->button(), e->pos() );

@@ -670,12 +670,11 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 
 void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 {
+    QTable::contentsMousePressEvent( e );
     if ( d->dat.mode() != QSql::None )
 	endEdit( d->editRow, d->editCol, autoEdit(), FALSE );
-    if ( !sqlCursor() ) {
-	QTable::contentsMousePressEvent( e );
+    if ( !sqlCursor() )
 	return;
-    }
     if ( e->button() == RightButton && d->dat.mode() == QSql::None ) {
 	if ( isReadOnly() )
 	    return;
@@ -709,9 +708,6 @@ void QDataTable::contentsMousePressEvent( QMouseEvent* e )
 	    deleteCurrent();
 	return;
     }
-    if ( d->dat.mode() == QSql::None )
-	QTable::contentsMousePressEvent( e );
-
 }
 
 /*!  \reimp
