@@ -570,7 +570,6 @@ void KAsteroidsView::processMissiles()
 
 	QCanvasItemList hits = missile->collisions( TRUE );
 	QCanvasItem *hit;
-	qWarning("hits: %d", hits.size());
 	for (int i = 0; i < hits.size(); ++i)
 	{
 	    hit = hits.at(i);
