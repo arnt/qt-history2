@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#5 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#6 $
 **
 ** Definition of QObject class
 **
@@ -19,7 +19,7 @@
 
 class QObject					// base class for Q objects
 {
-friend class QView;
+friend class QWidget;
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
