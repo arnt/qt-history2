@@ -37,6 +37,7 @@
 #include <string.h>
 
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
+#define QMAC_PIXMAP_ALPHA
 
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
@@ -237,6 +238,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     delete data->alphapm;
     data->alphapm = 0;
     if(img.hasAlphaBuffer()) {
+#ifdef QMAC_PIXMAP_ALPHA
 	data->alphapm = new QPixmap(w, h, 32);
 #ifndef QMAC_ONE_PIXEL_LOCK
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd)));
@@ -258,6 +260,11 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	SwapMMUMode(&mode);
 #ifndef QMAC_ONE_PIXEL_LOCK
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
+#endif
+#else //!QMAKE_PIXMAP_ALPHA
+	QBitmap m;
+	m = img.createAlphaMask(conversion_flags);
+	setMask(m);
 #endif
     }
     return TRUE;

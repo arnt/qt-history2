@@ -1689,7 +1689,7 @@ void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, i
 			      dx(),  dy());
 		mat = QPixmap::trueMatrix(mat, sw, sh);
 		QPixmap pm = pixmap.xForm(mat);
-		if(!pm.mask() && txop == TxRotShear) {
+		if(!pm.data->alphapm && !pm.mask() && txop == TxRotShear) {
 		    QBitmap bm_clip(sw, sh, TRUE);
 		    bm_clip.fill(color1);
 		    pm.setMask(bm_clip.xForm(mat));
