@@ -3282,7 +3282,7 @@ void QListView::updateContents()
 
 	return;
     }
-    if ( d && d->drawables ) {
+    if ( d->drawables ) {
 	delete d->drawables;
 	d->drawables = 0;
     }
