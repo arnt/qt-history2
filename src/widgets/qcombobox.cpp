@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#30 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#30 $")
 
 /*!
   \class QComboBox qcombo.h
@@ -585,11 +585,11 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
 	case Key_Return:
 	case Key_Enter:
-	    accept();
+	    e->accept();
 	    popup();
 	    break;
 	default:
-	    ignore();
+	    e->ignore();
 	    break;
     }
 }
