@@ -58,7 +58,7 @@ private:
 
 #if defined(Q_WS_MAC)
     friend class QApplication;
-    friend QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
+    friend void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
 #endif
 };
 

@@ -442,7 +442,7 @@ struct {
     { { -1, 0, false } }
 };
 
-QMAC_PASCAL OSStatus
+OSStatus
 QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, void *data)
 {
     bool handled_event = true;

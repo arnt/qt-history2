@@ -50,7 +50,7 @@ static EventLoopTimerUPP mac_select_timerUPP = 0;
  *****************************************************************************/
 
 /* timer call back */
-QMAC_PASCAL static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
+static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
 {
     MacTimerInfo *tmr = (MacTimerInfo *)data;
     if(QMacBlockingFunction::blocking()) { //just send it immediately
@@ -101,7 +101,7 @@ int QGuiEventLoop::registerTimer(int interval, QObject *obj)
     return t.id;
 }
 
-QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *data)
+static Boolean find_timer_event(EventRef event, void *data)
 {
     return (qt_event_get_timer(event) == ((MacTimerInfo *)data));
 }
@@ -226,7 +226,7 @@ void QGuiEventLoop::cleanup()
 /**************************************************************************
     Socket Notifiers
  *************************************************************************/
-QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
+void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
     QGuiEventLoop *eloop = (QGuiEventLoop*)me;
     if(QMacBlockingFunction::blocking()) { //just send it immediately

@@ -251,13 +251,13 @@ private:
 
 #if defined(Q_WS_MAC)
     bool do_mouse_down(Point *, bool *);
-    static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
-    static QMAC_PASCAL OSStatus globalAppleEventProcessor(const AppleEvent *, AppleEvent *, long);
-    static QMAC_PASCAL void qt_context_timer_callbk(EventLoopTimerRef, void *);
-    static QMAC_PASCAL void qt_select_timer_callbk(EventLoopTimerRef, void *);
+    static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static OSStatus globalAppleEventProcessor(const AppleEvent *, AppleEvent *, long);
+    static void qt_context_timer_callbk(EventLoopTimerRef, void *);
+    static void qt_select_timer_callbk(EventLoopTimerRef, void *);
     static bool qt_mac_apply_settings();
     friend class QMacInputMethod;
-    friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef, EventRef, void *);
+    friend OSStatus qt_window_event(EventHandlerCallRef, EventRef, void *);
     friend void qt_mac_update_os_settings();
     friend bool qt_set_socket_handler(int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);

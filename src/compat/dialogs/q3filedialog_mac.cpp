@@ -107,7 +107,7 @@ struct qt_mac_nav_filter_type {
     QList<qt_mac_filter_name*> *filts;
 };
 
-static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
+static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
                                              void *myd, NavFilterModes)
 {
     qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
@@ -182,7 +182,7 @@ static void cleanup_navProcUPP()
     mac_navProcUPP = NULL;
 }
 static bool g_nav_blocking=true;
-static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
+static void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg,
                                                      NavCBRecPtr p, NavCallBackUserData myd)
 {
     switch(msg) {

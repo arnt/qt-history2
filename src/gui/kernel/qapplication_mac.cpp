@@ -198,7 +198,7 @@ void qt_mac_unicode_reset_input(QWidget *w)
 }
 
 /* Resolution change magic */
-static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
+static void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
         if(QDesktopWidget *dw = qApp->desktop()) {
@@ -635,7 +635,7 @@ bool qt_event_remove_activate()
         qt_mac_event_release(request_activate_pending.event);
     return true;
 }
-QMAC_PASCAL void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
+void qt_event_activate_timer_callbk(EventLoopTimerRef r, void *)
 {
     EventLoopTimerRef otc = request_activate_pending.timer;
     qt_event_remove_activate();
@@ -713,7 +713,7 @@ static void qt_event_request_context(QWidget *w=0, EventRef *where=0)
     ReleaseEvent(*where);
 }
 static EventRef request_context_hold_pending = 0;
-QMAC_PASCAL void
+void
 QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *data)
 {
     QWidget *w = (QWidget *)data;

@@ -197,7 +197,6 @@
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
 /* "explicit" recognized since 4.0d1 */
-#  define QMAC_PASCAL pascal
 
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
@@ -525,9 +524,6 @@
 #  else
 #    define Q_WS_X11
 #  endif
-#endif
-#if defined(Q_OS_MAC) && !defined(QMAC_PASCAL)
-#  define QMAC_PASCAL
 #endif
 
 #if defined(Q_WS_WIN16) || defined(Q_WS_WIN32)

@@ -252,7 +252,7 @@ static const EventHandlerUPP make_win_eventUPP()
     qAddPostRoutine(cleanup_win_eventUPP);
     return mac_win_eventUPP = NewEventHandlerUPP(QWidgetPrivate::qt_window_event);
 }
-QMAC_PASCAL OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event, void *)
+OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event, void *)
 {
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
@@ -315,7 +315,7 @@ static const EventHandlerUPP make_widget_eventUPP()
     qAddPostRoutine(cleanup_widget_eventUPP);
     return mac_widget_eventUPP = NewEventHandlerUPP(QWidgetPrivate::qt_widget_event);
 }
-QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, void *)
+OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, void *)
 {
     bool handled_event = true;
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);

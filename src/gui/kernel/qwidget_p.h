@@ -236,8 +236,8 @@ public:
     static void qt_clean_root_win();
     static bool qt_recreate_root_win();
     static bool qt_mac_update_sizer(QWidget *, int);
-    static QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
-    static QMAC_PASCAL OSStatus qt_widget_event(EventHandlerCallRef er, EventRef event, void *);
+    static OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
+    static OSStatus qt_widget_event(EventHandlerCallRef er, EventRef event, void *);
     static bool qt_widget_rgn(QWidget *, short, RgnHandle, bool);
 
     //these are here just for code compat (HIViews)

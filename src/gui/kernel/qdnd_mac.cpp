@@ -56,7 +56,7 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
  *****************************************************************************/
 //promise keeper
 static DragSendDataUPP qt_mac_send_handlerUPP = NULL;
-static QMAC_PASCAL OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCon, DragItemRef, DragRef theDrag)
+static OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCon, DragItemRef, DragRef theDrag)
 {
     QDragObject *o = (QDragObject*)handlerRefCon;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;

@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QAccessible
 {
 private:
 #ifdef Q_WS_MAC
-    static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
 #endif
 public:
     enum Event {
