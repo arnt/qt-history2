@@ -1198,7 +1198,7 @@ void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 }
 
 
-void QWidgetPrivate::composeBackground(const QPoint &oset)
+void QWidgetPrivate::composeBackground(const QPoint &oset, const QRect &crect)
 {
     Q_Q(QWidget);
 
@@ -1222,7 +1222,7 @@ void QWidgetPrivate::composeBackground(const QPoint &oset)
             offset -= w->pos();
 
         // Setup redirection from w to this widget.
-        QRect rr = d_func()->clipRect();
+        QRect rr = crect;
         rr.translate(offset);
         bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
         w->setAttribute(Qt::WA_WState_InPaintEvent);

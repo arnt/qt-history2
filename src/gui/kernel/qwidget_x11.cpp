@@ -1457,6 +1457,7 @@ void QWidget::repaint(const QRegion& rgn)
                           && br.height() <= QX11DoubleBuffer::MaxHeight
                           && !QPainter::redirected(this));
 
+
     Qt::HANDLE old_hd = d->hd;
     Qt::HANDLE old_xft_hd = d->xft_hd;
 
@@ -1487,7 +1488,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(redirectionOffset);
+        d->composeBackground(redirectionOffset, br);
 
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
@@ -1504,7 +1505,7 @@ void QWidget::repaint(const QRegion& rgn)
 	if (testAttribute(Qt::WA_PaintUnclipped))
 	    XSetSubwindowMode(X11->display, gc, IncludeInferiors);
         for (int i = 0; i < rects.size(); ++i) {
-            QRect rr = d->mapToWS(rects[i]);
+            QRect rr = d->mapToWS(rects.at(i));
             XCopyArea(X11->display, d->hd, winId(), gc,
                       rr.x() - brWS.x(), rr.y() - brWS.y(),
                       rr.width(), rr.height(),
