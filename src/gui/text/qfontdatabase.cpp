@@ -32,7 +32,8 @@
 
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
-#  define FD_DEBUG qDebug
+#  define FD_DEBUG qDebugyes
+
 #else
 #  define FD_DEBUG if (false) qDebug
 #endif
@@ -303,7 +304,7 @@ QtFontStyle *QtFontFoundry::style(const QtFontStyle::Key &key, bool create)
 
 struct QtFontFamily
 {
-    enum ScriptStatus {
+    enum WritingSystemStatus {
         Unknown         = 0,
         Supported       = 1,
         UnsupportedXft  = 2,
@@ -314,19 +315,19 @@ struct QtFontFamily
     QtFontFamily(const QString &n)
         :
 #ifdef Q_WS_X11
-        fixedPitch(true), hasXft(false), xftScriptCheck(false), xlfdLoaded(false), synthetic(false),
+        fixedPitch(true), hasXft(false), xftWritingSystemCheck(false),
+        xlfdLoaded(false), synthetic(false),
 #else
         fixedPitch(false),
 #endif
 #ifdef Q_WS_WIN
-        scriptCheck(false),
+        writingSystemCheck(false),
 #endif
 #if defined(Q_OS_MAC) && !defined(QWS)
         fixedPitchComputed(false),
 #endif
-        fullyLoaded(false),
         name(n), count(0), foundries(0) {
-        memset(scripts, 0, sizeof(scripts));
+        memset(writingSystems, 0, sizeof(writingSystems));
     }
     ~QtFontFamily() {
         while (count--)
@@ -337,17 +338,16 @@ struct QtFontFamily
     bool fixedPitch : 1;
 #ifdef Q_WS_X11
     bool hasXft : 1;
-    bool xftScriptCheck : 1;
+    bool xftWritingSystemCheck : 1;
     bool xlfdLoaded : 1;
     bool synthetic : 1;
 #endif
 #ifdef Q_WS_WIN
-    bool scriptCheck : 1;
+    bool writingSystemCheck : 1;
 #endif
 #if defined(Q_OS_MAC) && !defined(QWS)
     bool fixedPitchComputed : 1;
 #endif
-    bool fullyLoaded : 1;
     QString name;
     QString rawName;
 #ifdef Q_WS_X11
@@ -360,7 +360,7 @@ struct QtFontFamily
     int count;
     QtFontFoundry **foundries;
 
-    unsigned char scripts[QUnicodeTables::ScriptCount];
+    unsigned char writingSystems[QFontDatabase::WritingSystemsCount];
 
     QtFontFoundry *foundry(const QString &f, bool = false);
 };
@@ -448,6 +448,59 @@ QtFontFamily *QFontDatabasePrivate::family(const QString &f, bool create)
 }
 
 
+static const int scriptForWritingSystem[] = {
+    QUnicodeTables::Common, // Any
+    QUnicodeTables::Common, // Latin
+    QUnicodeTables::Common, // Greek
+    QUnicodeTables::Common, // Cyrillic
+    QUnicodeTables::Common, // Armenian
+    QUnicodeTables::Hebrew, // Hebrew
+    QUnicodeTables::Arabic, // Arabic
+    QUnicodeTables::Syriac, // Syriac
+    QUnicodeTables::Thaana, // Thaana
+    QUnicodeTables::Devanagari, // Devanagari
+    QUnicodeTables::Bengali, // Bengali
+    QUnicodeTables::Gurmukhi, // Gurmukhi
+    QUnicodeTables::Gujarati, // Gujarati
+    QUnicodeTables::Oriya, // Oriya
+    QUnicodeTables::Tamil, // Tamil
+    QUnicodeTables::Telugu, // Telugu
+    QUnicodeTables::Kannada, // Kannada
+    QUnicodeTables::Malayalam, // Malayalam
+    QUnicodeTables::Sinhala, // Sinhala
+    QUnicodeTables::Thai, // Thai
+    QUnicodeTables::Lao, // Lao
+    QUnicodeTables::Tibetan, // Tibetan
+    QUnicodeTables::Myanmar, // Myanmar
+    QUnicodeTables::Common, // Georgian
+    QUnicodeTables::Khmer, // Khmer
+    QUnicodeTables::Common, // SimplifiedChinese
+    QUnicodeTables::Common, // TraditionalChinese
+    QUnicodeTables::Common, // Japanese
+    QUnicodeTables::Hangul, // Korean
+    QUnicodeTables::Common, // Vietnamese
+    QUnicodeTables::Common, // Yi
+    QUnicodeTables::Common, // Tagalog
+    QUnicodeTables::Common, // Hanunoo
+    QUnicodeTables::Common, // Buhid
+    QUnicodeTables::Common, // Tagbanwa
+    QUnicodeTables::Common, // Limbu
+    QUnicodeTables::Common, // TaiLe
+    QUnicodeTables::Common, // Braille
+    QUnicodeTables::Common  // Other
+};
+
+
+#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
+static inline bool requiresOpenType(int writingSystem)
+{
+    return ((writingSystem >= QFontDatabase::Syriac && writingSystem <= QFontDatabase::Sinhala)
+            || writingSystem == QFontDatabase::Myanmar
+            || writingSystem == QFontDatabase::Khmer);
+}
+#endif
+
+
 static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
 static QFontDatabasePrivate *db=0;
 #define SMOOTH_SCALABLE 0xffff
@@ -517,14 +570,18 @@ static QtFontEncoding *findEncoding(int script, int styleStrategy,
     // Xft not available, find an XLFD font, trying the default encoding first
     encoding = size->encodingID(QFontPrivate::defaultEncodingID);
 
-    if (!encoding || !scripts_for_xlfd_encoding[encoding->encoding][script]) {
-        // find the first encoding that supports the requested script
-        encoding = 0;
-        for (int x = 0; !encoding && x < size->count; ++x) {
-            const int enc = size->encodings[x].encoding;
-            if (scripts_for_xlfd_encoding[enc][script]) {
-                encoding = size->encodings + x;
-                break;
+    for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+        if (scriptForWritingSystem[ws] != script)
+            continue;
+        if (!encoding || !writingSystems_for_xlfd_encoding[encoding->encoding][ws]) {
+            // find the first encoding that supports the requested writing system
+            encoding = 0;
+            for (int x = 0; !encoding && x < size->count; ++x) {
+                const int enc = size->encodings[x].encoding;
+                if (writingSystems_for_xlfd_encoding[enc][ws]) {
+                    encoding = size->encodings + x;
+                    break;
+                }
             }
         }
     }
@@ -815,9 +872,15 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
                 load(try_family->name, script);
 
             uint score_adjust = 0;
-            int override_script = script;
 
-            if (!(try_family->scripts[script] & QtFontFamily::Supported)) {
+            bool supported = false;
+            for (int ws = 1; !supported && ws < WritingSystemsCount; ++ws) {
+                if (scriptForWritingSystem[ws] != script)
+                    continue;
+                if (try_family->writingSystems[ws] & QtFontFamily::Supported)
+                    supported = true;
+            }
+            if (!supported) {
                 // family not supported in the script we want
                 continue;
             }
@@ -832,7 +895,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             // as we know the script is supported, we can be sure
             // to find a matching font here.
             unsigned int newscore =
-                bestFoundry(override_script, score, request.styleStrategy,
+                bestFoundry(script, score, request.styleStrategy,
                             try_family, foundry_name, styleKey, request.pixelSize, pitch,
                             &try_foundry, &try_style, &try_size
 #ifdef Q_WS_X11
@@ -842,7 +905,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
             if (try_foundry == 0) {
                 // the specific foundry was not found, so look for
                 // any foundry matching our requirements
-                newscore = bestFoundry(override_script, score, request.styleStrategy, try_family,
+                newscore = bestFoundry(script, score, request.styleStrategy, try_family,
                                        QString::null, styleKey, request.pixelSize,
                                        pitch, &try_foundry, &try_style, &try_size
 #ifdef Q_WS_X11
@@ -980,56 +1043,6 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 }
 
 
-static int scriptForWritingSystem(QFontDatabase::WritingSystem writingSystem)
-{
-    switch (writingSystem) {
-    case QFontDatabase::Hebrew:
-        return QUnicodeTables::Hebrew;
-    case QFontDatabase::Arabic:
-        return QUnicodeTables::Arabic;
-    case QFontDatabase::Syriac:
-        return QUnicodeTables::Syriac;
-    case QFontDatabase::Thaana:
-        return QUnicodeTables::Thaana;
-    case QFontDatabase::Devanagari:
-        return QUnicodeTables::Devanagari;
-    case QFontDatabase::Bengali:
-        return QUnicodeTables::Bengali;
-    case QFontDatabase::Gurmukhi:
-        return QUnicodeTables::Gurmukhi;
-    case QFontDatabase::Gujarati:
-        return QUnicodeTables::Gujarati;
-    case QFontDatabase::Oriya:
-        return QUnicodeTables::Oriya;
-    case QFontDatabase::Tamil:
-        return QUnicodeTables::Tamil;
-    case QFontDatabase::Telugu:
-        return QUnicodeTables::Telugu;
-    case QFontDatabase::Kannada:
-        return QUnicodeTables::Kannada;
-    case QFontDatabase::Malayalam:
-        return QUnicodeTables::Malayalam;
-    case QFontDatabase::Sinhala:
-        return QUnicodeTables::Sinhala;
-    case QFontDatabase::Thai:
-        return QUnicodeTables::Thai;
-    case QFontDatabase::Lao:
-        return QUnicodeTables::Lao;
-    case QFontDatabase::Tibetan:
-        return QUnicodeTables::Tibetan;
-    case QFontDatabase::Myanmar:
-        return QUnicodeTables::Myanmar;
-    case QFontDatabase::Korean:
-        return QUnicodeTables::Hangul;
-    case QFontDatabase::Khmer:
-        return QUnicodeTables::Khmer;
-    default:
-        break;
-    }
-    return QUnicodeTables::Common;
-}
-
-
 static QString styleString(int weight, QFont::Style style)
 {
     QString result;
@@ -1097,9 +1110,9 @@ QString QFontDatabase::styleString(const QFont &f)
     Use the styleString() to obtain a text version of a style.
 
     The QFontDatabase class also supports some static functions, for
-    example, standardSizes(). You can retrieve the Unicode 3.0
-    description of a script using scriptName(), and a sample of
-    characters in a script with scriptSample().
+    example, standardSizes(). You can retrieve the description of a
+    writing system using writingSystemName(), and a sample of
+    characters in a writing system with writingSystemSample().
 
     Example:
 \code
@@ -1162,11 +1175,11 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
         if (family->count == 0)
             continue;
         for (int x = Latin; x < WritingSystemsCount; ++x) {
-            const WritingSystem ws = WritingSystem(x);
-            if (!family->scripts[scriptForWritingSystem(ws)])
+            const WritingSystem writingSystem = WritingSystem(x);
+            if (!family->writingSystems[writingSystem])
                 continue;
-            if (!list.contains(ws))
-                list.append(ws);
+            if (!list.contains(writingSystem))
+                list.append(writingSystem);
         }
     }
     qSort(list);
@@ -1193,7 +1206,7 @@ QStringList QFontDatabase::families(WritingSystem writingSystem) const
         QtFontFamily *f = d->families[i];
         if (f->count == 0)
             continue;
-        if (writingSystem != Any && !f->scripts[scriptForWritingSystem(writingSystem)])
+        if (writingSystem != Any && (f->writingSystems[writingSystem] != QtFontFamily::Supported))
             continue;
         if (f->count == 1) {
             flist.append(f->name);

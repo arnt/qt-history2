@@ -32,12 +32,6 @@
 #include FT_FREETYPE_H
 #endif
 
-#ifdef QFONTDATABASE_DEBUG
-#  define FD_DEBUG qDebug
-#else
-#  define FD_DEBUG if (false) qDebug
-#endif // QFONTDATABASE_DEBUG
-
 // from qfont_x11.cpp
 extern double qt_pointSize(double pixelSize, int dpi);
 extern double qt_pixelSize(double pointSize, int dpi);
@@ -55,8 +49,9 @@ static inline void capitalize (char *s)
 
 
 /*
-  To regenerate the scripts_for_xlfd_encoding table, run
-  util/unicode/x11/makeencodings.
+  To regenerate the writingSystems_for_xlfd_encoding table, run
+  'util/unicode/x11/makeencodings' and paste the generated
+  'encodings.c' here.
 */
 // ----- begin of generated code -----
 
@@ -113,155 +108,192 @@ static const XlfdEncoding xlfd_encoding[] = {
     { 0, 0, 0, 0, 0 }
 };
 
-static const char scripts_for_xlfd_encoding[37][21] = {
+static const char writingSystems_for_xlfd_encoding[37][39] = {
     // iso8859-1
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-2
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-3
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-4
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-9
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-10
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-13
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-14
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-15
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // hp-roman8
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-5
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // *-cp1251
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // koi8-ru
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // koi8-u
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // koi8-r
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-7
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // iso8859-8
-    { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // gb18030-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // gb18030.2000-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // gbk-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // gb2312.*-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // jisx0201*-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // jisx0208*-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // ksc5601*-*
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-      0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // big5hkscs-0
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
-    // hkscs-1
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
-    // big5*-*
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
-    // tscii-*
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
-    // tis620*-*
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-      0 },
-    // iso8859-11
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-      0 },
-    // mulelao-1
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // hkscs-1
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // big5*-*
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // tscii-*
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // tis620*-*
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // iso8859-11
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    // mulelao-1
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // ethiopic-unicode
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1 },
     // iso10646-1
-    { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 1,
-      0 },
+    { 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 0, 1, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // unicode-*
-    { 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 1, 0, 0, 1,
-      0 },
+    { 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+      1, 1, 0, 1, 0, 1, 1, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0 },
     // *-symbol
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1 },
     // *-fontspecific
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 },
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1 },
     // fontspecific-*
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0 }
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 1 }
 
 };
 
@@ -533,7 +565,8 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
     QtFontFamily *fontFamily = reqFamily ? db->family(reqFamily) : 0;
 
     // make sure we don't load twice
-    if ((encoding_id == -1 && xlfdsFullyLoaded) || (encoding_id != -1 && encodingLoaded[encoding_id]))
+    if ((encoding_id == -1 && xlfdsFullyLoaded)
+        || (encoding_id != -1 && encodingLoaded[encoding_id]))
         return;
     if (fontFamily && fontFamily->xlfdLoaded)
         return;
@@ -554,12 +587,13 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
     char *tokens[NFontFields];
 
     for(int i = 0 ; i < fontCount ; i++) {
-        if (! parseXFontName(fontList[i], tokens)) continue;
+        if (! parseXFontName(fontList[i], tokens))
+            continue;
 
         // get the encoding_id for this xlfd.  we need to do this
         // here, since we can pass -1 to this function to do full
         // database population
-        *(tokens[CharsetEncoding]-1) = '-';
+        *(tokens[CharsetEncoding] - 1) = '-';
         int encoding_id = qt_xlfd_encoding_id(tokens[CharsetRegistry]);
         if (encoding_id == -1)
             continue;
@@ -621,11 +655,11 @@ static void loadXlfds(const char *reqFamily, int encoding_id)
         enc->pitch = *tokens[Spacing];
         if (!enc->pitch) enc->pitch = '*';
 
-        for (int script = 0; script < QUnicodeTables::ScriptCount; ++script) {
-            if (scripts_for_xlfd_encoding[encoding_id][script])
-                family->scripts[script] = QtFontFamily::Supported;
+        for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
+            if (writingSystems_for_xlfd_encoding[encoding_id][i])
+                family->writingSystems[i] = QtFontFamily::Supported;
             else
-                family->scripts[script] |= QtFontFamily::UnsupportedXLFD;
+                family->writingSystems[i] |= QtFontFamily::UnsupportedXLFD;
         }
         if (encoding_id == -1)
             family->xlfdLoaded = true;
@@ -768,13 +802,59 @@ static const char *specialLanguages[] = {
 };
 enum { SpecialLanguageCount = sizeof(specialLanguages) / sizeof(const char *) };
 
+// this could become a list of all languages used for each writing
+// system, instead of using the single most common language.
+static const char *languageForWritingSystem[] = {
+    0,     // Any
+    "en",  // Latin
+    "el",  // Greek
+    "ru",  // Cyrillic
+    "hy",  // Armenian
+    "he",  // Hebrew
+    "ar",  // Arabic
+    "syr", // Syriac
+    "div", // Thaana
+    "hi",  // Devanagari
+    "bn",  // Bengali
+    "pa",  // Gurmukhi
+    "gu",  // Gujarati
+    "or",  // Oriya
+    "ta",  // Tamil
+    "te",  // Telugu
+    "kn",  // Kannada
+    "ml",  // Malayalam
+    "si",  // Sinhala
+    "th",  // Thai
+    "lo",  // Lao
+    "bo",  // Tibetan
+    "my",  // Myanmar
+    "ka",  // Georgian
+    "km",  // Khmer
+    "zh-cn", // SimplifiedChinese
+    "zh-tw", // TraditionalChinese
+    "ja",  // Japanese
+    "ko",  // Korean
+    "vi",  // Vietnamese
+    "sit", // Yi
+    "tl",  // Tagalog
+    "phi", // Hanunoo
+    "phi", // Buhid
+    "phi", // Tagbanwa
+    "sit", // Limbu
+    "tai", // TaiLe
+    0      // Braille
+};
+enum { LanguageCount = sizeof(languageForWritingSystem) / sizeof(const char *) };
+
 static void loadXft()
 {
     if (!X11->has_xft)
         return;
 
-    Q_ASSERT_X((int)QUnicodeTables::ScriptCount == SpecialLanguageCount, "QFontDatabase",
-               "New scripts have been added, the special language array needs updating");
+    Q_ASSERT_X(int(QUnicodeTables::ScriptCount) == SpecialLanguageCount,
+               "QFontDatabase", "New scripts have been added.");
+    Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == LanguageCount,
+               "QFontDatabase", "New writing systems have been added.");
 
     FcFontSet  *fonts;
 
@@ -836,20 +916,27 @@ static void loadXft()
         FcLangSet *langset = 0;
         FcResult res = FcPatternGetLangSet(fonts->fonts[i], FC_LANG, 0, &langset);
         if (res == FcResultMatch) {
-            for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
-                FcLangResult langRes = FcLangSetHasLang(langset, (const FcChar8*)specialLanguages[i]);
-                if (langRes != FcLangDifferentLang)
-                    family->scripts[i] = QtFontFamily::Supported;
-                else
-                    family->scripts[i] |= QtFontFamily::UnsupportedXft;
-                family->xftScriptCheck = true;
+            for (int i = 1; i < LanguageCount; ++i) {
+                const FcChar8 *lang = (const FcChar8*) languageForWritingSystem[i];
+                if (!lang) {
+                    family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+                } else {
+                    FcLangResult langRes = FcLangSetHasLang(langset, lang);
+                    if (langRes != FcLangDifferentLang)
+                        family->writingSystems[i] = QtFontFamily::Supported;
+                    else
+                        family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+                }
             }
+            family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedXft;
+            family->xftWritingSystemCheck = true;
         } else {
-            // we set UnknownScript to supported for symbol fonts. It makes no sense to merge these
-            // with other ones, as they are special in a way.
-            family->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
-            for (int i = 1; i < QUnicodeTables::ScriptCount; ++i)
-                family->scripts[i] |= QtFontFamily::UnsupportedXft;
+            // we set Other to supported for symbol fonts. It makes no
+            // sense to merge these with other ones, as they are
+            // special in a way.
+            for (int i = 1; i < LanguageCount; ++i)
+                family->writingSystems[i] |= QtFontFamily::UnsupportedXft;
+            family->writingSystems[QFontDatabase::Other] = QtFontFamily::Supported;
         }
 
         QByteArray file((const char *)file_value);
@@ -914,9 +1001,13 @@ static void loadXft()
         QtFontFoundry *foundry = family->foundry(QString::null,  true);
 
         // aliases only make sense for 'common', not for any of the specials
-        family->scripts[QUnicodeTables::Common] = QtFontFamily::Supported;
-        for (int i = 1; i < QUnicodeTables::ScriptCount; ++i)
-            family->scripts[i] = QtFontFamily::UnsupportedXft;
+        for (int i = 1; i < LanguageCount; ++i) {
+            if (requiresOpenType(i))
+                family->writingSystems[i] = QtFontFamily::UnsupportedXft;
+            else
+                family->writingSystems[i] = QtFontFamily::Supported;
+        }
+        family->writingSystems[QFontDatabase::Other] = QtFontFamily::UnsupportedXft;
 
         QtFontStyle::Key styleKey;
         for (int i = 0; i < 4; ++i) {
@@ -943,26 +1034,25 @@ static void load(const QString &family = QString::null, int script = -1)
     t.start();
 #endif
 
-    if (family.isNull()) {
-        if (script == -1)
-            loadXlfds(0, -1);
-        else {
-            for (int i = 0; i < numEncodings; i++) {
-                if (scripts_for_xlfd_encoding[i][script])
-                    loadXlfds(0, i);
-            }
-        }
+    if (family.isNull() && script == -1) {
+        loadXlfds(0, -1);
     } else {
-        QtFontFamily *f = db->family(family, true);
-        if (!f->fullyLoaded) {
+        if (family.isNull()) {
+            // load all families in all writing systems that match \a script
+            for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
+                if (scriptForWritingSystem[ws] != script)
+                    continue;
+                for (int i = 0; i < numEncodings; ++i) {
+                    if (writingSystems_for_xlfd_encoding[i][ws])
+                        loadXlfds(0, i);
+                }
+            }
+        } else {
+            QtFontFamily *f = db->family(family, true);
             // could reduce this further with some more magic:
             // would need to remember the encodings loaded for the family.
-            if ((script == -1 && !f->xlfdLoaded) ||
-                 (!f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
-                   !(f->scripts[script] & QtFontFamily::UnsupportedXLFD))) {
+            if (!f->xlfdLoaded)
                 loadXlfds(family.toLatin1(), -1);
-                f->fullyLoaded = true;
-            }
         }
     }
 
@@ -1043,10 +1133,11 @@ static void initializeDb()
         QtFontFamily *family = db->families[f];
         FD_DEBUG("'%s' %s  hasXft=%s", family->name.latin1(), (family->fixedPitch ? "fixed" : ""),
                  (family->hasXft ? "yes" : "no"));
-        for (int i = 0; i < QUnicodeTables::ScriptCount; ++i) {
-            FD_DEBUG("\t%s: %s", QFontDatabase::scriptName(i).toLatin1().constData(),
-                     ((family->scripts[i] & QtFontFamily::Supported) ? "Supported" :
-                      (family->scripts[i] & QtFontFamily::Unsupported) == QtFontFamily::Unsupported ?
+        for (int i = 0; i < QFontDatabase::WritingSystemsCount; ++i) {
+            QFontDatabase::WritingSystem ws = QFontDatabase::WritingSystem(i);
+            FD_DEBUG("\t%s: %s", QFontDatabase::writingSystemName(ws).toLatin1().constData(),
+                     ((family->writingSystems[i] & QtFontFamily::Supported) ? "Supported" :
+                      (family->writingSystems[i] & QtFontFamily::Unsupported) == QtFontFamily::Unsupported ?
                       "Unsupported" : "Unknown"));
         }
 

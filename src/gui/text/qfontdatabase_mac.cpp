@@ -58,8 +58,9 @@ static void initializeDb()
             DisposeTextToUnicodeInfo(&uni_info);
 
             QtFontFamily *family = db->family(fam_name, true);
-            for(int script = 0; script < QUnicodeTables::ScriptCount; ++script)
-                family->scripts[script] = QtFontFamily::Supported;
+            // ###
+            for(int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
+                family->writingSystem[ws] = QtFontFamily::Supported;
             QtFontFoundry *foundry = family->foundry(foundry_name, true);
 
             FMFontFamilyInstanceIterator fit;
