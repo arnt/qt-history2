@@ -271,7 +271,8 @@ static void heuristicSetGlyphAttributes( const QString &string, int from, int le
 	    glyphs[pos].attributes.combiningClass = cmb;
 	    // 		qDebug("found a mark at position %d", pos );
 	    logClusters[pos] = cStart;
-	    glyphs[pos].advance = 0;
+	    glyphs[pos].advance.x = 0;
+	    glyphs[pos].advance.y = 0;
 	    si->hasPositioning = TRUE;
 	}
 	pos++;
@@ -989,9 +990,10 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 
     convertToCMap( (QChar *)(unsigned short*)shapedChars, slen, engine, si );
     for (int i = 0; i < slen; ++i)
-	if (glyphs[i].attributes.mark)
-	    glyphs[i].advance = 0;
-
+	if (glyphs[i].attributes.mark) {
+	    glyphs[i].advance.x = 0;
+	    glyphs[i].advance.y = 0;
+	}
     q_heuristicPosition( engine, si );
 }
 

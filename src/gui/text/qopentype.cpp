@@ -454,8 +454,10 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
     QFontEngine *font = engine->fontEngine(*si);
     font->recalcAdvances( str->length, glyphs );
     for ( int i = 0; i < (int)str->length; i++ ) {
-	if ( glyphs[i].attributes.mark )
-	    glyphs[i].advance = 0;
+	if ( glyphs[i].attributes.mark ) {
+	    glyphs[i].advance.x = 0;
+	    glyphs[i].advance.y = 0;
+	}
 // 	    qDebug("   adv=%d", glyphs[i].advance);
     }
     si->num_glyphs += str->length;
@@ -471,21 +473,25 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
 // 		   positions[i].back, positions[i].new_advance );
 	    // ###### fix the case where we have y advances. How do we handle this in Uniscribe?????
 	    if ( positions[i].new_advance ) {
-		glyphs[i].advance = qRound((positions[i].x_advance >> 6)*scale);
-		//glyphs[i].advance.y = -positions[i].y_advance >> 6;
+		glyphs[i].advance.x = qRound((positions[i].x_advance >> 6)*scale);
+		glyphs[i].advance.y = qRound((-positions[i].y_advance >> 6)*scale);
 	    } else {
-		glyphs[i].advance += qRound((positions[i].x_advance >> 6)*scale);
-		//glyphs[i].advance.y -= positions[i].y_advance >> 6;
+		glyphs[i].advance.x += qRound((positions[i].x_advance >> 6)*scale);
+		glyphs[i].advance.y -= qRound((positions[i].y_advance >> 6)*scale);
 	    }
 	    glyphs[i].offset.x = qRound((positions[i].x_pos >> 6)*scale);
 	    glyphs[i].offset.y = -qRound((positions[i].y_pos >> 6)*scale);
 	    int back = positions[i].back;
 	    if ( si->analysis.bidiLevel % 2 ) {
-		while ( back-- )
-		    glyphs[i].offset.x -= glyphs[i-back].advance;
+		while ( back-- ) {
+		    glyphs[i].offset.x -= glyphs[i-back].advance.x;
+		    glyphs[i].offset.y -= -glyphs[i-back].advance.y;
+		}
 	    } else {
-		while ( back )
-		    glyphs[i].offset.x -= glyphs[i-(back--)].advance;
+		while ( back ) {
+		    glyphs[i].offset.x -= glyphs[i-(back--)].advance.x;
+		    glyphs[i].offset.y -= -glyphs[i-(back--)].advance.y;
+		}
 	    }
 // 	    qDebug("   ->\tadv=%d\tpos=(%d/%d)",
 // 		   glyphs[i].advance, glyphs[i].offset.x, glyphs[i].offset.y );

@@ -1837,7 +1837,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i != len-1 ) {
-		xyarray += toInt( xo + glyphs[i].offset.x + glyphs[i+1].advance );
+		xyarray += toInt( xo + glyphs[i].offset.x + glyphs[i+1].advance.x );
 		xyarray += " ";
 		xyarray += toInt( yo + glyphs[i].offset.y );
 		xyarray += " ";
@@ -1850,7 +1850,7 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
 	    // map unicode is not really the correct name, as we map glyphs, but we also download glyphs, so this works
 	    stream << toHex(mapUnicode(glyphIndices ? glyphs[i].glyph : glyph_for_unicode(text.unicode()[i].unicode())));
 	    if ( i ) {
-		xyarray += toInt( xo - glyphs[i].offset.x + glyphs[i-1].advance );
+		xyarray += toInt( xo - glyphs[i].offset.x + glyphs[i-1].advance.x );
 		xyarray += " ";
 		xyarray += toInt( yo + glyphs[i].offset.y );
 		xyarray += " ";

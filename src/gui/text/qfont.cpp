@@ -2248,9 +2248,9 @@ int QFontMetrics::width( const QString &str, int len ) const
 	    engine->stringToCMap( ch, 1, glyphs, &nglyphs, FALSE );
 
 	    // ### can nglyphs != 1 happen at all? Not currently I think
-	    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
-		d->engineData->widthCache[ uc ] = glyphs[0].advance;
-	    width += glyphs[0].advance;
+	    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance.x < 0x100 )
+		d->engineData->widthCache[ uc ] = glyphs[0].advance.x;
+	    width += glyphs[0].advance.x;
 	}
 	++pos;
 	++ch;

@@ -116,8 +116,10 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphL
 
     memset(glyphs, 0, len * sizeof(glyph_t));
 
-    for ( int i = 0; i < len; i++ )
-	(glyphs++)->advance = _size;
+    for ( int i = 0; i < len; i++ ) {
+	(glyphs++)->advance.x = _size;
+	(glyphs++)->advance.y = 0;
+    }
 
     *nglyphs = len;
     return NoError;
@@ -320,8 +322,10 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
     // inlined for better perfomance
     if ( !_fs->per_char ) {
 	xcs = &_fs->min_bounds;
-	while ( g != glyphs )
-	    (--g)->advance = xcs->width;
+	while ( g != glyphs ) {
+	    (--g)->advance.x = xcs->width;
+	    (--g)->advance.y = 0;
+	}
     }
     else if ( !_fs->max_byte1 ) {
 	XCharStruct *base = _fs->per_char - _fs->min_char_or_byte2;
@@ -329,18 +333,20 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGl
 	    unsigned int gl = (--g)->glyph;
 	    xcs = (gl >= _fs->min_char_or_byte2 && gl <= _fs->max_char_or_byte2) ?
 		  base + gl : 0;
-	    g->advance = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+	    g->advance.x = (!xcs || (!xcs->width && !xcs->ascent && !xcs->descent)) ? _fs->ascent : xcs->width;
+	    g->advance.y = 0;
 	}
     }
     else {
 	while ( g != glyphs ) {
 	    xcs = charStruct( _fs, (--g)->glyph );
-	    g->advance = (xcs ? xcs->width : _fs->ascent);
+	    g->advance.x = (xcs ? xcs->width : _fs->ascent);
+	    g->advance.y = 0;
 	}
     }
     if ( _scale != 1. ) {
 	for ( int i = 0; i < len; i++ )
-	    glyphs[i].advance = qRound(glyphs[i].advance*_scale);
+	    glyphs[i].advance.x = qRound(glyphs[i].advance.x * _scale);
     }
     return NoError;
 }
@@ -394,9 +400,8 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, 
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
-	    advance_t adv = glyphs[i].advance;
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += adv;
+	    x += glyphs[i].advance.x;
 	    glyph_metrics_t gi = boundingBox( glyphs[i].glyph );
 	    int xp = x-glyphs[i].offset.x-gi.xoff;
 	    int yp = y+glyphs[i].offset.y-gi.yoff;
@@ -409,9 +414,7 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem &si, 
 		int xp = x+glyphs[i].offset.x;
 		int yp = y+glyphs[i].offset.y;
 		XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
-		advance_t adv = glyphs[i].advance;
-		// 	    qDebug("advance = %d/%d", adv.x, adv.y );
-		x += adv;
+		x += glyphs[i].advance.x;
 		i++;
 	    }
 	} else {
@@ -458,7 +461,7 @@ glyph_metrics_t QFontEngineXLFD::boundingBox( const QGlyphLayout *glyphs, int nu
 	    overall.y = qMin( overall.y, y );
 	    xmax = qMax( xmax, overall.xoff + glyphs[i].offset.x + xcs->rbearing );
 	    ymax = qMax( ymax, y + xcs->ascent + xcs->descent );
-	    overall.xoff += glyphs[i].advance;
+	    overall.xoff += glyphs[i].advance.x;
 	} else {
 	    int size = ascent();
 	    overall.x = qMin(overall.x, overall.xoff );
@@ -754,7 +757,7 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
     }
     if (!euroIndex && glyphs[0x200].glyph) {
 	euroIndex = hi | glyphs[0x200].glyph;
-	euroAdvance = glyphs[0x200].advance;
+	euroAdvance = glyphs[0x200].advance.x;
     }
 }
 
@@ -775,17 +778,18 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
 	while ( c != str ) {
 	    --c;
 	    --g;
+	    g->advance.y = 0;
 	    if ( c->unicode() < 0x200 ) {
 		unsigned short ch = ::mirroredChar(*c).unicode();
 		g->glyph = glyphIndices[ch];
-		g->advance = glyphAdvances[ch];
+		g->advance.x = glyphAdvances[ch];
 	    } else {
 		if ( c->unicode() == 0x20ac ) {
 		    g->glyph = euroIndex;
-		    g->advance = euroAdvance;
+		    g->advance.x = euroAdvance;
 		} else {
 		    g->glyph = 0;
-		    g->advance = asc;
+		    g->advance.x = asc;
 		}
 	    }
 	    missing = ( missing || ( g->glyph == 0 ) );
@@ -794,16 +798,17 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
 	while ( c != str ) {
 	    --c;
 	    --g;
+	    g->advance.y = 0;
 	    if ( c->unicode() < 0x200 ) {
 		g->glyph = glyphIndices[c->unicode()];
-		g->advance = glyphAdvances[c->unicode()];
+		g->advance.x = glyphAdvances[c->unicode()];
 	    } else {
 		if ( c->unicode() == 0x20ac ) {
 		    g->glyph = euroIndex;
-		    g->advance = euroAdvance;
+		    g->advance.x = euroAdvance;
 		} else {
 		    g->glyph = 0;
-		    g->advance = asc;
+		    g->advance.x = asc;
 		}
 	    }
 	    missing = ( missing || ( g->glyph == 0 ) );
@@ -819,7 +824,8 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *gly
 	    QFontEngineLatinXLFD *that = (QFontEngineLatinXLFD *) this;
 	    that->findEngine( str[i] );
 	    glyphs[i].glyph = (uc == 0x20ac ? euroIndex : that->glyphIndices[uc]);
-	    glyphs[i].advance = (uc == 0x20ac ? euroAdvance : glyphAdvances[uc]);
+	    glyphs[i].advance.x = (uc == 0x20ac ? euroAdvance : glyphAdvances[uc]);
+	    glyphs[i].advance.y = 0;
 	}
     }
 
@@ -854,7 +860,7 @@ void QFontEngineLatinXLFD::draw( QPaintEngine *p, int x, int y, const QTextItem 
 	const int hi = which << 8;
 	for ( i = start; i < end; ++i ) {
 	    glyphs[i].glyph = hi | glyphs[i].glyph;
-	    x += glyphs[i].advance;
+	    x += glyphs[i].advance.x;
 	}
 
 	// change engine
@@ -1041,10 +1047,10 @@ void QFontEngineLatinXLFD::setScale( double scale )
 			       glyphs, &glyphCount, FALSE );
     for (int i = 0; i < 0x200; ++i) {
 	glyphIndices[i] = glyphs[i].glyph;
-	glyphAdvances[i] = glyphs[i].advance;
+	glyphAdvances[i] = glyphs[i].advance.x;
     }
     euroIndex = glyphs[0x200].glyph;
-    euroAdvance = glyphs[0x200].advance;
+    euroAdvance = glyphs[0x200].advance.x;
 }
 
 
@@ -1165,18 +1171,19 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt glyph = glyphs[i].glyph;
-	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-	if ( !glyphs[i].advance ) {
+	glyphs[i].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	glyphs[i].advance.y = 0;
+	if ( !glyphs[i].advance.x ) {
 	    XGlyphInfo gi;
 	    XftGlyphExtents( QX11Info::appDisplay(), _font, &glyph, 1, &gi );
-	    glyphs[i].advance = gi.xOff;
+	    glyphs[i].advance.x = gi.xOff;
 	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
 		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
 	}
     }
     if ( _scale != 1. ) {
 	for ( int i = 0; i < len; i++ )
-	    glyphs[i].advance = qRound(glyphs[i].advance*_scale);
+	    glyphs[i].advance.x = qRound(glyphs[i].advance.x*_scale);
     }
 
     *nglyphs = len;
@@ -1188,17 +1195,17 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs) const
 {
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt glyph = glyphs[i].glyph;
-	glyphs[i].advance = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
-	if ( !glyphs[i].advance ) {
+	glyphs[i].advance.x = (glyph < widthCacheSize) ? widthCache[glyph] : 0;
+	if ( !glyphs[i].advance.x ) {
 	    XGlyphInfo gi;
 	    XftGlyphExtents( QX11Info::appDisplay(), _font, &glyph, 1, &gi );
-	    glyphs[i].advance = gi.xOff;
+	    glyphs[i].advance.x = gi.xOff;
 	    if ( glyph < widthCacheSize && gi.xOff < 0x100 )
-		((QFontEngineXft *)this)->widthCache[glyph] = gi.xOff;
+		widthCache[glyph] = gi.xOff;
 	}
 	if ( _scale != 1. ) {
 	    for ( int i = 0; i < len; i++ )
-		glyphs[i].advance = qRound(glyphs[i].advance*_scale);
+		glyphs[i].advance.x = qRound(glyphs[i].advance.x*_scale);
 	}
     }
 }
@@ -1318,7 +1325,7 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	    glyphSpec[i].x = xp;
 	    glyphSpec[i].y = yp;
 	    glyphSpec[i].glyph = glyphs[i].glyph;
-	    x += glyphs[i].advance;
+	    x += glyphs[i].advance.x;
 	}
     } else {
 	int i = 0;
@@ -1330,7 +1337,7 @@ void QFontEngineXft::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	    glyphSpec[i].x = xp;
 	    glyphSpec[i].y = yp;
 	    glyphSpec[i].glyph = glyphs[i].glyph;
-	    x += glyphs[i].advance;
+	    x += glyphs[i].advance.x;
 	    i++;
 	}
     }
@@ -1370,7 +1377,7 @@ glyph_metrics_t QFontEngineXft::boundingBox( const QGlyphLayout *glyphs, int num
 	overall.y = qMin( overall.y, y );
 	xmax = qMax( xmax, x + xgi.width );
 	ymax = qMax( ymax, y + xgi.height );
-	overall.xoff += glyphs[i].advance;
+	overall.xoff += glyphs[i].advance.x;
     }
     overall.height = ymax - overall.y;
     overall.width = xmax - overall.x;

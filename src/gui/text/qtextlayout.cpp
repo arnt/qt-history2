@@ -294,14 +294,14 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
 	    int tmpw = 0;
 	    while (gp <= gs) {
-		tmpw += glyphs[gp].advance;
+		tmpw += glyphs[gp].advance.x;
 		++gp;
 	    }
 	    minw = qMax(tmpw, minw);
 
 	    int nextspacew = 0;
 	    while (gp <= ge) {
-		nextspacew += glyphs[gp].advance;
+		nextspacew += glyphs[gp].advance.x;
 		++gp;
 	    }
 //  	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d, nextspacew=%d",
@@ -620,7 +620,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 	    gf.glyphs = glyphs + gs;
 	    int w = 0;
 	    while (gs < gtmp) {
-		w += glyphs[gs].advance;
+		w += glyphs[gs].advance.x;
 		++gs;
 	    }
 	    gf.width = w;
@@ -633,7 +633,7 @@ void QTextLine::draw( QPainter *p, int x, int y, int selection ) const
 		gf.glyphs = glyphs + gs;
 		w = 0;
 		while (gs < gtmp) {
-		    w += glyphs[gs].advance;
+		    w += glyphs[gs].advance.x;
 		    ++gs;
 		}
 		gf.width = w;
@@ -683,10 +683,10 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 
     if ( reverse ) {
 	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += glyphs[i].advance;
+	    x += glyphs[i].advance.x;
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += glyphs[i].advance;
+	    x += glyphs[i].advance.x;
     }
 
     // add the items left of the cursor
@@ -737,7 +737,7 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 	QGlyphLayout *glyphs = eng->glyphs(&si);
 
 	while (gs <= ge) {
-	    x += glyphs[gs].advance;
+	    x += glyphs[gs].advance.x;
 	    ++gs;
 	}
     }
@@ -819,7 +819,7 @@ int QTextLine::xToCursor( int x, CursorPosition cpos ) const
 	    }
 	    if (gs > ge)
 		break;
-	    x -= glyphs[gs].advance;
+	    x -= glyphs[gs].advance.x;
 	    ++gs;
 	}
     }

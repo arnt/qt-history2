@@ -958,7 +958,7 @@ void QTextEngine::splitItem( int item, int pos )
 	int w = 0;
 	const QGlyphLayout *g = glyphs(&oldItem);
 	for(int j = 0; j < breakGlyph; ++j)
-	    w += (g++)->advance;
+	    w += (g++)->advance.x;
 
 	newItem.width = oldItem.width - w;
 	oldItem.width = w;
@@ -1043,7 +1043,7 @@ int QTextEngine::width( int from, int len ) const
 
 // 		qDebug("char: start=%d end=%d / glyph: start = %d, end = %d", charFrom, charEnd, glyphStart, glyphEnd );
 		for ( int i = glyphStart; i < glyphEnd; i++ )
-		    w += glyphs[i].advance;
+		    w += glyphs[i].advance.x;
 	    }
 	}
     }

@@ -30,7 +30,6 @@ struct glyph_metrics_t;
 class QChar;
 typedef unsigned short glyph_t;
 class QOpenType;
-typedef int advance_t;
 
 class QTextEngine;
 struct QGlyphLayout;
@@ -410,9 +409,9 @@ private:
     int _count;
 
     glyph_t   glyphIndices [0x200];
-    advance_t glyphAdvances[0x200];
+    short glyphAdvances[0x200];
     glyph_t euroIndex;
-    advance_t euroAdvance;
+    short euroAdvance;
 };
 
 

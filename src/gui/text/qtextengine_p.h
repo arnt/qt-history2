@@ -69,7 +69,6 @@ struct glyph_metrics_t
 Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
 typedef unsigned short glyph_t;
-typedef int advance_t;
 
 #if defined( Q_WS_X11 ) || defined ( Q_WS_QWS ) || defined (Q_WS_MAC)
 
@@ -101,8 +100,6 @@ struct qoffset_t {
     int y;
 };
 Q_DECLARE_TYPEINFO(qoffset_t, Q_PRIMITIVE_TYPE);
-
-typedef int advance_t;
 
 struct QScriptAnalysis {
     unsigned short script         :10;
@@ -167,8 +164,7 @@ struct QGlyphLayout
 	unsigned short combiningClass  :8;
     };
     Attributes attributes;
-    //struct {short x; short y; } advance;
-    int advance;
+    struct {short x; short y; } advance;
     struct { short x; short y; } offset;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);

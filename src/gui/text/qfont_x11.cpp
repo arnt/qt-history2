@@ -619,10 +619,10 @@ int QFontMetrics::width( QChar ch ) const
     engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
 
     // ### can nglyphs != 1 happen at all? Not currently I think
-    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
-	d->engineData->widthCache[ uc ] = glyphs[0].advance;
+    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance.x < 0x100 )
+	d->engineData->widthCache[ uc ] = glyphs[0].advance.x;
 
-    return glyphs[0].advance;
+    return glyphs[0].advance.x;
 }
 
 
@@ -659,7 +659,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
 	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
-	width = glyphs[0].advance;
+	width = glyphs[0].advance.x;
     }
     if ( ch.unicode() < QFontEngineData::widthCacheSize && width < 0x100 )
 	d->engineData->widthCache[ ch.unicode() ] = width;
