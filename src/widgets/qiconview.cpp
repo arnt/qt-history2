@@ -1381,7 +1381,7 @@ void QIconViewItem::calcRect( const QString &text_ )
 
 /*!
   Paints the item using the painter \a p, the color group \a cg and the font \a font. If you want, that
-  your iconview item is drawn with a different font or color, reimplement this method and 
+  your iconview item is drawn with a different font or color, reimplement this method and
   change the values of the color group or the font and call then the paintItem() method of the
   super class with the changed values.
 */
@@ -2810,25 +2810,51 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
 }
 
 /*!
-  Finds the first item which is visible on the viewport. If no items are
+  Finds the first item which is visible in the rectangle \a r in contents coordinates. If no items are
   visible at all, 0 is returned.
 */
 
-QIconViewItem* QIconView::findFirstVisibleItem() const
+QIconViewItem* QIconView::findFirstVisibleItem( const QRect &r ) const
 {
-    QRect r( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
     QIconViewItem *item = d->firstItem, *i = 0;
     for ( ; item; item = item->next ) {
 	if ( r.intersects( item->rect() ) ) {
-	    if ( !i )
+	    if ( !i ) {
 		i = item;
-	    else {
+	    } else {
 		QRect r2 = item->rect();
 		QRect r3 = i->rect();
 		if ( r2.y() < r3.y() )
 		    i = item;
 		else if ( r2.y() == r3.y() &&
 			  r2.x() < r3.x() )
+		    i = item;
+	    }
+	}
+    }
+
+    return i;
+}
+
+/*!
+  Finds the last item which is visible in the rectangle \a r in contents coordinates. If no items are
+  visible at all, 0 is returned.
+*/
+
+QIconViewItem* QIconView::findLastVisibleItem( const QRect &r ) const
+{
+    QIconViewItem *item = d->firstItem, *i = 0;
+    for ( ; item; item = item->next ) {
+	if ( r.intersects( item->rect() ) ) {
+	    if ( !i ) {
+		i = item;
+	    } else {
+		QRect r2 = item->rect();
+		QRect r3 = i->rect();
+		if ( r2.y() > r3.y() )
+		    i = item;
+		else if ( r2.y() == r3.y() &&
+			  r2.x() > r3.x() )
 		    i = item;
 	    }
 	}
@@ -3873,36 +3899,58 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     } break;
     case Key_Next: {
 	d->currInputString = QString::null;
+	QRect r;
 	if ( d->alignMode == East )
-	    scrollBy( 0, visibleHeight() );
+	    r = QRect( 0, d->currentItem->y() + visibleHeight(), contentsWidth(), visibleHeight() );
 	else
-	    scrollBy( visibleWidth(), 0 );
+	    r = QRect( d->currentItem->x() + visibleWidth(), 0, visibleWidth(), contentsHeight() );
 	QIconViewItem *item = d->currentItem;
-	setCurrentItem( findFirstVisibleItem() );
-	if ( d->selectionMode == Single ) {
-	    if ( item )
-		item->setSelected( FALSE );
-	    d->currentItem->setSelected( TRUE, TRUE );
-	} else {
-	    if ( e->state() & ShiftButton )
-		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	QIconViewItem *ni = findFirstVisibleItem( r  );
+	if ( !ni ) {
+	    if ( d->alignMode == East )
+		r = QRect( 0, d->currentItem->y() + d->currentItem->height(), contentsWidth(), contentsHeight() );
+	    else
+		r = QRect( d->currentItem->x() + d->currentItem->width(), 0, contentsWidth(), contentsHeight() );
+	    ni = findLastVisibleItem( r  );
+	}
+	if ( ni ) {
+	    setCurrentItem( ni );
+	    if ( d->selectionMode == Single ) {
+		if ( item )
+		    item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    }
 	}
     } break;
     case Key_Prior: {
 	d->currInputString = QString::null;
+	QRect r;
 	if ( d->alignMode == East )
-	    scrollBy( 0, -visibleHeight() );
+	    r = QRect( 0, d->currentItem->y() - visibleHeight(), contentsWidth(), visibleHeight() );
 	else
-	    scrollBy( -visibleWidth(), 0 );
+	    r = QRect( d->currentItem->x() - visibleWidth(), 0, visibleWidth(), contentsHeight() );
 	QIconViewItem *item = d->currentItem;
-	setCurrentItem( findFirstVisibleItem() );
-	if ( d->selectionMode == Single ) {
-	    if ( item )
-		item->setSelected( FALSE );
-	    d->currentItem->setSelected( TRUE, TRUE );
-	} else {
-	    if ( e->state() & ShiftButton )
-		d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	QIconViewItem *ni = findFirstVisibleItem( r  );
+	if ( !ni ) {
+	    if ( d->alignMode == East )
+		r = QRect( 0, 0, contentsWidth(), d->currentItem->y() );
+	    else
+		r = QRect( 0, 0, d->currentItem->x(), contentsHeight() );
+	    ni = findFirstVisibleItem( r  );
+	}
+	if ( ni ) {
+	    setCurrentItem( ni );
+	    if ( d->selectionMode == Single ) {
+		if ( item )
+		    item->setSelected( FALSE );
+		d->currentItem->setSelected( TRUE, TRUE );
+	    } else {
+		if ( e->state() & ShiftButton )
+		    d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+	    }
 	}
     } break;
     default:

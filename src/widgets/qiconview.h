@@ -306,8 +306,8 @@ public:
 					const QCursor &cursor = pointingHandCursor,
 					int interval = -1 );
     bool isSingleClickEnabled( bool *underline = 0, bool *highlighte = 0, QCursor *cursor = 0, int *interval = 0) const;
-			       
-    
+			
+
     QIconViewItem *findItem( const QPoint &pos ) const;
     QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
@@ -317,7 +317,8 @@ public:
     virtual void repaintItem( QIconViewItem *item );
 
     void ensureItemVisible( QIconViewItem *item );
-    QIconViewItem* findFirstVisibleItem() const;
+    QIconViewItem* findFirstVisibleItem( const QRect &r ) const;
+    QIconViewItem* findLastVisibleItem( const QRect &r ) const;
 
     virtual void clear();
 
