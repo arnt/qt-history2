@@ -1493,6 +1493,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->at( index )->setCustomItem( custom );
 		    curpar->addCustomItem();
 		    registerCustomItem( custom, curpar );
+		    hasNewPar = FALSE;
 		} else if ( !emptyTag ) {
 		    tags += curtag;
 		    if ( nstyle ) {
