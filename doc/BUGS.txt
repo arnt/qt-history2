@@ -5,9 +5,6 @@ Critical
 Severe
 ------
 
-static usage of QFileDialog on Borland (Win32)
-    API-call doesn't seem to work, so use Qt dialog as workaround
-
 drawText() on a printer (Win32)
     Text produces garbage (Win98) and is not scaled correctly (support/arc-07/15339)
 
