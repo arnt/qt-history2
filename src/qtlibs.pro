@@ -10,8 +10,7 @@ SUBDIRS += qgui.pro
 #can be built in any order..
 win32:SUBDIRS += qtmain.pro 
 !qt_one_lib {
-   !win32:SUBDIRS += qnetwork.pro
-   SUBDIRS += qsql.pro qopengl.pro qxml.pro
+   SUBDIRS += qnetwork.pro qsql.pro qopengl.pro qxml.pro
 }
 embedded:SUBDIRS -= qopengl.pro
 SUBDIRS += qcompat.pro 
