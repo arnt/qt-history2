@@ -303,9 +303,6 @@
                         <property name="name">
                             <cstring>resultBox</cstring>
                         </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Found documents of the last search.</string>
-                        </property>
                         <property name="whatsThis" stdset="0">
                             <string>&lt;b&gt;Found documents&lt;/b&gt;&lt;p&gt;This list contains all found documents from the last search. The documents are ordered, i.e. the first document has the most matches.&lt;/p&gt;</string>
                         </property>
