@@ -18,7 +18,8 @@ class InnerNode;
 class Node
 {
 public:
-    enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
+    enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property,
+                Target };
     enum Access { Public, Protected, Private };
     enum Status { Compat, Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
@@ -383,5 +384,13 @@ inline NodeList PropertyNode::functions() const
 	list += funcs[i];
     return list;
 }
+
+class TargetNode : public LeafNode
+{
+public:
+    TargetNode(InnerNode *parent, const QString& name);
+
+    virtual bool isInnerNode() const;
+};
 
 #endif

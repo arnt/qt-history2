@@ -521,6 +521,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         }
 	break;
     case Atom::Target:
+        out() << "<a name=\"" << protect(atom->string()) << "\">"
+              << "</a>";
 	break;
     case Atom::UnhandledFormat:
 	out() << "<font color=\"red\"><b>&lt;Missing HTML&gt;</b></font>";
@@ -1624,6 +1626,8 @@ QString HtmlGenerator::refForNode(const Node *node)
 	break;
     case Node::Property:
 	ref = node->name() + ".prop";
+    case Node::Target:
+        return protect(node->name());
     }
     return registerRef( ref );
 }
@@ -1649,7 +1653,7 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
         if (relative && fn == fileName(relative) && ref == refForNode(relative))
             return QString();
 
-	link += '#';
+	link += "#";
         link += ref;
     }
     return link;

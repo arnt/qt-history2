@@ -573,3 +573,13 @@ bool PropertyNode::fromTrool( Trool troolean, bool defaultValue )
 	return defaultValue;
     }
 }
+
+TargetNode::TargetNode( InnerNode *parent, const QString& name )
+    : LeafNode(Target, parent, name)
+{
+}
+
+bool TargetNode::isInnerNode() const
+{
+    return false;
+}

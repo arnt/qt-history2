@@ -2,8 +2,10 @@
   cppcodemarker.cpp
 */
 
+#include "atom.h"
 #include "cppcodemarker.h"
 #include "node.h"
+#include "text.h"
 #include "tree.h"
 
 CppCodeMarker::CppCodeMarker()
@@ -508,6 +510,28 @@ const Node *CppCodeMarker::resolveTarget(const QString &target, const Tree *tree
         QStringList path = funcName.split("::");
         if ((func = tree->findFunctionNode(path, relative, Tree::SearchBaseClasses)))
             return func;
+    } else if (target.contains("#")) {
+        int hashAt = target.indexOf("#");
+        QString link = target.left(hashAt);
+        QString ref = target.mid(hashAt + 1);
+        const Node *node;
+        if (link.isEmpty()) {
+            node = relative;
+        } else {
+            QStringList path(link);
+            node = tree->findNode(path, tree->root(), Tree::SearchBaseClasses);
+        }
+        if (node && node->isInnerNode()) {
+            const Atom *atom = node->doc().body().firstAtom();
+            while (atom) {
+                if (atom->type() == Atom::Target && atom->string() == ref) {
+                    Node *parentNode = const_cast<Node *>(node);
+                    return new TargetNode(static_cast<InnerNode*>(parentNode),
+                                          ref);
+                }
+                atom = atom->next();
+            }
+        }
     } else {
         QStringList path = target.split("::");
         const Node *node;
