@@ -1477,12 +1477,10 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
         QString format;
         if (fieldFlags & QTextStream::showbase)
             format += "0x";
-        format += QLatin1String("%");
+        format += QLatin1String("%ll");
         format += (fieldFlags & QTextStream::uppercase) ? "X" : "x";
 
         tmp.sprintf(format.toLatin1().constData(), number);
-        if (negative)
-            tmp.prepend(QLatin1Char('-'));
         break;
     }
     case QTextStream::oct:
