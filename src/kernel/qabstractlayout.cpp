@@ -417,9 +417,12 @@ int QWidgetItem::heightForWidth( int w ) const
 {
     if ( isEmpty() )
 	return 0; // ### -1?
+    int hfw;
     if ( wid->layout() )
-	return wid->layout()->totalHeightForWidth( w );
-    return wid->heightForWidth( w );
+	hfw =  wid->layout()->totalHeightForWidth( w );
+    else
+	hfw = wid->heightForWidth( w );
+    return QMIN( hfw, wid->maximumHeight() );
 }
 
 /*!
