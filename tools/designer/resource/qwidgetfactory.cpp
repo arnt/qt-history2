@@ -1475,7 +1475,9 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "function" ) {
 	    QString name = n.attribute( "name" );
-	    QMap<QString, QString>::Iterator it = languageSlots.find( name.left( name.find( "(" ) ) );
+	    int pos = name.find( "(" );
+	    QString ident = name.left( pos );
+	    QMap<QString, QString>::Iterator it = languageSlots.find( ident );
 	    if ( it != languageSlots.end() ) {
 		Functions *funcs = 0;
 		QMap<QString, Functions*>::Iterator fit = languageFunctions.find( *it );
@@ -1485,9 +1487,10 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 		} else {
 		    funcs = *fit;
 		}
-		QString s;
 		QString body = n.firstChild().toText().data();
-		s += "function " + name + "\n" + body + "\n\n";
+		QString s = "with (Application." + QString( toplevel->name() );
+		s += ") { Application." + QString( toplevel->name() ) + "." + ident;
+		s += " = function " + name.mid( pos ) + '\n' + body + "}\n\n";
 		funcs->functions += s;
 		if ( qwf_language && *qwf_language == *it ) {
 		    if ( !qwf_functions )
