@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#155 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -313,6 +313,13 @@ void qt_init( int *argcptr, char **argv )
     QPainter::initialize();
     qApp->setName( appName );
 #if defined(USE_HEARTBEAT)
+    /*
+      ########
+      The heartbeat timer should be slowed down if we get no user input
+      for some time and we should wake it up immediately when we get the
+      first user event (any mouse or keyboard event).
+      ########
+    */
     heartBeat = SetTimer( 0, 0, 200,
 	qt_win_use_simple_timers ?
 	(TIMERPROC)qt_simple_timer_func : 0 );
