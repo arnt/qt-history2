@@ -23,7 +23,7 @@
                         <number>0</number>
                     </property>
                     <item>
-                        <widget class="QWidget"  name="Vertical Layout" widgetboxicon="designer_vlayout.png">
+                        <widget class="QWidget"  name="Vertical Layout" widgetboxicon="designer_editvlayout.png">
                             <property name="objectName">
                                 <string notr="true">verticalLayout</string>
                             </property>
@@ -40,7 +40,7 @@
                     </item>
 
                     <item>
-                        <widget class="QWidget"  name="Horizontal Layout" widgetboxicon="designer_hlayout.png">
+                        <widget class="QWidget"  name="Horizontal Layout" widgetboxicon="designer_edithlayout.png">
                             <property name="objectName">
                                 <string notr="true">horizontalLayout</string>
                             </property>
@@ -57,7 +57,7 @@
                     </item>
 
                     <item>
-                        <widget class="QWidget"  name="Grid Layout" widgetboxicon="designer_glayout.png">
+                        <widget class="QWidget"  name="Grid Layout" widgetboxicon="designer_editgrid.png">
                             <property name="objectName">
                                 <string notr="true">gridLayout</string>
                             </property>
