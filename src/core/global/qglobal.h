@@ -140,6 +140,7 @@
 
 #if defined(Q_OS_DARWIN)
 #  define Q_OS_MAC /* Q_OS_MAC is mostly for compatiblity, but also more clear */
+#  define Q_OS_MACX /* Q_OS_MACX is only for compatiblity.*/
 #endif
 
 #if defined(Q_OS_MSDOS) || defined(Q_OS_OS2) || defined(Q_OS_WIN)
@@ -526,6 +527,7 @@
 #elif defined(Q_OS_UNIX)
 #  if defined(Q_OS_DARWIN) && !defined(__USE_WS_X11__)
 #    define Q_WS_MAC
+#    define Q_WS_MACX
 #  elif !defined(Q_WS_QWS)
 #    define Q_WS_X11
 #  endif
