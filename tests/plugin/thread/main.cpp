@@ -182,7 +182,7 @@ void TestInterface::countWidgets()
     wlIface->release();
 
     DesignerStatusBarInterface *sbIface = (DesignerStatusBarInterface*)appInterface->queryInterface( "DesignerStatusBarInterface" );
-    sbIface->requestSetProperty( "message", tr("There are %1 widgets in this form").arg( c ) );
+    sbIface->setMessage( tr("There are %1 widgets in this form").arg( c ) );
     sbIface->release();
 }
 
