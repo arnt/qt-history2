@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#170 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -414,8 +414,8 @@ HANDLE QFont::handle() const
   fileds lbearing and rbearing are not given any values.
  */
 
-static
-bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
+static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
+			 QCString *encodingName )
 {
 
     char *tokens[fontFields];
@@ -429,11 +429,8 @@ bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 	*encodingName += tokens[CharsetEncoding];
     }
 
-    fd->family    = QString::fromLatin1(tokens[Family]);
+    fd->family = QString::fromLatin1(tokens[Family]);
     fd->pointSize = atoi(tokens[PointSize]);
-    int resy = atoi( tokens[ResolutionY] );
-    if ( resy != 75 )
-	fd->pointSize = (fd->pointSize*2*resy + 1)/(2*75);
     fd->styleHint = QFont::AnyStyle;	// ### any until we match families
 
     if ( strcmp( tokens[CharsetRegistry], "iso8859" ) == 0 ) {
@@ -505,7 +502,7 @@ bool fillFontDef( const QCString &xlfd, QFontDef *fd, QCString *encodingName )
 /*!
   Returns the name of the font within the underlying window system.
   On Windows, this is usually just the family name of a true type
-  font. Under X, it is  a rather complex  XLFD (X Logical Font Description).  
+  font. Under X, it is  a rather complex  XLFD (X Logical Font Description).
   <em>Using the return value of this function is usually not
   portable.</em>
 
@@ -523,20 +520,20 @@ QString QFont::rawName() const
   particular useful under X, where system font settings ( for example
   X resources) are usually available as XLFD (X Logical Font
   Description) only. You can pass an XLFD as \a name to this function.
-  
+
   The big advantage over Qt-1.x' concept of raw fonts is, that a font
   after setRawName() is still a full-featured QFont. It can be queried
   (for example with italic()) or modified (for example with
   setItalic() ) and is therefore also suitable as a basis font for
   rendering rich text.
-  
+
   If Qt's internal font database cannot resolve the raw name, the font
   becomes a raw font with \a name as family.
-  
+
   \bug Doesn't handle wildcards in XLFDs well, only complete
-  descriptions.  Aliases ( file \c fonts.alias in the font directory
-  on X11) are not supported.
-  
+  descriptions.  Aliases (file \c fonts.alias in the font directory on
+  X11) are not supported.
+
   \sa rawName(), setRawMode(), setFamily()
 */
 void QFont::setRawName( const QString &name )
@@ -1350,7 +1347,7 @@ int QFontMetrics::printerAdjusted(int val) const
 	 painter->device()->devType() == QInternal::Printer) {
 	painter->cfont.handle();
 	int xres = painter->cfont.d->fin->xResolution();
-	return qRound((val*0.75)/(xres*1.0));
+	return qRound( val*75/xres );
     } else {
 	return val;
     }
