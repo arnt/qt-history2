@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#10 $
 **
 ** Implementation of QColorDialog class
 **
@@ -667,7 +667,7 @@ void QColorDialogPrivate::addCustom()
 
 /*!
   \class QColorDialog qcolordialog.h
-  \brief The QFileDialog provides a dialog widget for specifying colors.
+  \brief The QColorDialog provides a dialog widget for specifying colors.
   \ingroup dialogs
 
   This version of Qt provides the static getColor() function that
