@@ -435,7 +435,7 @@ QDir::QDir(const QDir &dir)  : d_ptr(new QDirPrivate(this, &dir))
 }
 
 /*!
-    Destroys the QDir frees up its resources.
+    Destroys the QDir.
 */
 
 QDir::~QDir()
@@ -446,7 +446,7 @@ QDir::~QDir()
 
 /*!
     Sets the path of the directory to \a path. The path is cleaned of
-    redundant ".", ".." and of multiple separators. No check is made
+    redundant ".", "..", and multiple separators. No check is made
     to ensure that a directory with this path exists.
 
     The path can be either absolute or relative. Absolute paths begin
@@ -733,8 +733,7 @@ QDir::nameFilters() const
     The \a nameFilters is a wildcard (globbing) filter that understands
     "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
     QRegExp wildcard matching\endlink.) You may specify several filter
-    entries all separated by a single space " " or by a semi-colon
-    ";".
+    entries, each separated by spaces " ", or by semi-colons ";".
 
     For example, if you want entryList() and entryInfoList() to list
     all files ending with either ".cpp" or ".h", you would use either
@@ -767,32 +766,34 @@ QDir::filter() const
     for entryList() and entryInfoList(). The filter value is specified
     by OR-ing together values from the following list:
 
-    \value Dirs  List directories only.
-    \value Files  List files only.
-    \value  Drives  List disk drives (ignored under Unix).
-    \value  NoSymLinks  Do not list symbolic links (ignored by operating
-    systems that don't support symbolic links).
-    \value All List directories, files, drives and symlinks (this does not list
-    broken symlinks unless you specify System).
-    \value TypeMask A mask for the the Dirs, Files, Drives and
-    NoSymLinks flags.
-    \value  Readable  List files for which the application has read access.
-    \value  Writable  List files for which the application has write access.
-    \value  Executable  List files for which the application has execute
-    access. Executables needs to be combined with Dirs or Files.
-    \value  RWEMask A mask for the Readable, Writable and Executable flags.
-    \value  Modified  Only list files that have been modified (ignored
-    under Unix).
-    \value  Hidden  List hidden files (on Unix, files starting with a .).
-    \value  System  List system files (on Unix, FIFOs, sockets and
-    device files)
-    \value AccessMask A mask for the Readable, Writable, Executable
-    Modified, Hidden and System flags
+    \value Dirs       List directories only.
+    \value Files      List files only.
+    \value Drives     List disk drives (ignored under Unix).
+    \value NoSymLinks Do not list symbolic links (ignored by operating
+                      systems that don't support symbolic links).
+    \value All        List directories, files, drives, and symlinks (this
+                      does not list broken symlinks unless you specify
+                      System).
+    \value TypeMask   A mask for the the Dirs, Files, Drives, and
+                      NoSymLinks flags.
+    \value Readable   List files for which the application has read access.
+    \value Writable   List files for which the application has write access.
+    \value Executable List files for which the application has execute
+                      access. Executables needs to be combined with Dirs or
+                      Files.
+    \value RWEMask    A mask for the Readable, Writable and Executable flags.
+    \value Modified   Only list files that have been modified (ignored
+                      under Unix).
+    \value Hidden     List hidden files (files starting with a . on Unix).
+    \value System     List system files (FIFOs, sockets and device files
+                      on Unix).
+    \value AccessMask A mask for the Readable, Writable, Executable,
+                      Modified, Hidden and System flags.
     \value DefaultFilter Internal flag.
 
-    If you do not set any of \c Readable, \c Writable or \c
+    If you do not set any of \c Readable, \c Writable, or \c
     Executable, QDir will set all three of them. This makes the
-    default easy to write and at the same time useful.
+    default easy to write, and at the same time useful.
 
     Examples: \c Readable|Writable means list all files for which the
     application has read access, write access or both. \c Dirs|Drives
@@ -872,7 +873,7 @@ QDir::setSorting(int sortSpec)
 
 
 /*!
-    Returns the total number of directories and files that were found.
+    Returns the total number of directories and files in the directory.
 
     Equivalent to entryList().count().
 
@@ -1043,7 +1044,7 @@ QDir::mkdir(const QString &dirName, Recursion recurse, bool acceptAbsPath) const
 }
 
 /*!
-    Removes a directory.
+    Removes the directory given by \a dirName.
 
     If \a recurse is Recursive then subdirectories along the path to
     \a dirName will be created removed if left empty. If \a recurse is
@@ -1165,7 +1166,7 @@ QDir::isRelative() const
 
 /*!
     Converts the directory path to an absolute path. If it is already
-    absolutely nothing is done.
+    an absolute path, nothing is done.
 
     \sa isRelative()
 */
