@@ -67,10 +67,6 @@ public:
     
 #ifndef QT_NO_COMPAT
     QFont::CharSet charSet() const;
-#endif // QT_NO_COMPAT
-
-#if 1	/* OBSOLETE */
-    const QFont &font() const;
 #endif
 
 private:
