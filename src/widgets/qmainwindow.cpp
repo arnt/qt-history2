@@ -46,6 +46,7 @@
 #include "qwhatsthis.h"
 
 //#define QMAINWINDOW_DEBUG
+//#define TOOLBAR_MENU
 
 //***********************************************************************************
 // -------------------------- static convenience functions -------------------
