@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#51 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#50 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#51 $")
 
 
 declare(QListM, QLBItem);
@@ -1324,6 +1324,8 @@ QLBItem *QListBox::newAny( const char *str, const QPixmap *pm )
 /*----------------------------------------------------------------------------
   \internal
   Inserts a new list box item.
+
+  The caller must also call update() if autoUpdate() is TRUE.
  ----------------------------------------------------------------------------*/
 
 void QListBox::insertAny( const char *str, const QPixmap *pm,
@@ -1370,12 +1372,22 @@ void QListBox::changeAny( const char *str, const QPixmap *pm,
     int w = internalItemWidth( old, fm );
     if ( w == cellWidth() )
 	updateCellWidth();
+    int h = cellHeight( index );
     if ( old->type == LBI_String && copyStrings )
 	delete (char*)old->string;
     else if ( old->type == LBI_Pixmap )
 	delete old->pixmap;
     deleteItem( old );
     insertAny( str, pm, lbi, index, TRUE );
+    int nh = cellHeight( index );
+    int y;
+    // ### the update rectangles are dubious
+    if ( autoUpdate() && rowYPos( index, &y ) ) {
+	if ( nh == h )
+	    update( frameWidth(), y, viewWidth(), h );
+	else
+	    update( frameWidth(), y, viewWidth(), viewHeight() - y );
+    }
 }
 
 /*----------------------------------------------------------------------------
