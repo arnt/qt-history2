@@ -179,7 +179,6 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
     ofn->lpstrTitle	= aTitle.data();
-    ofn->lpstrDefExt    = aFilter.data();
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||
@@ -251,7 +250,6 @@ OPENFILENAME* makeOFN( QWidget* parent,
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = tInitDir;
     ofn->lpstrTitle	= tTitle;
-    ofn->lpstrDefExt    = tFilter;
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||

@@ -1454,6 +1454,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
 	    lineEnd++;
 	}
 	lineStart = lineEnd;
+	delete runs;
     }
     return visual;
 }

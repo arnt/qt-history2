@@ -937,11 +937,11 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		if ( frame == 0 ) {
 		    if ( left || top || width!=swidth || height!=sheight ) {
 			// Not full-size image - erase with bg or transparent
-			if ( bgcol>=0 ) {
-			    fillRect(img, 0, 0, swidth, sheight, color(bgcol));
-			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
-			} else if ( trans_index > 0 ) {
+			if ( trans_index >= 0 ) {
 			    fillRect(img, 0, 0, swidth, sheight, color(trans_index));
+			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
+			} else if ( bgcol>=0 ) {
+			    fillRect(img, 0, 0, swidth, sheight, color(bgcol));
 			    if (consumer) consumer->changed(QRect(0,0,swidth,sheight));
 			}
 		    }

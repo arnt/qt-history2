@@ -3019,6 +3019,9 @@ void QFileDialog::setDir( const QString & pathstr )
 /*!
   Returns the current directory shown in the file dialog.
   \sa setDir()
+
+  The ownership of the QDir pointer is transferred to the caller, so
+  it has to be deleted by the caller when not needed anymore.
 */
 
 const QDir *QFileDialog::dir() const
@@ -5633,14 +5636,27 @@ void QFileDialog::insertEntry( const QValueList<QUrlInfo> &lst, QNetworkOperatio
 	} else if ( inf.name() == "." )
 	    continue;
 
-	// check for hidden files
-	// #### todo make this work on windows
-	if ( !bShowHiddenFiles ) {
-	    QFileInfo fileinf( inf.name() );
-	    if ( fileinf.isHidden() )
-		continue;
-	}
-
+#if defined(Q_WS_WIN)
+ 	if ( !bShowHiddenFiles ) {
+#if defined(UNICODE)
+ 	    QString file = d->url.path() + inf.name();
+	    if ( qWinVersion() & Qt::WV_NT_based ) {
+ 		 if ( GetFileAttributesW( (TCHAR*)qt_winTchar( file, TRUE ) ) & FILE_ATTRIBUTE_HIDDEN )
+		     continue;
+	    }
+ 	    else
+#endif
+	    {
+		if ( GetFileAttributesA( file.local8Bit() ) & FILE_ATTRIBUTE_HIDDEN )
+		    continue;
+	    }
+ 	}
+#else
+ 	if ( !bShowHiddenFiles && inf.name() != ".." ) {
+ 	    if ( inf.name()[ 0 ] == QChar( '.' ) )
+ 		continue;
+ 	}
+#endif
 	if ( !d->url.isLocalFile() ) {
 	    QFileDialogPrivate::File * i = 0;
 	    QFileDialogPrivate::MCItem *i2 = 0;

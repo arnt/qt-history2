@@ -320,12 +320,12 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 
             if ( slant1 == 'o' ) {
                 nm += ' ';
-                nm += qApp->translate("QFont","Reverse Oblique");
+                nm += "Reverse Oblique";
                 *italic       = TRUE;
                 *lesserItalic = TRUE;
             } else if ( slant0 == 'i' ) {
                 nm += ' ';
-                nm += qApp->translate("QFont","Reverse Italic");
+                nm += "Reverse Italic";
                 *italic       = TRUE;
                 *lesserItalic = TRUE;
             }
@@ -336,19 +336,19 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
         nm += ' ';
 
         if ( tokens[QFontPrivate::Slant][1] ) {
-            nm += qApp->translate("QFont","Other");
+            nm += "Other";
         } else {
-            nm += qApp->translate("QFont","Oblique");
+            nm += "Oblique";
             *italic = TRUE;
         }
     } else if ( slant0 == 'i' ) {
         nm += ' ';
-        nm += qApp->translate("QFont","Italic");
+        nm += "Italic";
         *italic = TRUE;
     }
 
     if ( nm.isEmpty() ) {
-        nm = qApp->translate("QFont","Normal");
+        nm = "Normal";
     } else if ( nm[0] == ' ' ) {
         nm = nm.remove( 0, 1 );
     }

@@ -1837,12 +1837,12 @@ void QPopupMenu::subMenuTimer() {
     QPoint p;
     QSize ps = popup->sizeHint();
     if( QApplication::reverseLayout() ) {
-	p = QPoint( r.left() + motifArrowHMargin - ps.width(), r.top() - motifArrowVMargin );
+	p = QPoint( r.left() + motifArrowHMargin - ps.width(), r.top() + motifArrowVMargin );
 	p = mapToGlobal( p );
 
 	bool right = FALSE;
 	if ( ( parentMenu && parentMenu->isPopupMenu &&
-	       ((QPopupMenu*)parentMenu)->geometry().x() > geometry().x() ) ||
+	       ((QPopupMenu*)parentMenu)->geometry().x() < geometry().x() ) ||
 	     p.x() < 0 )
 	    right = TRUE;
 	if ( right && (ps.width() > QApplication::desktop()->width() - mapToGlobal( r.topRight() ).x() ) )
