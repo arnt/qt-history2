@@ -68,19 +68,12 @@ void qRemovePostRoutine(QtCleanUpFunction p)
     }
 }
 
-static QThreadStorage<QPostEventList*> postEventLists;
-
-static QStaticSpinLock spinlock = 0;
+typedef QThreadStorage<QPostEventList *> PerThreadPostEventList;
+Q_GLOBAL_STATIC(PerThreadPostEventList, postEventLists);
 
 typedef QHash<Qt::HANDLE, QPostEventList *> PostEventListHash;
-
-// make sure PostEventHash is initialized.
-// NB! not threadsafe, call it only after you locked the spinlock
-static PostEventListHash *postEventListHash()
-{
-    static PostEventListHash hash;
-    return &hash;
-}
+Q_GLOBAL_STATIC(PostEventListHash, postEventListHash);
+static QStaticSpinLock spinlock = 0;
 
 Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
 {
@@ -91,8 +84,8 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
     const Qt::HANDLE current = QThread::currentThread();
     if (thread == 0) thread = current;
 
-    if (thread == current && postEventLists.hasLocalData())
-        return postEventLists.localData();
+    if (thread == current && postEventLists()->hasLocalData())
+        return postEventLists()->localData();
 
     QSpinLockLocker locker(::spinlock);
     QPostEventList *plist = postEventListHash()->value(thread);
@@ -101,7 +94,7 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
             // creating post event list for current thread
             plist = new QPostEventList;
             postEventListHash()->insert(thread, plist);
-            postEventLists.setLocalData(plist);
+            postEventLists()->setLocalData(plist);
         }
     }
     return plist;
