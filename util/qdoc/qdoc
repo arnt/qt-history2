@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#107 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#108 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1122,16 +1122,18 @@ sub readc {
 		if ( $doc =~ s/\s*\\inherit\s*(\w+)\s+/\n\n/ );
 	    $doc{$url} = $doc;
 	    $includefile{$url} = $hfile;
-	} elsif ($doc =~ m@^\\defgroup\s+([\w\.]+)\s+(.*?)\s*$@s) {
+	} elsif ($doc =~ m@^\\fodder$@s) {
+	    $perlbuginversion5003fodder++;
+	} elsif ($doc =~ m@^\\page\s+([\w\.-]+)\s+(.*?)\s*$@s) {
+            # it's a \page
+	    $pages{$1} = $2;
+	    $anchor{$1} = $1;
+	} elsif ( $doc =~ m@^\\defgroup\s+([\w\.-]+)\s+(.*?)\s*$@s ) {
 	    # it's a \defgroup
 	    $pages{$1} = 
 		"<title>Qt toolkit - group index</title></head><body>\n"
 		    . $2;
 	    $classes{$1} = "";
-	} elsif ($doc =~ m@^\\page\s+([\w\.-]+)\s+(.*?)\s*$@s) {
-            # it's a \page
-	    $pages{$1} = $2;
-	    $anchor{$1} = $1;
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
 	    # it's an example file
 	    $examples{$1} = $2;
