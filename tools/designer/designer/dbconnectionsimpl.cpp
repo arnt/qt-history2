@@ -31,6 +31,7 @@
 #include <qmessagebox.h>
 #include <qapplication.h>
 #include "mainwindow.h"
+#include "asciivalidator.h"
 
 static bool blockChanges = FALSE;
 
@@ -53,6 +54,7 @@ DatabaseConnectionsEditor::DatabaseConnectionsEditor( Project *pro, QWidget* par
 	listConnections->insertItem( conn->name() );
     connectionWidget->comboDriver->insertStringList( QSqlDatabase::drivers() );
 #endif
+    connectionWidget->editName->setValidator( new AsciiValidator( connectionWidget->editName ) );
     enableAll( FALSE );
 }
 

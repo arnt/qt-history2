@@ -21,6 +21,7 @@
 #include "dbconnectionimpl.h"
 #include "dbconnection.h"
 #include "project.h"
+#include "asciivalidator.h"
 #include <qgroupbox.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
@@ -53,6 +54,7 @@ void DatabaseConnectionEditor::accept()
 void DatabaseConnectionEditor::init()
 {
     connectionWidget->editName->setEnabled( FALSE );
+    connectionWidget->editName->setValidator( new AsciiValidator( connectionWidget->editName ) );
     connectionWidget->editName->setText( conn->name() );
     connectionWidget->comboDriver->setEnabled( FALSE );
     connectionWidget->comboDriver->lineEdit()->setText( conn->driver() );
