@@ -867,10 +867,10 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
     for( ;oit != objl.end(); oit++) {
 	QFileInfo fi(Option::fixPathToLocalOS((*oit)));
 	QString dirName;
-	if ( mocdir.isEmpty() )
-	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
-	else
+	if( !mocdir.isEmpty() )
 	    dirName = mocdir;
+	else if(!fi.dirPath().isEmpty() && fi.dirPath() != ".")
+	    dirName = Option::fixPathToTargetOS(fi.dirPath()) + Option::dir_sep;
 	QString src(dirName + fi.baseName() + Option::cpp_ext );
 
 	QString hdr = findMocSource(src);
