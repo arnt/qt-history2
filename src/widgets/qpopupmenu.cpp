@@ -862,6 +862,8 @@ void QPopupMenu::updateSize()
 	if ( mi->iconSet() != 0)
 	    maxPMWidth = QMAX( maxPMWidth,
 			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
+	else 
+	    maxPMWidth = QMAX( maxPMWidth, 20 );
     }
 
     int dh = QApplication::desktop()->height();
