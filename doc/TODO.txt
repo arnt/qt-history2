@@ -131,6 +131,8 @@ QFont/X11 (brad & lars)
   QFont/X11 more compatible with the windows version, and remove the 
   burden of handling charset/encoding issues from the developer.
 
+QString
+  examine possibility to do language specific sorting. LC_COLLATE could help there.
 
 New functionality
 -----------------
