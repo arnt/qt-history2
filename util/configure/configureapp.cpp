@@ -1040,7 +1040,7 @@ void Configure::generateCachefile()
 
 	cacheFile.close();
     }
-    QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\.qt.config" );
+    QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\.qt.config" );
     if( configFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
 	QTextStream configStream( &configFile );
 	configStream << "CONFIG+=";
