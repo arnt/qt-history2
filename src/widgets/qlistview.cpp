@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#245 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#246 $
 **
 ** Implementation of QListView widget class
 **
@@ -3638,24 +3638,27 @@ void QCheckListItem::activate()
  */
 void QCheckListItem::setOn( bool b  )
 {
+    if ( listView() && !listView()->isEnabled() )
+        return;
+    
     if ( b == on )
-	return;
+        return;
     if ( myType == CheckBox ) {
-	on = b;
-	stateChange( b );
+        on = b;
+        stateChange( b );
     } else if ( myType == RadioButton ) {
-	if ( b ) {
-	    if ( exclusive && exclusive->exclusive != this )
-		exclusive->turnOffChild();
-	    on = TRUE;
-	    if ( exclusive )
-		exclusive->exclusive = this;
-	} else {
-	    if ( exclusive && exclusive->exclusive == this )
-		exclusive->exclusive = 0;
-	    on = FALSE;
-	}
-	stateChange( b );
+        if ( b ) {
+            if ( exclusive && exclusive->exclusive != this )
+                exclusive->turnOffChild();
+            on = TRUE;
+            if ( exclusive )
+                exclusive->exclusive = this;
+        } else {
+            if ( exclusive && exclusive->exclusive == this )
+                exclusive->exclusive = 0;
+            on = FALSE;
+        }
+        stateChange( b );
     }
     repaint();
 }
