@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#198 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#199 $
 #
 # this is a massive hack, written very quickly
 #
@@ -593,6 +593,7 @@ sub processdocs {
 	$_ = $class;
 	s/:://;
 	$word{$_}++;
+	$word{"Qt"}++;
 
 # used to be  s-(?:(?:\b((?:(?:operator[^\s\(]{1,3})
 # ...
@@ -1345,9 +1346,9 @@ sub makenames {
 	$anchor{$name{$_}} = $_ if ( (!/^globals.html/) &&
 				     !defined($anchor{$name{$_}}) &&
 				     !defined($overload{$_}) &&
-				     $doc{$_} =~ /\S*/s );
+				     $doc{$_} =~ /[A-Za-z]+/s );
     }
-    
+
     # next, we do a good imitation of c++ inheritance... subclasses:
     foreach ( keys %inheritance ) {
 	my ($c, $i);
