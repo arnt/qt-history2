@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#23 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#24 $
 **
 ** Definition of QMenuData class
 **
@@ -40,8 +40,10 @@ public:
     bool	isSeparator()	const	{ return is_separator; }
     bool	isDisabled()	const	{ return is_disabled; }
     bool	isChecked()	const	{ return is_checked; }
+    bool	isDirty()	const	{ return is_dirty; }
 
     void	setString( const char *s ) { string_data = s; }
+    void	setDirty( bool d )	   { is_dirty = d; }
 
 private:
     int		ident;				// item identifier
@@ -53,6 +55,7 @@ private:
     uint	is_separator : 1;		// separator flag
     uint	is_disabled  : 1;		// disabled flag
     uint	is_checked   : 1;		// checked flag
+    uint	is_dirty     : 1;		// dirty (update) flag
 };
 
 #include "qlist.h"
@@ -143,6 +146,7 @@ private:
     int		insertAny( const char *, const QPixmap *, QPopupMenu *,
 			   int, int );
     void	removePopup( QPopupMenu * );
+    void	setAllDirty( bool );
 };
 
 
