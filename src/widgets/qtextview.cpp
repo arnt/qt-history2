@@ -154,6 +154,8 @@ static bool block_set_alignment = FALSE;
     <ul>
     <li><i> Up Arrow </i> Move one line up
     <li><i> Down Arrow </i> Move one line down
+    <li><i> Left Arrow </i> Move one column left
+    <li><i> Right Arrow </i> Move one column right 
     <li><i> Page Up </i> Move one (viewport) page up
     <li><i> Page Down </i> Move one (viewport) page down
     <li><i> Home </i> Move to the beginning of the text
@@ -2096,6 +2098,9 @@ void QTextView::setSelection( int parag_from, int index_from,
     If there is no selection \a paraFrom, \a indexFrom, \a paraTo and
     \a indexTo are all set to -1.
 
+    The \a selNum is the number of the selection (since multiple
+    selections are supported). It defaults to 0 (the first selection).
+
     \sa selectedText()
 
 */
@@ -2120,8 +2125,8 @@ void QTextView::getSelection( int &paraFrom, int &indexFrom,
   <ul>
 
   <li> \c PlainText - all characters except newlines are displayed
-  verbatim, including spaces. New lines are started in the display where
-  newlines appear in the text.
+  verbatim, including spaces. Whenever a newline appears in the text the
+  text in the text view that follows the newline begins on a new line.
 
   <li> \c RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
@@ -2329,11 +2334,6 @@ void QTextView::UndoRedoInfo::clear()
     oldAligns.resize( 0 );
 }
 
-/*! Deletes the character to the right of the text cursor. If
-  text has been marked by the user (e.g. by clicking and dragging) the
-  cursor is put at the beginning of the marked text and the marked
-  text is removed.
-*/
 
 void QTextView::del()
 {
@@ -3022,10 +3022,9 @@ void QTextView::setFont( const QFont &f )
 }
 
 /*!
-
-    Zooms in on the text by by making the standard font size one point
-    larger and recalculating all font sizes. This does not change the
-    size of images.
+    Zooms in on the text by by making the standard font size \a range
+    points larger and recalculating all font sizes. This does not change
+    the size of images.
 */
 
 void QTextView::zoomIn( int range )
@@ -3035,9 +3034,9 @@ void QTextView::zoomIn( int range )
     setFont( f );
 }
 
-/*! Zooms out on the text by making the standard font size one point
-  smaller and recalculating all font sizes. This does not change the
-  size of images.
+/*! Zooms out on the text by making the standard font size \a range
+    points smaller and recalculating all font sizes. This does not
+    change the size of images.
 */
 
 void QTextView::zoomOut( int range )

@@ -327,6 +327,8 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 }
 
 /*!
+    \internal
+
   Common initialization code. Requires that \c mw and \c o are set.
   Does not call QMainWindow::addDockWindow().
 */
