@@ -1169,7 +1169,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		grooveTop.addCoords( 1, 1, -1, -1 );
 		drawPrimitive( PE_ButtonBevel, p, grooveTop, cg, flags & ~Style_MouseOver, opt );
 
-		if ( slider->hasFocus() ) {
+		if ( flags & Style_HasFocus ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
 		    drawPrimitive( PE_FocusRect, p, fr, cg, flags & ~Style_MouseOver );
 		}

@@ -1252,7 +1252,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 				 &cg.brush( QColorGroup::Mid ) );
 
 
-		if ( slider->hasFocus() ) {
+		if ( flags & Style_HasFocus ) {
 		    QRect fr = subRect( SR_SliderFocusRect, widget );
 		    drawPrimitive( PE_FocusRect, p, fr, cg );
 		}

@@ -1644,7 +1644,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		p->fillRect( x, y, wi, he, cg.brush( QColorGroup::Background ) );
 
-		if ( sl->hasFocus() ) {
+		if ( flags & Style_HasFocus ) {
 		    QRect re = subRect( SR_SliderFocusRect, sl );
 		    drawPrimitive( PE_FocusRect, p, re, cg );
 		}

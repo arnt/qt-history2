@@ -1203,7 +1203,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 		p->drawPoint( x + w - 3, y + h - 3 );
 		// ### end slider groove
 
-		if ( slider->hasFocus() )
+		if ( how & Style_HasFocus )
 		    drawPrimitive( PE_FocusRect, p, groove, cg );
 	    }
 
