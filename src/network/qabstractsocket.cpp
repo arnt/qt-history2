@@ -2095,6 +2095,16 @@ Qt::SocketState QAbstractSocket::socketState() const
 }
 
 /*!
+    Sets the state of the socket to \a state.
+
+    \sa state()
+*/
+void QAbstractSocket::setSocketState(Qt::SocketState state)
+{
+    d->state = state;
+}
+
+/*!
     Returns the socket type (TCP, UDP, or other).
 
     \sa QTcpSocket, QUdpSocket
@@ -2115,6 +2125,16 @@ Qt::SocketError QAbstractSocket::socketError() const
 }
 
 /*!
+    Sets the type of error that last occurred to \a socketError.
+
+    \sa setSocketState(), setErrorString()
+*/
+void QAbstractSocket::setSocketError(Qt::SocketError socketError)
+{
+    d->socketError = socketError;
+}
+
+/*!
     Returns the type of error that last occurred as a human-readable
     string.
 
@@ -2123,6 +2143,17 @@ Qt::SocketError QAbstractSocket::socketError() const
 QString QAbstractSocket::errorString() const
 {
     return d->socketErrorString;
+}
+
+/*!
+    Sets the type of error that last occurred to the human-readable
+    string \a errorString.
+
+    \sa setSocketState(), setSocketError()
+*/
+void QAbstractSocket::setErrorString(const QString &errorString)
+{
+    d->socketErrorString = errorString;
 }
 
 #include "moc_qabstractsocket.cpp"

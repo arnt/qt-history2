@@ -134,6 +134,10 @@ signals:
     void error(int);
 
 protected:
+    void setSocketState(Qt::SocketState state);
+    void setSocketError(Qt::SocketError socketError);
+    void setErrorString(const QString &errorString);
+
     QAbstractSocket(Qt::SocketType socketType,
                     QAbstractSocketPrivate &p, QObject *parent);
 
