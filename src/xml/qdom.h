@@ -468,6 +468,8 @@ public:
     void setAttribute( const QString& name, const QString& value );
     void setAttribute( const QString& name, int value );
     void setAttribute( const QString& name, uint value );
+    void setAttribute( const QString& name, long value );
+    void setAttribute( const QString& name, ulong value );
     void setAttribute( const QString& name, double value );
     void removeAttribute( const QString& name );
     QDomAttr attributeNode( const QString& name);
@@ -480,6 +482,8 @@ public:
     void setAttributeNS( const QString nsURI, const QString& qName, const QString& value );
     void setAttributeNS( const QString nsURI, const QString& qName, int value );
     void setAttributeNS( const QString nsURI, const QString& qName, uint value );
+    void setAttributeNS( const QString nsURI, const QString& qName, long value );
+    void setAttributeNS( const QString nsURI, const QString& qName, ulong value );
     void setAttributeNS( const QString nsURI, const QString& qName, double value );
     void removeAttributeNS( const QString& nsURI, const QString& localName );
     QDomAttr attributeNodeNS( const QString& nsURI, const QString& localName );

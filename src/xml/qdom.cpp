@@ -4217,6 +4217,24 @@ void QDomElement::setAttribute( const QString& name, const QString& value )
 */
 void QDomElement::setAttribute( const QString& name, int value )
 {
+    // ### 4.0: inline
+    setAttribute( name, long(value) );
+}
+
+/*!
+    \overload
+*/
+void QDomElement::setAttribute( const QString& name, uint value )
+{
+    // ### 4.0: inline
+    setAttribute( name, ulong(value) );
+}
+
+/*!
+    \overload
+*/
+void QDomElement::setAttribute( const QString& name, long value )
+{
     if ( !impl )
 	return;
     QString x;
@@ -4227,7 +4245,7 @@ void QDomElement::setAttribute( const QString& name, int value )
 /*!
     \overload
 */
-void QDomElement::setAttribute( const QString& name, uint value )
+void QDomElement::setAttribute( const QString& name, ulong value )
 {
     if ( !impl )
 	return;
@@ -4385,6 +4403,24 @@ void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, con
 */
 void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, int value )
 {
+    // ### 4.0: inline
+    setAttributeNS( nsURI, qName, long(value) );
+}
+
+/*!
+    \overload
+*/
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, uint value )
+{
+    // ### 4.0: inline
+    setAttributeNS( nsURI, qName, ulong(value) );
+}
+
+/*!
+    \overload
+*/
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, long value )
+{
     if ( !impl )
 	return;
     QString x;
@@ -4395,7 +4431,7 @@ void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, int
 /*!
     \overload
 */
-void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, uint value )
+void QDomElement::setAttributeNS( const QString nsURI, const QString& qName, ulong value )
 {
     if ( !impl )
 	return;
