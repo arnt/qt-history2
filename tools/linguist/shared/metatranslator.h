@@ -22,6 +22,8 @@
 #include <qtranslator.h>
 #include <qvaluelist.h>
 
+class QTextCodec;
+
 class MetaTranslatorMessage : public QTranslatorMessage
 {
 public:
@@ -61,8 +63,7 @@ class MetaTranslator
 {
 public:
     MetaTranslator();
-    MetaTranslator( const MetaTranslator& tor )
-	: mm( tor.mm ), codec( tor.codec ) { }
+    MetaTranslator( const MetaTranslator& tor );
 
     MetaTranslator& operator=( const MetaTranslator& tor );
 
@@ -74,7 +75,7 @@ public:
 		   const char *comment ) const;
     void insert( const MetaTranslatorMessage& m );
 
-    void setCodec( const char *name ) { codec = name; }
+    void setCodec( const char *name );
     QString toUnicode( const char *str ) const;
 
     QValueList<MetaTranslatorMessage> messages() const;
@@ -84,7 +85,8 @@ private:
     typedef QMap<int, MetaTranslatorMessage> TMMInv;
 
     TMM mm;
-    QCString codec;
+    QCString codecName;
+    QTextCodec *codec;
 };
 
 #endif

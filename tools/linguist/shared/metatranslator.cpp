@@ -43,7 +43,6 @@ private:
     MetaTranslator *tor;
     MetaTranslatorMessage::Type type;
     bool inMessage;
-    QCString codec;
     QCString context;
     QCString source;
     QCString comment;
@@ -211,13 +210,20 @@ bool MetaTranslatorMessage::operator<( const MetaTranslatorMessage& m ) const
 }
 
 MetaTranslator::MetaTranslator()
-    : codec( "iso8859-1" )
+    : codecName( "ISO-8859-1" ), codec( 0 )
 {
+}
+
+MetaTranslator::MetaTranslator( const MetaTranslator& tor )
+    : mm( tor.mm ), codecName( tor.codecName ), codec( tor.codec )
+{
+
 }
 
 MetaTranslator& MetaTranslator::operator=( const MetaTranslator& tor )
 {
     mm = tor.mm;
+    codecName = tor.codecName;
     codec = tor.codec;
     return *this;
 }
@@ -259,10 +265,10 @@ bool MetaTranslator::save( const QString& filename ) const
 	return FALSE;
 
     QTextStream t( &f );
-    t.setCodec( QTextCodec::codecForName( "ISO 8859-1" ) );
+    t.setCodec( QTextCodec::codecForName( "ISO-8859-1" ) );
 
     t << "<!DOCTYPE TS><TS>\n";
-    t << "<codec>" << codec << "</codec>\n";
+    t << "<codec>" << codecName << "</codec>\n";
     TMM::ConstIterator m = mm.begin();
     while ( m != mm.end() ) {
 	TMMInv inv;
@@ -330,13 +336,22 @@ void MetaTranslator::insert( const MetaTranslatorMessage& m )
     mm.replace( m, pos );
 }
 
+void MetaTranslator::setCodec( const char *name )
+{
+    const int latin1 = 4;
+
+    codecName = name;
+    codec = QTextCodec::codecForName( name );
+    if ( codec == 0 || codec->mibEnum() == latin1 )
+	codec = 0;
+}
+
 QString MetaTranslator::toUnicode( const char *str ) const
 {
-    QTextCodec *c = QTextCodec::codecForName( codec );
-    if ( c == 0 )
+    if ( codec == 0 )
 	return QString::fromLatin1( str );
     else
-	return c->toUnicode( str );
+	return codec->toUnicode( str );
 }
 
 QValueList<MetaTranslatorMessage> MetaTranslator::messages() const
