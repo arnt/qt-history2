@@ -147,8 +147,6 @@ void Moc::error(int rollback) {
     error();
 }
 void Moc::error(const char *msg) {
-    if (index < symbols.size())
-        ++index;
     if (msg || error_msg)
         qFatal(ErrorFormatString "Error: %s",
                filename.constData(), symbol().lineNum, msg?msg:error_msg);
@@ -477,7 +475,7 @@ void Moc::parse()
                 namespaceList += def;
             }
             index = rewind;
-        } else if (t == SEMIC) {
+        } else if (t == SEMIC || t == RBRACE) {
             templateClass = false;
         } else if (t == TEMPLATE) {
             templateClass = true;
