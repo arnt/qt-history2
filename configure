@@ -2750,7 +2750,7 @@ elif [ "$CFG_DEBUG" = "no" ]; then
 fi
 if [ "$CFG_SHARED" = "yes" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-shared"
-    QMAKE_CONFIG="$QMAKE_CONFIG dll"
+    QMAKE_CONFIG="$QMAKE_CONFIG shared dll"
 elif [ "$CFG_SHARED" = "no" ]; then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-static"
     QMAKE_CONFIG="$QMAKE_CONFIG staticlib"
