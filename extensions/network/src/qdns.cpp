@@ -634,7 +634,19 @@ void QDnsAnswer::notify()
 	if ( notified.find( (void*)dns ) == 0 &&
 	     q->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
-	    ((QDnsUgleHack*)dns)->ugle();
+	    QValueList<QString> n = dns->qualifiedNames();
+	    int i = n.count();
+	    bool found = FALSE;
+	    while( i-- > 0 && !found )
+		if ( n[i] == q->l )
+		    found = TRUE;
+	    if ( found )
+		((QDnsUgleHack*)dns)->ugle();
+#if defined(DEBUG_QDNS)
+	    else
+		qDebug( "DNS Manager: DNS thing %s not notified for %s",
+			dns->label().ascii(), q->l.ascii() );
+#endif
 	}
     }
 }
@@ -654,8 +666,6 @@ public: // just to silence the moronic g++.
     ~QDnsManager();
 public:
     static QDnsManager * manager();
-    static void add( const QDns * );
-    static void remove( const QDns * );
 
     QDnsDomain * domain( const QString & );
 
@@ -671,7 +681,6 @@ public:
     QVector<QDnsQuery> queries;
     QDict<QDnsDomain> cache;
     QSocketDevice * socket;
-    QPtrDict<void> * qdns;
 };
 
 
@@ -687,17 +696,6 @@ QDnsManager * QDnsManager::manager()
 }
 
 
-void QDnsManager::add( const QDns * q )
-{
-    manager()->qdns->replace( (void*)q, (void*)q );
-}
-
-
-void QDnsManager::remove( const QDns * q )
-{
-    manager()->qdns->take( (void*)q );
-}
-
 void QDnsUgleHack::ugle()
 {
     if ( !isWorking() ) {
@@ -705,7 +703,6 @@ void QDnsUgleHack::ugle()
 	qDebug( "DNS Manager: status change for %s (type %d)",
 		label().ascii(), recordType() );
 #endif
-	QDnsManager::remove( this );
 	emit resultsReady();
     }
 }
@@ -715,8 +712,7 @@ QDnsManager::QDnsManager()
     : QDnsSocket( qApp, "Internal DNS manager" ),
       queries( QVector<QDnsQuery>( 0 ) ),
       cache( QDict<QDnsDomain>( 83, FALSE ) ),
-      socket( new QSocketDevice( QSocketDevice::Datagram ) ),
-      qdns( new QPtrDict<void>( 257 ) )
+      socket( new QSocketDevice( QSocketDevice::Datagram ) )
 {
     cache.setAutoDelete( TRUE );
     globalManager = this;
@@ -1124,6 +1120,10 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		QObject::connect( query, SIGNAL(timeout()),
 				  QDnsManager::manager(), SLOT(retransmit()) );
 		QDnsManager::manager()->transmitQuery( query );
+	    } else if ( q < m->queries.size() ) {
+		// if we've found an earlier query for the same
+		// domain/type, subscribe to its answer
+		m->queries[q]->dns->replace( (void*)r, (void*)r );
 	    }
 	}
     }
@@ -1241,7 +1241,6 @@ QDns::QDns()
 {
     d = 0;
     t = None;
-    QDnsManager::add( this );
 }
 
 
@@ -1267,6 +1266,15 @@ QDns::QDns( const QString & label, RecordType rr )
 
 QDns::~QDns()
 {
+    int q = 0;
+    QDnsQuery * query;
+    QDnsManager * m = QDnsManager::manager();
+    while( q < m->queries.size() && (query=m->queries[q]) != 0 ) {
+	if ( query->dns )
+	    (void)query->dns->take( (void*) this );
+	q++;
+    }
+
     delete d;
     d = 0;
 }
@@ -1396,8 +1404,6 @@ bool QDns::isWorking() const
 
     if ( queries <= 0 )
 	return FALSE;
-    // we're now working, so make sure we get told.
-    QDnsManager::add( this );
     return TRUE;
 }
 
