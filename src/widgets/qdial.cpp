@@ -256,8 +256,10 @@ void QDial::repaintScreen( const QRect *cr )
 		    QBrush( colorGroup().light(), Dense4Pattern ) );
 	p.setBackgroundMode( OpaqueMode );
     }
+    // erase background of dial
     p.drawEllipse( br );
 
+    // erase remaining space around the dial
     p.save();
     QRegion remaining( 0, 0, width(), height() );
     remaining = remaining.subtract( QRegion( br, QRegion::Ellipse ) );
@@ -273,12 +275,14 @@ void QDial::repaintScreen( const QRect *cr )
 	    p.setClipRect( QRect( 0, 0, width(), height() ) );
     }
 
+    // draw notches
     if ( d->showNotches ) {
 	calcLines();
 	p.setPen( colorGroup().foreground() );
 	p.drawLineSegments( d->lines );
     }
 
+    // calculate and paint arrow
     p.setPen( QPen( colorGroup().dark() ) );
     p.drawArc( br, 60 * 16, 180 * 16 );
     p.setPen( QPen( colorGroup().light() ) );
@@ -324,6 +328,7 @@ void QDial::repaintScreen( const QRect *cr )
 	p.drawLine( arrow[ 1 ], arrow[ 2 ] );
     }
 
+    // draw focus rect around the dial
     if ( hasFocus() ) {
 	p.setClipping( FALSE );
 	if ( d->showNotches ) {
@@ -338,7 +343,7 @@ void QDial::repaintScreen( const QRect *cr )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::keyPressEvent( QKeyEvent * e )
@@ -370,7 +375,7 @@ void QDial::keyPressEvent( QKeyEvent * e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::mousePressEvent( QMouseEvent * e )
@@ -381,7 +386,7 @@ void QDial::mousePressEvent( QMouseEvent * e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::mouseReleaseEvent( QMouseEvent * e )
@@ -392,7 +397,7 @@ void QDial::mouseReleaseEvent( QMouseEvent * e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::mouseMoveEvent( QMouseEvent * e )
@@ -407,7 +412,7 @@ void QDial::mouseMoveEvent( QMouseEvent * e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::wheelEvent( QWheelEvent * )
@@ -417,7 +422,7 @@ void QDial::wheelEvent( QWheelEvent * )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::focusInEvent( QFocusEvent *e )
@@ -428,7 +433,7 @@ void QDial::focusInEvent( QFocusEvent *e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::focusOutEvent( QFocusEvent * e )
@@ -438,7 +443,7 @@ void QDial::focusOutEvent( QFocusEvent * e )
 }
 
 /*!
-
+  
 */
 
 void QDial::valueChange()
@@ -462,7 +467,7 @@ void QDial::rangeChange()
 
 
 /*!
-
+  \internal
 */
 
 int QDial::valueFromPoint( const QPoint & p ) const
@@ -495,7 +500,7 @@ int QDial::valueFromPoint( const QPoint & p ) const
 
 
 /*!
-
+  \internal
 */
 
 double QDial::angle( const QPoint &p1, const QPoint &p2 ) const
@@ -684,20 +689,36 @@ bool QDial::showNotches()
     return d->showNotches;
 }
 
+/*!
+  \reimp
+*/
+
 QSize QDial::minimumSize() const
 {
     return QSize( 50, 50 );
 }
+
+/*!
+  \reimp
+*/
 
 QSize QDial::sizeHint() const
 {
     return QSize( 100, 100 );
 }
 
+/*!
+  \reimp
+*/
+
 QSizePolicy QDial::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
+
+/*!
+  \internal
+*/
 
 QPointArray QDial::calcArrow( double &a ) const
 {
@@ -729,6 +750,10 @@ QPointArray QDial::calcArrow( double &a ) const
     return arrow;
 }
 
+/*!
+  \internal
+*/
+
 QRect QDial::calcDial() const
 {
     int r = QMIN( width(), height() ) / 2;
@@ -737,6 +762,10 @@ QRect QDial::calcDial() const
     int dy = d_ + ( height() - 2 * r ) / 2;
     return QRect( dx, dy, r * 2 - 2 * d_ - 2, r * 2 - 2 * d_ - 2 );
 }
+
+/*!
+  \internal
+*/
 
 int QDial::calcBigLineSize() const
 {
@@ -748,6 +777,10 @@ int QDial::calcBigLineSize() const
 	bigLineSize = r / 2;
     return bigLineSize;
 }
+
+/*!
+  \internal
+*/
 
 void QDial::calcLines()
 {
