@@ -1,0 +1,61 @@
+qt3to4 - The Qt Porting Tool
+
+This porting tool provides help when moving a project from Qt 3 to Qt 4. It 
+is designed to automate all trivial porting tasks.
+
+Usage:
+First, make a copy of your project which the porting tool can work on. Then run 
+the porting tool on the copy of the project.
+
+qt3to4 has two usage modes:
+* File mode:     qt3to4 infile.cpp/h 
+* Project mode:  qt3to4 infile.pro   
+
+In file mode a single file will be processed. In project mode the 
+.pro file will be parsed and all files specified in it will be processed. 
+
+What it does:
+* Renames classes that are now in compat (ex. QFileDialog -> Q3FileDialog)
+* Renames  header #include directives to the new Qt 4 style 
+  ( #include <QClass> )
+* prefixes or renames enum values that have been moved or renamed 
+  (ex. QButton::On -> QCheckBox::On)
+* misc changes (ex. TRUE -> true )
+
+
+Logging:
+The porting tool logs all changes to a file called "portinglog.txt", placed in 
+the directory from wich the porting tool was started. This log will contain
+a isting of all changes made to source files.
+
+Rules file:
+The Qt porting tool reads porting rules from an xml file named rules.xml, 
+located in $QTDIR/tools/porting. It is possible to customize the porting tool
+behaviour by editting this file.
+
+Information regarding the beta:
+This is a beta version of the port program, it is intended to demonstrate
+how the finished program will work. Developers are encoraged to test it on
+their projects and report results back to Trolltech.
+
+The following are known issues with this version, and will be adressed in the
+next release:
+
+* Handle proper scoping of names. 
+  This version of the Qt porting tool might change names witch it shouldn't. For
+  example a user-created variable named color0 will be changed to Qt::color0,
+  which is probably not the wanted behaviour.
+
+* Qt library split. Since the Qt library has been split into several smaller
+  libraries, a QT += <library> line needs to be added to the .pro file depending on witch
+  classes are used. Currently only the compat library is added if it's not 
+  already in the .pro file.
+  
+* the rules.xml file will be updated in order to make it as complete as 
+  possible.
+
+
+
+
+
+
