@@ -209,10 +209,12 @@ bool QLayoutWidget::event(QEvent *e)
 
         case QEvent::LayoutRequest: {
             bool rtn = QWidget::event(e);
-#if 0 // ### fix me
+
+#if 0
             if (LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
                 resize(layout()->sizeHint());
 #endif
+
             update();
             return rtn;
         }
@@ -260,12 +262,12 @@ void QLayoutWidget::updateSizePolicy()
         if (parent() && parent()->isWidgetType()) {
             parentLayout = ((QWidget *)parent())->layout();
             if (parentLayout &&
-                 ::qt_cast<QLayoutWidget*>(parentLayout->parentWidget()))
+                 qt_cast<QLayoutWidget*>(parentLayout->parentWidget()))
                 parentLayout = 0;
         }
 
-        if (::qt_cast<QVBoxLayout*>(layout())) {
-            if (::qt_cast<QHBoxLayout*>(parentLayout))
+        if (qt_cast<QVBoxLayout*>(layout())) {
+            if (qt_cast<QHBoxLayout*>(parentLayout) || qt_cast<QGridLayout*>(parentLayout))
                 vt = QSizePolicy::Minimum;
             else
                 vt = QSizePolicy::Fixed;
@@ -283,8 +285,8 @@ void QLayoutWidget::updateSizePolicy()
                 if (w->sizePolicy().mayShrinkVertically())
                     vt |= QSizePolicy::Maximum;
             }
-        } else if (::qt_cast<QHBoxLayout*>(layout())) {
-            if (::qt_cast<QVBoxLayout*>(parentLayout))
+        } else if (qt_cast<QHBoxLayout*>(layout())) {
+            if (qt_cast<QVBoxLayout*>(parentLayout) || qt_cast<QGridLayout*>(parentLayout))
                 ht = QSizePolicy::Minimum;
             else
                 ht = QSizePolicy::Fixed;
@@ -302,13 +304,13 @@ void QLayoutWidget::updateSizePolicy()
                 if (!w->sizePolicy().mayShrinkVertically())
                     vt &= ~QSizePolicy::Maximum;
             }
-        } else if (::qt_cast<QGridLayout*>(layout())) {
+        } else if (qt_cast<QGridLayout*>(layout())) {
             ht = QSizePolicy::Fixed;
             vt = QSizePolicy::Fixed;
             if (parentLayout) {
-                if (::qt_cast<QVBoxLayout*>(parentLayout))
+                if (qt_cast<QVBoxLayout*>(parentLayout))
                     ht = QSizePolicy::Minimum;
-                else if (::qt_cast<QHBoxLayout*>(parentLayout))
+                else if (qt_cast<QHBoxLayout*>(parentLayout))
                     vt = QSizePolicy::Minimum;
             }
 
