@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmet.h#3 $
+** $Id: //depot/qt/main/src/kernel/qfontmet.h#4 $
 **
 ** Definition of QFontMetrics class
 **
 ** Author  : Haavard Nord
 ** Created : 940514
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,6 +14,7 @@
 #define QFONTMET_H
 
 #include "qfont.h"
+
 
 class QFontMetrics
 {
@@ -38,14 +39,14 @@ public:
     bool		fixedPitch()	const;
     QFont::StyleHint	styleHint()	const;
     QFont::CharSet	charSet()	const;
-    bool        	exactMatch()	const;
+    bool		exactMatch()	const;
     bool		rawMode()	const;
 
 private:
     void		updateData()	const;
 
-    QFontData        *data;
-    const QFont      *f;
+    QFontData	     *data;
+    const QFont	     *f;
 };
 
 
