@@ -122,6 +122,11 @@ kernel {
 		  $$KERNEL_CPP/qole_win.c \
 		  $$KERNEL_CPP/qfontengine_win.cpp
 
+	wince-* {
+		SOURCES -= $$KERNEL_CPP/qfontengine_win.cpp
+		SOURCES += $$KERNEL_CPP/qfontengine_wce.cpp
+		}
+
 	unix:x11 {
 	      SOURCES += $$KERNEL_CPP/qapplication_x11.cpp \
 		          $$KERNEL_CPP/qclipboard_x11.cpp \

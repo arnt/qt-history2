@@ -302,6 +302,12 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
 		family->scripts[QFont::Han_Japanese] = TRUE;
 		//qDebug("font %s supports Japanese", familyName.latin1() );
 	    }
+
+#ifdef Q_OS_TEMP
+	    // ##### FIXME
+	    family->scripts[QFont::Latin] = TRUE;
+#endif
+
 	    family->scriptCheck = true;
 	    //qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
 	}
