@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#19 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#20 $
 **
 ** Definition of QColor class
 **
@@ -54,7 +54,7 @@ public:
     static bool lazyAlloc()	{ return lalloc; }
     static void setLazyAlloc( bool );		// enable/disable lazy alloc
 
-    void   alloc();				// allocate color
+    ulong  alloc();				// allocate color
 
     void   setNamedColor( const char *name );	// load color from database
 
@@ -81,6 +81,9 @@ public:
     bool   operator==( const QColor &c ) const;
     bool   operator!=( const QColor &c ) const;
 
+    static int maxColors();
+    static int numBitPlanes();
+
 #if defined(_WS_WIN_)
     static HANDLE hPal()  { return hpal; }
     static uint	  realizePal( QWidget * );
@@ -90,6 +93,7 @@ public:
     static void cleanup();			// cleanup color system
 
 private:
+    static void initglobals();
     static bool ginit;
     static bool lalloc;
 #if defined(_WS_WIN_)
@@ -108,9 +112,7 @@ inline ulong QColor::pixel() const
 #else
 inline ulong QColor::pixel() const
 {
-    if ( isDirty() )
-	((QColor*)this)->alloc();
-    return pix;
+    return isDirty() ? ((QColor*)this)->alloc() : pix;
 }
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#32 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,18 +17,18 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#32 $")
 
 
-// --------------------------------------------------------------------------
-// The color dictionary speeds up color allocation significantly for X11.
-// When there are no more colors, QColor::alloc() will set the colorAvail
-// flag to FALSE and try to find/approximate a close color.
-// WATCH OUT: From deep within the event loop, the colorAvail flag is
-// reset to TRUE (calls the function qResetColorAvailFlag()), because some
-// other application might free its colors, thereby making them available
-// for this Qt application.
-//
+/*****************************************************************************
+  The color dictionary speeds up color allocation significantly for X11.
+  When there are no more colors, QColor::alloc() will set the colorAvail
+  flag to FALSE and try to find/approximate a close color.
+  NOTE: From deep within the event loop, the colorAvail flag is reset to
+  TRUE (calls the function qResetColorAvailFlag()), because some other
+  application might free its colors, thereby making them available for
+  this Qt application.
+ *****************************************************************************/
 
 #include "qintdict.h"
 
@@ -37,6 +37,7 @@ typedef declare(QIntDictIteratorM,QColor) QColorDictIt;
 static QColorDict *colorDict = 0;		// dict of allocated colors
 static bool	   colorAvail = TRUE;		// X colors available
 
+static int	g_depth = 0;			// display depth
 static int	g_ncols = 0;			// number of colors
 static Colormap g_cmap	= 0;			// application global colormap
 static XColor  *g_carr	= 0;			// color array
@@ -56,9 +57,9 @@ void qt_reset_color_avail()			// OOPS: called from event loop
 }
 
 
-// --------------------------------------------------------------------------
-// QColor special member functions
-//
+/*****************************************************************************
+  QColor misc internal functions
+ *****************************************************************************/
 
 static int highest_bit( ulong v )
 {
@@ -70,26 +71,54 @@ static int highest_bit( ulong v )
 }
 
 
-// --------------------------------------------------------------------------
-// QColor static member functions
-//
+/*****************************************************************************
+  QColor static member functions
+ *****************************************************************************/
 
-void QColor::initialize()			// called from startup routines
+/*----------------------------------------------------------------------------
+  Returns the maximum number of colors supported by the underlying windows
+  system.
+ ----------------------------------------------------------------------------*/
+
+int QColor::maxColors()
 {
-    if ( ginit )				// already initialized
+    return g_ncols;
+}
+
+/*----------------------------------------------------------------------------
+  Returns the number of color bit planes for the underlying windows system.
+
+  The returned values is equal to the default pixmap depth;
+  QPixmap::depth().
+ ----------------------------------------------------------------------------*/
+
+int QColor::numBitPlanes()
+{
+    return g_depth;
+}
+
+
+/*----------------------------------------------------------------------------
+  Internal initialization required for QColor.
+  This function is called from the QApplication constructor.
+ ----------------------------------------------------------------------------*/
+
+void QColor::initialize()
+{
+    if ( g_cmap )				// already initialized
 	return;
     ginit = TRUE;
 
     Display *dpy    = qt_xdisplay();
     int	     screen = qt_xscreen();
-    int dd  = DefaultDepth( dpy, screen );	// default depth of display
+    g_depth = DefaultDepth( dpy, screen );	// default depth of display
     g_cmap  = DefaultColormap( dpy, screen );	// create colormap
     g_ncols = DisplayCells( dpy, screen );	// number of colors
     g_vis   = DefaultVisual( dpy, screen );
     g_truecolor = g_vis->c_class == TrueColor;
 
     int dictsize = 419;				// standard dict size
-    if ( g_ncols > 256 || dd > 8 )
+    if ( g_ncols > 256 || g_depth > 8 )
 	dictsize = 2113;
 
     if ( g_truecolor ) {			// truecolor
@@ -132,6 +161,11 @@ void QColor::initialize()			// called from startup routines
 #endif
 }
 
+/*----------------------------------------------------------------------------
+  Internal clean up required for QColor.
+  This function is called from the QApplication destructor.
+ ----------------------------------------------------------------------------*/
+
 void QColor::cleanup()
 {
     if ( !colorDict )
@@ -142,20 +176,17 @@ void QColor::cleanup()
 }
 
 
-// --------------------------------------------------------------------------
-// QColor member functions
-//
+/*****************************************************************************
+  QColor member functions
+ *****************************************************************************/
 
-QColor::QColor()				// default RGB=0,0,0
-{
-    rgbVal = RGB_INVALID;
-    pix = 0;
-}
+/*----------------------------------------------------------------------------
+  Constructs a color with a RGB value and a custom pixel value.
 
-QColor::QColor( int r, int g, int b )		// specify RGB
-{
-    setRgb( r, g, b );
-}
+  If the \e pix = 0xffffffff, then the color uses the RGB value in a
+  standard way.  If \e pix is something else, then the pixel value will
+  be set directly to \e pix (skips the standard allocation procedure).
+ ----------------------------------------------------------------------------*/
 
 QColor::QColor( ulong rgb, ulong pixel )	// specify RGB and/or pixel
 {
@@ -168,35 +199,23 @@ QColor::QColor( ulong rgb, ulong pixel )	// specify RGB and/or pixel
     rgbVal |= RGB_DIRECT;
 }
 
-QColor::QColor( const char *name )		// load color from database
-{
-    setNamedColor( name );
-}
 
-QColor::QColor( const QColor &c )		// copy color
-{
-    if ( !ginit )
-	initialize();
-    rgbVal = c.rgbVal;
-    pix    = c.pix;
-}
+/*----------------------------------------------------------------------------
+  Allocates the RGB color and returns the pixel value.
 
-QColor &QColor::operator=( const QColor &c )	// copy color
-{
-    if ( !ginit )
-	initialize();
-    rgbVal = c.rgbVal;
-    pix    = c.pix;
-    return *this;
-}
+  Allocating a color means to obtain a pixel value from the RGB specification.
+  The pixel value is an index into the global color table.
 
+  Calling the pixel() function will allocate automatically if
+  the color was not already allocated.
+ ----------------------------------------------------------------------------*/
 
-void QColor::alloc()				// allocate color
+ulong QColor::alloc()
 {
     if ( (rgbVal & RGB_INVALID) || !colorDict ) { // invalid color or state
 	rgbVal = QRGB( 0, 0, 0 );
 	pix = BlackPixel( qt_xdisplay(), qt_xscreen() );
-	return;
+	return pix;
     }
     int r, g, b;
     if ( g_truecolor ) {			// truecolor: map to pixel
@@ -208,13 +227,13 @@ void QColor::alloc()				// allocate color
 	b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
 	pix = (b & blue_mask) | (g & green_mask) | (r & red_mask);
 	rgbVal &= RGB_MASK;
-	return;
+	return pix;
     }
     register QColor *c = colorDict->find( (long)(rgbVal&RGB_MASK) );
     if ( c ) {					// found color in dictionary
 	rgbVal &= RGB_MASK;			// color ok
 	pix = c->pix;				// use same pixel value
-	return;
+	return pix;
     }
     XColor col;
     Display *dpy = qt_xdisplay();
@@ -250,7 +269,7 @@ void QColor::alloc()				// allocate color
 	    rx = r - (xc->red >> 8);
 	    gx = g - (xc->green >> 8);
 	    bx = b - (xc->blue>> 8);
-	    dist = rx*rx + gx*gx + bx*bx;	// calculate taxicab distance
+	    dist = rx*rx + gx*gx + bx*bx;	// calculate distance
 	    if ( dist < mindist ) {		// minimal?
 		mindist = dist;
 		mincol = i;
@@ -260,7 +279,7 @@ void QColor::alloc()				// allocate color
 	if ( mincol == -1 ) {			// there are no colors, yuck
 	    rgbVal |= RGB_INVALID;
 	    pix = BlackPixel( dpy, DefaultScreen(dpy) );
-	    return;
+	    return pix;
 	}
 	XAllocColor( dpy, g_cmap, &g_carr[mincol] );
 	pix = g_carr[mincol].pixel;		// allocated X11 color
@@ -269,14 +288,23 @@ void QColor::alloc()				// allocate color
     if ( colorDict->count() < colorDict->size() * 8 ) {
 	c = new QColor;				// insert into color dict
 	CHECK_PTR( c );
-	c->rgbVal = rgbVal;				// copy values
+	c->rgbVal = rgbVal;			// copy values
 	c->pix    = pix;
 	colorDict->insert( (long)rgbVal, c );	// store color in dict
     }
+    return pix;
 }
 
 
-void QColor::setNamedColor( const char *name )	// load color from database
+/*----------------------------------------------------------------------------
+  Sets the RGB value to that of the named color.
+
+  This function searches the X color database for the color and sets the
+  RGB value.  The color will be set to invalid if such a color does not
+  exist.
+ ----------------------------------------------------------------------------*/
+
+void QColor::setNamedColor( const char *name )
 {
     bool ok = FALSE;
     if ( g_cmap	 ) {				// initialized
@@ -293,7 +321,12 @@ void QColor::setNamedColor( const char *name )	// load color from database
 }
 
 
-void QColor::setRgb( int r, int g, int b )	// set RGB value
+/*----------------------------------------------------------------------------
+  Sets the RGB value to (\e r, \e g, \e b).
+  \sa rgb(), setHsv()
+ ----------------------------------------------------------------------------*/
+
+void QColor::setRgb( int r, int g, int b )
 {
 #if defined(CHECK_RANGE)
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
