@@ -51,7 +51,10 @@ public:
     void addText(const QPointF &point, const QFont &f, const QString &text);
     inline void addText(float x, float y, const QFont &f, const QString &text);
 
-    QPainterPath createPathOutline(int width);
+    QPainterPath createPathOutline(int width,
+                                   Qt::PenStyle penStyle = Qt::SolidLine,
+                                   Qt::PenCapStyle capStyle = Qt::FlatCap,
+                                   Qt::PenJoinStyle joinStyle = Qt::BevelJoin);
 
     QRectF boundingRect() const;
 

@@ -108,7 +108,10 @@ public:
     QPointArray toFillPolygon(const QMatrix &xform);
 
     /* Creates a path containing the outline of this path of width \a penwidth */
-    QPainterPath createStroke(const QPen &pen);
+    QPainterPath createStroke(int width,
+                              Qt::PenStyle penStyle,
+                              Qt::PenCapStyle capStyle,
+                              Qt::PenJoinStyle joinStyle);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;

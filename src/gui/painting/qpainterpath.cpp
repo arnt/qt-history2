@@ -533,11 +533,11 @@ static QLineF::IntersectType qt_path_stroke_join(QPainterSubpath *sp,
         }
         switch (joinStyle) {
         case Qt::MiterJoin:
-            sp->lineTo(ml.start());
-            break;
-        case Qt::BevelJoin:
             prev->lineData.x = isect.x();
             prev->lineData.y = isect.y();
+            break;
+        case Qt::BevelJoin:
+            sp->lineTo(ml.start());
             break;
         case Qt::RoundJoin: {
             sp->curveTo(isect, isect, ml.start());
@@ -560,7 +560,6 @@ static void qt_path_stroke_line(const QPointF &toPoint,
     printf(" -> stroking line from (%.2f, %.2f) -> (%.2f, %.2f), subpath.isEmpty=%d\n",
            lastPoint.x(), lastPoint.y(), toPoint.x(), toPoint.y(), sp->elements.isEmpty());
 #endif
-
     QLineF line(lastPoint, toPoint);
     if (line.isNull())
         return;
@@ -647,7 +646,10 @@ QPainterSubpath qt_path_reverse_subpath(const QPainterSubpath &subpath)
     \internal
 */
 
-QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
+QPainterPath QPainterPathPrivate::createStroke(int width,
+                                               Qt::PenStyle penStyle,
+                                               Qt::PenCapStyle capStyle,
+                                               Qt::PenJoinStyle joinStyle)
 {
 #ifdef QPP_DEBUG
     printf("QPainterPathPrivate::createStroke()\n");
@@ -657,8 +659,7 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 
     QPainterPath stroke;
 
-    Qt::PenJoinStyle joinStyle = pen.joinStyle();
-    float penWidth = pen.width() / 2.0;
+    float penWidth = width / 2.0;
 
     for (int spi=0; spi<subpaths.size(); ++spi) {
         const QPainterSubpath &subpath = subpaths.at(spi);
@@ -1125,7 +1126,10 @@ bool QPainterPath::isEmpty() const
 /*!
     Create an outline for the path with the given \a width.
 */
-QPainterPath QPainterPath::createPathOutline(int width)
+QPainterPath QPainterPath::createPathOutline(int width,
+                                             Qt::PenStyle penStyle,
+                                             Qt::PenCapStyle capStyle,
+                                             Qt::PenJoinStyle joinStyle)
 {
-    return d->createStroke(QPen(Qt::black, width, Qt::SolidLine, Qt::RoundCap, Qt::MiterJoin));
+    return d->createStroke(width, penStyle, capStyle, joinStyle);
 }
