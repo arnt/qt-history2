@@ -628,6 +628,25 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 	}
 
+    case PO_ScrollBarSubLine:
+	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowLeft : PO_ArrowUp),
+		      p, r, cg, flags);
+	break;
+
+    case PO_ScrollBarAddLine:
+	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowRight : PO_ArrowDown),
+		      p, r, cg, flags);
+	break;
+
+    case PO_ScrollBarSubPage:
+    case PO_ScrollBarAddPage:
+	p->fillRect(r, cg.brush(QColorGroup::Mid));
+	break;
+
+    case PO_ScrollBarSlider:
+	drawPrimitive(PO_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
+	break;
+
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -1087,48 +1106,14 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
     case CC_ScrollBar:
 	{
-	    if (! widget || ! data)
-		break;
-
-	    QScrollBar *scrollbar = (QScrollBar *) widget;
-	    QRect addline, subline, addpage, subpage, slider;
-
-	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
-	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
-	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
-	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
-	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
-	    int fw  = pixelMetric(PM_DefaultFrameWidth, widget);
-
 	    if (sub == (SC_ScrollBarAddLine | SC_ScrollBarSubLine | SC_ScrollBarAddPage |
 			SC_ScrollBarSubPage | SC_ScrollBarFirst | SC_ScrollBarLast |
 			SC_ScrollBarSlider))
-		qDrawShadePanel(p, scrollbar->rect(), cg, TRUE, fw,
+		qDrawShadePanel(p, widget->rect(), cg, TRUE,
+				pixelMetric(PM_DefaultFrameWidth, widget),
 				&cg.brush(QColorGroup::Mid));
-
-	    if (sub & SC_ScrollBarSubLine && subline.isValid())
-		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
-			       PO_ArrowLeft : PO_ArrowUp),
-			      p, subline, cg,
-			      PStyle_Enabled | ((subActive == SC_ScrollBarSubLine) ?
-						PStyle_Down : PStyle_Default));
-
-	    if (sub & SC_ScrollBarAddLine && addline.isValid())
-		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
-			       PO_ArrowRight : PO_ArrowDown),
-			      p, addline, cg,
-			      PStyle_Enabled | ((subActive == SC_ScrollBarAddLine) ?
-						PStyle_Down : PStyle_Default));
-
-	    if (sub & SC_ScrollBarSubPage && subpage.isValid())
-		p->fillRect(subpage, cg.brush(QColorGroup::Mid));
-
-	    if (sub & SC_ScrollBarAddPage && addpage.isValid())
-		p->fillRect(addpage, cg.brush(QColorGroup::Mid));
-
-	    if (sub & SC_ScrollBarSlider && slider.isValid())
-		qDrawShadePanel(p, slider, cg, FALSE, fw, &cg.brush(QColorGroup::Button));
-
+	    QCommonStyle::drawComplexControl(control, p, widget, r, cg, flags, sub,
+					     subActive, data);
 	    break;
 	}
 

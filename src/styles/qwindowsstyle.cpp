@@ -353,6 +353,76 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
 	break;
 
+    case PO_ScrollBarSubLine:
+	if (use2000style) {
+	    if (flags & PStyle_Down) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+		p->drawRect( r );
+	    } else
+		drawPrimitive(PO_ButtonBevel, p, r, cg, flags | PStyle_Raised);
+	} else
+	    drawPrimitive(PO_ButtonBevel, p, r, cg, (flags & PStyle_Enabled) |
+			  ((flags & PStyle_Down) ? PStyle_Down : PStyle_Raised));
+
+	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowLeft : PO_ArrowUp),
+		      p, r, cg, flags);
+	break;
+
+    case PO_ScrollBarAddLine:
+	if (use2000style) {
+	    if (flags & PStyle_Down) {
+		p->setPen( cg.dark() );
+		p->setBrush( cg.brush( QColorGroup::Button ) );
+		p->drawRect( r );
+	    } else
+		drawPrimitive(PO_ButtonBevel, p, r, cg, flags | PStyle_Raised);
+	} else
+	    drawPrimitive(PO_ButtonBevel, p, r, cg, (flags & PStyle_Enabled) |
+			  ((flags & PStyle_Down) ? PStyle_Down : PStyle_Raised));
+
+	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowRight : PO_ArrowDown),
+		      p, r, cg, flags);
+	break;
+
+    case PO_ScrollBarAddPage:
+    case PO_ScrollBarSubPage:
+	{
+	    QBrush br;
+	    QColor c = p->backgroundColor();
+
+	    p->setPen(NoPen);
+	    p->setBackgroundMode(OpaqueMode);
+
+	    if (flags & PStyle_Down) {
+		br = QBrush(cg.shadow(), Dense4Pattern);
+		p->setBackgroundColor( cg.dark() );
+		p->setBrush( QBrush(cg.shadow(), Dense4Pattern) );
+	    } else {
+		br = (cg.brush(QColorGroup::Light).pixmap() ?
+		      cg.brush(QColorGroup::Light) :
+		      QBrush(cg.light(), Dense4Pattern));
+		p->setBrush(br);
+	    }
+
+	    p->drawRect(r);
+	    p->setBackgroundColor(c);
+	    break;
+	}
+
+    case PO_ScrollBarSlider:
+	if (! (flags & PStyle_Enabled)) {
+	    QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
+			 cg.brush(QColorGroup::Light) :
+			 QBrush(cg.light(), Dense4Pattern));
+	    p->setPen(NoPen);
+	    p->setBrush(br);
+	    p->setBackgroundMode(OpaqueMode);
+	    p->drawRect(r);
+	} else
+	    drawPrimitive(PO_ButtonBevel, p, r, cg, PStyle_Enabled | PStyle_Raised);
+	break;
+
     default:
 	if (op >= PO_ArrowUp && op <= PO_ArrowLeft) {
 	    QPointArray a;
@@ -1093,107 +1163,6 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					void **data ) const
 {
     switch (ctrl) {
-    case CC_ScrollBar:
-	{
-	    if (! w)
-		break;
-
-	    QScrollBar *scrollbar = (QScrollBar *) w;
-	    QRect addline, subline, addpage, subpage, slider, addlinea, sublinea;
-	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
-
-	    subline = querySubControlMetrics(ctrl, w, SC_ScrollBarSubLine, data);
-	    addline = querySubControlMetrics(ctrl, w, SC_ScrollBarAddLine, data);
-	    subpage = querySubControlMetrics(ctrl, w, SC_ScrollBarSubPage, data);
-	    addpage = querySubControlMetrics(ctrl, w, SC_ScrollBarAddPage, data);
-	    slider  = querySubControlMetrics(ctrl, w, SC_ScrollBarSlider,  data);
-	    addlinea = addline;
-	    addlinea.addCoords(2, 2, -2, -2);
-	    sublinea = subline;
-	    sublinea.addCoords(2, 2, -2, -2);
-
-	    if (sub & SC_ScrollBarSubLine) {
-		if (subActive == SC_ScrollBarSubLine) {
-		    p->setPen( cg.dark() );
-		    p->setBrush( cg.brush( QColorGroup::Button ) );
-		    p->drawRect( subline );
-		} else
-		    drawPrimitive(PO_ButtonBevel, p, subline, cg,
-				  PStyle_Enabled | PStyle_Raised);
-
-		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
-			       PO_ArrowLeft : PO_ArrowUp),
-			      p, sublinea, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
-			      ((subActive == SC_ScrollBarSubLine) ?
-			       PStyle_Down : PStyle_Default));
-	    }
-
-	    if (sub & SC_ScrollBarAddLine) {
-		if (subActive == SC_ScrollBarAddLine) {
-		    p->setPen( cg.dark() );
-		    p->setBrush( cg.brush( QColorGroup::Button ) );
-		    p->drawRect( addline );
-		} else
-		    drawPrimitive(PO_ButtonBevel, p, addline, cg,
-				  PStyle_Enabled | PStyle_Raised);
-
-		drawPrimitive(((scrollbar->orientation() == Qt::Horizontal) ?
-			       PO_ArrowRight : PO_ArrowDown),
-			      p, addlinea, cg,
-			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
-			      ((subActive == SC_ScrollBarAddLine) ?
-			       PStyle_Down : PStyle_Default));
-	    }
-
-	    QBrush br = (cg.brush(QColorGroup::Light).pixmap() ?
-			 cg.brush(QColorGroup::Light) :
-			 QBrush(cg.light(), Dense4Pattern));
-
-	    p->setBrush(br);
-	    p->setPen(NoPen);
-	    p->setBackgroundMode(OpaqueMode);
-
-	    if (maxedOut) {
-		p->drawRect(slider);
-	    } else {
-		if (((sub & SC_ScrollBarSubPage) && subActive == SC_ScrollBarSubPage) ||
-		    ((sub & SC_ScrollBarAddPage) && subActive == SC_ScrollBarAddPage)) {
-		    QBrush b = p->brush();
-		    QColor c = p->backgroundColor();
-		    p->setBackgroundColor( cg.dark() );
-		    p->setBrush( QBrush(cg.shadow(), Dense4Pattern) );
-		    p->drawRect( subActive == SC_ScrollBarAddPage ? addpage : subpage );
-		    p->setBackgroundColor( c );
-		    p->setBrush( b );
-		}
-
-		if ( sub & SC_ScrollBarSubPage && subActive != SC_ScrollBarSubPage)
-		    p->drawRect( subpage );
-		if ( sub & SC_ScrollBarAddPage && subActive != SC_ScrollBarAddPage)
-		    p->drawRect( addpage );
-
-		if ( sub & SC_ScrollBarSlider ) {
-		    if ( !maxedOut ) {
-			QPoint bo = p->brushOrigin();
-			p->setBrushOrigin(slider.topLeft());
-			drawPrimitive(PO_ButtonBevel, p, slider, cg,
-				      PStyle_Enabled | PStyle_Raised);
-			p->setBrushOrigin(bo);
-		    }
-		}
-	    }
-
-	    // ### perhaps this should not be able to accept focus if maxedOut?
-	    if ( scrollbar->hasFocus() && (sub & SC_ScrollBarSlider) ) {
-		QRect fr(slider.x() + 2, slider.y() + 2,
-			 slider.width() - 5, slider.height() - 5);
-		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
-	    }
-
-	    break;
-	}
-
     case CC_ListView:
 	{
 #ifndef QT_NO_LISTVIEW

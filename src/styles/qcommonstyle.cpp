@@ -938,256 +938,322 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 				       void **data ) const
 {
     switch (control) {
-    case CC_ToolButton: {
-	QToolButton *toolbutton = (QToolButton *) widget;
+    case CC_ScrollBar:
+	{
+	    if (! widget)
+		break;
 
-	QRect button, menuarea;
-	button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
-	menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
+	    QScrollBar *scrollbar = (QScrollBar *) widget;
+	    QRect addline, subline, addpage, subpage, slider;
+	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
-       	bool on = toolbutton->isOn();
-	bool down = toolbutton->isDown();
-	bool autoraise = toolbutton->autoRaise();
-	bool use3d = FALSE;
-	bool drawarrow = FALSE;
-	Qt::ArrowType arrowType = Qt::DownArrow;
+	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
+	    addline = querySubControlMetrics(control, widget, SC_ScrollBarAddLine, data);
+	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
+	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
+	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
 
-	if (data) {
-	    use3d      = *((bool *) data[0]);
-	    drawarrow  = *((bool *) data[1]);
-	    arrowType  = *((Qt::ArrowType *) data[2]);
-	}
+       	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
+		drawPrimitive(PO_ScrollBarSubLine, p, subline, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarSubLine) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarAddLine) && addline.isValid())
+		drawPrimitive(PO_ScrollBarAddLine, p, addline, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarAddLine) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarSubPage) && subpage.isValid())
+		drawPrimitive(PO_ScrollBarSubPage, p, subpage, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarSubPage) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarAddPage) && addpage.isValid())
+		drawPrimitive(PO_ScrollBarAddPage, p, addpage, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarAddPage) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarSlider) && slider.isValid())
+		drawPrimitive(PO_ScrollBarSlider, p, slider, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarSlider) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
 
-	PFlags bflags = PStyle_Default,
-	       mflags = PStyle_Default;
-
-	if (toolbutton->isEnabled()) {
-	    bflags |= PStyle_Enabled;
-	    mflags |= PStyle_Enabled;
-	}
-
-	if (down) {
-	    bflags |= PStyle_Down;
-	    mflags |= PStyle_Down;
-	}
-	if (on) {
-	    bflags |= PStyle_On;
-	    mflags |= PStyle_On;
-	}
-  	if (autoraise) {
-	    bflags |= PStyle_AutoRaise;
-	    mflags |= PStyle_AutoRaise;
-
-	    if (use3d) {
-		bflags |= PStyle_MouseOver;
-		mflags |= PStyle_MouseOver;
-
-		if (active & SC_ToolButton)
-		    bflags |= PStyle_Down;
-		if (active & SC_ToolButtonMenu)
-		    mflags |= PStyle_Down;
-
-		if (! on && ! down) {
-		    bflags |= PStyle_Raised;
-		    mflags |= PStyle_Raised;
-		}
+	    // ### perhaps this should not be able to accept focus if maxedOut?
+	    if ( scrollbar->hasFocus() && (controls & SC_ScrollBarSlider) ) {
+		QRect fr(slider.x() + 2, slider.y() + 2,
+			 slider.width() - 5, slider.height() - 5);
+		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
 	    }
-	} else if (! on && ! down) {
-	    bflags |= PStyle_Raised;
-	    mflags |= PStyle_Raised;
+
+	    break;
 	}
 
-	if (controls & SC_ToolButton) {
-	    if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
-		drawPrimitive(PO_ButtonTool, p, button, cg, bflags, data);
-	    else if ( toolbutton->parentWidget() &&
-		      toolbutton->parentWidget()->backgroundPixmap() &&
-		      ! toolbutton->parentWidget()->backgroundPixmap()->isNull() )
-		p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
-				    toolbutton->pos() );
+    case CC_ToolButton:
+	{
+	    QToolButton *toolbutton = (QToolButton *) widget;
 
-	    if (bflags & (PStyle_Down | PStyle_On))
-		button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-			      pixelMetric(PM_ButtonShiftVertical, widget));
+	    QRect button, menuarea;
+	    button   = querySubControlMetrics(control, widget, SC_ToolButton, data);
+	    menuarea = querySubControlMetrics(control, widget, SC_ToolButtonMenu, data);
 
-	    if (drawarrow) {
-		PrimitiveOperation op;
-		switch (arrowType) {
-		case Qt::LeftArrow:  op = PO_ArrowLeft;  break;
-		case Qt::RightArrow: op = PO_ArrowRight; break;
-		case Qt::UpArrow:    op = PO_ArrowUp;    break;
-		default:
-		case Qt::DownArrow:  op = PO_ArrowDown;  break;
-		}
+	    bool on = toolbutton->isOn();
+	    bool down = toolbutton->isDown();
+	    bool autoraise = toolbutton->autoRaise();
+	    bool use3d = FALSE;
+	    bool drawarrow = FALSE;
+	    Qt::ArrowType arrowType = Qt::DownArrow;
 
-		drawPrimitive(op, p, button, cg, bflags, data);
-	    } else {
-		QColor btext = cg.buttonText();
-
-		if (toolbutton->iconSet().isNull() &&
-		    ! toolbutton->text().isNull() &&
-		    ! toolbutton->usesTextLabel()) {
-		    drawItem(p, button, AlignCenter | ShowPrefix, cg,
-			     bflags & PStyle_Enabled, 0, toolbutton->text(),
-			     toolbutton->text().length(), &btext);
-		} else {
-		    QPixmap pm;
-		    QIconSet::Size size =
-			toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
-		    QIconSet::State state =
-			toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
-		    QIconSet::Mode mode;
-		    if (! toolbutton->isEnabled())
-			mode = QIconSet::Disabled;
-		    else if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
-			mode = QIconSet::Active;
-		    else
-			mode = QIconSet::Normal;
-		    pm = toolbutton->iconSet().pixmap( size, mode, state );
-
-		    if ( toolbutton->usesTextLabel() ) {
-			p->setFont( toolbutton->font() );
-
-			QRect pr = button, tr = button;
-			int fh = p->fontMetrics().height();
-			pr.addCoords(0, 0, 0, -fh);
-			tr.addCoords(0, tr.height() - fh, 0, 0);
-			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
-			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
-				  bflags & PStyle_Enabled, 0, toolbutton->textLabel(),
-				  toolbutton->textLabel().length(), &btext);
-		    } else
-			drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
-		}
+	    if (data) {
+		use3d      = *((bool *) data[0]);
+		drawarrow  = *((bool *) data[1]);
+		arrowType  = *((Qt::ArrowType *) data[2]);
 	    }
-	}
 
-	if (controls & SC_ToolButtonMenu) {
-	    if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
-		drawPrimitive(PO_ButtonDropDown, p, menuarea, cg, mflags, data);
-	    drawPrimitive(PO_ArrowDown, p, menuarea, cg, mflags, data);
-	}
+	    PFlags bflags = PStyle_Default,
+		   mflags = PStyle_Default;
 
-	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
-	    QRect fr = toolbutton->rect();
-	    fr.addCoords(3, 3, -3, -3);
-	    drawPrimitive(PO_FocusRect, p, fr, cg);
-	}
-
-	break; }
-
-    case CC_TitleBar: {
-#ifndef QT_NO_TITLEBAR
-	QTitleBar *titlebar = (QTitleBar *) widget;
-
-	QColor left = titlebar->act || !titlebar->window ?
-		      titlebar->aleftc : titlebar->ileftc;
-	QColor right = titlebar->act || !titlebar->window ?
-		       titlebar->arightc : titlebar->irightc;
-	if ( left != right ) {
-	    double rS = left.red();
-	    double gS = left.green();
-	    double bS = left.blue();
-
-	    double rD = double(right.red() - rS) / titlebar->width();
-	    double gD = double(right.green() - gS) / titlebar->width();
-	    double bD = double(right.blue() - bS) / titlebar->width();
-
-	    int w = titlebar->width();
-	    for ( int sx = 0; sx < w; sx++ ) {
-		rS+=rD;
-		gS+=gD;
-		bS+=bD;
-		p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
-		p->drawLine( sx, 0, sx, titlebar->height() );
+	    if (toolbutton->isEnabled()) {
+		bflags |= PStyle_Enabled;
+		mflags |= PStyle_Enabled;
 	    }
-	} else {
-	    p->fillRect( titlebar->rect(), left );
-	}
 
-	QRect ir;
-	if(titlebar->window)
-	    ir = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH + 2, 0,
-			titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
-					    TITLEBAR_SEPARATION)*3)-
-			(TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
-			titlebar->height());
-	else
-	    ir = QRect( 0, 0, titlebar->width(), titlebar->height());
-
-	p->setPen( titlebar->act || !titlebar->window ?
-		   titlebar->atextc : titlebar->itextc );
-	p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
-		    AlignAuto | AlignVCenter | SingleLine, titlebar->cuttext );
-
-	if (titlebar->window) {
-	    QRect ir(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
-		     2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	    bool down = active & SC_TitleBarCloseButton;
-	    QPixmap pm(stylePixmap(SP_TitleBarCloseButton, widget));
-	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Down : PStyle_Raised);
-	    int xoff = 0, yoff = 0;
 	    if (down) {
-		xoff = pixelMetric(PM_ButtonShiftHorizontal);
-		yoff = pixelMetric(PM_ButtonShiftVertical);
+		bflags |= PStyle_Down;
+		mflags |= PStyle_Down;
 	    }
-	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			       TITLEBAR_CONTROL_HEIGHT),
-		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
-
-	    ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
-					   TITLEBAR_SEPARATION)*2),
-		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-
-	    down = active & SC_TitleBarMaxButton;
-	    pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
-	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Down : PStyle_Raised);
-	    xoff = 0;
-	    yoff = 0;
-	    if(down) {
-		xoff = pixelMetric(PM_ButtonShiftHorizontal);
-		yoff = pixelMetric(PM_ButtonShiftVertical);
+	    if (on) {
+		bflags |= PStyle_On;
+		mflags |= PStyle_On;
 	    }
-	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			       TITLEBAR_CONTROL_HEIGHT),
-		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+	    if (autoraise) {
+		bflags |= PStyle_AutoRaise;
+		mflags |= PStyle_AutoRaise;
 
-	    ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
-					   TITLEBAR_SEPARATION)*3),
-		       2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-	    QStyle::SubControl ctrl = (controls & SC_TitleBarNormalButton ?
-				       SC_TitleBarNormalButton :
-				       SC_TitleBarMinButton);
-	    QStyle::StylePixmap spixmap = (controls & SC_TitleBarNormalButton ?
-					   SP_TitleBarNormalButton :
-					   SP_TitleBarMinButton);
-	    down = active & ctrl;
-	    pm = QPixmap(stylePixmap(spixmap, widget));
-	    drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
-			  down ? PStyle_Down : PStyle_Raised);
-	    xoff=0, yoff=0;
-	    if(down) {
-		xoff = pixelMetric(PM_ButtonShiftHorizontal);
-		yoff = pixelMetric(PM_ButtonShiftVertical);
+		if (use3d) {
+		    bflags |= PStyle_MouseOver;
+		    mflags |= PStyle_MouseOver;
+
+		    if (active & SC_ToolButton)
+			bflags |= PStyle_Down;
+		    if (active & SC_ToolButtonMenu)
+			mflags |= PStyle_Down;
+
+		    if (! on && ! down) {
+			bflags |= PStyle_Raised;
+			mflags |= PStyle_Raised;
+		    }
+		}
+	    } else if (! on && ! down) {
+		bflags |= PStyle_Raised;
+		mflags |= PStyle_Raised;
 	    }
-	    drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-			       TITLEBAR_CONTROL_HEIGHT),
-		      AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
 
-	    if ( !titlebar->pixmap.isNull() ) {
-		ir = QRect( 2 + TITLEBAR_CONTROL_WIDTH / 2 -
-			    titlebar->pixmap.width() / 2,
-			    titlebar->height() / 2 - titlebar->pixmap.height() / 2,
-			    titlebar->pixmap.width(), titlebar->pixmap.height() );
+	    if (controls & SC_ToolButton) {
+		if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+		    drawPrimitive(PO_ButtonTool, p, button, cg, bflags, data);
+		else if ( toolbutton->parentWidget() &&
+			  toolbutton->parentWidget()->backgroundPixmap() &&
+			  ! toolbutton->parentWidget()->backgroundPixmap()->isNull() )
+		    p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
+					toolbutton->pos() );
 
-		p->drawPixmap( ir.x(), ir.y(), titlebar->pixmap, 0, 0,
-			       titlebar->pixmap.width(), titlebar->pixmap.height() );
+		if (bflags & (PStyle_Down | PStyle_On))
+		    button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+				  pixelMetric(PM_ButtonShiftVertical, widget));
+
+		if (drawarrow) {
+		    PrimitiveOperation op;
+		    switch (arrowType) {
+		    case Qt::LeftArrow:  op = PO_ArrowLeft;  break;
+		    case Qt::RightArrow: op = PO_ArrowRight; break;
+		    case Qt::UpArrow:    op = PO_ArrowUp;    break;
+		    default:
+		    case Qt::DownArrow:  op = PO_ArrowDown;  break;
+		    }
+
+		    drawPrimitive(op, p, button, cg, bflags, data);
+		} else {
+		    QColor btext = cg.buttonText();
+
+		    if (toolbutton->iconSet().isNull() &&
+			! toolbutton->text().isNull() &&
+			! toolbutton->usesTextLabel()) {
+			drawItem(p, button, AlignCenter | ShowPrefix, cg,
+				 bflags & PStyle_Enabled, 0, toolbutton->text(),
+				 toolbutton->text().length(), &btext);
+		    } else {
+			QPixmap pm;
+			QIconSet::Size size =
+			    toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
+			QIconSet::State state =
+			    toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
+			QIconSet::Mode mode;
+			if (! toolbutton->isEnabled())
+			    mode = QIconSet::Disabled;
+			else if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+			    mode = QIconSet::Active;
+			else
+			    mode = QIconSet::Normal;
+			pm = toolbutton->iconSet().pixmap( size, mode, state );
+
+			if ( toolbutton->usesTextLabel() ) {
+			    p->setFont( toolbutton->font() );
+
+			    QRect pr = button, tr = button;
+			    int fh = p->fontMetrics().height();
+			    pr.addCoords(0, 0, 0, -fh);
+			    tr.addCoords(0, tr.height() - fh, 0, 0);
+			    drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
+			    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
+				      bflags & PStyle_Enabled, 0, toolbutton->textLabel(),
+				      toolbutton->textLabel().length(), &btext);
+			} else
+			    drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
+		    }
+		}
 	    }
+
+	    if (controls & SC_ToolButtonMenu) {
+		if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+		    drawPrimitive(PO_ButtonDropDown, p, menuarea, cg, mflags, data);
+		drawPrimitive(PO_ArrowDown, p, menuarea, cg, mflags, data);
+	    }
+
+	    if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
+		QRect fr = toolbutton->rect();
+		fr.addCoords(3, 3, -3, -3);
+		drawPrimitive(PO_FocusRect, p, fr, cg);
+	    }
+
+	    break;
+	}
+
+#ifndef QT_NO_TITLEBAR
+    case CC_TitleBar:
+	{
+	    QTitleBar *titlebar = (QTitleBar *) widget;
+
+	    QColor left = titlebar->act || !titlebar->window ?
+			  titlebar->aleftc : titlebar->ileftc;
+	    QColor right = titlebar->act || !titlebar->window ?
+			   titlebar->arightc : titlebar->irightc;
+	    if ( left != right ) {
+		double rS = left.red();
+		double gS = left.green();
+		double bS = left.blue();
+
+		double rD = double(right.red() - rS) / titlebar->width();
+		double gD = double(right.green() - gS) / titlebar->width();
+		double bD = double(right.blue() - bS) / titlebar->width();
+
+		int w = titlebar->width();
+		for ( int sx = 0; sx < w; sx++ ) {
+		    rS+=rD;
+		    gS+=gD;
+		    bS+=bD;
+		    p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
+		    p->drawLine( sx, 0, sx, titlebar->height() );
+		}
+	    } else {
+		p->fillRect( titlebar->rect(), left );
+	    }
+
+	    QRect ir;
+	    if(titlebar->window)
+		ir = QRect( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH + 2, 0,
+			    titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+						TITLEBAR_SEPARATION)*3)-
+			    (TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH),
+			    titlebar->height());
+	    else
+		ir = QRect( 0, 0, titlebar->width(), titlebar->height());
+
+	    p->setPen( titlebar->act || !titlebar->window ?
+		       titlebar->atextc : titlebar->itextc );
+	    p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
+			AlignAuto | AlignVCenter | SingleLine, titlebar->cuttext );
+
+	    if (titlebar->window) {
+		QRect ir(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)),
+			 2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		bool down = active & SC_TitleBarCloseButton;
+		QPixmap pm(stylePixmap(SP_TitleBarCloseButton, widget));
+		drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			      down ? PStyle_Down : PStyle_Raised);
+		int xoff = 0, yoff = 0;
+		if (down) {
+		    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		    yoff = pixelMetric(PM_ButtonShiftVertical);
+		}
+		drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+				   TITLEBAR_CONTROL_HEIGHT),
+			  AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+		ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+					       TITLEBAR_SEPARATION)*2),
+			   2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+		down = active & SC_TitleBarMaxButton;
+		pm = QPixmap(stylePixmap(SP_TitleBarMaxButton, widget));
+		drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			      down ? PStyle_Down : PStyle_Raised);
+		xoff = 0;
+		yoff = 0;
+		if(down) {
+		    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		    yoff = pixelMetric(PM_ButtonShiftVertical);
+		}
+		drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+				   TITLEBAR_CONTROL_HEIGHT),
+			  AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+		ir = QRect(titlebar->width()-((TITLEBAR_CONTROL_WIDTH+
+					       TITLEBAR_SEPARATION)*3),
+			   2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+		QStyle::SubControl ctrl = (controls & SC_TitleBarNormalButton ?
+					   SC_TitleBarNormalButton :
+					   SC_TitleBarMinButton);
+		QStyle::StylePixmap spixmap = (controls & SC_TitleBarNormalButton ?
+					       SP_TitleBarNormalButton :
+					       SP_TitleBarMinButton);
+		down = active & ctrl;
+		pm = QPixmap(stylePixmap(spixmap, widget));
+		drawPrimitive(PO_ButtonTool, p, ir, titlebar->colorGroup(),
+			      down ? PStyle_Down : PStyle_Raised);
+		xoff=0, yoff=0;
+		if(down) {
+		    xoff = pixelMetric(PM_ButtonShiftHorizontal);
+		    yoff = pixelMetric(PM_ButtonShiftVertical);
+		}
+		drawItem( p, QRect(ir.x()+xoff, ir.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+				   TITLEBAR_CONTROL_HEIGHT),
+			  AlignCenter, titlebar->colorGroup(), TRUE, &pm, QString::null );
+
+		if ( !titlebar->pixmap.isNull() ) {
+		    ir = QRect( 2 + TITLEBAR_CONTROL_WIDTH / 2 -
+				titlebar->pixmap.width() / 2,
+				titlebar->height() / 2 - titlebar->pixmap.height() / 2,
+				titlebar->pixmap.width(), titlebar->pixmap.height() );
+
+		    p->drawPixmap( ir.x(), ir.y(), titlebar->pixmap, 0, 0,
+				   titlebar->pixmap.width(), titlebar->pixmap.height() );
+		}
+	    }
+
+	    break;
 	}
 #endif //QT_NO_TITLEBAR
-      	break; }
 
     case CC_SpinWidget:
 	switch( controls ) {
@@ -1729,19 +1795,19 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_IndicatorWidth:
 	ret = 13;
 	break;
-	
+
     case PM_IndicatorHeight:
 	ret = 13;
 	break;
-	
+
     case PM_ExclusiveIndicatorWidth:
 	ret = 12;
 	break;
-	
+
     case PM_ExclusiveIndicatorHeight:
 	ret = 12;
 	break;
-	
+
     default:
 	ret = 0;
 	break;
@@ -1862,11 +1928,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, void ***) const
     case SH_ScrollBar_BackgroundMode:
 	ret = QWidget::PaletteBackground;
 	break;
-	
+
     case SH_TabBar_Alignment:
 	ret = Qt::AlignLeft;
 	break;
-	
+
     default:
 	ret = 0;
 	break;

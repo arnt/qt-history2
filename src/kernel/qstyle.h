@@ -131,15 +131,15 @@ public:
 
 	PO_SizeGrip,
 
-	PO_CheckMark
+	PO_CheckMark,
 
-        /*
-	  PO_ScrollBarLineUp,
-	  PO_ScrollBarLineDown,
-	  PO_ScrollBarLinePageUp,
-	  PO_ScrollBarLinePageDown,
-	  PO_ScrollBarLinePageSlider
-	*/
+	PO_ScrollBarAddLine,
+	PO_ScrollBarSubLine,
+	PO_ScrollBarAddPage,
+	PO_ScrollBarSubPage,
+	PO_ScrollBarSlider,
+	PO_ScrollBarFirst,
+	PO_ScrollBarLast
     };
 
     enum PrimitiveOperationFlags {
@@ -357,7 +357,7 @@ public:
 	PM_ProgressBarChunkWidth,
 
 	PM_SplitterWidth,
-	
+
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
 	PM_ExclusiveIndicatorWidth,
