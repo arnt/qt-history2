@@ -108,7 +108,7 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
     CWFileSpec destSpec;
  	moc_status mocd = do_moc(context, source, dest, &destSpec, dotmoc);
    
-#if 1
+#if 0
     QCString derr = "Weird";
     switch(mocd) {
     case moc_success: derr = "Success"; break;
