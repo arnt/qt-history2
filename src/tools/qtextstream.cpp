@@ -716,28 +716,35 @@ void QTextStream::skipWhiteSpace()
 /*!
   Returns true if the conditions in flags are met
 */
-inline static bool ts_end(const QChar *c, uint len, uchar flags)
+inline static int ts_end(const QChar *c, uint len, uchar flags)
 {
-    if(c->unicode() == QEOF || !len)
-	return TRUE;
-    bool end = FALSE;
+    if((QChar)(c->unicode()) == QEOF || !len)
+	return 1;
+    int end = 0;
     switch((flags & 0x0F)) {
     case 0:
 	return FALSE;
     case TS_EOL:
-	end = ((*c == '\n') || (len >= 2 && *c == '\r' && *(c+1) == '\n'));
+	if(*c == '\n')
+	    end = 1;
+	else if(len >= 2 && *c == '\r' && *(c+1) == '\n')
+	    end = 2;
 	break;
     case TS_SPACE:
-	end = c->isSpace();
+	if(c->isSpace())
+	    end = 1;
 	break;
     case TS_DIGIT:
-	end = c->isDigit();
+	if(c->isDigit())
+	    end = 1;
 	break;
     case TS_HEX:
-	end = isxdigit(*c);
+	if(isxdigit(*c))
+	    end = 1;
 	break;
     case TS_BIN:
-	end = (c->isDigit() && (*c == '0' || *c == '1'));
+	if(c->isDigit() && (*c == '0' || *c == '1'))
+	    end = 1;
 	break;
     default:
 	qWarning("Unknown flags 0x%02x", flags);
@@ -773,7 +780,8 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	uint ungetc_len = d->ungetcBuf.length();
 	const QChar *ungetc_buff = d->ungetcBuf.unicode();
 	while( rnum < ungetc_len ) {
-	    if(ts_end(ungetc_buff+rnum, ungetc_len-rnum, end_flags)) {
+	    if(int end = ts_end(ungetc_buff+rnum, ungetc_len-rnum, end_flags)) {
+		rnum += (end - 1);
 		ret = END_FOUND;
 		break;
 	    }
@@ -876,9 +884,9 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	    uint used_len = QMIN((len - rnum), s.length());
 	    if(end_flags) {
 		for(uint i = 0; i < used_len; i++) {
-		    if(ts_end(s.unicode()+i, used_len - i, end_flags)) {
+		    if(int end = ts_end(s.unicode()+i, used_len - i, end_flags)) {
+			used_len = i + (end - 1);
 			ret = END_FOUND;
-			used_len = i;
 			break;
 		    }
 		}
@@ -899,22 +907,26 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 		if(buf)
 		    *(buf++) = *it;
 		if(end_flags) {
+		    int end = 0;
 		    if((end_flags & 0x0F) == TS_EOL) {
-			bool end = ((*it == '\n') ||
-				    (used_len+1 <= buffer_len &&
-				     *it == '\r' && *(it+1) == '\n'));
+			if(*it == '\n')
+			    end = 1;
+			else if(used_len+1 <= buffer_len && 
+				*it == '\r' && *(it+1) == '\n') 
+			    end = 2;
 			if(end_flags & TS_MOD_NOT)
 			    end = !end;
-			if(end)
-			    ret = END_FOUND;
 		    }
-		    if(ret == NO_FINISH) {
+		    if(!end) {
 			QChar c(*it);
-			if(ts_end(&c, 1, end_flags))
-			    ret = END_FOUND;
+			end = ts_end(&c, 1, end_flags);
 		    }
-		    if(ret != NO_FINISH)
+		    if(end) {
+			used_len += (end - 1);
+			rnum += (end - 1);
+			ret = END_FOUND;
 			break;
+		    }
 		}
 		used_len++;
 		rnum++;
@@ -930,8 +942,8 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 		else
 		    next_c = QChar(buffer_data[i], buffer_data[i+1]);
 		if(end_flags) {
+		    int end = 0;
 		    if((end_flags & 0x0F) == TS_EOL) {
-			bool end = FALSE;
 			if(next_c == '\r' && i + 4 <= buffer_len) {
 			    QChar n;
 			    if ( d->networkOrder )
@@ -940,18 +952,22 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 			    else
 				n = QChar(buffer_data[i+2],
 					  buffer_data[i+3]);
-			    if(n == '\n')
-				end = TRUE;
+			    if(n == '\n') 
+				end = 2;
 			    if(end_flags & TS_MOD_NOT)
 				end = !end;
 			    if(end)
 				ret = END_FOUND;
 			}
 		    }
-		    if(ret == NO_FINISH && ts_end(&next_c, 1, end_flags))
+		    if(!end)
+			end = ts_end(&next_c, 1, end_flags);
+		    if(end) {
+			used_len += (end - 1);
+			rnum += (end - 1);
 			ret = END_FOUND;
-		    if(ret != NO_FINISH)
 			break;
+		    }
 		}
 		if(buf)
 		    *(buf++) = next_c;
@@ -1577,8 +1593,8 @@ QTextStream &QTextStream::operator>>( char *s )
     skipWhiteSpace();
 
     uint maxlen = width( 0 ), l, total=0;
-    const uint buf_size = maxlen ? maxlen : getstr_tmp_size;
-    QChar *buf = new QChar[buf_size];
+    const uint buf_size = getstr_tmp_size;
+    QChar buf[buf_size];
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
 	for(uint i = 0; i < l; i++)
@@ -1588,7 +1604,6 @@ QTextStream &QTextStream::operator>>( char *s )
 	   break;
     }
     *s = '\0';
-    delete [] buf;
     return *this;
 }
 
@@ -1608,7 +1623,7 @@ QTextStream &QTextStream::operator>>( QString &str )
     skipWhiteSpace();
 
     uint l;
-    const int buf_size = getstr_tmp_size;
+    const uint buf_size = getstr_tmp_size;
     QChar buf[buf_size];
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
