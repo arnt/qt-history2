@@ -118,7 +118,7 @@ public:
     void lineUpToolBars( bool keepNewLines = FALSE );
 
     QDockArea *dockingArea( const QPoint &p );
-    
+
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -141,7 +141,7 @@ signals:
 
 protected slots:
     virtual void setUpLayout();
-    virtual void showDockMenu( const QPoint &globalPos );
+    bool showDockMenu( const QPoint &globalPos );
 
 protected:
     void paintEvent( QPaintEvent * );

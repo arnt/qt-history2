@@ -186,7 +186,7 @@ class QDockWidgetHandle : public QWidget
 public:
     QDockWidgetHandle( QDockWidget *dw );
     void updateGui();
-    
+
     QSize minimumSizeHint() const;
     QSize minimumSize() const { return minimumSizeHint(); }
     QSize sizeHint() const { return minimumSize(); }
@@ -272,7 +272,7 @@ void QDockWidgetHandle::updateGui()
 	closeButton->setPixmap( close_xpm );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
-		 dockWidget, SLOT( close() ) );
+		 dockWidget, SLOT( hide() ) );
     }
 
     if ( dockWidget->isCloseEnabled() && dockWidget->area() )
@@ -392,7 +392,7 @@ void QDockWidgetTitleBar::updateGui()
 	closeButton->setPixmap( close_xpm );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
-		 dockWidget, SLOT( close() ) );
+		 dockWidget, SLOT( hide() ) );
     }
 
     if ( dockWidget->isCloseEnabled() )
@@ -844,11 +844,16 @@ void QDockWidget::doDock()
     emit orientationChanged( orientation() );
 }
 
-void QDockWidget::closeEvent( QCloseEvent *e )
+void QDockWidget::hideEvent( QHideEvent *e )
 {
-    QFrame::closeEvent( e );
-    if ( e->isAccepted() )
-	emit closed();
+    QFrame::hideEvent( e );
+    emit visibilityChanged( FALSE );
+}
+
+void QDockWidget::showEvent( QShowEvent *e )
+{
+    QFrame::showEvent( e );
+    emit visibilityChanged( TRUE );
 }
 
 #include "qdockwidget.moc"

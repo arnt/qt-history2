@@ -39,7 +39,6 @@
 /*
    -- Not working yet: --
    - dockwidgets movable settings
-   - dock menu
    - opaque moving
    - linup dockwidgets
 
@@ -73,6 +72,10 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
+
+/* QMainWindowLayout, respects widthForHeight layouts (like the left
+  and right docks are)
+*/
 
 class QMainWindowLayout : public QLayout
 {
@@ -216,12 +219,17 @@ QLayoutIterator QMainWindowLayout::iterator()
 }
 
 
+/*
+ QMainWindowPrivate - private variables of QMainWindow
+*/
+
 class QMainWindowPrivate
 {
 public:
     QMainWindowPrivate()
 	:  mb(0), sb(0), ttg(0), mc(0), tll(0), ubp( FALSE ), utl( FALSE ),
-	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE )
+	   justify( FALSE ), movable( TRUE ), opaque( FALSE ), dockMenu( TRUE ),
+	   rmbMenu( 0 )
     {
 	docks.insert( Qt::Top, TRUE );
 	docks.insert( Qt::Bottom, TRUE );
@@ -261,6 +269,8 @@ public:
     QStringList disabledDocks;
     bool dockMenu;
 
+    QPopupMenu *rmbMenu;
+    
 };
 
 
@@ -625,6 +635,7 @@ void QMainWindow::addDockWidget( QDockWidget * toolBar,
 	d->dockWidgets.append( toolBar );
     connect( toolBar, SIGNAL( positionChanged() ),
 	     this, SLOT( slotPositionChanged() ) );
+    toolBar->installEventFilter( this );
 }
 
 
@@ -728,6 +739,7 @@ void QMainWindow::removeDockWidget( QDockWidget * toolBar )
     d->dockWidgets.removeRef( toolBar );
     disconnect( toolBar, SIGNAL( positionChanged() ),
 		this, SLOT( slotPositionChanged() ) );
+    toolBar->removeEventFilter( this );
 }
 
 /*!  Sets up the geometry management of this window.  Called
@@ -868,6 +880,15 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    setUpLayout();
 	d->tll->activate();
     }
+    
+    if ( e->type() == QEvent::MouseButtonPress &&
+	 o->inherits( "QDockWidget" ) && d->dockMenu ) {
+	if ( ( (QMouseEvent*)e )->button() == RightButton ) {
+	    if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) )
+		return TRUE;
+	}
+    }
+    
     return QWidget::eventFilter( o, e );
 }
 
@@ -1288,10 +1309,50 @@ void QMainWindow::setDockMenuEnabled( bool b )
     d->dockMenu = b;
 }
 
-void QMainWindow::showDockMenu( const QPoint &globalPos )
+bool QMainWindow::showDockMenu( const QPoint &globalPos )
 {
-    Q_CONST_UNUSED( globalPos );
-    qDebug( "QMainWindow::showDockMenu todo" );
+    if ( !d->dockMenu )
+	return FALSE;
+    if ( !d->rmbMenu ) {
+	d->rmbMenu = new QPopupMenu( this );
+	d->rmbMenu->setCheckable( TRUE );
+    } else {
+	d->rmbMenu->clear();
+    }
+    QObjectList *l = queryList( "QDockWidget" );
+    QIntDict<QDockWidget> id2Widget;
+    if ( l && !l->isEmpty() ) {
+	for ( QObject *o = l->first(); o; o = l->next() ) {
+	    QDockWidget *dw = (QDockWidget*)o;
+	    QString label;
+	    if ( dw->inherits( "QToolBar" ) )
+		label = ( (QToolBar*)dw )->label();
+	    if ( label.isEmpty() )
+		label = dw->caption();
+	    if ( !label.isEmpty() ) {
+		int id = d->rmbMenu->insertItem( label );
+		d->rmbMenu->setItemChecked( id, dw->isVisible() );
+		id2Widget.insert( id, dw );
+	    }
+	}
+    }
+    if ( !id2Widget.isEmpty() )
+	d->rmbMenu->insertSeparator();
+    int config = d->rmbMenu->insertItem( tr( "Configure..." ) );
+    int result = d->rmbMenu->exec( globalPos );
+    if ( result == config ) {
+	qDebug( "todo: Action/Toolbar editing" );
+	return TRUE;
+    }
+    
+    QDockWidget *dw = 0;
+    if ( !( dw = id2Widget.find( result ) ) )
+	return TRUE;
+    if ( dw->isVisible() )
+	dw->hide();
+    else
+	dw->show();
+    return TRUE;
 }
 
 void QMainWindow::slotPositionChanged()
