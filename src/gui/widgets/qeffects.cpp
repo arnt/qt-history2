@@ -22,7 +22,6 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 #include "qpointer.h"
-#include "qscrollview.h"
 
 /*
   Internal class to get access to protected QWidget-members
@@ -161,7 +160,7 @@ bool QAlphaWidget::eventFilter(QObject* o, QEvent* e)
             break;
     case QEvent::MouseButtonPress:
 #ifndef QT_NO_SCROLLVIEW
-        if (qt_cast<QScrollView*>(o))
+        if (o->inherits("QScrollView"))
             break;
 #endif
     case QEvent::MouseButtonDblClick:
@@ -388,7 +387,7 @@ bool QRollEffect::eventFilter(QObject* o, QEvent* e)
         break;
     case QEvent::MouseButtonPress:
 #ifndef QT_NO_SCROLLVIEW
-        if (qt_cast<QScrollView*>(o))
+        if (o->inherits("QScrollView"))
             break;
 #endif
     case QEvent::MouseButtonDblClick:
