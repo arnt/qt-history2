@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#43 $
 **
 ** Implementation of QListView widget class
 **
@@ -23,7 +23,7 @@
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#43 $");
 
 
 const int Unsorted = 32767;
@@ -151,7 +151,7 @@ QListViewItem::QListViewItem( QListViewItem * parent )
 
 /*!  Creates a new list view item in the QListView \a parent,
   with a null-terminated series of constant strings as contents.
-  
+
   \code
      (void)new QListViewItem( lv, "/", "Root directory", 0 );
   \endcode
@@ -177,7 +177,7 @@ QListViewItem::QListViewItem( QListView * parent,
 /*!  Creates a new list view item that's a child of the QListViewItem
   \a parent, with a null-terminated series of constant strings as
   contents.  Possible example in a news or e-mail reader:
-  
+
   \code
      (void)new QListViewItem( parentMessage, author, subject, 0 );
   \endcode
@@ -516,7 +516,7 @@ void QListViewItem::setSelectable( bool enable )
   of the directory and inserts items accordingly.  This strategy means
   that dirview can display the entire file system without reading very
   much at start-up.
-  
+
   \sa setSelectable()
 */
 
@@ -555,7 +555,7 @@ void QListViewItem::enforceSortOrder()
 
   Thsi function does not maintan any invariants --
   QListView::setItemSelected() does that.
-  
+
   \sa ownHeight() totalHeight() */
 
 void QListViewItem::setSelected( bool s )
@@ -571,7 +571,7 @@ void QListViewItem::setSelected( bool s )
   setOwnHeight() can be used to set the item's own height, setOpen()
   to show or hide its children, and invalidateHeight() to invalidate
   the cached height.
-  
+
   \sa height()
 */
 
@@ -617,7 +617,7 @@ const char * QListViewItem::text( int column ) const
 
 
 /*!  This virtual function paints the contents of one column of one item.
-  
+
   \a p is a QPainter open on the relevant paint device.  \a pa is
   translated so 0, 0 is the top left pixel in the cell and \a width-1,
   height()-1 is the bottom right pixel \e in the cell.  The other
@@ -852,7 +852,7 @@ void QListViewPrivate::Root::setup()
 /*!
   \class QListView qlistview.h
   \brief The QListView class implements a tree/list view.
-  
+
   It can display and control a hierarchy of multi-column items, and
   provides the ability to add new items at run-time, let the user
   select one or many items, sort the list in increasing or decreasing
@@ -861,23 +861,23 @@ void QListViewPrivate::Root::setup()
   The simplest mode of usage is to create a QListView, create one or
   more QListViewItem objects with the QListView as parent, set up the
   list view, and show() it.
-  
+
   The main setup functions are <ul>
-  
+
   <li>setColumn() - sets the header text and width of a column.
 
   <li>setMultiSelection() - decides whether one can select one or many
   objects in this list view.  The default is FALSE (selecting one item
   unselects any other selected item).
-  
+
   <li>setAllColumnsShowFocus() - decides whether items should show
   keyboard focus using all columns, or just column 0.  The default is
   to show focus using just column 0.
-  
+
   <li>setTreeStepSize() - decides the how many pixels an item's
   children are indented relative to their parent.  The default is 20.
   This is mostly a matter of taste.
-  
+
   <li>setSorting() - decides whether the items should be sorted in
   ascending or descending order, and by what column.</ul>
 
@@ -889,7 +889,7 @@ void QListViewPrivate::Root::setup()
   (not necessarily on-screen) so you can iterate over the items using
   either QListViewItem::itemBelow() or a combination of
   QListViewItem::firstChild() and QListViewItem::nextSibling().
-  
+
   Naturally, QListView provides a clear() function, as well as an
   explicit insertItem() for when QListViewItem's default insertion
   won't do.
@@ -898,7 +898,7 @@ void QListViewPrivate::Root::setup()
   focus and selection state separately.  Therefore there are functions
   both to set the selection state of an item, setSelected(), and to
   select which item displays keyboard focus, setCurrentItem().
-  
+
   QListView emits two groups of signals: One group signals changes in
   selection/focus state and one signals selection.  The first group
   consists of selectionChanged(), applicable to all list views, and
@@ -912,9 +912,9 @@ void QListViewPrivate::Root::setup()
   feel of the Motif hierarchical tree view.  This is done mostly to
   provide a usable keyboard interface and to make the list view look
   better with a white background.
-  
+
   \internal
-  
+
   need to say stuff about the mouse and keyboard interface.
 */
 
@@ -1806,7 +1806,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
   \sa itemPos() itemRect()
 */
 
-QListViewItem * QListView::itemAt( QPoint screenPos ) const
+QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
 {
     if ( !d->drawables || d->drawables->isEmpty() )
 	buildDrawableList();
@@ -1829,9 +1829,9 @@ QListViewItem * QListView::itemAt( QPoint screenPos ) const
   \sa itemAt() itemRect()
 */
 
-int QListView::itemPos( QListViewItem * item )
+int QListView::itemPos( const QListViewItem * item )
 {
-    QListViewItem * i = item;
+    const QListViewItem * i = item;
     QListViewItem * p;
     int a = 0;
 
@@ -1992,7 +1992,7 @@ QListViewItem * QListView::currentItem() const
   items that are probably on-screen.
 */
 
-QRect QListView::itemRect( QListViewItem * i ) const
+QRect QListView::itemRect( const QListViewItem * i ) const
 {
     if ( !d->drawables || d->drawables->isEmpty() )
 	buildDrawableList();
@@ -2155,4 +2155,22 @@ bool QListView::allColumnsShowFocus() const
 const QListViewItem * QListView::firstChild() const
 {
     return d->r->childItem;
+}
+
+
+/*!  Repaints this item on the screen, if it is currently visible. */
+
+void QListViewItem::repaint() const
+{
+    listView()->repaintItem( this );
+}
+
+
+/*!  Repaints \a item on the screen, if \a item is currently visible. */
+
+void QListView::repaintItem( const QListViewItem * item ) const
+{
+    QRect r( itemRect( item ) );
+    if ( r.isValid() )
+	((QListView *)this)->viewport()->repaint( r );
 }

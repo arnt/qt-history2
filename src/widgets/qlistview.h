@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#19 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#20 $
 **
 ** Definition of QListView widget class
 **
@@ -71,6 +71,8 @@ public:
 
     virtual void setExpandable( bool );
     bool isExpandable() { return expandable; }
+    
+    void repaint() const;
 
 protected:
     void enforceSortOrder();
@@ -117,9 +119,11 @@ public:
 
     void show();
 
-    QListViewItem * itemAt( QPoint screenPos ) const;
-    QRect itemRect( QListViewItem * ) const;
-    int itemPos( QListViewItem * );
+    QListViewItem * itemAt( const QPoint & screenPos ) const;
+    QRect itemRect( const QListViewItem * ) const;
+    int itemPos( const QListViewItem * );
+
+    void repaintItem( const QListViewItem * ) const;
 
     virtual void setMultiSelection( bool enable );
     bool isMultiSelection() const;
