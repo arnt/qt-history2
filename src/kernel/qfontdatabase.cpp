@@ -1488,7 +1488,7 @@ static QString getCharSetSample( QFont::CharSet cs )
 }
 
 /*!
-  Returns some sample characters which are in the charser \a charSetName.
+  Returns some sample characters which are in the charset \a charSetName.
 */
 
 QString QFontDatabase::charSetSample( const QString &charSetName )
@@ -1664,7 +1664,7 @@ bool  QFontDatabase::isBitmapScalable( const QString &family,
   Returns whether the font which matches \a family, \a style and \a charSet is
   a smoothly scaleable. If this function returns TRUE, it's save to scale this font
   to every size as the result will always look good.
-  
+
   \sa isScalable(), isBitmapScalable()
 */
 
@@ -1745,7 +1745,7 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
 
 /*!
-  Returns a QFont object which matches the settings of \a family, \a style
+  Returns a QFont object which matches the settings of \a family, \a style,
   \a pointsize and \a charSet. If no matching font could be created
   an empty QFont object is returned.
 */
@@ -1764,8 +1764,8 @@ QFont QFontDatabase::font( const QString family, const QString &style,
 }
 
 /*!
-  Returns the point sizes of a font style that is guaranteed to look
-  good. For non-scalable fonts and smoothly scalable fonts this function
+  Returns the point sizes of a font which matches \a family, \a style and \a charSet,
+  that is guaranteed to look good. For non-scalable fonts and smoothly scalable fonts this function
   is equivalent to pointSizes().
 
   \sa pointSizes(), standardSizes()
@@ -1791,7 +1791,7 @@ QValueList<int> QFontDatabase::standardSizes()
 }
 
 /*!
-  Returns if the font witch mathes the settings \a family, \a style and
+  Returns if the font witch matches the settings \a family, \a style and
   \a charSet is italic or not.
 
   \sa weight(), bold()
@@ -1821,7 +1821,7 @@ bool QFontDatabase::bold( const QString &family,
 }
 
 /*!
-  Returns the weight of the font witch mathes the settings \a family, \a style and
+  Returns the weight of the font witch matches the settings \a family, \a style and
   \a charSet.
 
   \sa italic(), bold()
@@ -1837,7 +1837,7 @@ int QFontDatabase::weight( const QString &family,
 
 /*!
   Returns a list of all char sets in which the font \a family is available in the
-  current locale if \a onlyForLocale is TRUE, otherwise all charsets if \a family
+  current locale if \a onlyForLocale is TRUE, otherwise all charsets of \a family
   independent of the locale are returned.
 */
 
