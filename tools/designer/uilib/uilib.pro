@@ -3,12 +3,10 @@ CONFIG		+= qt warn_on release
 win32:CONFIG	+= static
 win32:CONFIG	-= dll
 SOURCES		= qwidgetfactory.cpp \
-		  ../shared/domtool.cpp \
-		  ../integration/kdevelop/kdewidgets.cpp
+		  ../shared/domtool.cpp
 
 HEADERS		= qwidgetfactory.h \
-		  ../shared/domtool.h \
-		  ../integration/kdevelop/kdewidgets.h
+		  ../shared/domtool.h
 
 sql:SOURCES += 		  ../designer/database.cpp
 sql:HEADERS +=		  ../designer/database.h

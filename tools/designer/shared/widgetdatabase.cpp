@@ -24,8 +24,6 @@
 #include "../interfaces/widgetinterface.h"
 #include "widgetdatabase.h"
 
-#include "../integration/kdevelop/kdewidgets.h"
-
 #include <qapplication.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
@@ -510,8 +508,6 @@ void WidgetDatabase::setupDataBase( int id )
 
     append( r );
 #endif
-
-    qt_init_kde_widget_database();
 
 #ifndef UIC
     setupPlugins();

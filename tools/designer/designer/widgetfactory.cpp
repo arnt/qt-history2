@@ -31,7 +31,6 @@
 #include "iconvieweditorimpl.h"
 #include "formwindow.h"
 #include "multilineeditorimpl.h"
-#include "../integration/kdevelop/kdewidgets.h"
 #include "../interfaces/widgetinterface.h"
 #ifndef QT_NO_TABLE
 #include "tableeditorimpl.h"
@@ -829,16 +828,12 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     }
 #endif
 
-    QWidget *w = qt_create_kde_widget( className, parent, name, init );
-    if ( w )
-	return w;
-
     WidgetInterface *iface = 0;
     widgetManager()->queryInterface( className, &iface );
     if ( !iface )
 	return 0;
 
-    w = iface->create( className, parent, name );
+    QWidget *w = iface->create( className, parent, name );
     iface->release();
     return w;
 }

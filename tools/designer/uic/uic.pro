@@ -4,15 +4,13 @@ mac:CONFIG      -= resource_fork
 HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
-		  ../integration/kdevelop/kdewidgets.h \
 		  ../shared/parser.h \
 		  ../interfaces/widgetinterface.h
 
 SOURCES	= uic.cpp form.cpp object.cpp \
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
-		  ../shared/parser.cpp \
-		  ../integration/kdevelop/kdewidgets.cpp
+		  ../shared/parser.cpp
 
 include( ../../../src/qt_professional.pri )
 

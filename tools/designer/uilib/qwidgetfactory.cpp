@@ -25,7 +25,6 @@
 
 #include "qwidgetfactory.h"
 #include <qfeatures.h>
-#include "../integration/kdevelop/kdewidgets.h"
 #include "../designer/config.h"
 #include "../designer/database.h"
 #include <qdom.h>
@@ -524,11 +523,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     }
 #endif
 
-    // maybe it is a KDE widget we support
-    QWidget *w = qt_create_kde_widget( className, parent, name, FALSE );
-    if ( w )
-	return w;
-
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager ) {
 	QString dir = getenv( "QTDIR" );
@@ -544,7 +538,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     WidgetInterface *iface = 0;
     widgetInterfaceManager->queryInterface( className, &iface );
     if ( iface ) {
-	w = iface->create( className, parent, name );
+	QWidget *w = iface->create( className, parent, name );
 	iface->release();
 	if ( w )
 	    return w;
