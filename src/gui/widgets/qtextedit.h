@@ -292,7 +292,7 @@ private:
     Q_PRIVATE_SLOT(d, void update(const QRect &r))
     Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(d, void adjustScrollbars())
-    Q_PRIVATE_SLOT(d, void emitCursorPosChanged(const QTextCursor &));
+    Q_PRIVATE_SLOT(d, void emitCursorPosChanged(const QTextCursor &))
 };
 
 #endif // QTEXTEDIT_H
