@@ -174,9 +174,7 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
         widget = containerOfWidget(widget);
 
     metaDataBase->add(widget);
-
     QLayout *l = 0;
-    Qt::Alignment align = Qt::AlignAuto;
     if (layout) {
         switch (type) {
         case LayoutInfo::HBox:
@@ -218,7 +216,6 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
         }
         core()->metaDataBase()->add(l);
     }
-    l->setAlignment(align);
 
     if (QLayoutWidget *l = qobject_cast<QLayoutWidget*>(widget)) {
         l->layout()->setMargin(1); // ### this should be 0
