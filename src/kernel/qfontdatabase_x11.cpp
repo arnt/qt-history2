@@ -1258,7 +1258,10 @@ QFontEngine *loadEngine( const QFontDef &request,
 	// will own the pattern after the call or the pattern will be
 	// destroyed.
 	XftPattern *dup = XftPatternDuplicate( result );
-	XftFont *xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), dup);
+	XftFont *xftfs = XftFontOpenPattern( QPaintDevice::x11AppDisplay(), dup );
+
+	if ( ! xftfs ) // Xft couldn't find a font?
+	    return 0;
 
 	return new QFontEngineXft( xftfs, result, 0 );
     }
