@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.h#11 $
 **
 ** Definition of the QFontDatabase class
 **
@@ -116,6 +116,7 @@ private:
 
     QFontDatabasePrivate *d;
 
+    friend class QFontAction;
     friend class QFontDialog;
     friend class QFontDialogPrivate;
 };
