@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#541 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#542 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -479,7 +479,7 @@ static void qt_x11_process_intern_atoms()
 }
 
 
-static void qt_fix_tooltips() 
+static void qt_fix_tooltips()
 {
     // No resources for this yet (unlike on Windows).
     QColorGroup cg( Qt::black, QColor(255,255,220),
@@ -1011,6 +1011,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
     QApplication::setFont( f );
 
     qt_set_x11_resources(appFont, appFGCol, appBGCol, appBTNCol);
+    qt_fix_tooltips();
 }
 
 void qt_init( int *argcptr, char **argv )
