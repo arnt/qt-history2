@@ -43,6 +43,16 @@
 #include <qdatetime.h>
 #include <qdrawutil.h>
 
+void QtTextOptions::erase( QPainter* p, const QRect& r ) const
+{
+    if ( !paper )
+	return;
+    if ( paper->pixmap() )
+	p->drawTiledPixmap( r, *paper->pixmap(), 
+			    QPoint(r.x()+offsetx, r.y()+offsety) );
+    else
+	p->fillRect(r, *paper );
+}
 
 
 
@@ -95,7 +105,9 @@ QtTextImage::QtTextImage(const QMap<QString, QString> &attr, const QString& cont
 	    height = img.height();
 	}
 	pm.convertFromImage( img );
+	qDebug("image conversion");
 	if ( pm.mask() ) {
+	    qDebug("image with a mask!");
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
@@ -156,22 +168,14 @@ QtTextHorizontalLine::~QtTextHorizontalLine()
 
 void QtTextHorizontalLine::draw(QPainter* p, int x, int y,
 				//int ox, int oy, int cx, int cy, int cw, int ch,
-			     int ox, int oy, int , int , int , int ,
-			     QRegion&, const QColorGroup&, const QtTextOptions& to)
+				int ox, int oy, int , int , int , int ,
+				QRegion&, const QColorGroup& cg, const QtTextOptions& to )
 {
     QRect rm( x-ox, y-oy, width, height);
     //QRect ra( cx-ox, cy-oy, cw,  ch);
     QRect r = rm; // ####.intersect( ra );
-    if (to.paper) {
-	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
-	else
-	    p->fillRect(r, *to.paper );
-    }
-    QPen pen(p->pen());
-    pen.setWidth( 2 );
-    p->setPen( pen );
-    p->drawLine( r.left()-1, y-oy+4, r.right()+1, y-oy+4) ;
+    to.erase( p, r );
+    qDrawShadeLine( p, r.left()-1, y-oy+4, r.right()+1, y-oy+4, cg, TRUE );
 }
 
 //************************************************************************
@@ -244,12 +248,22 @@ void QtRichText::init( const QString& doc, int& pos )
     if ( !flow_ )
 	flow_ = new QtTextFlow();
 
-
     nullstyle = sheet_->item("");
 
     valid = TRUE;
 //     QTime before = QTime::currentTime();
-    parse(this, style, 0, format, doc, pos);
+    if ( !keep_going )
+	parse(this, style, 0, format, doc, pos);
+    else  do {
+	parse(this, style, 0, format, doc, pos);
+	// missplaced close tags may kick us out of the parser (auto
+	// recover failure), simply jump over the tag and continue
+	// until the very end
+	if ( pos < (int) doc.length()-1 
+	     && (hasPrefix(doc, pos, QChar('<'))
+		 && hasPrefix(doc, pos+1, QChar('/')) ) )
+	    (void) parseCloseTag( doc, pos );
+    } while ( pos < (int) doc.length()-1 );
     //qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
 }
 
@@ -669,7 +683,10 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
 	if ((doc.unicode())[pos].isSpace() && (doc.unicode())[pos] != QChar(0x00a0U) ){
 	
 	    if ( pre ) {
-		s += (doc.unicode())[pos];
+		if ( (doc.unicode())[pos] == ' ' )
+		    s += QChar(0x00a0U);
+		else
+		    s += (doc.unicode())[pos];
 	    }
 	    else { // non-pre mode: collapse whitespace except nbsp
 		while ( pos+1 < int(doc.length() ) &&
@@ -817,7 +834,7 @@ bool QtRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 // convenience function
 void QtRichText::draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
-		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to )
 {
    QtTextCursor tc( *this );
    QtTextParagraph* b = this;
@@ -828,7 +845,7 @@ void QtRichText::draw(QPainter* p, int x, int y,
 	   tc.makeLineLayout( p, fm );
 	   QRect geom( tc.lineGeometry() );
 	   if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
-	       tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+ 	       tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
        }
        while ( tc.gotoNextLine( p, fm ) );
        b = tc.paragraph->nextInDocument();
@@ -1432,6 +1449,7 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
 			      QRegion& backgroundRegion,
 			      const QColorGroup& cg, const QtTextOptions& to )
+
 {
     if ( !par->parent )
 	return;
@@ -1439,13 +1457,16 @@ void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, i
 	return;
 
     QRect r (x - ox, y-oy, w, h ); ///#### label width?
-    if ( to.paper->pixmap() )
-	p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
-    else
-	p->fillRect(r, *to.paper);
+    to.erase( p, r );
     backgroundRegion = backgroundRegion.subtract( r );
     QStyleSheetItem::ListStyle s = par->parent->listStyle();
 	
+    QFont font = p->font();
+    p->setFont( par->parent->format.font() );
+    int size = p->fontMetrics().lineSpacing() / 3;
+    if ( size > 12 )
+	size = 12;
+    
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
     case QStyleSheetItem::ListLowerAlpha:
@@ -1471,21 +1492,18 @@ void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, i
 		break;
 	    }
 	    l += QString::fromLatin1(". ");
-	    QFont font = p->font();
-	    p->setFont( par->parent->format.font() );
 	    p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
-	    p->setFont( font );
 	}
 	break;
     case QStyleSheetItem::ListSquare:
 	{
-	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
 	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
 	{
-	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size);
 	    p->drawEllipse( er );
 	}
 	break;
@@ -1493,19 +1511,21 @@ void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, i
     default:
 	{
 	    p->setBrush( cg.brush( QColorGroup::Foreground ));
-	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    QRect er( r.right()-size*2, r.center().y()-1, size, size );
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
 	}
 	break;
     }
 
+    p->setFont( font );
 }
 
 void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
-		   int cx, int cy, int cw, int ch,
-		    QRegion& backgroundRegion,
-		    const QColorGroup& cg, const QtTextOptions& to )
+			     int cx, int cy, int cw, int ch,
+			     QRegion& backgroundRegion,
+			     const QColorGroup& cg, const QtTextOptions& to )
+
 {
     QFontMetrics fm( p->fontMetrics() );
     gotoLineStart( p, fm );
@@ -1523,12 +1543,8 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 
     bool clipMode = currentFormat()->customItem() && currentFormat()->customItem()->noErase();
 
-    if (!clipMode ) { 
-	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(gx, gy));
-	else
-	    p->fillRect(r, *to.paper);
-    }
+    if (!clipMode )
+	to.erase( p, r );
 
     if ( first == 0 ) {
 	//#### TODO cache existence of label
@@ -1585,10 +1601,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 
     if (clipMode ) {
 	p->setClipRegion( backgroundRegion );
-	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap( r, *to.paper->pixmap(), QPoint(gx, gy) );
-	else
-	    p->fillRect( r, *to.paper );
+	to.erase( p, r);
 	p->setClipping( FALSE );
     }
     backgroundRegion = backgroundRegion.subtract(r);
@@ -2171,7 +2184,7 @@ void QtTextFlow::registerFloatingItem( QtTextCustomItem* item, bool right   )
 
 void QtTextFlow::drawFloatingItems(QPainter* p,
 				   int ox, int oy, int cx, int cy, int cw, int ch,
-				   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+				   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to )
 {
     QtTextCustomItem* item = 0;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
@@ -2205,15 +2218,24 @@ QtTextTable::QtTextTable(const QMap<QString, QString> & attr  )
 	    border = attr["border"].toInt();
     }
 
+    if ( border )
+	cellspacing += 2;
     outerborder = cellspacing + border;
-    layout = new QGridLayout( 1, 1, cellspacing + (border > 0 ? 1 : 0 ) );
+    layout = new QGridLayout( 1, 1, cellspacing );
 
     fixwidth = 0;
+    stretch = 0;
     if ( attr.contains("width") ) {
 	bool b;
-	int w = attr["width"].toInt( &b );
-	if ( b )
+	QString s( attr["width"] );
+	int w = s.toInt( &b );
+	if ( b ) {
 	    fixwidth = w;
+	} else {
+ 	    s = s.stripWhiteSpace();
+ 	    if ( s.length() > 1 && s[ s.length()-1 ] == '%' )
+		stretch = s.left( s.length()-1).toInt();
+	}
     }
 
     cachewidth = 0;
@@ -2235,29 +2257,39 @@ void QtTextTable::realize( QPainter* p)
 
 void QtTextTable::draw(QPainter* p, int x, int y,
 		       int ox, int oy, int cx, int cy, int cw, int ch,
-		       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+		       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to )
 {
     painter = p;
     for (QtTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
 	if ( y + cell->geometry().top() < cy+ch && y + 2*outerborder + cell->geometry().bottom() > cy ) {
-	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to);
+	    cell->draw( x+outerborder, y+outerborder, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
 	    if ( border ) {
 		const int w = 1;
-		qDrawShadePanel( p, QRect( x+outerborder+cell->geometry().x()-w-ox,
-					   y+outerborder+cell->geometry().y()-w-oy,
-					   cell->geometry().width()+2*w,
-					   cell->geometry().height()+2*w),
-				 cg, TRUE );
-// 		QRect r(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
-// 			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
-// 		backgroundRegion = backgroundRegion.subtract( r );
+		QRect r( x+outerborder+cell->geometry().x()-w-ox,
+			 y+outerborder+cell->geometry().y()-w-oy,
+			 cell->geometry().width()+2*w,
+			 cell->geometry().height()+2*w);
+		int s = cellspacing;
+		p->fillRect( r.left()-s, r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.right(), r.top(), s, r.height(), cg.button() );
+		p->fillRect( r.left()-s, r.top()-s, r.width()+2*s, s, cg.button() );
+		p->fillRect( r.left()-s, r.bottom(), r.width()+2*s, s, cg.button() );
+		qDrawShadePanel( p, r, cg, TRUE );
+//  		QRect r2(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
+//  			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
+//  		backgroundRegion = backgroundRegion.subtract( r2 );
 		
 	    }
 	}
     }
     if ( border ) {
 	QRect r ( x-ox, y-oy, width, height );
-	qDrawShadePanel( p, QRect( x-ox, y-oy, width, height ), cg, FALSE, border );
+	int s = border;
+	p->fillRect( r.left(), r.top(), s, r.height(), cg.button() );
+	p->fillRect( r.right()-s, r.top(), s, r.height(), cg.button() );
+	p->fillRect( r.left(), r.top(), r.width(), s, cg.button() );
+	p->fillRect( r.left(), r.bottom()-s, r.width(), s, cg.button() );
+	qDrawShadePanel( p, r, cg, FALSE, border );
 	backgroundRegion = backgroundRegion.subtract( r );
     }
 }
@@ -2269,13 +2301,25 @@ void QtTextTable::resize( QPainter* p, int nwidth )
     cachewidth = nwidth;
     painter = p;
 
+    if ( stretch )
+	nwidth = nwidth * stretch / 100;
+    
     width = nwidth + 2*outerborder;
+    layout->invalidate();
     int shw = layout->sizeHint().width() + 2*outerborder;
     int mw = layout->minimumSize().width() + 2*outerborder;
-    width = QMAX( mw, QMIN( nwidth, shw ) );
+    if ( stretch )
+	width = QMAX( mw, nwidth );
+    else
+	width = QMAX( mw, QMIN( nwidth, shw ) );
 
     if ( fixwidth )
 	width = fixwidth;
+    
+    // play it again, Sam, to fix the stretches
+    layout->invalidate();
+    mw = layout->minimumSize().width() + 2*outerborder;
+    width = QMAX( width, mw );
 
     int h = layout->heightForWidth( width-2*outerborder );
     layout->setGeometry( QRect(0, 0, width-2*outerborder, h)  );
@@ -2361,11 +2405,13 @@ QtTextTableCell::~QtTextTableCell()
 QSize QtTextTableCell::sizeHint() const
 {
     //### see QLabel::sizeHint()
-    return QSize(maxw,0);
+    return QSize(maxw,0).expandedTo( minimumSize() );
 }
 
 QSize QtTextTableCell::minimumSize() const
 {
+    if ( stretch_ )
+	return QSize( QMAX( minw, parent->width * stretch_ / 100 - 2*parent->cellspacing), 0);
     return QSize(minw,0);
 }
 
@@ -2403,6 +2449,7 @@ bool QtTextTableCell::hasHeightForWidth() const
 int QtTextTableCell::heightForWidth( int w ) const
 {
     w = QMAX( minw, w ); //####PAUL SHOULD DO THAT
+    
     if ( richtext->flow()->width != w ) {
 	QtTextTableCell* that = (QtTextTableCell*) this;
 	that->richtext->doLayout(painter(), w );
@@ -2429,7 +2476,7 @@ QPainter* QtTextTableCell::painter() const
 
 void QtTextTableCell::draw(int x, int y,
 			int ox, int oy, int cx, int cy, int cw, int ch,
-			QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+			QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to )
 {
     if ( richtext->flow()->width != geom.width() )
 	richtext->doLayout(painter(), geom.width() );
@@ -2441,14 +2488,8 @@ void QtTextTableCell::draw(int x, int y,
     QRect r(x-ox+geom.x(), y-oy+geom.y(), geom.width(), geom.height() );
     richtext->draw(painter(), x+geom.x(), y+geom.y(), ox, oy, cx, cy, cw, ch, backgroundRegion, cg, o );
 
-    if ( o.paper ) {
-	painter()->setClipRegion( backgroundRegion );
-	if ( o.paper->pixmap() )
-	    painter()->drawTiledPixmap( r, *o.paper->pixmap(), QPoint(r.x()+ox, r.y()+oy) );
-	else
-	    painter()->fillRect(r, *o.paper );
-    }
-
+    painter()->setClipRegion( backgroundRegion );
+    o.erase( painter(), r );
     backgroundRegion = backgroundRegion.subtract( r );
 }
 

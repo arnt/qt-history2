@@ -45,14 +45,14 @@ int main( int argc, char* argv[]  )
     QVBox box;
 
     QPushButton* b = new QPushButton( "Push me", &box, 0 );
-    QtTextView*  v = new QtTextEdit( &box );
+    QtTextView*  v = new QtTextBrowser( &box );
     v->setFocus();
     b->connect( b, SIGNAL( clicked() ), v, SLOT( temporary() ) );
     v->setTextFormat( QtTextEdit::RichText );
     //v->setFont( QFont("times", 12 ) );
     QBrush paper;
-     paper.setPixmap( QPixmap( "marble.xpm" ) );
-//     v->setPaper( paper );
+    paper.setPixmap( QPixmap( "marble.xpm" ) );
+    v->setPaper( paper );
     a.setMainWidget( &box );
 
 
@@ -73,7 +73,7 @@ int main( int argc, char* argv[]  )
     }
 //     QtTextEdit second;
 //     second.setView( &v );
-    box.resize( 500, 800 );
+    box.resize( 500, 720 );
     box.show();
 //     second.show();
     return a.exec();

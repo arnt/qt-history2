@@ -55,14 +55,14 @@
 
   The rendering style and available tags are defined by a
   styleSheet(). Currently, a small XML/CSS1 subset including embedded
-  images is supported. See QStyleSheet for details. Possible images
-  within the text document are resolved by using a QMimeSourceFactory.
-  See setMimeSourceFactory() for details.
+  images and tables is supported. See QStyleSheet for
+  details. Possible images within the text document are resolved by
+  using a QMimeSourceFactory.  See setMimeSourceFactory() for details.
 
   Using QtTextView is quite similar to QLabel. It's mainly a call to
   setText() to set the contents. Setting the background color is
   slighty different from other widgets, since a text view is a
-  scrollable widget that naturally provies a scrolling background. You
+  scrollable widget that naturally provides a scrolling background. You
   can specify the colorgroup of the displayed text with
   setPaperColorGroup() or directly define the paper background with
   setPaper(). QtTextView supports both plain color and complex pixmap
@@ -71,16 +71,11 @@
   Note that we do not intend to add a full-featured web browser widget
   to Qt (since that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
-  support in Qt is supposed to provide a fast and sufficient way to
-  add reasonable online help facilities to applications. We will,
-  however, extend it to some degree in future versions of Qt. Most
-  likely some basic table support will be put in and a new class to
-  provide rich text input.
+  support in Qt is supposed to provide a fast, portable and sufficient
+  way to add reasonable online help facilities to applications. We
+  will, however, extend it to some degree in future versions of Qt.
 
   For even more, like hypertext capabilities, see QtTextBrowser.
-
-  \bug No selection possible.
-  No table support (yet).
 */
 
 class QtTextViewData
@@ -486,6 +481,10 @@ const QBrush& QtTextView::paper()
 void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
+    QtTextOptions to(&paper() );
+    to.offsetx = ox;
+    to.offsety = oy;
+    
     QRegion r(cx-ox, cy-oy, cw, ch);
 
     QtTextCursor tc( richText() );
@@ -506,14 +505,14 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 		tc.makeLineLayout( p, fm );
 		QRect geom( tc.lineGeometry() );
 		if ( geom.bottom() > cy && geom.top() < cy+ch )
-		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper() ) );
+		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
 	    }
 	    while ( tc.gotoNextLine( p, fm ) );
 	}
 	b = b->nextInDocument();
     };
 
-    richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper()) );
+    richText().flow()->drawFloatingItems( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), to );
     p->setClipRegion(r);
 
     if ( paper().pixmap() )
@@ -1003,7 +1002,7 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 		oldc.current++;
 		oldc.update( &p );	
 	    }
-	    
+	
  	}
 	int oldy = oldc.y();
 	int oldx = oldc.x();
@@ -1139,7 +1138,7 @@ void QtTextEdit::temporary()
     {
 	start.gotoParagraph( &p, &richText() );
 	bool modified = FALSE;
-	do { 
+	do {
 	    if ( start.selected() ) {
 		all_bold &= start.paragraph->text.bold( start.current );
 		start.paragraph->text.setBold( start.current, TRUE );
@@ -1156,7 +1155,7 @@ void QtTextEdit::temporary()
     if ( all_bold ) {
 	start.gotoParagraph( &p, &richText() );
 	bool modified = FALSE;
-	do { 
+	do {
 	    if ( start.selected() ) {
 		start.paragraph->text.setBold( start.current, FALSE );
 		modified = TRUE;
@@ -1169,7 +1168,7 @@ void QtTextEdit::temporary()
 	    }
 	} while ( start.rightOneItem( &p ) );
     }
-    
+
     d->cursor->update( &p );
     p.end();
     repaintContents( richText().flow()->updateRect(), FALSE );

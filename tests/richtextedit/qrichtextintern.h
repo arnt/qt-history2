@@ -33,9 +33,54 @@
 
 
 class QtRichText;
-class QtTextCustomItem;
 class QtTextView;
 class QtTextFlow;
+
+class QtTextOptions {
+public:
+    QtTextOptions( const QBrush* p = 0, QColor lc = Qt::blue, bool lu = TRUE )
+	:paper( p ), linkColor( lc ), linkUnderline( lu ), offsetx( 0 ), offsety( 0 )
+    {
+    };
+    const QBrush* paper;
+    QColor linkColor;
+    bool linkUnderline;
+    int offsetx;
+    int offsety;
+    void erase( QPainter* p, const QRect& r ) const;
+};
+
+class QtTextCustomItem : public Qt
+{
+public:
+    QtTextCustomItem()
+	: width(-1), height(0)
+    {}
+    virtual ~QtTextCustomItem() {}
+    virtual void draw(QPainter* p, int x, int y,
+		      int ox, int oy, int cx, int cy, int cw, int ch,
+		      QRegion& backgroundRegion, const QColorGroup& cg, 
+		      const QtTextOptions& to ) = 0;
+
+    virtual void realize( QPainter* ) { width = 0; }
+
+    enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
+    virtual Placement placement() { return PlaceInline; }
+
+    bool placeInline() { return placement() == PlaceInline; }
+
+    virtual bool noErase() const { return FALSE; };
+    virtual bool expandsHorizontally() const { return FALSE; }
+    virtual bool ownLine() const { return expandsHorizontally(); };
+    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
+
+    virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
+
+    int y; // used for floating items
+    int x; // used for floating items
+    int width;
+    int height;
+};
 
 class QtStyleSheet : public QStyleSheet
 {
@@ -50,34 +95,36 @@ public:
 };
 
 
+
 class QtTextRichString
 {
     friend class QtTextCursor;
     struct Item {
-	Item() {
-	    format = 0;
-	    width = -1;
-	    selected = FALSE;
+	Item() 
+	: base(-1), width(-1),selected(0),newline(0),format(0)
+	{
 	};
-	Item( const Item& other ) {
-	    width = other.width;
-	    selected = other.selected;
-	    c = other.c;
-	    format = other.format;
-	}
-	Item& operator=( const Item& other ) {
-	    width = other.width;
-	    selected = other.selected;
-	    c = other.c;
-	    format = other.format;
-	    return *this;
-	}
+// 	Item( const Item& other ) {
+// 	    width = other.width;
+// 	    selected = other.selected;
+// 	    c = other.c;
+// 	    format = other.format;
+// 	}
+// 	Item& operator=( const Item& other ) {
+// 	    width = other.width;
+// 	    selected = other.selected;
+// 	    c = other.c;
+// 	    format = other.format;
+// 	    return *this;
+// 	}
 	~Item() {
 	};
+	int base;
 	int width; // : 30;
-	bool selected; // uint selected : 1;
-	QString c;
+	uint selected : 1;
+	uint newline : 1;
 	QtTextCharFormat* format;
+	QString c;
     };
     Item* items;
     int store;
@@ -105,30 +152,13 @@ public:
 
     void setSelected( int index, bool selected );
     bool selected( int index ) const;
-    
+
     void setBold( int index, bool b );
     bool bold( int index ) const;
 
     QtTextFormatCollection* formats; // make private
 private:
     void setLength( int l );
-};
-
-class QtTextOptions {
-public:
-    QtTextOptions( const QBrush* p = 0, QColor lc = Qt::blue, bool lu = TRUE )
-	:paper( p ), linkColor( lc ), linkUnderline( lu )
-    {
-    };
-    QtTextOptions( const QtTextOptions& other )
-    {
-	paper = other.paper;
-	linkColor = other.linkColor;
-	linkUnderline = other.linkUnderline;
-    }
-    const QBrush* paper;
-    QColor linkColor;
-    bool linkUnderline;
 };
 
 class QtTextParagraph
@@ -244,37 +274,6 @@ protected:
 };
 
 
-class QtTextCustomItem : public Qt
-{
-public:
-    QtTextCustomItem()
-	: width(-1), height(0)
-    {}
-    virtual ~QtTextCustomItem() {}
-    virtual void draw(QPainter* p, int x, int y,
-		      int ox, int oy, int cx, int cy, int cw, int ch,
-		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
-
-    virtual void realize( QPainter* ) { width = 0; }
-
-    enum Placement { PlaceInline = 0, PlaceLeft, PlaceRight };
-    virtual Placement placement() { return PlaceInline; }
-
-    bool placeInline() { return placement() == PlaceInline; }
-
-    virtual bool noErase() const { return FALSE; };
-    virtual bool expandsHorizontally() const { return FALSE; }
-    virtual bool ownLine() const { return expandsHorizontally(); };
-    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
-
-    virtual QString anchorAt( QPainter* /*p*/, int /*x*/, int /*y*/)  { return QString::null; }
-
-    int y; // used for floating items
-    int x; // used for floating items
-    int width;
-    int height;
-};
-
 class QtTextImage : public QtTextCustomItem
 {
 public:
@@ -286,7 +285,7 @@ public:
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
 private:
     QRegion* reg;
     QPixmap pm;
@@ -325,10 +324,10 @@ public:
 
     void draw( int x, int y,
 	       int ox, int oy, int cx, int cy, int cw, int ch,
-	       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+	       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
 
     QString anchorAt( int x, int y ) const;
-
+    
 private:
 
     QPainter* painter() const;
@@ -354,7 +353,7 @@ public:
     void realize( QPainter* );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
 
     bool noErase() const { return TRUE; };
     bool expandsHorizontally() const { return TRUE; }
@@ -374,6 +373,7 @@ private:
     int cellspacing;
     int border;
     int outerborder;
+    int stretch;
 };
 
 
@@ -384,7 +384,7 @@ public:
     ~QtTextHorizontalLine();
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
 
     bool expandsHorizontally() const { return TRUE; }
 private:
@@ -488,11 +488,9 @@ public:
 
 
     void registerFloatingItem( QtTextCustomItem* item, bool right = FALSE );
-
     void drawFloatingItems(QPainter* p,
 			   int ox, int oy, int cx, int cy, int cw, int ch,
-			   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-
+			   QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
     void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
 
     int width;
@@ -501,10 +499,10 @@ public:
 
 
     QtTextFlow* parent;
-    
+
     QRect updateRect() { return updaterect; }
-    void invalidateRect( const QRect& r ) { 
-	updaterect = updaterect.unite( r ); 
+    void invalidateRect( const QRect& r ) {
+	updaterect = updaterect.unite( r );
 // 	qDebug("invalidate with %d, now %d", r.height(), updaterect.height() );
     }
     void validateRect() { updaterect = QRect(); }
@@ -536,7 +534,7 @@ public:
 
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to );
 
     void doLayout( QPainter* p, int nwidth );
     QString anchorAt( QPainter* p, int x, int y ) const;
