@@ -511,7 +511,7 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             QDesignerResource res(this);
 
             QList<QWidget*> sel(selectedWidgets());
-            
+
             simplifySelection(&sel);
 
             sel = checkSelectionsForMove(w);
@@ -1261,7 +1261,7 @@ void FormWindow::paste()
 
     if (w && LayoutInfo::layoutType(m_core, w) == LayoutInfo::NoLayout) {
         clearSelection(true);
-        
+
         QByteArray code = qApp->clipboard()->text().toAscii();
         QBuffer b(&code);
         b.open(QIODevice::ReadOnly);
@@ -1867,7 +1867,7 @@ QWidget *FormWindow::findContainer(QWidget *w, bool excludeLayout) const
     QWidget *container = widgetFactory->containerOfWidget(mainContainer()); // default parent for new widget is the formwindow
     if (!isMainContainer(w)) { // press was not on formwindow, check if we can find another parent
         while (w) {
-            if (qt_cast<InvisibleWidget*>(w)) {
+            if (qt_cast<InvisibleWidget*>(w) || !isManaged(w)) {
                 w = w->parentWidget();
                 continue;
             }
@@ -2040,11 +2040,11 @@ void FormWindow::setEditMode(EditMode mode)
     switch (m_editMode) {
         case WidgetEditMode: {
             m_mainContainer->raise();
-            
+
             QList<QWidget*> sel = selectedWidgets();
             foreach (QWidget *w, sel)
                 raiseSelection(w);
-            
+
             break;
         }
 
