@@ -547,10 +547,9 @@ MakefileGenerator::init()
 	    if ( !v[dirs[x]].isEmpty() ) {
 		{
 		    QString &path = v[dirs[x]].first();
+		    fileFixify(path);
 		    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 			path += Option::dir_sep;
-		    if(QDir::isRelativePath(path) && !v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-			path.prepend(Option::output_dir + Option::dir_sep);
 		}
 		QString path = project->first(dirs[x]); //not to be changed any further
 		path = Option::fixPathToTargetOS(path);
@@ -1106,8 +1105,11 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	fileFixify(pfile);
 	if(!ofile.isEmpty()) {
 	    t << ofile << ": " << pfile << " ";
-	    if(Option::mkfile::do_cache)
-		t << Option::mkfile::cachefile << " ";
+	    if(Option::mkfile::do_cache) {
+		QString s = Option::mkfile::cachefile;
+		fileFixify(s);
+		t << s << " ";
+	    }
 	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
@@ -1160,7 +1162,12 @@ MakefileGenerator::fileFixify(QString &file) const
 		if(match_dir.isEmpty())
 		    break;
 		if(file.left(match_dir.length()) == match_dir) {
-		    file = file.right(file.length() - (match_dir.length() + 1));
+		    //concat
+		    int remlen = file.length() - (match_dir.length() + 1);
+		    if (remlen < 0)
+			remlen = 0;
+		    file = file.right(remlen);
+		    //prepend
 		    for(int o = 0; o < i; o++)
 			file.prepend(".." + Option::dir_sep);
 		}
