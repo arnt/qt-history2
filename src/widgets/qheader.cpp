@@ -81,7 +81,7 @@ struct QHeaderData
 */
 
 QHeader::QHeader( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WNorthWestGravity )
 {
     orient = Horizontal;
     init( 0 );
