@@ -2210,7 +2210,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( !font )
 	font = &cfont;
 
-    bool force_bitmap = FALSE;//rop != CopyROP;
+    bool force_bitmap = rop != CopyROP;
     if ( force_bitmap ) {
 #ifdef Q_OS_TEMP
 	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
