@@ -57,6 +57,7 @@ for $symbol ( keys %osize ) {
 	    $classes{$classname}=1;
 	}#
     } else {
+	next if $symbol =~ /global constructors keyed to/;
 	push @gone, $symbol;
 	print OUT "REMOVED ($otype{$symbol}): $symbol\n";
     }
@@ -71,21 +72,37 @@ sub sizes
 {
     my ($dir) = @_;
     my (%objectsize);
+    my (%pubclasses);
+
+    print STDERR "Analyzing $dir...\n";
 
     open CPP, ">/tmp/t$$.cpp";
     print CPP "#define INCLUDE_MENUITEM_DEF\n";
 
-    open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qmutex.h' -e 'qgl.h' | grep '\.h$' |};
+    open HEADERS, "/bin/ls $dir/include ".q{| grep -v -e 'qmutex.h' -e 'qgl.h' -e 'qgeneric.h' \
+	    -e 'q1xcompatibility.h' -e 'qwindow.h' -e 'qpaintdc.h' -e 'qpaintdevicedefs.h' \
+	    -e 'qt_windows.h' -e 'qt_x11.h' -e 'qt_mac.h' | grep '\.h$' |};
     while (<HEADERS>) {
 	chomp;
 	$h = $_;
 	open HEADER, "<$dir/include/$h";
+	$skip=0;
 	while (<HEADER>) {
+	    if ( /(template\s*<.*>[\n\s]*)/ ) {
+		$skip=1;
+		next;
+	    }
 	    if ( /class\s+Q_EXPORT\s+([^\s:;{]+)[^;]*$/ ) {
+		$skip--,next if $skip;
 		next if $1 =~ /[a-z][TM]$/;
+		next if $1 eq "QWindowsMime";
 		next if $1 eq "QSignalDictIt";
 		next if $1 eq "QSignalDict";
+		next if $1 eq "QTextEdit";
 		$pubclasses{$1}=1;
+		$comment{$1}=$h;
+	    } elsif ( /\(/ ) {
+		$skip = 0;
 	    }
 	}
 	print CPP "#include \"$h\"\n";
@@ -93,11 +110,11 @@ sub sizes
 
     print CPP "main() {\n";
     for $class ( keys %pubclasses ) {
-	print CPP qq{  printf("$class %d\\n",sizeof($class));\n}
+	print CPP qq{  printf("$class %d\\n",sizeof($class)); // $comment{$class}\n}
     }
     print CPP "}\n";
     close CPP;
-    system("gcc /tmp/t$$.cpp -I$dir/include -L$dir/lib -lqt");
+    system("gcc -DQT_THREAD_SUPPORT /tmp/t$$.cpp -I$dir/include -L$dir/lib -lqt");
     open SIZES, "./a.out |";
     while (<SIZES>) {
 	($class,$size) = $_ =~ /(\S+) (\S+)/;

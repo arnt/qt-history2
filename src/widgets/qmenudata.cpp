@@ -29,8 +29,11 @@
 #include "qapplication.h"
 #include "qguardedptr.h"
 
-// Not used yet...
-class QMenuItemData { };
+class QMenuItemData {
+public:
+    QCustomMenuItem    *custom_item;	// custom menu item
+};
+
 class QMenuDataData {
     // attention: also defined in qmenubar.cpp and qpopupmenu.cpp
 public:
@@ -77,10 +80,9 @@ QMenuItem::QMenuItem()
     pixmap_data	 = 0;
     popup_menu	 = 0;
     widget_item	 = 0;
-    custom_item	 = 0;
     accel_key	 = 0;
     signal_data	 = 0;
-    d = 0; // FOR EXTENSION (eg. non-ascii accels)
+    d = 0;
 }
 
 QMenuItem::~QMenuItem()
@@ -89,13 +91,24 @@ QMenuItem::~QMenuItem()
     delete pixmap_data;
     delete signal_data;
     delete d;
-    delete custom_item;
 }
 
 
 /*****************************************************************************
   QMenuData member functions
  *****************************************************************************/
+
+QMenuItemData* QMenuItem::extra()
+{
+    if ( !d ) d = new QMenuItemData;
+    return d;
+}
+
+QCustomMenuItem *QMenuItem::custom() const
+{
+    if ( !d ) return 0;
+    return d->custom_item;
+}
 
 
 static int get_seq_id()
@@ -224,7 +237,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->widget_item = widget;
 	mi->is_separator = !widget->isFocusEnabled();
     } else if ( custom != 0 ) {
-	mi->custom_item = custom;
+	mi->extra()->custom_item = custom;
 	mi->is_separator = custom->isSeparator();
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator

@@ -242,7 +242,7 @@ s = bit16.t;\
 
 /** Private extern functions */
 
-unsigned char _DndByteOrder (void);
+static unsigned char DndByteOrder (void);
 
 
 /***** Targets/Index stuff */
@@ -291,7 +291,7 @@ static void InitAtoms(Display * dpy)
 
 
 
-unsigned char _DndByteOrder (void)
+static unsigned char DndByteOrder (void)
 {
     static unsigned char byte_order = 0;
 
@@ -306,7 +306,7 @@ unsigned char _DndByteOrder (void)
 /* Position the _MOTIF_DRAG_INITIATOR_INFO property on the source window.
    Called by the source of the drag to indicate the
    supported target list (thru the index scheme) */
-extern void DndWriteSourceProperty(Display * dpy,
+static void DndWriteSourceProperty(Display * dpy,
 				   Window window, Atom dnd_selection,
 				   Atom * targets, unsigned short num_targets)
 {
@@ -314,7 +314,7 @@ extern void DndWriteSourceProperty(Display * dpy,
 
     InitAtoms(dpy);
 
-    src_prop.byte_order = _DndByteOrder() ;
+    src_prop.byte_order = DndByteOrder() ;
     src_prop.protocol_version = DND_PROTOCOL_VERSION;
 
     int tmp = _DndTargetsToIndex(dpy, targets, num_targets);
@@ -330,7 +330,7 @@ extern void DndWriteSourceProperty(Display * dpy,
 		     sizeof(DndSrcProp));
 }
 
-extern void
+static void
 DndReadSourceProperty(Display * dpy,
 		      Window window, Atom dnd_selection,
 		      Atom ** targets, unsigned short * num_targets)
@@ -351,7 +351,7 @@ DndReadSourceProperty(Display * dpy,
 	return ;
     }
 
-    if (src_prop->byte_order != _DndByteOrder()) {
+    if (src_prop->byte_order != DndByteOrder()) {
 	SWAP2BYTES(src_prop->target_index);
 	SWAP4BYTES(src_prop->selection);
     }
@@ -365,14 +365,14 @@ DndReadSourceProperty(Display * dpy,
 /* Position the _MOTIF_DRAG_RECEIVER_INFO property on the dropsite window.
    Called by the receiver of the drop to indicate the
    supported protocol style : dynamic, drop_only or none */
-extern void DndWriteReceiverProperty(Display * dpy, Window window,
+static void DndWriteReceiverProperty(Display * dpy, Window window,
 				     unsigned char protocol_style)
 {
     DndReceiverProp receiver_prop ;
 
     InitAtoms(dpy);
 
-    receiver_prop.byte_order = _DndByteOrder() ;
+    receiver_prop.byte_order = DndByteOrder() ;
     receiver_prop.protocol_version = DND_PROTOCOL_VERSION;
     receiver_prop.protocol_style = protocol_style ;
     receiver_prop.proxy_window =  None ;
@@ -392,7 +392,7 @@ extern void DndWriteReceiverProperty(Display * dpy, Window window,
 #define DND_DRAG_DYNAMIC_EQUIV1  2
 #define DND_DRAG_DYNAMIC_EQUIV2  4
 
-extern void DndReadReceiverProperty(Display * dpy, Window window,
+static void DndReadReceiverProperty(Display * dpy, Window window,
 				    unsigned char * protocol_style)
 {
     DndReceiverProp *receiver_prop = NULL ;
@@ -430,7 +430,7 @@ extern void DndReadReceiverProperty(Display * dpy, Window window,
 }
 
 /* Produce a client message to be sent by the caller */
-extern void DndFillClientMessage(Display * dpy, Window window,
+static void DndFillClientMessage(Display * dpy, Window window,
 				 XClientMessageEvent *cm,
 				 DndData * dnd_data,
 				 char receiver)
@@ -449,7 +449,7 @@ extern void DndFillClientMessage(Display * dpy, Window window,
 
     dnd_message->reason = dnd_data->reason | DND_SET_EVENT_TYPE(receiver);
 
-    dnd_message->byte_order = _DndByteOrder();
+    dnd_message->byte_order = DndByteOrder();
 
     /* we're filling in flags with more stuff that necessary,
        depending on the reason, but it doesn't matter */
@@ -485,7 +485,7 @@ extern void DndFillClientMessage(Display * dpy, Window window,
 
 }
 
-extern Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
+static Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
 				  char * receiver)
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
@@ -496,7 +496,7 @@ extern Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
 	return False ;
     }
 
-    if (dnd_message->byte_order != _DndByteOrder()) {
+    if (dnd_message->byte_order != DndByteOrder()) {
 	SWAP2BYTES(dnd_message->flags);
 	SWAP4BYTES(dnd_message->time);
     } /* do the rest in the switch */
@@ -519,7 +519,7 @@ extern Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
     switch(dnd_data->reason) {
     case DND_TOP_LEVEL_ENTER:
     case DND_TOP_LEVEL_LEAVE:
-	if (dnd_message->byte_order != _DndByteOrder()) {
+	if (dnd_message->byte_order != DndByteOrder()) {
 	    SWAP4BYTES(dnd_message->data.top.src_window);
 	    SWAP4BYTES(dnd_message->data.top.property);
 	}
@@ -531,7 +531,7 @@ extern Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
     case DND_OPERATION_CHANGED:
     case DND_DROP_SITE_ENTER:
     case DND_DROP_START:
-	if (dnd_message->byte_order != _DndByteOrder()) {
+	if (dnd_message->byte_order != DndByteOrder()) {
 	    SWAP2BYTES(dnd_message->data.pot.x);
 	    SWAP2BYTES(dnd_message->data.pot.y);
 	    SWAP4BYTES(dnd_message->data.pot.property);
@@ -628,7 +628,7 @@ static DndTargetsTable TargetsTable(Display *display)
 	qWarning("QMotifDND: protocol mismatch");
     }
 
-    if (target_prop->byte_order != _DndByteOrder()) {
+    if (target_prop->byte_order != DndByteOrder()) {
 	/* need to swap num_target_lists and size */
 	SWAP2BYTES(target_prop->num_target_lists);
 	SWAP4BYTES(target_prop->data_size);
@@ -651,7 +651,7 @@ static DndTargetsTable TargetsTable(Display *display)
 	target_data += 2;
 
 	/* potential swap needed here */
-	if (target_prop->byte_order != _DndByteOrder())
+	if (target_prop->byte_order != DndByteOrder())
 	    SWAP2BYTES(num_targets);
 
 	targets_table->entries[i].num_targets = num_targets ;
@@ -664,7 +664,7 @@ static DndTargetsTable TargetsTable(Display *display)
 	    target_data += 4;
 
 	    /* another potential swap needed here */
-	    if (target_prop->byte_order != _DndByteOrder())
+	    if (target_prop->byte_order != DndByteOrder())
 		SWAP4BYTES(atom);
 
 	    targets_table->entries[i].targets[j] = (Atom) atom ;

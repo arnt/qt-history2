@@ -61,7 +61,7 @@ public:
     QPixmap    *pixmap()	const	{ return pixmap_data; }
     QPopupMenu *popup()		const	{ return popup_menu; }
     QWidget *widget()		const	{ return widget_item; }
-    QCustomMenuItem *custom()		const	{ return custom_item; }
+    QCustomMenuItem *custom()	const;
     int		key()		const	{ return accel_key; }
     QSignal    *signal()	const	{ return signal_data; }
     bool	isSeparator()	const	{ return is_separator; }
@@ -88,7 +88,8 @@ private:
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
     QMenuItemData* d;
-    QCustomMenuItem    *custom_item;	// custom menu item
+
+    QMenuItemData* extra();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

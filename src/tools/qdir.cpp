@@ -1006,7 +1006,7 @@ QString QDir::homeDirPath()
     return d;
 }
 
-QStringList makeFilterList( const QString &filter )
+QStringList qt_makeFilterList( const QString &filter )
 {
     if ( filter.isEmpty() )
 	return QStringList();
@@ -1052,7 +1052,7 @@ bool QDir::match( const QStringList &filters, const QString &fileName )
 
 bool QDir::match( const QString &filter, const QString &fileName )
 {
-    QStringList lst = makeFilterList( filter );
+    QStringList lst = qt_makeFilterList( filter );
     return match( lst, fileName );
 }
 

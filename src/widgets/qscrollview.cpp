@@ -933,6 +933,14 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
     return d->policy;
 }
 
+/*!
+  \reimp
+*/
+ 
+void QScrollView::setEnabled( bool enable )
+{
+    QFrame::setEnabled( enable );
+}
 
 /*!
   Removes a child from the scrolled area.  Note that this happens

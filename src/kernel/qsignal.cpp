@@ -25,6 +25,7 @@
 
 #include "qsignal.h"
 #include "qmetaobject.h"
+#include "qptrdict.h"
 #include <ctype.h>
 
 // NOT REVISED
@@ -92,6 +93,51 @@
 QMetaObject *QSignal::metaObj = 0;
 
 
+
+#if QT_VERSION >= 300
+#error "Move to QSignal body"
+#endif
+
+class QSignalPrivate {
+public:
+    QSignalPrivate() :
+	val(0)
+    {
+    }
+    int val;
+};
+
+static QPtrDict<QSignalPrivate>* d_ptr = 0;
+static void cleanup_d_ptr()
+{
+    delete d_ptr;
+}
+static QSignalPrivate* d( const QSignal* that )
+{
+    if ( !d_ptr ) {
+	d_ptr = new QPtrDict<QSignalPrivate>;
+	qAddPostRoutine( cleanup_d_ptr );
+    }
+    QSignalPrivate* ret = d_ptr->find( (void*) that );
+    if ( ! ret ) {
+	ret = new QSignalPrivate;
+	d_ptr->replace( (void*) that, ret );
+    }
+    return ret;
+}
+static void delete_d( const QSignal* that )
+{
+    if ( d_ptr )
+	d_ptr->remove( (void*) that );
+}
+static bool has_d( const QSignal* that )
+{
+    return d_ptr && d_ptr->find( (void*) that);
+}
+
+
+
+
 /*!
   Constructs a signal object with the parent object \e parent and a \e name.
   These arguments are passed directly to QObject.
@@ -103,7 +149,11 @@ QSignal::QSignal( QObject *parent, const char *name )
     if ( !metaObj )				// will create object dict
 	initMetaObject();
     isSignal = TRUE;
-    val = 0;
+}
+
+QSignal::~QSignal()
+{
+    delete_d(this);
 }
 
 
@@ -181,15 +231,19 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-    activate_signal("x(int)", val );
+    if ( has_d(this) )
+	activate_signal("x(int)", d(this)->val );
+    else
+	activate_signal("x(int)", 0 );
 }
+
 
 /*!
   Sets the signal's parameter to \a value
  */
 void QSignal::setParameter( int value )
 {
-    val = value;
+    d(this)->val = value;
 }
 
 /*!
@@ -197,7 +251,10 @@ void QSignal::setParameter( int value )
  */
 int QSignal::parameter() const
 {
-    return val;
+    if ( has_d(this) )
+	return d(this)->val;
+    else
+	return 0;
 }
 
 void QSignal::dummy(int)				// just for the meta object

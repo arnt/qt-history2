@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-extern QStringList makeFilterList( const QString &filter );
+extern QStringList qt_makeFilterList( const QString &filter );
 
 extern int qt_cmp_si_sortSpec;
 
@@ -153,7 +153,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->clear();
     }
 
-    QStringList filters = makeFilterList( nameFilter );
+    QStringList filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;

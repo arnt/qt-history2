@@ -159,7 +159,7 @@ bool QDir::isRelativePath(const QString& path)
     return false;
 }
 
-extern QStringList makeFilterList ( const QString &filter );
+extern QStringList qt_makeFilterList ( const QString &filter );
 
 bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 			  int sortSpec)
@@ -176,7 +176,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
         fiList->clear();
     }
 
-    QStringList filters = makeFilterList( nameFilter );
+    QStringList filters = qt_makeFilterList( nameFilter );
 
     bool doDirs     = (filterSpec & Dirs)       != 0;
     bool doFiles    = (filterSpec & Files)      != 0;

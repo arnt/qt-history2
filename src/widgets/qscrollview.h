@@ -109,6 +109,7 @@ public slots:
     void	center(int x, int y, float xmargin, float ymargin);
 
     void	updateScrollBars();
+    void	setEnabled( bool enable );
 
 protected:
     void	resizeEvent(QResizeEvent*);

@@ -35,6 +35,7 @@ class Q_EXPORT QSignal : private QObject			// signal class
 {
 public:
     QSignal( QObject *parent=0, const char *name=0 );
+    ~QSignal();
 
     const char *name() const		{ return QObject::name(); }
     void    setName( const char *name ) { QObject::setName(name); }
@@ -59,7 +60,6 @@ private:	// Disabled copy constructor and operator=
     QSignal( const QSignal & );
     QSignal &operator=( const QSignal & );
 #endif
-    int val;
 };
 
 

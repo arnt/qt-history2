@@ -56,7 +56,7 @@ extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
 
-QStringList makeFilterList( const QString &filter );
+QStringList qt_makeFilterList( const QString &filter );
 
 void QDir::slashify( QString& n )
 {
@@ -348,7 +348,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	fiList->clear();
     }
 
-    QStringList filters = makeFilterList( nameFilter );
+    QStringList filters = qt_makeFilterList( nameFilter );
 
     bool doDirs	    = (filterSpec & Dirs)	!= 0;
     bool doFiles    = (filterSpec & Files)	!= 0;
