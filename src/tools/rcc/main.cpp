@@ -149,7 +149,8 @@ main(int argc, char **argv)
             uchar flags = 0;
             if(compressRatio)
                 flags |= Compressed; 
-            fprintf(out, "\nstatic uchar %s[] = {\n", resource_name.latin1());
+            fprintf(out, "\n//Generated from '%s'\n", files[file].filePath().latin1());
+            fprintf(out, "static uchar %s[] = {\n", resource_name.latin1());
             fprintf(out, "\t0x12, 0x15, 0x19, 0x78, //header\n");
             fprintf(out, "\t0x01, //version\n");
             fprintf(out, "\t0x%02x, //flags\n", flags);
