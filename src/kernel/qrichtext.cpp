@@ -6429,19 +6429,8 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
     if ( !anchorHref.isEmpty() )
 	tag += "<a href=\"" + anchorHref + "\">";
 
-    if ( font() != defaultFormat->font() ) {
-	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
-	    tag += "<u>";
-    }
-    
-    if ( vAlign() != defaultFormat->vAlign() ) {
-	if ( vAlign() == QTextFormat::AlignSuperScript )
-	    tag +="<sup>";
-	else if ( vAlign() == QTextFormat::AlignSubScript )
-	    tag +="<sub>";
-    }
-    
     if ( font() != defaultFormat->font()
+	 || vAlign() != defaultFormat->vAlign() 
 	 || color().rgb() != defaultFormat->color().rgb() ) {
 	QString s;
 	if ( font().family() != defaultFormat->font().family() )
@@ -6452,6 +6441,17 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	    s += QString(!!s?";":"") + "font-size:" + QString::number( fn.pointSize() ) + "pt";
 	if ( font().weight() != defaultFormat->font().weight() )
 	    s += QString(!!s?";":"") + "font-weight:" + QString::number( fn.weight() * 8 );
+	if ( font().underline() != defaultFormat->font().underline() )
+	    s += QString(!!s?";":"") + "text-decoration:" + ( font().underline() ? "underline" : "none");
+	if ( vAlign() != defaultFormat->vAlign() ) {
+	    s += QString(!!s?";":"") + "vertical-align:";
+	    if ( vAlign() == QTextFormat::AlignSuperScript )
+		s += "super";
+	    else if ( vAlign() == QTextFormat::AlignSubScript )
+		s += "sub";
+	    else
+		s += "normal";
+	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
 	    s += QString(!!s?";":"") + "color:" + col.name();
 	if ( !s.isEmpty() )
@@ -6468,16 +6468,10 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
 	 || font().pointSize() != defaultFormat->font().pointSize()
 	 || font().weight() != defaultFormat->font().weight()
 	 || font().italic() != defaultFormat->font().italic()
+	 || font().underline() != defaultFormat->font().underline()
+	 || vAlign() != defaultFormat->vAlign()
 	 || color().rgb() != defaultFormat->color().rgb() )
 	tag += "</font>";
-    if ( vAlign() != defaultFormat->vAlign() ) {
-	if ( vAlign() == QTextFormat::AlignSuperScript )
-	    tag +="</sup>";
-	else if ( vAlign() == QTextFormat::AlignSubScript )
-	    tag +="</sub>";
-    }
-    if ( font().underline() && font().underline() != defaultFormat->font().underline() )
-	tag += "</u>";
     if ( !anchorHref.isEmpty() )
 	tag += "</a>";
     return tag;
@@ -6571,7 +6565,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.logicalFontSize = 0;
 		format.setPointSize( int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toInt() ) );
 	    } if ( style.startsWith("font-style:" ) ) {
-		QString s = style.mid( 11 );
+		QString s = style.mid( 11 ).stripWhiteSpace();
 		if ( s == "normal" )
 		    format.fn.setItalic( FALSE );
 		else if ( s == "italic" || s == "oblique" )
@@ -6583,7 +6577,18 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		if ( ok )
 		    format.fn.setWeight( n/8 );
 	    } else if ( style.startsWith("font-family:" ) ) {
-		format.fn.setFamily( style.mid(12).section(',',0,0) );
+		format.fn.setFamily( style.mid(12).section(',',0,0).stripWhiteSpace() );
+	    } else if ( style.startsWith("text-decoration:" ) ) {
+		QString s = style.mid( 16 ).stripWhiteSpace();
+		format.fn.setUnderline( s == "underline" );
+	    } else if ( style.startsWith("vertical-align:" ) ) {
+		QString s = style.mid( 15 ).stripWhiteSpace();
+		if ( s == "sub" )
+		    format.setVAlign( QTextFormat::AlignSubScript );
+		else if ( s == "super" )
+		    format.setVAlign( QTextFormat::AlignSuperScript );
+		else
+		    format.setVAlign( QTextFormat::AlignNormal );
 	    } else if ( style.startsWith("color:" ) ) {
 		format.col.setNamedColor( style.mid(6) );
 		format.linkColor = FALSE;
