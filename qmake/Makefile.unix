@@ -33,7 +33,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 
-CXXFLAGS= @QMAKE_CFLAGS@ \
+CXXFLAGS= @QMAKE_CXXFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	-I@SOURCE_PATH@/src/core/arch/generic -I@BUILD_PATH@/include -I@BUILD_PATH@/include/QtCore \
 	-I@SOURCE_PATH@/include -I@SOURCE_PATH@/include/QtCore \
