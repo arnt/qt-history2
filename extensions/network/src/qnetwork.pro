@@ -1,6 +1,5 @@
 TEMPLATE	= lib
 CONFIG		= qt staticlib release debug
-unix:TMAKE_CXXFLAGS += -fno-exceptions -fno-rtti
 HEADERS		= qdns.h \
 		  qftp.h \
 		  qhostaddress.h \
