@@ -2579,7 +2579,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() ) {
     case QEvent::MouseMove:
 	{
-	    if ( !widget->isActiveWindow() )
+	    if (!widget->isActiveWindow() || !widget->isEnabled())
 		break;
 
 	    QMouseEvent *me = (QMouseEvent*)e;
@@ -2653,7 +2653,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	    break;
 	// FALL THROUGH
     case QEvent::Enter:
-	if ( !widget->isActiveWindow() )
+	if (!widget->isActiveWindow() || !widget->isEnabled())
 	    break;
         d->hotWidget = widget;
 	widget->repaint( ::qt_cast<QSlider*>(widget) != 0 );
