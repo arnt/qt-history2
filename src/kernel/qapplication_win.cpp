@@ -81,21 +81,23 @@ typedef BOOL	( API *PtrWTEnable )(HCTX, BOOL);
 typedef BOOL	( API *PtrWTOverlap )(HCTX, BOOL);
 typedef int	( API *PtrWTPacketsGet )(HCTX, int, LPVOID);
 typedef BOOL	( API *PtrWTGet )(HCTX, LPLOGCONTEXT);
+typedef int     ( API *PtrWTQueueSizeGet )(HCTX);
+typedef BOOL    ( API *PtrWTQueueSizeSet )(HCTX, int);
 
-static PtrWTOpen	ptrWTOpen = 0;
-static PtrWTClose	ptrWTClose = 0;
-static PtrWTInfo	ptrWTInfo = 0;
-static PtrWTEnable	ptrWTEnable = 0;
-static PtrWTOverlap	ptrWTOverlap = 0;
-static PtrWTPacketsGet	ptrWTPacketsGet = 0;
-static PtrWTGet		ptrWTGet = 0;
+static PtrWTOpen	 ptrWTOpen = 0;
+static PtrWTClose	 ptrWTClose = 0;
+static PtrWTInfo	 ptrWTInfo = 0;
+static PtrWTEnable	 ptrWTEnable = 0;
+static PtrWTOverlap	 ptrWTOverlap = 0;
+static PtrWTPacketsGet	 ptrWTPacketsGet = 0;
+static PtrWTGet		 ptrWTGet = 0;
+static PtrWTQueueSizeGet ptrWTQueueSizeGet = 0;
+static PtrWTQueueSizeSet ptrWTQueueSizeSet = 0;
 
-
-
-static const int NPACKETQSIZE = 32;	// minimum size of queue.
+static const int NPACKETQSIZE = 128;	// minimum size of queue.
 static const double PI = 3.14159265359;
 
-static PACKET localPacketBuf[NPACKETQSIZE];  // our own tablet packet queue.
+static PACKET localPacketBuf[ NPACKETQSIZE ];  // our own tablet packet queue.
 static LOGCONTEXT lcMine;   // the logical context for the tablet ( describes capapilities )
 static HCTX hTab;  // the hardware context for the tablet ( like a window handle )
 static bool tilt_support;
@@ -1097,6 +1099,20 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	if ( hTab == NULL )
 	    qWarning( "Failed to open the tablet" );
 #endif
+	// Set the size of the Packet Queue to the correct size...
+	if ( ptrWTQueueSizeGet && ptrWTQueueSizeSet ) {
+	    int currSize = ptrWTQueueSizeGet( hTab );
+	    if ( !ptrWTQueueSizeSet(hTab, NPACKETQSIZE) ) {
+		// Ideally one might want to make use a smaller
+		// multiple, but for now, since we managed to destroy
+		// the existing Q with the previous call, set it back
+		// to the other size, which should work.  If not,
+		// we had best die.
+		if ( !ptrWTQueueSizeSet(hTab, currSize) )
+		    qWarning( "There is no packet queue for the tablet.\n"
+			      "The tablet will not work" );
+	    }
+	}
     }
 #endif
 }
@@ -1585,12 +1601,32 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    }
 	}
 #if defined(QT_TABLET_SUPPORT)
-	if ( !chokeMouse )
+	if ( !chokeMouse ) {
 #endif
 	    widget->translateMouseEvent( msg );	// mouse event
 #if defined(QT_TABLET_SUPPORT)
-	else
-	    chokeMouse = FALSE;
+	} else {
+	    // Sometimes we only get a WM_MOUSEMOVE message
+	    // and sometimes we get both a WM_MOUSEMOVE and
+	    // a WM_LBUTTONDOWN/UP, this creates a spurious mouse
+	    // press/release event, using the winPeekMessage
+	    // will help us fix this.  This leaves us with a
+	    // question:
+	    //    This effectively kills using the mouse AND the
+	    //    tablet simultaneously, well creates wacky input.
+	    //    Is this going to be a problem? (probably not)
+	    bool next_is_button = FALSE;
+	    bool is_mouse_move = (message == WM_MOUSEMOVE);
+	    if ( is_mouse_move ) {
+		MSG msg1;
+		if ( winPeekMessage(&msg1, msg.hwnd, WM_MOUSEFIRST, 
+				    WM_MOUSELAST, PM_NOREMOVE) )
+		    next_is_button = ( msg1.message == WM_LBUTTONUP 
+				       || msg1.message == WM_LBUTTONDOWN );
+	    }
+	    if ( !is_mouse_move || (is_mouse_move && !next_is_button) )
+	    	chokeMouse = FALSE;
+	}
 #endif
     } else if ( message == WM95_MOUSEWHEEL ) {
 	result = widget->translateWheelEvent( msg );
@@ -2022,6 +2058,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    // flush the QUEUE
 	    if ( ptrWTPacketsGet )
 		ptrWTPacketsGet( hTab, NPACKETQSIZE + 1, NULL);
+	    if ( chokeMouse )
+		chokeMouse = FALSE;
 	    break;
 #endif
 	case WM_KILLFOCUS:
@@ -3199,7 +3237,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 				      int numPackets )
 {
     POINT ptNew;
-    DWORD btnNew;
+    static DWORD btnNew, btnOld, btnChange;
     UINT prsNew;
     ORIENTATION ort;
     static bool button_pressed = FALSE;
@@ -3210,22 +3248,9 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
     bool sendEvent;
     QEvent::Type t;
 
-    MSG msg1;
+    
     // the most typical event that we get...
     t = QEvent::TabletMove;
-    if ( winPeekMessage( &msg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST, PM_NOREMOVE) ) {
-	switch (msg1.message) {
-	case WM_MOUSEMOVE:
-	    t = QEvent::TabletMove;
-	    break;
-	case WM_LBUTTONDOWN:
-	    button_pressed = TRUE;
-	    t = QEvent::TabletPress;
-	    break;
-	default:
-	    break;
-	}
-    }
     for ( i = 0; i < numPackets; i++ ) {
 	if ( localPacketBuf[i].pkCursor == 2 ) {
 	    dev = QTabletEvent::Eraser;
@@ -3234,8 +3259,14 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	} else {
 	    dev = QTabletEvent::NoDevice;
 	}
-
+	btnOld = btnNew;
 	btnNew = localPacketBuf[i].pkButtons;
+	btnChange = btnOld ^ btnNew;
+	
+	if (btnNew & btnChange) {
+	    button_pressed = TRUE;
+	    t = QEvent::TabletPress;
+	}
 	ptNew.x = (UINT)localPacketBuf[i].pkX;
 	ptNew.y = (UINT)localPacketBuf[i].pkY;
 	prsNew = 0;
@@ -3669,6 +3700,8 @@ static void initWinTabFunctions()
     ptrWTEnable = (PtrWTEnable)library.resolve( "WTEnable" );
     ptrWTOverlap = (PtrWTEnable)library.resolve( "WTOverlap" );
     ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve( "WTPacketsGet" );
+    ptrWTQueueSizeGet = (PtrWTQueueSizeGet)library.resolve( "WTQueueSizeGet" );
+    ptrWTQueueSizeSet = (PtrWTQueueSizeSet)library.resolve( "WTQueueSizeSet" );
 }
 #endif
 /*!
