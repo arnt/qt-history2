@@ -15,6 +15,7 @@
 #define QFILEINFO_H
 
 #include "qfile.h"
+#include "qlist.h"
 
 class QDir;
 class QDateTime;
