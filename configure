@@ -295,7 +295,7 @@ CFG_FRAMEWORK=no
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
-R_FLAGS=
+RPATH_FLAGS=
 l_FLAGS=
 QCONFIG_FLAGS=
 XPLATFORM=
@@ -1038,7 +1038,7 @@ while [ "$#" -gt 0 ]; do
 	L_FLAGS="$L_FLAGS -L${VAL}"
 	;;
     rpath)
-	R_FLAGS="$R_FLAGS \$\${QMAKE_RPATH}${VAL}"
+	RPATH_FLAGS="$RPATH_FLAGS ${VAL}"
 	;;
     link)
 	l_FLAGS="$l_FLAGS -l${VAL}"
@@ -3122,8 +3122,8 @@ fi
 [ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
 [ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
 
-if [ '!' -z "$R_FLAGS" ]; then
-    if grep QMAKE_RPATH $XQMAKESPEC/qmake.conf >/dev/null; then
+if [ '!' -z "$RPATH_FLAGS" ]; then
+    if [ '!' -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
 	echo # Using -R/-rpath, so no need to warn
     else
 	echo
@@ -3132,7 +3132,7 @@ if [ '!' -z "$R_FLAGS" ]; then
 	echo
 	exit 1
     fi
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
 fi
 
 if [ '!' -z "$I_FLAGS" ]; then

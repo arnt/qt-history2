@@ -1011,20 +1011,6 @@ void UnixMakefileGenerator::init2()
             if(!project->isActiveConfig("compile_libtool"))
                 project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_SONAME"];
         }
-        QString destdir = project->first("DESTDIR");
-        if (!destdir.isEmpty() && !project->variables()["QMAKE_LFLAGS_RPATH"].isEmpty()) {
-            QString rpath_destdir = destdir;
-            if(QDir::isRelativePath(rpath_destdir)) {
-                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(rpath_destdir)));
-                if(!fi.makeAbsolute())  //strange, shouldn't really happen
-                    rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
-                else
-                    rpath_destdir = fi.filePath();
-            } else {
-                rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
-            }
-            project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_LFLAGS_RPATH") + rpath_destdir;
-        }
     }
 
     if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {

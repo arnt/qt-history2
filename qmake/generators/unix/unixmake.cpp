@@ -113,9 +113,16 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_LIBDIR")) {
         const QStringList &libdirs = project->values("QMAKE_LIBDIR");
         for(QStringList::ConstIterator it = libdirs.begin(); it != libdirs.end(); ++it) {
-            if(!project->isEmpty("QMAKE_LFLAGS_RPATH"))
+            if(!project->isEmpty("QMAKE_LFLAGS_RPATH") && project->isActiveConfig("rpath_libdirs"))
                 project->variables()["QMAKE_LFLAGS"] += var("QMAKE_LFLAGS_RPATH") + (*it);
             project->variables()["QMAKE_LIBDIR_FLAGS"] += "-L" + (*it);
+        }
+    }
+    if(!project->isEmpty("QMAKE_RPATHDIR")) {
+        const QStringList &rpathdirs = project->values("QMAKE_RPATHDIR");
+        for(QStringList::ConstIterator it = rpathdirs.begin(); it != rpathdirs.end(); ++it) {
+            if(!project->isEmpty("QMAKE_LFLAGS_RPATH"))
+                project->variables()["QMAKE_LFLAGS"] += var("QMAKE_LFLAGS_RPATH") + QFileInfo((*it)).absoluteFilePath();
         }
     }
     QString compile_flag = var("QMAKE_COMPILE_FLAG");
