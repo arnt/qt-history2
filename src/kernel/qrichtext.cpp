@@ -668,10 +668,13 @@ void QTextCursor::gotoPreviousLetter()
     if ( idx > 0 ) {
 	idx--;
     } else if ( string->prev() ) {
-	string = string->prev();
-	while ( !string->isVisible() )
-	    string = string->prev();
-	idx = string->length() - 1;
+	QTextParag *s = string->prev();
+	while ( s && !s->isVisible() )
+	    s = s->prev();
+        if ( s ) {
+	    string = s;
+	    idx = string->length() - 1;
+        }
     } else {
 	if ( nested ) {
 	    pop();
@@ -873,10 +876,13 @@ void QTextCursor::gotoNextLetter()
     if ( idx < string->length() - 1 ) {
 	idx++;
     } else if ( string->next() ) {
-	string = string->next();
-	while ( !string->isVisible() )
-	    string = string->next();
-	idx = 0;
+	QTextParag *s = string->next();
+	while ( s && !s->isVisible() )
+	    s = s->next();
+        if ( s ) {
+	    string = s;
+	    idx = 0;
+        }
     } else {
 	if ( nested ) {
 	    pop();
@@ -919,9 +925,11 @@ void QTextCursor::gotoUp()
 		return;
 	    }
 	}
-	string = string->prev();
-	while ( !string->isVisible() )
-	    string = string->prev();
+	QTextParag *s = string->prev();
+	while ( s && !s->isVisible() )
+	    s = s->prev();
+        if ( s )
+	    string = s;
 	int lastLine = string->lines() - 1;
 	if ( !string->lineStartOfLine( lastLine, &indexOfLineStart ) )
 	    return;
@@ -966,9 +974,11 @@ void QTextCursor::gotoDown()
 		return;
 	    }
 	}
-	string = string->next();
-	while ( !string->isVisible() )
-	    string = string->next();
+	QTextParag *s = string->next();
+	while ( s && !s->isVisible() )
+	    s = s->next();
+	if ( s )
+	    string = s;
 	if ( !string->lineStartOfLine( 0, &indexOfLineStart ) )
 	    return;
 	int end;
@@ -1146,10 +1156,13 @@ void QTextCursor::gotoNextWord()
     }
 
     if ( string->next() ) {
-	string = string->next();
-	while ( !string->isVisible() )
-	    string = string->next();
-	idx = 0;
+	QTextParag *s = string->next();
+	while ( s  && !s->isVisible() )
+	    s = s->next();
+	if ( s ) {
+	    string = s;
+	    idx = 0;
+	}
     } else {
 	gotoLineEnd();
     }
@@ -2345,7 +2358,7 @@ bool QTextDocument::removeSelection( int id )
 	    if ( p == end.parag() )
 		break;
 	}
-	
+
 	selections.remove( id );
 	return TRUE;
     }
