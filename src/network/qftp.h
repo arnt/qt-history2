@@ -57,16 +57,16 @@ class Q_EXPORT QFtp : public QNetworkProtocol
 public:
     QFtp();
     virtual ~QFtp();
-    virtual int supportedOperations() const;
+    int supportedOperations() const;
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info );
-    virtual void operationListChildren( QNetworkOperation *op );
-    virtual void operationMkDir( QNetworkOperation *op );
-    virtual void operationRemove( QNetworkOperation *op );
-    virtual void operationRename( QNetworkOperation *op );
-    virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPut( QNetworkOperation *op );
+    void operationListChildren( QNetworkOperation *op );
+    void operationMkDir( QNetworkOperation *op );
+    void operationRemove( QNetworkOperation *op );
+    void operationRename( QNetworkOperation *op );
+    void operationGet( QNetworkOperation *op );
+    void operationPut( QNetworkOperation *op );
 
     QSocket *commandSocket, *dataSocket;
     bool connectionReady, passiveMode;
