@@ -1,34 +1,32 @@
 #!/usr/bin/perl
 
-$version="1.3beta4";                      # May include "beta", etc.
-$file="qtwin13beta4.zip";                 # Name as presented to customer
-$source="~/qtwin13beta4.zip";             # File on zen.linpro.no
+$version="1.30";                      # May include "beta", etc.
+$winfile="qtwin130.zip";                 # Name as presented to customer
+$winsource="~/qtwin130.zip";             # File on zen.linpro.no
+$xfile="qt-1.30-commercial.tar.gz";      # Name as presented to customer
+$xsource="~/qt-1.30-commercial.tar.gz";  # File on zen.linpro.no
 $custfile = $ENV{"HOME"}."/troll/kunder.txt";
-$dryrun=0;
-#"warwick\@troll.no";          # 0 for real, or email address of tester
+$dryrun=0; #"testrun";          # 0 for real, or file for test result
 
 
 $message=			     # Footer of message
-"As always, feel free to send any questions to support\@troll.no.\n\n- Paul\n";
+"Please send me mail when I can delete the files, and feel free to send
+any questions to support\@troll.no.
 
-#
-#"Please send me mail when I can delete the files, and feel free to send
-#any questions to support\@troll.no.
-#
-#--".$ENV{"USER"};
-#
+- Paul";
+
+
+
 
 open( CUSTOMERS, "<".$custfile ) || die "1";
 open( SSH, "| ssh zen.linpro.no" ) || die "2";
-print SSH "cd www/ftp/.beta\n";
+print SSH "cd www/ftp/.private\n";
 
 foreach $line ( <CUSTOMERS> ) {
     $exp = "";
     chomp $line;
     ($name, $addr, $platform, $exp, $org) = split( / *\t+ */, $line );
     die "$line\ninvalid line, stopped" unless ( $exp =~ m-^\d+/\d+/\d+$- );
-
-    next unless ( $platform =~ /w/ );
 
     $key = lc $org;
     $key =~ s/[^a-z0-9].*//;
@@ -37,12 +35,15 @@ foreach $line ( <CUSTOMERS> ) {
     $key = "$key-$_";
 
 
-   $to = $dryrun ? $dryrun : $addr;
-   #$to = "warwick\@troll.no";
-    open( MAIL, "| /usr/sbin/sendmail -t" );
+    $to = $addr;
+    if ($dryrun) {
+        open( MAIL, ">> $dryrun" );
+    } else {
+        open( MAIL, "| /usr/sbin/sendmail -t" );
+    }
+
     print MAIL  "To: ",$to,"\n",
-                "Subject: Qt 1.3 beta for Windows\n",
-#		"Subject: Qt ",$version," released\n",
+		"Subject: Qt ",$version," released\n",
 		"Organization: Troll Tech AS; fax +47 22646949; http://www.troll.no\n",
 		"Cc: support\@troll.no\n",
 		"Reply-To: support\@troll.no\n",
@@ -52,35 +53,32 @@ foreach $line ( <CUSTOMERS> ) {
     print MAIL
 "Dear Qt customer, 
 
-A new beta version of Qt 1.3 is now ready, and we are inviting you to
-take part in beta-testing it. This will be the final beta, unless
-major bugs are found.
-
-Of course, we cannot guarantee that this beta version is suitable for
-production work.
-
+Qt version 1.30 is now released, it is the next major release
+after 1.2. 
 ";
 
-    print MAIL "
-Qt ",$version," for Windows 95/NT is now ready to be downloaded
-from the Troll Tech FTP site:
-
-    ftp://ftp.troll.no/.beta/",$key,"/",$file,"
-
-";
-
-	if ( $platform =~ /x/ ) {
-	    print MAIL
-"As announced on the qt-beta mailing list, the current X beta is located at
-
-    ftp://ftp.troll.no/.beta/allthetime/qt-1.3beta4.tar.gz
-
-";
-	}
 
     print SSH "mkdir ", $key, "\n";
 
-    print SSH "ln ",$source," ", $key, "\n";
+
+    if ( $platform =~ /w/ ) {
+	print SSH "ln ",$winsource," ", $key, "\n";
+	print MAIL "
+Here is a URL for the Windows version:
+
+   ftp://ftp.troll.no/.private/", $key, "/", $winfile, "
+";
+    }
+
+    if ( $platform =~ /x/ ) {
+	print SSH "ln ",$xsource," ", $key, "\n";
+	print MAIL "
+Here is a URL for the X11 version:
+
+   ftp://ftp.troll.no/.private/", $key, "/", $xfile, "
+";
+    }
+
 
     print MAIL "
 ",$message,"
@@ -89,3 +87,7 @@ from the Troll Tech FTP site:
 }
 
 close SSH;
+
+
+
+
