@@ -4,9 +4,6 @@ Fram til 0.98:
 1. EE - 1 d			14/6
 connect protected/public
 
-2. HN - 1d			foer 21/6
-toppnivaa autodelete
-
 3. POT - 1d			21/6
 assign operator og copy constructor i alle klasser
 
@@ -37,6 +34,9 @@ pakking, testing, sende ut
 
 Gjort:
 ------
+
+2. HN - 1d			foer 21/6
+toppnivaa autodelete
 
 4. HN - 1d			foer 21/6
 size increment (max/min size force)
