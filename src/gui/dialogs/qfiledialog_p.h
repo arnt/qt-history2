@@ -37,6 +37,7 @@ class QAction;
 class QPushButton;
 class QToolButton;
 class QFileDialogLineEdit;
+class QGridLayout;
 
 class QFileDialogPrivate : public QDialogPrivate
 {
