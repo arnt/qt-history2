@@ -287,10 +287,10 @@ inline void QRect::translate(const QPoint &p)
 }
 
 inline QRect QRect::translated(int dx, int dy) const
-{ return QRect(x1 + dx, y1 + dy, x2 + dx, y2 + dy); }
+{ return QRect(QPoint(x1 + dx, y1 + dy), QPoint(x2 + dx, y2 + dy)); }
 
 inline QRect QRect::translated(const QPoint &p) const
-{ return QRect(x1 + p.x(), y1 + p.y(), x2 + p.x(), y2 + p.y()); }
+{ return QRect(QPoint(x1 + p.x(), y1 + p.y()), QPoint(x2 + p.x(), y2 + p.y())); }
 
 inline void QRect::moveTo(int x, int y)
 {
