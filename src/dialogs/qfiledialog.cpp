@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#300 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#301 $
 **
 ** Implementation of QFileDialog class
 **
@@ -55,6 +55,7 @@
 
 #include <time.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #if defined(UNIX)
 // getlogin()
@@ -244,6 +245,7 @@ static QPixmap * fifteenTransparentPixels = 0;
 static QString * workingDirectory = 0;
 static bool bShowHiddenFiles = FALSE;
 static int sortFilesBy = (int)QDir::Name;
+static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
 static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
@@ -850,8 +852,47 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
 	     this, SLOT( changeDirDuringDrag() ) );
     connect( dragScrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doDragScroll() ) );
-
+    disconnect( header(), SIGNAL( sectionClicked( int ) ),
+		this, SLOT( changeSortColumn( int ) ) );
+    connect( header(), SIGNAL( sectionClicked( int ) ),
+	     this, SLOT( changeSortColumn2( int ) ) );
+    
     viewport()->setAcceptDrops( TRUE );
+    sortcolumn = 0;
+    ascending = TRUE;
+}
+
+void QFileListView::setSorting( int column, bool increasing )
+{
+    if ( column == -1 ) {
+	QListView::setSorting( column, increasing );
+	return;
+    }
+    
+    sortAscending = ascending = increasing;
+    sortcolumn = column;
+    switch ( column ) {
+    case 0:
+	sortFilesBy = QDir::Name;
+	break;
+    case 1:
+	sortFilesBy = QDir::Size;
+	break;
+    case 3:
+	sortFilesBy = QDir::Time;
+	break;
+    default:
+	sortFilesBy = QDir::Name; // #### ???
+	break;
+    }
+
+    filedialog->resortDir();
+}
+
+void QFileListView::changeSortColumn2( int column )
+{
+    int lcol = header()->mapToLogical( column );
+    setSorting( lcol, sortcolumn == lcol ? !ascending : TRUE );
 }
 
 void QFileListView::keyPressEvent( QKeyEvent *e )
@@ -1826,14 +1867,14 @@ QString QFileDialog::selectedFile() const
   the list will only contain one entry, which is the
   the selecedFile. If no files were selected, this list
   is empty.
-  
+
   \sa QFileDialog::selecedFile(), QStringList::isEmpty()
 */
 
 QStringList QFileDialog::selectedFiles() const
 {
     QStringList lst;
-        
+
     if ( mode() == ExistingFiles ) {
 	QListViewItem * i = files->firstChild();
 	while( i ) {
@@ -1845,7 +1886,7 @@ QStringList QFileDialog::selectedFiles() const
 	}
     } else
 	lst << selectedFile();
-    
+
     return lst;
 }
 
@@ -2635,19 +2676,24 @@ void QFileDialog::popupContextMenu( QListViewItem *item, const QPoint &p,
 	rereadDir();
     } else if ( action == PA_SortName ) {
 	sortFilesBy = (int)QDir::Name;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortSize ) {
 	sortFilesBy = (int)QDir::Size;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortDate ) {
 	sortFilesBy = (int)QDir::Time;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortType ) {
 	sortFilesBy = 0x16;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     }
 
 }
@@ -2673,19 +2719,24 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 	rereadDir();
     } else if ( action == PA_SortName ) {
 	sortFilesBy = (int)QDir::Name;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortSize ) {
 	sortFilesBy = (int)QDir::Size;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortDate ) {
 	sortFilesBy = (int)QDir::Time;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortType ) {
 	sortFilesBy = 0x16;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     } else if ( action == PA_SortUnsorted ) {
 	sortFilesBy = (int)QDir::Unsorted;
-	rereadDir();
+	sortAscending = TRUE;
+	resortDir();
     }
 }
 
@@ -3554,8 +3605,13 @@ void QFileDialog::urlFinished( int action )
 	    QUrlInfo ui( d->url, ".." );
 	    ui.setName( ".." );
 	    ui.setDir( TRUE );
+	    ui.setFile( FALSE );
+	    ui.setSymLink( FALSE );
+	    ui.setSize( 0 );
 	    insertEntry( ui );
 	}
+	// ### hack
+	resortDir();
     } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) &&
 		d->progressDia ) {
 	delete d->progressDia;
@@ -3771,3 +3827,82 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
+static int cmpInfo( const void *n1, const void *n2 )
+{
+    if ( !n1 || !n2 )
+	return 0;
+
+    QUrlInfo *i1 = ( QUrlInfo *)n1;
+    QUrlInfo *i2 = ( QUrlInfo *)n2;
+    
+    if ( QUrlInfo::equal( *i1, *i2, sortFilesBy ) )
+	return 0;
+    else if ( QUrlInfo::greaterThan( *i1, *i2, sortFilesBy ) )
+	return 1;
+    else if ( QUrlInfo::lessThan( *i1, *i2, sortFilesBy ) )
+	return -1;
+    
+    // can't happen...
+    return 0;
+}
+
+/*!
+  Resorts the displayed directory
+*/
+
+void QFileDialog::resortDir()
+{
+    files->viewport()->setUpdatesEnabled( FALSE );
+    
+    int numFiles = 0, numDirs = 0;
+    int i = 0, j = 0;
+    
+    QListViewItemIterator it( files );
+    for ( i = 0; it.current(); ++it, ++i ) {
+	if ( ( ( QFileDialogPrivate::File *)it.current() )->info.isDir() )
+	    ++numDirs;
+	else
+	    ++numFiles;
+    }
+    
+    QUrlInfo *filelist = new QUrlInfo[ numFiles ];
+    QUrlInfo *dirlist = new QUrlInfo[ numDirs ];
+    QFileDialogPrivate::File *item = 0;
+    
+    it = QListViewItemIterator( files );
+    for ( i = 0, j = 0; it.current(); ++it ) {
+	if ( ( ( QFileDialogPrivate::File *)it.current() )->info.isDir() )
+	    dirlist[ i++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
+        else
+	    filelist[ j++ ] = ( ( QFileDialogPrivate::File *)it.current() )->info;
+    }
+
+    qsort( filelist, numFiles, sizeof( QUrlInfo ), cmpInfo );
+    qsort( dirlist, numDirs, sizeof( QUrlInfo ), cmpInfo );
+    
+    files->clear();
+    d->moreFiles->clear();
+    files->setSorting( -1 );
+    
+    if ( !sortAscending ) {
+	for ( i = numFiles - 1; i >= 0; --i ) {
+	    item = new QFileDialogPrivate::File( d, &filelist[ i ], files );
+	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	}
+	for ( i = numDirs - 1; i >= 0; --i ) {
+	    item = new QFileDialogPrivate::File( d, &dirlist[ i ], files );
+	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	}
+    } else {
+	for ( i = 0; i < numDirs; ++i ) {
+	    item = new QFileDialogPrivate::File( d, &dirlist[ i ], files );
+	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	}
+	for ( i = 0; i < numFiles; ++i ) {
+	    item = new QFileDialogPrivate::File( d, &filelist[ i ], files );
+	    ( void )new QFileDialogPrivate::MCItem( d->moreFiles, item );
+	}
+    }
+
+    files->viewport()->setUpdatesEnabled( TRUE );
+}

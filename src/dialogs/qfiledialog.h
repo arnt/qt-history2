@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#75 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#76 $
 **
 ** Definition of QFileDialog class
 **
@@ -123,6 +123,7 @@ private:
     QTimer *changeDirTimer;
     QTimer *dragScrollTimer;
     bool firstMousePressEvent;
+
 };
 
 
@@ -137,6 +138,7 @@ private:
 
     void clear();
     void startRename( bool check = TRUE );
+    void setSorting( int column, bool increasing = TRUE );
 
 private:
     void viewportMousePressEvent( QMouseEvent *e );
@@ -154,6 +156,7 @@ private:
 private slots:
     void rename();
     void cancelRename();
+    void changeSortColumn2( int column );
 
 private slots:
     void doubleClickTimeout();
@@ -175,6 +178,9 @@ private:
     QTimer *changeDirTimer;
     QTimer *dragScrollTimer;
     bool firstMousePressEvent;
+    bool ascending;
+    int sortcolumn;
+
 };
 
 class Q_EXPORT QFileDialog : public QDialog
@@ -217,7 +223,7 @@ public:
     void setSelection( const QString &);
 
     QStringList selectedFiles() const;
-    
+
     QString dirPath() const;
 
     void setDir( const QDir & );
@@ -227,7 +233,8 @@ public:
     bool showHiddenFiles() const;
 
     void rereadDir();
-
+    void resortDir();
+    
     enum Mode { AnyFile, ExistingFile, Directory, ExistingFiles };
     void setMode( Mode );
     Mode mode() const;
