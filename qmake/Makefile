@@ -9,7 +9,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/I..\include /I..\src\tools /I..\include\QtCore \
 		/I..\mkspecs\win32-msvc \
 		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
-		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_NO_THREAD /DQT_NO_QFILE_QOBJECT
+		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_NO_THREAD /DQT_NO_QOBJECT
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =
 LIBS	    =	ole32.lib advapi32.lib
@@ -27,8 +27,8 @@ CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -w-use -O1 \
 		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\src\core\arch\generic -I..\include -I..\src\tools \
 		-I..\mkspecs\win32-borland \
-		-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL -DQT_NO_COMPRESS -DUNICODE \
-		-DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE
+		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
+		-DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD -D-DQT_NO_QOBJECT
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
 LIBS	    =	import32.lib cw32i.lib
