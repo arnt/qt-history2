@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#44 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#45 $
 **
 ** Definition of QFileDialog class
 **
@@ -163,6 +163,23 @@ private:
     QPushButton *okB;
     QPushButton *cancelB;
 
+#if defined(_WS_WIN_)
+    static QString winGetOpenFileName( const QString &initialSelection,
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0 );
+    static QString winGetSaveFileName( const QString &initialSelection,
+				       const QString &filter,
+				       QString* workingDirectory,
+				       QWidget *parent = 0,
+				       const char* name = 0 );
+    static QStringList winGetOpenFileNames( const QString &filter,
+					    QString* workingDirectory,
+					    QWidget *parent = 0,
+					    const char* name = 0 );
+#endif
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QFileDialog( const QFileDialog & );

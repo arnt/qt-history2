@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#177 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#178 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1034,6 +1034,9 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 {
     makeVariables();
     QString initialSelection;
+    //### Problem with the logic here: If a startWith is given, and a file
+    // with that name exists in CWD, the box will be opened at CWD instead of
+    // the last directory used ('workingDirectory').
     if ( !startWith.isEmpty() ) {
 	QFileInfo fi( startWith );
 	if ( fi.exists() && fi.isDir() ) {
@@ -1046,6 +1049,12 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
+
+#if defined(_WS_WIN_)
+    if ( qApp->style() == WindowsStyle )
+	return winGetOpenFileName( initialSelection, filter, workingDirectory,
+				   parent, name );
+#endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
@@ -1122,6 +1131,12 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
+
+#if defined(_WS_WIN_)
+    if ( qApp->style() == WindowsStyle )
+	return winGetSaveFileName( initialSelection, filter, workingDirectory,
+				   parent, name );
+#endif
 
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
@@ -1943,6 +1958,10 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 {
     makeVariables();
 
+    // ### Problem with the logic here: If dir is unset, will get root 
+    // (and why not CWD, as doc says?) instead of current value of 
+    // workingDirectory
+
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
@@ -1954,6 +1973,12 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     }
 
     *workingDirectory = tmp.absFilePath();
+
+#if defined(_WS_WIN_)
+    if ( qApp->style() == WindowsStyle )
+	return winGetOpenFileNames( filter, workingDirectory, parent, name );
+#endif
+    
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
