@@ -135,6 +135,7 @@ const char *qws_display_spec = ":0";
 int qws_display_id = 0;
 int qt_last_x;
 int qt_last_y;
+bool qws_overrideCursor = FALSE;
 static bool qws_regionRequest = FALSE;
 #ifndef QT_NO_QWS_MANAGER
 static QWSDecoration *qws_decoration = 0;
@@ -1795,6 +1796,7 @@ static QCursorList *cursorStack = 0;
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
     if ( !cursorStack ) {
+	qws_overrideCursor = TRUE;
 	cursorStack = new QCursorList;
 	Q_CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
@@ -1819,20 +1821,19 @@ void QApplication::restoreOverrideCursor()
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
     QWidget *w = QWidget::mouseGrabber();
+    if ( !w )
+	w = widgetAt(qt_last_x, qt_last_y, FALSE);
+    if ( !w )
+	w = desktop();
     if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
-	if ( !w )
-	    w = widgetAt(qt_last_x, qt_last_y, FALSE);
-	if ( !w )
-	    w = desktop();
+	qws_overrideCursor = FALSE;
 	if ( w->testWState(WState_OwnCursor) )
 	    QPaintDevice::qwsDisplay()->selectCursor(w, (int)w->cursor().handle());
 	else
 	    QPaintDevice::qwsDisplay()->selectCursor(w, ArrowCursor);
     } else {
-	if ( !w )
-	    w = desktop();
 	QPaintDevice::qwsDisplay()->selectCursor(w, (int)app_cursor->handle());
     }
 }
@@ -2050,11 +2051,11 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    if (pw->extraData())
 			curs = pw->extraData()->curs;
 		}
-		if (curs) {
-		    QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
-		}
-		else {
-		    QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
+		if ( !qws_overrideCursor ) {	// is override cursor active?
+		    if (curs)
+			QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
+		    else
+			QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
 		}
 	    }
 #endif

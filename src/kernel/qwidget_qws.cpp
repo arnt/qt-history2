@@ -70,6 +70,7 @@ extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.cons
 extern int qt_last_x;
 extern int qt_last_y;
 extern WId qt_last_cursor;
+extern bool qws_overrideCursor;
 
 extern QRect qt_maxWindowRect;
 
@@ -1795,7 +1796,7 @@ void QWidget::updateFrameStrut() const
 void QWidget::updateCursor( const QRegion &r ) const
 {
     if ( (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == this) &&
-	    qt_last_cursor != (WId)cursor().handle() ) {
+	    qt_last_cursor != (WId)cursor().handle() && !qws_overrideCursor ) {
 	QSize s( qt_screen->width(), qt_screen->height() );
 	QPoint pos = qt_screen->mapToDevice(QPoint(qt_last_x, qt_last_y), s);
 	if ( r.contains(pos) )
