@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#165 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#164 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#165 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -129,7 +129,7 @@ void QWidget::create( WId window )
 	    setWinId( id );
 	}
     } else {
-	if ( x11DefaultVisual() ) {
+	if ( x11DefaultVisual() && x11DefaultColormap() ) {
 	    id = XCreateSimpleWindow( dpy, parentw,
 				      frect.left(), frect.top(),
 				      frect.width(), frect.height(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#52 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#52 $");
 
 
 /*****************************************************************************
@@ -71,8 +71,8 @@ void qt_reset_color_avail()
 /*
   Returns a truecolor visual (if there is one). The SGI X server usually
   has an 8 bit default visual, but the application can also ask for a
-  truecolor visual. This is what we do if QApplication::colorMode() is
-  TrueColor.
+  truecolor visual. This is what we do if QApplication::colorSpec() includes
+  QApplication::TrueColor.
 */
 
 static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
@@ -159,32 +159,41 @@ void QColor::initialize()
 	return;
     color_init = TRUE;
 
-    Display *dpy = qt_xdisplay();
-    int      scr = DefaultScreen(dpy);
+    Display *dpy  = qt_xdisplay();
+    int      scr  = DefaultScreen(dpy);
+    int	     spec = QApplication::colorSpec();
     int	     depth, ncols;
-    Colormap cmap;
+    Colormap cmap;    
+    const int tc = TrueColor;
+#undef  TrueColor				// defined in X.h
 
-    if ( QApplication::colorMode() == QApplication::ManyColors ) {
+    if ( spec & (int)QApplication::TrueColor ) {
 	g_vis = find_truecolor_visual( dpy, &depth, &ncols );
     } else {
 	g_vis = DefaultVisual(dpy,scr);
 	depth = DefaultDepth(dpy,scr);
 	ncols = DisplayCells(dpy,scr);
     }
+    g_truecolor = g_vis->c_class == tc;
     bool defVis = g_vis == DefaultVisual(dpy,scr);
+    bool defCmap;
 
-    if ( defVis )
+    if ( g_truecolor )
+	defCmap = !defVis;
+    else
+	defCmap = (spec & QApplication::PrivateColor) == 0;
+
+    if ( defCmap )
 	cmap = DefaultColormap(dpy,scr);
     else
 	cmap = XCreateColormap(dpy, RootWindow(dpy,scr), g_vis, AllocNone );
-
-    g_truecolor = g_vis->c_class == TrueColor;
 
     QPaintDevice::x_display   = dpy;
     QPaintDevice::x_screen    = scr;
     QPaintDevice::x_depth     = depth;
     QPaintDevice::x_cells     = ncols;
     QPaintDevice::x_colormap  = cmap;
+    QPaintDevice::x_defcmap   = defCmap;
     QPaintDevice::x_visual    = g_vis;
     QPaintDevice::x_defvisual = defVis;
 
@@ -495,8 +504,12 @@ static void init_context_stack()
       // Now, free all colors that were allocated in context c2
     QColor::destroyAllocContext( c2 );
   \endcode
-  
-  \sa leaveAllocContext(), currentAllocContext(), destroyAllocContext()
+
+  You may also want to set the application's color specification.
+  See QApplication::setColorSpec() for more information.
+
+  \sa leaveAllocContext(), currentAllocContext(), destroyAllocContext(),
+  QApplication::setColorSpec()
 */
 
 int QColor::enterAllocContext()
