@@ -1437,7 +1437,7 @@ void Configure::findProjects( const QString& dirName )
 		if(fi.isDir()) {
 		    if (fi.absFilePath() != qtSourceDir) {
 			findProjects( entryName );
-                    }
+		    }
 		} else {
 		    if( fi.fileName().right( 4 ) == ".pro" ) {
 			qmakeTemplate = projectType( fi.absFilePath() );
@@ -1505,7 +1505,7 @@ void Configure::generateMakefiles()
 #if !defined(EVAL)
 	QStringList qtProjects;
 	qtProjects << "winmain" << "moc" << "core" << "gui" << "network"
-		   << "opengl" << "sql" << "xml" << "compat" << "src";
+	    << "opengl" << "sql" << "xml" << "compat" << "src";
 	for (i=0;i<qtProjects.size();++i) {
 	    QString qtProject = qtProjects.at(i);
 	    QString dir;
@@ -1526,9 +1526,12 @@ void Configure::generateMakefiles()
 		    qtProject + ".pro", qtProject + ".vcproj", Lib ) );
 	    }
 	}
+	// Ensure the plugins and tools are done after the main libraries
+	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/plugins");
+	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/tools");
 #endif
-	if( dictionary[ "LEAN" ] == "no" )
-	    findProjects( dictionary[ "QT_SOURCE_TREE" ] );
+	if (dictionary["LEAN"] == "no")
+	    findProjects(dictionary["QT_SOURCE_TREE"]);
 
 	QString pwd = QDir::currentDirPath();
 	for ( i=0; i<3; i++ ) {
