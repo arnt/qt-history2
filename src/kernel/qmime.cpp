@@ -177,11 +177,8 @@ QMimeSourceFactory::QMimeSourceFactory() :
     setExtensionType("htm", "text/html;charset=iso8859-1");
     setExtensionType("html", "text/html;charset=iso8859-1");
     setExtensionType("txt", "text/plain");
-    setExtensionType("xpm", "image/xpm");
-    setExtensionType("jpg", "image/jpeg");
-    setExtensionType("jpeg", "image/jpeg");
-    setExtensionType("png", "image/png");
     setExtensionType("xml", "text/xml;charset=utf8");
+    setExtensionType("jpg", "image/jpeg"); // support missspelled jpeg files
 }
 
 /*!
