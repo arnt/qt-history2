@@ -56,7 +56,6 @@ double fBm( Vector point, double H, double lacunarity, double octaves,
 
     double            value, frequency, remainder;
     int               i;
-    static int        first = TRUE;
     static double     exponent_array[10];
     float             vec[3];
 
@@ -71,7 +70,6 @@ double fBm( Vector point, double H, double lacunarity, double octaves,
 	    exponent_array[i] = pow( frequency, -H );
 	    frequency *= lacunarity;
 	}
-	first = FALSE;
     }
 
     value = 0.0;            /* initialize vars to proper values */
