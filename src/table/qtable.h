@@ -365,8 +365,8 @@ protected:
 protected slots:
     virtual void columnWidthChanged( int col );
     virtual void rowHeightChanged( int row );
-    virtual void columnIndexChanged( int s, int oi, int ni );
-    virtual void rowIndexChanged( int s, int oi, int ni );
+    virtual void columnIndexChanged( int section, int fromIndex, int toIndex );
+    virtual void rowIndexChanged( int section, int fromIndex, int toIndex );
     virtual void columnClicked( int col );
 
 signals:
