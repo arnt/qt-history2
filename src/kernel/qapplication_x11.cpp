@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#423 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#424 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2069,6 +2069,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	
 	QWidget *w = widget->focusWidget();
+	while ( w->focusProxy() )
+	    w = w->focusProxy();
 	if (w && (w->isFocusEnabled() || w->isTopLevel() ) )
 	    w->setFocus();
 	else {

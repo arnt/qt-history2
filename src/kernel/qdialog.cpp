@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#69 $
 **
 ** Implementation of QDialog class
 **
@@ -30,7 +30,6 @@
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
-
 
 /*!
   \class QDialog qdialog.h
@@ -107,7 +106,7 @@
   that both the dialog and the parent belong together. This works for
   Windows and also some X11 window managers, that will for instance
   provide a common taskbar entry in that case.
-  
+
   It is reommended to pass a parent.
 */
 
@@ -266,10 +265,11 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    QObjectListIt it( *list );
 	    QPushButton *pb;
 	    while ( (pb = (QPushButton*)it.current()) ) {
-		if ( pb->isDefault() ) {
+		if ( pb->isVisible() && pb->isDefault() ) {
 		    delete list;
-		    if ( pb->isEnabled() )
+		    if ( pb->isEnabled() ) {
 			emit pb->clicked();
+		    }
 		    return;
 		}
 		++it;
