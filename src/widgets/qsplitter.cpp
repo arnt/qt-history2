@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#39 $
 **
 **  Splitter widget
 **
@@ -145,8 +145,9 @@ void QSplitterHandle::paintEvent( QPaintEvent * )
 }
 
 
-struct QSplitterLayoutStruct
+class QSplitterLayoutStruct
 {
+public:
     QSplitter::ResizeMode mode;
     QCOORD sizer;
     bool isSplitter;
@@ -566,9 +567,10 @@ int QSplitter::adjustPos( int p, int id )
 void QSplitter::doResize()
 {
     QRect r = contentsRect();
+    int i;
     int n = data->list.count();
     QArray<QLayoutStruct> a( n );
-    for ( int i = 0; i< n; i++ ) {
+    for ( i = 0; i< n; i++ ) {
 	a[i].init();
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( s->isSplitter || s->mode == KeepSize ) {
@@ -582,7 +584,7 @@ void QSplitter::doResize()
     }
 
     qGeomCalc( a, n, pick( r.topLeft() ), pick( r.size() ), 0 );
-    for ( int i = 0; i< n; i++ ) {
+    for ( i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( orient == Horizontal )
 	    s->wid->setGeometry( a[i].pos, r.top(), a[i].size, r.height() );
