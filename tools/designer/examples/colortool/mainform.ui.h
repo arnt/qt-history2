@@ -489,6 +489,8 @@ void MainForm::editAdd()
 	    QPixmap pixmap( 22, 22 );
 	    pixmap.fill( color );
 	    int row = colorTable->currentRow();
+	    if ( row < 0 )
+		row = 0;
 	    colorTable->insertRows( row, 1 );
 	    colorTable->setText( row, COL_NAME, name );
 	    colorTable->setPixmap( row, COL_NAME, pixmap );
@@ -498,7 +500,7 @@ void MainForm::editAdd()
 		item->setChecked( isWebColor( color ) );
 		colorTable->setItem( row, COL_WEB, item );
 	    }
-	    colorTable->setCurrentCell( row, colorTable->currentColumn() );
+	    colorTable->setCurrentCell( row, 0 );
 
 	    (void) new QIconViewItem( colorIconView, name,
 				      colorSwatch( color ) );
