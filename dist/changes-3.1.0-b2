@@ -1,4 +1,4 @@
-continue with #73529
+#75271
 
 Qt 3.1 introduces many significant new features and many improvements
 over the 3.0.x series. For an overview of the main changes between
@@ -17,6 +17,9 @@ beta1 have been fixed.
 *			   Library					   *
 ****************************************************************************
 
+- QAction:
+	Don't update when nothing has changed.
+
 - QActionGroup
 	Syncronize comboboxes correctly for groups with
 	seperators. Set the initial currentItem of comboboxes to the
@@ -25,6 +28,9 @@ beta1 have been fixed.
 	state of the action group for new widgets.
 
 - QApplication
+	Correctly set the accpet() flag on accel events. Obsoleted
+	processOneEvent(), we have a better way for integrating
+	eventloops now.
 	Windows only: reserve more space for very long application
 	filenames.
 
@@ -39,13 +45,36 @@ beta1 have been fixed.
 - QComboBox
 	Emit activated() signals from the wheel event handler.
 
+- QComboTableItem
+	Make sure stringlist is updated even if setStringList() is
+	called while editor exists.
+
+- QDataTable:
+	Windows only: Fixed that if confirmation was switched on and
+	the user cancelled an update by clicking in a different field,
+	the current row was changed without reason.
+
 - QDateTimeEdit/QTimeEdit
 	Supports now wraparound for time editing.
 	
+- QDesktopWidget:
+	Windows only: Allow explicit creation of QDesktopWidgets.
+
+- QDns
+	Fix a crash when QDns object is deleted in a slot connected to
+	its resultsReady() signal.
+
 - QDockWindow
 	Windows only: Don't pass window activation around
 	unnecessarily when the activation is ignored anyway. Also
-	fixes repaint errors while dragging dock windows.
+	fixes repaint errors while dragging dock windows. Remove
+	floating windows from the mainwindow's internal lists when
+	deleting.
+
+- QEventLoop:
+	Renamed processNextEvent(flags,bool) to processEvents(flags)
+	and introduced new ProcessEvents flag, WaitForMore. Remove
+	processOneEvent as it was unneeded.
 
 - QFileDialog
 	Windows only: Disable NTFS permission lookup during filedialog
@@ -56,18 +85,31 @@ beta1 have been fixed.
 	 Added a workaround to get overlays to work on ATi FireGL
 	 cards.
 
+- QHeader
+	Draw the sort arrow at the right position with multi-line
+	header labels. Scale the correct sections when the header
+	sections are reordered. Respect orientation() in sizeHint().
+
 - qHeapSort()
 	Fixed to only require operator<, instead of a weird mix of
 	operator<, <=, and >.
+
+- QIconView:
+	Optimize updates on focus/window activation changes.
 
 - QLibrary
 	Windows only: only append ".dll" extension if no extension had
 	been provided.
 
+- QListBox:
+	Don't call ensureCurrentVisible() in resizeEvent() unless the
+	current item was visible when you started resizing.
+
 - QListView:
 	Don't draw the cell if the cell wouldn't be visible due to
 	having a width or height of 0. Don't call cancelRename() when
-	the rename was OK'd.
+	the rename was OK'd. When showing a tooltip make sure it's
+	only for that column and not for the whole item.
 
 - QMacStyle
 	Many improvements to follow the native style even closer.
@@ -100,17 +142,35 @@ beta1 have been fixed.
 	Draw submenu items disabled if the submenu is disabled. Fix
 	null-pointer dereferencing for dynamically changing menus.
 
+- QProcess:
+	Windows only: make the tryTerminate() function work for
+	windows applications (it still does not work for
+	consoleapplications, though).
+
 - QSocket
 	Don't crash if the readBlock() returned 0.
 
-- QSplitter:
+- QSplitter
 	addWidget() now reparents the widget if necessary.
+
+- QTable:
+	Set the table of the item to the table in insertItem(), so
+	takeItem()/insertItem() can be used to move items between
+	tables.
 
 - QWidget
 	Clear WDestructiveClose before calling deleteLater() on
 	widgets. Event processing during destruction might otherwise
 	have another close-event come along which would issue another
-	deleteLater() call. Added a new function toggleShowHide( bool show ).
+	deleteLater() call. Added a new function toggleShowHide(bool show).
+	Simplified visible() handling and added a convenience property
+	"shown" and a write function for "hidden". Save wflags in
+	showFullScreen and restore them in so flags are remembered
+	correctly.
+
+
+- QWindowsStyle
+	Make the Windowsstyle obey system width of scrollbars.
 
 - qUncompress()
 	Don't hang forever if the expected size passed in is 0. Return
@@ -137,6 +197,13 @@ uic.
 - Reduced startup time.
 
 - Fixed a crash when loading .ui files using QWidgetFactory
+
+- Cleaned up some old dialogs and removed obsolete settings
+
+- Improved the .dlg import plugin
+
+- Button text properties can be edited in a multiline editor now, as
+all buttons support multi line labels.
 
 ****************************************************************************
 *			   Qt Assistant			   *
