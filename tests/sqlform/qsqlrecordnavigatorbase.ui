@@ -252,7 +252,7 @@
                     </property>
                     <property>
                         <name>toolTip</name>
-                        <string>Insert</string>
+                        <string>Insert record</string>
                     </property>
                 </widget>
                 <widget>
@@ -271,7 +271,7 @@
                     </property>
                     <property>
                         <name>toolTip</name>
-                        <string>Delete</string>
+                        <string>Delete record</string>
                     </property>
                 </widget>
             </hbox>
@@ -297,15 +297,15 @@
     </image>
     <image>
         <name>image4</name>
-        <data format="XPM.GZ" length="530">789c8dd0bd0e823010c0f1bd4fd1f43662f8580c89f111348e26c6a15c29655013c5c118dfdddeb545240e1202fc7f14682932b9df6d645688dba0871e253a7d9599b99f4e8fc371fd14aa5a4ada2b59a98550b944b9bd9c5bba067f0d256f943d653da60d59c7d4296b4e478925c6bb4d4ae43494d6a65775210928316518dca6b4966738d900f2fc0f835fa6f3b941033383306c620018868de60511347c9e65314027affc27598c69b5318816d83a87a4bd3f5817cd75acce7971c0e65fc71a64fc2e6994c9fcbc06f95a07a4f5a8d74abc0191eb7284</data>
+        <data format="XPM.GZ" length="369">789c554f410a02310cbcf715a1b915712d8a1ec427ac7814c443a88a1e5641770f22fedd4d48d6ecf4d0c974264daa04fb5d0da90aaf96da5b8172a527a453d734efc371f309312f212f600e394e429c4281ede37e664e3dc799804be47275e1234e062211a150d35861380dd583f4d72ce6b21ae247d55c2bb9c4e7a59e8cb21ab03facdd901d80e467d1e9e4369fb642bf9b2c87e37d3de2771d7ebb8b515c</data>
     </image>
     <image>
         <name>image5</name>
-        <data format="XPM.GZ" length="469">789c55d0bd0ac2301007f03d4f117a5b917e2c2a888fa0380ae270b926e85005ad8388efeedd2529f1d221ff5f2f1fa4adedf1b0b3756b9e134e57b274c187ad87d738be4fe7edc754fdd2f2b7b27db5305563c9eeef372f73e039745a120789eb397a89d4518a4e6208f92fc6180269a41c43d053b4009a548521244ee69888877234c74652ca6ace396e8bc4a8d7e55263e082b45fdc2de26c34a34f5610423c175017e96ec90015fefac06b43ecf3796d5644b9573e37335fbf7c0361cf54586427eff2dd981fdd64740d</data>
+        <data format="XPM.GZ" length="587">789c6d90c16ac3301044effe0a61df4c681cdc8442c82734f418083dac642b92ec75214d0fa5f4dfa351dd766367c68679e341082f4b75787956e5327bbfd0c51b651c9d55d97c307f1e5f775f59bedaa8f1c91759de2aa3f66f438bdc886c443e895c88fc20b21599622eaa24a006d6150c1c808f7f5f3be0fa0906f640aa60a0079a1a063a60636020036d9449e3f08bd6a6eb15449ad26b9ad69e7e3aed20af3dfd77e402d40547b3ce054fd3aeebf4b40bcef7b38ee381d32e6ad2313cdff1ed8eefef58eeb4e3fbbb54c96e5cc92e6948bf2b76dfdbec0a7906a742</data>
     </image>
     <image>
         <name>image6</name>
-        <data format="XPM.GZ" length="414">789c5d8fcf0ac2300cc6ef7d8ad0dc86740e4411f111148f8278c81a871ea6a0f320e2bbdbf48f197ea121df8fa469eb0af6bb0d54b5790c345c3cf833dda1e267dfbf0ec7f5dbd8660ecd0c42b213631d78d8deae27a931d4388d124b62179d84582f96971262596c17949adb62bbd8ec92103115ca309f1143cd859541548698a132a4d62b8c8cb02569a41143f454a6d97166518c42d88d18f9d0c785a54192fb58f7e2ef31fa3eca5bfffeabb29f95f902c38e521d</data>
+        <data format="XPM.GZ" length="439">789c6d90cf0ac2300cc6ef7d8ad0de8a74db4111c447503c0ae2a1cb143dcc81ce8388ef6e925a9d9aa487effb95fc690b0febd5027c612e7dec8f08788867f0cdb56d6f9bedfc6e6c35013a63a8ecc8d80008cbeeb463ed48bb52822db29d969c6c6bb60d72b28d6cf712d2e72784398a0c48c90c2732a158bbcc5e9051ae659b5162d2902e120a79aec084c26797371a3242df4c6a7158abcc5076d176d6dea6fdc1df5f3d66e609311e53fd</data>
     </image>
 </images>
 <connections>
