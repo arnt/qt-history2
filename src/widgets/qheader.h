@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#12 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#13 $
 **
 **  Table header
 **
@@ -93,7 +93,7 @@ private:
     bool	trackingIsOn;
 
     QArray<QCOORD>	sizes;
-    QArray<const char*>	labels;
+    QArray<char*>	labels;
     QArray<int>	        a2l;
     QArray<int>	        l2a;
 
