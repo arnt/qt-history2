@@ -63,7 +63,7 @@ public slots:
 private:
     class  Data;
     Data* d;
-    class MapperRec;
+    struct MapperRec;
     MapperRec* getRec( const QObject* );
 
 private slots:
