@@ -2598,6 +2598,8 @@ void MainWindow::showDialogHelp()
 	link += "dialog-edit-iconview";
     else if ( w->inherits( "TableEditorBase" ) )
 	link += "dialog-edit-table";
+    else if ( w->inherits( "MultiLineEditor" ) )
+	link += "dialog-text";
 
     else {
 	QMessageBox::information( this, tr( "Help" ),
