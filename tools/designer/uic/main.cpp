@@ -49,6 +49,7 @@ int main( int argc, char * argv[] )
     const char* trmacro = 0;
     bool nofwd = FALSE;
     bool fix = FALSE;
+    QCString pchFile;
     QApplication app(argc, argv, FALSE);
 
     QString keybase( "/Qt Designer/" + 
@@ -153,8 +154,14 @@ int main( int argc, char * argv[] )
 		break;
 	    } else if ( opt == "fix" ) {
 		fix = TRUE;
+	    } else if ( opt == "pch") {
+		if ( !(n < argc-1) ) {
+		    error = "Missing name of PCH file";
+		    break;
+		}
+		pchFile = argv[++n];
 	    } else {
-		error = QString( "Unrecognized option " + opt ).latin1();
+		error = "Unrecognized option";
 	    }
 	} else {
 	    if ( imagecollection && !imagecollection_tmpfile )
@@ -197,6 +204,7 @@ int main( int argc, char * argv[] )
 		 "\t<subclassheaderfile>    declaration file of the subclass\n"
 		 "Options:\n"
 		 "\t-o file         Write output to file rather than stdout\n"
+		 "\t-pch file       Add #include \"file\" as the first statement in implementation\n"
 		 "\t-nofwd          Omit forward declarations of custom classes\n"
 		 "\t-nounload       Don't unload plugins after processing\n"
 		 "\t-tr func        Use func() instead of tr() for i18n\n"
@@ -305,6 +313,10 @@ int main( int argc, char * argv[] )
     if ( !protector.isEmpty() ) {
 	out << "#ifndef " << protector << endl;
 	out << "#define " << protector << endl;
+    }
+
+    if ( !pchFile.isEmpty() && impl ) {
+	out << "#include \"" << pchFile << "\" // PCH include" << endl;
     }
 
     if ( headerFile ) {
