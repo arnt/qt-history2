@@ -101,7 +101,13 @@ struct ConicalGradientData : public GradientData
 inline int qt_div_255(int x) { return (x + (x>>8) + 0x1) >> 8; }
 inline int qt_div_255x255(int x) { return (x + (x>>7) + (x>>14)) >> 16; }
 
-#define INTERPOLATE_PIXEL(p1, x1, p2,  x2)                  \
+#define INTERPOLATE_PIXEL_256(p1, x1, p2,  x2)                  \
+    ((qAlpha(p1) * x1 + qAlpha(p2) * x2) >> 8 << 24)  \
+     | ((qRed(p1) * x1 + qRed(p2) * x2) >> 8 << 16)     \
+     | ((qGreen(p1) * x1 + qGreen(p2) * x2) >> 8 << 8) \
+     | ((qBlue(p1) * x1 + qBlue(p2) * x2) >> 8)
+
+#define INTERPOLATE_PIXEL_255(p1, x1, p2,  x2)                  \
     ((qt_div_255(qAlpha(p1) * x1 + qAlpha(p2) * x2) << 24)  \
      | (qt_div_255(qRed(p1) * x1 + qRed(p2) * x2)<< 16)     \
      | (qt_div_255(qGreen(p1) * x1 + qGreen(p2) * x2) << 8) \

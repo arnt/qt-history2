@@ -211,7 +211,7 @@ static void blend_color_argb(void *t, const QSpan *span, uint color, QPainter::C
             int icov = 255 - span->coverage;
             while (target < end) {
                 uint tmp = func(*target, color);
-                *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+                *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
                 ++target;
             }
         }
@@ -251,7 +251,7 @@ static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal d
         int icov = 255 - span->coverage;
         while (target < end) {
             uint tmp = func(*target, *src);
-            *target = INTERPOLATE_PIXEL(tmp, span->coverage, tmp, icov);
+            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, tmp, icov);
             ++target;
             ++src;
         }
@@ -286,7 +286,7 @@ static void blend_tiled_argb(void *t, const QSpan *span,
         int icov = 255 - span->coverage;
         for (int i = x; i < x + span->len; ++i) {
             uint tmp = func(*target, src[i%image_width]);
-            *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
             ++target;
         }
     }
@@ -317,8 +317,8 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 255 - distx;
-        int idisty = 255 - disty;
+        int idistx = 256 - distx;
+        int idisty = 256 - disty;
 
         bool x1_out = ((x1 < 0) | (x1 >= image_width));
         bool x2_out = ((x2 < 0) | (x2 >= image_width));
@@ -333,12 +333,12 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
         uint bl = (x1_out | y2_out) ? uint(0) : image_bits[y2_offset + x1];
         uint br = (x2_out | y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
+        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
 
         uint tmp = func(*target, res);
-        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
+        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -370,8 +370,8 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 255 - distx;
-        int idisty = 255 - disty;
+        int idistx = 256 - distx;
+        int idisty = 256 - disty;
 
         x1 %= image_width;
         x2 %= image_width;
@@ -396,12 +396,12 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
         uint bl = image_bits[y2_offset + x1];
         uint br = image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
+        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
 
         uint tmp = func(*target, res);
-        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
+        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -437,7 +437,7 @@ static void blend_transformed_argb(void *t, const QSpan *span,
         int y_offset = py * image_width;
         uint pixel = out ? uint(0) : image_bits[y_offset + px];
         uint tmp = func(*target, pixel);
-        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
+        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -476,7 +476,7 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
         Q_ASSERT(py >= 0 && py < image_height);
 
         uint tmp = func(*target, image_bits[y_offset + px]);
-        *target = icov ? INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov) : tmp;
+        *target = icov ? INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov) : tmp;
         x += fdx;
         y += fdy;
         ++target;
@@ -509,7 +509,7 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
             int icov = 255 - span->coverage;
             for (int x = span->x; x<span->x + span->len; x++) {
                 uint tmp = func(*target, qt_gradient_pixel(data, tt));
-                *target = INTERPOLATE_PIXEL(tmp, span->coverage, *target, icov);
+                *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
                 ++target;
                 tt += data->xincr;
             }
@@ -640,8 +640,8 @@ static void blend_transformed_bilinear_rgb32(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 255 - distx;
-        int idisty = 255 - disty;
+        int idistx = 256 - distx;
+        int idisty = 256 - disty;
 
         bool x1_out = ((x1 < 0) | (x1 >= image_width));
         bool x2_out = ((x2 < 0) | (x2 >= image_width));
@@ -656,9 +656,9 @@ static void blend_transformed_bilinear_rgb32(void *t, const QSpan *span,
         uint bl = (x1_out | y2_out) ? uint(0) : image_bits[y2_offset + x1];
         uint br = (x2_out | y2_out) ? uint(0) : image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
+        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
 
         *target = qt_blend_pixel_rgb32(*target, res, span->coverage);
         x += fdx;
@@ -689,8 +689,8 @@ static void blend_transformed_bilinear_tiled_rgb32(void *t, const QSpan *span,
 
         int distx = ((x - (x1 << 16)) >> 8);
         int disty = ((y - (y1 << 16)) >> 8);
-        int idistx = 255 - distx;
-        int idisty = 255 - disty;
+        int idistx = 256 - distx;
+        int idisty = 256 - disty;
 
         x1 %= image_width;
         x2 %= image_width;
@@ -715,9 +715,9 @@ static void blend_transformed_bilinear_tiled_rgb32(void *t, const QSpan *span,
         uint bl = image_bits[y2_offset + x1];
         uint br = image_bits[y2_offset + x2];
 
-        uint xtop = INTERPOLATE_PIXEL(tl, idistx, tr, distx);
-        uint xbot = INTERPOLATE_PIXEL(bl, idistx, br, distx);
-        uint res = INTERPOLATE_PIXEL(xtop, idisty, xbot, disty);
+        uint xtop = INTERPOLATE_PIXEL_256(tl, idistx, tr, distx);
+        uint xbot = INTERPOLATE_PIXEL_256(bl, idistx, br, distx);
+        uint res = INTERPOLATE_PIXEL_256(xtop, idisty, xbot, disty);
 
         *target = qt_blend_pixel_rgb32(*target, res, span->coverage);
         x += fdx;

@@ -2422,11 +2422,11 @@ void GradientData::initColorTable()
         uint current_color = stopColors[current_stop];
         uint next_color = stopColors[current_stop+1];
 
-        int dist = (int)(255*(dpos - stopPoints[current_stop])
+        int dist = (int)(256*(dpos - stopPoints[current_stop])
                          / (stopPoints[current_stop+1] - stopPoints[current_stop]));
-        int idist = 255 - dist;
+        int idist = 256 - dist;
 
-        colorTable[pos] = INTERPOLATE_PIXEL(current_color, idist, next_color, dist);
+        colorTable[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
 
         ++pos;
         dpos += incr;
