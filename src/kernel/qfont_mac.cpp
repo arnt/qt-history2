@@ -101,7 +101,22 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     return TRUE;
 }
 
-enum text_task { GIMME_MAX_HEIGHT, GIMME_WIDTH, GIMME_DRAW };
+static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSrcConvLen, TextPtr oStr,
+					    ByteCount iDestLen, ByteCount *oDestConvLen, void *, 
+					    ConstUnicodeMappingPtr map)
+{
+    UnicodeToTextInfo tuni;
+    CreateUnicodeToTextInfo(map, &tuni);
+    const short flbk = 0x25A1; //square
+    const ByteCount flbklen = sizeof(flbk);
+    OSStatus err = ConvertFromUnicodeToText( tuni, flbklen,(UniChar *)&flbk, 0,
+					     0, NULL, NULL, NULL, iDestLen, oSrcConvLen,
+					     oDestConvLen, oStr);
+    DisposeUnicodeToTextInfo(&tuni);
+    return err == noErr ? noErr : kTECUnmappableElementErr;
+}
+
+enum text_task { GIMME_WIDTH=1, GIMME_DRAW=2 };
 static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, text_task task)
 {
     QMacSetFontInfo fi(d);
@@ -111,8 +126,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
     const QChar *uc = s.unicode();
     int unilen = len;
     UniChar *unibuf = new UniChar[unilen];
-    for ( int i = pos; i < unilen; ++i ) //don't use pos here! FIXME
-        unibuf[i] = uc[i].row() << 8 | uc[i].cell();
+    for ( int i = 0; i < unilen; ++i ) //don't use pos here! FIXME
+        unibuf[i] = uc[i+pos].row() << 8 | uc[i+pos].cell();
 
     //create converter
     UnicodeToTextRunInfo runi;
@@ -124,6 +139,8 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
 	return 0;
     }
+    SetFallbackUnicodeToTextRun( runi, NewUnicodeToTextFallbackUPP(macFallbackChar), 
+				 kUnicodeFallbackCustomFirst, NULL);
 
     //now convert
     int buf_len = 2056;     //buffer
@@ -131,7 +148,7 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
     ItemCount run_len = 20; //runs
     ScriptCodeRun runs[run_len];
     ByteCount read, converted; //returns
-    const int flags = kUnicodeUseFallbacksMask | kUnicodeLooseMappingsMask | kUnicodeTextRunMask;
+    const int flags = kUnicodeUseFallbacksMask | kUnicodeTextRunMask;
     err = ConvertFromUnicodeToScriptCodeRun( runi, unilen * 2, unibuf, flags,
 					     0, NULL, NULL, NULL, buf_len, &read, 
 					     &converted, buf, run_len, &run_len, runs);
@@ -164,17 +181,14 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
 	int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
 
 	//do the requested task
-	if(task == GIMME_WIDTH) {
+	if(task == GIMME_WIDTH) 
 	    ret += TextWidth(buf, off, rlen);
-	} else if(task == GIMME_DRAW) { 
+	else if(task == GIMME_DRAW)
 	    DrawText(buf, off, rlen);
-	} else if(task == GIMME_MAX_HEIGHT) {
-	    if(ret < info.ascent + info.descent)
-		ret = info.ascent + info.descent;
-	} else {
+	else 
 	    qDebug("that can't be!");
-	}
 
+	//restore the scale
 	if(msz != sz)
 	    TextSize(sz);
     }
@@ -215,7 +229,6 @@ int QFontMetrics::descent() const
 
 int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
-    //FIXME: This may not work correctly if str contains double byte characters
     return do_text_task(FI, s, pos, 1, GIMME_WIDTH);
 }
 
