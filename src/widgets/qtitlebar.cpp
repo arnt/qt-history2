@@ -594,7 +594,8 @@ QSize QTitleBar::sizeHint() const
 */
 
 QTitleBarLabel::QTitleBarLabel( QWidget *parent, const char* name )
-    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase )
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ), 
+    leftm( 2 ), rightm( 2 ), act( TRUE )
 {
     getColors();
 }
@@ -727,7 +728,7 @@ void QTitleBarLabel::drawLabel( bool redraw )
     p.end();
 
     if ( redraw )
-	update();
+	QApplication::postEvent( this, new QPaintEvent( rect(), FALSE ) );
 }
 
 void QTitleBarLabel::frameChanged()
@@ -739,7 +740,7 @@ void QTitleBarLabel::paintEvent( QPaintEvent* )
 {
     if ( !buffer ) 
 	return;
-    buffer->resize( size() );
+    buffer->resize( QSize( QMAX( size().width(), buffer->width() ), QMAX( size().height(), buffer->height() ) ) );
     drawLabel( FALSE );
     bitBlt( this, 0, 0, buffer, 0, 0, width(), height() );
 }
@@ -752,7 +753,7 @@ void QTitleBarLabel::resizeEvent( QResizeEvent* e )
 	buffer = new QPixmap;
 	buffer_cleanup.add( buffer );
     }
-    buffer->resize( size() );
+    buffer->resize( QSize( QMAX( size().width(), buffer->width() ), QMAX( size().height(), buffer->height() ) ) );
     cutText();
 }
 
