@@ -1650,143 +1650,50 @@ int QString::count(const QRegExp& rx) const
 
 QString QString::section( const QString &sep, int start, int end, int flags ) const
 {
-    const QChar *uc = unicode();
-    if ( !uc )
+    QStringList sections = QStringList::split(sep, *this, TRUE);
+    if(sections.isEmpty())
 	return QString();
-    QString _sep = (flags & SectionCaseInsensitiveSeps) ? sep.lower() : sep;
-    const QChar *uc_sep = _sep.unicode();
-    if(!uc_sep)
-	return QString();
-    bool match = false, last_match = true;
-
-    //find start
-    int n = length(), sep_len = _sep.length();
-    const QChar *begin = start < 0 ? uc + n : uc;
-    while ( start ) {
-	match = false;
-	int c = 0;
-	for(const QChar *tmp = start < 0 ? begin - sep_len : begin;
-	    c < sep_len && tmp < uc + n && tmp >= uc; tmp++, c++) {
-	    if(flags & SectionCaseInsensitiveSeps) {
-		if( ::lower( *tmp ) != *(uc_sep + c))
-		    break;
-	    } else {
-		if( *tmp != *(uc_sep + c) )
-		    break;
-	    }
-	    if(c == sep_len - 1) {
-		match = true;
-		break;
-	    }
+    if(!(flags & SectionSkipEmpty)) {
+	if(start < 0) 
+	    start += sections.count();
+	if(end < 0)
+	    end += sections.count();
+    } else {
+	int skip = 0;
+	for(QStringList::Iterator it = sections.begin(); it != sections.end(); ++it) {
+	    if((*it).isEmpty())
+		skip++;
 	}
-	if(start > 0 && (flags & SectionSkipEmpty) && match && last_match)
-	    match = false;
-	last_match = match;
-
-	if(start < 0) {
-	    if(match) {
-		begin -= sep_len;
-		if(!++start)
-		    break;
+	if(start < 0) 
+	    start += sections.count() - skip;
+	if(end < 0)
+	    end += sections.count() - skip;
+    }
+    int x = 0, run = 0;
+    QString ret;
+    for(QStringList::Iterator it = sections.begin(); x <= end && it != sections.end(); ++it) {
+	if(x >= start) {
+	    if((*it).isEmpty() && (flags & SectionSkipEmpty)) {
+		run++;
 	    } else {
-		if(start == -1 && begin == uc)
-		    break;
-		begin--;
+		if((flags & SectionIncludeLeadingSep) && it != sections.begin())
+		    ret += sep;
+		if(!ret.isEmpty()) {
+		    for(int i = 0; i <= run; i++)
+			ret += sep;
+		}
+		run = 0;
+		x++;
+		ret += (*it);
+		if((flags & SectionIncludeTrailingSep) && it != sections.end())
+		    ret += sep;
 	    }
 	} else {
-	    if(match) {
-		if(!--start)
-		    break;
-		begin += sep_len;
-	    } else {
-		if(start == 1 && begin == uc + n)
-		    break;
-		begin++;
-	    }
-	}
-	if(begin > uc + n || begin < uc)
-	    return QString();
-    }
-    if(match && !(flags & SectionIncludeLeadingSep))
-	begin+=sep_len;
-    if(begin > uc + n || begin < uc)
-	return QString();
-
-    //now find last
-    match = false;
-    const QChar *last = end < 0 ? uc + n : uc;
-    if(end == -1) {
-	int c = 0;
-	for(const QChar *tmp = end < 0 ? last - sep_len : last;
-	    c < sep_len && tmp < uc + n && tmp >= uc; tmp++, c++) {
-	    if(flags & SectionCaseInsensitiveSeps) {
-		if( ::lower( *tmp ) != *(uc_sep + c))
-		    break;
-	    } else {
-		if( *tmp != *(uc_sep + c) )
-		    break;
-	    }
-	    if(c == sep_len - 1) {
-		match = true;
-		break;
-	    }
-	}
-    } else {
-	end++;
-	last_match = true;
-	while ( end ) {
-	    match = false;
-	    int c = 0;
-	    for(const QChar *tmp = end < 0 ? last - sep_len : last;
-		c < sep_len && tmp < uc + n && tmp >= uc; tmp++, c++) {
-		if(flags & SectionCaseInsensitiveSeps) {
-		    if( ::lower( *tmp ) != *(uc_sep + c))
-			break;
-		} else {
-		    if( *tmp != *(uc_sep + c) )
-			break;
-		}
-		if(c == sep_len - 1) {
-		    match = true;
-		    break;
-		}
-	    }
-	    if(end > 0 && (flags & SectionSkipEmpty) && match && last_match)
-		match = false;
-	    last_match = match;
-
-	    if(end < 0) {
-		if(match) {
-		    if(!++end)
-			break;
-		    last -= sep_len;
-		} else {
-		    last--;
-		}
-	    } else {
-		if(match) {
-		    last += sep_len;
-		    if(!--end)
-			break;
-		} else {
-		    last++;
-		}
-	    }
-	    if(last >= uc + n) {
-		last = uc + n;
-		break;
-	    } else if(last < uc) {
-		return QString();
-	    }
+	    if(!(*it).isEmpty() || !(flags & SectionSkipEmpty)) 
+		x++;
 	}
     }
-    if(match && !(flags & SectionIncludeTrailingSep))
-	last -= sep_len;
-    if(last < uc || last > uc + n || begin >= last)
-	return QString();
-
-    //done
-    return QString(begin, last - begin);
+    return ret;
 }
 
 #ifndef QT_NO_REGEXP
