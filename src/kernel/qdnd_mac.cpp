@@ -445,7 +445,6 @@ void QDragManager::updatePixmap()
 
 static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, DragReference theDrag)
 { 
-    qDebug("recieve!!");
     updateDragMode();
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
     current_dropobj = theDrag;
@@ -503,7 +502,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     while ( widget && (!widget->acceptDrops()) )
 	widget = widget->parentWidget(TRUE);
     //Dispatch events
-    qDebug("tracking %d", theMessage);
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	de.setAction(current_drag_action);
