@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#128 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#129 $
 #
 # this is a massive hack, written very quickly
 #
@@ -822,7 +822,12 @@ sub getfile {
 	    push @defines, $ifdef;
 	    $ifdef = 1 if ( !/_H$/ && !/\bUSE_TEMPLATECLASS\)?$/ );
 	}
-	push @lines,$_ unless ($ifdef);
+	if ( !$ifdef ) {
+	    if ( defined( $preprocess ) ) {
+		&$preprocess;
+	    }
+	    push @lines,$_;
+	}
 	$ifdef = pop @defines if ( /^\#endif\b/ );
     }
     close(F);
@@ -2106,7 +2111,7 @@ die "company not defined, stopped" unless defined( $company );
 
 umask 0111;
 $cfile = "VOLD";
-$maxerr = 5;
+$maxerr ||= 5;
 
 $doctype ||= "<!doctype HTML public \"-//W3C//DTD HTML 3.2//EN\">\n";
 
@@ -2169,5 +2174,23 @@ print "Documented ", $countdoc, " member functions, left out ",
 #}
 
 
+if ( defined( $keyfile ) && open( O, "> $keyfile" ) ) {
 
+    print O "-keys\n";
+    foreach ( sort keys %uniqkeys ) {
+	print $_, ": ", $uniqkeys{$_}, "\n";
+    }
+
+    print O "-urls\n";
+    foreach ( sort keys %urls ) {
+	print O $urls{$_}, ": ", $_, "\n";
+    }
+
+    print O "-anchors\n";
+    foreach ( sort keys %anchor ) {
+	print $_, ": ", $anchor{$_}, "\n";
+    }
+
+    close O;
+}
 
