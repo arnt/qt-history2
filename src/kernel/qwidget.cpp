@@ -4357,7 +4357,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    update();
 	    break;
-
+#ifndef QT_NO_LAYOUT
 	case QEvent::LayoutDirectionChange:
 	    if ( layout() ) {
 		layout()->activate();
@@ -4373,7 +4373,7 @@ bool QWidget::event( QEvent *e )
 	    }
 	    update();
 	    break;
-
+#endif
 	default:
 	    return FALSE;
     }
