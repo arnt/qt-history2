@@ -247,14 +247,14 @@ static int	 heartBeat	= 0;		// heatbeat timer
 // Session management
 static bool	sm_blockUserInput    = FALSE;
 static bool	sm_smActive	     = FALSE;
-static QSessionManager* win_session_manager = 0;
+extern SessionManager* qt_session_manager_self;
 static bool	sm_cancel;
 
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static bool replayPopupMouseEvent = FALSE; // replay handling when popups close
 
-static bool ignoreNextMouseReleaseEvent = FALSE; // ignore the next release event if 
+static bool ignoreNextMouseReleaseEvent = FALSE; // ignore the next release event if
 						 // return from a modal widget
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -1847,7 +1847,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	sm_smActive = TRUE;
 	sm_blockUserInput = TRUE; // prevent user-interaction outside interaction windows
 	sm_cancel = FALSE;
-	qApp->commitData( *win_session_manager );
+	if ( qt_session_manager_self )
+	    qApp->commitData( *qt_session_manager_self );
 	if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
 	    _flushall();
 	}
@@ -3119,8 +3120,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
     if ( msg.message == WM_MOUSEMOVE ) {	
 	// Process only the most current mouse move event. Otherwise you
-	// end up queueing events in certain situations. Very bad for graphics 
-	// applications. Just grabbing the million poly model and moving the 
+	// end up queueing events in certain situations. Very bad for graphics
+	// applications. Just grabbing the million poly model and moving the
 	// mouse an inch queues redraws for 30+ seconds.
 	//
 	// (Patch submitted by: Steve Williams)
@@ -3131,7 +3132,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	MSG mouseMsg2;
 	
 	while ( winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST,
-			       PM_NOREMOVE) && keepLooking ) 
+			       PM_NOREMOVE) && keepLooking )
 	{
 	    // Check to make sure that the message is a mouse move message
 	    if ( mouseMsg1.message == WM_MOUSEMOVE ) {
@@ -3566,18 +3567,18 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 			    dirStatus = VK_LSHIFT;
 		    } else if ( dirStatus == VK_RCONTROL && GetKeyState( VK_RSHIFT ) < 0 ) {
     			dirStatus = VK_RSHIFT;
-		    } 
+		    }
 		} else {
 		    dirStatus = 0;
 		}
 	    } else if ( msg.message == WM_KEYUP ) {
-		if ( dirStatus == VK_LSHIFT && 
+		if ( dirStatus == VK_LSHIFT &&
 		    ( msg.wParam == VK_SHIFT && GetKeyState( VK_LCONTROL )  ||
 		      msg.wParam == VK_CONTROL && GetKeyState( VK_LSHIFT ) ) ) {
 		    k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_L, 0, 0, grab, QString::null );
 		    k1 = sendKeyEvent( QEvent::KeyRelease, Qt::Key_Direction_L, 0, 0, grab, QString::null );
 		    dirStatus = 0;
-		} else if ( dirStatus == VK_RSHIFT && 
+		} else if ( dirStatus == VK_RSHIFT &&
 		    ( msg.wParam == VK_SHIFT && GetKeyState( VK_RCONTROL ) ||
 		      msg.wParam == VK_CONTROL && GetKeyState( VK_RSHIFT ) ) ) {
 		    k0 = sendKeyEvent( QEvent::KeyPress, Qt::Key_Direction_R, 0, 0, grab, QString::null );

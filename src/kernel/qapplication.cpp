@@ -3983,9 +3983,11 @@ public:
     QSessionManager::RestartHint restartHint;
 };
 
+QSessionManager* qt_session_manager_self = 0;
 QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key )
     : QObject( app, "qt_sessionmanager" )
 {
+    qt_session_manager_self = this;
     d = new QSessionManagerData;
     d->sessionId = id;
     d->sessionKey = key;
@@ -3995,6 +3997,7 @@ QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key 
 QSessionManager::~QSessionManager()
 {
     delete d;
+    qt_session_manager_self = 0;
 }
 
 QString QSessionManager::sessionId() const
