@@ -563,8 +563,8 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 // returns TRUE if the character doesn't exist (ie. zero bounding box)
 static inline bool charNonExistent(XCharStruct *xcs)
 {
-    return (xcs == (XCharStruct *) -1 ||
-	    (xcs && xcs->width == 0 && xcs->ascent + xcs->descent == 0));
+    return (xcs == (XCharStruct *) -1 || !xcs ||
+	    (xcs->width == 0 && xcs->ascent + xcs->descent == 0));
 }
 
 
