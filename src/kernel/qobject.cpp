@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#47 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#46 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#47 $";
 #endif
 
 
@@ -1285,7 +1285,7 @@ who can connect to it.	A slot's arguments cannot have default values.
 <p>
 
 A <code>public slots:</code> section contains slots that anyone can connect
-signals too.  This is very useful for component programming: You
+signals to.  This is very useful for component programming: You
 create objects that know nothing about each other, connect their
 signals and slots so information is passed correctly, and, like a
 model railway, turn it on and leave it running.
