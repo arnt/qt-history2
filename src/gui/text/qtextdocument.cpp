@@ -245,7 +245,7 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
     that inform connected editor widgets about the state of the undo/redo
     system.
 
-    \sa QTextCursor QTextEdit \link rich-text.html Rich Text Processing\endlink
+    \sa QTextCursor QTextEdit \link richtext.html Rich Text Processing\endlink
 */
 
 /*!
