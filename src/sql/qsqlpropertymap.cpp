@@ -44,19 +44,19 @@
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
   \module sql
-  \brief A class used for mapping SQL editor class names to SQL editor
-  properties
+  \brief Used to map editors to the SQL fields in QSqlTables and QSqlForms
 
   The SQL module uses Qt <a href="properties.html">object properties</a>
   to insert and extract values from editor widgets.
 
-  This class is used to map SQL editor class names to the properties
-  used to insert and extract values into and from the editor.
+  This class is used to map editors to the SQL fields in QSqlTables and
+  QSqlForms. This works by associating SQL editor class names to the
+  properties used to insert and extract values to/from the editor.
 
-  For instance, a QLineEdit can be used to edit text strings and other
-  data types in QSqlTable or QSqlForm. Several properties are defined
+  For example, a QLineEdit can be used to edit text strings and other
+  data types in QSqlTables or QSqlForms. Several properties are defined
   in QLineEdit, but only the \a text property is used to insert and
-  extract text from QLineEdit. Both QSqlTable and QSqlForm uses a
+  extract text from QLineEdit. Both QSqlTable and QSqlForm use the 
   global QSqlPropertyMap for inserting and extracting values to and
   from an editor widget.
 
@@ -65,31 +65,31 @@
   Example:
 
   \code
-  QSqlPropertyMap myMap;
+  QSqlPropertyMap myMap = new QSqlPropertyMap;
   QSqlForm        myForm( this );
   MySuperEditor   myEditor( this );
 
   // Install the customized map
-  myMap.insert( "MySuperEditor", "content" );
-  myForm.installPropertyMap( &myMap );
+  myMap->insert( "MySuperEditor", "content" );
+  myForm.installPropertyMap( myMap ); // myForm now owns myMap 
   ...
   // Insert a field into the form that uses myEditor to edit the
-  // field 'somefield' in 'mytable'
+  // field 'somefield' -- myBuffer points to the cursor's edit buffer 
   myForm.insert( &myEditor, myBuffer->field( "somefield" ) );
   
-  // Will update myEditor with the value from the mapped database field
+  // Update myEditor with the value from the mapped database field
   myForm.readFields();
   ...
   // Let the user edit the form
   ...
-  // Update the database fields
+  // Update the database fields with the values in the form
   myForm.writeFields();
   ...
   \endcode
   
   You can also replace the global QSqlPropertyMap that is used by default:
   \code 
-  // Keep in mind that QSqlPropertyMap takes ownership of the new 
+  // Bear in mind that QSqlPropertyMap takes ownership of the new 
   // default map
   
   QSqlPropertyMap * myMap = new QSqlPropertyMap;
@@ -123,6 +123,11 @@ QSqlPropertyMap::QSqlPropertyMap()
 /*!
 
   Destroys the QSqlPropertyMap.
+
+  Note that if the QSqlPropertyMap is installed with
+  installPropertyMap() the object it was installed into, e.g. the
+  QSqlForm, takes ownership and will delete the QSqlPropertyMap when
+  necessary.
  */
 QSqlPropertyMap::~QSqlPropertyMap()
 {
@@ -130,7 +135,7 @@ QSqlPropertyMap::~QSqlPropertyMap()
 
 /*!
 
-  Returns thw property of \a widget as a QVariant.
+  Returns the \a widget's property as a QVariant.
 */
 QVariant QSqlPropertyMap::property( QWidget * widget )
 {
@@ -144,7 +149,7 @@ QVariant QSqlPropertyMap::property( QWidget * widget )
 
 /*!
 
-  Sets the property associated with \a widget to \a value.
+  Sets the \a widget's property to \a value.
 
 */
 void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
@@ -158,7 +163,7 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
 /*!
 
   Insert a new classname/property pair, which is used for custom SQL
-  field editors. There ust be a Q_PROPERTY clause in the \a classname
+  field editors. There \e must be a Q_PROPERTY clause in the \a classname
   class declaration for the \a property.
 
 */
@@ -196,7 +201,7 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 
 /*!
 
-  Replaces the default property map with \a map. All QSqlTable and
+  Replaces the global default property map with \a map. All QSqlTable and
   QSqlForm instantiations will use this new map for inserting and
   extracting values to and from editors. <em>QSqlPropertyMap takes
   ownership of map, and destroys it when it is no longer needed. </em>
