@@ -109,12 +109,12 @@ QMacCGContext::QMacCGContext(QPainter *p)
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine()
-    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), PaintEngineFeatures(UsesFontEngine|PixmapScale))
+    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), PaintEngineFeatures(UsesFontEngine|PixmapScale|AlphaPixmap))
 {
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps)
-    : QPaintEngine(dptr, (devcaps ? devcaps : (UsesFontEngine|PixmapScale)))
+    : QPaintEngine(dptr, (devcaps ? devcaps : (UsesFontEngine|PixmapScale|AlphaPixmap)))
 {
 }
 
@@ -1001,14 +1001,14 @@ QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
                             PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                 |PixmapScale|UsesFontEngine|LinearGradients
-                                                |ClipTransform|AlphaStroke|AlphaFill))
+                                                |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap))
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
     : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
                                                       |PixmapScale|UsesFontEngine|LinearGradients
-                                                      |ClipTransform|AlphaStroke|AlphaFill))
+                                                      |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap))
 {
 }
 
@@ -1251,7 +1251,7 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);
 }
 
-void 
+void
 QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, bool clipEnabled)
 {
     Q_ASSERT(isActive());

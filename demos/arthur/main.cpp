@@ -39,7 +39,9 @@ int main(int argc, char **argv)
     viewer.addDemoWidget("Paths", new Paths, "paths.cpp");
     viewer.addDemoWidget("On the road", new Roads, "roads.cpp");
     viewer.addDemoWidget("Stretched Pixmap", new Warpix, "warpix.cpp");
+#ifndef QT_NO_XFT
     viewer.addDemoWidget("Outline", new TextOutline, "textoutline.cpp");
+#endif
 #ifndef QT_NO_OPENGL
     if (QGLFormat::hasOpenGL())
 	viewer.addDemoWidget("OpenGL Painter", new GLPainter, "glpainter.cpp");

@@ -565,9 +565,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (dirtyFlag)
         updateInternal(state);
 
-    if (QPaintDeviceMetrics(d->pdev).depth() < 16)
+    if (QPaintDeviceMetrics(d->pdev).depth() < 16 || !hasFeature(AlphaPixmap))
         emulationSpecifier &= ~(AlphaFill | AlphaStroke);
-
 }
 
 /*!

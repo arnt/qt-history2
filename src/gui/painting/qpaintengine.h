@@ -55,15 +55,17 @@ public:
         CoordTransform            = 0x0001,               // Points are transformed
         PenWidthTransform         = 0x0002,               // Pen width is transformed
         PatternTransform          = 0x0004,               // Brush patterns
-        PixmapTransform           = 0x0008,               // Pixmap transforms
-        LinearGradients   	  = 0x0010,               // Can fill gradient areas.
-        LinearGradientFillPolygon = 0x0020,               // Can fill polygons with linear gradients.
-        PixmapScale               = 0x0040,               // Can scale (w/o XForm) in drawPixmap
-	AlphaFill                 = 0x0080,               // Can fill with alpha.
-        AlphaFillPolygon          = 0x0100,               // Can fill polygons with alpha.
-        AlphaStroke               = 0x0200,               // Can outline with alpha.
-        PainterPaths              = 0x0400,               // Can fill, outline and clip paths
-        ClipTransform             = 0x0800,               // Can transform clip regions.
+        PatternBrush              = 0x0008,               // Native support for pixmap and pattern brushes
+        PixmapTransform           = 0x0010,               // Pixmap transforms
+        LinearGradients   	  = 0x0020,               // Can fill gradient areas.
+        LinearGradientFillPolygon = 0x0040,               // Can fill polygons with linear gradients.
+        PixmapScale               = 0x0080,               // Can scale (w/o XForm) in drawPixmap
+	AlphaFill                 = 0x0100,               // Can fill with alpha.
+        AlphaFillPolygon          = 0x0200,               // Can fill polygons with alpha.
+        AlphaStroke               = 0x0400,               // Can outline with alpha.
+        AlphaPixmap               = 0x0800,               // Can draw pixmaps with alpha channels
+        PainterPaths              = 0x1000,               // Can fill, outline and clip paths
+        ClipTransform             = 0x2000,               // Can transform clip regions.
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };

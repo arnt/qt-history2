@@ -32,7 +32,9 @@ contains(QT_CONFIG, opengl) {
 	HEADERS += glpainter.h
 	SOURCES += glpainter.cpp
 	QT += opengl
-} 
+}
+
+unix:!mac:!contains(QT_CONFIG, xft):DEFINES += QT_NO_XFT
 
 TARGET = arthur
 RESOURCES += arthur.qrc

@@ -105,14 +105,14 @@ public:
 #define q q_func()
 
 QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr)
-    : QPaintEngine(dptr, UsesFontEngine)
+    : QPaintEngine(dptr, UsesFontEngine | AlphaPixmap)
 {
 //    d->pdev = pdev;
 //        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
 QWSPaintEngine::QWSPaintEngine()
-    : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine)
+    : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine | AlphaPixmap)
 {
 //        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
