@@ -27,7 +27,6 @@ SUBDIRS     =	aclock \
 		menu \
 		movies \
 		picture \
-		pingpong \
 		popup \
 		process \
 		progress \
