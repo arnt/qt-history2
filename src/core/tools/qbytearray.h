@@ -90,8 +90,9 @@ public:
 
     QByteArray &fill(char c, int size = -1);
 
-    void reserve(int size);
     int capacity() const;
+    void reserve(int size);
+    void squeeze();
 
     operator const char *() const;
     operator const void *() const;
@@ -339,6 +340,12 @@ inline QByteArray::QByteArray(int size) : d(&shared_null)
 
 inline int QByteArray::capacity() const
 { return d->alloc; }
+
+inline void QByteArray::reserve(int size)
+{ if (d->ref != 1 || size > d->alloc) realloc(size); }
+
+inline void QByteArray::squeeze()
+{ realloc(d->size); }
 
 class Q_CORE_EXPORT QByteRef {
     QByteArray &a;

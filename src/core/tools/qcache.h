@@ -43,7 +43,12 @@ class QCache
     struct BoolStruct { inline void QTrue() {} };
     typedef void (BoolStruct::*QSafeBool)();
 
- public:
+#if defined(Q_DISABLE_COPY)
+    QCache(const QCache &other);
+    QCache &operator=(const QCache &other);
+#endif
+
+public:
     inline QCache(int maxCost = 100)
 	: f(0), l(0), mx(maxCost), total(0) {}
 #ifdef QT_COMPAT

@@ -492,7 +492,43 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 /*!
     \fn int QByteArray::capacity() const
 
-    Returns the number of bytes allocated to this byte array.
+    Returns the maximum number of bytes that can be stored in the
+    byte array without forcing a reallocation.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QByteArray's memory usage. In general, you will rarely
+    ever need to call this function. If you want to know how many
+    items are in the byte array, call size().
+
+    \sa reserve(), squeeze()
+*/
+
+/*!
+    \fn void QByteArray::reserve(int size)
+
+    Attempts to allocate memory for at least \a size bytes. If you
+    know in advance how large the byte array will be, you can call
+    this function, and if you call resize() often you are likely to
+    get better performance. If \a size is an underestimate, the worst
+    that will happen is that the QByteArray will be a bit slower.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QByteArray's memory usage. In general, you will rarely
+    ever need to call this function. If you want to change the size
+    of the byte array, call resize().
+
+    \sa squeeze(), capacity()
+*/
+
+/*! \fn void QByteArray::squeeze()
+
+    Releases any memory not required to store the array data.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QByteArray's memory usage. In general, you will rarely
+    ever need to call this function.
+
+    \sa reserve(), capacity()
 */
 
 /*!
@@ -865,8 +901,6 @@ void QByteArray::resize(int size)
 }
 
 /*!
-    \fn QByteArray &QByteArray::fill(char c, int size = -1)
-
     Resizes the byte array to \a size and fills every byte with
     character \a c.
 */
@@ -877,18 +911,6 @@ QByteArray& QByteArray::fill(char c, int size)
     if (d->size)
 	memset(d->data, c, d->size);
     return *this;
-}
-
-/*!
-    \fn void QByteArray::reserve(int size)
-
-    \internal
-*/
-
-void QByteArray::reserve(int size)
-{
-    if (d->ref != 1 || size > d->alloc)
-	realloc(size);
 }
 
 void QByteArray::realloc(int alloc)
@@ -2457,7 +2479,7 @@ QByteArray QByteArray::number( Q_ULLONG n, int base )
     \endcode
 
     \sa setNum()
-   */
+*/
 QByteArray QByteArray::number(double n, char f, int prec)
 {
     QByteArray s;

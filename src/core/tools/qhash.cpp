@@ -581,6 +581,18 @@ void QHashData::free()
     This is the same as \c{!hash.isEmpty()}.
 */
 
+/*! \fn int QHash::capacity() const
+
+    Returns the number of buckets in the QHash's internal hash table.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QHash's memory usage. In general, you will rarely ever
+    need to call this function. If you want to know how many items are
+    in the hash, call size().
+
+    \sa reserve(), squeeze()
+*/
+
 /*! \fn void QHash::reserve(int size)
 
     Ensures that the QHash's internal hash table consists of at least
@@ -606,18 +618,19 @@ void QHashData::free()
     QHash's internal hash table automatically shrinks or grows to
     provide good performance without wasting too much memory.
 
-    \sa capacity()
+    \sa squeeze(), capacity()
 */
 
-/*! \fn int QHash::capacity() const
+/*! \fn void QHash::squeeze()
 
-    Returns the number of buckets in the QHash's internal hash table.
+    Reduces the size of the QHash's internal hash table to save
+    memory.
 
-    This function is only useful if you are trying to tune QHash's
-    memory and CPU usage using reserve(). If all you want to know is
-    the number of items in the hash, call size().
+    The sole purpose of this function is to provide a means of fine
+    tuning QHash's memory usage. In general, you will rarely ever
+    need to call this function. 
 
-    \sa reserve()
+    \sa reserve(), capacity()
 */
 
 /*! \fn void QHash::detach()

@@ -292,22 +292,6 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa size()
 */
 
-/*! \fn void QVector::reserve(int size)
-
-    Asks QVector to allocate memory for at least \a size elements. If
-    you know in advance how large the vector will be, you can call
-    this function, and if you call resize() often you are likely to
-    get better performance. If \a size is an underestimate, the worst
-    that will happen is that the QVector will be a bit slower.
-
-    The sole purpose of this function is to provide a means of fine
-    tuning QVector's memory usage. In general, you will rarely ever
-    need to call this function. If you want to change the size of the
-    QVector, call resize().
-
-    \sa capacity()
-*/
-
 /*! \fn int QVector::capacity() const
 
     Returns the maximum number of items that can be stored in the
@@ -318,7 +302,34 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     need to call this function. If you want to know how many items are
     in the vector, call size().
 
-    \sa reserve()
+    \sa reserve(), squeeze()
+*/
+
+/*! \fn void QVector::reserve(int size)
+
+    Attempts to allocate memory for at least \a size elements. If you
+    know in advance how large the vector will be, you can call this
+    function, and if you call resize() often you are likely to get
+    better performance. If \a size is an underestimate, the worst
+    that will happen is that the QVector will be a bit slower.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVector's memory usage. In general, you will rarely ever
+    need to call this function. If you want to change the size of the
+    vector, call resize().
+
+    \sa squeeze(), capacity()
+*/
+
+/*! \fn void QVector::squeeze()
+
+    Releases any memory not required to store the items.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QVector's memory usage. In general, you will rarely ever
+    need to call this function.
+
+    \sa reserve(), capacity()
 */
 
 /*! \fn void QVector::detach()

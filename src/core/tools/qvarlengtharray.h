@@ -33,16 +33,11 @@ public:
     inline int size() const { return s; }
     inline int count() const { return s; }
     inline bool isEmpty() const { return (s == 0); }
-    inline void resize(int size) {
-	realloc(size, qMax(size,a));
-    }
-
-    void reserve(int size) {
-	if (size > a) realloc(s, size);
-    }
+    inline void resize(int size) { realloc(size, qMax(size, a)); }
 
     inline int capacity() const { return a; }
-
+    inline void reserve(int size) { if (size > a) realloc(s, size); }
+    inline void squeeze() { realloc(s, s); }
 
     inline T &operator[](int idx) {
 	Q_ASSERT(idx >= 0 && idx < s);
@@ -61,10 +56,12 @@ public:
     inline const T * constData() const { return ptr; }
 
 private:
-    // disallow construction on the heap and copying
-    void *operator new(size_t sz);
+#if defined(Q_DISABLE_COPY)
     QVarLengthArray(const QVarLengthArray &);
-    QVarLengthArray &operator =(const QVarLengthArray &);
+    QVarLengthArray &operator=(const QVarLengthArray &);
+#endif
+    void *operator new(size_t sz);
+
     void realloc(int size, int alloc);
     int a;
     int s;
@@ -76,8 +73,8 @@ template <class T, int Prealloc>
 Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int alloc)
 {
     T *oldPtr = ptr;
-    if (alloc > a) {
-	ptr = (T *)qMalloc (alloc*sizeof(T));
+    if (alloc != a) {
+	ptr = (T *)qMalloc(alloc * sizeof(T));
 	a = alloc;
     }
 

@@ -368,15 +368,36 @@ void QString::resize(int size)
     }
 }
 
+/*! \fn int QString::capacity() const
+
+    Returns the maximum number of characters that can be stored in
+    the string without forcing a reallocation.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QString's memory usage. In general, you will rarely ever
+    need to call this function. If you want to know how many
+    characters are in the string, call size().
+
+    \sa reserve(), squeeze()
+*/
 
 /*!
-    Ensures that at least \a size characters are allocated to the
-    string.
+    Attempts to allocate memory for at least \a size characters. If
+    you know in advance how large the string will be, you can call
+    this function, and if you resize the string often you are likely
+    to get better performance. If \a size is an underestimate, the
+    worst that will happen is that the QString will be a bit slower.
+
+    The sole purpose of this function is to provide a means of fine
+    tuning QString's memory usage. In general, you will rarely ever
+    need to call this function. If you want to change the size of the
+    vector, call resize().
 
     This function is useful for code that needs to build up a long
     string and wants to avoid repeated reallocation. In this example,
     we want to add to the string until some condition is true, and
     we're fairly sure that size is big enough:
+
     \code
 	QString result;
 	int len = 0;
@@ -387,13 +408,7 @@ void QString::resize(int size)
 	result.squeeze();
     \endcode
 
-    If \e maxSize is an underestimate, the worst that will happen is that
-    the loop will slow down.
-
-    If it is not possible to allocate enough memory, the string
-    remains unchanged.
-
-    \sa capacity(), squeeze(), resize()
+    \sa squeeze(), capacity()
 */
 
 void QString::reserve(int size)
@@ -403,10 +418,15 @@ void QString::reserve(int size)
 }
 
 /*!
-    Squeezes the string's capacity to the current content.
+    Releases any memory not required to store the character data.
 
-    \sa capacity(), reserve()
+    The sole purpose of this function is to provide a means of fine
+    tuning QString's memory usage. In general, you will rarely ever
+    need to call this function. 
+
+    \sa reserve(), capacity()
 */
+
 void QString::squeeze()
 {
     realloc(d->size);
