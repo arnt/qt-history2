@@ -30,7 +30,8 @@
 /*****************************************************************************
   Externals
  *****************************************************************************/
-extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
+extern const uchar *qt_get_bitflip_array(); //qimage.cpp
+extern CGContextRef qt_mac_cg_context(const QPaintDevice *pdev); //qpaintdevice_mac.cpp
 extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -755,24 +756,43 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 {
     QPixmap ret(width, height);
-    Rect rect;
-    SetRect(&rect, 0, 0, width, height);
+#if !defined(QMAC_NO_COREGRAPHICS)
+    if(!qgetenv("QT_MAC_USE_QUICKDRAW")) {
+        ret.fill(QColor(0, 0, 0, 0));
+
+        CGRect rect = CGRectMake(0, 0, width, height);
+
+        CGContextRef ctx = qt_mac_cg_context(&ret);
+        CGAffineTransform old_xform = CGContextGetCTM(ctx);
+        CGContextConcatCTM(ctx, CGAffineTransformInvert(old_xform));
+        CGContextConcatCTM(ctx, CGAffineTransformIdentity);
+
+        ::RGBColor b;
+        b.blue = b.green = b.red = 256*256;
+        PlotIconRefInContext(ctx, &rect, kAlignNone, kTransformNone, &b, kPlotIconRefNormalFlags, icon);
+        CGContextRelease(ctx);
+    } else
+#endif
     {
-        QMacSavedPortInfo pi(&ret);
-        PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
-    }
-    if(!IsIconRefMaskEmpty(icon)) {
-        QBitmap bitmap(width, height, true);
+        Rect rect;
+        SetRect(&rect, 0, 0, width, height);
         {
-            QPainter p(&bitmap);
-            RgnHandle mask = qt_mac_get_rgn();
-            IconRefToRgn(mask, &rect, kAlignNone, kIconServicesNormalUsageFlag, icon);
-            p.setClipRegion(qt_mac_convert_mac_region(mask));
-            qt_mac_dispose_rgn(mask);
-            p.fillRect(0, 0, width, height, Qt::color1);
-            p.end();
+            QMacSavedPortInfo pi(&ret);
+            PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
         }
-        ret.setMask(bitmap);
+        if(!IsIconRefMaskEmpty(icon)) {
+            QBitmap bitmap(width, height, true);
+            {
+                QPainter p(&bitmap);
+                RgnHandle mask = qt_mac_get_rgn();
+                IconRefToRgn(mask, &rect, kAlignNone, kIconServicesNormalUsageFlag, icon);
+                p.setClipRegion(qt_mac_convert_mac_region(mask));
+                qt_mac_dispose_rgn(mask);
+                p.fillRect(0, 0, width, height, Qt::color1);
+                p.end();
+            }
+            ret.setMask(bitmap);
+        }
     }
     return ret;
 }
