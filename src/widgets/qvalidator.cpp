@@ -552,7 +552,7 @@ void QDoubleValidator::setDecimals( int decimals )
     s = "12345"; v.validate( s, 0 ); // Returns Invalid
     s = "1";     v.validate( s, 0 ); // Returns Acceptable
 
-    rx.setPattern( "\S+" );	    // One or more non-whitespace characters
+    rx.setPattern( "\\S+" );	    // One or more non-whitespace characters
     v.setRegExp( rx );
     v.validate( "myfile.txt", 0 );  // Returns Acceptable
     v.validate( "my file.txt", 0 ); // Returns Invalid
