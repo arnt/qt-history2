@@ -15,21 +15,6 @@
 #include "msvc_objectmodel.h"
 #include "msvc_vcproj.h"
 #include <qstringlist.h>
-#include <quuid.h>
-
-#if defined(Q_OS_WIN32)
-#include <objbase.h>
-#ifndef GUID_DEFINED
-#define GUID_DEFINED
-typedef struct _GUID
-{
-    ulong   Data1;
-    ushort  Data2;
-    ushort  Data3;
-    uchar   Data4[8];
-} GUID;
-#endif
-#endif
 
 // XML Tags ---------------------------------------------------------
 const char* _xmlInit				= "<?xml version=\"1.0\" encoding = \"Windows-1252\"?>";
@@ -1932,17 +1917,6 @@ QTextStream &operator<<( QTextStream &strm, const VCFilter &tool )
 // VCProject --------------------------------------------------------
 VCProject::VCProject()
 {
-#if defined(Q_WS_WIN32)
-    GUID guid;
-    QUuid uniqueId;
-    HRESULT h = CoCreateGuid( &guid );
-    if ( h == S_OK )
-	uniqueId = QUuid( guid );
-    ProjectGUID = uniqueId.toString();
-#else
-    // Qt doesn't support GUID on other platforms yet
-    ProjectGUID = "";
-#endif
 }
 
 QTextStream &operator<<( QTextStream &strm, const VCProject &tool )

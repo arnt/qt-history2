@@ -19,20 +19,10 @@
 #include <qdict.h>
 #include <quuid.h>
 #include <stdlib.h>
-
 #if defined(Q_OS_WIN32)
-#include <objbase.h>
-#ifndef GUID_DEFINED
-#define GUID_DEFINED
-typedef struct _GUID
-{
-    ulong   Data1;
-    ushort  Data2;
-    ushort  Data3;
-    uchar   Data4[8];
-} GUID;
+#include <objbase.h> // For CoCreateGuid
 #endif
-#endif
+
 
 // Flatfile Tags ----------------------------------------------------
 const char* _snlHeader		= "Microsoft Visual Studio Solution File, Format Version 7.00";
@@ -320,9 +310,26 @@ void VcprojGenerator::initProject()
     initLexYaccFiles();
     initResourceFiles();
 
+    // Validate GUID in project file ------------
+    QString prj_guid = project->first("GUID"); 
+    QUuid uid( prj_guid );
+    if ( uid.isNull() ) {
+	// The GUID value is not valid, generate new one, on Windows
+#if defined(Q_WS_WIN32)
+	GUID guid;
+	HRESULT h = CoCreateGuid( &guid );
+	if ( h == S_OK )
+	    uid = QUuid( guid );
+#endif
+	project->values("GUID") = (QString)uid; // Store new value
+	if ( !prj_guid.isEmpty() )
+	    fprintf(stderr, "Project GUID is not valid, using generated %s instead\n", project->first("GUID").latin1() );
+    }
+
     // Own elements -----------------------------
     vcProject.Name = project->first("QMAKE_ORIG_TARGET");
     vcProject.Version = "7.00";
+    vcProject.ProjectGUID = project->first("GUID");
     vcProject.PlatformName = ( vcProject.Configuration.idl.TargetEnvironment == midlTargetWin64 ? "Win64" : "Win32" );
     // These are not used by Qt, but may be used by customers
     vcProject.SccProjectName = project->first("SCCPROJECTNAME");
