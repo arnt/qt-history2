@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#127 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1764,6 +1764,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		return;
 	    }
 	    if ( testf(ExtDev) ) {
+		if ( testf( VxF|WxF ) )
+		    map( x, y, &x, &y );
 		QPDevCmdParam param[2];
 		QPoint p(x,y);
 		param[0].point  = &p;
