@@ -2618,7 +2618,7 @@ void MainWindow::showDialogHelp()
     }
 
     QStringList lst;
-    lst << assistantPath() << link;
+    lst << assistantPath() << (QString( "d:" ) + link);
     QProcess proc( lst );
     proc.start();
 }

@@ -300,7 +300,7 @@ void Socket::startOwnWindow()
 {
     MainWindow * mw = new MainWindow;
     mw->setIcon( logo_xpm );
-    
+
     QString keybase("/Qt Assistant/3.0/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -308,7 +308,7 @@ void Socket::startOwnWindow()
 	mw->showMaximized();
     else
 	mw->show();
-    
+
     QString s = qApp->argv()[ 1 ];
     if ( s.left( 2 ) == "d:" )
 	s.remove( 0, 2 );
@@ -391,8 +391,29 @@ int main( int argc, char ** argv )
     setenv("QTDIR", qdir.latin1(), 0);
 #endif
 
-    Socket *s = new Socket( 0 );
-    s->start();
+    if ( argc == 1 || QString( argv[1] ).left( 2 ) != "d:" ) {
+	MainWindow * mw = new MainWindow;
+	mw->setIcon( logo_xpm );
+
+	QString keybase("/Qt Assistant/3.0/");
+	QSettings config;
+	config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	if ( config.readBoolEntry( keybase  + "GeometryMaximized", FALSE ) )
+	    mw->showMaximized();
+	else
+	    mw->show();
+
+	QString s;
+	if ( argc > 1 )
+	    s = QString( argv[1] );
+	if ( s.left( 2 ) == "d:" )
+	    s.remove( 0, 2 );
+	if ( !s.isEmpty() )
+	    mw->showLink( s, "" );
+    } else {
+	Socket *s = new Socket( 0 );
+	s->start();
+    }
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     return a.exec();
 }

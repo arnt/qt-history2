@@ -131,7 +131,7 @@ bool PropertyWhatsThis::clicked( const QString& href )
 {
     if ( !href.isEmpty() ) {
 	QStringList lst;
-	lst << assistantPath() << QString( href );
+	lst << assistantPath() << (QString( "d:" ) + QString( href ));
 	QProcess proc( lst );
 	proc.start();
     }
