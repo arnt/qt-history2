@@ -174,14 +174,14 @@ protected:
     void	updateMask();
 
 private:
-    void	setUpListBox();
     void	setUpLineEdit();
     void	popDownListBox();
-    void	reIndex();
+    void	reindex( int nextIndex );
     void	currentChanged();
     int		completionIndex( const QString &, int ) const;
+    void	afterInsertItem( int index );
 
-    QComboBoxData	*d;
+    QComboBoxData *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -189,7 +189,6 @@ private:	// Disabled copy constructor and operator=
     QComboBox &operator=( const QComboBox & );
 #endif
 };
-
 
 #endif // QT_NO_COMBOBOX
 
