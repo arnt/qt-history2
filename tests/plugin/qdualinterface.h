@@ -10,12 +10,14 @@ class QDualInterface : public QObject
 signals:
     void readProperty( const QCString&, QVariant& );
     void writeProperty( const QCString&, const QVariant& );
-    void makeConnection(  const char*, QObject* target,  const char* );
+    void makeConnection( const char*, QObject*, const char* );
+    void eventFilter( QObject* );
 
 public slots:
     virtual void requestProperty( const QCString&, QVariant& ) = 0;
     virtual void requestSetProperty( const QCString&, const QVariant& ) = 0;
-    virtual void requestSignal(  const char*, QObject* target,  const char* ) = 0;
+    virtual void requestSignal( const char*, QObject*, const char* ) = 0;
+    virtual void requestEvents( QObject* ) = 0;
 };
 
 class QClientInterface : public QDualInterface
@@ -32,6 +34,10 @@ public:
     void requestSignal( const char* signal, QObject* target, const char* slot )
     {
 	emit makeConnection( signal, target, slot );
+    }
+    void requestEvents( QObject* o )
+    {
+	emit eventFilter( o );
     }
 };
 

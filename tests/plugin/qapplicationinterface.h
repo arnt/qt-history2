@@ -30,6 +30,11 @@ public:
 	if ( theObject )
 	    connect( theObject, signal, target, slot );
     }
+    void requestEvents( QObject* o )
+    {
+	if ( theObject )
+	    theObject->installEventFilter( o );
+    }
 
 protected:
     QObject* object() const { return theObject; }

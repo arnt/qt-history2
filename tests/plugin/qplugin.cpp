@@ -381,6 +381,7 @@ bool QPlugIn::loadInterface()
 		    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
 		    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
 		    QObject::connect( ci, SIGNAL(makeConnection(const char*,QObject*,const char*)), ai, SLOT(requestSignal(const char*,QObject*,const char*)) );
+		    QObject::connect( ci, SIGNAL(eventFilter(QObject*)), ai, SLOT(requestEvents(QObject*)) );
 		    ifc->connectNotify( iface );
 		} else {
 #ifdef CHECK_RANGE
