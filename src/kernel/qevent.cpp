@@ -166,9 +166,11 @@
   \value Destroy  Reserved.
   \value Reparent  Reserved.
   \value Speech Reserved for speech input.
-  \value Tablet Wacom Tablet event.
+  \value TabletMove  A Wacom Tablet Move Event.
   \value User  User defined event.
   \value MaxUser  Last user event id.
+  \value TabletPress A Wacom Tablet Press Event
+  \value TabletRelease A Wacom Tablet Release Event
 
   User events should have values between User and MaxUser inclusive.
 */
@@ -1653,7 +1655,11 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   The QWidget::setEnabled() function can be used to enable or disable mouse
   and keyboard events for a widget.
 
-  The event handler QWidget::tabletEvent() receives tablet events.
+  The event handler QWidget::tabletEvent() receives all three types of tablet
+  events.  Qt will first send a tabletEvent and then, if it is not accepted,
+  it will send a mouse event.  This allows applications that don't utilize
+  tablets to use a tablet like a mouse while also enabling those who want to
+  use both tablets and mouses differently.
 
 */
 
